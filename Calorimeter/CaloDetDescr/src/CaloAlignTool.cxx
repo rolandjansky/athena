@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloAlignTool.h"
@@ -156,7 +156,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
     //         --- --- Iterate over EMB regions and cells --- --- 
     EMBDetectorManager::DetectorRegionConstIterator embregIt;
 
-    for (embregIt=embManager->beginDetectorRegion(); embregIt!=embManager->endDetectorRegion(); embregIt++) 
+    for (embregIt=embManager->beginDetectorRegion(); embregIt!=embManager->endDetectorRegion(); ++embregIt) 
     {
       const EMBDetectorRegion *embRegion = *embregIt;
       
@@ -286,7 +286,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
     //         --- --- Iterate over EMEC regions and cells --- --- 
     EMECDetectorManager::DetectorRegionConstIterator emecregIt;
 
-    for (emecregIt=emecManager->beginDetectorRegion(); emecregIt!=emecManager->endDetectorRegion(); emecregIt++) 
+    for (emecregIt=emecManager->beginDetectorRegion(); emecregIt!=emecManager->endDetectorRegion(); ++emecregIt) 
     {
       const EMECDetectorRegion *emecRegion = *emecregIt;
       
@@ -436,7 +436,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
     //         --- --- Iterate over HEC regions and cells --- --- 
     HECDetectorManager::DetectorRegionConstIterator hecregIt;
     
-    for (hecregIt=hecManager->beginDetectorRegion(); hecregIt!=hecManager->endDetectorRegion(); hecregIt++) 
+    for (hecregIt=hecManager->beginDetectorRegion(); hecregIt!=hecManager->endDetectorRegion(); ++hecregIt) 
     {
       const HECDetectorRegion *hecRegion = *hecregIt;
       
@@ -548,7 +548,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
     //         --- --- Iterate over FCAL modules and tiles --- --- 
     FCALDetectorManager::ConstIterator fcalmodIt;
     
-    for (fcalmodIt=fcalManager->beginFCAL(); fcalmodIt!=fcalManager->endFCAL(); fcalmodIt++) 
+    for (fcalmodIt=fcalManager->beginFCAL(); fcalmodIt!=fcalManager->endFCAL(); ++fcalmodIt) 
     {
       const FCALModule* fcalmodule = *fcalmodIt;
       
@@ -582,7 +582,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       //            *** *** *** Iterate over cells *** *** ***
       //
       FCALModule::ConstIterator fcaltileIt;
-      for (fcaltileIt=fcalmodule->beginTiles();fcaltileIt!=fcalmodule->endTiles();fcaltileIt++)
+      for (fcaltileIt=fcalmodule->beginTiles();fcaltileIt!=fcalmodule->endTiles();++fcaltileIt)
       {
 	Identifier chanId = fcal_id->channel_id(pos_neg,
 						(int)fcalmodule->getModuleIndex(),

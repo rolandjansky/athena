@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -125,9 +126,14 @@ StatusCode TrigT1RPC::execute() {
       int logic_sector  = sector%32;//
 
       for (int dbc=m_firstBC_to_MUCTPI; dbc<=m_lastBC_to_MUCTPI; dbc++){
-          
-          unsigned int data_word = logic->outputToMuCTPI(dbc);
-          
+
+          unsigned int data_word = 0;
+          try {
+              data_word = logic->outputToMuCTPI(dbc);
+          }
+          catch (const std::out_of_range& ex) {
+              ATH_MSG_WARNING(ex.what());
+          }
           ATH_MSG_DEBUG(                                               //
               "Input to MuCTPI: side=" << subsystem                    //
               << ", SL= " << logic_sector                                 //
@@ -177,7 +183,8 @@ StatusCode TrigT1RPC::execute() {
   if(m_bytestream_production)
   {
       RPCbytestream bytestream (patterns,
-			       (std::string) m_bytestream_file,
+                               (std::string) m_bytestream_file,
+                               msg(),
                                (unsigned long int) m_cma_ro_debug,
                                (unsigned long int) m_pad_ro_debug,
                                (unsigned long int) m_rx_ro_debug,
@@ -198,54 +205,39 @@ StatusCode TrigT1RPC::execute() {
       RPCbytestream::PAD_Readout::iterator it = PADmap.begin();
       while (it != PADmap.end())
       {
-          // load the PAD data into a ostrstream object
-#if (__GNUC__) && (__GNUC__ > 2) // put your gcc 3.2 specific code here
-          __osstream PADdata;
-#else                            // put your gcc 2.95 specific code here
-          char buffer[10000];
-          for (int i=0;i<10000;++i) buffer[i] = '\0';
-          __osstream PADdata(buffer,10000);
-#endif
-	  
-	  (*it).second.give_pad_readout()->bytestream(PADdata);
-	  
-	  //access to PadReadOut class and print the informations inside
-	  ATH_MSG_DEBUG ("Start dumping the PAD " << (*it).second.PAD()
-                         << " bytestream structure" << std::endl 
-                         << PADdata.str());
+        // load the PAD data into a ostrstream object
+        std::ostringstream PADdata;
+
+        (*it).second.give_pad_readout()->bytestream(PADdata);
+
+        //access to PadReadOut class and print the informations inside
+        ATH_MSG_DEBUG ("Start dumping the PAD " << (*it).second.PAD()
+                       << " bytestream structure" << std::endl
+                       << PADdata.str());
           
-          //access to MatrixReadOut classes given in input to that PAD
-          for (int i=0;i<8;++i)
-	  {
-	  
-              ATH_MSG_DEBUG( "Start dumping the Matrix " << i 
-                             << " into the PAD n. " << (*it).second.PAD());
-              
-              MatrixReadOut* matrix_read_out=(*it).second.matrices_readout(i);
-	  
+        //access to MatrixReadOut classes given in input to that PAD
+        for (int i=0;i<8;++i)
+        {
+          ATH_MSG_DEBUG( "Start dumping the Matrix " << i
+                         << " into the PAD n. " << (*it).second.PAD());
+
+          MatrixReadOut* matrix_read_out=(*it).second.matrices_readout(i);
+
 	      if(matrix_read_out)
 	      {   // load the Matrix data into a ostrstream object
-#if (__GNUC__) && (__GNUC__ > 2) // put your gcc 3.2 specific code here
-                  __osstream CMAdata;
-#else                            // put your gcc 2.95 specific code here
-                  char buffer[10000];
-                  for (int i=0;i<10000;++i) buffer[i] = '\0';
-                  __osstream CMAdata(buffer,10000);
-#endif
-
-	          CMAdata << *matrix_read_out;
+            std::ostringstream CMAdata;
+            CMAdata << *matrix_read_out;
 		  
-		  ATH_MSG_DEBUG (CMAdata.str());
+            ATH_MSG_DEBUG (CMAdata.str());
 	      }
 	      else
 	      {
-	          ATH_MSG_DEBUG( "Matrix Read Out not loaded");
+            ATH_MSG_DEBUG( "Matrix Read Out not loaded");
 	      }
-	  }
+        }
 
-          ++it;
+        ++it;
       }
-
   }
 
   // ******************* Start of BIS78 section *****************

@@ -89,6 +89,7 @@ private:
    Gaudi::Property<int>                       m_timeout{this, "Timeout", 3600000, &ByteStreamEmonInputSvc::updateHandler, "Timeout in seconds, -1 == infinity"};
    Gaudi::Property<bool>                      m_corrupted_events{this, "ProcessCorruptedEvents", false, &ByteStreamEmonInputSvc::updateHandler, "Process corrupted events not passing check_tree()"};
    Gaudi::Property<std::string>              m_state{this, "State", "None", "Read-only property showing the state"};
+   Gaudi::Property<bool>                      m_convertEfficiency{this, "ConvertEfficiency", true, "Convert TEfficiency to TProfile before publishing"};
 
    // internal
    bool                      m_connect{false};

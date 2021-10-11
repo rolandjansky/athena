@@ -39,8 +39,7 @@ StatusCode InDet::InDetBoundaryCheckTool::initialize() {
          */
         ATH_CHECK(m_geoModelSvc.retrieve());
 
-        if (m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
-            m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
+        if (m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4) {
             m_checkBadSCT.set(false);
             ATH_MSG_WARNING("Since ITk Strip is used, m_check_bad_sct is turned off.");
         }

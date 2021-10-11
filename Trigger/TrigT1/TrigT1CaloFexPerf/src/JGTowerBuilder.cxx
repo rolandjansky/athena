@@ -143,14 +143,15 @@ namespace LVL1
               tileEt += cell->e() * cell->sinTh();
             }
           else
-            for (const xAOD::TriggerTower *triggerTower : *triggerTowers)
-              if (
-                  triggerTower->sampling() == 1 &&
-                  std::abs(triggerTower->eta()) < 1.5 &&
+            for (const xAOD::TriggerTower *triggerTower : *triggerTowers) {
+              if (std::abs(triggerTower->eta()) < 1.5) {
+                if (triggerTower->sampling() == 1 &&
                   towerHelper.inBox(triggerTower->eta(), triggerTower->phi()))
                 tileEt += 500 * triggerTower->cpET();
+                }
+              }
+            }
         }
-      }
       float towerEt = LArEt + tileEt;
       if (towerEt < m_minTowerEt)
         towerEt = 0;

@@ -125,7 +125,11 @@ bool			Signal::s_crashed = false;
 int			Signal::s_inFatal = 0;
 
 /** Used to switch to a raw stack dump if we crash during a backtrace. */
-thread_local unsigned long           Signal::s_lastSP = 0;
+// This would in principle be better as a thread_local, but then
+// accessing it might allocate memory, which we don't to happen
+// during error handling.
+// Doing it like this should be good enough.
+std::atomic<unsigned long>           Signal::s_lastSP (0);
 
 /** The current application name.  */
 const char		*Signal::s_applicationName = 0;
@@ -1542,8 +1546,8 @@ Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra,
 	MYWRITE (fd, buf, sprintf(buf,"\nstack trace:\n"));
         if (s_lastSP) {
           MYWRITE (fd, buf, sprintf(buf,"\n(backtrace failed; raw dump follows)\n"));
-          MYWRITE (fd, buf, sprintf(buf,"%016lx:", s_lastSP));
-          dumpMemory (fd, buf, reinterpret_cast<void*>(s_lastSP), 1024);
+          MYWRITE (fd, buf, sprintf(buf,"%016lx:", s_lastSP.load()));
+          dumpMemory (fd, buf, reinterpret_cast<void*>(s_lastSP.load()), 1024);
           MYWRITE (fd, buf, sprintf(buf,"\n\n"));
         }
         else {

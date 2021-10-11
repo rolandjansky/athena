@@ -23,7 +23,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
+//Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 Trk::GenericGeometryBuilderCond::GenericGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p)
@@ -72,23 +73,16 @@ StatusCode Trk::GenericGeometryBuilderCond::initialize()
         ATH_MSG_FATAL("Failed to retrieve EnvelopeSvc " << m_enclosingEnvelopeSvc );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved " << m_enclosingEnvelopeSvc );
+        ATH_MSG_DEBUG( "Retrieved " << m_enclosingEnvelopeSvc );
 
     // Retrieve the tracking volume creator  --------------------------------------------------    
     if (m_trackingVolumeCreator.retrieve().isFailure()) {
         ATH_MSG_FATAL("Failed to retrieve tool " << m_trackingVolumeCreator );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeCreator );
+        ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeCreator );
 
-    ATH_MSG_INFO( " initialize() successful" );
-    return StatusCode::SUCCESS;
-}
-
-// finalize
-StatusCode Trk::GenericGeometryBuilderCond::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful." );
+    ATH_MSG_DEBUG( " initialize() successful" );
     return StatusCode::SUCCESS;
 }
 
@@ -121,7 +115,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilde
     if (addId==trk2DetDesc.end()) {
       ATH_MSG_WARNING("No geometry signature found, return 0.");
       //dummy infinite range
-      EventIDRange range;
+      EventIDRange range=IOVInfiniteRange::infiniteMixed();
       return std::make_pair(range,tGeometry);
     }
 
@@ -166,7 +160,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilde
     // --------------------------------------------------------------------------------------------------
 
     //generic detector has infinite alignment validity range or if exists of input volume
-    EventIDRange range;
+    EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
     // get the inner radius and half length if a volume is provided
     const Trk::CylinderVolumeBounds* cvb = nullptr;

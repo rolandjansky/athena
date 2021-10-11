@@ -48,15 +48,15 @@ class LArPhysWaveTool : public AthAlgTool
   LArPhysWave m_gPhys;
 
   //  bool m_verb;
-  int  m_method;
-  int m_region, m_layer ;
+  int  m_method = 0;
+  int m_region = 0, m_layer = 0 ;
   bool m_injPointCorr , m_normalizeCali ,
        m_timeOriginShift , m_subtractBaseline;
   std::vector<bool> m_injPointCorrLayer, m_injPointUseTauR ;
   
-  int    m_N_FFT ;
-  double m_Tdrift, m_Fstep, m_Tcal, m_Omega0, m_Taur, m_MphysMcali ;
-  unsigned m_Tstart, m_Tpeak, m_Tcross, m_Tmin, m_Ttail ;
+  int    m_N_FFT = 0 ;
+  double m_Tdrift = 0.0, m_Fstep = 0.0, m_Tcal = 0.0, m_Omega0 = 0.0, m_Taur = 0.0, m_MphysMcali = 0.0 ;
+  unsigned m_Tstart = 0U, m_Tpeak = 0U, m_Tcross = 0U, m_Tmin = 0U, m_Ttail = 0U ;
   void predict_phys();
   LArWave exp2Tri(const LArWave &) const ;
   LArWave physPred(LArCaliWave &);

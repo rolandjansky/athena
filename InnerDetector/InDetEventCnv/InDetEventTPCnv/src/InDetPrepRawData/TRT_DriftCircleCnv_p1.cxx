@@ -26,7 +26,7 @@ void TRT_DriftCircleCnv_p1::persToTrans( const InDet::TRT_DriftCircle_p1 *persOb
    *transObj = InDet::TRT_DriftCircle (Identifier(),
                                          localPos,
                                          std::vector<Identifier>(), // rdoList
-                                         std::unique_ptr<const Amg::MatrixX>(), // cmat
+                                         {}, // cmat
                                          nullptr, // detEl
                                          trtdata
                                          );

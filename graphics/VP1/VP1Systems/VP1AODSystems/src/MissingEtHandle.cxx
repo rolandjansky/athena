@@ -59,15 +59,15 @@ public:
   //Imp () : theclass(0), controller(0), scale(1.0), bTaggingTagger("MV1"),bTaggingCut(0.98),randomColours(false),bTaggingSwitch(0),bTaggingTexture(0), bTaggingMaterial(0) {} // NOTE: parameters from the old JetCollection
   //Imp () : theclass(0), scale(1.0) {} // TODO: implement the parameters above, from the old JetCollection
 
-  MissingEtHandle * theclass; // the Jet class
-  const MissingEtCollHandle* theCollHandle; // the CollHandle instance
-  const MissingEtCollectionSettingsButton* theCollSettingsButton;
+  MissingEtHandle * theclass = nullptr; // the Jet class
+  const MissingEtCollHandle* theCollHandle = nullptr; // the CollHandle instance
+  const MissingEtCollectionSettingsButton* theCollSettingsButton = nullptr;
 
-  const xAOD::MissingET * m_met; // the met object
+  const xAOD::MissingET * m_met = nullptr; // the met object
 
-  SoSeparator * sep; // everything hangs from this.
-  SoGroup * base ;//This gathers the whole dashed line visualizing MissingEt.
-  SoCone * cone ;//This gathers the whole dashed line visualizing MissingEt.
+  SoSeparator * sep = nullptr; // everything hangs from this.
+  SoGroup * base = nullptr ;//This gathers the whole dashed line visualizing MissingEt.
+  SoCone * cone = nullptr ;//This gathers the whole dashed line visualizing MissingEt.
   //	SoMaterial * m_randomMat; // random material for jets
 
 
@@ -80,7 +80,7 @@ public:
   double length = 1.0; // default
   double thickness = 1.0; // default
   bool shape = true; // default
-  double maxR;
+  double maxR = 0.0;
 
 
   //	SoLineSet * line;//This represents the line(s) representing the trackparticle. Can be interpolated.

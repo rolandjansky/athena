@@ -12,8 +12,8 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
-#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
+//#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
+//#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockData/LuminosityCondData.h"
@@ -21,6 +21,7 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -59,7 +60,7 @@ ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
   void setDetail(bool detail)  {m_detailedHists=detail;}
   void setTP(bool tp)  {m_tp=tp;}
   void setEmulation(bool doEmu)  {m_doEmulation=doEmu;}
-  void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool)  {m_emulationTool=tool;}
+  //void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool)  {m_emulationTool=tool;}
   void setPVertex(const float onvertex, const float ngoodvertex)  {m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
   void setAvgMu(const float onlmu, const float offmu)  {m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
   
@@ -113,7 +114,7 @@ private:
   // Properties  
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
-  ToolHandle<Trig::ITrigEgammaEmulationTool> m_emulationTool;
+  //ToolHandle<Trig::ITrigEgammaEmulationTool> m_emulationTool;
   ToolHandle<ITrigEgammaPlotTool> m_plot;
 
 
@@ -192,7 +193,7 @@ protected:
   ITrigEgammaPlotTool *plot(){return &*m_plot;}
   Trig::TrigDecisionTool *tdt(){return &*m_trigdec;};
   Trig::ITrigEgammaMatchingTool *match(){return &*m_matchTool;}
-  Trig::ITrigEgammaEmulationTool *emulation(){return &*m_emulationTool;}
+  //Trig::ITrigEgammaEmulationTool *emulation(){return &*m_emulationTool;}
 
   // Retrieve Properties
   bool getDetail() const {return m_detailedHists;}

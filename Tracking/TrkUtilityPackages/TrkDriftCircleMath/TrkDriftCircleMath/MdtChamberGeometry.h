@@ -5,126 +5,91 @@
 #ifndef DCMATH_MDTCHAMBERGEOMETRY_H
 #define DCMATH_MDTCHAMBERGEOMETRY_H
 
-#include "TrkDriftCircleMath/DriftCircle.h"
-#include "TrkDriftCircleMath/Line.h"
-#include "TrkDriftCircleMath/MdtStationId.h"
-#include "TrkDriftCircleMath/ChamberGeometry.h"
-#include "TrkDriftCircleMath/ResidualWithLine.h"
 #include <cassert>
 #include <vector>
 
+#include "TrkDriftCircleMath/ChamberGeometry.h"
+#include "TrkDriftCircleMath/DriftCircle.h"
+#include "TrkDriftCircleMath/Line.h"
+#include "TrkDriftCircleMath/MdtStationId.h"
+#include "TrkDriftCircleMath/ResidualWithLine.h"
+
 namespace TrkDriftCircleMath {
 
-  class MdtChamberGeometry : public ChamberGeometry {
-  public:
-    
-    MdtChamberGeometry();
+    class MdtChamberGeometry : public ChamberGeometry {
+    public:
+        MdtChamberGeometry();
 
-    MdtChamberGeometry( MdtStationId id, unsigned int nml, unsigned int nlay,
- 			unsigned int ntubesml0, unsigned int ntubesml1, 
-			const LocPos& tube0ml0, const LocPos& tube0ml1, 
-			double tubeDist, double tubeStage, double layDist, double stationTheta );  
-  
-    virtual ~MdtChamberGeometry()=default;
+        MdtChamberGeometry(MdtStationId id, unsigned int nml, unsigned int nlay, unsigned int ntubesml0, unsigned int ntubesml1,
+                           const LocVec2D& tube0ml0, const LocVec2D& tube0ml1, double tubeDist, double tubeStage, double layDist,
+                           double stationTheta);
 
-    void init();
-    void setGeometry(unsigned int nml, unsigned int nlay,
-		     unsigned int ntubesml0, unsigned int ntubesml1, 
-		     const LocPos& tube0ml0, const LocPos& tube0ml1, 
-		     double tubeDist, double tubeStage, double layDist, double stationTheta ); 
+        virtual ~MdtChamberGeometry() = default;
 
-    unsigned int nml() const { return m_nml; }
-    unsigned int nlay() const { return m_nlay; }
-    unsigned int ntubesml0() const { return m_ntubesml[0]; }
-    unsigned int ntubesml1() const { return m_ntubesml[1]; }
+        void init();
+        void setGeometry(unsigned int nml, unsigned int nlay, unsigned int ntubesml0, unsigned int ntubesml1, const LocVec2D& tube0ml0,
+                         const LocVec2D& tube0ml1, double tubeDist, double tubeStage, double layDist, double stationTheta);
 
-    const MdtStationId& stationId() const { return m_id; }
+        unsigned int nml() const { return m_nml; }
+        unsigned int nlay() const override { return m_nlay; }
+        unsigned int ntubesml0() const { return m_ntubesml[0]; }
+        unsigned int ntubesml1() const { return m_ntubesml[1]; }
 
-    const LocPos& firstTubeMl0() const { return m_firstTube[0]; }
-    const LocPos& firstTubeMl1() const { return m_firstTube[1]; }
+        const MdtStationId& stationId() const override { return m_id; }
 
-    double tubeDist() const { return m_tubeDist; }
-    double tubeStage() const { return m_tubeStage; }
-    double layerDist() const { return m_layDist; }
+        const LocVec2D& firstTubeMl0() const { return m_firstTube[0]; }
+        const LocVec2D& firstTubeMl1() const { return m_firstTube[1]; }
 
-    double stationTheta() const { return m_stationTheta; }
+        double tubeDist() const { return m_tubeDist; }
+        double tubeStage() const { return m_tubeStage; }
+        double layerDist() const { return m_layDist; }
 
-    double tubeRadius() const { return m_tubeRad; } 
+        double stationTheta() const override { return m_stationTheta; }
 
-    const std::vector<LocPos>& allTubes() const;
-    
-    const LocPos& tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const;
+        double tubeRadius() const override { return m_tubeRad; }
 
-    const DCVec& tubesPassedByLine( const Line& line, int ml ) const;
-    const DCVec& tubesPassedByLine( const Line& line ) const { return tubesPassedByLine( line, -1 ); }
+        const std::vector<LocVec2D>& allTubes() const override;
 
-    /** methods taking reference to output vector to reduce memory usage */
-    void tubesPassedByLine( const Line& line, int ml, DCVec& crossedTubes ) const;
-    void tubesPassedByLine( const Line& line, DCVec& crossedTubes ) const { return tubesPassedByLine( line, -1, crossedTubes ); }
+        LocVec2D tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const override;
 
-    /** set that this is the second multi layer instead of the first,
-	used in case the first ML is dead */
-    void isSecondMultiLayer( bool isSecond ) { m_isSecondMultiLayer = isSecond; }
+        DCVec tubesPassedByLine(const Line& line, int ml) const;
+        DCVec tubesPassedByLine(const Line& line) const override { return tubesPassedByLine(line, -1); }
 
-    bool validGeometry() const { return m_validGeometry; }
+        /** methods taking reference to output vector to reduce memory usage */
+        void tubesPassedByLine(const Line& line, int ml, DCVec& crossedTubes) const;
+        void tubesPassedByLine(const Line& line, DCVec& crossedTubes) const { return tubesPassedByLine(line, -1, crossedTubes); }
 
-    void print() const;
+        /** set that this is the second multi layer instead of the first,
+            used in case the first ML is dead */
+        void isSecondMultiLayer(bool isSecond) { m_isSecondMultiLayer = isSecond; }
 
-    bool   validId(  unsigned int ml, unsigned int lay,unsigned int tube) const;
-  private:
-    double xPosTube(unsigned int ml, unsigned int lay, unsigned int tube) const;
-    double yPosTube(unsigned int ml,unsigned int lay) const;
+        bool validGeometry() const override { return m_validGeometry; }
 
-    MdtStationId  m_id;
-    unsigned int  m_nml;
-    unsigned int  m_nlay;
-    std::vector<unsigned int>  m_ntubesml;
-    double        m_tubeDist;
-    double        m_tubeRad;
-    double        m_tubeStage;
-    double        m_layDist;
-    double        m_stationTheta;
+        void print() const override;
 
-    mutable std::vector<int>    m_wasInit;
-    mutable std::vector<LocPos> m_firstTube;
-    mutable std::vector<LocPos> m_allTubes;
-    mutable DCVec        m_crossedTubes;
-    mutable LocPos       m_cachedPos;
-    bool m_validGeometry;
-    bool m_isSecondMultiLayer;
+        bool validId(unsigned int ml, unsigned int lay, unsigned int tube) const;
 
-    mutable ResidualWithLine m_resLine;
+    private:
+        double xPosTube(unsigned int ml, unsigned int lay, unsigned int tube) const;
+        double yPosTube(unsigned int ml, unsigned int lay) const;
 
-  };
-  
-  inline const LocPos& MdtChamberGeometry::tubePosition(unsigned int ml,
-							unsigned int lay, 
-							unsigned int tube) const {
-    assert( validId(ml,lay,tube) );
-    m_cachedPos.setX(xPosTube(ml,lay,tube));
-    m_cachedPos.setY(yPosTube(ml,lay));
-    return m_cachedPos;
-  }
+        MdtStationId m_id{};
+        unsigned int m_nml{0};
+        unsigned int m_nlay{0};
+        std::vector<unsigned int> m_ntubesml{};
+        double m_tubeDist{0};
+        double m_tubeRad{0};
+        double m_tubeStage{0};
+        double m_layDist{0};
+        double m_stationTheta{0};
 
+        std::vector<bool> m_wasInit{};
+        std::vector<LocVec2D> m_firstTube{};
+        std::vector<LocVec2D> m_allTubes{};
+        bool m_validGeometry{false};
+        bool m_isSecondMultiLayer{false};
+    };
 
-  inline double MdtChamberGeometry::xPosTube(unsigned int ml, unsigned int lay, unsigned int tube) const
-  {
-    double xpos = tube*m_tubeDist + m_firstTube[ml].x();
-    
-    if( lay%2 == 1 ){
-      if( m_nlay == 4 && ml == 1 ) xpos -= m_tubeStage;
-      else xpos += m_tubeStage;
-    }
-
-    return xpos;
-  }
-
-  inline double MdtChamberGeometry::yPosTube(unsigned int ml, unsigned int lay) const
-  {
-    return lay*m_layDist + m_firstTube[ml].y();
-  }
-
-}
-
+}  // namespace TrkDriftCircleMath
 
 #endif

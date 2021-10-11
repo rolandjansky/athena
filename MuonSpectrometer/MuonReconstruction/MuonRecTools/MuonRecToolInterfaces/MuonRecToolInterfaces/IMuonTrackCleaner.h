@@ -25,7 +25,6 @@ namespace Muon {
             user should not delete the old track!
             The caller should ensure the track gets deleted. */
         virtual std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const EventContext& ctx) const = 0;
-        virtual std::unique_ptr<Trk::Track> clean(const Trk::Track& track) const = 0;
 
         /** @brief clean a track, returns a pointer to a new track if successfull.
             If the input track is does not require cleaning a pointer the the initial track is return in which case the
@@ -34,9 +33,6 @@ namespace Muon {
             The caller should ensure the track gets deleted. */
         virtual std::unique_ptr<Trk::Track> clean(const Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList,
                                                   const EventContext& ctx) const = 0;
-        virtual std::unique_ptr<Trk::Track> clean(const Trk::Track& track,
-                                                  const std::set<Identifier>& chamberRemovalExclusionList) const = 0;
-
         virtual ~IMuonTrackCleaner() = default;
     };
 

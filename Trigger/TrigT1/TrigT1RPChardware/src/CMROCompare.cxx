@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -55,22 +55,19 @@ void CMROCompare::compareBody() {
 bool FragmentOK=true;
 bool firstDiff=true;
 
-DISP<<" ora stampo la matrice hardware"<<endl
-    <<m_hardware<<endl;
-DISP_DEBUG;
-DISP<<" ora stampo la matrice simulata"<<endl
+cout<<" ora stampo la matrice hardware"<<endl
+    <<m_hardware<<endl
+    <<" ora stampo la matrice simulata"<<endl
     <<m_simulation<<endl;
-DISP_DEBUG;
 
 ubit16 numberOfBodyRecHard = m_hardware->numberOfBodyWords();
 ubit16 numberOfBodyRecSimu = m_simulation->numberOfBodyWords();
 if(numberOfBodyRecHard!=numberOfBodyRecSimu) {
  FragmentOK=false;
  m_diffOutput+=1000000;
- DISP<<" CMROCompare: different number of body words "<<endl
+ cout<<" CMROCompare: different number of body words "<<endl
      <<"   hardware: "<<numberOfBodyRecHard
      <<"   simulation: "<<numberOfBodyRecSimu<<endl;
- DISP_DEBUG;
 } else {
   m_hardware->topCMABody(); m_simulation->topCMABody();
  for(ubit16 i=0; i<numberOfBodyRecHard; i++) {
@@ -78,10 +75,9 @@ if(numberOfBodyRecHard!=numberOfBodyRecSimu) {
   ubit16 simuRec=m_simulation->readCMABodyCurrent();
   if(hardRec!=simuRec){
    FragmentOK=false;
-   DISP<<" CMROCompare: different body words "
+   cout<<" CMROCompare: different body words "
        <<"   hardware: "<<std::hex<<hardRec<<std::dec
        <<"   simulation: "<<std::hex<<simuRec<<std::dec<<std::endl;
-   DISP_DEBUG;
    if(firstDiff) {
     if(i<50000) 
      m_diffOutput+=100000+(i+1);
@@ -93,11 +89,9 @@ if(numberOfBodyRecHard!=numberOfBodyRecSimu) {
  }//end-of-for
 }//end-of-if(number...
 if(FragmentOK) {
- DISP<<" CMROCompare: Fragment OK "<<endl;
- DISP_DEBUG;
+ cout<<" CMROCompare: Fragment OK "<<endl;
 } else {
- DISP<<" CMROCompare: Fragment NOT OK "<<endl;
- DISP_DEBUG;
+ cout<<" CMROCompare: Fragment NOT OK "<<endl;
 }//end-of-if(FragmentOK)
 }//end-of-CMROCompare::compareBody()
 //----------------------------------------------------------------------------//

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscAverage_H
@@ -23,7 +23,7 @@ public:
     CscAverage();
 
     // Fitters
-    void cscaverage(double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise);
+    void cscaverage(const double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise);
 
 private:
     // Gaudi message service

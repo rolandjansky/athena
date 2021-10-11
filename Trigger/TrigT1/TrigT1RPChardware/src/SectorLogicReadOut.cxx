@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<fstream>
 #include<iostream>
 #include<iomanip>
 #include<cstring>
+#include<stdexcept>
 #include "TrigT1RPChardware/SectorLogicReadOut.h"
 #include "MuonCablingTools/BaseObject.h"
 
@@ -202,11 +203,8 @@ RODword SectorLogicReadOut::getCounter32(ubit16 index){
   if(index<s_numberOfDecodedCounters) {
     return m_counter32[index];
   } else {
-   DISP<<" getCounter32: index= "<<index<<" is larger than "<<s_numberOfDecodedCounters<<std::endl;
-   DISP_ERROR;
-   DISP<<" getCounter32: ... return 0 value"<<std::endl;
-   DISP_ERROR;
-   return 0;
+    throw std::out_of_range("SectorLogicReadout::getCounter32: index=" + std::to_string(index) +
+                            " is larger than " + std::to_string(s_numberOfDecodedCounters));
   }
 }
 //----------------------------------------------------------------------------//
@@ -220,10 +218,8 @@ float SectorLogicReadOut::padTriggerRate(ubit16 padAddress){
    return convertToTriggerRate
           * (float (m_counter32[padAddress*2+1])/float (m_counter32[padAddress*2+0]));
   } else {
-    DISP<<" padTrigger: input padAddress= "<<padAddress<<" is not possible; "
-        <<" return -1 value "<<std::endl;
-    DISP_ERROR;
-    return -1.0;
+    throw std::out_of_range("SectorLogicReadout::padTrigger: input padAddress=" +
+                            std::to_string(padAddress) + " is not possible");
   }
 }
 //----------------------------------------------------------------------------//
@@ -241,10 +237,7 @@ ubit16 SectorLogicReadOut::cmadd(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]   ) & 0x3;
   } else {
-    DISP<<" cmid: indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::cmid: indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::cmid(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
@@ -253,10 +246,7 @@ ubit16 SectorLogicReadOut::ptid(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]>>2) & 0x7;
   } else {
-    DISP<<" ptid: indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::ptid: indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::ptid(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
@@ -265,10 +255,7 @@ ubit16 SectorLogicReadOut::opl(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]>>5) & 0x1;
   } else {
-    DISP<<" opl : indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::opl: indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::opl(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
@@ -277,10 +264,7 @@ ubit16 SectorLogicReadOut::ovphi(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]>>6) & 0x1;
   } else {
-    DISP<<" ovphi: indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::ovphi: indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::ovphi(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
@@ -289,10 +273,7 @@ ubit16 SectorLogicReadOut::oveta(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]>>7) & 0x1;
   } else {
-    DISP<<" oveta: indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::oveta: indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::oveta(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
@@ -301,10 +282,7 @@ ubit16 SectorLogicReadOut::res(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]>>8) & 0x1;
   } else {
-    DISP<<" res : indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::res : indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::res(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
@@ -313,10 +291,7 @@ ubit16 SectorLogicReadOut::bcid(ubit16 indexLink, ubit16 indexGate) {
   if(indexLink<s_nLinks && indexGate<s_nGates) {
    return (m_hit[indexLink][indexGate]>>9) & 0x7;
   } else {
-    DISP<<" bcid: indexLink or indexGate is not possible "
-        <<" return 0 value "<<std::endl;
-    DISP_ERROR;
-    return 0;
+    throw std::out_of_range("SectorLogicReadout::bcid: indexLink or indexGate out of range");
   }
 }//end-of-SectorLogicReadOut::bcid(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//

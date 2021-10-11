@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOCOLLECTIONHELPER_H
@@ -52,7 +52,7 @@ struct CaloCollectionHelper
 	  typedef  typename COLL::base_value_type object_t;
 	  typename CONT::const_iterator fObj = theStorable->begin();
 	  typename CONT::const_iterator lObj = theStorable->end();
-	  for ( ; fObj != lObj; fObj++ )
+	  for ( ; fObj != lObj; ++fObj )
 	    { theAltStorable->push_back((object_t*)(*fObj)); }
 	  // problem
 	  if ( theAltStorable->size() != theStorable->size() )

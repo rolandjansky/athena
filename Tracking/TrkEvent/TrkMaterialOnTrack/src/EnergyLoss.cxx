@@ -9,19 +9,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "GaudiKernel/MsgStream.h"
 #include <string>
-
-Trk::EnergyLoss::EnergyLoss() :
-  m_deltaE(0.),
-  m_sigmaDeltaE(0.),
-  m_sigmaMinusDeltaE(0.),
-  m_sigmaPlusDeltaE(0.),
-  m_mean_ioni(0.),
-  m_sig_ioni(0.),
-  m_mean_rad(0.),
-  m_sig_rad(0.),
-  m_length(0.)
-{
-}
+#include <ostream>
 
 Trk::EnergyLoss::EnergyLoss(double deltaE, double sigmaDeltaE,
                             double sMinusDeltaE, double sPlusDeltaE)  :

@@ -21,6 +21,7 @@
 #include "FileCatalog/IFileCatalog.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 #include "DBLock/DBLock.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "IOVDbParser.h"
 #include "IOVDbFolder.h"
@@ -512,7 +513,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
   if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
-    const std::string tagstub=m_globalTag.substr(0,7);
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
          (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
@@ -606,7 +607,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
   if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
-    const std::string tagstub=m_globalTag.substr(0,7);
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
          (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
@@ -721,7 +722,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   ATH_MSG_DEBUG( "In online mode will recheck ... " );
   ATH_MSG_DEBUG( "First reload PoolCataloge ... " );
   
-  pool::IFileCatalog* catalog=
+  pool::IFileCatalog* catalog ATLAS_THREAD_SAFE =  // we are not within the event loop yet
     const_cast<pool::IFileCatalog*>(m_h_poolSvc->catalog());
   catalog->commit();
   catalog->start(); 
@@ -999,8 +1000,8 @@ StatusCode IOVDbSvc::setupFolders() {
 
     for (auto& folderdata : allFolderdata) {
       const std::string& ifname=folderdata.folderName();
-      if (ifname.substr(0,prefix.size())==prefix && 
-          (ifname.size()==prefix.size() || ifname.substr(prefix.size(),1)=="/")) {
+      if (ifname.compare(0,prefix.size(), prefix)==0 && 
+          (ifname.size()==prefix.size() || ifname[prefix.size()]=='/')) {
         //Match! 
         folderdata.applyOverrides(keys,msg());
       }// end if
@@ -1082,14 +1083,14 @@ StatusCode IOVDbSvc::setupFolders() {
   // check for folders to be written to metadata
   for (const auto & folderToWrite : m_par_foldersToWrite) {
     // match wildcard * at end of string only (i.e. /A/* matches /A/B, /A/C/D)
-    std::string match=folderToWrite;
-    std::string::size_type idx=folderToWrite.find("*");
+    std::string_view match=folderToWrite;
+    std::string::size_type idx=folderToWrite.find('*');
     if (idx!=std::string::npos) {
-      match=folderToWrite.substr(0,idx);
+      match=std::string_view(folderToWrite).substr(0,idx);
     }
     for (const auto & thisFolder : m_foldermap) {
       IOVDbFolder* fptr=thisFolder.second;
-      if ((fptr->folderName()).substr(0,match.size())==match) {
+      if ((fptr->folderName()).compare(0,match.size(), match)==0) {
         fptr->setWriteMeta();
         ATH_MSG_INFO( "Folder " << fptr->folderName() << " will be written to file metadata" );
       }

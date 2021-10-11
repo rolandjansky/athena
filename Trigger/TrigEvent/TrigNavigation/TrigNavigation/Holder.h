@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVIGATION_HOLDER_H
@@ -162,6 +162,11 @@ namespace HLTNavDetails {
 
     bool         m_readonly{false};
     ITypeProxy*  m_aux{0};
+
+    // Adapters so we can use ATH_MSG macros
+    MsgStream& msg() const { return *m_log; }
+    MsgStream& msg(const MSG::Level lvl) const { return msg() << lvl; }
+    bool msgLvl(const MSG::Level lvl) const { return msg().level() <= lvl; }
 
   private:
     /**

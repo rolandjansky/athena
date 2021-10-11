@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef UTILITIES_COLLECTION_LUMIMETAHANDLER
@@ -13,7 +13,7 @@ namespace pool {
    {
   public:
 
-     GenericMetaHandler(std::string name="Generic") : m_name(name) {}
+     GenericMetaHandler(const std::string& name="Generic") : m_name(name) {}
      virtual ~GenericMetaHandler() {}
 
      std::string name() {return m_name;}

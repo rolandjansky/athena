@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloConditions/CaloNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
@@ -57,36 +58,43 @@ namespace MuonCombined {
     class SegmentTag;
     class CaloTag;
 
-    typedef std::vector<InDetCandidateTags> InDetCandidateTagsMap;
 
     class MuonCreatorTool : public AthAlgTool, virtual public IMuonCreatorTool {
     public:
+
+        using InDetCandidateTagsMap = std::vector<InDetCandidateTags>;
+
+
         MuonCreatorTool(const std::string& type, const std::string& name, const IInterface* parent);
         ~MuonCreatorTool() = default;
 
         virtual StatusCode initialize() override final;
 
         /** IMuonCreatorTool interface: build muons from ID and MS candidates */
-        virtual void create(const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
+        virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
                             std::vector<const InDetCandidateToTagMap*> tagMaps, OutputData& outputData) const override final;
 
         /** IMuonCreatorTool interface: create a muon from a muon candidate */
-        virtual xAOD::Muon* create(const MuonCandidate& candidate, OutputData& outputData) const override final;
+        virtual xAOD::Muon* create(const EventContext& ctx,
+                                   const MuonCandidate& candidate, OutputData& outputData) const override final;
 
         /** IMuonCreatorTool interface: create a muon from a muon candidate */
-        virtual xAOD::Muon* create(InDetCandidateTags& candidate, OutputData& outputData) const override final;
+        virtual xAOD::Muon* create(const EventContext& ctx, InDetCandidateTags& candidate, OutputData& outputData) const override final;
 
     private:
-        void addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag* tag,
+        /// Decorated a bunch of dummy values to the muon to ensure data consistency in the xAOD
+        void decorateDummyValues(const EventContext& ctx, xAOD::Muon& muon, OutputData& outputData) const;
+
+        void addStatisticalCombination(const EventContext& ctx, xAOD::Muon& muon, const InDetCandidate* candidate, const StacoTag* tag,
                                        OutputData& outputData) const;
 
-        void addCombinedFit(xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData) const;
+        void addCombinedFit(const EventContext& ctx, xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData) const;
 
         void addMuGirl(xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData) const;
 
         void addMuGirlLowBeta(xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData) const;
 
-        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag) const;
+        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const;
         void addCaloTag(xAOD::Muon& muon, const CaloTag* tag) const;
 
         /** add muon candidate info to a muon, if an updateExtrapolatedTrack is
@@ -95,7 +103,8 @@ namespace MuonCombined {
            extrapolatedTrack of the MuonCandidate will be release during the
            operation.
          */
-        void addMuonCandidate(const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData,
+        void addMuonCandidate(const EventContext& ctx, 
+                              const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData,
                               const ElementLink<TrackCollection>& meLink = ElementLink<TrackCollection>()) const;
 
         /// function creates an element link to a track particle from the track and
@@ -110,7 +119,7 @@ namespace MuonCombined {
                                                                              Trk::SegmentCollection* muonSegmentCollection = 0) const;
 
     private:
-        void resolveOverlaps(const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates,
+        void resolveOverlaps(const EventContext& ctx, const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates,
                              const std::vector<const InDetCandidateToTagMap*>& tagMaps, InDetCandidateTagsMap& resolvedInDetCandidates,
                              std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const;
 
@@ -121,7 +130,7 @@ namespace MuonCombined {
         void selectStaus(const InDetCandidateCollection* inDetCandidates,
                          std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates) const;
 
-        Trk::Track* createDummyTrack(const std::vector<const Muon::MuonSegment*>& segments, const Trk::Track& indetTrack) const;
+        Trk::Track* createDummyTrack(const EventContext& ctx, const std::vector<const Muon::MuonSegment*>& segments, const Trk::Track& indetTrack) const;
         void setMuonHitCounts(xAOD::Muon& muon) const;
 
         bool dressMuon(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
@@ -132,15 +141,16 @@ namespace MuonCombined {
 
         void setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const;
 
-        void collectCells(xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, Trk::CaloExtension* inputCaloExt = nullptr) const;
+        void collectCells(const EventContext& ctx, 
+                          xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, Trk::CaloExtension* inputCaloExt = nullptr) const;
 
         void getRpcTiming(const xAOD::TrackParticle& tp, std::vector<unsigned int>& rpcHitIdentifier, std::vector<float>& rpcHitPositionX,
                           std::vector<float>& rpcHitPositionY, std::vector<float>& rpcHitPositionZ, std::vector<float>& rpcHitTime) const;
         void addRpcTiming(xAOD::Muon& muon) const;
         void addMSIDScatteringAngles(xAOD::Muon& muon) const;
-        void addMSIDScatteringAngles(const xAOD::TrackParticle& track) const;
+        void addMSIDScatteringAngles(const xAOD::TrackParticle* track) const;
         void addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
-        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const;
+        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont)const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
@@ -209,6 +219,8 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_requireIDTracks{this, "RequireIDTrack", false};
 
         Gaudi::Property<float> m_sigmaCaloNoiseCut{this, "SigmaCaloNoiseCut", 3.4};
+
+        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
     };
 
     inline void MuonCreatorTool::setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const { muon.setP4(tp.pt(), tp.eta(), tp.phi()); }

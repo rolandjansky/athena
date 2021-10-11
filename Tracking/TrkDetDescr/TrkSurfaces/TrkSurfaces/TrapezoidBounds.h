@@ -172,7 +172,7 @@ private:
   bool insideExclude(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const;
 
   /** isAbove() method for checking whether a point lies above or under a straight line */
-  bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) const;
+  static bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) ;
 
   std::vector<TDD_real_t> m_boundValues;
   TDD_real_t m_alpha;

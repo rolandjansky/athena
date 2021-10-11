@@ -84,4 +84,23 @@ SG::sgkey_t VarHandleKey::hashedKey() const
 }
 
 
+/**
+ * @brief Return the StoreGate ID for the referenced object.
+ */
+inline const std::string& VarHandleKey::key() const
+{
+  return m_sgKey;
+}
+
+
+/**
+ * @brief Test if the key is blank.
+ */
+inline bool VarHandleKey::empty() const
+{
+  return m_sgKey.empty();
+}
+
+
+
 } // namespace SG

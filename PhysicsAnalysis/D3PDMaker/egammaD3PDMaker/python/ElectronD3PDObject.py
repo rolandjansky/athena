@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file egammaD3PDMaker/python/ElectronD3PDObject.py
@@ -425,72 +425,3 @@ if rec.doTruth() and testSGKey ('DataVector<xAOD::Jet_v1>', D3PDMakerFlags.Truth
     JetTruthJetD3PDAssoc.defineBlock (2, 'TrueJetKinematics',
                                       EventCommonD3PDMaker.FourMomFillerTool,
                                       WriteE = True)
-
-
-############################################################################
-# Trigger matching
-#
-
-
-# if D3PDMakerFlags.DoTrigger():
-
-#     defineTriggerBits (ElectronD3PDObject, 0,
-#                        ['EF_2e5_medium',
-#                         'EF_e10_medium',
-#                         'EF_e20_loose',
-#                         'EF_em105_passHLT',
-#                         ])
-#     defineTriggerBits (ElectronD3PDObject, 1,
-#                        D3PDMakerFlags.egammaL1TrigPattern())
-#     defineTriggerBits (ElectronD3PDObject, 1,
-#                        D3PDMakerFlags.ElectronL2TrigPattern())
-#     defineTriggerBits (ElectronD3PDObject, 1,
-#                        D3PDMakerFlags.ElectronEFTrigPattern())
-
-
-#     ### Matching indices.
-
-#     # Unfortunately this can't be modified with a preExec after all, but
-#     # I'll still keep it like this for the moment for the lack of time...
-#     if not "UseEgammaMCMatching" in dir():
-#         UseEgammaMCMatching = rec.doTruth()
-
-#     from AthenaCommon.Logging import logging
-#     logger = logging.getLogger( "ElectronD3PDObject" )
-#     if UseEgammaMCMatching:
-#         logger.info( "Using MC10a/MC10b matching for trigger electrons" )
-#     else:
-#         logger.info( "Using default matching for trigger electrons" )
-
-#     ElectronEFIndexAssoc = IndexAssociation(
-#         ElectronD3PDObject,
-#         egammaD3PDMaker.egammaEFElectronTriggerObjectAssociationTool,
-#         target = "trig_EF_el_", prefix = "EF_", level = 1,
-#         Target = "trig_EF_el_",
-#         blockname = "EFIndex",
-#         ChainPattern = D3PDMakerFlags.ElectronEFTrigPattern(),
-#         UseMCMetric = UseEgammaMCMatching, # Use special metric for MC files
-#         MaxDR = 0.15,
-#         allowMissing = True )
-    
-#     ElectronL2IndexAssoc = IndexAssociation(
-#         ElectronD3PDObject,
-#         egammaD3PDMaker.ElectronL2TriggerObjectAssociationTool,
-#         target = "trig_L2_el_", # For IndexAssociation.
-#         Target = "trig_L2_el_", # Passed directly to assoc tool.
-#         prefix = "L2_", level = 1,
-#         blockname = "L2Index",
-#         ChainPattern = D3PDMakerFlags.ElectronL2TrigPattern(),
-#         UseMCMetric = UseEgammaMCMatching, # Use special metric for MC files
-#         MaxDR = 0.15,
-#         allowMissing = True )
-    
-#     ElectronL1IndexAssoc = IndexAssociation(
-#         ElectronD3PDObject,
-#         egammaD3PDMaker.egammaL1TriggerObjectAssociationTool,
-#         target = "trig_L1_emtau_", prefix = "L1_", level = 1,
-#         ChainPattern = D3PDMakerFlags.egammaL1TrigPattern(),
-#         MaxDR = 0.15,
-#         blockname = "L1Index")
-
-

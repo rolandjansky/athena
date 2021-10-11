@@ -58,7 +58,7 @@ def fastCaloMenuSequence(name, doRinger=True, is_probe_leg=False):
 def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs=caloFSRoI, outputName="CaloCellsFS"):
     """ Produce the full scan cell collection """
     if not RoIs:
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         RoIs = mapThresholdToL1RoICollection("FSNOSEED")
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()

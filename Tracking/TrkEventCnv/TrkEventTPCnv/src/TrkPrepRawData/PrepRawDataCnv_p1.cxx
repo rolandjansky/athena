@@ -22,9 +22,9 @@ void PrepRawDataCnv_p1::persToTrans( const Trk::PrepRawData_p1 *persObj, Trk::Pr
   fillTransFromPStore( &m_localPosCnv, persObj->m_localPos, &transObj->m_localPos,log );
   Trk::ErrorMatrix dummy;
   fillTransFromPStore( &m_errorMxCnv, persObj->m_localErrMat, &dummy, log );
-  Amg::MatrixX* tempMat = new Amg::MatrixX;
-  EigenHelpers::vectorToEigenMatrix(dummy.values, *tempMat, "PrepRawDataCnv_p1");
-  transObj->m_localCovariance.reset(tempMat);
+  Amg::MatrixX tempMat{};
+  EigenHelpers::vectorToEigenMatrix(dummy.values, tempMat, "PrepRawDataCnv_p1");
+  transObj->m_localCovariance=std::move(tempMat);
 
   transObj->m_rdoList.resize( persObj->m_rdoList.size() );
 
@@ -43,9 +43,9 @@ void PrepRawDataCnv_p1::transToPers( const Trk::PrepRawData *transObj, Trk::Prep
   persObj->m_clusId = transObj->m_clusId.get_identifier32().get_compact(); 
   persObj->m_localPos = toPersistent( &m_localPosCnv, &transObj->m_localPos, log );
 
-  if (transObj->m_localCovariance){
+  if (transObj->hasLocalCovariance()){
     Trk::ErrorMatrix pMat;
-    EigenHelpers::eigenMatrixToVector(pMat.values, *transObj->m_localCovariance, "PrepRawDataCnv_p1");
+    EigenHelpers::eigenMatrixToVector(pMat.values, transObj->m_localCovariance, "PrepRawDataCnv_p1");
     persObj->m_localErrMat = toPersistent( &m_errorMxCnv, &pMat, log );
   }
 

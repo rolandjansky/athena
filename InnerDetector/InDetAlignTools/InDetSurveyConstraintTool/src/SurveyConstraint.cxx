@@ -267,7 +267,7 @@ StatusCode SurveyConstraint::finalize() {
   msg(MSG::INFO) << "finalize()" << endmsg;
   
   std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> >::iterator it;
-  for (it = m_ModuleMap.begin(); it != m_ModuleMap.end(); it++) {
+  for (it = m_ModuleMap.begin(); it != m_ModuleMap.end(); ++it) {
     delete it->second;
   }
   m_ModuleMap.clear();

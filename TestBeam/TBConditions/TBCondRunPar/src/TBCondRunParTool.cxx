@@ -48,7 +48,8 @@ StatusCode TBCondRunParTool::finalize() {
 
 bool TBCondRunParTool::checkcache() {
   // find the current run and event - check if data structure may have changed
-  int run=0,event=0;
+  int run=0;
+  int event=0;
   bool update=false;
   if (StatusCode::SUCCESS==evtStore()->retrieve(m_eventinfo)) {
     run=m_eventinfo->event_ID()->run_number();

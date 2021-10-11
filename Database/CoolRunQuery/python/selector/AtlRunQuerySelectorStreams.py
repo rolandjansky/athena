@@ -64,7 +64,7 @@ class StreamSelector(Selector):
         useTier0    = False
         if len(compiledShowPatterns)>0:
             ShowStreams = True
-            useTier0 = True
+            useTier0 = False # ATLAS_T0 responsible refusing to allow access to their DB
         
 
         print (self, end='')

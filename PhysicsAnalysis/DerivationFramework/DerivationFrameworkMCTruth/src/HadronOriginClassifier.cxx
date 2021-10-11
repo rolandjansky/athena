@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "DerivationFrameworkMCTruth/HadronOriginClassifier.h"
 
@@ -134,8 +134,8 @@ namespace DerivationFramework{
 
     while (matched_partons.size()<m_partonsOrigin.size() && matched_hadrons.size()<m_mainHadronMap.size()){
       float dR=999.;
-      const xAOD::TruthParticle* hadron=0;
-      const xAOD::TruthParticle* parton=0;
+      const xAOD::TruthParticle* hadron=nullptr;
+      const xAOD::TruthParticle* parton=nullptr;
       for(std::map<const xAOD::TruthParticle*, HF_id>::iterator itr = m_partonsOrigin.begin(); itr!=m_partonsOrigin.end(); itr++){
 
         if(std::find(matched_partons.begin(), matched_partons.end(), (*itr).first) != matched_partons.end()) continue;
@@ -198,7 +198,7 @@ namespace DerivationFramework{
   //---------------------------------------------------------------------------
   void HadronOriginClassifier::buildPartonsHadronsMaps(){
 
-    const xAOD::TruthEventContainer* xTruthEventContainer = 0;
+    const xAOD::TruthEventContainer* xTruthEventContainer = nullptr;
     if (evtStore()->retrieve(xTruthEventContainer,m_mcName).isFailure()) {
       ATH_MSG_WARNING("could not retrieve TruthEventContainer " <<m_mcName);
     }
@@ -318,7 +318,7 @@ namespace DerivationFramework{
   }
 
 
-  int HadronOriginClassifier::hadronType(int pdgid) const{
+  int HadronOriginClassifier::hadronType(int pdgid) {
 
     int rest1(abs(pdgid%1000));
     int rest2(abs(pdgid%10000));
@@ -334,24 +334,20 @@ namespace DerivationFramework{
   }
 
 
-  bool HadronOriginClassifier::isBHadron(const xAOD::TruthParticle* part) const{
+  bool HadronOriginClassifier::isBHadron(const xAOD::TruthParticle* part) {
 
     if(part->barcode() >= 200000) return false;
     int type = hadronType(part->pdgId());
-    if(type == 5)  return true;
-
-    return false;
+    return type == 5;
 
   }
 
 
-  bool HadronOriginClassifier::isCHadron(const xAOD::TruthParticle* part) const{
+  bool HadronOriginClassifier::isCHadron(const xAOD::TruthParticle* part) {
 
     if(part->barcode() >= 200000) return false;
     int type = hadronType(part->pdgId());
-    if(type == 4)  return true;
-
-    return false;
+    return type == 4;
 
   }
 
@@ -449,7 +445,7 @@ namespace DerivationFramework{
   }
 
   //--------------------------------------------------------------------------
-  bool HadronOriginClassifier::isDirectlyFromTop(const xAOD::TruthParticle* part, bool looping) const{
+  bool HadronOriginClassifier::isDirectlyFromTop(const xAOD::TruthParticle* part, bool looping) {
     if(!part || !part->nParents()) return false;
 
     for(unsigned int i=0; i<part->nParents(); ++i){
@@ -487,7 +483,7 @@ namespace DerivationFramework{
 
 
 
-  bool HadronOriginClassifier::isDirectlyFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const{
+  bool HadronOriginClassifier::isDirectlyFromGluonQuark(const xAOD::TruthParticle* part, bool looping) {
 
 
 
@@ -645,7 +641,7 @@ namespace DerivationFramework{
 
 
 
-  bool HadronOriginClassifier::isDirectlyMPIPythia6(const xAOD::TruthParticle * part, bool looping) const{
+  bool HadronOriginClassifier::isDirectlyMPIPythia6(const xAOD::TruthParticle * part, bool looping) {
 
     if(!part->nParents()) return false;
 
@@ -667,22 +663,16 @@ namespace DerivationFramework{
 
     const xAOD::TruthParticle* initpart = findInitial(part, looping);
 
-    if( initpart->status()>30 && initpart->status()<40) return true;
-
-
-    return false;
+    return initpart->status()>30 && initpart->status()<40;
 
   }
 
-  bool HadronOriginClassifier::isDirectlyMPISherpa(const xAOD::TruthParticle * part) const{
+  bool HadronOriginClassifier::isDirectlyMPISherpa(const xAOD::TruthParticle * part) {
 
     if(!part->hasProdVtx()) return false;
 
     const xAOD::TruthVertex* vertex = part->prodVtx();
-    if(vertex->id()==2) return true;
-
-
-    return false;
+    return vertex->id()==2;
 
   }
 

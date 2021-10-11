@@ -18,20 +18,20 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
       SubDetector.TDAQ_CALO_DIGITAL_PROC,
       SubDetector.TDAQ_CALO_FEAT_EXTRACT_ROI,
    ]
-   m.ExtraEnabledSubDets = []
+   m.ExtraSubDets = []
    for subdetId in subdets:
-      m.ExtraEnabledSubDets.append( int(subdetId) )
+      m.ExtraSubDets.append( int(subdetId) )
 
    def addROBs(dest,subdet,modules):
       for moduleId in modules:
          dest.append(SourceIdentifier(subdet,moduleId).code())
 
-   m.ExtraEnabledROBs = []
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, [0xa8, 0xa9, 0xaa, 0xab])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_JET_PROC_ROI,     [0xac, 0xad])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_MUON_CTP_INTERFACE,    [0x01])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CTP,                   [0x01])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
+   m.ExtraROBs = []
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, [0xa8, 0xa9, 0xaa, 0xab])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CALO_JET_PROC_ROI,     [0xac, 0xad])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_MUON_CTP_INTERFACE,    [0x01])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CTP,                   [0x01])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
 
    # Configure HLT result monitoring histograms
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
@@ -40,7 +40,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
 
    return m
 
-def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
+def TriggerEDMSerialiserToolCfg(name="Serialiser"):
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior += 1
 
@@ -69,6 +69,15 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
+
+   # Allow appending to the collections list
+   def merge_collection_list(a, b):
+      for item in b:
+         if item not in a:
+               a.append(item)
+      return a
+   serialiser._descriptors['CollectionsToSerialize'].semantics.merge = merge_collection_list
+
 
    from TrigEDMConfig.TriggerEDMRun3 import tpMap
    tpTool = CompFactory.TrigSerTPTool()

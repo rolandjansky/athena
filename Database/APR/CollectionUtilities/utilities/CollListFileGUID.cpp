@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,10 +33,13 @@
 #include "CollectionUtilities/SrcInfo.h"
 #include "CollectionUtilities/QueryInfo.h"
 #include "CollectionUtilities/CatalogInfo.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <iostream>
 #include <iomanip>
 #include <memory>
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 using namespace std;
 using namespace pool;
@@ -78,9 +81,12 @@ void printCountedGuids( const ICollectionGUIDQuery::CountedGroupedGUIDs& guids )
       unsigned n =  row->first;
       for( unsigned i = 0; i<tokenN; i++ ) {
          const string& guid = row->second[i];
-         if( count.find(guid) == count.end() )
-            count[guid] = make_pair(guids.tokenNames[i],0);
-         count[guid].second += n;
+         std::pair<std::string,unsigned>& c = count[guid];
+         if (c.first.empty()) {
+           c.first = guids.tokenNames[i];
+           c.second = 0;
+         }
+         c.second += n;
       }
    }
    for( map<string, pair<string,unsigned> >::const_iterator

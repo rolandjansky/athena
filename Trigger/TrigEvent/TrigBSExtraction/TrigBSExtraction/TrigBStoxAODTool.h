@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBSEXTRACTION_TRIGBSTOXAODTOOL_H
@@ -21,9 +21,6 @@
 
 #include "xAODJetCnv/IJetCnvTool.h"
 
-// not configurable algtools
-// #include "xAODTrigRingerCnv/ITrigRingerRingsCnvTool.h"
-// #include "xAODTrigRingerCnv/ITrigRNNOutputCnvTool.h"
 
 #include "xAODTrigCaloCnv/ITrigCaloClusterCnvTool.h"
 #include "xAODTrigCaloCnv/ITrigEMClusterCnvTool.h"
@@ -32,10 +29,6 @@
 
 #include "xAODTrigBphysCnv/ITrigEFBphysContainerCnvTool.h"
 #include "xAODTrigBphysCnv/ITrigL2BphysContainerCnvTool.h"
-
-//not in devval yet
-//#include "xAODTrigEgammaCnv/ITrigElectronCnvTool.h"
-//#include "xAODTrigEgammaCnv/ITrigPhotonCnvTool.h"
 
 #include "xAODTrigMissingETCnv/ITrigMissingETCnvTool.h"
 
@@ -88,9 +81,6 @@ public:
 
   StatusCode findHelper( MM_CLID_IHELPER& helpers, CLID clid, std::string& label, MM_CLID_IHELPER::const_iterator& it );
 
-  std::string m_l2ResultKey;  //!< key of HLTResult for L2
-  std::string m_efResultKey;  //!< key of HLTResult for EF
-  std::string m_hltResultKey;  //!< key of HLTResult for HLT
   std::vector<std::string> m_containersToConvert;
   std::vector<std::string> m_newContainers;
 
@@ -107,10 +97,6 @@ public:
   // xAODJetCnv
   ToolHandle<xAODMaker::IJetCnvTool> m_jetCnvTool;
 
-  // xAODTrigRingerCnv (not configurable algtool)
-  // ToolHandle<xAODMaker::ITrigRingerRingsCnvTool> m_ringerRingsTool;
-  // ToolHandle<xAODMaker::ITrigRNNOutputCnvTool> m_trigRNNTool;
-
   // xAODTrigCaloCnv
   ToolHandle<xAODMaker::ITrigCaloClusterCnvTool> m_trigCaloClusterTool;
   ToolHandle<xAODMaker::ITrigEMClusterCnvTool> m_emClusterTool;
@@ -121,10 +107,6 @@ public:
   // xAODTrigBphysCnv
   ToolHandle<xAODMaker::ITrigEFBphysContainerCnvTool> m_efBphysTool;
   ToolHandle<xAODMaker::ITrigL2BphysContainerCnvTool> m_l2BphysTool;
-
-  // xAODTrigEgammaCnv (not in devval yet)
-  // ToolHandle<xAODMaker::ITrigElectronCnvTool> m_trigElectronTool;
-  // ToolHandle<xAODMaker::ITrigPhotonCnvTool> m_trigPhotonTool;
 
   // xAODTrigMissingETCnv
   ToolHandle<xAODMaker::ITrigMissingETCnvTool> m_trigMetTool;

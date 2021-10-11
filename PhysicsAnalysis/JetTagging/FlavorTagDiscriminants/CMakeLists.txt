@@ -43,8 +43,12 @@ atlas_add_library( FlavorTagDiscriminants
 
 if (NOT XAOD_STANDALONE)
   atlas_add_component( FlavorTagDiscriminantsLib
-    src/BTagJetDecoratorAlg.cxx
+    src/BTagDecoratorAlg.cxx
     src/BTagToJetLinkerAlg.cxx
+    src/JetToBTagLinkerAlg.cxx
+    src/BTagTrackLinkCopyAlg.cxx
+    src/BTaggingBuilderAlg.cxx
+    src/PoorMansIpAugmenterAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )

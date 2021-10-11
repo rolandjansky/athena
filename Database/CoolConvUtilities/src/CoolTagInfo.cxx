@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoolTagInfo.cxx - implementation of AtlCoolCopy helper class
@@ -10,7 +10,7 @@
 #include "CoolKernel/IFolderSet.h"
 #include <iostream>
 
-CoolTagInfo::CoolTagInfo(cool::IDatabasePtr db,const std::string& folder,
+CoolTagInfo::CoolTagInfo(const cool::IDatabasePtr& db,const std::string& folder,
 			 const std::string& destfolder,
 		     const std::string& sourcetag,const std::string& desttag,
 			 const std::string& taglabel) {
@@ -31,18 +31,18 @@ CoolTagInfo::CoolTagInfo(cool::IDatabasePtr db,const std::string& folder,
       " tag " << sourcetag << std::endl;
   }
   // override description with input label if set
-  if (taglabel!="") m_desc=taglabel;
+  if (!taglabel.empty()) m_desc=taglabel;
 }
 
-bool CoolTagInfo::write(cool::IDatabasePtr db,bool copylock) const {
+bool CoolTagInfo::write(const cool::IDatabasePtr& db,bool copylock) const {
   try {
     if (db->existsFolder(m_folder)) {
       cool::IFolderPtr fptr=db->getFolder(m_folder);
-      if (m_desc!="") fptr->setTagDescription(m_tag,m_desc);
+      if (!m_desc.empty()) fptr->setTagDescription(m_tag,m_desc);
       if (copylock) fptr->setTagLockStatus(m_tag,m_status);
     } else if (db->existsFolderSet(m_folder)) {
       cool::IFolderSetPtr fptr=db->getFolderSet(m_folder);
-      if (m_desc!="") fptr->setTagDescription(m_tag,m_desc);
+      if (!m_desc.empty()) fptr->setTagDescription(m_tag,m_desc);
       if (copylock) fptr->setTagLockStatus(m_tag,m_status);
     } else {
       std::cout << "Cannot access tag " << m_tag << " in folder " << m_folder 

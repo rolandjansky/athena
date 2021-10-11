@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -222,22 +222,21 @@ void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
 {
   ATH_MSG_DEBUG("DoubleEventSelectorAthenaPool::handle");
 
-  if (not Atlas::hasExtendedEventContext(inc.context()) ) {
+   if (not Atlas::hasExtendedEventContext(inc.context()) ) {
     ATH_MSG_WARNING("No extended event context available.");
     return;
   }
 
-  const SGImplSvc *sg = static_cast<SGImplSvc *>(Atlas::getExtendedEventContext(inc.context()).proxy());
-
-  //  guid
-  SG::SourceID fid1;
-  SG::DataProxy* dp1 = sg->proxy(ClassID_traits<DataHeader>::ID(), "EventSelector", true);
-  if (dp1) {
-    const DataHeader* dh1 = SG::DataProxy_cast<DataHeader> (dp1);
-    if (dh1) {
-      fid1 =  dh1->begin()->getToken()->dbID().toString();
-    }
-  }
+   SG::SourceID fid1;
+   if (inc.type() == IncidentType::BeginProcessing) {
+     if ( Atlas::hasExtendedEventContext(inc.context()) ) {
+       fid1 = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+     }
+     *m_sourceID1.get(inc.context()) = fid1;
+   }
+   else {
+     fid1 = *m_sourceID1.get(inc.context());
+   }
 
   if( fid1.empty() ) {
     ATH_MSG_WARNING("could not read event source ID from incident event context with key EventSelector");
@@ -251,6 +250,7 @@ void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
   } else if( inc.type() == IncidentType::EndProcessing ) {
     m_activeEventsPerSource[fid1]--;
     disconnectIfFinished( fid1 );
+    *m_sourceID1.get(inc.context()) = "";
   }
   if( msgLvl(MSG::DEBUG) ) {
     for( auto& source: m_activeEventsPerSource )
@@ -264,12 +264,14 @@ void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
 
   // Secondary guid
   SG::SourceID fid2;
-  SG::DataProxy* dp2 = sg->proxy(ClassID_traits<DataHeader>::ID(), "SecondaryEventSelector", true);
-  if (dp2) {
-    const DataHeader* dh2 = SG::DataProxy_cast<DataHeader> (dp2);
-    if (dh2) {
-      fid2 =  dh2->begin()->getToken()->dbID().toString();
+  if (inc.type() == IncidentType::BeginProcessing) {
+    if ( Atlas::hasExtendedEventContext(inc.context()) ) {
+      fid2 = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID("SecondaryEventSelector");
     }
+    *m_sourceID2.get(inc.context()) = fid2;
+  }
+  else {
+    fid2 = *m_sourceID2.get(inc.context());
   }
 
   if( fid2.empty() ) {
@@ -284,6 +286,7 @@ void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
   } else if( inc.type() == IncidentType::EndProcessing ) {
     m_activeEventsPerSource[fid2]--;
     m_secondarySelector->disconnectIfFinished( fid2 );
+    *m_sourceID2.get(inc.context()) = "";
   }
   if( msgLvl(MSG::DEBUG) ) {
     for( auto& source: m_activeEventsPerSource )

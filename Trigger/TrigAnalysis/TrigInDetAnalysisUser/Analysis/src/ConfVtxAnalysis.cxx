@@ -11,6 +11,7 @@
 #include "ConfVtxAnalysis.h"
 
 #include "TrigInDetAnalysisUtils/VertexMatcher.h"
+#include "TrigInDetAnalysisUtils/VertexNewMatcher.h"
 #include "TrigInDetAnalysis/TIDAEvent.h"
 
 
@@ -164,119 +165,152 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
     std::cout << "\ttest: " << vtx1 << std::endl;
 #endif
 
-
-    VertexMatcher m( "vtx_matcher", 3 );
-
-    m.match( vtx0, vtx1 );
-
-    hnvtx->Fill( vtx0.size() );
-    hnvtx_rec->Fill( vtx1.size() );
-    
-    rnvtxrec_nvtx->Fill( vtx0.size(), vtx1.size() );
-
-    // std::cout << "gevent " << gevent << std::endl;
-
-    /// pass in a parameter now, rather than using a global
-    //    double mu = gevent->mu();
-    //    double lb = gevent->lumi_block();
-    double mu = tevt->mu();
-    double lb = tevt->lumi_block();
-
-    for ( unsigned i=0 ; i<vtx0.size() ; i++ ) { 
-
-      /// reject vertices with no tracks in the Roi ...
-      if ( vtx0[i]->Ntracks() == 0 ) continue;
-
-
-      hzed->Fill( vtx0[i]->z() );
-      hntrax->Fill( vtx0[i]->Ntracks() );
-
-
-      hlb->Fill( lb );
-      hmu->Fill( mu );
-      
-      const TIDA::Vertex* mv = m.matched( vtx0[i] ); 
-      
-      //      std::cout << "\tvtx match: " << i << " " << mv << std::endl;
-
-      if ( mv ) { 
-	//	std::cout << "\ttest z " << mv->z() << "  : delta z " << (mv->z()-vtx0[i]->z()) << std::endl;
-      
-	/// ah ha ! can fill some silly old histograms here 
-	/// ...
-
-	hzed_rec->Fill( mv->z() );
-	hntrax_rec->Fill( mv->Ntracks() );
-
-	hzed_res->Fill( mv->z() - vtx0[i]->z() );
-
-       
-	rdz_vs_zed->Fill(   vtx0[i]->z(),       mv->z() - vtx0[i]->z() );
-	rdz_vs_ntrax->Fill( vtx0[i]->Ntracks(), mv->z() - vtx0[i]->z() );
-	rdz_vs_nvtx->Fill( vtx0.size(),  mv->z() - vtx0[i]->z() ); /// this isn't really legitimate
-	rdz_vs_mu->Fill( mu,  mv->z() - vtx0[i]->z() ); /// this isn't really legitimate
-
-	eff_zed->Fill( vtx0[i]->z() );
-	eff_ntrax->Fill( vtx0[i]->Ntracks() );
-	eff_nvtx->Fill( vtx0.size() );
-
-	eff_mu->Fill( mu );
-	eff_lb->Fill( lb );
-
-	//	std::cout << "found vtx ref vertex size " << vtx0.size() << "\tonline " << vtx1.size() << std::endl;
-	//	std::cout << "\tref:  " << *vtx0[i] << std::endl;
-	//	for ( unsigned iv=0 ; iv<vtx1.size() ; iv++ ) if ( vtx1[iv] ) std::cout << "\t" << iv << " :  " << *vtx1[iv] << std::endl;
-	
-	/// what about beam tilts etc? where are these defined with respect to ?
-	rdz_vs_lb->Fill( lb, mv->z() - vtx0[i]->z() ); 
-	rdx_vs_lb->Fill( lb, mv->x() - vtx0[i]->x() ); 
-	rdy_vs_lb->Fill( lb, mv->y() - vtx0[i]->y() ); 
-
-      }
-      else {
-	//	std::cout << "\t" << "------" << std::endl;
- 
-	//	std::cout << "missing vtx ref vertex size " << vtx0.size() << "\tonline " << vtx1.size() << std::endl;
-	//	std::cout << "\tref:  " << *vtx0[i] << std::endl;
-	//	for ( unsigned iv=0 ; iv<vtx1.size() ; iv++ ) if ( vtx1[iv] ) std::cout << "\t" << iv << " :  " << *vtx1[iv] << std::endl;
-
-#if 0
-	static int vtxcount=0;
-
-	if ( vtxcount<100 ) { 
-	  std::cout << "ConfVtxAnalysis::execute() " << name() << "\tnomatch\n"
-		    << "\tvtx0.size() " << vtx0.size()
-		    << "\tvtx1.size() " << vtx1.size()
-		    << std::endl;
-	  
-	  std::cout << "\tref:  " << vtx0 << std::endl;
-	  std::cout << "\ttest: " << vtx1 << std::endl;
-	  
-	  vtxcount++;
-
-	  //	  std::cout << *gevent << std::endl;
-	}
-
-	
-#endif
-
-
-	eff_zed->FillDenom( vtx0[i]->z() );
-	eff_ntrax->FillDenom( vtx0[i]->Ntracks() );
-	eff_nvtx->FillDenom( vtx0.size() );
-
-	eff_mu->FillDenom( mu );
-	eff_lb->FillDenom( lb );
-	
-      }
-      
-    }
+  VertexMatcher m( "vtx_matcher", 3 );
+  execute_internal<TIDA::Vertex, VertexMatcher>(vtx0, vtx1, m, tevt);
 
 }
 
 
+void ConfVtxAnalysis::execute( const std::vector<TIDA::VertexNew*>& vtx0,
+			       const std::vector<TIDA::VertexNew*>& vtx1,
+			       const TIDA::Event* tevt ) { 
 
+  if ( !m_initialised ) return;
+
+#if 0
+    std::cout << "ConfVtxAnalysis::execute() " << name()
+	      << "\tvtx0.size() " << vtx0.size()
+	      << "\tvtx1.size() " << vtx1.size()
+	      << std::endl;
+
+    std::cout << "\tref:  " << vtx0 << std::endl;
+    std::cout << "\ttest: " << vtx1 << std::endl;
+#endif
+
+  // use new matcher if tracks included
+  if ( vtx0[0]->tracks().size() > 0 ) {
+    VertexNewMatcher m( "vtx_matcher", 0.5 );
+    execute_internal<TIDA::VertexNew, VertexNewMatcher>(vtx0, vtx1, m, tevt);
+  } 
+  else {
+    VertexMatcher m("vtx_matcher", 3 );
+    // m.match() requires std::vector<TIDA::Vertex*>
+    std::vector<TIDA::Vertex*> vtx0_(vtx0.begin(), vtx0.end());
+    std::vector<TIDA::Vertex*> vtx1_(vtx1.begin(), vtx1.end());
+    execute_internal<TIDA::Vertex, VertexMatcher>(vtx0_, vtx1_, m, tevt);
+  }
+}
+
+
+template<typename Vertex, typename Matcher>
+void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
+			       const std::vector<Vertex*>& vtx1,
+             Matcher& m, 
+			       const TIDA::Event* tevt ) {
   
+  m.match( vtx0, vtx1 );
+
+  hnvtx->Fill( vtx0.size() );
+  hnvtx_rec->Fill( vtx1.size() );
+  
+  rnvtxrec_nvtx->Fill( vtx0.size(), vtx1.size() );
+
+  // keep alternate functionality commented
+  // std::cout << "gevent " << gevent << std::endl;
+
+  /// pass in a parameter now, rather than using a global
+  //    double mu = gevent->mu();
+  //    double lb = gevent->lumi_block();
+  double mu = tevt->mu();
+  double lb = tevt->lumi_block();
+
+  for ( unsigned i=0 ; i<vtx0.size() ; i++ ) { 
+
+    /// reject vertices with no tracks in the Roi ...
+    if ( vtx0[i]->Ntracks() == 0 ) continue;
+
+
+    hzed->Fill( vtx0[i]->z() );
+    hntrax->Fill( vtx0[i]->Ntracks() );
+
+
+    hlb->Fill( lb );
+    hmu->Fill( mu );
+    
+    const Vertex* mv = m.matched( vtx0[i] ); 
+    
+    //      std::cout << "\tvtx match: " << i << " " << mv << std::endl;
+    if ( mv ) { 
+      //	std::cout << "\ttest z " << mv->z() << "  : delta z " << (mv->z()-vtx0[i]->z()) << std::endl;
+          
+      /// ah ha ! can fill some silly old histograms here 
+      /// ...
+      hzed_rec->Fill( mv->z() );
+      hntrax_rec->Fill( mv->Ntracks() );
+
+      hzed_res->Fill( mv->z() - vtx0[i]->z() );
+
+          
+      rdz_vs_zed->Fill(   vtx0[i]->z(),       mv->z() - vtx0[i]->z() );
+      rdz_vs_ntrax->Fill( vtx0[i]->Ntracks(), mv->z() - vtx0[i]->z() );
+      rdz_vs_nvtx->Fill( vtx0.size(),  mv->z() - vtx0[i]->z() ); /// this isn't really legitimate
+      rdz_vs_mu->Fill( mu,  mv->z() - vtx0[i]->z() ); /// this isn't really legitimate
+
+      eff_zed->Fill( vtx0[i]->z() );
+      eff_ntrax->Fill( vtx0[i]->Ntracks() );
+      eff_nvtx->Fill( vtx0.size() );
+
+      eff_mu->Fill( mu );
+      eff_lb->Fill( lb );
+
+      //	std::cout << "found vtx ref vertex size " << vtx0.size() << "\tonline " << vtx1.size() << std::endl;
+      //	std::cout << "\tref:  " << *vtx0[i] << std::endl;
+      //	for ( unsigned iv=0 ; iv<vtx1.size() ; iv++ ) if ( vtx1[iv] ) std::cout << "\t" << iv << " :  " << *vtx1[iv] << std::endl;
+      
+      /// what about beam tilts etc? where are these defined with respect to ?
+      rdz_vs_lb->Fill( lb, mv->z() - vtx0[i]->z() ); 
+      rdx_vs_lb->Fill( lb, mv->x() - vtx0[i]->x() ); 
+      rdy_vs_lb->Fill( lb, mv->y() - vtx0[i]->y() ); 
+
+    } else {
+      //	std::cout << "\t" << "------" << std::endl;
+    
+      //	std::cout << "missing vtx ref vertex size " << vtx0.size() << "\tonline " << vtx1.size() << std::endl;
+      //	std::cout << "\tref:  " << *vtx0[i] << std::endl;
+      //	for ( unsigned iv=0 ; iv<vtx1.size() ; iv++ ) if ( vtx1[iv] ) std::cout << "\t" << iv << " :  " << *vtx1[iv] << std::endl;
+
+#if 0
+      static int vtxcount=0;
+
+      if ( vtxcount<100 ) { 
+        std::cout << "ConfVtxAnalysis::execute() " << name() << "\tnomatch\n"
+            << "\tvtx0.size() " << vtx0.size()
+            << "\tvtx1.size() " << vtx1.size()
+            << std::endl;
+        
+        std::cout << "\tref:  " << vtx0 << std::endl;
+        std::cout << "\ttest: " << vtx1 << std::endl;
+        
+        vtxcount++;
+
+        //	  std::cout << *gevent << std::endl;
+      }
+
+      
+#endif
+
+
+      eff_zed->FillDenom( vtx0[i]->z() );
+      eff_ntrax->FillDenom( vtx0[i]->Ntracks() );
+      eff_nvtx->FillDenom( vtx0.size() );
+
+      eff_mu->FillDenom( mu );
+      eff_lb->FillDenom( lb );
+	
+    }
+  }
+}
+
 void ConfVtxAnalysis::finalise() { 
 
   if ( !m_initialised ) return;

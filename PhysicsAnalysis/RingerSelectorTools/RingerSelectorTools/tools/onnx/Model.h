@@ -24,7 +24,8 @@ namespace Ringer{
         
         /*! Constructor */ 
         Model( std::string modelPath, AthONNX::IONNXRuntimeSvc *svc,
-               float etmin, float etmax, float etamin, float etamax);
+               float etmin, float etmax, float etamin, float etamax,
+               unsigned barcode);
         
         /*! Destructor */
         ~Model()=default;
@@ -46,18 +47,22 @@ namespace Ringer{
         /*! Calculate the disriminant */
         float predict ( std::vector< std::vector<float> > & ) const;
     
+        unsigned barcode() const { return m_barcode; };
 
       private:
 
         // onnx session
         std::shared_ptr<Ort::Session> m_session;
-        std::vector<int64_t>          m_input_node_dims;
-        std::vector<int64_t>          m_output_node_dims;
-        std::vector<const char*>      m_input_node_names;
-        std::vector<const char*>      m_output_node_names;
+        std::vector<std::vector<int64_t>>   m_input_node_dims;
+        std::vector<int64_t>                m_output_node_dims;
+        std::vector<const char*>            m_input_node_names;
+        std::vector<const char*>            m_output_node_names;
  
         float m_etmin, m_etmax;
         float m_etamin, m_etamax;
+        unsigned m_barcode;
+
+
     };
 
   } // namepace onnx

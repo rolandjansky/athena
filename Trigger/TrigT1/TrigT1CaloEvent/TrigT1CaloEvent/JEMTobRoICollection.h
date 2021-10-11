@@ -9,7 +9,6 @@
 
 /** Container class for JEMTobRoIs */
 
-using namespace LVL1;
-typedef DataVector<JEMTobRoI> JEMTobRoICollection;
+typedef DataVector<LVL1::JEMTobRoI> JEMTobRoICollection;
 
 #endif

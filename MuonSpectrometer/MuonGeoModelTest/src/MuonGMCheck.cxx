@@ -31,7 +31,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonGeoModelTest/PerfUtils.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include <boost/format.hpp>
 
 #include <fstream>
@@ -40,9 +40,9 @@
 typedef std::istringstream mystream;
 
 namespace {
-  static constexpr double const& invRad = 180/M_PI;
+  constexpr double const invRad = 180./M_PI;
   // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }
 
 using namespace MuonGM;
@@ -2227,9 +2227,9 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream rpcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 rpcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2347,9 +2347,9 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream mdtid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 mdtid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2644,9 +2644,9 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       std::string::size_type loc_o;
       std::string::size_type loc_c;
       std::string leftover="";
-      if ((loc_o = extid.find("[")) != std::string::npos) 
+      if ((loc_o = extid.find('[')) != std::string::npos) 
 	{
-	  if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+	  if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
 	    {
 	      std::istringstream tgcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
 	      tgcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2741,9 +2741,9 @@ void MuonGMCheck::buildCscRegionSelectorMap()
          std::string::size_type loc_o;
          std::string::size_type loc_c;
          std::string leftover="";
-         if ((loc_o = extid.find("[")) != std::string::npos) 
+         if ((loc_o = extid.find('[')) != std::string::npos) 
          {
-             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+             if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
              {
                  mystream cscid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                  cscid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -3189,9 +3189,9 @@ void MuonGMCheck::testMdtDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream mdtid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 mdtid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
@@ -3281,9 +3281,9 @@ void MuonGMCheck::testRpcDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream rpcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 rpcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
@@ -3370,9 +3370,9 @@ void MuonGMCheck::testTgcDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream tgcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 tgcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
@@ -3456,9 +3456,9 @@ void MuonGMCheck::testCscDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream cscid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 cscid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]

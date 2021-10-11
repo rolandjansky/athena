@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCOMPACTCELLCONTAINER_H
@@ -95,6 +95,14 @@ class CaloCompactCellContainer
    * @return a const reference to the vector holding the compact data
    */
   inline const std::vector<value_type> & getData() const {
+    return m_compactData;
+  };
+
+  /**
+   * @brief returns the entire compact cell container (includes header)
+   * @return a reference to the vector holding the compact data
+   */
+  inline std::vector<value_type> & getData() {
     return m_compactData;
   };
 

@@ -22,6 +22,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <vector>
 #include <unordered_map>
+#include <utility>
 
 namespace HLT {
 
@@ -39,10 +40,15 @@ namespace HLT {
     HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags = {},
                 boost::dynamic_bitset<uint32_t> hltPassRawBits = boost::dynamic_bitset<uint32_t>(),
                 boost::dynamic_bitset<uint32_t> hltPrescaledBits = boost::dynamic_bitset<uint32_t>(),
-                boost::dynamic_bitset<uint32_t> hltRerunBits = boost::dynamic_bitset<uint32_t>(),
                 std::unordered_map<uint16_t, std::vector<uint32_t> > data = {},
                 std::vector<uint32_t> status = {0},
                 std::set<uint16_t> truncatedModuleIds = {});
+
+
+    // ------------------------- Public typedefs -------------------------------
+
+    /// Type to store decoded ROD minor version (16-bit version split into two 8-bit numbers)
+    using RODMinorVersion = std::pair<uint8_t,uint8_t>;
 
 
     // ------------------------- Stream tags getters/setters -------------------
@@ -76,11 +82,8 @@ namespace HLT {
     /// Const-getter for HLT prescaled bits
     const boost::dynamic_bitset<uint32_t>& getHltPrescaledBits() const;
 
-    /// Const-getter for HLT rerun bits
-    const boost::dynamic_bitset<uint32_t>& getHltRerunBits() const;
-
-    /// Const-getter for HLT bits as uint32_t array. Ordering: PassRaw, Prescaled, Rerun.
-    const std::vector<uint32_t>& getHltBitsAsWords();
+    /// Const-getter for HLT bits as uint32_t array. Ordering: PassRaw, Prescaled
+    const std::vector<uint32_t>& getHltBitsAsWords() const;
 
     /// Replace HLT pass raw bits with the given bitset
     void setHltPassRawBits(const boost::dynamic_bitset<uint32_t>& bitset);
@@ -88,8 +91,9 @@ namespace HLT {
     /// Replace HLT prescaled bits with the given bitset
     void setHltPrescaledBits(const boost::dynamic_bitset<uint32_t>& bitset);
 
-    /// Replace HLT rerun raw bits with the given bitset
-    void setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset);
+    /// Replace both HLT pass raw and prescaled bits with the given bitsets
+    void setHltBits(const boost::dynamic_bitset<uint32_t>& passRawBitset,
+                    const boost::dynamic_bitset<uint32_t>& prescaledBitset);
 
 
     // ------------------------- Serialised data getters/setters ---------------
@@ -154,6 +158,17 @@ namespace HLT {
                       });
 
 
+    // ------------------------- Version getters/setters -----------------------
+    // The format of the HLT ByteStream (ROD payload) and the interpretation of the HLT-specific information
+    // in the full event header are versioned by the ROD minor version of the HLT ROBFragments
+
+    /// ROD minor version getter
+    RODMinorVersion getVersion() const;
+
+    /// ROD minor version setter
+    void setVersion(RODMinorVersion version);
+
+
     // ------------------------- Truncation information ------------------------
 
     /// Getter for the truncation information
@@ -175,12 +190,11 @@ namespace HLT {
     /// HLT bits (flagging which chains passed)
     boost::dynamic_bitset<uint32_t> m_hltPassRawBits;
     boost::dynamic_bitset<uint32_t> m_hltPrescaledBits;
-    boost::dynamic_bitset<uint32_t> m_hltRerunBits;
 
     /** @brief Vector storing m_hltBits converted to 4-byte words
      *
      *  HLTResultMT needs to own this vector because its lifetime has to be ensured until the serialisation is finished.
-     *  This vector is updated internally from m_hltPassRawBits, m_hltPrescaledBits, m_hltRerunBits and does not have a setter method.
+     *  This vector is updated internally from m_hltPassRawBits and m_hltPrescaledBits and does not have a setter method.
      **/
     std::vector<uint32_t> m_hltBitWords;
 
@@ -190,9 +204,18 @@ namespace HLT {
     /// First word is eformat::helper::Status, next words are optional error codes
     std::vector<uint32_t> m_status;
 
+    /// Stores the ROD minor version of the HLT ROBFragments
+    RODMinorVersion m_version;
+
     /// List of module IDs with truncation. Used only by the framework while creating the result.
     /// It is not stored in ByteStream files.
     std::set<uint16_t> m_truncatedModuleIds;
+
+
+    // ------------------------- Private helper methods ------------------------
+
+    /// Update m_hltBitWords with the contents of m_hltPassRawBits and m_hltPrescaledBits
+    void updateHltBitWords();
   };
 } // namespace HLT
 

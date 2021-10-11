@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerEvent/MuonLayerROTs.h"
@@ -13,9 +13,9 @@ namespace Muon {
 
     MuonLayerROTs::~MuonLayerROTs() {
         // clean-up memory
-        for (auto mdt : m_mdts) delete mdt;
+        for (const auto *mdt : m_mdts) delete mdt;
         for (auto& clvec : m_clustersPerTechnology) {
-            for (auto cl : clvec) delete cl;
+            for (const auto *cl : clvec) delete cl;
         }
     }
 
@@ -29,13 +29,13 @@ namespace Muon {
 
     void MuonLayerROTs::replaceMdts(const std::vector<const MdtDriftCircleOnTrack*>& mdts) {
         // clean-up memory and add
-        for (auto mdt : m_mdts) delete mdt;
+        for (const auto *mdt : m_mdts) delete mdt;
         m_mdts.clear();
         addMdts(mdts);
     }
 
     void MuonLayerROTs::replaceClusters(const std::vector<const MuonClusterOnTrack*>& clusters, MuonStationIndex::TechnologyIndex tech) {
-        for (auto cl : m_clustersPerTechnology[tech]) delete cl;
+        for (const auto *cl : m_clustersPerTechnology[tech]) delete cl;
         m_clustersPerTechnology[tech].clear();
         addClusters(clusters, tech);
     }

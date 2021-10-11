@@ -53,17 +53,16 @@ class RoRSeqFilter
 /**
  * @brief Setup input and output handles. Renounce all input handles. Get IDs for all configured chains.
  **/
-  virtual StatusCode  initialize() override;
+  virtual StatusCode  initialize() override final;
   
 /**
  * @brief Apply this filter in-between Steps of trigger execution. Fully implicit inputs, requires Control Flow to unlock.
  * will signal a negative filter result to the Scheduler if zero chains remain active upon termination.
  **/
-  virtual StatusCode  execute(const EventContext& ctx) const override;
+  virtual StatusCode  execute(const EventContext& ctx) const override final;
 
 
  private:
-  RoRSeqFilter();
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>  m_inputKeys{ this, "Input", {}, "Inputs to the filter" };
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputKeys{ this, "Output", {}, "Output" };
 

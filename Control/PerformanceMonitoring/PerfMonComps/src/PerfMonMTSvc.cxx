@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -123,19 +123,15 @@ void PerfMonMTSvc::handle(const Incident& inc) {
  * Start Auditing
  */
 void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& compName) {
+  // Snapshots, i.e. Initialize, Event Loop, etc.
+  startSnapshotAud(stepName, compName);
+
   /*
-   * This if statement is temporary. It will be removed.
-   * In current implementation the very first thing called is stopAud function
-   * for PerfMonMTSvc. There are some components before it. We miss them.
-   * It should be fixed.
+   * Perform component monitoring only if the user asked for it.
+   * By default we don't monitor a set of common components.
+   * Once we adopt C++20, we can switch this from count to contains.
    */
-  if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
-    // Snapshots, i.e. Initialize, Event Loop, etc.
-    startSnapshotAud(stepName, compName);
-
-    // Nothing more to do if we don't listen to components
-    if (!m_doComponentLevelMonitoring) return;
-
+  if (m_doComponentLevelMonitoring && !m_exclusionSet.count(compName)) {
     // Start component auditing
     auto const &ctx = Gaudi::Hive::currentContext();
     startCompAud(stepName, compName, ctx);
@@ -146,14 +142,11 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
  * Stop Auditing
  */
 void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compName) {
-  // Don't self-monitor
-  if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
-    // Snapshots, i.e. Initialize, Event Loop, etc.
-    stopSnapshotAud(stepName, compName);
+  // Snapshots, i.e. Initialize, Event Loop, etc.
+  stopSnapshotAud(stepName, compName);
 
-    // Nothing more to do if we don't listen to components
-    if (!m_doComponentLevelMonitoring) return;
-
+  // Check if we should monitor this component
+  if (m_doComponentLevelMonitoring && !m_exclusionSet.count(compName)) {
     // Stop component auditing
     auto const &ctx = Gaudi::Hive::currentContext();
     stopCompAud(stepName, compName, ctx);
@@ -209,9 +202,9 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
 
   // Check if this is the first time calling if so create the mesurement data if not use the existing one.
   // Metrics are collected per slot then aggregated before reporting
-  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
-    compLevelDataMap[currentState] = new PMonMT::MeasurementData();
+    compLevelDataMap.insert({currentState, std::make_unique<PMonMT::MeasurementData>()});
   }
 
   // Capture and store
@@ -243,7 +236,7 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Store
-  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
   compLevelDataMap[currentState]->addPointStop_component(meas, doMem);
 
   // Debug
@@ -753,7 +746,7 @@ void PerfMonMTSvc::aggregateSlotData() {
     for (const auto& it : slotData) {
       // Copy the first slot data and sum the rest
       if(m_compLevelDataMap.find(it.first) == m_compLevelDataMap.end()) {
-        m_compLevelDataMap[it.first] = it.second;
+        m_compLevelDataMap.insert({it.first, it.second.get()});
       } else {
         m_compLevelDataMap[it.first]->add2CallCount(it.second->getCallCount());
         m_compLevelDataMap[it.first]->add2DeltaCPU(it.second->getDeltaCPU());

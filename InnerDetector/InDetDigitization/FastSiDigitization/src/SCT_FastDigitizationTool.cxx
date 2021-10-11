@@ -185,7 +185,7 @@ StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++) {
+  for( ; iColl != endColl; ++iColl) {
     SiHitCollection *siHitColl = new SiHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("SiHitCollection found with " << siHitColl->size() <<
@@ -300,13 +300,7 @@ StatusCode SCT_FastDigitizationTool::mergeEvent(const EventContext& ctx)
   //-----------------------------------------------------------------------
   // Clean up temporary containers
   delete m_thpcsi;
-  std::list<SiHitCollection*>::iterator siHitColl(m_siHitCollList.begin());
-  std::list<SiHitCollection*>::iterator siHitCollEnd(m_siHitCollList.end());
-  while(siHitColl!=siHitCollEnd)
-    {
-      delete (*siHitColl);
-      ++siHitColl;
-    }
+  for(SiHitCollection* ptr : m_siHitCollList) delete ptr;
   m_siHitCollList.clear();
   //-----------------------------------------------------------------------
 
@@ -827,7 +821,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                 if(isNeighbour)
                   {
                     //Merge the clusters
-                    std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+                    const std::vector<Identifier> &existingClusterRDOList = existingCluster->rdoList();
                     potentialClusterRDOList.insert(potentialClusterRDOList.end(), existingClusterRDOList.begin(), existingClusterRDOList.end() );
                     Amg::Vector2D existingClusterPosition(existingCluster->localPosition());
                     potentialClusterPosition = (potentialClusterPosition + existingClusterPosition)/2;
@@ -838,7 +832,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
 
                     //Store HepMcParticleLink connected to the cluster removed from the collection
                     std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_sctPrdTruth->equal_range(existingCluster->identify());
-                    for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+                    for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; ++this_hit)
                       {
                         hit_vector.push_back(this_hit->second);
                       }
@@ -918,11 +912,14 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                   mat(Trk::locY,Trk::locX) = (Sn*sqrt(Cs2)*(V0-V1));
                   mat(Trk::locY,Trk::locY) = (Sn2*V0+Cs2*V1);
                 }
-              // covariance matrix && error description
-              const Amg::MatrixX *potentialClusterErr = new Amg::MatrixX(mat);
 
               // create a custom cluster
-              potentialCluster = new InDet::SCT_Cluster(potentialClusterId,lcorrectedPosition,potentialClusterRDOList,siWidth,hitSiDetElement,potentialClusterErr);
+              potentialCluster = new InDet::SCT_Cluster(potentialClusterId,
+                                                        lcorrectedPosition,
+                                                        potentialClusterRDOList,
+                                                        siWidth,
+                                                        hitSiDetElement,
+                                                        Amg::MatrixX(mat));
             }
 
           (void) SCT_DetElClusterMap.insert(SCT_detElement_RIO_map::value_type(waferID, potentialCluster));
@@ -1048,7 +1045,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
   //---------------------------------------------------------------------------------
   bool isNeighbour = false;
   unsigned int countR(0);
-  std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+  const std::vector<Identifier> &existingClusterRDOList = existingCluster->rdoList();
   std::vector<Identifier>::const_iterator potentialClusterRDOIter = potentialClusterRDOList.begin();
   for ( ; potentialClusterRDOIter != potentialClusterRDOList.end(); ++potentialClusterRDOIter)
     {

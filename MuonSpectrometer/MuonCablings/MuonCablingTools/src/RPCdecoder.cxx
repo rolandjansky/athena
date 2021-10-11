@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingTools/RPCdecoder.h"
@@ -70,13 +70,10 @@ void RPCdecoder::reset_data() {
 void RPCdecoder::reset_status() { m_fail = false; }
 
 void RPCdecoder::fault_decoding(int value, value_type type) {
-    std::ostringstream ostream;
-    ostream << "fault_decoding() - RPC decoder error: received " << s_value_descriptions[type] << " = " << value
-            << "  (min = " << s_value_boundaries[type][0] << ", max = " << s_value_boundaries[type][1] << ")";
-#ifdef LVL1_STANDALONE
     MsgStream log(Athena::getMessageSvc(), "RPCdecoder");
-    log << MSG::INFO << ostream << endmsg;
-#endif
+    log << MSG::INFO << "fault_decoding() - RPC decoder error: received " << s_value_descriptions[type] << " = " << value
+        << "  (min = " << s_value_boundaries[type][0] << ", max = " << s_value_boundaries[type][1] << ")" << endmsg;
+
     m_fail = true;
 }
 

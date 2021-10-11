@@ -49,5 +49,5 @@ class StreamingChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChainImpl(self):                            
         return self.buildChain([]) # empty list of steps and the chain requires none

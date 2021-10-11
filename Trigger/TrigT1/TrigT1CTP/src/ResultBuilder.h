@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,9 +21,6 @@
 
 // L1 configuration data
 #include "TrigConfData/L1Menu.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerItem.h"
 
 // Output to the RoIB:
 #include "TrigT1Interfaces/CTPSLink.h"
@@ -49,8 +46,7 @@ namespace LVL1CTP {
 
       void setRandomEngine( CLHEP::HepRandomEngine* rndmEngine );
 
-      StatusCode setConfiguration( const TrigConf::CTPConfig* ctpConfig, 
-                                   const TrigConf::L1Menu* l1menu ) const;
+      StatusCode setConfiguration( const TrigConf::L1Menu& l1menu ) const;
 
       StatusCode buildItemDecision( const std::map<std::string, unsigned int> & thrMultiMap,
                                     std::map<std::string, unsigned int> & itemDecisionMap,
@@ -79,17 +75,9 @@ namespace LVL1CTP {
 
    private:
 
-      struct ConfigSource {
-      ConfigSource(const TrigConf::CTPConfig* ctpConfig, const TrigConf::L1Menu* l1menu) : m_ctpConfig(ctpConfig), m_l1menu(l1menu) {}
-         const TrigConf::CTPConfig* m_ctpConfig {nullptr}; // run 2
-         const TrigConf::L1Menu * m_l1menu { nullptr }; // run 3
-         const TrigConf::CTPConfig* ctpConfig() const { return m_ctpConfig; }
-         const TrigConf::L1Menu* l1menu() const { return m_l1menu; }
-      };
-
       enum WrdType { TBP = 0x01, TAP = 0x02, TAV = 0x04 };
 
-      StatusCode createTriggerConfigMaps(const ConfigSource & cfgSrc) const;
+      StatusCode createTriggerConfigMaps(const TrigConf::L1Menu& l1menu) const;
 
       //! build list of fired items and dump to string
       std::vector<std::string> firedItems(const std::vector<uint32_t>& triggerWords) const;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # @file:    rootcomp.py
 # @purpose: Script to compare the histograms in two root files
 # @author:  Frank Winklmeier, Will Buttinger
@@ -107,6 +107,7 @@ def main():
       opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Time$","time_","Time_", "_time"]
       opts.skip += ["HltEventLoopMgr/TotalTime"]
+      opts.skip += ["HltEventLoopMgr/PopScheduler"]
       opts.skip += ["Unpck$"]
       opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
       opts.skip += ["/TrigMemMonitor/"]               # memory monitor

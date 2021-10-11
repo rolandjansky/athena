@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -44,7 +44,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   : TilePaterMonTool(type, name, parent)
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_cispar(0)
-  , m_nEvents(0)
+  , m_nEventsTileMon(0)
   , m_calibUnit(TileRawChannelUnit::Invalid)
   , m_drawHists(true)
   , m_tileInfo(0)
@@ -54,6 +54,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("bookAllDrawers", m_bookAll = false);
+  declareProperty("overlaphists", m_overlaphists = false);
   declareProperty("book2D", m_book2D = true);
 
   // run type 1 - phys, 2 - las, 4 - ped, 8 - cis
@@ -79,6 +80,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   declareProperty("MinAmpForCorrectedTime", m_minAmpForCorrectedTime = 0.5);
   declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
+  declareProperty("CalibUnit", m_intCalibUnit = (int)TileRawChannelUnit::Invalid);
 }
 
 /*---------------------------------------------------------*/
@@ -98,7 +100,7 @@ StatusCode TileRawChannelMonTool::initialize()
 
   CHECK(m_tileToolEmscale.retrieve());
 
-  m_nEvents = 0;
+  m_nEventsTileMon = 0;
 
   memset(m_data->m_timeCov, 0, sizeof(m_data->m_timeCov));
   memset(m_data->m_timeCovCorr, 0, sizeof(m_data->m_timeCovCorr));
@@ -123,10 +125,16 @@ StatusCode TileRawChannelMonTool::bookHists()
     msg(MSG::DEBUG) << "Using base path " << m_path << endmsg;
   }
 
-  if ((m_runType == LasRun) || (m_runType == PhysRun) || (m_runType == LedRun)) {
-    m_calibUnit = TileRawChannelUnit::CesiumPicoCoulombs;
-  } else
-    m_calibUnit = TileRawChannelUnit::PicoCoulombs;
+  if (m_intCalibUnit>=0 && m_intCalibUnit<=3) {
+    m_calibUnit = (TileRawChannelUnit::UNIT)m_intCalibUnit;
+  }
+  if (m_calibUnit == TileRawChannelUnit::Invalid) {
+    if (m_runType == PhysRun) {
+      m_calibUnit = TileRawChannelUnit::CesiumPicoCoulombs;
+    } else {
+      m_calibUnit = TileRawChannelUnit::PicoCoulombs;
+    }
+  }
 
   if (m_bookAll) {
     for (int ros = 1; ros < 5; ++ros) {
@@ -214,9 +222,9 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
         if (m_book2D) {
           std::string Hist2DName[4] = { "_amp_vs_q_100", "_amp_vs_q_5", "_time_vs_time_100", "_time_vs_time_5" };
           std::string Hist2DTitle[4] = { " amp vs charge 100 pF", " amp vs charge 5 pF", " time vs time 100 pF", " time vs time 5 pF" };
-	  float factor_charge = m_is12bit ? 2. : 1.;
-	  float factor_adc    = m_is12bit ? 4. : 1.;
-	  // Below, static_cast<float> is used to avoid warnings from -Wnarrowing
+          float factor_charge = m_is12bit ? 2. : 1.;
+          float factor_adc    = m_is12bit ? 4. : 1.;
+          // Below, static_cast<float> is used to avoid warnings from -Wnarrowing
           float LowX_low2D[4] = { -4., -0.5, -0.25, -0.25 };
           float HighX_low2D[4] = { 804., 50.5, 25.25, 25.25 };
           float LowX_hi2D[4] = { static_cast<float>(-0.0625 * factor_charge), static_cast<float>(-0.0625 * factor_charge), -0.25, -0.25 };
@@ -276,10 +284,27 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
         } else {
           switch (gn) {
             case 0: // low gain
-              m_data->m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 1101, -50.5, 1050.5));
+              if (m_overlaphists) {
+                const Int_t nlg1 = 49;
+                const Int_t nlg2 = 500;
+                const Int_t nlg3 = 1027;
+                Double_t xlgbin[nlg1 + nlg2 + nlg3 + 1];
+                for(Int_t i = 0; i <= nlg1; ++i)
+                  xlgbin[i] = -50.5+1.0*i;
+                for(Int_t i = 1; i <= nlg2; ++i)
+                  xlgbin[i + nlg1] = -1.5 + 0.05 * i;
+                for(Int_t i = 1; i <= nlg3; ++i)
+                  xlgbin[i + nlg1 + nlg2] = 23.5 + 1.0 * i;
+                m_data->m_hist1[ros][drawer][ch][gn].push_back(book1Sx(subDir, histName, histTitle, nlg1 + nlg2 + nlg3, xlgbin));
+              } else {
+                m_data->m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 1101, -50.5, 1050.5));
+              }
               break;
             case 1: // high gain
-              m_data->m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 826, -1.01, 15.51));
+              if (m_overlaphists)
+                m_data->m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 500, -1.5, 23.5));
+              else
+                m_data->m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 826, -1.01, 15.51));
               break;
             default: // single gain mode
               if (m_runType == PhysRun) {
@@ -485,11 +510,11 @@ StatusCode TileRawChannelMonTool::fillHists()
 
   ATH_MSG_DEBUG("in fillHists()");
 
-  if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
+  if (m_nEventsTileMon % 1000 == 0) ATH_MSG_INFO(m_nEventsTileMon<<" events processed so far");
   // array of 16 CIS parameters
   const TileDQstatus* dqStatus = SG::makeHandle (m_DQstatusKey).get();
   m_cispar = dqStatus->cispar();
-  ++m_nEvents;
+  ++m_nEventsTileMon;
 
   m_efitMap.clear();
   m_tfitMap.clear();
@@ -749,7 +774,7 @@ StatusCode TileRawChannelMonTool::fillHists()
   }
 
 
-  if ((m_summaryUpdateFrequency > 0) && (m_nEvents % m_summaryUpdateFrequency == 0)) {
+  if ((m_summaryUpdateFrequency > 0) && (m_nEventsTileMon % m_summaryUpdateFrequency == 0)) {
     m_drawHists = false;
     CHECK(fillSummaryHistograms());
     if (m_resetAfterSummaryUpdate) resetSummaryHistograms();
@@ -1153,7 +1178,14 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
               //Lukas
 
               if (m_data->m_hist1[ros][drawer][ch][adc][0]->GetEntries() > 0) {
-                m_data->m_hist1[ros][drawer][ch][adc][0]->Fit("g", "NQ");
+                if (adc == 0 && m_overlaphists) { // We have for LB histograms with variable-width bins, not suitable for a fit
+                  TH1S *h4fit=new TH1S(*(m_data->m_hist1[ros][drawer][ch][adc][0]));
+                  h4fit->Scale(1,"width");
+                  h4fit->Fit("g", "NQ");
+                  delete(h4fit);
+                } else {
+                  m_data->m_hist1[ros][drawer][ch][adc][0]->Fit("g", "NQ");
+                }
                 Sigma = fit_gaus->GetParameter(2);
                 ErrS = fit_gaus->GetParError(2);
               }
@@ -1387,7 +1419,7 @@ StatusCode TileRawChannelMonTool::checkHists(bool /* fromFinalize */)
 }
 
 /*---------------------------------------------------------*/
-void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleName)
+void TileRawChannelMonTool::drawHists(int ros, int drawer, const std::string& moduleName)
 /*---------------------------------------------------------*/
 {
 
@@ -1667,7 +1699,7 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
 }
 
 /*---------------------------------------------------------*/
-void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
+void TileRawChannelMonTool::drawDsp(int ros, int drawer, const std::string& moduleName)
 /*---------------------------------------------------------*/
 {
   MsgStream log(msgSvc(), name());
@@ -1932,7 +1964,7 @@ bool TileRawChannelMonTool::checkDmuHeader(std::vector<uint32_t>* headerVec, int
   return err;
 }
 /*---------------------------------------------------------*/
-void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain, std::string moduleName) {
+void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain, const std::string& moduleName) {
   /*---------------------------------------------------------*/
 
   ATH_MSG_DEBUG("in LaserFancyPlotting...");

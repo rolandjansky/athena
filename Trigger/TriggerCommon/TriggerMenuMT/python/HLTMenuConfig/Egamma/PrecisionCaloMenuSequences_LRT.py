@@ -30,6 +30,7 @@ def precisionCaloSequence_LRT(ConfigFlags):
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
     precisionCaloViewsMaker.Views = "precisionCaloViews_LRT"
     precisionCaloViewsMaker.RequireParentView = True
+    precisionCaloViewsMaker.CacheDisabled = True
 
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRecoSequences import precisionCaloRecoSequence_LRT

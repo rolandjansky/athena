@@ -48,7 +48,7 @@ void compare (const Muon::MMPrepData& p1,
 
 void testit (const Muon::MMPrepData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MMPrepDataCnv_p1 cnv;
   Muon::MMPrepData_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -77,7 +77,7 @@ void test1()
                            IdentifierHash (1234),
                            locpos,
                            rdoList,
-                           new Amg::MatrixX(cov),
+                           cov,
                            nullptr);
   trans1.setAuthor (Muon::MMPrepData::ConstraintuTPCClusterBuilder);
                           

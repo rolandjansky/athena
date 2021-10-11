@@ -1,7 +1,7 @@
-#include "TestLArDetDescr/TestCaloDDE.h"
-#include "TestLArDetDescr/TestCaloGeom.h"
-#include "TestLArDetDescr/TestLArTT.h"
-#include "TestLArDetDescr/TestLArMaterial.h"
+#include "../TestCaloDDE.h"
+#include "../TestCaloGeom.h"
+#include "../TestLArTT.h"
+#include "../TestLArMaterial.h"
 
 DECLARE_COMPONENT( TestCaloDDE )
 DECLARE_COMPONENT( TestCaloGeom )

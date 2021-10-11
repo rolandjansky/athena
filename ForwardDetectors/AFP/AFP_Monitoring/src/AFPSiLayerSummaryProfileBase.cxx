@@ -8,7 +8,7 @@
 #include "AFP_Monitoring/IAFPSiLayerMonitor.h"
 #include "AFP_Monitoring/AFPHitsMonitorTool.h"
 
-AFPSiLayerSummaryProfileBase::AFPSiLayerSummaryProfileBase (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title) : m_parentTool(parentTool), m_monGrp (monGrp)
+AFPSiLayerSummaryProfileBase::AFPSiLayerSummaryProfileBase (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string& name, const std::string& title) : m_parentTool(parentTool), m_monGrp (monGrp)
 {
   // count number of layers in monitor
   int totalPlanes = 0;

@@ -111,12 +111,10 @@ TFile* f(0);
 	 while (!inputFileStream.eof()) {
 	   string currentRootInFile;
 	   inputFileStream >> currentRootInFile;
-	   if (currentRootInFile[0] == '#')
-	     continue; //skip this line
-	   if (!currentRootInFile.empty()) {
-             std::cout << currentRootInFile << std::endl;
-	     inputRootFilesTxt.push_back(currentRootInFile);
-	   }
+	   if (currentRootInFile.empty()) continue;
+	   if (currentRootInFile[0] == '#') continue; //skip this line
+     std::cout << currentRootInFile << std::endl;
+	   inputRootFilesTxt.push_back(currentRootInFile);
 	 }
        }
        catch ( char* errstr) {

@@ -653,7 +653,7 @@ namespace TrkDriftCircleMath {
       chi2 += 1.;
     }
     result.set( chi2, nhits-NUMPAR, dtheta, -1.*dy0 );
-    result.line().set( LocPos( Zc - sinus*d, Yc + cosin*d ), ang );
+    result.line().set( LocVec2D( Zc - sinus*d, Yc + cosin*d ), ang );
     if(t0==0.) t0=0.00001;
     result.setT0Shift(t0,t0Err);
    

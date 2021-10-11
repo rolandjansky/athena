@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -54,13 +54,13 @@ namespace DerivationFramework {
     }
     bool passAND(false);
     bool passOR(false);
-    if (cntrAND==m_triggerListAND.size() && m_triggerListAND.size() > 0) passAND=true;
-    if (cntrOR > 0 && m_triggerListOR.size() > 0) passOR=true; 
+    if (cntrAND==m_triggerListAND.size() && !m_triggerListAND.empty()) passAND=true;
+    if (cntrOR > 0 && !m_triggerListOR.empty()) passOR=true; 
 
     bool pass(false);
     pass = passAND || passOR;
-    if (m_triggerListAND.size()==0) pass = passOR;
-    if (m_triggerListOR.size()==0) pass = passAND;
+    if (m_triggerListAND.empty()) pass = passOR;
+    if (m_triggerListOR.empty()) pass = passAND;
     return pass;
   }  
 

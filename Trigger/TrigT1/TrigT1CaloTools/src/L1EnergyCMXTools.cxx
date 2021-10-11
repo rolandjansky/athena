@@ -16,7 +16,6 @@
 #include "L1EnergyCMXTools.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/CTPConfig.h"
 
 namespace LVL1
 {
@@ -27,12 +26,10 @@ L1EnergyCMXTools::L1EnergyCMXTools(const std::string &type,
                                    const std::string &name,
                                    const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_jeTool("LVL1::L1JetElementTools/L1JetElementTools"),
       m_etTool("LVL1::L1EtTools/L1EtTools")
 {
     declareInterface<IL1EnergyCMXTools>(this);
-    declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
     declareProperty("JetElementTool", m_jeTool);
     declareProperty("EtTool", m_etTool);
 }
@@ -48,41 +45,14 @@ L1EnergyCMXTools::~L1EnergyCMXTools()
 StatusCode L1EnergyCMXTools::initialize()
 {
     m_debug = msgLvl(MSG::DEBUG);
-
-    // Connect to the LVL1ConfigSvc for the trigger configuration:
-
-    StatusCode sc = m_configSvc.retrieve();
-    if (sc.isFailure())
-    {
-        ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName());
-        return sc;
-    }
-    else
-    {
-        ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName());
-    }
+    ATH_CHECK( m_L1MenuKey.initialize() );
 
     // Retrieve jet element tool
 
-    sc = m_jeTool.retrieve();
-    if (sc.isFailure())
-    {
-        ATH_MSG_ERROR("Couldn't retrieve JetElementTool");
-        return sc;
-    }
+    ATH_CHECK(m_jeTool.retrieve());
+    ATH_CHECK(m_etTool.retrieve());
 
-    // Retrieve energy sums tool
-
-    sc = m_etTool.retrieve();
-    if (sc.isFailure())
-    {
-        ATH_MSG_ERROR("Couldn't retrieve EtTool");
-        return sc;
-    }
-
-    ATH_MSG_DEBUG("Initialization completed");
-
-    return sc;
+    return StatusCode::SUCCESS;
 }
 
 /** Finalisation */
@@ -155,14 +125,15 @@ void L1EnergyCMXTools::formCMXEtSums(const xAOD::JEMEtSumsContainer *jemEtSumsVe
     // Process each slice
     MultiSliceModuleEnergy::iterator iter = modulesVec.begin();
     MultiSliceModuleEnergy::iterator iterE = modulesVec.end();
+
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
     for (; iter != iterE; ++iter)
     {
         DataVector<ModuleEnergy> *modules = *iter;
         DataVector<CrateEnergy> *crates = new DataVector<CrateEnergy>;
         cratesVec.push_back(crates);
         m_etTool->crateSums(modules, crates);
-        //systemVec.push_back(new SystemEnergy(m_etTool->systemSums(crates)));
-        systemVec.push_back(new SystemEnergy(crates, m_configSvc));
+        systemVec.push_back(new SystemEnergy(crates, &(*l1Menu)));
         delete modules;
     }
     // Convert back to CMXEtSums
@@ -209,36 +180,38 @@ void L1EnergyCMXTools::findRestrictedEta(uint32_t &maskXE, uint32_t &maskTE) con
     bool maskXESet = false;
     bool maskTESet = false;
 
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
     TrigConf::L1DataDef def;
-
-    for (auto it : m_configSvc->ctpConfig()->menu().thresholdVector())
-    {
-        if ((it->type() == def.xeType() || it->type() == def.teType()) && it->thresholdNumber() > 7)
-        {
-            if (maskXE > 0) maskXESet = true;
-            if (maskTE > 0) maskTESet = true;
-            for (auto itv : it->thresholdValueVector())
-            {
-                // Already initialised mask to zero, so only need to check where threshold is active
-                if (itv->thresholdValueCount() >= 0x7fff) continue;
-                // Set bits for modules within the range of any restricted eta threshold
-                if (it->type() == def.xeType() && !maskXESet)
-                {
-                    for (unsigned int bin = 0; bin < 8; ++bin) {
-                       if (moduleEta[bin] > itv->etamin()*0.1 && moduleEta[bin] < itv->etamax()*0.1)
-                          maskXE |= (1<<bin);
-                    }
-                }
-                else if (it->type() == def.teType() && !maskTESet)
-                {
-                    for (unsigned int bin = 0; bin < 8; ++bin) {
-                       if (moduleEta[bin] > itv->etamin()*0.1 && moduleEta[bin] < itv->etamax()*0.1)
-                          maskTE |= (1<<bin);
-                    }
-                }
-            } // loop over TTV
-        }     // Is this XE or TE threshold?
-    }         //
+    std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
+    for ( const auto& thresh : allThresholds ) {
+      if ( ( thresh->type() == def.xeType() || thresh->type() == def.teType()) && thresh->mapping() > 7 ) {
+        std::shared_ptr<TrigConf::L1Threshold_Calo> thresh_Calo = std::static_pointer_cast<TrigConf::L1Threshold_Calo>(thresh);
+        auto tvcs = thresh_Calo->thrValuesCounts();
+        // Make sure only set masks from the first valid threshold in the range (for each type)
+        if (maskXE > 0) maskXESet = true;
+        if (maskTE > 0) maskTESet = true;
+        if (tvcs.size() == 0) {
+          tvcs.addRangeValue(thresh_Calo->thrValueCounts(),-49, 49, 1, true);
+        }
+        for (const auto& tVC : tvcs) {
+          // Bits are set false by default, so ignore thresholds that are just doing that
+          if (tVC.value() >= 0x7fff) continue;
+          // Set bits true if module centre between etaMin and etaMax
+          if ( thresh->type() == def.xeType()  && !maskXESet ) {
+            for (unsigned int bin = 0; bin < 8; ++bin) {
+              if (moduleEta[bin] > tVC.etaMin()*0.1 && moduleEta[bin] < tVC.etaMax()*0.1)
+                maskXE |= (1<<bin);
+            }
+          }
+          else if ( thresh->type() == def.teType()  && !maskTESet ) {
+            for (unsigned int bin = 0; bin < 8; ++bin) {
+              if (moduleEta[bin] > tVC.etaMin()*0.1 && moduleEta[bin] < tVC.etaMax()*0.1)
+                maskTE |= (1<<bin);
+            }
+          }
+        }  // loop over TTV
+      } // Is this XE or TE threshold?
+    }
 }
 void L1EnergyCMXTools::formCMXEtSumsCrate(
     const xAOD::CMXEtSumsContainer *cmxEtSumsMod,
@@ -293,6 +266,7 @@ void L1EnergyCMXTools::formCMXEtSumsSystem(
     
     MultiSliceSystemEnergy systemVecFull;
     MultiSliceSystemEnergy systemVecRestricted;
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
     etSumsToCrateEnergy(cmxEtSumsCrate, cratesVecFull, cratesVecRestricted, peak);
     for (int i = 0; i < 2; i++)
     {
@@ -305,7 +279,7 @@ void L1EnergyCMXTools::formCMXEtSumsSystem(
         {
             DataVector<CrateEnergy> *crates = *iter;
             //systemVec.push_back(new SystemEnergy(m_etTool->systemSums(crates)));
-            systemVec->push_back(new SystemEnergy(crates, m_configSvc));
+            systemVec->push_back(new SystemEnergy(crates, &(*l1Menu)));
             delete crates;
         }
     }
@@ -477,6 +451,7 @@ void L1EnergyCMXTools::etSumsToSystemEnergy(
         const ErrorVector &eyErrVec(sums->eyErrorVec());
         const ErrorVector &etErrVec(sums->etErrorVec());
         unsigned int slices = et.size();
+        auto l1Menu = SG::makeHandle( m_L1MenuKey );
         for (unsigned int sl = 0; sl < slices; ++sl)
         {
             DataError exErr(exErrVec[sl]);
@@ -487,7 +462,7 @@ void L1EnergyCMXTools::etSumsToSystemEnergy(
                                                  exErr.get(DataError::Overflow),
                                                  eyErr.get(DataError::Overflow),
                                                  source == xAOD::CMXEtSums::TOTAL_RESTRICTED,
-                                                 m_configSvc);
+                                                 &(*l1Menu));
             // bool srestricted = (systemEnergy->roiWord0() >> 26) & 1;
             systemVec.push_back(systemEnergy);
         }

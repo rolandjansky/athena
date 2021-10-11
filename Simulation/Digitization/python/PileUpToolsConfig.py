@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 PileUpToolsAlg, DigitizationAlg=CompFactory.getComps("PileUpToolsAlg","DigitizationAlg")
 
 
@@ -28,6 +29,10 @@ def PileUpToolsCfg(flags, **kwargs):
         Alg = PileUpToolsAlg
     else:
         Alg = DigitizationAlg
+
+    # setup EventInfo
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs["EventInfoKey"] = flags.Overlay.BkgPrefix + 'EventInfo'
 
     acc.addEventAlgo(Alg(flags.Digitization.DigiSteeringConf, **kwargs))
     return acc

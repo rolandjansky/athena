@@ -5,6 +5,9 @@
 #include "SiHitAnalysis.h"
 
 #include "GeoAdaptors/GeoSiHit.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -47,6 +50,10 @@ StatusCode SiHitAnalysis::initialize()
     detName = "BLM";
     ntupName = "SiBLM";
   }
+  else if (m_hitsContainerKey.key()=="HGTD_Hits") {
+    detName = "HGTD";
+    ntupName = "SiHGTD";
+  }
   else {
     ATH_MSG_ERROR("SiHitsAnalysis for " << m_hitsContainerKey.key() << " not supported!!!");
     return StatusCode::FAILURE;
@@ -60,11 +67,30 @@ StatusCode SiHitAnalysis::initialize()
   float bin_up = 600;
   float radius_up = 600;
   float radius_down = 200;
-  if (detName == "Pixel" || detName == "ITkPixel") {
+  float z_max = 1200;
+  if (detName == "Pixel") {
     bin_down = -170;
     bin_up = 170;
     radius_up = 170;
     radius_down = 0;
+  } else if (detName == "ITkPixel") {
+    bin_down = -325;
+    bin_up = 325;
+    radius_up = 325;
+    radius_down = 0;
+    z_max = 3000;
+  } else if (detName == "ITkStrip") {
+    bin_down = -1000;
+    bin_up = 1000;
+    radius_up = 1000;
+    radius_down = 0;
+    z_max = 3000;
+  } else if (detName == "HGTD") {
+    bin_down = -1000;
+    bin_up = 1000;
+    radius_up = 1000;
+    radius_down = 350;
+    z_max = 3600;
   }
 
   m_h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
@@ -73,7 +99,7 @@ StatusCode SiHitAnalysis::initialize()
   m_h_hits_y = new TH1D(("h_"+detName+"_y").c_str(), ("h_"+detName+"_y").c_str(), 100,bin_down,bin_up);
   m_h_hits_y->StatOverflows();
 
-  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-1200,1200);
+  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-z_max,z_max);
   m_h_hits_z->StatOverflows();
 
   m_h_hits_r = new TH1D(("h_"+detName+"_r").c_str(), ("h_"+detName+"_r").c_str(), 100,radius_down,radius_up);
@@ -82,7 +108,7 @@ StatusCode SiHitAnalysis::initialize()
   m_h_xy = new TH2D(("h_"+detName+"_xy").c_str(), ("h_"+detName+"_xy").c_str(), 100,bin_down,bin_up,100, bin_down, bin_up);
   m_h_xy->StatOverflows();
 
-  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-1200,1200.,100, radius_down, radius_up);
+  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-z_max, z_max, 100, radius_down, radius_up);
   m_h_zr->StatOverflows();
 
   m_h_hits_time = new TH1D(("h_"+detName+"_time").c_str(), ("h_"+detName+"_time").c_str(), 100,0,500);
@@ -100,7 +126,7 @@ StatusCode SiHitAnalysis::initialize()
   m_h_time_eloss = new TH2D(("h_"+detName+"_time_eloss").c_str(), ("h_"+detName+" Eloss vs. time").c_str(),100, 0,500,100,0,50);
   m_h_time_eloss->StatOverflows();
 
-  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -1200,1200,100,0,50);
+  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -z_max,z_max,100,0,50);
   m_h_z_eloss->StatOverflows();
 
   m_h_r_eloss = new TH2D(("h_"+detName+"_r_eloss").c_str(), ("h_"+detName+ " Eloss vs. r").c_str(),100, radius_down,radius_down,100,0,50);
@@ -157,6 +183,15 @@ StatusCode SiHitAnalysis::initialize()
     m_tree->Branch((detName+"_eloss").c_str(), &m_hits_eloss);
     m_tree->Branch((detName+"_step").c_str(), &m_hits_step);
     m_tree->Branch((detName+"_barcode").c_str(), &m_hits_barcode);
+    if (m_extraTruthBranches) {
+      m_tree->Branch((detName+"_pdgId").c_str(), &m_hits_pdgId);
+      m_tree->Branch((detName+"_pT").c_str(), &m_hits_pT);
+      m_tree->Branch((detName+"_eta").c_str(), &m_hits_eta);
+      m_tree->Branch((detName+"_phi").c_str(), &m_hits_phi);
+      m_tree->Branch((detName+"_prodVtx_x").c_str(), &m_hits_prodVtx_x);
+      m_tree->Branch((detName+"_prodVtx_y").c_str(), &m_hits_prodVtx_y);
+      m_tree->Branch((detName+"_prodVtx_z").c_str(), &m_hits_prodVtx_z);
+    }
 
     m_tree->Branch((detName+"_barrel_endcap").c_str(), &m_barrel_endcap);
     m_tree->Branch((detName+"_layer_disk").c_str(), &m_layer_disk);
@@ -186,6 +221,15 @@ StatusCode SiHitAnalysis::execute()
   m_hits_eloss->clear();
   m_hits_step->clear();
   m_hits_barcode->clear();
+  if (m_extraTruthBranches) {
+    m_hits_pdgId->clear();
+    m_hits_pT->clear();
+    m_hits_eta->clear();
+    m_hits_phi->clear();
+    m_hits_prodVtx_x->clear();
+    m_hits_prodVtx_y->clear();
+    m_hits_prodVtx_z->clear();
+  }
 
   m_barrel_endcap->clear();
   m_layer_disk->clear();
@@ -232,6 +276,27 @@ StatusCode SiHitAnalysis::execute()
       m_hits_time->push_back(hit.meanTime());
       m_hits_step->push_back(step_length);
       m_hits_barcode->push_back(hit.particleLink().barcode());
+      if (m_extraTruthBranches) {
+        auto tpl = hit.particleLink();
+        if (tpl.isValid()) {
+          m_hits_pdgId->push_back(tpl->pdg_id());
+          m_hits_pT->push_back(tpl->momentum().perp());
+          m_hits_eta->push_back(tpl->momentum().eta());
+          m_hits_phi->push_back(tpl->momentum().phi());
+          m_hits_prodVtx_x->push_back(tpl->production_vertex()->position().x());
+          m_hits_prodVtx_y->push_back(tpl->production_vertex()->position().y());
+          m_hits_prodVtx_z->push_back(tpl->production_vertex()->position().z());
+        }
+        else {
+          m_hits_pdgId->push_back(-9999);
+          m_hits_pT->push_back(-9999);
+          m_hits_eta->push_back(-9999);
+          m_hits_phi->push_back(-9999);
+          m_hits_prodVtx_x->push_back(-9999);
+          m_hits_prodVtx_y->push_back(-9999);
+          m_hits_prodVtx_z->push_back(-9999);
+        }
+      }
 
       m_barrel_endcap->push_back(hit.getBarrelEndcap());
       m_layer_disk->push_back(hit.getLayerDisk());

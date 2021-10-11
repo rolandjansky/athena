@@ -65,7 +65,7 @@ public:
         const Identifier &id,
         const IdentifierHash &collectionHash,
         const Amg::Vector2D& driftRadius,
-        const Amg::MatrixX* errDriftRadius,
+        const Amg::MatrixX& errDriftRadius,
         const MuonGM::MdtReadoutElement* detEl,
         const int tdc,
         const int adc,
@@ -76,7 +76,7 @@ public:
         const Identifier &id,
         const IdentifierHash &collectionHash,
         const Amg::Vector2D& driftRadius,
-        std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+        Amg::MatrixX&& errDriftRadius,
         std::vector<Identifier>&& rdoList,
         const MuonGM::MdtReadoutElement* detEl,
         const int tdc,
@@ -96,7 +96,7 @@ public:
     virtual const MuonGM::MdtReadoutElement* detectorElement() const override;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override
+    virtual bool type(Trk::PrepRawDataType type) const override
     {
       return type == Trk::PrepRawDataType::MdtPrepData;
     }

@@ -20,7 +20,7 @@ ConfigFlags.Exec.MaxEvents = 4
 
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 ConfigFlags.Output.RDOFileName = "mc16d_ttbar.CA.RDO.pool.root"
-ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
+ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-25-02"
 
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"

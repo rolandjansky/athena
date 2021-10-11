@@ -10,6 +10,8 @@
 #include "InDetPerfPlot_VertexTruthMatching.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
 
 using namespace IDPVM;
 
@@ -345,7 +347,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex, const x
 
 } // void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex) {
 
-void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight) {
+void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter,const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight) {
 
     if (m_iDetailLevel >= 200) {
 
@@ -367,8 +369,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         const xAOD::TruthVertex* truthVtx = nullptr;
         float localPUDensity;
 
-        // Best reco HS vertex identified via sumpt2
-        const xAOD::Vertex* bestRecoHSVtx_sumpt2 = getHSRecoVertexSumPt2(vertexContainer); // Could potentially use the first vertex in the container if sumpt2-ordered
         // Best reco HS vertex identified via truth HS weights
         const xAOD::Vertex* bestRecoHSVtx_truth = InDetVertexTruthMatchUtils::bestHardScatterMatch(vertexContainer);
         if (!bestRecoHSVtx_truth){
@@ -377,13 +377,13 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         }
 
         // Did we correctly select the best reco HS vertex using sumpt2?
-        truthVtx = getTruthVertex(bestRecoHSVtx_sumpt2);
+        truthVtx = getTruthVertex(recoHardScatter);
         if (!truthVtx){
             ATH_MSG_INFO("No truth HS - not filling vertex truth matching."); 
             return;
         }
         localPUDensity = getLocalPUDensity(truthVtx, truthHSVertices, truthPUVertices);
-        fillHisto(m_vx_hs_sel_eff, localPUDensity, (bestRecoHSVtx_sumpt2 == bestRecoHSVtx_truth), weight);
+        fillHisto(m_vx_hs_sel_eff, localPUDensity, (recoHardScatter == bestRecoHSVtx_truth), weight);
 
         // Did we successfully reconstruct our truth HS vertex?
         bool truthHSVtxRecoed = false;
@@ -456,16 +456,16 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
             fillHisto(m_vx_all_x_res, residual_x, weight);
             
             fillHisto(m_vx_all_truth_z_pull_vs_PU, localPUDensity, residual_z/vtxerr_z, weight);
-            fillHisto(m_vx_all_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_y, weight);
-            fillHisto(m_vx_all_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_x, weight);
+            fillHisto(m_vx_all_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_x, weight);
+            fillHisto(m_vx_all_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_y, weight);
 
             fillHisto(m_vx_all_truth_z_res_vs_nTrk, vertex->nTrackParticles(), residual_z, weight);
             fillHisto(m_vx_all_truth_x_res_vs_nTrk, vertex->nTrackParticles(), residual_x, weight);
             fillHisto(m_vx_all_truth_y_res_vs_nTrk, vertex->nTrackParticles(), residual_y, weight);
             
             fillHisto(m_vx_all_truth_z_pull_vs_nTrk, vertex->nTrackParticles(), residual_z/vtxerr_z, weight);
-            fillHisto(m_vx_all_truth_x_pull_vs_nTrk, vertex->nTrackParticles(), residual_x/vtxerr_y, weight);
-            fillHisto(m_vx_all_truth_y_pull_vs_nTrk, vertex->nTrackParticles(), residual_y/vtxerr_x, weight);
+            fillHisto(m_vx_all_truth_x_pull_vs_nTrk, vertex->nTrackParticles(), residual_x/vtxerr_x, weight);
+            fillHisto(m_vx_all_truth_y_pull_vs_nTrk, vertex->nTrackParticles(), residual_y/vtxerr_y, weight);
 
 
         } // end loop over vertices
@@ -502,16 +502,16 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                 fillHisto(m_vx_hs_x_res, residual_x, weight);
 
                 fillHisto(m_vx_hs_truth_z_pull_vs_PU, localPUDensity, residual_z/vtxerr_z, weight);
-                fillHisto(m_vx_hs_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_y, weight);
-                fillHisto(m_vx_hs_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_x, weight);
+                fillHisto(m_vx_hs_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_x, weight);
+                fillHisto(m_vx_hs_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_y, weight);
 
                 fillHisto(m_vx_hs_truth_z_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_z, weight);
                 fillHisto(m_vx_hs_truth_x_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x, weight);
                 fillHisto(m_vx_hs_truth_y_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y, weight);
             
                 fillHisto(m_vx_hs_truth_z_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_z/vtxerr_z, weight);
-                fillHisto(m_vx_hs_truth_x_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x/vtxerr_y, weight);
-                fillHisto(m_vx_hs_truth_y_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y/vtxerr_x, weight);
+                fillHisto(m_vx_hs_truth_x_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x/vtxerr_x, weight);
+                fillHisto(m_vx_hs_truth_y_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y/vtxerr_y, weight);
 
             }
             else {

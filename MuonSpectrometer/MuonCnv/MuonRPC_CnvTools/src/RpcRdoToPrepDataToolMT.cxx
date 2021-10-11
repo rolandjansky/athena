@@ -264,22 +264,22 @@ void Muon::RpcRdoToPrepDataToolMT::printMTPrepData (Muon::RpcPrepDataContainer& 
       int icc = 0;
       int iccphi = 0;
       int icceta = 0;
-      for (it_rpcPrepData=rpcColl->begin(); it_rpcPrepData != rpcColl->end(); it_rpcPrepData++) {
+      for (const RpcPrepData* rpc : *rpcColl) {
 	icc++;
 	ict++;
-	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi(rpc->identify())) {
 	  iccphi++;
 	  ictphi++;
-	  if ((*it_rpcPrepData)->ambiguityFlag()>1) ictamb++;
+	  if (rpc->ambiguityFlag()>1) ictamb++;
 	}
 	else {    
 	  icceta++;
 	  icteta++;
 	}                    
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
-			<<" time "<<(*it_rpcPrepData)->time()
-			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify())
+			<<" time "<<rpc->time()
+			<<" ambiguityFlag "<<rpc->ambiguityFlag()<<endmsg;
       }
       ncoll++;
       msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
@@ -328,19 +328,19 @@ void Muon::RpcRdoToPrepDataToolMT::printMTCoinData (Muon::RpcCoinDataContainer& 
       int iccphihc = 0;
       int iccetalc = 0;
 
-      for (it_rpcCoinData=rpcColl->begin(); it_rpcCoinData != rpcColl->end(); it_rpcCoinData++) {
+      for (const RpcCoinData* rpc : *rpcColl) {
 	icc++;
 	ict++;
 
-	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi(rpc->identify())) {
 	        
 	  iccphi++;
 	  ictphi++;
-	  if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	  if ( rpc->isLowPtCoin() ) {
 	    iccphilc++;
 	    ictphilc++;
 	  }
-	  else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	  else if (rpc->isHighPtCoin()) {
 	    iccphihc++;
 	    ictphihc++;
 	  }                    
@@ -348,22 +348,22 @@ void Muon::RpcRdoToPrepDataToolMT::printMTCoinData (Muon::RpcCoinDataContainer& 
 	else {
 	  icceta++;
 	  icteta++;
-	  if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	  if ( rpc->isLowPtCoin() ) {
 	    iccetalc++;
 	    ictetalc++;
 	  }
-	  else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	  else if (rpc->isHighPtCoin()) {
 	    iccetahc++;
 	    ictetahc++;
 	  }
 	}                    
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" coinData id = "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
-			<<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify())
+			<<" time "<<rpc->time()<<" ijk = "<<rpc->ijk()
 			<<" cm/pad/sl ids = "
-			<<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
+			<<rpc->parentCmId()<<"/"<<rpc->parentPadId()<<"/"<<rpc->parentSectorId()<<"/"
 			<<" isLowPtCoin/HighPtCoin/LowPtInputToHighPt "
-			<<(*it_rpcCoinData)->isLowPtCoin() <<"/"<<(*it_rpcCoinData)->isHighPtCoin() <<"/"<<(*it_rpcCoinData)->isLowPtInputToHighPtCm() 
+			<<rpc->isLowPtCoin() <<"/"<<rpc->isHighPtCoin() <<"/"<<rpc->isLowPtInputToHighPtCm() 
 			<<endmsg;
       }
       ncoll++;

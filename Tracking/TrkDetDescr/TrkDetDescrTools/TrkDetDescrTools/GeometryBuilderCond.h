@@ -24,6 +24,7 @@
 #include "TrkDetDescrUtils/MemoryLogger.h"
 #endif  
 
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
     class TrackingGeometry;
@@ -55,12 +56,15 @@ namespace Trk {
 
         /** AlgTool initialize method */
         StatusCode initialize();
-        
-        /** AlgTool finalize method */
-        StatusCode finalize();
-        
-        /** TrackingGeometry Interface method - optionally a pointer to Bounds */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+
+        /** 
+         * TrackingGeometry Interface method - optionally a pointer to Bounds
+         * Interface marked as not thread safe
+         */
+        std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry
+        ATLAS_NOT_THREAD_SAFE(
+          const EventContext& ctx,
+          std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 
         /** The unique signature */
         GeometrySignature geometrySignature() const { return Trk::Global; }
@@ -68,7 +72,8 @@ namespace Trk {
       private:
 
         /** TrackingGeometry for ATLAS setup */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*> atlasTrackingGeometry(const EventContext& ctx) const;
+        std::pair<EventIDRange, const Trk::TrackingGeometry*>
+          atlasTrackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx) const;
 
 #ifdef TRKDETDESCR_MEMUSAGE         
         MemoryLogger                        m_memoryLogger;                //!< in case the memory is logged

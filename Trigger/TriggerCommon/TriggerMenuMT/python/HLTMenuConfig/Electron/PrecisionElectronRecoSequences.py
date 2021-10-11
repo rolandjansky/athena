@@ -62,7 +62,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF" + tag)
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputTopoClusterContainerName = caloClusters
+    TrigEgammaRecAlgo.InputClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_noGSF ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF" + tag)
@@ -73,17 +73,20 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     ## TrigTopoEgammaElectronCfg_noGSF ##
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF" + tag)
     thesequence += TrigTopoEgammaAlgo
-    TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
+    TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
-
+    TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
+    collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
     ## TrigElectronIsoBuilderCfg_noGSF ##
     isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF" + tag)
+    isoBuilder.useBremAssoc = False
     thesequence += isoBuilder
 
     #online monitoring for topoEgammaBuilder
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
     PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg()
     PrecisionElectronRecoMonAlgo.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
+    PrecisionElectronRecoMonAlgo.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo.ElectronOutputName]
     thesequence += PrecisionElectronRecoMonAlgo
 
     #online monitoring for TrigElectronSuperClusterBuilder
@@ -91,5 +94,5 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg()
     PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     thesequence += PrecisionElectronSuperClusterMonAlgo
-    return (thesequence, collectionOut)
+    return (thesequence, collectionOut, collectionOut_dummy)
 

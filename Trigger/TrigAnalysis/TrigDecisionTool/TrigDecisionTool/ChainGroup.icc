@@ -9,7 +9,8 @@ template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
         SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
         unsigned int condition, const std::string& containerSGKey,
-        const unsigned int featureCollectionMode, const std::string& navElementLinkKey) const {
+        const unsigned int featureCollectionMode, const std::string& navElementLinkKey,
+        const int restrictToLegIndex) const {
 
   bool errState = false;
   if ( condition != TrigDefs::Physics && condition != TrigDefs::includeFailedDecisions ) {
@@ -69,9 +70,17 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
       if (legMultiplicites.size() == 0) {
         ATH_MSG_ERROR("chain " << chainID << " has invalid configuration, no multiplicity data.");
       } else if (legMultiplicites.size() > 1) {
+        if (restrictToLegIndex >= (int)legMultiplicites.size()) {
+          ATH_MSG_WARNING("Requested features from leg index " << restrictToLegIndex << " for chain " << chainID <<
+            " but this chain only has " << legMultiplicites.size() << " legs");
+        }
         // For multi-leg chains, the DecisionIDs are handled per leg.
         // We don't care here exactly how many objects are required per leg, just that there are two-or-more legs
         for (size_t legNumeral = 0; legNumeral < legMultiplicites.size(); ++legNumeral) {
+          // If restrictToLegIndex is -1 then we are NOT filtering on legs, we return features over all legs.
+          if (restrictToLegIndex != -1 and restrictToLegIndex != (int)legNumeral) { 
+            continue;
+          }
           HLT::Identifier legID = TrigCompositeUtils::createLegName(chainID, legNumeral);
           allRequestedChainIDs.insert( legID.numeric() );
           thisChainIDs.insert( legID.numeric() );
@@ -136,17 +145,15 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
     TrigCompositeUtils::recursiveGetFeaturesOfType<CONTAINER>(navGraph, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, allRequestedChainIDs);
 
-  // Check for missing navigation data if requesting the default "feature" links
-  if (navElementLinkKey == TrigCompositeUtils::featureString()) {
-    const auto& ctx = Gaudi::Hive::currentContext();
-    for (const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo : returnVector) {
-      if (linkInfo.link.isValid()) continue; // We're looking for invalid links...
-      if (linkInfo.source->isRemapped()) continue; // ... which do not have remapping data. 
-      ElementLink<TrigCompositeUtils::DecisionContainer> sourceEL = TrigCompositeUtils::decisionToElementLink( linkInfo.source, ctx );
-      ATH_MSG_WARNING("A link to a feature from " << sourceEL.dataID() << " is invalid, "
-        "this is due to this container not having its 'remap_linkColIndices' and 'remap_linkColKeys' decorations.");
-      break;
-    } 
+  size_t invalid = 0;
+  for (const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo : returnVector) {
+    if (not linkInfo.link.isValid()) {
+      ++invalid;
+    }
+  }
+  if (invalid) {
+    ATH_MSG_WARNING(invalid << " of " << returnVector.size() << " returned features have invalid element links. Check the Trigger EDM. "
+      << "Request was for features of type " << ClassID_traits<CONTAINER>::typeName());
   }
 
   return returnVector;

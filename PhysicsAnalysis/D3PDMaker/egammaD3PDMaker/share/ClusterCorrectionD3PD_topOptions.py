@@ -35,9 +35,6 @@ prodFlags.WriteClusterCorrectionD3PD.lock()
 
 athenaCommonFlags.EvtMax = -1
 
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-D3PDMakerFlags.DoTrigger = False
-
 
 ###################################################################
 # Configure RecExCommon.

@@ -72,9 +72,9 @@
 //____________________________________________________________________
 class MissingEtCollHandle::Imp {
 public:
-  MissingEtCollHandle * theclass;
-  int updateGUICounter;
-  MissingEtCollectionSettingsButton* collSettingsButton;
+  MissingEtCollHandle * theclass = nullptr;
+  int updateGUICounter = 0;
+  MissingEtCollectionSettingsButton* collSettingsButton = nullptr;
 
   //Vector of iParticle handles:
   std::vector<MissingEtHandle*> handles;

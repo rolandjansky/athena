@@ -42,10 +42,6 @@ class TauThinningAlg : public AthReentrantAlgorithm
 
  private:
 
-  // tau pt threshold (pt = ptFinalCalib as TauThinning is run after tau reconstruction)
-  Gaudi::Property<double> m_minTauPt 
-    { this, "MinTauPt", 0.* Gaudi::Units::GeV, "Minimum tau pt" };
-
   // whether tau vertex correction is applied in tau reconstruction
   Gaudi::Property<bool> m_doVertexCorrection
     { this, "VertexCorrection", true, "Tau vertex correction" };

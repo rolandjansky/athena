@@ -100,7 +100,7 @@ return StatusCode::SUCCESS;
     std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> > ModuleMap;
     m_SurvConstr -> MMap(ModuleMap);
     std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> >::iterator it;
-    for (it = ModuleMap.begin(); it != ModuleMap.end(); it++) {
+    for (it = ModuleMap.begin(); it != ModuleMap.end(); ++it) {
       const Identifier& ModuleID = (it->second)->moduleID();
       SurveyConstraintModule* mut = ModuleMap[ModuleID];
       if(mut->isPixel()){

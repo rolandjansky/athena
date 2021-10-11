@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -21,13 +21,17 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawConditions/LArADC2MeV.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+
+//Events infos:
+
+#include "LArRawEvent/LArFebHeaderContainer.h"
 //Events infos:
 #include "xAODEventInfo/EventInfo.h"
+
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 
 class LArRawChannel;
@@ -119,6 +123,9 @@ private:
   unsigned m_eventsCounter;
   enum PARTITION {EMBC=0,EMBA,EMECC,EMECA,HECC,HECA,FCALC,FCALA,N_PARTITIONS};
 
+  
+
+
   PARTITION getPartition(const HWIdentifier chid) const;
 
   struct HistGroup{
@@ -187,7 +194,7 @@ private:
   
   std::vector<ERRCOUNTER> m_errcounters;
 
-  unsigned m_count_gain[3];
+  unsigned m_count_gain[3]{};
 
   TH2F* m_hSummaryErrors_Energy;
   TH2F* m_hSummaryErrors_Time;
@@ -224,7 +231,11 @@ private:
 
   SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey{this,"LArADC2MeVKey","LArADC2MeV","SG Key of the LArADC2MeV CDO"};
 
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
 
@@ -254,15 +265,15 @@ private:
   int m_range_E_2;
   int m_range_E_3;
 
-  int m_range_T_0;
-  int m_range_T_1;
-  int m_range_T_2;
-  int m_range_T_3;
+  int m_range_T_0 = 0;
+  int m_range_T_1 = 0;
+  int m_range_T_2 = 0;
+  int m_range_T_3 = 0;
 
-  int m_range_Q_0;
-  int m_range_Q_1;
-  int m_range_Q_2;
-  int m_range_Q_3;
+  int m_range_Q_0 = 0;
+  int m_range_Q_1 = 0;
+  int m_range_Q_2 = 0;
+  int m_range_Q_3 = 0;
 
   int m_precision_E_0;
   int m_precision_E_1;

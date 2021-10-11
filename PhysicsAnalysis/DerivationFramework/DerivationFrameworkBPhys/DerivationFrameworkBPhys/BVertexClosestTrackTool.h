@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -40,25 +40,26 @@ namespace DerivationFramework {
     class CtItem : public BaseItem {
 
       public:
-	CtItem(std::string Name="_none_",
-	       std::string Bname = "ctrk",
-	       std::string Prefix="",
+	CtItem(const std::string& Name="_none_",
+	       const std::string& Bname = "ctrk",
+	       const std::string& Prefix="",
 	       double Dca=-999., double DcaErr=-99.,
 	       double Zca=-999., double ZcaErr=-99.,
          double VtxNDErr2=-99., double TrkNDErr2=-99.,
          double Phi0Used=-999.,
 	       int NTrksChi2=0, xAOD::TrackParticle* CloseTrack=NULL,
-         TrackBag Tracks = {},
-         std::vector<std::vector<double> > Vtap = {},
-         std::vector<unsigned short> Selpat = {});
+         const TrackBag& Tracks = {},
+         const std::vector<std::vector<double> >& Vtap = {},
+         const std::vector<unsigned short>& Selpat = {});
 
 	virtual ~CtItem();
 	
-	virtual void        setup(std::string Name="_none_",
-				  std::string Bname="ctrk",
-				  std::string Prefix="");
-	virtual void        setup(std::string Name, std::string Bname,
-				  std::string Prefix,
+	virtual void        setup(const std::string& Name="_none_",
+				  const std::string& Bname="ctrk",
+				  const std::string& Prefix="");
+	virtual void        setup(const std::string& Name,
+                                  const std::string& Bname,
+				  const std::string& Prefix,
 				  double Dca, double DcaErr,
 				  double Zca, double ZcaErr,
           double VtxNDErr2, double TrkNDErr2,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/JetCalibrationToolBase.h"
@@ -12,7 +12,7 @@
 
 namespace JetCalibUtils {
 
-  StrV Vectorize(TString str, TString sep)
+  StrV Vectorize(const TString& str, TString sep)
   {
     StrV result; 
     TObjArray* tokens = str.Tokenize(sep);
@@ -23,7 +23,7 @@ namespace JetCalibUtils {
     return result;
   }
 
-  VecD VectorizeD(TString str, TString sep)
+  VecD VectorizeD(const TString& str, TString sep)
   {
     VecD result;
     TObjArray* tokens = str.Tokenize(sep);
@@ -34,28 +34,29 @@ namespace JetCalibUtils {
     return result;
   }
 
-  TH1 *GetHisto(TFile *file, TString hname) {
-    TH1 *h = (TH1*)file->Get(hname);
-    if (h==NULL)
-      printf("WARNING: Cannot access histogram \"%s\" in file %s",
-	     hname.Data(),file->GetName());
+  template<class H>
+  std::unique_ptr<const H> GetHisto_impl(TFile& file, const TString& hname) {
+    std::unique_ptr<H> h(static_cast<H*>(file.Get(hname)));
+    if (h==nullptr) {
+      std::cout << "WARNING: Cannot access histogram " << hname.Data()
+                << " in file " << file.GetName() << std::endl;
+    }
+    else {
+      h->SetDirectory(0);  // make histogram memory-resident
+    }
     return h;
   }
 
-  TH2 *GetHisto2(TFile *file, TString hname) {
-    TH2 *h = (TH2*)file->Get(hname);
-    if (h==NULL)
-      printf("WARNING: Cannot access histogram \"%s\" in file %s",
-	     hname.Data(),file->GetName());
-    return h;
+  std::unique_ptr<const TH1> GetHisto(TFile& file, const TString& hname) {
+    return GetHisto_impl<TH1>(file, hname);
   }
 
-  TH3 *GetHisto3(TFile *file, TString hname) {
-    TH3* h = (TH3*)file->Get(hname);
-    if (h==NULL)
-      printf("WARNING: Cannot access histogram \"%s\" in file %s",
-             hname.Data(),file->GetName());
-    return h;
+  std::unique_ptr<const TH2> GetHisto2(TFile& file, const TString& hname) {
+    return GetHisto_impl<TH2>(file, hname);
+  }
+
+  std::unique_ptr<const TH3> GetHisto3(TFile& file, const TString& hname) {
+    return GetHisto_impl<TH3>(file, hname);
   }
 
   TTree *setTree(TTree *tree) { return tree; }

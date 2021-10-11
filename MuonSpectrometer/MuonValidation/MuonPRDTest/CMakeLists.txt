@@ -12,7 +12,7 @@ atlas_add_component( MuonPRDTest
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib Identifier 
-		     xAODEventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonRDO MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack 
+		     xAODEventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonRDO MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack MuonCSC_CnvToolsLib
 		     MuonRecToolInterfaces MuonSimData MuonSimEvent TrkGeometry TrkSurfaces TrkParameters TrkExInterfaces TrackRecordLib)
 
 # Install files from the package:

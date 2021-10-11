@@ -50,7 +50,7 @@ void compare (const Muon::TgcPrepData& p1,
 
 void testit (const Muon::TgcPrepData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TgcPrepDataCnv_p1 cnv;
   TgcPrepDataContainerCnv_tlp1 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());
@@ -80,7 +80,7 @@ void test1()
                             IdentifierHash (1234),
                             locpos,
                             rdoList,
-                            new Amg::MatrixX(cov),
+                            cov,
                             nullptr,
                             123);
                             

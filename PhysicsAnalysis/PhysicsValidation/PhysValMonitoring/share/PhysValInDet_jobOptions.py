@@ -7,6 +7,8 @@ from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
 import InDetPhysValMonitoring.InDetPhysValMonitoringTool as InDetPhysValMonitoringTool
 
 mons=[ (True                                             , InDetPhysValMonitoringTool.getInDetPhysValMonitoringTool),
+       (InDetPhysValFlags.doValidateMuonMatchedTracks()  , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolMuons),
+       (InDetPhysValFlags.doValidateElectronMatchedTracks()  , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolElectrons),
        (InDetPhysValFlags.doValidateLargeD0Tracks()      , InDetPhysValMonitoringTool.getInDetLargeD0PhysValMonitoringTool),
        (InDetPhysValFlags.doValidateLooseTracks()        , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolLoose),
        (InDetPhysValFlags.doValidateTightPrimaryTracks() , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolTightPrimary),

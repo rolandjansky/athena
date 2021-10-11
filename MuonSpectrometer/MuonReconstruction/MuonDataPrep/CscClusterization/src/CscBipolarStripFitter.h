@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscBipolarStripFitter_H
@@ -54,12 +54,12 @@ private:
         "",
     };
 
-    double FindInitValues(double *x, double *initValues, int *maxsample) const;
+    static double FindInitValues(double *x, double *initValues, int *maxsample) ;
     double FindPow(double z) const;
-    void InvertMatrix(double matrix[][3], const int dim, int *) const;
-    void InvertSymmetric4x4(double W[][4]) const;
-    void Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, int *meas) const;
-    int TheFitter(double *x, const double ex, double *initValues, int imeas, int *meas, int ipar, int *par, double *chi2,
+    static void InvertMatrix(double matrix[][3], const int dim, const int *) ;
+    static void InvertSymmetric4x4(double W[][4]) ;
+    void Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, const int *meas) const;
+    int TheFitter(double *x, const double ex, const double *initValues, int imeas, int *meas, int ipar, int *par, double *chi2,
                   double *result) const;
 
     // Job options.

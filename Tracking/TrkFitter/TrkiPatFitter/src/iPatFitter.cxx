@@ -614,7 +614,7 @@ namespace Trk
     std::vector<FitMeasurement*>& measurements,
     const FitParameters& parameters,
     ParticleHypothesis particleHypothesis,
-    const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const
+    const Trk::TrackStates& trackStateOnSurfaces) const
   {
     // create vector of any TSOS'es which require fitted alignment corrections
     std::vector<Identifier> misAlignedTSOS;
@@ -622,7 +622,7 @@ namespace Trk
     int misAlignmentNumber = 0;
     int tsos = 0;
     //  BUG that shifts ...   misAlignmentNumbers.push_back(misAlignmentNumber);
-    for (DataVector<const TrackStateOnSurface>::const_iterator
+    for (Trk::TrackStates::const_iterator
          i = trackStateOnSurfaces.begin();
          i != trackStateOnSurfaces.end();
          ++i, ++tsos) {
@@ -660,7 +660,7 @@ namespace Trk
     double qOverP = parameters.qOverP();
     const ExtrapolationType type = FittedTrajectory;
     tsos = 0;
-    for (DataVector<const TrackStateOnSurface>::const_iterator
+    for (Trk::TrackStates::const_iterator
          i = trackStateOnSurfaces.begin();
          i != trackStateOnSurfaces.end();
          ++i, ++hit, ++tsos) {
@@ -695,15 +695,19 @@ namespace Trk
               && !haveMaterial
               && (haveMeasurement || s.measurementOnTrack())) { haveMaterial = true; }
         }
+	else{
+	  ATH_MSG_DEBUG("don't keep thin scatterer");
+	  continue;
+	}
       } else if (s.alignmentEffectsOnTrack() && s.trackParameters()) {
         Amg::Vector3D direction = s.trackParameters()->momentum().unit();
         Amg::Vector3D position = s.trackParameters()->position();
         measurement1 = std::make_unique<FitMeasurement>(s.alignmentEffectsOnTrack(), direction, position);
       }
-    const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
-    if (measurementBase) {
-        if (!Amg::valid_cov(measurementBase->localCovariance())){
-            continue;
+      const Trk::MeasurementBase*	measurementBase = s.measurementOnTrack();
+      if (measurementBase) {
+        if (!Amg::saneCovarianceDiagonal(measurementBase->localCovariance())) {
+          continue;
         }
         // option to skip vertex measurement (i.e. when not at front of list)
         if (skipVertexMeasurement && dynamic_cast<const PerigeeSurface*>(&s.surface())) {
@@ -759,17 +763,21 @@ namespace Trk
             }
           }
         }
-      } else if (!measurement1 && s.trackParameters()) {
+      } 
+      else if (!measurement1 && s.trackParameters()) {
         if (s.type(TrackStateOnSurface::Hole)) {
           measurement2 = std::make_unique<FitMeasurement>(s);
-        } else if (s.type(TrackStateOnSurface::Perigee)) {
+        } 
+	else if (s.type(TrackStateOnSurface::Perigee)) {
           if (i == trackStateOnSurfaces.begin()) { continue; }
           const Perigee* perigee = dynamic_cast<const Perigee*>(s.trackParameters());
           if (!perigee) { continue; }
           measurement2 = std::make_unique<FitMeasurement>(*perigee);
-        } else if (s.type(TrackStateOnSurface::Parameter)) {
+        } 
+	else if (s.type(TrackStateOnSurface::Parameter)) {
           continue;
-        } else {
+        } 
+	else {
           // TSOS type not understood.
           m_messageHelper->printWarning(16, s.dumpType());
           continue;
@@ -879,7 +887,7 @@ namespace Trk
     // reorder if necessary
     if (reorder) { m_materialAllocator->orderMeasurements(measurements, startDirection, startPosition); }
     if (measurementsFlipped) {
-      m_messageHelper->printWarning(25);
+      ATH_MSG_VERBOSE("flipped track measurement order");
     }
 
     // flag whether material has already been allocated
@@ -892,7 +900,7 @@ namespace Trk
     FitState& fitState,
     const ParticleHypothesis particleHypothesis,
     const TrackInfo& trackInfo,
-    const DataVector<const TrackStateOnSurface>* leadingTSOS,
+    const Trk::TrackStates* leadingTSOS,
     const FitQuality* perigeeQuality,
     Garbage_t& garbage) const
   {
@@ -938,23 +946,19 @@ namespace Trk
         if (!parameters->fitMomentum()) { fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack); }
 
         // special check for CaloDeposit - parameters must be inside calorimeter
-        for (DataVector<const TrackStateOnSurface>::const_iterator
-             s = fittedTrack->trackStateOnSurfaces()->begin();
-             s != fittedTrack->trackStateOnSurfaces()->end();
-             ++s) {
-          if (!(**s).type(TrackStateOnSurface::CaloDeposit)) {
+        for (const Trk::TrackStateOnSurface* tsos : *fittedTrack->trackStateOnSurfaces()) {
+          if (!tsos->type(TrackStateOnSurface::CaloDeposit)) {
             continue;
           }
-          if ((**s).trackParameters()) {
-            Amg::Vector3D position = (**s).trackParameters()->position();
+          if (tsos->trackParameters()) {
+            const Amg::Vector3D position = tsos->trackParameters()->position();
             if (!m_indetVolume->inside(position) && m_calorimeterVolume->inside(position)) {
-              break;
+                break;
             }
           }
-
           // something badly wrong: WARN and kill track
           // fail fit as CaloDeposit outside calo volume
-          m_messageHelper->printWarning(20);
+          ATH_MSG_DEBUG("fail fit as CaloDeposit outside calo volume: "<<(*fittedTrack));
           fittedTrack.reset();
           break;
         }
@@ -1076,7 +1080,7 @@ namespace Trk
 
     msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endmsg;
     int tsos = 0;
-    for (DataVector<const TrackStateOnSurface>::const_iterator t = track.trackStateOnSurfaces()->begin();
+    for (Trk::TrackStates::const_iterator t = track.trackStateOnSurfaces()->begin();
          t != track.trackStateOnSurfaces()->end();
          ++t, ++tsos) {
       msg() << std::setiosflags(std::ios::fixed | std::ios::right)

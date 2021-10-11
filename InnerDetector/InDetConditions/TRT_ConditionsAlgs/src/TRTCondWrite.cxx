@@ -32,7 +32,7 @@ TRTCondWrite::TRTCondWrite(const std::string& name, ISvcLocator* pSvcLocator)
    m_setup(false),
    m_par_caltextfile(""),
    m_par_caloutputfile(""), //set this to "calibout_n,txt", where n=0,1,2,3 refers to the format
-   m_trtid(0),
+   m_trtid(nullptr),
    m_streamer("AthenaOutputStreamTool/CondStream1"),
    m_detstore("DetectorStore",name),
    m_condSvc("CondSvc",name)
@@ -65,7 +65,7 @@ StatusCode TRTCondWrite::initialize() {
 
 
   int format=0;
-  if( m_par_caltextfile != "" ) {
+  if( !m_par_caltextfile.empty() ) {
     ATH_MSG_INFO( " input text file supplied " << m_par_caltextfile);
     if(StatusCode::SUCCESS!=checkTextFile(m_par_caltextfile, format)) {
       ATH_MSG_FATAL( "Could not read format of text file" << m_par_caltextfile);

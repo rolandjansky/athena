@@ -8,6 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
+from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 
 from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
@@ -50,6 +51,10 @@ def OverlayMainCfg(configFlags):
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
 
+    # Handle metadata correctly
+    overlayMetadataCheck(configFlags)
+    acc.merge(overlayMetadataWrite(configFlags))
+
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))
 
@@ -60,6 +65,11 @@ def OverlayMainCfg(configFlags):
     acc.merge(CopyTimingsCfg(configFlags))
     acc.merge(CopyCaloCalibrationHitContainersCfg(configFlags))
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
+
+    # Beam spot reweighting
+    if configFlags.Digitization.InputBeamSigmaZ > 0:
+        from BeamEffects.BeamEffectsAlgConfig import BeamSpotReweightingAlgCfg
+        acc.merge(BeamSpotReweightingAlgCfg(configFlags))
 
     # Inner detector
     if configFlags.Detector.EnableBCM:

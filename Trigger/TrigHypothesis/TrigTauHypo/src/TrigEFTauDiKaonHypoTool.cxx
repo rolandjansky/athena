@@ -115,10 +115,12 @@ bool TrigEFTauDiKaonHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& inp
   auto ptAccepted          = Monitored::Scalar<float>( "ptAccepted", -10);
   auto nTrackAccepted          = Monitored::Scalar<float>( "nTrackAccepted", -1);
   auto nWideTrackAccepted          = Monitored::Scalar<float>( "nWideTrackAccepted", -1);
-  auto dRAccepted          = Monitored::Scalar<float>( "dRAccepted", -10);
+  auto dRAccepted          = Monitored::Scalar<float>( "dRAccepted", -1);
   auto etOverPtLeadTrkAccepted          = Monitored::Scalar<float>( "etOverPtLeadTrkAccepted", -10);
   auto EMOverTrkSysPAccepted          = Monitored::Scalar<float>( "EMOverTrkSysPAccepted", -10);
   auto ninputTaus         = Monitored::Scalar<int>( "nInputTaus", -1);
+  auto monitorIt    = Monitored::Group(m_monTool, PassedCuts, massTrkSysAccepted, massTrkSysKaonAccepted, massTrkSysKaonPiAccepted, leadTrkPtAccepted, ptAccepted, nTrackAccepted, nWideTrackAccepted , dRAccepted, etOverPtLeadTrkAccepted, EMOverTrkSysPAccepted, ninputTaus);
+
 
   PassedCuts = 0;
 
@@ -154,7 +156,7 @@ bool TrigEFTauDiKaonHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& inp
     
     // cut on calibrated pt:
 
-    double EFet = Tau->pt()*1e-3;
+    double EFet = Tau->pt()*1e-3; //Convert to GeV
     ATH_MSG_DEBUG( " REGTEST: Et Calib "<<EFet);
     
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
@@ -186,7 +188,7 @@ bool TrigEFTauDiKaonHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& inp
     ATH_MSG_DEBUG( " REGTEST: leadTrkPt "<< leadTrkPt);
     if(!( leadTrkPt > m_leadTrkPtMin)) continue;
     PassedCuts++;
-    leadTrkPtAccepted = leadTrkPt;
+    leadTrkPtAccepted = leadTrkPt*1e-3; //Convert to GeV
 
     // cut on massTrkSys:     
     float massTrkSys = -1.;
@@ -248,15 +250,15 @@ bool TrigEFTauDiKaonHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& inp
     ATH_MSG_DEBUG( " REGTEST: massTrkSys with kaon+pi mass hypo "<< massTrkSysKaonPi );
     if (!( (massTrkSys > m_massTrkSysMin) && (massTrkSys < m_massTrkSysMax) ) )  continue;
     PassedCuts++;
-    massTrkSysAccepted = massTrkSys;
+    massTrkSysAccepted = massTrkSys*1e-3; //Convert to GeV
 
     if (!( (massTrkSysKaon > m_massTrkSysKaonMin) && (massTrkSysKaon < m_massTrkSysKaonMax) ) )  continue;
     PassedCuts++;   
-    massTrkSysKaonAccepted = massTrkSysKaon;
+    massTrkSysKaonAccepted = massTrkSysKaon*1e-3; //Convert to GeV
 
     if (!( (massTrkSysKaonPi >= m_massTrkSysKaonPiMin) && (massTrkSysKaonPi < m_massTrkSysKaonPiMax) ) )  continue; //use >= otherwise singlepion chain would fail here!
     PassedCuts++;
-    massTrkSysKaonPiAccepted = massTrkSysKaonPi;
+    massTrkSysKaonPiAccepted = massTrkSysKaonPi*1e-3; //Convert to GeV
 
     // cut on EMPOverTrkSysP:     
     float EMPOverTrkSysP = -1.;

@@ -49,7 +49,7 @@ void Pixel1RawDataContainerCnv_p1::transToPers(const PixelRDO_Container* transCo
     persCont->m_collections.resize(numColl);
     MSG_DEBUG(log," Preparing " << persCont->m_collections.size() << "Collections");
   
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         const PixelRDO_Collection& collection = (**it_Coll);
         chanBegin  = chanEnd;

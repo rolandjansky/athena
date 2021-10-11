@@ -11,6 +11,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include <iosfwd>
 
 class MsgStream;
 

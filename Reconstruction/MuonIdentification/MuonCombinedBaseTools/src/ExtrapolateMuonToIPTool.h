@@ -40,15 +40,13 @@ public:
         @param   muonTracks the track collection with muon tracks to be extrapolated to the IP
         @return  TrackCollection with the tracks at the IP, ownership is passed to the caller
     */
-    TrackCollection* extrapolate(const TrackCollection& muonTracks) const override;
-    TrackCollection* extrapolate(const TrackCollection& muonTracks, const EventContext& ctx) const override;
+    std::unique_ptr<TrackCollection> extrapolate(const TrackCollection& muonTracks, const EventContext& ctx) const override;
 
     /** @brief extrapolate a muon track the IP, will return 0 if the back extrapolation fails
         @param   muonTrack the moun inpu track
         @return  Track at the IP, ownership is passed to the caller, return zero if back extrapolation failed
     */
-    Trk::Track* extrapolate(const Trk::Track& muonTrack) const override;
-    Trk::Track* extrapolate(const Trk::Track& muonTrack, const EventContext& ctx) const override;
+    std::unique_ptr<Trk::Track> extrapolate(const Trk::Track& muonTrack, const EventContext& ctx) const override;
 
 private:
     /** find measured parameters closest to IP to start back extrapolation */

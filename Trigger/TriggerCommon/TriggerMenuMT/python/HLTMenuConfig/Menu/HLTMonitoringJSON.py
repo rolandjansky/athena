@@ -1,11 +1,22 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+import re
 import json
 from collections import OrderedDict as odict
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTMenuFileName, getHLTMonitoringFileName
 from AthenaCommon.Logging import logging
 __log = logging.getLogger( __name__ )
 
+
+# remove prescale suffixes
+def __getMenuBaseName(menuName):
+    pattern = re.compile(r'_v\d+|DC14')
+    patternPos = pattern.search(menuName)
+    if patternPos:
+        menuName=menuName[:patternPos.end()]
+    else:
+        __log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+    return menuName
 
 def generateDefaultMonitoringJSON():
     __log.info("Generating HLT Monitoring JSON in the rec-ex-common job")
@@ -22,7 +33,7 @@ def generateDefaultMonitoringJSON():
 def generateMonitoringJSON(menuName, chainDicts, fileName):
 
     #create a summary file 
-    summaryDict=odict([ ("filetype", "hltmonitoringsummary"), ("name", menuName), ("signatures", odict())])
+    summaryDict=odict([ ("filetype", "hltmonitoringsummary"), ("name", __getMenuBaseName(menuName)), ("signatures", odict())])
 
     # then you can iterate, say over the HLT menu:
     for chain in chainDicts:

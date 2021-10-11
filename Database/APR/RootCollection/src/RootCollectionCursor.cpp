@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollectionCursor.h"
@@ -23,8 +23,6 @@ RootCollectionCursor(
       m_eventList(evl),
       m_idx(-1),
       m_entries( evl? evl->GetN() : tree->GetEntries() ),
-      m_attIdx(-23),
-      m_tokIdx(-42),
       m_dummyRef( false )
 {
    for( coral::AttributeList::iterator attrI = m_collectionRowBuffer.attributeList().begin();
@@ -150,7 +148,7 @@ pool::RootCollection::RootCollectionCursor::size()
 const Token& 
 pool::RootCollection::RootCollectionCursor::eventRef() const
 {
-   static Token dummyToken;
+   static const Token dummyToken;
    if( m_dummyRef )  return dummyToken; 
    return m_collectionRowBuffer.tokenList()[ m_description.eventReferenceColumnName() ];
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "ParticleCaloExtensionTool.h"
@@ -23,7 +23,7 @@ ParticleCaloExtensionTool::ParticleCaloExtensionTool(
   const IInterface* p)
   : AthAlgTool(t, n, p)
   , m_detID(nullptr)
-  , m_particleType(muon)
+  , m_particleStrategy(muon)
 {
   declareInterface<IParticleCaloExtensionTool>(this);
 }
@@ -39,20 +39,19 @@ ParticleCaloExtensionTool::initialize()
   ATH_CHECK(detStore()->retrieve(m_detID, "AtlasID"));
   /* convert string to proper particle type enum*/
   if (m_particleTypeName == "nonInteracting") {
-    m_particleType = nonInteracting;
+    m_particleStrategy = nonInteracting;
   } else if (m_particleTypeName == "muon") {
-    m_particleType = muon;
+    m_particleStrategy = muon;
   } else if (m_particleTypeName == "pion") {
-    m_particleType = pion;
+    m_particleStrategy = pion;
   } else if (m_particleTypeName == "electron") {
-    m_particleType = electron;
+    m_particleStrategy = electron;
   } else {
-    ATH_MSG_WARNING(
-      "Unsupported particle type, using muon " << m_particleTypeName);
+    ATH_MSG_WARNING("Unsupported particle type, using strategy based on type "
+                    << m_particleTypeName);
   }
-  ATH_MSG_INFO(
-    " Using particle type " << m_particleTypeName << " enum value "
-                            << m_particleType);
+  ATH_MSG_INFO(" Using strategy based on particle type "
+               << m_particleTypeName << " enum value " << m_particleStrategy);
   return StatusCode::SUCCESS;
 }
 
@@ -211,28 +210,53 @@ ParticleCaloExtensionTool::caloExtension(
    * For electrons the extrapolation will be done as a muon since this
    * is the closest to non-interacting in the calorimeter
    * while still providing intersections.
+   *
+   * Also for electrons track Particles (GSF)
+   * we retain the perigee,first,last.
+   * even in AOD.
    */
 
-  ParticleHypothesis particleType = m_particleType;
+  // Start with what the user opted as strategy
+  ParticleHypothesis particleType = m_particleStrategy;
+  // special treatment when we want an electron strategy
+  if (m_particleStrategy == electron) {
+    particleType = muon;
+    if (m_startFromPerigee) {
+      return caloExtension(
+        ctx, particle.perigeeParameters(), alongMomentum, particleType);
+    } else {
+      unsigned int index(0);
+      if (particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)) {
+        const Trk::CurvilinearParameters& lastParams =
+          particle.curvilinearParameters(index);
+        const Amg::Vector3D& position = lastParams.position();
+        // Muon Entry is around z 6783 and r  4255
+        if (position.perp() > 4200. || std::abs(position.z()) > 6700.) {
+          ATH_MSG_WARNING("Can extrapolate to calo along momentum if already "
+                          "past it. Probematic parameters : "
+                          << lastParams);
+          return nullptr;
+        }
+        return caloExtension(ctx, lastParams, alongMomentum, particleType);
+      }
+    }
+  }
+  /*
+   * The following are tuned mainly for
+   * the strategy we want to follow for muons.
+   * But should also work well as a generic
+   * strategy. So is the default/fallback.
+   */
 
-  ATH_MSG_DEBUG(
-    "caloExtension for tracks. " << particleType
-                                 << "  index= " << particle.index());
-
-  // electron are extrapolated as muons
-  // since this is the closest to non-interacting
-  if (
-    m_particleType == electron ||
-    particle.particleHypothesis() == xAOD::electron) {
-    ATH_MSG_DEBUG("Extrapolating electrons with muon hypothesis");
+  // Check if the fitter has used electron hypo
+  // and force using the muon strategy
+  if (particle.particleHypothesis() == xAOD::electron) {
     particleType = muon;
   }
-
-  // Extrapolation starting from perigee
   if (m_startFromPerigee || !particle.track()) {
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255
-    if (fabs(particle.perigeeParameters().position().z()) > 6700.)
+    if (std::abs(particle.perigeeParameters().position().z()) > 6700.)
       idExit = false;
     if (particle.perigeeParameters().position().perp() > 4200.)
       idExit = false;
@@ -349,14 +373,6 @@ ParticleCaloExtensionTool::caloExtension(
     if (!p.first) {
       continue;
     }
-
-    ATH_MSG_DEBUG(
-      " param " << p.first << " id " << p.second << " pos: r "
-                << p.first->position().perp() << " z "
-                << p.first->position().z() << " pt "
-                << p.first->momentum().perp() << " cov "
-                << p.first->covariance());
-
     // assign parameters
     // calo aentry muon entry and the crossed calo layers
     if (p.second == 1 && propDir == Trk::alongMomentum) {

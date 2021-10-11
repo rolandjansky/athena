@@ -1,5 +1,5 @@
 
-#include "TrigMETMonitoring/HLTMETMonTool.h"
+#include "../HLTMETMonTool.h"
 #include "../TrigMETMonitorAlgorithm.h"
 
 

@@ -80,7 +80,7 @@ include("AtlasGeoModel/SetGeometryVersion.py" )
 include("AtlasGeoModel/GeoModelInit.py" )
 # ---- Beam Spot service
 if InDetFlags.useBeamConstraint():
-  include("InDetBeamSpotService/BeamCondSvc.py")
+  include("BeamSpotConditions/BeamCondAlgSetup.py")
 # --- need MagneticField
 include("BFieldAth/BFieldAth_jobOptions.py")
 # --- particle property service

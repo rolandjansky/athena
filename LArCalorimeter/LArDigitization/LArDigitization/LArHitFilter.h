@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LArHitFilter_H
@@ -40,7 +40,7 @@ class LArHitFilter : public AthAlgorithm
   const LArHEC_ID*       m_larhec_id;
   const LArFCAL_ID*      m_larfcal_id;
 
-  double m_ecut[4][4];
+  double m_ecut[4][4]{};
 
   //Configurable Properties
   std::string m_SubDetectors;      // subdetectors

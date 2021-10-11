@@ -49,7 +49,7 @@ public:
 
 private:
   //! numerical approximation for probability-mapping Bethe-Heitle to Gauss
-  double calculateDna(double xth, double c, double zest) const;
+  static double calculateDna(double xth, double c, double zest) ;
 
   //!< max value of new chi2 at minimum (generic use)
   double m_yminmax_generic; //!< max value of new chi2 at minimum (generic use)

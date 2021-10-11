@@ -99,9 +99,15 @@ class _TileInfoConfigurator( TileInfoLoader ):
         #from .TileCondToolConf import getTileCondToolNoiseRawChn
         #ToolSvc += getTileCondToolNoiseRawChn('COOL')
 
-        self.msg.info("Changing default TileCondToolTiming configuration to COOL source")
-        from .TileCondToolConf import getTileCondToolTiming
-        getTileCondToolTiming('COOL',type)
+        from PyUtils.moduleExists import moduleExists
+        doXingByXingPileUp = False
+        if moduleExists ('Digitization'):
+            from Digitization.DigitizationFlags import digitizationFlags
+            doXingByXingPileUp = digitizationFlags.doXingByXingPileUp()
+        if not doXingByXingPileUp:
+            self.msg.info("Changing default TileCondToolTiming configuration to COOL source")
+            from .TileCondToolConf import getTileCondToolTiming
+            getTileCondToolTiming('COOL',type)
 
  #       self.msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
  #       from .TileCondToolConf import getTileCondToolPulseShape

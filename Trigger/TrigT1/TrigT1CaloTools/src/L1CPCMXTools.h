@@ -15,13 +15,9 @@
 #include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
-
-namespace TrigConf {
-class ILVL1ConfigSvc;
-}
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 {
-class CPAlgorithm;
 class CPMTobRoI;
 class EmTauROI;
 
@@ -31,9 +27,7 @@ class EmTauROI;
     from RoIs.
     Used for offline monitoring and trigger reconstruction.
 
-    Useage: L1CPCMXTools->formCPMTobRoI() // convert to CPMTobRoI from other
-                                           // RoI classes
-            L1CPCMXTools->formCMXCPTob()  // form CMX-CP TOBs from RoIs
+    Useage: L1CPCMXTools->formCMXCPTob()  // form CMX-CP TOBs from RoIs
             L1CPCMXTools->formCMXCPHits() // form CMX-CP hits from TOBs
 
     @author  Peter Faulkner
@@ -44,20 +38,9 @@ public:
   L1CPCMXTools(const std::string &type, const std::string &name,
                const IInterface *parent);
 
-  /** default destructor */
-  virtual ~L1CPCMXTools();
-
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize();
-  /** standard Athena-Algorithm method */
-  virtual StatusCode finalize();
 
-  /** CPAlgorithm to CPMTobRoI conversion */ // function deprecated
-  virtual void formCPMTobRoI(const DataVector<CPAlgorithm> *cpAlgorithmVec,
-                             DataVector<CPMTobRoI> *cpmRoiVec) const;
-  /** EmTauROI to CPMTobRoI conversion */ // function deprecated
-  virtual void formCPMTobRoI(const DataVector<EmTauROI> *emTauRoiVec,
-                             DataVector<CPMTobRoI> *cpmRoiVec) const;
   /** form CMX-CP TOBs from RoIs - single slice */
   virtual void formCMXCPTob(const xAOD::CPMTobRoIContainer *cpmRoiVec,
                             xAOD::CMXCPTobContainer *cmxTobVec) const;
@@ -114,8 +97,7 @@ private:
                      uint8_t crate, uint8_t cmx, uint8_t source,
                      uint8_t peak) const;
 
-  /** Trigger configuration service */
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   /** Number of CP crates */
   int m_crates;

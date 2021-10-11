@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -58,17 +58,19 @@ namespace DerivationFramework {
     class BaseItem {
       
     public:
-      BaseItem(std::string Name="_none_", std::string Bname="iso",
-	       std::string Prefix="");
+      BaseItem(const std::string& Name="_none_",
+               const std::string& Bname="iso",
+	       const std::string& Prefix="");
       virtual ~BaseItem();
       
-      virtual void        setup(std::string Name, std::string Bname="iso",
-				std::string Prefix="");
+      virtual void        setup(const std::string& Name,
+                                const std::string& Bname="iso",
+				const std::string& Prefix="");
       virtual void        setPrefix(std::string Prefix);
       virtual void        resetVals();
       virtual void        copyVals(const BaseItem& item) = 0;
-      virtual std::string buildName(std::string qualifier="",
-                                    std::string suffix="");
+      virtual std::string buildName(const std::string& qualifier="",
+                                    const std::string& suffix="");
       virtual std::string toString() const;
       
     public:
@@ -131,8 +133,8 @@ namespace DerivationFramework {
       static uint64_t          ttall();
       static uint64_t          ttallMin();
       static uint64_t          rttor(const std::vector<uint64_t> &vtypes);
-      static std::string       wrapLines(std::string lines,
-					 std::string prefix);
+      static std::string       wrapLines(const std::string& lines,
+					 const std::string& prefix);
       static std::string trackToString(const xAOD::TrackParticle* track);
 
   public:

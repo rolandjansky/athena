@@ -12,6 +12,9 @@ namespace InDetDD {
   // Inline methods:
   ///////////////////////////////////////////////////////////////////
 
+  inline Trk::DetectorElemType SiDetectorElement::detectorType() const{
+    return Trk::DetectorElemType::Silicon;
+  }
   inline void SiDetectorElement::setNextInEta(const SiDetectorElement* element)
   {
     m_nextInEta = element;
@@ -41,22 +44,22 @@ namespace InDetDD {
   {
     return m_nextInEta;
   }
-    
+
   inline const SiDetectorElement * SiDetectorElement::prevInEta() const
   {
     return m_prevInEta;
   }
-    
+
   inline const SiDetectorElement * SiDetectorElement::nextInPhi() const
   {
     return m_nextInPhi;
   }
-    
+
   inline const SiDetectorElement * SiDetectorElement::prevInPhi() const
   {
     return m_prevInPhi;
   }
-    
+
   inline const SiDetectorElement * SiDetectorElement::otherSide() const
   {
     return m_otherSide;
@@ -66,22 +69,22 @@ namespace InDetDD {
   {
     return (!isBarrel() && !isDBM());
   }
-    
+
   inline const SiDetectorDesign& SiDetectorElement::design() const
   {
     return *m_design;
   }
-    
+
   inline double SiDetectorElement::phiPitch() const
   {
     return m_design->phiPitch();
   }
-    
+
   inline double SiDetectorElement::phiPitch(const Amg::Vector2D& localPosition) const
   {
     return m_design->phiPitch(localPosition);
   }
-    
+
   inline InDetDD::CarrierType SiDetectorElement::carrierType() const
   {
     return m_design->carrierType();
@@ -97,7 +100,7 @@ namespace InDetDD {
     return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
           || (m_design->swapHitPhiReadoutDirection() &&  m_phiDirection));
   }
-    
+
   inline bool SiDetectorElement::swapEtaReadoutDirection() const
   {
     if (m_firstTime) {
@@ -108,12 +111,12 @@ namespace InDetDD {
     return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
           || (m_design->swapHitEtaReadoutDirection() &&  m_etaDirection));
   }
-    
+
   inline SiCellId SiDetectorElement::gangedCell(const SiCellId& cellId) const
   {
     return  m_design->gangedCell(cellId);
   }
-    
+
   inline MsgStream& SiDetectorElement::msg(MSG::Level lvl) const
   {
     return m_commonItems->msg(lvl);

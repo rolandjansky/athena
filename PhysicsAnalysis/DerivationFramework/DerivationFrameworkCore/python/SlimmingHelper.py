@@ -318,7 +318,10 @@ class SlimmingHelper:
                 items = []
                 if collectionName not in FullListOfSmartContainers:
                         raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
-                if collectionName=="Electrons":
+                if collectionName=="EventInfo":
+                        from DerivationFrameworkCore.EventInfoContent import EventInfoContent
+                        items.extend(EventInfoContent)
+                elif collectionName=="Electrons":
                         from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
                 elif collectionName=="Photons":
@@ -341,11 +344,9 @@ class SlimmingHelper:
                         items.extend(DiTauJetsLowPtCPContent)
                 elif collectionName=="MET_Reference_AntiKt4LCTopo":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
-                        #from DerivationFrameworkCore.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
                         items.extend(MET_Reference_AntiKt4LCTopoCPContent)
                 elif collectionName=="MET_Reference_AntiKt4EMTopo":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMTopoCPContent import MET_Reference_AntiKt4EMTopoCPContent
-                        #from DerivationFrameworkCore.MET_Reference_AntiKt4EMTopoCPContent import MET_Reference_AntiKt4EMTopoCPContent
                         items.extend(MET_Reference_AntiKt4EMTopoCPContent)
                 elif collectionName=="MET_Reference_AntiKt4EMPFlow":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMPFlowCPContent import MET_Reference_AntiKt4EMPFlowCPContent
@@ -492,17 +493,6 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt4EMPFlowJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
-                elif collectionName=="AntiKt4EMPFlowFEJets":
-                        from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowFEJetsCPContent import AntiKt4EMPFlowFEJetsCPContent
-                        items.extend(AntiKt4EMPFlowFEJetsCPContent)
-                elif collectionName=="AntiKt4EMPFlowJets_BTagging201810":
-                        if "AntiKt4EMPFlowJets_BTagging201810" not in self.AppendToDictionary:
-                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810"]='xAOD::JetContainer'
-                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
-                elif collectionName=="AntiKt4EMPFlowJets_BTagging201903":
-                        if "AntiKt4EMPFlowJets_BTagging201903" not in self.AppendToDictionary:
-                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903"]='xAOD::JetContainer'
-                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903Aux"]='xAOD::ShallowAuxContainer'
                 elif collectionName=="AntiKt2TruthJets":
                         from DerivationFrameworkJetEtMiss.AntiKt2TruthJetsCPContent import AntiKt2TruthJetsCPContent
                         items.extend(AntiKt2TruthJetsCPContent)

@@ -7,7 +7,7 @@
 
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"
 
-class L1CaloCoolChannelId {
+class L1CaloCoolChannelId final {
 	friend std::ostream& operator<<(std::ostream& output, const L1CaloCoolChannelId& r);
 
 public:
@@ -20,7 +20,7 @@ public:
                 unsigned int channel, bool logical = true);
   L1CaloCoolChannelId(unsigned int id);
   L1CaloCoolChannelId(const L1CaloCoolChannelId& id);
-  virtual ~L1CaloCoolChannelId() {}
+  ~L1CaloCoolChannelId() = default;
 
   unsigned int crate()     const { return (m_id & 0xff000000) >> 24; }
   L1CaloModuleType moduleType() const;

@@ -17,30 +17,39 @@ class TrigInDetTrackCnvMonitoring(GenericMonitoringTool):
 
        #TODO need to revisit binning with higher stats
 
-        self.defineHistogram('TrackPtPass', path='EXPERT', type='TH1F',
+        if  name.find('minBias') != -1  or  name.find('MinBias') != -1: 
+            self.defineHistogram('TrackPtPass', path='EXPERT', type='TH1F',
+                                             title="Acc. Track Pt; p_{t} [GeV]; Number of tracks",
+                                             xbins=200, xmin=0, xmax=20)
+            self.defineHistogram('TrackQPtPass', path='EXPERT', type='TH1F',
+                                             title="Acc. Track q*Pt; q*pt [GeV]; Number of tracks",
+                                             xbins=400, xmin=-40, xmax=40)
+        else:
+            self.defineHistogram('TrackPtPass', path='EXPERT', type='TH1F',
                                              title="Acc. Track Pt; p_{t} [GeV]; Number of tracks",
                                              xbins=200, xmin=0, xmax=1000)
-        self.defineHistogram('TrackQPtPass', path='EXPERT', type='TH1F',
+            self.defineHistogram('TrackQPtPass', path='EXPERT', type='TH1F',
                                              title="Acc. Track q*Pt; q*pt [GeV]; Number of tracks",
                                              xbins=400, xmin=-1000, xmax=1000)
+        #
         self.defineHistogram('TrackQOverPPass',path='EXPERT', type='TH1F',
-                                             title="Acc. Track q/p; q/p; Number of tracks",
-                                             xbins=1000, xmin=-500., xmax=500.0)
+                                             title="Acc. Track q/p; q/p [GeV^{-1}]; Number of tracks",
+                                             xbins=1000, xmin=-10., xmax=10.0)
         self.defineHistogram('TrackEtaPass', path='EXPERT', type='TH1F',
                                              title="Acc. Track Eta; #eta; Number of tracks",
                                              xbins=50, xmin=-2.5, xmax=2.5)
         self.defineHistogram('TrackPhiPass', path='EXPERT', type='TH1F',
                                              title="Acc. Track Phi; #phi; Number of tracks",
-                                             xbins=70, xmin=-3.5, xmax=3.5)
+                                             xbins=64, xmin=-3.2, xmax=3.2)
         self.defineHistogram('TrackThetaPass', path='EXPERT', type='TH1F',
                                              title="Acc. Track Theta; #theta; Number of tracks",
-                                             xbins=70, xmin=-3.5, xmax=3.5)
+                                             xbins=64, xmin=0., xmax=3.2)
         self.defineHistogram('TrackZ0Pass', path='EXPERT', type='TH1F',
                                              title="Acc. Track Z0; Track z0 [mm]; Number of tracks",
-                                             xbins=400, xmin=-400.0, xmax=400.0)
+                                             xbins=300, xmin=-300.0, xmax=300.0)
         self.defineHistogram('TrackD0Pass', path='EXPERT', type='TH1F',
                                              title="Acc. Track D0; Track d0 [mm]; Number of tracks",
-                                             xbins=400, xmin=-400.0, xmax=400.0)
+                                             xbins=300, xmin=-300.0, xmax=300.0)
         #self.defineHistogram('TrackZ0errPass', path='EXPERT', type='TH1F',
         #                                     title="Acc. Track Z0err; Track z0 error [mm]; Number of tracks",
         #                                     xbins=100, xmin=0., xmax=5.)
@@ -69,6 +78,6 @@ class TrigInDetTrackCnvMonitoring(GenericMonitoringTool):
         # Track counting
         self.defineHistogram('TrackCountingPass', path='EXPERT', type='TH1I',
                                              title="Track Counting; Number of tracks per event; Count",
-                                             xbins=50, xmin=0, xmax=200)
+                                             xbins=300, xmin=-0.5, xmax=299.5)
 
 

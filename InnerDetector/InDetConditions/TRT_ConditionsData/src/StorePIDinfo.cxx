@@ -5,6 +5,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
+#include <utility>
+
 
 
 StorePIDinfo::StorePIDinfo(){
@@ -15,7 +17,7 @@ StorePIDinfo::StorePIDinfo(){
 }
 
 StorePIDinfo::StorePIDinfo(int nbins, float min, float max, std::vector<float> values){
-	update (nbins, min, max, values);
+	update (nbins, min, max, std::move(values));
 }
 
 StorePIDinfo::~StorePIDinfo(){}

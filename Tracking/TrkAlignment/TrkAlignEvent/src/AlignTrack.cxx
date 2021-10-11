@@ -437,9 +437,8 @@ namespace Trk {
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
       
       // This is the list of new TSOS 
-      DataVector<const Trk::TrackStateOnSurface>* newTrackStateOnSurfaces = 
-          new DataVector<const Trk::TrackStateOnSurface>();
-      newTrackStateOnSurfaces->reserve( states->size() );
+      auto newTrackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+      newTrackStateOnSurfaces.reserve( states->size() );
       
       for (; tsit!=tsit_end ; ++tsit) {
         const Trk::MeasurementBase*     newMeas  = (*tsit)->measurementOnTrack() ? (*tsit)->measurementOnTrack()->clone() : nullptr;
@@ -456,7 +455,7 @@ namespace Trk {
             std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typeMaterial;
             if (eLoss) typeMaterial.set(MaterialEffectsBase::EnergyLossEffects);
             const Trk::MaterialEffectsOnTrack* newmeot=
-                new Trk::MaterialEffectsOnTrack(tinX0,nullptr,eLoss,surf,typeMaterial);
+                new Trk::MaterialEffectsOnTrack(tinX0,std::nullopt,eLoss,surf,typeMaterial);
             delete meb;
             meb=newmeot;
           }
@@ -468,10 +467,10 @@ namespace Trk {
             typePattern.set(i);
         }
         const Trk::TrackStateOnSurface* newTsos= new Trk::TrackStateOnSurface( newMeas, newPars, newFitQoS, meb, typePattern);
-        newTrackStateOnSurfaces->push_back(newTsos);
+        newTrackStateOnSurfaces.push_back(newTsos);
       }
       
-      m_trackWithoutScattering.set(std::make_unique<Trk::Track>( this->info(), newTrackStateOnSurfaces, 
+      m_trackWithoutScattering.set(std::make_unique<Trk::Track>( this->info(), std::move(newTrackStateOnSurfaces), 
                                                                  this->fitQuality() ? 
                                                                  this->fitQuality()->clone() : nullptr ));
     }

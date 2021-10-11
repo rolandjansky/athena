@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "RadDamageUtil.h"
@@ -237,7 +237,7 @@ const StatusCode RadDamageUtil::generateEfieldMap(TH1F*& eFieldMap, InDetDD::Pix
 }
 
 StatusCode RadDamageUtil::generateEfieldMap(TH1F*& eFieldMap, InDetDD::PixelModuleDesign* /*module*/, double fluence,
-                                            double biasVoltage, int layer, std::string TCAD_list, bool interpolate) {
+                                            double biasVoltage, int layer, const std::string& TCAD_list, bool interpolate) {
   TString id;
   //TODO adapt saving location for documentation of E field interpolation
   TString predirname = "";
@@ -391,7 +391,7 @@ const StatusCode RadDamageUtil::generateDistanceTimeMap(TH2F*& distanceMap_e, TH
 //=======================================
 // G E T   M O B I L I T Y
 //=======================================
-const std::pair<double, double> RadDamageUtil::getMobility(double electricField, double temperature) const {
+const std::pair<double, double> RadDamageUtil::getMobility(double electricField, double temperature) {
   //Returns the electron/hole mobility *in the z direction*
   //Note, this already includes the Hall scattering factor!
   //These parameterizations come from C. Jacoboni et al., Solid-State Electronics 20 89. (1977) 77.  (see also

@@ -1470,12 +1470,11 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
 
   std::string idname;
   StatusCode sc = m_pCLIDSvc->getTypeNameOfID(id, idname);
-  if (sc.isFailure() || idname == "" ) { 
-    std::ostringstream ost;
-    ost << id;
-    idname = ost.str();
+  if (sc.isFailure() || idname.empty() ) { 
+    idname = std::to_string(id);
   }
-  idname = idname + "/" + key;
+  idname += '/';
+  idname += key;
 
   DataObject* obj = SG::asStorable(dho);
   
@@ -1714,7 +1713,7 @@ CLID SGImplSvc::clid( const std::string& key ) const
 std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
 {
   lock_t lock (m_mutex);
-  std::list<CLID> clids;
+  std::vector<CLID> clids;
   SG::DataStore::ConstStoreIterator s_iter, s_end;
   store()->tRange(s_iter, s_end).ignore();
   
@@ -1724,7 +1723,7 @@ std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
     }
   }
   
-  return std::vector<CLID>(clids.begin(), clids.end());
+  return clids;
 }
 
 
@@ -1886,10 +1885,10 @@ void SG_dump (SGImplSvc* sg, const char* fname)
  *
  *        The default version always returns an empty string.
  */
-SG::SourceID SGImplSvc::sourceID() const
+SG::SourceID SGImplSvc::sourceID (const std::string& key /*= "EventSelector"*/) const
 {
   lock_t lock (m_mutex);
-  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), "EventSelector", true);
+  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), key, true);
   if (dp) {
     const DataHeader* dh = SG::DataProxy_cast<DataHeader> (dp);
     if (dh) {

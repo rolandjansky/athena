@@ -560,7 +560,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
         
         std::vector<std::string> algnames;
         algnames.push_back("Efficiency");
-        if( m_doEmulation ) algnames.push_back("Emulation");
+        //if( m_doEmulation ) algnames.push_back("Emulation");
         
         unsigned ialg=0;
         for (auto algname : algnames){
@@ -572,7 +572,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
             acceptData = setAccept(pairObj.second,info); //Sets the trigger accepts
           }else{// ialg==1
             ATH_MSG_DEBUG("Fill efficiency from Emulation tool");
-            acceptData = emulation()->executeTool(pairObj.second, info.trigName);
+            //acceptData = emulation()->executeTool(pairObj.second, info.trigName);
           }
 
           if (pairObj.second!=nullptr) {

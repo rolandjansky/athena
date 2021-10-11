@@ -20,6 +20,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 
 from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, PRWEntries, urlType, ROOTGetSize
 from PyJobTransforms.trfUtils import call
+from PyJobTransforms.trfExeStepTools import commonExecutorStepName
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
 from PyJobTransforms.trfAMI import getAMIClient
@@ -513,7 +514,7 @@ class argFile(argList):
         self._mergeTargetSize = mergeTargetSize
         self._auxiliaryFile = auxiliaryFile
         self._originalName = None
-        
+
         # User setter to get valid value check
         self.io = io
 
@@ -1178,16 +1179,21 @@ class argFile(argList):
         else:
             myargdict = copy.copy(argdict)
         # Never do event count checks for self merging
-        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
+        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False) 
+        newopts = []
         if 'athenaopts' in myargdict:
             # Need to ensure that "nprocs" is not passed to merger
+            # and prevent multiple '--threads' options when there are multiple sub-steps in 'athenopts'
             for subStep in myargdict['athenaopts'].value:
-                newopts = []
                 for opt in myargdict['athenaopts'].value[subStep]:
                     if opt.startswith('--nprocs'):
                         continue
+                    # Keep at least one '--threads'
+                    elif opt.startswith('--threads'):
+                        if opt in newopts:
+                            continue
                     newopts.append(opt)
-                myargdict['athenaopts'] = argSubstepList(newopts, runarg=False)
+            myargdict['athenaopts'] = argSubstepList(newopts, runarg=False)
         return myargdict
 
 
@@ -1354,7 +1360,8 @@ class argPOOLFile(argAthenaFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name='POOLMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                   skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), disableMP=True)
+                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['POOL_MRG_INPUT']), output=set(['POOL_MRG_OUTPUT']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1390,8 +1397,10 @@ class argHITSFile(argPOOLFile):
                             'HITS_MRG' : argHITSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
+                                  skeletonCA = 'SimuJobTransforms.HITSMerge_Skeleton',
                                   conf=myMergeConf, 
-                                  inData=set(['HITS']), outData=set(['HITS_MRG']), disableMP=True)
+                                  inData=set(['HITS']), outData=set(['HITS_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['HITS']), output=set(['HITS_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1429,7 +1438,8 @@ class argEVNT_TRFile(argPOOLFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.EVNT_TRMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['EVNT_TR']), outData=set(['EVNT_TR_MRG']), disableMP=True)
+                                  inData=set(['EVNT_TR']), outData=set(['EVNT_TR_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['EVNT_TR']), output=set(['EVNT_TR_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1464,9 +1474,11 @@ class argRDOFile(argPOOLFile):
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'SimuJobTransforms/skeleton.RDOMerge.py',
+                                  skeletonCA = 'SimuJobTransforms.RDOMerge_Skeleton',
                                   conf=myMergeConf, 
-                                  inData=set(['RDO']), outData=set(['RDO_MRG']), disableMP=True)
+                                  inData=set(['RDO']), outData=set(['RDO_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1503,7 +1515,8 @@ class argEVNTFile(argPOOLFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']), disableMP=True)
+                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['EVNT']), output=set(['EVNT_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1923,7 +1936,9 @@ class argSubstep(argument):
             name = exe.name
             substep = exe.substep
             first = exe.conf.firstExecutor
-            
+
+        name = commonExecutorStepName(name)
+
         value = None
         ## @note First we see if we have an explicit name or substep match, then a special 'first' or 'default' match
         if name in self._value:
@@ -2473,50 +2488,66 @@ class trfArgParser(argparse.ArgumentParser):
     def allArgs(self):
         return list(self._helpString)
 
+    # @brief parsing helper
+    def _parse_list_helper(self, value):
+        # We build on the value[0] instance as this contains the correct metadata
+        # and object references for this instance (shallow copying can
+        # mess up object references and deepcopy thows exceptions!)
+        newValueObj = value[0]
+        msg.debug('Started with: %s = %s', type(newValueObj), newValueObj)
+        if isinstance(value[0], argSubstep):
+            # Make sure you do not have a reference to the original value - this is a deeper copy
+            newValues = dictSubstepMerge(value[0].value, {})
+        elif isinstance(value[0], list):
+            if len(value) == 1:
+                return self._parse_list_helper(value[0])
+            msg.debug('Handling a list of arguments for key')
+            newValues = []
+            for v in value:
+                processedValueObj, processedValues = self._parse_list_helper(v)
+                processedValueObj.value = processedValues
+                newValues.append(processedValueObj)
+            newValueObj = newValues
+            return newValueObj, newValues
+        elif isinstance(value[0].value, list):
+            newValues = value[0].value
+        elif isinstance(value[0].value, dict):
+            newValues = value[0].value
+        else:
+            newValues = [value[0].value,]
+        for valueObj in value[1:]:
+            msg.debug('Value Object: %s = %s', type(valueObj), valueObj)
+            if isinstance(value[0], argSubstep):
+                # Special merger for lists attached to substeps
+                newValues = dictSubstepMerge(newValues, valueObj.value)
+            elif isinstance(valueObj.value, list):
+                # General lists are concatenated
+                newValues.extend(valueObj.value)
+            elif isinstance(valueObj.value, dict):
+                # General dictionaries are merged
+                newValues.update(valueObj.value)
+            else:
+                newValues.append(valueObj.value)
+        return newValueObj, newValues
 
     ## @brief Call argument_parser parse_args, then concatenate values
     #  @details Sets-up the standard argparse namespace, then use a special
     #           treatment for lists (arising from nargs='+'), where values
     #           are appropriately concatenated and a single object is returned 
     #  @return argument_parser namespace object
-    def parse_args(self, args = None, namespace = None): 
+    def parse_args(self, args = None, namespace = None):
         if namespace:
-            super(trfArgParser, self).parse_args(args = args, namespace = namespace) 
+            super(trfArgParser, self).parse_args(args = args, namespace = namespace)
         else:
             namespace = super(trfArgParser, self).parse_args(args = args)
         for k, v in namespace.__dict__.items():
             msg.debug('Treating key %s (%s)', k, v)
             if isinstance(v, list):
-                # We build on the v[0] instance as this contains the correct metadata
-                # and object references for this instance (shallow copying can 
-                # mess up object references and deepcopy thows exceptions!)
-                newValueObj = v[0] 
-                msg.debug('Started with: %s = %s', type(newValueObj), newValueObj)
-                if isinstance(v[0], argSubstep):
-                    # Make sure you do not have a reference to the original value - this is a deeper copy
-                    newValues = dictSubstepMerge(v[0].value, {})
-                elif isinstance(v[0].value, list):
-                    newValues = v[0].value
-                elif isinstance(v[0].value, dict):
-                    newValues = v[0].value
-                else:
-                    newValues = [v[0].value,]
-                for valueObj in v[1:]:
-                    msg.debug('Value Object: %s = %s', type(valueObj), valueObj)
-                    if isinstance(v[0], argSubstep):
-                        # Special merger for lists attached to substeps
-                        newValues = dictSubstepMerge(newValues, valueObj.value)
-                    elif isinstance(valueObj.value, list):
-                        # General lists are concatenated
-                        newValues.extend(valueObj.value)
-                    elif isinstance(valueObj.value, dict):
-                        # General dictionaries are merged
-                        newValues.update(valueObj.value)
-                    else:
-                        newValues.append(valueObj.value)
-                newValueObj.value = newValues
+                newValueObj, newValues = self._parse_list_helper(v)
+                if not isinstance(newValueObj, list):
+                    newValueObj.value = newValues
                 namespace.__dict__[k] = newValueObj
-                msg.debug('Set to %s', newValueObj.value)                
+                msg.debug('Set to %s', newValues)
 
         return namespace
 

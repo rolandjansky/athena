@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestTools/SGassert.h"
@@ -78,7 +78,7 @@ namespace Athena_test
     assert(*iLV->cptr() == *linkVector.elementCPtr(0));
     assert(iLV->dataID() == "a vector");
     assert(iLV->index() == 1);
-    iLV++;
+    ++iLV;
     assert(***iLV == 10);
     assert(iLV->dataID() == "a vector");
     assert(iLV->index() == 0);

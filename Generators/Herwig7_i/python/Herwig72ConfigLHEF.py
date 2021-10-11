@@ -159,7 +159,7 @@ saverun {} /Herwig/Generators/EventGenerator
 # set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/Hard{MEPDFOrder}PDF
 """.format(MEPDFOrder = me_pdf_order)
 
-    pwg_reader_lib = "library powhegHerwig.so" 
+    pwg_reader_lib = "library libpowhegHerwig.so" 
 
 
     self.commands += """
@@ -168,10 +168,10 @@ saverun {} /Herwig/Generators/EventGenerator
 ## ----------------------------
 
 ## Create the Handler and Reader
-{PwgReaderLib}
 library LesHouches.so
-create ThePEG::{PwgReader}LesHouchesFileReader /Herwig/EventHandlers/LHEReader
 create ThePEG::LesHouchesEventHandler /Herwig/EventHandlers/LHEHandler
+{PwgReaderLib}
+create ThePEG::{PwgReader}LesHouchesFileReader /Herwig/EventHandlers/LHEReader
 
 ## Set LHE filename
 set /Herwig/EventHandlers/LHEReader:FileName {FileName}

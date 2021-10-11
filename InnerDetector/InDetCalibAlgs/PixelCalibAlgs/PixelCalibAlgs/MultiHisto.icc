@@ -302,9 +302,9 @@ template <class ht>
 std::string  MultiHisto<ht>::NameString(int idiv, int index){
 	std::ostringstream basename;
 	std::string name = m_div_names[idiv];
-	size_t found = name.find("#");
+	size_t found = name.find('#');
 	if(found != std::string::npos) name = name.substr(found+1);
-	found = name.find(" ");
+	found = name.find(' ');
 	if(found != std::string::npos) name = name.substr(0,found);
 	basename << name << (m_div_bins[idiv])[index] << "-" <<
 		(m_div_bins[idiv])[index+1];

@@ -167,8 +167,6 @@ ServiceMgr.GeoModelSvc.DetectorTools += [ LArDetectorToolNV(ApplyAlignments = Tr
 
 ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-GEO-10-00-00'
 
-from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
-
 include( "TileConditions/TileConditions_jobOptions.py" )
 
 include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")

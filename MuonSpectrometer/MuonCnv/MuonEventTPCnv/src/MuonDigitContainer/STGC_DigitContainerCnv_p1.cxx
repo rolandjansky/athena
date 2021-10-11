@@ -163,7 +163,7 @@ void  Muon::STGC_DigitContainerCnv_p1::persToTrans(const Muon::STGC_DigitContain
     } 
   }
 
-  sTgcDigitCollection* coll = 0;
+  sTgcDigitCollection* coll = nullptr;
 
   STGC_DigitCnv_p1  chanCnv;
   unsigned int pchanIndex(0); // position within persCont->m_digits. Incremented inside innermost loop 
@@ -219,7 +219,7 @@ sTgcDigitContainer* Muon::STGC_DigitContainerCnv_p1::createTransient(const Muon:
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
       log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endmsg;
-      return 0;
+      return nullptr;
     } 
   }
   std::unique_ptr<sTgcDigitContainer> trans(new sTgcDigitContainer(m_sTgcId->detectorElement_hash_max()));

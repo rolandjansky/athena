@@ -1,13 +1,14 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef SLPATTERNS_H
 #define SLPATTERNS_H
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <list>
@@ -24,13 +25,12 @@ class SLpatterns : public RPCtrigDataObject
 
     PADdata::PatternsList m_pad_patterns;
     
-    SectorLogic* m_SectorL;
+    std::unique_ptr<SectorLogic> m_SectorL;
 
 
     public:
     SLpatterns(int,unsigned long int);
     SLpatterns(const SLpatterns&);
-    ~SLpatterns();
 
     SLpatterns operator=(const SLpatterns&);
 
@@ -55,16 +55,7 @@ class SLpatterns : public RPCtrigDataObject
 
 template <class X> X& operator<<(X& stream,const SLpatterns& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[300000];
-    for (int i=0;i<300000;++i) buffer[i] = '\0';
-    __osstream display(buffer,300000);
-#endif
-
+    std::ostringstream display;
     data.Print(display,false);
     stream << display.str();
     return stream;

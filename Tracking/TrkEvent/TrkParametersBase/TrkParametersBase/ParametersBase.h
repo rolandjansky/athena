@@ -19,6 +19,9 @@
 #include <memory>
 #include <type_traits>
 #include <optional>
+#include <limits>
+#include <iosfwd>
+
 class MsgStream;
 
 template<typename T>
@@ -206,8 +209,8 @@ protected:
    * Polymorphic deep copy can happen via the clone
    * method
    */
-  ParametersBase(const ParametersBase&) = delete;
-  ParametersBase& operator=(const ParametersBase&) = delete;
+  ParametersBase(const ParametersBase&) = default;
+  ParametersBase& operator=(const ParametersBase&) = default;
 
   /* Helper implementing the specific per derived class logic for
    * the update of parameters*/

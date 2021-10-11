@@ -4,6 +4,7 @@
 #define CALOREC_CALOTOPOTOWERFROMCLUSTERMAKER_H
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -11,7 +12,6 @@
 #include "AthenaBaseComps/AthAlgTool.h" 
 
 #include "CaloRec/CaloTowerCollectionProcessor.h"
-#include "CaloTowerGeometrySvc.h"
 #include "CaloProtoCluster.h"
 
 #include "CaloEvent/CaloCell.h"
@@ -20,6 +20,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
+
+#include "CaloDetDescr/CaloTowerGeometry.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -58,7 +60,10 @@ private:
 
   /// @name Tool properties
   /// @{
-  ServiceHandle<CaloTowerGeometrySvc>           m_towerGeometrySvc;                         ///< Tower geometry service
+  /** @brief the name of the key of the CaloTowerGeometry object in the 
+      ConditonsStore */
+  SG::ReadCondHandleKey<CaloTowerGeometry>      m_towerGeoKey{this,"TowerGeometry","CaloTowerGeometry"};
+
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerKey;                      ///< Topo-cluster container key
   SG::ReadHandleKey<CaloCellContainer>          m_cellContainerKey;                         ///< Calorimeter cell container
   bool                                          m_orderByPt = { false  };                   ///< Orders cluster container by @f$ p_{\text{T}} @f$, default @c true
@@ -74,10 +79,10 @@ private:
 
   /// @name Constants and parameters
   /// @{
-  uint_t             m_numberOfCells;          ///< Number of cells (highest cell index + 1)
-  uint_t             m_maxCellHash;            ///< Maximum hash index of cell ( number of cells - 1)
+  //uint_t             m_numberOfCells;          ///< Number of cells (highest cell index + 1)
+  //uint_t             m_maxCellHash;            ///< Maximum hash index of cell ( number of cells - 1)
   uint_t             m_numberOfSamplings;      ///< Number of samplings
-  uint_t             m_numberOfTowers;         ///< Number of towers
+  //uint_t             m_numberOfTowers;         ///< Number of towers
   static double      m_energyThresholdDef;     ///< Default energy threshold
   static double      m_clusterRangeDef;        ///< Default cluster @f$ y @f$ range
   static std::string m_defaultKey;             ///< Default container key
@@ -86,9 +91,9 @@ private:
 
   ///@name Internally used helpers
   ///@{
-  xAOD::CaloCluster::ClusterSize getClusterSize(uint_t etaBins,uint_t phiBins) const; ///< Returns a cluster size tag from number of eta and phi bins in tower grid
-  xAOD::CaloCluster::ClusterSize getClusterSize(uint_t towerBins) const;              ///< Returns a cluster size tag from number of towers (bins) in tower grid
-  int cleanupCells(CaloClusterCellLink* clk,uint_t nclus) const;                      ///< Checks @c CaloClusterCellLink for consistency
+  static xAOD::CaloCluster::ClusterSize getClusterSize(uint_t etaBins,uint_t phiBins) ; ///< Returns a cluster size tag from number of eta and phi bins in tower grid
+  static xAOD::CaloCluster::ClusterSize getClusterSize(uint_t towerBins) ;              ///< Returns a cluster size tag from number of towers (bins) in tower grid
+  int cleanupCells(const CaloTowerGeometry* towerGeo, CaloClusterCellLink* clk,uint_t nclus) const;                      ///< Checks @c CaloClusterCellLink for consistency
   ///@}
 
   ///@name Tower builders
@@ -102,10 +107,10 @@ private:
   ///
   ///@return 
   ///@{
-  uint_t buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)const;            ///< Inclusive towers
-  uint_t buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)const;            ///< Exclusive towers
-  uint_t buildEMTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont)const;   ///< EM topo-towers
-  uint_t buildLCWTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont,CaloCellClusterWeights* cellWeights) const;  ///< LCW topo-towers
+  uint_t buildInclTowers(const CaloTowerGeometry* towerGeo, const CaloCellContainer& pCellCont,protocont_t& pProtoCont)const;            ///< Inclusive towers
+  uint_t buildExclTowers(const CaloTowerGeometry* towerGeo, const CaloCellContainer& pCellCont,protocont_t& pProtoCont)const;            ///< Exclusive towers
+  uint_t buildEMTopoTowers(const CaloTowerGeometry* towerGeo, const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont)const;   ///< EM topo-towers
+  uint_t buildLCWTopoTowers(const CaloTowerGeometry* towerGeo, const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont,CaloCellClusterWeights* cellWeights) const;  ///< LCW topo-towers
   ///@}
   /// @brief Adding cells to proto-clusters
   ///
@@ -114,12 +119,12 @@ private:
   /// @param cptr       pointer ton non-modifiable @c CaloCell object
   /// @param pProtoCont reference to proto-cluster container
   /// @param weight     additional (global) weight of cell (e.g. for geometrical weight for combined EM-scale signals)  
-  bool addCellToProtoCluster(const CaloCell* cptr,protocont_t& pProtoCont,double weight=1.) const;
+  bool addCellToProtoCluster(const CaloTowerGeometry* towerGeo, const CaloCell* cptr,protocont_t& pProtoCont,double weight=1.) const;
   
   ///@name Helpers
   ///@{
-  bool   filterProtoCluster(const CaloClusterCellLink& clnk)  const; ///< Checks for and removes invalid cell links  
-  bool   checkCellIndices(const CaloCellContainer* pCellCont) const; ///< Checks consistency between cell indices and hash identifiers
+  static bool   filterProtoCluster(const CaloClusterCellLink& clnk)  ; ///< Checks for and removes invalid cell links  
+  bool   checkCellIndices(const CaloTowerGeometry* towerGeo, const CaloCellContainer* pCellCont) const; ///< Checks consistency between cell indices and hash identifiers
   bool   isValidIndex(uint_t idx)                             const; ///< Checks if argument is a valid index value 
   uint_t badIndexValue()                                      const; ///< Returns value indicating a bad index
   ///@}

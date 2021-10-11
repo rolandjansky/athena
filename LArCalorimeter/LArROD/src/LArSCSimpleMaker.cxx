@@ -180,7 +180,7 @@ StatusCode LArSCSimpleMaker::execute(const EventContext& context) const
   } 
 
   SG::WriteHandle<CaloCellContainer> scellContainerHandle( m_sCellContainerKey, context);
-  auto superCellContainer = std::make_unique<CaloCellContainer> (SG::VIEW_ELEMENTS);
+  auto superCellContainer = std::make_unique<CaloCellContainer> ();
 
   superCellContainer->reserve(energies.size());
 

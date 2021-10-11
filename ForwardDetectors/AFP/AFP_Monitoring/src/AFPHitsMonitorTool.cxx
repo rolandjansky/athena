@@ -41,7 +41,7 @@ AFPHitsMonitorTool::
 
 StatusCode AFPHitsMonitorTool::initialize()
 {
-  if (m_stationsMonitors.size() != 0) {
+  if (!m_stationsMonitors.empty()) {
     // loop over tools
     for (ToolHandle<IAFPSiStationMonitor>& stationMon : m_stationsMonitors) {
       if (stationMon.retrieve().isFailure())
@@ -115,7 +115,7 @@ StatusCode AFPHitsMonitorTool::fillHistograms()
   	break;
       }
 
-    if (matchStation == false)
+    if (!matchStation)
       ATH_MSG_WARNING("Unrecognised station index: "<<hit->stationID());
   }
 
@@ -127,7 +127,7 @@ StatusCode AFPHitsMonitorTool::fillHistograms()
 }
 
 
-void AFPHitsMonitorTool::makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle) 
+void AFPHitsMonitorTool::makeLayerSummaryHist (const std::string& inputHistName, const std::string& outputHistName, const std::string& outputHistTitle) 
 {
   ManagedMonitorToolBase::MonGroup managedBookingLumiBlock(this, histsDirectoryName(), lumiBlock, ManagedMonitorToolBase::ATTRIB_MANAGED);   // to re-booked every luminosity block
 

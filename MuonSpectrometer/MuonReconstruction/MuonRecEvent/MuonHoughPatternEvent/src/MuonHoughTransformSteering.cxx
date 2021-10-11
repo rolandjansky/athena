@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
@@ -17,7 +17,7 @@ MuonHoughTransformSteering::MuonHoughTransformSteering(MuonHoughTransformer* hou
 MuonHoughTransformSteering::~MuonHoughTransformSteering()
 {
   delete m_houghtransformer;
-  m_houghtransformer=0;
+  m_houghtransformer=nullptr;
 }
 
 MuonHoughPatternCollection MuonHoughTransformSteering::constructHoughPatterns(const MuonHoughHitContainer* event, double residu_mm, double residu_grad, int max_patterns, bool which_segment, int printlevel)const

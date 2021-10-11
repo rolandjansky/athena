@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -28,7 +28,7 @@ namespace Muon {
   }
   
   MuonPatternCombination::MuonPatternCombination( const MuonPatternCombination& pat ) :
-    m_parameter( pat.m_parameter ? pat.m_parameter->clone() : 0 ),
+    m_parameter( pat.m_parameter ? pat.m_parameter->clone() : nullptr ),
     m_chamberData( pat.m_chamberData ),
     m_roadType(0)
   {
@@ -40,7 +40,7 @@ namespace Muon {
     if (this!=&pat ){
       // delete old MuonPatterns
       delete m_parameter;
-      m_parameter = pat.m_parameter ? pat.m_parameter->clone() : 0;
+      m_parameter = pat.m_parameter ? pat.m_parameter->clone() : nullptr;
       m_chamberData = pat.m_chamberData;
     }
     return *this;

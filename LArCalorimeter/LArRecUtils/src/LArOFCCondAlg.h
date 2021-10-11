@@ -71,7 +71,7 @@ private:
 
   bool m_Dump;
 
-  size_t m_nGains;
+  size_t m_nGains = 0UL;
 };
 
 #endif

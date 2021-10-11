@@ -4,6 +4,8 @@
 #
 
 from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
+from AthenaCommon.Logging import logging
+log = logging.getLogger('Algorithm_HLT')
 
 '''
 @file Algorithm_HLT_TableConstructor.py
@@ -17,6 +19,8 @@ class Algorithm_HLT_TableConstructor(TableConstructorBase):
     '''
     def __init__(self, tableObj):
         super(). __init__(tableObj) 
+        # Dump summary of mean time execution for all the algorithms to the log
+        self.dumpSummary = False
         self.expectedHistograms = ["Time_perCall", 
                                    "FirstTime_perEvent", 
                                    "Time_perEvent",
@@ -71,6 +75,9 @@ class Algorithm_HLT_TableConstructor(TableConstructorBase):
         self.columns["retrievedDataRate"].addValue(self.getXWeightedIntegral("NetworkRequest_perEvent", isLog=False))
         self.columns["cachedDataSizeRate"].addValue(self.getXWeightedIntegral("CachedROBSize_perEvent", isLog=False))
         self.columns["retrievedDataSizeRate"].addValue(self.getXWeightedIntegral("NetworkROBSize_perEvent", isLog=False))
+
+        if self.dumpSummary:
+            log.info("Algorithm: {0:300} Mean Time per call [ms]: {1:10.4} Mean Time per event [ms]: {2:10.3}".format(histName, self.getHistogram("Time_perCall").GetMean(), self.getHistogram("Time_perEvent").GetMean()))
 
 
     def postProcessing(self):

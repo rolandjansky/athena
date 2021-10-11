@@ -13,8 +13,9 @@
 #include "CaloMonToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 #include "CaloConditions/CaloNoise.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "Identifier/IdentifierHash.h"
@@ -24,8 +25,6 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
-
-#include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArCellBinning.h"
           
@@ -121,7 +120,7 @@ private:
 
 
   //Histogram path in root file:
-  const std::string m_lArPath{"/CaloMonitoring/LArCellMon_NoTrigSel/"};
+  const std::string m_lArPath{"/CaloMonitoring/LArCellMon_NoTrigSel_OldTool/"};
 
   // Thresholds for time and Time vs Energy plots:
   // Energy thresholds hardcoded following official timing analysis. See for example:
@@ -163,15 +162,21 @@ private:
   SG::ReadCondHandleKey<CaloNoise> m_noiseKey
     { this, "NoiseKey", "totalNoise", "SG key for noise" };
 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   // Trigger Awareness:
-  bool m_useTrigger;
+  bool m_useTriggerCaloMon;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< TDT handle
   std::array<std::string,NOTA> m_triggerNames; 
   std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};
  
   // bad channel mask  
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+  
   bool m_maskKnownBadChannels;
   bool m_maskNoCondChannels;
 
@@ -278,7 +283,8 @@ private:
 
   std::vector<thresholdHist_t> m_thresholdHists;
 
-  StatusCode fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr);
+  StatusCode fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr
+			       , const CaloDetDescrManager* detDescMgr);
  
   // Identifer helpers and such
 

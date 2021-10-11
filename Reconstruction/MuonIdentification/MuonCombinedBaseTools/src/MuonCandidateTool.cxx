@@ -36,12 +36,7 @@ namespace MuonCombined {
         ATH_CHECK(m_beamSpotKey.initialize());
         return StatusCode::SUCCESS;
     }
-
-    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                                   TrackCollection& outputTracks) const {
-        create(tracks, outputCollection, outputTracks, Gaudi::Hive::currentContext());
-    }
-    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                                    TrackCollection& outputTracks, const EventContext& ctx) const {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;
@@ -84,9 +79,9 @@ namespace MuonCombined {
                                                 << m_printer->printStations(msTrack));
             std::unique_ptr<Trk::Track> standaloneTrack;
             if (m_extrapolationStrategy == 0u) {
-                standaloneTrack.reset(m_trackBuilder->standaloneFit(msTrack, ctx, nullptr, beamSpotX, beamSpotY, beamSpotZ));
+                standaloneTrack = m_trackBuilder->standaloneFit(msTrack, ctx, nullptr, beamSpotX, beamSpotY, beamSpotZ);
             } else {
-                standaloneTrack.reset(m_trackExtrapolationTool->extrapolate(msTrack, ctx));
+                standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack, ctx);
             }
             if (standaloneTrack) {
                 // Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
@@ -130,7 +125,7 @@ namespace MuonCombined {
                 } else
                     msMuonTrackSummary = msTrack.trackSummary()->muonTrackSummary();
                 for (const auto& chs : msMuonTrackSummary->chamberHitSummary()) {
-                    if (chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) {
+		    if ((chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) || m_idHelperSvc->isCsc(chs.chamberId())) {
                         skipTrack = false;
                         break;
                     }

@@ -47,11 +47,11 @@ void ReadCards::CreatePath() {
     std::string config_path = getenv("CONFIG_PATH");
     std::cout << "ReadCards::CONFIG_PATH " << config_path << std::endl;
     while ( config_path.size() ) {
-      mPath.push_back(chop(config_path, ":")+"/");
+      mPath.push_back(chop(config_path, ":")+'/');
     }
   }
   mPath.push_back("");
-  mPath.push_back(std::string( RESPLOTDIR )+"/");
+  mPath.push_back(std::string( RESPLOTDIR )+'/');
   //  for ( int i=0 ; i<mPath.size() ; i++ )   cout << "ReadCards>>CreatePath() mPath[" << i << "]=" << mPath[i] << endl;
 }
 
@@ -80,7 +80,7 @@ void ReadCards::Construct(const std::string& filename) {
 
   char tfile[1024];
 
-  if ( mFileName.find("/")==std::string::npos ) std::sprintf( tfile, ".readcards-%s-%d", mFileName.c_str(), pid );
+  if ( mFileName.find('/')==std::string::npos ) std::sprintf( tfile, ".readcards-%s-%d", mFileName.c_str(), pid );
   else                                          std::sprintf( tfile, ".readcards-%d", pid );
 
   char cmd[2056];
@@ -152,13 +152,13 @@ void ReadCards::clean() {
 	//      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
 	//     size_t n = count( tmpline, "\""); 
 	//  if ( n%2==0 ) 
-	line = tmpline;
+	line = std::move(tmpline);
       }
     }
 
 #if 0
     /// no longer allow # as a comment character 
-    if ( (pos=line.find("#")) != std::string::npos ) {
+    if ( (pos=line.find('#')) != std::string::npos ) {
 
       int quotecount = 0;
 
@@ -210,7 +210,7 @@ void ReadCards::parse()
 
     // break at semi colons that are not within "" pairs
 
-    size_t pos = mString.find(";");
+    size_t pos = mString.find(';');
     
     while ( pos != std::string::npos ) { 
 
@@ -230,11 +230,11 @@ void ReadCards::parse()
       //      std::cout << "duff: " << duff << " : " << n << " " << std::endl;
 
 
-      pos = mString.find(";");
+      pos = mString.find(';');
 
     }      
 
-    if ( mString.find("|")==std::string::npos ) { 
+    if ( mString.find('|')==std::string::npos ) { 
       error("syntax error, missing semicolon at end of input " + mString );
     }
 
@@ -372,12 +372,12 @@ void ReadCards::parse()
       }
       
       // check no spaces in values not enclosed in quotes
-      if ( qo.size()==0 ) { 
-	if ( token.find(" ")!=string::npos ) error("space not within quotes : " + input);
+      if ( qo.empty()) { 
+	if ( token.find(' ')!=string::npos ) error("space not within quotes : " + input);
       }
       
       // missing value
-      if ( qo.size()==0 && token.size()==0 ) error("missing token : " + input);
+      if ( qo.empty() && token.empty() ) error("missing token : " + input);
            
 
       size_t pos = token.find("####");
@@ -392,10 +392,10 @@ void ReadCards::parse()
     if ( !_empty ) { 
     
       // check the vector had braces
-      if ( bra.size()==0 && values.size()>1 ) error("missing braces : " + input);
+      if ( bra.empty() && values.size()>1 ) error("missing braces : " + input);
       
       // missing value
-      if ( values.size()==0 ) { 
+      if ( values.empty() ) { 
 	//  std::cout << "shafted :" << shafted << ":" << std::endl; 
 	//      std::cout << "\nmString " << mString << std::endl;  
 	error("tag with no value : " + input);      
@@ -455,16 +455,16 @@ vector<string> ReadCards::parseright(std::string& s) {
     if ( qc.size()!=qo.size() ) error("mismatched \" : " + input);
     
     // check no spaces in values not enclosed in quotes
-    if ( qo.size()==0 ) { 
-      if ( token.find(" ")!=string::npos ) error("space not wintin \"\" : " + input);
+    if ( qo.empty() ) { 
+      if ( token.find(' ')!=string::npos ) error("space not wintin \"\" : " + input);
     }
 
-    if ( token.size()==0 ) error("missing token : " + input);
+    if ( token.empty() ) error("missing token : " + input);
     
     sv.push_back(token);
   }
   
-  if ( sv.size()==0 ) error("tag with no value " + input);
+  if ( sv.empty() ) error("tag with no value " + input);
   
   return sv;
 }

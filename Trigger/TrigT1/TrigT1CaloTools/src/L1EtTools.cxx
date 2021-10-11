@@ -21,12 +21,9 @@ L1EtTools::L1EtTools(const std::string& t,
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_TEMasks(0),
-  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n)
+  m_TEMasks(0)
 {
   declareInterface<IL1EtTools>(this);
-
-  declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 
   // Allow user to specify JetElement thresholds
   m_jetElementThresholdEtSum = 0;
@@ -47,17 +44,9 @@ L1EtTools::~L1EtTools()
 
 StatusCode L1EtTools::initialize()
 {
-  ATH_MSG_INFO( "Initialising Algtool" );
-
-  ATH_MSG_INFO( "get pointer to config svc " );
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
-  }
-  /** Fill map of JE masked out of TE trigger */
-  ATH_MSG_INFO( "Initialization completed" );
+  ATH_CHECK( m_L1MenuKey.initialize() );
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================ Finalisation =================================================
@@ -67,33 +56,6 @@ StatusCode LVL1::L1EtTools::finalize()
   delete m_TEMasks;
   m_TEMasks = 0;
   return StatusCode::SUCCESS;
-}
-
-//================ Fill map of JE masked out of TE trigger ======================
-
-void L1EtTools::fillMaskedOutMap() {
-
-  /** Fill map of JE masked out of TE trigger */
-  m_TEMasks = new std::map<int, int>;
-  std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
-  TrigConf::L1DataDef def;
-  /// Loop over all thresholds. For each TE threshold check whether the "turn-off" value has been set for any eta bin
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.teType() ) {
-      for (int ieta = -49; ieta < 49; ++ieta) {
-        TrigConf::TriggerThresholdValue* tv = (*it)->triggerThresholdValue(ieta,0);       
-        if (tv != 0) {
-          int thresholdValue = (*tv).thresholdValueCount();
-          if (thresholdValue >= 0x3fff) {
-            // Is this one already flagged? If not, flag it
-            std::map<int, int>::iterator itMask=m_TEMasks->find( ieta );
-            if (itMask == m_TEMasks->end()) m_TEMasks->insert(std::map<int, int>::value_type(ieta,1));
-          }
-        }
-      }
-    }
-  } 
 }
 
 //================ Having map of JetElements facilitates JE->JEM association =====
@@ -130,9 +92,6 @@ void L1EtTools::moduleSums(const xAOD::JetElementContainer* jetelements,
                            DataVector<ModuleEnergy>* modules, int slice) const {
 
   modules->clear();
-  //if (m_TEMasks) delete m_TEMasks;
-  //m_TEMasks = 0;
-  //if (!m_TEMasks) fillMaskedOutMap();
   
   // Need map of JetElements as input to ModuleEnergy class creator
   xAOD::JetElementMap_t* jeContainer = new xAOD::JetElementMap_t;
@@ -156,9 +115,6 @@ void L1EtTools::moduleSums(const xAOD::JetElementMap_t* jemap,
                            DataVector<ModuleEnergy>* modules, int slice) const {
 
   modules->clear();
-  //if (m_TEMasks) delete m_TEMasks;
-  //m_TEMasks = 0;
-  //if (!m_TEMasks) fillMaskedOutMap();
   
   // Loop over crates, modules and create set of ModuleEnergy objects
   for (int crate = 0; crate < 2; ++crate) {
@@ -200,7 +156,8 @@ void L1EtTools::crateSums(const DataVector<EnergyCMXData>* modules, DataVector<C
 SystemEnergy L1EtTools::systemSums(const DataVector<CrateEnergy>* crates) const {
 
   // This class will take crate sums and form system sums, apply thresholds, etc
-  SystemEnergy result(crates, m_configSvc);
+  auto l1Menu = SG::makeHandle( m_L1MenuKey );
+  SystemEnergy result(crates, &(*l1Menu));
   
   return result ;
 }
@@ -259,7 +216,8 @@ SystemEnergy L1EtTools::systemSums(const xAOD::JetElementContainer* jetelements,
   crateSums(jetelements, crates, slice, maskXE, maskTE, restricted);
 
   // Then do the final summing, thresholding etc
-  SystemEnergy result(crates, m_configSvc);
+  auto l1Menu = SG::makeHandle( m_L1MenuKey );
+  SystemEnergy result(crates, &(*l1Menu));
 
   delete crates;
   return result;
@@ -275,7 +233,8 @@ SystemEnergy L1EtTools::systemSums(const xAOD::JetElementMap_t* jemap, int slice
   crateSums(jemap, crates, slice, maskXE, maskTE, restricted);
 
   // Then do the final summing, thresholding etc
-  SystemEnergy result(crates, m_configSvc);
+  auto l1Menu = SG::makeHandle( m_L1MenuKey );
+  SystemEnergy result(crates, &(*l1Menu));
 
   delete crates;
   return result;

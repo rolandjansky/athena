@@ -148,7 +148,7 @@ private:
 
   const SCT_ID* m_detID{nullptr}; //!< Handle to the ID helper
   std::unique_ptr<TimedHitCollection<SiHit>> m_thpcsi{nullptr};
-  std::list<ISiChargedDiodesProcessorTool*> m_diodeCollectionTools;
+  std::vector<ISiChargedDiodesProcessorTool*> m_diodeCollectionTools;
   std::vector<bool> m_processedElements; //!< vector of processed elements - set by digitizeHits() */
   std::vector<std::unique_ptr<SiHitCollection>> m_hitCollPtrs;
   bool m_HardScatterSplittingSkipper{false};

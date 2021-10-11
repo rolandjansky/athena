@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import logging
+
 
 def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
                     disableEventTag=False, trigNavThinningSvc=None):
@@ -10,6 +12,10 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    AthenaOutputStream=CompFactory.AthenaOutputStream
    AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
    StoreGateSvc=CompFactory.StoreGateSvc
+
+   eventInfoKey = "EventInfo"
+   if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+      eventInfoKey = configFlags.Overlay.BkgPrefix + "EventInfo"
 
    msg = logging.getLogger("OutputStreamCfg")
    flagName="Output.%sFileName" % streamName
@@ -32,7 +38,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    outputStream = AthenaOutputStream(
       outputAlgName,
       WritingTool = writingTool,
-      ItemList    = [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."  ]+ItemList, 
+      ItemList    = [ f"xAOD::EventInfo#{eventInfoKey}", f"xAOD::EventAuxInfo#{eventInfoKey}Aux."  ] + ItemList, 
       MetadataItemList = MetadataItemList,
       OutputFile = fileName,
       )
@@ -46,6 +52,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
 
    streamInfoTool = MakeEventStreamInfo( f"Stream{streamName}_MakeEventStreamInfo" )
    streamInfoTool.Key = f"Stream{streamName}"
+   streamInfoTool.EventInfoKey = eventInfoKey
    outputStream.HelperTools.append(streamInfoTool)
 
    # Make EventFormat object
@@ -55,7 +62,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       Key=eventFormatKey,
    )
    outputStream.HelperTools.append(eventFormatTool)
-   msg.info("Creating event format for this stream")
+   msg.debug("Creating event format for this stream")
 
    # Simplifies naming 
    outputStream.MetadataItemList.append(
@@ -97,11 +104,12 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       # build eventinfo attribute list
       EventInfoAttListTool, EventInfoTagBuilder=CompFactory.getComps("EventInfoAttListTool","EventInfoTagBuilder",)
       tagBuilder = EventInfoTagBuilder(AttributeList=key,
-                                       Tool=EventInfoAttListTool())
+                                       Tool=EventInfoAttListTool(),
+                                       EventInfoKey=eventInfoKey)
       result.addEventAlgo(tagBuilder)
 
    # For xAOD output
-   if "xAOD" in streamName:
+   if "AOD" in streamName:
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
       AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
@@ -114,3 +122,27 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
 
    result.addEventAlgo(outputStream)
    return result
+
+def addToESD(configFlags, itemOrList):
+   """
+   Adds items to ESD stream
+
+   The argument can be either list of items or just one item
+
+   returns CA to be merged i.e.: result.merge(addToESD(flags, "xAOD::CoolObject"))
+   """
+   if not configFlags.Output.doWriteESD:
+      return ComponentAccumulator()
+   items = [itemOrList] if isinstance(itemOrList, str) else itemOrList   
+   return OutputStreamCfg(configFlags, "ESD", ItemList=items)
+
+def addToAOD(configFlags, itemOrList):
+   """
+   Adds items to AOD stream
+
+   @see add addToESD
+   """
+   if not configFlags.Output.doWriteAOD:
+      return ComponentAccumulator()
+   items = [itemOrList] if isinstance(itemOrList, str) else itemOrList   
+   return OutputStreamCfg(configFlags, "AOD", ItemList=items)

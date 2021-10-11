@@ -20,12 +20,8 @@ def FTFTrackSequence(ConfigFlags):
     TrkInputNoViewAlg = makeInDetAlgsNoView( config=IDTrigConfig, rois=caloFSRoI )
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     
-    VTX_NAME     = IDTrigConfig.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else IDTrigConfig.vertex_jet
-    ADAPTIVE_VTX = IDTrigConfig.adaptiveVertex if flags.Trigger.Jet.doAMVFPriorityTTVA else IDTrigConfig.adaptiveVertex_jet
-
-    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), VTX_NAME, IDTrigConfig, adaptiveVertex=ADAPTIVE_VTX)
+    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet)
     prmVtx = vtxAlgs[-1]
 
     TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]

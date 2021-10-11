@@ -18,21 +18,21 @@ class TrigEgammaFastPhotonHypoToolConfig:
   def same( self, val ):
     return [val]*( len( self.tool().EtaBins ) - 1 )
 
-  def __init__(self, name, threshold, sel):
+  def __init__(self, name, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
     self.__name       = name
-    self.__threshold  = float(threshold) 
-    self.__sel        = sel
+    self.__threshold  = float(cpart['threshold']) 
+    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastPhotonHypoTool(name)
-    tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47] 
+    if not tool:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaFastPhotonHypoTool(name)
 
     self.__tool = tool
 
- 
+    tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]  
     tool.ETthr = self.same( 0. )
     tool.CARCOREthr = self.same( 0.0 )
     tool.CAERATIOthr = self.same( 0.0)
@@ -44,9 +44,9 @@ class TrigEgammaFastPhotonHypoToolConfig:
  
 
     
-    self.__log.debug( 'Chain     :%s', name )
-    self.__log.debug( 'Threshold :%s', threshold )
-    self.__log.debug( 'Pidname   :%s', sel )
+    self.__log.debug( 'Chain     :%s', self.__name )
+    self.__log.debug( 'Threshold :%s', self.__threshold )
+    self.__log.debug( 'Pidname   :%s', self.__sel )
 
 
 
@@ -90,12 +90,15 @@ class TrigEgammaFastPhotonHypoToolConfig:
         self.etcut()
     elif 'noalg' == self.pidname():
         self.nocut()
+    elif 0 == self.etthr():
+        self.nocut()
     else:
         self.nominal()
 
 
     # add mon tool
-    self.addMonitoring()
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -118,37 +121,29 @@ class TrigEgammaFastPhotonHypoToolConfig:
 
 
 
-def _IncTool(name, threshold, sel):
-  config = TrigEgammaFastPhotonHypoToolConfig(name, threshold, sel)
+def _IncTool(name, cpart, tool=None):
+  config = TrigEgammaFastPhotonHypoToolConfig(name, cpart, tool=tool)
   config.compile()
   return config.tool()
 
 
 
-def TrigEgammaFastPhotonHypoToolFromDict( d ):
+def TrigEgammaFastPhotonHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if i['signature']=='Photon' ]
-
-    def __th(cpart):
-        return cpart['threshold']
-
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-
     name = d['chainName']
-
-    return _IncTool( name,  __th( cparts[0]),  __sel( cparts[0]) )
-
+    return _IncTool( name,  cparts[0] , tool=tool)
 
 
-def TrigEgammaFastPhotonHypoToolFromName( name, conf ):
+
+def TrigEgammaFastPhotonHypoToolFromName( name, conf , tool=None):
     """ provides configuration of the hypo tool given the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastPhotonHypoToolFromDict( decodedDict )
+    return TrigEgammaFastPhotonHypoToolFromDict( decodedDict, tool=tool )
 
 
 if __name__ == "__main__":

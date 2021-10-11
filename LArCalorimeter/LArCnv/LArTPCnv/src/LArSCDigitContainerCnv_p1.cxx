@@ -11,7 +11,7 @@
 
 void
 LArSCDigitContainerCnv_p1::persToTrans(const LArSCDigitContainer_p1* pers, 
-				     LArSCDigitContainer* trans, MsgStream &log)
+				     LArSCDigitContainer* trans, MsgStream &log) const
 {
   const unsigned nDigits=pers->m_channelID.size();
   if (nDigits > 0 && (nDigits != pers->m_chan.size() || nDigits != pers->m_nSamples.size() || nDigits*pers->m_nSamples[0] != pers->m_bcids.size() || nDigits*pers->m_nSamples[0] != pers->m_samples.size())) {
@@ -47,7 +47,7 @@ LArSCDigitContainerCnv_p1::persToTrans(const LArSCDigitContainer_p1* pers,
 
 void
 LArSCDigitContainerCnv_p1::transToPers(const LArSCDigitContainer* trans, 
-				     LArSCDigitContainer_p1* pers, MsgStream &/*log*/)
+				     LArSCDigitContainer_p1* pers, MsgStream &/*log*/) const
 {
   
   unsigned int nDigits=trans->size();

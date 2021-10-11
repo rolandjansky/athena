@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
@@ -12,7 +12,7 @@ namespace Muon
   MMClusterOnTrack::MMClusterOnTrack():
     MuonClusterOnTrack(), // call base class ctor
     m_rio(),
-    m_detEl(0),
+    m_detEl(nullptr),
     m_stripDriftDists(std::vector<float>(0)),
     m_stripDriftDistErrors(std::vector<Amg::MatrixX>(0))
   {}

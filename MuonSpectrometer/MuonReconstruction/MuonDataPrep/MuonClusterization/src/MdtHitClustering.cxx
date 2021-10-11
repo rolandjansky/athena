@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterization/MdtHitClustering.h"
@@ -20,8 +20,8 @@ namespace Muon {
     hitPattern.clear();
     clusters.clear();
 
-    detEl1 = 0;
-    detEl2 = 0;
+    detEl1 = nullptr;
+    detEl2 = nullptr;
     // number of layers and tubes
     nlay = 0;
     ntube1 = 0;
@@ -37,7 +37,7 @@ namespace Muon {
     // get detEL for first ml (always there)
     detEl1 = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID( name,eta,phi,1,1,1 ) );
     if( !detEl1 ) return false;
-    detEl2 = 0;
+    detEl2 = nullptr;
     // number of layers and tubes
     nlay = detEl1->getNLayers();
     ntube1 = detEl1->getNtubesperlayer();    
@@ -119,23 +119,23 @@ namespace Muon {
     neighbours.clear();
     int ntubes = id.lay < (int)nlay ? ntube1 : ntube2;
     // first add neighbours in the same layer
-    if( id.tube-1 >= 0 )     neighbours.push_back( Id(id.lay,id.tube-1) );
-    if( id.tube+1 < ntubes ) neighbours.push_back( Id(id.lay,id.tube+1) );
+    if( id.tube-1 >= 0 )     neighbours.emplace_back(id.lay,id.tube-1 );
+    if( id.tube+1 < ntubes ) neighbours.emplace_back(id.lay,id.tube+1 );
 
     // now add layer below
     if( id.lay > 0 && id.lay != (int)nlay ){
       int prevLay = id.lay-1;
       int nb1 = id.tube + staggeringCorrection[prevLay];
       int nb2 = nb1 + 1;
-      if( nb1 >= 0 )     neighbours.push_back( Id(prevLay,nb1) );
-      if( nb2 < ntubes ) neighbours.push_back( Id(prevLay,nb2) );
+      if( nb1 >= 0 )     neighbours.emplace_back(prevLay,nb1 );
+      if( nb2 < ntubes ) neighbours.emplace_back(prevLay,nb2 );
     }
     unsigned int nextLay = id.lay+1;
     if( nextLay != nlay && nextLay < 2*nlay ){
       int nb1 = id.tube + staggeringCorrection[nextLay];
       int nb2 = nb1 + 1;
-      if( nb1 >= 0 ) neighbours.push_back( Id(nextLay,nb1) );
-      if( nb2 < ntubes ) neighbours.push_back( Id(nextLay,nb2) );
+      if( nb1 >= 0 ) neighbours.emplace_back(nextLay,nb1 );
+      if( nb2 < ntubes ) neighbours.emplace_back(nextLay,nb2 );
     }
   }
 
@@ -194,7 +194,7 @@ namespace Muon {
 	if( debug ) std::cout << " new tube " << id.lay << "  " << id.tube << " neighbours " << neighbours.size() << std::endl;
 	nit = neighbours.begin();
 	nit_end = neighbours.end();
-	MdtCluster* currentCluster = 0;
+	MdtCluster* currentCluster = nullptr;
 	int currentClusterId = -1;
 	for( ;nit!=nit_end;++nit ){
 	  
@@ -205,7 +205,7 @@ namespace Muon {
 	  MdtCluster& cluster = clusters[clusterNumber];
 	  
 	  // if the hit is unassigned add it to the cluster
-	  if( currentCluster == 0 ){
+	  if( currentCluster == nullptr ){
 	    cluster.add(mdt);
 	    currentCluster = &cluster;
 	    hitPattern[lay][tube] = clusterNumber;
@@ -231,7 +231,7 @@ namespace Muon {
 	  }
 	}
 	// now check whether the hit was already assigned to a cluster, if not create a new cluster
-	if( currentCluster == 0 ){
+	if( currentCluster == nullptr ){
 	  if( debug ) std::cout << " no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
 	  MdtCluster cl;
 	  cl.hitList.push_back(mdt);

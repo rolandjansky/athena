@@ -477,7 +477,7 @@ namespace InDet{
       double             Signif3D, Dist2D, jetVrtDir;
       long int           Charge;
       int i,j;
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       Vrt2Tr tmpVrt;
       std::vector<Vrt2Tr> all2TrVrt(0);
       int NTracks = (int) (selectedTracks.size());

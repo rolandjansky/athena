@@ -3,7 +3,7 @@
 # @author Nils Krumnack
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
@@ -12,10 +12,9 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    sysLoader.sigmaRecommended = 1
-    algSeq += sysLoader
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
@@ -35,8 +34,7 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer, enableCutflow=True )
     jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
                                          'jets'      : 'AnalysisJetsBase_%SYS%' },
-                           outputName = { 'jets'      : 'AnalysisJets_%SYS%' },
-                           affectingSystematics = { 'jets' : jetSequence.affectingSystematics() } )
+                           outputName = { 'jets'      : 'AnalysisJets_%SYS%' } )
     print( jvtSequence ) # For debugging
 
     # Add the sequences to the job:
@@ -62,7 +60,6 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
             'AnalysisJets_%SYS%.jvt_effSF_NOSYS -> jet_%SYS%_jvtEfficiency',
             # 'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
             ]
-        ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
         algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'jets'

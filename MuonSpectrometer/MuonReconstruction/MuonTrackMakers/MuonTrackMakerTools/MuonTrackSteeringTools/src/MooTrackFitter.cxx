@@ -25,7 +25,7 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkDriftCircleMath/Line.h"
-#include "TrkDriftCircleMath/LocPos.h"
+#include "TrkDriftCircleMath/LocVec2D.h"
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/Segment.h"
 #include "TrkEventPrimitives/LocalDirection.h"
@@ -55,7 +55,6 @@ namespace Muon {
         ATH_CHECK(m_cleaner.retrieve());
         ATH_CHECK(m_overlapResolver.retrieve());
         ATH_CHECK(m_trackFitter.retrieve());
-        ATH_CHECK(m_trackFitterPrefit.retrieve());
         ATH_CHECK(m_momentumEstimator.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
@@ -144,7 +143,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::refit(const Trk::Track& track) const {
         if (msgLvl(MSG::DEBUG)) {
-            const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+            const Trk::TrackStates* states = track.trackStateOnSurfaces();
             int nStates = 0;
             if (states) nStates = states->size();
             msg(MSG::DEBUG) << MSG::DEBUG << "refit: fitting track with hits: " << nStates;
@@ -491,7 +490,7 @@ namespace Muon {
                 currentChIndex = chIndex;
                 currentMeasPhi = measuresPhi;
                 fitterData.firstLastMeasurements.push_back(&hit.broadMeasurement());
-                previousHit = 0;
+                previousHit = nullptr;
             } else {
                 // same chamber, store pointer to hit
                 if (currentChIndex == chIndex && currentMeasPhi == measuresPhi) {
@@ -502,7 +501,7 @@ namespace Muon {
                     currentChIndex = chIndex;
                     currentMeasPhi = measuresPhi;
                     fitterData.firstLastMeasurements.push_back(&hit.broadMeasurement());
-                    previousHit = 0;  // reset pointer
+                    previousHit = nullptr;  // reset pointer
                 }
             }
         }
@@ -555,8 +554,8 @@ namespace Muon {
 
         // in case of a single station overlap fit, calculate a global position that is more or less located at
         // the overlap. It is used to decide on which side of the tube the fake should be produced
-        Amg::Vector3D* overlapPos = 0;
-        const Amg::Vector3D* phiPos = 0;
+        Amg::Vector3D* overlapPos = nullptr;
+        const Amg::Vector3D* phiPos = nullptr;
         if (fitterData.numberOfSLOverlaps() > 0 || (fitterData.numberOfSmallChambers() > 0 && fitterData.numberOfLargeChambers() > 0)) {
             // in case of SL overlaps, pass average position of the two segments
             //       overlapPos = new Amg::Vector3D( 0.5*(fitterData.firstEntry->etaHits().front()->globalPosition() +
@@ -602,9 +601,9 @@ namespace Muon {
             const MuPatSegment* segInfo2 = dynamic_cast<const MuPatSegment*>(fitterData.secondEntry);
             if (segInfo1 && segInfo2 && fitterData.stations.size() == 1 && fitterData.numberOfSLOverlaps() == 1) {
                 delete phiPos;
-                phiPos = 0;
+                phiPos = nullptr;
                 delete overlapPos;
-                overlapPos = 0;
+                overlapPos = nullptr;
 
                 // only perform SL overlap fit for MDT segments
                 Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
@@ -631,7 +630,7 @@ namespace Muon {
                 if (exPars1) {
                     Amg::Vector3D position = exPars1->position();
                     const Trk::MeasurementBase* fake =
-                        createFakePhiForMeasurement(*fitterData.measurements.front(), &position, 0, 10., garbage);
+                        createFakePhiForMeasurement(*fitterData.measurements.front(), &position, nullptr, 10., garbage);
                     // delete exPars1;
                     if (fake) {
                         fitterData.phiHits.push_back(fake);
@@ -653,7 +652,7 @@ namespace Muon {
                 if (exPars2) {
                     Amg::Vector3D position = exPars2->position();
                     const Trk::MeasurementBase* fake =
-                        createFakePhiForMeasurement(*fitterData.measurements.back(), &position, 0, 10., garbage);
+                        createFakePhiForMeasurement(*fitterData.measurements.back(), &position, nullptr, 10., garbage);
                     // delete exPars2;
                     if (fake) {
                         fitterData.phiHits.push_back(fake);
@@ -696,9 +695,9 @@ namespace Muon {
                 if (overlapStation == MuonStationIndex::StUnknown) {
                     ATH_MSG_WARNING(" unexpected condition, unknown station type ");
                     delete phiPos;
-                    phiPos = 0;
+                    phiPos = nullptr;
                     delete overlapPos;
-                    overlapPos = 0;
+                    overlapPos = nullptr;
                     return false;
                 }
 
@@ -706,9 +705,9 @@ namespace Muon {
                 if (!firstId.is_valid()) {
                     ATH_MSG_WARNING(" unexpected condition, first measurement has no identifier ");
                     delete phiPos;
-                    phiPos = 0;
+                    phiPos = nullptr;
                     delete overlapPos;
-                    overlapPos = 0;
+                    overlapPos = nullptr;
                     return false;
                 }
                 MuonStationIndex::StIndex firstSt = m_idHelperSvc->stationIndex(firstId);
@@ -738,9 +737,9 @@ namespace Muon {
             } else {
                 ATH_MSG_WARNING(" unexpected condition, cannot create fakes ");
                 delete phiPos;
-                phiPos = 0;
+                phiPos = nullptr;
                 delete overlapPos;
-                overlapPos = 0;
+                overlapPos = nullptr;
                 return false;
             }
         } else {
@@ -756,9 +755,9 @@ namespace Muon {
             }
 
             // create a fake on the first and/or last MDT measurement if not near phi hits
-            const Trk::MeasurementBase* fake = 0;
-            const Trk::Surface *firstmdtsurf = 0, *lastmdtsurf = 0;
-            const Trk::TrackParameters *lastmdtpar = 0, *firstpar = 0, *lastpar = 0;
+            const Trk::MeasurementBase* fake = nullptr;
+            const Trk::Surface *firstmdtsurf = nullptr, *lastmdtsurf = nullptr;
+            const Trk::TrackParameters *lastmdtpar = nullptr, *firstpar = nullptr, *lastpar = nullptr;
             int indexfirst = 0, indexlast = (int)fitterData.measurements.size();
             MuPatHitCit hitit = fitterData.hitList.begin();
             for (; hitit != fitterData.hitList.end(); hitit++) {
@@ -787,7 +786,7 @@ namespace Muon {
             bool phifromextrapolation = false;
             if (!fitterData.secondEntry->phiHits().empty() || !fitterData.firstEntry->phiHits().empty()) phifromextrapolation = true;
 
-            const Trk::Surface *firstphisurf = 0, *lastphisurf = 0;
+            const Trk::Surface *firstphisurf = nullptr, *lastphisurf = nullptr;
             Amg::Vector3D firstphinormal, lastphinormal;
             if (!fitterData.phiHits.empty()) {
                 firstphisurf = &fitterData.phiHits.front()->associatedSurface();
@@ -865,31 +864,34 @@ namespace Muon {
         Identifier id = m_edmHelperSvc->getIdentifier(meas);
         if (id == Identifier()) {
             ATH_MSG_WARNING(" Cannot create fake phi hit from a measurement without Identifier ");
-            return 0;
+            return nullptr;
         }
         // check whether phi measurement, exit if true
         if (m_idHelperSvc->measuresPhi(id)) {
             ATH_MSG_WARNING(" Measurement is a phi measurement! " << m_idHelperSvc->toString(id));
-            return 0;
+            return nullptr;
         }
-        double length = 1e9;  // initialize to large value
+
+        // distinguishing left-right just to treat the asymmetry of the active region in MM chambers
+        double halfLengthL = 1e9;  // initialize to large value
+        double halfLengthR = 1e9;
 
         // the MDT and CSC hits are ROTs
         const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
         if (!rot) {
             const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(&meas);
             // if also to a crot we cannot create a fake phi hit
-            if (!crot || crot->containedROTs().empty()) return 0;
+            if (!crot || crot->containedROTs().empty()) return nullptr;
             rot = &crot->rioOnTrack(0);
         }
 
         bool isMdt = false;
 
         // get channel length and detector element
-        const Trk::TrkDetElementBase* detEl = 0;
+        const Trk::TrkDetElementBase* detEl = nullptr;
         if (!rot) {
             ATH_MSG_WARNING(" Measurement not a ROT " << m_idHelperSvc->toString(id));
-            return 0;
+            return nullptr;
         }
 
         if (m_idHelperSvc->isMdt(id)) {
@@ -897,60 +899,61 @@ namespace Muon {
             const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(rot->detectorElement());
             if (!mdtDetEl) {
                 ATH_MSG_WARNING(" MDT without MdtReadoutElement! ");
-                return 0;
+                return nullptr;
             }
             detEl = mdtDetEl;
             int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
             int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-            length = mdtDetEl->getActiveTubeLength(layer, tube);
+            halfLengthL = halfLengthR = 0.5 * mdtDetEl->getActiveTubeLength(layer, tube);
         } else if (m_idHelperSvc->isCsc(id)) {
             const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
             if (!cscDetEl) {
                 ATH_MSG_WARNING(" CSC without CscReadoutElement! ");
-                return 0;
+                return nullptr;
             }
             detEl = cscDetEl;
-            length = cscDetEl->stripLength(id);
+            halfLengthL = halfLengthR = 0.5 * cscDetEl->stripLength(id);
         } else if (m_idHelperSvc->isRpc(id)) {
             const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
             if (!rpcDetEl) {
                 ATH_MSG_WARNING(" RPC without RpcReadoutElement! ");
-                return 0;
+                return nullptr;
             }
             detEl = rpcDetEl;
-            length = rpcDetEl->StripLength(false);  // eta-strip
+            halfLengthL = halfLengthR = 0.5 * rpcDetEl->StripLength(false);  // eta-strip
         } else if (m_idHelperSvc->isTgc(id)) {
             const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
             if (!tgcDetEl) {
                 ATH_MSG_WARNING(" TGC without TgcReadoutElement! ");
-                return 0;
+                return nullptr;
             }
             detEl = tgcDetEl;
-            length = tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
+            halfLengthL = halfLengthR =
+                0.5 * tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
         } else if (m_idHelperSvc->issTgc(id)) {
             const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
             if (!stgcDetEl || !stgcDetEl->getDesign(id)) {
                 ATH_MSG_WARNING(" STGC without sTgcReadoutElement! ");
-                return 0;
+                return nullptr;
             }
             detEl = stgcDetEl;
             const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
-            length = design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id));
+            halfLengthL = halfLengthR = 0.5 * design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id));
         } else if (m_idHelperSvc->isMM(id)) {
             const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
             if (!mmDetEl || !mmDetEl->getDesign(id)) {
-                ATH_MSG_WARNING(" STGC without sTgcReadoutElement! ");
-                return 0;
+                ATH_MSG_WARNING(" MM without MMReadoutElement! ");
+                return nullptr;
             }
             detEl = mmDetEl;
-            const MuonGM::MuonChannelDesign* design = mmDetEl->getDesign(id);
-            length = design->channelLength(m_idHelperSvc->mmIdHelper().channel(id));
+            halfLengthL = mmDetEl->stripActiveLengthLeft(id);
+            halfLengthR = mmDetEl->stripActiveLengthRight(id);
         }
 
         // we need the detEl and channel length
         if (!detEl) {
             ATH_MSG_WARNING(" no detector element found for measurement: " << m_idHelperSvc->toString(id));
-            return 0;
+            return nullptr;
         }
 
         // error
@@ -984,12 +987,13 @@ namespace Muon {
 
         if (!lpos) {
             ATH_MSG_WARNING(" no local position, cannot make fake phi hit ");
-            return 0;
+            return nullptr;
         }
-        double ly = (*lpos)[Trk::locY];
 
+        double ly = (*lpos)[Trk::locY];
+        double halfLength = ly < 0 ? halfLengthL : halfLengthR;
         bool shiftedPos = false;
-        double halfLength = 0.5 * length;
+
         if (std::abs(ly) > halfLength) {
             double lyold = ly;
             ly = ly < 0 ? -halfLength : halfLength;
@@ -997,7 +1001,7 @@ namespace Muon {
                                                                                          << ly);
             if (phiPos && std::abs(lyold) - halfLength > 1000.) {
                 ATH_MSG_DEBUG(" rejecting track ");
-                return 0;
+                return nullptr;
             }
             shiftedPos = true;
         }
@@ -1015,12 +1019,12 @@ namespace Muon {
             if (!loverlapPos) {
                 ATH_MSG_DEBUG(" globalToLocal failed for overlap position: " << surf.transform() * (*overlapPos));
                 // calculate position fake
-                double lyfake = 0.5 * length - 50.;
+                double lyfake = halfLength - 50.;
 
-                Amg::Vector2D locpos_plus(0., lyfake);
-                const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(locpos_plus);
-                Amg::Vector2D locpos_min(0., -lyfake);
-                const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(locpos_min);
+                Amg::Vector2D LocVec2D_plus(0., lyfake);
+                const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(LocVec2D_plus);
+                Amg::Vector2D LocVec2D_min(0., -lyfake);
+                const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(LocVec2D_min);
 
                 double phi_min = fakePos_min.phi();
                 double phi_plus = fakePos_plus.phi();
@@ -1031,14 +1035,13 @@ namespace Muon {
 
                 ly = lyfake;
                 errPos = 50. / sqrt(12);
-                ATH_MSG_VERBOSE(" fake lpos " << lyfake << " ch half length " << 0.5 * length << " phi+ " << phi_plus << " phi- " << phi_min
+                ATH_MSG_VERBOSE(" fake lpos " << lyfake << " ch half length " << halfLength << " phi+ " << phi_plus << " phi- " << phi_min
                                               << " phi overlap " << phi_overlap << " err " << errPos);
             } else {
                 ly = (*loverlapPos)[Trk::locY];
-
-                halfLength = 0.5 * length;
+                halfLength = ly < 0 ? halfLengthL : halfLengthR;  // safer to redo since ly changed
                 if (std::abs(ly) > halfLength) { ly = ly < 0 ? -halfLength : halfLength; }
-                ATH_MSG_VERBOSE(" fake from overlap: lpos " << ly << " ch half length " << 0.5 * length << " overlapPos " << *overlapPos);
+                ATH_MSG_VERBOSE(" fake from overlap: lpos " << ly << " ch half length " << halfLength << " overlapPos " << *overlapPos);
             }
         }
 
@@ -1052,8 +1055,8 @@ namespace Muon {
         garbage.push_back(fake);
 
         if (msgLvl(MSG::DEBUG)) {
-            Amg::Vector2D locpos(0., fake->localParameters().get(Trk::locY));
-            const Amg::Vector3D fakePos = meas.associatedSurface().localToGlobal(locpos);
+            Amg::Vector2D LocVec2D(0., fake->localParameters().get(Trk::locY));
+            const Amg::Vector3D fakePos = meas.associatedSurface().localToGlobal(LocVec2D);
 
             msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperSvc->toStringChamber(id) << "   locY " << ly
                             << "  errpr " << errPos << " phi " << fakePos.phi() << endmsg;
@@ -1220,47 +1223,51 @@ namespace Muon {
             Identifier id = rot->identify();
             const Trk::Surface& surf = meas.associatedSurface();
             double x = rot->localParameters()[Trk::locX];
-            double halfLength = 0.;
+
+            // distinguishing left-right just to treat the asymmetry of the active region in MM chambers
+            double halfLengthL = 0.;
+            double halfLengthR = 0.;
 
             if (m_idHelperSvc->isMdt(id)) {
                 const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(rot->detectorElement());
                 if (mdtDetEl) {
                     int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
                     int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-                    halfLength = 0.5 * mdtDetEl->getActiveTubeLength(layer, tube);
+                    halfLengthL = halfLengthR = 0.5 * mdtDetEl->getActiveTubeLength(layer, tube);
                 }
             } else if (m_idHelperSvc->isCsc(id)) {
                 const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
-                if (cscDetEl) { halfLength = 0.5 * cscDetEl->stripLength(id); }
+                if (cscDetEl) { halfLengthL = halfLengthR = 0.5 * cscDetEl->stripLength(id); }
             } else if (m_idHelperSvc->isRpc(id)) {
                 const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
                 if (rpcDetEl) {
-                    halfLength = 0.5 * rpcDetEl->StripLength(false);  // eta-strip
+                    halfLengthL = halfLengthR = 0.5 * rpcDetEl->StripLength(false);  // eta-strip
                 }
             } else if (m_idHelperSvc->isTgc(id)) {
                 const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
                 if (tgcDetEl) {
-                    halfLength =
+                    halfLengthL = halfLengthR =
                         0.5 * tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id), m_idHelperSvc->tgcIdHelper().channel(id));
                 }
             } else if (m_idHelperSvc->issTgc(id)) {
                 const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
                 if (stgcDetEl) {
                     const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
-                    if (design) { halfLength = 0.5 * design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id)); }
+                    if (design) { halfLengthL = halfLengthR = 0.5 * design->channelLength(m_idHelperSvc->stgcIdHelper().channel(id)); }
                 }
             } else if (m_idHelperSvc->isMM(id)) {
                 const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
                 if (mmDetEl) {
-                    const MuonGM::MuonChannelDesign* design = mmDetEl->getDesign(id);
-                    if (design) { halfLength = 0.5 * design->channelLength(m_idHelperSvc->mmIdHelper().channel(id)); }
+                    halfLengthL = mmDetEl->stripActiveLengthLeft(id);
+                    halfLengthR = mmDetEl->stripActiveLengthRight(id);
                 }
             }
-            Amg::Vector2D lpLeft(x, -halfLength);
+
+            Amg::Vector2D lpLeft(x, -halfLengthL);
             const Amg::Vector3D gposLeft = surf.localToGlobal(lpLeft);
             double phiLeft = gposLeft.phi();
 
-            Amg::Vector2D lpRight(x, halfLength);
+            Amg::Vector2D lpRight(x, halfLengthR);
             const Amg::Vector3D gposRight = surf.localToGlobal(lpRight);
             double phiRight = gposRight.phi();
 
@@ -1365,7 +1372,7 @@ namespace Muon {
         const MuPatSegment* segEntry = dynamic_cast<const MuPatSegment*>(&entry);
         if (segEntry) { return segEntry->segment; }
 
-        return 0;
+        return nullptr;
     }
 
     double MooTrackFitter::qOverPFromEntry(const MuPatCandidateBase& entry) const {
@@ -1551,7 +1558,7 @@ namespace Muon {
     Trk::Perigee* MooTrackFitter::createStartParameters(MooTrackFitter::FitterData& fitterData, GarbageContainer& garbage) const {
         // get momentum + charge from entry if available, else use MuonSegmentMomentum to estimate the momentum
         double qOverP = qOverPFromEntries(*fitterData.firstEntry, *fitterData.secondEntry, garbage);
-        Trk::Perigee *perigee = 0, *startPars = 0;
+        Trk::Perigee *perigee = nullptr, *startPars = nullptr;
         const MuPatCandidateBase *entry1 = fitterData.firstEntry, *entry2 = fitterData.secondEntry;
 
         const MuPatTrack* trkEntry1 = dynamic_cast<const MuPatTrack*>(entry1);
@@ -1600,7 +1607,7 @@ namespace Muon {
 
         const MuPatCandidateBase* bestentry = entry1;
         double dist1 = -1, dist2 = -1;
-        const MuPatHit *firstphi1 = 0, *lastphi1 = 0, *firstphi2 = 0, *lastphi2 = 0;
+        const MuPatHit *firstphi1 = nullptr, *lastphi1 = nullptr, *firstphi2 = nullptr, *lastphi2 = nullptr;
 
         std::list<MuPatHit*>::const_iterator it = entry1->hitList().begin();
         for (; it != entry1->hitList().end(); it++) {
@@ -1623,7 +1630,7 @@ namespace Muon {
         const MuPatTrack* besttrkEntry = dynamic_cast<const MuPatTrack*>(bestentry);
         const MuPatSegment* bestseg = dynamic_cast<const MuPatSegment*>(bestentry);
         if (besttrkEntry) {
-            const Trk::TrackParameters* mdtpar = 0;
+            const Trk::TrackParameters* mdtpar = nullptr;
             for (DataVector<const Trk::TrackParameters>::const_iterator parit = besttrkEntry->track().trackParameters()->begin();
                  parit != besttrkEntry->track().trackParameters()->end(); parit++) {
                 mdtpar = *parit;
@@ -1631,7 +1638,7 @@ namespace Muon {
             }
             if (!mdtpar) {
                 ATH_MSG_WARNING("Failed to find valid Trackparameters on track ");
-                return 0;
+                return nullptr;
             }
             Amg::VectorX newpar = mdtpar->parameters();  // besttrkEntry->track().perigeeParameters()->parameters();
             newpar[Trk::qOverP] = qOverP;
@@ -1659,7 +1666,7 @@ namespace Muon {
 
         if (!perigee) {
             ATH_MSG_DEBUG(" failed to create perigee ");
-            return 0;
+            return nullptr;
         }
 
         garbage.push_back(perigee);
@@ -1674,7 +1681,7 @@ namespace Muon {
         Amg::Vector3D perpos(0., 0., 0.);
         // propagate segment parameters to first measurement
         const Trk::TrackParameters* exPars = &firstPars;
-        const Trk::TrackParameters* garbage = 0;
+        const Trk::TrackParameters* garbage = nullptr;
         double shift = 1.;
         if (m_seedAtStartOfTrack) {
             // not sure whats going on with ownership here, so let this code take care of it
@@ -1682,7 +1689,7 @@ namespace Muon {
                 m_propagator->propagate(firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
             if (!exPars) {
                 ATH_MSG_DEBUG(" Propagation failed in createPerigee!! ");
-                return 0;
+                return nullptr;
             }
             garbage = exPars;
             shift = 100.;
@@ -1701,7 +1708,7 @@ namespace Muon {
         else {
             if (!validMomentum(*exPars)) {
                 delete garbage;
-                return 0;
+                return nullptr;
             }
         }
 
@@ -1737,6 +1744,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::fit(const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageContainer& garbage,
                                                     Trk::ParticleHypothesis partHypo, bool prefit) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         if (hits.empty()) return nullptr;
 
         ATH_MSG_VERBOSE(std::setprecision(5) << " track start parameter: phi " << startPars.momentum().phi() << " theta "
@@ -1768,9 +1776,7 @@ namespace Muon {
 
         ATH_MSG_VERBOSE("fit: " << (prefit ? "prefit" : "fit") << "track with hits: " << hits.size() << std::endl
                                 << m_printer->print(hits));
-        std::unique_ptr<Trk::Track> track = prefit
-                                                ? std::unique_ptr<Trk::Track>(m_trackFitterPrefit->fit(hits, *pars, m_runOutlier, partHypo))
-                                                : std::unique_ptr<Trk::Track>(m_trackFitter->fit(hits, *pars, m_runOutlier, partHypo));
+        std::unique_ptr<Trk::Track> track = std::unique_ptr<Trk::Track>(m_trackFitter->fit(ctx, hits, *pars, m_runOutlier, partHypo));
 
         // 'sign' track
         if (track) track->info().setPatternRecognitionInfo(m_patRecInfo);
@@ -1779,7 +1785,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::fitWithRefit(const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits) const {
         GarbageContainer localGarbage;
-
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         std::unique_ptr<Trk::Track> track = fit(startPars, hits, localGarbage);
 
         // exceptions that are not refitted
@@ -1795,12 +1801,8 @@ namespace Muon {
                 double difMom = startPars.momentum().mag() - pp->momentum().mag();
                 if (std::abs(difMom) > 5000.) {
                     ATH_MSG_DEBUG(" absolute difference in momentum too large, refitting track. Dif momentum= " << difMom);
-                    if (msgLvl(MSG::DEBUG)) {
-                        msg(MSG::DEBUG) << MSG::DEBUG << "fitWithRefit: refitting track with hits: " << hits.size();
-                        if (msgLvl(MSG::VERBOSE)) { msg(MSG::DEBUG) << std::endl << m_printer->print(hits); }
-                        msg(MSG::DEBUG) << endmsg;
-                    }
-                    std::unique_ptr<Trk::Track> refittedTrack(m_trackFitter->fit(hits, *pp, false, m_ParticleHypothesis));
+                    ATH_MSG_DEBUG("fitWithRefit: refitting track with hits: " << hits.size() << std::endl << m_printer->print(hits));
+                    std::unique_ptr<Trk::Track> refittedTrack(m_trackFitter->fit(ctx, hits, *pp, false, m_ParticleHypothesis));
                     if (refittedTrack) {
                         track.swap(refittedTrack);
 
@@ -1990,6 +1992,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack(Trk::Track& track,
                                                                       const std::set<Identifier>& excludedChambers) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // preselection to get ride of really bad tracks
         if (!m_edmHelperSvc->goodTrack(track, m_preCleanChi2Cut)) {
             ATH_MSG_DEBUG(" Track rejected due to large chi2" << std::endl << m_printer->print(track));
@@ -1999,10 +2002,10 @@ namespace Muon {
         // perform cleaning of track
         std::unique_ptr<Trk::Track> cleanTrack;
         if (excludedChambers.empty())
-            cleanTrack = m_cleaner->clean(track);
+            cleanTrack = m_cleaner->clean(track, ctx);
         else {
             ATH_MSG_DEBUG(" Cleaning with exclusion list " << excludedChambers.size());
-            cleanTrack = m_cleaner->clean(track, excludedChambers);
+            cleanTrack = m_cleaner->clean(track, excludedChambers, ctx);
         }
         if (!cleanTrack) {
             ATH_MSG_DEBUG(" Cleaner returned a zero pointer, reject track ");
@@ -2075,8 +2078,8 @@ namespace Muon {
             tubeRadius = detEl->innerTubeRadius();
 
             // calculate local AMDB position
-            Amg::Vector3D locPos = gToStation * mdt->prepRawData()->globalPosition();
-            TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+            Amg::Vector3D LocVec2D = gToStation * mdt->prepRawData()->globalPosition();
+            TrkDriftCircleMath::LocVec2D lpos(LocVec2D.y(), LocVec2D.z());
 
             double r = mdt->localParameters()[Trk::locR];
             double dr = Amg::error(mdt->localCovariance(), Trk::locR);
@@ -2103,7 +2106,7 @@ namespace Muon {
                                            << " local parameters " << lpos.y() << " " << lpos.z() << "  phi " << angleYZ << "  with "
                                            << dcs.size() << " hits  ");
 
-        TrkDriftCircleMath::LocPos segPos(lpos.y(), lpos.z());
+        TrkDriftCircleMath::LocVec2D segPos(lpos.y(), lpos.z());
         TrkDriftCircleMath::Line segPars(segPos, angleYZ);
 
         TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0., 0., 0.), TrkDriftCircleMath::DCOnTrackVec());
@@ -2168,7 +2171,7 @@ namespace Muon {
         GarbageContainer localGarbage;
 
         // access TSOS of track
-        const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
+        const Trk::TrackStates* oldTSOT = track.trackStateOnSurfaces();
         if (!oldTSOT) return std::make_pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track>>(nullptr, nullptr);
 
         // check whether the perigee is expressed at the point of closes approach or at muon entry
@@ -2183,8 +2186,8 @@ namespace Muon {
 
         // loop over content input track and count perigees
         unsigned int nperigees(0);
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit = oldTSOT->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_end = oldTSOT->end();
+        Trk::TrackStates::const_iterator tit = oldTSOT->begin();
+        Trk::TrackStates::const_iterator tit_end = oldTSOT->end();
         for (; tit != tit_end; ++tit) {
             // look whether state is a perigee
             if ((*tit)->type(Trk::TrackStateOnSurface::Perigee) && dynamic_cast<const Trk::Perigee*>((*tit)->trackParameters()))
@@ -2326,13 +2329,13 @@ namespace Muon {
         Trk::PerigeeSurface persurf(startPars.position());
         Trk::Perigee* perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
 
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
-        trackStateOnSurfaces->reserve(tsos.size() + 1);
-        trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
-        for (const Trk::TrackStateOnSurface* tsos : tsos) trackStateOnSurfaces->push_back(tsos->clone());
+        auto trackStateOnSurfaces = Trk::TrackStates();
+        trackStateOnSurfaces.reserve(tsos.size() + 1);
+        trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+        for (const Trk::TrackStateOnSurface* tsos : tsos) trackStateOnSurfaces.push_back(tsos->clone());
 
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
-        std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(trackInfo, trackStateOnSurfaces, nullptr);
+        std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>(trackInfo, std::move(trackStateOnSurfaces), nullptr);
 
         unsigned int nphi = hasPhiConstrain(track.get());
 
@@ -2404,9 +2407,9 @@ namespace Muon {
 
             // clean up previous track and create new one with fake hits
             perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
-            trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
-            trackStateOnSurfaces->reserve(tsos.size() + 3);
-            trackStateOnSurfaces->push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
+            trackStateOnSurfaces = Trk::TrackStates();
+            trackStateOnSurfaces.reserve(tsos.size() + 3);
+            trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
 
             tit = tsos.begin();
             tit_end = tsos.end();
@@ -2418,7 +2421,7 @@ namespace Muon {
                     continue;
                 }
 
-                trackStateOnSurfaces->push_back((*tit)->clone());
+                trackStateOnSurfaces.push_back((*tit)->clone());
                 if (*tit == positionFirstFake) {
                     double fakeError = 100.;
                     if (positionFirstFake->trackParameters()->covariance()) {
@@ -2428,10 +2431,10 @@ namespace Muon {
 
                     Amg::Vector3D position = positionFirstFake->trackParameters()->position();
                     const Trk::MeasurementBase* fake =
-                        createFakePhiForMeasurement(*(positionFirstFake->measurementOnTrack()), &position, 0, fakeError, garbage);
+                        createFakePhiForMeasurement(*(positionFirstFake->measurementOnTrack()), &position, nullptr, fakeError, garbage);
                     if (fake) {
                         // need to clone as fake is already added to garbage collection
-                        trackStateOnSurfaces->push_back(MuonTSOSHelper::createMeasTSOSWithUpdate(
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createMeasTSOSWithUpdate(
                             **tit, fake->clone(), positionFirstFake->trackParameters()->clone(), Trk::TrackStateOnSurface::Measurement));
                     } else {
                         ATH_MSG_WARNING(" failed to create fake at first measurement ");
@@ -2446,10 +2449,10 @@ namespace Muon {
 
                     Amg::Vector3D position = positionSecondFake->trackParameters()->position();
                     const Trk::MeasurementBase* fake =
-                        createFakePhiForMeasurement(*(positionSecondFake->measurementOnTrack()), &position, 0, fakeError, garbage);
+                        createFakePhiForMeasurement(*(positionSecondFake->measurementOnTrack()), &position, nullptr, fakeError, garbage);
                     if (fake) {
                         // need to clone as fake is already added to garbage collection
-                        trackStateOnSurfaces->push_back(MuonTSOSHelper::createMeasTSOSWithUpdate(
+                        trackStateOnSurfaces.push_back(MuonTSOSHelper::createMeasTSOSWithUpdate(
                             **tit, fake->clone(), positionSecondFake->trackParameters()->clone(), Trk::TrackStateOnSurface::Measurement));
                     } else {
                         ATH_MSG_WARNING(" failed to create fake at second measurement ");
@@ -2458,7 +2461,7 @@ namespace Muon {
             }
 
             Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
-            track = std::make_unique<Trk::Track>(trackInfo, trackStateOnSurfaces, nullptr);
+            track = std::make_unique<Trk::Track>(trackInfo, std::move(trackStateOnSurfaces), nullptr);
         }
 
         // refit track

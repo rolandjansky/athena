@@ -38,11 +38,6 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           sv1tool = acc.popToolsAndMerge(SV1TagCfg(ConfigFlags, 'SV1Tag', scheme))
           tagToolList.append(sv1tool)
 
-      if 'RNNIP' in TaggerList:
-          from JetTagTools.RNNIPTagConfig import RNNIPTagCfg
-          rnniptool = acc.popToolsAndMerge(RNNIPTagCfg(ConfigFlags, 'RNNIPTag', scheme))
-          tagToolList.append(rnniptool)
-
       if 'JetFitterNN' in TaggerList:
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg
           jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN', scheme, runNN=ConfigFlags.BTagging.RunJetFitterNN))
@@ -69,12 +64,7 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           tagToolList.append(jvc)
 
       # list of taggers that use MultivariateTagManager
-      mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2c10mu','MV2c10rnn','MV2m','MV2c10hp','DL1','DL1mu','DL1rnn']
-      if 'RNNIP' not in TaggerList: #some taggers needs RNNIP variables
-          mvtm_taggers.remove('DL1rnn')
-          mvtm_taggers.remove('MV2c10rnn')
-          mvtm_taggers.remove('MV2c100')
-          mvtm_taggers.remove('MV2cl100')
+      mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c10mu','MV2m','DL1','DL1mu']
       mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
       if len(mvtm_active_taggers) > 0:
           from JetTagTools.MultivariateTagManagerConfig import MultivariateTagManagerCfg

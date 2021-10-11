@@ -964,7 +964,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 
   count=0;
   ATH_MSG_VERBOSE("zmin="<<zmin<<"   zmax="<<zmax);
-  for(vit=tobeadded.begin();vit!=tobeadded.end();vit++){
+  for(vit=tobeadded.begin();vit!=tobeadded.end();++vit){
     int straw = m_trtid->straw((*vit)->identify());
     const Amg::Vector3D& sc = (*vit)->detectorElement()->strawCenter(straw);
     ATH_MSG_VERBOSE("Shall we add hit at z="<<sc.z());
@@ -1631,18 +1631,12 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(TRT_TrackSegmentsMake
     Identifier ID = (*w)->identify();
     if(std::abs(m_trtid->barrel_ec(ID))!=2) continue; // only endcaps please!!!
 
-
     InDet::TRT_DriftCircleCollection::const_iterator 
       c  = (*w)->begin(), ce = (*w)->end();
 
     for(; c!=ce; ++c) {
 
       if(prd_to_track_map_cptr &&  prd_to_track_map_cptr->isUsed(*(*c))) continue; //don't use hits that have already been used
-
-
-
- 
-      
       if(isTrueHit(*c)){
         //which endcap:
 
@@ -1679,82 +1673,31 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(TRT_TrackSegmentsMake
   }
 
   //move isolated hits from the good hits vector to the noise hits vector
-
-  std::list<const InDet::TRT_DriftCircle*>::iterator it,it2,itE,it_remove;
-
-  it=event_data.m_goodHits.begin();
-  itE=event_data.m_goodHits.end();
-
+  //
+  auto it=event_data.m_goodHits.begin();
+  auto itE=event_data.m_goodHits.end();
+  auto it_remove(it);
   bool remove=false;
-
-
+  //
+  const double dPhiLimit{0.03};
+  const double dzLimit{31.};
   for(;it!=itE;++it){
-
     if(remove){
       event_data.m_goodHits.erase(it_remove);
       remove=false;
     }
-
-    Identifier ID = (*it)->identify();
-    int wheel=std::abs(m_trtid->layer_or_wheel(ID));
-    int endcap=m_trtid->barrel_ec(ID);
-
-    int ns = m_trtid->straw((*it)->identify());
-    const Amg::Vector3D& sc = (*it)->detectorElement()->strawCenter(ns);
-
-    double max_r=10000;
-    bool accept=false;
-
-    for(it2=event_data.m_goodHits.begin();it2!=itE;++it2){
-      if(it==it2) continue;
-
-      Identifier ID2 = (*it2)->identify();
-
-      int endcap2=m_trtid->barrel_ec(ID2);
-      int wheel2=std::abs(m_trtid->layer_or_wheel(ID2));
-
-      //only look inside the same wheel
-      if(endcap!=endcap2 || wheel2!=wheel) continue;
-
-      int ns2 = m_trtid->straw((*it2)->identify());
-      const Amg::Vector3D& sc2 = (*it2)->detectorElement()->strawCenter(ns2);
-
-      double dz=sc.z()-sc2.z();
-      double dphi=phidiff(sc.phi(),sc2.phi());
-      
-      dphi*=300.0; // scale factor for dphi to get equal weight
-      
-      double dr=std::sqrt(dz*dz+dphi*dphi);
-
-      
-      dz=std::abs(dz);
-      dphi=std::abs(dphi/300.0);
-
-      if(dr<max_r) {
-        max_r=dr;
-        //if(max_r<m_maximald) break;
-      }
-
-      if(dphi<0.03 && dz<31)
-        accept=true;
-
-    }
-
+    const bool accept=accepted(it, event_data.m_goodHits, dPhiLimit, dzLimit);
     if(!accept){
       event_data.m_noiseHits.push_back(*it);
       it_remove=it;
       remove=true;
     }
   }
-
   if(remove){
     event_data.m_goodHits.erase(it_remove);
     remove=false;
   }
 
-
-
-  
   //2nd pass through good hits with increased ToT cut
   
   it=event_data.m_goodHits.begin();
@@ -1789,60 +1732,13 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(TRT_TrackSegmentsMake
   remove=false;
 
   for(;it!=itE;++it){
-
     if(remove){
       event_data.m_goodHits.erase(it_remove);
       remove=false;
     }
-
-    Identifier ID = (*it)->identify();
-    int wheel=std::abs(m_trtid->layer_or_wheel(ID));
-    int endcap=m_trtid->barrel_ec(ID);
-
-    int ns = m_trtid->straw((*it)->identify());
-    const Amg::Vector3D& sc = (*it)->detectorElement()->strawCenter(ns);
-
-    double max_r=10000;
-    bool accept=false;
-
-    for(it2=event_data.m_goodHits.begin();it2!=itE;++it2){
-      if(it==it2) continue;
-
-      Identifier ID2 = (*it2)->identify();
-
-      int endcap2=m_trtid->barrel_ec(ID2);
-      int wheel2=std::abs(m_trtid->layer_or_wheel(ID2));
-
-      //only look inside the same wheel
-      if(endcap!=endcap2 || wheel2!=wheel) continue;
-
-      int ns2 = m_trtid->straw((*it2)->identify());
-      const Amg::Vector3D& sc2 = (*it2)->detectorElement()->strawCenter(ns2);
-
-      double dz=sc.z()-sc2.z();
-      double dphi=phidiff(sc.phi(),sc2.phi());
-      
-      dphi*=300.0; // scale factor for dphi to get equal weight
-      
-      double dr=std::sqrt(dz*dz+dphi*dphi);
-
-      
-      dz=std::abs(dz);
-      dphi=std::abs(dphi/300.0);
-
-      if(dr<max_r) {
-        max_r=dr;
-      }
-
-      if(dphi<0.25 && dz<200)
-        accept=true;
-
-    }
-
+    const bool accept=accepted(it, event_data.m_goodHits, 0.25,  200.);
     if(!accept){
       ATH_MSG_DEBUG("Removing hit in 2nd pass isolation: "<<isTrueHit(*it));
-
-
       event_data.m_noiseHits.push_back(*it);
       it_remove=it;
       remove=true;
@@ -1857,6 +1753,42 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(TRT_TrackSegmentsMake
   ATH_MSG_DEBUG("good hits in endcap: "<<event_data.m_goodHits.size());
   ATH_MSG_DEBUG("noise hits in endcap: "<<event_data.m_noiseHits.size());
 
+}
+
+bool 
+InDet::TRT_TrackSegmentsMaker_ECcosmics::accepted(
+  const std::list<const InDet::TRT_DriftCircle*>::iterator it, 
+  std::list<const InDet::TRT_DriftCircle*> & container,
+  double dPhiLimit, double dzLimit) const{
+  //
+  const auto id =  (*it)->identify();
+  const auto ns = m_trtid->straw(id);
+  const auto endcap= m_trtid->barrel_ec(id);
+  const auto wheel = std::abs(m_trtid->layer_or_wheel(id));
+  const Amg::Vector3D& sc = (*it)->detectorElement()->strawCenter(ns);
+  //
+  bool accept{false};
+  for(auto it2=container.begin();it2!=container.end();++it2){
+      if(it==it2) continue;
+      Identifier id2 = (*it2)->identify();
+      int endcap2=m_trtid->barrel_ec(id2);
+      int wheel2=std::abs(m_trtid->layer_or_wheel(id2));
+      //only look inside the same wheel
+      if(endcap!=endcap2 || wheel2!=wheel) continue;
+      int ns2 = m_trtid->straw(id2);
+      const Amg::Vector3D& sc2 = (*it2)->detectorElement()->strawCenter(ns2);
+      double dz=sc.z()-sc2.z();
+      double dphi=phidiff(sc.phi(),sc2.phi());
+      dphi*=300.0; // scale factor for dphi to get equal weight
+      dz=std::abs(dz);
+      dphi=std::abs(dphi/300.0);
+      if(dphi<dPhiLimit and dz<dzLimit){
+        accept=true;
+        //break was not in original code...
+        break; //...but no need to continue once accept has been set
+      }
+  } //end inner loop
+  return accept;
 }
 
 ///////////////////////////////////////////////////////////////////

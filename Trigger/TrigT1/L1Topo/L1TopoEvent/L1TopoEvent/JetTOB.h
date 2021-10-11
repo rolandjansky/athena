@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef TopoCore_JetTOB
 #define TopoCore_JetTOB
@@ -21,20 +21,20 @@ namespace TCS {
       enum JetSize { JS1, JS2 };
       
       // default constructor
-      JetTOB(uint32_t roiWord = 0, std::string tobName = "JetTOB");
+      JetTOB(uint32_t roiWord = 0, const std::string& tobName = "JetTOB");
 
       // copy constructor
       JetTOB(const JetTOB & jet);
 
       // constructor with initial values
-      JetTOB(unsigned int Et1, unsigned int Et2, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "JetTOB" );
+      JetTOB(unsigned int Et1, unsigned int Et2, int eta, int phi, uint32_t roiWord = 0, const std::string& tobName = "JetTOB" );
 
       // destructor
       virtual ~JetTOB();
       
       // accessors
-      int energy(JetSize js ) const { return js==JS1?m_Et1:m_Et2; }
-      int Et(JetSize js ) const { return js==JS1?m_Et1:m_Et2; }
+      int energy(JetSize js ) const { return static_cast<int>(js==JS1?m_Et1:m_Et2); }
+      int Et(JetSize js ) const { return static_cast<int>(js==JS1?m_Et1:m_Et2); }
       
       // accessors
       unsigned int Et1()      const { return m_Et1; }

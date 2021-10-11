@@ -164,6 +164,13 @@ compactSpecification = {
     #RG and ZG
     "rg": (("rg; rg;",29,-1.2,1.7), ("rg", "float") ),
     "zg": (("zg; zg;",19,-1.2,0.7), ("zg", "float") ),
+
+    #Variables for track jets
+    "HadronConeExclTruthLabelID": (("HadronConeExclTruthLabelID; HadronConeExclTruthLabelID;", 150, -100.5, 49.5), ("HadronConeExclTruthLabelID", "int") ),
+    "HadronConeExclExtendedTruthLabelID": (("HadronConeExclExtendedTruthLabelID; HadronConeExclExtendedTruthLabelID; ;", 150, -100.5, 49.5), ("HadronConeExclExtendedTruthLabelID", "int")),
+    "HadronGhostTruthLabelID": (("HadronGhostTruthLabelID; HadronGhostTruthLabelID;", 150, -100.5, 49.5), ("HadronGhostTruthLabelID", "int")),
+    "HadronGhostExtendedTruthLabelID": (("HadronGhostExtendedTruthLabelID; HadronGhostExtendedTruthLabelID;", 150, -100.5, 49.5), ("HadronGhostExtendedTruthLabelID", "int")),
+
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where

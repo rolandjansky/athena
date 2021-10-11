@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -11,19 +11,19 @@
 
 #include "CscParabola.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <algorithm>
 #include <cassert>
 
 CscParabola::CscParabola() {
-    m_msgSvc = 0;
+    m_msgSvc = nullptr;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
     if (sc.isFailure()) std::cout << "CscParabola::Fail to locate Message Service" << std::endl;
 }
 
-void CscParabola::cscParabola(double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double&) {
+void CscParabola::cscParabola(const double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double&) {
     MsgStream mLog(m_msgSvc, "CscParabola");
 
     /// Find the hits and calculate the positions and the errors on the positions

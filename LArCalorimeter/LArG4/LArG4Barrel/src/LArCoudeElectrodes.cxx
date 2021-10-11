@@ -8,11 +8,11 @@ LArCoudeElectrodes* LArCoudeElectrodes::s_instance=nullptr;
 
 PhysicalVolumeAccessor* LArCoudeElectrodes::s_theCoudes=nullptr;
 
+std::once_flag LArCoudeElectrodes::s_flag;
+
 LArCoudeElectrodes*  LArCoudeElectrodes::GetInstance(const std::string& strDetector)
 {
-  if (s_instance==nullptr) {
-    s_instance = new LArCoudeElectrodes(strDetector);
-  }
+  std::call_once( s_flag, [&](){ s_instance = new LArCoudeElectrodes(strDetector); } );
   return s_instance;
 }
 

@@ -93,14 +93,14 @@ TrigConf::L1PrescaleCondAlg::initialize() {
 
       // index 0 indicates that the configuration is from a file, a DB
       // PSK is greater than 0
-      m_pssMap[0] = createFromFile( m_filename );
+      m_pssMap.insert(std::make_pair(0u, createFromFile(m_filename)));
 
    } else if( m_psk != 0u ) {
 
       // this is for the case where the reading from the DB was
       // configured and also when we read from COOL online and get a
       // PSK through the JobOptionsSvc
-      m_pssMap[m_psk] = createFromDB( m_psk, true );
+      m_pssMap.insert(std::make_pair(m_psk, createFromDB(m_psk, true)));
 
    }
 
@@ -111,6 +111,11 @@ StatusCode
 TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
 
    ATH_MSG_DEBUG("L1PrescaleCondAlg::execute with lb " << ctx.eventID().lumi_block());
+
+   SG::WriteCondHandle<TrigConf::L1PrescalesSet> writeCondHandle(m_l1PrescalesSetOutputKey, ctx);
+   if (writeCondHandle.isValid()) {  // prescales already available?
+     return StatusCode::SUCCESS;
+   }
 
    unsigned int l1Psk = m_psk;
    EventIDRange range;
@@ -176,8 +181,6 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
    }
 
    // record L1 prescales set
-   SG::WriteCondHandle<TrigConf::L1PrescalesSet> writeCondHandle(m_l1PrescalesSetOutputKey, ctx);
-
    if( pss == nullptr ) {
       ATH_MSG_INFO("Recording empty L1 prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new L1PrescalesSet ) );

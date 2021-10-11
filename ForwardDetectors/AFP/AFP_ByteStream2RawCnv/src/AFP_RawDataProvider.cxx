@@ -52,8 +52,8 @@ StatusCode AFP_RawDataProvider::execute(const EventContext &ctx) const {
   ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
 
   if (m_rawDataTool->convert(listOfRobf, container.get()).isFailure()) {
-    ATH_MSG_WARNING("Bytestream conversion into raw failed");
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("Bytestream conversion into raw failed");
+    return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG(" Number of time-of-flight collections in container is "
                   << container->collectionsToF().size());

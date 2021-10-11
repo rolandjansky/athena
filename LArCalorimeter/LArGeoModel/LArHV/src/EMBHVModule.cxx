@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBHVModule.h"
@@ -34,7 +34,7 @@ public:
   unsigned int iEta;
   unsigned int iPhi;
   unsigned int iSector;
-  const EMBHVElectrode* electrodes[64]; 
+  const EMBHVElectrode* electrodes[64]{}; 
 };
 
 EMBHVModule::EMBHVModule(const EMBHVManager* manager

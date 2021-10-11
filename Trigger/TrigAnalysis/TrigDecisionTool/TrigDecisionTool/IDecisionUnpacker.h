@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,9 +13,11 @@
 #include <unordered_map>
 #include <string>
 
+#include "TrigSteeringEvent/Chain.h"
+#include "TrigSteeringEvent/Lvl1Item.h"
+
 namespace HLT {
   class TrigNavStructure;
-  class Chain;
 }
 
 namespace LVL1CTP{
@@ -27,17 +29,17 @@ namespace Trig{
   public:
     typedef unsigned CTPID;
     typedef unsigned CHAIN_COUNTER;
-    IDecisionUnpacker();
-    virtual ~IDecisionUnpacker();
+    IDecisionUnpacker() = default;
+    virtual ~IDecisionUnpacker() = default;
     virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
-				      std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
-				      std::unordered_map<std::string, const HLT::Chain*>&,
-				      std::map<CHAIN_COUNTER, HLT::Chain*>&,
-				      std::unordered_map<std::string, const HLT::Chain*>&,
-				      std::map<CHAIN_COUNTER, HLT::Chain*>&,
-				      char&,
-				      bool
-				      ) = 0;
+                                      std::map<CTPID, LVL1CTP::Lvl1Item>& itemsCache,
+                                      std::unordered_map<std::string, const HLT::Chain*>&,
+                                      std::map<CHAIN_COUNTER, HLT::Chain>&,
+                                      std::unordered_map<std::string, const HLT::Chain*>&,
+                                      std::map<CHAIN_COUNTER, HLT::Chain>&,
+                                      char&,
+                                      bool
+                                      ) = 0;
     virtual StatusCode unpackNavigation(HLT::TrigNavStructure*) = 0;
     bool unpacked_decision() const { return m_unpackedDecision;}
     void unpacked_decision(bool state) {  m_unpackedDecision = state;}
@@ -50,8 +52,8 @@ namespace Trig{
     virtual void invalidate_handle() = 0;
 
   private:
-    bool m_unpackedDecision;
-    bool m_unpackedNavigation;
+    bool m_unpackedDecision{false};
+    bool m_unpackedNavigation{false};
   };
 } //end of Trig namespace
 

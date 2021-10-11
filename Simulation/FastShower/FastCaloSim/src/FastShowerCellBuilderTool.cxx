@@ -1461,11 +1461,11 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
       }
 
       float ERatioThresh = 3;
-      if (std::abs(Epara->eta() - 1.37) < 0.01) {
+      if (std::abs(Epara->eta() - 1.37) < 0.05) {
         // Increase threshold in the gap region.  It's possible for a shower
         // to fluctuate to have almost all its energy in TileGap3, which has
         // a relatively small weight.
-        ERatioThresh = 4;
+        ERatioThresh = 5;
       }
       if(p.E>=ERatioThresh && p.E*Ein>2500) {
         ATH_MSG_WARNING("particle energy/truth="<<p.E);

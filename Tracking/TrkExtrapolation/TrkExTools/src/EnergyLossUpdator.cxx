@@ -29,7 +29,90 @@ constexpr double s_fwhmToSigma = 0.424; //   1./(2.*sqrt(2.*log(2.)));
 constexpr double s_mpv_p0 = 4.57270e-02;
 constexpr double s_mpv_p1 = 8.11761e-03;
 constexpr double s_mpv_p2 = -4.85133e-01;
+
+double
+dEdXBetheBloch(const Trk::MaterialProperties& mat,
+               double& transKaz,
+               double& transTmax,
+               double beta,
+               double gamma,
+               Trk::ParticleHypothesis particle)
+{
+  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
+    return 0.;
+  }
+
+  if (mat.averageZ() == 0. || mat.zOverAtimesRho() == 0.) {
+    return 0.;
+  }
+
+  // 16 eV * Z**0.9 - bring to MeV
+  double iPot = 16.e-6 * std::pow(mat.averageZ(), 0.9);
+  // and the electron mass in MeV
+  double me = s_particleMasses.mass[Trk::electron];
+  double m = s_particleMasses.mass[particle];
+  double eta2 = beta * gamma;
+
+  // K/A*Z = 0.5 * 30.7075MeV/(g/mm2) * Z/A * rho[g/mm3]  / scale to mm by this
+  double kaz = 0.5 * s_ka_BetheBloch * mat.zOverAtimesRho();
+
+  if (particle != Trk::electron) {
+    // density effect, only valid for high energies (gamma > 10 -> p > 1GeV for
+    // muons)
+    double delta = 0.;
+
+    /* ST replace with STEP-like coding
+       // high energy density effect --- will be ramped up linearly
+       double eplasma = 28.816e-6 * std::sqrt(1000.*0.5);
+       delta = 2.*log(eplasma/iPot) + log(eta2) - 0.5;
+       if (eta2 < 100.){
+       delta *= (eta2-3.)/97.;
+       }
+     */
+
+    eta2 *= eta2;
+
+    if (gamma > 10.) {
+      const double eplasma = 28.816e-6 * std::sqrt(1000. * mat.zOverAtimesRho());
+      delta = 2. * std::log(eplasma / iPot) + std::log(eta2) - 1.;
+    }
+
+    // mass fraction
+    double mfrac = me / m;
+    // tmax - cut off energy
+    double tMax = 2. * eta2 * me / (1. + 2. * gamma * mfrac + mfrac * mfrac);
+    // divide by beta^2 for non-electrons
+    kaz /= beta * beta;
+    // store the transport variables
+    transKaz = kaz;
+    transTmax = tMax;
+    // return
+    return kaz * (std::log(2. * me * eta2 * tMax / (iPot * iPot)) -
+                  2. * (beta * beta) - delta);
+  }
+  transKaz = kaz;
+  // for electrons use slightly different BetheBloch adaption
+  // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm. 79
+  // (1994), 157-164
+  return kaz * (2. * std::log(2. * me / iPot) + 3. * std::log(gamma) - 1.95);
 }
+
+double
+dEdXBetheHeitler(const Trk::MaterialProperties& mat,
+                 double initialE,
+                 Trk::ParticleHypothesis particle)
+{
+  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
+    return 0.;
+  }
+
+  double mfrac =
+    (s_particleMasses.mass[Trk::electron] / s_particleMasses.mass[particle]);
+  mfrac *= mfrac;
+
+  return initialE / mat.x0() * mfrac;
+}
+} // end of anonymous namespace
 
 // constructor
 Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string& t,
@@ -72,7 +155,7 @@ Trk::EnergyLossUpdator::dEdX(const MaterialProperties& mat,
 
   // preparation of kinetic constants
   double m = s_particleMasses.mass[particle];
-  double E = sqrt(p * p + m * m);
+  double E = std::sqrt(p * p + m * m);
   double beta = p / E;
   double gamma = E / m;
 
@@ -127,10 +210,10 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   double sigIoni = 0.;
   double sigRad = 0.;
   double kazL = 0.;
-  double meanIoni =
-    m_matInt.dEdl_ionization(p, &(mat.material()), particle, sigIoni, kazL);
-  double meanRad =
-    m_matInt.dEdl_radiation(p, &(mat.material()), particle, sigRad);
+  double meanIoni = Trk::MaterialInteraction::dEdl_ionization(
+    p, &(mat.material()), particle, sigIoni, kazL);
+  double meanRad = Trk::MaterialInteraction::dEdl_radiation(
+    p, &(mat.material()), particle, sigRad);
 
   meanIoni = sign * pathLength * meanIoni;
   meanRad = sign * pathLength * meanRad;
@@ -141,12 +224,12 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   //
   // include pathlength dependence of Landau ionization
   //
-  sigIoni = sigIoni - kazL * log(pathLength);
+  sigIoni = sigIoni - kazL * std::log(pathLength);
 
   deltaE = meanIoni + meanRad;
 
   if (m_useTrkUtils) {
-    double sigmaDeltaE = sqrt(sigIoni * sigIoni + sigRad * sigRad);
+    double sigmaDeltaE = std::sqrt(sigIoni * sigIoni + sigRad * sigRad);
     ATH_MSG_DEBUG(" Energy loss updator deltaE "
                   << deltaE << " meanIoni " << meanIoni << " meanRad "
                   << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad
@@ -170,7 +253,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   double m = s_particleMasses.mass[particle];
   double mfrac = s_particleMasses.mass[Trk::electron] / m;
   double mfrac2 = mfrac * mfrac;
-  double E = sqrt(p * p + m * m);
+  double E = std::sqrt(p * p + m * m);
   // relativistic properties
   double beta = p / E;
   double gamma = E / m;
@@ -180,7 +263,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   // Brem parameterization in terms of path-length in number of radiation
   // lengths
   double dInX0 = pathcorrection * mat.thicknessInX0();
-  double meanZ = exp(-mfrac2 * dInX0);
+  double meanZ = std::exp(-mfrac2 * dInX0);
 
   double deltaE_rad = (dir == Trk::alongMomentum)
                         ? sign * E * (1. - meanZ)
@@ -233,7 +316,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
         // use the Gaussian approximation for the Vavilov Theory
         double sigmaE2 =
           transKaz * pathLength * transTmax * (1. - beta * beta / 2.);
-        sigmaDeltaE_ioni = sqrt(sigmaE2);
+        sigmaDeltaE_ioni = std::sqrt(sigmaE2);
       } else {
         //      Take FWHM maximum of Landau and convert to Gaussian
         //      For the FWHM of the Landau Bichsel/PDG is used: FWHM = 4 xi = 4
@@ -254,17 +337,17 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
       /* ST replace with STEP-like coding
          if (eta2 > 2.) {
          // high energy density effect
-         double eplasma = 28.816e-6 * sqrt(1000.*0.5);
+         double eplasma = 28.816e-6 * std::sqrt(1000.*0.5);
          delta = 2.*log(eplasma/iPot) + log(eta2) - 0.5;
          }
        */
       if (gamma > 10.) {
-        double eplasma = 28.816e-6 * sqrt(1000. * mat.zOverAtimesRho());
-        delta = 2. * log(eplasma / iPot) + log(eta2) - 1.;
+        double eplasma = 28.816e-6 * std::sqrt(1000. * mat.zOverAtimesRho());
+        delta = 2. * std::log(eplasma / iPot) + std::log(eta2) - 1.;
       }
       // calculate the most probable value of the Landau distribution
       double mpv = m_mpvScale * xi / (beta * beta) *
-                   (log(m * eta2 * kaz / (iPot * iPot)) + 0.2 - beta * beta -
+                   (std::log(m * eta2 * kaz / (iPot * iPot)) + 0.2 - beta * beta -
                     delta); //
                             // 12.325);
 
@@ -287,7 +370,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
 
   deltaE = deltaE_ioni + deltaE_rad;
 
-  double sigmaDeltaE = sqrt(sigmaDeltaE_rad * sigmaDeltaE_rad +
+  double sigmaDeltaE = std::sqrt(sigmaDeltaE_rad * sigmaDeltaE_rad +
                             sigmaDeltaE_ioni * sigmaDeltaE_ioni);
 
   return (m_detailedEloss
@@ -301,92 +384,6 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
                              sigmaDeltaE_rad,
                              pathLength)
             : new EnergyLoss(deltaE, sigmaDeltaE));
-}
-
-double
-Trk::EnergyLossUpdator::dEdXBetheBloch(const MaterialProperties& mat,
-                                       double& transKaz,
-                                       double& transTmax,
-                                       double beta,
-                                       double gamma,
-                                       ParticleHypothesis particle) const
-{
-  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
-    return 0.;
-  }
-
-  if (mat.averageZ() == 0. || mat.zOverAtimesRho() == 0.) {
-    ATH_MSG_ERROR(
-      "empty material properties pass to the EnergyLossUpdator:Z,zOAtr:"
-      << mat.averageZ() << "," << mat.zOverAtimesRho());
-    return 0.;
-  }
-
-  // 16 eV * Z**0.9 - bring to MeV
-  double iPot = 16.e-6 * std::pow(mat.averageZ(), 0.9);
-  // and the electron mass in MeV
-  double me = s_particleMasses.mass[Trk::electron];
-  double m = s_particleMasses.mass[particle];
-  double eta2 = beta * gamma;
-
-  // K/A*Z = 0.5 * 30.7075MeV/(g/mm2) * Z/A * rho[g/mm3]  / scale to mm by this
-  double kaz = 0.5 * s_ka_BetheBloch * mat.zOverAtimesRho();
-
-  if (particle != Trk::electron) {
-    // density effect, only valid for high energies (gamma > 10 -> p > 1GeV for
-    // muons)
-    double delta = 0.;
-
-    /* ST replace with STEP-like coding
-       // high energy density effect --- will be ramped up linearly
-       double eplasma = 28.816e-6 * sqrt(1000.*0.5);
-       delta = 2.*log(eplasma/iPot) + log(eta2) - 0.5;
-       if (eta2 < 100.){
-       delta *= (eta2-3.)/97.;
-       }
-     */
-
-    eta2 *= eta2;
-
-    if (gamma > 10.) {
-      double eplasma = 28.816e-6 * sqrt(1000. * mat.zOverAtimesRho());
-      delta = 2. * log(eplasma / iPot) + log(eta2) - 1.;
-    }
-
-    // mass fraction
-    double mfrac = me / m;
-    // tmax - cut off energy
-    double tMax = 2. * eta2 * me / (1. + 2. * gamma * mfrac + mfrac * mfrac);
-    // divide by beta^2 for non-electrons
-    kaz /= beta * beta;
-    // store the transport variables
-    transKaz = kaz;
-    transTmax = tMax;
-    // return
-    return kaz * (log(2. * me * eta2 * tMax / (iPot * iPot)) -
-                  2. * (beta * beta) - delta);
-  }
-  transKaz = kaz;
-  // for electrons use slightly different BetheBloch adaption
-  // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm. 79
-  // (1994), 157-164
-  return kaz * (2. * log(2. * me / iPot) + 3. * log(gamma) - 1.95);
-}
-
-double
-Trk::EnergyLossUpdator::dEdXBetheHeitler(const MaterialProperties& mat,
-                                         double initialE,
-                                         ParticleHypothesis particle) const
-{
-  if (particle == Trk::undefined || particle == Trk::nonInteracting) {
-    return 0.;
-  }
-
-  double mfrac =
-    (s_particleMasses.mass[Trk::electron] / s_particleMasses.mass[particle]);
-  mfrac *= mfrac;
-
-  return initialE / mat.x0() * mfrac;
 }
 
 // public interface method
@@ -454,7 +451,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
   // MOP shift due to ionization and radiation
   //
   double MOPshift = isign * 50 * 10000. / pCaloEntry +
-                    isign * 0.75 * sqrt(sigmaDeltaE_ioni * sigmaDeltaE_rad);
+                    isign * 0.75 * std::sqrt(sigmaDeltaE_ioni * sigmaDeltaE_rad);
   double MOPshiftNoRad = isign * 50 * 10000. / pCaloEntry;
   //
   // define sigmas for Landau convoluted with exponential
@@ -467,7 +464,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
   double sigmaPlus = 4.65 * sigmaDeltaE_ioni + 1.16 * sigmaDeltaE_rad;
   //  double sigmaMinusNoRad = 1.02 * sigmaDeltaE_ioni;
   //  double sigmaPlusNoRad = 4.65 * sigmaDeltaE_ioni;
-  double xc = momentumError / sigmaL;
+  double xc = momentumError / (sigmaL >0. ? sigmaL : 1.);
   double correction =
     (0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc) /
     (1 + 2.8631 * xc + 0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc);
@@ -486,7 +483,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
     deltaE = MOP + MOPshift + MOPreso;
     sigmaMinusDeltaE = sigmaMinus;
     sigmaPlusDeltaE = sigmaPlus;
-    sigmaDeltaE = sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
+    sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
                        0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
     //
     if (m_optimalRadiation && std::abs(deltaE) < caloEnergy &&
@@ -500,7 +497,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       // resolution smearing (MOPreso)
       //
       sigmaL = sigmaDeltaE_ioni + 0.3 * fracErad / 3.59524;
-      xc = momentumError / sigmaL;
+      xc = momentumError / (sigmaL > 0. ? sigmaL : 1.);
       correction =
         (0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc) /
         (1 + 2.8631 * xc + 0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc);
@@ -509,14 +506,14 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       deltaE = MOP + MOPshift + MOPreso;
       sigmaMinusDeltaE = sigmaMinus;
       sigmaPlusDeltaE = sigmaPlus;
-      sigmaDeltaE = sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
+      sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
                          0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
     }
   } else {
     double sigmaPlusTot =
-      sqrt(sigmaPlus * sigmaPlus + caloEnergyError * caloEnergyError);
+      std::sqrt(sigmaPlus * sigmaPlus + caloEnergyError * caloEnergyError);
     if (m_optimalRadiation) {
-      sigmaPlusTot = sqrt(4.65 * sigmaDeltaE_ioni * 4.65 * sigmaDeltaE_ioni +
+      sigmaPlusTot = std::sqrt(4.65 * sigmaDeltaE_ioni * 4.65 * sigmaDeltaE_ioni +
                           caloEnergyError * caloEnergyError);
     }
     double MOPtot = std::abs(MOP + MOPshift);
@@ -535,7 +532,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       deltaE = isign * caloEnergy + MOPreso;
       sigmaMinusDeltaE = caloEnergyError + 0.08 * sigmaDeltaE_rad;
       sigmaPlusDeltaE = caloEnergyError + 1.16 * sigmaDeltaE_rad;
-      sigmaDeltaE = sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
+      sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
                          0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
       elossFlag = 1;
     } else {
@@ -545,7 +542,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       // Shift of MOP due to momentum resolution smearing
       //
       sigmaL = sigmaDeltaE_ioni + 0.3 * fracErad / 3.59524;
-      xc = momentumError / sigmaL;
+      xc = momentumError / (sigmaL > 0. ? sigmaL : 1);
       correction =
         (0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc) /
         (1 + 2.8631 * xc + 0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc);
@@ -557,7 +554,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       deltaE = MOP + MOPshift + MOPreso;
       sigmaMinusDeltaE = sigmaMinus;
       sigmaPlusDeltaE = sigmaPlus;
-      sigmaDeltaE = sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
+      sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
                          0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
     }
   }
@@ -646,9 +643,8 @@ Trk::EnergyLossUpdator::getX0ElossScales(int icalo,
     double x =
       phi + 3.1416 - 3.1416 / 32. * int((3.1416 + phi) / (3.1416 / 32.));
     double scale = 0.;
-    double pi = acos(-1.);
-    if (x > pi / 64.) {
-      x = pi / 32. - x;
+    if (x > M_PI / 64.) {
+      x = M_PI / 32. - x;
     }
 
     if (x < 0.005) {
@@ -716,7 +712,7 @@ Trk::EnergyLossUpdator::ionizationEnergyLoss(const MaterialProperties& mat,
   double kazL = 0.;
 
   double meanIoni =
-    sign * m_matInt.PDG_energyLoss_ionization(
+    sign * Trk::MaterialInteraction::PDG_energyLoss_ionization(
              p, &(mat.material()), particle, sigIoni, kazL, pathLength);
 
   return !m_detailedEloss ? new Trk::EnergyLoss(meanIoni, sigIoni)

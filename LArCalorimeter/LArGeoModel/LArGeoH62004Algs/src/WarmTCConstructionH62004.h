@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // WarmTCConstructionH62004
@@ -23,7 +23,7 @@ namespace LArGeo {
 
         private:
 	   GeoFullPhysVol*  m_WarmTCPhys;
-	   StoreGateSvc * m_detectorStore;
+	   StoreGateSvc * m_detectorStore = nullptr;
   };
 }
 

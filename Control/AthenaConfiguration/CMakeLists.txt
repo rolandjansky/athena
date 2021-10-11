@@ -20,6 +20,10 @@ atlas_add_test( MainServicesConfig
    SCRIPT python -m AthenaConfiguration.MainServicesConfig
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( testAccumulatorCache
+    SCRIPT python -m unittest AthenaConfiguration.testAccumulatorCache
+   POST_EXEC_SCRIPT nopost.sh )
+
 if( NOT XAOD_ANALYSIS )
    atlas_add_test( ComponentAccumulatorTest
       SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulatorTest
@@ -47,9 +51,14 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
 
     atlas_add_test( AllConfigFlagsTest
                     SCRIPT python -m AthenaConfiguration.AllConfigFlags
-                    POST_EXEC_SCRIPT nopost.sh )
-   atlas_add_test( ComponentAccumulatorTestReco
+                    POST_EXEC_SCRIPT nopost.sh
+                    PROPERTIES TIMEOUT 300  )
+
+    atlas_add_test( ComponentAccumulatorTestReco
                     SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulatorTestReco
                     POST_EXEC_SCRIPT nopost.sh )
-                               
+
+    atlas_add_test( OldFlags2NewFlagsTest
+                    SCRIPT python -m AthenaConfiguration.OldFlags2NewFlags
+                    POST_EXEC_SCRIPT nopost.sh )
 endif()

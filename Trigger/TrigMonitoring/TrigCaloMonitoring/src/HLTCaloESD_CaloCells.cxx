@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigCaloMonitoring/HLTCaloESD_CaloCells.h"
-
-#include "TrigCaloMonitoring/HLTCaloMonTool.h"
+#include "HLTCaloESD_CaloCells.h"
 
 #include <TProfile2D.h>
 
@@ -44,7 +42,7 @@ StatusCode HLTCaloESD_CaloCells::book()
   
   addMonGroup(new MonGroup(this, m_mongroup_name, run));
   
-  //if(m_show_layer != -1) m_mongroup_name.append(get_str(m_show_layer));
+  //if(m_show_layer != -1) m_mongroup_name.append(std::to_string(m_show_layer));
   
   setCurrentMonGroup(m_mongroup_name);
   

@@ -22,6 +22,7 @@
 #include  "TrkNeutralParameters/NeutralParameters.h"
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include <memory>
 //
 class IChronoStatSvc;
 
@@ -552,7 +553,7 @@ namespace Trk{
                         State& state,
                         bool ifCovV0) const;
 
-        Perigee* CreatePerigee(double Vx,
+        std::unique_ptr<Perigee> CreatePerigee(double Vx,
                                double Vy,
                                double Vz,
                                const std::vector<double>& VKPerigee,

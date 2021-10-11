@@ -83,7 +83,7 @@ namespace Muon {
 
         if (mdtROTs.empty()) {
             ATH_MSG_DEBUG(" no MdtDriftCircles selected ");
-            return 0;
+            return nullptr;
         }
 
         // create track road
@@ -170,7 +170,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = mdtPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = mdtPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr) { continue; }
 
             // reserve space for the new PRDs
@@ -196,7 +196,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = mdtPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = mdtPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -222,7 +222,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = rpcPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = rpcPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -248,7 +248,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = tgcPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = tgcPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -260,7 +260,7 @@ namespace Muon {
 
     void MuonSeededSegmentFinder::extractCscPrdCols(const std::set<IdentifierHash>& chIdHs,
                                                     std::vector<const CscPrepDataCollection*>& target) const {
-        if (m_key_csc.key() == "") {
+        if (m_key_csc.key().empty()) {
             ATH_MSG_DEBUG("No CSC collection");
             return;
         }
@@ -279,7 +279,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = cscPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = cscPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
 
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
@@ -294,7 +294,7 @@ namespace Muon {
     // sTGC
     void MuonSeededSegmentFinder::extractsTgcPrdCols(const std::set<IdentifierHash>& chIdHs,
                                                      std::vector<const sTgcPrepDataCollection*>& target) const {
-        if (m_key_stgc.key() == "") {
+        if (m_key_stgc.key().empty()) {
             ATH_MSG_DEBUG("no sTGC collection");
             return;
         }
@@ -313,7 +313,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = stgcPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = stgcPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -326,7 +326,7 @@ namespace Muon {
     // MM
     void MuonSeededSegmentFinder::extractMMPrdCols(const std::set<IdentifierHash>& chIdHs,
                                                    std::vector<const MMPrepDataCollection*>& target) const {
-        if (m_key_mm.key() == "") {
+        if (m_key_mm.key().empty()) {
             ATH_MSG_DEBUG("no MM collection");
             return;
         }
@@ -345,7 +345,7 @@ namespace Muon {
         std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
         std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
         for (; chit != chit_end; ++chit) {
-            auto collptr = mmPrdContainer->indexFindPtr(*chit);
+            const auto* collptr = mmPrdContainer->indexFindPtr(*chit);
             if (collptr == nullptr || collptr->empty()) { continue; }
             ATH_MSG_DEBUG(" Adding for:   " << m_idHelperSvc->toStringChamber(collptr->front()->identify()) << "  size "
                                             << collptr->size());
@@ -377,7 +377,7 @@ namespace Muon {
     const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd,
                                                                        bool& doHoleSearch) const {
         // skip noise hits
-        if (mdtPrd.adc() < m_adcCut) return 0;
+        if (mdtPrd.adc() < m_adcCut) return nullptr;
 
         // get surface of PRD
         const Identifier& id = mdtPrd.identify();
@@ -389,7 +389,7 @@ namespace Muon {
         auto exPars = m_propagator->propagate(pars, surf, Trk::anyDirection, false, m_magFieldProperties);
         if (!exPars) {
             ATH_MSG_DEBUG(" Propagation failed!! ");
-            return 0;
+            return nullptr;
         }
 
         // calculate position on wire + error
@@ -425,7 +425,7 @@ namespace Muon {
         if (nSigmaFromTrack > m_maxSigma || fabs(posAlongWire) > halfTubeLength + roadWidthZ) {
             if (msgLvl(MSG::VERBOSE)) msg() << " --- dropped" << endmsg;
             // delete exPars;
-            return 0;
+            return nullptr;
         }
 
         // update hole search flag, set to false if we are close to the tube edge
@@ -442,7 +442,7 @@ namespace Muon {
         // check whether ROT is created
         if (!mdtROT) {
             ATH_MSG_DEBUG(" failed to calibrate MdtPrepData " << m_idHelperSvc->toString(mdtPrd.identify()));
-            return 0;
+            return nullptr;
         }
 
         if (msgLvl(MSG::VERBOSE)) {

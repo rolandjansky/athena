@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibStandAloneBase/RegionLogicalOperation.h"
@@ -10,9 +10,9 @@
 
 namespace MuonCalib {
 
-    bool RegionLogicalOperation::AddRegion(const RegionSelectorBase *region, bool invert) {
+    bool RegionLogicalOperation::AddRegion(std::unique_ptr<RegionSelectorBase> region, bool invert) {
         if (m_regions.size() > m_operator.size()) return false;
-        m_regions.push_back(region);
+        m_regions.emplace_back(std::move(region));
         m_inverse.push_back(invert);
         return true;
     }

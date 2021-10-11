@@ -638,22 +638,22 @@ void Muon::RpcRdoToPrepDataToolCore::printPrepDataImpl(const Muon::RpcPrepDataCo
       int icc = 0;
       int iccphi = 0;
       int icceta = 0;
-      for (it_rpcPrepData=rpcColl->begin(); it_rpcPrepData != rpcColl->end(); it_rpcPrepData++) {
+      for (const RpcPrepData* rpc : *rpcColl) {
 	icc++;
 	ict++;             
-	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi(rpc->identify())) {
 	  iccphi++;
 	  ictphi++;
-	  if ((*it_rpcPrepData)->ambiguityFlag()>1) ictamb++;
+	  if (rpc->ambiguityFlag()>1) ictamb++;
 	}
 	else {    
 	  icceta++;
 	  icteta++;
 	}                    
 	ATH_MSG_INFO(ict<<" in this coll. "<<icc<<" prepData id = "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
-			<<" time "<<(*it_rpcPrepData)->time()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
-			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag());
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify())
+			<<" time "<<rpc->time()/*<<" triggerInfo "<<rpc->triggerInfo()*/
+			<<" ambiguityFlag "<<rpc->ambiguityFlag());
       }
       ncoll++;
       ATH_MSG_INFO("*** Collection "<<ncoll<<" Summary: "
@@ -704,18 +704,18 @@ void Muon::RpcRdoToPrepDataToolCore::printCoinDataImpl(const Muon::RpcCoinDataCo
 	  int iccetahc = 0;
 	  int iccphihc = 0;
 	  int iccetalc = 0;
-	  for (it_rpcCoinData=rpcColl->begin(); it_rpcCoinData != rpcColl->end(); it_rpcCoinData++) {
+          for (const RpcCoinData* rpc : *rpcColl) {
 	    icc++;
 	    ict++;              
-	    if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
+	    if (m_idHelperSvc->rpcIdHelper().measuresPhi(rpc->identify())) {
 	      
 	      iccphi++;
 	      ictphi++;
-	      if ( (*it_rpcCoinData)->isLowPtCoin() ) {		
+	      if ( rpc->isLowPtCoin() ) {		
 		iccphilc++;
 		ictphilc++;
 	      }
-	      else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	      else if (rpc->isHighPtCoin()) {
 		iccphihc++;
 		ictphihc++;
 	      }                    
@@ -723,22 +723,22 @@ void Muon::RpcRdoToPrepDataToolCore::printCoinDataImpl(const Muon::RpcCoinDataCo
 	    else {
 	      icceta++;
 	      icteta++;
-	      if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	      if ( rpc->isLowPtCoin() ) {
 		iccetalc++;
 		ictetalc++;
 	      }
-	      else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	      else if (rpc->isHighPtCoin()) {
 		iccetahc++;
 		ictetahc++;
 	      }
 	    }                    
 	    ATH_MSG_INFO(ict<<" in this coll. "<<icc<<" coinData id = "
-			    <<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
-			    <<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
+			    <<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify())
+			    <<" time "<<rpc->time()<<" ijk = "<<rpc->ijk()/*<<" triggerInfo "<<rpc->triggerInfo()*/
 			    <<" cm/pad/sl ids = "
-			    <<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
+			    <<rpc->parentCmId()<<"/"<<rpc->parentPadId()<<"/"<<rpc->parentSectorId()<<"/"
 			    <<" isLowPtCoin/HighPtCoin/LowPtInputToHighPt "
-			    <<(*it_rpcCoinData)->isLowPtCoin() <<"/"<<(*it_rpcCoinData)->isHighPtCoin() <<"/"<<(*it_rpcCoinData)->isLowPtInputToHighPtCm());
+			    <<rpc->isLowPtCoin() <<"/"<<rpc->isHighPtCoin() <<"/"<<rpc->isLowPtInputToHighPtCm());
 	  }
 	  ncoll++;
 	  ATH_MSG_INFO("*** Collection "<<ncoll<<" Summary: "
@@ -789,8 +789,8 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
   Identifier oldId;
   Identifier oldIdTrg;
   ATH_MSG_VERBOSE("Init pointer to RpcPrepDataCollection ");
-  RpcPrepDataCollection * collection(0);
-  RpcCoinDataCollection * collectionTrg(0);
+  RpcPrepDataCollection * collection(nullptr);
+  RpcCoinDataCollection * collectionTrg(nullptr);
   IdentifierHash rpcHashId;
 
   SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
@@ -947,19 +947,19 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 	  bool hasAMatchingEtaHit = 0;
 	  // current collection has Id "parentId"; get it from the container !
 	  if (triggerHit) {	    
-	    if ( (oldIdTrg != parentId) || collectionTrg == 0 ) {
+	    if ( (oldIdTrg != parentId) || collectionTrg == nullptr ) {
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_idHelperSvc->rpcIdHelper().show_to_string(parentId)<<" hash = "
 			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<state.m_rpcCoinDataContainer);
               collectionTrg = getCoinCollection (parentId);
-	      if ( collectionTrg ==0 ) ATH_MSG_WARNING("Failed to get/create RpcCoinData collection");
+	      if ( collectionTrg ==nullptr ) ATH_MSG_WARNING("Failed to get/create RpcCoinData collection");
 	      oldIdTrg = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_idHelperSvc->rpcIdHelper().show_to_string(oldIdTrg));
 	    }
 	  }
 	  else {
-	    if ( (oldId    != parentId) || collection    == 0 ) {	      
+	    if ( (oldId    != parentId) || collection    == nullptr ) {	      
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_idHelperSvc->rpcIdHelper().show_to_string(parentId)<<" hash = "
@@ -1005,22 +1005,22 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
           ATH_MSG_VERBOSE("Check also for eta hits matching dbz, dbphi, gg  "
             <<current_dbz<<" "<<current_dbphi<<" "<< current_gg);
 	      }
-	      
-	      for (it_rpcPrepData=collection->begin(); it_rpcPrepData != collection->end(); it_rpcPrepData++) {
+
+              for (RpcPrepData* rpc : *collection) {
 		icc++;
-		if ( channelId == (*it_rpcPrepData)->identify() &&
-		     fabs(time - (*it_rpcPrepData)->time()) < m_overlap_timeTolerance ) {
+		if ( channelId == rpc->identify() &&
+		     fabs(time - rpc->time()) < m_overlap_timeTolerance ) {
 		  duplicate = true;
 		  hasAMatchingEtaHit = false; // we don't want to increment the number of strips with
 		  // a matching eta due to a cabling overlap 
 		  ATH_MSG_VERBOSE("Duplicated RpcPrepData(not recorded) = "
 				  << m_idHelperSvc->rpcIdHelper().show_to_string(channelId));
-		  float previous_time = (*it_rpcPrepData)->time();
+		  float previous_time = rpc->time();
 		  // choose the smallest time within timeTolerance 
 		  if (time < previous_time) {		    
-		    (*it_rpcPrepData)->m_time = time;
+		    rpc->m_time = time;
 		    ATH_MSG_DEBUG("time of the prd previously stored is now updated with current hit time: "
-				  <<previous_time<<" -> "<<(*it_rpcPrepData)->time());
+				  <<previous_time<<" -> "<<rpc->time());
 		  }
 		  break; // this break is why we cannot have
 		  //        solvePhiAmb_thisHit = true and reduceCablOvl_thisHit= false
@@ -1028,16 +1028,16 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 		if (processingphiview) {
 		  if (solvePhiAmb_thisHit) {
 		    if (!unsolvedAmbiguity) {
-		      if (m_idHelperSvc->rpcIdHelper().measuresPhi( (*it_rpcPrepData)->identify() )==0) {
+		      if (m_idHelperSvc->rpcIdHelper().measuresPhi( rpc->identify() )==0) {
 			// check if there's a eta hit in the same gap
 			// of the RPC module (doubletZ, doubletPhi, gg)
-			if (current_dbz == m_idHelperSvc->rpcIdHelper().doubletZ( (*it_rpcPrepData)->identify() ) ) {
-			  if (current_dbphi == m_idHelperSvc->rpcIdHelper().doubletPhi( (*it_rpcPrepData)->identify() ) ) {                                                    
-			    if (current_gg == m_idHelperSvc->rpcIdHelper().gasGap( (*it_rpcPrepData)->identify() ) ) {                                                        
-			      if ( fabs(time - (*it_rpcPrepData)->time()) < m_etaphi_coincidenceTime ) {
+			if (current_dbz == m_idHelperSvc->rpcIdHelper().doubletZ( rpc->identify() ) ) {
+			  if (current_dbphi == m_idHelperSvc->rpcIdHelper().doubletPhi( rpc->identify() ) ) {                                                    
+			    if (current_gg == m_idHelperSvc->rpcIdHelper().gasGap( rpc->identify() ) ) {                                                        
+			      if ( fabs(time - rpc->time()) < m_etaphi_coincidenceTime ) {
 				hasAMatchingEtaHit = true;
 				ATH_MSG_VERBOSE("There's a matching eta hit with id "
-						<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify()));
+						<<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify()));
 				//here there can be a break ? NO, we need to keep looping in order to check
 				// if this preprawdata has been already recorded (due to cabling overlaps)
 			      }
@@ -1176,7 +1176,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 							   rpcHashId,
 							   pointLocPos,
 							   identifierList,
-							   new Amg::MatrixX(mat),
+							   Amg::MatrixX(mat),
 							   descriptor,
 							   (float)time,
 							   ambiguityFlag,
@@ -1200,7 +1200,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(State& state,
 							   rpcHashId,
 							   pointLocPos,
 							   identifierList,
-							   new Amg::MatrixX(mat),
+							   Amg::MatrixX(mat),
 							   descriptor,
 							   (float)time,
 							   ambiguityFlag);		

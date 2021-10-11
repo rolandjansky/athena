@@ -85,14 +85,14 @@ StatusCode AFPTechnicalMonitorTool::bookHistograms( )
 StatusCode AFPTechnicalMonitorTool::fillHistograms()
 {
   // read information
-  const xAOD::EventInfo* eventInfo = 0;
+  const xAOD::EventInfo* eventInfo = nullptr;
   CHECK( evtStore()->retrieve( eventInfo) );
 
   // create and register histogram only if Raw data is processed 
   if(m_environment == AthenaMonManager::online || m_environment == AthenaMonManager::tier0Raw) {
 
     // read information
-    const AFP_RawContainer* afpContainer = 0;
+    const AFP_RawContainer* afpContainer = nullptr;
     CHECK(evtStore()->retrieve(afpContainer));
 
     for (const AFP_SiRawCollection& hitCollection : afpContainer->collectionsSi()) {

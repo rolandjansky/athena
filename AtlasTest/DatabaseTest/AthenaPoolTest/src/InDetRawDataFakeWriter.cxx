@@ -42,12 +42,12 @@
 InDetRawDataFakeWriter::InDetRawDataFakeWriter(const std::string &name, 
                                        ISvcLocator *pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_pixCont(0),
-    m_sctCont(0),
-    m_trtCont(0),
-    m_pixelId(0),
-    m_sctId(0),
-    m_trtId(0)
+    m_pixCont(nullptr),
+    m_sctCont(nullptr),
+    m_trtCont(nullptr),
+    m_pixelId(nullptr),
+    m_sctId(nullptr),
+    m_trtId(nullptr)
 {}
 
 // Initialize method:
@@ -290,7 +290,7 @@ StatusCode InDetRawDataFakeWriter::printRDOs() const
     // pixel element links
 
     // Retrive the element link vector
-    const PixelRDOElemLinkVec* linkVec = 0;
+    const PixelRDOElemLinkVec* linkVec = nullptr;
     ATH_CHECK( evtStore()->retrieve(linkVec, "PixelRDOELs") );
     
     ATH_MSG_DEBUG("PixelRDOElemLinkVec found with " << linkVec->pixelRDOs().size() << "  RDOs " );

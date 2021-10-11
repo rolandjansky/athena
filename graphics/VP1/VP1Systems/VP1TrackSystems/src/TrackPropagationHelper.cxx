@@ -19,7 +19,6 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include <stdexcept>
-//#include "TrkEventPrimitives/GlobalMomentum.h"
 #include "VP1TrackSystems/VP1TrackSanity.h"
 #include "TrkEventPrimitives/CurvilinearUVT.h"
 #include "TrkVolumes/Volume.h"
@@ -31,30 +30,28 @@
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/VP1Msg.h"
 #include <limits>
+#include <memory>
 
 //____________________________________________________________________
 class TrackPropagationHelper::Imp {
 public:
   Imp(TrackPropagationHelper* tc)
     : theclass(tc),
-    tracksanity(new VP1TrackSanity(tc?tc->systemBase():0)),
+    tracksanity(new VP1TrackSanity(tc?tc->systemBase():nullptr)),
       maxInDetr(1.1*CLHEP::m),
       maxInDetrsq(maxInDetr*maxInDetr),
       maxz(3.5*CLHEP::m),
-    // maxR2(std::numeric_limits<float>::max()),
-    fallback_flydist(10.0*CLHEP::cm), 
-    showExtrapSurfaces(VP1QtUtils::environmentVariableIsOn("VP1_TRKSYS_SHOWEXTRAPSURFACES")) 
+    fallback_flydist(10.0*CLHEP::cm),
+    showExtrapSurfaces(VP1QtUtils::environmentVariableIsOn("VP1_TRKSYS_SHOWEXTRAPSURFACES"))
   {
   }
-  ~Imp() { delete tracksanity; }
 
-  TrackPropagationHelper * theclass;
-  VP1TrackSanity * tracksanity;
-  const double maxInDetr;
-  const double maxInDetrsq;
-  const double maxz;
-  // double maxR2;
-  const double fallback_flydist;
+  TrackPropagationHelper * theclass{};
+  std::unique_ptr<VP1TrackSanity> tracksanity{};
+  const double maxInDetr{};
+  const double maxInDetrsq{};
+  const double maxz{};
+  const double fallback_flydist{};
 
   bool outsideIDVolume(const Amg::Vector3D& p) {
     return fabs(p.z())>maxz||p.perp2()>maxInDetrsq;
@@ -91,7 +88,7 @@ public:
     **/
     return 2*CLHEP::cm;//Outside ID
   }
-  
+
   std::vector<Trk::PlaneSurface> surfaces; //!< For debugging.
   bool showExtrapSurfaces;
 };
@@ -113,7 +110,7 @@ void TrackPropagationHelper::Imp::movePoint1ToZPlaneAndPoint2( Amg::Vector3D& p1
   p1[0]= p1.x()+dx*s;
   p1[1]= p1.y()+dy*s;
   p1[2]= z;
-  
+
 }
 
   //____________________________________________________________________
@@ -271,13 +268,13 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
     //Add a point for each parameter, and add extra points between them where appropriate.
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = track->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = track->trackStateOnSurfaces()->end();
-  const Trk::TrackParameters* prevpar(0);
-  const Trk::TrackParameters* trackParam(0);
+  const Trk::TrackParameters* prevpar(nullptr);
+  const Trk::TrackParameters* trackParam(nullptr);
   bool problems(false);
   for (; tsos_iter != tsos_end; ++tsos_iter) {
     if (!m_d->tracksanity->isSafe(*tsos_iter))
       continue;
-    if ((*tsos_iter)->measurementOnTrack()==0 && ( (*tsos_iter)->materialEffectsOnTrack()&&!useMEOT ) )
+    if ((*tsos_iter)->measurementOnTrack()==nullptr && ( (*tsos_iter)->materialEffectsOnTrack()&&!useMEOT ) )
       continue;
     trackParam = (*tsos_iter)->trackParameters();
     if (!m_d->tracksanity->isSafe(trackParam))
@@ -307,9 +304,9 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
 
     if (bsurfs){
       messageVerbose("Has this many surfaces:"+str(bsurfs->size()));
-      
+
       std::vector< const Trk::Surface * >::const_iterator bSurfsIt = bsurfs->begin();
-      for (;bSurfsIt!= bsurfs->end(); bSurfsIt++){
+      for (;bSurfsIt!= bsurfs->end(); ++bSurfsIt){
 
         messageVerbose("Extrap value:"+str((extrapolator)));
         messageVerbose("trackParam:"+str((trackParam)));
@@ -317,7 +314,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
 
         if (trackPar){
           messageVerbose("Extrapolation succeeded");
-          
+
           if (!m_d->addPointsBetweenParameters_Charged(points,track,trackParam,trackPar,extrapolator,hypo))
             messageDebug("WARNING: Problems encountered adding point(s) between track parameters in extending to Volume");
         }
@@ -339,33 +336,33 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
                          const double& dist )
 {
   if (!trk||!prevpars||!extrapolator)
-    return 0;
+    return nullptr;
 
   Trk::CurvilinearUVT uvt(prevpars->momentum().unit());
-  
-  
+
+
   Amg::Transform3D  t(uvt.curvU(),uvt.curvV(),uvt.curvT(), prevpars->position()+(prevpars->momentum().unit()*dist));
-  
+
   Trk::PlaneSurface surf(t);
-  
-  
+
+
   if (showExtrapSurfaces) surfaces.push_back(surf);
-  
- 
-  const Trk::TrackParameters *newpars(0);
+
+
+  const Trk::TrackParameters *newpars(nullptr);
   try {
     newpars = extrapolator->extrapolate(*prevpars,surf,Trk::alongMomentum,false,hypo); // change this to extrapolate current param to surface.
   } catch (const std::runtime_error& e) {
     theclass->message("Failure trying to use extrapolator for track (Exception thrown: " + QString(e.what())+")");
-    return 0;
+    return nullptr;
   }
   if (!newpars) {
     theclass->message("Failure trying to use extrapolator for track");
-    return 0;
+    return nullptr;
   }
   if (!newpars) {
     theclass->message("Failure trying to use extrapolator for track");
-    return 0;
+    return nullptr;
   }
   return newpars;
 }
@@ -400,7 +397,7 @@ bool TrackPropagationHelper::Imp::makePointsCharged_SinglePar( std::vector<Amg::
   const double maxdistadded = 2*CLHEP::m;
   points.reserve(20);//skip a few reallocs
   const Trk::TrackParameters * prevpars = par;
-  const Trk::TrackParameters * temppars(0);
+  const Trk::TrackParameters * temppars(nullptr);
 
   while (distadded<maxdistadded) {
     temppars = extrapolateToNewPar( extrapolator, track, prevpars, hypo, maxPointDistSq(prevpars->position()));
@@ -408,7 +405,7 @@ bool TrackPropagationHelper::Imp::makePointsCharged_SinglePar( std::vector<Amg::
       distadded += (temppars->position()-prevpars->position()).mag();
     if (prevpars!=par)
       delete prevpars;
-    prevpars = 0;
+    prevpars = nullptr;
     if (!temppars) {
       theclass->messageDebug("makePointsCharged_SinglePar ERROR: Failed to use extrapolator for next point");
       if (points.size()<2) {
@@ -420,11 +417,11 @@ bool TrackPropagationHelper::Imp::makePointsCharged_SinglePar( std::vector<Amg::
     Amg::Vector3D p(temppars->position());
     points.push_back(p);
     prevpars = temppars;
-    temppars = 0;
+    temppars = nullptr;
     if (!startoutsideID && outsideIDVolume(p)) {
       if (prevpars!=par)
   delete prevpars;
-      prevpars = 0;
+      prevpars = nullptr;
       break;
     }
   }
@@ -449,7 +446,7 @@ bool TrackPropagationHelper::Imp::addPointsBetweenParameters_Charged( std::vecto
   }
   // theclass->messageVerbose("TrackPropagationHelper::Imp::addPointsBetweenParameters_Charged: par1="
   //   +str(par1->position())+", par2=" +str(par2->position())+", dist="+str(distbetween));
-  
+
   Amg::Vector3D p2(par2->position());
   const Trk::TrackParameters * prevpars = par1;
 
@@ -457,7 +454,7 @@ bool TrackPropagationHelper::Imp::addPointsBetweenParameters_Charged( std::vecto
   double distadded(0);
   const double maxdistadded = std::max(2*CLHEP::m,(par1->position()-p2).mag()*1.5);
   while ( (prevpars->position()-p2).mag()> maxPointDistSq(prevpars->position()) && distadded<maxdistadded ) {
-    
+
     // theclass->messageVerbose("distadded: "+str(distadded)+", distance left="+str(sqrt((prevpars->position()-p2).mag2()))+", jump="+str(maxPointDistSq(prevpars->position())));
     const Trk::TrackParameters * newpars = extrapolateToNewPar( extrapolator, trk, prevpars, hypo, maxPointDistSq(prevpars->position()) );
     if (!newpars){

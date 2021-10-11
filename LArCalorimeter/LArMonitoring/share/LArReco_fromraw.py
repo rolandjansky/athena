@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 if not 'skipEvents' in dir():
    skipEvents=0
 
@@ -150,14 +152,6 @@ include("LArCellRec/LArTimeVetoAlg_jobOptions.py")
 include("LArCellRec/LArCollisionTime_jobOptions.py")
 
 ####################
-from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-tf.readBS.set_Value_and_Lock(True)
-tf.doLVL1.set_Value_and_Lock(False)
-tf.doHLT.set_Value_and_Lock(False)
-tf.doL1Topo.set_Value_and_Lock(False)
-tf.doID.set_Value_and_Lock(False)
-tf.doMuon.set_Value_and_Lock(False)
-
 include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 
 #This tool is apparently instanciated by TrkDetElementSurface/ DetElementSurfaceCnv_p1.h
@@ -167,10 +161,9 @@ EventCnvSuperTool.DoMuons = False
 EventCnvSuperTool.DoID = False
 ToolSvc += EventCnvSuperTool
 
-# --- BunchCrossing Tool configuration ---
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-theBCTool = BunchCrossingTool()
-ToolSvc += theBCTool
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 # variable for testing on ESD
 try:

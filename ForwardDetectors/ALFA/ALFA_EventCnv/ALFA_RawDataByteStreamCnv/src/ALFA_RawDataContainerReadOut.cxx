@@ -27,8 +27,6 @@ ALFA_RawDataContainerReadOut::ALFA_RawDataContainerReadOut():
   m_BCId(0)
 { }
 
-ALFA_RawDataContainerReadOut::~ALFA_RawDataContainerReadOut()
-{ }
 
 void ALFA_RawDataContainerReadOut::decodeWord(uint32_t dataWord)
 {
@@ -48,11 +46,11 @@ void ALFA_RawDataContainerReadOut::decodeHeaderFull(std::vector<uint32_t>& vData
     }
     
   m_word = vDataFull[8];
-  m_timestamp = getBits(31,0); 
+  m_timestamp = getBits(getBitsWord(31,0));
   // cout  << " vDataFull[8]  " << std::hex << vDataFull[8]  << " m_timestamp  " << std::hex << m_timestamp <<std::dec<<endl;
  
   m_word = vDataFull[15];
-  m_BCId = getBits(31,0); 
+  m_BCId = getBits(getBitsWord(31,0));
   // cout  << " vDataFull[15]  " << std::hex << vDataFull[15]  << " m_BCId  " << std::hex << m_BCId <<std::dec<<endl;
  
 }
@@ -92,34 +90,34 @@ void ALFA_RawDataContainerReadOut::decodeHeader(std::vector<uint32_t>& vData)
   // decode the rest of the header
   // Subdetector Id and mrodId
   m_word = vData[3];
-  m_subdetId = getBits(31,16); 
-  m_mrodId   = getBits(15,0);
+  m_subdetId = getBits(getBitsWord(31,16)); 
+  m_mrodId   = getBits(getBitsWord(15,0));
   
   
   // Run number
   m_word = vData[4];
-  m_runNum = getBits(23,0); 
-  m_runType   = getBits(31,24);
+  m_runNum = getBits(getBitsWord(23,0)); 
+  m_runType   = getBits(getBitsWord(31,24));
  
  
   // Lvl1Id :counting events
   m_word = vData[5];
-  m_lvl1Id   = getBits(23,0);
-  m_ecrId = getBits(31,24);
+  m_lvl1Id   = getBits(getBitsWord(23,0));
+  m_ecrId = getBits(getBitsWord(31,24));
  
   	
   // Bunch crossing identifier
   m_word = vData[6];
-  m_bcId     = getBits(11,0);
+  m_bcId     = getBits(getBitsWord(11,0));
  
 
   // Trigger type Id
   m_word = vData[7];
-  m_triggerTypeId = getBits(7,0);
+  m_triggerTypeId = getBits(getBitsWord(7,0));
  
   // Detector event type 
   m_word = vData[8];
-  m_DetEventType = getBits(23,0);
+  m_DetEventType = getBits(getBitsWord(23,0));
 }
 
 

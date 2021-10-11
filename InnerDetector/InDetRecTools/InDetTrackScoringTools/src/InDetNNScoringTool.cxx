@@ -136,15 +136,10 @@ StatusCode InDet::InDetNNScoringTool::initialize()
     return StatusCode::FAILURE;
   } else 
     msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endmsg;
-  
+
+  ATH_CHECK (m_selectortool.retrieve( DisableTool{ m_selectortool.empty() } ));
   // Get segment selector tool
   //
-  if(m_selectortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
-  }
 
   ATH_CHECK(m_beamSpotKey.initialize());
 
@@ -157,7 +152,7 @@ StatusCode InDet::InDetNNScoringTool::initialize()
   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
-  
+
   // lwtnn initialization
   if (m_nnCutThreshold > 0.0) { // Load NN only if it will be used
       // Locate configuration file  
@@ -540,6 +535,7 @@ Trk::TrackScore InDet::InDetNNScoringTool::ambigScore( const Trk::Track& track, 
   if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
     // get expected number of TRT hits
     double nTrtExpected = 30.;
+    assert( m_selectortool.isEnabled() );
     nTrtExpected = m_selectortool->minNumberDCs(track.trackParameters()->front());
     ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
        << fabs(track.trackParameters()->front()->eta()));
@@ -771,7 +767,7 @@ void InDet::InDetNNScoringTool::setupScoreModifiers()
   const double goodTrtRatio[maxTrtRatio]     = {      0.05, 0.11, 0.12, 0.15, 0.20, 0.16, 0.17};
   const double fakeTrtRatio[maxTrtRatio]     = {      0.6 , 0.08, 0.06, 0.05, 0.04, 0.03, 0.03};
   // put it into the private members
-  m_maxTrtRatio = maxTrtRatio;
+  m_maxTrtRatio = m_selectortool.isEnabled() ? maxTrtRatio : 0;
   for (int i=0; i<m_maxTrtRatio; ++i) m_factorTrtRatio.push_back(goodTrtRatio[i]/fakeTrtRatio[i]);
   for (int i=0; i<=m_maxTrtRatio; ++i) m_boundsTrtRatio.push_back(TrtRatioBounds[i]);
 
@@ -835,11 +831,13 @@ void InDet::InDetNNScoringTool::setupScoreModifiers()
     
     for (int i=0; i<=m_maxHits; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << i << " Si hits: " << m_factorHits[i] <<endmsg;
-    
-    for (int i=0; i<m_maxTrtRatio; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtRatio[i] << " < TRT ratio  < "
-      << m_boundsTrtRatio[i+1] <<"  : " <<m_factorTrtRatio[i] <<endmsg;
-    
+
+    if (m_selectortool.isEnabled()) {
+       for (int i=0; i<m_maxTrtRatio; ++i)
+          msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtRatio[i] << " < TRT ratio  < "
+                            << m_boundsTrtRatio[i+1] <<"  : " <<m_factorTrtRatio[i] <<endmsg;
+    }
+
     for (int i=0; i<m_maxTrtFittedRatio; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < "
       << m_boundsTrtFittedRatio[i+1] <<"  : " <<m_factorTrtFittedRatio[i] <<endmsg;

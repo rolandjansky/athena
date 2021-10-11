@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EMERRORBUILDER_H
@@ -357,19 +357,19 @@ class EMErrorDetail : public egDetail
 
   /** @brief get the position eta error; since this is used by the 
       EMExtrapolCaloConversion tool, it has to be public */
-  double getClusterEtaPosError(const egamma*, 
+  static double getClusterEtaPosError(const egamma*, 
 			       const EMClusterErrorsParametrizations*,
-			       bool forcePhoton = false) const;
+			       bool forcePhoton = false) ;
 
 private:
 
   void set_parameterInt(egammaParameters::ParamDef, int, bool overwrite=false) ; 
 
   /** @brief Get the error on cluster energy, eta and phi */
-  double caloEta(const egamma*, double clusterEta) const;
-  double getClusterEnergyError(const egamma*, const EMClusterErrorsParametrizations*, bool forcePhoton = false) const;
-  double getClusterEtaError(const egamma*, const EMClusterErrorsParametrizations*, bool forcePhoton = false) const;
-  double getClusterPhiError(const egamma*, const EMClusterErrorsParametrizations*, bool forcePhoton = false) const;
+  static double caloEta(const egamma*, double clusterEta) ;
+  static double getClusterEnergyError(const egamma*, const EMClusterErrorsParametrizations*, bool forcePhoton = false) ;
+  static double getClusterEtaError(const egamma*, const EMClusterErrorsParametrizations*, bool forcePhoton = false) ;
+  static double getClusterPhiError(const egamma*, const EMClusterErrorsParametrizations*, bool forcePhoton = false) ;
 
     
   /** Obsolete Fill the perigree parameter for converted photon */
@@ -392,11 +392,11 @@ private:
 
   //** @brief is it an electron? */
   // Should maybe make it return electron, photon, or conversion in the future **/
-  bool isElectron(const egamma*, bool forcePhoton) const;
+  static bool isElectron(const egamma*, bool forcePhoton) ;
 
   // jacobians
-  AmgSymMatrix(5) P5Jacobiand0z0PhiThetaE2d0z0PhiEtaE(const double phi) const;
-  AmgSymMatrix(4) P4JacobiandEThetaPhiM2EEtaPhiM(const double theta) const;
+  static AmgSymMatrix(5) P5Jacobiand0z0PhiThetaE2d0z0PhiEtaE(const double phi) ;
+  static AmgSymMatrix(4) P4JacobiandEThetaPhiM2EEtaPhiM(const double theta) ;
 
   std::vector< std::pair<egammaParameters::ParamDef,double> > m_parameters;
   std::vector< std::pair<egammaParameters::ParamDef,int> > m_parametersInt;

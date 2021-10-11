@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -145,9 +145,9 @@ public:
 
 private:
   /** deletes characters '_',' ','/' and '\\' out of the string*/
-  std::string beautify(const std::string& s) const;
+  static std::string beautify(const std::string& s) ;
   /** converts int to string */
-  std::string intToString(long l) const;
+  static std::string intToString(long l) ;
 
   EMDatabaseIDDescriptor	m_idDes;	/** Descriptor of DatabaseID*/
 };

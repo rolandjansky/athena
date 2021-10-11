@@ -27,8 +27,8 @@ namespace {  // local funcs
 
     // limit angle difference to -pi/2 < x <= pi/2
     inline double theta_diff(double x) {
-        while (x <= -M_PI / 2.0) x += M_PI;
-        while (x > +M_PI / 2.0) x -= M_PI;
+        while (x <= -M_PI_2) x += M_PI;
+        while (x > +M_PI_2) x -= M_PI;
         return x;
     }
 
@@ -97,7 +97,6 @@ namespace Muon {
     MooCandidateMatchingTool::~MooCandidateMatchingTool() {}
 
     StatusCode MooCandidateMatchingTool::initialize() {
-        ATH_CHECK(m_slExtrapolator.retrieve());
         ATH_CHECK(m_atlasExtrapolator.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
@@ -390,7 +389,7 @@ namespace Muon {
         if (info.reason == TrackSegmentMatchResult::NoMomentumWithMagField) {
             // for tracks that have no momentum, but need a curved match
             // fall-back to segment matching with the closest segment
-            MuPatSegment* closestSegment = 0;
+            MuPatSegment* closestSegment = nullptr;
             double closestSegmentDist = 1E9;
             std::vector<MuPatSegment*>::const_iterator itS = info.MCTBTrack->segments().begin(), itS_end = info.MCTBTrack->segments().end();
             for (; itS != itS_end; ++itS) {
@@ -702,9 +701,9 @@ namespace Muon {
         bool hasStereoAngle = false;
 
         // find closest track parameters
-        const Trk::TrackParameters* closestPars = 0;
+        const Trk::TrackParameters* closestPars = nullptr;
         double closestParsDist = 1E9;
-        const Trk::TrackParameters* closestMeasPars = 0;
+        const Trk::TrackParameters* closestMeasPars = nullptr;
         double closestMeasParsDist = 1E9;
         // const Trk::TrackStateOnSurface* closestTSOS = 0;
         Identifier closestId;
@@ -796,8 +795,8 @@ namespace Muon {
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::DEBUG) << MSG::VERBOSE << "match Closest chamber: " << m_idHelperSvc->toStringChamber(info.trackChamberId)
                             << " Segment: " << m_idHelperSvc->toStringChamber(info.segmentChamberId);
-            const Trk::TrackParameters* tmpPars = 0;
-            if (closestMeasPars) tmpPars = closestMeasPars->covariance() ? closestMeasPars : 0;
+            const Trk::TrackParameters* tmpPars = nullptr;
+            if (closestMeasPars) tmpPars = closestMeasPars->covariance() ? closestMeasPars : nullptr;
             if (tmpPars) {
                 msg(MSG::DEBUG) << std::endl
                                 << "Closest measured track parameters: " << m_printer->print(*tmpPars) << std::endl
@@ -861,8 +860,8 @@ namespace Muon {
                     // Check sector-
 
                     if (straightLineMatch && !entry1.hasMomentum()) {
-                        exPars.reset(m_slExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
-                                                                           false, Trk::muon));
+                        exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(),
+                                                                              Trk::anyDirection, false, Trk::muon));
                     } else {
                         ATH_MSG_VERBOSE(" Extrapolating to other segment " << m_printer->print(*tmpPars) << std::endl
                                                                            << Amg::toString(*tmpPars->covariance(), 10));
@@ -881,10 +880,9 @@ namespace Muon {
 
                 exMeasPars = exPars->covariance() ? exPars.get() : nullptr;
                 if (!exMeasPars) {
-                    const Trk::IExtrapolator* extrapolator = straightLineMatch ? &(*m_slExtrapolator) : &(*m_atlasExtrapolator);
                     ATH_MSG_DEBUG("track-segment match: Did not get measured track parameters from extrapolation\n"
                                   << "\nfrom " << m_idHelperSvc->toStringChamber(info.trackChamberId) << " to segment surface "
-                                  << m_idHelperSvc->toStringChamber(info.segmentChamberId) << " using " << extrapolator->name());
+                                  << m_idHelperSvc->toStringChamber(info.segmentChamberId));
                     info.reason = TrackSegmentMatchResult::ExtrapolNoErrors;
                     return;
                 }
@@ -895,8 +893,8 @@ namespace Muon {
                 // no closest measured parameters, take closest parameters
 
                 if (straightLineMatch && !entry1.hasMomentum()) {
-                    exPars.reset(m_slExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
-                                                                       false, Trk::muon));
+                    exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(),
+                                                                          Trk::anyDirection, false, Trk::muon));
                 } else {
                     exPars.reset(m_atlasExtrapolator->extrapolate(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
                                                                   false, Trk::muon));

@@ -4,5 +4,9 @@
   <class name="std::vector<LArHVPathologiesDb::LArHVElectPathologyDb>" />
   <class name="LArHVPathologiesDb" id="6C17B534-249B-4FBA-A4DE-F4CE28312D73" />
 
+  <class name="LArBadChannelCont" />
+  <class name="CondCont<LArBadChannelCont>" />
+
+
 </lcgdict>
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file DataQualityTools/python/DQMonFlags.py
@@ -34,6 +34,13 @@ class doMonitoring(JobProperty):
     StoredValue=True
 list+=[doMonitoring]
 
+class doDataFlowMon(JobProperty):
+    """ Switch for data flow monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doDataFlowMon]
+
 class doGlobalMon(JobProperty):
     """ Switch for global combined monitoring """
     statusOn=True
@@ -47,6 +54,13 @@ class doLVL1CaloMon(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 list+=[doLVL1CaloMon]
+
+class doLVL1InterfacesMon(JobProperty):
+    """ Switch for L1 interfaces monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doLVL1InterfacesMon]
 
 class doCTPMon(JobProperty):
     """ Switch for CTP monitoring """
@@ -145,6 +159,13 @@ class doJetMon(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 list+=[doJetMon]
+
+class doJetInputsMon(JobProperty):
+    """ Switch for jet monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doJetInputsMon]
 
 class doMissingEtMon(JobProperty):
     """ Switch for missing E_T monitoring"""
@@ -427,6 +448,20 @@ class triggerMixedMode(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 list+=[triggerMixedMode]
+
+class doPostProcessing(JobProperty):
+    """ Run histogram postprocessing in Athena job """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doPostProcessing]
+
+class postProcessingInterval(JobProperty):
+    """ Set number of events between postprocessing steps """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=100
+list+=[postProcessingInterval] 
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

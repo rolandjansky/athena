@@ -80,6 +80,8 @@ class ConfiguredSecVertexFinding:
             RatioCut2=VertexCuts.TrkSel_RatioCut2(),
             RatioCut3=VertexCuts.TrkSel_RatioCut3(),
             RatioTRT=VertexCuts.TrkSel_RatioTRT(),
+            TRTTrksEtaBins=VertexCuts.TrkSel_TRTTrksEtaBins(),
+            TRTTrksBinnedRatioTRT=VertexCuts.TrkSel_TRTTrksBinnedRatioTRT(),
             IsConversion=VertexCuts.TrkSel_IsConversion(),
             significanceD0_Si=VertexCuts.TrkSel_significanceD0_Si(),
             RatioV0=VertexCuts.TrkSel_RatioV0())

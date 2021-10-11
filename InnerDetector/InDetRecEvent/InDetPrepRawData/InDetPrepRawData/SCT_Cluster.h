@@ -20,6 +20,8 @@
 #include "InDetPrepRawData/SiCluster.h"
 
 #include <vector>
+#include <cstdint> //for uint16_t
+#include <iosfwd>
 
 class Identifier;
 class MsgStream;
@@ -52,54 +54,53 @@ class SCT_Cluster final : public SiCluster {
    * Last parameter might not be always filled and will be nullptr by default.
    * The others including SiDetectorElement have to be given!
    */
-  SCT_Cluster( 
-                const Identifier& RDOId,
-                const Amg::Vector2D& locpos, 
-                const std::vector<Identifier>& rdoList,
-                const InDet::SiWidth& width,
-                const InDetDD::SiDetectorElement* detEl,
-                const Amg::MatrixX* locErrMat
-              );
+  SCT_Cluster(const Identifier& RDOId,
+              const Amg::Vector2D& locpos,
+              const std::vector<Identifier>& rdoList,
+              const InDet::SiWidth& width,
+              const InDetDD::SiDetectorElement* detEl,
+              const Amg::MatrixX& locErrMat);
 
   /**
    * Constructor with parameters using unique_ptr of Amg::MatrixX.
    * All parameters have to be given!
    * For use by tp converter.
    */
-  SCT_Cluster( 
-                const Identifier& RDOId,
-                const Amg::Vector2D& locpos, 
-                std::vector<Identifier>&& rdoList,
-                const InDet::SiWidth& width,
-                const InDetDD::SiDetectorElement* detEl,
-                std::unique_ptr<const Amg::MatrixX> locErrMat
-              );
+  SCT_Cluster(const Identifier& RDOId,
+              const Amg::Vector2D& locpos,
+              std::vector<Identifier>&& rdoList,
+              const InDet::SiWidth& width,
+              const InDetDD::SiDetectorElement* detEl,
+              Amg::MatrixX&& locErrMat);
+              
+  /** Interface method checking the type*/
+  virtual bool type(Trk::PrepRawDataType type) const override final;
 
-    /// dump information about the PRD object.
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+  /// dump information about the PRD object.
+  virtual MsgStream& dump(MsgStream& stream) const override final;
 
-    /// dump information about the PRD object.
-    virtual std::ostream& dump( std::ostream& stream) const;
+  /// dump information about the PRD object.
+  virtual std::ostream& dump(std::ostream& stream) const override final;
 
-    /// Getter method of timing.
-    /// Some information about timing - which strips had 010 and which 011 for first 16 strips in a cluster.
-    /// Get up to 16 strips.
-    uint16_t hitsInThirdTimeBin() const;
+  /// Getter method of timing.
+  /// Some information about timing - which strips had 010 and which 011 for
+  /// first 16 strips in a cluster. Get up to 16 strips.
+  uint16_t hitsInThirdTimeBin() const;
 
-    /// Setter method of timing.
-    /// Some information about timing - which strips had 010 and which 011 for first 16 strips in a cluster.
-    /// Set up to 16 strips
-    void setHitsInThirdTimeBin(uint16_t hitsInThirdTimeBin);
+  /// Setter method of timing.
+  /// Some information about timing - which strips had 010 and which 011 for
+  /// first 16 strips in a cluster. Set up to 16 strips
+  void setHitsInThirdTimeBin(uint16_t hitsInThirdTimeBin);
 
-    /// Getter method of timing.
-    /// Some information about timing - which strips had 010 and which 011 for first 16 strips in a cluster.
-    /// Get only one strip.
-    int stripHasHitInThirdTimeBin(int stripNumberWithinCluster) const;
-    
-    
- private:
-    /// Some information about timing - which strips had 010 and which 011 for first 16 strips in a cluster.
-    uint16_t m_hitsInThirdTimeBin;
+  /// Getter method of timing.
+  /// Some information about timing - which strips had 010 and which 011 for
+  /// first 16 strips in a cluster. Get only one strip.
+  int stripHasHitInThirdTimeBin(int stripNumberWithinCluster) const;
+
+private:
+  /// Some information about timing - which strips had 010 and which 011 for
+  /// first 16 strips in a cluster.
+  uint16_t m_hitsInThirdTimeBin;
 
 };
 

@@ -60,7 +60,7 @@ namespace TrigCompositeUtils
      */
     IPartCombItr(
         const std::vector<std::tuple<std::size_t, LInfoItr_t, LInfoItr_t>> &pieces,
-        const std::function<bool(const VecLInfo_t &)> filter);
+        std::function<bool(const VecLInfo_t &)> filter);
 
     /**
      * @brief The direct constructor
@@ -76,7 +76,7 @@ namespace TrigCompositeUtils
         FilterType filter = FilterType::UniqueObjects);
 
     /// Base case constructor for the variadic constructors
-    IPartCombItr(const std::function<bool(const VecLInfo_t &)> filter);
+    IPartCombItr(std::function<bool(const VecLInfo_t &)> filter);
 
     /// Base case constructor for the variadict constructors
     IPartCombItr(FilterType filter = FilterType::UniqueObjects);

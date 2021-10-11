@@ -1,41 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONLAYERSEGMENTFINDERTOOL_H
 #define MUON_IMUONLAYERSEGMENTFINDERTOOL_H
 
-#include "GaudiKernel/IAlgTool.h"
 #include <vector>
 
-#include "MuonLayerEvent/MuonSystemExtension.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "MuonLayerEvent/MuonLayerPrepRawData.h"
-
-static const InterfaceID IID_IMuonLayerSegmentFinderTool("Muon::IMuonLayerSegmentFinderTool",1,0);
-
+#include "MuonLayerEvent/MuonSystemExtension.h"
 
 namespace Muon {
 
-  class MuonSegment;
+    class MuonSegment;
 
-  /** Interface for tools calculating hit count summaries for track */
-  class IMuonLayerSegmentFinderTool : virtual public IAlgTool {     
-  public:
-    /** IAlgTool interface */
-    static const InterfaceID& interfaceID();
+    /** Interface for tools calculating hit count summaries for track */
+    class IMuonLayerSegmentFinderTool : virtual public IAlgTool {
+    public:
+        /** IAlgTool interface */
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonLayerSegmentFinderTool("Muon::IMuonLayerSegmentFinderTool", 1, 0);
+            return IID_IMuonLayerSegmentFinderTool;
+        }
 
-    /** @brief Find segments for a given MuonSystemExtension::Intersection */
-    virtual void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, 
-		       MuonLayerPrepRawData& layerPrepRawData, const EventContext& ctx) const = 0;
+        /** @brief Find segments for a given MuonSystemExtension::Intersection */
+        virtual void find(const MuonSystemExtension::Intersection& intersection,
+                          std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments, MuonLayerPrepRawData& layerPrepRawData,
+                          const EventContext& ctx) const = 0;
 
-  };
- 
-  inline const InterfaceID& IMuonLayerSegmentFinderTool::interfaceID()
-  {
-    return IID_IMuonLayerSegmentFinderTool;
-  }
+        virtual ~IMuonLayerSegmentFinderTool() = default;
+    };
 
+}  // namespace Muon
 
-} // end of name space
-
-#endif // IMuonLayerSegmentFinderTool_H
+#endif  // IMuonLayerSegmentFinderTool_H

@@ -54,12 +54,12 @@ namespace Rec{
       if(nTrk_V1 < nTrk_V2){
         for(int i=0; i<nTrk_V1; i++){
           int trk=(*wrkVrtSet)[V1].selTrk[i];
-          if( std::find((*wrkVrtSet)[V2].selTrk.begin(),(*wrkVrtSet)[V2].selTrk.end(),trk) != (*wrkVrtSet)[V2].selTrk.end()) nTrkCom++;
+          for(int j=0; j<nTrk_V2; j++){ if( trk==(*wrkVrtSet)[V2].selTrk[j]){ nTrkCom++; break;} }
         }
       }else{
         for(int i=0; i<nTrk_V2; i++){
           int trk=(*wrkVrtSet)[V2].selTrk[i];
-          if( std::find((*wrkVrtSet)[V1].selTrk.begin(),(*wrkVrtSet)[V1].selTrk.end(),trk) != (*wrkVrtSet)[V1].selTrk.end()) nTrkCom++;
+          for(int j=0; j<nTrk_V1; j++){ if( trk==(*wrkVrtSet)[V1].selTrk[j]){ nTrkCom++; break;} }
         }
       }
       return nTrkCom;

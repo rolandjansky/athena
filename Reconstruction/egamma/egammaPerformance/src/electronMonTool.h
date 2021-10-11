@@ -94,25 +94,25 @@ class electronHist
 
   TH1 *m_hLB_N; // Histogram for number of electrons vs LB
 
- electronHist(std::string name, bool FullHistoList):
-    m_hN (nullptr),
-    m_hEt (nullptr),
-    m_hEta (nullptr),
-    m_hPhi (nullptr),
-    m_hEtaPhi (nullptr),
-    m_hEtaPhi4GeV (nullptr),
-    m_hEtaPhi20GeV (nullptr),
-    m_hTopoEtCone40 (nullptr),
-    m_hPtCone20 (nullptr),
-    m_hTime (nullptr),
-    m_lumiBlockNumber(0),
-    m_nElectronsInCurrentLB(0),
-    m_nElectrons(0),
-    m_hLB_N(nullptr)
-    {
-      m_nameOfElectronType = std::move(name);
-      m_fullHistoList = FullHistoList;
-    }
+  electronHist(std::string name, bool FullHistoList)
+    : m_nameOfElectronType(std::move(name))
+    , m_hN(nullptr)
+    , m_hEt(nullptr)
+    , m_hEta(nullptr)
+    , m_hPhi(nullptr)
+    , m_hEtaPhi(nullptr)
+    , m_hEtaPhi4GeV(nullptr)
+    , m_hEtaPhi20GeV(nullptr)
+    , m_hTopoEtCone40(nullptr)
+    , m_hPtCone20(nullptr)
+    , m_hTime(nullptr)
+    , m_lumiBlockNumber(0)
+    , m_nElectronsInCurrentLB(0)
+    , m_nElectrons(0)
+    , m_hLB_N(nullptr)
+  {
+    m_fullHistoList = FullHistoList;
+  }
 
     ~electronHist(){
     }

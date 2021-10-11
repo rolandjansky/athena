@@ -87,7 +87,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents(const EventContext& ctx) {
     ATH_CHECK(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList, numberOfSiHits));
     m_timedHits->reserve(numberOfSiHits);
     // Now merge all collections into one
-    for (TimedHitCollList::iterator iColl = hitCollList.begin(); iColl != hitCollList.end(); iColl++) {
+    for (TimedHitCollList::iterator iColl = hitCollList.begin(); iColl != hitCollList.end(); ++iColl) {
       // Decide if this event will be processed depending on HardScatterSplittingMode
       if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper) {
         m_HardScatterSplittingSkipper = true;
@@ -154,7 +154,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
     // Get the det element from the manager
     const InDetDD::SiDetectorElement* sielement = elements->getDetectorElement(wafer_hash);
 
-    if (sielement == 0) {
+    if (sielement == nullptr) {
       ATH_MSG_DEBUG(
         " Barrel=" << (*firstHit)->getBarrelEndcap() << " Layer=" << (*firstHit)->getLayerDisk() << " Eta=" <<
         (*firstHit)->getEtaModule() << " Phi=" << (*firstHit)->getPhiModule());
@@ -169,7 +169,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
     ///////////////////////////////////////////////////////////
     // **** Loop over the hits and created charged diodes ****
     ///////////////////////////////////////////////////////////
-    for (TimedHitCollection<SiHit>::const_iterator phit = firstHit; phit != lastHit; phit++) {
+    for (TimedHitCollection<SiHit>::const_iterator phit = firstHit; phit != lastHit; ++phit) {
       //skip hits which are more than 10us away
       if (fabs((*phit)->meanTime()) < 10000.0 * CLHEP::ns) {
         ATH_MSG_DEBUG("HASH = " <<
@@ -276,7 +276,7 @@ StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
 // Convert a SiTotalCharge to a InDetSimData, and store it. (this needs working...)
 //-----------------------------------------------------------------------------------------------
 void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
-  typedef SiTotalCharge::list_t list_t;
+  using list_t = SiTotalCharge::list_t;
 
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be with pileup
@@ -359,7 +359,7 @@ StatusCode PixelDigitizationTool::mergeEvent(const EventContext& ctx) {
   // Digitize hits
   ATH_CHECK(digitizeEvent(ctx));
 
-  for (std::vector<SiHitCollection*>::iterator it = m_hitCollPtrs.begin(); it != m_hitCollPtrs.end(); it++) {
+  for (std::vector<SiHitCollection*>::iterator it = m_hitCollPtrs.begin(); it != m_hitCollPtrs.end(); ++it) {
     (*it)->Clear();
     delete(*it);
   }
@@ -386,12 +386,12 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
     m_HardScatterSplittingSkipper = true;
   }
 
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
                                           bSubEvents, eSubEvents).isSuccess()) &&
-      hitCollList.size() == 0) {
+      hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -401,7 +401,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for (; iColl != endColl; iColl++) {
+  for (; iColl != endColl; ++iColl) {
     SiHitCollection* hitCollPtr = new SiHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() << " hits");

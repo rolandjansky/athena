@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UserDatabase.h"
@@ -168,7 +168,7 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	  // register in the catalog 
 	  pool::DbType dbType( m_technology );
 	  pool::DbType dbTypeMajor( dbType.majorType() );
-	  m_catalog.registerPFN( m_the_pfn.substr(0, m_the_pfn.find("?")), dbTypeMajor.storageName(), m_the_fid );
+	  m_catalog.registerPFN( m_the_pfn.substr(0, m_the_pfn.find('?')), dbTypeMajor.storageName(), m_the_fid );
           DbPrint log("PersistencySvc::UserDB::connectForWrite()" );
           log << DbPrintLvl::Debug << "registered PFN: " << m_the_pfn << " with FID:" << m_the_fid << endmsg;
 	  dbRegistered = true;
@@ -257,7 +257,7 @@ pool::PersistencySvc::UserDatabase::openMode() const
 
 
 const std::string&
-pool::PersistencySvc::UserDatabase::fid() const
+pool::PersistencySvc::UserDatabase::fid()
 {
   if ( m_databaseHandler ) return m_databaseHandler->fid();
   else {
@@ -266,7 +266,7 @@ pool::PersistencySvc::UserDatabase::fid() const
     else {
       if ( m_nameType == pool::DatabaseSpecification::PFN ) {
          std::string technology;
-         m_catalog.lookupFileByPFN( m_name.substr(0, m_name.find("?")), m_the_fid, technology );
+         m_catalog.lookupFileByPFN( m_name.substr(0, m_name.find('?')), m_the_fid, technology );
          DbPrint log("PersistencySvc::UserDB::fid()" );
          log << DbPrintLvl::Debug << "lookupPFN: " << m_name << " returned FID: '" << m_the_fid << "'"
              << " tech=" << technology << endmsg;
@@ -319,7 +319,7 @@ pool::PersistencySvc::UserDatabase::fid() const
 
 
 const std::string&
-pool::PersistencySvc::UserDatabase::pfn() const
+pool::PersistencySvc::UserDatabase::pfn()
 {
   if( m_databaseHandler )  return m_databaseHandler->pfn();
   if( m_nameType == pool::DatabaseSpecification::PFN )  return m_name;
@@ -426,7 +426,7 @@ pool::PersistencySvc::UserDatabase::checkInRegistry()
 
 
 void
-pool::PersistencySvc::UserDatabase::setTechnologyIdentifier( const std::string& sTechnology ) const
+pool::PersistencySvc::UserDatabase::setTechnologyIdentifier( const std::string& sTechnology )
 {
   m_technology = pool::DbType::getType( sTechnology ).majorType();
 }
@@ -450,7 +450,7 @@ bool
 pool::PersistencySvc::UserDatabase::attributeOfType( const std::string& attributeName,
                                                      void* data,
                                                      const std::type_info& typeInfo,
-                                                     const std::string& option ) const
+                                                     const std::string& option )
 {
   if ( ! m_databaseHandler ) return false;
   else return m_databaseHandler->attribute( attributeName, data, typeInfo, option );

@@ -12,7 +12,8 @@ StatusCode PseudoJetMerger::initialize() {
   ATH_MSG_DEBUG("Initializing...");
 
   if(m_inputPJC.empty() || m_outcoll.key().empty()) {
-    ATH_MSG_ERROR("Either input or output collection is empty!");
+    if(m_inputPJC.empty() ) { ATH_MSG_ERROR("Input container array is empty! "<< m_inputPJC.size() );}
+    else {ATH_MSG_ERROR("OutputContainer container array is empty! "<< m_outcoll.key() );}
     return StatusCode::FAILURE;
   }
 

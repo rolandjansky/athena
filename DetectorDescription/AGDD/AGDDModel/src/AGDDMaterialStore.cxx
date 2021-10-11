@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDModel/AGDDSimpleMaterial.h"
@@ -14,11 +14,6 @@ AGDDMaterialStore::AGDDMaterialStore():m_nrOfMaterials(0),m_nrOfElements(0)
 	m_theElements.clear();
 }
 
-AGDDMaterialStore* AGDDMaterialStore::GetMaterialStore()
-{
-	static AGDDMaterialStore* thePointer=new AGDDMaterialStore;
-	return thePointer;
-}
 void AGDDMaterialStore::RegisterElement(AGDDElement *el)
 {
 	if (m_theElements.find(el->GetName()) != m_theElements.end())
@@ -70,7 +65,7 @@ void AGDDMaterialStore::PrintElementNames()
 			std::endl<<"-----> ";
 	AGDDElementMap::const_iterator it;
 	int i=0;
-	for (it=m_theElements.begin();it!=m_theElements.end();it++)
+	for (it=m_theElements.begin();it!=m_theElements.end();++it)
 	{
 		i++;
 		if (!(i%5)) std::cout<<std::endl<<"-----> ";
@@ -84,7 +79,7 @@ void AGDDMaterialStore::PrintMaterialNames()
 			std::endl<<"-----> ";
 	AGDDMaterialMap::const_iterator it;
 	int i=0;
-	for (it=m_theMaterials.begin();it!=m_theMaterials.end();it++)
+	for (it=m_theMaterials.begin();it!=m_theMaterials.end();++it)
 	{
 		i++;
 		if (!(i%5)) std::cout<<std::endl<<"-----> ";

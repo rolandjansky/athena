@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdlib>
@@ -225,14 +225,14 @@ int EMDatabaseID::setRunOrMCSWV(std::string n)
   return 0;
 }
 
-std::string EMDatabaseID::beautify(const std::string& s) const
+std::string EMDatabaseID::beautify(const std::string& s) 
 {
   std::string n;
   for (char i : s)	if ((i!=' ') && (i!='_') && (i!='/') && (i!='\\')) n+=i;
   return n;
 }
 
-std::string EMDatabaseID::intToString(long l) const
+std::string EMDatabaseID::intToString(long l) 
 {
   //  std::string s;
   std::stringstream out;

@@ -1,6 +1,6 @@
-#include "MagFieldUtils/MagFieldTestbedAlg.h"
-#include "MagFieldUtils/SolenoidTest.h"
-#include "MagFieldUtils/IdentityManipulator.h"
+#include "../MagFieldTestbedAlg.h"
+#include "../SolenoidTest.h"
+#include "../IdentityManipulator.h"
 #include "../MagFieldCondReader.h"
 
 DECLARE_COMPONENT( MagField::MagFieldTestbedAlg )

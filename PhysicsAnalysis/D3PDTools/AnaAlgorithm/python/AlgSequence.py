@@ -54,6 +54,17 @@ except ImportError:
 
             return self.__iadd__( algOrSeq, index = index )
 
+        def addSelfToJob( self, job ):
+            """add a copy of this config to the EventLoop job object
+
+            Keyword arguments:
+              job      -- The job object to add ourself to
+            """
+            for alg in self:
+                alg.addSelfToJob (job)
+                pass
+            pass
+
         def __getitem__( self, index ):
             """Return one algorithm/sequence from the sequence by index
 

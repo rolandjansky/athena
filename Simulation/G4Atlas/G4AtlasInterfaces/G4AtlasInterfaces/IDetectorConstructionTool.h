@@ -6,6 +6,8 @@
 #define G4AtlasInterfaces_IDetectorConstructionTool_H
 
 // Include files
+#include <string>
+#include <vector>
 // from Gaudi
 #include "GaudiKernel/IAlgTool.h"
 
@@ -30,11 +32,10 @@ class IDetectorConstructionTool : public G4VUserDetectorConstruction, virtual pu
 
   virtual G4VPhysicalVolume* Construct() = 0;
 
-// set method to define the World volume from outside
-
-  virtual void SetWorld(G4VPhysicalVolume*) = 0;
+  virtual void ConstructSDandField() =0;
 
   virtual G4VUserDetectorConstruction* GetDetectorConstruction() = 0;
 
+  virtual std::vector<std::string>& GetParallelWorldNames()  = 0;
 };
 #endif

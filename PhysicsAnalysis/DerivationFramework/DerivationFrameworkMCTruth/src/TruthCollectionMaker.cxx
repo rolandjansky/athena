@@ -52,17 +52,17 @@ StatusCode DerivationFramework::TruthCollectionMaker::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
     
-    if (m_particlesKey=="" /*|| m_verticesKey==""*/) {
+    if (m_particlesKey.empty() /*|| m_verticesKey==""*/) {
         ATH_MSG_FATAL("No truth particle collection provided to use as a basis for new collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Using " << m_particlesKey << " as the source collections for new truth collections");}
     
-    if (m_collectionName=="") {
+    if (m_collectionName.empty()) {
         ATH_MSG_FATAL("No key provided for the new truth particle collection");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
     
-    if (m_partString=="") {
+    if (m_partString.empty()) {
         ATH_MSG_FATAL("No selection string provided");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Truth particle selection string: " << m_partString );}
@@ -97,7 +97,7 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
         // Shamelessly stolen from the file meta data tool
         ATH_CHECK( m_metaStore->retrieve(truthMetaData) );
     
-        if (truthMetaData->size()>0){
+        if (!truthMetaData->empty()){
             // Let's just be super sure...
             const std::string gens = truthMetaData->at(0)->generators();
             is_sherpa = (gens.find("sherpa")==std::string::npos &&
@@ -193,7 +193,7 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                 } // Done with loop over truth particles
                 // Make it so that we can exclusively use one vector
                 // Status 20 should have the priority -- it is the future
-                if (status20.size()>0){
+                if (!status20.empty()){
                     status3.swap(status20);
                 }
                 // Boson cases that we can actually deal with -- generically up to VVV

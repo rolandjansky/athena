@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPHYSICSV4_H
@@ -100,18 +100,18 @@ private:
   virtual void resetPointers();
   virtual bool setPointers();
   
-  int m_EnergyIndex;
-  int m_RawDataIndex;
-  int m_TimeQualityIndex;
-  int m_TowerIndex;
-  const uint16_t* m_EnergyPointer;
-  const uint16_t* m_TimeQualityPointer;
-  const uint16_t* m_RawDataPointer;
-  const uint32_t* m_GainPointer;
-  const uint32_t* m_MaskPointer;
-  const uint16_t* m_HotCellsPointer;
-  const uint8_t*  m_TowerPointer;
-  const int32_t*  m_SumPointer;
+  int m_EnergyIndex = 0;
+  int m_RawDataIndex = 0;
+  int m_TimeQualityIndex = 0;
+  int m_TowerIndex = 0;
+  const uint16_t* m_EnergyPointer = nullptr;
+  const uint16_t* m_TimeQualityPointer = nullptr;
+  const uint16_t* m_RawDataPointer = nullptr;
+  const uint32_t* m_GainPointer = nullptr;
+  const uint32_t* m_MaskPointer = nullptr;
+  const uint16_t* m_HotCellsPointer = nullptr;
+  const uint8_t*  m_TowerPointer = nullptr;
+  const int32_t*  m_SumPointer = nullptr;
 
   //For fixed gain mode
   int m_fixedGain;

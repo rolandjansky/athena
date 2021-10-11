@@ -5,7 +5,6 @@
 #include "LArCalibUtils/LArPhysWavePredictor.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "LArRawConditions/LArCaliWave.h"
@@ -47,7 +46,6 @@ LArPhysWavePredictor::LArPhysWavePredictor (const std::string& name, ISvcLocator
    m_onlineHelper(0),
    m_groupingType("FeedThrough") // SubDetector, Single, FeedThrough
 {
-  declareProperty("MaskingTool",      m_maskingTool,"Only for messaging");
   declareProperty("TestMode",         m_testmode   = false);
   declareProperty("StoreEmpty",       m_storeEmpty = false);
   declareProperty("isSC", m_isSC = false);
@@ -138,16 +136,8 @@ StatusCode LArPhysWavePredictor::initialize()
 
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
-
-  sc=m_maskingTool.retrieve(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not retrieve BadChannelMask "
-                    << m_maskingTool );
-    return StatusCode::FAILURE;
-  }
-
-
-  
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   return StatusCode::SUCCESS ;
 }
@@ -205,11 +195,21 @@ StatusCode LArPhysWavePredictor::stop()
   }   
   
   // Retrieve cabling
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling=*cablingHdl;
-  if (!cabling) {
-    ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
-    return StatusCode::FAILURE;
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+        return StatusCode::FAILURE;
+    }
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+       return StatusCode::FAILURE;
+    }
   }
 
   // Get parameters from detStore (access through abtract interfaces)
@@ -718,20 +718,20 @@ StatusCode LArPhysWavePredictor::stop()
 }
 
 void LArPhysWavePredictor::notFoundMsg(const HWIdentifier chid, const int gain, const char* value) {
-  if (m_maskingTool->cellShouldBeMasked(chid,gain))
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_BCKey};
+  const LArBadChannelCont* bcCont{*bcContHdl};
+
+  if (m_bcMask.cellShouldBeMasked(bcCont,chid)) {
     ATH_MSG_WARNING( "Cannot access " << value << " for known bad channel channel " << m_onlineHelper->channel_name(chid)
 		      << ", gain = " << gain << ". Will use jobO setting." ) ;
+  }
   else {    
     LArBadChanBitPacking packer;
-    SG::ReadCondHandle<LArBadChannelCont> bcHdl{m_BCKey};
-    const LArBadChannelCont* bcCont{*bcHdl};
-    if(bcCont) {
-       const LArBadChannel bc = bcCont->status(chid);
-       const std::string badChanStatus=packer.stringStatus(bc);
+    const LArBadChannel bc = bcCont->status(chid);
+    const std::string badChanStatus=packer.stringStatus(bc);
 
-       ATH_MSG_ERROR( "Cannot access " << value << " for channel " << m_onlineHelper->channel_name(chid) 
+    ATH_MSG_ERROR( "Cannot access " << value << " for channel " << m_onlineHelper->channel_name(chid) 
 		    << ", gain = " << gain << " BC status=[" << badChanStatus << "]. Will use jobO setting." );
-    }
   }
   return;
 }

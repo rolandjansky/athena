@@ -31,8 +31,8 @@ void compare (const HLT::HLTResult& p1,
   assert (p1.getLvlConverterStatus() == p2.getLvlConverterStatus());
   assert (p1.getHLTLevel() == p2.getHLTLevel());
   assert (p1.getNumOfSatisfiedSigs() == p2.getNumOfSatisfiedSigs());
-  unsigned int chainCounter1, step1;
-  unsigned int chainCounter2, step2;
+  unsigned int chainCounter1{0}, step1{0};
+  unsigned int chainCounter2{0}, step2{0};
   p1.getErrorCoordinates (chainCounter1, step1);
   p2.getErrorCoordinates (chainCounter2, step2);
   assert (chainCounter1 == chainCounter2);

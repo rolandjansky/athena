@@ -30,6 +30,7 @@
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/ChainGroup.h"
+#include "TrigDecisionTool/FeatureRequestDescriptor.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -113,6 +114,14 @@ namespace Trig {
     /// @name Run 3 functions
     /// @{
 
+    /**
+     * @brief Runs 3+. Returns all features related to given chain group
+     * @param[in] featureRequest Helper object which encapsulates all configurable options of a request for features from the TDT
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
+     **/
+    template<class CONTAINER>
+    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > 
+    features(const Trig::FeatureRequestDescriptor& featureRequest) const;
 
     /**
      * @brief Runs 3+. Returns all features related to given chain group
@@ -120,7 +129,8 @@ namespace Trig {
      * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
      * @param[in] containerSGKey Optional requirement to return only features within the specified container name. Not checked if not specified. 
      * @param[in] featureCollectionMode For lastFeatureOfType, stop exploring each route through the navigation once one matching feature has been found.
-     * @param[in] navElementLinkKey Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+     * @param[in] navElementLinkKey Optional name of element link as saved online. The "feature" link is enforced, others may have been added.
+     * @param[in] restrictToLegIndex Optional index of a leg for mult-leg chains. Features will only be returned on the specified leg. Default is all legs. 
      * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
@@ -129,7 +139,8 @@ namespace Trig {
              const unsigned int condition = TrigDefs::Physics,
              const std::string& containerSGKey = "",
              const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,
-             const std::string& navElementLinkKey = "feature") const;
+             const std::string& navElementLinkKey = TrigCompositeUtils::featureString(),
+             const int          restrictToLegIndex = -1) const;
 
     /**
      * @brief Runs 3+. Returns features related to given chain
@@ -138,6 +149,7 @@ namespace Trig {
      * @param[in] containerSGKey Optional requirement to return only features within the specified container name. Not checked if not specified. 
      * @param[in] featureCollectionMode For lastFeatureOfType, stop exploring each route through the navigation once one matching feature has been found.
      * @param[in] navElementLinkKey Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+     * @param[in] restrictToLegIndex Optional index of a leg for mult-leg chains. Features will only be returned on the specified leg. Default is all legs.
      * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
@@ -146,7 +158,8 @@ namespace Trig {
              const unsigned int condition = TrigDefs::Physics,
              const std::string& containerSGKey = "",
              const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,
-             const std::string& navElementLinkKey = "feature") const;
+             const std::string& navElementLinkKey = TrigCompositeUtils::featureString(),
+             const int          restrictToLegIndex = -1) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.

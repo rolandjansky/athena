@@ -25,14 +25,14 @@ createTgcPrepData( const Muon::TgcPrepData_p2 *persObj,
   std::vector<Identifier> rdoList(1);
   rdoList[0]=id;
     
-  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
-  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+  auto cmat = Amg::MatrixX(1,1);
+  cmat(0,0) = static_cast<double>(persObj->m_errorMat);
 
   Muon::TgcPrepData data (id,
                           0,
                           localPos,
                           std::move(rdoList),
-                          cmat.release(),
+                          std::move(cmat),
                           detEl);
   return data;
 }

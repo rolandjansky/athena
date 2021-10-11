@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -1524,11 +1524,11 @@ void VP1TabManager::executePendingChannelRemoval()
 //___________________________________________________________________________________
 void VP1TabManager::serializeChannelState(IVP1ChannelWidget*cw,ChanState&state)
 {
-  QMap<QString,QByteArray> sysstate;
+  QMultiMap<QString,QByteArray> sysstate;
   std::set<IVP1System*>::const_iterator it, itE = cw->systems().end();
   for (it=cw->systems().begin();it!=itE;++it) {
     unsigned nVP1Serialise = VP1Serialise::numberOfInstantiations();
-    sysstate.insertMulti((*it)->name(),(*it)->saveState());
+    sysstate.insert((*it)->name(),(*it)->saveState());
     if (nVP1Serialise==VP1Serialise::numberOfInstantiations())
       VP1Msg::messageDebug("VP1TabManager WARNING: System "+(*it)->name()
 			   +" did not use VP1Serialise in implementation of saveState()");

@@ -329,7 +329,7 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
 }
 
 double 
-SCT_ChargeTrappingTool::getPotentialValue(int& ix, int& iy) const {
+SCT_ChargeTrappingTool::getPotentialValue(int& ix, int& iy) {
   return ::getPotentialValue(ix, iy);
 }
 

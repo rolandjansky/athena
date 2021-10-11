@@ -20,19 +20,6 @@ from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')
 
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArChanMasker=LArBadChannelMasker("LArChanMasker")
-theLArChanMasker.DoMasking=True
-theLArChanMasker.ProblemsToMask=[
-     "deadReadout","deadPhys","almostDead","short",
-     "sporadicBurstNoise",
-     "unstableNoiseLG","unstableNoiseMG","unstableNoiseHG",
-     "highNoiseHG","highNoiseMG","highNoiseLG"
-]
-ToolSvc+=theLArChanMasker
-
-
-
 # All 2D plot occupancy are activate only for express and cosmiccalo
 if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()=='ZeroBias') or (DQMonFlags.monManEnvironment() == 'online'):
    do2DOcc = True
@@ -59,7 +46,13 @@ LArCellMon = LArCellMonTool(
     minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1",
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
-    LArBadChannelMask=theLArChanMasker,
+    ProblemsToMask=[
+       "deadReadout","deadPhys","almostDead","short",
+       "sporadicBurstNoise",
+       "unstableNoiseLG","unstableNoiseMG","unstableNoiseHG",
+       "highNoiseHG","highNoiseMG","highNoiseLG"
+    ],
+
     MaskBadChannels    = False,
     MaskNoCondChannels = False,
     #doInverseMasking   = False,
@@ -168,9 +161,8 @@ TileCalCellMon=TileCalCellMonTool("TileCalCellMon",
 
 
 if DQMonFlags.monManEnvironment == 'online':
-   LArCellMon.isOnline=True
    LArCellMon.useLArNoisyAlg=False
-   LArCellMon.ProcessNEvents = 100
+   LArCellMon.ProcessNEvents = 1000
 else:
    #Offline processing:
    LArCellMon.useLArNoisyAlg=True

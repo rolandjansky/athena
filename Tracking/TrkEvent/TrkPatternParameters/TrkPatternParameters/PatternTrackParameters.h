@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,8 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 #include "CxxUtils/CachedValue.h"
+#include <cmath>
+#include <iosfwd>
 
 class MsgStream;
 
@@ -148,6 +150,9 @@ namespace Trk {
 
       Amg::Vector3D calculatePosition(void) const;
       Amg::Vector3D calculateMomentum(void) const;
+      
+      private:
+        std::string to_string() const;
     };
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +228,7 @@ namespace Trk {
     (const double* c)
     {
       if (m_covariance == std::nullopt) {
-        m_covariance = AmgSymMatrix(5)();
+        m_covariance.emplace();
       }
 
       m_covariance->fillSymmetric(0, 0, c[ 0]);
@@ -361,27 +366,27 @@ namespace Trk {
 
   inline double         PatternTrackParameters::sinPhi        () const
     {
-      return sin(m_parameters[2]);
+      return std::sin(m_parameters[2]);
     }
 
   inline double         PatternTrackParameters::cosPhi        () const
     {
-      return cos(m_parameters[2]);
+      return std::cos(m_parameters[2]);
     }
   
   inline double         PatternTrackParameters::sinTheta      () const
     {
-      return sin(m_parameters[3]);
+      return std::sin(m_parameters[3]);
     }
 
   inline double         PatternTrackParameters::cosTheta      () const
     {
-      return cos(m_parameters[3]);
+      return std::cos(m_parameters[3]);
     }
 
   inline double         PatternTrackParameters::cotTheta      () const
     {
-      return (1./tan(m_parameters[3]));
+      return (1./std::tan(m_parameters[3]));
     }
 
   inline Amg::Vector3D PatternTrackParameters::momentum      () const

@@ -144,7 +144,7 @@ namespace SG {
     /**
      * @brief Move constructor.
      */
-    VarHandleBase( VarHandleBase&& rhs );
+    VarHandleBase( VarHandleBase&& rhs ) noexcept;
 
 
     /**
@@ -156,7 +156,7 @@ namespace SG {
     /**
      * @brief Move operator.
      */
-    VarHandleBase& operator=( VarHandleBase&& rhs ); 
+    VarHandleBase& operator=( VarHandleBase&& rhs ) noexcept; 
 
 
     /**

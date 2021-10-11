@@ -60,7 +60,7 @@ void compare (const InDet::SCT_Cluster& p1,
 
 void testit (const InDet::SCT_Cluster& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   SCT_ClusterCnv_p1 cnv;
   SCT_ClusterContainerCnv_tlp1 tlcnv;
   tlcnv.setUseDetectorElement(false);
@@ -91,7 +91,7 @@ void test2()
                              rdoList,
                              width,
                              nullptr,
-                             new Amg::MatrixX(cov));
+                             Amg::MatrixX(cov));
   trans1.setHitsInThirdTimeBin (543);
   testit (trans1);
 }

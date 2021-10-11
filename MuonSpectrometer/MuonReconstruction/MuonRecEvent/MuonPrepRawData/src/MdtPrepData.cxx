@@ -22,7 +22,7 @@ MdtPrepData::MdtPrepData(
                          const Identifier &id,
                          const IdentifierHash& /*collectionHash*/, // FIXME! (Should be removed)
                          const Amg::Vector2D& driftRadius,
-                         const Amg::MatrixX* errDriftRadius,
+                         const Amg::MatrixX& errDriftRadius,
                          const MuonGM::MdtReadoutElement* detEl,
                          const int tdc,
                          const int adc,
@@ -45,7 +45,7 @@ MdtPrepData::MdtPrepData(
                          const Identifier &id,
                          const IdentifierHash& /*collectionHash*/, // FIXME! (Should be removed)
                          const Amg::Vector2D& driftRadius,
-                         std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+                         Amg::MatrixX&& errDriftRadius,
                          std::vector<Identifier>&& rdoList,
                          const MuonGM::MdtReadoutElement* detEl,
                          const int tdc,
@@ -77,7 +77,7 @@ MdtPrepData::MdtPrepData(
 MdtPrepData::MdtPrepData()
     :
     PrepRawData(),
-    m_detEl( 0 ),
+    m_detEl( nullptr ),
     m_tdc( 0 ),
     m_adc( 0 ),
     m_status( MdtStatusUnDefined ),
@@ -126,12 +126,13 @@ MdtPrepData& MdtPrepData::operator=(MdtPrepData&& RIO) noexcept
 {
     if (&RIO !=this)
     {
+      m_detEl = RIO.m_detEl;
+      m_tdc = RIO.m_tdc;
+      m_adc = RIO.m_adc;
+      m_status = RIO.m_status;
       Trk::PrepRawData::operator=(std::move(RIO));
-        m_detEl           = RIO.m_detEl;
-        m_tdc             = RIO.m_tdc;
-        m_adc             = RIO.m_adc;
-        m_status          = RIO.m_status;
-        if (m_globalPosition) m_globalPosition.release().reset();
+      if (m_globalPosition)
+        m_globalPosition.release().reset();
     }
     return *this;
 }

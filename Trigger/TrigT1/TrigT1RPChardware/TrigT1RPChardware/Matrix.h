@@ -8,9 +8,9 @@
 #include "TrigT1RPChardware/NOBXS.h"
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
 #include "TrigT1RPChardware/Lvl1Def.h"
 #include "MuonCablingTools/BaseObject.h"
-#include "TrigT1RPChardware/RpcBook.h" // rpcbook
 
 class Matrix : public BaseObject {
 public:
@@ -100,7 +100,6 @@ void dispWind() const;
 void dispWind(ubit16 thres) const;
 void dispDefaultConfiguration() const;
 ubit16 char2int(const char *str, CMAword the32[2]);
-void histo(rpcbook *p);  // rpcbook
 //
 private:
 int m_run;
@@ -392,7 +391,7 @@ void show_attributes() const;
 void disp_CMAreg(ubit16 id) const;
 void dispRegister(const CMAword *p, ubit16 side) const;
 void dispTrigger(const CMAword *p) const;
-void dispBinary(const CMAword *p, __osstream *strdisp) const;
+void dispBinary(const CMAword *p, std::ostringstream& strdisp) const;
 //
 };//end-of-class matrix
 #endif

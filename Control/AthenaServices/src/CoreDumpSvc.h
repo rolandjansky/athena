@@ -97,7 +97,7 @@ private:
   siginfo_t* m_siginfo{nullptr};                         ///< Pointer to siginfo_t struct (set by signal handler)
   std::atomic<EventID::number_type> m_eventCounter{0};   ///< Event counter
 
-  std::vector<uint8_t> m_stack;                          /// Alternate stack for signal handler
+  thread_local static std::vector<uint8_t> s_stack;      /// Alternate stack for signal handler
   
   ///@{ Properties
 
@@ -142,7 +142,10 @@ private:
   StatusCode installSignalHandler();
   
   /// Uninstall signal handlers
-  StatusCode uninstallSignalHandler(); 
+  StatusCode uninstallSignalHandler();
+
+  /// Set up an alternate stack for the current thread.
+  void setAltStack();
 }; 
 
 

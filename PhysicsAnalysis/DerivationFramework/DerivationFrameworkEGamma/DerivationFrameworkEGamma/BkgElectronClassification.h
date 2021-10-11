@@ -60,35 +60,30 @@ private:
 
   // Write decoration handle keys
   // these are not really configuarable
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_truthPdgId{
-    "Electrons.truthPdgId"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_firstEgMotherTruthType{
-    "Electrons.firstEgMotherTruthType"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_firstEgMotherTruthOrigin{
-    "Electrons.firstEgMotherTruthOrigin"
-  };
   SG::WriteDecorHandleKey<xAOD::ElectronContainer>
-    m_firstEgMotherTruthParticleLink{
-      "Electrons.firstEgMotherTruthParticleLink"
-    };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_firstEgMotherPdgId{
-    "Electrons.firstEgMotherPdgId"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_lastEgMotherTruthType{
-    "Electrons.lastEgMotherTruthType"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_lastEgMotherTruthOrigin{
-    "Electrons.lastEgMotherTruthOrigin"
-  };
+    m_truthPdgId{ this, "DoNotSet_truthPdgId", "Electrons.truthPdgId", "" };
   SG::WriteDecorHandleKey<xAOD::ElectronContainer>
-    m_lastEgMotherTruthParticleLink{
-      "Electrons.lastEgMotherTruthParticleLink"
-    };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_lastEgMotherPdgId{
-    "Electrons.lastEgMotherPdgId"
-  };
+    m_firstEgMotherTruthType{ this, "firstEgMotherTruthType", "", "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_firstEgMotherTruthOrigin{ this, "firstEgMotherTruthOrigin", "", "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_firstEgMotherTruthParticleLink{ this,
+                                      "firstEgMotherTruthParticleLink",
+                                      "",
+                                      "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_firstEgMotherPdgId{ this, "firstEgMotherPdgId", "", "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_lastEgMotherTruthType{ this, "lastEgMotherTruthType", "", "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_lastEgMotherTruthOrigin{ this, "lastEgMotherTruthOrigin", "", "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_lastEgMotherTruthParticleLink{ this,
+                                     "lastEgMotherTruthParticleLink",
+                                     "",
+                                     "" };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_lastEgMotherPdgId{ this, "lastEgMotherPdgId", "", "" };
 };
 }
 

@@ -41,7 +41,6 @@ jetFlags.evgenJets.set_Value_and_Lock(True)
 # These can be overriden via a set_and_lock_value()
 from AthenaCommon.SystemOfUnits import GeV
 from D3PDMakerConfig.D3PDMakerFlags import jobproperties
-jobproperties.D3PDMakerFlags.DoTrigger  = False
 jobproperties.D3PDMakerFlags.TruthSGKey = 'GEN_EVENT,GEN_AOD,TruthEvent'
 jobproperties.D3PDMakerFlags.TruthWriteTauHad        = True
 jobproperties.D3PDMakerFlags.TruthWriteBSM           = True

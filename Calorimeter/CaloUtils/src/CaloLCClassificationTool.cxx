@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -152,7 +152,7 @@ CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* 
 
 	    if(m_interpolate) {
 	      // accesing interpolated coefficients
-	      bool isa = hp.Interpolate(condObject, 0,vars,parint, m_interpolateDimensions);
+	      bool isa = CaloLCCoeffHelper::Interpolate(condObject, 0,vars,parint, m_interpolateDimensions);
 	      if(isa) {
 		if ( parint[CaloLocalHadDefs::BIN_ENTRIES] > 0 ) {
 		  isDataOK = true;

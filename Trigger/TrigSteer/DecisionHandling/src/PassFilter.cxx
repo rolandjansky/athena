@@ -11,20 +11,6 @@ PassFilter::PassFilter(const std::string& name, ISvcLocator* pSvcLocator) :
 {
 }
 
-PassFilter::~PassFilter()
-{
-}
-
-StatusCode PassFilter::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode PassFilter::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode PassFilter::execute(const EventContext& ctx) const
 {
   if (Athena::Timeout::instance(ctx).reached()) {

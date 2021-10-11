@@ -88,6 +88,7 @@ public:
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
 
+
 private:
   enum N_ELEMENTS { N_CHIPS_PER_SIDE = 6, N_SIDES = 2, N_STRIPS_PER_CHIP = 128, N_STRIPS_PER_SIDE = N_STRIPS_PER_CHIP*N_CHIPS_PER_SIDE };
 
@@ -109,12 +110,17 @@ private:
     // 0 as the value denotes no error
     // error encoding is as follows: pattern for a module has length of 6 bits, side 0 is encoded in bits 0-5, side 1 in bits 6-11
     // so bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
-    std::unordered_map<Identifier, unsigned int> tempMaskedChips;
-    std::unordered_map<Identifier, unsigned int> abcdErrorChips;
+    std::unordered_map<size_t, unsigned int> tempMaskedChips;
+    std::unordered_map<size_t, unsigned int> abcdErrorChips;
 
+  
+    //Record the set number of the idcErrContainer, if the set numbers are the same, skip the fillData process to save time.
+    unsigned int m_set_number = 0;
+    
     void reset(EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
       eventId = evtId;
       IDCCache = cache;
+      m_set_number = 0;
       tempMaskedChips.clear();
       abcdErrorChips.clear();
     }
@@ -122,7 +128,7 @@ private:
     bool needsUpdate(const EventContext& ctx) const {
       return eventId != ctx.evt() or eventId == EventContext::INVALID_CONTEXT_EVT;
     }
-    
+ 
   };
   mutable SG::SlotSpecificObj<IDCCacheEntry> m_eventCache ATLAS_THREAD_SAFE;
 
@@ -154,7 +160,7 @@ private:
    * Method that returns BS Error code from the map passed @rag where-Expected
    * If the information is initially missing, the cache update is triggered
    **/
-  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate(const Identifier& id, const EventContext& ctx, std::unordered_map<Identifier, unsigned int>& whereExected) const;
+  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate(const Identifier& id, const EventContext& ctx, std::unordered_map<size_t, unsigned int>& whereExected) const;
 
 };
 

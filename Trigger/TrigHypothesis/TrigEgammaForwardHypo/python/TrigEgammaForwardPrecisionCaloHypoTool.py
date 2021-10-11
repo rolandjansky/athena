@@ -6,7 +6,7 @@ from AthenaCommon.SystemOfUnits import GeV
 def _IncTool(name, threshold, sel):
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaForwardPrecisionCaloHypoToolInc(name)
+    tool = CompFactory.TrigEgammaForwardPrecisionCaloHypoTool(name)
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     monTool = GenericMonitoringTool("MonTool_"+name)

@@ -18,7 +18,7 @@ def BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection = 'InDetTrackParticles
     # Minimal configuration
     # @TODO why is options re-initialised to an empty dict ?
     options = {}
-    options['name'] = ('BTagTrackAugmenter').lower()
+    options['name'] = ('BTagTrackAugmenter').lower() + PrimaryVertexCollectionName
     options['TrackContainer'] = TrackCollection
     options['PrimaryVertexContainer'] = PrimaryVertexCollectionName
     if 'TrackToVertexIPEstimator' not in  options :

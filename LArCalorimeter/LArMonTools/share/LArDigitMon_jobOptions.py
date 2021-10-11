@@ -42,7 +42,7 @@ theLArDigitMon = LArDigitMon(name="LArDigitMon",
                              SampleNumberFromDB    = LArSampleNumber,
                              ComputeHistError      = False,
                              IgnoreBadChannels     = True,
-                             LArBadChannelMask     = theLArBadChannelsMasker,
+                             ProblemsToMask        = ProblemsToMask,
                              ProcessNEvents        = EventBlockSize,
                              NumberBadFebs         = larNoisyROFlags.BadFEBCut(),
                              Streams = StreamsToMonitor

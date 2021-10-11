@@ -128,14 +128,23 @@ for ros in range(1, 5):
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
 
-            #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
-            if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
-                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
-                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+            #--- add OnlineTimingDmuBcOffsetPos if either of the ADCs has isTimingDmuBcOffsetPos
+            if statlo.isTimingDmuBcOffsetPos() or stathi.isTimingDmuBcOffsetPos():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
             else:
-                #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
-                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
-                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+                #--- delete OnlineTimingDmuBcOffsetPos if the both ADCs has not isTimingDmuBcOffsetPos
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetPos)
+
+            #--- add OnlineTimingDmuBcOffsetNeg if either of the ADCs has isTimingDmuBcOffsetNeg
+            if statlo.isTimingDmuBcOffsetNeg() or stathi.isTimingDmuBcOffsetNeg():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
+            else:
+                #--- delete OnlineTimingDmuBcOffsetNeg if the both ADCs has not isTimingDmuBcOffsetNeg
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffsetNeg)
 
 log.info("============================")
 log.info("ONL01 and OFL02 synchronized")

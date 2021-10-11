@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
 
 #include "TauPi0CreateROI.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "CaloUtils/CaloCellList.h"
 
@@ -21,17 +22,18 @@ TauPi0CreateROI::TauPi0CreateROI(const std::string& name) :
 StatusCode TauPi0CreateROI::initialize() {
     
     ATH_CHECK( m_caloCellInputContainer.initialize() );
-
+    ATH_CHECK(m_caloMgrKey.initialize());
     return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellContainer& pi0CellContainer, boost::dynamic_bitset<>& addedCellsMap) const {
-  // only run on 1-5 prong taus 
-  if (tau.nTracks() == 0 || tau.nTracks() >5 ) {
+
+  // only run on 0-5 prong taus
+  if (!tauRecTools::doPi0andShots(tau)) {
     return StatusCode::SUCCESS;
-  }
+  }  
 
   SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
   if (!caloCellInHandle.isValid()) {
@@ -40,11 +42,14 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellConta
   }
   const CaloCellContainer *cellContainer = caloCellInHandle.cptr();;
   
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+  
   // get only EM cells within dR < 0.4
   // TODO: change hardcoded 0.4 to meaningful variable
   std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
   emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
-  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(cellContainer,emSubCaloBlocks)); 
+  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(caloDDMgr,cellContainer,emSubCaloBlocks)); 
   // FIXME: tau p4 is corrected to point at tau vertex, but the cells are not
   cellList->select(tau.eta(), tau.phi(), 0.4);
 

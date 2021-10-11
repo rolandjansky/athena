@@ -1478,7 +1478,10 @@ SbPolyhedronCons::SbPolyhedronCons(double Rmn1,
   if (Rmn1 > Rmx1 || Rmn2 > Rmx2)                              k = 1;
   if (Rmn1 == Rmx1 && Rmn2 == Rmx2)                            k = 1;
 
-  if (Dz <= 0.) k += 2;
+  // We can get this from the tracking geometry.  Don't complain.
+  if (Dz == 0) return;
+
+  if (Dz < 0.) k += 2;
 
   double phi1, phi2, dphi;
   if (Dphi < 0.) {
@@ -1981,7 +1984,7 @@ void SbPolyhedronPolygonXSect::Internals::setData(const std::vector<double> * xx
 {
   n = xx->size();
   ntriangles = n-2;
-  assert (n==yy->size()&&n>3);//fixme n>2, and special code for n==3.
+  assert (n==yy->size()&&n>2);//fixme n>2, and special code for n==3.
   dz = the_dz;
   x = xx;
   y = yy;
@@ -2009,7 +2012,6 @@ void SbPolyhedronPolygonXSect::Internals::initEdgeClassificationsAndNeighbours()
     for (unsigned iedge=0;iedge<3;++iedge) {
       Edge eun = GetEdge(&(*itt),iedge,false/*unoriented!*/);
       if (edge2triangles_map.find(eun)==edge2triangles_map.end()) {
-	edge2triangles_map[eun] = std::vector<Triangles::const_iterator>();
 	alledges.insert(eun);
       }
       edge2triangles_map[eun].push_back(itt);
@@ -2081,8 +2083,7 @@ void SbPolyhedronPolygonXSect::Internals::addExtraVertices() {
       Edge e = GetEdge(&(*itt),iedge,true/*oriented!*/);
       const Triangle* trneighbour = neighbourmap[e];
       assert(trneighbour);//fixme
-      if (triangles_with_extra_vertex.find(trneighbour)==triangles_with_extra_vertex.end()) {
-	triangles_with_extra_vertex.insert(trneighbour);
+      if (triangles_with_extra_vertex.insert(trneighbour).second) {
 	triangles_with_extra_vertex.insert(&(*itt));
 	Edge eun = GetEdge(&(*itt),iedge,false/*unoriented*/);
 	edges_with_extra_vertex.insert(eun);
@@ -2408,7 +2409,7 @@ void SbPolyhedronArbitrary::Finalize()
   SetReferences();
 }
 
-SbPolyhedronGenericTrap::SbPolyhedronGenericTrap(double Dz, const std::vector<std::pair<double,double> > Vertices)
+SbPolyhedronGenericTrap::SbPolyhedronGenericTrap(double Dz, const std::vector<std::pair<double,double> >& Vertices)
 {
   AllocateMemory(8,6);
 

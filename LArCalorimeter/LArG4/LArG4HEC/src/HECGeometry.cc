@@ -140,6 +140,13 @@ namespace LArG4 {
       m_rInner1 = m_hecManager->getBlock(0)->getInnerRadius();
       m_rInner2 = m_hecManager->getBlock(1)->getInnerRadius();
 
+      return StatusCode::SUCCESS;
+    }
+
+    //============================================================================================
+
+    void HECGeometry::initializeForSDCreation()
+    {
       if (!m_depthHist)
         {
           const G4LogicalVolume * logicalWorld = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume();
@@ -168,12 +175,9 @@ namespace LArG4 {
               else
                 {
                   ATH_MSG_ERROR("Failed to find LArMgr::LAr::HEC::LiquidArgon!!");
-                  return StatusCode::FAILURE;
                 }
             }
         }
-
-      return StatusCode::SUCCESS;
     }
 
    //============================================================================================

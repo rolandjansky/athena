@@ -12,6 +12,7 @@
 #include "MuPatPrimitives/MuPatTrack.h"
 #include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
+#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
@@ -40,7 +41,6 @@ namespace Muon {
         if (!m_errorOptimisationTool.empty()) ATH_CHECK(m_errorOptimisationTool.retrieve());
         ATH_CHECK(m_candidateHandler.retrieve());
         ATH_CHECK(m_candidateMatchingTool.retrieve());
-        if (!m_hitRecoverTool.empty()) ATH_CHECK(m_hitRecoverTool.retrieve());
         ATH_CHECK(m_muonChamberHoleRecoverTool.retrieve());
         ATH_CHECK(m_trackExtrapolationTool.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
@@ -67,17 +67,17 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackBuilder::refit(Trk::Track& track) const {
         // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+        const EventContext& ctx = Gaudi::Hive::currentContext();
 
         if (m_edmHelperSvc->isSLTrack(track)) return m_slFitter->refit(track);
 
         // Also check if toriod is off:
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        EventContext ctx = Gaudi::Hive::currentContext();
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-        if (fieldCondObj == nullptr) {
+        if (!fieldCondObj) {
             ATH_MSG_ERROR("refit: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
             return nullptr;
         }
@@ -86,12 +86,14 @@ namespace Muon {
 
         // if not refit tool specified do a pure refit
         if (m_errorOptimisationTool.empty()) return m_fitter->refit(track);
-        std::unique_ptr<Trk::Track> optTrack = m_errorOptimisationTool->optimiseErrors(&track);
+        std::unique_ptr<Trk::Track> optTrack = m_errorOptimisationTool->optimiseErrors(track, ctx);
         return optTrack;
     }
 
     void MooTrackBuilder::refine(MuPatTrack& track, GarbageContainer& trash_bin) const {
-        std::unique_ptr<Trk::Track> finalTrack(m_hitRecoverTool->recover(track.track()));
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+
+        std::unique_ptr<Trk::Track> finalTrack(m_muonChamberHoleRecoverTool->recover(track.track(), ctx));
         if (!finalTrack) { ATH_MSG_WARNING(" final track lost, this should not happen "); }
         ATH_MSG_VERBOSE("refine: after recovery " << std::endl
                                                   << m_printer->print(*finalTrack) << std::endl
@@ -117,13 +119,13 @@ namespace Muon {
             finalTrack.swap(refittedTrack);
 
         // redo holes as they are dropped in the fitter
-        std::unique_ptr<Trk::Track> finalTrackWithHoles(m_muonChamberHoleRecoverTool->recover(*finalTrack));
+        std::unique_ptr<Trk::Track> finalTrackWithHoles(m_muonChamberHoleRecoverTool->recover(*finalTrack, ctx));
         if (!finalTrackWithHoles) {
             ATH_MSG_WARNING(" failed to add holes to final track, this should not happen ");
         } else
             finalTrack.swap(finalTrackWithHoles);
 
-        std::unique_ptr<Trk::Track> entryRecordTrack(m_trackExtrapolationTool->extrapolate(*finalTrack));
+        std::unique_ptr<Trk::Track> entryRecordTrack(m_trackExtrapolationTool->extrapolate(*finalTrack, ctx));
         if (entryRecordTrack) {
             finalTrack.swap(entryRecordTrack);
             ATH_MSG_VERBOSE(" track at muon entry record " << std::endl << m_printer->print(*finalTrack));
@@ -274,10 +276,10 @@ namespace Muon {
                     // if all segments but one are already part of an existing track, check the exclusion list
                     if (candidate && !candidate->excludedSegments().empty() && foundSegments.size() == segments.size() - 1) {
                         // create destination vector for segments that are not found
-                        std::vector<const MuPatSegment*> unassociatedSegments(segments.size(), 0);
+                        std::vector<const MuPatSegment*> unassociatedSegments(segments.size(), nullptr);
                         std::vector<const MuPatSegment*>::iterator it = std::set_difference(
                             segments.begin(), segments.end(), foundSegments.begin(), foundSegments.end(), unassociatedSegments.begin());
-                        const MuPatSegment* zero = 0;
+                        const MuPatSegment* zero = nullptr;
                         unassociatedSegments.erase(std::find(unassociatedSegments.begin(), unassociatedSegments.end(), zero),
                                                    unassociatedSegments.end());
 
@@ -373,7 +375,7 @@ namespace Muon {
 
         // position closest parameters
         double closest = 1e8;
-        const Trk::TrackParameters* closestParameters = 0;
+        const Trk::TrackParameters* closestParameters = nullptr;
         bool closestIsMeasured = false;
 
         // loop over track and calculate residuals
@@ -511,7 +513,7 @@ namespace Muon {
         ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments->size() << " reference size "
                                                                           << referenceSegments.size());
 
-        CompareMuonSegmentKeys compareSegmentKeys;
+        CompareMuonSegmentKeys compareSegmentKeys{};
 
         // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
         std::vector<std::pair<MuonSegmentKey, Trk::SegmentCollection::iterator> > segKeys;
@@ -737,15 +739,16 @@ namespace Muon {
         ATH_MSG_DEBUG(" original track had " << states->size() << " TSOS, adding " << newStates.size() - states->size() << " new TSOS ");
 
         // states were added, create a new track
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
-        trackStateOnSurfaces->reserve(newStates.size());
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        trackStateOnSurfaces.reserve(newStates.size());
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit = newStates.begin();
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit_end = newStates.end();
         for (; nit != nit_end; ++nit) {
             // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
-            trackStateOnSurfaces->push_back(nit->first ? nit->second : nit->second->clone());
+            trackStateOnSurfaces.push_back(nit->first ? nit->second : nit->second->clone());
         }
-        return std::make_unique<Trk::Track>(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
+        return std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
+                                            track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     }
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator MooTrackBuilder::insertClustersWithCompetingRotCreation(
@@ -773,7 +776,7 @@ namespace Muon {
         // keep trackof the identifiers and the states
         std::list<const Trk::PrepRawData*> etaPrds;
         std::list<const Trk::PrepRawData*> phiPrds;
-        const Trk::TrkDetElementBase* currentDetEl = 0;
+        const Trk::TrkDetElementBase* currentDetEl = nullptr;
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> > newStates;
         // keep track of outliers as we might have to drop them..
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> > outlierStates;
@@ -828,7 +831,7 @@ namespace Muon {
                 // split competing ROTs into constituents
                 const CompetingMuonClustersOnTrack* comp = dynamic_cast<const CompetingMuonClustersOnTrack*>(meas);
                 if (comp) {
-                    const Trk::TrkDetElementBase* detEl = 0;
+                    const Trk::TrkDetElementBase* detEl = nullptr;
                     if (comp->containedROTs().empty()) {
                         ATH_MSG_WARNING(" CompetingROT without constituents ");
                         break;
@@ -856,7 +859,7 @@ namespace Muon {
             if (!etaCompRot) {
                 ATH_MSG_WARNING(" Failed to create CompetingMuonClustersOnTrack for eta hits! ");
             } else {
-                const Trk::TrackParameters* etaPars = 0;
+                const Trk::TrackParameters* etaPars = nullptr;
                 // check whether original parameters are on surface, if so clone original parameters
                 if (etaCompRot->associatedSurface() == pars->associatedSurface()) {
                     etaPars = pars->clone();
@@ -882,7 +885,7 @@ namespace Muon {
             if (!phiCompRot) {
                 ATH_MSG_WARNING(" Failed to create CompetingMuonClustersOnTrack for phi hits! ");
             } else {
-                const Trk::TrackParameters* phiPars = 0;
+                const Trk::TrackParameters* phiPars = nullptr;
                 // check whether original parameters are on surface, if so clone original parameters
                 if (phiCompRot->associatedSurface() == pars->associatedSurface()) {
                     phiPars = pars->clone();
@@ -988,7 +991,7 @@ namespace Muon {
             ATH_MSG_VERBOSE("combining: " << m_printer->print(*(*sit)->segment));
 
             // try to combine track with segment
-            std::unique_ptr<Trk::Track> track = combine(candidate, **sit, 0);
+            std::unique_ptr<Trk::Track> track = combine(candidate, **sit, nullptr);
 
             // additional check in case the candidate is a MuPatTrack
             MuPatTrack* trkCan = dynamic_cast<MuPatTrack*>(&candidate);
@@ -1182,8 +1185,8 @@ namespace Muon {
             // return false;
         }
 
-        const Trk::Track* referenceTrack = 0;
-        const Trk::Track* otherTrack = 0;
+        const Trk::Track* referenceTrack = nullptr;
+        const Trk::Track* otherTrack = nullptr;
 
         // first check whether the tracks have a momentum measurement
         bool isSL1 = m_edmHelperSvc->isSLTrack(track1);
@@ -1234,7 +1237,7 @@ namespace Muon {
 
         // keep track of previous distance and parameters as well
         double prevDist = 1e10;
-        const Trk::TrackParameters* prevPars = 0;
+        const Trk::TrackParameters* prevPars = nullptr;
 
         // now loop over the TSOSs of both tracks and compare hit by hit
         while (refTSOS != refTSOS_end && otherTSOS != otherTSOS_end) {
@@ -1258,7 +1261,7 @@ namespace Muon {
                 ++refTSOS;
                 continue;
             } else {
-                const Trk::TrackParameters* closestPars = 0;
+                const Trk::TrackParameters* closestPars = nullptr;
                 if (prevPars && fabs(prevDist) < fabs(dist)) {
                     closestPars = prevPars;
                 } else {
@@ -1296,12 +1299,12 @@ namespace Muon {
                         }
 
                         bool inBounds = false;
-                        Amg::Vector2D locPos;
-                        bool ok = meas->associatedSurface().globalToLocal(impactPars->position(), impactPars->momentum(), locPos);
+                        Amg::Vector2D LocVec2D;
+                        bool ok = meas->associatedSurface().globalToLocal(impactPars->position(), impactPars->momentum(), LocVec2D);
                         // delete impactPars;
                         if (ok) {
                             if (msgLvl(MSG::VERBOSE))
-                                msg(MSG::VERBOSE) << "  lpos (" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
+                                msg(MSG::VERBOSE) << "  lpos (" << LocVec2D[Trk::locX] << "," << LocVec2D[Trk::locY] << ")";
                             double tol1 = 50.;
                             double tol2 = tol1;
                             Identifier id = m_edmHelperSvc->getIdentifier(*meas);
@@ -1314,7 +1317,15 @@ namespace Muon {
                                     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  range " << halfTubeLen;
                                 }
                             }
-                            inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
+
+                            // for MM, perform the bound check from the detector element to take into account edge passivation
+                            const MMClusterOnTrack* mmClusterOnTrack = dynamic_cast<const MMClusterOnTrack*>(meas);
+                            if (mmClusterOnTrack) {
+                                inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, LocVec2D, tol1, tol2);
+                            } else {
+                                inBounds = meas->associatedSurface().insideBounds(LocVec2D, tol1, tol2);
+                            }
+
                             if (msgLvl(MSG::VERBOSE)) {
                                 if (inBounds)
                                     msg(MSG::VERBOSE) << " inBounds ";

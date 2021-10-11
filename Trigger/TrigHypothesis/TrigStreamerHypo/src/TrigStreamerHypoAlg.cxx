@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigStreamerHypoAlg.h"
 
@@ -39,9 +39,10 @@ StatusCode TrigStreamerHypoAlg::execute( const EventContext& context ) const {
     // Create output Decision object, link it to prevDecision.
     Decision* newDecision = newDecisionIn(newDecisions, previousDecision, hypoAlgNodeName(), context);
 
-    // Obligatory link to feature. Use a dummy link here (a link to self)
-    ElementLink<DecisionContainer> dummyLink(*newDecisions, newDecisions->size()-1, context);
-    newDecision->setObjectLink(featureString(), dummyLink);
+    // Obligatory link to feature. Re-using the initial ROI.
+    // If this happens to be a FullScan ROI, then the following ComboHypo will also pass this leg through without cuts
+    LinkInfo<TrigRoiDescriptorCollection> featureLinkInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
+    newDecision->setObjectLink(featureString(), featureLinkInfo.link);
 
     hypoInfo.emplace_back(newDecision, previousDecision);
   }

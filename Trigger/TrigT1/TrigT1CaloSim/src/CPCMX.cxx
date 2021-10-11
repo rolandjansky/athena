@@ -18,12 +18,15 @@
 //
 
 // Utilities
+//#include <memory>
 
 // This algorithm includes
 #include "CPCMX.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
+
+#include "TrigConfData/L1Threshold.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXCPHits_ClassDEF.h"
@@ -33,10 +36,6 @@
 #include "TrigT1CaloEvent/CPMCMXData.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
 
 
 
@@ -68,8 +67,8 @@ StatusCode CPCMX::initialize()
   ATH_CHECK(m_TopoOutputLocation.initialize());
   ATH_CHECK(m_CTPOutputKey.initialize());
   ATH_CHECK(m_CPMCMXDataLocation.initialize());
+  ATH_CHECK( m_L1MenuKey.initialize() );
 
-  ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -137,16 +136,16 @@ StatusCode CPCMX::execute( )
   bool cpmOverflow[2] = {false, false};
 
   /** Get EM and Tau Trigger Thresholds */
-  std::vector< TrigConf::TriggerThreshold* > thresholds;
-  std::vector< TrigConf::TriggerThreshold* > allThresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  for ( std::vector< TrigConf::TriggerThreshold* >::const_iterator it = allThresholds.begin();
-        it != allThresholds.end(); ++it ) {
-    if ( ( *it )->type() == L1DataDef::emType() || ( *it )->type() == L1DataDef::tauType() ) 
-      thresholds.push_back( *it );
+  auto l1Menu = SG::makeHandle( m_L1MenuKey );
+
+
+  float cpScale = l1Menu->thrExtraInfo().EM().emScale();
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> thresholds;
+  for ( const auto& thresh : allThresholds  ) {
+    if ( thresh->type() == L1DataDef::emType() || thresh->type() == L1DataDef::tauType() ) 
+      thresholds.push_back( thresh );
   }
-
-  float cpScale = m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
-
 
   /** Retrieve the CPCMXData (backplane data packages) */
   SG::ReadHandle<t_cpmDataContainer> bpData = SG::makeHandle(m_CPMCMXDataLocation);
@@ -180,31 +179,37 @@ StatusCode CPCMX::execute( )
       unsigned int isol = tob.isolation();
 
       // Now check against trigger thresholds
-      for ( std::vector< TriggerThreshold* >::const_iterator itTh = thresholds.begin();
-          itTh != thresholds.end(); ++itTh ) {
+      for ( const auto& thresh : thresholds  ) {
         // Right type?
-        if ( (*itTh)->type() != triggerTypes[cmx] ) continue;
+        if ( thresh->type() != triggerTypes[cmx] ) continue;
         // Does TOB satisfy this threshold?
-        TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
-        ClusterThresholdValue* ctv = dynamic_cast< ClusterThresholdValue* >( ttv );
-        if (ctv) {
-          int etCut             = ctv->ptcut()*cpScale;
-          unsigned int isolMask = ctv->isolationMask();
+          std::optional<uint16_t> isolMask;
+          if (thresh->className() == "L1Threshold_EM") {
+            std::shared_ptr<TrigConf::L1Threshold_EM> thresh_EM = std::static_pointer_cast<TrigConf::L1Threshold_EM>(thresh);
+            isolMask = thresh_EM->isolationMask(ieta);
+          }
+          else if (thresh->className() == "L1Threshold_TAU") {
+            std::shared_ptr<TrigConf::L1Threshold_TAU> thresh_TAU = std::static_pointer_cast<TrigConf::L1Threshold_TAU>(thresh);
+            isolMask = thresh_TAU->isolationMask();
+          }
 
+          
           bool isolationPassed = true;
+          if (isolMask) {
           for (unsigned int bit = 0; bit < TrigT1CaloDefs::numOfIsolationBits; ++bit) 
-            if ( (isolMask & (1<<bit)) && !(isol & (1<<bit)) ) isolationPassed = false;
+            if ( (*isolMask & (1<<bit)) && !(isol & (1<<bit)) ) isolationPassed = false;
+          }
 
+          int etCut             = thresh->thrValue(ieta)*cpScale;
           if ( et > etCut && isolationPassed ) {		
-            int num = ( *itTh )->thresholdNumber();
+            int num = thresh->mapping();
             if (num < 16) {
               if (crateHits[crate][cmx][num] < 7) crateHits[crate][cmx][num]++;
               if (Hits[cmx][num] < 7)             Hits[cmx][num]++;
             }
-            else ATH_MSG_WARNING("Invalid threshold number " << num );
+           else ATH_MSG_WARNING("Invalid threshold number " << num );
           } // passes cuts
 
-        } // ClusterThresholdValue pointer valid
       } // Loop over thresholds
 
     } // Loop over TOBs
@@ -277,44 +282,6 @@ StatusCode CPCMX::execute( )
       
 
   return StatusCode::SUCCESS ;
-}
-
-
-
-/** print trigger configuration, for debugging purposes */
-void LVL1::CPCMX::printTriggerMenu(){
-  /** This is all going to need updating for the new menu structure.
-      Comment out in the meanwhile 
-  
-  L1DataDef def;
-
-  std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
-          << "  threshold number " << (*it)->thresholdNumber() << endmsg
-          << "  number of values = " << (*it)->numberofValues() );
-      for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
-           tv != (*it)->thresholdValueVector().end(); ++tv) {
-        ClusterThresholdValue* ctv;
-        ctv = dynamic_cast<ClusterThresholdValue*> (*tv);
-	if (!ctv) {
-          ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
-          continue;
-        }
-        ATH_MSG_DEBUG("ClusterThresholdValue: " << endmsg
-            << "  Threshold value = " << ctv->thresholdValueCount() << endmsg
-            << "  EM isolation = " << ctv->emIsolationCount() << endmsg
-            << "  Had isolation = " << ctv->hadIsolationCount() << endmsg
-            << "  Had veto = " << ctv->hadVetoCount() << endmsg
-            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
-        
-      } // end of loop over threshold values
-    } //  is type == em or tau?
-  } // end of loop over thresholds
-  
-  */   
 }
 
 } // end of namespace bracket

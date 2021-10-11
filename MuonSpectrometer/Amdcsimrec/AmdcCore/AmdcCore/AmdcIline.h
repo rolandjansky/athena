@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AMDCCORE_AMDCILINE_H
@@ -32,7 +32,7 @@ public:
    void SuperPrint()                  const;
 
    /**Set station name */
-   void SetStationType(std::string StationType );
+   void SetStationType(const std::string& StationType );
 
    /**Set jff index */
    void Setjff(int jff  );

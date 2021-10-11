@@ -193,8 +193,6 @@ topSequence = AlgSequence()
 #ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-GEO-10-00-00' # for the original input file
 #ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-R2-2015-02-01-00' # for the new input file
 
-#from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
-
 #include( "TileConditions/TileConditions_jobOptions.py" )
 
 #include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolBase_H
@@ -765,6 +765,8 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
          public:
             OutputMetadata( TTree* metadata );
             virtual ~OutputMetadata();
+            OutputMetadata (const OutputMetadata&) = delete;
+            OutputMetadata& operator= (const OutputMetadata&) = delete;
 
             virtual void fill( const std::string& name,
                   //LevelOfDetail_t level,

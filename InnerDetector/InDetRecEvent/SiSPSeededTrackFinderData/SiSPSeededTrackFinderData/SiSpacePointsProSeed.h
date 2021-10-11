@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -57,19 +57,19 @@ namespace InDet {
 
   private:
     
-    SiSpacePointForSeed* m_s0  ;
-    SiSpacePointForSeed* m_s1  ;
-    SiSpacePointForSeed* m_s2  ;
-    float                m_d0  ;
-    float                m_z   ;
-    float                m_eta ;
-    float                m_z1  ;
-    float                m_z2  ;
-    float                m_z3  ;
-    float                m_r1  ;
-    float                m_r2  ;
-    float                m_r3  ;
-    float                m_q   ;
+    SiSpacePointForSeed* m_s0{}  ;
+    SiSpacePointForSeed* m_s1{}  ;
+    SiSpacePointForSeed* m_s2{}  ;
+    float                m_d0{}  ;
+    float                m_z{}   ;
+    float                m_eta{} ;
+    float                m_z1{}  ;
+    float                m_z2{}  ;
+    float                m_z3{}  ;
+    float                m_r1{}  ;
+    float                m_r2{}  ;
+    float                m_r3{}  ;
+    float                m_q{}   ;
   };
 } // end of name space
 

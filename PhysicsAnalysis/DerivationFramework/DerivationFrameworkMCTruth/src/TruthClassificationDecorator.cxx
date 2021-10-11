@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ StatusCode DerivationFramework::TruthClassificationDecorator::initialize()
     ATH_MSG_VERBOSE("initialize() ...");
     ATH_CHECK(m_classifier.retrieve());
 
-    if (m_particlesKey=="" /*|| m_verticesKey==""*/) {
+    if (m_particlesKey.empty() /*|| m_verticesKey==""*/) {
         ATH_MSG_FATAL("No truth particle collection provided to decorate!");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Decorating " << m_particlesKey << " with classification information");}

@@ -1,66 +1,45 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // author: cpollard@cern.ch
 
 #include "ParticleJetTools/JetParticleAssociation.h"
-#include "xAODTracking/TrackParticleContainer.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
-using namespace std;
-using namespace xAOD;
-
-JetParticleAssociation::JetParticleAssociation(const string& name)
-    : AsgTool(name) {
-
-        declareProperty("jetCollectionName", m_jetCollectionName);
-        declareProperty("outputCollectionName", m_outputCollectionName);
-        declareProperty("inputParticleCollectionName", m_inputParticleCollectionName);
-
-        return;
-    }
+JetParticleAssociation::JetParticleAssociation(const std::string& name)
+    : asg::AsgTool(name) {
+}
 
 StatusCode JetParticleAssociation::initialize() {
-    m_dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_outputCollectionName);
+
+    m_decKey = m_jetContainerName + "." + m_decKey.key();
+
+    ATH_CHECK(m_decKey.initialize());
+    ATH_CHECK(m_particleKey.initialize());
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode JetParticleAssociation::execute() {
+StatusCode JetParticleAssociation::decorate(const xAOD::JetContainer& jets) const{
+    SG::WriteDecorHandle<xAOD::JetContainer, std::vector<ElementLink<xAOD::IParticleContainer> > > decHandle(m_decKey);
 
-    const JetContainer* jets = nullptr;
-    if ( evtStore()->retrieve( jets, m_jetCollectionName ).isFailure() ) {
-        ATH_MSG_FATAL("JetParticleAssociation: "
-                "failed to retrieve jet collection \"" +
-                m_jetCollectionName + "\"");
-        return StatusCode::FAILURE;
+    const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >* matches;
+
+    SG::ReadHandle<xAOD::IParticleContainer> parts(m_particleKey);
+    if( !parts.isValid() ) {
+      ATH_MSG_WARNING ("Couldn't retrieve particles with key: " << m_particleKey.key() );
+      return StatusCode::FAILURE;
     }
 
-    const IParticleContainer* parts = nullptr;
-    if ( evtStore()->retrieve( parts, m_inputParticleCollectionName ).isFailure() ) {
-        ATH_MSG_FATAL("JetParticleAssociation: "
-                "failed to retrieve particle collection \"" +
-                m_inputParticleCollectionName + "\"");
-        return StatusCode::FAILURE;
-    }
+    matches = match(jets, *parts);
 
-#ifndef GENERATIONBASE
-    const vector<vector<ElementLink<IParticleContainer> > >* matches = match(*jets, *parts);
+    ATH_MSG_DEBUG("About to decorate jets with" << m_decKey);
 
-    SG::AuxElement::ConstAccessor<vector<ElementLink<TrackParticleContainer> > >
-        trkacc("BTagTrackToJetAssociator");
-
-    for (unsigned int iJet = 0; iJet < jets->size(); iJet++)
-        (*m_dec)(*jets->at(iJet)) = (*matches)[iJet];
+    for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+        decHandle(*(jets.at(iJet))) = (*matches)[iJet];
 
     delete matches;
-#endif //if not GENERATIONBASE
 
-    return StatusCode::SUCCESS;
-}
-
-
-StatusCode JetParticleAssociation::finalize() {
-    delete m_dec;
     return StatusCode::SUCCESS;
 }

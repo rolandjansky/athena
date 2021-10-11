@@ -114,7 +114,7 @@ StatusCode SCT_ReadCalibChipGainCondAlg::finalize() {
 }
 
 void 
-SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) const {
+SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) {
   for (int i{0}; i!=N_NPTGAIN; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     const std::string &dbData{((folderData)[nPtGainDbParameterNames[i]]).data<std::string>()};

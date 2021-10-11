@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DeltaRRoIComboHypoTool.h"
@@ -23,16 +23,29 @@ StatusCode DeltaRRoIComboHypoTool::initialize() {
 
 
 
-bool DeltaRRoIComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const
+bool DeltaRRoIComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>& combination) const
 {
   //retrieve the rois 
   std::vector<ElementLink<TrigRoiDescriptorCollection>> selected_rois;
-  for (auto el: combination){
-    auto EL= el.second;    
-    auto dec= (*EL);
-    auto roiLink = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, initialRoIString() ).link;
+
+  // Expecting to only run over chains with two legs and one Decision Object required on each leg
+  // So should always have two objects from which to check DeltaR
+  if(combination.size() != 2){
+    ATH_MSG_ERROR(
+      "Expecting to combine exactly two Decision Objects, but instead found "
+      << combination.size() << ". Will throw a runtime error");
+    throw std::runtime_error(
+      "Expecting to combine exactly two Decision Objects, but instead found " +
+      std::to_string(combination.size()));
+  }
+
+  for (const auto& el: combination){
+    const auto EL= el.second;    
+    const auto dec= (*EL);
+    const auto roiLink = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, initialRoIString() ).link;
     selected_rois.push_back(roiLink);
   }
+
   auto roiLink1=selected_rois[0];
   auto roiLink2=selected_rois[1];
   // calucalte DeltaR

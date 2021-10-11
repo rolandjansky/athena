@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1THRESHOLDBASE_H
@@ -50,7 +50,7 @@ namespace TrigConf {
       };
    public:
       typedef typename std::vector<RangeValue>::const_iterator const_iterator;
-      ValueWithEtaDependence(const std::string name) : m_name(name) {};
+      ValueWithEtaDependence(const std::string& name) : m_name(name) {};
       const std::string & name() const { return m_name; }
       bool empty() const;
       size_t size() const;
@@ -223,11 +223,17 @@ namespace TrigConf {
        */
       virtual unsigned int thrValueMeV(int eta = 0) const;
 
+      /** as above above but in 100 MeV */
+      virtual unsigned int thrValue100MeV(int eta = 0) const;
+
       /** access to the list of ThresholdValues in GeV */
       virtual ValueWithEtaDependence<float> thrValues() const;
 
       /** access to the list of ThresholdValues in MeV */
       virtual const ValueWithEtaDependence<unsigned int> & thrValuesMeV() const;      
+
+      /** access to the list of ThresholdValues in 100 MeV (for L1Topo multiplicity) */
+      virtual ValueWithEtaDependence<unsigned int> thrValues100MeV() const;
 
       /** access to the list of ThresholdValues in energy units */
       virtual ValueWithEtaDependence<unsigned int> thrValuesCounts() const;      
@@ -287,7 +293,7 @@ namespace TrigConf {
     **************************************/
    class Selection {
    public:
-      enum class WP { NONE = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3 };
+      enum class WP { NONE = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3, HADLOOSE = 4, HADMEDIUM = 5, HADTIGHT = 6, HAD = 7 }; // HAD = HADMEDIUM for backward compatibility
       static std::string wpToString(WP);
       static WP stringToWP(const std::string &);
    };

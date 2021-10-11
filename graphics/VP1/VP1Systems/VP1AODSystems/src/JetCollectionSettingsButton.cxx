@@ -51,8 +51,8 @@ public:
 
 	// setup the UI
 	QWidget * editwindow; // the main window
-	Ui::IParticleCollectionSettingsForm editwindow_ui; // the common main UI window
-	Ui::JetSysSettingsDisplayForm ui_disp; // the custom jet cuts
+	Ui::IParticleCollectionSettingsForm editwindow_ui{}; // the common main UI window
+	Ui::JetSysSettingsDisplayForm ui_disp{}; // the custom jet cuts
 
 	VP1MaterialButton* matButton;// main collection colour
 //	VP1MaterialButton* defaultParametersMatButton;

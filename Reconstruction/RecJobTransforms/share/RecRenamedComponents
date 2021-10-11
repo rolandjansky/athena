@@ -24,3 +24,8 @@ CaloTopoCluster.CaloClusterBadChannelList.CaloBadChanTool.TileBadChanTool = Calo
 # ID
 InDetSCTRawDataProvider = SCTRawDataProvider
 InDetPixelRawDataProvider = PixelRawDataProvider
+InDetPixelRawDataProvider.RegSelTool_Pixel = PixelRawDataProvider.RegSelTool_Pixel
+InDetPixelClusterization.InDetMergedPixelsTool.PixelConditionsSummaryTool = InDetPixelClusterization.InDetMergedPixelsTool.InDetPixelConditionsSummaryTool
+
+#egamma
+EMBremCollectionBuilder.GSFBuildInDetParticleCreatorTool.AtlasTrackToVertexTool = EMBremCollectionBuilder.GSFBuildInDetParticleCreatorTool.TrackToVertex.AtlasExtrapolator

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -363,15 +363,10 @@ namespace DerivationFramework {
   //--------------------------------------------------------------------------
   void BPhysAddMuonBasedInvMass::clearAdjTpCache() const {
 
-    for ( TpMap_t::iterator it = m_adjTpCache.begin(); it != m_adjTpCache.end();
-	  ++it) {
-      if ( it->second != NULL ) {
-	const_cast<xAOD::TrackParticle*>(it->second)->releasePrivateStore();
-	delete(it->second);
-	it->second = NULL;
-      }
-      m_adjTpCache.clear();
+    for (auto& p : m_adjTpCache) {
+      delete(p.second);
     }
+    m_adjTpCache.clear();
   }
   //--------------------------------------------------------------------------
   // findAllMuonsInDecay: returns a vector of xAOD::Muon objects found
@@ -534,7 +529,7 @@ namespace DerivationFramework {
     TLorentzVector totMom;
     std::vector<const Trk::Perigee*> trkPer;
 
-    for (;trItr != trItrEnd; trItr++,massHypItr++){
+    for (;trItr != trItrEnd; ++trItr,++massHypItr){
       const Trk::Perigee* trkPerigee = 
         m_trackToVertexTool->perigeeAtVertex(*(*trItr), pos);
       trkPer.push_back(trkPerigee);

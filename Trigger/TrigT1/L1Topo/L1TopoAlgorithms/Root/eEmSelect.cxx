@@ -7,7 +7,7 @@
 //
 #include "L1TopoAlgorithms/eEmSelect.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/ClusterTOBArray.h"
+#include "L1TopoEvent/eEmTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -19,10 +19,11 @@ TCS::eEmSelect::eEmSelect(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth1stStage", 30 ); // for fw
    defineParameter( "OutputWidth", 6 );
    defineParameter( "MinET", 0 );
-   defineParameter( "IsoMask", 0);
+   defineParameter( "REtaMin", 0);
+   defineParameter( "RHadMin", 0);
+   defineParameter( "WsTotMin", 0);
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 63);
-   defineParameter( "DoIsoCut", 1);
 }
 
 
@@ -31,42 +32,45 @@ TCS::eEmSelect::~eEmSelect() {}
 
 TCS::StatusCode
 TCS::eEmSelect::initialize() {
-   m_numberOfClusters = parameter("OutputWidth").value();
+   m_numberOfeEms = parameter("OutputWidth").value();
    m_et = parameter("MinET").value();
-   m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doIsoCut = parameter("DoIsoCut").value();
+   m_maxEta = parameter("MaxEta").value();
+   m_minREta = parameter("REtaMin").value();
+   m_minRHad = parameter("RHadMin").value();
+   m_minWsTot = parameter("WsTotMin").value();
    return TCS::StatusCode::SUCCESS;
 }
 
 TCS::StatusCode
 TCS::eEmSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
-   const ClusterTOBArray & clusters = dynamic_cast<const ClusterTOBArray&>(input);
+   const eEmTOBArray & eems = dynamic_cast<const eEmTOBArray&>(input);
 
-   // fill output array with GenericTOB buildt from clusters
-   for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
-      const GenericTOB gtob(**cl);
+   // fill output array with GenericTOB buildt from eEms
+   for(eEmTOBArray::const_iterator eem = eems.begin(); eem!= eems.end(); ++eem ) {
+      const GenericTOB gtob(**eem);
 
-      if( parType_t((*cl)->Et()) <= m_et ) continue; // ET cut
+      if( parType_t((*eem)->Et()) <= m_et ) continue; // ET cut
       // isolation cut
-      if (m_doIsoCut && (m_iso != 0 )) {
-          if((parType_t((*cl)->isolation()) & m_iso) != m_iso ) continue;
-      }
+      if ( !isocut(m_minREta, gtob.Reta()) ) {continue;}
+      if ( !isocut(m_minRHad, gtob.Rhad()) ) {continue;}
+      if ( !isocut(m_minWsTot, gtob.Wstot()) ) {continue;}
+      
       // eta cut
-      if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
-      if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;  
+      if (parType_t(std::abs((*eem)-> eta())) < m_minEta) continue; 
+      if (parType_t(std::abs((*eem)-> eta())) > m_maxEta) continue;  
       
       output.push_back( gtob );
    }
 
 
-   // keep only max number of clusters
-   int par = m_numberOfClusters ;
-   unsigned int maxNumberOfClusters = (unsigned int)(par<0?0:par);
-   if(maxNumberOfClusters>0) {
-      while( output.size()> maxNumberOfClusters ) {
+   // keep only max number of eEms
+   int par = m_numberOfeEms ;
+   unsigned int maxNumberOfeEms = (unsigned int)(par<0?0:par);
+   if(maxNumberOfeEms>0) {
+      while( output.size()> maxNumberOfeEms ) {
          output.pop_back();
       }
    }

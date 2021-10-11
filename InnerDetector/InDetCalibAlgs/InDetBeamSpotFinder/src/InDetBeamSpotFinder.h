@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDET_INDETBEAMSPOTFINDER_H
@@ -21,7 +21,8 @@
 #include "xAODTracking/VertexContainer.h" //typedef, can't fwd declare
 #include "xAODTracking/TrackingPrimitives.h" //for xAOD::VxType
 // #include "xAODTracking/Vertex.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "BeamSpotID.h"
 #include <string>
@@ -39,15 +40,17 @@ namespace InDet {
   public:
     //Standard constructor and methods
     InDetBeamSpotFinder  (const std::string& name, ISvcLocator* pSvcLocator);
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
     //Reorganize and clean up this section
     ServiceHandle<IToolSvc> m_toolSvc;
     ToolHandleArray<IInDetBeamSpotTool> m_beamSpotToolList;
-    ToolHandle<Trig::IBunchCrossingTool> m_bcTool; ///< Handle to the BC tool
+
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey
+      {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo
       {this, "EvtInfo", "EventInfo", "EventInfo name"};

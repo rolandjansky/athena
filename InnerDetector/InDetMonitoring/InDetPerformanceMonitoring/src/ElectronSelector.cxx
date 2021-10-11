@@ -81,7 +81,7 @@ void ElectronSelector::Init()
   } 
 
   // check config files at: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EGammaIdentificationRun2
-  std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf";
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf";
   if ( (m_LHTool2015->setProperty("ConfigFile", confDir)).isSuccess()) {
     (*m_msgStream) << MSG::INFO << "Electron likelihood config ("<< confDir.c_str() << ") setting SUCCESS!" << endmsg;
   }
@@ -112,7 +112,7 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   
   // Loop over the Electrons                                                                                                                                                       
   int electroncount = 0;
-  for(; iter != iterEnd ; iter++) {
+  for(; iter != iterEnd ; ++iter) {
     electroncount++;
     (*m_msgStream) << MSG::DEBUG  << " -- ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
 		   << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)

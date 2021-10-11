@@ -68,5 +68,6 @@ StatusCode SPCountHypoAlg::execute(const EventContext &context) const
   {
     ATH_CHECK(tool->decide(spinfo));
   }
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;
 }

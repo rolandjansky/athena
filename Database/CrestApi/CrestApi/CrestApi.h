@@ -39,7 +39,6 @@
 
 
 namespace Crest {
-
 // AUXILIARY CLASS to store URL request parameters
   class urlParameters
   {
@@ -97,6 +96,24 @@ namespace Crest {
     inline static const std::string s_RUNINFO_PATH = "/runinfo";
     inline static const std::string s_RUNINFO_LIST_PATH = "/list";
 
+    // parameters for CREST file storage:
+
+    inline static const std::string s_FS_TAG_PATH = "/tags";
+    inline static const std::string s_FS_GLOBALTAG_PATH = "/globaltags";
+    inline static const std::string s_FS_DATA_PATH = "/data";
+
+    inline static const std::string s_FS_TAG_FILE = "/tag.json";
+    inline static const std::string s_FS_IOV_FILE = "/iovs.json";
+    inline static const std::string s_FS_TAGMETAINFO_FILE = "/tagmetainfo.json";
+
+    inline static const std::string s_FS_META_FILE = "/meta.json";
+    inline static const std::string s_FS_PALOAD_FILE = "/payload.json";
+
+    inline static const std::string s_FS_GLOBALTAG_FILE = "/globaltag.json";
+    inline static const std::string s_FS_MAP_FILE = "/maps.json";
+
+    inline static const std::string s_FS_PATH = "";
+
     enum CrestMode {
       SERVER_MODE = 1, FILESYSTEM_MODE = 2
     };
@@ -146,7 +163,7 @@ namespace Crest {
  *
  */
     std::string performRequest(const std::string& current_path, Action action, nlohmann::json& js,
-                               const std::string& method_name);
+                               const char* method_name);
 
 
 /**
@@ -192,7 +209,7 @@ namespace Crest {
  *  It was used to throw an exception if the library method not implemented for file system.
  * @param method_name - method name.
  */
-    void checkFsException(std::string& method_name);
+    void checkFsException(const char* method_name);
 
 
 /**
@@ -207,14 +224,14 @@ namespace Crest {
  * </pre>
  * @param method - method name, where was the error.
  */
-    int checkErrors(const nlohmann::json& js, const std::string& method);
+    int checkErrors(const nlohmann::json& js, const char* method);
 
 /**
  * This method removes all XML/HTML tags from a string.
  * (It is an auxillary method to clear the CREST Server response.)
  * @param xmlBuffer - the text (a std::string ) to be cleared.
  */
-    std::string ParseXMLOutput(std::string xmlBuffer);
+    std::string ParseXMLOutput(std::string_view xmlBuffer);
 
 /**
  * This method removes all end of line and carriage return symbols from a string.
@@ -232,7 +249,7 @@ namespace Crest {
  * @param st - the CURL response,
  * @param method_name - the name on a method which calls one of the perform request methods.
  */
-    void checkResult(CURLcode res, long response_code, const std::string& st, const std::string& method_name);
+    void checkResult(CURLcode res, long response_code, const std::string& st, const char* method_name);
   public:
 // ===================================
 // CONSTRUCTORS
@@ -266,7 +283,7 @@ namespace Crest {
  *    CrestClient myCrestClient = CrestClient(url);
  * </pre>
  */
-    CrestClient(const std::string& url);
+    CrestClient(std::string_view url);
 
     ~CrestClient();
 
@@ -291,7 +308,7 @@ namespace Crest {
  * @return - JSON object as nlohmann::json
  *
  */
-    nlohmann::json getJson(const std::string& str, const std::string& method); // string to json
+    nlohmann::json getJson(const std::string& str, const char* method); // string to json
 
 /**
  * Auxillary method to get a file as a string.
@@ -412,6 +429,17 @@ namespace Crest {
     void createGlobalTagMap(nlohmann::json& gt);
 
 /**
+ * Method to create a global tag map.
+ * (This method is an analogue of the create_global_tag_map method in Python)
+ * @param globaltag - global tag name,
+ * @param tagname - tag name,
+ * @param record - record,
+ * @param label - label,
+ */
+    void createGlobalTagMap(const std::string& globaltag, const std::string& tagname,
+                            const std::string& record, const std::string& label);
+
+/**
  * This method search for mappings using the global tag name.
  * (This method is an analogue of the find_global_tag_map method in Python)
  * @param name - name of a global tag
@@ -455,6 +483,26 @@ namespace Crest {
  * @param tag - global tag as JSON string (std::string).
  */
     void createGlobalTag(const std::string& tag);
+
+/**
+ * Create a global tag in the database. This method allows to insert a global tag,
+ * it has a reduced parameterset: the global tag name and the global tag description.
+ * (This method is an analogue of the create_global_tag method in Python)
+ * The method set the following default parameters:
+ * <pre>
+ *   {
+ *       "release": "1",
+ *       "scenario": "undefined",
+ *       "type": "UPD",
+ *       "validity": 0,
+ *       "workflow": "undefined"
+ *   }
+ *
+ * </pre>
+ * @param tagname - global tag name,
+ * @param description - global tag description,
+ */
+    void createGlobalTag(const std::string& tagname, const std::string& description);
 
 
 /**
@@ -532,7 +580,7 @@ namespace Crest {
 
 /**
  * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all
- *parameters.
+ * parameters.
  * (This method is an analogue of the find_all_iovs method in Python)
  * @param tagname - tag name.
  * @param size - page size.
@@ -1017,7 +1065,7 @@ namespace Crest {
  *    myCrestClient.storeBatchPayloadsFs(name39, str39);
  * </pre>
  */
-    void storeBatchPayloadsFs(std::string tag_name, std::string& iovsetupload);
+    void storeBatchPayloadsFs(const std::string &tag_name, std::string& iovsetupload);
 
 /**
  * This auxillary method stores several payloads in batch mode in the file storage.
@@ -1032,7 +1080,7 @@ namespace Crest {
  *    myCrestClient.storeBatchPayloadsFs(name39, js39);
  * </pre>
  */
-    void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
+    void storeBatchPayloadsFs(const std::string &tag_name, nlohmann::json& js);
 
 
 /**
@@ -1046,7 +1094,7 @@ namespace Crest {
  *
  * @param varname - a variable name.
  */
-    std::string getEnvA(const std::string& varname);
+    std::string getEnvA(const char* varname);
 
 /**
  * Auxillary method to get an environment variable DAT_PATH.
@@ -1169,6 +1217,23 @@ namespace Crest {
  */
     nlohmann::json getTagMetaInfoFs(const std::string& name);
 
+
+/**
+ * This auxillary method updates a tag meta info in local file storage.
+ * @param tagname - tag name
+ * @param js - a JSON object with new parameters (These parameters will be changed in the CREST DB). Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *      {"tagName", "test_MvG4"},
+ *      {"description", "desc-01"},
+ *      {"tagInfo", "taginf-01"},
+ *      {"chansize", 0},
+ *      {"colsize", 0},
+ *      {"insertionTime", "2019-03-14T13:29:25.286Z"}
+ *    };
+ * </pre>
+ */
     void updateTagMetaInfoFs(const std::string& tagname, nlohmann::json& js);
 
 /**
@@ -1210,7 +1275,7 @@ namespace Crest {
  * @param str - a string to split.
  * @param delim - a deliminator.
  */
-    std::vector<std::string> split(const std::string& str, const std::string& delim);
+    std::vector<std::string> split(std::string_view str, char delim);
 
 /**
  * This method gets a tag meta info from the CREST database in IOVDbSvc format.
@@ -1319,6 +1384,67 @@ namespace Crest {
  * @param name - global tag name
  */
     nlohmann::json findGlobalTagMapFs(const std::string& name);
+
+
+// new methods
+
+
+/**
+ * The auxillary method to calculate a hash code for a given string.
+ * This method uses SHA256 algorithm (PicoSHA2 C++ library)
+ * @param str - a string
+ */
+    std::string getHash(std::string_view str);
+
+/**
+ * The auxillary method to get a current data and time.
+ * It used to create a payload meta info on the local file storage
+ * using the storePayloadDump method.
+ */
+    std::string getDateAndTime();
+
+/**
+ * This auxillary method finds a payload resource associated to the hash
+ * in the local file storage. The payload returns as a string.
+ * (This method is an analogue of the get_payload method in Python)
+ * @param hash - hash.
+ */
+    std::string getPayloadAsStringFS(const std::string& hash);
+
+/**
+ * This auxillary method finds a payload resource associated to the hash
+ * in the local file storage. The payload returns as a JSON object.
+ * (This method is an analogue of the get_payload method in Python)
+ * @param hash - hash.
+ */
+    nlohmann::json getPayloadAsJsonFS(const std::string& hash);
+
+/**
+ * This auxillary method finds a payload resource associated to the hash in
+ * the local file storage. This method retrieves metadata of the payload resource.
+ * The result is a string.
+ * (This method is an analogue of the get_payload_meta_info method in Python)
+ * @param hash - hash.
+ */
+    std::string getPayloadMetaInfoAsStringFS(const std::string& hash);
+
+/**
+ * This auxillary method finds a payload resource associated to the hash
+ * in the local file storage. This method retrieves metadata of the payload resource.
+ * The result is a JSON object.
+ * (This method is an analogue of the get_payload_meta_info method in Python)
+ * @param hash - hash.
+ */
+    nlohmann::json getPayloadMetaInfoAsJsonFS(const std::string& hash);
+
+
+/**
+ * This auxillary method creates a JSON array from a JSON object.
+ * It used to convert a single objects (such as tags and global tags to
+ * JSON array in methods which retrive the data from a file starage.
+ * @param js - JSON object.
+ */
+    nlohmann::json returnJArray(nlohmann::json js);
   };
 } // namespace
 

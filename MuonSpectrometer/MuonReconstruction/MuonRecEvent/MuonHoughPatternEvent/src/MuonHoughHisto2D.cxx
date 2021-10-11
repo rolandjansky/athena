@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughHisto2D.h"
@@ -273,7 +273,7 @@ int MuonHoughHisto2D::binInHistogram(unsigned int binnumber)const
   return bininhisto;
 }
 
-TH2F* MuonHoughHisto2D::bookAndFillRootHistogram(std::string hname)const
+TH2F* MuonHoughHisto2D::bookAndFillRootHistogram(const std::string& hname)const
 {
   TH2F* histogram =  new TH2F(hname.c_str(),hname.c_str(),m_nbinsx,m_xmin,m_xmax,m_nbinsy,m_ymin,m_ymax);
   for (unsigned int i=0; i<m_size; i++)

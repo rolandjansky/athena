@@ -63,10 +63,10 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
-    m_idHelper(0),
-    m_pixId(0),
-    m_sctId(0),
-    m_trtId(0),
+    m_idHelper(nullptr),
+    m_pixId(nullptr),
+    m_sctId(nullptr),
+    m_trtId(nullptr),
     m_updator("Trk::KalmanUpdator"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
@@ -165,19 +165,18 @@ namespace DerivationFramework {
        names[kTRTusedHits_noHT_divByLDecor]="ToT_usedHits_noHT_divByL";
        createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackTRTFloatDecorKeys);
     }
-    ATH_CHECK( m_trtPhaseKey.initialize() );
-    ATH_CHECK( m_containerName.initialize() );
-    ATH_CHECK( m_pixelMapName.initialize() );
-    ATH_CHECK( m_sctMapName.initialize() );
-    ATH_CHECK( m_trtMapName.initialize() );
+    ATH_CHECK( m_trtPhaseKey.initialize(m_addExtraEventInfo) );
+    ATH_CHECK( m_pixelMapName.initialize(m_storePixel && m_addPRD) );
+    ATH_CHECK( m_sctMapName.initialize(m_storeSCT && m_addPRD) );
+    ATH_CHECK( m_trtMapName.initialize(m_storeTRT && m_addPRD) );
 
-    ATH_CHECK( m_pixelClustersName.initialize() );
-    ATH_CHECK( m_sctClustersName.initialize() );
-    ATH_CHECK( m_trtDCName.initialize() );
+    ATH_CHECK( m_pixelClustersName.initialize(m_storePixel && m_addPRD) );
+    ATH_CHECK( m_sctClustersName.initialize(m_storeSCT && m_addPRD) );
+    ATH_CHECK( m_trtDCName.initialize(m_storeTRT && m_addPRD) );
 
-    ATH_CHECK( m_pixelMsosName.initialize() );
-    ATH_CHECK( m_sctMsosName.initialize() );
-    ATH_CHECK( m_trtMsosName.initialize() );
+    ATH_CHECK( m_pixelMsosName.initialize(m_storePixel && m_addPRD) );
+    ATH_CHECK( m_sctMsosName.initialize(m_storeSCT && m_addPRD) );
+    ATH_CHECK( m_trtMsosName.initialize(m_storeTRT && m_addPRD) );
 
     {
        std::vector<std::string> names;
@@ -324,11 +323,11 @@ namespace DerivationFramework {
     std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
        trackPixFloatDecorators = createDecorators<xAOD::TrackParticleContainer,float>(m_trackPixFloatDecorKeys,ctx);
     // -- Run over each track and decorate it
-    for (const auto track : *tracks) {
+    for (const auto *const track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
 
       // -- Now things that require a Trk::Track object
-      if( !track->trackLink().isValid() || track->track() == 0 ) {
+      if( !track->trackLink().isValid() || track->track() == nullptr ) {
         ATH_MSG_WARNING("Track particle without Trk::Track");
         continue;
       }
@@ -342,77 +341,77 @@ namespace DerivationFramework {
 
       if ( m_storeTRT && m_TRTdEdxTool.isEnabled() ) {
 	// for dEdx studies
-        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx(trkTrack);
+        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx(trkTrack,true);
         trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits(trkTrack);
         trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx(trkTrack, false);
         trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits(trkTrack, false);
       }
 
-      // Track extrapolation
-      std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,
-                                                                                       (trkTrack->perigeeParameters())->associatedSurface(),
-                                                                                       Trk::oppositeMomentum,
-                                                                                       true,
-                                                                                       Trk::pion,
-                                                                                       Trk::addNoise));
+      if ( trkTrack->perigeeParameters() ){
+        // Track extrapolation
+        std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,
+                                                                                        (trkTrack->perigeeParameters())->associatedSurface(),
+                                                                                        Trk::oppositeMomentum,
+                                                                                        true,
+                                                                                        Trk::pion,
+                                                                                        Trk::addNoise));
 
-      Trk::CylinderSurface cylSurfIBL(29.5,3000.0);
-      Trk::CylinderSurface cylSurfBL(50.5,3000.0);
-      Trk::CylinderSurface cylSurfL1(88.5,3000.0);
-      Trk::CylinderSurface cylSurfL2(122.5,3000.0);
-      std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(m_extrapolator->extrapolate(*perigee,cylSurfIBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-      std::unique_ptr<const Trk::TrackParameters> outputParamsBL(m_extrapolator->extrapolate(*perigee,cylSurfBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-      std::unique_ptr<const Trk::TrackParameters> outputParamsL1(m_extrapolator->extrapolate(*perigee,cylSurfL1,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-      std::unique_ptr<const Trk::TrackParameters> outputParamsL2(m_extrapolator->extrapolate(*perigee,cylSurfL2,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+        Trk::CylinderSurface cylSurfIBL(29.5,3000.0);
+        Trk::CylinderSurface cylSurfBL(50.5,3000.0);
+        Trk::CylinderSurface cylSurfL1(88.5,3000.0);
+        Trk::CylinderSurface cylSurfL2(122.5,3000.0);
+        std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(m_extrapolator->extrapolate(*perigee,cylSurfIBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+        std::unique_ptr<const Trk::TrackParameters> outputParamsBL(m_extrapolator->extrapolate(*perigee,cylSurfBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+        std::unique_ptr<const Trk::TrackParameters> outputParamsL1(m_extrapolator->extrapolate(*perigee,cylSurfL1,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+        std::unique_ptr<const Trk::TrackParameters> outputParamsL2(m_extrapolator->extrapolate(*perigee,cylSurfL2,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
 
-      if (outputParamsIBL.get()) {
-        trackPixFloatDecorators[kTrkIBLXDecor](*track) = outputParamsIBL->position().x();
-        trackPixFloatDecorators[kTrkIBLYDecor](*track) = outputParamsIBL->position().y();
-        trackPixFloatDecorators[kTrkIBLZDecor](*track) = outputParamsIBL->position().z();
-      }
-      else {
-         trackPixFloatDecorators[kTrkIBLXDecor](*track) = 0.0;
-         trackPixFloatDecorators[kTrkIBLYDecor](*track) = 0.0;
-         trackPixFloatDecorators[kTrkIBLZDecor](*track) = 0.0;
-      }
+        if (outputParamsIBL.get()) {
+          trackPixFloatDecorators[kTrkIBLXDecor](*track) = outputParamsIBL->position().x();
+          trackPixFloatDecorators[kTrkIBLYDecor](*track) = outputParamsIBL->position().y();
+          trackPixFloatDecorators[kTrkIBLZDecor](*track) = outputParamsIBL->position().z();
+        }
+        else {
+          trackPixFloatDecorators[kTrkIBLXDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkIBLYDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkIBLZDecor](*track) = 0.0;
+        }
 
-      if (outputParamsBL.get()) {
-        trackPixFloatDecorators[kTrkBLXDecor](*track) = outputParamsBL->position().x();
-        trackPixFloatDecorators[kTrkBLYDecor](*track) = outputParamsBL->position().y();
-        trackPixFloatDecorators[kTrkBLZDecor](*track) = outputParamsBL->position().z();
-      }
-      else {
-        trackPixFloatDecorators[kTrkBLXDecor](*track) = 0.0;
-        trackPixFloatDecorators[kTrkBLYDecor](*track) = 0.0;
-        trackPixFloatDecorators[kTrkBLZDecor](*track) = 0.0;
-      }
+        if (outputParamsBL.get()) {
+          trackPixFloatDecorators[kTrkBLXDecor](*track) = outputParamsBL->position().x();
+          trackPixFloatDecorators[kTrkBLYDecor](*track) = outputParamsBL->position().y();
+          trackPixFloatDecorators[kTrkBLZDecor](*track) = outputParamsBL->position().z();
+        }
+        else {
+          trackPixFloatDecorators[kTrkBLXDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkBLYDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkBLZDecor](*track) = 0.0;
+        }
 
-      if (outputParamsL1.get()) {
-        trackPixFloatDecorators[kTrkL1XDecor](*track) = outputParamsL1->position().x();
-        trackPixFloatDecorators[kTrkL1YDecor](*track) = outputParamsL1->position().y();
-        trackPixFloatDecorators[kTrkL1ZDecor](*track) = outputParamsL1->position().z();
-      }
-      else {
-        trackPixFloatDecorators[kTrkL1XDecor](*track) = 0.0;
-        trackPixFloatDecorators[kTrkL1YDecor](*track) = 0.0;
-        trackPixFloatDecorators[kTrkL1ZDecor](*track) = 0.0;
-      }
+        if (outputParamsL1.get()) {
+          trackPixFloatDecorators[kTrkL1XDecor](*track) = outputParamsL1->position().x();
+          trackPixFloatDecorators[kTrkL1YDecor](*track) = outputParamsL1->position().y();
+          trackPixFloatDecorators[kTrkL1ZDecor](*track) = outputParamsL1->position().z();
+        }
+        else {
+          trackPixFloatDecorators[kTrkL1XDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL1YDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL1ZDecor](*track) = 0.0;
+        }
 
-      if (outputParamsL2.get()) {
-        trackPixFloatDecorators[kTrkL2XDecor](*track) = outputParamsL2->position().x();
-        trackPixFloatDecorators[kTrkL2YDecor](*track) = outputParamsL2->position().y();
-        trackPixFloatDecorators[kTrkL2ZDecor](*track) = outputParamsL2->position().z();
+        if (outputParamsL2.get()) {
+          trackPixFloatDecorators[kTrkL2XDecor](*track) = outputParamsL2->position().x();
+          trackPixFloatDecorators[kTrkL2YDecor](*track) = outputParamsL2->position().y();
+          trackPixFloatDecorators[kTrkL2ZDecor](*track) = outputParamsL2->position().z();
+        }
+        else {
+          trackPixFloatDecorators[kTrkL2XDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL2YDecor](*track) = 0.0;
+          trackPixFloatDecorators[kTrkL2ZDecor](*track) = 0.0;
+        }
       }
-      else {
-        trackPixFloatDecorators[kTrkL2XDecor](*track) = 0.0;
-        trackPixFloatDecorators[kTrkL2YDecor](*track) = 0.0;
-        trackPixFloatDecorators[kTrkL2ZDecor](*track) = 0.0;
-      }
-
-
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
-      for (const auto trackState: *(trkTrack->trackStateOnSurfaces())){
+      for (const auto *const trackState: *(trkTrack->trackStateOnSurfaces())){
         //Get rid of any holes that already exist  --  we are doing the search again
         if( trackState->types()[Trk::TrackStateOnSurface::Hole] )
           continue;
@@ -422,7 +421,7 @@ namespace DerivationFramework {
       std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface>>  holes; 
       if(m_storeHoles){
         holes =  std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface>>( m_holeSearchTool->getHolesOnTrack(*trkTrack, trkTrack->info().particleHypothesis()) ); 
-        for (auto hole: *holes){
+        for (const auto *hole: *holes){
           tsoss.push_back(hole);
         }
         if(trkTrack->perigeeParameters()){
@@ -584,7 +583,7 @@ namespace DerivationFramework {
 
 	  bool isShared=false;
           if (prd_to_track_map_cptr) {
-             const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+             const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : nullptr;
              if (hit_trt) {
                 if (prd_to_track_map_cptr->isShared(*(hit_trt->prepRawData())) ) isShared=true;
                 msos->auxdata<bool>("isShared") = isShared;
@@ -628,9 +627,9 @@ namespace DerivationFramework {
         const Trk::TrkDetElementBase *de = trackState->surface().associatedDetectorElement();
         const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
         if (side && (isSCT || isPixel)) {
-          Amg::Vector3D mynormal = side->normal();
-          Amg::Vector3D myphiax = side->phiAxis();
-          Amg::Vector3D myetaax = side->etaAxis();
+          const Amg::Vector3D& mynormal = side->normal();
+          const Amg::Vector3D& myphiax = side->phiAxis();
+          const Amg::Vector3D& myetaax = side->etaAxis();
           if (tp) {
             Amg::Vector3D mytrack = tp->momentum();
             float trketacomp = mytrack.dot(myetaax);
@@ -661,7 +660,7 @@ namespace DerivationFramework {
         if(!measurement)
           continue;
       
-        const Trk::RIO_OnTrack* hit = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+        const Trk::RIO_OnTrack* hit = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : nullptr;
 
         if(!hit){
           const Trk::CompetingRIOsOnTrack *crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(measurement);

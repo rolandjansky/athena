@@ -7,11 +7,13 @@
 
 // From this package
 #include "TightMuonElseNoFieldManager.h"
+#include "SwitchingFieldManager.h"
 
 // Geant4 includes
 #include "G4ChordFinder.hh"
 #include "G4FieldManager.hh"
 #include "G4LogicalVolumeStore.hh"
+#include "G4PhysicalVolumeStore.hh"
 #include "G4MagIntegratorStepper.hh"
 #include "G4MagneticField.hh"
 #include "G4Version.hh"
@@ -44,19 +46,20 @@ StatusCode DetectorFieldManagerTool::initializeField()
       return StatusCode::FAILURE;
     }
 
+    // Retrieve the G4MagneticField
+    G4MagneticField* field = m_fieldSvc->getField();
+
     // Create a new field manager
     G4FieldManager * fieldMgr = nullptr;
     if (m_muonOnlyField){
-      fieldMgr = new TightMuonElseNoFieldManager();
+      // fieldMgr = new TightMuonElseNoFieldManager();
+      fieldMgr = new SwitchingFieldManager(field);
     } else {
       fieldMgr = new G4FieldManager();
     }
 
     // Save it in the TL holder
     m_fieldMgrHolder.set(fieldMgr);
-
-    // Retrieve the G4MagneticField
-    G4MagneticField* field = m_fieldSvc->getField();
 
     // Configure the field manager
     fieldMgr->SetDetectorField(field);
@@ -79,15 +82,26 @@ StatusCode DetectorFieldManagerTool::initializeField()
 #endif
 
     // Assign the field manager to volumes
-    auto logVolStore = G4LogicalVolumeStore::GetInstance();
-    for (const auto& volume: m_volumeList) {
-      G4LogicalVolume* logicalVolume = logVolStore->GetVolume(volume);
-      if (logicalVolume) logicalVolume->SetFieldManager(fieldMgr, true);
-      else {
-        ATH_MSG_WARNING("No volume called " << volume <<
-                        " was found in the G4LogicalVolumeStore! Skipping this volume.");
+    if (!m_logVolumeList.empty()) {
+      auto logVolStore = G4LogicalVolumeStore::GetInstance();
+      for (const auto& volume: m_logVolumeList) {
+        G4LogicalVolume* logicalVolume = logVolStore->GetVolume(volume);
+        if (logicalVolume != nullptr) logicalVolume->SetFieldManager(fieldMgr, true);
+        else
+          ATH_MSG_WARNING("No volume called " << volume << " was found in the G4LogicalVolumeStore! Skipping this volume.");
       }
     }
+    else if (!m_physVolumeList.empty()) {
+      auto physVolStore = G4PhysicalVolumeStore::GetInstance();
+      for (const auto& volume: m_physVolumeList) {
+        G4VPhysicalVolume* physicalVolume = physVolStore->GetVolume(volume);
+        if (physicalVolume != nullptr) physicalVolume->GetLogicalVolume()->SetFieldManager(fieldMgr, true);
+        else
+          ATH_MSG_WARNING("No volume called " << volume << " was found in the G4PhysicalVolumeStore! Skipping this volume.");
+      }
+    }
+    else
+      ATH_MSG_WARNING("No volumes are provided. Field manager is NOT assigned.");
 
   }
 

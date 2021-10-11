@@ -114,7 +114,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(const EventContext& ctx, Ev
 
   data.i_spforseed = data.l_spforseed.begin();
 
-  float irstep = 1./m_r_rstep;
+  float irstep = 1.f/m_r_rstep;
   
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
@@ -237,7 +237,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 
   data.i_spforseed = data.l_spforseed.begin();
 
-  float irstep = 1./m_r_rstep;
+  float irstep = 1.f/m_r_rstep;
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
@@ -553,7 +553,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions(EventData& data
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -594,13 +594,13 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::findNext(EventData& data) const
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork() 
 {
-  m_ptmin     = fabs(m_ptmin);
+  m_ptmin     = std::abs(m_ptmin);
   if (m_ptmin < 300.) m_ptmin = 300.;
-  m_rapcut    = fabs(m_rapcut);
-  m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut)));
+  m_rapcut    = std::abs(m_rapcut);
+  m_dzdrmax   = 1.f/std::tan(2.f*std::atan(std::exp(-m_rapcut)));
   m_dzdrmin   =-m_dzdrmax;
   m_COF       =  134*.05*9.;
-  m_ipt       = 1./fabs(.9*m_ptmin);
+  m_ipt       = 1.f/std::abs(.9f*m_ptmin);
   m_ipt2      = m_ipt*m_ipt;
 
   // Build radius sorted containers
@@ -614,7 +614,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork()
   const float sFmax   = static_cast<float>(NFmax)/pi2;
   const float sFmin = 100./60.;
 
-  m_sF = m_ptmin /60.;
+  m_sF = m_ptmin /60.f;
   if (m_sF    >sFmax ) m_sF    = sFmax;
   else if (m_sF < sFmin) m_sF = sFmin;
   m_fNmax     = static_cast<int>(pi2*m_sF);
@@ -720,7 +720,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork(EventData& data) 
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_BeamGas::convertToBeamFrameWork
-(EventData& data, const Trk::SpacePoint*const& sp,float* r) const
+(EventData& data, const Trk::SpacePoint*const& sp,float* r) 
 {
   float x = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
   float y = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
@@ -783,7 +783,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists(EventData& data) const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) 
 {
   for (int i=0; i!=data.nr;    ++i) {
     int n = data.r_index[i];
@@ -815,7 +815,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) const
 // 2 space points seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::production2Sp(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::production2Sp(EventData& data) 
 {
   data.endlist = true;
 }
@@ -986,7 +986,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
       float dz  = sp->z()-Z;
       float x   = dx*ax+dy*ay;
       float y   =-dx*ay+dy*ax;
-      float r2  = 1./(x*x+y*y);
+      float r2  = 1.f/(x*x+y*y);
       float dr  = std::sqrt(r2);
       float tz  = dz*dr; if (i < Nb) tz = -tz;
 
@@ -1023,19 +1023,19 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
       float  Erb  = data.Er[b];
       float  Vb   = data.V [b];
       float  Ub   = data.U [b];
-      float  Tzb2 = (1.+Tzb*Tzb);
+      float  Tzb2 = (1.f+Tzb*Tzb);
       float  CSA  = Tzb2*COFK;
       float ICSA  = Tzb2*ipt2C;
 
       for (int t=Nb;  t!=Nt; ++t) {
 	
-	float Ts  = .5*(Tzb+data.Tz[t]);
+	float Ts  = .5f*(Tzb+data.Tz[t]);
 	float dt  =     Tzb-data.Tz[t];
 	float dT  = dt*dt-Erb-data.Er[t]-data.R[t]*(Ts*Ts*Rb2r+Rb2z);
 	if ( dT > ICSA) continue;
 	float dU  = data.U[t]-Ub; if (dU == 0. ) continue;
 	float A   = (data.V[t]-Vb)/dU;
-	float S2  = 1.+A*A;
+	float S2  = 1.f+A*A;
 	float B   = Vb-A*Ub;
 	float B2  = B*B;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
@@ -1124,7 +1124,7 @@ bool InDet::SiSpacePointsSeedMaker_BeamGas::isZCompatible(float& Zv) const
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_BeamGas::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp) const
+(EventData& data, const Trk::SpacePoint*const& sp) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
@@ -1150,7 +1150,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_BeamGas::newSpacePoint
 void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const float& z) const
+ const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1171,7 +1171,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const Trk::SpacePoint*& p3,const float& z) const
+ const Trk::SpacePoint*& p3,const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1190,7 +1190,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data) 
 {
   std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
     l  = data.mapOneSeeds.begin(),

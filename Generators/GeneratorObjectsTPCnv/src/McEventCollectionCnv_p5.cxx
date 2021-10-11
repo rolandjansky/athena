@@ -110,19 +110,19 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
     genEvt->run_info()->set_weight_names(name_index_map_to_names(m_hepMCWeightSvc->weightNames()));
     // cross-section restore
 
-    auto cs = std::make_shared<HepMC3::GenCrossSection>();
     if (!persEvt.m_crossSection.empty()) {
+      auto cs = std::make_shared<HepMC3::GenCrossSection>();
       const std::vector<double>& xsection = persEvt.m_crossSection;
       if( static_cast<bool>(xsection[0]) )
         cs->set_cross_section(xsection[2],xsection[1]);
       else
         cs->set_cross_section(-1.0,-1.0);
-    genEvt->set_cross_section(cs);
+      genEvt->set_cross_section(cs);
     }
     
     // heavyIon restore
-    auto hi = std::make_shared<HepMC3::GenHeavyIon>();
     if (!persEvt.m_heavyIon.empty()) {
+      auto hi = std::make_shared<HepMC3::GenHeavyIon>();
       const std::vector<float>& hIon = persEvt.m_heavyIon;
       //AV NOTE THE ORDER
       hi->set(
@@ -139,7 +139,7 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
          hIon[2],                  // event_plane_angle
          hIon[1],                  // eccentricity
          hIon[0]         );         // sigma_inel_NN
-    genEvt->set_heavy_ion(hi);
+      genEvt->set_heavy_ion(hi);
     }
 
 
@@ -221,8 +221,8 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
       delete genEvt->m_cross_section;
     genEvt->m_cross_section = 0;
 
-    genEvt->m_cross_section = new HepMC::GenCrossSection();
     if (!persEvt.m_crossSection.empty()) {
+      genEvt->m_cross_section = new HepMC::GenCrossSection();
       const std::vector<double>& xsection = persEvt.m_crossSection;
       if( static_cast<bool>(xsection[0]) )
         genEvt->m_cross_section->set_cross_section(xsection[2],xsection[1]);

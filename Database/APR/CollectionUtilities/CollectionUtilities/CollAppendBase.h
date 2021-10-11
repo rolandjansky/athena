@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOL_COLLUTILITIES_COLLAPPENDBASE_H
@@ -48,11 +48,11 @@ namespace pool
    class MetaInfo;
    class CollectionService;
    
-   class CollAppendBase
+   class ATLAS_NOT_THREAD_SAFE CollAppendBase
    {
   public:
 
-     CollAppendBase(std::string name="CollAppend");
+     CollAppendBase(const std::string& name="CollAppend");
      virtual ~CollAppendBase();
 
      CollAppendBase (const CollAppendBase&) = delete;
@@ -77,7 +77,7 @@ namespace pool
      buildDstDesc(const pool::ICollectionDescription& sourceDesc,
 		  const pool::TokenList &tokens,
 		  const coral::AttributeList &attribs,
-                  const std::string queryopt );
+                  const std::string& queryopt );
 
      virtual pool::ICollection*
      openSrcCollection( const std::string& name, const std::string& type, const std::string& connect );
@@ -138,7 +138,7 @@ namespace pool
 
      bool		m_committed;
      pool::CollectionService* m_collectionService;
-     mutable coral::MessageStream m_log;
+     coral::MessageStream m_log;
 
      // Vector of args
      Args2Container     m_argsVec;

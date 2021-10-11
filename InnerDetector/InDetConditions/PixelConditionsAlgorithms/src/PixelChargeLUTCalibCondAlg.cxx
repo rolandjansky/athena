@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelChargeLUTCalibCondAlg.h"
@@ -88,54 +88,65 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
           std::stringstream checkFE(component[i]);
           std::vector<std::string> feString;
           while (std::getline(checkFE,buffer,']')) { feString.push_back(buffer); }
-
+        
           IdentifierHash wafer_hash = IdentifierHash(i-1);
           const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
           const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
           int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+
           for (int j=0; j<numFE; j++) {
             std::stringstream eachFE(feString[j]);
             std::vector<std::string> eachString;
             while (std::getline(eachFE,buffer,'[')) { eachString.push_back(buffer); }
-            if (eachString.size()>0) {
+
+            if (!eachString.empty()) {
               std::stringstream calibFE(eachString[eachString.size()-1]);
               std::vector<std::string> calibString;
               while (std::getline(calibFE,buffer,',')) { calibString.push_back(buffer); }
 
               // new charge calibration for RUN-3
-              if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4 && !(element->isDBM())) {
+              if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4 && !(element->isDBM())) {
                 if (calibString.size()!=20) {
                   ATH_MSG_FATAL("Parameter size is not consistent(20) " << calibString.size() << " at (i,j)=(" <<  i-1 << "," << j << ")");
                   return StatusCode::FAILURE;
                 }
+
+                std::array<float,16> chrgs;
+                for (int k=0; k<16; k++) {
+                  chrgs[k]=std::atof(calibString[k+4].c_str());
+                }
+                writeCdo -> setCalibrationStrategy(i-1, PixelChargeCalibCondData::CalibrationStrategy::LUTFEI4);
+                writeCdo -> setTot2Charges(i-1, chrgs);
+
                 // Normal pixel
                 writeCdo -> setAnalogThreshold(i-1, std::atoi(calibString[0].c_str()));
-                writeCdo -> setAnalogThresholdSigma(i-1, std::atoi(calibString[1].c_str()));
-                writeCdo -> setAnalogThresholdNoise(i-1, std::atoi(calibString[2].c_str()));
-                writeCdo -> setInTimeThreshold(i-1, std::atoi(calibString[3].c_str()));
+                writeCdo -> setAnalogThresholdSigma(i-1, 0);
+                writeCdo -> setAnalogThresholdNoise(i-1, std::atoi(calibString[1].c_str()));
+                writeCdo -> setInTimeThreshold(i-1, 0);
 
-                writeCdo -> setQ2TotA(i-1, std::atof(calibString[12].c_str()));
-                writeCdo -> setQ2TotE(i-1, std::atof(calibString[13].c_str()));
-                writeCdo -> setQ2TotC(i-1, std::atof(calibString[14].c_str()));
+                writeCdo -> setQ2TotA(i-1, 0.0);
+                writeCdo -> setQ2TotE(i-1, 0.0);
+                writeCdo -> setQ2TotC(i-1, 0.0);
 
-                writeCdo -> setTotRes1(i-1, std::atof(calibString[18].c_str()));
-                writeCdo -> setTotRes2(i-1, std::atof(calibString[19].c_str()));
+                writeCdo -> setTotRes1(i-1, 0.0);
+                writeCdo -> setTotRes2(i-1, 0.0);
 
                 // Long pixel
-                writeCdo -> setAnalogThresholdLong(i-1, std::atoi(calibString[4].c_str()));
-                writeCdo -> setAnalogThresholdSigmaLong(i-1, std::atoi(calibString[5].c_str()));
-                writeCdo -> setAnalogThresholdNoiseLong(i-1, std::atoi(calibString[6].c_str()));
-                writeCdo -> setInTimeThresholdLong(i-1, std::atoi(calibString[7].c_str()));
+                writeCdo -> setAnalogThresholdLong(i-1, std::atoi(calibString[2].c_str()));
+                writeCdo -> setAnalogThresholdSigmaLong(i-1, 0);
+                writeCdo -> setAnalogThresholdNoiseLong(i-1, std::atoi(calibString[3].c_str()));
+                writeCdo -> setInTimeThresholdLong(i-1, 0);
 
-                writeCdo -> setQ2TotALong(i-1, std::atof(calibString[15].c_str()));
-                writeCdo -> setQ2TotELong(i-1, std::atof(calibString[16].c_str()));
-                writeCdo -> setQ2TotCLong(i-1, std::atof(calibString[17].c_str()));
+                writeCdo -> setQ2TotALong(i-1, 0.0);
+                writeCdo -> setQ2TotELong(i-1, 0.0);
+                writeCdo -> setQ2TotCLong(i-1, 0.0);
 
                 // Ganged pixel
-                writeCdo -> setAnalogThresholdGanged(i-1, std::atoi(calibString[8].c_str()));
-                writeCdo -> setAnalogThresholdSigmaGanged(i-1, std::atoi(calibString[9].c_str()));
-                writeCdo -> setAnalogThresholdNoiseGanged(i-1, std::atoi(calibString[10].c_str()));
-                writeCdo -> setInTimeThresholdGanged(i-1, std::atoi(calibString[11].c_str()));
+                writeCdo -> setAnalogThresholdGanged(i-1, std::atoi(calibString[2].c_str()));
+                writeCdo -> setAnalogThresholdSigmaGanged(i-1, 0);
+                writeCdo -> setAnalogThresholdNoiseGanged(i-1, std::atoi(calibString[3].c_str()));
+                writeCdo -> setInTimeThresholdGanged(i-1, 0);
+
               }
               // conventional calibration
               else {
@@ -254,6 +265,25 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
         writeCdo -> setAnalogThresholdSigmaGanged(i,configData->getDefaultAnalogThresholdSigma(bec,layer));
         writeCdo -> setAnalogThresholdNoiseGanged(i,configData->getDefaultAnalogThresholdNoise(bec,layer));
         writeCdo -> setInTimeThresholdGanged(i,     configData->getDefaultInTimeThreshold(bec,layer));
+      }
+    }
+  }
+
+  // Scan over if the DB contents need to be overwritten.
+  // This is useful for threshold study. So far only threshold value.
+  for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
+    IdentifierHash wafer_hash = IdentifierHash(i);
+    Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
+    int bec   = m_pixelID->barrel_ec(wafer_id);
+    int layer = m_pixelID->layer_disk(wafer_id);
+    const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
+    const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+    for (int j=0; j<numFE; j++) {
+      if (configData->getDefaultAnalogThreshold(bec,layer)>-0.1) {
+        writeCdo -> setAnalogThreshold(i,       configData->getDefaultAnalogThreshold(bec,layer));
+        writeCdo -> setAnalogThresholdLong(i,   configData->getDefaultAnalogThreshold(bec,layer));
+        writeCdo -> setAnalogThresholdGanged(i, configData->getDefaultAnalogThreshold(bec,layer));
       }
     }
   }

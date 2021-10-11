@@ -2,14 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//***************************************************************************
-//                           eFEXOutputCollection.cxx  -  
-//                              -------------------
-//     begin                : 28 02 2020
-//     email                : tong.qiu@cern.ch
-//  **************************************************************************
-
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+
+LVL1::eFEXOutputCollection::eFEXOutputCollection() {
+  m_dooutput = false;
+}
 
 LVL1::eFEXOutputCollection::~eFEXOutputCollection()
 {
@@ -29,6 +26,8 @@ void LVL1::eFEXOutputCollection::clear()
   for (auto iValues : m_allvalues_tau) {
     iValues->clear();
   }
+  m_eFexNumber.clear();
+  m_emtob.clear();
 }
 
 void LVL1::eFEXOutputCollection::addValue_eg(std::string key, float value)
@@ -55,17 +54,51 @@ void LVL1::eFEXOutputCollection::fill_tau()
   m_values_tem_tau.clear();
 }
 
-int LVL1::eFEXOutputCollection::size()
+int LVL1::eFEXOutputCollection::tau_size() const
+{
+  return m_allvalues_tau.size();
+}
+
+int LVL1::eFEXOutputCollection::size() const
 {
   return m_allvalues_eg.size();
 }
 
-std::map<std::string, float>* LVL1::eFEXOutputCollection::get_eg(int location)
+std::map<std::string, float>* LVL1::eFEXOutputCollection::get_eg(int location) const
 {
-  return m_allvalues_eg[location];
+  return m_allvalues_eg.at(location);
 }
 
-std::map<std::string, float>* LVL1::eFEXOutputCollection::get_tau(int location)
+std::map<std::string, float>* LVL1::eFEXOutputCollection::get_tau(int location) const
 {
-  return m_allvalues_tau[location];
+  return m_allvalues_tau.at(location);
+}
+
+void LVL1::eFEXOutputCollection::addeFexNumber(int efexnumber)
+{
+  m_eFexNumber.push_back(efexnumber);
+}
+
+std::vector<int> LVL1::eFEXOutputCollection::geteFexNumber() const
+{
+  return m_eFexNumber;
+}
+
+void LVL1::eFEXOutputCollection::addEMtob(uint32_t emtob)
+{
+  m_emtob.push_back(emtob);
+}
+
+std::vector<uint32_t> LVL1::eFEXOutputCollection::getEMtob() const
+{
+  return m_emtob;
+}
+
+
+void LVL1::eFEXOutputCollection::setdooutput(bool input) {
+  m_dooutput = input;
+}
+
+bool LVL1::eFEXOutputCollection::getdooutput() const {
+  return m_dooutput;
 }

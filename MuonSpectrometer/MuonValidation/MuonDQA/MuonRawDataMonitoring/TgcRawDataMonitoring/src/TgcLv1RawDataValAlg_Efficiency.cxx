@@ -98,8 +98,7 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
     if( bin <= 32 )               boundary += 0.25;
     else if( bin <= 32+27 )       boundary += 1./3.;
     else if( bin <= 32+27+16 )    boundary += 0.5;
-    else if( bin <= 32+27+16+26 ) boundary += 1.0;
-    pt_bins[bin] = boundary;
+    else                          boundary += 1.0;
   }
 
   ///////////////////////////////////////////////////////////////////////////

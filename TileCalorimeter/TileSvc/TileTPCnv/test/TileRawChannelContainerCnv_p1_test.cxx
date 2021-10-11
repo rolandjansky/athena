@@ -24,13 +24,12 @@
 TileHWID hwid;
 TileTBID tbid;
 TileID   tileid;
-IdDictParser parser;
 
 class TileCablingSvc
 {
 public:
   static
-  void init_idhelpers()
+  void init_idhelpers (IdDictParser& parser)
   {
     tileid.set_do_neighbours (false);
     IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
@@ -182,7 +181,8 @@ void test1()
 int main()
 {
   std::cout << "TileTPCnv/TileRawChannelContainerCnv_p1_test\n";
-  TileCablingSvc::init_idhelpers();
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers(parser);
   test1();
   return 0;
 }

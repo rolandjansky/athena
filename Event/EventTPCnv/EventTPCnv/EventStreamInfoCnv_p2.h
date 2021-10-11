@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTATHENAPOOL_EVENTSTREAMINFOCNV_P2_H
@@ -20,12 +20,14 @@ class MsgStream;
 /** @class EventStreamInfoCnv_p2
  *  @brief This class provides the converter to customize the saving of EventStreamInfo_p2.
  **/
-class EventStreamInfoCnv_p2 : public T_AthenaPoolTPCnvBase<EventStreamInfo, EventStreamInfo_p2>  {
+class EventStreamInfoCnv_p2 : public T_AthenaPoolTPCnvConstBase<EventStreamInfo, EventStreamInfo_p2>  {
 public:
    EventStreamInfoCnv_p2() {}
+   using base_class::persToTrans;
+   using base_class::transToPers;
 
-   virtual void persToTrans(const EventStreamInfo_p2* persObj, EventStreamInfo* transObj, MsgStream &log);
-   virtual void transToPers(const EventStreamInfo* transObj, EventStreamInfo_p2* persObj, MsgStream &log);
+   virtual void persToTrans(const EventStreamInfo_p2* persObj, EventStreamInfo* transObj, MsgStream &log) const override;
+   virtual void transToPers(const EventStreamInfo* transObj, EventStreamInfo_p2* persObj, MsgStream &log) const override;
 };
 
 template<>

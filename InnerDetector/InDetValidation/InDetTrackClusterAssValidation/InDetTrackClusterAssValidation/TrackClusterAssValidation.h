@@ -43,7 +43,7 @@ namespace InDet {
       ///c'tor 
       Barcode(int charge,int rapidity);
       ///destructor does nothing
-      ~Barcode() {};
+      ~Barcode() = default;
       ///assignment defaulted
       Barcode& operator = (const Barcode&) = default;
       ///getters
@@ -82,7 +82,7 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       TrackClusterAssValidation(const std::string &name, ISvcLocator *pSvcLocator);
-      virtual ~TrackClusterAssValidation() {}
+      virtual ~TrackClusterAssValidation();
       StatusCode initialize();
       StatusCode execute(const EventContext& ctx) const;
       StatusCode finalize();

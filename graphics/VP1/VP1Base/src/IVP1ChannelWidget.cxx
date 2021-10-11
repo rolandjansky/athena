@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -308,7 +308,7 @@ QPixmap IVP1ChannelWidget::getSnapshot(bool transp, int width, bool batch)
 	VP1Msg::messageVerbose("IVP1ChannelWidget::getSnapshot() - using QPixmap::grabWidget()");
 	VP1Msg::messageVerbose("(and so, not using the values - transp: "+QString::number(transp)+" - width: "+QString::number(width)+" - batch: " + batch +")");
 
-	return QPixmap::grabWidget( this );
+	return this->grab();
 }
 
 //_______________________________________________________

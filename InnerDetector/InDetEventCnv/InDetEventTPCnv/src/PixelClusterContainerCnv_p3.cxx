@@ -120,7 +120,7 @@ void  PixelClusterContainerCnv_p3::persToTrans(const InDet::PixelClusterContaine
         }
     }
 
-    InDet::PixelClusterCollection* coll = 0;
+    InDet::PixelClusterCollection* coll = nullptr;
 
     //PixelClusterCnv_p3  chanCnv;
     PixelClusterCnv_p3  chanCnv(m_pixId);

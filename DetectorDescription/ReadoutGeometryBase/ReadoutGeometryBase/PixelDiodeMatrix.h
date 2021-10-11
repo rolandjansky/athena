@@ -146,7 +146,11 @@ namespace InDetDD {
       
       /** Query wether the matrix is just a single cell. Mainly for internal use. */
       bool singleCell() const;
-      
+
+      /** Create debug representation */
+      std::string createDebugStringRepr() const;
+
+
     private:
       /** Hidden constructor */
       PixelDiodeMatrix() {};
@@ -164,6 +168,9 @@ namespace InDetDD {
                       std::shared_ptr<const PixelDiodeMatrix> middleCells,
                       int numCells,
                       std::shared_ptr<const PixelDiodeMatrix> upperCells);
+
+      /** Create debug representation for a specific level */
+      std::string createDebugStringRepr(unsigned int level) const;
 
       double        m_phiWidth;
       double        m_phiWidthInverse;
@@ -213,6 +220,11 @@ namespace InDetDD {
     inline bool PixelDiodeMatrix::singleCell() const
     {
       return m_singleCell;
+    }
+
+    inline std::string PixelDiodeMatrix::createDebugStringRepr() const
+    {
+      return this->createDebugStringRepr(0);
     }
 
 } // end namespace

@@ -7,7 +7,7 @@
  **   @author M.Sutton
  **   @date   Thu 30 Apr 2015 14:03:50 CEST 
  **
- **  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -28,6 +28,7 @@ public:
 
   ChainString( const ChainString& s );
 
+  ChainString& operator=(const ChainString&) = default;
   std::string head()  { return mhead;  }
   std::string tail()  { return mtail;  }
   std::string extra() { return mextra; }

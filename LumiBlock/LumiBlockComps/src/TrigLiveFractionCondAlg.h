@@ -77,11 +77,11 @@ private:
    * @param lumiLiveFractionLo[out] Weighted average live fractions, low-prio.
    * @param lumiLiveFractionHi[out] Weighted average live fractions, high-prio.
    */
-  StatusCode lumiWeight  (const LuminosityCondData& lumi,
+  static StatusCode lumiWeight  (const LuminosityCondData& lumi,
                           const std::vector<float>& liveFractionLo,
                           const std::vector<float>& liveFractionHi,
                           float& lumiLiveFractionLo,
-                          float& lumiLiveFractionHi) const;
+                          float& lumiLiveFractionHi) ;
 
   
   /// Input deadtime folder.

@@ -62,6 +62,7 @@ private:
   bool m_grandparent;
   bool m_poselectronfromgamma;
   std::vector<unsigned int> m_counters;
+  std::vector<int> m_ancestors;
   
   /* \defgroup Selection on extrapolated particle to cylinder or disk surface
    * @{

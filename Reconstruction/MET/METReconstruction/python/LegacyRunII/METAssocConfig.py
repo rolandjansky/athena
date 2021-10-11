@@ -17,14 +17,12 @@ defaultInputKey = {
    'LCJet'     :'AntiKt4LCTopoJets',
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
-   'PFlowFEJet':'AntiKt4EMPFlowFEJets',
    'ORPFlowJet':'AntiKt4OverlapRemovedEMPFlowJets',
    'Muon'      :'Muons',
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
    'Tracks'    :'InDetTrackParticles',
    'PFlowObj'  :'CHSParticleFlowObjects',
-   'PFlowObjFE':'CHSFlowElements',
    'ORPFlowObj':'OverlapRemovedCHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
@@ -40,6 +38,7 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
+# usePFOLinks option is deprecated and will eventually be removed.
 def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False,
                   trkseltool=None,trkisotool=None,caloisotool=None,
                   modConstKey="",
@@ -61,13 +60,11 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
     if config.objType == 'Ele':
         from ROOT import met
         tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
-        tool.UsePFOElectronLinks = metFlags.UsePFOElectronLinks()
         tool.UseFEElectronLinks = metFlags.UseFEElectronLinks()
 
     if config.objType == 'Gamma':
         from ROOT import met
         tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
-        tool.UsePFOPhotonLinks = metFlags.UsePFOPhotonLinks()
         tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
 
     if config.objType == 'Tau':
@@ -81,8 +78,6 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
     if config.objType == 'ORPFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_OverlapRemovedPFlowJetAssocTool_'+suffix)
-    if config.objType == 'PFlowFEJet':
-        tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
         tool.UseFEMuonLinks = metFlags.UseFEMuonLinks()
@@ -101,13 +96,7 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
 
     if doPFlow:
         tool.PFlow = True
-        if metFlags.UseFlowElements() :
-            tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObjFE"]
-        else:
-            if modConstKey!="":  
-                tool.PFlowColl = modConstKey  
-            else:
-                tool.PFlowColl = defaultInputKey["PFlowObj"]  if suffix!='AntiKt4OverlapRemovedEMPFlow' else defaultInputKey["ORPFlowObj"]
+        tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
         tool.UseModifiedClus = doModClus
     # set input/output key names
@@ -141,7 +130,6 @@ class METAssocConfig:
     #
     def outputMap(self):
         return 'METAssoc_'+self.suffix
-        return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
         print (prefix, 'Setting up associators for MET config '+self.suffix)
@@ -152,7 +140,6 @@ class METAssocConfig:
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
                                            doPFlow=self.doPFlow,
-                                           usePFOLinks=self.usePFOLinks,
                                            useFELinks=self.useFELinks,
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
@@ -170,7 +157,6 @@ class METAssocConfig:
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
                  usePFOLinks=False,
-                 useFELinks=False, 
                  trksel=None,
                  modConstKey="",
                  modClusColls={}
@@ -178,12 +164,8 @@ class METAssocConfig:
         # Set some sensible defaults
         modConstKey_tmp = modConstKey
         modClusColls_tmp = modClusColls
-        from METReconstruction.METRecoFlags import metFlags
         if doPFlow:
-            if metFlags.UseFlowElements():
-                if modConstKey_tmp == "": modConstKey_tmp = "CHSFlowElements"
-            else:
-                if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects" if 'OverlapRemoved' not in suffix else "OverlapRemovedCHSParticleFlowObjects"
+            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects" if 'OverlapRemoved' not in suffix else "OverlapRemovedCHSParticleFlowObjects"
         else:
             if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
@@ -194,8 +176,7 @@ class METAssocConfig:
             print (prefix, 'Creating MET Assoc config \''+suffix+'\'')
         self.suffix = suffix
         self.doPFlow = doPFlow
-        self.usePFOLinks = usePFOLinks
-        self.useFELinks = useFELinks
+        self.useFELinks = usePFOLinks
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth

@@ -60,7 +60,7 @@ private:
 
   ///@name Helpers
   ///@{
-  bool       makeDeepCopy(const xAOD::CaloCluster& rClus,xAOD::CaloClusterContainer* pClusCont) const; ///< Attaches a deep copy to container, returns @c true if successful. 
+  static bool       makeDeepCopy(const xAOD::CaloCluster& rClus,xAOD::CaloClusterContainer* pClusCont) ; ///< Attaches a deep copy to container, returns @c true if successful. 
   //  bool       fillMoments(const xAOD::CaloCluster& rClus);                                          ///< Copies list of filled moments into lookup 
   bool       clusterFilter(const xAOD::CaloCluster& rClus) const;                                      ///< Filter topo-cluster
   bool       towerFilter(const xAOD::CaloCluster& rTowr) const;                                        ///< Filter topo-tower

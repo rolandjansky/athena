@@ -104,8 +104,8 @@ from AtlasGeoModel import SetupRecoGeometry
 #Get identifier mapping (needed by LArConditionsContainer)
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
-conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>")
-conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>")
+conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannelsOfl/BadChannels</key>")
+conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannelsOfl/MissingFEBs</key>")
 svcMgr.IOVDbSvc.GlobalTag=globaltag
 try:
    svcMgr.IOVDbSvc.DBInstance=""
@@ -158,16 +158,6 @@ while (os.access(outputRootFileName,os.F_OK)):
     outputRootFileName="AdditionalCorrections_%i_%i.root" % (IOVstart,i)
 
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-theLArRCBMasker.DoMasking=True
-theLArRCBMasker.ProblemsToMask=[
-    "deadCalib","deadReadout","deadPhys","almostDead","short",
-    "highNoiseHG","highNoiseMG","highNoiseLG"
-    ]
-ToolSvc+=theLArRCBMasker
-
-
 if doRamp:
   #Algo:
   from LArCalibUtils.LArCalibUtilsConf import LArCalibPatchingAlg_LArRampComplete_
@@ -176,7 +166,9 @@ if doRamp:
   theLArRampPatcher.NewContainerKey="LArRamp"
   theLArRampPatcher.PatchMethod="PhiAverage"
   #theLArRampPatcher.OutputLevel=DEBUG
-  theLArRampPatcher.MaskingTool=theLArRCBMasker
+  theLArRampPatcher.ProblemsToPatch=[
+      "deadCalib","deadReadout","deadPhys","almostDead","short",
+      "highNoiseHG","highNoiseMG","highNoiseLG"]
   topSequence+=theLArRampPatcher
 
   if doCW or doCWxtalk:
@@ -186,7 +178,9 @@ if doRamp:
     theLArCaliWavePatcher.NewContainerKey="LArCaliWave"
     theLArCaliWavePatcher.PatchMethod="PhiAverage"
     #theLArCaliWavePatcher.OutputLevel=DEBUG
-    theLArCaliWavePatcher.MaskingTool=theLArRCBMasker
+    theLArCaliWavePatcher.ProblemsToPatch=[
+      "deadCalib","deadReadout","deadPhys","almostDead","short",
+      "highNoiseHG","highNoiseMG","highNoiseLG"]
     topSequence+=theLArCaliWavePatcher
   
 

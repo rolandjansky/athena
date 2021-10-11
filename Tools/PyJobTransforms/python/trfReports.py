@@ -14,6 +14,7 @@ import pickle as pickle
 import json
 import os.path
 import platform
+import distro
 import pprint
 import sys
 
@@ -113,7 +114,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.9'
+    _reportVersion = '2.1.0'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -156,6 +157,8 @@ class trfJobReport(trfReport):
                 myDict['files'][fileType] = []
         # Should have a dataDictionary, unless something went wrong very early...
         for dataType, dataArg in self._trf._dataDictionary.items():
+            if isinstance(dataArg, list): # Always skip lists from the report (auxiliary files)
+                continue
             if dataArg.auxiliaryFile: # Always skip auxilliary files from the report
                 continue
             if fileReport[dataArg.io]:
@@ -265,6 +268,8 @@ class trfJobReport(trfReport):
 
         # Now add information about output files
         for dataArg in self._trf._dataDictionary.values():
+            if isinstance(dataArg, list): # Always skip lists from the report (auxiliary files)
+                continue
             if dataArg.io == 'output':
                 for fileEltree in trfFileReport(dataArg).classicEltreeList(fast = fast):
                     trfTree.append(fileEltree)
@@ -574,10 +579,17 @@ class machineReport(object):
     def python(self, fast = False):
         machine = {}
         # Get the following from the platform module
-        attrs = ['node', 'platform', 'linux_distribution']
+        attrs = ['node', 'platform']
         for attr in attrs:
             try:
                 machine[attr] = getattr(platform, attr).__call__()
+            except AttributeError as e:
+                msg.warning('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
+
+        attrs = ['linux_distribution']
+        for attr in attrs:
+            try:
+                machine[attr] = getattr(distro, attr).__call__()
             except AttributeError as e:
                 msg.warning('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
 
@@ -645,6 +657,8 @@ def exeResourceReport(exe, report):
         exeResource['memoryAnalysis'] = exe.memAnalysis
     if exe.eventCount:
         exeResource['nevents'] = exe.eventCount
+    if exe.name=='ReSim':
+        exeResource['resimevents'] = exe.reSimEvent
     if exe.athenaMP:
         exeResource['mpworkers'] = exe.athenaMP
         exeResource['cpuTimePerWorker'] = report.roundoff(exe.cpuTime/exe.athenaMP)

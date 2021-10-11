@@ -72,7 +72,7 @@ public:
  private:
 
     void FillTbinLvl1aTrigger(int x,int y,int count);
-    void fillNTimesFast(TH2I_LW*h,double x,double y, int count);//Could be implemented on the LW hists themselves if the need was there
+    static void fillNTimesFast(TH2I_LW*h,double x,double y, int count);//Could be implemented on the LW hists themselves if the need was there
     
     unsigned int fillTimingHistos(const InDetTimeCollection * collection, 
 				  std::vector<TH2I_LW *> & timing, 
@@ -85,7 +85,7 @@ public:
     static unsigned int getLVL1ID(unsigned int lvl1id);
 
 
-    unsigned int getPixelHits(const PixelRDO_Container * collection);
+    static unsigned int getPixelHits(const PixelRDO_Container * collection);
     unsigned int getSctHits(const SCT_RDO_Container * collection  );
 
     inline int getDetectorId( int robid )

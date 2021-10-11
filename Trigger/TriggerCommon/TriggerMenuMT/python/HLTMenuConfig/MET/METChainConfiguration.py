@@ -37,7 +37,7 @@ class METChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):
+    def assembleChainImpl(self):
         log.debug("Assembling chain for %s", self.chainName)
         conf = AlgConfig.fromRecoDict(**self.recoDict)
         return self.buildChain(conf.make_steps(self.dict))

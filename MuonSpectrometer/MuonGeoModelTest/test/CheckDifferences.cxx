@@ -278,9 +278,9 @@ int MaterialMap::readMapRecord() {
 
             std::string::size_type locapri;
             std::string::size_type locchiudi;
-            if ((locapri = s.find("(")) != std::string::npos) 
+            if ((locapri = s.find('(')) != std::string::npos) 
             {
-                if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
+                if ((locchiudi = s.find(')', locapri+1)) != std::string::npos) 
                 {
                     if (print_level < 1) std::cout<<"first ( is at "<<locapri<<" first ) at "<<locchiudi<<std::endl;
                     my_isstream istrvar(s.substr(locapri+1,locchiudi-locapri-1));
@@ -290,9 +290,9 @@ int MaterialMap::readMapRecord() {
                 }
                 
             }
-            if ((locapri = s.find("(",locchiudi)) != std::string::npos) 
+            if ((locapri = s.find('(',locchiudi)) != std::string::npos) 
             {
-                if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
+                if ((locchiudi = s.find(')', locapri+1)) != std::string::npos) 
                 {
                     if (print_level < 1) std::cout<<"second ( is at "<<locapri<<" last ) at "<<locchiudi<<std::endl;
                     my_isstream istrvar(s.substr(locapri+1,locchiudi-locapri-1));
@@ -322,9 +322,9 @@ int MaterialMap::readMapRecord() {
 
             std::string::size_type locapri;
             std::string::size_type locchiudi;
-            if ((locapri = s.find("(")) != std::string::npos) 
+            if ((locapri = s.find('(')) != std::string::npos) 
             {
-                if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
+                if ((locchiudi = s.find(')', locapri+1)) != std::string::npos) 
                 {
                     if (print_level < 1) std::cout<<"first ( is at "<<locapri<<" first ) at "<<locchiudi<<std::endl;
                     my_isstream istrvar(s.substr(locapri+1,locchiudi-locapri-1));
@@ -353,9 +353,9 @@ int MaterialMap::readMapRecord() {
 
             std::string::size_type locapri;
             std::string::size_type locchiudi;
-            if ((locapri = s.find("(")) != std::string::npos) 
+            if ((locapri = s.find('(')) != std::string::npos) 
             {
-                if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
+                if ((locchiudi = s.find(')', locapri+1)) != std::string::npos) 
                 {
                     if (print_level < 1) std::cout<<"first ( is at "<<locapri<<" first ) at "<<locchiudi<<std::endl;
                     my_isstream istrvar(s.substr(locapri+1,locchiudi-locapri-1));
@@ -408,9 +408,9 @@ int MaterialMap::readMapRecord() {
             {
                 std::string::size_type locapri;
                 std::string::size_type locchiudi;
-                if ((locapri = s.find("(")) != std::string::npos) 
+                if ((locapri = s.find('(')) != std::string::npos) 
                 {
-                    if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
+                    if ((locchiudi = s.find(')', locapri+1)) != std::string::npos) 
                     {
                         if (print_level < 1) std::cout<<"first ( is at "<<locapri<<" first ) at "<<locchiudi<<std::endl;
                         my_isstream istrvar(s.substr(locapri+1,locchiudi-locapri-1));

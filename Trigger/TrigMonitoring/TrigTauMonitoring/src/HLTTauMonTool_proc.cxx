@@ -36,7 +36,7 @@ StatusCode HLTTauMonTool::proc()
 
             std::string trigItemShort=m_trigItems[i];
             if(m_trigItems[i].find("tau25")!=string::npos && m_trigItems[i].find("L1TAU")!=string::npos){
-              size_t posit=m_trigItems[i].rfind("_");
+              size_t posit=m_trigItems[i].rfind('_');
               if(posit<31)trigItemShort=m_trigItems[i].substr(0,posit);
             }
 
@@ -534,7 +534,7 @@ StatusCode HLTTauMonTool::proc()
 
         // clone shifter histograms
         std::vector<string> lowest_names, lowest_trigger_names;
-        lowest_names.push_back("lowest_singletau"); 	lowest_trigger_names.push_back(m_lowest_singletau_RNN);
+        lowest_names.emplace_back("lowest_singletau"); 	lowest_trigger_names.push_back(m_lowest_singletau_RNN);
         //lowest_names.push_back("lowest_ditau"); 	lowest_trigger_names.push_back(m_lowest_ditau);
         //lowest_names.push_back("lowest_etau"); 	lowest_trigger_names.push_back(m_lowest_etau);
         //lowest_names.push_back("lowest_mutau");	lowest_trigger_names.push_back(m_lowest_mutau);

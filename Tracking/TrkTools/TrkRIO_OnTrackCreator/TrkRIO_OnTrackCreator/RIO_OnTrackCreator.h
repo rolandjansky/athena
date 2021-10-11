@@ -78,24 +78,25 @@ namespace Trk {
   ///////////////////////////////////////////////////////////////////
 
     //! Helper to detect type of sub-detector from PRD->identify().
-    const AtlasDetectorID*           m_idHelper;
+    const AtlasDetectorID*           m_idHelper{nullptr};
     //! Detector-specific helper tool, performing the actual calibration corrections for every InDet::PixelCluster
-    ToolHandle<IRIO_OnTrackCreator>  m_pixClusCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_pixClusCor{this,"ToolPixelCluster", "InDet::PixelClusterOnTrackTool/PixelClusterOnTrackTool"};
     //! Detector-specific helper tool, performing the actual calibration corrections for every InDet::SCT_Cluster
-    ToolHandle<IRIO_OnTrackCreator>  m_sctClusCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_sctClusCor{this, "ToolSCT_Cluster", "InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"};
     //! Detector-specific helper tool, performing the actual calibration corrections for every InDet::TRT::DriftCircle
-    ToolHandle<IRIO_OnTrackCreator>  m_trt_Cor;
+    ToolHandle<IRIO_OnTrackCreator>  m_trt_Cor{this, "ToolTRT_DriftCircle","InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool" };
     //! Detector-specific helper tool, performing the actual calibration corrections for every Muon::MdtPrepData 
-    ToolHandle<IRIO_OnTrackCreator>  m_muonDriftCircleCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_muonDriftCircleCor{this, "ToolMuonDriftCircle", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackTool" };
     //! Detector-specific helper tool, performing the actual calibration corrections for the remaining muon detector technologies: RPC, TGC and CSC.
-    ToolHandle<IRIO_OnTrackCreator>  m_muonClusterCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_muonClusterCor{this,"ToolMuonCluster", "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackTool" } ;
     //! Detector-specific helper tool, performing the actual calibration corrections for every Muon::MMPrepData 
-    ToolHandle<IRIO_OnTrackCreator>  m_mmClusterCor;
-    std::string                      m_mode;   //!< flag: can be 'all', 'indet' or 'muon'
-    int*                  m_nwarning;          //!< counter to locally control # of warnings
-    bool                             m_doPixel; //!< Load Pixel IRIO_OnTrackCreator
-    bool                             m_doSCT;   //!< Load SCT IRIO_OnTrackCreator
-    bool                             m_doTRT;   //!< Load TRT IRIO_OnTrackCreator
+    ToolHandle<IRIO_OnTrackCreator>  m_mmClusterCor{this, "ToolMuonMMCluster", ""};
+     
+
+    Gaudi::Property<std::string>m_mode{this, "Mode" ,"all" };   //!< flag: can be 'all', 'indet' or 'muon'
+    bool                             m_doPixel{true}; //!< Load Pixel IRIO_OnTrackCreator
+    bool                             m_doSCT{true};   //!< Load SCT IRIO_OnTrackCreator
+    bool                             m_doTRT{true};   //!< Load TRT IRIO_OnTrackCreator
 
   };
 

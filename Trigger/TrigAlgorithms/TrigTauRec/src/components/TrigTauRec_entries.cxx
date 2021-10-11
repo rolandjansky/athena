@@ -1,4 +1,4 @@
-#include "../TrigTauRecMergedMT.h"
+#include "../TrigTauRecMerged.h"
 
-DECLARE_COMPONENT( TrigTauRecMergedMT )
+DECLARE_COMPONENT( TrigTauRecMerged )
 

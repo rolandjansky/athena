@@ -18,43 +18,42 @@
 
 namespace MuonCalib {
 
-  class MuonCalibPattern;
+    class MuonCalibPattern;
 
-  /**@class SimplePatternSelector
-     Basic Pattern selector. Gets MdtSegments and tests if they satisfy the selection criteria:
+    /**@class SimplePatternSelector
+       Basic Pattern selector. Gets MdtSegments and tests if they satisfy the selection criteria:
 
-     - chi2 
+       - chi2
 
-     - munber of mdt segments 
+       - munber of mdt segments
 
-     - number of phi segments
+       - number of phi segments
 
-     Returns true if they do.
-   
-     @author Niels.Van.Eldik@cern.ch
-  */
+       Returns true if they do.
 
-  class SimplePatternSelector : public ICalibPatternSelector{
-  public:
-    /** constructor */
-    SimplePatternSelector(double chi2_max, unsigned int mdtSeg_min,
-			  unsigned int phiSeg_min);
-  
-    /** test MdtSegment on selection criteria */
-    virtual bool   select(const MuonCalibPattern& seg) const;
+       @author Niels.Van.Eldik@cern.ch
+    */
 
-    /** set print level */
-    void setPrintLevel(int level) { m_printLevel = level; }
+    class SimplePatternSelector : public ICalibPatternSelector {
+    public:
+        /** constructor */
+        SimplePatternSelector(double chi2_max, unsigned int mdtSeg_min, unsigned int phiSeg_min);
 
-  private:
-    /** selection criteria */
-    double m_chi2_max;         //!< maximum chi2 of pattern
-    unsigned int m_mdtSeg_min; //!< minimum number of mdt segments on pattern
+        /** test MdtSegment on selection criteria */
+        virtual bool select(const MuonCalibPattern& seg) const;
 
-    /** print level */
-    int m_printLevel;
-  };
+        /** set print level */
+        void setPrintLevel(int level) { m_printLevel = level; }
 
-}
+    private:
+        /** selection criteria */
+        double m_chi2_max;          //!< maximum chi2 of pattern
+        unsigned int m_mdtSeg_min;  //!< minimum number of mdt segments on pattern
+
+        /** print level */
+        int m_printLevel;
+    };
+
+}  // namespace MuonCalib
 
 #endif

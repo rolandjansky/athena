@@ -19,7 +19,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JEPEtSumsTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
@@ -62,8 +61,6 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
       
      /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
       
      /** form JEMEtSums from JetElements */
     virtual void formJEMEtSums(const DataVector<xAOD::JetElement>* jetElementVec,
@@ -115,12 +112,11 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
     void etMapsToEtSums(const MultiSliceSystemEnergy& systemVec,
                        DataVector<CMMEtSums>* cmmEtSumsVec, int peak) const;
 
-    /** trigger configuration service */
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
     /** Tool for JetElement map */
     ToolHandle<LVL1::IL1JetElementTools> m_jeTool;
     /** Tool for energy sums */
     ToolHandle<LVL1::IL1EtTools> m_etTool;
+    SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
      
 };
 

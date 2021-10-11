@@ -28,9 +28,12 @@ def MuonDetectorToolCfg(flags):
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
-    enableAlignment = flags.Common.Project != 'AthSimulation' \
-        and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
-    if enableAlignment:
+
+    # temporary way to pass MM correction for edge passivation
+    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+    detTool.passivationWidthMM = MMPassivationFlag.correction
+
+    if flags.Muon.enableAlignment:
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
             detTool.UseConditionDb = 1
@@ -164,11 +167,6 @@ def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
     MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
     MuonDetectorManagerCond = MuonDetectorCondAlg()
-    
-    # temporary way to pass MM correction for passivation
-    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
-    MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
-
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
     acc.addCondAlgo(MuonDetectorManagerCond)
@@ -182,9 +180,7 @@ def MuonGeoModelCfg(flags, forceDisableAlignment=False):
     detTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
     gms.DetectorTools += [ detTool ]
 
-    enableAlignment = flags.Common.Project != 'AthSimulation' \
-        and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
-    if enableAlignment and not forceDisableAlignment:
+    if flags.Muon.enableAlignment and not forceDisableAlignment:
         acc.merge(MuonDetectorCondAlgCfg(flags))
 
     acc.merge(MuonIdHelperSvcCfg(flags)) # This line can be removed once the configuration methods for all 258 components which directly use this service are updated!!

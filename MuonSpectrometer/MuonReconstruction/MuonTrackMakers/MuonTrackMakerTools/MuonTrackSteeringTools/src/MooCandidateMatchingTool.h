@@ -183,8 +183,6 @@ namespace Muon {
 
         ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "tool to print EDM objects"};
-        ToolHandle<Trk::IExtrapolator> m_slExtrapolator{this, "SLExtrapolator", "Trk::Extrapolator/MuonStraightLineExtrapolator",
-                                                        "straight line extrapolator"};
         ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
                                                            "curved extrapolator"};
         ToolHandle<IMuonSegmentMatchingTool> m_segmentMatchingTool{this, "SegmentMatchingTool",

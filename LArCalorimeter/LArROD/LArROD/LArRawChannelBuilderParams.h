@@ -18,7 +18,7 @@
 
 #include "LArRawEvent/LArRawChannelContainer.h"
 
-typedef struct {
+struct LArRawChannelBuilderParams {
 
   Identifier   curr_id;
   HWIdentifier curr_chid;
@@ -33,7 +33,6 @@ typedef struct {
   
   unsigned int qualityBitPattern = 0;
   LArRawChannelContainer* m_larRawChannelContainer = nullptr;
-
-} LArRawChannelBuilderParams;
+};
 
 #endif

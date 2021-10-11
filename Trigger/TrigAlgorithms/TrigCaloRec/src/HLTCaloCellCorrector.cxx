@@ -11,7 +11,7 @@
 namespace {
   double get_average_energy(xAOD::HIEventShapeContainer const& eventShape,
                             int layer, double eta) {
-    for (auto const& es : eventShape) {
+    for (const auto es : eventShape) {
       if (es->layer() != layer || eta > es->etaMax() || eta <= es->etaMin())
         continue;
 

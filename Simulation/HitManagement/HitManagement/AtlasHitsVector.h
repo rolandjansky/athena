@@ -62,9 +62,8 @@ public:
     m_hitvector.reserve(mySize);
   }
 
-  ~AtlasHitsVector () {
-    std::vector<T>().swap(m_hitvector);
-  }
+  ~AtlasHitsVector () =default;
+
   void Clear()
   {
     m_hitvector.clear();
@@ -92,6 +91,8 @@ public:
   explicit AtlasHitsVector(const AtlasHitsVector<T>& rhs)
     : m_hitvector(rhs.m_hitvector) {}
 
+  AtlasHitsVector(AtlasHitsVector<T>&& rhs) noexcept = default;
+
   // Conversion
   explicit AtlasHitsVector(const AthenaHitsVector<T>& rhs) {
     m_hitvector.reserve(rhs.Size());
@@ -105,6 +106,8 @@ public:
     }
     return *this;
   }
+
+  AtlasHitsVector<T>& operator=(AtlasHitsVector<T>&& rhs) noexcept = default;
 
   /// assignment deletes old elements and deep copies the new ones
   // Assignment from the AthenaHitsVector form

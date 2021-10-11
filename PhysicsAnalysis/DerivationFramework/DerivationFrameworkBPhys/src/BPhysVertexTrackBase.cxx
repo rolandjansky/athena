@@ -173,18 +173,18 @@ namespace DerivationFramework {
   //-------------------------------------------------------------------------
   //
   // helper class
-  BPhysVertexTrackBase::BaseItem::BaseItem(std::string Name,
-					   std::string Bname,
-					   std::string Prefix) :
+  BPhysVertexTrackBase::BaseItem::BaseItem(const std::string& Name,
+					   const std::string& Bname,
+					   const std::string& Prefix) :
     name(std::move(Name)), bname(std::move(Bname)), prefix(std::move(Prefix)) {
   }
   
   BPhysVertexTrackBase::BaseItem::~BaseItem() {
   }
   
-  void BPhysVertexTrackBase::BaseItem::setup(std::string Name,
-					     std::string Bname,
-					     std::string Prefix) {
+  void BPhysVertexTrackBase::BaseItem::setup(const std::string& Name,
+					     const std::string& Bname,
+					     const std::string& Prefix) {
     name     = std::move(Name);
     bname    = std::move(Bname);
     prefix   = std::move(Prefix);
@@ -198,8 +198,8 @@ namespace DerivationFramework {
     // needs to be implemented by derived class
   }
 
-  std::string BPhysVertexTrackBase::BaseItem::buildName(std::string qualifier,
-							std::string suffix) {
+  std::string BPhysVertexTrackBase::BaseItem::buildName(const std::string& qualifier,
+							const std::string& suffix) {
     boost::format f("%s%s%s%s%s");
     f % (prefix.length() > 0 ? prefix+"_" : "")
       % (bname.length() > 0 ? bname+"_" : "")
@@ -355,8 +355,8 @@ namespace DerivationFramework {
   //--------------------------------------------------------------------------
   // Static utility method to prefix every line by a certain string
   //--------------------------------------------------------------------------
-  std::string BPhysVertexTrackBase::wrapLines(std::string lines,
-					      std::string prefix) {
+  std::string BPhysVertexTrackBase::wrapLines(const std::string& lines,
+					      const std::string& prefix) {
     
     std::string ostr;
     std::istringstream stream(lines);

@@ -54,8 +54,8 @@ namespace Muon {
         measuredCovariance.setZero();
         totalCovariance.setZero();
         diffVector.setZero();
-        track = 0;
-        segment = 0;
+        track = nullptr;
+        segment = nullptr;
         havePosX = false;
         havePosY = false;
         haveAngleX = false;

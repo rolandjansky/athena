@@ -136,7 +136,7 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Layer& lay, size_
     
     Trk::HomogeneousLayerMaterial hLayerMaterial = Trk::HomogeneousLayerMaterial(m_constantMaterialProperties, 1.);
     // assign it to the layer
-    lay.assignMaterialProperties(hLayerMaterial);
+    (const_cast<Trk::Layer&>(lay)).assignMaterialProperties(hLayerMaterial);
     
     return StatusCode::SUCCESS;
 }

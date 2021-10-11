@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TgcRawDataMonitorAlgorithm_jobOptions.py
@@ -12,11 +12,12 @@ helper = AthMonitorCfgHelper(DQMonFlags, "TgcRawDataMonitorCfg")
 
 from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcRawDataMonitorAlgorithm
 tgcRawDataMonAlg = helper.addAlgorithm(TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
+tgcRawDataMonAlg.TrackExtrapolator = getPublicTool('AtlasExtrapolator')
 
-
-
-
-
+from InDetRecExample import TrackingCommon
+if TrackingCommon.use_tracking_geometry_cond_alg :
+  cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+  tgcRawDataMonAlg.TrackExtrapolator.Navigator.TrackingGeometryReadKey = cond_alg.TrackingGeometryWriteKey # Probably not necessary?
 
 
 tgcRawDataMonAlg.TagAndProbe = False

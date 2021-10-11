@@ -85,7 +85,7 @@ double CombinedMuonFeature::sigma_pt(void) const {
   if (m_charge == 0) {//for backward compatibility
     if (m_sigma_pt < 0) return 0.;
     else {
-      double ftmp;
+      double ftmp{0};
       double stmp = modf(m_sigma_pt/10000., &ftmp)*1000000.;
       return static_cast<float>(stmp);
     }

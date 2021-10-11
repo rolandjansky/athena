@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOCELLCORRECTION_H
@@ -69,11 +69,11 @@ public:
  protected:
 
   // All derived classes can call the following to correct CaloCell object:
-  void setenergy(CaloCell* lar_cell, float energy) const;
+  static void setenergy(CaloCell* lar_cell, float energy) ;
 
-  void addenergy(CaloCell* lar_cell, float energy) const;
+  static void addenergy(CaloCell* lar_cell, float energy) ;
 
-  void scaleenergy(CaloCell* lar_cell, float scale) const;
+  static void scaleenergy(CaloCell* lar_cell, float scale) ;
 
 };
 

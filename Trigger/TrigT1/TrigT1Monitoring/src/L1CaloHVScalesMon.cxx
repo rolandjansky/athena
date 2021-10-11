@@ -380,7 +380,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
     Identifier ttId1(0);
     Identifier ttId2(0);
 
-    m_cells2tt->matchCell2Tower(caloCell, ttId1, ttId2);
+    m_cells2tt->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
 
     if (ttId1 != invalidId) {
       const double eta = m_ttIdTools->IDeta(ttId1);
@@ -505,7 +505,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
     if (m_ttTool->disabledChannel(em_coolId)) {
       m_histTool->fillPPMEmEtaVsPhi(m_h_emDisabled, eta, phi);
     }
-    if (m_larEnergy->hasMissingFEB(em_ident)) {
+    if (m_larEnergy->hasMissingFEB(**cabling, em_ident)) {
       m_histTool->fillPPMEmEtaVsPhi(m_h_emFEB, eta, phi);
     }
     if (absEta > 1.5) {
@@ -514,7 +514,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
       if (m_ttTool->disabledChannel(had_coolId)) {
         m_histTool->fillPPMHadEtaVsPhi(m_h_hadDisabled, eta, phi);
       }
-      if (m_larEnergy->hasMissingFEB(had_ident)) {
+      if (m_larEnergy->hasMissingFEB(**cabling, had_ident)) {
         m_histTool->fillPPMHadEtaVsPhi(m_h_hadFEB, eta, phi);
       }
     }

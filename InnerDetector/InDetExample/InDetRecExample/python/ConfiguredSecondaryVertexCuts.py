@@ -42,10 +42,12 @@ class ConfiguredSecondaryVertexCuts :
       self.__TrkSel_maxSiZ0                    = 10000.
       self.__TrkSel_maxTrtZ0                   = 10000.
       self.__TrkSel_minPt                      = minPt
-      self.__TrkSel_RatioCut1                  = 0.0
-      self.__TrkSel_RatioCut2                  = 0.0
-      self.__TrkSel_RatioCut3                  = 0.0
-      self.__TrkSel_RatioTRT                   = 0.0
+      self.__TrkSel_RatioCut1                  = 0.0 # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt < 15
+      self.__TrkSel_RatioCut2                  = 0.0 # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): 15 < Ntrt < 25
+      self.__TrkSel_RatioCut3                  = 0.0 # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25
+      self.__TrkSel_RatioTRT                   = 0.0 # e-prob cut for TRT conversion tracks (affects 1TRT, 2TRT, SiTRT) (see also below)
+      self.__TrkSel_TRTTrksEtaBins                  = [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+      self.__TrkSel_TRTTrksBinnedRatioTRT           = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep e-prob cut for TRT conversion tracks
       self.__TrkSel_IsConversion               = False
       self.__TrkSel_significanceD0_Si          = 2.   
       self.__TrkSel_RatioV0                    = 0.95  
@@ -75,7 +77,7 @@ class ConfiguredSecondaryVertexCuts :
       self.__SingleTrk_MaxBLayerHits              = 0
       self.__SingleTrk_MinInitialHitRadius        = 0.0
       self.__SingleTrk_MinInitialHitRadius_noBlay = 0.0
-      self.__SingleTrk_MinRatioOfHLhits           = 0.0
+      self.__SingleTrk_MinRatioOfHLhits           = 0.0 # e-prob cut for 1TRT and 1Si converisons
     
       #  InDetSecVtxFinderTool 
       self.__Finder_RemoveTrtTracks            = True
@@ -126,10 +128,12 @@ class ConfiguredSecondaryVertexCuts :
       self.__TrkSel_maxSiZ0                    = 10000. # off ?
       self.__TrkSel_maxTrtZ0                   = 10000. # off ?
       self.__TrkSel_minPt                      = minPt
-      self.__TrkSel_RatioCut1                  = 0.0    # e-prob: Ntrt < 15
-      self.__TrkSel_RatioCut2                  = 0.0    # e-prob: 15 < Ntrt < 25  
-      self.__TrkSel_RatioCut3                  = 0.0    # e-prob: Ntrt > 25 
-      self.__TrkSel_RatioTRT                   = 0.0    # e-prob cut for TRT only
+      self.__TrkSel_RatioCut1                  = 0.0    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt < 15
+      self.__TrkSel_RatioCut2                  = 0.0    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): 15 < Ntrt < 25
+      self.__TrkSel_RatioCut3                  = 0.0    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25
+      self.__TrkSel_RatioTRT                   = 0.0    # e-prob cut for TRT conversion tracks (affects 1TRT, 2TRT, SiTRT) (see also below)
+      self.__TrkSel_TRTTrksEtaBins                  = [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+      self.__TrkSel_TRTTrksBinnedRatioTRT           = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep e-prob cut for TRT conversion tracks
       self.__TrkSel_IsConversion               = True
       self.__TrkSel_significanceD0_Si          = -1.    # V0 only cuts
       self.__TrkSel_RatioV0                    = -1.    # V0 only cuts
@@ -159,7 +163,7 @@ class ConfiguredSecondaryVertexCuts :
       self.__SingleTrk_MaxBLayerHits              = 0
       self.__SingleTrk_MinInitialHitRadius        = 70.
       self.__SingleTrk_MinInitialHitRadius_noBlay = 70.
-      self.__SingleTrk_MinRatioOfHLhits           = 0.95
+      self.__SingleTrk_MinRatioOfHLhits           = 0.95 # e-prob cut for 1TRT and 1Si converisons
     
       #  InDetSecVtxFinderTool 
       self.__Finder_RemoveTrtTracks            = False
@@ -176,11 +180,13 @@ class ConfiguredSecondaryVertexCuts :
 
         # Track selector tool
         self.__TrkSel_minPt                      = minPt
-        self.__TrkSel_RatioCut1                  = 0.0    # UNCHANGED, e-prob: Ntrt < 15
-        self.__TrkSel_RatioCut2                  = 0.1    # UNCHANGED, e-prob: 15 < Ntrt < 25  
-        self.__TrkSel_RatioCut3                  = 0.1    # UNCHANGED, e-prob: Ntrt > 25
-        self.__TrkSel_RatioTRT                   = 0.75   # new e-prob cut for TRT-TRT only conversion
-        
+        self.__TrkSel_RatioCut1                  = 0.0    # UNCHANGED, e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT) : Ntrt < 15
+        self.__TrkSel_RatioCut2                  = 0.1    # UNCHANGED, e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): 15 < Ntrt < 25  
+        self.__TrkSel_RatioCut3                  = 0.1    # UNCHANGED, e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25     
+        self.__TrkSel_RatioTRT                   = 0.51   # new e-prob cut for TRT conversion tracks (affects 1TRT, 2TRT, SiTRT) (see also below)
+        self.__TrkSel_TRTTrksEtaBins                  = [  0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+        self.__TrkSel_TRTTrksBinnedRatioTRT           = [ 0.60,  0.80,  0.90, 0.80, 0.51, 0.51, 0.51, 0.51, 0.51, 0.51] # eta-dep e-prob cut for TRT conversion tracks
+
         # Track pairs selector
         self.__TrkPairSel_MaxDistBetweenTracks   = [10.*Units.mm,50.*Units.mm,50.*Units.mm]       # UNCHANGED, minimum distance cut at vertex (Mauro 10,100,50)
         self.__TrkPairSel_MaxEta                 = [0.3,0.5,0.5]                                  # UNCHANGED, is delta cotan(theta) cuts, no cut in barrel for TRT only in code
@@ -205,7 +211,7 @@ class ConfiguredSecondaryVertexCuts :
         self.__SingleTrk_MaxBLayerHits              = 0                # UNCHANGED, no blayer hits on single track conversion
         self.__SingleTrk_MinInitialHitRadius        =  70.*Units.mm    # UNCHANGED, start conversion in layer 1
         self.__SingleTrk_MinInitialHitRadius_noBlay = 120.*Units.mm    # but allow for conversion tracks starting in layer 2 if blayer is dead        
-        self.__SingleTrk_MinRatioOfHLhits           = 0.85             # e-prob cut single-TRT converison 
+        self.__SingleTrk_MinRatioOfHLhits           = 0.51             # e-prob cut for 1TRT and 1Si converisons
 
     else:
       print("*********************** ERROR, wrong configuration for Configured Secondary Vertex Cuts !!!")
@@ -283,6 +289,12 @@ class ConfiguredSecondaryVertexCuts :
 
   def TrkSel_RatioTRT( self ) :
     return self.__TrkSel_RatioTRT
+
+  def TrkSel_TRTTrksEtaBins( self ) :
+    return self.__TrkSel_TRTTrksEtaBins
+
+  def TrkSel_TRTTrksBinnedRatioTRT( self ) :
+    return self.__TrkSel_TRTTrksBinnedRatioTRT
 
   def TrkSel_IsConversion( self ) :
     return self.__TrkSel_IsConversion
@@ -395,6 +407,8 @@ class ConfiguredSecondaryVertexCuts :
     print('* - Track Ratio Cut2                  : ',self.__TrkSel_RatioCut2         )
     print('* - Track Ratio Cut3                  : ',self.__TrkSel_RatioCut3         )
     print('* - Track Ratio TRT                   : ',self.__TrkSel_RatioTRT)
+    print('* - TRT Trks Eta Bins                 : ',self.__TrkSel_TRTTrksEtaBins        )
+    print('* - TRT Trks Binned RatioTRT          : ',self.__TrkSel_TRTTrksBinnedRatioTRT )
     print('* - Track IsConverion                 : ',self.__TrkSel_IsConversion      )
     print('* - track Si sig d0                   : ',self.__TrkSel_significanceD0_Si )
     print('* - Track Ratio V0                    : ',self.__TrkSel_RatioV0           )

@@ -254,32 +254,28 @@ StatusCode LArCond2NtupleBase::initialize() {
         ATH_MSG_ERROR( "addItem 'phi' failed" );
         return StatusCode::FAILURE;
       }
-    } else {  
-      sc=nt->addItem("ieta",m_eta,0,510);
-      if (sc!=StatusCode::SUCCESS) {
-       ATH_MSG_ERROR( "addItem 'ieta' failed" );
-       return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("iphi",m_phi,0,1023);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'iphi' failed" );
-        return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("layer",m_layer,0,4);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'layer' failed" );
-        return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("region",m_region,0,5);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'region' failed" );
-        return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("detector",m_detector,0,2);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'detector' failed" );
-        return StatusCode::FAILURE;
-      }
+    }
+    sc=nt->addItem("ieta",m_eta,0,510);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'ieta' failed" );
+      return StatusCode::FAILURE;
+    }
+    sc=nt->addItem("iphi",m_phi,0,1023);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'iphi' failed" );
+      return StatusCode::FAILURE;
+    }
+
+    sc=nt->addItem("region",m_region,0,5);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'region' failed" );
+      return StatusCode::FAILURE;
+    }
+    sc=nt->addItem("detector",m_detector,0,2);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'detector' failed" );
+      return StatusCode::FAILURE;
+      
     }
   } // m_OffId
 
@@ -367,16 +363,15 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  
 
  if ( m_OffId ) {
-  if(!m_realgeom) {
    m_detector=NOT_VALID; 
    m_region=NOT_VALID;
    m_eta=NOT_VALID;
    m_phi=NOT_VALID;
-  } else {
-    //ATH_MSG_DEBUG(&m_reta << " " << &m_rphi << " " << &m_layer);
-   m_reta=NOT_VALID;
-   m_rphi=NOT_VALID;
-  } 
+
+   if(m_realgeom){  
+      m_reta=NOT_VALID;
+      m_rphi=NOT_VALID;
+   } 
   m_layer=NOT_VALID;
   m_oflChanId=NOT_VALID;
   if (m_addHash) m_oflHash=NOT_VALID;
@@ -398,42 +393,32 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
           } else {
             m_reta = elem->eta_raw();
             m_rphi = elem->phi_raw();
-          }  
-          if (m_emId->is_lar_em(id)) {
-            m_layer     = m_emId->sampling(id);
           }
-          else if (m_hecId->is_lar_hec(id)) {
-            m_layer     = m_hecId->sampling(id);
-          }
-          else if (m_fcalId->is_lar_fcal(id)) {
-            m_layer     = m_fcalId->module(id);
-          }
-       } else {
+       }
       
-          if (m_emId->is_lar_em(id)) {
-            m_eta       = m_emId->eta(id);
-            m_phi       = m_emId->phi(id);
-            m_layer     = m_emId->sampling(id);
-            m_region    = m_emId->region(id);
-            m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
-          }
-          else if (m_hecId->is_lar_hec(id)) {
-            m_eta       = m_hecId->eta(id);
-            m_phi       = m_hecId->phi(id);
-            m_layer     = m_hecId->sampling(id);
-            m_region    = m_hecId->region(id);
-            m_detector  = 3;
-          }
-          else if (m_fcalId->is_lar_fcal(id)) {
-            m_eta       = m_fcalId->eta(id);
-            m_phi       = m_fcalId->phi(id);
-            m_layer     = m_fcalId->module(id);
-            m_region    = 0;
-            m_detector  = 4;
-          }
-          connected=true;
+       if (m_emId->is_lar_em(id)) {
+         m_eta       = m_emId->eta(id);
+         m_phi       = m_emId->phi(id);
+         m_layer     = m_emId->sampling(id);
+         m_region    = m_emId->region(id);
+         m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
+       }
+       else if (m_hecId->is_lar_hec(id)) {
+         m_eta       = m_hecId->eta(id);
+         m_phi       = m_hecId->phi(id);
+         m_layer     = m_hecId->sampling(id);
+         m_region    = m_hecId->region(id);
+         m_detector  = 3;
+       }
+       else if (m_fcalId->is_lar_fcal(id)) {
+         m_eta       = m_fcalId->eta(id);
+         m_phi       = m_fcalId->phi(id);
+         m_layer     = m_fcalId->module(id);
+         m_region    = 0;
+         m_detector  = 4;
        }
      } // m_OffId
+     connected=true;
    }//end if is connected
  }catch (LArID_Exception & except) {}
 

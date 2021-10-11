@@ -40,7 +40,7 @@ DataHeaderForm_p6::~DataHeaderForm_p6()
 unsigned int DataHeaderForm_p6::insertDb(const DbRecord& rec) {
    unsigned int index = 0U;
    for (std::vector<DbRecord>::const_iterator iter = m_dbRecords.begin(), last = m_dbRecords.end();
-	   iter != last; iter++, index++) {
+	   iter != last; ++iter, ++index) {
       if (*iter == rec) break;
    }
    if (index == m_dbRecords.size()) {
@@ -63,23 +63,19 @@ unsigned int DataHeaderForm_p6::getDbTech(unsigned int index) const {
 }
 
 unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
-	const std::set<std::string>& alias,
+        const std::set<std::string>& aliases, bool doAliasFiltering,
 	const std::set<unsigned int>& symLinks,
 	const std::vector<unsigned int>& hashes)
 {
    unsigned int index = 0U;
    for (std::vector<ObjRecord>::const_iterator iter = m_objRecords.begin(), last = m_objRecords.end();
-           iter != last; iter++, index++) {
+           iter != last; ++iter, ++index) {
       if (*iter == rec) break;
    }
-   std::vector<std::string>     aliases( alias.begin(), alias.end() );
+   std::vector<std::string>     alias( aliases.cbegin(), aliases.cend() );
    std::vector<unsigned int>    symlinks( symLinks.begin(), symLinks.end() );
    if (index != m_objRecords.size()) {
       // found matching object record, check if all the info is the same
-      if( m_objAlias[index] != aliases ) {
-         m_objAlias[index] = std::move(aliases);
-         m_modified = true;
-      }
       if( m_objSymLinks[index] != symlinks ) {
          m_objSymLinks[index] = std::move(symlinks);
          m_modified = true;
@@ -88,11 +84,15 @@ unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
          m_objHashes[index] = hashes;
          m_modified = true;
       }
+      if( (!doAliasFiltering or m_modified) and m_objAlias[index] != alias ) {
+         m_objAlias[index] = std::move(alias);
+         m_modified = true;
+      }
       return index;
    }
    // enter a new record
    m_objRecords.push_back( rec );
-   m_objAlias.push_back( std::move(aliases) );
+   m_objAlias.push_back( std::move(alias) );
    m_objSymLinks.push_back( std::move(symlinks) );
    m_objHashes.push_back( hashes );
    m_modified = true;

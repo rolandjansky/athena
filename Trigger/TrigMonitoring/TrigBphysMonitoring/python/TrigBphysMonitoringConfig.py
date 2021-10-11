@@ -80,9 +80,18 @@ if hltmonList.cosmic_mode :
 def TrigBphysMonitoringTool():
     from TrigBphysMonitoring.TrigBphysMonitoringConf import HLTXAODBphysMonTool
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
+
+    from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
+    from RecExConfig.RecFlags import rec
+    theJpsiCollectionToRead = 'JpsiCandidates' if (HLTMonFlags.doMonTier0 and HLTMonFlags.doBphys and rec.doInDet) else ''
+
+    import logging
+    log = logging.getLogger('TrigBphysMonitoringTool')
+    log.info('HLTXAODBphysMonTool JpsiCandidates input collection is set to:\'' + theJpsiCollectionToRead + '\'')
+
     HLTBphysMon = HLTXAODBphysMonTool(name       = 'HLTBphysMon',
                                   #OutputLevel = 1,
-                                  JpsiCandidates = "JpsiCandidates",
+                                  JpsiCandidates = theJpsiCollectionToRead,
                                   BphysShifterPath='HLT/BphysMon/shifter',
                                   BphysExpertPath ='HLT/BphysMon/expert',
                                   BphysHistPrefix ='TrigBphys',

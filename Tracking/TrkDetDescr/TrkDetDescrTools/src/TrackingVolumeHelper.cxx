@@ -28,14 +28,10 @@
 #include "TrkGeometry/GlueVolumesDescriptor.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-// Gaudi
-#include "GaudiKernel/SystemOfUnits.h"
 
 #include <memory>
-
 #include <stdexcept>
 
-double Trk::TrackingVolumeHelper::s_layerThickness        = 1.*Gaudi::Units::mm;
 
 // constructor
 Trk::TrackingVolumeHelper::TrackingVolumeHelper(const std::string& t, const std::string& n, const IInterface* p)
@@ -68,30 +64,25 @@ Trk::TrackingVolumeHelper::~TrackingVolumeHelper()
 StatusCode Trk::TrackingVolumeHelper::initialize()
 {
 
-    ATH_MSG_INFO( "initialize() " );    
+    ATH_MSG_DEBUG( "initialize() " );    
 
     // Retrieve the layer array creator  ----------------------------------------------------
     if (m_layerArrayCreator.retrieve().isFailure()) {
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_layerArrayCreator );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved tool " << m_layerArrayCreator );
+        ATH_MSG_DEBUG( "Retrieved tool " << m_layerArrayCreator );
 
     // Retrieve the volume array creator  ----------------------------------------------------
     if (m_trackingVolumeArrayCreator.retrieve().isFailure()) {
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackingVolumeArrayCreator );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeArrayCreator );
+        ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeArrayCreator );
 
     return StatusCode::SUCCESS;
 }    
 
-StatusCode Trk::TrackingVolumeHelper::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
-    return StatusCode::SUCCESS;
-}
 
 /** Simply forward to base class method to enhance friendship relation */
 void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& firstVol,
@@ -118,9 +109,9 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
         if (lmps){
             const Trk::Layer* mLayer = new Trk::MaterialLayer(firstFaceSurface, *lmps);
             ATH_MSG_VERBOSE( "Set MaterialLayer to the BoundarySurface of first volume." );
-            firstFaceSurface.setMaterialLayer(*mLayer);
-            ATH_MSG_VERBOSE( "Set MaterialLayer to the BoundarySurface of second volume." );
-            secondFaceSurface.setMaterialLayer(*mLayer);
+            (const_cast<Trk::Surface&>(firstFaceSurface)).setMaterialLayer(*mLayer);
+            ATH_MSG_VERBOSE("Set MaterialLayer to the BoundarySurface of second volume.");
+            (const_cast<Trk::Surface&>(secondFaceSurface)).setMaterialLayer(*mLayer);
         }
     }
 }
@@ -152,7 +143,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
         // the material layer is ready - it can be assigned
         mLayer = new Trk::MaterialLayer(firstFaceSurface, *lmps);
         ATH_MSG_VERBOSE( "Set MaterialLayer to the BoundarySurface of first volume (may be shared with second volume)." );
-        firstFaceSurface.setMaterialLayer(*mLayer);
+        (const_cast<Trk::Surface&>(firstFaceSurface)).setMaterialLayer(*mLayer);
     }  
     // if only one volume was given in the vector call the standard one-to-one glueing
     // 1-to-1 case
@@ -204,7 +195,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
                 // if existing, set the material Layer
                 // get the second face surface and set the new MaterialLayer
                 const Trk::Surface& secondFaceSurface = volIter->boundarySurfaces()[secondFace]->surfaceRepresentation();
-                secondFaceSurface.setMaterialLayer(mLayer);                
+                (const_cast<Trk::Surface&>(secondFaceSurface)).setMaterialLayer(mLayer);
             }
         }
     } // 1-to-n case    
@@ -288,7 +279,8 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 // attach the material layer to the shared boundary if existing
                 if (mLayer) {
                     ATH_MSG_VERBOSE( "Set MaterialLayer to the BoundarySurface of volume from second array." );
-                    boundarySurface->surfaceRepresentation().setMaterialLayer(*(mLayer.release()));
+                    (const_cast<Trk::Surface&>(boundarySurface->surfaceRepresentation()))
+                      .setMaterialLayer(*(mLayer.release()));
                 }
                 // set the boundary surface to the volumes of both sides
                 for (const auto & volIter : firstVolumes){
@@ -371,9 +363,10 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > sharedBoundarySurface(boundarySurface);
                 // attach the material layer to the shared boundary if existing
                 if (mLayer) {
-                    ATH_MSG_VERBOSE( "Set MaterialLayer to the BoundarySurface of volume from second array." );
-                    // assume that now the mlayer onwership goes over to the TrackingVolume
-                    boundarySurface->surfaceRepresentation().setMaterialLayer(*(mLayer.release()));
+                  ATH_MSG_VERBOSE("Set MaterialLayer to the BoundarySurface of volume from second array.");
+                  // assume that now the mlayer onwership goes over to the TrackingVolume
+                  (const_cast<Trk::Surface&>(boundarySurface->surfaceRepresentation()))
+                    .setMaterialLayer(*(mLayer.release()));
                 }
                 // set the boundary surface to the volumes of both sides
                 for (const auto & volIter : firstVolumes){
@@ -416,7 +409,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
             const Trk::Surface& firstFaceSurface = tVolIter->boundarySurfaces()[firstFace]->surfaceRepresentation();
             // assume that now the mlayer onwership goes over to the TrackingVolume
             mLayer.release();
-            firstFaceSurface.setMaterialLayer(*mLayer_ptr);
+            (const_cast<Trk::Surface&>(firstFaceSurface)).setMaterialLayer(*mLayer_ptr);
         }
                     
     }
@@ -435,7 +428,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
             const Trk::Surface& secondFaceSurface = tVolIter->boundarySurfaces()[secondFace]->surfaceRepresentation();
             // assume that now the mlayer onwership goes over to the TrackingVolume
             mLayer.release();
-            secondFaceSurface.setMaterialLayer(*mLayer_ptr);
+            (const_cast<Trk::Surface&>(secondFaceSurface)).setMaterialLayer(*mLayer_ptr);
         }
     }    
     // coverity will report a bug here for mLayer running out of scope, but the memory management is done later in the TrackingVolume
@@ -592,7 +585,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
 void Trk::TrackingVolumeHelper::fillGlueVolumes(const std::vector< const TrackingVolume*>& topLevelVolumes,
                                                 const std::vector< const TrackingVolume*>& envelopeFaceVolumes,
                                                 BoundarySurfaceFace glueFace, 
-                                                std::vector<const Trk::TrackingVolume*>& glueVols) const
+                                                std::vector<const Trk::TrackingVolume*>& glueVols) 
 {
     // loop over the topLevel Volumes
     std::vector<const Trk::TrackingVolume*>::const_iterator refVolIter = topLevelVolumes.begin();

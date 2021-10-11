@@ -34,16 +34,14 @@ namespace Ringer {
 
 
       /**
-       * @brief Prepare the input model
+       * @briel Calculation of model output for fast calo or fast photon step (HLT usage only)
        **/
-      virtual std::vector<std::vector<float>> prepare_inputs( const xAOD::TrigRingerRings*, const xAOD::TrigElectron* ) const = 0;
-
-
+      virtual float predict(const xAOD::TrigRingerRings * ) const = 0;
+      
       /**
-       * @briel Calculation of model output for fast calorimetry step
-       **/
-      virtual float predict(const xAOD::TrigRingerRings *, std::vector<std::vector<float>> &) const = 0;
-            
+       * @briel Calculation of model output for fast electron step (HLT usage only)
+       **/      
+      virtual float predict(const xAOD::TrigRingerRings *, const xAOD::TrigElectron * ) const = 0;
 
 
       /**

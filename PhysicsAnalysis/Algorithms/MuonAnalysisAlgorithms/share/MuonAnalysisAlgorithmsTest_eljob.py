@@ -62,9 +62,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 from MuonAnalysisAlgorithms.MuonAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
 print( algSeq ) # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+algSeq.addSelfToJob( job )
 
 # Make sure that both the ntuple and the xAOD dumper have a stream to write to.
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )

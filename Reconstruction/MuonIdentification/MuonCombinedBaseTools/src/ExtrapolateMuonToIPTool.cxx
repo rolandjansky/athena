@@ -40,20 +40,15 @@ StatusCode ExtrapolateMuonToIPTool::finalize() {
     return StatusCode::SUCCESS;
 }
 
-TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muonTracks) const {
-    return extrapolate(muonTracks, Gaudi::Hive::currentContext());
-}
-TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muonTracks, const EventContext& ctx) const {
-    TrackCollection* extrapolateTracks = new TrackCollection();
+std::unique_ptr<TrackCollection> ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muonTracks, const EventContext& ctx) const {
+    std::unique_ptr<TrackCollection> extrapolateTracks = std::make_unique<TrackCollection>();
     extrapolateTracks->reserve(muonTracks.size());
 
     ATH_MSG_DEBUG("Extrapolated tracks: " << muonTracks.size());
 
     // loop over muon tracks and extrapolate them to the IP
-    TrackCollection::const_iterator tit = muonTracks.begin();
-    TrackCollection::const_iterator tit_end = muonTracks.end();
-    for (; tit != tit_end; ++tit) {
-        Trk::Track* extrapolateTrack = extrapolate(**tit, ctx);
+    for (const Trk::Track* trk : muonTracks) {
+        std::unique_ptr<Trk::Track> extrapolateTrack = extrapolate(*trk, ctx);
         if (!extrapolateTrack) {
             ATH_MSG_DEBUG("Extrapolation of muon to IP failed");
             continue;
@@ -61,14 +56,12 @@ TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muo
 
         ATH_MSG_DEBUG("Extrapolated track " << m_printer->print(*extrapolateTrack));
 
-        extrapolateTracks->push_back(extrapolateTrack);
+        extrapolateTracks->push_back(std::move(extrapolateTrack));
     }
     return extrapolateTracks;
 }
-Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const {
-    return extrapolate(track, Gaudi::Hive::currentContext());
-}
-Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const EventContext& ctx) const {
+
+std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const EventContext& ctx) const {
     const Trk::TrackInfo& trackInfo = track.info();
     auto particleType = trackInfo.trackProperties(Trk::TrackInfo::StraightTrack) ? Trk::nonInteracting : Trk::muon;
     const Trk::TrackParameters* closestPars = findMeasuredParametersClosestToIP(track);
@@ -146,22 +139,17 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const 
 
     // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
     const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
-    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+    auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
     unsigned int newSize = oldTSOT->size() + 1;
-    trackStateOnSurfaces->reserve(newSize);
+    trackStateOnSurfaces.reserve(newSize);
 
     Amg::Vector3D perDir = ipPerigee->momentum().unit();
 
-    // if we didn't start from a parameter in the muon system add perigee to the front
-    // trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,Trk::TrackStateOnSurface::Perigee) );
-
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = oldTSOT->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = oldTSOT->end();
-    for (; tsit != tsit_end; ++tsit) {
+    for (const Trk::TrackStateOnSurface* tsit : *oldTSOT) {
         // remove old perigee if we didn't start from a parameter in the muon system
-        if ((*tsit)->type(Trk::TrackStateOnSurface::Perigee)) continue;
+        if (tsit->type(Trk::TrackStateOnSurface::Perigee)) continue;
 
-        const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+        const Trk::TrackParameters* pars = tsit->trackParameters();
         if (!pars) continue;
 
         if (ipPerigee) {
@@ -170,25 +158,28 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const 
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0, ipPerigee->clone(), 0, 0, typePattern));
+                trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
             }
         }
 
         // copy remainging TSOS
-        trackStateOnSurfaces->push_back((*tsit)->clone());
+        trackStateOnSurfaces.push_back(tsit->clone());
     }
 
     if (ipPerigee) {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Perigee);
-        trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0, ipPerigee->clone(), 0, 0, typePattern));
+        trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
     }
     ATH_MSG_DEBUG(" creating new track ");
 
     Trk::TrackInfo info(track.info().trackFitter(), track.info().particleHypothesis());
     info.setPatternRecognitionInfo(Trk::TrackInfo::MuidStandAlone);
     // create new track
-    Trk::Track* extrapolateTrack = new Trk::Track(info, trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
+    std::unique_ptr<Trk::Track> extrapolateTrack = std::make_unique<Trk::Track>(
+      info,
+      std::move(trackStateOnSurfaces),
+      track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     // create track summary
     m_trackSummary->updateTrack(ctx, *extrapolateTrack);
     return extrapolateTrack;
@@ -197,17 +188,14 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const 
 const Trk::TrackParameters* ExtrapolateMuonToIPTool::findMeasuredParametersClosestToIP(const Trk::Track& track) const {
     // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
-    if (!states) return 0;
+    if (!states) return nullptr;
 
     Trk::PerigeeSurface persurf;
-    double rmin = 1e9;
-    double rminMeas = 1e9;
-    const Trk::TrackParameters* closestPars = 0;
-    const Trk::TrackParameters* closestParsMeas = 0;
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-    for (; tsit != tsit_end; ++tsit) {
-        const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+    double rmin{1e9}, rminMeas{1e9};
+    const Trk::TrackParameters* closestPars = nullptr;
+    const Trk::TrackParameters* closestParsMeas = nullptr;
+    for (const Trk::TrackStateOnSurface* tsit : *states) {
+        const Trk::TrackParameters* pars = tsit->trackParameters();
         if (!pars) continue;
 
         double rpars = pars->position().perp();

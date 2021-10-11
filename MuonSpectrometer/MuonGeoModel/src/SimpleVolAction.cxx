@@ -30,7 +30,7 @@ namespace MuonGM {
 
         //   std::cout<<" MY VOL Action is handlying a GeoVPhysVol "<<std::endl;
         const GeoLogVol *lv = pv->getLogVol();
-        std::string name = lv->getName();
+        const std::string& name = lv->getName();
         const GeoMaterial *mat = lv->getMaterial();
         unsigned int nchild = pv->getNChildVols();
 

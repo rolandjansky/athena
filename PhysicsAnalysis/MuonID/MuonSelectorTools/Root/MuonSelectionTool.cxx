@@ -10,9 +10,43 @@
 
 namespace {
     static constexpr double const MeVtoGeV = 1. / 1000.;
-    const xAOD::MuonSegment* get_segment(const xAOD::Muon& mu, unsigned int n) {
-        return mu.nMuonSegments() > n ? mu.muonSegment(n) : nullptr;
+
+    //This function defines the order of chamber indices for the low-pT MVA, 
+    //i.e. defining the meaning of "the first two segments", which are used in the BDT
+    std::vector<int> initializeChamberIdxOrder() {
+
+      //This vector defines the order. The current order follows the order of the enum "ChIndex"
+      //except for the CSCs, which appear first. Since the order is not strictly innermost-to-outermost,
+      //a reordering could be considered for a rel. 22 retuning, which can then easily be achieved by
+      //swapping around the elements in the below initialization.
+      const std::vector<int> chamberIndicesOrdered = {Muon::MuonStationIndex::CSS, Muon::MuonStationIndex::CSL,
+						      Muon::MuonStationIndex::BIS, Muon::MuonStationIndex::BIL,
+						      Muon::MuonStationIndex::BMS, Muon::MuonStationIndex::BML,
+						      Muon::MuonStationIndex::BOS, Muon::MuonStationIndex::BOL,
+						      Muon::MuonStationIndex::BEE,
+						      Muon::MuonStationIndex::EIS, Muon::MuonStationIndex::EIL,
+						      Muon::MuonStationIndex::EMS, Muon::MuonStationIndex::EML,
+						      Muon::MuonStationIndex::EOS, Muon::MuonStationIndex::EOL,
+						      Muon::MuonStationIndex::EES, Muon::MuonStationIndex::EEL};
+
+      //This vector will hold the equivalent information in a form that can be efficiently accessed in the
+      //below function "chamberIndexCompare", using the chamber index as the vector index
+      std::vector<int> chamberIndexOrder(Muon::MuonStationIndex::ChIndexMax);
+      
+      for (unsigned int i = 0; i < chamberIndicesOrdered.size(); i++)
+	chamberIndexOrder[chamberIndicesOrdered[i]] = i;
+      
+      return chamberIndexOrder;
     }
+
+    //This is the comparison function for the sorting of chamber indices
+    bool chamberIndexCompare(int first, int second) {
+
+      static const std::vector<int> chamberIndexOrder = initializeChamberIdxOrder();
+      
+      return (chamberIndexOrder[first] < chamberIndexOrder[second]);
+    }
+
     static const SG::AuxElement::Accessor<float> mePt_acc("MuonSpectrometerPt");
     static const SG::AuxElement::Accessor<float> idPt_acc("InnerDetectorPt");
 }  // namespace
@@ -723,6 +757,26 @@ namespace CP {
         return true;
     }
 
+
+    std::vector<int> MuonSelectionTool::getChamberIndicesSorted(const xAOD::Muon& mu) const {
+
+      std::vector<int> chamberIndices_sorted;
+      chamberIndices_sorted.reserve(mu.nMuonSegments());
+      
+      for (unsigned int i = 0; i < mu.nMuonSegments(); i++) {
+	
+	if (mu.muonSegment(i) == nullptr)
+	  ATH_MSG_WARNING("The muon reports more segments than are available. Please report this to the muon software community!");
+	else
+	  chamberIndices_sorted.push_back(mu.muonSegment(i)->chamberIndex());
+      }
+
+      sort(chamberIndices_sorted.begin(), chamberIndices_sorted.end(), chamberIndexCompare);
+
+      return chamberIndices_sorted;
+    }
+
+
     bool MuonSelectionTool::passedLowPtEfficiencyMVACut(const xAOD::Muon& mu) const {
         if (!m_useMVALowPt) {
             ATH_MSG_DEBUG("Low pt MVA disabled. Return... ");
@@ -744,11 +798,10 @@ namespace CP {
 
         float segChamberIdx1{-1.}, segChamberIdx2{-1}, middleHoles{-1};
 
-        const xAOD::MuonSegment* first_seg = get_segment(mu, 0);
-        const xAOD::MuonSegment* second_seg = get_segment(mu, 1);
+	std::vector<int> chamberIndices = getChamberIndicesSorted(mu);
 
-        segChamberIdx1 = first_seg != nullptr ? first_seg->chamberIndex() : -9;
-        segChamberIdx2 = second_seg != nullptr ? second_seg->chamberIndex() : -9;
+        segChamberIdx1 = (chamberIndices.size() > 0) ? chamberIndices[0] : -9;
+        segChamberIdx2 = (chamberIndices.size() > 1) ? chamberIndices[1] : -9;
         middleHoles = middleSmallHoles + middleLargeHoles;
 
         // get event number from event info

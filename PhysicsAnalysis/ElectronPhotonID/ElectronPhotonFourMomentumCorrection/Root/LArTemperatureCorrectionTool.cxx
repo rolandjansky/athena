@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TParameter.h>
@@ -96,7 +96,7 @@ LArTemperatureCorrectionTool::AllValues LArTemperatureCorrectionTool::get_correc
   const auto it = m_cache.find(run);
   if (it != m_cache.end()) { return it->second; }
   else {
-    AllValues corrections;
+    AllValues corrections{};
     if (run < m_first_run) {
       ATH_MSG_WARNING("run " << run << " is before the first run - using the first run");
       corrections = search_correction(m_first_run);

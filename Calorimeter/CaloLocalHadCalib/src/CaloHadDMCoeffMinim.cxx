@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -61,6 +61,9 @@ CaloHadDMCoeffMinim *CaloHadDMCoeffMinim::s_instance = nullptr;
 
 
 CaloHadDMCoeffMinim::CaloHadDMCoeffMinim() :
+  m_data (nullptr),
+  m_HadDMHelper (std::make_unique<CaloLocalHadCoeffHelper>()),
+  m_HadDMCoeff (nullptr),
   m_isTestbeam(false),
   m_nstep_fcn(0),
   m_iBinGlob(0),
@@ -70,10 +73,6 @@ CaloHadDMCoeffMinim::CaloHadDMCoeffMinim() :
   m_NormalizationType("Lin"),
   m_NormalizationTypeNumber(0)
 {
-  m_data = nullptr;
-  m_HadDMCoeff = nullptr;
-  m_HadDMHelper = new CaloLocalHadCoeffHelper();
-
   // list of parameters available for minimization
   m_minimPars.emplace_back("PreSamplerB", 1.0, 0.5,  0.99, 20.0 );
   m_minimPars.emplace_back("EMB1",        1.0, 0.5,  0.99, 20.0 );
@@ -113,12 +112,6 @@ CaloHadDMCoeffMinim::CaloHadDMCoeffMinim() :
 
 CaloHadDMCoeffMinim::~CaloHadDMCoeffMinim()
 {
-  for(std::vector<MinimSample *>::iterator it=m_minimSample.begin(); it!=m_minimSample.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
-  }
-  m_minimSample.clear();
-  delete m_HadDMHelper;
 }
 
 
@@ -201,10 +194,6 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
   3. filling minimisation sample with clusters having appropriate iBin
   ********************************************* */
   std::cout << "CaloHadDMCoeffMinim::process() -> Info. Step 2 - making cluster set..." << std::endl;
-  for(std::vector<MinimSample *>::iterator it=m_minimSample.begin(); it!=m_minimSample.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
-  }
   m_minimSample.clear();
   m_sample_size.resize(dmArea->getLength(), 0);
   int nGoodEvents = 0;
@@ -260,7 +249,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
       int iBin = m_HadDMCoeff->getBin(m_area_index, vars );
 
       if(iBin >= dmArea->getOffset() && iBin < (dmArea->getOffset()+dmArea->getLength())  && m_data->m_engClusSumCalib > 0.0 && m_data->m_mc_ener > 0.0) {
-        MinimSample *ev = new MinimSample();
+        auto ev = std::make_unique<MinimSample>();
         // we need only edmtrue and energy in cluster samplings to calculate fcn
         ev->ibin = iBin;
         ev->edmtrue = (*m_data->m_cls_dmener)[i_cls][m_area_index];
@@ -278,7 +267,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
 
         // error which will be used during chi2 calculation, currently it is simply the energy resolution
         ev->sigma2 = EnergyResolution*EnergyResolution;
-        m_minimSample.push_back(ev);
+        m_minimSample.push_back(std::move(ev));
         m_sample_size[iBin - dmArea->getOffset()]++;
       }
     } // i_cls
@@ -296,10 +285,9 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
     mb.Start("minuitperf");
     m_iBinGlob = dmArea->getOffset() + i_data;
     m_minimSubSample.clear();
-    for(std::vector<MinimSample *>::iterator it=m_minimSample.begin(); it!=m_minimSample.end(); it++) {
-      MinimSample *event = (*it);
+    for (std::unique_ptr<MinimSample>& event : m_minimSample) {
       if(event->ibin == m_iBinGlob) {
-        m_minimSubSample.push_back(event);
+        m_minimSubSample.push_back(event.get());
         if(m_minimSubSample.size() > 100000) break;
       }
     }
@@ -340,15 +328,15 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
     }
 
     // setting up parameters which we are going to minimize
-    for(std::vector<MinimPar >::iterator it_par=m_minimPars.begin(); it_par!= m_minimPars.end(); it_par++){
+    for (MinimPar& par : m_minimPars) {
       bool fixIt = true;
-      for(std::vector<std::string >::iterator it_name=m_validNames.begin(); it_name!=m_validNames.end(); it_name++){
-        if((*it_name) == (*it_par).name) {
+      for (const std::string& name : m_validNames) {
+        if(name == par.name) {
           fixIt = false;
           break;
         }
       }
-      (*it_par).fixIt = fixIt;
+      par.fixIt = fixIt;
     }
 
     for(unsigned int i_par=0; i_par<m_minimPars.size(); i_par++){
@@ -399,10 +387,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
   ********************************************* */
   std::cout << "CaloHadDMCoeffMinim::process() -> Info. Making output coefficients set " << std::endl;
   CaloLocalHadCoeff *newHadDMCoeff = new CaloLocalHadCoeff(*m_HadDMCoeff);
-  for(std::map<int, std::vector<MinimPar > >::iterator it=m_minimResults.begin(); it!=m_minimResults.end(); it++) {
-    int iBin = (*it).first;
+  for (std::pair<const int, std::vector<MinimPar > >& p : m_minimResults) {
+    int iBin = p.first;
 
-    m_minimPars = (*it).second;
+    m_minimPars = p.second;
     CaloLocalHadCoeff::LocalHadCoeff pars;
     pars.resize(m_minimPars.size(),0.0);
     boost::io::ios_base_all_saver coutsave (std::cout);
@@ -579,8 +567,7 @@ void CaloHadDMCoeffMinim::fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t 
   int nsel = 0;
   double sum_edm_rec = 0.0;
   double sum_edm_true = 0.0;
-  for(std::vector<MinimSample *>::iterator it=m_minimSubSample.begin(); it!=m_minimSubSample.end(); it++) {
-    MinimSample *event = (*it);
+  for (MinimSample *event : m_minimSubSample) {
     double edm_rec = 0.0;
     double edm_true = event->edmtrue;
     for(int i_smp=0; i_smp<CaloSampling::Unknown; i_smp++){

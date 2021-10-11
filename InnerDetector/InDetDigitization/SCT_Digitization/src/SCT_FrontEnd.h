@@ -62,9 +62,7 @@ namespace CLHEP {
  */
 
 struct SCT_FrontEndData {
-  std::vector<float> m_Offset; //!< generate offset per channel
   std::vector<float> m_GainFactor; //!< generate gain per channel  (added to the gain per chip from calib data)
-  std::vector<float> m_NoiseFactor; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
   std::vector<double> m_Analogue[3];  //!< To hold the noise and amplifier response
   std::vector<int> m_StripHitsOnWafer; //!< Info about which strips are above threshold
 };

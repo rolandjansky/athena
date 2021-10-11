@@ -24,19 +24,19 @@ CompetingTRT_DriftCirclesOnTrackCnv_p1::persToTrans( const InDet::CompetingTRT_D
    auto containedChildRots = new std::vector< const InDet::TRT_DriftCircleOnTrack * >;
    
    for (const TPObjRef& ref : persObj->m_containedChildRots) {
-       ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
+       ITPConverterFor<Trk::MeasurementBase>  *rotCnv = nullptr;
        const InDet::TRT_DriftCircleOnTrack* mcot = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(createTransFromPStore(&rotCnv, ref, log));
        containedChildRots->push_back( mcot );
    }
    
-   ITPConverterFor<Trk::Surface>  *surfaceCnv = 0;
+   ITPConverterFor<Trk::Surface>  *surfaceCnv = nullptr;
    Trk::Surface* associatedSurface    = createTransFromPStore(&surfaceCnv, persObj->m_associatedSurface, log);
 
    *transObj = InDet::CompetingTRT_DriftCirclesOnTrack (associatedSurface,
                                                         containedChildRots,
                                                         nullptr,
-                                                        nullptr,
-                                                        nullptr,
+                                                        {},
+                                                        {},
                                                         0);
 
    fillTransFromPStore( &m_cRotCnv, persObj->m_competingROT, transObj, log );
@@ -50,11 +50,11 @@ CompetingTRT_DriftCirclesOnTrackCnv_p1::transToPers( const InDet::CompetingTRT_D
     persObj->m_competingROT = baseToPersistent( &m_cRotCnv,  transObj, log );
 
     for (const InDet::TRT_DriftCircleOnTrack* cl : transObj->containedROTs()) {
-        ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
+        ITPConverterFor<Trk::MeasurementBase>  *rotCnv = nullptr;
         persObj->m_containedChildRots.push_back( toPersistent(&rotCnv, cl, log) );
     }
     
-    ITPConverterFor<Trk::Surface>  *surfaceCnv = 0;
+    ITPConverterFor<Trk::Surface>  *surfaceCnv = nullptr;
     persObj->m_associatedSurface     = toPersistent(&surfaceCnv, &transObj->associatedSurface(), log);
     
 }

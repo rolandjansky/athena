@@ -716,7 +716,7 @@ StatusCode photonMonTool::fillHistograms() {
   m_CbTightPhotons->m_nPhotonsPerRegionUnconv.resize(NREGION,0);
   m_CbTightPhotons->m_nPhotonsPerRegionConv.resize(NREGION,0);
 
-  for (; ph_iter!=ph_end; ph_iter++){
+  for (; ph_iter!=ph_end; ++ph_iter){
     if(!(*ph_iter)) continue;
     
     // Necessary because some photons in the container have another author because reconstructed from topocluster

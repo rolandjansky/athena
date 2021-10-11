@@ -121,7 +121,7 @@ void Muon::TgcCoinDataContainerCnv_p1::transToPers(const Muon::TgcCoinDataContai
         persCont->m_CoinData.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const Muon::TgcCoinData* chan = collection[i];
-            persCont->m_CoinData[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_CoinData[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
     log << MSG::DEBUG  << " ***  Writing TgcCoinDataContainer ***" << endmsg;
@@ -145,7 +145,7 @@ void  Muon::TgcCoinDataContainerCnv_p1::persToTrans(const Muon::MuonCoinDataCont
     // from the vector.
 
 
-    Muon::TgcCoinDataCollection* coll = 0;
+    Muon::TgcCoinDataCollection* coll = nullptr;
 
     TgcCoinDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Muon::TgcCoinData> CONV;
@@ -166,7 +166,7 @@ void  Muon::TgcCoinDataContainerCnv_p1::persToTrans(const Muon::MuonCoinDataCont
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_CoinData[ichan + pcoll.m_begin];
-            Muon::TgcCoinData* chan = dynamic_cast<Muon::TgcCoinData*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            Muon::TgcCoinData* chan = dynamic_cast<Muon::TgcCoinData*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
 	    if(chan->type()!=Muon::TgcCoinData::TYPE_TRACKLET_EIFI) {
 	      const MuonGM::TgcReadoutElement * deOut = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->channelIdOut()));
 	      chan->m_detElOut = deOut;
@@ -177,7 +177,7 @@ void  Muon::TgcCoinDataContainerCnv_p1::persToTrans(const Muon::MuonCoinDataCont
 	      chan->m_detElIn = deIn;
 	    }
 	    else {
-	      chan->m_detElIn = 0;
+	      chan->m_detElIn = nullptr;
 	    }
             (*coll)[ichan] = chan;
         }
@@ -204,7 +204,7 @@ Muon::TgcCoinDataContainer* Muon::TgcCoinDataContainerCnv_p1::createTransient(co
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize TgcCoinDataContainerCnv_p1 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::TgcCoinDataContainer> trans(new Muon::TgcCoinDataContainer(m_TgcId->module_hash_max()));

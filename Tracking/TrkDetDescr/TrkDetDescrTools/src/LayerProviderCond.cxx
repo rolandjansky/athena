@@ -101,13 +101,6 @@ std::pair<EventIDRange, const std::vector< const Trk::Layer* > > Trk::LayerProvi
     return std::make_pair(discLayersPair.first, dLayers);   
 }
 
-
-// finalize
-StatusCode Trk::LayerProviderCond::finalize()
-{
-    return StatusCode::SUCCESS;
-}
-
 const std::string& Trk::LayerProviderCond::identification() const
 {
     return m_layerBuilder->identification();

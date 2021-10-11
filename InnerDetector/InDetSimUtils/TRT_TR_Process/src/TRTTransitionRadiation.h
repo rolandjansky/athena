@@ -18,7 +18,6 @@
 #include "CxxUtils/checker_macros.h"
 
 #include <vector>
-#include <iostream>
 
 //using namespace std;
 
@@ -33,7 +32,7 @@ public:
   //                             Public Methods                              //
   /////////////////////////////////////////////////////////////////////////////
 
-  TRTTransitionRadiation(const G4String& processName="TransitionRadiation", const std::string xmlfilename="TRgeomodelgeometry.xml");
+  TRTTransitionRadiation(const G4String& processName="TransitionRadiation", const std::string & xmlfilename="TRgeomodelgeometry.xml");
   virtual ~TRTTransitionRadiation();
 
   void Initialize();

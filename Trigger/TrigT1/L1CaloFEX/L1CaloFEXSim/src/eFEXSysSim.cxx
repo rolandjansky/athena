@@ -25,6 +25,10 @@
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
 
+#include "xAODTrigger/eFexTauRoI.h"
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIAuxContainer.h"
+
 #include <ctime>
 
 namespace LVL1 {
@@ -56,6 +60,12 @@ namespace LVL1 {
 
     ATH_CHECK(m_eFexOutKey.initialize());
 
+    ATH_CHECK(m_eFexTauOutKey.initialize());
+
+    ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
+
+    ATH_CHECK( m_eFEXFPGATool.retrieve() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -85,7 +95,7 @@ namespace LVL1 {
 
   }
 
-  StatusCode eFEXSysSim::execute()  {    
+  StatusCode eFEXSysSim::execute(eFEXOutputCollection* inputOutputCollection)  {    
 
     SG::ReadHandle<LVL1::eTowerContainer> this_eTowerContainer(m_eTowerContainerSGKey/*,ctx*/);
     if(!this_eTowerContainer.isValid()){
@@ -95,7 +105,20 @@ namespace LVL1 {
 
     // remove TOBs of the previous events from the map
     m_allEmTobs.clear();
+    m_allTauTobs.clear();
 
+    // do mapping with preloaded csv file if it is available
+    if (m_eFEXFPGATowerIdProviderTool->ifhaveinputfile()) {
+      int tmp_eTowersIDs_subset_eFEX[10][18];
+      for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
+          ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));
+          m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
+          ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX, inputOutputCollection));
+          m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
+          m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getTauTOBs() ) ));
+          m_eFEXSimTool->reset();
+      }
+    } else {
     // We need to split the towers into 3 blocks in eta and 8 blocks in phi.
 
     // boundaries in eta: -2.5, -0.8, 0.8, 2.5
@@ -200,8 +223,9 @@ namespace LVL1 {
 
 
       m_eFEXSimTool->init(thisEFEX);
-      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
+      m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
@@ -270,8 +294,9 @@ namespace LVL1 {
 
       //tool use instead
       m_eFEXSimTool->init(thisEFEX);
-      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
+      m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
@@ -354,7 +379,7 @@ namespace LVL1 {
 
       //tool use instead
       m_eFEXSimTool->init(thisEFEX);
-      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_eFEXSimTool->reset();
 
@@ -362,7 +387,7 @@ namespace LVL1 {
 
     }
     
-
+    }
     m_eContainer = std::make_unique<xAOD::eFexEMRoIContainer> ();
     m_eAuxContainer = std::make_unique<xAOD::eFexEMRoIAuxContainer> ();
     m_eContainer->setStore(m_eAuxContainer.get());
@@ -370,7 +395,7 @@ namespace LVL1 {
     // iterate over all Em Tobs and fill EDM with them
     for( auto const& [efex, tobs] : m_allEmTobs ){
       for(auto &tob : tobs){
-	ATH_CHECK(fillEDM(efex,tob));
+        m_eFEXFillEDMTool->fillEmEDM(m_eContainer, efex, tob);
       }
     }
     
@@ -378,6 +403,20 @@ namespace LVL1 {
     ATH_MSG_DEBUG("  write: " << outputeFexHandle.key() << " = " << "..." );
     ATH_CHECK(outputeFexHandle.record(std::move(m_eContainer),std::move(m_eAuxContainer)));
 
+    m_tauContainer = std::make_unique<xAOD::eFexTauRoIContainer> ();
+    m_tauAuxContainer = std::make_unique<xAOD::eFexTauRoIAuxContainer> ();
+    m_tauContainer->setStore(m_tauAuxContainer.get());
+
+    // iterate over all tau TOBs and fill EDM with them
+    for( auto const& [efex, tobs] : m_allTauTobs ){
+      for( auto &tob: tobs ){
+        m_eFEXFillEDMTool->fillTauEDM(m_tauContainer, efex, tob);
+      }
+    }
+
+    SG::WriteHandle<xAOD::eFexTauRoIContainer> outputeFexTauHandle(m_eFexTauOutKey/*, ctx*/);
+    ATH_MSG_DEBUG(" write: " << outputeFexTauHandle.key() << " = " << "..." );
+    ATH_CHECK(outputeFexTauHandle.record(std::move(m_tauContainer), std::move(m_tauAuxContainer)));
 
     //Send TOBs to bytestream?
     // ToDo
@@ -387,34 +426,6 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
 
   }
-  
-
-  StatusCode eFEXSysSim::fillEDM(uint8_t eFexNum, uint32_t tobWord){
-
-    uint8_t eFEXNumber = eFexNum; 
-    uint32_t tobWord0 = tobWord;
-    uint32_t tobWord1 = 0;
-
-    // Kludge to test new eFEX number format
-    int offset = 0;
-    if (eFEXNumber < 0xC0) offset = 1;
-    if (eFEXNumber < 0xB0) offset = 2;
-    int octant = eFEXNumber&0xf;
-    int residual = octant%4;
-
-    uint8_t shelf = (octant > 3 ? 1 : 0);    
-    uint8_t eFEX = residual*3 + offset;
-        
-    xAOD::eFexEMRoI* myEDM = new xAOD::eFexEMRoI();
-    m_eContainer->push_back( myEDM );
-
-    myEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
-    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " shelf: " << +myEDM->shelfNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() << " TOB word: " << tobWord0 );
-
-    return StatusCode::SUCCESS;
-
-  }
-
-  
 } // end of namespace bracket
+
 

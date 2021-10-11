@@ -31,6 +31,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+//Remove in boost > 1.76 when the boost iterator issue
+//is solved see ATLASRECTS-6358
+#define BOOST_ALLOW_DEPRECATED_HEADERS
 #include "boost/graph/adjacency_list.hpp"
 //
 #include "xAODTruth/TruthEventContainer.h"

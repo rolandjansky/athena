@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawChannelMonTools.h"
@@ -16,8 +16,8 @@ using namespace std;
 
 typedef vector<HWIdentifier>::const_iterator citer_vect_hwid;
 
-typedef map<Detector, map<Sampling, deque<Region> > > det_region_map_t;
-typedef map<Sampling, deque<Region> > sam_region_map_t;
+using det_region_map_t = map<Detector, map<Sampling, deque<Region> > >;
+using sam_region_map_t = map<Sampling, deque<Region> >;
 
 
 /*----------------------------------------------------------------------------*/
@@ -128,7 +128,7 @@ vector<double> LArMonTools::detector_superslot_axis( Detector const &detector,
   // --- ( lar_online_id->*is_in_detector_ptr )( some_bool ) // compiler
   // ---                                                     // error
 
-  typedef bool ( LArOnlineID::*detector_test )( const HWIdentifier ) const;
+  using detector_test = bool (LArOnlineID::*)(const HWIdentifier) const;
   // Define such a beast ... to be set later.
   detector_test is_in_detector_ptr;
 
@@ -440,7 +440,7 @@ void SelectionContext::quality( const double& quality) { m_quality = quality; }
 
 
 QualitySelector::QualitySelector()
-  : m_pSelectionContext(0)
+  : m_pSelectionContext(nullptr)
 {}
       
 
@@ -498,7 +498,7 @@ ResolutionCalculator::ResolutionCalculator( const double &a, const double &b )
 ResolutionCalculator::~ResolutionCalculator() {}
 
 
-double ResolutionCalculator::operator() ( const double& x ){
+double ResolutionCalculator::operator() ( const double& x ) const{
 
   double numerator = x*x;
   double denominator = m_a * m_a + m_b * m_b * x * x;

@@ -38,9 +38,8 @@ private:
   ToolHandle<HLT::Navigation> m_navTool{this, "Navigation", "HLT::Navigation/Navigation",
                                         "Navigation tool for EF/HLT result"};
 
-  Gaudi::Property<std::string> m_l2ResultKey{this, "L2ResultKey", "HLTResult_L2", "key for L2 result (Run-1)"};
-  Gaudi::Property<std::string> m_efResultKey{this, "EFResultKey", "HLTResult_EF", "key for EF result (Run-1)"};
-  Gaudi::Property<std::string> m_hltResultKey{this, "HLTResultKey", "HLTResult_HLT", "key for HLT result"};
+  Gaudi::Property<std::string> m_l2ResultKey{this, "L2ResultKey", "", "key for L2 result (Run-1)"};
+  Gaudi::Property<std::string> m_hltResultKey{this, "HLTResultKey", "HLTResult_HLT", "key for EF/HLT result"};
   StringArrayProperty m_dataScoutingKeys{this, "DSResultKeys", {}, "keys for DataScouting HLT results"};
 };
 

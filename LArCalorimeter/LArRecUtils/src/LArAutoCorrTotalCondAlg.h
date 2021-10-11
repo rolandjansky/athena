@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRTOTALCONDALG_H
@@ -57,7 +57,7 @@ private:
   unsigned int m_firstSample;
   int m_deltaBunch;
 
-  size_t m_nGains;
+  size_t m_nGains = 0UL;
 };
 
 #endif

@@ -78,9 +78,9 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
         kwargs['TileRawChannelBuilderMF'] = rawChanBuilder
 
 
-    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPresampling)
+    kwargs.setdefault('IntegerDigits', flags.Common.ProductionStep != ProductionStep.PileUpPresampling)
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('MuonReceiverDigitsContainer', flags.Overlay.BkgPrefix + 'MuRcvDigitsCnt')
     else:
         kwargs.setdefault('MuonReceiverDigitsContainer', 'MuRcvDigitsCnt')
@@ -111,7 +111,7 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
     muRcvDigitsCnt = str(muRcvDigitsCnt).split('+').pop()
     outputItemList = ['TileDigitsContainer#' + muRcvDigitsCnt]
 
-    if not flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep != ProductionStep.PileUpPresampling:
         if hasattr(tilePulseForMuRcv, 'MuonReceiverRawChannelContainer'):
             muRcvRawChCnt = tilePulseForMuRcv.MuonReceiverRawChannelContainer
         else:

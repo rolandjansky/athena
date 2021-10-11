@@ -65,12 +65,23 @@ class RatesTrigger:
     self.rateExpress    = self.passExpressWeighted / self.rateDenominator
     self.rateExpressErr = self.passExpressWeightedErr / self.rateDenominator
 
+    # Some menu-derived metadata
+    prescales = metadata['prescales']
+    lowers = metadata['lowers']
+    self.prescale = prescales[name]
+    self.lower = lowers[name]
+
     # Unique rate requires the subtraction of the (all minus this trigger) total from the (all triggers) total
     # The error is taken as a fractional error on the main rate calc
-    self.rateUnique    = (self.passMasterWeighted - self.passUniqueWeighted) / self.rateDenominator
-    self.rateUniqueErr = 0 
-    if self.passWeighted != 0:
-      self.rateUniqueErr = (self.passWeightedErr / self.passWeighted) * self.rateUnique 
+    # Disabled items should have unique rate = 0
+    if self.prescale != "Multiple" and float(self.prescale) <= 0:
+      self.rateUnique = 0
+      self.rateUniqueErr = 0 
+    else:
+      self.rateUnique    = (self.passMasterWeighted - self.passUniqueWeighted) / self.rateDenominator
+      self.rateUniqueErr = 0 
+      if self.passWeighted != 0:
+        self.rateUniqueErr = (self.passWeightedErr / self.passWeighted) * self.rateUnique 
 
     # The total rate of all triggers
     self.masterRate = self.passMasterWeighted / self.rateDenominator
@@ -78,11 +89,6 @@ class RatesTrigger:
     # What fraction of the total rate is unique to this trigger
     self.uniqueFraction = 0 if self.masterRate == 0 else self.rateUnique / self.masterRate 
 
-    # Some menu-derived metadata
-    prescales = metadata['prescales']
-    lowers = metadata['lowers']
-    self.prescale = prescales[name]
-    self.lower = lowers[name]
 
   def export(self, exportDict):
     myDict = {}

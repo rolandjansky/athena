@@ -450,25 +450,6 @@ void Egamma_v1::setSelectionisEM(unsigned int value, const std::string& isEM){
   acc(*this)=value;
 }
 
-bool Egamma_v1::likelihoodValue(float&  value, const std::string& LHValue/*=std::string("LHValue")*/) const{
-  const SG::AuxElement::Accessor<float> acc( LHValue );
-  if(!acc.isAvailable(*this) ) {
-    return  false;
-  }
-  value= acc(*this);
-  return true;
-}
-
-float Egamma_v1::likelihoodValue(const std::string& LHValue/*=std::string("LHValue")*/) const{
-  const SG::AuxElement::Accessor< float > acc( LHValue );
-  return acc(*this);
-}
-
-void Egamma_v1::setLikelihoodValue(float value, const std::string& LHValue/*=std::string("LHValue")*/){
-  const SG::AuxElement::Accessor<float> acc( LHValue);
-  acc(*this)=value;
-}
-
 } // namespace xAOD
 
 //  LocalWords:  const el hasStore makePrivateStore

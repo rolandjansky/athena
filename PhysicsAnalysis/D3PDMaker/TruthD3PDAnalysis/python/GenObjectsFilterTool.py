@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # $Id: GenObjectsFilterTool.py 351835 2011-03-15 11:32:14Z ssnyder $
 #
@@ -18,7 +18,7 @@ def TruthTrackFilterTool():
     # Instantiate the tool if necessary:
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr( ToolSvc, __toolName ):
-        from TruthD3PDAnalysisConf import D3PD__GenObjectsFilterTool
+        from TruthD3PDAnalysis.TruthD3PDAnalysisConf import D3PD__GenObjectsFilterTool
         ToolSvc += D3PD__GenObjectsFilterTool( __toolName )
 
     # Get hold of the tool:
@@ -52,7 +52,7 @@ def AllTrackFilterTool():
     # Instantiate the tool if necessary:
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr( ToolSvc, __toolName ):
-        from TruthD3PDAnalysisConf import D3PD__GenObjectsFilterTool
+        from TruthD3PDAnalysis.TruthD3PDAnalysisConf import D3PD__GenObjectsFilterTool
         ToolSvc += D3PD__GenObjectsFilterTool( __toolName )
 
     # Get hold of the tool:

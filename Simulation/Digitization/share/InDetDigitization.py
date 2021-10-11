@@ -20,6 +20,5 @@ if DetFlags.digitize.SCT_on():
 # TRT
 ##################################################################
 if DetFlags.digitize.TRT_on():
-    from Digitization.DigiConfigCheckers import checkTRT_DigitizationConfiguration
-    checkTRT_DigitizationConfiguration()
+    pass
 ##################################################################

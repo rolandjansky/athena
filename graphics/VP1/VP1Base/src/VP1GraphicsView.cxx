@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -211,7 +211,7 @@ VP1GraphicsView::~VP1GraphicsView()
 void VP1GraphicsView::scaleView(qreal scaleFactor)
 {
   abortZoomAnimation();
-  qreal factor = matrix().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+  qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
   if (factor < 1e-5 || factor > 1e5)//Fixme:Set as options!
     return;
   scale(scaleFactor, scaleFactor);
@@ -238,7 +238,7 @@ void VP1GraphicsView::wheelEvent(QWheelEvent *event)
     ratefact = 0.1;
   if (event->modifiers() & Qt::ShiftModifier)
     ratefact = 0.01;
-  scaleView(pow((double)2, -event->delta() / (240.0/ratefact)));
+  scaleView(pow((double)2, -event->angleDelta().y() / (240.0/ratefact)));
 }
 
 //____________________________________________________________________
@@ -476,15 +476,15 @@ void VP1GraphicsView::mousePressEvent(QMouseEvent *event)
     return;
   }
 
-  if (m_d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MiddleButton)) {
     event->accept();
     m_d->dragzoom_startpoint=event->pos();
     setMode(DRAGZOOM);
     return;
   }
 
-  if (m_d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MidButton)) {
-    if (event->buttons()==(Qt::LeftButton|Qt::MidButton|Qt::RightButton)) {
+  if (m_d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MiddleButton)) {
+    if (event->buttons()==(Qt::LeftButton|Qt::MiddleButton|Qt::RightButton)) {
       setMode(DRAGZOOMHOLD);
     } else {
       setMode(CHANGEVIEW);
@@ -562,14 +562,14 @@ void VP1GraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
 
   //Fixme: transformed pos
-  if (m_d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MiddleButton)) {
     event->accept();
     m_d->dragzoom_startpoint=event->pos();
     setMode(DRAGZOOM);
     return;
   }
 
-  if (m_d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MidButton)) {
+  if (m_d->mode==DRAGZOOM&&event->buttons()!=(Qt::LeftButton|Qt::MiddleButton)) {
     event->accept();
     setMode(CHANGEVIEW);
     return;
@@ -810,7 +810,7 @@ void VP1GraphicsView::initiateAnimatedZoomTo( QRectF goal )
   }
 
   m_d->savedrenderhints=renderHints();
-  setRenderHints(0);
+  setRenderHints(QPainter::RenderHints());
   m_d->zoomanim_timer->start();
 }
 
@@ -836,7 +836,8 @@ void VP1GraphicsView::abortZoomAnimation()
     m_d->zoomanim_queue.clear();
   if (m_d->savedrenderhints)
     setRenderHints(m_d->savedrenderhints);
-  m_d->savedrenderhints=0;//Fixme: renderhints changed during an
+  m_d->savedrenderhints=QPainter::RenderHints();
+                        //Fixme: renderhints changed during an
 			//animation cycle might not be saved... Should
 			//override the renderhints methods to avoid
 			//this.
@@ -969,7 +970,7 @@ void VP1GraphicsView::saveImage()
   if(filename.isEmpty())
     return;
 
-  QPixmap pm = QPixmap::grabWidget ( viewport() );
+  QPixmap pm = viewport()->grab();
   if (!(filename.endsWith(".png",Qt::CaseInsensitive)||filename.endsWith(".bmp",Qt::CaseInsensitive)))
     filename += ".png";
 
@@ -1107,7 +1108,7 @@ void VP1GraphicsView::drawItems(QPainter *painter, int numItems,
   for (int i = 0; i < numItems; ++i) {
     QGraphicsItem *item = items[i];
     painter->save();
-    painter->setMatrix(item->sceneMatrix(), true);//??
+    painter->setTransform(item->sceneTransform(), true);//??
     //     std::cout<< item->sceneMatrix().isIdentity()<<std::endl;
     //     std::cout<< item->sceneMatrix().dx()<<" : "<<item->sceneMatrix().dy()<<std::endl;
     m_d->transform->paintItem(painter, item);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -41,8 +41,9 @@ namespace DerivationFramework {
     class MuIsoItem : public BaseItem {
     
   public:
-    MuIsoItem(std::string Name="_none_", std::string Bname="muiso",
-	      std::string Prefix="");
+    MuIsoItem(const std::string& Name="_none_",
+              const std::string& Bname="muiso",
+	      const std::string& Prefix="");
     virtual ~MuIsoItem();
 	
     virtual void        resetVals();

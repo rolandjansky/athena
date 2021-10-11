@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -161,19 +161,18 @@ StatusCode DiMuMon::bookHistograms()
      RegisterHisto(dimuMonObj_expert,m_stat);
 
      //create histos for each region
-     std::vector<std::string> ::iterator ireg = m_regions.begin();
-     for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
+     for (const std::string& reg : m_regions) {
 
        //declare region-dependent eta range
-       if (*ireg == "BB") {
+       if (reg == "BB") {
 	 m_varRanges["etaAll"] = std::make_pair(-1.05,1.05);
 	 m_varRanges["etaPos"] = std::make_pair(-1.05,1.05);
 	 m_varRanges["etaNeg"] = std::make_pair(-1.05,1.05);
-       } else if (*ireg == "EAEA") {
+       } else if (reg == "EAEA") {
 	 m_varRanges["etaAll"] = std::make_pair(1.05,2.5);
 	 m_varRanges["etaPos"] = std::make_pair(1.05,2.5);
 	 m_varRanges["etaNeg"] = std::make_pair(1.05,2.5);
-       } else if (*ireg == "ECEC") {
+       } else if (reg == "ECEC") {
 	 m_varRanges["etaAll"] = std::make_pair(-2.5,-1.05);
 	 m_varRanges["etaPos"] = std::make_pair(-2.5,-1.05);
 	 m_varRanges["etaNeg"] = std::make_pair(-2.5,-1.05);
@@ -184,58 +183,55 @@ StatusCode DiMuMon::bookHistograms()
        }
 
        //mass plots
-       TString hname = m_resonName + "_invmass_" + *ireg;
+       TString hname = m_resonName + "_invmass_" + reg;
        TString htitle = hname + "; Invmass[GeV/c^{2}]";
-       m_invmass[*ireg] = new TH1F(hname, htitle, m_nMassBins, m_minInvmass, m_maxInvmass);
-       RegisterHisto(dimuMonObj_shift,m_invmass[*ireg]);
+       m_invmass[reg] = new TH1F(hname, htitle, m_nMassBins, m_minInvmass, m_maxInvmass);
+       RegisterHisto(dimuMonObj_shift,m_invmass[reg]);
 
        //for each var vs mass plot
-       std::vector<std::string> ::iterator ivarM = m_varsVSmean.begin();
-       for (ivarM=m_varsVSmean.begin(); ivarM!=m_varsVSmean.end();ivarM++){
-	 hname = m_resonName + "_2DinvmassVS" + *ivarM + "_" + *ireg;
-	 htitle = hname + ";" + m_varLabels[*ivarM] + ";Invmass[GeV/c^{2}]";
-	 m_2DinvmassVSx[*ireg][*ivarM] = new TH2F(hname, htitle ,m_nVarBins,m_varRanges[*ivarM].first, m_varRanges[*ivarM].second, m_nMassBins, m_minInvmass, m_maxInvmass);
-	 RegisterHisto(dimuMonObj_shift,m_2DinvmassVSx[*ireg][*ivarM]);
+       for (const std::string& varM : m_varsVSmean) {
+	 hname = m_resonName + "_2DinvmassVS" + varM + "_" + reg;
+	 htitle = hname + ";" + m_varLabels[varM] + ";Invmass[GeV/c^{2}]";
+	 m_2DinvmassVSx[reg][varM] = new TH2F(hname, htitle ,m_nVarBins,m_varRanges[varM].first, m_varRanges[varM].second, m_nMassBins, m_minInvmass, m_maxInvmass);
+	 RegisterHisto(dimuMonObj_shift,m_2DinvmassVSx[reg][varM]);
 
-	 hname = m_resonName + "_invmassVS" + *ivarM + "_" + *ireg;
-	 htitle = hname + ";" + m_varLabels[*ivarM] + ";Invmass[GeV/c^{2}]";
-	 m_invmassVSx[*ireg][*ivarM] = new TH1F(hname, htitle, m_nVarBins,m_varRanges[*ivarM].first, m_varRanges[*ivarM].second);
-	 RegisterHisto(dimuMonObj_shift,m_invmassVSx[*ireg][*ivarM]);
+	 hname = m_resonName + "_invmassVS" + varM + "_" + reg;
+	 htitle = hname + ";" + m_varLabels[varM] + ";Invmass[GeV/c^{2}]";
+	 m_invmassVSx[reg][varM] = new TH1F(hname, htitle, m_nVarBins,m_varRanges[varM].first, m_varRanges[varM].second);
+	 RegisterHisto(dimuMonObj_shift,m_invmassVSx[reg][varM]);
        }
 
        //for each var vs width plot
-       std::vector<std::string>::iterator ivarW = m_varsVSwidth.begin();
-       for (ivarW=m_varsVSwidth.begin(); ivarW!=m_varsVSwidth.end();ivarW++){
+       for (const std::string& varW : m_varsVSwidth) {
 	 //book the corresponding 2D histo if it hasn't already been booked
-	 if (m_2DinvmassVSx[*ireg].find(*ivarW)==m_2DinvmassVSx[*ireg].end()){
-	   hname = m_resonName + "_2DinvmassVS" + *ivarW + "_" + *ireg;
-	   htitle = hname + ";" + m_varLabels[*ivarW] + ";Invmass[GeV/c^{2}]";
-	   m_2DinvmassVSx[*ireg][*ivarW] = new TH2F(hname, htitle ,m_nVarBins, m_varRanges[*ivarW].first, m_varRanges[*ivarW].second, m_nMassBins, m_minInvmass, m_maxInvmass);
-	   RegisterHisto(dimuMonObj_shift,m_2DinvmassVSx[*ireg][*ivarW]);
+	 if (m_2DinvmassVSx[reg].find(varW)==m_2DinvmassVSx[reg].end()){
+	   hname = m_resonName + "_2DinvmassVS" + varW + "_" + reg;
+	   htitle = hname + ";" + m_varLabels[varW] + ";Invmass[GeV/c^{2}]";
+	   m_2DinvmassVSx[reg][varW] = new TH2F(hname, htitle ,m_nVarBins, m_varRanges[varW].first, m_varRanges[varW].second, m_nMassBins, m_minInvmass, m_maxInvmass);
+	   RegisterHisto(dimuMonObj_shift,m_2DinvmassVSx[reg][varW]);
 	 }
 
-	 hname = m_resonName + "_widthVS" + *ivarW + "_" + *ireg;
-	 htitle = hname + ";" + m_varLabels[*ivarW] + ";Width[GeV/c^{2}]";
-	 m_widthVSx[*ireg][*ivarW] = new TH1F(hname,htitle ,m_nVarBins,m_varRanges[*ivarW].first, m_varRanges[*ivarW].second);
-	 RegisterHisto(dimuMonObj_expert,m_widthVSx[*ireg][*ivarW]);
+	 hname = m_resonName + "_widthVS" + varW + "_" + reg;
+	 htitle = hname + ";" + m_varLabels[varW] + ";Width[GeV/c^{2}]";
+	 m_widthVSx[reg][varW] = new TH1F(hname,htitle ,m_nVarBins,m_varRanges[varW].first, m_varRanges[varW].second);
+	 RegisterHisto(dimuMonObj_expert,m_widthVSx[reg][varW]);
 
        }
 
        //for the each variable's distribution
-       std::vector<std::string>::iterator ivarD = m_varsDistr.begin();
-       for (ivarD=m_varsDistr.begin(); ivarD!=m_varsDistr.end();ivarD++){
-	 hname = m_resonName + "_" + *ivarD + "_" + *ireg;
-	 htitle = hname + ";" + m_varLabels[*ivarD];
-	 if (*ivarD == "eta" || *ivarD == "etaAll" || *ivarD == "etaPos" || *ivarD == "etaNeg" ){
-	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nEtaBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
-	 } else if (*ivarD == "pt" || *ivarD == "ptAll" || *ivarD == "ptPos" || *ivarD == "ptNeg" ){
-	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nPtBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
-	 } else if (*ivarD == "phi" || *ivarD == "phiAll" || *ivarD == "phiPos" || *ivarD == "phiNeg" ){
-	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nPhiBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
+       for (const std::string& varD: m_varsDistr) {
+	 hname = m_resonName + "_" + varD + "_" + reg;
+	 htitle = hname + ";" + m_varLabels[varD];
+	 if (varD == "eta" || varD == "etaAll" || varD == "etaPos" || varD == "etaNeg" ){
+	   m_xDistr[reg][varD] = new TH1F(hname, htitle, m_nEtaBins, m_varRanges[varD].first, m_varRanges[varD].second);
+	 } else if (varD == "pt" || varD == "ptAll" || varD == "ptPos" || varD == "ptNeg" ){
+	   m_xDistr[reg][varD] = new TH1F(hname, htitle, m_nPtBins, m_varRanges[varD].first, m_varRanges[varD].second);
+	 } else if (varD == "phi" || varD == "phiAll" || varD == "phiPos" || varD == "phiNeg" ){
+	   m_xDistr[reg][varD] = new TH1F(hname, htitle, m_nPhiBins, m_varRanges[varD].first, m_varRanges[varD].second);
 	 } else {
-	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nVarBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
+	   m_xDistr[reg][varD] = new TH1F(hname, htitle, m_nVarBins, m_varRanges[varD].first, m_varRanges[varD].second);
 	 }
-	 RegisterHisto(dimuMonObj_expert,m_xDistr[*ireg][*ivarD]);
+	 RegisterHisto(dimuMonObj_expert,m_xDistr[reg][varD]);
        }
      }
    }
@@ -297,10 +293,10 @@ StatusCode DiMuMon::fillHistograms()
   if (nMuons>1){
     xAOD::MuonContainer::const_iterator mu1 = goodMuons.begin();
     xAOD::MuonContainer::const_iterator muEnd = goodMuons.end();
-    for (; mu1!=muEnd;mu1++){
+    for (; mu1!=muEnd;++mu1){
       const xAOD::TrackParticle *id1 = (*mu1)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       xAOD::MuonContainer::const_iterator mu2 = mu1+1;
-      for (; mu2!=muEnd; mu2++){
+      for (; mu2!=muEnd; ++mu2){
 	const xAOD::TrackParticle *id2 = (*mu2)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
 	//consider only opposite sign muons
 	double q1 = id1->charge();
@@ -372,12 +368,11 @@ StatusCode DiMuMon::fillHistograms()
 	  allVars = &m_2DinvmassVSx[region];
 	}
 
-	std::map<std::string, TH2F*>::iterator ivar2D = allVars->begin();
-	for (ivar2D = allVars->begin();ivar2D != allVars->end(); ivar2D++){
-	  if ((*ivar2D).first!="etaAll" && (*ivar2D).first!="phiAll" && (*ivar2D).first!="ptAll"){
-	    if (fillAll) m_2DinvmassVSx["All"][(*ivar2D).first]->Fill(m_varValues[(*ivar2D).first],invmass);
-	    if (fillReg) m_2DinvmassVSx[region][(*ivar2D).first]->Fill(m_varValues[(*ivar2D).first],invmass);
-	  } else if ((*ivar2D).first=="etaAll"){
+        for (const std::pair<const std::string, TH2F*>& p : *allVars) {
+	  if (p.first!="etaAll" && p.first!="phiAll" && p.first!="ptAll"){
+	    if (fillAll) m_2DinvmassVSx["All"][p.first]->Fill(m_varValues[p.first],invmass);
+	    if (fillReg) m_2DinvmassVSx[region][p.first]->Fill(m_varValues[p.first],invmass);
+	  } else if (p.first=="etaAll"){
 	    if (fillAll){
 	      m_2DinvmassVSx["All"]["etaAll"]->Fill(etaPos,invmass);
 	      m_2DinvmassVSx["All"]["etaAll"]->Fill(etaNeg,invmass);
@@ -386,7 +381,7 @@ StatusCode DiMuMon::fillHistograms()
 	      m_2DinvmassVSx[region]["etaAll"]->Fill(etaPos,invmass);
 	      m_2DinvmassVSx[region]["etaAll"]->Fill(etaNeg,invmass);
 	    }
-	  } else if ((*ivar2D).first=="phiAll"){
+	  } else if (p.first=="phiAll"){
 	    if (fillAll){
 	      m_2DinvmassVSx["All"]["phiAll"]->Fill(phiPos,invmass);
 	      m_2DinvmassVSx["All"]["phiAll"]->Fill(phiNeg,invmass);
@@ -395,7 +390,7 @@ StatusCode DiMuMon::fillHistograms()
 	      m_2DinvmassVSx[region]["phiAll"]->Fill(phiPos,invmass);
 	      m_2DinvmassVSx[region]["phiAll"]->Fill(phiNeg,invmass);
 	    }
-	  } else if ((*ivar2D).first=="ptAll"){
+	  } else if (p.first=="ptAll"){
 	    if (fillAll){
 	      m_2DinvmassVSx["All"]["ptAll"]->Fill(ptPos,invmass);
 	      m_2DinvmassVSx["All"]["ptAll"]->Fill(ptNeg,invmass);
@@ -409,12 +404,11 @@ StatusCode DiMuMon::fillHistograms()
 
 	//fill var distributions
 	//here we already know the list of variables so no need for gymnastics
-	std::vector<std::string>::iterator ivarD = m_varsDistr.begin();
-	for (ivarD = m_varsDistr.begin();ivarD != m_varsDistr.end(); ivarD++){
-	  if (*ivarD!="etaAll" && *ivarD!="phiAll" && *ivarD!="ptAll"){
-	    if (fillAll) m_xDistr["All"][*ivarD]->Fill(m_varValues[*ivarD]);
-	    if (fillReg) m_xDistr[region][*ivarD]->Fill(m_varValues[*ivarD]);
-	  } else if (*ivarD=="etaAll"){
+        for (const std::string& varD : m_varsDistr) {
+	  if (varD!="etaAll" && varD!="phiAll" && varD!="ptAll"){
+	    if (fillAll) m_xDistr["All"][varD]->Fill(m_varValues[varD]);
+	    if (fillReg) m_xDistr[region][varD]->Fill(m_varValues[varD]);
+	  } else if (varD=="etaAll"){
 	    if (fillAll){
 	      m_xDistr["All"]["etaAll"]->Fill(etaPos);
 	      m_xDistr["All"]["etaAll"]->Fill(etaNeg);
@@ -423,7 +417,7 @@ StatusCode DiMuMon::fillHistograms()
 	      m_xDistr[region]["etaAll"]->Fill(etaPos);
 	      m_xDistr[region]["etaAll"]->Fill(etaNeg);
 	    }
-	  } else if (*ivarD=="phiAll"){
+	  } else if (varD=="phiAll"){
 	    if (fillAll){
 	      m_xDistr["All"]["phiAll"]->Fill(phiPos);
 	      m_xDistr["All"]["phiAll"]->Fill(phiNeg);
@@ -432,7 +426,7 @@ StatusCode DiMuMon::fillHistograms()
 	      m_xDistr[region]["phiAll"]->Fill(phiPos);
 	      m_xDistr[region]["phiAll"]->Fill(phiNeg);
 	    }
-	  } else if (*ivarD=="ptAll"){
+	  } else if (varD=="ptAll"){
 	    if (fillAll){
 	      m_xDistr["All"]["ptAll"]->Fill(ptPos);
 	      m_xDistr["All"]["ptAll"]->Fill(ptNeg);
@@ -457,26 +451,24 @@ StatusCode DiMuMon::procHistograms()
 
 
    if(endOfRunFlag() && m_doFits) {
-     std::vector<std::string> ::iterator ireg = m_regions.begin();
-     for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
-       std::map<std::string, TH2F*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
-       for (ivar2D = m_2DinvmassVSx[*ireg].begin();ivar2D != m_2DinvmassVSx[*ireg].end(); ivar2D++){
+     for (const std::string& reg : m_regions) {
+       for (const std::pair<const std::string, TH2F*>& p : m_2DinvmassVSx[reg]) {
 	 int mode = 999.; //0 = both, 1 = mean only, 2 = wdth only
 	 std::vector<TH1F*> hout;//1D histograms for fit results
-	 if (m_invmassVSx[*ireg].find((*ivar2D).first)!=m_invmassVSx[*ireg].end()){
-	   if (m_widthVSx[*ireg].find((*ivar2D).first)!=m_widthVSx[*ireg].end()) {
+	 if (m_invmassVSx[reg].find(p.first)!=m_invmassVSx[reg].end()){
+	   if (m_widthVSx[reg].find(p.first)!=m_widthVSx[reg].end()) {
 	     mode =0;
-	     hout.push_back(m_invmassVSx[*ireg][(*ivar2D).first]);
-	     hout.push_back(m_widthVSx[*ireg][(*ivar2D).first]);
+	     hout.push_back(m_invmassVSx[reg][p.first]);
+	     hout.push_back(m_widthVSx[reg][p.first]);
 	   } else {
 	     mode = 1;
-	     hout.push_back(m_invmassVSx[*ireg][(*ivar2D).first]);
+	     hout.push_back(m_invmassVSx[reg][p.first]);
 	   }
 	 } else {
 	   mode = 2;
-	   hout.push_back(m_widthVSx[*ireg][(*ivar2D).first]);
+	   hout.push_back(m_widthVSx[reg][p.first]);
 	 }
-	 iterativeGausFit(m_2DinvmassVSx[*ireg][(*ivar2D).first],hout,mode);
+	 iterativeGausFit(m_2DinvmassVSx[reg][p.first],hout,mode);
        } //variables
      } //regions
    } //isEndOfRun

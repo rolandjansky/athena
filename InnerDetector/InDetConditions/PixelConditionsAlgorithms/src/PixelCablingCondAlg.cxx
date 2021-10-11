@@ -99,7 +99,7 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
   }
   else {
     const std::string filename = PathResolverFindCalibFile(moduleData->getCablingMapFileName());
-    if (filename.size()==0) {
+    if (filename.empty()) {
       ATH_MSG_FATAL("Mapping File: " << moduleData->getCablingMapFileName() << " not found!");
       return StatusCode::FAILURE;
     }
@@ -152,7 +152,7 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
       bool readoutSpeed = false;
       if (rodReadoutMap.find(rodid)!=rodReadoutMap.end()) { readoutSpeed=rodReadoutMap[rodid]; }
 
-      if (readoutSpeed==false) { linknumber=(sl_40_link & 0xF) | ((sl_40_fmt & 0xF)<<4); }
+      if (!readoutSpeed) { linknumber=(sl_40_link & 0xF) | ((sl_40_fmt & 0xF)<<4); }
       else                     { linknumber=(sl_80_link & 0xF) | ((sl_80_fmt & 0xF)<<4); }
     }
 

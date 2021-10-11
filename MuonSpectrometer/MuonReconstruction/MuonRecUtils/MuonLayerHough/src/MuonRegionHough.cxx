@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/MuonRegionHough.h"
@@ -7,7 +7,7 @@
 namespace MuonHough {
 
   MuonSectorHough::MuonSectorHough( int sector, const MuonDetectorDescription& regionDescriptions ) {
-    m_transforms.resize(Muon::MuonStationIndex::sectorLayerHashMax(),0);
+    m_transforms.resize(Muon::MuonStationIndex::sectorLayerHashMax(),nullptr);
     
     // loop over regions and layers of the detector and build the transforms
     for( int reg = 0; reg < Muon::MuonStationIndex::DetectorRegionIndexMax; ++reg ){

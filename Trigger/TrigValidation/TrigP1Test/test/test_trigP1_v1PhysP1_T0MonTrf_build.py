@@ -15,7 +15,7 @@ hlt.forks = 1
 hlt.threads = 4
 hlt.concurrent_events = 4
 hlt.max_events = 50
-hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
+hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\;doL1Sim=True\\;rewriteLVL1=True\\;\\\"'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
@@ -28,9 +28,10 @@ hlt.input = 'data'
 tzrecoPreExec = ' '.join([
  "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
  "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
+ "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
+ "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
  "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
  "TriggerFlags.configForStartup=\'HLToffline\';",
- "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
  "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\')",
 ])
 
@@ -44,17 +45,19 @@ tzreco.max_events = 50
 tzreco.args = '--inputBSFile=RAW.pool.root'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --outputNTUP_TRIGRATEFile=rate.ntup.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 #====================================================================================================
-# Tier-0 monitoring step (AOD->HIST)                                                         
-tzmon = ExecStep.ExecStep('Tier0Mon')                                                        
+# Tier-0 monitoring step (AOD->HIST)
+tzmon = ExecStep.ExecStep('Tier0Mon')
 tzmon.type = 'other'
-tzmon.executable = 'Run3DQTestingDriver.py'                                                  
-tzmon.input = ''                                                                             
-tzmon.args = '--dqOffByDefault Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'  
+tzmon.executable = 'Run3DQTestingDriver.py'
+tzmon.input = ''
+tzmon.args = '--threads=1'
+tzmon.args += ' --dqOffByDefault'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
 
 #====================================================================================================
 # Merging NTUP_TRIGRATE/COST

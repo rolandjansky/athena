@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1MBTS_H
@@ -11,8 +11,6 @@
 
 #include "TileEvent/TileContainer.h"
 #include "TileIdentifier/TileTBID.h"
-
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include <string>
 #include <vector>
@@ -35,11 +33,6 @@ namespace LVL1 {
     StatusCode execute();
     
   private:
-    /** A data member to retain a connection to the level 1
-	configuration service */
-    Gaudi::Property<bool> m_useNewConfig{this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc"};
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1ConfigSvc providing L1 configuration for Run 2"};
-    
     /** A data member to retain a pointer to the Tile Test Beam
     Identifier service.  The MBTS identifiers were added after the
     other tile identifiers.  To avoid confusion and extra work they

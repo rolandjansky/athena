@@ -77,25 +77,29 @@ def InTimeOnlyMcEventCollTool(name="InTimeOnlyMcEventCollTool", **kwargs):
 ############################################################################
 
 # The earliest bunch crossing time for which interactions will be sent
-# to the Truth jet merging code.
+# to the Truth jet merging code. See discussions in ATLASSIM-3837.
 def TruthJet_FirstXing():
-    return -500
+    return -125
 
 # The latest bunch crossing time for which interactions will be sent
-# to the Truth jet merging code.
+# to the Truth jet merging code. See discussions in ATLASSIM-3837.
 def TruthJet_LastXing():
-    return 100
+    return 75
 
 def getTruthJetRange(name="TruthJetRange", **kwargs):
     #this is the time of the xing in ns
     kwargs.setdefault('FirstXing', TruthJet_FirstXing() )
     kwargs.setdefault('LastXing',  TruthJet_LastXing() )
-    kwargs.setdefault('ItemList', ["JetCollection#InTimeAntiKt4TruthJets",
-                                   "JetCollection#OutOfTimeAntiKt4TruthJets"] )
+    itemList = []
+    if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+        itemList += ["xAOD::JetContainer#AntiKt4TruthJets"]
+    if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+        itemList += ["xAOD::JetContainer#AntiKt6TruthJets"]
+    kwargs.setdefault('ItemList',  itemList)
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 
-def getMergeTruthJetsTool(name="MergeTruthJetsTool", **kwargs):
+def getMergeAntiKt4TruthJetsTool(name="MergeAntiKt4TruthJetsTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing() )
         kwargs.setdefault("LastXing",  TruthJet_LastXing() )
@@ -110,9 +114,24 @@ def getMergeTruthJetsTool(name="MergeTruthJetsTool", **kwargs):
 
     return CfgMgr.MergeTruthJetsTool(name, **kwargs)
 
+def getMergeAntiKt6TruthJetsTool(name="MergeAntiKt6TruthJetsTool", **kwargs):
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", TruthJet_FirstXing() )
+        kwargs.setdefault("LastXing",  TruthJet_LastXing() )
+
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("InTimeOutputTruthJetCollKey", overlayFlags.bkgPrefix() + "InTimeAntiKt6TruthJets")
+        kwargs.setdefault("OutOfTimeTruthJetCollKey", overlayFlags.bkgPrefix() + "OutOfTimeAntiKt6TruthJets")
+    else:
+        kwargs.setdefault("InTimeOutputTruthJetCollKey", "InTimeAntiKt6TruthJets")
+        kwargs.setdefault("OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt6TruthJets")
+
+    return CfgMgr.MergeTruthJetsTool(name, **kwargs)
+
 def getMergeTruthJetsFilterTool(name="MergeTruthJetsFilterTool", **kwargs):
     kwargs.setdefault("ActivateFilter", True )
-    return getMergeTruthJetsTool(name, **kwargs)
+    return getMergeAntiKt4TruthJetsTool(name, **kwargs)
 
 ############################################################################
 

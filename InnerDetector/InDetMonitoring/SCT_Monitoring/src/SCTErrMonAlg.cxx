@@ -93,7 +93,7 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
   // The numbers of disabled modules, links, strips do not change during a run.
-  if (m_isFirstConfigurationDetails) {
+  { //scope for lock
     std::lock_guard<std::mutex> glock{m_mutex};
     if (m_isFirstConfigurationDetails) {
       ATH_CHECK(fillConfigurationDetails(ctx));
@@ -223,7 +223,7 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
     int nBSErrors{0};
     // get number of BS errors
-    numByteStreamErrors(m_byteStreamErrTool->getErrorSet(errType), nBSErrors);
+    numByteStreamErrors(m_byteStreamErrTool->getErrorSet(errType, ctx), nBSErrors);
     /// Fill /SCT/GENERAL/Conf/SCT_*VsLbs ///
     auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
     auto nBSErrorsAcc{Monitored::Scalar<int>("n_"+SCT_ByteStreamErrors::ErrorTypeDescription[errType], nBSErrors)};
@@ -235,7 +235,7 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
   std::array<int, N_REGIONS_INC_GENERAL> nMaskedLinks;
   nMaskedLinks.fill(0);
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, categoryErrorMap, nMaskedLinks);
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), errType, categoryErrorMap, nMaskedLinks);
   }
   for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     m_nMaskedLinks[reg] = nMaskedLinks[reg];
@@ -518,10 +518,10 @@ bool SCTErrMonAlg::errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
   sctHashBadLinkError.clear();
   sctHashBadRODError.clear();
   sctHashBadError.clear();
- 
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
   //BadLinkLevelError
   for (SCT_ByteStreamErrors::ErrorType linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
-    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors, ctx )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
     }
@@ -529,7 +529,7 @@ bool SCTErrMonAlg::errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
 
   //BadRODLevelError
   for (SCT_ByteStreamErrors::ErrorType RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
-    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors, ctx )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadRODError.insert(waferHash);
     }
@@ -537,7 +537,7 @@ bool SCTErrMonAlg::errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
 
   //BadError = BadLinkLevelError + BadRODLevelError
   for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
-    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError, ctx )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadError.insert(waferHash);
     }

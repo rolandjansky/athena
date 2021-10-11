@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParams2Ntuple.h"
@@ -322,20 +322,14 @@ StatusCode LArParams2Ntuple::stop() {
       if ( sc.isFailure() )  m_dumpFlags.clear(OFCBinComplete) ;
     }
 
-    std::vector<HWIdentifier>::const_iterator chIt    =  m_onlineId->channel_begin() ;
-    std::vector<HWIdentifier>::const_iterator chItEnd =  m_onlineId->channel_end() ;
-    for ( ; chIt != chItEnd ; chIt++ ) {
-      HWIdentifier chid = *chIt ;
+    for (HWIdentifier chid : m_onlineId->channel_range()) {
       for ( unsigned gain=0 ; (int)gain<nGains ; ++gain ) {
 	DumpFlags & flags = m_dump_flags_map[gain][chid] ;
 	flags = m_dumpFlags ;
       }
     }
     if ( ! m_isSC ) {
-    std::vector<HWIdentifier>::const_iterator chCalibIt    =  ((LArOnlineID*)m_onlineId)->calib_channel_begin() ;
-    std::vector<HWIdentifier>::const_iterator chCalibItEnd =  ((LArOnlineID*)m_onlineId)->calib_channel_end() ;
-    for ( ; chCalibIt != chCalibItEnd ; chCalibIt++ ) {
-       HWIdentifier chid = *chCalibIt ;
+    for (HWIdentifier chid : m_onlineId->calib_channel_range()) {
       for ( unsigned gain=0 ; (int)gain<nGains ; ++gain ) {
 	DumpFlags & flags = m_dump_flags_map[gain][chid] ;
 	flags = m_dumpFlags ;
@@ -420,14 +414,10 @@ StatusCode LArParams2Ntuple::stop() {
 
   for ( unsigned gain=0 ; (int)gain<nGains ; gain++) {
 
-    std::map< HWIdentifier,DumpFlags >::const_iterator map_it   = m_dump_flags_map[gain].begin() ;
-    std::map< HWIdentifier,DumpFlags >::const_iterator map_it_e = m_dump_flags_map[gain].end() ;
+    for (const std::pair<const HWIdentifier, DumpFlags>& p : m_dump_flags_map[gain]) {
+      HWIdentifier chid = HWIdentifier(p.first) ;
 
-    for ( ; map_it!=map_it_e ; map_it++ ) {
-
-      HWIdentifier chid = HWIdentifier(map_it->first) ;
-
-      const std::vector<bool> & flags = (map_it->second).flags() ;
+      const std::vector<bool> & flags = (p.second).flags() ;
       if ( flags.size() <= 0 ) continue ;
       if ( flags.size() < m_nClasses ) {  // should never happen...
 	ATH_MSG_WARNING( "... flags vector shorter than " << m_nClasses << ": " << flags.size() ) ;

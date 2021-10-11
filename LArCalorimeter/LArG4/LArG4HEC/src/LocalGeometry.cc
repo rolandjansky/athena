@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::HEC::LocalGeometry
 #include "LArG4HEC/LocalGeometry.h"
 
 #include "LArG4Code/LArG4Identifier.h"
-//#include "LArG4HEC/Geometry.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"
@@ -19,7 +18,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaKernel/Units.h"
 #include "globals.hh"
 #include <cmath>
@@ -100,11 +98,10 @@ namespace LArG4 {
     LocalGeometry::LocalGeometry(const std::string& name, ISvcLocator * pSvcLocator)
       : base_class(name, pSvcLocator)
       , m_geoModel("GeoModelSvc", name)
-      , m_AccessSvc("RDBAccessSvc", name)
+      , m_geoDbTagSvc("GeoDbTagSvc",name)
       , m_isX(false)
     {
       declareProperty("GeoModelSvc",m_geoModel);
-      declareProperty("RDBAccessSvc", m_AccessSvc);
       declareProperty("isX", m_isX);
     }
 
@@ -115,7 +112,9 @@ namespace LArG4 {
       ATH_CHECK(m_geoModel.retrieve());
 
       // Access the geometry database:
-      ATH_CHECK(m_AccessSvc.retrieve());
+      ATH_CHECK(m_geoDbTagSvc.retrieve());
+      ServiceHandle<IRDBAccessSvc> accessSvc(m_geoDbTagSvc->getParamSvcName(), name());
+      ATH_CHECK(accessSvc.retrieve());
 
       // Obtain the geometry version information:
       std::string AtlasVersion = m_geoModel->atlasVersion();
@@ -127,10 +126,10 @@ namespace LArG4 {
       ATH_MSG_INFO("Constructing local HEC geometry helper ");
       ATH_MSG_DEBUG(" detectorKey: "<<detectorKey<<" detectorNode: "<<detectorNode);
 
-      IRDBRecordset_ptr hecPad = m_AccessSvc->getRecordsetPtr("HecPad",detectorKey, detectorNode);
+      IRDBRecordset_ptr hecPad = accessSvc->getRecordsetPtr("HecPad",detectorKey, detectorNode);
       if (hecPad->size()==0)
         {
-          hecPad    = m_AccessSvc->getRecordsetPtr("HecPad","HecPad-00", "HecPad");
+          hecPad    = accessSvc->getRecordsetPtr("HecPad","HecPad-00", "HecPad");
         }
       if (hecPad->size()==0)
         {
@@ -147,7 +146,7 @@ namespace LArG4 {
             }
         }
 
-      IRDBRecordset_ptr hecLongitudinalBlock = m_AccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey,detectorNode);
+      IRDBRecordset_ptr hecLongitudinalBlock = accessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey,detectorNode);
       if (hecLongitudinalBlock->size()==0)
         {
           ATH_MSG_ERROR("Cannot find the HecLongitinalBlock Table");
@@ -159,7 +158,7 @@ namespace LArG4 {
           m_firstAbsorber[indexloop]= (*hecLongitudinalBlock)[indexloop]->getDouble("PLATE0")*Units::cm;
         }
 
-      IRDBRecordset_ptr hadronicEndcap = m_AccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey,detectorNode);
+      IRDBRecordset_ptr hadronicEndcap = accessSvc->getRecordsetPtr("HadronicEndcap",detectorKey,detectorNode);
       if (hadronicEndcap->size()==0)
         {
           ATH_MSG_ERROR("Cannot find the HadronicEndcap Table");

@@ -3,11 +3,14 @@
 # Declare the package name:
 atlas_subdir( TrigLongLivedParticlesHypo )
 
+# External dependencies:
+find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread )
+
 # Component(s) in the package:
 atlas_add_component( TrigLongLivedParticlesHypo
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib GaudiKernel TrigCompositeUtilsLib xAODTracking xAODTrigger )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthViews AthenaBaseComps AthenaMonitoringKernelLib DecisionHandlingLib GaudiKernel PathResolver TrigCompositeUtilsLib LumiBlockCompsLib xAODTracking xAODJet xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

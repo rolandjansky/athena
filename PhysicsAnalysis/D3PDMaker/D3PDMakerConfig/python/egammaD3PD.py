@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file D3PDMakerConfig/python/egammaD3PD.py
@@ -247,11 +247,6 @@ def egammaD3PD (alg = None,
     trigalg += EventInfoD3PDObject        (0)
     alg.Stream.trigDecisionTree = trigalg
 
-    # Add bunch structure metadata.
-    from TriggerD3PDMaker.BunchStructureMetadata \
-         import addBunchStructureMetadata
-    addBunchStructureMetadata (alg)
-
     alg += LArCollisionTimeD3PDObject (**_args (level, 'LArCollisionTime', kw))
     alg += ElectronD3PDObject         (**_args (level, 'Electron', kw,
                                                 EgammaJetSignedIPAndPTRel_target='jet_'))
@@ -287,38 +282,6 @@ def egammaD3PD (alg = None,
     alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
                                          sgkey = 'MET_Core_AntiKt4EMTopo',
                                          prefix = 'MET_RefFinal_'))
-    if D3PDMakerFlags.DoTrigger():
-        from TriggerD3PDMaker.TrigDecisionD3PDObject \
-             import TrigDecisionD3PDObject
-        alg += TrigDecisionD3PDObject (**_args (2, 'TrigDecision', kw))
-        #TrigEgammaD3PDObjects (alg, **_args (1, 'TrigEgamma', kw,
-        #                                     TrigEMCluster_level = 2))
-
-    #     from TriggerD3PDMaker.EnergySumROID3PDObject import EnergySumROID3PDObject
-    #     from TrigMissingETD3PDMaker.TrigMETD3PDObject import TrigMETD3PDObject
-
-    #     alg += EnergySumROID3PDObject(**_args (level, 'EnergySumROI', kw,
-    #                                            prefix = "trig_L1_esum_",
-    #                                            allowMissing = True))
-
-    #     # The LVL2 information:
-    #     alg += TrigMETD3PDObject(**_args( level, 'TrigMETL2', kw,
-    #                                       prefix = "trig_L2_met_",
-    #                                       sgkey = "HLT_T2MissingET" ))
-    #     if cfgKeyStore.isInInputFile( "TrigMissingETContainer", "HLT_L2MissingET_FEB" ):
-    #         alg += TrigMETD3PDObject(**_args( level, 'TrigMETL2_FEB', kw,
-    #                                           prefix = "trig_L2_feb_met_",
-    #                                           sgkey = "HLT_L2MissingET_FEB" ))
-
-    #     # The EF information:
-    #     alg += TrigMETD3PDObject(**_args ( level, 'TrigMETEF', kw,
-    #                                        prefix = "trig_EF_met_",
-    #                                        sgkey = "HLT_TrigEFMissingET" ))
-
-        
-    #     from TriggerD3PDMaker.BGCodeD3PDObject import BGCodeD3PDObject
-    #     alg += BGCodeD3PDObject (**_args (2, 'BGCode', kw))
-
 
     # May be missing in single-beam data.
     alg += PrimaryxAODVertexD3PDObject (**_args (

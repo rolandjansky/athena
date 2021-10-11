@@ -234,7 +234,9 @@ namespace Muon {
     void MuPatTrack::updateTrack(std::unique_ptr<Trk::Track>& track) { m_track.swap(track); }
 
     void MuPatTrack::addExcludedSegment(MuPatSegment* segment) { m_excludedSegments.push_back(segment); }
-
+    bool MuPatTrack::isSegmentExcluded(const MuPatSegment* segment) const {
+        return std::find(m_excludedSegments.begin(),m_excludedSegments.end(), segment) != m_excludedSegments.end();
+    }   
     void MuPatTrack::addSegment(MuPatSegment* segment, std::unique_ptr<Trk::Track>& newTrack) {
         // add segment and increase counter
         m_segments.push_back(segment);

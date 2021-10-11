@@ -33,8 +33,20 @@ chains = [
               l1SeedThresholds=['FSNOSEED'],groups=MultiJetGroup),
     
     ChainProp(name='HLT_j85_050momemfrac100_L1J20', groups=SingleJetGroup),
+    
+    ChainProp(name='HLT_j80_CLEANlb_L1J15', groups=SingleJetGroup),
 
+    ChainProp(name='HLT_j80_CLEANllp_L1J15', groups=SingleJetGroup),
+ 
     ChainProp(name='HLT_j420_subresjesgscIS_ftf_L1J100',groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_pf_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_pf_ftf_nojcalib_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
+
+    ChainProp(name='HLT_j0_perf_a10sd_cssk_pf_nojcalib_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
 
     ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',
               groups=SingleJetGroup),
@@ -76,7 +88,11 @@ chains = [
     ChainProp(name='HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', groups=SingleJetGroup),
 
     ChainProp(name='HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_PTRANGE2r3_L1J20', groups=SingleJetGroup),
-    
+
+    ChainProp(name='HLT_j80_j60_SHARED_j40__L1J15', groups=[MultiJetGroup], l1SeedThresholds=['FSNOSEED']*3,),
+
+    ChainProp(name='HLT_j0_HT1000_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+
 ]
 
 def testChainDictMaker(idict):

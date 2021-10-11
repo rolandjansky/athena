@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LARPARABOLAPEAKRECOTOOL_H
@@ -56,9 +56,9 @@ class LArParabolaPeakRecoTool: public AthAlgTool
   std::string m_fileShapeName, m_fileADCcorName;
 
   // file and tables for corrections
-  FILE* m_fileShape, *m_fileADCcor;
-  float m_QT_Shape[4][26];
-  float m_QT_ADCcor[4][25];
+  FILE* m_fileShape = nullptr, *m_fileADCcor = nullptr;
+  float m_QT_Shape[4][26]{};
+  float m_QT_ADCcor[4][25]{};
 };
 
 

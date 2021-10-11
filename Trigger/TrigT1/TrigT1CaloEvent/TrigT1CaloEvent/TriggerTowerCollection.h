@@ -7,7 +7,6 @@
 #include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
 
-using namespace LVL1;
-typedef DataVector<TriggerTower> TriggerTowerCollection;
+typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
 
 #endif

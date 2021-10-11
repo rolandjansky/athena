@@ -16,7 +16,7 @@ namespace Egamma{
 class IsolationPlots:public PlotBase {
     public:
       IsolationPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-  void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo);
+  void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const;
      
       std::string m_sParticleType;
 
@@ -35,7 +35,7 @@ class IsolationPlots:public PlotBase {
 
     private:
       virtual void initializePlots();
-      void FillIsolationPlot(TH1* hist, xAOD::Iso::IsolationType isoType, const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo);
+      static void FillIsolationPlot(TH1* hist, xAOD::Iso::IsolationType isoType, const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo);
 //      void FillIsolationPlot(TH1* hist, xAOD::EgammaParameters::IsolationType isoType, const xAOD::Egamma& egamma);//rel19
       
 };

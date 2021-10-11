@@ -9,7 +9,7 @@ __author__  = 'Juerg Beringer'
 __version__ = '$Id $'
 
 
-import dircache, glob, time, sys, os, math
+import glob, time, sys, os, math
 import subprocess
 
 from InDetBeamSpotExample.TaskManager import TaskAnalyzer, TaskManager, getKey
@@ -217,7 +217,7 @@ class PostProcessingStep:
 
     def jobList(self):
         try:
-            l = dircache.listdir(self.taskDir)
+            l = os.listdir(self.taskDir)
         except Exception:
             l = []
         return l

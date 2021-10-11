@@ -125,7 +125,7 @@ int RpcCablingCondData::operator()(const Identifier& id) const {
 
 int RpcCablingCondData::max() const { return m_int2id.size(); }
 
-int RpcCablingCondData::offset() const { return 0; }
+int RpcCablingCondData::offset() { return 0; }
 
 std::vector<IdentifierHash> RpcCablingCondData::rod2hash(uint16_t subsystem_id, uint16_t rod_id) const {
     if ((subsystem_id != 0x66 && subsystem_id != 0x65) || (rod_id >= 16)) return std::vector<IdentifierHash>();
@@ -203,6 +203,7 @@ unsigned long int RpcCablingCondData::strip_code_fromOffId(const std::string& st
             cabStat = 2;  // special case of single RPC Chambers at the same R or dbr2
         }
     }
+    if (stationName.substr(0,3)=="BIS" && logicSector>31) logicSector+=1; // BIS78 are in doubPhi==1
 
     if (logicSector < 0 || logicSector > 63) { return 999999; }
 
@@ -217,14 +218,14 @@ unsigned long int RpcCablingCondData::strip_code_fromOffId(const std::string& st
 }
 
 unsigned long int RpcCablingCondData::strip_code_fromOffline(int etaPhiView, int logicSector, int cablingStation, int gasGap,
-                                                             int zIndexInCablingStation, int strip) const {
+                                                             int zIndexInCablingStation, int strip) {
     unsigned long int code = 0;
     code = etaPhiView * 100000000 + logicSector * 1000000 + cablingStation * 100000 + gasGap * 10000 + zIndexInCablingStation * 100 +
            (strip - 1);
     return code;
 }
 
-bool RpcCablingCondData::largeSector(const std::string& stName) const {
+bool RpcCablingCondData::largeSector(const std::string& stName) {
     bool ls = false;
     if (stName == "BML" ||  // 2
         stName == "BOL" ||  // 4
@@ -403,7 +404,7 @@ StatusCode RpcCablingCondData::giveROB_fromPRD(const IdentifierHash prdHashId, s
 bool RpcCablingCondData::give_Pad_Parameters(unsigned short int logic_sector, unsigned short int PADId, bool& feet, bool& eta_and_phi,
                                              unsigned short int& cma_mask, unsigned short int& feet_th0, unsigned short int& feet_th1,
                                              unsigned short int& feet_th2) const {
-    if (logic_sector >= 64 || PADId >= 8) return false;
+    if (logic_sector >= 64 || PADId >= 10) return false;  // max PADId was 8 in Run2, increased to 10 for Run3 to allow BIS78
 
     feet = m_RPCPadParameters_array[logic_sector][PADId].feet_on();
     eta_and_phi = m_RPCPadParameters_array[logic_sector][PADId].eta_and_phi();
@@ -658,8 +659,7 @@ bool RpcCablingCondData::giveOfflineId(const unsigned short int side, const unsi
     if (sector >= 32) return false;
     if (padId >= 10) return false;
     id = m_offline_id[side][sector][padId];
-    if (!id.is_valid()) return false;
-    return true;
+    return id.is_valid();
 }
 
 void RpcCablingCondData::setIds(const std::vector<Identifier>& int2id) { m_int2id = int2id; }

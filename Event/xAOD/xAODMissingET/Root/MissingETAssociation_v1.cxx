@@ -8,7 +8,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/FlowElement.h"
-#include "PFlowUtils/FEHelpers.h"
+#include "xAODPFlow/FEHelpers.h"
 
 #include <iterator>
 #include <cstdio>

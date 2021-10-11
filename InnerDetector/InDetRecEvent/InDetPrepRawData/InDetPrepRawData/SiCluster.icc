@@ -29,7 +29,7 @@ SiCluster::gangedPixel() const
 }
 
 inline bool
-SiCluster::type(Trk::PrepRawDataType::Type type) const
+SiCluster::type(Trk::PrepRawDataType type) const
 {
   return type == Trk::PrepRawDataType::SiCluster;
 }

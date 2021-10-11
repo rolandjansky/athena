@@ -133,9 +133,9 @@ private:
   std::vector<ElementLink<xAOD::TrackParticleContainer>> m_trackParticles;
   std::vector<ElementLink<xAOD::VertexContainer>> m_vertices;
 
-  std::array<double, 4> m_deltaEta;
-  std::array<double, 4> m_deltaPhi;
-  std::array<double, 4> m_deltaPhiRescaled;
+  std::array<double, 4> m_deltaEta{};
+  std::array<double, 4> m_deltaPhi{};
+  std::array<double, 4> m_deltaPhiRescaled{};
 
   double m_deltaPhiLast;
   float m_deltaEtaVtx;

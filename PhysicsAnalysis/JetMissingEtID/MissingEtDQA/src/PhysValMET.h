@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValMET.h 
@@ -81,6 +81,8 @@ class PhysValMET
   /////////////////////////////////////////////////////////////////// 
  private:
   bool m_doTruth;
+  bool m_inputIsDAOD;
+  bool m_doMETRefPlots;
 
   /// Default constructor: 
   PhysValMET();
@@ -110,10 +112,10 @@ class PhysValMET
   std::map <std::string,std::string> m_names;
 
   // Hists
-  TH1D *m_MET_Track, *m_MET_Track_x, *m_MET_Track_y, *m_MET_Track_phi, *m_MET_Track_sum;
-  TH1D *m_MET_PVTrack_Nominal, *m_MET_PVTrack_Nominal_x, *m_MET_PVTrack_Nominal_y, *m_MET_PVTrack_Nominal_phi, *m_MET_PVTrack_Nominal_sum;
-  TH1D *m_MET_PVTrack_Pileup, *m_MET_PVTrack_Pileup_x, *m_MET_PVTrack_Pileup_y, *m_MET_PVTrack_Pileup_phi, *m_MET_PVTrack_Pileup_sum;
-  TH1D *m_MET_Calo, *m_MET_Calo_x, *m_MET_Calo_y, *m_MET_Calo_phi, *m_MET_Calo_sum;
+  TH1D *m_MET_Track = nullptr, *m_MET_Track_x = nullptr, *m_MET_Track_y = nullptr, *m_MET_Track_phi = nullptr, *m_MET_Track_sum = nullptr;
+  TH1D *m_MET_PVTrack_Nominal = nullptr, *m_MET_PVTrack_Nominal_x = nullptr, *m_MET_PVTrack_Nominal_y = nullptr, *m_MET_PVTrack_Nominal_phi = nullptr, *m_MET_PVTrack_Nominal_sum = nullptr;
+  TH1D *m_MET_PVTrack_Pileup = nullptr, *m_MET_PVTrack_Pileup_x = nullptr, *m_MET_PVTrack_Pileup_y = nullptr, *m_MET_PVTrack_Pileup_phi = nullptr, *m_MET_PVTrack_Pileup_sum = nullptr;
+  TH1D *m_MET_Calo = nullptr, *m_MET_Calo_x = nullptr, *m_MET_Calo_y = nullptr, *m_MET_Calo_phi = nullptr, *m_MET_Calo_sum = nullptr;
 
   //Maps
   std::map<std::string,std::vector<TH1D*> > m_MET_Ref;

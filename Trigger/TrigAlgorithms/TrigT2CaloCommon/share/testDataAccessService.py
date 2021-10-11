@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 doEmptyMenu=True
@@ -19,7 +19,7 @@ if globalflags.InputFormat.is_bytestream():
 # ----------------------------------------------------------------
 from AthenaCommon.AlgSequence import AthSequencer
 
-if TriggerFlags.doCalo:
+if ConfigFlags.Trigger.doCalo:
 
   if ( True ) :
      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -40,7 +40,7 @@ if TriggerFlags.doCalo:
     
     
 
-     from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection 
     
      from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
      from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker

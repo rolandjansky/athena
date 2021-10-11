@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -78,7 +78,7 @@ namespace LArG4 {
       // initialize the geometry.
       // Access source of detector parameters.
 
-      LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
+      const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
       // number of straight sections (should be 14)
       m_Nbrt = (int) (parameters->GetValue("LArEMBnoOFAccZigs"));
@@ -126,17 +126,22 @@ namespace LArG4 {
       // Initialize r-phi reference map
       this->GetRphi();
 
-      // get pointers to access G4 geometry
-      m_electrode = LArStraightElectrodes::GetInstance(m_detectorName);
-      m_absorber  = LArStraightAbsorbers::GetInstance(m_detectorName);
-      m_coudeelec = LArCoudeElectrodes::GetInstance(m_detectorName);
-      m_coudeabs  = LArCoudeAbsorbers::GetInstance(m_detectorName);
-
       if (m_detectorName.empty()) m_ecamName  = "LAr::EMB::ECAM";
       else                        m_ecamName  = m_detectorName+"::LAr::EMB::ECAM";
 
 
       return StatusCode::SUCCESS;
+    }
+
+    // ====================================================================================
+
+    void Geometry::initializeForSDCreation()
+    {
+      // get pointers to access G4 geometry
+      m_electrode = LArStraightElectrodes::GetInstance(m_detectorName);
+      m_absorber  = LArStraightAbsorbers::GetInstance(m_detectorName);
+      m_coudeelec = LArCoudeElectrodes::GetInstance(m_detectorName);
+      m_coudeabs  = LArCoudeAbsorbers::GetInstance(m_detectorName);
     }
 
     // ====================================================================================
@@ -325,7 +330,7 @@ namespace LArG4 {
       static bool FILL = true;
       if (FILL) {
 
-        LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
+        const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
         // maximum eta barrel 1.475 (at r=1500.024)
         Eta_max = parameters->GetValue("LArEMBMaxEtaAcceptance");

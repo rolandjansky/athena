@@ -179,7 +179,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
 
 	  if(tgcCabling->getElementIDfromReadoutID(offlineId, rd->subDetectorId(), rd->rodId(), rd->sswId(), rd->slbId(), rd->bitpos())){
-	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)){
+	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)!=1){
 	      if(std::find(requestedIdHashVect.begin(), requestedIdHashVect.end(), tgcHashId) != requestedIdHashVect.end()){
 		selectDecoder(getHitCollection, getCoinCollection,
                               *rd, rdo);
@@ -241,14 +241,14 @@ void Muon::TgcRdoToPrepDataToolMT::printPrepData() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  const TgcPrepDataContainer* tgcPrepDataContainer[NBC+1] = {0};
+  const TgcPrepDataContainer* tgcPrepDataContainer[NBC+1] = {nullptr};
   for(int ibc=0; ibc<NBC+1; ibc++) {
     SG::ReadHandleKey<TgcPrepDataContainer> k (m_outputprepdataKeys[ibc].key());
     k.initialize().ignore();
     tgcPrepDataContainer[ibc] = SG::makeHandle(k, ctx).get();
   }
 
-  const TgcCoinDataContainer* tgcCoinDataContainer[NBC] = {0};
+  const TgcCoinDataContainer* tgcCoinDataContainer[NBC] = {nullptr};
   for(int ibc=0; ibc<NBC; ibc++) {
     SG::ReadHandleKey<TgcCoinDataContainer> k (m_outputCoinKeys[ibc].key());
     k.initialize().ignore();

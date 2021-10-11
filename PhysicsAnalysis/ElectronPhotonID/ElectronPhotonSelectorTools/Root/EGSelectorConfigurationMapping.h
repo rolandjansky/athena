@@ -18,19 +18,19 @@ namespace EgammaSelectors {
 // This is the internal part , We need to  map string to latest reccomendations
 const std::map<std::string, std::string> LHPointToConfFile = {
   { "VeryLooseLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc16_20170828/"
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
     "ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf" },
   { "LooseLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc16_20170828/"
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
     "ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf" },
   { "LooseBLLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc16_20170828/"
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
     "ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf" },
   { "MediumLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc16_20170828/"
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
     "ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf" },
   { "TightLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc16_20170828/"
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
     "ElectronLikelihoodTightOfflineConfig2017_Smooth.conf" },
 };
 const std::map<std::string, std::string> PhotonCutPointToConfFile = {

@@ -11,7 +11,7 @@ TrigVertexFitInputTrack::TrigVertexFitInputTrack(const TrigInDetTrack* pT, doubl
   m_nTrackType=1;m_active=true;
   m_pTrigTrack=pT;m_pTrkTrack=NULL;
   double Ck[5][5];
-  int i,j;
+  int i{0},j{0};
 
   const TrigInDetTrackFitPar* p=pT->param();
 
@@ -102,10 +102,8 @@ TrigVertexFitInputTrack::TrigVertexFitInputTrack(const Trk::Track* pT,double mas
 		Ck[3][4]=Ck[4][3]=(*TC)(Trk::theta,Trk::qOverP);
 		Ck[4][4]=(*TC)(Trk::qOverP,Trk::qOverP);
 
-		double a,b;
-
-		a=cos(pP->parameters()[Trk::theta])/ptC;
-		b=-sin(pP->parameters()[Trk::theta])/(pP->parameters()[Trk::qOverP]*ptC);
+		const double a = cos(pP->parameters()[Trk::theta])/ptC;
+		const double b = -sin(pP->parameters()[Trk::theta])/(pP->parameters()[Trk::qOverP]*ptC);
 
 		Ck[3][3]=Ck[3][3]+2.0*a*Ck[3][4]+a*a*Ck[4][4];
 		Ck[3][4]=Ck[4][3]=b*Ck[3][4]+a*b*Ck[4][4];
@@ -189,9 +187,8 @@ double TrigVertexFitInputTrack::PerigeeCovariance(int i, int j) const
 
 void TrigVertexFitInputTrack::initializeVertex(class TrigL2Vertex* pV)
 {
-  int i,j;
-  i=3+m_index*3;
-  for(j=0;j<3;j++) 
+  const int i = 3+m_index*3;
+  for(int j=0;j<3;j++) 
     pV->getParametersVector()[i+j]=m_q[j];  
 }
 
@@ -199,14 +196,13 @@ double TrigVertexFitInputTrack::getChi2Distance(class TrigL2Vertex* pV)
 {
   const double C=0.02997;
   const double B=20.84;
+  const double alpha=C*B/1000.0;
 	
   double Sk[2][2],detr,chi2;
   double AC[2][3],BV[2][3];
-  int i,j,k,shift;
-  double psi,sinPsi,cosPsi,alpha=C*B/1000.0,xv,yv,zv,
-    cosPhi0,sinPhi0,ctt,sint,phi0,theta0,P0;
+  int i{0},j{0},k{0};
 
-  shift=m_index*3;
+  const int shift=m_index*3;
 
   k=3+shift;
   for(i=0;i<3;i++)
@@ -214,20 +210,21 @@ double TrigVertexFitInputTrack::getChi2Distance(class TrigL2Vertex* pV)
       pV->m_Gk[i+k][j+k]=m_Vqq[i][j];	
 
   initializeVertex(pV);
-  xv=pV->getParametersVector()[0];
-  yv=pV->getParametersVector()[1];
-  zv=pV->getParametersVector()[2];
-  phi0=pV->getParametersVector()[3+shift];
-  theta0=pV->getParametersVector()[4+shift];
-  P0=pV->getParametersVector()[5+shift];
+  const double xv=pV->getParametersVector()[0];
+  const double yv=pV->getParametersVector()[1];
+  const double zv=pV->getParametersVector()[2];
+  const double phi0=pV->getParametersVector()[3+shift];
+  const double theta0=pV->getParametersVector()[4+shift];
+  const double P0=pV->getParametersVector()[5+shift];
 
-  cosPhi0=cos(phi0);sinPhi0=sin(phi0);
-  sinPsi=-alpha*(xv*cosPhi0+yv*sinPhi0)/P0;
+  const double cosPhi0=cos(phi0);
+  const double sinPhi0=sin(phi0);
+  const double sinPsi=-alpha*(xv*cosPhi0+yv*sinPhi0)/P0;
   if(fabs(sinPsi)>1.0) return -999.9;
-  cosPsi=sqrt(1.0-sinPsi*sinPsi);
-  psi=asin(sinPsi);
-  sint=sin(theta0);
-  ctt=cos(theta0)/sint;
+  const double cosPsi=sqrt(1.0-sinPsi*sinPsi);
+  const double psi=asin(sinPsi);
+  const double sint=sin(theta0);
+  const double ctt=cos(theta0)/sint;
 
   m_A[0][0]=-sin(phi0+psi)/cosPsi;
   m_A[0][1]= cos(phi0+psi)/cosPsi;
@@ -304,7 +301,8 @@ double TrigVertexFitInputTrack::getChi2Distance(class TrigL2Vertex* pV)
 
 void TrigVertexFitInputTrack::updateVertex(class TrigL2Vertex* pV)
 {
-  int i,j,k,nSize=6+3*m_index;
+  int i{0},j{0},k{0};
+  const int nSize=6+3*m_index;
 
   double K[2][MAX_SIZE_VERT_COVM];
 
@@ -329,14 +327,12 @@ void TrigVertexFitInputTrack::updateVertex(class TrigL2Vertex* pV)
 
 MsgStream& TrigVertexFitInputTrack::report( MsgStream& out ) const
 {
-  int i;
-
   out<<"Track "<<m_index<<" : mass="<<m_mass<<endmsg;
-  for(i=0;i<2;i++)
+  for(int i=0;i<2;i++)
     {
       out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endmsg;
     }
-  for(i=0;i<3;i++)
+  for(int i=0;i<3;i++)
     {
       out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endmsg;
     }
@@ -374,12 +370,11 @@ double TrigVertexFitConstraint::calculateInvariantMass(TrigL2Vertex* pV)
 
   double invMass=0.0,alpha=C*B/1000.0;
   double P[3];double E=0.0;
-  int i;
   
   double* Rk = pV->getParametersVector();
 
   int offset=0;
-  for(i=0;i<3;i++) P[i]=0.0;
+  for(int i=0;i<3;i++) P[i]=0.0;
 
   for(std::list<const TrigVertexFitInputTrack*>::iterator it=m_trackList.begin();it!=m_trackList.end();++it)
     {
@@ -409,7 +404,7 @@ double TrigVertexFitConstraint::getChi2Distance(TrigL2Vertex* pV)
   double invMass=0.0,alpha=C*B/1000.0;
   double P[3];
   double E=0.0;
-  int i,j;
+  int i{0},j{0};
   bool linFailed=false;
   double* Rk = pV->getParametersVector();
 
@@ -513,8 +508,9 @@ double TrigVertexFitConstraint::getChi2Distance(TrigL2Vertex* pV)
 void TrigVertexFitConstraint::updateVertex(TrigL2Vertex* pV)
 {
   double K[MAX_SIZE_VERT_COVM];
-  int i,j,nSize=3+3*pV->getTracks()->size();
-  double gain;
+  int i{0},j{0};
+  const int nSize=3+3*pV->getTracks()->size();
+  double gain{0};
 
   for(i=0;i<nSize;i++)
     {
@@ -693,12 +689,12 @@ bool TrigL2Vertex::isReadyForFit()
 
 MsgStream& TrigL2Vertex::report( MsgStream& msg) const
 {
-  int i,j,nSize=3+3*m_pvTracks->size();
+  const int nSize=3+3*m_pvTracks->size();
 
-  for(i=0;i<nSize;i++)
+  for(int i=0;i<nSize;i++)
     {
       msg<<m_Rk[i]<<"   ";
-      for(j=0;j<nSize;j++) msg<<m_Gk[i][j]<<"  ";
+      for(int j=0;j<nSize;j++) msg<<m_Gk[i][j]<<"  ";
       msg<<endmsg;
     }
   return msg;

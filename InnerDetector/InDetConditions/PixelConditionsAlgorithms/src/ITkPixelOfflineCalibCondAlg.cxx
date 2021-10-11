@@ -67,12 +67,12 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     // Find and open the text file
     ATH_MSG_INFO("Load ITkPixelErrorData constants from text file");
     std::string fileName = PathResolver::find_file(m_textFileName, "DATAPATH");
-    if (fileName.size()==0) { ATH_MSG_WARNING("Input file " << fileName << " not found! Default (hardwired) values to be used!"); }
+    if (fileName.empty()) { ATH_MSG_WARNING("Input file " << fileName << " not found! Default (hardwired) values to be used!"); }
     else { pced->load(fileName);  }
 
     ATH_MSG_DEBUG("Get error constants");
     std::vector<float> constants = calibData->getConstants();
-    if (constants.size()) { ATH_MSG_VERBOSE("constants are defined"); }
+    if (!constants.empty()) { ATH_MSG_VERBOSE("constants are defined"); }
     else                  { ATH_MSG_ERROR("constants size is NULL!!!"); } 
 
 
@@ -82,7 +82,7 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_DEBUG("Range of input is " << rangeW);
     
-    if (constants.size()) {
+    if (!constants.empty()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
       writeCdo->setConstants(constants);
     }

@@ -13,13 +13,13 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRecoveryTool
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
-
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
-   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+   if ConfigFlags.Muon.MuonTrigger:
       kwargs.setdefault("VertexContainer", "")
    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
    from AthenaCommon.AppMgr import ToolSvc
@@ -47,7 +47,9 @@ def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):
 
 def MuonStauChamberHoleRecoveryTool(name="MuonStauChamberHoleRecoveryTool",**kwargs):
    kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
-   if not MuonGeometryFlags.hasCSC():
+   reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+  
+   if not reco_cscs:
       kwargs.setdefault("CscRotCreator", "" )
       kwargs.setdefault("CscPrepDataContainer", "" )
    return MuonChamberHoleRecoveryTool(name,**kwargs)
@@ -56,9 +58,12 @@ def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
-    if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
-    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
-    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    if not reco_cscs: kwargs.setdefault("CscPrepDataContainer","")
+    if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
+    if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
 
     return MuonSeededSegmentFinder(name,**kwargs)
 
@@ -66,7 +71,7 @@ def MuonStauSegmentRegionRecoveryTool(name="MuonStauSegmentRegionRecoveryTool",*
    kwargs.setdefault("SeededSegmentFinder", getPublicTool("MuonStauSeededSegmentFinder") )
    kwargs.setdefault("ChamberHoleRecoveryTool", getPublicTool("MuonStauChamberHoleRecoveryTool") )
    kwargs.setdefault("Fitter",  getPublicTool("CombinedStauTrackBuilderFit") )
-   if TriggerFlags.MuonSlice.doTrigMuonConfig and athenaCommonFlags.isOnline:
+   if ConfigFlags.Muon.MuonTrigger and athenaCommonFlags.isOnline:
       kwargs.setdefault('MdtCondKey', "")
    return MuidSegmentRegionRecoveryTool(name,**kwargs)
 
@@ -86,7 +91,7 @@ def MuonStauCandidateTrackBuilderTool( name="MuonStauCandidateTrackBuilderTool",
 
 def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
-   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+   if ConfigFlags.Muon.MuonTrigger:
       kwargs.setdefault("VertexContainer", "")
    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
    from AthenaCommon.AppMgr import ToolSvc

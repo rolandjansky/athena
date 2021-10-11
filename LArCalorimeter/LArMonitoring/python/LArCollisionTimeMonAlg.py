@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCollisionTimeMonConfigOld(inputFlags):
@@ -156,7 +156,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
     if ConfigFlags.Common.isOnline:
 
         collTimeGroupName_intrain=collTimeGroupName+"_intrain"
-        collTimeGroup_intrain = helper.collTime.addGroup( 
+        collTimeGroup_intrain = helper.addGroup( 
             larCollTimeMonAlg,
             collTimeGroupName_intrain,
             "/LAr/"
@@ -168,7 +168,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
         
         collTimeGroup_intrain.defineHistogram('ecTimeDiff;LArCollTime'+intrain_name, 
                                               title='LArCollisionTime - difference of avg time from ECC and ECA'+intrain_title+';<t_{C}> - <t_{A}> ('+timeUnitName+(');Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.colTime_BinWidth/timeUnit))+timeUnitName,
-                                              type='Th1F',
+                                              type='TH1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
                                               xbins=lArDQGlobals.colTime_Bins,xmin=lArDQGlobals.colTime_Min/timeUnit,xmax=lArDQGlobals.colTime_Max/timeUnit)
@@ -176,7 +176,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
         
         collTimeGroup_intrain.defineHistogram('ecTimeAvg;LArCollAvgTime'+intrain_name, 
                                               title='LArCollisionAverageTime - avg time of ECC and ECA'+intrain_title+';(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+(');Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.avgColTime_BinWidth/timeUnit))+timeUnitName,
-                                              type='Th1F',
+                                              type='TH1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
                                               xbins=lArDQGlobals.avgColTime_Bins,xmin=lArDQGlobals.avgColTime_Min/timeUnit,xmax=lArDQGlobals.avgColTime_Max/timeUnit)
@@ -184,7 +184,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
         
         collTimeGroup_intrain.defineHistogram('ecTimeDiff;LArCollTimeLumiBlock'+intrain_name, 
                                               title='LArCollisionTime - difference of avg time from ECC and ECA;<t_{C}> - <t_{A}> ('+timeUnitName+')'+intrain_title+(';Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.colTime_BinWidth/timeUnit))+timeUnitName,
-                                              type='Th1F',
+                                              type='TH1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
                                               xbins=lArDQGlobals.colTime_Bins,xmin=lArDQGlobals.colTime_Min/timeUnit,xmax=lArDQGlobals.colTime_Max/timeUnit,
@@ -201,7 +201,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
         
         collTimeGroup_intrain.defineHistogram('(lumi_block_singleBeam_timeWindow);LArCollTimeLumiBlockSingleBeamTimeCut'+intrain_name,
                                               title='Events with 20 ns < abs(<t_{C}> - <t_{A}>) < 30ns as a function of LB'+intrain_title+';Luminosity Block Number;Number of events per LB',
-                                              type='Th1F',
+                                              type='TH1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
                                               xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)

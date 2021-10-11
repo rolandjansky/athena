@@ -22,7 +22,7 @@ StoreID::findStoreID(const std::string& storeNamePrefix) {
   // Account for AthenaMT stores that start with {digits}_
   size_t ist (0);
   if (::isdigit(storeNamePrefix.at(0))) {
-    ist = storeNamePrefix.find("_",0) +1;
+    ist = storeNamePrefix.find('_',0) +1;
   }
   //slightly faster
 

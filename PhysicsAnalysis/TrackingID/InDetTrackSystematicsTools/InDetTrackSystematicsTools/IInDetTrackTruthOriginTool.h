@@ -25,7 +25,9 @@ namespace InDet {
   public:
     
   virtual StatusCode initialize() = 0;
-  virtual void prepare() = 0;
+
+  /** Safely access a track's linked truth particle, if available **/
+  virtual const xAOD::TruthParticle* getTruth( const xAOD::TrackParticle* track ) const = 0;
 
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const = 0;

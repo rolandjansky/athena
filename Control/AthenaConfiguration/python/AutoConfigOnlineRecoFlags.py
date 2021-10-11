@@ -23,6 +23,7 @@ def setDefaultOnlineRecoFlags(flags):
     flags.Input.TimeStamp = [-1]
     flags.Input.ProjectName = 'data_test'
     flags.Input.Format = 'BS'
+    flags.Input.ProcessingTags = []
 
     flags.Beam.Type = 'collisions'
     flags.Beam.Energy = 7*TeV

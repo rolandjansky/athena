@@ -298,13 +298,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			       nullptr : getTrigDecisionTool().operator->());
 
     if (m_etaMin < std::abs(tauEta) && std::abs(tauEta) < m_etaMax){
-      nTauCandidates +=1;
-
-      if(tauEt > higherEtThreshold){
-	nHighPtTauCandidates +=1;
-	nHighPtTaus +=1;
-      }
-
       if (m_kinGroupName != "tauMonKinGroupHighPt"&& m_kinGroupName!="tauMonKinGroupHighPtRNNLoose"){
 
 	if (
@@ -318,16 +311,24 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	     m_kinGroupName != "tauMonKinGroupTauTrig7"  &&
 	     m_kinGroupName != "tauMonKinGroupEleTrig"  &&
 	     m_kinGroupName != "tauMonKinGroupJetTrig") || 
-	    (m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100 (2184)")) ||
+			(m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100.*")) ||
 	    (m_kinGroupName == "tauMonKinGroupEleTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
 	    (m_kinGroupName == "tauMonKinGroupJetTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
 	    ){
+
+      nTauCandidates +=1;
+
+      if(tauEt > higherEtThreshold){
+				nHighPtTauCandidates +=1;
+				nHighPtTaus +=1;
+      }
+
 
 	  if(m_kinGroupName != "tauMonKinGroupGlobal" && tauEt > lowerEtThreshold && tauRNNLoose){
 	    tauPhiEt15RNNLoose = tau->phi();
@@ -505,7 +506,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
             rConv = track->rConv();
             rConvII = track->rConvII();
           }
-          trackdRJetSeedAxis = track->dRJetSeedAxis(*tau); 
+          trackdRJetSeedAxis = track->p4().DeltaR(tau->p4(xAOD::TauJetParameters::JetSeed));
           double qOverP = trackParticle->qOverP(); 
           double trackPt = trackParticle->pt(); 
           uint8_t nInnermostPixelLayerHits = 0;
@@ -793,6 +794,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
     }
   }
+
 
   fill(tool,nHighPtTauCandidates,nTauCandidates,nHighPtTaus);
 

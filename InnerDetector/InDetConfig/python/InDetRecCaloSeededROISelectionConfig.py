@@ -3,7 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from InDetRecExample.InDetKeys import InDetKeys
 
-def egammaCaloClusterSelectorCfg(ConfigFlags, name="caloClusterRoISelector", **kwargs):
+def egammaCaloClusterSelectorCfg(ConfigFlags, name="caloClusterROISelector", **kwargs):
     result = ComponentAccumulator()
     if "egammaCheckEnergyDepositTool" not in kwargs:
         kwargs["egammaCheckEnergyDepositTool"] = CompFactory.egammaCheckEnergyDepositTool()

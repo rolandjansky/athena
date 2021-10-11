@@ -545,8 +545,7 @@ namespace top {
 
 
     for (const xAOD::Jet* jetPtr : *jets) {
-      //char decoration = m_trackJetSelection->passSelection(*jetPtr);
-      char decoration = '0';
+      char decoration = m_trackJetSelection->passSelection(*jetPtr);
       jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
       if (m_doLooseCuts) {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
@@ -1253,6 +1252,15 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       os << "  Selection: ";
       if (!m_largeJetSelection) os << "All";
       else os << *m_largeJetSelection;
+    }
+
+    os << "\n";
+    os << "TrackJets\n";
+    os << "  ContainerName: " << m_config->sgKeyTrackJets() << "\n";
+    if (m_config->useTrackJets()) {
+      os << "  Selection: ";
+      if (!m_trackJetSelection) os << "All";
+      else os << *m_trackJetSelection;
     }
 
     os << "\n";

@@ -1,7 +1,7 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,6 +14,7 @@
 #include "TrigT1RPClogic/CMAreadout.h"
 #include "TrigT1RPClogic/PADreadout.h"
 
+#include "GaudiKernel/MsgStream.h"
 
 class RPCbytestream : public RPCtrigDataObject
 {
@@ -38,13 +39,12 @@ class RPCbytestream : public RPCtrigDataObject
     CMA_Readout m_cma_readout;
     PAD_Readout m_pad_readout;
 
-    void build_pad_readout(void);
-
+    void build_pad_readout(MsgStream& log);
     void dump_rpc_bytestream(void);
 
     public:
-    RPCbytestream(CMAdata&,std::string,debu,debu,debu,debu,debu,debu,debu,
-                  debu);
+    RPCbytestream(CMAdata&,std::string,MsgStream&,
+                  debu,debu,debu,debu,debu,debu,debu,debu);
     RPCbytestream(const RPCbytestream&);
     ~RPCbytestream();
 
@@ -63,6 +63,5 @@ class RPCbytestream : public RPCtrigDataObject
     CMA_Readout cma_readout(void) const {return m_cma_readout;}
     PAD_Readout pad_readout(void) const {return m_pad_readout;}
 };
-
 
 #endif

@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addAlgorithm
 
-addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_GenericCosmicGenerator", "GenericCosmicGenerator")
-addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_EvgenCosmicGenerator", "EvgenCosmicGenerator")
+addAlgorithm("CosmicGenerator.CosmicGeneratorConfigLegacy.getInput_GenericCosmicGenerator", "GenericCosmicGenerator")
+addAlgorithm("CosmicGenerator.CosmicGeneratorConfigLegacy.getInput_EvgenCosmicGenerator", "EvgenCosmicGenerator")

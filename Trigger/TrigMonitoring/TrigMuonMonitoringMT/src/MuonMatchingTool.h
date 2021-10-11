@@ -10,6 +10,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTruth/TruthParticle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -40,7 +41,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param pass True if a candidate is found.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, std::string trigger, bool &pass) const;
+  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, const std::string& trigger, bool &pass) const;
 
   /**
    * @brief Function that searches for an L2 standalone muon (L2MuonSA) candidate and judges if it is matched to a given offline muon.
@@ -50,7 +51,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    */
-  const xAOD::L2StandAloneMuon* matchL2SA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::L2StandAloneMuon* matchL2SA(const xAOD::Muon *mu, const std::string& trigger, bool &pass) const;
 
   /**
    * @brief Function that searches for the L2 standalone muon (L2MuonSA) candidate closest to a given offline muon.
@@ -109,6 +110,16 @@ class MuonMatchingTool : public AthAlgTool {
   const xAOD::Muon* matchEFSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
   /**
+   * @brief Function that searches for an EF standalone muon (EFSA) candidate and judges if it is matched to a given truth muon.
+   * @param mu Truth muon around which EFSA candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if the matched candidate passed the hypothesis step.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const xAOD::Muon* matchEFSA(const xAOD::TruthParticle *mu, std::string trigger, bool &pass) const;
+
+  /**
    * @brief Function that searches for an EF standalone muon (EFSA) candidate and judges if it is matched to a given track particle.
    * @param mu Offline muon around which EFSA candidates are searched.
    * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
@@ -133,6 +144,16 @@ class MuonMatchingTool : public AthAlgTool {
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    */
   const xAOD::Muon* matchEFCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+
+  /**
+   * @brief Function that searches for an EF combined muon (EFCB) candidate and judges if it is matched to a given truth muon.
+   * @param mu Truth muon around which EFCB candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if the matched candidate passed the hypothesis step.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const xAOD::Muon* matchEFCB(  const xAOD::TruthParticle *mu, std::string trig, bool &pass) const;
 
   /**
    * @brief Function that searches for an EF combined muon (EFCB) candidate and judges if it is matched to a given track particle.
@@ -161,6 +182,16 @@ class MuonMatchingTool : public AthAlgTool {
   const xAOD::Muon* matchEFIso(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
   /**
+   * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given truth muon.
+   * @param mu Truth muon around which EFIso candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if the matched candidate passed the hypothesis step.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const xAOD::Muon* matchEFIso(const xAOD::TruthParticle *mu, std::string trigger, bool &pass) const;
+
+  /**
    * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given track particle.
    * @param mu Offline muon around which EFIso candidates are searched.
    * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
@@ -177,7 +208,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param ReadHandleKey of TrackParticle container.
    * @return Pointer to the matched TrackParticle. This is @c nullpt rwhen there is no TrackParticle found.
    */
-  const xAOD::TrackParticle* SearchEFTrack(const EventContext &ctx, const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muLinkInfo, SG::ReadHandleKey<xAOD::TrackParticleContainer> ReadHandleKey) const;
+  const xAOD::TrackParticle* SearchEFTrack(const EventContext &ctx, const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muLinkInfo, const SG::ReadHandleKey<xAOD::TrackParticleContainer>& ReadHandleKey) const;
 
 
   /**
@@ -308,7 +339,7 @@ class MuonMatchingTool : public AthAlgTool {
 
 
   const Amg::Vector3D offlineMuonAtPivot(const xAOD::Muon *mu) const;
-  double FermiFunction(double x, double x0, double w) const;
+  static double FermiFunction(double x, double x0, double w) ;
   const Trk::TrackParameters* extTrackToTGC(const xAOD::TrackParticle *track) const;
   const Trk::TrackParameters* extTrackToRPC(const xAOD::TrackParticle *track) const;
 

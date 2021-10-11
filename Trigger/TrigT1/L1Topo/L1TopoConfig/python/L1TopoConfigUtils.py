@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from xml.dom import minidom
 import re
 import os
@@ -15,9 +15,8 @@ except NameError:
 from AthenaCommon.Logging import logging
 from AthenaCommon.Utils.unixtools import FindFile
 
-log = logging.getLogger( "TrigConfigSvcUtils.py" )
-if log.level==0: log.setLevel(logging.INFO)
-    
+log = logging.getLogger( "L1TopoConfigUtils" )
+
 #**
 # In this section:
 #

@@ -85,8 +85,8 @@ private :
 
 
         const CaloCell_SuperCell_ID*     m_schelper;
-	TNtuple* m_ntuple;
-	TFile * m_file;
+	TNtuple* m_ntuple = nullptr;
+	TFile * m_file = nullptr;
 	bool m_compNoise;
 	bool m_addBCID;
 

@@ -1,6 +1,10 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+#include <cmath>
+
+
+
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace InDet
@@ -14,17 +18,17 @@ namespace InDet
     m_beamPos { posX, posY, posZ }
   {  
 #ifndef SIMULATIONBASE
-    float sigmaX_tilt = tan(tiltX) * sigmaZ;
-    float sigmaY_tilt = tan(tiltY) * sigmaZ;
-    float sigmaX_all = sqrt(sigmaX*sigmaX + sigmaX_tilt*sigmaX_tilt);
-    float sigmaY_all = sqrt(sigmaY*sigmaY + sigmaY_tilt*sigmaY_tilt);
+    float sigmaX_tilt = std::tan(tiltX) * sigmaZ;
+    float sigmaY_tilt = std::tan(tiltY) * sigmaZ;
+    float sigmaX_all = std::sqrt(sigmaX*sigmaX + sigmaX_tilt*sigmaX_tilt);
+    float sigmaY_all = std::sqrt(sigmaY*sigmaY + sigmaY_tilt*sigmaY_tilt);
     Amg::MatrixX beamErr(3, 3);
     beamErr.setZero();
     beamErr.fillSymmetric(0, 0, sigmaX_all*sigmaX_all);
     beamErr.fillSymmetric(0, 1, sigmaXY);
     beamErr.fillSymmetric(1, 1, sigmaY_all*sigmaY_all);
-    beamErr.fillSymmetric(0, 2, tan(tiltX)*sigmaZ*sigmaZ);
-    beamErr.fillSymmetric(1, 2, tan(tiltY)*sigmaZ*sigmaZ);
+    beamErr.fillSymmetric(0, 2, std::tan(tiltX)*sigmaZ*sigmaZ);
+    beamErr.fillSymmetric(1, 2, std::tan(tiltY)*sigmaZ*sigmaZ);
     beamErr.fillSymmetric(2, 2, sigmaZ*sigmaZ);
     m_vertex = Trk::RecVertex(m_beamPos, beamErr);
 #endif

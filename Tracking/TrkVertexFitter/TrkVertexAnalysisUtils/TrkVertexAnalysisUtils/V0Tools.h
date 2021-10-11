@@ -49,7 +49,6 @@ namespace Trk
  * Standard AlgTool methods
  */ 
    StatusCode initialize();
-   StatusCode finalize();
  
 /**   
  * AlgTool interface methods 

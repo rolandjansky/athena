@@ -9,7 +9,7 @@ Type='Delay'
 if online:
    include("RecExOnline/SimpleLarCondFlags.py")
    if 'partition' not in dir():                
-      print "problem: partition not defined"   
+      print("problem: partition not defined")
    if not 'runAccumulator' in dir(): 
       runAccumulator = False # :average mode, = True:transparent mode
 else:
@@ -32,14 +32,11 @@ include("LArMonTools/LArMonManager.py")
 svcMgr.IOVDbSvc.GlobalTag="COMCOND-MONC-003-00"            
 
 ## Define ONE LArBadChannelMask for all Monitoring tools
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBadChannelsMasker=LArBadChannelMasker("LArBadChannelsMasker")    
-theLArBadChannelsMasker.DoMasking=True
-theLArBadChannelsMasker.ProblemsToMask=[
+ProblemsToMask=[
     "deadReadout","deadPhys","short","almostDead",
     "highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"
 ]
-ToolSvc+=theLArBadChannelsMasker
+
 conddb.addFolder("LAR","/LAR/BadChannels/BadChannels")
 conddb.addFolder("LAR","/LAR/BadChannels/MissingFEBs")
 
@@ -58,7 +55,7 @@ if online:
    fi, fo = os.popen2(cmd,'t')
    for line in fo:
       job = line.strip().split(' ',15)[0]
-      print 'line=%(line)s job=%(job)s' % {"line" : line, "job": job}
+      print('line=%(line)s job=%(job)s' % {"line" : line, "job": job})
       if job == 'DigitNoiseMon' :
          include("LArMonTools/LArDigitNoiseMonTool_jobOptions.py")
       if job == 'FebNoiseMon' :

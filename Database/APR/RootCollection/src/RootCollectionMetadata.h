@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RootCollectionMetadata_h
@@ -33,21 +33,21 @@ namespace pool {
 
         void 	commit();
         
-	unsigned long long	entries() const;
+	virtual unsigned long long	entries() const override;
 	
-        void 	readKeys() const;
+        void 	readKeys();
 
-        bool 	existsKey( const std::string& key ) const;
+        virtual bool 	existsKey( const std::string& key ) override;
 
-        const char* getValueForKey( const std::string& key ) const;
+        virtual const char* getValueForKey( const std::string& key ) override;
         
-        void 	setValueForKey( const std::string& key,
-				const std::string& val );
+        virtual void 	setValueForKey( const std::string& key,
+                                        const std::string& val ) override;
 
         
-        ICollectionMetadata::const_iterator        begin() const;
+        virtual ICollectionMetadata::const_iterator        begin() override;
         
-        ICollectionMetadata::const_iterator        end() const;
+        virtual ICollectionMetadata::const_iterator        end() override;
 
 
 
@@ -59,24 +59,24 @@ namespace pool {
        friend class RootCollectionMetadata;
           
           RootCollectionMetadataIterator( const MetadataKeyMap_t::const_iterator& iter,
-                                          const RootCollectionMetadata* mdata );
+                                          RootCollectionMetadata* mdata );
 
           virtual ~RootCollectionMetadataIterator() {}
 
-          bool operator==( const ICollectionMetadataIterator& _rhs ) const;
+          virtual bool operator==( const ICollectionMetadataIterator& _rhs ) const override;
 
-          bool operator!=( const ICollectionMetadataIterator& rhs ) const {
+          virtual bool operator!=( const ICollectionMetadataIterator& rhs ) const override {
              return !operator==( rhs );
           }
              
-          void operator++();
+          virtual void operator++() override;
              
-          const std::string&        key() const;
-          const char *              value() const;
+          virtual const std::string&        key() const override;
+          virtual const char *              value() override;
 
        protected:
           MetadataKeyMap_t::const_iterator        m_iterator;
-          const RootCollectionMetadata*           m_metadata;
+          RootCollectionMetadata*                 m_metadata;
         };
 
         
@@ -85,14 +85,14 @@ namespace pool {
         TTree*                     m_tree;
         TBranch*                   m_keyBranch;
         TBranch*                   m_valBranch;
-        mutable bool               m_hasKeys;
+        bool                       m_hasKeys;
         
-        mutable MetadataKeyMap_t   	m_keyMap;
+        MetadataKeyMap_t           m_keyMap;
 
 	/// buffer for reading strings from ROOT
-        mutable char               	*m_charBuffer;
+        char                      *m_charBuffer;
 
-	mutable coral::MessageStream	*m_poolOut;
+	coral::MessageStream      *m_poolOut;
       };  // end RootCollectionMetadata
    } // end namespace
 }

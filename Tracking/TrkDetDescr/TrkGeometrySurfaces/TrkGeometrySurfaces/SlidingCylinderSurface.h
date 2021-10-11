@@ -15,9 +15,8 @@
 #include "TrkSurfaces/CylinderSurface.h"
 // Geometry & Math
 #include "GeoPrimitives/GeoPrimitives.h"
-
-class MsgStream;
-class Identifier;
+#include <string>
+#include <vector>
 
 namespace Trk {
 
@@ -34,28 +33,13 @@ namespace Trk {
 class SlidingCylinderSurface final : public CylinderSurface
 {
 public:
-  /** Default Constructor - needed for persistency*/
-  SlidingCylinderSurface();
-
-  /** Copy Constructor*/
-  SlidingCylinderSurface(const SlidingCylinderSurface& psf);
-
-  /** Copy Constructor with shift*/
-  SlidingCylinderSurface(const SlidingCylinderSurface& psf,
-                         const Amg::Transform3D& transf);
 
   /**Constructor */
   SlidingCylinderSurface(const CylinderSurface& surf,
-                         Trk::BinUtility* bu = nullptr,
-                         const std::vector<float>* offset = nullptr,
-                         Amg::Transform3D* align = nullptr);
-
-  /**Destructor*/
-  virtual ~SlidingCylinderSurface();
-
-  /**Assignment operator*/
-  SlidingCylinderSurface& operator=(const SlidingCylinderSurface& psf);
-
+                         const Trk::BinUtility & bu,
+                         const std::vector<float> & offset);
+                         
+ 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override final;
 
@@ -92,10 +76,10 @@ public:
     bool Bound) const override final;
 
   /**This method allows access to the bin utility*/
-  const Trk::BinUtility* binUtility() const { return m_etaBin; }
+  const Trk::BinUtility binUtility() const { return m_etaBin; }
 
   /**This method allows access to the radial offset values*/
-  const std::vector<float>* offset() const { return m_depth; }
+  const std::vector<float> offset() const { return m_depth; }
 
   /** Return properly formatted class name for screen output */
   virtual std::string name() const override
@@ -104,9 +88,8 @@ public:
   }
 
 protected:
-  const std::vector<float>* m_depth;
-  Trk::BinUtility* m_etaBin;
-  Amg::Transform3D* m_align;
+  std::vector<float> m_depth{};
+  Trk::BinUtility m_etaBin{};
 };
 
 } // end of namespace

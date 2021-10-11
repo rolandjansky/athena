@@ -20,13 +20,12 @@
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
 
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
-
-Trig::TrigDecisionToolCore::TrigDecisionToolCore()
+Trig::TrigDecisionToolCore::TrigDecisionToolCore() :
+  m_expertMethods(&m_cacheGlobalMemory)
 {
-  SG::SlotSpecificObj<Trig::CacheGlobalMemory>* ptr = &m_cacheGlobalMemory;
-  m_expertMethods=new ExpertMethods(ptr);
 }
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
 
 Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const { 
   const Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
@@ -38,13 +37,7 @@ Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
 
 #else // Analysis or Standalone
 
-Trig::TrigDecisionToolCore::TrigDecisionToolCore()
-{
-  Trig::CacheGlobalMemory* ptr = &m_cacheGlobalMemory;
-  m_expertMethods=new ExpertMethods(ptr);
-}
-
-Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const { 
+Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
   return const_cast<Trig::CacheGlobalMemory*>(&m_cacheGlobalMemory);
 }
 
@@ -52,7 +45,6 @@ Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
 
 
 Trig::TrigDecisionToolCore::~TrigDecisionToolCore() {
-  delete m_expertMethods;
 }
 
 
@@ -64,5 +56,3 @@ StatusCode Trig::TrigDecisionToolCore::initialize() {
 StatusCode Trig::TrigDecisionToolCore::finalize() {
   return StatusCode::SUCCESS;
 }
-
-

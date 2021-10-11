@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************************************
@@ -31,6 +31,8 @@ protected:
   // Make me an SD!
   G4VSensitiveDetector* makeSD() const override final;
 
+  // property to toggle GeoModelXML 
+  Gaudi::Property<bool> m_gmxSensor{this, "GmxSensor", false};
 };
 
 #endif //PIXEL_G4_SD_PIXELSENSORSDTOOL_H

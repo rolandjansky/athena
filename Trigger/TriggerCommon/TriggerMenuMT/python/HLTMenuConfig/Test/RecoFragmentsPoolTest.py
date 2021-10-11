@@ -4,6 +4,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Test import TestChainConfiguration
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
+from DecisionHandling.DecisionHandlingConf import ComboHypo, InputMakerForRoI, HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
+
 import unittest
 
 def creator(flags, name):
@@ -11,6 +13,9 @@ def creator(flags, name):
 
 def creator2(flags, name):
     return 'creator2_'+name
+
+def creatorDH(flags):
+    return ComboHypo(), InputMakerForRoI(), HLTTest__TestRecoAlg(), HLTTest__TestHypoAlg()
 
 class MyClass1:
     @classmethod
@@ -21,6 +26,7 @@ class MyClass2:
     @classmethod
     def creator(cls, flags, name):
         return 'creator2_'+name
+
 
 class RecoFragmentsPoolTest(unittest.TestCase):
 
@@ -63,6 +69,14 @@ class RecoFragmentsPoolTest(unittest.TestCase):
         f1 = RecoFragmentsPool.retrieve(creator, flags=None, name='A')
         f2 = RecoFragmentsPool.retrieve(TestChainConfiguration.creator, flags=None, name='A')
         self.assertNotEqual(f1, f2)
+
+    def test_lock(self):
+        """Test locking of returned fragments"""
+        ch, im, tr, th = RecoFragmentsPool.retrieve(creatorDH, flags=None)
+        self.assertFalse(ch.isLocked())
+        self.assertFalse(im.isLocked())
+        self.assertTrue(tr.isLocked())
+        self.assertFalse(th.isLocked())
 
 
 if __name__ == '__main__':

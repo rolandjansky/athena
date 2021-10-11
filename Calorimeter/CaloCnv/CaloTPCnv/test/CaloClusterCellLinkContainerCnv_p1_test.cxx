@@ -12,6 +12,7 @@
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -52,7 +53,7 @@ void testit (const CaloClusterCellLinkContainer& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
@@ -78,7 +79,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

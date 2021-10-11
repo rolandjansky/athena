@@ -225,7 +225,7 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 elif hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
 else:
-    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -835,6 +835,7 @@ topSequence += CfgGetter.getAlgorithm("BeamEffectsAlg")
 collection_merger_alg = CfgGetter.getAlgorithm('ISF_CollectionMerger')
 
 SimKernel = CfgGetter.getAlgorithm(ISF_Flags.Simulator.KernelName())
+topSequence += SimKernel
 
 if ISF_Flags.HITSMergingRequired.anyOn():
     topSequence += collection_merger_alg

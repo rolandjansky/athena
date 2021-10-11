@@ -1,9 +1,12 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 #include <TMath.h>
 #include <iostream>
 #include <sys/time.h>
@@ -20,14 +23,14 @@ using namespace std;
 
 int Simple1dHist(float min, float max, int nbins, float value)
 {
-  if ( value<min | value>max ) return -1;
+  if ( (value<min) or (value>max) ) return -1;
   int binno=(int)(nbins*((value-min)/(max-min)));
   return binno;
 }
 
 int Simple2dHist(float minx, float maxx, int nbinsx, float miny, float maxy, int nbinsy, float valuex, float valuey)
 {
-  if ( valuex<minx | valuex>maxx |  valuey<miny | valuey>maxy ) return -1;
+  if ( valuex<minx or valuex>maxx or  valuey<miny or valuey>maxy ) return -1;
   int binnox=(int)(nbinsx*((valuex-minx)/(maxx-minx)));
   int binnoy=(int)(nbinsy*((valuey-miny)/(maxy-miny)));
   return binnoy*nbinsx+binnox;
@@ -131,13 +134,15 @@ class CompBHist{
 public:
   CompBHist(int,int*,int,int);
   ~CompBHist();
+  CompBHist(const CompBHist &) = delete;
+  CompBHist & operator=(const CompBHist &) = delete;
 
   int Print();
   int Write(ofstream*);
   int GetStat(int);
-  int* hist;
-  int id;
-  int npop;
+  int* hist{};
+  int id{};
+  int npop{};
 };
 
 CompBHist::CompBHist(int sid, int* uchist, int ntbins, int nrbins){
@@ -146,7 +151,6 @@ CompBHist::CompBHist(int sid, int* uchist, int ntbins, int nrbins){
   npop=0;
   int tmp[2][ntbins*nrbins+200];
   for (int ibin=0;ibin<ntbins*nrbins+200;ibin++){
-    
     if (uchist[ibin]>0){
       tmp[0][npop]=ibin;
       tmp[1][npop]=uchist[ibin];
@@ -163,8 +167,9 @@ CompBHist::CompBHist(int sid, int* uchist, int ntbins, int nrbins){
   }
   
 }
+
 CompBHist::~CompBHist(){
-delete hist;
+  delete[] hist;
 }
 
 int CompBHist::Print(){
@@ -241,7 +246,7 @@ int dump_tracktuple(map<string,trackdata> *trackmap){
 
   TFile* ttfile = new TFile("tracktuple.root","UPDATE");
   TNtuple* tracktup = new TNtuple("tracktuple","track data","run:evt:track:epnew:epold:nhits:t0:t:ttrack:theta:phi:d0:pt:trackres:trackresMean");
-  for (std::map<std::string,trackdata>::iterator iep = trackmap->begin(); iep != trackmap->end(); iep++){
+  for (std::map<std::string,trackdata>::iterator iep = trackmap->begin(); iep != trackmap->end(); ++iep){
     tracktup->Fill(iep->second.run, iep->second.event, iep->second.track,  iep->second.epnew/iep->second.nhits, iep->second.epold, iep->second.nhits, iep->second.t0/iep->second.nhits, iep->second.t/iep->second.nhits, iep->second.ttrack/iep->second.nhits ,  iep->second.theta,  iep->second.phi,  iep->second.d0,  iep->second.pt, (iep->second.trackres/iep->second.nhits),(iep->second.trackresMean/iep->second.nhits) );
   }
   ttfile->Write();
@@ -257,14 +262,12 @@ int dump_hists(map<int,CalHist*> *histmap,int ntbins, int nrbins, int ntres, cha
   int totnpop=0;
 
   ofstream ofile (Form("%s.part%i",fname,fileno), ios::out | ios::binary | ios::app);
-  //ofstream ofilestat (Form("%s.stat.%i",fname,fileno), ios::out);
 
-  for (map<int,CalHist*>::iterator it = histmap->begin(); it != histmap->end(); it++){	
+  for (map<int,CalHist*>::iterator it = histmap->begin(); it != histmap->end(); ++it){	
     
     
     it->second->GetArray(temparray,ntbins*nrbins+200);
     CompBHist* cbhist=new CompBHist(it->first,temparray,ntbins,nrbins);
-    //cbhist->Print();
     cbhist->Write(&ofile);
     if (cbhist->npop>maxnpop) maxnpop=cbhist->npop;
     totnpop+=cbhist->npop;
@@ -274,12 +277,9 @@ int dump_hists(map<int,CalHist*> *histmap,int ntbins, int nrbins, int ntres, cha
 
   }
 
-  //ofilestat << "TRESHITS " << ntres << endl;
-
   cout << "DUMPING " << histmap->size() << " HISTOGRAMS, MAX NONZERO BINS: " << maxnpop << ", AVERAGE NONZERO BINS: " << (float)totnpop/histmap->size() << endl;
   
   ofile.close();
-  //ofilestat.close();
 
   return 0;
 
@@ -844,7 +844,8 @@ int main(int argc, char *argv[]){
 	  
 	  if (nhits%1000000==0 | ievt==nevents-1){ 
 	    process_mem_usage(vm, rss);
-	    printf("%8i HITS READ, %8i HISTOGRAMS (%8i ADDED), %8i BINS ADDED, MAXVALUE: %3i, VM: %8.0f, RSS: %8.0f\n",nhits,nhists,histmap.size()-nhiststmp,nbinsadd,maxvalue,vm,rss);
+	    //cppcheck-suppress invalidPrintfArgType_uint
+	    printf("%8i HITS READ, %8i HISTOGRAMS (%8lu ADDED), %8i BINS ADDED, MAXVALUE: %3i, VM: %8.0f, RSS: %8.0f\n",nhits,nhists,histmap.size()-nhiststmp,nbinsadd,maxvalue,vm,rss);
 	    nhiststmp=histmap.size();
 	    //nhistsadd=0;
 	    nbinsadd=0;
@@ -852,7 +853,7 @@ int main(int argc, char *argv[]){
 	  
 	  if (nhits%20000000==0){ 
 	    dump_hists(&histmap, ntbins, nrbins, ntres, argv[1], 0) ;
-	    for (map<int,CalHist*>::iterator it = histmap.begin(); it != histmap.end(); it++){	
+	    for (map<int,CalHist*>::iterator it = histmap.begin(); it != histmap.end(); ++it){	
 	      delete it->second;
 	    }
 	    histmap.clear();
@@ -1659,6 +1660,7 @@ int main(int argc, char *argv[]){
 
 	
 	if(histmap.find(sid) == histmap.end()){ //create histogram if seen for the first time
+	  //cppcheck-suppress stlFindInsert
 	  histmap[sid] = new CalHist();
 	  nhistsadd++;
 	}    
@@ -1675,7 +1677,6 @@ int main(int argc, char *argv[]){
         if (nhists%10000==0){
 	  process_mem_usage(vm, rss);
 	  printf("%i HISTOGRAMS READ! %i HISTOGRAMS ADDED! %i BINS ADDED! MAXVALUE: %i VM: %0f RSS: %0f\n",nhists,nhistsadd,nbinsadd,maxvalue,vm,rss);
-	  //printf("%i HISTOGRAMS READ! %i HISTOGRAMS ADDED! %i BINS ADDED! MAXVALUE: %i VM: %0f RSS: %0f\n",nhists,nhistsadd,nbinsadd,maxvalue,0.0,0.0);
 	}
 
 	delete chist;
@@ -1684,7 +1685,7 @@ int main(int argc, char *argv[]){
 	  process_mem_usage(vm, rss);
 	  printf("%i HISTOGRAMS READ! %i HISTOGRAMS ADDED! %i BINS ADDED! MAXVALUE: %i VM: %0f RSS: %0f\n",nhists,nhistsadd,nbinsadd,maxvalue,vm,rss);
 	  dump_hists(&histmap, ntbins, nrbins, ntres, argv[1], 0) ;
-	  for (map<int,CalHist*>::iterator it = histmap.begin(); it != histmap.end(); it++){	
+	  for (map<int,CalHist*>::iterator it = histmap.begin(); it != histmap.end(); ++it){	
 	    delete it->second;
 	  }
 	  histmap.clear();

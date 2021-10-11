@@ -19,10 +19,14 @@ namespace {
         else
             ++val;
     }
-    static const SG::AuxElement::Accessor<int> acc_origin("truthOrigin");
-    static const SG::AuxElement::Accessor<int> acc_type("truthType");
-    static const SG::AuxElement::Accessor<ElementLink<xAOD::TruthParticleContainer> > acc_link("truthParticleLink");
-
+    static const SG::AuxElement::ConstAccessor<int> acc_origin("truthOrigin");
+    static const SG::AuxElement::ConstAccessor<int> acc_type("truthType");
+    static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > acc_link("truthParticleLink");
+    //
+    static const SG::AuxElement::Decorator<int> dec_origin("truthOrigin");
+    static const SG::AuxElement::Decorator<int> dec_type ("truthType");
+    static const SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer> > dec_link("truthParticleLink");
+    
 }  // namespace
 // Constructor with parameters:
 MuonTruthAssociationAlg::MuonTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -100,7 +104,14 @@ StatusCode MuonTruthAssociationAlg::execute(const EventContext& ctx) const {
                 muonTruthParticleType(*muon) = acc_type(*tp);
                 setOrigin = true;
             }
-            ElementLink<xAOD::TruthParticleContainer> truthLink = acc_link(*tp);
+            
+            ElementLink<xAOD::TruthParticleContainer> truthLink;  
+            if (acc_link.isAvailable(*tp)) {
+                truthLink =  acc_link(*tp);
+            } else {
+                ATH_MSG_DEBUG("Could not find  any truth link associated with track having pt:"<<tp->pt()<<" MeV, eta: "<<tp->eta()<<", phi: "<<tp->phi()<<", charge: "<<tp->charge()<<". d0:"<<tp->d0()<<", z0: "<<tp->z0());               
+            }
+           
             if (truthLink.isValid()) {
                 ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
                 // loop over truth particles
@@ -165,6 +176,19 @@ StatusCode MuonTruthAssociationAlg::execute(const EventContext& ctx) const {
             muonTruthParticleNPrecMatched(*muon) = std::vector<unsigned int>{};
             muonTruthParticleNPhiMatched(*muon) = std::vector<unsigned int>{};
             muonTruthParticleNTrigEtaMatched(*muon) = std::vector<unsigned int>{};
+        }
+        /// Patch for STACO muons: Copy the truth information from the muon back to the combined 
+        /// track to avoid file corruptions  reported in ATLASRECTS-6454
+        if (muon->author() == xAOD::Muon::STACO) {
+            const xAOD::TrackParticle* cmb_trk = muon->trackParticle(xAOD::Muon::CombinedTrackParticle);
+            if (!cmb_trk){
+                ATH_MSG_WARNING("Even a STACO muon should have a combined track");
+                continue;
+            } else {
+                dec_origin(*cmb_trk) = acc_origin(*muon);
+                dec_type(*cmb_trk) = acc_type(*muon);
+                dec_link(*cmb_trk) = acc_link(*muon);
+            }
         }
     }
     /// one more thing: need to have muonlink set for all truth particles to avoid ELReset errors

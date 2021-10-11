@@ -28,7 +28,6 @@
 #include "CaloRec/CaloBadCellHelper.h"
 #include "CaloEvent/CaloCell.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHandle.h"
 #include "CxxUtils/prefetch.h"

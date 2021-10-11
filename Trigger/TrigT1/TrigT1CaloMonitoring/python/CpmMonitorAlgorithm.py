@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 def CpmMonitoringConfig(inputFlags):
     '''Function to configure LVL1 Cpm algorithm in the monitoring system.'''
@@ -356,7 +356,7 @@ def CpmMonitoringConfig(inputFlags):
                             xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=NumberOfSummaryBins,ymin=0,ymax=NumberOfSummaryBins)
 
     #
-    myGroup.defineHistogram('cpmErrorX,cpmErrorY;cpm_2d_ErrorEventNumbers',
+    myGroup.defineHistogram('cpmErrorX,cpmErrorY;cpm_2d_ErrorEventNumbers_2',
                             title="CP Error Event Numbers;Events with Error/Mismatch;",type='TH2I',
                             cutmask='',path=monEventsPath,
                             xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=NumberOfSummaryBins,ymin=0,ymax=NumberOfSummaryBins)

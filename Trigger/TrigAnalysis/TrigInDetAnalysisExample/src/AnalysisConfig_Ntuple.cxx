@@ -324,7 +324,7 @@ void AnalysisConfig_Ntuple::loop() {
 #endif
 
 	unsigned           run_number         = 0;
-	unsigned long long event_number       = 0;
+	uint64_t           event_number       = 0;
 	unsigned           lumi_block         = 0;
 	unsigned           bunch_crossing_id  = 0;
 	unsigned           time_stamp         = 0;
@@ -1479,7 +1479,7 @@ void AnalysisConfig_Ntuple::loop() {
 			}
 			else {
 
-			    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
+			    m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
 
 			    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 			    

@@ -371,7 +371,7 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
     
     // std::cout << " -> " << detid << std::endl;
 
-    uint32_t RobId = cabling->getROBId(Idhash);
+    uint32_t RobId = cabling->getROBId(Idhash, msgStream());
     
     RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, RobId, Idhash );
     

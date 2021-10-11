@@ -82,7 +82,7 @@ void compare (const Muon::CompetingMuonClustersOnTrack& p1,
 
 void testit (const Muon::CompetingMuonClustersOnTrack& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CompetingMuonClustersOnTrackCnv_p2 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());

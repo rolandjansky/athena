@@ -24,18 +24,18 @@ TBBPCRaw::TBBPCRaw() : TBBeamDetector()
 
 TBBPCRaw::TBBPCRaw(const std::string&             thisBPCName,
 		   const TBTDCRawCont*          theTDCCont,
-		   const std::list<const TBTDCRaw*>& theTDCs,
+		   const std::vector<const TBTDCRaw*>& theTDCs,
 		   const TBADCRawCont*          theADCCont,
-		   const std::list<const TBADCRaw*>& theADCs)
+		   const std::vector<const TBADCRaw*>& theADCs)
   : TBBeamDetector(thisBPCName)
 {
   setSignals(theTDCCont,theTDCs,theADCCont,theADCs);
 }
 
 void TBBPCRaw::setSignals(const TBTDCRawCont* theTDCCont,
-			  const std::list<const TBTDCRaw*>& theTDCs,
+			  const std::vector<const TBTDCRaw*>& theTDCs,
 			  const TBADCRawCont* theADCCont,
-			  const std::list<const TBADCRaw*>& theADCs)
+			  const std::vector<const TBADCRaw*>& theADCs)
 {
   // store TDC measurement
   for (const TBTDCRaw* tdc : theTDCs)

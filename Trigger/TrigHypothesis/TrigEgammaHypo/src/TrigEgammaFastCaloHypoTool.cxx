@@ -343,6 +343,7 @@ bool TrigEgammaFastCaloHypoTool::decide_ringer ( const ITrigEgammaFastCaloHypoTo
     return false;
   }
 
+
   float et = emCluster->et();
  
   if(et < m_emEtCut){
@@ -359,6 +360,8 @@ bool TrigEgammaFastCaloHypoTool::decide_ringer ( const ITrigEgammaFastCaloHypoTo
     monNNOutput = input.valueDecorator.at(m_pidName+"NNOutput");
     pass = input.pidDecorator.at(m_pidName);
     ATH_MSG_DEBUG( "ET Cut " << m_emEtCut <<" Get the decision for " << m_pidName << ": " << (pass?"Yes":"No") );
+  }else{
+    ATH_MSG_DEBUG( "Pid name " << m_pidName << " not found into the decorator. Probably this decision was not computed by the hypo alg." );
   }
  
   return pass;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -148,10 +148,10 @@ int ZdcSignalSinc::process(double *buf, double gain, double ped,
   return m_Err;
 }
 
-int    ZdcSignalSinc::getError()   {return m_Err;}
-int    ZdcSignalSinc::getWarning() {return m_Warn;}
-double ZdcSignalSinc::getTime()    {return m_Time;}
-double ZdcSignalSinc::getAmp()     {return m_Amp;}
+int    ZdcSignalSinc::getError() const   {return m_Err;}
+int    ZdcSignalSinc::getWarning() const {return m_Warn;}
+double ZdcSignalSinc::getTime() const    {return m_Time;}
+double ZdcSignalSinc::getAmp() const     {return m_Amp;}
 
 double ZdcSignalSinc::waveform(double t) {
   double f = 0.;

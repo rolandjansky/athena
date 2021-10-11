@@ -105,7 +105,7 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
 
     tool.MethodTag = tagger
     tool.BTaggingCut = tb
-    tool.cFraction = 0.03
+    tool.cFraction = 0.018
 
     return tool
 

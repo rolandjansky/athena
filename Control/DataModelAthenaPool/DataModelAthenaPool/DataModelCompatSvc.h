@@ -1,11 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataModelCompatSvc.h,v 1.5 2008-08-20 05:14:42 yyao Exp $
-
 /**
  * @file  DataModelAthenaPool/DataModelCompatSvc.h
  * @author scott snyder
@@ -32,6 +29,7 @@
 #include "RootUtils/ILogger.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include <mutex>
 
 
 /**
@@ -81,6 +79,7 @@ public:
 private:
   /// True if we've already scanned the types.
   bool m_initialized;
+  std::mutex m_mutex;
 };
 
 #endif // not DATAMODELCOMPATSVC_H

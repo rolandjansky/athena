@@ -24,6 +24,7 @@ ecTool = recEventCleaningTool()
 ecTool.JvtDecorator = "passJvt"
 ecTool.OrDecorator = "passOR"
 ecTool.CleaningLevel = "LooseBad"
+ecTool.JetContainer = "AntiKt4EMTopoJets"
 
 # Configure the test algorithm
 from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg

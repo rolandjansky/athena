@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionUtilities/CatalogInfo.h"
@@ -95,7 +95,7 @@ CatalogInfo::fileCatalogN(unsigned int ind)
 
 
 void
-CatalogInfo::setCatalogs( pool::ICollectionService *service )
+CatalogInfo::setCatalogs ATLAS_NOT_THREAD_SAFE ( pool::ICollectionService *service )
 {
    coral::MessageStream log( name() );
    for( size_t i=0; i<m_collCatalogReadVec.size(); i++ )    {

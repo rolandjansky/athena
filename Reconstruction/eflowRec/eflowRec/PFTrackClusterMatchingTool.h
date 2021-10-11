@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -39,8 +39,14 @@ public:
   StatusCode finalize();
 
   /** Get n clusters that matches best to a given track */
-  std::vector<std::pair<eflowRecCluster*,float> > doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int n) const;
-  std::vector<std::pair<eflowRecCluster*,float> > doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int n) const;
+  std::vector<std::pair<eflowRecCluster*, float>> doMatches(
+    const eflowRecTrack* track,
+    eflowRecClusterContainer* clusters,
+    int n) const;
+  std::vector<std::pair<eflowRecCluster*, float>> doMatches(
+    const eflowRecTrack* track,
+    std::vector<eflowRecCluster*>& clusters,
+    int n) const;
 
 private:
 

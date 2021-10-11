@@ -10,7 +10,6 @@
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jJetTOB.h"
 
 #include <iostream>
 #include <vector>

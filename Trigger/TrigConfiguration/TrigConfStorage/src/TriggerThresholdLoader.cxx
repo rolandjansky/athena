@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TriggerThresholdValueLoader.h"
@@ -226,7 +226,7 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
                msg() << "TriggerThresholdLoader: not supported type " 
                      << ttTarget.id() << " type is " << ttTarget.type() << std::endl;
                delete query;
-               if(ttv) delete ttv;
+               delete ttv;
                commitSession();
                throw std::runtime_error("TriggerThresholdLoader: not supported type" );
             }
@@ -234,7 +234,7 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
             if ( !ttvldr.load( *ttv ) ) {
                msg() << "TriggerThresholdLoader: Error loading TriggerThreshodValue " 
                      << ttv->id() << std::endl;
-               if(ttv) delete ttv;
+               delete ttv;
                ttv = 0;
                delete query;
                commitSession();

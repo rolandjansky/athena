@@ -76,7 +76,7 @@ void compare (const Muon::RpcPrepDataContainer& p1,
 
 void testit (const Muon::RpcPrepDataContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::RpcPrepDataContainerCnv_p1 cnv;
   RpcPrepDataContainerCnv_tlp1 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());
@@ -115,7 +115,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          clusHash,
          locpos,
          rdoList,
-         new Amg::MatrixX(cov),
+         std::move(cov),
          muo_dd.getRpcReadoutElement (clusId),
          4.5+offs,
          6+offs,

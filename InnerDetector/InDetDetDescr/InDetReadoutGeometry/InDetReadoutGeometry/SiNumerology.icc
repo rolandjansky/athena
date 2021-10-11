@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace InDetDD {
@@ -29,6 +29,11 @@ inline int SiNumerology::numLayers() const
   return m_numLayers;
 }
 
+inline int SiNumerology::numDiskLayers() const
+{
+  return m_numDiskLayers;
+}
+
 inline int SiNumerology::numDisks() const
 {
   return m_numDisks;
@@ -52,6 +57,16 @@ inline int SiNumerology::numPhiModulesForDiskRing(int disk, int ring) const
 inline int SiNumerology::numEtaModulesForLayer(int layer) const
 {
   return m_etaModulesForLayer[layer];
+}
+
+inline int SiNumerology::numDisksForLayer(int layer) const
+{
+  return m_disksForLayer[layer];
+}
+
+inline int SiNumerology::numPhiModulesForLayerDisk(int layer, int disk) const
+{
+  return m_phiModulesForLayerDisk[layer][disk];
 }
 
 inline int SiNumerology::beginEtaModuleForLayer(int layer) const
@@ -101,6 +116,11 @@ inline int SiNumerology::maxNumEtaCells() const
 inline bool SiNumerology::useLayer(int layer) const
 {
   return (m_phiModulesForLayer[layer] != 0);
+}
+
+inline bool SiNumerology::useDiskLayer(int layer) const
+{
+  return (m_disksForLayer[layer] != 0);
 }
 
 inline bool SiNumerology::useDisk(int disk) const

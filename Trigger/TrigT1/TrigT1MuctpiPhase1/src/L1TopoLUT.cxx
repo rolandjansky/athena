@@ -1,5 +1,6 @@
-#include "TrigT1MuctpiPhase1/L1TopoLUT.h"
+#include "L1TopoLUT.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // silence Boost pragma message (fixed in Boost 1.76)
 #include <boost/property_tree/json_parser.hpp>
 
 #include <fstream>

@@ -68,45 +68,30 @@ namespace Rec {
         virtual StatusCode finalize() override;
 
         /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
-        virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                        const Trk::Track& spectrometerTrack, const EventContext& ctx) const override;
-
-        virtual Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                        const Trk::Track& spectrometerTrack) const override;
+        virtual std::unique_ptr<Trk::Track> combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                                        const Trk::Track& spectrometerTrack, const EventContext& ctx) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             build and fit indet track extended to include MS Measurement set.
             Adds material effects as appropriate plus calo energy-loss treatment */
-        virtual Trk::Track* indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                                           const Trk::TrackParameters* innerParameters, const Trk::TrackParameters* middleParameters,
-                                           const Trk::TrackParameters* outerParameters) const override;
-
-        virtual Trk::Track* indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                                           const EventContext& ctx, const Trk::TrackParameters* innerParameters,
-                                           const Trk::TrackParameters* middleParameters,
-                                           const Trk::TrackParameters* outerParameters) const override;
+        virtual std::unique_ptr<Trk::Track> indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
+                                                           const EventContext& ctx, const Trk::TrackParameters* innerParameters,
+                                                           const Trk::TrackParameters* middleParameters,
+                                                           const Trk::TrackParameters* outerParameters) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             propagate to perigee adding calo energy-loss and material to MS track */
-        virtual Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const Trk::Vertex* vertex, float bs_x, float bs_y,
-                                          float bs_z) const override;
-
-        virtual Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const EventContext& ctx, const Trk::Vertex* vertex,
-                                          float bs_x, float bs_y, float bs_z) const override;
+        virtual std::unique_ptr<Trk::Track> standaloneFit(const Trk::Track& spectrometerTrack, const EventContext& ctx,
+                                                          const Trk::Vertex* vertex, float bs_x, float bs_y, float bs_z) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-        virtual Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const override;
-
-        virtual Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x, float bs_y,
-                                            float bs_z) const override;
+        virtual std::unique_ptr<Trk::Track> standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x,
+                                                            float bs_y, float bs_z) const override;
 
         /*refit a track */
-        virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
-                                const Trk::ParticleHypothesis particleHypothesis) const override;
-
-        virtual Trk::Track* fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
-                                const Trk::ParticleHypothesis particleHypothesis) const override;
+        virtual std::unique_ptr<Trk::Track> fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier,
+                                                const Trk::ParticleHypothesis particleHypothesis) const override;
 
     private:
         /**
@@ -122,7 +107,7 @@ namespace Rec {
                                         const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
         bool optimizeErrors(const EventContext& ctx, Trk::Track* track) const;
-        std::unique_ptr<Trk::Track> addIDMSerrors(Trk::Track* track) const;
+        std::unique_ptr<Trk::Track> addIDMSerrors(const Trk::Track* track) const;
 
         void appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
                                 DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
@@ -149,10 +134,10 @@ namespace Rec {
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
 
-        const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
+        std::unique_ptr<Trk::TrackStateOnSurface> createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
 
-        std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> createSpectrometerTSOS(
-            const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> createSpectrometerTSOS(const Trk::Track& spectrometerTrack,
+                                                                                            const EventContext& ctx) const;
 
         const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters, const EventContext& ctx) const;
 
@@ -163,16 +148,16 @@ namespace Rec {
 
         void finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const;
 
-        void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false, double deltaPhi = 0.,
-                            double deltaTheta = 0.) const;
+        void momentumUpdate(std::unique_ptr<const Trk::TrackParameters>& parameters, double updatedP, bool directionUpdate = false,
+                            double deltaPhi = 0., double deltaTheta = 0.) const;
 
         double normalizedChi2(const Trk::Track& track) const;
         std::unique_ptr<Trk::Track> reallocateMaterial(const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
         void replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
         void removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
-        Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
-                                                     const Trk::RecVertex* mbeamAxis) const;
+        static std::unique_ptr<Trk::PseudoMeasurementOnTrack> vertexOnTrack(const Trk::TrackParameters& parameters,
+                                                                            const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis);
 
         void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
         int countAEOTs(const Trk::Track* track, const std::string& txt) const;
@@ -227,12 +212,12 @@ namespace Rec {
         ToolHandle<Muon::IMuonErrorOptimisationTool> m_muonErrorOptimizer{
             this,
             "MuonErrorOptimizer",
-            "Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool",
+            "",
         };
         ToolHandle<Muon::IMuonHoleRecoveryTool> m_muonHoleRecovery{
             this,
             "MuonHoleRecovery",
-            "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool",
+            "",
         };
         ToolHandle<Trk::IPropagator> m_propagator{
             this,
@@ -285,7 +270,6 @@ namespace Rec {
 
         Trk::MagneticFieldProperties m_magFieldProperties;
 
-       
         bool m_allowCleanerVeto;
         bool m_cleanCombined;
         bool m_cleanStandalone;
@@ -346,6 +330,10 @@ namespace Rec {
         const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const;
         const AtlasFieldCacheCondObj* getFieldCacheObj(const EventContext& ctx) const;
         bool loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& field_cache) const;
+        /// Helper method to retrieve the CaloTSO from the Material provider
+        /// in a memory safe way
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> getCaloTSOSfromMatProvider(const Trk::TrackParameters& track_params,
+                                                                                                const Trk::Track& me_track) const;
 
     };  // end of class CombinedMuonTrackBuilder
 

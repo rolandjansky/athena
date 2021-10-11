@@ -265,8 +265,9 @@ PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 PP="$PP"'|^FileMgr +DEBUG Successfully registered handler for tech'
 
 # TagInfoMgr not longer a ConversionSvc
-# this line is gone
+# these lines are gone
 PP="$PP"'|Added successfully Conversion service:TagInfoMgr'
+PP="$PP"'|TagInfoMgr +DEBUG in queryInterface'
 # this line moved around
 PP="$PP"'|Added successfully Conversion service:AthenaPoolCnvSvc'
 

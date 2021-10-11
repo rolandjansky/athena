@@ -17,8 +17,8 @@
 
 #include <cmath>
 #include <sstream>
-#include <exception>
-
+// #include <exception>
+#include <stdexcept>
 
 #ifndef M_2PI
 static const double M_2PI = 2*M_PI;
@@ -158,16 +158,32 @@ void RoiDescriptor::construct(double eta_, double etaMinus_, double etaPlus_,
   m_phi = phi_;
   m_zed = zed_;
 
+  if ( std::isnan(m_eta) ) throw std::invalid_argument( "RoiDescriptor: eta nan" );
+  if ( std::isnan(m_phi) ) throw std::invalid_argument( "RoiDescriptor: phi nan" );
+  if ( std::isnan(m_zed) ) throw std::invalid_argument( "RoiDescriptor: zed nan" );
+  
+
   m_etaPlus  = etaPlus_;
   m_etaMinus = etaMinus_;
 
+  if ( std::isnan(m_etaPlus)  ) throw std::invalid_argument( "RoiDescriptor: etaPlus nan" );
+  if ( std::isnan(m_etaMinus) ) throw std::invalid_argument( "RoiDescriptor: etaMinus nan" );
+
+
   m_zedMinus = zedMinus_;
   m_zedPlus  = zedPlus_;
+
+  if ( std::isnan(m_zedPlus)  ) throw std::invalid_argument( "RoiDescriptor: zedPlus nan" );
+  if ( std::isnan(m_zedMinus) ) throw std::invalid_argument( "RoiDescriptor: zedMinus nan" );
+
 
   // deal with double -> float M_PI conversion 
 
   m_phiPlus  = phiPlus_; 
   
+  if ( std::isnan(m_phiPlus)  ) throw std::invalid_argument( "RoiDescriptor: phiPlus nan" );
+
+
   while ( m_phiPlus> M_PIF ) m_phiPlus -= M_2PI;
   while ( m_phiPlus<-M_PIF ) m_phiPlus += M_2PI;
   /// NB: deal with float to double issue
@@ -182,6 +198,8 @@ void RoiDescriptor::construct(double eta_, double etaMinus_, double etaPlus_,
 
 
   m_phiMinus = phiMinus_;
+
+  if ( std::isnan(m_phiMinus) ) throw std::invalid_argument( "RoiDescriptor: phiMinus nan" );
 
   while ( m_phiMinus<-M_PIF ) m_phiMinus += M_2PI;
   while ( m_phiMinus> M_PIF ) m_phiMinus -= M_2PI;

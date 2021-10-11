@@ -19,8 +19,8 @@ LArRawChannelBuilderAlg::LArRawChannelBuilderAlg(const std::string& name, ISvcLo
   
 StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_digitKey.initialize());	 
-  if ( m_isSC ) ATH_CHECK(m_cellKey.initialize());
-  else ATH_CHECK(m_rawChannelKey.initialize());
+  ATH_CHECK(m_cellKey.initialize(m_isSC));
+  ATH_CHECK(m_rawChannelKey.initialize(!m_isSC));
   ATH_CHECK(m_pedestalKey.initialize());	 
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
@@ -294,10 +294,10 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     const CaloDetDescrElement* dde = m_sem_mgr->get_element (offId);
     ss->setCaloDDE(dde);
     ss->setEnergy(E);
+    tau*=1e-3; // time in ns
     ss->setTime(tau);
     ss->setGain((CaloGain::CaloGain)0);
     float et = ss->et()*1e-3; // et in GeV
-    tau*=1e-3; // time in ns
     // for super-cells provenance and time are slightly different
     uint16_t prov = 0x2000;
     if(et>10e3 && tau>-8 && tau<16) prov |= 0x200;

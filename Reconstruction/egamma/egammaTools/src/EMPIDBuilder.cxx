@@ -7,6 +7,10 @@
 #include "PATCore/AcceptData.h"
 #include "xAODEgamma/Egamma.h"
 
+namespace {
+const SG::AuxElement::Accessor<float> accLH("LHValue");
+}
+
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
                            const std::string& name,
                            const IInterface* parent)
@@ -140,10 +144,8 @@ EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
 
     // save the LHValue only once
     if (i == 0) {
-      eg->setLikelihoodValue(
-        static_cast<float>(
-          m_electronLHselectors[i]->calculate(ctx, eg, avg_mu)),
-        m_LHValueName);
+      accLH(*eg) = static_cast<float>(
+        m_electronLHselectors[i]->calculate(ctx, eg, avg_mu));
     }
   }
 

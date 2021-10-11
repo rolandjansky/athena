@@ -38,7 +38,7 @@ std::string time_str() {
   time_t _t;
   time(&_t);
   std::string s(ctime(&_t));
-  return s.substr(0,s.find("\n"));
+  return s.substr(0,s.find('\n'));
 }
 
 int usage(int e=0) { 
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 
     std::string arg(argv[i]);
 
-    if ( arg.find("-")!=0 ) { 
+    if ( arg.find('-')!=0 ) { 
       if ( adding_chains || deleting_chains ) { 
 	require_chains.insert(argv[i]); 
 	continue;

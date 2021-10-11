@@ -155,7 +155,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) 
 {
 
   return out;
@@ -165,7 +165,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out 
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) 
 {
   return out;
 }
@@ -328,7 +328,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //take the closest one in case it satisfies some default cuts
 	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
-	  for (; driftCircleIterator != container->end(); driftCircleIterator++) {
+	  for (; driftCircleIterator != container->end(); ++driftCircleIterator) {
 
 	    //get the associated surface of the driftcircle
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());

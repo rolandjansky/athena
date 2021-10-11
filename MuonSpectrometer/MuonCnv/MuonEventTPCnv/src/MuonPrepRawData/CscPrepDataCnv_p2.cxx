@@ -26,14 +26,14 @@ CscPrepDataCnv_p2::createCscPrepData( const Muon::CscPrepData_p2 *persObj,
     std::vector<Identifier> rdoList(1);
     rdoList[0]=clusId;
 
-    auto cmat = std::make_unique<Amg::MatrixX>(1,1);
-    (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+    auto cmat = Amg::MatrixX(1,1);
+    cmat(0,0) = static_cast<double>(persObj->m_errorMat);
 
     Muon::CscPrepData data (clusId,
                             0, // idDE,
                             localPos,
                             std::move(rdoList),
-                            cmat.release(),
+                            std::move(cmat),
                             detEl,
                             persObj->m_charge,
                             persObj->m_time,

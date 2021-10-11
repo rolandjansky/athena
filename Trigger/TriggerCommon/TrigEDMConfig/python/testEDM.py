@@ -42,7 +42,7 @@ def main():
     
     file_types = TriggerSerializable[1].split(" ")
 
-    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM", "AODBLSSLIM")
+    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM", "AODBLSSLIM", "AODCONV")
 
     for file_type in file_types:
       if file_type not in allowed_file_types:

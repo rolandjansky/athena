@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -18,15 +18,19 @@ void MaterialEffectsOnTrackCnv_p2 :: persToTrans(
    Trk::MaterialEffectsOnTrack          *transObj,
    MsgStream& log) 
 {
-   fillTransFromPStore( &m_mefBaseCnv, persObj->m_mefBase, transObj, log );
-   if ( (std::abs(persObj->m_deltaPhi)+std::abs(persObj->m_deltaTheta) > 1.0e-10) ||
-        (persObj->m_sigmaDeltaPhi + persObj->m_sigmaDeltaTheta > 1.0e-10) ) {
-     transObj->m_scatteringAngles =
-       new Trk::ScatteringAngles(persObj->m_deltaPhi,persObj->m_deltaTheta,
-                                 persObj->m_sigmaDeltaPhi,persObj->m_sigmaDeltaTheta);
-   } else transObj->m_scatteringAngles = nullptr;
-   transObj->m_energyLoss = createTransFromPStore( (ITPConverterFor<Trk::EnergyLoss>**)nullptr, persObj->m_energyLoss, log );
-   // transObj->m_energyLoss = createTransFromPStore( &m_elossCnv, persObj->m_energyLoss, log );
+  fillTransFromPStore(&m_mefBaseCnv, persObj->m_mefBase, transObj, log);
+  if ((std::abs(persObj->m_deltaPhi) + std::abs(persObj->m_deltaTheta) >
+       1.0e-10) ||
+      (persObj->m_sigmaDeltaPhi + persObj->m_sigmaDeltaTheta > 1.0e-10)) {
+    transObj->m_scatteringAngles =
+      Trk::ScatteringAngles(persObj->m_deltaPhi,
+                            persObj->m_deltaTheta,
+                            persObj->m_sigmaDeltaPhi,
+                            persObj->m_sigmaDeltaTheta);
+  } else
+    transObj->m_scatteringAngles = std::nullopt;
+  transObj->m_energyLoss.reset(createTransFromPStore(
+    (ITPConverterFor<Trk::EnergyLoss>**)nullptr, persObj->m_energyLoss, log));
 }
 
 void MaterialEffectsOnTrackCnv_p2 :: transToPers(

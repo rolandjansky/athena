@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,7 +29,6 @@
 #include "VP1Base/VP1CustomStereoEditor.h"
 #include "VP1HEPVis/VP1HEPVisUtils.h"
 #include "VP1HEPVis/actions/SoGL2PSAction.h"
-#include "VP1HEPVis/gl2ps.h"
 
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoGroup.h>
@@ -53,6 +52,9 @@
 #include <QPushButton>
 #include <QGLFormat>
 
+// Has to be after qt headers because qt uses its own glext.
+#include "VP1HEPVis/gl2ps.h"
+
 #include <map>
 #include <iostream>
 #include <typeinfo>
@@ -66,6 +68,8 @@
 class VP1ExaminerViewer::Imp {
 
 public:
+        Imp (const Imp&) = delete;
+        Imp& operator= (const Imp&) = delete;
 
 	Imp(VP1ExaminerViewer*tc,bool dvb)
 : theclass(tc),
@@ -148,7 +152,6 @@ public:
 		// theclass->setClearBeforeRender(FALSE, FALSE);
 		// theclass->setClearBeforeOverlayRender(FALSE);
 }
-
 
 	~Imp()
 	{

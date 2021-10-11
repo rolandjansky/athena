@@ -111,8 +111,8 @@ namespace InDet {
       ToolHandle<Trk::IRIO_OnTrackCreator>  m_riontrackD  ; //
       ToolHandle<Trk::IRIO_OnTrackCreator>  m_riontrackN  ; //
 
-      int                              m_outputlevel    ; // Print level
-      int                              m_nprint         ; // Kind of print
+      int                              m_outputlevel{}    ; // Print level
+      int                              m_nprint{}         ; // Kind of print
       int                              m_minNumberDCs   ; // Min. number of DriftCircles
       double                           m_roadwidth      ; // Max width of the road
       double                           m_roadwidth_locz ; // Max width of the road along the straw
@@ -145,12 +145,12 @@ namespace InDet {
       };
 
 
-      AtlasDetectorID*                       m_idHelper; //<! Detector ID helper
+      AtlasDetectorID*                       m_idHelper{}; //<! Detector ID helper
     
-      const TRT_ID* m_trtid ;
+      const TRT_ID* m_trtid{} ;
 
-      MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      static MsgStream&    dumpConditions(MsgStream   & out) ;
+      static MsgStream&    dumpEvent     (MsgStream   & out) ;
 
 
 

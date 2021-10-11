@@ -26,13 +26,16 @@ LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, JetDS, PhotonDS
 PartialEventBuildingIdentifiers = [
     'BeamSpotPEB',
     'LArPEBCalib',
+    'MuonTrkPEB',
     'LArPEBHLT',
     'LArPEB',
+    'LATOMEPEB',
     'RPCPEBSecondaryReadout',
     'SCTPEB',
     'TilePEB',
     'AlfaPEB',
-    'CSCPEB'
+    'CSCPEB',
+    'ZDCPEB'
 ]
 
 

@@ -48,7 +48,7 @@ void SCT_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont,
   int numColl = transCont->numberOfCollections();
   persCont->m_collections.resize(numColl);
   
-  for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+  for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
     // Add in new collection
     const SCT_RDO_Collection& collection = (**it_Coll);
     chanBegin  = chanEnd;

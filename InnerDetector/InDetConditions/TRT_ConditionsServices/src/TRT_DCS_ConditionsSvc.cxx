@@ -33,20 +33,20 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   m_barrelReadKey("/TRT/DCS/HV/BARREL"),
   m_EAReadKey("/TRT/DCS/HV/ENDCAPA"),
   m_ECReadKey("/TRT/DCS/HV/ENDCAPC"),
-  m_TRT_ID_Helper(0),
+  m_TRT_ID_Helper(nullptr),
   m_numFlagRED(0),
   m_numFlagNOINFO(0),
   m_currentTimestamp(0),
   m_doMonitoring(false),
-  m_h_Barrel_nRED(0),
-  m_h_EndcapA_nRED(0),
-  m_h_EndcapC_nRED(0),
-  m_h_Barrel_nNOINFO(0),
-  m_h_EndcapA_nNOINFO(0),
-  m_h_EndcapC_nNOINFO(0),
-  m_h_Barrel_HVvalAvg(0),
-  m_h_EndcapA_HVvalAvg(0),
-  m_h_EndcapC_HVvalAvg(0),
+  m_h_Barrel_nRED(nullptr),
+  m_h_EndcapA_nRED(nullptr),
+  m_h_EndcapC_nRED(nullptr),
+  m_h_Barrel_nNOINFO(nullptr),
+  m_h_EndcapA_nNOINFO(nullptr),
+  m_h_EndcapC_nNOINFO(nullptr),
+  m_h_Barrel_HVvalAvg(nullptr),
+  m_h_EndcapA_HVvalAvg(nullptr),
+  m_h_EndcapC_HVvalAvg(nullptr),
   m_nBAEvts(0),
   m_nEAEvts(0),
   m_nECEvts(0)
@@ -170,7 +170,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const Identifier ident,
     if ( abs(barrel_ec) == 1 ) folderName = m_Barrel_HV_COOLFolderName;
     if ( barrel_ec == 2 ) folderName = m_EndcapA_HV_COOLFolderName;
     if ( barrel_ec == -2 ) folderName = m_EndcapC_HV_COOLFolderName;
-    if ( folderName == "" ) {
+    if ( folderName.empty() ) {
       ATH_MSG_ERROR( "Invalid barrel/endcap identifier given." );
       return StatusCode::FAILURE;
     }
@@ -192,7 +192,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const Identifier ident,
 	// Get the Channel Name
 	std::string chanName = "";
 	chanName = m_mapSvc->get_HV_CoolChanName( ident );
-	if ( chanName == "" ) {
+	if ( chanName.empty() ) {
 	  ATH_MSG_WARNING( "Failed to get COOL channel name from map tool: "
 			   << barrel_ec << "," << phi_slice << "," << module_or_wheel << ","
 			   << straw_layer << "," << straw );
@@ -218,8 +218,8 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const Identifier ident,
 //////////
 /// getValue by folder name and channel name
 /////
-StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
-					    const std::string chanName,
+StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string & foldername,
+					    const std::string & chanName,
 					    InDet::TRT_DCS_ValueType& theValue ) {
   StatusCode sc(StatusCode::SUCCESS);
 
@@ -239,7 +239,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
       return StatusCode::FAILURE;
     }
   }
-
+   if ( !DCScondFolder ) return StatusCode::FAILURE;
   // Get the channel number for this channel name.
   int chanNum = -1;
   CondAttrListCollection::name_const_iterator chanNameMapItr;
@@ -275,7 +275,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
 //////////
 /// getValue by folder name and COOL channel number
 /////
-StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
+StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string & foldername,
 					    const int chanNum,
 					    InDet::TRT_DCS_ValueType& theValue ) {
 
@@ -295,7 +295,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
       return sc;
     }
   }
-
+ if ( !DCScondFolder ) return StatusCode::FAILURE;
   // Get the requested channel/value pair
   CondAttrListCollection::const_iterator chanAttrListPair;
   chanAttrListPair = DCScondFolder->chanAttrListPair( chanNum );
@@ -370,7 +370,7 @@ StatusCode TRT_DCS_ConditionsSvc::finalize() {
 //////////
 /// get pointer
 //////////
-const CondAttrListCollection* TRT_DCS_ConditionsSvc::getCollection( const std::string foldername) {
+const CondAttrListCollection* TRT_DCS_ConditionsSvc::getCollection( const std::string & foldername) {
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();
   EventContext::ContextEvt_t event_id=event_context.evt();

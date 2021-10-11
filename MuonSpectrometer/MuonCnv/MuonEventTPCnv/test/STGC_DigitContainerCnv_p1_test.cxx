@@ -53,7 +53,7 @@ void compare (const sTgcDigitContainer& p1,
 
 void testit (const sTgcDigitContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::STGC_DigitContainerCnv_p1 cnv;
   Muon::STGC_DigitContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

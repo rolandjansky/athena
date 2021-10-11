@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************//
@@ -243,9 +243,7 @@ CMAword  SectorLogic::outputToMuCTPI(int deltaBC) {
         ubit16 bxsafe = (ubit16)bunchID;
         return  output(bxsafe);
     } else {
-        DISP << "warning : bunchID out of range, " << bunchID ;
-        DISP_WARNING;
-        return 0;
+        throw std::out_of_range("SectorLogic::outputToMuCTPI: bunchID out of range: "+std::to_string(bunchID));
     }
 }
 
@@ -256,8 +254,7 @@ CMAword SectorLogic::outputToMuCTPI(ubit16 bunchID) {
   if( bunchID <= m_nBunMax-1 ) {
     bxsafe=bunchID;
   } else {
-      DISP << "warning : bunchID out of range, set to default value" << bxsafe ;
-    DISP_WARNING;
+    cout << "warning : bunchID out of range, set to default value" << bxsafe << endl;
   }
   return output(bxsafe);
 }
@@ -275,7 +272,7 @@ void SectorLogic::check(void) {
 
   for(bcid=0;bcid<=m_nBunMax-1;bcid++) {
 
-    DISP << "LowPtFilter_in BCID is " << m_LowPtFilter_in[bcid].out.bcid << endl
+    cout << "LowPtFilter_in BCID is " << m_LowPtFilter_in[bcid].out.bcid << endl
          << "LowPtFilter_out BCID is " << m_LowPtFilter_out[bcid].out.bcid << endl
 
          << "TileCalConfirm_in BCID is " << m_TileCalConfirm_in[bcid].out.bcid << endl
@@ -289,8 +286,6 @@ void SectorLogic::check(void) {
 
          << "Sort2ndHighest_in BCID is " << m_Sort2ndHighest_in[bcid].out.bcid << endl
          << "Sort2ndHighest_out BCID is " << m_Sort2ndHighest_out[bcid].out.bcid << endl;
-     DISP_DEBUG;
-
   }
 
 }
@@ -352,9 +347,8 @@ void SectorLogic::load(ubit16 padAdd, ubit16 BX, ubit16 RoIAdd, ubit16 pT,
   m_InFromTileCal[BX]=0xff;
 
   /*
-  DISP << "input from pad : BC = " << BX << " padAdd = " << padAdd
-       << " pT = "<<  pT << " roi = " << RoIAdd << " bcid = " << BCIDcounter;
-  DISP_DEBUG;
+  cout << "input from pad : BC = " << BX << " padAdd = " << padAdd
+       << " pT = "<<  pT << " roi = " << RoIAdd << " bcid = " << BCIDcounter << endl;
   */
 }
 //****************************************************************************//
@@ -506,9 +500,10 @@ void SectorLogic::execute(){
     int k1=0;
     for(k1=0;k1<=7;k1++) {
       if( m_SolveEtaOverlap_out[ibx].pad[k1].oveta &&  m_SolveEtaOverlap_out[ibx].pad[k1].pt==0 ) {
-	DISP << "warning :\n"
-	     << "pad # " << k1 << " bcid # " << ibx << " has eta overlap flag on but no triggered track\n";
-	DISP_DEBUG;
+        if (m_debug) {
+          std::cout << "pad # " << k1 << " bcid # " << ibx <<
+            " has eta overlap flag on but no triggered track" << std::endl;
+        }
       }
     }
     // run the overlap resolution algorithm on EVEN and then on ODD pads
@@ -533,9 +528,10 @@ void SectorLogic::execute(){
 	      }
 	    }
 	    else {
-	      DISP << "warning :\n"
-		   << "pads " << k3 << " and " << k3+1 << " have eta overlap flags on with wrong RoIs\n";
-	      DISP_DEBUG;
+          if (m_debug) {
+            std::cout << "pads " << k3 << " and " << k3+1 <<
+              " have eta overlap flags on with wrong RoIs" << std::endl;
+          }
 	    }
 	  }
 	}

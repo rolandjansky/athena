@@ -177,8 +177,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
         ATH_MSG_DEBUG("projected parameters(layer->MDT):" << pPar);
 
         if (parm->covariance()) {
-            std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
-            projEM = parm->covariance()->similarity(mdtProj);
+            std::optional<AmgMatrix(5, 5)> projEM = parm->covariance()->similarity(mdtProj);
             ATH_MSG_DEBUG("projected covariance(layer->MDT):" << (*projEM));
             projPar = new Trk::AtaStraightLine(pPar[0], pPar[1], pPar[2], pPar[3], pPar[4], *tubeSurf, projEM);
 
@@ -217,7 +216,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
         else
             pPar[0] *= zswap;
 
-        std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
+        std::optional<AmgMatrix(5, 5)> projEM;
+        projEM.emplace();
         if (parm->covariance()) {
             projEM = parm->covariance()->similarity(*pMx);
             projPar = new Trk::AtaPlane(pPar[0], pPar[1], pPar[2], pPar[3], pPar[4], *stripSurf, projEM);
@@ -294,8 +294,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
         ATH_MSG_DEBUG("projected parameters (layer->CSC):" << m_idHelperSvc->cscIdHelper().measuresPhi(id) << "," << locPar);
 
         if (parm->covariance()) {
-            std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
-            projEM = parm->covariance()->similarity(*pMx);
+            std::optional<AmgMatrix(5, 5)> projEM = parm->covariance()->similarity(*pMx);
 
             ATH_MSG_DEBUG("projected covariance (layer->CSC):" << *projEM);
 
@@ -454,8 +453,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
         pPar[1] += locWire[1];
         ATH_MSG_DEBUG("back projected parameters(MDT->layer):" << pPar);
 
-        std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
-        projEM = parm->covariance()->similarity(mdtProjInv);
+        std::optional<AmgMatrix(5, 5)> projEM = parm->covariance()->similarity(mdtProjInv);
 
         ATH_MSG_DEBUG("back projected covariance(MDT->layer):" << (*projEM));
         projPar = new Trk::AtaPlane(pPar[0], pPar[1], pPar[2], pPar[3], pPar[4], *laySurf, projEM);
@@ -496,8 +494,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
         //
         ATH_MSG_DEBUG("back projected parameters(RPC->layer):" << m_idHelperSvc->rpcIdHelper().measuresPhi(id) << "," << pPar);
 
-        std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
-        projEM = parm->covariance()->similarityT(*pMx);
+        std::optional<AmgMatrix(5, 5)> projEM = parm->covariance()->similarityT(*pMx);
 
         ATH_MSG_DEBUG("back projected covariance(RPC->layer):" << (*projEM));
         projPar = new Trk::AtaPlane(pPar[0], pPar[1], pPar[2], pPar[3], pPar[4], *laySurf, projEM);
@@ -554,8 +551,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
             parProj[1] += locCorrLay[Trk::locY] + csc_shift[Trk::locY];
             ATH_MSG_DEBUG("back projected parameters(CSC->layer):" << m_idHelperSvc->cscIdHelper().measuresPhi(id) << "," << parProj);
         }
-        std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
-        projEM = parm->covariance()->similarity(pMxInv);
+        std::optional<AmgMatrix(5, 5)> projEM = parm->covariance()->similarity(pMxInv);
 
         ATH_MSG_DEBUG("back projected covariance(CSC->layer):" << (*projEM));
         projPar = new Trk::AtaPlane(parProj[0], parProj[1], parProj[2], parProj[3], parProj[4], *laySurf, projEM);
@@ -576,8 +572,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
         Amg::VectorX locPar = pMxInv * parm->parameters();
         ATH_MSG_DEBUG("back projected parameters(TGC->layer):" << m_idHelperSvc->tgcIdHelper().isStrip(id) << "," << locPar);
 
-        std::optional<AmgMatrix(5, 5)> projEM = AmgMatrix(5, 5){};
-        projEM = parm->covariance()->similarity(pMxInv);
+        std::optional<AmgMatrix(5, 5)> projEM = parm->covariance()->similarity(pMxInv);
 
         ATH_MSG_DEBUG("back projected covariance(TGC->layer):" << (*projEM));
         projPar = new Trk::AtaPlane(locPar[0], locPar[1], locPar[2], locPar[3], locPar[4], *laySurf, projEM);
@@ -664,11 +659,20 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         // create (fake!) rio ( rio image on TG layer )
         IdentifierHash idHash(0);
         const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(id);
-        Amg::MatrixX* cov = new Amg::MatrixX();
-        *cov = A_ND * A_ND * rio->localCovariance();
+        auto cov = Amg::MatrixX();
+        cov = A_ND * A_ND * rio->localCovariance();
         Muon::MdtDriftCircleStatus status = Muon::MdtStatusDriftTime;
-        const Muon::MdtPrepData* mdtPrd = new Muon::MdtPrepData(id, idHash, Amg::Vector2D(locLay, 0.), cov, mdtROE, 0, 0, status);
-        Muon::MuonDriftCircleErrorStrategyInput stratbits(MuonDriftCircleErrorStrategy::UnknownStrategy);
+        const Muon::MdtPrepData* mdtPrd =
+          new Muon::MdtPrepData(id,
+                                idHash,
+                                Amg::Vector2D(locLay, 0.),
+                                std::move(cov),
+                                mdtROE,
+                                0,
+                                0,
+                                status);
+        Muon::MuonDriftCircleErrorStrategyInput stratbits(
+          MuonDriftCircleErrorStrategy::UnknownStrategy);
         Muon::MuonDriftCircleErrorStrategy strat(stratbits);
         const Muon::MdtDriftCircleOnTrack* mdtRio =
             new Muon::MdtDriftCircleOnTrack(mdtPrd, Trk::LocalParameters(Trk::DefinedParameter(locLay, Trk::locY)),
@@ -698,7 +702,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         std::vector<Identifier> rdoList;
         rdoList.push_back(id);
         const Muon::RpcPrepData* rpcPrd = new Muon::RpcPrepData(id, idHash, Amg::Vector2D(locPos, 0.), rdoList,
-                                                                new Amg::MatrixX(rio->localCovariance()), rpcROE, float(0.), 0, 0);
+                                                                Amg::MatrixX(rio->localCovariance()), rpcROE, float(0.), 0, 0);
         const Muon::RpcClusterOnTrack* rpcRio = 0;
         if (m_idHelperSvc->rpcIdHelper().measuresPhi(id))
             rpcRio = new Muon::RpcClusterOnTrack(rpcPrd, Trk::LocalParameters(Trk::DefinedParameter(locPos, Trk::locX)),
@@ -736,8 +740,16 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         std::vector<Identifier> rdoList;
         rdoList.push_back(id);
         Muon::CscClusterStatus status = Muon::CscStatusSimple;
-        const Muon::CscPrepData* cscPrd = new Muon::CscPrepData(id, idHash, Amg::Vector2D(locPos, 0.), rdoList,
-                                                                new Amg::MatrixX(rio->localCovariance()), cscROE, 0, 0., status);
+        const Muon::CscPrepData* cscPrd =
+          new Muon::CscPrepData(id,
+                                idHash,
+                                Amg::Vector2D(locPos, 0.),
+                                rdoList,
+                                Amg::MatrixX(rio->localCovariance()),
+                                cscROE,
+                                0,
+                                0.,
+                                status);
         const Muon::CscClusterOnTrack* cscRio = 0;
         if (m_idHelperSvc->cscIdHelper().measuresPhi(id))
             cscRio = new Muon::CscClusterOnTrack(cscPrd, Trk::LocalParameters(Trk::DefinedParameter(locPos, Trk::locX)),
@@ -757,7 +769,12 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         std::vector<Identifier> rdoList;
         rdoList.push_back(id);
         const Muon::TgcPrepData* tgcPrd =
-            new Muon::TgcPrepData(id, idHash, Amg::Vector2D(locPos, 0.), rdoList, new Amg::MatrixX(rio->localCovariance()), tgcROE);
+          new Muon::TgcPrepData(id,
+                                idHash,
+                                Amg::Vector2D(locPos, 0.),
+                                rdoList,
+                                Amg::MatrixX(rio->localCovariance()),
+                                tgcROE);
         const Muon::TgcClusterOnTrack* tgcRio = 0;
         if (m_idHelperSvc->tgcIdHelper().isStrip(id)) {
             Amg::Vector2D loc(locPos, parm->localPosition()[Trk::locY]);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -313,7 +313,7 @@ namespace InDet {
                                          float pt1,
                                          float pt2,
                                          float fR,
-                                         float deltaPhiVtxTrk) const
+                                         float deltaPhiVtxTrk) 
   {
     vertex.auxdata<float>("mass") = inv_mass;
     vertex.auxdata<float>("pt1") = pt1;

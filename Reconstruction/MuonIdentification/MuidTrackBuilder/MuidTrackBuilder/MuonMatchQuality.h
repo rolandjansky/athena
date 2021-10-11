@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,58 +25,58 @@ namespace Rec {
         MuonMatchQuality(const std::string& type, const std::string& name, const IInterface* parent);
         virtual ~MuonMatchQuality() = default;  // destructor
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
 
         /** IMuonMatchQuality interface:
             match chiSquared between two tracks expressed at same inner (IP) surface,
             expected to handle indet with extrapolated spectrometer track or combined
             with constituent track */
-        double innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2) const;
+        double innerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             degrees of freedom for chi2 match at IP */
-        int innerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const;
+        int innerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             match probability for chi2 match at IP */
-        double innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2) const;
+        double innerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             degrees of freedom, chi2, probability  for chi2 match at IP */
-        std::pair<int, std::pair<double, double> > innerMatchAll(const Trk::Track& track1, const Trk::Track& track2) const;
+        std::pair<int, std::pair<double, double> > innerMatchAll(const Trk::Track& track1, const Trk::Track& track2,
+                                                                 const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             match chiSquared between two tracks expressed at first muon spectrometer hit,
             extrapolates indet to first hit of spectrometer track */
-        double outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2) const;
+        double outerMatchChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             degrees of freedom for chi2 match at first MS hit */
-        int outerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const;
+        virtual int outerMatchDOF(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             match probability for chi2 match at first MS hit */
-        double outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2) const;
+        double outerMatchProbability(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
         /** IMuonMatchQuality interface:
             check the track perigee parameters are expressed at the same surface */
-        bool shareOrigin(const Trk::Track& track1, const Trk::Track& track2) const;
+        virtual bool shareOrigin(const Trk::Track& track1, const Trk::Track& track2) const override;
 
         /** IMuonMatchQuality interface:
             as inner match chiSquared but simplified to just use diagonal errors */
-        double simpleChi2(const Trk::Track& track1, const Trk::Track& track2) const;
+        double simpleChi2(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const override;
 
     private:
         // cache
         struct CacheAll {
-            double innerMatchChi2;
-            int innerMatchDOF;
-            double innerMatchProbability;
-            double simpleChi2;
+            double innerMatchChi2{FLT_MAX};
+            int innerMatchDOF{0};
+            double innerMatchProbability{0.};
+            double simpleChi2{FLT_MAX};
         };
 
-        CacheAll setCache(const Trk::Track& track1, const Trk::Track& track2) const;
+        CacheAll setCache(const Trk::Track& track1, const Trk::Track& track2, const EventContext& ctx) const;
 
         // helpers, managers, tools
         ToolHandle<MuonCombined::IMuonTrackTagTool> m_tagTool{
@@ -94,7 +94,7 @@ namespace Rec {
         };
 
         // estimate of ID/MS alignment uncertainties
-        AmgSymMatrix(5) * m_alignmentUncertainty;
+        std::unique_ptr<AmgSymMatrix(5)> m_alignmentUncertainty;
         Gaudi::Property<double> m_directionUncertainty{
             this,
             "ID_MS_DirectionUncertainty",

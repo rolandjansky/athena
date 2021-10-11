@@ -16,6 +16,8 @@
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "GaudiKernel/EventContext.h"
 
+#include "nlohmann/json.hpp"
+
 /**
  * @class SiAlignDBTester
  * @brief 
@@ -30,8 +32,8 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_rch_locshiftX {this, "locshiftXkey", "/FWD/AFP/LocalAlignment", "read cond handle local shiftXkey"};
-  SG::ReadCondHandleKey<CondAttrListCollection> m_rch_globshiftX {this, "globshiftXkey", "/FWD/AFP/GlobalAlignment", "read cond handle global shiftXkey"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_rch_locshiftX {this, "locshiftXkey", "/FWD/Onl/AFP/Align/Local", "read cond handle local shiftXkey"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_rch_globshiftX {this, "globshiftXkey", "/FWD/Onl/AFP/Align/Global", "read cond handle global shiftXkey"};
   SG::ReadCondHandleKey<AthenaAttributeList> m_readKey { this, "BeamSpotFolder", "/Indet/Beampos", "DB folder from which to read raw beam spot data" };
   SG::ReadCondHandleKey<CaloLocalHadCoeff> m_key;
 

@@ -92,7 +92,7 @@ StatusCode TrigInDetTrackCnv_p4::initialize(MsgStream &log) {
    }
 
    // get DetectorStore service
-   StoreGateSvc *detStore;
+   StoreGateSvc *detStore{nullptr};
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
       log << MSG::FATAL << "DetectorStore service not found !" << endmsg;

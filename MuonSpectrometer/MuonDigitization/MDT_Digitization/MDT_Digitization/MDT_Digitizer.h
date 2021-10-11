@@ -11,21 +11,20 @@
 class IPileUpTool;
 
 class MDT_Digitizer : public AthAlgorithm {
- public:
+public:
+    /** Constructor with parameters */
+    MDT_Digitizer(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /** Constructor with parameters */
-  MDT_Digitizer(const std::string& name, ISvcLocator* pSvcLocator);
+    /** Destructor */
+    virtual ~MDT_Digitizer() = default;
 
-  /** Destructor */
-  virtual ~MDT_Digitizer() = default;
+    /** Basic algorithm methods */
+    virtual StatusCode initialize() override final;
+    virtual StatusCode execute() override final;
+    virtual bool isClonable() const override final { return true; }
 
-  /** Basic algorithm methods */
-  virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
-  virtual bool isClonable() const override final { return true; }
-
- private:
-   ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "MdtDigitizationTool", "MdtDigitizationTool name"};
+private:
+    ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "MdtDigitizationTool", "MdtDigitizationTool name"};
 };
 
-#endif // MDT_DIGITIZATION_MDT_DIGITIZER_H
+#endif  // MDT_DIGITIZATION_MDT_DIGITIZER_H

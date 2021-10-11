@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloRec/python/CaloBCIDAvgAlgConfig.py
 # Created: Mar 2019, sss
@@ -43,7 +43,7 @@ if __name__ == "__main__":
             'LArADC2MeVCondAlg-',
             'LArOFCCondAlg-',
             'LArAutoCorrTotalCondAlg-',
-            'BunchCrossingTool-',
+            'BunchCrossingCondAlg',
             ]
     print ('--- data')
     flags1 = ConfigFlags.clone()

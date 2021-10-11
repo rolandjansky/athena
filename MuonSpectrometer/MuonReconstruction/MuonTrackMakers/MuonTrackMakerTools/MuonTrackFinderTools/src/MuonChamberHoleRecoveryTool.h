@@ -50,8 +50,7 @@ namespace Muon {
         StatusCode initialize() override;
 
         /** @brief returns a new track with holes recovered */
-        Trk::Track* recover(const Trk::Track& track) const override;
-        Trk::Track* recover(const Trk::Track& track, const EventContext& ctx) const override;
+        std::unique_ptr<Trk::Track> recover(const Trk::Track& track, const EventContext& ctx) const override;
 
         // made public
         void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,

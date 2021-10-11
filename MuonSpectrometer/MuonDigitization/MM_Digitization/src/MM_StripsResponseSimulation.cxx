@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// PROJECTS
@@ -30,8 +30,8 @@ Check Lorentz Angle is in correct direction...
 */
 
 namespace {
-    static constexpr float electronsToFC = 1./6241.;
-    static constexpr float polyaTheta = 1.765;
+    constexpr float electronsToFC = 1./6241.;
+    constexpr float polyaTheta = 1.765;
 }
 
 /*******************************************************************************/
@@ -53,10 +53,10 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_interactionDensitySigma(0),  //   Spread in this number.
 
 	// Function Pointers
-	m_lorentzAngleFunction(0),
+	m_lorentzAngleFunction(nullptr),
 	m_writeOutputFile(false),
 	m_writeEventDisplays(false),
-	m_outputFile(0)
+	m_outputFile(nullptr)
 	{
 	}
 /*******************************************************************************/
@@ -313,7 +313,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 
 
-float MM_StripsResponseSimulation::generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) {
+float MM_StripsResponseSimulation::generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const {
     // this is a helper function used in getTransverseDiffusion, generating double gaussian distributions
 
     // avoid division by zero in calculation of scale if ypos is 0
@@ -351,14 +351,14 @@ float MM_StripsResponseSimulation::getTransverseDiffusion(float posY, CLHEP::Hep
     return tmp;
   }
 
-float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) {
+float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const {
   float tmp = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0, posY*m_longitudinalDiffusionSigma);
   // We only want random numbers between -5 and 5
   while (std::abs(tmp) > 5) { tmp = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0, posY*m_longitudinalDiffusionSigma); }
   return tmp;
 }
 
-float  MM_StripsResponseSimulation::getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine) {
+float  MM_StripsResponseSimulation::getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine) const {
         // charge fluctuatation is described by Polya function
     	  //m_polyaFunction = new TF1("m_polyaFunction","(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,50000);
        // m_polyaFunction->SetParameter(0, 1.765); // polya theta
@@ -371,7 +371,7 @@ float  MM_StripsResponseSimulation::getEffectiveCharge(CLHEP::HepRandomEngine* r
 
 }
 
-float MM_StripsResponseSimulation::getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine) {
+float MM_StripsResponseSimulation::getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine) const {
 
 	  // Probability of having an interaction (per unit length traversed) is sampled from a gaussian provided by G. Iakovidis
     float rndGaus = CLHEP::RandGaussZiggurat::shoot(rndmEngine,m_interactionDensityMean, m_interactionDensitySigma);

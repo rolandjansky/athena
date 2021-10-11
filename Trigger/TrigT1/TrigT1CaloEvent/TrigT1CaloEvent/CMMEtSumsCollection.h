@@ -9,7 +9,6 @@
 
 /** Container class for CMMEtSums objects */
 
-using namespace LVL1;
-typedef DataVector<CMMEtSums> CMMEtSumsCollection;
+typedef DataVector<LVL1::CMMEtSums> CMMEtSumsCollection;
 
 #endif

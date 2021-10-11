@@ -5,6 +5,9 @@ from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 
 # ---- Local Variables ----
 # ---specify trigger tool and trigger chain here
@@ -112,8 +115,7 @@ LArRawChannelMon = LArRawChannelMonTool(
     # --- histogram registration ---
     interval                  = "run",
 
-    masking_tool              = theLArBadChannelsMasker,
-
+    ProblemsToMask            = ProblemsToMask,
     # Number of luminosity blocks to display in histograms
     n_lumi_blocks             = 3000,
 

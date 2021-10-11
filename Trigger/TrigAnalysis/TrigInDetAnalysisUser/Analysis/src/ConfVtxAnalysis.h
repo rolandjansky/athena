@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include "TrigInDetAnalysis/VertexAnalysis.h"
+#include "TrigInDetAnalysis/TIDAVertexNew.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
 
@@ -31,12 +32,22 @@ public:
   void initialise();
 
   void execute(const std::vector<TIDA::Vertex*>& vtx0,
-	       const std::vector<TIDA::Vertex*>& vtx1,
-	       const TIDA::Event* tevt=0 );
-  
+	      const std::vector<TIDA::Vertex*>& vtx1,
+	      const TIDA::Event* tevt=0 );
+
+  void execute(const std::vector<TIDA::VertexNew*>& vtx0,
+	      const std::vector<TIDA::VertexNew*>& vtx1,
+	      const TIDA::Event* tevt=0 );
+
   void finalise();
 
 private:
+
+  template<typename Vertex, typename Matcher>
+  void execute_internal(const std::vector<Vertex*>& vtx0,
+	      const std::vector<Vertex*>& vtx1,
+              Matcher& m, 
+	      const TIDA::Event* tevt=0);
 
   bool m_initialised;
   bool m_finalised;

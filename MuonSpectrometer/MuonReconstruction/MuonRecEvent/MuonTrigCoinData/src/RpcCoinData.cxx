@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ namespace Muon
 			     const IdentifierHash &idDE,
 			     const Amg::Vector2D& locpos,
 			     const std::vector<Identifier>& stripList,
-			     const Amg::MatrixX* locErrMat,
+			     const Amg::MatrixX& locErrMat,
 			     const MuonGM::RpcReadoutElement* detEl,
 			     const float time,
 			     const unsigned short ambiguityFlag,
@@ -71,7 +71,7 @@ RpcCoinData::RpcCoinData(const RpcCoinData& RIO):
 { }
 
 //move constructor:
-RpcCoinData::RpcCoinData(RpcCoinData&& RIO):
+RpcCoinData::RpcCoinData(RpcCoinData&& RIO) noexcept :
     RpcPrepData(std::move(RIO)), 
     m_ijk( RIO.m_ijk ),
     m_threshold( RIO.m_threshold ),
@@ -101,10 +101,9 @@ RpcCoinData& RpcCoinData::operator=(const RpcCoinData& RIO)
 
 //move operator
 RpcCoinData& RpcCoinData::operator=(RpcCoinData&& RIO)
-{
+ noexcept {
   if(&RIO !=this)
     {
-      RpcPrepData::operator=(std::move(RIO));
       m_ijk            = RIO.m_ijk;
       m_threshold      = RIO.m_threshold;
       m_overlap        = RIO.m_overlap;
@@ -112,6 +111,7 @@ RpcCoinData& RpcCoinData::operator=(RpcCoinData&& RIO)
       m_parentPadId    = RIO.m_parentPadId; 
       m_parentSectorId = RIO.m_parentSectorId;
       m_lowPtCm        = RIO.m_lowPtCm;
+      RpcPrepData::operator=(std::move(RIO));
     }
   return *this;
 }
@@ -157,18 +157,15 @@ std::ostream& RpcCoinData::dump( std::ostream&    stream) const
 }
 bool RpcCoinData::isLowPtCoin() const
 {
-    if ( m_lowPtCm && m_ijk == 6 ) return true;
-    return false;
+    return m_lowPtCm && m_ijk == 6;
 }
 bool RpcCoinData::isHighPtCoin() const
 {
-    if ( (!m_lowPtCm) && m_ijk == 6 ) return true;
-    return false;
+    return (!m_lowPtCm) && m_ijk == 6;
 }
 bool RpcCoinData::isLowPtInputToHighPtCm() const
 {
-    if ( m_ijk == 0 ) return true;
-    return false;
+    return m_ijk == 0;
 }
 
 

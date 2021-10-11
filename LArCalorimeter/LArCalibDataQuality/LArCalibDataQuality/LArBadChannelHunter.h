@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -81,14 +81,14 @@ private:
   float m_recalcPer;
 
   //Thresholds:
-  float m_lowNoiseTh[CaloGain::LARNGAIN];
-  float m_highNoiseTh[CaloGain::LARNGAIN];
+  float m_lowNoiseTh[CaloGain::LARNGAIN]{};
+  float m_highNoiseTh[CaloGain::LARNGAIN]{};
  
-  float m_amplTh[CaloGain::LARNGAIN];
-  float m_widTh[CaloGain::LARNGAIN];
-  float m_distwidTh[CaloGain::LARNGAIN];
-  float m_distampTh[CaloGain::LARNGAIN];
-  float m_tmaxampTh[CaloGain::LARNGAIN];
+  float m_amplTh[CaloGain::LARNGAIN]{};
+  float m_widTh[CaloGain::LARNGAIN]{};
+  float m_distwidTh[CaloGain::LARNGAIN]{};
+  float m_distampTh[CaloGain::LARNGAIN]{};
+  float m_tmaxampTh[CaloGain::LARNGAIN]{};
   enum AvgType {
     FEB,
     PHI
@@ -103,27 +103,27 @@ private:
 
   class Average {
   public:
-    float m_avPedRMS[CaloGain::LARNGAIN]; 
-    float m_avPedRMSSD[CaloGain::LARNGAIN]; 
-    unsigned m_nPed[CaloGain::LARNGAIN]; 
-    float m_avAmpl[CaloGain::LARNGAIN];
-    float m_avAmplSD[CaloGain::LARNGAIN];
-    unsigned m_nAmpls[CaloGain::LARNGAIN];
-    float m_avWid[CaloGain::LARNGAIN];
-    float m_avWidSD[CaloGain::LARNGAIN];
-    unsigned m_nWids[CaloGain::LARNGAIN];
-    float m_avTmax[CaloGain::LARNGAIN];
-    float m_avTmaxSD[CaloGain::LARNGAIN];
-    unsigned m_nTmaxs[CaloGain::LARNGAIN];
+    float m_avPedRMS[CaloGain::LARNGAIN]{}; 
+    float m_avPedRMSSD[CaloGain::LARNGAIN]{}; 
+    unsigned m_nPed[CaloGain::LARNGAIN]{}; 
+    float m_avAmpl[CaloGain::LARNGAIN]{};
+    float m_avAmplSD[CaloGain::LARNGAIN]{};
+    unsigned m_nAmpls[CaloGain::LARNGAIN]{};
+    float m_avWid[CaloGain::LARNGAIN]{};
+    float m_avWidSD[CaloGain::LARNGAIN]{};
+    unsigned m_nWids[CaloGain::LARNGAIN]{};
+    float m_avTmax[CaloGain::LARNGAIN]{};
+    float m_avTmaxSD[CaloGain::LARNGAIN]{};
+    unsigned m_nTmaxs[CaloGain::LARNGAIN]{};
 
     std::vector<float> m_vmedTmax[CaloGain::LARNGAIN];
     std::vector<float> m_vmedWid[CaloGain::LARNGAIN];
     std::vector<float> m_vmedAmpl[CaloGain::LARNGAIN];
     std::vector<float> m_vmedPedRMS[CaloGain::LARNGAIN];
-    float m_medTmax[CaloGain::LARNGAIN];	
-    float m_medWid[CaloGain::LARNGAIN];
-    float m_medAmpl[CaloGain::LARNGAIN];
-    float m_medPedRMS[CaloGain::LARNGAIN];
+    float m_medTmax[CaloGain::LARNGAIN]{};	
+    float m_medWid[CaloGain::LARNGAIN]{};
+    float m_medAmpl[CaloGain::LARNGAIN]{};
+    float m_medPedRMS[CaloGain::LARNGAIN]{};
     Average();
     void finish(float); 
   };

@@ -11,8 +11,10 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "AthContainers/ConstDataVector.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -44,7 +46,7 @@
   - Output container xAOD::TrackParticleContainer: OutputTrkPartContainerName
 
   The heavy work is done directly inside the algorithm, without the usage of
-  a particular external tool (see selectTrack private method).
+  any particular external tool (see selectTrack private method).
 
   */
 class egammaSelectedTrackCopy : public AthReentrantAlgorithm
@@ -100,6 +102,13 @@ private:
     "TrackParticleContainerName",
     "InDetTrackParticles",
     "Input TrackParticles to select from"
+  };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
   };
 
   SG::WriteHandleKey<ConstDataVector<xAOD::TrackParticleContainer>>

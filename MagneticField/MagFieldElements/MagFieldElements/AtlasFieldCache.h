@@ -51,9 +51,6 @@ public:
   AtlasFieldCache(AtlasFieldCache&& other) = default;
   ~AtlasFieldCache() = default;
 
-  /// Temporary flag for switching between 'old' and 'new' magField usage
-  bool useNewBfieldCache() { return true; }
-
   /** get B field value at given position
    * xyz[3] is in mm, bxyz[3] is in kT
    * if deriv[9] is given, field derivatives are returned in kT/mm

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCostAnalysis.h"
@@ -35,7 +35,7 @@ TH1* MonitoredRange::bookGetPointer(TH1* hist, const std::string& tDir) const {
     dir += "/";
     dir += tDir;
   }
-  return getParent()->bookGetPointer_fwd(hist, dir); // Use forwarding method. Actual member is protected
+  return getParent()->bookGetPointer(hist, dir);
 }
 
 
@@ -50,10 +50,12 @@ StatusCode MonitoredRange::addMonitor(std::unique_ptr<MonitorBase> monitor) {
 }
 
 
-StatusCode MonitoredRange::newEvent(const CostData& data, const float weight) {
-  for (auto& monitor : getMonitors()) {
-    ATH_CHECK(monitor->newEvent(data, weight));
-    ATH_CHECK(monitor->endEvent(weight));
+StatusCode MonitoredRange::newEvent(const CostData& data, const float weight, const bool skipMonitoringThisEvent) {
+  if (not skipMonitoringThisEvent) {
+    for (auto& monitor : getMonitors()) {
+      ATH_CHECK(monitor->newEvent(data, weight));
+      ATH_CHECK(monitor->endEvent(weight));
+    }
   }
   ATH_CHECK(m_cachedLifetimeHistPtr != nullptr);
   const bool isNewLB = m_seenLB.insert( data.lb() ).second; // .second is true if a new element was inserted

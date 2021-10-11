@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/ICollection.h"
@@ -105,7 +105,7 @@ MetaInfo::evalArgs(std::vector<std::string>& argv)
          m_noMetadata=true;
          for( size_t i = 0; i < keepkeys.size() ; ++i) {
             // Check for any wildcarding
-            std::string::size_type sep = keepkeys[i].find("*");
+            std::string::size_type sep = keepkeys[i].find('*');
             if (sep == std::string::npos) {
                //std::cerr << "Keeping " << keepkeys[i] << std::endl;
                m_wildkeepers.push_back(std::make_pair(keepkeys[i],""));
@@ -115,8 +115,8 @@ MetaInfo::evalArgs(std::vector<std::string>& argv)
                std::pair<std::string,std::string> key;
                key.first = keepkeys[i].substr(0,sep);
                key.second = keepkeys[i].substr(sep+1,keepkeys[i].size());
-               if (key.first.find("*")==std::string::npos && 
-                   key.second.find("*")==std::string::npos) m_wildkeepers.push_back(key);
+               if (key.first.find('*')==std::string::npos && 
+                   key.second.find('*')==std::string::npos) m_wildkeepers.push_back(key);
                else std::cerr << "Multiple wildcards not supported, disregarding " << keepkeys[i] << std::endl;
             }
          }
@@ -233,7 +233,8 @@ MetaInfo::checkMetadata( std::vector<pool::ICollection*> inputs,
 
 
 
-void MetaInfo::addMetaEntry(ICollMetaHandler::MetaKey key,
+void MetaInfo::addMetaEntry ATLAS_NOT_THREAD_SAFE
+                           (ICollMetaHandler::MetaKey key,
                             ICollMetaHandler::MetaKey val,
                             ICollMetaHandler::ProvNode srcCollection)
 {
@@ -254,7 +255,7 @@ void MetaInfo::addMetaEntry(ICollMetaHandler::MetaKey key,
 
 
 void
-MetaInfo::readMetadata( std::vector<pool::ICollection*> inputs )
+MetaInfo::readMetadata ATLAS_NOT_THREAD_SAFE ( std::vector<pool::ICollection*> inputs )
 {
    for( vector<ICollection*>::const_iterator input = inputs.begin(),
 	   end = inputs.end(); input != end; ++input )
@@ -292,7 +293,7 @@ MetaInfo::readMetadata( std::vector<pool::ICollection*> inputs )
 
 
 void
-MetaInfo::writeMetadata(std::vector<pool::ICollection*> outputs)
+MetaInfo::writeMetadata ATLAS_NOT_THREAD_SAFE (std::vector<pool::ICollection*> outputs)
 {
    // write all metadata
    for( vector<ICollection*>::const_iterator output = outputs.begin(),

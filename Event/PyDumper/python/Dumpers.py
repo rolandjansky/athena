@@ -287,7 +287,7 @@ def dump_AmgMatrix (m, f, thresh=1e-38):
         for c in range(m.cols()):
             v = m(r,c)
             if abs(v) < thresh: v = 0
-            fprint (f, '%6.3g' % v)
+            fprint (f, '%#6.3g' % v)
         fprint (f, ']')
     fprint (f, ']')
     return
@@ -300,7 +300,7 @@ def dump_AmgVector (m, f, thresh=1e-38):
     for r in range(m.rows()):
         v = m(r)
         if abs(v) < thresh: v = 0
-        fprint (f, '%6.3g' % v)
+        fprint (f, '%#6.3g' % v)
     fprint (f, ']')
     return
 

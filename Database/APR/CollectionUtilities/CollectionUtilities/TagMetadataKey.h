@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAGMETADATAKEY_H
@@ -35,13 +35,13 @@ public:
    static std::string vermark()  {return "Ver@";}
 
    TagMetadataKey();
-   TagMetadataKey(std::string key, std::string qual="", bool versioned=false);
+   TagMetadataKey(const std::string& key, const std::string& qual="", bool versioned=false);
 
    void setEncoded(bool flag);
-   void setKey(std::string key);
-   void setQual(std::string qual);
-   void setIOV(std::string iov);
-   void setVersion(std::string ver);
+   void setKey(const std::string& key);
+   void setQual(const std::string& qual);
+   void setIOV(const std::string& iov);
+   void setVersion(const std::string& ver);
 
    bool isVersioned() {return m_verstat;}
 
@@ -55,7 +55,7 @@ public:
    std::string toString() const;
 
 private:
-   std::string getpayload(const std::string key, const std::string comp);
+   std::string getpayload(const std::string& key, const std::string& comp);
 
    std::string m_key;
    std::string m_qual;
@@ -70,7 +70,7 @@ TagMetadataKey::TagMetadataKey() : m_verstat(false), m_encoded(true)
 {}
 
 inline
-TagMetadataKey::TagMetadataKey(std::string key, std::string qual, bool versioned) : 
+TagMetadataKey::TagMetadataKey(const std::string& key, const std::string& qual, bool versioned) : 
       m_key(key), m_qual(qual), m_verstat(versioned), m_encoded(true)
 {if (m_verstat) m_ver="0";}
 
@@ -78,16 +78,16 @@ inline void
 TagMetadataKey::setEncoded(bool flag) {m_encoded=flag;}
 
 inline void 
-TagMetadataKey::setKey(std::string key) {m_key=key;}
+TagMetadataKey::setKey(const std::string& key) {m_key=key;}
 
 inline void 
-TagMetadataKey::setQual(std::string qual) {m_qual=qual;}
+TagMetadataKey::setQual(const std::string& qual) {m_qual=qual;}
 
 inline void 
-TagMetadataKey::setIOV(std::string iov) {m_iov=iov;}
+TagMetadataKey::setIOV(const std::string& iov) {m_iov=iov;}
 
 inline void 
-TagMetadataKey::setVersion(std::string ver) {m_ver = ver;}
+TagMetadataKey::setVersion(const std::string& ver) {m_ver = ver;}
 
 inline bool
 TagMetadataKey::encoded() const {return m_encoded;}
@@ -160,7 +160,7 @@ TagMetadataKey::toString() const
 }
 
 inline std::string
-TagMetadataKey::getpayload(const std::string key, const std::string comp)
+TagMetadataKey::getpayload(const std::string& key, const std::string& comp)
 {
    std::string bad("BAD");
    std::string payload;

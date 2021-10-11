@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
@@ -245,8 +245,8 @@ namespace xAOD {
       /// Constant used to identify a seed (parent)
       static const std::string s_seedString;
 
-      /// Constant used to identify a navigation graph node as being from the L1 Decoder
-      static const std::string s_l1DecoderNodeNameString;
+      /// Constant used to identify a navigation graph node as being from the HLTSeeding
+      static const std::string s_hltSeedingNodeNameString;
       /// Constant used to identify a navigation graph node as being from a Filter
       static const std::string s_filterNodeNameString;
       /// Constant used to identify a navigation graph node as being from a Input Maker

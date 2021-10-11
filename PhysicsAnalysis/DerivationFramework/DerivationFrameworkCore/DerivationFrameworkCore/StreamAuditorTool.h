@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ namespace DerivationFramework {
     ServiceHandle<IIncidentSvc> m_incidentSvc;
     std::map<std::string,unsigned int> m_algNames;
     std::map<std::pair<std::string,std::string> , unsigned int> m_overlapMap;
-    unsigned int m_totalEvents;
+    unsigned int m_totalEvents = 0U;
     //m_algCounts,
     //m_overlapCounts,
 

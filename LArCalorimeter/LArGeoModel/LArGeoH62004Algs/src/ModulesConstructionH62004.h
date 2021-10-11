@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOH62004ALGS_MODULESCONSTRUCTIONH62004_H
@@ -37,7 +37,7 @@ namespace LArGeo {
                         //         4 - FCAL2, 5 - ColdTail
 
 	   GeoFullPhysVol*  m_ModulesPhys;
-	   StoreGateSvc * m_detectorStore;
+	   StoreGateSvc * m_detectorStore = nullptr;
 
 	   const LArGeoTB2004Options      *m_Options;
 

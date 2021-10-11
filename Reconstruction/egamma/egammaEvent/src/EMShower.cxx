@@ -82,7 +82,7 @@ double EMShower::parameter(egammaParameters::ParamDef key) const {
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) {
       result = (*p).second;
       break;
@@ -99,7 +99,7 @@ void EMShower::set_parameter(egammaParameters::ParamDef key, double value, bool 
 
   std::vector<elParams>::iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 

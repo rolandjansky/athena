@@ -42,6 +42,9 @@ namespace LArG4
   //---------------------------------------------------------------------------
   G4VSensitiveDetector* EMBSDTool::makeSD() const
   {
+    m_pscalc->initializeForSDCreation();
+    m_embcalc->initializeForSDCreation();
+
     // Create the wrapper
     auto sdWrapper = new SimpleSDWrapper("LArEMBSDWrapper", m_outputCollectionNames[0]);
 

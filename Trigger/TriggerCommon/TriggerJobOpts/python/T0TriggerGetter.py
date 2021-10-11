@@ -26,31 +26,25 @@ class T0TriggerGetter(Configured):
 
         # setup configuration services
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg =  TriggerConfigGetter()  # noqa: F841
+        cfg = TriggerConfigGetter()  # noqa: F841
 
-        # preconfigure TrigDecisionTool
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, 'TrigDecisionTool'):
-            from AthenaCommon.Configurable import Configurable
-            from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-            from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            Configurable.configurableRun3Behavior += 1
+        # configure TrigDecisionTool
+        from AthenaCommon.Configurable import ConfigurableRun3Behavior
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        tdtAcc = None
+        with ConfigurableRun3Behavior():
             from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-            acc = getTrigDecisionTool(ConfigFlags)
-            appendCAtoAthena( acc )
-            Configurable.configurableRun3Behavior -= 1
+            tdtAcc = getTrigDecisionTool(ConfigFlags)
 
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        appendCAtoAthena(tdtAcc)
 
         if withLVL1():
-            # setup Lvl1
-            # initialize LVL1ConfigSvc
             log.info("configuring lvl1")
             from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
             lvl1 = Lvl1ResultBuilderGetter()  # noqa: F841
 
         if withHLT():
-            # setup HLT
-            # initialize HLT config svc
             log.info("configuring hlt")
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hlt = HLTTriggerResultGetter()   # noqa: F841

@@ -13,26 +13,23 @@ def createTriggerFlags():
     # enables L1 simulation
     flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
 
-    # enables L1 topological trigger simulation
-    flags.addFlag('Trigger.doL1Topo', True )
-
     # need proper documentation
     flags.addFlag('Trigger.useRun1CaloEnergyScale', False)
 
-    # enable HLT part of the trigger
-    flags.addFlag('Trigger.doHLT', True)
+    # Run HLT selection algorithms
+    flags.addFlag('Trigger.doHLT', False)
 
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
-    flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
+    flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
 
-#    # Enable Run-3 LVL1 simulation and/or decoding
-#    flags.addFlag('Trigger.enableL1Phase1', False)
-
-    # Enable Run-3 LVL1 muon simulation and/or decoding
+    # Enable Run-3 LVL1 muon decoding
     flags.addFlag('Trigger.enableL1MuonPhase1', False)
 
     # Enable Run-3 LVL1 calo simulation and/or decoding
     flags.addFlag('Trigger.enableL1CaloPhase1', False)
+
+    # Enable L1Topo simulation to write inputs to txt
+    flags.addFlag('Trigger.enableL1TopoDump', False)
 
     # Enable usage of new L1 menu   
     flags.addFlag('Trigger.readLVL1FromJSON', True)
@@ -47,7 +44,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
 
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
-    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-03')
+    flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')
 
     # Enable Inner Detector
     flags.addFlag('Trigger.doID', True)
@@ -59,7 +56,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doCalo', True)
 
     # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
-    # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    # parents all the way back to the HLTSeeding. Potentially CPU expensive.
     # also enables per step decison printouts
     flags.addFlag('Trigger.doRuntimeNaviVal', False)
 
@@ -100,19 +97,30 @@ def createTriggerFlags():
         return default_version
 
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
-    flags.addFlag('Trigger.doEDMVersionConversion', True)
+    flags.addFlag('Trigger.doEDMVersionConversion', False)
+    flags.addFlag('Trigger.doConfigVersionConversion', True)
+
+    # Unpack trigger bytestream
+    flags.addFlag('Trigger.readBS', False)
+
+    # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework). 
+    flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
+
+    # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
+    flags.addFlag('Trigger.doNavigationSlimming', False) # Defaulting to False until validated (July 2021)
+
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
     # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
     # in either the run-2 or run-3 formats.
-    def TrigConfMeta(flags):
+    def _trigConfMeta(flags):
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        md = GetFileMD(flags.Input.Files) if len(flags.Input.Files) > 0 else {}
+        md = GetFileMD(flags.Input.Files) if any(flags.Input.Files) else {}
         return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
 
     # Flag to sense if trigger confioguration POOL metadata is available on the job's input
-    flags.addFlag('Trigger.InputContainsConfigMetadata', lambda prevFlags: TrigConfMeta(prevFlags))
+    flags.addFlag('Trigger.InputContainsConfigMetadata', lambda prevFlags: _trigConfMeta(prevFlags))
 
     # only enable services for analysis and BS -> ESD processing (we need better name)
     flags.addFlag('Trigger.doTriggerConfigOnly', False)
@@ -122,16 +130,20 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_noalg_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
-    flags.addFlag('Trigger.CostMonitoring.monitorROBs', False)
+    flags.addFlag('Trigger.CostMonitoring.monitorROBs', True)
 
-    # enable muon inputs simulation
-    flags.addFlag('Trigger.L1.doMuons', True)
+    # enable L1Muon ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doMuon', True)
 
-    # version of CTP data, int value up to 4
-    flags.addFlag('Trigger.L1.CTPVersion', 4)
+    # enable L1Calo ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doCalo', True)
 
-    # list of thresholds (not sure if we want to use new flags to generate L1, leaving out for now?)
-    
+    # enable L1Topo ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doTopo', True)
+
+    # enable CTP ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doCTP', True)
+
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
@@ -155,7 +167,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.ExtraEDMList', [])
 
     # tag to be used for condutions used by HLT code
-    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
+    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-02')
 
     # geometry version used by HLT online
     flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
@@ -235,9 +247,6 @@ def createTriggerFlags():
     # tune of MVA
     flags.addFlag('Trigger.egamma.calibMVAVersion', 'egammaMVACalib/online/v6')
 
-    # muons
-    flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
-
     # muon offline reco flags varaint for trigger
     def __muonSA():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
@@ -288,23 +297,17 @@ def createTriggerFlags():
     # the minimum pT threshold to use for the muon removal
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
-    # Switch on AMVF vertice and priority TTVA for jet slice
-    flags.addFlag("Trigger.Jet.doAMVFPriorityTTVA", False)
-    flags.addFlag("Trigger.Jet.doMC16_EOverP", False)
+    # Switch on MC20 EOverP maps for the jet slice
+    flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
+
+    # Return dummy chain configurations for fast slice independence checks
+    flags.addFlag("Trigger.Test.doDummyChainConfig", False)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
-    # fakeLVL1
-    # doMergedHLTResult - not needed now
-    # doAlwaysUnpackDSResult - never set
     # configForStartup
     # the flags related to trigger DB are redundant of triggerConfig - need to decide if they are needed in this form
     # also not defined the Prescale sets yet
-    # in signatures
-    # egamma: ringerVersion - not used
-    # muon: doMuonCalibrationStream - not used
-    # tau: doTrackingApproach - not used
-
 
     
 import unittest

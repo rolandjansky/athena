@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import TgcDigitToTgcRDOCfg
@@ -41,11 +42,17 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("FirstXing", TGC_FirstXing())
         kwargs.setdefault("LastXing", TGC_LastXing())
     kwargs.setdefault("OutputObjectName", "TGC_DIGITS")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
-        TgcDigitizationTool = CompFactory.TgcDigitizationTool
+
+    if flags.Digitization.UseUpdatedTGCConditions:
+        from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
+        acc.merge(TgcDigitASDposCondAlgCfg(flags))
+        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+
+    TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 
@@ -56,6 +63,12 @@ def TGC_OverlayDigitizationToolCfg(flags, name="Tgc_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TGC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TGC_SDO")
+
+    if flags.Digitization.UseUpdatedTGCConditions:
+        from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
+        acc.merge(TgcDigitASDposCondAlgCfg(flags))
+        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+
     TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
@@ -85,7 +98,7 @@ def TGC_DigitizationBasicCfg(flags, **kwargs):
 
 def TGC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with TGC Overlay digitization"""
-    acc = MuonGeoModelCfg(flags)
+    acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(TGC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

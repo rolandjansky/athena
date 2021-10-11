@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file timerdecorator.py
 # @purpose decorate functions which will have a limited alloted time to finish execution
@@ -52,7 +52,7 @@ def timelimit(timeout):
                 c.join()
             else:
                 c.join(timeout)
-            if c.isAlive():
+            if c.is_alive():
                 raise TimeoutError
             if c.error:
                 raise c.error

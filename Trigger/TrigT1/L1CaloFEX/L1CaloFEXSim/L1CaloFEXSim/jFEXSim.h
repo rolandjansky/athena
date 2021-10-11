@@ -55,12 +55,14 @@ namespace LVL1 {
     virtual void SetTowersAndCells_SG(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
     virtual void SetTowersAndCells_SG(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
 
-    virtual StatusCode ExecuteForwardASide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
-    virtual StatusCode ExecuteForwardCSide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
-    virtual StatusCode ExecuteBarrel(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
+    virtual StatusCode ExecuteForwardASide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], jFEXOutputCollection* inputOutputCollection) override;
+    virtual StatusCode ExecuteForwardCSide(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], jFEXOutputCollection* inputOutputCollection) override;
+    virtual StatusCode ExecuteBarrel(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width], jFEXOutputCollection* inputOutputCollection) override;
     virtual std::vector<std::vector<uint32_t>> getSmallRJetTOBs() override;
     virtual std::vector<std::vector<uint32_t>> getLargeRJetTOBs() override;
     virtual std::vector<std::vector<uint32_t>> getTauTOBs() override;
+    virtual std::vector<std::vector<uint32_t>> getSumEtTOBs() override;
+    virtual std::vector<std::vector<uint32_t>> getMetTOBs() override;
 
     /** Internal data */
   private:
@@ -71,13 +73,15 @@ namespace LVL1 {
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
 
-    std::map<int,jTower> m_jTowersColl;
+    std::unordered_map<int,jTower> m_jTowersColl;
     CaloCellContainer m_sCellsCollection;
     std::vector<jFEXFPGA*> m_jFEXFPGACollection;
    
     std::vector<std::vector<uint32_t>> m_smallRJet_tobWords;
     std::vector<std::vector<uint32_t>> m_largeRJet_tobWords;
     std::vector<std::vector<uint32_t>> m_tau_tobWords;
+    std::vector<std::vector<uint32_t>> m_sumET_tobWords;
+    std::vector<std::vector<uint32_t>> m_Met_tobWords;
     ToolHandle<IjFEXFPGA> m_jFEXFPGATool {this, "jFEXFPGATool", "LVL1::jFEXFPGA", "Tool that simulates the FPGA hardware"};
 
     

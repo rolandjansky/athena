@@ -133,7 +133,7 @@ void VP1TabBar::mouseMoveEvent( QMouseEvent *event )
         return;
       }
     }
-  } else if ( event->buttons() == Qt::MidButton ) {
+  } else if ( event->buttons() == Qt::MiddleButton ) {
     if ( m_d->mReorderStartTab == -1 ) {
       int delay = 5;//TK fixme KGlobalSettings::dndEventDelay();
       QPoint newPos = event->pos();
@@ -178,7 +178,7 @@ void VP1TabBar::activateDragSwitchTab()
 
 void VP1TabBar::mouseReleaseEvent( QMouseEvent *event )
 {
-  if ( event->button() == Qt::MidButton ) {
+  if ( event->button() == Qt::MiddleButton ) {
     if ( m_d->mReorderStartTab == -1 ) {
       int tab = selectTab( event->pos() );
       if ( tab != -1 ) {
@@ -239,10 +239,7 @@ void VP1TabBar::dropEvent( QDropEvent *event )
 #ifndef QT_NO_WHEELEVENT
 void VP1TabBar::wheelEvent( QWheelEvent *event )
 {
-  if ( event->orientation() == Qt::Horizontal )
-    return;
-
-  emit( wheelDelta( event->delta() ) );
+  emit( wheelDelta( event->angleDelta().y() ) );
 }
 #endif
 

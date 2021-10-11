@@ -25,6 +25,8 @@
 #include "IRegionSelector/IRegSelTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 /// Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -83,6 +85,7 @@ private:
   ToolHandle<IRegSelTool> m_regionSelector{this, "RegSelTool", "RegSelTool/RegSel_SCT", "region selector tool for HLT"};
   ToolHandle<ISCT_ClusteringTool> m_clusteringTool{this, "clusteringTool", "InDet::SCT_ClusteringTool"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   const SCT_ID* m_idHelper{nullptr};
   //@}
 

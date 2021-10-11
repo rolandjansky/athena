@@ -57,17 +57,29 @@ EMTauInputProvider::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 40, 0, 200);
+   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 80, 0, 400);
    hEMEt->SetXTitle("E_{T}");
    auto hEMEtaPhi = std::make_unique<TH2I>( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 64, 0, 64);
    hEMEtaPhi->SetXTitle("#eta");
    hEMEtaPhi->SetYTitle("#phi");
+   auto hEMEtEta = std::make_unique<TH2I>( "EMTOBEtEta", "Et vs eta", 40, 0, 200, 25, -50, 50);
+   hEMEtEta->SetXTitle("E_{t}");
+   hEMEtEta->SetYTitle("#eta");
+   auto hEMEtPhi = std::make_unique<TH2I>( "EMTOBEtPhi", "Et vs phi", 40, 0, 200, 64, 0, 64);
+   hEMEtPhi->SetXTitle("E_{t}");
+   hEMEtPhi->SetYTitle("#phi");
 
-   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 40, 0, 200);
+   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 80, 0, 400);
    hTauEt->SetXTitle("E_{T}");
    auto hTauEtaPhi = std::make_unique<TH2I>( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 64, 0, 64);
    hTauEtaPhi->SetXTitle("#eta");
    hTauEtaPhi->SetYTitle("#phi");
+   auto hTauEtEta = std::make_unique<TH2I>( "TauTOBEtEta", "Et vs eta", 40, 0, 200, 25, -50, 50);
+   hTauEtEta->SetXTitle("E_{t}");
+   hTauEtEta->SetYTitle("#eta");
+   auto hTauEtPhi = std::make_unique<TH2I>( "TauTOBEtPhi", "Et vs phi", 40, 0, 200, 64, 0, 64);
+   hTauEtPhi->SetXTitle("E_{t}");
+   hTauEtPhi->SetYTitle("#phi");
 
 
    if (m_histSvc->regShared( histPath + "EMTOBEt", std::move(hEMEt), m_hEMEt ).isSuccess()){
@@ -82,6 +94,18 @@ EMTauInputProvider::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register EMTOBPhiEta histogram for EMTauProvider");
    }
+   if (m_histSvc->regShared( histPath + "EMTOBEtEta", std::move(hEMEtEta), m_hEMEtEta ).isSuccess()){
+     ATH_MSG_DEBUG("EMTOBEtEta histogram has been registered successfully for EMTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register EMTOBEtEta histogram for EMTauProvider");
+   }
+   if (m_histSvc->regShared( histPath + "EMTOBEtPhi", std::move(hEMEtPhi), m_hEMEtPhi ).isSuccess()){
+     ATH_MSG_DEBUG("EMTOBEtPhi histogram has been registered successfully for EMTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register EMTOBEtPhi histogram for EMTauProvider");
+   }
 
    if (m_histSvc->regShared( histPath + "TauTOBEt", std::move(hTauEt), m_hTauEt ).isSuccess()){
      ATH_MSG_DEBUG("TauTOBEt histogram has been registered successfully for EMTauProvider.");
@@ -94,6 +118,18 @@ EMTauInputProvider::handle(const Incident& incident) {
    }
    else{
      ATH_MSG_WARNING("Could not register TauTOBPhiEta histogram for EMTauProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TauTOBEtEta", std::move(hTauEtEta), m_hTauEtEta ).isSuccess()){
+     ATH_MSG_DEBUG("TauTOBEtEta histogram has been registered successfully for TauTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TauTOBEtEta histogram for TauTauProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TauTOBEtPhi", std::move(hTauEtPhi), m_hTauEtPhi ).isSuccess()){
+     ATH_MSG_DEBUG("TauTOBEtPhi histogram has been registered successfully for TauTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TauTOBEtPhi histogram for TauTauProvider");
    }
    
 }
@@ -144,10 +180,14 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
             inputEvent.addCluster( cl );
             m_hEMEt->Fill(cl.Et());
             m_hEMEtaPhi->Fill(cl.eta(),cl.phi());
+            m_hEMEtEta->Fill(cl.Et(),cl.eta());
+            m_hEMEtPhi->Fill(cl.Et(),cl.phi());
          } else {
             inputEvent.addTau( cl );            
             m_hTauEt->Fill(cl.Et());
             m_hTauEtaPhi->Fill(cl.eta(),cl.phi());
+            m_hTauEtEta->Fill(cl.Et(),cl.eta());
+            m_hTauEtPhi->Fill(cl.Et(),cl.phi());
          }
       }
       if(topoData->overflow()){

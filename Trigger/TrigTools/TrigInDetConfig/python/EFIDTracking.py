@@ -89,7 +89,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
       #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
       mode_name = remapToOffline( config.name )
-      if config.name == "cosmics":
+      if config.name == "cosmics" or config.name == "minBias":
          from InDetTrigRecExample.InDetTrigTrackingCuts import InDetTrigTrackingCuts
          trackingCuts = InDetTrigTrackingCuts( mode_name ) 
       #MinBias cuts need to be revisited: ATR-23077
@@ -242,11 +242,14 @@ def ambiguitySolverForIDPatternRecognition( config, summaryTool, inputTracks,ver
    #-----------------------------------------------------------------------------
    #                      Track particle conversion algorithm
    from .InDetTrigCommon import trackParticleCnv_builder
+   from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary
+   creatorTool = InDetTrigParticleCreatorToolWithSummary
+   
    trackParticleCnvAlg = trackParticleCnv_builder(name                 = add_prefix( 'xAODParticleCreatorAlg', config.name + '_IDTrig' ), 
                                                   config               = config,
                                                   inTrackCollectionKey = config.trkTracks_IDTrig()+"_Amb",
                                                   outTrackParticlesKey = config.tracks_IDTrig(),
-                                                  trackSummaryTool     = summaryTool )
+                                                  trackParticleCreatorTool     =  creatorTool )
    
    ptAlgs.append( trackParticleCnvAlg )
 

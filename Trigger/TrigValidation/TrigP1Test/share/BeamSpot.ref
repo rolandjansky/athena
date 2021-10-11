@@ -129,8 +129,8 @@ InDet::InDetBeamSpotReader                49   0    INFO BeamSpot Position: 0.09
 InDet::InDetBeamSpotReader                50   0    INFO In event [360026,629151184,t:1536151929.445275770,l:10,b:2726]
 InDet::InDetBeamSpotReader                50   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
 BeamSpotCondAlg                                    DEBUG Property update for OutputLevel : new value = 2
-BeamSpotCondAlg                                     INFO Initializing BeamSpotCondAlg...
+BeamSpotCondAlg                                    DEBUG Initializing BeamSpotCondAlg...
 BeamSpotCondAlg                                    DEBUG input handles: 1
 BeamSpotCondAlg                                    DEBUG output handles: 1
 BeamSpotCondAlg                                    DEBUG Data Deps for BeamSpotCondAlg
-BeamSpotCondAlg                                     INFO Finalizing BeamSpotCondAlg...
+BeamSpotCondAlg                                    DEBUG Calling destructor

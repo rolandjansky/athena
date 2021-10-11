@@ -26,14 +26,14 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
     rdoList.push_back(rdoId);
   }
 
-  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
-  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+  auto cmat = Amg::MatrixX(1,1);
+  cmat(0,0) = static_cast<double>(persObj->m_errorMat);
 
   Muon::MMPrepData data (clusId, 
                          0, //collectionHash
                          localPos,
                          std::move(rdoList),
-                         cmat.release(),
+                         std::move(cmat),
                          detEl,
 			 persObj->m_time,
 			 persObj->m_charge,

@@ -9,7 +9,6 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloSamplingHelper.h"
 #include "TileEvent/TileCell.h"
-#include "AthenaKernel/tools/AthenaPackageInfo.h"
 
 namespace {
 
@@ -107,9 +106,7 @@ StatusCode JetVarTool::initialize() {
   IClassIDSvc* clidsvc = 0;
   ATH_CHECK( service("ClassIDSvc", clidsvc) );
   if (!clidsvc->isIDInUse (1118613496)) {
-    ATH_CHECK( clidsvc->setTypePackageForID (1118613496,
-                                             "ParticleJetContainer",
-                                             Athena::PackageInfo("dummy-00-00-00")) );
+    ATH_CHECK( clidsvc->setTypeForID (1118613496, "ParticleJetContainer") );
   }
 
   return StatusCode::SUCCESS;

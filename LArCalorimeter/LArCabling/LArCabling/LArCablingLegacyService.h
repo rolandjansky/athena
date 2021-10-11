@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -67,7 +67,7 @@ public:
   
 private:
   std::vector<std::vector<HWIdentifier> > m_onlHashToCalibLines;
-  const uint32_t* m_pFebHashtoROD;
+  const uint32_t* m_pFebHashtoROD = nullptr;
   //unsigned  m_nFebRod;
   std::vector<HWIdentifier> m_readoutModuleIDVec;
   const std::vector<HWIdentifier> m_vecEmpty; 

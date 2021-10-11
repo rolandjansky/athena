@@ -9,27 +9,37 @@ import zlib
 import json
 from PyUtils.fprint import _formatFloat
 
-def fixprecision(x):
+def fixprecision(x, precision=15):
     import math
     if not isinstance(x, float):
         return x
     else:
         mantissa, exponent = math.frexp(x)
         sm = '%.12g' % mantissa
-        return _formatFloat (float(sm[:16]) * 2**exponent)
+        return _formatFloat (float(sm[:precision]) * 2**exponent)
 
-def jsonfixup(instr):
+def jsonfixup(instr, fuzzyarray=False):
     instr = instr.Data()
     j=json.loads(instr)
     # the following are very subject to floating point numeric effects
+    # are doubles, keep 15 decimal digits of precision
     for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy',
                    'fTsumwz', 'fTsumwz2', 'fTsumwxz', 'fTsumwyz' ):
         if badkey in j:
             j[badkey] = fixprecision(j[badkey])
             #print(type(j["fTsumwx"]))
-    for badkey in ('fSumw2',):
+    # member, digits of precision
+    arrkeys = [('fSumw2', 15)]
+    if fuzzyarray:
+        arrkeys += [('fBinEntries',15), ('fBinSumw2',15)]
+        # apply different precision for fArray depending on object type
+        if '_typename' in j and j['_typename'] in ('TH1F', 'TH2F', 'TH3F'):
+            arrkeys.append(('fArray', 6))
+        else:
+            arrkeys.append(('fArray', 15))
+    for badkey, precision in arrkeys:
         if badkey in j:
-            j[badkey] = [fixprecision(_) for _ in j[badkey]]
+            j[badkey] = [fixprecision(_, precision) for _ in j[badkey]]
     # the following ignores small layout fluctuations in TTrees
     if 'fBranches' in j:
         for branch in j['fBranches']['arr']:
@@ -54,6 +64,8 @@ parser.add_argument('--no_inmem', action='store_true',
                     help="Don't show in memory size")
 parser.add_argument('--tree_entries', action='store_true',
                     help="Use more robust hash of TTree branches + entries")
+parser.add_argument('--fuzzy_histbins', action='store_true',
+                    help="Allow small variations in histogram bin content")
 args=parser.parse_args()
 
 ordering = args.rankorder
@@ -91,7 +103,7 @@ def dumpdir(d):
             if args.tree_entries and k.GetClassName() == 'TTree':
                 lhash = fuzzytreehash(k)
             elif args.hash:
-                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k)).encode())
+                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k), args.fuzzy_histbins).encode())
                 if lhash < 0:
                     lhash += 2**32
             else:

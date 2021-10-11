@@ -43,20 +43,20 @@ namespace InDet {
     
     std::vector<std::string> m_trackKeys;
     
-    bool m_isOdd;
-    int m_addToVx;
+    bool m_isOdd{};
+    int m_addToVx{};
 
     StatusCode split_vertices();
     
     /// containers to retrieve
     std::string m_tpbContainerName;
     std::string m_trackContainerName;
-    int m_maxVtx;
-    bool m_priOnly;
-    bool m_savetpb;
-    int m_rndSeed;
+    int m_maxVtx{};
+    bool m_priOnly{};
+    bool m_savetpb{};
+    int m_rndSeed{};
 
-    int m_eventN;
+    int m_eventN{};
   };
 }
 

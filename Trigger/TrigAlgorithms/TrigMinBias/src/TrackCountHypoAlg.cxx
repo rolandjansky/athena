@@ -77,13 +77,14 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
 
   int ntrks = tracksHandle->size();
   ATH_MSG_DEBUG("Successfully retrieved track container of size" << ntrks);
-
+  auto trkPt   = Monitored::Collection("trkPt", *tracksHandle, [](const auto& trk){ return trk->pt()*1.e-3; } );
+  auto trkEta  = Monitored::Collection("trkEta", *tracksHandle, [](const auto& trk){ return trk->eta(); } );
+  Monitored::Group(m_monTool, trkPt, trkEta);
   std::vector<int> counts(m_minPt.size());
   for (const auto trackPtr : *tracksHandle)
   {
-    const Trk::Perigee &aMeasPer = trackPtr->perigeeParameters();
-    const double pT = aMeasPer.pT();
-    const double z0 = aMeasPer.parameters()[Trk::z0];
+    const double pT = trackPtr->pt();
+    const double z0 = trackPtr->z0();
 
     for (long unsigned int i = 0; i < m_minPt.size(); i++)
     {
@@ -115,7 +116,7 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
   Monitored::Group(m_monTool, mon_ntrks);
   for (long unsigned int i = 0; i < counts.size(); i++)
   {
-    auto mon_counts = Monitored::Scalar<int>("counts" + std::to_string(i), counts[i]);
+    auto mon_counts = Monitored::Scalar<int>("countsSelection" + std::to_string(i), counts[i]);
     Monitored::Group(m_monTool, mon_counts);
   }
 
@@ -138,6 +139,6 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
   SG::WriteHandle<xAOD::TrigCompositeContainer> trackCountHandle(m_trackCountKey, context);
   ATH_CHECK(trackCountHandle.record(std::move(trackCountContainer), std::move(trackCountContainerAux)));
   d->setObjectLink(featureString(), ElementLink<xAOD::TrigCompositeContainer>(m_trackCountKey.key(), 0));
-  //ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;
 }

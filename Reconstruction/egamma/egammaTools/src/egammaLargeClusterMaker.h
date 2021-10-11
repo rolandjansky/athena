@@ -16,6 +16,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 #include "xAODCaloEvent/CaloClusterFwd.h" 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -23,6 +25,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 class CaloCellContainer;
 class CaloClusterCellLink;
@@ -51,6 +55,13 @@ private:
   /** @brief Cell container*/
   SG::ReadHandleKey<CaloCellContainer> m_cellsKey {this,
       "CellsName", "AllCalo", "Names of containers which contain cells"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
 
   /** @brief do FWD cell **/
   Gaudi::Property<bool> m_isFWD{ this,

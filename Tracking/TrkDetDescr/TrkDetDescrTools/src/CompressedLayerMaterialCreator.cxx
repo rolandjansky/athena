@@ -38,19 +38,6 @@ Trk::CompressedLayerMaterialCreator::CompressedLayerMaterialCreator(const std::s
 Trk::CompressedLayerMaterialCreator::~CompressedLayerMaterialCreator()
 {}
 
-
-// initialize
-StatusCode Trk::CompressedLayerMaterialCreator::initialize() 
-{
-    return StatusCode::SUCCESS;
-}
-    
-// finalize
-StatusCode Trk::CompressedLayerMaterialCreator::finalize() 
-{
-    return StatusCode::SUCCESS;
-}
-
 Trk::LayerMaterialProperties* Trk::CompressedLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
   // get the material matrix
@@ -176,7 +163,7 @@ Trk::LayerMaterialProperties* Trk::CompressedLayerMaterialCreator::createCompres
                 zarhobin = ( (size_t)zarhobin >= m_compressedMaterialZARhoBins) ? m_compressedMaterialZARhoBins-1 : zarhobin;
                 zarhobin = zarhobin < 0 ? 0 : zarhobin;
                 // create indexed material
-                Trk::IndexedMaterial idxMaterial;
+                Trk::IndexedMaterial idxMaterial{};
                 idxMaterial.materialProperties = matProp;
                 idxMaterial.firstBin  = ifir;
                 idxMaterial.secondBin = isec;

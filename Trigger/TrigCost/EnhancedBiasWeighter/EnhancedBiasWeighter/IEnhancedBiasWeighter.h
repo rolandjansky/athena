@@ -40,6 +40,7 @@ class IEnhancedBiasWeighter : public virtual DerivationFramework::IAugmentationT
       virtual bool     isGoodLB(const EventContext& context) const = 0;
       virtual bool     isMC() const = 0;
       virtual std::unordered_map<std::string, ChainDetail> parsePrescaleXML(const std::string& prescaleXML) const = 0;
+      virtual const std::vector<int32_t>& getBunchGroups() const = 0;
 
 };
 

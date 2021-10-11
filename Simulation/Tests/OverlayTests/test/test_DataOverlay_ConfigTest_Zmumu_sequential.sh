@@ -18,12 +18,13 @@ Overlay_tf.py \
 --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile dataOverlayRDO.pool.root \
 --maxEvents 10 \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
 --postExec 'with open("ConfigOverlay.pkl", "wb") as f: cfg.store(f)' \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlay"
 
 rc2=-9999
@@ -33,5 +34,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 "${ArtPackage}" "${ArtJobName}" --mode=semi-detailed --order-trees
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 regression"
+
+exit $status

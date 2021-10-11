@@ -35,7 +35,11 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
 //#include "TrkSurfaces/PlaneSurface.h"
+
+#include "AthenaKernel/IOVInfiniteRange.h"
+
 #include "GaudiKernel/SystemOfUnits.h"
+
 #include <memory>
 
 // constructor
@@ -207,7 +211,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
   
   //TODO/FIXME: just passing on range, no Calo IOV range used
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
   const Trk::TrackingVolume* innerVol = nullptr;
   if(tVolPair.second != nullptr){
     range = tVolPair.first;
@@ -843,7 +847,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    if ( rFcalBP > lArPositiveFcalBounds->innerRadius()) {
      ATH_MSG_ERROR("PROBLEM : beam pipe collide with Fcal:"<< rFcalBP <<">" << lArPositiveFcalBounds->innerRadius()<<", abort" );  
      // create dummy infinite IOV Range 
-     EventIDRange range;
+     EventIDRange range=IOVInfiniteRange::infiniteMixed();
      return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range,0);
      
    }

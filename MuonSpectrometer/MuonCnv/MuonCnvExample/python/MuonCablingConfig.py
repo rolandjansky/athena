@@ -40,24 +40,48 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
         log.info("No metadata/Taginfo found. Using normal configuration for RPC")
     log.info("RPC cabling is using mode: %s",muonCnvFlags.RpcCablingMode())
 
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1
+    ConfigFlags.Input.isMC = False if globalflags.DataSource() == 'data' else True
+    isMC = ConfigFlags.Input.isMC
+    doLVL1 = ConfigFlags.Trigger.doLVL1
+
+    rpcDbName = 'RPC_OFL' if isMC else 'RPC'
+    dbRepo="MuonRPC_Cabling/ATLAS.data"
     rpcCabMap="/RPC/CABLING/MAP_SCHEMA"
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
-
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
+    if doLVL1 and enableL1MuonPhase1:
+        # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
+        # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
+        rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
+            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
 
-    rpcDbName = 'RPC'
     from IOVDbSvc.CondDB import conddb
-    conddb.addFolderSplitMC(rpcDbName,rpcCabMap,rpcCabMap,className='CondAttrListCollection')
-    conddb.addFolderSplitMC(rpcDbName,rpcCabMapCorr,rpcCabMapCorr,className='CondAttrListCollection')
-    conddb.addFolderSplitMC(rpcDbName,rpcTrigEta,rpcTrigEta,className='CondAttrListCollection')
-    conddb.addFolderSplitMC(rpcDbName,rpcTrigPhi,rpcTrigPhi,className='CondAttrListCollection')
-
-    dbRepo="MuonRPC_Cabling/ATLAS.data"
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1 if ConfigFlags.Trigger.enableL1MuonPhase1 is not None else False
-    if enableL1MuonPhase1:
-        dbRepo="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
+    conddb.addFolder(rpcDbName,rpcCabMap,className='CondAttrListCollection')
+    conddb.addFolder(rpcDbName,rpcCabMapCorr,className='CondAttrListCollection')
+    if doLVL1 and not isMC:
+        # RPC trigger roads in the online database are not up-to-dated
+        # Use offline database for now
+        # Will switch to online database once online database has been updated (ATR-23465)
+        conddb._SetAcc('RPC_OFL','COOLOFL_RPC')
+        conddb.blockFolder("/RPC/TRIGGER/CM_THR_ETA")
+        conddb.blockFolder("/RPC/TRIGGER/CM_THR_PHI")
+        if enableL1MuonPhase1:
+            conddb.addFolder('RPC_OFL',rpcTrigEta,className='CondAttrListCollection')
+            conddb.addFolder('RPC_OFL',rpcTrigPhi,className='CondAttrListCollection')
+        else:
+            conddbNameOffline = ConfigFlags.Trigger.L1MuonSim.CondDBOffline if ConfigFlags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
+            conddb.addFolderWithTag('RPC_OFL',rpcTrigEta,conddbNameOffline,className='CondAttrListCollection',forceMC=True,force=True)
+            conddb.addFolderWithTag('RPC_OFL',rpcTrigPhi,conddbNameOffline,className='CondAttrListCollection',forceMC=True,force=True)
+    else:
+        conddb.addFolder(rpcDbName,rpcTrigEta,className='CondAttrListCollection')
+        conddb.addFolder(rpcDbName,rpcTrigPhi,className='CondAttrListCollection')
 
     from RPC_CondCabling.RPC_CondCablingConf import RpcCablingCondAlg
     condSequence += RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)

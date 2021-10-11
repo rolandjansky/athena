@@ -63,7 +63,7 @@ void test1 (ISvcLocator* svcloc)
 
   CondCont<LBDurationCondData>* cc2 = nullptr;
   assert( conditionStore->retrieve (cc2, "LBDurationCondData").isSuccess() );
-  const LBDurationCondData* data = 0;
+  const LBDurationCondData* data = nullptr;
   const EventIDRange* range2p = nullptr;
   assert (cc2->find (eid, data, &range2p));
   assert (range2p->start().time_stamp() == timestamp(0).time_stamp());

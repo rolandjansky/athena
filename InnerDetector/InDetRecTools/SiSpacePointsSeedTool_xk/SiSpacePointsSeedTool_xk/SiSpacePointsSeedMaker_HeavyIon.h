@@ -204,12 +204,12 @@ namespace InDet {
     int m_r_size{0};
     int m_fNmax{0};
     int m_fvNmax{0};
-    int m_rfz_b[SizeRFZ];
-    int m_rfz_t[SizeRFZ];
-    int m_rfz_ib[SizeRFZ][SizeI];
-    int m_rfz_it[SizeRFZ][SizeI];
-    int m_rfzv_n[SizeRFZV];
-    int m_rfzv_i[SizeRFZV][SizeIV];
+    int m_rfz_b[SizeRFZ]{};
+    int m_rfz_t[SizeRFZ]{};
+    int m_rfz_ib[SizeRFZ][SizeI]{};
+    int m_rfz_it[SizeRFZ][SizeI]{};
+    int m_rfzv_n[SizeRFZV]{};
+    int m_rfzv_i[SizeRFZV][SizeIV]{};
     float m_dzdrmin{0.};
     float m_dzdrmax{0.};
     float m_ipt{0.};
@@ -230,30 +230,30 @@ namespace InDet {
     //@}     
 
     MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
-    MsgStream& dumpEvent(EventData& data, MsgStream& out) const;
+    static MsgStream& dumpEvent(EventData& data, MsgStream& out) ;
 
     void buildFrameWork();
     void buildBeamFrameWork(const EventContext& ctx, EventData& data) const;
 
-    SiSpacePointForSeed* newSpacePoint
-    (EventData& data, const Trk::SpacePoint*const&) const;
-    void newSeed
+    static SiSpacePointForSeed* newSpacePoint
+    (EventData& data, const Trk::SpacePoint*const&) ;
+    static void newSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-     const float&) const;
-    void newSeed
+     const float&) ;
+    static void newSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-     const Trk::SpacePoint*&,const float&) const;
+     const Trk::SpacePoint*&,const float&) ;
 
     void newOneSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
      const Trk::SpacePoint*&,const float&,const float&) const;
-    void fillSeeds(EventData& data) const;
+    static void fillSeeds(EventData& data) ;
 
     void fillLists(EventData& data) const;
-    void erase(EventData& data) const;
+    static void erase(EventData& data) ;
     void production2Sp(EventData& data) const;
     void production3Sp(EventData& data) const;
     void production3Sp
@@ -281,8 +281,8 @@ namespace InDet {
     bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;
     void findNext(EventData& data) const;
     bool isZCompatible(EventData& data, float&,float&,float&) const;
-    float dZVertexMin(EventData& data, float&) const;
-    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) const;
+    static float dZVertexMin(EventData& data, float&) ;
+    static void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) ;
 
     void initializeEventData(EventData& data) const;
   };

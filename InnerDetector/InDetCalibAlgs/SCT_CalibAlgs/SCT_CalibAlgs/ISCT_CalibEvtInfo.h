@@ -41,7 +41,7 @@ class ISCT_CalibEvtInfo: virtual public IAlgTool {
       virtual int timeStamp() const =0;
       virtual int duration() const =0;
 
-      virtual void setSource(const std::string source)=0;
+      virtual void setSource(const std::string & source)=0;
 
       virtual void setLumiBlock(const int begin, const int end)=0;
       virtual void setLumiBlock(const int lb)=0;

@@ -42,7 +42,8 @@ genseeds = {
     'Exhume'            : ["ExhumeRand OFFSET {rnd} 4475757 {rnd}"],
     'Pomwig'            : ["POMWIG OFFSET {rnd} 37489241 {rnd}", "POMWIG_INIT 21219421 1984121"],
     'Starlight'         : ["STARLIGHT OFFSET {rnd} {rnd} 31122001"],
-    'BeamHaloGenerator' : ["BeamHalo OFFSET {rnd} 3524752 {rnd}"]
+    'BeamHaloGenerator' : ["BeamHalo OFFSET {rnd} 3524752 {rnd}"],
+    'Superchic'         : ["SUPERCHIC OFFSET {rnd} {rnd} 10480275"],
 }
 
 ## Decide whether to use the RanLux or standard random number service
@@ -56,8 +57,12 @@ if any(gen in ranluxlist for gen in evgenConfig.generators):
     print("Events will not be reseeded (RndmGenSvc) ")
 else:
     atRndmGenSvc = svcMgr.AtRndmGenSvc
-    atRndmGenSvc.EventReseeding = False
-    printfunc("Events will not be reseeded (RndmGenSvc) ")
+    if "Epos" in evgenConfig.generators:
+        atRndmGenSvc.EventReseeding = True
+        print ("Epos events will be reseeded (RndmGenSvc) ")
+    else:
+        atRndmGenSvc.EventReseeding = False
+        printfunc("Events will not be reseeded (RndmGenSvc) ")
 
 ## Pass the random seed from the transform command line into each used generator's seed config string
 seedstrs = []

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHHISTO2DCONTAINER_H
@@ -24,7 +24,7 @@ class MuonHoughHisto2DContainer
   std::pair<int,int> getMaximumBinnumber(unsigned int maximum_number,bool which_segment,int printlevel=0)const; 
 
   /** resets histograms */
-  void reset();
+  void reset() const;
   /** returns size of container */
   int size()const;
   /** reserve a certain size (memory) for m_histos */

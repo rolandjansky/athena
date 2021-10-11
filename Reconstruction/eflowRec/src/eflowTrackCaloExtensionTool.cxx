@@ -80,7 +80,8 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   if (m_useOldCalo) {
     /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
     ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-    uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+    uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(
+      Gaudi::Hive::currentContext(), *track);
     extension = uniqueExtension.get();
   } else {
     /*get the CaloExtension object*/
@@ -90,7 +91,8 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
     if( not extension ){
       ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-      uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+      uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(
+        Gaudi::Hive::currentContext(), *track);
       extension = uniqueExtension.get();
     }
   }

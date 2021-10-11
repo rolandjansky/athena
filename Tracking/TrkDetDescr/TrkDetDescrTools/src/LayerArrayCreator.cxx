@@ -39,20 +39,6 @@ Trk::LayerArrayCreator::~LayerArrayCreator()
 {}
 
 
-// the interface methods
-StatusCode Trk::LayerArrayCreator::initialize()
-{
-    ATH_MSG_INFO( "initialize()" );
-    return StatusCode::SUCCESS;
-}    
-
-StatusCode Trk::LayerArrayCreator::finalize()
-{    
-    ATH_MSG_INFO( "finalize() successful" );    
-    return StatusCode::SUCCESS;
-}
-
-
 Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<const Trk::CylinderLayer*>& cylLayersInput,
                                                             double rmin, double rmax, Trk::BinningType btype) const
 {  

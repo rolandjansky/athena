@@ -10,6 +10,8 @@
 #include "TrkDriftCircleMath/Road.h"
 #include "TrkDriftCircleMath/SegmentFinder.h"
 
+ 
+
 namespace Muon {
 
     MdtMathSegmentFinder::MdtMathSegmentFinder(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p) {
@@ -57,8 +59,7 @@ namespace Muon {
                                                                         const TrkDriftCircleMath::DCStatistics& dcstats,
                                                                         const TrkDriftCircleMath::ChamberGeometry* multiGeo = 0) const {
         // setup finder
-        std::unique_ptr<TrkDriftCircleMath::SegmentFinder> segmentFinder(
-            new TrkDriftCircleMath::SegmentFinder(m_roadWidth, m_mdtAssociationPullCut, false));
+        std::unique_ptr<TrkDriftCircleMath::SegmentFinder> segmentFinder = std::make_unique<TrkDriftCircleMath::SegmentFinder>(m_roadWidth, m_mdtAssociationPullCut, false);
 
         // set debug level
         segmentFinder->debugLevel(m_finderDebugLevel);
@@ -108,12 +109,11 @@ namespace Muon {
         // set use of segment quality
         segmentFinder->setUseSegmentQuality(m_useSegmentQuality);
 
-        std::unique_ptr<TrkDriftCircleMath::DCSLFitter> dcslFitter;
         if (!m_dcslFitProvider.empty()) {
-            segmentFinder->setFitter(m_dcslFitProvider->getFitter());
+            std::shared_ptr<const TrkDriftCircleMath::DCSLFitter> fitter(m_dcslFitProvider->getFitter(), Muon::IDCSLFitProvider::Unowned{});
+            segmentFinder->setFitter(fitter);
         } else {
-            dcslFitter = std::make_unique<TrkDriftCircleMath::DCSLFitter>();
-            segmentFinder->setFitter(dcslFitter.get());
+            segmentFinder->setFitter(std::make_shared<TrkDriftCircleMath::DCSLFitter>());
         }
 
         // set angle prediction from road
@@ -164,8 +164,7 @@ namespace Muon {
 
             // to speed up reconstruction use default fitter
             if (!m_dcslFitProvider.empty()) {
-                dcslFitter = std::make_unique<TrkDriftCircleMath::DCSLFitter>();
-                segmentFinder->setFitter(dcslFitter.get());
+                segmentFinder->setFitter(std::make_shared<TrkDriftCircleMath::DCSLFitter>());
             }
 
             // use tight road cuts and only look for pointing segments

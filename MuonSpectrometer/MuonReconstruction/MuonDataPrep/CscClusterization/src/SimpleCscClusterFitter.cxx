@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleCscClusterFitter.h"
@@ -18,12 +18,12 @@ using Muon::CscStripPrepData;
 using MuonGM::CscReadoutElement;
 
 typedef ICscClusterFitter::Result Result;
-typedef std::vector<Result> Results;
+using Results = std::vector<Result>;
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_R, CSL_R, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
-SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+SimpleCscClusterFitter::SimpleCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent) {
     declareInterface<ICscClusterFitter>(this);
     declareProperty("position_option", m_option = "MEAN", "Cluster fitting option: MEAN, PEAK, CENTROID");
@@ -36,19 +36,11 @@ SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string ana
 //**********************************************************************
 
 StatusCode SimpleCscClusterFitter::initialize() {
-    ATH_MSG_VERBOSE("Initializing " << name());
-
-    ATH_MSG_DEBUG("Properties for " << name() << ":");
     ATH_MSG_DEBUG("  Position option: " << m_option);
     ATH_MSG_DEBUG("  Intrinsic width: " << m_intrinsic_cluster_width << " mm");
 
     ATH_CHECK(m_idHelperSvc.retrieve());
-
-    if (m_alignmentTool.retrieve().isFailure()) {
-        ATH_MSG_WARNING(name() << ": unable to retrieve cluster fitter " << m_alignmentTool);
-    } else {
-        ATH_MSG_DEBUG(name() << ": retrieved " << m_alignmentTool);
-    }
+    ATH_CHECK(m_alignmentTool.retrieve());
     // retrieve MuonDetectorManager from the conditions store
     ATH_CHECK(m_DetectorManagerKey.initialize());
     return StatusCode::SUCCESS;
@@ -75,19 +67,19 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
         return results;
     }
 
-    const CscStripPrepData* pstrip = sfits[0].strip;
-    if (pstrip == 0) {
+    if (sfits.empty() || !sfits[0].strip) {
         ATH_MSG_WARNING("Strip pointer is null.");
         res.fitStatus = 4;
         results.push_back(res);
         return results;
     }
-    Identifier idStrip0 = pstrip->identify();
+    const CscStripPrepData* pstrip = sfits[0].strip;
+    const Identifier idStrip0 = pstrip->identify();
 
     // retrieve MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();
-    if (MuonDetMgr == nullptr) {
+    if (!MuonDetMgr) {
         ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");
         return results;
     }
@@ -106,56 +98,60 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
     int wlay = m_idHelperSvc->cscIdHelper().wireLayer(idStrip0);
 
     // In SimpleCscClusterFitter  istrip_peak = strip0;
-    int peak_count = 0;       // # peaks in the cluster
-    bool edge = strip0 == 0;  // is cluster on the edge of the chamber?
-    int stripidx = 0;         // actual strip position [0-191] or [0-47]
-    int countstrip = 0;       // counting strip in for loop
-    double qsum = 0;          // charge sum of strips in cluster
-    double xsum = 0;          // stripidx sum in cluster
-    double qxsum = 0;         // position weighted (stripidx) charge sum
+    int peak_count = 0;         // # peaks in the cluster
+    bool edge = (strip0 == 0);  // is cluster on the edge of the chamber?
+    int stripidx = 0;           // actual strip position [0-191] or [0-47]
+    int countstrip = 0;         // counting strip in for loop
+    double qsum = 0;            // charge sum of strips in cluster
+    double xsum = 0;            // stripidx sum in cluster
+    double qxsum = 0;           // position weighted (stripidx) charge sum
     double qerravg = 0;
     // istrip starts from 0.
     // stripidx is for actual strip position [0-191] or [0-47].
     // Out of for loop, stripidx will be the last strip of cluster.
     unsigned int istrip_peak = 0;
     double lastqpeak = 0;
+    float qlast = 0.;
+    float q_second_last = 0.;
+
     for (unsigned int istrip = 0; istrip < nstrip; ++istrip) {
-        StripFit sfit = sfits[istrip];
-        float qthis = sfit.charge;
-        float qlast = 0.0;
-        if (istrip > 0) qlast = sfits[istrip - 1].charge;
-        float qnext = 0.0;
-        if (istrip < nstrip - 1) qnext = sfits[istrip + 1].charge;
+        const StripFit& sfit = sfits[istrip];
+        const float qthis = sfit.charge;
+        const float qnext = (istrip + 1 < nstrip) ? sfits[istrip + 1].charge : 0.;
+        const float q_over_next = (istrip + 2 < nstrip) ? sfits[istrip + 2].charge : 0.;
+        countstrip = istrip + 1;
+
         stripidx = strip0 + istrip;
         qsum += qthis;
-        qerravg += sfit.dcharge;
+        qerravg += qthis;
         xsum += stripidx;
         qxsum += qthis * stripidx;
-        countstrip = istrip + 1;
+
         if (countstrip == 2 && qthis < qlast) ++peak_count;
-        if (countstrip > 2 && qthis < qlast && qlast >= sfits[istrip - 2].charge) ++peak_count;
+        if (countstrip > 2 && qthis < qlast && qlast >= q_second_last) ++peak_count;
 
         bool ispeak = qthis > qlast && qthis > qnext;
         // Special case: next strip has the same charge.
         // Require the previous strip has less charge and the next following
         // strip be absent or have less charge.
-        if (!ispeak) {
-            if (qthis == qnext) { ispeak = (qthis > qlast) && (istrip + 2 == nstrip || sfits[istrip + 2].charge < qthis); }
-        }
+        /// The former version had istrip + 2 == nstrip as an alternative condition. But q over next is then
+        /// just zero and hence always smaller than qthis
+        if (!ispeak && qthis == qnext) { ispeak = qthis > qlast && q_over_next < qthis; }
+
         // Special case: first and second strips have the same charge.
         // Require the third strip has less charge.
-        if (!ispeak) {
-            if (istrip == 1) {
-                if (qthis == qlast) {
-                    ispeak = qthis > qnext;  // bug found 10/13/07
-                }
-            }
+        if (!ispeak && istrip == 1 && qthis == qlast) {
+            ispeak = qthis > qnext;  // bug found 10/13/07
         }
+
         // Record if peak.
         if (ispeak && qthis > lastqpeak) {
             istrip_peak = istrip;
             lastqpeak = qthis;
         }
+        /// Update the charge for the next iterator
+        q_second_last = qlast;
+        qlast = qthis;
     }
     if (stripidx == maxstrip - 1) edge = true;
     // Update peak count and edge.
@@ -199,7 +195,7 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
         res.time_beforeT0Corr = sfits[res.strip].time_beforeT0Corr;
         res.time_beforeBPCorr = sfits[res.strip].time_beforeBPCorr;
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        results.push_back(res);
+        results.emplace_back(res);
         return results;
     }
 
@@ -304,7 +300,7 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
 
     //  res.charge = qsum;
 
-    results.push_back(res);
+    results.emplace_back(res);
     return results;
 }
 

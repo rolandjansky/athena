@@ -288,17 +288,6 @@ StatusCode GeoModelSvc::geoInit()
 	}
       }
     }
-
-    // Create a material manager
-    StoredMaterialManager *theMaterialManager{nullptr};
-    try{
-      theMaterialManager = new RDBMaterialManager(m_pSvcLocator);
-    }
-    catch(std::runtime_error& e) {
-      ATH_MSG_FATAL(e.what());
-      return StatusCode::FAILURE;
-    }
-    ATH_CHECK( m_detStore->record(theMaterialManager,"MATERIALS") );
   
     dbTagSvc->setAtlasVersion(m_AtlasVersion);
     dbTagSvc->setInDetVersionOverride(m_InDetVersionOverride);
@@ -317,7 +306,18 @@ StatusCode GeoModelSvc::geoInit()
       ATH_MSG_FATAL("Failed to setup subsystem tags");
       return StatusCode::FAILURE;
     }
-    
+
+    // Create a material manager
+    StoredMaterialManager *theMaterialManager{nullptr};
+    try{
+      theMaterialManager = new RDBMaterialManager(m_pSvcLocator);
+    }
+    catch(std::runtime_error& e) {
+      ATH_MSG_FATAL(e.what());
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_detStore->record(theMaterialManager,"MATERIALS") );
+
     // Build the world node from which everything else will be suspended
     const GeoMaterial* air = theMaterialManager->getMaterial("std::Air");  
     const GeoBox* worldBox = new GeoBox(1000*Gaudi::Units::cm,1000*Gaudi::Units::cm, 1000*Gaudi::Units::cm);
@@ -405,7 +405,7 @@ StatusCode GeoModelSvc::compareTags()
       // Parse Tag Info tag
       std::string::size_type startpos = 0;
       std::string currStr = pair.second;
-      for(std::string::size_type endpos=currStr.find("-"); endpos!=std::string::npos; endpos=currStr.find("-",startpos)) {
+      for(std::string::size_type endpos=currStr.find('-'); endpos!=std::string::npos; endpos=currStr.find('-',startpos)) {
 	tokensTagInfo.push_back(currStr.substr(startpos,endpos-startpos));
 	startpos = endpos+1;
       }
@@ -421,7 +421,7 @@ StatusCode GeoModelSvc::compareTags()
 	// Parse Job Options tag
 	startpos = 0;
 	currStr = m_AtlasVersion;
-	for(std::string::size_type endpos=currStr.find("-"); endpos!=std::string::npos; endpos=currStr.find("-",startpos)) {
+	for(std::string::size_type endpos=currStr.find('-'); endpos!=std::string::npos; endpos=currStr.find('-',startpos)) {
 	  tokensJobOpt.push_back(currStr.substr(startpos,endpos-startpos));
 	  startpos = endpos+1;
 	}

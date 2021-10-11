@@ -58,17 +58,8 @@ StatusCode RpcDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       Amg::Vector2D lpos(0.,0.);
 
       rdoEl->stripPosition(Id,lpos);
-      rdoEl->surface(Id).localToGlobal(lpos, gpos,gpos);
+      rdoEl->surface(Id).globalToLocal(gpos, gpos, lpos);
 
-      std::vector<Amg::Vector2D> local_pad_corners;
-      std::vector<Amg::Vector3D> global_pad_corners;
-      
-      for(auto& local_corner : local_pad_corners) {
-          Amg::Vector3D global_corner;
-          rdoEl->surface(Id).localToGlobal(local_corner, global_corner, global_corner);
-          global_pad_corners.push_back(global_corner);
-      }
-      
       m_RPC_dig_globalPosX.push_back( gpos.x() );
       m_RPC_dig_globalPosY.push_back( gpos.y() );
       m_RPC_dig_globalPosZ.push_back( gpos.z() );

@@ -121,15 +121,15 @@ public:
   // forbidden assignment operator
 
   // clean up memory (after fit completion)
-  void clear(FitProcedure::Cache& cache);
+  static void clear(FitProcedure::Cache& cache);
 
   // retrieve result
-  Track* constructTrack(
+  static Track* constructTrack(
     FitProcedure::Cache& cache,
     const std::vector<FitMeasurement*>& measurements,
     FitParameters& parameters,
     const TrackInfo& trackInfo,
-    const DataVector<const TrackStateOnSurface>* leadingTSOS = nullptr) const;
+    const DataVector<const TrackStateOnSurface>* leadingTSOS = nullptr) ;
 
   // perform fit procedure
   const FitProcedureQuality& execute(FitProcedure::Cache& cache,
@@ -141,7 +141,7 @@ public:
                                      bool for_iPatTrack = false) const;
 
   // for IGlobalTrackFit interface
-  Amg::MatrixX* fullCovariance() const;
+  static Amg::MatrixX* fullCovariance() ;
 
   // set minimum number of iterations to perform (IGlobalTrackFit friends)
   void setMinIterations(int minIter);
@@ -165,9 +165,9 @@ private:
     std::vector<FitMeasurement*>& measurements,
     const FitParameters& parameters) const;
 
-  void reportQuality(FitProcedure::Cache& cache,
+  static void reportQuality(FitProcedure::Cache& cache,
                      const std::vector<FitMeasurement*>& measurements,
-                     const FitParameters& parameters) const;
+                     const FitParameters& parameters) ;
 
   bool m_constrainedAlignmentEffects;
   bool m_extendedDebug;

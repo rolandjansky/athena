@@ -14,7 +14,7 @@
 #include <fstream>
 namespace PFMatch {
 
-MatchDistance TrackClusterMatcher::match(const ITrack* track, const ICluster* cluster) const {
+MatchDistance TrackClusterMatcher::match(ITrack* track,ICluster* cluster) const {
   double distance = m_distanceProvider->distanceBetween(track, cluster);
   return MatchDistance(cluster, distance);
 }
@@ -25,5 +25,5 @@ void TrackClusterMatcher::setDRParameters(){
 
 }
 
-  
+
 }

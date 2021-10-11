@@ -40,6 +40,8 @@ namespace LArG4
   //---------------------------------------------------------------------------
   G4VSensitiveDetector* HECSDTool::makeSD() const
   {
+    m_heccalc->initializeForSDCreation();
+
     // Create the wrapper
     auto sdWrapper = new SimpleSDWrapper("LArHECSDWrapper", m_outputCollectionNames[0]);
 

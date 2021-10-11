@@ -66,16 +66,16 @@ bool MdtTestCabling::testMap()
   ATH_MSG_DEBUG( "in testMap()" );
   ATH_MSG_DEBUG( "retrieved the map from the service" );
 
-  MuonMDT_CablingMap::MapOfItems *listOfSubdet;
+  const MuonMDT_CablingMap::MapOfItems *listOfSubdet;
   MuonMDT_CablingMap::MapOfItems::const_iterator it_sub;
 
-  MdtSubdetectorMap::MapOfItems *listOfROD;
+  const MdtSubdetectorMap::MapOfItems *listOfROD;
   MdtSubdetectorMap::MapOfItems::const_iterator it_rod;
 
-  MdtRODMap::MapOfItems *listOfCsm;
+  const MdtRODMap::MapOfItems *listOfCsm;
   MdtRODMap::MapOfItems::const_iterator it_csm;
 
-  MdtCsmMap::MapOfItems *listOfAmt;
+  const MdtCsmMap::MapOfItems *listOfAmt;
   MdtCsmMap::MapOfItems::const_iterator it_amt;
 
   listOfSubdet = readCdo->getListOfElements();
@@ -130,7 +130,7 @@ bool MdtTestCabling::testMap()
 	    bool cabling = readCdo->getOfflineId(subdetectorId,rodId,csmId,
 						      amtId,chanId,
 						      station,eta,phi,multi,
-						      layer,tube);
+						      layer,tube, msgStream());
 
 	    m_chronoSvc->chronoStop(m_chrono1);
 
@@ -152,7 +152,7 @@ bool MdtTestCabling::testMap()
 
 	      // test the back-conversion to online indeces
 	      m_chronoSvc->chronoStart(m_chrono3);
-	      cabling = readCdo->getOnlineId(station,eta,phi,multi,layer,tube,newSubdet,newRod,newCsm,newAmt,newChan);
+	      cabling = readCdo->getOnlineId(station,eta,phi,multi,layer,tube,newSubdet,newRod,newCsm,newAmt,newChan, msgStream());
 
 	      m_chronoSvc->chronoStop(m_chrono3);
 
@@ -236,7 +236,7 @@ bool MdtTestCabling::testMapTiming()
   for (int i = 0 ; i<1000 ; i++) {
     found = readCdo->getOfflineId(1,1,1,1,1,
 				       stationName,stationEta,stationPhi,
-				       multiLayer,layer,tube);
+				       multiLayer,layer,tube, msgStream());
     if (!found) {
       ATH_MSG_FATAL( " coul dnot find the test channel" );
       return found;
@@ -244,7 +244,7 @@ bool MdtTestCabling::testMapTiming()
 
     found = readCdo->getOfflineId(1,1,1,1,3,
 				  stationName,stationEta,stationPhi,
-				  multiLayer,layer,tube);
+				  multiLayer,layer,tube, msgStream());
     if (!found) {
       ATH_MSG_FATAL( " coul dnot find the test channel" );
       return false;

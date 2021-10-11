@@ -10,7 +10,7 @@ def L2OverlapRemoverMonConfig(helper):
 
     monAlg = helper.addAlgorithm(CompFactory.L2OverlapRemoverMonMT,'L2OverlapRemoverMonMT')
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    monAlg.MonitoredChains = ['HLT_2mu14_L12MU10']
+    monAlg.MonitoredChains = ['HLT_2mu14_L12MU8F']
     monAlg.Group = GroupName
 
 

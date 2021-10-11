@@ -9,7 +9,6 @@
 #include "TRT_FillCablingData_DC2.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include <iostream>
-//#include <math.h>
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 static const InterfaceID IID_ITRT_FillCablingData_DC2
@@ -53,7 +52,6 @@ StatusCode TRT_FillCablingData_DC2::initialize()
   m_cabling = new TRT_CablingData;
 
   defineParameters();
-//  printParameters();
   defineTables();
   defineCollID();
 
@@ -89,7 +87,6 @@ void TRT_FillCablingData_DC2::defineParameters()
 //  int numberOfWheelsC = 4;
 
   m_numberOfWheelsAB = m_numberOfWheelsA + numberOfWheelsB;
-//  m_numberOfWheelsABC = m_numberOfWheelsAB + numberOfWheelsC;
   m_numberOfWheelsABC = m_numberOfWheelsAB;
 
   m_numberOfStrawPlanesAC = 16;
@@ -98,24 +95,18 @@ void TRT_FillCablingData_DC2::defineParameters()
   m_numberOfPlanesAB = m_numberOfWheelsA * m_numberOfStrawPlanesAC +
     numberOfWheelsB * m_numberOfStrawPlanesB;
 
-//  m_totalNumberOfPlanes = m_numberOfPlanesAB + numberOfWheelsC *
-//    m_numberOfStrawPlanesAC;
   m_totalNumberOfPlanes = m_numberOfPlanesAB;
 
   m_numberOfIdentifierSectors = 32;
-//  m_numberOfEndCapPhiSectors = 96;
   m_numberOfEndCapPhiSectors = 64;
 
   m_numberOfPhiSectorsInIDSector = m_numberOfEndCapPhiSectors /
     m_numberOfIdentifierSectors;
 
   int numberOfStrawsInPlaneAB = 768;
-//  int numberOfStrawsInPlaneC = 576;
 
   m_numberOfStrawsInPhiSectorAB = numberOfStrawsInPlaneAB /
     m_numberOfEndCapPhiSectors;
-//  m_numberOfStrawsInPhiSectorC = numberOfStrawsInPlaneC /
-//    m_numberOfEndCapPhiSectors;
   m_numberOfStrawsInPhiSectorC = 0;  
 
   m_totalNumberOfStrawsInPhiSectorsAB = m_numberOfStrawsInPhiSectorAB *
@@ -130,8 +121,6 @@ void TRT_FillCablingData_DC2::defineParameters()
     m_numberOfEndCapPhiSectors * m_numberOfStrawPlanesAC;
   m_numberOfStrawsInWheelBForRod = numberOfStrawsInPlaneAB /
     m_numberOfEndCapPhiSectors * m_numberOfStrawPlanesB;
-//  m_numberOfStrawsInWheelCForRod = numberOfStrawsInPlaneC /
-//    m_numberOfEndCapPhiSectors * m_numberOfStrawPlanesAC;
   m_numberOfStrawsInWheelCForRod = 0;
 
   m_numberOfRings = 3;
@@ -152,7 +141,6 @@ void TRT_FillCablingData_DC2::defineParameters()
 
   m_numberOfStrawsInPhiSector = m_numberOfStrawsAB + numberOfStrawsC;
 
-//  m_numberOfStrawsInROD = 1664;
   m_numberOfStrawsInROD = 1920;
   m_numberOfStrawsInBarrelROD = 1642;
 
@@ -348,13 +336,10 @@ void TRT_FillCablingData_DC2::defineTables()
 
   for (int phi = 0; phi < 32; ++phi)
   {
-//    for (int i = 0; i < 3; ++i)
     for (int i = 0; i < 2; ++i)
     {
-//      for (straw = 0; straw < 1664; ++straw)
       for (straw = 0; straw < m_numberOfStrawsInROD; ++straw)
       {
-//        Id = defineIdentifier(det_id, phi * 3 + i, straw); 
         Id = defineIdentifier(det_id, phi * 2 + i, straw);
         m_cabling->set_identfierForAllStraws(Id);	
 	IdLayer = m_id_trt->layer_id(Id);
@@ -363,8 +348,6 @@ void TRT_FillCablingData_DC2::defineTables()
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
 
-	//std::cout << " Creating straw ID " << m_id_trt->show_to_string(IdLayer) 
-	//	    << " in Collection " << hashId << std::endl;
       }
     }
   }
@@ -372,7 +355,6 @@ void TRT_FillCablingData_DC2::defineTables()
   det_id = eformat::TRT_BARREL_A_SIDE;
   for (int phi = 0; phi < 32; ++phi)
   {
-//    for (straw = 0; straw < 1642; ++straw)
     for (straw = 0; straw < m_numberOfStrawsInBarrelROD; ++straw)
     {
       Id = defineIdentifier(det_id, phi, straw);
@@ -388,7 +370,6 @@ void TRT_FillCablingData_DC2::defineTables()
   det_id = eformat::TRT_BARREL_C_SIDE;
   for (int phi = 0; phi < 32; ++phi)
   {
-//    for (straw = 0; straw < 1642; ++straw)
     for (straw = 0; straw < m_numberOfStrawsInBarrelROD; ++straw)
     {
       Id = defineIdentifier(det_id, phi, straw);
@@ -404,13 +385,10 @@ void TRT_FillCablingData_DC2::defineTables()
   det_id = eformat::TRT_ENDCAP_C_SIDE;
   for (int phi = 0; phi < 32; ++phi)
   {
-//    for (int i = 0; i < 3; ++i)
     for (int i = 0; i < 2; ++i)
     {
-//      for (straw = 0; straw < 1664; ++straw)
       for (straw = 0; straw < m_numberOfStrawsInROD; ++straw)
       {
-//        Id = defineIdentifier(det_id, phi * 3 + i, straw);
         Id = defineIdentifier(det_id, phi * 2 + i, straw);
         m_cabling->set_identfierForAllStraws(Id);
 	IdLayer = m_id_trt->layer_id(Id);
@@ -422,21 +400,16 @@ void TRT_FillCablingData_DC2::defineTables()
     }
   }
   
-//  log << MSG::DEBUG << " m_identfierForAllStraws size " 
-//      << m_identfierForAllStraws.size() << endmsg;
+
 
     // Initialize m_allRobs
-  //eformat::ModuleType type = eformat::ROD_TYPE;
   det_id = eformat::TRT_ENDCAP_A_SIDE;
 
   for (int phi = 0; phi < 32; ++phi)
   {
-//    for (int i = 0; i < 3; ++i)
     for (int i = 0; i < 2; ++i)
     {
-//      eformat::helper::SourceIdentifier sid(det_id, type,
       eformat::helper::SourceIdentifier sid(det_id,
-//        (uint8_t) (phi * 3 + i));
         (uint8_t) (phi * 2 + i));
       m_cabling->add_allRobs(sid.code());
     }
@@ -445,12 +418,9 @@ void TRT_FillCablingData_DC2::defineTables()
   det_id = eformat::TRT_ENDCAP_C_SIDE;
   for (int phi = 0; phi < 32; ++phi)
   {
-//    for (int i = 0; i < 3; ++i)
     for (int i = 0; i < 2; ++i)
     {
-//      eformat::helper::SourceIdentifier sid(det_id, type,
       eformat::helper::SourceIdentifier sid(det_id,
-//        (uint8_t) (phi * 3 + i));
         (uint8_t) (phi * 2 + i));
       m_cabling->add_allRobs(sid.code());
     }

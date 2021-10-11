@@ -35,9 +35,7 @@ void egammaContainer::print()
 
   DataVector<egamma>::const_iterator c_itr;
 
-  //std::cout << "Number of egamma objects in container " << this->size() << std::endl;
-
-  for (c_itr=begin(); c_itr!=end(); c_itr++) 
+  for (c_itr=begin(); c_itr!=end(); ++c_itr) 
   {
     (*c_itr)->print();
   }

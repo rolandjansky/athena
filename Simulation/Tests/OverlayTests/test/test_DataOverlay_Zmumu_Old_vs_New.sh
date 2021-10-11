@@ -17,7 +17,7 @@ Overlay_tf.py \
 --outputRDOFile MC_plus_data.NEW.RDO.pool.root \
 --triggerConfig 'Overlay=NONE' \
 --maxEvents 5 \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
@@ -26,6 +26,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlay_tf"
 
 OverlayBS_tf.py \
@@ -33,7 +34,7 @@ OverlayBS_tf.py \
 --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile MC_plus_data.OLD.RDO.pool.root \
 --maxEvents 5 \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
@@ -42,6 +43,7 @@ OverlayBS_tf.py \
 --imf False
 
 rc2=$?
+status=$rc2
 echo "art-result: $rc2 overlaybs_tf"
 
 
@@ -65,5 +67,8 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 comparison"
+
+exit $status

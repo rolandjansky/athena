@@ -2,12 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <vector>
+
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "TGraph.h"
-#include "TMath.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
 #include "StoreGate/ReadHandle.h"
@@ -18,47 +17,49 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "InDetGlobalPrimaryVertexMonTool.h"
+#include <vector>
+#include <cmath>
 
 InDetGlobalPrimaryVertexMonTool::InDetGlobalPrimaryVertexMonTool( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
    // basic montoring
-   m_hPvN(0),
-   m_hPvNPriVtx(0),
-   m_hPvNPileupVtx(0),
-   m_hPvN_LB(0),
-   m_hPvNaveMu(0),
-   m_hPvX(0),
-   m_hPvY(0),
-   m_hPvZ(0),
-   m_hPvErrX(0),
-   m_hPvErrY(0),
-   m_hPvErrZ(0),
-   m_hPvChiSqDoF(0),
-   m_hPvNTracks(0),
-   m_hPvTrackPt(0),
-   m_hPvTrackEta(0),
+   m_hPvN(nullptr),
+   m_hPvNPriVtx(nullptr),
+   m_hPvNPileupVtx(nullptr),
+   m_hPvN_LB(nullptr),
+   m_hPvNaveMu(nullptr),
+   m_hPvX(nullptr),
+   m_hPvY(nullptr),
+   m_hPvZ(nullptr),
+   m_hPvErrX(nullptr),
+   m_hPvErrY(nullptr),
+   m_hPvErrZ(nullptr),
+   m_hPvChiSqDoF(nullptr),
+   m_hPvNTracks(nullptr),
+   m_hPvTrackPt(nullptr),
+   m_hPvTrackEta(nullptr),
    // ennhanced montoring
-   m_hVrt_XpullVsNtrkAverage_split(0),
-   m_hVrt_YpullVsNtrkAverage_split(0),
-   m_hVrt_ZpullVsNtrkAverage_split(0),
+   m_hVrt_XpullVsNtrkAverage_split(nullptr),
+   m_hVrt_YpullVsNtrkAverage_split(nullptr),
+   m_hVrt_ZpullVsNtrkAverage_split(nullptr),
 
-   m_hVrt_XpullVsPt2Average_split(0),
-   m_hVrt_YpullVsPt2Average_split(0),
-   m_hVrt_ZpullVsPt2Average_split(0),
+   m_hVrt_XpullVsPt2Average_split(nullptr),
+   m_hVrt_YpullVsPt2Average_split(nullptr),
+   m_hVrt_ZpullVsPt2Average_split(nullptr),
 
-   m_hVrt_Xerr_vs_ntrk(0),
-   m_hVrt_Yerr_vs_ntrk(0),
-   m_hVrt_Zerr_vs_ntrk(0),
+   m_hVrt_Xerr_vs_ntrk(nullptr),
+   m_hVrt_Yerr_vs_ntrk(nullptr),
+   m_hVrt_Zerr_vs_ntrk(nullptr),
 
-   m_hVrt_Xerr_vs_pt2(0),
-   m_hVrt_Yerr_vs_pt2(0),
-   m_hVrt_Zerr_vs_pt2(0),
-   m_hVrt_split_tag_ntrk(0),
-   m_hVrt_split_probe_ntrk(0),
-   m_hVrt_split_matched_tag_ntrk(0),
-   m_hVrt_split_matched_probe_ntrk(0),
-   m_hVrt_split_dist_tag(0),
-   m_hVrt_split_dist_probe(0),
+   m_hVrt_Xerr_vs_pt2(nullptr),
+   m_hVrt_Yerr_vs_pt2(nullptr),
+   m_hVrt_Zerr_vs_pt2(nullptr),
+   m_hVrt_split_tag_ntrk(nullptr),
+   m_hVrt_split_probe_ntrk(nullptr),
+   m_hVrt_split_matched_tag_ntrk(nullptr),
+   m_hVrt_split_matched_probe_ntrk(nullptr),
+   m_hVrt_split_dist_tag(nullptr),
+   m_hVrt_split_dist_probe(nullptr),
    m_histFolder("InDetGlobal/PrimaryVertex"),
    m_splitVertexTrkInvFraction(2),
    m_distanceSplitVxMatch(5.0),
@@ -201,7 +202,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
   }
 
   m_hPvN->Fill(vxContainer->size()-1);  // exclude dummy vertex
-  m_hPvN_LB->Fill( m_manager->lumiBlockNumber(), vxContainer->size()-1);
+  m_hPvN_LB->Fill( AthenaMonManager::lumiBlockNumber(), vxContainer->size()-1);
   
   if ( AthenaMonManager::environment() != AthenaMonManager::online )
   {
@@ -230,13 +231,13 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
     m_hPvChiSqDoF->Fill( (*vxIter)->chiSquared() / (*vxIter)->numberDoF() );
 
 
-    auto & trackparticles = (*vxIter)->trackParticleLinks();
+    const auto & trackparticles = (*vxIter)->trackParticleLinks();
     
     // fill some track related histos
     m_hPvNTracks->Fill( trackparticles.size() );
     
     // Histograms on original tracks used for primary vertex
-    for (auto trackparticle  : trackparticles )
+    for (const auto& trackparticle  : trackparticles )
     {
 	const Trk::Perigee & measuredPerigee = (*trackparticle)->perigeeParameters();
 	m_hPvTrackEta->Fill( measuredPerigee.eta() );
@@ -289,8 +290,8 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
         {
           // pT at initial and perigeeAtVertex should be similar if not equal. measured perigee is stored in vertex (the other has to be retrieved from the linked Trk::Track(Particle))
           const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).perigeeAtVertex());
-          if (measuredPerigee == 0) measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
-          if (measuredPerigee!=0) sumpt2 += (measuredPerigee->pT()*measuredPerigee->pT())/1e6;
+          if (measuredPerigee == nullptr) measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
+          if (measuredPerigee!=nullptr) sumpt2 += (measuredPerigee->pT()*measuredPerigee->pT())/1e6;
         }
   
         // for do enhanced vertexing
@@ -298,7 +299,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
 	m_hVrt_Yerr_vs_ntrk->Fill(vxTrackAtVertex.size(), Amg::error( (*vxIter)->covariancePosition(), Trk::y) );
 	m_hVrt_Zerr_vs_ntrk->Fill(vxTrackAtVertex.size(), Amg::error( (*vxIter)->covariancePosition(), Trk::z) );
   
-        float sqrt_sumpt2(TMath::Sqrt(sumpt2));
+        float sqrt_sumpt2(std::sqrt(sumpt2));
         m_hVrt_Xerr_vs_pt2->Fill(sqrt_sumpt2, Amg::error( (*vxIter)->covariancePosition(), Trk::x) );
 	m_hVrt_Yerr_vs_pt2->Fill(sqrt_sumpt2, Amg::error( (*vxIter)->covariancePosition(), Trk::y) );
 	m_hVrt_Zerr_vs_pt2->Fill(sqrt_sumpt2, Amg::error( (*vxIter)->covariancePosition(), Trk::z) );
@@ -311,7 +312,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
       const xAOD::Vertex* splitVxCandiate2 = vxContainerSplit->at(1);
   
       // consider the first two split vertices for K-factor and reconstruction efficiency calculation
-      if (splitVxCandiate1 != 0 and splitVxCandiate2 != 0)
+      if (splitVxCandiate1 != nullptr and splitVxCandiate2 != nullptr)
       {
         // calculate reconstruction efficiency
         // we ask only one reconstructed vertex (no Beamspot-Constrained) and two split vertices
@@ -351,19 +352,19 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
           float y_distance = splitVxCandiate1->position().y()-splitVxCandiate2->position().y();
           float z_distance = splitVxCandiate1->position().z()-splitVxCandiate2->position().z();
   
-          float x_error = TMath::Sqrt(TMath::Power( Amg::error( splitVxCandiate1->covariancePosition(), Trk::x ),2) +
-				      TMath::Power( Amg::error( splitVxCandiate2->covariancePosition(), Trk::x ),2) );
-	  float y_error = TMath::Sqrt(TMath::Power( Amg::error( splitVxCandiate1->covariancePosition(), Trk::y ),2) +
-				      TMath::Power( Amg::error( splitVxCandiate2->covariancePosition(), Trk::y ),2) );
-	  float z_error = TMath::Sqrt(TMath::Power( Amg::error( splitVxCandiate1->covariancePosition(), Trk::z ),2) +
-				      TMath::Power( Amg::error( splitVxCandiate2->covariancePosition(), Trk::z ),2) );
+          float x_error = std::sqrt(std::pow( Amg::error( splitVxCandiate1->covariancePosition(), Trk::x ),2) +
+				      std::pow( Amg::error( splitVxCandiate2->covariancePosition(), Trk::x ),2) );
+	  float y_error = std::sqrt(std::pow( Amg::error( splitVxCandiate1->covariancePosition(), Trk::y ),2) +
+				      std::pow( Amg::error( splitVxCandiate2->covariancePosition(), Trk::y ),2) );
+	  float z_error = std::sqrt(std::pow( Amg::error( splitVxCandiate1->covariancePosition(), Trk::z ),2) +
+				      std::pow( Amg::error( splitVxCandiate2->covariancePosition(), Trk::z ),2) );
   
           float x_split_pull = x_distance/x_error;
           float y_split_pull = y_distance/y_error;
           float z_split_pull = z_distance/z_error;
   
-          const std::vector< Trk::VxTrackAtVertex > splitVxTrackAtVertexVector1 = splitVxCandiate1->vxTrackAtVertex();
-          const std::vector< Trk::VxTrackAtVertex > splitVxTrackAtVertexVector2 = splitVxCandiate2->vxTrackAtVertex();
+          const std::vector< Trk::VxTrackAtVertex >& splitVxTrackAtVertexVector1 = splitVxCandiate1->vxTrackAtVertex();
+          const std::vector< Trk::VxTrackAtVertex >& splitVxTrackAtVertexVector2 = splitVxCandiate2->vxTrackAtVertex();
   
           int ntrk_even  = splitVxTrackAtVertexVector1.size();
           int ntrk_odd   = splitVxTrackAtVertexVector2.size();
@@ -382,29 +383,29 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
           {
             // pT at initial and perigeeAtVertex should be similar if not equal. measured perigee is stored in vertex (the other has to be retrieved from the linked Trk::Track(Particle))
             const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).perigeeAtVertex());
-            if (measuredPerigee == 0)  measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
-            if (measuredPerigee!=0)
+            if (measuredPerigee == nullptr)  measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
+            if (measuredPerigee!=nullptr)
             {
               //             std::cout << measuredPerigee->pT() << std::endl;
               float pT = measuredPerigee->pT()/1000.;
-              sum_pt2_1 += TMath::Power(pT,2);
+              sum_pt2_1 += std::pow(pT,2);
             }
           }
-          float sqrt_sum_pt2_1(TMath::Sqrt(sum_pt2_1));
+          float sqrt_sum_pt2_1(std::sqrt(sum_pt2_1));
   
           for (std::vector<Trk::VxTrackAtVertex>::const_iterator trkIter  = splitVxTrackAtVertexVector2.begin();
               trkIter != splitVxTrackAtVertexVector2.end()  ; ++trkIter)
           {
             // pT at initial and perigeeAtVertex should be similar if not equal. measured perigee is stored in vertex (the other has to be retrieved from the linked Trk::Track(Particle))
             const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).perigeeAtVertex());
-            if (measuredPerigee == 0)  measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
-            if (measuredPerigee!=0)
+            if (measuredPerigee == nullptr)  measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
+            if (measuredPerigee!=nullptr)
             {
               float pT = measuredPerigee->pT()/1000.;
-              sum_pt2_2 += TMath::Power(pT,2);
+              sum_pt2_2 += std::pow(pT,2);
             }
           }
-          float sqrt_sum_pt2_2(TMath::Sqrt(sum_pt2_2));
+          float sqrt_sum_pt2_2(std::sqrt(sum_pt2_2));
   
           float sqrt_sum_pt2_average((sqrt_sum_pt2_1+sqrt_sum_pt2_2)/2.);
           m_hVrt_XpullVsPt2Average_split->Fill(sqrt_sum_pt2_average, x_split_pull);
@@ -420,7 +421,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
 
 TH1F_LW* InDetGlobalPrimaryVertexMonTool::makeAndRegisterTH1F(MonGroup& mon,
                                                               const char* hName,
-                                                              std::string hTitle,
+                                                              const std::string& hTitle,
                                                               int nBins,
                                                               float minX,
                                                               float maxX)
@@ -434,7 +435,7 @@ TH1F_LW* InDetGlobalPrimaryVertexMonTool::makeAndRegisterTH1F(MonGroup& mon,
 }
 
 TH2F_LW* InDetGlobalPrimaryVertexMonTool::makeAndRegisterTH2F(MonGroup& mon,
-    const char* hName, std::string hTitle,
+    const char* hName, const std::string& hTitle,
     int nBinsX, float minX, float maxX,
     int nBinsY, float minY, float maxY) {
       TH2F_LW* h = TH2F_LW::create(hName,hTitle.c_str(),nBinsX,minX,maxX,nBinsY,minY,maxY);
@@ -447,7 +448,7 @@ TH2F_LW* InDetGlobalPrimaryVertexMonTool::makeAndRegisterTH2F(MonGroup& mon,
 }
 
 TH2F_LW* InDetGlobalPrimaryVertexMonTool::makeAndRegisterTH2FVariableXBins(MonGroup& mon,
-    const char* hName, std::string hTitle,
+    const char* hName, const std::string& hTitle,
     int nBinsX, double* xRange,           // range MUST be double, otherwise no compile ...
     int nBinsY, float minY, float maxY) {
       TH2F_LW* h = TH2F_LW::create(hName,hTitle.c_str(),nBinsX,xRange,nBinsY,minY,maxY);
@@ -493,15 +494,15 @@ double InDetGlobalPrimaryVertexMonTool::GetSplitMatchDistance(const xAOD::Vertex
   case 2:
     {
       // 3-D distance divided by the error (dominated by Delta z)
-      double d = TMath::Sqrt(dx*dx+dy*dy+dz*dz);
-      double dErr = TMath::Sqrt(TMath::Power(dx*dxError/d,2)+TMath::Power(dy*dyError/d,2)+TMath::Power(dz*dzError/d,2));
+      double d = std::sqrt(dx*dx+dy*dy+dz*dz);
+      double dErr = std::sqrt(std::pow(dx*dxError/d,2)+std::pow(dy*dyError/d,2)+std::pow(dz*dzError/d,2));
       return d/dErr;
       break;
     }
   case 3:
     {
       // quadratic sum of significance distances in the 3 directions. Expected RMS = 1
-      return TMath::Sqrt(TMath::Power(dx/dxError,2)+TMath::Power(dy/dyError,2)+TMath::Power(dz/dzError,2));
+      return std::sqrt(std::pow(dx/dxError,2)+std::pow(dy/dyError,2)+std::pow(dz/dzError,2));
       break;
     }
   default:

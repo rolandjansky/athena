@@ -24,7 +24,7 @@ namespace SG {
  */
 std::string contKeyFromKey (const std::string& key)
 {
-  std::string::size_type ipos = key.find (".");
+  std::string::size_type ipos = key.find ('.');
   if (ipos == std::string::npos)
     return key;
   return key.substr (0, ipos);
@@ -39,7 +39,7 @@ std::string contKeyFromKey (const std::string& key)
  */
 std::string decorKeyFromKey (const std::string& key)
 {
-  std::string::size_type ipos = key.find (".");
+  std::string::size_type ipos = key.find ('.');
   if (ipos == std::string::npos)
     return "";
   return key.substr (ipos+1, std::string::npos);

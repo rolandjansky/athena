@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """JobTransform to run LAr Noise Burst jobs"""
 
@@ -16,7 +14,8 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 if __name__ == '__main__':
 
     executorSet = set()
-    executorSet.add(athenaExecutor(name = 'LArNoiseBursts_from_raw', skeletonFile = 'LArCafJobs/skeleton.LArNoise_fromraw.py',
+    executorSet.add(athenaExecutor(name = 'LArNoiseBursts_from_raw', skeletonFile = None,
+                                   skeletonCA='LArCafJobs.LArNoiseFromRawSkeleton',
                                    substep = 'r2e', inData = ['BS',], outData = ['NTUP_LARNOISE','NTUP_HECNOISE','HIST_LARNOISE']))
    
     trf = transform(executor = executorSet) 
@@ -36,15 +35,9 @@ if __name__ == '__main__':
                             help='Output HECNoise file', group='Ntuple Files')
 
     trf.parser.add_argument('--outputHIST_LARNOISEFile', nargs='+',
-                            type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output'),
+                            type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output',countable=False),
                             help='Output Noise hist file', group='Hist Files')
 
     trf.parseCmdLineArgs(sys.argv[1:])
-
-
     trf.execute()
-    print ("DataDict:")
-    print (trf.dataDictionary)
-
-
     trf.generateReport()

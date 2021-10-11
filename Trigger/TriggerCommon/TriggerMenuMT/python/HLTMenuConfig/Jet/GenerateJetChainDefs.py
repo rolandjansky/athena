@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from .JetChainConfiguration import JetChainConfiguration
+from ..Menu.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -10,14 +11,21 @@ log.info("Importing %s",__name__)
 
 
 def generateChainConfigs( chainDict ):
-    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
+    log.debug('full jet dictionary is: %s\n', pprint.pformat(chainDict))
 
     # Jet chain is assembled always from the full dictionary (multiple legs are handled internally by the jet reco / hypo)
     theChainDef = JetChainConfiguration(chainDict)
 
-    jetChain = theChainDef.assembleChain()
+    listOfChainDefs = []
 
+    for leg in range(len(chainDict['chainParts'])):
 
+        listOfChainDefs += [theChainDef.assembleChain()]
+
+    if len(listOfChainDefs) > 1:
+        jetChain = mergeChainDefs(listOfChainDefs, chainDict) 
+    else:
+        jetChain = listOfChainDefs[0]
     return jetChain
 
 

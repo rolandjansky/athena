@@ -3,7 +3,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__HighLevelBTagAlg=CompFactory.Analysis.HighLevelBTagAlg
 FlavorTagDiscriminants__DL2Tool=CompFactory.FlavorTagDiscriminants.DL2Tool
 
 def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
@@ -29,26 +28,74 @@ def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
     return acc
 
 def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", **options):
-    """Adds a SecVtxTool instance and registers it.
-
-    input: name:               The tool's name.
-           JetCollection       The name of the jet collections.
-           ToolSvc:            The ToolSvc instance.
-           options:            Python dictionary of options to be passed to the SecVtxTool.
-    output: The tool."""
 
     acc = ComponentAccumulator()
 
-    Name = NNFile.replace("/", "_").replace("_network.json", "")
+    nn_name = NNFile.replace("/", "_").replace("_network.json", "")
     dl2 = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))
 
-    options = {}
-    options['BTaggingCollectionName'] = BTaggingCollection
-    options['TrackContainer'] = TrackCollection
-    options['JetDecorator'] = dl2
-    options['name'] = '_'.join([Name.lower(), BTaggingCollection])
+    name = '_'.join([nn_name.lower(), BTaggingCollection])
+
+    # some things should not be declared as date dependencies: it will
+    # make the trigger sad.
+    #
+    # In the case of tracking it's mostly static variables that are a
+    # problem.
+    static_track_vars = {
+        'numberOfInnermostPixelLayerHits',
+        'numberOfInnermostPixelLayerSharedHits',
+        'numberOfInnermostPixelLayerSplitHits',
+        'numberOfNextToInnermostPixelLayerHits',
+        'numberOfPixelDeadSensors',
+        'numberOfPixelHits',
+        'numberOfPixelHoles',
+        'numberOfPixelSharedHits',
+        'numberOfPixelSplitHits',
+        'numberOfSCTDeadSensors',
+        'numberOfSCTHits',
+        'numberOfSCTHoles',
+        'numberOfSCTSharedHits',
+    }
+    veto_list = [f'{TrackCollection}.{x}' for x in static_track_vars]
+    #
+    # In the case of b-tagging we should really declare these
+    # variables using WriteDecorHandle, but this is very much a work
+    # in progress.
+    #
+    # We should revisit this once in a while, last time this was
+    # checked was:
+    #
+    #  - 20210602
+    #
+    undeclared_btag = [
+        'JetFitter_N2Tpair',
+        'JetFitter_energyFraction',
+        'JetFitter_mass',
+        'JetFitter_nSingleTracks',
+        'JetFitter_nTracksAtVtx',
+        'JetFitter_nVTX',
+        'JetFitter_significance3d',
+        'SV1_L3d',
+        'SV1_Lxy',
+        'SV1_N2Tpair',
+        'SV1_NGTinSvx',
+        'SV1_deltaR',
+        'SV1_efracsvx',
+        'SV1_masssvx',
+        'SV1_significance3d',
+        'BTagTrackToJetAssociator',
+    ]
+    veto_list += [f'{BTaggingCollection}.{x}' for x in undeclared_btag]
+
+    decorAlg = CompFactory.FlavorTagDiscriminants.BTagDecoratorAlg(
+        name=name,
+        btagContainer=BTaggingCollection,
+        trackContainer=TrackCollection,
+        decorator=dl2,
+        undeclaredReadDecorKeys=sorted(veto_list),
+    )
 
     # -- create the association algorithm
-    acc.addEventAlgo(Analysis__HighLevelBTagAlg(**options))
+    acc.addEventAlgo(decorAlg)
 
     return acc

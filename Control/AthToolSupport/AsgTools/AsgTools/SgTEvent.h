@@ -8,6 +8,7 @@
 // System include(s):
 #include <memory>
 #include <string>
+#include <vector>
 
 // Local include(s):
 #include "AsgMessaging/StatusCode.h"
@@ -86,6 +87,13 @@ namespace asg {
       StatusCode overwrite( T* pobj, const std::string& name,
                             bool allowMods, bool resetOnly = true,
                             bool noHist = false );
+
+      /** provide list of all keys associated with an object.
+       * usage: store->keys(key_vector)
+       * @param a vector of strings that will be filled with the list of keys
+       */
+      template< typename T >
+      void keys( std::vector< std::string >& vkeys ) const;
 
       /// @}
 

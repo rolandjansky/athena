@@ -17,13 +17,17 @@ dcubeRefID="${inputRefDir}/physval-noSplit_noPseudoT_fullSim_fullDigi.root"
 dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_compare.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
+rdoFile="RDO_pileup_fullsim_fulldigi.pool.root"
+aodFile="AOD_noSplit_noPseudoT_fullSim_fullDigi.pool.root"
+ntupFile="physval-noSplit_noPseudoT_fullSim_fullDigi.root"
+
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \
     --useISF True \
     --randomSeed 123 \
     --enableLooperKiller True \
     --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/ttbar_muplusjets-pythia6-7000.evgen.pool.root \
-    --outputRDOFile RDO_pileup_fullsim_fulldigi.pool.root \
+    --outputRDOFile ${rdoFile} \
     --maxEvents 50 \
     --skipEvents 0 \
     --geometryVersion ATLAS-R2-2015-03-01-00 \
@@ -33,51 +37,61 @@ FastChain_tf.py --simulator ATLFASTII \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --DataRunNumber '284500' \
     --imf False
-rc1=$?
-echo "art-result: ${rc1} EVNTtoRDO"
-rc2=-9999
-if [ ${rc1} -eq 0 ]
+rc=$?
+echo "art-result: ${rc} EVNTtoRDO"
+
+
+rc1=999
+rc2=999
+rc3=999
+rc4=999
+rc5=999
+if [ ${rc} -eq 0 ]
 then
     # Histogram comparison with DCube
     $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
     -p -x dcube-rdo-truth \
     -c ${dcubeXmlRDO} -r ${dcubeRefRDO} RDO_truth.root
-    rc2=$?
+    rc1=$?
+
+    Reco_tf.py --maxEvents '-1' \
+               --skipEvents '0' \
+               --geometryVersion ATLAS-R2-2015-03-01-00 \
+               --conditionsTag OFLCOND-RUN12-SDR-31 \
+               --inputRDOFile ${rdoFile} \
+               --outputAODFile ${aodFile} \
+               --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
+               --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
+               --imf False
+     rc2=$?
+     if [ ${rc2} -eq 0 ]
+     then
+         # NTUP prod.
+         Reco_tf.py --inputAODFile ${aodFile} --maxEvents '-1' \
+                    --outputNTUP_PHYSVALFile ${ntupFile} \
+                    --ignoreErrors True \
+                    --validationFlags 'doInDet' \
+                    --valid 'True'
+         rc3=$?
+
+         # Regression test
+         ArtPackage=$1
+         ArtJobName=$2
+         art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+         rc4=$?
+
+         if [ ${rc3} -eq 0 ]
+         then
+             # Histogram comparison with DCube
+             $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+             -p -x dcube-id \
+             -c ${dcubeXmlID} -r ${dcubeRefID} ${ntupFile}
+             rc5=$?
+         fi
+     fi
 fi
-echo "art-result: ${rc2} dcubeRDO"
-
-# Reconstruction
-FastChain_tf.py --maxEvents 500 \
-    --skipEvents 0 \
-    --geometryVersion ATLAS-R2-2015-03-01-00 \
-    --conditionsTag OFLCOND-RUN12-SDR-31 \
-    --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root \
-    --outputAODFile AOD_noSplit_noPseudoT_fullSim_fullDigi.pool.root \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
-    --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
-    --outputNTUP_PHYSVALFile 'physval-noSplit_noPseudoT_fullSim_fullDigi.root' \
-    --validationFlags 'doInDet' \
-    --valid 'True' \
-    --imf False
-rc3=$?
-
-rc4=-9999
-rc5=-9999
-if [ ${rc1} -eq 0 ]
-then
-    # Regression test
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc4=$?
-fi
-
-# Histogram comparison with DCube
-$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
--p -x dcube-id \
--c ${dcubeXmlID} -r ${dcubeRefID} physval-noSplit_noPseudoT_fullSim_fullDigi.root
-rc5=$?
-
-echo  "art-result: ${rc3} RDOtoAOD"
+echo  "art-result: ${rc1} dcubeRDO"
+echo  "art-result: ${rc2} RDOtoAOD"
+echo  "art-result: ${rc3} AODtoNTUP"
 echo  "art-result: ${rc4} regression"
 echo  "art-result: ${rc5} dcubeID"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZdcCalibEvent_H
@@ -31,7 +31,7 @@ public:
    */
   //virtual void clear ();
 
-  void print() const;
+  static void print() ;
 
  private:
 
@@ -59,9 +59,9 @@ public:
   double getTotalEnergy_A();
   double getTotalEnergy_C();
 
-  double getEMEnergy_A();
-  double getHADEnergy_A();
-  double getHADEnergy_C();
+  static double getEMEnergy_A();
+  static double getHADEnergy_A();
+  static double getHADEnergy_C();
 
   ZdcCellVec& getEMCell_A() {return m_EMCellVec_A;}
   ZdcCellVec& getHADCell_A() {return m_HADCellVec_A;}

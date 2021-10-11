@@ -148,8 +148,6 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(125856940, "CaloIdManager");
     if (status != StatusCode::SUCCESS) return status;
-    status =  addToDetStore(79554919, "LArIdManager");
-    if (status != StatusCode::SUCCESS) return status;
 
 
     // IdDict:
@@ -164,6 +162,8 @@ DetDescrCnvSvc::initialize()     {
     status =  addToDetStore(2517, "SCT_ID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(2518, "TRT_ID");
+    if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(79264207, "HGTD_ID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(129452393, "SiliconID");
     if (status != StatusCode::SUCCESS) return status;

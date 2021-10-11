@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -48,9 +48,9 @@ namespace DerivationFramework {
   //-------------------------------------------------------------------------
   //
   // helper class
-  BMuonTrackIsoTool::MuIsoItem::MuIsoItem(std::string Name,
-					  std::string Bname,
-					  std::string Prefix) :
+  BMuonTrackIsoTool::MuIsoItem::MuIsoItem(const std::string& Name,
+					  const std::string& Bname,
+					  const std::string& Prefix) :
     BaseItem(Name, Bname, Prefix) {
   }
   

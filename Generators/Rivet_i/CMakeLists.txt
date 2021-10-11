@@ -23,7 +23,7 @@ atlas_add_component( Rivet_i
    AthenaKernel GeneratorObjects PathResolver EventInfo )
 
 # Install file(s) from the package.
-atlas_install_scripts( share/setupRivet )
+atlas_install_scripts( share/setup* )
 
 # Set up the runtime environment of Rivet.
 set( RivetEnvironment_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake"

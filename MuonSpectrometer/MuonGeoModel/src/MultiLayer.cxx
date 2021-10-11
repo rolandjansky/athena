@@ -3,7 +3,7 @@
 */
 
 #include "MuonGeoModel/MultiLayer.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoGenericFunctions/AbsFunction.h"
@@ -38,6 +38,7 @@
 #include <memory>
 #include <stdexcept>
 #include <stdlib.h>
+#include <utility>
 #include <vector>
 
 class GeoMaterial;
@@ -49,13 +50,13 @@ using namespace GeoXF;
 
 namespace {
     // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-    static constexpr unsigned int const maxNTubesPerLayer = 120;
+    constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 } // namespace
 
 namespace MuonGM {
 
     MultiLayer::MultiLayer(std::string n)
-        : DetectorElement(n), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
+        : DetectorElement(std::move(n)), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
           cutoutAtAngle(false), m_nonCutoutXSteps(), m_nonCutoutYSteps() {
         MsgStream log(Athena::getMessageSvc(), "MultiLayer::MultiLayer");
 

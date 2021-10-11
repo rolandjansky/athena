@@ -60,8 +60,19 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        persClass="AthenaAttributeList"
        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
        if isRun3Cfg():
-          iovDbSvc=helper.resobj.getService("IOVDbSvc")
-          condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+          havethem=False
+          for c in helper.resobj.getServices(): 
+              if c.getName()=="IOVDbSvc":
+                 iovDbSvc=c
+                 condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+                 havethem=True
+                 break
+              pass
+          if not havethem:
+             from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+             helper.resobj.merge(IOVDbSvcCfg(inputFlags))
+             condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+             iovDbSvc=helper.resobj.getService("IOVDbSvc")
        else:   
           from AthenaCommon import CfgGetter
           iovDbSvc=CfgGetter.getService("IOVDbSvc")
@@ -121,15 +132,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
     Group.defineHistogram('dspThrADC;dspThresholdsADC', 
-                                  title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
-                                  type='TH1I',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5)
+                          title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
+                          type='TH1I',
+                          path=summary_hist_path,
+                          xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5,
+                          merge='identical')
     Group.defineHistogram('dspThrQT;dspThresholds_qfactortime', 
-                                  title='DSP thresholds to readout (qfactor+time):Number of cells:Cell threshold in ADC counts',
-                                  type='TH1I',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5)
+                          title='DSP thresholds to readout (qfactor+time):Number of cells:Cell threshold in ADC counts',
+                          type='TH1I',
+                          path=summary_hist_path,
+                          xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5,
+                          merge='identical')
     Group.defineHistogram('EvtType;Eventtype', 
                                   title='Event type (1st readout FEB)',
                                   type='TH1I',
@@ -205,17 +218,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
     if isOnline:     
        Group.defineHistogram('LBf,EvtRejYield;RAW_EventsRejectedLB',
-                                titile='% of events rejected in current LB (online only)',
+                                title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=summary_hist_path,
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
        Group.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
-                                titile='LAr event size per stream per LB (w/o ROS headers)',
+                                title='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=summary_hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                ylabels=larFEBMonAlg.Streams 
+                                ylabels=list(larFEBMonAlg.Streams) 
                                 )
 
     # Now per partition histograms
@@ -367,7 +380,8 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
-                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up,
+                              merge='identical')
 
        darray.defineHistogram('LB,LArEvSizePart;eventSizeVsLB',
                               title='LAr event size per LB (w/o ROS headers):Luminosity Block',
@@ -377,17 +391,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
        if isOnline:
           darray.defineHistogram('LBf,erronl;RAW_EventsRejectedLB',
-                                titile='% of events rejected in current LB (online only)',
+                                title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
-                                titile='LAr event size per stream per LB (w/o ROS headers)',
+                                title='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                ylabels=larFEBMonAlg.Streams
+                                ylabels=list(larFEBMonAlg.Streams)
                                 )
        pass
 

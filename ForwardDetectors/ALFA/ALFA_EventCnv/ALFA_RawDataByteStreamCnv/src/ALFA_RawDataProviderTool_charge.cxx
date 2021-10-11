@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawDataByteStreamCnv/ALFA_RawDataProviderTool_charge.h"
@@ -110,7 +110,7 @@ msg(MSG::DEBUG) << "**********************" <<  endmsg;
     if (!m_robIdSet.insert(robid).second) {
      msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " already decoded, skip" << endmsg;
    } else {
-      StatusCode sc = m_decoder_charge->fillCollection(&**rob_it, rdoCont);
+      ATH_CHECK( m_decoder_charge->fillCollection(&**rob_it, rdoCont) );
       msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " fill Container" << endmsg;
     }
   }// loop over the ROB fragments

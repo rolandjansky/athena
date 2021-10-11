@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -107,7 +107,6 @@ typedef HEPVis::SbPlane HVPlane3D;
 // -------------------------------------------- Simplified STL vector ---
 //G.Barrand : begin
 #include <vector>
-using namespace std;
 /*
 template<class T>
 class vector {
@@ -330,8 +329,8 @@ class BooleanProcessor {
   FaceList        m_unsuitable_faces;  // list of unsuitable faces // VP1 change
   FaceList        m_unknown_faces;     // list of unknown faces // VP1 change
 
-  vector<int>     m_external_contours; // heads of external contours // VP1 change
-  vector<int>     m_internal_contours; // heads of internal contours // VP1 change
+  std::vector<int> m_external_contours; // heads of external contours // VP1 change
+  std::vector<int> m_internal_contours; // heads of internal contours // VP1 change
 
  private:
   void   takePolyhedron(const HepPolyhedron & p, double, double, double);
@@ -1091,7 +1090,7 @@ void BooleanProcessor::assembleFace(int what, int iface)
 {
   //   A S S E M B L E   N E W   F A C E
 
-  int ihead;      // head of the list of edges for new face
+  int ihead = 0;  // head of the list of edges for new face
   int icur;       // current edge in the list - last edge inserted to the list
   int *ilink;     // pointer to the current link
   int ifirst;     // first node of a contour
@@ -1979,7 +1978,7 @@ HepPolyhedron BooleanProcessor::createPolyhedron()
 
   //   S E T   F A C E S
 
-  int k, v[4], f[4];
+  int k, v[4]={0}, f[4]={0};
   for (i=1; i<(int)m_faces.size(); i++) {
     if (m_faces[i].inew == 0) continue;
     v[3] = f[3] = k = 0;

@@ -29,8 +29,7 @@ class IJetsMatcher{
  public:
 
   virtual ~IJetsMatcher(){}
-  virtual std::optional<bool> match(const HypoJetCIter&,
-				    const HypoJetCIter&,
+  virtual std::optional<bool> match(const HypoJetVector& jv,
 				    xAODJetCollector&,
 				    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 				    bool debug=false) const = 0;

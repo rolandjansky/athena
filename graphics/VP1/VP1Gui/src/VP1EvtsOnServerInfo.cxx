@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,6 +16,7 @@
 #include "VP1Gui/VP1MD5Sum.h"
 #include <QFileInfo>
 #include <QTextStream>
+#include <QtCoreVersion>
 #include <map>
 
 
@@ -197,7 +198,11 @@ QString VP1EvtsOnServerInfo::Imp::init(const QString& infofile)
   ///////////////////////////////
 
   for (int i = i_begin_checksums+1;i < i_end_checksums; ++i) {
+#if QTCORE_VERSION >= 0x050E00
+    QStringList parts = lines.at(i).split ( ' ', Qt::SkipEmptyParts );
+#else
     QStringList parts = lines.at(i).split ( ' ', QString::SkipEmptyParts );
+#endif
     if (parts.count()!=2)
       return "Invalid line in checksums section";
     QString filename(parts.at(0));
@@ -210,7 +215,7 @@ QString VP1EvtsOnServerInfo::Imp::init(const QString& infofile)
     events << evt;
   }
 
-  qSort(events);
+  std::sort(events.begin(), events.end());
 
   if (hascopyresult) {
     //Todo: Use the copy result lines for a sanity check of that the

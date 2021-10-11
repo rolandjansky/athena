@@ -18,11 +18,13 @@ persToTrans( const Trk::ScatteringAngleOnTrack_p1 *persObj,
              MsgStream& )
 {
   transObj->m_tInX0           = 0.0;
-  transObj->m_scatteringAngles 
-    = new Trk::ScatteringAngles(persObj->m_deltaPhi,persObj->m_deltaTheta,
-                                persObj->m_sigmaDeltaPhi,persObj->m_sigmaDeltaTheta);
-  transObj->m_energyLoss      = nullptr;
-  transObj->m_typeFlags       = 1;
+  transObj->m_scatteringAngles =
+    Trk::ScatteringAngles(persObj->m_deltaPhi,
+                          persObj->m_deltaTheta,
+                          persObj->m_sigmaDeltaPhi,
+                          persObj->m_sigmaDeltaTheta);
+  transObj->m_energyLoss = nullptr;
+  transObj->m_typeFlags = 1;
   // FIXME: surface, deal with it here (free Sf) or later (detEl Sf)
 }
 

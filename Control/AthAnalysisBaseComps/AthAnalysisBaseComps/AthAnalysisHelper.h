@@ -32,6 +32,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include <type_traits>
+#include "TFile.h"
 
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
@@ -202,7 +203,7 @@ public:
    /// CHECK( tool.retrieve() );
    template<typename W> static W* createTool(const std::string& typeAndName, INamedInterface* parent = 0) {
       std::string type = typeAndName; std::string name = typeAndName;
-      if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
+      if(type.find('/')!=std::string::npos) { type = type.substr(0,type.find('/')); name = name.substr(name.find('/')+1,name.length()); }
       if(parent==0) {
 	//use ToolSvc as parent
 	parent = Gaudi::svcLocator()->service( "ToolSvc" );
@@ -225,7 +226,7 @@ public:
    //equivalent method for creating an algorithm ... always returns an IAlgorithm though, so not templated
    static IAlgorithm* createAlgorithm(const std::string& typeAndName) {
       std::string type = typeAndName; std::string name = typeAndName;
-      if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
+      if(type.find('/')!=std::string::npos) { type = type.substr(0,type.find('/')); name = name.substr(name.find('/')+1,name.length()); }
       IAlgorithm* out = Algorithm::Factory::create(type,name,Gaudi::svcLocator()).release();
       out->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
       return out;
@@ -374,6 +375,11 @@ public:
     if(!handle.isSet()) {std::cout << "Please retrieve handle before dumping properties" << std::endl; return;}
     return dumpProperties(dynamic_cast<const IProperty&>(*handle));
   }
+
+
+
+  //Obtain TFile pointer to THistSvc's output file with the given streamName
+  static TFile* getOutputFile(const std::string& streamName);
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoolTagInfo.h - helper class for AtlCoolCopy, store info about a tag
@@ -16,12 +16,12 @@ namespace cool {
 class CoolTagInfo {
  public:
   // generate from a given COOL folder and tag
-  CoolTagInfo(cool::IDatabasePtr db, const std::string& folder,
+  CoolTagInfo(const cool::IDatabasePtr& db, const std::string& folder,
 	      const std::string& destfolder,
 	      const std::string& sourcetag,const std::string& desttag,
 	      const std::string& taglabel="");
   // store into a given COOL folder in a destination DB
-  bool write(cool::IDatabasePtr db,const bool copylock) const;
+  bool write(const cool::IDatabasePtr& db,const bool copylock) const;
 
  private:
   std::string m_folder;

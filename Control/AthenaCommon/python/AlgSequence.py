@@ -43,6 +43,11 @@ class AthSequencer( GaudiSequencerConf.AthSequencer ):
 
     def setup( self ):
 
+       ## remove the lock for the sake of the next line, 
+       ## which updates the names of all the sequence's members
+       ## needs to avoid calling unlock to avoid stack traces
+       ## THIS SHOULD NOT BE DONE ELSEWHERE
+       self._flags &= ~self._fIsLocked
        ## synchronize the list of Members with our Configurable children
        self.Members = [ c.getFullName() for c in self.getChildren() ]
 

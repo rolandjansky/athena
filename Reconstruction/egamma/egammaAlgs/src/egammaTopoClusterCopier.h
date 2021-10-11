@@ -19,7 +19,7 @@
    @brief Select topo-clusters to be used in egamma reconstruction
 
    This algorithm is the first step in egamma reconstruction. It selects
-   topocluster and decorate them with the EM fraction. The input and output
+   topoclusters and decorate them with the EM fraction. The input and output
    containers are collections of xAOD::CaloCluster.
 
    - Input container: input clusters

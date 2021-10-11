@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoCoreSim/InputConnector.h"
 #include "L1TopoCommon/Exception.h"
@@ -7,9 +7,9 @@ using namespace std;
 using namespace TCS;
 
 InputConnector::InputConnector(const string & name) :
-    Connector(name, INPUT)
+   Connector(name, INPUT),
+   m_inputTOBType (inputType(name))
 {
-   m_inputTOBType = inputType(name);
 }
 
 InputConnector::~InputConnector()

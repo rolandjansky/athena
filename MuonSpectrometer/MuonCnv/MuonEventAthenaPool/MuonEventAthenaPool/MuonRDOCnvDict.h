@@ -40,6 +40,10 @@
 #include "MuonEventAthenaPool/TgcRdo_p3.h"
 #include "MuonEventAthenaPool/TgcRdoContainer_p3.h"
 
+#include "MuonEventAthenaPool/TgcL1RawData_p1.h"
+#include "MuonEventAthenaPool/TgcL1Rdo_p1.h"
+#include "MuonEventAthenaPool/TgcL1RdoContainer_p1.h"
+
 #include "MuonEventAthenaPool/RpcFiredChannel_p1.h"
 #include "MuonEventAthenaPool/RpcCoinMatrix_p1.h"
 #include "MuonEventAthenaPool/RpcPad_p1.h"

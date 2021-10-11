@@ -69,11 +69,8 @@
 /*---------------------------------------------------------*/
 LArNoiseCorrelationMonAlg::LArNoiseCorrelationMonAlg( const std::string& name, ISvcLocator* pSvcLocator) 
   : AthMonitorAlgorithm(name, pSvcLocator),
-    m_LArOnlineIDHelper(nullptr),
-    m_badChannelMask("BadLArRawChannelMask",this)
-{ 
-  declareProperty("LArBadChannelMask",m_badChannelMask);
-}
+    m_LArOnlineIDHelper(nullptr)
+{ }
 
 /*---------------------------------------------------------*/
 LArNoiseCorrelationMonAlg::~LArNoiseCorrelationMonAlg()
@@ -94,10 +91,9 @@ LArNoiseCorrelationMonAlg::initialize()
   ATH_CHECK(m_LArDigitContainerKey.initialize());
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if (m_ignoreKnownBadChannels) {
-    ATH_CHECK(m_badChannelMask.retrieve());
-  } else m_badChannelMask.disable();
-  
+  ATH_CHECK(m_bcContKey.initialize(m_ignoreKnownBadChannels));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
   /** Configure event info */
   ATH_CHECK(m_eventInfoKey.initialize());
 
@@ -170,6 +166,13 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
   SG::ReadCondHandle<ILArPedestal> pedestalHdl{m_keyPedestal,ctx};
   const ILArPedestal* pedestals=*pedestalHdl;
 
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_ignoreKnownBadChannels) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+    bcCont=(*bcContHdl);
+  }
+
+
   /** retrieve LArDigitContainer*/
   SG::ReadHandle<LArDigitContainer> pLArDigitContainer{m_LArDigitContainerKey,ctx};
   
@@ -191,8 +194,8 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
     CaloGain::CaloGain gain = pLArDigit->gain();
     float pedestal = pedestals->pedestal(id,gain);    
 
-    if(!isGoodChannel(id,pedestal,cabling))
-	continue;
+    if(!isGoodChannel(id,pedestal,cabling,bcCont))
+      continue;
     
     /** Retrieve samples*/
     const std::vector<short>* digito = &pLArDigit->samples();
@@ -227,7 +230,7 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
 	CaloGain::CaloGain gain2 = pLArDigit2->gain();
 	float pedestal2 = pedestals->pedestal(id2,gain2);
 
-	if(!isGoodChannel(id2,pedestal2,cabling))  continue;
+	if(!isGoodChannel(id2,pedestal2,cabling,bcCont))  continue;
 
 	/** get the channel number */
 	int ch2 = m_LArOnlineIDHelper->channel(id2);
@@ -281,10 +284,10 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
 
 /*---------------------------------------------------------*/
 /** check if channel is ok for monitoring */
- bool LArNoiseCorrelationMonAlg::isGoodChannel(const HWIdentifier ID,const float ped, const LArOnOffIdMapping *cabling) const
+bool LArNoiseCorrelationMonAlg::isGoodChannel(const HWIdentifier ID,const float ped, const LArOnOffIdMapping *cabling, const LArBadChannelCont* bcCont) const
  {
     /** Remove problematic channels*/
-   if (m_ignoreKnownBadChannels && m_badChannelMask->cellShouldBeMasked(ID))
+   if (m_ignoreKnownBadChannels && m_bcMask.cellShouldBeMasked(bcCont,ID))
      return false;
 
     /**skip cells with no pedestals reference in db.*/

@@ -10,11 +10,10 @@
 class IHypoJetVectorFilter {
  public:
   virtual ~IHypoJetVectorFilter() = default;
-  virtual std::pair<HypoJetCIter, HypoJetCIter>
-    filter (const HypoJetCIter& b,
-	    const HypoJetCIter& e,
-	    const std::unique_ptr<ITrigJetHypoInfoCollector>&
-	    ) = 0;
+  virtual HypoJetVector
+  filter (const HypoJetVector& jv, 
+	  const std::unique_ptr<ITrigJetHypoInfoCollector>&
+	  ) const = 0;
   
   virtual std::string toString() const = 0;
 };

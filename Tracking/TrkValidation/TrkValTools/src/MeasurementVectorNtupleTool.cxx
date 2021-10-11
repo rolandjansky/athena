@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   m_detTypeHelper = new MeasurementTypeID(m_idHelper);
 
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
   // ----------------------------------
   // use updator to get unbiased states
   if ( ! m_updatorHandle.empty() ) {
@@ -359,7 +359,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
 
     ATH_MSG_VERBOSE ("added own branches to ntuple");
 
-    StatusCode sc(StatusCode::SUCCESS,true);
+    StatusCode sc(StatusCode::SUCCESS);
     ToolHandleArray< IValidationNtupleHelperTool >::const_iterator itTools;
     // get all the given ntuple helper tools for Pixel
     itTools = m_PixelNtupleHelperToolHandles.begin();
@@ -474,7 +474,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->
          begin();
        it!=trackStates->end();
-       it++) {
+       ++it) {
 
 
     if (!(*it)) {
@@ -559,7 +559,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   //----------------------------------------------
   // do hole search if selected
   if (m_doHoleSearch) {
-    const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack = m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis());
+    std::unique_ptr<const Trk::TrackStates> holesOnTrack (m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis()));
     // loop over holes
     if (!holesOnTrack) {
       msg(MSG::WARNING) << "Got no holes on track" << endmsg;
@@ -567,7 +567,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
     }
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
          it!=holesOnTrack->end();
-         it++) {
+         ++it) {
       if (!(*it)) {
         msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
         continue;
@@ -576,8 +576,6 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
         msg(MSG::WARNING) << "info about TrackState (hole) could not be written to ntuple" << endmsg;
       }
     } // end loop on holes
-    delete holesOnTrack;
-    holesOnTrack = nullptr;
   }
 
   return StatusCode::SUCCESS;

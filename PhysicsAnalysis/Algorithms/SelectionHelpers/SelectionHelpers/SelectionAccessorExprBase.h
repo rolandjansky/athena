@@ -17,10 +17,10 @@ class SelectionAccessorExprBase : public ISelectionAccessor {
  public:
   virtual SelectionType getBits(const SG::AuxElement &element) const override;
 
-  virtual void setBool(SG::AuxElement & /*element*/,
+  virtual void setBool(const SG::AuxElement & /*element*/,
                        bool /*value*/) const override;
 
-  virtual void setBits(SG::AuxElement & /*element*/,
+  virtual void setBits(const SG::AuxElement & /*element*/,
                        SelectionType /*selection*/) const override;
 };
 

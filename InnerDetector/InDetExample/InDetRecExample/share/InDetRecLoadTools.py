@@ -19,7 +19,7 @@ if use_broad_cluster_sct is None :
 use_broad_cluster_any = use_broad_cluster_pix or use_broad_cluster_sct
 
 # load common NN tools for clustering and ROT creation
-if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
+if InDetFlags.doPixelClusterSplitting():
 
     #
     # --- Neutral Network version ?
@@ -361,15 +361,6 @@ if InDetFlags.doPattern():
             printfunc (     InDetTRTDetElementsRoadMaker)
 
     #
-    # TRT segment minimum number of drift circles tool
-    #
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
-    InDetTRTDriftCircleCut = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco()
-
-    if (InDetFlags.doPrintConfigurables()):
-        printfunc (  InDetTRTDriftCircleCut)
-
-    #
     # Local combinatorial track finding using space point seed and detector element road
     #
     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
@@ -446,7 +437,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
     ToolSvc += InDetScoringToolCosmics
     if (InDetFlags.doPrintConfigurables()):
         printfunc (     InDetScoringToolCosmics)
-
+    use_parameterization=False
     from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
     InDetAmbiTrackSelectionToolCosmics = InDet__InDetAmbiTrackSelectionTool(name                  = 'InDetAmbiTrackSelectionToolCosmics',
                                                                             AssociationTool       = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
@@ -455,8 +446,8 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
                                                                             maxShared             = 0,
                                                                             maxTracksPerSharedPRD = 10,
                                                                             Cosmics               = True,
-                                                                            DriftCircleCutTool    = InDetTRTDriftCircleCut,
-                                                                            UseParameterization   = False)
+                                                                            DriftCircleCutTool    = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco() if use_parameterization else '',
+                                                                            UseParameterization   = use_parameterization)
 
     ToolSvc += InDetAmbiTrackSelectionToolCosmics
     if (InDetFlags.doPrintConfigurables()):

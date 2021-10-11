@@ -29,24 +29,24 @@ void eTowerContainer::print() const {
 }
 
 
-const LVL1::eTower * eTowerContainer::findTower(int towerID) const
-{
-  int container_index = -1;
-  container_index = m_map_towerID_containerIndex.find(towerID)->second;
-  if(container_index >= 0){
+const LVL1::eTower * eTowerContainer::findTower(int towerID) const{
+    const auto it = m_map_towerID_containerIndex.find(towerID);
+
+    const int container_index = it->second;
+    if (container_index < 0) {
+        return nullptr;
+    }
     return (*this)[container_index];
-  }
-  return nullptr;
 }
 
-LVL1::eTower * eTowerContainer::findTower(int towerID)
-{
-  int container_index = -1;
-  container_index = m_map_towerID_containerIndex.find(towerID)->second;
-  if(container_index >= 0){
+LVL1::eTower * eTowerContainer::findTower(int towerID){
+    const auto it = m_map_towerID_containerIndex.find(towerID);
+
+    const int container_index = it->second;
+    if (container_index < 0) {
+        return nullptr;
+    }
     return (*this)[container_index];
-  }
-  return nullptr;
 }
 
 void eTowerContainer::clearContainerMap()

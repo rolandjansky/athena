@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -9,12 +9,12 @@
 // LArRawChannelCnv_p2, used for T/P separation
 // author G.Unal
 
-void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_p2* pers, MsgStream &/*log*/) 
+void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_p2* pers, MsgStream &/*log*/) const
 {
   union {
     int  m_quality ; 
     uint16_t m_qualProv[2];
-  } qprov;
+  } qprov{};
 
   pers->m_channelID      = trans->identify().get_identifier32().get_compact();
   pers->m_energy         = trans->energy();
@@ -29,12 +29,12 @@ void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_
   pers->m_qualityandgain = tmpqual | tmpgain;
 }
 
-void LArRawChannelCnv_p2::persToTrans(const LArRawChannel_p2* pers, LArRawChannel* trans, MsgStream &/*log*/) 
+void LArRawChannelCnv_p2::persToTrans(const LArRawChannel_p2* pers, LArRawChannel* trans, MsgStream &/*log*/) const
 {
   union {
     int  m_quality ; 
     uint16_t m_qualProv[2];
-  } qprov;
+  } qprov{};
 
   qprov.m_quality  = pers->m_qualityandgain & 0x3FFFFFFF;
 

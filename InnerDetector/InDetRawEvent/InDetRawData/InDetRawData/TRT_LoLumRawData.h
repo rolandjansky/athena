@@ -34,28 +34,28 @@ public:
   TRT_LoLumRawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~TRT_LoLumRawData();
+  virtual ~TRT_LoLumRawData() = default;
 
   // High level threshold:
-  virtual bool highLevel() const;
+  virtual bool highLevel() const  override final;
   virtual bool highLevel(int /* BX */) const;
 
   // Time over threshold in ns for valid digits; zero otherwise:
-  virtual double timeOverThreshold() const {
+  virtual double timeOverThreshold() const  override final{
     return timeOverThreshold(m_word);
   };
 
   // drift time in bin
-  virtual int driftTimeBin() const {
+  virtual int driftTimeBin() const override final {
     return driftTimeBin(m_word);
   };
 
-  virtual int trailingEdge() const {
+  int trailingEdge() const {
     return trailingEdge(m_word);
   };
 
-  virtual bool firstBinHigh() const;  // True if first time bin is high
-  virtual bool lastBinHigh() const;   // True if last time bin is high
+  bool firstBinHigh() const;  // True if first time bin is high
+  bool lastBinHigh() const;   // True if last time bin is high
 
 
   ///////////////////////////////////////////////////////////////////
@@ -69,15 +69,15 @@ public:
 
 protected:
   // width of the drift time bins
-  static const double m_driftTimeBinWidth;
+  static constexpr double m_driftTimeBinWidth = 3.125;
 
   // bit masks used in interpretation of bit pattern
-  static const unsigned int m_maskFourLastBits;
-  static const unsigned int m_maskThreeLastBits;
+  static constexpr unsigned int m_maskFourLastBits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
+  static constexpr unsigned int m_maskThreeLastBits=0xFFFFFF8;  // 1 1 11111111 1 11111111 1 11111000
 
 public:
   // width of the drift time bins
-  static double getDriftTimeBinWidth() {
+  static constexpr double getDriftTimeBinWidth() {
     return m_driftTimeBinWidth;
   };
 

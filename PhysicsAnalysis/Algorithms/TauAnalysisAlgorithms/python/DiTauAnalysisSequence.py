@@ -53,7 +53,6 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
     alg = createAlgorithm( 'CP::DiTauSmearingAlg', 'DiTauSmearingAlg' + postfix )
     addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::DiTauSmearingTool' )
     seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                affectingSystematics = '(^TAUS_TRUEHADDITAU_SME_TES_.*)',
                 stageName = 'calibration' )
 
     # Set up an algorithm dumping the properties of the taus, for debugging:
@@ -73,7 +72,6 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
     # alg.outOfValidity = 2 #silent
     # alg.outOfValidityDeco = "bad_eff"
     seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                affectingSystematics = '(^TAUS_TRUEHADDITAU_EFF_JETID_.*)',
                 stageName = 'efficiency' )
 
     # Set up the tau truth matching algorithm:

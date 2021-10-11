@@ -44,7 +44,7 @@ namespace {
     std::ostringstream os;
     os<<"TRT_RDO_colvector = ["<<rdoV.size()<<"] ";
     unsigned count = 0;
-    for(TRT_RDO_colvector::const_iterator it   = rdoV.begin(); it != rdoV.end(); it++) {
+    for(TRT_RDO_colvector::const_iterator it   = rdoV.begin(); it != rdoV.end(); ++it) {
       if(++count>maxprint) break;
        if(*it) {
 	 os<<(*it)->size()<<" ";
@@ -67,7 +67,7 @@ void TRT_RDO_ContainerCnv_p1::transToPers(const TRT_RDO_Container* trans, TRT_RD
   // retrieving directly from SG.
   if(trans->begin() != trans->end()) {
     MSG_DEBUG(log,"[p1] using container iterators");
-    for(TRT_RDO_Container::const_iterator it=trans->begin(); it != trans->end(); it++) {
+    for(TRT_RDO_Container::const_iterator it=trans->begin(); it != trans->end(); ++it) {
       if(*it) {
 	pers->push_back( *it );
       }

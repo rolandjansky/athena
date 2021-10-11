@@ -16,14 +16,14 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
-IsoCorrectionTool = ToolFactory(ICT,
-                                name = "NewLeakageCorrTool")
+IsoCorrectionTool = ToolFactory(ICT, name = "LeakageCorrTool",
+                                LogLogFitForLeakage = True)
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 doPFlow = False
-PFlowObjectsInConeTool = None
+FlowElementsInConeTool = None
 from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.BeamFlags import jobproperties
 useVertices = True
@@ -35,9 +35,9 @@ if recAlgs.doEFlow() :
   doPFlow = True
 
   # tool to collect pflow objects in cone
-  from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
-  PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
-                                       name = "PFlowObjectsInConeTool")
+  from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__FlowElementsInConeTool
+  FlowElementsInConeTool = ToolFactory(xAOD__FlowElementsInConeTool,
+                                       name = "FlowElementsInConeTool")
 
   from JetRec.JetRecStandard import jtm
   from JetRec.JetRecConf import PseudoJetAlgorithm
@@ -55,26 +55,12 @@ if recAlgs.doEFlow() :
   # EM Neutral PFOs
   topSequence += emnpflowget
 
-# tool to collect topo clusters in cone
-from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
-CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
-                                     CaloClusterLocation = "CaloCalTopoClusters")
-
 # tool to extrapolate to the calo
-from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 #this is just regular extrapolator, but in ToolFactory form
 from egammaTools.egammaExtrapolators import egammaExtrapolator
 CaloExtensionTool =  ToolFactory (Trk__ParticleCaloExtensionTool,
                                   Extrapolator = egammaExtrapolator)
-
-#adding this to address a rare crash when calculating etCone iso for muons, the tool is not used by any other part of the code
-MuonCaloExtensionTool =  ToolFactory (Trk__ParticleCaloExtensionTool,
-                                      Extrapolator = egammaExtrapolator,
-                                      StartFromPerigee = True)
-
-CaloCellAssocTool =  ToolFactory (Rec__ParticleCaloCellAssociationTool,
-                                  ParticleCaloExtensionTool = MuonCaloExtensionTool)
-
 
 # configuration for ED computation
 # For the time being, it uses all pflow objects (neutral@EM + charged) for pflow
@@ -119,43 +105,7 @@ def configureEDCorrection(tool):
       ToolSvc += tfcc
       topSequence += EventDensityAthAlg("EDtpIsoForwardAlg", EventDensityTool = tfcc)
 
-    if not hasattr(topSequence,'EDtpIsoVeryForwardAlg'):
-      tvfcc = configEventDensityTool("EDtpIsoVeryForwardTool",
-                                     inputlabel = jtm.emget.Label,
-                                     radius          = 0.5,
-                                     AbsRapidityMin  = 2.5,
-                                     AbsRapidityMax  = 4.5,
-                                     OutputContainer = "TopoClusterIsoVeryForwardEventShape",
-                                     OutputLevel     = OutputLevel
-                                   )
-      ToolSvc += tvfcc
-      topSequence += EventDensityAthAlg("EDtpIsoVeryForwardAlg", EventDensityTool = tvfcc)
-
     if doPFlow:
-      if not hasattr(topSequence,'EDpfIsoCentralAlg'):
-        tcpf = configEventDensityTool("EDpfIsoCentralTool",
-                                      inputlabel = jtm.empflowget.Label,
-                                      radius          = 0.5,
-                                      AbsRapidityMin  = 0.0,
-                                      AbsRapidityMax  = 1.5,
-                                      OutputContainer = "ParticleFlowIsoCentralEventShape",
-                                      OutputLevel     = OutputLevel
-                                      )
-        ToolSvc += tcpf
-        topSequence += EventDensityAthAlg("EDpfIsoCentralAlg", EventDensityTool = tcpf)
-
-      if not hasattr(topSequence,'EDpfIsoForwardAlg'):
-        tfpf = configEventDensityTool("EDpfIsoForwardTool",
-                                      inputlabel = jtm.empflowget.Label,
-                                      radius          = 0.5,
-                                      AbsRapidityMin  = 1.5,
-                                      AbsRapidityMax  = 3.0,
-                                      OutputContainer = "ParticleFlowIsoForwardEventShape",
-                                      OutputLevel     = OutputLevel
-                                      )
-        ToolSvc += tfpf
-        topSequence += EventDensityAthAlg("EDpfIsoForwardAlg", EventDensityTool = tfpf)
-
       ## Try a neutral density
       if not hasattr(topSequence,'EDnpfIsoCentralAlg'):
         tcnpf = configEventDensityTool("EDnpfIsoCentralTool",
@@ -185,111 +135,126 @@ def configureEDCorrection(tool):
     print ('\nERROR: could not get handle to ED')
     raise
 
+# The calo isolation tool
 from CaloIdentifier import SUBCALO 
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
-CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationTool",
-                                postInit                        = [configureEDCorrection],
-                                CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
-                                ClustersInConeTool              = CaloClustersInConeTool,
-                                PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
-                                ParticleCaloExtensionTool       = CaloExtensionTool,
-                                IsoLeakCorrectionTool           = IsoCorrectionTool,
-                                ParticleCaloCellAssociationTool = CaloCellAssocTool,
-                                EMCaloNums                      = [SUBCALO.LAREM],
-                                HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
-                                UseEMScale                      = True)
+MuCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "MuCaloIsolationTool",
+                                  postInit                        = [configureEDCorrection],
+                                  FlowElementsInConeTool          = FlowElementsInConeTool,
+                                  ParticleCaloExtensionTool       = CaloExtensionTool,
+                                  ParticleCaloCellAssociationTool = None,
+                                  EMCaloNums                      = [SUBCALO.LAREM],
+                                  HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                  UseEtaDepPUCorr                 = False)
 
-TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
+EgCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "EgCaloIsolationTool",
+                                  postInit                        = [configureEDCorrection],
+                                  CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
+                                  IsoLeakCorrectionTool           = IsoCorrectionTool,
+                                  ParticleCaloExtensionTool       = None,
+                                  ParticleCaloCellAssociationTool = None,
+                                  isMC                            = rec.doTruth())
+
+# The track isolation tool
 from AthenaCommon import CfgMgr
+from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+TTVATool = getTTVAToolForReco(name         = 'NAMWTTVA',
+                              WorkingPoint = 'Nonprompt_All_MaxWeight')
+
+ElTrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'ElTrackIsolationTool',
+                                   TTVATool          = TTVATool,
+                                   CoreTrackEtaRange = 0.01)
+eltit = CfgMgr.xAOD__TrackIsolationTool('ElTrackIsolationTool')
+eltit.TrackSelectionTool.minPt    = 1000
+eltit.TrackSelectionTool.CutLevel = "Loose"
+
+TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool',
+                                 TTVATool = TTVATool)
 tit = CfgMgr.xAOD__TrackIsolationTool('TrackIsolationTool')
-tit.TrackSelectionTool.maxZ0SinTheta = 3
-tit.TrackSelectionTool.minPt         = 1000
-tit.TrackSelectionTool.CutLevel      = "Loose"
+tit.TrackSelectionTool.minPt    = 1000
+tit.TrackSelectionTool.CutLevel = "Loose"
+
 if not useVertices:
   tit.VertexLocation = ''
+  eltit.VertexLocation = ''
 
 # Import the xAOD isolation parameters.
 from xAODPrimitives.xAODIso import xAODIso as isoPar
 
-# In fact the default isolations are the same for eg and muons : prepare the list here
-IsoTypes =  [
-  [ isoPar.etcone40, ## Be carefull : store them in decreasing dR
-    isoPar.etcone30,
-    isoPar.etcone20 ],
-  [ isoPar.topoetcone20,
-    isoPar.topoetcone30,
-    isoPar.topoetcone40 ],
-  [ isoPar.ptcone40, ## these ones will also trigger the ptvarconeXX. Be carefull : store them in decreasing dR
-    isoPar.ptcone30,
-    isoPar.ptcone20 ]
-  ]
-IsoTypesFe =  [
-  [ isoPar.topoetcone20, 
-    isoPar.topoetcone30,
-    isoPar.topoetcone40 ]
-  ]
+# List of isolation to be computed for each collection
+tIsoTypesPh = [ [ isoPar.ptcone30, isoPar.ptcone20 ] ] ## these ones will also trigger the ptvarconeXX. Be carefull : store them in decreasing dR
+cIsoTypesPh = [ [ isoPar.topoetcone20, isoPar.topoetcone30, isoPar.topoetcone40 ] ]
+
+tIsoTypesEl = [ [ isoPar.ptcone30, isoPar.ptcone20 ] ]
+cIsoTypesEl = [ [ isoPar.topoetcone20, isoPar.topoetcone30, isoPar.topoetcone40 ] ]
+
+tIsoTypesMu = [ [ isoPar.ptcone40, isoPar.ptcone30, isoPar.ptcone20 ] ]
+cIsoTypesMu = [ [ isoPar.topoetcone20, isoPar.topoetcone30, isoPar.topoetcone40 ] ]
 
 # The Default corrections : have to follow exactly the order of the iso var.
-IsoCorEg = [
-  [ isoPar.core57cells, isoPar.ptCorrection ],
-  [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ],
-  [ isoPar.coreTrackPtr ]
-  ]
+tIsoCorEg = [ [ isoPar.coreTrackPtr ] ]
+cIsoCorEg = [ [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ] ]
 
-IsoCorEgExtra = [
-  [ ],
-  [ isoPar.coreCone, isoPar.coreConeSC],
-  [ ]
-  ]
+tIsoCorMu = [ [ isoPar.coreTrackPtr ] ]
+cIsoCorMu = [ [ isoPar.coreCone, isoPar.pileupCorrection ] ]
 
-IsoCorMu = [
-  [ isoPar.coreMuon ],
-  [ isoPar.coreCone, isoPar.pileupCorrection ],
-  [ isoPar.coreTrackPtr ]
-  ]
+# Extra correction
+# nothing for Eg
+IsoCorEgExtra = [[]]
+IsoCorPhExtra = [[]]
+IsoCorElExtra = [[]]
 
-IsoCorMuExtra = [
-  [ isoPar.coreCone ],
-  [ ],
-  [ ]
-  ]
-
-IsoCorFe = [
-  [ isoPar.coreCone, isoPar.pileupCorrection ] 
-  ]
-
-IsoCorFeExtra = [[]]
+# for muons
+tIsoCorMuExtra = [[]]
+cIsoCorMuExtra = [[]]
 
 if doPFlow:
-  IsoTypes.append(  
-    [ isoPar.neflowisol20,
-      isoPar.neflowisol30,
-      isoPar.neflowisol40 ] )
-  IsoCorEg.append([ isoPar.coreCone, isoPar.pileupCorrection ])
-  IsoCorEgExtra.append([isoPar.ptCorrection])
-  IsoCorMu.append([ isoPar.coreCone, isoPar.pileupCorrection ])
-  IsoCorMuExtra.append([])
+  cIsoTypesMu.append([ isoPar.neflowisol20, isoPar.neflowisol30, isoPar.neflowisol40 ] )
+  cIsoCorMu.append([ isoPar.coreCone, isoPar.pileupCorrection ])
+  cIsoCorMuExtra.append([])
 
+outLevel = 3
+
+# Calorimeter iso for EGamma : one for photons and electrons
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
-isoBuilder = AlgFactory(IsolationBuilder,
-                        name                  = "IsolationBuilder",
-                        CaloCellIsolationTool = CaloIsolationTool,
-                        CaloTopoIsolationTool = CaloIsolationTool,
-                        PFlowIsolationTool    = CaloIsolationTool,
-                        TrackIsolationTool    = TrackIsolationTool, 
-                        FeIsoTypes            = [] if not rec.doEgamma() else IsoTypesFe,
-                        FeCorTypes            = IsoCorFe,
-                        FeCorTypesExtra       = IsoCorFeExtra,
-                        ElIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
-                        ElCorTypes            = IsoCorEg,
-                        ElCorTypesExtra       = IsoCorEgExtra,
-                        PhIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
-                        PhCorTypes            = IsoCorEg,
-                        PhCorTypesExtra       = IsoCorEgExtra,
-                        MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [],
-                        MuCorTypes            = IsoCorMu,
-                        MuCorTypesExtra       = IsoCorMuExtra
-                        )
+egcisoBuilder = AlgFactory(IsolationBuilder, name = "EgCaloIsolationBuilder",
+                           CaloTopoIsolationTool = EgCaloIsolationTool,
+                           #storepileupCorrection = True,
+                           ElIsoTypes            = [] if not rec.doEgamma() else cIsoTypesEl,
+                           ElCorTypes            = cIsoCorEg,
+                           ElCorTypesExtra       = IsoCorElExtra,
+                           PhIsoTypes            = [] if not rec.doEgamma() else cIsoTypesPh,
+                           PhCorTypes            = cIsoCorEg,
+                           PhCorTypesExtra       = IsoCorEgExtra,
+                           OutputLevel           = outLevel)
+
+# Track iso for electrons
+eltisoBuilder = AlgFactory(IsolationBuilder, name = "ElectronTrackIsolationBuilder",
+                           TrackIsolationTool    = ElTrackIsolationTool,
+                           ElIsoTypes            = [] if not rec.doEgamma() else tIsoTypesEl,
+                           ElCorTypes            = tIsoCorEg,
+                           ElCorTypesExtra       = IsoCorEgExtra,
+                           OutputLevel           = outLevel)
+
+# Track iso for photons : different from above because of the LooseCone selection for track in electron track iso
+phtisoBuilder = AlgFactory(IsolationBuilder, name = "PhotonTrackIsolationBuilder",
+                           TrackIsolationTool    = TrackIsolationTool,
+                           PhIsoTypes            = [] if not rec.doEgamma() else tIsoTypesPh,
+                           PhCorTypes            = tIsoCorEg,
+                           PhCorTypesExtra       = IsoCorEgExtra,
+                           OutputLevel           = outLevel)
+
+# Calorimeter and Track iso for muons
+muisoBuilder = AlgFactory(IsolationBuilder, name = "MuonIsolationBuilder",
+                          CaloCellIsolationTool = None,
+                          CaloTopoIsolationTool = MuCaloIsolationTool,
+                          PFlowIsolationTool    = MuCaloIsolationTool,
+                          TrackIsolationTool    = TrackIsolationTool,
+                          #storepileupCorrection = True,
+                          MuIsoTypes            = tIsoTypesMu+cIsoTypesMu if rec.doMuon() and muonRecFlags.doMuonIso() else [],
+                          MuCorTypes            = tIsoCorMu+cIsoCorMu,
+                          MuCorTypesExtra       = tIsoCorMuExtra+cIsoCorMuExtra,
+                          OutputLevel           = outLevel)
 
 from RecExConfig.Configured import Configured
 class isoGetter ( Configured ) :
@@ -300,7 +265,7 @@ class isoGetter ( Configured ) :
     
     # configure iso here:
     try:
-      self._isoBuilderHandle = isoBuilder()
+      self._isoBuilderHandle = [egcisoBuilder(),eltisoBuilder(),phtisoBuilder(),muisoBuilder()]
     except Exception:
       mlog.error("could not get handle to IsolationBuilder")
       import traceback

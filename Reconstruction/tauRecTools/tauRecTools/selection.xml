@@ -19,5 +19,6 @@
    <class name="TauIDVarCalculator" />
    <class name="TauJetRNNEvaluator" />
    <class name="TauDecayModeNNClassifier" />
+   <class name="TauAODSelector" />
 
 </lcgdict>

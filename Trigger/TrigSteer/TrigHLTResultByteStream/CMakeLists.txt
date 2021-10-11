@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigHLTResultByteStream )
@@ -7,13 +7,7 @@ atlas_subdir( TrigHLTResultByteStream )
 find_package( tdaq-common COMPONENTS eformat_write )
 
 # Component(s) in the package:
-atlas_add_library( TrigHLTResultByteStreamLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigHLTResultByteStream
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData GaudiKernel TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES AthenaKernel StoreGateLib )
-
 atlas_add_component( TrigHLTResultByteStream
-                     src/components/*.cxx
-                     LINK_LIBRARIES TrigHLTResultByteStreamLib )
+                     src/*.cxx src/components/*.cxx
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamData GaudiKernel StoreGateLib TrigSteeringEvent )

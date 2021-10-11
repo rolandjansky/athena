@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -104,8 +104,7 @@ void Trk::RectangularSegmentation::createSegmenationSurfaces(std::vector< std::s
     // let's create the top/botten surfaces first - we call them readout / counter readout
     // there are some things to consider 
     // - they share the RectangleBounds only if the lorentzAngle is 0, otherwise only the readout surface has full length bounds like the module
-    Trk::RectangleBounds rb(m_activeBounds->halflengthX(),m_activeBounds->halflengthY());
-    Trk::SharedObject<const Trk::SurfaceBounds> moduleBounds(&rb);
+    Trk::SharedObject<const Trk::SurfaceBounds> moduleBounds = std::make_shared<Trk::RectangleBounds>(m_activeBounds->halflengthX(),m_activeBounds->halflengthY());
     // - they are separated by half a thickness in z
     Amg::Transform3D readoutPlaneTransform(Amg::Transform3D::Identity());
     std::unique_ptr<Amg::Transform3D> counterPlaneTransform(new Amg::Transform3D(Amg::Transform3D::Identity()));

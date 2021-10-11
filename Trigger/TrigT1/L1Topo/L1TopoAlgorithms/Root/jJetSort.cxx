@@ -48,19 +48,19 @@ TCS::jJetSort::initialize() {
 
 TCS::StatusCode
 TCS::jJetSort::sort(const InputTOBArray & input, TOBArray & output) {
+  
    const jJetTOBArray & jets = dynamic_cast<const jJetTOBArray&>(input);
    
    // fill output array with GenericTOBs builds from jets
-   for(jJetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
-     if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) < m_minEta)) continue; 
-     if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) > m_maxEta)) continue;      	
-     output.push_back( GenericTOB(**cl)  );
+   for(jJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+     if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) < m_minEta)) continue; 
+     if (m_doEtaCut && (parType_t(std::abs((*jet)-> eta())) > m_maxEta)) continue;      	
+     output.push_back( GenericTOB(**jet)  );
    }
 
    // sort
    output.sort(SortByEtLargestjJet);
    
-
    // keep only max number of jets
    int par = m_numberOfJets;
    unsigned int maxNumberOfJets = (unsigned int)(par<0?0:par);

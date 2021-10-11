@@ -256,16 +256,15 @@ namespace InDet {
       double Ax[3] = {T(0,0),T(1,0),T(2,0)};
       double Ay[3] = {T(0,1),T(1,1),T(2,1)};
       double Az[3] = {T(0,2),T(1,2),T(2,2)};
-      double R [3] = {T(0,3),T(1,3),T(2,3)};
       
       spacepointCollection->reserve(spacepointCollection->size()+clusters->size());
       
       for(; clusStart!=clusFinish; ++clusStart){    
         const InDet::SiCluster* c = (*clusStart);
-        const Amg::Vector2D&    M = c->localPosition();
         const Amg::MatrixX&     V = c->localCovariance();
         
-        Amg::Vector3D  pos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
+	// Global position is already computed during pixel cluster creation and cached in the SiCluster object
+        const Amg::Vector3D&  pos = c->globalPosition();
         
         double B0[2] = {Ax[0]*V(0,0)+Ax[1]*V(1,0),Ax[0]*V(1,0)+Ax[1]*V(1,1)};
         double B1[2] = {Ay[0]*V(0,0)+Ay[1]*V(1,0),Ay[0]*V(1,0)+Ay[1]*V(1,1)};

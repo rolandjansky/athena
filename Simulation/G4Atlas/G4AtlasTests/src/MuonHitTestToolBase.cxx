@@ -37,7 +37,7 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
 {
   const EventInfo* pevt;
   CHECK(evtStore()->retrieve(pevt));
-  int evt = pevt->event_ID()->event_number();
+  uint64_t evt = pevt->event_ID()->event_number();
   int numrun = pevt->event_ID()->run_number();
   ATH_MSG_VERBOSE("Processing EventInfo event #"<< evt<< " run: " << numrun);
   m_muonevnt->Fill(evt);

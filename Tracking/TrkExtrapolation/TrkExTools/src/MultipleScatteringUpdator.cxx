@@ -119,8 +119,7 @@ Trk::MultipleScatteringUpdator::sigmaSquare(const MaterialProperties &mat,
 
   double sigma2(0.);
 
-  Trk::MaterialInteraction matInt;
-  double sigma = matInt.sigmaMS(t, p, beta);
+  double sigma = Trk::MaterialInteraction::sigmaMS(t, p, beta);
   sigma2 = sigma * sigma;
 
   if (m_useTrkUtils && particle != Trk::electron) {

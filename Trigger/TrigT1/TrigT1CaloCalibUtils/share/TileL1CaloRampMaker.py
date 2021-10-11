@@ -126,6 +126,9 @@ else:
 # setup l1calo database
 include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffMapping()
+
 # set up tools
 ToolSvc += CfgMgr.LVL1__L1TriggerTowerTool()
 ToolSvc += CfgMgr.LVL1__L1CaloLArTowerEnergy()

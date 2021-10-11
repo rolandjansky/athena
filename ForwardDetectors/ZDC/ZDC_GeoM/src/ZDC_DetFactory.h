@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDC_DETFACTORY_H
@@ -29,7 +29,7 @@ class ZDC_DetFactory : public GeoVDetectorFactory
   
   mutable Athena::MsgStreamMember m_msg;
 
-  int Make_Pixel_ID(int Pid = -1);
+  static int Make_Pixel_ID(int Pid = -1);
 
   ZDC_DetManager* m_detectorManager;
   StoreGateSvc*   m_detectorStore;

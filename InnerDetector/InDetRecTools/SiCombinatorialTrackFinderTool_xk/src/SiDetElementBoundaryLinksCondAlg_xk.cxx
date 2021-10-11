@@ -66,7 +66,7 @@ namespace InDet {
     std::unique_ptr<InDet::SiDetElementBoundaryLinks_xk> writeCdo{std::make_unique<InDet::SiDetElementBoundaryLinks_xk>()};
     // ____________ Fill writeCdo using readCdo ____________
     for (const InDetDD::SiDetectorElement* newEl: *readCdo) {
-      InDet::SiDetElementBoundaryLink_xk dl{newEl};
+      InDet::SiDetElementBoundaryLink_xk dl{newEl,m_ITkGeometry};
       writeCdo->push_back(dl);
     }
 

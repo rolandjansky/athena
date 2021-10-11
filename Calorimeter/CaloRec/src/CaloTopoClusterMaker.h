@@ -44,7 +44,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 class Identifier; 
-class CaloDetDescrManager; 
 class CaloDetDescrElement;
 
 
@@ -63,7 +62,7 @@ public:
 
 private: 
 
-  inline bool passCellTimeCut(const CaloCell*, float) const;
+  static inline bool passCellTimeCut(const CaloCell*, float) ;
   
   const CaloCell_ID* m_calo_id;
   

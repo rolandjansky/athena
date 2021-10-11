@@ -33,7 +33,7 @@
 #include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <inttypes.h> 
+#include <cinttypes> 
 
 #include <sstream>
 #include <cmath>

@@ -17,7 +17,6 @@
 
 namespace LVL1 
 {
-  class CPAlgorithm;
   class CPMTobRoI;
   class EmTauROI;
   
@@ -30,12 +29,6 @@ namespace LVL1
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    // enter declaration of your interface-defining member functions here
-    virtual void formCPMTobRoI(const DataVector<CPAlgorithm>* cpAlgorithmVec,
-                                  DataVector<CPMTobRoI>*      cpmRoiVec) const = 0;
-    virtual void formCPMTobRoI(const DataVector<EmTauROI>* emTauRoiVec,
-                                  DataVector<CPMTobRoI>*   cpmRoiVec) const = 0;
-    
     virtual void formCMXCPTob(const xAOD::CPMTobRoIContainer*   cpmRoiVec,
                               xAOD::CMXCPTobContainer* cmxTobVec) const = 0;
     

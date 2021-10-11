@@ -39,9 +39,7 @@ TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const st
   , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
 #endif
 {
-  m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
-
-  declareProperty( "EleOLRFilePath", m_sEleOLRFilePath);
+  declareProperty( "EleOLRFilePath", m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root");
 }
 
 //______________________________________________________________________________

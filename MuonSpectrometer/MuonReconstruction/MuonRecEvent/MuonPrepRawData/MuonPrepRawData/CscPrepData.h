@@ -70,13 +70,26 @@ class CscPrepData final:   public MuonCluster
                const IdentifierHash &idDE,
                const Amg::Vector2D& locpos,
                const std::vector<Identifier>& rdoList,
-               const Amg::MatrixX* locErrMat,
+               const Amg::MatrixX& locErrMat,
                const MuonGM::CscReadoutElement* detEl,
                const int charge,
                const double time,
                const CscClusterStatus status,
                const CscTimeStatus timeStatus=Muon::CscTimeStatusUndefined
                );
+
+  CscPrepData( const Identifier& RDOId,
+               const IdentifierHash &idDE,
+               const Amg::Vector2D& locpos,
+               std::vector<Identifier>&& rdoList,
+               Amg::MatrixX&& locErrMat,
+               const MuonGM::CscReadoutElement* detEl,
+               const int charge,
+               const double time,
+               const CscClusterStatus status,
+               const CscTimeStatus timeStatus=Muon::CscTimeStatusUndefined
+               );
+
 
   /** @brief Destructor */
   virtual ~CscPrepData();
@@ -94,7 +107,7 @@ class CscPrepData final:   public MuonCluster
   virtual const MuonGM::CscReadoutElement* detectorElement() const override final;
 
   /** Interface method checking the type*/
-  virtual bool type(Trk::PrepRawDataType::Type type) const override final
+  virtual bool type(Trk::PrepRawDataType type) const override final
   {
     return type == Trk::PrepRawDataType::CscPrepData;
   }

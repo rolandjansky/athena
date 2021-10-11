@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TruthSvc.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_SERVICES_HEPMC_TRUTHSVC_H
 #define ISF_SERVICES_HEPMC_TRUTHSVC_H 1
@@ -75,7 +71,7 @@ namespace ISF {
     StatusCode  finalize() override;
 
     /** Register a truth incident */
-    void registerTruthIncident( ITruthIncident& truthincident) const override;
+    void registerTruthIncident( ITruthIncident& truthincident, bool saveAllChildren=false) const override;
 
     /** Initialize the Truth Svc at the beginning of each event */
     StatusCode initializeTruthCollection() override;
@@ -85,7 +81,7 @@ namespace ISF {
 
   private:
     /** Record the given truth incident to the MC Truth */
-    void recordIncidentToMCTruth( ITruthIncident& truthincident) const;
+    void recordIncidentToMCTruth( ITruthIncident& truthincident, bool passWholeVertex) const;
     /** Record and end vertex to the MC Truth for the parent particle */
     HepMC::GenVertexPtr  createGenVertexFromTruthIncident( ITruthIncident& truthincident,
                                                         bool replaceExistingGenVertex=false) const;

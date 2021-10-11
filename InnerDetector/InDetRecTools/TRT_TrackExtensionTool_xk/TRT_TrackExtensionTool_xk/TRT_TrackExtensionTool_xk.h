@@ -118,7 +118,7 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      const TRT_ID                          *m_trtid;
+      const TRT_ID                          *m_trtid{};
       ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool   ; // TRT road maker tool
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ; //
       ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool; //
@@ -130,8 +130,8 @@ namespace InDet{
 
 
       int                              m_segmentFindMode; // Method of segment find
-      int                              m_outputlevel    ; // Print level
-      int                              m_nprint         ; // Kind of print
+      int                              m_outputlevel{}    ; // Print level
+      int                              m_nprint{}         ; // Kind of print
       int                              m_minNumberDCs   ; // Min. number of DriftCircles
       int                              m_minNumberSCT   ; // Min. number SCT clusters for extension
       int                              m_minNumberPIX   ; // Min. number SCT clusters for extension
@@ -161,7 +161,7 @@ namespace InDet{
       bool numberPIXandSCTclustersCut(const Trk::Track&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      static MsgStream&    dumpEvent     (MsgStream   & out) ;
     };
 
   MsgStream&    operator << (MsgStream&   ,const TRT_TrackExtensionTool_xk&);

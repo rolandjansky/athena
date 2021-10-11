@@ -1,7 +1,7 @@
 
-#include "TrigHLTResultByteStream/HLTResultByteStreamCnv.h"
-#include "TrigHLTResultByteStream/HLTResultMTByteStreamCnv.h"
-#include "TrigHLTResultByteStream/HLTResultByteStreamTool.h"
+#include "../HLTResultByteStreamCnv.h"
+#include "../HLTResultMTByteStreamCnv.h"
+#include "../HLTResultByteStreamTool.h"
 #include "../HLTResultMTByteStreamDecoderAlg.h"
 #include "../HLTResultMTByteStreamDecoderTool.h"
 

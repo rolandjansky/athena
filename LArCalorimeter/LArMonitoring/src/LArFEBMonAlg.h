@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONITORING_LARFEBMONALG_H
@@ -70,7 +70,7 @@ private:
   // Id helper
   const LArOnlineID* m_onlineHelper;
 
-  bool m_trigok;
+  bool m_trigok = false;
   
   typedef std::map<std::pair<unsigned int, unsigned int>, unsigned int > MaskedFebs;
   

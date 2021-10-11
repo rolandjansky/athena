@@ -31,7 +31,7 @@
 
 namespace {
     struct PullCluster {
-        double pull;
+        double pull{};
         std::unique_ptr<const Trk::TrackParameters> pars;
         std::unique_ptr<const Muon::MuonClusterOnTrack> clus;
     };
@@ -54,10 +54,10 @@ namespace Muon {
         ATH_CHECK(m_mdtRotCreator.retrieve());
 
         if (!m_cscRotCreator.empty()) {
-            if (!m_idHelperSvc->hasCSC())
+            if (!m_idHelperSvc->recoCSC())
                 ATH_MSG_WARNING(
-                    "The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it, but double-check "
-                    "configuration");
+                    "The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it,"<<
+                    "  but double-check configuration");
             else
                 ATH_CHECK(m_cscRotCreator.retrieve());
         } else {
@@ -70,23 +70,23 @@ namespace Muon {
         ATH_CHECK(m_intersectSvc.retrieve());
 
         ATH_CHECK(m_key_mdt.initialize());
-        ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty()));  // check for layouts without CSCs
+        /// Check that the layout has CSCs and that the key is actually set
+        if (!m_key_csc.empty() && m_idHelperSvc->recoCSC()){ ATH_CHECK(m_key_csc.initialize());}  
         ATH_CHECK(m_key_tgc.initialize());
         ATH_CHECK(m_key_rpc.initialize());
-        ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty()));  // check for layouts without STGCs
-        ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty()));      // check for layouts without MicroMegas
+        /// Check that the layout has stgcs and that the key is set
+        if (!m_key_stgc.empty() && m_idHelperSvc->recosTgc()) {ATH_CHECK(m_key_stgc.initialize());}
+        /// Check that the layout has micromegas and that the key is set
+        if (!m_key_mm.empty() && m_idHelperSvc->recoMM()){ATH_CHECK(m_key_mm.initialize());}
         ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
 
         return StatusCode::SUCCESS;
     }
-    Trk::Track* MuonChamberHoleRecoveryTool::recover(const Trk::Track& track) const {
-        return recover(track, Gaudi::Hive::currentContext());
-    }
-    Trk::Track* MuonChamberHoleRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
+    std::unique_ptr<Trk::Track> MuonChamberHoleRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
         std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack;
 
         // loop over track and calculate residuals
-        const DataVector<const Trk::TrackStateOnSurface>* trkstates = track.trackStateOnSurfaces();
+        const Trk::TrackStates* trkstates = track.trackStateOnSurfaces();
         if (!trkstates) {
             ATH_MSG_DEBUG(" track without states, discarding track ");
             return nullptr;
@@ -175,11 +175,14 @@ namespace Muon {
         ATH_MSG_DEBUG(" track has stations: " << stations.size() << "   original states " << states.size() << " new states "
                                               << newStates.size());
         // states were added, create a new track
-        DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
-        trackStateOnSurfaces->reserve(newStates.size());
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        trackStateOnSurfaces.reserve(newStates.size());
 
-        for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces->push_back(nit.release()); }
-        Trk::Track* newTrack = new Trk::Track(track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0);
+        for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces.push_back(nit.release()); }
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
+          track.info(),
+          std::move(trackStateOnSurfaces),
+          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 
@@ -367,7 +370,7 @@ namespace Muon {
 
         if (doHoleSearch) {
             // ensure that we are not passing in the same parameters
-            if (parsLast == pars) parsLast = 0;
+            if (parsLast == pars) parsLast = nullptr;
 
             // create holes
             createHoleTSOSsForMdtChamber(chId, ctx, *pars, parsLast, ids, newStates);
@@ -743,7 +746,13 @@ namespace Muon {
             const double pullCut = m_idHelperSvc->measuresPhi(id) ? m_associationPullCutPhi : m_associationPullCutEta;
             double pull = std::abs(resPull->pull().front());
             Amg::Vector2D locExPos(exPars->parameters()[Trk::locX], exPars->parameters()[Trk::locY]);
-            bool inbounds = surf.insideBounds(locExPos, 10., 10.);
+
+            bool inbounds(false);
+            if (m_idHelperSvc->isMM(id)) {
+              inbounds = ((MuonGM::MMReadoutElement*)clus->detectorElement())->insideActiveBounds(id, locExPos, 10., 10.);
+            } else {
+              inbounds = surf.insideBounds(locExPos, 10., 10.);
+            }
 
             ATH_MSG_VERBOSE(" found prd: " << m_idHelperSvc->toString(id) << " res " << resPull->residual().front() << " pull " << pull
                                            << (inbounds ? " inside bounds " : " outside bounds "));
@@ -805,7 +814,14 @@ namespace Muon {
             bool inBounds = false;
             Amg::Vector2D locPos;
 
-            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) { inBounds = surf.insideBounds(locPos, -100., -100.); }
+            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) { 
+              if (m_idHelperSvc->isMM(detElId)) {
+                inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);   
+              } else {
+                inBounds = surf.insideBounds(locPos, -100., -100.);
+              }                                                      
+            }
+
             ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " position " << exPars->parameters()[Trk::locR]
                                          << (inBounds ? " inside bounds " : " outside bounds "));
 
@@ -1031,7 +1047,7 @@ namespace Muon {
         if (layIds.size() == 2 * nGasGaps) return holes;
 
         // create layer matrix
-        typedef std::vector<std::pair<int, int>> LayerMatrix;
+        using LayerMatrix = std::vector<std::pair<int, int>>;
         LayerMatrix layerMatrix(nGasGaps, std::make_pair(0, 0));
 
         // loop over layer identifiers and fill
@@ -1120,7 +1136,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->mdtIdHelper().get_module_hash(chId, hash_id);
 
-        auto collptr = mdtPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = mdtPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId) << "  not found in container ");
         }
@@ -1140,7 +1156,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->cscIdHelper().get_geo_module_hash(detElId, hash_id);
 
-        auto collptr = cscPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = cscPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" CscPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1160,7 +1176,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->tgcIdHelper().get_module_hash(detElId, hash_id);
 
-        auto collptr = tgcPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = tgcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1180,7 +1196,7 @@ namespace Muon {
         if (!rpcPrdContainer || rpcPrdContainer->size() == 0) return nullptr;
         IdentifierHash hash_id;
         m_idHelperSvc->rpcIdHelper().get_module_hash(detElId, hash_id);
-        auto collptr = rpcPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = rpcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1201,7 +1217,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->stgcIdHelper().get_module_hash(detElId, hash_id);
 
-        auto collptr = stgcPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = stgcPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" StgcPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }
@@ -1221,7 +1237,7 @@ namespace Muon {
         IdentifierHash hash_id;
         m_idHelperSvc->mmIdHelper().get_module_hash(detElId, hash_id);
 
-        auto collptr = mmPrdContainer->indexFindPtr(hash_id);
+        const auto* collptr = mmPrdContainer->indexFindPtr(hash_id);
         if (!collptr) {
             ATH_MSG_DEBUG(" MmPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(detElId) << "  not found in container ");
         }

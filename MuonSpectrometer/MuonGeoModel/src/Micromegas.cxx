@@ -5,6 +5,7 @@
 #include "MuonGeoModel/Micromegas.h"
 
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDControl/AGDDController.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoDefinitions.h"
@@ -49,12 +50,13 @@ namespace MuonGM {
         return build(minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Micromegas::build(int minimalgeo, int, std::vector<Cutout *>) {
-        AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
+    GeoFullPhysVol *Micromegas::build(int minimalgeo, int, const std::vector<Cutout *>&) {
         MMDetectorHelper mmHelper;
+        IAGDDtoGeoSvc::LockedController c = mmHelper.Get_Controller();
+        AGDDDetectorStore& ds = c->GetDetectorStore();
         MMDetectorDescription *mm_descr = mmHelper.Get_MMDetectorSubType(m_component->subType);
 
-        MM_Technology *t = (MM_Technology *)ds->GetTechnology(name);
+        MM_Technology *t = (MM_Technology *)ds.GetTechnology(name);
         thickness = t->Thickness();
         double gasTck = t->gasThickness;
         double pcbTck = t->pcbThickness;
@@ -71,7 +73,9 @@ namespace MuonGM {
         logVolName = name;
         if (!(m_component->subType).empty())
             logVolName += ("-" + m_component->subType);
-        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("sct::PCB");
+        // std::FR4 is not always available. Fallback to sct::PCB
+        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("std::FR4") != nullptr ?
+            getMaterialManager()->getMaterial("std::FR4") : getMaterialManager()->getMaterial("sct::PCB");
         GeoLogVol *ltrd = new GeoLogVol(logVolName, strd, mtrd);
         GeoFullPhysVol *ptrd = new GeoFullPhysVol(ltrd);
 

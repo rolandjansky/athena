@@ -98,6 +98,15 @@ InDetPerfPlot_Vertex::fill(const xAOD::Vertex& vertex, float weight) {
   if (m_iDetailLevel >= 100) {
     // loop over tracks at vertex
     for (const auto& elTrk : vertex.trackParticleLinks()) {
+      /// This should not be run on formats with a slimmed track record.
+      /// However, people may do so - so we catch the potential invalid links
+      /// to prevent a (useless) athena exception message. 
+      if (!elTrk.isValid()){
+        /// currently, the PlotBase classes have no athena message stream.
+        /// TODO: This should be improved in the future (requires changes to all validation packages)
+        std::cerr << "Invalid track link on vertex. Vertex track plots will be unreliable. Please check your input format. "<<std::endl; 
+        continue; 
+      }
       const xAOD::TrackParticle* trk = *elTrk;
       fillHisto(m_vx_track_pt, trk->pt() / Gaudi::Units::GeV, weight); // MeV -> GeV
       fillHisto(m_vx_track_eta, trk->eta(), weight);

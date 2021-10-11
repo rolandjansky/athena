@@ -26,7 +26,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
 
 
 
@@ -63,9 +62,9 @@ class TBBPCRaw : public TBBeamDetector
 
   TBBPCRaw(const std::string& thisBPCName,
 	   const TBTDCRawCont* theTDCCont,
-	   const std::list<const TBTDCRaw*>& theTDCs,
+	   const std::vector<const TBTDCRaw*>& theTDCs,
 	   const TBADCRawCont* theADCCont,
-	   const std::list<const TBADCRaw*>& theADCs);
+	   const std::vector<const TBADCRaw*>& theADCs);
 	
   ~TBBPCRaw();
 
@@ -73,9 +72,9 @@ class TBBPCRaw : public TBBeamDetector
   // Data Access //
   /////////////////
   void setSignals(const TBTDCRawCont* theTDCCont,
-		  const std::list<const TBTDCRaw*>& theTDCs,
+		  const std::vector<const TBTDCRaw*>& theTDCs,
 		  const TBADCRawCont* theADCCont,
-		  const std::list<const TBADCRaw*>& theADCs);
+		  const std::vector<const TBADCRaw*>& theADCs);
 
   tdc_signal_type getTDCLeft()       const;
   tdc_signal_type getTDCRight()      const;

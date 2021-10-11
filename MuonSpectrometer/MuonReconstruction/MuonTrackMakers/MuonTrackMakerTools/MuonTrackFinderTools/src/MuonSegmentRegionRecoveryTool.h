@@ -13,10 +13,7 @@
 #ifndef MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 #define MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -54,6 +51,11 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
+
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 class IRoiDescriptor;
 
@@ -108,8 +110,7 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /** @brief returns a new track with segments recovered using RegionSelector*/
-        virtual Trk::Track* recover(const Trk::Track& track) const override;
-        virtual Trk::Track* recover(const Trk::Track& track, const EventContext& ctx) const override;
+        virtual std::unique_ptr<Trk::Track> recover(const Trk::Track& track, const EventContext& ctx) const override;
 
         void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
                                               std::set<Identifier>& layIds,

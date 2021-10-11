@@ -83,7 +83,7 @@ namespace Muon {
         Trk::TrackScore score(200);  // score of 100 per track
 
         // --- prob(chi2,NDF), protect for chi2<0
-        if (track.fitQuality() != 0 && track.fitQuality()->chiSquared() > 0 && track.fitQuality()->numberDoF() > 0) {
+        if (track.fitQuality() != nullptr && track.fitQuality()->chiSquared() > 0 && track.fitQuality()->numberDoF() > 0) {
             score += 5 * track.fitQuality()->numberDoF() - track.fitQuality()->chiSquared();
         }
 

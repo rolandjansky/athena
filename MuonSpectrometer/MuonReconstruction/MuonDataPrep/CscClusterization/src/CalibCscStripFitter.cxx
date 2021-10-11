@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibCscStripFitter.h"
@@ -11,11 +11,11 @@
 using Muon::CscStripPrepData;
 
 typedef ICscStripFitter::Result Result;
-typedef ICscStripFitter::ChargeList ChargeList;
+using ChargeList = ICscStripFitter::ChargeList;
 
 //**********************************************************************
 
-CalibCscStripFitter::CalibCscStripFitter(std::string type, std::string aname, const IInterface* parent) :
+CalibCscStripFitter::CalibCscStripFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent), m_noiseOption(rms) {
     declareInterface<ICscStripFitter>(this);
     declareProperty("timeError", m_terr = 5.0);

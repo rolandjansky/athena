@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ namespace Trk {
     std::string positionOutput(const Amg::Vector3D& pos) const;
     
     /** For the output - global momentum */
-    std::string momentumOutput(const Amg::Vector3D& mom) const;
+    static std::string momentumOutput(const Amg::Vector3D& mom) ;
 
    // --------------- Used Tools ----------------------------- //
  

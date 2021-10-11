@@ -29,15 +29,15 @@ namespace Trk {
     m_fitQuality(Trk::FitQuality(0.,0.)),
     m_compatibilityToPrimaryVtx(-1) {}
   
-  VxVertexOnJetAxis::VxVertexOnJetAxis(const std::vector<VxTrackAtVertex*> & tracksAtVertex): 
-    m_tracksAtVertex(tracksAtVertex),
+  VxVertexOnJetAxis::VxVertexOnJetAxis(std::vector<VxTrackAtVertex*> tracksAtVertex): 
+    m_tracksAtVertex(std::move(tracksAtVertex)),
     m_numVertex(-1),
     m_fitQuality(Trk::FitQuality(0.,0.)),
     m_compatibilityToPrimaryVtx(-1) {}
   
-  VxVertexOnJetAxis::VxVertexOnJetAxis(const std::vector<VxTrackAtVertex*> & tracksAtVertex,
+  VxVertexOnJetAxis::VxVertexOnJetAxis(std::vector<VxTrackAtVertex*> tracksAtVertex,
 				       int numVertex): 
-    m_tracksAtVertex(tracksAtVertex),
+    m_tracksAtVertex(std::move(tracksAtVertex)),
     m_numVertex(numVertex),
     m_fitQuality(Trk::FitQuality(0.,0.)),
     m_compatibilityToPrimaryVtx(-1) {}
@@ -94,8 +94,8 @@ namespace Trk {
     return m_tracksAtVertex;
   }
   
-  void VxVertexOnJetAxis::setTracksAtVertex(const std::vector<VxTrackAtVertex*> & tracksAtVertex) {
-    m_tracksAtVertex=tracksAtVertex;
+  void VxVertexOnJetAxis::setTracksAtVertex(std::vector<VxTrackAtVertex*> tracksAtVertex) {
+    m_tracksAtVertex=std::move(tracksAtVertex);
   }
 
   /**

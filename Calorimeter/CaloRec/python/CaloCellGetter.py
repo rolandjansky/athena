@@ -325,33 +325,11 @@ class CaloCellGetter (Configured)  :
                 return False
 
             if doSporadicMask:
-                try:
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-                    theLArSporadicNoiseMasker = LArBadChannelMasker("LArSporadicNoiseMasker")
-                except Exception:
-                    mlog.error("could not access bad channel tool Quit")
-                    print(traceback.format_exc())
-                    return False
-                theLArSporadicNoiseMasker.DoMasking = True
-                theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
-                #ToolSvc += theLArSporadicNoiseMasker
-                theLArCellNoiseMaskingTool.MaskingSporadicTool = theLArSporadicNoiseMasker
+                theLArCellNoiseMaskingTool.SporadicProblemsToMask=["sporadicBurstNoise",]
 
             if doNoiseMask:
-                try:
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-                    theLArNoiseMasker = LArBadChannelMasker("LArNoiseMasker")
-                except Exception:
-                    mlog.error("could not access bad channel tool Quit")
-                    print(traceback.format_exc())
-                    return False
-                theLArNoiseMasker.DoMasking=True
-                theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
-                #ToolSvc+=theLArNoiseMasker
-                theLArCellNoiseMaskingTool.MaskingTool = theLArNoiseMasker
+                theLArCellNoiseMaskingTool.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
 
-            theLArCellNoiseMaskingTool.maskNoise = doNoiseMask
-            theLArCellNoiseMaskingTool.maskSporadic = doSporadicMask
             # quality cut for sporadic noise masking
             theLArCellNoiseMaskingTool.qualityCut=4000
             theCaloCellMaker += theLArCellNoiseMaskingTool

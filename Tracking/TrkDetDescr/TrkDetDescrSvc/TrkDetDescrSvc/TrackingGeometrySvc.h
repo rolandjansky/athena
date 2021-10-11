@@ -82,7 +82,6 @@ namespace Trk {
       //!< Standard Destructor
       virtual ~TrackingGeometrySvc();
   
-      void setTrackingGeometry(const Trk::TrackingGeometry *ptr);
 
     private:
       void trackingGeometryNotSet() const;
@@ -109,7 +108,6 @@ namespace Trk {
       Gaudi::Property<bool>                       m_rerunOnCallback {this, "RerunOnCallback", false};
       //!< enables the callback
       Gaudi::Property<bool>                       m_buildGeometryFromTagInfo {this, "BuildGeometryFromTagInfo", true};
-      Gaudi::Property<bool>                       m_useConditionsData {this, "UseExternalConditionsData", false};
   };
 }
 

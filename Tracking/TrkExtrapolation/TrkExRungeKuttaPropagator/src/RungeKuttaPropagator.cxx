@@ -6,6 +6,8 @@
 // RungeKuttaPropagator.cxx, (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
 
+#include <cmath>
+
 #include "TrkExUtils/RungeKuttaUtils.h"
 #include "TrkExUtils/JacobianHelper.h"
 #include "TrkExRungeKuttaPropagator/RungeKuttaPropagator.h"
@@ -176,7 +178,7 @@ crossPoint(const Trk::TrackParameters& Tp,
 
   // Transformation track parameters
   //
-  bool useJac;
+  bool useJac = 0;
   Tp.covariance() ? useJac = true : useJac = false;
 
   if (useJac) {
@@ -372,7 +374,7 @@ Trk::RungeKuttaPropagator::propagate
 
   // Test is it measured track parameters
   //
-  bool useJac; Tp.covariance() ?  useJac = true : useJac = false;
+  bool useJac = 0; Tp.covariance() ?  useJac = true : useJac = false;
 
   // Magnetic field information preparation
   //
@@ -433,7 +435,7 @@ Trk::RungeKuttaPropagator::propagate
   while (fabs(W) < Wmax) {
 
     std::pair<double,int> SN;
-    double                 S;
+    double                 S = 0;
 
     if(cache.m_mcondition) {
 
@@ -466,7 +468,7 @@ Trk::RungeKuttaPropagator::propagate
     reverted_P=false;
     //----------------------------------
 
-    bool next; SN=Trk::RungeKuttaUtils::stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next);
+    bool next = 0; SN=Trk::RungeKuttaUtils::stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next);
 
     if(next) {for(int i=0; i!=45; ++i) Po[i]=Pn[i]; W+=S; Nveto=-1; }
     else     {for(int i=0; i!=45; ++i) Pn[i]=Po[i]; reverted_P=true; cache.m_newfield= true;}
@@ -923,7 +925,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   Amg::Vector3D Glo(P[0],P[1],P[2]);
   Amg::Vector3D Dir(P[3],P[4],P[5]);
   Trk::IntersectionSolution* Int = new Trk::IntersectionSolution();
-  Int->push_back(new Trk::TrackSurfaceIntersection(Glo,Dir,Step));
+  Int->push_back(std::make_unique<const Trk::TrackSurfaceIntersection>(Glo,Dir,Step));
   return Int;
 }
 
@@ -951,7 +953,7 @@ bool Trk::RungeKuttaPropagator::propagateWithJacobian
 
   // Step estimation until surface
   //
-  bool Q; double S;
+  bool Q = 0; double S = 0;
   double Step=Trk::RungeKuttaUtils::stepEstimator(kind,Su,P,Q); if(!Q) return false;
 
   bool dir = true;
@@ -1364,7 +1366,7 @@ bool Trk::RungeKuttaPropagator::propagate
  const MagneticFieldProperties& M ,
  ParticleHypothesis               ) const
 {
-  double S;
+  double S = 0;
   Cache cache{};
 
   // Get field cache object
@@ -1412,7 +1414,7 @@ bool Trk::RungeKuttaPropagator::propagateParameters
  const MagneticFieldProperties& M ,
  ParticleHypothesis               ) const
 {
-  double S;
+  double S = 0;
   Cache cache{};
 
   // Get field cache object

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef ProjectionMMClusterBuilderTool_h
 #define ProjectionMMClusterBuilderTool_h
@@ -61,7 +61,7 @@ namespace Muon
     
     StatusCode writeNewPrd(std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer) const ;
     
-    double getSigma(double correction)const;
+    static double getSigma(double correction);
 
 };
 

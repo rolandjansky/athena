@@ -9,6 +9,9 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include <memory>
+#ifdef HEPMC3
+#include "AtlasHepMC/GenEvent.h"
+#endif
 
 
 /// @brief Base class for common behaviour of generator interfaces.
@@ -85,6 +88,10 @@ protected:
   /// Flag for normal vs. afterburner generators
   int m_isAfterburner;
 
+#ifdef HEPMC3
+  /// The run info for HepMC3
+  std::shared_ptr<HepMC3::GenRunInfo> m_runinfo;  
+#endif
 
 private:
 

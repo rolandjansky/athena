@@ -64,7 +64,7 @@ def TrigMETMonConfig(inputFlags):
     if mt_chains: # these are temporary, needs to be changed
       TrigMETMonAlg.hlt_electron_key = 'HLT_egamma_Electrons'
       TrigMETMonAlg.hlt_muon_key = 'HLT_MuonsCB_RoI'
-      TrigMETMonAlg.offline_met_key = 'MET_EMTopo'
+      TrigMETMonAlg.offline_met_key = 'MET_Reference_AntiKt4EMTopo' #this used to be 'MET_EMTopo'
       TrigMETMonAlg.hlt_pfsum_key = 'HLT_MET_pfsum'
       TrigMETMonAlg.l1_jnc_key = 'jNOISECUTPerf'
       TrigMETMonAlg.l1_jrho_key = 'jXERHOPerf'
@@ -329,16 +329,61 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
       jj +=1
     ## HLT cell component
-    metGroup.defineHistogram('HLT_MET_status',title='HLT MET Status;;',
+    comp_names = ["PreSamplB", "EMB1", "EMB2", "EMB3", # LAr barrel
+                  "PreSamplE", "EME1", "EME2", "EME3", # LAr EM endcap
+                  "HEC0",      "HEC1", "HEC2", "HEC3", # Hadronic end cap cal.
+                  "TileBar0", "TileBar1", "TileBar2",  # Tile barrel
+                  "TileGap1", "TileGap2", "TileGap3",  # Tile gap (ITC & scint)
+                  "TileExt0", "TileExt1", "TileExt2",  # Tile extended barrel
+                  "FCalEM",   "FCalHad2", "FCalHad3",  # Forward cal endcap
+                  "Muons" ]                            # Muons
+    bit_names = [
+             "Processing",         # bit  0
+             "ErrBSconv",          # bit  1
+             "ErrMuon",            # bit  2
+             "ErrFEB",             # bit  3
+             "Skipped",            # bit  4
+             "CompBigMEtSEtRatio", # bit  5
+             "BadCompEnergy",      # bit  6
+             "BadEnergyRatio",     # bit  7
+             "spare",              # bit  8
+             "BadCellQuality",     # bit  9
+             "BadCellEnergy",      # bit 10
+             "BadCellTime",        # bit 11
+             "NoMuonTrack",        # bit 12
+             "spare",              # bit 13
+             "Processed",          # bit 14
+             "CompError",          # bit 15
+             "EMB_A_Missing",      # bit 16
+             "EMB_C_Missing",      # bit 17
+             "EME_A_Missing",      # bit 18
+             "EME_C_Missing",      # bit 19
+             "HEC_A_Missing",      # bit 20
+             "HEC_C_Missing",      # bit 21
+             "FCAL_A_Missing",     # bit 22
+             "FCAL_C_Missing",     # bit 23
+             "TileB_A_Missing",    # bit 24
+             "TileB_C_Missing",    # bit 25
+             "TileE_A_Missing",    # bit 26
+             "TileE_C_Missing",    # bit 27
+             "BadEMfraction",      # bit 28
+             "GlobBigMEtSEtRatio", # bit 29
+             "ObjInCrack",         # bit 30
+             "GlobError"           # bit 31
+             ]
+    metGroup.defineHistogram('HLT_MET_status',type='TH1F',title='HLT MET Status;;',
                              weight='MET_status',
-                             path='Shifter/Component',xbins=32,xmin=-0.5,xmax=31.5)
+                             path='Shifter/Component',
+                             xbins=len(bit_names),xmin=-0.5,xmax=31.5, xlabels=bit_names)
     metGroup.defineHistogram('HLT_MET_component,component_Et;compN_compEt', type='TH2F', title='HLT Missing E_{T} VS component;;Missing E_{T} [GeV]',
                              path='Shifter/Component',
-                             xbins=25,xmin=-0.5,xmax=24.5,ybins=et_bins,ymin=et_min,ymax=et_max)
+                             xbins=25,xmin=-0.5,xmax=24.5,ybins=et_bins,ymin=et_min,ymax=et_max,
+                             xlabels=comp_names)
     metGroup.defineHistogram('component,component_status;compN_HLT_MET_status', type='TH2F', title='HLT MET Status VS component;;',
                              weight='component_status_weight',
                              path='Shifter/Component',
-                             xbins=25,xmin=-0.5,xmax=24.5,ybins=32,ymin=-0.5,ymax=31.5)
+                             xbins=25,xmin=-0.5,xmax=24.5,ybins=32,ymin=-0.5,ymax=31.5, 
+                             xlabels=comp_names, ylabels=bit_names)
     ## HLT tc (Expert)
     metGroup.defineHistogram('tc_Ex',title='tc Missing E_{x};E_{x} [GeV];Events',
                              path='Expert/tc',xbins=ec_bins,xmin=ec_min,xmax=ec_max)

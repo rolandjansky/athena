@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_STRIPRESPONSE_H
@@ -45,11 +45,11 @@ class MM_StripResponse {
 
  private:
 
-  float m_timeResolution;
-  float m_stripPitch;
-  int m_stripID;
-  int m_minstripID;
-  int m_maxstripID;
+  float m_timeResolution = 0.0F;
+  float m_stripPitch = 0.0F;
+  int m_stripID = 0;
+  int m_minstripID = 0;
+  int m_maxstripID = 0;
 
   std::vector<std::unique_ptr<MM_Electron>> m_Electrons;
 

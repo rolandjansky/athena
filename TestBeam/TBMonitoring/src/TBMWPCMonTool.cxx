@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,7 +21,6 @@ TBMWPCMonTool::TBMWPCMonTool(const std::string & type,
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_histo_mwpcrawHitDist(),
     m_histo_mwpcrawClustDist(),
     m_histo_mwpcrawHits(nullptr),
@@ -75,9 +74,6 @@ StatusCode TBMWPCMonTool:: initialize()
   if(m_monitor_mwpc == false){
     ATH_MSG_INFO ( name() << " Not monitoring mwpc " );
   }
-
-  //set to true whitin bookHist() 
-  m_isBooked = false;
 
   m_mwpcnames[0]="X2"; m_mwpcnames[1]="Y2";m_mwpcnames[2]="X3";m_mwpcnames[3]="Y3";m_mwpcnames[4]="X4";
   m_mwpcnames[5]="Y4";m_mwpcnames[6]="X5";m_mwpcnames[7]="Y5";
@@ -173,13 +169,10 @@ StatusCode TBMWPCMonTool::fillHists()
         ( "BeamDetectorMonitoring: Retrieval of TBMWPCCont failed key="<< m_SGkeymwpc );
     } else {
       
-      TBMWPCCont::const_iterator it_mwpc = mwpcCont->begin();
-      TBMWPCCont::const_iterator last_mwpc = mwpcCont->end();
-      
-      for(it_mwpc = mwpcCont->begin();it_mwpc!=last_mwpc;it_mwpc++){	
+      for (const TBMWPC* mwpc : *mwpcCont) {
 	// Check if adcRawCont is in sync with m_adcNames - defined in book hist
 
-	std::string name = (*it_mwpc)->getDetectorName() ;
+	std::string name = mwpc->getDetectorName() ;
 	int i = 0;
 	while(i<8) {
 	  if(m_mwpcnames[i]==name) break;
@@ -190,7 +183,6 @@ StatusCode TBMWPCMonTool::fillHists()
           continue;
         }
 
-	const TBMWPC * mwpc = (*it_mwpc);
 	if(!mwpc->isOverflow()){
 	  std::vector<float> posc = mwpc->getCPos();
 	  for(unsigned int k=0;k<posc.size();k++)	m_histo_mwpcCenter[i]->fill(posc[k]);
@@ -211,14 +203,11 @@ StatusCode TBMWPCMonTool::fillHists()
         ( "BeamDetectorMonitoring: Retrieval of TBMWPCRawCont failed. key="<< m_SGkeymwpcraw );
     } else {
       
-      TBMWPCRawCont::const_iterator it_mwpc = mwpcRawCont->begin();
-      TBMWPCRawCont::const_iterator last_mwpc = mwpcRawCont->end();
-      
-      for(it_mwpc = mwpcRawCont->begin();it_mwpc!=last_mwpc;it_mwpc++){	
+      for (const TBMWPCRaw* mwpc : *mwpcRawCont) {
 
-	ATH_MSG_DEBUG ((*it_mwpc)->getDetectorName());
+	ATH_MSG_DEBUG (mwpc->getDetectorName());
 
-	std::string name = (*it_mwpc)->getDetectorName() ;
+	std::string name = mwpc->getDetectorName() ;
 	int i = 0;
 	while(i<8) {
 	  if(m_mwpcnames[i]==name) break;
@@ -228,9 +217,6 @@ StatusCode TBMWPCMonTool::fillHists()
           ATH_MSG_DEBUG ( " Unmatching MWPC name");
           continue;
         }
-
-	const TBMWPCRaw * mwpc = (*it_mwpc);
-	
 
 	if(!mwpc->isOverflow()){
 	  std::vector<int> wirec = mwpc->getCwireno();

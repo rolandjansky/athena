@@ -11,6 +11,7 @@
 
 
 from ROOT import TMath, TH2F
+import cppyy
 
 def setMaxMin(inputs,maxVal=0,minVal=0,useMax=True,useMin=True):
     """ This function sets the histogram max/min """
@@ -27,10 +28,20 @@ def setMaxMin(inputs,maxVal=0,minVal=0,useMax=True,useMin=True):
 
     return [cl]
 
+cppyy.cppdef("""
+void takemax(int sc, const TH2I* inhist, TH2I* outhist) {
+    for (int i = 0; i < outhist->GetSize(); ++i) {
+        if (inhist->At(i) != 0 && sc > outhist->At(i)) {
+            outhist->SetBinContent(i, sc);
+        }
+    }
+}
+""")
 
-
+# @profile
 def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
     """ For each bin, fill the output with the max filled error code. All histograms should have the same bin content"""
+    inputs = list(inputs) # evaluate this just once
     assert len(inputs) >= 1 , len(inputs)  # for testing
 
     cl = inputs[0][1][0].Clone()
@@ -69,19 +80,11 @@ def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
 
         #fill with max 
         cl.Clear()
-        for ibx in range(1,Nx+1):
-            for iby in range(1,Ny+1):
-                maxStatusCode=0
-                for i in inputs:
-                    statusCode=int(i[0]['sc'])
-                    if statusCode>=maxStatusCode and i[1][0].GetBinContent(ibx,iby)!=0:
-                        maxStatusCode=statusCode
-                        pass
-                    pass
-                cl.SetBinContent(ibx,iby,maxStatusCode)
-                pass
-            pass
-        pass #end of if len(inputs>1)
+        for i in inputs:
+            statusCode=int(i[0]['sc'])
+            h = i[1][0]
+            cppyy.gbl.takemax(statusCode, h, cl)
+
 
     cl.SetMaximum(4.4)
     cl.SetMinimum(1)
@@ -224,6 +227,7 @@ def divideHist(inputs,titleToReplace="",replaceWith=""):
 def digitSummary(inputs,TreshOut=5,TreshSat=5,TreshNull=5):
 
     cl = TH2F("summary","LArDigit Summary;Status;Partition",4,0.,4.,8,0.,8.)
+    cl.SetDirectory(0)
     cl.GetYaxis().SetBinLabel(1,"EMBC")
     cl.GetYaxis().SetBinLabel(2,"EMBA")
     cl.GetYaxis().SetBinLabel(3,"EMECC")

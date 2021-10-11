@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
@@ -13,10 +13,10 @@ MuonHoughHitContainer::~MuonHoughHitContainer()
 {
   //  std::cout << "Destructor MuonHoughHitContainer" << std::endl;
 
-  if (m_ownhits==true) {
+  if (m_ownhits) {
     for (unsigned int i=0; i<m_hit.size(); i++) {
       delete m_hit[i];
-      m_hit[i]=0;
+      m_hit[i]=nullptr;
     }
   }
   
@@ -32,7 +32,7 @@ void MuonHoughHitContainer::addHit(MuonHoughHit* hit)
 void MuonHoughHitContainer::removeHit(int hitno)
 {
   if (hitno<0 || hitno>=(int)m_hit.size()) {throw "MuonHoughHitContainer::range error!";}
-  if (m_ownhits==true) {
+  if (m_ownhits) {
     delete m_hit[hitno];
   }
   m_hit.erase(m_hit.begin()+hitno);

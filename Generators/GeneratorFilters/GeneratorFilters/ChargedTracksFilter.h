@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_CHARGEDTRACKSFILTER_H
@@ -23,7 +23,11 @@ private:
   double m_EtaRange;
 
   // Minimum number of tracks
-  double m_NTracks;
+  int m_NTracks;
+
+  // Maximum number of tracks
+  int m_NTracksMax;
+
 
 };
 

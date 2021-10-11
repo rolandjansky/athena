@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file PixelDigitization/RadDamageUtil.h
@@ -41,14 +41,14 @@ public:
   const StatusCode generateRamoMap(TH3F* ramPotentialMap, InDetDD::PixelModuleDesign* module);
   const StatusCode generateEfieldMap(TH1F*& eFieldMap, InDetDD::PixelModuleDesign* module);
   StatusCode generateEfieldMap(TH1F*& eFieldMap, InDetDD::PixelModuleDesign* module, double fluence, double biasVoltage,
-                               int layer, std::string TCAD_list, bool interpolate);
+                               int layer, const std::string& TCAD_list, bool interpolate);
   const StatusCode generateDistanceTimeMap(TH2F*& distanceMap_e, TH2F*& distanceMap_h, TH1F*& timeMap_e,
                                            TH1F*& timeMap_h, TH2F*& lorentzMap_e, TH2F*& lorentzMap_h, TH1F*& eFieldMap,
                                            InDetDD::PixelModuleDesign* module);
 
   const std::pair<double, double> getTrappingTimes(double fluence) const;
-  const std::pair<double, double> getMobility(double electricField, double temperature) const;
-  double getTanLorentzAngle(double electricField, double temperature, double bField, bool isHole);
+  static const std::pair<double, double> getMobility(double electricField, double temperature) ;
+  static double getTanLorentzAngle(double electricField, double temperature, double bField, bool isHole) ;
 
   bool saveDebugMaps();
 private:
@@ -74,9 +74,9 @@ private:
     this, "saveDebugMaps", false, "Flag to save map"
   };
 
-  double alpha(int n, int Nrep, double a); //Poisson solution factor
-  double weighting3D(double x, double y, double z, int n, int m, int Nrep, double a, double b);
-  double weighting2D(double x, double z, double Lx, double sensorThickness);
+  static double alpha(int n, int Nrep, double a); //Poisson solution factor
+  static double weighting3D(double x, double y, double z, int n, int m, int Nrep, double a, double b);
+  static double weighting2D(double x, double z, double Lx, double sensorThickness);
 
   ToolHandle<EfieldInterpolator> m_EfieldInterpolator
   {

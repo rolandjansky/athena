@@ -91,7 +91,7 @@ PixeldEdxData::getP(const double dedxArg, const double signedP, const int nGoodP
 
 std::array<double,9> 
 PixeldEdxData::getFirstNPar(const double p, const int nGoodPixels, const int npar) const {
-  std::array<double,9> par;
+  std::array<double,9> par{};
   auto setNGoodPixels{nGoodPixels};
   if (setNGoodPixels>5) { setNGoodPixels=5; }
   if (p<0 && m_posneg) { setNGoodPixels += 5; }
@@ -149,7 +149,7 @@ double PixeldEdxData::getdEdx(const double signedP, const double mass, const std
 }
 
 // Crystal Ball distribution
-double PixeldEdxData::crystalBall(const double x,const double x0,const double sig,const double alp,const double n) const {
+double PixeldEdxData::crystalBall(const double x,const double x0,const double sig,const double alp,const double n) {
   double A = std::pow(n/std::abs(alp),n)*std::exp(-std::pow(std::abs(alp),2)*0.5);
   double B = n/std::abs(alp)-std::abs(alp);
   double pull = (x-x0)/sig;
@@ -161,7 +161,7 @@ double PixeldEdxData::crystalBall(const double x,const double x0,const double si
 }
 
 // Asymetric Gaussian distribution
-double PixeldEdxData::asymGaus(const double x,const double x0,const double sig,const double asym) const {
+double PixeldEdxData::asymGaus(const double x,const double x0,const double sig,const double asym) {
   double sigp = sig*asym;
   double sigm = sig/asym;
   double fun;
@@ -171,35 +171,35 @@ double PixeldEdxData::asymGaus(const double x,const double x0,const double sig,c
 }
 
 // Moyal distribution
-double PixeldEdxData::moyal(const double x,const double Ep,const double R) const {
+double PixeldEdxData::moyal(const double x,const double Ep,const double R) {
   double lambda = (x-Ep)/R;
   return std::sqrt(std::exp(-lambda-std::exp(-lambda))*M_1_PI*0.5);
 }
 
-double PixeldEdxData::dEdx_5p_BG_aleph(const double xbg, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_5p_BG_aleph(const double xbg, const std::array<double,9>& pp) {
   double gamma = std::sqrt(xbg*xbg+1.);
   double beta  = std::sqrt(1.-1./(gamma*gamma));
   return pp[0]/std::pow(beta,pp[3])*(pp[1]-std::pow(beta,pp[3])-std::log(pp[2]+1./std::pow(beta*gamma,pp[4])));
 }
 
-double PixeldEdxData::dEdx_5p_aleph(const double p,const double mass, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_5p_aleph(const double p,const double mass, const std::array<double,9>& pp) {
   double bg = p/mass;
   return dEdx_5p_BG_aleph(bg,pp);
 }
 
-double PixeldEdxData::dEdx_5p_BG(const double xbg, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_5p_BG(const double xbg, const std::array<double,9>& pp) {
   double gamma   = std::sqrt(xbg*xbg+1);
   double beta    = std::sqrt(1.-1./(gamma*gamma));
   double fdedx   = pp[0]/std::pow(beta,pp[2])*std::log(1+std::pow(std::abs(pp[1])*beta*gamma,pp[4]))-pp[3];
   return fdedx;
 }
 
-double PixeldEdxData::dEdx_5p(const double p,const double mass, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_5p(const double p,const double mass, const std::array<double,9>& pp) {
   double bg = p/mass;
   return dEdx_5p_BG(bg,pp);
 }
 
-double PixeldEdxData::dEdx_BG(const double xbg, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_BG(const double xbg, const std::array<double,9>& pp) {
   double gamma     = std::sqrt(xbg*xbg+1);
   double beta      = std::sqrt(1-1/(gamma*gamma));
   double beta2     = beta*beta;
@@ -208,12 +208,12 @@ double PixeldEdxData::dEdx_BG(const double xbg, const std::array<double,9>& pp) 
   return fdedx;
 }
 
-double PixeldEdxData::dEdx_def(const double p,const double mass, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_def(const double p,const double mass, const std::array<double,9>& pp) {
   double bg = p/mass;
   return dEdx_BG(bg,pp);
 }
 
-double PixeldEdxData::dEdx_3p(const double p,const double mass, const std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_3p(const double p,const double mass, const std::array<double,9>& pp) {
   double bg = p/mass;
   return dEdx_BG(bg,pp);
 }

@@ -85,31 +85,31 @@ InDetProjHelper * InDetProjHelper::createTRTHelper(IVP1System* system )
 //____________________________________________________________________
 class InDetProjHelper::Imp {
 public:
-  InDetProjHelper * theclass;
+  InDetProjHelper * theclass = nullptr;
 
   //Applicable projections:
   InDetProjFlags::InDetProjPartsFlags parts;
 
   //The parameters:
-  double surfacethickness;
-  double data_disttosurface_epsilon;
-  double barrel_inner_radius;
-  double barrel_outer_radius;
-  double barrel_posneg_z;
-  double endcap_surface_z;
-  double endcap_surface_length;
-  double endcap_inner_radius;
-  double endcap_outer_radius;
-  double endcap_zasr_innerradius;
-  double endcap_zasr_endcapz_begin;
-  double endcap_zasr_squeezefact;
+  double surfacethickness = 0.0;
+  double data_disttosurface_epsilon = 0.0;
+  double barrel_inner_radius = 0.0;
+  double barrel_outer_radius = 0.0;
+  double barrel_posneg_z = 0.0;
+  double endcap_surface_z = 0.0;
+  double endcap_surface_length = 0.0;
+  double endcap_inner_radius = 0.0;
+  double endcap_outer_radius = 0.0;
+  double endcap_zasr_innerradius = 0.0;
+  double endcap_zasr_endcapz_begin = 0.0;
+  double endcap_zasr_squeezefact = 0.0;
 
   //Parameters of maximal cylinder covering all enabled parts of
   //detector:
-  double covercyl_zmin;
-  double covercyl_zmax;
-  double covercyl_rmin;
-  double covercyl_rmax;
+  double covercyl_zmin = 0.0;
+  double covercyl_zmax = 0.0;
+  double covercyl_rmin = 0.0;
+  double covercyl_rmax = 0.0;
 
 //   //Helper methods:
   void lineCircleIntersection( const Amg::Vector3D&a, const Amg::Vector3D&b,const double& r,

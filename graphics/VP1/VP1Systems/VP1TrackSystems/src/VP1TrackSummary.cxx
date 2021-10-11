@@ -50,7 +50,7 @@ bool VP1TrackSummary::countHits( const Trk::Track* trk,
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = trk->trackStateOnSurfaces()->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = trk->trackStateOnSurfaces()->end();
     for (; tsos_iter != tsos_end; ++tsos_iter) {
-        const Trk::MeasurementBase*       meas = *tsos_iter ? (*tsos_iter)->measurementOnTrack() : 0;
+        const Trk::MeasurementBase*       meas = *tsos_iter ? (*tsos_iter)->measurementOnTrack() : nullptr;
         VP1TrackSummary::addCounts(detelems, meas, idhelper, nPixelHits , nSCTHits , nTRTHits , nhits_muon_phi , nhits_rpc , nhits_mdt , nhits_tgc , nhits_csc);
     }
     return true;
@@ -106,7 +106,7 @@ void VP1TrackSummary::addCounts( std::set<const Trk::TrkDetElementBase*>& detele
         }
     }else if (meas) {
         const Trk::Surface * surf = &(meas->associatedSurface());
-        detelems.insert( surf ? surf->associatedDetectorElement() : 0);
+        detelems.insert( surf ? surf->associatedDetectorElement() : nullptr);
     }
 
     std::set<const Trk::TrkDetElementBase*>::const_iterator it = detelems.begin(), itEnd=detelems.end();

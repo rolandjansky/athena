@@ -9,13 +9,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_LRT
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def fastElectronSequence_LRT(ConfigFlags):
     """ second step:  tracking....."""
     
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig( "electronLRT" )   
+    IDTrigConfig = TrigEgammaKeys_LRT.IDTrigConfig_LRT   
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs_LRT" # contract with the fastCalo
@@ -33,7 +33,7 @@ def fastElectronSequence_LRT(ConfigFlags):
             TrackParticlesName = viewAlg.TrackParticlesName
       
 
-    from TrigEgammaFastRec.TrigEgammaFastElectronConfig import TrigEgammaFastElectron_ReFastAlgo_Clean
+    from TrigEgammaRec.TrigEgammaFastElectronConfig import TrigEgammaFastElectron_ReFastAlgo_Clean
     theElectronFex = TrigEgammaFastElectron_ReFastAlgo_Clean("EgammaFastElectronFex_Clean_LRT")
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
@@ -47,8 +47,8 @@ def fastElectronSequence_LRT(ConfigFlags):
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
     roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron_LRT")
-    roiTool.RoIEtaWidth = 0.1
-    roiTool.RoIPhiWidth = 0.40
+    roiTool.RoIEtaWidth = IDTrigConfig.etaHalfWidth
+    roiTool.RoIPhiWidth = IDTrigConfig.phiHalfWidth
     l2ElectronViewsMaker.RoITool = roiTool
     l2ElectronViewsMaker.InViewRoIs = RoIs
     l2ElectronViewsMaker.Views = "EMElectronViews_LRT"

@@ -36,8 +36,7 @@ class FastReductionMatcher: public IJetsMatcher {
   */
   
   virtual std::optional<bool>
-    match(const HypoJetCIter& jets_b,
-	  const HypoJetCIter& jets_e,
+    match(const HypoJetVector& jv,
 	  xAODJetCollector&,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 	  bool
@@ -59,7 +58,7 @@ class FastReductionMatcher: public IJetsMatcher {
 
   // minimum number of jets required - determined by summing
   // leaf Condition capacities
-  long int m_minNjets{0};
+  long unsigned int m_minNjets{0u};
 
 };
 #endif

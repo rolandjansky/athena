@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMETMONITORING_TRIGMETMONITORALGORITHM_H
@@ -78,9 +78,5 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   std::string m_HLTChain12;
   std::string m_HLTChain13;
   std::string m_HLTChain14;
-
-  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
-  
-
 };
 #endif

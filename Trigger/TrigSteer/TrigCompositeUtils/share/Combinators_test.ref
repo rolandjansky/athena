@@ -5,6 +5,32 @@
 1 1
 2 1
 
+unique combinations small case
+smallUniqueCobinations start: 0 1 2 
+smallUniqueCobinations: 0 1 3 
+smallUniqueCobinations: 0 2 3 
+smallUniqueCobinations: 1 2 3 
+smallUniqueCobinations: 
+largerUniqueCombinations: 0 1 
+largerUniqueCombinations: 0 2 
+largerUniqueCombinations: 0 3 
+largerUniqueCombinations: 0 4 
+
+unique combinations trivial case
+trivialUniqueCombinations start: 0 
+trivialUniqueCombinations: 1 
+trivialUniqueCombinations: 2 
+trivialUniqueCombinations: 3 
+trivialUniqueCombinations end: 
+trivialUniqueCombinations start: 0 1 
+trivialUniqueCombinations end: 
+4 choose 2 6
+10 choose 2 45
+10 choose 3 120
+10 choose 4 210
+10 choose 5 252
+11 choose 11 1
+
 elements in unique combinations
  0 3 |  0 | .... result is: > 0 3 <
  1 |  1 | .... result is: > <
@@ -27,3 +53,9 @@ unique combinations
  0 |  1 |  2 | .... result is: >  0 1 2 |  <
  2 |  0 2 3 |  3 | .... result is: >  2 0 3 |  <
  2 |  0 2 3 |  1 3 | .... result is: >  2 0 1 |  2 0 3 |  2 3 1 |  <
+nested unique combiantionsunique: 0 1 0 0 1 
+unique: 0 2 0 0 1 
+unique: 1 2 0 0 1 
+unique: 0 1 1 0 1 
+unique: 0 2 1 0 1 
+unique: 1 2 1 0 1 

@@ -77,7 +77,7 @@ public:
   ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 
   bool                                 m_useConditionsStatus;     //!< SHall the ConditionsSummaryTool be used?
-  bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws? 
+  bool                                 m_useConditionsHTStatus{};     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws? 
   const TRT_ID                       * m_trtid            ;  //!< TRT id helper handle
   float                                m_global_offset    ;  //!< Global offset to TRT Phase to make TRT Calibration happy ...
   bool				       m_useToTCorrection;  //!< Shall the Time over Threshold correction be used?

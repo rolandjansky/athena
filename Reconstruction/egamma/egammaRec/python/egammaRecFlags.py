@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # =======================================================================
 # File:   egammaRec/python/egammaRecFlags.py
@@ -133,6 +133,15 @@ class clusterCorrectionVersion (JobProperty):
     StoredValue = 'v12phiflip_noecorrnogap'
 
 
+class superClusterCorrectionVersion (JobProperty):
+    """Version of calo cluster corrections used for
+       super cluster position correction.
+    """
+    statusOn = True
+    allowedTypes = ['str', 'None']
+    StoredValue = 'v12phiflip_supercluster'
+
+
 class calibMVAVersion (JobProperty):
     """Version of calo cluster corrections used for calibration.
     """
@@ -154,7 +163,8 @@ jobproperties.add_Container(egammaRecFlags)
 _list_Egamma = [Enabled, doEgammaCaloSeeded, doEgammaForwardSeeded,
                 doBremFinding, doVertexBuilding, doConversions,
                 cellContainerName, doEgammaTruthAssociation,
-                clusterCorrectionVersion, calibMVAVersion, doSuperclusters,
+                clusterCorrectionVersion, superClusterCorrectionVersion,
+                calibMVAVersion, doSuperclusters,
                 inputTopoClusterCollection, egammaTopoClusterCollection]
 
 for j in _list_Egamma:

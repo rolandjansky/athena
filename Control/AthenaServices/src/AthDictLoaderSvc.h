@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthDictLoaderSvc.h 
@@ -28,6 +28,7 @@
 #include "AthenaKernel/DsoDb.h"
 
 // Forward declaration
+class ITPCnvSvc;
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
@@ -55,56 +56,51 @@ class ATLAS_CHECK_THREAD_SAFETY AthDictLoaderSvc
 
   /// Gaudi Service Implementation
   //@{
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+                                     void** ppvInterface ) override;
   //@}
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   static const InterfaceID& interfaceID();
 
   /** @brief check a @c Reflex dictionary exists for a given type
    */
   virtual 
-  bool has_type (const std::string& type_name);
+  bool has_type (const std::string& type_name) override;
 
   /** @brief check a @c Reflex dictionary exists for a given type
    */
   virtual 
-  bool has_type (const std::type_info& typeinfo);
+  bool has_type (const std::type_info& typeinfo) override;
 
   /** @brief check a @c Reflex dictionary exists for a given type
    */
   virtual 
-  bool has_type (CLID clid);
+  bool has_type (CLID clid) override;
 
   /** @brief retrieve a @c Reflex::Type by name (auto)loading the dictionary
    *         by any necessary means.
+   *         If @c recursive is true, then recursively load contained types.
    */
   virtual
-  const RootType load_type (const std::string& type_name);
+  const RootType load_type (const std::string& type_name, bool recursive = false) override;
 
   /** @brief retrieve a @c Reflex::Type by @c std::type_info (auto)loading the
    *         dictionary by any necessary means.
    *         This method is preferred over the above one as it is guaranteed to
    *         succeed *IF* the dictionary for that type has been generated.
+   *         If @c recursive is true, then recursively load contained types.
    */
   virtual
-  const RootType load_type (const std::type_info& typeinfo);
+  const RootType load_type (const std::type_info& typeinfo, bool recursive = false) override;
 
   /** @brief retrieve a @c Reflex::Type by name (auto)loading the dictionary
    *         by any necessary means.
+   *         If @c recursive is true, then recursively load contained types.
    */
   virtual
-  const RootType load_type (CLID clid);
+  const RootType load_type (CLID clid, bool recursive = false) override;
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
@@ -120,15 +116,16 @@ class ATLAS_CHECK_THREAD_SAFETY AthDictLoaderSvc
    */
   const Ath::DsoDb* m_dsodb;
 
-  /** switch to recursively load (or not) all dictionaries for all types
-   *  composing a given one. (ie: load dict of Bar in struct Foo {Bar*b;};)
-   *  Default is 'true'.
-   */
-  bool m_doRecursiveLoad;
-
   /** handle to a @c IClassIDSvc to handle loading of types by CLID
    */
   ServiceHandle<IClassIDSvc> m_clidSvc;
+
+  ServiceHandle<ITPCnvSvc>   m_tpCnvSvc;
+
+  void load_recursive (const RootType& typ);
+  using Memo_t = std::unordered_set<std::string>;
+  void load_recursive1 (const std::string& tnam, Memo_t& memo);
+  void load_recursive1 (const RootType& typ, Memo_t& memo);
 }; 
 
 /////////////////////////////////////////////////////////////////// 

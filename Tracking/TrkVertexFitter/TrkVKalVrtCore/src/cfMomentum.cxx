@@ -26,7 +26,7 @@ void vkPerigeeToP( const double *perig3, double *pp, double BMAG)
 
 std::array<double, 4> getFitParticleMom( const VKTrack * trk, const VKVertex *vk)
 {
-    std::array<double, 4> p;
+    std::array<double, 4> p{};
     double fieldPos[3];
     fieldPos[0]=vk->refIterV[0]+vk->fitV[0];
     fieldPos[1]=vk->refIterV[1]+vk->fitV[1];
@@ -45,7 +45,7 @@ std::array<double, 4> getFitParticleMom( const VKTrack * trk, const VKVertex *vk
 }
 std::array<double, 4> getFitParticleMom(const VKTrack * trk, double BMAG)
 {
-    std::array<double, 4> p;
+    std::array<double, 4> p{};
     double magConst =BMAG  * vkalMagCnvCst;
 
     double cth = 1. / tan( trk->fitP[0]);
@@ -61,7 +61,7 @@ std::array<double, 4> getFitParticleMom(const VKTrack * trk, double BMAG)
 
 std::array<double, 4> getIniParticleMom( const VKTrack * trk, const VKVertex *vk)
 {
-    std::array<double, 4> p;
+    std::array<double, 4> p{};
     double magConst = myMagFld.getMagFld(vk->refIterV,(vk->vk_fitterControl).get())  * myMagFld.getCnvCst();
 
     double cth = 1. / tan( trk->iniP[0]);
@@ -76,7 +76,7 @@ std::array<double, 4> getIniParticleMom( const VKTrack * trk, const VKVertex *vk
 }
 std::array<double, 4> getIniParticleMom(const VKTrack * trk, double BMAG)
 {
-    std::array<double, 4> p;
+    std::array<double, 4> p{};
     double magConst =BMAG  * vkalMagCnvCst;
 
     double cth = 1. / tan( trk->iniP[0]);
@@ -93,7 +93,7 @@ std::array<double, 4> getIniParticleMom(const VKTrack * trk, double BMAG)
 
 std::array<double, 4> getCnstParticleMom( const VKTrack * trk, const VKVertex *vk )
 {
-    std::array<double, 4> p;
+    std::array<double, 4> p{};
     double cnstPos[3];
     cnstPos[0]=vk->refIterV[0]+vk->cnstV[0];
     cnstPos[1]=vk->refIterV[1]+vk->cnstV[1];
@@ -112,7 +112,7 @@ std::array<double, 4> getCnstParticleMom( const VKTrack * trk, const VKVertex *v
 }
 std::array<double, 4> getCnstParticleMom(const VKTrack * trk, double BMAG )
 {
-    std::array<double, 4> p;
+    std::array<double, 4> p{};
     double magConst =BMAG  * vkalMagCnvCst;
 
     double cth = 1. / tan( trk->cnstP[0]);

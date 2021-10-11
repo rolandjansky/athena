@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCCLASSIFICATION_H
@@ -103,7 +103,7 @@ class GetLCClassification : public AthAlgorithm
    * @brief Output file to save histograms in.
    * 
    * Internal variable pointing to the output file. */
-  TFile * m_outputFile;
+  std::unique_ptr<TFile> m_outputFile;
 
   /**
    * @brief Name of the CaloClusterContainer to use. */

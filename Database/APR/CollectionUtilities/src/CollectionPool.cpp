@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionUtilities/CollectionPool.h"
@@ -32,10 +32,10 @@ void  CollectionPool::addCollection( const std::string& guid, ICollection* coll 
    if( m_map.find(guid) != m_map.end() )
       throw std::runtime_error("Attempt to overwrite GUID in collections map");
    m_map[guid] = coll;
-   if( m_rowCache.find(coll) == m_rowCache.end() ) {
+   rowVect_t& row = m_rowCache[ coll ];
+   if (row.capacity() == 0) {
       // new collection
-      m_rowCache[ coll ] = rowVect_t();
-      m_rowCache[ coll ].reserve( m_rowCacheSize/2+1);
+      row.reserve( m_rowCacheSize/2+1);
       if( coll->isOpen() ) {
 	 queueOpenColl( coll );
       }

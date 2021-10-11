@@ -102,7 +102,7 @@ namespace ExpressionParsing {
             this->throwInvalidHandle(this->m_key->key());
          }
          auto helper( m_helperKit.create(ctx, handle));
-         T_Dest dummy;
+         T_Dest dummy {};
          return T_ScalarVectorHelper::getScalar(helper, handle, dummy);
       }
 

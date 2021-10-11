@@ -24,7 +24,7 @@ echo "art-result: $? convert"
 
 dcubeName="Pythia8i"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/test_00_Zprime_1000_tt/config_Zprime.xml"
-dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/test_00_Zprime_1000_tt/MyOutput.root"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/master_branch/test_00_Zprime_1000_tt/MyOutput.root"
 
 
 bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName MyOutput.root $dcubeXml $dcubeRef

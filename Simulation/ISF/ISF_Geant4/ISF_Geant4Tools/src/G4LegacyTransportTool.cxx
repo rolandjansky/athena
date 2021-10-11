@@ -120,7 +120,6 @@ void iGeant4::G4LegacyTransportTool::initializeOnce()
   m_pRunMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
   m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
   m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-  m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
   m_pRunMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
   std::unique_ptr<G4AtlasActionInitialization> actionInitialization =

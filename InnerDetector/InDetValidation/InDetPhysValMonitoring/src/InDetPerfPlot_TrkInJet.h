@@ -14,7 +14,7 @@
 
 class InDetPerfPlot_TrkInJet: public InDetPlotBase {
 public:
-  InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir, bool bookFakeAndEff=true);
+  InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, const std::string & sDir, bool bookFakeAndEff=true);
   void fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet,float weight=1.0);
 
   void fillEfficiency(const xAOD::TruthParticle& trk, const xAOD::Jet& jet, const bool isEfficient, float weight);

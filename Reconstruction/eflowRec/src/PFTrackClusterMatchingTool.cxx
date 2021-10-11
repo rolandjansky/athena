@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -38,7 +38,7 @@ PFTrackClusterMatchingTool::PFTrackClusterMatchingTool(const std::string& type,
 StatusCode PFTrackClusterMatchingTool::initialize() {
 
   m_matcher = std::make_unique<PFMatch::TrackClusterMatcher>(DistanceFactory::Get(m_distanceType, TrackPositionFactory::Get(m_trackPositionType), ClusterPositionFactory::Get(m_clusterPositionType)),m_matchCut);
-  
+
   ATH_MSG_VERBOSE("In initialize:");
   ATH_MSG_VERBOSE("Track position type is \"" << m_trackPositionType << "\"");
   ATH_MSG_VERBOSE("Cluster position type is \"" << m_clusterPositionType << "\"");
@@ -53,30 +53,46 @@ StatusCode PFTrackClusterMatchingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<std::pair<eflowRecCluster*,float> > PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int nMatches) const {
-  const std::vector<eflowRecCluster*> vec_clusters(clusters->begin(), clusters->end());
+std::vector<std::pair<eflowRecCluster*, float>>
+PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track,
+                                      eflowRecClusterContainer* clusters,
+                                      int nMatches) const
+{
+  std::vector<eflowRecCluster*> vec_clusters(clusters->begin(),
+                                             clusters->end());
   return doMatches(track, vec_clusters, nMatches);
 }
 
-std::vector<std::pair<eflowRecCluster*,float> > PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int nMatches) const {
+std::vector<std::pair<eflowRecCluster*, float>>
+PFTrackClusterMatchingTool::doMatches(
+  const eflowRecTrack* track,
+  std::vector<eflowRecCluster*>& clusters,
+  int nMatches) const
+{
 
-  /* Transform the vector of eflowRecCluster into a vector of eflowMatchClusters */
-  std::vector<const eflowMatchCluster*> matchClusters;
+  /* Transform the vector of eflowRecCluster into a vector of eflowMatchClusters
+   */
+  std::vector<eflowMatchCluster*> matchClusters;
+  matchClusters.reserve(clusters.size());
+
   for (auto& cluster : clusters) {
-      matchClusters.push_back(cluster->getMatchCluster());
+    matchClusters.push_back(cluster->getMatchCluster());
   }
 
   /* Use the TrackClusterMatcher to retrieve the matches */
   eflowRecMatchTrack matchTrack(track);
-  std::vector<MatchDistance> allMatches = m_matcher->bestMatches(&matchTrack, matchClusters, nMatches, 0.1*track->getTrack()->e());
+  std::vector<MatchDistance> allMatches = m_matcher->bestMatches(
+    &matchTrack, matchClusters, nMatches, 0.1 * track->getTrack()->e());
 
-  /* Transform the vector of MatchDistance objects into a vector of eflowRecClusters and return it */
-  std::vector<std::pair<eflowRecCluster*,float> > results;
+  /* Transform the vector of MatchDistance objects into a vector of
+   * eflowRecClusters and return it */
+  std::vector<std::pair<eflowRecCluster*, float>> results;
   for (MatchDistance& match : allMatches) {
-    // The matching cannot change the cluster type, this started as eflowMatchCluster
-    // and remains of that type -- no need to test cast from ICluster*
-    const eflowMatchCluster* thisMatch = static_cast<const eflowMatchCluster*>(match.first);
-    results.push_back(std::make_pair(thisMatch->getEfRecCluster(),match.second));
+    // The matching cannot change the cluster type, this started as
+    // eflowMatchCluster and remains of that type -- no need to test cast from
+    // ICluster*
+    eflowMatchCluster* thisMatch = static_cast<eflowMatchCluster*>(match.first);
+    results.emplace_back(thisMatch->getEfRecCluster(), match.second);
   }
   return results;
 }

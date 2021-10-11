@@ -8,7 +8,8 @@
 #include "TH2.h"
 /**
   @class electronPearShapeAlignmentCorrection
-  @brief return a correction for deltaEta1 to account for the pear shape distortion of the calorimeter
+  @brief return a correction for deltaEta1 to account for the pear shape
+  distortion of the calorimeter
   @author Philip Sommer
   @author Jean-Baptiste De Vivie De Regie
 */
@@ -20,11 +21,10 @@ public:
   /** @brief constructor (initialization reading a root file)
    */
   electronPearShapeAlignmentCorrection(
-				       const std::string& infile  = "ElectronPhotonShowerShapeFudgeTool/rel22_210510/pearshapedistortion.root",
-				       const std::string& inhisto = "sdeta");
+    const std::string& infile = "rel22_210510/pearshapedistortion.root");
   ~electronPearShapeAlignmentCorrection() = default;
-  
-  /** @brief get the correction to deltaEta 
+
+  /** @brief get the correction to deltaEta
    */
   double getDeltaEtaDistortion(const float eta, const float phi) const;
   double getDeltaEtaCorrection(const float eta, const float phi) const;
@@ -32,7 +32,6 @@ public:
 private:
   // histograms to store correction
   std::unique_ptr<TH2> m_sdeta;
-
 };
 
 #endif

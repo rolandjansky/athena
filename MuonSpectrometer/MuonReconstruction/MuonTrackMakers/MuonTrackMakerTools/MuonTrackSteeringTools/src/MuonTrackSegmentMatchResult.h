@@ -78,46 +78,46 @@ namespace Muon {
         //
         // public data members
         //
-        double localPosXDiff;
-        double localPosYDiff;
-        double localAngleXDiff;
-        double localAngleYDiff;
-        double posXMeasErr2;
-        double posYMeasErr2;
-        double posXPredErr2;
-        double posYPredErr2;
-        double posXAlignErr2;
-        double posYAlignErr2;
-        double posXTotalErr2;  // measured + predicted + alignment
-        double posYTotalErr2;  // measured + predicted + alignment
-        double angleXMeasErr2;
-        double angleYMeasErr2;
-        double angleXPredErr2;
-        double angleYPredErr2;
-        double angleXAlignErr2;
-        double angleYAlignErr2;
-        double angleXTotalErr2;  // measured + predicted + alignment
-        double angleYTotalErr2;  // measured + predicted + alignment
-        double matchChiSquared;
+        double localPosXDiff{};
+        double localPosYDiff{};
+        double localAngleXDiff{};
+        double localAngleYDiff{};
+        double posXMeasErr2{};
+        double posYMeasErr2{};
+        double posXPredErr2{};
+        double posYPredErr2{};
+        double posXAlignErr2{};
+        double posYAlignErr2{};
+        double posXTotalErr2{};  // measured + predicted + alignment
+        double posYTotalErr2{};  // measured + predicted + alignment
+        double angleXMeasErr2{};
+        double angleYMeasErr2{};
+        double angleXPredErr2{};
+        double angleYPredErr2{};
+        double angleXAlignErr2{};
+        double angleYAlignErr2{};
+        double angleXTotalErr2{};  // measured + predicted + alignment
+        double angleYTotalErr2{};  // measured + predicted + alignment
+        double matchChiSquared{};
         Amg::MatrixX predictionCovariance;
         Amg::MatrixX measuredCovariance;
         Amg::MatrixX totalCovariance;  // measured + predicted + alignment
         Amg::VectorX diffVector;
         Identifier trackChamberId;    // ID of the MDT/CSC chamber on the track closest to segment
         Identifier segmentChamberId;  // ID of the MDT/CSC chamber of the segment
-        const Trk::Track* track;
-        const MuonSegment* segment;
-        Reason reason;             // reason for acceptance or failure
-        bool havePosX;             // have X position difference available
-        bool havePosY;             // have Y position difference available
-        bool havePosXError;        // have total error on X position difference available
-        bool havePosYError;        // have total error on Y position difference available
-        bool haveAngleX;           // have X angle difference available
-        bool haveAngleY;           // have Y angle difference available
-        bool haveAngleXError;      // have total error on X angle difference available
-        bool haveAngleYError;      // have total error on X angle difference available
-        bool haveMatchChiSquared;  // have total match chi-squared available
-        bool matchOK;              // Final result: was the match OK or not
+        const Trk::Track* track{};
+        const MuonSegment* segment{};
+        Reason reason;               // reason for acceptance or failure
+        bool havePosX{};             // have X position difference available
+        bool havePosY{};             // have Y position difference available
+        bool havePosXError{};        // have total error on X position difference available
+        bool havePosYError{};        // have total error on Y position difference available
+        bool haveAngleX{};           // have X angle difference available
+        bool haveAngleY{};           // have Y angle difference available
+        bool haveAngleXError{};      // have total error on X angle difference available
+        bool haveAngleYError{};      // have total error on X angle difference available
+        bool haveMatchChiSquared{};  // have total match chi-squared available
+        bool matchOK{};              // Final result: was the match OK or not
 
         //
         // public functions
@@ -166,31 +166,31 @@ namespace Muon {
         //
         // private data members
         //
-        int m_failedCuts;  // bitpattern with failed cuts (bits given by enum CutType)
-        int m_passedCuts;  // bitpattern with passed cuts (bits given by enum CutType)
+        int m_failedCuts{};  // bitpattern with failed cuts (bits given by enum CutType)
+        int m_passedCuts{};  // bitpattern with passed cuts (bits given by enum CutType)
 
     };  // end of class TrackSegmentMatchResult
 
     struct TrackSegmentMatchCuts {
-        double posXCut;
-        double posYCut;
-        double posXPullCut;
-        double posYPullCut;
-        double angleXCut;
-        double angleYCut;
-        double angleXPullCut;
-        double angleYPullCut;
-        double matchChiSquaredCut;
-        bool useTightCuts;
-        bool cutOnPosX;
-        bool cutOnPosY;
-        bool cutOnPosXPull;
-        bool cutOnPosYPull;
-        bool cutOnAngleX;
-        bool cutOnAngleY;
-        bool cutOnAngleXPull;
-        bool cutOnAngleYPull;
-        bool cutOnMatchChiSquared;
+        double posXCut{};
+        double posYCut{};
+        double posXPullCut{};
+        double posYPullCut{};
+        double angleXCut{};
+        double angleYCut{};
+        double angleXPullCut{};
+        double angleYPullCut{};
+        double matchChiSquaredCut{};
+        bool useTightCuts{};
+        bool cutOnPosX{};
+        bool cutOnPosY{};
+        bool cutOnPosXPull{};
+        bool cutOnPosYPull{};
+        bool cutOnAngleX{};
+        bool cutOnAngleY{};
+        bool cutOnAngleXPull{};
+        bool cutOnAngleYPull{};
+        bool cutOnMatchChiSquared{};
 
         virtual void clear();
 

@@ -32,7 +32,7 @@
 #include "sstream"
 
 namespace MuonCalib {
-
+    MuonCalibDbCalibrationSource::~MuonCalibDbCalibrationSource() = default;
     MuonCalibDbCalibrationSource::MuonCalibDbCalibrationSource(const std::string& t, const std::string& n, const IInterface* p) :
         IMuonCalibConditionsSource(), IConditionsStorage(), AthAlgTool(t, n, p) {
         declareInterface<IMuonCalibConditionsSource>(this);
@@ -62,36 +62,35 @@ namespace MuonCalib {
     }
 
     StatusCode MuonCalibDbCalibrationSource::initialize() {
-        MsgStream log(msgSvc(), name());
         // process region
         m_region = RegionSelectorBase::GetRegion(m_region_str);
-        if (m_region == NULL) {
-            log << MSG::FATAL << "Error initializing RegionSelectorBase::GetRegion with region string: '" << m_region_str << "' " << endmsg;
+        if (!m_region) {
+            ATH_MSG_FATAL("Error initializing RegionSelectorBase::GetRegion with region string: '" << m_region_str);
             return StatusCode::FAILURE;
         }
         // open conneciton to calibration db
-        m_connection = new CalibDbConnection(m_calib_connection_string, m_calib_working_schema);
+        m_connection = std::make_unique<CalibDbConnection>(m_calib_connection_string, m_calib_working_schema);
         m_connection->SetLogin(m_username, m_password);
         if (!m_connection->OpenConnection()) {
-            log << MSG::FATAL << "Cannot open connection to calibration database!" << endmsg;
+            ATH_MSG_FATAL("Cannot open connection to calibration database!");
             return StatusCode::FAILURE;
         }
-        m_head_ops = new CalibHeadOperations(*m_connection);
+        m_head_ops = std::make_unique<CalibHeadOperations>(*m_connection);
         int lowrun, uprun, lowtime, uptime;
         if (!m_head_ops->GetHeadInfo(m_head_id, lowrun, uprun, lowtime, uptime)) {
-            log << MSG::FATAL << "Cannot get header " << m_head_id << "from calib datbase" << endmsg;
+            ATH_MSG_FATAL("Cannot get header " << m_head_id << "from calib datbase");
             return StatusCode::FAILURE;
         }
         m_iov_start = lowrun;
         m_iov_end = uprun;
         m_iov_end++;
-        m_data_connection = m_head_ops->GetDataConnection(m_head_id, false);
-        if (m_data_connection == NULL) {
-            log << MSG::FATAL << "Cannot open data connection!" << endmsg;
+        m_data_connection.reset(m_head_ops->GetDataConnection(m_head_id, false));
+        if (!m_data_connection) {
+            ATH_MSG_FATAL("Cannot open data connection!");
             return StatusCode::FAILURE;
         }
         if (!m_data_connection->OpenConnection()) {
-            log << MSG::FATAL << "Cannot open data connection!" << endmsg;
+            ATH_MSG_FATAL("Cannot open data connection!");
             return StatusCode::FAILURE;
         }
         m_creation_flags = 0;
@@ -100,22 +99,7 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode MuonCalibDbCalibrationSource::finalize() {
-        MsgStream log(msgSvc(), name());
-        log << MSG::INFO << "finalizing " << endmsg;
-        try {
-            if (m_head_ops != NULL) { delete m_head_ops; }
-            if (m_connection != NULL) { delete m_connection; }
-            if (m_data_connection != NULL) { delete m_data_connection; }
-        } catch (std::exception& e) {
-            log << MSG::FATAL << "Exception in finalize: " << e.what() << endmsg;
-            return StatusCode::FAILURE;
-        }
-        return StatusCode::SUCCESS;
-    }
-
     bool MuonCalibDbCalibrationSource::StoreT0Chamber(const int& chamber, const std::map<TubeId, coral::AttributeList>& rows) {
-        MsgStream log(msgSvc(), name());
         MuonFixedId id(chamber);
         if (!m_region->Result(id)) { return true; }
         NtupleStationId sid(id);
@@ -124,13 +108,13 @@ namespace MuonCalib {
         std::ostringstream f;
         f << chamber << m_site_name << m_head_id;
         if (!m_inserter->StartT0Chamber(sid)) {
-            log << MSG::WARNING << "Cannot insert chamber " << chamber << endmsg;
+            ATH_MSG_WARNING("Cannot insert chamber " << chamber);
             return true;
         }
         for (std::map<TubeId, coral::AttributeList>::const_iterator it = rows.begin(); it != rows.end(); it++) {
             if (!m_inserter->AppendT0(it->second["P4"].data<float>() + m_t0_offset, it->second["VALIDFLAG"].data<short>(),
                                       it->second["ADC_1"].data<float>())) {
-                log << MSG::WARNING << "Wrong number of tubes in database for " << sid.regionId() << "!" << endmsg;
+                ATH_MSG_WARNING("Wrong number of tubes in database for " << sid.regionId() << "!");
                 break;
             }
         }
@@ -163,25 +147,24 @@ namespace MuonCalib {
     }
 
     bool MuonCalibDbCalibrationSource::insert_calibration(bool store_t0, bool store_rt) {
-        MsgStream log(msgSvc(), name());
         try {
             if (store_t0 && m_store_t0) {
                 CalibT0DbOperations t0_op(*m_data_connection);
                 if (!t0_op.ReadForConditions(m_site_name, m_head_id, *this)) {
-                    log << MSG::FATAL << "T0 insert failed!" << endmsg;
+                    ATH_MSG_WARNING("T0 insert failed!");
                     return false;
                 }
             }
             if (store_rt && m_store_rt) {
                 CalibRtDbOperations rt_op(*m_data_connection);
                 if (!rt_op.ReadForConditions(m_site_name, m_head_id, *this)) {
-                    log << MSG::FATAL << "RT insert failed!" << endmsg;
+                    ATH_MSG_WARNING("RT insert failed!");
                     return false;
                 }
             }
         }  // try
-        catch (std::exception& e) {
-            log << MSG::FATAL << "Exception: " << e.what() << endmsg;
+        catch (const std::exception& e) {
+            ATH_MSG_FATAL("Exception: " << e.what());
             return false;
         }
         return true;

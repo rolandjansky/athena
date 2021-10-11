@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -50,7 +50,7 @@ class ITileCondToolDspThreshold;
 class TileDigitsThresholdFilter: public AthAlgorithm {
   public:
     // Constructor
-    TileDigitsThresholdFilter(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsThresholdFilter(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TileDigitsThresholdFilter();

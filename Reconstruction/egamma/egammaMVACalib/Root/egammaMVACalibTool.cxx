@@ -13,6 +13,7 @@
 #include "TMath.h"
 #include "TObjString.h"
 #include "TTree.h"
+#include "TClass.h"
 
 #include <cmath>
 
@@ -78,6 +79,11 @@ StatusCode egammaMVACalibTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  // Load these dictionaries now, so we don't need to try to do so
+  // while multiple threads are running.
+  TClass::GetClass ("TH2Poly");
+  TClass::GetClass ("TMultiGraph");
+
   return StatusCode::SUCCESS;
 }
 
@@ -99,8 +105,8 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
     ATH_MSG_FATAL("Could not find hPoly");
     return StatusCode::FAILURE;
   }
-
-  m_hPoly.reset(static_cast<TH2Poly*>(hPoly->Clone()));
+  //pass ownership to class variable
+  m_hPoly.reset(static_cast<TH2Poly*>(hPoly));
   m_hPoly->SetDirectory(nullptr);
 
   // Load variables
@@ -195,7 +201,7 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
 
 }
 
-const TString& egammaMVACalibTool::getString(TObject* obj) const
+const TString& egammaMVACalibTool::getString(TObject* obj) 
 {
   TObjString *objS = dynamic_cast<TObjString*>(obj);
   if (!objS) {

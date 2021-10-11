@@ -35,13 +35,11 @@
 #include <math.h>
 #include <unistd.h>
 
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
 
 LArAutoCorrMaker::LArAutoCorrMaker(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), 
-    m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
     m_groupingType("ExtendedSubDetector"), // SubDetector, Single, FeedThrough  
     m_nEvents(0)
 {
@@ -52,7 +50,6 @@ LArAutoCorrMaker::LArAutoCorrMaker(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("normalize",    m_normalize=1); 
   declareProperty("physics",      m_physics=0); 
   declareProperty("GroupingType", m_groupingType); 
-  declareProperty("BunchCrossingTool",m_bunchCrossingTool);
   declareProperty("MinBCFromFront",m_bunchCrossingsFromFront=0);
 }
 
@@ -84,13 +81,6 @@ StatusCode LArAutoCorrMaker::initialize() {
     return sc;
   }
 
-  if (m_bunchCrossingsFromFront>0) {
-    sc=m_bunchCrossingTool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve BunchCrossingTool!" );
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -107,11 +97,19 @@ StatusCode LArAutoCorrMaker::execute()
       ATH_MSG_ERROR( "Failed to retrieve EventInfo object!" );
       return sc;
     }
+
+    SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey);
+    const BunchCrossingCondData* bunchCrossing=*bccd;
+    if (!bunchCrossing) {
+      ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
+      return StatusCode::FAILURE;
+    }
+
     uint32_t bcid = eventInfo->bcid();
-    const int nBCsFromFront=m_bunchCrossingTool->distanceFromFront(bcid,Trig::IBunchCrossingTool:: BunchCrossings);
+    const int nBCsFromFront=bunchCrossing->distanceFromFront(bcid,BunchCrossingCondData:: BunchCrossings);
     if (nBCsFromFront < m_bunchCrossingsFromFront) {
       ATH_MSG_DEBUG("BCID " << bcid << " only " << nBCsFromFront << " BCs from front of BunchTrain. Event ignored. (min=" <<m_bunchCrossingsFromFront 
-		    << ", type= " << m_bunchCrossingTool->bcType(bcid) << ")" );
+		    << ", type= " << bunchCrossing->bcType(bcid) << ")" );
       return StatusCode::SUCCESS; //Ignore this event
     }
     else

@@ -333,6 +333,12 @@ class AthAppMgr( AppMgr ):
          athMasterSeq += athAlgEvtSeq
          athMasterSeq += athOutSeq
          
+         # Should be after all other algorithms.
+         athMasterSeq += IFA('EndAlgorithmsFiringAlg',
+                             Incidents = ['EndAlgorithms'],
+                             FireSerial = False)
+         athMasterSeq += IPA('IncidentProcAlg3')
+
          Logging.log.debug ("building master sequence... [done]")
          return athMasterSeq
       # prevent hysteresis effect

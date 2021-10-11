@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSelectorTools/JetAttributeSelector.h"
@@ -103,7 +103,7 @@ JetAttributeRatioSelector::JetAttributeRatioSelector(const std::string &t) : Jet
                                                                              
 
 StatusCode JetAttributeRatioSelector::initialize() {
-  StatusCode sc = JetAttributeSelector::initialize();
+  ATH_CHECK( JetAttributeSelector::initialize() );
 
   m_vretriever2 = buildValueRetriever(m_attType2, m_attName2, m_vectorAttIndex2);
   if(m_vretriever2==NULL) {

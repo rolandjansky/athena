@@ -247,7 +247,7 @@ StatusCode Blob2ToolConstants::AttrListToToolConstants(const coral::AttributeLis
 }
 
 
-uint32_t Blob2ToolConstants::nameToChannelNumber(const std::string& name) const {
+uint32_t Blob2ToolConstants::nameToChannelNumber(const std::string& name) {
     const uint64_t hash64=CxxUtils::crc64(name);
     const uint32_t hash32=(uint32_t)(hash64 & 0xFFFFFFFF);
     //std::cout << "HASH: 64bit:" << std::hex << hash64 << " 32bit:" << hash32 << std::endl;

@@ -47,7 +47,7 @@ namespace CP
 
     /// \brief set the selection decoration
   public:
-    virtual void setBits (SG::AuxElement& element,
+    virtual void setBits (const SG::AuxElement& element,
                           SelectionType selection) const = 0;
 
     /// \brief get the selection decoration
@@ -56,7 +56,7 @@ namespace CP
 
     /// \brief set the selection decoration
   public:
-    virtual void setBool (SG::AuxElement& element,
+    virtual void setBool (const SG::AuxElement& element,
                           bool selection) const = 0;
 
   /// \brief get the label of the accessor

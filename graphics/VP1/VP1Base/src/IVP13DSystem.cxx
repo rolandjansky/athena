@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -410,8 +410,7 @@ std::set<SoCamera*> IVP13DSystem::getCameraList()
 void IVP13DSystem::registerCamera(SoCamera *cam) {
   if (!cam)
     return;
-  if (m_d->staticcameras.find(cam)==m_d->staticcameras.end())
-    m_d->staticcameras.insert(cam);
+  m_d->staticcameras.insert(cam);
   cam->ref();
 }
 
@@ -420,6 +419,5 @@ void IVP13DSystem::registerViewer(SoQtViewer *viewer)
 {
   if (!viewer)
     return;
-  if (m_d->viewers.find(viewer)==m_d->viewers.end())
-    m_d->viewers.insert(viewer);
+  m_d->viewers.insert(viewer);
 }

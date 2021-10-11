@@ -7,12 +7,18 @@
 # and translate it into the python configuration objects used by
 # jet reco code.
 
-from JetRecConfig.JetDefinition import JetConstitSeq,JetConstitSource, xAODType, JetDefinition
+from JetRecConfig.JetDefinition import JetInputConstitSeq,JetInputConstit, xAODType, JetDefinition
 # this is to define trigger specific JetModifiers (ex: ConstitFourMom_copy) : 
-from .TriggerJetMods import jetmoddict  # noqa: F401
+from .TriggerJetMods import stdJetModifiers  # noqa: F401
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
+
+def getHLTPrefix():
+    prefix = "HLT_"
+    return prefix
+
+### functions to interpret reco dict and get parameters
 
 def interpretJetCalibDefault(recoDict):
     if recoDict['recoAlg'] == 'a4':
@@ -29,10 +35,11 @@ def interpretJetCalibDefault(recoDict):
     else:
         raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel','cleaning']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt']
 
 cleaningDict = {
-    'cleanLB': 'LooseBad',
+    'CLEANlb':  'LooseBad',
+    'CLEANllp': 'LooseBadLLP',
 }
 
 def extractCleaningsFromPrefilters(prefilters_list):
@@ -42,6 +49,17 @@ def extractCleaningsFromPrefilters(prefilters_list):
     else:
         raise RuntimeError(
             'Multijet jet cleanings found in jet trigger reco dictionary {}. Multiple jet cleanings are currently unsupported'.format(found_cleanings))
+
+def getClustersKey(recoDict):
+        clusterCalib = recoDict["clusterCalib"]
+        if clusterCalib == "em":
+            from ..CommonSequences.FullScanDefs import em_clusters
+            return em_clusters
+        elif clusterCalib == "lcw":
+            from ..CommonSequences.FullScanDefs import lc_clusters
+            return lc_clusters
+        else:
+            raise ValueError("Invalid value for calib: '{}'".format(clusterCalib))
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
@@ -58,8 +76,6 @@ def extractRecoDict(chainParts):
                         raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
-            elif k =='cleaning':
-                recoDict[k] = extractCleaningsFromPrefilters(p["prefilters"])
 
     # set proper jetCalib key in default case
     if recoDict['jetCalib'] == "default":
@@ -67,11 +83,12 @@ def extractRecoDict(chainParts):
 
     return recoDict
 
+
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
-    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}_{cleaning}"
+    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}"
     if jetRecoDict["trkopt"] != "notrk":
-        strtemp += "_{trkopt}_{trkpresel}"
+        strtemp += "_{trkopt}"
     return strtemp.format(**jetRecoDict)
 
 # Inverse of the above, essentially only for CF tests
@@ -83,13 +100,13 @@ def jetRecoDictFromString(jet_def_string):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts,JetChainParts_Default
     for key in recoKeys:
         keyFound = False
-        tmp_key = 'prefilters' if key == 'cleaning' else key
+        tmp_key =  key
         for part in jet_def_string.split('_'):
             if part in JetChainParts[tmp_key]:
                 jetRecoDict[key] = part
                 keyFound         = True
         if not keyFound:
-            jetRecoDict[key] = 'noCleaning' if key =='cleaning' else JetChainParts_Default[key]
+            jetRecoDict[key] = JetChainParts_Default[key]
 
     # set proper jetCalib key in default case
     if jetRecoDict['jetCalib'] == "default":
@@ -110,11 +127,7 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         if pfoPrefix is None:
             raise RuntimeError("JetRecoConfiguration: Cannot define PF jets without pfo prefix!")
 
-        trkopt = jetRecoDict['trkopt']
-        from JetRecConfig.ConstModHelpers import constitModWithAlternateTrk
-        # Generate a new JetConstitModifier with track proterties setup according to trkopt
-        constitModWithAlternateTrk("CorrectPFO", trkopt) 
-        constitMods = ["CorrectPFO"+trkopt]
+        constitMods = ["CorrectPFO"] 
         # apply constituent pileup suppression
         if "vs" in jetRecoDict["constitMod"]:
             constitMods.append("Vor")
@@ -122,9 +135,7 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             constitMods.append("CS")
         if "sk" in jetRecoDict["constitMod"]:
             constitMods.append("SK")
-        # Generate a new JetConstitModifier with track proterties setup according to trkopt
-        constitModWithAlternateTrk("CHS", trkopt) # 
-        constitMods += ["CHS"+trkopt]
+        constitMods += ["CHS"]
         
         inputPFO = pfoPrefix+"ParticleFlowObjects"
         modstring = ''.join(constitMods[1:-1])
@@ -132,9 +143,9 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             modstring='CHS'
         
         if not constitMods:
-            jetConstit = JetConstitSeq( "HLT_EMPFlow", xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow")
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow", xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow")
         else:
-            jetConstit = JetConstitSeq( "HLT_EMPFlow"+modstring, xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else '') )
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow"+modstring, xAODType.ParticleFlow, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else '') )
 
             
     if jetRecoDict["constitType"] == "tc":
@@ -152,12 +163,20 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             constitMods = ["EM"] + constitMods
         elif jetRecoDict["clusterCalib"] == "lcw":
             constitMods = ["LC"] + constitMods
+        else:
+            log.error("cluster calib state not recognised : ",jetRecoDict["clusterCalib"])
+        if not clustersKey:
+            raise ValueError("cluster key must be provided for topocluster jets.")
+            
 
-        jetConstit = JetConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
+        if not constitMods:
+            jetConstit = JetInputConstitSeq( "HLT_EMTopo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label='EMTopo'+modstring)
+        else:
+            jetConstit = JetInputConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
 
-    # declare our new JetConstitSeq in the standard dictionary
-    from JetRecConfig.StandardJetConstits import jetconstitdic
-    jetconstitdic.setdefault(jetConstit.name, jetConstit)
+    # declare our new JetInputConstitSeq in the standard dictionary
+    from JetRecConfig.StandardJetConstits import stdConstitDic
+    stdConstitDic.setdefault(jetConstit.name, jetConstit)
 
     return jetConstit
 
@@ -166,6 +185,12 @@ def interpretRecoAlg(recoAlg):
     import re
     jetalg, jetradius, jetextra = re.split(r'(\d+)',recoAlg)    
     return jetalg, int(jetradius), jetextra
+
+# Check if jet definition needs tracks or if it should be agnostic of the tracking choice
+def jetDefNeedsTracks(jetRecoDict):
+  # For tc_a10, tc_a10t and tc_a10sd, we will be agnostic of tracking (no suffix will be added)
+  # For everything else (constitType=pf or dependence on small-R jets) we need to be aware of what tracking was used
+  return jetRecoDict["trkopt"]!="notrk" and (jetRecoDict["constitType"]!="tc" or jetRecoDict["recoAlg"] in ['a4','a10'])
 
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
@@ -179,15 +204,15 @@ def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
 
     suffix="_"+jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"] != "notrk":
+    if jetDefNeedsTracks(jetRecoDict):
         suffix += "_{}".format(jetRecoDict["trkopt"])
     
 
-    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix)
+    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix, context=jetRecoDict["trkopt"])
     return jetDef
 
 def defineReclusteredJets(jetRecoDict,smallRjets,inputlabel,prefix,suffix):
-    rcJetConstit = JetConstitSource("RCJet", xAODType.Jet, smallRjets, label=inputlabel+'RC')
+    rcJetConstit = JetInputConstit("RCJet", xAODType.Jet, smallRjets, label=inputlabel+'RC')
     rcJetDef = JetDefinition( "AntiKt", 1.0, rcJetConstit, prefix=prefix, suffix=suffix)
     return rcJetDef
 
@@ -195,7 +220,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     suffix = "_"+ jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"]!="notrk":
+    if jetDefNeedsTracks(jetRecoDict):
         suffix += "_"+jetRecoDict["trkopt"]
     
     groomDef = {
@@ -210,7 +235,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
 
 # Make generating the list a bit more comprehensible
 def getModSpec(modname,modspec=''):
-    return (jetmoddict[modname],str(modspec))
+    return (stdJetModifiers[modname],str(modspec))
 
 def defineTrackMods(trkopt):
     trkmods = [
@@ -228,7 +253,6 @@ def getFilterCut(recoAlg):
 def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
     config = getInDetTrigConfig( 'jet' )
 
@@ -260,7 +284,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                pvname = config.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else config.vertex_jet
+                pvname = config.vertex_jet
 
         elif jetRecoDict["constitType"] == "pf":
             gscDepth = "auto"
@@ -274,7 +298,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                   ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
                   ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                   }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
-            pvname = config.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else config.vertex_jet
+            pvname = config.vertex_jet
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):
             calibSeq += "_Insitu"

@@ -126,6 +126,11 @@ StraightLineSurface::clone() const
   return new StraightLineSurface(*this);
 }
 
+inline std::unique_ptr<StraightLineSurface> 
+StraightLineSurface::uniqueClone() const{
+  return std::unique_ptr<StraightLineSurface>(clone());
+}
+
 inline const SurfaceBounds&
 StraightLineSurface::bounds() const
 {

@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 class CavernPropertyCalculator(object):
 
@@ -42,19 +43,18 @@ class CavernPropertyCalculator(object):
                       'slice4': 1000.*3000., #   3 km
                       'NONE': 200000. }
 
-    def recalculate(self):
-        from G4AtlasApps.SimFlags import simFlags
-        if not simFlags.CosmicPtSlice.statusOn:
-            if simFlags.CosmicFilterVolumeName.statusOn and simFlags.CosmicFilterVolumeName() == 'Muon':
+    def recalculate(self, flags):
+        if flags.Sim.CosmicPtSlice == 'Off':
+            if 'Muon' in flags.Sim.CosmicFilterVolumeNames:
                 self.xvert_low  = -301700.
                 self.xvert_high =  298300.
                 self.zvert_low  = -1000.*300.
                 self.zvert_high =  1000.*300.
                 self.radius     =  20000.
-            if (simFlags.CosmicFilterVolumeName.statusOn and simFlags.CosmicFilterVolumeName == "Pixel") or (simFlags.CosmicFilterVolumeName2.statusOn and simFlags.CosmicFilterVolumeName2 == "Pixel"):
+            if 'Pixel' in flags.Sim.CosmicFilterVolumeNames:
                 self.radius     =  2000.
         else:
-            n_value = simFlags.CosmicPtSlice.get_Value()
+            n_value = flags.Sim.CosmicPtSlice
             self.xvert_low  = self.xvert_lowDict[n_value]
             self.xvert_high = self.xvert_highDict[n_value]
             self.zvert_low  = self.zvert_lowDict[n_value]
@@ -63,80 +63,75 @@ class CavernPropertyCalculator(object):
             self.emin       = self.EminDict[n_value]
             self.emax       = self.EmaxDict[n_value]
 
-    def CosmicEmin(self):
+    def CosmicEmin(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.emin
 
 
-    def CosmicEmax(self):
+    def CosmicEmax(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.emax
 
 
-    def CosmicLowVertex_X(self):
+    def CosmicLowVertex_X(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.xvert_low
 
 
-    def CosmicHighVertex_X(self):
+    def CosmicHighVertex_X(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.xvert_high
 
 
-    def CosmicLowVertex_Z(self):
+    def CosmicLowVertex_Z(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.zvert_low
 
 
-    def CosmicHighVertex_Z(self):
+    def CosmicHighVertex_Z(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.zvert_high
 
 
-    def CosmicRadius(self):
+    def CosmicRadius(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return self.radius
 
-    def BedrockDX(self):
+    def BedrockDX(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return (self.xvert_high - self.xvert_low)
 
-    def BedrockDZ(self):
+    def BedrockDZ(self, flags):
         """
         """
-        self.recalculate()
+        self.recalculate(flags)
         return (self.zvert_high - self.zvert_low)
 
-    def reconfigureCavernGeometry(self):
+    def reconfigureCavernGeometry(self, flags, cfg):
         """
         Note that in this coordinate frame the y-axis points upward
         such that the cosmics arrive from upward to downward in y.
         """
-        newSize = max( self.BedrockDX() , self.BedrockDZ() )
+        newSize = max( self.BedrockDX(flags) , self.BedrockDZ(flags) )
         if (newSize > 350000.):
             print ("Resizing bedrock (mm) to fit cosmic generator:",newSize)
-            from AthenaCommon.Configurable import Configurable
-            if Configurable.allConfigurables.get('GeoModelSvc'):
-                GeoModelSvc = Configurable.allConfigurables.get('GeoModelSvc')
-            else:
-                from AthenaCommon.AppMgr import theApp
-                GeoModelSvc = theApp.service('GeoModelSvc')
+            GeoModelSvc = cfg.getService('GeoModelSvc')
             if (newSize <=  500000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock500'
             elif (newSize <= 1000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock1000'
             elif (newSize <= 1500000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock1500'
@@ -148,19 +143,17 @@ class CavernPropertyCalculator(object):
             print ("No need to resize the bedrock for cosmic generation")
 
 
-############## Input: GenericGenerator ###############
-def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
+############## Input: CosmicGenerator ###############
+def CosmicGeneratorCfg(flags, name="CosmicGenerator", **kwargs):
     ## Configuring the Athena application for a 'generator' job
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.load_cosmics_flags()
+    result = ComponentAccumulator()
+    result.addService(CompFactory.PartPropSvc(InputFile="PDGTABLE.MeV"))
 
-    ## Set up standard algorithms and random seeds
-    from AthenaCommon.AppMgr import ServiceMgr
-    from PartPropSvc.PartPropSvcConf import PartPropSvc
-    ServiceMgr += PartPropSvc()
-    if not simFlags.RandomSeedList.checkForExistingSeed( "COSMICS"):
-        simFlags.RandomSeedList.addSeed( "COSMICS", 2040160768, 443921183 )
-    kwargs.setdefault('AtRndmGenSvc', simFlags.RandomSvc.get_Value())
+    ## Set up random seeds FIXME
+    seed = 'COSMICS OFFSET 1234 2040160768 443921183'
+    from RngComps.RandomServices import dSFMT
+    result.merge(dSFMT(seed))
+    kwargs.setdefault('AtRndmGenSvc', result.getService("AtDSFMTGenSvc"))
 
     from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
     theCavern = CavernPropertyCalculator()
@@ -178,16 +171,16 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
     ## The following settings are tuned to scintillators of dimensions
     ## 140 x 0.5 x 100 cm^3 placed at +-115.0 cm
 
-    kwargs.setdefault('emin', theCavern.CosmicEmin())
-    kwargs.setdefault('emax', theCavern.CosmicEmax())
+    kwargs.setdefault('emin', theCavern.CosmicEmin(flags))
+    kwargs.setdefault('emax', theCavern.CosmicEmax(flags))
     #kwargs.setdefault('emin', 10000)  # default =10000 #10 GeV
     #kwargs.setdefault('emax', 5000*1000) # 2 TeV - FIXME?!
 
-    kwargs.setdefault('xvert_low', theCavern.CosmicLowVertex_X() )
-    kwargs.setdefault('xvert_hig', theCavern.CosmicHighVertex_X())
-    kwargs.setdefault('zvert_low', theCavern.CosmicLowVertex_Z() )
-    kwargs.setdefault('zvert_hig', theCavern.CosmicHighVertex_Z())
-    kwargs.setdefault('Radius',    theCavern.CosmicRadius())
+    kwargs.setdefault('xvert_low', theCavern.CosmicLowVertex_X(flags) )
+    kwargs.setdefault('xvert_hig', theCavern.CosmicHighVertex_X(flags))
+    kwargs.setdefault('zvert_low', theCavern.CosmicLowVertex_Z(flags) )
+    kwargs.setdefault('zvert_hig', theCavern.CosmicHighVertex_Z(flags))
+    kwargs.setdefault('Radius',    theCavern.CosmicRadius(flags))
     kwargs.setdefault('yvert_val', 57300.+41000.)
     kwargs.setdefault('ctcut',    0.)
     kwargs.setdefault('OptimizeForCavern', True)
@@ -195,10 +188,10 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
     kwargs.setdefault('IPy', 0.)
     kwargs.setdefault('IPz', 0.)
 
-    if simFlags.CosmicFilterVolumeName.statusOn:
-        print ('Using %s Volume setup of Cosmic Generator...' % simFlags.CosmicFilterVolumeName.get_Value())
+    if len(flags.Sim.CosmicFilterVolumeNames)>0:
+        print ('Using %s Volume setup of Cosmic Generator...' % flags.Sim.CosmicFilterVolumeNames[0])
     #special settings from Juerg Beringer
-    if simFlags.CosmicFilterVolumeName == "Pixel" or simFlags.CosmicFilterVolumeName2 == "Pixel":
+    if 'Pixel' in flags.Sim.CosmicFilterVolumeNames:
         kwargs.setdefault('doPathLengthCut', True)         # Optimization based on box cut in pixel detector plane
         kwargs.setdefault('energyCutThreshold', 100.)      # - margin of error for energy loss calculation (in MeV)
         kwargs.setdefault('doAimedAtPixelsCut', True)      # Optimization based on box cut in pixel detector plane
@@ -207,35 +200,12 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
         kwargs.setdefault('doReweighting', True)           # Whether to use reweighting for cosmic ray generation
         kwargs.setdefault('rvert_max', 300000.)            # - radius in mm for generating primary vertex
 
-    if simFlags.CosmicPtSlice.statusOn and simFlags.CosmicPtSlice() != 'NONE':
-        print ("Configuring cosmic pT slice: %s" % simFlags.CosmicPtSlice.get_Value())
-        theCavern.reconfigureCavernGeometry()
+    result.addEventAlgo(CompFactory.CosmicGenerator('CosmicGenerator', **kwargs))
+    return result
 
-    from AthenaCommon import CfgMgr
-    algorithm = CfgMgr.CosmicGenerator(**kwargs)
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    if not hasattr(topSequence, 'CosmicGenerator'):
-        topSequence += algorithm
 
-    return algorithm
-
-############## Input: Creating cosmics from scratch ###############
-def getInput_EvgenCosmicGenerator(name="EvgenCosmicGenerator", **kwargs):
-    ## Configuring the Athena application for a 'generator' job
-    import AthenaCommon.AtlasUnixGeneratorJob  # noqa: F401
-
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    athenaCommonFlags.PoolEvgenInput.set_Off()
-
-    from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.CosmicFilterVolumeName.statusOn:
-        print ("Warning CosmicFilterVolumeName not set using default (CaloEntryLayer)")
-        simFlags.CosmicFilterVolumeName = "CaloEntryLayer"
-
-    #fix for bug: 49362
-    from AthenaCommon.AppMgr import ServiceMgr
-    ServiceMgr.EventSelector.EventsPerRun = int(2**31 - 1) #sys.maxint on a 32-bit machine
-
-    return getInput_GenericCosmicGenerator(name, **kwargs)
-
+def postIncludeCosmicGenerator(flags, cfg):
+    theCavern = CavernPropertyCalculator()
+    if flags.Sim.CosmicPtSlice != 'NONE':
+        print ("Configuring cosmic pT slice: %s" % flags.Sim.CosmicPtSlice)
+        theCavern.reconfigureCavernGeometry(flags,cfg)

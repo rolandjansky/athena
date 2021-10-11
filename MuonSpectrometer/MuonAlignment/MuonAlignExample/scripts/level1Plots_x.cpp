@@ -2,11 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <stdlib.h>
 
-#include <cmath>
-#include <iostream>
-#include <sstream>
+
+
 
 #include "TCanvas.h"
 #include "TFile.h"
@@ -15,6 +13,10 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TTree.h"
+#include <cstdlib>
+#include <cmath>
+#include <iostream>
+#include <sstream>
 
 int main() {
     const int NFILES = 3;
@@ -394,18 +396,18 @@ int main() {
             hMSthetascatpull[0]->Fill(pull);
         }
 
-        // hIDchi2[0]->Fill(std::log10(idChi20));//(double)nidres0));
-        // hMSchi2[0]->Fill(std::log10(msChi20));///(double)nmsres0));
-        // hCalChi2[0]->Fill(std::log10(calChi20));///(double)ncalres0));
-
         hIDchi2[0]->Fill(idChi20);    //(double)nidres0));
         hMSchi2[0]->Fill(msChi20);    ///(double)nmsres0));
         hCalChi2[0]->Fill(calChi20);  ///(double)ncalres0));
-
-        hIDphiscatchi2[0]->Fill(std::log10(idphiscatChi20));      ///(double)nidscatres0));
-        hIDthetascatchi2[0]->Fill(std::log10(idthetascatChi20));  ///(double)nidscatres0));
-        hMSphiscatchi2[0]->Fill(std::log10(msphiscatChi20));      ///(double)nmsscatres0));
-        hMSthetascatchi2[0]->Fill(std::log10(msthetascatChi20));  ///(double)nmsscatres0));
+        
+        const auto idPhiVal = (idphiscatChi20<1e-300) ? -300. : std::log10(idphiscatChi20);
+        const auto idThetaVal = (idthetascatChi20<1e-300) ? -300. : std::log10(idthetascatChi20);
+        const auto msPhiVal = (msphiscatChi20<1e-300) ? -300. : std::log10(msphiscatChi20)
+        const auto msThetaVal = (msthetascatChi20<1e-300) ? -300. : std::log10(msthetascatChi20);
+        hIDphiscatchi2[0]->Fill(idPhiVal);      ///(double)nidscatres0));
+        hIDthetascatchi2[0]->Fill(idThetaVal);  ///(double)nidscatres0));
+        hMSphiscatchi2[0]->Fill(msPhiVal);      ///(double)nmsscatres0));
+        hMSthetascatchi2[0]->Fill(msThetaVal);  ///(double)nmsscatres0));
 
         // hTrackChi2[0]->Fill(std::log10(trackChi2[0]*(double)trackNDoF[0]));
         hTrackChi2[0]->Fill(trackChi2[0] * (double)trackNDoF[0]);
@@ -474,20 +476,20 @@ int main() {
                     hMSthetascatpull[ifile]->Fill(pull);
                 }
 
-                // hIDchi2[ifile]->Fill(std::log10(idChi2));///(double)nIDres[ifile]));
-                // hMSchi2[ifile]->Fill(std::log10(msChi2));///(double)nMSres[ifile]));
-                // hCalChi2[ifile]->Fill(std::log10(calChi2));///(double)nCalRes[ifile]));
 
                 hIDchi2[ifile]->Fill(idChi2);    ///(double)nIDres[ifile]));
                 hMSchi2[ifile]->Fill(msChi2);    ///(double)nMSres[ifile]));
                 hCalChi2[ifile]->Fill(calChi2);  ///(double)nCalRes[ifile]));
+                
+                const auto idPhiVal2 = (idphiscatChi2<1e-300) ? -300. : std::log10(idphiscatChi2);
+                const auto idThetaVal2 = (idthetascatChi2<1e-300) ? -300. : std::log10(idthetascatChi2);
+                const auto msPhiVal2 = (msphiscatChi2<1e-300) ? -300. : std::log10(msphiscatChi2)
+                const auto msThetaVal2 = (msthetascatChi2<1e-300) ? -300. : std::log10(msthetascatChi2);
+                hIDphiscatchi2[ifile]->Fill(idPhiVal2);      ///(double)nIDscatRes[ifile]));
+                hIDthetascatchi2[ifile]->Fill(idThetaVal2);  ///(double)nIDscatRes[ifile]));
+                hMSphiscatchi2[ifile]->Fill(msPhiVal2);      ///(double)nMSscatRes[ifile]));
+                hMSthetascatchi2[ifile]->Fill(msThetaVal2);  ///(double)nMSscatRes[ifile]));
 
-                hIDphiscatchi2[ifile]->Fill(std::log10(idphiscatChi2));      ///(double)nIDscatRes[ifile]));
-                hIDthetascatchi2[ifile]->Fill(std::log10(idthetascatChi2));  ///(double)nIDscatRes[ifile]));
-                hMSphiscatchi2[ifile]->Fill(std::log10(msphiscatChi2));      ///(double)nMSscatRes[ifile]));
-                hMSthetascatchi2[ifile]->Fill(std::log10(msthetascatChi2));  ///(double)nMSscatRes[ifile]));
-
-                // hTrackChi2[ifile]->Fill(std::log10(trackChi2[ifile]*(double)trackNDoF[ifile]));
                 hTrackChi2[ifile]->Fill(trackChi2[ifile] * (double)trackNDoF[ifile]);
 
                 double myChi2 = idChi2 + msChi2 + calChi2 + idphiscatChi2 + idthetascatChi2 + msphiscatChi2 + msthetascatChi2;

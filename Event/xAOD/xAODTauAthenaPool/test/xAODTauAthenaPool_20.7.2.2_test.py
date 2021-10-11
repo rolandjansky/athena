@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 import ROOT
@@ -22,4 +22,4 @@ if __name__ == "__main__":
         'TauJets',
              ]
 
-    TPCnvTest(infile, keys)
+    TPCnvTest(infile, keys, adjustMessageSvc=False)

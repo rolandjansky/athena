@@ -1,17 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.h 688265 2015-08-08 16:31:45Z stelzer $
 #ifndef XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
 #define XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
 
 // System include(s):
-extern "C" {
-#   include <stdint.h>
-}
 #include <vector>
 
 // Gaudi/Athena include(s):
@@ -37,8 +31,6 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 688265 $
-    * $Date: 2015-08-08 18:31:45 +0200 (Sat, 08 Aug 2015) $
     */
    class TrigDecisionCnvTool : public AthAlgTool,
                                public virtual ITrigDecisionCnvTool {
@@ -64,9 +56,11 @@ namespace xAODMaker {
                                 uint32_t chainId, bool value = true );
 
       /// Connection to the TrigDecisionTool
-      ToolHandle< Trig::ITrigDecisionTool > m_tdt;
+      PublicToolHandle< Trig::ITrigDecisionTool > m_tdt{this, "TrigDecisionTool",
+                                                        "Trig::TrigDecisionTool/TrigDecisionTool"};
       /// Connection to the HLT configuration
-      ServiceHandle< TrigConf::IHLTConfigSvc > m_trigconf;
+      ServiceHandle< TrigConf::IHLTConfigSvc > m_trigconf{this, "TrigConfigSvc",
+                                                         "TrigConf::xAODConfigSvc/xAODConfigSvc"};
 
    }; // class TrigDecisionCnvTool
 

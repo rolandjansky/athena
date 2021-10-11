@@ -107,11 +107,9 @@ StatusCode LArShape2Ntuple::stop() {
 
   unsigned cellCounter=0;  
   for ( unsigned igain=CaloGain::LARHIGHGAIN; 
-	igain<CaloGain::LARNGAIN ; ++igain ) {
-    std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-    std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-    for (;it!=it_e;it++) {
-      const HWIdentifier chid = *it;
+	igain<CaloGain::LARNGAIN ; ++igain )
+  {
+    for (HWIdentifier chid : m_onlineId->channel_range()) {
       if (!cabling->isOnlineConnected(chid)) continue;
       unsigned nPhase=1;
       if (larShapeComplete) nPhase=larShapeComplete->nTimeBins(chid,gain);

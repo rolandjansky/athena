@@ -1,24 +1,12 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory 
 
 def LArPedestalAutoCorrCfg(flags):
 
-    result=ComponentAccumulator()
-
-    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
-    result.merge(DetDescrCnvSvcCfg(flags))
-
-    #Setup cabling
-    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArCalibIdMappingCfg
-    result.merge(LArOnOffIdMappingCfg(flags))
-    result.merge(LArCalibIdMappingCfg(flags))
-    
-    #Set up bad-channel config
-    from LArCalibProcessing.LArCalib_BadChannelConfig import LArCalibBadChannelCfg
-
-    result.merge(LArCalibBadChannelCfg(flags))
+    #Get basic services and cond-algos
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    result=LArCalibBaseCfg(flags)
 
     #Calibration runs are taken in fixed gain. 
     #The SG key of the digit-container is name of the gain
@@ -63,8 +51,8 @@ def LArPedestalAutoCorrCfg(flags):
     #Get the current folder tag by interrogating the database:
     from LArCalibProcessing.utils import FolderTagResolver
     tagResolver=FolderTagResolver()
-    pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder,flags.IOVDb.GlobalTag)
-    autocorrTag=tagResolver.getFolderTag(flags.LArCalib.AutoCorr.Folder,flags.IOVDb.GlobalTag)
+    pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
+    autocorrTag=tagResolver.getFolderTag(flags.LArCalib.AutoCorr.Folder)
     del tagResolver
 
 
@@ -104,7 +92,7 @@ def LArPedestalAutoCorrCfg(flags):
         thePedestalValidationAlg.ListOfDevFEBs="pedFebs.txt"
         thePedestalValidationAlg.CheckCompletness=True
         thePedestalValidationAlg.PatchMissingFEBs=True
-        thePedestalValidationAlg.CheckNumberOfCoolChannels=True
+        thePedestalValidationAlg.CheckNumberOfCoolChannels=False
         thePedestalValidationAlg.UseCorrChannels=False #Corrections go into the regular data channels
         result.addEventAlgo(thePedestalValidationAlg)
 
@@ -138,7 +126,7 @@ def LArPedestalAutoCorrCfg(flags):
         theAutoCorrValidationAlg.ListOfDevFEBs="ACFebs.txt"
         theAutoCorrValidationAlg.CheckCompletness=True
         theAutoCorrValidationAlg.PatchMissingFEBs=True
-        theAutoCorrValidationAlg.CheckNumberOfCoolChannels=True
+        theAutoCorrValidationAlg.CheckNumberOfCoolChannels=False
         theAutoCorrValidationAlg.UseCorrChannels=False #Corrections go into the regular data channels
         result.addEventAlgo(theAutoCorrValidationAlg)
       
@@ -156,12 +144,14 @@ def LArPedestalAutoCorrCfg(flags):
         theBadAutoCorr.CheckNumberOfCoolChannels=False
         result.addEventAlgo(theBadAutoCorr)
 
+        result.getService("IOVDbSvc").DBInstance=""
+
     return result
 
 
 if __name__ == "__main__":
 
-
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
@@ -176,21 +166,14 @@ if __name__ == "__main__":
     ConfigFlags.LArCalib.Output.ROOTFile="ped.root"
 
     ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
-    ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-00"
+    ConfigFlags.IOVDb.GlobalTag="LARCALIB-000-02"
 
     print ("Input files to be processed:")
     for f in ConfigFlags.Input.Files:
         print (f)
-    
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+
     cfg=MainServicesCfg(ConfigFlags)
-
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-
-    cfg.merge(ByteStreamReadCfg(ConfigFlags))
     cfg.merge(LArPedestalAutoCorrCfg(ConfigFlags))
-
-    cfg.getService("IOVDbSvc").DBInstance=""
 
     print("Start running...")
 

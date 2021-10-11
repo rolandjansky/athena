@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -81,10 +81,10 @@ if hasattr(runArgs, "inputGenConfFile"):
    raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
 
 if hasattr(runArgs, "inputGeneratorFile"):
-   evgenLog.info("inputGeneratorFile used " + runArgs.inputGeneratorFile)
+   evgenLog.info("inputGeneratorFile = " + runArgs.inputGeneratorFile)
  
 if hasattr(runArgs, "outputYODAFile"):
-    evgenLog.info("outputYODAFile specified " + runArgs.outputYODAFile)
+    evgenLog.info("specified outputYODAFile = " + runArgs.outputYODAFile)
  
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
@@ -98,6 +98,8 @@ if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_P
 ## Ensure that mandatory args have been supplied (complain before processing the includes)
 if not hasattr(runArgs, "ecmEnergy"):
     raise RuntimeError("No center of mass energy provided.")
+else:
+    evgenLog.info(' ecmEnergy = ' + str(runArgs.ecmEnergy) )
 if not hasattr(runArgs, "randomSeed"):
     raise RuntimeError("No random seed provided.")
     # TODO: or guess it from the JO name??
@@ -125,6 +127,7 @@ if not hasattr(fixSeq, "FixHepMC"):
 ## Sanity check the event record (not appropriate for all generators)
 from EvgenProdTools.EvgenProdToolsConf import TestHepMC
 testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
+#testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy)
 if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
@@ -210,11 +213,11 @@ def OutputTXTFile():
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 if len(runArgs.jobConfig) != 1:
-    evgenLog.info("runArgs.jobConfig '%s'" % runArgs.jobConfig)
+    evgenLog.info("runArgs.jobConfig = %s" % runArgs.jobConfig)
     evgenLog.error("You must supply one and only one jobConfig file argument")
     sys.exit(1)
 
-evgenLog.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+evgenLog.info("Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % os.environ["JOBOPTSEARCHPATH"])
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
@@ -333,18 +336,19 @@ if not evgenConfig.nEventsPerJob:
     evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ') 
     evgenLog.info('#############################################################')
 else:
-    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+    evgenLog.info(' nEventsPerJob = ' + str(evgenConfig.nEventsPerJob)  )
 
 if evgenConfig.minevents > 0 :
     raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+if evgenConfig.nEventsPerJob < 1:
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
 elif evgenConfig.nEventsPerJob > 100000:
     raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % 
-evgenConfig.nEventsPerJob != 0) :
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0):
            msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
@@ -354,7 +358,7 @@ evgenConfig.nEventsPerJob != 0) :
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
-    evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
+    evgenLog.info('Requested output events = '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
@@ -369,7 +373,8 @@ if evgenConfig.keywords:
         kwpath = None
     ## Load the allowed keywords from the file
     allowed_keywords = []
-    if kwpath:
+    if kwpath: 
+        evgenLog.info("evgenkeywords = "+kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -385,7 +390,7 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in DATAPATH" % kwfile )
+        evgenLog.warning("evgenkeywords = not found ")
 
 ## Check that the L1 and L2 keywords pairs are in the list of allowed words pairs (and exit if processing an official JO)
 if evgenConfig.categories:
@@ -428,36 +433,37 @@ if evgenConfig.categories:
     else:
         evgenLog.warning("Could not find CategoryList.txt file %s in $DATAPATH" % lkwfile)
 
-## Configure POOL streaming to the output EVNT format file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-# remove because it was removed from Database/AthenaPOOL/AthenaPoolCnvSvc
-#svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
-if hasattr(runArgs, "outputEVNTFile"):
-  poolFile = runArgs.outputEVNTFile
-elif hasattr(runArgs, "outputEVNT_PreFile"):
-  poolFile = runArgs.outputEVNT_PreFile
-else:
-  raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
+if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"):
+    ## Configure POOL streaming to the output EVNT format file
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+    # remove because it was removed from Database/AthenaPOOL/AthenaPoolCnvSvc
+    #svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
+    if hasattr(runArgs, "outputEVNTFile"):
+        poolFile = runArgs.outputEVNTFile
+    elif hasattr(runArgs, "outputEVNT_PreFile"):
+        poolFile = runArgs.outputEVNT_PreFile
+    else:
+        raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
 
-StreamEVGEN.ForceRead = True
-StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
-StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
-## Used for pile-up (remove dynamic variables except flavour labels)
-if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
-if evgenConfig.savePileupTruthParticles:
-   StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
-   StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
+    StreamEVGEN.ForceRead = True
+    StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+    StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
+    ## Used for pile-up (remove dynamic variables except flavour labels)
+    if evgenConfig.saveJets:
+        StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
+        StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+    if evgenConfig.savePileupTruthParticles:
+       StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
+       StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
 
-# Remove any requested items from the ItemList so as not to write out
-for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
+    # Remove any requested items from the ItemList so as not to write out
+    for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
 
-# Allow (re-)addition to the output stream
-for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
+    # Allow (re-)addition to the output stream
+    for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
@@ -487,6 +493,10 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 
 ## Process random seed arg and pass to generators
 include("EvgenJobTransforms/Generate_randomseeds.py")
+
+## Propagate debug output level requirement to generators
+if (hasattr( runArgs, "VERBOSE") and runArgs.VERBOSE ) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
+   include("EvgenJobTransforms/Generate_debug_level.py")
 
 ## Add special config option (extended model info for BSM scenarios)
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration": evgenConfig.specialConfig })
@@ -667,7 +677,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
+        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
@@ -705,7 +715,7 @@ if eventsFile or datFile:
                 input0 = os.path.basename(file).split("._")[0]
                 input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
                 inputroot = input0+"._"+input1
-              printfunc ("inputroot ",inputroot)
+              evgenLog.info("inputroot = ",inputroot)
               realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
 #             The only input format where merging is permitted is LHE
               with open(realEventsFile, 'r') as f:
@@ -743,16 +753,19 @@ def _checkattr(attr, required=False):
 
 if hasattr(runArgs, "outputTXTFile"):
     # counting the number of events in LHE output
+    count_ev = 0
     with open(eventsFile) as f:
-        contents = f.read()
-        count_ev = contents.count("</event>")
+        lines = f.read()
+        count_ev = lines.count('/event')
     printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 elif hasattr(runArgs, "inputGeneratorFile"):
     # counting the number of events in LHE output
+    count_ev = 0
     with open(eventsFile) as f:
-        contents = f.read()
-        count_ev = contents.count("</event>")
+        lines = f.read()
+        count_ev = lines.count('/event')
     printfunc("MetaData: %s = %s" % ("Number of input LHE events ", count_ev))
+
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description

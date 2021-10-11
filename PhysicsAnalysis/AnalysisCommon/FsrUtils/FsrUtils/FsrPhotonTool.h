@@ -98,6 +98,8 @@ namespace FSR {
         double m_topo_drcut;
         double m_topo_f1cut;
 
+        bool m_is_mc;
+        bool m_AFII_corr;
 
         std::vector<FsrCandidate> m_fsrPhotons;
         FsrCandidate::FsrType     m_fsr_type;

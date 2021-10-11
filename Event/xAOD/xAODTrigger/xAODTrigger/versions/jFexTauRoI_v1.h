@@ -26,22 +26,26 @@ namespace xAOD {
       jFexTauRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize(uint8_t jFexNumber, uint32_t word0 );
+      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord );
 
       /// The "raw" 32-bit word describing the object candidate
-      uint32_t word0() const;
-      uint8_t jFexNumber() const;
-      uint16_t tobEt() const;
-      uint16_t tobIso() const;
-      uint8_t iEta() const;
-      uint8_t iPhi() const; 
-      uint8_t satFlag() const;
-
+      uint32_t  tobWord()       const;
+      uint8_t   jFexNumber()    const;
+      uint8_t   fpgaNumber()    const;
+      uint16_t  tobEt()         const;
+      uint16_t  tobIso()        const;
+      uint8_t   tobLocalEta()   const;
+      uint8_t   tobLocalPhi()   const; 
+      uint8_t   tobSat()        const;
+      int       globalEta()     const;
+      uint      globalPhi()     const;
+      float     eta()           const;
+      float     phi()           const;
 
       /// Set the "raw" 32-bit words describing the object candidate
-      void setWord0( uint32_t word0 );
+      void setTobWord( uint32_t tobWord );
       void setjFexNumber( uint8_t jFexNumber);
-            
+      void setfpgaNumber(uint8_t fpgaNumber);      
       /// TOB ET (decoded from TOB, stored for convenience)
       unsigned int unpackEtTOB() const;
       void setTobEt( uint16_t value); 
@@ -54,20 +58,29 @@ namespace xAOD {
 
       ///Eta coordinates
       unsigned int unpackEtaIndex() const;
-      void setEta(uint8_t value);
-      unsigned int eta() const;
+      void setTobLocalEta(uint8_t value);
+
 
       ///Phi coordinates
       unsigned int unpackPhiIndex() const;
-      void setPhi(uint8_t value);
-      unsigned int phi() const;
+      void setTobLocalPhi(uint8_t value);
+
   
       //Saturation flag
       unsigned int unpackSaturationIndex() const;
-      void setSatFlag(uint8_t value);
+      void setTobSat(uint8_t value);
       
-      //TOB word flag
-      unsigned int tob() const;
+
+      //Global coords
+      int unpackGlobalEta() const;
+      void setGlobalEta(int value);
+      void setEta(float value);
+
+      uint unpackGlobalPhi() const;
+      void setGlobalPhi(uint value);
+      void setPhi(float value);
+      
+      
    private:
       //Constants used in converting to ATLAS units
       static const float s_tobEtScale;

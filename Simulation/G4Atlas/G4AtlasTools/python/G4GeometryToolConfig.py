@@ -1,24 +1,36 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+from AthenaCommon import Logging
+
+#the physics region tools
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
+
+#the field config tools
+from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
+
+from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+
 GeoDetectorTool=CompFactory.GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
 from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
+from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg 
 
-CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,G4AtlasDetectorConstructionTool=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","G4AtlasDetectorConstructionTool",)
+CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,VoxelDensityTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","VoxelDensityTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
-#ToDo - finish migrating this (dnoel)
-#to still migrate: getCavernWorld, getCavernInfraGeoDetectorTool
+#ToDo - finish migrating this
 #from ForwardRegionProperties.ForwardRegionPropertiesToolConfig import ForwardRegionPropertiesCfg
 
 
@@ -77,6 +89,17 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
     result=ITkGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+
+def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
+    #set up geometry
+    result=HGTD_GeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -213,7 +236,11 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     kwargs.setdefault("DetectorName", "ITK")
     kwargs.setdefault("InnerRadius", 32.15*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    kwargs.setdefault("dZ", 347.5*cm)
+    if ConfigFlags.Detector.GeometryHGTD:
+        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) when turned on
+        kwargs.setdefault("dZ", 354.5*cm)
+    else:
+        kwargs.setdefault("dZ", 347.5*cm)
 
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryITkPixel:
@@ -259,18 +286,15 @@ def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
 def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     result = ComponentAccumulator()
 
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6735.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6747.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+    if ConfigFlags.Detector.GeometryHGTD:
+        # Make room for HGTD (3420 mm < |z| < 3545 mm) when turned on
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
+    else:
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryLAr:
         toolLArMgr = result.popToolsAndMerge(LArMgrGeoDetectorToolCfg(ConfigFlags))
@@ -314,18 +338,11 @@ def ForwardRegionEnvelopeCfg(ConfigFlags, name='ForwardRegion', **kwargs):
 def MUONEnvelopeCfg(ConfigFlags, name="MUONQ02", **kwargs): #FIXME rename to MUON when safe (IS IT SAFE?))
     result = ComponentAccumulator()
 
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6736.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6748.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6748.,-6748.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6748.,6748.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryMuon:
         toolMuon = result.popToolsAndMerge(MuonGeoDetectorToolCfg(ConfigFlags))
@@ -351,8 +368,8 @@ def generateSubDetectorList(ConfigFlags):
     result = ComponentAccumulator()
     SubDetectorList=[]
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
-        if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.ReadTR:
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+        if ConfigFlags.Beam.Type == 'cosmics' and hasattr(ConfigFlags, "Sim.ReadTR"):
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
     if ConfigFlags.Detector.GeometryMuon:
@@ -365,6 +382,9 @@ def generateSubDetectorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryITk:
         toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolITK ]
+    if ConfigFlags.Detector.GeometryHGTD:
+        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [ toolHGTD ]
     if ConfigFlags.Detector.GeometryCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]
@@ -403,8 +423,9 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
-       (ConfigFlags.Sim.CavernBG != 'Signal'):
+    # if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
+    #    (ConfigFlags.Sim.CavernBG != 'Signal'):
+    if not (ConfigFlags.Detector.GeometryMuon or ConfigFlags.Detector.GeometryCavern):
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
         if not ConfigFlags.Detector.GeometryCalo:
@@ -461,10 +482,326 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     return result
 
 
-def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstructionTool", **kwargs):
-    return G4AtlasDetectorConstructionTool(name, **kwargs)
-
-
 def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
-    return MaterialDescriptionTool(name, **kwargs)
+    result = ComponentAccumulator()
+    result.setPrivateTools(MaterialDescriptionTool(name, **kwargs))
+    return result
+
+
+def VoxelDensityToolCfg(ConfigFlags, name="VoxelDensityTool", **kwargs):
+    ## kwargs.setdefault("SomeProperty", aValue)
+    voxelDensitySettings = {}
+    if ConfigFlags.Detector.GeometryITkPixel:
+        voxelDensitySettings["ITkPixelDetector"] = 0.05
+    if ConfigFlags.Detector.GeometryITkStrip:
+        voxelDensitySettings["ITkStrip::Barrel"] = 0.05
+        voxelDensitySettings["ITkStrip::ITkStrip_Forward"] = 0.05
+        ##The below is only needed temporarily, while we wait for
+        ##improved naming to be propagated to all necessary geo tags
+        voxelDensitySettings["ITkStrip::SCT_Forward"] = 0.05
+    kwargs.setdefault("VolumeVoxellDensityLevel",voxelDensitySettings)
+    result = ComponentAccumulator()
+    result.setPrivateTools(VoxelDensityTool(name, **kwargs))
+    return result
+
+
+def getATLAS_RegionCreatorList(ConfigFlags):
+    regionCreatorList = []
+
+    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
+
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+        regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
+        #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
+    if ConfigFlags.Detector.GeometryID:
+        if ConfigFlags.Detector.GeometryPixel:
+            regionCreatorList += [PixelPhysicsRegionToolCfg(ConfigFlags)]
+        if ConfigFlags.Detector.GeometrySCT:
+            regionCreatorList += [SCTPhysicsRegionToolCfg(ConfigFlags)]
+        if ConfigFlags.Detector.GeometryTRT:
+            regionCreatorList += [TRTPhysicsRegionToolCfg(ConfigFlags)]
+            if isRUN2:
+                regionCreatorList += [TRT_ArPhysicsRegionToolCfg(ConfigFlags)] #'TRT_KrPhysicsRegionTool'
+        # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
+        if ConfigFlags.Detector.GeometryBpipe:
+            if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+                regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
+            #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
+            if False:
+                regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.GeometryITk:
+        if ConfigFlags.Detector.GeometryITkPixel:
+            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)] #TODO: add dedicated config
+        if ConfigFlags.Detector.GeometryITkStrip:
+            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)] #TODO: And here...
+        # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
+        if ConfigFlags.Detector.GeometryBpipe:
+            if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+                regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
+            #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
+            if False:
+                regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.GeometryCalo:
+        if ConfigFlags.Detector.GeometryLAr:
+            # Shower parameterization overrides the calibration hit flag
+            if ConfigFlags.Sim.LArParameterization > 0 \
+               and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
+                Logging.log.info('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+                Logging.log.info('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+                Logging.log.info('  Please try again with a different value of either ConfigFlags.Sim.LArParameterization (' + str(ConfigFlags.Sim.LArParameterization) + ') or ConfigFlags.Sim.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+                raise RuntimeError('Configuration not allowed')
+            regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags),
+                                  EMECPhysicsRegionToolCfg(ConfigFlags),
+                                  HECPhysicsRegionToolCfg(ConfigFlags),
+                                  FCALPhysicsRegionToolCfg(ConfigFlags)]
+            if ConfigFlags.Sim.LArParameterization > 0:
+                # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
+                regionCreatorList += [EMECParaPhysicsRegionToolCfg(ConfigFlags),
+                                      FCALParaPhysicsRegionToolCfg(ConfigFlags),
+                                      FCAL2ParaPhysicsRegionToolCfg(ConfigFlags)]
+                if ConfigFlags.Sim.LArParameterization > 1:
+                    pass
+                    #todo - add the line below
+                    regionCreatorList += [PreSampLArPhysicsRegionToolCfg(ConfigFlags), DeadMaterialPhysicsRegionToolCfg(ConfigFlags)]
+    ## FIXME _initPR never called for FwdRegion??
+    #if simFlags.ForwardDetectors.statusOn:
+    #    if DetFlags.geometry.FwdRegion_on():
+    #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
+    if ConfigFlags.Detector.GeometryMuon:
+        #todo - add the line below
+        regionCreatorList += [DriftWallPhysicsRegionToolCfg(ConfigFlags), DriftWall1PhysicsRegionToolCfg(ConfigFlags), DriftWall2PhysicsRegionToolCfg(ConfigFlags)]
+        if ConfigFlags.Sim.CavernBG not in ['Off', 'Read']:# and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            regionCreatorList += [MuonSystemFastPhysicsRegionToolCfg(ConfigFlags)]
+    return regionCreatorList
+
+
+def getTB_RegionCreatorList(ConfigFlags):
+    regionCreatorList = []
+    #from G4AtlasApps.SimFlags import simFlags
+
+    #TODO - migrate below>>
+    #if (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2003"):
+    #    if (ConfigFlags.Detector.GeometryLAr):
+    #        regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
+    #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2002"):
+    #    if (ConfigFlags.Detector.GeometryLAr):
+    #        regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
+    #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6EC_2002"):
+    #    if (ConfigFlags.Detector.GeometryLAr):
+    #        regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
+    #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2004"):
+    #    if (simFlags.LArTB_H6Hec.get_Value()):
+    #        regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
+    #    if (simFlags.LArTB_H6Emec.get_Value()):
+    #        regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
+    #    if (simFlags.LArTB_H6Fcal.get_Value()):
+    #        regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
+    #<<migrate above
+    return regionCreatorList
+
+
+#########################################################################
+def ATLAS_FieldMgrListCfg(ConfigFlags):
+    result = ComponentAccumulator()
+    fieldMgrList = []
+
+    if ConfigFlags.Sim.TightMuonStepping:
+        acc   = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+    else:
+        acc   = ATLASFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+
+    if ConfigFlags.Detector.GeometryBpipe:
+        acc = BeamPipeFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+    if ConfigFlags.Detector.GeometryID:
+        acc = InDetFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+    #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
+    if False:
+        acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+    if ConfigFlags.Detector.GeometryMuon:
+        acc = MuonFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+
+    #sort these forward ones later
+    if ConfigFlags.Detector.GeometryForward: #needed?
+        if ConfigFlags.Detector.GeometryFwdRegion: #or forward?
+          accQ1FwdRegionFieldManager = Q1FwdFieldManagerToolCfg(ConfigFlags)
+          accQ2FwdRegionFieldManager = Q2FwdFieldManagerToolCfg(ConfigFlags)
+          accQ3FwdRegionFieldManager = Q3FwdFieldManagerToolCfg(ConfigFlags)
+          accD1FwdRegionFieldManager = D1FwdFieldManagerToolCfg(ConfigFlags)
+          accD2FwdRegionFieldManager = D2FwdFieldManagerToolCfg(ConfigFlags)
+          accQ4FwdRegionFieldManager = Q4FwdFieldManagerToolCfg(ConfigFlags)
+          accQ5FwdRegionFieldManager = Q5FwdFieldManagerToolCfg(ConfigFlags)
+          accQ6FwdRegionFieldManager = Q6FwdFieldManagerToolCfg(ConfigFlags)
+          accQ7FwdRegionFieldManager = Q7FwdFieldManagerToolCfg(ConfigFlags)
+          accQ1HKickFwdRegionFieldManager = Q1HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ1VKickFwdRegionFieldManager = Q1VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ2HKickFwdRegionFieldManager = Q2HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ2VKickFwdRegionFieldManager = Q2VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ3HKickFwdRegionFieldManager = Q3HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ3VKickFwdRegionFieldManager = Q3VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ4VKickAFwdRegionFieldManager = Q4VKickAFwdFieldManagerToolCfg(ConfigFlags)
+          accQ4HKickFwdRegionFieldManager = Q4HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ4VKickBFwdRegionFieldManager = Q4VKickBFwdFieldManagerToolCfg(ConfigFlags)
+          accQ5HKickFwdRegionFieldManager = Q5HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ6VKickFwdRegionFieldManager = Q6VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accFwdRegionFieldManager = FwdRegionFieldManagerToolCfg(ConfigFlags)
+
+          toolQ1FwdRegionFieldManager = result.popToolsAndMerge(accQ1FwdRegionFieldManager)
+          toolQ2FwdFieldManager = result.popToolsAndMerge(accQ2FwdRegionFieldManager)
+          toolQ3FwdFieldManager = result.popToolsAndMerge(accQ3FwdRegionFieldManager)
+          toolD1FwdFieldManager = result.popToolsAndMerge(accD1FwdRegionFieldManager)
+          toolD2FwdFieldManager = result.popToolsAndMerge(accD2FwdRegionFieldManager)
+          toolQ4FwdFieldManager = result.popToolsAndMerge(accQ4FwdRegionFieldManager)
+          toolQ5FwdFieldManager = result.popToolsAndMerge(accQ5FwdRegionFieldManager)
+          toolQ6FwdFieldManager = result.popToolsAndMerge(accQ6FwdRegionFieldManager)
+          toolQ7FwdFieldManager = result.popToolsAndMerge(accQ7FwdRegionFieldManager)
+          toolQ1HKickFwdFieldManager = result.popToolsAndMerge(accQ1HKickFwdRegionFieldManager)
+          toolQ1VKickFwdFieldManager = result.popToolsAndMerge(accQ1VKickFwdRegionFieldManager)
+          toolQ2HKickFwdFieldManager = result.popToolsAndMerge(accQ2HKickFwdRegionFieldManager)
+          toolQ2VKickFwdFieldManager = result.popToolsAndMerge(accQ2VKickFwdRegionFieldManager)
+          toolQ3HKickFwdFieldManager = result.popToolsAndMerge(accQ3HKickFwdRegionFieldManager)
+          toolQ3VKickFwdFieldManager = result.popToolsAndMerge(accQ3VKickFwdRegionFieldManager)
+          toolQ4VKickAFwdFieldManager = result.popToolsAndMerge(accQ4VKickAFwdRegionFieldManager)
+          toolQ4HKickFwdFieldManager = result.popToolsAndMerge(accQ4HKickFwdRegionFieldManager)
+          toolQ4VKickBFwdFieldManager = result.popToolsAndMerge(accQ4VKickBFwdRegionFieldManager)
+          toolQ5HKickFwdFieldManager = result.popToolsAndMerge(accQ5HKickFwdRegionFieldManager)
+          toolQ6VKickFwdFieldManager = result.popToolsAndMerge(accQ6VKickFwdRegionFieldManager)
+          toolFwdRegionFieldManager = result.popToolsAndMerge(accFwdRegionFieldManager)
+
+          fieldMgrList+=[toolQ1FwdRegionFieldManager,
+                         toolQ2FwdFieldManager,
+                         toolQ3FwdFieldManager,
+                         toolD1FwdFieldManager,
+                         toolD2FwdFieldManager,
+                         toolQ4FwdFieldManager,
+                         toolQ5FwdFieldManager,
+                         toolQ6FwdFieldManager,
+                         toolQ7FwdFieldManager,
+                         toolQ1HKickFwdFieldManager,
+                         toolQ1VKickFwdFieldManager,
+                         toolQ2HKickFwdFieldManager,
+                         toolQ2VKickFwdFieldManager,
+                         toolQ3HKickFwdFieldManager,
+                         toolQ3VKickFwdFieldManager,
+                         toolQ4VKickAFwdFieldManager,
+                         toolQ4HKickFwdFieldManager,
+                         toolQ4VKickBFwdFieldManager,
+                         toolQ5HKickFwdFieldManager,
+                         toolQ6VKickFwdFieldManager,
+                         toolFwdRegionFieldManager]
+
+    result.setPrivateTools(fieldMgrList)
+    return result
+
+
+def getTB_FieldMgrList(ConfigFlags):
+    fieldMgrList = []
+    return fieldMgrList
+
+
+def getGeometryConfigurationTools(ConfigFlags):
+    geoConfigToolList = []
+    # The methods for these tools should be defined in the
+    # package containing each tool, so G4AtlasTools in this case
+    result =ComponentAccumulator()
+    geoConfigToolList += [result.popToolsAndMerge(MaterialDescriptionToolCfg(ConfigFlags))]
+    geoConfigToolList += [result.popToolsAndMerge(VoxelDensityToolCfg(ConfigFlags))]
+    return result, geoConfigToolList
+
+
+def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstructionTool", **kwargs):
+    result = ComponentAccumulator()
+
+    ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
+    geoConfAcc, listOfGeoConfTools = getGeometryConfigurationTools(ConfigFlags)
+    result.merge(geoConfAcc)
+    kwargs.setdefault("GeometryConfigurationTools", listOfGeoConfTools)
+
+    if "SenDetMasterTool" not in kwargs:
+        tool = result.popToolsAndMerge(SensitiveDetectorMasterToolCfg(ConfigFlags))
+        result.addPublicTool(tool)
+        kwargs.setdefault("SenDetMasterTool", result.getPublicTool(tool.name))
+
+    #if hasattr(simFlags,"Eta"): #FIXME ugly hack
+    if False:
+        kwargs.setdefault("World", 'TileTB_World') # NEED TO ADD THIS
+        kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
+        kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
+    #elif hasattr(simFlags,"LArTB_H1TableYPos"): #FIXME ugly hack
+    elif False:
+        kwargs.setdefault("World", 'LArTB_World')
+        kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
+        kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
+    else:
+        if ConfigFlags.Beam.Type == 'cosmics' or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
+            kwargs.setdefault("World", result.popToolsAndMerge(CavernWorldCfg(ConfigFlags)))
+        else:
+            kwargs.setdefault("World", result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags)))
+        kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
+        #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
+        if True:
+            acc = ATLAS_FieldMgrListCfg(ConfigFlags)
+            fieldMgrList = result.popToolsAndMerge(acc)
+            kwargs.setdefault("FieldManagers", fieldMgrList)
+    result.setPrivateTools(G4AtlasDetectorConstructionTool(name, **kwargs))
+    return result
+
+
+def CavernInfraGeoDetectorToolCfg(ConfigFlags, name='CavernInfra', **kwargs):
+    result = CavernGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "CavernInfra")
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def CavernWorldCfg(ConfigFlags, name="Cavern", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("DetectorName", "World")
+    bedrockDX = 302700
+    bedrockDZ = 301000
+    if ConfigFlags.Sim.CavernBG == 'Off':
+        ## Be ready to resize bedrock if the cosmic generator needs more space
+        if ConfigFlags.Sim.ISFRun:
+            # for ISF cosmics simulation, set world volume to biggest possible case
+            bedrockDX = 1000.*3000 # 3 km
+            bedrockDZ = 1000.*3000 # 3 km
+        else:
+            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
+            theCavernProperties = CavernPropertyCalculator()
+            if theCavernProperties.BedrockDX(ConfigFlags) > bedrockDX:
+                bedrockDX = theCavernProperties.BedrockDX(ConfigFlags)
+            if theCavernProperties.BedrockDZ(ConfigFlags) > bedrockDZ:
+                bedrockDZ = theCavernProperties.BedrockDZ(ConfigFlags)
+
+    kwargs.setdefault("dX", bedrockDX) #FIXME Units?
+    kwargs.setdefault("dY", 57300 + 41000 + 1000) # 1 extra metre to help voxelization... #FIXME Units?
+    kwargs.setdefault("dZ", bedrockDZ) #FIXME Units?
+    # Subtraction Solid - has to be a better way to do this!!
+    kwargs.setdefault("NumberOfHoles", 1)
+    kwargs.setdefault("HoleNames", ['BelowCavern'])
+    kwargs.setdefault("Hole_dX",   [bedrockDX]) 
+    kwargs.setdefault("Hole_dY",   [41000]) 
+    kwargs.setdefault("Hole_dZ",   [bedrockDZ])
+
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [-58300])
+    kwargs.setdefault("HolePosZ",  [0])
+
+    SubDetectorList = []
+    SubDetectorList += [ result.popToolsAndMerge(CavernInfraGeoDetectorToolCfg(ConfigFlags))]
+    SubDetectorList += [ result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))]
+    
+    kwargs.setdefault("SubDetectors", SubDetectorList)
+    result.setPrivateTools(BoxEnvelope(name, **kwargs))
+    return result

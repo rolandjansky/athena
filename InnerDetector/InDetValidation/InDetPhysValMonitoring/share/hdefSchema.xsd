@@ -68,6 +68,7 @@
       <xs:enumeration value="TH2F"/>
       <xs:enumeration value="TH3F"/>
       <xs:enumeration value="TProfile"/>
+      <xs:enumeration value="TProfile2D"/>
       <xs:enumeration value="TEfficiency"/>
     </xs:restriction>
   </xs:simpleType>

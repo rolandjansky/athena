@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaLayerRecalibTool/corr_HV_EMBPS.h"
@@ -96,7 +96,7 @@ float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
 
 //===============================================================================
 // return scale factor of response vs HV used in reconstruction
-float corr_HV_EMBPS::getRecoCorrection(float hv,float eta) const
+float corr_HV_EMBPS::getRecoCorrection(float hv,float eta) 
 {
       float nominal = 2000.;
       float T = 88.37;
@@ -117,7 +117,7 @@ float corr_HV_EMBPS::getRecoCorrection(float hv,float eta) const
 }
 
 //===============================================================================
-float corr_HV_EMBPS::Respo(float e, float e_nominal,float tempe)  const
+float corr_HV_EMBPS::Respo(float e, float e_nominal,float tempe)  
 {
   if (e < -999.) return 1.;
   if (e < 0.01) return 0;
@@ -127,7 +127,7 @@ float corr_HV_EMBPS::Respo(float e, float e_nominal,float tempe)  const
 }
 
 //===============================================================================
-float corr_HV_EMBPS::InvCharge(float e) const
+float corr_HV_EMBPS::InvCharge(float e) 
 {
   float q = 1.;
   if ( e > 2.) q=(1.+0.36/e);
@@ -136,7 +136,7 @@ float corr_HV_EMBPS::InvCharge(float e) const
 }
 
 //===============================================================================
-float corr_HV_EMBPS::vdrift(float e, float tempe) const
+float corr_HV_EMBPS::vdrift(float e, float tempe) 
 {
   const float T = tempe;
   static const float P[6] = {-0.01481,-0.0075,0.141,12.4,1.627,0.317};
@@ -147,7 +147,7 @@ float corr_HV_EMBPS::vdrift(float e, float tempe) const
 
 
 //===============================================================================
-float corr_HV_EMBPS::getDataCorrection(float hv,float eta) const
+float corr_HV_EMBPS::getDataCorrection(float hv,float eta) 
 //
 // values are measured 1 +   <Eraw0_end of run>-<Eraw0 beginning of run> / <Eraw0>  (i.e <Eraw end>/<Eraw begin>)
 //  for the sectors with both sides going from 1600->1200V from beginning to end of run
@@ -168,7 +168,7 @@ float corr_HV_EMBPS::getDataCorrection(float hv,float eta) const
 }
 
 //===============================================================================
-float corr_HV_EMBPS::getExtraScaleFactor() const
+float corr_HV_EMBPS::getExtraScaleFactor() 
 {
    return 1.013;
 }

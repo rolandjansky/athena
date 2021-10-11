@@ -128,7 +128,7 @@ void TrackCollHandle_TrkTrack::setupSettingsFromControllerSpecific(TrackSystemCo
 bool TrackCollHandle_TrkTrack::load()
 {
   //Get collection:
-  const TrackCollection * trackColl(0);
+  const TrackCollection * trackColl(nullptr);
   if (!VP1SGAccessHelper(systemBase()).retrieve(trackColl, name())) {
     message("Error: Could not retrieve track collection with key="+name());
     return false;
@@ -166,7 +166,7 @@ bool TrackCollHandle_TrkTrack::cut(TrackHandleBase* handle)
 //____________________________________________________________________
 void TrackCollHandle_TrkTrack::visibleStateUpdated(TrackHandle_TrkTrack* trkhandle)
 {
-  common()->visTrkTracksToMaterialHelper()->setState(trkhandle->trkTrackPointer(), (trkhandle->visible() ? trkhandle->currentMaterial() : 0 ));
+  common()->visTrkTracksToMaterialHelper()->setState(trkhandle->trkTrackPointer(), (trkhandle->visible() ? trkhandle->currentMaterial() : nullptr ));
 }
 
 

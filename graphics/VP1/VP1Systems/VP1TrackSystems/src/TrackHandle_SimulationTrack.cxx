@@ -33,8 +33,8 @@ public:
       simBarCode(sbc),
       simHitList(shl),
       ascObjVis(false),
-      ascObjs(0),
-      trkTrack(0) {}
+      ascObjs(nullptr),
+      trkTrack(nullptr) {}
   TrackHandle_SimulationTrack * theclass;
   SimBarCode simBarCode;
   SimHitList simHitList;
@@ -47,7 +47,7 @@ public:
 
   static Trk::TrackStateOnSurface * createTSOS(const Trk::TrackParameters * pars)
   {
-    return pars ? new Trk::TrackStateOnSurface(0,pars,0,0) : 0;
+    return pars ? new Trk::TrackStateOnSurface(nullptr,pars,nullptr,nullptr) : nullptr;
   }
   static void addPars(DataVector<const Trk::TrackStateOnSurface>* dv, const Trk::TrackParameters * pars)
   {
@@ -75,12 +75,20 @@ public:
       return;
     }
 
-    Trk::TrackInfo ti(Trk::TrackInfo::Unknown,theclass->extrapolationParticleHypothesis());
-    trkTrack = new Trk::Track(ti,trackStateOnSurfaces/*track assumes ownership*/,0/*fitquality*/);
+    Trk::TrackInfo ti(Trk::TrackInfo::Unknown,
+                      theclass->extrapolationParticleHypothesis());
+    /*track assumes ownership*/
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(trackStateOnSurfaces);
+    trkTrack = new Trk::Track(
+      ti,
+      std::move(*sink),
+      nullptr /*fitquality*/);
 
-//     if (VP1Msg::verbose())
-//       VP1Msg::messageVerbose("TrackHandle_SimulationTrack created track with "
-// 			     +QString::number(trackStateOnSurfaces->size())+" parameters");
+    //     if (VP1Msg::verbose())
+    //       VP1Msg::messageVerbose("TrackHandle_SimulationTrack created track
+    //       with "
+    // 			     +QString::number(trackStateOnSurfaces->size())+"
+    // parameters");
   }
 
 };

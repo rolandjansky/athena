@@ -24,7 +24,7 @@ def precisionPhotonSequence(ConfigFlags):
     precisionPhotonViewsMaker.Views = "precisionPhotonViews"     # Output container which has the view objects
 
     # Configure the reconstruction algorithm sequence
-    from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import precisionPhotonRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Photon.PrecisionPhotonRecoSequences import precisionPhotonRecoSequence
     (precisionPhotonInViewSequence, sequenceOut) = precisionPhotonRecoSequence(InViewRoIs)
 
     precisionPhotonViewsMaker.ViewNodeName = precisionPhotonInViewSequence.name()

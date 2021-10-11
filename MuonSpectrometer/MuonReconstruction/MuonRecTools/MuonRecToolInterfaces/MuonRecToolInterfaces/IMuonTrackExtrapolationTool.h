@@ -25,16 +25,14 @@ namespace Muon {
             @return a pointer to the extrapolated track, zero if extrapolation failed.
                     The ownership of the track is passed to the client calling the tool.
         */
-        virtual Trk::Track* extrapolate(const Trk::Track& track) const = 0;
-        virtual Trk::Track* extrapolate(const Trk::Track& track, const EventContext& ctx) const = 0;
+        virtual std::unique_ptr<Trk::Track> extrapolate(const Trk::Track& track, const EventContext& ctx) const = 0;
 
         /** @brief extrapolates a muon track collection to a destination and returns a new track expressed at the destination.
             @param tracks input track collection
             @return a pointer to the extrapolated track collection, zero if extrapolation failed.
                     The ownership of the collection is passed to the client calling the tool.
         */
-        virtual TrackCollection* extrapolate(const TrackCollection& tracks) const = 0;
-        virtual TrackCollection* extrapolate(const TrackCollection& tracks, const EventContext& ctx) const = 0;
+        virtual std::unique_ptr<TrackCollection> extrapolate(const TrackCollection& tracks, const EventContext& ctx) const = 0;
 
         virtual ~IMuonTrackExtrapolationTool() = default;
     };

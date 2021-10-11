@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1Base/PhiSectionWidget.h"
@@ -400,6 +400,9 @@ void PhiSectionWidget::mousePressEvent(QMouseEvent *event)
     return;
   }
   m_d->sectorstatus[isector]=!(m_d->sectorstatus.at(isector));
+  if(VP1Msg::verbose()){
+	 messageVerbose("Turning on sector"+QString::number(isector));
+  }
   m_d->cacheValid=false;
   m_d->checkForChanges();
 }
@@ -833,7 +836,7 @@ void PhiSectionWidget::setAllowedNumberOfSectors(QList<int> allowedNSectors, boo
 
   m_d->allowCustomNSectors = allowCustom;
 
-  qSort(allowedNSectors);
+  std::sort(allowedNSectors.begin(), allowedNSectors.end());
   if (m_d->allowedNSectors==allowedNSectors) {
     return;
   }

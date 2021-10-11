@@ -2,7 +2,6 @@
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "TrigT1Result/MuCTPIResult.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
-#include "TrigT1Result/RecRoIBResult.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
@@ -33,7 +32,6 @@ int main(){
 
     
 
-    static_assert(std::is_nothrow_move_constructible<RecRoIBResult>::value);
     static_assert(std::is_nothrow_move_constructible<RoIBResult>::value);
     static_assert(std::is_trivially_copy_constructible<MuCTPI_MultiplicityWord_Decoder>::value);
     static_assert(std::is_trivially_destructible<MuCTPI_MultiplicityWord_Decoder>::value);

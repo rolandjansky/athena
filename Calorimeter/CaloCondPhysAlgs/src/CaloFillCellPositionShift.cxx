@@ -2,6 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
+
+
+
 #include "CaloFillCellPositionShift.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
@@ -75,8 +79,8 @@ StatusCode CaloFillCellPositionShift::stop()
       float dy=0.;
       float dz=0.;
       if (layer==CaloSampling::EMB2) {
-        dy = -1.*cos(phi)*cos(phi);
-        dx =  1.*cos(phi)*sin(phi);
+        dy = -1.*std::cos(phi)*std::cos(phi);
+        dx =  1.*std::cos(phi)*std::sin(phi);
         dz = 0.;
       }
 

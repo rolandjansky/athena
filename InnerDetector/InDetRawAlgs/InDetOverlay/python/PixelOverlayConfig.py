@@ -7,29 +7,14 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def PixelRawDataProviderAlgCfg(flags, name="PixelRawDataProvider", **kwargs):
-    """Return a ComponentAccumulator for pixel raw data provider"""
-    # Temporary until available in the central location
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "PixelRDOs")
-
-    from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
-    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags)))
-
-    PixelRawDataProvider = CompFactory.PixelRawDataProvider
-    alg = PixelRawDataProvider(name, **kwargs)
-    acc.addEventAlgo(alg)
-
-    return acc
-
 
 def PixelDataOverlayExtraCfg(flags, **kwargs):
     """Return a ComponentAccumulator with pixel data overlay specifics"""
     acc = ComponentAccumulator()
 
     # We need to convert BS to RDO for data overlay
-    acc.merge(PixelRawDataProviderAlgCfg(flags))
+    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
+    acc.merge(PixelRawDataProviderAlgCfg(flags, RDOKey = flags.Overlay.BkgPrefix + "PixelRDOs"))
 
     return acc
 

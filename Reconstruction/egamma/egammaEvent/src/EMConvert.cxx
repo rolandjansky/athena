@@ -181,7 +181,7 @@ double EMConvert::parameter(egammaParameters::ParamDef key) const {
   typedef std::pair<egammaParameters::ParamDef,double> elParams;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) {
       result = (*p).second;
       break;
@@ -197,7 +197,7 @@ bool EMConvert::boolParameter(egammaParameters::ParamDef key) const {
   bool result = false;
   std::vector<elParams>::const_iterator p = m_parametersBool.begin();
  
-  for (;p !=m_parametersBool.end(); p++) {
+  for (;p !=m_parametersBool.end(); ++p) {
     if ( (*p).first == key ) {
       result = (*p).second;
       break;
@@ -214,7 +214,7 @@ int EMConvert::intParameter(egammaParameters::ParamDef key) const {
   int result = (int)egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parametersInt.begin();
  
-  for (;p !=m_parametersInt.end(); p++) {
+  for (;p !=m_parametersInt.end(); ++p) {
     if ( (*p).first == key ){
       result = (*p).second;
       break;
@@ -241,7 +241,7 @@ void EMConvert::set_parameter(egammaParameters::ParamDef key, double value, bool
   using elParams = std::pair<egammaParameters::ParamDef, double>;
   std::vector<elParams>::iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -265,7 +265,7 @@ void EMConvert::set_parameterBool(egammaParameters::ParamDef key, bool value, bo
 
   std::vector<elParams>::iterator p = m_parametersBool.begin();
  
-  for (;p !=m_parametersBool.end(); p++) {
+  for (;p !=m_parametersBool.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -289,7 +289,7 @@ void EMConvert::set_parameterInt(egammaParameters::ParamDef key, int value, bool
 
   std::vector<elParams>::iterator p = m_parametersInt.begin();
  
-  for (;p !=m_parametersInt.end(); p++) {
+  for (;p !=m_parametersInt.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 

@@ -34,7 +34,7 @@
 
 namespace Units = Athena::Units;
 namespace {
-    static const double OneOverSqrt2 = 1. / std::sqrt(2);
+    constexpr double OneOverSqrt2 = M_SQRT1_2;
 }
 namespace Rec {
 
@@ -628,7 +628,7 @@ namespace Rec {
 
         return perigee->uniqueClone();
     }
-   ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
+    ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
         const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -651,6 +651,8 @@ namespace Rec {
                 refittedTrack = m_fitter->fit(ctx, track, false, Trk::muon);
             }
             if (!refittedTrack) return ScatteringAngleSignificance(0);
+        } else {
+            refittedTrack = std::make_unique<Trk::Track>(track);
         }
 
         // collect sigma of scatterer up to TSOS carrying caloEnergy
@@ -889,7 +891,7 @@ namespace Rec {
         return parameters;
     }
 
-    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) {
         double phi = parameters.parameters()[Trk::phi0];
         if (phi > 0.) {
             phi -= M_PI;

@@ -148,7 +148,7 @@ StatusCode PixelFastDigitizationTool::initialize()
 
   ATH_MSG_DEBUG ( "PixelDigitizationTool::initialize()" );
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
@@ -171,7 +171,7 @@ StatusCode PixelFastDigitizationTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_inputObjectName=="")
+  if (m_inputObjectName.empty())
     {
       ATH_MSG_FATAL ( "Property InputObjectName not set !" );
       return StatusCode::FAILURE;
@@ -254,7 +254,7 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++) {
+  for( ; iColl != endColl; ++iColl) {
     SiHitCollection *siHitColl = new SiHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("SiHitCollection found with " << siHitColl->size() <<
@@ -440,13 +440,7 @@ StatusCode PixelFastDigitizationTool::mergeEvent(const EventContext& ctx)
   }
 
   delete m_thpcsi;
-  std::list<SiHitCollection*>::iterator siHitColl(m_siHitCollList.begin());
-  std::list<SiHitCollection*>::iterator siHitCollEnd(m_siHitCollList.end());
-  while(siHitColl!=siHitCollEnd)
-    {
-      delete (*siHitColl);
-      ++siHitColl;
-    }
+  for(SiHitCollection* ptr : m_siHitCollList) delete ptr;
   m_siHitCollList.clear();
 
 
@@ -491,6 +485,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
   else { m_pixelClusterMap->clear(); }
 
   SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey, ctx);
+  std::vector<int> trkNo;
+  std::vector<Identifier> detEl;
 
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
@@ -498,8 +494,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
     int nnn = 0;
 
-    std::vector<int> trkNo;
-    std::vector<Identifier> detEl;
+    trkNo.clear();
+    detEl.clear();
 
     while (i != e) {
 
@@ -587,8 +583,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       double pixMinimalPathCut= 1. / m_pixPathLengthTotConv;
 
       Identifier diodeID = hitId;
-      int circ = m_pixelCabling->getFE(&diodeID,moduleID);
-      int type = m_pixelCabling->getPixelType(diodeID);
+      int circ = m_pixelReadout->getFE(diodeID,moduleID);
+      InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
       double th0 = calibData->getAnalogThreshold((int)waferHash,circ,type)/m_ThrConverted;
 
@@ -650,14 +646,11 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
       std::vector<Identifier>           rdoList;
       std::vector<int>                  totList;
-      std::vector<int>                  PixelIndicesX;
-      std::vector<int>                  PixelIndicesY;
 
       const bool   isGanged = false;
       int lvl1a = 0;
 
       double accumulatedPathLength=0.;
-      std::vector < double > paths;
 
       //ATTENTION index max e min da rdo + manager
       int phiIndexMax = -999999;
@@ -717,11 +710,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       int siDeltaPhiCut = phiIndexMax-phiIndexMin+1;
       int siDeltaEtaCut = etaIndexMax-etaIndexMin+1;
 
-      int totalToT=0;
-      for (unsigned int i=0; i<totList.size() ; i++){
-        totalToT+=totList[i];
+      int totalToT=std::accumulate(totList.begin(), totList.end(), 0);;
 
-      }
       // bail out if 0 pixel or path length problem
       if (!rdoList.size() || accumulatedPathLength < pixMinimalPathCut || totalToT == 0) {
         if (totalToT == 0 && rdoList.size() > 0 ) ATH_MSG_WARNING("The total ToT of the cluster is 0, this should never happen");
@@ -742,14 +732,14 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
           //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
           Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
           InDet::PixelCluster* currentCluster = clusIter->second;
-          std::vector<Identifier> currentRdoList = currentCluster->rdoList();
+          const std::vector<Identifier> &currentRdoList = currentCluster->rdoList();
           bool areNb = false;
           for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
             areNb = this->areNeighbours(currentRdoList, *rdoIter, hitSiDetElement,*m_pixel_ID);
             if (areNb) { break; }
           }
           if (areNb) {
-            std::vector<int> currentTotList = currentCluster->totList();
+            const std::vector<int> &currentTotList = currentCluster->totList();
             rdoList.insert(rdoList.end(), currentRdoList.begin(), currentRdoList.end() );
             totList.insert(totList.end(), currentTotList.begin(), currentTotList.end() );
             Amg::Vector2D       currentClusterPosition(currentCluster->localPosition());
@@ -762,7 +752,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
             //Store HepMcParticleLink connected to the cluster removed from the collection
             std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_pixPrdTruth->equal_range(currentCluster->identify());
-            for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+            for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; ++this_hit)
               {
                 hit_vector.push_back(this_hit->second);
               }

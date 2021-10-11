@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTSignature.h"
@@ -48,9 +48,10 @@ void TrigConf::HLTSignature::writeXML(std::ofstream & xmlfile)
 	  << "signature_counter=\"" <<  m_signature_counter  << "\">" 
 	  << std::endl;
     
-    //write TEs 
-  std::vector<TrigConf::HLTTriggerElement*>::const_iterator outputTE = m_outputTEs.begin();
-  for (; outputTE != m_outputTEs.end(); outputTE++) (*outputTE)->writeXML(xmlfile);
+    //write TEs
+  for (TrigConf::HLTTriggerElement* outputTE : m_outputTEs) {
+    outputTE->writeXML(xmlfile);
+  }
   
   xmlfile << "                </SIGNATURE>" << std::endl;
 

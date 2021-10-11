@@ -75,6 +75,12 @@ namespace asg {
       template< typename T >
       StatusCode record( T* obj, const std::string& name );
 
+      /// provide list of all keys associated with a type.
+      /// usage: store->keys< type >(vector_to_fill)
+      /// @param vkeys will be filled with list of keys (may be empty)
+      template< typename T >
+      void keys( std::vector<std::string>& vkeys ) const;
+
       /// @}
 
    private:

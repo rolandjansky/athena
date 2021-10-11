@@ -45,7 +45,7 @@ private:
   SG::ReadHandleKey<SCT_RDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const SCT_ID *m_sctID;
-  const InDetDD::SCT_DetectorManager *m_SCT_Manager;
+  const InDetDD::SCT_DetectorManager *m_SCT_Manager = nullptr;
   // RDO
   std::vector<unsigned long long>* m_rdoID;
   std::vector<unsigned int>* m_rdoWord;
@@ -143,13 +143,13 @@ private:
   TH1* m_h_disabled_brl;  
   TH1* m_h_disabled_ec;
   
-  TH1* m_h_brl_strip_perLayer[4];
-  TH1* m_h_ec_strip_perLayer[9];
+  TH1* m_h_brl_strip_perLayer[4]{};
+  TH1* m_h_ec_strip_perLayer[9]{};
 
-  TH2* m_h_globalZR;
-  TH1* m_h_globalX;
-  TH1* m_h_globalY;
-  TH1* m_h_globalZ;
+  TH2* m_h_globalZR = nullptr;
+  TH1* m_h_globalX = nullptr;
+  TH1* m_h_globalY = nullptr;
+  TH1* m_h_globalZ = nullptr;
 
   TH1* m_h_TruthMatchedRDOs;
 

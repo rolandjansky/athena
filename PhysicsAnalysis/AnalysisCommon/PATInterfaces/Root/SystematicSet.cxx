@@ -321,12 +321,6 @@ namespace CP
     return hashFunction(name());
   }
 
-  // General hash function for SystematicSet
-  std::size_t SystematicSetHash::operator()(const SystematicSet& sysSet)
-  {
-    return sysSet.hash();
-  }
-
   // Hash function for boost hash
   std::size_t hash_value(const SystematicSet& sysSet)
   {

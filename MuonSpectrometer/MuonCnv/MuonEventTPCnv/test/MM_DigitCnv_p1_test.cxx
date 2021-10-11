@@ -41,7 +41,7 @@ void compare (const MmDigit& p1,
 
 void testit (const MmDigit& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MM_DigitCnv_p1 cnv;
   Muon::MM_Digit_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

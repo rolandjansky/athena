@@ -5,6 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
+from AthenaCommon.Debugging import DbgStage
 
 from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 
@@ -33,6 +34,9 @@ def CommonTestArgumentParser(prog):
                         help="Output RDO file")
     parser.add_argument("-s", "--outputSig", default='', type=str,
                         help="Output RDO_SGNL file")
+    parser.add_argument("--debug", default='', type=str,
+                        choices=DbgStage.allowed_values,
+                        help="Debugging flag: " + ','.join (DbgStage.allowed_values))
     return parser
 
 
@@ -59,14 +63,14 @@ def defaultTestFlags(configFlags, args):
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY
         configFlags.Input.SecondaryFiles = defaultTestFiles.RAW_BKG
         configFlags.Output.RDOFileName = "dataOverlayRDO.pool.root"
-        configFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12"
+        configFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12-01"
         configFlags.IOVDb.DatabaseInstance = "CONDBR2"
         configFlags.Overlay.DataOverlay = True
     else:
         configFlags.Input.Files = defaultTestFiles.RDO_BKG
         configFlags.Input.SecondaryFiles = defaultTestFiles.HITS
         configFlags.Output.RDOFileName = "mcOverlayRDO.pool.root"
-        configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
+        configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20-01"
         configFlags.Overlay.DataOverlay = False
 
     if args.output:
@@ -105,6 +109,9 @@ def printAndRun(accessor, configFlags, args):
     if args.verboseStoreGate:
         accessor.getService("StoreGateSvc").Dump = True
     configFlags.dump()
+
+    if args.debug:
+        accessor.setDebugStage (args.debug)
 
     # Execute and finish
     sc = accessor.run(maxEvents=args.maxEvents)

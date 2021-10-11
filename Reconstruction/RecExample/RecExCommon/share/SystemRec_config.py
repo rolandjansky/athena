@@ -13,6 +13,8 @@ import PerfMonComps.DomainsRegistry as pdr
 from AODFix.AODFix import *
 AODFix_Init()
 
+wrap_indet = True
+
 #First do Calo-Reco
 pdr.flag_domain('calo')
 protectedInclude ("CaloRec/CaloRec_jobOptions.py")
@@ -32,6 +34,19 @@ pdr.flag_domain('id')
 if DetFlags.detdescr.ID_on():
     protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
     AODFix_postInDetRec()
+    if jobproperties.InDetJobProperties.useNewConfig():
+        print('Wrapping new configuration')
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from InDetConfig.TrackRecoConfig import TrackRecoCfg
+        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+        ConfigFlags = getNewConfigFlags()
+        # TODO Keep here for the moment, since we still have debugging to do.
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger( "Py:conf2toConfigurable" )
+        log.setLevel(DEBUG)
+        CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
+
 
 # functionality : FTK reconstruction
 if DetFlags.detdescr.FTK_on() :

@@ -55,8 +55,8 @@ class PixelRadiationDamageFluenceMapData {
     void setYPositionMap3D_h(std::vector<PixelHistoConverter> yPositionMap3D_h);
     void setTimeMap3D_e(std::vector<PixelHistoConverter> timeMap3D_e);
     void setTimeMap3D_h(std::vector<PixelHistoConverter> timeMap3D_h);
-    void setAvgChargeMap3D_e(PixelHistoConverter avgChargeMap3D_e);
-    void setAvgChargeMap3D_h(PixelHistoConverter avgChargeMap3D_h);
+    void setAvgChargeMap3D_e(const PixelHistoConverter& avgChargeMap3D_e);
+    void setAvgChargeMap3D_h(const PixelHistoConverter& avgChargeMap3D_h);
 
     const PixelHistoConverter& getRamoPotentialMap3D(int layer) const;
     const PixelHistoConverter& getEFieldMap3D(int layer) const;

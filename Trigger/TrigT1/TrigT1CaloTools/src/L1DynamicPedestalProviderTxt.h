@@ -1,6 +1,6 @@
 /** -*- C++ -*-*/
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /* 
  * @file L1DynamicPedestalProviderTxt.h
@@ -16,6 +16,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <array>
 #include <cstdint> // for guaranteed size-types
@@ -24,8 +26,6 @@
 #include <string>
 #include <utility> // std::pair
 #include <vector>
-
-namespace Trig { class IBunchCrossingTool; }
 
 namespace LVL1
 {
@@ -51,8 +51,7 @@ namespace LVL1
    * The parameters are read from a text file.
    */  
   class L1DynamicPedestalProviderTxt : public AthAlgTool,
-                                       virtual public IL1DynamicPedestalProvider,
-                                       virtual public IIncidentListener
+                                       virtual public IL1DynamicPedestalProvider
   {
   public:
     /** constructor */
@@ -64,10 +63,8 @@ namespace LVL1
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
 
-    void handle(const Incident&) override;
-
     /** retrieve the bcidCorrection value */
-    virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu) override;
+    virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu) const override;
 
     // forward declaration for a function that evaluates the correction as function of mu
     class ParamFunc;
@@ -79,7 +76,8 @@ namespace LVL1
     std::array<std::vector<std::vector<std::unique_ptr<ParamFunc>>>, 2> m_hadParameterizations;
     
     //// properties ////
-    ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey
+      {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
     std::string m_inputFileEMShort;
     std::string m_inputFileHADShort;
@@ -88,10 +86,7 @@ namespace LVL1
 
     // maps the BCID (index) to the distance from the head of the train (after short or long gap)
     // bool: long-gap train (true); short-gap train (false)
-    std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain;
-
-    // fills the vector above with data from the BeamIntensityPattern
-    void parseBeamIntensityPattern();
+    std::pair<bool, int> distanceFromHeadOfTrain(int bcid) const;
 
     // parses the input file
     void parseInputFile(const std::string& fileName, std::vector<std::vector<std::unique_ptr<ParamFunc>>>& params);

@@ -115,7 +115,7 @@ bool FourMuonEvent::Reco()
 	  RecordMuon( pxCMuon );
 	  (*m_msgStream) << MSG::DEBUG <<  " * FourMuonEvent::Reco ** muon " << theCount << " is accepted " << endmsg;
 	}
-	xMuonItr++;
+	++xMuonItr;
       } // end loop on muons
       
       // ordering of muons
@@ -1295,15 +1295,11 @@ const xAOD::TrackParticle*  FourMuonEvent::getLooseIDTk( unsigned int /*uPart*/ 
       while ( xTrkItr != xTrkItrE )
 	{
 	  const xAOD::TrackParticle* pxTrack = *xTrkItr;
-	  if(!(pxTrack->track())) continue;
-	  const Trk::Track* pxTrkTrack = pxTrack->track();
 	  if ( !pxTrack ) continue;
+	  const Trk::Track* pxTrkTrack = pxTrack->track();
+	  if(!pxTrkTrack) continue;
 	  const Trk::Perigee* pxPerigee = pxTrkTrack->perigeeParameters() ;
 	  if ( !pxPerigee ) continue;
-
-	  // const float fTrkPt    = pxPerigee->pT()*1.0e-3;
-	  // const float fTrkPtErr = fabs( pxPerigee->localErrorMatrix().error(Trk::qOverP) );
-	  // const float fPtSig    = ( 1.0f / pxPerigee->pT() ) /  fTrkPtErr;  // Potential problem.
 	  const float fTrkPhi   = pxPerigee->parameters()[Trk::phi];
 	  const float fTrkEta   = pxPerigee->eta();
 
@@ -1316,7 +1312,7 @@ const xAOD::TrackParticle*  FourMuonEvent::getLooseIDTk( unsigned int /*uPart*/ 
 	      return pxTrack;
 	    }
 
-	  xTrkItr++;
+	  ++xTrkItr;
 	}
     }
   // if ()

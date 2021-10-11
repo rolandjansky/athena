@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBMONITORING_TBPHASEMONTOOL_H
@@ -20,9 +20,11 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "AIDA/IHistogram1D.h"
 #include "AIDA/IHistogram2D.h"
@@ -30,7 +32,6 @@
 class StoreGateSvc;
 class IToolSvc;
 class LArOnlineID;
-class LArCablingLegacyService;
 
 #include <map>
 #include <string>
@@ -58,7 +59,6 @@ class TBPhaseMonTool: public MonitorToolBase
 
  protected:
 
-  ServiceHandle<LArCablingLegacyService> m_cablingService;
   const LArOnlineID* m_onlineHelper;
 
   /*! \brief properties */
@@ -129,5 +129,7 @@ class TBPhaseMonTool: public MonitorToolBase
   AIDA::IHistogram1D* m_phase;          // phase from TBPhaseRec
   AIDA::IHistogram1D* m_dTtoWAC;        // phase from TBPhaseRec
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 };
 #endif

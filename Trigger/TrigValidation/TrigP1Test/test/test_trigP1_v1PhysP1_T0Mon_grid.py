@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test of P1+Tier0 workflow, runs athenaHLT with PhysicsP1_pp_run3_v1 menu followed by offline reco and monitoring
 # art-type: grid
@@ -15,6 +15,7 @@
 # art-output: *perfmon*
 # art-output: prmon*
 # art-output: *.check*
+# art-memory: 7000
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file
@@ -27,8 +28,9 @@ hlt.forks = 1
 hlt.threads = 4
 hlt.concurrent_events = 4
 hlt.input = 'data'
-hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';doL1Sim=True;rewriteLVL1=True;"'
 hlt.args += ' -o output'
+hlt.args += ' --dump-config-reload'
 
 # Extract the physics_Main stream out of the BS file with many streams
 filter_bs = ExecStep.ExecStep('FilterBS')
@@ -41,9 +43,10 @@ filter_bs.args = '-s Main ' + find_file('*_HLTMPPy_output.*.data')
 tzrecoPreExec = ' '.join([
   "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
   "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
+  "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
+  "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"
 ])
 
@@ -55,7 +58,7 @@ tzreco.input = ''
 tzreco.explicit_input = True
 tzreco.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
@@ -64,7 +67,9 @@ tzmon = ExecStep.ExecStep('Tier0Mon')
 tzmon.type = 'other'
 tzmon.executable = 'Run3DQTestingDriver.py'
 tzmon.input = ''
-tzmon.args = '--dqOffByDefault Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+tzmon.args = '--threads=4'
+tzmon.args += ' --dqOffByDefault'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
 
 # The full test
 test = Test.Test()

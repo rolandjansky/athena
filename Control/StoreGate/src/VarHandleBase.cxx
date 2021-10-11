@@ -216,7 +216,7 @@ namespace SG {
   /**
    * @brief Move constructor.
    */
-  VarHandleBase::VarHandleBase( VarHandleBase&& rhs ) :
+  VarHandleBase::VarHandleBase( VarHandleBase&& rhs ) noexcept :
     IResetable(),
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
@@ -285,7 +285,7 @@ namespace SG {
    * @brief Move operator.
    */
   VarHandleBase& 
-  VarHandleBase::operator=( VarHandleBase&& rhs )
+  VarHandleBase::operator=( VarHandleBase&& rhs ) noexcept
   {
     if (this != &rhs) {
       m_ownedKey = std::move (rhs.m_ownedKey);
@@ -725,7 +725,7 @@ namespace SG {
       m_storeWasSet = false;
     }
 
-    if (this->name() == "") {
+    if (this->name().empty()) {
       REPORT_ERROR (StatusCode::FAILURE) << "Attempt to record an object with a null key";
       return StatusCode::FAILURE;
     }
@@ -788,7 +788,7 @@ namespace SG {
                            bool returnExisting,
                            IProxyDict* & store) const
   {
-    if (this->name() == "") {
+    if (this->name().empty()) {
       REPORT_ERROR (StatusCode::FAILURE) << "Attempt to record an object with a null key";
       return nullptr;
     }

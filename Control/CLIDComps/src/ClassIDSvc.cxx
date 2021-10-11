@@ -179,10 +179,9 @@ ClassIDSvc::getIDOfTypeInfoName(const std::string& typeInfoName,
 
 /// associate type name with clID
 StatusCode 
-ClassIDSvc::setTypePackageForID(const CLID& id, 
-                                const std::string& typeName,
-                                const Athena::PackageInfo&,
-                                const std::string& typeInfoName)
+ClassIDSvc::setTypeForID(const CLID& id,
+                         const std::string& typeName,
+                         const std::string& typeInfoName)
 {
   lock_t lock (m_mutex);
   if (id < CLIDdetail::MINCLID || id > CLIDdetail::MAXCLID) {
@@ -223,7 +222,8 @@ ClassIDSvc::initialize()
   pIncSvc->addListener(this, ModuleLoadedIncident::TYPE(), /*priority*/ 100);
   pIncSvc->release();
 
-  CHECK( fillDB() );
+  CHECK( maybeRescan() );  // calls fillDB() if not already done
+
   return StatusCode::SUCCESS;
 }
 
@@ -257,26 +257,6 @@ ClassIDSvc::finalize()
   return Service::finalize();
 }
 
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-
-StatusCode
-ClassIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-    if ( IClassIDSvc::interfaceID().versionMatch(riid) )    {
-        *ppvInterface = (IClassIDSvc*)this;
-    }
-    else  {
-	// Interface is not directly available: try out a base class
-	return Service::queryInterface(riid, ppvInterface);
-    }
-    addRef();
-    return StatusCode::SUCCESS;
-}
-
 
 void ClassIDSvc::handle(const Incident &inc)
 {
@@ -289,7 +269,7 @@ void ClassIDSvc::handle(const Incident &inc)
 
 /// Standard Constructor
 ClassIDSvc::ClassIDSvc(const std::string& name,ISvcLocator* svc)
-  : Service(name,svc),
+  : base_class(name,svc),
     m_clidDBPath(System::getEnv("DATAPATH"))
 {
 }
@@ -329,8 +309,6 @@ ClassIDSvc::fillDB() {
       }
     }
   }
-  
-  maybeRescan(); // scan registry if we had no CLIDDB to process
   return StatusCode(allOK);
 }
 
@@ -338,7 +316,6 @@ ClassIDSvc::fillDB() {
 bool
 ClassIDSvc::processCLIDDB(const std::string& fileName)
 {
-  maybeRescan();
   std::ifstream ifile(fileName);
   if (!ifile) {
     ATH_MSG_WARNING( "processCLIDDB: unable to open " << fileName );
@@ -468,10 +445,18 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
 }
 
 
-void ClassIDSvc::maybeRescan() const
+bool ClassIDSvc::maybeRescan() const
 {
+  // thread-safe because calls are protected by mutex or during initialize
   ClassIDSvc* nc ATLAS_THREAD_SAFE = const_cast<ClassIDSvc*>(this);
-  nc->getRegistryEntries ("ALL");
+
+  // read CLID database in case initialize() was not called yet (ATR-23634)
+  [[maybe_unused]] static bool fillDB ATLAS_THREAD_SAFE = nc->fillDB().isSuccess();
+
+  // make sure registry is up-to-date
+  bool status = nc->getRegistryEntries ("ALL");
+
+  return status && fillDB;
 }
 
 

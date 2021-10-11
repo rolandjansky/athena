@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -24,9 +24,11 @@
 
 
 
-VP1BatchUtilities::VP1BatchUtilities(std::vector<std::string> files) : m_indexFile(0), m_lastIndexFile(0)
+VP1BatchUtilities::VP1BatchUtilities(std::vector<std::string> files) :
+  m_files(files),
+  m_indexFile(0),
+  m_lastIndexFile(0)
 {
-	m_files = files;
 	std::cout << "Got vector of " << files.size() << " items" << std::endl;
 	// Iterate and print values of vector
 	for(std::string n : m_files) {
@@ -90,7 +92,7 @@ void VP1BatchUtilities::overlayATLASlogo()
 
 // Overlay the event details to the image
 // it replaces the original image with a version having event details on it
-void VP1BatchUtilities::overlayEventDetails(unsigned long runNumber, unsigned long eventNumber, std::string humanTimestamp)
+void VP1BatchUtilities::overlayEventDetails(unsigned long runNumber, unsigned long eventNumber, const std::string& humanTimestamp)
 {
 
 	std::string nRun = std::to_string(runNumber);

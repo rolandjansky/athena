@@ -24,6 +24,7 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
+#include "TrkExUtils/IntersectionSolution.h" //typedef
 // STL
 #include <utility>
 
@@ -32,7 +33,6 @@ namespace Trk {
 class Surface;
 class CylinderBounds;
 class MagneticFieldProperties;
-class IntersectionSolution;
 class TransportJacobian;
 class TrackStateOnSurface;
 

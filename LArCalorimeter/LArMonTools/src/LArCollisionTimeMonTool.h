@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,6 +15,8 @@
 
 #include "LArRecEvent/LArCollisionTime.h"
 
+#include "LumiBlockData/BunchCrossingCondData.h"
+
 #include <map>
 #include <string>
 #include <bitset>
@@ -28,10 +30,6 @@ class TTree;
 class TH1F_LW;
 class TH2F_LW;
 
-
-namespace Trig {
-class IBunchCrossingTool;
-}
 
 class LArCollisionTimeMonTool: public ManagedMonitorToolBase
 {
@@ -97,8 +95,6 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   bool m_eWeighted;
   bool m_newrun;
 
-  //ToolHandle<IBunchGroupTool> m_bunchGroupTool;
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchGroupTool;
   std::vector<unsigned int> m_bcid_allowed;
   bool m_bcid_init;
 
@@ -106,6 +102,8 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   std::string m_histPath;
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
   SG::ReadHandleKey<LArCollisionTime> m_key{this, "Key", "LArCollisionTime"};
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey 
+      {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
   void cleanup();
 };

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger RDO->RDO_TRIG athena test of the Dev_pp_run3_v1 menu with pileup80 ttbar sample
 # art-type: grid
 # art-include: master/Athena
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -25,10 +25,10 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar_pu80'
-ex.threads = 4
-ex.concurrent_events = 4
+ex.threads = 8
+ex.concurrent_events = 8
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=False;doWriteRDOTrigger=True;setGlobalTag=\'OFLCOND-RUN12-SDR-31\';from IOVDbSvc.CondDB import conddb;conddb.addOverride(\'/PIXEL/PixelModuleFeMask\',\'PixelModuleFeMask-SIM-MC16-000-03\')"'
 
 test = Test.Test()
 test.art_type = 'grid'

@@ -3,26 +3,26 @@
  */
 
 #include "TrkTrack/Track.h"
-#include "TrkTrack/AlignmentEffectsOnTrack.h"
+#include "GaudiKernel/MsgStream.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include <cassert>
 #include <iostream>
 #include <string>
-
 
 #ifndef NDEBUG
 std::atomic<unsigned int> Trk::Track::s_numberOfInstantiations{};
 #endif
 
 Trk::Track::Track()
-  : m_trackStateVector(nullptr)
+  : m_trackStateVectorPtr (std::make_unique<const TrackStates>())
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
@@ -34,11 +34,28 @@ Trk::Track::Track()
 #endif
 }
 
-Trk::Track::Track(
-  const TrackInfo& info,
-  DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces,
-  const FitQuality* fitQuality)
-  : m_trackStateVector(trackStateOnSurfaces)
+Trk::Track::Track(const TrackInfo& info,
+                  TrackStates&& trackStateOnSurfaces,
+                  const FitQuality* fitQuality)
+  : m_trackStateVectorPtr(std::make_unique<const TrackStates>(std::move(trackStateOnSurfaces)))
+  , m_cachedParameterVector{}
+  , m_cachedMeasurementVector{}
+  , m_cachedOutlierVector{}
+  , m_perigeeParameters{}
+  , m_fitQuality(fitQuality)
+  , m_trackInfo(info)
+{
+  // find the Perigee params they will become valid given the outcome
+  findPerigeeImpl();
+#ifndef NDEBUG
+  s_numberOfInstantiations++; // new Track, so increment total count
+#endif
+}
+
+Trk::Track::Track(const TrackInfo& info,
+                  std::unique_ptr<const TrackStates> trackStateOnSurfaces,
+                  const FitQuality* fitQuality)
+  : m_trackStateVectorPtr(std::move(trackStateOnSurfaces))
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
@@ -54,14 +71,14 @@ Trk::Track::Track(
 }
 
 Trk::Track::Track(const Trk::Track& rhs)
-  : m_trackStateVector(nullptr)
+  : m_trackStateVectorPtr (std::make_unique<const TrackStates>())
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
   , m_perigeeParameters{}
   , m_fitQuality(nullptr)
 {
-  //Do the actual payload copy
+  // Do the actual payload copy
   copyHelper(rhs);
 
 #ifndef NDEBUG
@@ -84,9 +101,9 @@ Trk::Track::operator=(const Trk::Track& rhs)
     m_perigeeParameters.reset();
     // The following is a DataVector and so will delete
     // the contained objects automatically.
-    m_trackStateVector.reset();
+    m_trackStateVectorPtr.reset();
 
-    //copy payload of rhs to this
+    // copy payload of rhs to this
     copyHelper(rhs);
   }
   return *this;
@@ -106,64 +123,65 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
   if (rhs.trackSummary() != nullptr) {
     m_trackSummary = std::make_unique<Trk::TrackSummary>(*(rhs.m_trackSummary));
   }
-  // Create the TrackStateVector and the perigeeParameters
-  if (rhs.m_trackStateVector != nullptr) {
-    m_trackStateVector = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-    m_trackStateVector->reserve(rhs.m_trackStateVector->size());
 
-    TSoS_iterator itTSoSEnd = rhs.m_trackStateVector->end();
-    for (TSoS_iterator itTSoS = rhs.m_trackStateVector->begin();
-         itTSoS != itTSoSEnd;
-         ++itTSoS) {
-      assert(*itTSoS != nullptr); // check that is defined.
-      // clone and store
-      TrackStateOnSurface* tsos = (**itTSoS).clone();
-      m_trackStateVector->push_back(tsos);
-      // Check if this a perigee so we can already cache it
-      if (tsos != nullptr && tsos->type(TrackStateOnSurface::Perigee)) {
-        const Trk::Perigee* perigee = nullptr;
-        const Trk::TrackParameters* tp = tsos->trackParameters();
-        if (tp && tp->type() == Trk::AtaSurface &&
-            tp->surfaceType() == Trk::SurfaceType::Perigee) {
-          perigee = static_cast<const Trk::Perigee*>(tp);
-        }
-        if (perigee != nullptr) {
-          m_perigeeParameters.store(perigee); // Now they will be valid
-        }
+  // Create the TrackStateVector and the perigeeParameters
+  auto tsvec = std::make_unique<TrackStates>();
+  tsvec->reserve (rhs.trackStateOnSurfaces()->size());
+
+  TSoS_iterator itTSoSEnd = rhs.trackStateOnSurfaces()->end();
+  for (TSoS_iterator itTSoS = rhs.trackStateOnSurfaces()->begin();
+       itTSoS != itTSoSEnd;
+       ++itTSoS) {
+    assert(*itTSoS != nullptr); // check that is defined.
+    // clone and store
+    const TrackStateOnSurface* otsos = *itTSoS;
+    auto tsos = otsos->clone();
+    // Check if this a perigee so we can already cache it
+    if (tsos != nullptr && tsos->type(TrackStateOnSurface::Perigee)) {
+      const Trk::Perigee* perigee = nullptr;
+      const Trk::TrackParameters* tp = tsos->trackParameters();
+      if (tp && tp->type() == Trk::AtaSurface &&
+          tp->surfaceType() == Trk::SurfaceType::Perigee) {
+        perigee = static_cast<const Trk::Perigee*>(tp);
+      }
+      if (perigee != nullptr) {
+        m_perigeeParameters.store(perigee); // Now they will be valid
       }
     }
+    tsvec->push_back(std::move(tsos));
   }
+
+  m_trackStateVectorPtr = std::move(tsvec);
 }
 
-Trk::Track::Track(Trk::Track&& rhs) noexcept = default;
-
-Trk::Track&
-Trk::Track::operator=(Trk::Track&& rhs) noexcept = default;
-
+#ifndef NDEBUG // When DEBUG we need to count down instantiations.
 Trk::Track::~Track()
 {
-#ifndef NDEBUG
   s_numberOfInstantiations--; // delete Track, so decrement total count
-#endif
 }
+#else
+Trk::Track::~Track() = default;
+#endif
 
-const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() const
+const DataVector<const Trk::TrackParameters>*
+Trk::Track::trackParameters() const
 {
 
-  if(!m_trackStateVector){
+  if (trackStateOnSurfaces()->empty()) {
     return nullptr;
   }
   // Do work only if it is not valid.
-  if ( !m_cachedParameterVector.isValid()){
+  if (!m_cachedParameterVector.isValid()) {
     // create cached parameter vector (which DOES NOT OWN ELEMENTS ...
-    DataVector<const Trk::TrackParameters> tmp_ParameterVector (SG::VIEW_ELEMENTS);
-    TSoS_iterator itTSoSEnd = m_trackStateVector->end();
-    for (TSoS_iterator itTSoS = m_trackStateVector->begin(); itTSoS!=itTSoSEnd; ++itTSoS)
-    {
+    DataVector<const Trk::TrackParameters> tmp_ParameterVector(
+      SG::VIEW_ELEMENTS);
+    TSoS_iterator itTSoSEnd = trackStateOnSurfaces()->end();
+    for (TSoS_iterator itTSoS = trackStateOnSurfaces()->begin(); itTSoS != itTSoSEnd;
+         ++itTSoS) {
       const TrackParameters* trackParameters = (*itTSoS)->trackParameters();
       // check to make sure that the TrackParameters exists first
-      if (trackParameters!=nullptr) {
-        tmp_ParameterVector.push_back( trackParameters );
+      if (trackParameters != nullptr) {
+        tmp_ParameterVector.push_back(trackParameters);
       }
     }
     m_cachedParameterVector.set(std::move(tmp_ParameterVector));
@@ -171,13 +189,16 @@ const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() cons
   return m_cachedParameterVector.ptr();
 }
 
-void Trk::Track::findPerigee() const {
-  if (!m_perigeeParameters.isValid()){
+void
+Trk::Track::findPerigee() const
+{
+  if (!m_perigeeParameters.isValid()) {
     findPerigeeImpl();
   }
 }
 
-void Trk::Track::findPerigeeImpl() const
+void
+Trk::Track::findPerigeeImpl() const
 {
   // loop through all passed parameters and, if there is a at Perigee in there,
   // assign it to Perigee parameters. There should never be more
@@ -186,26 +207,24 @@ void Trk::Track::findPerigeeImpl() const
   // params at a Perigee surface, thus the  TSoS check.
 
   const Trk::Perigee* tmpPerigeeParameters = nullptr;
-  if (m_trackStateVector!=nullptr){
-    DataVector<const TrackStateOnSurface>::const_iterator it =
-      m_trackStateVector->begin();
-    DataVector<const TrackStateOnSurface>::const_iterator itEnd =
-      m_trackStateVector->end();
-    for (; it != itEnd; ++it) {
-      if ((*it)->type(TrackStateOnSurface::Perigee)) {
-        const Trk::TrackParameters* tp = (*it)->trackParameters();
-        if (tp && tp->type() == Trk::AtaSurface &&
-            tp->surfaceType() == Trk::SurfaceType::Perigee) {
-          tmpPerigeeParameters = static_cast<const Trk::Perigee*>(tp);
-        }
+  DataVector<const TrackStateOnSurface>::const_iterator it =
+    trackStateOnSurfaces()->begin();
+  DataVector<const TrackStateOnSurface>::const_iterator itEnd =
+    trackStateOnSurfaces()->end();
+  for (; it != itEnd; ++it) {
+    if ((*it)->type(TrackStateOnSurface::Perigee)) {
+      const Trk::TrackParameters* tp = (*it)->trackParameters();
+      if (tp && tp->type() == Trk::AtaSurface &&
+          tp->surfaceType() == Trk::SurfaceType::Perigee) {
+        tmpPerigeeParameters = static_cast<const Trk::Perigee*>(tp);
+      }
 
-        if (tmpPerigeeParameters != nullptr) {
-          break; // found perigee so stop loop.
-        }
+      if (tmpPerigeeParameters != nullptr) {
+        break; // found perigee so stop loop.
       }
     }
   }
-  //set to value and valid
+  // set to value and valid
   if (tmpPerigeeParameters) {
     m_perigeeParameters.set(tmpPerigeeParameters);
   }
@@ -228,27 +247,30 @@ Trk::Track::perigeeParameters() const
   return nullptr;
 }
 
-const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() const
+const DataVector<const Trk::MeasurementBase>*
+Trk::Track::measurementsOnTrack() const
 {
-  if (!m_trackStateVector) {
+  if (trackStateOnSurfaces()->empty()) {
     return nullptr;
   }
 
   // We only need to do work if not valid.
-  if (!m_cachedMeasurementVector.isValid()){
+  if (!m_cachedMeasurementVector.isValid()) {
     // create new DataVector which DOES NOT OWN ELEMENTS .
-    DataVector< const Trk::MeasurementBase> tmpMeasurementVector(SG::VIEW_ELEMENTS);
-    // for measurements on track it is very likely that #(meas) ~ #(TSOS)-> reserve(#(TSOS))
-    tmpMeasurementVector.reserve(m_trackStateVector->size());
+    DataVector<const Trk::MeasurementBase> tmpMeasurementVector(
+      SG::VIEW_ELEMENTS);
+    // for measurements on track it is very likely that #(meas) ~ #(TSOS)->
+    // reserve(#(TSOS))
+    tmpMeasurementVector.reserve(trackStateOnSurfaces()->size());
 
-    TSoS_iterator itTSoSEnd = m_trackStateVector->end();
-    for ( TSoS_iterator itTSoS = m_trackStateVector->begin(); itTSoS!=itTSoSEnd; ++itTSoS)
-    {
-      if ( ! (*itTSoS)->type(TrackStateOnSurface::Outlier) )
-      {
+    TSoS_iterator itTSoSEnd = trackStateOnSurfaces()->end();
+    for (TSoS_iterator itTSoS = trackStateOnSurfaces()->begin(); itTSoS != itTSoSEnd;
+         ++itTSoS) {
+      if (!(*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
         // does it have a measurement ?
-        if (rot!=nullptr) { tmpMeasurementVector.push_back( rot );
+        if (rot != nullptr) {
+          tmpMeasurementVector.push_back(rot);
         }
       }
     }
@@ -258,23 +280,23 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
   return m_cachedMeasurementVector.ptr();
 }
 
-const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() const
+const DataVector<const Trk::MeasurementBase>*
+Trk::Track::outliersOnTrack() const
 {
-  if (!m_trackStateVector) {
+  if (trackStateOnSurfaces()->empty()) {
     return nullptr;
   }
-  //We only need to do work if not valid
-  if ( !m_cachedOutlierVector.isValid()){
+  // We only need to do work if not valid
+  if (!m_cachedOutlierVector.isValid()) {
     // create new DataVector which DOES NOT OWN ELEMENTS .
-    DataVector< const Trk::MeasurementBase> tmpOutlierVector(SG::VIEW_ELEMENTS);
-    TSoS_iterator itTSoSEnd = m_trackStateVector->end();
-    for ( TSoS_iterator itTSoS = m_trackStateVector->begin(); itTSoS!=itTSoSEnd; ++itTSoS)
-    {
-      if ((*itTSoS)->type(TrackStateOnSurface::Outlier) )
-      {
+    DataVector<const Trk::MeasurementBase> tmpOutlierVector(SG::VIEW_ELEMENTS);
+    TSoS_iterator itTSoSEnd = trackStateOnSurfaces()->end();
+    for (TSoS_iterator itTSoS = trackStateOnSurfaces()->begin(); itTSoS != itTSoSEnd;
+         ++itTSoS) {
+      if ((*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
-        assert(rot!=0);
-        tmpOutlierVector.push_back( rot );
+        assert(rot != 0);
+        tmpOutlierVector.push_back(rot);
       }
     }
     m_cachedOutlierVector.set(std::move(tmpOutlierVector));
@@ -282,29 +304,41 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() cons
   return m_cachedOutlierVector.ptr();
 }
 
-void Trk::Track::setFitQuality(const FitQuality* quality)
+void
+Trk::Track::setFitQuality(const FitQuality* quality)
 {
   m_fitQuality.reset(quality);
 }
 
-void Trk::Track::setTrackStateOnSurfaces(
-  DataVector<const Trk::TrackStateOnSurface>* input)
+void
+Trk::Track::setTrackStateOnSurfaces(
+  DataVector<const Trk::TrackStateOnSurface>&& input)
 {
-  m_trackStateVector.reset(input); // add new
-  reset();                    // reset caches
+  m_trackStateVectorPtr = std::make_unique<const TrackStates> (std::move(input));
+  reset(); // reset caches
 }
 
-void Trk::Track::setInfo(const TrackInfo& input)
+void
+Trk::Track::setTrackStateOnSurfaces(std::unique_ptr<const TrackStates> input)
+{
+  m_trackStateVectorPtr = std::move(input);
+  reset(); // reset caches
+}
+
+void
+Trk::Track::setInfo(const TrackInfo& input)
 {
   m_trackInfo = input;
 }
 
-void Trk::Track::setTrackSummary(std::unique_ptr<Trk::TrackSummary> input)
+void
+Trk::Track::setTrackSummary(std::unique_ptr<Trk::TrackSummary> input)
 {
   m_trackSummary = std::move(input);
 }
 
-void Trk::Track::reset()
+void
+Trk::Track::reset()
 {
   m_cachedParameterVector.reset();
   m_cachedMeasurementVector.reset();
@@ -312,9 +346,8 @@ void Trk::Track::reset()
   m_perigeeParameters.reset();
 }
 
-
-
-unsigned int Trk::Track::numberOfInstantiations()
+unsigned int
+Trk::Track::numberOfInstantiations()
 {
 
 #ifndef NDEBUG
@@ -324,59 +357,70 @@ unsigned int Trk::Track::numberOfInstantiations()
 #endif
 }
 
-
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/
-MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
+/**Overload of << operator for both, MsgStream and std::ostream for debug
+ * output*/
+MsgStream&
+Trk::operator<<(MsgStream& sl, const Trk::Track& track)
 {
   std::string name("Track ");
-  sl <<name<<"Author = "<<track.info().dumpInfo()<<endmsg;
-  if (track.fitQuality()!=nullptr) { sl << *(track.fitQuality() )<<endmsg;
-}
-  if (track.trackSummary()!=nullptr) { sl << *(track.trackSummary())<<endmsg;
-  } else { sl << "No TrackSummary available in this track."<<endmsg;
-}
-  if (track.trackStateOnSurfaces() !=nullptr)
-  {
-    sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endmsg;
+  sl << name << "Author = " << track.info().dumpInfo() << endmsg;
+  if (track.fitQuality() != nullptr) {
+    sl << *(track.fitQuality()) << endmsg;
+  }
+  if (track.trackSummary() != nullptr) {
+    sl << *(track.trackSummary()) << endmsg;
+  } else {
+    sl << "No TrackSummary available in this track." << endmsg;
+  }
+  if (track.trackStateOnSurfaces() != nullptr) {
+    sl << name << "has " << (track.trackStateOnSurfaces()->size())
+       << " trackStateOnSurface(s)" << endmsg;
 
-    //level() shows the output level, currentLevel()
-    //shows what the stream is set to
-    if (sl.level()<MSG::INFO)
-    {
+    // level() shows the output level, currentLevel()
+    // shows what the stream is set to
+    if (sl.level() < MSG::INFO) {
       // loop over TrackStateOnSurfaces if verbose turned on
-      DataVector<const TrackStateOnSurface>::const_iterator it=track.trackStateOnSurfaces()->begin();
-      int num=0;
-      for (;it!=track.trackStateOnSurfaces()->end();++it)
-      {
-        sl<< " --------- Start of TrackStateOnSurface \t"<<num<<"\t-------"<<endmsg;
-        sl<<(**it);
-        sl<< " ---------   End of TrackStateOnSurface \t"<<num++<<"\t-------"<<endmsg;
+      DataVector<const TrackStateOnSurface>::const_iterator it =
+        track.trackStateOnSurfaces()->begin();
+      int num = 0;
+      for (; it != track.trackStateOnSurfaces()->end(); ++it) {
+        sl << " --------- Start of TrackStateOnSurface \t" << num << "\t-------"
+           << endmsg;
+        sl << (**it);
+        sl << " ---------   End of TrackStateOnSurface \t" << num++
+           << "\t-------" << endmsg;
       }
     }
   }
   return sl;
 }
 
-std::ostream& Trk::operator << ( std::ostream& sl, const Trk::Track& track)
+std::ostream&
+Trk::operator<<(std::ostream& sl, const Trk::Track& track)
 {
   std::string name("Track ");
-  sl <<name<<"Author = "<<track.info().dumpInfo()<<std::endl;
-  if (track.fitQuality()!=nullptr) { sl << *(track.fitQuality() )<<std::endl;
+  sl << name << "Author = " << track.info().dumpInfo() << std::endl;
+  if (track.fitQuality() != nullptr) {
+    sl << *(track.fitQuality()) << std::endl;
   }
-  if (track.trackSummary()!=nullptr) { sl << *(track.trackSummary())<<std::endl;
-  } else { sl << "No TrackSummary available in this track."<<std::endl;
+  if (track.trackSummary() != nullptr) {
+    sl << *(track.trackSummary()) << std::endl;
+  } else {
+    sl << "No TrackSummary available in this track." << std::endl;
   }
 
-  if (track.trackStateOnSurfaces() !=nullptr)
-  {
-    sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << std::endl;
-    DataVector<const TrackStateOnSurface>::const_iterator it=track.trackStateOnSurfaces()->begin();
-    int num=0;
-    for (;it!=track.trackStateOnSurfaces()->end();++it)
-    {
-      sl<< " --------- Start of TrackStateOnSurface \t"<<num<<"\t-------"<<std::endl;
-      sl<<(**it);
-      sl<< " ---------   End of TrackStateOnSurface \t"<<num++<<"\t-------"<<std::endl;
+  if (track.trackStateOnSurfaces() != nullptr) {
+    sl << name << "has " << (track.trackStateOnSurfaces()->size())
+       << " trackStateOnSurface(s)" << std::endl;
+    DataVector<const TrackStateOnSurface>::const_iterator it =
+      track.trackStateOnSurfaces()->begin();
+    int num = 0;
+    for (; it != track.trackStateOnSurfaces()->end(); ++it) {
+      sl << " --------- Start of TrackStateOnSurface \t" << num << "\t-------"
+         << std::endl;
+      sl << (**it);
+      sl << " ---------   End of TrackStateOnSurface \t" << num++ << "\t-------"
+         << std::endl;
     }
   }
   return sl;

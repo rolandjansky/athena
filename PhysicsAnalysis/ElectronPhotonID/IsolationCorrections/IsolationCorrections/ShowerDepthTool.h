@@ -40,21 +40,21 @@ namespace CP {
     std::optional<float> getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData=true) const;
 
     /** Shower depth (in mm) vs. eta on EM1 **/
-    float getShowerDepthEM1(const float& etas1) const;
+    static float getShowerDepthEM1(const float& etas1) ;
       
     /** Shower depth (in mm) vs. eta on EM2 **/
-    float getShowerDepthEM2(const float& etas2) const;
+    static float getShowerDepthEM2(const float& etas2) ;
 
     /** Shower depth in R,Z for the given sampling **/
-    std::pair<float, float> getRZ(const float& eta,const int& sampling) const;
+    static std::pair<float, float> getRZ(const float& eta,const int& sampling) ;
 
-    float getEtaDirection(const float& zvertex,const float& R,const float& z) const;
+    static float getEtaDirection(const float& zvertex,const float& R,const float& z) ;
       
       
   protected:
 
     /** Return TH1* from file given fileName, histoName **/
-    TH1* getHistoFromFile(const TString& fileName,const TString& histoName);      
+    static TH1* getHistoFromFile(const TString& fileName,const TString& histoName);      
       
   private:
     TH1 *m_hData;

@@ -23,9 +23,9 @@ class IElementStreamer {
       std::vector<std::string> m_attributeNames;
       std::vector<std::string> m_attributeValues;
       std::ostream& m_os;
-      unsigned int m_depth;
-      unsigned int m_nodeIndex;
-      unsigned int m_nodeId;
+      unsigned int m_depth{};
+      unsigned int m_nodeIndex{};
+      unsigned int m_nodeId{};
 
    public:
       IElementStreamer(const std::string& name, const std::map<std::string, std::string>& attributeMap, std::ostream& os=std::cout);

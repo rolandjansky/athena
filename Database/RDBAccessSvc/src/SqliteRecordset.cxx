@@ -37,9 +37,19 @@ void SqliteRecordset::getData(sqlite3* db, const std::string& nodeName)
   m_nodeName = nodeName;
 
   std::ostringstream sql;
-  sql << "select * from " << m_nodeName << " order by " << m_nodeName << "_data_id";
+
+  // First check if the table exists in the database
+  sql << "select * from " << m_nodeName;
+  sqlite3_stmt* stTable{nullptr};
+  int rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &stTable, NULL);
+  if(rc!=SQLITE_OK) {
+    ATH_MSG_INFO(m_nodeName << " table is not found in the database");
+    return;
+  }
+
+  sql << " order by " << m_nodeName << "_data_id";
   sqlite3_stmt* st{nullptr};
-  int rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &st, NULL);
+  rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &st, NULL);
   if(rc!=SQLITE_OK) {
     ATH_MSG_ERROR("Error occurred when preparing to fetch data for " << m_nodeName);
     ATH_MSG_ERROR("SQLite Error: " << sqlite3_errmsg(db));

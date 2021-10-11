@@ -4,8 +4,6 @@ Size = 100
 Address of [0]%alignment = 0
 Address of begin%alignment = 0
 Address of end%alignment = 16
-Value of begin = 0
-Value of end -1 = 0
 
  ==> Test ctor with value init of elements
 Size = 100

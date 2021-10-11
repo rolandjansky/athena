@@ -6,5 +6,7 @@
 #define LARRECCONDITIONS_LARRECCONDITIONSDICT_H
 
 #include "LArRecConditions/LArHVPathologiesDb.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+
 
 #endif // LARRECCONDITIONS_LARRECCONDITIONSDICT_H

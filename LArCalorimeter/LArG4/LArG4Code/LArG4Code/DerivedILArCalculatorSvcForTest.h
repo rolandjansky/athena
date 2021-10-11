@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // defining this class is just used for testing since class ILArCalculatorSvc is a abstract class which needs to be instatiated in my test code
@@ -22,49 +22,50 @@ public:
   ~DerivedILArCalculatorSvcForTest() {};
 
 // there are no concrete functions for the following member functions, just to override the pure virtual member function in the base classes
-  StatusCode sysInitialize() 
+  virtual StatusCode sysInitialize()  override
   { 
     StatusCode s1; 
     return s1;
   }
 
-  StatusCode sysStart() 
+  virtual StatusCode sysStart() override
   {
     StatusCode s2;
     return s2;
   }
   
-  StatusCode sysStop() 
+  virtual StatusCode sysStop() override
   { 
     StatusCode s3; 
     return s3;
   }
   
-  StatusCode sysFinalize() 
+  virtual StatusCode sysFinalize() override
   { 
     StatusCode s4; 
     return s4;
   }
 
-  StatusCode sysReinitialize() 
+  virtual StatusCode sysReinitialize() override
   { 
     StatusCode s5;
     return s5;
   }
 
-  StatusCode sysRestart() 
+  virtual StatusCode sysRestart() override
   { 
     StatusCode s6; 
     return s6;
   }
 
-  void setServiceManager( ISvcManager* ) { return; }
+  virtual void setServiceManager( ISvcManager* ) override { return; }
 
-  unsigned long addRef() { return 1; }
+  virtual unsigned long addRef() override { return 1; }
 
-  unsigned long release() { return 1; }
+  virtual unsigned long release() override { return 1; }
 
-  StatusCode queryInterface( const InterfaceID& ti, void** pp ) 
+  virtual 
+  StatusCode queryInterface( const InterfaceID& ti, void** pp ) override
   { 
     (void)ti; //to silence the unused-parameter warning, the same below
     (void)pp;
@@ -72,82 +73,84 @@ public:
     return s7;
   }
 
-  StatusCode configure() 
+  virtual StatusCode configure() override
   {
     StatusCode s7;
     return s7;
   }
 
-  StatusCode initialize()
+  virtual StatusCode initialize() override
   {
     StatusCode s7; 
     return s7;
   }
 
-  StatusCode start()
+  virtual StatusCode start() override
   {
     StatusCode s7;
     return s7;
   }
 
-  StatusCode stop()
+  virtual StatusCode stop() override
   {
     StatusCode s7;
     return s7;
   }
 
-  StatusCode finalize()
+  virtual StatusCode finalize() override
   {
     StatusCode s7;
     return s7;
   }
 
-  StatusCode terminate()
+  virtual StatusCode terminate() override
   {
     StatusCode s7;
     return s7;
   }
 
-  StatusCode reinitialize()
+  virtual StatusCode reinitialize() override
   {
     StatusCode s7;
     return s7;
   }
 
-  StatusCode restart()
+  virtual StatusCode restart() override
   {
     StatusCode s7;
     return s7;
   }
 
-  Gaudi::StateMachine::State FSMState() const
+  void initializeForSDCreation() override {};
+
+  virtual Gaudi::StateMachine::State FSMState() const override
   {
     return Gaudi::StateMachine::State(0);
   }
 
-  Gaudi::StateMachine::State targetFSMState() const
+  virtual Gaudi::StateMachine::State targetFSMState() const override
   {
     return Gaudi::StateMachine::State(0);
   }
 
-  const std::string& name() const
+  virtual const std::string& name() const override
   {
     static const std::string Tes = "test";
     return Tes;
   }
 
-  G4float OOTcut() const
+  virtual G4float OOTcut() const override
   {
     return 1.0;
   }
 
-  G4bool isInTime(G4double hitTime) const
+  virtual G4bool isInTime(G4double hitTime) const override
   {
     (void)hitTime;
     return true;
   }
 
-  G4bool Process (const G4Step* a_step, std::vector<LArHitData>& hits) const
+  virtual G4bool Process (const G4Step* a_step, std::vector<LArHitData>& hits) const override
   {
 //firstly set the G4Step object a_step to make it complete, you can set it here as much as you want. Since there is no need to set too much for it, I don't set sth for it
     (void)a_step;

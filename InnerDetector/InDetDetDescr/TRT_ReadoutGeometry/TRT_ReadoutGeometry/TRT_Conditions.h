@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,14 +36,9 @@ namespace InDetDD {
   
       const TRTCond::StrawDxContainer* dxContainer() const;
       void setDxContainer(const TRTCond::StrawDxContainer* container);
-
-      const HepGeom::Transform3D & solenoidFrame() const;
-      void setSolenoidFrame(const HepGeom::Transform3D & frame);
-
+    
     private:
       const TRTCond::StrawDxContainer* m_dxContainer;
-      mutable HepGeom::Transform3D m_solenoidFrame ATLAS_THREAD_SAFE; // Guarded by m_mutex
-      mutable std::mutex m_mutex;
 
   };
 

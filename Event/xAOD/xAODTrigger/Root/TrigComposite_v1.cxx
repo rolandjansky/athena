@@ -30,7 +30,7 @@ namespace xAOD {
   const std::string TrigComposite_v1::s_featureString{"feature"};
   const std::string TrigComposite_v1::s_seedString{"seed"};
 
-  const std::string TrigComposite_v1::s_l1DecoderNodeNameString{"L1"};
+  const std::string TrigComposite_v1::s_hltSeedingNodeNameString{"L1"};
   const std::string TrigComposite_v1::s_filterNodeNameString{"F"};
   const std::string TrigComposite_v1::s_inputMakerNodeNameString{"IM"};
   const std::string TrigComposite_v1::s_hypoAlgNodeNameString{"H"};
@@ -80,9 +80,14 @@ namespace xAOD {
 
   void TrigComposite_v1::copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName) {
     this->linkColNamesNC().push_back( newName );
-    this->linkColKeysNC().push_back(    other.linkColKeys().at(    index ) );
-    this->linkColIndicesNC().push_back( other.linkColIndices().at( index ) );
-    this->linkColClidsNC().push_back(   other.linkColClids().at(   index ) );
+    this->linkColClidsNC().push_back( other.linkColClids().at(index) );
+    if (other.isRemapped()) {
+      this->linkColKeysNC().push_back( other.linkColKeysRemap().at(index) );
+      this->linkColIndicesNC().push_back( other.linkColIndicesRemap().at(index) );
+    } else {
+      this->linkColKeysNC().push_back( other.linkColKeys().at(index) );
+      this->linkColIndicesNC().push_back( other.linkColIndices().at(index) );
+    }
   }
 
   bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {

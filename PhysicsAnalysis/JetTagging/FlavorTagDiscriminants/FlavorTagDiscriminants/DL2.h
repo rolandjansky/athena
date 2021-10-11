@@ -14,7 +14,6 @@
 // EDM includes
 #include "xAODJet/Jet.h"
 #include "xAODBTagging/BTagging.h"
-#include "xAODBTagging/BTaggingUtilities.h"
 
 // external libraries
 #include "lwtnn/lightweight_network_config.hh"
@@ -38,26 +37,6 @@ namespace FlavorTagDiscriminants {
   enum class SortOrder {
     ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018, DIPS_LOOSE_202102};
-  enum class OutputType {FLOAT, DOUBLE};
-
-  // classes to deal with typedefs
-  //
-  template <typename T>
-  struct EDMTypeEnum;
-  template <> struct EDMTypeEnum<float> {
-    const static EDMType type = EDMType::FLOAT;
-  };
-  template <> struct EDMTypeEnum<double> {
-    const static EDMType type = EDMType::DOUBLE;
-  };
-  template<typename T>
-  struct OutputTypeEnum;
-  template<> struct OutputTypeEnum<float> {
-    const static OutputType type = OutputType::FLOAT;
-  };
-  template<> struct OutputTypeEnum<double> {
-    const static OutputType type = OutputType::DOUBLE;
-  };
 
 
   // Structures to define DL2 input.
@@ -81,6 +60,16 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackInputConfig> inputs;
   };
 
+  // other DL2 options
+  struct DL2Options {
+    DL2Options();
+    std::string track_prefix;
+    FlipTagConfig flip;
+    std::string track_link_name;
+    std::map<std::string,std::string> remap_scalar;
+  };
+
+
   // _____________________________________________________________________
   // Internal code
 
@@ -89,6 +78,7 @@ namespace FlavorTagDiscriminants {
     typedef std::pair<std::string, double> NamedVar;
     typedef std::pair<std::string, std::vector<double> > NamedSeq;
     typedef xAOD::Jet Jet;
+    typedef xAOD::BTagging BTagging;
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     typedef std::function<double(const xAOD::TrackParticle*,
                                  const xAOD::Jet&)> TrackSortVar;
@@ -97,7 +87,7 @@ namespace FlavorTagDiscriminants {
                                  const xAOD::Jet&)> TrackSequenceFilter;
 
     // getter functions
-    typedef std::function<NamedVar(const Jet&)> VarFromBTag;
+    typedef std::function<NamedVar(const BTagging&)> VarFromBTag;
     typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqFromTracks;
 
     // ___________________________________________________________________
@@ -122,11 +112,9 @@ namespace FlavorTagDiscriminants {
         m_name(name)
         {
         }
-      NamedVar operator()(const xAOD::Jet& jet) const {
-        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
-        if (!btag) throw std::runtime_error("can't find btagging object");
-        T ret_value = m_getter(*btag);
-        bool is_default = m_default_flag(*btag);
+      NamedVar operator()(const xAOD::BTagging& btag) const {
+        T ret_value = m_getter(btag);
+        bool is_default = m_default_flag(btag);
         if constexpr (std::is_floating_point<T>::value) {
           if (std::isnan(ret_value) && !is_default) {
             throw std::runtime_error(
@@ -152,10 +140,8 @@ namespace FlavorTagDiscriminants {
         m_name(name)
         {
         }
-      NamedVar operator()(const xAOD::Jet& jet) const {
-        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
-        if (!btag) throw std::runtime_error("can't find btagging object");
-        T ret_value = m_getter(*btag);
+      NamedVar operator()(const xAOD::BTagging& btag) const {
+        T ret_value = m_getter(btag);
         if constexpr (std::is_floating_point<T>::value) {
           if (std::isnan(ret_value)) {
             throw std::runtime_error(
@@ -171,8 +157,9 @@ namespace FlavorTagDiscriminants {
     class TracksFromJet
     {
     public:
-      TracksFromJet(SortOrder, TrackSelection);
-      Tracks operator()(const xAOD::Jet& jet) const;
+      TracksFromJet(SortOrder, TrackSelection, const DL2Options&);
+      Tracks operator()(const xAOD::Jet& jet,
+                        const xAOD::BTagging& btag) const;
     private:
       typedef SG::AuxElement AE;
       typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
@@ -210,24 +197,25 @@ namespace FlavorTagDiscriminants {
     DL2(const lwt::GraphConfig&,
         const std::vector<DL2InputConfig>&,
         const std::vector<DL2TrackSequenceConfig>& = {},
-        FlipTagConfig = FlipTagConfig::STANDARD,
-        std::map<std::string, std::string> out_remap = {},
-        OutputType = OutputType::DOUBLE);
-    void decorate(const xAOD::Jet& jet) const;
+        const DL2Options& = DL2Options());
+    void decorate(const xAOD::BTagging& btag) const;
 
     // functions to report data depdedencies
     DL2DataDependencyNames getDataDependencyNames() const;
 
   private:
     struct TrackSequenceBuilder {
-      TrackSequenceBuilder(SortOrder, TrackSelection, FlipTagConfig);
+      TrackSequenceBuilder(SortOrder,
+                           TrackSelection,
+                           const DL2Options&);
       std::string name;
       internal::TracksFromJet tracksFromJet;
       internal::TrackSequenceFilter flipFilter;
       std::vector<internal::SeqFromTracks> sequencesFromTracks;
     };
-    typedef std::function<void(const SG::AuxElement&, double)> OutputSetter;
+    typedef SG::AuxElement::Decorator<float> OutputSetter;
     typedef std::vector<std::pair<std::string, OutputSetter > > OutNode;
+    SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> m_jetLink;
     std::string m_input_node_name;
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
@@ -246,15 +234,15 @@ namespace FlavorTagDiscriminants {
     // factory functions to produce callable objects that build inputs
     namespace get {
       VarFromBTag varFromBTag(const std::string& name,
-                            EDMType,
-                            const std::string& defaultflag);
-      TrackSortVar trackSortVar(SortOrder);
+                              EDMType,
+                              const std::string& defaultflag);
+      TrackSortVar trackSortVar(SortOrder, const DL2Options&);
       std::pair<TrackFilter,std::set<std::string>> trackFilter(
-        TrackSelection);
+        TrackSelection, const DL2Options&);
       std::pair<SeqFromTracks,std::set<std::string>> seqFromTracks(
-        const DL2TrackInputConfig&);
+        const DL2TrackInputConfig&, const DL2Options&);
       std::pair<TrackSequenceFilter,std::set<std::string>> flipFilter(
-        FlipTagConfig);
+        const DL2Options&);
     }
   }
 }

@@ -60,7 +60,7 @@ namespace Muon {
         Identifier chid = m_edmHelperSvc->chamberId(segment);
         if (m_idHelperSvc->isTrigger(chid)) {
             ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid));
-            return 0;
+            return nullptr;
         }
         MuPatSegment* info = new MuPatSegment();
         info->segment = &segment;
@@ -481,7 +481,7 @@ namespace Muon {
         if (level == 0) return oss.str();
 
         if (segment.hitList().size() >= 2) {
-            MuPatHitDistanceAlongParameters distCal;
+            MuPatHitDistanceAlongParameters distCal{};
             oss << " length " << distCal(segment.hitList().front(), segment.hitList().back());
         }
         oss << std::endl << m_hitHandler->print(segment.hitList(), true, false, false);

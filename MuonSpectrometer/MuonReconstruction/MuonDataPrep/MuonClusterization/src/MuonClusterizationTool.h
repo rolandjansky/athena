@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCLUSTERIZATIONTOOL_H
@@ -35,8 +35,8 @@ namespace Muon{
     Muon::RpcPrepDataCollection* cluster( const Muon::RpcPrepDataCollection& col ) const;
 
   private:
-    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::TgcPrepDataCollection* collection ) const ;
-    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::RpcPrepDataCollection* collection ) const;
+    static void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::TgcPrepDataCollection* collection ) ;
+    static void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::RpcPrepDataCollection* collection ) ;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

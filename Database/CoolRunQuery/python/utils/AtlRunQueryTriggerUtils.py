@@ -479,7 +479,7 @@ def getSmkNames( allSMK ):
 
 def getHLTMenu(smk):
 
-    if not smk.isdigit():
+    if smk is None:
         return [],[]
 
     if isTriggerRun2(smk):
@@ -520,7 +520,7 @@ def getHLTMenu(smk):
 
 def getL1Menu(smk):
 
-    if not smk.isdigit():
+    if smk is None:
         return []
 
     output = ['TI.L1TI_NAME', 'TI.L1TI_CTP_ID' ]
@@ -536,7 +536,7 @@ def getL1Menu(smk):
                   'M2I.L1TM2TI_TRIGGER_ITEM_ID = TI.L1TI_ID' ]
     bindvars = { "smk": smk }
 
-    cursor,schema = getTriggerDBCursor(smk)
+    cursor,schema = getTriggerDBCursor(smk = smk)
     res = executeQuery( cursor, output, condition, schema, tables, bindvars)
 
     maxNumberItems = 512 if isTriggerRun2(smk=smk) else 256

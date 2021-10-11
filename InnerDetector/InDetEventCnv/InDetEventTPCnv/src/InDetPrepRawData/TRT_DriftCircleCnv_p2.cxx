@@ -26,8 +26,8 @@ TRT_DriftCircleCnv_p2::createTRT_DriftCircle( const InDet::TRT_DriftCircle_p2 *p
   localPos[Trk::locX] = persObj->m_locPos;
   localPos[Trk::locY] = 0;
 
-  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
-   (*cmat)(0,0) = static_cast<double>(persObj->m_errMat);
+  auto cmat = Amg::MatrixX(1,1);
+   (cmat)(0,0) = static_cast<double>(persObj->m_errMat);
   
   InDet::TRT_DriftCircle dc (clusId,
                              localPos,

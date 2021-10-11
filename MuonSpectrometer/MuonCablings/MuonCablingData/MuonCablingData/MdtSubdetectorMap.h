@@ -17,7 +17,7 @@ class MdtSubdetectorMap : public MdtMapBase<MdtRODMap> {
   ~MdtSubdetectorMap();
 
   /** set functions */
-  bool setRODMap(uint8_t rodId, MdtRODMap* mdtRODMap);
+  bool setRODMap(uint8_t rodId, MdtRODMap* mdtRODMap, MsgStream &log);
 
   /** get function */
   MdtRODMap* getRODMap(uint8_t rodId);

@@ -1,81 +1,23 @@
 #fileList=['/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/valid1.105200.T1_McAtNlo_Jimmy.recon.AOD.e380_s764_r1295/AOD.134900._000001.pool.root.1']
 
 from RecExConfig.RecFlags import rec
+from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-rec.readAOD=True
-
-# different input files for ATN and RTT tests
-if not acf.EvtMax.is_locked():
-    acf.EvtMax=2000
-if not ('OutputLevel' in dir()):
-    rec.OutputLevel=INFO
-
-# find input file using a glob in case the previous test is broken
-# logic must be identical to what is used in rerunAOD
-#if not ('fileList' in dir()):
-#added for RTT-chainstore conmpatibility
-if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
-    #just for now take the DC14 as default input
-    #
-    default = "../AthenaTrigRDOtoAOD/AOD.pool.root"
-    summary = "../AthenaTrigRDOtoAOD/summary.log"
-    RDOtoAODokay = False
-    from os.path import exists
-    if exists(summary):
-        fsummary = open(summary)
-        if  "ATHENA_BAD_EXIT" in fsummary.read():
-            printfunc ("WARNING: RDOtoAOD step bad, searching alternatives")
-        else:
-           if exists(default):
-               printfunc ("INFO: ouptut from RDOtoAOD step exists: ",default )
-               RDOtoAODokay = True
-    if RDOtoAODokay:
-        fileList = [default]
-    else:
-        printfunc ("WARNING: default AOD file doesn't exist or is bad, searching alternatives")
-        import glob
-        pattern="../AthenaTrig*toESDAOD*/AOD*.pool.root"
-        files=glob.glob(pattern)
-        if (len(files)==0):
-            log.fatal(" ERROR FATAL No input AOD file could be found matching '" + pattern + "'")
-            exit(-1)
-        elif (len(files)>1):
-            log.warning("Multiple input AOD files found, taking last one: " + files[-1])
-            printfunc ("All matches to pattern '" + pattern + "': ", files)
-            fileList=[files[-1]]
-        else:
-            log.info("Using input AOD file " + files[0])
-            fileList=files
-
-#added for RTT-chainstore conmpatibility
-if not ('RunningRTT' in dir()):
-    acf.FilesInput=fileList
-
+acf.FilesInput = fileList  # noqa: F821 - from dir()
 ConfigFlags.Input.Files = acf.FilesInput() or acf.PoolAODInput()
 
-###############################
-
-rec.doCBNT=False
-
-from RecExConfig.RecFlags import rec
 rec.doTrigger=False
-from RecExConfig.RecAlgsFlags  import recAlgs
 recAlgs.doTrigger=False
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.doTriggerConfigOnly=False
 
+rec.readAOD=True
 rec.doWriteAOD=False
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=False
 rec.doDPD=False 
-rec.doESD=False 
-doTAG=False
-
-#rec.doTruth=True
-
+rec.doESD=False
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
@@ -87,27 +29,20 @@ TrigDecChecker = TrigDecisionChecker("TrigDecChecker")
 TrigDecChecker.WriteEventDecision=False
 TrigDecChecker.MonitoringBlock=100
 TrigDecChecker.MonitoredChains=[]
-#TrigDecChecker.OutputLevel=DEBUG
 
-#from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#ToolSvc += tdt
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior+=1
+from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool 
+tdtAcc = getTrigDecisionTool(ConfigFlags)
+Configurable.configurableRun3Behavior-=1
 
-#from AthenaCommon.GlobalFlags import GlobalFlags
-#GlobalFlags.DetGeo.set_atlas()
+theTDT = tdtAcc.getPrimary()
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
-from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+TrigDecChecker.TrigDecisionTool = conf2toConfigurable(theTDT)
 
-from TrigEDMConfig.TriggerEDM import EDMLibraries
-ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+appendCAtoAthena( tdtAcc )
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += TrigDecChecker
-
-
-include("TriggerTest/TriggerTestCommon.py")
-
-
-

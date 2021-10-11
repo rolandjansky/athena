@@ -15,7 +15,14 @@ dcubeRefID="${inputRefDir}/physval-noSplit_noPseudoT_stdFullSimDigi.root"
 dcubeXmlTruth="${inputXmlDir}/dcube_truth.xml"
 dcubeRefTruth="${inputRefDir}/truth.root"
 
+rdoFile="RDO.pool.root"
+aodFile="AOD_noSplit_noPseudoT_stdFullSimDigi.pool.root"
+ntupFile="physval-noSplit_noPseudoT_stdFullSimDigi.root"
 
+rc1=999
+rc2=999
+rc3=999
+rc4=999
 Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --physicsList 'FTFP_BERT' \
     --truthStrategy 'MC15aPlus' \
@@ -28,76 +35,77 @@ Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --outputHITSFile "HITS.pool.root" \
     --maxEvents 50 \
     --imf False
-rc1=$?
-echo "art-result: ${rc1} EVNTtoHITS"
+rc=$?
+echo "art-result: ${rc} EVNTtoHITS"
 
-rc2=-9999
-if [ ${rc1} -eq 0 ]
+if [ ${rc} -eq 0 ]
 then
     # Histogram comparison with DCube
     $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
     -p -x dcube-truth \
     -c ${dcubeXmlTruth} -r ${dcubeRefTruth} truth.root
-    rc2=$?
+    echo "art-result: $? dcubeTruth"
+
+    # Merging of hits file
+    HITSMerge_tf.py --inputHITSFile='HITS.pool.root' \
+        --outputHITS_MRGFile='Merge.pool.root' \
+        --maxEvents=50 \
+        --skipEvents='0' \
+        --geometryVersion 'ATLAS-R2-2015-03-01-00' \
+        --conditionsTag 'OFLCOND-RUN12-SDR-19' \
+        --imf False
+    echo "art-result: $? HITSMerge"
+
+    #digi
+    Digi_tf.py --inputHITSFile 'Merge.pool.root' \
+        --outputRDOFile ${rdoFile} \
+        --maxEvents '50' \
+        --skipEvents '0' \
+        --geometryVersion 'ATLAS-R2-2015-03-01-00' \
+        --digiSeedOffset1 '123456' \
+        --digiSeedOffset2 '2345678' \
+        --postInclude 'PyJobTransforms/UseFrontier.py' \
+        --AddCaloDigi 'False' \
+        --conditionsTag 'OFLCOND-RUN12-SDR-31' \
+        --imf False
+    echo "art-result: $? HITStoRDO"
+    
+    Reco_tf.py --maxEvents '-1' \
+        --skipEvents '0' \
+        --geometryVersion ATLAS-R2-2015-03-01-00 \
+        --conditionsTag OFLCOND-RUN12-SDR-31 \
+        --inputRDOFile ${rdoFile} \
+        --outputAODFile ${aodFile} \
+        --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
+        --imf False
+    rc1=$?
+    if [ ${rc1} -eq 0 ]
+    then
+         # NTUP prod.
+         Reco_tf.py --inputAODFile ${aodFile} --maxEvents '-1' \
+                    --outputNTUP_PHYSVALFile ${ntupFile} \
+                    --ignoreErrors True \
+                    --validationFlags 'doInDet' \
+                    --valid 'True'
+         rc2=$?
+
+         # Regression test
+         ArtPackage=$1
+         ArtJobName=$2
+         art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+         rc3=$?
+
+         if [ ${rc2} -eq 0 ]
+         then
+             # Histogram comparison with DCube
+             $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+             -p -x dcube-id \
+             -c ${dcubeXmlID} -r ${dcubeRefID} ${ntupFile}
+             rc4=$?
+         fi
+    fi
 fi
-echo "art-result: ${rc2} dcubeTruth"
-
-
-# Merging of hits file
-HITSMerge_tf.py --inputHITSFile='HITS.pool.root' \
-    --outputHITS_MRGFile='Merge.pool.root' \
-    --maxEvents=50 \
-    --skipEvents='0' \
-    --geometryVersion 'ATLAS-R2-2015-03-01-00' \
-    --conditionsTag 'OFLCOND-RUN12-SDR-19' \
-    --imf False
-
-echo "art-result: $? HITSMerge"
-#digi
-Digi_tf.py --inputHITSFile 'Merge.pool.root' \
-    --outputRDOFile 'RDO.pool.root' \
-    --maxEvents '50' \
-    --skipEvents '0' \
-    --geometryVersion 'ATLAS-R2-2015-03-01-00' \
-    --digiSeedOffset1 '123456' \
-    --digiSeedOffset2 '2345678' \
-    --postInclude 'PyJobTransforms/UseFrontier.py' \
-    --AddCaloDigi 'False' \
-    --conditionsTag 'OFLCOND-RUN12-SDR-31' \
-    --imf False
-
-echo "art-result: $? HITStoRDO"
-
-FastChain_tf.py --maxEvents 50 \
-    --skipEvents 0 \
-    --geometryVersion ATLAS-R2-2015-03-01-00 \
-    --conditionsTag OFLCOND-RUN12-SDR-31 \
-    --inputRDOFile RDO.pool.root \
-    --outputAODFile AOD_Split_stdFullSimDigi.pool.root \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
-    --outputNTUP_PHYSVALFile 'physval-noSplit_noPseudoT_stdFullSimDigi.root' \
-    --validationFlags 'doInDet' \
-    --valid 'True' \
-    --imf False
-rc3=$?
-
-rc4=-9999
-rc5=-9999
-if [ ${rc1} -eq 0 ]
-then
-    # Regression test
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc4=$?
-fi
-
-# Histogram comparison with DCube
-$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
--p -x dcube-id \
--c ${dcubeXmlID} -r ${dcubeRefID} physval-noSplit_noPseudoT_stdFullSimDigi.root
-rc5=$?
-
-echo  "art-result: ${rc3} RDOtoAOD"
-echo  "art-result: ${rc4} regression"
-echo  "art-result: ${rc5} dcubeID"
+echo "art-result: ${rc1} RDOtoAOD"
+echo "art-result: ${rc2} AODtoNTUP"
+echo "art-result: ${rc3} regression"
+echo "art-result: ${rc4} dcubeID"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -104,7 +104,7 @@ class CaloTowerVecMon : public ManagedMonitorToolBase {
    bool m_useLArNoisyAlg;
 
    // trigger Awareness:
-   bool m_useTrigger;
+   bool m_useTriggerCaloMon;
    ToolHandle<Trig::TrigDecisionTool> m_trigDec; 
    std::string m_TriggerNames1;
    std::string m_TriggerNames2;

@@ -246,7 +246,9 @@ StatusCode AsgPhotonIsEMSelector::initialize()
 	return sc;
       } 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
-    TEnv env(filename.c_str());    
+    TEnv env;
+    env.ReadFile(filename.c_str(), kEnvLocal);
+
     ///------- Read in the TEnv config ------///
     ATH_MSG_DEBUG("Read in the TEnv config ");
     //Override the mask via the config only if it is not set     

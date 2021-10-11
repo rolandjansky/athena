@@ -59,7 +59,7 @@ def getDsFileName(file,input=False):
             ds=file.split('#')[0]
             name=file.split('#')[1]
         else:
-            if file.find('/') is not -1:
+            if file.find('/')!=-1:
                 fileparts=file.split('/')
                 ds=fileparts[len(fileparts)-1]
             else:
@@ -380,7 +380,7 @@ class SCTCalibExecutor( athenaExecutor ):
             self.conf.addToArgdict('EventNumber', trfArgClasses.argInt(0))
 
         # Set STAGE_SVCCLASS
-        if not SvcClass is '' and not SvcClass is None:
+        if not SvcClass == '' and not SvcClass == None:
             os.environ['STAGE_SVCCLASS']=SvcClass
 
         # Check input type
@@ -408,7 +408,7 @@ class SCTCalibExecutor( athenaExecutor ):
         # set job number
         jobnb=''
         # find seperator for jobnumber
-        if prefix is not '' : 
+        if prefix != '' : 
             sep=prefix.find('._')
             if ( sep != -1 ) :
                 jobnb=prefix[sep+1:]
@@ -456,7 +456,7 @@ class SCTCalibExecutor( athenaExecutor ):
             self._trf.generateReport(fast=True)
             sys.exit(0)
 
-        if jobnb is not '':
+        if jobnb != '':
             self.conf.addToArgdict('JobNumber', trfArgClasses.argString(jobnb))
 
         # get RunNumber from datasetName
@@ -505,31 +505,41 @@ class SCTCalibExecutor( athenaExecutor ):
                 rootBSerrFiles.append(inputFileName)
 
         if runArgs['splitHitMap']._value ==2 :
-            if len(rootBSerrFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
-
+            
+            if len(rootHitmapFiles) > 0 :
+                
                 fileutil.remove('SCTHitMaps.root')
-                fileutil.remove('SCTLB.root')
-                fileutil.remove('SCTBSErrors.root')
 
                 cmd = "cp -v $ROOTSYS/bin/hadd . \n"
-                cmd += "hadd SCTHitMaps.root " 
+                cmd += "hadd -n 10 SCTHitMaps.root " 
                 for inputFileName in rootHitmapFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
-                cmd += "hadd SCTLB.root "
+            
+                print (cmd)
+                self._echologger.info('Merging Hitmap files!')
+                retcode=1
+                try:
+                    retcode = os.system(cmd)
+                except (OSError, e):
+                    retcode = 1
+                if retcode == 0:
+                    self._echologger.info('Root merge successful')
+                else:
+                    self._echologger.error("FAILED to merge root files")
+            
+            if ( len(rootLbFiles) > 0 and (len(rootLbFiles) == len(rootHitmapFiles)) ):
+                
+                fileutil.remove('SCTLB.root')
+
+                cmd = "cp -v $ROOTSYS/bin/hadd . \n"
+                cmd += "hadd -n 10 SCTLB.root " 
                 for inputFileName in rootLbFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
-                cmd += "hadd SCTBSErrors.root "
-                for inputFileName in rootBSerrFiles :
-                    cmd += "%s " %(inputFileName)
-                cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
             
                 print (cmd)
-                self._echologger.info('Merging Hitmap, LB and BSerr files!')
+                self._echologger.info('Merging LBHitmap files!')
                 retcode=1
                 try:
                     retcode = os.system(cmd)
@@ -540,25 +550,18 @@ class SCTCalibExecutor( athenaExecutor ):
                 else:
                     self._echologger.error("FAILED to merge root files")
 
-            elif len(rootLbFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
+            if ( len(rootBSerrFiles) > 0 and (len(rootBSerrFiles) == len(rootHitmapFiles)) ):
 
-                fileutil.remove('SCTHitMaps.root')
-                fileutil.remove('SCTLB.root')
+                fileutil.remove('SCTBSErrors.root')
 
                 cmd = "cp -v $ROOTSYS/bin/hadd . \n"
-                cmd += "hadd SCTHitMaps.root " 
-                for inputFileName in rootHitmapFiles :
+                cmd += "hadd -n 10 SCTBSErrors.root " 
+                for inputFileName in rootBSerrFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
-                cmd += "hadd SCTLB.root "
-                for inputFileName in rootLbFiles :
-                    cmd += "%s " %(inputFileName)
-                cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
             
                 print (cmd)
-                self._echologger.info('Merging Hitmap and LB files!')
+                self._echologger.info('Merging BSerr files!')
                 retcode=1
                 try:
                     retcode = os.system(cmd)
@@ -571,7 +574,7 @@ class SCTCalibExecutor( athenaExecutor ):
         
         super(SCTCalibExecutor, self).execute()
 
-        if self._rc is not 0:
+        if self._rc != 0:
             try:
 
                 if 'less than the required minimum number of events' in open('log.sctcalib').read():
@@ -731,11 +734,11 @@ class SCTCalibExecutor( athenaExecutor ):
         else:
             jobnb=''
 
-        if prefix is not '':
+        if prefix != '':
             try:
                 if runArgs['splitHitMap']._value !=1:
                     os.rename('mycool.db',prefix+'.mycool.db')                
-                if jobnb is not '':
+                if jobnb != '':
                     prefixTmp = prefix + "."+ jobnb
                 else :
                     prefixTmp = prefix

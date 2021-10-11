@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBSEXTRACTION_TRIGHLTTOXAODCONVERSION_H
@@ -26,10 +26,8 @@ namespace HLT {
 class TrigHLTtoxAODConversion : public AthAlgorithm {
 public:
   TrigHLTtoxAODConversion(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigHLTtoxAODConversion();   
-  StatusCode initialize(); 
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
 private:
   ToolHandle<HLT::Navigation> m_navigation; //!< handle to Navigation tools

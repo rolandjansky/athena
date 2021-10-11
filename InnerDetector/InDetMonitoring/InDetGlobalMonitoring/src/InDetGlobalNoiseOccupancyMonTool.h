@@ -89,9 +89,9 @@ class InDetGlobalNoiseOccupancyMonTool : public InDetGlobalMotherMonTool{
    */
   void correlation_coeffs(std::vector<struct noise> &no);
   
-  float calc_correlation(float *sum_x, float *sum_y, 
-			 float *sum_xy, float *sum_x_sq, float *sum_y_sq,
-			 int *points);
+  static float calc_correlation(const float *sum_x, const float *sum_y, 
+			 const float *sum_xy, const float *sum_x_sq, const float *sum_y_sq,
+			 const int *points);
   
   int GetSCTCounts(int barrel_ec_sel, bool do_checks_flg);
   int GetPixelCounts(int barrel_ec_sel, bool do_checks_flg);

@@ -48,10 +48,10 @@ def precisionCaloMenuSequence_FWD(name, is_probe_leg=False):
     (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence_FWD, ConfigFlags)
 
     #Hypo
-    from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionCaloHypoAlgMT
+    from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionCaloHypoAlg
     from TrigEgammaForwardHypo.TrigEgammaForwardPrecisionCaloHypoTool import TrigEgammaForwardPrecisionCaloHypoToolFromDict
 
-    thePrecisionCaloHypo = TrigEgammaForwardPrecisionCaloHypoAlgMT(name+"precisionCaloHypo_FWD")
+    thePrecisionCaloHypo = TrigEgammaForwardPrecisionCaloHypoAlg(name+"precisionCaloHypo_FWD")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,

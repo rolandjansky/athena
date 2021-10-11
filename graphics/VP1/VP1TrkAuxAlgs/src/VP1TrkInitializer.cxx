@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1TrkAuxAlgs/VP1TrkInitializer.h"
@@ -11,6 +11,7 @@
 
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include <QtCoreVersion>
 
 //____________________________________________________________________
 VP1TrkInitializer::VP1TrkInitializer(const std::string& name, ISvcLocator* svcLocator):
@@ -82,7 +83,12 @@ void VP1TrkInitializer::initTools(QStringList& toolTypes, QString env)
   availTools.addMonitoredTypes(toolTypes);
   QStringList existingTools = availTools.availableTools();
 
-  foreach (QString key,VP1QtUtils::environmentVariableValue(env).split(';',QString::SkipEmptyParts)) {
+#if QTCORE_VERSION >= 0x050E00
+  foreach (QString key,VP1QtUtils::environmentVariableValue(env).split(';',Qt::SkipEmptyParts))
+#else
+  foreach (QString key,VP1QtUtils::environmentVariableValue(env).split(';',QString::SkipEmptyParts))
+#endif
+  {
     if (existingTools.contains(key))
       continue;
     msg(MSG::DEBUG) << "Attempting creation of fittertool with tooltype/key " << key.toStdString() << endmsg;

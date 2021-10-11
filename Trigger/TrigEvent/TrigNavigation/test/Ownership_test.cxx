@@ -27,8 +27,8 @@ using namespace TrigNavTest;
 //const int OK=1;
 //const int FAILED=0;
 
-StoreGateSvc* pStore(0);
-HLT::Navigation* hns;
+StoreGateSvc* pStore{nullptr};
+HLT::Navigation* hns{nullptr};
 
 
 template <class T> 
@@ -165,12 +165,12 @@ bool viewContainerAttachTest() {
 int main() {
 
 
-   ISvcLocator* pSvcLoc;
+   ISvcLocator* pSvcLoc{nullptr};
    if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
      cerr << "ERROR This test can not be run" << endl;
      return 0;
    }
-   assert(pSvcLoc);
+   assert(pSvcLoc!=nullptr);
    MsgStream log(Athena::getMessageSvc(), "Ownership_test");
    msglog = &log;
 
@@ -180,24 +180,24 @@ int main() {
     ABORT( "ERROR no SG available" );
   }
 
-  IToolSvc* toolSvc;
+  IToolSvc* toolSvc{nullptr};
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
     log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
-  } else 
+  } else {
     ABORT ( "no ToolSvc available" );
+  }
 
 
-
-  IAlgTool* algTool;
+  IAlgTool* algTool{nullptr};
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
     log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
-    if ( hns ) {
+    if ( hns!=nullptr ) {
       log << MSG::DEBUG << "OK navigation casted" << endmsg;    
-    } else 
+    } else {
       ABORT( "navigation cast failed" );    
-
+    }
   } else  ABORT("navigation tool NOT retrieved" );
 
   if ( !firsInsertDecidesPolicy() ) 

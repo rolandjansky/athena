@@ -19,11 +19,11 @@ namespace InDet {
     declareInterface<IInDetTrackTruthOriginTool>(this);
 #endif
 
-    declareProperty("barcodeG4", m_barcodeG4);
-    declareProperty("matchingProbabilityCut", m_matchingProbabilityCut);
+    declareProperty("barcodeG4", m_barcodeG4 = 2e5);
+    declareProperty("matchingProbabilityCut", m_matchingProbabilityCut = 0.5);
 
-    declareProperty("truthParticleLinkName", m_truthParticleLinkName);
-    declareProperty("truthMatchProbabilityAuxName", m_truthMatchProbabilityAuxName);
+    declareProperty("truthParticleLinkName", m_truthParticleLinkName = "truthParticleLink");
+    declareProperty("truthMatchProbabilityAuxName", m_truthMatchProbabilityAuxName = "truthMatchProbability");
   }
 
   InDetTrackTruthOriginTool::~InDetTrackTruthOriginTool() = default;
@@ -32,18 +32,36 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
+  const xAOD::TruthParticle* InDetTrackTruthOriginTool::getTruth( const xAOD::TrackParticle* track ) const {
+
+      // if the track doesnt't have a valid truth link, skip to the next track
+      // in practice, all tracks seem to have a truth link, but we need to also
+      // check whether it's valid
+      typedef ElementLink<xAOD::TruthParticleContainer> TruthLink;
+      if ( !track->isAvailable<TruthLink>("truthParticleLink") ) { 
+        return nullptr;
+      }
+
+      // retrieve the link and check its validity
+      const TruthLink &link = track->auxdata<TruthLink>("truthParticleLink");
+
+      // a missing or invalid link implies truth particle has been dropped from 
+      // the truth record at some stage - probably it was from pilup which by
+      // default we don't store truth information for
+      if(!link or !link.isValid()) {
+        return nullptr;
+      }
+
+      // seems safe to access and return the linked truth particle
+      return *link;
+  }
+
   int InDetTrackTruthOriginTool::getTrackOrigin(const xAOD::TrackParticle* track) const {
 
-    const xAOD::TruthParticle* truth = nullptr;
-    typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-    if( track->isAvailable< Link_t >( m_truthParticleLinkName.data() ) ) {
-      static SG::AuxElement::ConstAccessor< Link_t > linkAcc( m_truthParticleLinkName.data() );
-      const Link_t& link = linkAcc( *track );
-      if( link.isValid() ) {
-	      truth = *link;
-      }
-    }
+    // get truth particle
+    const xAOD::TruthParticle* truth = getTruth( track );
 
+    // get track TMP
     static SG::AuxElement::ConstAccessor< float > tmpAcc( m_truthMatchProbabilityAuxName.data() );
     float truthProb = tmpAcc( *track );
 
@@ -74,6 +92,12 @@ namespace InDet {
       // from D decay chain?
       if(isFrom(truth, 4)) {
         origin = origin | (0x1 << InDet::TrkOrigin::DHadronDecay);
+        isFragmentation = false;
+      }
+
+      // from tau decay chain?
+      if(isFrom(truth, 15)) {
+        origin = origin | (0x1 << InDet::TrkOrigin::TauDecay);
         isFragmentation = false;
       }
 
@@ -137,11 +161,13 @@ namespace InDet {
 
     if ( part == nullptr ) return false;
 
-    if( flav != 5 && flav != 4 ) return false;
+    if( flav != 5 && flav != 4 && flav != 15 ) return false;
 
     if( flav == 5 && part->isBottomHadron() ) return true;
 
     if( flav == 4 && part->isCharmHadron() ) return true;
+
+    if( flav == 15 && abs(part->pdgId()) == 15 ) return true;
 
     for(unsigned int p=0; p<part->nParents(); p++) {
       const xAOD::TruthParticle* parent = part->parent(p);
@@ -173,7 +199,7 @@ namespace InDet {
     if(abs(pdgId) == 211 && parentId == 310 && parent->nChildren() == 2) return parentId;
 
     // Lambdas
-    if((abs(pdgId) == 211 || abs(pdgId) == 2212) && abs(pdgId) == 3122 && parent->nChildren() == 2) return parentId;
+    if((abs(pdgId) == 211 || abs(pdgId) == 2212) && abs(parentId) == 3122 && parent->nChildren() == 2) return parentId;
 
     // other decays:
     if(parent->isHadron() && parent->nChildren() == 2) return parentId;

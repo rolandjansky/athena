@@ -98,7 +98,7 @@ StatusCode MuonSimDataOverlay::execute(const EventContext& ctx) const
         tempSDO.setPosition(entry.second.globalPosition());
         tempSDO.setTime(entry.second.getTime());
 
-        it->second = tempSDO;
+        it->second = std::move(tempSDO);
       } else {
         outputContainer->insert(entry);
       }

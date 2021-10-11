@@ -41,7 +41,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include <tuple>
-typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
+typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX> ClusterInfo;
 
 class PixelID;
 class SCT_ID;
@@ -140,7 +140,7 @@ public:
   SiHitCollection* m_simHitColl{};
   std::string      m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::list<SiHitCollection*> m_siHitCollList;
+  std::vector<SiHitCollection*> m_siHitCollList;
 
   Pixel_detElement_RIO_map* m_pixelClusterMap{};
 

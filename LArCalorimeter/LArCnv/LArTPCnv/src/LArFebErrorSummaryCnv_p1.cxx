@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArFebErrorSummary.h"
@@ -9,7 +9,7 @@
 // LArFebErrorSummaryCnv_p1, used for T/P separation
 // author H.Ma
 
-void LArFebErrorSummaryCnv_p1::transToPers(const LArFebErrorSummary* trans, LArFebErrorSummary_p1* pers, MsgStream &/*log*/) 
+void LArFebErrorSummaryCnv_p1::transToPers(const LArFebErrorSummary* trans, LArFebErrorSummary_p1* pers, MsgStream &/*log*/) const
 {
   unsigned int sz = trans->get_all_febs().size();
 
@@ -26,7 +26,7 @@ void LArFebErrorSummaryCnv_p1::transToPers(const LArFebErrorSummary* trans, LArF
   }
 }
 
-void LArFebErrorSummaryCnv_p1::persToTrans(const LArFebErrorSummary_p1* pers, LArFebErrorSummary* trans, MsgStream & log) 
+void LArFebErrorSummaryCnv_p1::persToTrans(const LArFebErrorSummary_p1* pers, LArFebErrorSummary* trans, MsgStream & log) const
 {
 
   if( pers->m_feb_errors.size()!= pers->m_feb_ids.size() )

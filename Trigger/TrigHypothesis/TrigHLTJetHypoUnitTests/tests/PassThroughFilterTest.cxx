@@ -25,11 +25,8 @@ TEST(PassThroughFilterTester, zerojets) {
 
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
-  auto pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
-
-  EXPECT_EQ(pair.first, tv.begin());
-  EXPECT_EQ(pair.second, tv.end());
+  auto fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0u);
 }
 
 TEST(PassThroughFilterTester, twojets) {
@@ -40,19 +37,11 @@ TEST(PassThroughFilterTester, twojets) {
   std::vector<double> eta{2., 1.};
   HypoJetVector tv = makeHypoJets(eta);
 
-  std::pair<HypoJetCIter, HypoJetCIter> iters =
-    std::make_pair(tv.begin(), tv.end());
+  auto fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 2u);
   
-  iters = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((iters.second - iters.first), 2);
+  EXPECT_EQ(fj.front()->eta(), tv.front()->eta());
+  EXPECT_EQ(fj.back()->eta(), tv.back()->eta());
 
-  const auto& fiter = iters.first;
-  const auto& siter = iters.second;
-
-  double f_eta = (*fiter)->eta();
-  double s_eta = (*(siter-1))->eta();
-  
-  EXPECT_EQ( f_eta, (*(tv.begin()))->eta());
-  EXPECT_EQ( s_eta, (*(tv.end()-1))->eta());
 
 }

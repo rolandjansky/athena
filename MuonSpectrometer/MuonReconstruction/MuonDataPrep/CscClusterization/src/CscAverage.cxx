@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -17,13 +17,13 @@
 #include <vector>
 
 CscAverage::CscAverage() {
-    m_msgSvc = 0;
+    m_msgSvc = nullptr;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
     if (sc.isFailure()) std::cout << "CscAverage::Fail to locate Message Service" << std::endl;
 }
 
-void CscAverage::cscaverage(double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise) {
+void CscAverage::cscaverage(const double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise) {
     MsgStream mLog(m_msgSvc, "CscAverage");
 
     /// Find the clusters  and calculate the positions and the errors on the positions

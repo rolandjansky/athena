@@ -68,7 +68,7 @@ bool CoolQuery::openDbConn() {
 std::string CoolQuery::transConn(const std::string& inconn) {
   // translate simple connection string (no slash) to mycool.db with given                                                                                                              
   // instance name, all others are left alone                                                                                                                                           
-  if (inconn.find("/")==std::string::npos) {
+  if (inconn.find('/')==std::string::npos) {
     return "sqlite://X;schema=mycool.db;dbname="+inconn;
   } else {
     return inconn;

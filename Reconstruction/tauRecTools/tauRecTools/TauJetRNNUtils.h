@@ -102,6 +102,8 @@ bool massTrkSys(const xAOD::TauJet &tau, double &out);
 
 bool pt(const xAOD::TauJet &tau, double &out);
 
+bool pt_tau_log(const xAOD::TauJet &tau, double &out);
+
 bool ptDetectorAxis(const xAOD::TauJet &tau, double &out);
 
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out);
@@ -111,6 +113,7 @@ bool ptJetSeed_log             (const xAOD::TauJet &tau, double &out);
 bool absleadTrackEta           (const xAOD::TauJet &tau, double &out);
 bool leadTrackDeltaEta         (const xAOD::TauJet &tau, double &out);
 bool leadTrackDeltaPhi         (const xAOD::TauJet &tau, double &out);
+bool leadTrackProbNNorHT       (const xAOD::TauJet &tau, double &out);
 bool EMFracFixed               (const xAOD::TauJet &tau, double &out);
 bool etHotShotWinOverPtLeadTrk (const xAOD::TauJet &tau, double &out);
 bool hadLeakFracFixed          (const xAOD::TauJet &tau, double &out);
@@ -131,6 +134,9 @@ namespace Track {
 bool pt_log(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+bool pt_tau_log(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 bool pt_jetseed_log(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
@@ -139,6 +145,18 @@ bool d0_abs_log(
 
 bool z0sinThetaTJVA_abs_log(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
+bool z0sinthetaTJVA(
+    const xAOD::TauJet& tau, const xAOD::TauTrack &track, double &out);
+
+bool z0sinthetaSigTJVA(
+    const xAOD::TauJet& tau, const xAOD::TauTrack &track, double &out);
+
+bool d0TJVA(
+    const xAOD::TauJet& tau, const xAOD::TauTrack &track, double &out);
+
+bool d0SigTJVA(
+    const xAOD::TauJet& tau, const xAOD::TauTrack &track, double &out);
 
 bool dEta(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
@@ -171,6 +189,9 @@ bool eProbabilityHT(
 bool eProbabilityNN(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+bool eProbabilityNNorHT(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 } // namespace Track
 
 
@@ -180,6 +201,9 @@ namespace Cluster {
 // Returns a status code indicating success
 
 bool et_log(
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
+
+bool pt_tau_log(
     const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 bool pt_jetseed_log(
@@ -200,9 +224,14 @@ bool SECOND_LAMBDA(
 bool CENTER_LAMBDA(
     const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
-bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
-bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
-bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
+bool SECOND_LAMBDAOverClustersMeanSecondLambda(
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
+
+bool CENTER_LAMBDAOverClustersMeanCenterLambda(
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
+
+bool FirstEngDensOverClustersMeanFirstEngDens(
+    const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out);
 
 } // namespace Cluster
 } // namespace Variables

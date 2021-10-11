@@ -12,9 +12,13 @@ atlas_install_joboptions( share/*.py EXCLUDE share/*RDOtoRDOtrigger*.py )
 # Install scripts
 atlas_install_runtime( scripts/*.py )
 
+atlas_install_data( share/*.ref )
+
+atlas_install_scripts( test/*.sh )
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RecoRAW )
 atlas_add_test( RecoRAW
-   SCRIPT python -m RecJobTransforms.RecoSteering --RAW
+   SCRIPT test_new_jo_raw_reco.sh
    POST_EXEC_SCRIPT nopost.sh
    PROPERTIES TIMEOUT 900
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RecoRAW )

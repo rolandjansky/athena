@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -351,7 +351,7 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(nullptr));
 #endif
 
-    recordIncidentToMCTruth(ti);
+    recordIncidentToMCTruth(ti,false);
     HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_NE( nullptr, generated);
     if (generated) {

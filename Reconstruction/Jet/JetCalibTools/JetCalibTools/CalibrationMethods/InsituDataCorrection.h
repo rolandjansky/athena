@@ -15,8 +15,8 @@
 #include <TROOT.h>
 #include <TEnv.h>
 #include <TAxis.h>
-#include <TH1D.h>
-#include <TH2D.h>
+#include <TH1.h>
+#include <TH2.h>
 
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
@@ -43,20 +43,20 @@ class InsituDataCorrection
  private:
   double getInsituCorr(double pt, double eta, std::string calibstep) const;
   double getInsituCorr_JMS(double pt, double mass, double eta, std::string calibstep, bool isTAmass) const;
-  TH2D * combineCalibration(TH2D *h2d, TH1D *h);
-  TH2D * invertHistogram(TH2D *h2d);
+  std::unique_ptr<const TH2> combineCalibration(const TH2* h2d, const TH1* h);
+  std::unique_ptr<const TH2> invertHistogram(const TH2* h2d);
  
  private:
   TEnv * m_config;
   TString m_jetAlgo, m_calibAreaTag;
   bool m_dev;
 
-  std::unique_ptr<TH2D> m_insituCorr;
-  std::unique_ptr<TH2D> m_insituCorr_JMS;
-  std::unique_ptr<TH2D> m_insituCorr_JMS_TA;
+  std::unique_ptr<const TH2> m_insituCorr;
+  std::unique_ptr<const TH2> m_insituCorr_JMS;
+  std::unique_ptr<const TH2> m_insituCorr_JMS_TA;
   double m_insituEtaMax, m_insituPtMin, m_insituPtMax, m_insituEtaMax_JMS, m_insituPtMin_JMS, m_insituPtMax_JMS, m_insituMassMin_JMS, m_insituMassMax_JMS;
   double m_relhistoPtMax, m_abshistoPtMax;
-  std::unique_ptr<TH2D> m_insituCorr_ResidualMCbased;
+  std::unique_ptr<const TH2> m_insituCorr_ResidualMCbased;
   double m_insituEtaMax_ResidualMCbased, m_insituPtMin_ResidualMCbased, m_insituPtMax_ResidualMCbased;
 
   bool m_applyRelativeandAbsoluteInsitu;

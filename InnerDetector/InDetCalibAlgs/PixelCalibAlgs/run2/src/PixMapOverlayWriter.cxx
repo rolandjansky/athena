@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
@@ -317,8 +317,9 @@ StatusCode PixMapOverlayWriter::execute (){
   for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){
     Identifier modid = m_pixelID->wafer_id(i);
     unsigned int mylabel = 0;
-    if ( sizeof(modid.get_compact())==4 ) mylabel = modid.get_compact();
-    else mylabel = (modid.get_compact()>>32);
+    auto cid = modid.get_compact();
+    if ( sizeof(cid)==4 ) mylabel = cid;
+    else mylabel = (cid>>32);
     std::string modfullid = " "+m_pixelID->show_to_string(modid);
     std::ostringstream ss; ss<<mylabel; 
     std::string name("NONE");

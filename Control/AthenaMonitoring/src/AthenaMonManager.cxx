@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -413,7 +413,6 @@ initialize()
     m_d->m_doResourceMon = msgLvl(AthMonBench::s_resourceMonThreshold);
 
     StatusCode sc;
-    sc.setChecked();
 
     sc = service( "THistSvc", m_THistSvc, true );
     if( !sc.isSuccess() ) {
@@ -551,7 +550,6 @@ execute()
     }
 
     StatusCode sc;
-    sc.setChecked();
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
@@ -628,7 +626,6 @@ stop()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::finalize():" << endmsg;
 
     StatusCode sc;
-    sc.setChecked();
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
@@ -685,7 +682,6 @@ start()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::start():" << endmsg;
 
     StatusCode sc;
-    sc.setChecked();
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {

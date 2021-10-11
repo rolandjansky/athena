@@ -96,7 +96,7 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
 
   // from TrigZFinder::initialize
   m_usedphiBinSize = m_phiBinSize;
-  if ( m_usedphiBinSize < ZFinder_MinPhiSliceSize ) m_usedphiBinSize = ZFinder_MinPhiSliceSize;
+  if ( m_usedphiBinSize < ZFinder_MinPhiSliceSize and ! m_forcePhiBinSize) m_usedphiBinSize = ZFinder_MinPhiSliceSize;
   if ( m_dphideta > 0 )                             m_dphideta *= -m_dphideta;
 
   m_invPhiSliceSize = 180./(M_PI*m_usedphiBinSize);

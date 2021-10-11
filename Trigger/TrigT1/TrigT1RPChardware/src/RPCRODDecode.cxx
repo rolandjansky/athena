@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -149,8 +149,7 @@ bool thereIsASL=false; // true if the data word is a SL footer
                        // that closes the SL fragment.
 char recField;         // record field
 if(m_enablePrintOut) {
-  DISP<<" RPCRODDecode; inword= "<<std::hex<<inword<<std::dec<<std::endl;
-  DISP_DEBUG;
+  std::cout<<" RPCRODDecode; inword= "<<std::hex<<inword<<std::dec<<std::endl;
 }
 //
 // recognize first the current word
@@ -167,11 +166,10 @@ if(SLROS.isHeader()) {
 //
 // SL Header
 //
-        if(m_enablePrintOut) {
-          DISP<<" RPCRODDecode: SectorLogic Header "<<std::endl;
-	  DISP_DEBUG;
+    if(m_enablePrintOut) {
+          std::cout<<" RPCRODDecode: SectorLogic Header "<<std::endl;
 	}
-        m_isSLBody=true;
+	m_isSLBody=true;
 	SLRO.reset();
 	SLRO.writeRecord(inword,false);
 	thereIsASL=false;
@@ -181,8 +179,7 @@ if(SLROS.isHeader()) {
 // SL Footer
 //
         if(m_enablePrintOut) {
-          DISP<<" RPCRODDecode: SectorLogic Footer "<<std::endl;
-	  DISP_DEBUG;
+          std::cout<<" RPCRODDecode: SectorLogic Footer "<<std::endl;
         }
         m_isSLBody=false;
 	thereIsASL=true;
@@ -193,8 +190,7 @@ if(SLROS.isHeader()) {
 // SL Body
 //
         if(m_enablePrintOut) {
-          DISP<<" RPCRODDecode: SectorLogic Body "<<std::endl;
-	  DISP_DEBUG;	
+          std::cout<<" RPCRODDecode: SectorLogic Body "<<std::endl;
         }
 	SLRO.writeRecord(inword,false);
 	thereIsASL=false;
@@ -205,9 +201,8 @@ if(SLROS.isHeader()) {
 // RX header
 //
         if(m_enablePrintOut) {
-          DISP<<" RPCRODDecode: RX Header "<<std::endl;
-	  DISP_DEBUG;
-        }	  
+          std::cout<<" RPCRODDecode: RX Header "<<std::endl;
+        }
 	m_RXFlag++;
 	RXROS.decodeFragment(inword,recField);
 	if(recField=='H') {
@@ -215,8 +210,7 @@ if(SLROS.isHeader()) {
 	}
 	thereIsACM=false;
 	if(m_enablePrintOut) {
-	  DISP<<" Sector ID = "<<SectorID<<std::endl;
-	  DISP_DEBUG;
+	  std::cout<<" Sector ID = "<<SectorID<<std::endl;
 	}
 	
 	switch(m_previousRecord){
@@ -224,8 +218,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and RX Header found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and RX Header found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -233,8 +226,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body expected and and RX Header found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body expected and and RX Header found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -242,8 +234,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	   DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and RX Header found"<<std::endl;
-	   DISP_DEBUG;
+	   std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and RX Header found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -251,38 +242,32 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Header or Pad Footer expected and RX Header found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Header or Pad Footer expected and RX Header found"<<std::endl;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
-	  }  
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
+	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
-	  } 
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
+	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
-	  } 
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
+	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
-	  } 
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
+	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=Empty;	
@@ -292,9 +277,8 @@ if(SLROS.isHeader()) {
 //
 // RX footer
 //
-        if(m_enablePrintOut) {
-          DISP<<" RX footer "<<std::endl;
-	  DISP_DEBUG;
+    if(m_enablePrintOut) {
+      std::cout<<" RX footer "<<std::endl;
 	}
 	m_RXFlag--;
         RXROS.decodeFragment(inword,recField);
@@ -302,8 +286,7 @@ if(SLROS.isHeader()) {
 	}
 	thereIsACM=false;
 	if(m_enablePrintOut) {
-	  DISP<<" RPCRODDecode: Footer of Sector with ID = "<<SectorID<<std::endl;
-	  DISP_DEBUG;
+	  std::cout<<" RPCRODDecode: Footer of Sector with ID = "<<SectorID<<std::endl;
 	}
 	
 	switch(m_previousRecord){
@@ -311,8 +294,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and RX Footer found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and RX Footer found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -320,8 +302,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body expected and RX Footer found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body expected and RX Footer found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -329,8 +310,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and and RX Footer found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and and RX Footer found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -338,38 +318,32 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Header or Pad Footer expected and RX Footer found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Header or Pad Footer expected and RX Footer found"<<std::endl;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=Empty;
@@ -381,9 +355,8 @@ if(SLROS.isHeader()) {
 //
 // Pad header
 //
-        if(m_enablePrintOut) {
-          DISP<<" PAD Header "<<std::hex<<inword<<std::dec<<std::endl;
-	  DISP_DEBUG;
+    if(m_enablePrintOut) {
+      std::cout<<" PAD Header "<<std::hex<<inword<<std::dec<<std::endl;
 	}
 	m_PADFlag++;
 	PDROS.decodeFragment(inword,recField);
@@ -392,8 +365,7 @@ if(SLROS.isHeader()) {
 	}
 	thereIsACM=false;
 	if(m_enablePrintOut) {
-	  DISP<<" PAD "<<PadID<<" LVL1 "<<std::hex<<((inword & 0x0e00)>>8)<<std::dec<<std::endl;
-	  DISP_DEBUG;
+	  std::cout<<" PAD "<<PadID<<" LVL1 "<<std::hex<<((inword & 0x0e00)>>8)<<std::dec<<std::endl;
 	}
 	
 	switch(m_previousRecord){
@@ -401,8 +373,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -410,8 +381,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -419,8 +389,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -430,32 +399,27 @@ if(SLROS.isHeader()) {
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	   DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	   DISP_DEBUG;
+	   std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=Empty;
@@ -466,17 +430,15 @@ if(SLROS.isHeader()) {
 //
 // Pad Subheader
 //
-        if(m_enablePrintOut) {
-	  DISP<<"   BCID "<<std::hex<<(inword & 0x0fff)<<std::dec<<std::endl;
-	  DISP_DEBUG;
+    if(m_enablePrintOut) {
+	  std::cout<<"   BCID "<<std::hex<<(inword & 0x0fff)<<std::dec<<std::endl;
 	}
 	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -484,8 +446,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -493,8 +454,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -502,38 +462,32 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-            DISP<<" RPCRODDecode Fragment problem: Pad Header expected and not found"<<std::endl;
-	    DISP_DEBUG;
-	  } 
+        std::cout<<" RPCRODDecode Fragment problem: Pad Header expected and not found"<<std::endl;
+	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }  
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
-	  } 
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
+	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
-	  }  
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
+	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=Empty;
@@ -543,17 +497,15 @@ if(SLROS.isHeader()) {
 //
 // Pad PreFooter
 //
-        if(m_enablePrintOut) {
-	  DISP<<"   STATUS ERROR "<<std::hex<<(inword & 0x000f)<<std::dec<<std::endl;
-	  DISP_DEBUG;
+    if(m_enablePrintOut) {
+	  std::cout<<"   STATUS ERROR "<<std::hex<<(inword & 0x000f)<<std::dec<<std::endl;
 	}
 	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -561,8 +513,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	   DISP<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
-	   DISP_DEBUG;
+	   std::cout<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -570,8 +521,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -581,32 +531,27 @@ if(SLROS.isHeader()) {
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=PadPre;
@@ -616,19 +561,17 @@ if(SLROS.isHeader()) {
 //
 // Pad footer
 //
-        if(m_enablePrintOut) {
-          DISP<<" PAD Footer "<<std::hex<<inword<<std::dec
-	      <<"  ERROR FLAG "<<std::hex<<(inword & 0x0fff)<<std::dec<<std::endl;
-	  DISP_DEBUG;
-	}
+    if(m_enablePrintOut) {
+      std::cout<<" PAD Footer "<<std::hex<<inword<<std::dec
+               <<"  ERROR FLAG "<<std::hex<<(inword & 0x0fff)<<std::dec<<std::endl;
+    }
 	m_PADFlag--;
 	PDROS.decodeFragment(inword,recField);
 	if(recField=='F') {
 	}
 	thereIsACM=false;
 	if(m_enablePrintOut) {
-	  DISP<<" Footer of Pad with ID = "<<PadID<<std::endl;
-	  DISP_DEBUG;
+	  std::cout<<" Footer of Pad with ID = "<<PadID<<std::endl;
 	}
 	
 	switch(m_previousRecord){
@@ -636,8 +579,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -645,8 +587,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -654,8 +595,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and not found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -663,34 +603,29 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected and not found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected and not found"<<std::endl;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=Empty;
@@ -710,48 +645,41 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: CM SubHeader expected and CM Header found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: CM SubHeader expected and CM Header found"<<std::endl;
 	  }
 	  break;
 	 case CMSub:
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: CM Body or CM Footer expected and CM Header found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: CM Body or CM Footer expected and CM Header found"<<std::endl;
 	  }
 	  break;
 	 case CMFoot:
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
-	  } 
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
+	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=CMHead;
@@ -769,58 +697,49 @@ if(SLROS.isHeader()) {
 	switch(m_previousRecord){
 	 case Empty:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: previous record was not a CM Header"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: previous record was not a CM Header"<<std::endl;
 	  }
 	  break;
 	 case CMHead:
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: CM Body expected and CM SubHeader found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: CM Body expected and CM SubHeader found"<<std::endl;
 	  }
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: CM Body or CM Footer expected; CM SubHeader found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: CM Body or CM Footer expected; CM SubHeader found"<<std::endl;
 	  }
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: CM Header or Pad Footer expected; CM SubHeader found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: CM Header or Pad Footer expected; CM SubHeader found"<<std::endl;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=CMSub;
@@ -835,16 +754,14 @@ if(SLROS.isHeader()) {
 	switch(m_previousRecord){
 	 case Empty:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode (CMBody1) warning: previous record was not a CM subHeader"
+	    std::cout<<" RPCRODDecode (CMBody1) warning: previous record was not a CM subHeader"
 	        <<" or CM Body Record "<<std::endl;
-	    DISP_DEBUG;
 	  }
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode (CMBody2) warning: previous record was not a CM subHeader"
+	    std::cout<<" RPCRODDecode (CMBody2) warning: previous record was not a CM subHeader"
 	        <<" or CM Body Record "<<std::endl;
-	    DISP_DEBUG;
 	  }
 	  break;
 	 case CMSub:
@@ -853,39 +770,33 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode (CMBody3) warning: previous record was not a CM subHeader"
+	    std::cout<<" RPCRODDecode (CMBody3) warning: previous record was not a CM subHeader"
 	             <<" or CM Body Record "<<std::endl;
-	    DISP_DEBUG;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord="<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord="<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=CMBod;
@@ -904,58 +815,49 @@ if(SLROS.isHeader()) {
 	switch(m_previousRecord){
 	case Empty:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode (CMFooter1) warning: previous record was not a Body record "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode (CMFooter1) warning: previous record was not a Body record "<<std::endl;
 	  }
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode (CMFooter2) warning: previous record was not a Body record"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode (CMFooter2) warning: previous record was not a Body record"<<std::endl;
 	  }
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode warning: previous record was not a Body record"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode warning: previous record was not a Body record"<<std::endl;
 	  }
 	  break;
 	 case CMBod:
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode (CMFooter3) warning: previous record was not a Body record"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode (CMFooter3) warning: previous record was not a Body record"<<std::endl;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord"<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=CMFoot;
@@ -970,8 +872,7 @@ if(SLROS.isHeader()) {
 //	  
 	thereIsACM=false; 
 	if(m_enablePrintOut) { 
-          DISP<<" (reserved) "<<std::endl;
-	  DISP_DEBUG;
+          std::cout<<" (reserved) "<<std::endl;
 	}
 	
 	switch(m_previousRecord){
@@ -979,8 +880,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMHead:
 	  if(m_enablePrintOut) { 
-	    DISP<<" RPCRODDecode Fragment problem: CM SubHeader expected and (reserved) found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM SubHeader expected and (reserved) found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -988,8 +888,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMSub:
 	  if(m_enablePrintOut) { 
-	    DISP<<" RPCRODDecode Fragment problem: CM Body expected and (reserved) found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body expected and (reserved) found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -997,8 +896,7 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMBod:
 	  if(m_enablePrintOut) { 
-	    DISP<<" RPCRODDecode Fragment problem: CM Body or Footer expected and (reserved) found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Body or Footer expected and (reserved) found"<<std::endl;
 	  }
 	  thereIsACM=true; // close this matrix fragment
 	  CMRO.writeRecord(inword,true);
@@ -1006,38 +904,32 @@ if(SLROS.isHeader()) {
 	  break;
 	 case CMFoot:
 	  if(m_enablePrintOut) { 
-	    DISP<<" RPCRODDecode Fragment problem: CM Header or Pad Footer expected and (reserved) found"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CM Header or Pad Footer expected and (reserved) found"<<std::endl;
 	  }
 	  break;
 	 case PadHead:
 	  if(m_enablePrintOut) { 
-	    DISP<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: PadSubHeader expected"<<std::endl;
 	  }
 	  break;
 	 case PadPre:
 	  if(m_enablePrintOut) { 
-	    DISP<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA fragment expected"<<std::endl;
 	  }
 	  break;
 	 case PadSub:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: CMA Footer expected"<<std::endl;
 	  }
 	  break;
 	 case PadFoot:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode Fragment problem: Pad PreFooter expected"<<std::endl;
 	  }
 	  break;
 	 default:
 	  if(m_enablePrintOut) {
-	    DISP<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
-	    DISP_DEBUG;
+	    std::cout<<" RPCRODDecode ERROR in previousRecord "<<std::endl;
 	  }
 	}//end-of-switch 
 	m_previousRecord=Empty;
@@ -1054,28 +946,25 @@ MatrixReadOutStructure CMROS;
 ubit16 nCMROData=CMRO.numberOfBodyWords();
 
 if(m_enablePrintOut) {
-  DISP<<" number of Body Words in this CM Fragment "<<nCMROData<<std::endl;
-  DISP_DEBUG;
-  
+  std::cout<<" number of Body Words in this CM Fragment "<<nCMROData<<std::endl;
+
 //
 // get header data
 //
   CMROS = CMRO.getHeader();
 
-  DISP<<" gimeCMROData,   CMID: "<<CMROS.cmid()<<std::endl
-      <<" gimeCMROData, FEL1ID: "<<CMROS.fel1id()<<std::endl
-      <<" isLowPt  = "<<CMROS.isLowPt()<<std::endl
-      <<" isEtaProj= "<<CMROS.isEtaProj()<<std::endl
-      <<" is0LocAdd= "<<CMROS.is0LocAdd()<<std::endl;
-  DISP_DEBUG;
+  std::cout<<" gimeCMROData,   CMID: "<<CMROS.cmid()<<std::endl
+           <<" gimeCMROData, FEL1ID: "<<CMROS.fel1id()<<std::endl
+           <<" isLowPt  = "<<CMROS.isLowPt()<<std::endl
+           <<" isEtaProj= "<<CMROS.isEtaProj()<<std::endl
+           <<" is0LocAdd= "<<CMROS.is0LocAdd()<<std::endl;
 
 //
 // get subheader data
 //
   CMROS = CMRO.getSubHeader();
 
-  DISP<<" gimeCMROData, FEBCID: "<<CMROS.febcid()<<std::endl;
-  DISP_DEBUG;
+  std::cout<<" gimeCMROData, FEBCID: "<<CMROS.febcid()<<std::endl;
 
 //
 // get Body data
@@ -1084,24 +973,19 @@ if(m_enablePrintOut) {
    CMROS = CMRO.getCMAHit(i);
    ubit16 ijk = CMROS.ijk();
           if(ijk<6)  {
-     DISP<<" gimeCMROData, hit chan: "<<CMROS.channel()
-         <<" gimeCMROData, hit stri: "<<CMROS.global_channel()
-         <<" hit BCID: "<<CMROS.bcid();
-     DISP_DEBUG;
+     std::cout<<" gimeCMROData, hit chan: "<<CMROS.channel()
+              <<" gimeCMROData, hit stri: "<<CMROS.global_channel()
+              <<" hit BCID: "<<CMROS.bcid()<<std::endl;
    } else if(ijk==6) {
-     DISP<<" gimeCMROData, trg chan: "<<CMROS.channel()
-         <<" hit BCID: "<<CMROS.bcid();
-     DISP_DEBUG;
+     std::cout<<" gimeCMROData, trg chan: "<<CMROS.channel()
+              <<" hit BCID: "<<CMROS.bcid()<<std::endl;
    } else if(ijk==7) {
-    DISP<<" gimeCMROData, trg thr: "<<CMROS.threshold()
-        <<" trg ovl: "<<CMROS.overlap();
-    DISP_DEBUG;
+    std::cout<<" gimeCMROData, trg thr: "<<CMROS.threshold()
+             <<" trg ovl: "<<CMROS.overlap()<<std::endl;
    } else {
-    DISP<<" this value of ijk="<<ijk<<" is NOT ALLOWED "<<std::endl;
-    DISP_DEBUG;
+    std::cout<<" this value of ijk="<<ijk<<" is NOT ALLOWED "<<std::endl;
    }//end-of-if
-   DISP<<std::endl;
-   DISP_DEBUG;
+   std::cout<<std::endl;
   }//end-of-for
 }//end-of-if(m_enablePrintOut
 }//end-of-gimeCMROData
@@ -1173,7 +1057,7 @@ if(statusBlockPosition) {
 //----------------------------------------------------------------------------//
 void RPCRODDecode::RODHeaderDisplay() {
 if(m_enablePrintOut) {
-  DISP<<"*****************************************************"<<std::endl
+  std::cout<<"*****************************************************"<<std::endl
       <<"******         R O D    H E A D E R           *******"<<std::endl
       <<"*****************************************************"<<std::endl
       <<" ROD Header marker:               "<<std::hex<<headerMarker<<std::dec<<std::endl
@@ -1189,6 +1073,5 @@ if(m_enablePrintOut) {
       <<" ROD Level1 Type:                 "<<Level1Type<<std::endl
       <<" ROD Detector Ev. Type:           "<<DetectorEventType<<std::endl
       <<"*****************************************************"<<std::endl;
-  DISP_DEBUG;
 }//end-of-if(m_enablePrintOut
 }//end-of-RODHeaderDisplay

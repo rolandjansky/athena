@@ -343,10 +343,10 @@ TRT_ByteStream_ConditionsSvc::getRodRobErrorSet( TRTByteStreamErrors::errorTypes
      case TRTByteStreamErrors::RobStatusError:
        return &m_rob_status_errors;  
      default: 
-       return 0;
+       return nullptr;
   }
 
-  return 0;
+  return nullptr;
 }
 
 std::set<std::pair<uint32_t,uint32_t> > * 
@@ -359,10 +359,10 @@ TRT_ByteStream_ConditionsSvc::getIdErrorSet( TRTByteStreamErrors::errorTypes Err
      case TRTByteStreamErrors::L1IDError:
        return &m_l1id_pair_errors;   
      default: 
-       return 0;
+       return nullptr;
   }
 
-  return 0;
+  return nullptr;
 }
 
 std::set<uint32_t> * 
@@ -377,10 +377,10 @@ TRT_ByteStream_ConditionsSvc::getErrorSet( TRTByteStreamErrors::errorTypes ErrTy
      case TRTByteStreamErrors::SIDError:
        return &m_sid_errors;   
      default: 
-       return 0;
+       return nullptr;
   }
 
-  return 0;
+  return nullptr;
 }
 
 

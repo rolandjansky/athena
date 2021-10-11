@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDDetectorPositioner_H
@@ -38,7 +38,10 @@ struct DetectorPositionParameters {
 
 class AGDDDetectorPositioner:public AGDDPositioner {
 public:
-	AGDDDetectorPositioner(const std::string& n, GeoTrf::Transform3D t);
+    AGDDDetectorPositioner(AGDDPositionerStore& ps,
+                           AGDDVolumeStore& vs,
+                           const std::string& n,
+                           const GeoTrf::Transform3D& t);
     virtual ~AGDDDetectorPositioner()=default;
 
 	Identifiers ID;

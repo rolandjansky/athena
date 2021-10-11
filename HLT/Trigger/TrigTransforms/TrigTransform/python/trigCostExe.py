@@ -23,4 +23,16 @@ class trigCostExecutor(scriptExecutor):
         self._cmd.extend(['Input.Files=' + str(self.conf.dataDictionary['DRAW_TRIGCOST'].value) ])
         self._cmd.extend(['--outputHist='+self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0]])
 
+        if 'costopts' in self.conf.argdict:
+            args = self.conf.argdict['costopts'].value['all']
+            if isinstance(args, list):
+                self._cmd.extend([ str(v) for v in args])
+            else:
+                self._cmd.append(str(args))
+
+        if 'DBsmkey' in self.conf.argdict and 'DBserver' in self.conf.argdict:
+            self._cmd.append('--smk=' + self.conf.argdict['DBsmkey'].value)
+            self._cmd.append('--dbAlias=' + self.conf.argdict['DBserver'].value)
+
+
         super(trigCostExecutor, self).preExecute()

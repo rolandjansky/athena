@@ -144,8 +144,10 @@ StatusCode EventSelectorAthenaPool::initialize() {
       return(StatusCode::FAILURE);
    }
    // Listen to the Event Processing incidents
-   m_incidentSvc->addListener(this,IncidentType::BeginProcessing,0);
-   m_incidentSvc->addListener(this,IncidentType::EndProcessing,0);
+   if (m_eventStreamingTool.empty()) {
+      m_incidentSvc->addListener(this, IncidentType::BeginProcessing, 0);
+      m_incidentSvc->addListener(this, IncidentType::EndProcessing, 0);
+   }
 
    // Get AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.retrieve().isSuccess()) {
@@ -1133,9 +1135,16 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
 void EventSelectorAthenaPool::handle(const Incident& inc)
 {
    SG::SourceID fid;
-   if ( Atlas::hasExtendedEventContext(inc.context()) ) {
-     fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+   if (inc.type() == IncidentType::BeginProcessing) {
+     if ( Atlas::hasExtendedEventContext(inc.context()) ) {
+       fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+     }
+     *m_sourceID.get(inc.context()) = fid;
    }
+   else {
+     fid = *m_sourceID.get(inc.context());
+   }
+
    if( fid.empty() ) {
       ATH_MSG_WARNING("could not read event source ID from incident event context");
       return;
@@ -1148,6 +1157,7 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
    } else if( inc.type() == IncidentType::EndProcessing ) {
       m_activeEventsPerSource[fid]--;
       disconnectIfFinished( fid );
+      *m_sourceID.get(inc.context()) = "";
    }
    if( msgLvl(MSG::DEBUG) ) {
       for( auto& source: m_activeEventsPerSource )
@@ -1162,7 +1172,7 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
 */
 bool EventSelectorAthenaPool::disconnectIfFinished( const SG::SourceID &fid ) const
 {
-   if( m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
+   if( m_eventStreamingTool.empty() && m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
       // Explicitly disconnect file corresponding to old FID to release memory
       if( !m_keepInputFilesOpen.value() ) {
          // Assume that the end of collection file indicates the end of payload file.

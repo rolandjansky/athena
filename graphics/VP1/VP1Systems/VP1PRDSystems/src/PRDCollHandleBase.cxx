@@ -38,7 +38,7 @@
 //____________________________________________________________________
 class PRDCollHandleBase::Imp {
 public:
-  PRDCollHandleBase * theclass;
+  PRDCollHandleBase * theclass = nullptr;
 
   //Collection definition:
   QString storegate_key;
@@ -47,17 +47,17 @@ public:
   template <class T>
   bool actualLoad();//Templated according to collection type.
 
-  VP1ExtraSepLayerHelper * sephelper_detail;
-  VP1ExtraSepLayerHelper * sephelper_simple;
-  SoSeparator * sep_lods;
+  VP1ExtraSepLayerHelper * sephelper_detail = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_simple = nullptr;
+  SoSeparator * sep_lods = nullptr;
   std::map<int,std::pair<SoLevelOfDetail*,std::pair<VP1ExtraSepLayerHelper*,VP1ExtraSepLayerHelper*> > > regionindex2lodhelpers;//idx->(sephelperdetailed,sephelpersimple)
   DETAIL generalprddetaillevel;
   void updateDetailSepAttachments();
 
-  SoMaterial * highlightmaterial;
-  bool highlightoutliers;
-  bool drawerrors;
-  bool drawrdos;
+  SoMaterial * highlightmaterial = nullptr;
+  bool highlightoutliers = false;
+  bool drawerrors = false;
+  bool drawrdos = false;
 
   VP1Interval allowedEta;
   QList<VP1Interval> allowedPhi;
@@ -73,7 +73,7 @@ public:
   bool etaPhiCut(PRDHandleBase*);
 
   //Extra widgets:
-  QComboBox * comboBox_detailLevel;
+  QComboBox * comboBox_detailLevel = nullptr;
 };
 
 //____________________________________________________________________

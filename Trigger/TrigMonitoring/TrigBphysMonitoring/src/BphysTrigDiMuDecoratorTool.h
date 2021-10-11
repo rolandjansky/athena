@@ -20,7 +20,7 @@
 
 //#include "xAODTracking/VertexFwd.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
-#include "TrigBphysMonitoring/IBphysTrigDiMuDecoratorTool.h"
+#include "IBphysTrigDiMuDecoratorTool.h"
 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"

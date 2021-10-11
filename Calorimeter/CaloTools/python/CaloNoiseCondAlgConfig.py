@@ -5,7 +5,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 CaloNoiseCondAlg=CompFactory.CaloNoiseCondAlg
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
+@AccumulatorCache
 def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     if noisetype not in ("electronicNoise","pileupNoise","totalNoise"):
         raise RuntimeError("Requested noise of unknown type %s" % noisetype)

@@ -36,10 +36,6 @@ StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& tau,
                   << ", eta: " << tau.eta()
                   << ", pt: " << tau.pt());
 
-  // Correct neutral PFO kinematics to point at tau vertex, this is needed since the 
-  // charged shower subtraction is performed several times for each neutral PFO
-  correctNeutralPFOs(tau, neutralPFOContainer);
-  
   // Create new proto charged PFOs
   createChargedPFOs(tau, chargedPFOContainer);
   
@@ -69,36 +65,6 @@ void TauPi0ClusterScaler::clearAssociatedParticleLinks(xAOD::PFOContainer& pfoCo
   
   for (xAOD::PFO* pfo : pfoContainer) {
     pfo->setAssociatedParticleLinks(type, emptyLinks);
-  }
-}
-
-
-
-void TauPi0ClusterScaler::correctNeutralPFOs(const xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer) const {
-
-  for(size_t i=0; i<tau.nProtoNeutralPFOs(); i++) {
-    xAOD::PFO* pfo = neutralPFOContainer.at( tau.protoNeutralPFO(i)->index() );
-
-    const xAOD::CaloCluster* cluster = pfo->cluster(0);
-
-    // apply cluster vertex correction 
-    if(tau.vertexLink().isValid()) {
-      auto clusterAtTauVertex = xAOD::CaloVertexedTopoCluster(*cluster, tau.vertex()->position());
-      pfo->setP4(clusterAtTauVertex.pt(), clusterAtTauVertex.eta(), clusterAtTauVertex.phi(), 0.0);
-    }
-    else{
-      pfo->setP4(cluster->pt(), cluster->eta(), cluster->phi(), 0.0);
-    }
-    
-    ATH_MSG_DEBUG("Original Neutral PFO" 
-                  << ", e: " << cluster->e() 
-                  << ", eta: " << cluster->eta() 
-                  << ", pt: " << cluster->pt());
-
-    ATH_MSG_DEBUG("Corrected Neutral PFO" 
-                  << ", e: " << pfo->e()
-                  << ", eta: " << pfo->eta()
-                  << ", pt: " << pfo->pt());
   }
 }
 

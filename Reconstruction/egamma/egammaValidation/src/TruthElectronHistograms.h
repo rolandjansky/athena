@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
 */
@@ -21,9 +21,9 @@ namespace egammaMonitoring {
   public:
 
     using ParticleHistograms::ParticleHistograms;
-    using ParticleHistograms::initializePlots;
-    
-    StatusCode initializePlots();
+
+    virtual StatusCode initializePlots() override;
+    StatusCode initializePlots(bool reducedHistSet);
 
     using ParticleHistograms::fill;
     
@@ -32,6 +32,7 @@ namespace egammaMonitoring {
 
   private:    
 
+    bool m_reducedHistSet;
 
   };
 

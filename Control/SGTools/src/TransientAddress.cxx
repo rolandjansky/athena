@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/EventContextClid.h"
 #include "GaudiKernel/IOpaqueAddress.h"
-#include "GaudiKernel/EventContext.h"
 
 #include <assert.h>
 
@@ -47,9 +45,11 @@ TransientAddress::TransientAddress(CLID id, const std::string& key,
     m_clearAddress(clearAddress),
     m_consultProvider(consultProvider),
     m_address(nullptr),
-    m_name(key), 
     m_pAddressProvider(nullptr)
-{ 
+{
+  if (!key.empty()) {
+    m_name.store (key);
+  }
   if (id != CLID_NULL)
     m_transientID.push_back(id);
   if (addr) {
@@ -64,10 +64,10 @@ TransientAddress::TransientAddress (const TransientAddress& other)
     m_storeID (other.m_storeID),
     m_clearAddress (other.m_clearAddress),
     m_consultProvider (other.m_consultProvider),
+    m_pAddressProvider (other.m_pAddressProvider),
     m_name (other.m_name),
     m_transientID (other.m_transientID),
-    m_transientAlias (other.m_transientAlias),
-    m_pAddressProvider (other.m_pAddressProvider)
+    m_transientAlias (other.m_transientAlias)
 {
   m_address = nullptr;
   setAddress (other.m_address);
@@ -80,10 +80,10 @@ TransientAddress::TransientAddress (TransientAddress&& other)
     m_storeID (other.m_storeID),
     m_clearAddress (other.m_clearAddress),
     m_consultProvider (other.m_consultProvider),
+    m_pAddressProvider (other.m_pAddressProvider),
     m_name (std::move (other.m_name)),
     m_transientID (std::move (other.m_transientID)),
-    m_transientAlias (std::move (other.m_transientAlias)),
-    m_pAddressProvider (other.m_pAddressProvider)
+    m_transientAlias (std::move (other.m_transientAlias))
 {
   m_address = other.m_address;
   other.m_address = nullptr;
@@ -158,10 +158,10 @@ void TransientAddress::setTransientID(CLID id)
  */
 void TransientAddress::setID (CLID id, const std::string& key)
 {
-  assert (m_clid == CLID_NULL && m_name.empty() && m_transientID.empty() &&
+  assert (m_clid == CLID_NULL && !m_name.isValid() && m_transientID.empty() &&
           m_transientAlias.empty());
   m_clid = id;
-  m_name = key;
+  m_name.set (key);
   if (id != CLID_NULL)
     m_transientID.push_back(id);
 }
@@ -174,42 +174,14 @@ void TransientAddress::setAddress(IOpaqueAddress* pAddress)
   m_address = pAddress;
 }
 
-bool TransientAddress::isValid(IProxyDict* store,
+bool TransientAddress::isValid(const EventContext* ctx,
                                bool forceUpdate /*= false*/)
 {
   if (!forceUpdate && 0 != address()) return true;
 
-  // FIXME CGL
-//    if (!m_consultProvider) {
-//      if ( m_clid != 0 && m_name != "" ) { return true; }
-//    }
-  if (m_consultProvider && 0 != provider()) {
-    if ((provider()->updateAddress(storeID(), this,
-                                   contextFromStore (store))).isSuccess())
+  if (ctx && m_consultProvider && 0 != provider()) {
+    if ((provider()->updateAddress(storeID(), this, *ctx)).isSuccess())
       return true;
   }
   return false;
-}
-
-
-/**
- * @brief Retrieve the EventContext saved in store STORE.
- * @param store The store from which to retrieve the context, or nullptr.
- *
- * If there is no context recorded in the store, return a default-initialized
- * context.
- */
-const EventContext& TransientAddress::contextFromStore (IProxyDict* store) const
-{
-  if (store) {
-    static const SG::sgkey_t ctxkey = 
-      store->stringToKey ("EventContext", ClassID_traits<EventContext>::ID());
-    SG::DataProxy* proxy = store->proxy_exact (ctxkey);
-    if (proxy && proxy->object()) {
-      EventContext* ctx = SG::DataProxy_cast<EventContext> (proxy);
-      if (ctx) return *ctx;
-    }
-  }
-  static const EventContext emptyContext;
-  return emptyContext;
 }

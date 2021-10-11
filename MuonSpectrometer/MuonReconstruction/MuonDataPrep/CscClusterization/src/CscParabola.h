@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscParabola_H
@@ -23,7 +23,7 @@ public:
     CscParabola();
 
     // Fitters
-    void cscParabola(double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise);
+    void cscParabola(const double* qstr, int& NStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& noise);
 
 private:
     // Gaudi message service

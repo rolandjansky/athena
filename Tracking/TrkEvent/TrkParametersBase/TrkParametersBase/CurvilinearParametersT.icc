@@ -15,7 +15,7 @@
 namespace Trk {
 // Constructor with TP arguments
 template<int DIM, class T, class S>
-Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
+CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const AmgVector(DIM + 2) & parameters,
   std::optional<AmgSymMatrix(DIM)> covariance,
   unsigned int cIdentifier)
@@ -198,11 +198,10 @@ CurvilinearParametersT<DIM, T, S>::operator==(
   constexpr double tolerance = 1e-8;
 
   // make sure we compare objects of same type
-  decltype(this) pCasted = dynamic_cast<decltype(this)>(&rhs);
-  if (!pCasted) {
+  if (this->type() != rhs.type()){
     return false;
   }
-
+  const auto pCasted = static_cast<decltype(this)>(&rhs);
   // comparison to myself?
   if (pCasted == this) {
     return true;
@@ -318,7 +317,7 @@ CurvilinearParametersT<DIM, T, S>::dump(std::ostream& out) const
 // private updateParametersHelper
 template<int DIM, class T, class S>
 void
-Trk::CurvilinearParametersT<DIM, T, S>::updateParametersHelper(
+CurvilinearParametersT<DIM, T, S>::updateParametersHelper(
   const AmgVector(DIM) & updatedParameters)
 {
   // valid to use != here, because value is either copied or modified,

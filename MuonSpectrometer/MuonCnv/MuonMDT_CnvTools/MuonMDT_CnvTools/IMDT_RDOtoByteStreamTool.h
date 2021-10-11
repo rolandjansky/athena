@@ -5,8 +5,6 @@
 #ifndef MUONMDT_CNVTOOLS_IMDT_RDOTOBYTESTREAMTOOL_H
 #define MUONMDT_CNVTOOLS_IMDT_RDOTOBYTESTREAMTOOL_H
 
-
 #include "MuonCnvToolInterfaces/IMDT_RDOtoByteStreamTool.h"
-
 
 #endif

@@ -4,7 +4,6 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
-//#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/HistoProperty.h"
@@ -33,10 +32,9 @@ class TrigALFAROBMonitor:public AthReentrantAlgorithm {
 public:
   TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator);
 
-  StatusCode initialize();
-  StatusCode execute(const EventContext& ctx) const;
-  StatusCode start();  
-  StatusCode stop();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode start() override;
 
 private:
 	
@@ -58,11 +56,6 @@ private:
   IntegerProperty                  m_daqCTPROBid ;
 
   UnsignedIntegerProperty          m_ctpModuleID;
-
-  /// Switch for setting the debug StreamTag and name for debug stream
-  BooleanProperty                  m_setDebugStream;
-  StringProperty                   m_debugStreamName;
-  StringProperty		   m_calibrationStreamName;
 
   /// Switch for ROB checksum test
   BooleanProperty                  m_doROBChecksum;

@@ -146,7 +146,7 @@ namespace MuonCombined {
 
     private:
         /** handle a single candidate */
-        void handleCandidate(const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks,
+        void handleCandidate(const EventContext& ctx, const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks,
                              Trk::SegmentCollection* segments) const;
 
         /** associate Hough maxima to intersection */
@@ -186,7 +186,7 @@ namespace MuonCombined {
         bool refineCandidates(CandidateVec& candidates) const;
 
         /** combine reconstruction */
-        bool combineCandidates(const xAOD::TrackParticle& indetTrackParticle, CandidateVec& candidates) const;
+        bool combineCandidates(const EventContext& ctx, const xAOD::TrackParticle& indetTrackParticle, CandidateVec& candidates) const;
 
         /** resolve ambiguities between the candidates */
         bool resolveAmbiguities(CandidateVec& candidates) const;

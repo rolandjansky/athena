@@ -25,13 +25,13 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
 
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
-    BeamPipe.addRZ(   34.3,   3475.0 )
 
     if ConfigFlags.Detector.GeometryHGTD:
-        BeamPipe.addRZ(   47.0,   3475.0 )
-        BeamPipe.addRZ(   47.0,   3535.0 )
-        BeamPipe.addRZ(  120.0,   3535.0 )
+        BeamPipe.addRZ(   34.3,   3420.0 )
+        BeamPipe.addRZ(   34.3,   3545.0 )
+        BeamPipe.addRZ(  120.0,   3545.0 )
     else:
+        BeamPipe.addRZ(   34.3,   3475.0 )
         BeamPipe.addRZ(  120.0,   3475.0 )
     BeamPipe.addRZ(  120.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   4185.0 )
@@ -52,21 +52,25 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
 
     # setup fallback IDEnvelope
     InDet = Volume()
-    InDet.addRZ( 1148.,  3475. )
-    InDet.addRZ(  34.3,  3475. )
+    # InDet should include HGTD when it's turned on
+    if ConfigFlags.Detector.GeometryHGTD:
+        InDet.addRZ( 1148.,  3545. )
+        InDet.addRZ(  34.3,  3545. )
+    else:
+        InDet.addRZ( 1148.,  3475. )
+        InDet.addRZ(  34.3,  3475. )
     kwargs.setdefault("FallbackInDetR"  , InDet.getRs()        )
     kwargs.setdefault("FallbackInDetZ"  , InDet.getZs()        )
 
 
     # setup fallback CaloEnvelope
     Calo = Volume()
-    Calo.addRZ( 1148.0,  3475.0 )
 
     if ConfigFlags.Detector.GeometryHGTD:
-        Calo.addRZ(   47.0,  3475.0 )
-        Calo.addRZ(   47.0,  3535.0 )
-        Calo.addRZ(  120.0,  3535.0 )
+        Calo.addRZ( 1148.0,  3545.0 )
+        Calo.addRZ(  120.0,  3545.0 )
     else:
+        Calo.addRZ( 1148.0,  3475.0 )
         Calo.addRZ(  120.0,  3475.0 )
     Calo.addRZ(  120.0,  4185.0 )
     Calo.addRZ(   41.0,  4185.0 )

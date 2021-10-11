@@ -54,9 +54,9 @@ class AFP_SIDBasicKalman
 		void GetData();
 
 	private:
-		Float_t m_fxMapSID[SIDSTATIONID][SIDCNT][336][80];
-		Float_t m_fyMapSID[SIDSTATIONID][SIDCNT][336][80];
-		Float_t m_fzMapSID[SIDSTATIONID][SIDCNT][336][80];
+		Float_t m_fxMapSID[SIDSTATIONID][SIDCNT][336][80]{};
+		Float_t m_fyMapSID[SIDSTATIONID][SIDCNT][336][80]{};
+		Float_t m_fzMapSID[SIDSTATIONID][SIDCNT][336][80]{};
 		
 		void HistInitialize();
 		void HistFinalize();		

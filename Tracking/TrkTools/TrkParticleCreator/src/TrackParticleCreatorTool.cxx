@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -139,6 +139,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     // 0 = off, 1 = OOT, 2 = dE/dx, 3 = combination of OOT and dE/dx, 4 = combination of OOT, dE/dx, and size
     declareProperty("BadClusterID", m_badclusterID = 0);
     declareProperty("ExtraSummaryTypes", m_copyExtraSummaryName);
+    declareProperty("DoITk", m_doITk = false);
 }
 
   StatusCode TrackParticleCreatorTool::initialize()
@@ -182,14 +183,15 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
       return StatusCode::FAILURE;
     }
 
-    if (m_IBLParameterSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Could not retrieve IBLParameterSvc" );
-      return StatusCode::FAILURE;
-    }
+    if(!m_doITk){
+      if (m_IBLParameterSvc.retrieve().isFailure()) {
+	ATH_MSG_FATAL( "Could not retrieve IBLParameterSvc" );
+	return StatusCode::FAILURE;
+      }
       ATH_MSG_INFO( "Retrieved tool " << m_IBLParameterSvc );
+    }
 
-
-    m_doIBL = m_IBLParameterSvc->containsIBL();
+    m_doIBL = !m_doITk && m_IBLParameterSvc->containsIBL();
     ATH_MSG_INFO( "doIBL set to "<<m_doIBL );
 
     if (m_doIBL && !m_IBLParameterSvc->contains3D()){
@@ -267,12 +269,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
 
     ATH_MSG_VERBOSE( " initialize successful." );
     return sc;
-  }
-
-  StatusCode TrackParticleCreatorTool::finalize()
-  {
-    ATH_MSG_INFO( " finalize successful" );
-    return StatusCode::SUCCESS;
   }
 
   Rec::TrackParticle*
@@ -1058,20 +1054,20 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
   }
 
-  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) const {
+  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) {
     tp.setBeamlineTiltX(tiltx);
     tp.setBeamlineTiltY(tilty);
   }
 
-  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) const {
+  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) {
     tp.setHitPattern(hitpattern);
   }
 
-  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) const {
+  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) {
     tp.setNumberOfUsedHitsdEdx(hits);
   }
 
-  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) const {
+  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) {
     tp.setNumberOfIBLOverflowsdEdx(overflows);
   }
 

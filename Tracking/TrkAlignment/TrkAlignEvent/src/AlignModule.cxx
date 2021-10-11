@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -190,7 +190,7 @@ namespace Trk {
   {
     std::vector<Amg::Transform3D>* alignModToDetElemTransform=m_alignModuleToDetElementTransforms[detType];
 
-    if(m_detIdentifiers[detType] && m_detIdentifiers[detType]->size()) {
+    if(m_detIdentifiers[detType] && !m_detIdentifiers[detType]->empty()) {
       if(id.is_valid()) {
         IdentifierCollection * ids = m_detIdentifiers[detType];
         for (int i=0;i<(int)alignModToDetElemTransform->size();i++)

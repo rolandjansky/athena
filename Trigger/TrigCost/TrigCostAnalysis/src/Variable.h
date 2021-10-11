@@ -86,10 +86,18 @@ class Variable {
 
     /**
      * @brief Fill histogram (per-Call Variable), or add value to internal accumulator (per-Event Variable) to be filled at the end of the event.
-     * @pram[in] value The payload.     
+     * @param[in] value The payload.     
      * @param[in] weight Global event weight
      */
     StatusCode fill(float value, float weight = 1.0);
+
+    /**
+     * @brief Fill histogram (per-Call Variable), or add value to internal accumulator (per-Event Variable) to be filled at the end of the event.
+     * @param[in] xvalue The x-axis payload.     
+     * @param[in] yvalue The y-axis payload.   
+     * @param[in] weight Global event weight
+     */
+    StatusCode fill(float xvalue, float yvalue, float weight);
 
     /**
      * @brief Fill histogram's bin (per-Call Variable) with given label
@@ -128,7 +136,8 @@ class Variable {
     const VariableType m_variableType; //<! Variable's type enumeration
     TH1* m_cacheHistoPtr; //<! Mutable cached non-owning ptr to this Variable's histogram.
     size_t m_calls; //<! Counter of how many times the Variable is Filled in an event.
-    float m_accumulator; //<! For per-Event quantities, the accumulator buffers until the final quantity is known.
+    float m_xaccumulator; //<! For per-Event quantities, the accumulator buffers until the final quantity is known.
+    float m_yaccumulator; //<! Buffer as xaccumulator, but for y axis, used of 2D histograms
     float m_weight; //!< Cache of the event weight. Assumed to be the same for every call to fill with per-Event monitoring!
     float m_oneOverDenominator; //!< Cache of the reciprocal of the denominator used to normalise when filling the histogram.
 };

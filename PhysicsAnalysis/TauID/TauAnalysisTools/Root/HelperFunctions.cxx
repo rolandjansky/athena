@@ -64,6 +64,15 @@ void TauAnalysisTools::split(TEnv& rEnv, const std::string& sKey, const char cDe
 }
 
 //______________________________________________________________________________
+void TauAnalysisTools::split(TEnv& rEnv, const std::string& sKey, const char cDelim, std::vector<unsigned>& vOut)
+{
+  std::stringstream sSS(rEnv.GetValue(sKey.c_str(),""));
+  std::string sItem;
+  while (std::getline(sSS, sItem, cDelim))
+    vOut.push_back(stoi(sItem));
+}
+
+//______________________________________________________________________________
 void TauAnalysisTools::split(TEnv& rEnv, const std::string& sKey, const char cDelim, std::vector<float>& vOut)
 {
   std::stringstream sSS(rEnv.GetValue(sKey.c_str(),""));

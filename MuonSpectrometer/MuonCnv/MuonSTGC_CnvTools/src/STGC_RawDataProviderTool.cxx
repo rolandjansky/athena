@@ -30,7 +30,7 @@ Muon::STGC_RawDataProviderTool::~STGC_RawDataProviderTool()
 
 StatusCode Muon::STGC_RawDataProviderTool::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
+  ATH_CHECK( AthAlgTool::initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -39,8 +39,8 @@ StatusCode Muon::STGC_RawDataProviderTool::initialize()
 
 StatusCode Muon::STGC_RawDataProviderTool::finalize()
 {
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 //============================================================================================

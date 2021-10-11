@@ -1,18 +1,14 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 #ifndef TrigDecisionTool_DecisionObjectHandleStandalone_h
 #define TrigDecisionTool_DecisionObjectHandleStandalone_h
 
 // System include(s):
 #include <string>
-
-// ASG include(s):
-#include "AsgMessaging/AsgMessaging.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TrigDecision.h"

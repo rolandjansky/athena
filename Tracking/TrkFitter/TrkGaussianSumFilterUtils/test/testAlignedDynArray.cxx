@@ -30,8 +30,9 @@ main()
   std::cout << "Address of end%alignment = "
             << reinterpret_cast<std::ptrdiff_t>(test1.end()) % alignement
             << '\n';
-  std::cout << "Value of begin = " << *(test1.begin()) << '\n';
-  std::cout << "Value of end -1 = " << *(test1.end() - 1) << '\n';
+  // These values are uninitialized --- don't print them!
+  //std::cout << "Value of begin = " << *(test1.begin()) << '\n';
+  //std::cout << "Value of end -1 = " << *(test1.end() - 1) << '\n';
 
   std::cout << "\n ==> Test ctor with value init of elements" << '\n';
   GSFUtils::AlignedDynArray<testType, alignement> test2(n, 4);

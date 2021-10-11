@@ -32,7 +32,7 @@ class HTcalculator {
   virtual ~HTcalculator()=default;
 
   void checkInitialization();  
-  float Limit( float prob) const;  
+  static float Limit( float prob) ;  
   // set constants to hard coded defaults
   void setDefaultCalibrationConstants();
 

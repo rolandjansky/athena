@@ -17,7 +17,7 @@ BSOverlayFilter_tf.py \
 --inputBSCONFIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/test23.tar \
 --inputFileValidation False \
 --outputBS_TRIGSKIMFile trigskim.RAW \
---triggerBit 240 \
+--triggerBit L1_ZB \
 --inputFilterFile trigs_tar.txt
 echo "art-result: $? BSFilter"
 

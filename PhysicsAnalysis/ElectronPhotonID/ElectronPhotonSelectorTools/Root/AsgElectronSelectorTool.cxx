@@ -101,8 +101,8 @@ StatusCode AsgElectronSelectorTool::initialize()
 
 
     ATH_MSG_DEBUG("Configfile to use: " << m_configFile);
-    TEnv env(configFile.c_str());
-
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
 
     std::string modelFilename("");
     std::string quantileFilename("");
@@ -633,7 +633,7 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   }
 
 
-  MVAEnum::MVACalcVars vars;
+  MVAEnum::MVACalcVars vars{};
   vars.eta = std::abs(eta);
   vars.et = et;
   vars.f3 = f3;

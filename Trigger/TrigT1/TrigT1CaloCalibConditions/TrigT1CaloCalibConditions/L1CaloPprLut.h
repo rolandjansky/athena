@@ -21,7 +21,7 @@
  */
 
 
-class L1CaloPprLut{
+class L1CaloPprLut final{
     friend std::ostream& operator<<(std::ostream& output, const L1CaloPprLut& ppmLut);
 
 public:
@@ -29,7 +29,7 @@ public:
     L1CaloPprLut(unsigned int channelId, unsigned short lutStrategy, unsigned short lutOffset, unsigned short lutSlope, unsigned short lutNoiseCut, coral::Blob lutParameters, unsigned int pedValue, double pedMean, ChanCalibErrorCode errorCode);
     L1CaloPprLut(const L1CaloCoolChannelId& channelId, unsigned short lutStrategy, unsigned short lutOffset, unsigned short lutSlope, unsigned short lutNoiseCut, coral::Blob lutParameters, unsigned int pedValue, double pedMean, ChanCalibErrorCode errorCode);
 
-	virtual ~L1CaloPprLut() {};
+	~L1CaloPprLut() =default;
 
 	// getters
 	inline L1CaloCoolChannelId channelId(void) const { return m_channelId; };

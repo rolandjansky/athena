@@ -51,23 +51,17 @@ using namespace GeoXF;
 // Constructor:
 TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    TileDetDescrManager *manager,
-                                   bool addPlates,
-                                   int ushape,
-                                   int glue,
-                                   int cstube,
+                                   const TileSwitches & switches,
                                    MsgStream *log,
 				   bool fullGeo)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log) 
-  , m_addPlatesToCellVolume(addPlates)
-  , m_uShape(ushape)
-  , m_glue(glue)
-  , m_csTube(cstube)
-  , m_testbeamGeometry(false)
+  , m_switches(switches)
   , m_verbose(log->level()<=MSG::VERBOSE) 
   , m_fullGeo(fullGeo)
 {
+  m_switches.testBeam = false;
 }
   
 // Destructor: 
@@ -107,7 +101,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_csTube,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_switches,m_log);
 
   double DzSaddleSupport = 0, RadiusSaddle = 0;
   if (dbManager->BoolSaddle())
@@ -123,7 +117,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     }
 
   if(m_log->level()<=MSG::DEBUG)
-    (*m_log) <<MSG::DEBUG << "TileAtlasFactory. addPlates = " <<m_addPlatesToCellVolume<<endmsg;
+    (*m_log) <<MSG::DEBUG << "TileAtlasFactory. addPlates = " <<m_switches.addPlatesToCell<<endmsg;
   // -------- -------- CUT BUILDER  -------- ----------
   //TileGeoCutBuilder* CutBuilder = new TileGeoCutBuilder(theMaterialManager,dbManager,m_log);
 
@@ -1220,7 +1214,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       dbManager->TILErmax(),
 				       dbManager->TILBrmax(),
 				       deltaPhi,
-				       m_testbeamGeometry,
+				       m_switches.testBeam,
 				       ModuleNcp,
 				       BFingerLengthPos*(1./Gaudi::Units::cm)); 
 
@@ -1253,7 +1247,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       dbManager->TILErmax(),
 				       dbManager->TILBrmax(),
 				       deltaPhi,
-				       m_testbeamGeometry,
+				       m_switches.testBeam,
 				       ModuleNcp*100,
 				       BFingerLengthNeg*(1./Gaudi::Units::cm));
 
@@ -1479,7 +1473,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       dbManager->TILErmax(),
                                       dbManager->TILBrmax(),
                                       deltaPhi,
-                                      m_testbeamGeometry,
+                                      m_switches.testBeam,
                                       ModuleNcp);
 	 }
         GeoTransform* xtraModFingerPos  = new GeoTransform(GeoTrf::TranslateX3D(
@@ -1701,7 +1695,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       dbManager->TILErmax(),
                                       dbManager->TILBrmax(),
                                       deltaPhi,
-                                      m_testbeamGeometry,
+                                      m_switches.testBeam,
                                       ModuleNcp*100);
          }
         GeoTransform* xtraModFingerNeg  = new GeoTransform(GeoTrf::TranslateX3D(
@@ -3019,15 +3013,15 @@ void TileAtlasFactory::create(GeoPhysVol *world)
    for (int ii=0; ii<6; ++ii) {
      if (ii%2 == 0) {
         sectionBuilder->computeCellDim(m_detectorManager, dete[ii],
-                                       m_addPlatesToCellVolume,
+                                       m_switches.addPlatesToCell,
                                        zShiftInSection[ii+1], // zShiftPos
                                        zShiftInSection[ii]);  // zShiftNeg
      }
      
      TileDetDescriptor* descriptor = new TileDetDescriptor();
      sectionBuilder->fillDescriptor(descriptor, dete[ii], side[ii],
-                                    m_testbeamGeometry,      // set to false - ATLAS geometry
-                                    m_addPlatesToCellVolume, // add front/end plates to cell volume
+                                    m_switches.testBeam,        // set to false - ATLAS geometry
+                                    m_switches.addPlatesToCell, // add front/end plates to cell volume
                                     nModulesInSection[ii],   // 0-64 modules
                                     zShiftInSection[ii]);    // Z-shift
      

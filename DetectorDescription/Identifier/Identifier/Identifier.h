@@ -12,10 +12,9 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "Identifier/Identifier32.h"
-#include <boost/io/ios_state.hpp>
-#include <vector>
 #include <string>
-#include <iostream>
+#include <boost/io/ios_state.hpp>
+
 /**
  **-----------------------------------------------
  **

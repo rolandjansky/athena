@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MallocStats.h 
@@ -14,22 +14,7 @@
 // see http://stxxl.sourceforge.net/ for licence
 
 #include <iostream>
-#ifndef __APPLE__
-#include <malloc.h>
-#else /* brain dead macos: define a dummy mallinfo structure */
-struct mallinfo {
-    int arena;
-    int ordblks;  /* number of free chunks */
-    int smblks;   /* number of fastbin blocks */
-    int hblks;    /* number of mmapped regions */
-    int hblkhd;   /* space in mmapped regions */
-    int usmblks;  /* maximum total allocated space */
-    int fsmblks;  /* space available in freed fastbin blocks */
-    int uordblks; /* total allocated space */
-    int fordblks; /* total free space */
-    int keepcost; /* top-most, releasable (via malloc_trim) space */
-};
-#endif
+#include "PerfMonEvent/mallinfo.h"
 #include <cstdlib>
 #include <string>
 
@@ -40,7 +25,7 @@ namespace PerfMon {
   //! malloc is default C++ allocator
 class MallocStats
 {
-  struct mallinfo m_infos;
+  PerfMon::mallinfo_t m_infos;
 
 public:
 
@@ -53,7 +38,7 @@ public:
   /** update cached informations about ,alloc statistics
    */
   void refresh()
-  { m_infos = mallinfo(); }
+  { m_infos = PerfMon::mallinfo(); }
 
   //! \brief Returns number of bytes allocated from system not including mmapped regions
   return_type from_system_nmmap()

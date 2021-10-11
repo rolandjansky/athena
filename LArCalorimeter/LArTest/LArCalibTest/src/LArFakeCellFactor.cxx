@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArFakeCellFactor.h"
@@ -43,7 +43,7 @@ StatusCode LArFakeCellFactor::initialize() {
     //Helper values to interpret the file
     const float etaHalfSize=0.1;
     const float phiHalfSize=0.196349546; //pi/8
-    struct FileEntry entry;
+    struct FileEntry entry{};
     std::vector<FileEntry> valueList;
     unsigned num; //Not really used....
     std::ifstream infile(m_fileName.c_str());

@@ -20,7 +20,7 @@ Configurable.configurableRun3Behavior = True
 def defaultTestFlags(configFlags, args):
     """Fill default ITk flags for testing"""
     if args.localgeo:
-        configFlags.ITk.useLocalGeometry = True
+        configFlags.GeoModel.useLocalGeometry = True
 
     configFlags.Input.Files = [args.inputevntfile]
     

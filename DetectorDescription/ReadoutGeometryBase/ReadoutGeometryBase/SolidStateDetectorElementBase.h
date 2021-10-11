@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -47,45 +47,45 @@ namespace InDetDD {
   class SiReadoutCellId;
 
   /**
-   *  
+   *
    * @class SolidStateDetectorElementBase
    *
-   * Class to hold geometrical description of a solid state detector element. 
+   * Class to hold geometrical description of a solid state detector element.
    * This base class is shared between the InnerDetetector/ITk/HGTD since there is a lot of commonality.
-   * 
+   *
    * @par Coordinate Frames.
    *
    * The following coordinate frames are used in these elements.
    *
    * - Global frame:\n
    * Currently global frame in G4/GeoModel. Probably eventually
-   * will be global frame most suitable for reconstruction 
+   * will be global frame most suitable for reconstruction
    * (eg solenoid axis).
    *
-   * - Local hit frame:\n 
-   * Local frame for hits. It is the same as local frame in G4 and GeoModel. 
-   * I also refer to this as the local simulation frame. 
+   * - Local hit frame:\n
+   * Local frame for hits. It is the same as local frame in G4 and GeoModel.
+   * I also refer to this as the local simulation frame.
    * By convention elements are orientated such that:
    * - hitDepth = local x
    * - hitPhi   = local y
    * - hitEta   = local z
-   * . 
-   * Directions of these correspond to the physical wafer. Consequently hitDepth and hitPhi axes go in 
+   * .
+   * Directions of these correspond to the physical wafer. Consequently hitDepth and hitPhi axes go in
    * different directions depending on the orientation of the module.
-   * The readout side is determined from design()->readoutSide(). 
+   * The readout side is determined from design()->readoutSide().
    *
-   * - Local reconstruction frame:\n 
+   * - Local reconstruction frame:\n
    * - distPhi  = local x
-   * - distEta  = local y  
+   * - distEta  = local y
    * - distDepth = local z
    * .
    * The directions of the axes are defined as
    * - distPhi in direction of increasing phi
    * - distEta in direction of increasing z in barrel and increasing r in endcap.
-   * - distDepth (normal) choosen to give right-handed coordinate. 
+   * - distDepth (normal) choosen to give right-handed coordinate.
    * =>  away from intersection point for barrel, decreasing z for endcap
-   * 
-   * @par Overview of Methods 
+   *
+   * @par Overview of Methods
    *
    * Methods are grouped into the the following categories
    *
@@ -104,7 +104,7 @@ namespace InDetDD {
    *
    * @author Grant Gorfine
    * - modified & maintained: Nick Styles, Andreas Salzburger
-   * - modified Nigel Hessey: get directions from the design instead of hard-wiring them   
+   * - modified Nigel Hessey: get directions from the design instead of hard-wiring them
    *
    * @par Some notes on Thread safety for  AthenaMT
    *
@@ -134,26 +134,26 @@ namespace InDetDD {
    * can be done via write/read handles or similar EventContext aware
    * framework machinery.
    */
- 
+
 
   class SolidStateDetectorElementBase : public Trk::TrkDetElementBase {
 
   public:
-    
+
     /**
      * Constructor with parameters
      */
-    SolidStateDetectorElementBase(const Identifier& id, 
+    SolidStateDetectorElementBase(const Identifier& id,
                       const DetectorDesign* design,
                       const GeoVFullPhysVol* geophysvol,
                       const SiCommonItems* commonItems,
                       const GeoAlignmentStore* geoAlignStore=nullptr);
-    
+
     /**
      * Destructor
      */
     virtual ~SolidStateDetectorElementBase();
-    
+
     /**
      * Don't allow no-argument constructor
      */
@@ -166,7 +166,7 @@ namespace InDetDD {
 
     /**
      * Don't allow assignment operator
-     */ 
+     */
     SolidStateDetectorElementBase& operator=(const SolidStateDetectorElementBase&) = delete;
 
     /**
@@ -208,24 +208,24 @@ namespace InDetDD {
     /**
      * @name Identification
      * Methods to identify the element and identifier manipulation.
-     */ 
+     */
     //@{
-    
+
     /**
      * identifier of this detector element (inline)
      */
     virtual Identifier identify() const override final;
-    
+
     /**
      * identifier hash (inline)
      */
     virtual IdentifierHash identifyHash() const override final;
-    
+
     /**
      * Returns the id helper (inline)
      */
     const AtlasDetectorID* getIdHelper() const;
-    
+
     /**
      * Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
      * Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
@@ -235,7 +235,7 @@ namespace InDetDD {
      * SiCellId from Identifier
      */
     virtual SiCellId cellIdFromIdentifier(const Identifier& identifier) const = 0;
-      
+
     //@}
 
     /**
@@ -287,7 +287,7 @@ namespace InDetDD {
      * @name Orientation
      */
     //{@
-    
+
     /**
      * Directions of hit depth,phi,eta axes relative to reconstruction local
      * position axes (LocalPosition). Returns +/-1. inline
@@ -301,27 +301,27 @@ namespace InDetDD {
      * See previous method. inline
      */
     double hitEtaDirection() const;
-    
+
     /**
      * To determine if readout direction between online and offline needs
      * swapping, see methods swapPhiReadoutDirection() and
      * swapEtaReadoutDirection() below in "Readout Cell id" section
      *
-     * Orientation. 
+     * Orientation.
      * Directions.
-     *  - phiAxis in same direction as increasing phi and identifier phi_index/strip. 
+     *  - phiAxis in same direction as increasing phi and identifier phi_index/strip.
      *            NB. This requires some flipping of axes with repsect to the hits.
      *  - etaAxis in direction of increasing z in the barrel and increasing r in the endcap.
      *  - normal  choosen to give right-handed coordinate frame (x=normal,y=phiAxis,z=etaAxis)
      *            NB. This requires some flipping of axes with repsect to the hits.
      *
-     * Get reconstruction local phi axes in global frame. 
+     * Get reconstruction local phi axes in global frame.
      * In same direction as increasing phi and identifier phi_index/strip.
      */
     const HepGeom::Vector3D<double>& phiAxisCLHEP() const;
     const Amg::Vector3D& phiAxis() const;
     /**
-     * Get reconstruction local eta axes in global frame. 
+     * Get reconstruction local eta axes in global frame.
      * In direction of increasing z in the barrel and increasing r in the endcap.
      */
     const HepGeom::Vector3D<double>& etaAxisCLHEP() const;
@@ -351,12 +351,16 @@ namespace InDetDD {
      */
     virtual const Amg::Vector3D& center(const Identifier&) const override final;
 
+     /** TrkDetElementBase interface detectorType
+      */
+    virtual Trk::DetectorElemType detectorType() const override;
+
     /**
      * transform a hit local position into a global position (inline):
      */
     HepGeom::Point3D<double> globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const;
     Amg::Vector3D globalPositionHit(const Amg::Vector3D& simulationLocalPos) const;
-      
+
     /**
      * transform a reconstruction local position into a global position (inline):
      */
@@ -367,7 +371,7 @@ namespace InDetDD {
      * as in previous method but for 2D local position (inline)
      */
     Amg::Vector3D globalPosition(const Amg::Vector2D& localPos) const;
-    
+
     /**
      * Simulation/Hit local frame to reconstruction local frame. 2D.
      *  TODO: Will change order of parameters at some point.
@@ -383,13 +387,13 @@ namespace InDetDD {
      */
     Amg::Vector2D localPosition(const HepGeom::Point3D<double>& globalPosition) const;
     Amg::Vector2D localPosition(const Amg::Vector3D& globalPosition) const;
-    
+
     //@}
 
 
     /**
      * @name Element Extent
-     * Inline methods to get extent of element in r,phi and z.  
+     * Inline methods to get extent of element in r,phi and z.
      */
     //@{
     double rMin() const;
@@ -398,31 +402,31 @@ namespace InDetDD {
     double zMax() const;
     double phiMin() const;
     double phiMax() const;
-    
+
     /**
      * Method for building up region of interest table.
      * Get eta/phi extent for the element. Returns min/max eta and phi
      * and r (for barrel) or z (for endcap) Takes as input the vertex
      * spread in z (-deltaZ to +deltaZ)
      */
-    void getEtaPhiRegion(double deltaZ, 
+    void getEtaPhiRegion(double deltaZ,
                          double& etaMin, double& etaMax,
                          double& phiMin, double& phiMax,
                          double& rz) const;
     //@}
     virtual double get_rz() const = 0;
-    
+
     /**
      * @name Design methods
      */
     //@{
-    
+
     /**
      * access to the local description (inline):
      */
-    
+
     virtual const DetectorDesign& design() const;
-    
+
     virtual const Trk::SurfaceBounds& bounds() const override final;
     /**
      * TrkDetElementBase interface (inline)
@@ -460,7 +464,7 @@ namespace InDetDD {
      * phiPitch:  For SCT Forward returns pitch at center.\n
      * etaPitch:  For pixel returns average pitch. (Active_length/number_of_cells)\n
      *
-     * All return pitch in distance units. 
+     * All return pitch in distance units.
      */
     double etaPitch() const;
     double phiPitch() const;
@@ -482,12 +486,12 @@ namespace InDetDD {
     bool swapEtaReadoutDirection() const;
 
     //@}
-    
+
     /**
      * @name Intersection Tests
      */
     //@{
-    
+
     /**
      * Test that it is in the active region
      *
@@ -500,22 +504,22 @@ namespace InDetDD {
     SiIntersect inDetector(const Amg::Vector2D& localPosition, double phiTol, double etaTol) const;
     SiIntersect inDetector(const Amg::Vector3D& globalPosition, double phiTol, double etaTol) const;
     //@}
-    
+
     /**
      * @name Readout cell id
      * Cell id's are the strip number in SCT and phi_index,eta_index in the pixel
      * as defined in the offline identifier. Their direction runs in the distPhi, distEta
-     * direction in the Reconstruction local frame. 
+     * direction in the Reconstruction local frame.
      *
      * For methods taking a SiCellId (basically phi,eta index for pixel or strip for SCT) you
      * can do the following fro example:
-     *   - For pixel\n 
+     *   - For pixel\n
      *     localPositionOfCell(SiCellId(phi_index,eta_index));\n
      *   - For SCT\n
      *     localPositionOfCell(SiCellId(strip));\n
      */
     //@{
-    
+
     /**
      * Full identifier of the cell for a given position:
      * assumes a raw local position (no Lorentz shift)
@@ -525,7 +529,7 @@ namespace InDetDD {
      * As in previous method but returns SiCellId
      */
     SiCellId cellIdOfPosition(const Amg::Vector2D& localPos) const;
-    
+
     /**
      * Returns position (center) of cell.
      * These are the raw positions _NOT_ corrected for the Lorentz shift
@@ -535,7 +539,7 @@ namespace InDetDD {
      * As above
      */
     Amg::Vector2D rawLocalPositionOfCell(const Identifier& id) const;
-    
+
     /**
      * Test if readout cell has more than one diode associated with it.
      * Number of cells sharing the same readout as this cell.
@@ -552,7 +556,17 @@ namespace InDetDD {
      * Recalculate cached values.
      */
     virtual void updateCache() const;
-    
+
+    /**
+     * Return information on orientation
+     */
+    bool depthDirection() const;
+    bool etaDirection() const;
+    bool phiDirection() const;
+    double depthAngle() const;
+    double etaAngle() const;
+    double phiAngle() const;
+
   private:
     /**
      * @name Private Methods
@@ -564,7 +578,7 @@ namespace InDetDD {
      * Common code for constructors.
      */
     void commonConstructor();
-    
+
     /**
      * Calculate extent in r,z and phi. The values are cached and there
      * are rMin(), rMax etc methods.
@@ -573,16 +587,16 @@ namespace InDetDD {
     void getExtent(double& rMin, double& rMax,
                    double& zMin, double& zMax,
                    double& phiMin, double& phiMax) const;
-    
+
     /**
      * Return the four corners of an element in local coordinates.
      * Pass it an array of length 4.
      * This function is used by getEtaPhiRegion()
      */
     void getCorners(HepGeom::Point3D<double>* corners) const;
-    
+
     /**
-     * Get eta and phi coresponding to a point in local coordinates. 
+     * Get eta and phi coresponding to a point in local coordinates.
      * Requires as input the vertex spread. Returns etaMin, etaMax, and phi.
      * This function is used by getEtaPhiRegion()
      */
@@ -593,18 +607,18 @@ namespace InDetDD {
      * Private recoToHitTransform Implementation method with no lock
      */
     const HepGeom::Transform3D recoToHitTransformImpl() const;
- 
+
     /**
      * Declaring the Message method for further use (inline)
      */
     MsgStream& msg(MSG::Level lvl) const;
-    
+
     /**
      * Declaring the Method providing Verbosity Level (inline)
      */
     bool msgLvl(MSG::Level lvl) const;
     //@}
-    
+
     /**
      * Protected data:
      */
@@ -626,7 +640,7 @@ namespace InDetDD {
     //ditto
     mutable std::atomic_bool m_firstTimeBase{true};
     mutable std::atomic_bool m_firstTime{true};
-    
+
     /**
      * @name Mutex guard to update mutable variables in const methods
      */
@@ -686,6 +700,11 @@ namespace InDetDD {
     mutable bool m_depthDirection ATLAS_THREAD_SAFE {true};
     mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
     mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+   
+    mutable double m_depthAngle ATLAS_THREAD_SAFE {true};
+    mutable double m_phiAngle ATLAS_THREAD_SAFE {true};
+    mutable double m_etaAngle ATLAS_THREAD_SAFE {true};
+
     //@}
 
     /**
@@ -708,7 +727,7 @@ namespace InDetDD {
       /**
      * @name Variable set by updateCache
      * Determines if the orientations is "barrel like"
-     * (which for ITk pixel can be the case even if 
+     * (which for ITk pixel can be the case even if
      * not strictly part of the barrel geometry)
      */
     mutable bool m_barrelLike ATLAS_THREAD_SAFE {false};
@@ -722,7 +741,7 @@ namespace InDetDD {
     //@}
 
   };
-    
+
 } // namespace InDetDD
 
 /**

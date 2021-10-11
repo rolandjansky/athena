@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_CLUSTERID_H
@@ -9,25 +9,29 @@
 
 namespace TrkDriftCircleMath {
 
-  class ClusterId {
-  public:
-    ClusterId() : m_id(0) {}
-    ClusterId( int stName, int eta, int phi, int barrel, int measuresPhi ) {
-      m_id = 1000000*stName+ 10000*eta + 100*phi + 10*barrel + measuresPhi;
-    }
-    
-    int id() const { return m_id; }
-    int stName() const { return m_id/1000000; }
-    int eta() const { return (m_id%1000000)/10000; }
-    int phi() const { return (m_id%10000)/100; }
-    int isTgc() const { return (m_id%100)/10; }
-    int measuresPhi() const { return m_id%10; }
-  private:
-    int     m_id;
-  };
+    class ClusterId {
+    public:
+        static constexpr int stationOffSet = 1000000;
+        static constexpr int etaOffSet = 10000;
+        static constexpr int phiOffSet = 100;
+        ClusterId() = default;
+        ClusterId(int stName, int eta, int phi, int barrel, int measuresPhi) {
+            m_id = stationOffSet * stName + etaOffSet * eta + phiOffSet * phi + 10 * barrel + measuresPhi;
+        }
 
-  std::ostream& operator<<( std::ostream& os, const TrkDriftCircleMath::ClusterId& id );
+        int id() const { return m_id; }
+        int stName() const { return m_id / stationOffSet; }
+        int eta() const { return (m_id % stationOffSet) / etaOffSet; }
+        int phi() const { return (m_id % etaOffSet) / phiOffSet; }
+        int isTgc() const { return (m_id % phiOffSet) / 10; }
+        int measuresPhi() const { return m_id % 10; }
 
-}
+    private:
+        int m_id{0};
+    };
+
+    std::ostream& operator<<(std::ostream& os, const TrkDriftCircleMath::ClusterId& id);
+
+}  // namespace TrkDriftCircleMath
 
 #endif

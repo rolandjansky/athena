@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "ClusterTimeProjectionMMClusterBuilderTool.h"
 
@@ -10,7 +10,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 namespace {
-    static constexpr double halfGapWidth = 2.52;
+    constexpr double halfGapWidth = 2.52;
 }
 
 
@@ -209,7 +209,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     stripDriftDists.reserve(idxCluster.size());
     stripDriftDistErrors.reserve(idxCluster.size());
 
-    for (auto &idx : idxCluster) {
+    for (const auto &idx : idxCluster) {
         Identifier id = MMPrdsOfLayer.at(idx).identify();
         rdoList.push_back(id);
         if(m_writeStripProperties) {
@@ -221,15 +221,15 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
         stripDriftDistErrors.push_back(MMPrdsOfLayer.at(idx).localCovariance());
     }
 
-    Amg::MatrixX* covN = new Amg::MatrixX(1, 1);
-    covN -> coeffRef(0, 0) = clusterPositionErrorSq;
+    auto covN =Amg::MatrixX(1, 1);
+    covN.coeffRef(0, 0) = clusterPositionErrorSq;
     Amg::Vector2D localClusterPositionV(clusterPosition,
             MMPrdsOfLayer.at(idxCluster.at(0)).localPosition().y());
     Identifier idStrip0 = MMPrdsOfLayer.at(idxCluster.at(0)).identify();
 
     std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(idStrip0,
                    MMPrdsOfLayer.at(idxCluster.at(0)).collectionHash(),
-                   localClusterPositionV, rdoList, covN,
+                   localClusterPositionV, rdoList, std::move(covN),
                    MMPrdsOfLayer.at(idxCluster.at(0)).detectorElement(),
                    (short int) 0,  // drift dist
                    std::accumulate(stripCharges.begin(), stripCharges.end(), 0),

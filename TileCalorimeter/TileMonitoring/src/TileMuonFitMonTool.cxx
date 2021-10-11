@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -314,10 +314,9 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
 
         if (m_useLVL1 && part > -1 && part < NumPart) {
           if (m_trigok) { // in case the TDT is working, we fill the histogram looping on the labels
-            std::vector<std::string>::const_iterator it = m_l1triggers.begin();
             int l1 = 0;
-            for (; it != m_l1triggers.end(); it++) {
-              if (m_trigDec->isPassed(*it)) m_tileMuonFitTimePartLVL1[part]->Fill(mu_time, l1);
+            for (const std::string& l1name : m_l1triggers) {
+              if (m_trigDec->isPassed(l1name)) m_tileMuonFitTimePartLVL1[part]->Fill(mu_time, l1);
               l1++;
             }
           } else { // we have to rely on the lvl1 bits only

@@ -55,12 +55,21 @@ StatusCode HLTResultMTByteStreamDecoderAlg::execute(const EventContext& eventCon
     return StatusCode::FAILURE;
   }
 
+  // Retrieve the HLT result payload
+  IROBDataProviderSvc::VROBFRAG vrobf; // vector of ROBFragments to be filled
+  m_robDataProviderSvc->getROBData(eventContext, m_robIdsToDecode, vrobf, name());
+  if (vrobf.empty()) {
+    ATH_MSG_ERROR("Failed to retrieve HLT ROBFragments from ROBDataProvider");
+    return StatusCode::FAILURE;
+  }
+
+  // Get the format version
+  hltResult->setVersion(m_decoderTool->getHltRodMinorVersion(vrobf));
+
   // Fill the result object from ByteStream event header
   ATH_CHECK(m_decoderTool->decodeHeader(re, *hltResult));
 
   // Read the HLT result payload
-  IROBDataProviderSvc::VROBFRAG vrobf; // vector of ROBFragments to be filled
-  m_robDataProviderSvc->getROBData(eventContext, m_robIdsToDecode, vrobf, name());
   ATH_CHECK(m_decoderTool->decodePayload(vrobf, *hltResult));
 
   // Print the result

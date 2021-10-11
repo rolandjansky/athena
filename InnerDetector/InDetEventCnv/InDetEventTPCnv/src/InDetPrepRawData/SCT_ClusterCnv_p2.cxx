@@ -47,11 +47,11 @@ SCT_ClusterCnv_p2::createSCT_Cluster (const InDet::SCT_Cluster_p2* persObj,
   m_swCnv.persToTrans(&persObj->m_width, &sw, log);
 
   // Error matrix
-  auto cmat = std::make_unique<Amg::MatrixX>(2,2);
-  (*cmat)(0,0) = static_cast<double>(persObj->m_mat00);
-  (*cmat)(1,0) = static_cast<double>(persObj->m_mat01);
-  (*cmat)(0,1) = static_cast<double>(persObj->m_mat01);
-  (*cmat)(1,1) = static_cast<double>(persObj->m_mat11);
+  auto cmat = Amg::MatrixX(2,2);
+  (cmat)(0,0) = static_cast<double>(persObj->m_mat00);
+  (cmat)(1,0) = static_cast<double>(persObj->m_mat01);
+  (cmat)(0,1) = static_cast<double>(persObj->m_mat01);
+  (cmat)(1,1) = static_cast<double>(persObj->m_mat11);
 
   InDet::SCT_Cluster clus (clusId,
                            localPos,

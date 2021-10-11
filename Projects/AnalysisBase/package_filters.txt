@@ -78,6 +78,7 @@
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
++ PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*
@@ -86,6 +87,7 @@
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
+- Reconstruction/Jet/JetInputsMonitoring
 + Reconstruction/Jet/JetReclustering
 - Reconstruction/Jet/JetRec.+
 - Reconstruction/Jet/JetSimTools
@@ -147,4 +149,9 @@
 + PhysicsAnalysis/TopPhys/xAOD/TopPartons
 + PhysicsAnalysis/TopPhys/xAOD/TopSystematicObjectMaker
 
+#
+### Onnxruntime Service 
+#
+
++ Control/AthOnnxruntimeService
 - .*

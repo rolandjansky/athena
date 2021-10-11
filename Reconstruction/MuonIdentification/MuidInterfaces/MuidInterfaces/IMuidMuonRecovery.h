@@ -42,8 +42,8 @@ namespace Rec {
 
         /**IMuidMuonRecovery interface:
            algorithmic code for recovering muon spectrometer using the inner detector track */
-        virtual Trk::Track* recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
-                                             const EventContext& ctx) const = 0;
+        virtual std::unique_ptr<Trk::Track> recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                             const EventContext& ctx) const = 0;
     };
 
 }  // namespace Rec

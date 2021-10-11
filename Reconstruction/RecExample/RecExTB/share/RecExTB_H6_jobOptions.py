@@ -461,19 +461,7 @@ if doLAr :
     if not doSim :
         # read ByteStream and run RawChannelBuilder
         theApp.Dlls += ["LArRawUtils", "LArROD", "LArTools" ]
-        #
-        from LArROD.LArRODConf import LArDigitPreProcessor_TBLArDigitContainer_
-        TBLArDigProcessor = LArDigitPreProcessor_TBLArDigitContainer_("TBLArDigProcessor")
-        TBLArDigProcessor.InputContainers = ["MEDIUM","FREE"]
-        TBLArDigProcessor.NumberOfSamples = 32
-        TBLArDigProcessor.FirstSample     = 0
-        if doOscillationCorrection:
-            from LArCalibUtils.LArCalibUtilsConf import LArDigitOscillationCorrTool
-            theOscCorr = LArDigitOscillationCorrTool()
-            theOscCorr.SignalCutInSigma=3.0
-            ToolSvc += theOscCorr
-            TBLArDigProcessor.CorrectOscillations=True
-        topSequence += TBLArDigProcessor
+        # LArDigitPreProcessor was removed from the release
         #
         if not doOFC:
             # The modified RawChannelBuilder:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARRAWCHANNELMONTOOLS_H
@@ -345,7 +345,7 @@ namespace LArMonTools {
     ResolutionCalculator( const double &, const double & );
     ~ResolutionCalculator();
 
-    double operator() ( const double& );
+    double operator() ( const double& ) const;
 
   private:
 

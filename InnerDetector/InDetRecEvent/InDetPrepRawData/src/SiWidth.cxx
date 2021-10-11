@@ -8,6 +8,8 @@
 
 #include "InDetPrepRawData/SiWidth.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
+#include <sstream>
 
 
 // Implicit constructor:
@@ -59,9 +61,9 @@ InDet::SiWidth& InDet::SiWidth::operator=(const InDet::SiWidth &width)
 // Dump methods
 MsgStream& InDet::SiWidth::dump( MsgStream&    stream) const
 {
-  stream << "SiWidth object"<<std::endl;
-  stream << "Column / Row " << m_colrow.x()     << " " << m_colrow.y() << std::endl;
-  stream << "phi RZ width " << m_phirzWidth.x() << " " << m_phirzWidth.y() << std::endl;
+  std::ostringstream out;
+  dump(out);
+  stream<<out.str();
   return stream;
 }
 std::ostream& InDet::SiWidth::dump( std::ostream&    stream) const

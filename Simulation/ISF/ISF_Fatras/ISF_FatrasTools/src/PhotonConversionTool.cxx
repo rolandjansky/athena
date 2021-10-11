@@ -454,7 +454,7 @@ double iFatras::PhotonConversionTool::childEnergyFraction(const Trk::MaterialPro
   double Phi2          = phi2(deltaMin);
   // then calculate F10/F20
   double F10           = 3.*Phi1 - Phi2 - FZ;
-  double F20           = 1.5*Phi1 - 0.5*Phi2 - FZ;
+  double F20           = 1.5*Phi1 + 0.5*Phi2 - FZ;
   // and finally calucate N1, N2
   double N1            = (0.25-epsilonMin+epsilonMin*epsilonMin)*F10;
   double N2            = 1.5*F20;
@@ -509,7 +509,7 @@ double iFatras::PhotonConversionTool::childEnergyFraction(double gammaMom) const
   double Phi2          = phi2(deltaMin);
   // then calculate F10/F20
   double F10           = 3.*Phi1 - Phi2 - FZ;
-  double F20           = 1.5*Phi1 - 0.5*Phi2 - FZ;
+  double F20           = 1.5*Phi1 + 0.5*Phi2 - FZ;
   // and finally calucate N1, N2
   double N1            = (0.25-epsilonMin+epsilonMin*epsilonMin)*F10;
   double N2            = 1.5*F20;

@@ -110,7 +110,7 @@ class EnergyLoss;
    @author Andreas.Salzburger@cern.ch, Tom.Atkinson@cern.ch
   */
 
-class EnergyLossUpdator
+class EnergyLossUpdator final
   : public AthAlgTool
   , virtual public IEnergyLossUpdator
 {
@@ -129,7 +129,7 @@ public:
     */
   virtual double dEdX(const MaterialProperties& mat,
                       double p,
-                      ParticleHypothesis particle = pion) const override;
+                      ParticleHypothesis particle = pion) const override final;
 
   /** deltaE calculation
     using dEdX and integrating along pathlength,
@@ -140,13 +140,14 @@ public:
 
     mpv steers the most probable energy loss
     */
-  virtual EnergyLoss* energyLoss(const MaterialProperties& mat,
-                                 double p,
-                                 double pathcorrection,
-                                 PropDirection dir = alongMomentum,
-                                 ParticleHypothesis particle = pion,
-                                 bool mpv = false,
-                                 bool usePDGformula = false) const override;
+  virtual EnergyLoss* energyLoss(
+    const MaterialProperties& mat,
+    double p,
+    double pathcorrection,
+    PropDirection dir = alongMomentum,
+    ParticleHypothesis particle = pion,
+    bool mpv = false,
+    bool usePDGformula = false) const override final;
 
   /** Method to recalculate Eloss values for the fit setting an elossFlag using
      as an input the detailed Eloss information Calorimeter energy, error
@@ -156,7 +157,7 @@ public:
                                        double caloEnergyError,
                                        double pCaloEntry,
                                        double momentumError,
-                                       int& elossFlag) const override;
+                                       int& elossFlag) const override final;
 
   /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and
    * Muon System */
@@ -164,7 +165,7 @@ public:
                                 double eta,
                                 double phi,
                                 double& X0Scale,
-                                double& ElossScale) const override;
+                                double& ElossScale) const override final;
 
 private:
   /** Method to return the variance of the change in q/p for the Bethe-Heitler
@@ -176,29 +177,12 @@ private:
     PropDirection direction = alongMomentum,
     ParticleHypothesis particleHypothesis = electron) const;
 
-  /** dEdX BetheBloch calculation:
-    Units: [MeV]
-    */
-  double dEdXBetheBloch(const MaterialProperties& mat,
-                        double& transKaz,
-                        double& transTmax,
-                        double beta,
-                        double gamma,
-                        ParticleHypothesis particle = pion) const;
-
   Trk::EnergyLoss* ionizationEnergyLoss(
     const MaterialProperties& mat,
     double p,
     double pathcorrection,
     PropDirection dir = alongMomentum,
     ParticleHypothesis particle = pion) const;
-
-  /** dEdX BetheHeitler calculation:
-    Units: [MeV]
-    */
-  double dEdXBetheHeitler(const MaterialProperties& mat,
-                          double initialE,
-                          ParticleHypothesis particle = pion) const;
 
   Trk::MaterialInteraction m_matInt;
   double m_stragglingErrorScale; //!< stragglingErrorScale

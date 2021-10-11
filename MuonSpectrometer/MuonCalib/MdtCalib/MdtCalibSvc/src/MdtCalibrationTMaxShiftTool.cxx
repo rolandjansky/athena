@@ -41,21 +41,19 @@ StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
     return StatusCode::FAILURE;
   }
 
-  /* Get ROBs */
-  std::vector<uint32_t> robVector = mdtCabling->getAllROBId();
+  const MuonMDT_CablingMap::MapOfItems *listOfSubdet;
 
-  MuonMDT_CablingMap::MapOfItems *listOfSubdet;
   MuonMDT_CablingMap::MapOfItems::const_iterator it_sub;
 
-  MdtSubdetectorMap::MapOfItems *listOfROD;
+  const MdtSubdetectorMap::MapOfItems *listOfROD;
   MdtSubdetectorMap::MapOfItems::const_iterator it_rod;
 
-  MdtRODMap::MapOfItems *listOfCsm;
+  const MdtRODMap::MapOfItems *listOfCsm;
   MdtRODMap::MapOfItems::const_iterator it_csm;
 
-  MdtCsmMap::MapOfItems *listOfAmt;
+  const MdtCsmMap::MapOfItems *listOfAmt;
   MdtCsmMap::MapOfItems::const_iterator it_amt;
-
+  MsgStream& msg(msgStream() );
   listOfSubdet = mdtCabling->getListOfElements();
 
   int subdetectorId, rodId, csmId, amtId;
@@ -83,7 +81,7 @@ StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
             /* Get the offline ID, given the current detector element */
             if (!mdtCabling->getOfflineId(
                     subdetectorId, rodId, csmId, amtId, tubeId, stationName,
-                    stationEta, stationPhi, multiLayer, layer, tube)) {
+                    stationEta, stationPhi, multiLayer, layer, tube, msg)) {
               std::ostringstream ss;
               ss << "Trying to initialize non-existing tube with\n";
               ss << "  subdetectorId " << subdetectorId << "\n";

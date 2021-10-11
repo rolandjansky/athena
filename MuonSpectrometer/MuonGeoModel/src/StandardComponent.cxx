@@ -68,16 +68,16 @@ namespace MuonGM {
         MYSQL *mysql = MYSQL::GetPointer();
         Technology *tec = mysql->GetTechnology(name);
 
-        if (name.substr(0, 3) == "CHV") {
+        if (name.compare(0, 3,"CHV") == 0) {
             CHV *chv = (CHV *)tec;
             return chv->height;
-        } else if (name.substr(0, 3) == "CRO") {
+        } else if (name.compare(0, 3,"CRO") == 0) {
             CRO *chv = (CRO *)tec;
             return chv->height;
-        } else if (name.substr(0, 3) == "CMI") {
+        } else if (name.compare(0, 3,"CMI") == 0) {
             CMI *chv = (CMI *)tec;
             return chv->height;
-        } else if (name.substr(0, 3) == "LBI" || name.substr(0, 2) == "LB") {
+        } else if (name.compare(0, 3,"LBI") == 0 || name.compare(0, 2,"LB") == 0) {
             LBI *chv = (LBI *)tec;
             return chv->height;
         }

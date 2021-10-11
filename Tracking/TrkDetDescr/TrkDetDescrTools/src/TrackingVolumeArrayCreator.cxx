@@ -39,20 +39,6 @@ Trk::TrackingVolumeArrayCreator::~TrackingVolumeArrayCreator()
 {}
 
 
-// the interface methods
-StatusCode Trk::TrackingVolumeArrayCreator::initialize()
-{
-    ATH_MSG_INFO( "initialize()" );
-    return StatusCode::SUCCESS;
-}    
-
-StatusCode Trk::TrackingVolumeArrayCreator::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
-    return StatusCode::SUCCESS;
-}
-
-
 Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInR(
                                                                     const std::vector<const Trk::TrackingVolume*>& vols,
                                                                     bool navtype) const

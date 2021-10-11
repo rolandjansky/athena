@@ -144,6 +144,9 @@ private:
     "Handle of the track IsolationTool"
   };
 
+  /** @brief is the alg run at trigger level */
+  Gaudi::Property<bool> m_isTrigger{ this, "IsTrigger", false };
+
   // FIXME:  need to add the electron bremAssoc stuff
   Gaudi::Property<bool> m_useBremAssoc{ this,
                                         "useBremAssoc",
@@ -151,6 +154,8 @@ private:
                                         "use track to track assoc after brem" };
 
   Gaudi::Property<bool> m_allTrackRemoval{ this, "AllTrackRemoval", true };
+
+  Gaudi::Property<bool> m_storepileupCorrection{ this, "storepileupCorrection", false };
 
   /** @brief Isolation types */
   Gaudi::Property<std::vector<std::vector<int>>> m_elisoInts{

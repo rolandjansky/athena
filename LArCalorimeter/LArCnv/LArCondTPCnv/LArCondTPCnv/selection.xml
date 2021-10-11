@@ -9,6 +9,7 @@
   <class name="LArSingleFloatSubset_p1" id="85C3E380-4F5C-4F2B-81F0-D7C08A446800" />
   <class name="LArSingleIntSubset_p1" id="E7E2E993-4AF2-4782-9B8B-7668434CBAEC" />
   <class name="LArCaliWaveSubset_p2" id="6CF01BBF-85A9-45FA-B321-6A98B0D719FB" />
+  <class name="LArCaliWaveSubset_p3" id="18C0E68C-9FFD-4706-A195-FA7715C19F42" />
   <class name="LArPhysWaveSubset_p1" id="87E436E2-6FF4-42D3-BC70-6650C076E589" />
   <class name="LArDSPThresholdsSubset_p1" id="09607438-09CC-4E40-A1E2-23F0B021DF3D" />
   <class name="LArPedestalSubset_p2" id="8BD3FE69-A3C4-418C-ACB9-E362CE524353" />

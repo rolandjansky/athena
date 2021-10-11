@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXPRESSION_EVALUATOR_H
@@ -34,7 +34,7 @@ public:
   	double Eval( const char* expr );
 	
 	static std::string trim(const std::string);
-	static std::vector<std::string>& tokenize(const std::string&,const std::string&); 
+	static std::vector<std::string> tokenize(const std::string&,const std::string&); 
   
   	void setFileCurrentlyParsed(std::string set)
   	{

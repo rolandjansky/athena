@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRNOISECONDALG_H
@@ -41,7 +41,7 @@ private:
   bool m_isSuperCell;
   bool m_MCsym;
 
-  unsigned int m_nGains;
+  unsigned int m_nGains = 0U;
   int m_nSampl;
 };
 

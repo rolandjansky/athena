@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ProtosLHEF_i/protos2lhef.h"
@@ -19,10 +19,9 @@ StatusCode protos2lhef::initialize() {
   retval = remove( "events.lhe" );                  // retval=0 if remove was performed
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++
-  lhefTrf* trf = NULL;
-  retval = trf->initializeTrf();
-  while(retval==0){ retval = trf->executeTrf(); }   // retval=0 if there are events left
-  retval = trf->finalizeTrf();
+  retval = lhefTrf::initializeTrf();
+  while(retval==0){ retval = lhefTrf::executeTrf(); }   // retval=0 if there are events left
+  retval = lhefTrf::finalizeTrf();
   //+++++++++++++++++++++++++++++++++++++++++++++++++
 
   std::cout << std::endl << std::endl << std::endl ;

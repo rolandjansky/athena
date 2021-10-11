@@ -291,10 +291,9 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
   std::lock_guard<std::mutex> lock(TrigNavigationThinningSvcMutex::s_mutex);
 
   // grab the navigation
-  Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
-  navAccess->enable();
+  auto navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
   // protected by above lock
-  HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
+  HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess.getNavigation());
 
   if(cnav == 0) {
     ATH_MSG_WARNING ( "Could not get navigation from Trigger Decision Tool" );

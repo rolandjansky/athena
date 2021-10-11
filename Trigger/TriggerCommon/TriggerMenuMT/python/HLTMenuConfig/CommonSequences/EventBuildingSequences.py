@@ -1,14 +1,16 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from TrigEDMConfig import DataScoutingInfo
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling import DecisionHandlingConf
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from libpyeformat_helper import SourceIdentifier, SubDetector
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
@@ -35,8 +37,21 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
         Hypo        = PEBInfoWriterAlg('PEBInfoWriterAlg_' + eventBuildType),
         HypoToolGen = pebInfoWriterToolGenerator)
 
-    step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
-    step = ChainStep(name=step_name, Sequences=[seq], chainDicts=[chainDict])
+    if len(chain.steps)==0:
+        # noalg PEB chain
+        step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
+        step = ChainStep(name=step_name,
+                         Sequences=[seq],
+                         chainDicts=[chainDict])
+    else:
+        # standard PEB chain
+        prevStep = chain.steps[-1]
+        step_name = 'Step{:d}_merged{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), eventBuildType)
+        step = ChainStep(name=step_name,
+                         Sequences=[seq for leg in prevStep.legIds],
+                         multiplicity=prevStep.multiplicity,
+                         chainDicts=prevStep.stepDicts)
+
     chain.steps.append(step)
 
 
@@ -58,6 +73,14 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.SCT_ENDCAP_C_SIDE,
             SubDetector.TDAQ_CTP
         ])
+    elif 'MuonTrkPEB' == eventBuildType:
+        tool = RoIPEBInfoWriterToolCfg(name)
+        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'MDT', 'RPC', 'TGC', 'CSC', 'MM', 'sTGC'])
+        tool.MaxRoIs = 99
+        tool.EtaWidth= 0.75#values from run2 check later
+        tool.PhiWidth= 0.75#values from run2 check later
+        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'LArPEBCalib' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.LAR_EM_BARREL_A_SIDE,
@@ -78,13 +101,17 @@ def pebInfoWriterTool(name, eventBuildType):
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
-        tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
-        tool.addCTPResultToROBList()  # add the CTP result to the list
+        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'LArPEB' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
-        tool.addCTPResultToROBList()  # add the CTP result to the list
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
+    elif 'LATOMEPEB' == eventBuildType:
+        from .LATOMESourceIDs import LATOMESourceIDs
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addROBs(LATOMESourceIDs)
     elif 'RPCPEBSecondaryReadout' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
@@ -120,6 +147,11 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.MUON_CSC_ENDCAP_A_SIDE,
             SubDetector.MUON_CSC_ENDCAP_C_SIDE
          ])
+    elif 'ZDCPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_ZDC,
+                         SubDetector.TDAQ_CTP
+        ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
@@ -136,14 +168,36 @@ def pebInfoWriterTool(name, eventBuildType):
 
 
 def pebInputMaker(chain, eventBuildType):
-    maker = DecisionHandlingConf.InputMakerForRoI("IMpeb_"+eventBuildType)
+    # Check if we are configuring a chain with at least one full-scan leg
+    isFullscan = (mapThresholdToL1DecisionCollection('FSNOSEED') in chain.L1decisions)
+
+    # Check if we are configuring RoI-based PEB
+    _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
+    isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
+    if not isRoIBasedPEB and not isStaticPEB:
+        raise RuntimeError('Cannot determine whether ' + eventBuildType +
+                           ' is static or RoI-based PEB from a tool of type ' + type(_tmpTool))
+    del _tmpTool
+
+    # Configure the InputMaker
+    maker = CompFactory.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
-    if len(chain.steps) == 0:
-        # Streamers: use initial RoI
-        maker.RoITool = DecisionHandlingConf.ViewCreatorInitialROITool()
+    # Allow more than one feature per input RoI if we care about RoIs
+    maker.mergeUsingFeature = isRoIBasedPEB
+
+    # Configure the InputMaker RoI tool
+    if len(chain.steps) == 0 or isStaticPEB:
+        # Streamers or static PEB: use initial RoI
+        maker.RoITool = CompFactory.ViewCreatorInitialROITool()
+    elif isFullscan and isRoIBasedPEB:
+        # Full-scan chains with RoI-based PEB: create RoI around feature IParticle
+        maker.RoITool = CompFactory.ViewCreatorCentredOnIParticleROITool()
+        maker.RoITool.RoisWriteHandleKey = recordable("HLT_Roi_" + eventBuildType)
     else:
         # Other chains: use previous RoI
-        maker.RoITool = DecisionHandlingConf.ViewCreatorPreviousROITool()
+        maker.RoITool = CompFactory.ViewCreatorPreviousROITool()
+
     return maker
 
 

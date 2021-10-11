@@ -24,8 +24,6 @@ namespace Ringer{
       double                    **m_bias;
       std::vector<std::string>    m_tfnames;
   
-      //inline double activation( double, std::string & );
-      inline void   release(double**, double**) const;
     
     public:
   

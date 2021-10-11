@@ -8,6 +8,9 @@
 from InDetRecExample.TrackingCommon import makePublicTool, setDefaults
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
+from AthenaCommon.Logging import logging 
+log = logging.getLogger("InDetTrigCommon")
+
 
 def ambiguityScoreAlg_builder(name, config, inputTrackCollection, outputTrackScoreMap ):
 
@@ -30,7 +33,7 @@ def ambiguityScoreAlg_builder(name, config, inputTrackCollection, outputTrackSco
 def ambiguitySolverAlg_builder(name, config, summaryTool, inputTrackScoreMap, outputTrackCollection):
 
       #Set/Get subtools
-      ambiguityProcessor = ambiguityProcessorTool_builder( name   = add_prefix( 'AmbiguityProcessor', config.input_name),
+      ambiguityProcessor = ambiguityProcessorToolOld_builder( name   = add_prefix( 'AmbiguityProcessor', config.input_name),
                                                            config = config, 
                                                            trackSummaryTool = summaryTool )
       
@@ -48,7 +51,7 @@ def ambiguitySolverAlg_builder(name, config, summaryTool, inputTrackScoreMap, ou
 #                    Track Ambiguity Solver algs/tools
 
 @makePublicTool
-def ambiguityProcessorTool_builder( name, config, trackSummaryTool ):
+def ambiguityProcessorToolOld_builder( name, config, trackSummaryTool ):
 
    #Configuration of parameters based on the signature and Flags (following Run2 settings)
    kwargs = {}
@@ -166,12 +169,11 @@ def getTrackingSuffix( name ):
       return ''
 
 
-def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticlesKey, trackSummaryTool ):
+def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticlesKey, trackParticleCreatorTool ):
   """Alg that stages conversion of Trk::TrackCollection into xAOD::TrackParticle container"""
 
-  trackParticleCreatorTool =  trackParticleCreatorTool_builder( name   = add_prefix( 'TrackParticleCreatorTool',config.input_name),
-                                                                config = config, 
-                                                                trackSummaryTool=trackSummaryTool )
+  if trackParticleCreatorTool is None:
+    log.error("trackParticleCnv_builder requires an instance of trackParticleCreatorTool")
 
   trackCollectionCnvTool   =  trackCollectionCnvTool_builder( name                     = add_prefix( 'xAODTrackCollectionCnvTool',config.input_name),
                                                               trackParticleCreatorTool = trackParticleCreatorTool,
@@ -326,7 +328,7 @@ def trackSelectionTool_getter(config):
 #
 # this does not appear to actually be needed
 @makePublicTool
-def ambiguityScoreProcessorTool_builder( name, config, trackSummaryTool ):
+def ambiguityScoreProcessorToolOld_builder( name, config, trackSummaryTool ):
    #   Tool contains backend functions for calculating score of a provided track
    #   Score of each track is based on track parameters such as hits in the ID, higher score -> more likely to survive ambiguity resolving between tracks
 

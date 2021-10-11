@@ -8,7 +8,7 @@
 /**
  Stores weights of 5th and 6th order Legendre polynomials. Used in eflowCellIntegrator.
 */
-double legendreWeights[21] = {
+constexpr double legendreWeights[21] = {
 
 	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 
@@ -27,7 +27,7 @@ double legendreWeights[21] = {
 /**
  Stores roots of 5th and 6th order Legendre polynomials. Used in eflowCellIntegrator.
 */
-double legendreRoots[21] = {
+constexpr double legendreRoots[21] = {
 
 	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 

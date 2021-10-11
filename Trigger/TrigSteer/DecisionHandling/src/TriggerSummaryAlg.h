@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_TRIGGERSUMMARYALG_H
 #define DECISIONHANDLING_TRIGGERSUMMARYALG_H 1
@@ -12,7 +12,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/IHLTOutputTool.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 /**
  * @class TriggerSummaryAlg
@@ -38,7 +38,7 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisions", {}, 
       "Object containing all the HLT input and output decision sets"};
 
-  SG::ReadHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
+  SG::ReadHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "HLTSeedingStart", 
       "Object with the time stamp when decoding started" };
 
   typedef short ChainCounter_t;

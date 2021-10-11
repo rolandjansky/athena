@@ -28,6 +28,11 @@ namespace InDet {
     m_q     = 0.;
     m_su    = nullptr ;
     m_sn    = nullptr ;
+    m_scorePenalty = 0.; 
+    m_dR = 0.;
+    m_eta = 0.;
+    m_pt = 0.;
+    m_dzdr = 0;
     for(int i=0; i!=3; ++i) {m_b0[i]=0.; m_b1[i]=0.; m_dr[i]=0.; m_r0[i]=0.;}
   }
 
@@ -35,16 +40,21 @@ namespace InDet {
   (const SiSpacePointForSeedITK& sp) 
   {
     if(&sp!=this) {
-      spacepoint  = sp.spacepoint;
-      m_x         = sp.m_x       ;
-      m_y         = sp.m_y       ;
-      m_z         = sp.m_z       ;
-      m_r         = sp.m_r       ;
-      m_covr      = sp.m_covr    ;
-      m_covz      = sp.m_covz    ;
-      m_q         = sp.m_q       ;
-      m_su        = sp.m_su      ;
-      m_sn        = sp.m_sn      ;        
+      spacepoint     = sp.spacepoint        ;
+      m_x            = sp.m_x               ;
+      m_y            = sp.m_y               ;
+      m_z            = sp.m_z               ;
+      m_r            = sp.m_r               ;
+      m_covr         = sp.m_covr            ;
+      m_covz         = sp.m_covz            ;
+      m_q            = sp.m_q               ;
+      m_su           = sp.m_su              ;
+      m_sn           = sp.m_sn              ; 
+      m_scorePenalty = sp.m_scorePenalty    ; 
+      m_dR           = sp.m_dR              ;
+      m_eta          = sp.m_eta             ;
+      m_pt           = sp.m_pt              ;
+      m_dzdr         = sp.m_dzdr            ;       
       for(int i=0; i!=3; ++i) m_b0[i]=sp.m_b0[i];
       for(int i=0; i!=3; ++i) m_b1[i]=sp.m_b1[i];
       for(int i=0; i!=3; ++i) m_dr[i]=sp.m_dr[i];
@@ -122,6 +132,33 @@ namespace InDet {
     }
     m_su = &sp->clusterList().first->detectorElement()->surface();
   } 
+
+
+  void SiSpacePointForSeedITK::setDR(const float& dr)
+  {
+    m_dR = dr;
+  }
+
+  void SiSpacePointForSeedITK::setEta(const float& eta)
+  {
+    m_eta = eta;
+  }
+   
+  void SiSpacePointForSeedITK::setDZDR(const float& dzdr)
+  {
+    m_dzdr = dzdr;
+  }
+ 
+  void SiSpacePointForSeedITK::setPt(const float& pt)
+  {
+    m_pt = pt;
+  }
+
+  void SiSpacePointForSeedITK::setScorePenalty(const float& score)
+  {
+    m_scorePenalty = score;
+  }
+
 
   /////////////////////////////////////////////////////////////////////////////////
   // Set with error correction 

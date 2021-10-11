@@ -9,7 +9,6 @@
 
 /* Container class for JEMEtSums objects */
 
-using namespace LVL1;
-typedef DataVector<JEMEtSums> JEMEtSumsCollection;
+typedef DataVector<LVL1::JEMEtSums> JEMEtSumsCollection;
 
 #endif

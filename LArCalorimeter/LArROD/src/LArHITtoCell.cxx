@@ -124,11 +124,11 @@ StatusCode LArHITtoCell::execute(const EventContext& context) const
 	 energy_time[hash].first+=energy;
 	 energy_time[hash].second+=(energy*time);
       }
-      first++;
+      ++first;
     }
    } // enf of for in hits
 
-   auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>(SG::VIEW_ELEMENTS);
+   auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>();
    DataPool<CaloCell> dataPool;
    if (dataPool.allocated()==0)
         dataPool.reserve (max);
@@ -153,7 +153,7 @@ StatusCode LArHITtoCell::execute(const EventContext& context) const
           ss->setCaloDDE(dde);
 	  if ( fracS->FSAMPL(hw) < 0.00001 ) continue;
           ss->setEnergy(energy/fracS->FSAMPL(hw));
-          ss->setTime(time*1e3);
+          ss->setTime(time);
           ss->setGain((CaloGain::CaloGain)0);
           // for super-cells provenance and time are slightly different
           uint16_t prov = 0x2000;

@@ -40,7 +40,7 @@ class ConstituentToolManager(object):
     # map of known input collections to their type
     inputContainerMap = dict( CaloCalTopoClusters = xAODType.CaloCluster, CaloTopoClusters = xAODType.CaloCluster,
                               EMOriginTopoClusters = xAODType.CaloCluster, LCOriginTopoClusters = xAODType.CaloCluster, 
-                              InDetTrackParticles = xAODType.TrackParticle, JetETMiss = xAODType.ParticleFlow )
+                              InDetTrackParticles = xAODType.TrackParticle, JetETMiss = xAODType.FlowElement )
 
     log = Logging.logging.getLogger("ConstituentToolManager")
 

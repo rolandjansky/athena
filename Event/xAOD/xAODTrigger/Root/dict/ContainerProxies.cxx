@@ -22,6 +22,8 @@
 #include "xAODTrigger/versions/jFexSRJetRoIContainer_v1.h"
 #include "xAODTrigger/versions/jFexLRJetRoIContainer_v1.h"
 #include "xAODTrigger/versions/jFexTauRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexSumETRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexMETRoIContainer_v1.h"
 
 #include "xAODTrigger/versions/gFexJetRoIContainer_v1.h"
 #include "xAODTrigger/versions/gFexGlobalRoIContainer_v1.h"
@@ -44,7 +46,8 @@ ADD_NS_DV_PROXY( xAOD, eFexTauRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, jFexSRJetRoIContainer_v1);
 ADD_NS_DV_PROXY( xAOD, jFexLRJetRoIContainer_v1);
 ADD_NS_DV_PROXY( xAOD, jFexTauRoIContainer_v1);
-
+ADD_NS_DV_PROXY( xAOD, jFexSumETRoIContainer_v1);
+ADD_NS_DV_PROXY( xAOD, jFexMETRoIContainer_v1);
 ADD_NS_DV_PROXY( xAOD, gFexJetRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, gFexGlobalRoIContainer_v1 );
 

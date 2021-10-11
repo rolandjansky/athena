@@ -32,7 +32,7 @@
 class AODSysCommonData::Imp {
 public:
   std::map<SoNode*,AODHandleBase*> nodeToHandle;
-  AODHandleBase* last_selectedHandle;
+  AODHandleBase* last_selectedHandle = nullptr;
 };
 
 //____________________________________________________________________

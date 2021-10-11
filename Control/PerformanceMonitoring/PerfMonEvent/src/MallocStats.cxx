@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MallocStats.cxx 
@@ -24,7 +24,7 @@ namespace PerfMon {
 // Constructors
 ////////////////
 MallocStats::MallocStats() :
-  m_infos (mallinfo())
+  m_infos (PerfMon::mallinfo())
 {}
 
 // Destructor

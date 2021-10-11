@@ -18,7 +18,7 @@ namespace PFMatch {
 
 /* Track position providers */
 
-EtaPhi TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) const {
+EtaPhi TrackEtaPhiInFixedLayersProvider::getPosition(ITrack* track) const {
   eflowEtaPhiPosition etaphi = track->etaPhiInLayer(m_barrelLayer);
   if (etaphi.getEta() == -999.){
     etaphi = track->etaPhiInLayer(m_endcapLayer);
@@ -32,14 +32,14 @@ EtaPhi TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) const 
 
 /* Cluster position providers */
 
-EtaPhi ClusterPlainEtaPhiProvider::getPosition(const ICluster* cluster) const {
+EtaPhi ClusterPlainEtaPhiProvider::getPosition(ICluster* cluster) const {
   eflowEtaPhiPosition etaphi(cluster->eta(), cluster->phi());
   return etaphi;
 }
 
 const double ClusterGeometricalCenterProvider::m_etaPhiLowerLimit(0.0025);
 
-EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(const ICluster* cluster) const {
+EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(ICluster* cluster) const {
 
   /* Check the status to make sure this function only execute once since it is expensive. */
   if(cluster->calVarianceStatus()) {
@@ -52,17 +52,17 @@ EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(const ICluster*
   /* Catch empty clusters */
   if (nCells == 0){
     cluster->etaVariance(m_etaPhiLowerLimit);
-    cluster->phiVariance(m_etaPhiLowerLimit);    
+    cluster->phiVariance(m_etaPhiLowerLimit);
     return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());;
   }
   assert(nCells > 0);
 
-  /* Deal with 1 cell cluster */ 
-  if (1 == nCells){ 
+  /* Deal with 1 cell cluster */
+  if (1 == nCells){
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
     return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
-  } 
+  }
 
 
   /* Sum eta, eta^2, phi and phi^2 of all cells */

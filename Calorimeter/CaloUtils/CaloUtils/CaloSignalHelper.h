@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOSIGNALHELPER_H
@@ -20,12 +20,9 @@ struct CaloSignalHelper
   static double CaloESum(const CaloCellContainer* cellContainer)
     {
       double eTot = 0.;
-      for ( CaloCellContainer::const_iterator firstCell = 
-	      cellContainer->begin();
-	    firstCell != cellContainer->end();
-	    firstCell++ )
+      for (const CaloCell* cell : *cellContainer)
 	{
-	  eTot += (*firstCell)->e();
+	  eTot += cell->e();
 	}
       return eTot;
     };
@@ -34,12 +31,9 @@ struct CaloSignalHelper
 			 const ICaloCellSelector& aSelector)
     {
       double eTot = 0.;
-      for ( CaloCellContainer::const_iterator firstCell =
-	      cellContainer->begin();
-	    firstCell != cellContainer->end();
-	    firstCell++ )
+      for (const CaloCell* cell : *cellContainer)
 	{
-	  if ( aSelector.accept(*firstCell) ) eTot += (*firstCell)->e();
+	  if ( aSelector.accept(cell) ) eTot += cell->e();
 	}
       return eTot;
     }
@@ -57,7 +51,7 @@ struct CaloSignalHelper
       for ( CaloCellContainer::const_iterator firstCell = 
 	      cellContainer->beginConstCalo(idCalo);
 	    firstCell != cellContainer->endConstCalo(idCalo);
-	    firstCell++
+	    ++firstCell
 	    )
 	{
 	  eTot += (*firstCell)->e();
@@ -78,7 +72,7 @@ struct CaloSignalHelper
       for ( CaloCellContainer::const_iterator firstCell = 
 	      cellContainer->beginConstCalo(idCalo);
 	    firstCell != cellContainer->endConstCalo(idCalo);
-	    firstCell++
+	    ++firstCell
 	    )
 	{
 	  if ( aSelector.accept(*firstCell)) eTot += (*firstCell)->e();
@@ -138,7 +132,7 @@ struct CaloSignalHelper
       for ( CaloCellContainer::const_iterator firstCell = 
 	      cellContainer->beginConstCalo(idCalo);
 	    firstCell != cellContainer->endConstCalo(idCalo);
-	    firstCell++ )
+	    ++firstCell )
 	{
 	  CaloSampling::CaloSample theSample = (*firstCell)->caloDDE()->getSampling();
 	  //	  std::cout << "this sample/requested sample: "
@@ -204,7 +198,7 @@ struct CaloSignalHelper
       for ( CaloCellContainer::const_iterator firstCell = 
 	      cellContainer->beginConstCalo(idCalo);
 	    firstCell != cellContainer->endConstCalo(idCalo);
-	    firstCell++ )
+	    ++firstCell )
 	{
 	  CaloSampling::CaloSample theSample = (*firstCell)->caloDDE()->getSampling();
 	  //	  std::cout << "this sample/requested sample: "

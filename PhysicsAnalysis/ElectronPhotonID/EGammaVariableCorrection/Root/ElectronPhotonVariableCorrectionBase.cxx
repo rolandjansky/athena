@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -50,7 +50,7 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     if (!m_configFile.empty())
     {
         configFile = PathResolverFindCalibFile(m_configFile);
-        if (configFile == "")
+        if (configFile.empty())
         {
             ATH_MSG_ERROR("Could not locate configuration file " << m_configFile);
             return StatusCode::FAILURE;
@@ -64,7 +64,8 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     }
 
     // retrieve properties from configuration file, using TEnv class
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
@@ -167,7 +168,7 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     {
         m_uncorrectedDiscontinuities = AsgConfigHelper::HelperFloat("UncorrectedDiscontinuities", env);
         // if flag is given, but no values, fail
-        if (m_uncorrectedDiscontinuities.size() < 1)
+        if (m_uncorrectedDiscontinuities.empty())
         {
             ATH_MSG_ERROR("Did not find any discontinuities to not correct, despite finding the flag UncorrectedDiscontinuities.");
             return StatusCode::FAILURE;
@@ -338,7 +339,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::correctedCopy( co
 bool ElectronPhotonVariableCorrectionBase::isEqualToUncorrectedDiscontinuity(const float value) const
 {
     // if no values set, return false as there is nothing to check
-    if (m_uncorrectedDiscontinuities.size() < 1)
+    if (m_uncorrectedDiscontinuities.empty())
     {
         return false;
     }
@@ -488,7 +489,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getEtaPtBinningsFromConf(
             }
             else
             {
-                m_useAbsEtaBinned = m_etaBins.at(0) < 0 ? false : true;
+                m_useAbsEtaBinned = m_etaBins.at(0) >= 0;
             }
             // don't want to retrieve the same thing twice from conf
             m_retrievedEtaBinning = true;
@@ -592,7 +593,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getObjectFromRootFile(TEn
             // need to un-associate THx type objects from file directory, so they remain accessible
             if (dynamic_cast<TH1*>(return_object.get()) != nullptr)
             {
-                dynamic_cast<TH1*>(return_object.get())->SetDirectory(0);
+                dynamic_cast<TH1*>(return_object.get())->SetDirectory(nullptr);
             }
             file->Close();
         }
@@ -771,7 +772,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DHistParameter(float&
 }
 
 
-const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) const
+const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) 
 {
     // need to find the bin in which the evalPoint is
     return_bin = -1;
@@ -800,7 +801,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, 
     //the -1 is because the parameter numbering in a vector starts at 0
     if (return_bin == -1)
     {
-        return_bin = m_binValues.size()-1;
+        return_bin = binning.size()-1;
     }
 
     // everythin went fine, so
@@ -917,7 +918,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& retur
     return StatusCode::SUCCESS;
 }
 
-float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) const
+float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) 
 {
     return left_bin_value + (value - left_bin_center) * (right_bin_value - left_bin_value) / (right_bin_center - left_bin_center);
 }

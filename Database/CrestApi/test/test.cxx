@@ -17,7 +17,7 @@ int main() {
 
   std::string work_dir = "/tmp/crest_dump";
   bool rewrite = true;
-  CrestClient testCrestClient = CrestClient(rewrite,work_dir); // CrestClient();
+  CrestClient testCrestClient = CrestClient(rewrite, work_dir); // CrestClient();
 
   //==============================================
   // Tag Creation
@@ -26,7 +26,7 @@ int main() {
 
   // Tag description as a JSON:
 
-  nlohmann::json js=
+  nlohmann::json js =
   {
     {"description", "none"},
     {"endOfValidity", 0},
@@ -48,23 +48,23 @@ int main() {
     retv = 1;
   }
 
- 
+
   //==============================================
   // Tag Reading
 
-     std::cout << std::endl << "test: findTag" << std::endl;
-     std::string tagname = "test_MvG3a";
+  std::cout << std::endl << "test: findTag" << std::endl;
+  std::string tagname = "test_MvG3a";
 
-     try {
-        nlohmann::json tag_info = testCrestClient.findTag(tagname);
-        std::cout << std::endl << "test: findTag (result)" << std::endl
-        << tag_info.dump(4) << std::endl;
-     }
-     catch(const std::runtime_error& e){
-        std::cout << std::endl << "test: findTag (failed)" << std::endl;
-        retv = 1;
-     }
-   //
+  try {
+    nlohmann::json tag_info = testCrestClient.findTag(tagname);
+    std::cout << std::endl << "test: findTag (result)" << std::endl
+              << tag_info.dump(4) << std::endl;
+  }
+  catch (const std::runtime_error& e) {
+    std::cout << std::endl << "test: findTag (failed)" << std::endl;
+    retv = 1;
+  }
+  //
 
   return retv;
 }

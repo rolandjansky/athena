@@ -22,10 +22,11 @@
 #include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 
 // Atlas includes
-#include "TileConditions/TileWienerFilterWeights.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include <vector>
 #include <string>
@@ -69,7 +70,8 @@ class TileRawChannelBuilderWienerFilter: public TileRawChannelBuilder {
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
 
-    ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this,
+        "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"}; //!< Tool to get distance into bunch train
 
     //!< Applies OF algorithm
     double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx);
@@ -79,7 +81,7 @@ class TileRawChannelBuilderWienerFilter: public TileRawChannelBuilder {
     //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
     double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double& phase);
     //!< Gets the BCID index within the train
-    int getBCIDIndex();
+    int getBCIDIndex(const EventContext &ctx);
 
     int m_maxIterations; //!< maximum number of iteration to perform
     int m_pedestalMode;  //!< pedestal mode to use

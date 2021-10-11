@@ -7,7 +7,7 @@
 //
 #include "L1TopoAlgorithms/eTauSort.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/ClusterTOBArray.h"
+#include "L1TopoEvent/eTauTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -37,7 +37,7 @@ TCS::eTauSort::~eTauSort() {}
 
 TCS::StatusCode
 TCS::eTauSort::initialize() {
-   m_numberOfClusters = parameter("OutputWidth").value();
+   m_numberOfeTaus = parameter("OutputWidth").value();
    m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
@@ -49,10 +49,10 @@ TCS::eTauSort::initialize() {
 TCS::StatusCode
 TCS::eTauSort::sort(const InputTOBArray & input, TOBArray & output) {
 
-   const ClusterTOBArray & clusters = dynamic_cast<const ClusterTOBArray&>(input);
+   const eTauTOBArray & clusters = dynamic_cast<const eTauTOBArray&>(input);
 
    // fill output array with GenericTOB buildt from clusters
-   for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
+   for(eTauTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
       const GenericTOB gtob(**cl);
 
       if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
@@ -71,10 +71,10 @@ TCS::eTauSort::sort(const InputTOBArray & input, TOBArray & output) {
    
 
    // keep only max number of clusters
-   int par = m_numberOfClusters;
-   unsigned int maxNumberOfClusters = (unsigned int)(par<0?0:par);
-   if(maxNumberOfClusters>0) {
-      while( output.size()> maxNumberOfClusters ) {
+   int par = m_numberOfeTaus;
+   unsigned int maxNumberOfeTaus = (unsigned int)(par<0?0:par);
+   if(maxNumberOfeTaus>0) {
+      while( output.size()> maxNumberOfeTaus ) {
          output.pop_back();
       }
    }

@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
+
+
 
 #include "METPlots.h"
 
@@ -8,8 +12,8 @@ using CLHEP::GeV;
 
 namespace PhysVal{
 
-  METPlots::METPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),
-m_sParticleType(sParticleType)
+  METPlots::METPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir),
+m_sParticleType(std::move(sParticleType))
 {}	
   
 void METPlots::initializePlots(){
@@ -19,7 +23,7 @@ void METPlots::initializePlots(){
   met_sumet  = Book1D("SumEt", "MET " + m_sParticleType + " Ex; #Sum E_{t} ;Events", 100, 0., 2000);
 }
 
-  void METPlots::fill(const xAOD::MissingET* met,const xAOD::EventInfo* evt){
+  void METPlots::fill(const xAOD::MissingET* met,const xAOD::EventInfo* evt) const{
     
     met_ex->Fill(met->mpx()/GeV,evt->beamSpotWeight());
     met_ey->Fill(met->mpy()/GeV,evt->beamSpotWeight());

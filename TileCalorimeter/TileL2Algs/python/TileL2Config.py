@@ -4,6 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def TileL2BuilderCfg(flags, **kwargs):
@@ -50,7 +51,7 @@ def TileRawChannelToL2Cfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileRawChannelToL2')
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileL2Container', flags.Overlay.BkgPrefix + 'TileL2Cnt')
     else:
         kwargs.setdefault('TileL2Container', 'TileL2Cnt')

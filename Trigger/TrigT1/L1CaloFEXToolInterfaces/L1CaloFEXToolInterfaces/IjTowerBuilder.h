@@ -36,7 +36,7 @@ Interface definition for jTowerBuilder
     virtual void BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0 ;
     virtual void BuildHECjTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0;
     virtual void BuildAllTowers(std::unique_ptr<jTowerContainer> & jTowerContainer) const = 0;
-    virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainer,float eta, float phi, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer) const = 0;
+    virtual void BuildSingleTower(std::unique_ptr<jTowerContainer> & jTowerContainer,float eta, float phi, int key_eta, float keybase, int posneg, float centre_eta, float centre_phi, int fcal_layer) const = 0;
     
     virtual void init(std::unique_ptr<jTowerContainer> & jTowerContainer) = 0;
     virtual void execute(std::unique_ptr<jTowerContainer> & jTowerContainer) = 0;

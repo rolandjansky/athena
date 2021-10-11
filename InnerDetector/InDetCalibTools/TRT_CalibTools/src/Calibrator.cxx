@@ -443,7 +443,7 @@ float Calibrator::AccumulativeMean(float n, float oldmean, float newvalue){
     return oldmean*((n-1)/n)+newvalue/n;
 }
 
-bool Calibrator::HasKey(std::string key){
+bool Calibrator::HasKey(const std::string &key) const {
 
   return data.find(key) != data.end();
 }
@@ -474,19 +474,19 @@ std::string Calibrator::PrintStat(){
   return info;
 }
 
-std::string Calibrator::GetOptString(){
+std::string Calibrator::GetOptString() const {
   std::string optstr="";
-  if (dort) optstr = optstr + "R";
-  if (dot0) optstr = optstr + "T";
-  if (printlog) optstr = optstr + "P";
-  if (printt0) optstr = optstr + "F";
-  if (printrt) optstr = optstr + "G";
-  if (bequiet) optstr = optstr + "Q";
-  if (usebref) optstr = optstr + "B";
-  if (useshortstraws) optstr = optstr + "S";
-  if (usep0 && dort) optstr = optstr + "0";
-  if (floatp3 && dort) optstr = optstr + "3";
-  if (!(dort || dot0 || usebref || bequiet || printlog || printt0 || printrt)) optstr = optstr + "N";
+  if (dort) optstr += 'R';
+  if (dot0) optstr += 'T';
+  if (printlog) optstr +='P';
+  if (printt0) optstr += 'F';
+  if (printrt) optstr += 'G';
+  if (bequiet) optstr += 'Q';
+  if (usebref) optstr += 'B';
+  if (useshortstraws) optstr += 'S';
+  if (usep0 && dort) optstr += '0';
+  if (floatp3 && dort) optstr += '3';
+  if (!(dort || dot0 || usebref || bequiet || printlog || printt0 || printrt)) optstr += 'N';
   
   return optstr;
 }
@@ -549,7 +549,7 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
   float rtpars[4];
 
   //create r-m_t and m_t-r graphs
-  RtGraph* rtg = m_rtbinning.find("t")==std::string::npos ? new RtGraph(rtHist,1,std::string("abs(rtrack)").data(),!bequiet,dir) : new RtGraph(rtHist,0,std::string("t-t0").data(),!bequiet,dir);
+  RtGraph* rtg = m_rtbinning.find('t')==std::string::npos ? new RtGraph(rtHist,1,std::string("abs(rtrack)").data(),!bequiet,dir) : new RtGraph(rtHist,0,std::string("t-t0").data(),!bequiet,dir);
 
   TF1 dtfitfunc("dtfitfunc","gaus(0)");
 
@@ -581,7 +581,7 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
 
   // m_t-r relation
   trfunc->SetRange(0,2);
-  if (opt.find("3")==std::string::npos) trfunc->FixParameter(3,0);
+  if (opt.find('3')==std::string::npos) trfunc->FixParameter(3,0);
   trfunc->SetLineColor(4) ;
   rtg->trgr->Fit(trfunc,"QR"); // always fit the m_t-r relation
   if (!bequiet) rtg->trgr->Write();
@@ -589,7 +589,7 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
 
   // r-m_t relation
   rtfunc->SetRange(0,45);
-  if (opt.find("3")==std::string::npos) rtfunc->FixParameter(3,0);
+  if (opt.find('3')==std::string::npos) rtfunc->FixParameter(3,0);
   rtfunc->SetLineColor(4) ;
   if (m_isdines) { 
     rtfunc->SetParameters(trfunc->GetParameter(0),trfunc->GetParameter(1),trfunc->GetParameter(2),trfunc->GetParameter(3));
@@ -646,7 +646,7 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
     }
   }
   
-  if (opt.find("0")==std::string::npos) {
+  if (opt.find('0')==std::string::npos) {
     if (m_isdines){
       data[key].rtpar[0] = rtpars[0];
       data[key].rtpar[1] = rtpars[1];
@@ -786,12 +786,12 @@ float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resH
 TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){ // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
 
   //set some bool flags
-  bool calrt=opt.find("R")!=std::string::npos;
-  bool calt0=opt.find("T")!=std::string::npos;
-  bool donothing=opt.find("N")!=std::string::npos;
-  bool prnt=opt.find("P")!=std::string::npos;
-  bool useref=opt.find("B")!=std::string::npos;
-  bool useshortstw=opt.find("S")!=std::string::npos;
+  bool calrt=opt.find('R')!=std::string::npos;
+  bool calt0=opt.find('T')!=std::string::npos;
+  bool donothing=opt.find('N')!=std::string::npos;
+  bool prnt=opt.find('P')!=std::string::npos;
+  bool useref=opt.find('B')!=std::string::npos;
+  bool useshortstw=opt.find('S')!=std::string::npos;
   
   if (donothing) return dir;
 

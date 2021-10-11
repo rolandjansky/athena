@@ -52,9 +52,6 @@ namespace Muon {
         if (etaSegs.size() == 0) { return; }
         find3DSegments(muonClusters, etaSegs, segments, segColl);
     }
-
-    StatusCode MuonClusterSegmentFinderTool::finalize() { return StatusCode::SUCCESS; }
-
     // find the precision (eta) segments
     void MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::MuonClusterOnTrack*>& muonClusters,
                                                              std::vector<Muon::MuonSegment*>& etaSegs) const {
@@ -64,7 +61,7 @@ namespace Muon {
         ATH_MSG_VERBOSE("After hit cleaning, there are " << clusters.size() << " 2D clusters to be fit");
         if (belowThreshold(clusters, 4)) { return; }
 
-        std::unique_ptr<TrackCollection> segTrkColl(new TrackCollection);
+        std::unique_ptr<TrackCollection> segTrkColl = std::make_unique<TrackCollection>();
         // std::vector< const Muon::MuonClusterOnTrack* > clusters = muonClusters;
         // order the muon clusters by layer
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters);
@@ -204,9 +201,9 @@ namespace Muon {
         if (msgLvl(MSG::DEBUG)) {
             ATH_MSG_DEBUG("Tracks before ambi solving ");
 
-            for (TrackCollection::const_iterator it = segTrkColl->begin(); it != segTrkColl->end(); ++it) {
-                ATH_MSG_DEBUG(m_printer->print(**it));
-                const DataVector<const Trk::MeasurementBase>* measu = (*it)->measurementsOnTrack();
+            for (const Trk::Track* trk : *segTrkColl) {
+                ATH_MSG_DEBUG(m_printer->print(*trk));
+                const DataVector<const Trk::MeasurementBase>* measu = trk->measurementsOnTrack();
                 if (measu) ATH_MSG_DEBUG(m_printer->print(measu->stdcont()));
             }
         }
@@ -217,8 +214,8 @@ namespace Muon {
         ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size " << resolvedTracks->size());
         // store the resolved segments
 
-        for (const Trk::Track* rtrk : *resolvedTracks) {
-            MuonSegment* seg = m_trackToSegmentTool->convert(*rtrk);
+        for (const Trk::Track* trk : *resolvedTracks) {
+            MuonSegment* seg = m_trackToSegmentTool->convert(*trk);
             if (!seg) {
                 ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
             } else {
@@ -660,27 +657,26 @@ namespace Muon {
 
     Trk::Track* MuonClusterSegmentFinderTool::fit(const std::vector<const Trk::MeasurementBase*>& vec2,
                                                   const Trk::TrackParameters& startpar) const {
-        Trk::Track* segtrack = m_slTrackFitter->fit(vec2, startpar, false, Trk::nonInteracting);
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        std::unique_ptr<Trk::Track> segtrack = m_slTrackFitter->fit(ctx, vec2, startpar, false, Trk::nonInteracting);
         if (segtrack) {
             ATH_MSG_VERBOSE("segment fit succeeded");
-            std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*segtrack);
+            std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*segtrack, ctx);
             if (cleanedTrack && !(cleanedTrack->perigeeParameters() == segtrack->perigeeParameters())) {
-                delete segtrack;
                 // using release until the entire code can be migrated to use smart pointers
-                segtrack = cleanedTrack.release();
+                segtrack.swap(cleanedTrack);
             }
             if (!m_edmHelperSvc->goodTrack(*segtrack, 10)) {
                 if (segtrack->fitQuality()) {
                     ATH_MSG_DEBUG("segment fit with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/"
                                                                    << segtrack->fitQuality()->numberDoF());
                 }
-                delete segtrack;
-                segtrack = 0;
+                return nullptr;
             } else {
                 m_trackSummary->updateTrack(*segtrack);
             }
         }
-        return segtrack;
+        return segtrack.release();
     }
 
     std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > MuonClusterSegmentFinderTool::segmentSeedFromPads(
@@ -947,10 +943,7 @@ namespace Muon {
         std::vector<const Muon::MuonClusterOnTrack*> calibratedClusters;
 
         /// loop on the segment clusters and use the phi of the seed to correct them
-        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = clusters.begin();
-
-        for (; cit != clusters.end(); ++cit) {
-            const Muon::MuonClusterOnTrack* clus = *cit;
+        for (const Muon::MuonClusterOnTrack* clus : clusters) {
             const Muon::MuonClusterOnTrack* newClus = nullptr;
             /// get the intercept of the seed direction with the cluster surface
             const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*>(&clus->associatedSurface());

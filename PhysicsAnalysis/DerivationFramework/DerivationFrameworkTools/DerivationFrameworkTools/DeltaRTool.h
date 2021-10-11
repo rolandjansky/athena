@@ -39,7 +39,7 @@ namespace DerivationFramework {
       SG::ReadHandleKey<xAOD::IParticleContainer> m_containerName2 {this,"SecondContainerName","","SG key of first container"};
       
       StatusCode getDeltaRs(std::vector<float>*) const;
-      float calculateDeltaR(float,float,float,float) const;
+      static float calculateDeltaR(float,float,float,float) ;
   }; 
 }
 

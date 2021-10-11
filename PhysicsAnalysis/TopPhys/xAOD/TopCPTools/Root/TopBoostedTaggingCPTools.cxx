@@ -90,16 +90,14 @@ namespace top {
         const std::string name = "JetSFuncert_" + taggerName;
         try {
           const std::string& cfg = m_taggerSFsConfigs.at(taggerName);
-          if (m_config->applyBoostedJetTaggersUncertainties()) {
-            JetUncertaintiesTool* jet_SF_tmp = new JetUncertaintiesTool(name);
+          JetUncertaintiesTool* jet_SF_tmp = new JetUncertaintiesTool(name);
 
-            top::check(jet_SF_tmp->setProperty("JetDefinition", jet_def), "Failed to set JetDefinition for " + name);
-            top::check(jet_SF_tmp->setProperty("MCType", "MC16"), "Failed to set MCType for " + name);
-            top::check(jet_SF_tmp->setProperty("ConfigFile", cfg), "Failed to set ConfigFile for " + name);
-            top::check(jet_SF_tmp->setProperty("IsData", false), "Failed to set IsData for " + name);
-            top::check(jet_SF_tmp->initialize(), "Failed to initialize " + name);
-            m_tagSFuncertTool[taggerName] = jet_SF_tmp;
-          }
+          top::check(jet_SF_tmp->setProperty("JetDefinition", jet_def), "Failed to set JetDefinition for " + name);
+          top::check(jet_SF_tmp->setProperty("MCType", "MC16"), "Failed to set MCType for " + name);
+          top::check(jet_SF_tmp->setProperty("ConfigFile", cfg), "Failed to set ConfigFile for " + name);
+          top::check(jet_SF_tmp->setProperty("IsData", false), "Failed to set IsData for " + name);
+          top::check(jet_SF_tmp->initialize(), "Failed to initialize " + name);
+          m_tagSFuncertTool[taggerName] = jet_SF_tmp;
           m_config->setCalibBoostedJetTagger(taggerName, m_taggerSFsNames[taggerName]);
         } catch (std::out_of_range& e) {
           // skip taggers which do not yet have SFs available

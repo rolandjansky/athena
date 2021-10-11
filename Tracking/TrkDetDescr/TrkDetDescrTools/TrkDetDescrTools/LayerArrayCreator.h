@@ -60,12 +60,6 @@ namespace Trk {
         /** AlgTool and IAlgTool interface methods */
         static const InterfaceID& interfaceID() { return IID_ILayerArrayCreator; }
 
-        /** AlgTool initialize method */
-        StatusCode initialize();
-        
-        /** AlgTool finalize method */
-        StatusCode finalize();
-
         /** LayerArrayCreator interface method - for Barrel-like layers */
         LayerArray* cylinderLayerArray(const std::vector< const CylinderLayer* >& layers,
                                        double rmin,

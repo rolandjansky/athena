@@ -37,12 +37,8 @@
 
 
 inline const std::string clean( std::string s) { 
-  while (true ){ 
-    if ( s.find(":")==std::string::npos && 
-	 s.find(";")==std::string::npos ) return s;
-    if ( s.find(":")!=std::string::npos ) s.replace( s.find(":"), 1, "_" );
-    if ( s.find(";")!=std::string::npos ) s.replace( s.find(";"), 1, "_" );
-  }
+  std::replace(s.begin(), s.end(), ':', '_');
+  std::replace(s.begin(), s.end(), ';', '_');
   return s; /// return to keep the compiler quiet
 }
 

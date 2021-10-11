@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -181,7 +181,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * m_d;
+  Imp * m_dbase;
 
   int m_nshownhandles;
   xAOD::Type::ObjectType   m_type;

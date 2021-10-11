@@ -4,7 +4,7 @@
 
 #include "PixelConditionsData/PixelClusterOnTrackErrorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <string>
 
@@ -124,7 +124,7 @@ int PixelClusterOnTrackErrorData::getNumberOfEtaIBLBins() const{
 }
 
 double PixelClusterOnTrackErrorData::getPixelBarrelPhiError(double ang, 
-                                                    int deltax) const { 
+                                                    int deltax) { 
    double errphi=50*CLHEP::micrometer/pow(12,0.5);
    // error on phi coordinate
     if(deltax == 1){
@@ -336,7 +336,7 @@ void PixelClusterOnTrackErrorData::setParameters(const int n1, // number of clus
 //////////////////////////////////////////////////////////////////////////////////////////
 // save all costants to file
 //
-void PixelClusterOnTrackErrorData::Print(std::string file) const {
+void PixelClusterOnTrackErrorData::Print(const std::string& file) const {
 
   std::ofstream* outfile = new std::ofstream(file.c_str());
 
@@ -409,7 +409,7 @@ void PixelClusterOnTrackErrorData::Print(std::string file) const {
 
 
 // Load costants from file
-void PixelClusterOnTrackErrorData::Load(std::string file){
+void PixelClusterOnTrackErrorData::Load(const std::string& file){
   std::ifstream infile(file.c_str()); 
 
   // number of bins of parametrization

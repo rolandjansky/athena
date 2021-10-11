@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 
@@ -29,7 +29,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
   std::vector<int> MMflag;
   IdentifierHash hash;
 
-  if ( MMprds.size() > 0 ) {
+  if ( !MMprds.empty() ) {
     hash = MMprds.at(0).collectionHash();
   }
   else {
@@ -143,9 +143,8 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     std::vector<Muon::MMPrepData> stripsVec;
     Amg::Vector2D clusterLocalPosition;
-    Amg::MatrixX* covMatrix = nullptr;
     double totalCharge=0.0;
-    if ( mergeStrips.size() > 0 ) {
+    if ( !mergeStrips.empty() ) {
       for ( unsigned int k=0 ; k<mergeStrips.size() ; ++k ) {
 	stripsVec.push_back(MMprds[mergeIndices[k]]);
 	totalCharge += MMprds[mergeIndices[k]].charge();
@@ -153,17 +152,25 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       ///
       /// memory allocated dynamically for the PrepRawData is managed by Event Store
       ///
-      covMatrix = new Amg::MatrixX(1,1);
-      ATH_CHECK(getClusterPosition(stripsVec,clusterLocalPosition,covMatrix));
+      auto covMatrix = Amg::MatrixX(1,1);
+      ATH_CHECK(getClusterPosition(stripsVec,clusterLocalPosition,&covMatrix));
 
       ///
       /// memory allocated dynamically for the PrepRawData is managed by Event Store
       ///
-      std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprds[j].identify(), hash, clusterLocalPosition,
-									    rdoList, covMatrix, MMprds[j].detectorElement(),
-									    static_cast<short int> (0), static_cast<int>(totalCharge), static_cast<float>(0.0),
-									    (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0) ),
-									    mergeStripsTime, mergeStripsCharge);
+      std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(
+        MMprds[j].identify(),
+        hash,
+        clusterLocalPosition,
+        rdoList,
+        std::move(covMatrix),
+        MMprds[j].detectorElement(),
+        static_cast<short int>(0),
+        static_cast<int>(totalCharge),
+        static_cast<float>(0.0),
+        (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0)),
+        mergeStripsTime,
+        mergeStripsCharge);
       prdN->setDriftDist(mergeStripsDriftDists, mergeStripsDriftDistErrors);
       prdN->setAuthor(Muon::MMPrepData::Author::SimpleClusterBuilder);
       

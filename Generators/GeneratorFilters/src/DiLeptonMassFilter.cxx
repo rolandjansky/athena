@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/DiLeptonMassFilter.h"
-
+#include "GaudiKernel/PhysicalConstants.h"
 
 DiLeptonMassFilter::DiLeptonMassFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator)
+  , m_AthenaCalls(0)
 {
   declareProperty("MinPt",            m_minPt           = 5000.);
   declareProperty("MaxEta",           m_maxEta          = 5.0);
@@ -19,6 +20,7 @@ DiLeptonMassFilter::DiLeptonMassFilter(const std::string& name, ISvcLocator* pSv
 
 
 StatusCode DiLeptonMassFilter::filterInitialize() {
+  m_AthenaCalls = 0;
   ATH_MSG_DEBUG("MinPt           " << m_minPt);
   ATH_MSG_DEBUG("MaxEta          " << m_maxEta);
   ATH_MSG_DEBUG("MinMass         " << m_minMass);
@@ -29,10 +31,37 @@ StatusCode DiLeptonMassFilter::filterInitialize() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode DiLeptonMassFilter::filterFinalize() {
+  ATH_MSG_INFO(
+    "\n########## DiLeptonMassFilter Statistics ##########\n"          <<
+    "Filter has the following parameters:\n"                         <<
+    "    Minimum pT (GeV) : " << m_minPt / Gaudi::Units::GeV << "\n" <<
+    "    Maximum eta : " << m_maxEta << "\n"                         <<
+    "    Mass range : (" << m_minMass << ", " << m_maxMass << ")\n"  <<
+    "    Dilepton pT (GeV) : " << m_minDilepPt << "\n"               <<
+    "    Allow el+mu : " << m_allowElecMu << "\n"                    <<
+    "    Allow same-sign : " << m_allowSameCharge << "\n"
+  );
+
+  if (m_AthenaCalls == 0) {
+    ATH_MSG_DEBUG("DiLeptonMassFilter filter is not interfaced/called.");
+  } else {
+    ATH_MSG_INFO(
+      "\nAfter the filtering you have " << m_nPass << " events passing.\n"    <<
+      "DiLeptonMassFilter efficiency = " << m_nPass << " / " << m_AthenaCalls <<
+      " (Accepted/Generated) = " << m_nPass / (double)(m_AthenaCalls) << "\n" <<
+      "########## DiLeptonMassFilter finished ##########\n"
+    );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode DiLeptonMassFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+    m_AthenaCalls++;
     const HepMC::GenEvent* genEvt = (*itr);
     // Loop over all particles in the event
     for (auto pitr1 = HepMC::begin(*genEvt);  pitr1!=HepMC::end(*genEvt); ++pitr1 ){

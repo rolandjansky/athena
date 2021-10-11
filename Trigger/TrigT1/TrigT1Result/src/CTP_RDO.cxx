@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,18 +11,10 @@
 #include <iomanip>
 #include <sstream>
 
-// tdaq-common includes for format definition
-//#include "CTPfragment/CTPdataformat.h"
-
-// local includes
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1Interfaces/TrigT1CTPDefs.h"
 
-CTP_RDO::CTP_RDO() :
-   m_ctpVersionNumber(0),
-   m_ctpDataFormat(0),
-   m_numberOfBunches(0), 
-   m_numberOfAdditionalWords(0)
-{}
 
 CTP_RDO::CTP_RDO(unsigned int ctpVersionNumber, const uint32_t nBCs, uint32_t nExtraWords)
    : m_ctpVersionNumber(ctpVersionNumber),
@@ -54,8 +46,9 @@ CTP_RDO::~CTP_RDO(){}
 
 const CTPdataformatVersion &
 CTP_RDO::getCTPVersion() const { 
-   if(m_ctpVersionNumber==0) {                                          \
-      std::cout << "CTP_RDO              WARNING CTPVersion has not been set, no information about data format available, please fix your code" << std::endl;
+   if(m_ctpVersionNumber==0) {
+      MsgStream log(Athena::getMessageSvc(), "CTP_RDO");
+      log << MSG::WARNING << "CTPVersion has not been set, no information about data format available, please fix your code" << endmsg;
    }
    return m_ctpDataFormat;
 }
@@ -235,7 +228,8 @@ void CTP_RDO::setWord(const unsigned int i, const uint32_t word)
    if (i < m_dataWords.size()) {
       m_dataWords[i] = word;
    } else {
-      std::cout << "WARNING: CTP_RDO: ignoring word " << word << " for position " << i << std::endl;
+      MsgStream log(Athena::getMessageSvc(), "CTP_RDO");
+      log << MSG::WARNING << "ignoring word " << word << " for position " << i << endmsg;
    }
 
    return;

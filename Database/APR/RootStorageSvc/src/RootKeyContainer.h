@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -66,6 +66,8 @@ namespace pool  {
     RootKeyContainer();
     /// Standard destructor
     virtual ~RootKeyContainer();
+    RootKeyContainer(const RootKeyContainer&) = delete;
+    RootKeyContainer& operator=(const RootKeyContainer&) = delete;
     /// Close the container and deallocate resources
     virtual DbStatus close();
     /// Open the container for object access

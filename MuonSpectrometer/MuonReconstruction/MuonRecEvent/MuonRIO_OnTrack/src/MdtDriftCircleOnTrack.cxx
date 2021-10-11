@@ -202,7 +202,7 @@ Muon::MdtDriftCircleOnTrack::operator=(
     m_detEl = rot.m_detEl;
     m_localAngle = rot.m_localAngle;
     m_positionAlongWire = rot.m_positionAlongWire;
-    m_errorStrategy = std::move(rot.m_errorStrategy);
+    m_errorStrategy = rot.m_errorStrategy;
   }
   return *this;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -88,7 +88,7 @@ GetLCClassification::~GetLCClassification()
 
 StatusCode GetLCClassification::initialize()
 {
-  m_outputFile = new TFile(m_outputFileName.c_str(),"RECREATE");
+  m_outputFile = std::make_unique<TFile>(m_outputFileName.c_str(),"RECREATE");
   m_outputFile->cd();
   m_hclus.resize(0);
   mapparse();
@@ -253,10 +253,7 @@ StatusCode GetLCClassification::execute()
   double eCalibTot(0.); 
   double nClusECalibGt0 = 0.0;
 
-  xAOD::CaloClusterContainer::const_iterator clusIter = cc->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = cc->end();
-  for( ;clusIter!=clusIterEnd;clusIter++) {
-    const xAOD::CaloCluster * theCluster = (*clusIter);      
+  for (const xAOD::CaloCluster * theCluster : *cc) {
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
       ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT"  );
@@ -282,9 +279,7 @@ StatusCode GetLCClassification::execute()
   if ( eCalibTot > 0 ) {
     const double inv_eCalibTot = 1. / eCalibTot;
     const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
-    clusIter = cc->begin();
-    for( ;clusIter!=clusIterEnd;clusIter++) {
-      const xAOD::CaloCluster * pClus = (*clusIter);
+    for (const xAOD::CaloCluster * pClus : *cc) {
       double eng = pClus->e();
       if ( eng > 0 ) { 
 	if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
@@ -365,7 +360,8 @@ StatusCode GetLCClassification::execute()
 	  }
 	  if ( dens > 0 && 
 	       lamb > 0 && 
-	       ecal > 0 ) {
+	       ecal > 0 )
+          {
 	    int iH = ilogE*nphi*neta*nside+iphi*neta*nside+ieta*nside+iside;
 	    if ( m_hclus[iH]) {
 	      double norm = 0.0;
@@ -373,15 +369,11 @@ StatusCode GetLCClassification::execute()
 		norm = ecal*inv_eCalibTot;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
-		if ( ecal > 0 ) {
-		  // cluster has to have at least 1% of the calib hit E
-		  norm = log10(ecal*inv_eCalibTot)+2.0;
-		}
+                // cluster has to have at least 1% of the calib hit E
+                norm = log10(ecal*inv_eCalibTot)+2.0;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
-		if ( ecal > 0 ) {
-		  norm = inv_nClusECalibGt0;
-		}
+                norm = inv_nClusECalibGt0;
 	      }
 	      else {
 		norm = 1.0;
@@ -407,15 +399,12 @@ void GetLCClassification::mapinsert(const std::vector<Gaudi::Histo1DDef> & dims)
 
 void GetLCClassification::mapparse() {
 
-  std::map<std::string,Gaudi::Histo1DDef>::iterator miter = m_dimensionsmap.begin();
-  std::map<std::string,Gaudi::Histo1DDef>::iterator mend = m_dimensionsmap.end();
-  
-  for( ; miter != mend; miter++ ) {
-    m_dimensions.push_back(miter->second);
+  for (std::pair<const std::string, Gaudi::Histo1DDef>& p : m_dimensionsmap) {
+    m_dimensions.push_back(p.second);
     ATH_MSG_DEBUG( " New Dimension: " 
-	<< miter->second.title() << ", [" << miter->second.lowEdge()
-	<< ", " << miter->second.highEdge() 
-	<< ", " << miter->second.bins()
+	<< p.second.title() << ", [" << p.second.lowEdge()
+	<< ", " << p.second.highEdge() 
+	<< ", " << p.second.bins()
                    << "]"  );
   }
 }

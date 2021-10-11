@@ -13,6 +13,7 @@ from AthenaCommon import Configurable, Constants, Logging
 from OutputStreamAthenaPool import OutputStreamConfig
 from PyUtils import MetaReader
 from xAODEventInfoCnv import xAODEventInfoCnvConfig
+from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
 
 def writeFileMetaData(flags):
@@ -55,6 +56,7 @@ def main():
     config_flags.lock()
 
     write = MainServicesConfig.MainServicesCfg(config_flags)
+    write.merge(PoolReadCfg(config_flags))
     write.merge(writeFileMetaData(config_flags))
     write.run(100)
 

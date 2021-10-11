@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-import os
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
@@ -10,14 +9,14 @@ LArLATOMEDecoder=CompFactory.LArLATOMEDecoder
 
 def LArRawSCDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
-    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
-    acc.merge(DetDescrCnvSvcCfg(configFlags))
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    acc.merge(LArGMCfg(configFlags))
     acc.merge(ByteStreamReadCfg(configFlags))
+    from LArCabling.LArCablingConfig import LArLATOMEMappingCfg
+    acc.merge(LArLATOMEMappingCfg(configFlags))
 
     LArRawSCDataReadingAlg1 = LArRawSCDataReadingAlg(**kwargs)
     LArRawSCDataReadingAlg1.LATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-    LArRawSCDataReadingAlg1.LATOMEDecoder.latomeInfoFileName = "LATOME/latomeInput.txt"
-    LArRawSCDataReadingAlg1.LATOMEDecoder.latomeInfoFilePath = str(os.environ['TestArea'])+"/../run/"
     LArRawSCDataReadingAlg1.LATOMEDecoder.ProtectSourceId = True
     acc.addEventAlgo(LArRawSCDataReadingAlg1)
     return acc
@@ -38,8 +37,6 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     acc = MainServicesCfg( ConfigFlags )
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    acc.merge(AtlasGeometryCfg(ConfigFlags))
     acc.merge(LArRawSCDataReadingCfg(ConfigFlags))
     
     acc.run(2,OutputLevel=DEBUG)

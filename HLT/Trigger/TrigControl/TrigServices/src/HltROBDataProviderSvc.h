@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "TrigDataAccessMonitoring/ROBDataMonitor.h"
 
 // STL includes
@@ -173,8 +173,8 @@ private:
   Gaudi::Property<bool> m_doCostMonitoring{
     this, "doCostMonitoring", false, "Enables start-of-event cost monitoring behavior."};
 
-  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle{ 
-    this, "TrigCostMTSvc", "TrigCostMTSvc", "The trigger cost service" };
+  ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle{ 
+    this, "TrigCostSvc", "TrigCostSvc", "The trigger cost service" };
 
   /*------------------------+
    * Methods acting on ROBs |

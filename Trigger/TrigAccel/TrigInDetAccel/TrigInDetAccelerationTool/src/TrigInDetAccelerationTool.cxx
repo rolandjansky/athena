@@ -78,6 +78,7 @@ size_t TrigInDetAccelerationTool::exportSeedMakingJob(const TrigCombinatorialSet
   sfs.m_tripletD0_PPS_Max = tcs.m_tripletD0_PPS_Max;
   sfs.m_tripletPtMin = tcs.m_tripletPtMin;
   sfs.m_tripletDoPSS = tcs.m_tripletDoPSS ? 1 : 0;
+  sfs.m_tripletDoPPS = tcs.m_tripletDoPPS ? 1 : 0;
   sfs.m_doubletFilterRZ = tcs.m_doubletFilterRZ ? 1 : 0;
   sfs.m_nMaxPhiSlice = tcs.m_nMaxPhiSlice;
   sfs.m_maxTripletBufferLength = tcs.m_maxTripletBufferLength;

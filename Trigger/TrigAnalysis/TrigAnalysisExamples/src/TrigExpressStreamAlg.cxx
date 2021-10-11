@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -39,8 +39,7 @@ StatusCode TrigExpressStreamAlg::initialize()
 {    
   
    CHECK( m_trigDec.retrieve() );
-   m_trigDec->ExperimentalAndExpertMethods()->enable();
-   m_numHLTPassedEvents.clear(); // events firing RAW trigger 
+   m_numHLTPassedEvents.clear(); // events firing RAW trigger
    m_numHLTFailedEvents.clear(); // events failing
    m_numL1PrescaledEvents.clear(); // events prescaled at L1
    m_numHLTPrescaledEvents.clear(); // events prescaled at HLT
@@ -75,15 +74,13 @@ StatusCode TrigExpressStreamAlg::execute()
         return StatusCode::SUCCESS;
     }
 
-    const Trig::ExpertMethods *em = m_trigDec->ExperimentalAndExpertMethods();
-
     // Do we need to check this every event?
     if(m_evtNr==1){
         std::vector<std::string> configuredHLTChains = m_trigDec->getListOfTriggers( "HLT_.*" );
         // Get list of triggers in the Express Stream
         for(const auto& chain:configuredHLTChains){
-            const HLT::Chain *aChain=em->getChainDetails(chain);
-            const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
+            const HLT::Chain *aChain=m_trigDec->ExperimentalAndExpertMethods().getChainDetails(chain);
+            const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(chain);
             const std::vector<TrigConf::HLTStreamTag*> chainStreams=trig_conf->streams();
             const unsigned int chid=aChain->getChainCounter();
             const float prescale=trig_conf->prescale();
@@ -122,7 +119,7 @@ StatusCode TrigExpressStreamAlg::execute()
         bool l1prescale=tbp && !tap;
         // bool isPrescale=efprescale || l1prescale;
 
-        const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
+        const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(chain);
         const std::vector<TrigConf::HLTStreamTag*> chainStreams=trig_conf->streams();
         const float prescale=trig_conf->prescale();
         if(prescale!=m_prescale) m_prescale=prescale; // Update the prescale for this chain

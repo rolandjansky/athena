@@ -53,7 +53,7 @@ int setVTrackMass(VKVertex * vk)
 {
    double vBx,vBy,vBz;
    int it, NTRK;
-   VectMOM totP;
+   VectMOM totP{};
 
    if(!vk->nextCascadeVrt)return 0;               // nonpointing vertex
 
@@ -725,7 +725,7 @@ void getFittedCascade( CascadeEvent & cascadeEvent_,
 //
 //
    Vect3DF vrtPos;
-   VectMOM prtMom;
+   VectMOM prtMom{};
    VKVertex * vk;
    std::vector<VectMOM> momCollector;
    std::vector<double>  tmpCov(6);

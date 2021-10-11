@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Generate_tf transform"""
 
@@ -155,7 +155,7 @@ def OutputTXTFile():
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 
 if len(runArgs.jobConfig) != 1:
-    evgenLog.info("runArgs.jobConfig " +  runArgs.jobConfig)
+    evgenLog.info("runArgs.jobConfig = " +  runArgs.jobConfig)
     evgenLog.error("You must supply one and only one jobConfig file argument. It has to start from mc. and end with .py")
     sys.exit(1)
 
@@ -163,9 +163,9 @@ printfunc ("Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 
 dsid_param = runArgs.jobConfig[0]
-evgenLog.info("dsid_param " + dsid_param)
+evgenLog.info("dsid_param = " + dsid_param)
 dsid = os.path.basename(dsid_param)
-evgenLog.info("dsid " + dsid)
+evgenLog.info("dsid = " + dsid)
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
@@ -278,7 +278,16 @@ if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile: 
 else:
    multiInput = 0
 
-
+# check if default nEventsPerJob used
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ')
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+    
+if evgenConfig.minevents > 0 :
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
    
 if evgenConfig.nEventsPerJob < 1:
     raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
@@ -294,9 +303,9 @@ if not evgenConfig.keywords:
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
+    kwfile = "evgenkeywords.txt"
     kwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
         if os.path.exists(kwpath):
             break
@@ -304,6 +313,7 @@ if evgenConfig.keywords:
     ## Load the allowed keywords from the file
     allowed_keywords = []
     if kwpath:
+        evgenLog.info("evgenkeywords = "+kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -329,9 +339,9 @@ if not evgenConfig.categories:
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "EvgenJobTransforms/CategoryList.txt"
+    lkwfile = "CategoryList.txt"
     lkwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
         if os.path.exists(lkwpath):
             break
@@ -352,6 +362,7 @@ if evgenConfig.categories:
            l2 = next(it)
            if "L1:" in l2 and "L2:" in l1:
                l1, l2 = l2, l1
+           printfunc("first",l1,"second",l2)
            bad_cat.extend([l1, l2])
            for a1,a2 in allowed_cat:
                if l1.strip().lower()==a1.strip().lower() and l2.strip().lower()==a2.strip().lower():
@@ -363,7 +374,7 @@ if evgenConfig.categories:
                if officialJO:
                    sys.exit(1)
     else:
-        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
+        evgenLog.warning("Could not find CategoryList.txt file %s in DATAPATH" % lkwfile)
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
@@ -393,6 +404,10 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 
 ## Process random seed arg and pass to generators
 include("EvgenJobTransforms/Generate_randomseeds.py")
+
+## Propagate debug output level requirement to generators
+if (hasattr( runArgs, "VERBOSE") and runArgs.VERBOSE ) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
+   include("EvgenJobTransforms/Generate_debug_level.py")
 
 ##=============================================================
 ## Check release number
@@ -620,9 +635,9 @@ else:
     if hasattr(runArgs, "inputGeneratorFile") and runArgs.inputGeneratorFile != "NONE":
         raise RuntimeError("inputGeneratorFile arg specified for %s, but generators %s do not require an input file" %
                            (runArgs.jobConfig, str(gennames)))
-    if evgenConfig.inputfilecheck:
-        raise RuntimeError("evgenConfig.inputfilecheck specified in %s, but generators %s do not require an input file" %
-                           (runArgs.jobConfig, str(gennames)))
+#    if evgenConfig.inputfilecheck:
+#        raise RuntimeError("evgenConfig.inputfilecheck specified in %s, but generators %s do not require an input file" %
+#                           (runArgs.jobConfig, str(gennames)))
 
 ## Do the aux-file copying
 if evgenConfig.auxfiles:
@@ -641,16 +656,19 @@ def _checkattr(attr, required=False):
         return False
     return True
 # counting the number of events in LHE output
+count_ev = 0
 with open(eventsFile) as f:
-    contents = f.read()
-    count_ev = contents.count("</event>")
+    for line in f:
+       count_ev += line.count('/event')
     
-printfunc ("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
+evgenLog.info('Requested output events = '+str(count_ev))
+printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description
     if _checkattr("notes"):
         msg += " " + evgenConfig.notes
+    printfunc("MetaData: %s = %s" % ("physicsComment", msg))
 if _checkattr("generators", required=True):
     gennamesvers=[]
     for item in gennames:

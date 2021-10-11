@@ -12,7 +12,7 @@ atlas_add_library( TrigT2CaloCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT2CaloCommon
                    PRIVATE_INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib CaloEvent CaloGeoHelpers CaloIdentifier GaudiKernel IRegionSelector Identifier LArByteStreamLib LArCablingLib LArRawUtilsLib LArRecEvent TileByteStreamLib TileEvent xAODEventInfo xAODTrigCalo LArRawConditions
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib CaloEvent CaloGeoHelpers CaloIdentifier GaudiKernel IRegionSelector Identifier LArByteStreamLib LArCablingLib LArRawUtilsLib LArRecEvent TileByteStreamLib TileEvent xAODEventInfo xAODTrigCalo LArRawConditions LArRecConditions
                    PRIVATE_LINK_LIBRARIES ${TBB_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib CaloDetDescrLib CaloUtilsLib LArBadChannelToolLib LArElecCalib LArIdentifier LArRecConditions LArRecUtilsLib StoreGateLib TestTools TrigSteeringEvent )
 
 atlas_add_component( TrigT2CaloCommon

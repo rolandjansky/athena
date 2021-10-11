@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -138,7 +138,7 @@ std::string munge_names (const std::string& str_in)
 std::string munge_filename (const std::string& file, const std::string& pkg)
 {
   // Extract package name in case there is a version (MyPackage-00-00-00)
-  const std::string p = pkg.substr(0, pkg.find("-"));
+  const std::string p = pkg.substr(0, pkg.find('-'));
   if (!p.empty()) {
     // Find package name in path and remove any leading entries
     std::string::size_type ipos = file.find("/"+p+"/");
@@ -175,9 +175,6 @@ ReportMessage::ReportMessage (MSG::Level level,
 
   // The status code.
   *this << ": code " << sc;
-
-  // "Check" our copy of the StatusCode.
-  sc.setChecked();
 
   // Remember the end of the header.
   m_pos = stream().str().size();
@@ -281,7 +278,9 @@ MsgStream& ReportMessage::doOutput()
   // need to do anything.  But if so, we insert a `: ' after the header.
   if (m_pos != stream().str().size()) {
     std::string tmp1 = stream().str();
-    std::string tmp2 = tmp1.substr(0, m_pos) + ": " + tmp1.substr(m_pos);
+    std::string tmp2 = tmp1.substr(0, m_pos);
+    tmp2 += ": ";
+    tmp2.append( tmp1, m_pos);
     stream().str (tmp2);
   }
   return MsgStream::doOutput();

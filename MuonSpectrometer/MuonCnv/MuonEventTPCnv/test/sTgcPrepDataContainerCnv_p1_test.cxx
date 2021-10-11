@@ -73,7 +73,7 @@ void compare (const Muon::sTgcPrepDataContainer& p1,
 
 void testit (const Muon::sTgcPrepDataContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::sTgcPrepDataContainerCnv_p1 cnv;
   Muon::sTgcPrepDataContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -110,7 +110,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          clusHash,
          locpos,
          rdoList,
-         new Amg::MatrixX(cov),
+         cov,
          muo_dd.getsTgcReadoutElement (clusId),
          123+offs);
       coll->push_back (std::move (cl));

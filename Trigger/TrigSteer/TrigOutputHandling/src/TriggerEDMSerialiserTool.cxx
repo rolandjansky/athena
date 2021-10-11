@@ -97,7 +97,7 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
   } else {
     transientType  = configuredType.substr( 0, configuredType.find('_') );
   }
-  CLID clid;
+  CLID clid{0};
   if ( m_clidSvc->getIDOfTypeName(transientType, clid).isFailure() )  {
     ATH_MSG_ERROR( "Can not find CLID for " << transientType << " that is needed for serialisation " << key );
     return StatusCode::FAILURE;
@@ -224,7 +224,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
     ATH_MSG_DEBUG( "Streaming '" << decorationName << "' of type '" << typeName 
       << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
-    CLID clid;
+    CLID clid{0};
     if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() ) { // First try
       if ( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid).isFailure() ) { // Second try
         ATH_MSG_ERROR("Unable to obtain CLID for either typeName:" << typeName << " or fullTypeName:" << fullTypeName);

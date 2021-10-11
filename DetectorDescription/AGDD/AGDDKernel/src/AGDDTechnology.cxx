@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDTechnology.h"
@@ -7,15 +7,15 @@
 
 //namespace AGDDModel {
 
-std::string AGDDTechnology::GetName()
+std::string AGDDTechnology::GetName() const
 {
 	return m_name;
 }
 
-AGDDTechnology::AGDDTechnology(std::string s): m_name(s)
+AGDDTechnology::AGDDTechnology(const std::string& s,
+                               AGDDDetectorStore& ds): m_name(s)
 {
-	AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();
-    ds->RegisterTechnology(this);
+    ds.RegisterTechnology(this);
 }
 
 AGDDTechnology::~AGDDTechnology()

@@ -18,6 +18,8 @@
 #include <math.h>
 #include <fstream>
 #include <sys/time.h>
+#include <random>
+#include <chrono>
 
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArDigitization/LArHitList.h"
@@ -127,11 +129,14 @@ StatusCode LArCalibInject_timeSh::execute(const EventContext& context) const
   } // end of empty Key check
   // Now, become creative
   it = 0;
-  float time_inject = 5;
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::default_random_engine generator(seed);
+  std::uniform_real_distribution<double> distribution(-12.5,12.5);
   it_end = 480;
   for( ; it!=it_end;it+=16) {
       const IdentifierHash idhash(it);
-      hitEMapOut->AddEnergy( idhash, 20.0/4.0, time_inject );
+      float time_inject = (float)distribution(generator);
+      hitEMapOut->AddEnergy( idhash, 10500.0, time_inject );
   }
   ATH_CHECK( hitEMapOutHandle.record( std::move(hitEMapOut) ) );
 

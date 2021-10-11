@@ -275,8 +275,8 @@ void TileDetDescrManager::create_elements(bool checks)
         zmin = -ztmp;
       }
 
-      double deta    = 0.1;
-      int    neta    = (int)((emax-emin)*(1./deta)+0.001);
+      double deta    = 0.1; // fixed deta for gap scin
+      int    neta    = 6;   // fixed number of eta bins for gap scin
       depth_in[0] = zmin;
       depth_out[0] = zmax;
       CaloCell_ID::CaloSample sample = CaloCell_ID::TileGap3;
@@ -384,7 +384,7 @@ void TileDetDescrManager::create_elements(bool checks)
 
           for (int ieta=0; ieta<neta; ++ieta) {
 
-            int tower = (int)((eta + 0.01) * 10); // tower number in 0.1 granularity
+            int tower = (sample == (int)TileID::SAMP_E) ? isamp : (int)((eta + 0.01) * 10); // tower number in 0.1 granularity
 
             try {
               Identifier id = m_tile_id->cell_id(section,side,module,tower,sample,checks);

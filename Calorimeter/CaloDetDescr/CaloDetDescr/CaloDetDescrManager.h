@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,6 +15,7 @@
 #define CALODETDESCR_CALODETDESCRMANAGER_H
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloConstIteratorAdaptor.h"
 #include "boost/range/iterator_range.hpp"
@@ -159,7 +160,7 @@ class CaloDetDescrManager_Base
   inline std::string lar_geometry() const {return m_lar_geometry;}
   /** @brief set lar geometry label, distinguish between full atlas and TB
    */
-  inline void set_lar_geometry(std::string geom) { m_lar_geometry = geom;}
+  inline void set_lar_geometry(const std::string& geom) { m_lar_geometry = geom;}
  
   /** @brief get calo cell ID helper
    */
@@ -479,7 +480,7 @@ public:
 };
 
 CLASS_DEF( CaloDetDescrManager , 4548337 , 1 )
-
+CONDCONT_DEF( CaloDetDescrManager , 206559529 );
 
 class CaloSuperCellDetDescrManager
   : public CaloDetDescrManager_Base

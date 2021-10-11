@@ -90,7 +90,7 @@ StatusCode AFPSiClusterTool::initialize()
   }
 
   // prepare array of layers
-  if (m_numberOfLayersInStations.size() == 0) {
+  if (m_numberOfLayersInStations.empty()) {
     // no job options configuration - use default values
     m_numberOfLayersInStations.resize(4, 4);
   }

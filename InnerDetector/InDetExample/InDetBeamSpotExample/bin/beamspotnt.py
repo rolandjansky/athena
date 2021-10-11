@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -324,7 +324,9 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
           continue 
 
         #Calculate the average beamspot position for the following parameters
-        varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+        varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY']
+        if options.cooltag:
+            varList.append('sigmaXY')
         calc = BeamSpotAverage(varList ,weightedAverage=True)
         #Add current entry if it is reliable 
         if( b.status == 59 and b.posXErr != 0 and not math.isnan(b.posX) and not math.isnan(b.posZ) and not math.isnan(b.sigmaZ) ):
@@ -343,7 +345,6 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
         bcopy = copy.deepcopy(b)
 
         for var in varList:
-          #print ("Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var)))
           setattr(bcopy, var,       ave[calc.varList.index(var)])
           setattr(bcopy, var+"Err", err[calc.varList.index(var)])
         
@@ -376,7 +377,9 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
             elif (allBSResultsInNt[nextValidEntry].lbStart-1) -  (allBSResultsInNt[lastValidEntry].lbEnd+1) < 0 :
               print ("Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1))
             else:
-              varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+              varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY']
+              if options.cooltag:
+                  varList.append('sigmaXY')
               calc = BeamSpotAverage(varList ,weightedAverage=True)
               calc.add(allBSResultsInNt[nextValidEntry])
               calc.add(allBSResultsInNt[lastValidEntry])
@@ -388,7 +391,6 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
               bcopy = copy.deepcopy(b)
               
               for var in varList:
-                #print ("Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var)))
                 setattr(bcopy, var,       ave[calc.varList.index(var)])
                 setattr(bcopy, var+"Err", err[calc.varList.index(var)])
 
@@ -599,7 +601,7 @@ class Plots(ROOTUtils.PlotLibrary):
 
         arescale = varDef(what,'arescale',1.0)
         for b in nt:
-            if b.sigmaX < 0.01 or b.sigmaY < 0.01:
+            if b.sigmaX < 0.005 or b.sigmaY < 0.005:
                 print ("OUTLIER ", b.run, b.lbStart, b.lbEnd, b.sigmaX, b.sigmaY)
             if not b.bcid in grDict:
                 grDict[b.bcid] = BeamSpotGraph(timeAxis=options.timeaxis, separationAxis=options.separation)

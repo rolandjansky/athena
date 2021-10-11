@@ -21,6 +21,12 @@ StatusCode AFP_SIDLocReco::initialize()
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::initialize()");
   CHECK( AthReentrantAlgorithm::initialize() );
 
+  // check mon tool
+  if (!(m_monTool.name().empty())) {
+    CHECK( m_monTool.retrieve() );
+    ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
+  }
+
   // initialize keys
   CHECK( m_eventInfoKey.initialize() );
   CHECK( m_AFPSiHitContainerKey.initialize() );
@@ -62,13 +68,20 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
       ATH_MSG_WARNING("AFP_SIDLocReco, cannot get siHitContainer");
       return StatusCode::SUCCESS;
   }
-  else ATH_MSG_INFO("AFP_SIDLocReco::execute(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
+  else ATH_MSG_DEBUG("AFP_SIDLocReco::execute(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
 	
   // get list of hits SID hits from the container
   std::list<SIDHIT> ListSIDHits = AFPCollectionReading(siHitContainer, eventInfo);
   // n.b. even empty list is needed (ListSIDHits.size()==0), as we need to write "nothing" in the container for this event
+  
+  auto hitsSize = Monitored::Scalar( "HitsSize"   , -1.0 );
+  hitsSize = ListSIDHits.size();
+  ATH_MSG_DEBUG("AFP_SIDLocReco:: Hits size "<<hitsSize);
+
+  auto monitorIt    = Monitored::Group( m_monTool, hitsSize);
+
   std::string strAlgoSID;
-  for(unsigned int i=0; i<m_vecListAlgoSID.size(); i++)
+  for(unsigned int i=0; i<m_vecListAlgoSID.size(); ++i)
   {
     strAlgoSID = m_vecListAlgoSID[i];
 
@@ -81,6 +94,8 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
       return StatusCode::SUCCESS;
     }
   }
+
+  Monitored::fill(m_monTool,hitsSize);
 
   ATH_MSG_DEBUG("end AFP_SIDLocReco::execute()");
   return StatusCode::SUCCESS;
@@ -116,7 +131,7 @@ std::list<SIDHIT> AFP_SIDLocReco::AFPCollectionReading(SG::ReadHandle<xAOD::AFPS
   std::list<SIDHIT> ListSIDHits;
   ListSIDHits.clear();
 
-  for(auto hit : *siHitContainer)
+  for(const auto *hit : *siHitContainer)
   {
     SIDHit.iEvent 			= eventInfo->eventNumber();
     SIDHit.fADC  			= hit->depositedCharge();
@@ -137,9 +152,9 @@ StatusCode AFP_SIDLocReco::ReadGeometryDetCS()
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ReadGeometryDetCS()");
 
-  for(Int_t nStationID = 0; nStationID < SIDSTATIONID; nStationID++)
+  for(Int_t nStationID = 0; nStationID < SIDSTATIONID; ++nStationID)
     {				
-      for (Int_t nPlateID = 0; nPlateID < SIDCNT; nPlateID++)
+      for (Int_t nPlateID = 0; nPlateID < SIDCNT; ++nPlateID)
 	{
 			
 	  HepGeom::Point3D<double> LocPoint = HepGeom::Point3D<double>(-SID_SENSORXDIM+SID_DEATH_EDGE, -SID_SENSORYDIM+SID_LOWER_EDGE, 0.*CLHEP::mm); //changed! (death edge info from AFP_Geometry)
@@ -173,7 +188,7 @@ StatusCode AFP_SIDLocReco::ReadGeometryDetCS()
 }
 
 
-StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const
+StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ExecuteRecoMethod()");
   
@@ -202,10 +217,10 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
       afpTrkContainer->reserve(listSIDResults.size());
 
       std::list<SIDRESULT>::const_iterator iter;
-      for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); iter++) {
+      for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); ++iter) {
         if (iter->nStationID != -1) {
           // fill the container with a "dummy" track, then set it properly
-          auto track = afpTrkContainer->push_back(std::make_unique<xAOD::AFPTrack>());
+          auto *track = afpTrkContainer->push_back(std::make_unique<xAOD::AFPTrack>());
 
           track->setStationID(iter->nStationID);
           track->setXLocal(iter->x_pos);
@@ -215,6 +230,31 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
           track->setYSlope(iter->y_slope);
           track->setNHoles(iter->nHoles);
           track->setChi2(iter->fChi2);
+
+	  auto trkStationID = Monitored::Scalar("TrkStationID", -999.0);
+	  auto trkXLocal = Monitored::Scalar("TrkXLocal", -999.0);
+	  auto trkYLocal = Monitored::Scalar("TrkYLocal", -999.0);
+	  auto trkZLocal = Monitored::Scalar("TrkZLocal", -999.0);
+	  auto trkXSlope = Monitored::Scalar("TrkXSlope", -999.0);
+	  auto trkYSlope = Monitored::Scalar("TrkYSlope", -999.0);
+	  auto trkNHoles = Monitored::Scalar("TrkNHoles", -999.0);
+	  auto trkChi2 = Monitored::Scalar("TrkChi2", -999.0);
+
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk XLocal "<<trkXLocal);
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk ZLocal "<<trkZLocal);
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::NHoles "<<trkNHoles);
+	  
+	  trkStationID = track->stationID();
+	  trkXLocal = track->xLocal();
+	  trkYLocal = track->yLocal();
+	  trkZLocal = track->zLocal();
+	  trkXSlope = track->xSlope();
+	  trkYSlope = track->ySlope();
+	  trkNHoles = track->nHoles();
+	  trkChi2 = track->chi2();
+
+	  auto monitorItTrkProp = Monitored::Group(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNHoles, trkChi2);
+	  Monitored::fill(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNHoles, trkChi2);
 
           ATH_MSG_DEBUG("Track reconstructed with "<<iter->ListHitID.size()<<" hits.");
           
@@ -226,7 +266,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
             const int pixelLayer = ( (*hitIter)/100000) % 10;
             const int pixelStation = ( (*hitIter)/1000000) % 10;
             unsigned int result = 0;
-            for (auto origHitIter : *siHitContainer) {
+            for (const auto *origHitIter : *siHitContainer) {
               if (
                   (origHitIter)->pixelVertID() == pixelRow
                   && (origHitIter)->pixelHorizID() == pixelCol
@@ -235,7 +275,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
                   )
                 break;
 
-              result++;
+              ++result;
             }
 
           // check if the hit was found
@@ -260,6 +300,11 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
   } // case of track reco algorithms
 
   ATH_MSG_DEBUG("There are "<<afpTrkContainer->size()<<" / "<<afpTrkAuxContainer->size()<<" entries in the track container / aux");
+
+  auto trkSize = Monitored::Scalar( "TrksSize"   , -1.0 );
+  trkSize = afpTrkContainer->size();
+  auto monitorItTrkSize = Monitored::Group( m_monTool, trkSize); 
+  Monitored::fill(m_monTool,trkSize);
 
   // write it down
   SG::WriteHandle<xAOD::AFPTrackContainer> trackContainer(m_AFPTrackContainerKey, ctx);

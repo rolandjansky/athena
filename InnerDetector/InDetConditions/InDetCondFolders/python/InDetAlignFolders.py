@@ -101,4 +101,3 @@ if DetFlags.pixel_on() and ((not DetFlags.simulate.pixel_on()) or DetFlags.overl
             if not hasattr(condSeq, "PixelDetectorElementCondAlg"):
                 from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
                 condSeq += PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg")
-

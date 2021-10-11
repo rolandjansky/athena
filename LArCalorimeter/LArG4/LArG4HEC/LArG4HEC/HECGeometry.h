@@ -35,6 +35,7 @@ namespace LArG4 {
       StatusCode initialize() override final;
       virtual ~HECGeometry(){;}
 
+      void initializeForSDCreation() override final;
       LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eHECGeometryType type = kWheelActive, int *subgap=NULL) const override final;
 
     private:

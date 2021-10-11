@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -143,14 +143,6 @@ class DoTruth (JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 jobproperties.MissingETD3PDMakerFlags.add_JobProperty(DoTruth)
-
-
-class DoTrigger (JobProperty):
-    """If true, put trigger information in D3PD."""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-jobproperties.MissingETD3PDMakerFlags.add_JobProperty(DoTrigger)
 
 class doCells (JobProperty):
     """If true, the dataset has the calo cells."""

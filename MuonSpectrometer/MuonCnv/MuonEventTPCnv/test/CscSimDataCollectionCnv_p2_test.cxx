@@ -76,7 +76,7 @@ void compare (const CscSimDataCollection& p1,
 
 void testit (const CscSimDataCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CscSimDataCollectionCnv_p2 cnv;
   Muon::CscSimDataCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -116,6 +116,7 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 
 int main()
 {
+  static_assert(std::is_nothrow_move_constructible<CscSimData>::value);
   ISvcLocator* pSvcLoc = nullptr;
   std::vector<HepMC::GenParticlePtr> genPartVector;
   if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {

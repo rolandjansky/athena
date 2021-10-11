@@ -108,6 +108,7 @@ void* TrigSerTPTool::convertTP( const std::string &clname, void *ptr,
    if( ! cnvtr ) {
       ATH_MSG_ERROR( "T/P Converter for transient class " << tpItr->first
                      << " persistent class " << persName << " could not be retrieved");
+      return nullptr;
    }
  
    // Create a persistent object:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -28,14 +28,11 @@ TBBeamQualityDoubleHitsMonTool::TBBeamQualityDoubleHitsMonTool(const std::string
 							       const std::string& name,
 							       const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_scintnum(0),
-    m_isBooked(false)
+    m_scintnum(0)
 {
   declareInterface<IMonitorToolBase>(this);
   // before/after BQ cuts
   declareProperty("FillTime",m_time="after");
-  //declareProperty("histoPathBase",m_path = "/stat");
-  m_path = "/stat";
   declareProperty("histoPath",m_histoPath="/BeamQuality/DoubleHits/");
   declareProperty("ScintMax",m_scintadcmax=1024);
   declareProperty("ScintMin",m_scintadcmin=0);
@@ -57,9 +54,6 @@ StatusCode TBBeamQualityDoubleHitsMonTool::initialize()
 {//init
   ATH_MSG_DEBUG ( "initialize" );
   
-  // set to true in book hist
-  m_isBooked = false;
-  
   return StatusCode::SUCCESS;
 }//init
 
@@ -67,7 +61,7 @@ StatusCode TBBeamQualityDoubleHitsMonTool::bookHists()
 { //book
   ATH_MSG_DEBUG ( "booking histograms" );
   
-  if(!m_isBooked) {
+  if(histsNotBooked()) {
     
     ATH_MSG_DEBUG ( "in bookHists()" );
     ATH_MSG_DEBUG ( "Base path:" << m_path );
@@ -115,7 +109,7 @@ StatusCode TBBeamQualityDoubleHitsMonTool::bookHists()
 	
 	m_histo_double[isel] = ToolHistoSvc()->book(hname,htitle,m_scintbin,m_scintadcmin,m_scintadcmax,m_scintbin,m_scintadcmin,m_scintadcmax);
       }
-      m_isBooked=true;
+      SetBookStatus(true);
     }
     ATH_MSG_DEBUG ( "Booked Histograms" );
   }   
@@ -137,13 +131,7 @@ StatusCode TBBeamQualityDoubleHitsMonTool::fillHists()
     
   }else { //else
     
-    TBScintillatorRawCont::const_iterator it_scint_raw   = scint_raw->begin();
-    TBScintillatorRawCont::const_iterator last_scint_raw   = scint_raw->end();
-    
-    for(;it_scint_raw!=last_scint_raw;it_scint_raw++) {
-      
-      const TBScintillatorRaw * scint_raw = (*it_scint_raw);
-      
+    for (const TBScintillatorRaw* scint_raw : *scint_raw) {
       for (unsigned int ifind=0 ; ifind<m_scintselect.size();ifind++) {
 	
 	if(scint_raw->getDetectorName()==m_scintselect[ifind]){//ifname

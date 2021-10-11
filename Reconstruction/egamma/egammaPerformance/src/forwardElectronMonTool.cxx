@@ -239,7 +239,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
   n_el.resize(NREGION,0);
   n_el_tight.resize(NREGION,0);
 
-  for (; e_iter!=e_end; e_iter++) {
+  for (; e_iter!=e_end; ++e_iter) {
     if(!(*e_iter)) continue;
     if((*e_iter)->author(xAOD::EgammaParameters::AuthorFwdElectron)==0) continue;
 

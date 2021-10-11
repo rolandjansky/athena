@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/RDOindex.h"
@@ -8,69 +8,23 @@
 
 #include "MuonCablingTools/RPCdecoder.h"
 
-RDOindex::RDOindex(unsigned int PAD, unsigned int code) :
-    m_ROBid(0),
-    m_RODid(0),
-    m_side(0),
-    m_SLid(0),
-    m_RXid(0),
-    m_PADid(static_cast<unsigned short int>(PAD)),
-    m_lvl1_code(code),
-    m_stationName(0),
-    m_stationEta(0),
-    m_stationPhi(0),
-    m_doubletR(0),
-    m_doubletZ(0),
-    m_doubletPhi(0),
-    m_hash(0),
-    m_status(false) {
+RDOindex::RDOindex(unsigned int PAD, unsigned int code) : m_PADid{static_cast<unsigned short int>(PAD)}, m_lvl1_code{code} {
     set_indexes();
 }
 
-RDOindex::RDOindex(unsigned int PAD, unsigned int code, std::string Name, int sEta, int sPhi, int dR, int dZ, int dP) :
-    m_ROBid(0),
-    m_RODid(0),
-    m_side(0),
-    m_SLid(0),
-    m_RXid(0),
+RDOindex::RDOindex(unsigned int PAD, unsigned int code, const std::string& Name, int sEta, int sPhi, int dR, int dZ, int dP) :
     m_PADid(static_cast<unsigned short int>(PAD)),
-    m_lvl1_code(code),
-    m_stationName(0),
-    m_stationEta(sEta),
-    m_stationPhi(sPhi),
-    m_doubletR(dR),
-    m_doubletZ(dZ),
-    m_doubletPhi(dP),
-    m_hash(0),
-    m_status(false) {
-#ifndef LVL1_STANDALONE
+    m_lvl1_code{code},
+    m_stationEta{sEta},
+    m_stationPhi{sPhi},
+    m_doubletR{dR},
+    m_doubletZ{dZ},
+    m_doubletPhi{dP} {
     if (s_rpcIdHelper) m_stationName = s_rpcIdHelper->stationNameIndex(Name);
-#endif
     set_indexes();
 }
 
-RDOindex::RDOindex(const RDOindex& index) {
-    m_ROBid = index.ROBid();
-    m_RODid = index.RODid();
-    m_side = index.side();
-    m_SLid = index.SLid();
-    m_RXid = index.RXid();
-    m_PADid = index.PADid();
-    m_lvl1_code = index.lvl1_code();
-
-    m_stationName = index.stationName();
-    m_stationEta = index.stationEta();
-    m_stationPhi = index.stationPhi();
-    m_doubletR = index.doubletR();
-    m_doubletZ = index.doubletZ();
-    m_doubletPhi = index.doubletPhi();
-
-    m_hash = index.hash();
-
-    m_status = index.status();
-}
-
-void RDOindex::set_indexes(void) {
+void RDOindex::set_indexes() {
     RPCdecoder decode(m_lvl1_code);
     if (decode) {
         unsigned int sector = decode.logic_sector();
@@ -82,40 +36,11 @@ void RDOindex::set_indexes(void) {
         m_status = true;
     }
 }
-
-RDOindex::~RDOindex() {}
-
-RDOindex::operator bool() { return m_status; }
-
-bool RDOindex::operator!() { return !m_status; }
-
-RDOindex& RDOindex::operator=(const RDOindex& index) {
-    if (this != &index) {
-        m_ROBid = index.ROBid();
-        m_RODid = index.RODid();
-        m_side = index.side();
-        m_SLid = index.SLid();
-        m_RXid = index.RXid();
-        m_PADid = index.PADid();
-        m_lvl1_code = index.lvl1_code();
-
-        m_stationName = index.stationName();
-        m_stationEta = index.stationEta();
-        m_stationPhi = index.stationPhi();
-        m_doubletR = index.doubletR();
-        m_doubletZ = index.doubletZ();
-        m_doubletPhi = index.doubletPhi();
-
-        m_hash = index.hash();
-
-        m_status = index.status();
-    }
-    return *this;
-}
+RDOindex::operator bool() const { return m_status; }
+bool RDOindex::operator!() const { return !m_status; }
 
 void RDOindex::set_hash(unsigned int h) { m_hash = h; }
 
-#ifndef LVL1_STANDALONE
 
 const RpcIdHelper* RDOindex::s_rpcIdHelper = nullptr;
 
@@ -156,15 +81,13 @@ void RDOindex::pad_identifier(Identifier& id) const {
             doublet_phi = m_doubletPhi;
         }
 
-        if (s_rpcIdHelper != 0) id = s_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
+        if (s_rpcIdHelper != nullptr) id = s_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
     }
 }
 
-#endif
 
 std::ostream& operator<<(std::ostream& stream, const RDOindex& rdo) {
     std::stringstream tmp_stream;
-#ifndef LVL1_STANDALONE
 
     int name;
     int eta;
@@ -181,12 +104,6 @@ std::ostream& operator<<(std::ostream& stream, const RDOindex& rdo) {
     tmp_stream << "RPC PAD /" << std::hex << std::showbase << rdo.side() << "/" << rdo.SLid() << "/" << rdo.PADid()
                << "   mapped on offline Id /" << std::dec << name << "/" << eta << "/" << phi << "/" << doublet_r << "/" << doublet_z << "/"
                << doublet_phi << "/" << gas_gap << "/" << measures_phi << "/" << strip << " .... hashId = " << rdo.hash() << std::endl;
-
-#else
-    std::string side = (rdo.side() == 0x66) ? "Negative" : "Positive";
-    tmp_stream << "/side=" << side << "/ROB=ROD=" << setw(2) << rdo.ROBid() << "/SL=RX=" << setw(2) << rdo.SLid() << "/PAD=" << setw(2)
-               << rdo.PADid() << "/" << std::endl;
-#endif
 
     stream << tmp_stream.str();
 

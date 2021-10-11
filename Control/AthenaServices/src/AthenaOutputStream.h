@@ -231,6 +231,13 @@ private:
    std::set<std::string> buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
                                               const CLID& item_id,
                                               const std::string& item_key) const;
+
+  /// Helper function to load dictionaries (both transient and persistent)
+  /// for a given type.
+  /// We want to to this explicitly during initialization to avoid sporadic
+  /// failures seen loading dictionaries while multiple threads are running.
+  /// See ATEAM-697 and ATEAM-749.
+  void loadDict (CLID clid);
 };
 
 #endif // ATHENASERVICES_OUTPUTSTREAM_H

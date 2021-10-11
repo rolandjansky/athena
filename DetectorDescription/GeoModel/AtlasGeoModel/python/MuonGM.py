@@ -16,6 +16,11 @@ elif ( DetFlags.detdescr.Muon_on() ):
     GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(),
                                                     HasSTgc=MuonGeometryFlags.hasSTGC(),
                                                     HasMM=MuonGeometryFlags.hasMM()) ]
+                                                
+    # temporary way to pass MM correction for edge passivation
+    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+    GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].passivationWidthMM = MMPassivationFlag.correction
+
     import os
     if ( ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ) and "AthSimulation_DIR" not in os.environ ):
         pass

@@ -34,7 +34,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "TrigEgammaAnalysisTools/ValidationException.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
+//#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -55,7 +55,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("ElectronIsEMSelector", m_electronIsEMTool);
     declareProperty("ElectronLikelihoodTool", m_electronLHTool);
     declareProperty("MatchTool",m_matchTool);
-    declareProperty("EmulationTool",m_emulationTool);
+    //declareProperty("EmulationTool",m_emulationTool);
     declareProperty("doEmulation", m_doEmulation=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateEmulation,this);
     declareProperty("PlotTool",m_plot);
     declareProperty("Tools", m_tools);
@@ -122,7 +122,7 @@ void TrigEgammaAnalysisBaseTool::updateEmulation(Gaudi::Details::PropertyBase& /
     for( auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
-        tool->setEmulationTool(m_emulationTool);
+        //tool->setEmulationTool(m_emulationTool);
     }
 }
 
@@ -157,9 +157,6 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
         ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
         return StatusCode::FAILURE;
     }
-    //Enable expert methods
-    m_trigdec->ExperimentalAndExpertMethods()->enable();
-
 
     //TrigEgammaPlotTool
     if(m_parent) m_plot->setParent(m_parent);
@@ -189,12 +186,13 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     }
 
     // propagate the emulation tool for all tools
+    m_doEmulation=false; // force disabe it for now
     BooleanProperty proptmp (m_doEmulation);
     updateEmulation (proptmp);
     if( m_doEmulation ){
       for( auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
-        tool->setEmulationTool(m_emulationTool);  
+        //tool->setEmulationTool(m_emulationTool);  
       }
     }
 
@@ -979,7 +977,7 @@ std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
-    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
     if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");

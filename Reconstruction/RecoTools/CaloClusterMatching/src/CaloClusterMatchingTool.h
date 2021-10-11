@@ -114,15 +114,34 @@ namespace ClusterMatching {
     /////////////////////////////////////////////////////////////////// 
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
-  private: 
-
-    Gaudi::Property<bool> m_reqPosE{this,"RequirePositiveE",true};
-    Gaudi::Property<float> m_minSharedEfrac{this,"MinSharedEfrac",0.2};
-    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersIn{this,"InputClusterCollection","CaloCalTopoClusters","The CaloCluster collection to match"};
-    SG::WriteDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{this,"ElementLinkName","CaloCalTopoClusters.constituentClusterLinks"};   
+  private:
+    Gaudi::Property<bool> m_reqPosE{ this, "RequirePositiveE", true };
+    Gaudi::Property<float> m_minSharedEfrac{ this, "MinSharedEfrac", 0.2 };
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersIn{
+      this,
+      "InputClusterCollection",
+      "CaloCalTopoClusters",
+      "The CaloCluster collection to match to "
+    };
+    // The typical usage is to decorate the
+    // Muon Clusters with element links to the topological
+    // clusters.
+    // Ala what e/gamma clusters have by default
+    Gaudi::Property<std::string> m_referenceClustersName{
+      this,
+      "ReferenceClusterToDecorate",
+      "MuonClusterCollection",
+      "The name of the collection the reference clusters belong to"
+    };
+ 
+    //The decorator
+    SG::WriteDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{
+      this,
+      "ElementLinkName",
+      "MuonClusterCollection.constituentClusterLinks"
+    };
 
   }; 
-
 }
 
 #endif //> !CALOCLUSTERMATCHING_CALOCLUSTERMATCHINGTOOL_H

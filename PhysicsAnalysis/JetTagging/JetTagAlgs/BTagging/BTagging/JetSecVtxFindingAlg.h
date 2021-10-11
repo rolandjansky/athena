@@ -44,7 +44,7 @@ namespace Analysis
         std::string m_vxPrimaryName; //Input ReadHandle
 
         SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
-        Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetParticleLinkName{ this, "TrackToJetAssociatorName", "", "Element Link vector form jet to particle container"};
+        SG::ReadDecorHandleKey<xAOD::JetContainer> m_TracksToTag { this, "TracksToTag", "", "Element Link vector from jet to IParticleContainer"};
         SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
         SG::WriteHandleKey<Trk::VxSecVertexInfoContainer> m_VxSecVertexInfoName {this, "BTagVxSecVertexInfoName", "", "Output VxSecVertexInfo container"};
 

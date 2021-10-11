@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigEgammaForwardFastCaloHypoAlgMT_h
-#define TrigEgammaForwardFastCaloHypoAlgMT_h
+#ifndef TrigEgammaForwardFastCaloHypoAlg_h
+#define TrigEgammaForwardFastCaloHypoAlg_h
 
 #include <string>
 #include "DecisionHandling/HypoBase.h"
@@ -13,7 +13,7 @@
 #include "ITrigEgammaForwardFastCaloHypoTool.h"
 
 /**
- * @class TrigEgammaFastCaloHypoAlg
+ * @class TrigEgammaForwardFastCaloHypoAlg
  * @brief Implements egamma calo selection for the new HLT framework
  **/
 class TrigEgammaForwardFastCaloHypoAlg : public ::HypoBase {
@@ -32,4 +32,4 @@ class TrigEgammaForwardFastCaloHypoAlg : public ::HypoBase {
     SG::ReadHandleKey<xAOD::TrigRingerRingsContainer> m_ringsKey { this, "RingerKey","HLT_ForwardFastCaloRinger","Point to RingerKey"};
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TESTTRIGEGAMMAForwardFastCaloHYPOALG_H
+#endif

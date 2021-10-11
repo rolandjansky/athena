@@ -20,8 +20,6 @@ CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
 ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
 ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
 MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.MuonSlice.doTrigMuonConfig=True
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
@@ -644,10 +642,12 @@ def muEFSARecoSequence( RoIs, name ):
     from MuonRecExample import MuonAlignConfig # noqa: F401
 
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
+      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",  CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
+                                                    sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),
+                                                    MMPrepDataContainer = ("MM_Measurements" if MuonGeometryFlags.hasMM() else ""))
       efAlgs.append(theMuonLayerHough)
 
-      theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
+      theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
   else:
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
@@ -680,7 +680,7 @@ def muEFSARecoSequence( RoIs, name ):
   for efAlg in efAlgs:
       if "RoIs" in efAlg.properties():
         if name == "FS":
-          from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+          from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection 
           efAlg.RoIs = mapThresholdToL1RoICollection("FS")
         else:
           efAlg.RoIs = RoIs
@@ -795,7 +795,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles], 
-                                                       InDetCandidateLocation="InDetCandidates_"+name, TrackSelector="")
+                                                       InDetCandidateLocation="InDetCandidates_"+name)
 
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
@@ -927,8 +927,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
     #Need PRD containers for inside-out reco
     ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
     ViewVerifyInsideOut.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
+    if not isCosmic(): ViewVerifyInsideOut.DataObjects += [( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
     if MuonGeometryFlags.hasCSC():
       ViewVerifyInsideOut.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 

@@ -95,8 +95,8 @@ StatusCode AFP_Raw2DigiTool::recoToFHits(const EventContext &ctx) const
   
   for (const AFP_ToFRawCollection& collection: container->collectionsToF())
     for (const AFP_ToFRawData& data : collection.dataRecords())
-      if (data.hitDiscConfig() == 3 && data.header() == 2) 
-	newXAODHitToF (tofHitContainer.get(), collection, data);
+      if (data.hitDiscConfig() == 3 && (data.header() == 2 || (data.header() == 1 && !data.isTrigger()))) 
+	newXAODHitToF (tofHitContainer.get(), collection, data); // is_ToF && (is_HPTDC || (is_picoTDC && !is_trigger_word))
 
   SG::WriteHandle<xAOD::AFPToFHitContainer> writeHandle{m_AFPHitsContainerNameToF, ctx};
   ATH_CHECK( writeHandle.record(std::move(tofHitContainer), std::move(tofHitAuxContainer)) );

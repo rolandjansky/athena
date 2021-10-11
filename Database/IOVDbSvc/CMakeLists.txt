@@ -16,8 +16,8 @@ atlas_add_library( IOVDbSvcLib
    IOVDbSvc/*.h
    INTERFACE
    PUBLIC_HEADERS IOVDbSvc
-   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} CrestApi
-   LINK_LIBRARIES ${COOL_LIBRARIES} GaudiKernel CrestApiLib DBLock)
+   INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${COOL_LIBRARIES} GaudiKernel )
 
 
 atlas_add_component( IOVDbSvc
@@ -28,7 +28,8 @@ atlas_add_component( IOVDbSvc
    ${Boost_LIBRARIES} nlohmann_json::nlohmann_json GaudiKernel
    AthenaBaseComps AthenaKernel StoreGateLib FileCatalog AthenaPoolUtilities
    CoraCool IOVDbDataModel EventInfoUtils GeoModelInterfaces
-   IOVDbMetaDataToolsLib EventInfoMgtLib PoolSvcLib IOVDbSvcLib )
+   IOVDbMetaDataToolsLib EventInfoMgtLib PoolSvcLib IOVDbSvcLib
+   CrestApiLib CxxUtils DBLock SGTools )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8})
@@ -60,7 +61,7 @@ atlas_add_test( IOVDbSvc_InvalidMarkup_test
 
 atlas_add_test( IOVDbConn_test
    SOURCES test/IOVDbConn_test.cxx src/IOVDbConn.cxx
-   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} CrestApi
+   INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    GaudiKernel CxxUtils TestTools CoraCool CrestApiLib
    POST_EXEC_SCRIPT "nopost.sh" )
@@ -92,7 +93,7 @@ atlas_add_test( FolderTypes_test
 atlas_add_test( IOVDbCoolFunctions_test
    SOURCES test/IOVDbCoolFunctions_test.cxx src/IOVDbCoolFunctions.cxx
    src/IOVDbConn.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} CrestApi
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    GaudiKernel AthenaKernel CoraCool CrestApiLib
    POST_EXEC_SCRIPT "nopost.sh" )
@@ -114,7 +115,7 @@ atlas_add_test( IOVDbFolder_test
    src/ReadFromFileMetaData.cxx src/IOVDbCoolFunctions.cxx src/TagFunctions.cxx
    src/Cool2Json.cxx src/Base64Codec.cxx src/Json2Cool.cxx 
    src/BasicFolder.cxx src/IOVDbResolveTag.cxx src/CrestFunctions.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} CrestApi
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    ${ROOT_INCLUDE_DIRS} 
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    ${ROOT_LIBRARIES} nlohmann_json::nlohmann_json
@@ -141,7 +142,7 @@ atlas_add_test( TagFunctions_test
 
 atlas_add_test( BasicFolder_test
    SOURCES test/BasicFolder_test.cxx src/BasicFolder.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} CrestApi
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CrestApiLib
    POST_EXEC_SCRIPT "nopost.sh" )
 
@@ -167,7 +168,7 @@ atlas_add_test( Cool2Json_test
 atlas_add_test( CrestFunctions_test
    SOURCES test/CrestFunctions_test.cxx src/CrestFunctions.cxx
    src/IOVDbStringFunctions.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} CrestApi
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CrestApiLib
    POST_EXEC_SCRIPT "nopost.sh" )
 

@@ -6,6 +6,9 @@
 #include "../MbtsHypoTool.h"
 #include "../TrackCountHypoAlg.h"
 #include "../TrackCountHypoTool.h"
+#include "../TrigZVertexHypoAlg.h"
+#include "../TrigZVertexHypoTool.h"
+
 
 DECLARE_COMPONENT( TrigCountSpacePoints )
 DECLARE_COMPONENT( SPCountHypoAlg )
@@ -15,3 +18,5 @@ DECLARE_COMPONENT( MbtsHypoAlg )
 DECLARE_COMPONENT( MbtsHypoTool )
 DECLARE_COMPONENT( TrackCountHypoAlg )
 DECLARE_COMPONENT( TrackCountHypoTool )
+DECLARE_COMPONENT( TrigZVertexHypoAlg )
+DECLARE_COMPONENT( TrigZVertexHypoTool )

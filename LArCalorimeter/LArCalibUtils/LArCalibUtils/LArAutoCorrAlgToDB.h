@@ -53,7 +53,7 @@ class LArAutoCorrAlgToDB : public AthAlgorithm
   std::string m_acContName;
   
   // number of gains
-  unsigned int m_nGains; 
+  unsigned int m_nGains = 0U; 
   
 };
 

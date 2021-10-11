@@ -16,25 +16,10 @@ namespace PFO {
 
     public:
 
-    PFOAlgPropertyPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
-
-     void fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo);
+    PFOAlgPropertyPlots(PlotBase *pParent, std::string sDir, std::string sFEContainerName);
+     
      void fill(const xAOD::FlowElement& theFE, const xAOD::EventInfo& eventInfo);
-  private:
-     /** PFO histograms */
-     TH1* m_PFO_isInDenseEnvironment;
-     TH1* m_PFO_tracksExpectedEnergyDeposit;
-     
-     /* Same histograms in three eta bins of |eta| < 1, 1 <= |eta| < 2 and |eta| >= 2 */
-     TH1* m_PFO_isInDenseEnvironment_etaBinA;
-     TH1* m_PFO_tracksExpectedEnergyDeposit_etaBinA;
-     
-     TH1* m_PFO_isInDenseEnvironment_etaBinB;
-     TH1* m_PFO_tracksExpectedEnergyDeposit_etaBinB;
-     
-     TH1* m_PFO_isInDenseEnvironment_etaBinC;
-     TH1* m_PFO_tracksExpectedEnergyDeposit_etaBinC;
-     
+  private:          
      /** Flow Element Histograms */
      TH1* m_FE_isInDenseEnvironment;
      TH1* m_FE_tracksExpectedEnergyDeposit;
@@ -50,8 +35,7 @@ namespace PFO {
      TH1* m_FE_tracksExpectedEnergyDeposit_etaBinC;
      
      
-     void initializePlots();
-     std::string m_sPFOContainerName;
+     void initializePlots();     
      std::string m_sFEContainerName;
      
   };

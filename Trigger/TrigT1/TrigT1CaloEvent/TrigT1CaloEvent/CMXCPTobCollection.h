@@ -9,7 +9,6 @@
 
 /** Container class for CMXCPTob objects */
 
-using namespace LVL1;
-typedef DataVector<CMXCPTob> CMXCPTobCollection;
+typedef DataVector<LVL1::CMXCPTob> CMXCPTobCollection;
 
 #endif

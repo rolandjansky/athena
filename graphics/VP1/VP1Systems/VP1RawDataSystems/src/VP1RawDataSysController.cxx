@@ -31,21 +31,21 @@
 //____________________________________________________________________
 class VP1RawDataSysController::Imp {
 public:
-  Ui::VP1RawDataControllerForm ui;
-  Ui::RawDataSysSettingsCutsForm ui_cuts;
-  Ui::RawDataSysSettingsInteractionsForm ui_int;
-  Ui::RawDataSysSettingsDisplayForm ui_display;
-  VP1CollectionWidget * collWidget;
+  Ui::VP1RawDataControllerForm ui{};
+  Ui::RawDataSysSettingsCutsForm ui_cuts{};
+  Ui::RawDataSysSettingsInteractionsForm ui_int{};
+  Ui::RawDataSysSettingsDisplayForm ui_display{};
+  VP1CollectionWidget * collWidget = nullptr;
 
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;//All off: empty list. All on: list with one entry: ]-inf,inf[
-  bool last_showVolumeOutLines;
-  bool last_useSpecialTRTHTMaterial;
-  bool last_useSpecialBCMHighAttMaterial;
+  bool last_showVolumeOutLines = false;
+  bool last_useSpecialTRTHTMaterial = false;
+  bool last_useSpecialBCMHighAttMaterial = false;
   VP1RawDataFlags::InDetPartsFlags last_enabledInDetParts;
-  bool last_trtRequireHT;
+  bool last_trtRequireHT = false;
   VP1Interval last_trtAllowedToT;
-  unsigned last_lucidMinQDC;
+  unsigned last_lucidMinQDC = 0U;
 };
 
 //____________________________________________________________________

@@ -8,12 +8,8 @@
 #include "TChain.h"
 #include <TH1F.h>
 #include <TLegend.h>
-#include <iostream>
 #include <TPad.h>
-//#include <stdio.h>
-#include <string.h>
-//#include <stdlib.h>
-#include <math.h>
+
 #include "../TJetNet.h"
 #include "../doNormalization.C"
 #include "Riostream.h"
@@ -29,6 +25,10 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <string>
+#include <cmath>
+#include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -522,7 +522,7 @@ if(useTrackEstimate){
 	if (matrixOfToT->size()!=sizeX*sizeY)
 	  {
 	    std::cout << " Event: " << i << " PROBLEM: size Y is: " << matrixOfToT->size() << std::endl;
-	    throw;
+	    throw std::runtime_error("Error in positions/trainNN.cxx");
 	  }
 	
 	// loop over elements of matrixOfTot which is actually a vector
@@ -534,7 +534,7 @@ if(useTrackEstimate){
           if ((*matrixOfToT)[ME] != (*matrixOfToT)[ME])
           {
             cout << "ME n. " << ME << " is: " << (*matrixOfToT)[ME] << endl;
-            throw;
+            throw std::runtime_error("Error in positions/trainNN.cxx");
           }
 
 	  if (counter0 == 0) std::cout << " element: " << ME <<  " ToT set to: " << norm_ToT((*matrixOfToT)[ME]) << std::endl;
@@ -552,7 +552,7 @@ if(useTrackEstimate){
             if ((*vectorOfPitchesY)[s]!=(*vectorOfPitchesY)[s])
             {
               cout << " pitchY: " << (*vectorOfPitchesY)[s] << endl;
-              throw;
+              throw std::runtime_error("Error in positions/trainNN.cxx");;
             }
 	    if (counter0 == 0) std::cout <<  " s: " << s << " pitch set to: " << norm_pitch((*vectorOfPitchesY)[s]) << std::endl;
 
@@ -565,7 +565,7 @@ if(useTrackEstimate){
         if (ClusterPixLayer!=ClusterPixLayer || ClusterPixBarrelEC!=ClusterPixBarrelEC)
         {
           cout << " ClusterPixLayer: " << ClusterPixLayer << " ClusterPixBarrelEC " << ClusterPixBarrelEC << endl;
-          throw;
+          throw std::runtime_error("Error in positions/trainNN.cxx");
         }
 
 	if (iClus%dilutionFactor==1)      jn->SetInputTestSet( counter1, (sizeX+1)*sizeY, norm_layerNumber(ClusterPixLayer));
@@ -586,12 +586,12 @@ if(useTrackEstimate){
 	
             if (phi!=phi) {
               cout << " phi: " << phi << endl;
-              throw;
+              throw std::runtime_error("Error in positions/trainNN.cxx");
             }
             
             if (theta!=theta) {
               cout << " theta: " << theta << endl;
-              throw;
+              throw std::runtime_error("Error in positions/trainNN.cxx");
             }
             
 
@@ -648,7 +648,7 @@ if(useTrackEstimate){
             if (xPositions[o]!=xPositions[o])
             {
               cout << "pos: " << xPositions[o] << endl;
-              throw;
+              throw std::runtime_error("Error in positions/trainNN.cxx");
             }
 
 	    if (counter0==0) std::cout << " output node: " << 2*o << " set to: " << norm_posX(xPositions[o]) << endl;
@@ -675,7 +675,7 @@ if(useTrackEstimate){
 	    
 	    if (fabs(corry+1000)<1e-6) {
 	      cout << " could not find original X pos. " << endl;
-	      throw;
+	      throw std::runtime_error("Error in positions/trainNN.cxx");
 	    }
 	    
 	    if (iClus%dilutionFactor==0)    jn->SetOutputTrainSet(counter0, 2*o+1, norm_posY(corry));
@@ -683,7 +683,7 @@ if(useTrackEstimate){
 	    
             if (corry!=corry) {
               cout << " posY " << corry << endl;
-              throw;
+              throw std::runtime_error("Error in positions/trainNN.cxx");
             }
             
 

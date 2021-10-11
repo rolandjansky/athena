@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -100,12 +100,6 @@ public:
                                 Trk::PropDirection dir,
                                 const Trk::TrackingVolume*& nextVol,
                                 double tol) const = 0;
-
-  /** Validation Action:
-       Can be implemented optionally, outside access to internal validation
-     steps */
-  virtual void validationAction() const = 0;
-
 
   /** INavigator interface method - getting the next BoundarySurface not knowing
    * the Volume*/

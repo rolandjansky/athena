@@ -18,7 +18,7 @@ public:
   VP1BanksSystem * theclass;
   bool useDetStore();
   bool allowRefresh;
-  Ui::VP1BanksSystemControllerForm ui;
+  Ui::VP1BanksSystemControllerForm ui{};
 
   QString idToName(const CLID&) const;
   IClassIDSvc *clidSvc;

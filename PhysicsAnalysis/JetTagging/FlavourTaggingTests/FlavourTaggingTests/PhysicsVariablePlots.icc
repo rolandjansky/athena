@@ -1,0 +1,80 @@
+
+template < typename T >
+StatusCode PhysicsVariablePlots::defineHistogram( const std::string& variableName,
+	   					  const std::string& title,
+                                                  int nBinsX, double xMin, double xMax,
+						  const std::string& path ) {
+
+  if ( m_Histograms1D.find( variableName.c_str() ) != m_Histograms1D.end() ) {
+    ATH_MSG_ERROR( "Trying to define histogram for variable '" << variableName << "' but this histogram already exists!" );
+    return StatusCode::FAILURE;
+  }
+
+  m_Histograms1D[ variableName.c_str() ] = new T( variableName.c_str(),
+                                                  title.c_str(),
+                                                  nBinsX,xMin,xMax );
+
+  std::string subPath = "";
+  if ( not path.empty() ) subPath = path + "/";
+						  
+  const std::string histoPath = "/MYSTREAM/"+ subPath + variableName;
+  TH1* histoObj = m_Histograms1D.at( variableName.c_str() );
+  ATH_CHECK( m_histSvc->regHist( histoPath,histoObj ) );
+
+  return StatusCode::SUCCESS;
+}
+
+template < typename T >
+StatusCode PhysicsVariablePlots::defineHistogram( const std::string& variableName,
+	   					  const std::string& title,
+                                                  int nBinsX, double xMin, double xMax,
+                                                  int nBinsY, double yMin, double yMax,
+						  const std::string& path ) {
+
+  if ( m_Histograms2D.find( variableName.c_str() ) != m_Histograms2D.end() ) {
+    ATH_MSG_ERROR( "Trying to define histogram for variable '" << variableName << "' but this histogram already exists!" );
+    return StatusCode::FAILURE;
+  }
+
+  m_Histograms2D[ variableName.c_str() ] = new T( variableName.c_str(),
+  		  		       	       	  title.c_str(),
+                                                  nBinsX,xMin,xMax,
+                                                  nBinsY,yMin,yMax );
+
+  std::string subPath = "";
+  if ( not path.empty() ) subPath = path + "/";
+
+  const std::string histoPath = "/MYSTREAM/" + subPath + variableName;
+  TH2* histoObj = m_Histograms2D.at( variableName.c_str() );
+  ATH_CHECK( m_histSvc->regHist( histoPath,histoObj ) );
+
+  return StatusCode::SUCCESS;
+}
+
+template < typename T >
+StatusCode PhysicsVariablePlots::fillHistogram( const std::string& variableName,
+	   					T value ) {
+
+  if ( m_Histograms1D.find( variableName.c_str() ) == m_Histograms1D.end() ) {
+    ATH_MSG_ERROR( "Trying to fill histogram for variable '" << variableName << "' but this histogram has not been stored!" );
+    return StatusCode::FAILURE;
+  }
+
+  m_Histograms1D.at( variableName.c_str() )->Fill( value );
+  return StatusCode::SUCCESS;
+}
+
+template < typename T,typename U >
+StatusCode PhysicsVariablePlots::fillHistogram( const std::string& variableName,
+	   					T valueX, 
+						U valueY ) {
+
+  if ( m_Histograms2D.find( variableName.c_str() ) == m_Histograms2D.end() ) {
+    ATH_MSG_ERROR( "Trying to fill histogram for variable '" << variableName << "' but this histogram has not been stored!" );
+    return StatusCode::FAILURE;
+  }
+
+  m_Histograms2D.at( variableName.c_str() )->Fill( valueX,valueY );
+  return StatusCode::SUCCESS;
+}
+

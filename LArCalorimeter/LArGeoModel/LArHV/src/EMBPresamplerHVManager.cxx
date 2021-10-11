@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBPresamplerHVManager.h"
@@ -22,7 +22,6 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArCabling/LArHVCablingTool.h"
 
 #ifndef SIMULATIONBASE
 #ifndef GENERATIONBASE
@@ -33,33 +32,6 @@
 #include "Identifier/HWIdentifier.h"
 
 #include <atomic>
-
-
-namespace {
-
-
-struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
-{
-  LegacyIdFunc();
-  std::vector<HWIdentifier> operator()(HWIdentifier id)
-  {
-    return m_cablingTool->getLArElectrodeIDvec (id);
-  }
-  LArHVCablingTool* m_cablingTool;
-};
-
-
-LegacyIdFunc::LegacyIdFunc()
-{
-  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
-  if (!tool.retrieve().isSuccess()) {
-    std::abort();
-  }
-  m_cablingTool = tool.get();
-}
-
-
-} // Anonymous namespace
 
 
 class EMBPresamplerHVManager::Clockwork {
@@ -91,8 +63,8 @@ public:
   }
   std::unique_ptr<EMBPresamplerHVDescriptor>     descriptor;
   std::unique_ptr<const EMBPresamplerHVModule>   moduleArray[2][4][32];
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 
@@ -303,22 +275,6 @@ EMBPresamplerHVManager::getData (idfunc_t idfunc,
 
   return EMBPresamplerHVManager::EMBPresamplerHVData (std::move (payload));
 }
-
-EMBPresamplerHVManager::EMBPresamplerHVData
-EMBPresamplerHVManager::getData ATLAS_NOT_THREAD_SAFE () const
-{
-  std::vector<const CondAttrListCollection*> attrLists;
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
-  const CondAttrListCollection* atrlistcol = nullptr;
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
-    attrLists.push_back (atrlistcol);
-  }
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
-    attrLists.push_back (atrlistcol);
-  }
-  return getData (LegacyIdFunc(), attrLists);
-}
-
 
 #ifndef SIMULATIONBASE
 #ifndef GENERATIONBASE

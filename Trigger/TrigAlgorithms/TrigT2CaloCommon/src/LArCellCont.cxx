@@ -8,18 +8,17 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 #include <iostream>
 
-LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_BCIDcache(false)
 {}
 
 StatusCode
-LArCellCont::initialize( const LArMCSym& mcsym ) {
+LArCellCont::initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -53,9 +52,8 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
    std::cout << "Problems to initialize Hid2RESrcID" << std::endl;
    return StatusCode::FAILURE;
  }
- m_hash.initialize(0);
+ m_hash.initialize(0, febrod.getLArRoModIDvec() );
 
- //LArReadoutModuleID* larrodid = new LArReadoutModuleID(0);
  HWIdentifier larrodid(0);
  for(int i=0;i<m_hash.max();i++){
 #ifdef TRIGLARCELLDEBUG
@@ -73,22 +71,6 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
  // Not anymore necessary
  //delete larrodid;
 
-// Needs to find each FEB and attach it to a collection
-//LArCablingService* larCablingSvc;
-//sc = toolSvc->retrieveTool("LArCablingService",larCablingSvc);
-sc = toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
-if (sc.isFailure()){
-  std::cout << "LArCellCont\t\t DEBUG \t"
-     << "Problems to retrieve LArCablingSvc" << std::endl;
-  return StatusCode::FAILURE;
-}
- 
- if (sc.isFailure()){
-   std::cout << "LArCellCont\t\t DEBUG \t"
-	     << "Problems to retrieve LArCablingSvc" << std::endl;
-   return StatusCode::FAILURE;
- }
-
 LArRoI_Map* roiMap;
 if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map", roiMap ) )
      {std::cout << " Can't get AlgTool LArRoI_Map " << std::endl;
@@ -101,12 +83,12 @@ makeCell.setThreshold(-100);
 makeCell.initialize( roiMap, &LArCellCorrTools, 0 ); 
 
 
-sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);
-bool doCellMasking = sc.isSuccess() && m_masker->isMaskingOn();
+//sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);
+//bool doCellMasking = sc.isSuccess() && m_masker->isMaskingOn();
 
-if(!sc.isSuccess()) //not a critical error. LArCellCont can proceed as usual, without masking.
-    std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
-std::cout << "doCellMasking "<<doCellMasking<<std::endl;
+//if(!sc.isSuccess()) //not a critical error. LArCellCont can proceed as usual, without masking.
+//    std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
+//std::cout << "doCellMasking "<<doCellMasking<<std::endl;
 
 sc = toolSvc->retrieveTool("LArBadFebMasker", m_badFebMasker);
 bool toolAvailable = sc.isSuccess(); 
@@ -135,9 +117,6 @@ m_corrBCID.resize(indexsetmax+1,0.0);
 for(unsigned int i=0; i< m_hashSym.size(); ++i) (m_hashSym[i]).clear();
 m_hashSym.clear();
 m_hashSym.resize(onlineId->febHashMax());
-//const std::vector<HWIdentifier> larFEBs = m_larCablingSvc->getLArFEBIDvec();
-//const std::vector<HWIdentifier> larFEBs = larCablingSvc->getLArFEBIDvec();
-//for(std::vector<HWIdentifier>::const_iterator i=larFEBs.begin();i!=larFEBs.end();i++){
  for (unsigned iFeb=0;iFeb<onlineId->febHashMax();++iFeb) {
    const HWIdentifier febid=onlineId->feb_Id(IdentifierHash(iFeb));
     if( (toolAvailable && (m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
@@ -145,7 +124,7 @@ m_hashSym.resize(onlineId->febHashMax());
     }
     if( (toolAvailable && !(m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
 	// get RodID associated with the collection
-      HWIdentifier rodId = m_larCablingSvc->getReadoutModuleID(febid); 
+        HWIdentifier rodId = febrod.getReadoutModuleID(febid); 
 	unsigned int rodId32 = m_conv.getRodIDFromROM(rodId);
 	// index in the collection vector
 	int idx = m_hash(rodId32);
@@ -169,7 +148,17 @@ m_hashSym.resize(onlineId->febHashMax());
 		// Fixes default value
 		larcell->setGain(CaloGain::LARHIGHGAIN);
 		(*this)[idx]->push_back(larcell);	
-		collMap[ttId].push_back(larcell);
+                LArBadChannel bc = badchannel.offlineStatus(larcell->ID());
+                bool good(true);
+		if (! bc.good() ){
+		   // cell has some specific problems
+		   if ( bc.unstable() ) good=false;
+		   if ( bc.highNoiseHG() ) good=false;
+		   if ( bc.highNoiseMG() ) good=false;
+		   if ( bc.highNoiseLG() ) good=false;
+		   if ( bc.problematicForUnknownReason() ) good=false;
+		}
+		if ( good ) collMap[ttId].push_back(larcell); // cell masked if not know to be good
 		HWIdentifier hwsym = mcsym.ZPhiSymOnl(onlineId->channel_Id(febid,ch));
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
@@ -202,19 +191,8 @@ m_hashSym.resize(onlineId->febHashMax());
 		for(std::vector<LArCell*>::const_iterator it
 		  = mapIt->second.begin(); it != mapIt->second.end(); it++)
 		{
-			if(doCellMasking && m_masker->cellShouldBeMasked((*it)->ID()) )
-			{  //Print a detailed message for the record. Alternatively, could print this in the Masker tool.
-#ifdef TRIGLARCELLDEBUG
-				Identifier offID = (*it)->ID();
-				HWIdentifier hwID = m_larCablingSvc->createSignalChannelID(offID);
-				std::cout << "LArCellCont \t\t LArCell with OfflineID = " 
-					<< offID.get_compact() << " = 0x" << std::hex 
-					<< offID.get_compact() << std::dec << ", HardwareID = "
-					<< hwID.get_compact() << " has been masked." << std::endl;
-#endif
-			}
-			else 
-				vec->push_back(*it);
+		// 	if(doCellMasking && m_masker->cellShouldBeMasked((*it)->ID()) )
+		  vec->push_back(*it);
 		}
         	(*this)[idx]->setTT(mapIt->first,vec->begin(),vec->end());
 		m_vecs.push_back(vec);
@@ -251,31 +229,29 @@ return StatusCode::SUCCESS;
 } // end of finalize
 
 // This WILL NOT trigger BSCNV. This assumes BSCNV was done before
-const std::vector<LArCellCollection*>::const_iterator&
+const std::vector<LArCellCollection*>::const_iterator
 LArCellCont::find(const HWIdentifier& rodid) const{
 	int idx = m_hash(m_conv.getRodIDFromROM (rodid));
-	m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
-	return m_it;
+	return (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
 }
 
 // This WILL NOT trigger BSCNV. This assumes BSCNV was done before
-const std::vector<LArCellCollection*>::const_iterator&
+const std::vector<LArCellCollection*>::const_iterator
 LArCellCont::find(const unsigned int& rodid) const{
 	int idx = m_hash(rodid);
 	if ( m_eventNumber[idx] != m_event ) { // Decoding a new event
-	m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
-	// Keep track of last decoded number
 	m_eventNumber[idx] = m_event;
+	return (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
+	// Keep track of last decoded number
 	} else { // Event already decoded. Return Null
-	m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).end());
+	return (std::vector<LArCellCollection*>::const_iterator)((*this).end());
 	}
-	return m_it;
 }
 
 void LArCellCont::applyBCIDCorrection(const unsigned int& rodid){
   int idx = m_hash(rodid);
-  m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
-  LArCellCollection* col = (*m_it);
+  std::vector<LArCellCollection*>::const_iterator it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
+  LArCellCollection* col = (*it);
   unsigned int itsize = col->size();
   std::vector<int>& hashTab = m_hashSym[idx];
   for(unsigned int i=0; i< itsize; ++i){
@@ -306,21 +282,20 @@ void LArCellCont::lumiBlock_BCID(const unsigned int lumi_block, const unsigned i
   }    
 }
 
-void LArCellCont::updateBCID( const CaloBCIDAverage& avg  ) {
+void LArCellCont::updateBCID( const CaloBCIDAverage& avg, const LArOnOffIdMapping& onoff  ) {
 
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
 
-  if ( m_larCablingSvc == 0  ) return;
-    std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
-    for( ; beg != end ; ++beg ) {
+  std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
+  for( ; beg != end ; ++beg ) {
       HWIdentifier hwid = (*beg).first;
       int idx = (*beg).second;
       if ( idx < (int)m_corrBCID.size() ){
-        Identifier id = m_larCablingSvc->cnvToIdentifier(hwid);
+        Identifier id = onoff.cnvToIdentifier(hwid);
 	float corr = avg.average(id);
 	m_corrBCID[idx] = corr;
       }
-    } // end of HWID
+  } // end of HWID
   return; 
 }
 

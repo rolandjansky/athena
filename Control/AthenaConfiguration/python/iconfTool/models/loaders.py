@@ -75,6 +75,14 @@ baseParser.add_argument(
 )
 
 baseParser.add_argument(
+    "--ignoreDefaultNamedComps",
+    help="""Ignores default handles that have full type specified. That is, if the setting is actually: Tool/A and the default value was just A, the Tool/A is assumed to be default and eliminated.
+    Beware that there is a caveat, the ignored class name may be actually different from the default (there is no way to check that in python).""",
+    action="store_true"
+)
+
+
+baseParser.add_argument(
     "--shortenDefaultComponents",
     help="Automatically shorten componet names that have a default name i.e. ToolX/ToolX to ToolX. It helps comparing Run2 & Run3 configurations where these are handled differently",
     action="store_true",
@@ -138,14 +146,23 @@ def renameComps(dic, args) -> Dict:
     })
 
     def rename_comps(comp_name):
-        return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
+        """Renames component if it is in the dict or, when name fragment is in the dict
+        The later is for cases like: ToolSvc.ToolA.X.Y is renamed to ToolSvc.ToolB.X.Y
+        """
+        renamed = componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
+        if renamed != comp_name: 
+            return renamed
+        for k,v in componentRenamingDict.items():
+            if f"{k}." in comp_name or f".{k}" in comp_name:
+                return v.replace(k, v)
+        return comp_name
 
     conf = {}
     for (key, value) in dic.items():
         conf[rename_comps(key)] = value
     return conf
 
-def ignoreDefaults(dic, args) -> Dict:
+def ignoreDefaults(allconf, args) -> Dict:
     name_to_type=dict()
     conf = {}
 
@@ -158,22 +175,28 @@ def ignoreDefaults(dic, args) -> Dict:
             from AthenaConfiguration.ComponentFactory import CompFactory
             comp_cls = CompFactory.getComp(component_type)
         except Exception:
-            logger.debug("Could not find the configuration class %s no defaults for are eliminated", component_name)
+            logger.debug("Could not find the configuration class %s no defaults for it can be eliminated", component_name)
             return val_dict
         c = {}
 
         for k,v in val_dict.items():
-            default = str(comp_cls._descriptors[k].default)
-            sv = str(v)
-            if default == sv or default.replace("StoreGateSvc+", "") == sv.replace("StoreGateSvc+", ""):
-                logger.debug("Dropped default value %s of property %s in %s", str(v), str(k), component_name)
-            else:
+            if k not in comp_cls._descriptors: # property not in descriptors (for instance, removed from component now)
                 c[k] = v
-                logger.debug("Keep value %s of property %s in %s because it is different from default %s", str(v), str(k), component_name, str(comp_cls._descriptors[k].default))
+            else:    
+                default = str(comp_cls._descriptors[k].default)
+                sv = str(v)
+                if default == sv or default.replace("StoreGateSvc+", "") == sv.replace("StoreGateSvc+", ""): 
+                    logger.debug("Dropped default value %s of property %s in %s because the default is %s", sv, k, component_name, str(default))
+                elif args.ignoreDefaultNamedComps and isinstance(v, str) and sv.endswith(f"/{default}"):
+                    logger.debug("Dropped speculatively value %s of property %s in %s because the default it ends with %s", sv, k, component_name, str(default))
+                else:
+                    c[k] = v
+                    logger.debug("Keep value %s of property %s in %s because it is different from default %s", str(v), str(k), component_name, str(comp_cls._descriptors[k].default))
         return c
 
      # collect types for all componets (we look for A/B or lost of A/B strings)
     def collect_types(value):
+        """Updates name_to_type mapping"""
         parseable = False
         try:
             s = ast.literal_eval(str(value))
@@ -190,12 +213,12 @@ def ignoreDefaults(dic, args) -> Dict:
         if isinstance(value, dict):
             [ collect_types(v) for v in value.values() ]
 
-    for (key, value) in dic.items():
-        collect_types(value)
-    for (key, value) in dic.items():
-        remaining = drop_defaults(key, value)
+    for (comp_name, comp_settings) in allconf.items():
+        collect_types(comp_settings)
+    for (comp_name, comp_settings) in allconf.items():
+        remaining = drop_defaults(comp_name, comp_settings)
         if len(remaining) != 0: # ignore components that have only default settings
-            conf[key] = remaining
+            conf[comp_name] = remaining
     return conf
 
 def shortenDefaultComponents(dic, args) -> Dict:
@@ -234,7 +257,7 @@ def loadConfigFile(fname, args) -> Dict:
     Supports reading: Pickled file with the CA or properties & JSON
     """
     if args.debug:
-        print("Debugging info in ", logger.handlers[0].baseFilename)
+        print("Debugging info from reading ", fname, " in ", logger.handlers[0].baseFilename)
         logger.setLevel(logging.DEBUG)
 
     conf = {}
@@ -312,15 +335,15 @@ def loadConfigFile(fname, args) -> Dict:
     return conf
 
 class ComponentsFileLoader:
-    def __init__(self, file_path: str, checked_elements=set()) -> None:
+    def __init__(self, file_path: str, args, checked_elements=set()) -> None:
         self.file_path: str = file_path
         self.checked_elements: Set[str] = checked_elements
+        self.args = args
 
     def _load_file_data(self) -> Dict:
         logger.info(f"Loading {self.file_path}")
-        return loadConfigFile(self.file_path)
-        with open(self.file_path, "rb") as f:
-            return dict(pickle.load(f))
+        return loadConfigFile(self.file_path, self.args)
+
 
     def load_structure(self) -> ComponentsStructure:
         data = self._load_file_data()
@@ -404,3 +427,38 @@ class ComponentsDiffFileLoader:
         while j < len(diff_structure):
             diff_structure[j].mark()
             j += 1
+
+
+def loadDifferencesFile(fname) -> Dict:
+    """
+    Read differences file
+    Format:
+    full_component_name.property oldvalue=newvalue
+    example:
+    AlgX.ToolA.SubToolB.SettingZ 45=46
+    It is possible to specify missing values, e.g:
+    AlgX.ToolA.SubToolB.SettingZ 45=    means that now the old value should be ignored
+    AlgX.ToolA.SubToolB.SettingZ =46    means that now the new value should be ignored
+    AlgX.ToolA.SubToolB.SettingZ =      means that any change of the value should be ignored 
+
+    """
+    from collections import defaultdict
+    differences = defaultdict(dict)
+    count=0
+    with open(fname, "r") as f:
+        for line in f:
+            if line[0] == "#" or line == "\n":
+                continue
+            line = line.strip()
+            compAndProp, values = line.split(" ")           
+            comp, prop = compAndProp.rsplit(".", 1)
+            o,n = values.split("=")
+            oldval,newval = o if o else None, n if n else None
+                
+            differences[comp][prop] = (oldval,newval)
+            count+=1
+    logger.info("... Read %d known differences from file: %s", count, fname)
+    logger.info("..... %s", str(differences))
+
+    return differences
+

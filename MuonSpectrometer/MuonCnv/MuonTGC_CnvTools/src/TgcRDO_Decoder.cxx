@@ -14,7 +14,7 @@
 Muon::TgcRDO_Decoder::TgcRDO_Decoder
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_cabling(0), 
+    m_cabling(nullptr), 
     m_applyPatch(false) 
 {
   declareInterface<ITGC_RDO_Decoder>(this);
@@ -48,7 +48,7 @@ TgcDigit* Muon::TgcRDO_Decoder::getDigit(const TgcRawData * rawData, bool orFlag
   // ITGCcablingSvc should be configured at initialise
   if(!m_cabling){
     ATH_MSG_ERROR("ITGCcablingSvc is not available in TgcRDO_Decoder::getDigit()");
-    return 0;
+    return nullptr;
   }
 
   int offset=0, offsetORed=0;
@@ -90,7 +90,7 @@ TgcDigit* Muon::TgcRDO_Decoder::getDigit(const TgcRawData * rawData, bool orFlag
     (chanId, rawData->subDetectorId(), rawData->rodId(),
      sswId, slbId, bitpos+corr, orFlag);
   
-  if(!c_found) return 0;
+  if(!c_found) return nullptr;
   
   return new TgcDigit(chanId,rawData->bcTag());
 }
@@ -154,7 +154,7 @@ Identifier Muon::TgcRDO_Decoder::getOfflineData(const TgcRawData * rawData, bool
 StatusCode Muon::TgcRDO_Decoder::getCabling() {
   // get TGC cablingSvc
 
-  const ITGCcablingServerSvc* TgcCabGet = 0;
+  const ITGCcablingServerSvc* TgcCabGet = nullptr;
   StatusCode sc = service("TGCcablingServerSvc", TgcCabGet);
   if(!sc.isSuccess()) {
     msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;

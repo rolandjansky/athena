@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPCCOOLSTRSVC_H
@@ -41,7 +41,7 @@ namespace MuonCalib {
 
   class RpcCalibDBEntry;
 
-  class RpcCoolStrSvc : public AthService, virtual public RpcICoolStrSvc
+  class ATLAS_NOT_THREAD_SAFE RpcCoolStrSvc : public AthService, virtual public RpcICoolStrSvc
   {
    friend class SvcFactory<RpcCoolStrSvc>;
 
@@ -49,27 +49,27 @@ namespace MuonCalib {
     RpcCoolStrSvc(const std::string& name, ISvcLocator* svc);
     virtual ~RpcCoolStrSvc()=default;
 
-    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
     virtual const InterfaceID& type() const;
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /**putFile copies data from a calibration file to the database. 
       @param filename The name of the file to copy from.
      */
-    virtual StatusCode putFile(const std::string filename) const;
+    virtual StatusCode putFile(const std::string& filename) const override;
     /**makeFile reads data from the db and creates a claibration file 
       @param filename The name of the file to write to
      */
-    virtual StatusCode makeFile(const std::string filename) const;
+    virtual StatusCode makeFile(const std::string& filename) const override;
     /**putOnlineFile copies data from a file containing dead channels to the database. 
       @param filename The name of the file to copy from.
      */
-    virtual StatusCode putOnlineFile(const std::string filename) const;
+    virtual StatusCode putOnlineFile(const std::string& filename) const override;
     /**makeOnlineFile copies dead chans from the db to the file. 
       @param filename The name of the file to write to
      */
-    virtual StatusCode makeOnlineFile(const std::string filename) const;
+    virtual StatusCode makeOnlineFile(const std::string& filename) const override;
 
     private:
     /**p_detstore hold a pointer to the transient data storage*/
@@ -81,8 +81,8 @@ namespace MuonCalib {
     /**Cool folder name*/
     std::string m_folder;
 
-    virtual StatusCode writeToDB() const;
-    virtual StatusCode writeToOnlineDB() const;
+    virtual StatusCode writeToDB() const override;
+    virtual StatusCode writeToOnlineDB() const override;
 
 
   };

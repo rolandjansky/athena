@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDColor_H
@@ -7,19 +7,23 @@
 
 #include <string>
 
+class AGDDColorStore;
+
 class AGDDColor {
 public:
-	AGDDColor(std::string n,double a,double b,double c):m_name(n),m_red(a),m_green(b),m_blue(c) 
+	AGDDColor(AGDDColorStore& cs,
+                  const std::string& n,
+                  double a,double b,double c):m_name(n),m_red(a),m_green(b),m_blue(c) 
 	{
-		RegisterToStore();
+		RegisterToStore(cs);
 	}
-	double Red() {return m_red;}
-	double Green() {return m_green;}
-	double Blue() {return m_blue;}
-	std::string GetName() {return m_name;}
+	double Red() const {return m_red;}
+	double Green() const {return m_green;}
+	double Blue() const {return m_blue;}
+	std::string GetName() const {return m_name;}
 private:
 	std::string m_name;
-	void RegisterToStore();
+	void RegisterToStore(AGDDColorStore& cs);
 	double m_red,m_green,m_blue;
 };
 

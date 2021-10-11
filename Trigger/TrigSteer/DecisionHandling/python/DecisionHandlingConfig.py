@@ -1,9 +1,11 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # 
 
-def setupFilterMonitoring( filterAlg ):    
-    if not hasattr(filterAlg, "Input"):
+EnableFilterMonitoring = False  # Can be changed in a precommand/preExec
+
+def setupFilterMonitoring( filterAlg ):
+    if not EnableFilterMonitoring or not hasattr(filterAlg, "Input"):
         return
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')

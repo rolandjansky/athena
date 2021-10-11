@@ -91,7 +91,7 @@ private:
     ////////////////////////////////
     //  general members
     ////////////////////////////////
-    UInt_t m_nEvent;
+    uint64_t m_nEvent;
 	ALFA_GloRecEvCollection* m_pGloRecEvCollection;
 
 

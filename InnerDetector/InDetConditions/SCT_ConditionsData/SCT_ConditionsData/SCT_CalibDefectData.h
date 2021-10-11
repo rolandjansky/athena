@@ -52,7 +52,7 @@ public:
   std::string str();
 
   /// Print data for one module
-  std::string moduleText( const Identifier & moduleId );
+  std::string moduleText( const Identifier & moduleId ) const;
   
   /// Return whether the map is empty
   bool empty() const;

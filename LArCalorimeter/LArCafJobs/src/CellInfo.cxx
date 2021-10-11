@@ -52,6 +52,18 @@ CellInfo::CellInfo(const CellInfo& other, bool withShapes)
   if (withShapes && other.m_shapeH) m_shapeH = new ShapeInfo(*other.m_shapeH); 
 }
 
+CellInfo::CellInfo(CellInfo&& other) noexcept : m_calo(other.m_calo), m_layer(other.m_layer), 
+    m_iEta(other.m_iEta), m_iPhi(other.m_iPhi), 
+    m_feedThrough(other.m_feedThrough), m_slot(other.m_slot), m_channel(other.m_channel),
+    m_shapeL(0), m_shapeM(0), m_shapeH(0), 
+    m_rt(other.m_rt), m_eta(other.m_eta), m_phi(other.m_phi),  m_onlid(other.m_onlid)
+{
+    ClassCounts::incrementInstanceCount("CellInfo");
+    std::swap(m_shapeL, other.m_shapeL);
+    std::swap(m_shapeM, other.m_shapeM);
+    std::swap(m_shapeH, other.m_shapeH);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CellInfo::~CellInfo() 

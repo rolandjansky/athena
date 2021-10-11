@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon.Logging import logging
@@ -16,13 +16,14 @@ def checkLegacyEventInfo(inputlist):
 
     return present
 
-def checkTruthJetContainer(inputlist):
+def checkTruthJetContainer(inputlist, containerName):
     """ Check for  Truth Jet Container """
     present = False
     for entry in inputlist:
         if entry[0] != 'xAOD::JetContainer':
             continue
-
+        if entry[1] != containerName:
+            continue
         print(entry)
         present = True
 
@@ -240,11 +241,13 @@ def buildDict(inputtype, inputfile):
             metadatadict['PileUpTruthParticles'] = checkTruthParticleContainer(f.infos['eventdata_items'])
         else:
             metadatadict['PileUpTruthParticles'] = False
-        ## Check for xAOD::TruthJetContainer
+        ## Check for xAOD::TruthJetContainers
         if 'eventdata_items' in f.infos.keys():
-            metadatadict['PileUpTruthJets'] = checkTruthJetContainer(f.infos['eventdata_items'])
+            metadatadict['PileUpAntiKt4TruthJets'] = checkTruthJetContainer(f.infos['eventdata_items'], 'AntiKt4TruthJets')
+            metadatadict['PileUpAntiKt6TruthJets'] = checkTruthJetContainer(f.infos['eventdata_items'], 'AntiKt6TruthJets')
         else:
-            metadatadict['PileUpTruthJets'] = False
+            metadatadict['PileUpAntiKt4TruthJets'] = False
+            metadatadict['PileUpAntiKt6TruthJets'] = False
         ##End of Patch for older hit files
         logDigitizationReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
         logDigitizationReadMetadata.debug("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
@@ -359,10 +362,15 @@ def signalMetaDataCheck(metadatadict):
             from Digitization.DigitizationFlags import digitizationFlags
             digitizationFlags.experimentalDigi += ['LegacyEventInfo']
 
-    if not skipCheck('PileUpTruthJets'):
-        if metadatadict['PileUpTruthJets']:
+    if not skipCheck('PileUpAntiKt4TruthJets'):
+        if metadatadict['PileUpAntiKt4TruthJets']:
             from Digitization.DigitizationFlags import digitizationFlags
-            digitizationFlags.experimentalDigi += ['PileUpTruthJets']
+            digitizationFlags.experimentalDigi += ['PileUpAntiKt4TruthJets']
+
+    if not skipCheck('PileUpAntiKt6TruthJets'):
+        if metadatadict['PileUpAntiKt6TruthJets']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['PileUpAntiKt6TruthJets']
 
     ## Any other checks here
     logDigitizationReadMetadata.info("Completed checks of Digitization properties against Signal Simulation MetaData.")
@@ -440,10 +448,15 @@ def pileupMetaDataCheck(pileuptype, pileupfile, simdict):
             else:
                 logDigitizationReadMetadata.debug("All sub-detectors simulated in the signal sample were also simulated in the %s background sample.", longpileuptype)
 
-    if not skipPileUpCheck('PileUpTruthJets', pileuptype):
-        if metadatadict['PileUpTruthJets']:
+    if not skipPileUpCheck('PileUpAntiKt4TruthJets', pileuptype):
+        if metadatadict['PileUpAntiKt4TruthJets']:
             from Digitization.DigitizationFlags import digitizationFlags
-            digitizationFlags.experimentalDigi += ['PileUpTruthJets']
+            digitizationFlags.experimentalDigi += ['PileUpAntiKt4TruthJets']
+
+    if not skipPileUpCheck('PileUpAntiKt6TruthJets', pileuptype):
+        if metadatadict['PileUpAntiKt6TruthJets']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['PileUpAntiKt6TruthJets']
 
     if not skipPileUpCheck('PileUpTruthParticles', pileuptype):
         if metadatadict['PileUpTruthParticles']:

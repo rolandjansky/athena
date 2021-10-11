@@ -80,11 +80,11 @@ void ITkPixelClusterErrorData::setDeltaError(const Identifier* pixelId,
 
 
 // save all constants to file
-void ITkPixelClusterErrorData::print(std::string file) const {
+void ITkPixelClusterErrorData::print(const std::string& file) const {
 
   std::ofstream* outfile = new std::ofstream(file.c_str()); 
 
-  for(auto& x : m_constmap){
+  for(const auto & x : m_constmap){
 
     std::vector<double> value = x.second;
     *outfile << m_pixelID->wafer_hash(x.first) << " " << value[0] << " " << value[1] << " " << value[2] << " " << value[3] << " " << value[4] << " " << value[5] << " " << value[6] << " " << value[7] << std::endl;
@@ -98,7 +98,7 @@ void ITkPixelClusterErrorData::print(std::string file) const {
 
 
 // Load ITk constants from file
-void ITkPixelClusterErrorData::load(std::string file){
+void ITkPixelClusterErrorData::load(const std::string& file){
 
   std::ifstream infile( file.c_str() );
   

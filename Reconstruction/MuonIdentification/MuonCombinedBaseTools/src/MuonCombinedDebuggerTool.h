@@ -51,7 +51,7 @@ namespace MuonCombined {
         ServiceHandle<ITHistSvc> m_histSvc;
 
         TTree* m_recoTree;
-        int m_eventNumber;
+        int m_eventNumber{};
 
         std::vector<int> m_mstrack_has_truth;
         std::vector<int> m_mstrack_has_truth_par;

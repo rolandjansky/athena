@@ -29,12 +29,13 @@ public:
   virtual StatusCode finalize() override;
 
   // same enumeration as for Run2
-  enum LinkNums : unsigned int { kNS0=0, kNS1=1, kNS2=2, kNS3=3, kFS0=8, kFS1=9, kFS2=10, kFS3=11, kFS5=12, kFS4=13 };  
+  enum LinkNums : unsigned int { kNS0=0, kNS1=1, kNS2=2, kNS3=3, kFS0=8, kFS1=9, kFS2=10, kFS3=11, kFS5=12, kFS4=13, kUnknown=99};  
 
   unsigned int translate(unsigned int origlink) const override;
 
 private:
   Gaudi::Property<bool> m_useDB {this, "UseDB", false, "whether to use COOL DB (true) or hard-coded values (false) to obtain link numbers"};
+  Gaudi::Property<int> m_forceRunConfig {this, "ForceRunConfig", 0, "force run configuration for link translation regardless of actual run number; set to 2 for Run-2, set to 3 for Run-3; set 0 to disable"};
 
   // Using DB is not implemented yet
   // TODO: change based on reality

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1CaloTools )
@@ -13,8 +13,8 @@ atlas_add_component( TrigT1CaloTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaBaseComps CaloIdentifier 
-                     CaloTriggerToolLib CxxUtils EventInfo GaudiKernel PathResolver StoreGateLib TrigAnalysisInterfaces 
-                     TrigBunchCrossingToolLib TrigConfInterfaces TrigConfData TrigConfL1Data TrigT1CaloCalibConditions 
+                     CaloTriggerToolLib CxxUtils GaudiKernel PathResolver StoreGateLib LumiBlockData
+                     TrigConfInterfaces TrigConfData TrigConfL1Data TrigT1CaloCalibConditions
                      TrigT1CaloCalibToolInterfaces TrigT1CaloCondSvcLib TrigT1CaloEventLib TrigT1CaloToolInterfaces 
                      TrigT1CaloUtilsLib TrigT1Interfaces xAODEventInfo xAODTrigL1Calo )
 

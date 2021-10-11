@@ -310,7 +310,7 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
       else{ //overlay case
 	radius = m_TRTCalDbTool->driftRadius(rawtime,ft0,cid,isOK);// no m_t0_shift in rawtime, and use data TRTCalDbSvc
 	t0=ft0;
-	bool mcdigit = word & (1<<31);
+	bool mcdigit = word & (1u<<31);
 	if (mcdigit ){
 	  //check if it's a MC digit, and if so apply other calibration
 	  ATH_MSG_DEBUG ("Overlay TRTCalDbTool  gave  radius: "<<radius<<", t0: "<<t0);
@@ -321,24 +321,6 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
       }
       double drifttime = rawtime-t0;
       if( !isValidTime(drifttime) ) isOK=false;
-      
-      /*
-	if(isOK) {
-	std::cout <<" Found a radius " << radius << " for drifttime " << drifttime <<
-                    " t0 " << t0 << " bin " << std::max(int(drifttime/m_drifttimeperbin),0)
-                     << " for bec "<< m_trtid->barrel_ec(id) <<
-                     " layer_or_wheel " << m_trtid->layer_or_wheel(id) <<
-	             " strawlayer " << m_trtid->straw_layer(id)  << std::endl;
-	std::cout << " drift time from radius " << approxDriftTime(driftRadius(drifttime)) << std::endl;     
-      } else {
-	std::cout  <<" No good drift time "  << rawtime-t0 <<  " t0 " << t0 <<
-                     " bin " << std::max(int(drifttime/m_drifttimeperbin),0)
-                     << " for bec "<< m_trtid->barrel_ec(id) <<
-                     " layer_or_wheel " << m_trtid->layer_or_wheel(id) <<
-	             " strawlayer " << m_trtid->straw_layer(id)  <<std::endl;
-      }
-      */
-
       return radius;
     } 
 
@@ -354,35 +336,19 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
   double drifttime = rawtime-t0;
 
   if(!isValidTime(drifttime)) isOK=false;
-
-  /*
-  if(isOK) {
-    double radius = driftRadius(drifttime);
-    std::cout <<  " good drifttime " << drifttime << " t0 " << t0 <<
-                     " bin " << std::max(int(drifttime/m_drifttimeperbin),0)
-                     << " for bec "<< m_trtid->barrel_ec(id) <<
-                     " layer_or_wheel " << m_trtid->layer_or_wheel(id) <<
-                     " strawlayer " << m_trtid->straw_layer(id)  <<
-                     " radius " << radius <<  std::endl;
-    std::cout << " drift time from radius " << approxDriftTime(radius) << std::endl;     
-  } else {
-    std::cout << " no good drifttime " << drifttime << " for Identifier "<< id <<std::endl;
-  }
-  */
-
   return driftRadius(drifttime);
 }
  
 // Error of drift radius in mm -----------------------------------------------
 double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id, float mu, unsigned int word) const
 {
-  if( m_dummy ) return 4./sqrt(12.);
+  if( m_dummy ) return 4./std::sqrt(12.);
   if(m_force_universal_errors && m_uni_error!=0) return m_uni_error;
   bool founderr=true;
   bool foundslope=true;
   double error = m_TRTCalDbTool->driftError(drifttime,id,founderr);
   double slope = m_TRTCalDbTool->driftSlope(drifttime,id,foundslope);
-  bool mcdigit = word & (1<<31);
+  bool mcdigit = word & (1u<<31);
   if (m_isoverlay && mcdigit ){
     //check if it's a MC digit, and if so apply other calibration
     ATH_MSG_DEBUG ("Overlay TRTCalDbTool gave error: "<<error<<", found="<<founderr);
@@ -421,7 +387,7 @@ double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id, 
   if (tot_index < 0) tot_index = 0;
   if (tot_index > 19) tot_index = 19;
 
-  int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
+  int bec_index = std::abs(m_trtid->barrel_ec(id)) - 1;
 
   if (isArgonStraw) {
     return (bec_index) ? m_tot_corrections_endcap_Ar[tot_index] : m_tot_corrections_barrel_Ar[tot_index];
@@ -432,7 +398,7 @@ double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id, 
 // Returns high threshold correction to the drift time (ns)
 double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id, bool isArgonStraw) const
 {
-  int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
+  int bec_index = std::abs(m_trtid->barrel_ec(id)) - 1;
 
   if (isArgonStraw) {
     return (bec_index) ? m_ht_correction_endcap_Ar : m_ht_correction_barrel_Ar;
@@ -831,7 +797,7 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
           infile.open(m_inputfile.c_str());
           if(infile) {
             int index=0;
-            while ((infile >> m_radius[index] >> m_errors[index]) && index<20)
+            while ((index <20) and (infile >> m_radius[index] >> m_errors[index]))
               index++;
          
 	  } else {

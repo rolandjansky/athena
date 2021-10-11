@@ -96,8 +96,6 @@ namespace Muon {
         bool extractSegments(const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments,
                              ChSet& chambersWithSegments, StSet& stationsWithSegments, GarbageContainer& trash_bin) const;
 
-        virtual void cleanUp() const override;
-
         StatusCode decodeStrategyVector(const std::vector<std::string>& strategy);
         std::unique_ptr<const MuonTrackSteeringStrategy> decodeStrategy(const std::string& strategy) const;
         bool decodeList(const std::string& input, std::vector<std::string>& list) const;
@@ -147,24 +145,16 @@ namespace Muon {
                                                                 "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
-        mutable SegCol m_segmentsToDelete ATLAS_THREAD_SAFE;
-        mutable std::vector<const MuonSegment*> m_constsegmentsToDelete ATLAS_THREAD_SAFE;
-        mutable std::mutex m_segmentsMutex;
-        mutable std::mutex m_constSegmentsMutex;
-
         std::vector<std::unique_ptr<const MuonTrackSteeringStrategy>> m_strategies;
         std::vector<std::string> m_stringStrategies;
 
-        int m_segQCut[3];  //!< Required segment quality for seed, 2nd, and other segments
+        int m_segQCut[3]{};  //!< Required segment quality for seed, 2nd, and other segments
         bool m_outputSingleStationTracks;
         bool m_combinedSLOverlaps;
         bool m_doSummary;
         bool m_useTightMatching;
         bool m_onlyMDTSeeding;
         int m_segThreshold;
-
-        mutable std::atomic_uint m_findingDepth{0};
-        mutable std::atomic_uint m_seedCombinatorics{0};
     };
 
 }  // namespace Muon

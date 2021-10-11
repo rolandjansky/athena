@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MicroSessionManager.h"
@@ -172,7 +172,7 @@ bool
 pool::PersistencySvc::MicroSessionManager::attributeOfType( const std::string& attributeName,
                                                             void* data,
                                                             const std::type_info& typeInfo,
-                                                            const std::string& option ) const
+                                                            const std::string& option )
 {
   if ( ! m_session ) {
     long mode = pool::READ;

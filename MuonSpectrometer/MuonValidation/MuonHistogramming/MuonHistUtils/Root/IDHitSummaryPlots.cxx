@@ -19,7 +19,7 @@ void HitFracTypePlots::initializePlots()
   void HitFracTypePlots::fill(float fHits, float fEta, float weight)
 {
   fracHits->Fill(fHits, weight);
-  // can't weight this yet
+  // unclear how to weight this
   fracHitsVsEta->Fill(fHits, fEta);
 }  
   ///////////
@@ -37,7 +37,7 @@ IDHitSummaryPlots::IDHitSummaryPlots(PlotBase* pParent, std::string sDir):
   , fTRTOutliers(this, "fTRTOutliers","Fraction of TRT Outliers")
 {}
   
-  void IDHitSummaryPlots::fill(const xAOD::TrackParticle& trk, float /*weight*/)
+  void IDHitSummaryPlots::fill(const xAOD::TrackParticle& trk, float weight)
 {
   float eta=trk.eta();
   float phi=trk.phi();
@@ -45,45 +45,45 @@ IDHitSummaryPlots::IDHitSummaryPlots(PlotBase* pParent, std::string sDir):
   uint8_t iBLayerHits(0),bExpectBLayerHit(0);
   trk.summaryValue(bExpectBLayerHit,xAOD::expectInnermostPixelLayerHit);
   trk.summaryValue(iBLayerHits,xAOD::numberOfInnermostPixelLayerHits);
-  nBLayerHitsIfExpected.fill(bExpectBLayerHit*iBLayerHits,eta,phi);
+  nBLayerHitsIfExpected.fill(bExpectBLayerHit*iBLayerHits,eta,phi,weight);
 
   uint8_t iPixHits(0),iPixDead(0);
   trk.summaryValue(iPixHits,xAOD::numberOfPixelHits);
   trk.summaryValue(iPixDead,xAOD::numberOfPixelDeadSensors);
-  nPixelHitsPlusDead.fill(iPixHits+iPixDead,eta,phi);
+  nPixelHitsPlusDead.fill(iPixHits+iPixDead,eta,phi,weight);
 
   uint8_t iSCTHits(0),iSCTDead(0);
   trk.summaryValue(iSCTHits,xAOD::numberOfSCTHits);
   trk.summaryValue(iSCTDead,xAOD::numberOfSCTDeadSensors);
-  nSCTHitsPlusDead.fill(iSCTHits+iSCTDead,eta,phi);
+  nSCTHitsPlusDead.fill(iSCTHits+iSCTDead,eta,phi,weight);
 
   uint8_t iTRTHits(0),iTRTDead(0),iTRTOutliers(0);
   trk.summaryValue(iTRTHits,xAOD::numberOfTRTHits);
   trk.summaryValue(iTRTDead,xAOD::numberOfTRTDeadStraws);
   trk.summaryValue(iTRTOutliers,xAOD::numberOfTRTOutliers);
-  nTRTHitsPlusDead.fill(iTRTHits+iTRTDead,eta,phi);
-  nTRTHitsPlusOutliers.fill(iTRTHits+iTRTOutliers,eta,phi);
+  nTRTHitsPlusDead.fill(iTRTHits+iTRTDead,eta,phi,weight);
+  nTRTHitsPlusOutliers.fill(iTRTHits+iTRTOutliers,eta,phi,weight);
 
   uint8_t iPixHoles(0),iSCTHoles(0);
   trk.summaryValue(iPixHoles,xAOD::numberOfPixelHoles);
   trk.summaryValue(iSCTHoles,xAOD::numberOfSCTHoles);
-  nPixSCTHoles.fill(iPixHoles+iSCTHoles,eta,phi);
+  nPixSCTHoles.fill(iPixHoles+iSCTHoles,eta,phi,weight);
 
   uint8_t iPixelOutliers(0);
   trk.summaryValue(iPixelOutliers,xAOD::numberOfPixelOutliers);
   float nPix=(int)iPixelOutliers+(int)iPixHits;
   float fracPixOutliers = (nPix>0)? 1.*((int)iPixelOutliers)/nPix : 0;
-  fPixelOutliers.fill(fracPixOutliers,eta);
+  fPixelOutliers.fill(fracPixOutliers,eta,weight);
 
   uint8_t iSCTOutliers(0);
   trk.summaryValue(iSCTOutliers,xAOD::numberOfSCTOutliers);
   float nSCT=(int)iSCTOutliers+(int)iSCTHits;
   float fracSCTOutliers = (nSCT>0)? 1.*((int)iSCTOutliers)/nSCT : 0;
-  fSCTOutliers.fill(fracSCTOutliers,eta);
+  fSCTOutliers.fill(fracSCTOutliers,eta,weight);
 
   float nTRT=((int)iTRTOutliers)+((int)iTRTHits);
   float fracTRTOutliers = (nTRT>0)? ((int)iTRTOutliers)/nTRT : 0;
-  fTRTOutliers.fill(fracTRTOutliers,eta);
+  fTRTOutliers.fill(fracTRTOutliers,eta,weight);
 }
 
 

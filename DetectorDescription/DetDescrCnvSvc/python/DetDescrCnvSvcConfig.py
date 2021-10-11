@@ -9,7 +9,7 @@ def DetDescrCnvSvcCfg(flags, **kwargs):
     kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC)
     kwargs.setdefault("HasMM", flags.Detector.GeometryMM)
 
-    if flags.ITk.useLocalGeometry:
+    if flags.GeoModel.useLocalGeometry:
         kwargs.setdefault("IdDictFromRDB", False)
         kwargs.setdefault("InDetIDFileName", "ITKLayouts/IdDictInnerDetector_ITK_LOCAL.xml")
         kwargs.setdefault("MuonIDFileName", "IdDictParser/IdDictMuonSpectrometer_R.09.NSW.xml")

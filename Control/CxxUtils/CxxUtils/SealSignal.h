@@ -26,6 +26,7 @@
 # include <signal.h>
 # include <sys/types.h>
 # include <climits>
+#include <atomic>
 
 
 // Hacks for fields we might not have in siginfo_t.  Just print zero.
@@ -286,7 +287,7 @@ private:
 
     static bool			s_crashed;
     static int			s_inFatal;
-    static thread_local unsigned long s_lastSP;
+    static std::atomic<unsigned long> s_lastSP;
     static const char		*s_applicationName;
     static IOFD			s_fatalFd;
     static FatalHook		s_fatalHook;

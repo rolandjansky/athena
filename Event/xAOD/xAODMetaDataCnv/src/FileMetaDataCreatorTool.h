@@ -22,6 +22,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 // EDM include(s):
+#include "EventInfoMgt/ITagInfoMgr.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMetaData/FileMetaData.h"
@@ -135,26 +136,17 @@ class FileMetaDataCreatorTool
   ServiceHandle< StoreGateSvc > m_inputMetaDataStore{
     "InputMetaDataStore", name()};
 
+  /// Use MetaDataSvc store interface to support output in EventService
+  ServiceHandle< ITagInfoMgr > m_tagInfoMgr{
+    "TagInfoMgr", name()};
+
   /// Update from Simulation Parameters and TagInfo
   StatusCode updateFromNonEvent();
 
-  /// helper tool to update file meta data with IOV string content
-  StatusCode setString(
-      const coral::AttributeList& attributeList,
-      const std::string& tag,
-      const xAOD::FileMetaData::MetaDataType type);
-
-  /// helper tool to update file meta data with IOV float content
-  StatusCode setFloat(
-      const coral::AttributeList& attrList,
-      const std::string& tag,
-      const xAOD::FileMetaData::MetaDataType);
-
-  /// helper tool to update file meta data with IOV boolean content
-  StatusCode setBool(
-      const coral::AttributeList& attrList,
-      const std::string& tag,
-      const xAOD::FileMetaData::MetaDataType);
+  /// helper method to update FileMetaDataProprty with some checks
+  void set(const xAOD::FileMetaData::MetaDataType, bool);
+  void set(const xAOD::FileMetaData::MetaDataType, float);
+  void set(const xAOD::FileMetaData::MetaDataType, const std::string&);
 
   /// The object created for this output stream
   std::unique_ptr< xAOD::FileMetaData > m_info;

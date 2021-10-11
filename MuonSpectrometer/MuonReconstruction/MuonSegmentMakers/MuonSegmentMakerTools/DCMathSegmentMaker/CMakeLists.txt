@@ -9,4 +9,8 @@ atlas_subdir( DCMathSegmentMaker )
 atlas_add_component( DCMathSegmentMaker
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GeoPrimitives EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonStationIntersectSvcLib TrkGeometry TrkSurfaces TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkRoad TrkTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath MuonCondData MuonSegmentMakerToolInterfaces MuonSegmentMakerInterfacesLib )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GeoPrimitives EventPrimitives GaudiKernel MuonReadoutGeometry 
+                                    MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib 
+                                    MuonRecToolInterfaces MuonStationIntersectSvcLib TrkGeometry TrkSurfaces TrkEventPrimitives TrkParameters 
+                                    TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkRoad TrkTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces
+                                    TrkDriftCircleMath MuonCondData MuonSegmentMakerToolInterfaces MuonSegmentMakerInterfacesLib FourMomUtils)

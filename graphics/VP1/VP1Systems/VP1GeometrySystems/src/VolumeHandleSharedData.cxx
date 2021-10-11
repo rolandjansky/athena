@@ -24,19 +24,19 @@
 //____________________________________________________________________
 class VolumeHandleSharedData::Imp {
 public:
-  GeoSysController * controller;
+  GeoSysController * controller = nullptr;
   std::map<const GeoLogVol *, SoShape *> logvol2shape;
   std::map<double, SoNode *> id2shape;
   SoVisualizeAction visaction;
-  std::map<SoSeparator*,VolumeHandle*>* sonodesep2volhandle;
+  std::map<SoSeparator*,VolumeHandle*>* sonodesep2volhandle = nullptr;
   GeoPVConstLink motherpV;
-  PhiSectorManager* phisectormanager;
+  PhiSectorManager* phisectormanager = nullptr;
   VP1GeoFlags::SubSystemFlag subsysflag;
-  SoMaterial * topMaterial;
-  MatVisAttributes *matVisAttributes;
-  VolVisAttributes *volVisAttributes;
-  ZappedVolumeListModel * zappedvolumelistmodel;
-  int ref;
+  SoMaterial * topMaterial = nullptr;
+  MatVisAttributes *matVisAttributes = nullptr;
+  VolVisAttributes *volVisAttributes = nullptr;
+  ZappedVolumeListModel * zappedvolumelistmodel = nullptr;
+  int ref = 0;
 };
 
 //____________________________________________________________________

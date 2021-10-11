@@ -4,7 +4,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
 
-use_tracking_geometry_cond_alg = False
+use_tracking_geometry_cond_alg = True
 
 def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -121,8 +121,6 @@ def getInDetNewTrackingCuts() :
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
     elif InDetFlags.doHeavyIon():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
-    elif InDetFlags.doSLHC():
-        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
     elif InDetFlags.doIBL():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
     elif InDetFlags.doHighPileup():
@@ -386,9 +384,9 @@ def getInDetPixelClusterOnTrackToolBase(name, **kwargs) :
     kwargs = setDefaults(kwargs,
                          DisableDistortions       = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                          applyNNcorrection        = ( InDetFlags.doPixelClusterSplitting() and
-                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
                          NNIBLcorrection          = ( InDetFlags.doPixelClusterSplitting() and
-                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
                          SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + split_cluster_map_extension,
                          RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi() )
 
@@ -1015,7 +1013,7 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if not DetFlags.haveRIO.TRT_on() or InDetFlags.doSLHC() or InDetFlags.doHighPileup() \
+    if not DetFlags.haveRIO.TRT_on() or InDetFlags.doHighPileup() \
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
@@ -1032,7 +1030,7 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if not DetFlags.haveRIO.TRT_on() or  InDetFlags.doSLHC() or  InDetFlags.doHighPileup() \
+    if not DetFlags.haveRIO.TRT_on() or  InDetFlags.doHighPileup() \
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
@@ -1239,8 +1237,11 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
         kwargs=setDefaults(kwargs, UpdatorTool         = getInDetPatternUpdator())
 
     if 'DriftCircleCutTool' not in kwargs :
-        kwargs=setDefaults(kwargs,
-                           DriftCircleCutTool  = getInDetTRTDriftCircleCutForPatternReco(TrackingCuts=InDetNewTrackingCuts))
+        if kwargs.get('UseParameterization',InDetNewTrackingCuts.useParameterizedTRTCuts()) :
+            kwargs=setDefaults(kwargs,
+                               DriftCircleCutTool  = getInDetTRTDriftCircleCutForPatternReco(TrackingCuts=InDetNewTrackingCuts))
+        else :
+            kwargs=setDefaults(kwargs, DriftCircleCutTool  = '')
 
     if 'RIOonTrackToolYesDr' not in kwargs :
         kwargs=setDefaults(kwargs, RIOonTrackToolYesDr = getInDetTRT_DriftCircleOnTrackTool())
@@ -1346,12 +1347,15 @@ def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     if have_calo_rois :
         alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
         kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    if 'DriftCircleCutTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
+
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
     return InDet__InDetAmbiScoringTool(the_name,
                                        **setDefaults(kwargs,
                                                      Extrapolator            = getInDetExtrapolator(),
                                                      SummaryTool             = getInDetTrackSummaryTool(),
-                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
                                                      useAmbigFcn             = True,  # this is NewTracking
                                                      useTRT_AmbigFcn         = False,
                                                      maxZImp                 = NewTrackingCuts.maxZImpact(),
@@ -1378,6 +1382,12 @@ def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwar
                                                       maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
                                                       maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
 
+def getInDetAmbiScoringToolSi(NewTrackingCuts, name='InDetAmbiScoringToolSi', **kwargs) :
+    return getInDetAmbiScoringTool(NewTrackingCuts,
+                                   name+NewTrackingCuts.extension(),
+                                   **setDefaults( kwargs,
+                                                  DriftCircleCutTool      =  ''))
+
 @makePublicTool
 def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     NewTrackingCuts = kwargs.pop("NewTrackingCuts")
@@ -1388,6 +1398,10 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     if have_calo_rois :
         alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
         kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    if 'DriftCircleCutTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
+
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetNNScoringTool
     return InDet__InDetNNScoringTool(the_name,
                                        **setDefaults(kwargs,
@@ -1395,7 +1409,6 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
                                                      nnCutThreshold          = InDetFlags.nnCutLargeD0Threshold(),
                                                      Extrapolator            = getInDetExtrapolator(),
                                                      SummaryTool             = getInDetTrackSummaryTool(),
-                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
                                                      useAmbigFcn             = True,  # this is NewTracking
                                                      useTRT_AmbigFcn         = False,
                                                      maxZImp                 = NewTrackingCuts.maxZImpact(),
@@ -1421,6 +1434,12 @@ def getInDetNNScoringTool(NewTrackingCuts, name='InDetNNScoringTool', **kwargs) 
                                                       maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
                                                       maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
                                                       maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
+
+def getInDetNNScoringToolSi(NewTrackingCuts, name='InDetNNScoringToolSi', **kwargs) :
+    return getInDetNNScoringTool(NewTrackingCuts,
+                                 name+NewTrackingCuts.extension(),
+                                 **setDefaults( kwargs,
+                                                DriftCircleCutTool      = ''))
 
 def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringTool',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -1549,8 +1568,6 @@ def combinedClusterSplitProbName() :
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
       elif InDetFlags.doHeavyIon():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
-      elif InDetFlags.doSLHC():
-        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
       elif InDetFlags.doIBL():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
       elif InDetFlags.doHighPileup():
@@ -1581,7 +1598,7 @@ def combinedClusterSplitProbName() :
       ClusterSplitProbContainer = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     ClusterSplitProbContainerLargeD0=''
-    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.runLRTReco() or InDetFlags.doLowPtLargeD0():
       if ('InDetNewTrackingCutsLargeD0' not in dir()):
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
@@ -1604,22 +1621,6 @@ def combinedClusterSplitProbName() :
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsVeryLowPt.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doTRTStandalone():
-      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-    if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-      if InDetFlags.doSLHCVeryForward():
-       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks")
-         ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-         CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-      else:
-       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-        InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
-        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
-      if ('InDetNewTrackingCutsSLHCConversionFinding' not in dir()):
-        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSLHCConversionFinding.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doBeamGas():
       if ('InDetNewTrackingCutsBeamGas' not in dir()):
@@ -1675,3 +1676,51 @@ def getV0Tools(name='V0Tools', **kwargs) :
         kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
     from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
     return Trk__V0Tools(the_name, **kwargs)
+
+def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
+    from AthenaCommon.AppMgr import ToolSvc
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if hasattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix) :
+        return getattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix)
+
+    perigee_expression=InDetFlags.perigeeExpression()
+    # need to treat Vertex specifically because at the time of
+    # the track particle creation the primary vertex does not yet exist.
+    # The problem is solved by first creating track particles wrt. the beam line
+    # and correcting the parameters after the vertex finding.
+    if perigee_expression == 'Vertex' :
+        perigee_expression = 'BeamLine'
+
+    if prd_to_track_map is None :
+        track_summary_tool = getInDetTrackSummaryToolSharedHits()
+    else :
+        prop_args          = setDefaults({}, nameSuffix = suffix)
+        asso_tool          = getConstPRD_AssociationTool(**setDefaults(prop_args,
+                                                                                      PRDtoTrackMap = prd_to_track_map))
+        helper_tool        = getInDetSummaryHelperSharedHits(**setDefaults(prop_args,
+                                                                                          AssoTool = asso_tool) )
+        track_summary_tool = getInDetTrackSummaryToolSharedHits(**setDefaults(prop_args,
+                                                                                             InDetSummaryHelperTool=helper_tool))
+
+    from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+    InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
+                                                                 TrackToVertex           = getInDetTrackToVertexTool(),
+                                                                 TrackSummaryTool        = track_summary_tool,
+                                                                 BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
+                                                                 KeepParameters          = True,
+                                                                 KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
+                                                                 PerigeeExpression       = perigee_expression)
+
+    ToolSvc += InDetxAODParticleCreatorTool
+    return InDetxAODParticleCreatorTool
+
+@makePublicTool
+def getTrackObserverTool(name='TrackObserverTool', write_tracks = False, **kwargs) :
+    the_name = makeName( name, kwargs)
+    from InDetRecExample.InDetKeys import InDetKeys
+    from TrkValTools.TrkValToolsConf import Trk__TrkObserverTool
+    TrackObserverTool = Trk__TrkObserverTool(the_name, **kwargs)
+    if write_tracks:
+        TrackObserverTool.ObsTrackCollection = InDetKeys.ObservedTracks()
+        TrackObserverTool.ObsTrackCollectionMap = InDetKeys.ObservedTracks()+"Map"
+    return TrackObserverTool

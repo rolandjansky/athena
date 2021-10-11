@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackToSegmentTool.h"
@@ -42,13 +42,13 @@ namespace Muon {
         const Trk::Perigee* perigee = track.perigeeParameters();
         if (!perigee) {
             ATH_MSG_WARNING(" was expecting a perigee here... ");
-            return 0;
+            return nullptr;
         }
 
         const Trk::FitQuality* fq = track.fitQuality();
         if (!fq) {
             ATH_MSG_WARNING(" was expecting a FitQuality here... ");
-            return 0;
+            return nullptr;
         }
 
         std::set<Identifier> chIds;
@@ -61,14 +61,14 @@ namespace Muon {
         const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
-            return 0;
+            return nullptr;
         }
         // track direction vector
         Amg::Vector3D dir = perigee->momentum().unit();
 
-        const Amg::Transform3D* surfaceTransform = 0;
-        const Amg::Transform3D* backupTransform = 0;
-        const Amg::Transform3D* surfaceTransformToBeDeleted = 0;
+        const Amg::Transform3D* surfaceTransform = nullptr;
+        const Amg::Transform3D* backupTransform = nullptr;
+        const Amg::Transform3D* surfaceTransformToBeDeleted = nullptr;
         double weightedDistanceSquared = 0;
         double weightSquared = 0;
         DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
@@ -117,14 +117,14 @@ namespace Muon {
         }
         if (!surfaceTransform) surfaceTransform = backupTransform;
         // calculate distance new reference point, shift it 100 mm towards the start of the segment
-        double refDistance = weightedDistanceSquared / weightSquared - 100;
+        double refDistance = (weightSquared > 0 ? weightedDistanceSquared / weightSquared : 1) - 100;
         ATH_MSG_DEBUG(" weighted distance " << refDistance);
 
         Amg::Vector3D refPos = perigee->position() + refDistance * dir;
 
         // find closest measured parameters
-        double minDist = 1e6;
-        const Trk::TrackParameters* closestPars = 0;
+        double minDist = -1e6;
+        const Trk::TrackParameters* closestPars = nullptr;
         tsit = states->begin();
         tsit_end = states->end();
         for (; tsit != tsit_end; ++tsit) {
@@ -148,7 +148,7 @@ namespace Muon {
                                                                                                       << std::endl
                                                                                                       << m_printer->printStations(track));
             delete rots;
-            return 0;
+            return nullptr;
         }
 
         if (!closestPars) {
@@ -169,7 +169,7 @@ namespace Muon {
             if (!surf->associatedDetectorElement()) delete surf;
             // delete exPars; // it is save to delete a NULL pointer
             delete rots;
-            return 0;
+            return nullptr;
         }
 
         Amg::Vector2D locPos;
@@ -178,7 +178,7 @@ namespace Muon {
             if (!surf->associatedDetectorElement()) delete surf;
             // delete exPars;
             delete rots;
-            return 0;
+            return nullptr;
         }
         Trk::LocalDirection locDir;
         surf->globalToLocalDirection(exPars->momentum(), locDir);
@@ -202,7 +202,7 @@ namespace Muon {
 
         AmgSymMatrix(5) cov = exPars->covariance()->similarity(globalToLocalMeasJacobian);
 
-        Trk::FitQuality* quality = 0;
+        Trk::FitQuality* quality = nullptr;
         if (!chIds.empty()) {
             // calculate holes
             std::vector<Identifier> holes;

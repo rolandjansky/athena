@@ -277,20 +277,19 @@ TRT_EndcapElement::createSurfaceCacheHelper() const
   // to get the z axis pointing in the correct direction.
   auto transform =
     m_code.isPosZ()
-      ? std::make_unique<Amg::Transform3D>(
-          (getMaterialGeom()->getAbsoluteTransform() *
-           GeoTrf::RotateZ3D(phiCenter)))
-      : std::make_unique<Amg::Transform3D>(
-          (getMaterialGeom()->getAbsoluteTransform() *
-           GeoTrf::RotateY3D(180 * CLHEP::deg) * GeoTrf::RotateZ3D(phiCenter)));
+      ? Amg::Transform3D((getMaterialGeom()->getAbsoluteTransform() *
+                          GeoTrf::RotateZ3D(phiCenter)))
+      : Amg::Transform3D((getMaterialGeom()->getAbsoluteTransform() *
+                          GeoTrf::RotateY3D(180 * CLHEP::deg) *
+                          GeoTrf::RotateZ3D(phiCenter)));
 
   // create the igredients and the cache
+  auto center = Amg::Vector3D(transform.translation());
   auto bounds = std::make_unique<Trk::DiscBounds>(rMin, rMax, phiHalfWidth);
-  auto center = std::make_unique<Amg::Vector3D>(transform->translation());
-  auto normal = std::make_unique<Amg::Vector3D>(transform->rotation().col(2));
+  auto normal = std::make_unique<Amg::Vector3D>(transform.rotation().col(2));
 
   return std::make_unique<SurfaceCache>(
-    transform.release(), center.release(), normal.release(), bounds.release());
+    transform, center, std::move(normal), std::move(bounds));
 }
 
 int

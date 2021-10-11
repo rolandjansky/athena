@@ -32,7 +32,7 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
 
 def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTool', **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.Simulator.get_Value() in ['FullG4MT']:
+    if ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'FullG4MT_QS','FullG4MT_LongLived']:
         kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerToolMT')
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
@@ -47,7 +47,7 @@ def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUser
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT', 'G4FastCaloMTEnergyOrdered', 'ATLFASTIIF_ACTS']:
+    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'ATLFAST3MT', 'ATLFAST3MT_QS', 'ATLFAST3MTEnergyOrdered', 'ATLFASTIIF_ACTS']:
         kwargs.setdefault('ParticleBroker', '')
     from AthenaCommon.SystemOfUnits import MeV
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
@@ -80,7 +80,15 @@ def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault('FastSimMasterTool', 'FastSimulationMasterTool')
     from AthenaCommon import CfgMgr
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
-    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT', 'G4FastCalo', 'G4FastCaloMT', 'G4FastCaloEnergyOrdered', 'G4FastCaloMTEnergyOrdered', 'ATLFASTIIF_ACTS']:
+    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT',
+                                                                 'FullG4_QS', 'FullG4MT_QS',
+                                                                 'FullG4_LongLived', 'FullG4MT_LongLived',
+                                                                 'PassBackG4', 'PassBackG4MT',
+                                                                 'G4FastCalo',
+                                                                 'ATLFAST3', 'ATLFAST3MT',
+                                                                 'ATLFAST3_QS', 'ATLFAST3MT_QS',
+                                                                 'ATLFAST3EnergyOrdered', 'ATLFAST3MTEnergyOrdered',
+                                                                 'ATLFASTIIF_ACTS']:
         return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
     else:
         return CfgMgr.iGeant4__G4LegacyTransportTool(name, **kwargs)

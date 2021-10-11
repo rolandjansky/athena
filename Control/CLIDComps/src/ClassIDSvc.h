@@ -33,9 +33,7 @@
  * "OutputFileName" at finalize time.
  */
 
-class ClassIDSvc : virtual public IClassIDSvc,
-                   virtual public IIncidentListener,
-                   public Service
+class ClassIDSvc : public extends<Service, IClassIDSvc, IIncidentListener>
 {
 private:
   typedef std::pair<std::string, std::string> TypeName; //typename+typeinfoname
@@ -65,16 +63,10 @@ public:
   virtual StatusCode getIDOfTypeName(const std::string& typeName, CLID& id) const  override;
   /// get id associated with type-info name (if any)
   virtual StatusCode getIDOfTypeInfoName(const std::string& typeInfoName, CLID& id) const override;
-  /// get type name associated with clID (if any)
-  virtual StatusCode getPackageInfoForID(const CLID&, Athena::PackageInfo&) const override {
-    throw std::runtime_error("getPackageInfoForID is no longer supported");
-    return StatusCode::FAILURE;
-  }
   /// associate type name, package info and type-info name with clID
-  virtual StatusCode setTypePackageForID(const CLID& id, 
-					 const std::string& typeName, 
-					 const Athena::PackageInfo&,
-					 const std::string& typeInfoName) override;
+  virtual StatusCode setTypeForID(const CLID& id,
+                                  const std::string& typeName,
+                                  const std::string& typeInfoName = "") override;
 
   //========================================================================
   /** @name Debugging methods. */
@@ -92,7 +84,6 @@ public:
   virtual StatusCode reinitialize() override;
   ///dump CLIDmap to outputFileName;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
   ///implement IIncidentListener
@@ -119,7 +110,7 @@ private:
                                const std::string& typeInfoName);
 
   /// Test to see if anything new has been added to the registry.
-  void maybeRescan() const;
+  bool maybeRescan() const;
 
   /// @name Properties
   //@{

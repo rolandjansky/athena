@@ -33,10 +33,10 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         import egammaRec.EMCommonRefitter
 
-        # Extrapolator to be used for GSF (private)
+        # Extrapolator to be used for GSF
         GSFBuildInDetExtrapolator = egammaExtrapolator()
 
-        # GsfReffiter (private not in ToolSvc)
+        # GsfReffiter
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
         GSFRefitterTool = egammaTrkRefitterTool(
             name='GSFRefitterTool',
@@ -46,7 +46,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             ReintegrateOutliers=True)
 
         #
-        #  BLayer and Pixel Related Tools (private = True)
+        #  BLayer and Pixel Related Tools
         #
         GSFBuildTestBLayerTool = None
         GSFBuildPixelToTPIDTool = None
@@ -69,11 +69,10 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 name="GSFBuildPixelToTPIDTool",
                 private=True)
         #
-        #  TRT_ElectronPidTool (private =True)
+        #  TRT_ElectronPidTool
         #
         GSFBuildTRT_ElectronPidTool = None
-        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
-        ) and not InDetFlags.doHighPileup():
+        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doHighPileup():
             GSFBuildTRT_ElectronPidTool = (
                 TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",
@@ -83,7 +82,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         #
         #  InDet Track Summary Helper, no Association and no hole
-        #  as we do not redo them (private = true)
+        #  as we do not redo them
         #
         GSFBuildTrackSummaryHelperTool = TrackingCommon.getInDetSummaryHelper(
             name="GSFBuildTrackSummaryHelperTool",
@@ -110,8 +109,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         )
 
         #
-        #  Track Particle Creator tool (private not in ToolSvc)
-        #  But needs a public extrapolator
+        #  Track Particle Creator tool
         #
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
@@ -122,7 +120,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             TrackToVertex=AtlasTrackToVertexTool(),
             UseTrackSummaryTool=False)
         #
-        #  Track slimming (private not in ToolSvc)
+        #  Track slimming
         #
         from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import (
             Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool)

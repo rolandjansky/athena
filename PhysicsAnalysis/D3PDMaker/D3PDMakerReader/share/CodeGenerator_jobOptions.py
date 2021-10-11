@@ -52,9 +52,6 @@ d3pdalg = D3PDMakerReader.MultiReaderAlg( "ReaderAlg", Directory = "../test",
 from EventCommonD3PDMaker.EventInfoD3PDObject import EventInfoD3PDObject
 d3pdalg += EventInfoD3PDObject( 10 )
 
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-D3PDMakerFlags.DoTrigger = False
-
 from egammaD3PDMaker.ElectronD3PDObject import ElectronD3PDObject
 d3pdalg += ElectronD3PDObject( 10 )
 

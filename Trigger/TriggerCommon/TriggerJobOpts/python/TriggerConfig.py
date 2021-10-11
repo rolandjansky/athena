@@ -103,14 +103,14 @@ def collectFilters( steps ):
     return filters
 
 
-def collectL1DecoderDecisionObjects(l1decoder):
+def collectHLTSeedingDecisionObjects(hltSeeding):
     decisionObjects = set()
-    decisionObjects.update([ str(d.Decisions) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
-    decisionObjects.update([ str(d.DecisionsProbe) for d in l1decoder.RoIBRoIUnpackers + l1decoder.xAODRoIUnpackers ])
-    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+    decisionObjects.update([ str(d.Decisions) for d in hltSeeding.RoIBRoIUnpackers + hltSeeding.xAODRoIUnpackers ])
+    decisionObjects.update([ str(d.DecisionsProbe) for d in hltSeeding.RoIBRoIUnpackers + hltSeeding.xAODRoIUnpackers ])
+    from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
     decisionObjects.discard('') # Unpackers which do not use the PROBE container have an empty string for their WriteHandleKey
-    __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
+    __log.info("Collecting %i decision objects from HLTSeeding instance", len(decisionObjects))
     return decisionObjects
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
@@ -149,11 +149,11 @@ def collectHLTSummaryDecisionObjects(hltSummary):
     __log.info("Collecting %i decision objects from hltSummary", len(decisionObjects))
     return decisionObjects
 
-def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
+def collectDecisionObjects(  hypos, filters, hltSeeding, hltSummary ):
     """
     Returns the set of all decision objects of HLT
     """
-    decObjL1 = collectL1DecoderDecisionObjects(l1decoder)
+    decObjL1 = collectHLTSeedingDecisionObjects(hltSeeding)
     decObjHypo = collectHypoDecisionObjects(hypos, inputs = True, outputs = True)
     decObjFilter = collectFilterDecisionObjects(filters, inputs = True, outputs = True)
     # InputMaker are not needed explicitly as the Filter Outputs = InputMaker Inputs
@@ -199,7 +199,7 @@ def triggerSummaryCfg(flags, hypos):
         allChains.update( stepChains )
 
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+    from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
     else:
@@ -224,17 +224,18 @@ def triggerSummaryCfg(flags, hypos):
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
+    decisionSummaryAlg.SetFilterStatus = flags.Trigger.writeBS
     return acc, decisionSummaryAlg
 
 
-def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
+def triggerMonitoringCfg(flags, hypos, filters, hltSeeding):
     """
     Configures components needed for monitoring chains
     """
     acc = ComponentAccumulator()
     TrigSignatureMoni, DecisionCollectorTool=CompFactory.getComps("TrigSignatureMoni","DecisionCollectorTool",)
     mon = TrigSignatureMoni()
-    mon.L1Decisions = "L1DecoderSummary"
+    mon.L1Decisions = "HLTSeedingSummary"
     mon.FinalDecisionKey = "HLTNav_Summary" # Input
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
@@ -263,7 +264,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
         mon.FeatureCollectorTools  += [ dcFeatureTool ]
 
 
-    mon.L1Decisions  = getProp( l1Decoder, 'L1DecoderSummaryKey' )
+    mon.L1Decisions  = getProp( hltSeeding, 'HLTSeedingSummaryKey' )
 
     # For now use old svcMgr interface as this service is not available from acc.getService()
     algToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
@@ -323,16 +324,6 @@ def triggerOutputCfg(flags, hypos):
     if onlineWriteBS:
         __log.info("Configuring online ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, hypos)
-        # Configure the online HLT result maker to use the above tools
-        # For now use old svcMgr interface as this service is not available from acc.getService()
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = []
-        for tool in acc.popPrivateTools():
-            if 'StreamTagMaker' in tool.getName():
-                hltEventLoopMgr.ResultMaker.StreamTagMaker = conf2toConfigurable(tool)
-            else:
-                hltEventLoopMgr.ResultMaker.MakerTools += [ conf2toConfigurable(tool) ]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, hypos, offline=True)
@@ -373,7 +364,7 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
     # Tool serialising EDM objects to fill the HLT result
-    serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
+    serialiser = TriggerEDMSerialiserToolCfg()
     for item, modules in ItemModuleDict.items():
         sModules = sorted(modules)
         __log.debug('adding to serialiser list: %s, modules: %s', item, sModules)
@@ -404,11 +395,17 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         hltResultMakerTool.MakerTools = [bitsmaker, serialiser]
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
-        acc.addEventAlgo(hltResultMakerAlg)
+
+        # Provide ByteStreamMetaData from input, required by the result maker tool
+        if flags.Input.Format == 'BS':
+            from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+            readBSAcc = ByteStreamReadCfg(flags)
+            readBSAcc.getEventAlgo('SGInputLoader').Load += [
+                ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+            acc.merge(readBSAcc)
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
         decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
-        acc.addEventAlgo(decmaker)
 
         # Schedule the insertion of L1 prescales into the conditions store
         # Required for writing L1 trigger bits to xTrigDecision
@@ -416,16 +413,23 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         acc.merge(L1PrescaleCondAlgCfg(flags))
 
         # Create OutputStream alg
-        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
-        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ])
-        writingAcc.getPrimary().ExtraInputs = [
-            ("HLT::HLTResultMT", "HLTResultMT"),
-            ("xAOD::TrigDecision", "xTrigDecision")]
-        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
-        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
+        from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamWriteCfg
+        writingOutputs = ["HLT::HLTResultMT#HLTResultMT"]
+        writingInputs = [("HLT::HLTResultMT", "HLTResultMT"),
+                         ("xAOD::TrigDecision", "xTrigDecision")]
+        writingAcc = ByteStreamWriteCfg(flags, type_names=writingOutputs, extra_inputs=writingInputs)
+        writingAcc.addEventAlgo(hltResultMakerAlg)
+        writingAcc.addEventAlgo(decmaker)
         acc.merge(writingAcc)
     else:
-        acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
+        from TrigServices.TrigServicesConfig import TrigServicesCfg
+        onlineServicesAcc = TrigServicesCfg(flags)
+        hltEventLoopMgr = onlineServicesAcc.getPrimary()
+        hltEventLoopMgr.ResultMaker.StreamTagMaker = stmaker
+        hltEventLoopMgr.ResultMaker.MakerTools = [serialiser, bitsmaker]
+        onlineServicesAcc.getEventAlgo('SGInputLoader').Load += [
+            ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+        acc.merge(onlineServicesAcc)
     return acc
 
 
@@ -587,7 +591,7 @@ def triggerRunCfg( flags, menu=None ):
     """
     acc = ComponentAccumulator()
 
-    # L1ConfigSvc needed for L1Decoder
+    # L1ConfigSvc needed for HLTSeeding
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 
     acc.merge( L1ConfigSvcCfg(flags) )
@@ -599,10 +603,10 @@ def triggerRunCfg( flags, menu=None ):
     # in newJO realm the seqName will be removed as a comp fragment shoudl be unaware of where it will be attached
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
-    from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc = L1DecoderCfg( flags )
-    # TODO, once moved to newJO the algorithm can be added to l1DecoderAcc and merging will be sufficient here
-    acc.merge( l1DecoderAcc,  sequenceName="HLTBeginSeq" )
+    from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
+    hltSeedingAcc = HLTSeedingCfg( flags )
+    # TODO, once moved to newJO the algorithm can be added to hltSeedingAcc and merging will be sufficient here
+    acc.merge( hltSeedingAcc,  sequenceName="HLTBeginSeq" )
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
@@ -621,17 +625,29 @@ def triggerRunCfg( flags, menu=None ):
     acc.merge( summaryAcc, sequenceName="HLTFinalizeSeq" )
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
 
+    # to be updated when reco code is ready to be used by new JO
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior == 0:
+        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg
+        from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+        recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
+        endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
+        endOfEventAlg.RoIs = [LArNBRoIs]
+        acc.addEventAlgo( endOfEventAlg, sequenceName="HLTFinalizeSeq" )
+        acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )
+        acc.merge( recoSeq, sequenceName="acceptedEventSeq" )
+    
     #once menu is included we should configure monitoring here as below
-    l1DecoderAlg = l1DecoderAcc.getEventAlgo("L1Decoder")
+    hltSeedingAlg = hltSeedingAcc.getEventAlgo("HLTSeeding")
 
-    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
+    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, hltSeedingAlg )
     acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )
     acc.addEventAlgo( monitoringAlg, sequenceName="HLTEndSeq" )
 
-    from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
-    acc.merge( TrigCostMonitorMTCfg( flags ) )
+    from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
+    acc.merge( TrigCostMonitorCfg( flags ) )
 
-    decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
+    decObj = collectDecisionObjects( hypos, filters, hltSeedingAlg, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
     __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) ) 
@@ -653,6 +669,11 @@ def triggerRunCfg( flags, menu=None ):
     if edmSet:
         mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( flags, [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTFinalizeSeq" )
+
+        if flags.Trigger.doOnlineNavigationCompactification:
+            from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
+            onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+            acc.addEventAlgo( onlineSlimAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc
 
@@ -688,7 +709,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = True
+    ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = True
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()
 

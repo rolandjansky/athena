@@ -39,7 +39,7 @@ def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc = RNG(flags.Random.Engine)
     kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", flags.Overlay.BkgPrefix + "BCM_SDO_Map")
     elif flags.Common.ProductionStep == ProductionStep.Overlay:

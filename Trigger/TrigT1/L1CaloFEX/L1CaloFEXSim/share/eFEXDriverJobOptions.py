@@ -48,6 +48,12 @@ DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Calo_setOn()
 include("RecExCond/AllDet_detDescr.py")
 
+# menu with default configuration for testing
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
+
 svcMgr += CfgMgr.THistSvc()
 #svcMgr.THistSvc.Output += ["ISO DATAFILE='tobIso.root' OPT='RECREATE'"]
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile.root' OPT='RECREATE'"]

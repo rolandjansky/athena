@@ -530,39 +530,19 @@ if ( len(PoolFileList)>0 ):
    svcMgr.CondProxyProvider.InputCollections += PoolFileList
 
 if ( StripsXtalkCorr ) :
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
    from LArCalibUtils.LArCalibUtilsConf import LArStripsCrossTalkCorrector
    theLArStripsCrossTalkCorrector = LArStripsCrossTalkCorrector()
    theLArStripsCrossTalkCorrector.KeyList = GainList
    theLArStripsCrossTalkCorrector.ADCsaturation = ADCsaturation
-   theLArStripsCrossTalkCorrector.NoXtalkCorr=LArBadChannelMasker("NoXtalkCorr",
-                                                               DoMasking=True,
-                                                               ProblemsToMask=["deadReadout","deadPhys","deadCalib","almostDead"]
-                                                               )
-   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=LArBadChannelMasker("DontUseForXtalkCorr",
-                                                                       DoMasking=True,
-                                                                       ProblemsToMask=["short","peculiarCalibrationLine"]
+   theLArStripsCrossTalkCorrector.NoXtalkCorr=["deadReadout","deadPhys","deadCalib","almostDead"]
+   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=["short","peculiarCalibrationLine"]
                                                                        )
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent
    topSequence +=theLArStripsCrossTalkCorrector
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-theLArRCBMasker.DoMasking=True
-theLArRCBMasker.ProblemsToMask=[
-   "deadCalib","deadReadout","deadPhys","almostDead","short" 
-   ]
-ToolSvc+=theLArRCBMasker
 
 from LArCalibUtils.LArCalibUtilsConf import LArRampBuilder
 #Bad-channel mask used by the LArRampBuilder and the Ramp-patcher
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-theLArRCBMasker.DoMasking=True
-theLArRCBMasker.ProblemsToMask=[
-   "deadCalib","deadReadout","deadPhys","almostDead","short"
-      ]
-ToolSvc+=theLArRCBMasker
 
 if not PeakOF:
    from LArRecUtils.LArRecUtilsConf import LArParabolaPeakRecoTool
@@ -585,7 +565,6 @@ if ( AllWavesPerCh ) :
       LArAccCaDigContSplitter[j].KeyList         = [ GainList[j] ]
       LArAccCaDigContSplitter[j].KeyOutputList = ThisKeyOut
       LArAccCaDigContSplitter[j].NumberSplitted  = MaxCalLinePerCh
-      LArAccCaDigContSplitter[j].UseDacAndIsPulsedIndex = True
       LArAccCaDigContSplitter[j].OutputLevel = ERROR
 
    theLArRampBuilder = []
@@ -624,11 +603,10 @@ if ( AllWavesPerCh ) :
 #      theLArRampBuilder[i].Iterate=IterateOFC
       theLArRampBuilder[i].minDAC       = 10      # minimum DAC value to use in fit
       theLArRampBuilder[i].KeyOutput    = KeyOutputSplitted[i]
-      theLArRampBuilder[i].BadChannelMask = theLArRCBMasker
+      theLArRampBuilder[i].ProblemsToMask=["deadCalib","deadReadout","deadPhys","almostDead","short"]
       theLArRampBuilder[i].DeadChannelCut = -9999
       theLArRampBuilder[i].GroupingType = "ExtendedSubDetector"
       theLArRampBuilder[i].OutputLevel = ERROR
-      theLArRampBuilder[i].BadChannelMask=theLArRCBMasker
 
 else:
 
@@ -657,10 +635,9 @@ else:
    theLArRampBuilder.ConsecutiveADCs = 0;
    theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
    theLArRampBuilder.KeyOutput = KeyOutput
-   theLArRampBuilder.BadChannelMask = theLArRCBMasker
+   theLArRampBuilder.ProblemsToMask=["deadCalib","deadReadout","deadPhys","almostDead","short"]
    theLArRampBuilder.DeadChannelCut = -9999
    theLArRampBuilder.GroupingType = GroupingType
-   theLArRampBuilder.BadChannelMask=theLArRCBMasker
 
    if ( isHEC ) :
      theLArRampBuilder.isHEC = isHEC
@@ -681,7 +658,7 @@ if CorrectBadChannels:
    theLArRampPatcher.ContainerKey=KeyOutput
    theLArRampPatcher.PatchMethod="PhiAverage"
    
-   theLArRampPatcher.MaskingTool=theLArRCBMasker
+   theLArRampPatcher.ProblemsToPatch=["deadCalib","deadReadout","deadPhys","almostDead","short"]
    topSequence+=theLArRampPatcher
 
 
@@ -694,17 +671,10 @@ if CorrectBadChannels:
 
 if ( doLArCalibDataQuality  ) :
    
-   from LArCalibDataQuality.LArCalibDataQualityConf import LArRampValidationAlg
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArRampValBCMask=LArBadChannelMasker("RampValBCMask",
-                                           DoMasking=True,
-                                           ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
-                                                           "highNoiseHG","highNoiseMG","highNoiseLG"]
-                                           )
-   svcMgr.ToolSvc+=theLArRampValBCMask
-   
+   from LArCalibDataQuality.LArCalibDataQualityConf import LArRampValidationAlg   
    theRampValidationAlg=LArRampValidationAlg()
-   theRampValidationAlg.BadChannelMaskingTool=theLArRampValBCMask
+   theRampValidationAlg.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                        "highNoiseHG","highNoiseMG","highNoiseLG"]
    theRampValidationAlg.KeyList=GainList
    theRampValidationAlg.ValidationKey="LArRamp"
    theRampValidationAlg.ReferenceKey="LArRampRef"
@@ -716,7 +686,8 @@ if ( doLArCalibDataQuality  ) :
 
    ## second instance of the validation tool to detect "bad" channel 
    theBadRamp=LArRampValidationAlg("theBadRamp")
-   theBadRamp.BadChannelMaskingTool=theLArRampValBCMask
+   theBadRamp.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                              "highNoiseHG","highNoiseMG","highNoiseLG"]
    theBadRamp.KeyList=GainList
    theBadRamp.ValidationKey="LArRamp"
    theBadRamp.ReferenceKey="LArRampRef"

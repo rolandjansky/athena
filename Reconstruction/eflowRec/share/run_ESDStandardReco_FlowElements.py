@@ -9,8 +9,6 @@ recAlgs.doEFlow.set_Value_and_Lock(True)
 
 from eflowRec.eflowRecFlags import jobproperties
 jobproperties.eflowRecFlags.useCalibHitTruth.set_Value_and_Lock(True)
-#include FlowElements in run
-jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 #include FlowElement validation plots
 jobproperties.eflowRecFlags.doFlowElementValidation.set_Value_and_Lock(True)
 from RecExConfig.RecFlags import rec

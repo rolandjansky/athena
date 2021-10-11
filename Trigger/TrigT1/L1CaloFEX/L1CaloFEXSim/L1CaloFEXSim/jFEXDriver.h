@@ -13,7 +13,6 @@
 #include "L1CaloFEXSim/jTowerBuilder.h"
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
 #include "L1CaloFEXToolInterfaces/IjFEXSysSim.h"
-#include "L1CaloFEXSim/jFEXSim.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -21,7 +20,6 @@
 #include "xAODTrigger/jFexSRJetRoIContainer.h" 
 #include "xAODTrigger/jFexLRJetRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h" 
-
 
 
 class CaloIdManager;
@@ -63,7 +61,7 @@ class jFEXDriver : public AthAlgorithm
   ToolHandle<IjSuperCellTowerMapper> m_jSuperCellTowerMapperTool {this, "jSuperCellTowerMapperTool", "LVL1::jSuperCellTowerMapper", "Tool that maps supercells to jTowers"};
   ToolHandle<IjFEXSysSim> m_jFEXSysSimTool {this, "jFEXSysSimTool", "LVL1::jFEXSysSim", "Tool that creates the jFEX System Simulation"};
 
-  std::map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
+  std::unordered_map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
 
 };
 

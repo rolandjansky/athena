@@ -143,7 +143,7 @@ private:
   // vector of absolute charge requirements
   std::vector<int> m_vAbsCharges;
   // vector of number of track requirements
-  std::vector<size_t> m_vNTracks;
+  std::vector<unsigned> m_vNTracks;
   // vector of JetBDT cut regions
   std::vector<float> m_vJetBDTRegion;
   // vector of JetBDTSigTrans cut regions
@@ -193,7 +193,7 @@ private:
   std::string m_sElectronContainerName;
   std::string m_sMuonContainerName;
 
-  std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
+  std::map<SelectionCuts, std::unique_ptr<TauAnalysisTools::SelectionCut>> m_cMap;
 
   void setupCutFlowHistogram();
   int convertStrToJetIDWP(const std::string& sJetIDWP);

@@ -70,6 +70,7 @@ case $ArtProcess in
       --inputRDOFile $x \
       --outputNTUP_PHYSVALFile physval.ntuple.root \
       --outputAODFile   physval.AOD.root \
+      --conditionsTag   'CONDBR2-BLKPA-RUN2-06' \
       --steering        doRAWtoALL \
       --checkEventCount False \
       --ignoreErrors    True \

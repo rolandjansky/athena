@@ -22,6 +22,7 @@
 
 #include "JetRec/JetRecAlg.h"
 #include "JetRec/JetAlgorithm.h"
+#include "JetRec/JetDecorationAlg.h"
 
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -40,6 +40,10 @@
 
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
+
+// TBB includes
+#include "tbb/concurrent_queue.h"
+#include "tbb/task_arena.h"
 
 // System includes
 #include <atomic>
@@ -104,7 +108,7 @@ public:
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
-   * @param ctx the current EventContext
+   * @param ctx the EventContext of the event to process
    */
   virtual StatusCode executeEvent( EventContext &&ctx ) override;
 
@@ -120,8 +124,19 @@ public:
 
 private:
   // ------------------------- Helper types ------------------------------------
+  /// Flags and counters steering the main event loop execution
+  struct EventLoopStatus {
+    /// Event source has more events
+    std::atomic<bool> eventsAvailable{true};
+    /// Event source temporarily paused providing events
+    std::atomic<bool> triggerOnHold{false};
+    /// No more events available and all ongoing processing has finished
+    std::atomic<bool> loopEnded{false};
+    /// Max lumiblock number seen in the loop
+    std::atomic<EventIDBase::number_type> maxLB{0};
+  };
   /// Enum type returned by the drainScheduler method
-  enum class DrainSchedulerStatusCode {FAILURE=-2, RECOVERABLE=-1, SCHEDULER_EMPTY=0, SUCCESS=1};
+  enum class DrainSchedulerStatusCode : int {INVALID=-3, FAILURE=-2, RECOVERABLE=-1, SCHEDULER_EMPTY=0, NO_EVENT=1, SUCCESS=2};
 
   // ------------------------- Helper methods ----------------------------------
 
@@ -158,8 +173,14 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
+  /// Perform all start-of-event actions for a single new event and push it to the scheduler
+  StatusCode startNextEvent(EventLoopStatus& loopStatus);
+
   /// Drain the scheduler from all actions that may be queued
   DrainSchedulerStatusCode drainScheduler();
+
+  /// Perform all end-of-event actions for a single event popped out from the scheduler
+  DrainSchedulerStatusCode processFinishedEvent();
 
   /// Clear an event slot in the whiteboard
   StatusCode clearWBSlot(size_t evtSlot) const;
@@ -206,6 +227,20 @@ private:
 
   Gaudi::Property<float> m_softTimeoutFraction{
     this, "SoftTimeoutFraction", 0.8, "Fraction of the hard timeout to be set as the soft timeout"};
+
+  Gaudi::Property<int> m_popFromSchedulerTimeout{
+    this, "PopFromSchedulerTimeout", 200,
+    "Maximum time in milliseconds to wait for a finished event before checking "
+    "if there are free slots to refill in the meantime"};
+
+  Gaudi::Property<int> m_popFromSchedulerQueryInterval{
+    this, "PopFromSchedulerQueryInterval", 5,
+    "Time to wait before asking again in case the Scheduler doesn't have a finished event available"};
+
+  Gaudi::Property<int> m_maxParallelIOTasks{
+    this, "MaxParallelIOTasks", -1,
+    "Maximum number of I/O tasks which can be executed in parallel. "
+    "If <=0 then the number of scheduler threads is used."};
 
   Gaudi::Property<int> m_maxFrameworkErrors{
     this, "MaxFrameworkErrors", 10,
@@ -279,7 +314,7 @@ private:
   /// "Event" context of current run (invalid event/slot)
   EventContext m_currentRunCtx;
   /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
-  size_t m_localEventNumber{0};
+  std::atomic<size_t> m_localEventNumber{0};
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext{nullptr};
   /// Vector of event start-processing time stamps in each slot
@@ -296,10 +331,20 @@ private:
   std::unique_ptr<std::thread> m_timeoutThread;
   /// Soft timeout value set to HardTimeout*SoftTimeoutFraction at initialisation
   std::chrono::milliseconds m_softTimeoutValue{0};
+  /// Task arena to enqueue parallel I/O tasks
+  std::unique_ptr<tbb::task_arena> m_parallelIOTaskArena;
+  /// Queue limiting the number of parallel I/O tasks
+  tbb::concurrent_bounded_queue<bool> m_parallelIOQueue;
+  /// Queue of events ready for output processing
+  tbb::concurrent_bounded_queue<EventContext*> m_finishedEventsQueue;
+  /// Queue of result codes of output processing
+  tbb::concurrent_bounded_queue<DrainSchedulerStatusCode> m_drainSchedulerStatusQueue;
+  /// Queue of result codes of startNextEvent
+  tbb::concurrent_bounded_queue<StatusCode> m_startNextEventStatusQueue;
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer{true};
   /// Counter of framework errors
-  int m_nFrameworkErrors{0};
+  std::atomic<int> m_nFrameworkErrors{0};
   /// Application name
   std::string m_applicationName;
   /// Worker ID

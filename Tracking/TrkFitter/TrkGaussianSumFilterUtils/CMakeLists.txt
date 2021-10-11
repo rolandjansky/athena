@@ -9,7 +9,8 @@ atlas_add_library( TrkGaussianSumFilterUtilsLib
 		   PUBLIC_HEADERS TrkGaussianSumFilterUtils
 		   LINK_LIBRARIES EventPrimitives TrkParameters 
 		                  TrkEventPrimitives TrkMeasurementBase
-                   PRIVATE_LINK_LIBRARIES CxxUtils)
+                      TrkGeometry
+       PRIVATE_LINK_LIBRARIES CxxUtils PathResolver TrkExUtils)
 
 #Executables for tests
 atlas_add_executable( GSF_testFindMinimumIndex

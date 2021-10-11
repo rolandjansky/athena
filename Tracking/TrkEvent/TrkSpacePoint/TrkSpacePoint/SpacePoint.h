@@ -20,7 +20,9 @@
 #include "Identifier/IdentifierHash.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include <cassert>
-#include <iostream>
+#include <iosfwd>
+#include <cmath>
+#include <utility> //for std::pair
 
 class MsgStream;
 
@@ -75,7 +77,12 @@ namespace Trk{
     virtual const Amg::Vector3D& globalPosition() const override final; 
        
     /** Clone */
-    virtual SpacePoint* clone() const override = 0;       
+    virtual SpacePoint* clone() const override = 0;
+    
+    /** Clone */
+    std::unique_ptr<SpacePoint> uniqueClone() const{
+      return std::unique_ptr<SpacePoint>(clone());
+    }      
 
     /** Extended method checking the type*/
     virtual bool type(MeasurementBaseType::Type type) const override final
@@ -124,7 +131,7 @@ namespace Trk{
     {
       //  double zr = (m_z-z0)/m_r; 
       double zr = (m_position.z() - z0)/m_position.perp();
-      return log(zr+std::sqrt(1.+zr*zr));
+      return std::log(zr+std::sqrt(1.+zr*zr));
     }
 
   inline double SpacePoint::r() const

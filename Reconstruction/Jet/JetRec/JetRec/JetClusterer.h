@@ -83,11 +83,10 @@ protected:
   fastjet::JetAlgorithm m_fjalg;
 
   
-  // support of variable R to be transferred to a dedicated IJetProvider
-  // Gaudi::Property<float> m_minrad        {this, "VariableRMinRadius", -1.0, "Variable-R min radius" };
-  // Gaudi::Property<float> m_massscale     {this, "VariableRMassScale", -1.0, "Variable-R mass scale" };
-  // bool m_isVariableR;  
-  // bool isVariableR()const { return m_isVariableR;}
+  Gaudi::Property<float> m_minrad        {this, "VariableRMinRadius", -1.0, "Variable-R min radius" };
+  Gaudi::Property<float> m_massscale     {this, "VariableRMassScale", -1.0, "Variable-R mass scale" };
+  bool m_isVariableR;  
+  bool isVariableR() const { return m_isVariableR;}
   
 };
 

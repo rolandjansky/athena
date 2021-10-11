@@ -7,12 +7,11 @@
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_errno.h>
 
-#include  <iostream> 
-#include <fstream>
-//#include "TCanvas.h"
-#include <vector>
-
 #include <TGraphSmooth.h>
+#include <iostream> 
+#include <fstream>
+#include <vector>
+#include <cmath>
 
 using std::cout;
 using std::endl;
@@ -71,7 +70,6 @@ LArPhysWaveHECTool::LArPhysWaveHECTool ( const std::string& type, const std::str
   declareProperty("FstepMax",         m_FstepMax=0.1) ;
   declareProperty("FstepAverage",     m_FstepAverage=0.068) ;
   declareProperty("MinAmplitude",     m_MinAmp=100.);  
-  //declareProperty("NSteps",           m_NStep=24); //added by FT
 }
 
 LArPhysWaveHECTool::~LArPhysWaveHECTool() {}
@@ -94,9 +92,7 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   m_Taur   = 0.;
   m_gIdealPhys = &idealPhysWave;
 
-//  if(*(std::max_element(larCaliWave.getWave().begin(), larCaliWave.getWave().end())) < m_MinAmp) {
-//    return StatusCode::FAILURE;
-//  }
+
   if(wfParam.fstep()<m_FstepMin || wfParam.fstep()>m_FstepMax){ 
     ATH_MSG_INFO (" Fstep="<< wfParam.fstep() << " out of accepted region ("<<m_FstepMin<< ","<<m_FstepMax<<") average used instead : "<<m_FstepAverage);
     wfParam.setFstep(m_FstepAverage);
@@ -105,15 +101,12 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
     ATH_MSG_INFO (" Tcal="<< wfParam.tcal() << "out of accepted region ("<<m_TcalMin<< ","<<m_TcalMax<<") average used instead : "<<m_TcalAverage);
     wfParam.setTcal(m_TcalAverage);
   }
-  //if(m_Fstep<0.01) m_Fstep=0.65; // 0.04-.09  -> property into JO
-  //if(m_Tcal>600)   m_Tcal=417;   // 400-460   -> property into JO
+
 
   ATH_MSG_DEBUG (" Tdrift="<< wfParam.tdrift() <<" Tcal="<<wfParam.tcal()<<" Fstep="<< wfParam.fstep()<<" m_Omega0="<< m_Omega0<<" m_Taur="<<m_Taur<<" LArWaveFlag="
                  << LArWaveFlag <<" LArPhysWaveFlag="<< LArPhysWaveFlag );
   predict_phys_HEC(wfParam,caliWave,predLArPhysWave, MphysMcali,chid,gain);
-  //LArPhysWaveFlag=LArWaveFlag;
-//  std::cout<<"makeLArPhysWaveHEC: LArWaveFlag="<<LArWaveFlag<<" LArPhysWaveFlag="<< LArPhysWaveFlag <<std::endl;
-  //predLArPhysWave = m_gPhys ;
+
   
   return StatusCode::SUCCESS; 
 }
@@ -126,8 +119,6 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   LArWave gCaliMB=caliWave ;//deep-copy and cast to base-class
   LArWaveHelper wHelper;
 
-  //std::cout << "Step1:  CaliPeak =" <<  gCaliMB.getSample( wHelper.getMax(gCaliMB))  << " at index " << wHelper.getMax(gCaliMB) << std::endl;
-  //std::cout << "Step1:  IdealPeak =" <<  m_gIdealPhys->getSample( wHelper.getMax(*m_gIdealPhys) ) << " at index " << wHelper.getMax(*m_gIdealPhys) << std::endl;
 
   // shift gCaliMB to start point and remove baseline
 
@@ -170,12 +161,10 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   double const HalfBinWidth=BinWidth/2.0;
   double par[3]={0.0,1.0,0.10};
   bool uset0=false, norm=false;
-  //norm=m_normalizeCali;
  
   double const QUAL_REQ=peak_tmp*0.04; //80 ADC units is max allowed deviation of Ampl between two bins
   double const QUAL_REQ_AMPL=peak_tmp*0.3;
-  //double const QUAL_REQ=400; //80 ADC units is max allowed deviation of Ampl between two bins
-  //double const QUAL_REQ_AMPL=40;
+
   double DIFF=0,DIFF_AMPL=0;
   unsigned short int repro_count=0;
   int idx_bad_time=-1,idx_bad_time_ampl=-1;
@@ -207,11 +196,9 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
     }
     bool gslflag=true;
     Double_t *xmax=0;
-    //double parCL[2]={m_Tcal,m_Fstep};
     double parCL[2]={wfParam.tcal(),wfParam.fstep()};
     TF1 *deriv=0;
     PhysWaveFunc= (TF1*)CaliWave2PhysWaveHEC(&pcal, par, parCL, deriv, uset0, norm, adc, xmax,gslflag)->Clone();  
-    //PhysWaveFunc=CaliWave2PhysWaveHEC(&pcal, par, parCL, deriv, uset0, norm, adc, xmax,gslflag);
     DIFF=0;DIFF_AMPL=0;Ampl_problem=-1; Time_problem=-1; Ampl_problem_ampl=-1; Time_problem_ampl=-1;
     if (deriv) delete deriv;
 
@@ -240,18 +227,15 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   }
 
   predLArPhysWave=LArPhysWave(gCaliMB.getSize(),gCaliMB.getDt()); //Assignment per value, but wave is empty at this point
-  //predLArPhysWave.setSize(gCaliMB.getSize()); //FIXME: Doesnt' resize the vectors holding error and trigger! 
-  //predLArPhysWave.setDt(gCaliMB.getDt());
+
   
   for(unsigned int i=0;i<gCaliMB.getSize(); ++i){
     const double Time  = gCaliMB.getTime(i);
     if(Time<=t0){
       predLArPhysWave.setSample(i,PhysWaveFunc->Eval(Time));
-      //FT cout<<"PhysWaveFunc->Eval("<<Time<<")="<<PhysWaveFunc->Eval(Time)<<" PhysWaveVec="<<PhysWaveVec[i]<<" CALIWAVE_SHIFT - NOT USED"<<std::endl;
     }
     else{
       predLArPhysWave.setSample(i,PhysWaveFunc->Eval(Time)-CALIWAVE_SHIFT);
-      //cout<<"PhysWaveFunc->Eval("<<Time<<")="<<PhysWaveFunc->Eval(Time)<<" PhysWaveVec="<<PhysWaveVec[i]<<" CALIWAVE_SHIFT="<<CALIWAVE_SHIFT<<std::endl;
     }
   }
 
@@ -311,10 +295,7 @@ Double_t Tc(Double_t t)
  
  res = splin->Eval(t);
 
-/*
- i=t/STEP;
- res = y[i] + (y[i+1] - y[i])/(x[i+1] - x[i])*(t - x[i]);
-*/
+
  return res;
 }
 
@@ -322,7 +303,6 @@ Double_t Tc(Double_t t)
 Double_t DTp(Double_t *tt, Double_t *par)
 {
  static Double_t res,t;
- //   static Double_t time;
  
  static TF1 *ff=NULL;
  static TGraph *gg=NULL;
@@ -339,20 +319,13 @@ Double_t DTp(Double_t *tt, Double_t *par)
  ff->SetRange(*tt-5.,*tt+5.);
  for(j=-10; j<=10; ++j) {
            res = t + j/2.;
-//	   cout<<"DTp: "<<t+j/2.<<" "<<Tp(&res,par)<<endl;
            gg->SetPoint(j+10,t+j/2.,Tp(&res,par));
           }
  if(gg->GetFunction("ff")) gg->GetFunction("ff")->Delete();
  gg->Fit("ff","QRI0");
  res = 2*t*ff->GetParameter(2) + ff->GetParameter(1);
 
- /*
- res = 0.;
- time = t-2.; res -= 2*Tp(&time,par)/10;
- time = t-1.; res -= Tp(&time,par)/10;
- time = t+1.; res += Tp(&time,par)/10;
- time = t+2.; res += 2*Tp(&time,par)/10;
- */
+
  return res; 
 }
 
@@ -366,7 +339,6 @@ Double_t Tp(Double_t *tt, Double_t *par)
 
  t = *tt - par[0];
  taus = par[2];
-// tc = par[2];
  
 // Redefinition of poles
 
@@ -386,15 +358,11 @@ Double_t Tp(Double_t *tt, Double_t *par)
 
  fs = sz*ss / (s0*sp);
 
- // cout<<*tt<<" "<<t<<"       "<<t0<<" "<<a<<endl;
  t1 = fs*Tc(t);
 
  t4 = Tp4(t); t5 = Tp5(t);
- // printf("%6f %15.10g %15.10g    %15.10g %15.10g \n",t,t1, Tc(t), t4,t5);
  res = t1 + t4 + t5;
 
- // ++count;
- // cout<<"         "<<res<<endl;
  return par[1]*res;
 }
 
@@ -404,11 +372,9 @@ Double_t Tp_gsl(Double_t *tt, Double_t *par)
  static Double_t t,t1,t4,t5;
 
  if(*tt < t0 + par[0]) return 0;
-// if(par[0] < 0) return 0;
 
  t = *tt - par[0];
  taus = par[2];
-// tc = par[2];
  
 // Redefinition of poles
 
@@ -428,15 +394,11 @@ Double_t Tp_gsl(Double_t *tt, Double_t *par)
 
  fs = sz*ss / (s0*sp);
 
-// cout<<*tt<<" "<<t<<"       "<<t0<<" "<<a<<endl;
  t1 = fs*Tc(t);
 
  t4 = Tp4_gsl(t); t5 = Tp5_gsl(t);
- // printf("%6f %15.10g %15.10g    %15.10g %15.10g \n",t,t1, Tc(t), t4,t5);
  res = t1 + t4 + t5;
 
-// ++count;
-// cout<<"         "<<res<<endl;
  return par[1]*res;
 }
 
@@ -446,8 +408,7 @@ Double_t Tp4_gsl(Double_t t)
 {
   static Double_t a,b;
   
-  //  static Double_t a,b, par[1];
-  //static const Double_t epsrel = 0.001;
+
 
   //BEG: variables for QAWO
   static double L;
@@ -479,7 +440,6 @@ Double_t Tp4_gsl(Double_t t)
   gsl_func.function = &f4_gsl;
   gsl_func.params   = &params;
   double result;
-  //gsl_integration_qawo_table_set(wf,omega,L,GSL_INTEG_COSINE);
 
   // set off automatic GSL error handling
   gsl_set_error_handler_off();
@@ -513,8 +473,7 @@ Double_t Tp4_gsl(Double_t t)
     LArWaveFlag=-1;
   }
 
-//  gsl_integration_qawo_table_free(wf);
-//  gsl_integration_workspace_free(w);
+
   return result;
 
 }
@@ -526,8 +485,7 @@ static double f4_gsl(Double_t x, void *par)
   static Double_t t;
   
   t = params -> a;
-  //cout<<"params="<<params->a<<endl;
-  //t = par[0];
+
 
   return  Tc(x) * Rd(t - x);
 }
@@ -539,8 +497,7 @@ Double_t Tp5_gsl(Double_t t)
    if(t<t0 + tdr) return 0.;
   Double_t b;
   
-  //  static Double_t a,b, par[1];
-  //static const Double_t epsrel = 0.001;
+
 
   //BEG: variables for QAWO
   static double L;
@@ -571,7 +528,6 @@ Double_t Tp5_gsl(Double_t t)
   gsl_func.params   = &params;
 
   
-  //gsl_integration_qawo_table_set(wf,omega,L,GSL_INTEG_COSINE);
 
   // set off automatic GSL error handling
   gsl_set_error_handler_off();
@@ -586,7 +542,6 @@ Double_t Tp5_gsl(Double_t t)
 
   while((status!=0 || INTEGRAL_ITER==0) && INTEGRAL_ITER<INTEGRAL_ITER_MAX){
     status = gsl_integration_qawo (&gsl_func,a, epsabs, epsrel,limit,w,wf,&result,&abserr);
-    //FT std::cout<<"Tp5_gsl integration: result="<<result<<" epsrel="<<epsrel<<" a="<<a<<" b="<<b<<" status="<<gsl_strerror(status)<<" ERRcode="<<status<<" limit="<<limit<<std::endl;
     // if failes, descrease the precision
     if(status == GSL_EROUND)      epsrel*=10;
     // if different error from GSL_EROUND, annonce integration ERROR
@@ -605,8 +560,7 @@ Double_t Tp5_gsl(Double_t t)
     LArWaveFlag=-1;
   }
 
-//  gsl_integration_qawo_table_free(wf);
-//  gsl_integration_workspace_free(w);
+
 
   return result;
 
@@ -621,7 +575,6 @@ static double f5_gsl(Double_t x, void *par)
   static Double_t t;
   
   t = params -> a;
-  //t = par[0];
 
   return  Tc(x) * Ro(t - x);
 }
@@ -687,39 +640,25 @@ static Double_t f5_g(Double_t *x, Double_t *par)
 TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, double *parCL, TF1 *& deriv, 
 					       Bool_t uset0, Bool_t norm, Int_t /*adc*/,  Double_t */*xmax*/, bool gsl_flag){
 
-  //std::cout<<"1.ADC in CaliWave2PhysWaveHEC = "<<adc<<std::endl;
- TF1 *fitfun, *fu; 
- Int_t i,nbin,nbino,i5bin,count ;
- Double_t /*ptim,*/ pampl, t5, mcut, rshift, rmult;
- //Double_t vref;
- //Double_t tref;
+ TF1 *fitfun{}, *fu{}; 
+ Int_t i{},nbin{},nbino{},i5bin{},count{} ;
+ Double_t  pampl{}, t5{}, mcut{}, rshift{}, rmult{};
 
- // to be computed
-//  t0 = 84.;
-//  t0 = 54.;
 // Cables amplitude
   a = 0.974;
 // Cables poles
   tau0 = 1.5; 
 // New value according to findings on Sept. 2001 run
   taup = 19.5; 
-//  taup = 21.8; 
   tauz = 18.;
 // Should be smaller
-//  taus = 2.5;
   taus = 0.1;
 // Step amplitude
-//  al = 0.0697;
-//  al = 0.063;
+
   al=parCL[1]; // FT: can be exchanged with m_Fstep
-//  al = 0.0727;
-// Calibration exponenta
-//  tc = 330.0;
-//    tc = 356.;
-//tc = 370.0;
+
   tc=parCL[0];  // FT: can be exchanged with m_Tcal
-// Leonids value:
-//    tc = 354.;
+
 // Drift time
 //  tdr = 440.;
 // New value:
@@ -728,10 +667,9 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  nbino = nbin = pcal->GetNbinsX();
  if(nbin>NMAX) nbin = NMAX;
  if(nbino>NMAX) nbino = NMAX;
-// pcal->Print();
  
  if(norm) {
-   /*ptim =*/ normalize_prof(pcal,&pampl);
+   normalize_prof(pcal,&pampl);
    mcut = 0.05;
  } else {
    mcut = 0.05*pcal->GetMaximum();
@@ -741,10 +679,13 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  for(i=1; i<=nbin; ++i) {
    x[i-1] = pcal->GetBinCenter(i);
    y[i-1] = pcal->GetBinContent(i);
-   //FT std::cout<<"calib2phys: CALIWAVE:  x[i-1]Time="<<x[i-1]<<" y[i-1]AmplCalib="<<y[i-1]<<std::endl;
    if(i5bin == 0 && y[i-1] > mcut) i5bin = i; 
   };
- //std::cout<<std::endl;
+  //check access range
+  if (i5bin<2) {
+    printf("\n number of bins too small !\n");
+    return nullptr;
+  }
  t5 = (mcut-y[i5bin-2])*(x[i5bin-1]-x[i5bin-2])/(y[i5bin-1]-y[i5bin-2]);
  t5 += x[i5bin-2];
 //
@@ -752,13 +693,11 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
 //
  t0 = t5 - 16.8;
 
- //FT cout<<"i5bin: "<<i5bin<<", t0 founded: "<<t0<<endl;
 
  if(fabs((x[1] - x[0]) - (x[3] - x[2])) > 0.000001 ) {
    cout<< x[0] << " " << x[1] << " " << x[2] << " " << x[3] << endl;
    printf("\n Nonuniform step !\n");
-   return NULL;
-   //return ;
+   return nullptr;
  }
  
  STEP = x[1] - x[0];
@@ -771,11 +710,8 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  for(i=0; i<nbin; ++i) {
    if(x[i] < t0) {pref[i] = 0.; continue;}
    double AmplPhys      = m_gIdealPhys->getSample(count);
-   //double Time          = m_gIdealPhys->getTime(count);
    pref[i]         = AmplPhys;
-//   std::cout<<"1..LArPhysWaveHECTOOL from POOL:  AmplPhys["<<i<<"]="<<AmplPhys<< "  Time="<<Time <<std::endl;
    ++count;
-   //   if(count==799) break;
    if(count==(int)m_gIdealPhys->getSize()) break;
  } 
  if(i<nbin) nbin = i+1;
@@ -789,32 +725,22 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  fu->SetParName(1,"mult");
  fu->SetParLimits(1,0.,10000.);
  fu->SetParameters(5.,5.);
-// pcal->Draw();
-// fu->Draw("same");
-// splin->Draw("same");
-// canv->Update();
-// cin>>c;
+
  if( pcal->Fit("fu","RQ0") == 0) {
     rshift = pcal->GetFunction("fu")->GetParameter(0);
     rmult = pcal->GetFunction("fu")->GetParameter(1);
  } else {
     rshift = 0; rmult= pcal->GetMaximum()/ (* std::max_element(m_gIdealPhys->getWave().begin(), m_gIdealPhys->getWave().end()));
  }
-// cout<<rshift<<" "<<rmult<<endl;
-// fu->Draw("same");
-// canv->Update();
-// cin>>c;
+
  delete fu;
 // Read the reference again, shifting and multiplying:
  count = 0; 
  for(i=0; i<nbin; ++i) {
    if(x[i] < t0-rshift) {pref[i] = 0.; continue;}
    double AmplPhys      = rmult*m_gIdealPhys->getSample(count);
-   //double Time          = m_gIdealPhys->getTime(count);
    pref[i]         = AmplPhys;
-//   std::cout<<"1..LArPhysWaveHECTOOL from POOL:  AmplPhys["<<i<<"]="<<AmplPhys<< "  Time="<<Time <<std::endl;
    ++count;
-   //   if(count==799) break;
    if(count==(int)m_gIdealPhys->getSize()) break;
  } 
  if(i<nbin) nbin = i+1;
@@ -830,7 +756,6 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  par[0] = 0;
  Smooth_new(x, y, pref, nbin);
  if(splin) delete splin;
- // splin = new TSpline3("sp",x,y,nbin,"b1",0.);
  splin = new TSpline3("sp",x,pref,nbin,"b1",0.);
 
  // gaus or GSL ?
@@ -851,14 +776,12 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  //std::cout<<"What happens before normalize?"<<std::endl;
  if(norm) {
    if(uset0)
-     /*ptim     =*/ normalize(fitfun,    &pampl,     0., 100., STEP);
+     normalize(fitfun,    &pampl,     0., 100., STEP);
    else 
-     /*ptim     =*/ normalize(fitfun,     &pampl,     t0, t0+100., STEP);
+     normalize(fitfun,     &pampl,     t0, t0+100., STEP);
  }
- // std::cout<<"What happens after normalize?"<<std::endl;
 // Return also the derivative
  deriv = new TF1("derivfun",&DTp,x[0],x[nbin-1],3);
- //std::cout<<"What happens after deriv?"<<std::endl; 
  deriv->SetParName(0,"t0 shift");
  deriv->SetParLimits(0,0.,100.);
  deriv->SetParName(1,"mult");
@@ -868,17 +791,10 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  deriv->SetNpx(nbin+1);
  deriv->SetParameters(par[0],par[1],par[2]);
 
- //std::cout<<"What happens after total deriv?"<<std::endl; 
  if(norm) {
-   /*ptim =*/ normalize(deriv, &pampl, t0+par[0], t0+par[0]+100., STEP);
+   normalize(deriv, &pampl, t0+par[0], t0+par[0]+100., STEP);
  }
- //std::cout<<"What happens after deriv normalize? x["<<nbin-1<<"]="<<x[nbin-1]<<std::endl; 
- //if(xmax != NULL) *xmax = x[nbin-1];
- //std::cout<<"What happens after pointer assigment?"<<std::endl; 
-
- //for(unsigned int i=1;i<=nbin; ++i)
- //std::cout<<"xTime="<<x[i-1]<<" yAmplCalib="<<y[i-1]<<" AmplPhys="<<fitfun->Eval(x[i-1])<<std::endl;
-
+ 
  return fitfun;
 }
 
@@ -899,12 +815,10 @@ Double_t normalize(TF1 *func, Double_t *rampl,
   }
 
  amax = 0; tmax = t1;
-// cout << "Normalize: "<<t0 << " " << ampl << " " << t1 << " " << t2 << " "<<step<<endl;
  for(t=t1; t<=t2; t+=step)
   {
    if(func->Eval(t) > amax) {
      amax = func->Eval(t); tmax = t; 
-//     cout<<t<<" "<<amax<<endl;
     }
    }
  Double_t x[20], y[20];
@@ -949,7 +863,6 @@ Double_t normalize_prof(TProfile *histo, Double_t *rampl)
  amax = histo->GetFunction("pol2")->Eval(tmax);
  TProfile *htmp = new TProfile(*histo);
  histo->Reset();
-// cout<<"Norm_prof amax= "<<amax<<endl;
  for(i=0; i<=nbins; i++)
   {
    if(htmp->GetBinEntries(i) == 0) continue;
@@ -957,9 +870,7 @@ Double_t normalize_prof(TProfile *histo, Double_t *rampl)
    y = htmp->GetBinContent(i);
    nent=int(htmp->GetBinEntries(i));
    err = htmp->GetBinError(i);
-//   cout<<x<<" "<<y<<" "<<err<<endl;
 // Hack for stupid root v.3, which do not like the one entries in profile histo
-//   histo->SetBinContent(i,0.);
    for(j=0; j<7; ++j) {
       if(nent != 0) {
            histo->Fill(x,y/amax+sqrt(2)*err/nent);
@@ -972,7 +883,6 @@ Double_t normalize_prof(TProfile *histo, Double_t *rampl)
   }
 
  if(rampl != NULL) *rampl = amax;
-// htmp->GetFunction("pol2")->Delete();
  
  return tmax;
 }

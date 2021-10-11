@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //only in full Athena
@@ -50,8 +50,8 @@ namespace Trig{
     // L1 specific access ( objects not in the navigation, we need to pick them from different container in SG)
     template<class T>
     void l1collect(const HLT::TriggerElement* te, std::vector<Trig::Feature<T> >& data,  unsigned int condition,
-		   const std::vector<T>& (LVL1_ROI::*method)() const, 
-		   HLT::TrigNavStructure* navstructure) {
+                   const std::vector<T>& (LVL1_ROI::*method)() const,
+                   HLT::TrigNavStructure* navstructure) {
 
       auto navigation = dynamic_cast<HLT::NavigationCore*>(navstructure);
 
@@ -62,16 +62,16 @@ namespace Trig{
       const LVL1_ROI* lvl1(0);
 
       if ( !navigation || navigation->getAccessProxy()->retrieve(lvl1, "LVL1_ROI").isFailure() || lvl1 == 0 ) {
-	return;
+        return;
       }
 
       for(const Trig::Feature<TrigRoiDescriptor>& roi : rois) {
-	for(const T& specific : (lvl1->*(method))() ) {
+        for(const T& specific : (lvl1->*(method))() ) {
           if (specific.getROIWord() == roi.cptr()->roiWord()) {
-	    data.push_back( Trig::Feature<T>( &specific, roi.te(), "") );
-	    break;
+            data.push_back( Trig::Feature<T>( &specific, roi.te(), "") );
+            break;
           }
-	}
+        }
       }
     }
 

@@ -38,8 +38,9 @@ namespace CP
     }
 
     ANA_CHECK (m_truthWeightTool.retrieve());
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_truthWeightTool->affectingSystematics()));
-    m_systematicsList.addHandle (m_eventInfoHandle);
+    ANA_CHECK (m_systematicsList.addSystematics (*m_truthWeightTool));
+    ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_decoration.initialize (m_systematicsList, m_eventInfoHandle));
     ANA_CHECK (m_systematicsList.initialize());
 
     return StatusCode::SUCCESS;
@@ -49,17 +50,15 @@ namespace CP
   StatusCode PMGTruthWeightAlg ::
   execute ()
   {
-    ANA_CHECK (m_decoration.preExecute (m_systematicsList));
-
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    for (const auto& sys : m_systematicsList.systematicsVector())
     {
       ANA_CHECK (m_truthWeightTool->applySystematicVariation (sys));
-      xAOD::EventInfo *eventInfo = nullptr;
-      ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
+      const xAOD::EventInfo *eventInfo = nullptr;
+      ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
 
       m_decoration.set (*eventInfo, m_truthWeightTool->getSysWeight (), sys);
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }

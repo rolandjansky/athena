@@ -175,7 +175,7 @@ void fake_part (TTree* tree, const int hstyle=0, const TCut data_cut="", double 
 
 
 void fake (TTree* tracktree[3], const char* name[3],
-           const string plotprefix="fake_", const string plotext="",
+           const string & plotprefix="fake_", const string & plotext="",
            const int ntrack_finders=3,
            const TCut data_cut="", const double match=-1, const int s_bins=20)
 {

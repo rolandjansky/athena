@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentMatchingTool.h"
@@ -81,7 +81,7 @@ namespace Muon {
                                               const std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
                                               std::vector<std::shared_ptr<const Muon::MuonSegment> >& selectedSegments) const {
         // loop over segments and match them to the intersection
-        for (auto segment : segments) {
+        for (const auto& segment : segments) {
             if (match(intersection, *segment)) { selectedSegments.push_back(segment); }
         }
         ATH_MSG_DEBUG("Selected segments: " << selectedSegments.size());

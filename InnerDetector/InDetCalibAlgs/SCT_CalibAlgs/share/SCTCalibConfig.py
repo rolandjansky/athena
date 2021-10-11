@@ -37,9 +37,10 @@ ReadBS         = True
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoHitMap         = True
+DoHitMaps        = False
 DoHitMapsLB      = False 
 DoHV             = False
+DoNoisyStrip     = True
 DoDeadStrip      = False
 DoDeadChip       = False
 DoQuietStrip     = False
@@ -60,7 +61,6 @@ UseConfiguration = True
 UseCalibration   = True 
 UseMajority      = True 
 UseBSError       = False
-DoHitMaps        = True 
 ReadHitMaps      = True # True = 2 steps of HitMap production and analysis, False = simultaneous production and analysis
 DoBSErrors       = False
 
@@ -94,8 +94,8 @@ NoisyModuleAverageInDB = -1.
 NoisyStripLastRunInDB  = -999
 NoisyStripAverageInDB  = -999.
 NoisyModuleList        = 5000
-NoisyModuleDiff        = 0.500
-NoisyStripDiff         = 5120
+NoisyModuleDiff        = 0.300
+NoisyStripDiff         = 0.300
             
 #--- Dead strips/chips
 DeadStripMinStat      = 5000

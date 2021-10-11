@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,14 +21,15 @@
 #include "VP1Base/VP1Msg.h"
 
 #include <Inventor/nodes/SoSeparator.h>
+#include <optional>
 
 //____________________________________________________________________
 class AssociatedObjectHandleBase::Imp {
 public:
   static int nascobjs;
-  Imp() : sep_simple(0),
-	  sep_detailed(0),
-	  attachhandle(0)
+  Imp() : sep_simple(nullptr),
+	  sep_detailed(nullptr),
+	  attachhandle(nullptr)
 	  //,transform(0) 
 	  {}
   SoSeparator * sep_simple;
@@ -79,11 +80,11 @@ void AssociatedObjectHandleBase::Imp::ensureShapesErased(AssociatedObjectHandleB
     theclass->unregisterShapes(sep_simple,sep_detailed);
     if (sep_simple) {
       sep_simple->unref();
-      sep_simple = 0;
+      sep_simple = nullptr;
     }
     if (sep_detailed) {
       sep_detailed->unref();
-      sep_detailed = 0;
+      sep_detailed = nullptr;
     }
   }
 }

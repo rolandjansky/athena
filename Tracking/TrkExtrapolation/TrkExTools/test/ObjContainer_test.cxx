@@ -8,7 +8,7 @@ class TestObj {
 public:
    TestObj()                     { ++s_ctorCounter; std::cout << "TestObj::ctor " << static_cast<const void *> (this) << std::endl;}
    TestObj(const TestObj &)      { ++s_ctorCounter; std::cout << "TestObj::ctor " << static_cast<const void *> (this) << std::endl;}
-   TestObj(TestObj &&)           { ++s_ctorCounter; std::cout << "TestObj::ctor " << static_cast<const void *> (this) << std::endl;}
+   TestObj(TestObj &&)            noexcept { ++s_ctorCounter; std::cout << "TestObj::ctor " << static_cast<const void *> (this) << std::endl;}
    ~TestObj()                    { ++s_dtorCounter; std::cout << "TestObj::DTOR " << static_cast<const void *> (this) << std::endl;}
 
    static bool isCleanedup() {
@@ -110,8 +110,6 @@ const TestObj *test3HelperG(const TestObj &external_obj) {
    GuardedPtr new_obj4(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
    GuardedPtr new_obj2(GuardedPtr::recapture(empty,new TestObj));
    GuardedPtr new_obj3(GuardedPtr::recapture(empty,new TestObj));
-   GuardedPtr shared_obj1(new_obj1);
-   GuardedPtr shared_obj2(new_obj2);
    GuardedPtr shared_obj3(new_obj2); 
    shared_obj3 = new_obj4;
    shared_obj3 = GuardedPtr::recapture(empty,new TestObj);
@@ -139,7 +137,7 @@ const TestObj *test5HelperG(const TestObj &external_obj) {
    GuardedPtr empty(container);
    GuardedPtr nobj(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
 
-   GuardedPtr shared_eobj(eobj);
+   const GuardedPtr& shared_eobj(eobj);
    GuardedPtr shared_nobj(nobj);
    GuardedPtr shared_eobj2(eobj);
    GuardedPtr shared_nobj2(nobj);

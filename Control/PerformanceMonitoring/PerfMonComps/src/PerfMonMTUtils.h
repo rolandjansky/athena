@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -8,6 +8,8 @@
 
 #ifndef PERFMONCOMPS_PERFMONMTUTILS_H
 #define PERFMONCOMPS_PERFMONMTUTILS_H
+
+#include "PerfMonEvent/mallinfo.h"
 
 // STL includes
 #include <fcntl.h>     // for open function
@@ -350,7 +352,7 @@ inline double PMonMT::get_vmem() {
 // See:
 // https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/PerformanceMonitoring/PerfMonComps/src/SemiDetMisc.h#0443
 inline double PMonMT::get_malloc() {
-  struct mallinfo curr_mallinfo = mallinfo();
+  PerfMon::mallinfo_t curr_mallinfo = PerfMon::mallinfo();
   int64_t uordblks_raw = curr_mallinfo.uordblks;
   if (sizeof(curr_mallinfo.uordblks) == sizeof(int32_t)) {
     const int64_t half_range = std::numeric_limits<int32_t>::max();

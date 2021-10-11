@@ -54,13 +54,13 @@ private:
     float width;
   };
 
-  Axis m_xAxis;
-  Axis m_yAxis;
-  Axis m_zAxis;
+  Axis m_xAxis{};
+  Axis m_yAxis{};
+  Axis m_zAxis{};
 
   std::vector<float> m_content;
 
-  bool setAxis(Axis& axis, const TAxis* rootAxis);
+  static bool setAxis(Axis& axis, const TAxis* rootAxis);
 
   inline std::size_t findBin(const Axis& axis, const float value) const {
     if (value <= axis.min) return 0;

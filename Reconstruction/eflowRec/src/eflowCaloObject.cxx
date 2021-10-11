@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -23,23 +23,23 @@ CREATED:  22nd November, 2004
 eflowCaloObject::~eflowCaloObject() { }
 
 
- double eflowCaloObject::getExpectedEnergy() {
+ double eflowCaloObject::getExpectedEnergy() const {
   double expectedEnergy(0.0);
   for(unsigned iTrack=0; iTrack < nTracks(); ++iTrack) {
-    if (false == efRecTrack(iTrack)->isInDenseEnvironment()) expectedEnergy += efRecTrack(iTrack)->getEExpect();
+    if (!efRecTrack(iTrack)->isInDenseEnvironment()) expectedEnergy += efRecTrack(iTrack)->getEExpect();
   }
   return expectedEnergy;
 }
 
-double eflowCaloObject::getExpectedVariance() {
+double eflowCaloObject::getExpectedVariance() const {
   double expectedVariance(0.0);
   for(unsigned iTrack=0; iTrack < nTracks(); ++iTrack) {
-    if (false == efRecTrack(iTrack)->isInDenseEnvironment()) expectedVariance += efRecTrack(iTrack)->getVarEExpect();
+    if (!efRecTrack(iTrack)->isInDenseEnvironment()) expectedVariance += efRecTrack(iTrack)->getVarEExpect();
   }
   return expectedVariance;
 }
 
-double eflowCaloObject::getClusterEnergy() {
+double eflowCaloObject::getClusterEnergy() const {
   double clusterEnergy(0.0);
   for(unsigned iCluster=0; iCluster < nClusters(); ++iCluster) {
     clusterEnergy  += efRecCluster(iCluster)->getCluster()->e();

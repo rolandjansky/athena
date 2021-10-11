@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -13,7 +13,6 @@ __doc__="Decoding of chain name into a dictionary"
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
-import re
 
 def getOverallL1item(chainName):
     """
@@ -40,37 +39,17 @@ def getOverallL1item(chainName):
     if l1seed in ['L1_Bkg', 'L1_Standby', 'L1_Calo', 'L1_Calo_EMPTY', 'L1_PhysicsHigh_noPS', 'L1_PhysicsVeryHigh_noPS',
         'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS'] :
         # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
-        # During the transition period to the new menu format it is important to pick the correct kind based
-        # on the temporary TriggerFlag readLVL1FromJSON.
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.readLVL1FromJSON:
-            lvl1name = getL1MenuFileName(ConfigFlags)
-            lvl1access = L1MenuAccess(lvl1name)
-            itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
-        else:
-            from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
-            fileName = TriggerFlags.inputLVL1configFile()
-            l1menu = L1MenuXMLReader(fileName)
-            l1items = l1menu.getL1Items()
-            itemsDict = {}
-            for item in l1items:
-                itemsDict[item['name']] = {
-                    'name' : item['name'],
-                    'ctpid' : item['ctpid'],
-                    'triggerType' : item['trigger_type'],
-                }
-        l1seedlist = getSpecificL1Seeds(l1seed, itemsDict)
+        lvl1name = getL1MenuFileName(ConfigFlags)
+        lvl1access = L1MenuAccess(lvl1name)
+        itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
+        l1seedlist = getSpecificL1Seeds(l1seed, itemsDict, ConfigFlags.Trigger.triggerMenuSetup)
         return l1seedlist
 
     return l1seed
 
 def getL1item(chainName):
     mainL1 = getOverallL1item(chainName)
-    #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
-    if 'ETA' in mainL1:
-        r = re.compile("_(?P<eta>..ETA..)")
-        mainL1 = r.sub("p\\g<eta>", mainL1)
     return mainL1
 
 def getAllThresholdsFromItem(item):
@@ -523,15 +502,60 @@ def dictFromChainName(chainInfo):
         topoStartFrom   = chainInfo.topoStartFrom
         monGroups       = chainInfo.monGroups
 
-        
     else:
-        assert True, "Format of chainInfo passed to genChainDict not known"
+        raise RuntimeError("Format of chainInfo passed to genChainDict not known")
 
     L1item = getL1item(chainName)
 
     log.debug("Analysing chain with name: %s", chainName)
     chainDict = analyseChainName(chainName,  l1Thresholds, L1item)
     log.debug('ChainProperties: %s', chainDict)
+
+    for chainPart in chainDict['chainParts']:
+        thisSignature = chainPart['signature']
+        thisAlignGroup = chainPart['alignmentGroup']
+        thisExtra = chainPart['extra']
+        thisL1 = chainPart['L1threshold']
+        thisChainPartName = chainPart['chainPartName']
+        #incorrectL1=False
+
+        if thisSignature in ['Muon','Bphysics']:
+            if 'MuonnoL1' in thisAlignGroup or 'lateMu' in thisExtra:
+                if 'FSNOSEED' not in thisL1:
+                    log.error("Muon noL1 and lateMu chain should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                    #incorrectL1=True
+            else:
+                if 'MU' not in thisL1:
+                    log.error("Standard muon and Bphysics chain should be seeded from L1_MU. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                    #incorrectL1=True
+
+        if thisSignature in ['Electron','Photon']:
+            if 'EM' not in thisL1:
+                log.error("Standard egamma chains should be seeded from L1_EM. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+        if thisSignature in 'Tau':
+            if 'TAU' not in thisL1:
+                log.error("Standard tau chains should be seeded from L1_TAU. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+        if thisSignature in ['Jet','Bjet','MET','UnconventionalTracking']:
+            if 'FSNOSEED' not in thisL1:
+                log.error("Jet, b-jet, MET chains should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+        if thisChainPartName in ['noalg']:
+            if 'FSNOSEED' not in thisL1:
+                log.error("noalg chains should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+#        if incorrectL1 is True:
+#            raise Exception("You are using incorrect L1 seed, please check for ERROR messages...")
+
+
+        log.debug('Parts: signature %s, align %s, extra %s, L1 %s', thisSignature, thisAlignGroup, thisExtra, thisL1)
+
+
 
     # setting the L1 item
     chainDict['L1item']          = L1item

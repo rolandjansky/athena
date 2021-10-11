@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -40,6 +40,9 @@ StatusCode Trk::CaloExtensionBuilderAlg::initialize() {
 StatusCode
 Trk::CaloExtensionBuilderAlg::execute(const EventContext& ctx) const
 {
+  /*
+   * We want to extrapolate everything bar the the TRT-alone
+   */
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(
     m_TrkPartContainerKey, ctx);
   if (!tracks.isValid()) {
@@ -48,7 +51,6 @@ Trk::CaloExtensionBuilderAlg::execute(const EventContext& ctx) const
       << m_TrkPartContainerKey.key());
     return StatusCode::FAILURE;
   }
-
   // creating and saving the calo extension collection
   SG::WriteHandle<CaloExtensionCollection> lastCache(m_ParticleCacheKey, ctx);
   ATH_CHECK(lastCache.record(std::make_unique<CaloExtensionCollection>()));

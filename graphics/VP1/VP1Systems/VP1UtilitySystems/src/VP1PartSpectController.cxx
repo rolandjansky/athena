@@ -19,7 +19,7 @@ public:
   ~Imp();
 
   VP1PartSpectController*    theclass;
-  Ui::frmPartSpectController ui;
+  Ui::frmPartSpectController ui{};
 
   VP1PartSpect::ParticleType last_particleType;
   QString lastInputDir;

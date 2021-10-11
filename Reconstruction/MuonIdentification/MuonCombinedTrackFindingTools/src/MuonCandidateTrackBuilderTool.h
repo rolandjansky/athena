@@ -59,6 +59,8 @@ namespace Muon {
                         return m_idHelperSvc->rpcIdHelper().doubletR(id1) < m_idHelperSvc->rpcIdHelper().doubletR(id2);
                     } else if (m_idHelperSvc->rpcIdHelper().doubletZ(id1) != m_idHelperSvc->rpcIdHelper().doubletZ(id2)) {
                         return m_idHelperSvc->rpcIdHelper().doubletZ(id1) < m_idHelperSvc->rpcIdHelper().doubletZ(id2);
+                    } else if (m_idHelperSvc->rpcIdHelper().doubletPhi(id1) != m_idHelperSvc->rpcIdHelper().doubletPhi(id2)) {
+		        return m_idHelperSvc->rpcIdHelper().doubletPhi(id1) < m_idHelperSvc->rpcIdHelper().doubletPhi(id2);
                     } else
                         return mst1->globalPosition().perp() < mst2->globalPosition().perp();
                 }
@@ -80,7 +82,7 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */
-        virtual Trk::Track* buildCombinedTrack(const Trk::Track& idTrack, const MuonCandidate& candidate) const override;
+        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack, const MuonCandidate& candidate) const override;
 
     private:
         ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this, "MuonSegmentTrackBuilder",

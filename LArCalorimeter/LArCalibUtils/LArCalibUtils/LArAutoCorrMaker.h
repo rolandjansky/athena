@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //dear emacs, this is -*-c++-*-
@@ -31,10 +31,9 @@
 #include "LArRawEvent/LArAutoCorr.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-namespace Trig {
-  class IBunchCrossingTool;
-}
 //-----------------------------------------------------------------------
 class LArAutoCorrMaker : public AthAlgorithm
 //-----------------------------------------------------------------------
@@ -59,7 +58,7 @@ class LArAutoCorrMaker : public AthAlgorithm
   
  private:
 
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
   int m_bunchCrossingsFromFront;
 
@@ -75,7 +74,7 @@ class LArAutoCorrMaker : public AthAlgorithm
 
   // Number of sigma
   int m_rms_cut;
-  int m_nsamples;
+  int m_nsamples = 0;
 
   //MGV Decide whether or not to normalize autocorr elements
   int m_normalize;

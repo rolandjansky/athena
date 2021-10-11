@@ -114,7 +114,7 @@ void Muon::CscStripPrepDataContainerCnv_p1::transToPers(const Muon::CscStripPrep
         persCont->m_PRD.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const Muon::CscStripPrepData* chan = collection[i];
-            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CscStripPrepDataContainer ***" << endmsg;
@@ -138,7 +138,7 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
     // from the vector.
 
 
-    Muon::CscStripPrepDataCollection* coll = 0;
+    Muon::CscStripPrepDataCollection* coll = nullptr;
 
     CscStripPrepDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
@@ -159,7 +159,7 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
-            Muon::CscStripPrepData* chan = dynamic_cast<Muon::CscStripPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            Muon::CscStripPrepData* chan = dynamic_cast<Muon::CscStripPrepData*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
             if (!chan) {
                log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscStripPrepData!" << endmsg;
                continue;
@@ -191,7 +191,7 @@ Muon::CscStripPrepDataContainer* Muon::CscStripPrepDataContainerCnv_p1::createTr
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize CscStripPrepDataContainerCnv_p1 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::CscStripPrepDataContainer> trans(new Muon::CscStripPrepDataContainer(m_cscStripId->module_hash_max()));

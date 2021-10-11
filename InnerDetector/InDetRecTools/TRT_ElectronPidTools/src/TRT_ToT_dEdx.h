@@ -78,12 +78,12 @@ private:
 
   // Algorithm switchers
 
-  bool m_corrected;                 // If true - make correction using rs-distributions
-  bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
+  bool m_corrected{};                 // If true - make correction using rs-distributions
+  bool m_divideByL{};                 // If true - divide ToT to the L of track in straw.
 
-  int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
-  int  m_toolScenario;              // Algorithm type for dEdX estimator calculation;
-  int  m_correctionType;            // Type of dEdx correction
+  int  m_useTrackPartWithGasType{};   // If kUnset - use any gas for dEdX calculation;
+  int  m_toolScenario{};              // Algorithm type for dEdX estimator calculation;
+  int  m_correctionType{};            // Type of dEdx correction
   ////////////////////////////////////////////////////
   // Different cases for correctionType            //
   // kRSOnly: only r-S calibration                  //
@@ -94,13 +94,13 @@ private:
 
 
   // Event info
-  bool m_isData;                  // Is Data?
+  bool m_isData{};                  // Is Data?
 
   // Track info
-  float m_trackConfig_maxRtrack;  // maximum track radius
-  float m_trackConfig_minRtrack;  // maximum track radius
+  float m_trackConfig_maxRtrack{};  // maximum track radius
+  float m_trackConfig_minRtrack{};  // maximum track radius
 
-  bool m_useZeroRHitCut;  // skip tracks with where RHit=0
+  bool m_useZeroRHitCut{};  // skip tracks with where RHit=0
 
   unsigned int m_nTrunkateHits = 1;
 
@@ -127,7 +127,8 @@ public:
   using ITRT_ToT_dEdx::getTest;
   virtual double dEdx(const EventContext& ctx,
                       const Trk::Track* track,
-                      bool useHThits = true) const override final;
+                      bool useHThits,
+                      std::optional<float> localOccupancy = std::nullopt) const override final;
 
   /**
    * @brief function to calculate number of used hits
@@ -351,7 +352,8 @@ private:
                                 const Trk::TrackStateOnSurface* itr) const;
   double trackOccupancyCorrection(const EventContext& ctx,
                                   const Trk::Track* track,
-                                  bool useHThits) const;
+                                  bool useHThits,
+                                  std::optional<float> localOccupancy) const;
 
 public:
   // Setters and getters

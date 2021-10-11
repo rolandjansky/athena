@@ -34,6 +34,8 @@ public:
 protected:
 
   TH1F* m_njet;
+  TH1F* m_njet_passJVT;
+  TH1F* m_njet_failJVT;
   TH1F* m_pt;
   TH1F* m_eta;
   TH1F* m_phi;

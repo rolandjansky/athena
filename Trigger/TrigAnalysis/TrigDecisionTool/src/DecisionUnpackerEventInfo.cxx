@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //only in full Athena
@@ -32,15 +32,17 @@ bool get32BitDecision( unsigned int index,
 
 
 namespace Trig {
-  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey) : m_handle(new DecisionObjectHandleEventInfo(oldEventInfoKey)){
+  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey) :
+    m_handle(std::make_unique<DecisionObjectHandleEventInfo>(oldEventInfoKey)){
   }
 
   DecisionUnpackerEventInfo::~DecisionUnpackerEventInfo(){
-    delete m_handle;
   }
 
 
-  StatusCode DecisionUnpackerEventInfo::unpackItems(const std::vector<uint32_t>& level1TriggerInfo, std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
+  StatusCode DecisionUnpackerEventInfo::unpackItems(const std::vector<uint32_t>& level1TriggerInfo,
+                                                    std::map<unsigned, LVL1CTP::Lvl1Item>& itemsCache,
+                                                    std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
     
     uint32_t L1SIZE = level1TriggerInfo.size()/3;
     std::vector<uint32_t>::const_iterator begin, end;
@@ -59,31 +61,27 @@ namespace Trig {
     std::vector<uint32_t> tav(begin,end);
 
     itemsByName.reserve( itemsByName.size() + itemsCache.size() );
-    for ( auto cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {
-      unsigned int ctpid = cacheIt->first;
-      LVL1CTP::Lvl1Item* item = cacheIt->second;
-      ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
-      bool passBP = get32BitDecision(ctpid,tbp);
-      bool passAP = get32BitDecision(ctpid,tap);
-      bool passAV = get32BitDecision(ctpid,tav);
-      LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+    for ( auto [ctpid, item] : itemsCache ) {
+      ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item.name());
+      const bool passBP = get32BitDecision(ctpid,tbp);
+      const bool passAP = get32BitDecision(ctpid,tap);
+      const bool passAV = get32BitDecision(ctpid,tav);
+      LVL1CTP::Lvl1Item itemNew (item.name(), item.hashId(),
                                  passBP, passAP, passAV,
-                                 item->prescaleFactor());
-      *item = std::move (itemNew);
-      itemsByName[item->name()] = item;
+                                 item.prescaleFactor());
+      item = std::move (itemNew);
+      itemsByName[item.name()] = &item;
     }
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode DecisionUnpackerEventInfo::unpackChains(const std::vector<uint32_t>& chainTriggerInfo,
-						     std::map<unsigned, HLT::Chain*>& cache,
+						     std::map<unsigned, HLT::Chain>& cache,
 						     std::unordered_map<std::string, const HLT::Chain*>& output) {
     output.reserve( output.size() + cache.size() );
-    for( auto& cntr_chain : cache){
-      auto cntr = cntr_chain.first;      
-      auto chain = cntr_chain.second;
-      chain->reset();
+    for( auto& [cntr, chain] : cache){
+      chain.reset();
 
       //we have to make a guess here 
       //the bit form the event header is set according to 
@@ -95,30 +93,30 @@ namespace Trig {
 
       bool decision =  get32BitDecision( cntr, chainTriggerInfo );
       if(decision){
-	chain->setDecisions( true, //raw
+	chain.setDecisions( true, //raw
 			     false,//passedthrough
 			     false,//prescaled
 			     false //resurrected
 			     );
       }
       else {
-	chain->setDecisions( false,//raw
+	chain.setDecisions( false,//raw
 			     false,//passedthrough
 			     false,//prescaled
 			     false //resurrected
 			     );
       }
-      output[chain->getChainName()] = chain;
+      output[chain.getChainName()] = &chain;
     }
     return StatusCode::SUCCESS;
   }
 
   StatusCode DecisionUnpackerEventInfo::unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
-						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
+						    std::map<CTPID, LVL1CTP::Lvl1Item>& itemsCache,
 						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
-						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
+						    std::map<CHAIN_COUNTER, HLT::Chain>& l2chainsCache,
 						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
-						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
+						    std::map<CHAIN_COUNTER, HLT::Chain>& efchainsCache,
                                                     char& /*bgCode*/,
 						    bool unpackHLT
 						    ){

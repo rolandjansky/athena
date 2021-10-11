@@ -4,10 +4,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CaloClusterMatchingTool.cxx 
+// CaloClusterMatchingTool.cxx
 // Implementation file for class CaloClusterMatchingTool
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // CaloClusterMatching includes
 #include "CaloClusterMatchingTool.h"
@@ -33,11 +33,15 @@ namespace ClusterMatching {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
-    if(m_elementLinkName.empty()) {
-      ATH_MSG_ERROR("Empty name provided for TopoCluster ElementLinks -- aborting");
+    if (m_clustersIn.empty()) {
+      ATH_MSG_ERROR("Empty name provided for TopoCluster collection nothing to "
+                    "work with -- aborting");
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( m_clustersIn.initialize() );
+    //adapt WriteDecorHandleKey to input name of reference clusters
+    m_elementLinkName =  m_referenceClustersName + ".constituentClusterLinks";
+
+    ATH_CHECK(m_clustersIn.initialize());
     ATH_CHECK( m_elementLinkName.initialize() );
 
     return StatusCode::SUCCESS;
@@ -50,8 +54,8 @@ namespace ClusterMatching {
     return StatusCode::SUCCESS;
   }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+  // Const methods:
   ///////////////////////////////////////////////////////////////////
 
   StatusCode CaloClusterMatchingTool::fillClusterMap(const EventContext& ctx, TopoClusterMap& tcmap) const
@@ -70,15 +74,15 @@ namespace ClusterMatching {
     int nSharedCells(0);
     float sharedE(0.);
     float totalE(0.);
-    for(auto tcItr = testCluster.cell_begin(); tcItr!=testCluster.cell_end(); ++tcItr) {
-      if(tcItr->e()>1e-9 || !m_reqPosE) {
-	for(auto rcItr = refCluster.cell_begin(); rcItr!=refCluster.cell_end(); ++rcItr) {
-	  if(*tcItr && *rcItr && (*tcItr == *rcItr)) {
-	    ++nSharedCells;
-	    sharedE += tcItr->e();
-	  }
-	}
-	totalE += tcItr->e();
+    for (auto tcItr = testCluster.cell_begin(); tcItr != testCluster.cell_end();++tcItr) {
+      if (tcItr->e() > 1e-9 || !m_reqPosE) {
+        for (auto rcItr = refCluster.cell_begin(); rcItr != refCluster.cell_end(); ++rcItr) {
+          if (*tcItr && *rcItr && (*tcItr == *rcItr)) {
+            ++nSharedCells;
+            sharedE += tcItr->e();
+          }
+        }
+        totalE += tcItr->e();
       }
     }
     if(nSharedCells>0) {
@@ -127,8 +131,8 @@ namespace ClusterMatching {
 	if(refItr->e() > leadcellE) leadcell = *refItr;
       }
       if(leadcell) {
-	refEta = leadcell->eta();
-	refPhi = leadcell->phi();
+        refEta = leadcell->eta();
+        refPhi = leadcell->phi();
       }
     } else {
       refEta = refCluster.eta();
@@ -137,7 +141,7 @@ namespace ClusterMatching {
 
     // for now use the standard matching sizes determined by egamma, but may need to change for muons??
     // egamma shower is probably wider than muon cell track
-    const std::vector<const xAOD::CaloCluster*> testClusters = 
+    const std::vector<const xAOD::CaloCluster*> testClusters =
       tcmap.RetrieveTopoClusters(refEta, refPhi, refCluster.e()*cosh(refEta));
 
     return getMatchedClusters(refCluster, testClusters, matchedClusters);
@@ -188,7 +192,7 @@ namespace ClusterMatching {
 
     // for now use the standard matching sizes determined by egamma, but may need to change for muons??
     // egamma shower is probably wider than muon cell track
-    const std::vector<const xAOD::CaloCluster*> testClusters = 
+    const std::vector<const xAOD::CaloCluster*> testClusters =
       tcmap.RetrieveTopoClusters(refEta, refPhi, refCluster.e()*cosh(refEta));
 
     return getMatchedClusters(refCluster, testClusters, matchedClustersAndE);
@@ -202,21 +206,21 @@ namespace ClusterMatching {
 							  bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
 									  const std::pair<const xAOD::CaloCluster*,float>& pair2)) const
   {
-    SG::WriteDecorHandle<xAOD::CaloClusterContainer,std::vector<ElementLink<xAOD::CaloClusterContainer> > >elementLinkDec(m_elementLinkName); 
+    SG::WriteDecorHandle<xAOD::CaloClusterContainer,std::vector<ElementLink<xAOD::CaloClusterContainer> > >elementLinkDec(m_elementLinkName);
     std::vector<std::pair<const CaloCluster*,float> > matchedClustersAndE;
     std::vector<ElementLink<CaloClusterContainer> > tcLinks;
     std::vector<float> tcSharedE;
     if(!testClusters.empty()) {
       const CaloClusterContainer* pClCont = static_cast<const CaloClusterContainer*>(testClusters.front()->container());
       if(getMatchedClusters(refCluster, testClusters, matchedClustersAndE)) {
-	std::sort(matchedClustersAndE.begin(),matchedClustersAndE.end(),gtrthan);
-	for(const auto& tcAndE : matchedClustersAndE) {
-	  tcLinks.emplace_back(*pClCont,tcAndE.first->index());
-	  tcSharedE.push_back(tcAndE.second);
-	}
+        std::sort(matchedClustersAndE.begin(),matchedClustersAndE.end(),gtrthan);
+        for(const auto& tcAndE : matchedClustersAndE) {
+          tcLinks.emplace_back(*pClCont,tcAndE.first->index());
+          tcSharedE.push_back(tcAndE.second);
+        }
       }
     }
-    // apply the decoration -- no exceptions
+    // apply the decoration to the reference cluster -- no exceptions
     elementLinkDec(refCluster) = tcLinks;
     ATH_MSG_VERBOSE("Decorate cluster " << refCluster.index() << " with " << elementLinkDec(refCluster).size() << " tc links");
 
@@ -226,13 +230,14 @@ namespace ClusterMatching {
   // set ElementLinks to clusters from the configured cluster container that match the reference cluster
   // works via getMatchedClusters
   // return true if matchedClusters list is non-empty
-  StatusCode CaloClusterMatchingTool::linkMatchedClusters(const xAOD::CaloCluster& refCluster,
-							  const TopoClusterMap& tcmap,
-							  bool useLeadingCellEtaPhi,
-							  bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
-									  const std::pair<const xAOD::CaloCluster*,float>& pair2)) const
+  StatusCode CaloClusterMatchingTool::linkMatchedClusters(
+    const xAOD::CaloCluster& refCluster,
+    const TopoClusterMap& tcmap,
+    bool useLeadingCellEtaPhi,
+    bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
+                    const std::pair<const xAOD::CaloCluster*,float>& pair2)) const
   {
-    SG::WriteDecorHandle<xAOD::CaloClusterContainer,std::vector<ElementLink<xAOD::CaloClusterContainer> > > elementLinkDec(m_elementLinkName); 
+    SG::WriteDecorHandle<xAOD::CaloClusterContainer,std::vector<ElementLink<xAOD::CaloClusterContainer> > > elementLinkDec(m_elementLinkName);
     std::vector<std::pair<const CaloCluster*,float> > matchedClustersAndE;
     std::vector<ElementLink<CaloClusterContainer> > tcLinks;
     std::vector<float> tcSharedE;
@@ -241,11 +246,11 @@ namespace ClusterMatching {
       const CaloClusterContainer* pClCont = static_cast<const CaloClusterContainer*>(matchedClustersAndE.front().first->container());
       std::sort(matchedClustersAndE.begin(),matchedClustersAndE.end(),gtrthan);
       for(const auto& tcAndE : matchedClustersAndE) {
-	tcLinks.emplace_back(*pClCont,tcAndE.first->index());
-	tcSharedE.push_back(tcAndE.second);
+        tcLinks.emplace_back(*pClCont,tcAndE.first->index());
+        tcSharedE.push_back(tcAndE.second);
       }
     }
-    // apply the decoration -- no exceptions
+    // apply the decoration to the reference cluster -- no exceptions
     elementLinkDec(refCluster) = tcLinks;
     ATH_MSG_VERBOSE("Decorate cluster " << refCluster.index() << " with " << elementLinkDec(refCluster).size() << " tc links");
 

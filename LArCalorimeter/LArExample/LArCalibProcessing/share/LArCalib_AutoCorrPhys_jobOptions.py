@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 #Job Opts to compute AutoCorrelation based on a zero-bias physics run.
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -141,9 +143,9 @@ conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<key>LArAutoCorr
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 cfg = TriggerConfigGetter()
 
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-
-bct=BunchCrossingTool()
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrMaker
 LArAutoCorrMaker=LArAutoCorrMaker("LArAutoCorrMaker")
@@ -154,8 +156,6 @@ LArAutoCorrMaker.KeyOutput  = KeyOutputAC
 LArAutoCorrMaker.GroupingType = GroupingType
 LArAutoCorrMaker.physics      = 1
 LArAutoCorrMaker.MinBCFromFront=10
-#LArAutoCorrMaker.OutputLevel = DEBUG
-LArAutoCorrMaker.BunchCrossingTool=bct
 topSequence += LArAutoCorrMaker
 
 # extrapolation to other gains

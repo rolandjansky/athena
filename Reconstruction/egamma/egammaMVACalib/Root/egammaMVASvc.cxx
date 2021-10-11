@@ -14,6 +14,7 @@
 egammaMVASvc::egammaMVASvc(const std::string& name, ISvcLocator* svc) :
   asg::AsgService( name, svc )
 {
+  declareServiceInterface<IegammaMVASvc>();
 }
 
 StatusCode egammaMVASvc::initialize()

@@ -9,10 +9,8 @@
 #include <TLegend.h>
 #include <iostream>
 #include <TPad.h>
-//#include <stdio.h>
-#include <string.h>
-//#include <stdlib.h>
-#include <math.h>
+#include <string>
+#include <cmath>
 #include "../TJetNet.h"
 #include "../doNormalization.C"
 #include "Riostream.h"
@@ -491,7 +489,7 @@ if(useTrackEstimate){
 	if (matrixOfToT->size()!=sizeX*sizeY)
 	  {
 	    std::cout << " Event: " << i << " PROBLEM: size Y is: " << matrixOfToT->size() << std::endl;
-	    throw;
+	    throw std::runtime_error("Problem in number/trainNN.cxx");
 	  }
 	
 	// loop over elements of matrixOfTot which is actually a vector

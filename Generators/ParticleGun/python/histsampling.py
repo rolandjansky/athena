@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools for histogram sampling, in particular inverse transform sampling which is
@@ -19,9 +19,8 @@ def load_hist(*args):
     if len(args) == 1 and issubclass(type(args[0]), ROOT.TH1):
         h = args[0].Clone()
     elif len(args) == 2:
-        if isinstance(args[0], str) and isinstance(args[1], str):
+        if isinstance(args[0], str) and isinstance(args[1], str) :
             f = ROOT.TFile.Open(args[0])
-            htmp = f.Get(args[1])   # noqa: F841
             h = f.Get(args[1]).Clone()
             #f.Close()
         elif type(args[0]) is ROOT.TFile and type(args[1]) is str:

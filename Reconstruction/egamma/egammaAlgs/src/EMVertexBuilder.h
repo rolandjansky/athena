@@ -28,7 +28,7 @@
    - OutputConversionContainerName (default=GSFConversionVertices) collection of
    fitted vertices
 
-   The fitting and the vertices is delegate to a tool implementing the InDet::IVertexFinder
+   The fitting of the vertices is delegate to a tool implementing the InDet::IVertexFinder
    interface, configured with the VertexFinderTool property, by default
    InDetConversionFinderTools.
 

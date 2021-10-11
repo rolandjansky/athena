@@ -158,27 +158,28 @@ namespace MuonCombined {
         m_ms_id_iprob.resize(muonCandidates.size());
 
         unsigned int imu = 0;
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         for (const auto* muonCandidate : muonCandidates) {
             bool hasExtr = muonCandidate->extrapolatedTrack();
 
             for (const auto* inDetCandidate : inDetCandidates) {
                 // matching chi2s
-                double outerMatchChi2 =
-                    m_matchQuality->outerMatchChi2(*inDetCandidate->indetTrackParticle().track(), muonCandidate->muonSpectrometerTrack());
+                double outerMatchChi2 = m_matchQuality->outerMatchChi2(*inDetCandidate->indetTrackParticle().track(),
+                                                                       muonCandidate->muonSpectrometerTrack(), ctx);
                 int outerMatchDoF =
                     m_matchQuality->outerMatchDOF(*inDetCandidate->indetTrackParticle().track(), muonCandidate->muonSpectrometerTrack());
                 double outerMatchProb = m_matchQuality->outerMatchProbability(*inDetCandidate->indetTrackParticle().track(),
-                                                                              muonCandidate->muonSpectrometerTrack());
+                                                                              muonCandidate->muonSpectrometerTrack(), ctx);
                 double innerMatchChi2 = -1;
                 int innerMatchDoF = -1;
                 double innerMatchProb = -1;
                 if (hasExtr) {
-                    innerMatchChi2 =
-                        m_matchQuality->innerMatchChi2(*inDetCandidate->indetTrackParticle().track(), *muonCandidate->extrapolatedTrack());
+                    innerMatchChi2 = m_matchQuality->innerMatchChi2(*inDetCandidate->indetTrackParticle().track(),
+                                                                    *muonCandidate->extrapolatedTrack(), ctx);
                     innerMatchDoF =
                         m_matchQuality->innerMatchDOF(*inDetCandidate->indetTrackParticle().track(), *muonCandidate->extrapolatedTrack());
                     innerMatchProb = m_matchQuality->innerMatchProbability(*inDetCandidate->indetTrackParticle().track(),
-                                                                           *muonCandidate->extrapolatedTrack());
+                                                                           *muonCandidate->extrapolatedTrack(), ctx);
                 }
 
                 m_ms_id_ochi2[imu].push_back(outerMatchChi2);

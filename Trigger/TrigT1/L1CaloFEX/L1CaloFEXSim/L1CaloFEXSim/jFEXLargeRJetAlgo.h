@@ -43,7 +43,8 @@ namespace LVL1 {
     virtual void setupCluster(int inputTable[15][15]) override;
     virtual unsigned int getRingET() override;
     virtual unsigned int getLargeClusterET(unsigned int smallClusterET, unsigned int largeRingET) override;
-    virtual std::unique_ptr<jFEXLargeRJetTOB> getLargeRJetTOBs() override;
+    virtual std::unique_ptr<jFEXLargeRJetTOB> getLargeRJetTOBs(int smallClusterET,int TTID) override;
+    virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  override;
 
   protected:
 
@@ -55,6 +56,8 @@ namespace LVL1 {
     
     //int inputTable[15][15];
     int m_largeRJetEtRing_IDs[15][15];
+    int getTTowerET(unsigned int TTID ) ;
+    std::unordered_map<int,std::vector<int> > m_map_Etvalues;
   };
 
 

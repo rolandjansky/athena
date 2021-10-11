@@ -19,46 +19,18 @@
 
 JMSCorrection::JMSCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("JMSCorrection::JMSCorrection"),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
-    m_respFactorMass3D(NULL), m_respFactorTrackAssistedMass3D(NULL),
-    m_caloResolutionMassCombination3D(NULL), m_taResolutionMassCombination3D(NULL),
-    m_correlationMapMassCombination3D(NULL)
-   
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
 { }
 
 JMSCorrection::JMSCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
-    m_respFactorMass3D(NULL), m_respFactorTrackAssistedMass3D(NULL),
-    m_caloResolutionMassCombination3D(NULL), m_taResolutionMassCombination3D(NULL),
-    m_correlationMapMassCombination3D(NULL)
-   
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
 { }
 
 JMSCorrection::JMSCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
-    m_respFactorMass3D(NULL), m_respFactorTrackAssistedMass3D(NULL),
-    m_caloResolutionMassCombination3D(NULL), m_taResolutionMassCombination3D(NULL),
-    m_correlationMapMassCombination3D(NULL)
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev)
 { }
-
-JMSCorrection::~JMSCorrection() {
-
-  // Free 3D histograms
-  if (m_respFactorMass3D               ) delete m_respFactorMass3D;
-  if (m_respFactorTrackAssistedMass3D  ) delete m_respFactorTrackAssistedMass3D;
-  if (m_caloResolutionMassCombination3D) delete m_caloResolutionMassCombination3D;
-  if (m_taResolutionMassCombination3D  ) delete m_taResolutionMassCombination3D;
-  if (m_correlationMapMassCombination3D) delete m_correlationMapMassCombination3D;
-
-  // Free 2D histograms
-  for (TH2F* histo : m_respFactorsMass              ){if(histo) delete histo;}
-  for (TH2F* histo : m_respFactorsTrackAssistedMass ){if(histo) delete histo;}
-  for (TH2D* histo : m_caloResolutionMassCombination){if(histo) delete histo;}
-  for (TH2D* histo : m_taResolutionMassCombination  ){if(histo) delete histo;}
-  for (TH2D* histo : m_correlationMapMassCombination){if(histo) delete histo;}
-}
 
 StatusCode JMSCorrection::initializeTool(const std::string&) {
 
@@ -104,7 +76,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     }
     else{JMSFile.Insert(14,m_calibAreaTag);}
     TString fileName = PathResolverFindCalibFile(JMSFile.Data());
-    TFile *inputFile = TFile::Open(fileName);
+    std::unique_ptr<TFile> inputFile(TFile::Open(fileName));
     if (!inputFile){
       ATH_MSG_FATAL("Cannot open JMS factors file" << fileName);
       return StatusCode::FAILURE;
@@ -122,9 +94,9 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       if ( histoName.Contains(m_jetAlgo) ) 
 	{ 
 	  if (m_use3Dhisto)
-	    m_respFactorMass3D = dynamic_cast<TH3F*>(JetCalibUtils::GetHisto3(inputFile,histoName.Data()));
+	    m_respFactorMass3D = JetCalibUtils::GetHisto3(*inputFile,histoName.Data());
 	  else
-	    m_respFactorsMass.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoName.Data()) );
+	    m_respFactorsMass.push_back( JetCalibUtils::GetHisto2(*inputFile,histoName.Data()) );
 	}
     }
     
@@ -142,26 +114,23 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     
     // Track-Assisted Jet Mass correction
     m_trackAssistedJetMassCorr = m_config->GetValue("TrackAssistedJetMassCorr",false);
-    TString JMS_TrackAssisted_File;
-    TString file_trkAssisted_Name;
-    TFile *inputFile_trkAssisted;
     if(m_trackAssistedJetMassCorr){
       ATH_MSG_INFO("Track Assisted Jet Mass will be calibrated");
-      JMS_TrackAssisted_File = m_config->GetValue("TrackAssistedMassCalibrationFile","empty");
+      TString JMS_TrackAssisted_File(m_config->GetValue("TrackAssistedMassCalibrationFile","empty"));
       if ( JMS_TrackAssisted_File.EqualTo("empty") ) { 
-	ATH_MSG_FATAL("NO Track Assisted Mass Factors File specified. Aborting.");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL("NO Track Assisted Mass Factors File specified. Aborting.");
+        return StatusCode::FAILURE;
       }
       if(m_dev){
-	JMS_TrackAssisted_File.Remove(0,33);
-	JMS_TrackAssisted_File.Insert(0,"JetCalibTools/");
+        JMS_TrackAssisted_File.Remove(0,33);
+        JMS_TrackAssisted_File.Insert(0,"JetCalibTools/");
       }
       else{JMS_TrackAssisted_File.Insert(14,m_calibAreaTag);}
-      file_trkAssisted_Name = PathResolverFindCalibFile(JMS_TrackAssisted_File.Data());
-      inputFile_trkAssisted = TFile::Open(file_trkAssisted_Name);
+      TString file_trkAssisted_Name(PathResolverFindCalibFile(JMS_TrackAssisted_File.Data()));
+      std::unique_ptr<TFile> inputFile_trkAssisted(TFile::Open(file_trkAssisted_Name));
       if (!inputFile_trkAssisted){
-	ATH_MSG_FATAL("Cannot open Track Assisted Mass factors file" << fileName);
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL("Cannot open Track Assisted Mass factors file" << fileName);
+        return StatusCode::FAILURE;
       }
       
       //Get a TList of TKeys pointing to the histograms contained in the ROOT file
@@ -174,9 +143,9 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
 	if ( histoName.Contains(m_jetAlgo) ) 
 	  { 
 	    if (m_use3Dhisto)
-	      m_respFactorTrackAssistedMass3D = dynamic_cast<TH3F*>(JetCalibUtils::GetHisto3(inputFile_trkAssisted,histoName.Data()));
+	      m_respFactorTrackAssistedMass3D = JetCalibUtils::GetHisto3(*inputFile_trkAssisted,histoName);
 	    else
-	      m_respFactorsTrackAssistedMass.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile_trkAssisted,histoName.Data()) );
+	      m_respFactorsTrackAssistedMass.push_back( JetCalibUtils::GetHisto2(*inputFile_trkAssisted,histoName) );
 	  }
       }
       
@@ -195,12 +164,9 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
   } //!m_onlyCombination
 
   // Combination
-  TString Combination_File;
-  TString file_combination_Name;
-  TFile *inputFile_combination;
   if(m_combination){
     ATH_MSG_INFO("Mass Combination: ON");
-    Combination_File = m_config->GetValue("CombinationFile","empty");
+    TString Combination_File(m_config->GetValue("CombinationFile","empty"));
     if ( Combination_File.EqualTo("empty") ) { 
       ATH_MSG_FATAL("NO Combination File specified. Aborting.");
       return StatusCode::FAILURE;
@@ -210,10 +176,10 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       Combination_File.Insert(0,"JetCalibTools/");
     }
     else{Combination_File.Insert(14,m_calibAreaTag);}
-    file_combination_Name = PathResolverFindCalibFile(Combination_File.Data());
-    inputFile_combination = TFile::Open(file_combination_Name);
+    TString file_combination_Name(PathResolverFindCalibFile(Combination_File.Data()));
+    std::unique_ptr<TFile> inputFile_combination(TFile::Open(file_combination_Name));
     if (!inputFile_combination && !m_onlyCombination){
-      ATH_MSG_FATAL("Cannot open Mass Combination file" << inputFile_combination);
+      ATH_MSG_FATAL("Cannot open Mass Combination file " << file_combination_Name);
       return StatusCode::FAILURE;
     }
 
@@ -241,23 +207,23 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       if ( histoName.Contains("CaloMass") && histoName.Contains(combObj.Data()) )
       {
         if (!m_use3Dhisto) 
-          m_caloResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+          m_caloResolutionMassCombination.push_back( JetCalibUtils::GetHisto2(*inputFile_combination,histoName) );
         else
-          m_caloResolutionMassCombination3D = (TH3D*)JetCalibUtils::GetHisto3(inputFile_combination,histoName.Data());
+          m_caloResolutionMassCombination3D = JetCalibUtils::GetHisto3(*inputFile_combination,histoName);
       }
       if ( histoName.Contains("TAMass") && histoName.Contains(combObj.Data()) )
       {
         if (!m_use3Dhisto)
-          m_taResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+          m_taResolutionMassCombination.push_back( JetCalibUtils::GetHisto2(*inputFile_combination,histoName) );
         else
-          m_taResolutionMassCombination3D = (TH3D*)JetCalibUtils::GetHisto3(inputFile_combination,histoName.Data());
+          m_taResolutionMassCombination3D = JetCalibUtils::GetHisto3(*inputFile_combination,histoName);
       }
       if ( histoName.Contains("Correlation") && histoName.Contains(combObj.Data()) )
       {
         if (!m_use3Dhisto)
-          m_correlationMapMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+          m_correlationMapMassCombination.push_back( JetCalibUtils::GetHisto2(*inputFile_combination,histoName) );
         else
-          m_correlationMapMassCombination3D = (TH3D*)JetCalibUtils::GetHisto3(inputFile_combination,histoName.Data());
+          m_correlationMapMassCombination3D = JetCalibUtils::GetHisto3(*inputFile_combination,histoName);
       }
     }
 
@@ -349,7 +315,7 @@ float JMSCorrection::getMassCorr3D(double pT_uncorr, double mass_uncorr, double 
   if ( eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
   if ( eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
 
-  float mass_corr = RootHelpers::Interpolate(m_respFactorMass3D,pT_uncorr,mass_uncorr,eta);
+  float mass_corr = RootHelpers::Interpolate(m_respFactorMass3D.get(),pT_uncorr,mass_uncorr,eta);
 
   return mass_corr;
 }
@@ -390,7 +356,7 @@ float JMSCorrection::getTrackAssistedMassCorr3D(double pT_uncorr, double mass_un
   if ( eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
   if ( eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
 
-  float mass_corr = RootHelpers::Interpolate(m_respFactorTrackAssistedMass3D,pT_uncorr,mass_uncorr,eta);
+  float mass_corr = RootHelpers::Interpolate(m_respFactorTrackAssistedMass3D.get(),pT_uncorr,mass_uncorr,eta);
 
   return mass_corr;
 }
@@ -431,7 +397,7 @@ float JMSCorrection::getRelCalo3D(double pT_uncorr, double mass_over_pt_uncorr, 
   if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
   if (eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
 
-  float rel = RootHelpers::Interpolate(m_caloResolutionMassCombination3D,pT_uncorr,mass_over_pt_uncorr,eta);
+  float rel = RootHelpers::Interpolate(m_caloResolutionMassCombination3D.get(),pT_uncorr,mass_over_pt_uncorr,eta);
 
   return rel;
 }
@@ -472,7 +438,7 @@ float JMSCorrection::getRelTA3D(double pT_uncorr, double mass_over_pt_uncorr, do
   if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
   if (eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
 
-  float rel = RootHelpers::Interpolate(m_taResolutionMassCombination3D,pT_uncorr,mass_over_pt_uncorr,eta);
+  float rel = RootHelpers::Interpolate(m_taResolutionMassCombination3D.get(),pT_uncorr,mass_over_pt_uncorr,eta);
 
   return rel;
 }
@@ -512,7 +478,7 @@ float JMSCorrection::getRho3D(double pT_uncorr, double mass_over_pt_uncorr, doub
   if (eta >= etaMax) eta = etaMax-1e-6; // so it fits the up-most eta-bin
   if (eta <= etaMin) eta = etaMin+1e-6; // so it fits the low-most eta-bin
 
-  float rel = RootHelpers::Interpolate(m_correlationMapMassCombination3D,pT_uncorr,mass_over_pt_uncorr,eta);
+  float rel = RootHelpers::Interpolate(m_correlationMapMassCombination3D.get(),pT_uncorr,mass_over_pt_uncorr,eta);
 
   return rel;
 }
@@ -601,29 +567,49 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
             massFactor = getMassCorr( jetStartP4.pt()/m_GeV, jetStartP4.mass()/m_GeV, etabin );
 	  break;
 	case BinningParam::e_LOGmOe_eta:
-	  if (m_use3Dhisto)
-            massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), absdetectorEta);
-	  else
-            massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), etabin);
-	  break;
-	case BinningParam::e_LOGmOet_eta:
-	  if (m_use3Dhisto)
-            massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
-	  else
-            massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
-	  break;
-	case BinningParam::e_LOGmOpt_eta:
-	  if (m_use3Dhisto)
-            massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), absdetectorEta);
-	  else
-            massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), etabin);
-	  break;
-	case BinningParam::et_LOGmOet_eta:
-	  if (m_use3Dhisto)
-            massFactor = getMassCorr3D( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
-	  else
-            massFactor = getMassCorr( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
-	  break;
+          if (jetStartP4.mass() / jetStartP4.e() > 0)
+          {
+            if (m_use3Dhisto)
+                massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), absdetectorEta);
+            else
+                massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.e()), etabin);
+          }
+          else
+            massFactor = 1; // Prevent log(X) for X <= 0
+          break;
+        case BinningParam::e_LOGmOet_eta:
+          if (jetStartP4.mass() / jetStartP4.Et() > 0)
+          {
+              if (m_use3Dhisto)
+                  massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
+              else
+                  massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
+          }
+          else
+              massFactor = 1; // Prevent log(X) for X <= 0
+          break;
+        case BinningParam::e_LOGmOpt_eta:
+          if (jetStartP4.mass() / jetStartP4.pt() > 0)
+          {
+              if (m_use3Dhisto)
+                  massFactor = getMassCorr3D( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), absdetectorEta);
+              else
+                  massFactor = getMassCorr( jetStartP4.e()/m_GeV, log(jetStartP4.mass() / jetStartP4.pt()), etabin);
+          }
+          else
+              massFactor = 1; // Prevent log(X) for X <= 0
+          break;
+        case BinningParam::et_LOGmOet_eta:
+          if (jetStartP4.mass() / jetStartP4.Et() > 0)
+          {
+              if (m_use3Dhisto)
+                  massFactor = getMassCorr3D( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), absdetectorEta);
+              else
+                  massFactor = getMassCorr( jetStartP4.Et()/m_GeV, log(jetStartP4.mass() / jetStartP4.Et()), etabin);
+          }
+          else
+              massFactor = 1; // Prevent log(X) for X <= 0
+          break;
 	default:
 	  ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the calo mass was not.  Please contact the tool developer(s) to fix this.");
 	  return StatusCode::FAILURE;
@@ -727,29 +713,49 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 		mTAFactor = getTrackAssistedMassCorr( jetStartP4.pt()/m_GeV, mTA/m_GeV, etabin );
 	      break;
 	    case BinningParam::e_LOGmOe_eta:
-	      if (m_use3Dhisto)
-		mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), absdetectorEta);
-	      else
-		mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
-	      break;
-	    case BinningParam::e_LOGmOet_eta:
-	      if (m_use3Dhisto)
-		mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
-	      else
-		mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
-	      break;
-	    case BinningParam::e_LOGmOpt_eta:
-	      if (m_use3Dhisto)
-		mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
-	      else
-		mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
-	      break;
-	    case BinningParam::et_LOGmOet_eta:
-	      if (m_use3Dhisto)
-		mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
-	      else
-		mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
-	      break;
+              if (mTA / jetStartP4.e() > 0)
+              {
+                if (m_use3Dhisto)
+                  mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), absdetectorEta);
+                else
+                  mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.e()), etabin);
+              }
+              else
+                mTAFactor = 1; // Prevent log(X) for X <= 0
+              break;
+            case BinningParam::e_LOGmOet_eta:
+              if (mTA / jetStartP4.Et() > 0)
+              {
+                if (m_use3Dhisto)
+                  mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
+                else
+                  mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
+              }
+              else
+                mTAFactor = 1; // Prevent log(X) for X <= 0
+              break;
+            case BinningParam::e_LOGmOpt_eta:
+              if (mTA / jetStartP4.pt() > 0)
+              {
+                if (m_use3Dhisto)
+                  mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
+                else
+                  mTAFactor = getTrackAssistedMassCorr( jetStartP4.e()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
+              }
+              else
+                mTAFactor = 1; // Prevent log(X) for X <= 0
+              break;
+            case BinningParam::et_LOGmOet_eta:
+              if (mTA / jetStartP4.Et() > 0)
+              {
+                if (m_use3Dhisto)
+                  mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
+                else
+                  mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
+              }
+              else
+                mTAFactor = 1; // Prevent log(X) for X <= 0
+              break;
 	    default:
 	      ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
 	      return StatusCode::FAILURE;
@@ -916,69 +922,69 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
               }
 	    break;
 	  case BinningParam::e_LOGmOe_eta:
-	    if (m_use3Dhisto)
-              {
-                relCalo = getRelCalo3D( E_calo/m_GeV, log(mass_calo/E_calo), absdetectorEta );
-                relTA   = getRelTA3D( E_calo/m_GeV, log(mass_ta/E_calo), absdetectorEta );
-                if (m_useCorrelatedWeights)
-		  rho = getRho3D( E_calo/m_GeV, log(mass_calo/E_calo), absdetectorEta );
-              }
-	    else
-              {
-                relCalo = getRelCalo( E_calo/m_GeV, log(mass_calo/E_calo), etabin );
-                relTA   = getRelTA( E_calo/m_GeV, log(mass_ta/E_calo), etabin );
-                if (m_useCorrelatedWeights)
-		  rho = getRho( E_calo/m_GeV, log(mass_calo/E_calo), etabin );
-              }
-	    break;
-	  case BinningParam::e_LOGmOet_eta:
-	    if (m_use3Dhisto)
-              {
-                relCalo = getRelCalo3D( E_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
-                relTA   = getRelTA3D( E_calo/m_GeV, log(mass_ta/Et_calo), absdetectorEta );
-                if (m_useCorrelatedWeights)
-		  rho = getRho3D( E_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
-              }
-	    else
-              {
-                relCalo = getRelCalo( E_calo/m_GeV, log(mass_calo/Et_calo), etabin );
-                relTA   = getRelTA( E_calo/m_GeV, log(mass_ta/Et_calo), etabin );
-                if (m_useCorrelatedWeights)
-		  rho = getRho( E_calo/m_GeV, log(mass_calo/Et_calo), etabin );
-              }
-	    break;
-	  case BinningParam::e_LOGmOpt_eta:
-	    if (m_use3Dhisto)
-              {
-                relCalo = getRelCalo3D( E_calo/m_GeV, log(mass_calo/pT_calo), absdetectorEta );
-                relTA   = getRelTA3D( E_calo/m_GeV, log(mass_ta/pT_calo), absdetectorEta );
-                if (m_useCorrelatedWeights)
-		  rho = getRho3D( E_calo/m_GeV, log(mass_calo/pT_calo), absdetectorEta );
-              }
-	    else
-              {
-                relCalo = getRelCalo( E_calo/m_GeV, log(mass_calo/pT_calo), etabin );
-                relTA   = getRelTA( E_calo/m_GeV, log(mass_ta/pT_calo), etabin );
-                if (m_useCorrelatedWeights)
-		  rho = getRho( E_calo/m_GeV, log(mass_calo/pT_calo), etabin );
-              }
-	    break;
-	  case BinningParam::et_LOGmOet_eta:
-	    if (m_use3Dhisto)
-              {
-                relCalo = getRelCalo3D( Et_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
-                relTA   = getRelTA3D( Et_calo/m_GeV, log(mass_ta/Et_calo), absdetectorEta );
-                if (m_useCorrelatedWeights)
-		  rho = getRho3D( Et_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
-              }
-	    else
-              {
-                relCalo = getRelCalo( Et_calo/m_GeV, log(mass_calo/Et_calo), etabin );
-                relTA   = getRelTA( Et_calo/m_GeV, log(mass_ta/Et_calo), etabin );
-                if (m_useCorrelatedWeights)
-		  rho = getRho( Et_calo/m_GeV, log(mass_calo/Et_calo), etabin );
-              }
-	    break;
+            if (m_use3Dhisto)
+            {
+              relCalo = mass_calo/E_calo > 0 ? getRelCalo3D( E_calo/m_GeV, log(mass_calo/E_calo), absdetectorEta ) : 0;
+              relTA   = mass_ta/E_calo   > 0 ? getRelTA3D(   E_calo/m_GeV, log(mass_ta/E_calo), absdetectorEta )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/E_calo > 0 ? getRho3D(     E_calo/m_GeV, log(mass_calo/E_calo), absdetectorEta ) : 0;
+            }
+            else
+            {
+              relCalo = mass_calo/E_calo > 0 ? getRelCalo(   E_calo/m_GeV, log(mass_calo/E_calo), etabin ) : 0;
+              relTA   = mass_ta/E_calo   > 0 ? getRelTA(     E_calo/m_GeV, log(mass_ta/E_calo), etabin )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/E_calo > 0 ? getRho(       E_calo/m_GeV, log(mass_calo/E_calo), etabin ) : 0;
+            }
+            break;
+          case BinningParam::e_LOGmOet_eta:
+            if (m_use3Dhisto)
+            {
+              relCalo = mass_calo/Et_calo > 0 ? getRelCalo3D( E_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta ) : 0;
+              relTA   = mass_ta/Et_calo   > 0 ? getRelTA3D(   E_calo/m_GeV, log(mass_ta/Et_calo), absdetectorEta )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/Et_calo > 0 ? getRho3D(     E_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta ) : 0;
+            }
+            else
+            {
+              relCalo = mass_calo/Et_calo > 0 ? getRelCalo(   E_calo/m_GeV, log(mass_calo/Et_calo), etabin ) : 0;
+              relTA   = mass_ta/Et_calo   > 0 ? getRelTA(     E_calo/m_GeV, log(mass_ta/Et_calo), etabin )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/Et_calo > 0 ? getRho(       E_calo/m_GeV, log(mass_calo/Et_calo), etabin ) : 0;
+            }
+            break;
+          case BinningParam::e_LOGmOpt_eta:
+            if (m_use3Dhisto)
+            {
+              relCalo = mass_calo/pT_calo > 0 ? getRelCalo3D( E_calo/m_GeV, log(mass_calo/pT_calo), absdetectorEta ) : 0;
+              relTA   = mass_ta/pT_calo   > 0 ? getRelTA3D(   E_calo/m_GeV, log(mass_ta/pT_calo), absdetectorEta )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/pT_calo > 0 ? getRho3D(     E_calo/m_GeV, log(mass_calo/pT_calo), absdetectorEta ) : 0;
+            }
+            else
+            {
+              relCalo = mass_calo/pT_calo > 0 ? getRelCalo(   E_calo/m_GeV, log(mass_calo/pT_calo), etabin ) : 0;
+              relTA   = mass_ta/pT_calo   > 0 ? getRelTA(     E_calo/m_GeV, log(mass_ta/pT_calo), etabin )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/pT_calo > 0 ? getRho(       E_calo/m_GeV, log(mass_calo/pT_calo), etabin ) : 0;
+            }
+            break;
+          case BinningParam::et_LOGmOet_eta:
+            if (m_use3Dhisto)
+            {
+              relCalo = mass_calo/Et_calo > 0 ? getRelCalo3D( Et_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta ) : 0;
+              relTA   = mass_ta/Et_calo   > 0 ? getRelTA3D(   Et_calo/m_GeV, log(mass_ta/Et_calo), absdetectorEta )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/Et_calo > 0 ? getRho3D(     Et_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta ) : 0;
+            }
+            else
+            {
+              relCalo = mass_calo/Et_calo > 0 ? getRelCalo(   Et_calo/m_GeV, log(mass_calo/Et_calo), etabin ) : 0;
+              relTA   = mass_ta/Et_calo   > 0 ? getRelTA(     Et_calo/m_GeV, log(mass_ta/Et_calo), etabin )   : 0;
+              if (m_useCorrelatedWeights)
+                  rho = mass_calo/Et_calo > 0 ? getRho(       Et_calo/m_GeV, log(mass_calo/Et_calo), etabin ) : 0;
+            }
+            break;
 	  default:
 	    ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
 	    return StatusCode::FAILURE;

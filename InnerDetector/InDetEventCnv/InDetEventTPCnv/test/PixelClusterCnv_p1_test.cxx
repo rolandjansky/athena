@@ -71,7 +71,7 @@ void compare (const InDet::PixelCluster& p1,
 
 void testit (const InDet::PixelCluster& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   PixelClusterCnv_p1 cnv;
   PixelClusterContainerCnv_tlp1 tlcnv;
   tlcnv.setUseDetectorElement(false);
@@ -115,7 +115,7 @@ void test1()
                               chargeList,
                               width,
                               nullptr,
-                              new Amg::MatrixX(cov),
+                              Amg::MatrixX(cov),
                               10.5,
                               11.5,
                               true,
@@ -133,7 +133,7 @@ void test1()
                               chargeList,
                               width,
                               nullptr,
-                              new Amg::MatrixX(cov),
+                              Amg::MatrixX(cov),
                               10.5,
                               11.5,
                               true,

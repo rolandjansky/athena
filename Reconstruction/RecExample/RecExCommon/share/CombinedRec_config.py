@@ -19,7 +19,6 @@ import PerfMonComps.DomainsRegistry as pdr
 from AODFix.AODFix import *
 AODFix_Init()
 
-
 from CaloRec.CaloRecFlags import jobproperties
 
 #
@@ -135,7 +134,10 @@ else:
 
 pdr.flag_domain('btagging')
 btaggingOK = False
-if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
+#By default disable b-tagging from ESD, unless user has set it and locked it to true upstream
+if rec.readESD():
+    rec.doBTagging=False
+if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         from AthenaCommon.Configurable import Configurable
         Configurable.configurableRun3Behavior=1
@@ -154,6 +156,14 @@ if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     finally:
         Configurable.configurableRun3Behavior=0
     pass
+
+# Hits associated with high-pt jets for trackless b-tagging
+from BTagging.BTaggingFlags import BTaggingFlags
+if (jetOK or rec.readESD()) and DetFlags.ID_on() and rec.doWriteAOD() and BTaggingFlags.DoJetHitAssociation:
+    try:
+        include("JetHitAssociation/jetHitAssociation_config.py")
+    except Exception:
+        treatException("Could not set up jet hit association")
 
 #
 # functionality : tau identification

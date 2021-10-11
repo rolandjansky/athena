@@ -14,11 +14,10 @@
 namespace Trk {
 std::atomic<unsigned int> PrepRawData::s_numberOfInstantiations{ 0 };
 
-PrepRawData::PrepRawData(
-  const Identifier& clusId,
-  const Amg::Vector2D& locpos,
-  const std::vector<Identifier>& rdoList,
-  const Amg::MatrixX* locerr)
+PrepRawData::PrepRawData(const Identifier& clusId,
+                         const Amg::Vector2D& locpos,
+                         const std::vector<Identifier>& rdoList,
+                         const Amg::MatrixX& locerr)
   : m_clusId(clusId)
   , m_localPos(locpos)
   , m_rdoList(rdoList)
@@ -30,15 +29,14 @@ PrepRawData::PrepRawData(
 #endif
 }
 
-PrepRawData::PrepRawData(
-  const Identifier& clusId,
-  const Amg::Vector2D& locpos,
-  std::vector<Identifier>&& rdoList,
-  std::unique_ptr<const Amg::MatrixX> locerr)
+PrepRawData::PrepRawData(const Identifier& clusId,
+                         const Amg::Vector2D& locpos,
+                         std::vector<Identifier>&& rdoList,
+                         Amg::MatrixX&& locerr)
   : m_clusId(clusId)
   , m_localPos(locpos)
   , m_rdoList(std::move(rdoList))
-  , m_localCovariance(locerr.release())
+  , m_localCovariance(std::move(locerr))
   , m_indexAndHash()
 {
 #ifndef NDEBUG
@@ -47,10 +45,9 @@ PrepRawData::PrepRawData(
 }
 
 // Constructor with parameters:
-PrepRawData::PrepRawData(
-  const Identifier& clusId,
-  const Amg::Vector2D& locpos,
-  const Amg::MatrixX* locerr)
+PrepRawData::PrepRawData(const Identifier& clusId,
+                         const Amg::Vector2D& locpos,
+                         const Amg::MatrixX& locerr)
   : m_clusId(clusId)
   , m_localPos(locpos)
   , m_localCovariance(locerr)
@@ -62,20 +59,36 @@ PrepRawData::PrepRawData(
   m_rdoList.push_back(clusId);
 }
 
+PrepRawData::PrepRawData(const Identifier& clusId,
+                         const Amg::Vector2D& locpos,
+                         Amg::MatrixX&& locerr)
+  : m_clusId(clusId)
+  , m_localPos(locpos)
+  , m_localCovariance(std::move(locerr))
+  , m_indexAndHash()
+{
+#ifndef NDEBUG
+  s_numberOfInstantiations++; // new PrepRawData, so increment total count
+#endif
+  m_rdoList.push_back(clusId);
+}
+
+#ifndef NDEBUG
 // Destructor:
 PrepRawData::~PrepRawData()
 {
-#ifndef NDEBUG
   s_numberOfInstantiations--; // delete PrepRawData, so decrement total count
-#endif
 }
+#else
+PrepRawData::~PrepRawData() = default;
+#endif
 
 // Default constructor:
 PrepRawData::PrepRawData()
   : m_clusId(0)
   , m_localPos()
   , m_rdoList()
-  , m_localCovariance(nullptr)
+  , m_localCovariance{}
   , m_indexAndHash()
 {
 #ifndef NDEBUG
@@ -88,9 +101,7 @@ PrepRawData::PrepRawData(const PrepRawData& RIO)
   : m_clusId(RIO.m_clusId)
   , m_localPos(RIO.m_localPos)
   , m_rdoList(RIO.m_rdoList)
-  , m_localCovariance(
-      RIO.m_localCovariance ? std::make_unique<Amg::MatrixX>(*RIO.m_localCovariance)
-                            : nullptr)
+  , m_localCovariance(RIO.m_localCovariance)
   , m_indexAndHash(RIO.m_indexAndHash)
 {
 #ifndef NDEBUG
@@ -103,19 +114,7 @@ PrepRawData::PrepRawData(PrepRawData&& RIO) noexcept = default;
 
 // assignment operator
 PrepRawData&
-PrepRawData::operator=(const PrepRawData& RIO)
-{
-  if (&RIO != this) {
-    m_clusId = RIO.m_clusId;
-    m_rdoList = RIO.m_rdoList;
-    m_localPos = RIO.m_localPos;
-    m_localCovariance = RIO.m_localCovariance
-                          ? std::make_unique<Amg::MatrixX>(*RIO.m_localCovariance)
-                          : nullptr;
-    m_indexAndHash = RIO.m_indexAndHash;
-  }
-  return *this;
-}
+PrepRawData::operator=(const PrepRawData& RIO) = default;
 
 PrepRawData&
 PrepRawData::operator=(PrepRawData&& RIO) noexcept = default;
@@ -130,7 +129,7 @@ PrepRawData::dump(MsgStream& stream) const
   stream << Amg::toString(this->localPosition()) << "), ";
 
   stream << "Local Covariance = (";
-  if (this->m_localCovariance != nullptr) {
+  if (this->m_localCovariance.size() != 0) {
     stream << Amg::toString(this->localCovariance()) << "), ";
   } else {
     stream << "NULL!), ";
@@ -157,7 +156,7 @@ PrepRawData::dump(std::ostream& stream) const
 
   stream << Amg::toString(this->localPosition()) << "), ";
   stream << "Local Covariance = (";
-  if (this->m_localCovariance != nullptr) {
+  if (this->m_localCovariance.size() != 0) {
     stream << Amg::toString(this->localCovariance()) << "), ";
   } else {
     stream << "NULL!), ";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventTPCnv/vectorize.h"
@@ -119,7 +119,7 @@ void UITobitmap(std::vector<bool> &n,
     }
     if (rem!=32) ++i;	
 
-    if (bugcompat && l > 16 && (l%32) == 16) {
+    if (bugcompat && l > 32 && (l%32) == 16) {
         --i;
         n.resize (l-32);
     }

@@ -74,15 +74,15 @@ namespace LVL1 {
 
       /** returns TRUE if threshold number <em>threshold_number</em> has been passed
           by this ROI. */
-      bool passedEtMissThreshold( int thresholdNumber ) const;
+      bool passedEtMissThreshold( unsigned int thresholdNumber ) const;
 
       /** returns TRUE if threshold number <em>threshold_number</em> has been passed
           by this ROI. */
-      bool passedSumEtThreshold( int thresholdNumber ) const;
+      bool passedSumEtThreshold( unsigned int thresholdNumber ) const;
 
       /** returns TRUE if threshold number <em>threshold_number</em> has been passed
           by this ROI. */
-      bool passedMEtSigThreshold( int thresholdNumber ) const;
+      bool passedMEtSigThreshold( unsigned int thresholdNumber ) const;
 
       /** returns a vector of thresholds passed. */
       std::vector<unsigned int> etMissThresholdsPassed() const;

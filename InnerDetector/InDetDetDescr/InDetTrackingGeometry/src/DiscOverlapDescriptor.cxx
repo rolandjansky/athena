@@ -16,23 +16,25 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PixelID.h"
 #include "Identifier/Identifier.h"
 
 InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array, 
-						    std::vector<Trk::BinUtility*>* singleBinUtils):
+                                                    std::vector<Trk::BinUtility*>* singleBinUtils,
+                                                    bool isPixel):
   m_bin_array(bin_array),
-  m_singleBinUtils(singleBinUtils)
+  m_singleBinUtils(singleBinUtils),
+  m_pixelCase(isPixel)
 {}
 
 /** get the compatible surfaces */
 bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
-						     const Trk::Surface& tsf,
-						     const Amg::Vector3D& pos,
-						     const Amg::Vector3D&) const
-  
+                                                     const Trk::Surface& tsf,
+                                                     const Amg::Vector3D& pos,
+                                                     const Amg::Vector3D&) const
 {
   // Get Storegate, ID helpers, and so on
-  if (m_sctIdHelper==nullptr) {
+  if (m_sctIdHelper==nullptr || m_pixIdHelper==nullptr) {
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     
     // get DetectorStore service
@@ -40,12 +42,20 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
     if (svcLocator->service("DetectorStore", detStore).isFailure()) {
       return false;
     }
-
-    const SCT_ID* sctIdHelper = nullptr;
-    if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
-      return false;
+    
+    if (m_pixelCase) {
+      const PixelID* pixIdHelper = nullptr;
+      if (detStore->retrieve(pixIdHelper, "PixelID").isFailure()) {
+        return false;
+      }
+      m_pixIdHelper = pixIdHelper;
+    } else {
+      const SCT_ID* sctIdHelper = nullptr;
+      if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
+        return false;
+      }
+      m_sctIdHelper = sctIdHelper;
     }
-    m_sctIdHelper = sctIdHelper;
   }
   
   // get the according detector element
@@ -53,7 +63,8 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   
   // first add the target surface
   surfaces.emplace_back(Trk::Intersection(pos, 0., true),&tsf);
-  int etaModule = m_sctIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier());
+  int etaModule = m_pixelCase ? m_pixIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier()) 
+                  : m_sctIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier());
   
   // return empty cell vector
   if (pElement) {
@@ -88,140 +99,107 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
       const Trk::Surface* previousPhi_NextEta = nullptr;
       const Trk::Surface* nextPhi_NextEta     = nullptr;
       
-      unsigned int Util = m_singleBinUtils->size() - 1 - etaModule;
-
-      int prevUtil = Util - 1;
-      int nextUtil = Util + 1;
-      
+      std::vector<const Trk::Surface*> surf = m_bin_array->arrayObjects();
       size_t offset = 0;
-      for (unsigned int utils = 0; utils<Util; utils++) {
-	offset+=(m_singleBinUtils->at(utils))->bins();
-      }
-
-      if (prevUtil >= 0) {
-	
-	size_t start_previous = offset - (m_singleBinUtils->at(prevUtil))->bins();
-	size_t end_previous = offset;
-	
-	// look for same/next/previous phi in the ring with smaller eta value.
-	// If there is an element with exactly the same phi we can return 3 elements 
-	// If there is not an element with exactly the same phi we can return 2 elements (previous/next only)
+      for (unsigned int bin = 0; bin < m_singleBinUtils->size(); bin++) {
+        int etamod = m_pixelCase ? m_pixIdHelper.load()->eta_module((*(surf.at(offset))).associatedDetectorElementIdentifier()) : m_sctIdHelper.load()->eta_module((*(surf.at(offset))).associatedDetectorElementIdentifier());
         
-	std::vector<const Trk::Surface*> surf = m_bin_array->arrayObjects();
-	
-	double PrevDeltaPhi = 9999.;
-	double NextDeltaPhi = -9999.;
-
-	for (size_t prev_Surf = start_previous; prev_Surf < end_previous; prev_Surf++ ) {
-	  
-	  if( tsf.center().phi() == (*(surf.at(prev_Surf))).center().phi() )
-	    samePhi_PrevEta = surf.at(prev_Surf);
-	  
-	  double DeltaPhi = tsf.center().phi() - (*(surf.at(prev_Surf))).center().phi();
-	  
-	  if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
-	    previousPhi_PrevEta = surf.at(prev_Surf);
-	    PrevDeltaPhi = DeltaPhi;
-	  }
-	  
-	  if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
-	    nextPhi_PrevEta = surf.at(prev_Surf);
-	    NextDeltaPhi = DeltaPhi;
-	  } 	  
-	}
-      }
-
-      if ((unsigned int)nextUtil < m_singleBinUtils->size()) {
-	
-	size_t start_next = offset + (m_singleBinUtils->at(Util))->bins();
-	size_t end_next = start_next + (m_singleBinUtils->at(nextUtil))->bins();
-	
-	// look for same/next/previous phi in the ring with bigger eta value.
-	// If there is an element with exactly the same phi we can return 3 elements 
-	// If there is not an element with exactly the same phi we can return 2 elements (previous/next only)
+        if (etamod == etaModule || etamod<(etaModule-1) || etamod>(etaModule+1)) {
+          offset += (m_singleBinUtils->at(bin))->bins();
+          continue;
+        }
         
-	std::vector<const Trk::Surface*> surf = m_bin_array->arrayObjects();
-	
-	double PrevDeltaPhi = 9999.;
-	double NextDeltaPhi = -9999.;
-
-	for (size_t next_Surf = start_next; next_Surf < end_next; next_Surf++ ) {
-	  
-	  if( tsf.center().phi() == (*(surf.at(next_Surf))).center().phi() )
-	    samePhi_NextEta = surf.at(next_Surf);
-
-	  double DeltaPhi = tsf.center().phi() - (*(surf.at(next_Surf))).center().phi();
-	  
-	  if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
-	    previousPhi_NextEta = surf.at(next_Surf);
-	    PrevDeltaPhi = DeltaPhi;
-	  }
-	  
-	  if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
-	    nextPhi_NextEta = surf.at(next_Surf);
-	    NextDeltaPhi = DeltaPhi;
-	  }    
-	}
+        double PrevDeltaPhi = 9999.;
+        double NextDeltaPhi = -9999.;
+        for (unsigned int ss = offset; ss < (offset+(m_singleBinUtils->at(bin))->bins()); ss++ ) {
+          if (etamod == (etaModule-1) ) {
+            if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
+              samePhi_PrevEta = surf.at(ss);
+            double DeltaPhi = tsf.center().phi() - (*(surf.at(ss))).center().phi();
+            if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
+              previousPhi_PrevEta = surf.at(ss);
+              PrevDeltaPhi = DeltaPhi;
+            }
+            if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
+              nextPhi_PrevEta = surf.at(ss);
+              NextDeltaPhi = DeltaPhi;
+            }
+          } else if (etamod == (etaModule+1) ) {
+            if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
+              samePhi_NextEta = surf.at(ss);
+            double DeltaPhi = tsf.center().phi() - (*(surf.at(ss))).center().phi();
+            if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
+              previousPhi_NextEta = surf.at(ss);
+              PrevDeltaPhi = DeltaPhi;
+            }
+            
+            if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
+              nextPhi_NextEta = surf.at(ss);
+              NextDeltaPhi = DeltaPhi;
+            }
+          }
+        }
+        offset += (m_singleBinUtils->at(bin))->bins();
       }
       
       if (samePhi_PrevEta) {
-	const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(samePhi_PrevEta->associatedDetectorElement());
-	if (PhiEta_Element) {
-	  addSurfaceDO(PhiEta_Element,surfaces);
-	  addOtherSideDO(PhiEta_Element, surfaces);
-	}
+        const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(samePhi_PrevEta->associatedDetectorElement());
+        if (PhiEta_Element) {
+          addSurfaceDO(PhiEta_Element,surfaces);
+          addOtherSideDO(PhiEta_Element, surfaces);
+        }
       }
 
       if (previousPhi_PrevEta) {
-	const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(previousPhi_PrevEta->associatedDetectorElement());
-	if (PhiEta_Element) {
-	  addSurfaceDO(PhiEta_Element,surfaces);
-	  addOtherSideDO(PhiEta_Element, surfaces);
-	  
-	  addPrevInPhiDO(PhiEta_Element,surfaces);
-	  addPrevInPhiDO(PhiEta_Element->prevInPhi(),surfaces);
-	}
+        const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(previousPhi_PrevEta->associatedDetectorElement());
+        if (PhiEta_Element) {
+          addSurfaceDO(PhiEta_Element,surfaces);
+          addOtherSideDO(PhiEta_Element, surfaces);
+          
+          addPrevInPhiDO(PhiEta_Element,surfaces);
+          addPrevInPhiDO(PhiEta_Element->prevInPhi(),surfaces);
+        }
       }
       
       if (nextPhi_PrevEta) {
-	const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(nextPhi_PrevEta->associatedDetectorElement());
-	if (PhiEta_Element) {
-	  addSurfaceDO(PhiEta_Element,surfaces);
-	  addOtherSideDO(PhiEta_Element, surfaces);
-	  
-	  addNextInPhiDO(PhiEta_Element,surfaces);
-	  addNextInPhiDO(PhiEta_Element->nextInPhi(),surfaces);
-	}
+        const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(nextPhi_PrevEta->associatedDetectorElement());
+        if (PhiEta_Element) {
+          addSurfaceDO(PhiEta_Element,surfaces);
+          addOtherSideDO(PhiEta_Element, surfaces);
+          
+          addNextInPhiDO(PhiEta_Element,surfaces);
+          addNextInPhiDO(PhiEta_Element->nextInPhi(),surfaces);
+        }
       }
       
       if (samePhi_NextEta) {
-	const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(samePhi_NextEta->associatedDetectorElement());
-	if (PhiEta_Element) {
-	  addSurfaceDO(PhiEta_Element,surfaces);
-	  addOtherSideDO(PhiEta_Element, surfaces);
-	}
+        const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(samePhi_NextEta->associatedDetectorElement());
+        if (PhiEta_Element) {
+          addSurfaceDO(PhiEta_Element,surfaces);
+          addOtherSideDO(PhiEta_Element, surfaces);
+        }
       }
       
       if (previousPhi_NextEta) {
-	const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(previousPhi_NextEta->associatedDetectorElement());
-	if (PhiEta_Element) {
-	  addSurfaceDO(PhiEta_Element,surfaces);
-	  addOtherSideDO(PhiEta_Element, surfaces);
-	  
-	  addPrevInPhiDO(PhiEta_Element,surfaces);
-	  addPrevInPhiDO(PhiEta_Element->prevInPhi(),surfaces);
-	}
+        const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(previousPhi_NextEta->associatedDetectorElement());
+        if (PhiEta_Element) {
+          addSurfaceDO(PhiEta_Element,surfaces);
+          addOtherSideDO(PhiEta_Element, surfaces);
+          
+          addPrevInPhiDO(PhiEta_Element,surfaces);
+          addPrevInPhiDO(PhiEta_Element->prevInPhi(),surfaces);
+        }
       }
       
       if (nextPhi_NextEta) {
-	const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(nextPhi_NextEta->associatedDetectorElement());
-	if (PhiEta_Element) {
-	  addSurfaceDO(PhiEta_Element,surfaces);
-	  addOtherSideDO(PhiEta_Element, surfaces);
-	  
-	  addNextInPhiDO(PhiEta_Element,surfaces);
-	  addNextInPhiDO(PhiEta_Element->nextInPhi(),surfaces);
-	}
+        const InDetDD::SiDetectorElement* PhiEta_Element = dynamic_cast<const InDetDD::SiDetectorElement*>(nextPhi_NextEta->associatedDetectorElement());
+        if (PhiEta_Element) {
+          addSurfaceDO(PhiEta_Element,surfaces);
+          addOtherSideDO(PhiEta_Element, surfaces);
+          
+          addNextInPhiDO(PhiEta_Element,surfaces);
+          addNextInPhiDO(PhiEta_Element->nextInPhi(),surfaces);
+        }
       }
     }
   }
@@ -229,3 +207,24 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   return false;
 
 }
+
+bool InDet::DiscOverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {
+  std::cout << "Dumping Surfaces for "<< (m_pixelCase ? "Pixel " : "SCT ") << "with size = " << surfaces.size() << std::endl;
+  for (unsigned int surf = 0; surf < surfaces.size(); surf++) {
+    Identifier hitId = ((surfaces.at(surf)).object)->associatedDetectorElementIdentifier(); 
+    if (m_pixelCase)
+      std::cout <<  "barrel_ec " << m_pixIdHelper.load()->barrel_ec(hitId) 
+                << ", layer_disk " << m_pixIdHelper.load()->layer_disk(hitId) 
+                << ", phi_module " << m_pixIdHelper.load()->phi_module(hitId) 
+                << ", eta_module " << m_pixIdHelper.load()->eta_module(hitId) << std::endl;
+    else 
+      std::cout <<  "barrel_ec " << m_sctIdHelper.load()->barrel_ec(hitId) 
+                << ", layer_disk " << m_sctIdHelper.load()->layer_disk(hitId) 
+                << ", phi_module " << m_sctIdHelper.load()->phi_module(hitId) 
+                << ", eta_module " << m_sctIdHelper.load()->eta_module(hitId) 
+                << ", side " << m_sctIdHelper.load()->side(hitId) << std::endl;
+  }
+  return true;
+}
+
+

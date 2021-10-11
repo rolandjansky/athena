@@ -73,7 +73,7 @@ namespace Crest {
 
 /**
  * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all
- *parameters.
+ * parameters.
  * (This method is an analogue of the find_all_iovs method in Python)
  * @param tagname - tag name.
  * @param _size - page size. Default value is 1000.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Response/Amplifier.h"
@@ -132,7 +132,7 @@ void Amplifier::Reset()
 
 bool Amplifier::AddClusters(const std::vector<double>& clusters)
 {
-  if(clusters.size() == 0){   // no clusters, no signal!
+  if(clusters.empty()){   // no clusters, no signal!
     return false;
   }
 

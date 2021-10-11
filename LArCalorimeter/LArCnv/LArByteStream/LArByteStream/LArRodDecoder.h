@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -30,7 +30,6 @@
 
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 
 #include "LArRawUtils/LArRoI_Map.h"
@@ -232,7 +231,7 @@ private:
   bool m_larCell; // set to True if it is used for ConvertingLArCell 
   bool m_readtdc; // set to True if the tdc phase is read from the upper byte of the nsamples word.
   bool m_febExchange; //HW cause, can not be fixed otherwise: Ugly hack for swapped FEB
-  unsigned int m_febId1, m_febId2, m_febIdHLT;
+  unsigned int m_febId1, m_febId2, m_febIdHLT = 0U;
 
   int m_firstSample; // FIXED but kept for backward compatibility
   // In Auto-Gain mode, the FEB does not send the samples in the right order, but the one first that 
@@ -246,15 +245,12 @@ private:
   std::vector<int> m_vBEPreselection;
   std::vector<int> m_vPosNegPreselection;
   std::vector<unsigned int> m_vFinalPreselection;
-  uint32_t m_StatusMask, m_StatusNMask;
+  uint32_t m_StatusMask, m_StatusNMask = 0U;
   const LArOnlineID*       m_onlineHelper; 
   MakeLArCellFromRaw m_makeCell;  
   std::vector<std::string> m_LArCellCorrNames;
   std::vector<unsigned int> m_IgnoreCheckFEBs;
   std::vector<const CaloCellCorrection*> m_LArCellCorrTools;
-  
-  bool m_doBadChanMasking;
-  const ILArBadChannelMasker* m_badChannelMasker;
   
   double m_delayScale;
   mutable SG::SlotSpecificObj<std::vector<std::unique_ptr<LArRodBlockStructure> > >
@@ -328,6 +324,7 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
   if (!BlStruct) {
     // Second Bit is block empty or unknown
     error|= 0x2;
+    return error;
   }
 
   BlStruct->setFragment(p,n);
@@ -386,12 +383,6 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
         iprovenance=0x1000; // data comes from DSP computation
         iquality=0;
         if ( quality>=0 ) { iprovenance|= 0x2000; iquality=(quality& 0xffff);}
-	if(m_doBadChanMasking) {
-	  const HWIdentifier hwid= m_onlineHelper->channel_Id(fId,fcNb);
-	  if (m_badChannelMasker->cellShouldBeMasked(hwid, gain)) {
-	    {energy = 0;   iquality = 0; iprovenance|=0x0800;} 
-	  }
-	}
 	// time converted to ns
 	collElem->set(energy, time*1e-3, iquality, iprovenance, (CaloGain::CaloGain)gain);
         //setCellEnergy(collElem,energy, time, quality, (CaloGain::CaloGain)gain);

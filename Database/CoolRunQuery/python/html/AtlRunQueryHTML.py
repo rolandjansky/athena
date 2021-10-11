@@ -262,9 +262,8 @@ class ResultPageMaker:
         if not runsOnServer() and doPickle:
             import pickle
             from CoolRunQuery.AtlRunQueryQueryConfig import QC
-            f = open('%s/dqsum_pi.pickle' % QC.datapath, "w")
-            pickle.dump(pageinfo, f)
-            f.close()
+            with open('%s/dqsum_pi.pickle' % QC.datapath, "wb") as fh:
+                pickle.dump(pageinfo, fh)
 
         class PI:
             pass

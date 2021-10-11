@@ -435,7 +435,7 @@ bool construction_test(HLT::Navigation* hns) {
 
 
   // add ghost TES
-  TriggerElement* ghost;
+  TriggerElement* ghost{nullptr};
   ghost = hns->addNode(telist, 33399, true); ghost->setActiveState(false);
   ghost = hns->addNode(telist, 33399, true); 
   ghost = hns->addNode(telist, 33399, true); 
@@ -446,15 +446,14 @@ bool construction_test(HLT::Navigation* hns) {
 
   // build one long branch
   TriggerElement* te1 = roi1eltr1;
-  TriggerElement* te2;
-  int i;
-  for ( i = 0; i < 25; i++ ) { 
+  TriggerElement* te2{nullptr};
+  for ( int i = 0; i < 25; i++ ) { 
     te2 = hns->addNode(te1, 5000+i); 
     te1 = te2;
   }
   
   // add many leafs to one of the RoI
-  for ( i = 0; i < 24; i++ ) { 
+  for ( int i = 0; i < 24; i++ ) { 
     te1 = hns->addNode(roi1, 50); 
     // bunch of inactive TEes
     TriggerElement* te3 = hns->addNode(roi1, 60); 
@@ -806,12 +805,12 @@ bool run () {
   //  using namespace Athena_test;
 
 
-  ISvcLocator* pSvcLoc;
+  ISvcLocator* pSvcLoc{nullptr};
   if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
     cerr << "ERROR This test can not be run" << endl;
     return 0;
   }
-  assert(pSvcLoc);
+  assert(pSvcLoc!=nullptr);
 
 
   MsgStream log(Athena::getMessageSvc(), "HLTNavigation_test");
@@ -826,25 +825,27 @@ bool run () {
   } else REPORT_AND_STOP( "no SG available" );
 
 
-  IToolSvc* toolSvc;
+  IToolSvc* toolSvc{nullptr};
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
     log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
-  } else 
+  } else {
     ABORT ( "no ToolSvc available" );
+  }
 
-
-  HLT::Navigation* hns;
-  IAlgTool* algTool;
+  HLT::Navigation* hns{nullptr};
+  IAlgTool* algTool{nullptr};
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
     log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
-    if ( hns ) {
+    if ( hns != nullptr ) {
       log << MSG::DEBUG << "OK navigation casted" << endmsg;    
-    } else 
+    } else {
       ABORT( "navigation cast failed" );    
-
-  } else ABORT ("navigation tool NOT retrieved" );
+    }
+  } else {
+    ABORT ("navigation tool NOT retrieved" );
+  }
 
 
   hns->reset();

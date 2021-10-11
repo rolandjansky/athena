@@ -101,8 +101,8 @@ namespace met {
     SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
     SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey;
-    SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey{this,"PFlowColl","CHSParticleFlowObjects","PFO Collection"};
-    SG::ReadHandleKey<xAOD::FlowElementContainer>  m_fecollKey{this,"FlowElementCollection","","FlowElement Collection (overrides PFO if not empty)"};
+    SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey{this,"PFlowColl","","PFO Collection"};
+    SG::ReadHandleKey<xAOD::FlowElementContainer>  m_fecollKey{this,"FlowElementCollection","CHSParticleFlowObjects","FlowElement Collection (overrides PFO if not empty)"};
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
 

@@ -197,10 +197,19 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                              std::vector<double>& initialConditions,
                                              CLHEP::HepRandomEngine* rndmEngine,
                                              const EventContext &ctx) {
-  // So far, this is only discriminating variable from 3D sensor.
-  if (p_design.numberOfCircuits() < 2) {
-    if (!Module.isDBM()) {  //DBM modules also processed here
-      return StatusCode::SUCCESS;
+  if (p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::RD53) {
+    // TODO: check that detectors other than ITk have this properly set
+    // if (p_design.is3D()) {
+    //   return StatusCode::SUCCESS;
+    // }
+    // pass
+    // TODO: for now all RD53 sensors are digitized as planar
+  } else {
+    // So far, this is only discriminating variable from 3D sensor.
+    if (p_design.numberOfCircuits() < 2) {
+      if (!Module.isDBM()) {  //DBM modules also processed here
+        return StatusCode::SUCCESS;
+      }
     }
   }
 
@@ -300,7 +309,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       int nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
       int nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
 
-      std::array<double, 3> sensorScales;
+      std::array<double, 3> sensorScales{};
 
       const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
       const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
@@ -384,7 +393,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         
 
         // Slim Edge for IBL planar sensors:
-        if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
+        if (p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
           applyIBLSlimEdges(energy_per_step, eta_f_e);
           applyIBLSlimEdges(energy_per_step, eta_f_h);
         }
@@ -520,7 +529,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         double eta_drifted = eta_i + rdif * etaRand;
 
         // Slim Edge for IBL planar sensors:
-        if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
+        if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
           applyIBLSlimEdges(energy_per_step, eta_drifted);
         }
 
@@ -551,7 +560,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   return StatusCode::SUCCESS;
 }
 
-void SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, double& eta_drifted) const{
+void SensorSimPlanarTool::applyIBLSlimEdges(double& energy_per_step, double& eta_drifted) {
   if (std::abs(eta_drifted) > 20.440) {
     energy_per_step = 0.0;
   }

@@ -99,6 +99,9 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( CaloClusterContainer );
   INIT_XAOD( TrigT2MbtsBitsContainer );
   INIT_XAOD( HIEventShapeContainer );
+  INIT_XAOD( TrigRNNOutputContainer );
+  INIT_XAOD( AFPTrackContainer );
+
 #undef INIT
 #undef INIT_XAOD
 
@@ -271,16 +274,21 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for (size_t i = 0; i < handles.out.size(); ++i) {
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
+    // Special case. The slimmed navigation container is exceptionally created _after_ the HLTEDMCreator as it reads remapped navigation data.
+    if (writeHandleKey.key() == "HLTNav_Summary_OnlineSlimmed") {
+      continue;
+    }
+
     if ( handles.views.empty() ) { // no merging will be needed
       // Note: This is correct. We are testing if we can read, and if we cannot then we write.
       // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
       SG::ReadHandle<T> readHandle( writeHandleKey.key() );
       if ( readHandle.isValid() ) {
-	ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
-	generator.create(false, false);
+        ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
+        generator.create(false, false);
       } else {
-	ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it" );
-	generator.create(true, true);
+        ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it" );
+        generator.create(true, true);
       }
 
     } else {
@@ -294,10 +302,10 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
       if ( handles.out.size() == 1  ) {
       	generator.create(true, true);
       } else  {
-	const bool doCreate = i == 0 or handles.out.at(i-1).key() != handles.out.at(i).key();
-	const bool doRecord = i == handles.out.size()-1 or handles.out.at(i+1).key() != handles.out.at(i).key();
-	ATH_MSG_DEBUG( "Instrucring generator " <<  (doCreate ? "to" : "NOT TO") <<  " create collection and " << (doRecord ? "to" : "NOT TO") << " record collection in this iteration");
-	generator.create(doCreate, doRecord);
+        const bool doCreate = i == 0 or handles.out.at(i-1).key() != handles.out.at(i).key();
+        const bool doRecord = i == handles.out.size()-1 or handles.out.at(i+1).key() != handles.out.at(i).key();
+        ATH_MSG_DEBUG( "Instrucring generator " <<  (doCreate ? "to" : "NOT TO") <<  " create collection and " << (doRecord ? "to" : "NOT TO") << " record collection in this iteration");
+        generator.create(doCreate, doRecord);
       }
 
       SG::ReadHandleKey<ViewContainer> viewsReadHandleKey = handles.views.at(i);
@@ -305,12 +313,33 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
 
       auto viewsHandle = SG::makeHandle( viewsReadHandleKey, context );
       if ( viewsHandle.isValid() ) {
-	SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
-	ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views using in-view key " << inViewReadHandleKey.key() );
-	ATH_CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
+        SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
+        ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views using in-view key " << inViewReadHandleKey.key() );
+        ATH_CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
       } else {
-	ATH_MSG_DEBUG("Views " << viewsReadHandleKey.key() << " are missing. Will leave " << writeHandleKey.key() << " output collection empty.");
+        ATH_MSG_DEBUG("Views " << viewsReadHandleKey.key() << " are missing. Will leave " << writeHandleKey.key() << " output collection empty.");
       }
+
+      // Also consider probe variants of each EventView.
+      // Not every container will have a corresponding set of (typically) lower-pT probe ROIs, but it's safer to always test.
+      static const std::string probe_suffix = "_probe";
+      const std::string viewsReadHandleKeyProbe = viewsReadHandleKey.key() + probe_suffix;
+      ATH_MSG_VERBOSE("Will try to merge from the " << viewsReadHandleKeyProbe <<  " view container into that output");
+
+      // Falling back to direct SG access here to avoid uninitiated key errors. This is safe to do in the context of the Trigger ControlFlow.
+      // I.e. if this collection is to exist in this event, then it is guaranteed to have been produced prior to this alg executing.
+      const ViewContainer* viewsContainer_probe = nullptr;
+      if (evtStore()->contains<ViewContainer>(viewsReadHandleKeyProbe)) {
+        ATH_CHECK(evtStore()->retrieve(viewsContainer_probe, viewsReadHandleKeyProbe));
+      }
+      if ( viewsContainer_probe ) {
+        SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
+        ATH_MSG_DEBUG("Will be merging from " << viewsContainer_probe->size() << " probe views using in-view key " << inViewReadHandleKey.key() );
+        ATH_CHECK( (this->*merger)( *viewsContainer_probe, inViewReadHandleKey , context, *generator.data.get() ) );
+      } else {
+        ATH_MSG_VERBOSE("Probe views " << viewsReadHandleKeyProbe << " are missing.");
+      }
+
     }
 
     auto writeHandle = SG::makeHandle( writeHandleKey, context );
@@ -369,6 +398,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( BTagVertexContainer,BTagVertexAuxContainer );
   CREATE_XAOD( TrigT2MbtsBitsContainer, TrigT2MbtsBitsAuxContainer );
   CREATE_XAOD( HIEventShapeContainer, HIEventShapeAuxContainer );
+  CREATE_XAOD( TrigRNNOutputContainer, TrigRNNOutputAuxContainer );
+  CREATE_XAOD( AFPTrackContainer, AFPTrackAuxContainer );
 
   // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );

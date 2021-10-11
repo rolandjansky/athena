@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MagFieldUtils/IdentityManipulator.h"
+#include "IdentityManipulator.h"
 
 MagField::IdentityManipulator::IdentityManipulator(const std::string& name,
                                          const std::string& type,

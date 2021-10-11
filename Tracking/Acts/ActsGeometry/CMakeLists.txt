@@ -41,8 +41,13 @@ atlas_add_library( ActsGeometryLib
                    PRIVATE_LINK_LIBRARIES
                    StoreGateLib
                    TRT_ReadoutGeometry
+                   SCT_ReadoutGeometry
                    TrkGeometry
-                   TrkSurfaces )
+                   TrkSurfaces
+                   TrkFitterUtils
+                   TrkTrackSummary
+                   TrkToolInterfaces
+                   TrkFitterInterfaces)
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
@@ -66,6 +71,7 @@ atlas_add_component( ActsGeometry
                      src/ActsGeantFollower.cxx
                      src/ActsGeantFollowerHelper.cxx
                      src/ActsGeantFollowerTool.cxx
+                     src/ActsATLASConverterTool.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${ROOT_LIBRARIES}
@@ -86,7 +92,12 @@ atlas_add_component( ActsGeometry
                      TrkGeometry
                      TrkExInterfaces
                      TrkParameters
-                     TrkSurfaces )
+                     TrkSurfaces
+                     TrkFitterUtils
+                     TrkTrackSummary
+                     xAODTracking 
+                     TrkToolInterfaces
+                     TrkFitterInterfaces)
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

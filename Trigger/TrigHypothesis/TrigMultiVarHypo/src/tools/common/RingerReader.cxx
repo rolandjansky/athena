@@ -2,6 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include <vector>
 #include "TTree.h"
 #include <iostream>
@@ -20,7 +22,7 @@
 
 using namespace Ringer;
 
-RingerReader::RingerReader(std::string  name):
+RingerReader::RingerReader(const std::string&  name):
   asg::AsgMessaging(name),
   m_name(name)
 {
@@ -50,7 +52,7 @@ RingerReader::RingerReader(std::string  name):
 template <class T>
 void RingerReader::InitBranch(TTree* fChain, std::string branch_name, T* param){
   bool message=true;
-  std::string bname = branch_name;
+  std::string bname = std::move(branch_name);
   if (fChain->GetAlias(bname.c_str()))
      bname = std::string(fChain->GetAlias(bname.c_str()));
 
@@ -104,7 +106,7 @@ bool RingerReader::retrieve( std::string &calibPath, std::vector< std::shared_pt
       // Create the discriminator object
       try{
         std::vector<std::string> tfnames;
-        for(unsigned l=0; l<m_nodes->size(); l++) tfnames.push_back("tanh"); // This is default for this version
+        for(unsigned l=0; l<m_nodes->size(); l++) tfnames.emplace_back("tanh"); // This is default for this version
 	  	  discriminators.push_back( std::make_shared<MultiLayerPerceptron>(*m_nodes,*m_weights,*m_bias,tfnames,m_etBins->at(0),
                                                                           m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1), -999., 999.) ); 
 	    }catch(std::bad_alloc &){

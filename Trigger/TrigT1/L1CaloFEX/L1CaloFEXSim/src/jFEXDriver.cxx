@@ -23,6 +23,7 @@
 #include "L1CaloFEXSim/jFEXLargeRJetTOB.h"
 #include "L1CaloFEXSim/jFEXtauTOB.h"
 
+
 #include "TROOT.h"
 #include "TH1.h"
 #include "TH1F.h"
@@ -45,9 +46,6 @@
 
 #include <cassert>
 #include "SGTools/TestStore.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 #include <ctime>
 
@@ -74,32 +72,19 @@ StatusCode jFEXDriver::initialize()
 
   m_numberOfEvents = 1;
 
-  ServiceHandle<ITHistSvc> histSvc("THistSvc","");
-  StatusCode scHist = histSvc.retrieve();
-  if (scHist ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to retrieve THistSvc"); }
-
-  //Reta
-  TH1F* hReta = new TH1F("Reta", "Reta",20,0,1);
-  hReta->GetXaxis()->SetTitle("TObs Reta");
-  hReta->GetYaxis()->SetTitle("Events");
-  
-  StatusCode scReg = histSvc->regHist("/ISO/Reta", hReta); 
-  if (scReg ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to define stream"); }
-
-
   ATH_CHECK( m_jTowerBuilderTool.retrieve() );
 
   ATH_CHECK( m_jSuperCellTowerMapperTool.retrieve() );
 
   ATH_CHECK( m_jFEXSysSimTool.retrieve() );
-
+  
   ATH_CHECK( m_jTowerContainerSGKey.initialize() );
 
   ATH_CHECK( m_jFexSRJetEDMKey.initialize() );
   ATH_CHECK( m_jFexLRJetEDMKey.initialize() );
   ATH_CHECK( m_jFexTauEDMKey.initialize() );
 
-  //ATH_CHECK( m_jFEXOutputCollectionSGKey.initialize() );
+  ATH_CHECK( m_jFEXOutputCollectionSGKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -119,7 +104,7 @@ StatusCode jFEXDriver::finalize()
   ATH_MSG_DEBUG("Executing " << name() << ", processing event number " << m_numberOfEvents );
 
   // OLD DIMA STUFF---------------------- Maybe useful in the future again
-  //if (fabsf((*cell)->eta()) > 2.55) continue;
+  //if (std::fabsf((*cell)->eta()) > 2.55) continue;
   //if (!((*cell)->provenance() & 0x40)) continue; // BCID cut
   //// if (!((*cell)->provenance() & 0x200)) continue;
   //// 8192 & 0x40 = 0
@@ -132,54 +117,45 @@ StatusCode jFEXDriver::finalize()
 
   // STEP 1 TO BE REPLACED IN THE NEAR FUTURE - KEPT HERE FOR REFERENCE
   // STEP 1 - Do some monitoring (code to exported in the future to another algorithm accessing only StoreGate and not appearing in this algorithm)
-  
   jFEXOutputCollection* my_jFEXOutputCollection = new jFEXOutputCollection();
-  //std::shared_ptr<jFEXOutputCollection> my_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
-  bool savetob = true;
-  if(savetob)
-  {
-    StatusCode sctob = evtStore()->record(my_jFEXOutputCollection,"jFEXOutputCollection");
-    if(sctob == StatusCode::SUCCESS){}
-    else if (sctob == StatusCode::FAILURE){ATH_MSG_ERROR("Event " << m_numberOfEvents << " , Failed to put jFEXOutputCollection into Storegate.");}
-    
-    
-    //SG::WriteHandle<jFEXOutputCollection> jFEXOutputCollectionSG(m_jFEXOutputCollectionSGKey,ctx);
-    //ATH_CHECK(jFEXOutputCollectionSG.record(std::make_unique<jFEXOutputCollection>()));
-    
-  }
-  
+  my_jFEXOutputCollection->setdooutput(true);
 
   // STEP 2 - Make some jTowers and fill the local container
-  ATH_CHECK( m_jTowerBuilderTool.retrieve() );
   m_jTowerBuilderTool->init(local_jTowerContainerRaw);
   local_jTowerContainerRaw->clearContainerMap();
   local_jTowerContainerRaw->fillContainerMap();
 
   // STEP 3 - Do the supercell-tower mapping - put this information into the jTowerContainer
-  ATH_CHECK( m_jSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_jSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_jTowerContainerRaw));
+
   ATH_CHECK(m_jSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_jTowerContainerRaw));
+  
+
 
   // STEP 4 - Write the completed jTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::jTowerContainer> jTowerContainerSG(m_jTowerContainerSGKey/*, ctx*/);
   ATH_CHECK(jTowerContainerSG.record(std::move(/*my_jTowerContainerRaw*/local_jTowerContainerRaw)));
 
   // STEP 5 - Set up the jFEXSysSim
-  ATH_CHECK( m_jFEXSysSimTool.retrieve() );
   m_jFEXSysSimTool->init();
 
   // STEP 6 - Run THE jFEXSysSim
-  ATH_CHECK(m_jFEXSysSimTool->execute());
+  ATH_CHECK(m_jFEXSysSimTool->execute(my_jFEXOutputCollection));
 
   //STEP 6.5- test the EDMs
   ATH_CHECK(testSRJetEDM());
   ATH_CHECK(testLRJetEDM());
   ATH_CHECK(testTauEDM());
 
-// STEP 7 - Close and clean the event  
+  // STEP 7 - Close and clean the event  
   m_jFEXSysSimTool->cleanup();
   m_jSuperCellTowerMapperTool->reset();
   m_jTowerBuilderTool->reset();
+
+  // STEP 8 - Write the completed jFEXOutputCollection into StoreGate (move the local copy in memory)
+  std::unique_ptr<jFEXOutputCollection> local_jFEXOutputCollection = std::unique_ptr<jFEXOutputCollection>(my_jFEXOutputCollection);
+  SG::WriteHandle<LVL1::jFEXOutputCollection> jFEXOutputCollectionSG(m_jFEXOutputCollectionSGKey);
+  ATH_CHECK(jFEXOutputCollectionSG.record(std::move(local_jFEXOutputCollection)));
 
   ATH_MSG_DEBUG("Executed " << name() << ", closing event number " << m_numberOfEvents );
 
@@ -201,7 +177,7 @@ StatusCode jFEXDriver::testSRJetEDM(){
     for(const auto& it : * myRoIContainer){
       myRoI = it;
       ATH_MSG_DEBUG("SR Jet EDM jFex Number: "
-            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number
             << " et: "
             << myRoI->et() // returns the et value of the EM cluster in MeV
             << " eta: "
@@ -228,7 +204,7 @@ StatusCode jFEXDriver::testLRJetEDM(){
     for(const auto& it : * myRoIContainer){
       myRoI = it;
       ATH_MSG_DEBUG("LR Jet EDM jFex Number: "
-            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number
             << " et: "
             << myRoI->et() // returns the et value of the EM cluster in MeV
             << " eta: "
@@ -255,7 +231,7 @@ StatusCode jFEXDriver::testTauEDM(){
     for(const auto& it : * myRoIContainer){
       myRoI = it;
       ATH_MSG_DEBUG("EDM jFex Number: "
-            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number
             << " et: "
             << myRoI->et() // returns the et value of the EM cluster in MeV
             << " eta: "

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_STRIPRESPONSESIMULATION_H
@@ -172,7 +172,7 @@ private:
   std::map<TString, TH2F* > m_mapOf2DHistograms;
 
   std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons;
-  int m_NelectronPropBins;
+  int m_NelectronPropBins = 0;
 
   bool m_writeOutputFile;
   bool m_writeEventDisplays;
@@ -183,11 +183,11 @@ private:
   mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
 
   // seperate random number generation for performance monitoring
-  float generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
+  float generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
   float getTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
-  float getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
-  float getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine);
-  float getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine);
+  float getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
+  float getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine) const;
+  float getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine) const;
 
 
 

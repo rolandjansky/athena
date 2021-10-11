@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Response/MDT_Response.h"
@@ -9,7 +9,7 @@ MDT_Response::MDT_Response() :
   m_rhit(0.0), 
   m_xhit(0.0), 
   m_pathLength(0.0), 
-  m_rtParameters(0),
+  m_rtParameters(nullptr),
   m_t0(0.0)
 {
   InitTubeParameters();
@@ -21,7 +21,7 @@ MDT_Response::MDT_Response(double timewindow, double binsize) :
   m_rhit(0.0), 
   m_xhit(0.0), 
   m_pathLength(0.0), 
-  m_rtParameters(0),
+  m_rtParameters(nullptr),
   m_t0(0.0)
 {
   InitTubeParameters();
@@ -31,7 +31,7 @@ MDT_Response::MDT_Response(double timewindow, double binsize) :
 			
 MDT_Response::~MDT_Response() 
 {
-  delete[] m_rtParameters; m_rtParameters=0;
+  delete[] m_rtParameters; m_rtParameters=nullptr;
 }
 
 void MDT_Response::InitClusters(double timewindow, double binsize)
@@ -141,7 +141,7 @@ void MDT_Response::InitRt(){
   default:
     std::cout << "MDT_Response:  Wrong rt-mode" << std::endl;
     m_rtNpar = 0;
-    m_rtParameters = 0;
+    m_rtParameters = nullptr;
     break;
   }
 //   std::cout << "MDT_Response: RT-relation -> Polynomial" << std::endl;

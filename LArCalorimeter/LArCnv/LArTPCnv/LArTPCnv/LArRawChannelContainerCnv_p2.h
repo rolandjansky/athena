@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTPCNV_LARRAWCHANNELCONTAINERCNV_P2_H
@@ -17,17 +17,19 @@
 // conversion in the .cxx. In part because LArRawChannelContainer_p2
 // vecs of both collections and channels. As well the IDC
 // addCollection is better.
-class LArRawChannelContainerCnv_p2 : public T_AthenaPoolTPCnvBase<LArRawChannelContainer, LArRawChannelContainer_p2>
+class LArRawChannelContainerCnv_p2 : public T_AthenaPoolTPCnvConstBase<LArRawChannelContainer, LArRawChannelContainer_p2>
 {
  public:
   LArRawChannelContainerCnv_p2() {};
+  using base_class::persToTrans;
+  using base_class::transToPers;
   
   virtual void	persToTrans(const LArRawChannelContainer_p2* persColl,
 			    LArRawChannelContainer* transColl,
-			    MsgStream &log) ;
+			    MsgStream &log) const override;
   virtual void	transToPers(const LArRawChannelContainer* transColl,
 			    LArRawChannelContainer_p2* persColl,
-			    MsgStream &log) ;
+			    MsgStream &log) const override;
  private:
   LArRawChannelCnv_p1 m_larRawChannelCnv_p1;
 };

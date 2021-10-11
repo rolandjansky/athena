@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -131,14 +132,12 @@ namespace Trk {
           @param volumeName  : volume name to be given
 
       */
-      virtual const TrackingVolume* createContainerTrackingVolume(
-                                                   const std::vector<const TrackingVolume*>& volumes,
-                                                   Material& matprop,
-                                                   const std::string& volumeName ="UndefinedVolume",
-                                                   bool buildBoundaryLayers = false,
-                                                   bool replaceBoundaryFace = false) const = 0;
-                                                                                                                                                         
-
+      virtual const TrackingVolume* createContainerTrackingVolume
+      ATLAS_NOT_THREAD_SAFE(const std::vector<const TrackingVolume*>& volumes,
+                            Material& matprop,
+                            const std::string& volumeName = "UndefinedVolume",
+                            bool buildBoundaryLayers = false,
+                            bool replaceBoundaryFace = false) const = 0;
   };
 
 } // end of namespace

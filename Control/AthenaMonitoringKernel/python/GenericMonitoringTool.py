@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -71,7 +71,9 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         # if an overall path for tool is specified, can leave path argument empty
         if getattr(self, 'HistPath', '') != '':
             kwargs.setdefault('path', '')
-        self.Histograms.append(deffunc(*args, **kwargs))
+        toadd = deffunc(*args, **kwargs)
+        if toadd:
+            self.Histograms.append(toadd)
 
     def defineHistogram(self, *args, **kwargs):
         self._coreDefine(defineHistogram, *args, **kwargs)
@@ -128,13 +130,21 @@ class GenericMonitoringArray:
                 # assume we have list of strings or ints; convert to list of 1-element tuples
                 pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
-            aliased = unAliased+';'+aliasBase+postfix
-
             try:
                 accessors = tuple(self.Accessors[postfix])
                 if pattern is not None:
                     if accessors not in pattern:
                         continue
+                # two options for alias formatting,
+                #   a) default convention: (var_0, var_1, etc.)
+                #   b) custom formatting: 'alias{0}custom'.format(*(0, 1))
+                aliasBaseFormatted = aliasBase.format(*accessors)
+                if aliasBaseFormatted==aliasBase:
+                    # if format call did not do anything, use default
+                    aliased = unAliased+';'+aliasBase+postfix
+                else:
+                    # if format call changed the alias, use custom
+                    aliased = aliasBaseFormatted
                 if title is not None:
                     kwargs['title'] = title.format(*accessors)
                 if path is not None:
@@ -142,7 +152,7 @@ class GenericMonitoringArray:
             except IndexError as e:
                 log.error('In title or path template of histogram {0}, too many positional '\
                     'arguments were requested. Title and path templates were "{1}" and "{2}", '\
-                    'while only {3} fillers were given: {4}.'.format(aliased, title,\
+                    'while only {3} fillers were given: {4}.'.format(aliasBase, title,\
                     path, len(accessors), accessors))
                 raise e
 
@@ -236,6 +246,7 @@ def _options(opt):
         'kVecUO': False,                # same as above, but use 0th(last) element for underflow(overflow)
         'kCumulative': False,           # fill bin of monitored object's value, and every bin below it
         'kLive': 0,                     # plot only the last N lumiblocks on y_vs_LB plots
+        'kAlwaysCreate': False          # create the histogram, even if it is empty
     }
     if opt is None:
         # If no options are provided, skip any further checks.
@@ -326,7 +337,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     nVars = len(varList)
 
     # Type
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
+    if athenaCommonFlags.isOnline() and type in ['TTree']:
         log.warning('Object %s of type %s is not supported for online running and '
                     'will not be added.', varname, type)
         return ''

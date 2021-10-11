@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -208,16 +208,16 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
 
           TLorentzVector tauvis;
           tauvis.SetPtEtaPhiM(part->auxdata<double>("pt_vis"), part->auxdata<double>("eta_vis"), part->auxdata<double>("phi_vis"), part->auxdata<double>("m_vis"));
-          fj_particles.push_back(fastjet::PseudoJet(tauvis.Px(), tauvis.Py(), tauvis.Pz(), tauvis.E()));
+          fj_particles.emplace_back(tauvis.Px(), tauvis.Py(), tauvis.Pz(), tauvis.E());
         }
         else {
-          fj_particles.push_back(fastjet::PseudoJet(part->px(), part->py(), part->pz(), part->e()));
+          fj_particles.emplace_back(part->px(), part->py(), part->pz(), part->e());
         }
 
         fj_particles.back().set_user_index(part->barcode());
       }
       for (const auto& part : photonsFSRList) {
-        fj_particles.push_back(fastjet::PseudoJet(part->px(), part->py(), part->pz(), part->e()));
+        fj_particles.emplace_back(part->px(), part->py(), part->pz(), part->e());
         fj_particles.back().set_user_index(part->barcode());
       }
 

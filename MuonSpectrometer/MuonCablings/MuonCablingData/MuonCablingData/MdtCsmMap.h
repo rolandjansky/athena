@@ -6,18 +6,17 @@
 #define MUONMDT_CABLING_MDTCSMMAP_H
 
 #include "MuonCablingData/MdtMapBase.h"
-
-class MdtAmtMap;
+#include "MuonCablingData/MdtAmtMap.h"
 
 class MdtCsmMap : public MdtMapBase<MdtAmtMap> {
 
  public:
 
   MdtCsmMap(uint8_t csmId);
-  ~MdtCsmMap();
+  ~MdtCsmMap() = default;
 
   /** Set the map information */
-  bool setAmtMap(uint8_t tdcId , MdtAmtMap* amtMap);
+  bool setAmtMap(uint8_t tdcId , MdtAmtMap* amtMap, MsgStream &log);
 
   /** Access the map information */
   MdtAmtMap* getTdcMap(uint8_t tdcId);

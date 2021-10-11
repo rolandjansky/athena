@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibCscStripFitter_H
@@ -24,7 +24,7 @@ class CalibCscStripFitter : virtual public ICscStripFitter, public AthAlgTool {
 public:  // Ctors and dtor.
     enum NoiseOption { rms = 0, sigma, f001 };
 
-    CalibCscStripFitter(std::string, std::string, const IInterface*);
+    CalibCscStripFitter(const std::string&, const std::string&, const IInterface*);
 
     ~CalibCscStripFitter() = default;
 

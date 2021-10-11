@@ -49,11 +49,35 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "eEM" )
       return std::make_shared<L1Threshold_eEM>( name, type, extraInfo, data );
 
+   if( type == "jEM" )
+      return std::make_shared<L1Threshold_jEM>( name, type, extraInfo, data );
+
    if( type == "eTAU" )
       return std::make_shared<L1Threshold_eTAU>( name, type, extraInfo, data );
 
+   if( type == "jTAU" )
+      return std::make_shared<L1Threshold_jTAU>( name, type, extraInfo, data );
+
+   if( type == "cTAU" )
+      return std::make_shared<L1Threshold_cTAU>( name, type, extraInfo, data );
+
    if( type == "jJ" )
       return std::make_shared<L1Threshold_jJ>( name, type, extraInfo, data );
+
+   if( type == "jLJ" )
+      return std::make_shared<L1Threshold_jLJ>( name, type, extraInfo, data );
+
+   if( type == "jXE" )
+      return std::make_shared<L1Threshold_jXE>( name, type, extraInfo, data );
+
+   if( type == "jTE" )
+      return std::make_shared<L1Threshold_jTE>( name, type, extraInfo, data );
+
+   if( type == "gXE" )
+      return std::make_shared<L1Threshold_gXE>( name, type, extraInfo, data );
+
+   if( type == "gTE" )
+      return std::make_shared<L1Threshold_gTE>( name, type, extraInfo, data );
 
    if( type == "MU" )
       return std::make_shared<L1Threshold_MU>( name, type, extraInfo, data );
@@ -69,12 +93,6 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
 
    if( type == "internal" )
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
-
-   static const std::string caloBaseImp[] = { "gXE", "jXE" };
-   bool useCaloBaseClass = std::find(std::begin(caloBaseImp), std::end(caloBaseImp),type) != std::end(caloBaseImp);
-
-   if( useCaloBaseClass )
-      return std::make_shared<L1Threshold_Calo>( name, type, extraInfo, data );
 
    static const std::string noSpecialImp[] = { "JET", "XS", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ALFA"};
    bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) != std::end(noSpecialImp);
@@ -254,13 +272,18 @@ TrigConf::L1Threshold_Calo::thrValueCounts(int eta) const {
 }
 
 unsigned int
+TrigConf::L1Threshold_Calo::thrValue100MeV(int eta) const {
+   return energyInCounts( thrValueMeV(eta), 100 );
+}
+
+unsigned int
 TrigConf::L1Threshold_Calo::thrValueMeV(int eta) const {
    return m_etaDepThrValue.empty() ? m_thrValue : m_etaDepThrValue.at(eta);
 }
 
 TrigConf::ValueWithEtaDependence<float>
 TrigConf::L1Threshold_Calo::thrValues() const {
-   auto thresholdValuesGeV = ValueWithEtaDependence<float>{ m_etaDepThrValue.name()+"Counts" };
+   auto thresholdValuesGeV = ValueWithEtaDependence<float>{ m_etaDepThrValue.name()+"GeV" };
    for( auto & r : m_etaDepThrValue ) {
       thresholdValuesGeV.addRangeValue(r.value() / 1000.0f, r.etaMin(), r.etaMax(), r.priority(), r.symmetric());
    }
@@ -270,6 +293,15 @@ TrigConf::L1Threshold_Calo::thrValues() const {
 const TrigConf::ValueWithEtaDependence<unsigned int> &
 TrigConf::L1Threshold_Calo::thrValuesMeV() const {
    return m_etaDepThrValue;
+}
+
+TrigConf::ValueWithEtaDependence<unsigned int>
+TrigConf::L1Threshold_Calo::thrValues100MeV() const {
+   auto thrValues100MeV = ValueWithEtaDependence<unsigned int>{ m_etaDepThrValue.name()+"100MeV" };
+   for( auto & r : m_etaDepThrValue ) {
+      thrValues100MeV.addRangeValue( energyInCounts( r.value(), 100 ), r.etaMin(), r.etaMax(), r.priority(), r.symmetric());
+   }
+   return thrValues100MeV;
 }
 
 TrigConf::ValueWithEtaDependence<unsigned int>
@@ -313,6 +345,14 @@ TrigConf::Selection::wpToString(TrigConf::Selection::WP wp)
       return "Medium";
    if (wp == Selection::WP::TIGHT)
       return "Tight";
+   if (wp == Selection::WP::HADLOOSE)
+      return "HadLoose";
+   if (wp == Selection::WP::HADMEDIUM)
+      return "HadMedium";
+   if (wp == Selection::WP::HADTIGHT)
+      return "HadTight";
+   if (wp == Selection::WP::HAD) // Had = HadMedium for backward compatibility
+      return "HadMedium";
    throw std::runtime_error("Unknown working point " + std::to_string(int(wp)));
 }
 
@@ -327,5 +367,13 @@ TrigConf::Selection::stringToWP(const std::string & wpStr)
       return Selection::WP::MEDIUM;
    if (wpStr == "Tight")
       return Selection::WP::TIGHT;
+   if (wpStr == "HadLoose")
+      return Selection::WP::HADLOOSE;
+   if (wpStr == "HadMedium")
+      return Selection::WP::HADMEDIUM;
+   if (wpStr == "HadTight")
+      return Selection::WP::HADTIGHT;
+   if (wpStr == "Had") // Had = HadMedium for backward compatibility
+      return Selection::WP::HADMEDIUM; 
    throw std::runtime_error("Unknown working point name " + wpStr);
 }

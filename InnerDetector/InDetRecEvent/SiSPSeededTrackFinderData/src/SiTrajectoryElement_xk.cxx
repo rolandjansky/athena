@@ -21,6 +21,62 @@
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////
+// Set work dead trajectory element
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::setDead(const Trk::Surface* SU)
+{
+  m_fieldMode    = false;
+  if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
+  m_status       = 0                       ;
+  m_detstatus    = 0                       ;
+  m_nMissing        = 0                       ;
+  m_nlinksForward      = 0                       ;
+  m_nlinksBackward     = 0                       ;
+  m_nholesForward      = 0                       ;
+  m_nholesBackward     = 0                       ;
+  m_dholesForward      = 0                       ;
+  m_dholesBackward     = 0                       ;
+  m_nclustersForward   = 0                       ;
+  m_nclustersBackward  = 0                       ;
+  m_npixelsBackward    = 0                       ;
+  m_ndfForward         = 0                       ;
+  m_ndfBackward        = 0                       ;
+  m_ntsos              = 0                       ;
+  m_detelement   = 0                       ;
+  m_detlink      = 0                       ;
+  m_surface      = SU                      ;
+  m_cluster      = 0                       ;
+  m_clusterOld   = 0                       ;
+  m_clusterNoAdd = 0                       ;
+  noiseInitiate()                          ;
+  m_radlength    = -1.                     ;
+  m_inside       = -1                      ;
+  m_localDir[0] = 1.;
+  m_localDir[1] = 0.;
+  m_localDir[2] = 0.;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Set passive material contribution in radiation lengths
+// Contribution increases as a function of z to mimic the
+// routing of additional services along z
+///////////////////////////////////////////////////////////////////
+void InDet::SiTrajectoryElement_xk::setDeadRadLength(Trk::PatternTrackParameters& Tp)
+{
+  if(m_radlength >= 0.) return;
+  double z = fabs(Tp.parameters()[1]);
+  if     (z <  250.) m_radlength = .004;
+  else if(z <  500.) m_radlength = .018+(z- 250.)*.000048;
+  else if(z < 1000.) m_radlength = .030+(z- 500.)*.000040;
+  else if(z < 1500.) m_radlength = .050+(z-1000.)*.000020;
+  else if(z < 3000.) m_radlength = .060+(z-1500.)*.0000067;
+  else               m_radlength = .07;
+}
+
+
+///////////////////////////////////////////////////////////////////
 // Set work information to trajectory
 ///////////////////////////////////////////////////////////////////
 
@@ -78,6 +134,11 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 		  0. , 0.,  0.,.001,
 		  0. , 0.,  0.,  0.,.00001};
 
+  if (m_tools->isITkGeometry()) {
+    cv[5] = m_ndf==2 ? .1 : .01;
+    cv[9] = cv[5];
+  }
+
   /// update starting cov for DBM case
   if(m_detelement->isDBM()) {
 
@@ -94,7 +155,8 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   initiateState(m_parametersPredForward,m_parametersUpdatedForward);
 
   /// add noise to the parameter estimate (scattering, eloss) 
-  noiseProduction(1,m_parametersUpdatedForward);
+  if(!m_tools->isITkGeometry()) noiseProduction(1,m_parametersUpdatedForward);
+  else noiseProduction(1,m_parametersUpdatedForward,1.);
 
   /// and init other values
   m_dist               = -10. ;
@@ -117,15 +179,22 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 // Initiate first element of trajectory using smoother result
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrajectoryElement_xk::firstTrajectorElement()
+bool InDet::SiTrajectoryElement_xk::firstTrajectorElement(bool correction)
 {
 
   if(!m_cluster || !m_status) return false;
   if(m_status > 1 ) m_parametersPredForward = m_parametersUpdatedBackward;
 
-  /// reset the cov (off-diagonal to zero, diagonal multiplied by 100)
-  m_parametersPredForward.diagonalization(100.);
-  if(!initiateState(m_parametersPredForward,m_parametersUpdatedForward)) return false;
+  if(correction){
+    m_parametersPredForward.diagonalization(10.);
+    if(!initiateStateWithCorrection(m_parametersPredBackward,m_parametersPredForward,m_parametersUpdatedForward)) return false;
+  }
+  else{
+    /// reset the cov (off-diagonal to zero, diagonal multiplied by 100)
+    m_parametersPredForward.diagonalization(100.);
+    if(!initiateState(m_parametersPredForward,m_parametersUpdatedForward)) return false;
+  }
+
   noiseProduction(1,m_parametersUpdatedForward);
 
   m_dist               = -10. ;
@@ -144,7 +213,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Initiate last element of trajectory 
+// Initiate last element of trajectory
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
@@ -159,16 +228,48 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
 
   m_status              =      3 ;
   m_inside              =     -1 ;
-  m_nMissing               =      0 ;
+  m_nMissing            =      0 ;
   m_nlinksBackward      =      0 ;
   m_nholesBackward      =      0 ;
   m_dholesBackward      =      0 ;
   m_clusterNoAdd        =      nullptr ;
-  m_nclustersBackward   =      1 ; m_ndf == 2 ? m_npixelsBackward = 1 : m_npixelsBackward = 0;
+  m_nclustersBackward   =      1 ;
+  m_ndf == 2 ? m_npixelsBackward = 1 : m_npixelsBackward = 0;
   m_ndfBackward         =  m_ndf ;
   m_xi2Backward         =  m_xi2Forward;
   m_xi2totalBackward    =  m_xi2Forward;
   m_dist                =    -10.;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Initiate last element of trajectory 
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::lastTrajectorElementPrecise()
+{
+  if(m_status==0 || !m_cluster) return false;
+  m_radlength = .04;
+  noiseProduction(1,m_parametersUpdatedForward);
+
+  m_parametersSM = m_parametersPredForward;
+  m_parametersPredBackward = m_parametersUpdatedForward;
+  m_parametersPredBackward.diagonalization(10.);
+  if(!initiateStatePrecise(m_parametersPredBackward,m_parametersUpdatedBackward)) return false;
+  m_status             =  3;
+  m_inside             = -1;
+  m_nMissing           =  0;
+  m_nlinksBackward     =  0;
+  m_nholesBackward     =  0;
+  m_dholesBackward     =  0;
+  m_clusterNoAdd       =  0;
+  m_nclustersBackward  =  1;
+  m_clusterNoAdd       =  0;
+  m_npixelsBackward = m_ndf==2 ? 1 : 0;
+  m_ndfBackward        =  m_ndf ;
+  m_xi2Backward        =  m_xi2Forward;
+  m_xi2totalBackward   =  m_xi2Forward; // As in 21.9, should this be m_xi2totalForward instead?
+  m_dist         =    -10.;
   return true;
 }
 
@@ -213,33 +314,36 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
 
   /// Track update
   /// If we have a cluster on this element 
-  if( m_cluster) {
-    /// add it to refine the parameter estimate 
-    if(!addCluster(m_parametersPredForward,m_parametersUpdatedForward,m_xi2Forward)) return false;
-    /// set m_inside to signify this is a hit on track
-    m_inside  = -1; 
-    /// increment cluster count
-    ++m_nclustersForward; 
-    /// increment chi² and degrees of freedom
-    m_xi2totalForward+=m_xi2Forward; 
-    m_ndfForward+=m_ndf;
-  }
-  /// if we have no cluster on this element
-  else           {
-    /// check the intersection of the propagated track with this surface
-    checkBoundaries(m_parametersPredForward); 
-    /// if we have hits on this element
-    if( m_detstatus >=0) {
-      /// and expect to be inside the active area
-      if(m_inside <  0 ) {
-        /// then increment the hole counters
-        ++m_nholesForward; 
-        ++m_dholesForward;
-      }
-      /// for bond gaps, increment ndist
-      if(m_dist   < -2.) ++m_nMissing;
+  if(!m_tools->isITkGeometry() || m_detelement){
+    if( m_cluster) {
+      /// add it to refine the parameter estimate
+      if(!addCluster(m_parametersPredForward,m_parametersUpdatedForward,m_xi2Forward)) return false;
+      /// set m_inside to signify this is a hit on track
+      m_inside  = -1;
+      /// increment cluster count
+      ++m_nclustersForward;
+      /// increment chi² and degrees of freedom
+      m_xi2totalForward+=m_xi2Forward;
+      m_ndfForward+=m_ndf;
     }
-  }
+    /// if we have no cluster on this element
+    else           {
+      /// check the intersection of the propagated track with this surface
+      checkBoundaries(m_parametersPredForward);
+      /// if we have hits on this element
+      if( m_detstatus >=0) {
+	/// and expect to be inside the active area
+	if(m_inside <  0 ) {
+	  /// then increment the hole counters
+	  ++m_nholesForward;
+	  ++m_dholesForward;
+	}
+	/// for bond gaps, increment ndist
+	if(m_dist   < -2.) ++m_nMissing;
+      }
+    }
+  } else setDeadRadLength(m_parametersPredForward);
+
 
   /// Noise production
   /// If the track passes through our element
@@ -256,6 +360,63 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   m_status       = 1;
   m_nlinksForward      = 0;
   m_clusterNoAdd = nullptr;
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Propagate information in forward direction without closest
+// clusters search
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearchPreciseWithCorrection
+(InDet::SiTrajectoryElement_xk& TE)
+{
+  Trk::PatternTrackParameters P;
+
+  if(TE.m_cluster) {
+    P = TE.m_parametersUpdatedForward;
+    m_dholesForward = 0;
+  }
+  else             {
+    P = TE.m_parametersPredForward;
+    m_dholesForward = TE.m_dholesForward;
+  }
+
+  // Track propagation
+  //
+  P.addNoise(TE.m_noise,Trk::alongMomentum);
+  if(!propagate(P,m_parametersPredForward,m_step)) return false;
+
+  m_nclustersForward = TE.m_nclustersForward;
+  m_nholesForward    = TE.m_nholesForward   ;
+  m_nMissing         = TE.m_nMissing        ;
+  m_ndfForward       = TE.m_ndfForward      ;
+  m_xi2totalForward  = TE.m_xi2totalForward ;
+  m_step      += TE.m_step      ;
+  m_inside     = -1             ;
+
+  // Track update
+  //
+  if(!m_tools->isITkGeometry() || m_detelement){
+    if( m_cluster) {
+      if(!addClusterPreciseWithCorrection(m_parametersPredForward,m_parametersPredForward,m_parametersUpdatedForward,m_xi2Forward)) return false;
+      ++m_nclustersForward; m_xi2totalForward+=m_xi2Forward; m_ndfForward+=m_ndf;
+    }
+    else           {
+      if( m_detstatus >=0) {
+        ++m_nholesForward; ++m_dholesForward; ++m_nMissing;
+      }
+    }
+  }
+  else setDeadRadLength(m_parametersPredForward);
+
+  // Noise production
+  //
+  m_radlength = .04;
+  noiseProduction(1,m_parametersUpdatedBackward);
+  m_status       = 1;
+  m_nlinksForward = 0;
+  m_clusterNoAdd = 0;
   return true;
 }
 
@@ -303,6 +464,12 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   m_ndfForward         = TE.m_ndfForward                           ;
   m_xi2totalForward    = TE.m_xi2totalForward                      ;
   m_step              += TE.m_step                                 ;
+
+  if(m_tools->isITkGeometry() && !m_detelement) {
+    setDeadRadLength(m_parametersPredForward);
+    noiseProduction(1,m_parametersPredForward);
+    return true;
+  }
   
   /// if we are not passing through this element, reset noise production and return 
   if(m_inside > 0) {
@@ -408,7 +575,13 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_npixelsBackward     = TE.m_npixelsBackward                       ;
   m_ndfBackward         = TE.m_ndfBackward                           ;
   m_xi2totalBackward    = TE.m_xi2totalBackward                      ;
-  m_step        += TE.m_step                           ;
+  m_step        += TE.m_step  ;
+
+  if(m_tools->isITkGeometry() && !m_detelement) {
+    setDeadRadLength(m_parametersPredBackward);
+    noiseProduction(-1,m_parametersPredBackward);
+    return true;
+  }
 
   if(m_inside >0 ) {noiseInitiate(); return true;}
   
@@ -461,7 +634,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
     if(!propagate(TE.m_parametersPredBackward,m_parametersPredBackward,step)) return false;
     m_dholesBackward = TE.m_dholesBackward;
   }
-  
+
   m_parametersPredBackward.addNoise(m_noise,Trk::oppositeMomentum);
 
   // Forward-backward predict parameters
@@ -528,6 +701,40 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
     if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
     if(m_dist < -2.) ++m_nMissing;
 
+  }
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// Backward propagation with precise information
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::BackwardPropagationPrecise
+(InDet::SiTrajectoryElement_xk& TE)
+{
+
+  // Track propagation
+  //
+  double step;
+  if(TE.m_cluster) {
+
+    if(!propagate(TE.m_parametersUpdatedBackward,m_parametersPredBackward,step)) return false;
+  }
+  else             {
+
+    if(!propagate(TE.m_parametersPredBackward,m_parametersPredBackward,step)) return false;
+  }
+  
+  m_parametersPredBackward.addNoise(m_noise,Trk::oppositeMomentum);
+
+  // Forward-backward predict parameters
+  //
+  if(m_cluster) {
+    m_status = 3 ;
+     if(!addClusterPrecise(m_parametersPredBackward,m_parametersUpdatedBackward,m_xi2Backward)) return false;
+  }
+  else          {
+    m_status = 2 ;
   }
   return true;
 }
@@ -700,46 +907,43 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
     return nullptr;
   }
 
-  const Trk::FitQualityOnSurface* fq = nullptr;
-  const Trk::MeasurementBase* ro = nullptr;
+  std::unique_ptr<const Trk::FitQualityOnSurface> fq;
+  std::unique_ptr<const Trk::MeasurementBase> ro{};
 
   if (m_status == 1) {
-    fq = new Trk::FitQualityOnSurface(m_xi2Forward, m_ndf);
+    fq.reset(new Trk::FitQualityOnSurface(m_xi2Forward, m_ndf));
   } else {
-    fq = new Trk::FitQualityOnSurface(m_xi2Backward, m_ndf);
+    fq.reset(new Trk::FitQualityOnSurface(m_xi2Backward, m_ndf));
   }
 
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pat(
     0);
 
   if (m_cluster) {
-    ro = m_riotool->correct(*m_cluster, *tp);
+    ro.reset(m_riotool->correct(*m_cluster, *tp));
     pat.set(Trk::TrackStateOnSurface::Measurement);
   } else {
-    ro = m_riotool->correct(*m_clusterNoAdd, *tp);
+    ro.reset(m_riotool->correct(*m_clusterNoAdd, *tp));
     pat.set(Trk::TrackStateOnSurface::Outlier);
   }
-  const Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(
-    0., 0., sqrt(m_noise.covarianceAzim()), sqrt(m_noise.covariancePola()));
+  auto sa = Trk::ScatteringAngles(
+    0., 0., std::sqrt(m_noise.covarianceAzim()), std::sqrt(m_noise.covariancePola()));
 
-  const Trk::MaterialEffectsOnTrack* me =
-    new Trk::MaterialEffectsOnTrack(m_radlengthN, sa, tp->associatedSurface());
+  auto meTemplate = std::make_unique<const Trk::MaterialEffectsOnTrack>(
+    m_radlengthN, std::move(sa), tp->associatedSurface());
 
   pat.set(Trk::TrackStateOnSurface::Scatterer);
   Trk::TrackStateOnSurface* sos =
-    new Trk::TrackStateOnSurface(ro, std::move(tp), fq, me, pat);
+    new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), meTemplate->uniqueClone(), pat);
 
   m_tsos[0] = sos;
   m_utsos[0] = true;
   m_ntsos = 1;
 
   if (multi && m_cluster && m_ndf == 2 && m_nlinksBackward > 1) {
-
     for(int i=1; i!= m_nlinksBackward; ++i) {
-
       if(m_linkBackward[i].xi2() > m_xi2multi) break;
-
-      std::unique_ptr<Trk::TrackParameters> tpn = nullptr;
+      std::unique_ptr<Trk::TrackParameters> tpn{};
       if (!change) {
         tpn = trackParameters(cov, Q);
       } else {
@@ -748,13 +952,10 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
       if (!tpn){
         break;
       }
-
-      const Trk::FitQualityOnSurface   * fqn = new Trk::FitQualityOnSurface(m_linkBackward[i].xi2(),m_ndf);
-      const Trk::MeasurementBase* ron = m_riotool->correct(
-        *m_linkBackward[i].cluster(), *(sos->trackParameters()));
-      const Trk::MaterialEffectsOnTrack* men =
-        new Trk::MaterialEffectsOnTrack(*me);
-      m_tsos [m_ntsos] = new Trk::TrackStateOnSurface(ron,std::move(tpn),fqn,men,pat);  
+      auto fqn = std::make_unique<const Trk::FitQualityOnSurface>(m_linkBackward[i].xi2(),m_ndf);
+      std::unique_ptr<const Trk::MeasurementBase> ron(m_riotool->correct(
+        *m_linkBackward[i].cluster(), *(sos->trackParameters())) );
+      m_tsos [m_ntsos] = new Trk::TrackStateOnSurface(std::move(ron),std::move(tpn),std::move(fqn),meTemplate->uniqueClone(),pat);    
       m_utsos[m_ntsos] = false;
       if(++m_ntsos == 3) break;
     }
@@ -784,7 +985,7 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
   }
 
   IdentifierHash iH = m_detelement->identifyHash();
-  const Trk::MeasurementBase* ro = nullptr;
+  std::unique_ptr<const Trk::MeasurementBase> ro{};
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pat(
     0);
 
@@ -801,23 +1002,22 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
   Trk::LocalParameters locp = Trk::LocalParameters(cl->localPosition());
   Amg::MatrixX cv = cl->localCovariance();
 
-  const Trk::FitQualityOnSurface* fq = nullptr;
-  if     (m_status == 1) fq = new Trk::FitQualityOnSurface(m_xi2Forward,m_ndf);
-  else                   fq = new Trk::FitQualityOnSurface(m_xi2Backward,m_ndf);
+  std::unique_ptr<const Trk::FitQualityOnSurface> fq{};
+  if     (m_status == 1) fq.reset(new Trk::FitQualityOnSurface(m_xi2Forward,m_ndf));
+  else                   fq.reset(new Trk::FitQualityOnSurface(m_xi2Backward,m_ndf));
 
   if (m_ndf == 1) {
     const InDet::SCT_Cluster* sc = static_cast<const InDet::SCT_Cluster*>(cl);
     if (sc)
-      ro =
-        new InDet::SCT_ClusterOnTrack(sc, locp, cv, iH, sc->globalPosition());
+      ro.reset(new InDet::SCT_ClusterOnTrack(sc, locp, cv, iH, sc->globalPosition()));
   } else {
 
     const InDet::PixelCluster* pc = static_cast<const InDet::PixelCluster*>(cl);
     if (pc)
-      ro = new InDet::PixelClusterOnTrack(
-        pc, locp, cv, iH, pc->globalPosition(), pc->gangedPixel());
+      ro.reset(new InDet::PixelClusterOnTrack(
+        pc, locp, cv, iH, pc->globalPosition(), pc->gangedPixel()));
   }
-  return new Trk::TrackStateOnSurface(ro, std::move(tp), fq, nullptr, pat);
+  return new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), nullptr, pat);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -902,20 +1102,29 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov, int Q)
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiTrajectoryElement_xk::noiseProduction
-(int Dir,const Trk::PatternTrackParameters& Tp)
+(int Dir,const Trk::PatternTrackParameters& Tp,double rad_length)
 {
 
   int Model = m_noisemodel; 
   if(Model < 1 || Model > 2) return; 
+  if (rad_length<0.) rad_length=m_radlength;
 
-  double q = fabs(Tp.parameters()[4]);   /// qoverp 
+  double q = std::abs(Tp.parameters()[4]);   /// qoverp
 
   /// projection of direction normal to surface 
-  double s = fabs(m_localDir[0]*m_localTransform[6]+
-                  m_localDir[1]*m_localTransform[7]+
-                  m_localDir[2]*m_localTransform[8]);
-  if (s  < .05) s = 20.;
-  else s = 1./s; 
+  double s = std::abs(m_localDir[0]*m_localTransform[6]+
+		      m_localDir[1]*m_localTransform[7]+
+		      m_localDir[2]*m_localTransform[8]);
+  if(m_tools->isITkGeometry() && !m_detelement) s = sqrt(m_localDir[0]*m_localDir[0]+m_localDir[1]*m_localDir[1]);
+
+  if(m_tools->isITkGeometry()){
+    if (s < .01) s = 100.;
+    else s = 1./s;
+  }
+  else{
+    if (s  < .05) s = 20.;
+    else s = 1./s;
+  }
 
   /// number of radiation lengths when crossing this surface
   m_radlengthN = s*m_radlength; 
@@ -923,6 +1132,10 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   /// used frequently throught the track finder chain. 
   /// Here we use it to estimate the scattering impact on the errors
   double covariancePola = (134.*m_radlengthN)*(q*q);
+  if(m_tools->isITkGeometry()){
+    double qc      = (1.+.038*log(m_radlengthN))*q;
+    covariancePola = (185.*m_radlengthN)*qc*qc;
+  }
 
   /// 1 - Az² --> squared transverse direction component 
   double d = (1.-m_localDir[2])*(1.+m_localDir[2]);   
@@ -953,6 +1166,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   /// store in noise object
   m_noise.set(covarianceAzim,covariancePola,covarianceIMom,correctionIMom);
 }
+
 
 ///////////////////////////////////////////////////////////////////
 // TrackParameters production with new direction
@@ -1159,7 +1373,7 @@ InDet::SiTrajectoryElement_xk::propagate(Trk::PatternTrackParameters  & starting
                                   /// 45: step length 
 
   /// transform starting parameters to global, write into globalParameters 
-  transformPlaneToGlobal(useJac,startingParameters,globalParameters);
+  if(!transformPlaneToGlobal(useJac,startingParameters,globalParameters)) return false;
   /// if running with field, use Runge Kutta. Will update globalParameters to the result in global coordinates
   if( m_fieldMode) {
     if(!rungeKuttaToPlane      (useJac,globalParameters)) return false;
@@ -1194,7 +1408,7 @@ InDet::SiTrajectoryElement_xk::propagateParameters(Trk::PatternTrackParameters  
                                   /// 7 - 41: jacobian 
                                   /// 42-44: extension of jacobian for dA/ds
                                   /// 45: step length 
-  transformPlaneToGlobal(useJac,startingParameters,globalParameters);
+  if(!transformPlaneToGlobal(useJac,startingParameters,globalParameters)) return false;
   /// if running with field, use Runge Kutta. 
   /// Will update globalParameters to the result in global coordinates
   if( m_fieldMode) {
@@ -1226,13 +1440,16 @@ InDet::SiTrajectoryElement_xk::propagateParameters(Trk::PatternTrackParameters  
 ///    CM ->globalPars[6]  dCM/   globalPars[13]   globalPars[20]   globalPars[27]   globalPars[34]   globalPars[41] 
 // /////////////////////////////////////////////////////////////////////////////////
 
-void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
-                                Trk::PatternTrackParameters& localParameters,
-                                double* globalPars) {
+bool InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
+							   Trk::PatternTrackParameters& localParameters,
+							   double* globalPars) {
   /// obtain trigonometric functions required for transform                                   
   double sinPhi,cosPhi,cosTheta,sintheta;   
   sincos(localParameters.parameters()[2],&sinPhi,&cosPhi);  
   sincos(localParameters.parameters()[3],&sintheta,&cosTheta);
+  if (m_tools->isITkGeometry()) {
+    if(std::abs(sintheta) < std::abs(localParameters.parameters()[4])*50.) return false;
+  }
   /// get the surface corresponding to the local parameters
   const Trk::Surface* pSurface=&localParameters.associatedSurface();
   if (!pSurface){
@@ -1281,6 +1498,7 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
   }
   /// Step length is initialised to zero - no propagation done yet
   globalPars[45] =   0.;
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1573,11 +1791,16 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     }
 
     R[0]+=(A2+A3+A4)*S3; 
-    A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
+    A[0] = ((A0+2.*A3)+(A5+A6));
     R[1]+=(B2+B3+B4)*S3; 
-    A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
+    A[1] = ((B0+2.*B3)+(B5+B6));
     R[2]+=(C2+C3+C4)*S3; 
-    A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
+    A[2] = ((C0+2.*C3)+(C5+C6));
+    if(!m_tools->isITkGeometry()){
+      A[0] *= 1./3.;
+      A[1] *= 1./3.;
+      A[2] *= 1./3.;
+    }
 
     double D   = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
     A[0]*=D; A[1]*=D; A[2]*=D;
@@ -1766,6 +1989,7 @@ InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator =
   m_noise                     = E.m_noise       ;
   m_tools                     = E.m_tools       ;
   m_covariance                = E.m_covariance  ;
+  m_position                  = E.m_position    ;
   for(int i=0; i!=m_nlinksForward; ++i) {m_linkForward[i]=E.m_linkForward[i];}
   for(int i=0; i!=m_nlinksBackward; ++i) {m_linkBackward[i]=E.m_linkBackward[i];}
   for(int i=0; i!=m_ntsos  ; ++i) {m_tsos [i]=E.m_tsos [i];}
@@ -1870,6 +2094,13 @@ void InDet::SiTrajectoryElement_xk::setCluster(const InDet::SiCluster* Cl)
 {
   m_cluster = Cl;
 }
+
+void InDet::SiTrajectoryElement_xk::setClusterB(const InDet::SiCluster* Cl,double Xi2)
+{
+  m_cluster = Cl ;
+  m_status  = 2  ;
+  m_xi2Backward = Xi2;
+}
   
 
 void InDet::SiTrajectoryElement_xk::setParametersB(Trk::PatternTrackParameters& P)
@@ -1934,7 +2165,24 @@ bool InDet::SiTrajectoryElement_xk::addCluster
   return m_updatorTool->addToStateOneDimension
     (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+// Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+// using precise error
+/////////////////////////////////////////////////////////////////////////////////
   
+bool InDet::SiTrajectoryElement_xk::addClusterPrecise(Trk::PatternTrackParameters& Ta,
+					       Trk::PatternTrackParameters& Tb,
+					       double& Xi2) {
+  int N;
+  if(m_ndf==1) {
+    return m_updatorTool->addToStateOneDimension(Ta,m_position,m_covariance,Tb,Xi2,N);
+  }
+  else {
+    return m_updatorTool->addToState           (Ta,m_position,m_covariance,Tb,Xi2,N);
+  }
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 // Add two pattern track parameters without Xi2 calculation
 /////////////////////////////////////////////////////////////////////////////////
@@ -1969,6 +2217,16 @@ bool InDet::SiTrajectoryElement_xk::initiateState
 }
 
 ///////////////////////////////////////////////////////////////////
+// Initiate state with cluster correction
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::initiateStatePrecise
+(Trk::PatternTrackParameters& inputPars,Trk::PatternTrackParameters& outputPars)
+{
+  return outputPars.initiate(inputPars,m_position,m_covariance);
+}
+
+///////////////////////////////////////////////////////////////////
 // Pattern covariances
 ///////////////////////////////////////////////////////////////////
 
@@ -1977,17 +2235,23 @@ void InDet::SiTrajectoryElement_xk::patternCovariances
 {
   const Amg::MatrixX& v = c->localCovariance();
   covX  = c->width().phiR(); 
-  covX*=(covX*.08333);  /// sigma ~pitch / sqrt(12)
-  if(covX < v(0,0)) covX=v(0,0);  /// if larger error in cluster covariance, replace covx by it 
-  covXY = 0.;
+  covX*=(covX*s_oneOverTwelve);  /// sigma ~pitch / sqrt(12)
+
+  if(!m_tools->useFastTracking()){
+    if(covX < v(0,0)) covX=v(0,0);  /// if larger error in cluster covariance, replace covx by it
+    covXY = 0.;
+  }
+
   if(m_ndf==1) {    /// strips: take y error from cov 
     covY=v(1,1);
   }
   else         {
     /// pixels: again take either pitch/sqrt(12) or the cluster cov, whichever is larger
     covY=c->width().z(); 
-    covY*=(covY*.08333); 
-    if(covY < v(1,1)) covY=v(1,1);
+    covY*=(covY*s_oneOverTwelve);
+    if(!m_tools->useFastTracking()){
+      if(covY < v(1,1)) covY=v(1,1);
+    }
   }
 }
 
@@ -2013,12 +2277,68 @@ Trk::TrackStateOnSurface* InDet::SiTrajectoryElement_xk::tsos (int i)
 }
 
 ///////////////////////////////////////////////////////////////////
-// Set electrom noise model
+// Set electron noise model
 ///////////////////////////////////////////////////////////////////
   
 void InDet::SiTrajectoryElement_xk::bremNoiseModel()
 {
   m_noisemodel = 2;
+}
+
+///////////////////////////////////////////////////////////////////
+// Initiate state with cluster correction
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::initiateStateWithCorrection(Trk::PatternTrackParameters& Tc,
+								Trk::PatternTrackParameters& Ta,
+								Trk::PatternTrackParameters& Tb)
+{
+  precisePosCov(Tc);
+  return Tb.initiate(Ta,m_position,m_covariance);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+// using precise error
+/////////////////////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::addClusterPreciseWithCorrection(Trk::PatternTrackParameters& Tc,
+								    Trk::PatternTrackParameters& Ta,
+								    Trk::PatternTrackParameters& Tb,
+								    double& Xi2)
+{
+  int N;
+  precisePosCov(Tc);
+
+  if(m_ndf==1) {
+    return m_updatorTool->addToStateOneDimension(Ta,m_position,m_covariance,Tb,Xi2,N);
+  }
+  else         {
+    return m_updatorTool->addToState(Ta,m_position,m_covariance,Tb,Xi2,N);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Precise cluster position and covariance calculation
+/////////////////////////////////////////////////////////////////////////////////
+
+void  InDet::SiTrajectoryElement_xk::precisePosCov(Trk::PatternTrackParameters& Tc)
+{
+
+  m_position   = m_cluster->localPosition  ();
+  m_covariance = m_cluster->localCovariance();
+
+  if(m_ndf==1) return;
+
+  const Amg::Vector2D& colRow = m_cluster->width().colRow();
+  if(colRow.x()==1. && colRow.y()==1.) return;
+
+  std::unique_ptr<Trk::TrackParameters> tr = Tc.convert(true);
+  std::unique_ptr<const Trk::RIO_OnTrack> ri(m_riotool->correct(*m_cluster, *tr));
+
+  m_position   = ri->localParameters();
+  m_covariance = ri->localCovariance();
+
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -66,7 +66,7 @@ void compare (const Muon::RpcCoinData& p1,
 
 void testit (const Muon::RpcCoinData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   RpcCoinDataCnv_p1 cnv;
   Muon::RpcCoinData_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -95,7 +95,7 @@ void test1()
                             IdentifierHash (1234),
                             locpos,
                             rdoList,
-                            new Amg::MatrixX(cov),
+                            cov,
                             nullptr,
                             4.5,
                             6,

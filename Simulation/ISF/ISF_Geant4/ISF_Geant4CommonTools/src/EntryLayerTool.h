@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOL_H
@@ -8,7 +8,6 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -38,7 +37,7 @@ namespace ISF {
       @author Elmar.Ritsch -at- cern.ch
   */
 
-  class EntryLayerTool : public extends<AthAlgTool, ISF::IEntryLayerTool, IIncidentListener> {
+  class EntryLayerTool : public extends<AthAlgTool, ISF::IEntryLayerTool> {
 
   public:
     /** Constructor with parameters */
@@ -50,14 +49,11 @@ namespace ISF {
     /** Athena algtool's Hooks */
     virtual StatusCode  initialize() override final;
 
-    /** handle for incident service */
-    virtual void handle(const Incident& inc) override;
-
     /** Check if given particle passes the EntryLayer filters */
     virtual bool passesFilters( const ISFParticle& particle) override final;
 
-    /** Identify the corresponding entry layer for the given particle (may return 
-        ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
+    /** Identify the corresponding entry layer for the given particle (may return
+        ISF::fUnsetEntryLayer if particle is not on an entry layer surface) */
     virtual ISF::EntryLayer identifyEntryLayer( const ISFParticle& particle) override final;
 
     /** Add the given particle to the corresponding Entry/Exit layer if applicable */
@@ -67,12 +63,11 @@ namespace ISF {
     /** Register the TrackRecordCollection pointer for a layer */
     virtual StatusCode registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer) override final;
 
+    virtual void setupEvent() override final;
+
   private:
     /** used to setup a TrackRecordCollection on storegate */
     TrackRecordCollection *setupSGCollection(const std::string &name);
-
-    /*  Incident Service */
-    ServiceHandle<IIncidentSvc>               m_incidentSvc;
 
     /** GeoIDSvc will be used to determine the entry layer surface, the particle is on */
     ServiceHandle<ISF::IGeoIDSvc>             m_geoIDSvc;

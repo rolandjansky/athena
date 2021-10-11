@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/VBFForwardJetsFilter.h"
@@ -262,6 +262,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   ATH_MSG_INFO("1stJet OK? : " << flag1stJet);
   ATH_MSG_INFO("2ndJet OK? : " << flag2ndJet);
   ATH_MSG_INFO("Sign   OK? : " << flagSign);
+  // cppcheck-suppress shiftNegative
   ATH_MSG_INFO("JJ     OK? : " << flagJJ);
 
   setFilterPassed(flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0 && flagSign != 0 && flagJJ != 0);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -39,12 +39,12 @@ StatusCode DerivationFramework::TruthBornLeptonCollectionMaker::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
 
-  if (m_particlesKey=="" /*|| m_verticesKey==""*/) {
+  if (m_particlesKey.empty() /*|| m_verticesKey==""*/) {
     ATH_MSG_FATAL("No truth particle collection provided to use as a basis for new collections");
     return StatusCode::FAILURE;
   } else {ATH_MSG_INFO("Using " << m_particlesKey << " as the source collections for new truth collections");}
   
-  if (m_collectionName=="") {
+  if (m_collectionName.empty()) {
     ATH_MSG_FATAL("No key provided for the new truth particle collection");
     return StatusCode::FAILURE;
   } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
@@ -68,7 +68,7 @@ StatusCode DerivationFramework::TruthBornLeptonCollectionMaker::addBranches() co
     // Shamelessly stolen from the file meta data tool
     ATH_CHECK( m_metaStore->retrieve(truthMetaData) );
   
-    if (truthMetaData->size()>0){
+    if (!truthMetaData->empty()){
       // Let's just be super sure...
       const std::string gens = truthMetaData->at(0)->generators();
       is_sherpa = (gens.find("sherpa")==std::string::npos &&

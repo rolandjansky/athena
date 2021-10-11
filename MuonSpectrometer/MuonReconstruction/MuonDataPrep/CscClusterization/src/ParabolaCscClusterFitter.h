@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ParabolaCscClusterFitter.h
@@ -32,7 +32,7 @@ public:
         The 3 args are used to initialize the base class.
         declareProperty(...) is used to declare job options.
      */
-    ParabolaCscClusterFitter(std::string type, std::string aname, const IInterface* parent);
+    ParabolaCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent);
 
     ~ParabolaCscClusterFitter() = default;
 
@@ -43,7 +43,7 @@ public:
         @param raw The raw value of the parabola peak positon
         @return The corrected value
      */
-    double ParabolaCorrection(CscPlane& plane, double& raw) const;
+    static double ParabolaCorrection(CscPlane& plane, double& raw) ;
 
     // Inherited methods.
     const DataNames& dataNames() const;

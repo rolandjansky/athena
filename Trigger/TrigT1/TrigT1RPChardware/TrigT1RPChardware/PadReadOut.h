@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigT1RPChardware_PadReadOut_H
@@ -21,7 +21,7 @@ void reset();
 void makeFragment();
 void makeHeader();
 void makeFooter();
-void makeBody();
+void makeBody(bool debugPrint=false);
 ubit16 readHeader(); 
 ubit16 readFooter();
 ubit16 readBody();

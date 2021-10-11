@@ -21,6 +21,7 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
 #include <memory>
+#include <iosfwd>
 
 class PixelClusterContainerCnv;
 class SCT_ClusterContainerCnv;
@@ -64,19 +65,39 @@ public:
   SiCluster& operator=(SiCluster&&) = default;
 
   /**
-   * Constructor with parameters using pointer of Amg::MatrixX.
-   * Last parameter might not be always filled and will be nullptr by
-   * default. The others including SiDetectorElement have to be given!
+   * Constructor with parameters using ref or omitting  Amg::MatrixX.
+   * If omitted we have any empty one.
    */
   SiCluster(const Identifier& RDOId,
             const Amg::Vector2D& locpos,
             const std::vector<Identifier>& rdoList,
             const InDet::SiWidth& width,
             const InDetDD::SiDetectorElement* detEl,
-            const Amg::MatrixX* locErrMat = nullptr);
+            const Amg::MatrixX& locErrMat);
+
+  SiCluster(const Identifier& RDOId,
+            const Amg::Vector2D& locpos,
+            const std::vector<Identifier>& rdoList,
+            const InDet::SiWidth& width,
+            const InDetDD::SiDetectorElement* detEl);
+
+  SiCluster(const Identifier& RDOId,
+            const Amg::Vector2D& locpos,
+            const Amg::Vector3D& globpos,
+            const std::vector<Identifier>& rdoList,
+            const InDet::SiWidth& width,
+            const InDetDD::SiDetectorElement* detEl,
+            const Amg::MatrixX& locErrMat);
+
+  SiCluster(const Identifier& RDOId,
+            const Amg::Vector2D& locpos,
+            const Amg::Vector3D& globpos,
+            const std::vector<Identifier>& rdoList,
+            const InDet::SiWidth& width,
+            const InDetDD::SiDetectorElement* detEl);
 
   /**
-   * Constructor with parameters using unique_ptr of Amg::MatrixX.
+   * Constructor with parameters using r-value reference of Amg::MatrixX.
    * All parameters have to be given!
    */
   SiCluster(const Identifier& RDOId,
@@ -84,7 +105,15 @@ public:
             std::vector<Identifier>&& rdoList,
             const InDet::SiWidth& width,
             const InDetDD::SiDetectorElement* detEl,
-            std::unique_ptr<const Amg::MatrixX> locErrMat);
+            Amg::MatrixX&& locErrMat);
+
+  SiCluster(const Identifier& RDOId,
+            const Amg::Vector2D& locpos,
+            const Amg::Vector3D& globpos,
+            std::vector<Identifier>&& rdoList,
+            const InDet::SiWidth& width,
+            const InDetDD::SiDetectorElement* detEl,
+            Amg::MatrixX&& locErrMat);
 
   /// Destructor:
   virtual ~SiCluster();
@@ -110,7 +139,7 @@ public:
   virtual const InDetDD::SiDetectorElement* detectorElement() const override final;
 
   /** Interface method checking the type*/
-  virtual bool type(Trk::PrepRawDataType::Type type) const override final;
+  virtual bool type(Trk::PrepRawDataType type) const override;
 
   /// dump information about the SiCluster
   virtual MsgStream& dump(MsgStream& stream) const override;

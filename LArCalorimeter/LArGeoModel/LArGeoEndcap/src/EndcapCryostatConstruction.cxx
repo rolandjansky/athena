@@ -9,6 +9,7 @@
 
 #include "LArGeoEndcap/EndcapCryostatConstruction.h"
 #include "LArGeoEndcap/EndcapPresamplerConstruction.h"
+#include "LArGeoEndcap/MbtsReadoutBuilder.h"
 #include "EndcapDMConstruction.h"
 
 #include "LArGeoHec/HECWheelConstruction.h"
@@ -47,12 +48,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-
-// For MBTS DDE
-#include "CaloDetDescr/MbtsDetDescrManager.h"
-#include "CaloDetDescr/CaloDetectorElements.h"
-#include "CaloIdentifier/TileTBID.h"
-
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
@@ -1087,93 +1082,17 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     // Build readout for MBTS
     // Do it only once for both A and C sides
     if(bPos) {
-      // Get ID helper
-      const TileTBID* tileTBID = 0;
-      StatusCode status = detStore->retrieve(tileTBID);
+      if(LArGeo::buildMbtsReadout(detStore
+				  , m_pAccessSvc
+				  , msgSvc
+				  , zposMM
+				  , trdMap
+				  , detectorKey
+				  , detectorNode).isFailure()) {
+	throw std::runtime_error("Failed to build MBTS readout geometry");
+      }
+    }
 
-      if(status.isFailure() || tileTBID==0 )
-	log << MSG::ERROR << "Unable to initialize TileTBID" << endmsg;
-      else {
-	// This recordset is need for calculating global Z positions of scintillators
-	IRDBRecordset_ptr larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
-	const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
-	if(!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-	GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
-	double globalZMM = xfPos.translation().z() + zposMM;
-
-	// Create MBTS manager
-	MbtsDetDescrManager* mbtsManager = new MbtsDetDescrManager();
-
-	// Create Calo DDEs for both sides
-	for(int side=0; side<2; side++) {
-	  int sidesign = (side ? -1 : 1);
-
-	  for(unsigned int scinId=0; scinId<2; scinId++) {
-	      int nScin(0), eta(0);
-	      double dx1Scin(0.), dzScin(0.), zposScin(0.), rposScin(0.), scineta(0.), scindeta(0.), deltaPhi(0.), startPhi(0.);
-
-	      if(mbtsGen->size()==0) {
-		// The "old" description:
-		const IRDBRecord* curScin = (*mbtsScin)[scinId];
-
-		nScin = curScin->getInt("SCINNUM");
-		eta = curScin->getInt("SCIN_ID")-1;
-		dx1Scin = curScin->getDouble("DX1")*Gaudi::Units::mm;
-		dzScin  = curScin->getDouble("DZ")*Gaudi::Units::mm;
-		zposScin = curScin->getDouble("ZPOS")*Gaudi::Units::mm;
-		rposScin = curScin->getDouble("RPOS")*Gaudi::Units::mm;
-		if(!curScin->isFieldNull("ETA"))
-		  scineta = curScin->getDouble("ETA");
-		if(!curScin->isFieldNull("DETA"))
-		  scindeta = curScin->getDouble("DETA");
-		deltaPhi = 360.*Gaudi::Units::deg/nScin;
-		try {
-		  if(!curScin->isFieldNull("STARTPHI"))
-		    startPhi = curScin->getDouble("STARTPHI");
-		}
-		catch(std::runtime_error&) {}
-	      }
-	      else {
-		// The "new" description
-		std::string scinName = (scinId==0?"MBTS1":"MBTS2");
-		const IRDBRecord* curScin = (*mbtsTrds)[trdMap[scinName]];
-		nScin = (*mbtsGen)[0]->getInt("NSCIN");
-		eta = curScin->getInt("SCIN_ID")-1;
-		dx1Scin = curScin->getDouble("DX1")*Gaudi::Units::mm;
-		dzScin  = curScin->getDouble("DZ")*Gaudi::Units::mm;
-		zposScin = (*mbtsGen)[0]->getDouble("ZPOSENV")*Gaudi::Units::mm;
-		rposScin = ((*mbtsGen)[0]->getDouble("RPOSENV")+curScin->getDouble("ZPOS"))*Gaudi::Units::mm;
-		scineta = curScin->getDouble("ETA");
-		scindeta = curScin->getDouble("DETA");
-		startPhi = (*mbtsGen)[0]->getDouble("STARTPHI");
-		deltaPhi = 360.*Gaudi::Units::deg/nScin;
-	      }
-
-	    for(int phi=0; phi<nScin; phi++) {
-	      // Construct CaloDDE
-	      MbtsDetectorElement* mbtsDDE = new MbtsDetectorElement();
-	      // Construct Identifier
-	      mbtsDDE->set_id(tileTBID->channel_id(sidesign,phi,eta));
- 	      mbtsDDE->set_z((globalZMM + zposScin)*sidesign);
-	      mbtsDDE->set_dz(dx1Scin);
-	      mbtsDDE->set_r(rposScin);
-	      mbtsDDE->set_dr(dzScin);
-	      mbtsDDE->set_phi((phi+startPhi)*deltaPhi);
-	      mbtsDDE->set_dphi(deltaPhi*0.5);
-	      mbtsDDE->set_eta(scineta);
-	      mbtsDDE->set_deta(scindeta);
-	      mbtsDDE->compute_derived();
-	      // Store CaloDDE into the manager
-	      mbtsManager->add(mbtsDDE);
-	    } // Loop over indivudual scintillators
-	  } // Loop over mbtsScin contents
-	} // Loop over sides
-
-	// Record the manager into DS
-	if(detStore->record(mbtsManager,"MBTS")!=StatusCode::SUCCESS)
-	  log << MSG::ERROR << "Unable to record MBTS Detector Manager into DS" << endmsg;
-      } // TileTB Initialize
-    } // if(bPos)
   }
 
   // Build endcap dead matter around the cryostat

@@ -11,7 +11,7 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps StoreGateLib Identifier DetDescrConditions GeoModelUtilities GeoPrimitives GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetConditionsSummaryService InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry TrkSurfaces SCT_ConditionsToolsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps StoreGateLib Identifier DetDescrConditions GeoModelUtilities GeoPrimitives GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetConditionsSummaryService InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry TrkSurfaces SCT_ConditionsToolsLib MuonReadoutGeometry TRT_ReadoutGeometry)
 
 atlas_add_test( TestCalibChipRead
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibChipRead.py

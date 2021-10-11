@@ -18,7 +18,7 @@ Configurable.configurableRun3Behavior = True
 # Configure
 ConfigFlags.Input.Files = defaultTestFiles.HITS_SPECIAL
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
-ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
+ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-25-02"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
 ConfigFlags.Concurrency.NumConcurrentEvents=1

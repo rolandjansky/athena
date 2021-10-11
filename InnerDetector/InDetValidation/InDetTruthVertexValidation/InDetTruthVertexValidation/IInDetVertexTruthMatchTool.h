@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IInDetVertexTruthMatchTool_h
@@ -25,7 +25,7 @@ ASG_TOOL_INTERFACE( IInDetVertexTruthMatchTool )
 public:
 
 //take const collection of vertices, match them, and decorate with matching info
- virtual StatusCode matchVertices( const xAOD::VertexContainer & vxContainer ) = 0;
+ virtual StatusCode matchVertices( const xAOD::VertexContainer & vxContainer ) const = 0;
 
 };
 

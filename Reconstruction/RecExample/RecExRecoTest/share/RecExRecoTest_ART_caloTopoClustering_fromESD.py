@@ -13,7 +13,10 @@ if nThreads >=1 :
         topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]
+athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
+
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC16-SDR-RUN2-08")
 
 from RecExConfig.RecFlags import rec
 rec.doEgamma.set_Value_and_Lock(False)

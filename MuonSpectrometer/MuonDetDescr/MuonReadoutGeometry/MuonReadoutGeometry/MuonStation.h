@@ -46,7 +46,7 @@ class MuonReadoutElement;
 class MuonStation {
 public:
 
-   MuonStation(std::string stName,
+   MuonStation(std::string_view stName,
                double m_Ssize, double m_Rsize, double m_Zsize,
                double m_LongSsize, double m_LongRsize, double m_LongZsize, int zi, int fi, 
                bool m_descratzneg);

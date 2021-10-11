@@ -28,7 +28,7 @@ bool CaloRec::Helpers::cellAccumulator(const CaloCell& rcell,CaloClusterSignalAc
 
 
   // required info
-  const CaloDetDescrElement* dde = rcell.caloDDE(); if ( dde == 0 ) { return false; }
+  const CaloDetDescrElement* dde = rcell.caloDDE(); if ( dde == nullptr ) { return false; }
   // energy and weights
   accum.cluster.cellWeight    = weight;
   accum.cluster.cellAbsWeight = std::fabs(accum.cluster.cellWeight);
@@ -118,11 +118,11 @@ bool CaloRec::Helpers::cellAccumulator(const CaloCell& rcell,CaloClusterSignalAc
 bool CaloRec::Helpers::calculateKine(xAOD::CaloCluster* pClus,bool onlyKine)
 {
   // input
-  if ( pClus == 0 ) { return false; }
+  if ( pClus == nullptr ) { return false; }
 
   // get cell links
   const CaloClusterCellLink* clk = pClus->getCellLinks();
-  if ( clk == 0 || clk->size() == 0 ) { return false; }
+  if ( clk == nullptr || clk->size() == 0 ) { return false; }
 
   // accumulator object                        ////////////////////////////////////////////////
   CaloClusterSignalAccumulator accum;          // Strict enforcement of valid cell pointers! //
@@ -130,7 +130,7 @@ bool CaloRec::Helpers::calculateKine(xAOD::CaloCluster* pClus,bool onlyKine)
   bool retflg(true); 
   auto citer(clk->begin());
   while ( citer != clk->end() && retflg ) { 
-    if ( *citer != 0 ) { retflg = cellAccumulator(**citer,accum,citer.weight(),onlyKine); } ++citer; }
+    if ( *citer != nullptr ) { retflg = cellAccumulator(**citer,accum,citer.weight(),onlyKine); } ++citer; }
   if ( !retflg ) { return false; }
 
   // set cluster kinematics: energy & mass

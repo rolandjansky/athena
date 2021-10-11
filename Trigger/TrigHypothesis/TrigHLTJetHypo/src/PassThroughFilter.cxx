@@ -8,16 +8,15 @@
 #include "./ITrigJetHypoInfoCollector.h"
 
 
-std::pair<HypoJetCIter, HypoJetCIter>
-PassThroughFilter::filter (const HypoJetCIter& begin,
-			   const HypoJetCIter& end,
-			   const std::unique_ptr<ITrigJetHypoInfoCollector>& col) {
+HypoJetVector
+PassThroughFilter::filter (const HypoJetVector& jv,
+			   const std::unique_ptr<ITrigJetHypoInfoCollector>& col) const{
 
   if (col) {
     col->collect("PassTroughFilter", "");
   }
-  
-  return std::make_pair(begin, end);
+
+  return jv;
 }
 
 std::string PassThroughFilter::toString() const {

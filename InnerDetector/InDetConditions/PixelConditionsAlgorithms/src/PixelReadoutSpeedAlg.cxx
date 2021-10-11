@@ -7,10 +7,10 @@
 
 #include "CoralBase/Blob.h"
 
-#include <map>
-#include <stdint.h>
-#include <string>
+#include <cstdint>
 #include <istream>
+#include <map>
+#include <string>
 
 PixelReadoutSpeedAlg::PixelReadoutSpeedAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -68,17 +68,17 @@ StatusCode PixelReadoutSpeedAlg::execute(const EventContext& ctx) const {
   for (unsigned int i=0; i!=len; ++i) { dataString[i]=*p++; }
 
   int pos=0;
-  while (dataString.find(",",pos)!=std::string::npos) {
-    std::istringstream iss(dataString.substr(pos,dataString.find(",",pos)));
+  while (dataString.find(',',pos)!=std::string::npos) {
+    std::istringstream iss(dataString.substr(pos,dataString.find(',',pos)));
     uint32_t rod;
     iss >> std::hex >> rod;
 
-    const std::string speed = dataString.substr(dataString.find(",",pos)+1,dataString.find("\n",pos)-dataString.find(",",pos)-1);
+    const std::string speed = dataString.substr(dataString.find(',',pos)+1,dataString.find('\n',pos)-dataString.find(',',pos)-1);
 
     if (speed!="SINGLE_40") { rodReadoutMap[rod]=true; }
     else                    { rodReadoutMap[rod]=false; }
 
-    pos = dataString.find("\n",pos)+1;
+    pos = dataString.find('\n',pos)+1;
   }
   writeCdo -> setReadoutMap(rodReadoutMap);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCnv/TBByteStreamCnvTool.h"
@@ -15,6 +15,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <list>
 
@@ -77,12 +79,6 @@ StatusCode TBByteStreamCnvTool::initialize()
    return StatusCode::FAILURE;
  }
  
- sc=toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
- if (sc.isFailure()) {
-   logstr << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-   return StatusCode::FAILURE;
- }
- 
  IService* svc;
  sc= service("ByteStreamCnvSvc",svc);
  if (sc!=StatusCode::SUCCESS)
@@ -116,9 +112,9 @@ StatusCode TBByteStreamCnvTool::initialize()
   std::vector<std::string> keys;
   keys.resize(24);
   for(; it!=it_e;++it) {
-    ListItem item(*it);
-    std::string t = item.type();
-    std::string nm = item.name();
+    const ListItem &item(*it);
+    const std::string &t = item.type();
+    const std::string &nm = item.name();
     logstr << MSG::DEBUG << " type "<<t<<" name="<<nm<<endmsg;
     if(t=="TBTDC") keys[0]=nm;
     if(t=="TBTriggerPatternUnit") keys[1]=nm;
@@ -141,12 +137,14 @@ StatusCode TBByteStreamCnvTool::initialize()
   keys[23]="HIGH";
 
   
-  m_keys=keys;
+  m_keys=std::move(keys);
   m_subdet_id=(eformat::SubDetector)m_subdet_key;
 
   m_isCalib = false;
 
   m_febgain.clear();
+
+  ATH_CHECK( m_CLKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -299,7 +297,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(int unrec_code){
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBTDC*& tbtdc,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBTDC*& tbtdc,const std::string& key)
 {
   /** This method is used only for testing **/
   MsgStream logstr(msgSvc(), name());
@@ -321,7 +319,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTDC*& tbtdc,std::string key)
   // return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBBPCRawCont*& bpcrawCont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBBPCRawCont*& bpcrawCont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBBPCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(5);
@@ -330,7 +328,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBBPCRawCont*& bpcrawCont,std::stri
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBMWPCRawCont*& mwpcrawCont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBMWPCRawCont*& mwpcrawCont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBMWPCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(7);
@@ -338,14 +336,14 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBMWPCRawCont*& mwpcrawCont,std::st
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBADCRawCont*& adcrawCont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBADCRawCont*& adcrawCont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBADCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(3);
   if(sc) adcrawCont = m_adcrawCont;
   return sc;
 }
-StatusCode TBByteStreamCnvTool::ReadFragment(TBTDCRawCont*& tdcrawCont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBTDCRawCont*& tdcrawCont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBTDCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(2);
@@ -353,7 +351,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTDCRawCont*& tdcrawCont,std::stri
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBTriggerPatternUnit*& trigpat,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBTriggerPatternUnit*& trigpat,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBTriggerPatternUnit) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(1);
@@ -361,7 +359,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTriggerPatternUnit*& trigpat,std:
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBScintillatorRawCont*& scintrawCont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBScintillatorRawCont*& scintrawCont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBScintrawcont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(6);
@@ -369,14 +367,14 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBScintillatorRawCont*& scintrawCon
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBTailCatcherRaw*& tailcatchraw,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBTailCatcherRaw*& tailcatchraw,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBTailCatcherRaw) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(4);
   if(sc) tailcatchraw = m_tailcatchraw;
   return sc;
 }
-StatusCode TBByteStreamCnvTool::ReadFragment(TBEventInfo*& tbeventinfo,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBEventInfo*& tbeventinfo,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBEventInfo) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(30);
@@ -384,7 +382,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBEventInfo*& tbeventinfo,std::stri
   return sc;
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBLArDigitContainer*& tblardigitcont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBLArDigitContainer*& tblardigitcont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBLArDigitContainer) key="<<key<<endmsg;
   int code=0;
@@ -403,7 +401,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBLArDigitContainer*& tblardigitcon
   }
 }
 
-StatusCode TBByteStreamCnvTool::ReadFragment(TBLArCalibDigitContainer*& tblarcalibdigitcont,std::string key)
+StatusCode TBByteStreamCnvTool::ReadFragment(TBLArCalibDigitContainer*& tblarcalibdigitcont,const std::string& key)
 {MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG <<" in ReadFragment (TBLArCalibDigitContainer) key="<<key<<endmsg;
   int code=0;
@@ -545,6 +543,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG << "H6BuildObject called for " << unrec_code<< endmsg;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   StatusCode sc=StatusCode::FAILURE;
   //bool gotobject=false;
   //bool recordfailure=false;
@@ -582,6 +582,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   m_adcrawCont = new TBADCRawCont();
   TBADCRaw* dummyadc = new TBADCRaw("dummy",true,0);
   m_adcrawCont->push_back(dummyadc);
+
+  SG::ReadCondHandle<LArCalibLineMapping> calibLine (m_CLKey, ctx);
 
 
   // with this initialisation, first call of NextSubFrag will initialise correctly the index :
@@ -638,9 +640,9 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	} ;
 	
 	
-	short m_slot[8]={5,7,9,11,3,4,5,6};
+	constexpr short m_slot[8]={5,7,9,11,3,4,5,6};
 	
-	const int NWREC = 8;
+	constexpr int NWREC = 8;
 	int pos=m_subfrag_firstdata;
 	for(unsigned int nfeb=0;nfeb<m_boards.size();nfeb++){ // FEB loop ----------------------------------
 	  pos += NWREC*3;    // skip FEB header
@@ -713,15 +715,12 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	      m_tblardigitcont[gainmode]->push_back(lardig);
 	      if(m_isCalib) {
                 bool isPulsed=false;
-                const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(hwid);
+                const std::vector<HWIdentifier>& calibChannelIDs=calibLine->calibSlotLine(hwid);
                 if (calibChannelIDs.size() != 0) {
                   // Now figure out if any calibration line connected to this channel is pulsed.
                   // I'm going to cheat and use the fact that we only pulsed one board at a time
                   // and only wrote the corresponding digits (EMEC/HEC/FCAL)
-                  std::vector<HWIdentifier>::const_iterator csl_it=calibChannelIDs.begin();
-                  std::vector<HWIdentifier>::const_iterator csl_it_e=calibChannelIDs.end();
-                  for(;csl_it!=csl_it_e;csl_it++) {
-                    HWIdentifier calChan = *csl_it;
+                  for (HWIdentifier calChan : calibChannelIDs) {
                     int chan = m_onlineHelper->channel(calChan);
                     int bit  = chan%8;
                     int byte = chan/8;
@@ -850,8 +849,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  os.str("");
 	  os << bpcname << i;
 	  bpcname= os.str();
-	  std::list<const TBTDCRaw*> theTDCs;
-	  std::list<const TBADCRaw*> theADCs;
+	  std::vector<const TBTDCRaw*> theTDCs;
+	  std::vector<const TBADCRaw*> theADCs;
 	  int pos=m_subfrag_firstdata;
 
 	  unsigned int tmp1,tmp2;
@@ -1275,23 +1274,13 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
           }
           logstr << MSG::DEBUG << endmsg;
         }
-        
-	char dac[4];
-	unsigned long* tmp;
-	
-	int first16 = firstword(m_rodBlock[pos+4]);
-	int second16 = secondword(m_rodBlock[pos+4]);
-	
-	dac[0] = 255 & first16;
-	dac[1] = first16 >> 8;
-	dac[2] = 255 & second16;
-	dac[3] = second16 >> 8;
 
-	// this code is copied from Petr Gorbunov H6 doc.
-	tmp = (unsigned long*) dac;
-	m_calib_dac = (uint16_t) *tmp;
+        // See http://cern.ch/atlas-fcaltb/Memos/DAQ/DataFormat.general.pdf
+        // http://cern.ch/atlas-fcaltb/Data-taking/CBT2/Beam_fragment_format.sxw.pdf
+        // (Petr Gorbunov H6 FCAL documentation.)
+        m_calib_dac = firstword(m_rodBlock[pos+4]);
 
-	first16 = firstword(m_rodBlock[pos+5]);
+	unsigned first16 = firstword(m_rodBlock[pos+5]);
 	m_calib_delay = 255 & first16;
 	m_calib_error = ((first16 >> 8) != 0);
 
@@ -1777,8 +1766,8 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   m_bpcrawCont = new TBBPCRawCont();
 
   for(int i=0;i<BPCNum;i++){
-    std::list<const TBTDCRaw*> listtdc;
-    std::list<const TBADCRaw*> listadc;
+    std::vector<const TBTDCRaw*> listtdc;
+    std::vector<const TBADCRaw*> listadc;
     for(int j=0;j<4;j++){
       if(BPCtdc[i][j]==0) listtdc.push_back(dummytdc);
       else listtdc.push_back(BPCtdc[i][j]);

@@ -33,6 +33,7 @@ class TLorentzVectorAsIJet: public HypoJet::IJet {
   virtual TLorentzVector p4() const override  {return m_tl;}
   virtual unsigned int position() const override {return m_position;}
   virtual bool getAttribute(const std::string&, float&) const override {return true;}
+  virtual bool getAttribute(const std::string&, bool&) const override {return true;}
   virtual std::string toString() const override {return "TLorentzVectorAsIJet";}
   virtual std::optional<const xAOD::Jet*> xAODJet() const override {
     return std::optional<const xAOD::Jet*>();

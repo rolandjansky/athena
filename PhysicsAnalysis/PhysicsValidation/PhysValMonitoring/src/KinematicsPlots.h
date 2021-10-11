@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PHYSVALMONITORING_KINEMATICSPLOTS_H
@@ -14,7 +14,7 @@ namespace PhysVal{
   
 class KinematicsPlots:public PlotBase {
     public:
-      KinematicsPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      KinematicsPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
       void fill(const xAOD::IParticle* part,const xAOD::EventInfo* evt);
       void fill(const xAOD::EventInfo* evt);
 
@@ -23,15 +23,15 @@ class KinematicsPlots:public PlotBase {
       // Reco only information
       std::string m_sParticleType;
 
-      TH1* n;
+      TH1* n = nullptr;
 
-      TH1* et;
-      TH1* eta;
-      TH1* phi;
+      TH1* et = nullptr;
+      TH1* eta = nullptr;
+      TH1* phi = nullptr;
 
-      TH1* lead_et;
-      TH1* lead_eta;
-      TH1* lead_phi;
+      TH1* lead_et = nullptr;
+      TH1* lead_eta = nullptr;
+      TH1* lead_phi = nullptr;
 
     private:
 

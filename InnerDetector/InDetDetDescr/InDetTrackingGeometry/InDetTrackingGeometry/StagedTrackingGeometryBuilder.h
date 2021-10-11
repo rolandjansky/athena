@@ -162,42 +162,60 @@ namespace InDet {
                                    
       /** Private helper method to check if a sector is compatible with the cache */
       bool setupFitsCache(LayerSetup& layerSetup, std::vector<InDet::LayerSetup>& layerSetupCache) const;
-                                   
-                                   
-      /** Private helper method to flush the cache into the id volumes - return volume is the one to be provided */
-      const Trk::TrackingVolume* createFlushVolume ATLAS_NOT_THREAD_SAFE
-                                                  (std::vector<InDet::LayerSetup>& layerSetupCache,
-                                                   double innerRadius, double& outerRadius, double extendZ) const;                                                         
-        
-      /** Private helper method, creates a TrackingVolume - and checks if configured - for Ring Layout 
-            - in case a ring layout is given, it creates the corresponding sub-volumes and updates the radius                                       
+
+      /** Private helper method to flush the cache into the id volumes - return
+       * volume is the one to be provided */
+      const Trk::TrackingVolume* createFlushVolume
+      ATLAS_NOT_THREAD_SAFE(std::vector<InDet::LayerSetup>& layerSetupCache,
+                            double innerRadius,
+                            double& outerRadius,
+                            double extendZ) const;
+
+      /** Private helper method, creates a TrackingVolume - and checks if
+         configured - for Ring Layout
+            - in case a ring layout is given, it creates the corresponding
+         sub-volumes and updates the radius
             */
-      const Trk::TrackingVolume* createTrackingVolume(const std::vector<const Trk::Layer*>& layers, 
-                                                      double innerRadius, double& outerRadius,
-                                                      double zMin, double zMax,
-                                                      const std::string& volumeName,
-                                                      Trk::BinningType btype,
-						      bool doAdjustOuterRadius = true) const;                                                  
-        
-      /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers
-          - in case of a ring layout the subvolumes are created and the rMax is adapted                                             
+      const Trk::TrackingVolume* createTrackingVolume
+      ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& layers,
+                            double innerRadius,
+                            double& outerRadius,
+                            double zMin,
+                            double zMax,
+                            const std::string& volumeName,
+                            Trk::BinningType btype,
+                            bool doAdjustOuterRadius = true) const;
+
+      /** Private helper method, creates and packs a triple containing of
+         NegEndcap-Barrel-PosEndcap layers
+          - in case of a ring layout the subvolumes are created and the rMax is
+         adapted
          */
-      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
-                                                 (const LayerSetup& layerSetup,
-                                                  double rMin, double& rMax,
-                                                  double zMin, double zPosCentral) const;      
-      
+      const Trk::TrackingVolume* packVolumeTriple
+      ATLAS_NOT_THREAD_SAFE(const LayerSetup& layerSetup,
+                            double rMin,
+                            double& rMax,
+                            double zMin,
+                            double zPosCentral) const;
+
       /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap volumes */
-      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::TrackingVolume*>& negVolumes,
-                                                  const std::vector<const Trk::TrackingVolume*>& centralVolumes,
-                                                  const std::vector<const Trk::TrackingVolume*>& posVolumes,
-                                                  const std::string& baseName="UndefinedVolume") const;
-                                                  
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE(
+        const std::vector<const Trk::TrackingVolume*>& negVolumes,
+        const std::vector<const Trk::TrackingVolume*>& centralVolumes,
+        const std::vector<const Trk::TrackingVolume*>& posVolumes,
+        const std::string& baseName = "UndefinedVolume") const;
+
       /** Private helper method for detection of Ring layout */
       bool ringLayout(const std::vector<const Trk::Layer*>& layers, std::vector<double>& rmins, std::vector<double>& rmaxs) const;                                              
 
       /** helper method needed for the Ring layout */
       void checkForInsert(std::vector<double>& radii, double radius) const;
+      
+      void checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const;
+
+      /** Private helper method for merging of rings with z-overlap */
+      std::vector<const Trk::Layer*> checkZoverlap(std::vector<const Trk::Layer*>& lays) const; 
+      const Trk::Layer* mergeDiscLayers(std::vector<const Trk::Layer*>& dlays) const;
 
       // helper tools for the geometry building
       ToolHandleArray<Trk::ILayerProvider>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
@@ -248,7 +266,30 @@ namespace InDet {
       std::sort(radii.begin(),radii.end());   
   }
 
+  inline void StagedTrackingGeometryBuilder::checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const {
 
+    // range into non-overlapping layers
+
+    if (!radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    
+    unsigned int ir=0;
+    while ( ir != radii.size() && rmin > radii[ir].second ) ir++;
+
+    if (ir==radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    // insert ?
+    else if (rmax<radii[ir].first) radii.insert(radii.begin()+ir,std::pair<double,double>(rmin,rmax));
+    // overlaps
+    else {
+      // resolve low edge
+      if (rmin<radii[ir].first) radii[ir].first=rmin;
+      // resolve upper edge
+      unsigned int imerge = ir;
+      while (imerge<radii.size()-1 && rmax>radii[imerge+1].first) imerge++;
+      radii[ir].second = rmax > radii[imerge].second ? rmax : radii[imerge].second;
+      if (imerge>ir) radii.erase(radii.begin()+ir+1,radii.begin()+imerge);       
+    }
+  }
+  
 } // end of namespace
 
 #endif //INDETTRACKINGGEOMETRY_STAGEDTRACKINGGEOMETRYBUILDER_H

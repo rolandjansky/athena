@@ -15,7 +15,6 @@ Changes with respect to original version:
      This allows to get 2 vertices in case of e.g. cascade B->D decay with 3 reconstracted tracks in total.
 6) Algorithm is converted to Tool for convenience of usage in other Algorithms.
 
-
 Pre-configured instances (finders) in the tool:
 1) SoftBFinderTool       - looks for all low-pt (>1GeV) B-hadron vertices in event. No jet presence is assumed
 2) InclusiveBFinderTool  - looks for all B-hadron vertices in event with low fake rate. 
@@ -24,3 +23,32 @@ Pre-configured instances (finders) in the tool:
 4) MaterialSVFinderTool  - looks for hadronic interaction vertices in detector material.
 5) DVFinderTool          - looks for heavy displaced vertices in ID volume.
    
+-------------------------------------------------------------------------------------------------------------------
+Tool configuration options (in brackets - default settings optimised for B-hadron search)
+
+FastZSVCut(15mm) - dZ between 2 tracks at the point of closest track-track distance in XY plane. Reject track pairs
+                    which can't form 2-track vertex a priory, therefore save processing CPU.
+v2tIniBDTCut(-0.7) - Cut on 2-track vertex classification BDT(B-hadron vs fakes) weight. This cut is applied 
+                     at the stage of 2-track vertex finding
+v2tFinBDTCut(0.0)  - Cut on 2-track vertex classification BDT(B-hadron vs fakes) weight. This cut is applied
+                     AFTER final multi-track vertex  finding on remaining 2-track vertices in the final set.
+cosSVPVCut(0.0)    - Cut on angle between SV-PV and summary momentum vectors of the 2-track vertex 
+                     applied at the 2-track vertex search  stage
+MaxSVRadiusCut(140mm)    - Evident. 
+Vrt2trMassLimit(4000mev) - Reject at 2-track vertex reconstruction stage vertices with invariant mass above limit 
+                           (e.g. for charm search).
+VrtMassLimit       - Final multi-track vertex mass limit. Vertices with bigger mass will be stripped until 
+                     its mass become smaller than the limit.
+AntiPileupSigRCut(2.0) - Tracks having d0 impact significance wrt beamline smaller than the cut are removed. This rejects pileup.
+TrkSigCut(2.0)     - Track selection 3D track-PV impact significance cut
+CutPt(500.)        - Track selection pt cut
+CutD0Max(10.mm)    - Track selection maximal track d0
+CutD0Min(0.mm)     - Track selection minimal track d0. Normally the TrkSigCut should be used instead, but for some problem 
+                     the explicit d0 cut might be useful.
+CutPixelHits(1)    -  Required number of Pixel hits.
+CutSiHits(8)       -  Required Pixel+SCT hits
+CutTRTHits(10)     -  TRT hits per track in TRT acceptance |eta|<1.9
+VertexMergeCut(2.) -  3D vertex-vertex distance significance, below which these vertices are checked for merging.
+MultiWithOneTrkVrt(True) -  Allow saving of 1-track vertices appearing in case of close cascade vertices e.g. B->C
+
+

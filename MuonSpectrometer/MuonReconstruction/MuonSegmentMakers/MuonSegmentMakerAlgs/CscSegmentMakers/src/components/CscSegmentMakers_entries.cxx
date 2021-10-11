@@ -2,7 +2,6 @@
 #include "../Csc4dSegmentMaker.h"
 #include "../CscSegmentUtilTool.h"
 
-DECLARE_COMPONENT( Csc2dSegmentMaker )
-DECLARE_COMPONENT( Csc4dSegmentMaker )
-DECLARE_COMPONENT( CscSegmentUtilTool )
-
+DECLARE_COMPONENT(Csc2dSegmentMaker)
+DECLARE_COMPONENT(Csc4dSegmentMaker)
+DECLARE_COMPONENT(CscSegmentUtilTool)

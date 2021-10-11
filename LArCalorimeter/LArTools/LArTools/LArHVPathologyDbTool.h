@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArHVPathologyDbTool_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h"
-#include "CxxUtils/checker_macros.h"
 
 class LArHVPathologyDbTool: public AthAlgTool, virtual public ILArHVPathologyDbTool
 {
@@ -25,7 +24,7 @@ class LArHVPathologyDbTool: public AthAlgTool, virtual public ILArHVPathologyDbT
   virtual LArHVPathologiesDb* attrList2HvPathology(const AthenaAttributeList&) const override;
 
 private:
-  AthenaAttributeList* newAttrList ATLAS_NOT_THREAD_SAFE() const;
+  AthenaAttributeList* newAttrList() const;
 };
 
 #endif

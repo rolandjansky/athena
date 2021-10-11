@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloCellDetPos_H
@@ -16,9 +16,7 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-
-class CaloDetDescrManager;
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 class CaloCellDetPos
 {
 
@@ -33,9 +31,9 @@ class CaloCellDetPos
    * @param  double etaDet   : estimated eta detector in nominal calo frame
    * @param  double phiDet   : estimated phi detector in nominal calo frame
    */
-  bool getDetPosition(const CaloDetDescrManager& mgr,
+  static bool getDetPosition(const CaloDetDescrManager& mgr,
                       CaloCell_ID::CaloSample sam, double etaAtlas,
-                      double phiAtlas, double& etaDet, double& phiDet) const;
+                      double phiAtlas, double& etaDet, double& phiDet) ;
 
   /**
    * @brief  get Atlas (aligned) level eta-phi position from detector level eta-phi positions
@@ -47,34 +45,10 @@ class CaloCellDetPos
    * @param  double phiAtlas : estimated phi detector in aligned Atlas frame
    */
 
-  bool getAtlasPosition(const CaloDetDescrManager& mgr,
+  static bool getAtlasPosition(const CaloDetDescrManager& mgr,
                         CaloCell_ID::CaloSample sam, double etaDet,
                         double phiDet, double& etaAtlas,
-                        double& phiAtlas) const;
-
-  /**
-   * @brief  get Detector level eta-phi position from Atlas level (aligned) position
-   * @param  CaloCell_ID::CaloSample sam  layer to use
-   * @param  double etaAtlas : input eta Atlas level position
-   * @param  double phiAtlas : input phi Atlas level position
-   * @param  double etaDet   : estimated eta detector in nominal calo frame
-   * @param  double phiDet   : estimated phi detector in nominal calo frame
-   */
-  bool getDetPosition(CaloCell_ID::CaloSample sam , double etaAtlas, double phiAtlas, 
-                      double & etaDet, double & phiDet) const;
-
-
-  /**
-   * @brief  get Atlas (aligned) level eta-phi position from detector level eta-phi positions
-   * @param  CaloCell_ID::CaloSample sam  layer to use
-   * @param  double etaDet   : input eta detector level position
-   * @param  double phiDet   : input phi detector level position
-   * @param  double etaAtlas : estimated eta detector in aligned Atlas frame
-   * @param  double phiAtlas : estimated phi detector in aligned Atlas frame
-   */
-
-  bool getAtlasPosition(CaloCell_ID::CaloSample sam , double etaDet, double phiDet, 
-                        double & etaAtlas, double & phiAtlas) const;
+                        double& phiAtlas) ;
 
 
 };

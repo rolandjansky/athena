@@ -68,12 +68,22 @@ StatusCode JetConstituentModSequence::initialize() {
     }
   case xAOD::Type::ParticleFlow:
     {
-      m_inChargedPFOKey = m_inputContainer + "ChargedParticleFlowObjects";
-      m_inNeutralPFOKey = m_inputContainer + "NeutralParticleFlowObjects";
+      std::string inputContainerBase = m_inputContainer;
+      std::string outputContainerBase = m_outputContainer;
 
-      m_outChargedPFOKey = m_outputContainer+"ChargedParticleFlowObjects";
-      m_outNeutralPFOKey = m_outputContainer+"NeutralParticleFlowObjects";
-      m_outAllPFOKey = m_outputContainer+"ParticleFlowObjects";
+      // Know what the user means if they give the full input/output container name in this format
+      size_t pos = inputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) inputContainerBase.erase(pos);
+
+      pos = outputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) outputContainerBase.erase(pos);
+
+      m_inChargedPFOKey = inputContainerBase + "ChargedParticleFlowObjects";
+      m_inNeutralPFOKey = inputContainerBase + "NeutralParticleFlowObjects";
+
+      m_outChargedPFOKey = outputContainerBase + "ChargedParticleFlowObjects";
+      m_outNeutralPFOKey = outputContainerBase + "NeutralParticleFlowObjects";
+      m_outAllPFOKey = outputContainerBase + "ParticleFlowObjects";
 
       ATH_CHECK(m_inChargedPFOKey.initialize());
       ATH_CHECK(m_inNeutralPFOKey.initialize());
@@ -94,12 +104,23 @@ StatusCode JetConstituentModSequence::initialize() {
     {
       // TODO: This assumes a PFlow-style neutral and charged collection.
       //       More general FlowElements (e.g. CaloClusters) may necessitate a rework here later.
-      m_inChargedFEKey = m_inputContainer + "ChargedFlowElements";
-      m_inNeutralFEKey = m_inputContainer + "NeutralFlowElements";
 
-      m_outChargedFEKey = m_outputContainer+"ChargedFlowElements";
-      m_outNeutralFEKey = m_outputContainer+"NeutralFlowElements";
-      m_outAllFEKey = m_outputContainer+"FlowElements";
+      std::string inputContainerBase = m_inputContainer;
+      std::string outputContainerBase = m_outputContainer;
+
+      // Know what the user means if they give the full input/output container name in this format
+      size_t pos = inputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) inputContainerBase.erase(pos);
+
+      pos = outputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) outputContainerBase.erase(pos);
+
+      m_inChargedFEKey = inputContainerBase + "ChargedParticleFlowObjects";
+      m_inNeutralFEKey = inputContainerBase + "NeutralParticleFlowObjects";
+
+      m_outChargedFEKey = outputContainerBase + "ChargedParticleFlowObjects";
+      m_outNeutralFEKey = outputContainerBase + "NeutralParticleFlowObjects";
+      m_outAllFEKey = outputContainerBase + "ParticleFlowObjects";
 
       ATH_CHECK(m_inChargedFEKey.initialize());
       ATH_CHECK(m_inNeutralFEKey.initialize());

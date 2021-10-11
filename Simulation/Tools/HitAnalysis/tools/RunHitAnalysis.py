@@ -39,9 +39,11 @@ else:
 print()
 
 # Configure
+from AthenaConfiguration.Enums import ProductionStep
+ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
 ConfigFlags.Input.Files = [args.input]
 if args.localgeo:
-    ConfigFlags.ITk.useLocalGeometry = True
+    ConfigFlags.GeoModel.useLocalGeometry = True
 if args.detectors:
     from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
     setupDetectorsFromList(ConfigFlags, args.detectors, toggle_geometry=True)

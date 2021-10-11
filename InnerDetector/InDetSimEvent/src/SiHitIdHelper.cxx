@@ -34,8 +34,8 @@ void SiHitIdHelper::Initialize() {
   //Run4 includes ITk and HGTD
   bool isRun4 = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTD");
   
-  InitializeField("PixelSCT",0,1);
   if (isRun4) InitializeField("Part",0,2);
+  else InitializeField("Part",0,1);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
   InitializeField("LayerDisk",0,20);
@@ -47,19 +47,26 @@ void SiHitIdHelper::Initialize() {
 }
 
 // Info retrieval:
-// Pixel or SCT
+// Pixel, SCT, or HGTD
 bool SiHitIdHelper::isPixel(const int& hid) const
 {
-  int ps = this->GetFieldValue("PixelSCT", hid);
-  if (ps ==0 ) return true;
+  int psh = this->GetFieldValue("Part", hid);
+  if (psh ==0 ) return true;
   else return false;
 }
 
 bool SiHitIdHelper::isSCT(const int& hid) const
 {
-  int ps = this->GetFieldValue("PixelSCT", hid);
-  if (ps ==0 ) return false;
-  else return true;
+  int psh = this->GetFieldValue("Part", hid);
+  if (psh ==1 ) return true;
+  else return false;
+}
+
+bool SiHitIdHelper::isHGTD(const int& hid) const
+{
+  int psh = this->GetFieldValue("Part", hid);
+  if (psh ==2 ) return true;
+  else return false;
 }
 
 // Barrel or Endcap
@@ -95,11 +102,11 @@ int SiHitIdHelper::getSide(const int& hid) const
 
 //
 // Info packing:
-int SiHitIdHelper::buildHitId(const int Pixel_SCT, const int BrlECap, const int LayerDisk,
+int SiHitIdHelper::buildHitId(const int Part, const int BrlECap, const int LayerDisk,
                               const int etaM, const int phiM, const int side) const
 {
   int theID(0);
-  this->SetFieldValue("PixelSCT",       Pixel_SCT, theID);
+  this->SetFieldValue("Part",           Part, theID);
   this->SetFieldValue("BarrelEndcap",   BrlECap, theID);
   this->SetFieldValue("LayerDisk",      LayerDisk, theID);
   this->SetFieldValue("EtaModule",      etaM, theID);

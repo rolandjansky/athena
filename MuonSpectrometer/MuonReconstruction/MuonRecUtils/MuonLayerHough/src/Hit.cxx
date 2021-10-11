@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/HitNtuple.h"
@@ -42,7 +42,7 @@ namespace MuonHough {
   Hit& Hit::operator=(const Hit& h_ ){
     if( &h_ != this ){
       delete m_debug;
-      m_debug = 0;
+      m_debug = nullptr;
       copy(h_);
     }
     return *this;
@@ -55,7 +55,7 @@ namespace MuonHough {
     ymax = hit.ymax;
     w = hit.w;
     if( hit.m_debug ) m_debug = new HitDebugInfo(*hit.m_debug);
-    else m_debug = 0;
+    else m_debug = nullptr;
     prd = hit.prd;
     tgc = hit.tgc;
   }
@@ -75,7 +75,7 @@ namespace MuonHough {
   PhiHit& PhiHit::operator=(const PhiHit& h_ ){
     if( &h_ != this ){
       delete m_debug;
-      m_debug = 0;
+      m_debug = nullptr;
       copy(h_);
     }
     return *this;
@@ -88,7 +88,7 @@ namespace MuonHough {
     phimax = hit.phimax;
     w = hit.w;
     if( hit.m_debug ) m_debug = new HitDebugInfo(*hit.m_debug);
-    else m_debug = 0;
+    else m_debug = nullptr;
     prd = hit.prd;
     tgc = hit.tgc;
   }

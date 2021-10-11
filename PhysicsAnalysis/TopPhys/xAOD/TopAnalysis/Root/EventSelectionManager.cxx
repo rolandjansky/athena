@@ -134,22 +134,6 @@ namespace top {
     return save;
   }
 
-  bool EventSelectionManager::applyUpgradeLevel(const top::ParticleLevelEvent& upgradeEvent) {
-    bool save(false);
-
-    for (const auto& currentSelection : m_selections) {
-      const bool passedThisSelection = currentSelection.applyUpgradeLevel(upgradeEvent);
-
-      //save result as new branch (int)
-      upgradeEvent.m_selectionDecisions[ currentSelection.name() ] = passedThisSelection;
-
-      //Did any of the selections with SAVE specified pass for this event (if so we might want to keep the event)
-      save |= (passedThisSelection && currentSelection.ToBeSaved());
-    }
-
-    return save;
-  }
-
   void EventSelectionManager::finalise() {
     ATH_MSG_INFO("Final yields:");
     for (const auto& currentSelection : m_selections)

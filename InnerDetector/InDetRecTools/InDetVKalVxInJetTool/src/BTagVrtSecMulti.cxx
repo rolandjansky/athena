@@ -135,7 +135,6 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
   newvrt.Good = true;
   std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
   StatusCode sc;
-  sc.setChecked();
   long int NPTR = 0, nth = 2; // VK nth=2 to speed up PGRAPH when it's used
 
  //================================================== Boost version (don't
@@ -767,7 +766,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       std::vector<const Particle*>  ListBaseTracks;
       int NTrk=(*wrkVrtSet)[iv].selTrk.size(), SelT=-1;
       if(NTrk<3)return;
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
 //=== To get robust definition of most bad outlier
       m_fitSvc->setRobustness(5, istate);
       sc = refitVertex( wrkVrtSet, iv, AllTracks, istate, false);
@@ -1141,7 +1140,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       // Try to add non-common tracks one by one
       std::vector<const Particle*>  fitTrackList(0);
       std::vector<int> detachedTrk(0);
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       WrkVrt bestVrt;
       bool foundMerged=false;
       for( auto nct : noncommonTrk){  

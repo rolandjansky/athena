@@ -18,12 +18,12 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "CaloUtils/CaloCellDetPos.h"
 #include <vector>
 class CaloCluster;
 
 
 namespace D3PD {
-
 
 /**
  * @brief Block filler tool for EM samplings from a CaloCluster.
@@ -46,8 +46,10 @@ public:
 			     const IInterface* parent);
 
 
+  virtual StatusCode initialize() override;
+
   /// Book variables for this block.
-  virtual StatusCode book();
+  virtual StatusCode book() override;
 
 
   /**
@@ -58,7 +60,7 @@ public:
    * is responsible for arranging that all the pointers for booked variables
    * are set appropriately upon entry.
    */
-  virtual StatusCode fill (const CaloCluster& p);
+  virtual StatusCode fill (const CaloCluster& p) override;
 
 
   /**
@@ -69,7 +71,7 @@ public:
    * is responsible for arranging that all the pointers for booked variables
    * are set appropriately upon entry.
    */
-  virtual StatusCode fill (const xAOD::CaloCluster& p);
+  virtual StatusCode fill (const xAOD::CaloCluster& p) override;
 
 
 private:
@@ -128,9 +130,13 @@ private:
   float* m_etamax[NSAMP];
   
   unsigned int* m_RecoStatus;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
 };
-
-
 
 } // namespace D3PD
 

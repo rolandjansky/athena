@@ -4,38 +4,44 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
 from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 muonRecFlags.setDefaults()
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
-
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
 from InDetRecExample.InDetKeys import InDetKeys
 from InDetRecExample.InDetJobProperties import InDetFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+  
     tools = [getPublicTool("MuonCaloTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","caloTagMap")
     kwargs.setdefault("CombinedTrackCollection","")
     kwargs.setdefault("METrackCollection","")
-    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
-    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
+    kwargs.setdefault("HasCSC", reco_cscs )
+    kwargs.setdefault("HasSTgc",reco_stgcs )
+    kwargs.setdefault("HasMM", reco_mm )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonCaloTagAlg_LRT(name="MuonCaloTagAlg_LRT", **kwargs):
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonCaloTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","caloTagMap_LRT")
     kwargs.setdefault("InDetCandidateLocation", MuonCbKeys.InDetTrackParticlesLargeD0())  
     kwargs.setdefault("CombinedTrackCollection","")
     kwargs.setdefault("METrackCollection","")
-    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
-    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
+    kwargs.setdefault("HasCSC", reco_cscs )
+    kwargs.setdefault("HasSTgc", reco_stgcs )
+    kwargs.setdefault("HasMM", reco_mm )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
@@ -50,23 +56,29 @@ def MuonSegmentTagAlg_LRT( name="MuonSegmentTagAlg_LRT", **kwargs ):
     return CfgMgr.MuonSegmentTagAlg(name,**kwargs)
 
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
-    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
-    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
+    kwargs.setdefault("HasCSC", reco_cscs )
+    kwargs.setdefault("HasSTgc", reco_stgcs )
+    kwargs.setdefault("HasMM", reco_mm )
     kwargs.setdefault("TagMap","muGirlTagMap")
     kwargs.setdefault("SegmentCollection","MuGirlSegments")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
-    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
-    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
+    kwargs.setdefault("HasCSC", reco_cscs )
+    kwargs.setdefault("HasSTgc", reco_stgcs )
+    kwargs.setdefault("HasMM", reco_mm )
     kwargs.setdefault("TagMap","MuGirlMap_LRT")
     kwargs.setdefault("METrackCollection","MuGirlMETracks_LRT")
     kwargs.setdefault("SegmentCollection","MuGirlSegments_LRT")
@@ -75,12 +87,15 @@ def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")
-    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
-    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
+    kwargs.setdefault("HasCSC", reco_cscs )
+    kwargs.setdefault("HasSTgc", reco_stgcs )
+    kwargs.setdefault("HasMM", reco_mm )
     kwargs.setdefault("CombinedTrackCollection","MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")
@@ -165,7 +180,7 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     # but don't set this default in case the StauCreatorAlg is created (see below)
     if not muonCombinedRecFlags.doMuGirl() and not name=="StauCreatorAlg":
         kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
         kwargs.setdefault("CopySegments", False)
@@ -204,7 +219,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
-    if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if not ConfigFlags.Muon.MuonTrigger:
         recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
 

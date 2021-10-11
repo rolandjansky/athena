@@ -12,5 +12,6 @@ atlas_add_library( LArGeoCode
                    PUBLIC_HEADERS LArGeoCode
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES StoreGateLib
-                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel GeoModelInterfaces RDBAccessSvcLib )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel AthenaBaseComps GeoModelInterfaces RDBAccessSvcLib
+                   GeoModelUtilities DetDescrConditions GeoPrimitives )
 

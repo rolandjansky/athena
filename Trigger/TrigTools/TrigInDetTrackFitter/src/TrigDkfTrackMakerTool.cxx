@@ -42,7 +42,7 @@ TrigDkfTrackMakerTool::TrigDkfTrackMakerTool(const std::string& t,
 					     const IInterface*  p ): AthAlgTool(t,n,p)
 {
   declareInterface< ITrigDkfTrackMakerTool >( this );
-  m_idHelper=NULL;
+  m_idHelper=nullptr;
 }
 
 StatusCode TrigDkfTrackMakerTool::initialize()

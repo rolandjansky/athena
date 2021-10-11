@@ -66,7 +66,7 @@ private:
 
   IdContext m_cntx;
 
-  TRT_CablingData* m_cabling;
+  TRT_CablingData* m_cabling = nullptr;
 
     // Define parameters
   void defineParameters();
@@ -74,13 +74,13 @@ private:
     // Fill Tables with IDs for all straws
   void defineTables();
 
-  int m_numberOfRings;
-  int m_numberOfLayersA;
-  int m_numberOfLayersB;
-  int m_numberOfLayersC;
+  int m_numberOfRings = 0;
+  int m_numberOfLayersA = 0;
+  int m_numberOfLayersB = 0;
+  int m_numberOfLayersC = 0;
   //  int m_numberOfStrawsInBarrelROD;
   //  int m_shiftForRightBarrelStraws;
-  int m_numberOfIdentifierSectors;
+  int m_numberOfIdentifierSectors = 0;
 
     // Source ID for all robs
   //  std::vector<uint32_t> m_allRobs;
@@ -102,7 +102,7 @@ private:
   // Private version of number of straws in each layer
   std::vector< std::vector<int> > m_ncol;
 
-  int m_StrawsByModule[3];
+  int m_StrawsByModule[3]{};
 
 };
 

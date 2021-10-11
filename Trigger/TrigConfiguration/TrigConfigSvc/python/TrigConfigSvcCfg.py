@@ -5,6 +5,7 @@ from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 import json
 
 log = logging.getLogger('TrigConfigSvcCfg')
@@ -62,7 +63,7 @@ def getTrigConfigFromFlag( flags ):
         lbNumber = flags.Input.LumiBlockNumber[0]
         if dbconn == "":
             dbconn = getTrigConfFromCool(runNumber, lbNumber)["DB"]
-        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
+        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
             d = getTrigConfFromCool(runNumber, lbNumber)            
             if smk is None:
                 smk = d["SMK"]
@@ -95,7 +96,6 @@ def getHLTPrescaleFolderName():
 # L1 Json file name 
 def getL1MenuFileName(flags):
     l1MenuFileName = 'L1Menu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
-    l1MenuFileName = l1MenuFileName.replace(".xml",".json").replace("LVL1config", "L1Menu")
     l1MenuFileName = l1MenuFileName.replace("_newJO","")
     return l1MenuFileName
 
@@ -103,7 +103,6 @@ def getL1MenuFileName(flags):
 # HLT Json file name 
 def getHLTMenuFileName( flags ):
     hltMenuFileName = 'HLTMenu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
-    hltMenuFileName = hltMenuFileName.replace(".xml",".json").replace("HLTconfig", "HLTMenu").replace("HLTmenu", "HLTMenu")
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
@@ -179,12 +178,10 @@ def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
 
     return outfile, bgsOutFile
 
-
-# configuration of L1ConfigSvc
-@memoize
-def getL1ConfigSvc( flags ):
-    # generate menu file (this only happens if we read from FILE)
-    generatedFile, generatedBgsFile = generateL1Menu( flags )
+# provide L1 config service in new JO
+@AccumulatorCache
+def L1ConfigSvcCfg( flags ):
+    acc = ComponentAccumulator()
 
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure LVL1ConfigSvc" )
@@ -194,18 +191,8 @@ def getL1ConfigSvc( flags ):
     l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 
     if cfg["SOURCE"] == "FILE":
-        # Run 2 configuration
-        l1ConfigSvc.ConfigSource = "XML"
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
-        # check if file exists in this directory otherwise add the package to aid path resolution
-        # also a '/' in the file name indicates that no package needs to be added
-        import os.path
-        if not ( "/" in l1XMLFile or os.path.isfile(l1XMLFile) ):
-            l1XMLFile = "TriggerMenuMT/" + l1XMLFile
-        l1ConfigSvc.XMLMenuFile = l1XMLFile
-        log.info( "For run 2 style menu access configured LVL1ConfigSvc with input file : %s", l1XMLFile )
-        # Run 3 configuration
+        generatedFile, generatedBgsFile = generateL1Menu( flags )
+        l1ConfigSvc.ConfigSource = "none"
         l1ConfigSvc.InputType = "file"
         l1ConfigSvc.JsonFileName = generatedFile
         l1ConfigSvc.JsonFileNameBGS = generatedBgsFile
@@ -219,14 +206,13 @@ def getL1ConfigSvc( flags ):
         l1ConfigSvc.BGSK = cfg["BGSK"]
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d, and BGSK %d", cfg['SMK'], cfg['BGSK']  )
 
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
-    return l1ConfigSvc
+    acc.addService( l1ConfigSvc, create=True )
+    return acc
 
-
-# configuration of HLTConfigSvc
-@memoize
-def getHLTConfigSvc( flags ):
+# provide HLT config service in new JO
+@AccumulatorCache
+def HLTConfigSvcCfg( flags ):
+    acc = ComponentAccumulator()
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure HLTConfigSvc" )
 
@@ -234,14 +220,10 @@ def getHLTConfigSvc( flags ):
     hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvc")
 
     if cfg["SOURCE"] == "FILE":
-        hltXMLFile = "None"
-        hltConfigSvc.ConfigSource = "None"
-        hltConfigSvc.XMLMenuFile = hltXMLFile
+        hltConfigSvc.ConfigSource = "none"
         hltConfigSvc.InputType = "file"
         hltJsonFileName = getHLTMenuFileName( flags )
         hltConfigSvc.JsonFileName = hltJsonFileName
-        # TODO revisit if needed    
-        log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
         log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     elif cfg["SOURCE"] == "DB":
         hltConfigSvc.ConfigSource = "none"
@@ -250,31 +232,15 @@ def getHLTConfigSvc( flags ):
         hltConfigSvc.TriggerDB = cfg["DBCONN"]
         hltConfigSvc.SMK = cfg["SMK"]
         log.info( "For run 3 style menu access configured HLTConfigSvc with InputType='DB' and SMK %d", cfg['SMK'] )
-
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
-    return hltConfigSvc
-
-
-# provide L1 config service in new JO
-def L1ConfigSvcCfg( flags ):
-    acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ) )
-    return acc
-
-# provide HLT config service in new JO
-def HLTConfigSvcCfg( flags ):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    acc.addService( getHLTConfigSvc( flags ) )
+    acc.addService( hltConfigSvc, create=True )
     return acc
 
 # provide both services in new JO
 def TrigConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ), create=True )
-    acc.addService( getHLTConfigSvc( flags ), create=True )
+    acc.merge( L1ConfigSvcCfg( flags ) )
+    acc.merge( HLTConfigSvcCfg( flags ) )
     return acc
 
 def L1PrescaleCondAlgCfg( flags ):

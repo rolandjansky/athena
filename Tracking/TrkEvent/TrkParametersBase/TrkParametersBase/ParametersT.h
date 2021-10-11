@@ -11,8 +11,9 @@
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
+#include "TrkEventPrimitives/SurfaceHolderImpl.h"
 #include "TrkEventPrimitives/SurfaceTypes.h"
+#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 #include "TrkParametersBase/ParametersBase.h"
 namespace Trk {
 class MaterialEffectsEngine;
@@ -42,7 +43,9 @@ class MaterialEffectsEngine;
    @author Christos Anastopoulos (Athena MT modifications)
 */
 template<int DIM, class T, class S>
-class ParametersT final : public ParametersBase<DIM, T>
+class ParametersT final
+  : public ParametersBase<DIM, T>
+  , public SurfaceUniqHolderImpl<S>
 {
 public:
   static_assert(
@@ -100,7 +103,8 @@ public:
   ParametersT<DIM, T, S>& operator=(const ParametersT<DIM, T, S>& rhs);
 
   /** Move assignment operator */
-  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept = default;
+  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept =
+    default;
 
   //** Destructor */
   virtual ~ParametersT() = default;
@@ -150,9 +154,9 @@ protected:
   using ParametersBase<DIM, T>::m_parameters;
   using ParametersBase<DIM, T>::m_covariance;
   using ParametersBase<DIM, T>::m_chargeDef;
-  Amg::Vector3D m_position;             //!< point on track
-  Amg::Vector3D m_momentum;             //!< momentum at this point on track
-  SurfaceUniquePtrT<const S> m_surface; //!< surface template
+  using SurfaceUniqHolderImpl<S>::m_associatedSurface;
+  Amg::Vector3D m_position; //!< point on track
+  Amg::Vector3D m_momentum; //!< momentum at this point on track
 
   /**
    * @brief Constructor for persistency

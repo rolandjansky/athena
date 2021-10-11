@@ -7,13 +7,9 @@ from RecExConfig.RecFlags  import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 
 from AthenaCommon.GlobalFlags  import globalflags
-
-from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-
 from RecExConfig.Configured import Configured 
 
 from AthenaCommon.Logging import logging
-
 from AthenaCommon.Resilience import protectedInclude
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -169,22 +165,6 @@ class TriggerConfigGetter(Configured):
                 self.isRun1Data = True
         self.isTriggerReprocessing = False
 
-        # the TriggerFlags.readMenuFromTriggerDb() tells us that we read the trigger menu from the database
-        # the connection itself is defined in TriggerFlags.triggerDbConnection()
-
-        # reading from the TriggerDB can mean different things:
-
-        # a) TriggerFlags doHLT() is False:
-        #    - create a tmp sqlite file with the conditions (menu)
-        #    - use DSConfigSvc
-
-
-        # b) TriggerFlags doHLT() is True:
-        #    - use HLTConfigSvc
-        if self.readTriggerDB and TriggerFlags.doHLT():
-            self.ConfigSrcList = ['xml'] # to use L1/HLTConfigSvc and not DSConfigSvc, but only if we are running the HLT
-
-
         if self._environment: # I don't think anyone calls TriggerConfigGetter with an argument
             self.readPool  = False
             self.writeESDAOD = False
@@ -228,36 +208,18 @@ class TriggerConfigGetter(Configured):
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
             else: # Does not have xAODMeta
                 # Run-3 Trigger Configuration Services (just producing menu data)
-                from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
-                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-                svcMgr += getL1ConfigSvc(ConfigFlags)
-                svcMgr += getHLTConfigSvc(ConfigFlags)
-                svcMgr += TrigConfigSvc("TrigConfigSvc")
-                svcMgr.TrigConfigSvc.UseNewConfig = True
+                from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+                from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,HLTConfigSvcCfg
+                CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
+                CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 
         else:
             # non-MT (Run-2) Trigger Configuration
-            self.svc = SetupTrigConfigSvc()
+            if 'ds' in self.ConfigSrcList:
+                log.info("setup DSConfigSvc and add instance to ServiceMgr")
+                from TrigConfigSvc.TrigConfigSvcConf import TrigConf__DSConfigSvc
+                svcMgr += TrigConf__DSConfigSvc("DSConfigSvc")
 
-            if 'xml' in self.ConfigSrcList:
-                # sets them if plain XML reading is to be used
-                self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
-                self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
-                if TriggerFlags.readLVL1configFromXML():
-                    self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
-
-            try:
-                self.svc.SetStates( self.ConfigSrcList )
-            except Exception:
-                log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
-            else:
-                log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
-
-            try:
-                self.svc.InitialiseSvc()
-            except Exception as ex:
-                log.error( 'Failed to activate TrigConfigSvc: %r', ex )
-                raise(ex)
         ########################################################################
         # END OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
         ########################################################################
@@ -312,7 +274,7 @@ class TriggerConfigGetter(Configured):
             TrigCoolDbConnection = 'TRIGGER'
             addNewFolders = TriggerFlags.configForStartup()=="HLTonline" and self.readRDO
         else: # for sqlite COOL: temp (usually /tmp/hltMenu.xxx.db) or predefined (e.g. trigconf.db)
-            log.info("COOL DBConnection: " + TrigCoolDbConnection )
+            log.info("COOL DBConnection: %s", TrigCoolDbConnection)
             addNewFolders = globalflags.DataSource()!='data' and self.readRDO # bytestream or MC RDO
 
         # add folders for reading
@@ -369,33 +331,62 @@ class TriggerConfigGetter(Configured):
         writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
-            if ConfigFlags.Trigger.doEDMVersionConversion:
-                # also save the menu in JSON format
-                from RecExConfig.AutoConfiguration  import GetRunNumber, GetLBNumber
+            if ConfigFlags.Trigger.doConfigVersionConversion:
+                log.info("Configuring Run-1&2 to Run-3 configuration metadata conversion")
+
+                # Save the menu in JSON format
+                from RecExConfig.AutoConfiguration import GetRunNumber, GetLBNumber
                 dbKeys = fetchRun3ConfigFiles(isMC=self.readMC, run=GetRunNumber(), lb=GetLBNumber())
 
-                from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc, TrigConf__HLTConfigSvc, TrigConf__HLTPrescaleCondAlg, TrigConf__L1PrescaleCondAlg
+                from TrigConfigSvc.TrigConfigSvcConf import (TrigConf__LVL1ConfigSvc,
+                                                             TrigConf__HLTConfigSvc,
+                                                             TrigConf__HLTPrescaleCondAlg,
+                                                             TrigConf__L1PrescaleCondAlg)
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+
                 from AthenaCommon.AlgSequence import AthSequencer
                 condSeq = AthSequencer ('AthCondSeq')
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                 from AthenaCommon.AppMgr import theApp
 
-                l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvcRun3", InputType="file", JsonFileName="L1Menu.json", SMK=dbKeys["SMK"], JsonFileNameBGS="BunchGroups.json", BGSK=dbKeys["BGSK"])
+                # L1 service and CondAlg
+                l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvcRun3",
+                                                      InputType="file",
+                                                      JsonFileName="L1Menu.json",
+                                                      SMK=dbKeys["SMK"],
+                                                      JsonFileNameBGS="BunchGroups.json",
+                                                      BGSK=dbKeys["BGSK"])
                 svcMgr += l1ConfigSvc
                 theApp.CreateSvc += [ l1ConfigSvc.getFullName() ]
 
-                condSeq += TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlgRun3", Source="FILE", L1Psk=dbKeys["L1PSK"], Filename="L1PrescalesSet.json")
-                hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvcRun3", InputType="file", SMK=dbKeys["SMK"], JsonFileName="HLTMenu.json")
+                condSeq += TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlgRun3",
+                                                       Source="FILE",
+                                                       L1Psk=dbKeys["L1PSK"],
+                                                       Filename="L1PrescalesSet.json")
+
+                # HLT service and CondAlg
+                hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvcRun3",
+                                                      InputType="file",
+                                                      JsonFileName="HLTMenu.json",
+                                                      SMK=dbKeys["SMK"])
                 svcMgr += hltConfigSvc
                 theApp.CreateSvc += [ hltConfigSvc.getFullName() ]
-                condSeq += TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlgRun3", Source="FILE", HLTPsk=dbKeys["HLTPSK"], Filename="HLTPrescalesSet.json")
 
+                condSeq += TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlgRun3",
+                                                        Source="FILE",
+                                                        HLTPsk=dbKeys["HLTPSK"],
+                                                        Filename="HLTPrescalesSet.json")
+
+                # xAODConfigSvc for accessing the Run-3 converted menu
+                svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc',
+                                                  UseInFileMetadata = False)
 
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
                 writeMenuJSON = True
                 topAlgs += menuwriter
+
             else:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
@@ -451,8 +442,8 @@ class TriggerConfigGetter(Configured):
 
             enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
             enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
-            enhancedBiasWeightCompAlg.FinalDecisionKey = "HLTNav_Summary"
-
+            from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+            enhancedBiasWeightCompAlg.FinalDecisionKey = getRun3NavigationContainerFromInput(ConfigFlags)
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
 

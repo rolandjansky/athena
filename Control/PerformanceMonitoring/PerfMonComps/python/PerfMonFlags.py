@@ -318,6 +318,14 @@ class OutputFile(JobProperty):
     allowedTypes = ['str']
     StoredValue  = "ntuple.pmon.gz"
 
+#
+class OutputJSON(JobProperty):
+    """ Flag to override the default output file name of the perfmonmt json
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = "perfmonmt.json"
+
 # Defines the container for the performance monitoring flags  
 class PerfMonFlags(JobPropertyContainer):
     """ The global performance monitoring flag/job property container.
@@ -351,6 +359,7 @@ list_jobproperties = [
     enableDoubleCountingCorrection,
     OutMonLevel,
     OutputFile,
+    OutputJSON,
     ]
 
 for i in list_jobproperties:

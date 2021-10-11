@@ -71,7 +71,7 @@ if not 'GainList' in dir():
 
 if not 'GroupingType' in dir():
    if not SuperCells: GroupingType = "ExtendedSubDetector"
-   if SuperCells:     GroupingType = "ExtendedFeedThrough"
+   if SuperCells:     GroupingType = "SuperCells"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -270,9 +270,10 @@ from LArCabling.LArCablingAccess import LArCalibIdMapping,LArOnOffIdMapping
 LArOnOffIdMapping()
 LArCalibIdMapping()
 if SuperCells:
-   from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC
+   from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC,LArLATOMEMappingSC
    LArOnOffIdMappingSC()
    LArCalibIdMappingSC()
+   LArLATOMEMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -333,7 +334,6 @@ if runAccumulator:
  if SuperCells:
    from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
    theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-   theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
    theLArLATOMEDecoder.DumpFile = SC_DumpFile
    theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
 
@@ -344,7 +344,7 @@ if runAccumulator:
    larRawSCDataReadingAlg.etCollKey = ""
    larRawSCDataReadingAlg.etIdCollKey = ""
    larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
-   larRawSCDataReadingAlg.OutputLevel = DEBUG
+   larRawSCDataReadingAlg.OutputLevel = INFO
    topSequence += larRawSCDataReadingAlg
 
  else:
@@ -358,7 +358,7 @@ if runAccumulator:
  larDigitsAccumulator.KeyList = [Gain]
  larDigitsAccumulator.LArAccuDigitContainerName = ""
  larDigitsAccumulator.NTriggersPerStep = 100
- larDigitsAccumulator.OutputLevel = DEBUG
+ larDigitsAccumulator.OutputLevel = INFO
 
  topSequence += larDigitsAccumulator
 
@@ -377,9 +377,9 @@ else:
 from IOVDbSvc.CondDB import conddb
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 
 if ( ReadBadChannelFromCOOL ):      
@@ -509,7 +509,6 @@ if runAccumulator:
       #LArAutoCorrMaker.Nsamples     = NSamples
       LArAutoCorrMaker.KeyOutput  = KeyOutputAC
       LArAutoCorrMaker.GroupingType = GroupingType
-      LArAutoCorrMaker.BunchCrossingTool = ""
       topSequence += LArAutoCorrMaker
 
 else :
@@ -525,7 +524,7 @@ if not SuperCells:
    LArPedACBuilder.sample_min      = MinSample
    LArPedACBuilder.sample_max      = MaxSample
 
-LArPedACBuilder.OutputLevel     = DEBUG
+LArPedACBuilder.OutputLevel     = WARNING
 topSequence += LArPedACBuilder
 
       
@@ -537,23 +536,11 @@ topSequence += LArPedACBuilder
 
 
 if ( doLArCalibDataQuality  ) :
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArPedValBCMask=LArBadChannelMasker("PedValBCMask",
-                                          DoMasking=True,
-                                          ProblemsToMask=[]
-                                          )
-   ServiceMgr.ToolSvc+=theLArPedValBCMask
-   theLArACValBCMask=LArBadChannelMasker("ACValBCMask",
-                                          DoMasking=True,
-                                          ProblemsToMask=[]
-                                          )
-   ServiceMgr.ToolSvc+=theLArACValBCMask
    
    if  Pedestal :
       from LArCalibDataQuality.Thresholds import pedThr,rmsThr, pedThrFEB,rmsThrFEB
       from LArCalibDataQuality.LArCalibDataQualityConf import LArPedestalValidationAlg
       thePedestalValidationAlg=LArPedestalValidationAlg("PedestalVal")
-      thePedestalValidationAlg.BadChannelMaskingTool=theLArPedValBCMask
       thePedestalValidationAlg.ValidationKey="Pedestal"
       thePedestalValidationAlg.ReferenceKey="PedestalRef"
       thePedestalValidationAlg.PedestalTolerance=pedThr
@@ -570,7 +557,6 @@ if ( doLArCalibDataQuality  ) :
 
       ## second instance of the validation tool to detect "bad" channel
       theBadPedestal=LArPedestalValidationAlg("PedestalFail")
-      theBadPedestal.BadChannelMaskingTool=theLArPedValBCMask
       theBadPedestal.ValidationKey="Pedestal"
       theBadPedestal.ReferenceKey="PedestalRef"
       theBadPedestal.PedestalTolerance       = ["10,10,10"]
@@ -588,7 +574,6 @@ if ( doLArCalibDataQuality  ) :
       from LArCalibDataQuality.Thresholds import acThr, acThrFEB
       from LArCalibDataQuality.LArCalibDataQualityConf import LArAutoCorrValidationAlg
       theAutoCorrValidationAlg=LArAutoCorrValidationAlg("AutoCorrVal")
-      theAutoCorrValidationAlg.BadChannelMaskingTool=theLArACValBCMask
       theAutoCorrValidationAlg.ValidationKey="LArAutoCorr"
       theAutoCorrValidationAlg.ReferenceKey="LArAutoCorrRef"
       theAutoCorrValidationAlg.AutoCorrTolerance=acThr
@@ -603,7 +588,6 @@ if ( doLArCalibDataQuality  ) :
       
       ## second instance of the validation tool to detect "bad" channel     
       theBadAutoCorr=LArAutoCorrValidationAlg("AutoCorrFail")
-      theBadAutoCorr.BadChannelMaskingTool=theLArACValBCMask
       theBadAutoCorr.ValidationKey="LArAutoCorr"
       theBadAutoCorr.ReferenceKey="LArAutoCorrRef"
       theBadAutoCorr.AutoCorrTolerance    = ["0.15, 0.15, 0.15"]
@@ -643,14 +627,10 @@ if ( doMonitoring ) :
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.isOnline=online
       from LArMonTools.LArMonFlags import LArMonFlags
-      from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-      theLArBadChannelsMasker=LArBadChannelMasker("LArBadChannelsMasker")
-      theLArBadChannelsMasker.DoMasking=True
-      theLArBadChannelsMasker.ProblemsToMask=[
+      ProblemsToMask=[
          "deadReadout","deadPhys","short","almostDead",
          "highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"
          ]
-      ToolSvc+=theLArBadChannelsMasker
       from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedestalCondAlg 
       svcMgr.IOVDbSvc.Folders.append("<db>COOLONL_LAR/CONDBR2</db>/LAR/ElecCalibFlat/Pedestal")
       from AthenaCommon.AlgSequence import AthSequencer
@@ -757,7 +737,7 @@ if ( WritePoolFile ) :
         
         from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
         ServiceMgr += IOVRegistrationSvc()
-        ServiceMgr.IOVRegistrationSvc.OutputLevel = DEBUG
+        ServiceMgr.IOVRegistrationSvc.OutputLevel = WARNING
         ServiceMgr.IOVRegistrationSvc.RecreateFolders = False
        
         
@@ -767,7 +747,8 @@ if ( WritePoolFile ) :
 ServiceMgr.EventSelector.SkipEvents = SkipEvents
 
 ServiceMgr.MessageSvc.OutputLevel  = INFO
-ServiceMgr.MessageSvc.defaultLimit = 10000
+ServiceMgr.MessageSvc.defaultLimit = 1000000000
+ServiceMgr.MessageSvc.infoLimit = 1000000000
 ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
 ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)

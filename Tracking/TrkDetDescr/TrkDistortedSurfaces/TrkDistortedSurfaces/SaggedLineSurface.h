@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ namespace Trk {
 
    protected:
      LineSaggingDescriptor*                         m_saggingDescriptor; //!< the distortion descriptor
-     CxxUtils::CachedValue<Amg::Vector3D>           m_lineDirection;     //!< nominal end position 
+     CxxUtils::CachedValue<Amg::Vector3D>           m_saggedLineDirection;     //!< nominal end position 
   };
  
 /** provide the Surface interface */

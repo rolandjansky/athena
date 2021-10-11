@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGORITHMS_PIXELDETECTORELEMENTCONDALG_H
@@ -14,8 +14,13 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/CondHandleKeyArray.h"
 
 #include "GaudiKernel/ICondSvc.h"
+
+//dependencies to limit lifetime of SiDetElColl for TrackingGeometry
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 namespace InDetDD {
   class PixelDetectorManager;
@@ -39,7 +44,18 @@ class PixelDetectorElementCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<InDetDD::SiDetectorElementCollection> m_writeKey
   {this, "WriteKey", "PixelDetectorElementCollection", "Key of output SiDetectorElementCollection for Pixel"};
 
+  // The DetElement Collection must have a life time <= the Tracking Geometry due to DetElt-> Surface -> Layer connection,
+  // which is why we intersect with the IOV Ranges from the TG's dependencies.
+  SG::ReadCondHandleKeyArray<MuonGM::MuonDetectorManager> m_muonManagerKey
+     {this, "MuonManagerKey", {}, "MuonManager ReadKey for IOV Range intersection"};
+  SG::ReadCondHandleKeyArray<InDetDD::TRT_DetElementContainer> m_trtDetElContKey
+     {this, "TRT_DetEltContKey", {}, "TRT ReadKey for IOV Range intersection"};
+  SG::ReadCondHandleKeyArray<GeoAlignmentStore> m_SCT_readKey
+     {this, "SCTAlignmentStore", {}, "SCTAlignmentStore ReadKey for IOV Range intersection "};
+
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+
+  StringProperty m_detManagerName{this, "DetManagerName", "Pixel", "Name of the DeterctorManager to retrieve"};
   const InDetDD::PixelDetectorManager* m_detManager{nullptr};
 };
 

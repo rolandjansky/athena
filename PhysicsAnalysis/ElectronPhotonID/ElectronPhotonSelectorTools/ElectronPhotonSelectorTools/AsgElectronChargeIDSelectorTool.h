@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -131,7 +131,7 @@ private:
   TString m_pid_name;
   float m_cutOnBDT;
 
-  int m_cutPosition_bdt;
+  int m_cutPosition_bdt{};
   asg::AcceptInfo m_acceptInfo;
 
   // Private member variables

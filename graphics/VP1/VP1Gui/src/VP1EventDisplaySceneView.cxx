@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -28,7 +28,7 @@
 void GraphicsView::wheelEvent(QWheelEvent *e)
 {
 	if (e->modifiers() & Qt::ControlModifier) {
-		if (e->delta() > 0)
+		if (e->angleDelta().y() > 0)
 			m_view->zoomIn(6);
 		else
 			m_view->zoomOut(6);
@@ -295,9 +295,9 @@ void VP1EventDisplaySceneView::setResetButtonEnabled()
 void VP1EventDisplaySceneView::setPreviewZoom(qreal xx)
 {
 	if (m_preview) {
-		QMatrix matrix;
+		QTransform matrix;
 		matrix.scale(xx, xx);
-		m_graphicsView->setMatrix(matrix);
+		m_graphicsView->setTransform(matrix);
 	} else {
 		VP1Msg::message("Warning!! using setPreviewZoom() on a full-size view has no effect.");
 	}
@@ -307,12 +307,12 @@ void VP1EventDisplaySceneView::setPreviewZoom(qreal xx)
 void VP1EventDisplaySceneView::setupMatrix()
 {
 	if (!m_preview) {
-		QMatrix matrix;
+		QTransform matrix;
 		qreal scale = qPow(qreal(2), (m_zoomSlider->value() - 250) / qreal(50));
 		matrix.scale(scale, scale);
 		matrix.rotate(m_rotateSlider->value());
 
-		m_graphicsView->setMatrix(matrix);
+		m_graphicsView->setTransform(matrix);
 		setResetButtonEnabled();
 	}
 

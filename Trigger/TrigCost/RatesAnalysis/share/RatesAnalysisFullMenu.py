@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__=='__main__':
@@ -51,7 +51,7 @@ if __name__=='__main__':
   runNumber = af.fileinfos['run_number'][0]
 
   ConfigFlags.Input.isMC = isMC
-  useBunchCrossingTool = (args.doRatesVsPositionInTrain or args.vetoStartOfTrain > 0)
+  useBunchCrossingData = (args.doRatesVsPositionInTrain or args.vetoStartOfTrain > 0)
 
   ConfigFlags.lock()
 
@@ -95,7 +95,7 @@ if __name__=='__main__':
 
   ebw = CompFactory.EnhancedBiasWeighter('EnhancedBiasRatesTool')
   ebw.RunNumber = runNumber
-  ebw.UseBunchCrossingTool = useBunchCrossingTool
+  ebw.UseBunchCrossingData = useBunchCrossingData
   ebw.IsMC = isMC
   # The following three are only needed if isMC == true
   ebw.MCCrossSection = xsec
@@ -111,7 +111,7 @@ if __name__=='__main__':
   rates.DoExpressRates = args.disableExpressGroup
   rates.DoUniqueRates = args.disableUniqueRates
   rates.DoHistograms = args.disableHistograms
-  rates.UseBunchCrossingTool = useBunchCrossingTool
+  rates.UseBunchCrossingData = useBunchCrossingData
   rates.TargetLuminosity = args.targetLuminosity
   rates.VetoStartOfTrain = args.vetoStartOfTrain
   rates.EnableLumiExtrapolation = args.disableLumiExtrapolation
@@ -153,11 +153,9 @@ if __name__=='__main__':
   cfg.addEventAlgo(rates)
 
   # Setup for accessing bunchgroup data from the DB
-  if useBunchCrossingTool:
-    if isMC:
-      cfg.addPublicTool(CompFactory.BunchCrossingTool("MC"))
-    else:
-      cfg.addPublicTool(CompFactory.BunchCrossingTool("LHC"))
+  if useBunchCrossingData:
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    cfg.merge(BunchCrossingCondAlgCfg(ConfigFlags))
 
   eventLoop = CompFactory.AthenaEventLoopMgr()
   eventLoop.EventPrintoutInterval = 1000

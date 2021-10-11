@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodDecoder.h"
@@ -182,7 +182,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
   // Look for the bit that denotes "Super-condensed" mode
   const bool superCondensedMode{static_cast<bool>((rodDataType >> 21) & 0x1)};
 
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
 
   // Look at ROB status word
   if (robFrag.nstatus()!=0) {
@@ -634,7 +634,7 @@ StatusCode SCT_RodDecoder::processHeader(const uint16_t inData,
                                          bool& breakNow,
                                          const EventContext& ctx) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
 
   data.foundHeader = true;
   m_headNumber++;
@@ -726,7 +726,7 @@ StatusCode SCT_RodDecoder::processSuperCondensedHit(const uint16_t inData,
                                                     SCT_RodDecoderErrorsHelper& errs,
                                                     bool& hasError) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
 
   // Super-condensed mode:
   // Chip info: 4 bits  data16[n]>>11) & 0xF
@@ -815,7 +815,7 @@ StatusCode SCT_RodDecoder::processCondensedHit(const uint16_t inData,
                                                SCT_RodDecoderErrorsHelper& errs,
                                                bool& hasError) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
   
   const int chip{(inData>>11) & 0x7};
   data.side = ((inData>>14) & 0x1);
@@ -947,7 +947,7 @@ StatusCode SCT_RodDecoder::processExpandedHit(const uint16_t inData,
                                               SCT_RodDecoderErrorsHelper& errs,
                                               bool& hasError) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
 
   int chip{0};
   if (not (inData & 0x8)) {  // 1st hit cluster expanded
@@ -1061,7 +1061,7 @@ StatusCode SCT_RodDecoder::processABCDError(const uint16_t inData,
                                             SCT_RodDecoderErrorsHelper& errs,
                                             bool& hasError) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
 
   if (not data.foundHeader) {
     ATH_MSG_INFO(" Missing link header in ROD " << std::hex << robID << std::dec);
@@ -1127,7 +1127,7 @@ StatusCode SCT_RodDecoder::processRawData(const uint16_t inData,
                                           SCT_RodDecoderErrorsHelper& errs,
                                           bool& hasError) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
 
   if (not data.foundHeader) {
     ATH_MSG_INFO(" Missing link header in ROD " << std::hex << robID << std::dec);
@@ -1152,7 +1152,7 @@ StatusCode SCT_RodDecoder::processTrailer(const uint16_t inData,
                                           SCT_RodDecoderErrorsHelper& errs,
                                           bool& hasError) const
 {
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
   /* Temporarily disabled
   if (not data.foundHeader) {
     ATH_MSG_INFO(" Missing link header in ROD " << std::hex << robID << std::dec);

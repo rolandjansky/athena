@@ -58,7 +58,7 @@ void compare (const Muon::TgcCoinData& p1,
 
 void testit (const Muon::TgcCoinData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TgcCoinDataCnv_p2 cnv;
   TgcCoinDataContainerCnv_tlp2 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);

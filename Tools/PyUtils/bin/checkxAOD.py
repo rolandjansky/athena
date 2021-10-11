@@ -43,17 +43,23 @@ if __name__ == "__main__":
         "MET"      : ["^MET", "^METMAP", "JEMEtSums"],
         "EvtId"    : ["^ByteStreamEventInfo", "^EventInfo", "^McEventInfo", "^LumiBlockN", "^EventWeight", "^RunNumber", "^ConditionsRun", "^EventTime", "^BunchId", "^EventNumber","^IsTestBeam", "^IsSimulation", "^IsCalibration", "^AvgIntPerXing", "^ActualIntPerXing", "^RandomNumber", "^McChannel"], 
         "tau"      : ["^Tau", "^DiTauJets"],
-        "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects", "^CHSChargedParticleFlowObjects", "^CHSNeutralParticleFlowObjects"],
+        "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects", "^CHSChargedParticleFlowObjects", "^CHSNeutralParticleFlowObjects", "^JetETMissLCNeutralParticleFlowObjects"],
         "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
         "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", ".*Stau", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", "^sTGC", "^Micromegas", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks", "^NCB_MuonSegments"],
         "BTag"     : ["^BTag"],
-        "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
+        "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap", "^SoftBVrt"],
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet(?!.*ParticleFlowObjects$)","^LCOriginTopoClusters","^EMOriginTopoClusters"],
-        "CaloTopo" : ["CaloCalTopoCluster"],
+        "CaloTopo" : ["CaloCalTopoCluster", "CaloCalFwdTopoTowers"],
         "Calo"     : ["^LAr", "^AllCalo", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
-        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"],
+        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection", "^HardScatter", "BornLeptons"],
         "AFP"      : ["^AFP"],
-        "LRT"      : ["^LRT", "(.*)LRT$", "(.*)LRTTrackParticles$", "(.*)LargeD0TrackParticles$"]
+        "LRT"      : ["^LRT", "(.*)LRT$", "(.*)LRTTrackParticles$", "(.*)LargeD0TrackParticles$"],
+        "AnalysisElectrons" : ["^AnalysisElectrons" ],
+        "AnalysisTauJets" : ["^AnalysisTauJets" ],
+        "AnalysisPhotons" : ["^AnalysisPhotons" ],
+        "AnalysisMuons" : ["^AnalysisMuons" ],
+        "AnalysisJets" : ["^AnalysisJets" ],
+        "AnalysisHLT" : ["^AnalysisHLT" ],
         }
     
     fileNames = []

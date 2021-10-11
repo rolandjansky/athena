@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArHECNoise_H
-#define LArHECNoise_H
+#ifndef LARCAFJOBS_LARHECNOISE_H
+#define LARCAFJOBS_LARHECNOISE_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -18,8 +18,6 @@
 //LAr services:
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -30,6 +28,7 @@
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
+
 
 //STL:
 #include <string>
@@ -52,9 +51,9 @@ class LArHECNoise : public AthAlgorithm  {
    LArHECNoise(const std::string& name, ISvcLocator* pSvcLocator);
    ~LArHECNoise();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual StatusCode execute() override;
 
  private:
 
@@ -65,13 +64,16 @@ class LArHECNoise : public AthAlgorithm  {
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    SG::ReadCondHandleKey<ILArPedestal> m_pedKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal obj"};
    /*Tools*/
-   ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
 
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
    /*services*/
    const LArOnlineID* m_LArOnlineIDHelper;
-   const CaloDetDescrManager* m_calodetdescrmgr;
+   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+       , "CaloDetDescrManager"
+       , "CaloDetDescrManager"
+       , "SG Key for CaloDetDescrManager in the Condition Store" };
+
    const CaloCell_ID*   m_calocell_id;
 
    /*declaration of branches*/

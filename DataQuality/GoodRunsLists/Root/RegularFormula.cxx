@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "GoodRunsLists/RegularFormula.h"
 #include "GoodRunsLists/TMsgLogger.h"
 
+#include "TRegexp.h"
 #include "TString.h"
 #include "TObjArray.h"
 #include "TObjString.h"
@@ -28,14 +29,10 @@ Root::RegularFormula::RegularFormula(const char* name,const char* expression)
   : TFormula(name,"1") 
 {
   (void) setFormula(expression);
-
-  //m_expr = parseExpression(expression);
-  //this->Compile(m_expr.Data());
 }
 
 Root::RegularFormula::~RegularFormula()
 {
-  //this->TFormula::~TFormula();
 }
 
 
@@ -68,10 +65,37 @@ Root::RegularFormula::parseExpression(const char* expression, TString& expr)
   expr = expression;
   TString parStr(expression);
 
-  const int nsign(13);
-  const char* sign = "+-*/%&|=!<>()";
-  for (int i=0; i<nsign; ++i)
-    parStr = parStr.ReplaceAll(sign[i]," ");
+  TRegexp specialChars("[+-/*%&=!><()|]+");
+  int lastIdx = -1;
+  do {
+    //search for special characters and determine if they're escaped
+    lastIdx = parStr.Index(specialChars, lastIdx+1);
+    if (lastIdx >= 0) {
+      bool needsReplacement = false;
+      if (lastIdx > 0) {
+	//if a match is found and it's not the first character of the string
+	char isEscape = parStr[lastIdx-1];
+	if (isEscape == '\\') {
+	  //this is an escpaed special character, keep it but remove escape
+	  // both on parStr as well as in expr
+	  parStr = parStr.Remove(lastIdx-1, 1);
+	  expr = expr.Remove(lastIdx-1, 1);
+	  needsReplacement = false;
+	  lastIdx--; //we removed one character from the string
+	} else {
+	  needsReplacement = true;
+	}
+      } else {
+	//matched the first character
+	needsReplacement = true;
+      }
+
+      if (needsReplacement) {
+	//not escaped, just replace with a space to allow parameters parsing below
+	parStr = parStr.Replace(lastIdx, 1, " ");
+      }
+    }
+  } while (lastIdx >= 0);
 
   TMsgLogger mylogger( "RegularFormula" );
   mylogger << kINFO << "Now parsing regular expression : " << expression << GEndl;
@@ -80,7 +104,7 @@ Root::RegularFormula::parseExpression(const char* expression, TString& expr)
   TFormula analyzer("analyzer","1");
   TObjArray* parArr = parStr.Tokenize(" ");
   for (int count(0), i(0); i<parArr->GetEntries(); ++i) {
-    TString myPar = ((TObjString*)parArr->At(i))->GetString();   
+    TString myPar = ((TObjString*)parArr->At(i))->GetString();
     if ( 0==analyzer.Compile(myPar.Data()) || 
          0==analyzer.Compile(Form("%s(1)",myPar.Data())) ) {
       continue;

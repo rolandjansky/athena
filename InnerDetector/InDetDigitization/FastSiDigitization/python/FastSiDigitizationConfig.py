@@ -30,6 +30,7 @@ def FastSCT_LastXing():
 
 def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
     #################################
     # Config pixel conditions setup #
@@ -41,12 +42,9 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     #################
     # Module status #
     #################
-    useNewChargeFormat  = False
-
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
         from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         # ITk:
         if geoFlags.isSLHC():
@@ -83,31 +81,31 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and 'doFastPixelDigi' not in digitizationFlags.experimentalDigi():
         # Set empty Folder
-        if not useNewChargeFormat:
-            if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-                condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="")
-        else:
+        if commonGeoFlags.Run()=="RUN3":
             if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
                 from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
                 condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="")
+        else:
+            if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+                condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="")
 
     else:
         #####################
         # Calibration Setup #
         #####################
-        if not useNewChargeFormat:
-            if not conddb.folderRequested("/PIXEL/PixCalib"):
-                conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-            if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-                condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-        else:
+        if commonGeoFlags.Run()=="RUN3":
             if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
                 conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
             if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
                 from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
                 condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+        else:
+            if not conddb.folderRequested("/PIXEL/PixCalib"):
+                conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+            if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+                condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
         #####################
         # Cabling map Setup #

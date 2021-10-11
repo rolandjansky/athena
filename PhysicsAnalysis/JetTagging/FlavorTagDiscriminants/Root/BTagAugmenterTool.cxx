@@ -13,18 +13,19 @@ namespace FlavorTagDiscriminants {
     m_aug(nullptr)
   {
     declareProperty("flipTagConfig", m_flipTagConfig);
+    declareProperty("trackAssociator", m_trackAssociator);
   }
   BTagAugmenterTool::~BTagAugmenterTool() {}
 
   StatusCode BTagAugmenterTool::initialize() {
     m_aug.reset(
-      new BTagJetAugmenter("BTagTrackToJetAssociator",
+      new BTagJetAugmenter(m_trackAssociator,
         flipTagConfigFromString(m_flipTagConfig)));
     return StatusCode::SUCCESS;
   }
 
-  void BTagAugmenterTool::decorate(const xAOD::Jet& jet) const {
-    m_aug->augment(jet);
+  void BTagAugmenterTool::decorate(const xAOD::BTagging& btag) const {
+    m_aug->augment(btag);
   }
 
   std::set<std::string> BTagAugmenterTool::getDecoratorKeys() const {
@@ -32,7 +33,7 @@ namespace FlavorTagDiscriminants {
   }
 
   std::set<std::string> BTagAugmenterTool::getAuxInputKeys() const {
-    return {};                  // TODO: get all of these
+    return m_aug->getAuxInputKeys();
   }
   std::set<std::string> BTagAugmenterTool::getConstituentAuxInputKeys() const {
     return {};

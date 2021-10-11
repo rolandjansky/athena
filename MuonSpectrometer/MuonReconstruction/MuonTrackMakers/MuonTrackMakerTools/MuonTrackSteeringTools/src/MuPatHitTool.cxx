@@ -403,8 +403,9 @@ namespace Muon {
         // if at the end of the list move pos backwards to last entry
         if (pos == list.end()) { --pos; }
 
-        SortMuPatHits isLargerCal;
-        bool isLarger = isLargerCal(hit, *pos);  // check whether the hit is larger that the current list item
+        SortMuPatHits isLargerCal{};
+        bool isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // check whether the hit is larger that the current list item
+        bool isLargerInit = isLarger;            // to know which direction we moved
 
         // check whether the hit is larger that the current list item
         if (isLarger) {
@@ -414,7 +415,7 @@ namespace Muon {
                 // if we reached the end of the list, insert the hit at the end
                 if (pos == list.end()) {
                     // check whether hit duplicate of last hit in list
-                    if (isLargerCal(list.back(), hit) != isLargerCal(hit, list.back()) ||
+		    if (isLargerCal(list.back(), hit, &*m_idHelperSvc) != isLargerCal(hit, list.back(), &*m_idHelperSvc) ||
                         (hit->info().type == MuPatHit::MM && hit->info().id != list.back()->info().id)) {
                         ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperSvc->toString(hit->info().id) << " "
                                                                     << m_printer->print(hit->parameters()));
@@ -428,18 +429,18 @@ namespace Muon {
                     }
                     return --pos;
                 }
-                isLarger = isLargerCal(hit, *pos);  // recalcute distance
+                isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // recalculate distance
             }
         } else {
             // as long as the hit is smaller and we didn't reach the beginning of the list take a step back
             while (pos != list.begin() && !isLarger) {
                 --pos;                              // take a step back
-                isLarger = isLargerCal(hit, *pos);  // recalculate distance
+                isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // recalculate distance
             }
             // if we reached the first list item, check whether current hit is smaller. If so insert before first.
             if (pos == list.begin() && !isLarger) {
                 // check whether hit duplicate of last hit in list
-                if (isLargerCal(list.front(), hit) != isLargerCal(hit, list.front()) ||
+	        if (isLargerCal(list.front(), hit, &*m_idHelperSvc) != isLargerCal(hit, list.front(), &*m_idHelperSvc) ||
                     (hit->info().type == MuPatHit::MM && hit->info().id != list.front()->info().id)) {
                     ATH_MSG_VERBOSE(" inserting hit at front  " << m_idHelperSvc->toString(hit->info().id) << " "
                                                                 << m_printer->print(hit->parameters()));
@@ -459,7 +460,7 @@ namespace Muon {
             ++pos;
             if (pos == list.end()) {
                 // check whether hit duplicate of last hit in list
-                if (isLargerCal(list.back(), hit) != isLargerCal(hit, list.back()) ||
+	        if (isLargerCal(list.back(), hit, &*m_idHelperSvc) != isLargerCal(hit, list.back(), &*m_idHelperSvc) ||
                     (hit->info().type == MuPatHit::MM && hit->info().id != list.back()->info().id)) {
                     ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperSvc->toString(hit->info().id) << " "
                                                                 << m_printer->print(hit->parameters()));
@@ -472,13 +473,44 @@ namespace Muon {
                 }
                 return --pos;
             }
-            isLarger = isLargerCal(hit, *pos);  // recalcute distance
+            isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // recalculate distance
+        }
+        // check for chamber sorting issues
+        if (m_idHelperSvc->chamberIndex(hit->info().id) != m_idHelperSvc->chamberIndex((*pos)->info().id) && pos != list.begin()) {
+            MuonStationIndex::ChIndex posInd = m_idHelperSvc->chamberIndex((*pos)->info().id);
+            --pos;
+            if (posInd == m_idHelperSvc->chamberIndex(
+                              (*pos)->info().id)) {  // can't insert a hit from one chamber in the middle of hits of another chamber
+                while (posInd == m_idHelperSvc->chamberIndex((*pos)->info().id)) {
+                    if (isLargerInit)
+                        --pos;  // we incremented up to get here, so go down to find the rest of the hits from this chamber
+                    else
+                        ++pos;                // we incremented down to get here, so go up to find the rest of the hits from this chamber
+                    if (pos == list.end()) {  // insert hit at end, no need to check for duplicates in this case
+                        ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperSvc->toString(hit->info().id) << " "
+                                                                    << m_printer->print(hit->parameters()));
+                        list.push_back(hit);
+                        pos = list.end();
+                        return --pos;
+                    } else if (pos == list.begin()) {  // insert hit at beginning, no need to check for duplicates in this case
+                        ATH_MSG_VERBOSE(" inserting hit at front  " << m_idHelperSvc->toString(hit->info().id) << " "
+                                                                    << m_printer->print(hit->parameters()));
+                        list.push_front(hit);
+                        return list.begin();
+                    }
+                }
+                // now insert the hit
+                ATH_MSG_VERBOSE(" inserting hit in middle " << m_idHelperSvc->toString(hit->info().id) << " "
+                                                            << m_printer->print(hit->parameters()));
+                return list.insert(pos, hit);
+            } else
+                ++pos;  // false alarm, back to the original position
         }
 
         // remove duplicates
 
         // check whether hit and entry at pos are a duplicate
-        if (isLarger == isLargerCal(*pos, hit) && (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id)) {
+        if (isLarger == isLargerCal(*pos, hit, &*m_idHelperSvc) && (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id)) {
             // hit is a duplicate
             ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperSvc->toString(hit->info().id) << " "
                                                              << m_printer->print(hit->parameters()));
@@ -490,7 +522,7 @@ namespace Muon {
             --pos;  // move to previous hit
 
             // check whether hit and entry at pos are a duplicate
-            if (isLargerCal(hit, *pos) == isLargerCal(*pos, hit) &&
+            if (isLargerCal(hit, *pos, &*m_idHelperSvc) == isLargerCal(*pos, hit, &*m_idHelperSvc) &&
                 (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id)) {
                 ++pos;  // move forward to insert position for pos
                 // hit is a duplicate
@@ -539,8 +571,8 @@ namespace Muon {
 
     std::string MuPatHitTool::print(const MuPatHitList& hitList, bool printPos, bool printDir, bool printMom) const {
         std::ostringstream sout;
-        SortMuPatHits isLargerCal;
-        MuPatHitDistanceAlongParameters distCal;
+        SortMuPatHits isLargerCal{};
+        MuPatHitDistanceAlongParameters distCal{};
 
         // for nicely aligned printout, get max width of Id printout
         std::vector<std::string> idStrings;
@@ -578,10 +610,10 @@ namespace Muon {
             dataOss << "  " << result << " dist " << distance;
             dataStrings.push_back(dataOss.str());
             if (itNext != it_end) {
-                isLarger = isLargerCal(*itNext, *it);
+	        isLarger = isLargerCal(*itNext, *it, &*m_idHelperSvc);
                 distance = distCal(*it, *itNext);
                 result = isLarger ? "larger " : "smaller";
-                if (isLarger == isLargerCal(*it, *itNext)) {
+                if (isLarger == isLargerCal(*it, *itNext, &*m_idHelperSvc)) {
                     result = "duplicate";
                 } else if (!isLarger) {
                     result += "   sorting problem ";
@@ -661,7 +693,7 @@ namespace Muon {
                     Identifier layerId = m_idHelperSvc->layerId((*itR)->identify());
                     layers.insert(layerId);
                     const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(*itR);
-                    const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : 0;
+                    const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : nullptr;
                     if (rpcPRD) rpcTimes.push_back(rpcPRD->time());
                 }
                 nlayers = layers.size();
@@ -679,15 +711,15 @@ namespace Muon {
     }  // printData( Trk::MeasurementBase )
 
     bool MuPatHitTool::isSorted(const MuPatHitList& hitList) const {
-        SortMuPatHits isLargerCal;
+        SortMuPatHits isLargerCal{};
         MuPatHitCit it = hitList.begin();
         MuPatHitCit it_end = hitList.end();
         MuPatHitCit itNext = it;
         if (itNext != it_end) ++itNext;
         bool isLarger = true;
         for (; itNext != it_end; ++it, ++itNext) {
-            isLarger = isLargerCal(*it, *itNext);
-            bool sameSurface = (isLarger == isLargerCal(*it, *itNext));  // same surface
+	    isLarger = isLargerCal(*it, *itNext, &*m_idHelperSvc);
+            bool sameSurface = (isLarger == isLargerCal(*it, *itNext, &*m_idHelperSvc));  // same surface
             if (!isLarger && !sameSurface) return false;
             if (sameSurface) return false;
         }

@@ -31,7 +31,7 @@ namespace Ath {
       }
       m_extraOutputIDs.reserve( undeclared_output_data.size() );
       for(const std::string &type_and_name :  undeclared_output_data) {
-         std::string::size_type pos = type_and_name.find("/");
+         std::string::size_type pos = type_and_name.find('/');
          if (pos == std::string::npos) {
             error << " " << type_and_name;
          }

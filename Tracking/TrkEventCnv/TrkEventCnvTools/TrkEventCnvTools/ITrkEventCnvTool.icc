@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/IdentifierHash.h"
@@ -45,7 +45,7 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(const ROT* rot,
   }
 
   // loop over dhs
-  for ( ; dh!=dhEnd; dh++) {
+  for ( ; dh!=dhEnd; ++dh) {
     const Trk::PrepRawData* prd     = rot->prepRawData();
     unsigned int            oindex  = prd->getHashAndIndex().objIndex(); // prd index within collection
     IdentifierHash          idHash  = prd->getHashAndIndex().collHash(); // idHash of collection

@@ -3,16 +3,15 @@
 # @author Nils Krumnack
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    sysLoader.sigmaRecommended = 1
-    algSeq += sysLoader
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
 
     # Include, and then set up the pileup analysis sequence:
@@ -40,8 +39,7 @@ def makeSequence (dataType) :
                                                   enableCutflow=True, enableKinematicHistograms=True )
     muonSequenceTight.removeStage ("calibration")
     muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
-                                 outputName = 'AnalysisMuons_%SYS%',
-                                 affectingSystematics = muonSequenceMedium.affectingSystematics())
+                                 outputName = 'AnalysisMuons_%SYS%')
 
     # Add the sequence to the job:
     algSeq += muonSequenceTight
@@ -54,14 +52,12 @@ def makeSequence (dataType) :
     ntupleMaker.TreeName = 'muons'
     ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                              'EventInfo.eventNumber   -> eventNumber', ]
-    ntupleMaker.systematicsRegex = '(^$)'
     algSeq += ntupleMaker
     ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
     ntupleMaker.TreeName = 'muons'
     ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                              'AnalysisMuons_NOSYS.phi -> mu_phi',
                              'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
-    ntupleMaker.systematicsRegex = '(^MUON_.*)'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'muons'

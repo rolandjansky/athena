@@ -30,7 +30,7 @@ namespace Trk {
 
 namespace MuonGM {
 
-TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
@@ -66,7 +66,7 @@ const Amg::Transform3D TgcReadoutElement::localToGlobalTransf(Identifier id) con
   return absTransform()*xfp;
 }
 
-const Amg::Vector3D TgcReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D TgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const
 {
   const Amg::Vector3D gasgapP = localGasGapPos(id);
   const Amg::Translation3D xfp(gasgapP.x(),gasgapP.y(), gasgapP.z());
@@ -78,7 +78,7 @@ const Amg::Transform3D TgcReadoutElement::globalToLocalTransf(Identifier id) con
   return localToGlobalTransf(id).inverse();
 }
 
-const Amg::Vector3D TgcReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D TgcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
   return globalToLocalTransf(id)*x;
 }
@@ -262,12 +262,12 @@ int TgcReadoutElement::chamberType() const
 
 bool TgcReadoutElement::endcap() const
 {
-    return ("E" == stationType().substr(2,1));
+    return (0 == stationType().compare(2,1,"E"));
 }
 
 bool TgcReadoutElement::forward() const
 {
-    return ("F" == stationType().substr(2,1));
+    return (0 == stationType().compare(2,1,"F"));
 }
 
 bool TgcReadoutElement::doublet() const
@@ -484,7 +484,7 @@ float TgcReadoutElement::stripDeltaPhi(int gasGap) const
   float dphi;
 
   int iStation = atoi(getStationType().substr(1,1).c_str());
-  if (iStation != 4 || "E" != getStationType().substr(2,1)) { // except for station T4E
+  if (iStation != 4 || 0 != getStationType().compare(2,1,"E")) { // except for station T4E
     dphi = 360.*CLHEP::degree/((float) getNPhiChambers())/nDivInChamberPhi[iStation-1];
   }
   else { // T4E
@@ -766,7 +766,7 @@ int TgcReadoutElement::findGang(int gasGap, Amg::Vector3D localPos) const
 }
 
 int TgcReadoutElement::findStrip(int gasGap,
-                                 Amg::Vector3D localPos, Amg::Vector3D /*globalPos*/) const
+                                 Amg::Vector3D localPos, const Amg::Vector3D& /*globalPos*/) const
 {
     if(! validGap(gasGap) ) throw;
 
@@ -798,7 +798,7 @@ int TgcReadoutElement::gapVolume(int gasGap) const
     throw;
 }
 
-bool TgcReadoutElement::isAgap(std::string volumeMaterial) const
+bool TgcReadoutElement::isAgap(const std::string& volumeMaterial) const
 {
     return ("TGCGas" == volumeMaterial);
 }

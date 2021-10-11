@@ -28,6 +28,9 @@ if svcMgr.MessageSvc.OutputLevel <= DEBUG :
 if "SuperCells" not in dir():
   SuperCells = False
 
+from Digitization.DigitizationFlags import digitizationFlags
+isPileUpDigi = digitizationFlags.doXingByXingPileUp()
+
 # Access to IOVSvc and IOVDbSvc
 # Must list the folders to be used for reading
 #--------------------------------------------------------------
@@ -70,9 +73,10 @@ else:
                       ("LArfSamplMC","/LAR/ElecCalibMC/fSampl","LArfSampl",LArfSamplSymAlg,None),
                       ("LAruA2MeVMC","/LAR/ElecCalibMC/uA2MeV","LAruA2MeV", LAruA2MeVSymAlg,None),
                       ("LArMinBiasMC","/LAR/ElecCalibMC/MinBias","LArMinBias",LArMinBiasSymAlg,None),
-                      ("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg,None)
                     ]
-  
+  if not isPileUpDigi:
+    larCondDBFolders += [("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg,None)]
+
   if larCondFlags.useMCShape():
     larCondDBFolders += [("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg,None)]
 
@@ -87,19 +91,22 @@ if LArDBConnection != "" and 'InputDBConnectionBadChannel' not in dir():
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg,LArBadFebCondAlg
-if LArDBConnection != "":
-  conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
-else:  
-  conddb.addFolder(LArDB,BadChannelsFolder,className="CondAttrListCollection")
-condSeq+=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+if not conddb.folderRequested(BadChannelsFolder):
+  if LArDBConnection != "":
+    conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+  else:  
+    conddb.addFolder(LArDB,BadChannelsFolder,className="CondAttrListCollection")
+if not hasattr(condSeq,"LArBadChannelCondAlg"):
+  condSeq+=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
 if LArDBConnection != "":
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 else:   
    conddb.addFolder(LArDB,MissingFEBsFolder,className='AthenaAttributeList')
 condSeq+=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
 
-condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="",WriteKey="LArKnownBadFEBs")
-condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="",WriteKey="LArKnownMNBFEBs")
+if not isPileUpDigi:
+  condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="",WriteKey="LArKnownBadFEBs")
+  condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="",WriteKey="LArKnownMNBFEBs")
 
 
 ## these may be conditional. 

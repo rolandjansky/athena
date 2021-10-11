@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZAPPEDVOLUMELISTMODEL_H
@@ -49,7 +49,7 @@ inline int ZappedVolumeListModel::rowCount ( const QModelIndex & parent ) const
 
 inline Qt::ItemFlags ZappedVolumeListModel::flags ( const QModelIndex & index ) const
 {
-  return index.isValid() ? (Qt::ItemIsEnabled|Qt::ItemIsSelectable) : static_cast<Qt::ItemFlags>(0);
+  return index.isValid() ? (Qt::ItemIsEnabled|Qt::ItemIsSelectable) : Qt::ItemFlags();
 }
 
 

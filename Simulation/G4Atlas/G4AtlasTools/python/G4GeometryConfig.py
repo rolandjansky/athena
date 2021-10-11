@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm, cm, m
@@ -91,18 +91,11 @@ def getIDETEnvelope(name="IDET", **kwargs):
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
 
 def getCALOEnvelope(name="CALO", **kwargs):
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6735.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6747.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.LAr_on():
@@ -132,18 +125,11 @@ def getForwardRegionEnvelope(name='ForwardRegion', **kwargs):
     return CfgMgr.GeoDetectorTool(name, **kwargs) ##FIXME Should this really be a GeoDetectorTool???
 
 def getMUONEnvelope(name="MUONQ02", **kwargs): #FIXME rename to MUON when safe
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6736.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6748.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6748.,-6748.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6748.,6748.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Muon_on():
@@ -267,7 +253,7 @@ def getCavernWorld(name="Cavern", **kwargs):
             bedrockDX = 1000.*3000 # 3 km
             bedrockDZ = 1000.*3000 # 3 km
         else:
-            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
+            from CosmicGenerator.CosmicGeneratorConfigLegacy import CavernPropertyCalculator
             theCavernProperties = CavernPropertyCalculator()
             if theCavernProperties.BedrockDX() > bedrockDX:
                 bedrockDX = theCavernProperties.BedrockDX()
@@ -288,11 +274,194 @@ def getCavernWorld(name="Cavern", **kwargs):
     kwargs.setdefault("SubDetectors", ['CavernInfra', 'Atlas'])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
-def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):
-    return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
-
 def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, 'Eta') or hasattr(simFlags, 'LArTB_H1TableYPos'): #FIXME Ugly hack
         kwargs.setdefault("TestBeam", True)
     return CfgMgr.MaterialDescriptionTool(name, **kwargs)
+
+def getVoxelDensityTool(name="VoxelDensityTool", **kwargs):
+    return CfgMgr.VoxelDensityTool(name, **kwargs)
+
+def getATLAS_RegionCreatorList():
+    regionCreatorList = []
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+    isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.DetFlags import DetFlags
+    if simFlags.SimulateCavern.get_Value():
+        regionCreatorList += ['SX1PhysicsRegionTool', 'BedrockPhysicsRegionTool', 'CavernShaftsConcretePhysicsRegionTool']
+        #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
+    if DetFlags.ID_on():
+        if DetFlags.pixel_on():
+            regionCreatorList += ['PixelPhysicsRegionTool']
+        if DetFlags.SCT_on():
+            regionCreatorList += ['SCTPhysicsRegionTool']
+        if DetFlags.TRT_on() and not isUpgrade:
+            regionCreatorList += ['TRTPhysicsRegionTool']
+            if isRUN2:
+                regionCreatorList += ['TRT_ArPhysicsRegionTool'] #'TRT_KrPhysicsRegionTool'
+        # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
+        if DetFlags.bpipe_on():
+            if simFlags.BeamPipeSimMode.statusOn and simFlags.BeamPipeSimMode() != "Normal":
+                regionCreatorList += ['BeampipeFwdCutPhysicsRegionTool']
+            if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
+                regionCreatorList += ['FWDBeamLinePhysicsRegionTool']
+    if DetFlags.Calo_on():
+        if DetFlags.geometry.LAr_on():
+            ## Shower parameterization overrides the calibration hit flag
+            if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
+                    and simFlags.CalibrationRun.statusOn and simFlags.CalibrationRun.get_Value() in ['LAr','LAr+Tile','DeadLAr']:
+                print ('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+                print ('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+                print ('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(simFlags.CalibrationRun.get_Value())+')')
+                raise RuntimeError('Configuration not allowed')
+            if simFlags.LArParameterization() > 0:
+                regionCreatorList += ['EMBPhysicsRegionTool', 'EMECPhysicsRegionTool',
+                                      'HECPhysicsRegionTool', 'FCALPhysicsRegionTool']
+                # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
+                regionCreatorList += ['EMECParaPhysicsRegionTool',
+                                      'FCALParaPhysicsRegionTool', 'FCAL2ParaPhysicsRegionTool']
+                if simFlags.LArParameterization.get_Value() > 1:
+                    regionCreatorList += ['PreSampLArPhysicsRegionTool', 'DeadMaterialPhysicsRegionTool']
+            elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
+                regionCreatorList += ['EMBPhysicsRegionTool', 'EMECPhysicsRegionTool',
+                                      'HECPhysicsRegionTool', 'FCALPhysicsRegionTool']
+    ## FIXME _initPR never called for FwdRegion??
+    #if simFlags.ForwardDetectors.statusOn:
+    #    if DetFlags.geometry.FwdRegion_on():
+    #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
+    if DetFlags.Muon_on():
+        regionCreatorList += ['DriftWallPhysicsRegionTool', 'DriftWall1PhysicsRegionTool', 'DriftWall2PhysicsRegionTool']
+        if simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            regionCreatorList += ['MuonSystemFastPhysicsRegionTool']
+    return regionCreatorList
+
+def getCTB_RegionCreatorList():
+    regionCreatorList = []
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.DetFlags import DetFlags
+    ## FIXME _initPR never called for SCT??
+    #if DetFlags.ID_on():
+    #    if DetFlags.geometry.SCT_on():
+    #        regionCreatorList += ['SCTSiliconPhysicsRegionTool']
+    if DetFlags.Calo_on():
+        eta=simFlags.Eta.get_Value()
+        if eta>=0 and eta<1.201:
+            if DetFlags.em_on():
+                regionCreatorList += ['EMBPhysicsRegionTool']
+    if DetFlags.Muon_on():
+        regionCreatorList += ['DriftWallPhysicsRegionTool', 'DriftWall1PhysicsRegionTool', 'DriftWall2PhysicsRegionTool']
+    return regionCreatorList
+
+def getTB_RegionCreatorList():
+    regionCreatorList = []
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.DetFlags import DetFlags
+    if (simFlags.SimLayout.get_Value()=="tb_LArH6_2003"):
+        if (DetFlags.FCal_on()):
+            regionCreatorList += ['FCALPhysicsRegionTool']
+    elif (simFlags.SimLayout.get_Value()=="tb_LArH6_2002"):
+        if (DetFlags.HEC_on()):
+            regionCreatorList += ['HECPhysicsRegionTool']
+    elif (simFlags.SimLayout.get_Value()=="tb_LArH6EC_2002"):
+        if (DetFlags.em_on()):
+            regionCreatorList += ['EMECPhysicsRegionTool']
+    elif (simFlags.SimLayout.get_Value()=="tb_LArH6_2004"):
+        if (simFlags.LArTB_H6Hec.get_Value()):
+            regionCreatorList += ['HECPhysicsRegionTool']
+        if (simFlags.LArTB_H6Emec.get_Value()):
+            regionCreatorList += ['EMECPhysicsRegionTool']
+        if (simFlags.LArTB_H6Fcal.get_Value()):
+            regionCreatorList += ['FCALPhysicsRegionTool']
+    return regionCreatorList
+
+def getATLAS_FieldMgrList():
+    fieldMgrList = []
+    from G4AtlasApps.SimFlags import simFlags
+    if not simFlags.TightMuonStepping.statusOn or\
+       not simFlags.TightMuonStepping():
+        fieldMgrList += ['ATLASFieldManager']
+    else:
+        fieldMgrList += ['TightMuonsATLASFieldManager']
+
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.bpipe_on():
+        fieldMgrList += ['BeamPipeFieldManager']
+    if DetFlags.ID_on():
+        fieldMgrList += ['InDetFieldManager']
+    if DetFlags.Calo_on() and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
+        fieldMgrList += ['MuonsOnlyInCaloFieldManager']
+    if DetFlags.Muon_on():
+        fieldMgrList += ['MuonFieldManager']
+    if simFlags.ForwardDetectors.statusOn:
+        if DetFlags.geometry.FwdRegion_on():
+            fieldMgrList += ['Q1FwdFieldManager',
+                             'Q2FwdFieldManager',
+                             'Q3FwdFieldManager',
+                             'D1FwdFieldManager',
+                             'D2FwdFieldManager',
+                             'Q4FwdFieldManager',
+                             'Q5FwdFieldManager',
+                             'Q6FwdFieldManager',
+                             'Q7FwdFieldManager',
+                             'Q1HKickFwdFieldManager',
+                             'Q1VKickFwdFieldManager',
+                             'Q2HKickFwdFieldManager',
+                             'Q2VKickFwdFieldManager',
+                             'Q3HKickFwdFieldManager',
+                             'Q3VKickFwdFieldManager',
+                             'Q4VKickAFwdFieldManager',
+                             'Q4HKickFwdFieldManager',
+                             'Q4VKickBFwdFieldManager',
+                             'Q5HKickFwdFieldManager',
+                             'Q6VKickFwdFieldManager',
+                             'FwdRegionFieldManager']
+    return fieldMgrList
+
+def getCTB_FieldMgrList():
+    fieldMgrList = []
+    return fieldMgrList
+
+def getTB_FieldMgrList():
+    fieldMgrList = []
+    return fieldMgrList
+
+def getGeometryConfigurationTools():
+    geoConfigToolList = []
+    # CfgGetter methods for these tools should be defined in the
+    # package containing each tool, so G4AtlasTools in this case
+    geoConfigToolList += ["MaterialDescriptionTool"]
+    geoConfigToolList += ["VoxelDensityTool"]
+    return geoConfigToolList
+
+def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):
+    ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
+    kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools())
+
+    # Getting this tool by name works, but not if you use getSensitiveDetectorMasterTool()
+    kwargs.setdefault('SenDetMasterTool', "SensitiveDetectorMasterTool" )
+
+    from G4AtlasApps.SimFlags import simFlags
+    if hasattr(simFlags,"Eta"): #FIXME ugly hack
+        kwargs.setdefault("World", 'TileTB_World')
+        kwargs.setdefault("RegionCreators", getTB_RegionCreatorList())
+        kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
+    elif hasattr(simFlags,"LArTB_H1TableYPos"): #FIXME ugly hack
+        kwargs.setdefault("World", 'LArTB_World')
+        kwargs.setdefault("RegionCreators", getTB_RegionCreatorList())
+        kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
+    else:
+        if simFlags.SimulateCavern.get_Value():
+            kwargs.setdefault("World", 'Cavern')
+        else:
+            kwargs.setdefault("World", 'Atlas')
+        kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList())
+        if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
+            kwargs.setdefault("FieldManagers", getATLAS_FieldMgrList())
+
+    return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
+

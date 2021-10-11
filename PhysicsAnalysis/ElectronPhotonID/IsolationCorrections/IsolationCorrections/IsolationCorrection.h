@@ -80,14 +80,14 @@ class IsolationCorrection : public asg::AsgMessaging{
     CP::ShowerDepthTool* m_shower;
 
     std::string m_previousYear;
-    bool m_corrInitialized[3][2];
-    int m_crackBin;
+    bool m_corrInitialized[3][2]{};
+    int m_crackBin{};
     // follow the period (2015, rel20 / 2015_2016, 2017, rel21) dedicated vectors (in case different mc periods in a same job. But probably never happens, right ??)
-    std::vector<float>* m_feta_bins_dd; //!
-    std::vector<TGraph*>* m_graph_dd_cone40_unconv_photon_shift; //!
-    std::vector<TGraph*>* m_graph_dd_cone40_conv_photon_shift;   //!
-    std::vector<TGraph*>* m_graph_dd_cone20_unconv_photon_shift; //!
-    std::vector<TGraph*>* m_graph_dd_cone20_conv_photon_shift;   //!
+    std::vector<float>* m_feta_bins_dd{}; //!
+    std::vector<TGraph*>* m_graph_dd_cone40_unconv_photon_shift{}; //!
+    std::vector<TGraph*>* m_graph_dd_cone40_conv_photon_shift{};   //!
+    std::vector<TGraph*>* m_graph_dd_cone20_unconv_photon_shift{}; //!
+    std::vector<TGraph*>* m_graph_dd_cone20_conv_photon_shift{};   //!
 
     template <class T> void FreeClear( T & cntr );
 
@@ -150,8 +150,8 @@ class IsolationCorrection : public asg::AsgMessaging{
     void setDDCorr(); // dedicated to run I, because there is an additional smearing in run I
     void loadDDCorr();
 
-    float getPtAtFirstMeasurement( const xAOD::TrackParticle* tp) const;
-    int GetConversionType(int conversion_flag, float conv_radius, float conv_ratio) const;
+    static float getPtAtFirstMeasurement( const xAOD::TrackParticle* tp) ;
+    static int GetConversionType(int conversion_flag, float conv_radius, float conv_ratio) ;
 
     // ----------------------------------------------------------------
     // ------------ OLD internal methods ------------------------------
@@ -166,13 +166,13 @@ class IsolationCorrection : public asg::AsgMessaging{
                                float radius, bool is_mc=true,
                                bool isConversion=false, ParticleType parttype = ELECTRON, Version ver = REL17_2,
 			                         int convFlag_int=0, int author=0, float conv_radius=0., float conv_ratio=0.) const;
-    int GetRadius(float radius) const;
+    static int GetRadius(float radius) ;
     int GetEtaBinFine(float eta) const;
     int GetEtaBinCoarse(float eta) const;
 
     float GetPtCorrectionFactor(float eta, std::vector<float> mc_leakage_corrections_ptr =std::vector<float>(),
 				                        std::vector<float> data_leakage_corrections_ptr= std::vector<float>()) const;
-    float GetPtCorrectionValue(float energy, float etaPointing, float etaCluster, float scale_factor) const;
+    static float GetPtCorrectionValue(float energy, float etaPointing, float etaCluster, float scale_factor) ;
     float GetPtCorrection_FromGraph(float energy,float etaS2,float etaPointing,float etaCluster,float radius,bool isConversion,ParticleType parttype) const;
     float GetPtCorrection_FromGraph_2015(float energy, float etaS2, float radius, int conversion_flag, int author, float conv_radius, float conv_ratio, ParticleType parttype) const;
 

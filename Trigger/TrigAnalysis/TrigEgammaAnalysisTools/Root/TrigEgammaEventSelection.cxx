@@ -321,13 +321,13 @@ bool TrigEgammaEventSelection::fill( TTree *t, const xAOD::Electron *el){
   linkMonteCarloBranches(t); 
 
   const HLT::TriggerElement* feat=nullptr;
-
+  /*
   if(getEmulation())
     emulation()->match( el,  feat );
   else{
     ATH_MSG_ERROR("Emulation tool was not configurated. Impossible to match! Please, see your python config.");
     return false;
-  }
+  }*/
 
   if(feat){
     clear();
@@ -399,7 +399,7 @@ bool TrigEgammaEventSelection::fill( TTree *t, const xAOD::Electron *el){
 }
 
 
-bool TrigEgammaEventSelection::fillTDT(const xAOD::Electron *el , const HLT::TriggerElement *te){
+bool TrigEgammaEventSelection::fillTDT(const xAOD::Electron *el , const HLT::TriggerElement */*te*/){
 
   ATH_MSG_DEBUG("FillTDT...");
   for(auto& trigItem : m_trigList){
@@ -434,32 +434,7 @@ bool TrigEgammaEventSelection::fillTDT(const xAOD::Electron *el , const HLT::Tri
       m_trig_tdt_EF_el_accept->push_back( -1 );
     }
 
-    if(te && getEmulation()){
-      asg::AcceptData acceptData  = emulation()->executeTool(te, trigItem);
-      bool passedL1Calo  = acceptData.getCutResult("L1Calo");
-      bool passedL2Calo  = acceptData.getCutResult("L2Calo");
-      bool passedL2      = acceptData.getCutResult("L2");
-      bool passedEFCalo  = acceptData.getCutResult("EFCalo");
-      bool passedHLT     = acceptData.getCutResult("HLT");
-      m_trig_tdt_emu_L1_calo_accept->push_back( int(passedL1Calo) );
-      m_trig_tdt_emu_L2_calo_accept->push_back( int(passedL2Calo) );
-      m_trig_tdt_emu_L2_el_accept->push_back(   int(passedL2) );
-      m_trig_tdt_emu_EF_calo_accept->push_back( int(passedEFCalo) );
-      m_trig_tdt_emu_EF_el_accept->push_back(   int(passedHLT) );
-      //m_trig_tdt_emu_decision_mask
-      count("emu_"+trigItem+"_total");
-      if(passedL1Calo)  count("emu_"+trigItem+"_L1Calo");
-      if(passedL2Calo)  count("emu_"+trigItem+"_L2Calo");
-      if(passedL2)      count("emu_"+trigItem+"_L2"    );
-      if(passedEFCalo)  count("emu_"+trigItem+"_EFCalo");
-      if(passedHLT)     count("emu_"+trigItem+"_HLT"   );
-    }else{
-      m_trig_tdt_emu_L1_calo_accept->push_back( -1 );
-      m_trig_tdt_emu_L2_calo_accept->push_back( -1 );
-      m_trig_tdt_emu_L2_el_accept->push_back( -1 );
-      m_trig_tdt_emu_EF_calo_accept->push_back( -1 );
-      m_trig_tdt_emu_EF_el_accept->push_back( -1 );
-    }
+ 
 
 
   }// Loop over triggers

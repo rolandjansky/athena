@@ -49,7 +49,6 @@ InDetPlotBase::book(TH1*& pHisto, const SingleHistogramDefinition& hd) {
   }
   return;
 }
-
 void
 InDetPlotBase::book(TProfile*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
@@ -58,40 +57,14 @@ InDetPlotBase::book(TProfile*& pHisto, const SingleHistogramDefinition& hd) {
   }
   return;
 }
-
 void
-InDetPlotBase::book(TH1*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
-
-  if (hd.empty()) {
-    ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
+InDetPlotBase::book(TProfile2D*& pHisto, const SingleHistogramDefinition& hd) {
+  if (hd.isValid()) {
+    pHisto = BookTProfile2D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.nBinsY, hd.yAxis.first,
+                          hd.yAxis.second, false);
   }
-  book(pHisto, hd);
   return;
 }
-
-void
-InDetPlotBase::book(TProfile*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
-
-  if (hd.empty()) {
-    ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
-  }
-  book(pHisto, hd);
-  return;
-}
-
-void
-InDetPlotBase::book(TH2*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
-
-  if (hd.empty()) {
-    ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
-  }
-  book(pHisto, hd);
-  return;
-}
-
 void
 InDetPlotBase::book(TH2*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
@@ -100,7 +73,6 @@ InDetPlotBase::book(TH2*& pHisto, const SingleHistogramDefinition& hd) {
   }
   return;
 }
-
 /**/
 void
 InDetPlotBase::book(TEfficiency*& pHisto, const SingleHistogramDefinition& hd) {
@@ -111,20 +83,16 @@ InDetPlotBase::book(TEfficiency*& pHisto, const SingleHistogramDefinition& hd) {
 }
 
 void
-InDetPlotBase::book(TEfficiency*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
-
-  if (hd.empty()) {
-    ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
-  }
-  book(pHisto, hd);
-  return;
-}
-
-void
 InDetPlotBase::fillHisto(TProfile* pTprofile, const float bin, const float weight, const float weight2) {
   if (pTprofile and validArguments(bin, weight)) {
     pTprofile->Fill(bin, weight,weight2);
+  }
+}
+
+void
+InDetPlotBase::fillHisto(TProfile2D* pTprofile, const float xval, const float yval, const float weight, const float weight2) {
+  if (pTprofile and validArguments(xval,yval, weight) and validArguments(weight2)) {
+    pTprofile->Fill(xval,yval, weight,weight2);
   }
 }
 

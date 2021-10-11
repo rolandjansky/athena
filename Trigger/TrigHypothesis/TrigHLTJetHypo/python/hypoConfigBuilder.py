@@ -12,7 +12,7 @@ from TrigHLTJetHypo.scenario_simple import scenario_simple
 
 from TrigHLTJetHypo.prefilter_mask import prefilter_mask
 from TrigHLTJetHypo.prefilter_ptrange import prefilter_ptrange
-from TrigHLTJetHypo.prefilter_cleanLB import prefilter_cleanLB
+from TrigHLTJetHypo.prefilter_clean import prefilter_clean
 
 from TrigHLTJetHypo.makeConditionFilterConfigurer import (
     makeConditionFilterConfigurer,
@@ -39,10 +39,16 @@ logger.setLevel(DEBUG)
 
 # Dictionary to interpret / map scenario aliases into actual scenario strings that can be understood by scenario_XX.py
 aliasesDict = {
-  'HT'           : {},
-  'DIJET'        : {'DIJETaliasExample' : 'DIJET20j12etXX110djmass',},
-  'FBDJSHARED'   : {},
-  'FBDJNOSHARED' : {},
+  'DJMASS500j35'                 : 'DIJET35j12ptXX500djmass',
+  'DJMASS700j35'                 : 'DIJET35j12ptXX700djmass',
+  'DJMASS1000j35'                : 'DIJET35j12ptXX1000djmass',
+  'DJMASS700j40'                 : 'DIJET40j12ptXX700djmass',
+  'DJMASS700j50x0eta240'         : 'DIJET50j12ptXX0j12eta240XX700djmass',
+  'DJMASS700j80x0eta240'         : 'DIJET80j12ptXX0j12eta240XX700djmass',
+  'DJMASS900j50'                 : 'DIJET50j12ptXX900djmass',
+  'DJMASS1000j50'                : 'DIJET50j12ptXX1000djmass',
+  'DJMASS1000j50dphi240'         : 'DIJET50j12ptXX1000djmassXXdjdphi240',
+  'DJMASS1000j50dphi200x400deta' : 'DIJET50j12ptXX1000djmassXXdjdphi200XX400djdeta',
 }
 
 def make_root_repcondconfig():
@@ -179,6 +185,9 @@ def process_nonsimple(scenario, chainPartInd):
     Note:  a non-simple scenario will  produce more than HelperToolConfigTool
     if jet sharing among Conditions is required."""
     
+    # interpret scenario aliases
+    if scenario in aliasesDict.keys(): scenario = aliasesDict[scenario]
+
     router = {
         'HT': process_ht,
         'DIJET': process_dijet,
@@ -194,16 +203,13 @@ def process_nonsimple(scenario, chainPartInd):
     groupdict = m.groupdict()
     assert groupdict['stub'] in router,'scenario stub ({}) not recognized'.format(groupdict['stub'])
 
-    # interpret scenario aliases
-    if scenario in aliasesDict[groupdict['stub']].keys(): scenario = aliasesDict[groupdict['stub']][scenario]
-
     return router[groupdict['stub']](scenario, chainPartInd)  # list of HelperToolConfigTool
 
 
 def make_fastreduction_configurers(chain_dict):
     """Create HelperToolConfigTool  instances. Each instance
     configures a FastReduction tree. Chain parts with the 'simple' scenario
-    use used to form a single HelperToolConfigTool. The information 
+    are used to form a single HelperToolConfigTool. The information 
     may be spread over a number of chain parts. 
 
     There is at most one chain part with a non-simple scenario. 
@@ -220,31 +226,54 @@ def make_fastreduction_configurers(chain_dict):
     simple_chainparts = [
         cp for cp in chain_parts if cp['hypoScenario'] == 'simple']
 
+    simple_cpis = [cp['chainPartIndex'] for cp in simple_chainparts]
+
+    # check that all the simple scenario parts occur before 
+    # non-simple scenario chain parts
+
+    if simple_cpis:
+        assert simple_cpis == sorted(simple_cpis), "disordered chain parts" 
+        assert simple_cpis[-1] - simple_cpis[0] == len(simple_cpis) - 1, "nonsequential chainParts"
     helperToolConfigTools = []
 
+    # check for SHARED markers (chainPart['tboundary'] = 'SHARED')
+    # in the list of simple chain parts.
+    # Get a tree configuration each time SHARED == 1 is encountered.
     if simple_chainparts:
-        helperToolConfigTools.extend(process_simple(simple_chainparts))
+
+        assert simple_chainparts[-1]['tboundary'] == ''
+
+        tree_cps = []
+        for cp in simple_chainparts:
+            tree_cps.append(cp)
+            if cp['tboundary'] == 'SHARED':
+                helperToolConfigTools.extend(process_simple(tree_cps))
+                tree_cps = []
+
+        # tree_cps  cannot be empty here
+        assert tree_cps
+        helperToolConfigTools.extend(process_simple(tree_cps))
 
     scenario_chainparts =[
         cp for cp in chain_parts if cp['hypoScenario'] != 'simple']
 
     if scenario_chainparts:
-        assert len(scenario_chainparts) == 1
-        scenario_chainpart = scenario_chainparts[0]
-
-        # We only allow threshold != 0 for the simple scenario.
-        assert scenario_chainpart['threshold'] == '0'
+        for scenario_chainpart in scenario_chainparts:
+            # scenario_chainpart = scenario_chainparts[0]
+            
+            # We only allow threshold != 0 for the simple scenario.
+            assert scenario_chainpart['threshold'] == '0'
         
-        scenario = scenario_chainparts[0]['hypoScenario']
-        # find the chain part index for a non-simple scenario.
-        # assume simple is processed before non-simple, and that
-        # there is at most one non-simple chainpart.
-        # chainPartInd is needed to report passing jets to the
-        # trigger framework.
-        chainPartInd = scenario_chainpart['chainPartIndex']
-
-        helperToolConfigTools.extend(process_nonsimple(scenario,
-                                                       chainPartInd))
+            scenario = scenario_chainpart['hypoScenario']
+            # find the chain part index for a non-simple scenario.
+            # assume simple is processed before non-simple, and that
+            # there is at most one non-simple chainpart.
+            # chainPartInd is needed to report passing jets to the
+            # trigger framework.
+            chainPartInd = scenario_chainpart['chainPartIndex']
+            
+            helperToolConfigTools.extend(process_nonsimple(scenario,
+                                                           chainPartInd))
         
     return helperToolConfigTools
 
@@ -258,18 +287,7 @@ def make_prefilter_configurers(chain_dict):
 
     [pf_strings.extend(cp['prefilters']) for cp in chain_parts]
     
-    # TEMPORARY - 'CLEANLB' as a prefilter string also affects reconstruction,
-    # and already appears in chain names for this purpose.
-    # Until the CLEANLB hypo prefilter code is implemented, remove the string
-    # from the prefilter strings.
-    try:
-        pf_strings.remove('CLEANLB')
-    except ValueError:
-        pass
-    
-
- 
-    # if not prefilter strings (pf_strings) are found in the chainDict,
+    # if not pre filter strings (pf_strings) are found in the chainDict,
     # a PassThroughFilter configurer is made.
 
     if not pf_strings:
@@ -279,7 +297,7 @@ def make_prefilter_configurers(chain_dict):
     prefilter_router = {
         'MASK': prefilter_mask,
         'PTRANGE': prefilter_ptrange,
-        'CLEANLB': prefilter_cleanLB,
+        'CLEAN': prefilter_clean,
     }
 
     pattern = r'(?P<stub>[A-Z]*)'
@@ -326,6 +344,7 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
     toolclass, name =  toolfactory('hypo_tool')
     
     startLabelIndex, endLabelIndex = getLabelIndices(chain_dict)
+    
     args = {'name': chain_dict['chainName'],
             # for reporting passing jets:
             'visit_debug': visit_debug,

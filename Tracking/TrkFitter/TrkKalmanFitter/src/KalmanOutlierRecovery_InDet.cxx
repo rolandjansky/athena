@@ -138,7 +138,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
   int numberOfRejections = 0;
   bool failureRecoveryNeedsRefit = false;
   int c_allPix=0,c_allSct=0,c_allTrt=0; int c_outPix=0,c_outSct=0,c_outTrt=0;
-  for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
+  for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it) {
     using namespace Trk::TrackState;
     if (it->measurementType()==Pixel) {if (it->isNewOutlier()) ++c_outPix; ++c_allPix;}
     if (it->measurementType()==SCT)   {if (it->isNewOutlier()) ++c_outSct; ++c_allSct;}
@@ -150,7 +150,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
 
   // recovery of bad cases in the Silicon
   if (numberOfRejections > 0 ||
-      (m_utility->numberOfNewOutliers(T) > std::min(.4*T.size(),7.) )) {
+      (Trk::ProtoTrajectoryUtility::numberOfNewOutliers(T) > std::min(.4*T.size(),7.) )) {
     using namespace Trk::TrackState;
     Trk::Trajectory::iterator state1 = T.begin();
     while (!state1->forwardTrackParameters() && state1!=T.end()) ++state1;
@@ -168,11 +168,11 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         && c_allPix > 0 && 2*c_outPix <= c_allPix
         && 2*c_outSct < c_allSct  ) {
 
-      for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
+      for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it) {
         if (it->isNewOutlier() && it->measurementType()==Pixel
             && it->trackStateType() != PredictedOutlier ) {
 
-          Trk::Trajectory::iterator restartState = m_utility->nextFittableState(T,it);
+          Trk::Trajectory::iterator restartState = Trk::ProtoTrajectoryUtility::nextFittableState(T,it);
           const Trk::TrackParameters* smoothedParAtOutlier =
 	    (restartState != T.end() ?
 	     m_extrapolator->extrapolate(*restartState->smoothedTrackParameters(),
@@ -217,22 +217,22 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         && (fabs(filterInputPar->parameters()[Trk::qOverP])<0.00125) // dont try on lowPT
         && (c_allPix - c_outPix > 1 )
         && (c_allSct + c_allPix > 7 )
-        && (fitIteration < 2 || m_utility->numberOfOutliers(T,7)>1)
+        && (fitIteration < 2 || Trk::ProtoTrajectoryUtility::numberOfOutliers(T,7)>1)
         && c_allSct > 3
         && 2*c_outSct >= c_allSct ) {
       ATH_MSG_DEBUG ("-O- Triggered SCT filter-loss recovery ");
       if (fitIteration >= 2) {
         // further ideas: check of predictive vs. pattern momentum at states 2-3-4
         ATH_MSG_DEBUG ("-O- Giving up... hope for predictive seed recovery ");
-        for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+        for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
           it->isOutlier(GeneralOutlier,fitIteration);
         firstNew = 1;
         return true;
       }
 
-      const int badRankedNumberOfMeas = m_utility->rankedNumberOfMeasurements(T);
+      const int badRankedNumberOfMeas = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(T);
       Trk::Trajectory::iterator lastSctState = T.end();
-      for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+      for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
         if (it->measurementType() == SCT) lastSctState = it;
 
       const Trk::TrackParameters* sctExitTemp =
@@ -242,7 +242,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                                     false, Trk::nonInteracting);
       if (sctExitTemp == nullptr) {
         ATH_MSG_DEBUG ("-O- can not reproduce trajectory in SCT recovery!");
-        for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+        for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
           it->isOutlier(GeneralOutlier,fitIteration);
         firstNew = 1;
         return true;
@@ -296,7 +296,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           delete sctFitResult;
           if (!predPar) {
 	    ATH_MSG_DEBUG ("-O- internal mini-filter failed in SCT recovery!");
-	    // for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+	    // for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
 	    //  it->isOutlier(GeneralOutlier,fitIteration);
 	    //	    firstNew = 1;
 	    // return true;
@@ -331,7 +331,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                                               rit->measurement()->localCovariance());
         if (testQuality == nullptr) {
           ATH_MSG_DEBUG ("-O- can not reproduce trajectory at the end of SCT recovery!");
-          for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+          for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
             it->isOutlier(GeneralOutlier,fitIteration);
           firstNew = 1;
           return true;
@@ -411,16 +411,16 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         failureRecoveryNeedsRefit=true;
         firstNew = 1;
 
-        int improvedRank = m_utility->rankedNumberOfMeasurements(T);
-        improvedRank += m_utility->numberOfSpecificStates(T,SCT,GeneralOutlier);
+        int improvedRank = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(T);
+        improvedRank += Trk::ProtoTrajectoryUtility::numberOfSpecificStates(T,SCT,GeneralOutlier);
         if (improvedRank <= badRankedNumberOfMeas) { // no good in removing lots of pixel!
           ATH_MSG_DEBUG ("SCT recovery has produced bogus solution!");
-          for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+          for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
             if ( (it->measurementType()==Pixel) && (it->trackStateType() != PredictedOutlier) )
               it->isOutlier(false);
         } else {
           ATH_MSG_DEBUG ("SCT recovery achieved through cleaning pixel part");
-          for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+          for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
             if ( (it->measurementType() == SCT) && (it->isNewOutlier()) )
               it->isOutlier(false);
         }
@@ -434,7 +434,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
   if (c_allTrt-c_outTrt > 0 && m_recalibrator!=nullptr ) {
 
     if (numberOfRejections > 0 ) {
-      for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
+      for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it) {
 
         if (msgLvl(MSG::VERBOSE)) {
           const Trk::RIO_OnTrack* rot=nullptr;
@@ -503,14 +503,14 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
        sees only 7 more tracks extended at cost of assignment efficiency
     */
     if (c_allPix+c_allSct>4) {
-      Trk::FitQuality trtFQ = m_utility->forwardFilterQuality(T,Trk::TrackState::TRT);
+      Trk::FitQuality trtFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(T,Trk::TrackState::TRT);
       double trtProb = 1.0;
       if (trtFQ.numberDoF() >= 0)
 	trtProb = 1.0 - Genfun::CumulativeChiSquare(trtFQ.numberDoF()+2)(trtFQ.chiSquared());
 
       if (trtProb < 10.0e-3 && (2*c_outTrt < c_allTrt) ) {
 	ATH_MSG_VERBOSE ("risk of losing TRT extension, reduce TRT's chi2 contrib.");
-	for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
+	for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it) {
 	  const Trk::RIO_OnTrack* trt=dynamic_cast<const Trk::RIO_OnTrack*>(it->measurement());
 	  if (it->measurementType() == Trk::TrackState::TRT
 	      && !it->isOutlier() && it->smoothedTrackParameters()!=nullptr

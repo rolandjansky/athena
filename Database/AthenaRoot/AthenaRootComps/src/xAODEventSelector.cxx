@@ -194,6 +194,20 @@ StatusCode xAODEventSelector::initialize()
    m_tevent = new xAOD::xAODTEvent(); //our special class inheriting from xAOD::TEvent
   }
 
+  //use the first file to decide if reading metadata with POOL is ok
+  if(m_readMetadataWithPool) {
+    std::unique_ptr<TFile> f( TFile::Open( m_inputCollectionsName.value()[0].c_str() ) );
+    if(!f) {
+      ATH_MSG_ERROR("Failed to open first input file: " << m_inputCollectionsName.value()[0]);
+      return StatusCode::FAILURE;
+    }
+    if(!f->Get("##Shapes")) {
+      ATH_MSG_INFO("First file is not POOL file (e.g. is CxAOD), so reading metadata with xAOD::TEvent instead");
+      m_readMetadataWithPool = false;
+    }
+    f->Close();
+  }
+
 
   {
     // register this service for 'I/O' events
@@ -315,6 +329,9 @@ StatusCode xAODEventSelector::initialize()
   //checked above that there's at least one file
   CHECK( setFile(m_inputCollectionsName.value()[0]) );
 
+  //first FirstInputFile incident so that input metadata store is populated by MetaDataSvc
+  m_incsvc->fireIncident(FileIncident(name(), "FirstInputFile", m_inputCollectionsName.value()[0]));
+
   if(m_printPerfStats) xAOD::PerfStats::instance().start();
 
 
@@ -380,6 +397,11 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
   
 
   TFile *file = rctx->file();
+  if(file && m_nbrEvts==0) {
+    //fire the BeginInputFile incident for the first file
+    m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", file->GetName()));
+  }
+
   if (!file) { //must be starting another file ...
     auto& fnames = rctx->files();
     //std::size_t fidx = rctx->fileIndex();
@@ -394,6 +416,8 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
 	   throw GaudiException("xAODEventSelector::next() - Fatal error when trying to setFile('" + fname + "')","xAODEventSelector",StatusCode::FAILURE);
 	 }
          ATH_MSG_DEBUG("TEvent entries = " << m_tevent_entries);
+	 //fire incident for this file ..
+	 m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", rctx->file()->GetName()));
       } else {
          // end of collections
 	return StatusCode::FAILURE; //this is a valid failure ... athena will interpret as 'finished looping'
@@ -472,6 +496,18 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     // ::setAddress(NULL).
     // this way, the next time we hit ::createRootBranchAddress or ::updateAddress
     // all internal states are kosher.
+
+    /*
+     * Problem for rel22 --
+     * The proxyProviderSvc 'moves' the transient addresses created in this class
+     * and thus invalidates them.
+     * The sequence is proxyProviderSvc will call "loadAddresses" method below but
+     * when it puts them into a DataProxy it will move the addresses so they are now invalid
+     *
+     * Shortest route to fixing this is just to clear the addresses and not touch them again
+     */
+    self()->m_rootAddresses.clear();
+
     for (auto& iaddr : self()->m_rootAddresses) {
       iaddr.second = false; // mark as invalid
       SG::TransientAddress* taddr = iaddr.first;
@@ -888,6 +924,12 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
       const void* value_ptr = m_tevent;
       const std::string type_name = leaf->GetTypeName();
       const std::string br_name = branch->GetName();
+      // Skip if type_name does contain xAOD, ie. is not an xAOD container
+      const std::string toCheck = "xAOD::";
+      if (type_name.find(toCheck) == std::string::npos) {
+	ATH_MSG_DEBUG("** Skip type-name = " << type_name << ", br_name = " << br_name );
+	continue;
+      }
       const std::string sg_key = br_name;//m_tupleName.value()+"/"+br_name;
       TClass *cls = TClass::GetClass(type_name.c_str());
       const std::type_info *ti = 0;
@@ -917,12 +959,7 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
 	  continue;
 	}
 
-	// Skip if type_name does contain xAOD, ie. is not an xAOD container
-	const std::string toCheck = "xAOD::";
-	if (type_name.find(toCheck) == std::string::npos) {
-	  ATH_MSG_DEBUG("** Skip type-name = " << type_name << ", br_name = " << br_name );
-	  continue;
-	}
+
 
 	ATH_MSG_DEBUG("id = " << id << ", m_metadataName.value() = " << m_metadataName.value() << ", br_name = " << br_name << ", value_ptr = " << value_ptr);
 	Athena::xAODBranchAddress* addr = new Athena::xAODBranchAddress
@@ -987,8 +1024,8 @@ StatusCode xAODEventSelector::setFile(const std::string& fname) {
 
   if(m_tfile && m_tfile != newFile) {
     const std::string currFile = m_tfile->GetName();
-    //disconnect pool if necessary
-    if(m_readMetadataWithPool) m_poolSvc->disconnectDb("PFN:"+currFile).ignore();
+    //disconnect pool if necessary ... always fire this, hopefully it is safe even if not needed
+    m_poolSvc->disconnectDb("PFN:"+currFile).ignore();
     //close existing file
     m_tfile->Close();
     //we should also cleanup after pool, in case it has left open files dangling
@@ -1024,8 +1061,7 @@ StatusCode xAODEventSelector::setFile(const std::string& fname) {
       }
    }
 
-  //must trigger a beginInputFile event here
-  m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", m_tfile->GetName())); 
+
 
   return StatusCode::SUCCESS;
 

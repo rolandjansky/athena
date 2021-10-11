@@ -26,7 +26,7 @@ class LArCalib_Flags:
     LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOfl/CaliWaves/CaliWave"
 
     LArPhysWaveFolder            = "/LAR/ElecCalibOfl/PhysWaves/RTM"
-    LArMPhysOverMCalFolder       = "/LAR/ElecCalibOfl/MphysOverMcal/RTM"
+    LArMphysOverMcalFolder       = "/LAR/ElecCalibOfl/MphysOverMcal/RTM"
 
     LArPhysCaliTdiffFolder       = "/LAR/ElecCalibOfl/PhysCaliTdiff"
 
@@ -71,5 +71,5 @@ def LArCalibFolderTag(folder,tag):
 
 
 # backward compatiblity with 'include' ...
-from LArCalibProcessing.utils import FolderTagResolver as FolderTagResover, _globaltag
-_globaltag=LArCalib_Flags.globalFlagDB
+from LArCalibProcessing.utils import FolderTagResolver as FolderTagResover
+FolderTagResover._globalTag=LArCalib_Flags.globalFlagDB

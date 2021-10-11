@@ -11,10 +11,13 @@
 // System include(s):
 #include <string>
 #include <fstream>
+#include <mutex>
 
 // Athena/Gaudi include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 class ClusterDumper : public AthAlgorithm {
 
@@ -33,12 +36,14 @@ public:
 
 private:
   /// The key for the output xAOD::CaloClusterContainer
-  std::string m_containerName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_containerName{this,"ContainerName","CaloCalTopoClusters"};
   std::string m_fileName;
 
   std::ostream* m_out;
   std::ofstream m_fileOut;
   
+  std::mutex m_fileMutex;
+
 }; // class ClusterDumper
 
 #endif // XAODCREATORALGS_CLUSTERCREATOR_H

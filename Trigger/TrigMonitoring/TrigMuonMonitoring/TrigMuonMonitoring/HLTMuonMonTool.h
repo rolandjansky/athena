@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTMuonMonTool.h
@@ -71,7 +71,6 @@ class HLTMuonMonTool : public IHLTMonTool
  private:
   //== common
   ActiveStoreSvc* m_activeStore;
-  Trig::ExpertMethods* m_ExpertMethods;
 
   //init() for each HLT Algorithm
   StatusCode initL2MuonSADQA();

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -13,7 +13,7 @@ __author__  = 'Anthony Morley'
 __version__ = '$Id: HTCondorJobRunner.py 216126 2009-09-29 16:12:59Z atlidbs $'
 
 
-from JobRunner import JobRunner
+from InDetBeamSpotExample import JobRunner
 import os
 
 condorScriptTemplate="""executable            = %(scriptfile)s
@@ -26,12 +26,12 @@ universe              = vanilla
 queue
 """
 
-class HTCondorJobRunner(JobRunner):
+class HTCondorJobRunner(JobRunner.JobRunner):
     """HTCondorJobRunner - run jobs using the HTCondor batch system"""
 
     def __init__(self,**params):
         """Constructor (takes any number of parameters as an argument)."""
-        JobRunner.__init__(self)
+        JobRunner.JobRunner.__init__(self)
 
         # Set user-specified parameters only after HTCondorJobRunner defaults
         self.setParam('batchqueue','workday','Batch queue')
@@ -47,7 +47,6 @@ class HTCondorJobRunner(JobRunner):
         script.write(condorScript)
         script.close()
         os.chmod('condorSubmit.sub',0o755)
-        #batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         batchCmd = 'condor_submit condorSubmit.sub'
         print (batchCmd )
         os.system(batchCmd)

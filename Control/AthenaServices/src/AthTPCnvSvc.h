@@ -77,6 +77,13 @@ class AthTPCnvSvc
   p2t_cnv(const std::string& persClassName,
           Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) override;
 
+  /** @brief return the T/P converter for a transient class (NULL if failure)
+   *         Ownership is returned to the caller.
+   */ 
+  virtual
+  std::unique_ptr<ITPCnvBase>
+  t2p_cnv_unique(const std::string& transClassName) const override;
+
   /** @brief Return the T/P converter for a transient class.
    *         Returns null on failure (with no warning printed).
    *         Ownership is returned to the caller.

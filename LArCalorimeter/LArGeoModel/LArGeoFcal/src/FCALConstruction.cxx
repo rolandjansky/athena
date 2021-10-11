@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -54,14 +54,14 @@
 
 //===================constructor
 
-LArGeo::FCALConstruction::FCALConstruction():
-  m_fcalPhysical(0),
-  m_absPhysical1(0),
-  m_absPhysical2(0),
-  m_absPhysical3(0),
-  m_VisLimit(0),
-  m_svcLocator(0),
-  m_fullGeo(true)
+LArGeo::FCALConstruction::FCALConstruction()
+  : m_fcalPhysical(nullptr)
+  , m_absPhysical1(nullptr)
+  , m_absPhysical2(nullptr)
+  , m_absPhysical3(nullptr)
+  , m_VisLimit(0)
+  , m_svcLocator(nullptr)
+  , m_fullGeo(true)
 {
 }  
 
@@ -76,11 +76,11 @@ LArGeo::FCALConstruction::~FCALConstruction()
 
 GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 {
-  IRDBAccessSvc* rdbAccess=0;
-   IGeoModelSvc * geoModel;
+  IRDBAccessSvc* rdbAccess{nullptr};
+  IGeoModelSvc * geoModel{nullptr};
 
 
-  if(m_absPhysical1==0) {
+  if(!m_absPhysical1) {
     // Access Geometry DB
     m_svcLocator = Gaudi::svcLocator();
     
@@ -117,7 +117,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
   }
 
   const StoredMaterialManager* materialManager = nullptr;
-  if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
+  if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return nullptr;
   
   const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in FCALConstruction, std::Copper is not found.");
@@ -159,7 +159,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 
   static FCAL_ChannelMap *cmap = new FCAL_ChannelMap(0);
 
-  GeoFullPhysVol *fcalPhysical(NULL);
+  GeoFullPhysVol* fcalPhysical{nullptr};
 
   std::string baseName = "LAr::FCAL::";
 
@@ -210,17 +210,17 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
     {
 
       // Module 1
-      GeoFullPhysVol *modPhysical =0;
+      GeoFullPhysVol* modPhysical{nullptr};
       {
 	double halfDepth       = fullModuleDepth1/2;
 	double innerRadius     = innerModuleRadius1;
 	double outerRadius     = outerModuleRadius1;
 	GeoFullPhysVol *physVol;
 
-	if(m_absPhysical1)
+	if(m_absPhysical1) {
 	  physVol = m_absPhysical1->clone();
-	else
-	{
+	}
+	else {
 	  GeoTubs *tubs          = new GeoTubs( innerRadius, outerRadius, halfDepth, 0, 2*M_PI);
 	  GeoLogVol  *logVol     = new GeoLogVol(baseName + "Module1::Absorber", tubs, FCal1Absorber);
 	  physVol     = new GeoFullPhysVol(logVol);
@@ -251,29 +251,28 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	
       }   
       // 16 Troughs representing  Cable Harnesses:
-      if(m_fullGeo)
-	if(m_absPhysical1==0) {
-	  double troughDepth       = 1.0 * Gaudi::Units::cm;
-	  double outerRadius       = outerModuleRadius1;
-	  double innerRadius       = outerRadius - troughDepth;
-	  double halfLength        = fullModuleDepth1/ 2.0;
-	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
-	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
-	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
-	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module1::CableTrough",tubs,FCalCableHarness);
-	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
-	  GeoGenfun::Variable i;
-	  GeoGenfun::GENFUNCTION rotationAngle = 22.5*Gaudi::Units::deg*i;
-	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
-	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,16);
-	  modPhysical->add(st);
-	}
+      if(m_fullGeo && !m_absPhysical1) {
+	double troughDepth       = 1.0 * Gaudi::Units::cm;
+	double outerRadius       = outerModuleRadius1;
+	double innerRadius       = outerRadius - troughDepth;
+	double halfLength        = fullModuleDepth1/ 2.0;
+	double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
+	GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
+	GeoLogVol *logVol = new GeoLogVol(baseName+"Module1::CableTrough",tubs,FCalCableHarness);
+	GeoPhysVol *physVol = new GeoPhysVol(logVol);
+	GeoGenfun::Variable i;
+	GeoGenfun::GENFUNCTION rotationAngle = 22.5*Gaudi::Units::deg*i;
+	GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
+	GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,16);
+	modPhysical->add(st);
+      }
 
-      if(m_absPhysical1==0) {
+      if(!m_absPhysical1) {
 	  double halfDepth    = fullGapDepth1/2.0;
 	  double innerRadius  = innerGapRadius1;
 	  double outerRadius  = outerGapRadius1;
-	  GeoPhysVol *physVol = 0;
+	  GeoPhysVol *physVol{nullptr};
 	  if(m_fullGeo) {
 	    GeoTubs *tubs       = new GeoTubs(innerRadius,outerRadius,halfDepth,0.0, 2.0*M_PI);
 	    GeoLogVol *logVol   = new GeoLogVol(baseName + "Module1::Gap",tubs, LAr);
@@ -296,8 +295,6 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	  unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
 	  std::unique_ptr<IRDBQuery> query;
-          if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
-          if (!geoModel)  throw std::runtime_error("Error, no geoModel");
           DecodeVersionKey larVersionKey(geoModel, "LAr");
           query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
           if(!query) {
@@ -342,18 +339,18 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
   if (F2) 
     {
       // Module 2
-      GeoFullPhysVol *modPhysical =0;
+      GeoFullPhysVol* modPhysical{nullptr};
       {
 	double halfDepth       = fullModuleDepth2/2;
 	double innerRadius     = innerModuleRadius2;
 	double outerRadius     = outerModuleRadius2;
 	GeoFullPhysVol *physVol;
 	
-	if(m_absPhysical2)
+	if(m_absPhysical2) {
 	  physVol = m_absPhysical2->clone();
-	else
-	  {
-	    GeoTubs *tubs          = new GeoTubs( innerRadius, outerRadius, halfDepth, 0, 2*M_PI);
+	}
+	else {
+	  GeoTubs *tubs          = new GeoTubs( innerRadius, outerRadius, halfDepth, 0, 2*M_PI);
 	  GeoLogVol  *logVol     = new GeoLogVol(baseName + "Module2::Absorber", tubs, FCal23Absorber);
 	  physVol     = new GeoFullPhysVol(logVol);
 	}
@@ -383,32 +380,31 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	
       }   
       // 16 Troughs representing  Cable Harnesses:
-      if(m_fullGeo)
-	if(m_absPhysical2==0) {
-	  double troughDepth       = 1.0 * Gaudi::Units::cm;
-	  double outerRadius       = outerModuleRadius2;
-	  double innerRadius       = outerRadius - troughDepth;
-	  double halfLength        = fullModuleDepth2/ 2.0;
-	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
-	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
-	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
-	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module2::CableTrough",tubs,FCalCableHarness);
-	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
-	  GeoGenfun::Variable i;
-	  GeoGenfun::GENFUNCTION rotationAngle = 22.5*Gaudi::Units::deg*i;
-	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
-	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,16);
-	  modPhysical->add(st);
-	}
+      if(m_fullGeo && !m_absPhysical2) {
+	double troughDepth       = 1.0 * Gaudi::Units::cm;
+	double outerRadius       = outerModuleRadius2;
+	double innerRadius       = outerRadius - troughDepth;
+	double halfLength        = fullModuleDepth2/ 2.0;
+	double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
+	GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
+	GeoLogVol *logVol = new GeoLogVol(baseName+"Module2::CableTrough",tubs,FCalCableHarness);
+	GeoPhysVol *physVol = new GeoPhysVol(logVol);
+	GeoGenfun::Variable i;
+	GeoGenfun::GENFUNCTION rotationAngle = 22.5*Gaudi::Units::deg*i;
+	GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
+	GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,16);
+	modPhysical->add(st);
+      }
       
       // Electrodes:
-      if(m_absPhysical2==0) {
+      if(!m_absPhysical2) {
 	double halfDepth    = fullGapDepth2/2.0;
 	double innerRadius  = innerGapRadius2;
 	double outerRadius  = outerGapRadius2;
 	
-	GeoPhysVol *gapPhys    = 0;
-	GeoPhysVol *rodPhys    = 0;
+	GeoPhysVol* gapPhys{nullptr};
+	GeoPhysVol* rodPhys{nullptr};
 	if(m_fullGeo) {
 	  GeoTubs *gapTubs       = new GeoTubs(0,outerRadius,halfDepth,0.0, 2.0*M_PI);
 	  GeoLogVol *gapLog      = new GeoLogVol(baseName + "Module2::Gap",gapTubs, LAr);
@@ -436,8 +432,6 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
 	std::unique_ptr<IRDBQuery> query;
-        if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
-        if (!geoModel)  throw std::runtime_error("Error, no geoModel");
         DecodeVersionKey larVersionKey(geoModel, "LAr"); 
         query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
         if(!query) {
@@ -483,17 +477,17 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
   if (F3) 
     {
       // Module 3
-      GeoFullPhysVol *modPhysical =0;
+      GeoFullPhysVol* modPhysical{nullptr};
       {
 	double halfDepth       = fullModuleDepth3/2;
 	double innerRadius     = innerModuleRadius3;
 	double outerRadius     = outerModuleRadius3;
 	GeoFullPhysVol *physVol;
 
-	if(m_absPhysical3)
+	if(m_absPhysical3) {
 	  physVol = m_absPhysical3->clone();
-	else
-	{
+	}
+	else {
 	  GeoTubs *tubs          = new GeoTubs( innerRadius, outerRadius, halfDepth, 0, 2*M_PI);
 	  GeoLogVol  *logVol     = new GeoLogVol(baseName + "Module3::Absorber", tubs, FCal23Absorber);
 	  physVol     = new GeoFullPhysVol(logVol);
@@ -524,60 +518,56 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	
       }   
       // 16 Troughs representing  Cable Harnesses:
-      if(m_fullGeo)
-	if(m_absPhysical3==0) {
-	  static double rotAngles[] =
-	    { 11.25 * Gaudi::Units::deg,
-	      22.50 * Gaudi::Units::deg,
-	      45.00 * Gaudi::Units::deg,
-	      56.25 * Gaudi::Units::deg,
-	      67.50 * Gaudi::Units::deg,
-	      90.00 * Gaudi::Units::deg,  // first quarter
-	      101.25 * Gaudi::Units::deg,
-	      112.50 * Gaudi::Units::deg,
-	      135.00 * Gaudi::Units::deg,
-	      146.25 * Gaudi::Units::deg,
-	      157.50 * Gaudi::Units::deg,
-	      180.00 * Gaudi::Units::deg,  // second quarter
-	      191.25 * Gaudi::Units::deg,
-	      202.50 * Gaudi::Units::deg,
-	      225.00 * Gaudi::Units::deg,
-	      236.25 * Gaudi::Units::deg,
-	      247.50 * Gaudi::Units::deg,
-	      270.00 * Gaudi::Units::deg,  // third quarter
-	      281.25 * Gaudi::Units::deg,
-	      292.50 * Gaudi::Units::deg,
-	      315.00 * Gaudi::Units::deg,
-	      326.25 * Gaudi::Units::deg,
-	      337.50 * Gaudi::Units::deg,
-	      360.00 * Gaudi::Units::deg };
+      if(m_fullGeo && !m_absPhysical3) {
+	static double rotAngles[] =
+	  { 11.25 * Gaudi::Units::deg,
+	    22.50 * Gaudi::Units::deg,
+	    45.00 * Gaudi::Units::deg,
+	    56.25 * Gaudi::Units::deg,
+	    67.50 * Gaudi::Units::deg,
+	    90.00 * Gaudi::Units::deg,  // first quarter
+	    101.25 * Gaudi::Units::deg,
+	    112.50 * Gaudi::Units::deg,
+	    135.00 * Gaudi::Units::deg,
+	    146.25 * Gaudi::Units::deg,
+	    157.50 * Gaudi::Units::deg,
+	    180.00 * Gaudi::Units::deg,  // second quarter
+	    191.25 * Gaudi::Units::deg,
+	    202.50 * Gaudi::Units::deg,
+	    225.00 * Gaudi::Units::deg,
+	    236.25 * Gaudi::Units::deg,
+	    247.50 * Gaudi::Units::deg,
+	    270.00 * Gaudi::Units::deg,  // third quarter
+	    281.25 * Gaudi::Units::deg,
+	    292.50 * Gaudi::Units::deg,
+	    315.00 * Gaudi::Units::deg,
+	    326.25 * Gaudi::Units::deg,
+	    337.50 * Gaudi::Units::deg,
+	    360.00 * Gaudi::Units::deg };
 	
-	  GeoGenfun::ArrayFunction rotationAngle(rotAngles,rotAngles+24);
-	  double troughDepth       = 1.0 * Gaudi::Units::cm;
-	  double outerRadius       = outerModuleRadius3;
-	  double innerRadius       = outerRadius - troughDepth;
-	  double halfLength        = fullModuleDepth3/ 2.0;
-	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
-	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
-	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
-	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module3::CableTrough",tubs,FCalCableHarness);
-	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
-	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
-	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,24);
-	  modPhysical->add(st);
-	}
+	GeoGenfun::ArrayFunction rotationAngle(rotAngles,rotAngles+24);
+	double troughDepth       = 1.0 * Gaudi::Units::cm;
+	double outerRadius       = outerModuleRadius3;
+	double innerRadius       = outerRadius - troughDepth;
+	double halfLength        = fullModuleDepth3/ 2.0;
+	double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
+	GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
+	GeoLogVol *logVol = new GeoLogVol(baseName+"Module3::CableTrough",tubs,FCalCableHarness);
+	GeoPhysVol *physVol = new GeoPhysVol(logVol);
+	GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
+	GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,24);
+	modPhysical->add(st);
+      }
       
       // Electrodes:
-      if(m_absPhysical3==0)
-      {
-	
-	
+      if(!m_absPhysical3) {
 	double halfDepth    = fullGapDepth3/2.0;
 	double innerRadius  = innerGapRadius3;
 	double outerRadius  = outerGapRadius3;
 	
-	GeoPhysVol *gapPhys    = 0;
-	GeoPhysVol *rodPhys    = 0;
+	GeoPhysVol* gapPhys{nullptr};
+	GeoPhysVol* rodPhys{nullptr};
 	if(m_fullGeo) {
 	  GeoTubs *gapTubs       = new GeoTubs(0,outerRadius,halfDepth,0.0, 2.0*M_PI);
 	  GeoLogVol *gapLog      = new GeoLogVol(baseName + "Module3::Gap",gapTubs, LAr);
@@ -605,8 +595,6 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
 	std::unique_ptr<IRDBQuery> query;
-        if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
-        if (!geoModel)  throw std::runtime_error("Error, no geoModel");
         DecodeVersionKey larVersionKey(geoModel, "LAr"); 
         query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
         if(!query) {
@@ -658,9 +646,4 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
   }
 
   return fcalPhysical;
-}
-
-void LArGeo::FCALConstruction::setFullGeo(bool flag)
-{
-  m_fullGeo = flag;
 }

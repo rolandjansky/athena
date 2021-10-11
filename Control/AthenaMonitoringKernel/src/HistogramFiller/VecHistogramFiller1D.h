@@ -29,8 +29,18 @@ namespace Monitored {
         }
         cutMaskAccessor = cutMaskValuePair.second;
       }
-
       auto histogram = this->histogram<TH1>();
+       
+      if ( ATH_UNLIKELY( static_cast<size_t>(histogram->GetNbinsX()) + (m_histDef->kVecUO ? 2 : 0) != vars.var[0]->size() ) ) {
+          MsgStream log(Athena::getMessageSvc(), "VecHistogramFiller1D");
+          log << MSG::WARNING << "Histogram " << histogram->GetName() 
+              << " filled with kVec(UO) option with variable " << vars.var[0]->name() 
+              << " have incompatible sizes (histogram) " << histogram->GetNbinsX()
+              << " (variable) "  << vars.var[0]->size() 
+              << " They ought to match exactly for kVec option or n. hist. bins +2 == var. size fro kVecOU" << endmsg;
+              return 0;
+      }
+
       const unsigned offset = m_histDef->kVecUO ? 0 : 1;
       for (unsigned i = 0; i < vars.var[0]->size(); ++i) {
         if (cutMaskAccessor == nullptr or cutMaskAccessor(i)) {

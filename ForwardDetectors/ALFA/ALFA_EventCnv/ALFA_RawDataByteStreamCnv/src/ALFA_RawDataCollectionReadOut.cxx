@@ -23,8 +23,6 @@ ALFA_RawDataCollectionReadOut::ALFA_RawDataCollectionReadOut():
 { }
 
 
-ALFA_RawDataCollectionReadOut::~ALFA_RawDataCollectionReadOut()
-{ }
 
 void ALFA_RawDataCollectionReadOut::decodeWord(uint32_t dataWord)
 
@@ -38,31 +36,31 @@ void ALFA_RawDataCollectionReadOut::decodeWord(uint32_t dataWord)
 
   if (is_BOB())
     {
-      m_lvl1Id = getBits(23,0);
+      m_lvl1Id = getBits(getBitsWord(23,0));
     }
   else if (is_LWC())
     {
-      m_ecnt_LWC = getBits(19,16);
-      m_clwc = getBits(15,0);
+      m_ecnt_LWC = getBits(getBitsWord(19,16));
+      m_clwc = getBits(getBitsWord(15,0));
     }
   else if (is_BOL())
     {
-      m_BOLflag   = getBits(23,16);
-      m_MrodNum   = getBits(15,4);
-      m_RODinput    = getBits(3,0);
+      m_BOLflag   = getBits(getBitsWord(23,16));
+      m_MrodNum   = getBits(getBitsWord(15,4));
+      m_RODinput    = getBits(getBitsWord(3,0));
     }
   else if (is_TLP())
     {
-      m_KaptId = getBits(19,0);
+      m_KaptId = getBits(getBitsWord(19,0));
     }
   else if (is_TWC())
     {
-      m_ecnt_TWC  = getBits(23,12);
-      m_ctwc  = getBits(11,0);
+      m_ecnt_TWC  = getBits(getBitsWord(23,12));
+      m_ctwc  = getBits(getBitsWord(11,0));
     }
   else if (is_EOB())
     {
-      m_ecnt_EOB  = getBits(15,0);
+      m_ecnt_EOB  = getBits(getBitsWord(15,0));
     }
     
        

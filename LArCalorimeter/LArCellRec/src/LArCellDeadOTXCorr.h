@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -94,7 +94,7 @@ class LArCellDeadOTXCorr
     SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_TTLocation;
     std::vector<double> m_triggerNoiseCut;
     bool m_useL1CaloDBProp;
-    mutable std::atomic<bool> m_useL1CaloDB;
+    mutable std::atomic<bool> m_useL1CaloDB{};
     mutable std::mutex m_fitMutex;
 
     Constant<CxxUtils::Array<1> > m_etaCalibrationSizes

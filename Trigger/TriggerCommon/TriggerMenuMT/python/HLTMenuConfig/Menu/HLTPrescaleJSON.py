@@ -6,8 +6,7 @@ from TrigConfigSvc.TrigConfigSvcCfg import getHLTPrescalesSetFileName
 from AthenaCommon.Logging import logging
 __log = logging.getLogger( __name__ )
 
-
-def __generateJSON( chainDicts, chainConfigs, menuName, fileName ):
+def __generateJSON( chainDicts, chainConfigs, menuName, fileName):
     """ Generates JSON given the ChainProps and sequences
     """
     # Prescale dictionary that is used to create the JSON content
@@ -57,7 +56,7 @@ def generateJSON():
     return __generateJSON( TriggerConfigHLT.dictsList(),
                            TriggerConfigHLT.configsList(),
                            ConfigFlags.Trigger.triggerMenuSetup,
-                           getHLTPrescalesSetFileName(ConfigFlags) )
+                           getHLTPrescalesSetFileName(ConfigFlags))
 
 def generateJSON_newJO( chainDicts, chainConfigs ):
     __log.info("Generating HLT Prescale JSON in the new JO")

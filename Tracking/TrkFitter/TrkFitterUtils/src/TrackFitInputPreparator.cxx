@@ -18,6 +18,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
+#include "TrkFitterUtils/DNA_MaterialEffects.h"
 
 // using __gnu_cxx::is_sorted;
 
@@ -92,11 +93,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       worstCaseSorting ?
         stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
         sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
-      /* std::cout << "input track was not sorted. Now the sequence is :"<<endmsg;
-      MB_IndexVector::iterator itLog = sortedHitSet.begin();
-      for ( ; itLog!=sortedHitSet.end(); ++itLog) std::cout <<" " << (*itLog).second;
-      std::cout <<std::endl; */
-
+    
       MB_IndexVector::iterator itIdx = sortedHitSet.begin();
       for (; itIdx!=sortedHitSet.end(); ++itIdx) {
         bool outlier = (*inputTrk.trackStateOnSurfaces())[(*itIdx).second]->type(TrackStateOnSurface::Outlier);
@@ -108,11 +105,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                         (reintegrateOutliers?false:outlier),
                                         false,
                                         referenceParameters, partHypo );
-//           trajectory.push_back
-//             (ProtoTrackStateOnSurface(extractMB,
-//                                       (reintegrateOutliers?false:outlier),
-//                                       false,istate));
-//           trajectory.back().identifier(Trk::IdentifierExtractor::extract(extractMB));
+
         } else std::cout << "TrackFitInputPreparator: WARNING, extraction problem."
                        << std::endl;
       }
@@ -133,10 +126,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                     (reintegrateOutliers?false:outlier),
                                     false,
                                     referenceParameters, partHypo );
-//         trajectory.push_back(ProtoTrackStateOnSurface(((*it)->measurementOnTrack()),
-//                                                         (reintegrateOutliers?false:outlier),
-//                                                         false,istate++));
-//         trajectory.back().identifier(Trk::IdentifierExtractor::extract((*it)->measurementOnTrack()));
+
       }
     }
   }
@@ -200,14 +190,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
       sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
 
-      /* FIXME remove std output
-      std::cout << "added MBset was not a pure track ext, needed to sort it." << std::endl;
-      std::cout << "The sorted input sequence is :";
-      MB_IndexVector::iterator itLog = sortedHitSet.begin();
-      for ( ; itLog!=sortedHitSet.end(); ++itLog) std::cout <<" " << (*itLog).second;
-      std::cout <<std::endl;
-      */
-
+     
       MB_IndexVector::iterator itIdx = sortedHitSet.begin();
       for ( ; itIdx!=sortedHitSet.end(); ++itIdx) {
         if ((*itIdx).second < nInputStates ) {
@@ -221,10 +204,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                             false,
                                             referenceParameters, partHypo );
             }
-//             if (extractMB) trajectory.push_back
-//               (ProtoTrackStateOnSurface(extractMB,
-//                                         (reintegrateOutliers?false:outlier),
-//                                         false,istate));
+
             else std::cout << "TrackFitInputPreparator: WARNING, extraction problem" << std::endl;
         } else {
             insertStateIntoTrajectory(  trajectory,
@@ -232,12 +212,8 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                         false,
                                         false,
                                         referenceParameters, partHypo );
-//           trajectory.push_back(ProtoTrackStateOnSurface
-//                                (inputMbs[(*itIdx).second-nInputStates],false,false,istate));
         }
-        // Phew! Can this be made with less effort?
-//         trajectory.back().identifier(Trk::IdentifierExtractor::extract
-//                                      (trajectory.back().measurement()));
+
       }
     }
   }
@@ -256,16 +232,12 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                     (reintegrateOutliers?false:outlier),
                                     false,
                                     referenceParameters, partHypo );
-//         trajectory.push_back(ProtoTrackStateOnSurface(((*it)->measurementOnTrack()),
-//                                                       (reintegrateOutliers?false:outlier),
-//                                                       false,istate++));
-//         trajectory.back().identifier(Trk::IdentifierExtractor::extract((*it)->measurementOnTrack()));
+
       }
     for(MeasurementSet::const_iterator it    = inputMbs.begin();
         it!=inputMbs.end(); ++it) {
         insertStateIntoTrajectory( trajectory, (*it), false, false, referenceParameters, partHypo );
-//       trajectory.push_back(ProtoTrackStateOnSurface((*it),false,false,istate));
-//       trajectory.back().identifier(Trk::IdentifierExtractor::extract((*it)));
+
     }
   }
   return StatusCode::SUCCESS;
@@ -335,13 +307,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
       sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
 
-      /* FIXME remove std output
-      std::cout << "hits on two tracks are not in proper order, "
-                << "needed to sort them." << std::endl;
-      std::cout << "The sorted input sequence is :";
-      MB_IndexVector::iterator itLog = sortedHitSet.begin();
-      for ( ; itLog!=sortedHitSet.end(); ++itLog) std::cout <<" " << (*itLog).second;
-      std::cout <<std::endl;*/
+ 
 
       MB_IndexVector::iterator itIdx = sortedHitSet.begin();
       for ( ; itIdx!=sortedHitSet.end(); ++itIdx) {
@@ -355,11 +321,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                         (reintegrateOutliers?false:outlier),
                                         false,
                                         referenceParameters, partHypo );
-//             trajectory.push_back
-//               (ProtoTrackStateOnSurface(extractMB,
-//                                         (reintegrateOutliers?false:outlier),
-//                                         false,istate));
-//             trajectory.back().identifier(Trk::IdentifierExtractor::extract(extractMB));
+
           } else std::cout << "TrackFitInputPreparator: WARNING, extraction "
                          << "problem with track #1" << std::endl;
         } else { // extract from track #2
@@ -372,11 +334,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                         (reintegrateOutliers?false:outlier),
                                         false,
                                         referenceParameters, partHypo );
-//             trajectory.push_back
-//               (ProtoTrackStateOnSurface(extractMB,
-//                                         (reintegrateOutliers?false:outlier),
-//                                         false,istate));
-//             trajectory.back().identifier(Trk::IdentifierExtractor::extract(extractMB));
+
           } else std::cout << "TrackFitInputPreparator: WARNING, extraction "
                          << "problem with track #2" << std::endl;
         }
@@ -398,10 +356,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                     (reintegrateOutliers?false:outlier),
                                     false,
                                     referenceParameters, partHypo );
-//         trajectory.push_back(ProtoTrackStateOnSurface(((*it)->measurementOnTrack()),
-//                                                       (reintegrateOutliers?false:outlier),
-//                                                       false,istate++));
-//         trajectory.back().identifier(Trk::IdentifierExtractor::extract((*it)->measurementOnTrack()));
+
       }
     it    = inputTrk2.trackStateOnSurfaces()->begin();
     for ( ; it!=inputTrk2.trackStateOnSurfaces()->end(); ++it)
@@ -412,12 +367,8 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
                                     (reintegrateOutliers?false:outlier),
                                     false,
                                     referenceParameters, partHypo );
-//         trajectory.push_back(ProtoTrackStateOnSurface(((*it)->measurementOnTrack()),
-//                                                       (reintegrateOutliers?false:outlier),
-//                                                       false,istate++));
-//         trajectory.back().identifier(Trk::IdentifierExtractor::extract((*it)->measurementOnTrack()));
+
       }
-    // std::cout << "found list of " <<istate<<" measurements for fitting." << std::endl;
   }
   return StatusCode::SUCCESS;
 }
@@ -426,15 +377,12 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
 //
 Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
 (const Trk::Track& inputTrk, const Trk::MeasurementSet& inputMbs,
- const SortInputFlag doSorting, const bool reintegrateOutliers) const
+ const SortInputFlag doSorting, const bool reintegrateOutliers) 
 {
 
-  // FIXME do i need this?
-  //Amg::Vector3D startGP  = (*inputTrk.trackParameters()->begin())->position();
-  //Amg::Vector3D refDir = (*(inputTrk.trackParameters()->end()-1))->position() - startGP;
+  
 
-  DataVector<const TrackStateOnSurface> *newListOfStates
-    = new DataVector<const TrackStateOnSurface>;
+  auto newListOfStates = DataVector<const TrackStateOnSurface>();
   TS_iterator itStates = inputTrk.trackStateOnSurfaces()->begin();
   for (;itStates!=inputTrk.trackStateOnSurfaces()->end();++itStates)
     if ( (*itStates)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -443,14 +391,14 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
       if ( (*itStates)->type(Trk::TrackStateOnSurface::Outlier) &&
            ! reintegrateOutliers ) typePattern.set(TrackStateOnSurface::Outlier);
         else typePattern.set(TrackStateOnSurface::Measurement);
-      newListOfStates->push_back(new TrackStateOnSurface
-                           ((*itStates)->measurementOnTrack()->clone(),
+      newListOfStates.push_back(new TrackStateOnSurface
+                           ((*itStates)->measurementOnTrack()->uniqueClone(),
                            ( (*itStates)->trackParameters()           ?
-                             (*itStates)->trackParameters()->clone()  :
+                             (*itStates)->trackParameters()->uniqueClone()  :
                              nullptr ),
                            nullptr,
                            ( (*itStates)->materialEffectsOnTrack()    ?
-                             (*itStates)->materialEffectsOnTrack()->clone() :
+                             (*itStates)->materialEffectsOnTrack()->uniqueClone() :
                              nullptr ),typePattern));
     }
   // add MBs from input list
@@ -458,26 +406,26 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
   for ( ; itSet!=inputMbs.end(); ++itSet) if ((*itSet)) {
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
     typePattern.set(TrackStateOnSurface::Measurement);
-    newListOfStates->push_back(new TrackStateOnSurface((*itSet)->clone(),nullptr,nullptr,nullptr,typePattern));
+    newListOfStates.push_back(new TrackStateOnSurface((*itSet)->uniqueClone(),nullptr,nullptr,nullptr,typePattern));
   }
 
   if (doSorting) {
     Trk::TrackStateOnSurfaceComparisonFunction* CompFunc =
       new Trk::TrackStateOnSurfaceComparisonFunction
       ( (*inputTrk.trackParameters()->begin())->momentum() ) ;
-    if(!__gnu_cxx::is_sorted(newListOfStates->begin(),newListOfStates->end(), *CompFunc))
-      std::sort(newListOfStates->begin(),newListOfStates->end(), *CompFunc);
+    if(!__gnu_cxx::is_sorted(newListOfStates.begin(),newListOfStates.end(), *CompFunc))
+      std::sort(newListOfStates.begin(),newListOfStates.end(), *CompFunc);
     delete CompFunc;
   }
   TrackInfo info;
-  return new Trk::Track(info,newListOfStates,nullptr);
+  return new Trk::Track(info,std::move(newListOfStates),nullptr);
 }
 
 // give back the Measurements stripped of a track+measurement input combination.
 //
 Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
 (const Trk::Track& inputTrk, const Trk::MeasurementSet& inputMbs,
- const SortInputFlag /*doSorting*/, const bool /*reintegrateOutliers*/) const
+ const SortInputFlag /*doSorting*/, const bool /*reintegrateOutliers*/) 
 {
   // FIXME do sorting and outlier treatment
 
@@ -499,7 +447,7 @@ Trk::MeasurementSet Trk::TrackFitInputPreparator::stripMeasurements
 //
 Trk::PrepRawDataSet Trk::TrackFitInputPreparator::stripPrepRawData
 (const Trk::Track& inputTrk, const Trk::PrepRawDataSet& inputPrds,
- const SortInputFlag doSorting, const bool reintegrateOutliers) const
+ const SortInputFlag doSorting, const bool reintegrateOutliers) 
 {
   // apped PRDs to end of track. For pre-pend make a parameter
   PrepRawDataSet newPrdSet;
@@ -549,8 +497,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                             const TrackParameters* initialParameters,
                             const ParticleHypothesis&  partHypo ) const {
     const TrackParameters* trkPar = nullptr;
-    Trk::ProtoMaterialEffects* matEffOnMeasurementSurface = nullptr;
-    //std::cout << "InputPrep: partHypo:" << partHypo << std::endl;
+    std::unique_ptr<Trk::ProtoMaterialEffects> matEffOnMeasurementSurface;
     /// collect material layers between previous state and state to insert:
     if (m_extrapolator) {
         if (!trajectory.empty()) {
@@ -564,20 +511,15 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                         measurement->associatedSurface(),
                         Trk::alongMomentum,
                         false,
-                        //Trk::nonInteracting
                         partHypo
-                        //Trk::pion   // FIXME: decide on particle hypothesis to use!
-                        //track->info().particleHypothesis()
+
             );
             if (trajectory.back().referenceParameters()->covariance()) delete prevPar; // balance CREATE_PARS from a few lines earlier
             if (collectedTSOS) {
                 // copy into ProtoTrackStateOnSurface for memory management, ignoring the last:
                 for (unsigned int i = 0 ; i < collectedTSOS->size() -1; i++) {
-//                 for (auto tsosIter = collectedTSOS->begin() ; tsosIter != collectedTSOS->end(); tsosIter++) {
-//                     if (tsosIter==collectedTSOS->end()-1) break;
-//                     const Trk::TrackStateOnSurface* tsos = (*tsosIter);
+
                     const Trk::TrackStateOnSurface* tsos = collectedTSOS->at(i);
-//                     std::cout << "InputPrep:" << tsos->dumpType() << std::endl;
                     if (tsos->materialEffectsOnTrack()) {
                         const MaterialEffectsOnTrack* meot = dynamic_cast<const MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
                         if (meot) {
@@ -588,21 +530,17 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                     nullptr,
                                                     tsos->trackParameters()->clone()
                                                   ));
-                            trajectory.back().checkinMaterialEffects(new Trk::ProtoMaterialEffects(meot));
+                            trajectory.back().checkinMaterialEffects(std::make_unique<Trk::ProtoMaterialEffects>(meot));
                             trajectory.back().isOutlier(TrackState::Scatterer);
-        //                     Identifier id =  tsos->surface().associatedDetectorElementIdentifier();
-        //                     msg ( MSG::INFO ) << "added material TSoS:" << id << " " <<  &(tsos->surface()) << " " << m_idHelper->print_to_string(id) << " " << tsos->dumpType() << endmsg;
-        //                     msg ( MSG::INFO ) << "    trk pos=" <<tsos->trackParameters()->position() << " mom=" << tsos->trackParameters()->momentum() << " rho=" << tsos->trackParameters()->position().perp() << endmsg;
                         } // end if meot
                     }
                     delete tsos;
                 }
-//                 std::cout << "InputPrep:" << collectedTSOS->back()->dumpType() << std::endl;
                 trkPar = collectedTSOS->back()->trackParameters()->clone();
                 if (collectedTSOS->back()->materialEffectsOnTrack()) {
                     const MaterialEffectsOnTrack* meot = dynamic_cast<const MaterialEffectsOnTrack*>(collectedTSOS->back()->materialEffectsOnTrack());
                     if (meot) {
-                        matEffOnMeasurementSurface = new Trk::ProtoMaterialEffects(meot);
+                        matEffOnMeasurementSurface = std::make_unique<Trk::ProtoMaterialEffects>(meot);
                     }
                 } // end if last TSoS has material effects
                 delete collectedTSOS->back();
@@ -616,9 +554,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                     Trk::alongMomentum,
                                                     false,
                                                     partHypo
-                                                    //Trk::nonInteracting
-                                                    //Trk::pion   // FIXME: decide on particle hypothesis to use!
-                                                    //track->info().particleHypothesis()
+                                                 
                                                 );
             if (!trkPar) {
                 std::cout << "TrackFitInputPreparator: WARNING, extrapolation problem." << std::endl;
@@ -635,7 +571,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                   ));
     trajectory.back().identifier(Trk::IdentifierExtractor::extract(measurement));
     if (matEffOnMeasurementSurface) {
-        trajectory.back().checkinMaterialEffects(matEffOnMeasurementSurface);
+        trajectory.back().checkinMaterialEffects(std::move(matEffOnMeasurementSurface));
     }
 
 }

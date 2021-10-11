@@ -63,9 +63,9 @@ initPyInterpreter()
     return StatusCode::SUCCESS;
   }
 
-  if (!PyEval_ThreadsInitialized()) {
-    PyEval_InitThreads();
-  }
+  /*
+   * The GIL is initialized by Py_Initialize() since Python 3.7."
+   */
 
   Py_Initialize();
 

@@ -1,5 +1,5 @@
 # Common fragment for generation of 1 Pythia8 event, when producing LHE output only
-# the number of events is set to 1 in two places: as Pythia param: Main:numberOfEvents = 1 and evgenconfig.nEventsPerJob=1 (the later one is stronger)
+# the number of events is set to 1 in two places: as Pythia param: Main:numberOfEvents = 1 and postSeq.CountHepMC.RequestedOutput=1 (the later one is stronger)
 # It is needed to make the transform run
 # No output is kept from this generation
 # We don't modify nEventsPerJob anymore, 

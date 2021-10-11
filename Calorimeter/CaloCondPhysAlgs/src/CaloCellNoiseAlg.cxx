@@ -136,7 +136,7 @@ StatusCode CaloCellNoiseAlg::stop()
     }
   }
   else {
-    if (this->readNtuple().isFailure()) {
+    if (CaloCellNoiseAlg::readNtuple().isFailure()) {
       ATH_MSG_WARNING ( " failed to read ntuple " );
       return StatusCode::SUCCESS;
     }
@@ -222,7 +222,7 @@ StatusCode CaloCellNoiseAlg::execute()
      IdentifierHash idHash=i;
      Identifier id=m_calo_id->cell_id(idHash);
      const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
-     CellInfo cell0;
+     CellInfo cell0{};
      cell0.nevt = 0;
      cell0.average = 0.;
      cell0.rms = 0.; 

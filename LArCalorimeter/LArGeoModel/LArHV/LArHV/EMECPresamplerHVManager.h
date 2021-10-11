@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMECPRESAMPLERHVMANAGER_H
@@ -7,7 +7,6 @@
 
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "Identifier/HWIdentifier.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <functional>
 
@@ -68,9 +67,6 @@ class EMECPresamplerHVManager
 
   // Get a link to the HV module:
   const EMECPresamplerHVModule& getHVModule(unsigned int iSide, unsigned int iPhi) const;
-
-  // Get the database payload
-  EMECPresamplerHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   EMECPresamplerHVData getData (const LArHVIdMapping& hvIdMapping,

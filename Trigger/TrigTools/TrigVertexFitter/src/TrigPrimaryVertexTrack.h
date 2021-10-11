@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVERTEXFITTER_TRIGPRIMARYVERTEXTRACK_H
@@ -36,16 +36,16 @@ class TrigPrimaryVertexTrack : public TrigVertexFittingNode
   const TrigInDetTrack* m_pTrigTrack;
   const Trk::Track* m_pTrkTrack;
   int m_nTrackType;
-  int m_index;
-  double m_Vqq[3][3];
-  double m_Vuq[2][3];
-  double m_Vuu[2][2];
-  double m_u[2];
-  double m_q[3];
-  double m_Perigee[5];
-  double m_PerigeeCovariance[5][5];
-  double m_A[2][3];
-  double m_B[2][3];
+  int m_index = 0;
+  double m_Vqq[3][3]{};
+  double m_Vuq[2][3]{};
+  double m_Vuu[2][2]{};
+  double m_u[2]{};
+  double m_q[3]{};
+  double m_Perigee[5]{};
+  double m_PerigeeCovariance[5][5]{};
+  double m_A[2][3]{};
+  double m_B[2][3]{};
   double m_dChi2;
   bool m_active;
 };
