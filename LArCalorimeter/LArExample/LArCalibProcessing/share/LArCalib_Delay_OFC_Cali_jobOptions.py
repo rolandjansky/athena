@@ -76,7 +76,7 @@ if not 'GainList' in dir():
 
 if not 'GroupingType' in dir():
    if not SuperCells: GroupingType = "ExtendedSubDetector"
-   if SuperCells:     GroupingType = "ExtendedFeedThrough"
+   if SuperCells:     GroupingType = "SuperCells"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -394,9 +394,10 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
 LArOnOffIdMapping()
 if SuperCells:
-  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC,LArLATOMEMappingSC
   LArOnOffIdMappingSC()
   LArCalibIdMappingSC()
+  LArLATOMEMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -436,7 +437,6 @@ if ( runAccumulator ) :
    if SuperCells:
       from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
       theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-      theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
       theLArLATOMEDecoder.DumpFile = SC_DumpFile
       theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
       from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
@@ -449,17 +449,20 @@ if ( runAccumulator ) :
       topSequence += larRawSCDataReadingAlg
 
    else:
-      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
-      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
-      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
-      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-   include("./LArCalib_CalibrationPatterns.py")
+      from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+ 
+      theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+      theLArRawCalibDataReadingAlg.LArDigitKey=Gain
+      theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+      topSequence+=theLArRawCalibDataReadingAlg
+   include("./LArCalib_CalibrationPatterns_"+str(IOVBegin)+".py")
+
 
 else:   
    from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
 
    theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
-   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
+   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=Gain
    theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
 
    # These are examples, how to use preselection:
@@ -506,9 +509,9 @@ from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
@@ -624,19 +627,12 @@ if ( ShortCorrector ):
    
 if ( StripsXtalkCorr ) :
 
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
    from LArCalibUtils.LArCalibUtilsConf import LArStripsCrossTalkCorrector
    theLArStripsCrossTalkCorrector = LArStripsCrossTalkCorrector()
    theLArStripsCrossTalkCorrector.KeyList = GainList
    theLArStripsCrossTalkCorrector.ADCsaturation = ADCsaturation
-   theLArStripsCrossTalkCorrector.NoXtalkCorr=LArBadChannelMasker("NoXtalkCorr",
-                                                               DoMasking=True,
-                                                               ProblemsToMask=["deadReadout","deadPhys","deadCalib","almostDead"]
-                                                               )
-   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=LArBadChannelMasker("DontUseForXtalkCorr",
-                                                                       DoMasking=True,
-                                                                       ProblemsToMask=["short","peculiarCalibrationLine", "deadReadout", "deadPhys"]
-                                                                       )                           
+   theLArStripsCrossTalkCorrector.NoXtalkCorr=["deadReadout","deadPhys","deadCalib","almostDead"]
+   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=["short","peculiarCalibrationLine", "deadReadout", "deadPhys"]
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent                                                                       
    topSequence +=theLArStripsCrossTalkCorrector
  
@@ -673,13 +669,13 @@ if (doCaliWaveSelector) :
    LArCaliWaveSelector.KeyList         = [ KeyOutput+"multi" ]
    LArCaliWaveSelector.KeyOutput       = KeyOutput
    LArCaliWaveSelector.GroupingType     = GroupingType
-   if (GainList[0]=="HIGH") :
+   if (Gain=="HIGH") :
       LArCaliWaveSelector.SelectionList = [ "HEC/0/0/460","HEC/1/0/460","HEC/2/0/230","HEC/3/0/230" ] 
 
-   if (GainList[0]=="MEDIUM") :
+   if (Gain=="MEDIUM") :
       LArCaliWaveSelector.SelectionList = [ "HEC/0/1/3600","HEC/1/1/3600","HEC/2/1/1800","HEC/3/1/1800"]
    
-   if (GainList[0]=="LOW") :   
+   if (Gain=="LOW") :   
       LArCaliWaveSelector.SelectionList = [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000" ]
       
    topSequence+=LArCaliWaveSelector
@@ -698,16 +694,9 @@ if CorrectBadChannels:
    #theLArCaliWavePatcher.PatchMethod="PhiNeighbor" ##take the first neigbour
    theLArCaliWavePatcher.PatchMethod="PhiAverage" ##do an aveage in phi after removing bad and empty event
    theLArCaliWavePatcher.OutputLevel=INFO
-   
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-   theLArRCBMasker.DoMasking=True
-   theLArRCBMasker.ProblemsToMask=[
+   theLArCaliWavePatcher.ProblemsToPatch=[
       "deadCalib","deadReadout","deadPhys","almostDead","short",
       ]
-   theLArCaliWavePatcher.UseCorrChannels=False  
-   ToolSvc+=theLArRCBMasker
-   theLArCaliWavePatcher.MaskingTool=theLArRCBMasker
    topSequence+=theLArCaliWavePatcher
  
 
@@ -743,16 +732,11 @@ if doOFC:
 
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArDelayValBCMask=LArBadChannelMasker("DelayValBCMask",
-                                            DoMasking=True,
-                                            ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
-                                                            "highNoiseHG","highNoiseMG","highNoiseLG"]
-                                            )
-   ServiceMgr.ToolSvc+=theLArDelayValBCMask
+   
    from LArCalibDataQuality.Thresholds import cwFWHMThr, cwAmpThr,cwAmpThrFEB, cwFWHMThrFEB  
    theCaliWaveValidationAlg=LArCaliWaveValidationAlg("CaliWaveVal")
-   theCaliWaveValidationAlg.BadChannelMaskingTool=theLArDelayValBCMask
+   theCaliWaveValidationAlg.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                            "highNoiseHG","highNoiseMG","highNoiseLG"]
    theCaliWaveValidationAlg.ValidationKey=KeyOutput
    theCaliWaveValidationAlg.ReferenceKey="LArCaliWaveRef"
    theCaliWaveValidationAlg.MsgLevelForDeviations=WARNING
@@ -768,7 +752,8 @@ if ( doLArCalibDataQuality  ) :
    
    ## second instance of the validation tool to detect "bad" channel 
    theBadCaliWave=LArCaliWaveValidationAlg("CaliWaveFail")
-   theBadCaliWave.BadChannelMaskingTool=theLArDelayValBCMask
+   theBadCaliWave.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                   "highNoiseHG","highNoiseMG","highNoiseLG"]
    theBadCaliWave.ValidationKey=KeyOutput
    theBadCaliWave.ReferenceKey="LArCaliWaveRef"
    theBadCaliWave.MsgLevelForDeviations=WARNING
@@ -811,7 +796,7 @@ if ( doMonitoring ) :
       os.remove(OutputRootFileDir + "/" +RootHistOutputFileName)
    ServiceMgr += THistSvc()
 
-   ServiceMgr.THistSvc.Output =  ["GLOBAL DATAFILE='"+OutputRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
+   ServiceMgr.THistSvc.Output =  ["GLOBAL DATAFILE='"+OutputRootFileDir+ "/" +RootHistOutputFileName+"', OPT='RECREATE'"]
 
 
 if (WriteNtuple):
@@ -866,7 +851,6 @@ if doOFC:
   from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
   theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
   theLArAutoCorrDecoderTool.isSC = SuperCells
-  ToolSvc += theLArAutoCorrDecoderTool
 
   from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
   LArCaliOFCAlg = LArOFCAlg("LArCaliOFCAlg")
@@ -881,6 +865,7 @@ if doOFC:
   LArCaliOFCAlg.TimeShiftByIndex = TimeShiftByIndex
   LArCaliOFCAlg.Verify    = True
   LArCaliOFCAlg.FillShape = False
+
   if ( DumpOFC ) :
      LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
   LArCaliOFCAlg.GroupingType = GroupingType
@@ -920,11 +905,11 @@ if doOFC:
    
 ###########################################################################
 
-ServiceMgr.MessageSvc.OutputLevel  = ERROR
+ServiceMgr.MessageSvc.OutputLevel  = WARNING
 ServiceMgr.MessageSvc.defaultLimit = 10000
 ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = DEBUG)
+ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

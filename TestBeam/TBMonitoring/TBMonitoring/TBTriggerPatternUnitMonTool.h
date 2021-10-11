@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -53,7 +53,6 @@ class TBTriggerPatternUnitMonTool: public MonitorToolBase
 
   bool m_fake_detector;
   //bool m_testTool;
-  bool m_isBooked;
 
   // Trigger pattern histos
   IHistogram1D* m_histo_triggpat1;

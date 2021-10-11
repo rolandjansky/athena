@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -47,12 +47,16 @@ namespace pool  {
     static const DbContainer& containedIn(const DbObject* pObj);
     
     /// Access object oid
-    static Token::OID_t& objectOid(const DbObject* ptr);
+    static Token::OID_t& objectOid(DbObject* ptr);
+
+    /// Access object oid
+    static const Token::OID_t& objectOid(const DbObject* ptr);
 
     /// Add persistent association entry
-    static DbStatus makeObjectLink( const DbObject*     pObj,
-                                    const Token*        pToken,
-                                    Token::OID_t&       tokenH);
+    static DbStatus makeObjectLink ATLAS_NOT_THREAD_SAFE
+      ( const DbObject*     pObj,
+        Token*              pToken,
+        Token::OID_t&       tokenH );
     
   };
 }       // End namespace pool

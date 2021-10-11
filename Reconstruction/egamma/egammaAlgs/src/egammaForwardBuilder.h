@@ -30,6 +30,9 @@
 #include "EventKernel/IParticle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -65,42 +68,68 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
+   StatusCode ExecObjectQualityTool(const EventContext& ctx,
+                                    const CaloDetDescrManager* calodetdescrmgr,
+                                    xAOD::Egamma* eg) const;
 
-  StatusCode ExecObjectQualityTool(const EventContext &ctx, xAOD::Egamma *eg) const; 
+   /** @brief Tool to perform object quality*/
+   ToolHandle<IegammaOQFlagsBuilder> m_objectQualityTool{
+     this,
+     "ObjectQualityTool",
+     "",
+     "Name of the object quality tool (empty tool name ignored)"
+   };
 
-  /** @brief Tool to perform object quality*/
-  ToolHandle<IegammaOQFlagsBuilder> m_objectQualityTool {this,
-      "ObjectQualityTool", "",
-      "Name of the object quality tool (empty tool name ignored)"};
+   /** @brief Tool to perform the 4-mom computation*/
+   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder{ this,
+                                                   "FourMomBuilderTool",
+                                                   "EMFourMomBuilder",
+                                                   "Handle of 4-mom Builder" };
 
-  /** @brief Tool to perform the 4-mom computation*/
-  ToolHandle<IEMFourMomBuilder> m_fourMomBuilder {this,
-      "FourMomBuilderTool", "EMFourMomBuilder",
-      "Handle of 4-mom Builder"};
+   /** @brief input topo cluster type */
+   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoClusterKey{
+     this,
+     "TopoClusterName",
+     "CaloCalTopoClusters",
+     "Name of the input cluster collection"
+   };
 
-  /** @brief input topo cluster type */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoClusterKey {this,
-      "TopoClusterName", "",
-      "Name of the input cluster collection"};
+   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
 
-  /** @brief output electron container */
-  SG::WriteHandleKey<xAOD::ElectronContainer>  m_electronOutputKey {this,
-      "ElectronOutputName", "",
-      "Name of Electron Container to be created"};
-  
-  /** @brief output cluster container */
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterContainerKey {this,
-      "ClusterContainerName", ""
-      "Name of the output EM cluster container"};
+   /** @brief output electron container */
+   SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey{
+     this,
+     "ElectronOutputName",
+     "",
+     "Name of Electron Container to be created"
+   };
 
-  /** @brief output cluster container cell links: name taken from containter name **/
-  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outClusterContainerCellLinkKey;
+   /** @brief output cluster container */
+   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterContainerKey{
+     this,
+     "ClusterContainerName",
+     ""
+     "Name of the output EM cluster container"
+   };
 
-  /** @brief  ET cut */
-  Gaudi::Property<double> m_ETcut {this, "EtCut", 5.*Gaudi::Units::GeV, "ET cut"};
+   /** @brief output cluster container cell links: name taken from containter
+    * name **/
+   SG::WriteHandleKey<CaloClusterCellLinkContainer>
+     m_outClusterContainerCellLinkKey;
 
-  /** @brief eta cut */
-  Gaudi::Property<double> m_etacut {this, "EtaCut", 2.5, "eta cut"};
+   /** @brief  ET cut */
+   Gaudi::Property<double> m_ETcut{ this,
+                                    "EtCut",
+                                    5. * Gaudi::Units::GeV,
+                                    "ET cut" };
+
+   /** @brief eta cut */
+   Gaudi::Property<double> m_etacut{ this, "EtaCut", 2.5, "eta cut" };
 
  protected:
   /** Handle to the selectors */

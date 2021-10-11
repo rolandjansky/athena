@@ -1,7 +1,7 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,6 +13,8 @@
 #include "TrigT1RPChardware/MatrixReadOut.h"
 #include "TrigT1RPChardware/PadReadOut.h"
 
+#include <array>
+#include <memory>
 
 class PADreadout : public RPCtrigDataObject
 {
@@ -20,13 +22,12 @@ class PADreadout : public RPCtrigDataObject
     int m_sector;
     int m_PAD;
 
-    MatrixReadOut* m_matrices_readout[8];
-    PadReadOut* m_pad_readout;
+    MatrixReadOut* m_matrices_readout[8] = {nullptr};
+    std::unique_ptr<PadReadOut> m_pad_readout;
 
     public:
     PADreadout(int,int);
     PADreadout(const PADreadout&);
-    ~PADreadout();
 
     PADreadout operator=(const PADreadout&);
 
@@ -34,7 +35,7 @@ class PADreadout : public RPCtrigDataObject
     bool operator!=(const PADreadout&) const;
     bool operator< (const PADreadout&) const;
 
-    void load_readout(MatrixReadOut**);
+    void load_readout(std::array<MatrixReadOut*, 2>&);
 
     int sector(void) const {return m_sector;}
     int PAD(void)    const {return m_PAD;}

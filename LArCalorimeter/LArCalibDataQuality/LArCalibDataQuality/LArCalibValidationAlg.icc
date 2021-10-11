@@ -10,7 +10,6 @@ template<class CONDITIONSCONTAINER>
 LArCalibValidationAlg<CONDITIONSCONTAINER>::LArCalibValidationAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
   m_myMsgLvl(MSG::ERROR),
-  m_badChanMaskingTool("LArBadChannelMasker"),
   m_onlineHelper(NULL),m_emId(NULL),m_hecId(NULL),m_fcalId(NULL),m_caloId(NULL),
   m_reference(NULL),m_validation(NULL),m_nc_validation(NULL),
   m_nChecked(0),m_nFailedValidation(0),m_nValidated(0),m_nBad(0),m_nNoReference(0) {
@@ -18,9 +17,6 @@ LArCalibValidationAlg<CONDITIONSCONTAINER>::LArCalibValidationAlg (const std::st
 		  "SG key of the LArConditionsContainer to be validated");
   declareProperty("ReferenceKey",m_referenceKey="",
 		  "SG key of the LArConditionsContainer used as reference");
-  declareProperty("BadChannelMaskingTool",m_badChanMaskingTool,
-		  "BadChannelMaskingTool to be used");
-
   declareProperty("UseBadChannelInfo",m_useBCInfo=true,
 		  "Use bad-channel info to skip validation for some type of bad-channels and for channel-description");
 
@@ -90,8 +86,10 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
 
   /// Get bad-channel tool 
   const LArOnOffIdMapping* cabling=nullptr;
+  
   if (m_useBCInfo) {
-    ATH_CHECK( m_badChanMaskingTool.retrieve() );
+    ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+  
   }
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   cabling=*cablingHdl;
@@ -177,7 +175,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
       ++m_nChecked;
 
       if (m_useBCInfo) {
-	if (m_badChanMaskingTool->cellShouldBeMasked(chid,igain)) {
+	if (m_bcMask.cellShouldBeMasked(bcCont,chid)) {
 	  ATH_MSG_DEBUG ( channelDescription(chid,cabling,bcCont,igain) << " known to be bad by bad-channel tool. Ignore." ) ;
 	  ++m_nBad;
 	  continue;
@@ -237,8 +235,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::summary(const LArOnOffIdM
                  << "\" against container \"" <<  m_referenceKey << "\"" ) ;
 
   if (m_useBCInfo)
-    ATH_MSG_INFO ( "Number of channels skipped according to masking tool " << m_badChanMaskingTool.name()
-                   <<": " << m_nBad ) ;
+    ATH_MSG_INFO ( "Number of channels skipped according to masking: " << m_nBad ) ;
 
   if (m_nNoReference)
     ATH_MSG_ERROR ( "No reference found for " << m_nNoReference << " channels" ) ;

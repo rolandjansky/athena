@@ -13,6 +13,7 @@
 #include "Gaudi/Property.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigT1Result/CTP_RDO.h"
 
 // Forward includes:
 class IAtRndmGenSvc;
@@ -34,9 +35,6 @@ namespace LVL1 {
   class EnergyCTP;
   class MbtsCTP;
   class BcmCTP;
-  class TrtCTP;
-  class LucidCTP;
-  class ZdcCTP;
   class BptxCTP;
   class NimCTP;
   class FrontPanelCTP;
@@ -90,6 +88,8 @@ namespace TrigT1CTMonitoring {
       std::vector<std::string> m_par_atrlist;   
       std::vector<std::string> m_par_atrcollist;
       const DataHandle<CondAttrListCollection> m_ctpCoreMapping;
+
+      SG::ReadHandleKey<CTP_RDO> m_CTP_RDOKey{ this, "CTP_RDOKey", "CTP_RDO" };
    }; 
 }
 #endif //

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file LArTPCnv/test/LArNoisyROSSummaryCnv_p3_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "LArTPCnv/LArNoisyROSummaryCnv_p4.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -48,7 +47,7 @@ void testit (const LArNoisyROSummary& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -74,7 +73,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

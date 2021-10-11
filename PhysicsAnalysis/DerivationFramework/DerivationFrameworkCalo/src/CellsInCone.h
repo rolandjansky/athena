@@ -11,7 +11,8 @@ class CaloCellContainer;
 
 namespace DerivationFramework {
   namespace CellsInCone{
-    void egammaSelect(xAOD::CaloCluster* inputCl, const CaloCellContainer* inputcells, const xAOD::Egamma* eg, const double dr) ;
+    void egammaSelect(xAOD::CaloCluster* inputCl, const CaloCellContainer* inputcells, 
+                      const CaloDetDescrManager* caloMgr, const xAOD::Egamma* eg, const double dr) ;
   }
 }
 #endif

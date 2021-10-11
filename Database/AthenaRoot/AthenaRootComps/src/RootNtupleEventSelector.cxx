@@ -35,7 +35,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/CLASS_DEF.h"
 

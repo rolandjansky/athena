@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena include(s)
@@ -89,7 +89,7 @@ StatusCode CscRdoValMonAlg::fillHistograms(const EventContext& ctx) const
         stationId = m_cscRdoDecoderTool->stationIdentifier(raw,&m_idHelperSvc->cscIdHelper());
         channelId = m_cscRdoDecoderTool->channelIdentifier(raw,&m_idHelperSvc->cscIdHelper(),0);
         int stationName = m_idHelperSvc->cscIdHelper().stationName(channelId);
-        int chamberType = Muon::MuonStationIndex::CSS == stationName ? 0 : 1;
+        int chamberType = m_idHelperSvc->cscIdHelper().stationNameIndex("CSS") == stationName ? 0 : 1;
         int stationEta = m_idHelperSvc->cscIdHelper().stationEta(channelId);
         int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(channelId);
         int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(channelId);

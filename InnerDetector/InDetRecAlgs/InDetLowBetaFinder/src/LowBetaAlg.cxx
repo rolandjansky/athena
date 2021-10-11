@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -116,12 +116,11 @@ namespace InDet
               if (origtrack) {
                 double  Trk_pt = trk->pt();
                 if ((Trt_hits != 0) && (Trk_pt > 400.0) ){
-                  const Trk::Track& newtrack = Trk::Track(*origtrack);
 
                   CSMP_indicators.clear();
-                  CSMP_indicators = ChargedSMPindicators(newtrack);
+                  CSMP_indicators = ChargedSMPindicators(*origtrack);
 
-                  if (CSMP_indicators.size() > 1){
+                  if (CSMP_indicators.size() > 10){
                     if(  ( (CSMP_indicators[5] > 15000.0)  || ((int)CSMP_indicators[4] > 10))   && ((unsigned int)CSMP_indicators[6] > m_minTRThits) )  {
 
                       float TRTToTdEdx           = CSMP_indicators[0];
@@ -639,7 +638,7 @@ namespace InDet
 	if (tegap>0.&& hont>1.0) tegap = tegap/(hont-1.0); // average TE gap for a track
 	
 
-	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track));
+	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track),true);
 	else 	dEdx =  -999.0;
       }
       else{

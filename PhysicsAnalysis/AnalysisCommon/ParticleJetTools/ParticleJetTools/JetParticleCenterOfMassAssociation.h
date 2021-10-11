@@ -13,7 +13,7 @@
 #include <string>
 
 class JetParticleCenterOfMassAssociation : public JetParticleAssociation {
-    ASG_TOOL_CLASS(JetParticleCenterOfMassAssociation, JetParticleAssociation)
+    ASG_TOOL_CLASS(JetParticleCenterOfMassAssociation, IJetDecorator)
     public:
 
         JetParticleCenterOfMassAssociation(const std::string& name);

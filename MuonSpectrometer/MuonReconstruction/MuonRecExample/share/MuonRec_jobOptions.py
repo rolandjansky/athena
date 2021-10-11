@@ -61,7 +61,7 @@ if (rec.readRDO() or rec.readESD()) and muonRecFlags.prdToxAOD():
     topSequence += CfgMgr.MDT_PrepDataToxAOD()
     topSequence += CfgMgr.RPC_PrepDataToxAOD()
     topSequence += CfgMgr.TGC_PrepDataToxAOD()
-    if MuonGeometryFlags.hasCSC(): topSequence += CfgMgr.CSC_PrepDataToxAOD()
+    if muonRecFlags.doCSCs(): topSequence += CfgMgr.CSC_PrepDataToxAOD()
     
     if muonRecFlags.doCreateClusters():
         topSequence += CfgMgr.RPC_PrepDataToxAOD("RPC_ClusterToxAOD",InputContainerName="RPC_Clusters")
@@ -83,10 +83,8 @@ if rec.readESD() and DetFlags.readRIOPool.TGC_on():
 
 if muonRecFlags.doFastDigitization():
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-        #if DetFlags.Micromegas_on() and DetFlags.digitize.Micromegas_on():    
         from MuonFastDigitization.MuonFastDigitizationConf import MM_FastDigitizer
         topSequence += MM_FastDigitizer("MM_FastDigitizer")
-        #if DetFlags.sTGC_on() and DetFlags.digitize.sTGC_on():    
         from MuonFastDigitization.MuonFastDigitizationConf import sTgcFastDigitizer
         topSequence += sTgcFastDigitizer("sTgcFastDigitizer")
    
@@ -121,7 +119,7 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
        topSequence.MuonTruthDecorationAlg.SDOs+=["MM_SDO","sTGC_SDO"]
        PRD_TruthMaps += ["MM_TruthMap", "STGC_TruthMap"]
-   if not MuonGeometryFlags.hasCSC(): topSequence.MuonTruthDecorationAlg.CSCSDOs = ""
+   if not muonRecFlags.doCSCs(): topSequence.MuonTruthDecorationAlg.CSCSDOs = ""
    else: PRD_TruthMaps += ["CSC_TruthMap"]
    topSequence.MuonTruthDecorationAlg.PRD_TruthMaps = PRD_TruthMaps
 
@@ -156,7 +154,11 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col],
+                                                   PRD_TruthNames =["RPC_TruthMap", "TGC_TruthMap", "MDT_TruthMap"] + 
+                                                   (["CSC_TruthMap"] if MuonGeometryFlags.hasCSC() else []) + 
+                                                   (["MM_TruthMap"]if MuonGeometryFlags.hasMM() else []) + 
+                                                   (["STGC_TruthMap"] if MuonGeometryFlags.hasSTGC() else []))
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "DetailedTruth",
                                           OutputName             = col + "Truth") 

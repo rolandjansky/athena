@@ -2352,6 +2352,11 @@ StatusCode TileTBAANtuple::initList() {
 
       if (size > 0) {
 
+        if (size < m_nDrawers) {
+          ATH_MSG_INFO( "decreasing m_nDrawers from " << m_nDrawers << " to " << size );
+          m_nDrawers = size;
+        }
+
         unsigned int rosOrder[5] = { 2, 1, 3, 4, 0 };
         unsigned int dr = 0;
         char frg[6] = "0x000";

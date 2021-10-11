@@ -270,7 +270,7 @@ StatusCode Trk::TrackDiff::diff (
     //   comparison track
     DataVector< const Trk::TrackStateData >::iterator refIter = refTrackStateData->begin();
     DataVector< const Trk::TrackStateData >::iterator compIter = compareTrackStateData->begin();
-    for (; refIter != refTrackStateData->end(); refIter++) {
+    for (; refIter != refTrackStateData->end(); ++refIter) {
         // count the reference states by detector type
         //m_nRefStates[ refIter->detType() ]++;
         // loop over trackstates of the comparison track till we find
@@ -278,12 +278,12 @@ StatusCode Trk::TrackDiff::diff (
         bool foundMatchingState = false;
         //bool foundDiff = false;
         // cache the pointer to reference PRD, so we do not have get it again and again
-        const Trk::PrepRawData* refPRD = 0;
+        const Trk::PrepRawData* refPRD = nullptr;
         if ((*refIter)->rot()) {
             refPRD = (*refIter)->rot()->prepRawData();
         }
         compIter = compareTrackStateData->begin();
-        for ( ; compIter != compareTrackStateData->end(); compIter++ ) {
+        for ( ; compIter != compareTrackStateData->end(); ++compIter ) {
             // compare the surfaces of the reference and the compared track state
             if ( (*compIter)->surface() == (*refIter)->surface() ) {
                 // we found a track state on the same surface!
@@ -312,7 +312,7 @@ StatusCode Trk::TrackDiff::diff (
         if (!foundMatchingState) {
             // we have a state in the reference, which is not contained in the
             // compared track!
-            diffStateInfo((*refIter), 0);
+            diffStateInfo((*refIter), nullptr);
         } else {
             diffStateInfo((*refIter), (*compIter));
             // drop the compared track state from our list:
@@ -323,8 +323,8 @@ StatusCode Trk::TrackDiff::diff (
 
     // loop over the remaining compared states: They are fakes
     compIter = compareTrackStateData->begin();
-    for (; compIter != compareTrackStateData->end(); compIter++) {
-        diffStateInfo(0, (*compIter));
+    for (; compIter != compareTrackStateData->end(); ++compIter) {
+        diffStateInfo(nullptr, (*compIter));
     }
     // -----------------------
     // output some statistics:
@@ -356,7 +356,7 @@ DataVector< const Trk::TrackStateData >* Trk::TrackDiff::extractDataFromTrack( c
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
     if (!trackStates) {
       ATH_MSG_ERROR ( "track containes no track states, diff impossible" );
-      return 0;
+      return nullptr;
     }
 
     // create the vector of extracted data
@@ -366,7 +366,7 @@ DataVector< const Trk::TrackStateData >* Trk::TrackDiff::extractDataFromTrack( c
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iter = trackStates->begin();
     // Loop over all track states on surfaces
     //    to extract the measurements
-    for (; iter != trackStates->end(); iter++) {
+    for (; iter != trackStates->end(); ++iter) {
         if (!(*iter)) {
           ATH_MSG_WARNING ( "TrackStateOnSurface == Null" );
           continue;

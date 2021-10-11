@@ -56,7 +56,6 @@ if DetFlags.readRIOBS.CSC_on():
 
 if DetFlags.readRIOBS.LVL1_on():
      svcMgr.ByteStreamAddressProviderSvc.TypeNames += [                         
-          "ROIB::RecRoIBResult/RecRoIBResult",
           "MuCTPI_RIO/MUCTPI_RIO",
           "CTP_RIO/CTP_RIO"
           ] 

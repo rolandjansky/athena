@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +110,11 @@ namespace InDet {
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
 	 bool, const EventContext& ctx) const override;
    
+      virtual double pTseed(SiCombinatorialTrackFinderData_xk& data,
+			    const Trk::TrackParameters&,
+			    const std::vector<const Trk::SpacePoint*>&,
+			    const EventContext&) const override;
+
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const override;
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,
                             Trk::TrackInfo, const TrackQualityCuts&) const override;
@@ -167,6 +172,8 @@ namespace InDet {
       //@{
       BooleanProperty m_usePIX{this, "usePixel", true};
       BooleanProperty m_useSCT{this, "useSCT", true};
+      BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
+      BooleanProperty m_doFastTracking{this, "doFastTracking", false};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
       BooleanProperty m_writeHolesFromPattern{this, "writeHolesFromPattern", false,"Flag to activate writing hole info from the pattern recognition"}; 
@@ -203,16 +210,21 @@ namespace InDet {
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
    const EventContext&) const;
 
-      void getTrackQualityCuts(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts&) const;
+      static void getTrackQualityCuts(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts&) ;
 
-      Trk::Track* convertToTrack(SiCombinatorialTrackFinderData_xk& data) const;
-      Trk::Track* convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) const;
+      static Trk::Track* convertToTrack(SiCombinatorialTrackFinderData_xk& data) ;
+      static Trk::Track* convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) ;
  
       void magneticFieldInit();
 
-      bool spacePointsToClusters
+      static bool spacePointsToClusters
 	(const std::vector<const Trk::SpacePoint*>&,
-	 std::list<const InDet::SiCluster*> &) const; 
+	 std::list<const InDet::SiCluster*> &) ; 
+
+      static bool spacePointsToClusters
+	(const std::vector<const Trk::SpacePoint*>&,
+	 std::list<const InDet::SiCluster*> &,
+	 std::list<const InDetDD::SiDetectorElement*>&) ;
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,
@@ -220,7 +232,7 @@ namespace InDet {
    const EventContext& ctx) const;
 
       MsgStream& dumpconditions(MsgStream& out) const;
-      MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
+      static MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) ;
 
       void initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const;
       virtual void fillStatistic(SiCombinatorialTrackFinderData_xk& data, std::array<bool,NumberOfStats>& information) const override;

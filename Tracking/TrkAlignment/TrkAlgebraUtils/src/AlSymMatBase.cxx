@@ -9,10 +9,10 @@
 #include "TrkAlgebraUtils/AlVec.h"
 #include "TrkAlgebraUtils/AlMat.h"
 
-#include <iomanip>
+#include <cfloat> //for DBL_EPSILON
+#include <cmath>
 #include <fstream>
-#include <math.h>
-#include <float.h> //for DBL_EPSILON
+#include <iomanip>
 
 namespace Trk {
 

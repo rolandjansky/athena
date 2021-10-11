@@ -14,6 +14,8 @@ namespace FlavorTagDiscriminants {
                                         float muonMinDR,
                                         float muonMinpT,
                                         FlipTagConfig flipConfig ):
+    m_btag_track_aug("btagIp_"),
+    m_jetLink("jetLink"),
     m_dec_muon_isDefaults("softMuon_isDefaults"),
     m_dec_muon_pt("softMuon_pt"),
     m_dec_muon_dR("softMuon_dR"),
@@ -33,7 +35,6 @@ namespace FlavorTagDiscriminants {
   {
     // you probably have to initialize something here
     using namespace FlavorTagDiscriminants;
-    m_btag_track_aug = BTagTrackIpAccessor();
     m_muonAssociationName = muonAssociationName;
     m_muonMinDR = muonMinDR;
     m_muonMinpT = muonMinpT;
@@ -43,7 +44,7 @@ namespace FlavorTagDiscriminants {
   BTagMuonAugmenter::~BTagMuonAugmenter() = default;
   BTagMuonAugmenter::BTagMuonAugmenter(BTagMuonAugmenter&&) = default;
 
-  void BTagMuonAugmenter::augment(const xAOD::Jet &jet ) const {
+  void BTagMuonAugmenter::augment(const xAOD::BTagging& btag) const {
 
     BTagSignedIP muon_ip;
     unsigned int muon_index = 99;
@@ -67,8 +68,11 @@ namespace FlavorTagDiscriminants {
     float muon_ip3d_sigma_z0 = -1;
     ElementLink<xAOD::MuonContainer> muon_link;
 
-
-    const xAOD::BTagging &btag = *xAOD::BTaggingUtilities::getBTagging( jet );
+    auto jet_link = m_jetLink(btag);
+    if (!jet_link.isValid()) {
+      throw std::runtime_error("missing jetLink");
+    }
+    const xAOD::Jet& jet = **jet_link;
 
     // Find associated combined muon closest to jet axis (like legacy SMT)
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
@@ -189,7 +193,10 @@ std::set<std::string> BTagMuonAugmenter::getDecoratorKeys() const {
 }
 
   std::set<std::string> BTagMuonAugmenter::getAuxInputKeys() const {
-    return {m_muonAssociationName};
+    const auto& type_registry = SG::AuxTypeRegistry::instance();
+    return {
+      m_muonAssociationName,
+      type_registry.getName(m_jetLink.auxid())};
   }
   std::set<std::string> BTagMuonAugmenter::getConstituentAuxInputKeys() const {
     return m_btag_track_aug.getTrackIpDataDependencyNames();

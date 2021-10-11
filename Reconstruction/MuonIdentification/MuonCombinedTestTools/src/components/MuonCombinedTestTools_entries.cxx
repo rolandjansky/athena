@@ -1,7 +1,5 @@
 #include "../MuonTrackTagTestTool.h"
 
-//using namespace MuonCombined;
+// using namespace MuonCombined;
 
-DECLARE_COMPONENT( MuonCombined::MuonTrackTagTestTool )
-  
-
+DECLARE_COMPONENT(MuonCombined::MuonTrackTagTestTool)

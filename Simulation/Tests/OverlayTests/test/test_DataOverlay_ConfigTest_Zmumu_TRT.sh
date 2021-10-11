@@ -21,7 +21,7 @@ Overlay_tf.py \
 --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
 --maxEvents $events \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
 --postInclude 'EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
@@ -35,7 +35,7 @@ Overlay_tf.py \
 --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
 --maxEvents $events \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
 --postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt");' 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
@@ -44,6 +44,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 mv log.Overlay log.OverlayLegacy
 echo "art-result: $rc configLegacy"
 
@@ -57,12 +58,13 @@ then
     --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
     --outputRDOFile dataOverlayRDO.pool.root \
     --maxEvents $events \
-    --conditionsTag CONDBR2-BLKPA-2016-12 \
+    --conditionsTag CONDBR2-BLKPA-2016-12-01 \
     --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
     --postExec 'with open("ConfigOverlay.pkl", "wb") as f: cfg.store(f)' \
     --imf False \
     --athenaopts="--threads=1"
     rc2=$?
+    status=$rc2
     mv log.Overlay log.OverlayTest
 fi
 echo  "art-result: $rc2 configNew"
@@ -85,5 +87,8 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
+
+exit $status

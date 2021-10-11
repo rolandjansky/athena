@@ -57,15 +57,6 @@ topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/'
 topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/'
 topSequence.MMHitAnalysis.HistPath='/HitAnalysis/'
 topSequence.sTGCHitAnalysis.HistPath='/HitAnalysis/'
-#Add some more TH2 histograms
-
-
-topSequence.PixelHitAnalysis.ExpertMode= "off"
-topSequence.SCTHitAnalysis.ExpertMode= "off"
-topSequence.BCMHitAnalysis.ExpertMode= "off"
-topSequence.BLMHitAnalysis.ExpertMode= "off"
-topSequence.CaloHitAnalysis.ExpertMode = "off"
-topSequence.CaloHitAnalysis.CalibHits = "off"
 
 #from GaudiSvc.GaudiSvcConf import THistSvc
 #ServiceMgr += THistSvc()

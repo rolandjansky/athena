@@ -17,7 +17,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICaloMBAverageTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "StoreGate/ReadCondHandleKey.h"  
 

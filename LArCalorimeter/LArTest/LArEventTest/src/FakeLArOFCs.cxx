@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/FakeLArOFCs.h"
@@ -32,10 +32,7 @@ StatusCode FakeLArOFCs::initialize() {
   std::vector< std::vector<float> > bVec(25); //Stays zero-size;
   LArOFCComplete* larOFCComplete=new LArOFCComplete();
   for(int igain=0; igain<3; igain++) {
-    std::vector<HWIdentifier>::const_iterator itOnId = onlineHelper->channel_begin();
-    std::vector<HWIdentifier>::const_iterator itOnId_e = onlineHelper->channel_end();
-    for (;itOnId!=itOnId_e;itOnId++) {
-      const HWIdentifier ch_id= *itOnId;
+    for (HWIdentifier ch_id : onlineHelper->channel_range()) {
       larOFCComplete->set(ch_id,(int)igain,aVec,bVec);
     }
   }//End loop over gains.

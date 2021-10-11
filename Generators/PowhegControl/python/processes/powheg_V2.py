@@ -11,14 +11,17 @@ class PowhegV2(PowhegBase):
     @author James Robinson  <james.robinson@cern.ch>
     """
 
-    def __init__(self, base_directory, executable_name, **kwargs):
+    def __init__(self, base_directory, executable_name, warning_output = [], info_output = [], error_output = [], **kwargs):
         """! Constructor.
 
         @param base_directory  path to PowhegBox code.
         @param executable_name folder containing appropriate PowhegBox executable.
         @param is_LO           True if this is a leading-order process.
+        @param warning_output list of patterns which if found in the output will be treated as warning in the log.
+        @param error_output list of patterns which if found in the output will be treated as error in the log.
+        @param info_output list of patterns which if found in the output will be treated as info in the log.
         """
-        super(PowhegV2, self).__init__(base_directory, "POWHEG-BOX-V2", executable_name, **kwargs)
+        super(PowhegV2, self).__init__(base_directory, "POWHEG-BOX-V2", executable_name=executable_name, warning_output=warning_output, info_output=info_output, error_output=error_output, **kwargs)
 
     @property
     def default_PDFs(self):
@@ -59,27 +62,20 @@ class PowhegV2(PowhegBase):
     @property
     def integration_file_names(self):
         """! Wildcarded list of integration files that might be created by this process."""
+        """! All files matching these patterns will be included in the gridpack."""
         return [
-            "pwgbtildeupb*.dat",
-            "pwgfullgrid*.dat",
+            "pwg*xg*.dat",
+            "pwg*upb*.dat",
             "pwggrid*.dat",
-            "pwggridinfo*.dat",
-            "pwgremnupb*.dat",
+            "pwgfullgrid*.dat",
             "pwgubound*.dat",
-            "pwgxgrid.dat",
         ]
 
     @property
     def mandatory_integration_file_names(self):
         """! Wildcarded list of integration files that are needed for this process."""
-        return [
-            "pwgbtildeupb*.dat",
-            "pwgfullgrid*.dat",
-            "pwggrid*.dat",
-            "pwgremnupb*.dat",
-            "pwgubound*.dat",
-            "pwgxgrid.dat",
-        ]
+        """! If some of the patterns don't match any files before running, a warning will be made to inform that no pre-made integration grid will be used."""
+        return self.integration_file_names
 
     @property
     def powheg_version(self):

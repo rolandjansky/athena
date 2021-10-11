@@ -14,6 +14,7 @@ ParticleJetGhostLabelTool::ParticleJetGhostLabelTool(const std::string& name)
         : AsgTool(name) {
     declareProperty("LabelName", m_labelnames.singleint="HadronGhostTruthLabelID", "Name of the jet label attribute to be added.");
     declareProperty("DoubleLabelName", m_labelnames.doubleint="HadronGhostExtendedTruthLabelID", "Name of the jet label attribute to be added (with the possibility of up to 2 matched hadrons).");
+    declareProperty("LabelPtName", m_labelnames.pt="HadronGhostTruthLabelPt", "Name of attribute for maximum particle pt");
     declareProperty("GhostBName", m_ghostbname="GhostBHadronsFinal", "Name of attribute for matched B hadrons.");
     declareProperty("GhostCName", m_ghostcname="GhostCHadronsFinal", "Name of attribute for matched C hadrons.");
     declareProperty("GhostTauName", m_ghosttauname="GhostTausFinal", "Name of attribute for matched Taus.");
@@ -46,11 +47,11 @@ StatusCode ParticleJetGhostLabelTool::modify(JetContainer& jets) const {
 
     // set truth label for jets above pt threshold
     // hierarchy: b > c > tau > light
-    ParticleJetTools::PartonCounts counts;
-    counts.b = jetlabelpartsb.size();
-    counts.c = jetlabelpartsc.size();
-    counts.tau = jetlabelpartstau.size();
-    ParticleJetTools::setJetLabels(jet, counts, m_labelnames);
+    ParticleJetTools::Particles particles;
+    particles.b = jetlabelpartsb;
+    particles.c = jetlabelpartsc;
+    particles.tau = jetlabelpartstau;
+    ParticleJetTools::setJetLabels(jet, particles, m_labelnames);
   }
 
   return StatusCode::SUCCESS;

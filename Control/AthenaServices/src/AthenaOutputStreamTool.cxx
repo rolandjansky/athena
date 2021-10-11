@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaOutputStreamTool.cxx
@@ -13,10 +13,10 @@
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDecisionSvc.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -75,16 +75,10 @@ AthenaOutputStreamTool::~AthenaOutputStreamTool() {
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   // Get the ClassIDSvc - to get typename for clid
-   if (m_clidSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Cannot get IClassIDSvc interface of the CLIDSvc");
-      return(StatusCode::FAILURE);
-   }
-   if (m_conversionSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Cannot get IConversionSvc interface of the ConversionSvc");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_INFO("Initializing " << name());
+
+   ATH_CHECK( m_clidSvc.retrieve() );
+   ATH_CHECK( m_conversionSvc.retrieve() );
 
    { // handle the AttrKey overwite
      const std::string keyword = "[AttributeListKey=";
@@ -92,7 +86,7 @@ StatusCode AthenaOutputStreamTool::initialize() {
      if( (pos != std::string::npos) ) {
        ATH_MSG_INFO("The AttrListKey will be overwritten/set by the value from the OutputName: " << m_outputName);
        const std::string attrListKey = m_outputName.value().substr(pos + keyword.size(),
-								   m_outputName.value().find("]", pos + keyword.size()) - pos - keyword.size());
+								   m_outputName.value().find(']', pos + keyword.size()) - pos - keyword.size());
        m_attrListKey = attrListKey;
      }
    }
@@ -522,9 +516,9 @@ StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromT
                   }
                   ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();
-                  if (keyName.size() > 10 && keyName.substr(0, 10) == hltKey) {
+                  if (keyName.size() > 10 && keyName.compare(0, 10,hltKey)==0) {
                      p2BWrittenFromTool->add(clid, hltKey + "*").ignore();
-                  } else if (keyName.size() > 10 && keyName.substr(keyName.size() - 10, 10) == hltKey) {
+                  } else if (keyName.size() > 10 && keyName.compare(keyName.size() - 10, 10, hltKey)==0) {
                      p2BWrittenFromTool->add(clid, "*" + hltKey).ignore();
                   } else {
                      p2BWrittenFromTool->add(clid, keyName).ignore();

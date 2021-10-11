@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandle_TGC.h"
@@ -58,19 +58,17 @@ SoTransform * PRDHandle_TGC::createTransform() const
     Amg::Vector3D gpos = tgcTrans*lposTGC;
     Amg::Vector3D gpos_shift = tgcTrans*lpos_shift;
     
-    const Amg::Vector2D* locPos1 =  theSurface.globalToLocal(gpos,100);
-    const Amg::Vector2D* locPos2 = theSurface.globalToLocal(gpos_shift,100);
+    std::optional<Amg::Vector2D> locPos1 =  theSurface.globalToLocal(gpos,100);
+    std::optional<Amg::Vector2D> locPos2 = theSurface.globalToLocal(gpos_shift,100);
     
     if (!locPos1 || !locPos2) {
       VP1Msg::message("PRDHandle_TGC::createTransform() Warning: global to local failed - cannot make transform!");
-      delete locPos1; delete locPos2;
       return 0;
     }
     
     Amg::Vector2D difPos = (*locPos2) - (*locPos1);
     // std::cout << " Strip pos " << *locPos1 << " shifted " << *locPos2 << " dif " << difPos << std::endl;
     double tmp= difPos[Trk::locY] / sqrt(pow(difPos[Trk::locX],2)+pow(difPos[Trk::locY],2));
-    delete locPos1; delete locPos2;
     
     tmp = (tmp>1.0) ? 1.0 : tmp;
     tmp = (tmp<-1.0) ? -1.0 : tmp;
@@ -162,10 +160,11 @@ void PRDHandle_TGC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
     // get local position on wire plane, here we have to use a tolarance as the wire plane is located 2.5 CLHEP::mm
     // from the strip plane
       double tolerance = 3.;
-      const Amg::Vector2D * localposHIT = m_tgc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance);
+      std::optional<Amg::Vector2D>localposHIT = m_tgc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance);
       if( !localposHIT )
       {
-        localposHIT = new Amg::Vector2D;
+        localposHIT.emplace();
+        localposHIT->setZero();
         VP1Msg::message("Warning: Local wire position is NULL");
       }
 
@@ -177,14 +176,12 @@ void PRDHandle_TGC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       transparent->transparency.setValue(0.5);
       rdos->addChild( transparent );
       Amg::Vector2D localposOLD = *localposHIT;
-      std::vector<Identifier>::const_iterator st = rdolist.begin();
-      std::vector<Identifier>::const_iterator en = rdolist.end();
-      for( std::vector<Identifier>::const_iterator it = st; it!=en; it++)
+      for (const Identifier& rdo_id : rdolist)
       {
-        if (*it == id )
+        if (rdo_id == id )
           continue;
-        const Amg::Vector3D& globalposRDO = m_tgc->detectorElement()->channelPos( *it );
-        const Amg::Vector2D * localposRDO = m_tgc->detectorElement()->surface( *it ).Trk::Surface::globalToLocal(globalposRDO,tolerance);
+        const Amg::Vector3D& globalposRDO = m_tgc->detectorElement()->channelPos( rdo_id );
+        std::optional<Amg::Vector2D> localposRDO = m_tgc->detectorElement()->surface( rdo_id ).Trk::Surface::globalToLocal(globalposRDO,tolerance);
         if (!localposRDO)
         {
           VP1Msg::message("Warning: Local wire position is NULL");
@@ -200,10 +197,8 @@ void PRDHandle_TGC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
           3*0.8)); //strip thickness - hardcoded to be ~= the gas gap
 
         localposOLD = *localposRDO;
-        delete localposRDO;
       }
       errDetailed->addChild(rdos);
-      delete localposHIT;
     }
     shape_detailed = errDetailed;
   }

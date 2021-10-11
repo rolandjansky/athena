@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -244,7 +244,7 @@ bool SelectionCutNTracks::accept(const xAOD::TauJet& xTau,
   // check track multiplicity, if tau has one of the number of tracks requiered then return true; false otherwise
   for( size_t iNumTrack = 0; iNumTrack < m_tTST->m_vNTracks.size(); iNumTrack++ )
   {
-    if ( xTau.nTracks() == m_tTST->m_vNTracks.at(iNumTrack) )
+    if ( static_cast<unsigned> (xTau.nTracks()) == m_tTST->m_vNTracks.at(iNumTrack) )
     {
       acceptData.setCutResult( "NTrack", true );
       return true;
@@ -348,8 +348,8 @@ void SelectionCutRNNJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH
 //______________________________________________________________________________
 void SelectionCutRNNJetScoreSigTrans::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  info.addCut( "JetBDTScore",
-               "Selection of taus according to their JetBDTScore" );
+  info.addCut( "JetRNNScoreSigTrans",
+               "Selection of taus according to their JetRNNScore" );
 }
 //______________________________________________________________________________
 bool SelectionCutRNNJetScoreSigTrans::accept(const xAOD::TauJet& xTau,
@@ -513,10 +513,8 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
 //______________________________________________________________________________
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST),
-    m_sEleBDTDecorationName ("BDTEleScoreSigTrans")
+    m_sEleBDTDecorationName ("BDTEleScoreSigTrans_retuned")
 {
-  m_sEleBDTDecorationName = "BDTEleScoreSigTrans_retuned";
-
   if (m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDLOOSE) ||
      m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDMEDIUM))
   {

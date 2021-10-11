@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -20,12 +20,12 @@ void TrackCnv_p3::persToTrans( const Trk::Track_p2 *persObj,
     const Trk::TrackInfo * info = createTransFromPStore( &m_tiCnv, persObj->m_trackInfo, log );
     if(info )transObj->m_trackInfo  = *info;
     delete info;
-    transObj->m_fitQuality       = createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log );
-    transObj->m_trackStateVector = m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log );
-    // transObj->m_trackSummary = createTransFromPStore(&m_trackSummaryCnv,persObj->m_trackSummary,log);
-    // std::cout << "persToTrans: "<< transObj->m_trackSummary;
-    //std::cout << "ROBERT: "<< transObj->m_trackSummary->getPixeldEdx() << " " << transObj->m_trackSummary->numberOfInstantiations();
-
+    transObj->m_fitQuality.reset(
+      createTransFromPStore(&m_fqCnv, persObj->m_fitQuality, log));
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
+      m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
+    // move copy
+    transObj->m_trackStateVectorPtr = std::move(sink);
 }
 
 //-----------------------------------------------------------------------------

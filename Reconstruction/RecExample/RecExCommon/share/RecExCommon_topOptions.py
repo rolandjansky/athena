@@ -45,7 +45,6 @@ excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
-excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
@@ -470,16 +469,6 @@ if globalflags.InputFormat.is_bytestream():
         elif len(athenaCommonFlags.BSRDOInput())>0:
             svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
-    if globalflags.DataSource()=='geant4':
-        logRecExCommon_topOptions.info("DataSource is 'geant4'")
-        #Special add-ons for simulation based bytestream
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        tf.configurationSourceList = ['ds']
-        tf.readLVL1configFromXML = True
-        tf.readHLTconfigFromXML = True
-        svcMgr.ByteStreamCnvSvc.IsSimulation = True
-
-
     #Set TypeNames of ByteStreamInputService according to global flags:
     protectedInclude("RecExCommon/BSRead_config.py")
 
@@ -541,20 +530,21 @@ pdr.flag_domain('trig')
 # no trigger, if readESD _and_ doESD ! (from Simon George, #87654)
 if rec.readESD() and rec.doESD():
     rec.doTrigger=False
-    recAlgs.doTrigger=False
     logRecExCommon_topOptions.info("detected re-reconstruction from ESD, will switch trigger OFF !")
 
-# Disable Trigger output reading in MC if there is none, unless running Trigger selection algorithms
-if not globalflags.InputFormat.is_bytestream() and not recAlgs.doTrigger:
+# Disable Trigger output reading in MC if there is none
+if not globalflags.InputFormat.is_bytestream():
     try:
         from RecExConfig.ObjKeyStore import cfgKeyStore
         from PyUtils.MetaReaderPeeker import convert_itemList
         cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
         # Check for Run-1, Run-2 or Run-3 Trigger content in the input file
+        from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if not cfgKeyStore.isInInputFile("HLT::HLTResult", "HLTResult_EF") \
                 and not cfgKeyStore.isInInputFile("xAOD::TrigNavigation", "TrigNavigation") \
-                and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", "HLTNav_Summary"):
-            logRecExCommon_topOptions.info('Disabled rec.doTrigger because recAlgs.doTrigger=False and there is no Trigger content in the input file')
+                and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", getRun3NavigationContainerFromInput(ConfigFlags) ):
+            logRecExCommon_topOptions.info('Disabled rec.doTrigger because there is no Trigger content in the input file')
             rec.doTrigger = False
     except Exception:
         logRecExCommon_topOptions.warning('Failed to check input file for Trigger content, leaving rec.doTrigger value unchanged (%s)', rec.doTrigger)
@@ -565,14 +555,14 @@ if rec.doTrigger:
             include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
             treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
-            rec.doTrigger = recAlgs.doTrigger = False
+            rec.doTrigger = False
     else:
         try:
             from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
             triggerGetter = T0TriggerGetter()
         except Exception:
             treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
-            rec.doTrigger = recAlgs.doTrigger = False
+            rec.doTrigger = False
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
     if rec.readESD() and rec.doAOD():
@@ -667,7 +657,7 @@ if rec.doHeavyIon():
 if rec.doHIP ():
     protectedInclude ("HIRecExample/HIPRec_jobOptions.py")
 
-if rec.doWriteBS() and not recAlgs.doTrigger():
+if rec.doWriteBS():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
@@ -1274,14 +1264,6 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
-            from tauRec.tauRecFlags import tauFlags
-            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
-                # TauThinningAlg takes care of all tau-related thinning operations (taus, clusters, cells, cell links, PFOs, tracks, vertices)
-                from tauRec.tauRecConf import TauThinningAlg
-                tauThinningAlg = TauThinningAlg('TauThinningAlg',
-                                                MinTauPt = tauFlags.tauRecMinPt())
-                topSequence += tauThinningAlg
-
         except Exception:
             treatException("Could not make AOD cells" )
 
@@ -1319,6 +1301,14 @@ if rec.doWriteAOD():
 
     # cannot redo the slimming if readAOD and writeAOD
     if not rec.readAOD() and (rec.doESD() or rec.readESD()):
+        if AODFlags.ThinTRTStandaloneTracks:
+            from ThinningUtils.ThinningUtilsConf import ThinTRTStandaloneTrackAlg
+            thinTRTStandaloneTrackAlg = ThinTRTStandaloneTrackAlg('ThinTRTStandaloneTrackAlg',
+                                                                  doElectron = (rec.doEgamma() and AODFlags.Electron()),
+                                                                  doPhoton = (rec.doEgamma() and AODFlags.Photon()),
+                                                                  doTau = rec.doTau())
+            topSequence += thinTRTStandaloneTrackAlg
+        
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
             doEgammaPhoton = AODFlags.Photon
             doEgammaElectron= AODFlags.Electron
@@ -1327,6 +1317,12 @@ if rec.doWriteAOD():
             if AODFlags.egammaTrackSlimmer:
                 from egammaRec.egammaTrackSlimmer import egammaTrackSlimmer
                 egammaTrackSlimmer()
+
+        if rec.doTau() and AODFlags.ThinTaus:
+            # tau-related thinning: taus, clusters, cells, cell links, PFOs, tracks, vertices
+            from tauRec.tauRecConf import TauThinningAlg
+            tauThinningAlg = TauThinningAlg('TauThinningAlg')
+            topSequence += tauThinningAlg
 
         if rec.doTruth() and AODFlags.ThinGeantTruth:
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
@@ -1397,6 +1393,7 @@ if rec.doWriteAOD():
     #FIXME HACK remove faulty object
     StreamAOD_Augmented.GetEventStream().ItemList = [ e for e in StreamAOD_Augmented.GetEventStream().ItemList if not e in [ 'CaloTowerContainer#HLT_TrigCaloTowerMaker'] ]
 
+    # FIXME: leftover?
     if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -1465,11 +1462,6 @@ if rec.doWriteBS():
     StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
 
     ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
-
-    # BS content definition
-    # commented out since it was causing duplicates
-    #if hasattr( topSequence, "StreamBS") and recAlgs.doTrigger() :
-    #    StreamBSFileOutput.ItemList += topSequence.StreamBS.ItemList
 
     # LVL1
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup

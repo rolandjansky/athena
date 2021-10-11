@@ -18,7 +18,6 @@
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 
-// using namespace std;
 using namespace LVL1;
 
 
@@ -59,9 +58,19 @@ L1TopoSimulation::initialize() {
    ATH_MSG_DEBUG("retrieving " << m_muonInputProvider);
    CHECK( m_muonInputProvider.retrieve() );
 
-   CHECK(m_topoCTPLocation.initialize());
-   CHECK(m_topoOverflowCTPLocation.initialize());
-
+   if (m_isLegacyTopo){
+     CHECK(m_legacyTopoCTPLocation.initialize());
+     CHECK(m_legacyTopoOverflowCTPLocation.initialize());
+     ATH_MSG_DEBUG("Legacy output trigger key property " << m_legacyTopoCTPLocation);
+     ATH_MSG_DEBUG("Legacy output overflow key property " << m_legacyTopoOverflowCTPLocation);
+   }
+   else {
+     CHECK(m_topoCTPLocation.initialize());
+     CHECK(m_topoOverflowCTPLocation.initialize());
+     ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
+     ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
+   }
+   
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
    ATH_MSG_DEBUG("PrescaleDAQROBAccess factor set to " << m_prescaleForDAQROBAccess);
    ATH_MSG_DEBUG("FillHistoBasedOnHardware " << m_fillHistogramsBasedOnHardwareDecision);
@@ -73,8 +82,6 @@ L1TopoSimulation::initialize() {
                     <<", "<<m_prescale);
       return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
-   ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
 
    const TrigConf::L1Menu * l1menu = nullptr;
    ATH_CHECK( detStore()->retrieve(l1menu) ); 
@@ -93,6 +100,7 @@ L1TopoSimulation::initialize() {
    m_topoSteering->setOutputAlgosFillBasedOnHardware(m_fillHistogramsBasedOnHardwareDecision);
 
    std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_histSvc) );
+
    topoHistSvc->setBaseDir("/EXPERT/" + m_histBaseDir.value());
 
    m_topoSteering->setHistSvc(topoHistSvc);
@@ -203,34 +211,50 @@ L1TopoSimulation::execute() {
    const TrigConf::L1Menu * l1menu = nullptr;
    ATH_CHECK( detStore()->retrieve(l1menu) );
 
+     
    if( m_isLegacyTopo ) {
-      // to be implemented
-   } else {
-      // set electrical connectors 
-      std::string conn1 = l1menu->board("Topo2").connectorNames()[0];
-      std::string conn2 = l1menu->board("Topo3").connectorNames()[0];
-      for(unsigned int clock=0; clock<2; ++clock) {
-         topoOutput2CTP->setCableWord0( clock, 0 ); // ALFA
-         ATH_MSG_DEBUG("Word 1 " << conn1 << " clock " << clock << "  " << globalOutput.decision_field( conn1, clock) );
-         topoOutput2CTP->setCableWord1( clock, globalOutput.decision_field( conn1, clock) );  // TOPO 0
-         ATH_MSG_DEBUG("Word 2 " << conn2 << " clock " << clock << "  " << globalOutput.decision_field( conn2, clock) );
-         topoOutput2CTP->setCableWord2( clock, globalOutput.decision_field( conn2, clock) );  // TOPO 1
-         // topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
-         // topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
-         // topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
-      }    
+     // set electrical connectors 
+     std::string conn1 = l1menu->board("LegacyTopo0").connectorNames()[0];
+     std::string conn2 = l1menu->board("LegacyTopo1").connectorNames()[0];
+     for(unsigned int clock=0; clock<2; ++clock) {
+       topoOutput2CTP->setCableWord0( clock, 0 ); // ALFA
+       ATH_MSG_DEBUG("Word 1 " << conn1 << " clock " << clock << "  " << globalOutput.decision_field( conn1, clock) );
+       topoOutput2CTP->setCableWord1( clock, globalOutput.decision_field( conn1, clock) );  // TOPO 0
+       ATH_MSG_DEBUG("Word 2 " << conn2 << " clock " << clock << "  " << globalOutput.decision_field( conn2, clock) );
+       topoOutput2CTP->setCableWord2( clock, globalOutput.decision_field( conn2, clock) );  // TOPO 1
+       // topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
+       // topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
+       // topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
+     }    
 
-      // set optical connectors
+     // set optical connectors
       
-      for( auto connOpt : l1menu->board("Topo1").connectorNames() ) {
-         topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
-      }
-      
+     CHECK(SG::makeHandle(m_legacyTopoCTPLocation)        .record(std::move(topoOutput2CTP)));
+     CHECK(SG::makeHandle(m_legacyTopoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
+     
+   } else {
+     // set electrical connectors 
+     std::string conn1 = l1menu->board("Topo2").connectorNames()[0];
+     std::string conn2 = l1menu->board("Topo3").connectorNames()[0];
+     for(unsigned int clock=0; clock<2; ++clock) {
+       ATH_MSG_DEBUG("Word 1 " << conn1 << " clock " << clock << "  " << globalOutput.decision_field( conn1, clock) );
+       topoOutput2CTP->setCableWord1( clock, globalOutput.decision_field( conn1, clock) );  // TOPO 0
+       ATH_MSG_DEBUG("Word 2 " << conn2 << " clock " << clock << "  " << globalOutput.decision_field( conn2, clock) );
+       topoOutput2CTP->setCableWord2( clock, globalOutput.decision_field( conn2, clock) );  // TOPO 1
+       // topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
+       // topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
+       // topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
+     }    
+
+     // set optical connectors
+     for( auto connOpt : l1menu->board("Topo1").connectorNames() ) {
+       topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
+     }
+     
+     CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoOutput2CTP)));
+     CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
    }
 
-   
-   CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoOutput2CTP)));
-   CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
 
    return StatusCode::SUCCESS;
 }
@@ -266,7 +290,7 @@ L1TopoSimulation::retrieveHardwareDecision()
                 const std::vector<uint32_t> cDataWords = rdo->getDataWords();
                 // initialise header: set version 15, BCN -7, which is unlikely
                 L1Topo::Header header(0xf,0,0,0,0,1,0x7);
-                for (auto word : cDataWords){
+                for (const uint32_t word : cDataWords){
                     switch (L1Topo::blockType(word)){
                     case L1Topo::BlockTypes::HEADER: {
                         header = L1Topo::Header(word);

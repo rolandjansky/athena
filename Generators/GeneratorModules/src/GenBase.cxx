@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorModules/GenBase.h"
@@ -42,8 +42,12 @@ McEventCollection* GenBase::events() {
       ATH_MSG_ERROR("Failed to record a new McEventCollection");
   }
   else {
-    if (evtStore()->retrieve (mcevents, m_mcEventKey).isFailure())
+    const DataHandle<McEventCollection> mecc = 0;
+
+    if (evtStore()->retrieve (mecc, m_mcEventKey).isFailure()) 
       ATH_MSG_ERROR("Failed to retrieve McEventCollection");
+
+    mcevents = const_cast<McEventCollection*> (&(*mecc));
   }
 
   return mcevents;

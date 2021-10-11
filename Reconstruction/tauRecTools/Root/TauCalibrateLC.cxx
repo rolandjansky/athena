@@ -37,9 +37,9 @@ StatusCode TauCalibrateLC::initialize() {
   }
   
   std::string fullPath = find_file(m_calibrationFile);
+  ATH_MSG_INFO("Using calibration file: " << fullPath);
 
   std::unique_ptr<TFile> file(TFile::Open(fullPath.c_str(), "READ"));
-
   if (!file) {
     ATH_MSG_FATAL("Failed to open " << fullPath);
     return StatusCode::FAILURE;
@@ -59,14 +59,6 @@ StatusCode TauCalibrateLC::initialize() {
 
   //retrieve number of eta bins from file
   m_nEtaBins = m_etaBinHist->GetNbinsX();
-  if (m_nEtaBins==6)
-    ATH_MSG_INFO("using tau energy calibration with 6 eta bins");
-  else if (m_nEtaBins==5)
-    ATH_MSG_INFO("using tau energy calibration with 5 eta bins");
-  else {
-    ATH_MSG_FATAL("Wrong or broken tau energy calibration file");
-    return StatusCode::FAILURE;
-  }
     
   TString tmpSlopKey[s_nProngBins] = {"slopeNPV1P", "slopeNPV3P"};
   TString tmpFuncBase[s_nProngBins] = {"OneP_Eta_", "MultiP_Eta_"};

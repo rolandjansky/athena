@@ -152,6 +152,26 @@ public:
    */
   int gapBeforeTrain( bcid_type bcid = 0,
 		      BunchDistanceType type = NanoSec ) const;
+
+  /**
+   * Get the distance of the specified bunch crossing to the preceeding 
+   * filled bunch. 
+   *
+   * The distance can be returned in multiple units. By default it is
+   * returned in nanoseconds. If one specifies BunchCrossings, then the
+   * distance is returned in nanosec_distance / 25. Finally, if one
+   * specifies FilledBunches, then the distance is returned in the units of
+   * the bunch spacing within the train.
+   *
+   * @param bcid The bcid that should be checked
+   * @param type The type of the requested return value
+   * @returns Distance of the bcid to the preceeding filled bunch
+   *          
+   */
+  int gapBeforeBunch( bcid_type bcid = 0,
+		      BunchDistanceType type = NanoSec ) const;
+  
+
   /// Gap after the train this BCID is in
   /**
    * Get the gap that's between the train that the specified BCID is in, and
@@ -170,7 +190,27 @@ public:
    */
   int gapAfterTrain( bcid_type bcid = 0,
 		     BunchDistanceType type = NanoSec ) const;
+
+  /**
+   * Get the distance of the specified bunch crossing to the next 
+   * filled bunch. 
+   *
+   * The distance can be returned in multiple units. By default it is
+   * returned in nanoseconds. If one specifies BunchCrossings, then the
+   * distance is returned in nanosec_distance / 25. Finally, if one
+   * specifies FilledBunches, then the distance is returned in the units of
+   * the bunch spacing within the train.
+   *
+   * @param bcid The bcid that should be checked
+   * @param type The type of the requested return value
+   * @returns The gap after the train of the specified bcid
+   *         
+   */
+
+  int gapAfterBunch( bcid_type bcid = 0,
+		     BunchDistanceType type = NanoSec ) const;
  
+
   /// The distance of the specific bunch crossing from the front of the train
   /**
    * Get the distance of the specified bunch crossing from the front of the
@@ -188,9 +228,9 @@ public:
    * @returns The distance of the bcid in question from the front of its
    *          bunch train
    */
- 
   int distanceFromFront( const bcid_type bcid,
 			 const BunchDistanceType type = NanoSec ) const;
+
   /// The distance of the specific bunch crossing from the tail of the train
   /**
    * Get the distance of the specified bunch crossing from the tail of the

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Prepared 05-Dec-2002 Bill Seligman
@@ -60,7 +60,7 @@ StatusCode LArBarrelPresamplerCalculator::initialize()
   // Initialize private members.
 
   // Access source of detector parameters.
-  LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
+  const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
   // Initialize the geometry calculator
   ATH_CHECK(m_geometry.retrieve());

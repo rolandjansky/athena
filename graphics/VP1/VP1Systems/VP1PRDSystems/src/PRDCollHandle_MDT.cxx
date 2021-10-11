@@ -24,15 +24,15 @@ QStringList PRDCollHandle_MDT::availableCollections(IVP1System*sys)
 //____________________________________________________________________
 class PRDCollHandle_MDT::Imp {
 public:
-  PRDCollHandle_MDT * theclass;
+  PRDCollHandle_MDT * theclass = nullptr;
   std::map<const MuonGM::MuonStation*,unsigned> mdt2stationcounter;
-  unsigned minHitsPerStation;
+  unsigned minHitsPerStation = 0U;
   VP1Interval allowedADCValues;
-  bool excludeMaskedHits;
-  bool onlyShowActive;
+  bool excludeMaskedHits = false;
+  bool onlyShowActive = false;
   QString status;
-  bool projectionsEnabled;
-  int appropriateprojection;
+  bool projectionsEnabled = false;
+  int appropriateprojection = 0;
   void updateProjectionFlag();
 };
 

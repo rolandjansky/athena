@@ -40,21 +40,17 @@ namespace JetTagDQA {
                             const IInterface* parent ) :
     ManagedMonitorToolBase( type, name, parent ),
     m_isData(false),
-    m_antiKt2PV0TrackJetPlots             (0, "BTag/AntiKt2PV0TrackJets/"           , "antiKt2PV0TrackJets"),
-    m_antiKt4PV0TrackJetPlots             (0, "BTag/AntiKt4PV0TrackJets/"           , "antiKt4PV0TrackJets"),
-    m_antiKt4EMTopoPlots                  (0, "BTag/AntiKt4EMTopoJets/"             , "antiKt4EMTopoJets"),
-    m_antiKtVR30Rmax4Rmin02TrackJetsPlots (0, "BTag/AntiKtVR30Rmax4Rmin02TrackJets/", "antiKtVR30Rmax4Rmin02TrackJets"),
-    m_antiKt4EMPFlowJetsPlots             (0, "BTag/AntiKt4EMPFlowJets/"            , "antiKt4EMPFlowJets"),
+    m_antiKt4EMTopoPlots                     (0, "BTag/AntiKt4EMTopoJets/"                , "antiKt4EMTopoJets"),
+    m_antiKt4EMPFlowJetsPlots                (0, "BTag/AntiKt4EMPFlowJets/"               , "antiKt4EMPFlowJets"),
+    m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots (0, "BTag/AntiKtVR30Rmax4Rmin02PV0TrackJets/", "antiKtVR30Rmax4Rmin02PV0TrackJets"),
     m_nevents(0)
   {
 
     declareProperty( "isData", m_isData );
 
-    declareProperty( "JetContainerName1", m_jetName1 = "AntiKt2PV0TrackJets");
-    declareProperty( "JetContainerName2", m_jetName2 = "AntiKt4PV0TrackJets");
-    declareProperty( "JetContainerName3", m_jetName3 = "AntiKt4EMTopoJets" );
-    declareProperty( "JetContainerName4", m_jetName4 = "AntiKtVR30Rmax4Rmin02TrackJets");
-    declareProperty( "JetContainerName5", m_jetName5 = "AntiKt4EMPFlowJets");
+    declareProperty( "JetContainerName1", m_jetName1 = "AntiKt4EMTopoJets" );
+    declareProperty( "JetContainerName2", m_jetName2 = "AntiKt4EMPFlowJets");
+    declareProperty( "JetContainerName3", m_jetName3 = "AntiKtVR30Rmax4Rmin02PV0TrackJets");
 
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );
@@ -91,31 +87,23 @@ namespace JetTagDQA {
     }
 
     // set the detail level
-    m_antiKt2PV0TrackJetPlots.setDetailLevel(m_detailLevel);
-    m_antiKt4PV0TrackJetPlots.setDetailLevel(m_detailLevel);
     m_antiKt4EMTopoPlots.setDetailLevel(m_detailLevel);
-    m_antiKtVR30Rmax4Rmin02TrackJetsPlots.setDetailLevel(m_detailLevel);
     m_antiKt4EMPFlowJetsPlots.setDetailLevel(m_detailLevel);
+    m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots.setDetailLevel(m_detailLevel);
 
     // give that map to the BTaggingValidationPlots
-    m_antiKt2PV0TrackJetPlots.setHistogramDefinitions(m_HistogramDefinitionsMap);
-    m_antiKt4PV0TrackJetPlots.setHistogramDefinitions(m_HistogramDefinitionsMap);
     m_antiKt4EMTopoPlots.setHistogramDefinitions(m_HistogramDefinitionsMap);
-    m_antiKtVR30Rmax4Rmin02TrackJetsPlots.setHistogramDefinitions(m_HistogramDefinitionsMap);
     m_antiKt4EMPFlowJetsPlots.setHistogramDefinitions(m_HistogramDefinitionsMap);
+    m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots.setHistogramDefinitions(m_HistogramDefinitionsMap);
 
     // set the isData key, the JVT and TMP cuts
-    m_antiKt2PV0TrackJetPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
-    m_antiKt4PV0TrackJetPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
     m_antiKt4EMTopoPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
-    m_antiKtVR30Rmax4Rmin02TrackJetsPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
     m_antiKt4EMPFlowJetsPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
+    m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
 
-    m_btagplots.insert(std::make_pair(m_jetName1, m_antiKt2PV0TrackJetPlots));
-    m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt4PV0TrackJetPlots));
-    m_btagplots.insert(std::make_pair(m_jetName3, m_antiKt4EMTopoPlots));
-    m_btagplots.insert(std::make_pair(m_jetName4, m_antiKtVR30Rmax4Rmin02TrackJetsPlots));
-    m_btagplots.insert(std::make_pair(m_jetName5, m_antiKt4EMPFlowJetsPlots));
+    m_btagplots.insert(std::make_pair(m_jetName1, m_antiKt4EMTopoPlots));
+    m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt4EMPFlowJetsPlots));
+    m_btagplots.insert(std::make_pair(m_jetName3, m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots));
    
     return StatusCode::SUCCESS;
   }
@@ -167,7 +155,7 @@ namespace JetTagDQA {
       if(dsid == 410000){
         m_jetPtCut = m_jetPtCutTtbar;
       }
-      else if(dsid == 427080) {
+      else if(dsid == 427080 || dsid == 427081) {
         m_jetPtCut = m_jetPtCutZprime;
         m_onZprime = true;
       }
@@ -175,6 +163,11 @@ namespace JetTagDQA {
       else {
         ATH_MSG_WARNING("It is checked if the sample is ttbar (has dsid 410000) or Zprime (has dsid 427080). None applies (read dsid is " << dsid << "). Applying default pT cut of 20000 MeV now.");
         m_jetPtCut = 20000;
+      }
+
+      // do not do the track-truth association on this Sherpa Z' sample
+      if(dsid == 361405){
+        m_doTrackTruth = false;
       }
     }
 
@@ -275,6 +268,9 @@ namespace JetTagDQA {
           // fill discriminant related vars
           (plot_i->second).fillDiscriminantVariables(btag, jet, jet_Lxy, truth_label, contains_muon, m_onZprime, nJetsThatPassedWPCuts, event);
         }
+        else{
+          ATH_MSG_WARNING("btag (obtained by xAOD::BTaggingUtilities::getBTagging(*jet)) is a null pointer.");
+        }
       }
 
       // fill multiplicities
@@ -317,8 +313,14 @@ namespace JetTagDQA {
       // get the curent track
       const xAOD::TrackParticle* track = *(assocTracks.at(i));  
 
+      // only try accessing the truth values if not on data
+      int origin = 0;
+      if(!m_isData && m_doTrackTruth){
+        origin = m_trackTruthOriginTool->getTrackOrigin(track);
+      }
+
       // add the truth values to the vector
-      truthValues.insert( std::make_pair( track, m_trackTruthOriginTool->getTrackOrigin(track) ) );
+      truthValues.insert( std::make_pair( track, origin ) );
     }
 
     // also loop over the tracks associated to the MSV vertices -> can be missing in the other track list
@@ -342,8 +344,14 @@ namespace JetTagDQA {
         // get the curent track
         const xAOD::TrackParticle* track = *(MSV_assocTracks.at(i));  
         
+        // only try accessing the truth values if not on data
+        int origin = 0;
+        if(!m_isData && m_doTrackTruth){
+          origin = m_trackTruthOriginTool->getTrackOrigin(track);
+        }
+
         // add the truth values to the vector
-        truthValues.insert( std::make_pair( track, m_trackTruthOriginTool->getTrackOrigin(track) ) );
+        truthValues.insert( std::make_pair( track, origin ) );
       }
     }
 

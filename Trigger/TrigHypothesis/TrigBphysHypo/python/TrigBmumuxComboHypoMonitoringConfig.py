@@ -19,5 +19,6 @@ class TrigBmumuxComboHypoToolMonitoring(GenericMonitoringTool):
         defineHistogram('Chi2', type='TH1F', path='EXPERT', title="chi2 of the fitted vertex", xbins=100, xmin=0, xmax=100),
         defineHistogram('Fitmass', type='TH1F', path='EXPERT', title="mass of BPhys object", xbins=100, xmin=4000, xmax=8000),
         defineHistogram('Mass', type='TH1F', path='EXPERT', title="mass(BPhys object) - mass(dimuon) + PDG::mJpsi", xbins=100, xmin=4000, xmax=8000),
-        defineHistogram('Pt', type='TH1F', path='EXPERT', title="p_{T} of BPhys object", xbins=100, xmin=0, xmax=40000),
+        defineHistogram('Pt', type='TH1F', path='EXPERT', title="p_{T} of BPhys object [MeV]", xbins=100, xmin=0, xmax=40000),
+        defineHistogram('Eta', type='TH1F', path='EXPERT', title="#eta_{T} of BPhys object", xbins=100, xmin=-3.15, xmax=3.15)
         ]

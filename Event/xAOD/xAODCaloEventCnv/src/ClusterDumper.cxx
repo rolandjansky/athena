@@ -18,7 +18,6 @@ ClusterDumper::ClusterDumper( const std::string& name,
   : AthAlgorithm( name, svcLoc ),
     m_out(&std::cout)
 {
-  declareProperty( "ContainerName",m_containerName);
   declareProperty( "FileName",m_fileName);
   
 }
@@ -37,8 +36,11 @@ StatusCode ClusterDumper::initialize() {
       return StatusCode::FAILURE;
     }
   }
-  else
+  else {
     ATH_MSG_INFO("Writing to stdout");
+  }
+
+  ATH_CHECK(m_containerName.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -52,19 +54,19 @@ StatusCode ClusterDumper::finalize() {
  
 StatusCode ClusterDumper::execute() {
 
-  const xAOD::CaloClusterContainer* clustercontainer = nullptr;
-  CHECK( evtStore()->retrieve(clustercontainer,m_containerName));
-  ATH_MSG_DEBUG( "Retrieved clusters with key: " << m_containerName );
+  //const xAOD::CaloClusterContainer* clustercontainer = nullptr;
+  SG::ReadHandle<xAOD::CaloClusterContainer> clustercontainer{m_containerName};
+  ATH_MSG_DEBUG( "Retrieved clusters with key: " << m_containerName.key() );
 
   const CaloClusterCellLinkContainer* cclptr=nullptr;
-  if (evtStore()->contains<CaloClusterCellLinkContainer>(m_containerName+"_links")) {
-    CHECK(evtStore()->retrieve(cclptr,m_containerName+"_links"));
+  if (evtStore()->contains<CaloClusterCellLinkContainer>(m_containerName.key()+"_links")) {
+    CHECK(evtStore()->retrieve(cclptr,m_containerName.key()+"_links"));
     ATH_MSG_INFO("Found corresponding cell-link container with size " << cclptr->size());
   }
   else
     ATH_MSG_INFO("Did not find corresponding cell-link container");
 
-  
+  std::lock_guard<std::mutex> fileLock{m_fileMutex};
   for (const auto itr: *clustercontainer) {
     const xAOD::CaloCluster& cluster=*itr;
     (*m_out) << "Kinematics :" << std::endl;

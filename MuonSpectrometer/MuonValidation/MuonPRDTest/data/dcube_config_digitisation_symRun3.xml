@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <ref_desc>Last master nightly</ref_desc>
+  <test_desc>Current master nightly</test_desc>
+  <plimit fail="0.75" warn="0.95"/>
+  <TDirectory name="/">
+   <TDirectory name="digitisation">
+    <hist1D name="truthPt" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="truthEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="truthPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpclocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpclocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpclocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpclocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
+   </TDirectory>
+  </TDirectory> 
+ </dcube>
+</dcube_client_config>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -98,11 +98,16 @@ void IVP12DViewTransformation::paintItem(QPainter *painter, const QGraphicsItem*
 	return;
       }
     }
-    painter->setPen(shapeitem?shapeitem->pen():lineitem->pen());
-    if (shapeitem)
-      painter->setBrush(shapeitem->brush());
     QPainterPath path;
-    transformPath( (shapeitem?shapeitem->shape():lineitem->shape()), path);
+    if (shapeitem) {
+      painter->setPen(shapeitem->pen());
+      painter->setBrush(shapeitem->brush());
+      transformPath(shapeitem->shape(), path);
+    }
+    else if (lineitem) {
+      painter->setPen(lineitem->pen());
+      transformPath(lineitem->shape(), path);
+    }
     painter->drawPath(path);//Fixme:transform
     //   QPainterPath QGraphicsPolygonItem::shape();
     //   QPainterPath QGraphicsPathItem::shape();

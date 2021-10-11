@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscSplitClusterFitter_H
@@ -18,13 +18,12 @@
 #include "MuonPrepRawData/CscClusterStatus.h"
 
 namespace Muon {
-class CscPrepData;
+    class CscPrepData;
 }
 
 class CscSplitClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
-
-  public:
-    CscSplitClusterFitter(std::string, std::string, const IInterface*);
+public:
+    CscSplitClusterFitter(const std::string&, const std::string&, const IInterface*);
 
     ~CscSplitClusterFitter() = default;
 
@@ -33,9 +32,9 @@ class CscSplitClusterFitter : virtual public ICscClusterFitter, public AthAlgToo
     // Inherited methods.
     Results fit(const StripFitList& sfits) const;
     Results fit(const StripFitList& sfits, double dposdz) const;
-    double  getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
+    double getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
 
-  private:
+private:
     // Properties
     // Minimum distance between peaks and valley
     int m_min_dist;

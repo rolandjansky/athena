@@ -2,6 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
+
+
 #include "WidthPlot.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -18,8 +22,8 @@ using namespace widthestimators;
 namespace egammaMonitoring {
 
   WidthPlot::WidthPlot(std::string name, std::string folder, ITHistSvc * &rootHistSvc ) :
-    m_name(name),
-    m_folder(folder),
+    m_name(std::move(name)),
+    m_folder(std::move(folder)),
     m_rootHistSvc(rootHistSvc) {
 
   }

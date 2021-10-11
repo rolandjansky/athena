@@ -63,11 +63,11 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv_p0::createTransient
       InDet::TRT_DriftCircleCollection::iterator itColl   = dcColl->begin();
       InDet::TRT_DriftCircleCollection::iterator lastColl = dcColl->end();
       for (int num = 0; itColl != lastColl; ++itColl, ++num) {
-	 MSG_DEBUG(log,"PRD " << num);
+	      MSG_DEBUG(log,"PRD " << num);
          (*itColl)->m_detEl = de;
       }
 
-      StatusCode sc= trans->addCollection(dcColl, collHash);
+      StatusCode sc= trans ? trans->addCollection(dcColl, collHash): StatusCode::FAILURE;
       if (sc.isSuccess()){
 	 MSG_VERBOSE(log,"TRT_DriftCircleContainer successfully added to Container !");
       } else {

@@ -39,7 +39,7 @@ private:
   SensorSimPlanarTool();
   
   //Apply slim edge inefficiencies for IBL sensors
-  void applyIBLSlimEdges(double& energyPerStep, double& eta_drifted) const;
+  static void applyIBLSlimEdges(double& energyPerStep, double& eta_drifted) ;
 
   // Map for radiation damage simulation
   std::vector<PixelHistoConverter> m_ramoPotentialMap;
@@ -47,6 +47,7 @@ private:
   std::vector<PixelHistoConverter> m_distanceMap_h;
   std::vector<PixelHistoConverter> m_lorentzMap_e;
   std::vector<PixelHistoConverter> m_lorentzMap_h;
+  std::vector<std::pair<double,double> > m_centrePixelNNEtaPhi;
 
   Gaudi::Property<int> m_numberOfSteps
   {
@@ -56,11 +57,6 @@ private:
   Gaudi::Property<double> m_diffusionConstant
   {
     this, "diffusionConstant", 0.0, "Geant4:Diffusion Constant for PixelPlanar"
-  };
-
-  Gaudi::Property<bool> m_doRadDamage
-  {
-    this, "doRadDamage", false, "doRadDmaage bool: should be flag"
   };
 
   Gaudi::Property<bool> m_doInterpolateEfield

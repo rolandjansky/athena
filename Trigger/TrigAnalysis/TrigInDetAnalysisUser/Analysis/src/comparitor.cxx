@@ -60,6 +60,23 @@ extern bool LINES;
 
 
 
+void SetZeros( TH2D* h ) { 
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    for ( int j=1 ; j<=h->GetNbinsY() ; j++ ) { 
+      int ibin = h->GetBin( i, j );
+      if ( h->GetBinContent(ibin)==0 ) h->SetBinContent(ibin, 0.1); 
+    }
+  }
+}
+
+void Scale( TH1* h, double d=1 ) { 
+  if ( d==1 ) return;
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    h->SetBinContent( i, h->GetBinContent(i)*d ); 
+    h->SetBinError( i, h->GetBinError(i)*d ); 
+  }
+}
+
 
 TH1F* Rebin( TH1F* h, double f ) { 
   
@@ -159,16 +176,16 @@ T* Get( TFile& f, const std::string& n, const std::string& dir="",
 
   std::string name;
 
-  size_t pos = n.find("+");
+  size_t pos = n.find('+');
   if ( pos!=std::string::npos ) name = n.substr( 0, pos );
   else                          name = n;
 
   T* h = (T*)f.Get( name.c_str() );
-  if ( h || dir=="" || name.find(dir)!=std::string::npos ) { 
+  if ( h || dir.empty() || name.find(dir)!=std::string::npos ) { 
     std::cout << "Get() name 0 " << name << " :: " << h << std::endl;
   }
   else { 
-    name = dir+"/"+name;
+    name = dir+'/'+name;
     h = (T*)f.Get( name.c_str() );
     std::cout << "Get() name 1 " << name << " :: " << h << std::endl;
   }
@@ -176,7 +193,7 @@ T* Get( TFile& f, const std::string& n, const std::string& dir="",
   if ( h == 0 ) { 
     if ( chainmap && chainmap->size()!=0 ) { 
       for ( chainmap_t::const_iterator itr=chainmap->begin() ; itr!=chainmap->end() ; itr++ ) { 
-      	if ( contains( name, itr->first ) ) { 
+	if ( contains( name, itr->first ) ) { 
 	  std::cout << "\tmatch: " << itr->first << " -> " << itr->second << std::endl;
 	  name.replace( name.find(itr->first), itr->first.size(), itr->second );
 	  h = (T*)f.Get( name.c_str() );
@@ -280,7 +297,9 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -m,  --mapfile            \t remap file for reference histograms \n\n";   
  
   s << "    -rc, --refchains values ..\t allow different reference chains for comparison\n";
-  s << "    -s,  --swap pattern regex \t swap \"pattern\" in the reference chains name by \"regex\"\n";
+  s << "    -s,  --swap  pattern regex \t swap \"pattern\" in the chain names by \"regex\"\n";
+  s << "         --swapr pattern regex \t swap \"pattern\" in the ref chain names by \"regex\"\n";
+  s << "         --swapt pattern regex \t swap \"pattern\" in the test chain names by \"regex\"\n";
   s << "    -nr, --noref              \t do not plot reference histograms\n";
   s << "         --normref            \t normalise the reference counting histograms to test histograms\n";
   s << "    -us, --usechainref        \t use the histograms from chain definied in the \"Chain\" histogram as reference\n\n";
@@ -406,6 +425,7 @@ int main(int argc, char** argv) {
   double effmin =  90;
   double effmax = 102;
 
+  std::string defreflabel = "";
 
   /// control flags and labels
 
@@ -460,6 +480,14 @@ int main(int argc, char** argv) {
   std::string pattern = "";
   std::string regex   = "";
 
+  std::string patternr = "";
+  std::string regexr   = "";
+
+  std::string patternt = "";
+  std::string regext   = "";
+
+  std::string basedir = "";
+
   std::string xpattern = "";
   std::string xregex   = "";
 
@@ -478,22 +506,22 @@ int main(int argc, char** argv) {
     std::string arg  = argv[i];
 
 
-    if ( arg.find("-")!=0 && addinglabels ) {
+    if ( arg.find('-')!=0 && addinglabels ) {
       std::string label = arg;
       fullreplace( label, "__", " " );
-      replace( label, "#", " " );
+      replace( label, '#', ' ' );
       usrlabels.push_back( label );
       continue;
     }
     else addinglabels = false;
 
-    if ( arg.find("-")!=0 && addingrefchains ) { 
+    if ( arg.find('-')!=0 && addingrefchains ) { 
       refchains.push_back( arg );
       continue;
     }
     else addingrefchains = false;
 
-    if ( arg.find("-")!=0 && addingtags ) { 
+    if ( arg.find('-')!=0 && addingtags ) { 
       taglabels.push_back( fullreplace( arg, "__", " " ) );
       std::cout << "\tadding tag label: " << taglabels.back() << std::endl;
       continue;
@@ -527,6 +555,10 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-d" || arg=="--dir" ) { 
       if ( ++i<argc ) dir=argv[i];
+      else return usage(argv[0], -1, "no directory provided");
+    }
+    else if ( arg=="-b" || arg=="--bdir" ) { 
+      if ( ++i<argc ) basedir=argv[i];
       else return usage(argv[0], -1, "no directory provided");
     }
     else if ( arg=="--taglabels" ) { 
@@ -647,13 +679,25 @@ int main(int argc, char** argv) {
       if ( ++i<argc ) regex=argv[i];
       else return usage(argv[0], -1, "no target pattern provided");
     }
+    else if (             arg=="--swapt" ) { 
+      if ( ++i<argc ) patternt=argv[i];
+      else return usage(argv[0], -1, "no patterns provided");
+      if ( ++i<argc ) regext=argv[i];
+      else return usage(argv[0], -1, "no target pattern provided");
+    }
+    else if (             arg=="--swapr" ) { 
+      if ( ++i<argc ) patternr=argv[i];
+      else return usage(argv[0], -1, "no patterns provided");
+      if ( ++i<argc ) regexr=argv[i];
+      else return usage(argv[0], -1, "no target pattern provided");
+    }
     else if ( arg=="-sx" || arg=="--swapaxtitles" ) { 
       if ( ++i<argc ) xregex=argv[i];
       else return usage(argv[0], -1, "no target pattern provided");
       if ( ++i<argc ) xpattern=argv[i];
       else return usage(argv[0], -1, "no patterns provided");
     }
-    else if ( arg.find("-")==0 ) {
+    else if ( arg.find('-')==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
       return usage(argv[0], -4);
     }
@@ -671,8 +715,8 @@ int main(int argc, char** argv) {
 
 	std::string chain = arg;
 
-	replace ( chain, ":", "_" );
-	replace ( chain, ";", "_" );
+	replace ( chain, ':', '_' );
+	replace ( chain, ';', '_' );
 	chains.push_back(chain);
 
 	std::cout << "file: " << file << "\tchain: " << chain << std::endl;
@@ -681,7 +725,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if ( ftestname=="" )  { 
+  if ( ftestname.empty() )  { 
     std::cerr << "main(): test file not specified " << std::endl;
     return -1;
   }
@@ -711,12 +755,13 @@ int main(int argc, char** argv) {
 
 
   if ( noref==false ) { 
-    if ( frefname=="" )  { 
+    if ( frefname.empty() )  { 
       std::cerr << "main(): ref file not specified " << std::endl;
       Plotter::setplotref(false);
       noref = true;
-      /// leave this commented here - now instead of bombing out if we don't specify the reference file, 
-      /// just carry on as if it was not specified at all, so as this changes the external behaviour 
+      /// leave this commented here - now instead of bombing out if we don't 
+      /// specify the reference file, just carry on as if it was not specified 
+      /// at all, so as this changes the external behaviour 
       /// of the code we want this retained
       //       return -1;
     }
@@ -733,10 +778,19 @@ int main(int argc, char** argv) {
   else fref_ = ftest_;
   
   if ( chainfiles.size()==0 ) { 
-
-    if ( ftest_==0 || ( noref==false && fref_==0 ) ) { 
-      std::cerr << "could not open files " << std::endl;
+    if ( ftest_==0 ) { 
+      std::cerr << "could not open test file " << ftestname << std::endl;
       return -1;
+    }
+
+    if ( noref==false && fref_==0 ) { 
+      std::cerr << "could not open files " << std::endl;
+      /// don't fail anymore if can't open the reference file, now 
+      /// continue without plotting the refereces, instead printing 
+      /// a warning on the plots
+      noref=true;
+      fref_=ftest_;
+      defreflabel = "failed to open reference file";
     }
     
   }
@@ -748,6 +802,12 @@ int main(int argc, char** argv) {
   bool noreftmp = noref;
 
   if ( chains.size()==0 ) return usage(argv[0], -1, "no chains specified");
+
+
+  if ( basedir.size()>0 ) {
+    if ( basedir[basedir.size()-1]!='/' ) basedir += "/";
+    for ( size_t ic=chains.size() ; ic-- ; ) chains[ic] = basedir+chains[ic];
+  }
 
   if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1, "not enough chains specified");
   
@@ -799,7 +859,7 @@ int main(int argc, char** argv) {
   gStyle->SetPadLeftMargin(0.15);
   gStyle->SetPadBottomMargin(0.15);
 
-  gStyle->SetPadRightMargin(0.01);
+  gStyle->SetPadRightMargin(0.02);
   gStyle->SetPadTopMargin(0.05);
 
   std::cout << "Chains: " << std::endl;
@@ -815,7 +875,7 @@ int main(int argc, char** argv) {
   TString* releaseData = new TString("");
   std::vector<std::string> release_data;
   
-  if ( !nowatermark ) { 
+  if ( !nowatermark && ftest_ ) { 
 
     dataTree = (TTree*)ftest_->Get("dataTree");
   
@@ -842,7 +902,7 @@ int main(int argc, char** argv) {
 	release += "  (" + release_data[0]+")"; 
       }
       else {
-	release += "  (" + nightly; 
+	release += " (" + nightly; 
 	chop( release_data[0], " " );
 	release += " " + chop(release_data[0], " " ) + ")";
       }
@@ -851,12 +911,12 @@ int main(int argc, char** argv) {
   
 
   // Make output directory                                                                                                                           
-  if (dir != "") {
+  if (!dir.empty()) {
     
     gDirectory->pwd();
     
     std::cout << "trying to make directory" << std::endl;
-    dir += "/";
+    dir += '/';
     if ( !quiet && !noplots && !exists(dir) ) { 
       if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
       else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
@@ -877,21 +937,22 @@ int main(int argc, char** argv) {
 
   std::cout << "testrun: " << testrun << "\nrefrun:  " << refrun << std::endl;
 
-  if ( testrun != "" && refrun != testrun ) { 
-    if ( pattern == "" ) { 
+  if ( !testrun.empty() && refrun != testrun ) { 
+    if ( pattern.empty() ) { 
       pattern = testrun;
       regex   =  refrun;
     }
+
   }
   
-  if ( refrun != "" ) { 
+  if ( !refrun.empty() ) { 
 
     std::string newtag = "Reference: ";
 
     std::cout << "refrun: " << refrun << std::endl;
 
     size_t pos;
-    while ( (pos=refrun.find("_"))!=std::string::npos ) refrun.replace( pos, 1, " " );
+    while ( (pos=refrun.find('_'))!=std::string::npos ) refrun.replace( pos, 1, " " );
     newtag += refrun;
 
     std::string rawrun = refrun.erase( refrun.find("run"), 4 );
@@ -903,8 +964,8 @@ int main(int argc, char** argv) {
       release.erase( 0, release.find(rawrun) ); 
    
       if    ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
-      while ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
-      while ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
+      while ( contains(release,".") ) release.erase( release.find('.'), release.size() ); 
+      while ( contains(release,"-") ) release.erase( release.find('-'), release.size() ); 
       while ( contains(release,"_p") ) release.erase( release.find("_p"), release.size() ); 
       while ( contains(release,"_t") ) release.erase( release.find("_t"), release.size() ); 
 
@@ -947,11 +1008,15 @@ int main(int argc, char** argv) {
     NeventRef  = 1; 
   }
 
+
+  if ( NeventTest>1 ) std::cout << "Nevents Test: " << NeventTest << std::endl;
+  if ( NeventRef>1 )  std::cout << "Nevents Ref:  " << NeventRef << std::endl;
+
   chainmap_t* chainmap = nullptr;
 
-  if ( mapfile == "" ) mapfile = configfile;
+  if ( mapfile.empty() ) mapfile = configfile;
 
-  if ( mapfile != "" ) {
+  if ( !mapfile.empty() ) {
 
     ReadCards m( mapfile );
 
@@ -977,6 +1042,9 @@ int main(int argc, char** argv) {
   std::cout << "\ncreating chain and reference information ..." << std::endl;
 
   for ( size_t j=0; j<chains.size(); j++)  {
+
+    if ( !regex.empty() )  chains[j] = fullreplace( chains[j], pattern, regex );
+    if ( !regext.empty() ) chains[j] = fullreplace( chains[j], patternt, regext );
 	
     /// get the actual chain name and track collection from 
 
@@ -1017,7 +1085,7 @@ int main(int argc, char** argv) {
 
 	std::cout << "name:         " << name << std::endl;
 
-	if ( contains( name, ":" ) )  chain_name[j] = name.substr( 0, name.find(":") ) + " : ";
+	if ( contains( name, ":" ) )  chain_name[j] = name.substr( 0, name.find(':') ) + " : ";
 	else                           chain_name[j] = name;
 
 	if  ( chain_name[j] == " : "  )  chain_name[j] = "";
@@ -1027,13 +1095,20 @@ int main(int argc, char** argv) {
     }
   }
 
-
   std::cout << "chainref size: " << chainref.size() << "  " << refchains.size() << std::endl;
 
   for ( size_t j=0 ; j<chainref.size() ; j++ ) { 
     std::cout << "chainref: " << chainref[j] << " :: " << refchains[j] << std::endl;
+
+    /// reference chains
     if ( chainref[j]!="" ) refchain[j] = fullreplace( chainref[j], pattern, regex );
     else                   refchain[j] = fullreplace( refchains[j], pattern, regex );
+
+    if ( !patternr.empty() ) { 
+      if ( chainref[j]!="" ) refchain[j] = fullreplace( chainref[j], patternr, regexr );
+      else                   refchain[j] = fullreplace( refchains[j], patternr, regexr );
+    }
+
     std::cout << "refchain: " << refchain[j] << std::endl;
   }
 
@@ -1099,11 +1174,26 @@ int main(int argc, char** argv) {
 
 	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
 	
+	std::vector<string> panel_columns;
+
+	if ( rc.isTagDefined("panel_columns") ) { 
+	  panel_columns = rc.GetStringVector( "panel_columns" );
+	  if ( panel_columns.size()%2 ) return usage( argv[0], -1, "incorrect panel settings" );  
+	}
+
+
 	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
 	  
 	  std::vector<std::string> raw_input = rc.GetStringVector( panel_config[ipanel] );
+
+	  int tncols = ncols;
 	  
-	  Panel p( panel_config[ipanel], ncols );
+	  if ( panel_columns.size() ) { 
+	    std::vector<string>::iterator itr = find( panel_columns.begin(), panel_columns.end(), panel_config[ipanel] );
+	    if ( itr!=panel_columns.end() ) tncols = std::atoi( (++itr)->c_str() );
+	  }
+  
+	  Panel p( panel_config[ipanel], tncols );
 	  
 	  if ( raw_input.empty() ) throw std::exception();
 	  for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6 ) p.push_back( HistDetails( &(raw_input[iraw]) ) );
@@ -1274,7 +1364,7 @@ int main(int argc, char** argv) {
 
       /// How are you supposed to get the paremeters of the *actual* 
       /// pad ? It is insane.
-      
+
       tc->Divide( ncolsp, nrowsp, 0.0001, 0.0003 );
       //  atlaslabel = "     " + atlaslabel_tmp;
     }
@@ -1287,10 +1377,16 @@ int main(int argc, char** argv) {
 
       HistDetails histo = panel[i];
 
+      bool drawmeans     = false;
+      bool drawresiduals = true;
+      
+      if ( contains(histo.detail(), "+mean" )  )   drawmeans = true;
+      if ( contains(histo.detail(), "-residual") ) drawresiduals = false;
+
       std::string xaxis = histo.xtitle();
       std::string yaxis = histo.ytitle();
       
-      if ( xregex!="" ) { 
+      if ( !xregex.empty() ) { 
       	size_t pos = xaxis.find(xregex);
 	if ( pos!=std::string::npos ) xaxis.replace( pos, xregex.size(), xpattern );  
 	pos = yaxis.find(xregex);
@@ -1322,14 +1418,15 @@ int main(int argc, char** argv) {
       Plots plots( "", yinfo.trim() );
       plots.clear();
       
-      std::string noreflabel="";
+      std::string noreflabel=defreflabel;
 	              
       double xpos  = 0.18;
-      double ypos  = 0.93;
+      double ypos  = 0.91;
       
-      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.15;
+      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.19;
 
-      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.15;
+      ///  leave this code commented here for the time being ...
+      ///      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.19;
       
       if ( atlasstyle ) { 
 	xpos  = 0.18;
@@ -1369,14 +1466,12 @@ int main(int argc, char** argv) {
       if ( ALLRANGEMAP || (RANGEMAP && xaxis.find("p_{T}")!=std::string::npos && ccolours.size() ) ) 
 	Nrows = ( Nrows < ccolours.size() ? Nrows : ccolours.size() );
       
-      std::cout << "\n\n\tNrows " << Nrows << std::endl;
-
       int Nlines = Nrows + taglabels.size();
       
       std::vector<double> ypositions;
       
       double deltay = (Nrows*0.055-0.005)/Nrows;
-      
+
       double ylo = ypos;
       double yhi = ypos;
       
@@ -1391,7 +1486,7 @@ int main(int argc, char** argv) {
       
       /// legends ....
 
-      Legend legend( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
+      Legend legend(     xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
       Legend legend_eff( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
             
       
@@ -1452,7 +1547,42 @@ int main(int argc, char** argv) {
 	
 	/// refit the resplots - get the 2d histogram and refit
 	
-	if ( refit_resplots && ( contains(histo.name(),"/sigma") || contains(histo.name(),"/mean") ) ) { 
+	gPad->SetRightMargin(0.03);
+
+	if ( contains(histo.name(),"/2d") ) { 
+	  
+	  gPad->SetRightMargin(0.13);
+
+	  TH2D* h2test = Get<TH2D>( *fftest, chains[j]+"/"+histo.name(), testrun, 0, &savedhistos );
+				    
+	  DrawLabel( 0.5, 0.5, "a test" );
+	  
+	  h2test->GetYaxis()->SetTitleOffset(1.55); 
+	  h2test->GetXaxis()->SetTitleOffset(1.5); 
+	  h2test->GetXaxis()->SetTitle(xaxis.c_str());
+	  h2test->GetYaxis()->SetTitle(yaxis.c_str());
+          
+	  AxisInfo xinfo = histo.xaxis(); 
+	  AxisInfo yinfo = histo.yaxis(); 
+	  
+
+	  std::cout << xinfo << std::endl;
+	  std::cout << yinfo << std::endl;
+
+	  SetZeros( h2test );
+          
+	  if ( yinfo.rangeset() ) { 
+	    h2test->GetYaxis()->SetRangeUser( yinfo.lo(), yinfo.hi() );
+	  }
+
+	  h2test->DrawCopy("colz");
+	  
+	  if ( histo.detail().find("logz")!=std::string::npos ) gPad->SetLogz(true);
+	  else gPad->SetLogz(false);
+	 
+          
+	}
+	else if ( refit_resplots && ( contains(histo.name(),"/sigma") || contains(histo.name(),"/mean") ) ) { 
 	  
 	  bool bsigma = false;
 	  if ( contains(histo.name(),"/sigma") ) bsigma = true;
@@ -1529,6 +1659,9 @@ int main(int argc, char** argv) {
 	    }
 	    else { 
 	      hreft = Get( *ffref, refchain[j]+"/"+histo.name(), rawrefrun, chainmap );
+	      if ( hreft==0 ) {
+		std::cerr << "ERROR: could not find " << (refchain[j]+"/"+histo.name()) << std::endl;
+	      }
 	    }
 	  }
 	      
@@ -1660,8 +1793,8 @@ int main(int argc, char** argv) {
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-	  if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
-	  if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) href->Scale(0.5);
+	  if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) Scale(htest,0.5);
+	  if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) Scale(href,0.5);
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
@@ -1901,7 +2034,7 @@ int main(int argc, char** argv) {
 
 	  /// replace the "/" in the filename so we don't try to 
 	  /// make plots in subdirectories by accident  
-	  replace(plotname, "/", "_"); 
+	  replace(plotname, '/', '_'); 
 
 	}
 
@@ -2086,7 +2219,19 @@ int main(int argc, char** argv) {
 
 	if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
 
-	if ( residual ) {
+	if ( drawmeans ) {
+	  
+          double   mean_95 = htest->GetMean();
+          double  dmean_95 = htest->GetMeanError();
+          double    rms_95 = htest->GetRMS();
+          double   drms_95 = htest->GetRMSError();
+          
+          Mean.push_back(label("     mean = %4.2lf #pm %4.2lf", mean_95, dmean_95) );
+          RMS.push_back(label( "     rms   = %4.2lf #pm %4.2lf", rms_95,  drms_95 ) );
+          
+        }
+	
+	if ( residual && drawresiduals ) {
 	
 	  /// resolutions 
 
@@ -2180,11 +2325,8 @@ int main(int argc, char** argv) {
 	
 	  htest->Sumw2();
 	  if ( href ) href->Sumw2();
-	  htest->Scale(1./NeventTest);
-	  if ( href ) href->Scale(1./NeventRef);
-
 	}
-     
+
 	if ( yinfo.normset() ) { 
 	  Norm( htest );
 	  if ( href ) Norm( href );
@@ -2358,7 +2500,7 @@ int main(int argc, char** argv) {
 	/// actually draw the plot here ...
       
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
+	
 	plots.Draw( legend );
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
@@ -2377,23 +2519,23 @@ int main(int argc, char** argv) {
 
       if ( ( !nostats || !nomeans ) && !noplots ) { 
 	if ( dochi2 ) for ( unsigned  j=0 ; j<Chi2.size() ; j++ ) DrawLabel( 0.75, 0.85-j*0.035, Chi2[j], colours[j%6] );
-	if ( (contains(histo.name(),"_res") || 
-	      contains(histo.name(),"1d")   ||
-	      histo.name()=="pT"            || 
-	      contains(histo.name(),"residual_") ||
-	      contains(histo.name(),"vs_pt") ) && !contains(histo.name(),"sigma") ) { 
+	if ( ( (contains(histo.name(),"_res") || 
+		contains(histo.name(),"1d")   ||
+		histo.name()=="pT"            || 
+		contains(histo.name(),"residual_") ||
+		contains(histo.name(),"vs_pt") ) && !contains(histo.name(),"sigma") ) || drawmeans ) { 
 
-	  if ( contains(histo.name(),"_res") || contains(histo.name(),"residual_") || contains(histo.name(),"1d") ){
+	  if ( contains(histo.name(),"_res") || contains(histo.name(),"residual_") || contains(histo.name(),"1d") || drawresiduals ){
 	    for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
 	      if ( !noreftmp ) { 
 		if ( j<MeanRef.size() ) {
-		  if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.57-j*0.035), MeanRef[j], colours[j%6] );
-		  DrawLabel( xpos_original-0.01, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+		  if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.67-j*0.035), MeanRef[j], colours[j%6] );
+		  DrawLabel( xpos_original-0.01, (0.67-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
 		}
 	      }
 	      if ( j<Mean.size() ) {
-		if ( !nomeans ) DrawLabel( 0.62, (0.57-j*0.035), Mean[j],  colours[j%6] );
-		DrawLabel( 0.62, (0.57-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+		if ( !nomeans ) DrawLabel( 0.62, (0.67-j*0.035), Mean[j],  colours[j%6] );
+		DrawLabel( 0.62, (0.67-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
 	      }
 	    }
 	  }
@@ -2419,7 +2561,7 @@ int main(int argc, char** argv) {
 	  plots_eff.Draw( legend_eff );
 	}
 
-	if ( noreflabel!="" ) DrawLabel(0.1, 0.06, noreflabel, kRed, 0.03 );
+	if ( !noreflabel.empty() ) DrawLabel(0.1, 0.06, noreflabel, kRed, 0.03 );
 
       } // no plots
     
@@ -2442,7 +2584,7 @@ int main(int argc, char** argv) {
 
         if ( panel.size()>1 ) {
 	  useplotname = panel.name();
-	  replace( useplotname, "/", "_" );
+	  replace( useplotname, '/', '_' );
 	}	
 	else { 
 	  useplotname = plotname;

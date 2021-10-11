@@ -18,10 +18,11 @@ TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u )
   isPassed(temp_time, temp_iv, temp_iv);
 }
 
-bool TimeDivider::isPassed(time_t time, unsigned int& newinterval,  unsigned int& oldinterval) const {
+bool TimeDivider::isPassed(time_t time, unsigned int& newinterval,  unsigned int& oldinterval) {
 
   // convert to tm structure for seconds & minutes
-  tm t = *gmtime(&time);
+  struct tm t;
+  gmtime_r(&time, &t);
   unsigned count = 0;
   if (m_unit == seconds) {
     count  = t.tm_sec;

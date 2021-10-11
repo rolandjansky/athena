@@ -56,7 +56,7 @@ namespace InDet {
   }
 
   StatusCode NnClusterizationFactory::initialize() {
-    ATH_CHECK(m_pixelCabling.retrieve());
+    ATH_CHECK(m_pixelReadout.retrieve());
     ATH_CHECK(m_chargeDataKey.initialize());
     ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
     m_assembleInput =   ( m_doRunI ?  &NnClusterizationFactory::assembleInputRunI :  &NnClusterizationFactory::assembleInputRunII );
@@ -798,8 +798,8 @@ namespace InDet {
       Identifier pixid = *rdosBegin;
       Identifier moduleID = pixelID.wafer_id(pixid);
       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-      int circ = m_pixelCabling->getFE(&pixid,moduleID);
-      int type = m_pixelCabling->getPixelType(pixid);
+      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
       float ch = calibData->getCharge((int)moduleHash, circ, type, 1.0*tot0);
       chListRecreated.push_back(ch);
       totListRecreated.push_back(tot0);

@@ -7,7 +7,7 @@
 
 #include "ITrigJetConditionConfig.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 #include "./ArgStrToDouble.h"
 
 class TrigJetConditionConfig_signed_eta:
@@ -20,7 +20,7 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 				    const IInterface* parent);
 
   virtual StatusCode initialize() override;
-  virtual ConditionMT getCondition() const override;
+  virtual Condition getCondition() const override;
 
  private:
   

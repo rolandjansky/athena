@@ -91,15 +91,16 @@ def _determineRawChannelSource(prevFlags):
     lri=_getLArRunInfo(prevFlags)
     #runType: 0=RawData, 1=RawDataResult, 2=Result
     if lri is None or lri.runType is None:
-        #Warning ... 
+        print("WARNING do not have LArRunInfo !")
         return "both"
-    if (lri.runType==0):
+    print("runType ",lri.runType())
+    if (lri.runType()==0):
         return "calculated" #Have only digits in bytestream
-    elif (lri.runType==1):
+    elif (lri.runType()==1):
         return "both"       #Have both, digits and raw-channels in bytestream
-    elif (lri.runType==2):
+    elif (lri.runType()==2):
         return "input"      #Have only raw-channels in bytestream
     else:
-        #Warning ... 
+        print("WARNING unknown LAr run type !")
         return "both" 
         

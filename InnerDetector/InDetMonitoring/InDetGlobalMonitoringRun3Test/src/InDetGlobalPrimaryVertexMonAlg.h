@@ -49,8 +49,7 @@ class InDetGlobalPrimaryVertexMonAlg : public AthMonitorAlgorithm {
  private:
   
   SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this,"vxContainerName","PrimaryVertices","Primary Vertices for Global Monitoring"};
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerNameWithoutBeamConstraint{this,"vxContainerNameWithOutBeamConstraint","VxPrimaryCandidateWithBeamConstraint","Vertices without beam constraint for Global Monitoring"};
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerNameSplit{this,"vxContainerNameSplit","VxPrimaryCandidateSplitStream","Split Vertices for Global Monitoring"};
+  //SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerNameSplit{this,"vxContainerNameSplit","VxPrimaryCandidateSplitStream","Split Vertices for Global Monitoring"};
   
   int         m_splitVertexTrkInvFraction; ///< store inverse of the fraction of input tracks used for probe vertex (1:N)
   float       m_distanceSplitVxMatch; ///< store maximum distance for matching split vertices to original non-BC vertex

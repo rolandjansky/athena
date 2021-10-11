@@ -1,78 +1,65 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+// Class header
 #include "SUSYTools/SUSYCrossSection.h"
+
+// Find the xsec files in datapath
 #include "PathResolver/PathResolver.h"
+
+// For directory commands
 #include <dirent.h>
-#include <math.h>
+
+// Error messages
 #include <iostream>
 
-using namespace std;
+// Text file i/o
+#include <fstream>
 
-SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended) {
-  
+SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilename, bool usePathResolver, bool isExtended, bool usePMGTool)
+  : m_pmgxs("")
+{
   setExtended(isExtended);
-  
-  if (usePathResolver) {
-    std::string fullPath = PathResolverFindCalibDirectory(txtfilenameOrDir);
-    
-    DIR* dp = opendir(fullPath.c_str());
-    if (dp) {
-      struct dirent * de;
-      while ((de = readdir(dp)) != NULL) {
-        loadFile(fullPath + de->d_name);
-      }
-    }
-    else {
-      std::string fullPathToFile = PathResolverFindCalibFile(txtfilenameOrDir);
-      loadFile(fullPathToFile.c_str());
-    }
-  }
-  else {
-    DIR* dp = opendir(txtfilenameOrDir.c_str());
-    if (dp) {
-      struct dirent * de;
-      while ((de = readdir(dp)) != NULL) {
-        loadFile(txtfilenameOrDir + de->d_name);
-      }
-    } else {
-      loadFile(txtfilenameOrDir.c_str());
-    }
-  }
+  setUsePMGTool(usePMGTool);
+
+  // configuring the PMG tool... 
+  m_pmgxs.setTypeAndName("PMGTools::PMGCrossSectionTool/PMGCrossSectionTool");
+  m_pmgxs.retrieve().ignore(); // Ignore the status code
+  std::vector<std::string> inFiles={};
+  std::string fullPath = usePathResolver ? PathResolverFindCalibFile(txtfilename) : txtfilename;
+  std::ifstream in(fullPath.c_str());
+  if (!in) return;
+  inFiles.push_back(fullPath);
+  m_pmgxs->readInfosFromFiles( inFiles );
+
 }
 
 void SUSY::CrossSectionDB::loadFile(const std::string& txtfilename){
 
-  string line;
+  std::string line;
   
-  ifstream in(txtfilename.c_str());
+  std::ifstream in(txtfilename.c_str());
   if (!in) return;
-  while ( getline(in, line) )
-    {
-      // skip leading blanks (in case there are some in front of a comment)
-      if ( !line.empty() )
-        {
-          while ( line[0] == ' ' ) line.erase(0, 1);
-        }
-      // skip lines that do not start with a number, they are comments
-      if ( !line.empty() && isdigit(line[0]) )
-        {
-          stringstream is(line);
-          int id;
-          string name;
-          float xsect, kfactor, efficiency, relunc;
-          float sumweight = -1, stat = -1;
-          is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
-          if (m_extended == true)
-            {
-              // cout << "m_extended was true!" << endl; 
-              is >> sumweight >> stat;
-            }
-          //cout << " Process: " << name << "  " << id << " " << xsect << endl;
-          m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
-        }
+  while ( getline(in, line) ){
+    // skip leading blanks (in case there are some in front of a comment)
+    if ( !line.empty() ){
+      while ( line[0] == ' ' ) line.erase(0, 1);
     }
+    // skip lines that do not start with a number, they are comments
+    if ( !line.empty() && isdigit(line[0]) ){
+      std::stringstream is(line);
+      int id;
+      std::string name;
+      float xsect, kfactor, efficiency, relunc;
+      float sumweight = -1, stat = -1;
+      is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
+      if (m_extended == true){
+          is >> sumweight >> stat;
+      }
+      m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
+    }
+  }
 }
 
 // Convenient accessor for finding based on *only* a process ID
@@ -86,9 +73,9 @@ SUSY::CrossSectionDB::xsDB_t::iterator SUSY::CrossSectionDB::my_find( const int 
 // Extend the record based on information from a second file
 void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
   // Just like the above function, but with more functionality
-  string line;
+  std::string line;
 
-  ifstream in(txtfilename.c_str());
+  std::ifstream in(txtfilename.c_str());
   if (!in) return;
   while ( getline(in, line) )
     {
@@ -98,21 +85,18 @@ void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
       }
       // skip lines that do not start with a number, they are comments
       if ( !line.empty() && isdigit(line[0]) ){
-          stringstream is(line);
+          std::stringstream is(line);
           int id;
-          string name;
+          std::string name;
           float xsect, kfactor, efficiency, relunc;
           float sumweight = -1, stat = -1;
           is >> id;
           auto my_it = my_find( id );
           if (my_it==m_xsectDB.end()){
             is >> name >> xsect >> kfactor >> efficiency >> relunc;
-            if (m_extended == true)
-              {
-                // cout << "m_extended was true!" << endl; 
-                is >> sumweight >> stat;
-              }
-            //cout << " Process: " << name << "  " << id << " " << xsect << endl;
+            if (m_extended == true){
+              is >> sumweight >> stat;
+            }
             m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
           } else {
             // Now we have extended records
@@ -128,15 +112,19 @@ void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
 
 SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) const
 {
-  const Key k(id, proc);
-  xsDB_t::const_iterator pos = m_cache.find(k);
-  if (pos != m_cache.end()) {
-    return pos->second;
+  // for background x-sections, use the PMG tool
+  if(proc==0 && m_usePMGTool) {
+    return Process( id, m_pmgxs->getSampleName(id), m_pmgxs->getAMIXsection(id), m_pmgxs->getKfactor(id), m_pmgxs->getFilterEff(id), m_pmgxs->getXsectionUncertainty(id), -1, -1 );  
   } else {
-    pos = m_xsectDB.find(k);
-    if (pos != m_xsectDB.end()) {
-      //      m_cache[k] = pos->second; //this doesn't compile, please fix it!
+    const Key k(id, proc);
+    xsDB_t::const_iterator pos = m_cache.find(k);
+    if (pos != m_cache.end()) {
       return pos->second;
+    } else {
+      pos = m_xsectDB.find(k);
+      if (pos != m_xsectDB.end()) {
+	return pos->second;
+      }
     }
   }
   return Process();

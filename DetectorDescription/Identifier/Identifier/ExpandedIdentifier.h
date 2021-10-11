@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_EXPANDEDIDENTIFIER_H
@@ -115,7 +115,12 @@ public:
   typedef ExpandedIdentifier 		id_type;
   typedef int  				element_type;
   typedef std::vector<element_type> 	element_vector;
+#ifdef __CPPCHECK__
+  // Otherwise cppcheck warns about passing this type by value.
+  typedef size_t size_type;
+#else
   typedef std::vector<element_type>::size_type 	size_type;
+#endif
 
   typedef enum
     {

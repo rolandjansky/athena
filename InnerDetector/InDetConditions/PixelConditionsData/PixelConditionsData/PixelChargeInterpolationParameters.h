@@ -43,8 +43,8 @@ class PixelChargeInterpolationParameters {
     float getDeltaXIBL(int nRows, float angle) const;
     float getDeltaYIBL(int nCol, float eta) const;
 
-    float getDeltaXendcap() const; 
-    float getDeltaYendcap() const; 
+    static float getDeltaXendcap() ; 
+    static float getDeltaYendcap() ; 
 
     /** methods to get/set the calibration data as a function of 
         the bin index for the various variables separately */
@@ -89,8 +89,8 @@ class PixelChargeInterpolationParameters {
     void setParameters(const int ncsx, const int ncsy, const int neta, 
                        const int nalpha, int offset, std::vector<float> constants);
 
-    void Print(std::string filename) const;
-    void Load(std::string filename);
+    void Print(const std::string& filename) const;
+    void Load(const std::string& filename);
 
     // IBL
     const std::vector<float>& getIBLEtaBins() const{return m_ibletabins;}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSerializeCnvSvc/TrigSerializeConvHelper.h"
@@ -12,6 +12,7 @@
 #include "TrigSerializeCnvSvc/ITrigSerGuidHelper.h"
 
 #include "DataModelRoot/RootType.h"
+#include "CxxUtils/FPControl.h"
 
 
 TrigSerializeConvHelper::TrigSerializeConvHelper(const std::string& toolname, const std::string& type, const IInterface* parent) :
@@ -169,6 +170,16 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
         }
         versionChange = true;
       }
+    }
+
+    // Many variables in this class were changed from double to float.
+    // However, we wrote data in the past which contained values
+    // that were valid doubles but which were out of range for floats.
+    // So we can get FPEs when we read them.
+    // Disable FPEs when we're reading an instance of this class.
+    CxxUtils::FPControl fpcontrol;
+    if (cl == "xAOD::BTaggingTrigAuxContainer_v1") {
+      fpcontrol.holdExceptions();
     }
 
     ptr = serializer->deserialize(cl, v);

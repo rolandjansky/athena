@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetAlgorithm.cxx 
 
-#include "PseudoJetAlgorithm.h"
+#include "JetRec/PseudoJetAlgorithm.h"
 #include "JetRec/PseudoJetGetter.h"
 #include "JetRec/IParticleExtractor.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 // Fixed value by which to scale ghost kinematics
 constexpr float ghostscale = 1e-40;
@@ -91,7 +93,7 @@ std::unique_ptr<PseudoJetContainer> PseudoJetAlgorithm::createPJContainer(const 
 std::vector<fastjet::PseudoJet> 
 PseudoJetAlgorithm::createPseudoJets(const xAOD::IParticleContainer& ips) const{
 #ifndef GENERATIONBASE
-  if (m_pflow) {return PseudoJetGetter::PFlowsToPJs(ips,m_skipNegativeEnergy);}
+  if (m_pflow) {return PseudoJetGetter::PFlowsToPJs(ips,m_skipNegativeEnergy,m_useCharged,m_useNeutral,m_useChargedPV,m_useChargedPUsideband);}
   if (m_emtopo) {return PseudoJetGetter::EMToposToPJs(ips,m_skipNegativeEnergy);}
 #endif
   return PseudoJetGetter::IParticlesToPJs(ips,m_skipNegativeEnergy);

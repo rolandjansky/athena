@@ -136,7 +136,7 @@ void  TRT_DriftCircleContainerCnv_p2::persToTrans(const InDet::TRT_DriftCircleCo
       }
     }
 
-    InDet::TRT_DriftCircleCollection* coll = 0;
+    InDet::TRT_DriftCircleCollection* coll = nullptr;
 
     TRT_DriftCircleCnv_p2  chanCnv;
     unsigned int collBegin(0);

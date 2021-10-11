@@ -379,7 +379,7 @@ LVL1::RecEmTauRoI::roiType() const { return m_type; }
 
 /** returns TRUE if threshold number <em>threshold_number</em> has been passed
  * by this ROI. */
-bool LVL1::RecEmTauRoI::passedThreshold(int threshold_number) const
+bool LVL1::RecEmTauRoI::passedThreshold(unsigned int threshold_number) const
 {
   if (this->isValidThreshold(threshold_number)) {
     return ((1 << threshold_number) & m_thresholdMask) != 0;

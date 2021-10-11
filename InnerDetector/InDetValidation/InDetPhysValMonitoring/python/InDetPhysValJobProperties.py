@@ -64,6 +64,18 @@ class doValidateGSFTracks(InDetPhysValFlagsJobProperty):
     StoredValue = False
 
 
+class doValidateMuonMatchedTracks(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
+class doValidateElectronMatchedTracks(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
 class doValidateLooseTracks(InDetPhysValFlagsJobProperty):
     statusOn = True
     allowedTypes = ['bool']
@@ -99,6 +111,17 @@ class doTruthOriginPlots(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+
+class doPerAuthorPlots(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doHitLevelPlots(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class validateExtraTrackCollections(InDetPhysValFlagsJobProperty):
     """List of extra track collection names to be validated in addition to Tracks."""
     statusOn = True
@@ -122,6 +145,18 @@ class setTruthStrategy(InDetPhysValFlagsJobProperty):
     statusOn = True
     allowedTypes = ['string']
     StoredValue = 'HardScatter'
+
+class ancestorIDs(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
+
+class hardScatterStrategy(InDetPhysValFlagsJobProperty):
+    """The hard-scatter vertex selection strategy to use when running hard-scatter efficiency / performance plots in IDPVM. 0 corresponds to sumPt^2, 1 corresponds to sumPt"""
+    statusOn = True
+    allowedTypes = ['int']
+    StoredValue = 0 # default to sum(pt²)
 
 
 # -----------------------------------------------------------------------------
@@ -187,11 +222,17 @@ _list_InDetPhysValJobProperties = [
     doValidateTracksInBJets,
     doValidateTruthToRecoNtuple,
     validateExtraTrackCollections,
+    doValidateMuonMatchedTracks,
+    doValidateElectronMatchedTracks,
     doPhysValOutput,
     doExpertOutput,
     setTruthStrategy,
     doValidateLargeD0Tracks,
-    doTruthOriginPlots
+    doTruthOriginPlots,
+    doPerAuthorPlots,
+    doHitLevelPlots,
+    ancestorIDs,
+    hardScatterStrategy
 ]
 
 for j in _list_InDetPhysValJobProperties:

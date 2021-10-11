@@ -5,7 +5,7 @@
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
 #define  TRIGL2MUONSA_MUFASTSTEERING_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
@@ -36,12 +36,9 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-/* class Incident; */
-
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
-class MuFastSteering : public AthAlgorithm/* , */
-  /* virtual public IIncidentListener */
+class MuFastSteering : public AthReentrantAlgorithm
 {
  public:
   enum {
@@ -62,7 +59,7 @@ class MuFastSteering : public AthAlgorithm/* , */
   virtual StatusCode initialize() override;
 
   /** execute(), main code of the algorithm for AthenaMT*/
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
   /** findMuonSignature(), includes reconstract algorithms **/
   /** this function can be called from both execute() **/
@@ -70,37 +67,47 @@ class MuFastSteering : public AthAlgorithm/* , */
 			       const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
-			       TrigRoiDescriptorCollection&	 		outputMS/* , */
-			       /* DataVector<xAOD::TrigComposite>&			outputComposite */ ) const;
+			       TrigRoiDescriptorCollection&	 		outputMS,
+			       const bool                                       dynamicDeltaRpc,
+			       const EventContext&                              ctx ) const;
 
   StatusCode findMuonSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			       const std::vector<const xAOD::MuonRoI*>& 	muonRoIs,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
-			       TrigRoiDescriptorCollection&	 		outputMS/* , */
-			       /* DataVector<xAOD::TrigComposite>&			outputComposite */ ) const;
+			       TrigRoiDescriptorCollection&	 		outputMS,
+			       const bool                                       dynamicDeltaRpc,
+			       const EventContext&                              ctx ) const;
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
-				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs ) const;
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
+				 const bool                                     dynamicDeltaRpc,
+				 const EventContext&                            ctx ) const;
 
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const xAOD::MuonRoI*>        muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
-				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs ) const;
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
+				 const bool                                     dynamicDeltaRpc,
+				 const EventContext&                            ctx ) const;
 
   /** findMultiTrackSignature(), includes reconstract algorithms for multi-track mode **/
   StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			             const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
-                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
+                                     const bool                                         dynamicDeltaRpc,
+                                     const EventContext&                                ctx) const;
 
   StatusCode findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
 			             const std::vector<const xAOD::MuonRoI*>& 	        muonRoIs,
-                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks) const;
+                                     DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
+                                     const bool                                         dynamicDeltaRpc,
+                                     const EventContext&                                ctx) const;
 
   int L2MuonAlgoMap(const std::string& name) const;
 
@@ -125,7 +132,8 @@ class MuFastSteering : public AthAlgorithm/* , */
                            const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
 			   TrigRoiDescriptorCollection&  	          outputID,
-			   TrigRoiDescriptorCollection&   	          outputMS) const;
+			   TrigRoiDescriptorCollection&   	          outputMS,
+			   const EventContext&                            ctx) const;
 
   bool updateOutputObjects(const xAOD::MuonRoI*                           roi,
                            const TrigRoiDescriptor*                       roids,
@@ -142,7 +150,8 @@ class MuFastSteering : public AthAlgorithm/* , */
                            const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
 			   TrigRoiDescriptorCollection&  	          outputID,
-			   TrigRoiDescriptorCollection&   	          outputMS) const;
+			   TrigRoiDescriptorCollection&   	          outputMS,
+			   const EventContext&                            ctx) const;
 
   bool storeMuonSA(const LVL1::RecMuonRoI*             roi,
                    const TrigRoiDescriptor*            roids,
@@ -157,7 +166,8 @@ class MuFastSteering : public AthAlgorithm/* , */
 		   const TrigL2MuonSA::StgcHits&       stgcHits,
 		   const TrigL2MuonSA::MmHits&         mmHits,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
-                   DataVector<xAOD::L2StandAloneMuon>& outputTracks) const;
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+                   const EventContext&                 ctx) const;
 
   bool storeMuonSA(const xAOD::MuonRoI*                roi,
                    const TrigRoiDescriptor*            roids,
@@ -172,7 +182,8 @@ class MuFastSteering : public AthAlgorithm/* , */
 		   const TrigL2MuonSA::StgcHits&       stgcHits,
 		   const TrigL2MuonSA::MmHits&         mmHits,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
-                   DataVector<xAOD::L2StandAloneMuon>& outputTracks) const;
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+                   const EventContext&                 ctx) const;
 
   bool storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
@@ -292,11 +303,11 @@ class MuFastSteering : public AthAlgorithm/* , */
 
   //ReadHandle MURoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
-	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from L1Decoder"};
+	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from HLTSeeding"};
 
   //ReadHandle RecMuonRoIs
   SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_run2recRoiCollectionKey{
-	this, "Run2RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
+	this, "Run2RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by HLTSeeding"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_recRoiCollectionKey{
 	this, "RecMuonRoI", "LVL1MuonRoIs", "Name of the input data on xAOD::MuonRoI"};
 

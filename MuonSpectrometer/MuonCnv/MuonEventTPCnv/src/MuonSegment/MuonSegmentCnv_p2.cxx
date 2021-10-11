@@ -41,7 +41,7 @@ void MuonSegmentCnv_p2::transToPers( const Muon::MuonSegment *transObj, Muon::Mu
   persObj->m_segment = baseToPersistent( &m_segmentCnv, transObj, log );
   m_localDirCnv.transToPers(&transObj->localDirection(),&persObj->m_localDirection,log);
 
-  m_surfCnv=0;
+  m_surfCnv=nullptr;
   if (transObj->associatedSurface().isFree() ) // if this is a free surface, write it out 'as is'
     persObj->m_associatedSurface = toPersistent(&m_surfCnv, &transObj->associatedSurface(), log);
   else { // else, make it into a DetElementSurface, to allow the correct convertor to be called

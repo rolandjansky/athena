@@ -270,6 +270,7 @@ namespace CompScaleVar
             case FourVecRes:    return "FourVecRes";
             case FourVecResAbs: return "FourVecResAbs";
       	    case TagScaleFactor:return "TagScaleFactor";
+	    case TagEfficiency: return "TagEfficiency";
             default:            return "UNKNOWN";
         }
     }
@@ -314,6 +315,8 @@ namespace CompScaleVar
             return FourVecResAbs;
         if (!type.CompareTo("TagScaleFactor",TString::kIgnoreCase))
             return TagScaleFactor;
+        if (!type.CompareTo("TagEfficiency",TString::kIgnoreCase))
+	    return TagEfficiency;
         return UNKNOWN;
     }
 
@@ -334,6 +337,7 @@ namespace CompScaleVar
             case C2Beta1:
             case Qw:
             case TagScaleFactor:
+	    case TagEfficiency:
                 return true;
 
             default:

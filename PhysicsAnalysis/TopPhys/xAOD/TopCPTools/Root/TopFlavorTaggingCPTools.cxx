@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-12-02_v2.root";
+      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root";
 
     m_tagger = ""; // Extract in the loop
     if (m_config->bTaggingCDIPath() != "Default") {
@@ -75,12 +75,6 @@ namespace top {
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
-
-    // Calibrated and uncalibrated working points for R=0.2 track jets for all algorithms
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt2PV0TrackJets WP");
 
     // Calibrated and uncalibrated working points for VR track jets for all algorithms
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02PV0TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02PV0TrackJets WP");
@@ -206,6 +200,15 @@ namespace top {
           track_WPs_calib = m_trackAntiKt2_WPs_calib;
         }
 
+        // remove PV0 from the string name
+        auto removePV0 = [](std::string collection) {
+          const std::string pv0 = "PV0";
+          auto it = collection.find(pv0);
+          if (it == std::string::npos) return collection;
+          collection.erase(it, pv0.length());
+          return collection;
+        };
+
         if (std::find(track_WPs.begin(), track_WPs.end(), bTagWPName) == track_WPs.end()) {
           ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
           ATH_MSG_WARNING("     b-tagging WP: " + bTagWPName + " not supported for jet collection " + trackJets_collection);
@@ -218,7 +221,7 @@ namespace top {
           BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
           top::check(btagsel->setProperty("TaggerName", m_tagger),
                      "Failed to set b-tagging selecton tool TaggerName");
-          top::check(btagsel->setProperty("JetAuthor", trackJets_collection),
+          top::check(btagsel->setProperty("JetAuthor", removePV0(trackJets_collection)+"_BTagging201903"),
                      "Failed to set b-tagging selection JetAuthor");
           top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                           m_cdi_file),
@@ -251,7 +254,7 @@ namespace top {
                        "Failed to set b-tagging TaggerName");
             top::check(btageff->setProperty("OperatingPoint", btagWP),
                        "Failed to set b-tagging OperatingPoint");
-            top::check(btageff->setProperty("JetAuthor", trackJets_collection),
+            top::check(btageff->setProperty("JetAuthor", removePV0(trackJets_collection)+"_BTagging201903"),
                        "Failed to set b-tagging JetAuthor");
             top::check(btageff->setProperty("MinPt",
                                         static_cast<double>(m_config->trackJetPtcut())),
@@ -389,15 +392,6 @@ namespace top {
     } else if (jetcollection == "AntiKtVR30Rmax4Rmin02PV0TrackJets" && !isCalibrated) {
       // use m_trackAntiKt2_WPs
       for (auto s : list_of_WP) m_trackAntiKtVR_WPs.push_back(tagger + "_" + s);
-    } else if (jetcollection == "AntiKt2PV0TrackJets" && isCalibrated) {
-      // use m_trackAntiKt2_WPs_calib
-      for (auto s : list_of_WP) {
-        m_trackAntiKt2_WPs_calib.push_back(tagger + "_" + s);
-        m_trackAntiKt2_WPs.push_back(tagger + "_" + s);
-      }
-    } else if (jetcollection == "AntiKt2PV0TrackJets" && !isCalibrated) {
-      // use m_trackAntiKt2_WPs
-      for (auto s : list_of_WP) m_trackAntiKt2_WPs.push_back(tagger + "_" + s);
     } else {
       ATH_MSG_ERROR("Unknown jet collection and calibration options");
       return StatusCode::FAILURE;

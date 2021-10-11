@@ -13,7 +13,7 @@ atlas_add_library( PixelConditionsToolsLib
 atlas_add_component( PixelConditionsTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel CxxUtils GaudiKernel Identifier InDetByteStreamErrors InDetConditionsSummaryService InDetIdentifier PixelCablingLib PixelConditionsData InDetReadoutGeometry PixelReadoutGeometry PixelConditionsToolsLib StoreGateLib )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel CxxUtils GaudiKernel Identifier InDetByteStreamErrors InDetConditionsSummaryService InDetIdentifier PixelConditionsData InDetReadoutGeometry PixelReadoutGeometryLib PixelConditionsToolsLib StoreGateLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

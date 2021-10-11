@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLMT
@@ -13,7 +13,7 @@ namespace Muon
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
 
-  class sTgcRdoToPrepDataToolMT : virtual public sTgcRdoToPrepDataToolCore
+  class sTgcRdoToPrepDataToolMT : public extends<sTgcRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
     {
     public:
       /** Constructor */

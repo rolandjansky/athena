@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -154,21 +154,17 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
 {
   ATH_MSG_INFO( "Initializing " << name()  );
 
-  std::vector<std::string>::const_iterator mNameIter = m_momentsNames.begin(); 
-  std::vector<std::string>::const_iterator mNameIterEnd = m_momentsNames.end(); 
-  for(; mNameIter!=mNameIterEnd; mNameIter++) {
-    moment_name_vector::const_iterator mVNameIter = m_validNames.begin(); 
-    moment_name_vector::const_iterator mVNameIterEnd = m_validNames.end(); 
+  for (const std::string& name : m_momentsNames) {
     bool isValid(false);
-    for(; mVNameIter!=mVNameIterEnd; mVNameIter++) {
-      if ( *mNameIter == mVNameIter->first ) {
-	m_validMoments.insert(*mVNameIter);
+    for (const moment_name_pair& vname : m_validNames) {
+      if ( name == vname.first ) {
+	m_validMoments.insert(vname);
 	isValid = true;
 	break;
       }
     }
     if ( !isValid) {
-      msg() << MSG::ERROR << "Moment " << *mNameIter
+      msg() << MSG::ERROR << "Moment " << name
 	  << " is not a valid Moment name and will be ignored! "
 	  << "Valid names are:";
       for (unsigned int i=0;i<m_validNames.size();i++) 
@@ -180,8 +176,8 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
   // to switch on clever DeadMaterial assignment procedure
   // and check if tight, medium and/or loose versions for out-of-cluster and 
   // simple dead-material assignment are wanted
-  for(moment_name_set::const_iterator it=m_validMoments.begin(); it!= m_validMoments.end(); it++){
-    switch ((*it).second) {
+  for (const moment_name_pair& vname : m_validNames) {
+    switch (vname.second) {
     case xAOD::CaloCluster::ENG_CALIB_DEAD_TOT:
       m_doDeadEnergySharing = true;
       break;
@@ -213,14 +209,10 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
     m_doCalibFrac = false;
   }
 
-  mNameIter = m_momentsNamesAOD.begin(); 
-  mNameIterEnd = m_momentsNamesAOD.end(); 
-  for(; mNameIter!=mNameIterEnd; mNameIter++) {
-    moment_name_set::const_iterator vMomentsIter = m_validMoments.begin();
-    moment_name_set::const_iterator vMomentsIterEnd = m_validMoments.end();
-    for( ; vMomentsIter != vMomentsIterEnd; vMomentsIter++ ) {
-      if ( vMomentsIter->first == *mNameIter ) {
-	m_momentsAOD.insert(vMomentsIter->second);
+  for (const std::string& name : m_momentsNamesAOD) {
+    for (const moment_name_pair& vname : m_validNames) {
+      if ( vname.first == name ) {
+	m_momentsAOD.insert(vname.second);
 	break;
       }
     }
@@ -345,7 +337,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   xAOD::CaloClusterContainer::iterator clusIter = theClusColl->begin();
   xAOD::CaloClusterContainer::iterator clusIterEnd = theClusColl->end();
   int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
+  for( ;clusIter!=clusIterEnd;++clusIter,++iClus) {
      const xAOD::CaloCluster * theCluster = (*clusIter);
 
     // loop over all cell members and fill cell vector for used cells
@@ -372,15 +364,12 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   /* ********************************************
   calculate total calib energy inside clusters
   ******************************************** */
-  std::vector<const CaloCalibrationHitContainer * >::const_iterator it;
   unsigned int nHitsTotal = 0;
   unsigned int nHitsWithoutParticleID = 0;
-  for (it=v_cchc.begin();it!=v_cchc.end();it++) {
-    CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-    CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
+  for (const CaloCalibrationHitContainer* cchc : v_cchc) {
     //loop over cells in calibration container
-    for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+    for (const CaloCalibrationHit* hit : *cchc) {
+      Identifier myId = hit->cellID();
 
       CellInfoSet_t::iterator pos = cellInfo.find( myId );
       if(pos != cellInfo.end() ) {
@@ -390,13 +379,13 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
           int iClus = p.first;
           double weight = p.second;
           if(m_useParticleID){
-            clusInfoVec[iClus].Add(weight * (*chIter)->energyTotal(), nsmp, (*chIter)->particleID());
+            clusInfoVec[iClus].Add(weight * hit->energyTotal(), nsmp, hit->particleID());
           }else{
-            clusInfoVec[iClus].Add(weight * (*chIter)->energyTotal(), nsmp);
+            clusInfoVec[iClus].Add(weight * hit->energyTotal(), nsmp);
           }
         }
       }
-      if( m_useParticleID && (*chIter)->particleID() == 0) {
+      if( m_useParticleID && hit->particleID() == 0) {
         nHitsWithoutParticleID++;
       }
       nHitsTotal++;
@@ -440,11 +429,8 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
          (ii == 1 && (m_doOutOfClusterM || m_doDeadM || (m_doDeadEnergySharing && m_MatchDmType==kMatchDmMedium) ) ) || 
          (ii == 2 && (m_doOutOfClusterT || m_doDeadT || (m_doDeadEnergySharing && m_MatchDmType==kMatchDmTight)) ) ) {
       engCalibOut[ii].resize(theClusColl->size(),0);
-      clusIter = theClusColl->begin();
       iClus = 0;
-      for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-        const xAOD::CaloCluster * theCluster = (*clusIter);
-
+      for (const xAOD::CaloCluster * theCluster : *theClusColl) {
         MyClusInfo& clusInfo = clusInfoVec[iClus];
 
         if ( clusInfo.engCalibIn.engTot > 0 ) {
@@ -480,12 +466,10 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   calculate out-of-cluster energy of clusters
   **************************************************************** */
   if ( m_doOutOfClusterL  ||  m_doOutOfClusterM  ||  m_doOutOfClusterT  ) {
-    for (it=v_cchc.begin();it!=v_cchc.end();it++) {
-      CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-      CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
+    for (const CaloCalibrationHitContainer* cchc : v_cchc) {
       //loop over cells in calibration container
-      for(;chIter!=chIterE;chIter++)  {
-        Identifier myId = (*chIter)->cellID();
+      for (const CaloCalibrationHit* hit : *cchc) {
+        Identifier myId = hit->cellID();
 
           CellInfoSet_t::iterator pos = cellInfo.find( myId );
           if(pos == cellInfo.end() ) {
@@ -493,7 +477,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
             const CaloDetDescrElement* myCDDE = 
               calo_dd_man->get_element(myId);
             int pid(0);
-            if(useParticleID) pid = (*chIter)->particleID();
+            if(useParticleID) pid = hit->particleID();
             if ( myCDDE ) {
               int jeO = (int)floor(m_n_eta_out*(myCDDE->eta()/m_out_eta_max));
               if ( jeO >= -m_n_eta_out && jeO < m_n_eta_out ) {
@@ -533,7 +517,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
                       for(unsigned int i_cls=0; i_cls<hitClusIndex.size(); i_cls++){
                         int iClus = hitClusIndex[i_cls];
                         double w = hitClusEffEnergy[i_cls] * inv_hitClusNorm;
-                        engCalibOut[ii][iClus] += w*(*chIter)->energyTotal();
+                        engCalibOut[ii][iClus] += w*hit->energyTotal();
                     }
                   }
                 }
@@ -560,18 +544,15 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   }
   if( m_doDeadEnergySharing && pClusList) {
 
-    for (it=v_dmcchc.begin();it!=v_dmcchc.end();it++) {
-      CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-      CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
-      //loop over cells in DM calibration container
-      for(;chIter!=chIterE;chIter++)  {
-        Identifier myId = (*chIter)->cellID();
+    for (const CaloCalibrationHitContainer* dmcchc : v_dmcchc) {
+      for (const CaloCalibrationHit* hit : *dmcchc) {
+        Identifier myId = hit->cellID();
         if (m_calo_id->is_lar_dm(myId) || m_calo_id->is_tile_dm(myId)) {
           CaloDmDescrElement* myCDDE(nullptr);
           myCDDE = m_caloDmDescrManager->get_element(myId);
           if ( myCDDE ) {
             int pid(0);
-            if(useParticleID) pid = (*chIter)->particleID();
+            if(useParticleID) pid = hit->particleID();
 
             int jeO = (int)floor(m_n_eta_out*(myCDDE->eta()/m_out_eta_max));
             if ( jeO >= -m_n_eta_out && jeO < m_n_eta_out ) {
@@ -644,8 +625,8 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
                     std::cout << "CaloCalibClusterMomentsMaker2::execute() ->Error! Strange weight " <<  dm_weight<< std::endl;
                     std::cout << hitClusEffEnergy[i_cls] << " " << hitClusNorm << std::endl;
                   }
-                  clusInfoVec[iClus].engCalibDeadInArea[nDmArea] += (*chIter)->energyTotal()*dm_weight;
-                  clusInfoVec[iClus].engCalibDeadInArea[CaloDmDescrArea::DMA_ALL] += (*chIter)->energyTotal()*dm_weight;
+                  clusInfoVec[iClus].engCalibDeadInArea[nDmArea] += hit->energyTotal()*dm_weight;
+                  clusInfoVec[iClus].engCalibDeadInArea[CaloDmDescrArea::DMA_ALL] += hit->energyTotal()*dm_weight;
                 }
               } // hit clus norm
 
@@ -675,7 +656,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   }//truth particle loop
   
   // assign moments
-  for( clusIter = theClusColl->begin(),iClus=0;  clusIter!=clusIterEnd;clusIter++,iClus++) {
+  for( clusIter = theClusColl->begin(),iClus=0;  clusIter!=clusIterEnd;++clusIter,++iClus) {
     xAOD::CaloCluster * theCluster = *clusIter;
     MyClusInfo& clusInfo = clusInfoVec[iClus];
 
@@ -720,7 +701,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
       moment_name_set::const_iterator vMomentsIterEnd = m_validMoments.end();
 
       int iMoment=0;
-      for(; vMomentsIter!=vMomentsIterEnd; vMomentsIter++,iMoment++) {
+      for(; vMomentsIter!=vMomentsIterEnd; ++vMomentsIter,++iMoment) {
         // now calculate the actual moments
         switch (vMomentsIter->second) { 
         case xAOD::CaloCluster::ENG_CALIB_TOT:
@@ -823,8 +804,8 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,i
   engFrac.assign(kCalibFracMax, 0.0);
   if(clusInfo.engCalibIn.engTot <= 0.0) return;
   // each MyClusInfo has a map of particle's barcode and particle calibration deposits in given cluster
-  for(std::map<int, MyClusInfo::ClusCalibEnergy >::const_iterator it = clusInfo.engCalibParticle.begin(); it != clusInfo.engCalibParticle.end(); it++){
-    unsigned int barcode = it->first;
+  for (const std::pair<const int, MyClusInfo::ClusCalibEnergy>& p : clusInfo.engCalibParticle) {
+    unsigned int barcode = p.first;
     int pdg_id = 0;
     try { pdg_id = truthBarcodeToPdgCodeMap.at(barcode); }
     catch (const std::out_of_range& e){
@@ -833,11 +814,11 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,i
     }
 
     if( abs(pdg_id) == 211) {
-      engFrac[kCalibFracHAD] += it->second.engTot;
+      engFrac[kCalibFracHAD] += p.second.engTot;
     }else if( pdg_id == 111 || pdg_id == 22 || abs(pdg_id)==11) {
-      engFrac[kCalibFracEM] += it->second.engTot;
+      engFrac[kCalibFracEM] += p.second.engTot;
     }else{
-      engFrac[kCalibFracREST] += it->second.engTot;
+      engFrac[kCalibFracREST] += p.second.engTot;
     }
   }
   for(unsigned int i=0; i<engFrac.size(); i++) engFrac[i] = engFrac[i]/clusInfo.engCalibIn.engTot;

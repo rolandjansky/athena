@@ -44,10 +44,10 @@ StatusCode MuonMDT_CablingAlg::initialize(){
 StatusCode MuonMDT_CablingAlg::execute(){
   
   ATH_MSG_DEBUG( "execute " << name() );  
-  
+  const auto ctx = Gaudi::Hive::currentContext();
   // Write Cond Handle
 
-  SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey};
+  SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
 		  << ". In theory this should not be called, but may happen"
@@ -58,7 +58,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
 
   // Read Cond Handle
   
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez };
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez, ctx };
   const CondAttrListCollection* readCdoMez{*readHandleMez}; 
   if(readCdoMez==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -72,7 +72,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMez.fullKey() << " readCdoMez->size()= " << readCdoMez->size());
   ATH_MSG_INFO("Range of input is " << rangeMez);
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap };
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap, ctx };
   const CondAttrListCollection* readCdoMap{*readHandleMap}; 
   if(readCdoMap==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -108,7 +108,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
     sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));    
     ATH_MSG_VERBOSE( "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer  );        
     // here add the mezzanine type to the cabling class
-    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence);
+    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence, msgStream());
     if (!addLine) {
       ATH_MSG_ERROR( "Could not add the mezzanine sequence to the map " );
     }
@@ -154,9 +154,8 @@ StatusCode MuonMDT_CablingAlg::execute(){
     // convert the subdetector id to integer
     int subdetectorId = atoi(subdetector_id.c_str());
 
-    std::string delimiter = ",";
-    std::vector<std::string> info_map;
-    MuonCalib::MdtStringUtils::tokenize(map,info_map,delimiter);   
+    char delimiter = ',';
+    auto info_map = MuonCalib::MdtStringUtils::tokenize(map,delimiter);   
     ATH_MSG_VERBOSE( " parsing of the map"  );
 
     int index=0;
@@ -170,7 +169,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
 
     for(unsigned int i=0; i<info_map.size();i++){
       ATH_MSG_VERBOSE( i << "..."<< info_map[i] );
-      int info = atoi(info_map[i].c_str());
+      int info = MuonCalib::MdtStringUtils::atoi(info_map[i]);
       index++;
       // this is a tdcid
       if (index==1) {
@@ -201,7 +200,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
                          << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube  );
 	// now this mezzanine can be added to the map:
 	writeCdo->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
-				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId);				    
+				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId, msgStream());				    
       }
     } // end of info_map loop
 

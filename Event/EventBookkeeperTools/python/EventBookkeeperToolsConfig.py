@@ -1,17 +1,17 @@
 """Define functions for event bookkeeping configuration using ComponentAccumulator
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
 
 
-def BookkeeperToolCfg(flags, base_name='CutBookkeepers'):
+def BookkeeperToolCfg(flags, name='BookkeeperTool', output_name='CutBookkeepers'):
     """BookkeeperTool config"""
-    tool = CompFactory.BookkeeperTool(base_name + 'Tool',
-                                      InputCollName = base_name,
-                                      OutputCollName = base_name)
+    tool = CompFactory.BookkeeperTool(name,
+                                      InputCollName = output_name,
+                                      OutputCollName = output_name)
     return MetaDataSvcCfg(flags, tools=[tool])
 
 
@@ -37,11 +37,11 @@ def CutFlowSvcCfg(flags):
     return acc
 
 
-def CutFlowOutputList(flags, base_name='CutBookkeepers'):
+def CutFlowOutputList(flags, output_name='CutBookkeepers'):
     """CutFlow output metadata list"""
     return [
-        'xAOD::CutBookkeeperContainer#' + base_name + '*',
-        'xAOD::CutBookkeeperAuxContainer#' + base_name + '*Aux.*',
-        'xAOD::CutBookkeeperContainer#Incomplete' + base_name + '*',
-        'xAOD::CutBookkeeperAuxContainer#Incomplete' + base_name + '*Aux.*'
+        'xAOD::CutBookkeeperContainer#' + output_name + '*',
+        'xAOD::CutBookkeeperAuxContainer#' + output_name + '*Aux.*',
+        'xAOD::CutBookkeeperContainer#Incomplete' + output_name + '*',
+        'xAOD::CutBookkeeperAuxContainer#Incomplete' + output_name + '*Aux.*'
     ]

@@ -2,6 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonGeoModel/DBReader.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -13,9 +15,9 @@ namespace MuonGM {
         m_msgSvc = Athena::getMessageSvc();
     }
 
-    void DBReader::setGeometryVersion(std::string geoVersion) { m_version = geoVersion; }
+    void DBReader::setGeometryVersion(std::string geoVersion) { m_version = std::move(geoVersion); }
 
-    std::string DBReader::getGeometryVersion() const { return m_version; }
+    const std::string& DBReader::getGeometryVersion() const { return m_version; }
 
     std::string DBReader::TGCreadoutName(int ichtyp) {
         MsgStream log(Athena::getMessageSvc(), "DBReader::TGCreadoutName");

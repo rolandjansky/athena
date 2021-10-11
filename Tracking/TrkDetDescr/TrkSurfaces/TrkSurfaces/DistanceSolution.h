@@ -31,7 +31,7 @@ public:
   DistanceSolution& operator=(DistanceSolution&&) = default;
   ~DistanceSolution() = default;
 
-   /**Constructor*/
+  /**Constructor*/
   DistanceSolution(int num,
                    double current = 0.,
                    bool signedDist = false,
@@ -64,10 +64,10 @@ public:
   bool signedDistance() const;
 
 private:
-  int m_num = 0;
   double m_first = 0;
   double m_second = 0;
   double m_current = 0;
+  int m_num = 0;
   bool m_signedDist = false;
 };
 

@@ -29,3 +29,9 @@ atlas_install_scripts( python/*.py )
 set( SherpaEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of SherpaEnvironment.cmake" )
 find_package( SherpaEnvironment )
+
+# Set (a) OpenLoops specific environment variable(s).
+set( OpenLoopsEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of OpenLoopsEnvironment.cmake" )
+find_package( OpenLoopsEnvironment )
+

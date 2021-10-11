@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDVolumeStore_H
@@ -18,10 +18,7 @@ public:
 	void RegisterVolume(AGDDVolume *);
 	AGDDVolume* GetVolume(std::string);
 	bool Exist(std::string);
-	static AGDDVolumeStore* GetVolumeStore();
 	void Clean();
-private:
-
 };
 
 #endif

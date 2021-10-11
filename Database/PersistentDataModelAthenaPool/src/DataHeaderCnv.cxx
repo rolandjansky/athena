@@ -44,30 +44,66 @@ DataHeaderCnv::~DataHeaderCnv()
 //______________________________________________________________________________
 StatusCode DataHeaderCnv::initialize()
 {
-   // listen to EndInputFile incidents to clear old DataHeaderForms from the cache
-   //Get IncidentSvc
+   // Read properties from the ConversionSvc
+   m_inDHFMapMaxsize = 100;   // default DHForm cache size
+   bool doFilterDHAliases = true;
+   IConversionSvc* cnvSvc(nullptr);
+   if( service("AthenaPoolCnvSvc", cnvSvc, true ).isSuccess() ) {
+      IProperty* prop = dynamic_cast<IProperty*>( cnvSvc );
+      if( prop ) {
+         IntegerProperty sizeProp("maxDHFormCacheSize", m_inDHFMapMaxsize);
+         if( prop->getProperty(&sizeProp).isSuccess() ) {
+            m_inDHFMapMaxsize = sizeProp.value();
+         }
+         BooleanProperty aliasFilterProp("doFilterDHAliases", doFilterDHAliases);
+         if( prop->getProperty(&aliasFilterProp).isSuccess() ) {
+            doFilterDHAliases = aliasFilterProp.value();
+         }
+      }
+   }
+   ATH_MSG_VERBOSE("Using DHForm cache size: " << m_inDHFMapMaxsize);
+   if( doFilterDHAliases ) {
+      ATH_MSG_VERBOSE("Will filter SG Aux aliases in DataHeader");
+   } else {
+      ATH_MSG_VERBOSE("Will NOT filter SG Aux aliases in DataHeader");
+   }
+   m_tpOutConverter.setSGAliasFiltering( doFilterDHAliases );
+
+   // Listen to EndInputFile incidents to clear old DataHeaderForms from the cache
+   // Get IncidentSvc
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", "DataHeaderCnv");
    ATH_CHECK( incSvc.retrieve() );
    incSvc->addListener(this, IncidentType::EndInputFile, 0);
+   incSvc->addListener(this, "PreFork", 0);
    return DataHeaderCnvBase::initialize();
 }
 
 
 void DataHeaderCnv::handle(const Incident& incident)
 {
+   if( incident.type() == "PreFork" ) {
+      m_persFormMap.clear();
+   }
    if( incident.type() == IncidentType::EndInputFile ) {
       // remove cached DHForms that came from the file that is now being closed
-      const std::string& guid = static_cast<const FileIncident&>(incident).fileGuid(); 
-      auto iter = m_persFormMap.begin();
-      while( iter != m_persFormMap.end() ) {
-         size_t dbpos = iter->first.find("[DB=");
-         if( dbpos != std::string::npos && iter->first.substr(dbpos+4, dbpos+36) == guid ) {
-            iter = m_persFormMap.erase( iter );
-         } else {
-            iter++;
-         }
+      const std::string& guid = static_cast<const FileIncident&>(incident).fileGuid();
+      clearInputDHFormCache( guid );
+   }
+}
+
+
+void DataHeaderCnv::clearInputDHFormCache( const std::string& dbGuid )
+{
+   auto iter = m_inputDHForms.begin();
+   while( iter != m_inputDHForms.end() ) {
+      size_t dbpos = iter->first.find("[DB=");
+      if( dbpos != std::string::npos && iter->first.compare(dbpos+4, dbpos+36, dbGuid) == 0 ) {
+         iter = m_inputDHForms.erase( iter );
+      } else {
+         iter++;
       }
    }
+   m_inDHFormCount[ dbGuid ] = 0;
 }
 
 //______________________________________________________________________________
@@ -90,7 +126,7 @@ StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObjec
    m_sharedWriterCachedDH = reinterpret_cast<DataHeader_p6*>( pObject );
    m_sharedWriterCachedDHToken = pAddress->par()[0];
    std::size_t tagBeg = pAddress->par()[1].find("[KEY=") + 5;
-   std::size_t tagSize = pAddress->par()[1].find("]", tagBeg) - tagBeg;
+   std::size_t tagSize = pAddress->par()[1].find(']', tagBeg) - tagBeg;
    m_sharedWriterCachedDHKey = pAddress->par()[1].substr( tagBeg, tagSize );
    return StatusCode::SUCCESS;
 }
@@ -265,22 +301,37 @@ std::unique_ptr<DataHeader_p6> DataHeaderCnv::poolReadObject_p6()
       throw std::runtime_error("Could not get object for token = " + m_i_poolToken->toString());
    }
    std::unique_ptr<DataHeader_p6> header( reinterpret_cast<DataHeader_p6*>(voidPtr1) );
-      
+
    // see if the DataHeaderForm is already cached
-   std::unique_ptr<DataHeaderForm_p6>& dh_form = m_persFormMap[ header->dhFormToken() ];
-   if( !dh_form ) {
+   const std::string &dhFormToken =  header->dhFormToken();
+   if( dhFormToken.empty() || m_inputDHForms.find(dhFormToken) == m_inputDHForms.end() ) {
+      // no cached DHForm
+      size_t dbpos = dhFormToken.find("[DB=");
+      if( dbpos != std::string::npos ) {
+         const std::string dbGuid = dhFormToken.substr(dbpos+4, dbpos+36);
+         if( ++m_inDHFormCount[dbGuid] > m_inDHFMapMaxsize ) {
+            // prevent the input DHFMap from growing too large
+            clearInputDHFormCache( dbGuid );
+            m_inDHFormCount[dbGuid] = 1;
+         }
+      }
       // we need to read a new DHF
       void* voidPtr2 = nullptr;
       Token mapToken;
-      mapToken.fromString( header->dhFormToken() );
-      mapToken.setAuxString( m_i_poolToken->auxString() );  // set PersSvc context
+      if( dhFormToken.empty() ) {
+         m_i_poolToken->setData(&mapToken);
+         mapToken.setClassID( Guid("7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD") );
+      } else {
+         mapToken.fromString( dhFormToken );
+         mapToken.setAuxString( m_i_poolToken->auxString() );  // set PersSvc context
+      }
       if (mapToken.classID() != Guid::null()) {
          m_athenaPoolCnvSvc->setObjPtr(voidPtr2, &mapToken);
          if (voidPtr2 == nullptr) {
             throw std::runtime_error("Could not get object for token = " + mapToken.toString());
          }
       }
-      dh_form.reset( reinterpret_cast<DataHeaderForm_p6*>(voidPtr2) );
+      m_inputDHForms[dhFormToken].reset( reinterpret_cast<DataHeaderForm_p6*>(voidPtr2) );
    }
    return header;
 }
@@ -312,9 +363,10 @@ DataHeader* DataHeaderCnv::createTransient() {
    try {
       if( compareClassGuid( p6_guid ) ) {
          std::unique_ptr<DataHeader_p6> header( poolReadObject_p6() );
-         auto dh = m_tpInConverter.createTransient( header.get(), *(m_persFormMap[ header->dhFormToken() ]) );
+         auto dh = m_tpInConverter.createTransient( header.get(), *(m_inputDHForms[ header->dhFormToken() ]) );
+         dh->setEvtRefTokenStr( m_i_poolToken->toString() );
          // To dump the DataHeader uncomment below
-         // std::ostringstream ss;  dh->dump(ss); cout << ss.str() << endl;
+         // std::ostringstream ss;  dh->dump(ss); std::cout << ss.str() << std::endl;
          return dh;
       } else if (this->compareClassGuid( p5_guid )) {
          std::unique_ptr<DataHeader_p5> obj_p5( poolReadObject_p5() );

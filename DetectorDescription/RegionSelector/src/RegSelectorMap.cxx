@@ -91,7 +91,7 @@ void RegSelectorMap::mountDataStruct(void){
   int nLines = m_barORend.size();
   int i;
 
-  for( i = 0; i < nLines; i++){ // creating list of RegSelectElementUint
+  for( i = 0; i < nLines; ++i){ // creating list of RegSelectElementUint
     insertDataElement(m_barORend[i], m_layORdsk[i],
 		      m_etamin[i], m_etamax[i],
 		      m_phimin[i], m_phimax[i],
@@ -99,11 +99,11 @@ void RegSelectorMap::mountDataStruct(void){
   }
   std::list<RegSelectorMapElement>::iterator it;
   // find max and min values of each barrel layer and endcap disk
-  for(it = m_barreldataList.begin();it != m_barreldataList.end(); it++)
+  for(it = m_barreldataList.begin();it != m_barreldataList.end(); ++it)
     (*it).findMaxMinElem();
-  for(it = m_posdataList.begin();it != m_posdataList.end(); it++)
+  for(it = m_posdataList.begin();it != m_posdataList.end(); ++it)
     (*it).findMaxMinElem();
-  for(it = m_negdataList.begin();it != m_negdataList.end(); it++)
+  for(it = m_negdataList.begin();it != m_negdataList.end(); ++it)
     (*it).findMaxMinElem();
   // find max and min values of a subdetector
   m_etaminDet = 1000; m_etamaxDet = -1000;
@@ -126,7 +126,7 @@ void RegSelectorMap::regionSelectorRobIdUint( DETID TYPE,
   bool divideEta = false;
 
   for( it = m_barreldataList.begin(); //barrel list
-       it != m_barreldataList.end(); it++){ // runs trought all RegSelectElementUints
+       it != m_barreldataList.end(); ++it){ // runs trought all RegSelectElementUints
 	   (*it).selectionRobIdUint( etaminIn, etamaxIn, phiminIn, phimaxIn, outset );
   }
 
@@ -137,22 +137,22 @@ void RegSelectorMap::regionSelectorRobIdUint( DETID TYPE,
 
   if( divideEta ){
     if(etaminIn < 0 || etamaxIn < 0){ // negative data list
-      for(it = m_negdataList.begin();it != m_negdataList.end(); it++){ // runs trought all RegSelectElementUints
+      for(it = m_negdataList.begin();it != m_negdataList.end(); ++it){ // runs trought all RegSelectElementUints
         (*it).selectionRobIdUint(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
       }
     }
 
     if( etaminIn >= 0 || etamaxIn >= 0 ){ // positive data list
-      for(it = m_posdataList.begin();it != m_posdataList.end(); it++){ // runs trought all RegSelectElementUints
+      for(it = m_posdataList.begin();it != m_posdataList.end(); ++it){ // runs trought all RegSelectElementUints
         (*it).selectionRobIdUint(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
       }
     }
   }
   else{
-    for(it = m_negdataList.begin();it != m_negdataList.end(); it++){ // runs trought all RegSelectElementUints
+    for(it = m_negdataList.begin();it != m_negdataList.end(); ++it){ // runs trought all RegSelectElementUints
       (*it).selectionRobIdUint(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
     }
-    for(it = m_posdataList.begin();it != m_posdataList.end(); it++){ // runs trought all RegSelectElementUints
+    for(it = m_posdataList.begin();it != m_posdataList.end(); ++it){ // runs trought all RegSelectElementUints
       (*it).selectionRobIdUint(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
     }
   }
@@ -160,17 +160,17 @@ void RegSelectorMap::regionSelectorRobIdUint( DETID TYPE,
   if (TYPE==TILE){
 	negbarrelbeg = outset.upper_bound(0x51000f);
 	negbarrelend = outset.lower_bound(0x530000);
-	for(itset = negbarrelbeg; itset != negbarrelend; itset++){
+	for(itset = negbarrelbeg; itset != negbarrelend; ++itset){
 	  outList.push_back(*itset);
 	}
-	for(itset = outset.begin(); itset != negbarrelbeg; itset++){
+	for(itset = outset.begin(); itset != negbarrelbeg; ++itset){
 	  outList.push_back(*itset);
 	}
-	for(itset = negbarrelend; itset != outset.end(); itset++){
+	for(itset = negbarrelend; itset != outset.end(); ++itset){
 	  outList.push_back(*itset);
 	}
   }else{
-  for(itset = outset.begin(); itset != outset.end(); itset++){
+  for(itset = outset.begin(); itset != outset.end(); ++itset){
     outList.push_back(*itset);
   }
   }
@@ -180,7 +180,7 @@ void RegSelectorMap::regionSelectorRobIdUint( DETID TYPE,
 void RegSelectorMap::addLut( const RegionSelectorLUT* detLut ){
 
 
-  for( size_t i=0; i< detLut->maxHash(); i++) {
+  for( size_t i=0; i< detLut->maxHash(); ++i) {
     writeLine(detLut->layerDiskPosition(i),
               detLut->layerDiskNumber(i),
 	      detLut->hashId(i),
@@ -207,7 +207,7 @@ void RegSelectorMap::regionSelector( DETID TYPE,
   bool divideEta = false;
 
   for(it = m_barreldataList.begin(); //barrel list
-      it != m_barreldataList.end(); it++){ // runs trought all RegSelectElementUints
+      it != m_barreldataList.end(); ++it){ // runs trought all RegSelectElementUints
 	   (*it).selection(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
   }
 
@@ -218,22 +218,22 @@ void RegSelectorMap::regionSelector( DETID TYPE,
 
   if( divideEta ){
     if(etaminIn < 0 || etamaxIn < 0){ // negative data list
-      for(it = m_negdataList.begin();it != m_negdataList.end(); it++){ // runs trought all RegSelectElementUints
+      for(it = m_negdataList.begin();it != m_negdataList.end(); ++it){ // runs trought all RegSelectElementUints
         (*it).selection(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
       }
     }
 
     if( etaminIn >= 0 || etamaxIn >= 0 ){ // positive data list
-      for(it = m_posdataList.begin();it != m_posdataList.end(); it++){ // runs trought all RegSelectElementUints
+      for(it = m_posdataList.begin();it != m_posdataList.end(); ++it){ // runs trought all RegSelectElementUints
         (*it).selection(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
       }
     }
   }
   else{
-    for(it = m_negdataList.begin();it != m_negdataList.end(); it++){ // runs trought all RegSelectElementUints
+    for(it = m_negdataList.begin();it != m_negdataList.end(); ++it){ // runs trought all RegSelectElementUints
       (*it).selection(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
     }
-    for(it = m_posdataList.begin();it != m_posdataList.end(); it++){ // runs trought all RegSelectElementUints
+    for(it = m_posdataList.begin();it != m_posdataList.end(); ++it){ // runs trought all RegSelectElementUints
       (*it).selection(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
     }
   }
@@ -241,17 +241,17 @@ void RegSelectorMap::regionSelector( DETID TYPE,
   if (TYPE==TILE){
 	negbarrelbeg = outset.upper_bound(0x3f);
 	negbarrelend = outset.lower_bound(0x80);
-	for(itset = negbarrelbeg; itset != negbarrelend; itset++){
+	for(itset = negbarrelbeg; itset != negbarrelend; ++itset){
 	  outList.push_back(*itset);
 	}
-	for(itset = outset.begin(); itset != negbarrelbeg; itset++){
+	for(itset = outset.begin(); itset != negbarrelbeg; ++itset){
 	  outList.push_back(*itset);
 	}
-	for(itset = negbarrelend; itset != outset.end(); itset++){
+	for(itset = negbarrelend; itset != outset.end(); ++itset){
 	  outList.push_back(*itset);
 	}
   } else{
-  for(itset = outset.begin(); itset != outset.end(); itset++){
+  for(itset = outset.begin(); itset != outset.end(); ++itset){
     outList.push_back(*itset);
   }
   }
@@ -290,7 +290,7 @@ void RegSelectorMap::regionSelector( DETID TYPE,
    (*it).selection( etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
  }
 
-  for(itset = outset.begin(); itset != outset.end(); itset++){
+  for(itset = outset.begin(); itset != outset.end(); ++itset){
     outList.push_back(*itset);
   }
 }
@@ -328,11 +328,11 @@ void RegSelectorMap::regionSelector( long layNumber,
    while(it != itEnd) {
      if( (*it).layerDiskNumber() == layNumber )
        break;
-     it++;
+     ++it;
    }
 	(*it).selection( etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
 	
-  for(itset = outset.begin(); itset != outset.end(); itset++){
+  for(itset = outset.begin(); itset != outset.end(); ++itset){
     outList.push_back(*itset);
   }
   
@@ -369,13 +369,13 @@ StatusCode RegSelectorMap::read(const char *filename, DETID type) {
 void RegSelectorMap::summaryDataFile(std::list<RegSelectorMapElement> &dataList){
   std::list<RegSelectorMapElement>::iterator it;
 
-  for(it = dataList.begin(); it != dataList.end(); it++){ // runs through entire list
+  for(it = dataList.begin(); it != dataList.end(); ++it){ // runs through entire list
     std::cout << "position: " << (*it).layerDiskPosition() << " number: " << (*it).layerDiskNumber() << std::endl;
     std::cout << "etamin: " << m_etaminDet << "  etamax: " << m_etamaxDet << std::endl;
     std::cout << "phimin: " << m_phiminDet << "  phimax: " << m_phimaxDet << std::endl;
     std::cout << "hashId: ";
     std::vector<IdentifierHash> aux = (*it).hashId();
-    for(std::vector<IdentifierHash>::iterator i = aux.begin(); i != aux.end(); i++)
+    for(std::vector<IdentifierHash>::iterator i = aux.begin(); i != aux.end(); ++i)
       std::cout << (*i) << " ";
     std::cout << std::endl;
     std::cin.get();
@@ -450,7 +450,7 @@ void RegSelectorMap::verifyOutput( double etaminIn, double etamaxIn,
   unsigned int j;
   double etamin, etamax, phimin, phimax;
   int vecsize = m_etamin.size();
-  for( i= 0; i < vecsize; i++){
+  for( i= 0; i < vecsize; ++i){
     if(m_etamin[i] > m_etamax[i]){
       etamin = m_etamax[i]; etamax = m_etamin[i];
     }
@@ -485,11 +485,11 @@ void RegSelectorMap::verifyOutput( double etaminIn, double etamaxIn,
   if(outset == outputIdlist)
     std::cout << "equal vectors " << std::endl;
   std::cout << "desired output ";
-  for( j=0; j < outset.size(); j++)
+  for( j=0; j < outset.size(); ++j)
     std::cout << std::dec << outset[j] << " ";
   std::cout << std::endl;
   std::cout << "obtained output ";
-  for( j=0; j < outputIdlist.size(); j++)
+  for( j=0; j < outputIdlist.size(); ++j)
     std::cout << std::dec << outputIdlist[j] << " ";
   std::cout << std::endl;
 }
@@ -508,7 +508,7 @@ void RegSelectorMap::regionSelectorRobIdUint( double etaminIn, double etamaxIn,
   std::vector<uint32_t> outvec;
 
   int vecsize = m_etamin.size();
-  for( i= 0; i < vecsize; i++){
+  for( i= 0; i < vecsize; ++i){
     if(m_etamin[i] > m_etamax[i]){
       etamin = m_etamax[i]; etamax = m_etamin[i];
     }
@@ -542,17 +542,17 @@ void RegSelectorMap::regionSelectorRobIdUint( double etaminIn, double etamaxIn,
   }
 
   std::set<uint32_t>::iterator it;
-  for(it = outset.begin(); it != outset.end(); it++)
+  for(it = outset.begin(); it != outset.end(); ++it)
     outvec.push_back(*it);
 
   if(outvec == outList)
     std::cout << "equal vectors " << std::endl;
   std::cout << "desired output ";
-  for( j=0; j < outvec.size(); j++)
+  for( j=0; j < outvec.size(); ++j)
     std::cout << std::dec << outvec[j] << " ";
   std::cout << std::endl;
   std::cout << "obtained output ";
-  for( j=0; j < outList.size(); j++)
+  for( j=0; j < outList.size(); ++j)
     std::cout << std::dec << outList[j] << " ";
   std::cout << std::endl;
 }
@@ -591,11 +591,11 @@ void RegSelectorMap::regionSelectorRobIdUint( long layNumber,
    while(it != itEnd) {
      if( (*it).layerDiskNumber() == layNumber )
        break;
-     it++;
+     ++it;
    }
 	(*it).selectionRobIdUint( etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
 	
-  for(itset = outset.begin(); itset != outset.end(); itset++){
+  for(itset = outset.begin(); itset != outset.end(); ++itset){
     outList.push_back(*itset);
   }
   
@@ -627,7 +627,7 @@ void RegSelectorMap::findPosition( TYPEID typeinID, bool posORneg,
    while(it != itEnd) {
      if( (*it).layerDiskNumber() == typeinID )
        break;
-     it++;
+     ++it;
    }
 
 }
@@ -652,7 +652,7 @@ void RegSelectorMap::findPosition( long layNumber, bool posORneg,
    while(it != itEnd) {
      if( (*it).layerDiskNumber() == layNumber )
        break;
-     it++;
+     ++it;
    }
 
 }
@@ -661,7 +661,7 @@ void RegSelectorMap::findMaxMinValues(std::list<RegSelectorMapElement> &dataList
 
   std::list<RegSelectorMapElement>::iterator it;
 
-  for(it = dataList.begin(); it != dataList.end(); it++){ // runs through entire list
+  for(it = dataList.begin(); it != dataList.end(); ++it){ // runs through entire list
     if( (*it).etaminElem() < m_etaminDet )
       m_etaminDet = (*it).etaminElem();
     if( (*it).etamaxElem() > m_etamaxDet )
@@ -696,7 +696,7 @@ void RegSelectorMap::insertList(std::list<RegSelectorMapElement> &dataList, int 
   RegSelectorMapElement newElement;
   std::list<RegSelectorMapElement>::iterator it;
 
-  for(it = dataList.begin(); it != dataList.end(); it++){ // runs through entire positive list
+  for(it = dataList.begin(); it != dataList.end(); ++it){ // runs through entire positive list
     if( positionIn == (*it).layerDiskPosition() ){ // position already exist
       flag = false;
       if( numberIn == (*it).layerDiskNumber() ) {// number already exist

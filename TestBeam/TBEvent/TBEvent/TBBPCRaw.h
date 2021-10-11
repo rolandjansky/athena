@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBBPCRAW_H
@@ -26,7 +26,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
 
 
 
@@ -63,9 +62,9 @@ class TBBPCRaw : public TBBeamDetector
 
   TBBPCRaw(const std::string& thisBPCName,
 	   const TBTDCRawCont* theTDCCont,
-	   const std::list<const TBTDCRaw*>& theTDCs,
+	   const std::vector<const TBTDCRaw*>& theTDCs,
 	   const TBADCRawCont* theADCCont,
-	   const std::list<const TBADCRaw*>& theADCs);
+	   const std::vector<const TBADCRaw*>& theADCs);
 	
   ~TBBPCRaw();
 
@@ -73,9 +72,9 @@ class TBBPCRaw : public TBBeamDetector
   // Data Access //
   /////////////////
   void setSignals(const TBTDCRawCont* theTDCCont,
-		  const std::list<const TBTDCRaw*>& theTDCs,
+		  const std::vector<const TBTDCRaw*>& theTDCs,
 		  const TBADCRawCont* theADCCont,
-		  const std::list<const TBADCRaw*>& theADCs);
+		  const std::vector<const TBADCRaw*>& theADCs);
 
   tdc_signal_type getTDCLeft()       const;
   tdc_signal_type getTDCRight()      const;
@@ -137,8 +136,8 @@ class TBBPCRaw : public TBBeamDetector
     size_t theIndex = 0;
     while ( firstInStore != theIterator && firstInStore != lastInStore )
       {
-	theIndex++;
-	firstInStore++;
+	++theIndex;
+	++firstInStore;
       }
     if ( firstInStore == lastInStore ) theIndex = size_t(-1);
     return theIndex;
@@ -150,8 +149,8 @@ class TBBPCRaw : public TBBeamDetector
     size_t theIndex = 0;
     while ( firstInStore != theIterator && firstInStore != lastInStore )
       {
-	theIndex++;
-	firstInStore++;
+	++theIndex;
+	++firstInStore;
       }
     if ( firstInStore == lastInStore ) theIndex = size_t(-1);
     return theIndex;

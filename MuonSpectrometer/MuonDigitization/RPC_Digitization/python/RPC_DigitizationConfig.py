@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -30,7 +30,7 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
         kwargs.setdefault("LastXing",  RPC_LastXing() ) 
 
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
-    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "RPC_SDO")
     else:

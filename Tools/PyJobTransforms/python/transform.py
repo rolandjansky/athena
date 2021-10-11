@@ -8,6 +8,7 @@
 #
 
 import argparse
+import copy
 import os
 import os.path as path
 import re
@@ -24,6 +25,7 @@ from PyJobTransforms.trfSignal import setTrfSignalHandlers, resetTrfSignalHandle
 from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArguments, addValidationArguments
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
+from PyJobTransforms.trfExeStepTools import executorStepSuffix, getTotalExecutorSteps
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
 from PyJobTransforms.trfUtils import isInteractiveEnv, calcCpuTime, calcWallTime
@@ -304,8 +306,13 @@ class transform(object):
             # Process anything we found
             for k,v in extraParameters.items():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
-                if k not in self.parser._argClass:
+                if k not in self.parser._argClass and k not in self.parser._argAlias:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Argument "{0}" not known (try "--help")'.format(k))
+                # Check if it is an alias
+                if k in self.parser._argAlias:
+                    msg.debug('Resolving alias from {0} to {1}'.format(k, self.parser._argAlias[k]))
+                    k = self.parser._argAlias[k]
+                # Check if argument has already been set
                 if k in self._argdict:
                     msg.debug('Ignored {0}={1} as extra parameter because this argument was given on the command line.'.format(k, v))
                     continue
@@ -321,7 +328,11 @@ class transform(object):
             for k, v in self._argdict.items():
                 if isinstance(v, argument):
                     v.name = k
-                    
+                elif isinstance(v, list):
+                    for it in v:
+                        if isinstance(it, argument):
+                            it.name = k
+
             # Now we parsed all arguments, if a pickle/json dump is requested do it here and exit
             if 'dumpPickle' in self._argdict:
                 msg.info('Now dumping pickled version of command line to {0}'.format(self._argdict['dumpPickle']))
@@ -431,6 +442,9 @@ class transform(object):
                             msg.debug('Did not find any argument matching data type {0} - setting to plain argFile: {1}'.format(dataType, self._dataDictionary[dataType]))
                     self._dataDictionary[dataType].name = fileName
 
+            # Do splitting if required
+            self.setupSplitting()
+
             # Now we can set the final executor configuration properly, with the final dataDictionary
             for executor in self._executors:
                 executor.conf.setFromTransform(self)
@@ -487,13 +501,20 @@ class transform(object):
             # Note specifier [A-Za-z0-9_]+? makes this match non-greedy (avoid swallowing the optional 'File' suffix)
             m = re.match(r'(input|output|tmp)([A-Za-z0-9_]+?)(File)?$', key)
             # N.B. Protect against taking argunents which are not type argFile
-            if m and isinstance(value, argFile):
-                if m.group(1) == 'input':
-                    self._inputData.append(m.group(2))
-                else:
-                    self._outputData.append(m.group(2))
-                self._dataDictionary[m.group(2)] = value
-                
+            if m:
+                if isinstance(value, argFile):
+                    if m.group(1) == 'input':
+                        self._inputData.append(m.group(2))
+                    else:
+                        self._outputData.append(m.group(2))
+                    self._dataDictionary[m.group(2)] = value
+                elif isinstance(value, list) and value and isinstance(value[0], argFile):
+                    if m.group(1) == 'input':
+                        self._inputData.append(m.group(2))
+                    else:
+                        self._outputData.append(m.group(2))
+                    self._dataDictionary[m.group(2)] = value
+
         ## @note If we have no real data then add the pseudo datatype NULL, which allows us to manage
         #  transforms which can run without data
         if len(self._inputData) == 0:
@@ -512,6 +533,37 @@ class transform(object):
         self._executorGraph = executorGraph(self._executors, self._inputData, self._outputData)
         self._executorGraph.doToposort()
     
+    ## @brief Setup executor splitting
+    def setupSplitting(self):
+        if 'splitConfig' not in self._argdict:
+            return
+
+        split = []
+        for executionStep in self._executorPath:
+            baseStepName = executionStep['name']
+            if baseStepName in split:
+                continue
+
+            baseExecutor = self._executorDictionary[baseStepName]
+            splitting = getTotalExecutorSteps(baseExecutor, argdict=self._argdict)
+            if splitting <= 1:
+                continue
+
+            msg.info('Splitting {0} into {1} substeps'.format(executionStep, splitting))
+            index = self._executorPath.index(executionStep)
+            baseStep = self._executorPath.pop(index)
+            for i in range(splitting):
+                name = baseStepName + executorStepSuffix + str(i)
+                step = copy.deepcopy(baseStep)
+                step['name'] = name
+                self._executorPath.insert(index + i, step)
+                executor = copy.deepcopy(baseExecutor)
+                executor.name = name
+                executor.conf.executorStep = i
+                executor.conf.totalExecutorSteps = splitting
+                self._executors.add(executor)
+                self._executorDictionary[name] = executor
+                split.append(name)
     
     ## @brief Trace the path through the executor graph
     #  @note This function might need to be called again when the number of 'substeps' is unknown

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 from importlib import import_module
@@ -31,7 +31,7 @@ Building a menu happens in two stages
   * Thresholds are defined in files ThresholdDef.py
 """
 
-log = logging.getLogger("Menu.L1.L1MenuConfig")
+log = logging.getLogger(__name__)
 
 class L1MenuConfig(object):
 
@@ -449,18 +449,31 @@ class L1MenuConfig(object):
                 if currentTopoCategory == AlgCategory.TOPO and connDef["format"] == 'multiplicity':
                     currentTopoCategory = AlgCategory.MULTI
                 algoNames = []
+                algoNbits = []
+                fpgaNames = []
                 if connDef["format"] == 'multiplicity':
                     for thrName in connDef["thresholds"]:
+                        nBits = connDef["nbitsDefault"]
+                        if type(thrName)==tuple:
+                            (thrName,nBits) = thrName
                         algoname = "Mult_" + thrName
                         algoNames += [ algoname ]
+                        algoNbits += [ int(nBits) ]
+                        fpgaNames += ['']
                 elif connDef["format"] == 'topological':
                     for algGrp in connDef["algorithmGroups"]:
                         for topodef in algGrp["algorithms"]:
                             algoNames += [ topodef.algoname ]
-
-                for algoName in algoNames:
+                            algoNbits += [ -1 ]
+                            fpgaNames += [str(algGrp['fpga'])]
+                for algoName, algoBits, fpgaName in zip(algoNames, algoNbits, fpgaNames):
                     algo = self._getTopoAlgo(algoName, currentTopoCategory)
-
+                    # check that the output bits of the multiplicity topo algorithms are as many as the output bits of the associated thresholds
+                    if algoBits>0:
+                        if algoBits != algo.nbits:
+                            msg = "Algorithm %s defined with %i bits, but the associated threshold has %i bits " % (algo.name, algo.nbits, algoBits)
+                            raise RuntimeError(msg)
+                    self.l1menu.checkBoardInputs(algo, connDef["name"], fpgaName)
                     # add the decision algorithms to the menu
                     self.l1menu.addTopoAlgo( algo, category = currentTopoCategory )
 
@@ -472,8 +485,6 @@ class L1MenuConfig(object):
         for cat in allRequiredSortedInputs:
             for input in allRequiredSortedInputs[cat]:
                 searchCat = cat
-                if cat == AlgCategory.MUCTPI: 
-                    searchCat = AlgCategory.TOPO
                 sortingAlgo = self._getSortingAlgoThatProvides(input, searchCat)
                 self.l1menu.addTopoAlgo( sortingAlgo, category = cat )
 
@@ -662,8 +673,11 @@ class L1MenuConfig(object):
         # ------------------
         # final consistency check
         # ------------------
+
         self.l1menu.check()
 
+        # check that only the minimal set of legacy and detector thresholds is used
+        self.l1menu.checkLegacyThresholds()   
 
 
 

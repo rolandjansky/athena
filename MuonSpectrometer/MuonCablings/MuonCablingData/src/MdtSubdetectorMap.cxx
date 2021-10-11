@@ -14,9 +14,9 @@ MdtSubdetectorMap::~MdtSubdetectorMap()
 
 //
 // add a ROD to the cabling map
-bool MdtSubdetectorMap::setRODMap(uint8_t rodId, MdtRODMap* mdtRODMap)
+bool MdtSubdetectorMap::setRODMap(uint8_t rodId, MdtRODMap* mdtRODMap, MsgStream &log)
 {
-  bool rodAdded = addItem(rodId,mdtRODMap);
+  bool rodAdded = addItem(rodId,mdtRODMap, log);
   return rodAdded;
 }
 

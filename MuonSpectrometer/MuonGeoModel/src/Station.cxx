@@ -17,10 +17,11 @@
 #include <cassert>
 #include <iostream>
 #include <limits>
+#include <utility>
 
 namespace MuonGM {
 
-    Station::Station(std::string s) : m_name(s) {
+    Station::Station(std::string s) : m_name(std::move(s)) {
         m_amdbOrigine_along_length = 0;
         m_amdbOrigine_along_thickness = 0;
 
@@ -316,10 +317,10 @@ namespace MuonGM {
         double ymin = getYMin();
         double w = 0;
         for (unsigned int i = 0; i < m_components.size(); i++) {
-            std::string n = m_components[i]->name.substr(0, 3);
+            std::string_view n = std::string_view(m_components[i]->name).substr(0, 3);
             if (n == "TGC") {
                 double dw = 20.;
-                std::string typetgc = m_components[i]->name.substr(3, 2);
+                std::string_view typetgc = std::string_view(m_components[i]->name).substr(3, 2);
                 // in case of station containing one module
                 if (typetgc == "01" || typetgc == "06" || typetgc == "12" || typetgc == "18" || typetgc == "19" || typetgc == "20" || typetgc == "21") {
                     dw = 0.;
@@ -365,10 +366,10 @@ namespace MuonGM {
                 w = m_components[i]->dx2;
             }
 
-            std::string n = m_components[i]->name.substr(0, 3);
+            std::string_view n = std::string_view(m_components[i]->name).substr(0, 3);
             if (n == "TGC") {
                 double dw = 20.;
-                std::string typetgc = m_components[i]->name.substr(3, 2);
+                std::string_view typetgc = std::string_view(m_components[i]->name).substr(3, 2);
                 // in case of one station containing one module
                 if (typetgc == "01" || typetgc == "06" || typetgc == "12" || typetgc == "18" || typetgc == "19" || typetgc == "20" || typetgc == "21") {
                     dw = 0.;
@@ -390,7 +391,7 @@ namespace MuonGM {
             }
         }
 
-        if (m_name.substr(0, 1) == "T")
+        if (m_name.compare(0, 1, "T") == 0)
             return w;
         else
             return maxdxmax;
@@ -427,7 +428,7 @@ namespace MuonGM {
 
             for (int icomp = 0; icomp < GetNrOfComponents(); ++icomp) {
                 const Component *c = GetComponent(icomp);
-                if (c->name.substr(0, 3) != "MDT")
+                if (c->name.compare(0, 3, "MDT") != 0)
                     continue;
                 MDT *mdtobj = (MDT *)mysql->GetATechnology(c->name);
                 if (!mdtobj) {

@@ -29,8 +29,6 @@ StatusCode MBTSTimeFilterTool::getTimeDifference(TimingFilterInformation& time_i
 StatusCode MBTSTimeFilterTool::getTimeDifference(TimingFilterInformation& time_info,
                                         const SG::ReadHandleKey<TileCellContainer>& key,
                                         const EventContext& ctx) const{ 
-  StatusCode sc = StatusCode::SUCCESS;
-
   ATH_MSG_DEBUG ("execute()");
    SG::ReadHandle<TileCellContainer> readHandle{key,ctx};
    if (!readHandle.isValid()){

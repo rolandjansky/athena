@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -63,8 +63,9 @@ const HepPDT::ParticleData * VP1ParticleData::particleData( const int& pdgcode )
       Imp::m_badInit = true;
       return 0;
     }
-    Imp::m_particleDataTable = partPropSvc->PDT();
-    if (!Imp::m_particleDataTable) {
+    const HepPDT::ParticleDataTable* tab = partPropSvc->PDT();
+    Imp::m_particleDataTable = tab;
+    if (!tab) {
       VP1Msg::message("VP1ParticleData ERROR: Could not get particle data table from particle property service.");
       Imp::m_badInit = true;
       return 0;

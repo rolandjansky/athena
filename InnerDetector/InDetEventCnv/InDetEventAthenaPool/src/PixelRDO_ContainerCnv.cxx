@@ -92,7 +92,7 @@ PixelRDO_Container_PERS* PixelRDO_ContainerCnv::createPersistent(PixelRDO_Contai
   PixelRDO_Container::const_iterator it_CollEnd  = transCont->end();
   // check one element of the container. The container can't be empty for this... 
   if(it_Coll != it_CollEnd) {
-    while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0 ) it_Coll++;
+    while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0 ) ++it_Coll;
     if(it_Coll != it_CollEnd) {
       const PixelRDORawData *test((**it_Coll)[0]);
       if(dynamic_cast<const Pixel1RawData*>(test) != 0 ) {

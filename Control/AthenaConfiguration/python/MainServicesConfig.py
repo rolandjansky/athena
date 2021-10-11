@@ -66,6 +66,10 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addEventAlgo(AthIncFirerAlg('EndIncFiringAlg',FireSerial=False,Incidents=['EndEvent']), sequenceName="AthEndSeq")
     cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg2'),sequenceName="AthEndSeq")
 
+    # Should be after all other algorithms.
+    cfg.addEventAlgo(AthIncFirerAlg('EndAlgorithmsFiringAlg',FireSerial=False,Incidents=['EndAlgorithms']), sequenceName="AthMasterSeq")
+    cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg3'),sequenceName="AthMasterSeq")
+
     #Basic services:
     ClassIDSvc=CompFactory.ClassIDSvc
     cfg.addService(ClassIDSvc(CLIDDBFiles= ['clid.db',"Gaudi_clid.db" ]))
@@ -120,13 +124,15 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
         cfg.addService(scheduler)
 
-        SGInputLoader=CompFactory.SGInputLoader
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         # FailIfNoProxy=False makes it a warning, not an error, if unmet data
         # dependencies are not found in the store.  It should probably be changed
         # to True eventually.
-        inputloader = SGInputLoader (FailIfNoProxy = False)
-        cfg.addEventAlgo( inputloader, "AthAlgSeq" )
-        scheduler.DataLoaderAlg = inputloader.getName()
+        inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=False)
+        cfg.merge(inputloader_ca, sequenceName="AthAlgSeq")
+        # Specifying DataLoaderAlg makes the Scheduler automatically assign
+        # all unmet data dependencies to that algorithm
+        scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
 
         AthenaHiveEventLoopMgr=CompFactory.AthenaHiveEventLoopMgr
 
@@ -147,9 +153,29 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         cfg.setAppProperty("AuditAlgorithms", True)
 
     return cfg
-    
+
+def MainEvgenServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr',seqName="AthAlgSeq"):
+    """ComponentAccumulator-based equivalent of:
+    import AthenaCommon.AtlasUnixGeneratorJob
+
+    NB Must have set ConfigFlags.Input.RunNumber and
+    ConfigFlags.Input.TimeStamp before calling to avoid
+    attempted auto-configuration from an input file.
+    """
+    cfg = MainServicesCfg(cfgFlags,LoopMgr)
+    from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
+    cfg.merge (McEventSelectorCfg (cfgFlags))
+    # Temporarily inject the xAOD::EventInfo converter here to allow for adiabatic migration of the clients
+    cfg.addEventAlgo(CompFactory.xAODMaker.EventInfoCnvAlg(AODKey = 'McEventInfo'),sequenceName=seqName)
+    return cfg
 
 if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    cfg = MainServicesCfg(ConfigFlags)
+    try:
+        ConfigFlags.Input.RunNumber = 284500 # Set to either MC DSID or MC Run Number
+        ConfigFlags.Input.TimeStamp = 1 # dummy value
+        cfg = MainEvgenServicesCfg(ConfigFlags)
+    except ModuleNotFoundError:
+        #  The McEventSelector package required by MainEvgenServicesCfg is not part of the AthAnalysis project
+        cfg = MainServicesCfg(ConfigFlags)
     cfg._wasMerged = True   # to avoid errror that CA was not merged

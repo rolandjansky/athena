@@ -2,8 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "../src/TrigALFAROBMonitor.h"
-#include "TrigConfL1Data/Menu.h"
+#include "TrigALFAROBMonitor.h"
 
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -32,9 +31,6 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   declareProperty("Lvl1ALFA2ROBid",                     m_lvl1ALFA2ROBid=0x840000);
   declareProperty("Lvl1ALFA1ROBid",                     m_lvl1ALFA1ROBid=0x840001);
   declareProperty("DaqCTPROBid",                        m_daqCTPROBid=0x770000);
-  declareProperty("SetDebugStream",                     m_setDebugStream=false);
-  declareProperty("DebugStreamName",                    m_debugStreamName="ALFAROBErrorStream");
-  declareProperty("CalibrationStreamName",              m_calibrationStreamName="ALFACalib");
   declareProperty("TestROBChecksum",                    m_doROBChecksum=true);
   //declareProperty("HistFailedChecksumForALFAROB",       m_histProp_failedChecksumForALFAROB,"ALFA ROBs with inconsistent checksum");
   declareProperty("MonitorALFATracks",                  m_doALFATracking=true);
@@ -65,9 +61,6 @@ StatusCode TrigALFAROBMonitor::initialize(){
       << std::setw(6) << " (=0x" << MSG::hex << m_lvl1ALFA2ROBid.value() << MSG::dec << ")" );
   ATH_MSG_INFO( " ROB ID: DAQ CTP                            = " << m_daqCTPROBid
       << std::setw(6) << " (=0x" << MSG::hex << m_daqCTPROBid.value() << MSG::dec << ")" );
-  ATH_MSG_INFO( " Put events with ROB errors on DEBUG stream = " << m_setDebugStream );
-  ATH_MSG_INFO( "         Name of used DEBUG stream          = " << m_debugStreamName );
-  ATH_MSG_INFO( " Name of streamTag to select events for monitoring  = " << m_calibrationStreamName );
   ATH_MSG_INFO( " Do ROB checksum test                       = " << m_doROBChecksum );
   //ATH_MSG_INFO( "        Hist:FailedChecksumForALFAROB       = " << m_histProp_failedChecksumForALFAROB );
 
@@ -85,6 +78,12 @@ StatusCode TrigALFAROBMonitor::initialize(){
   ATH_CHECK( m_RBResultKey.initialize() );
 
   ATH_CHECK( m_monTools.retrieve() );
+
+  char *val = getenv("TDAQ_PARTITION");
+  std::string part = val == NULL ? std::string("") : std::string(val);
+  m_inTDAQPart = part.find("TDAQ") != std::string::npos ? true : false;
+  if (m_inTDAQPart) 
+     ATH_MSG_INFO("Running in TDAQ partition - will skip the ROB CRC check");
 
   ATH_MSG_INFO("Initialize completed");
   return StatusCode::SUCCESS;
@@ -111,7 +110,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  bool event_with_checksum_failure(false);
   
   //ATH_MSG_INFO ("new event");
   // get EventID
@@ -153,11 +151,16 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   } 
 
 
+  bool event_with_checksum_failure(false);
+
   // loop over retrieved ROBs and do checks
   for (std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::iterator it = ALFARobFragmentVec.begin();
        it != ALFARobFragmentVec.end();++it) {
-    // verify checksum
-    if (verifyALFAROBChecksum(**it )) event_with_checksum_failure=true ; 
+    // verify checksum - but skip if running with TDAQ partition (with preloaded data in ROSes)
+    if (!m_inTDAQPart) {
+        if (verifyALFAROBChecksum(**it )) event_with_checksum_failure=true ;
+    } 
+
 
     // decode ALFA ROBs
     bool FiberHitsODNeg[8][3][30], FiberHitsODPos[8][3][30];
@@ -166,25 +169,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
           findALFATracks(roIBResult, LB, loc_pU, loc_pV);
           findODTracks (FiberHitsODNeg, FiberHitsODPos, triggerHitPattern, triggerHitPatternReady);
       }
-    }
-  }
-
-  // if the event shows errors, set the DEBUG stream tag when requested
-  if ((m_setDebugStream.value()) && (event_with_checksum_failure)) {
-    // get EventInfo
-    const EventInfo* p_EventInfo(0);
-    StatusCode sc = evtStore()->retrieve(p_EventInfo);
-    if(sc.isFailure()){
-      ATH_MSG_ERROR("Can't get EventInfo object for updating the StreamTag");
-      return sc;
-    }
-
-    // set the stream tag
-    typedef std::vector< TriggerInfo::StreamTag > StreamTagVector_t;
-    if (p_EventInfo) {
-      StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
-      vecStreamTags.push_back( TriggerInfo::StreamTag(m_debugStreamName,"debug",false) );
-      const_cast<TriggerInfo*>(p_EventInfo->trigger_info())->setStreamTags(vecStreamTags);
     }
   }
 
@@ -237,13 +221,6 @@ StatusCode TrigALFAROBMonitor::start() {
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode TrigALFAROBMonitor::stop() {
-
-  // find LB number some other way that from EventInfo
-  return StatusCode::SUCCESS;
-}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 bool TrigALFAROBMonitor::verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const {

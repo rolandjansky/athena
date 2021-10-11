@@ -16,27 +16,27 @@ namespace Trk {
   //________________________________________________________________________
   AlignTrack::AlignTrack(const Track& associatedTrack) 
     : Track(associatedTrack)
-    , m_originalTrack(0)
+    , m_originalTrack(nullptr)
     , m_type(Unknown)
     , m_nAlignTSOSMeas(0)
-    , m_alignTSOSCollection(0)
-    , m_localErrorMat(0)
-    , m_localErrorMatInv(0)
-    , m_derivativeMatrix(0)
-    , m_fullCovarianceMatrix(0)
-    , m_derivatives(0)
-    , m_derivativeErr(0)
-    , m_actualSecondDerivatives(0)
-    , m_residuals(0)
-    , m_weights(0)
-    , m_weightsFirstDeriv(0)
+    , m_alignTSOSCollection(nullptr)
+    , m_localErrorMat(nullptr)
+    , m_localErrorMatInv(nullptr)
+    , m_derivativeMatrix(nullptr)
+    , m_fullCovarianceMatrix(nullptr)
+    , m_derivatives(nullptr)
+    , m_derivativeErr(nullptr)
+    , m_actualSecondDerivatives(nullptr)
+    , m_residuals(nullptr)
+    , m_weights(nullptr)
+    , m_weightsFirstDeriv(nullptr)
     , m_chi2(0.)
     , m_chi2dof(0.)
     , m_trackAlignParamQuality(new double[6])
     , m_trackWithoutScattering()
   {
     for (int i=0;i<6;i++) m_trackAlignParamQuality[i]=0.;
-    m_vtx=0;
+    m_vtx=nullptr;
     m_refitD0=true;
     m_refitZ0=true;
     m_refitPhi=true;
@@ -48,19 +48,19 @@ namespace Trk {
   AlignTrack::AlignTrack(const Track& associatedTrack, 
                          AlignTSOSCollection* alignTSOSCollection)
     : Track(associatedTrack)
-    , m_originalTrack(0)
+    , m_originalTrack(nullptr)
     , m_type(Unknown)
     , m_nAlignTSOSMeas(0)
-    , m_localErrorMat(0)
-    , m_localErrorMatInv(0)
-    , m_derivativeMatrix(0)
-    , m_fullCovarianceMatrix(0)
-    , m_derivatives(0)
-    , m_derivativeErr(0)
-    , m_actualSecondDerivatives(0)
-    , m_residuals(0)
-    , m_weights(0)
-    , m_weightsFirstDeriv(0)
+    , m_localErrorMat(nullptr)
+    , m_localErrorMatInv(nullptr)
+    , m_derivativeMatrix(nullptr)
+    , m_fullCovarianceMatrix(nullptr)
+    , m_derivatives(nullptr)
+    , m_derivativeErr(nullptr)
+    , m_actualSecondDerivatives(nullptr)
+    , m_residuals(nullptr)
+    , m_weights(nullptr)
+    , m_weightsFirstDeriv(nullptr)
     , m_chi2(0.)
     , m_chi2dof(0.)
     , m_trackAlignParamQuality(new double[6])
@@ -68,7 +68,7 @@ namespace Trk {
   {
     for (int i=0;i<6;i++) m_trackAlignParamQuality[i]=0.;
     setAlignTSOSCollection(alignTSOSCollection);
-    m_vtx=0;
+    m_vtx=nullptr;
     m_refitD0=true;
     m_refitZ0=true;
     m_refitPhi=true;
@@ -83,25 +83,25 @@ namespace Trk {
     , m_type(atrack.m_type)
     , m_nAlignTSOSMeas(atrack.m_nAlignTSOSMeas)
     , m_localErrorMat(atrack.m_localErrorMat ?
-        new Amg::SymMatrixX(*(atrack.m_localErrorMat)) : 0)
+        new Amg::SymMatrixX(*(atrack.m_localErrorMat)) : nullptr)
     , m_localErrorMatInv(atrack.m_localErrorMatInv ?
-        new Amg::SymMatrixX(*(atrack.m_localErrorMatInv)) : 0)
+        new Amg::SymMatrixX(*(atrack.m_localErrorMatInv)) : nullptr)
     , m_derivativeMatrix(atrack.m_derivativeMatrix ?
-        new Amg::MatrixX(*(atrack.m_derivativeMatrix)) : 0)
+        new Amg::MatrixX(*(atrack.m_derivativeMatrix)) : nullptr)
     , m_fullCovarianceMatrix(atrack.m_fullCovarianceMatrix ?
-        new Amg::SymMatrixX(*(atrack.m_fullCovarianceMatrix)) : 0)
+        new Amg::SymMatrixX(*(atrack.m_fullCovarianceMatrix)) : nullptr)
     , m_derivatives(atrack.m_derivatives ?
-        new std::vector<AlignModuleDerivatives>(*(atrack.m_derivatives)) : 0)
+        new std::vector<AlignModuleDerivatives>(*(atrack.m_derivatives)) : nullptr)
     , m_derivativeErr(atrack.m_derivativeErr ?
-        new std::vector<AlignModuleDerivatives>(*(atrack.m_derivativeErr)) : 0)
+        new std::vector<AlignModuleDerivatives>(*(atrack.m_derivativeErr)) : nullptr)
     , m_actualSecondDerivatives(atrack.m_actualSecondDerivatives ?
-        new std::vector<std::pair<const AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : 0)
+        new std::vector<std::pair<const AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : nullptr)
     , m_residuals(atrack.m_residuals ?
-        new Amg::VectorX(*(atrack.m_residuals)) : 0)
+        new Amg::VectorX(*(atrack.m_residuals)) : nullptr)
     , m_weights(atrack.m_weights ?
-        new Amg::SymMatrixX(*(atrack.m_weights)) : 0)
+        new Amg::SymMatrixX(*(atrack.m_weights)) : nullptr)
     , m_weightsFirstDeriv(atrack.m_weightsFirstDeriv ?
-        new Amg::SymMatrixX(*(atrack.m_weightsFirstDeriv)) : 0)
+        new Amg::SymMatrixX(*(atrack.m_weightsFirstDeriv)) : nullptr)
     , m_chi2(atrack.m_chi2)
     , m_chi2dof(atrack.m_chi2dof)
     , m_trackAlignParamQuality(new double[6])
@@ -115,7 +115,7 @@ namespace Trk {
       m_trackAlignParamQuality[i] = atrack.m_trackAlignParamQuality[i];
 
     // copy AlignTSOSCollection
-    if(atrack.m_alignTSOSCollection!=0) {
+    if(atrack.m_alignTSOSCollection!=nullptr) {
       AlignTSOSCollection * aTSOScoll = new AlignTSOSCollection;
       aTSOScoll->reserve(atrack.m_alignTSOSCollection->size());
       AlignTSOSIt itAtsos_end = atrack.m_alignTSOSCollection->end();
@@ -127,10 +127,10 @@ namespace Trk {
       m_alignTSOSCollection=aTSOScoll;
     }
     else
-      m_alignTSOSCollection=0;
+      m_alignTSOSCollection=nullptr;
 
     findPerigee();
-    m_vtx=0;
+    m_vtx=nullptr;
     m_refitD0=true;
     m_refitZ0=true;
     m_refitPhi=true;
@@ -164,7 +164,7 @@ namespace Trk {
 
       // copy AlignTSOSCollection
       delete m_alignTSOSCollection;
-      if(atrack.m_alignTSOSCollection!=0) {
+      if(atrack.m_alignTSOSCollection!=nullptr) {
         AlignTSOSCollection * aTSOScoll = new AlignTSOSCollection;
         aTSOScoll->reserve(atrack.m_alignTSOSCollection->size());
         int count(0);
@@ -178,41 +178,41 @@ namespace Trk {
         m_alignTSOSCollection=aTSOScoll;
       }
       else
-        m_alignTSOSCollection=0;
+        m_alignTSOSCollection=nullptr;
 
       findPerigee();
 
       // fill matrices, vectors, etc.
       delete m_derivatives;
       m_derivatives = atrack.m_derivatives ?
-          new std::vector<AlignModuleDerivatives>(*(atrack.m_derivatives)) : 0;
+          new std::vector<AlignModuleDerivatives>(*(atrack.m_derivatives)) : nullptr;
       delete m_derivativeErr;
       m_derivativeErr = atrack.m_derivativeErr ?
-          new std::vector<AlignModuleDerivatives>(*(atrack.m_derivativeErr)) : 0;
+          new std::vector<AlignModuleDerivatives>(*(atrack.m_derivativeErr)) : nullptr;
       delete m_actualSecondDerivatives;
       m_actualSecondDerivatives = atrack.m_actualSecondDerivatives ?
-          new std::vector<std::pair<const AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : 0;
+          new std::vector<std::pair<const AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : nullptr;
       delete m_localErrorMat;
       m_localErrorMat = atrack.m_localErrorMat ?
-          new Amg::SymMatrixX(*(atrack.m_localErrorMat)) : 0;
+          new Amg::SymMatrixX(*(atrack.m_localErrorMat)) : nullptr;
       delete m_localErrorMatInv;
       m_localErrorMatInv = atrack.m_localErrorMatInv ?
-          new Amg::SymMatrixX(*(atrack.m_localErrorMatInv)) : 0;
+          new Amg::SymMatrixX(*(atrack.m_localErrorMatInv)) : nullptr;
       delete m_derivativeMatrix;
       m_derivativeMatrix = atrack.m_derivativeMatrix ?
-          new Amg::MatrixX(*(atrack.m_derivativeMatrix)) : 0;
+          new Amg::MatrixX(*(atrack.m_derivativeMatrix)) : nullptr;
       delete m_fullCovarianceMatrix;
       m_fullCovarianceMatrix = atrack.m_fullCovarianceMatrix ?
-          new Amg::SymMatrixX(*(atrack.m_fullCovarianceMatrix)) : 0;
+          new Amg::SymMatrixX(*(atrack.m_fullCovarianceMatrix)) : nullptr;
       delete m_residuals;
       m_residuals = atrack.m_residuals ?
-          new Amg::VectorX(*(atrack.m_residuals)) : 0;
+          new Amg::VectorX(*(atrack.m_residuals)) : nullptr;
       delete m_weights;
       m_weights = atrack.m_weights ?
-          new Amg::SymMatrixX(*(atrack.m_weights)) : 0;
+          new Amg::SymMatrixX(*(atrack.m_weights)) : nullptr;
       delete m_weightsFirstDeriv;
       m_weightsFirstDeriv = atrack.m_weightsFirstDeriv ?
-          new Amg::SymMatrixX(*(atrack.m_weightsFirstDeriv)) : 0;
+          new Amg::SymMatrixX(*(atrack.m_weightsFirstDeriv)) : nullptr;
     }
 
     return *this;
@@ -221,20 +221,20 @@ namespace Trk {
   //________________________________________________________________________
   AlignTrack::~AlignTrack()
   {
-    delete m_alignTSOSCollection;     m_alignTSOSCollection=0;
-    delete m_residuals;               m_residuals=0;
-    delete m_weights;                 m_weights=0;
-    delete m_weightsFirstDeriv;       m_weightsFirstDeriv=0;
+    delete m_alignTSOSCollection;     m_alignTSOSCollection=nullptr;
+    delete m_residuals;               m_residuals=nullptr;
+    delete m_weights;                 m_weights=nullptr;
+    delete m_weightsFirstDeriv;       m_weightsFirstDeriv=nullptr;
 
-    delete m_derivatives;             m_derivatives=0;
-    delete m_derivativeErr;           m_derivativeErr=0;
-    delete m_actualSecondDerivatives; m_actualSecondDerivatives=0;
+    delete m_derivatives;             m_derivatives=nullptr;
+    delete m_derivativeErr;           m_derivativeErr=nullptr;
+    delete m_actualSecondDerivatives; m_actualSecondDerivatives=nullptr;
 
-    delete m_localErrorMat;           m_localErrorMat=0;
-    delete m_localErrorMatInv;        m_localErrorMatInv=0;
+    delete m_localErrorMat;           m_localErrorMat=nullptr;
+    delete m_localErrorMatInv;        m_localErrorMatInv=nullptr;
 
-    delete m_fullCovarianceMatrix;    m_fullCovarianceMatrix=0;
-    delete m_derivativeMatrix;        m_derivativeMatrix=0;
+    delete m_fullCovarianceMatrix;    m_fullCovarianceMatrix=nullptr;
+    delete m_derivativeMatrix;        m_derivativeMatrix=nullptr;
 
     delete [] m_trackAlignParamQuality;
   }
@@ -290,7 +290,7 @@ namespace Trk {
 
       else if ( !tsos->type(TrackStateOnSurface::Scatterer) &&
                 !tsos->type(TrackStateOnSurface::InertMaterial)) {
-        if ( tsos->fitQualityOnSurface()!=0) 
+        if ( tsos->fitQualityOnSurface()!=nullptr) 
           msg << "," << *( tsos->fitQualityOnSurface() )<<endmsg;
         else
           msg << ", no FitQuality!"<<endmsg;
@@ -430,33 +430,32 @@ namespace Trk {
     if (not m_trackWithoutScattering) {
 
       const DataVector<const Trk::TrackStateOnSurface>* states = this->trackStateOnSurfaces();
-      if (!states) return 0;
+      if (!states) return nullptr;
       
       // loop over TSOSs
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
       
       // This is the list of new TSOS 
-      DataVector<const Trk::TrackStateOnSurface>* newTrackStateOnSurfaces = 
-          new DataVector<const Trk::TrackStateOnSurface>();
-      newTrackStateOnSurfaces->reserve( states->size() );
+      auto newTrackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+      newTrackStateOnSurfaces.reserve( states->size() );
       
       for (; tsit!=tsit_end ; ++tsit) {
-        const Trk::MeasurementBase*     newMeas  = (*tsit)->measurementOnTrack() ? (*tsit)->measurementOnTrack()->clone() : 0;
-        const Trk::TrackParameters*     newPars  = (*tsit)->trackParameters() ? (*tsit)->trackParameters()->clone() : 0;
-        const Trk::FitQualityOnSurface* newFitQoS= (*tsit)->fitQualityOnSurface() ? (*tsit)->fitQualityOnSurface()->clone() : 0;
-        const Trk::MaterialEffectsBase* meb      = (*tsit)->materialEffectsOnTrack() ? (*tsit)->materialEffectsOnTrack()->clone() : 0;
+        const Trk::MeasurementBase*     newMeas  = (*tsit)->measurementOnTrack() ? (*tsit)->measurementOnTrack()->clone() : nullptr;
+        const Trk::TrackParameters*     newPars  = (*tsit)->trackParameters() ? (*tsit)->trackParameters()->clone() : nullptr;
+        const Trk::FitQualityOnSurface* newFitQoS= (*tsit)->fitQualityOnSurface() ? (*tsit)->fitQualityOnSurface()->clone() : nullptr;
+        const Trk::MaterialEffectsBase* meb      = (*tsit)->materialEffectsOnTrack() ? (*tsit)->materialEffectsOnTrack()->clone() : nullptr;
   
         if (meb) {
           const Trk::MaterialEffectsOnTrack* meot=dynamic_cast<const Trk::MaterialEffectsOnTrack*>(meb);
           if (meot) {
             double tinX0=meot->thicknessInX0();
-            const Trk::EnergyLoss* eLoss=meot->energyLoss() ? meot->energyLoss()->clone() : 0;
+            const Trk::EnergyLoss* eLoss=meot->energyLoss() ? meot->energyLoss()->clone() : nullptr;
             const Trk::Surface& surf=meot->associatedSurface();
             std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typeMaterial;
             if (eLoss) typeMaterial.set(MaterialEffectsBase::EnergyLossEffects);
             const Trk::MaterialEffectsOnTrack* newmeot=
-                new Trk::MaterialEffectsOnTrack(tinX0,0,eLoss,surf,typeMaterial);
+                new Trk::MaterialEffectsOnTrack(tinX0,std::nullopt,eLoss,surf,typeMaterial);
             delete meb;
             meb=newmeot;
           }
@@ -468,10 +467,10 @@ namespace Trk {
             typePattern.set(i);
         }
         const Trk::TrackStateOnSurface* newTsos= new Trk::TrackStateOnSurface( newMeas, newPars, newFitQoS, meb, typePattern);
-        newTrackStateOnSurfaces->push_back(newTsos);
+        newTrackStateOnSurfaces.push_back(newTsos);
       }
       
-      m_trackWithoutScattering.set(std::make_unique<Trk::Track>( this->info(), newTrackStateOnSurfaces, 
+      m_trackWithoutScattering.set(std::make_unique<Trk::Track>( this->info(), std::move(newTrackStateOnSurfaces), 
                                                                  this->fitQuality() ? 
                                                                  this->fitQuality()->clone() : nullptr ));
     }

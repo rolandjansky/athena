@@ -15,7 +15,11 @@ class AFP_RawCollection : public AFP_RawCollectionHead
 public:
   /// @copydoc AFP_RawCollection::m_dataRecords;
   const std::list<RAWDATA_T>& dataRecords() const {return m_dataRecords;}
-
+  
+  /// Returns iterators to the beginning and end of the list
+  typename std::list<RAWDATA_T>::iterator begin() {return m_dataRecords.begin();}
+  typename std::list<RAWDATA_T>::iterator end() {return m_dataRecords.end();}
+  
   /// Creates a new empty data record in the collection and returns reference to it.
   RAWDATA_T& newDataRecord () {m_dataRecords.emplace_back(); return m_dataRecords.back();}
   

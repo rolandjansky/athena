@@ -191,7 +191,7 @@ namespace xAOD {
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     if ( pMap->find(pJet) != pMap->end() ) 
-      { printf("MissingETComposition::add - WARNING - jet with index %lu already in map, not added again\n",pJet->index()); return false; }
+      { printf("MissingETComposition::add - WARNING - jet with index %zu already in map, not added again\n",pJet->index()); return false; }
     // insert object
     size_t nextIdx = pMap->size();
     pMap->push_back(new MissingETAssociation(pJet));
@@ -208,7 +208,7 @@ namespace xAOD {
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     if ( pMap->find(pJet) != pMap->end() ) 
-      { printf("MissingETComposition::add - WARNING - jet with index %lu already in map, not added again\n",pJet->index()); return false; }
+      { printf("MissingETComposition::add - WARNING - jet with index %zu already in map, not added again\n",pJet->index()); return false; }
     // insert object
     // size_t nextIdx = pMap->size();
     std::vector<ElementLink<IParticleContainer> > jetconst = pJet->constituentLinks();
@@ -322,7 +322,7 @@ namespace xAOD {
       // printf("MissingETComposition::insertMisc - INFO - constituent pt %f\n", signal->pt());
       jetIndex = pMap->findIndexByJetConst(signal);
       if(jetIndex!=MissingETBase::Numerical::invalidIndex()) {
-	printf("MissingETComposition::insertMisc - ERROR - object %p with constituent %p is associated to jet %lu, will not place in misc association\n",(void*)pPart,(void*)signal,jetIndex); return false;
+	printf("MissingETComposition::insertMisc - ERROR - object %p with constituent %p is associated to jet %zu, will not place in misc association\n",(void*)pPart,(void*)signal,jetIndex); return false;
       }
     }
     pMap->getMiscAssociation()->addObject(pPart,constlist);
@@ -392,9 +392,9 @@ namespace xAOD {
   { 
     std::vector<const MissingETAssociation*> assocs;
     if ( pMap == nullptr ) { return assocs; }
-    else { 
-      for (MissingETAssociationMap::const_iterator fAssoc = pMap->begin();fAssoc!=pMap->end(); fAssoc++) {
-	if ((*fAssoc)->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(*fAssoc);
+    else {
+      for (const auto fAssoc : *pMap) {
+	if (fAssoc->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(fAssoc);
       }
     }
     return assocs;
@@ -404,9 +404,9 @@ namespace xAOD {
   { 
     std::vector<MissingETAssociation*> assocs;
     if ( pMap == nullptr ) { return assocs; }
-    else { 
-      for (MissingETAssociationMap::iterator fAssoc = pMap->begin();fAssoc!=pMap->end(); fAssoc++) {
-	if ((*fAssoc)->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(*fAssoc);
+    else {
+      for (const auto fAssoc : *pMap) {
+	if (fAssoc->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(fAssoc);
       }
     }
     return assocs;

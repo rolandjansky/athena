@@ -6,6 +6,7 @@
 #define ACTSGEOMETRY_ACTSMATERIALTRACKWRITERSVC_H
 
 #include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
@@ -91,6 +92,8 @@ private:
 
   void writerThread();
   void doWrite(const Acts::RecordedMaterialTrack &mTrack);
+
+  ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
   // jobOptions properties
   Gaudi::Property<std::string> m_filePath{this, "FilePath", "MaterialTracks.root", "Output root file for charged particle"};

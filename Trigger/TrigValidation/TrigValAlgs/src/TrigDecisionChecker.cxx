@@ -99,16 +99,10 @@ StatusCode TrigDecisionChecker::initialize()
     if (not m_printoutFileName.empty()) {
       ATH_MSG_INFO("PrintOutFilename:   " << m_printoutFileName);
     }
-    ATH_MSG_INFO("SuperMasterKey:     " << m_smKey);
-    
-    // Retrieve the trigger configuration service
-    // get handle to trigger configuration
-    ATH_CHECK(m_configSvc.retrieve());
-    
+
     // get handle to TrigDecisionTool
     ATH_CHECK(m_trigDec.retrieve());
-    m_trigDec->ExperimentalAndExpertMethods()->enable();
-    
+
     // reserve space for vectors
     m_summary.reserve(700);
     m_summaryChainPassRaw.reserve(700);
@@ -251,39 +245,8 @@ StatusCode TrigDecisionChecker::finalize()
     return StatusCode::SUCCESS;
 }
 
-uint32_t TrigDecisionChecker_old_smk=0;
-
 StatusCode TrigDecisionChecker::execute()
 {
-    // Fill the variables:
-    uint32_t smk = m_configSvc->masterKey();
-    uint32_t l1psk = m_configSvc->lvl1PrescaleKey();
-    uint32_t hltpsk = m_configSvc->hltPrescaleKey();
-    
-    // If the keys returned by the configuration service don't seem to make sense,
-    // use something else as the SMK. (Needed mostly for MC test jobs.)
-    if( ( ( smk == 0 ) && ( l1psk == 0 ) && ( hltpsk == 0 ) ) ||
-       ( static_cast< int >( smk )    < 0 ) ||
-       ( static_cast< int >( l1psk )  < 0 ) ||
-       ( static_cast< int >( hltpsk ) < 0 ) ) {
-
-        smk = CxxUtils::crc64( m_configSvc->configurationSource() ) & 0xffff;
-        l1psk = 0;
-        hltpsk = 0;
-    }
-    
-    if(TrigDecisionChecker_old_smk!=smk) {
-        ATH_MSG_INFO("New SMK found = " << smk);
-        TrigDecisionChecker_old_smk=smk;
-    }
-    ATH_MSG_DEBUG("SMK = " << smk);
-    
-    // Check to see whether this is an event which we should process
-    if(smk!=m_smKey && m_smKey!=0u) {
-        // We do not have a matching super master key so skip the event and return success
-        return StatusCode::SUCCESS;
-    }
-    
     m_eventNumber++;
     
     // check mu value
@@ -437,9 +400,7 @@ StatusCode TrigDecisionChecker::execute()
         msg(MSG::INFO) << "Pass state EF  = " << m_trigDec->isPassed("EF_.*") << endmsg;
         msg(MSG::INFO) << "Pass state HLT = " << m_trigDec->isPassed("HLT_.*") << endmsg;
     }
-    
-    Trig::ExpertMethods* em = m_trigDec->ExperimentalAndExpertMethods();
-    
+
     // L1
     std::vector<std::string> allItems = m_trigDec->getListOfTriggers("L1_.*");
     if (!allItems.empty()) {
@@ -448,7 +409,7 @@ StatusCode TrigDecisionChecker::execute()
         for (std::vector<std::string>::const_iterator itemIt = allItems.begin();
              itemIt != allItems.end(); ++itemIt) {
             
-            const LVL1CTP::Lvl1Item* aItem = em->getItemDetails(*itemIt);
+            const LVL1CTP::Lvl1Item* aItem = m_trigDec->ExperimentalAndExpertMethods().getItemDetails(*itemIt);
             
             if (!aItem) continue;
             if (aItem->name()=="") continue;
@@ -499,7 +460,7 @@ StatusCode TrigDecisionChecker::execute()
         std::map<std::string,float> t_ps_map;
         
         for(std::vector<std::string>::iterator chIter = confChains.begin(); chIter != confChains.end(); ++chIter) {
-            const TrigConf::HLTChain * ch = em->getChainConfigurationDetails(*chIter);
+            const TrigConf::HLTChain * ch = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(*chIter);
             std::string name = *chIter;
             m_summary.push_back(name);
             t_pt_map[name] = ch->pass_through();
@@ -535,7 +496,7 @@ StatusCode TrigDecisionChecker::execute()
         std::string name = m_summary[i];
         ATH_MSG_VERBOSE("Testing chain: " << name);
         
-        const HLT::Chain* aChain = em->getChainDetails(name);
+        const HLT::Chain* aChain = m_trigDec->ExperimentalAndExpertMethods().getChainDetails(name);
         if (! aChain) { // inactive chain
             continue;
         }

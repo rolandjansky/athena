@@ -44,6 +44,8 @@ theApp.Dlls += [ "LArRawUtils","LArROD", "LArTools"]
 theApp.Dlls += [ "LArByteStream"]
 #theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
 theApp.topAlg+=["LArRawChannelSimpleBuilder/TBLArRawChannelBuilder"]
 ### Liquid argon reco

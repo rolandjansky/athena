@@ -73,15 +73,6 @@ if 'noisesqlite' in dir():
 if 'RunSince' not in dir():
    RunSince=0
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBadChannelMasker=LArBadChannelMasker("LArBadChannelMasker")
-theLArBadChannelMasker.DoMasking=True
-theLArBadChannelMasker.ProblemsToMask=[
-    "highNoiseHG","highNoiseMG","highNoiseLG"
-    ]
-##    "deadReadout","deadPhys","deadCalib","short","almostDead",
-ToolSvc+=theLArBadChannelMasker
-
 from LArOnlDbPrep.LArOnlDbPrepConf import LArDSPThresholdFillInline
 theLArDSPThresholdFillAlg=LArDSPThresholdFillInline()
 theLArDSPThresholdFillAlg.OutputLevel=INFO
@@ -89,7 +80,9 @@ theLArDSPThresholdFillAlg.Key=folder
 theLArDSPThresholdFillAlg.OutFile=fileName+".txt"
 theLArDSPThresholdFillAlg.mode=ModeType
 theLArDSPThresholdFillAlg.MaskBadChannels=True
-theLArDSPThresholdFillAlg.BadChannelMasker=theLArBadChannelMasker
+theLArDSPThresholdFillAlg.ProblemsToMask=[
+    "highNoiseHG","highNoiseMG","highNoiseLG"
+    ]
 theLArDSPThresholdFillAlg.NameOfSet=setName
 # Set masked channel thresholds lower for diagnostics
 #theLArDSPThresholdFillAlg.MaskedtQThreshold=0.

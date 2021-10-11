@@ -6,7 +6,7 @@
 #define TRIGHLTJETHYPO_FASTREDUCTIONMATCHER_H
 
 
-#include "./IJetsMatcherMT.h"
+#include "./IJetsMatcher.h"
 #include "./RepeatedConditionsDefs.h"
 #include "./ConditionFilter.h"
 #include "./Tree.h"
@@ -18,7 +18,7 @@ class ITrigJetHypoInfoCollector;
 using  ConditionFilters =
   std::vector<std::unique_ptr<IHypoJetVectorFilter>>;
 
-class FastReductionMatcher: public IJetsMatcherMT {
+class FastReductionMatcher: public IJetsMatcher {
  public:
 
   FastReductionMatcher(ConditionPtrs&,
@@ -36,8 +36,7 @@ class FastReductionMatcher: public IJetsMatcherMT {
   */
   
   virtual std::optional<bool>
-    match(const HypoJetCIter& jets_b,
-	  const HypoJetCIter& jets_e,
+    match(const HypoJetVector& jv,
 	  xAODJetCollector&,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 	  bool
@@ -59,7 +58,7 @@ class FastReductionMatcher: public IJetsMatcherMT {
 
   // minimum number of jets required - determined by summing
   // leaf Condition capacities
-  long int m_minNjets{0};
+  long unsigned int m_minNjets{0u};
 
 };
 #endif

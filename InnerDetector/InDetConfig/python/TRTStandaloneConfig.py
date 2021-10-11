@@ -59,9 +59,8 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     acc.addPublicTool(InDetTrackSummaryTool)
 
     from InDetConfig.InDetRecToolConfig  import InDetExtrapolatorCfg
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    InDetExtrapolator = tmpAcc.getPrimary()
-    acc.merge(tmpAcc)
+    InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
+
     
     InDetTRT_StandaloneScoringTool = acc.popToolsAndMerge(InDetTrtTrackScoringToolCfg(flags,name='InDetTRT_StandaloneScoringTool'+ extension,
                                                                                             extension=extension))
@@ -206,8 +205,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO
 
-    ConfigFlags.Detector.RecoTRT = True
-    ConfigFlags.Detector.RecoIBL = True
+    # TODO: TRT only?
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,10 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiTrackMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "StoreGate/DataHandle.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -94,6 +97,8 @@ namespace InDet {
     BooleanProperty m_useNewStrategy{this, "useNewStrategy", false};
     BooleanProperty m_useZBoundaryFinding{this, "useZBoundFinding", false};
     BooleanProperty m_ITKGeometry{this, "ITKGeometry", false, "Flag to specify if it is ITK geometry"};
+    BooleanProperty m_useITkConvSeeded{this, "useITkConvSeeded", false, "ITk EM-seeded conversion reco"};
+    BooleanProperty m_doFastTracking{this, "doFastTracking", false, "ITk fast tracking reco"};
     IntegerProperty m_maxNumberSeeds{this, "maxNumberSeeds", 3000000, "Max. number used seeds"};
     IntegerProperty m_maxPIXsp{this, "maxNumberPIXsp", 150000, "Max. number pixels space points"};
     IntegerProperty m_maxSCTsp{this, "maxNumberSCTsp", 500000, "Max. number sct    space points"};
@@ -101,6 +106,10 @@ namespace InDet {
     IntegerProperty m_histsize{this, "HistSize", 1400};
     IntegerProperty m_nvertex{this, "maxVertices", 4};
     DoubleProperty m_zcut{this, "Zcut", 350.};
+    DoubleProperty m_ClusterE{this, "CaloClusterE", 15000.};
+    DoubleProperty m_deltaEta{this, "dEtaCaloRoI", .1};
+    DoubleProperty m_deltaPhi{this, "dPhiCaloRoI", .25};
+    DoubleProperty m_deltaZ{this, "dZCaloRoI", 300.};
     StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid"};
     //@}
 
@@ -117,6 +126,7 @@ namespace InDet {
     SG::ReadHandleKey<SpacePointContainer> m_SpacePointsSCTKey{this, "SpacePointsSCTName", "SCT_SpacePoints"};
     SG::ReadHandleKey<SpacePointContainer> m_SpacePointsPixelKey{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap",""};
+    SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey{this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
@@ -132,11 +142,18 @@ namespace InDet {
     ToolHandle<ISiTrackMaker> m_trackmaker{this, "TrackTool", "InDet::SiTrackMaker_xk/InDetSiTrackMaker", "Track maker"};
     PublicToolHandle<Trk::IPatternParametersPropagator> m_proptool{this, "PropagatorTool", "Trk::RungeKuttaPropagator/InDetPropagator"};
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+    ToolHandle<IRegSelTool> m_regsel_strip { this, "RegSelTool_Strip",    "RegSelTool/RegSelTool_SCT"   };
     //@}
 
     /// @name Magnetic field properties
     //@{
     Trk::MagneticFieldProperties m_fieldprop;
+    //@}
+
+    /// @name Service handles
+    //@{
+    /** service to get cut values depending on different variable */
+    ServiceHandle<IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", "InDetEtaDependentCutsSvc"};
     //@}
 
     /// @name Counters
@@ -179,6 +196,7 @@ namespace InDet {
     * @param [in,out] scoredTracks: Track candidates, sorted by by score, best scored first (implemented by assigning negative sign to scores)
     **/ 
     void filterSharedTracks(std::multimap<double, Trk::Track*>& scoredTracks) const;
+    void filterSharedTracksFast(std::multimap<double, Trk::Track*>& scoredTracks) const;
 
     /** fills three z0 histograms (non-weighted, weighted by z, and weighted by pt) 
     * with the track z at the beam line estimated using the innermost measurement. 
@@ -215,7 +233,16 @@ namespace InDet {
     
     /// this method performs the track finding using the new strategy
     StatusCode newStrategy(const EventContext& ctx) const; ///< EventContext is used to specify which event
+
+    StatusCode itkFastTrackingStrategy(const EventContext& ctx) const; ///< EventContext is used to specify which event
+    StatusCode itkConvStrategy(const EventContext& ctx) const; ///< EventContext is used to specify which event
+
     void magneticFieldInit();
+
+    bool passEtaDepCuts(const Trk::Track* track,
+			int nClusters,
+			int nFreeClusters,
+			int nPixels) const;
 
   };
 }

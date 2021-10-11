@@ -87,24 +87,15 @@ class NavigationLayer final : public Layer {
 
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D&) override final;
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D&) const override final;
 
  protected:
   /** Resize the layer to the tracking volume - not implemented */
   virtual void resizeLayer(const VolumeBounds&, double) override final {}
-  /** Resize the layer to the tracking volume - not implemented */
-  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                 double) const override final {}
 
   /** Resize the layer to the tracking volume - not implemented */
   virtual void resizeAndRepositionLayer(const VolumeBounds&,
                                         const Amg::Vector3D&,
                                         double) override final {}
-  /** Resize the layer to the tracking volume - not implemented */
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
 
   Surface* m_surfaceRepresentation;  //!< for the navigation Volume the
                                      //!< surface is a private member */
@@ -139,8 +130,6 @@ inline const Surface* NavigationLayer::overlapSurface(const TrackParameters&,
 }
 
 inline void NavigationLayer::moveLayer(Amg::Transform3D&) {}
-
-inline void NavigationLayer::moveLayer(Amg::Transform3D&) const {}
 
 }  // namespace Trk
 

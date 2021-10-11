@@ -83,7 +83,7 @@ StatusCode CaloConstCellMaker::execute (const EventContext& ctx) const
 
   // Loop on tools.
   // Note that finalization and checks are also done with tools.
-  for (auto& tool : m_caloCellMakerTools) {
+  for (const auto & tool : m_caloCellMakerTools) {
     // For performance reasons want to remove the cell-checker tool
     // from the list of tools after the fifth event.
     if (ctx.evt() > 5) {
@@ -98,7 +98,7 @@ StatusCode CaloConstCellMaker::execute (const EventContext& ctx) const
     StatusCode sc;
     sc.ignore();
     {
-      Athena::Chrono (chronoName, &*m_chrono);
+      Athena::Chrono give_me_a_name (chronoName, &*m_chrono);
       sc = tool->process(theContainer.ptr(), ctx);
     }
 

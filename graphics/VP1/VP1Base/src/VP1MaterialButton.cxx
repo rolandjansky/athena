@@ -653,7 +653,7 @@ QList<SoMaterial*> VP1MaterialButton::handledMaterials() const
 void VP1MaterialButton::setText ( const QString & s )
 {
   if (!s.isEmpty())
-    message("VP1MaterialButton::setText() called (with '"+s+"'), but not allowed");
+    messageDebug("VP1MaterialButton::setText() called (with '"+s+"'), but not allowed");
 	//Forbidden!! Only here since Designer generated code needs it in public.
 }
 

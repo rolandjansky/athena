@@ -31,7 +31,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonGeoModelTest/PerfUtils.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include <boost/format.hpp>
 
 #include <fstream>
@@ -40,9 +40,9 @@
 typedef std::istringstream mystream;
 
 namespace {
-  static constexpr double const& invRad = 180/M_PI;
+  constexpr double const invRad = 180./M_PI;
   // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }
 
 using namespace MuonGM;
@@ -653,7 +653,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-                                         const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                                         std::optional<Amg::Vector2D> locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
                                          const Amg::Vector3D gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -673,7 +673,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-                                         const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                                         std::optional<Amg::Vector2D> locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
                                          const Amg::Vector3D gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -1815,7 +1815,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition.y()<<", "
                                  <<tempGlobalPosition.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                             std::optional<Amg::Vector2D> locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                              fout<<" Z>0 - loc.pos. "
                                  << locPosition->x()<<" "<<locPosition->y();
                              const Amg::Vector3D gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -1827,7 +1827,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition1.x()<<", "
                                  <<tempGlobalPosition1.y()<<", "
                                  <<tempGlobalPosition1.z()<<" ";
-                             const Amg::Vector2D *locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
+                             std::optional<Amg::Vector2D> locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
                              fout<<" Z<0 - loc.pos. "
                                  << locPosition1->x()<<" "<<locPosition1->y();
                              const Amg::Vector3D gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
@@ -1847,7 +1847,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition.y()<<", "
                                  <<tempGlobalPosition.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                             std::optional<Amg::Vector2D> locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                              fout<<" Z>0 - loc.pos. "
                                  << locPosition->x()<<" "<<locPosition->y();
                              const Amg::Vector3D gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
@@ -1860,7 +1860,7 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition1.y()<<", "
                                  <<tempGlobalPosition1.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
+                             std::optional<Amg::Vector2D> locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
                              fout<<" Z<0 - loc.pos. "
                                  << locPosition1->x()<<" "<<locPosition1->y();
                              const Amg::Vector3D gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
@@ -2227,9 +2227,9 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream rpcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 rpcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2347,9 +2347,9 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream mdtid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 mdtid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2644,9 +2644,9 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       std::string::size_type loc_o;
       std::string::size_type loc_c;
       std::string leftover="";
-      if ((loc_o = extid.find("[")) != std::string::npos) 
+      if ((loc_o = extid.find('[')) != std::string::npos) 
 	{
-	  if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+	  if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
 	    {
 	      std::istringstream tgcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
 	      tgcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2683,8 +2683,8 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       Amg::Vector3D posctr;
       posctr = tgc->globalPosition();
       activeheight = tgc->length();
-      etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/fabs(posmin.z()))/2.));
-      etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/fabs(posmax.z()))/2.));
+      etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/std::abs(posmin.z()))/2.));
+      etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/std::abs(posmax.z()))/2.));
       if (m_idHelperSvc->tgcIdHelper().stationEta(elemId) < 0) {
 	etamin = -etamin;
 	etamax = -etamax;
@@ -2741,9 +2741,9 @@ void MuonGMCheck::buildCscRegionSelectorMap()
          std::string::size_type loc_o;
          std::string::size_type loc_c;
          std::string leftover="";
-         if ((loc_o = extid.find("[")) != std::string::npos) 
+         if ((loc_o = extid.find('[')) != std::string::npos) 
          {
-             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+             if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
              {
                  mystream cscid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                  cscid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
@@ -2970,7 +2970,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  			ATH_MSG_INFO("--------> phi_max " << phi_max << " mp " << mp_phi_max << " chl " << cl_phi_max << " wl " << wl_phi_max << " strip " << N_phi_max);
  			ATH_MSG_INFO("--------> eta_min " << eta_min << " mp " << mp_eta_min << " chl " << cl_eta_min << " wl " << wl_eta_min << " strip " << N_eta_min);
  			ATH_MSG_INFO("--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max);
- 			ATH_MSG_INFO("--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min));
+ 			ATH_MSG_INFO("--------> Dphi " << std::abs(phi_max-phi_min) << " Deta " << std::abs(eta_max-eta_min));
  			
  			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*M_PI;
  			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*M_PI;
@@ -3189,9 +3189,9 @@ void MuonGMCheck::testMdtDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream mdtid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 mdtid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
@@ -3281,9 +3281,9 @@ void MuonGMCheck::testRpcDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream rpcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 rpcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
@@ -3370,9 +3370,9 @@ void MuonGMCheck::testTgcDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream tgcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 tgcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
@@ -3456,9 +3456,9 @@ void MuonGMCheck::testCscDetectorElementHash()
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
-        if ((loc_o = extid.find("[")) != std::string::npos) 
+        if ((loc_o = extid.find('[')) != std::string::npos) 
         {
-            if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
+            if ((loc_c = extid.find(']', loc_o+1)) != std::string::npos) 
             {
                 mystream cscid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
                 cscid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]

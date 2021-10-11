@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloNoise.h"
 #include "boost/multi_array.hpp"
 #include "TMath.h"
+#include <cmath>
 
 CaloNoise::CaloNoise(const size_t nLArCells,
                      const size_t nLArGains,
@@ -36,9 +37,6 @@ CaloNoise::~CaloNoise() {
 }
 
 
-//The following method is copied (amost unchanged) from CaloNoiseToolDB
-#define sqrt2 1.4142135623730950
-#define invsqrt2 0.707106781186547524
 
 float CaloNoise::calcSig(const IdentifierHash subHash, const int dbGain, const float e) const {
 
@@ -61,8 +59,8 @@ float CaloNoise::calcSig(const IdentifierHash subHash, const int dbGain, const f
   if(narrow_gauss_sigma < valid_range[0]) return narrow_gauss_sigma;
   
 
-  const double y1= TMath::Erf(invsqrt2*x1);
-  const double y2= TMath::Erf(invsqrt2*x2);
+  const double y1= TMath::Erf(M_SQRT1_2*x1);
+  const double y2= TMath::Erf(M_SQRT1_2*x2);
 
   const double z = ( y1*sigma1 + ratio*y2*sigma2 )/( sigma1 + ratio*sigma2);
 
@@ -71,7 +69,7 @@ float CaloNoise::calcSig(const IdentifierHash subHash, const int dbGain, const f
  
   // if instead you want to return the sigma-equivalent C.L.
   // (with sign!) use the following line
-  return sqrt2*TMath::ErfInverse(z);
+  return M_SQRT2*TMath::ErfInverse(z);
 }
 
 

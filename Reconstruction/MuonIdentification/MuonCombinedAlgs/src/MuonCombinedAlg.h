@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDALG_H
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
@@ -19,18 +19,14 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 
-namespace Muon {
-    class MuonEDMPrinterTool;
-}
-
-class MuonCombinedAlg : public AthAlgorithm {
+class MuonCombinedAlg : public AthReentrantAlgorithm {
 public:
     MuonCombinedAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     ~MuonCombinedAlg() = default;
 
-    StatusCode initialize();
-    StatusCode execute();
+    StatusCode execute(const EventContext& ctx) const override;
+    StatusCode initialize() override;
 
 private:
     ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool{this, "MuonCombinedTool",

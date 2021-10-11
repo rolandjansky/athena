@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from ..Menu.ChainDictTools import splitChainDict
 from .BjetChainConfiguration import BjetChainConfiguration
@@ -7,43 +7,36 @@ from ..Menu.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Bjet.GenerateBjetChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
-
-
 def generateChainConfigs( chainDict ):
-    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
+
+    log.debug('bjet full dictionary is: %s\n', pprint.pformat(chainDict))
 
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
-    jet = JetChainConfiguration(chainDict).assembleChain()
-
     for subChainDict in listOfChainDicts:
+
+        jet_cfg = JetChainConfiguration(chainDict)
+        jet_name = jet_cfg.jetName
+        jet = jet_cfg.assembleChain()
 
         # don't setup btagging for legs that are jet-only
         # happens for bjet + normal jet chains
         if subChainDict['chainParts'][0]['signature'] != 'Bjet':
-            continue
-
-        Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
-
-        listOfChainDefs += [Bjet]
+            listOfChainDefs += [jet]
+        else:
+            log.debug('input jet collection name is: %s\n', jet_name)
+            Bjet = BjetChainConfiguration(subChainDict, jet_name).assembleChain() 
+            jet.steps = jet.steps + Bjet.steps
+            listOfChainDefs += [ jet ] 
 
     if len(listOfChainDefs)>1:
         theBjetChainDef = mergeChainDefs(listOfChainDefs, chainDict) 
-        jet.steps = jet.steps + theBjetChainDef.steps
     else:
-        jet.steps = jet.steps + Bjet.steps
-    
-    theChainDef = jet
+        theBjetChainDef = listOfChainDefs[0]
 
-    return theChainDef
-
-
-
-    
-
-    
+    return theBjetChainDef

@@ -36,12 +36,14 @@ theApp.TopAlg += [ "CheckLArFebHeader" ]
 
 include("LArConditionsCommon/LArConditionsCommon_H8_jobOptions.py")
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 #abc  IOVDbSvc.GlobalTag = "TB04-7"
 theApp.TopAlg += ["FakeLArOFCs"]    #Puts 0 0 1 0 0 as OF-Coefficients, equivalent to fixed sample method
 theApp.TopAlg += [ "LArRawChannelBuilder" ]
 LArRawChannelBuilder = Algorithm("LArRawChannelBuilder");
 
-ToolSvc.LArADC2MeV.BeginRunPriority = 100
 ToolSvc.LArRodDecoder.FirstSample=2
 # Turn off printing for LArRoI_Map
 ToolSvc.LArRoI_Map.Print=FALSE; 

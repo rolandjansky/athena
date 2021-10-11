@@ -14,7 +14,7 @@ atlas_add_component( TrigT1CTP
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigConfData TrigConfInterfaces TrigConfL1Data TrigT1CaloUtilsLib TrigT1Interfaces TrigT1Result xAODTrigCalo xAODTrigger )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigConfData TrigConfL1Data TrigT1CaloUtilsLib TrigT1Interfaces TrigT1Result xAODTrigCalo xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

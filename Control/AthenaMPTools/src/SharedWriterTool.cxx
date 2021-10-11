@@ -61,7 +61,7 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
     return -1;
   }
 
-  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
+  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs) + 1;
   m_subprocTopDir = topdir;
 
   m_writer = 0;
@@ -203,6 +203,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
     return outwork;
 
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP Shared Writer PID=" << getpid());
+
+  // Try to initialize AthenaRootSharedWriterSvc early on
+  IAthenaSharedWriterSvc* sharedWriterSvc;
+  StatusCode sc = serviceLocator()->service("AthenaRootSharedWriterSvc", sharedWriterSvc);
+  if(sc.isFailure() || sharedWriterSvc == nullptr) {
+    ATH_MSG_WARNING("Error retrieving AthenaRootSharedWriterSvc from SharedWriterTool::bootstrap_func()");
+  }
 
   // Use IDataShare to make ConversionSvc a Share Server
   IDataShare* cnvSvc = dynamic_cast<IDataShare*>(m_cnvSvc);

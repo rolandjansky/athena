@@ -39,52 +39,52 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     except KeyError:
         log.info("No metadata/Taginfo found. Using normal configuration for RPC")
     log.info("RPC cabling is using mode: %s",muonCnvFlags.RpcCablingMode())
-    from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc
-    ServiceMgr += RPCcablingServerSvc()
-    theApp.CreateSvc += [ "RPCcablingServerSvc" ] # TODO: Remove once the C++ dependencies are fixed
-    ServiceMgr.RPCcablingServerSvc.Atlas=True
-    ServiceMgr.RPCcablingServerSvc.forcedUse=True
-    ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=True #Needed to switch to new cabling
 
-    # without the following line, the MuonRPC_CablingSvc is not part of the ServiceMgr, thus add flake8 ignore flag
-    import MuonRPC_Cabling.MuonRPC_CablingConfig # noqa: F401
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1 if ConfigFlags.Trigger.enableL1MuonPhase1 is not None else False
-    if enableL1MuonPhase1:
-        ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool = False
-        ServiceMgr.MuonRPC_CablingSvc.DatabaseRepository="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
-    from IOVDbSvc.CondDB import conddb
-    #
-    # Cabling maps folders from DB
-    # examples to connect to development db INTR
-    # notice this requires special authentication.xml file
-    # conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_NEW <tag>ver42</tag>")
-    # conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_CORR_2 <tag>ver10</tag>")
-    #
-    # for production DB when tags are not yet associated to global tags 
-    # conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_version42</tag>")
-    # conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_version10</tag>")
-    #
-    # for production DB
-    conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA"     , "/RPC/CABLING/MAP_SCHEMA",className='CondAttrListCollection')
-    conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA_CORR", "/RPC/CABLING/MAP_SCHEMA_CORR",className='CondAttrListCollection')
+    enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1
+    ConfigFlags.Input.isMC = False if globalflags.DataSource() == 'data' else True
+    isMC = ConfigFlags.Input.isMC
+    doLVL1 = ConfigFlags.Trigger.doLVL1
 
-    # Trigger Roads folders from DB
-    # for production DB when tags are not yet associated to global tags 
-    # conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_ETA<tag>EtaTrigRoads_MC_April2010</tag>")
-    # conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_PHI<tag>PhiTrigRoads_MC_April2010</tag>")
-    #
-    # for production DB
-    conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_ETA", "/RPC/TRIGGER/CM_THR_ETA",className='CondAttrListCollection')
-    conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_PHI", "/RPC/TRIGGER/CM_THR_PHI",className='CondAttrListCollection')
-    from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
-    RPCCablingDbTool = RPCCablingDbTool()
-    RPCCablingDbTool.MapConfigurationFolder = "/RPC/CABLING/MAP_SCHEMA"
-    RPCCablingDbTool.MapCorrectionFolder    = "/RPC/CABLING/MAP_SCHEMA_CORR"
-    ToolSvc+=RPCCablingDbTool
+    rpcDbName = 'RPC_OFL' if isMC else 'RPC'
+    dbRepo="MuonRPC_Cabling/ATLAS.data"
+    rpcCabMap="/RPC/CABLING/MAP_SCHEMA"
+    rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
+    rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
+    rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
+    if doLVL1 and enableL1MuonPhase1:
+        # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
+        # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
+        rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
+            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolder(rpcDbName,rpcCabMap,className='CondAttrListCollection')
+    conddb.addFolder(rpcDbName,rpcCabMapCorr,className='CondAttrListCollection')
+    if doLVL1 and not isMC:
+        # RPC trigger roads in the online database are not up-to-dated
+        # Use offline database for now
+        # Will switch to online database once online database has been updated (ATR-23465)
+        conddb._SetAcc('RPC_OFL','COOLOFL_RPC')
+        conddb.blockFolder("/RPC/TRIGGER/CM_THR_ETA")
+        conddb.blockFolder("/RPC/TRIGGER/CM_THR_PHI")
+        if enableL1MuonPhase1:
+            conddb.addFolder('RPC_OFL',rpcTrigEta,className='CondAttrListCollection')
+            conddb.addFolder('RPC_OFL',rpcTrigPhi,className='CondAttrListCollection')
+        else:
+            conddbNameOffline = ConfigFlags.Trigger.L1MuonSim.CondDBOffline if ConfigFlags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
+            conddb.addFolderWithTag('RPC_OFL',rpcTrigEta,conddbNameOffline,className='CondAttrListCollection',forceMC=True,force=True)
+            conddb.addFolderWithTag('RPC_OFL',rpcTrigPhi,conddbNameOffline,className='CondAttrListCollection',forceMC=True,force=True)
+    else:
+        conddb.addFolder(rpcDbName,rpcTrigEta,className='CondAttrListCollection')
+        conddb.addFolder(rpcDbName,rpcTrigPhi,className='CondAttrListCollection')
 
     from RPC_CondCabling.RPC_CondCablingConf import RpcCablingCondAlg
-    condSequence += RpcCablingCondAlg("RpcCablingCondAlg")
+    condSequence += RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)
 
 if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.readRIOPool.TGC_on() or DetFlags.digitize.TGC_on():
     log.info("TGC cabling is using mode: %s",muonCnvFlags.TgcCablingMode())

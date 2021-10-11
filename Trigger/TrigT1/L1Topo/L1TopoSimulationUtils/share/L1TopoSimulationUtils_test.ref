@@ -1,7 +1,7 @@
 ** test1: L1TopoSimulationUtils cosh at different delta-eta values**
-delta eta:  abs(0 - 23) = 23, cosh 000000000001010000100110
-delta eta:  abs(0 - 23) = 23, cosh 000000000001010000100110
-delta eta:  abs(0 - 24) = 24, cosh 000000000001011000111010
+delta eta:  abs(0 - 23) = 23, cosh 000000001010000101
+delta eta:  abs(0 - 23) = 23, cosh 000000001010000101
+delta eta:  abs(0 - 24) = 24, cosh 000000001011000111
 ** test2: L1TopoSimulationUtils KFLUT correction vs. et and eta**
  et 4 [0],  eta 2.4 [12] : 0.523438 >>>
  et 12 [0],  eta 2.4 [12] : 0.523438 >>>

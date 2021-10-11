@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AtlasDetectorIDHelper.h"
@@ -8,31 +8,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
-AtlasDetectorIDHelper::AtlasDetectorIDHelper(void) :
-    m_isSLHC(false),
-    m_pixel_region_index(UNDEFINED),
-    m_sct_region_index(UNDEFINED),
-    m_trt_region_index(UNDEFINED),
-    m_lar_em_region_index(UNDEFINED),
-    m_lar_hec_region_index(UNDEFINED),
-    m_lar_fcal_region_index(UNDEFINED),
-    m_lvl1_region_index(UNDEFINED),
-    m_dm_region_index(UNDEFINED),
-    m_tile_region_index(UNDEFINED),
-    m_mdt_region_index(UNDEFINED),
-    m_csc_region_index(UNDEFINED),
-    m_rpc_region_index(UNDEFINED),
-    m_tgc_region_index(UNDEFINED),
-    m_mm_region_index(UNDEFINED),
-    m_stgc_region_index(UNDEFINED),
-    m_muon_station_index(UNDEFINED),
-    m_alfa_region_index(UNDEFINED),
-    m_bcm_region_index(UNDEFINED),
-    m_lucid_region_index(UNDEFINED),
-    m_zdc_region_index(UNDEFINED),
-    m_initialized(false),
-    m_station_field(nullptr),
-    m_msgSvc(nullptr) {
+AtlasDetectorIDHelper::AtlasDetectorIDHelper(void)
+{
 }
 
 int         
@@ -59,8 +36,8 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr,
         }
     }
     else {
-	// Check if this is SLHC layout
-	m_isSLHC = (dict->m_version=="SLHC");
+	// Check if this is High Luminosity LHC layout
+	m_isHighLuminosityLHC = (dict->m_version=="ITkHGTD");
 
 	// Save index to a PIXEL region for unpacking
 	id = atlas_id.pixel_exp(); 
@@ -78,9 +55,9 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr,
             }
 	}
 
-	// for SLHC layout one cannot get the sct region as below, nor
+	// for High Luminosity LHC layout one cannot get the sct region as below, nor
 	// is there any trt regions
-	if (!m_isSLHC) {
+	if (!m_isHighLuminosityLHC) {
 	    
 	    // Save index to a SCT region for unpacking
 	    id = atlas_id.sct_exp();

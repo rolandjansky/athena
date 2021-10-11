@@ -19,16 +19,21 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 
+class StoreGateSvc;
 class LArHVManager;
 
 namespace LArGeo {
+  class VDetectorParameters;
 
   class LArDetectorFactory : public GeoVDetectorFactory  {
 
   public:
 
     // Constructor:
-    LArDetectorFactory(int testbeam, bool fullGeo, const LArHVManager* hvManager);
+    LArDetectorFactory(StoreGateSvc* detStore
+		       , const LArHVManager* hvManager
+		       , int testbeam
+		       , bool fullGeo);
 
     // Destructor:
     virtual ~LArDetectorFactory();
@@ -38,6 +43,8 @@ namespace LArGeo {
 
     // Access to the results:
     virtual const LArDetectorManager* getDetectorManager() const;
+
+    std::unique_ptr<LArGeo::VDetectorParameters> moveParameters();
 
 
     // Set parameters:
@@ -63,6 +70,7 @@ namespace LArGeo {
 
     // The manager:
     LArDetectorManager*       m_detectorManager;
+    StoreGateSvc*             m_detStore;
     const LArHVManager*       m_hvManager;
     bool                      m_barrelSagging;
     int                       m_barrelVisLimit;
@@ -79,6 +87,8 @@ namespace LArGeo {
 
     bool                      m_activateFT;
     bool                      m_enableMBTS;
+
+    std::unique_ptr<VDetectorParameters> m_parameters;
   };
 
 } // namespace LArGeo

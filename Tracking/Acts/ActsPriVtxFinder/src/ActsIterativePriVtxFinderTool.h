@@ -108,14 +108,14 @@ private:
     return m_trackingGeometryTool.get();
   }
 
-  using Propagator = Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>;
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using TrackLinearizer = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter = Acts::FullBilloirVertexFitter<TrackWrapper, TrackLinearizer>;
   using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity<TrackWrapper>>;
   using VertexFinder = Acts::IterativeVertexFinder<VertexFitter, VertexSeedFinder>;
 
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;
-
+  std::shared_ptr<ATLASMagneticFieldWrapper> m_bField = nullptr;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "", "ActsTrackingGeometryTool"};
   ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "", "ActsExtrapolationTool"};
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "TrackSelector", "", "InDetTrackSelectionTool"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-, 20212021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -21,7 +21,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/SGtests.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -520,7 +519,7 @@ void testTileCondToolEmscale(ISvcLocator* svcLoc) {
 }
 
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
 
 
   std::ofstream jo(TILE_JO_NAME);

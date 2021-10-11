@@ -31,14 +31,14 @@ StatusCode GoodRunsListFilterAlgorithm::initialize() {
   CHECK( AAH::setProperty( m_brlTool , "GoodRunsListVec", m_blackRunsListVec ) );
 
   //determine the maxGRLRunNumber ...
-  if(m_goodRunsListVec.size()) {
+  if(!m_goodRunsListVec.empty()) {
     CHECK( m_grlTool.retrieve() ); //will check the files are ok ..
 
     Root::TGoodRunsListReader reader;
     for(auto& f : m_goodRunsListVec) {
       std::string path = PathResolverFindXMLFile( f );
-      if(path=="") path = PathResolverFindCalibFile( f );
-      if(path=="") continue; //skip this file .. should never happen
+      if(path.empty()) path = PathResolverFindCalibFile( f );
+      if(path.empty()) continue; //skip this file .. should never happen
       reader.AddXMLFile( path );
     }
 
@@ -74,17 +74,17 @@ StatusCode GoodRunsListFilterAlgorithm::execute() {
   //will be passed (unless it fails the BRL requirement)
 
 
-  const xAOD::EventInfo* ei = 0;
+  const xAOD::EventInfo* ei = nullptr;
   CHECK( evtStore()->retrieve( ei, "EventInfo" ) );
 
   bool decision(true);
   if( ei->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
     decision=true; //pass for MC
-  } else if( m_blackRunsListVec.size()>0 && m_brlTool->passRunLB( *ei ) ) {
+  } else if( !m_blackRunsListVec.empty() && m_brlTool->passRunLB( *ei ) ) {
     decision=false; //fail because in black list
   } else if(ei->runNumber() > m_maxGRLRunNumber) {
     decision=true; //pass because run number is past end of GRL
-  } else if( m_goodRunsListVec.size()==0 || m_grlTool->passRunLB( *ei ) ) {
+  } else if( m_goodRunsListVec.empty() || m_grlTool->passRunLB( *ei ) ) {
     decision=true; //pass: either there is no GRL given, or the event is in the GRL
   } else {
     decision=false; //event is not in the GRL

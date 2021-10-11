@@ -13,4 +13,4 @@ atlas_add_component( InDetTrackScoringTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces StoreGateLib TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkCaloClusterROI MagFieldElements MagFieldConditions BeamSpotConditionsData PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces StoreGateLib TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkCaloClusterROI MagFieldElements MagFieldConditions BeamSpotConditionsData PathResolver LumiBlockCompsLib )

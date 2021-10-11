@@ -101,59 +101,49 @@ def dbgPreRun(inputFileList, outputFileList, argdict = None):
     return None, dbAlias
 
 
-def dbgPostRun(inputFileList, outputFileList, argdict = None):
-    msg.info('Running debug_stream analysis PostRun operations on files :{0} '.format(inputFileList))
-    msg.info('Running debug_stream analysis PostRun, histogram output in :{0} '.format(outputFileList))
+def dbgPostRun(inputFile, outputFile, argdict = None):
+    msg.info('Running debug_stream analysis PostRun operations on files :{0} '.format(inputFile))
+    msg.info('Running debug_stream analysis PostRun, histogram output in :{0} '.format(outputFile))
 
     # Open root output file
-    outFile = outputFileList[0]
-    hfile = TFile(outFile, 'UPDATE')
+    hfile = TFile(outputFile, 'UPDATE')
 
     # Inicialize dbgEventInfo,  this is the main event analysis class
-    eventInfo = dbgEventInfo('_Pos', inputFileList.value[0])
+    eventInfo = dbgEventInfo('_Pos', inputFile)
     data = []
     l1Info = []
     hltInfo = []
     configKeys = None
-    for inputFile in inputFileList.value:
-        # Find input file
-        files = [f for f in os.listdir() if inputFile in f]
-        if len(files) == 0:
-            msg.error('No BS file matched name :{0} '.format(inputFileList))
-            continue
-        elif len(files) > 1:
-            msg.error('Found multiple BS files that match name :{0} '.format(inputFile))
-            continue
 
-        bsfile = eformat.istream(files[0])
-        n = 0
-        isFirstEvent = True
+    bsfile = eformat.istream(inputFile)
+    n = 0
+    isFirstEvent = True
 
-        for event in bsfile:
-            # If fist event get l1 and hlt counter and chain info from DB
-            if isFirstEvent:
-                configKeys = getHLTConfigKeys(event.run_no(), argdict)
+    for event in bsfile:
+        # If fist event get l1 and hlt counter and chain info from DB
+        if isFirstEvent:
+            configKeys = getHLTConfigKeys(event.run_no(), argdict)
 
-                if not argdict.get('useDB'):
-                    msg.debug("Reading chains and items from database is skipped (missing --useDB=True)")
-                    l1Info, hltInfo = ([], [])
-                else:
-                    l1Info, hltInfo = TriggerDBInfo(configKeys.get('DB'), configKeys.get('SMK'))
+            if not argdict.get('useDB'):
+                msg.debug("Reading chains and items from database is skipped (missing --useDB=True)")
+                l1Info, hltInfo = ([], [])
+            else:
+                l1Info, hltInfo = TriggerDBInfo(configKeys.get('DB'), configKeys.get('SMK'))
 
-                isFirstEvent = False
+            isFirstEvent = False
 
-            # Log the details of first 5 events
-            n += 1
-            if n < 5:
-                data = [event.run_no(), event.lumi_block(), event.global_id(),
-                        event.lvl1_id(), event.bc_time_seconds(), event.bc_time_nanoseconds()]
-                msg.info('Event details :{0}'.format(data))
+        # Log the details of first 5 events
+        n += 1
+        if n < 5:
+            data = [event.run_no(), event.lumi_block(), event.global_id(),
+                    event.lvl1_id(), event.bc_time_seconds(), event.bc_time_nanoseconds()]
+            msg.info('Event details :{0}'.format(data))
 
-            # Run debug event analysis and fill output TTree
-            eventInfo.eventCount(event)
-            eventInfo.eventInfo(event, l1Info, hltInfo)
-            eventInfo.eventConfig(configKeys, event)
-            eventInfo.fillTree()
+        # Run debug event analysis and fill output TTree
+        eventInfo.eventCount(event)
+        eventInfo.eventInfo(event, l1Info, hltInfo)
+        eventInfo.eventConfig(configKeys, event)
+        eventInfo.fillTree()
 
     # Close output TFile
     hfile.Write()

@@ -70,7 +70,7 @@ StatusCode DerivationFramework::CaloClusterThinning::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_sgKey=="") {
+  if (m_sgKey.empty()) {
     ATH_MSG_FATAL("No particle collection provided for thinning.");
     return StatusCode::FAILURE;
   } else { ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
@@ -133,7 +133,7 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
   m_ntotTopo += nTopoClusters;
 
   // Retrieve particle container
-  const xAOD::IParticleContainer* importedParticles(0);
+  const xAOD::IParticleContainer* importedParticles(nullptr);
   if (evtStore()->retrieve(importedParticles,m_sgKey).isFailure()) {
     ATH_MSG_ERROR("No collection with name " << m_sgKey << " found in StoreGate!");
     return StatusCode::FAILURE;
@@ -181,12 +181,12 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
     std::vector< const xAOD::IParticle* > particlesToCheck ={}; 
     // identify which e-gammas to keep for the thinning check
     for (unsigned int i=0; i<nEgammas; ++i) {
-      if (entries[i]==true) {
+      if (static_cast<bool>(entries[i])) {
 	particlesToCheck.push_back((*importedParticles)[i]);
       }
     }
     ////
-    for (auto particle : particlesToCheck){  
+    for (const auto *particle : particlesToCheck){  
       if(m_run_calo) { 
 	// Always keep own particle clusters
 	if( particleCluster(mask, particle, importedCaloCluster.cptr(), is_muons, is_egamma, is_tau) != StatusCode::SUCCESS ) {
@@ -207,7 +207,7 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
     }
   }
   else{//No selection string provided
-    for (auto particle : *importedParticles){
+    for (const auto *particle : *importedParticles){
       if(m_run_calo) {
 	if( particleCluster(mask, particle, importedCaloCluster.cptr(), is_muons, is_egamma, is_tau) != StatusCode::SUCCESS ) {
 	  return StatusCode::FAILURE;

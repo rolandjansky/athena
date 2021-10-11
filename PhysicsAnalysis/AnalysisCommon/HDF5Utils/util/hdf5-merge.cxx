@@ -5,8 +5,11 @@
 #include "H5Cpp.h"
 #include <HDF5Utils/DefaultMerger.h>
 
-// Suppress a warning from boost.
+// Suppress warnings from boost.
 // (Binaries apparently include boost with -I rather than -isystem.)
+#if __GNUC__ >= 11
+# pragma GCC diagnostic ignored "-Wnonnull"
+#endif
 #ifdef __clang__
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wc11-extensions"

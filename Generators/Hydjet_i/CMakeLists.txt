@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Hydjet_i )
@@ -19,8 +19,9 @@ atlas_add_library( Hydjet_iLib
    PUBLIC_HEADERS Hydjet_i
    INCLUDE_DIRS ${PYQUEN_INCLUDE_DIRS} ${PYTHIA6_INCLUDE_DIRS}
    ${HYDJET_INCLUDE_DIRS} ${HIJING_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
+   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+                       FVOIDP=INTEGER*${CMAKE_SIZEOF_VOID_P}
    LINK_LIBRARIES ${PYQUEN_LIBRARIES} ${PYTHIA6_LIBRARIES}
    ${HYDJET_LIBRARIES} ${HIJING_LIBRARIES} CxxUtils GeneratorFortranCommonLib
    GeneratorModulesLib

@@ -47,47 +47,56 @@ class ConeSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cone;
+  static constexpr SurfaceType staticType = SurfaceType::Cone;
 
   /**Default Constructor*/
   ConeSurface();
 
-  /**Constructor form HepTransform and an opening angle */
-  ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric = false);
+  /**Assignment operator*/
+  ConeSurface& operator=(const ConeSurface& csf);
 
-  /**Constructor form HepTransform, radius halfphi, and halflenght*/
-  ConeSurface(Amg::Transform3D* htrans,
+  /**Copy constructor */
+  ConeSurface(const ConeSurface& csf);
+
+  /** Move constructor */
+  ConeSurface(ConeSurface&& annbo) = default;
+  /** Move assignment */
+  ConeSurface& operator=(ConeSurface&& sbo) = default;
+
+  /**Destructor*/
+  virtual ~ConeSurface() = default ;
+
+  /**Constructor form Transform and an opening angle */
+  ConeSurface(const Amg::Transform3D& htrans,
+              double alpha,
+              bool symmetric = false);
+
+  /**Constructor form Transform, radius halfphi, and halflenght*/
+  ConeSurface(const Amg::Transform3D& htrans,
               double alpha,
               double locZmin,
               double locZmax,
               double halfPhi = M_PI);
 
-  /**Constructor from HepTransform and CylinderBounds
+  /**Constructor from Transform and CylinderBounds
     - ownership of the bounds is passed
     */
-  ConeSurface(Amg::Transform3D* htrans, ConeBounds* cbounds);
+  ConeSurface(const Amg::Transform3D& htrans, ConeBounds* cbounds);
 
-  /**Constructor from HepTransform by unique_ptr.
+  /**Constructor from Amg Transform by ref.
      - bounds is not set. */
-  ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
-
-  /**Copy constructor */
-  ConeSurface(const ConeSurface& csf);
+  ConeSurface(const Amg::Transform3D& htrans);
 
   /**Copy constructor with shift */
   ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~ConeSurface();
-
-  /**Assignment operator*/
-  ConeSurface& operator=(const ConeSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
   /**Implicit Constructor*/
   virtual ConeSurface* clone() const override;
+  
+  std::unique_ptr<ConeSurface> uniqueClone() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

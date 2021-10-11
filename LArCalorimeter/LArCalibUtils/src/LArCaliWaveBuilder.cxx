@@ -150,16 +150,21 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-
+ int foundkey = 0;
  for (;key_it!=key_it_e; ++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
  
    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
    if (sc.isFailure()) {
      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
-     continue; // Try next container
+     if ( (std::next(key_it) == key_it_e) && foundkey==0 ){
+       ATH_MSG_ERROR("None of the provided LArAccumulatedDigitContainer keys could be read");
+       return StatusCode::FAILURE;
+     }else{
+       continue;
+     }
    }
-
-
+   foundkey+=1;
+   
    const LArFebErrorSummary* febErrSum=NULL;
    if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
      sc=evtStore()->retrieve(febErrSum);
@@ -228,17 +233,18 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 
      WaveMap& waveMap = m_waves.get(chid,gain);
 
-     //make dacPulsed which has dac and four bits of is pulsed info
-     int dacPulsed=(*it)->DAC();
+     //make dac and Pulsed which has dac and four bits of is pulsed info
+     int dac=(*it)->DAC();
+     int pulsed=0;
      int index;
      for(int iLine=1;iLine<5;iLine++){
        if((*it)->isPulsed(iLine)){
 	 ATH_MSG_DEBUG("GR: line pulsed true, line="<<iLine);
-	 dacPulsed=(dacPulsed | (0x1 << (15+iLine)));
+	 pulsed=(pulsed | (0x1 << (15+iLine)));
        }
      }
      if(m_useDacAndIsPulsedIndex){//switch used to turn on the option to have indexs that are DAC and isPulsed info
-       index = dacPulsed;
+       index = (dac&0xFFFF) | (pulsed<<16);
      }
      else{
        index = (*it)->DAC();
@@ -247,7 +253,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      WaveMap::iterator itm = waveMap.find(index);
      
      if ( itm == waveMap.end() ) { // A new LArCaliWave is booked
-       LArCaliWave wave(samplesum.size()*m_NStep, m_dt, dacPulsed);
+       LArCaliWave wave(samplesum.size()*m_NStep, m_dt, dac, pulsed);
        wave.setFlag( LArWave::meas );
        itm = (waveMap.insert(WaveMap::value_type(index,wave))).first;
        ATH_MSG_DEBUG("index: "<<index<<" new wave inserted");
@@ -304,16 +310,14 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
 
      // transform samples vector from uint32_t to double
      std::vector<double> samples;
-     std::vector<short>::const_iterator sample_it=(*it)->samples().begin();
-     std::vector<short>::const_iterator sample_it_e=(*it)->samples().end();
-     for (;sample_it!=sample_it_e;sample_it++) 
-       samples.push_back((double)(*sample_it));
+     for (short sample : (*it)->samples())
+       samples.push_back((double)(sample));
 
      WaveMap& waveMap = m_waves.get(chid,gain);
      WaveMap::iterator itm = waveMap.find((*it)->DAC());
      
      if ( itm == waveMap.end() ) { // A new LArCaliWave is booked     
-       LArCaliWave wave(samples.size()*m_NStep, m_dt, (*it)->DAC());
+       LArCaliWave wave(samples.size()*m_NStep, m_dt, (*it)->DAC(),0x1);
        wave.setFlag( LArWave::meas );
        itm = (waveMap.insert(WaveMap::value_type((*it)->DAC(),wave))).first;
      }
@@ -460,7 +464,7 @@ StatusCode LArCaliWaveBuilder::stop()
 		                         thisWave.getErrors(),
 					 thisWave.getTriggers(),
 					 thisWave.getDt(), 
-					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<16)), 
+					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<24)), 
 					 thisWave.getFlag() );
        
 		    dacWaves.push_back(newWave);

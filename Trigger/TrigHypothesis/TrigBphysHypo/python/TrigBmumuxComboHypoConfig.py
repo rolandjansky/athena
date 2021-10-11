@@ -80,7 +80,23 @@ def BmumuxComboHypoCfg(name):
         LambdaBToMuMuProtonKaon_dimuonMassRange = (2500., 4300.),
         LambdaBToMuMuProtonKaon_massRange = (4800., 6400.),
         LambdaBToMuMuProtonKaon_chi2 = 60.,
-        #
+        # B_c+ -> J/psi(-> mu+ mu-) D_s+(->phi(-> K+ K-) pi+)
+        BcToDsMuMu = True,
+        BcToDsMuMu_minKaonPt = 1000.,
+        BcToDsMuMu_minPionPt = 1000.,
+        BcToDsMuMu_massRange = (5500., 7300.),
+        BcToDsMuMu_dimuonMassRange = (2500., 4300.),
+        BcToDsMuMu_phiMassRange = (940., 1100.),
+        BcToDsMuMu_DsMassRange = (1850., 2100.),
+        BcToDsMuMu_chi2 = 60.,
+        # B_c+ -> J/psi(-> mu+ mu-) D+(-> K- pi+ pi+)
+        BcToDplusMuMu = True,
+        BcToDplusMuMu_minKaonPt = 1000.,
+        BcToDplusMuMu_minPionPt = 1000.,
+        BcToDplusMuMu_massRange = (5500., 7300.),
+        BcToDplusMuMu_dimuonMassRange = (2500., 4300.),
+        BcToDplusMuMu_DplusMassRange = (1750., 2000.),
+        BcToDplusMuMu_chi2 = 60.,
         MonTool = TrigBmumuxComboHypoMonitoring('TrigBmumuxComboHypoMonitoring'))
 
     return hypo
@@ -105,6 +121,8 @@ class TrigBmumuxComboHypoConfig(object):
             'BsmumuPhi':  9,  # BSPHIMUMU
             'BdmumuKst':  8,  # BDKSTMUMU
             'LbPqKm':    22,  # LBPQMUMU
+            'BcmumuDploose' : 13,  # BCDPMUMU
+            'BcmumuDsloose' : 11   # BCDSMUMU
         }
 
         tool.Decay = trigDecayDict[decay]

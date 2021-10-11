@@ -8,7 +8,7 @@ find_package( Boost )
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
-atlas_add_library( MuonEventAthenaPoolLib
+atlas_add_tpcnv_library( MuonEventAthenaPoolLib
    MuonEventAthenaPool/*.h src/*Cnv_p*.h src/*Cnv_p*.cxx
    PUBLIC_HEADERS MuonEventAthenaPool
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
@@ -23,7 +23,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
    MuonEventAthenaPool/*.h src/*Cnv.h src/*Cnv.cxx
    FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h
          MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h
-         MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h
+         MuonRDO/TgcRdoContainer.h MuonRDO/TgcL1RdoContainer.h MuonRDO/CscRawDataContainer.h
          MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h
          MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h
          MuonDigitContainer/RpcDigitContainer.h
@@ -75,7 +75,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( MUONEVENTATHENAPOOL_REFERENCE_TAG
-       MuonEventAthenaPoolReference-03-01-00 )
+       MuonEventAthenaPoolReference-04-00-00 )
   run_tpcnv_test( MuonEventTPCnv_17.0.0 ESD-17.0.0
                   REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2
@@ -115,7 +115,7 @@ foreach( name
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES IdDictParser MuonEventAthenaPoolLib
+      LINK_LIBRARIES IdDictParser MuonEventAthenaPoolLib TestTools
       PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

@@ -23,8 +23,8 @@
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
 
-# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
-- Generators/Rivet_i
+# Disable MCTester until we are sure we can remove it completely
+- Generators/MCTester_i
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA

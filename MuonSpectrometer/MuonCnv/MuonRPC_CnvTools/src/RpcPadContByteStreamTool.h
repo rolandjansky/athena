@@ -40,8 +40,6 @@ class RpcPadContByteStreamTool : public AthAlgTool, virtual public IRPC_RDOtoByt
 
 public:
 
-  typedef RpcPadContainer CONTAINER ; 
-
   /** constructor
   */
   RpcPadContByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent);
@@ -54,7 +52,7 @@ public:
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode convert(CONTAINER* cont, RawEventWrite* re) const override;
+  virtual StatusCode convert(RpcPadContainer* cont) const override;
 
 private:
    SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};

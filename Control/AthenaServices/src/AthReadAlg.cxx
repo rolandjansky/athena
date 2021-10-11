@@ -90,7 +90,7 @@ StatusCode AthReadAlg::execute (const EventContext& ctx) const
 #if __cplusplus >= 201709
       if (a.ends_with ("_DELETED"))
 #else
-      if (a.substr (a.size() - 8, 8) == "_DELETED")
+      if (a.compare (a.size() - 8, 8, "_DELETED") == 0)
 #endif
       {
         a.erase (a.size() - 8, 8);

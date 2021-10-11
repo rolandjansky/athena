@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "JetSoftDropTools.h"
+#include "JetRec/JetSoftDropTools.h"
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Filter.hh"

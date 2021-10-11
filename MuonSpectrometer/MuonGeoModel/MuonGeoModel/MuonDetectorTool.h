@@ -46,6 +46,7 @@ class MuonDetectorTool final : public GeoModelTool {
     bool m_hasCSC;
     bool m_hasSTgc;
     bool m_hasMM;
+    double m_testPassivationWidthMM; // temporary to test the effect MM passivation
     int m_stationSelection;
     std::vector<std::string> m_selectedStations;
     std::vector<int> m_selectedStEta;

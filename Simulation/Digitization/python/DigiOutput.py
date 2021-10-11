@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #from AthenaCommon import CfgMgr
 #from AthenaCommon.CfgGetter import getPrivateTool
@@ -65,7 +65,7 @@ def getStreamRDO_ItemList(log):
     # Event info
     if DetFlags.writeRDOPool.any_on():
         outputKey = 'EventInfo'
-        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
             from OverlayCommonAlgs.OverlayFlags import overlayFlags
             outputKey = overlayFlags.bkgPrefix() + 'EventInfo'
         #add to output stream
@@ -81,10 +81,25 @@ def getStreamRDO_ItemList(log):
     if DetFlags.writeRDOPool.Truth_on():
         StreamRDO_ItemList+=["McEventCollection#*"]
         StreamRDO_ItemList+=["TrackRecordCollection#*"]
-        StreamRDO_ItemList+=["xAOD::JetContainer#*InTimeAntiKt4TruthJets"]
-        StreamRDO_ItemList+=["xAOD::JetAuxContainer#*InTimeAntiKt4TruthJetsAux."]
-        StreamRDO_ItemList+=["xAOD::JetContainer#*OutOfTimeAntiKt4TruthJets"]
-        StreamRDO_ItemList+=["xAOD::JetAuxContainer#*OutOfTimeAntiKt4TruthJetsAux."]
+
+        prefix = ''
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            prefix = overlayFlags.bkgPrefix()
+
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}InTimeAntiKt4TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights"]
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}OutOfTimeAntiKt4TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights"]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}InTimeAntiKt6TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}InTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"]
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}OutOfTimeAntiKt6TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}OutOfTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=["xAOD::TruthParticleContainer#*"]
+            StreamRDO_ItemList+=["xAOD::TruthParticleAuxContainer#*"]
         if DetFlags.writeRDOPool.Calo_on():
             StreamRDO_ItemList += ["CaloCalibrationHitContainer#*"]
             # Temporary for debugging MBTSHits
@@ -138,11 +153,11 @@ def getStreamRDO_ItemList(log):
     # Calorimeter Output
     if DetFlags.digitize.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["LArRawChannelContainer#*"]
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
-            elif digitizationFlags.PileUpPremixing:
+            elif digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["LArDigitContainer#*LArDigitContainer_MC"]
             else:
                 StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
@@ -151,11 +166,11 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["LArHitContainer#HGTDDigitContainer_MC"]
     if DetFlags.digitize.Tile_on():
         if DetFlags.writeRDOPool.Tile_on():
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["TileRawChannelContainer#*"]
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["TileDigitsContainer#*"]
-            elif digitizationFlags.PileUpPremixing:
+            elif digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["TileDigitsContainer#*TileDigitsCnt"]
             else:
                 StreamRDO_ItemList+=["TileDigitsContainer#TileDigitsFlt"]
@@ -171,18 +186,18 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.TGC_on():
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
         if DetFlags.writeRDOPool.Micromegas_on():
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
@@ -192,7 +207,7 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.Tile_on():
             StreamRDO_ItemList+=["TileTTL1Container#*"]
             StreamRDO_ItemList+=["TileDigitsContainer#*MuRcvDigitsCnt"]
-            if not digitizationFlags.PileUpPremixing:
+            if not digitizationFlags.PileUpPresampling:
                 StreamRDO_ItemList+=["TileRawChannelContainer#MuRcvRawChCnt"]
             StreamRDO_ItemList+=["TileMuonReceiverContainer#*"]
     if DetFlags.digitize.LVL1_on():

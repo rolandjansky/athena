@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbHeap.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -44,9 +44,11 @@ namespace pool  {
     /// Access the object guard size
     static size_t guardSize();
     /// Access the offset of an object
-    static Token::OID_t& oid(const DbObject* pObj);
+    static Token::OID_t& oid(DbObject* pObj);
+    static const Token::OID_t& oid(const DbObject* pObj);
     /// Access the container of an object
-    static DbContainer& container(const DbObject* pObj);
+    static DbContainer& container(DbObject* pObj);
+    static const DbContainer& container(const DbObject* pObj);
     /// Free an object, which was initially allocated from the heap
     static DbStatus free(void* ptr, DbContainer* cntH);
     /// Free an object on the heap

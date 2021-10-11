@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 def BaseCscDigitToCscRDOTool(name,**kwargs):
@@ -12,7 +12,7 @@ def BaseCscDigitToCscRDOTool(name,**kwargs):
 
 def CscDigitToCscRDOTool(name,**kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "CSCRDO")
     else:

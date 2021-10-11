@@ -268,7 +268,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
     //get BoundarySurface for cylinder between sct and trt
     const Trk::CylinderSurface* sctCylinder = nullptr;
     const Trk::Surface* sctSurface= &(sctVolume->boundarySurfaces()[Trk::tubeOuterCover].get()->surfaceRepresentation());
-    if(sctSurface->type()==Trk::Surface::Cylinder){
+    if(sctSurface->type()==Trk::SurfaceType::Cylinder){
       sctCylinder= static_cast<const Trk::CylinderSurface*> (sctSurface);
     }
     if (!sctCylinder) {
@@ -297,13 +297,13 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
       if (firstsipar->parameters()[Trk::theta] < M_PI/2.) {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::NegativeEndcap");
         const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::negativeFaceXY].get()->surfaceRepresentation());
-        if(trtSurface->type()==Trk::Surface::Disc){
+        if(trtSurface->type()==Trk::SurfaceType::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       } else {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::PositiveEndcap");
         const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::positiveFaceXY].get()->surfaceRepresentation());
-        if(trtSurface->type()==Trk::Surface::Disc){
+        if(trtSurface->type()==Trk::SurfaceType::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       }
@@ -359,7 +359,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
   if (m_cosmic) {
     while (iterTSOS!=track.trackStateOnSurfaces()->end()
            && (!(*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement)
-               || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::Surface::Plane)) {
+               || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::SurfaceType::Plane)) {
       ++iterTSOS;
     }
   }
@@ -380,7 +380,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
       per=nullptr;
       const Trk::TrackParameters* tmpParam= (*iterTSOS)->trackParameters();
       if (m_cosmic && tmpParam) {
-        if(tmpParam->associatedSurface().type()==Trk::Surface::Perigee){
+        if(tmpParam->associatedSurface().type()==Trk::SurfaceType::Perigee){
           per=static_cast<const Trk::Perigee*>(tmpParam) ;
         }
       }
@@ -433,7 +433,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
             id2 = (thisParameters->associatedSurface()).associatedDetectorElement()->identify();
           } else {
             ATH_MSG_VERBOSE("Surface has no detector element ID, skip it");
-            if(thisParameters->associatedSurface().type()==Trk::Surface::Perigee){
+            if(thisParameters->associatedSurface().type()==Trk::SurfaceType::Perigee){
               startParameters = std::move(thisParameters);
             }
             continue;
@@ -444,7 +444,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
             ATH_MSG_VERBOSE("Surface is not Pixel or SCT, stop loop over parameters in this step");
             // for collisions, we want to stop at the first trt measurement; whereas for cosmics not
             // here we will have trt measurements on the track before the first si measurement!
-            if(thisParameters->associatedSurface().type()==Trk::Surface::Perigee){
+            if(thisParameters->associatedSurface().type()==Trk::SurfaceType::Perigee){
               startParameters = std::move(thisParameters);
             }
             if (m_cosmic) continue;
@@ -715,37 +715,40 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 }
 
 // ====================================================================================================================
-const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) const {
+const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) {
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Hole);
-  const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr,trackPar->clone(),nullptr,nullptr,typePattern);
+  const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr,trackPar->uniqueClone(),nullptr,nullptr,typePattern);
   return tsos;
 }
 
 // ====================================================================================================================
 const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::Track& oldTrack,
                                                                     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const {
-  DataVector<const Trk::TrackStateOnSurface>* trackTSOS = new DataVector<const Trk::TrackStateOnSurface>;
+  auto trackTSOS = DataVector<const Trk::TrackStateOnSurface>();
 
   // get states from track
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = oldTrack.trackStateOnSurfaces()->begin();
        it != oldTrack.trackStateOnSurfaces()->end(); ++it) {
     // veto old holes
-    if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) trackTSOS->push_back(new Trk::TrackStateOnSurface(**it));
+    if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) trackTSOS.push_back(new Trk::TrackStateOnSurface(**it));
   }
 
   // if we have no holes on the old track and no holes found by search, then we just copy the track
-  if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS->size() && listOfHoles->empty()) {
+  if (oldTrack.trackStateOnSurfaces()->size() == trackTSOS.size() && listOfHoles->empty()) {
     ATH_MSG_DEBUG("No holes on track, copy input track to new track");
     // create copy of track
-    const Trk::Track* newTrack = new Trk::Track(oldTrack.info(),trackTSOS,oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
+    const Trk::Track* newTrack = new Trk::Track(
+      oldTrack.info(),
+      std::move(trackTSOS),
+      oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
     return newTrack;
   }
 
   // add new holes
   for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = listOfHoles->begin();
        it != listOfHoles->end(); ++it) {
-    trackTSOS->push_back(*it);
+    trackTSOS.push_back(*it);
   }
 
   // sort
@@ -764,15 +767,18 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
          not 100% transitive comparison functor.
       */
       ATH_MSG_DEBUG("sorting vector with stable_sort ");
-      std::stable_sort(trackTSOS->begin(), trackTSOS->end(), CompFunc);
+      std::stable_sort(trackTSOS.begin(), trackTSOS.end(), CompFunc);
     } else {
-      trackTSOS->sort(CompFunc); // respects DV object ownership
+      trackTSOS.sort(CompFunc); // respects DV object ownership
     }
 
   }
 
   // create copy of track
-  const Trk::Track* newTrack = new Trk::Track(oldTrack.info(),trackTSOS,oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
+  const Trk::Track* newTrack = new Trk::Track(
+    oldTrack.info(),
+    std::move(trackTSOS),
+    oldTrack.fitQuality() ? oldTrack.fitQuality()->clone() : nullptr);
 
   return newTrack;
 }

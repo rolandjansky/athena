@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PADDATA_H
@@ -45,16 +45,7 @@ class PADdata : public BaseObject
 
 template <class X> X& operator<<(X& stream,const PADdata& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000000];
-    for (int i=0;i<5000000;++i) buffer[i] = '\0';
-    __osstream display(buffer,5000000);
-#endif
-
+    std::ostringstream display;
     data.Print(display,false);
     stream << display.str();
     return stream;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -112,9 +112,6 @@ private:
     Amg::Vector3D			field (const Amg::Vector3D&	point, MagField::AtlasFieldCache &fieldCache) const;
     void                                initializeFieldCache(MagField::AtlasFieldCache& fieldCache) const;
 
-    bool				isTrapped (const double distance,
-                           double& previousDistance,
-                           unsigned long long& stepsUntilTrapped) const;
 
     const TrackSurfaceIntersection*	newIntersection (std::unique_ptr<TrackSurfaceIntersection> isect,
                                                      const Surface&	surface,
@@ -133,8 +130,12 @@ private:
                                               const double qOverP,
                                               MagField::AtlasFieldCache &fieldCache) const;
 
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey
-       {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
+      this,
+      "AtlasFieldCacheCondObj",
+      "fieldCondObj",
+      "Name of the Magnetic Field conditions object key"
+    };
 
     // additional configuration
     bool					m_productionMode;

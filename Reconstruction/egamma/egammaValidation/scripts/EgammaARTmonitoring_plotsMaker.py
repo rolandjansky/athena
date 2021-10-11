@@ -81,8 +81,6 @@ electron_comparison_list = [
      'title': 'True Prompt Electron with GSFTrack'},
     {'name': 'truthPromptElectronWithReco',
      'title': 'True Prompt Electron with Reco Electron'},
-    {'name': 'recoElectronIsoFixedCutTightTrackOnly',
-     'title': 'Reconstructed Electron FixedCutTightTrackOnly'},
     {'name': 'trackingEfficiency',
      'title': 'Tracking Efficiency'},
     {'name': 'GSFEfficiency',
@@ -97,8 +95,6 @@ electron_comparison_list = [
      'title': 'Reconstructed Electron MediumLH Efficiency'},
     {'name': 'recoElectronTightLHEfficiency',
      'title': 'Reconstructed Electron TightLH Efficiency'},
-    {'name': 'recoElectronIsoFixedCutTightTrackOnlyEfficiency',
-     'title': 'Reconstructed Electron FixedCutTighTrackOnly Efficiency'},
 ]
 
 photon_comparison_list = [
@@ -133,6 +129,14 @@ photon_comparison_list = [
      'title': 'Shower Shape - 10 GeV'},
     {'name': 'isolationAll',
      'title': 'Isolation'},
+    {'name': 'recoPhotonUnconvLooseLH',
+     'title': 'Unconverted Photon LooseLH'},
+    {'name': 'recoPhotonUnconvTightLH',
+     'title': 'Unconverted Photon TightLH'},
+    {'name': 'recoPhotonConvLooseLH',
+     'title': 'Converted Photon LooseLH'},
+    {'name': 'recoPhotonConvTightLH',
+     'title': 'Converted Photon TightLH'},
     {'name': 'recoPhotonUnconvIsoFixedCutTight',
      'title': 'FixedCutTight Unconverted Photon'},
     {'name': 'recoPhotonUnconvIsoFixedCutTightCaloOnly',
@@ -161,6 +165,14 @@ photon_comparison_list = [
      'title': 'True Conv #rightarrow Conv'},
     {'name': 'recoPhotonConvIsoFixedCutLooseEfficiency',
      'title': 'True Conv #rightarrow Conv'},
+    {'name': 'recoPhotonUnconvLooseLHEfficiency',
+     'title': 'Unconverted Photon LooseLH Efficiency'},
+    {'name': 'recoPhotonUnconvTightLHEfficiency',
+     'title': 'Unconverted Photon TightLH Efficiency'},
+    {'name': 'recoPhotonConvLooseLHEfficiency',
+     'title': 'Converted Photon LooseLH Efficiency'},
+    {'name': 'recoPhotonConvTightLHEfficiency',
+     'title': 'Converted Photon TightLH Efficiency'},
 ]
 
 photon_fraction_list = [
@@ -323,7 +335,7 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
 
     for i, folder in enumerate(cluster_list_to_loop):
         for histo in get_key_names(f_nightly, folder['name']):
-            if '2D' not in histo:
+            if '2D' not in histo and not 'profile' in histo:
                 continue
             if 'mu' in histo:
                 h_base = f_base.Get(folder['name'] + '/' + histo)
@@ -337,16 +349,14 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
 
             else:
                 h_base = f_base.Get(folder['name'] + '/' + histo)
-                h_base_profile = h_base.ProfileX(histo+"_ProfileB")
                 h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
-                h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
-                h_base_profile.SetDirectory(0)
-                h_nightly_profile.SetDirectory(0)
+                h_base.SetDirectory(0)
+                h_nightly.SetDirectory(0)
                 if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0:
                     continue
-                y_axis_label = "Mean %s" % (h_base_profile.GetTitle())
-                h_base_profile.SetTitle("")
-                make_ratio_plot(h_base_profile, h_nightly_profile,
+                y_axis_label = "Mean %s" % (h_base.GetTitle())
+                h_base.SetTitle("")
+                make_ratio_plot(h_base, h_nightly,
                                 folder['title'], result_file, y_axis_label)
 
 
@@ -557,11 +567,11 @@ def make_ratio_plot(h_base, h_nightly, name, result_file, y_axis_label=None):
         h_base.GetYaxis().SetTitle(y_axis_label)
         h_base.GetYaxis().SetTitle(y_axis_label)
 
-    if '2D' not in variable_name or 'Profile' in variable_name:
+    if '2D' not in variable_name or 'profile' in variable_name:
         h_base.Draw()
 
     h_nightly.Draw(
-        "same p" if '2D' not in variable_name or 'Profile' in variable_name
+        "same p" if '2D' not in variable_name or 'profile' in variable_name
         else 'colz')
 
     c1.Update()

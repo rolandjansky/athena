@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
@@ -48,7 +48,7 @@ StatusCode PFONeutralCreatorAlgorithm::execute(const EventContext& ctx) const {
   }
   ATH_MSG_DEBUG("Looping over eflowCaloObjects");
   // Create PFOs and fill the containers
-  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) {
+  for (const auto *thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) {
     if( createNeutralPFO(*thisEflowCaloObject, neutralPFOContainer.get(), neutralPFOContainer_nonModified.get()).isFailure() ) {
       ATH_MSG_WARNING("Problem encountered while creating neutral PFOs");
       return StatusCode::SUCCESS;
@@ -126,7 +126,7 @@ StatusCode PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& e
       //Then the EM 4-vector uses the energy/pt at this EM scale + eta,phi from LC 4-vector
       const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
       float emPt = 0.0;
-      for (auto thisCaloCell : *theCellLink) emPt += thisCaloCell->e()/std::cosh(thisCaloCell->eta());
+      for (const auto *thisCaloCell : *theCellLink) emPt += thisCaloCell->e()/std::cosh(thisCaloCell->eta());
       thisPFO->setP4EM(emPt,cluster->eta(),cluster->phi(),0.0);//mass is always zero at EM scale
     }
     ATH_MSG_DEBUG("Created neutral PFO with E, pt, eta and phi of " << thisPFO->e() << ", " << thisPFO->pt() << ", " << thisPFO->eta() << " and " << thisPFO->phi());

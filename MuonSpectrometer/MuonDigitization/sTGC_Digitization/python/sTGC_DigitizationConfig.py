@@ -22,7 +22,7 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
         kwargs.setdefault("LastXing",  sTGC_LastXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py   
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
-    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "sTGC_SDO")
     else:

@@ -36,6 +36,8 @@
 #include "JetRec/PseudoJetContainer.h"
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "xAODEventShape/EventShape.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 // Temporarily included until trigger jet-finding properly moves to DH
 // Unfortunately, depending on the trigger PJG interface introduces

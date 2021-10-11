@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,6 +27,7 @@
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
+#include "TClass.h"
 
 MagField::AtlasFieldMapCondAlg::AtlasFieldMapCondAlg(const std::string& name, 
                                                    ISvcLocator* pSvcLocator)
@@ -63,6 +64,14 @@ MagField::AtlasFieldMapCondAlg::initialize() {
     else {
         ATH_MSG_INFO ( "Initialize: Will update the field map from jobOpt file name");
     }
+
+    // Load these dictionaries now, so we don't need to try to do so
+    // while multiple threads are running.
+    TClass::GetClass ("TLeafI");
+    TClass::GetClass ("TLeafD");
+    TClass::GetClass ("TLeafO");
+    TClass::GetClass ("TLeafS");
+
     return StatusCode::SUCCESS;
 }
 
@@ -333,7 +342,7 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
 
         
     // find the path to the map file
-    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "CALIBPATH" );
+    std::string resolvedMapFile = PathResolver::find_file( mapFile, "CALIBPATH" );
     if ( resolvedMapFile.empty() ) {
         ATH_MSG_ERROR( "Field map file " << mapFile << " not found" );
         return StatusCode::FAILURE;

@@ -205,7 +205,7 @@ namespace lwtDev {
 
 namespace {
   using namespace lwtDev;
-  void throw_cfg(std::string msg, size_t index) {
+  void throw_cfg(const std::string & msg, size_t index) {
     throw NNConfigurationException(msg + " " + std::to_string(index));
   }
   void check_compute_node(const NodeConfig& node) {

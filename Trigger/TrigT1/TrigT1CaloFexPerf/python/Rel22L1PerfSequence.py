@@ -21,7 +21,6 @@ def setupRun3L1CaloPerfSequence(
     from AthenaCommon.Logging import logging
 
     log = logging.getLogger("TrigT1CaloFexPerf.L1Perf")
-    log.setLevel(logging.INFO)
 
     ## print some information about the conditions the simulation is running in
     from RecExConfig.RecFlags import rec
@@ -252,7 +251,7 @@ def setupRun3L1CaloPerfSequence(
                          SuperCellContainer=SCIn,
                         )
 
-    if simflags.EnableDebugOutput() or True:
+    if simflags.EnableDebugOutput():
         log.debug("Algorithm sequence after L1 simulation setup")
         from AthenaCommon.AlgSequence import dumpSequence
 

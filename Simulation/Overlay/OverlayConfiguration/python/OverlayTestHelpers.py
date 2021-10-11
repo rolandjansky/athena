@@ -5,6 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
+from AthenaCommon.Debugging import DbgStage
 
 from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 
@@ -23,6 +24,8 @@ def CommonTestArgumentParser(prog):
                         help="The number of events to run. 0 skips execution")
     parser.add_argument("-t", "--threads", default=1, type=int,
                         help="The number of concurrent threads to run. 0 uses serial Athena.")
+    parser.add_argument("-c", "--concurrent", default=0, type=int,
+                        help="The number of concurrent events to run. 0 uses the same as number of threads.")
     parser.add_argument("-V", "--verboseAccumulators", default=False, action="store_true",
                         help="Print full details of the AlgSequence for each accumulator")
     parser.add_argument("-S", "--verboseStoreGate", default=False, action="store_true",
@@ -31,6 +34,9 @@ def CommonTestArgumentParser(prog):
                         help="Output RDO file")
     parser.add_argument("-s", "--outputSig", default='', type=str,
                         help="Output RDO_SGNL file")
+    parser.add_argument("--debug", default='', type=str,
+                        choices=DbgStage.allowed_values,
+                        help="Debugging flag: " + ','.join (DbgStage.allowed_values))
     return parser
 
 
@@ -57,14 +63,14 @@ def defaultTestFlags(configFlags, args):
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY
         configFlags.Input.SecondaryFiles = defaultTestFiles.RAW_BKG
         configFlags.Output.RDOFileName = "dataOverlayRDO.pool.root"
-        configFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12"
+        configFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12-01"
         configFlags.IOVDb.DatabaseInstance = "CONDBR2"
         configFlags.Overlay.DataOverlay = True
     else:
         configFlags.Input.Files = defaultTestFiles.RDO_BKG
         configFlags.Input.SecondaryFiles = defaultTestFiles.HITS
         configFlags.Output.RDOFileName = "mcOverlayRDO.pool.root"
-        configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
+        configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20-01"
         configFlags.Overlay.DataOverlay = False
 
     if args.output:
@@ -76,7 +82,7 @@ def defaultTestFlags(configFlags, args):
     if args.outputSig:
         configFlags.Output.RDO_SGNLFileName = args.outputSig
 
-    if 'detectors' in args:
+    if 'detectors' in args and args.detectors:
         from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
         setupDetectorsFromList(configFlags, args.detectors)
 
@@ -90,7 +96,7 @@ def postprocessAndLockFlags(configFlags, args):
         configFlags.Scheduler.ShowDataDeps = True
         configFlags.Scheduler.ShowDataFlow = True
         configFlags.Scheduler.ShowControlFlow = True
-        configFlags.Concurrency.NumConcurrentEvents = args.threads
+        configFlags.Concurrency.NumConcurrentEvents = args.concurrent if args.concurrent > 0 else args.threads
 
     configFlags.lock()
 
@@ -103,6 +109,9 @@ def printAndRun(accessor, configFlags, args):
     if args.verboseStoreGate:
         accessor.getService("StoreGateSvc").Dump = True
     configFlags.dump()
+
+    if args.debug:
+        accessor.setDebugStage (args.debug)
 
     # Execute and finish
     sc = accessor.run(maxEvents=args.maxEvents)

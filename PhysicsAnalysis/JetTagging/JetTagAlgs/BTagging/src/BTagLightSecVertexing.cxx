@@ -440,7 +440,7 @@ namespace Analysis {
               return sc;
             }
           } else {
-	          ATH_MSG_DEBUG("#BTAG# VxSecVertexInfo pointer cannot be interpreted for " << basename);
+	          ATH_MSG_DEBUG("#BTAG# BTagLightSecVertexing: VxSecVertexInfo pointer cannot be interpreted for " << basename);
           }
         } /// for loop on jets
       }

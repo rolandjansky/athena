@@ -196,7 +196,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
     // track filters
     // reference (offline) tracks...
-    TrackFilter* filterRef = new Filter_Track( m_etaCutOffline,    m_d0CutOffline,   m_z0CutOffline,  m_pTCutOffline,
+    TrackFilter* filterRef = new Filter_Track( m_etaCutOffline,    m_d0CutOffline,   0, m_z0CutOffline,  m_pTCutOffline,
 					       m_pixHitsOffline,   m_sctHitsOffline, m_siHitsOffline, m_blayerHitsOffline,  
 					       m_strawHitsOffline, m_trtHitsOffline, 0, 
 					       m_pixHolesOffline, m_sctHolesOffline, m_siHolesOffline );
@@ -295,7 +295,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  if ( chainName.roi()!="" )     continue;
 	  //            if ( !chainName.passed() )     continue;
 	  
-	  chains.push_back( selectChain );
+    if (std::find(chains.begin(), chains.end(), selectChain) == chains.end()) { // deduplicate
+  	  chains.push_back( selectChain );
+    }
 
 	}
 	else { 
@@ -386,7 +388,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    
             /// replace wildcard with actual matching chains ...
 	    //            chains.push_back( ChainString(selectChains[iselected]) );
+      if (std::find(chains.begin(), chains.end(), selectChains[iselected]) == chains.end()) { // deduplicate
             chains.push_back( selectChains[iselected] );
+      }
 
             msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
 

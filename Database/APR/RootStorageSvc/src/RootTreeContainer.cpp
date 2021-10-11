@@ -506,10 +506,10 @@ DbStatus RootTreeContainer::close()   {
 }
 
 
-DbStatus RootTreeContainer::open( const DbDatabase& dbH,
-                                  const std::string& nam,
-                                  const DbTypeInfo* info,
-                                  DbAccessMode mode)
+DbStatus RootTreeContainer::open( DbDatabase& dbH, 
+                                  const std::string& nam, 
+                                  const DbTypeInfo* info, 
+                                  DbAccessMode mode)  
 {
    DbPrint log(nam);
    m_branches.clear();

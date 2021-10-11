@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addAlgorithm
 
@@ -13,6 +13,7 @@ addTool("MuonCombinedRecExample.MuGirlTagTool.DCMathStauSegmentMaker","DCMathSta
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauChamberHoleRecoveryTool","MuonStauChamberHoleRecoveryTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauSeededSegmentFinder","MuonStauSeededSegmentFinder")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauSegmentRegionRecoveryTool","MuonStauSegmentRegionRecoveryTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonRecoValidationTool","MuonRecoValidationTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilderFit",'CombinedStauTrackBuilderFit')
 addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilder",'CombinedStauTrackBuilder')
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauCandidateTrackBuilderTool","MuonStauCandidateTrackBuilderTool")
@@ -117,5 +118,6 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidMaterialEffectsOnTrackP
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidMaterialEffectsOnTrackProviderParam","MuidMaterialEffectsOnTrackProviderParam")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonTrackQuery","MuonTrackQuery")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidSegmentRegionRecoveryTool","MuidSegmentRegionRecoveryTool")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidErrorOptimisationTool","MuidErrorOptimisationTool")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder","CombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilderFit","CombinedMuonTrackBuilderFit")

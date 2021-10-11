@@ -7,7 +7,7 @@
 // #include "TrkValHistUtils/TrkValHistUtilities.h"
 
 namespace Trk {
-  MSHitDiffPlots::MSHitDiffPlots(PlotBase *pParent, std::string sDir) :
+  MSHitDiffPlots::MSHitDiffPlots(PlotBase *pParent, const std::string& sDir) :
     PlotBase(pParent, sDir),
     nprecLayers(this, "nprecLayers", "Precision Layers", -5, 5),
     nphiLayers(this, "nphiLayers", "Phi Layers", -5, 5),

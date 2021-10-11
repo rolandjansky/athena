@@ -4,14 +4,14 @@
 
 
 #include "TrkAlgebraUtils/IntVec.h"
-#include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include <exception>
+#include <iostream>
 
 namespace Trk {
 
 IntVec::IntVec()
-  : m_Nele(0), m_ptr_data(0)
+  : m_Nele(0), m_ptr_data(nullptr)
 {}
 
 IntVec::IntVec(int N) {

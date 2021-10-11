@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SiLorentzAngleTool )
@@ -7,7 +7,7 @@ atlas_subdir( SiLorentzAngleTool )
 atlas_add_component( SiLorentzAngleTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GeoPrimitives GaudiKernel SiPropertiesToolLib AthenaPoolUtilities Identifier InDetCondTools InDetIdentifier InDetReadoutGeometry PixelConditionsData PixelReadoutGeometry MagFieldElements MagFieldConditions InDetConditionsSummaryService SCT_ConditionsData )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GeoPrimitives GaudiKernel SiPropertiesToolLib AthenaPoolUtilities Identifier InDetCondTools InDetIdentifier InDetReadoutGeometry PixelConditionsData PixelReadoutGeometryLib MagFieldElements MagFieldConditions InDetConditionsSummaryService SCT_ConditionsData )
 
 # Run tests:
 atlas_add_test( TestSCTLorentzAngle

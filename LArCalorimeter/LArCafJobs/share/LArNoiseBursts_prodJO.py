@@ -48,10 +48,9 @@ ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')
 
-# --- BunchCrossing Tool configuration ---
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-theBCTool = BunchCrossingTool()
-ToolSvc += theBCTool
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 # --- SCTClusteringTool configuration ---
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool

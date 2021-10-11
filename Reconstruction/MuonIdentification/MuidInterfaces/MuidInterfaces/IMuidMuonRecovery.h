@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@ namespace Trk {
 namespace Rec {
 
     /** Interface ID for IMuidMuonRecovery*/
-    static const InterfaceID IID_IMuidMuonRecovery("IMuidMuonRecovery", 1, 0);
 
     /**@class IMuidMuonRecovery
 
@@ -33,14 +32,18 @@ namespace Rec {
     class IMuidMuonRecovery : virtual public IAlgTool {
     public:
         /**Virtual destructor*/
-        virtual ~IMuidMuonRecovery() {}
+        virtual ~IMuidMuonRecovery() = default;
 
         /** AlgTool and IAlgTool interface methods */
-        static const InterfaceID& interfaceID() { return IID_IMuidMuonRecovery; }
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuidMuonRecovery("IMuidMuonRecovery", 1, 0);
+            return IID_IMuidMuonRecovery;
+        }
 
         /**IMuidMuonRecovery interface:
            algorithmic code for recovering muon spectrometer using the inner detector track */
-        virtual Trk::Track* recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack) const = 0;
+        virtual std::unique_ptr<Trk::Track> recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                             const EventContext& ctx) const = 0;
     };
 
 }  // namespace Rec

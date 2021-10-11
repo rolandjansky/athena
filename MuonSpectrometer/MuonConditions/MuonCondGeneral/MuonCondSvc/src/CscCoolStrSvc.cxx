@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Service designed to read in calibration files to the cool database. Can also read them
@@ -326,7 +326,7 @@ namespace MuonCalib {
 
       //Store the pointers in maps for easy lookup later
       m_parNameMap[name] = coll;
-      m_parSGKeyMap[sgKey] = coll;
+      m_parSGKeyMap[sgKey].first = coll;
       
       if( name == "rms" ) m_rmsCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( m_pslopeFromDB && name == "pslope" ) m_slopeCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
@@ -340,7 +340,8 @@ namespace MuonCalib {
         if( !m_statusCondData ) ATH_MSG_WARNING("Wrong data type for status bit " << dataType);
       }else  ATH_MSG_WARNING("Data type not cached, a direct access should be provided " << name);
       
-      const DataHandle<CondAttrListCollection> & dataHandle = coll->atrcHandle();
+      
+      const DataHandle<CondAttrListCollection> & dataHandle = m_parSGKeyMap[sgKey].second;
 
       //Registering callback function. The callback funciton will now be called
       //whenever the parameter in question is altered. i.e. whenever it goes
@@ -722,16 +723,12 @@ namespace MuonCalib {
 
     ATH_MSG_DEBUG("Merging provided csc conditions data into the COOL data string for writing to database.");
     //CscCondDataContainer mergedContainer
-    CscCondDataContainer::const_iterator newItr = newCont->begin();
-    CscCondDataContainer::const_iterator endItr = newCont->end();
-    for(; newItr != endItr ; newItr++) {
-      if(!(*newItr))
+    for (const CscCondDataCollectionBase * newColl : *newCont) {
+      if(!newColl)
       {
         ATH_MSG_ERROR("Empty element in container with new data. Can't merge");
         return StatusCode::RECOVERABLE;
       }
-
-      const CscCondDataCollectionBase * newColl = *newItr;
 
       std::string parName = newColl->getParName();
       std::map<std::string, CscCondDataCollectionBase*>::const_iterator refItr =  
@@ -787,11 +784,9 @@ namespace MuonCalib {
   /** callback functions called whenever a database folder goes out of date*/
   StatusCode CscCoolStrSvc::callback( IOVSVC_CALLBACK_ARGS_P(/*I*/,keys))
   { //IOVSVC_CALLBACK_ARGS is (int& idx, std::list<std::string>& keylist)
-    std::list<std::string>::const_iterator keyItr = keys.begin();
-    std::list<std::string>::const_iterator keyEnd = keys.end();
-    for(; keyItr != keyEnd; keyItr++) {
-      if(!cacheParameter(*keyItr).isSuccess()) {
-        ATH_MSG_WARNING("Failed at caching key " << (*keyItr));
+    for (const std::string& key : keys) {
+      if(!cacheParameter(key).isSuccess()) {
+        ATH_MSG_WARNING("Failed at caching key " << key);
       }
     } 
     return StatusCode::SUCCESS;
@@ -804,7 +799,7 @@ namespace MuonCalib {
   {
     if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Caching parameter " << parKey);
     ///*****//
-    std::map<std::string, CscCondDataCollectionBase*>::iterator collItr = m_parSGKeyMap.find(parKey);
+    auto collItr = m_parSGKeyMap.find(parKey);
 
     if(collItr == m_parSGKeyMap.end())
     {
@@ -813,7 +808,7 @@ namespace MuonCalib {
       return StatusCode::RECOVERABLE;
     }
 
-    CscCondDataCollectionBase * coll = dynamic_cast<CscCondDataCollectionBase *>( collItr->second);
+    CscCondDataCollectionBase * coll = dynamic_cast<CscCondDataCollectionBase *>( collItr->second.first);
 
     coll->reset(); //Clear vector and set to size dictated by maxIndex
 
@@ -823,7 +818,7 @@ namespace MuonCalib {
     const unsigned int & numCoolChannels = coll->getNumCoolChan();
 
 
-    const CondAttrListCollection * atrc = &*(coll->atrcHandle());
+    const CondAttrListCollection * atrc = &*(collItr->second.second);
 
     //now cycle through all chambers in database;
     unsigned int numCoolChannelsFound = 0;
@@ -1007,13 +1002,12 @@ namespace MuonCalib {
           // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
           bool isValid = true;
           chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
-          static bool conversionFailPrinted = false;
+          static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
           if (!isValid) {
-            if (!conversionFailPrinted) {
+            if (!conversionFailPrinted.test_and_set()) {
               ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string " << asmIDstr
                                     << ". This is likely due to the fact that the CSCCool database contains more entries than "
                                     << "the detector layout.");
-              conversionFailPrinted = true;
             }
             continue;
           }
@@ -1196,13 +1190,12 @@ namespace MuonCalib {
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
     channelId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
-    static bool conversionFailPrinted = false;
+    static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
     if (!isValid) {
-      if (!conversionFailPrinted) {
+      if (!conversionFailPrinted.test_and_set()) {
         ATH_MSG_WARNING("Failed to retrieve offline identifier from online identifier " << onlineId
                               << ". This is likely due to the fact that the CSCCool database contains more entries than "
                               << "the detector layout.");
-        conversionFailPrinted = true;
       }
       return StatusCode::FAILURE;
     }

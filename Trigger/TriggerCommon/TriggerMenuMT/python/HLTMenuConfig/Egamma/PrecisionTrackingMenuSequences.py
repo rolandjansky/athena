@@ -9,45 +9,52 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
+
+def tag(ion):
+    return 'precision' + ('HI' if ion is True else '') + 'Tracking'
 
 
-def precisionEtcutSequence(ConfigFlags):
+def precisionTrackingSequence(ConfigFlags, ion=False):
     """ fourth step:  precision electron....."""
-    InViewRoIs = "precisionEtcut"
+    InViewRoIs = "precisionTracking"
     # EVCreator:
-    precisionEtcutViewsMaker = EventViewCreatorAlgorithm("IMprecisionEtcut")
-    precisionEtcutViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
-    precisionEtcutViewsMaker.RoITool = ViewCreatorPreviousROITool()
-    precisionEtcutViewsMaker.InViewRoIs = InViewRoIs
-    precisionEtcutViewsMaker.Views = "precisionEtcutViews"
-    precisionEtcutViewsMaker.ViewFallThrough = True
-    precisionEtcutViewsMaker.RequireParentView = True
-
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
+    precisionTrackingViewsMaker = EventViewCreatorAlgorithm("IM" + tag(ion))
+    precisionTrackingViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    precisionTrackingViewsMaker.RoITool = ViewCreatorPreviousROITool()
+    precisionTrackingViewsMaker.InViewRoIs = InViewRoIs
+    precisionTrackingViewsMaker.Views = tag(ion) + "Views"
+    precisionTrackingViewsMaker.ViewFallThrough = True
+    precisionTrackingViewsMaker.RequireParentView = True
     
     # calling precision tracking
-    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackSequences import precisionTracking
-    precisionTrackInViewSequence, trackparticles = precisionTracking(InViewRoIs, precisionCaloMenuDefs.precisionCaloClusters)
-    
-    precisionEtcutInViewAlgs = parOR("precisionEtcutInViewAlgs", [precisionTrackInViewSequence])
-    precisionEtcutViewsMaker.ViewNodeName = "precisionEtcutInViewAlgs"    
+    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackingSequences import precisionTracking
+    precisionTrackInViewSequence, trackparticles = precisionTracking(InViewRoIs, ion)
+
+    precisionTrackingInViewAlgs = parOR(tag(ion) + "InViewAlgs", [precisionTrackInViewSequence])
+    precisionTrackingViewsMaker.ViewNodeName = tag(ion) + "InViewAlgs"
 
     # connect EVC and reco
-    theSequence = seqAND("precisionEtcutSequence", [precisionEtcutViewsMaker, precisionEtcutInViewAlgs] )
-    return (theSequence,precisionEtcutViewsMaker,precisionCaloMenuDefs.precisionCaloClusters,trackparticles)
+    theSequence = seqAND(tag(ion) + "Sequence", [precisionTrackingViewsMaker, precisionTrackingInViewAlgs] )
+    return (theSequence,precisionTrackingViewsMaker,precisionCaloMenuDefs.caloClusters(ion),trackparticles)
 
-def precisionTrackingMenuSequence(name):
+
+def precisionTrackingMenuSequence(name, is_probe_leg=False, ion=False):
     """ Creates precisionCalo MENU sequence """
-    (sequence, precisionEtcutViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionEtcutSequence, ConfigFlags)
+    (sequence, precisionTrackingViewsMaker, caloclusters, trackparticles) = RecoFragmentsPool.retrieve(precisionTrackingSequence, ConfigFlags, ion=ion)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionEtcutHypoAlgMT
-    from TrigEgammaHypo.TrigEgammaPrecisionEtcutHypoTool import TrigEgammaPrecisionEtcutHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlg
 
-    thePrecisionEtcutHypo = TrigEgammaPrecisionEtcutHypoAlgMT(name+"precisionEtcutHypo")
+    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
+
+    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlg(name + tag(ion) + "Hypo")
+    thePrecisionTrackingHypo.CaloClusters = precisionCaloMenuDefs.caloClusters(ion)
 
     return MenuSequence( Sequence    = sequence,
-                         Maker       = precisionEtcutViewsMaker, 
-                         Hypo        = thePrecisionEtcutHypo,
-                         HypoToolGen = TrigEgammaPrecisionEtcutHypoToolFromDict)
+                         Maker       = precisionTrackingViewsMaker, 
+                         Hypo        = thePrecisionTrackingHypo,
+                         HypoToolGen = TrigEgammaPrecisionTrackingHypoToolFromDict,
+                         IsProbe     = is_probe_leg)
+
 

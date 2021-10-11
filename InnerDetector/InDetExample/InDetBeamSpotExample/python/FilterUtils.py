@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -57,6 +57,8 @@ class LBFilter(PyAthena.Alg):
     def __init__(self,lbList,name='LBFilter'):
         super(LBFilter,self).__init__(name=name)
         self.lbList = lbList
+        self._eventsSeen = 0
+        self.OutputLevel = 4
         return
 
     def initialize(self):
@@ -67,13 +69,55 @@ class LBFilter(PyAthena.Alg):
         return StatusCode.Success
     
     def execute(self):
+        self._eventsSeen += 1
+        self.msg.debug('LBFilter exe %d', self._eventsSeen)
+        for item in self.sg.keys():
+          if 'EventInfo' in item:
+            self.msg.debug(item)
         if self.lbList:
-            eventID = self.sg.retrieve('EventInfo','ByteStreamEventInfo').event_ID()
-            lb = eventID.lumi_block()
-            #print (lb, lb in self.lbList)
-            self.setFilterPassed(lb in self.lbList)
+            if 'EventInfo' in self.sg.keys():
+                eventInfo = self.sg.retrieve('EventInfo')
+                lb = eventInfo.event_ID().lumi_block()
+                self.msg.debug( 'LBFilter %d %d', lb, eventInfo.event_ID().event_number() )  
+                self.setFilterPassed(lb in self.lbList)
+            else:
+                self.msg.info( 'LBFilter : no LB info' )       
+                self.setFilterPassed(True)
         else:
             self.setFilterPassed(True)
+        return StatusCode.Success
+
+    def finalize(self):
+        return StatusCode.Success
+
+
+
+# Event filtering based on LB number
+#
+class LBPrinter(PyAthena.Alg):
+    def __init__(self,name='LBPrinter'):
+        super(LBPrinter,self).__init__(name=name)
+        return
+
+    def initialize(self):
+        print ('LBPrinter: Init')
+        self.sg = PyAthena.py_svc('StoreGateSvc')
+        self._eventsSeen = 0 
+        self.OutputLevel = 1
+        return StatusCode.Success
+    
+    def execute(self):
+        self._eventsSeen += 1
+        self.msg.info( 'LBPrinter exe %d', self._eventsSeen )
+        for item in self.sg.keys():
+          if 'EventInfo' in item:
+            self.msg.info( item )
+        if 'EventInfo' in self.sg.keys():
+            eventInfo = self.sg.retrieve('EventInfo')
+            lb = eventInfo.event_ID().lumi_block()
+            self.msg.info( 'LBPrinter %d %d' , lb, eventInfo.event_ID().event_number() )  
+        else:
+            self.msg.info( 'LBPrinter : no LB info' )       
         return StatusCode.Success
 
     def finalize(self):

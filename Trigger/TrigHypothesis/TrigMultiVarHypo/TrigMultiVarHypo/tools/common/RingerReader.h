@@ -29,7 +29,7 @@ namespace Ringer{
   
     public:
       /* constructor */
-      RingerReader( std::string );
+      RingerReader( const std::string& );
 
       /* use this methods to retrieve the tools from the archieve */
       bool retrieve(std::string &, std::vector<std::shared_ptr<Ringer::IModel>>      &);
@@ -61,37 +61,37 @@ namespace Ringer{
       int m_version;
       
       // archieve variables holder
-      int  m_lumiCut;
+      int  m_lumiCut = 0;
       bool m_useCaloRings;
       bool m_useTrack;
       bool m_useShowerShape;
       bool m_useTileCal;
-      bool m_removeOutputTansigTF;
-      bool m_doPileupCorrection;
+      bool m_removeOutputTansigTF = false;
+      bool m_doPileupCorrection = false;
   
       // Dense Model
-      std::vector<unsigned int>   *m_nodes;
+      std::vector<unsigned int>   *m_nodes = nullptr;
       std::vector<double>         *m_weights;
       std::vector<double>         *m_bias;
       std::vector<double>         *m_thresholds;
-      std::vector<std::string>    *m_tfnames;
+      std::vector<std::string>    *m_tfnames = nullptr;
   
       // Convolutional Model
-      std::vector<bool>           *m_useConvLayer;
+      std::vector<bool>           *m_useConvLayer = nullptr;
       std::vector<unsigned int>   *m_conv_nodes;
       std::vector<unsigned int>   *m_conv_kernel_i;
       std::vector<unsigned int>   *m_conv_kernel_j;
       std::vector<double>         *m_conv_kernel;
-      std::vector<double>         *m_conv_bias;
-      std::vector<unsigned int>   *m_conv_input_i;
-      std::vector<unsigned int>   *m_conv_input_j;
-      std::vector<std::string>    *m_conv_tfnames;
-      std::vector<unsigned int>   *m_conv_frame;
+      std::vector<double>         *m_conv_bias = nullptr;
+      std::vector<unsigned int>   *m_conv_input_i = nullptr;
+      std::vector<unsigned int>   *m_conv_input_j = nullptr;
+      std::vector<std::string>    *m_conv_tfnames = nullptr;
+      std::vector<unsigned int>   *m_conv_frame = nullptr;
   
       // Common parans
       std::vector<double>         *m_etaBins;
       std::vector<double>         *m_etBins;
-      std::vector<double>         *m_muBins;
+      std::vector<double>         *m_muBins = nullptr;
    
 
 

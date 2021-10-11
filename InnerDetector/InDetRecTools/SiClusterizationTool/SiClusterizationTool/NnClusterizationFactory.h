@@ -32,9 +32,9 @@
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SiClusterizationTool/TTrainedNetworkCollection.h"
 #include "SiClusterizationTool/LWTNNCollection.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include <RtypesCore.h> //Double_t
@@ -239,8 +239,8 @@ namespace InDet {
     ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool
        {this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
 
-    ServiceHandle<IPixelCablingSvc>  m_pixelCabling
-       {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+    ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+       {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
     SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
        {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Output key"};

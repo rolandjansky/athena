@@ -57,19 +57,13 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
 
   int getRing( const Identifier &id );
 
-  int chipToBoardEndCap(int chip);
+  static int chipToBoardEndCap(int chip);
 
   int strawNumber( Identifier id);
   int strawLayerNumber( Identifier id);
 
   int getRunningNumbering(Identifier offlineID);
   void getAtlasIdentifier(int strawnumber, Identifier &outputID, Identifier inputID);
-
-  /// converters between offline ID and hardware layout. Usage: call with input value = -1 for the variables beeing determined. 
-  /// E.g.: convert_numbering_ec(-1,-1,-1,-1,-1,7,3,-2,11,5,id). More info: http://www.nbi.dk/~klinkby/TRTConditionsTools.html 
-  void convert_numbering_bar(int& strawnumber, int& straw, int& layer, bool first);
-  void convert_numbering_ec(int electronics_row,int electronics_layer,int  electronics_chip,int  electronics_wheel,int  electronics_phi, int& straw, int& strawlayer, int& bec,  int& sector, int& wheel, Identifier inputID); 
-
   // chip to board conversion. Works for barrel only!
   int chipToBoardBarrel(int chip, int layer) ;
 
@@ -78,8 +72,8 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
   ServiceHandle<StoreGateSvc> m_detStore;
   const TRT_ID* m_trtid;
 
-  int m_numberOfStraws[75];
-  int m_TripletOrientation[2][32];
+  int m_numberOfStraws[75]{};
+  int m_TripletOrientation[2][32]{};
 
   std::vector<unsigned int> m_layer_m1;
   std::vector<unsigned int> m_layer_m1_acc;
@@ -100,17 +94,17 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
   std::vector<double> m_chip_vector2;
   std::vector<double> m_chip_vector3;
 
-  int m_chipConversionSocketToChip_m1[22];
-  int m_chipConversionChipToSocket_m1[22];
-  int m_chipConversionSocketToChip_m2[34];
-  int m_chipConversionChipToSocket_m2[34];
-  int m_chipConversionSocketToChip_m3[51];
-  int m_chipConversionChipToSocket_m3[51];
+  int m_chipConversionSocketToChip_m1[22]{};
+  int m_chipConversionChipToSocket_m1[22]{};
+  int m_chipConversionSocketToChip_m2[34]{};
+  int m_chipConversionChipToSocket_m2[34]{};
+  int m_chipConversionSocketToChip_m3[51]{};
+  int m_chipConversionChipToSocket_m3[51]{};
 
-  int m_endcapChipMapA0[12]; // endcap chip number maps
-  int m_endcapChipMapA8[12];
-  int m_endcapChipMapC0[12];
-  int m_endcapChipMapC8[12];
+  int m_endcapChipMapA0[12]{}; // endcap chip number maps
+  int m_endcapChipMapA8[12]{};
+  int m_endcapChipMapC0[12]{};
+  int m_endcapChipMapC8[12]{};
 };
 
 

@@ -27,11 +27,11 @@
 #include "MuonAlignmentData/BLinePar.h"
 
 #include <limits>
+#include <utility>
 
 // From Dan Levin: MDT 
 // linear density of wire: lambda=wireLinearDensity=19.3 [gm/cm^3] * PI*
 //(25 *10^-4 )^2 [CLHEP::cm^2] = 378.954 microgram/CLHEP::cm
-#define linearDensity 378.954
 // From Dan Levin: MDT
 // wireTen=350 for most chambers,  285 gm for some NIKHEF chambers (BOL ?),
 
@@ -51,19 +51,20 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  static constexpr unsigned int const maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
+  static constexpr double linearDensity = 378.954;
 }
 
 namespace MuonGM {
 
-MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr),
     m_nlayers(-1), m_tubepitch(-9999.), m_tubelayerpitch(-9999.), m_ntubesperlayer(-1),
     m_nsteps(-1), m_ntubesinastep(-1), m_tubelenStepSize(-9999.), m_cutoutShift(-9999.),
     m_endpluglength(-9999.), m_deadlength(-9999.), m_innerRadius(-9999.), m_tubeWallThickness(-9999.),
-    m_BLinePar(0)
+    m_BLinePar(nullptr)
 {
   m_multilayer = 0;
 
@@ -192,9 +193,9 @@ double MdtReadoutElement::getTubeLengthForCaching(const int tubeLayer, const int
 	}
       PVConstLink physChild = cv->getChildVol(ii);
       const GeoShape* shape = physChild->getLogVol()->getShape();
-      if (shape==0)  return tlength;
+      if (shape==nullptr)  return tlength;
       const GeoTube* theTube = dynamic_cast<const GeoTube*> (shape);
-      if(theTube!=0) tlength = 2.*theTube->getZHalfLength();
+      if(theTube!=nullptr) tlength = 2.*theTube->getZHalfLength();
       else log << MSG::WARNING << "PhysChild with index "<<ii<<" out of (tubelayer-1)*m_ntubesperlayer+tube with tl="
 		   <<tubeLayer<<" tubes/lay="<<m_ntubesperlayer<<" t="<<tube<<" for  MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		   << " stPhi " << getStationPhi() << " ml = "<<getMultilayer()<<endmsg;
@@ -224,7 +225,7 @@ double MdtReadoutElement::tubeLength(Identifier id) const
   return getTubeLength(layer, tube);
 }
 
-double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
+double MdtReadoutElement::distanceFromRO(const Amg::Vector3D &x, Identifier id) const
 {
   // x is given in the global reference frame
   const MdtIdHelper* idh = manager()->mdtIdHelper();
@@ -256,7 +257,7 @@ double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
 
 
 double 
-MdtReadoutElement::distanceFromRO(Amg::Vector3D x, int multilayer, int tubelayer, int tube) const
+MdtReadoutElement::distanceFromRO(const Amg::Vector3D &x, int multilayer, int tubelayer, int tube) const
 {
   // x is given in the global reference frame
   const MdtIdHelper* idh = manager()->mdtIdHelper();
@@ -265,7 +266,7 @@ MdtReadoutElement::distanceFromRO(Amg::Vector3D x, int multilayer, int tubelayer
 }
 
 
-int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, Identifier id) const
+int MdtReadoutElement::isAtReadoutSide(const Amg::Vector3D &GlobalHitPosition, Identifier id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
     int tubel = idh->tubeLayer(id);
@@ -288,7 +289,7 @@ int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, Identifi
         return -1;
     }
 }
-int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, int ml, int tubel, int tube) const
+int MdtReadoutElement::isAtReadoutSide(const Amg::Vector3D &GlobalHitPosition, int ml, int tubel, int tube) const
 {
     double distance = distanceFromRO(GlobalHitPosition, ml, tubel, tube);
     if (distance < 0) {
@@ -661,7 +662,7 @@ const Amg::Transform3D  MdtReadoutElement::nodeform_tubeToMultilayerTransf(Ident
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const
+MdtReadoutElement::multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const
 {
   const Amg::Vector3D tp = nodeform_localTubePos(id);
   const Amg::Translation3D xfp(-tp.x(), -tp.y(), -tp.z());
@@ -670,7 +671,7 @@ MdtReadoutElement::multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::nodeform_multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const
+MdtReadoutElement::nodeform_multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const
 {
   const Amg::Vector3D tp = nodeform_localTubePos(id);
   const Amg::Translation3D xfp(-tp.x(), -tp.y(), -tp.z());
@@ -692,7 +693,7 @@ const Amg::Transform3D  MdtReadoutElement::nodeform_multilayerToTubeTransf(Ident
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
+MdtReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const
 {
   return transform(id)*x;
 }
@@ -756,13 +757,13 @@ MdtReadoutElement::nodeform_globalToLocalTransf(Identifier id) const
   return mytransf;
 }
 
-const Amg::Vector3D MdtReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D MdtReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
     const Amg::Transform3D mytransf = globalToLocalTransf(id);
     Amg::Vector3D xx = mytransf * x;
     return xx;
 }
-const Amg::Vector3D MdtReadoutElement::nodeform_globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D MdtReadoutElement::nodeform_globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
     const Amg::Transform3D mytransf = nodeform_globalToLocalTransf(id);
     Amg::Vector3D xx = mytransf * x;
@@ -1006,7 +1007,7 @@ MdtReadoutElement::deformedTransform (int multilayer, int tubelayer, int tube) c
 
 
 Amg::Vector3D
-MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const
+MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D& fixedPoint) const
 {
 
   double height = m_inBarrel ? m_Zsize : m_Rsize;
@@ -1050,7 +1051,7 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
     double width_narrow, double width_wide, double height, double thickness,
     double /*bz*/, double /*bp*/, double /*bn*/, double sp, double sn, double tw,
     double /*pg*/, double /*tr*/, double eg, double ep, double en, 
-    const Amg::Vector3D fixedPoint) const
+    const Amg::Vector3D& fixedPoint) const
 {
   // S.Spagnolo Feb.6, 2011, modified by P.F Giraud, 2015-01-17
   // This version does not implement deformations modifying only the second
@@ -1595,16 +1596,16 @@ MdtReadoutElement::surface() const
 
       if (MuonReadoutElement::barrel()){
         m_associatedSurface.set
-          (std::make_unique<Trk::PlaneSurface>(new Amg::Transform3D(trans3D),
-                                               MuonReadoutElement::getSsize()/2.,
-                                               MuonReadoutElement::getZsize()/2.));
+          (std::make_unique<Trk::PlaneSurface>(Amg::Transform3D(trans3D),
+                                               MuonReadoutElement::getSsize()*0.5,
+                                               MuonReadoutElement::getZsize()*0.5));
       }
       else {
         m_associatedSurface.set
-          (std::make_unique<Trk::PlaneSurface>(new Amg::Transform3D(trans3D),
-                                               MuonReadoutElement::getSsize()/2.,
-                                               MuonReadoutElement::getLongSsize()/2.,
-                                               MuonReadoutElement::getRsize()/2.));
+          (std::make_unique<Trk::PlaneSurface>(Amg::Transform3D(trans3D),
+                                               MuonReadoutElement::getSsize()*0.5,
+                                               MuonReadoutElement::getLongSsize()*0.5,
+                                               MuonReadoutElement::getRsize()*0.5));
       }
     }
     return *m_associatedSurface;

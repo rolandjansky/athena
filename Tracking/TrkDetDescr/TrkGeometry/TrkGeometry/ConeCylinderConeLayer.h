@@ -26,19 +26,24 @@ namespace Trk {
 class ConeCylinderConeLayer final: public CompoundLayer, public CylinderLayer {
  public:
   /** Default constructor */
-  ConeCylinderConeLayer() {}
+   ConeCylinderConeLayer() = default;
 
-  /** Build the layer out of the given parameters */
-  ConeCylinderConeLayer(Amg::Transform3D* transform, double radius,
-                        double halfLength, double zStitch, double alpha,
-                        SurfaceArray* surfaceArray,
-                        const LayerMaterialProperties& laymatprop,
-                        double thickness = 0., OverlapDescriptor* od = nullptr,
-                        int laytyp = int(Trk::active));
+   /** Build the layer out of the given parameters */
+   ConeCylinderConeLayer(const Amg::Transform3D& transform,
+                         double radius,
+                         double halfLength,
+                         double zStitch,
+                         double alpha,
+                         SurfaceArray* surfaceArray,
+                         const LayerMaterialProperties& laymatprop,
+                         double thickness = 0.,
+                         OverlapDescriptor* od = nullptr,
+                         int laytyp = int(Trk::active));
 
-  virtual const ConeCylinderConeLayer& layerRepresentation()
-      const override final {
-    return (*this);
+   virtual const ConeCylinderConeLayer& layerRepresentation()
+     const override final
+   {
+     return (*this);
   }
 
   virtual const CylinderSurface& surfaceRepresentation() const override final {
@@ -81,11 +86,11 @@ class ConeCylinderConeLayer final: public CompoundLayer, public CylinderLayer {
   }
 
  private:
-  Amg::Transform3D* m_transform;
-  double m_radius;
-  double m_halfLength;
-  double m_zStitch;
-  double m_alpha;
+   std::unique_ptr<Amg::Transform3D> m_transform = nullptr;
+   double m_radius = 0;
+   double m_halfLength = 0;
+   double m_zStitch = 0;
+   double m_alpha = 0;
 };
 }  // namespace Trk
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 
 #include <vector>
-
+#include <map>
 
 
 TauPi0ClusterScaler::TauPi0ClusterScaler(const std::string& name) :
@@ -36,10 +36,6 @@ StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& tau,
                   << ", eta: " << tau.eta()
                   << ", pt: " << tau.pt());
 
-  // Correct neutral PFO kinematics to point at tau vertex, this is needed since the 
-  // charged shower subtraction is performed several times for each neutral PFO
-  correctNeutralPFOs(tau, neutralPFOContainer);
-  
   // Create new proto charged PFOs
   createChargedPFOs(tau, chargedPFOContainer);
   
@@ -50,7 +46,7 @@ StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& tau,
   associateChargedToNeutralPFOs(tau, neutralPFOContainer);
   
   // Estimate charged PFO EM energy and subtract from neutral PFOs
-  subtractChargedEnergyFromNeutralPFOs(neutralPFOContainer);
+  subtractChargedEnergyFromNeutralPFOs(tau, neutralPFOContainer);
 
   for (xAOD::PFO* pfo : neutralPFOContainer) {
     ATH_MSG_DEBUG("Final Neutral PFO, address " << pfo
@@ -69,35 +65,6 @@ void TauPi0ClusterScaler::clearAssociatedParticleLinks(xAOD::PFOContainer& pfoCo
   
   for (xAOD::PFO* pfo : pfoContainer) {
     pfo->setAssociatedParticleLinks(type, emptyLinks);
-  }
-}
-
-
-
-void TauPi0ClusterScaler::correctNeutralPFOs(xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer) const {
-  // FIXME: Loop over existing neutral PFOs, this may include those not associated to the tau candidate
-  // What if two taus have different vertex ??? Seems rare.
-  for (xAOD::PFO* pfo : neutralPFOContainer ) {
-    const xAOD::CaloCluster* cluster = pfo->cluster(0);
-
-    // apply cluster vertex correction 
-    if(tau.vertexLink().isValid()) {
-      auto clusterAtTauVertx = xAOD::CaloVertexedTopoCluster(*cluster, tau.vertex()->position());
-      pfo->setP4(clusterAtTauVertx.pt(), clusterAtTauVertx.eta(), clusterAtTauVertx.phi(), 0.0);
-    }
-    else{
-      pfo->setP4(cluster->pt(), cluster->eta(), cluster->phi(), 0.0);
-    }
-    
-    ATH_MSG_DEBUG("Original Neutral PFO" 
-                  << ", e: " << cluster->pt() 
-                  << ", eta: " << cluster->eta() 
-                  << ", pt: " << cluster->pt());
-
-    ATH_MSG_DEBUG("Corrected Neutral PFO" 
-                  << ", e: " << pfo->pt()
-                  << ", eta: " << pfo->eta()
-                  << ", pt: " << pfo->pt());
   }
 }
 
@@ -163,10 +130,10 @@ float TauPi0ClusterScaler::getExtrapolatedPosition(const xAOD::PFO& chargedPFO, 
 
 
 
-void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& tau, xAOD::PFOContainer& chargedPFOContainer) const {
+void TauPi0ClusterScaler::associateHadronicToChargedPFOs(const xAOD::TauJet& tau, xAOD::PFOContainer& chargedPFOContainer) const {
   std::map< xAOD::PFO*,std::vector< ElementLink< xAOD::IParticleContainer > > > linkMap;
  
-  // For each hadronic PFO, associate it to the cloest charged PFO. It assumes that one hadronic PFO comes from at 
+  // For each hadronic PFO, associate it to the closest charged PFO. It assumes that one hadronic PFO comes from at 
   // most one charged PFO.
   for (const auto& hadPFOLink : tau.hadronicPFOLinks()) {
     if (not hadPFOLink.isValid()) {
@@ -179,10 +146,8 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& tau, xAOD
     xAOD::PFO* chargedPFOMatch = nullptr;
     float dRmin = 0.4;
     
-    // FIXME: This loops over the existing charged PFO container, and could contain PFO not associated to this tau.
-    // It could make the association depending on the order of the tau candidate, but the point is that 
-    // hadronic PFO in one tau candidate is unlikely to be associated to charged PFO in another tau candidate
-    for (xAOD::PFO* chargedPFO : chargedPFOContainer) {
+    for(size_t i=0; i<tau.nProtoChargedPFOs(); i++) {
+      xAOD::PFO* chargedPFO = chargedPFOContainer.at( tau.protoChargedPFO(i)->index() );
       
       float etaCalo = getExtrapolatedPosition(*chargedPFO, xAOD::TauJetParameters::CaloSamplingEtaHad);
       float phiCalo = getExtrapolatedPosition(*chargedPFO, xAOD::TauJetParameters::CaloSamplingPhiHad);
@@ -200,9 +165,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& tau, xAOD
     }
 
     // create link to had PFO (add to chargedPFO later)
-    ElementLink< xAOD::IParticleContainer > newHadLink;
-    newHadLink.toPersistent();
-    newHadLink.resetWithKeyAndIndex( hadPFOLink.persKey(), hadPFOLink.persIndex() );
+    ElementLink< xAOD::IParticleContainer > newHadLink( hadPFOLink.dataID(), hadPFOLink.index() );
     if (not newHadLink.isValid()){
         ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
         continue;
@@ -224,7 +187,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& tau, xAOD
 
 
 
-void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer) const {
+void TauPi0ClusterScaler::associateChargedToNeutralPFOs(const xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer) const {
   std::map< xAOD::PFO*,std::vector< ElementLink< xAOD::IParticleContainer > > > linkMap;
   for (const auto& chargedPFOLink : tau.protoChargedPFOLinks()) {
     if (not chargedPFOLink.isValid()) {
@@ -239,11 +202,10 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& tau, xAOD:
     // Assign extrapolated chargedPFO to closest neutralPFO within dR<0.04
     xAOD::PFO* neutralPFOMatch = nullptr;
     
-    // FIXME: This loops over the existing neutral PFO container, and could contain PFO not associated to this tau.
-    // It could make the association depending on the order of the tau candidate. but the point is that 
-    // charged PFO in one tau candidate is unlikely to be associated to the neutral PFO in another tau candidate
     float dRmin = 0.04; 
-    for (xAOD::PFO* neutralPFO : neutralPFOContainer) {
+    for(size_t i=0; i<tau.nProtoNeutralPFOs(); i++) {
+      xAOD::PFO* neutralPFO = neutralPFOContainer.at( tau.protoNeutralPFO(i)->index() );
+
       // FIXME: cluster p4 is not corrected to the tau axis 
       float dR = xAOD::P4Helpers::deltaR((*neutralPFO->cluster(0)), etaCalo, phiCalo, false);
       if (dR < dRmin){
@@ -258,9 +220,7 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& tau, xAOD:
     }
 
     // create link to charged PFO 
-    ElementLink<xAOD::IParticleContainer> newChargedLink;
-    newChargedLink.toPersistent();
-    newChargedLink.resetWithKeyAndIndex(chargedPFOLink.persKey(), chargedPFOLink.persIndex());
+    ElementLink<xAOD::IParticleContainer> newChargedLink( chargedPFOLink.dataID(), chargedPFOLink.index() );
     if (not newChargedLink.isValid()){
       ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
       continue;
@@ -283,11 +243,11 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& tau, xAOD:
 
 
 
-void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& neutralPFOContainer) const {
-  // FIXME: It loops all the exsiting PFOs, will make the PFO kinematic depend on the current 
-  // tau candidate. The kinematics written to the xAOD is the one for the last tau candidate.
+void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(const xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer) const {
+
+  for(size_t i=0; i<tau.nProtoNeutralPFOs(); i++) {
+    xAOD::PFO* neutralPFO = neutralPFOContainer.at( tau.protoNeutralPFO(i)->index() );
   
-  for (xAOD::PFO* neutralPFO : neutralPFOContainer) {
     // Get associated charged PFOs
     std::vector<const xAOD::IParticle*> chargedPFOs;
     neutralPFO->associatedParticles(xAOD::PFODetails::Track, chargedPFOs);

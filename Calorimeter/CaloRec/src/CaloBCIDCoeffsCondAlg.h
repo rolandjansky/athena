@@ -19,7 +19,7 @@
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArMinBiasAverage.h"
 #include "LArRawConditions/LArMCSym.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -76,8 +76,11 @@ private:
   SG::WriteCondHandleKey<CaloBCIDCoeffs> m_outputCoeffsKey
   { this, "OutputCoeffsKey", "CaloBCIDCoeffs", "SG key of output coefficients" };
 
+  /// Property: m_isSC
+  Gaudi::Property<bool> m_isSC { this, "IsSuperCell",false,"Is SuperCell" };
+
   /// LAr online ID helper.
-  const LArOnlineID* m_laronline_id = nullptr;
+  const LArOnlineID_Base* m_laronline_id = nullptr;
 };
 
 

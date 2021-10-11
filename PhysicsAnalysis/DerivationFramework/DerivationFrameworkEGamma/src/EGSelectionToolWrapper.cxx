@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ EGSelectionToolWrapper::addBranches() const
       }
     }
     // compute the output of the selector
-    asg::AcceptData theAccept(m_tool->accept(ctx,pCopy));
+    asg::AcceptData theAccept(m_tool->accept(ctx, pCopy));
     unsigned int isEM = (unsigned int)theAccept.getCutResultInvertedBitSet()
                           .to_ulong(); // this should work for both the
                                        // cut-based and the LH selectors

@@ -16,7 +16,6 @@
  ***********************************************/
 
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 

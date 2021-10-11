@@ -36,12 +36,12 @@ def jetTLAAthSequence(flags, jetsin):
 
 def jetTLAMenuSequence(flags, jetsin):
 
-    from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetTLAHypoAlgMT
+    from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetTLAHypoAlg
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetTLAHypoToolFromDict
     
     (JetTLAAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetTLAAthSequence,flags,jetsin=jetsin)
     
-    hypo = TrigJetTLAHypoAlgMT("TrigJetTLAHypoAlgMT_"+jetsin)
+    hypo = TrigJetTLAHypoAlg("TrigJetTLAHypoAlg_"+jetsin)
     hypo.Jets = sequenceOut 
 
     return  MenuSequence( Sequence    = JetTLAAthSequence,

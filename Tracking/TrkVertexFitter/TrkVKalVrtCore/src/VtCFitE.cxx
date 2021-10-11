@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -24,7 +24,6 @@ namespace Trk {
 
 int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 {
-    extern void scaleg(double *, double *, long int  ,long int ) noexcept;
 
     int i,j,ic1,ic2;
 
@@ -46,13 +45,13 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
     } else if ( !vk->ConstraintList.empty()  && useWeightScheme ) {
 /*  Full matrix inversion i */
 //
-        FullMTXfill( vk, ader);
+	FullMTXfill( vk, ader);
 	if ( vk->passNearVertex ) {
-          double drdpy[2][3];
-          double dpipj[3][3];
+	  double drdpy[2][3];
+	  double dpipj[3][3];
 	  for (it = 1; it <= NTRK; ++it) {
 	    drdpy[0][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[1];
-            drdpy[1][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[1] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[2];
+	    drdpy[1][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[1] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[2];
 	    drdpy[0][1] = vk->tmpArr[it-1]->drdp[0][1] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][1] * vk->FVC.ywgt[1];
 	    drdpy[1][1] = vk->tmpArr[it-1]->drdp[0][1] * vk->FVC.ywgt[1] + vk->tmpArr[it-1]->drdp[1][1] * vk->FVC.ywgt[2];
 	    drdpy[0][2] = vk->tmpArr[it-1]->drdp[0][2] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][2] * vk->FVC.ywgt[1];
@@ -74,21 +73,21 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 	    }
 	  }
 	}
-        Vect3DF th0t,tf0t;
-        for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
-          for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
-            th0t = vk->ConstraintList[ic1]->h0t[ic2];
-            ader_ref(1, 1) += cnt * th0t.X * th0t.X;
-            ader_ref(2, 1) += cnt * th0t.Y * th0t.X;
-            ader_ref(3, 1) += cnt * th0t.Z * th0t.X;
-            ader_ref(1, 2) += cnt * th0t.X * th0t.Y;
-            ader_ref(2, 2) += cnt * th0t.Y * th0t.Y;
-            ader_ref(3, 2) += cnt * th0t.Z * th0t.Y;
-            ader_ref(1, 3) += cnt * th0t.X * th0t.Z;
-            ader_ref(2, 3) += cnt * th0t.Y * th0t.Z;
-            ader_ref(3, 3) += cnt * th0t.Z * th0t.Z;
+	Vect3DF th0t,tf0t;
+	for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
+	  for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
+	    th0t = vk->ConstraintList[ic1]->h0t[ic2];
+	    ader_ref(1, 1) += cnt * th0t.X * th0t.X;
+	    ader_ref(2, 1) += cnt * th0t.Y * th0t.X;
+	    ader_ref(3, 1) += cnt * th0t.Z * th0t.X;
+	    ader_ref(1, 2) += cnt * th0t.X * th0t.Y;
+	    ader_ref(2, 2) += cnt * th0t.Y * th0t.Y;
+	    ader_ref(3, 2) += cnt * th0t.Z * th0t.Y;
+	    ader_ref(1, 3) += cnt * th0t.X * th0t.Z;
+	    ader_ref(2, 3) += cnt * th0t.Y * th0t.Z;
+	    ader_ref(3, 3) += cnt * th0t.Z * th0t.Z;
 	    for (it = 1; it <= NTRK; ++it) {
-                tf0t = vk->ConstraintList[ic1]->f0t[it-1][ic2];
+	        tf0t = vk->ConstraintList[ic1]->f0t[it-1][ic2];
 		ader_ref(1, it * 3 + 1) += cnt * th0t.X * tf0t.X;
 		ader_ref(2, it * 3 + 1) += cnt * th0t.Y * tf0t.X;
 		ader_ref(3, it * 3 + 1) += cnt * th0t.Z * tf0t.X;
@@ -103,12 +102,12 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 	}
 
 
-        for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
-          for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
+	for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
+	  for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
 	    for (it = 1; it <= NTRK; ++it) {
 	      for (jt = it; jt <= NTRK; ++jt) {
-                Vect3DF tf0ti = vk->ConstraintList[ic1]->f0t[it-1][ic2];
-                Vect3DF tf0tj = vk->ConstraintList[ic1]->f0t[jt-1][ic2];
+	        Vect3DF tf0ti = vk->ConstraintList[ic1]->f0t[it-1][ic2];
+	        Vect3DF tf0tj = vk->ConstraintList[ic1]->f0t[jt-1][ic2];
 	        ader_ref(it*3 + 1, jt*3 + 1) += cnt * tf0ti.X * tf0tj.X;
 	        ader_ref(it*3 + 2, jt*3 + 1) += cnt * tf0ti.Y * tf0tj.X;
 	        ader_ref(it*3 + 3, jt*3 + 1) += cnt * tf0ti.Z * tf0tj.X;
@@ -135,7 +134,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 //          for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){
 //            th0t = vk->ConstraintList[ic1]->h0t[ic2];
 //std::cout<<"h0t="<<th0t.X<<", "<<th0t.Y<<", "<<th0t.Z<<'\n';
-//	    for (it = 1; it <= NTRK; ++it) {
+//         for (it = 1; it <= NTRK; ++it) {
 //                tf0t = vk->ConstraintList[ic1]->f0t[it-1][ic2];
 //std::cout<<"f0t="<<tf0t.X<<", "<<tf0t.Y<<", "<<tf0t.Z<<'\n';
 //        } } }
@@ -144,32 +143,43 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 //    for(j=1; j<=NVar; j++)std::cout<<ader_ref(j,i)<<", "; std::cout<<'\n';}
 //}
 //-------------------------------------------------------------------------
-/* weight matrix ready.Invert */
-        double * Scale=new double[NVar]; scaleg(ader, Scale, NVar, vkalNTrkM*3+3);              // Balance matrix
-        double **ta = new double*[NVar+1]; for(i=0; i<NVar+1; i++) ta[i] = new double[NVar+1];  // Make a copy 
- 	for (i=1; i<=NVar; ++i) for (j = i; j<=NVar; ++j) ta[i][j] = ta[j][i] = ader_ref(i,j);  // for failure treatment
-	dsinv(NVar, ader, vkalNTrkM*3+3, &IERR);
-	if ( IERR != 0) {
-          double **tv = new double*[NVar+1]; for(i=0; i<NVar+1; i++) tv[i] = new double[NVar+1];
-          double **tr = new double*[NVar+1]; for(i=0; i<NVar+1; i++) tr[i] = new double[NVar+1];
-          double  *tw = new double[NVar+1];
-          vkSVDCmp( ta, NVar, NVar, tw, tv);
+// Weight matrix ready. Invert.  Beware - DSINV destroys initial matrix!  
+        double **ta = new double*[NVar+1]; std::unique_ptr<double[]> tab(new double[(NVar+1)*(NVar+1)]);
+        if( !ta || !tab ){ delete[] ta; return -1; }
+        for(i=0; i<NVar+1; i++){  ta[i] = &tab[i*(NVar+1)];}
+        for (i=1; i<=NVar; ++i) for (j = i; j<=NVar; ++j) ta[i][j] = ta[j][i] = ader_ref(i,j);  //Make copy for failure treatment
+        dsinv(NVar, ader, vkalNTrkM*3+3, &IERR);
+        if ( IERR != 0) {
+          double **tv   = new double*[NVar+1]; std::unique_ptr<double[]> tvb(new double[(NVar+1)*(NVar+1)]);
+          double **tr   = new double*[NVar+1]; std::unique_ptr<double[]> trb(new double[(NVar+1)*(NVar+1)]);
+          std::unique_ptr<double[]> tw(new double[NVar+1]);
+          if( !tr || !tv || !trb || !tvb || !tw){ delete[] tv; delete[] tr; delete[] ta; return -1; }
+          for(i=0; i<NVar+1; i++){  tv[i] = &tvb[i*(NVar+1)]; tr[i] = &trb[i*(NVar+1)];}
+
+          vkSVDCmp( ta, NVar, NVar, tw.get(), tv);
+
           double tmax=0; 
           for(i=1; i<NVar+1; i++) if(fabs(tw[i])>tmax)tmax=fabs(tw[i]); 
-          //for(i=1; i<NVar+1; i++) std::cout<<tw[i]<<"; "; std::cout<<'\n'; 
-          for(i=1; i<NVar+1; i++) if(fabs(tw[i])/tmax < 1.e-15) tw[i]=0.;
+          for(i=1; i<NVar+1; i++) if(fabs(tw[i])/tmax < 1.e-18) tw[i]=0.;
           for(i=1; i<=NVar; i++){ for(j=1; j<=NVar; j++){
             tr[i][j]=0.; for(int k=1; k<=NVar; k++)  if(tw[k]!=0.) tr[i][j] += ta[i][k]*tv[j][k]/tw[k];
           }} 
-	  for (i=1; i<=NVar; ++i) for (j=1; j<=NVar; ++j) ader_ref(i,j)=tr[i][j];
-          for(i=0; i<NVar+1; i++) {delete[] tv[i];delete[] tr[i];} 
-	  delete[] tv; delete[] tr; delete[] tw;	
-	  IERR=0; //return IERR;
+
+          for (i=1; i<=NVar; ++i) for (j=1; j<=NVar; ++j) ader_ref(i,j)=tr[i][j];
+
+          delete[] tv; delete[] tr; 
+          IERR=0; //return IERR;
         }
- 	for (i=1; i<=NVar; ++i) for (j = 1; j<=NVar; ++j) ader_ref(i,j)*=Scale[i-1]*Scale[j-1];
-        delete[] Scale; //Restore scale
-        for(i=0; i<NVar+1; i++) delete[] ta[i];
+        //------ Check matrix inversion quality
+        double maxDiff=0.;
+        for( i=1; i<=NVar; i++){ for(j=i; j<=NVar; j++){
+           double mcheck=0.; for(int k=1; k<=NVar; k++) mcheck+=ta[i][k]*ader_ref(k,j);
+           if(i!=j) maxDiff = (maxDiff > std::abs(mcheck)) ? maxDiff : std::abs(mcheck);
+           if(i==j) maxDiff = (maxDiff > std::abs(1.-mcheck)) ? maxDiff : std::abs(1.-mcheck);
+        } }
+        //---------------------------------------------------------------------------------------
         delete[] ta;                 //Clean memory
+        if(maxDiff>0.1)return -1;
 /* ---------------------------------------- */
     } else {
 /* ---------------------------------------- */
@@ -179,7 +189,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 		ader_ref(i,j)=0.;
 	    }
 	}
-        double vcov[6]={vk->fitVcov[0],vk->fitVcov[1],vk->fitVcov[2],vk->fitVcov[3],vk->fitVcov[4],vk->fitVcov[5]};
+	double vcov[6]={vk->fitVcov[0],vk->fitVcov[1],vk->fitVcov[2],vk->fitVcov[3],vk->fitVcov[4],vk->fitVcov[5]};
 	ader_ref(1,1) = vcov[0];
 	ader_ref(1,2) = vcov[1];
 	ader_ref(2,2) = vcov[2];

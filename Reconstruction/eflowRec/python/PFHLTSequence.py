@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
 from eflowRec import eflowRecConf
 from InDetTrackSelectionTool import InDetTrackSelectionToolConf
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
@@ -164,10 +163,18 @@ def getPFTrackSel(tracktype, extensionCache="", trackname=None):
 # For HLT purposes, no LC calibration is applied and only
 # one essential moment (CENTER_MAG) is computed. This is
 # needed for origin corrections.
-def getPFAlg(clustersin, tracktype):
+def getPFAlg(flags, clustersin, tracktype):
+    assert (flags is not None), "Impossible to create PFlow HLT algorithm with empty flags"
 
     # The tool to handle cell-level subtraction, default parameters
-    CellEOverPTool = eflowRecConf.eflowCellEOverPTool_mc12_JetETMiss()
+    if flags.Trigger.Jet.doMC20_EOverP:
+        from eflowRec.eflowRecConf import eflowCellEOverPTool_Run2_mc20_JetETMiss
+        CellEOverPTool= eflowCellEOverPTool_Run2_mc20_JetETMiss()
+    else:
+        from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+        CellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
+
+
 
     # Need a few instances of PFTrackClusterMatchingTool with different distance cuts
     def getPFMatchingTool(name, matchcut):
@@ -282,7 +289,7 @@ def PFHLTSequence(flags, clustersin, tracktype, cellsin=None):
         algs.append(tag_alg)
     
     PFTrkSel = getPFTrackSel(tracktype, extension, tracks)
-    PFAlg = getPFAlg(clustersin, tracktype)
+    PFAlg = getPFAlg(flags,clustersin, tracktype)
     PFCCreator, PFNCreator = getPFOCreators(tracktype)
 
     # Create HLT "parallel OR" sequence holding the PF algs

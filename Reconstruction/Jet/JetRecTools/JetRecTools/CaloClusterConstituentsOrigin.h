@@ -22,6 +22,9 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"
 
+#include "AsgDataHandles/ReadHandleKey.h"
+
+
 class CaloClusterConstituentsOrigin: public JetConstituentModifierBase {
   ASG_TOOL_CLASS(CaloClusterConstituentsOrigin, IJetConstituentModifier) 
   

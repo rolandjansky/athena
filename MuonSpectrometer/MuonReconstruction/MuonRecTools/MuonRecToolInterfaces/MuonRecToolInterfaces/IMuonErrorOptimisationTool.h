@@ -7,8 +7,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_IMuonErrorOptimisationTool("Muon::IMuonErrorOptimisationTool", 1, 0);
-
 namespace Trk {
     class Track;
 }
@@ -19,13 +17,14 @@ namespace Muon {
     class IMuonErrorOptimisationTool : virtual public IAlgTool {
     public:
         /** access to tool interface */
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonErrorOptimisationTool("Muon::IMuonErrorOptimisationTool", 1, 0);
+            return IID_IMuonErrorOptimisationTool;
+        }
 
         /** optimise errors on a track to maximize the momentum resolution  */
-        virtual std::unique_ptr<Trk::Track> optimiseErrors(Trk::Track* track) const = 0;
+        virtual std::unique_ptr<Trk::Track> optimiseErrors(Trk::Track& track, const EventContext& ctx) const = 0;
     };
-
-    inline const InterfaceID& IMuonErrorOptimisationTool::interfaceID() { return IID_IMuonErrorOptimisationTool; }
 
 }  // namespace Muon
 

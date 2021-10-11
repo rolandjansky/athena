@@ -68,7 +68,6 @@ namespace {
       std::call_once( storeInitStatus,
                       []( std::unique_ptr< xAOD::TEvent >& event,
                           std::unique_ptr< xAOD::TStore >& store ) {
-                         xAOD::Init().ignore();
                          event = std::make_unique< xAOD::TEvent >();
                          store = std::make_unique< xAOD::TStore >();
                       }, event, store );

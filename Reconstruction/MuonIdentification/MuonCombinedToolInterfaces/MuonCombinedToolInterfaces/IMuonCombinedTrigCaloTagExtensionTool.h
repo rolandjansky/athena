@@ -13,8 +13,6 @@
 
 namespace MuonCombined {
 
-    static const InterfaceID IID_IMuonCombinedTrigCaloTagExtensionTool("MuonCombined::IMuonCombinedTrigCaloTagExtensionTool", 1, 0);
-
     /** @class IMuonCombinedTrigCaloTagExtensionTool
         @brief interface for tools buildingmuons from ID candidates
 
@@ -23,15 +21,18 @@ namespace MuonCombined {
 
     class IMuonCombinedTrigCaloTagExtensionTool : virtual public IAlgTool {
     public:
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonCombinedTrigCaloTagExtensionTool("MuonCombined::IMuonCombinedTrigCaloTagExtensionTool", 1, 0);
+            return IID_IMuonCombinedTrigCaloTagExtensionTool;
+        };
 
         /**IMuonCombinedTrigCaloTagExtensionTool interface: build combined muons from ID and MS candidates */
         virtual void extend(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
                             const CaloCellContainer* caloCellCont = nullptr,
                             const xAOD::CaloClusterContainer* caloClusterCont = nullptr) const = 0;
-    };
 
-    inline const InterfaceID& IMuonCombinedTrigCaloTagExtensionTool::interfaceID() { return IID_IMuonCombinedTrigCaloTagExtensionTool; }
+        virtual ~IMuonCombinedTrigCaloTagExtensionTool() = default;
+    };
 
 }  // namespace MuonCombined
 

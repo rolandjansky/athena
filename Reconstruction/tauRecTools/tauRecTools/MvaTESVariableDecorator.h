@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_MVATESVARIABLEDECORATOR_H
@@ -8,9 +8,9 @@
 #include "tauRecTools/TauRecToolBase.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODEventShape/EventShape.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
-
 
 class MvaTESVariableDecorator : public TauRecToolBase {
  
@@ -39,6 +39,12 @@ private:
       "Key_vertexInputContainer",
       "PrimaryVertices",
       "input vertex container key"};
+
+  SG::ReadHandleKey<xAOD::EventShape> m_eventShapeKey {this,
+      "EventShapeKey",
+      "Kt4LCTopoOriginEventShape",
+      "EventShape key"};
+
 };
 
 #endif // TAURECTOOLS_MVATESVARIABLEDECORATOR_H

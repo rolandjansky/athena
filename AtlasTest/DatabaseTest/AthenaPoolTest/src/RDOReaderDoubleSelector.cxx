@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,6 @@
 
 // DetDescr includes
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 // Id includes
 #include "InDetIdentifier/PixelID.h"
@@ -49,15 +48,13 @@
 #include <map>
 
 // Constructor with parameters:
-RDOReaderDoubleSelector::RDOReaderDoubleSelector(const std::string &name,
-    ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_pixelId(0),
-  m_sctId(0),
-  m_trtId(0),
-  m_caloMgr(0),
-  m_calocellId(0)
-
+RDOReaderDoubleSelector::RDOReaderDoubleSelector(const std::string &name
+						 , ISvcLocator *pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_pixelId(nullptr)
+  , m_sctId(nullptr)
+  , m_trtId(nullptr)
+  , m_calocellId(nullptr)
 {}
 
 // Initialize method:
@@ -70,7 +67,7 @@ StatusCode RDOReaderDoubleSelector::initialize()
   ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
 
   ATH_CHECK( detStore()->retrieve(m_calocellId, "CaloCell_ID") );
-  ATH_CHECK( detStore()->retrieve(m_caloMgr) );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -163,7 +160,7 @@ StatusCode RDOReaderDoubleSelector::checkPixel() const
 
   // print out pixel element links
   // Retrive the element link vector
-  const PixelRDOElemLinkVec* linkVec = 0;
+  const PixelRDOElemLinkVec* linkVec = nullptr;
   ATH_CHECK( evtStore()->retrieve(linkVec, "PixelRDOELs") );
 
   ATH_MSG_DEBUG("PixelRDOElemLinkVec found with "
@@ -375,12 +372,15 @@ StatusCode RDOReaderDoubleSelector::checkCells() const
   ATH_MSG_DEBUG( "Container '" << "CaloCellCont"
                  << "' retrieved from StoreGate"  );
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+
   LArCellContFakeCreator creator;
 
   // Create container
   MsgStream log(msgSvc(), name());
   const CaloCellContainer* caloCont1 = creator.createCaloCellContainer(m_calocellId,
-                                       m_caloMgr,
+                                       *caloMgrHandle,
                                        msg());
 
   CaloCellContainer::const_iterator first = caloCont->begin();

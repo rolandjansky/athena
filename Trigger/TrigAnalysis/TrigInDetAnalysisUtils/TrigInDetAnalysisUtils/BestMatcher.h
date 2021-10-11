@@ -23,6 +23,8 @@
 #include "TrigInDetAnalysis/TIDAAssociator.h"
 
 
+
+
 template<typename T, typename S=T>
 class BestMatcher : public TIDA::Associator<T,S>  {
 
@@ -72,12 +74,13 @@ public:
     std::map<int,int>::iterator  mitr = matched.begin();
     while ( mitr!=matched.end() ) {
       this->mmatched.insert(    typename TIDA::Associator<T,S>::map_type::value_type( ref[mitr->first],   test[mitr->second]) );
-      this->mrevmatched.insert( typename TIDA::Associator<T,S>::map_type::value_type( test[mitr->second], ref[mitr->first] ) );
+      this->mrevmatched.insert( typename TIDA::Associator<S,T>::map_type::value_type( test[mitr->second], ref[mitr->first] ) );
       mitr++;
     }  
 
   }
  
+
   virtual double distance( const T* t0, const S* t1 ) const = 0;
 
 

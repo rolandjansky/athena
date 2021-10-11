@@ -257,9 +257,6 @@ namespace xAODReader {
 	       ATH_MSG_DEBUG(    "numberOfPixelHits = " <<static_cast<unsigned int> (val_uint8));
 	     }
 	     
-	     ATH_MSG_DEBUG( "Electron Covariance Matrix" );
-	     ATH_MSG_DEBUG( ( *el_itr )->covMatrix()   );
-
 	     const xAOD::TrackParticle* origTrack = xAOD::EgammaHelpers::getOriginalTrackParticle(*el_itr);
 	     if(origTrack){
 	       ATH_MSG_DEBUG( "Original TrackParticle");

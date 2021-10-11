@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
@@ -7,7 +7,6 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon import CfgMgr
 from AthenaCommon import Logging
 dfjetlog = Logging.logging.getLogger('JetCommon')
@@ -24,34 +23,6 @@ addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
 DFJetAlgs = {}
 
 ##################################################################
-# Schedule the augmentation of a flag to label events with large
-# EMEC-IW Noise based on the presence of many bad quality clusters
-##################################################################
-
-if hasattr(DerivationFrameworkJob,"BadBatmanAugmentation"):
-    dfjetlog.warning( "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence "+DerivationFrameworkJob.name )
-else:
-    # Check if we have clusters.  If we don't then this cannot run
-    from RecExConfig.ObjKeyStore import objKeyStore
-    if objKeyStore.isInInput( "xAOD::CaloClusterContainer", "CaloCalTopoClusters" ):
-        # schedule it
-        batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
-        DerivationFrameworkJob += batmanaug
-        batmanaugtool = None
-        from AthenaCommon.AppMgr import ToolSvc
-        # create and add the tool to the alg if needed
-        if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
-            batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
-        else:
-            batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
-            ToolSvc += batmanaugtool
-        if batmanaugtool not in batmanaug.AugmentationTools:
-            batmanaug.AugmentationTools.append(batmanaugtool)
-    else:
-        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-            dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
-
-##################################################################
 #                  Definitions of helper functions 
 ##################################################################
 
@@ -59,6 +30,8 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
 
     # map a getter to the input argument
     inputgetter = { "LCTopo" : jtm.lcget,
@@ -66,9 +39,13 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "LCTopoOrigin" : jtm.lcoriginget,
                     "EMTopoOrigin" : jtm.emoriginget,
                     "EMPFlow": jtm.empflowget,
-                    "EMPFlowFE": jtm.empflowget_fe,
+                    "EMPFlowPUSB": jtm.empflowpusbget,
+                    "EMPFlowNeut": jtm.empflowneutget,
                     "PFlowCustomVtx": jtm.pflowcustomvtxget
                     }[inputtype]
+
+    if not hasattr(topSequence, inputgetter.name()):
+        topSequence += inputgetter
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
                              inputgetter.Label,
@@ -106,7 +83,7 @@ def addGhostAssociation(DerivationFrameworkJob):
 
 ##################################################################
 
-def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None, constmods=[], includeVRGhosts=False):
+def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None, customGetters=None, constmods=[], includeVRGhosts=False):
     """Return a list of tools (possibly empty) to be run in a jetalg. These tools will make sure PseudoJets will be associated
     to the container specified by the input arguments.    
     """
@@ -148,12 +125,11 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
             return [jtm.tools[tmpName]]
 
         # no container exist. simply build a new one.
-        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow" or inputtype == "EMPFlowFE":
+        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow":
             defaultmods = {"EMTopo":"emtopo_ungroomed",
                            "LCTopo":"lctopo_ungroomed",
                            "EMPFlow":"pflow_ungroomed",
                            "EMCPFlow":"pflow_ungroomed",
-                           "EMPFlowFE":"pflow_ungroomed",
                            "Truth":"truth_ungroomed",
                            "TruthWZ":"truth_ungroomed",
                            "PV0Track":"track_ungroomed"}
@@ -179,7 +155,10 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
                       PV0Track='pv0track')
     # create the finder for the temporary collection.
 
-    getters = jtm.gettersMap[getterMap[inputtype]]
+    if customGetters is None:
+        getters = jtm.gettersMap[getterMap[inputtype]]
+    else:
+        getters=customGetters
 
     for getter in getters:
         if not hasattr(algseq, getter.name()):
@@ -203,8 +182,6 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
         elif inputtype == "LCTopo":
             constit = JetConstit( xAODType.CaloCluster, ["LC","Origin"])
         elif inputtype == "EMPFlow":
-            constit = JetConstit( xAODType.ParticleFlow )
-        elif inputtype == "EMPFlowFE":
             constit = JetConstit( xAODType.FlowElement )
 
         constit.modifiers += constmods
@@ -230,7 +207,8 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
 
 def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
                          includePreTools=False, algseq=None, outputGroup="CustomJets", doVRGhosts = False,
-                         writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
+                         writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0,
+                         customGetters=None,constmods=[]):
     algname = "jetalg"+groomedName[:-4]
 
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -265,7 +243,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     else:
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
-        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, constmods=constmods, includeVRGhosts=doVRGhosts)
+        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, customGetters=customGetters, constmods=constmods, includeVRGhosts=doVRGhosts)
 
         if includePreTools and jetFlags.useTracks() and "Truth" not in inputtype:
             # enable track ghost association and JVF
@@ -294,7 +272,8 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 ##################################################################
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groomed",
                    includePreTools=False, algseq=None, outputGroup="Trimmed", includeVRGhosts=False,
-                   writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
+                   writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0,
+                   customGetters=None, constmods=[]):
     from JetRec.JetRecUtils import buildJetAlgName
     inputname = inputtype + "".join(constmods)
     trimmedName = "{0}{1}TrimmedPtFrac{2}SmallR{3}Jets".format(buildJetAlgName(jetalg, rsize, variableRMassScale, variableRMinRadius),inputname,int(ptfrac*100),int(rclus*100))
@@ -310,13 +289,14 @@ def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groom
     return buildGenericGroomAlg(jetalg, rsize, inputtype, trimmedName, trimToolBuilder,
                                 includePreTools, algseq, outputGroup,
                                 writeUngroomed=writeUngroomed, doVRGhosts=includeVRGhosts,
-                                variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius, constmods=constmods)
+                                variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius, 
+                                customGetters=customGetters, constmods=constmods)
 
 
 ##################################################################
 def addPrunedJets(jetalg, rsize, inputtype, rcut=0.50, zcut=0.15, mods="groomed",
                   includePreTools=False, algseq=None, outputGroup="Pruned",
-                  writeUngroomed=False, constmods=[]):
+                  writeUngroomed=False, customGetters=None, constmods=[]):
     inputname = inputtype + "".join(constmods)
     prunedName = "{0}{1}{2}PrunedR{3}Z{4}Jets".format(jetalg,str(int(rsize*10)),inputname,int(rcut*100),int(zcut*100))
 
@@ -330,13 +310,13 @@ def addPrunedJets(jetalg, rsize, inputtype, rcut=0.50, zcut=0.15, mods="groomed"
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, prunedName, pruneToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed, constmods=constmods)
+                                writeUngroomed=writeUngroomed, customGetters=customGetters, constmods=constmods)
 
 
 ##################################################################
 def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groomed",
                     includePreTools=False, algseq=None, outputGroup="Filtered",
-                    writeUngroomed=False, constmods=[]):
+                    writeUngroomed=False, customGetters=None, constmods=[]):
     inputname = inputtype + "".join(constmods)
     filteredName = "{0}{1}{2}BDRSFilteredMU{3}Y{4}Jets".format(jetalg,int(rsize*10),inputname,int(mumax*100),int(ymin*100))
 
@@ -350,14 +330,14 @@ def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groome
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, filteredName, filterToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed, constmods=constmods)
+                                writeUngroomed=writeUngroomed, customGetters=customGetters, constmods=constmods)
 
 
 ##################################################################
 
 def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
-                    includePreTools=False, algseq=None, outputGroup="SoftDrop",
-                    writeUngroomed=False, constmods=[]):
+                    includePreTools=False, algseq=None, outputGroup="SoftDrop", includeVRGhosts=False,
+                    writeUngroomed=False, customGetters=None, constmods=[]):
 
     inputname = inputtype + "".join(constmods)
     softDropName = "{0}{1}{2}SoftDropBeta{3}Zcut{4}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
@@ -371,14 +351,14 @@ def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
     dfjetlog.info( "Configuring soft drop jets :  "+softDropName )
     #pass the softDropName and our specific soft drop tool to the generic function:
     return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, softDropToolBuilder,
-                                includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed, constmods=constmods)
+                                includePreTools, algseq, outputGroup, doVRGhosts=includeVRGhosts,
+                                writeUngroomed=writeUngroomed, customGetters=customGetters, constmods=constmods)
 
 ################################################################## 
 
 def addRecursiveSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, N=-1, mods="groomed",
                              includePreTools=False, algseq=None, outputGroup="SoftDrop",
-                             writeUngroomed=False, constmods=[]):
+                             writeUngroomed=False, customGetters=None, constmods=[]):
     inputname = inputtype + "".join(constmods)
     if N >= 0:
       softDropName = "{0}{1}{2}RecursiveSoftDropBeta{3}Zcut{4}N{5}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100), int(N))
@@ -396,13 +376,13 @@ def addRecursiveSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, N=-1, m
     #pass the softDropName and our specific soft drop tool to the generic function:
     return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, recursiveSoftDropToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed, constmods=constmods)
+                                writeUngroomed=writeUngroomed, customGetters=customGetters, constmods=constmods)
 
 ################################################################## 
 
 def addBottomUpSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
                             includePreTools=False, algseq=None, outputGroup="SoftDrop",
-                            writeUngroomed=False, constmods=[]):
+                            writeUngroomed=False, customGetters=None, constmods=[]):
     inputname = inputtype + "".join(constmods)
     softDropName = "{0}{1}{2}BottomUpSoftDropBeta{3}Zcut{4}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
 
@@ -416,7 +396,7 @@ def addBottomUpSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="gr
     #pass the softDropName and our specific soft drop tool to the generic function:
     return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, bottomUpSoftDropToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed, constmods=constmods)
+                                writeUngroomed=writeUngroomed, customGetters=customGetters, constmods=constmods)
 
 ################################################################## 
 
@@ -431,7 +411,6 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
     algname = "jetalg"+jetnamebase
     OutputJets.setdefault(outputGroup , [] ).append(jetname)
 
-    
     if algseq is None:
         dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
         return
@@ -464,7 +443,6 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
-                       "EMPFlowFE":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
@@ -483,7 +461,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             finderArgs['overwrite']=True
     
         # map the input to the jtm code for PseudoJetGetter
-        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
+        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
                           PV0Track='pv0track')
         # create the finder for the temporary collection.
@@ -533,7 +511,7 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
     from JetRec.JetRecStandard import jtm
 
     # map the input to the jtm code for PseudoJetGetter
-    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
+    getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                       Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
                       PV0Track='pv0track')
 
@@ -577,6 +555,39 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
         algseq += alg
         DFJetAlgs[algname] = alg
 
+##################################################################
+# Schedule the augmentation of a flag to label events with large
+# EMEC-IW Noise based on the presence of many bad quality clusters
+##################################################################
+
+def addBadBatmanFlag(sequence=DerivationFrameworkJob):
+
+    from RecExConfig.ObjKeyStore import objKeyStore
+
+    if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+        if hasattr(sequence,"BadBatmanAugmentation"):
+            dfjetlog.warning( "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence "+sequence.name )
+        else:
+            # Check if we have clusters.  If we don't then this cannot run
+            if objKeyStore.isInInput( "xAOD::CaloClusterContainer", "CaloCalTopoClusters" ):
+                # schedule it
+                batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
+                sequence += batmanaug
+                batmanaugtool = None
+                from AthenaCommon.AppMgr import ToolSvc
+                # create and add the tool to the alg if needed
+                if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
+                    batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
+                else:
+                    batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
+                    ToolSvc += batmanaugtool
+                if batmanaugtool not in batmanaug.AugmentationTools:
+                    batmanaug.AugmentationTools.append(batmanaugtool)
+            else:
+                dfjetlog.warning('Could not schedule BadBatmanAugmentation!!!')
+    else:
+        dfjetlog.warning('Running over EVNT filess, BadBatmanAugmentation will not be scheduled')
+
 ################################################################## 
 # Schedule the adding of BCID info
 ################################################################## 
@@ -586,10 +597,6 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
         dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
         return
     else:
-        isMC = False
-        if globalflags.DataSource() == 'geant4':
-          isMC = True
-
         distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
         sequence += distanceintrainaug
 
@@ -600,14 +607,10 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
             distanceintrainaugtool = getattr(ToolSvc,"DistanceInTrainAugmentationTool")
         else:
             distanceintrainaugtool = CfgMgr.DerivationFramework__DistanceInTrainAugmentationTool("DistanceInTrainAugmentationTool")
-            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-            if isMC:
-                ToolSvc += BunchCrossingTool( "MC" )
-                distanceintrainaugtool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
-            else:
-                ToolSvc += BunchCrossingTool( "LHC" )
-                distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
             ToolSvc += distanceintrainaugtool
+            from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+            BunchCrossingCondAlgDefault()
+
         if distanceintrainaugtool not in distanceintrainaug.AugmentationTools:
             distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 

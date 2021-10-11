@@ -22,7 +22,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Amg::Vector2D trans1;
   trans1[0] = 1.5;
   trans1[1] = 2.5;

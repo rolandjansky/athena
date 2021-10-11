@@ -13,7 +13,7 @@
  * AUTHOR:   P. Sherwood
  *********************************************************************/
 
-#include "./IConditionMT.h"
+#include "./ICondition.h"
 
 #include <string>
 
@@ -25,7 +25,7 @@ namespace HypoJet{
 
 class ITrigJetHypoInfoCollector;
 
-class HTConditionFastReduction: public IConditionMT{
+class HTConditionFastReduction: public ICondition{
  public:
 
   

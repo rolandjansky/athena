@@ -23,8 +23,8 @@ namespace MuonGM {
         inline int NDetectors();
         inline int NDetectorsReused();
 
-        GeoVPhysVol *GetDetector(std::string name);
-        void StoreDetector(GeoVPhysVol *s, std::string name);
+        GeoVPhysVol *GetDetector(const std::string& name);
+        void StoreDetector(GeoVPhysVol *s, const std::string& name);
         void PrintAllDetectors();
 
       private:

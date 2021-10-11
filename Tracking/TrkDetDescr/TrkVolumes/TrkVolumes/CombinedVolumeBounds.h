@@ -91,8 +91,8 @@ class CombinedVolumeBounds final : public VolumeBounds {
   virtual std::ostream& dump(std::ostream& sl) const override final;
 
  private:
-  Trk::Volume* createSubtractedVolume(const Amg::Transform3D& transf,
-                                      Trk::Volume* subtrVol) const;
+  static Trk::Volume* createSubtractedVolume(const Amg::Transform3D& transf,
+                                      Trk::Volume* subtrVol) ;
 
   Volume* m_first;
   Volume* m_second;

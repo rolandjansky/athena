@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,9 +17,9 @@
  */
 template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
 T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::T_AthenaPoolTPCnvCnv( ISvcLocator* svcLoc )
-  : Base( svcLoc )
+  : Base( svcLoc ),
+    m_guid (AthenaPoolCnvSvc::guidFromTypeinfo (typeid (Pers_t)))
 {
-  m_guid = AthenaPoolCnvSvc::guidFromTypeinfo (typeid (Pers_t));
 }
 
 

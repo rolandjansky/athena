@@ -3,6 +3,5 @@
 <class name="ObjectMatching" />
 <class name="TrigMatchTool" />
 <class name="TrigMatchToolCore" />
-<class name="TrigMatch::TrigMuonEFInfoHelper" />
 
 </lcgdict>

@@ -65,9 +65,10 @@ StatusCode PrintSiElements::initialize(){
   m_fileout << "# SCT   tag: " << geoModel->SCT_VersionOverride() << std::endl;
   m_fileout << "# TRT   tag: " << geoModel->TRT_VersionOverride() << std::endl;
   // ReadCondHandleKey
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  ATH_CHECK(m_ITkStripDetEleCollKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(std::find(m_detManagerNames.begin(), m_detManagerNames.end(), "Pixel") != m_detManagerNames.end()));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(std::find(m_detManagerNames.begin(), m_detManagerNames.end(), "SCT") != m_detManagerNames.end()));
+  ATH_CHECK(m_ITkPixelDetEleCollKey.initialize(std::find(m_detManagerNames.begin(), m_detManagerNames.end(), "ITkPixel") != m_detManagerNames.end()));
+  ATH_CHECK(m_ITkStripDetEleCollKey.initialize(std::find(m_detManagerNames.begin(), m_detManagerNames.end(), "ITkStrip") != m_detManagerNames.end()));
   return StatusCode::SUCCESS;
 }
 
@@ -87,6 +88,14 @@ PrintSiElements::printElements(const std::string & managerName){
     elements = *sctDetEleHandle;
     if (not sctDetEleHandle.isValid() or elements==nullptr) {
       ATH_MSG_WARNING(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::RECOVERABLE;
+    }
+  }
+  else if (managerName=="ITkPixel") {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_ITkPixelDetEleCollKey);
+    elements = *pixelDetEleHandle;
+    if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_WARNING(m_ITkPixelDetEleCollKey.fullKey() << " is not available.");
       return StatusCode::RECOVERABLE;
     }
   }

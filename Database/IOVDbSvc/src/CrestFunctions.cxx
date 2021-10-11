@@ -27,7 +27,7 @@ namespace IOVDbNamespace{
       auto signaturePosition=jsonReply.rfind(signature);
       if (signaturePosition == std::string::npos) throw std::runtime_error("signature "+signature+" not found");
       auto startOfHash=signaturePosition + signature.size();
-      auto endOfHash=jsonReply.rfind("\"");
+      auto endOfHash=jsonReply.rfind('\"');
       auto len=endOfHash-startOfHash;
       if (startOfHash > jsonReply.size()) throw std::runtime_error("Hash start is beyond end of string");
       hash=jsonReply.substr(startOfHash, len);

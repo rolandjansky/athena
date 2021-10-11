@@ -27,7 +27,7 @@ namespace LArSamples {
   class ShapeInfo;
 
   
-  class CellInfo {
+  class CellInfo final{
   
    public:
 
@@ -40,8 +40,10 @@ namespace LArSamples {
   
     CellInfo(const CellInfo& other, bool withShapes = true);  
  
+    CellInfo(CellInfo&& other) noexcept;
+
     /** @brief Destructor */
-    virtual ~CellInfo();
+    ~CellInfo();
   
     /** @return calo */
     CaloId calo() const { return (CaloId)m_calo; }

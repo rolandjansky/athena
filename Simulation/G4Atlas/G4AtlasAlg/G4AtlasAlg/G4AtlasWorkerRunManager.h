@@ -45,11 +45,6 @@ public:
     m_detGeoSvc.setTypeAndName(typeAndName);
   }
 
-  /// Configure the Sensitive Detector Master Tool handle
-  void SetSDMasterTool(const std::string& typeAndName) {
-    m_senDetTool.setTypeAndName(typeAndName);
-  }
-
   /// Configure the Fast Simulation Master Tool handle
   void SetFastSimMasterTool(const std::string& typeAndName) {
     m_fastSimTool.setTypeAndName(typeAndName);
@@ -84,9 +79,6 @@ private:
 
   /// Handle to the detector service
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
-
-  /// Handle to the SD tool
-  ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
 
   /// Handle to the FastSim tool
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;

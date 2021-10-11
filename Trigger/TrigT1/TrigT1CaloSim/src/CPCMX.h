@@ -26,10 +26,12 @@
  #include "GaudiKernel/ToolHandle.h"
  
  #include "AthContainers/DataVector.h"
- #include "GaudiKernel/DataSvc.h"
 
- // Include for the configuration service:
- #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfData/L1Menu.h"
+
+#include "TrigT1CaloEvent/CMXCPTob.h"
+#include "TrigT1CaloEvent/CPCMXTopoData.h"
+#include "TrigT1CaloEvent/CMXCPHits.h"
 
 // Outputs to CTP
 #include "TrigT1Interfaces/EmTauCTP.h"
@@ -69,7 +71,7 @@
    StatusCode initialize() ;
    StatusCode execute() ;
 
- private: // Private methods
+ private:
    /** Store CTP SLink data objects in the TES. */
 //   void storeCTPData();
    /** Store L1Topo inputs in the TES */
@@ -77,31 +79,23 @@
    /** Store DAQ objects in the TES */
 //   void storeReadoutObjects();
 
-  /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu();
-  
- private: // Private attributes
+ private:
 
    /** Where to store the CMXCPHits (for CMX readout simulation) */
-   std::string   m_CMXCPHitLocation;
+   SG::WriteHandleKey<DataVector<CMXCPHits>> m_CMXCPHitsLocation { this, "CMXCPHitsLocation", TrigT1CaloDefs::CMXCPHitsLocation};
    /** Where to store the CMXCPTobs (for CMX readout simulation) */
-   std::string   m_CMXCPTobLocation;
+   SG::WriteHandleKey<DataVector<CMXCPTob>> m_CMXCPTobLocation { this, "CMXCPTobLocation", TrigT1CaloDefs::CMXCPTobLocation};
    /** Locations of real-time outputs in StoreGate */
-   std::string m_TopoOutputLocation ;
+   SG::WriteHandleKey<DataVector<CPCMXTopoData>> m_TopoOutputLocation { this, "TopoOutputLocation", TrigT1CaloDefs::EmTauTopoTobLocation};
 
-    //std::string m_CTPOutputLocation ;
    SG::WriteHandleKey<EmTauCTP> m_CTPOutputKey { this, "CTPOutputLocation", TrigT1CaloDefs::EmTauCTPLocation, "Output to CTP" };
 
 
    /** Location of input data in StoreGate */
-   std::string   m_CPMCMXDataLocation;
+   SG::ReadHandleKey<DataVector<LVL1::CPMCMXData>> m_CPMCMXDataLocation { this, "CPMCMXDataLocation", TrigT1CaloDefs::CPMCMXDataLocation};
    
-   /** The essentials - data access, configuration, tools */
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
    
-   /** CTP info*/
-   EmTauCTP* m_emTauCTP;
-
    /** Topo format parameters */
    static const int s_SourceLocal = 3;
    static const int s_SourceTotal = 4;

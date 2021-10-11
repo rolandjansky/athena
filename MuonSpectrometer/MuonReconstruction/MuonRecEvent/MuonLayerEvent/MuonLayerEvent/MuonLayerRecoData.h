@@ -5,28 +5,26 @@
 #ifndef MUON_MUONLAYERRECODATA_H
 #define MUON_MUONLAYERRECODATA_H
 
-#include "MuonLayerEvent/MuonSystemExtension.h"
 #include <vector>
 
-
+#include "MuonLayerEvent/MuonSystemExtension.h"
 
 namespace Muon {
-  
-  class MuonSegment;
 
-  struct MuonLayerRecoData {
-    /** constructor */
-    MuonLayerRecoData( const MuonSystemExtension::Intersection& intersection_, std::vector< std::shared_ptr<const MuonSegment> >&& segments_ );
+    class MuonSegment;
 
-    /** intersection with layer */
-    MuonSystemExtension::Intersection                 intersection;
+    struct MuonLayerRecoData {
+        /** constructor */
+        MuonLayerRecoData(const MuonSystemExtension::Intersection& intersection_,
+                          std::vector<std::shared_ptr<const MuonSegment> >&& segments_);
 
-    /** segments */
-    std::vector< std::shared_ptr<const MuonSegment> > segments;
+        /** intersection with layer */
+        MuonSystemExtension::Intersection intersection;
 
-  };
+        /** segments */
+        std::vector<std::shared_ptr<const MuonSegment> > segments;
+    };
 
-}
-
+}  // namespace Muon
 
 #endif

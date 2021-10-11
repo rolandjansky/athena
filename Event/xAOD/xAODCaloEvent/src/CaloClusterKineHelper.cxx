@@ -31,6 +31,7 @@ struct CellAccum
              int& the_nEndcap,
              double& the_timeNorm)
     : EnergyInSample(),
+      //      NCellsInSample(),  // will be collected in moment maker
       EtaInSample(),
       PhiInSample(),
       MaxEnergyInSample(),
@@ -50,6 +51,7 @@ struct CellAccum
       timeNorm (the_timeNorm)
   {}
   double EnergyInSample[CaloSampling::Unknown];
+  //  int    NCellsInSample[CaloSampling::Unknown];
   double EtaInSample[CaloSampling::Unknown];
   double PhiInSample[CaloSampling::Unknown];
   double MaxEnergyInSample[CaloSampling::Unknown];
@@ -108,6 +110,7 @@ void accumCell (const CaloClusterCellLink::const_iterator& cellIt, CellAccum& ac
 
   accum.EnergyInSample[sam] += theEnergy;
   accum.theNewEnergy += theEnergy;
+  // accum.NCellsInSample[sam] += 1;
   double thePhi;
   if (accum.phi0 < -900) {
     thePhi = accum.phi0 = cellPhi;
@@ -304,6 +307,7 @@ void CaloClusterKineHelper::calculateKine(xAOD::CaloCluster* clu, const bool use
     // check sampling bit
     CaloSampling::CaloSample sam = (CaloSampling::CaloSample)i;
     clu->setEnergy(sam,accum.EnergyInSample[i]);
+    // clu->setNCellsPerSampling(sam, accum.NCellsInSample[i]);
     clu->setEta(sam,accum.EtaInSample[i]);
     clu->setPhi(sam,accum.PhiInSample[i]);
 

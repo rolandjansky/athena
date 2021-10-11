@@ -130,8 +130,8 @@ InDetTestPlot::fill(const xAOD::TrackParticle& /*particle*/) {
   const float ybin = (rand() % 20);
   fillHisto(m_test2D, eta, ybin);
   const bool passed(p > 25);
-  fillHisto(m_testEff, p, passed);
-  fillHisto(m_nonsense, pt);
+  fillHisto(m_testEff, p, passed, 1); //no beamspot weight here
+  fillHisto(m_nonsense, pt, 1); //no beamspot weight here
 }
 
 

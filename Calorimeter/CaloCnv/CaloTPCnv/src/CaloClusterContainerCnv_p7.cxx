@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p7.h" 
@@ -198,8 +198,8 @@ void CaloClusterContainerCnv_p7::persToTrans (const CaloClusterContainer_p7* per
            CaloClusterBadChannelData data(eta,phi,layer,flag);
            // std::cout << " add bad channel data " << transCluster << " " << eta << " " << phi << " " << layer << " " << status << " " << flag.packedData() << std::endl;
            transCluster->addBadChannel(data); 
-           ibad1++;
-           nbad++;   
+           ++ibad1;
+           ++nbad;
       }
     }
 
@@ -210,15 +210,15 @@ void CaloClusterContainerCnv_p7::persToTrans (const CaloClusterContainer_p7* per
       }
       else
         transCluster->m_rawE = (*iraw1);
-      iraw1++;
+      ++iraw1;
     }
     if (iraw3 != iraw4) {
       transCluster->m_rawEta = (*iraw3) + transCluster->eta();
-      iraw3++;
+      ++iraw3;
     }
     if (iraw3 != iraw4) { 
       transCluster->m_rawPhi = CaloPhiRange::fix((*iraw3)+transCluster->phi());
-      iraw3++;
+      ++iraw3;
     }
     if (iraw3 == iraw4 && !raw_overrun_err) {
       REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, 
@@ -230,7 +230,7 @@ void CaloClusterContainerCnv_p7::persToTrans (const CaloClusterContainer_p7* per
     }
     if (iraw3 != iraw4) {
       transCluster->m_rawM = (*iraw3);
-      iraw3++;
+      ++iraw3;
     }
     //std::cout << " perstotrans rawE/eta/phi/M " << transCluster->m_rawE << " " << transCluster->m_rawEta << " " <<
     //  transCluster->m_rawPhi << " " << transCluster->m_rawM << std::endl;
@@ -242,15 +242,15 @@ void CaloClusterContainerCnv_p7::persToTrans (const CaloClusterContainer_p7* per
       }
       else
         transCluster->m_altE = (*ialt1);
-      ialt1++;
+      ++ialt1;
     }
     if (ialt3 != ialt4) {
       transCluster->m_altEta = (*ialt3) + transCluster->eta();
-      ialt3++;
+      ++ialt3;
     }
     if (ialt3 != ialt4) { 
       transCluster->m_altPhi = CaloPhiRange::fix((*ialt3)+transCluster->phi());
-      ialt3++;
+      ++ialt3;
     }
     if (ialt3 == ialt4 && !raw_overrun_err) {
       REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING,
@@ -262,7 +262,7 @@ void CaloClusterContainerCnv_p7::persToTrans (const CaloClusterContainer_p7* per
     }
     if (ialt3 != ialt4) {
       transCluster->m_altM = (*ialt3);
-      ialt3++;
+      ++ialt3;
     }
     //std::cout << " perstotrans altE/eta/phi/M " << transCluster->m_altE << " " << transCluster->m_altEta << " " <<
     //  transCluster->m_altPhi << " " << transCluster->m_altM << std::endl;

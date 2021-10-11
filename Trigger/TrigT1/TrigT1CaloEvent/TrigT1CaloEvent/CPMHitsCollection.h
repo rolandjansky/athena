@@ -9,7 +9,6 @@
 
 /** Container class for CPMHits objects */
 
-using namespace LVL1;
-typedef DataVector<CPMHits> CPMHitsCollection;
+typedef DataVector<LVL1::CPMHits> CPMHitsCollection;
 
 #endif

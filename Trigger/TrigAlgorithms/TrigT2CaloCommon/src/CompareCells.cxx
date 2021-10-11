@@ -20,6 +20,7 @@ StatusCode CompareCells::initialize() {
   CHECK( m_dataAccessSvc.retrieve() );
   CHECK( m_calocellcollectionKey.initialize() );
   CHECK( m_bcidAvgKey.initialize() );
+  CHECK( m_mcsymKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -27,10 +28,10 @@ StatusCode CompareCells::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   CaloConstCellContainer c(SG::VIEW_ELEMENTS);
-  m_dataAccessSvc->loadFullCollections( context, c).ignore();
+  m_dataAccessSvc->loadFullCollections( context,  c).ignore();
 
   TileCellCollection mbts (SG::VIEW_ELEMENTS); // testing
-  m_dataAccessSvc->loadMBTS( context, mbts).ignore();
+  m_dataAccessSvc->loadMBTS( context,  mbts).ignore();
 
   ATH_MSG_DEBUG("MBTS Dump");
   for (size_t i=0;i<mbts.size(); ++i)

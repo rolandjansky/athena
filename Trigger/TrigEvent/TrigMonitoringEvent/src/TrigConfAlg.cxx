@@ -1,23 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <algorithm>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigConfAlg.h"
-#include "TrigMonMSG.h"
 
-using namespace std;
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigConfAlg");
-}
-
-//--------------------------------------------------------------------------------------  
+//--------------------------------------------------------------------------------------
 TrigConfAlg::TrigConfAlg() 
   :m_index(0),
    m_position(0),
@@ -43,10 +36,10 @@ TrigConfAlg::TrigConfAlg(const uint32_t index,
    m_type(type)
 {
   if(position >= 128) {
-    MSGService::msg.Log("TrigConfAlg ctor error! Position is too large",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfAlg") << "Position is too large";
   }
   if(index >= 65535) {
-    MSGService::msg.Log("TrigConfAlg ctor error! Index is too large",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfAlg") << "Index is too large";
   }
 }
 
@@ -63,7 +56,7 @@ void TrigConfAlg::clearStrings()
 //--------------------------------------------------------------------------------------  
 void TrigConfAlg::print(std::ostream &os) const
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------  

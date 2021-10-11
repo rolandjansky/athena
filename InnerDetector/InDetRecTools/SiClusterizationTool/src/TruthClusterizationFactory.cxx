@@ -69,8 +69,7 @@ namespace InDet {
   std::vector<double> TruthClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const
   {
     std::vector<double> probabilities(3,0.);
-    auto rdos = pCluster.rdoList();
-    bool crazycluster(true);
+    const auto &rdos = pCluster.rdoList();
     unsigned int nPartContributing = 0;
     //Initialize vector for a list of UNIQUE barcodes for the cluster
     std::vector<int> barcodes;
@@ -80,7 +79,6 @@ namespace InDet {
       for (auto rdoIter :  rdos){
         auto simDataIter = pixSdoColl->find(rdoIter);
         if (simDataIter != pixSdoColl->end()){
-          crazycluster = false;
           // get the SimData and count the individual contributions
           auto simData = (simDataIter->second);
           //auto simDataDeposits = simData.getdeposits();
@@ -93,7 +91,8 @@ namespace InDet {
               barcodeIterator  = find(barcodes.begin(), barcodes.end(), HepMC::barcode(deposit.first));
               //If this barcode is not found
               if (!(barcodeIterator != barcodes.end())){
-                //Add the barcode to the barcodes vector
+                //Only count deposits from HS to ensure consistency between full truth and standard truth PU configurations
+                if(m_usePUHits || deposit.first.eventIndex()==0)
                 barcodes.push_back(HepMC::barcode(deposit.first));
               }
             }
@@ -109,7 +108,8 @@ namespace InDet {
     ATH_MSG_VERBOSE("n Part Contributing: " << nPartContributing);
     ATH_MSG_VERBOSE("Smearing TruthClusterizationFactory probability output for TIDE studies");
     //If only 1 truth particles found
-    if (nPartContributing==1) {
+    //For pure PU case nPartContributing=0, assume that there is a single particle contributing as well
+    if (nPartContributing<=1) {
       //NN will always return 100% chance of there being only 1 particle
       probabilities[0] = 1.0;
     }
@@ -127,13 +127,6 @@ namespace InDet {
       //Other 10% NN returns high probability of there being 1 particle
       else probabilities[0] = 1.0;
     }
-    
-    //if truth collection not found
-    if(crazycluster) {
-      std::vector<double> noprobabilities;
-      return noprobabilities;
-    }
-    //Else return probabilities calculated above
     
     return probabilities;
  

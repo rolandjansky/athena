@@ -1,7 +1,7 @@
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector       DEBUG Initializing EventSelector
 EventSelector       DEBUG Service base class initialized successfully
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
+ByteStreamInputSvc   INFO Initializing
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()

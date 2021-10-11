@@ -29,8 +29,6 @@ if useLocalSql:
 #----------- private options 
 #--- cabling & trigger roads
 from AthenaCommon.AppMgr import ServiceMgr; 
-import MuonRPC_Cabling.MuonRPC_CablingConfig ; 
-ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False
 
 
 from AthenaCommon import CfgGetter

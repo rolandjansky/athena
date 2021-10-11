@@ -22,8 +22,7 @@ BoundarySubtractedCylinderSurface<Tvol>::attachedVolume(
   // (ST) buggy line - assumes the parms are at this boundary surface !
   // const HepGeom::Vector3D<double>* localNormal =
   // this->surfaceRepresentation().normal(parms.localPosition()); replacing with
-  auto locPos = std::unique_ptr<const Amg::Vector2D>(
-    this->surfaceRepresentation().globalToLocal(parms.position()));
+  auto locPos = this->surfaceRepresentation().globalToLocal(parms.position());
   Amg::Vector3D localNormal{};
   if (locPos) {
     localNormal = this->surfaceRepresentation().normal(*locPos);
@@ -56,8 +55,7 @@ BoundarySubtractedCylinderSurface<Tvol>::attachedVolume(
   PropDirection dir) const
 {
   const Tvol* attVolume = nullptr;
-  auto lp =
-    std::unique_ptr<const Amg::Vector2D>(Surface::globalToLocal(pos, 2.));
+  auto lp = Surface::globalToLocal(pos, 2.);
   if (lp) {
     const Amg::Vector3D localNormal = CylinderSurface::normal(*lp);
     if (localNormal.dot(dir * mom) > 0.) {

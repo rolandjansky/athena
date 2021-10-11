@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///*****************************************************************************
@@ -181,7 +181,10 @@ TileAANtuple::~TileAANtuple() {
 /// Alg standard interface function
 StatusCode TileAANtuple::initialize() {
   ATH_MSG_INFO( "Initialization started");
-  
+
+  //=== get TileCablingSvc
+  ATH_CHECK( m_cablingSvc.retrieve() );
+
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
   

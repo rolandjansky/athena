@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_SimEvent/LUCID_SimHit.h"
@@ -59,7 +59,7 @@ LUCID_SimHit::LUCID_SimHit(short tubeID,
 
 LUCID_SimHit::LUCID_SimHit(short tubeID,
                            int   pdgCode,
-                           HepMcParticleLink partLink,
+                           const HepMcParticleLink& partLink,
                            int   genVolume,
                            float stepStartPosX,
                            float stepStartPosY,

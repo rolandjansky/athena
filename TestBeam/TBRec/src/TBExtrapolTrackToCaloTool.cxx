@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -246,11 +246,9 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
 
   // Take eta of the last measured hit as best guess and create surface :
   const DataVector <const Trk::TrackParameters>* paramvec = trk->trackParameters();
-  if (paramvec) { 
-    DataVector <const Trk::TrackParameters>::const_iterator it = paramvec->begin();
-    DataVector <const Trk::TrackParameters>::const_iterator itEnd = paramvec->end();
-    for (;it!=itEnd; it++) 
-      trketa = (*it)->eta();
+  if (paramvec) {
+    for (const Trk::TrackParameters* params : *paramvec)
+      trketa = params->eta();
     surf = m_calosurf->CreateUserSurface (sample,offset,trketa);
   } 
   if (!surf) return success;
@@ -378,14 +376,12 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
   // Take eta of the last measured hit as best guess and create surface :
   const DataVector <const Trk::TrackParameters>* paramvec = trk->trackParameters();
   if (paramvec) { 
-    DataVector <const Trk::TrackParameters>::const_iterator it = paramvec->begin();
-    DataVector <const Trk::TrackParameters>::const_iterator itEnd = paramvec->end();
-
     if(m_calo_dd -> lar_geometry() == "H8")
       trketa = m_calo_tb_coord -> beam_local_eta();
-    else 
-      for (;it!=itEnd; it++) 
-	trketa = (*it)->eta();
+    else  {
+      for (const Trk::TrackParameters* params : *paramvec)
+	trketa = params->eta();
+    }
     
     //std::cout<< " In Extrapol... : "<<trketa<<std::endl;
 

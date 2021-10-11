@@ -1,7 +1,7 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-RPCbytestream::RPCbytestream(CMAdata& data,std::string filename,
+RPCbytestream::RPCbytestream(CMAdata& data,std::string filename,MsgStream& log,
                              debu cma_debug,debu pad_debug,debu rx_debug,
                              debu sl_debug,debu cma_struc_debug,
                              debu pad_struc_debug,debu rx_struc_debug,
@@ -40,17 +40,16 @@ RPCbytestream::RPCbytestream(CMAdata& data,std::string filename,
         m_cma_readout.insert(CMA_Readout::value_type(key,CMAreadout(*it)));
         if(!ins.second)
 	{
-	    DISP << "Found duplicate CMA readout into CMA data!";
-            DISP_ERROR;
+        log << MSG::ERROR << "Found duplicate CMA readout into CMA data!" << endmsg;
 	}
 
 	++it;
     }
 
-    build_pad_readout();
+    build_pad_readout(log);
     if(m_filename != "" ) dump_rpc_bytestream();
 }
-    
+
 RPCbytestream::RPCbytestream(const RPCbytestream& readout) :
     RPCtrigDataObject(readout.number(),readout.name())
 {
@@ -76,7 +75,7 @@ RPCbytestream::~RPCbytestream()
 
 
 void
-RPCbytestream::build_pad_readout()
+RPCbytestream::build_pad_readout(MsgStream& log)
 {
     for (int i=0;i<64;++i)
     {
@@ -98,28 +97,26 @@ RPCbytestream::build_pad_readout()
 					
                 if(SLid != i)
 	        {
-                    DISP << "Key doesn't correspond to CMA Sector Id!";
-		    DISP_ERROR;
+                log << MSG::ERROR << "Key doesn't correspond to CMA Sector Id!" << endmsg;
 	        }
 
                 for (CMA_Readout::iterator it = PAD_l; it != PAD_h; ++it)
 	        {
-                    MatrixReadOut** cma_readout = 
-                                            (*it).second.give_matrix_readout();
+                    auto cma_readout = (*it).second.give_matrix_readout(log);
                     pad_readout.load_readout(cma_readout);
-                    DISP << "Dump of the matrices readout into PAD " << PADid
-			 << endl
-                         << cma_readout[0]
-                         << cma_readout[1];
-		    DISP_DEBUG;
+                    if (log.level() <= MSG::DEBUG) {
+                        log << MSG::DEBUG << "Dump of the matrices readout into PAD " << PADid
+                             << endl
+                             << cma_readout[0]
+                             << cma_readout[1] << endmsg;
+                    }
 	        }
 
                 std::pair < PAD_Readout::iterator, bool> ins = 
                 m_pad_readout.insert(PAD_Readout::value_type(key,pad_readout));
                 if(!ins.second)
 	        {
-	            DISP << "Found duplicate PAD readout into CMA data!";
-                    DISP_ERROR;
+	            log << MSG::ERROR << "Found duplicate PAD readout into CMA data!" << endmsg;
 	        }
 	    }
         }

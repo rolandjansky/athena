@@ -41,46 +41,6 @@ class _modifier:
 # Detector maps and conditions
 ###############################################################
 
-class streamingOnly(_modifier):
-    """
-    Turn off things not needed for streaming only setup
-    """
-    def preSetup(self):
-        from MuonRecExample.MuonRecFlags import muonRecFlags
-        muonRecFlags.doMDTs=False
-        muonRecFlags.doRPCs=False
-        muonRecFlags.doTGCs=False
-        TriggerFlags.doID=False
-        TriggerFlags.doCalo=False
-
-    def postSetup(self):
-        #remove MDT folders as one of them takes 10s to load
-        svcMgr.IOVDbSvc.Folders=[]
-        Folders=[]
-        for text in svcMgr.IOVDbSvc.Folders:
-            if text.find("/MDT")<0:
-                Folders+=[text]
-        svcMgr.IOVDbSvc.Folders=Folders
-
-        # There is no magnetic field service in this setup
-        if hasattr(svcMgr,'HltEventLoopMgr'):
-            svcMgr.HltEventLoopMgr.setMagFieldFromPtree = False
-
-class noID(_modifier):
-    """
-    Turning of ID - make sure no algorithm needs it!
-    """
-    def preSetup(self):
-        TriggerFlags.doID=False
-
-class noCalo(_modifier):
-    """
-    Turning of Calorimeter - make sure no algorithm needs it!
-    """
-    def preSetup(self):
-        TriggerFlags.doCalo=False
-
-
 class BunchSpacing25ns(_modifier):
     """
     ID (and other settings) related to 25ns bunch spacing
@@ -124,7 +84,8 @@ class useHLTMuonAlign(_modifier):
     Apply muon alignment
     """
     def postSetup(self):
-        if TriggerFlags.doHLT() and TriggerFlags.doMuon():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
             from MuonRecExample import MuonAlignConfig  # noqa: F401
             #temporary hack to workaround DB problem - should not be needed any more
             folders=svcMgr.IOVDbSvc.Folders
@@ -142,7 +103,8 @@ class useRecentHLTMuonAlign(_modifier):
     Apply muon alignment
     """
     def postSetup(self):
-        if TriggerFlags.doHLT() and TriggerFlags.doMuon():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
             from MuonRecExample import MuonAlignConfig  # noqa: F401
             folders=svcMgr.IOVDbSvc.Folders
             newFolders=[]
@@ -251,15 +213,6 @@ class BFieldAutoConfig(_modifier):
         if hasattr(svcMgr,'HltEventLoopMgr'):
             svcMgr.HltEventLoopMgr.setMagFieldFromPtree = True
 
-class allowCOOLUpdates(_modifier):
-    """
-    Enable COOL folder updates during the run
-    """
-    def postSetup(self):
-        if hasattr(svcMgr,'HltEventLoopMgr'):
-            from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
-            enableCOOLFolderUpdates(svcMgr.HltEventLoopMgr.CoolUpdateTool)
-
 class useOracle(_modifier):
     """
     Disable the use of SQLite for COOL and geometry
@@ -276,9 +229,10 @@ class noPileupNoise(_modifier):
     Disable pileup noise correction
     """
     def preSetup(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
-        TriggerFlags.doCaloOffsetCorrection.set_Value_and_Lock(False)
+        ConfigFlags.Trigger.calo.doOffsetCorrection = False
 
 class usePileupNoiseMu8(_modifier):
     """
@@ -387,204 +341,24 @@ class forceConditions(_modifier):
                 svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
 
 
+class forceAFPLinkNum(_modifier):
+    """
+    force AFP link number translator to use Run2 setup
+    """
+    def postSetup(self):
+        from AthenaCommon.AlgSequence import AthSequencer
+        from AthenaCommon.CFElements import findAlgorithm
+        AFPRecoSeq = AthSequencer("AFPRecoSeq")
+        AFP_RawDataProv = findAlgorithm(AFPRecoSeq, "AFP_RawDataProvider")
+        if AFP_RawDataProv:
+            AFP_RawDataProv.ProviderTool.AFP_ByteStream2RawCnv.AFP_WordReadOut.AFP_LinkNumTranslator.ForceRunConfig = 2
+        else:
+            log.info('The forceAFPLinkNum Modifier has no effect because AFP_RawDataProvider is not configured to run')
+
 
 ###############################################################
 # Algorithm modifiers
 ###############################################################
-
-class physicsZeroStreaming(_modifier):
-    """
-    set all physics chains to stream prescale 0 except streamer chains
-    """
-    def preSetup(self):
-        TriggerFlags.zero_stream_prescales=True
-
-class physicsPTmode(_modifier):
-    """
-    set all physics chains to PT=1 except streamer chains
-    """
-    def preSetup(self):
-        TriggerFlags.physics_pass_through=True
-
-class disableIBLInTracking(_modifier):
-    """
-    Turn off IBL in tracking algorithms (data still available for PEB etc)
-    """
-
-    def postSetup(self):
-        svcMgr.SpecialPixelMapSvc.MaskLayers = True
-        svcMgr.SpecialPixelMapSvc.LayersToMask = [0]
-
-
-class doMuonRoIDataAccess(_modifier):
-    """
-    Use RoI based decoding of muon system
-    """
-    def preSetup(self):
-        TriggerFlags.MuonSlice.doEFRoIDrivenAccess=True
-
-class rerunLVL1(_modifier):
-    """
-    Reruns the L1 simulation on real data
-    """
-    def preSetup(self):
-
-        from AthenaCommon.Include import include
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-
-        #configure LVL1 config svc with xml file
-        from TrigConfigSvc.TrigConfigSvcConfig import L1TopoConfigSvc
-        L1TopoConfigSvc = L1TopoConfigSvc()
-        L1TopoConfigSvc.XMLMenuFile = TriggerFlags.inputL1TopoConfigFile()
-
-        #configure LVL1 config svc with xml file
-        from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
-        LVL1ConfigSvc = LVL1ConfigSvc("LVL1ConfigSvc")
-        LVL1ConfigSvc.XMLMenuFile = TriggerFlags.inputLVL1configFile()
-
-        # rerun L1calo simulation
-        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
-        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
-
-        #rederive MuCTPI inputs to CTP from muon RDO
-        #writes this to the usual MuCTPICTP storegate location
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.enableL1MuonPhase1:
-            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
-        else:
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
-        topSequence += L1Muctpi_on_RDO()
-        topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
-        topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
-
-        # Add L1TopoSimulation if it was not already added, e.g. by L1TopoROBMonitor
-        topSequenceAlgNames=[alg.getName() for alg in topSequence.getChildren()]
-        if 'L1TopoSimulation' not in topSequenceAlgNames:
-            from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-            topSequence += L1TopoSimulation()
-            log.info( "adding L1TopoSimulation() to topSequence" )
-
-            if ConfigFlags.Trigger.enableL1MuonPhase1:
-                from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as L1MuctpiTool
-            else:
-                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-            from AthenaCommon.AppMgr import ToolSvc
-            ToolSvc += L1MuctpiTool()
-            topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
-            from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
-            topSequence.L1TopoSimulation.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
-            topSequence.L1TopoSimulation.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
-
-
-            # enable the reduced (coarse) granularity topo simulation
-            # currently only for MC
-            from AthenaCommon.GlobalFlags  import globalflags
-            if globalflags.DataSource()!='data':
-                log.info("Muon eta/phi encoding with reduced granularity for MC (L1 Simulation)")
-                topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
-            else:
-                log.info("Muon eta/phi encoding with full granularity for data (L1 Simulation) - should be faced out")
-                topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
-        else:
-            log.info( "not adding L1TopoSimulation() to topSequence as it is already there" )
-        log.debug( "topSequence: %s", topSequenceAlgNames )
-
-        from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
-        ctpSimulation = CTPSimulationOnData("CTPSimulation")
-        ctpSimulation.DoBCM   = False # TriggerFlags.doBcm()
-        ctpSimulation.DoLUCID = False # TriggerFlags.doLucid()
-        ctpSimulation.DoZDC   = False # TriggerFlags.doZdc()
-        ctpSimulation.DoBPTX  = False
-        ctpSimulation.DoMBTS  = False
-
-        topSequence += ctpSimulation
-
-        from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
-        topSequence += RoIBuilder("RoIBuilder")
-        # For backwards compatibility with 16.1.X (see Savannah #85927)
-        if "RoIOutputLocation_Rerun" in topSequence.CTPSimulation.properties():
-            topSequence.RoIBuilder.CTPSLinkLocation = 'CTPSLinkLocation_Rerun'
-
-        # Get run number from input file if running in athena
-        global _run_number
-        if _run_number is None:
-            import PyUtils.AthFile as athFile
-            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
-            _run_number = af.run_number[0]
-
-        # On run-1 data, need to re-create the L1 menu with correct L1Calo energy scale (ATR-10174)
-        if _run_number is not None and _run_number<222222:
-            TriggerFlags.useRun1CaloEnergyScale = True
-            TriggerFlags.outputLVL1configFile = 'LVL1config_'+TriggerFlags.triggerMenuSetup()+'_Run1CaloEnergyScale.xml'
-            TriggerFlags.readLVL1configFromXML = False
-            log.warning('rerunLVL1: Re-creating L1 menu with run-1 L1Calo energy scale!')
-
-
-    def postSetup(self):
-        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-            "MuCTPI_RIO/MUCTPI_RIO",
-            "CTP_RIO/CTP_RIO"
-            ]
-
-class rerunDMLVL1(_modifier):
-    """
-    Reruns the L1 simulation on real data with dead material corrections
-    """
-    def preSetup(self):
-
-         from AthenaCommon.Include import include
-         from AthenaCommon.AlgSequence import AlgSequence
-         topSequence = AlgSequence()
-
-         #write cool objects to detector store
-         from IOVDbSvc.CondDB import conddb
-         conddb.addFolderWithTag('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent", "HEAD")
-         conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
-
-         #configure LVL1 config svc with xml file
-         from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
-         LVL1ConfigSvc = LVL1ConfigSvc("LVL1ConfigSvc")
-         LVL1ConfigSvc.XMLFile = TriggerFlags.inputLVL1configFile()
-
-         # rerun L1calo simulation
-         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
-         include ("TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py")
-         include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessDM.py" )
-
-         #Run MuCTPI simulation (before or after importing DeriveSim??)
-         #rederive MuCTPI inputs to CTP from muon RDO
-         #writes this to the usual MuCTPICTP storegate location
-         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-         if ConfigFlags.Trigger.enableL1MuonPhase1:
-             from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
-         else:
-             from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
-         topSequence += L1Muctpi_on_RDO()
-         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
-         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
-
-         from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
-         topSequence += DeriveSimulationInputs(do_MuCTPI_input=True,
-                                               do_L1Calo_input=False,
-                                               do_L1Calo_sim=True)
-
-         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
-         topSequence += CTPSimulationOnData("CTPSimulation")
-
-         from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
-         topSequence += RoIBuilder("RoIBuilder")
-         # For backwards compatibility with 16.1.X (see Savannah #85927)
-         if "RoIOutputLocation_Rerun" in topSequence.CTPSimulation.properties():
-             topSequence.RoIBuilder.CTPSLinkLocation = '/Event/CTPSLinkLocation_Rerun'
-
-    def postSetup(self):
-        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-            "MuCTPI_RIO/MUCTPI_RIO",
-            "CTP_RIO/CTP_RIO"
-            ]
-
 
 class rewriteLVL1(_modifier):
     """
@@ -598,10 +372,7 @@ class rewriteLVL1(_modifier):
         L1ByteStreamEncodersRecExSetup()
 
     def postSetup(self):
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if not TriggerFlags.writeBS:
-            log.warning('rewriteLVL1 is True but TriggerFlags.writeBS is False')
         if not ConfigFlags.Output.doWriteBS:
             log.warning('rewriteLVL1 is True but ConfigFlags.Output.doWriteBS is False')
         if not ConfigFlags.Trigger.writeBS:
@@ -642,7 +413,8 @@ class DisableMdtT0Fit(_modifier):
     Disable MDT T0 re-fit and use constants from COOL instead
     """
     def preSetup(self):
-        if TriggerFlags.doMuon():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.doMuon:
             from MuonRecExample.MuonRecFlags import muonRecFlags
             muonRecFlags.doSegmentT0Fit.set_Value_and_Lock(False)
 
@@ -658,6 +430,9 @@ class doCosmics(_modifier):
     def preSetup(self):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
+       from AthenaConfiguration.AllConfigFlags import ConfigFlags
+       ConfigFlags.Beam.Type = 'cosmics'
+
 
 class enableALFAMon(_modifier):
     """
@@ -764,11 +539,7 @@ class doValidation(_modifier):
     """
 
     def preSetup(self):
-        TriggerFlags.Online.doValidation = True
-        # Replace Online with Validation monitoring
-        TriggerFlags.enableMonitoring = filter(lambda x:x!='Online', TriggerFlags.enableMonitoring())+['Validation']
-        for m in self.modifiers:
-            m.preSetup()
+        TriggerFlags.doValidationMonitoring = True
 
 class autoConditionsTag(_modifier):
     """
@@ -838,7 +609,7 @@ class useDynamicAlignFolders(_modifier):
 class doRuntimeNaviVal(_modifier):
     """
     Checks the validity of each Decision Object produced by a HypoAlg, including all of its
-    parents all the way back to the L1 decoder. Potentially CPU expensive.
+    parents all the way back to the HLT Seeding. Potentially CPU expensive.
     """
     def preSetup(self):
         log.info("Enabling Runtime Trigger Navigation Validation")

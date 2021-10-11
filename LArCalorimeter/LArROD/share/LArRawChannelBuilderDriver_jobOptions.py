@@ -19,14 +19,8 @@ theLArOFPeakRecoTool.KeyShape="LArShape"
 theLArOFPeakRecoTool.UseShape=False
 ToolSvc += theLArOFPeakRecoTool
 
-if MCFlag :
-	from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-	theLArOFCTool=LArOFCToolDefault()
-	ToolSvc += theLArOFCTool
-    
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theLArADC2MeVTool=LArADC2MeVToolDefault()
-ToolSvc+=theLArADC2MeVTool
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
 from LArROD.LArRODConf import *
 
@@ -37,9 +31,6 @@ LArRawChannelBuilder.LArRawChannelContainerName = LArRawChannelKey
 LArRawChannelBuilder.DefaultShiftTimeSample=1
 
 # builder tools
-# builderToolOFC = LArRawChannelBuilderToolOFC("builderToolOFC")
-# if MCFlag :
-# 	builderToolOFC.OFCTool = theLArOFCTool
 builderToolOFCIter = LArRawChannelBuilderToolOFCIter("builderToolOFCIter")
 builderToolOFCIter.minSample = 2 
 builderToolOFCIter.maxSample = 8
@@ -53,7 +44,6 @@ builderToolAve.NScan=0
 
 # adc2energy tools
 adc2eToolDB = LArRawChannelBuilderADC2EDataBase("adc2eToolDB")
-adc2cToolDB.ADC2MeVTool = theLArADC2MeVTool
 adc2eToolCo = LArRawChannelBuilderADC2EConstants("adc2eToolCo")
 
 # pedestal tools

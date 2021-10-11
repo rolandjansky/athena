@@ -13,14 +13,14 @@ CounterChain::CounterChain(const std::string& name, const MonitorBase* parent)
 {
   regHistogram("Group_perCall", "Chain group/Call;Group;Calls", VariableType::kPerCall, kLinear, -0.5, 9.5, 10);
   regHistogram("Chain_perEvent", "Chain calls/Event;Chain call;Events", VariableType::kPerEvent, kLinear, -0.5, 49.5);
-  regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 99.5);
+  regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 999.5, 100);
   regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
   regHistogram("Time_perEvent", "CPU Time/Event;Time [ms];Events", VariableType::kPerEvent);
   regHistogram("ChainPassed_perEvent", "Passed chain/Event;Passsed;Events", VariableType::kPerEvent, kLinear, -0.5, 1.5, 2);
-  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
-  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
-  regHistogram("CachedROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
-  regHistogram("NetworkROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
+  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 149.5, 150);
+  regHistogram("CachedROBSize_perEvent", "Cached ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+  regHistogram("NetworkROBSize_perEvent", "Network ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
   regHistogram("RequestTime_perEvent", "ROB Elapsed Time/Event;Elapsed Time [ms];Events", VariableType::kPerEvent);
 }
 
@@ -45,9 +45,13 @@ StatusCode CounterChain::newEvent(const CostData& data, size_t index, const floa
   if (!data.chainToAlgMap().count(getName())) return StatusCode::SUCCESS;
 
   for (const size_t algIndex : data.chainToAlgMap().at(getName())){
-    ATH_CHECK( increment("AlgCalls_perEvent", weight) );
-
     const xAOD::TrigComposite* alg = data.costCollection().at(algIndex);
+    const uint32_t slot = alg->getDetail<uint32_t>("slot");
+    if (slot != data.onlineSlot()) {
+      continue; // When monitoring the master slot, this Monitor ignores algs running in different slots 
+    }
+
+    ATH_CHECK( increment("AlgCalls_perEvent", weight) );
 
     const uint64_t start = alg->getDetail<uint64_t>("start"); // in mus
     const uint64_t stop  = alg->getDetail<uint64_t>("stop"); // in mus
@@ -67,12 +71,13 @@ StatusCode CounterChain::newEvent(const CostData& data, size_t index, const floa
       for (size_t i = 0; i < robs_size.size(); ++i) {
         // ROB request was fetched over the network
         if (robs_history[i] == robmonitor::RETRIEVED) {
-          ATH_CHECK( fill("NetworkROBSize_perEvent", robs_size[i], weight) );
+          // size is stored in words, should be in kilobytes
+          ATH_CHECK( fill("NetworkROBSize_perEvent", robs_size[i] / 500., weight) );
           networkRequestIncremented = true;
         }
         // ROB request was cached
         else if (robs_history[i] == robmonitor::HLT_CACHED || robs_history[i] == robmonitor::DCM_CACHED) {
-          ATH_CHECK( fill("CachedROBSize_perEvent", robs_size[i], weight) );
+          ATH_CHECK( fill("CachedROBSize_perEvent", robs_size[i] / 500., weight) );
         }
       }
 

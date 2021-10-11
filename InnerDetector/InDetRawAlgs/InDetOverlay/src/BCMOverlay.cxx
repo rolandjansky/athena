@@ -246,8 +246,13 @@ void BCMOverlay::overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_p
       BCM_Pulse* pulse_2 = merged_pulses.at(j).get();
       auto[early,later] = timeOrder(pulse_1, pulse_2);
 
-      double slope_up = 1./slopeUpFraction/(fullPulseWidth - later->w);
-      double slope_down = 1./slopeDownFraction/(fullPulseWidth - early->w);
+      int below_thr_later = fullPulseWidth - later->w;
+      int below_thr_early = fullPulseWidth - early->w;
+      double slope_up = 1./slopeUpFraction;
+      double slope_down = 1./slopeDownFraction;
+      if (below_thr_later != 0) slope_up /= below_thr_later;
+      if (below_thr_early != 0) slope_down /= below_thr_early;
+
       int bin_min = early->p + early->w;
       int bin_max = later->p;
 

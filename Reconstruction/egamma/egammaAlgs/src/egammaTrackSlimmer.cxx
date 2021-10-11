@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -36,7 +36,6 @@ StatusCode egammaTrackSlimmer::initialize()
   ATH_CHECK(m_InputPhotonContainerKey.initialize(m_doThinning));
   ATH_CHECK(m_TrackParticlesKey.initialize(m_streamName, m_doThinning));
   ATH_CHECK(m_VertexKey.initialize(m_streamName, m_doThinning));
-  ATH_CHECK(m_InDetTrackParticlesKey.initialize(m_streamName, m_doThinning));
 
   ATH_MSG_INFO("Initialization completed successfully");
   return StatusCode::SUCCESS;
@@ -89,27 +88,8 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
 
   /* 
    * In Det Track Particles
-   * The vector that we'll use to filter the In Det Track Particles
+   * TRT standalone tracks are now centrally thinned by ThinTRTStandaloneTrackAlg for e/gamma and taus
    */
-  std::vector<bool> keptInDetTrackParticles;
-  SG::ThinningHandle<xAOD::TrackParticleContainer> indetTrackPC(m_InDetTrackParticlesKey, ctx);
-  // check is only used for serial running; remove when MT scheduler used
-  if(!indetTrackPC.isValid()) {
-    ATH_MSG_FATAL("Failed to retrieve "<< m_InDetTrackParticlesKey.key());
-    return StatusCode::FAILURE;
-  }
-  /*
-   * For the InDet Track particles we set them first all  to true aka keep.
-   * Then we set to false ONLY the TRT-alone. 
-   * We will reset to true whatever is to be kept due to e/gamma... 
-   */
-  ATH_MSG_DEBUG("Number of In Det TrackParticles "<< indetTrackPC->size());
-  keptInDetTrackParticles.resize( indetTrackPC->size(), true );
-  for (const auto *trkIt : *indetTrackPC)  {
-    if (xAOD::EgammaHelpers::numberOfSiHits(trkIt) < 4) {
-      keptInDetTrackParticles[trkIt->index()] = false;
-    }
-  }
 
   /*
    * Electron track particle Thinning
@@ -132,11 +112,7 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
         continue;
       }
       ATH_MSG_DEBUG("Electrons : Keeping GSF Track Particle with index : "<< link.index() );
-      keptTrackParticles[link.index() ] = true;      
-  
-      ATH_MSG_DEBUG("Electons : Keeping InDet Track Particle with index : "
-                    << (xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(*link))->index());
-      keptInDetTrackParticles[ (xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(*link))->index() ] = true;
+      keptTrackParticles[link.index() ] = true;        
     }
   }
   
@@ -174,17 +150,14 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
         }
         ATH_MSG_DEBUG("Photons : Keeping GSF Track Particle with index : "<< link.index() );
         keptTrackParticles[link.index() ] = true;
-        ATH_MSG_DEBUG("Photons : Keeping InDet Track Particle with index : "
-                      << (xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(*link))->index());
-        keptInDetTrackParticles[ (xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(*link))->index()] = true;
       }
     }
   }
+
   //Do the Thinning
   ATH_MSG_DEBUG("Do the Thinning");
   trackPC.keep (keptTrackParticles);
   vertices.keep (keptVertices);
-  indetTrackPC.keep (keptInDetTrackParticles);
   ATH_MSG_DEBUG("completed successfully");
   
   //Return Gracefully

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/InputMakerBase.h"
@@ -43,7 +43,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
   ATH_CHECK( outputHandle.isValid() );
   TrigCompositeUtils::DecisionContainer* outDecisions  = outputHandle.ptr();
 
-  for ( auto inputKey: decisionInputs() ) {
+  for ( const auto& inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
 
     if( not inputHandle.isValid() ) {
@@ -107,7 +107,8 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
   std::vector<uint32_t> keysA;
   std::vector<uint32_t> clidsA;
   std::vector<uint16_t> indiciesA;
-  TrigCompositeUtils::typelessFindLinks(toMatch, linkNameToMatch, keysA, clidsA, indiciesA, TrigDefs::lastFeatureOfType, &cache);
+  std::vector<const Decision*> sourcesA; // Unused
+  TrigCompositeUtils::typelessFindLinks(toMatch, linkNameToMatch, keysA, clidsA, indiciesA, sourcesA, TrigDefs::lastFeatureOfType, &cache);
   
   if (keysA.size() != 1) {
     ATH_MSG_ERROR("InputMakerBase::matchDecision Did not locate exactly one object having searched for a link named '" << linkNameToMatch 
@@ -129,7 +130,8 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
     std::vector<uint32_t> keysB;
     std::vector<uint32_t> clidsB;
     std::vector<uint16_t> indiciesB;
-    TrigCompositeUtils::typelessFindLinks(checkDecision, linkNameToMatch, keysB, clidsB, indiciesB, TrigDefs::lastFeatureOfType, &cache);
+    std::vector<const Decision*> sourcesB; // Unused
+    TrigCompositeUtils::typelessFindLinks(checkDecision, linkNameToMatch, keysB, clidsB, indiciesB, sourcesB, TrigDefs::lastFeatureOfType, &cache);
     if (keysB.size() != 1) {
       ATH_MSG_ERROR("Logic error. Expect toMatch size == 1 (confirmed) and checkObject size == 1."
         << " But have checkObject size = " << keysB.size() << ". Unable to match this Decision object.");
@@ -146,7 +148,7 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
 
 void InputMakerBase::debugPrintOut(const EventContext& context, SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const{
   size_t validInput=0;
-  for ( auto inputKey: decisionInputs() ) {
+  for ( const auto& inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
     ATH_MSG_DEBUG(" " << inputKey.key() << " " << (inputHandle.isValid()? "valid": "not valid" ) );
     if (inputHandle.isValid()) {

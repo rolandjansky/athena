@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGTOOLS_TRANSIENTADDRESS_H
@@ -17,6 +17,7 @@
 #include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/ClassID.h"
+#include "CxxUtils/CachedValue.h"
 #include "CxxUtils/checker_macros.h"
 
 ///< forward declarations:
@@ -122,7 +123,8 @@ namespace SG {
     ///< Check the validity of the Transient Address.
     /// If forceUpdate is true, then call @c updateAddress
     /// even if we already have an address.
-    bool isValid (IProxyDict* store, bool forceUpdate = false);
+    /// If ctx is nullptr, we don't try to update the address.
+    bool isValid (const EventContext* ctx, bool forceUpdate = false);
 
     ///< cache the pointer to the Address provider which can update
     ///< this transient address
@@ -136,16 +138,7 @@ namespace SG {
                      bool clearAddress,
                      bool consultProvider);
 
-    /**
-     * @brief Retrieve the EventContext saved in store STORE.
-     * @param store The store from which to retrieve the context, or nullptr.
-     *
-     * If there is no context recorded in the store, return a default-initialized
-     * context.
-     */
-    const EventContext& contextFromStore (IProxyDict* store) const;
 
-    
     // PLEASE NOTE: The data members of this class are ordered so that
     // the most frequently accessed members are grouped together, within
     // the first cache line, when it is embedded in DataProxy.  See the layout
@@ -171,17 +164,17 @@ namespace SG {
     ///< IOpaqueAddress:
     IOpaqueAddress* m_address;
 
+    ///< AddressProvider
+    IAddressProvider* m_pAddressProvider;
+
     ///< string key of this object
-    std::string m_name;
+    CxxUtils::CachedValue<std::string> m_name;
 
     ///< all transient clids. They come from symlinks
     TransientClidSet m_transientID; 
 
     ///< all alias names for a DataObject. They come from setAlias
     TransientAliasSet m_transientAlias;
-
-    ///< AddressProvider
-    IAddressProvider* m_pAddressProvider;
   };
   /////////////////////////////////////////////////////////////////////
   // inlined code:
@@ -212,7 +205,15 @@ namespace SG {
   inline
   const std::string& TransientAddress::name() const
   {
-    return m_name;
+    // Most of the time, m_name is set when the TransientAddress is created
+    // and then never changed.  To handle dummy proxies though, m_name
+    // can be created as blank and filled in later, but then never changed
+    // again.  Used CachedValue to avoid having to use a lock for this.
+    if (m_name.isValid()) {
+      return *m_name.ptr();
+    }
+    static const std::string empty;
+    return empty;
   }
 
   /// Get the primary (hashed) SG key.
@@ -322,13 +323,3 @@ namespace SG {
 } //end namespace SG
 
 #endif // STOREGATE_TRANSIENTADDRESS
-
-
-
-
-
-
-
-
-
-

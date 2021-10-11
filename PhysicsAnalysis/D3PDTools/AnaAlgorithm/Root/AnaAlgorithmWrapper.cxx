@@ -5,15 +5,13 @@
 /// @author Nils Krumnack
 
 
-
 //
 // includes
 //
-
 #include <AnaAlgorithm/AnaAlgorithmWrapper.h>
-
 #include <AnaAlgorithm/MessageCheck.h>
-#include <RootCoreUtils/Assert.h>
+
+#include "RootCoreUtils/Assert.h"
 
 //
 // method implementations
@@ -149,7 +147,16 @@ namespace EL
   ::StatusCode AnaAlgorithmWrapper ::
   endInputFile ()
   {
-    // no-op
+    using namespace msgAlgorithmConfig;
+    RCU_READ_INVARIANT (this);
+    if (m_algorithm->hasEndInputFile())
+    {
+      if (m_algorithm->sysEndInputFile().isFailure())
+      {
+        ANA_MSG_ERROR ("failed to call endInputFile() on algorithm: " << m_config.name());
+        return StatusCode::FAILURE;
+      }
+    }
     return StatusCode::SUCCESS;
   }
 }

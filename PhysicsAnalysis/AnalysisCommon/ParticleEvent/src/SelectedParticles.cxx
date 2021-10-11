@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleEvent/SelectedParticles.h"
@@ -56,7 +56,7 @@ string SelectedParticles::displayBits() const
   int j=0;
   for (; itb != m_bits.end(); ++itb){
     // display mask will be a single 1 at the most significant bit
-    unsigned displayMask = 1 << 31;
+    unsigned displayMask = 1u << 31;
     // need to display the words in reverse order
     int temp = nwords - j - 1;
     ++j;

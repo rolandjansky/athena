@@ -37,16 +37,22 @@ public:
   virtual StatusCode addBranches() const override final;
 
 private:
-  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
+  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool{
+    this,
+    "EGammaFudgeMCTool",
+    "",
+    "Handle to the Fudging Tool"
+  };
   SG::ReadHandleKey<xAOD::PhotonContainer> m_containerName{ this,
                                                             "ContainerName",
                                                             "",
                                                             "Input" };
 
   // Write decoration handle keys
-  // these are not really configuarable
-  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_decoratorPass{};
-  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_decoratorPassDelayed{};
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer>
+    m_decoratorPass{ this, "decoratorPass", "", "" };
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer>
+    m_decoratorPassDelayed{ this, "decoratorPassDelayed", "", "" };
   std::string m_sgName;
 };
 }

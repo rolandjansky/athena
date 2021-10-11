@@ -13,35 +13,12 @@ StatusCode PFlowCalibPFODecoratorAlgorithm::initialize(){
   ATH_CHECK(m_mapTruthBarcodeToTruthParticleReadHandleKey.initialize());
 
   ATH_CHECK(m_pfoWriteDecorHandleKeyNLeadingTruthParticles.initialize());
-  ATH_CHECK(m_feWriteDecorHandleKeyNLeadingTruthParticles.initialize());
 
   ATH_CHECK(m_truthAttributerTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
-StatusCode PFlowCalibPFODecoratorAlgorithm::LinkCalibHitPFO(
-							    SG::WriteDecorHandle<xAOD::PFOContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,
-							    SG::ReadHandle<std::map<Identifier,std::vector<const CaloCalibrationHit*> > >& CalibHitReadHandle,
-							    SG::ReadHandle<std::map<unsigned int,const xAOD::TruthParticle* > >& TruthParticleHandle  
-							    ) const
-{
-  //Algorithm to produce links between PFO and CalibHits
-  StatusCode sc;
-  for (auto thisPFO : *pfoWriteDecorHandle){
 
-    const xAOD::CaloCluster* thisCaloCluster = thisPFO->cluster(0);
-    
-    std::vector<std::pair<unsigned int, double > > newBarCodeTruthPairs;
-    sc = m_truthAttributerTool->calculateTruthEnergies(*thisCaloCluster, m_numTruthParticles, *CalibHitReadHandle, *TruthParticleHandle, newBarCodeTruthPairs);
-    if (sc == StatusCode::FAILURE) return sc;
-    
-    for (const auto& thisPair : newBarCodeTruthPairs) ATH_MSG_DEBUG("Cluster Final loop: Particle with barcode " << thisPair.first << " has truth energy of " <<  thisPair.second << " for cluster with e, eta " << thisCaloCluster->e() << " and " << thisCaloCluster->eta());
-
-    pfoWriteDecorHandle(*thisPFO) = newBarCodeTruthPairs;
-  }
-  return StatusCode::SUCCESS;
-}
-// Same algorithm for FE as for PFO
 StatusCode PFlowCalibPFODecoratorAlgorithm::LinkCalibHitPFO(
 							    SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,
 							    SG::ReadHandle<std::map<Identifier,std::vector<const CaloCalibrationHit*> > >& CalibHitReadHandle,
@@ -79,21 +56,12 @@ StatusCode PFlowCalibPFODecoratorAlgorithm::execute(const EventContext& ctx) con
     return StatusCode::FAILURE;
   }
   // pfo linker alg
-  SG::WriteDecorHandle<xAOD::PFOContainer, std::vector< std::pair<unsigned int, double> > > pfoWriteDecorHandleNLeadingTruthParticles(m_pfoWriteDecorHandleKeyNLeadingTruthParticles, ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector< std::pair<unsigned int, double> > > pfoWriteDecorHandleNLeadingTruthParticles(m_pfoWriteDecorHandleKeyNLeadingTruthParticles, ctx);
 
   ATH_CHECK(this->LinkCalibHitPFO(
 				      pfoWriteDecorHandleNLeadingTruthParticles,
 				      mapIdentifierToCalibHitsReadHandle,
 				      mapTruthBarcodeToTruthParticleReadHandle)); // end of check block 
-
-  if(m_useFlowElements){
-    SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<std::pair<unsigned int, double> > > feWriteDecorHandleNLeadingTruthParticles(m_feWriteDecorHandleKeyNLeadingTruthParticles,ctx);
-    
-    ATH_CHECK(this->LinkCalibHitPFO(
-					feWriteDecorHandleNLeadingTruthParticles,
-					mapIdentifierToCalibHitsReadHandle,
-					mapTruthBarcodeToTruthParticleReadHandle)); // end of check block
-  }
   
   return StatusCode::SUCCESS;
 }

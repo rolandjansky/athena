@@ -14,11 +14,11 @@ atlas_add_library( MuonHoughPatternToolsLib
                    PUBLIC_HEADERS MuonHoughPatternTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS 
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonDetDescrUtils MuonHoughPatternEvent MuonPattern MuonPrepRawData MuonSegment MuonRecToolInterfaces MuonLayerHough TrkDriftCircleMath MuonIdHelpersLib MuonClusterizationLib MuonRecHelperToolsLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonDetDescrUtils MuonHoughPatternEvent MuonPattern MuonPrepRawData MuonSegment MuonRecToolInterfaces MuonLayerHough TrkDriftCircleMath MuonIdHelpersLib MuonClusterizationLib MuonRecHelperToolsLib StoreGateLib
                    PRIVATE_LINK_LIBRARIES AtlasHepMCLib CxxUtils EventPrimitives xAODMuon xAODTruth MuonReadoutGeometry MuonRIO_OnTrack TrkSurfaces TrkTruthData )
 
 atlas_add_component( MuonHoughPatternTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GeoPrimitives GaudiKernel MuonDetDescrUtils MuonIdHelpersLib MuonClusterizationLib MuonHoughPatternEvent MuonPattern MuonPrepRawData MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough TrkDriftCircleMath CxxUtils StoreGateLib SGtests EventPrimitives xAODMuon xAODTruth MuonReadoutGeometry MuonRIO_OnTrack TrkSurfaces TrkTruthData MuonHoughPatternToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GeoPrimitives GaudiKernel MuonDetDescrUtils MuonIdHelpersLib MuonClusterizationLib MuonHoughPatternEvent MuonPattern MuonPrepRawData MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough TrkDriftCircleMath CxxUtils StoreGateLib EventPrimitives xAODMuon xAODTruth MuonReadoutGeometry MuonRIO_OnTrack TrkSurfaces TrkTruthData MuonHoughPatternToolsLib )
 

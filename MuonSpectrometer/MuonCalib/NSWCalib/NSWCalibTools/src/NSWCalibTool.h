@@ -45,6 +45,7 @@ namespace Muon {
     virtual StatusCode finalize() override;
 
     StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const override;
+    float peakTime() const override {return m_peakTime;}
 
   private:
 
@@ -63,7 +64,7 @@ namespace Muon {
     float m_interactionDensitySigma;
     float m_interactionDensityMean;
     float m_ionUncertainty;
-    double m_timeOffset;
+    double m_peakTime;
 
     std::string m_gasMixture;
   };

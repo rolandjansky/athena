@@ -15,14 +15,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 
-//#include "CLHEP/Geometry/Transform3D.h"
-
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/GlobalMomentum.h"
-
 #include "HepPDT/ParticleDataTable.hh"
-//#include "TrkParameters/Perigee.h"
-//#include "TrkParameters/AtaPlane.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrackRecord/TrackRecord.h"
 
@@ -124,7 +117,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
       
     Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
 
-    Trk::PlaneSurface planeSurface(&tmpTransf, 5., 5. );
+    Trk::PlaneSurface planeSurface(tmpTransf, 5., 5. );
     result = new Trk::AtaPlane(globalPos, globalMom, charge, planeSurface);
 
   } else {
@@ -195,7 +188,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
       
     Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
 
-    Trk::PlaneSurface planeSurface(&tmpTransf, 5., 5. );
+    Trk::PlaneSurface planeSurface(tmpTransf, 5., 5. );
     result = new Trk::AtaPlane(globalPos, globalMom, charge, planeSurface);
 
   } else {

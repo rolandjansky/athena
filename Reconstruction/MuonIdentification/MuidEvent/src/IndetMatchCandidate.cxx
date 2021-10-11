@@ -26,7 +26,7 @@ IndetMatchCandidate::IndetMatchCandidate (const Trk::Track*		extrapolatedTrack,
 					  const Trk::Perigee*		outgoingPerigee,
 					  const Trk::Track*		outgoingTrack,
 					  const Trk::Track*		spectrometerTrack)
-    :	Rec::MuonMatch(0,extrapolatedTrack,indetTrack,spectrometerTrack),
+    :	Rec::MuonMatch(nullptr,extrapolatedTrack,indetTrack,spectrometerTrack),
 	m_indetIndex				(indetIndex),
 	m_outgoingPerigee			(outgoingPerigee),
 	m_outgoingTrack				(outgoingTrack),

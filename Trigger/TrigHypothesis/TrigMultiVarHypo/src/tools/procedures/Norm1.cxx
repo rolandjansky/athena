@@ -29,7 +29,9 @@ void Norm1::execute( std::vector<float> &rings ) const {
   }
   float energy=0.0;
   for(unsigned i=0; i<rings.size(); ++i)  energy+=rings.at(i);
-  for(unsigned i=0; i<rings.size(); ++i)  rings.at(i)=rings.at(i)/std::fabs(energy);
+  if(energy > 0) {
+    for(unsigned i=0; i<rings.size(); ++i)  rings.at(i)=rings.at(i)/std::fabs(energy);
+  }
 }
 
 

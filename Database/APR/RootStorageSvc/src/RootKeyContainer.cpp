@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -36,14 +36,16 @@
 
 using namespace pool;
 
-RootKeyContainer::RootKeyContainer() : m_dbH(POOL_StorageType) {
-  m_ioHandler  = new RootKeyIOHandler;
-  m_policy     = TObject::kOverwrite;    // On update write new versions
+RootKeyContainer::RootKeyContainer() :
+  m_dir(0),
+  m_dbH(POOL_StorageType),
+  m_rootDb(0),
+  m_ioHandler(new RootKeyIOHandler),
+  m_policy(TObject::kOverwrite),    // On update write new versions
+  m_ioBytes(-1)
+{
   m_canDestroy = true;
   m_canUpdate  = true;
-  m_ioBytes = -1;
-  m_rootDb = 0;
-  m_dir = 0;
 }
 
 /// Standard destructor
@@ -330,7 +332,7 @@ DbStatus RootKeyContainer::close()   {
   return DbContainerImp::close();
 }
 
-DbStatus RootKeyContainer::open(const DbDatabase&     dbH, 
+DbStatus RootKeyContainer::open(DbDatabase&           dbH, 
                                 const std::string&    dir_nam, 
                                 const DbTypeInfo*  /* info */, 
                                 DbAccessMode          mode)  

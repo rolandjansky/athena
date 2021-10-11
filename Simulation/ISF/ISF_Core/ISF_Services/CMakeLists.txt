@@ -21,7 +21,7 @@ atlas_add_component( ISF_Services
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}  ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} AtlasHepMCLib ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel BarcodeInterfacesLib CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SubDetectorEnvelopesLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces MCTruth SimHelpers ISF_Event ISF_HepMC_Interfaces ISF_InterfacesLib TileSimEvent PmbCxxUtils TruthUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} AtlasHepMCLib ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel BarcodeInterfacesLib CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SubDetectorEnvelopesLib AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces MCTruth SimHelpers ISF_Event ISF_HepMC_Interfaces ISF_InterfacesLib TileSimEvent PmbCxxUtils TruthUtils )
 
 # Tests in the package:
 atlas_add_test( InputConverter_test

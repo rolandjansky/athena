@@ -52,11 +52,13 @@ rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC,className="CondAttrListCollection")
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
-condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
+if not hasattr(condSeq,"LArBadChannelCondAlg"):
+  condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
 
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF,className='AthenaAttributeList')
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
-condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
+if not hasattr(condSeq,"LArBadFebCondAlg"):
+  condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
 if (rec.doESD() or rec.doRDOTrigger()):
    if 'COMP200' not in conddb.GetInstance():
@@ -104,7 +106,6 @@ def addLArFolder (db, obj, cls, qual=''):
     return
 
 
-#Load HVScaleCorr. For run 2,these constants are also used by the CaloNoiseToolDB 
 if (haveElecCalibInline):
     from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
     addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondFlatAlg, sqlDB)
@@ -164,7 +165,7 @@ if larCondFlags.LoadElecCalib():
           addLArFolder ('LAR_OFL', larCondFlags.MphysOverMcalFolder(),
                         'LArMphysOverMcalComplete', sqlDB)
 
-      #6. HVScaleCorr -> moved outside of the if loadElecCalib clause b/c it's now used by the CaloNoiseTool
+      #6. HVScaleCorr -> moved outside 
 
       #7. OFCs
       if larCondFlags.OFCShapeFolder()=="":

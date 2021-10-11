@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #---------------------------------------------------------
 # Author      : B.Trocme (LPSC Grenoble) 
 # Description : JO steering CaloBaselineMon
@@ -15,7 +15,9 @@ if 'rec' not in dir():
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 tmp_CaloBaselineMon = {"useBadLBTool":FALSE,
                        "useReadyFilterTool":FALSE,
@@ -43,7 +45,6 @@ CaloBaseline = CaloBaselineMon(
    
    useBadLBTool=tmp_CaloBaselineMon["useBadLBTool"],
    BadLBTool = GetLArBadLBFilterTool(),
-   BunchCrossingTool=BunchCrossingTool(),
    useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"],
    ReadyFilterTool = GetAtlasReadyFilterTool(),
    useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"],

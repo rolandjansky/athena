@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -8,6 +8,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <map>
 
@@ -34,6 +35,11 @@ StatusCode SCT_DetectorElementCondAlg::initialize()
   // Register write handle
   ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
   ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
+
+  // used only if they exist
+  ATH_CHECK(m_trtDetElContKey.initialize());
+  ATH_CHECK(m_muonManagerKey.initialize());
+  ATH_CHECK(m_pixelReadKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -70,8 +76,36 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
+  // Make sure we make a mixed IOV.
+  writeHandle.addDependency (IOVInfiniteRange::infiniteMixed());
+  
   // Add dependency
   writeHandle.addDependency(readHandle);
+  // Additional dependencies for IOV range to limit lifetime to TrackingGeometry lifetime
+  for (const SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> &key :m_muonManagerKey ) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonDependency{key, ctx};
+    if (*muonDependency != nullptr){
+      writeHandle.addDependency(muonDependency);
+    } else {
+    ATH_MSG_WARNING("MuonManager not found, ignoring Muons for SCT_DetElement lifetime");
+    }
+  }
+  for (const SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> &key :m_trtDetElContKey ) {
+    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDependency{key, ctx};
+    if (*trtDependency != nullptr){
+      writeHandle.addDependency(trtDependency);
+    } else {
+      ATH_MSG_WARNING("TRT DetEls not found, ignoring TRT for SCT_DetElement lifetime");
+    }
+  }
+  for (const SG::ReadCondHandleKey<GeoAlignmentStore> &key :m_pixelReadKey ) {
+    SG::ReadCondHandle<GeoAlignmentStore> pixelDependency{key, ctx};
+    if (*pixelDependency != nullptr){
+      writeHandle.addDependency(pixelDependency);
+    } else {
+      ATH_MSG_WARNING("Pixel AlignmentStore not found, ignoring Pixels for SCT_DetElement lifetime");
+    }
+  }
 
   // ____________ Update writeCdo using readCdo ____________
   std::map<const InDetDD::SiDetectorElement*, const InDetDD::SiDetectorElement*> oldToNewMap;
@@ -85,7 +119,7 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
                                             oldEl->getCommonItems(),
                                             readCdo);
     oldToNewMap[oldEl] = *newEl;
-    newEl++;
+    ++newEl;
   }
 
   // Set neighbours and other side
@@ -105,7 +139,7 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     if (layer) {
       newEl->surface().associateLayer(*layer);
     }
-    oldIt++;
+    ++oldIt;
   }
 
   // Apply alignment using readCdo passed to SiDetectorElement

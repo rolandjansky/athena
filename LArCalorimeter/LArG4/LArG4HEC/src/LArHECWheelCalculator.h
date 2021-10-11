@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArHECWheelCalculator.hh
@@ -14,7 +14,6 @@
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
 #include "LArHV/HECHVManager.h"
-#include "CxxUtils/checker_macros.h"
 #include <stdexcept>
 
 // Forward declarations.
@@ -35,11 +34,12 @@ class LArHECWheelCalculator : virtual public LArCalculatorSvcImp {
 public:
 
   LArHECWheelCalculator(const std::string& name, ISvcLocator * pSvcLocator);
-  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override final;
+  virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
   ~LArHECWheelCalculator();
   /////////////////////////////////////////////
 
+  virtual void initializeForSDCreation() override final;
   virtual G4float OOTcut() const override final { return m_OOTcut; }
 
   virtual G4bool Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const override final;

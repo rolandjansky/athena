@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef PUPPIWeightTool_h
 #define PUPPIWeightTool_h
 
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODBase/IParticleContainer.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -22,10 +23,10 @@ class PuppiWeightTool: public JetConstituentModifierBase {
 
   PuppiWeightTool(const std::string& name);
 
-  StatusCode initialize() override final;
-  StatusCode finalize() override final;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override;
 
-  StatusCode process_impl(xAOD::IParticleContainer* cont) const override final;
+  virtual StatusCode process_impl(xAOD::IParticleContainer* cont) const override final;
   StatusCode applyPuppiWeights(xAOD::PFOContainer* cont) const;
   StatusCode applyPuppiWeights(xAOD::FlowElementContainer* cont) const;
 

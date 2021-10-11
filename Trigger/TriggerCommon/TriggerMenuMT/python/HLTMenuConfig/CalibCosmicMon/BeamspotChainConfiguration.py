@@ -2,11 +2,11 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.BeamspotChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
-from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
+from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
+from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -62,9 +62,9 @@ def allTE_trkfast( signature="FS" ):
 
 
         #hypo
-        beamspotHypoAlg = TrigStreamerHypoAlgMT("BeamspotHypoAlg_"+signature)
+        beamspotHypoAlg = TrigStreamerHypoAlg("BeamspotHypoAlg_"+signature)
         beamspotHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
-        beamspotHypoToolGen= StreamerHypoToolMTgenerator
+        beamspotHypoToolGen= StreamerHypoToolGenerator
 
 
         return  MenuSequence( Sequence    = beamspotViewsSequence,
@@ -84,7 +84,7 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):
+    def assembleChainImpl(self):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 

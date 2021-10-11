@@ -15,7 +15,7 @@ atlas_add_component( LArCondUtils
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel CaloDetDescrLib CaloIdentifier CaloGeoHelpers AthenaKernel LArCablingLib LArHV LArReadoutGeometry LArIdentifier LArRawConditions LArRecConditions RegistrationServicesLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib AthenaPoolUtilities Identifier GaudiKernel CaloDetDescrLib CaloIdentifier CaloGeoHelpers AthenaKernel LArCablingLib LArHV LArReadoutGeometry LArIdentifier LArRawConditions LArRecConditions RegistrationServicesLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

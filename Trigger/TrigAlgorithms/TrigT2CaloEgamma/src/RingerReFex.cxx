@@ -67,8 +67,6 @@ StatusCode RingerReFex::initialize()
   ATH_CHECK( m_ringerContainerKey.initialize() );
   ATH_CHECK( m_clusterContainerKey.initialize() );
 
-  m_maxRingsAccumulated = std::accumulate(m_nRings.begin(), m_nRings.end(), 0);
-
   if (!m_monTool.empty()){
     ATH_MSG_DEBUG("Retrieving monTool");
     CHECK(m_monTool.retrieve());
@@ -131,8 +129,15 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
 
   for (unsigned rs = 0; rs < m_nRings.size(); ++rs) {  
 
-    auto obj = RingerReFex::RingSet( m_nRings[rs], m_deltaEta[rs], m_deltaPhi[rs], 
-                                      m_detectors[rs], m_samplings[rs], m_samples[rs]);
+    auto obj = RingerReFex::RingSet( m_nRings[rs], 
+                                     m_deltaEta[rs], 
+                                     m_deltaPhi[rs], 
+                                     m_detectors[rs], 
+                                     m_samplings[rs], 
+                                     m_samples[rs],
+                                     m_doQuarter[rs], 
+                                     m_doEtaAxesDivision[rs], 
+                                     m_doPhiAxesDivision[rs]);
     vec_rs.push_back( obj );
   }
 
@@ -164,15 +169,12 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
     }
   }
 
-  unsigned i=0;
 
   // This is the main loop
   for( auto& rs : vec_rs ){
  
     const CaloCell* hotCell = nullptr;
     double ehot=-999e30;
-
-    std::vector<const CaloCell*> cells;
     
     for ( auto det : rs.detectors() ){
 
@@ -181,10 +183,11 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
 
       if( det_id == TILE ){
 
-        for (std::vector<const CaloCell *>::const_iterator it = vec_tile_cells.begin(); it != vec_tile_cells.end(); ++it) {
+        for (std::vector<const CaloCell *>::const_iterator it = vec_tile_cells.begin(); it != vec_tile_cells.end(); ++it) 
+        {
           if( !rs.isValid(*it) ) continue;
           
-          cells.push_back(*it);
+          rs.push_back(*it);
 
           if( !m_globalCenter ){
             if( maxCell( *it, ehot, emCluster.eta(), emCluster.phi() ) )
@@ -221,9 +224,8 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
 
           // Check if the current cells is allow into this rs
           if( !rs.isValid( it_tmp ) ) continue;
-          cells.push_back(it_tmp);
+          rs.push_back(it_tmp);
         
-
           if( !m_globalCenter ){
             if( maxCell( *it, ehot, emCluster.eta(), emCluster.phi() ) )
               hotCell=*it;
@@ -238,29 +240,44 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
 
     // Use all Tile cells in cache
     if (m_globalCenter || !hotCell) {
-      rs.push_back( cells, emCluster.eta(), emCluster.phi() );
+      rs.buildRings( emCluster.eta(), emCluster.phi() );
     }else {
-      rs.push_back( cells, hotCell->eta(), hotCell->phi() );
+      rs.buildRings( hotCell->eta(), hotCell->phi() );
     }
 
-    i++;
   }// Loop over all ringer sets
 
 
-  /*
-   * Store all rings into the store gate
-   */
-  
+
   
   std::vector<float> ref_rings;
-  ref_rings.reserve( m_maxRingsAccumulated );
-
   for (std::vector<RingerReFex::RingSet>::iterator it=vec_rs.begin(); it!=vec_rs.end(); ++it)
-    ref_rings.insert(ref_rings.end(), it->rings().begin(), it->rings().end());
-  
+  {
+    auto rings = it->rings();
+    ref_rings.insert(ref_rings.end(), rings.begin(), rings.end());
+  }
+    
   auto ptrigRingerRings= new xAOD::TrigRingerRings();
   ringsCollection->push_back( ptrigRingerRings );  
   ptrigRingerRings->setRings(ref_rings);
+  //ptrigRingerRings->auxdecor<int>("type") = 1;
+  if (m_decorateWithCells){
+    std::vector<float> cells_eta;
+    std::vector<float> cells_et;
+    std::vector<float> cells_phi;
+    std::vector<int>    cells_sampling;
+    std::vector<int>    cells_size;
+    std::vector<double> rings_sum;
+    for( auto& rs : vec_rs )
+      rs.fill_cells_info(cells_eta, cells_phi, cells_et, cells_sampling, cells_size, rings_sum);
+    ptrigRingerRings->auxdecor< std::vector<float> >("cells_eta") = cells_eta;
+    ptrigRingerRings->auxdecor< std::vector<float> >("cells_et") = cells_et;
+    ptrigRingerRings->auxdecor< std::vector<float> >("cells_phi") = cells_phi;
+    ptrigRingerRings->auxdecor< std::vector<int> >("cells_sampling") = cells_sampling;
+    ptrigRingerRings->auxdecor< std::vector<int> >("cells_size") = cells_size;
+    if (m_doQuarter[0]) ptrigRingerRings->auxdecor< std::vector< double > >("asym_rings_sum") = rings_sum;
+    else  ptrigRingerRings->auxdecor< std::vector< double > >("rings_sum") = rings_sum;
+  }
 
   auto clusLink = ElementLink<xAOD::TrigEMClusterContainer>(m_clusterContainerKey.key(),0,context);
   ptrigRingerRings->setEmClusterLink( clusLink  );
@@ -275,6 +292,19 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
 
 
 //!=================================================================================
+void RingerReFex::RingSet::fill_cells_info(std::vector<float> &cells_eta, std::vector<float> &cells_phi, std::vector<float> &cells_et, std::vector<int> &cells_sampling, std::vector<int> &cells_size, std::vector<double>  &rings_sum){
+  for (std::vector<const CaloCell*>::const_iterator it=m_cells.begin(); it!=m_cells.end(); ++it) {
+    cells_eta.push_back((*it)->eta());
+    cells_phi.push_back((*it)->phi());
+    cells_et.push_back((*it)->energy());
+    auto sampling = (*it)->caloDDE()->getSampling();
+    cells_sampling.push_back((int) sampling);
+  }
+  cells_size.push_back(m_cells.size());
+  double sum = 0;
+  for (auto ring : m_rings) sum+=ring;
+  rings_sum.push_back(sum);
+}
 
 inline bool RingerReFex::maxCell ( const CaloCell* cell, double &energy, const double eta_ref, const double phi_ref ) const 
 {
@@ -335,29 +365,40 @@ void RingerReFex::printRings( std::vector<RingSet> &vec_rs, const xAOD::TrigEMCl
 
 //!=================================================================================
 //!=================================================================================
-//!=================================================================================
-//!=================================================================================
-//!=================================================================================
-//!=================================================================================
-//!=================================================================================
-//!=================================================================================
 
 
 RingerReFex::RingSet::RingSet ( unsigned int maxRings, double deta,  double dphi, 
                                 const std::vector<int> &detectors,
                                 const std::vector<int> &samplings,
-                                const std::vector<int> &samples )
+                                const std::vector<int> &samples,
+                                bool doQuarter,
+                                bool doEtaAxesDivision,
+                                bool doPhiAxesDivision
+                                 )
     : m_deltaEta(deta),
       m_deltaPhi(dphi),
       m_detectors(detectors),
       m_samplings(samplings),
       m_samples(samples),
-      m_rings(maxRings)
-{}
+      m_doQuarter(doQuarter),
+      m_doEtaAxesDivision(doEtaAxesDivision),
+      m_doPhiAxesDivision(doPhiAxesDivision)
+{
+
+  if(doQuarter){
+    if(doEtaAxesDivision && doPhiAxesDivision){
+      m_rings.resize( (maxRings-1)*4 + 1 );
+    }else{
+      m_rings.resize( (maxRings-1)*2 + 2 );
+    }
+  }else{
+    m_rings.resize( maxRings );
+  }
+
+
+}
   
-
 //!=================================================================================
-
 
 const std::vector< std::pair< int, int > > RingerReFex::RingSet::detectors() const
 {
@@ -366,7 +407,6 @@ const std::vector< std::pair< int, int > > RingerReFex::RingSet::detectors() con
     vec.push_back( std::make_pair( m_detectors[i], m_samplings[i] ) );
   return vec;
 }
-
  
 //!=================================================================================
 
@@ -381,23 +421,40 @@ bool RingerReFex::RingSet::isValid( const CaloCell *cell ) const
   return false;
 }
 
- 
 //!=================================================================================
 
-void RingerReFex::RingSet::push_back( const std::vector<const CaloCell*>& cells, 
-                                      const double eta_center, const double phi_center)
-{ 
+const std::vector<double>& RingerReFex::RingSet::rings() const
+{
+  return m_rings;
+}
 
-  const double one_over = 1 / std::cosh(std::abs(eta_center));
+//!=================================================================================
+
+void RingerReFex::RingSet::push_back( const CaloCell *cell ){
+  m_cells.push_back(cell);
+}
+
+//!=================================================================================
+
+void RingerReFex::RingSet::clear(){
+  m_rings.clear();
+  m_cells.clear();
+}
+
+//!=================================================================================
+
+void RingerReFex::RingSet::buildRings( const double eta_center, const double phi_center)
+{ 
+  // cache cosh eta value
+  const double cosh_eta = std::cosh(std::abs(eta_center));
   
   //are we, possibly at the wrap-around region for phi?
   const bool wrap = Ringer::check_wrap_around(phi_center, false);
   const bool reverse_wrap = Ringer::check_wrap_around(phi_center, true);
 
   // Loop over all cells
-  for (std::vector<const CaloCell*>::const_iterator it=cells.begin(); it!=cells.end(); ++it) {
+  for (std::vector<const CaloCell*>::const_iterator it=m_cells.begin(); it!=m_cells.end(); ++it) {
    
-
     if( !(*it) )
       continue;
     
@@ -406,34 +463,57 @@ void RingerReFex::RingSet::push_back( const std::vector<const CaloCell*>& cells,
     else if (reverse_wrap) phi_use = Ringer::fix_wrap_around(phi_use, true);
     
     // Measure delta eta and delta phi to find out on which ring we are
-    unsigned int i = 0;
     const double deltaEta = ((*it)->eta() - eta_center)/m_deltaEta;
     const double deltaPhi = (phi_use - phi_center)/m_deltaPhi;
     
-    const double deltaGreater = std::max(std::abs(deltaEta), std::abs(deltaPhi));
+    // ring index
+    unsigned int i = 0;
     
+
+    const double deltaGreater = std::max(std::abs(deltaEta), std::abs(deltaPhi));
     i = static_cast<unsigned int>( std::floor (deltaGreater) );
     // Certain compilers have problems with round(), so let's do it ourselves
     if ( (deltaGreater - (double) i) > 0.5) ++i;
-    
-    if (i < m_rings.size()) {
-      //give us Et instead of E
-      m_rings[i] += (*it)->energy();
-    }    
-  }
+  
+    if(m_doQuarter){ // only for i>0, the central ring is not divided
+      bool etaPositive = ( deltaEta > 0 )?true:false;
+      bool phiPositive = ( deltaPhi > 0)?true:false;
+      // i > 0 (not central ring)
+      // Correct position in which we shall fill the ring:
+      if ( m_doEtaAxesDivision && m_doPhiAxesDivision && i ){
+        if (phiPositive){
+          if (etaPositive){
+            i = (i * 4) - 3;
+          }
+          else{
+            i = (i * 4) - 2;
+          }
+        }
+        else if (etaPositive){
+          i = (i * 4) - 1;
+        }
+        else{
+          i = (i * 4);
+        }
+      } else if ((m_doEtaAxesDivision || m_doPhiAxesDivision) && i){
+        if (m_doEtaAxesDivision){
+          i = (etaPositive)?(i * 2):((i * 2) - 1);
+        }
+        else {
+          i = (phiPositive)?(i * 2):((i * 2) - 1);
+        }
+      }
+    }// Do quarter?
 
-  for (unsigned i=0; i < m_rings.size(); i++) 
-  {
-    m_rings[i] *= one_over;
-  }
+    // Fill
+    if (i < m_rings.size()) 
+      m_rings[i] += (*it)->energy() / cosh_eta;
+    
+  }// Loop over each
 
 }
 
 //!=================================================================================
-
-
-
-
 
 
 

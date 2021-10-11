@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_CLASSID_TRAITS_H
@@ -9,7 +9,6 @@
  * It also detects whether T inherits from Gaudi DataObject
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration
- * $Id: ClassID_traits.h,v 1.3 2009-01-15 19:07:29 binet Exp $
  */
 #include <string>
 #include <typeinfo>
@@ -23,7 +22,6 @@
 #include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/ClassName.h"
 
-#include "AthenaKernel/tools/AthenaPackageInfo.h"
 #include <type_traits>
 
 
@@ -66,12 +64,6 @@ struct ClassID_traits {
   static const std::type_info& typeInfo() {
     MY_STATIC_ASSERT(s_isDataObject);
     return typeid(T);
-  }
-
-  ///the package name of this CLASSDEF (and BY CONVENTION of the data obj too!)
-  static  Athena::PackageInfo packageInfo() {
-    MY_STATIC_ASSERT(s_isDataObject);
-    return Athena::PackageInfo("Package-00-00-00");
   }
 
   typedef std::false_type has_version_tag;

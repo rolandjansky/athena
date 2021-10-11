@@ -110,6 +110,7 @@ protected:
   TruthTausEvent m_truthTausEvent;
 
   CxxUtils::CachedValue<bool> m_bIsTruthMatchedAvailable;
+  CxxUtils::CachedValue<bool> m_bIsTruthParticleLinkAvailable;
 
 private:
 

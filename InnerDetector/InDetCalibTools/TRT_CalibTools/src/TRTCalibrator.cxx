@@ -266,9 +266,9 @@ std::string TRTCalibrator::SubLev(std::string pat, int lev){
   std::string sublev;
 
   for (int i=0;i<lev;i++){
-    pat.replace(pat.find("_"),1,"");
-    sublev = pat.substr(0,pat.find("_"));
-    pat.replace(0,pat.find("_"),"");
+    pat.replace(pat.find('_'),1,"");
+    sublev = pat.substr(0,pat.find('_'));
+    pat.replace(0,pat.find('_'),"");
   }
   return sublev;
 }
@@ -296,10 +296,10 @@ bool TRTCalibrator::IsSubLev(const std::string& key, int lev, const std::string&
 
   if (sl.compare(SubLev(key,lev))==0) return true;
 
-   while(sl.compare(sl.substr(sl.find(",")+1))!=0){
-     if (SubLev(key,lev).compare(sl.substr(0,sl.find(",")))==0) return true;
-     sl=sl.substr(sl.find(",")+1);
-     if (SubLev(key,lev).compare(sl.substr(0,sl.find(",")))==0) return true;
+   while(sl.compare(sl.substr(sl.find(',')+1))!=0){
+     if (SubLev(key,lev).compare(sl.substr(0,sl.find(',')))==0) return true;
+     sl=sl.substr(sl.find(',')+1);
+     if (SubLev(key,lev).compare(sl.substr(0,sl.find(',')))==0) return true;
    }
   return false;
 
@@ -318,23 +318,23 @@ int TRTCalibrator::GetSubLevels(const std::string& key, int lev, std::set<int>* 
     return 999;
   }
 
-  if(sl.find(",")!=std::string::npos){
+  if(sl.find(',')!=std::string::npos){
     int value;
-    while(sl.find(",")!=std::string::npos){
-      sscanf(sl.substr(0,sl.find(",")).data(),"%i",&value);
+    while(sl.find(',')!=std::string::npos){
+      sscanf(sl.substr(0,sl.find(',')).data(),"%i",&value);
       levels->insert(value);
-      sl=sl.substr(sl.find(",")+1);
+      sl=sl.substr(sl.find(',')+1);
     }
     sscanf(sl.data(),"%i",&value);
     levels->insert(value);
     return levels->size();
   }
 
-  if(sl.find("t")!=std::string::npos){
+  if(sl.find('t')!=std::string::npos){
     int min,max;
-    sscanf(sl.substr(0,sl.find("t")).data(),"%i",&min);
+    sscanf(sl.substr(0,sl.find('t')).data(),"%i",&min);
     std::cout << "min=" << min << std::endl;
-    sl=sl.substr(sl.find("t")+1);
+    sl=sl.substr(sl.find('t')+1);
     sscanf(sl.data(),"%i",&max);
     std::cout << "max=" << max << std::endl;
     for (int imod=min; imod<=max; imod++){
@@ -488,8 +488,8 @@ bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
 
 
 
-  m_options = "_" + TRT.GetOptString() + "_" + Detector.GetOptString() + "_" + Layer.GetOptString() + "_" + Module.GetOptString() + "_" + Board.GetOptString() + "_" + Chip.GetOptString() + "_" + Straw.GetOptString();
-  if(m_calsub!="user") m_selstring = "_" + TRT.GetSelString() + "_" + Detector.GetSelString() + "_" + Layer.GetSelString() + "_" + Module.GetSelString() + "_" + Board.GetSelString() + "_" + Chip.GetSelString() + "_" + Straw.GetSelString();
+  m_options = '_' + TRT.GetOptString() + '_' + Detector.GetOptString() + '_' + Layer.GetOptString() + '_' + Module.GetOptString() + '_' + Board.GetOptString() + '_' + Chip.GetOptString() + '_' + Straw.GetOptString();
+  if(m_calsub!="user") m_selstring = '_' + TRT.GetSelString() + '_' + Detector.GetSelString() + '_' + Layer.GetSelString() + '_' + Module.GetSelString() + '_' + Board.GetSelString() + '_' + Chip.GetSelString() + '_' + Straw.GetSelString();
   
   //print some info
   msg(MSG::INFO) << endmsg;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBBPCALIGNMENTMONTOOL_H
@@ -63,7 +63,6 @@ class TBBPCAlignmentMonTool: public MonitorToolBase
   std::string m_out_file;
   int m_bpcnum; 
   bool m_monitor_bpccalib;  
-  bool m_isBooked;
 
   //float x2, y2;
   //float x3, y3;

@@ -8,6 +8,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/FlowElement.h"
+#include "xAODPFlow/FEHelpers.h"
 
 #include <iterator>
 #include <cstdio>
@@ -698,6 +699,7 @@ namespace xAOD {
           if(mine == target) {
             if((*mine)->type()==xAOD::Type::TruthParticle) overlapTypes |= 1;
             else if((*mine)->type()==xAOD::Type::Other) overlapTypes |= 1 << xAOD::Type::NeutralParticle;
+            else if((*mine)->type()==xAOD::Type::FlowElement) overlapTypes |= 1 << FEHelpers::signalToXAODType(static_cast<const xAOD::FlowElement&>(**mine));
             else overlapTypes |= 1 << (*mine)->type();
           }
         }
@@ -731,8 +733,6 @@ namespace xAOD {
           else {continue;}
         case MissingETBase::UsageHandler::ParticleFlow:
           if(types[iOL] & 1<<xAOD::Type::ParticleFlow) {break;}
-          //TODO: Check with TJ that this is OK
-          if(types[iOL] & 1<<xAOD::Type::FlowElement) {break;}
           else {continue;}
         case MissingETBase::UsageHandler::TruthParticle:
           if(types[iOL] & 1) {break;}
@@ -814,7 +814,7 @@ namespace xAOD {
 
   bool MissingETAssociation_v1::checkUsage(const MissingETAssociationHelper& helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const
   {
-    if(MissingETAssociation_v1::testPolicy(pSig->type(),p)) {
+    if(MissingETAssociation_v1::testPolicy(*pSig,p)) {
       const IParticleContainer* pCont = static_cast<const IParticleContainer*>(pSig->container());
       MissingETBase::Types::objlink_t el(*pCont,pSig->index());
       for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
@@ -869,19 +869,23 @@ namespace xAOD {
     m_objConstLinks.reserve(50);
   }
 
-  bool MissingETAssociation_v1::testPolicy(unsigned int type,MissingETBase::UsageHandler::Policy p) {
+  bool MissingETAssociation_v1::testPolicy(const xAOD::IParticle& part, MissingETBase::UsageHandler::Policy p) {
+    xAOD::Type::ObjectType objType = part.type();
+    if(objType == xAOD::Type::FlowElement) objType = FEHelpers::signalToXAODType(static_cast<const xAOD::FlowElement&>(part));
+    return testPolicy(objType, p);
+  }
+
+  bool MissingETAssociation_v1::testPolicy(xAOD::Type::ObjectType type, MissingETBase::UsageHandler::Policy p) {
     switch(p) {
     case MissingETBase::UsageHandler::TrackCluster:      
       return type==xAOD::Type::CaloCluster
-
-         || type==xAOD::Type::TrackParticle;
+          || type==xAOD::Type::TrackParticle;
     case MissingETBase::UsageHandler::OnlyCluster:
       return type==xAOD::Type::CaloCluster;
     case MissingETBase::UsageHandler::OnlyTrack:
       return type==xAOD::Type::TrackParticle;
     case MissingETBase::UsageHandler::ParticleFlow:
-      if(type==xAOD::Type::ParticleFlow) {return true;}
-      return type==xAOD::Type::FlowElement;
+      return type==xAOD::Type::ParticleFlow;
     case MissingETBase::UsageHandler::AllCalo:
       return type!=xAOD::Type::TrackParticle;
     default: break;

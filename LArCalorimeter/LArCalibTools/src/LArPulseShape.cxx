@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArPulseShape.h"
@@ -448,12 +448,11 @@ StatusCode LArPulseShape::execute() {
    	const std::vector<short>& samples = (*digit)->samples();
    	
    	m_isample=0;
-   	for (std::vector<short>::const_iterator sample = samples.begin(); sample != samples.end(); sample++) {
-	
+        for (short sample : samples) {
           m_isample++; 
    	  if (lumi->lbLuminosityPerBCIDVector().at(m_closestBC)!=0){
-   	    m_TProfpulse_diff->Fill(m_mindist+m_isample, (*sample-pedestal)/lumi->lbLuminosityPerBCIDVector().at(m_closestBC));//+0,1,2,3 
-   	    m_cellHistos[m_OffId_conv]->Fill(m_mindist+m_isample, (*sample-pedestal)/lumi->lbLuminosityPerBCIDVector().at(m_closestBC));    
+   	    m_TProfpulse_diff->Fill(m_mindist+m_isample, (sample-pedestal)/lumi->lbLuminosityPerBCIDVector().at(m_closestBC));//+0,1,2,3 
+   	    m_cellHistos[m_OffId_conv]->Fill(m_mindist+m_isample, (sample-pedestal)/lumi->lbLuminosityPerBCIDVector().at(m_closestBC));    
           }
    	} //loop over samples
       }

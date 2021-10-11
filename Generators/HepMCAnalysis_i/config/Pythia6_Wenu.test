@@ -1,6 +1,0 @@
-enable=1
-runnumber=147830
-ecm=8000
-jobconf=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147830.Pythia_AUET2BCTEQ6L1_Wenu.py
-jobdescr="Generator: Pythia 6, Process: W->e,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV"
-analist="JetAnalysis WplusJetAnalysis EtmissAnalysis"

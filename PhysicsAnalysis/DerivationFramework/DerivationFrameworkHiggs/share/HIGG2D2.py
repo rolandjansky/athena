@@ -125,12 +125,13 @@ else:
                                                                       WriteFirstN                  = -1)
 
 from AthenaCommon.GlobalFlags import globalflags
-print "HIGG2D2.py globalflags.DataSource()", globalflags.DataSource()
+print (">> HIGG2D2.py globalflags.DataSource() %s" %globalflags.DataSource())
 
 if globalflags.DataSource()=='geant4':
     ToolSvc += HIGG2D2TruthThinningTool
     thinningTools.append(HIGG2D2TruthThinningTool)
-print "HIGG2D2.py thinningTools", thinningTools
+print (">> HIGG2D2.py thinningTools:") 
+print (thinningTools)
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -151,7 +152,8 @@ SkimmingToolHIGG2D2 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              JetPtCut                 = 15.*Units.GeV,
                                                              InvariantMassCut         = 10.*Units.GeV)
 ToolSvc += SkimmingToolHIGG2D2
-print SkimmingToolHIGG2D2
+print ('>> HIGG2D2.py SkimmingToolHIGG2D2')
+print (SkimmingToolHIGG2D2)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  

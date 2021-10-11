@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -18,12 +18,11 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
-#include "AthenaKernel/DataBucketBase.h"
-
-#include "IOVSvc/IIOVSvcTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
+
+#include "AthenaKernel/DataBucketBase.h"
+#include "IOVSvc/IIOVSvcTool.h"
 
 using SG::DataProxy;
 using SG::TransientAddress;
@@ -89,35 +88,32 @@ IOVSvc::~IOVSvc() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::initialize() {
-  StatusCode status = AthService::initialize();
-  msg().setLevel( m_outputLevel.value() );
 
-  ATH_MSG_DEBUG( "Initializing IOVSvc version " << PACKAGE_VERSION  );
-  ATH_MSG_DEBUG( "AthService initialized"  );
+  msg().setLevel( m_outputLevel.value() );
+  ATH_MSG_DEBUG( "Initializing IOVSvc" );
 
   if (!p_sgs.isValid()) {
     ATH_MSG_ERROR("could not get the Event Store");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
   if (!p_detStore.isValid()) {
     ATH_MSG_ERROR("could not get the Detector Store");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
   if (!p_condSvc.isValid()) {
     ATH_MSG_ERROR("could not get the ConditionSvc");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::finalize()
 {
-  ATH_CHECK( AthService::finalize() );
   ATH_MSG_DEBUG( "Service finalised successfully" );
   return StatusCode::SUCCESS;
 }
@@ -802,7 +798,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   std::string tag;
   // remove storename from key
   std::string sgKey = id.key();
-  auto sep = sgKey.find("+");
+  auto sep = sgKey.find('+');
   if (sep != std::string::npos) {
     sgKey.erase(0,sep+1);
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of the LArRODBlockStructure_3 class
@@ -205,7 +205,7 @@ void LArRodBlockPhysicsV2::setNextEnergy(const int32_t energy, const int32_t tim
  LARBSDBG("LArRodBlockStructure: Setting Energy for channel " << m_EIndex << ". E=" << energy); 
  if (quality<0 && energy<0x7FFE && gain==0) {     //Write into Low Energy block
    m_LowEIndex++;                       //Use m_LowEIndex to count the channels in the Low Energy block
-   ShortLong twoValues;
+   ShortLong twoValues{};
    twoValues.s[0]=0;
    twoValues.s[1]=0;
    if (m_LowEIndex%2==1) {            //This is an odd number, simply add data at the bottom of the block

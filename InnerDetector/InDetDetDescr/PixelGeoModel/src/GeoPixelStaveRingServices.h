@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSTAVERINGSERVICES_H
@@ -11,6 +11,7 @@
 #include "GeoPixelLadder.h"
 
 #include "GeoModelKernel/GeoPhysVol.h"
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 class GeoTransform;
 
@@ -36,13 +37,13 @@ public:
   GeoPixelLadder& m_ladder;
   GeoPixelStaveSupport& m_staveSupport;  
 
-  GeoPhysVol *m_supportPhysA;
-  GeoPhysVol *m_supportPhysC;
-  GeoVPhysVol *m_supportMidRing;
+  GeoNodePtr<GeoPhysVol>  m_supportPhysA;
+  GeoNodePtr<GeoPhysVol>  m_supportPhysC;
+  GeoNodePtr<GeoVPhysVol> m_supportMidRing;
 
-  GeoTransform *m_xformSupportA;
-  GeoTransform *m_xformSupportC;
-  GeoTransform *m_xformSupportMidRing;
+  GeoNodePtr<GeoTransform> m_xformSupportA;
+  GeoNodePtr<GeoTransform> m_xformSupportC;
+  GeoNodePtr<GeoTransform> m_xformSupportMidRing;
 
 
 };

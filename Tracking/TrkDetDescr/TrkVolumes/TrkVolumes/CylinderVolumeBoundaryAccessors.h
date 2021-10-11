@@ -82,10 +82,10 @@ class CylinderVolumeBoundaryAccessors {
       SectoralTubeAccessorType stat) const;
 
  private:
-  std::array<ThreeObjectsAccessor, 4> m_cylinderAccessors;
+  std::array<ThreeObjectsAccessor, 4> m_cylinderAccessors{};
   std::array<FourObjectsAccessor, 12> m_tubeAccessors;
-  std::array<FiveObjectsAccessor, 1> m_sectoralCylinderAccessors;
-  std::array<SixObjectsAccessor, 1> m_sectoralTubeAccessors;
+  std::array<FiveObjectsAccessor, 1> m_sectoralCylinderAccessors{};
+  std::array<SixObjectsAccessor, 1> m_sectoralTubeAccessors{};
 };
 
 inline const ThreeObjectsAccessor&

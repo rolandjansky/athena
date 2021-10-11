@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __LArG4H6WarmTCCalculator_H__
@@ -30,8 +30,8 @@ public:
   }
 
 private:
-  bool m_isX;
-  bool m_isABS;
+  bool m_isX = false;
+  bool m_isABS = false;
 };
 
 #endif

@@ -14,7 +14,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def saveMetadata(inputFile):
+def saveMetadata(inputFile, userDetails):
     import json
 
     metatree = inputFile.Get("metadata")
@@ -41,6 +41,8 @@ def saveMetadata(inputFile):
 
     metadata.append({'HLTMenu' : json.loads(str(metatree.HLTMenu))})
 
+    metadata.append({'Details' : userDetails})
+
     with open('metadata.json', 'w') as outMetaFile:
         metafile = {}
         metafile['text'] = 'metadata'
@@ -48,7 +50,7 @@ def saveMetadata(inputFile):
         json.dump(obj=metafile, fp=outMetaFile, indent=2, sort_keys=True)
 
 
-def exploreTree(inputFile):
+def exploreTree(inputFile, dumpSummary=False):
     ''' @brief Explore ROOT Tree to find tables with histograms to be saved in csv
 
     Per each found directory TableConstructor object is created.
@@ -78,16 +80,21 @@ def exploreTree(inputFile):
         for table in obj.GetListOfKeys():
             tableObj = table.ReadObj()
             if not tableObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
-
             log.info("Processing Table %s", table.GetName())
             # Find and create Table Constructor for specific Table
             try:
                 className = table.GetName() + "_TableConstructor"
-                exec("from TrigCostAnalysis.TableSpecifications import " + className)
+                exec("from TrigCostAnalysis." + className + " import " + className)
                 t = eval(className + "(tableObj)")
 
-                if table.GetName() == "Chain_HLT":
+                if table.GetName() == "Chain_HLT" or table.GetName() == "Chain_Algorithm_HLT":
                     t.totalTime = getAlgorithmTotalTime(inputFile, obj.GetName())
+
+                if table.GetName() == "Global_HLT":
+                    t.lbLength = walltime
+
+                if table.GetName() == "Algorithm_HLT":
+                    t.dumpSummary = dumpSummary
 
                 fileName = getFileName(table.GetName(), key.GetName())
                 histPrefix = getHistogramPrefix(table.GetName(), key.GetName())
@@ -95,7 +102,7 @@ def exploreTree(inputFile):
                 t.fillTable(histPrefix)
                 t.normalizeColumns(walltime)
                 t.saveToFile(fileName)
- 
+
             except (NameError, ImportError):
                 log.warning("Class {0} not defined - directory {1} will not be processed"
                             .format(table.GetName()+"_TableConstructor", table.GetName()))

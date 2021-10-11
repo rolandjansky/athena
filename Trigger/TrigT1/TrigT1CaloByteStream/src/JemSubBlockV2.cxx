@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,7 @@ const int      JemSubBlockV2::s_dataIdBit;
 const int      JemSubBlockV2::s_jeWordId;
 const uint32_t JemSubBlockV2::s_dataIdMask;
 
-const int      JemSubBlockV2::s_energyWordId;
+const uint32_t JemSubBlockV2::s_energyWordId;
 const int      JemSubBlockV2::s_sourceIdBit;
 const uint32_t JemSubBlockV2::s_sourceIdMask;
 const int      JemSubBlockV2::s_etId;

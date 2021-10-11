@@ -128,7 +128,7 @@ for var in trtAlignment_Options:
 pixelAlignment_Options = {
     "pixelAlignmentLevelBarrel" : -1
     ,"pixelAlignmentLevelEndcaps": -1
-    ,"pixelAlignmentLevel" : 1
+    ,"pixelAlignmentLevel" : 11
 #   ,"pixelAlignDBM" :  False            #  whether to align DBM instead of actual Pixel detector
         ,"pixelAlignBarrel" : True
     ,"pixelAlignEndcaps" : True
@@ -662,8 +662,8 @@ if (newInDetAlignGeo_Options["alignInDet"] or newInDetAlignGeo_Options["alignSil
     siTrkDBTool.OutputTextFile = newInDetAlignGeo_Options["siliconTextFile"]
     siTrkDBTool.WriteOldConstants = newInDetAlignGeo_Options["writeOldConstants"]
     siTrkDBTool.AlignmentDBM = newInDetAlignGeo_Options["pixelAlignDBM"]
-    siTrkDBTool.WriteAsL3 = False
-    print (" == NewInDetAlignGeometrySetup == siTrkDBTool.WriteAsL3 ", siTrkDBTool.WriteAsL3)
+    siTrkDBTool.WriteAsL3 = True
+    print (' == NewInDetAlignGeometrySetup == siTrkDBTool.WriteAsL3: %r' %siTrkDBTool.WriteAsL3)
 
 
     ToolSvc += siTrkDBTool

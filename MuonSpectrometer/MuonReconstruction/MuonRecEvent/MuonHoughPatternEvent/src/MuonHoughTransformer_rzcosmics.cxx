@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_rzcosmics.h"
@@ -130,7 +130,7 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
       const double hitz = event->getHitz(i);
       const double perp = hitx*m_cosphisec[maxsector] + hity*m_sinphisec[maxsector];
       
-      double residu_distance = m_muonhoughmathutils.signedDistanceToLine(hitz,perp,rz0,theta);
+      double residu_distance = MuonHoughMathUtils::signedDistanceToLine(hitz,perp,rz0,theta);
 	      
       if (printlevel>=4 || log.level()<=MSG::VERBOSE) 
 	{
@@ -143,7 +143,7 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
 	  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	    {
 	      log << MSG::VERBOSE<< "MuonHoughTransformer_rzcosmics::hit added to houghpattern! detector: " << event->getHit(i)->getWhichDetector() << endmsg;
-	      if (event->getHit(i)->getAssociated()==true)log << MSG::VERBOSE  << " hit already earlier associated to pattern!" << endmsg;
+	      if (event->getHit(i)->getAssociated())log << MSG::VERBOSE  << " hit already earlier associated to pattern!" << endmsg;
 	    }
 	  houghpattern->addHit(event->getHit(i));
 	  event->getHit(i)->setAssociated(true);
@@ -166,7 +166,7 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
   houghpattern->setERTheta(eradius);
   houghpattern->setECurvature(1.);
   
-  if (houghpattern->size()==0)
+  if (houghpattern->empty())
     {
       if (printlevel>=4 || log.level()<=MSG::VERBOSE){log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::WARNING : no hits found on pattern" << endmsg;}
     }
@@ -196,14 +196,14 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
 
 float MuonHoughTransformer_rzcosmics::weightHoughTransform (double r0) const
 { 
-  if (m_add_weight_radius==true)
+  if (m_add_weight_radius)
     {return m_detectorsize/(m_detectorsize + m_weight_constant_radius*std::abs(r0));}
   else {return 1;} // weight function, to give more importance to patterns close to origin
 }
 
 float MuonHoughTransformer_rzcosmics::weightHoughTransform (double r0,double sintheta, double sinphi, double dotprod) const // theta in grad
 { 
-  if (m_add_weight_angle==false)
+  if (!m_add_weight_angle)
     {
       return weightHoughTransform(r0);
     }
@@ -224,7 +224,7 @@ int MuonHoughTransformer_rzcosmics::sector(MuonHoughHit* /*hit*/)const
   return 0; 
 }
 
-void MuonHoughTransformer_rzcosmics::updateParameters(MuonHoughPattern* houghpattern)const
+void MuonHoughTransformer_rzcosmics::updateParameters(MuonHoughPattern* houghpattern)
 {
   const unsigned int size = houghpattern->size();
 

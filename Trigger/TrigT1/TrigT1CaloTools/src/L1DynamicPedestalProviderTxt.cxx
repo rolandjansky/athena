@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
 //  L1DynamicPedestalProviderTxt.cxx 
@@ -7,12 +7,8 @@
 
 #include "L1DynamicPedestalProviderTxt.h"
 
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "TrigBunchCrossingTool/BunchCrossing.h"
-
 #include "PathResolver/PathResolver.h"
 #include "CxxUtils/StringUtils.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 #include <algorithm>
 #include <cmath>
@@ -24,8 +20,8 @@
 using std::make_unique;
 
 namespace {
-using bcid_t = Trig::IBunchCrossingTool::bcid_type;
-static const bcid_t MAX_BCID = 3564;
+using bcid_t = BunchCrossingCondData::bcid_type;
+static constexpr bcid_t MAX_BCID = BunchCrossingCondData::m_MAX_BCID;
 }
 
 namespace LVL1 
@@ -58,7 +54,6 @@ L1DynamicPedestalProviderTxt::L1DynamicPedestalProviderTxt(const std::string& t,
                                                            const std::string& n,
                                                            const IInterface*  p)
   : AthAlgTool(t, n, p)
-  , m_bunchCrossingTool("Trig::MCBunchCrossingTool/BunchCrossingTool")
 {
   declareInterface<IL1DynamicPedestalProvider>(this);
 
@@ -74,8 +69,6 @@ L1DynamicPedestalProviderTxt::L1DynamicPedestalProviderTxt(const std::string& t,
     m_hadParameterizations[1][i] = std::vector<std::unique_ptr<ParamFunc>>(s_nBCIDPerTrain);
   }
 
-  declareProperty("BunchCrossingTool", m_bunchCrossingTool);
-
   // Input files containing the parameters for the electromagnetic and hadronic
   // layer, respectively.
   declareProperty("InputFileEM_ShortGap", m_inputFileEMShort);
@@ -90,10 +83,11 @@ L1DynamicPedestalProviderTxt::~L1DynamicPedestalProviderTxt()
   // keep destructor in .cxx file since ~unique_ptr needs full type
 }
 
+
 //================ Initialisation =============================================
 StatusCode L1DynamicPedestalProviderTxt::initialize()
 {
-  CHECK( m_bunchCrossingTool.retrieve() );
+  ATH_CHECK( m_bcDataKey.initialize() );
 
   // parse parameterization for the electromagnetic layer
   std::string fileNameEMShort = PathResolver::find_file(m_inputFileEMShort, "DATAPATH");
@@ -153,30 +147,20 @@ StatusCode L1DynamicPedestalProviderTxt::initialize()
     return StatusCode::FAILURE;
   }
 
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
-  CHECK(incSvc.retrieve());
-  incSvc->addListener(this, "BunchConfig");
-
   return StatusCode::SUCCESS;
-}
-
-void L1DynamicPedestalProviderTxt::handle(const Incident& inc)
-{
-  if(inc.type() != "BunchConfig") return;
-
-  parseBeamIntensityPattern();
 }
 
 namespace {
 
 // Display results of the parsing for debugging purposes
-template<typename Log, typename Tool, typename ResultVector>
-void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& result) {
+template<typename ResultVector>
+void printPatternParsingInfo(MsgStream& log, const BunchCrossingCondData& bcData, const ResultVector& result) {
+
   for(bcid_t bcid = 0; bcid < MAX_BCID; bcid += 20) {
     // print 20 items at once
 
     log << MSG::VERBOSE << "Filled      ";
-    for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log << std::setw(3) << tool->isFilled(j) << " ";
+    for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log << std::setw(3) << bcData.isFilled(j) << " ";
     log << endmsg;
 
     log << MSG::VERBOSE << "Distance    ";
@@ -191,47 +175,58 @@ void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& res
 
 } // namespace [anonymous]
 
+
 // "Parse" the beam intensity pattern to get the bunch train structure.
-void L1DynamicPedestalProviderTxt::parseBeamIntensityPattern()
+std::pair<bool,int> L1DynamicPedestalProviderTxt::distanceFromHeadOfTrain(int bcid) const
 {
-  //  using bcid_t = Trig::IBunchCrossingTool::bcid_type;
-  auto BC = Trig::IBunchCrossingTool::BunchCrossings;
+  const auto BC = BunchCrossingCondData::BunchCrossings;
 
-  m_distanceFromHeadOfTrain.assign(MAX_BCID, std::make_pair(false, -10));
+  SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bcDataKey);
 
-  for(bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
-    if(m_bunchCrossingTool->isFilled(bcid) || m_bunchCrossingTool->bcType(bcid) == Trig::IBunchCrossingTool::MiddleEmpty) {
-      m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(bcid) > 250,
-                                                       m_bunchCrossingTool->distanceFromFront(bcid, BC));
+  if(bcData->isFilled(bcid) || bcData->bcType(bcid) == BunchCrossingCondData::MiddleEmpty) {
+    return {bcData->gapBeforeTrain(bcid) > 250, bcData->distanceFromFront(bcid, BC)};
+  } else {
+    if(bcData->gapAfterBunch(bcid, BC) == 0) {
+      const bcid_t head = ((bcid + 1) == MAX_BCID ? 0 : bcid + 1); // wrap around
+      return {bcData->gapBeforeTrain(head) > 250, -1};
+    } else if(bcData->gapBeforeBunch(bcid, BC) == 0) {
+      const bcid_t tail = bcid ? bcid - 1 : MAX_BCID - 1; // wrap around
+      return {bcData->gapBeforeTrain(tail) > 250,
+              bcData->distanceFromFront(tail, BC) + 1};
     } else {
-      if(m_bunchCrossingTool->gapAfterBunch(bcid, BC) == 1) {
-        bcid_t head = ((bcid + 1) == MAX_BCID ? 0 : bcid + 1); // wrap around
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(head) > 250,
-                                                         -1);
-      } else if(m_bunchCrossingTool->gapBeforeBunch(bcid, BC) == 1) {
-        bcid_t tail = bcid ? bcid - 1 : MAX_BCID - 1; // wrap around
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(tail) > 250,
-                                                         m_bunchCrossingTool->distanceFromFront(tail, BC) + 1);
-      } else {
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(false, -10);
-      }
+      return {false, -10};
     }
   }
-  if(msgLvl(MSG::VERBOSE)) printPatternParsingInfo(msg(), m_bunchCrossingTool, m_distanceFromHeadOfTrain);
 }
 
 //================ dynamic pedestal ==============================================
 // Return the dynamic pedestal.
 // In case no correction is available or applicable this function
 // returns the uncorrected pedestal.
-int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int pedestal, int iBCID, float mu)
+int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int pedestal, int iBCID, float mu) const
 {
-  if(iBCID < 0 || (unsigned)iBCID >= m_distanceFromHeadOfTrain.size()) return pedestal;
+  /*
+   * Uncomment this for debugging/printing the full bunch train pattern
+   *
+  static bool first=true;
+  if (first) {
+    SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bcDataKey);
+    first = false;
+    std::vector<std::pair<bool, int16_t>> dist;
+    dist.assign(MAX_BCID, std::make_pair(false, -10));
+    for(bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
+      dist[bcid] = distanceFromHeadOfTrain(bcid);
+    }
+    printPatternParsingInfo(msg(), *bcData.retrieve(), dist);
+  }
+  */
+
+  if(iBCID < 0 || (unsigned)iBCID >= MAX_BCID) return pedestal;
 
   // Only one bunch train is parameterized. Thus the BCID needs to be mapped
   // to the first train. The train starts at bcid = 1, thus the '+ 1'.
   // Bunches without available parameterization will have a value of -9 and a value of 0 is returned.
-  auto bcidInfo = m_distanceFromHeadOfTrain[iBCID];
+  auto bcidInfo = distanceFromHeadOfTrain(iBCID);
   bool longGap = bcidInfo.first;
   int bcid = bcidInfo.second + 1;
   

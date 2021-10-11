@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARAUTOCORRFROMSTDNTUPLE_H
 #define LARAUTOCORRFROMSTDNTUPLE_H
 
+#include "LArRawConditions/LArMCSym.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -19,25 +20,23 @@ Version for standard Ntuple, produced by LArCalibTools algos....
 With hardcoded numbers for sFcal
  */
 
-class ILArMCSymTool;
 
 class LArAutoCorrFromStdNtuple : public AthAlgorithm
 {
  public:
   LArAutoCorrFromStdNtuple(const std::string & name, ISvcLocator * pSvcLocator);
 
-  ~LArAutoCorrFromStdNtuple();
+  virtual ~LArAutoCorrFromStdNtuple();
 
   //standard algorithm methods
   /// implements IAlgorithm::initialize() 
-  StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   /// implements IAlgorithm::execute()  : Does nothing
-  StatusCode execute() {return StatusCode::SUCCESS;}
+  virtual StatusCode execute() override {return StatusCode::SUCCESS;}
 
-  /// IAlgorithm::finalize() : Where the action takes place...
-  StatusCode finalize(){return StatusCode::SUCCESS;}
-  StatusCode stop();
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
+  virtual StatusCode stop() override;
  
  private:
   int m_nsamples;
@@ -54,7 +53,8 @@ class LArAutoCorrFromStdNtuple : public AthAlgorithm
   /// drop FCAL and change to sFCal
   bool m_sFcal;
 
-   ToolHandle<ILArMCSymTool> m_larmcsym;
+   SG::ReadCondHandleKey<LArMCSym> m_mcSymKey
+   {this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object"};
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 };
 

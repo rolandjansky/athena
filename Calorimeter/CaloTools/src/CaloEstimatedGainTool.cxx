@@ -6,8 +6,6 @@
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2019
  * @brief Estimate gain used to read out a certain energy.
- *
- * Used to be part of ICaloNoiseTool.
  */
 
 
@@ -76,7 +74,7 @@ CaloEstimatedGainTool::estimatedGain (const EventContext& ctx,
   }
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  wrong id ! " 
+    ATH_MSG_WARNING("CaloEstimatedGainTool::estimatedGain  wrong id ! " 
                     << m_lar_em_id->show_to_string (caloDDE.identify()) );
     return CaloGain::INVALIDGAIN;
   } 
@@ -99,14 +97,14 @@ CaloEstimatedGainTool::estimatedGain (const EventContext& ctx,
   }
   else if (iCalo == CaloCell_ID::TILE)
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  NOT IMPLEMENTED FOR TILE "
+    ATH_MSG_WARNING("CaloEstimatedGainTool::estimatedGain  NOT IMPLEMENTED FOR TILE "
                     <<"with these arguments! " 
                     << m_lar_em_id->show_to_string (caloDDE.identify()) );
     return CaloGain::INVALIDGAIN;
   } 
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  wrong id ! " 
+    ATH_MSG_WARNING("CaloEstimatedGainTool::estimatedGain  wrong id ! " 
                     << m_lar_em_id->show_to_string (caloDDE.identify()) );
     return CaloGain::INVALIDGAIN;
   } 
@@ -155,7 +153,7 @@ CaloEstimatedGainTool::estimatedLArGain (const EventContext& ctx,
     }
     else 
     {
-      ATH_MSG_WARNING( "CaloNoiseTool::estimatedGain   wrong step" );
+      ATH_MSG_WARNING( "CaloEstimatedGainTool::estimatedGain   wrong step" );
     }  
 
     if (adc < m_HighGainThresh[iCalo])     igain = CaloGain::LARHIGHGAIN;  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -138,7 +138,7 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
 #ifdef HEPMC3
       hepmcProdVtx->add_particle_out(hepmcParticle);
 #else
-      hepmcProdVtx->add_particle_out(hepmcParticle.release());
+      hepmcProdVtx->add_particle_out(hepmcParticle.get());
 #endif
       // Insert into Event
       if (!prodVtxSeenBefore){ 
@@ -167,7 +167,7 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
 #ifdef HEPMC3
       hepmcDecayVtx->add_particle_in(hepmcParticle);
 #else
-      hepmcDecayVtx->add_particle_in(hepmcParticle.release());
+      hepmcDecayVtx->add_particle_in(hepmcParticle.get());
 #endif
       // Insert into Event
       if (!decayVtxSeenBefore){ 
@@ -186,6 +186,9 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
 	bcpart = 0;
       }
     }
+#ifndef HEPMC3
+    hepmcParticle.release();
+#endif
 
   } // end of particle loop
 

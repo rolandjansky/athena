@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************
@@ -67,8 +67,6 @@
 
 #include "HLTBjetMonTool.h"
 
-#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
-
 #include "GaudiKernel/ListItem.h"
 
 namespace Analysis { class MuonContainer; }
@@ -80,7 +78,6 @@ namespace Analysis { class MuonContainer; }
 
 HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & name, const IInterface* parent) :
   IHLTMonTool(type, name, parent),
-  m_trackJetFinderTool("TrigTrackJetFinderTool"),
   m_TriggerChainBjet{}, m_TriggerChainMujet{},
   m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
@@ -113,10 +110,6 @@ float HLTBjetMonTool::phiCorr(float phi) {
 
 
 StatusCode HLTBjetMonTool::init() {
-
-  ATH_CHECK(m_trackJetFinderTool.retrieve());
-
-  ATH_MSG_INFO("in HLTBjetMonTool::init - retrieved tool: " << m_trackJetFinderTool);
 
   m_etCut = 10.;
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - Muon-jet parameters: m_etCut = " << m_etCut);
@@ -256,10 +249,8 @@ StatusCode HLTBjetMonTool::book(){
       // Check if folder assignment is made for all chains - if not stop the program
       // Regroup chain names with identical histograms
 
-      std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
-      while (it != m_Chain2Dir.end()) {
-	ATH_MSG_DEBUG(it->first << " :: " << it->second );
-	it++;
+      for (const std::pair<const std::string, std::string>& p : m_Chain2Dir) {
+	ATH_MSG_DEBUG(p.first << " :: " << p.second );
       }
       std::map<std::string,std::string>::iterator p;
       for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16
@@ -371,9 +362,9 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
-	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -50., 50.));
 	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
@@ -413,9 +404,9 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
-	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -50., 50.));
 	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
@@ -479,9 +470,9 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
-	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -50., 50.));
 	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
@@ -519,9 +510,9 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
-	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -50., 50.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -50., 50.));
 	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
@@ -1087,7 +1078,7 @@ StatusCode HLTBjetMonTool::book(){
 
 	    // Fetch and plot PV
 	    std::string vtxname = m_onlineVertexContainerKey.key();
-	    if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
+	    if ( vtxname.compare(0, 4, "HLT_")==0 ) vtxname.erase(0,4);
 	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120 & MS 290620
 	    ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
@@ -1097,7 +1088,7 @@ StatusCode HLTBjetMonTool::book(){
 	    // Fetch and plot BTagging information
 
 	    std::string btagname = m_onlineBTaggingContainerKey.key();
-	    if ( btagname.find("HLT_")==0 ) btagname.erase(0,4);
+	    if ( btagname.compare(0, 4, "HLT_")==0 ) btagname.erase(0,4);
 	    auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, btagname );
 	    ATH_CHECK( btaggingLinkInfo.isValid() ) ;
 	    const xAOD::BTagging* btag = *(btaggingLinkInfo.link);

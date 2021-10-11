@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthenaPoolCnvSvc/test/T_AuxContainerCopyTPCnv_test.cxx
@@ -48,8 +48,8 @@ class OldData
 public:
   OldData();
   OldData (const OldData&) = default;
+  // cppcheck-suppress operatorEqVarError
   OldData& operator= (const OldData&) { return *this; }
-
 
   SG::auxid_t m_i1_auxid;
   SG::auxid_t m_i2_auxid;

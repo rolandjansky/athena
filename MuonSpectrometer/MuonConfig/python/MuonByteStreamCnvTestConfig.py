@@ -1,6 +1,6 @@
 """Define ComponentAccumulator functions for configuration of muon data conversions
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -81,7 +81,7 @@ def MM_RdoToDigitCfg(flags, name="MM_RdoToDigitAlg", **kwargs):
 def MdtDigitToMdtRDOCfg(flags, name="MdtDigitToMdtRDO", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitToMdtRDO algorithm"""
     acc = ComponentAccumulator()
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "MDTCSM")
     else:
         kwargs.setdefault("OutputObjectName", "MDTCSM")
@@ -93,7 +93,7 @@ def MdtDigitToMdtRDOCfg(flags, name="MdtDigitToMdtRDO", **kwargs):
 def RpcDigitToRpcRDOCfg(flags, name="RpcDigitToRpcRDO", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitToRpcRDO algorithm"""
     acc = ComponentAccumulator()
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "RPCPAD")
     else:
         kwargs.setdefault("OutputObjectName", "RPCPAD")
@@ -105,7 +105,7 @@ def RpcDigitToRpcRDOCfg(flags, name="RpcDigitToRpcRDO", **kwargs):
 def TgcDigitToTgcRDOCfg(flags, name="TgcDigitToTgcRDO", **kwargs):
     """Return ComponentAccumulator with configured TgcDigitToTgcRDO algorithm"""
     acc = ComponentAccumulator()
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "TGCRDO")
     else:
         kwargs.setdefault("OutputObjectName", "TGCRDO")
@@ -129,7 +129,7 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
     if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "CSC_DIGITS")
         kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "CSCRDO")
-    elif flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "CSCRDO")
     else:
         kwargs.setdefault("OutputObjectName", "CSCRDO")
@@ -137,14 +137,18 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
     CscDigitToCscRDOTool = CompFactory.CscDigitToCscRDOTool
     tool = CscDigitToCscRDOTool("CscDigitToCscRDOTool", **kwargs)
     CscDigitToCscRDO = CompFactory.CscDigitToCscRDO
-    acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool))
+    if flags.Concurrency.NumThreads > 0:
+        acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool,
+                                          Cardinality=flags.Concurrency.NumThreads))
+    else:
+        acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool))
     return acc
 
 
 def STGC_DigitToRDOCfg(flags, name="STGC_DigitToRDO", **kwargs):
     """Return ComponentAccumulator with configured STGC_DigitToRDO algorithm"""
     acc = ComponentAccumulator()
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "sTGCRDO")
     else:
         kwargs.setdefault("OutputObjectName", "sTGCRDO")
@@ -156,7 +160,7 @@ def STGC_DigitToRDOCfg(flags, name="STGC_DigitToRDO", **kwargs):
 def MM_DigitToRDOCfg(flags, name="MM_DigitToRDO", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitToRDO algorithm"""
     acc = ComponentAccumulator()
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "MMRDO")
     else:
         kwargs.setdefault("OutputObjectName", "MMRDO")

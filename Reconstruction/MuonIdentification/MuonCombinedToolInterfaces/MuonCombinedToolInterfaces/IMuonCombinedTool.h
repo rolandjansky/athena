@@ -29,8 +29,8 @@ namespace MuonCombined {
 
         /**IMuonCombinedTool interface: build combined muons from ID and MS candidates */
         virtual void combine(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates,
-                             std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combTracks,
-                             TrackCollection* METracks) const = 0;
+                             std::vector<InDetCandidateToTagMap*> tagMaps, TrackCollection* combTracks, TrackCollection* METracks,
+                             const EventContext& ctx) const = 0;
 
         virtual ~IMuonCombinedTool() = default;
     };

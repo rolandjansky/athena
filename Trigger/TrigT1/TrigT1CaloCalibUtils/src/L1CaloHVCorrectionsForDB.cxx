@@ -161,8 +161,8 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 	        }
 	      }
 
-	      L1CaloRxLayers l1caloRxLayersSample(coolId, layernames, layerNcells);
-	      m_rxLayersContainer->addRxLayers(coolId, l1caloRxLayersSample);
+	      L1CaloRxLayers l1caloRxLayersSample(coolId, std::vector<int>(layernames), std::vector<int>(layerNcells));
+	      m_rxLayersContainer->addRxLayers(coolId, std::move(l1caloRxLayersSample));
 
 	      if (nLayers != affectedCellsF.size()) {
 	        msg(MSG::ERROR) << "layernames/affectedCellsF inconsistent size" << endmsg;
@@ -197,8 +197,8 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 	        for (affIt = affectedCellsF.begin(); affIt != affectedCellsF.end(); ++affIt) {
 	            affectedCells.push_back((int)(*affIt));
                 }
-		L1CaloHVCorrections l1caloHVCorrectionsSample(coolId, meanScale, affectedCells, layerMeans);
-		m_hvCorrectionsContainer->addHVCorrections(coolId, l1caloHVCorrectionsSample);
+		L1CaloHVCorrections l1caloHVCorrectionsSample(coolId, meanScale, std::move(affectedCells), std::vector<float>(layerMeans));
+		m_hvCorrectionsContainer->addHVCorrections(coolId, std::move(l1caloHVCorrectionsSample));
 		hvCount++;
               }
             }

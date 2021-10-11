@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,29 +15,15 @@
 
 #include "LArConditionsTest/LArConditionsTestAlg.h"
 
-// #include "LArTools/LArFebRodMap.h"
-// #include "LArTools/LArOnOffIdMap.h"
 #include "LArRawUtils/LArRoI_Map.h" 
-#include "LArCabling/LArCablingLegacyService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-//#include "AthenaKernel/IIOVSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "Gaudi/Property.h"
-#include "GaudiKernel/ListItem.h"
-
 #include "LArRawConditions/LArRampMC.h" 
 #include "LArRawConditions/LArConditionsChannelSet.h" 
-//#include "LArRawConditions/LArNoiseDB.h" 
 #include "LArElecCalib/ILArOFC.h" 
 
-//#include "CondDBObjects/GenericDbTableClassDef.h"
-//  #include "LArCondCnv/ExampleData.h"
-
-/// POOL - temporary
-// #include "POOLCore/POOLContext.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -47,7 +33,6 @@
 
 LArConditionsTestAlg::LArConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 	AthAlgorithm(name,pSvcLocator),
-	m_cablingSvc(0),
 	m_onlineID(0),
 	m_testFill(false),
 	m_testCondObjs(false),
@@ -57,7 +42,6 @@ LArConditionsTestAlg::LArConditionsTestAlg(const std::string& name, ISvcLocator*
 	m_applyCorrections(false),
 	m_testReadDB(false), 
 	m_TB(false),
-	m_testMC(false),
 	m_tbin(0)
 {
     // switch for testing Filling IOV. 
@@ -68,7 +52,6 @@ LArConditionsTestAlg::LArConditionsTestAlg(const std::string& name, ISvcLocator*
     declareProperty("ApplyCorrections", m_applyCorrections);
     declareProperty("TestFill",         m_testFill);
     declareProperty("TestReadDBDirect", m_testReadDB) ;
-    declareProperty("TestMC",           m_testMC) ;
     declareProperty("Testbeam",         m_TB) ;
     declareProperty("Tbin",         m_tbin) ;
 }
@@ -104,35 +87,8 @@ StatusCode LArConditionsTestAlg::initialize()
     const CaloCell_ID* calocell_id = nullptr;
     ATH_CHECK( detStore()->retrieve(calocell_id) );
 
-     if(m_testMC){ 
-
-       IIncidentSvc* incSvc = nullptr;
-       ATH_CHECK( service("IncidentSvc", incSvc) );
-
-       int PRIORITY = 100;
-       //start listening to "BeginRun"
-       incSvc->addListener(this, "BeginRun", PRIORITY);
-       // register handles or call back 
-       ATH_MSG_DEBUG ( " register DataHandles  or callback " );
- 	// retrieve handel is we are going to test cond db objects
-       StatusCode sc =  detStore()->regFcn(&LArConditionsTestAlg::testCallBack1, 
-                                           this, m_ramp, "LArRamp"); 
-       if(sc.isFailure() ){
-         ATH_MSG_ERROR ( " regFcn DataHandle<ILArRamp> failed " );
-       }
-
- 	ATH_CHECK( detStore()->regHandle(m_DAC2uA, "LArDAC2uA") );
- 	ATH_CHECK( detStore()->regHandle(m_uA2MeV, "LAruA2MeV") );
- 	ATH_CHECK( detStore()->regHandle(m_noise, "LArNoise") );
- 	ATH_CHECK( detStore()->regHandle(m_autoCorr, "LArAutoCorr") );
- 	ATH_CHECK( detStore()->regHandle(m_shape, "LArShape") );
- 	ATH_CHECK( detStore()->regHandle(m_pedestal, "LArPedestal") );
- 	ATH_CHECK( detStore()->regHandle(m_fSampl, "LArfSampl") );
- 	ATH_CHECK( detStore()->regHandle(m_minBias, "LArMinBias") );
-     }// end of m_testMC
-
-     ATH_MSG_DEBUG ( "initialize done" );
-     return StatusCode::SUCCESS;
+    ATH_MSG_DEBUG ( "initialize done" );
+    return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1330,238 +1286,6 @@ StatusCode LArConditionsTestAlg::testFillIOVDb()
     return StatusCode::SUCCESS;
 }
 
-
-
-
-void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
-{ // we get BeginRun incident here. 
-    ATH_MSG_DEBUG(" in LArConditionsTestAlg::handle ");
-
-    const LArEM_ID*  emid = nullptr;
-    StatusCode sc = detStore()->retrieve( emid);
-    if(sc!=StatusCode::SUCCESS){ 
-        ATH_MSG_ERROR ( " Can not retrieve LArEM_ID" );
-	return;
-    }
-
-    // retrieve DetDescrManager and LArCablingService
-    IToolSvc* toolSvc = nullptr;
-    if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-        ATH_MSG_ERROR (" Failed to get ToolSvc" );
-	// return StatusCode::FAILURE ; 
-	return; 
-    }
-
-
-    if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc) ) {
-        ATH_MSG_ERROR (" Failed to get LArCablingService" );
-	// return StatusCode::FAILURE ; 
-	return; 
-    }
-
-
-
-    // Testing mapping objects. 
-    // LArFebRodMap
-//      const LArFebRodMap * febRodMap;
-//      sc=detStore()->retrieve(febRodMap); 
-//      if(sc!=StatusCode::SUCCESS){ 
-//  	log<< MSG::ERROR<<" Can not find LArFedRodMap"<<endmsg;
-//  	// return sc;
-//      }
-
-    // LArOnOffIdMap
-//      const LArOnOffIdMap * onOffIdMap;
-//      sc=detStore()->retrieve(onOffIdMap); 
-//      if(sc!=StatusCode::SUCCESS){ 
-//  	log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endmsg;
-//  	// return sc;
-//      }
-
-
-//     if(m_testCondObjectNoReg){ 
-// 	std::string key = "LArRamp";
-// 	sc = detStore()->retrieve(m_ramp, key);
-// 	//if(m_ramp) {
-// 	if(!sc.isSuccess()){
-// 	    log<< MSG::ERROR<<" Failed to get LArRamp in handle " << endmsg;
-// 	    return;
-// 	    // return StatusCode::FAILURE ; 
-// 	}
-// 	else {
-// 	    log<< MSG::DEBUG << "Handle: Retrieved LArRamp " << endmsg;
-// 	}
-//     } 
-
-
-    // Access LArCablingService, which should use LArFebRodMap and LArOnOffIdMap.
-
-    const std::vector<HWIdentifier>& roms = const_cast<LArCablingLegacyService*>(m_cablingSvc)->getLArRoModIDvec(); 
-    ATH_MSG_DEBUG ( " Number of LArReadoutModuleIDs= " << roms.size() );
-
-//    std::vector<HWIdentifier>::const_iterator it = febs.begin();
-//    std::vector<HWIdentifier>::const_iterator it_end = febs.end();
-    std::vector<HWIdentifier>::const_iterator it = m_onlineID->channel_begin();
-    std::vector<HWIdentifier>::const_iterator it_end = m_onlineID->channel_end();
-
-    int ntot = it_end-it; 
-    ATH_MSG_DEBUG( " Total number of online channels from LArOnlineID " <<ntot);
-
-    int nch = 0; 
-    int nconnected = 0; 
-    int nerr=0; 
-
-    int n_err_uA2MeV=0;
-    int n_err_DAC2uA=0;
-
-
-    const ILArShape* pShape=0; 
-    if(!m_shape) {
-       // try retrieving it 
-       sc = detStore()->retrieve(pShape);
-       if (sc.isSuccess() ){
-         ATH_MSG_INFO(" use ILArShape pointer retrieved from DetStore");
-       } 
-    } else 
-       pShape = m_shape; 
-
-
-    for(;it!=it_end;++it) {
-//	HWIdentifier feb = *it;
-//        for(int i=0;i<128;++i)
-//	  {
-//	   HWIdentifier sid =m_onlineID->channel_Id(feb,i);
-	HWIdentifier sid = *it; 
-	try { 
-
-	    if(! m_cablingSvc->isOnlineConnected(sid))
-		continue;
-
-	    ++nconnected; 
-	    Identifier id = m_cablingSvc->cnvToIdentifier(sid);
-	    HWIdentifier sid2 =m_cablingSvc->createSignalChannelID(id);
-	    ++nch ;
-	    if( sid  !=sid2  ) { 		
-              ATH_MSG_ERROR( " HWIdentifier mismatch,  sid "
-		   <<" "<<sid<<" "<<m_onlineID->show_to_string(sid)
-		   <<" offline id = "<< id <<" "<<m_onlineID->show_to_string(id) 
-		   <<" sid2 = "<< sid2 <<" "<<m_onlineID->show_to_string(sid2) 
-                             );
-		++nerr; 
-	    } 
-	    else { // good identifier, test conditions objects
-
-		// check Calibration Slot and Channel
-		const std::vector<HWIdentifier>&
-		    calib = const_cast<LArCablingLegacyService*>(m_cablingSvc)->calibSlotLine(sid) ; 
-		if(calib.size()==0) {
-                  ATH_MSG_ERROR( " No calibration for this channel,hdw id="
-                                 <<sid.get_compact() );
-		} 
-		else {
-                  ATH_MSG_VERBOSE( " Calib ID ="<<m_onlineID->show_to_string(calib[0])
-                                   );
-		}
-
- 		if(m_testMC)  { 
-		  ILArRamp::RampRef_t v = m_ramp->ADC2DAC(sid, 0 ); 
-
- 		    if(v.size()<2) {
-                      ATH_MSG_ERROR( " Failed to find ramp, hdw id = " 
-                                     <<sid.get_compact() <<" "<< id.get_compact() );
- 			emid->print(id); 
- 		    } 
-
-                    float f = m_uA2MeV->UA2MEV( sid ) ;
-                    if(f == ILAruA2MeV::ERRORCODE) ++n_err_uA2MeV;
-                    f = m_DAC2uA->DAC2UA( sid ) ;
-                    if(f == ILArDAC2uA::ERRORCODE) ++n_err_DAC2uA;
-
-  		    f = m_noise->noise( sid , 0 ) ; 
-
-		    ILArAutoCorr::AutoCorrRef_t v2 = m_autoCorr->autoCorr(sid, 0 ); 
-  		    if(v2.size()!=4) {
-                      ATH_MSG_ERROR( " Failed to find AutoCorr, hdw id = " 
-                                     <<sid.get_compact() );
- 		    } 
-
-
-  		    if(!pShape) { 
-  			// log<< MSG::ERROR<< " ILArShape invalid " << endmsg;
-  			// skip if LArShape is not valid
-  		    } 
- 		    else {
-                        ILArShape::ShapeRef_t vShape=pShape->Shape(sid, 0,m_tbin);
-                        ILArShape::ShapeRef_t vShapeDer=pShape->ShapeDer(sid, 0,m_tbin );
-  			if(vShape.size() ==0 || vShapeDer.size() == 0 ) { 
-                          ATH_MSG_ERROR( " Failed to get Shape or ShapeDer,  hdw id = " 
-                                         <<sid.get_compact() << " size = " << vShape.size() << " " << vShapeDer.size());
-  			}
-                        else {
-                          if (msgLvl (MSG::VERBOSE)) {
-                            msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endmsg;
-                            msg()<<MSG::VERBOSE<<" Shape= " ;
-                            for (unsigned int i=0;i<vShape.size();++i){
-                              msg()<<" " << vShape[i] ; 
-                            }
-                            msg()<<endmsg;
-                            msg()<<MSG::VERBOSE<<" ShapeDer=" ;
-                            for (unsigned int i=0;i<vShapeDer.size();++i){
-                              msg()<<" " << vShapeDer[i] ; 
-                            }
-                            msg()<<endmsg;
-                          }
-			}
-
- 		    } 
-
-  				// pedestal 
-  		    float vPed = m_pedestal->pedestal( sid,0  ) ; 
- 		    if(vPed <= (1.0+LArElecCalib::ERRORCODE)) {
-                      ATH_MSG_ERROR( " Failed to find pedestal, hdw id = " 
-                                     <<sid.get_compact() );
-  		    } 
-
-  				// fSampl
-  		    float fs = m_fSampl->FSAMPL( sid  ) ; 
-  		    if( fs==0 ) {
-                      ATH_MSG_ERROR( " Failed to find fSampl, hdw id = " 
-                                     <<sid.get_compact() );
- 		    } 
-
- 				// MinBias
-  		    float mbs = m_minBias->minBiasRMS( sid  ) ; 
- 		    if( mbs==0 ) {
-                      ATH_MSG_ERROR( " Failed to find MinBias, hdw id = " 
-                                     <<sid.get_compact() );
- 		    } 
-
-		}// end of m_testMC
-
-
-	    } 
-	} 
-	catch (LArID_Exception& except) {
-	    // this is allowed.
-	    std::string err = m_onlineID->print_to_string(sid); 
-	    ATH_MSG_VERBOSE( (std::string)except << sid.get_identifier32().get_compact());
-	    ATH_MSG_VERBOSE( err );
-	} 
-// 	  }
-    }
-    ATH_MSG_DEBUG (" Number of Connected Channel ID = " <<nconnected );
-    ATH_MSG_DEBUG (" Number of Valid Channel ID = " <<nch );
-    if(nerr>0) ATH_MSG_ERROR (" Number channels with incorrect mapping= " <<nerr );
-
-    if (n_err_uA2MeV!=0) 
-      ATH_MSG_DEBUG (" Number of channels without uA2MeV "<<n_err_uA2MeV);
-    if (n_err_DAC2uA!=0) 
-      ATH_MSG_DEBUG (" Number of channels without DAC2uA"<<n_err_DAC2uA);
-// test DCS data 
-//    testDCS_Objects() ;
-
-    return; 
-} 
 
 
 

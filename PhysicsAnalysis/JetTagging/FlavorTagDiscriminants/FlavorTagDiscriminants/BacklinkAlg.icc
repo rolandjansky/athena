@@ -1,0 +1,80 @@
+// In case the extension is confusing, this is a -*- C++ -*- file
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODJet/JetContainer.h"
+
+#include "FlavorTagDiscriminants/BacklinkAlg.h"
+#include "StoreGate/WriteDecorHandle.h"
+#include "StoreGate/ReadDecorHandle.h"
+
+
+namespace FlavorTagDiscriminants {
+
+  template <typename OLD, typename NEW>
+  BacklinkAlg<OLD,NEW>::BacklinkAlg(
+    const std::string& name, ISvcLocator* svcloc):
+    AthReentrantAlgorithm(name, svcloc)
+  {
+  }
+
+
+  template <typename OLD, typename NEW>
+  StatusCode BacklinkAlg<OLD,NEW>::initialize() {
+    ATH_CHECK(m_oldLink.initialize());
+    ATH_CHECK(m_newLink.initialize());
+    return StatusCode::SUCCESS;
+  }
+
+
+  template <typename OLD, typename NEW>
+  StatusCode BacklinkAlg<OLD,NEW>::execute(const EventContext& cxt) const {
+    // Note: NEW = BTagging container, OLD = JetContainer, see the
+    // typedefs in the header file
+    SG::ReadDecorHandle<OLD,ElementLink<NEW>> oldLinks(m_oldLink, cxt);
+    if (!oldLinks.isValid()) {
+      ATH_MSG_ERROR("no old container " << oldLinks.key());
+      return StatusCode::FAILURE;
+    }
+    SG::WriteDecorHandle<NEW,ElementLink<OLD>> newLinks(m_newLink, cxt);
+
+    for (const SG::AuxElement* old_element: *oldLinks) {
+
+      const auto& old_link = oldLinks(*old_element);
+
+      // let's check to make sure the links are valid and that they
+      // point where we think they do
+      if (!old_link.isValid()) {
+        ATH_MSG_ERROR("invalid old link!");
+        return StatusCode::FAILURE;
+      }
+      SG::sgkey_t hashFromContainer = m_newLink.contHandleKey().hashedKey();
+      SG::sgkey_t hashFromLink = old_link.key();
+      if (hashFromLink != hashFromContainer) {
+        ATH_MSG_ERROR(
+          "Your link points to '" << old_link.dataID()
+          << "' but you're trying to add this link to '"
+          << m_newLink.contHandleKey().key() << "'");
+        return StatusCode::FAILURE;
+      }
+
+      const SG::AuxElement* new_element = *old_link;
+      // we're linking _to_ the container where the OLD link exists
+      // already, so the ElementLink type is OLD.
+      ElementLink<OLD> newLink(m_oldLink.contHandleKey().hashedKey(),
+                               old_element->index(), cxt);
+      newLinks(*new_element) = newLink;
+
+    }
+    return StatusCode::SUCCESS;
+  }
+
+
+  template <typename OLD, typename NEW>
+  StatusCode BacklinkAlg<OLD,NEW>::finalize() {
+    return StatusCode::SUCCESS;
+  }
+
+}

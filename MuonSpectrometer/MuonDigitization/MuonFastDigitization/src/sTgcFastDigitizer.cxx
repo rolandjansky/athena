@@ -230,7 +230,7 @@ StatusCode sTgcFastDigitizer::execute() {
     if(itersTgc + 1 ==collGMSH->end()) lastHit = true;
 
     if(m_mergePrds) {
-     if( (hash != hashLast || lastHit)  && sTgcprds.size()>0 ) {
+     if( (hash != hashLast || lastHit)  && !sTgcprds.empty() ) {
        MuonPrepDataCollection<Muon::sTgcPrepData>* col  = localsTgcVec[hashLast];
       // new collection hash will be made
       // first store the sTgc eta prds
@@ -267,10 +267,16 @@ StatusCode sTgcFastDigitizer::execute() {
           std::vector<Identifier> rdoList;
           rdoList.push_back(id_prd);
           double covX = sTgcprds[i]->localCovariance()(Trk::locX,Trk::locX);
-          Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-          covN->setIdentity();
-          (*covN)(0,0) = covX;
-          sTgcPrepData* prdN = new sTgcPrepData(id_prd, hashLast, sTgcprds[i]->localPosition(), rdoList, covN, sTgcprds[i]->detectorElement(), sTgcprds[i]->getBcBitMap());
+          auto covN = Amg::MatrixX(1,1);
+          covN.setIdentity();
+          (covN)(0,0) = covX;
+          sTgcPrepData* prdN = new sTgcPrepData(id_prd,
+                                                hashLast,
+                                                sTgcprds[i]->localPosition(),
+                                                rdoList,
+                                                covN,
+                                                sTgcprds[i]->detectorElement(),
+                                                sTgcprds[i]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
           col->push_back(prdN);
         } else {
@@ -320,12 +326,18 @@ StatusCode sTgcFastDigitizer::execute() {
           ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
 
           double covX = sTgcprds[j]->localCovariance()(Trk::locX, Trk::locX);
-          Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-          covN->setIdentity();
-          (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
+          auto covN = Amg::MatrixX(1,1);
+          covN.setIdentity();
+          (covN)(0,0) = 6.*(nmerge + 1.)*covX;
           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->stgcIdHelper().channel(sTgcprds[j]->identify()));
 
-          sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(), hashLast, sTgcprds[j]->localPosition(), rdoList, covN, sTgcprds[j]->detectorElement(), sTgcprds[j]->getBcBitMap());
+          sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(),
+                                                hashLast,
+                                                sTgcprds[j]->localPosition(),
+                                                rdoList,
+                                                covN,
+                                                sTgcprds[j]->detectorElement(),
+                                                sTgcprds[j]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
           col->push_back(prdN);
         }
@@ -342,7 +354,7 @@ StatusCode sTgcFastDigitizer::execute() {
       col->setIdentifier(m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().parentID(layid), m_idHelperSvc->stgcIdHelper().multilayer(layid),1,1,1) );
       if( prdContainer->addCollection(col,hash).isFailure() ){
 	ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
-	delete col;col=0;
+	delete col;col=nullptr;
 	continue;
       } else {
          ATH_MSG_VERBOSE(" added collection with hash " << (int)hash << " last hash " << (int)hashLast );
@@ -575,12 +587,13 @@ StatusCode sTgcFastDigitizer::execute() {
 	  errX = design->inputPhiPitch*M_PI/180.*radius/sqrt(12);
 	}
       }
-      
-      Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-      cov->setIdentity();
-      (*cov)(0,0) = errX*errX;      
 
-      sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
+      auto cov = Amg::MatrixX(1, 1);
+      cov.setIdentity();
+      (cov)(0, 0) = errX * errX;
+
+      sTgcPrepData* prd = new sTgcPrepData(
+        id, hash, posOnSurf, rdoList, cov, detEl, bctag);
 
       if(type!=1 || lastHit || !m_mergePrds) {
         // always store last hit
@@ -715,7 +728,7 @@ bool sTgcFastDigitizer::readFileOfTimeJitter()
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   std::ifstream ifs;
-  if (fileWithPath != "") {
+  if (!fileWithPath.empty()) {
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {

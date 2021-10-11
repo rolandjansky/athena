@@ -33,12 +33,12 @@ int main () {
   using namespace HLT;
 
 
-  ISvcLocator* pSvcLoc;
+  ISvcLocator* pSvcLoc{nullptr};
   if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
     cerr << "ERROR This test can not be run" << endl;
     return 0;
   }
-  assert(pSvcLoc);
+  assert(pSvcLoc!=nullptr);
 
 
   MsgStream log(Athena::getMessageSvc(), "Registration_test"); 
@@ -46,35 +46,37 @@ int main () {
 
 
 
-  StoreGateSvc* pStore(0);
+  StoreGateSvc* pStore{nullptr};
 
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
     log << MSG::DEBUG << "SG pointer: " << pStore << endmsg;
-  } else 
+  } else {
     ABORT ( "ERROR no SG available" );
-  
-  IToolSvc* toolSvc;
+  }
+
+  IToolSvc* toolSvc{nullptr};
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
     log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
-  } else 
+  } else {
     ABORT( "ERROR no ToolSvc available" );
+  }
 
 
-  HLT::Navigation* hns;
-  IAlgTool* algTool;
+  HLT::Navigation* hns{nullptr};
+  IAlgTool* algTool{nullptr};
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
     log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
-    if ( hns ) {
+    if ( hns!=nullptr ) {
       log << MSG::DEBUG << "OK navigation casted" << endmsg;    
-    } else 
+    } else {
       ABORT( "ERROR navigation casted" );    
-    
-  } else 
+    }
+  } else {
     ABORT( "ERROR navigation tool NOT retrieved" );
-
+  }
 
   hns->reset( );
   hns->prepare();

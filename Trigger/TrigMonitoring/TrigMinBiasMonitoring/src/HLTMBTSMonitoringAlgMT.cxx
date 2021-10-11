@@ -49,13 +49,21 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
   }
   ATH_CHECK(mbtsbits->size() == 1);
 
-  auto triggerWord = Scalar<unsigned int>("triggerWord", 0);
-  auto timeWord = Scalar<unsigned int>("timeWord", 0);
+  std::bitset<32> triggerWord;
+  std::bitset<32> timeWord;
+  std::bitset<32> mask = 0xFFFFFFFF;
+
   auto energyMean_A = Scalar<float>("MBTS_A_meanEnergy", 0.);
   auto energyMean_C = Scalar<float>("MBTS_C_meanEnergy", 0.);
   auto timeMean_A = Scalar<float>("MBTS_A_meanTime", 0.);
   auto timeMean_C = Scalar<float>("MBTS_C_meanTime", 0.);
   auto ebaCounters = Scalar<int>("energy_ebaCounters", 1);
+  auto channelID = Scalar<int>("MBTS_channelID", 0);
+  auto mbtsEnergy = Scalar<float>("MBTS_energy", 0.);
+  auto mbtsTime = Scalar<float>("MBTS_time", 0.);
+  // Parameters to be tuned to correspond to trigger threshold:
+  const double timeCut = 20.;
+  const double energyCut = 40. / 222.;
 
   for (auto &trig : m_triggerList)
   {
@@ -66,7 +74,10 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
 
       fill("MBTSall", TrigCounts);
 
-      for (const auto &mbts_itr : *mbtsbits)
+      auto sideA_hits = 0;
+      auto sideC_hits = 0;
+
+      for (const auto mbts_itr : *mbtsbits)
       {
 
         auto mbtsHitEnergies = mbts_itr->triggerEnergies(); // energy (in pC) of signal in a counter (relative to IP), vector for all counters
@@ -81,22 +92,28 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
 
         for (unsigned i = 0; i < xAOD::TrigT2MbtsBits::NUM_MBTS; i++)
         {
+          if (mbtsHitEnergies.at(i) > energyCut)
+            triggerWord.set(i);
+          if (std::abs(mbtsHitTimes.at(i)) < timeCut)
+            timeWord.set(i);
+
+          channelID = i;
+          mbtsTime = mbtsHitTimes.at(i);
+          mbtsEnergy = mbtsHitEnergies.at(i);
+
+          fill(trig + "_shifter", channelID, mbtsTime, mbtsEnergy);
 
           if (i < 16)
           { // A side
             energyMean_A += mbtsHitEnergies.at(i);
             timeMean_A += mbtsHitTimes.at(i);
             ebaCounters++;
-            ATH_MSG_DEBUG("energy A side: " << mbtsHitEnergies.at(i));
-            ATH_MSG_DEBUG("time A side: " << mbtsHitTimes.at(i));
             if (i == 15)
             {
               if (ebaCounters > 0)
               {
                 energyMean_A /= ebaCounters;
                 timeMean_A /= ebaCounters;
-                ATH_MSG_DEBUG("MEAN energy A side: " << energyMean_A);
-                ATH_MSG_DEBUG("MEAN time A side: " << timeMean_A);
                 fill(trig + "_expert", energyMean_A, timeMean_A);
               }
             }
@@ -106,29 +123,30 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
             energyMean_C += mbtsHitEnergies.at(i);
             timeMean_C += mbtsHitTimes.at(i);
             ebaCounters++;
-            ATH_MSG_DEBUG("energy C side: " << mbtsHitEnergies.at(i));
-            ATH_MSG_DEBUG("time C side: " << mbtsHitTimes.at(i));
             if (i == 31)
             {
               if (ebaCounters > 0)
               {
                 energyMean_C /= ebaCounters;
                 timeMean_C /= ebaCounters;
-                ATH_MSG_DEBUG("MEAN energy C side: " << energyMean_C);
-                ATH_MSG_DEBUG("MEAN time C side: " << timeMean_C);
                 fill(trig + "_expert", energyMean_C, timeMean_C);
               }
             }
           }
         }
+        timeWord &= triggerWord;
 
-        auto sideA_hits = 0;
-        auto sideC_hits = 0;
-        auto MBTStime = Scalar<float>("MBTStime", 3.5);
-        auto MBTSChannelID = Scalar<float>("MBTSChannelID", 1.0);
+        std::bitset<8> InnerEbaBitset((triggerWord & timeWord & mask).to_ulong());
+        std::bitset<8> OuterEbaBitset((((triggerWord & timeWord) >> 8) & mask).to_ulong());
+        std::bitset<8> InnerEbcBitset((((triggerWord & timeWord) >> 16) & mask).to_ulong());
+        std::bitset<8> OuterEbcBitset((((triggerWord & timeWord) >> 24) & mask).to_ulong());
+
+        sideA_hits = InnerEbaBitset.count() + OuterEbaBitset.count();
+        sideC_hits = InnerEbcBitset.count() + OuterEbcBitset.count();
+
         auto MBTS_A_hits = Scalar<int>("MBTS_A_hits", sideA_hits);
         auto MBTS_C_hits = Scalar<int>("MBTS_C_hits", sideC_hits);
-        fill(trig + "_shifter", MBTStime, MBTSChannelID, MBTS_A_hits, MBTS_C_hits);
+        fill(trig + "_shifter", MBTS_A_hits, MBTS_C_hits);
       }
     }
   }

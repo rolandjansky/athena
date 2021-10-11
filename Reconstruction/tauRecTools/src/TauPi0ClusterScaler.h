@@ -38,20 +38,17 @@ private:
   /** @brief Get extrapolated position to the CAL */
   float getExtrapolatedPosition(const xAOD::PFO& chargedPFO, xAOD::TauJetParameters::TrackDetail detail) const; 
 
-  /** @brief Correct neutral PFO kinematics to point at the current tau vertex */
-  void correctNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
-
   /** @brief create charged PFOs */
   void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
 
   /** @brief associate hadronic PFOs to charged PFOs */
-  void associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
+  void associateHadronicToChargedPFOs(const xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
   
   /** @brief associate charged PFOs to neutral PFOs */
-  void associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
+  void associateChargedToNeutralPFOs(const xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
   
   /** @brief associate charged PFOs to neutral PFOs */
-  void subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& pNeutralPFOContainer) const;
+  void subtractChargedEnergyFromNeutralPFOs(const xAOD::TauJet& tau, xAOD::PFOContainer& pNeutralPFOContainer) const;
 };
 
 #endif  // TAURECTOOLS_TAUPI0CLUSTERSCALER_H

@@ -16,6 +16,7 @@ class _ConfigSettingsBase() :
       self._name                = None
       self._suffix              = None
       self._pTmin               = 1.*GeV
+      self._newConfig           = True
       self._TripletDoPPS        = True
       self._Triplet_D0Max       = 4.0
       self._Triplet_D0_PPS_Max  = 1.7
@@ -28,31 +29,52 @@ class _ConfigSettingsBase() :
       self._DoubletDR_Max       = 270
       self._SeedRadBinWidth     = 2
       self._holeSearch_FTF      = False
+      self._electronPID         = False
       self._etaHalfWidth        = 0.1
       self._phiHalfWidth        = 0.1
+      self._zedHalfWidth        = -999 # don't set this parameter unless it is >= 0
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
-      self._doTRT               = False #Apply TRT extension sequence after ambiguity solving
-      self._keepTrackParameters = False #Keep track parameters in conversion to TrackParticles
+      self._doTRT               = True
+      self._keepTrackParameters = False # Keep track parameters in conversion to TrackParticles
       self._UsePixelSpacePoints = True
       self._TrackInitialD0Max   = 20.0
       self._TrackZ0Max          = 300.0
       self._isLRT               = False
+      self._UseTrigSeedML       = None
+      self._RoadWidth           = 10
+      self._nClustersMin        = None
       self._roi                 = None
       self._isLRT               = False
+      self._LRTD0Min            = None
+      self._LRTHardPtMin        = None
       self._doRecord            = True
-      self._adaptiveVertex      = False
       self._vertex              = None
-      self._adaptiveVertex_jet  = False
-      self._vertex_jet          = None
+      self._adaptiveVertex      = False
       self._addSingleTrackVertices = False
+      self._TracksMaxZinterval  = 1 #mm
       self._minNSiHits_vtx      = None
-      
+      self._vertex_jet          = None
+      self._adaptiveVertex_jet  = False
+      self._dodEdxTrk           = False 
+      self._doHitDV             = False 
+      self._doDisappearingTrk   = False
+      self._usePixelNN          = False
+
+      if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
+         self.override()
+
+   # assign to this override method to add additioal global functionality 
+   # to the base class, such as to globally override any of the 
+   # variables above
+   # def override(self):   
+   #      pass
+
    def tracks_FTF(self):
-      if self._suffix is None:
+      if not self._suffix:
          raise Exception( "ID Trigger configuration:  called with non existent slice: ", self._name, self._input_name  )
-      if self._doRecord: 
+      if self._doRecord:
          return recordable('HLT_IDTrack_{}_FTF'.format( self._suffix ))
       else:
          return 'HLT_IDTrack_{}_FTF'.format( self._suffix )
@@ -97,6 +119,10 @@ class _ConfigSettingsBase() :
       return self._pTmin
 
    @property
+   def newConfig(self):
+      return self._newConfig
+
+   @property
    def TripletDoPPS(self):
       return self._TripletDoPPS
 
@@ -125,6 +151,10 @@ class _ConfigSettingsBase() :
       return self._doResMon
 
    @property
+   def electronPID(self):
+      return self._electronPID
+
+   @property
    def doCloneRemoval(self):
       return self._doCloneRemoval
 
@@ -147,6 +177,10 @@ class _ConfigSettingsBase() :
    @property
    def phiHalfWidth(self):
       return self._phiHalfWidth
+
+   @property
+   def zedHalfWidth(self):
+      return self._zedHalfWidth
 
    @property
    def doFullScan(self):
@@ -189,8 +223,28 @@ class _ConfigSettingsBase() :
        return self._isLRT
 
    @property
+   def LRT_D0Min(self):
+       return self._LRTD0Min
+
+   @property
+   def LRT_HardMinPt(self):
+       return self._LRTHardPtMin
+
+   @property
    def roi(self):
       return self._roi
+
+   @property
+   def UseTrigSeedML(self):
+      return self._UseTrigSeedML
+
+   @property
+   def RoadWidth(self):
+      return self._RoadWidth
+
+   @property
+   def nClustersMin(self):
+      return self._nClustersMin
 
    @property
    def isRecordable(self):
@@ -202,18 +256,18 @@ class _ConfigSettingsBase() :
 
    @property
    def vertex(self):
-      if self._vertex is None:
+      if not self._vertex:
          raise Exception( "ID Trigger configuration: vertex not defined for slice: ", self._name, self._input_name  )
-      if self._doRecord: 
+      if self._doRecord:
          return recordable(self._vertex)
       else:
          return self._vertex
 
    @property
    def vertex_jet(self):
-      if self._vertex_jet is None:
+      if not self._vertex_jet:
          raise Exception( "ID Trigger configuration: vertex_jet not defined for slice: ", self._name, self._input_name  )
-      if self._doRecord: 
+      if self._doRecord:
          return recordable(self._vertex_jet)
       else:
          return self._vertex_jet
@@ -234,6 +288,25 @@ class _ConfigSettingsBase() :
    def minNSiHits_vtx(self):
        return self._minNSiHits_vtx
 
+   @property
+   def TracksMaxZinterval(self):
+      return self._TracksMaxZinterval
+
+   @property
+   def dodEdxTrk(self):
+       return self._dodEdxTrk
+
+   @property
+   def doHitDV(self):
+       return self._doHitDV
+
+   @property
+   def doDisappearingTrk(self):
+       return self._doDisappearingTrk
+
+   @property
+   def usePixelNN(self):
+       return self._usePixelNN
 
    def printout(self):
       from AthenaCommon.Logging import logging
@@ -264,7 +337,9 @@ class _ConfigSettingsBase() :
       log.info( "   TrackZ0Max            : {}".format( self._TrackZ0Max ) )
       log.info( "   adaptiveVertex        : {}".format( self._adaptiveVertex ) )
       log.info( "   isLRT                 : {}".format( self._isLRT ) )
-      log.info( "   doJseedHitDV          : {}".format( self._doJseedHitDV ) )
+      log.info( "   LRTD0Min              : {}".format( self._LRTD0Min ) )
+      log.info( "   LRTHardPtmin          : {}".format( self._LRTHardPtMin ) )
+      log.info( "   doHitDV               : {}".format( self._doHitDV ) )
       log.info( "   nClustersMin          : {}".format( self._nClustersMin ) )
       log.info( "   useBremModel          : {}".format( self._useBremModel ) )
       log.info( "   suffix                : {}".format( self._suffix ) )

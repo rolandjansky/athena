@@ -16,5 +16,6 @@ atlas_add_executable( RunPileUpOverlayReuseToys src/RunPileUpOverlayReuseToys.cx
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_scripts( share/RunDepTaskMaker.py share/PrintFirstJobForRun.py share/RunPileUpOverlayReuseToys.C )
+atlas_install_scripts( share/RunDepTaskMaker.py share/PrintFirstJobForRun.py 
+                       share/RunDepProfileGenerator.py share/RunPileUpOverlayReuseToys.C )
 

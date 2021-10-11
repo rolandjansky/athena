@@ -17,14 +17,14 @@
 #ifndef STEP_Propagator_H
 #define STEP_Propagator_H
 
-#include <list>
-#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
+//
 #include "TrkParameters/TrackParameters.h" //TrackParameters typedef
 #include "TrkGeometry/BinnedMaterial.h" //Identified material typedef
 #include "TrkExUtils/MaterialInteraction.h"
@@ -37,6 +37,10 @@
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+//
+#include "CxxUtils/restrict.h"
+#include <vector>
+#include <list>
 
 namespace Trk {
   class Surface;
@@ -318,9 +322,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Private methods:
     /////////////////////////////////////////////////////////////////////////////////
-  private:
 
-    enum SurfaceType { LINE, PLANE, CYLINDER, CONE};
 
     struct Cache {
       bool                   m_detailedElossFlag{true};
@@ -368,7 +370,6 @@ namespace Trk {
       // cache for differential covariance matrix contribution ( partial material dump )
       AmgSymMatrix(5)                m_covariance;
       Trk::EnergyLoss                m_combinedEloss;
-      Trk::MaterialInteraction       m_matInt;
       std::vector<std::pair<int,std::pair<double,double> > > m_currentDist;
       MagField::AtlasFieldCache    m_fieldCache;
 
@@ -377,6 +378,7 @@ namespace Trk {
       }
     };
 
+  private:
     /////////////////////////////////////////////////////////////////////////////////
     // Main functions for propagation
     /////////////////////////////////////////////////////////////////////////////////
@@ -416,7 +418,7 @@ namespace Trk {
     bool
       propagateWithJacobian (Cache&      cache,
                              bool        errorPropagation,
-                             Surface::SurfaceType surfaceType,
+                             Trk::SurfaceType surfaceType,
                              double*     targetSurface,
                              double*     P,
                              double&     path) const;
@@ -447,28 +449,16 @@ namespace Trk {
                      bool&   firstStep,
                      double& distanceStepped) const;
 
-
     /////////////////////////////////////////////////////////////////////////////////
     // Get the magnetic field and gradients
     // Input: Globalposition
-    // Output: BG, which contains Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz, dBy/dx, dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz
+    // Output: BG, which contains Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz, dBy/dx,
+    // dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz
     /////////////////////////////////////////////////////////////////////////////////
-    void
-    getMagneticField(Cache& cache,
-                     const Amg::Vector3D&  position,
-                     bool            getGradients,
-                     double*          BG) const;
-
-
-    /////////////////////////////////////////////////////////////////////////////////
-    // Distance to surface
-    /////////////////////////////////////////////////////////////////////////////////
-    double
-      distance (Surface::SurfaceType surfaceType,
-                double*     targetSurface,
-                const double*     P,
-                bool&       distanceSuccessful) const;
-
+    void getMagneticField(Cache& cache,
+                          const Amg::Vector3D& position,
+                          bool getGradients,
+                          double* ATH_RESTRICT BG) const;
 
     /////////////////////////////////////////////////////////////////////////////////
     // dg/dlambda for non-electrons (g=dEdX and lambda=q/p).
@@ -512,15 +502,6 @@ namespace Trk {
 
     void updateMaterialEffects( Cache& cache, double p, double sinTh, double path) const;
 
-
-    /////////////////////////////////////////////////////////////////////////////////
-    // Create straight line in case q/p = 0
-    /////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<Trk::TrackParameters>
-      createStraightLine( const Trk::TrackParameters*  inputTrackParameters) const;
-
-    void clearCache(Cache& cache) const;
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Calculate energy loss in MeV/mm. The radiative effects are scaled by m_radiationScale (1=mean, 0.5=mean(log10), 0.1=mpv)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -535,20 +516,9 @@ namespace Trk {
     // Bremstrahlung (simulation mode)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void sampleBrem( Cache& cache,double mom) const;
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // propagation of neutrals (simulation mode)
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<Trk::TrackParameters>   propagateNeutral(const Trk::TrackParameters&   parm,
-                                                  std::vector<DestSurf>&        targetSurfaces,
-                                                  Trk::PropDirection            propagationDirection,
-                                                  std::vector<unsigned int>&    solutions,
-                                                  double&                  path,
-                                                  bool                     usePathLimit,
-                                                  bool                     returnCurv=false) const;
 
-    void getField        (Cache& cache, double*,double*        ) const;
-    void getFieldGradient(Cache& cache, double*,double*,double*) const;
-
+    void getField(Cache& cache, const double*, double*) const;
+    void getFieldGradient(Cache& cache, const double*, double*, double*) const;
 
     double                         m_tolerance;         //!< Error tolerance. Low tolerance gives high accuracy
     bool                           m_materialEffects;   //!< Switch material effects on or off
@@ -575,30 +545,38 @@ namespace Trk {
     CLHEP::HepRandomEngine*               m_randomEngine;
     std::string                           m_randomEngineName;
 
-      // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
+      this,
+      "AtlasFieldCacheCondObj",
+      "fieldCondObj",
+      "Name of the Magnetic Field conditions object key"
+    };
     void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;
   };
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods for magnetic field information
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline void STEP_Propagator::getField        (Cache& cache, double* R, double* H) const
+  inline void
+  STEP_Propagator::getField(Cache& cache, const double* R, double* H) const
   {
-
-      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H);
-      cache.m_fieldCache.getField  (R, H);
+    // getFieldZR has been turned off for Step: if(m_solenoid) return
+    // cache.m_fieldCache.getFieldZR(R,H);
+    cache.m_fieldCache.getField(R, H);
   }
 
-  inline void STEP_Propagator::getFieldGradient(Cache& cache, double* R, double* H, double* dH) const
+  inline void
+  STEP_Propagator::getFieldGradient(Cache& cache,
+                                    const double* R,
+                                    double* H,
+                                    double* dH) const
   {
 
-      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H,dH);
-      cache.m_fieldCache.getField  (R, H, dH);
-
+    // getFieldZR has been turned off for Step: if(m_solenoid) return
+    // cache.m_fieldCache.getFieldZR(R,H,dH);
+    cache.m_fieldCache.getField(R, H, dH);
   }
-}
-
-
+  }
 
 #endif // STEP_Propagator_H

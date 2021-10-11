@@ -59,16 +59,15 @@ ActsIterativePriVtxFinderTool::initialize()
 
   ATH_CHECK( m_extrapolationTool.retrieve() );
 
-  Acts::Navigator navigator(trackingGeometry);
+  Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );
 
-  using BField_t = ATLASMagneticFieldWrapper;
-  BField_t bField;
-  auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
+  m_bField = std::make_shared<ATLASMagneticFieldWrapper>();
+  auto stepper = Acts::EigenStepper<>(m_bField);
   auto propagator = std::make_shared<Propagator>(std::move(stepper),
 						 std::move(navigator));
   // IP Estimator
   using IPEstimator = Acts::ImpactPointEstimator<TrackWrapper, Propagator>;
-  IPEstimator::Config ipEstCfg(bField, propagator);
+  IPEstimator::Config ipEstCfg(m_bField, propagator);
   ipEstCfg.maxIterations = m_ipEstMaxIterations;
   ipEstCfg.precision = m_ipEstPrecision;
   IPEstimator ipEst(ipEstCfg);
@@ -84,7 +83,7 @@ ActsIterativePriVtxFinderTool::initialize()
   VertexFitter fitter(fitterCfg, extractParameters);
 
   // Linearizer for Acts::BoundParameters type test
-  TrackLinearizer::Config ltConfig(bField, propagator);
+  TrackLinearizer::Config ltConfig(m_bField, propagator);
   TrackLinearizer linearizer(ltConfig);
 
   // Seed finder setup
@@ -294,7 +293,7 @@ for(const auto& trk : allTracks){
   vertexingOptions.vertexConstraint.setFullPosition(vtxConstraintPos);
   vertexingOptions.vertexConstraint.setFullCovariance(vtxConstraintCov);
 
-  VertexFinder::State finderState(magFieldContext);
+  VertexFinder::State finderState(*m_bField, magFieldContext);
 
   auto findResult = m_vertexFinder->find(allTrackPtrs, vertexingOptions, finderState);
 

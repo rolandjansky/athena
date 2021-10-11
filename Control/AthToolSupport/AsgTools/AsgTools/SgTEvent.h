@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ASGTOOLS_SGTEVENT_H
@@ -8,12 +8,13 @@
 // System include(s):
 #include <memory>
 #include <string>
+#include <vector>
 
 // Local include(s):
 #include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
-#ifndef XAOD_STANDALONE
+#if !defined(XAOD_STANDALONE) && !defined(__CPPCHECK__)
 #   error( "This header should only be used for standalone ASG" )
 #endif
 
@@ -86,6 +87,13 @@ namespace asg {
       StatusCode overwrite( T* pobj, const std::string& name,
                             bool allowMods, bool resetOnly = true,
                             bool noHist = false );
+
+      /** provide list of all keys associated with an object.
+       * usage: store->keys(key_vector)
+       * @param a vector of strings that will be filled with the list of keys
+       */
+      template< typename T >
+      void keys( std::vector< std::string >& vkeys ) const;
 
       /// @}
 

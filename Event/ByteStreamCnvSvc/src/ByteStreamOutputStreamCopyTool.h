@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMOUTPUTSTREAMCOPYTOOL_H
@@ -40,43 +40,36 @@ class ByteStreamOutputStreamCopyTool : public AthAlgTool, virtual public IAthena
 public:
    /// Constructor
    ByteStreamOutputStreamCopyTool(const std::string& type, const std::string& name, const IInterface* parent);
-   /// Destructor
-   virtual ~ByteStreamOutputStreamCopyTool();
 
    /// Initialize
-   virtual StatusCode initialize();
-   /// Finalize
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
 
    /// Connect to the output stream
    ///   Must connectOutput BEFORE streaming
    ///   Only specify "outputName" if one wants to override jobOptions
-   virtual StatusCode connectOutput(const std::string& outputName = "");
+   virtual StatusCode connectOutput(const std::string& outputName = "") override;
 
    /// Commit the output stream after having streamed out objects
    ///   Must commitOutput AFTER streaming
-   virtual StatusCode commitOutput(bool doCommit = false) ;
+   virtual StatusCode commitOutput(bool doCommit = false) override;
 
    /// Finalize the output stream after the last commit, e.g. in
    /// finalize
-   virtual StatusCode finalizeOutput();
+   virtual StatusCode finalizeOutput() override;
 
    /// No need to connect Services.
    virtual StatusCode connectServices(const std::string& dataStore,
 		const std::string& cnvSvc,
-		bool extendProvenenceRecord = false);
+		bool extendProvenenceRecord = false) override;
 
    /// No object written for this tool
-   virtual StatusCode streamObjects(const TypeKeyPairs& typeKeys, const std::string& outputName = "");
+   virtual StatusCode streamObjects(const TypeKeyPairs& typeKeys, const std::string& outputName = "") override;
 
    /// no stream of vector of objects either.
-   virtual StatusCode streamObjects(const DataObjectVec& dataObjects, const std::string& outputName = "");
-
-   /// no refs for this tool.
-   virtual StatusCode fillObjectRefs(const DataObjectVec& dataObjects);
+   virtual StatusCode streamObjects(const DataObjectVec& dataObjects, const std::string& outputName = "") override;
 
    /// Get ItemList from the OutputStreamTool (e.g. all input objects)
-   virtual StatusCode getInputItemList(SG::IFolder* m_p2BWrittenFromTool);
+   virtual StatusCode getInputItemList(SG::IFolder* m_p2BWrittenFromTool) override;
 
 private:
    /// Handle for BS output Svc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -98,8 +98,8 @@ HLTTriggerElement::getLabel(unsigned int id, string & label) {
 
 bool
 HLTTriggerElement::getId(const char * label, unsigned int & id) {
-   map<unsigned int, string>::const_iterator it = m_IdToLabel.begin();
-   for(it = m_IdToLabel.begin(); it != m_IdToLabel.end(); it++)
-      if(it->second == label) { id = it->first; return true; }
+   for (const auto& p : m_IdToLabel) {
+      if(p.second == label) { id = p.first; return true; }
+   }
    return false;
 }

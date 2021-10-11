@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MdtCalibInputSvc_H
@@ -9,21 +9,18 @@
 #include <string>
 
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MdtCalibData/BFieldCorFunc.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
 namespace MuonCalib {
     class MdtStationT0Container;
     class IRtRelation;
-    class BFieldCorFunc;
     class IRtResolution;
 }  // namespace MuonCalib
-
-// interface to enable retrieving of a pointer to the singleton //
-const InterfaceID IID_IMdtCalibInputSvc("MdtCalibInputSvc", 1, 0);
 
 /** @class MdtCalibInputSvc
 Athena service which read calibration from text files and sorts them by station id
@@ -37,11 +34,15 @@ public:
     MdtCalibInputSvc(const std::string &name, ISvcLocator *svc_locator);
     /** destructor */
     virtual ~MdtCalibInputSvc();
-    static const InterfaceID &interfaceID() { return IID_IMdtCalibInputSvc; }
+    static const InterfaceID &interfaceID() {
+        // interface to enable retrieving of a pointer to the singleton //
+        static const InterfaceID IID_IMdtCalibInputSvc("MdtCalibInputSvc", 1, 0);
+        return IID_IMdtCalibInputSvc;
+    }
     /** just some crazy athena function */
-    virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvUnknown);
+    StatusCode queryInterface(const InterfaceID &riid, void **ppvUnknown) override;
     /** service initalizer - reads files */
-    virtual StatusCode initialize();
+    StatusCode initialize() override;
 
     /** Get t0 container for Station */
     const MuonCalib::MdtStationT0Container *GetT0(const MuonCalib::NtupleStationId &id) const;
@@ -52,18 +53,18 @@ public:
     /** Get Resolution */
     const MuonCalib::IRtResolution *GetResolution(const MuonCalib::NtupleStationId &id) const;
     /** Get rt-Relation for calibration region */
-    inline const MuonCalib::IRtRelation *GetRtRelation() const { return p_sel_region_rt; }
+    const MuonCalib::IRtRelation *GetRtRelation() const { return m_sel_region_rt; }
     /** Get b-field correction for calibratino region */
-    inline const MuonCalib::BFieldCorFunc *GetBCorr() const {
-        if (p_sel_region_b == NULL) p_sel_region_b = GetBCorr(m_mean_station_id);
-        return p_sel_region_b;
+    const MuonCalib::BFieldCorFunc *GetBCorr() const {
+        if (!m_sel_region_b) m_sel_region_b.store(std::unique_ptr<const MuonCalib::BFieldCorFunc>{GetBCorr(m_mean_station_id)});
+        return m_sel_region_b.get();
     }
     /** Get resolution for calibration region */
-    inline const MuonCalib::IRtResolution *GetResolution() const { return p_sel_region_res; }
+    const MuonCalib::IRtResolution *GetResolution() const { return m_sel_region_res; }
     //==============================================================================
 private:
     //! calibration io tool to be used
-    ToolHandle<MuonCalib::CalibrationIOTool> m_calib_input_tool{this, "CalibrationInputTool", "MuonCalib::CalibrationDummyIOTool"};
+    ToolHandle<MuonCalib::ICalibrationIOTool> m_calib_input_tool{this, "CalibrationInputTool", "MuonCalib::CalibrationDummyIOTool"};
     //! calibration data sorted by station id
     std::map<MuonCalib::NtupleStationId, MuonCalib::MdtStationT0Container *> m_t0;
     std::map<MuonCalib::NtupleStationId, MuonCalib::IRtRelation *> m_rt_relation;
@@ -72,15 +73,15 @@ private:
     /** pointer to region selection service */
     ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
     /** create the b-field correction */
-    inline bool create_b_field_correction(const MuonCalib::NtupleStationId &id) const;
-    inline const MuonCalib::BFieldCorFunc *findbfieldfun(const MuonCalib::NtupleStationId &id) const;
+    bool create_b_field_correction(const MuonCalib::NtupleStationId &id) const;
+    const MuonCalib::BFieldCorFunc *findbfieldfun(const MuonCalib::NtupleStationId &id) const;
     /** create mean rt relations, and resolutions for the selected calibration region */
-    inline void create_mean_rts();
-    inline StatusCode read_calib_input();
+    void create_mean_rts();
+    StatusCode read_calib_input();
     /** rt relation - resolution - and correction function for the selected region - is average of all matching rt relations*/
-    const MuonCalib::IRtRelation *p_sel_region_rt;
-    mutable const MuonCalib::BFieldCorFunc *p_sel_region_b;
-    const MuonCalib::IRtResolution *p_sel_region_res;
+    const MuonCalib::IRtRelation *m_sel_region_rt;
+    mutable CxxUtils::CachedUniquePtr<const MuonCalib::BFieldCorFunc> m_sel_region_b;
+    const MuonCalib::IRtResolution *m_sel_region_res;
     /** station id for mean rt */
     MuonCalib::NtupleStationId m_mean_station_id;
     /** give warnings about missing calibration only once per chamber */

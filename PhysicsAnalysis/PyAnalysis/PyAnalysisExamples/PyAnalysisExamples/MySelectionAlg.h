@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISEXAMPLES_MYSELECTIONALG_H
 #define PYANALYSISEXAMPLES_MYSELECTIONALG_H
 
-class MyCutClass;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace AthPyEx {
 class MyTool;
+class MyCutClass;
 
 class MySelectionAlg : public AthAlgorithm
 {

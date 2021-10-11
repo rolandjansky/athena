@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # TODO: clean up flags, should only contain general settings but no alg config
@@ -23,7 +23,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doTRT_PRDFormation", True) # Turn running of TRT PRD formation on and off
   icf.addFlag("InDet.doSpacePointFormation", True) # Turn running of space point formation on and off
   icf.addFlag("InDet.doRefit", False) # Turn running of refitting on and off
-  icf.addFlag("InDet.doSLHC", False) # Turn running of SLHC reconstruction on and off
   icf.addFlag("InDet.doIBL", False) # Turn running of IBL reconstruction on and off
   icf.addFlag("InDet.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
   icf.addFlag("InDet.doMinimalReco", False) # Turn running of minimal reconstruction on and off
@@ -34,10 +33,11 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doBackTracking", True) # Turn running of backtracking on and off
   icf.addFlag("InDet.doLowPt",True) # Turn running of doLowPt second pass on and off
   icf.addFlag("InDet.doVeryLowPt", False) # Turn running of doVeryLowPt thrid pass on and off
-  icf.addFlag("InDet.doSLHCConversionFinding",True) # Turn running of doSLHCConversionFinding second pass on and off
   icf.addFlag("InDet.doForwardTracks", False) # Turn running of doForwardTracks pass on and off
   icf.addFlag("InDet.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.doLargeD0", False)
+  icf.addFlag("InDet.doR3LargeD0", True)
+  icf.addFlag("InDet.storeSeparateLargeD0Container", True)
   icf.addFlag("InDet.useExistingTracksAsInput", False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey 
   icf.addFlag("InDet.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.priVtxCutLevel", 3 ) # Control vertexing cuts and settings for different lumi to limit CPU and disk space 
@@ -70,7 +70,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.magField", 'None') # control which field tool to use ("None"/"fast") 
   icf.addFlag("InDet.propagatorType", 'RungeKutta') # control which propagator to use ('RungeKutta'/'STEP') 
   icf.addFlag("InDet.trackFitterType", 'GlobalChi2Fitter') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
-  icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool 
+  icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool
+  icf.addFlag("InDet.useHolesFromPattern", False) 
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding 
   icf.addFlag("InDet.doSiSPSeededTrackFinder", False) # use track finding in silicon 
   icf.addFlag("InDet.doTRTExtensionNew", True) # turn on / off TRT extensions 
@@ -124,10 +125,9 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doVtxMonitoringD3PD", False) # fills the D3PD parts for the unconstrained PV and the split vtx, works only with iterative finder 
   icf.addFlag("InDet.doConvVtxD3PD", False)
   icf.addFlag("InDet.doV0VtxD3PD", False)
-  icf.addFlag("InDet.doTriggerD3PD", False)
   icf.addFlag("InDet.removeTRTNoise", False)
   icf.addFlag("InDet.noTRTTiming", False)
-  icf.addFlag("InDet.InDet25nsec", False )
+  icf.addFlag("InDet.InDet25nsec", True ) # in most of the cases this is True
   icf.addFlag("InDet.selectSCTIntimeHits", True) # defines if the X1X mode is used for the offline or not 
   icf.addFlag("InDet.cutSCTOccupancy", True )
   icf.addFlag("InDet.useDCS", True)
@@ -140,8 +140,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.disableInDetReco", False) # Disable all ID reconstruction: pre-processing,tracking, post-processing etc. Still does the configuration: job porperties, cuts, loaign of tools and conditions
   icf.addFlag("InDet.doPixelClusterSplitting", True) # Try to split pixel clusters 
   icf.addFlag("InDet.pixelClusterSplittingType", 'NeuralNet') # choose splitter type: NeuralNet or AnalogClus
-  icf.addFlag("InDet.pixelClusterSplitProb1", 0.6) # Cut value for splitting clusters into two parts 
-  icf.addFlag("InDet.pixelClusterSplitProb2", 0.2) # Cut value for splitting clusters into three parts 
+  icf.addFlag("InDet.pixelClusterSplitProb1", 0.55) # Cut value for splitting clusters into two parts 
+  icf.addFlag("InDet.pixelClusterSplitProb2", 0.45) # Cut value for splitting clusters into three parts 
   icf.addFlag("InDet.pixelClusterSplitProb1_run1", 0.5) # Cut value for splitting clusters into two parts 
   icf.addFlag("InDet.pixelClusterSplitProb2_run1", 0.5) # Cut value for splitting clusters into three parts 
   icf.addFlag("InDet.pixelClusterSplitMinPt", 1000) # Min pt for tracks to try and split hits 
@@ -165,11 +165,9 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   icf.addFlag("InDet.doRejectInvalidCov", False) # Reject all tracks which have a non positive definite covariance matrix after the refit.
   icf.addFlag("InDet.doSSSfilter", True) # Switch for running SSS filter
-  icf.addFlag("InDet.pT_SSScut", -1) # Pt cut for SSS filter [GeV]
   icf.addFlag("InDet.ForceCoraCool", False) # Use old (non CoolVectorPayload) SCT Conditions 
   icf.addFlag("InDet.ForceCoolVectorPayload", False) # Use new (CoolVectorPayload) SCT Conditions 
   icf.addFlag("InDet.doTrackSegmentsDisappearing", True) # Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off
-  icf.addFlag("InDet.doSLHCVeryForward", False ) # Turn running of SLHC reconstruction for Very Forward extension on and off 
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation) 
   icf.addFlag("InDet.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
   icf.addFlag("InDet.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
@@ -180,13 +178,12 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
-  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createSLHCTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createSLHCConversionFindingTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createForwardSLHCTracksTrackingFlags, createVeryForwardSLHCTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
+  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
 
   icf.addFlagsCategory ("InDet.Tracking", createTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.SLHCTracking", createSLHCTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.HighPileupTracking", createHighPileupTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.MinBiasTracking", createMinBiasTrackingFlags, prefix=True)
@@ -194,11 +191,8 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.R3LargeD0Tracking", createR3LargeD0TrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.LowPtLargeD0Tracking", createLowPtLargeD0TrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.LowPtTracking", createLowPtTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.SLHCConversionFindingTracking", createSLHCConversionFindingTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.VeryLowPtTracking", createVeryLowPtTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.ForwardTracksTracking", createForwardTracksTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.ForwardSLHCTracksTracking", createForwardSLHCTracksTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VeryForwardSLHCTracksTracking", createVeryForwardSLHCTracksTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.BeamGasTracking", createBeamGasTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.VtxLumiTracking", createVtxLumiTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.VtxBeamSpotTracking", createVtxBeamSpotTrackingFlags, prefix=True)

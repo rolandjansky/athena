@@ -23,7 +23,7 @@
 Trk::MaterialOnTrackValidation::MaterialOnTrackValidation(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_inputTrackCollection("Tracks"),
-  m_Tree(0),
+  m_Tree(nullptr),
   m_updates(0), // Coverity complaints about this and the following members not to be initialised, although they are before usage.
   m_currentPathInX0(0),
   m_stepInX0(0)
@@ -69,7 +69,7 @@ StatusCode Trk::MaterialOnTrackValidation::execute()
 
   // Retrieving the Trackcollection specified via m_inputTrackCollection
   StatusCode sc = StatusCode::SUCCESS;
-  const TrackCollection* trackCollection = 0;
+  const TrackCollection* trackCollection = nullptr;
 
   if (m_inputTrackCollection!="") {
       sc = evtStore()->retrieve(trackCollection,m_inputTrackCollection);
@@ -129,9 +129,9 @@ StatusCode Trk::MaterialOnTrackValidation::execute()
           dynamic_cast<const Trk::EstimatedBremOnTrack*>(mEffect);
         const Trk::MaterialEffectsOnTrack* mef =
           dynamic_cast<const Trk::MaterialEffectsOnTrack*>(mEffect);
-        if (eb!=NULL) {
+        if (eb!=nullptr) {
           m_momentumChange[m_updates]    = (1.0-eb->retainedEnFraction()) * tParameter->momentum().mag();
-        } else if ( (mef!=NULL) && (mef->energyLoss() != NULL) ) {
+        } else if ( (mef!=nullptr) && (mef->energyLoss() != nullptr) ) {
           m_momentumChange[m_updates] = mef->energyLoss()->deltaE();
         } else m_momentumChange[m_updates] = 0.0;
 
@@ -181,16 +181,16 @@ void Trk::MaterialOnTrackValidation::bookTree() {
 
   // Registering the Tree
   ISvcLocator* svcLocator = Gaudi::svcLocator();
-  ITHistSvc* tHistSvc = 0;
+  ITHistSvc* tHistSvc = nullptr;
   if ((svcLocator->service("THistSvc", tHistSvc)).isFailure()) {
     ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
-    delete m_Tree; m_Tree = 0;
+    delete m_Tree; m_Tree = nullptr;
     return;
   }
 
   if ((tHistSvc->regTree("/val/MaterialOnTrackValidation", m_Tree)).isFailure()) {
     ATH_MSG_ERROR("initialize() Could not register the Tree -> Switching ValidationMode Off !");
-    delete m_Tree; m_Tree = 0;
+    delete m_Tree; m_Tree = nullptr;
     return;
   }
 

@@ -15,8 +15,6 @@
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
-#include "TrigT1Interfaces/IMuctpiSimTool.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -27,7 +25,6 @@ class ITHistSvc;
 
 namespace TrigConf
 {
-   class TriggerThreshold;
    class L1Menu;
 } // namespace TrigConf
 
@@ -66,19 +63,25 @@ namespace LVL1 {
          For more details, see ATR-16781.
       */
       unsigned int topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const;
+      /* 
+         @brief calculate the eta and phi L1Topo indices
 
+         The exact eta and phi coordinates are rounded according to a particular L1Topo granularity
+         Using product instead of division avoids unexpected rounding errors due to precision
+         Also, LUTs for the firmware are built using Python 3.x numpy.round(), which is different from std::round()
+         Input: x = eta/phi float values, g = inverse of eta/phi granularity
+         Output: integer eta/phi L1Topo coordinates
+      */
+      int topoIndex(float x, int g) const;
+      /* 
+         @brief use L1Topo convention for muon flags (1 = true/positive, -1 = false/negative, 0 = undefined)
+      */
+      int topoFlag(bool flag) const;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      Gaudi::Property<bool> m_useNewConfig{this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc"};
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1ConfigSvc providing L1 configuration for Run 2"};
-
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC RoI reconstruction tool"};
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool{this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC RoI reconstruction tool"};
-
-      ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_MuctpiSimTool{this, "MuctpiSimTool", "LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool", "Tool for MUCTPIsimulation"};
-
-      std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
       SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muonROILocation { this, "MuonROILocation", LVL1MUCTPI::DEFAULT_MuonRoIBLocation, "Storegate key for the Muon ROIs" };
       SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation{ this, "ROIBResultLocation", ROIB::DEFAULT_RoIBRDOLocation, "Storegate key for the reading the ROIBResult" };
@@ -87,7 +90,14 @@ namespace LVL1 {
       Gaudi::Property<uint16_t> m_MuonEncoding {this, "MuonEncoding", 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity"};
 
       mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEtaPhiTopo ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hBW2or3 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hInnerCoin ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hGoodMF ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hCharge ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hIs2cand ATLAS_THREAD_SAFE; 
+      mutable LockedHandle<TH1> m_hIsTGC ATLAS_THREAD_SAFE; 
    };
 }
 

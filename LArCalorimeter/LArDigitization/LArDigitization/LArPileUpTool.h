@@ -21,6 +21,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArOFC.h"
@@ -29,8 +30,8 @@
 #include "LArElecCalib/ILArfSampl.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -58,7 +59,7 @@ class LArHEC_ID;
 class LArFCAL_ID;
 class CaloCell_ID;
 class LArDigit;
-class CaloDetDescrManager;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -206,8 +207,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "Pt cut on e/photons for window mode (Default=5GeV)"};
   //
   enum CaloNum{EM,HEC,FCAL,EMIW};
-  double m_LowGainThresh[4];       // energy thresholds for the low gain
-  double m_HighGainThresh[4];      // energy thresholds for the high gain
+  double m_LowGainThresh[4]{};       // energy thresholds for the low gain
+  double m_HighGainThresh[4]{};      // energy thresholds for the high gain
 
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
       "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
@@ -226,7 +227,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "Pileup and/or noise added by overlaying random events (default=false)"};         // Pileup and noise added by overlaying random events
   Gaudi::Property<bool> m_isMcOverlay{this, "isMcOverlay", false,
       "Is input Overlay from MC or data (default=false, from data)"};             // true if input RDO for overlay are from MC, false if from data
-  bool m_useBad{true};
+
   Gaudi::Property<bool> m_useMBTime{this, "UseMBTime", false,
       "use detailed hit time from MB events in addition to bunch crossing time for pileup (default=false)"};
   Gaudi::Property<bool> m_recordMap{this, "RecordMap", true,
@@ -257,8 +258,12 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent
 
   SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
-  ToolHandle<ILArBadChannelMasker> m_maskingTool{this, "MaskingTool", "LArBadChannelMaskingTool" ,"Tool handle for dead channel masking"};
+
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
+ 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+  
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
 
   const CaloCell_ID*     m_calocell_id{};
@@ -267,7 +272,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   const LArFCAL_ID*      m_larfcal_id{};
   const LArOnlineID*     m_laronline_id{};
 
-  const CaloDetDescrManager* m_caloDDMgr{};
+
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},"Bad-Channel categories to mask entirly"}; 
+  LArBadChannelMask m_bcMask;
 
   Gaudi::Property<bool> m_skipNoHit{this, "SkipNoHit", false,
       "Skip events with no LAr hits (default=false)"};
@@ -276,19 +283,24 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArDigitization", ""};
 
+  Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""}; //
+
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true,
+      "Use MC16-style random number seeding"};
+
   Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,
       "Also create information about reconstructed digits for HS hits"};
 
   std::vector<double> m_Samples;
   std::vector<double> m_Samples_DigiHSTruth;
   std::vector<double> m_Noise;
-  double m_Rndm[32];
+  double m_Rndm[32]{};
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
   std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot{0};
   float m_trigtime{0};
-
+  
 };
 
 #endif

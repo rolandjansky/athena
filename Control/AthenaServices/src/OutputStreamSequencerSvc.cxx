@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file OutputStreamSequencerSvc.cxx
@@ -29,11 +29,8 @@ OutputStreamSequencerSvc::~OutputStreamSequencerSvc() {
 }
 //__________________________________________________________________________
 StatusCode OutputStreamSequencerSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthService::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_DEBUG("Initializing " << name());
+
    // Set to be listener for end of event
    ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
    if (!incsvc.retrieve().isSuccess()) {
@@ -62,7 +59,7 @@ StatusCode OutputStreamSequencerSvc::finalize() {
    if (!m_metaDataSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release MetaDataSvc.");
    }
-   return(::AthService::finalize());
+   return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 StatusCode OutputStreamSequencerSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
@@ -159,7 +156,7 @@ std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& o
    std::lock_guard lockg( m_mutex );
    // build the full output file name for this event range
    std::string fileNameCore = orgFileName, fileNameExt;
-   std::size_t sepPos = orgFileName.find("[");
+   std::size_t sepPos = orgFileName.find('[');
    if (sepPos != std::string::npos) {
       fileNameCore = orgFileName.substr(0, sepPos);
       fileNameExt = orgFileName.substr(sepPos);

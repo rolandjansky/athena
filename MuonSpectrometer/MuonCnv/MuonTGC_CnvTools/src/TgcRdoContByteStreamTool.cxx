@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoContByteStreamTool.h"
@@ -14,8 +14,7 @@
 // contructor
 Muon::TgcRdoContByteStreamTool::TgcRdoContByteStreamTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  :  base_class(type,name,parent),
-     m_hid2re(0) 
+  :  base_class(type,name,parent)
 {
   declareInterface<Muon::ITGC_RDOtoByteStreamTool>(this);
 }
@@ -24,7 +23,6 @@ Muon::TgcRdoContByteStreamTool::TgcRdoContByteStreamTool
 // destructor 
 Muon::TgcRdoContByteStreamTool::~TgcRdoContByteStreamTool()
 {
-  delete m_hid2re;   m_hid2re=0;
 }
 
 
@@ -32,7 +30,7 @@ Muon::TgcRdoContByteStreamTool::~TgcRdoContByteStreamTool()
 StatusCode Muon::TgcRdoContByteStreamTool::initialize()
 {
   // create TGC RDO ID to source ID mapper
-  m_hid2re = new TGC_Hid2RESrcID;
+  m_hid2re = std::make_unique<TGC_Hid2RESrcID>();
 
   ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 

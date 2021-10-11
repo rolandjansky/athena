@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArNoisyROTool.h 
@@ -127,7 +127,7 @@ class LArNoisyROTool:
   bool m_ignore_front_innerwheel_cells;
 
   //** number of bad channels to declare a preamp noisy */
-  unsigned int m_BadChanPerPA;
+  unsigned int m_BadChanPerPA = 0U;
 
   //** number of bad channels to declare a FEB noisy */
   unsigned int m_BadChanPerFEB;
@@ -151,7 +151,7 @@ class LArNoisyROTool:
   unsigned int m_SaturatedCellTightCut;
 
   //** Count events with too many saturated Qfactor cells */
-  unsigned int m_SaturatedCellTightCutEvents;
+  unsigned int m_SaturatedCellTightCutEvents = 0U;
 
   unsigned int m_MNBLooseCut;
   unsigned int m_MNBTightCut;

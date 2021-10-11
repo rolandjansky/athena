@@ -38,8 +38,7 @@ FastReductionMatcher::FastReductionMatcher(ConditionPtrs& conditions,
 	 
 
 std::optional<bool>
-FastReductionMatcher::match(const HypoJetCIter& jets_b,
-			    const HypoJetCIter& jets_e,
+FastReductionMatcher::match(const HypoJetVector& jv,
 			    xAODJetCollector& jetCollector,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 			    bool) const {
@@ -56,11 +55,8 @@ FastReductionMatcher::match(const HypoJetCIter& jets_b,
     there is a match.
    */
 
-  auto njets = jets_e - jets_b;
+  auto njets = jv.size();
 
-  if (njets < 0) {
-    throw std::runtime_error("Negative number of jets"); 
-  }
   if (njets < m_minNjets) {
     if (collector) {
       collector->collect("FastReductionMatcher",
@@ -71,8 +67,7 @@ FastReductionMatcher::match(const HypoJetCIter& jets_b,
     return false;
   }
 
-  FastReducer reducer(jets_b,
-                      jets_e,
+  FastReducer reducer(jv,
                       m_conditions,
 		      m_conditionFilters,
                       m_tree,

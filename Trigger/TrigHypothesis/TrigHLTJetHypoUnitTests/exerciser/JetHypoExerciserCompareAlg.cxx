@@ -3,7 +3,7 @@
 */
 
 #include "TrigHLTJetHypoUnitTests/JetHypoExerciserCompareAlg.h"
-#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypoUnitTests/../src/TLorentzVectorFactory.h"
 #include "TrigHLTJetHypoUnitTests/../src/TLorentzVectorAsIJet.h"
@@ -24,7 +24,7 @@ JetHypoExerciserCompareAlg::~JetHypoExerciserCompareAlg(){}
 
 
 StatusCode
-JetHypoExerciserCompareAlg::initialize_(const ToolHandle<ITrigJetHypoToolHelperMT>& helper,
+JetHypoExerciserCompareAlg::initialize_(const ToolHandle<ITrigJetHypoToolHelper>& helper,
 					const std::string& logname) {
   
   ATH_MSG_INFO ("initialize_()");
@@ -75,7 +75,7 @@ StatusCode JetHypoExerciserCompareAlg::initialize() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode
-JetHypoExerciserCompareAlg::execute_(ToolHandle<ITrigJetHypoToolHelperMT>& helper,
+JetHypoExerciserCompareAlg::execute_(ToolHandle<ITrigJetHypoToolHelper>& helper,
 				     HypoJetVector& jv,
 				     const std::string& collectorName,
 				     xAODJetCollector& jetCollector,

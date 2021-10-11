@@ -18,7 +18,15 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigger/jFexSRJetRoIContainer.h"
 #include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
-
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexMETRoIAuxContainer.h"
+#include "xAODTrigger/jFexSumETRoIContainer.h"
+#include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
 namespace LVL1 {
   
 /*
@@ -31,17 +39,23 @@ Interface definition for jFEXSysSim
   public:
     static const InterfaceID& interfaceID( ) ;
     
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) = 0;
 
     virtual void init() = 0;
 
     virtual void cleanup() = 0;
 
     virtual int calcTowerID(int eta, int phi, int mod) = 0 ;
+ 
+    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) =0 ;  
+    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) =0 ;
+    virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) =0 ;  
+    virtual StatusCode fillSumEtEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) =0 ;  
+    virtual StatusCode fillMetEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) =0 ;  
 
-    //virtual StatusCode fillEDM(uint8_t jFEXNumber, uint32_t tobWord) = 0;  
-    virtual StatusCode fillEDM(uint8_t jFexNum, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) =0 ;  
+    
   private:
+
 
   };
 

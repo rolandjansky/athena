@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,26 +55,33 @@ public:
   /**Default Constructor, needed for persistency*/
   TrapezoidBounds();
 
+  /**Copy constructor*/
+  TrapezoidBounds(const TrapezoidBounds& trabo) = default;
+
+  /**Assignment operator*/
+  TrapezoidBounds& operator=(const TrapezoidBounds& sbo) = default;
+
+  /**Move constructor*/
+  TrapezoidBounds(TrapezoidBounds&& trabo) noexcept = default;
+
+  /**Move Assignment operator*/
+  TrapezoidBounds& operator=(TrapezoidBounds&& sbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~TrapezoidBounds() = default;
+
+
   /**Constructor for symmetric Trapezoid*/
   TrapezoidBounds(double minhalex, double maxhalex, double haley);
 
   /**Constructor for arbitrary Trapezoid*/
   TrapezoidBounds(double minhalex, double haley, double alpha, double beta);
 
-  /**Copy constructor*/
-  TrapezoidBounds(const TrapezoidBounds& trabo) = default;
-
-  /**Destructor*/
-  virtual ~TrapezoidBounds() = default;
-
   /**Virtual constructor*/
   virtual TrapezoidBounds* clone() const override;
 
   /** Return the type of the bounds for persistency */
   virtual BoundsType type() const override { return SurfaceBounds::Trapezoid; }
-
-  /**Assignment operator*/
-  TrapezoidBounds& operator=(const TrapezoidBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& trabo) const override;
@@ -165,7 +172,7 @@ private:
   bool insideExclude(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const;
 
   /** isAbove() method for checking whether a point lies above or under a straight line */
-  bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) const;
+  static bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double k, double d) ;
 
   std::vector<TDD_real_t> m_boundValues;
   TDD_real_t m_alpha;

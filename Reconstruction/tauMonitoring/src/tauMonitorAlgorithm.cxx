@@ -161,6 +161,59 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto rConv  = Monitored::Scalar<float>("rConv",0.0);
   auto rConvII  = Monitored::Scalar<float>("rConvII",0.0);
 
+  //trackLogSeedJetPt
+  auto trackLogSeedJetPt  = Monitored::Scalar<float>("trackLogSeedJetPt",0.0);
+  auto trackLogPt  = Monitored::Scalar<float>("trackLogPt",0.0);
+  auto trackEta  = Monitored::Scalar<float>("trackEta",0.0);
+  auto trackd0TJVA  = Monitored::Scalar<float>("trackd0TJVA",0.0);
+  auto trackZ0SinthetaTJVA  = Monitored::Scalar<float>("trackZ0SinthetaTJVA",0.0);
+  auto trackD0SigTJVA  = Monitored::Scalar<float>("trackD0SigTJVA",0.0);
+  auto trackZ0sinthetaSigTJVA  = Monitored::Scalar<float>("trackZ0sinthetaSigTJVA",0.0);
+  auto trackCharge  = Monitored::Scalar<float>("trackCharge",0.0);
+  auto trackqOverP  = Monitored::Scalar<float>("trackqOverP",0.0);
+  auto trackLogRConv  = Monitored::Scalar<float>("trackLogRConv",0.0);
+  auto trackTanhRConvII  = Monitored::Scalar<float>("trackTanhRConvII",0.0);
+  auto trackPtRatioSeedJet  = Monitored::Scalar<float>("trackPtRatioSeedJet",0.0);
+  auto trackdRJetSeedAxis  = Monitored::Scalar<float>("trackdRJetSeedAxis",0.0);
+  auto trackNInnermostPixHits  = Monitored::Scalar<float>("trackNInnermostPixHits",0.0);
+  auto trackNPixHits  = Monitored::Scalar<float>("trackNPixHits",0.0);
+  //auto tracknPixelSharedHits  = Monitored::Scalar<float>("trackPixelSharedHits",0.0);
+  auto trackNSiHits  = Monitored::Scalar<float>("trackNSiHits",0.0);
+  //auto tracknSCTSharedHits  = Monitored::Scalar<float>("tracknSCTSharedHits",0.0);
+  //auto tracknTRTHits  = Monitored::Scalar<float>("tracknTRTHits",0.0);
+  auto trackeProbabilityHT  = Monitored::Scalar<float>("trackeProbabilityHT",0.0);
+  auto trackeProbabilityNN  = Monitored::Scalar<float>("trackeProbabilityNN",0.0);
+  auto trackeProbabilityHTorNN  = Monitored::Scalar<float>("trackeProbabilityHTorNN",0.0);
+  auto trackIdScoreCharged  = Monitored::Scalar<float>("track",0.0);
+  auto trackIdScoreIso  = Monitored::Scalar<float>("track",0.0);
+  auto trackIdScoreConv  = Monitored::Scalar<float>("track",0.0);
+  auto trackIdScoreFake  = Monitored::Scalar<float>("track",0.0);
+
+
+
+
+
+  auto clusterLogEt  = Monitored::Scalar<float>("clusterLogEt",0.0);
+  auto clusterEta  = Monitored::Scalar<float>("clusterEta",0.0);
+  auto clusterPhi  = Monitored::Scalar<float>("clusterPhi",0.0);
+  auto clusterSecondR  = Monitored::Scalar<float>("clusterSecondR",0.0);
+  auto clusterSecondLambda  = Monitored::Scalar<float>("clusterSecondLambda",0.0);
+  auto clusterCenterLambda  = Monitored::Scalar<float>("clusterCenterLambda",0.0);
+  auto clusterFirstEngDens  = Monitored::Scalar<float>("clusterFirstEngDens",0.0);
+  auto clusterEMproba  = Monitored::Scalar<float>("clusterEMproba",0.0);
+  auto clustersMeanCenterLambda  = Monitored::Scalar<float>("clustersMeanCenterLambda",0.0);
+  auto clustersMeanFirstEngDens  = Monitored::Scalar<float>("clustersMeanFirstEngDens",0.0);
+  auto clustersMeanEMProbability  = Monitored::Scalar<float>("clustersMeanEMProbability",0.0);
+  auto clustersMeanSecondLambda  = Monitored::Scalar<float>("clustersMeanSecondLambda",0.0);
+  auto clustersMeanPresamplerFrac  = Monitored::Scalar<float>("clustersMeanPresamplerFrac",0.0);
+  auto clustersPFOEngRelDiff  = Monitored::Scalar<float>("clustersPFOEngRelDiff",0.0);
+
+
+
+
+
+
+
   nTauCandidates = 0;
    
   for (const auto tau : *shallowTaus) {
@@ -245,13 +298,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			       nullptr : getTrigDecisionTool().operator->());
 
     if (m_etaMin < std::abs(tauEta) && std::abs(tauEta) < m_etaMax){
-      nTauCandidates +=1;
-
-      if(tauEt > higherEtThreshold){
-	nHighPtTauCandidates +=1;
-	nHighPtTaus +=1;
-      }
-
       if (m_kinGroupName != "tauMonKinGroupHighPt"&& m_kinGroupName!="tauMonKinGroupHighPtRNNLoose"){
 
 	if (
@@ -265,16 +311,24 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	     m_kinGroupName != "tauMonKinGroupTauTrig7"  &&
 	     m_kinGroupName != "tauMonKinGroupEleTrig"  &&
 	     m_kinGroupName != "tauMonKinGroupJetTrig") || 
-	    (m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100 (2184)")) ||
+			(m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100.*")) ||
+	    (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100.*")) ||
 	    (m_kinGroupName == "tauMonKinGroupEleTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
 	    (m_kinGroupName == "tauMonKinGroupJetTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
 	    ){
+
+      nTauCandidates +=1;
+
+      if(tauEt > higherEtThreshold){
+				nHighPtTauCandidates +=1;
+				nHighPtTaus +=1;
+      }
+
 
 	  if(m_kinGroupName != "tauMonKinGroupGlobal" && tauEt > lowerEtThreshold && tauRNNLoose){
 	    tauPhiEt15RNNLoose = tau->phi();
@@ -323,14 +377,14 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
                     
     
-
+      //tracks - old
 	  if (tau->nTracks()!= 0){
 
 	    massTrkSys = tau->detail<float>(xAOD::TauJetParameters::massTrkSys) / GeV; //GeV
 	    trkWidth2  = tau->detail<float>(xAOD::TauJetParameters::trkWidth2);
 	    trFlightPathSig = tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig);
-	    ipSigLeadTrk    =    tau->detail<float>(xAOD::TauJetParameters::ipSigLeadTrk);
-	    ipZ0SinThetaSigLeadTrk = tau->detail<float>(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk);
+      ipSigLeadTrk    =  tau->detail<float>(xAOD::TauJetParameters::ipSigLeadTrk); //tau->track(0)->d0SigTJVA();
+      ipZ0SinThetaSigLeadTrk =  tau->detail<float>(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk); //tau->track(0)->z0sinthetaSigTJVA()
 	    etOverPtLeadTrack = tau->detail<float>(xAOD::TauJetParameters::etOverPtLeadTrk);
 	    leadTrkPt =tau->detail<float>(xAOD::TauJetParameters::leadTrkPt)/GeV;
 
@@ -350,44 +404,44 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	      uint8_t dummy(0);
                         
 	      if (track->summaryValue(dummy, xAOD::numberOfSCTSharedHits)){
-		numberOfSCTSharedHits = dummy;
-		fill(tool,numberOfSCTSharedHits);
+		    numberOfSCTSharedHits = dummy;
+		    fill(tool,numberOfSCTSharedHits);
 	      }
 
 	      if (track->summaryValue(dummy, xAOD::numberOfSCTHits)){
-		numberOfSCTHits = dummy;
-		fill(tool,numberOfSCTHits);
+		    numberOfSCTHits = dummy;
+		    fill(tool,numberOfSCTHits);
 	      }
 
 	      if (track->summaryValue(dummy, xAOD::numberOfPixelSharedHits)){
-		numberOfPixelSharedHits = dummy;
-		fill(tool,numberOfPixelSharedHits);
+		    numberOfPixelSharedHits = dummy;
+		    fill(tool,numberOfPixelSharedHits);
 	      }
                             
 	      if (track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerHits)){
-		numberOfInnermostPixelLayerHits = dummy;
-		fill(tool,numberOfInnermostPixelLayerHits);
+		    numberOfInnermostPixelLayerHits = dummy;
+		    fill(tool,numberOfInnermostPixelLayerHits);
 	      }
                            
 	      if (track->summaryValue(dummy, xAOD::numberOfPixelHits)){
-		numberOfPixelHits = dummy;
-		fill(tool,numberOfPixelHits);
+		    numberOfPixelHits = dummy;
+		    fill(tool,numberOfPixelHits);
 	      }
 	      if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdHits)){
-		numberOfTRTHighThresholdHits = dummy;
-		fill(tool,numberOfTRTHighThresholdHits);
+		    numberOfTRTHighThresholdHits = dummy;
+		    fill(tool,numberOfTRTHighThresholdHits);
 	      }
 	      if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdOutliers)){
-		numberOfTRTHighThresholdOutliers = dummy;
-		fill(tool,numberOfTRTHighThresholdOutliers);
+		    numberOfTRTHighThresholdOutliers = dummy;
+		    fill(tool,numberOfTRTHighThresholdOutliers);
 	      }
 	      if (track->summaryValue(dummy, xAOD::numberOfTRTHits)){
-		numberOfTRTHits = dummy;
-		fill(tool,numberOfTRTHits);
+		    numberOfTRTHits = dummy;
+		    fill(tool,numberOfTRTHits);
 	      }
 	      if (track->summaryValue(dummy, xAOD::numberOfTRTOutliers)){
-		numberOfTRTOutliers = dummy;
-		fill(tool,numberOfTRTOutliers);
+		    numberOfTRTOutliers = dummy;
+		    fill(tool,numberOfTRTOutliers);
 	      }
                         
 
@@ -398,13 +452,12 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	      etaTrack = perigee.eta();
 	      ptTrack = perigee.pT()/GeV;
 
-	      fill(tool
+	    fill(tool
 		   ,d0
 		   ,z0
 		   ,phiTrack
 		   ,etaTrack
 		   ,ptTrack);
-
 	    }
 	  }
 	  //this else can be removed, but it sets any track variable to 0 if there are no tracks
@@ -413,6 +466,232 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	    leadTrkPt = 0;
 	    fill(tool,leadTrkPt);
 	  }
+
+      //Code for All Tracks and Mean track variables.
+
+      //pre loop variables:
+      double tauSeedPt = tau->ptJetSeed();
+      double logTauSeedPt = std::log(tauSeedPt);
+      trackLogSeedJetPt = logTauSeedPt;
+
+      fill(tool,trackLogSeedJetPt);
+
+      static const SG::AuxElement::ConstAccessor<float> idScoreCharged("rnn_chargedScore");
+      static const SG::AuxElement::ConstAccessor<float> idScoreIso("rnn_isolationScore");
+      static const SG::AuxElement::ConstAccessor<float> idScoreConv("rnn_conversionScore");
+      static const SG::AuxElement::ConstAccessor<float> idScoreFake("rnn_fakeScore");
+
+
+      
+      for(const xAOD::TauTrack* track : tau->allTracks()) {
+
+          static const SG::AuxElement::Accessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
+          if(!trackAcc(*track)[0]) {
+            continue;
+          }
+
+          const xAOD::TrackParticle* trackParticle = track->track();
+
+          float d0TJVA = track->track()->d0();
+          trackZ0SinthetaTJVA = track->z0sinThetaTJVA(*tau);
+          trackD0SigTJVA = 999.;
+          trackZ0sinthetaSigTJVA = 999.;
+          float rConv = 999.;
+          float rConvII = 999.;
+          if(track->isAvailable<float>("z0sinthetaTJVA")) {
+            d0TJVA = track->d0TJVA();
+            trackZ0SinthetaTJVA = track->z0sinthetaTJVA();
+            trackD0SigTJVA = track->d0SigTJVA();
+            trackZ0sinthetaSigTJVA = track->z0sinthetaSigTJVA();
+            rConv = track->rConv();
+            rConvII = track->rConvII();
+          }
+          trackdRJetSeedAxis = track->p4().DeltaR(tau->p4(xAOD::TauJetParameters::JetSeed));
+          double qOverP = trackParticle->qOverP(); 
+          double trackPt = trackParticle->pt(); 
+          uint8_t nInnermostPixelLayerHits = 0;
+          trackParticle->summaryValue(nInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits);
+          uint8_t nPixelHits = 0;
+          trackParticle->summaryValue(nPixelHits, xAOD::numberOfPixelHits);
+          //tracknPixelSharedHits = 0;
+         // trackParticle->summaryValue(tracknPixelSharedHits, xAOD::numberOfPixelSharedHits);
+          uint8_t nPixelDeadSensors = 0;
+          trackParticle->summaryValue(nPixelDeadSensors, xAOD::numberOfPixelDeadSensors);
+          uint8_t nSCTHits = 0;
+          trackParticle->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
+          //tracknSCTSharedHits = 0;
+          //trackParticle->summaryValue(tracknSCTSharedHits, xAOD::numberOfSCTSharedHits);
+          uint8_t nSCTDeadSensors = 0;
+          trackParticle->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
+          uint8_t nTRTHighThresholdHits = 0;
+          trackParticle->summaryValue(nTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits);
+          //tracknTRTHits = 0;
+          //ATH_MSG_INFO("tracknTRTHits");
+          //trackParticle->summaryValue(tracknTRTHits, xAOD::numberOfTRTHits);
+          uint8_t numberOfPixelHoles = 0;
+          trackParticle->summaryValue(numberOfPixelHoles, xAOD::numberOfPixelHoles);
+          uint8_t numberOfSCTHoles = 0;
+          trackParticle->summaryValue(numberOfSCTHoles, xAOD::numberOfSCTHoles);
+          float eProbabilityHT = 0.;
+          trackParticle->summaryValue(trackeProbabilityHT, xAOD::eProbabilityHT);
+          float eProbabilityNN = -1.;
+          if(trackParticle->isAvailable<float>("eProbabilityNN")) trackeProbabilityNN = trackParticle->auxdata<float>("eProbabilityNN");
+          // hybrid variable (eProbabilityNN is not computed for tracks with pt < 2 GeV)
+          trackeProbabilityHTorNN = (trackPt>2000.) ? eProbabilityNN : eProbabilityHT;
+
+          trackeProbabilityNN = eProbabilityNN;
+          trackeProbabilityHT =eProbabilityHT;
+          trackLogPt = std::log(trackPt);
+          trackEta = track->eta();
+          trackd0TJVA = std::tanh(d0TJVA/10.);
+          trackCharge = trackParticle->charge();
+          trackqOverP = qOverP*1000.;
+          trackLogRConv = std::log(rConv);
+          trackTanhRConvII =  std::tanh(rConvII/500.0);
+          trackPtRatioSeedJet = trackPt/tauSeedPt;
+          trackNInnermostPixHits = nInnermostPixelLayerHits;
+          trackNPixHits = nPixelHits + nPixelDeadSensors;
+          trackNSiHits = nPixelHits + nPixelDeadSensors + nSCTHits + nSCTDeadSensors;
+
+
+
+
+          fill(tool
+               ,trackLogPt
+               ,trackEta
+               ,trackd0TJVA
+               ,trackZ0SinthetaTJVA
+               ,trackD0SigTJVA
+               ,trackZ0sinthetaSigTJVA
+               ,trackCharge
+               ,trackqOverP
+               ,trackLogRConv
+               ,trackTanhRConvII
+               ,trackPtRatioSeedJet
+               ,trackdRJetSeedAxis
+               ,trackNInnermostPixHits
+               ,trackNPixHits
+               //,tracknPixelSharedHits
+               ,trackNSiHits
+               //,tracknSCTSharedHits
+               //,tracknTRTHits
+               ,trackeProbabilityHT
+               ,trackeProbabilityNN
+               ,trackeProbabilityHTorNN
+              );
+          if(track->isAvailable<float>("rnn_chargedScore")) {
+            trackIdScoreCharged = idScoreCharged(*track);
+            trackIdScoreIso = idScoreIso(*track);
+            trackIdScoreConv = idScoreConv(*track);
+            trackIdScoreFake = idScoreFake(*track);
+            fill(tool
+                 ,trackIdScoreCharged
+                 ,trackIdScoreIso
+                 ,trackIdScoreConv 
+                 ,trackIdScoreFake
+            );
+          }
+      }
+
+        // clusters
+        std::vector<const xAOD::IParticle*> particleList = tau->clusters();  
+        std::vector<xAOD::CaloVertexedTopoCluster> clusters;
+        const xAOD::Vertex* vertex = nullptr;
+        if(tau->vertexLink().isValid()) vertex = tau->vertex();
+
+        for (const xAOD::IParticle* particle : particleList) {
+          const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
+          if (vertex) {
+            clusters.emplace_back(*cluster, xAOD::CaloCluster::State::CALIBRATED, vertex->position());
+          }
+          else {
+            clusters.emplace_back(*cluster, xAOD::CaloCluster::State::CALIBRATED);
+          }
+        }
+
+        // sort by decreasing Et
+        auto et_cmp = [](const xAOD::CaloVertexedTopoCluster& lhs,
+                 const xAOD::CaloVertexedTopoCluster& rhs) {
+          return lhs.p4().Et() > rhs.p4().Et();
+        };
+        std::sort(clusters.begin(), clusters.end(), et_cmp);
+
+        // keep first 6 leading clusters as in RNN ID
+        if (clusters.size() > 6) {
+          clusters.resize(6, clusters[0]);
+        }
+
+        double moment;
+        for(auto vertexedCluster : clusters) {
+            const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+
+            clusterLogEt = std::log10(vertexedCluster.p4().Et());
+            clusterEta = vertexedCluster.eta();
+            clusterPhi = vertexedCluster.phi();
+
+            cluster.retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, moment);
+            clusterSecondR = std::log10(moment + 0.1);
+
+            cluster.retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, moment);
+            clusterSecondLambda = std::log10(moment + 0.1);
+
+            cluster.retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, moment);
+            clusterCenterLambda = std::log10(moment + 1e-6);
+
+            cluster.retrieveMoment(xAOD::CaloCluster::MomentType::FIRST_ENG_DENS, moment);
+            if(moment!=0.) moment = std::log10(std::abs(moment));
+               clusterFirstEngDens = moment;
+
+            cluster.retrieveMoment(xAOD::CaloCluster::MomentType::EM_PROBABILITY, moment);
+            clusterEMproba = moment;
+
+
+            fill(tool
+                ,clusterLogEt
+                ,clusterEta
+                ,clusterPhi
+                ,clusterSecondR 
+                ,clusterSecondLambda
+                ,clusterCenterLambda
+                ,clusterFirstEngDens
+                ,clusterEMproba
+            );
+
+        }
+
+        // Et-weighted average of cluster moments (MVA TES)
+        float avariable = 0.;
+        bool test = tau->detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, avariable);
+        if(test) clustersMeanCenterLambda = avariable;
+
+        test = tau->detail(xAOD::TauJetParameters::ClustersMeanFirstEngDens, avariable);
+        if(test) clustersMeanFirstEngDens = avariable;
+
+        test = tau->detail(xAOD::TauJetParameters::ClustersMeanEMProbability, avariable);
+        if(test) clustersMeanEMProbability = avariable;
+
+        test = tau->detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, avariable);
+        if(test) clustersMeanSecondLambda = avariable;
+
+        test = tau->detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, avariable);
+        if(test) clustersMeanPresamplerFrac = avariable;
+
+        test = tau->detail(xAOD::TauJetParameters::PFOEngRelDiff, avariable);
+        if(test) clustersPFOEngRelDiff = avariable;
+
+
+        fill(tool
+            ,clustersMeanCenterLambda
+            ,clustersMeanFirstEngDens
+            ,clustersMeanEMProbability
+            ,clustersMeanSecondLambda
+            ,clustersMeanPresamplerFrac
+            ,clustersPFOEngRelDiff
+        );
+
+
+
+
 
 	  for ( int s = 0 ; s < nShot ; s++ ) 
 	    {
@@ -432,6 +711,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	      BDTScoreAsP0 = npfo->bdtPi0Score();
 	      fill(tool,BDTScoreAsP0);
 	    }
+
 	  fill(tool
 	       ,tauPhi
 	       ,tauEta
@@ -514,6 +794,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
     }
   }
+
 
   fill(tool,nHighPtTauCandidates,nTauCandidates,nHighPtTaus);
 

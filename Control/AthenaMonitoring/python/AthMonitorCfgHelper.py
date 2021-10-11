@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file AthMonitorCfgHelper.py
@@ -33,9 +33,8 @@ class AthMonitorCfgHelper(object):
         self.monSeq.StopOverride=True
         self.resobj = ComponentAccumulator()
         self.resobj.addSequence(self.monSeq)
-        if inputFlags.DQ.useTrigger:
-            from .TriggerInterface import getTrigDecisionTool
-            self.resobj.merge(getTrigDecisionTool(inputFlags))
+        from .TriggerInterface import getTrigDecisionTool
+        self.resobj.merge(getTrigDecisionTool(inputFlags))
 
     def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''
@@ -67,16 +66,17 @@ class AthMonitorCfgHelper(object):
         algObj.DataType = self.inputFlags.DQ.DataType
         if self.inputFlags.DQ.useTrigger:
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
-            algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
+        algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
-        if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
+        if self.inputFlags.DQ.enableLumiAccess:
             algObj.EnableLumi = True
             from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
-            from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
-            from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
             self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
-            self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
-            self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+            if not self.inputFlags.Input.isMC:
+                from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
+                from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
+                self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
+                self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
         else:
             algObj.EnableLumi = False
         self.resobj.addEventAlgo(algObj, sequenceName=self.monSeq.name)
@@ -123,6 +123,7 @@ class AthMonitorCfgHelper(object):
         tool -- a GenericMonitoringToolArray object. This is used to define histograms
                 associated with each group in the array.
         '''
+        # Generate the n-dimensional array
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringArray
         array = GenericMonitoringArray(baseName,dimensions)
 
@@ -134,11 +135,14 @@ class AthMonitorCfgHelper(object):
             self.resobj.merge(acc)
 
         pathToSet = self.inputFlags.DQ.FileKey+('/%s' % topPath if topPath else '')
+        if self.inputFlags.Output.HISTFileName:
+            pathToSet = '/' + pathToSet
         array.broadcast('HistPath',pathToSet)
         array.broadcast('UseCache',True)
         convention = 'ONLINE' if self.inputFlags.Common.isOnline else 'OFFLINE'
         array.broadcast('convention', convention)
         array.broadcast('defaultDuration',defaultDuration)
+        array.broadcast('RegisterHandler', not self.inputFlags.Common.isOnline)
         alg.GMTools += array.toolList()
         return array
 
@@ -266,7 +270,9 @@ class AthMonitorCfgHelperOld(object):
             from GaudiSvc.GaudiSvcConf import THistSvc
             svcMgr += THistSvc()
         # Set the histogram path
-        pathToSet = self.dqflags.monManFileKey() + ('/%s' % topPath if topPath else '')
+        pathToSet = self.dqflags.monManFileKey()+('/%s' % topPath if topPath else '')
+        if self.dqflags.histogramFile():
+            pathToSet = '/' + pathToSet
         # Detect if online or offline
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         conventionName = 'OFFLINE' if not athenaCommonFlags.isOnline() else 'ONLINE'
@@ -277,6 +283,7 @@ class AthMonitorCfgHelperOld(object):
         array.broadcast('UseCache',True)
         array.broadcast('convention',conventionName)
         array.broadcast('defaultDuration',defaultDuration)
+        array.broadcast('RegisterHandler', not athenaCommonFlags.isOnline())        
         alg.GMTools += array.toolList()
         return array
 
@@ -309,8 +316,9 @@ def getDQTHistSvc(inputFlags):
         return result
 
     histsvc = THistSvc()
-    histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (inputFlags.DQ.FileKey, 
-                                                            inputFlags.Output.HISTFileName)]
+    if inputFlags.Output.HISTFileName:
+        histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (inputFlags.DQ.FileKey, 
+                                                                inputFlags.Output.HISTFileName)]
     result.addService(histsvc)
     return result
 

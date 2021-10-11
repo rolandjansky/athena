@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_CondCabling/TGCCablingDbTool.h" 
@@ -171,7 +171,7 @@ StatusCode TGCCablingDbTool::readASD2PP_DIFF_12FromText() {
   ATH_MSG_INFO("readTGCMap from text");
 
   // PathResolver finds the full path of the file (default file name is ASD2PP_diff_12.db) 
-  std::string location = PathResolver::find_file(m_filename.c_str(), "DATAPATH");
+  std::string location = PathResolver::find_file(m_filename, "DATAPATH");
   if(location=="") {
     ATH_MSG_FATAL("Could not find " << m_filename.c_str());
     return StatusCode::FAILURE; 

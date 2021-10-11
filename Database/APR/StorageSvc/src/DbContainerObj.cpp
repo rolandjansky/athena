@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -25,6 +25,7 @@
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
 #include <memory>
+#include <atomic>
 using namespace std;
 using namespace pool;
 
@@ -32,7 +33,7 @@ int DbObjectHolder::release() {  return 1;    }
 
 // Enable this to force regular retirement
 void retireDatabase(DbContainerObj* c)  {
-  static int i=0;
+  static std::atomic<int> i=0;
   if ( (++i%2)==0 )  {
     c->database().setAge(20);
     c->database().containedIn().closeAgedDbs();
@@ -40,7 +41,7 @@ void retireDatabase(DbContainerObj* c)  {
 }
 
 /// Constructor
-DbContainerObj::DbContainerObj( const DbDatabase& dbH,
+DbContainerObj::DbContainerObj( DbDatabase&       dbH,
                                 const string&     nam, 
                                 const DbType&     dbtyp,
                                 DbAccessMode      mod)   
@@ -252,12 +253,12 @@ DbStatus DbContainerObj::addShape(const DbTypeInfo* typ)  {
 }
 
 /// Retrieve persistent type information
-const DbTypeInfo* DbContainerObj::objectShape(const Guid& guid) const {
+const DbTypeInfo* DbContainerObj::objectShape(const Guid& guid) {
   return m_dbH.objectShape(guid);
 }
 
 /// Add entry to container
-DbStatus DbContainerObj::save(const DbObjectHandle<DbObject>& objH, const DbTypeInfo* typ) {
+DbStatus DbContainerObj::save(DbObjectHandle<DbObject>& objH, const DbTypeInfo* typ) {
   if ( !isReadOnly() && hasAccess() && m_isOpen && objH.isValid() ) {
     if ( m_info->save(objH).isSuccess() ) {
       if ( m_dbH.addShape(typ).isSuccess() ) {

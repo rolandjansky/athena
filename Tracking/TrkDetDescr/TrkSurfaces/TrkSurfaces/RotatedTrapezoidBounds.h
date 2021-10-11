@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,23 +57,29 @@ public:
   /**Default Constructor, needed for persistency*/
   RotatedTrapezoidBounds();
 
-  /**Constructor for symmetric Trapezoid*/
-  RotatedTrapezoidBounds(double halex, double minhalex, double maxhalex);
-
   /**Copy constructor*/
   RotatedTrapezoidBounds(const RotatedTrapezoidBounds& trabo) = default;
+
+  /**Assignment operator*/
+  RotatedTrapezoidBounds& operator=(const RotatedTrapezoidBounds& sbo) = default;
+
+  /**Move constructor*/
+  RotatedTrapezoidBounds(RotatedTrapezoidBounds&& trabo) noexcept = default;
+
+  /** Move Assignment operator*/
+  RotatedTrapezoidBounds& operator=(RotatedTrapezoidBounds&& sbo) noexcept = default;
 
   /**Destructor*/
   virtual ~RotatedTrapezoidBounds() = default;
 
-  /**Virtual constructor*/
+  /**Constructor for symmetric Trapezoid*/
+  RotatedTrapezoidBounds(double halex, double minhalex, double maxhalex);
+
+ /**Virtual constructor*/
   virtual RotatedTrapezoidBounds* clone() const override;
 
   /** Return the type of the bounds for persistency */
   virtual BoundsType type() const override { return SurfaceBounds::RotatedTrapezoid; }
-
-  /**Assignment operator*/
-  RotatedTrapezoidBounds& operator=(const RotatedTrapezoidBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& trabo) const override;

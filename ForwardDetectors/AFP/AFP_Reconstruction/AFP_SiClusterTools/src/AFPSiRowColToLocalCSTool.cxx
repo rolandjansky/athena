@@ -63,7 +63,7 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
   matricesForLayersInit.push_back(&m_transformationsErr);
 
   // --- initialise size of vector of transformations for each layer in station ---
-  if (m_numberOfLayersInStations.size() == 0) {
+  if (m_numberOfLayersInStations.empty()) {
     // no job options configuration - use default values
     m_numberOfLayersInStations.resize(4, 4); // set number of stations to 4
     //    for (int& layersInStation : m_numberOfLayersInStations) layersInStation = 4;
@@ -79,7 +79,7 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
   
   // --- initialise transformations for each layer in station ---
   bool useDefualtTransformation = true;
-  if (m_transformationsInit.size() > 0 && m_transformationsErrInit.size() > 0) {
+  if (!m_transformationsInit.empty() && !m_transformationsErrInit.empty()) {
     // check if the number of arguments is correct for (4x3) matrices
     if (m_transformationsInit.size() == totalLayersN*4*3) {
       if (m_transformationsErrInit.size() == totalLayersN*4*3) {

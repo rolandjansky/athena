@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -10,6 +10,38 @@
 #include "CscRawDataMonitoring/CscPrdValMonAlg.h"
 
 using namespace Muon;
+
+namespace {
+  struct MonStruct1 {
+    std::vector<float> spid;
+    std::vector<float> secLayer;
+    std::vector<int> lumiblock_mon;
+    std::vector<int> noStrips;
+    std::vector<int> signal_mon;
+    std::vector<int> noise_mon;
+    std::vector<int> clus_phiSig; 
+    std::vector<int> clus_etaSig;
+    std::vector<int> clus_etaNoise; 
+    std::vector<int> clus_phiNoise;
+    std::vector<int> sideC; 
+    std::vector<int> sideA;
+    std::vector<int> measphi; 
+    std::vector<int> measeta;
+  };
+
+  struct MonStruct2 {
+    std::vector<int> count_mon;
+    std::vector<int> scount_mon;
+    std::vector<float> tmp_val_mon;
+    std::vector<float> secLayer;
+    std::vector<int> mphi_true;
+    std::vector<int> mphi_false;
+    std::vector<int> scount_phi_false;
+    std::vector<int> scount_phi_true;
+    std::vector<int> scount_eta_false;
+    std::vector<int> scount_eta_true;
+  };
+}
 
 CscPrdValMonAlg::CscPrdValMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name,pSvcLocator) 
@@ -63,11 +95,12 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
   ATH_MSG_DEBUG ( " BEGIN  EVENT ========================================== "  );
   ATH_MSG_DEBUG(" Size of PRD Container  : " << CscPRD->size());
 
+  MonStruct1 monstruct1;
+  MonStruct2 monstruct2;
+
   for (CscStripPrepDataContainer::const_iterator it = CscPRD->begin(); it != CscPRD->end(); ++it) {
     const CscStripPrepDataCollection *prd = *it;
     ATH_MSG_DEBUG ( " Size of Collection     : " << prd->size()  );
-   // size_t noStrips = prd->size();  // no. of strips in this cluster = m_stripIds.size()
-    auto noStrips = Monitored::Scalar<int>("noStrips",prd->size());
     size_t nEtaClusWidthCnt[5], nPhiClusWidthCnt[5];    // cluster position in each phi-layer
     int clusCount[33][9], sigclusCount[33][9];
     for(size_t kl = 0; kl < 33; kl++ ) {
@@ -90,8 +123,7 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
       // Identify the PRD cluster
       Identifier prawId = praw.identify();
       int stationName = m_idHelperSvc->cscIdHelper().stationName(prawId);
-      std::string stationString = m_idHelperSvc->cscIdHelper().stationNameString(stationName);
-      int chamberType = stationString == "CSS" ? 0 : 1;
+      int chamberType = m_idHelperSvc->cscIdHelper().stationNameIndex("CSS") == stationName ? 0 : 1;
       int stationEta  = m_idHelperSvc->cscIdHelper().stationEta(prawId);
       int stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(prawId);
       int wireLayer   = m_idHelperSvc->cscIdHelper().wireLayer(prawId);
@@ -112,20 +144,19 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
           << wireLayer << "\t strip = " << stripId << "\tmPhi = " << measuresPhi);
 
 
+      monstruct1.noStrips.push_back(prd->size());
       // y-axis fill value
       // sector# +2 layer 1 maps to +2 + 0.2*(1-1) + 0.1 = +2.1
       // sector# +2 layer 2 maps to +2 + 0.2*(2-1) + 0.1 = +2.3
       // sector# +2 layer 3 maps to +2 + 0.2*(3-1) + 0.1 = +2.5
       // sector# +2 layer 4 maps to +2 + 0.2*(4-1) + 0.1 = +2.7
-      auto secLayer = Monitored::Scalar<float>("secLayer", (sectorNo + 0.2 * (wireLayer - 1) + 0.1));
+      monstruct1.secLayer.push_back((sectorNo + 0.2 * (wireLayer - 1) + 0.1));
       int xfac = measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 
       // x-axis fill value
-      auto spid = Monitored::Scalar<float>("spid", (stripId * xfac) );
-      auto measphi = Monitored::Scalar<int>("measphi", (int)measuresPhi);
-      auto measeta = Monitored::Scalar<int>("measeta", (int)!(measuresPhi));
-     
-      fill("CscPrdMonitor",spid, secLayer, noStrips, measphi, measeta);
+      monstruct1.spid.push_back((stripId * xfac));
+      monstruct1.measphi.push_back((int)measuresPhi);
+      monstruct1.measeta.push_back((int)!(measuresPhi));
         
       if(m_mapxyrz) {
           
@@ -134,8 +165,7 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
         auto z = Monitored::Scalar<float>("z",praw.globalPosition().z());
         auto r = Monitored::Scalar<float>("r",std::hypot(x,y));
     
-        fill("CscPrdMonitor",z,r);
-        fill("CscPrdMonitor",y,x);
+        fill("CscPrdMonitor",z,r,y,x);
         ATH_MSG_DEBUG(" prd x = " << x << "\t y = " << y << "\t z = " << z );
       } // end if(m_mapxyrz)
      
@@ -157,14 +187,16 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
 
       bool signal = ((qstripADC > m_cscNoiseCut) && (res.status >= 0)) ? true : false;
 
-      auto signal_mon = Monitored::Scalar<int>("signal_mon", (int)signal);
-      auto noise_mon = Monitored::Scalar<int>("noise_mon", (int)!(signal));
-      auto clus_phiSig = Monitored::Scalar<int>("clus_phiSig", (int)measuresPhi && (signal));
-      auto clus_etaSig = Monitored::Scalar<int>("clus_etaSig", (int)(!measuresPhi) && (signal));
-      auto clus_phiNoise = Monitored::Scalar<int>("clus_phiNoise", (int)measuresPhi && !(signal));
-      auto clus_etaNoise = Monitored::Scalar<int>("clus_etaNoise", (int)(!measuresPhi) && !(signal));
-      auto sideA = Monitored::Scalar<int>("sideA",(int)(stationEta==1) && (signal));
-      auto sideC = Monitored::Scalar<int>("sideC",(int)(stationEta==-1) && (signal));
+
+
+      monstruct1.signal_mon.push_back((int)signal);
+      monstruct1.noise_mon.push_back((int)!(signal));
+      monstruct1.clus_phiSig.push_back((int)measuresPhi && (signal));
+      monstruct1.clus_etaSig.push_back((int)(!measuresPhi) && (signal));
+      monstruct1.clus_phiNoise.push_back((int)measuresPhi && !(signal));
+      monstruct1.clus_etaNoise.push_back((int)(!measuresPhi) && !(signal));
+      monstruct1.sideA.push_back((int)(stationEta==1) && (signal));
+      monstruct1.sideC.push_back((int)(stationEta==-1) && (signal));
 
       // increment the signal-cluster count
       if(signal){
@@ -172,24 +204,21 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
         measuresPhi ? nPhiClusWidthCnt[wireLayer]++ : nEtaClusWidthCnt[wireLayer]++ ;
       } 
 
-      fill("CscPrdMonitor", spid, secLayer, lumiblock_mon, noStrips, signal_mon, noise_mon, clus_phiSig, clus_etaSig, clus_etaNoise, clus_etaNoise, sideC, sideA);
-
     } // end for-loop over PRD collection
     ATH_MSG_DEBUG ( " End loop over PRD collection======================" );
 
     for(size_t lcnt = 1; lcnt < 5; lcnt++ ) {
-      int tmp_phiClus = nPhiClusWidthCnt[lcnt];
-      int tmp_etaClus = nEtaClusWidthCnt[lcnt];
-      auto nPhiClusWidthCnt_mon = Monitored::Scalar<int>("nPhiClusWidthCnt_mon",tmp_phiClus);
-      auto nEtaClusWidthCnt_mon = Monitored::Scalar<int>("nEtaClusWidthCnt_mon",tmp_etaClus);
-      fill("CscPrdMonitor", nPhiClusWidthCnt_mon, nEtaClusWidthCnt_mon);
-     // m_h2csc_prd_eta_vs_phi_cluswidth->Fill(nPhiClusWidthCnt[lcnt],nEtaClusWidthCnt[lcnt]);
+      auto nPhiClusWidthCnt_mon = Monitored::Scalar<int>("nPhiClusWidthCnt_mon",nPhiClusWidthCnt[lcnt]);
+      auto nEtaClusWidthCnt_mon = Monitored::Scalar<int>("nEtaClusWidthCnt_mon",nEtaClusWidthCnt[lcnt]);
+      fill("CscPrdMonitor", nPhiClusWidthCnt_mon, nEtaClusWidthCnt_mon);  
     } // end loop over lcnt
+    
 
     int numeta = 0, numphi = 0;
     int numetasignal = 0, numphisignal = 0;
-    int tmp_val = 0;
+    
     for(int kl = 1; kl < 33; kl++ ) {
+      float tmp_val = 0;
 
       for(int km = 1; km < 9; km++ ) {
         int lay = (km > 4 && km < 9) ? km-4 : km;  // 1,2,3,4 (phi-layers)     5-4, 6-4, 7-4, 8-4 (eta-layers)
@@ -197,23 +226,17 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
         std::string wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
 
         int count = clusCount[kl][km];
-        auto count_mon = Monitored::Scalar<int>("count_mon",count);
         int scount = sigclusCount[kl][km];
-        auto scount_mon = Monitored::Scalar<int>("scount_mon",scount);
 
-        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)mphi && count == 1);
-        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)!(mphi) && count == 1 );
-
-        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && count == 1 && scount == 1 );
-        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && count == 1 && scount == 0 );
-
-        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && count == 1 && scount == 1 );
-        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && count == 1 && scount == 0 );
-
-        auto secLayer = Monitored::Scalar<float>("secLayer",(kl-16 + 0.2 * (lay - 1) + 0.1));
-
-        
-        auto tmp_val_mon = Monitored::Scalar<int>("tmp_val_mon", tmp_val);
+        monstruct2.count_mon.push_back(count);
+        monstruct2.scount_mon.push_back(scount);        
+        monstruct2.mphi_true.push_back((int)mphi && count);
+        monstruct2.mphi_false.push_back((int)!(mphi) && count);
+        monstruct2.scount_phi_true.push_back((int)mphi && count && scount);
+        monstruct2.scount_phi_false.push_back((int)mphi && count && !scount);
+        monstruct2.scount_eta_true.push_back((int)!(mphi) && count && scount);
+        monstruct2.scount_eta_false.push_back((int)!(mphi) && count && !scount);
+        monstruct2.secLayer.push_back((kl-16 + 0.2 * (lay - 1) + 0.1));
 
         if(count) {
           if(mphi){
@@ -230,11 +253,13 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
             } else tmp_val = count;
           }
           ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " <<
-              secLayer << "\t = " << count << "\t" << scount);
+              monstruct2.secLayer.back() << "\t = " << monstruct2.count_mon.back() 
+              << "\t" << monstruct2.scount_mon.back());
         }//end count
-        fill("CscPrdMonitor", count_mon, scount_mon, tmp_val_mon, secLayer, mphi_true, mphi_false, scount_phi_false, scount_phi_true, scount_eta_false, scount_eta_true );
+        monstruct2.tmp_val_mon.push_back(tmp_val);
       } //end for km
     } //end for kl
+
     auto numphi_mon = Monitored::Scalar<int>("numphi_mon", numphi);
     auto numeta_mon = Monitored::Scalar<int>("numeta_mon", numeta);
     auto numphi_sig_mon = Monitored::Scalar<int>("numphi_sig_mon", numphisignal);
@@ -246,6 +271,34 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
 
   } // end for-loop over container
   
+auto noStrips = Monitored::Collection("noStrips",monstruct1.noStrips);
+auto secLayer1 = Monitored::Collection("secLayer", monstruct1.secLayer);
+auto spid = Monitored::Collection("spid", monstruct1.spid);
+auto measphi = Monitored::Collection("measphi", monstruct1.measphi);
+auto measeta = Monitored::Collection("measeta", monstruct1.measeta);
+auto signal_mon = Monitored::Collection("signal_mon", monstruct1.signal_mon);
+auto noise_mon = Monitored::Collection("noise_mon", monstruct1.noise_mon);
+auto clus_phiSig = Monitored::Collection("clus_phiSig", monstruct1.clus_phiSig);
+auto clus_etaSig = Monitored::Collection("clus_etaSig", monstruct1.clus_etaSig);
+auto clus_phiNoise = Monitored::Collection("clus_phiNoise", monstruct1.clus_phiNoise);
+auto clus_etaNoise = Monitored::Collection("clus_etaNoise", monstruct1.clus_etaNoise);
+auto sideA = Monitored::Collection("sideA",monstruct1.sideA);
+auto sideC = Monitored::Collection("sideC",monstruct1.sideC);
+fill("CscPrdMonitor", spid, secLayer1, lumiblock_mon, noStrips, signal_mon, noise_mon, clus_phiSig, clus_etaSig, clus_etaNoise, clus_phiNoise, sideC, sideA, measphi, measeta );
+
+auto count_mon = Monitored::Collection("count_mon", monstruct2.count_mon);
+auto scount_mon = Monitored::Collection("scount_mon", monstruct2.scount_mon);
+auto mphi_true = Monitored::Collection("mphi_true", monstruct2.mphi_true);
+auto mphi_false = Monitored::Collection("mphi_false", monstruct2.mphi_false);
+auto scount_phi_true = Monitored::Collection("scount_phi_true", monstruct2.scount_phi_true);
+auto scount_phi_false = Monitored::Collection("scount_phi_false", monstruct2.scount_phi_false);
+auto scount_eta_true = Monitored::Collection("scount_eta_true", monstruct2.scount_eta_true);
+auto scount_eta_false = Monitored::Collection("scount_eta_false", monstruct2.scount_eta_false);
+auto secLayer = Monitored::Collection("secLayer", monstruct2.secLayer);  
+auto tmp_val_mon = Monitored::Collection("tmp_val_mon", monstruct2.tmp_val_mon);
+fill("CscPrdMonitor", count_mon, scount_mon, tmp_val_mon, secLayer, mphi_true, mphi_false, scount_phi_false, scount_phi_true, scount_eta_false, scount_eta_true );
+
+
   ATH_MSG_DEBUG ( " End EVENT======================" );
 
   ATH_MSG_DEBUG( "CscPrdValMonAlg: fillHistograms reports success" );

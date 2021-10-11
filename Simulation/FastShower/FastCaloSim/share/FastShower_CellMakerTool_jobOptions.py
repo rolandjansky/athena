@@ -4,8 +4,6 @@
 # SUBCALO enum LAREM LARHEC LARFCAL TILE NSUBCALO NOT_VALID
 from CaloIdentifier import SUBCALO
 
-include ('CaloTools/CaloNoiseTool_jobOptions.py')
-
 # Properties of LArCellRec:
 theApp.Dlls += [ "FastCaloSim" ]
 

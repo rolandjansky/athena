@@ -556,8 +556,8 @@ namespace Muon {
                 // at least three tracklets per plane are needed
                 if (TracksForVertexing[k].size() < 3) break;
 
-                Amg::Transform3D* surfaceTransformMatrix = new Amg::Transform3D;
-                surfaceTransformMatrix->setIdentity();
+                Amg::Transform3D surfaceTransformMatrix;
+                surfaceTransformMatrix.setIdentity();
                 Trk::CylinderSurface cyl(surfaceTransformMatrix, rpos, 10000.);  // create the surface
                 // extrapolate to the surface
                 std::unique_ptr<const Trk::TrackParameters> extrap_par(
@@ -589,8 +589,8 @@ namespace Muon {
                     // if the tracklet has a momentum measurement
                     else {
                         // now extrapolate taking into account the extra path length & differing magnetic field
-                        Amg::Transform3D* srfTransMat2 = new Amg::Transform3D;
-                        srfTransMat2->setIdentity();
+                        Amg::Transform3D srfTransMat2;
+                        srfTransMat2.setIdentity();
                         Trk::CylinderSurface cyl2(srfTransMat2, rpos, 10000.);
                         std::unique_ptr<const Trk::TrackParameters> extrap_par2(
                             m_extrapolator->extrapolate(*TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));

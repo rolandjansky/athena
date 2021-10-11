@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -16,7 +16,6 @@
 #include <AnaAlgorithm/AlgorithmWorkerData.h>
 #include <AnaAlgorithm/MessageCheck.h>
 #include <AsgTools/AsgTool.h>
-#include <RootCoreUtils/Assert.h>
 
 //
 // method implementations
@@ -24,18 +23,9 @@
 
 namespace EL
 {
-  void AnaAlgorithmConfig :: 
-  testInvariant () const
-  {
-    RCU_INVARIANT (this != nullptr);
-  }
-
-
-
   AnaAlgorithmConfig :: 
   AnaAlgorithmConfig ()
   {
-    RCU_NEW_INVARIANT (this);
   }
 
 
@@ -44,7 +34,14 @@ namespace EL
   AnaAlgorithmConfig (const std::string& val_typeAndName)
     : AsgComponentConfig (val_typeAndName)
   {
-    RCU_NEW_INVARIANT (this);
+  }
+
+
+
+  AnaAlgorithmConfig ::
+  AnaAlgorithmConfig (const AsgComponentConfig& val_config)
+    : AsgComponentConfig (val_config)
+  {
   }
 
 
@@ -52,7 +49,6 @@ namespace EL
   bool AnaAlgorithmConfig ::
   useXAODs () const noexcept
   {
-    RCU_READ_INVARIANT (this);
     return m_useXAODs;
   }
 
@@ -61,7 +57,6 @@ namespace EL
   void AnaAlgorithmConfig ::
   setUseXAODs (bool val_useXAODs) noexcept
   {
-    RCU_CHANGE_INVARIANT (this);
     m_useXAODs = val_useXAODs;
   }
 
@@ -70,7 +65,6 @@ namespace EL
   bool AnaAlgorithmConfig ::
   isPublicTool () const noexcept
   {
-    RCU_READ_INVARIANT (this);
     return m_isPublicTool;
   }
 
@@ -79,7 +73,6 @@ namespace EL
   void AnaAlgorithmConfig ::
   setIsPublicTool (bool val_isPublicTool) noexcept
   {
-    RCU_CHANGE_INVARIANT (this);
     m_isPublicTool = val_isPublicTool;
   }
 
@@ -89,7 +82,6 @@ namespace EL
   makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
                  const AlgorithmWorkerData& workerData) const
   {
-    RCU_READ_INVARIANT (this);
     using namespace msgAlgorithmConfig;
 
     if (m_isPublicTool == false)

@@ -25,6 +25,7 @@
 #include "xAODTracking/VertexContainerFwd.h"
 
 // STL includes
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -59,13 +60,14 @@ namespace CP {
 
     /// @name Public helper class for applying the difference TTVA WPs
 
-    typedef SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::VertexContainer>>> AMVFVerticesRDH;
-    typedef SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<float>> AMVFWeightsRDH;
+    typedef SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::VertexContainer>>> AMVFVerticesAcc;
+    typedef SG::AuxElement::ConstAccessor<std::vector<float>> AMVFWeightsAcc;
+
     class WorkingPoint {
     public:
       virtual ~WorkingPoint() = default;
       virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,
-        const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const = 0;
+        const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const = 0;
     };
 
     /// @}
@@ -123,6 +125,9 @@ namespace CP {
     /// Flag to cut on d0sig instead of d0.
     bool m_doUsedInFit;
 
+    /// Flag to switch priority to match the primary vertex instead of closest vertex.
+    bool m_doPVPriority;
+
     /// Flag to cut on d0sig instead of d0.
     bool m_requirePriVtx;
 
@@ -144,9 +149,13 @@ namespace CP {
 
     /// AMVF vertices decoration key
     SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> m_vtxDecoKey;
+    /// AMVF vertices decoration accessor
+    std::unique_ptr<AMVFVerticesAcc> m_vtxDecoAcc;
 
     /// AMVF weights decoration key
     SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> m_wgtDecoKey;
+    /// AMVF weights decoration accessor
+    std::unique_ptr<AMVFWeightsAcc> m_wgtDecoAcc;
 
     /// Hardscatter vertex link key
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_hardScatterDecoKey;

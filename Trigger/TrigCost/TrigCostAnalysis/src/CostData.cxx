@@ -135,9 +135,17 @@ void CostData::setChainToAlgMap( const std::map<std::string, std::set<size_t>>& 
   m_chainToAlgIdx = &chainToAlgIdx;
 }
 
+void CostData::setSequencersMap( const std::map<std::string, std::set<size_t>>& seqToAlg ) {
+  m_sequencers = &seqToAlg;
+}
+
 
 const std::map<std::string, std::set<size_t>>& CostData::chainToAlgMap() const {
   return *m_chainToAlgIdx;
+}
+
+const std::map<std::string, std::set<size_t>>& CostData::sequencersMap() const {
+  return *m_sequencers;
 }
 
 const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& CostData::seededChains() const {

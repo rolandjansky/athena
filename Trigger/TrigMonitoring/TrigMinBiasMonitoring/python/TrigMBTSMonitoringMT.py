@@ -15,10 +15,12 @@ def TrigMBTS(configFlags):
     alg = monConfig.addAlgorithm(
         CompFactory.HLTMBTSMonitoringAlgMT, 'HLTMBTSMonitoringAlgMT')
     alg.triggerList = ["HLT_mb_mbts_L1MBTS_1_EMPTY"]
+    alg.MBTS_channelID = [f'A{i:0>2d}' for i in range(16)]
+    alg.MBTS_channelID += [f'C{i:0>2d}' for i in range(16)]
 
     length = len(alg.triggerList)
-    MBTS_countsSideA = 12
-    MBTS_countsSideC = 12
+    MBTS_countsSideA = 16
+    MBTS_countsSideC = 16
 
     mbtsGroup = monConfig.addGroup(alg, 'MBTSall', topPath='HLT/MBTSMon/')
     mbtsGroup.defineHistogram('TrigCounts', title='Trigger counts;;Event rate',
@@ -27,7 +29,7 @@ def TrigMBTS(configFlags):
     for chain in alg.triggerList:
 
         mbShiftGroup = monConfig.addGroup(alg, chain+'_shifter',
-                                          topPath='HLT/MBTSMon/Shifter/'+chain+'/')
+                                          topPath='HLT/MBTSMon/'+chain+'/')
 
         mbShiftGroup.defineHistogram('MBTS_A_hits', type='TH1I', title='MBTS hits side A; Entry rate; MBTS side A',
                                      xbins=MBTS_countsSideA+1, xmin=-0.5, xmax=MBTS_countsSideA+0.5)
@@ -40,15 +42,17 @@ def TrigMBTS(configFlags):
             'MBTStime', type='TH1F', title='MBTS time; MBTS time [ns]', xbins=100, xmin=-100, xmax=100)
         mbShiftGroup.defineHistogram(
             'MBTSenergy', type='TH1F', title='MBTS energy; MBTS energy [pC]', xbins=100, xmin=-100, xmax=100)
-        mbShiftGroup.defineHistogram('MBTSChannelID', type='TH1F', title='MBTS Channel ID; Channel ID; Entry rate',
-                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC)
-        mbShiftGroup.defineHistogram('MBTSChannelID,MBTStime', type='TH2F', title='MBTS time; Channel ID;MBTS time [ns]; Entry rate',
-                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC, ybins=100, ymin=-100, ymax=100)
-        mbShiftGroup.defineHistogram('MBTSChannelID,MBTSenergy', type='TH2F', title='MBTS energy; Channel ID;MBTS energy [pC]; Entry rate',
-                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC, ybins=100, ymin=-100, ymax=100)
+        mbShiftGroup.defineHistogram('MBTS_channelID', type='TH1F', title='MBTS Channel ID; Channel ID; Entry rate',
+                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC, xlabels=list(alg.MBTS_channelID))
+        mbShiftGroup.defineHistogram('MBTS_channelID,MBTS_time', type='TH2F', title='MBTS time; Channel ID;MBTS time [ns]; Entry rate',
+                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC, xlabels=list(alg.MBTS_channelID), ybins=100, ymin=-100, ymax=100)
+        mbShiftGroup.defineHistogram('MBTS_channelID,MBTS_time;MBTS_time_zoom_vs_MBTS_channel_ID', type='TH2F', title='MBTS time zoom; Channel ID;MBTS time [ns]; Entry rate',
+                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC, xlabels=list(alg.MBTS_channelID), ybins=100, ymin=-10, ymax=10)
+        mbShiftGroup.defineHistogram('MBTS_channelID,MBTS_energy', type='TH2F', title='MBTS energy; Channel ID;MBTS energy [pC]; Entry rate',
+                                     xbins=MBTS_countsSideA+MBTS_countsSideC, xmin=0, xmax=MBTS_countsSideA+MBTS_countsSideC, xlabels=list(alg.MBTS_channelID), ybins=100, ymin=-100, ymax=100)
 
         mbExpGroup = monConfig.addGroup(alg, chain+'_expert',
-                                        topPath='HLT/MBTSMon/Expert/'+chain+'/')
+                                        topPath='HLT/MBTSMon/'+chain+'/')
         mbExpGroup.defineHistogram(
             'MBTShits', type='TH2F', title='MBTS total hits;# of Hits;Entry Rate', xbins=24, xmin=0, xmax=100)
 
@@ -77,19 +81,15 @@ if __name__ == '__main__':
 
     ConfigFlags.Input.Files = ['myAOD.pool.root']
     ConfigFlags.Output.HISTFileName = 'TestMBTSMonitorOutput.root'
-    # ConfigFlags.fillFromArgs(sys.argv[1:])
-
     ConfigFlags.lock()
 
-# Initialize configuration object, add accumulator, merge, and run.
+    # Initialize configuration object, add accumulator, merge, and run.
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(TrigMBTS(ConfigFlags))
 
-    # If you want to turn on more detailed messages ...
-    # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.getEventAlgo('HLTMBTSMonitoringAlgMT').OutputLevel = DEBUG  # DEBUG
     cfg.printConfig(withDetails=True)  # set True for exhaustive info
     with open("cfg.pkl", "wb") as f:

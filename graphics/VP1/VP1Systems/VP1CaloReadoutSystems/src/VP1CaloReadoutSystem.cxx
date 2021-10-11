@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1CaloReadoutSystems/VP1CaloReadoutSystem.h"
@@ -55,6 +55,10 @@
 #include "LArHV/HECHVModule.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArHV/LArHVManager.h"
+#include "LArRecConditions/LArHVIdMapping.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -69,118 +73,118 @@ class VP1CaloReadoutSystem::Clockwork
 {
 public:
 
-  SoSeparator       *volatileSeparator;
+  SoSeparator       *volatileSeparator = nullptr;
 
   QMap<QString,SoSwitch*>    switchMap;
 
   // Two maps for controller check boxes
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
   QMap<QString,QCheckBox*>   checkBoxMap;
-  SoPickStyle *pickStyle;
+  SoPickStyle *pickStyle = nullptr;
 
-  SoSwitch          *fcalSwitch[3];     // FCAL
-  SoSwitch          *fcalHVSwitch[3];   // FCAL
-  SoSwitch          *fcalNormalSwitch[3];
-  SoSwitch          *fcalBadSwitch[3];
-  SoSwitch          *fcalMissingSwitch[3];
+  SoSwitch          *fcalSwitch[3]{};     // FCAL
+  SoSwitch          *fcalHVSwitch[3]{};   // FCAL
+  SoSwitch          *fcalNormalSwitch[3]{};
+  SoSwitch          *fcalBadSwitch[3]{};
+  SoSwitch          *fcalMissingSwitch[3]{};
 
-  SoSwitch          *hecSwitch[4];      // HEC
-  SoSwitch          *hecHVSwitch[4];    // HEC
-  SoSwitch          *hecNormalSwitch[4];
-  SoSwitch          *hecBadSwitch[4];
-  SoSwitch          *hecMissingSwitch[4];
+  SoSwitch          *hecSwitch[4]{};      // HEC
+  SoSwitch          *hecHVSwitch[4]{};    // HEC
+  SoSwitch          *hecNormalSwitch[4]{};
+  SoSwitch          *hecBadSwitch[4]{};
+  SoSwitch          *hecMissingSwitch[4]{};
 
-  SoSwitch          *embSwitch[4];      // EMB
-  SoSwitch          *embHVSwitch;
-  SoSwitch          *embModsSwitch;
-  SoSwitch          *embNormalSwitch;
-  SoSwitch          *embBadSwitch;
-  SoSwitch          *embMissingSwitch;
-  SoSwitch          *embPreHVSwitch;    
-  SoSwitch          *embPreModsSwitch;  
-  SoSwitch          *embPreNormalSwitch;
-  SoSwitch          *embPreBadSwitch;     
-  SoSwitch          *embPreMissingSwitch; 
+  SoSwitch          *embSwitch[4]{};      // EMB
+  SoSwitch          *embHVSwitch = nullptr;
+  SoSwitch          *embModsSwitch = nullptr;
+  SoSwitch          *embNormalSwitch = nullptr;
+  SoSwitch          *embBadSwitch = nullptr;
+  SoSwitch          *embMissingSwitch = nullptr;
+  SoSwitch          *embPreHVSwitch = nullptr;    
+  SoSwitch          *embPreModsSwitch = nullptr;  
+  SoSwitch          *embPreNormalSwitch = nullptr;
+  SoSwitch          *embPreBadSwitch = nullptr;     
+  SoSwitch          *embPreMissingSwitch = nullptr; 
 
-  SoSwitch          *emecPreHVSwitch;    
-  SoSwitch          *emecPreModsSwitch;  
-  SoSwitch          *emecPreNormalSwitch;
-  SoSwitch          *emecPreBadSwitch;     
-  SoSwitch          *emecPreMissingSwitch; 
-
-
-  SoSwitch          *emecSwitch[4];     // EMEC
-  SoSwitch          *emecHVSwitch;    // EMB
-  SoSwitch          *emecModsSwitch;
-  SoSwitch          *emecNormalSwitch;
-  SoSwitch          *emecBadSwitch;
-  SoSwitch          *emecMissingSwitch;
-
-  SoSeparator          *fcalSeparator[3];      // FCAL
-  SoSeparator          *hecSeparator [4];      // HEC
-  SoSeparator          *emecSeparator[4];      // EMEC
-  SoSeparator          *embSeparator [4];      // EMB
+  SoSwitch          *emecPreHVSwitch = nullptr;    
+  SoSwitch          *emecPreModsSwitch = nullptr;  
+  SoSwitch          *emecPreNormalSwitch = nullptr;
+  SoSwitch          *emecPreBadSwitch = nullptr;     
+  SoSwitch          *emecPreMissingSwitch = nullptr; 
 
 
-  SoSeparator          *fcalHVSeparator[3];
-  SoSeparator          *hecHVSeparator[4];
-  SoSeparator          *embPreHVSeparator;
-  SoSeparator          *emecPreHVSeparator;
+  SoSwitch          *emecSwitch[4]{};     // EMEC
+  SoSwitch          *emecHVSwitch = nullptr;    // EMB
+  SoSwitch          *emecModsSwitch = nullptr;
+  SoSwitch          *emecNormalSwitch = nullptr;
+  SoSwitch          *emecBadSwitch = nullptr;
+  SoSwitch          *emecMissingSwitch = nullptr;
 
-  SoSeparator          *embHVSeparator;
-  SoSeparator          *emecHVSeparator;
-  SoSeparator          *embModsSeparator;
-  SoSeparator          *embPreModsSeparator;
-  SoSeparator          *emecPreModsSeparator;
-  SoSeparator          *emecModsSeparator;
-
-  SoSwitch             *embSubSwitch[4][NPHISECTORS];
-  SoSwitch             *emecSubSwitch[4][NPHISECTORS];
-  SoSwitch             *hecSubSwitch[4][NPHISECTORS];
-
-  SoSeparator             *embSubSep[4][NPHISECTORS];
-  SoSeparator             *emecSubSep[4][NPHISECTORS];
-  SoSeparator             *hecSubSep[4][NPHISECTORS];
-  SoSeparator             *fcalSubSep[3];
-
-  SoSeparator             *fcalNormalSep[3];
-  SoSeparator             *fcalMissingSep[3];
-  SoSeparator             *fcalBadSep[3];
-
-  SoSeparator             *hecNormalSep[4];
-  SoSeparator             *hecMissingSep[4];
-  SoSeparator             *hecBadSep[4];
-
-  SoSeparator             *embNormalSep;
-  SoSeparator             *embMissingSep;
-  SoSeparator             *embBadSep;
-
-  SoSeparator             *embPreNormalSep;
-  SoSeparator             *embPreMissingSep;
-  SoSeparator             *embPreBadSep;
-
-  SoSeparator             *emecPreNormalSep;
-  SoSeparator             *emecPreMissingSep;
-  SoSeparator             *emecPreBadSep;
-
-  SoSeparator             *emecNormalSep;
-  SoSeparator             *emecMissingSep;
-  SoSeparator             *emecBadSep;
+  SoSeparator          *fcalSeparator[3]{};      // FCAL
+  SoSeparator          *hecSeparator [4]{};      // HEC
+  SoSeparator          *emecSeparator[4]{};      // EMEC
+  SoSeparator          *embSeparator [4]{};      // EMB
 
 
-  SoSwitch                *accordionSubSwitch[NPHISECTORS];
-  SoSeparator             *accordionSubSep[NPHISECTORS];
+  SoSeparator          *fcalHVSeparator[3]{};
+  SoSeparator          *hecHVSeparator[4]{};
+  SoSeparator          *embPreHVSeparator = nullptr;
+  SoSeparator          *emecPreHVSeparator = nullptr;
+
+  SoSeparator          *embHVSeparator = nullptr;
+  SoSeparator          *emecHVSeparator = nullptr;
+  SoSeparator          *embModsSeparator = nullptr;
+  SoSeparator          *embPreModsSeparator = nullptr;
+  SoSeparator          *emecPreModsSeparator = nullptr;
+  SoSeparator          *emecModsSeparator = nullptr;
+
+  SoSwitch             *embSubSwitch[4][NPHISECTORS]{};
+  SoSwitch             *emecSubSwitch[4][NPHISECTORS]{};
+  SoSwitch             *hecSubSwitch[4][NPHISECTORS]{};
+
+  SoSeparator             *embSubSep[4][NPHISECTORS]{};
+  SoSeparator             *emecSubSep[4][NPHISECTORS]{};
+  SoSeparator             *hecSubSep[4][NPHISECTORS]{};
+  SoSeparator             *fcalSubSep[3]{};
+
+  SoSeparator             *fcalNormalSep[3]{};
+  SoSeparator             *fcalMissingSep[3]{};
+  SoSeparator             *fcalBadSep[3]{};
+
+  SoSeparator             *hecNormalSep[4]{};
+  SoSeparator             *hecMissingSep[4]{};
+  SoSeparator             *hecBadSep[4]{};
+
+  SoSeparator             *embNormalSep = nullptr;
+  SoSeparator             *embMissingSep = nullptr;
+  SoSeparator             *embBadSep = nullptr;
+
+  SoSeparator             *embPreNormalSep = nullptr;
+  SoSeparator             *embPreMissingSep = nullptr;
+  SoSeparator             *embPreBadSep = nullptr;
+
+  SoSeparator             *emecPreNormalSep = nullptr;
+  SoSeparator             *emecPreMissingSep = nullptr;
+  SoSeparator             *emecPreBadSep = nullptr;
+
+  SoSeparator             *emecNormalSep = nullptr;
+  SoSeparator             *emecMissingSep = nullptr;
+  SoSeparator             *emecBadSep = nullptr;
 
 
-  SoSwitch          *emecFocalSwitch;
-  SoSwitch          *hecFocalSwitch;
-  SoSwitch          *embAccViewSwitch;
+  SoSwitch                *accordionSubSwitch[NPHISECTORS]{};
+  SoSeparator             *accordionSubSep[NPHISECTORS]{};
 
-  SoMaterial        *embMaterial;
-  SoMaterial        *emecMaterial;
-  SoMaterial        *hecMaterial;
-  SoMaterial        *fcalMaterial;
-  SoMaterial        *embAccMaterial;
+
+  SoSwitch          *emecFocalSwitch = nullptr;
+  SoSwitch          *hecFocalSwitch = nullptr;
+  SoSwitch          *embAccViewSwitch = nullptr;
+
+  SoMaterial        *embMaterial = nullptr;
+  SoMaterial        *emecMaterial = nullptr;
+  SoMaterial        *hecMaterial = nullptr;
+  SoMaterial        *fcalMaterial = nullptr;
+  SoMaterial        *embAccMaterial = nullptr;
 
   std::map < SoNode *, const FCALTile *>   TileMap;
   std::map < SoNode *, HECCellConstLink>   HECMap;
@@ -194,9 +198,9 @@ public:
 
   VP1CaloReadoutSystem::POSITION pos;
 
-  Ui::CaloReadoutSystemControllerForm ui;
-  bool hvInit;
-  bool permInit;
+  Ui::CaloReadoutSystemControllerForm ui{};
+  bool hvInit = false;
+  bool permInit = false;
   QVector<bool> currentlyEnabledPhiSectors;
 };
 
@@ -764,17 +768,57 @@ void VP1CaloReadoutSystem::createHV() {
   blue->unref();
 
 
-  int tolerance =m_clockwork->ui.hvToleranceSpinBox->value();
-
   const LArHVManager *larHVManager=NULL;
   if (!VP1SGAccessHelper(this,true).retrieve(larHVManager,"LArHVManager")) {
     message("No Access To HV Information.  The LArHVManager is NULL");
     return;
   }
 
+  SG::ReadCondHandleKey<LArHVIdMapping> hvCablingKey ("LArHVIdMap");
+  if (hvCablingKey.initialize().isFailure()) {
+    message("No Access To HV Information.  Cannot retrieve LArHVIdMap.");
+    return;
+  }
+  if (hvCablingKey.storeHandle()->proxy (ClassID_traits<CondCont<LArHVIdMapping> >::ID(),
+                                         hvCablingKey.key()) == nullptr)
+  {
+    message("No Access To HV Information.  Cannot retrieve LArHVIdMap.");
+    return;
+  }
+  SG::ReadCondHandle<LArHVIdMapping> hvCabling (hvCablingKey);
+
+  std::vector<const CondAttrListCollection*> attrLists;
+  {
+    // Not a typo --- this folder has a lower-case l in the database...
+    SG::ReadCondHandleKey<CondAttrListCollection> i16Key ("/LAR/DCS/HV/BARREl/I16");
+    SG::ReadCondHandleKey<CondAttrListCollection> i8Key ("/LAR/DCS/HV/BARREL/I8");
+    if (i16Key.initialize().isFailure()) {
+      message("No Access To HV Information.  Cannot retrieve I16.");
+      return;
+    }
+    if (i8Key.initialize().isFailure()) {
+      message("No Access To HV Information.  Cannot retrieve I8.");
+      return;
+    }
+    if (i16Key.storeHandle()->proxy (ClassID_traits<CondCont<CondAttrListCollection> >::ID(),
+                                     i16Key.key()) == nullptr ||
+        i8Key.storeHandle()->proxy (ClassID_traits<CondCont<CondAttrListCollection> >::ID(),
+                                    i8Key.key()) == nullptr)
+    {
+      message("No Access To HV Information.  Cannot retrieve LArHVIdMap.");
+      return;
+    }
+    SG::ReadCondHandle<CondAttrListCollection> i16 (i16Key);
+    SG::ReadCondHandle<CondAttrListCollection> i8 (i8Key);
+    attrLists.push_back (*i16);
+    attrLists.push_back (*i8);
+  }
+
+  int tolerance =m_clockwork->ui.hvToleranceSpinBox->value();
 
   const EMBHVManager&  embHVManager  = larHVManager->getEMBHVManager();
-  const EMBHVManager::EMBHVData hvdata_EMB = embHVManager.getData();
+  const EMBHVManager::EMBHVData hvdata_EMB = embHVManager.getData(**hvCabling,
+                                                                  attrLists);
   for (unsigned int e=embHVManager.beginSideIndex();e!=embHVManager.endSideIndex();e++) {
     for (unsigned int s=embHVManager.beginSectorIndex();s!=embHVManager.endSectorIndex();s++) {
       for (unsigned int y=embHVManager.beginEtaIndex();y!=embHVManager.endEtaIndex();y++) {
@@ -841,7 +885,8 @@ void VP1CaloReadoutSystem::createHV() {
   }
 
   const EMBPresamplerHVManager&  embPreHVManager  = larHVManager->getEMBPresamplerHVManager();
-  const EMBPresamplerHVManager::EMBPresamplerHVData hvdata_EMBPS = embPreHVManager.getData();
+  const EMBPresamplerHVManager::EMBPresamplerHVData hvdata_EMBPS = embPreHVManager.getData(**hvCabling,
+                                                                                           attrLists);
   for (unsigned int e=embPreHVManager.beginSideIndex();e!=embPreHVManager.endSideIndex();e++) {
     for (unsigned int y=embPreHVManager.beginEtaIndex();y!=embPreHVManager.endEtaIndex();y++) {
       for (unsigned int p=embPreHVManager.beginPhiIndex();p!=embPreHVManager.endPhiIndex();p++) {
@@ -907,7 +952,8 @@ void VP1CaloReadoutSystem::createHV() {
     QSpinBox **spinBoxes = iotype==EMECHVModule::OUTER ? emecSpinBoxOuter : emecSpinBoxInner;
 
     const EMECHVManager&  emecHVManager  = larHVManager->getEMECHVManager(iotype);
-    const EMECHVManager::EMECHVData hvdata_EMEC = emecHVManager.getData();
+    const EMECHVManager::EMECHVData hvdata_EMEC = emecHVManager.getData(**hvCabling,
+                                                                        attrLists);
     for (unsigned int e=emecHVManager.beginSideIndex();e!=emecHVManager.endSideIndex();e++) {
       double z =  e==0 ? -3740:3740;
       for (unsigned int s=emecHVManager.beginSectorIndex();s!=emecHVManager.endSectorIndex();s++) {
@@ -978,7 +1024,8 @@ void VP1CaloReadoutSystem::createHV() {
   }
 
   const EMECPresamplerHVManager&  emecPreHVManager  = larHVManager->getEMECPresamplerHVManager();
-  const EMECPresamplerHVManager::EMECPresamplerHVData hvdata_EMECPS = emecPreHVManager.getData();
+  const EMECPresamplerHVManager::EMECPresamplerHVData hvdata_EMECPS = emecPreHVManager.getData(**hvCabling,
+                                                                                               attrLists);
   for (unsigned int e=emecPreHVManager.beginSideIndex();e!=emecPreHVManager.endSideIndex();e++) {
     double z =  e==0 ? -3650:3650;
     for (unsigned int p=emecPreHVManager.beginPhiIndex();p!=emecPreHVManager.endPhiIndex();p++) {
@@ -1029,7 +1076,8 @@ void VP1CaloReadoutSystem::createHV() {
 
   const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
   const HECHVManager&  hecHVManager  = larHVManager->getHECHVManager();
-  const HECHVManager::HECHVData hvdata_HEC = hecHVManager.getData();
+  const HECHVManager::HECHVData hvdata_HEC = hecHVManager.getData(**hvCabling,
+                                                                  attrLists);
   for (unsigned int e=hecHVManager.beginSideIndex();e!=hecHVManager.endSideIndex();e++) {
     for (unsigned int s=hecHVManager.beginSamplingIndex();s!=hecHVManager.endSamplingIndex();s++) {
       for (unsigned int p=hecHVManager.beginPhiIndex();p!=hecHVManager.endPhiIndex();p++) {
@@ -1090,7 +1138,8 @@ void VP1CaloReadoutSystem::createHV() {
   }
 
   const FCALHVManager& fcalHVManager = larHVManager->getFCALHVManager();
-  const FCALHVManager::FCALHVData hvdata_FCAL = fcalHVManager.getData();
+  const FCALHVManager::FCALHVData hvdata_FCAL = fcalHVManager.getData(**hvCabling,
+                                                                      attrLists);
   for (unsigned int e=fcalHVManager.beginSideIndex();e!=fcalHVManager.endSideIndex();e++) {
     for (unsigned int s=fcalHVManager.beginSamplingIndex();s!=fcalHVManager.endSamplingIndex();s++) {
       for (unsigned int x=fcalHVManager.beginSectorIndex(s);x!=fcalHVManager.endSectorIndex(s);x++) {
@@ -1116,7 +1165,7 @@ void VP1CaloReadoutSystem::createHV() {
 	  const FCALDetectorManager *fcalManager=VP1DetInfo::fcalDetMgr();
 	  if (fcalManager) {
 	    FCALDetectorManager::ConstIterator e;
-	    for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  e++) {
+	    for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  ++e) {
 	      
 	      const FCALModule *fcalMod = *e;
 	      const HepGeom::Transform3D &xf =  Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
@@ -1129,7 +1178,7 @@ void VP1CaloReadoutSystem::createHV() {
 	      int cc=0;
 	      
 	      FCALModule::ConstIterator   t;
-	      for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+	      for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 		
 		double zf = fcalMod->getEndcapIndex()== 0 ?  +fcalMod->getFullDepthZ(*t)/2.0 : -fcalMod->getFullDepthZ(*t)/2.0;
 		//		    double zc = 0;
@@ -1176,7 +1225,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       EMBDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMBDetectorRegion *region = *e;
 	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
@@ -1276,7 +1325,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       EMECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMECDetectorRegion *region = *e;
 	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 
@@ -1358,7 +1407,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       HECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 
 
 	const HECDetectorRegion *region = *e;
@@ -1445,7 +1494,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
    const FCALDetectorManager * manager=VP1DetInfo::fcalDetMgr();
    if (manager) {
      FCALDetectorManager::ConstIterator e;
-     for (e=manager->beginFCAL();e!=manager->endFCAL();  e++) {
+     for (e=manager->beginFCAL();e!=manager->endFCAL();  ++e) {
 
        const FCALModule *fcalMod = *e;
        const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
@@ -1457,7 +1506,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
        SoSeparator *sep = new SoSeparator();
        sep->addChild(XF);
        FCALModule::ConstIterator   t;
-       for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+       for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 	 double x = t->getX();
 	 double y = t->getY();
 	 double dx = fcalMod->getFullWidthX(*t)/2.0;
@@ -1668,10 +1717,10 @@ void VP1CaloReadoutSystem::userClickedOnBgd() {
   deselectAll();
 }
 
-void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pickedPath*/)
+void VP1CaloReadoutSystem::userPickedNode(SoNode* /*mySelectedNode*/, SoPath */*pickedPath*/)
 {
 
-
+#if 0
   m_clockwork->volatileSeparator->removeAllChildren();
   deselectAll();
   SoPickStyle *pickStyle = new SoPickStyle();
@@ -1689,7 +1738,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       const EMBHVElectrode& electrode  = *p->second;
       const EMBHVModule& module = electrode.getModule();
       const EMBHVManager& manager = module.getManager();
-      const EMBHVManager::EMBHVData hvdata = manager.getData();
+      const EMBHVManager::EMBHVData hvdata = manager.getData(**hvCabling,
+                                                             attrLists);
       std::ostringstream outstream;
       outstream << "Side: " << module.getSideIndex()
                 <<" Eta: " << module.getEtaIndex()
@@ -1711,7 +1761,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       const EMECHVElectrode& electrode = *p->second;
       const EMECHVModule& module = electrode.getModule();
       const EMECHVManager& manager = module.getManager();
-      const EMECHVManager::EMECHVData hvdata = manager.getData();
+      const EMECHVManager::EMECHVData hvdata = manager.getData(**hvCabling,
+                                                               attrLists);
       std::ostringstream outstream;
       outstream << "Side: " << module.getSideIndex()
                 << " Wheel: " << module.getWheelIndex()
@@ -1735,7 +1786,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       const HECHVSubgap& subgap = *p->second;
       const HECHVModule& module = subgap.getModule();
       const HECHVManager& manager = module.getManager();
-      const HECHVManager::HECHVData hvdata = manager.getData();
+      const HECHVManager::HECHVData hvdata = manager.getData(**hvCabling,
+                                                             attrLists);
       std::ostringstream outstream;
       outstream << "Side: " << module.getSideIndex()
                 << " Phi: " << module.getPhiIndex()
@@ -1754,7 +1806,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       const FCALHVLine& line = *p->second;
       const FCALHVModule& module = line.getModule();
       const FCALHVManager& manager = module.getManager();
-      const FCALHVManager::FCALHVData hvdata = manager.getData();
+      const FCALHVManager::FCALHVData hvdata = manager.getData(**hvCabling,
+                                                               attrLists);
       std::ostringstream outstream;
       outstream << "Side: " << module.getSideIndex()
                 << " Sector: " << module.getSectorIndex()
@@ -1789,7 +1842,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
         if (line) {
           const FCALHVModule& module = line->getModule();
           const FCALHVManager& manager = module.getManager();
-          const FCALHVManager::FCALHVData hvdata = manager.getData();
+          const FCALHVManager::FCALHVData hvdata = manager.getData(**hvCabling,
+                                                                   attrLists);
           for (unsigned int i=0;i<element->getNumHVLines();i++) {
             std::ostringstream highVoltageStream;
             if (element->getHVLine(i)) {
@@ -1919,7 +1973,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       if (element->getNumSubgaps() > 0) {
         const HECHVModule& module0 = element->getSubgap(0).getModule();
         const HECHVManager& manager = module0.getManager();
-        const HECHVManager::HECHVData hvdata = manager.getData();
+        const HECHVManager::HECHVData hvdata = manager.getData(**hvCabling,
+                                                               attrLists);
         for (unsigned int i=0;i<element->getNumSubgaps();i++) {
           if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
             std::ostringstream highVoltageStream;
@@ -2007,7 +2062,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	 if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	  const EMECPresamplerHVModule& module = element->getPresamplerHVModule();
           const EMECPresamplerHVManager& manager = module.getManager();
-          const EMECPresamplerHVManager::EMECPresamplerHVData hvdata = manager.getData();
+          const EMECPresamplerHVManager::EMECPresamplerHVData hvdata = manager.getData(**hvCabling,
+                                                                                       attrLists);
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
@@ -2082,7 +2138,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
             const EMECHVElectrode& electrode = element->getElectrode(0);
             const EMECHVModule& module0 = electrode.getModule();
             const EMECHVManager& manager = module0.getManager();
-            const EMECHVManager::EMECHVData hvdata = manager.getData();
+            const EMECHVManager::EMECHVData hvdata = manager.getData(**hvCabling,
+                                                                     attrLists);
             if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
               {
                 std::ostringstream highVoltageStream;
@@ -2199,7 +2256,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	if (element->getSamplingIndex()==0) {
 	  const EMBPresamplerHVModule& module = element->getPresamplerHVModule();
           const EMBPresamplerHVManager& manager = module.getManager();
-          const EMBPresamplerHVManager::EMBPresamplerHVData hvdata = manager.getData();
+          const EMBPresamplerHVManager::EMBPresamplerHVData hvdata = manager.getData(**hvCabling,
+                                                                                     attrLists);
 	  
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
@@ -2268,7 +2326,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
           if (element->getNumElectrodes() > 0) {
             const EMBHVModule& module0 = element->getElectrode(0).getModule();
             const EMBHVManager& manager = module0.getManager();
-            const EMBHVManager::EMBHVData hvdata = manager.getData();
+            const EMBHVManager::EMBHVData hvdata = manager.getData(**hvCabling,
+                                                                   attrLists);
             for (unsigned int i=0;i<element->getNumElectrodes();i++) {
               highVoltageStream << i << "Status: "   << element->getElectrode(i).getElectrodeIndex() << ' '
                                 << hvdata.hvOn (element->getElectrode(i), 0) << ' '
@@ -2364,6 +2423,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
   if (m_clockwork->ui.indicesCheckBox->isChecked()) {
     message(indexStream.str().c_str());
   }
+#endif
 }
 
 QByteArray VP1CaloReadoutSystem::saveState()

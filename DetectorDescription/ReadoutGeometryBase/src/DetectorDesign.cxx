@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadoutGeometryBase/DetectorDesign.h"
@@ -98,6 +98,11 @@ DetectorShape DetectorDesign::shape() const {
     return InDetDD::Box;
 }
 
+DetectorType DetectorDesign::type() const {
+    // Default is Undefined.
+    return InDetDD::Undefined;
+}
+
 SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
                                        double phiTol, double etaTol) const {
     double etaDist = 0;
@@ -122,8 +127,9 @@ SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
     return state;
 }
 
-  const Amg::Transform3D DetectorDesign::SiHitToGeoModel() const {
-    return Amg::Transform3D::Identity();
+SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
+                                       double phiTol, double etaTol, bool /*forceStringent*/ ) const {
+  return inDetector(localPosition,phiTol,etaTol);
 }
 
   const Amg::Transform3D DetectorDesign::moduleShift() const {

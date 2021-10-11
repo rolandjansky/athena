@@ -36,6 +36,9 @@ elif DQMonFlags.monManEnvironment == 'tier0ESD':
 elif DQMonFlags.monManEnvironment == 'tier0':
   # we are in RAW -> ALL, run everything
   log.info('Environment is tier0')
+elif DQMonFlags.monManEnvironment == 'AOD':
+  log.info('Environment is AOD')
+  # we are in AOD->HIST
 else :
   log.info('Environment is neither tier0Raw nor tier0ESD')
   log.info('Switching all tools off...')

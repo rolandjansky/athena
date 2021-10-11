@@ -10,6 +10,7 @@
 
 #include <AsgMessaging/MsgStream.h>
 #include <AthContainers/AuxElement.h>
+#include <CxxUtils/AthUnlikelyMacros.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <xAODBase/IParticle.h>
@@ -85,7 +86,7 @@ namespace CP
 
 /// \brief a helper check macro to work with \ref OutOfValidityEventHelper
 #define ANA_CHECK_CORRECTION_EVENT(helper,expr)       \
-  { if ((helper).check ((expr), #expr).isFailure())   \
+  { if (ATH_UNLIKELY((helper).check ((expr), #expr).isFailure())) \
       return StatusCode::FAILURE; }
 
 #endif

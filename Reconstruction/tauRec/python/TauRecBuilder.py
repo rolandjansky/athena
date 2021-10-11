@@ -59,10 +59,9 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getTauClusterFinder())
             tools.append(taualgs.getTauVertexedClusterDecorator())
 
-            if tauFlags.tauRecRNNTrackClassification():
-                tools.append(taualgs.getTauTrackRNNClassifier())
-
             if jobproperties.Beam.beamType()!="cosmics":
+                if tauFlags.tauRecRNNTrackClassification():
+                    tools.append(taualgs.getTauTrackRNNClassifier())
                 tools.append(taualgs.getEnergyCalibrationLC())
             
             tools.append(taualgs.getCellVariables())

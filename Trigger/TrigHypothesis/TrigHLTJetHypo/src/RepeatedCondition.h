@@ -2,17 +2,17 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_REPEATEDCONDITIONMT_H
-#define TRIGHLTJETHYPO_REPEATEDCONDITIONMT_H
+#ifndef TRIGHLTJETHYPO_REPEATEDCONDITION_H
+#define TRIGHLTJETHYPO_REPEATEDCONDITION_H
 
 /********************************************************************
  *
- * NAME:     RepeatedConditionMT.h
+ * NAME:     RepeatedCondition.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
  * 
- * an implementation of the  IRepeatedConditionMT PABC.
+ * an implementation of the  IRepeatedCondition PABC.
  *          
  *********************************************************************/
 
@@ -28,7 +28,7 @@ class ITrigJetHypoInfoCollector;
 
 class RepeatedCondition: public IRepeatedCondition {
  public:
- RepeatedCondition(std::unique_ptr<IConditionMT> cp,
+ RepeatedCondition(std::unique_ptr<ICondition> cp,
 			  std::size_t mult,
 		   int chainPartind = -1,
 		   bool invert=false);
@@ -52,7 +52,7 @@ class RepeatedCondition: public IRepeatedCondition {
 
 private:
 
-  std::unique_ptr<IConditionMT> m_condition;
+  std::unique_ptr<ICondition> m_condition;
   std::size_t m_multiplicity{1};
 
   // record of which chain part in the chainDict this conditions comes from

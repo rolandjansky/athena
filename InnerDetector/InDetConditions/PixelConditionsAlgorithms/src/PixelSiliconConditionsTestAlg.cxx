@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -43,24 +43,24 @@ StatusCode PixelSiliconConditionsTestAlg::execute(){
                             << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)));
     for (int j=0; j<16; j++) {
       ATH_MSG_DEBUG("FE " << j << " "
-                          << calib->getAnalogThreshold(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getAnalogThresholdSigma(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getAnalogThresholdNoise(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getInTimeThreshold(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getAnalogThreshold(i,j,PixelChargeCalibCondData::LONG) << " " 
-                          << calib->getAnalogThresholdSigma(i,j,PixelChargeCalibCondData::LONG) << " " 
-                          << calib->getAnalogThresholdNoise(i,j,PixelChargeCalibCondData::LONG) << " " 
-                          << calib->getInTimeThreshold(i,j,PixelChargeCalibCondData::LONG) << " " 
-                          << calib->getAnalogThreshold(i,j,PixelChargeCalibCondData::GANGED) << " " 
-                          << calib->getAnalogThresholdSigma(i,j,PixelChargeCalibCondData::GANGED) << " " 
-                          << calib->getAnalogThresholdNoise(i,j,PixelChargeCalibCondData::GANGED) << " " 
-                          << calib->getInTimeThreshold(i,j,PixelChargeCalibCondData::GANGED) << " " 
-                          << calib->getQ2TotA(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getQ2TotE(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getQ2TotC(i,j,PixelChargeCalibCondData::NORMAL) << " " 
-                          << calib->getQ2TotA(i,j,PixelChargeCalibCondData::GANGED) << " " 
-                          << calib->getQ2TotE(i,j,PixelChargeCalibCondData::GANGED) << " " 
-                          << calib->getQ2TotC(i,j,PixelChargeCalibCondData::GANGED));
+                          << calib->getAnalogThreshold(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getAnalogThresholdSigma(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getAnalogThresholdNoise(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getInTimeThreshold(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getAnalogThreshold(i,j,InDetDD::PixelDiodeType::LONG) << " " 
+                          << calib->getAnalogThresholdSigma(i,j,InDetDD::PixelDiodeType::LONG) << " " 
+                          << calib->getAnalogThresholdNoise(i,j,InDetDD::PixelDiodeType::LONG) << " " 
+                          << calib->getInTimeThreshold(i,j,InDetDD::PixelDiodeType::LONG) << " " 
+                          << calib->getAnalogThreshold(i,j,InDetDD::PixelDiodeType::GANGED) << " " 
+                          << calib->getAnalogThresholdSigma(i,j,InDetDD::PixelDiodeType::GANGED) << " " 
+                          << calib->getAnalogThresholdNoise(i,j,InDetDD::PixelDiodeType::GANGED) << " " 
+                          << calib->getInTimeThreshold(i,j,InDetDD::PixelDiodeType::GANGED) << " " 
+                          << calib->getQ2TotA(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getQ2TotE(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getQ2TotC(i,j,InDetDD::PixelDiodeType::NORMAL) << " " 
+                          << calib->getQ2TotA(i,j,InDetDD::PixelDiodeType::GANGED) << " " 
+                          << calib->getQ2TotE(i,j,InDetDD::PixelDiodeType::GANGED) << " " 
+                          << calib->getQ2TotC(i,j,InDetDD::PixelDiodeType::GANGED));
     }
 
 

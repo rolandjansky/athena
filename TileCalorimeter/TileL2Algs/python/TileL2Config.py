@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to construct configured Tile L2 builder tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def TileL2BuilderCfg(flags, **kwargs):
@@ -50,7 +51,7 @@ def TileRawChannelToL2Cfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileRawChannelToL2')
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileL2Container', flags.Overlay.BkgPrefix + 'TileL2Cnt')
     else:
         kwargs.setdefault('TileL2Container', 'TileL2Cnt')

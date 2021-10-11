@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSERVICES_TRIGMESSAGESVC_H
 #define TRIGSERVICES_TRIGMESSAGESVC_H
@@ -68,9 +68,7 @@ public:
 
   virtual void reportMessage(const Message& message) override;
   virtual void reportMessage(const Message& msg, int outputLevel) override;
-  virtual void reportMessage(const char* source, int type, const char* message) override;
-  virtual void reportMessage(const std::string& source, int type,
-                             const std::string& message) override;
+  virtual void reportMessage(std::string source, int type, std::string message) override;
   virtual std::ostream* defaultStream ATLAS_NOT_CONST_THREAD_SAFE() const override
   {
     return m_defaultStream;
@@ -91,8 +89,8 @@ public:
   virtual std::string getLogColor(int) const override { return ""; }
 
   ///@{ Not supported by this implementation
-  virtual void reportMessage(const StatusCode&, const std::string&) override { NOTSUPPORTED; }
-  virtual void insertMessage(const StatusCode&, const Message&) override { NOTSUPPORTED; }
+  virtual void reportMessage(const StatusCode&, std::string_view) override { NOTSUPPORTED; }
+  virtual void insertMessage(const StatusCode&, Message) override { NOTSUPPORTED; }
   virtual void eraseMessage() override { NOTSUPPORTED; }
   virtual void eraseMessage(const StatusCode&) override { NOTSUPPORTED; }
   virtual void eraseMessage(const StatusCode&, const Message&) override { NOTSUPPORTED; }

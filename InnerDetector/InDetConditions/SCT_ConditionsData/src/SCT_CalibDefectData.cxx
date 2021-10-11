@@ -59,7 +59,7 @@ std::string SCT_CalibDefectData::str()
 
 //----------------------------------------------------------------------
 // Print data for one module
-std::string SCT_CalibDefectData::moduleText( const Identifier & moduleId ){
+std::string SCT_CalibDefectData::moduleText( const Identifier & moduleId ) const{
   CalibModuleDefects thisModuleDefects = findModule( moduleId );
   std::ostringstream txt;
   std::ostringstream tmp;

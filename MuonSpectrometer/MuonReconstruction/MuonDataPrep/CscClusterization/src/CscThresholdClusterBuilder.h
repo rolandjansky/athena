@@ -55,28 +55,27 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CscClusterization/ICscClusterBuilder.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "CscClusterization/ICscClusterBuilder.h"
-#include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace MuonGM {
-class MuonDetectorManager;
+    class MuonDetectorManager;
 }
 class CscIdHelper;
 namespace Muon {
-class CscPrepData;
-class CscStripPrepData;
+    class CscPrepData;
+    class CscStripPrepData;
 }  // namespace Muon
 typedef Muon::CscPrepData MyCscDigit;
 class CscDigit;
 
 class CscThresholdClusterBuilder : public AthAlgorithm {
-
-  public:  // methods
+public:  // methods
     // Constructor.
     CscThresholdClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
@@ -89,8 +88,7 @@ class CscThresholdClusterBuilder : public AthAlgorithm {
     // Event processing.
     StatusCode execute();
 
-
-  private:  // data
+private:  // data
     // Strip fitter.
     ToolHandle<ICscClusterBuilder> m_cluster_builder{
         this,
@@ -104,12 +102,7 @@ class CscThresholdClusterBuilder : public AthAlgorithm {
         "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
     };
 
-    SG::WriteHandleKey<Muon::CscPrepDataContainer> m_pclusters{
-        this, 
-	"cluster_key", 
-	"CSC_Clusters", 
-	"Ouput CSC Cluster container"};
-
+    SG::WriteHandleKey<Muon::CscPrepDataContainer> m_pclusters{this, "cluster_key", "CSC_Clusters", "Ouput CSC Cluster container"};
 };
 
 #endif

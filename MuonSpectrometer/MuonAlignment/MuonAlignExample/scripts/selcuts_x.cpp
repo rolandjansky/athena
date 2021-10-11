@@ -959,7 +959,9 @@ bool getMTPPTreeEntry(int& ientryMTPP, int run, int evt, int ntrkSD, int chid) {
     int& nChambers = m_nInnerChambers;
     if (chid != -1) {
         if (m_chname.substr(1, 1) == "I")
-            nChambers = m_nInnerChambers;
+            //do nothing, the assignment remains valid
+            //the following is effectively a self-assignment
+            //nChambers = m_nInnerChambers;
         else if (m_chname.substr(1, 1) == "M")
             nChambers = m_nMiddleChambers;
         else if (m_chname.substr(1, 1) == "O")

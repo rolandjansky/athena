@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,7 +32,6 @@ individual descriptions within each tool.
 - TileCondToolTiming: Signal phase for each TileCal ADC.
 - TileCondToolNoiseSample: High and low frequency noise and pedestal level for each ADC.
 - TileCondToolNoiseRawChn: Response of reco method (OF, Fit, ...) to pedestal like events.
-- TileCellNoiseTool: Access to noise level expected in each TileCal cell (uses TileCondToolNoise tools internally).
 - TileCondToolOfc: calculates Optimal Filter Coefficients (OFCs) for each ADC on the fly
 - TileCondToolOfcCool: extracts Optimal Filter Coefficients (OFCs) for each ADC
 from COOL database.

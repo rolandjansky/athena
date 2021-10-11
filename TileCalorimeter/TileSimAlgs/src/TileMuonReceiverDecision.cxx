@@ -38,7 +38,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 TileMuonReceiverDecision::TileMuonReceiverDecision(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_tileID(nullptr),
     m_tileHWID(nullptr),
     m_cablingService(nullptr),
@@ -94,7 +94,7 @@ StatusCode TileMuonReceiverDecision::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileMuonReceiverDecision::execute() {
+StatusCode TileMuonReceiverDecision::execute(const EventContext &ctx) const {
 
   std::vector<float> thresholds;
 
@@ -122,7 +122,7 @@ StatusCode TileMuonReceiverDecision::execute() {
 
   // Get the container with the matched filter reconstructed raw channels in MeV
   //
-  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey, ctx);
   ATH_CHECK( rawChannelContainer.isValid() );
   
   // Vectors for managemnt for TMDB 2015 configuration with inclusion in trigger in 1.1<eta<1.3
@@ -133,7 +133,7 @@ StatusCode TileMuonReceiverDecision::execute() {
 
   // Create the container to store the decision from the algorithm
   //  
-  SG::WriteHandle<TileMuonReceiverContainer> decisionContainer(m_muonReceiverContainerKey);
+  SG::WriteHandle<TileMuonReceiverContainer> decisionContainer(m_muonReceiverContainerKey, ctx);
   ATH_CHECK( decisionContainer.record(std::make_unique<TileMuonReceiverContainer>()) );
 
  // Special object with thresholds
@@ -341,10 +341,5 @@ StatusCode TileMuonReceiverDecision::execute() {
   }
 
   ATH_MSG_DEBUG("TileMuonReceiverDecision execution completed" );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileMuonReceiverDecision::finalize() {
-  ATH_MSG_INFO( "TileMuonReceiverDecision finalized successfully");
   return StatusCode::SUCCESS;
 }

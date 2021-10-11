@@ -82,6 +82,34 @@
 #include "xAODTrigger/versions/jFexSRJetRoIContainer_v1.h"
 #include "xAODTrigger/versions/jFexSRJetRoIAuxContainer_v1.h"
 
+#include "xAODTrigger/jFexLRJetRoI.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexLRJetRoI_v1.h"
+#include "xAODTrigger/versions/jFexLRJetRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexLRJetRoIAuxContainer_v1.h"
+
+#include "xAODTrigger/jFexTauRoI.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexTauRoI_v1.h"
+#include "xAODTrigger/versions/jFexTauRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexTauRoIAuxContainer_v1.h"
+
+#include "xAODTrigger/jFexSumETRoI.h"
+#include "xAODTrigger/jFexSumETRoIContainer.h"
+#include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexSumETRoI_v1.h"
+#include "xAODTrigger/versions/jFexSumETRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexSumETRoIAuxContainer_v1.h"
+
+#include "xAODTrigger/jFexMETRoI.h"
+#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexMETRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexMETRoI_v1.h"
+#include "xAODTrigger/versions/jFexMETRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexMETRoIAuxContainer_v1.h"
+
 #include "xAODTrigger/gFexJetRoI.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
 #include "xAODTrigger/gFexJetRoIAuxContainer.h"
@@ -160,6 +188,10 @@ namespace {
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexTauRoIContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexSRJetRoIContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexLRJetRoIContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexTauRoIContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexSumETRoIContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, jFexMETRoIContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexJetRoIContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, gFexGlobalRoIContainer_v1 );

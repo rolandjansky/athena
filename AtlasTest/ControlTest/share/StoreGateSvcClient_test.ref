@@ -21,15 +21,15 @@ ClassIDSvc           INFO  getRegistryEntries: read 2474 CLIDRegistry entries fo
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1[m
-StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00[m
-StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl[m
-StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 1[m
-StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl - package version StoreGate-00-00-00[m
-StoreGateSvc_Impl   DEBUG Service base class initialized successfully[m
-StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
-StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
+StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1
+StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE Initializing StoreGateSvc
+StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 1
+StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Service base class initialized successfully
+StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 *** StoreGateSvcClient_test record BEGINS ***
 StoreGateSvc        DEBUG Recorded object @0xfe9900 with key pFoo1 of type Foo(CLID 8101)
  in DataObject @0xfe9e20
@@ -503,8 +503,8 @@ StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
 StoreGateSvc        DEBUG Recorded object @0xfea840 with key lockable1 of type Lockable(CLID 82734636)
  in DataObject @0x1002f60
  object modifiable when retrieved[m
-StoreGateSvc      VERBOSE Finalizing StoreGateSvc - package version StoreGate-00-00-00[m
-StoreGateSvc_Impl VERBOSE Finalizing StoreGateSvc_Impl - package version StoreGate-00-00-00[m
+StoreGateSvc      VERBOSE Finalizing StoreGateSvc
+StoreGateSvc_Impl VERBOSE Finalizing StoreGateSvc_Impl
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
 *** StoreGateSvcClient_test record BEGINS ***
 Now we expect to see an error message:

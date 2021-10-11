@@ -1,93 +1,22 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/CMAdata.h"
 
-#ifdef LVL1_STANDALONE
-#include "RPCcablingInterface/CablingRPCBase.h"
-#endif
-
-CMAdata::CMAdata(unsigned long int debug) : 
+CMAdata::CMAdata(unsigned long int debug) :
     BaseObject(Data,"CMApatterns"),m_debug(debug)
 {
     m_eta_cma_patterns.clear();
     m_phi_cma_patterns.clear();
 }
 
-#ifdef LVL1_STANDALONE
-CMAdata::CMAdata(const RPCdata* rpcData) :
-    BaseObject(Data,"CMApatterns"),
-    m_debug(0) 
-#else
-CMAdata::CMAdata(const RPCdata* rpcData,const IRPCcablingSvc* rpcCabling, const unsigned long int debug) : 
+CMAdata::CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug) :
     BaseObject(Data,"CMApatterns"),
     m_debug(debug)
-#endif
 {
     m_eta_cma_patterns.clear();
     m_phi_cma_patterns.clear();
-
-#ifdef LVL1_STANDALONE
-    const CablingRPCBase* rpcCabling = RPCcabling::CablingRPC::instance();
-#endif
-
-    RPCdata::digitList eta = rpcData->eta_digits_list();
-    RPCdata::digitList::const_iterator digi = eta.begin();
-
-    while(digi != eta.end())
-    {
-    const int sector       = (*digi)->decoding().logic_sector();
-        const ViewType type    = (*digi)->decoding().view();
-    const int station      = (*digi)->decoding().lvl1_station();
-        const int cabling_code = (*digi)->decoding().cabling_code();
-
-    const CMAparameters::CMAlist list = rpcCabling->give_CMAs(sector,type,station,cabling_code);
-        CMAparameters::CMAlist::const_iterator cma = list.begin();
-        while(cma != list.end())
-    {
-            create_patterns(*cma,*digi);
-        ++cma;
-    }
-    ++digi;
-    }     
-
-    RPCdata::digitList phi = rpcData->phi_digits_list();
-    digi = phi.begin();
-    while(digi != phi.end())
-    {
-    const int sector       = (*digi)->decoding().logic_sector();
-        const ViewType type    = (*digi)->decoding().view();
-    const int station      = (*digi)->decoding().lvl1_station();
-        const int cabling_code = (*digi)->decoding().cabling_code();
-
-    const CMAparameters::CMAlist list = rpcCabling->give_CMAs(sector,type,station,cabling_code);
-        CMAparameters::CMAlist::const_iterator cma = list.begin();
-        while(cma != list.end())
-    {
-            create_patterns(*cma,*digi);
-        ++cma;
-    }
-    ++digi;
-    }
-}
-
-#ifdef LVL1_STANDALONE
-CMAdata::CMAdata(const RPCdata* rpcData) :
-    BaseObject(Data,"CMApatterns"),
-    m_debug(0) 
-#else
-CMAdata::CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug) : 
-    BaseObject(Data,"CMApatterns"),
-    m_debug(debug)
-#endif
-{
-    m_eta_cma_patterns.clear();
-    m_phi_cma_patterns.clear();
-
-#ifdef LVL1_STANDALONE
-    const CablingRPCBase* rpcCabling = RPCcabling::CablingRPC::instance();
-#endif
 
     RPCdata::digitList eta = rpcData->eta_digits_list();
     RPCdata::digitList::const_iterator digi = eta.begin();
@@ -168,11 +97,10 @@ CMAdata::create_patterns(const CMAparameters* cma,const RPCdigit* digit)
     if( (patterns = find(sector,cma)) ) patterns->load_digit(digit);
     else 
     {
-        patterns = new CMApatterns(sector,cma,m_debug);
-        patterns->load_digit(digit);
-	if(type == Eta)       m_eta_cma_patterns.push_back(*patterns);
-        else if (type == Phi) m_phi_cma_patterns.push_back(*patterns);
-	delete patterns;
+        CMApatterns patterns(sector,cma,m_debug);
+        patterns.load_digit(digit);
+        if(type == Eta)       m_eta_cma_patterns.push_back(std::move(patterns));
+        else if (type == Phi) m_phi_cma_patterns.push_back(std::move(patterns));
     }
 }
 

@@ -61,48 +61,47 @@ public:
     chi2corr = 1  //!< relative (chi2 based) with full correlations
   };
 
+ 
   bool checkLoc1; //!< check local 1 coordinate
   bool checkLoc2; //!< check local 2 coordinate
-
+  int nSigmas;          //!< allowed sigmas for chi2 boundary check
   double toleranceLoc1; //!< absolute tolerance in local 1 coordinate
   double toleranceLoc2; //!< absolute tolerance in local 2 coordinate
-
-  int nSigmas;                 //!< allowed sigmas for chi2 boundary check
+  BoundaryCheckType bcType;
   AmgSymMatrix(2) lCovariance; //!< local covariance matrix
 
-  BoundaryCheckType bcType;
 
   /** Constructor for single boolean behavious */
   BoundaryCheck(bool sCheck)
     : checkLoc1(sCheck)
     , checkLoc2(sCheck)
+    , nSigmas(-1)
     , toleranceLoc1(0.)
     , toleranceLoc2(0.)
-    , nSigmas(-1)
-    , lCovariance(AmgSymMatrix(2)::Identity())
     , bcType(absolute)
+    , lCovariance(AmgSymMatrix(2)::Identity())
   {}
 
   /** Constructor for tolerance based check */
   BoundaryCheck(bool chkL1, bool chkL2, double tloc1 = 0., double tloc2 = 0.)
     : checkLoc1(chkL1)
     , checkLoc2(chkL2)
+    , nSigmas(-1)
     , toleranceLoc1(tloc1)
     , toleranceLoc2(tloc2)
-    , nSigmas(-1)
-    , lCovariance(AmgSymMatrix(2)::Identity())
     , bcType(absolute)
+    , lCovariance(AmgSymMatrix(2)::Identity())
   {}
 
   /** Constructor for chi2 based check */
   BoundaryCheck(const AmgSymMatrix(2) & lCov, int nsig = 1, bool chkL1 = true, bool chkL2 = true)
     : checkLoc1(chkL1)
     , checkLoc2(chkL2)
+    , nSigmas(nsig)
     , toleranceLoc1(0.)
     , toleranceLoc2(0.)
-    , nSigmas(nsig)
-    , lCovariance(lCov)
     , bcType(chi2corr)
+    , lCovariance(lCov)
   {}
 
   /** Conversion operator to bool */

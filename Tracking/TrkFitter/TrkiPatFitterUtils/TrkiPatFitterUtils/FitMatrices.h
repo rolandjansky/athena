@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ public:
   void checkPointers(MsgStream& log) const;
 
   // change to chiSquared
-  double chiSquaredChange(void) const;
+  static double chiSquaredChange(void) ;
 
   // accessor to DerivativeMatrix (eigen)
   Amg::MatrixX* derivativeMatrix(void);

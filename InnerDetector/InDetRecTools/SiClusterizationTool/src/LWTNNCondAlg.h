@@ -5,7 +5,7 @@
 #ifndef _InDet_LWTNNCondAlg_H_
 #define _InDet_LWTNNCondAlg_H_
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -29,16 +29,16 @@ namespace InDet {
 
   /**
   */
-class LWTNNCondAlg : public AthAlgorithm {
+class LWTNNCondAlg : public AthReentrantAlgorithm {
 
  public:
 
   LWTNNCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
   ~LWTNNCondAlg() = default;
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode execute(const EventContext& ctx) const override;
+  StatusCode finalize() override;
 
  private:
 //  TTrainedNetwork* retrieveNetwork(TFile &input_file, const std::string& folder) const;
@@ -47,7 +47,7 @@ class LWTNNCondAlg : public AthAlgorithm {
     {this, "CondSvc", "CondSvc", "The conditions service to register new conditions data."};
 
   //StatusCode configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, const std::string& thisJson);
-  StatusCode configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN, const std::string& thisJson);
+  StatusCode configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN, const std::string& thisJson) const;
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
     {this, "ReadKey", "/PIXEL/PixelClustering/PixelNNCalibJSON", "Cool folder name for the cluster NN input histogram file."};

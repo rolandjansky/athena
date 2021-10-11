@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ClassIDSvc_test.cxx  
  * @brief unit test for ClassIDSvc
  * @author ATLAS Collaboration
- * $Id: ClassIDSvc_test.cxx,v 1.5 2009-01-19 17:02:55 binet Exp $
  ***************************************************************************/
 
 #undef NDEBUG
@@ -18,11 +17,12 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ModuleIncident.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "../src/ClassIDSvc.h"
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CLIDRegistry.h"
+
 class Foo{};
 CLASS_DEF( Foo, 8101, 0) 
 class Bar{};
@@ -67,26 +67,24 @@ void basic_test(ISvcLocator* pSvcLoc) {
   assert(pClassIDSvc);
 
   assert(pClassIDSvc->nextAvailableID() == CLIDdetail::MINCLID);
-  Athena::PackageInfo info(PACKAGE_VERSION);
-  Athena::PackageInfo info2("APack-00-39-98");
-  assert(pClassIDSvc->setTypePackageForID(7890, "Bla", info2).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDdetail::MINCLID/2, "No", 
-					       info).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDdetail::MAXCLID*2, "Nah", 
-					       info).isSuccess());
+  assert(pClassIDSvc->setTypeForID(7890, "Bla").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(CLIDdetail::MINCLID/2, "No").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(CLIDdetail::MAXCLID*2, "Nah").isSuccess());
   //FIXME is this an issue? Should we do the reverse check type -> id?
-  assert(pClassIDSvc->setTypePackageForID(9942, "Bli", info).isSuccess());
-  assert(pClassIDSvc->setTypePackageForID(9943, "Blu", info).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(7890, "Ble", info).isSuccess());
-  //check disabled  ASSERTERROR(pClassIDSvc->setTypePackageForID(9942, "Bli", info2).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(9945, "Bli", info).isSuccess());
-  assert(pClassIDSvc->setTypePackageForID(7890, "Bla", info2).isSuccess());
-  assert(pClassIDSvc->setTypePackageForID(7890, " Bla", info2).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(7890, "   Bl a ", info2).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(7890, " B  l a ", info2).isSuccess());
-  assert(pClassIDSvc->setTypePackageForID(7890, "Bla   ", info2).isSuccess());
-  assert(pClassIDSvc->setTypePackageForID(7890, " Bla  ", info2).isSuccess());
+  assert(pClassIDSvc->setTypeForID(9942, "Bli").isSuccess());
+  assert(pClassIDSvc->setTypeForID(9943, "Blu").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(7890, "Ble").isSuccess());
+  //check disabled  ASSERTERROR(pClassIDSvc->setTypeForID(9942, "Bli").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(9945, "Bli").isSuccess());
+  assert(pClassIDSvc->setTypeForID(7890, "Bla").isSuccess());
+  assert(pClassIDSvc->setTypeForID(7890, " Bla").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(7890, "   Bl a ").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(7890, " B  l a ").isSuccess());
+  assert(pClassIDSvc->setTypeForID(7890, "Bla   ").isSuccess());
+  assert(pClassIDSvc->setTypeForID(7890, " Bla  ").isSuccess());
 
+  assert(pClassIDSvc->setTypeForID(9944, "Blo", "BloTypeInfo").isSuccess());
+  ASSERTERROR(pClassIDSvc->setTypeForID(9946, "Blo2", "BloTypeInfo").isSuccess());
 
   string name; 
   assert(pClassIDSvc->getTypeNameOfID(8101, name).isSuccess());

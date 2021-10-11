@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/ParentTwoChildrenFilter.h"
+#include "TruthUtils/PIDHelpers.h"
 
 ParentTwoChildrenFilter::ParentTwoChildrenFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator)
@@ -30,8 +31,9 @@ StatusCode ParentTwoChildrenFilter::filterInitialize() {
 
 
 StatusCode ParentTwoChildrenFilter::filterEvent() {
-  ATH_MSG_DEBUG(" ParentTwoChildrenFilter filtering for: Parent --> " << m_PDGParent[0]
-                << ", Child(1) --> " << m_PDGChild[0] << " and Child(2) --> " << m_PDGChild[1]);
+    ATH_MSG_DEBUG(" ParentTwoChildrenFilter filtering for: "
+                << "Parent (" << m_PDGParent[0] << ") --> Child (" << m_PDGChild[0] << ") + antiparticle and "
+                << "Parent (" << m_PDGParent[0] << ") --> Child (" << m_PDGChild[1] << ") + antiparticle." );
   int n_parents = 0;
   int N_Child[2][2];
   for (int i = 0; i < 2; i++) {
@@ -53,20 +55,35 @@ StatusCode ParentTwoChildrenFilter::filterEvent() {
 #else
       int n_daughters = decayVtx->particles_out_size();
 #endif
-      if (n_daughters < 2) continue;
-        for( auto thisChild: *decayVtx ) {
-          ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<pitr->pdg_id() << " child ===> "  <<thisChild->pdg_id());
-          for (int i = 0; i < 2; i++) {
-            if ( std::abs(thisChild->pdg_id()) == m_PDGChild[i] ){
-              if ( thisChild->pdg_id()    == m_PDGChild[i] ){
-                if (thisChild->momentum().perp() >= m_PtMinChild) N_Child[i][0]++;
-              }
-              if ( thisChild->pdg_id()   == -m_PDGChild[i] ){
-                if (thisChild->momentum().perp() >= m_PtMinChild) N_Child[i][1]++;
-              }
-            }
-          }
-        }
+
+      if (n_daughters < 2) continue; 
+
+      int neutralPar = 0;
+      for(auto thisChild: *decayVtx) {
+	ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<pitr->pdg_id() << " child ===> "  <<thisChild->pdg_id());
+	for (int i = 0; i < 2; i++) {
+	  if ( std::abs(thisChild->pdg_id()) == m_PDGChild[i]) {
+	    int antiparticle = ( MC::PID::charge(m_PDGChild[i]) == 0 ? 1 : -1 ); // assume that zero charge particles are their own anti-particle
+	    if ( thisChild->pdg_id() == m_PDGChild[i] ) {
+	      if( (thisChild->momentum().perp() >= m_PtMinChild) ) {
+		if(antiparticle == 1) {
+		  neutralPar++;
+		  if(neutralPar == 1) N_Child[i][0]++; 
+		}
+		else N_Child[i][0]++;
+	      }
+	    }
+	    if ( thisChild->pdg_id() == antiparticle * m_PDGChild[i] ) {
+	      if( (thisChild->momentum().perp() >= m_PtMinChild) ) {
+		if(antiparticle == 1){
+		  if (neutralPar == 2) N_Child[i][1]++; 
+		}
+		else N_Child[i][1]++;
+	      }
+	    }
+	  }
+	}
+      }
     }
   }
   setFilterPassed(N_Child[0][0] >= 1 && N_Child[0][1] >= 1 && N_Child[1][0] >= 1 && N_Child[1][1] >= 1);

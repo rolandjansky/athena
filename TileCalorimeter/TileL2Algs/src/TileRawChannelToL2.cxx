@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -37,7 +37,7 @@
 #include <memory>
 
 TileRawChannelToL2::TileRawChannelToL2(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator)
+    : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -50,14 +50,14 @@ StatusCode TileRawChannelToL2::initialize() {
 
   ATH_CHECK( m_l2ContainerKey.initialize() );
 
-  ATH_MSG_INFO( "TileRawChannelToL2 initialization completed" );
+  ATH_MSG_DEBUG( "TileRawChannelToL2 initialization completed" );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileRawChannelToL2::execute() {
+StatusCode TileRawChannelToL2::execute(const EventContext& ctx) const {
 
-  SG::WriteHandle<TileL2Container> l2Container(m_l2ContainerKey);
+  SG::WriteHandle<TileL2Container> l2Container(m_l2ContainerKey, ctx);
   ATH_CHECK( l2Container.record(std::make_unique<TileL2Container>()) );
 
   ATH_MSG_VERBOSE( "TileL2 container registered to the TES with name " << m_l2ContainerKey.key() );
@@ -103,13 +103,6 @@ StatusCode TileRawChannelToL2::execute() {
 
   // Execution completed
   ATH_MSG_DEBUG( "TileRawChannelToL2 execution completed" );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileRawChannelToL2::finalize() {
-
-  ATH_MSG_INFO( "TileRawChannelToL2::finalize() end" );
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -209,7 +209,15 @@ namespace top {
                       "None");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
-                      "Simple");
+                      "Full_PseudoData", {"All", "All_PseudoData", "Full", "Full_PseudoData", "Simple"});
+    registerParameter("JetJMSOption",
+		      "None (default),"
+                      "JMS_frozen (The shape and magnitude of the uncertainties at m/pT = 0.25 are also used for m/pT > 0.25),"
+                       "JMS_scaled (The magnitude of the uncertainties at m/pT = 0.25 was scaled linearly with increasing m/pT)",
+                      "None");
+    registerParameter("DoLargeRPseudodataJER",
+                      "If set to True, produce additional JER smearing systematics treating MC as pseudo-data, provided FullJER or AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
+                      "True",{"True", "False"});
     registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
     registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
@@ -220,13 +228,18 @@ namespace top {
     registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
     registerParameter("LargeRJetMass", "LargeRJet min. mass cut for object selection (in MeV).", "0");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
-    registerParameter("LargeRJetSubstructureVariables", "List of substructure variables stored in the output separated by commas. By default no variable is added to output.", " ");
-    registerParameter("LargeRJetUncertainties_NPModel",
-                      "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
-                      "CategoryReduction");
+    registerParameter("LargeRJetSubstructureVariables",
+                      "List of substructure variables stored in the output separated by commas. By default no variable is added to output.",
+                      " ");
+    registerParameter("LargeRJetUncertainties_JESJERJMS_NPModel",
+                      "Input form: {A}JES_{B}JER_{C}JMS, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes for configuration options, - for LCTopo large-R jet energy scale, energy resolution, and mass scale uncertainties",
+                      "CategoryJES_FullJER_FullJMS");
+    registerParameter("LargeRJetUncertainties_JMR_NPModel",
+                      "FullJMR_COMB_newBinning (10 NP; aimed at the most precise jet-dependent measurements), SimpleJMR_COMB_newBinning (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
+                      "FullJMR_COMB_newBinning", {"FullJMR_COMB","FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
-                      "rel21/Summer2019");
+                      "rel21/Winter2021");
     registerParameter("LargeRJESJMSConfig",
                       "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
@@ -234,7 +247,6 @@ namespace top {
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
                       " By default, no tagger is used.",
                       " ");
-    registerParameter("BoostedJetTaggingUncertainties", "Whether to enable BoostedJetTaggers SF systematics. Temporary to test JetUncertainties in r22.", "False", {"True", "False"});
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5");
@@ -302,14 +314,16 @@ namespace top {
                       "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
                       "Loose");
-    registerParameter("TauEleOLR",
+    registerParameter("TauMuOLR",
                       "Apply tau-electron overlap removal (True/False)."
-                      "Default False",
-                      "False");
-    registerParameter("TauEleOLRLoose",
+                      "Default True",
+                      "True",
+                      {"True","False"});
+    registerParameter("TauMuOLRLoose",
                       "Apply loose tau-electron overlap removal (True/False)."
-                      "Default False",
-                      "False");
+                      "Default True",
+                      "True",
+                      {"True", "False"});
     registerParameter("TauJetConfigFile",
                       "Config file to configure tau selection. "
                       "If anything other than 'Default'"
@@ -335,7 +349,6 @@ namespace top {
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
-    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: True)", "True");
     registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)",
                       "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");
@@ -387,6 +400,8 @@ namespace top {
                       "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
     registerParameter("FilterNominalLooseBranches",
                       "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output", " ");
+    registerParameter("FilterNominalBranches",
+                      "Comma separated list of names of the nominal tree branches that will be removed from the output. If not provided, the branches from FilterBraches will be used", " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
@@ -615,16 +630,6 @@ namespace top {
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
-    registerParameter("HLLHC",
-                      "Set to run HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
-
-    registerParameter("HLLHCFakes",
-                      "Set to enable Fakes HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
-
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
                                               "True or False (default False)", "False");
 
@@ -839,6 +844,10 @@ namespace top {
       if (its != strings_.end()) {
         its->second.m_data = value;
         its->second.m_set = true;
+      } else {
+        ATH_MSG_ERROR("\n\nConfig file includes non-existant option: " << key
+            << "\nThis option either does not exist anymore, or you have a typo.");
+        throw std::runtime_error("Unsupported config option.");
       }
 
       //// add dynamic keys

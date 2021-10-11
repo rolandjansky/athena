@@ -116,3 +116,21 @@ job += CfgGetter.getAlgorithm("EventInfoOverlay")
 # Setup BS conversion for data overlay
 if overlayFlags.isDataOverlay():
     include("RecExCommon/BSRead_config.py")
+
+
+#------------------------------------------------------------
+# Auditors
+#------------------------------------------------------------
+from AthenaCommon.AppMgr import theAuditorSvc
+theApp.AuditAlgorithms=True  
+theApp.AuditServices=True
+theApp.AuditTools=True  
+
+if 'FPEAuditor/FPEAuditor' not in theAuditorSvc.Auditors:
+    from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
+    theAuditorSvc += FPEAuditor()
+    import signal
+    try:
+        ServiceMgr.CoreDumpSvc.Signals.remove (signal.SIGFPE)
+    except ValueError:
+        pass

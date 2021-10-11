@@ -148,7 +148,7 @@ InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus( unsigned int thisR
     // Convert string representation of hex representation of phi stack to integer
     /* Phi stack number in string from database comes as hex number.
      * Need to convert it to an integer. */
-    char* extra = NULL;
+    char* extra = nullptr;
     int ROD_Phi_int = strtol( ROD_Phi.c_str(), &extra, 16 );
     rod += ROD_Phi_int * 0x100;
 

@@ -66,7 +66,7 @@ void
 DecisionConnector::setAlgorithm(TCS::ConfigurableAlg* alg) {
    Connector::setAlgorithm(alg);
    m_decisionAlgorithm = dynamic_cast<DecisionAlg*>(alg);
-   if(! m_decisionAlgorithm ) {
+   if(m_decisionAlgorithm == nullptr && alg != nullptr) {
       cerr << "Error: algorithm" << alg->name() << " is not a DecisionAlg" << endl;
    }
 }

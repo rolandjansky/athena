@@ -1,5 +1,11 @@
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import division
+
+# get the logger
+from AthenaCommon.Logging import logging
+digilog = logging.getLogger('Digi_tf')
+digilog.info( '****************** STARTING DIGITIZATION *****************' )
 
 include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
@@ -10,17 +16,12 @@ if hasattr(runArgs, "jobNumber"):
 from AthenaCommon.GlobalFlags import globalflags
 if hasattr(runArgs,"geometryVersion"):
     # strip _VALIDATION
-    print("stripping _VALIDATION")
+    digilog.info("stripping _VALIDATION")
     if runArgs.geometryVersion.endswith("_VALIDATION"):
         pos=runArgs.geometryVersion.find("_VALIDATION")
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion[:pos] )
     else:
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
-
-# get the logger
-from AthenaCommon.Logging import logging
-digilog = logging.getLogger('Digi_tf')
-digilog.info( '****************** STARTING DIGITIZATION *****************' )
 
 
 #==============================================================
@@ -120,6 +121,8 @@ if hasattr(runArgs,"digiSteeringConf"):
         digilog.info( "Changing digitizationFlags.digiSteeringConf from %s to %s", digitizationFlags.digiSteeringConf.get_Value(),runArgs.digiSteeringConf)
         digitizationFlags.digiSteeringConf=runArgs.digiSteeringConf+"PileUpToolsAlg"
         PileUpConfigOverride=True
+if digitizationFlags.initialBunchCrossing > digitizationFlags.finalBunchCrossing:
+    raise ValueError( "Initial bunch crossing should not be larger than the final one" )
 if PileUpConfigOverride:
     digilog.info( "NB Some pile-up (re-)configuration was done on the command-line.")
 del PileUpConfigOverride
@@ -199,9 +202,9 @@ if hasattr(runArgs,"conditionsTag"):
     if(runArgs.conditionsTag!='NONE'):
         digitizationFlags.IOVDbGlobalTag = runArgs.conditionsTag
 
-if hasattr(runArgs,"PileUpPremixing"):
-    digilog.info("Doing pile-up premixing")
-    digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+if hasattr(runArgs,"PileUpPresampling"):
+    digilog.info("Doing pile-up presampling")
+    digitizationFlags.PileUpPresampling = runArgs.PileUpPresampling
 
 #--------------------------------------------------------------
 # Pileup configuration
@@ -414,7 +417,7 @@ topSeq.TimeOut = 43200 * Units.s
 
 try:
     timingOutput = "HITStoRDO_timings"
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         timingOutput = overlayFlags.bkgPrefix() + timingOutput
 
@@ -436,7 +439,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
 from AthenaPoolCnvSvc import PoolAttributeHelper as pah
 Out = athenaCommonFlags.PoolRDOOutput()
-if hasattr(runArgs, "outputRDOFile") and ('_000' in runArgs.outputRDOFile or 'tmp.' in runArgs.outputRDOFile): # noqa: F821
+if hasattr(runArgs, "outputRDOFile") and (runArgs.outputRDOFile.endswith('_000') or runArgs.outputRDOFile.startswith('tmp.')): # noqa: F821
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( Out, 1 ) ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( Out, 1 ) ]
 

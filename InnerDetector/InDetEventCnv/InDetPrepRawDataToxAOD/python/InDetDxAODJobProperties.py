@@ -174,4 +174,18 @@ class PixelClusterThinningExpression(JobProperty):
     StoredValue = ""
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(PixelClusterThinningExpression)
 
+class MergeLRT(JobProperty):
+    """Create combined collection using LRT and standard tracks"""
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(MergeLRT)
+
+class DecoLRTTTVA(JobProperty):
+    """Decorate the LRT tracks with TTVA results"""
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DecoLRTTTVA)
+
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

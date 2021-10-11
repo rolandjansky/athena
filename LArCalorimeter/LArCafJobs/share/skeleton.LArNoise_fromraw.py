@@ -177,14 +177,9 @@ febSummaryMaker.CheckAllFEB=False
 #theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase,]#.getFullName()]
 #ToolSvc += theLArRawChannelBuilderPedestalDataBase
 #
-#from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-#theLArADC2MeVTool=LArADC2MeVToolDefault("LArADC2MeVTool")
-#ToolSvc+=theLArADC2MeVTool
-#
 #from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
 #theLArRawChannelBuilderADC2EDataBase=LArRawChannelBuilderADC2EDataBase()
 #theLArRawChannelBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase,]#.getFullName()]
-#theLArRawChannelBuilderADC2EDataBase.ADC2MeVTool = theLArADC2MeVTool
 #ToolSvc += theLArRawChannelBuilderADC2EDataBase
 #
 #from LArRecUtils.LArRecUtilsConf import LArOFPeakRecoTool
@@ -208,20 +203,6 @@ LArNoisyROSummaryGetter()
 
 if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HECNOISEFile"):
    include("LArCellRec/LArTimeVetoAlg_jobOptions.py")
-
-   ####################
-   from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-   tf.readBS.set_Value_and_Lock(True)
-   tf.doLVL1.set_Value_and_Lock(False)
-   tf.doHLT.set_Value_and_Lock(False)
-   tf.doL1Topo.set_Value_and_Lock(False)
-   tf.enableMonitoring.set_Value_and_Lock(False)
-   tf.doID.set_Value_and_Lock(False)
-   tf.doMuon.set_Value_and_Lock(False)
-   tf.doBcm.set_Value_and_Lock(False)
-   tf.doTrt.set_Value_and_Lock(False)
-   tf.configForStartup="HLTonline"
-   tf.configForStartup.lock()
 
    include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 
@@ -252,10 +233,9 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
    EventCnvSuperTool.DoID = False
    ToolSvc += EventCnvSuperTool
 
-   # --- BunchCrossing Tool configuration ---
-   from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-   theBCTool = BunchCrossingTool()
-   ToolSvc += theBCTool
+   # BunchCrossing info
+   from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+   BunchCrossingCondAlgDefault()
 
 
 #

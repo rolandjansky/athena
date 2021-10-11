@@ -16,6 +16,7 @@
 
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -24,6 +25,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/Track.h" //for use in the struct lessTrkTrack implementation in this header
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -79,7 +81,9 @@ namespace InDet
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
                                                             Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                            Trk::PRDtoTrackMap &prd_to_track_map) const override;
+                                                            Trk::PRDtoTrackMap &prd_to_track_map,
+                                                            int trackId,
+                                                            int subtrackId) const override;
 
   private:
     
@@ -267,8 +271,8 @@ namespace InDet
         m_type.resize(m_nTSoS,OtherTsos);    
         m_detType.resize(m_nTSoS,-1.);
         m_hitIsShared.resize(m_nTSoS, 0 );
-        m_splitProb1.resize(m_nTSoS,-1.) ;
-        m_splitProb2.resize(m_nTSoS,-1.) ;
+        m_splitProb1.resize(m_nTSoS,-1.f) ;
+        m_splitProb2.resize(m_nTSoS,-1.f) ;
         m_RIO.resize(m_nTSoS,0);
       };
         
@@ -336,7 +340,8 @@ namespace InDet
                                Trk::PRDtoTrackMap &prd_to_track_map,
                                TrackHitDetails& trackHitDetails,
                                TSoS_Details& tsosDetails,
-                               CacheEntry* ent) const;
+                               CacheEntry* ent,
+                               int trackId) const;
 
     /** Specific logic for identifing conversions with the goal 
      * of passing those tracks through to the final collection 
@@ -425,12 +430,18 @@ namespace InDet
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
     ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
+
+    /** ITk eta-dependet cuts*/
+    ServiceHandle<IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
       
     /**atlas id helper*/
     const SiliconID* m_detID{nullptr};
       
     ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+
+    /**Observer tool      This tool is used to observe the tracks and their 'score' */
+    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
 
     /** some cut values */
     IntegerProperty m_minHits{this, "minHits", 5, "Min Number of hits on track"};
@@ -478,6 +489,8 @@ namespace InDet
     FloatProperty m_minPairTrackPt{this, "minPairTrackPt", 1000., "In MeV"};
 
     BooleanProperty m_monitorTracks{this, "MonitorAmbiguitySolving", false, "to track observeration/monitoring (default is false)"};
+
+    BooleanProperty m_doITk{this, "doITk", false};
 
   }; 
 } // end of namespace

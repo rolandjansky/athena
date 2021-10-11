@@ -8,6 +8,7 @@
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
@@ -37,9 +38,16 @@ typedef TrigSerializeConverter<TestAuxB> TestAuxBSerCnv;
 DECLARE_CONVERTER (TestBContainerSerCnv)
 DECLARE_CONVERTER (TestAuxBSerCnv)
 
+void clearStore()
+{
+  pStore->clearStore().ignore();
+  Gaudi::Hive::setCurrentContextEvt( Gaudi::Hive::currentContextEvt() );
+}
+
 template<class HTYPE> 
 bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder,
-                IConversionSvc* cnvsvc = nullptr) {
+          IConversionSvc* cnvsvc = nullptr,
+          bool sync = true) {
   BEGIN_TEST("Registration");
   IHolder* iholder = full->clone("", name, idx);
   if ( ! iholder ) REPORT_AND_STOP ("Holder can't create IHolder" );
@@ -49,7 +57,9 @@ bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename 
   
 
   iholder->prepare(msglog, pStore, cnvsvc, false);
-  if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
+  if (sync) {
+    if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
+  }
   
   END_TEST;
 }
@@ -208,8 +218,8 @@ bool serialization() {
   IHolder * realH = cch;
   std::vector<uint32_t>  blob;
   
-  CLID c;
-  uint16_t idx;
+  CLID c{0};
+  uint16_t idx{0};
   string label;
 
   realH->serialize(blob);
@@ -284,7 +294,7 @@ bool serialize_xAOD() {
     REPORT_AND_STOP("It should have failed before");
   IHolder * realH = cch;
   std::vector<uint32_t>  blob;
-  size_t payloadSize;
+  size_t payloadSize{0};
   xAOD::AuxSelection sel;
   sel.selectAux (std::set<std::string> {"-dyn2"});
   realH->serializeWithPayload(sel, blob, payloadSize);
@@ -294,12 +304,12 @@ bool serialize_xAOD() {
 
   pStore->clearStore().ignore();
   if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
-             serializer.get()) )
+             serializer.get(), false) )
     REPORT_AND_STOP("It should have failed before");
   //IHolder * realH = cch;
 
-  CLID c;
-  uint16_t idx;
+  CLID c{0};
+  uint16_t idx{0};
   string label;
   std::vector<uint32_t>::const_iterator it = blob.begin();
   IHolder::enquireSerialized(it,blob.end(), c, label, idx);
@@ -351,14 +361,16 @@ bool serialize_xAOD() {
 int main() {
    CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
 
-   ISvcLocator* pSvcLoc;
+   ISvcLocator* pSvcLoc{nullptr};
    if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
      cerr << "ERROR This test can not be run" << endl;
      return 0;
    }
-   assert(pSvcLoc);
+   assert(pSvcLoc!=nullptr);
    MsgStream log(Athena::getMessageSvc(), "Holder_test");
    msglog = &log;
+
+   Gaudi::Hive::setCurrentContextEvt(0);
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
     *msglog << MSG::DEBUG << "SG pointer: " << pStore << endmsg;

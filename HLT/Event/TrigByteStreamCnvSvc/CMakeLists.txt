@@ -12,12 +12,12 @@ find_package( tdaq-common COMPONENTS eformat eformat_write hltinterface )
 atlas_add_component(
   TrigByteStreamCnvSvc
     src/*.h src/*.cxx src/components/*.cxx
-  PRIVATE_INCLUDE_DIRS
+  INCLUDE_DIRS
     ${TDAQ-COMMON_INCLUDE_DIRS}
-  PRIVATE_LINK_LIBRARIES
-    ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData
+  LINK_LIBRARIES
+    ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData
     AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib
-    GaudiKernel xAODEventInfo TrigKernel TrigSteeringEvent )
+    CxxUtils GaudiKernel xAODEventInfo StoreGateLib TrigKernel TrigSteeringEvent )
 
 # Install files from the package
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

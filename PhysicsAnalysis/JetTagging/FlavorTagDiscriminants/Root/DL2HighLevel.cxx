@@ -31,7 +31,7 @@ namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
                              FlipTagConfig flip_config,
-                             std::map<std::string,std::string> var_map):
+                             std::map<std::string,std::string> remap_scalar):
     m_dl2(nullptr)
   {
     // get the graph
@@ -69,22 +69,19 @@ namespace FlavorTagDiscriminants {
     // build the standard inputs
     //
 
-    // the ftagfloat_t is defined in this library (in ftagfloat_t.h)
-    EDMType floattype = EDMTypeEnum<ftagfloat_t>::type;
-
     // type and default value-finding regexes are hardcoded for now
     TypeRegexes type_regexes = {
       {".*_isDefaults"_r, EDMType::UCHAR},
       // TODO: in the future we should migrate RNN and IPxD
       // variables to floats. This is outside the scope of the
       // current flavor tagging developments and AFT-438.
-      {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, floattype},
-      {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, floattype},
-      {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, floattype},
+      {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, EDMType::FLOAT},
+      {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, EDMType::FLOAT},
+      {"(rnnip|iprnn|dips[^_]*)(flip)?_p(b|c|u|tau)"_r, EDMType::FLOAT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
       {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
-      {"softMuon_p[bcu]"_r, floattype},
+      {"softMuon_p[bcu]"_r, EDMType::FLOAT},
       {"softMuon_.*"_r, EDMType::FLOAT},
     };
 
@@ -100,6 +97,7 @@ namespace FlavorTagDiscriminants {
       {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"dips[^_]*_.*"_r, ""},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
       {"smt_.*"_r, "softMuon_isDefaults"},
@@ -110,7 +108,7 @@ namespace FlavorTagDiscriminants {
     if (config.inputs.size() == 1) {
 
       // allow the user to remape some of the inputs
-      remap_inputs(config.inputs.at(0).variables, var_map,
+      remap_inputs(config.inputs.at(0).variables, remap_scalar,
                    config.inputs.at(0).defaults);
 
       std::vector<std::string> input_names;
@@ -138,7 +136,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
-      {"btagIp_(d|z)0.*"_r, EDMType::FLOAT},
+      {"btagIp_(d0|z0SinTheta)Uncertainty"_r, EDMType::FLOAT},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
@@ -160,23 +158,31 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
-    OutputType outtype = OutputTypeEnum<ftagfloat_t>::type;
+    // some additional options
+    DL2Options options;
+    if (auto h = remap_scalar.extract(options.track_prefix)) {
+      options.track_prefix = h.mapped();
+    }
+    if (auto h = remap_scalar.extract(options.track_link_name)) {
+      options.track_link_name = h.mapped();
+    }
+    options.flip = flip_config;
+    options.remap_scalar = remap_scalar;
+
     m_dl2.reset(
       new DL2(
         config,                 // lwtnn config
         input_config,           // EDM input config
         trk_config,             // edm track input config
-        flip_config,            // flip tagger configuration
-        var_map,                // variable remapping
-        outtype                 // output type
+        options
         ));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
   DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
 
-  void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
-    m_dl2->decorate(jet);
+  void DL2HighLevel::decorate(const xAOD::BTagging& btag) const {
+    m_dl2->decorate(btag);
   }
 
   DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const

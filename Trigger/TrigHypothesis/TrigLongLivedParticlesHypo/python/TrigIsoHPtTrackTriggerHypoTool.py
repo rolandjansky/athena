@@ -32,7 +32,7 @@ def TrigIsoHPtTrackTriggerHypoToolFromDict( chainDict ):
 
 
 
-    monTool.HistPath = 'IsoHPtTrackTriggerHypoAlgMT/'+tool.getName()
+    monTool.HistPath = 'IsoHPtTrackTriggerHypoAlg/'+tool.getName()
     tool.MonTool = monTool
 
     strThr = ""

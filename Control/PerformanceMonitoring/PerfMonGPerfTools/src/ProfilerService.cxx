@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ProfilerService.cxx 634362 2014-12-08 09:11:10Z dquarrie $
 
 // GPT include(s):
 #ifdef ATLAS_CMAKE
@@ -64,8 +63,7 @@ namespace GPT {
 
    StatusCode ProfilerService::initialize() {
 
-      ATH_MSG_INFO( "Initializing GPT::ProfilerService - Package version: "
-                    << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing GPT::ProfilerService" );
 
       // Don't do anything fancy if the profiling is under user control, just
       // remind the user of it:
@@ -97,8 +95,7 @@ namespace GPT {
 
    StatusCode ProfilerService::finalize() {
 
-      ATH_MSG_INFO( "Finalizing GPT::ProfilerService - Package version: "
-                    << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Finalizing GPT::ProfilerService" );
 
       // The profiling should only be stopped in the destructor even if we
       // are not under user control...

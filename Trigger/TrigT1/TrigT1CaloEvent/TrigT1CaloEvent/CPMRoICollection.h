@@ -9,7 +9,6 @@
 
 /** Container class for CPMRoI objects */
 
-using namespace LVL1;
-typedef DataVector<CPMRoI> CPMRoICollection;
+typedef DataVector<LVL1::CPMRoI> CPMRoICollection;
 
 #endif

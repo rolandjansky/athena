@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthReentrantAlgorithm.h 
@@ -86,12 +86,8 @@ class AthReentrantAlgorithm
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
-  AthReentrantAlgorithm(const std::string& name, 
-                        ISvcLocator* pSvcLocator,
-                        const std::string& version=PACKAGE_VERSION);
+  /// Constructor with parameters:
+  AthReentrantAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// Destructor: 
   virtual ~AthReentrantAlgorithm() override;

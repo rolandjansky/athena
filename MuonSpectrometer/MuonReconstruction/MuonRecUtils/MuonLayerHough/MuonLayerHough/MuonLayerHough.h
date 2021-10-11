@@ -152,7 +152,7 @@ namespace MuonHough {
     void fillLayer2( const std::vector<Hit*>& hits, bool subtract = false );
 
     /// returns a vector with all the histograms of the hough as TH1*
-    std::vector<TH1*> rootHistos(std::string prefix, float* rmin=0,float* rmax=0) const;
+    std::vector<TH1*> rootHistos(const std::string& prefix, const float* rmin=0,const float* rmax=0) const;
 
     // members
 

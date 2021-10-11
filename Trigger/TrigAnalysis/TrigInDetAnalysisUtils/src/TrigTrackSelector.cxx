@@ -443,6 +443,15 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0
   
     // AAARCH!!!!! the TrackParticle pT is NOT SIGNED!!!! ( I ask you! ) 
     if ( measPer->charge()<0 && pT>0 ) pT *= -1;
+    double q = track->charge();
+
+    static particleType ptype;
+
+    /// avoid default (unset) TruthParticle charge
+    if ( q==-999 ) q = ptype.charge( track->pdgId() );
+    
+    ///  only use charged tracks
+    if ( q==0 ) return 0;
 
     /// need to calculate the origin, and the beamline, and the d0 and z0 
     /// with respect to the beamline
@@ -1175,6 +1184,12 @@ void TrigTrackSelector::selectTracks( xAOD::TrackParticleContainer::const_iterat
 }
 
 
+void TrigTrackSelector::selectTracks( TrackParticleLinks_t tracks, void* ) {
+	for( const auto& track : tracks ) {
+	  const xAOD::TrackParticle* trkp = *track;
+    selectTrack( trkp );
+  }
+}
 
 
 #endif

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObjectGuard.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbObjectGuard definition
 //--------------------------------------------------------------------
@@ -53,10 +52,12 @@ namespace pool    {
     size_t size()   const             { return m_size;            }
     /// Access oid
     Token::OID_t& oid()               { return m_oid;             }
+    const Token::OID_t& oid() const   { return m_oid;             }
     /// Access Storage Type
     const DbType& type()  const       { return m_container.type();}
     /// Accessor: get object container
     DbContainer& container()          { return m_container;       }
+    const DbContainer& container() const { return m_container;       }
   };
 }       // End namespace pool
 #endif  // POOL_DBOBJECTGUARD_H

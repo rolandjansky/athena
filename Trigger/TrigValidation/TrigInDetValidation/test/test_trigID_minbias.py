@@ -33,8 +33,10 @@ Slots   = 8
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 ExtraAna   = " -c 'ptmin=400' "
 
+preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO  
+
 Jobs = [ ( "Truth",       " TIDAdata-run3-minbias.dat                    -o data-hists.root" ),
-         ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
+         ( "Offline",     " TIDAdata-run3-minbias-offline.dat -r Offline -o data-hists-offline.root" ) ]
 
 Comp = [ ( "L2minbias",        "L2minbias", "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
          ( "L2minbiasoffline", "L2minbias", "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ) ]

@@ -17,7 +17,7 @@ public:
     Identifier identify() const { return m_stationId; }
     std::string key() const { return m_stationKey; }
 
-    void setAmdbId(const std::string& type, int jff, int jzz, int job);
+    void setAmdbId(std::string_view type, int jff, int jzz, int job);
     void getAmdbId(std::string& type, int& jff, int& jzz, int& job) const;
 
     bool isNew() const { return m_isNew; }

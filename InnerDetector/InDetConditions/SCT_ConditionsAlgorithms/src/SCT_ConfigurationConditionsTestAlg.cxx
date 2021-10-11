@@ -41,9 +41,9 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(const EventContext& ctx) 
   std::map<IdentifierHash, std::pair<bool, bool>>::const_iterator linkEnd{badLinks->end()};
   while (linkItr != linkEnd) {
     std::pair<bool, bool> status{(*linkItr).second};
-    if (status.first == false and status.second == true ) ++nBadLink0;
-    if (status.first == true  and status.second == false) ++nBadLink1;
-    if (status.first == false and status.second == false) ++nBadLinkBoth;
+    if (!status.first and status.second ) ++nBadLink0;
+    if (status.first  and !status.second) ++nBadLink1;
+    if (!status.first and !status.second) ++nBadLinkBoth;
     ++linkItr;
   }
 

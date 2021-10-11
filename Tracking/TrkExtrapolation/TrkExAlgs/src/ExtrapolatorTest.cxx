@@ -26,9 +26,9 @@ Trk::ExtrapolatorTest::ExtrapolatorTest(const std::string& name, ISvcLocator* pS
   AthAlgorithm(name,pSvcLocator),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_propagator("Trk::RungeKuttaPropagator/RungeKuttaPropagator"),
-  m_magFieldProperties(0),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_magFieldProperties(nullptr),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_sigmaD0(17.*Gaudi::Units::micrometer),                   
   m_sigmaZ0(50.*Gaudi::Units::millimeter),
   m_minPhi(-M_PI),                    
@@ -119,9 +119,9 @@ StatusCode Trk::ExtrapolatorTest::initialize()
      for ( ; radiusIter != radiusIterEnd; ++radiusIter, ++halfZIter){
           // create the Surface triplet
           std::vector< const Trk::Surface*> surfaceTriplet;
-             surfaceTriplet.push_back(new Trk::DiscSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,*halfZIter)),0.,*radiusIter));
-             surfaceTriplet.push_back(new Trk::CylinderSurface(new Amg::Transform3D,*radiusIter, *halfZIter));
-             surfaceTriplet.push_back(new Trk::DiscSurface(new Amg::Transform3D(Amg::Translation3D(0.,0.,-(*halfZIter))),0.,*radiusIter));
+             surfaceTriplet.push_back(new Trk::DiscSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,*halfZIter)),0.,*radiusIter));
+             surfaceTriplet.push_back(new Trk::CylinderSurface(Amg::Transform3D(),*radiusIter, *halfZIter));
+             surfaceTriplet.push_back(new Trk::DiscSurface(Amg::Transform3D(Amg::Translation3D(0.,0.,-(*halfZIter))),0.,*radiusIter));
 	     
 	     ATH_MSG_INFO("Creating surfaces: R " << *radiusIter << " Z " << *halfZIter);
 	     m_referenceSurfaceTriples.push_back(surfaceTriplet);

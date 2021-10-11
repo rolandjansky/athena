@@ -35,7 +35,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include <cmath>
 #include <fstream>

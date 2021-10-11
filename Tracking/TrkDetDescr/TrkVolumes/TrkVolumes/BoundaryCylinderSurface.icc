@@ -18,8 +18,7 @@ BoundaryCylinderSurface<Tvol>::attachedVolume(const TrackParameters& parms,
                                               PropDirection dir) const
 {
   const Tvol* attVolume = nullptr;
-  auto locPos = std::unique_ptr<const Amg::Vector2D>(
-    this->surfaceRepresentation().globalToLocal(parms.position()));
+  auto locPos = this->surfaceRepresentation().globalToLocal(parms.position());
   Amg::Vector3D localNormal{};
   if (locPos) {
     localNormal = this->surfaceRepresentation().normal(*locPos);

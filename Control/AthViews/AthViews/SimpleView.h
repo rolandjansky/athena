@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHVIEWS_SIMPLEVIEW_H
@@ -37,7 +37,7 @@ class SimpleView : public IProxyDict
     DeclareInterfaceID( SimpleView, 2, 0 );
 
     SimpleView() = delete;
-    SimpleView( std::string Name, bool AllowFallThrough = true, std::string const& storeName = "StoreGateSvc" );
+    SimpleView( std::string const& Name, bool AllowFallThrough = true, std::string const& storeName = "StoreGateSvc" );
     virtual ~SimpleView();
 
    /**

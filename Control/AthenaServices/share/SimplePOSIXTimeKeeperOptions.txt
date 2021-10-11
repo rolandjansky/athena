@@ -1,6 +1,0 @@
-// job opts to activate SimplePOSIXTimeKeeperSvc
-
-// $Id: SimplePOSIXTimeKeeperOptions.txt,v 1.1 2004-01-08 02:21:03 calaf Exp $
-
-ApplicationMgr.Dlls += { "AthenaServices" };
-ApplicationMgr.ExtSvc += { "SimplePOSIXTimeKeeperSvc" };

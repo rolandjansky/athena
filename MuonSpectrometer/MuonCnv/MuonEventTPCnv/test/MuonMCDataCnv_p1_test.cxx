@@ -27,7 +27,7 @@ void compare (const MuonMCData& p1,
 
 void testit (const MuonMCData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MuonMCDataCnv_p1 cnv;
   Muon::MuonMCData_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

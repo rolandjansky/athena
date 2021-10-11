@@ -46,11 +46,13 @@
 #include "AIDA/IHistogram1D.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <fstream>
 #include <atomic>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+
 #include <TString.h> // for Form
 
 
@@ -293,7 +295,12 @@ StatusCode RpcDigitizationTool::initialize() {
 
   ///////////////////// special test
   //  m_turnON_clustersize=false;
-
+  m_BOF_id = m_idHelper->stationNameIndex("BOF");
+  m_BOG_id = m_idHelper->stationNameIndex("BOG");
+  m_BOS_id = m_idHelper->stationNameIndex("BOS");
+  m_BIL_id = m_idHelper->stationNameIndex("BIL");
+  m_BIS_id = m_idHelper->stationNameIndex("BIS");
+  m_CSS_id = m_idHelper->stationNameIndex("CSS");
   return StatusCode::SUCCESS;
 
 }
@@ -305,7 +312,7 @@ StatusCode RpcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsign
 
   //John's Hacks START
   m_RPCHitCollList.clear();
-  m_thpcRPC = new TimedHitCollection<RPCSimHit>();
+  m_thpcRPC =std::make_unique<TimedHitCollection<RPCSimHit>>();
   //John's Hacks END
 
   return StatusCode::SUCCESS;
@@ -324,7 +331,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
 					  bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+        hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -363,10 +370,10 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
   ATH_MSG_DEBUG ( "RpcDigitizationTool::getNextEvent()" );
 
   // initialize pointer
-  m_thpcRPC = nullptr;
+  m_thpcRPC.reset();
 
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<RPCSimHitCollection>::type;
 
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
@@ -377,7 +384,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
     }
 
     // create a new hits collection
-    m_thpcRPC = new TimedHitCollection<RPCSimHit>{1};
+    m_thpcRPC = std::make_unique<TimedHitCollection<RPCSimHit>>(1);;
     m_thpcRPC->insert(0, hitCollection.cptr());
     ATH_MSG_DEBUG("RPCSimHitCollection found with " << hitCollection->size() << " hits");
 
@@ -391,7 +398,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
     ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
   }
-  if (hitCollList.size()==0) {
+  if (hitCollList.empty()) {
     ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
     return StatusCode::FAILURE;
   } else {
@@ -399,7 +406,7 @@ StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
   }
 
   // create a new hits collection
-  m_thpcRPC = new TimedHitCollection<RPCSimHit>() ;
+  m_thpcRPC = std::make_unique<TimedHitCollection<RPCSimHit>>() ;
 
   //now merge all collections into one
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -488,7 +495,7 @@ StatusCode RpcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   m_sdo_tmp_map.clear();
   /////////////////////////
 
-  if (0 == m_thpcRPC ) {
+  if (!m_thpcRPC ) {
     status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no RPC hits in this event" );
@@ -514,7 +521,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   int nKilledStrips = 0;
   int nToBeKilledStrips = 0;
   
-  RPCSimHitCollection* inputSimHitColl=NULL;
+  RPCSimHitCollection* inputSimHitColl=nullptr;
   
  if (m_validationSetup)
     {
@@ -544,7 +551,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
       Identifier channelId;
       std::vector<MuonSimData::Deposit> deposits;
       Amg::Vector3D gpos;
-      float simTime;
+      float simTime = 0.0F;
     };
     std::map<Identifier,SimDataContent> channelSimDataMap; 
 
@@ -703,7 +710,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 
           auto channelSimDataMapPos = channelSimDataMap.find(atlasId);
           if( channelSimDataMapPos == channelSimDataMap.end() ){
-            Amg::Vector3D ppos=hit.postLocalPosition();
+            const Amg::Vector3D& ppos=hit.postLocalPosition();
             Amg::Vector3D gppos = ele->localToGlobalCoords(ppos,atlasId);
             Amg::Vector3D gdir = gppos - gpos;
             Trk::Intersection intersection = ele->surface(atlasId).straightLineIntersection(gpos,gdir,false,false); 
@@ -799,7 +806,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   std::map<Identifier, std::vector<MuonSimData::Deposit> >::iterator map_iter=m_sdo_tmp_map.begin();
   ATH_MSG_DEBUG ( "Start the digit map loop" );
 
-  for(;map_iter!=m_sdo_tmp_map.end();map_iter++){
+  for(;map_iter!=m_sdo_tmp_map.end();++map_iter){
 
     //Identifier
     const Identifier theId=(*map_iter).first;
@@ -825,7 +832,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 
     // loop to suppress digits too close in time (emulate Front-End and CMA dead time)
     double last_time=-10000; // init to high value
-    for(;map_dep_iter!=times.end();map_dep_iter++){
+    for(;map_dep_iter!=times.end();++map_dep_iter){
       double currTime =(*map_dep_iter).first;
       ATH_MSG_VERBOSE ( "deposit with time " << currTime  );
 
@@ -849,7 +856,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	    }
 	}
       //apply dead time
-      if(fabs(currTime-last_time)>(m_deadTime))
+      if(std::abs(currTime-last_time)>(m_deadTime))
 	{
 
 
@@ -892,7 +899,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 
 	  RpcDigit*                newDigit = new RpcDigit(theId, newDigit_time); // RpcDigit::time MUST be a double, or we will lose the precision we need
 	  Identifier               elemId   = m_idHelper->elementID(theId);
-	  RpcDigitCollection*      digitCollection = 0;
+	  RpcDigitCollection*      digitCollection = nullptr;
 
 	  IdentifierHash coll_hash;
 	  if (m_idHelper->get_hash(elemId, coll_hash, &rpcContext)) {
@@ -918,7 +925,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 	      ATH_MSG_ERROR  ( "Couldn't record RpcDigitCollection with key=" << coll_hash << " in StoreGate!" );
 	      //else
 	      delete  digitCollection; 
-	      digitCollection    = 0 ;
+	      digitCollection    = nullptr ;
 	      return StatusCode::RECOVERABLE; // consistent with ERROR message above. 
 	    } else {
 	      ATH_MSG_DEBUG ( "New RpcHitCollection with key=" << coll_hash << " recorded in StoreGate." );
@@ -955,10 +962,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
   }// loop to suppress digits too close in time ended
 
   // reset the pointer if it not null
-  if (m_thpcRPC) {
-    delete m_thpcRPC;
-    m_thpcRPC=0;
-  }
+  m_thpcRPC.reset();
 
   ATH_MSG_DEBUG ("EndOf Digitize() n. of strips Killed (dead) in the DB = "<<nKilledStrips<<" ("<<nToBeKilledStrips<<")");
   return StatusCode::SUCCESS;
@@ -1237,7 +1241,7 @@ std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const I
 }
 
 //--------------------------------------------
-double RpcDigitizationTool::PropagationTime(const Identifier* id, const Amg::Vector3D pos){
+double RpcDigitizationTool::PropagationTime(const Identifier* id, const Amg::Vector3D& pos){
 
   float length;
   float impact;
@@ -1282,7 +1286,7 @@ double RpcDigitizationTool::PropagationTime(const Identifier* id, const Amg::Vec
 }
 
 //--------------------------------------------
-double RpcDigitizationTool::PropagationTimeNew(const Identifier* id, const Amg::Vector3D globPos){
+double RpcDigitizationTool::PropagationTimeNew(const Identifier* id, const Amg::Vector3D& globPos){
 
   float distance;
   int measuresPhi = m_idHelper->measuresPhi(*id);
@@ -1302,12 +1306,12 @@ double RpcDigitizationTool::PropagationTimeNew(const Identifier* id, const Amg::
 
 
   // distance in mm, SIG_VEL in ns/m
-  return fabs(distance*SIG_VEL/1000);
+  return std::abs(distance*SIG_VEL/1000);
 
 }
 
 //--------------------------------------------
-Amg::Vector3D RpcDigitizationTool::adjustPosition(const Identifier* id, const Amg::Vector3D hitPos){
+Amg::Vector3D RpcDigitizationTool::adjustPosition(const Identifier* id, const Amg::Vector3D& hitPos){
 
   // code to change local axis orientation taking into account geometrical rotations
 
@@ -1371,7 +1375,7 @@ int RpcDigitizationTool::adjustStripNumber(const Identifier* id,int nstrip){
 }
 
 //--------------------------------------------
-Amg::Vector3D RpcDigitizationTool::posInPanel(const Identifier* id, const Amg::Vector3D posInGap){ // the hit has the position in the gap. we need the position in the panel
+Amg::Vector3D RpcDigitizationTool::posInPanel(const Identifier* id, const Amg::Vector3D& posInGap){ // the hit has the position in the gap. we need the position in the panel
 
   int stationName = m_idHelper->stationName(*id);
   // ME unused: int gasGap      = m_idHelper->gasGap(*id);
@@ -1393,7 +1397,7 @@ Amg::Vector3D RpcDigitizationTool::posInPanel(const Identifier* id, const Amg::V
 
     //std::cout<<"position in gap is "<<posInGap<<std::endl;
 
-    if(result.y()<0) result.y() = gaplength/2.-fabs(result.y()); // wrt the beginning of the panel
+    if(result.y()<0) result.y() = gaplength/2.-std::abs(result.y()); // wrt the beginning of the panel
 
     result.y() = result.y()-panelXlength/2.; // wrt the center of the panel
 
@@ -1408,7 +1412,7 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 
   const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(digitId);
 
-  Amg::Vector3D posInElement=ele->SDtoModuleCoords(posInGap, digitId);
+  Amg::Vector3D posInElement=ele->SDtoModuleCoords(std::move(posInGap), digitId);
 
 
   // extract from digit id the relevant info
@@ -1477,9 +1481,9 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 
   //  std::cout<<"\t start stop length impact pitch strip are "<<min_<< " "<<max_<< " "<<nstrips*pitch+2<< " "<< impact<< " "<<pitch<<" " << result<<std::endl;
 
-  posinstrip=fabs(min_-impact)-(result-1)*pitch;
+  posinstrip=std::abs(min_-impact)-(result-1)*pitch;
 
-  //std::cout<<  "posinstrip " <<  fmod(fabs(min_-impact),pitch)/pitch<< std::endl;
+  //std::cout<<  "posinstrip " <<  fmod(std::abs(min_-impact),pitch)/pitch<< std::endl;
 
   return result;
 
@@ -1521,12 +1525,15 @@ long long int RpcDigitizationTool::PackMCTruth(float proptime, float bctime, flo
 //--------------------------------------------
 void RpcDigitizationTool::UnPackMCTruth(double theWord, float& proptime, float& bctime, float& posy, float& posz){
   //int64_t is just a shorter way of writing long long int
-  typedef union
+  using Repacker = union
+
   {
+
     double  dWord;
+
     int64_t iWord;
-  }
-  Repacker;
+
+  };
   Repacker MCTruth;
   MCTruth.dWord=theWord;
   proptime=((MCTruth.iWord) & 0x00000000000000ffLL)/10.;
@@ -1554,7 +1561,7 @@ void RpcDigitizationTool::UnPackMCTruth(double theWord, float& proptime, float& 
 //--------------------------------------------
 StatusCode RpcDigitizationTool::fillTagInfo() const {
 
-  if (m_tagInfoMgr==0) return StatusCode::FAILURE;
+  if (m_tagInfoMgr==nullptr) return StatusCode::FAILURE;
 
   std::string RpctimeSchema="";
   std::stringstream RpctimeShift ;
@@ -1603,26 +1610,26 @@ StatusCode RpcDigitizationTool::readParameters(){
     //std::cout << "thetag is " << tag << std::endl;
     ATH_MSG_DEBUG ( "read tag " <<tag );
     if(tag=="cs"){ // read cs distribution
-      if(m_csPara.size()==0) m_csPara.resize(5);
+      if(m_csPara.empty()) m_csPara.resize(5);
       str>>m_csPara[0]>>m_csPara[1]>>m_csPara[2]>>m_csPara[3]>>m_csPara[4];
     } else if(tag=="rising_gaus"){
-      if(m_rgausPara.size()==0) m_rgausPara.resize(3);
+      if(m_rgausPara.empty()) m_rgausPara.resize(3);
       str>>m_rgausPara[0]>>m_rgausPara[1]>>m_rgausPara[2];
     } else if(tag=="falling_gaus"){
-      if(m_fgausPara.size()==0) m_fgausPara.resize(3);
+      if(m_fgausPara.empty()) m_fgausPara.resize(3);
       str>>m_fgausPara[0]>>m_fgausPara[1]>>m_fgausPara[2];
     } else if(tag=="const_value"){
-      if(m_constPara.size()==0) m_constPara.resize(1);
+      if(m_constPara.empty()) m_constPara.resize(1);
       str>>m_constPara[0];
     } else if(tag=="cs_3_par"){
       str>>m_cs3Para;
     } else if(tag=="cs_4_par"){
-      if(m_cs4Para.size()==0) m_cs4Para.resize(4);
+      if(m_cs4Para.empty()) m_cs4Para.resize(4);
       str>>m_cs4Para[0]>>m_cs4Para[1]>>m_cs4Para[2]>>m_cs4Para[3];
     }
   }
 
-  if(m_csPara.size()==0||m_rgausPara.size()==0||m_fgausPara.size()==0||m_constPara.size()==0){
+  if(m_csPara.empty()||m_rgausPara.empty()||m_fgausPara.empty()||m_constPara.empty()){
 
     return StatusCode::FAILURE; // something didn't work properly
   }
@@ -1681,8 +1688,8 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
   ATH_MSG_DEBUG ( "DetEff:Digit IdPhi = " << m_idHelper->show_to_string(*IdPhiRpcStrip)  );
 
   
-  if (IdEtaRpcStrip==0) return StatusCode::FAILURE;
-  if (IdPhiRpcStrip==0) return StatusCode::FAILURE;
+  if (IdEtaRpcStrip==nullptr) return StatusCode::FAILURE;
+  if (IdPhiRpcStrip==nullptr) return StatusCode::FAILURE;
   undefinedPhiStripStatus = false;
 
   // dead spacers are not simulated in GEANT4  => their effect must be emulated in the digitizer as an effective max. efficiency = 99% 
@@ -1698,7 +1705,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
   int doubletR    = m_idHelper->doubletR   (*IdEtaRpcStrip);
 
   //remove feet extension. driven by joboption
-  if(m_BOG_BOF_DoubletR2_OFF && (stationName==9||stationName==10) && doubletR == 2){
+  if(m_BOG_BOF_DoubletR2_OFF && (stationName==m_BOF_id||stationName==m_BOG_id) && doubletR == 2){
 
     m_SetPhiOn = false ;
     m_SetEtaOn = false ;
@@ -1791,8 +1798,8 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
     if( readCdo->getEfficiencyMap()     .find(IdPhi) != readCdo->getEfficiencyMap()     .end()) PhiPanelEfficiency      = readCdo->getEfficiencyMap().find(IdPhi)->second ;
     if( readCdo->getEfficiencyGapMap()  .find(IdEta) != readCdo->getEfficiencyGapMap()  .end()) GapEfficiency	        = readCdo->getEfficiencyGapMap().find(IdEta)->second ;
 
-    if (fabs(FracDeadStripEta-1.)<0.001) 
-    {
+    if (std::abs(FracDeadStripEta-1.)<0.001) 
+      {
 	ATH_MSG_DEBUG ("Watch out: SPECIAL CASE: Read from Cool: FracDeadStripEta/Phi "<<FracDeadStripEta<<"/"<<FracDeadStripPhi
                        <<" RPC_ProjectedTracksEta "<<RPC_ProjectedTracksEta<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency
                        <<" gapEff "<<GapEfficiency<<" for gas gap "<<m_idHelper->show_to_string(IdEta)<<" id "<<IdEta.get_identifier32().get_compact());
@@ -1923,9 +1930,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
         //std::cout<<" do we ever enter here ? "<<std::endl;
       unsigned int index = stationName - 2 ;
       // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
-      if(stationName>5 && stationName<50) index = index - 2 ;
+      if(stationName>m_BOS_id && stationName<m_CSS_id) index = index - 2 ;
       // BMF, BOF and BOG are 8,9,10 => must be 4,5 and 6
-      else if(stationName>50) index = index - 44 ;
+      else if(stationName>m_BOS_id) index = index - 44 ;
       // BME and BOE 53 and 54 are at indices 7 and 8 
       ATH_MSG_DEBUG ( "Some special condition met here - resetting eff.s to python values at index=" << index << " i.e. StName="<<stationName) ;
         */
@@ -2089,7 +2096,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
 
     ATH_MSG_DEBUG ( "Digit Id = " << m_idHelper->show_to_string(*IdRpcStrip)  );
   
-    if (IdRpcStrip==0) return 1;
+    if (IdRpcStrip==nullptr) return 1;
     
     int ClusterSize = 1 ;
     
@@ -2578,7 +2585,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                   Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
                   if (!isValid) continue;
                   const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
-		if(rpc == 0 )continue;
+		if(rpc == nullptr )continue;
 		Identifier idr = rpc->identify();
 		if(idr == 0 )continue;
 		Identifier atlasIdEta = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, 0, 1)     ;
@@ -2822,7 +2829,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                     Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
                     if (!isValid) continue;
                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
-                    if(rpc == 0 )continue;
+                    if(rpc == nullptr )continue;
 		  Identifier idr = rpc->identify();
 		  if(idr == 0 )continue;
 		  Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, 1)     ;
@@ -2912,7 +2919,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                       Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
                       if (!isValid) continue;
                       const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
-		    if(rpc == 0 )continue;
+		    if(rpc == nullptr )continue;
 		    Identifier idr = rpc->identify();
 		    if(idr == 0 )continue;
 		    Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, strip)     ;
@@ -2957,7 +2964,7 @@ double RpcDigitizationTool::FCPEfficiency(const HepMC::GenParticle* genParticle)
   //find the i in the array
   int i_e = -1;
   for(int i=0;i<12;i++){
-    if(Charge[i] == std::fabs(qcharge)){i_e = i;break;}
+    if(Charge[i] == std::abs(qcharge)){i_e = i;break;}
   }
   int i_v = -99, j_v = 99;
   if(qbetagamma != -1){

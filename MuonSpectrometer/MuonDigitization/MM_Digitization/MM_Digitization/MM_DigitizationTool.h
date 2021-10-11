@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATIONTOOL_H
@@ -61,7 +61,6 @@
 #include "NSWCalibTools/INSWCalibTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-#include "MM_Digitization/IMM_DigitizationTool.h"
 
 #include <memory>
 #include <string>
@@ -128,7 +127,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool{this,"SmearingTool","Muon::NSWCalibSmearingTool/MMCalibSmearingTool"};
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool{this,"CalibrationTool","Muon::NSWCalibTool/NSWCalibTool"};
-		ToolHandle<IMM_DigitizationTool> m_digitTool{this,"DigitizationTool","MM_Response_DigitTool","Tool which handles the digitization process"};
 
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
@@ -166,7 +164,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 		Gaudi::Property<float> m_avalancheGain{this,"AvalancheGain",8.0e3,"avalanche Gain for rach gas mixture"};
 
 		// Constants vars for the MM_ElectronicsResponseSimulation
-		Gaudi::Property<float> m_peakTime{this,"peakTime",200,"The VMM peak time setting"};
 		Gaudi::Property<float> m_electronicsThreshold{this,"electronicsThreshold",15000,"threshold Voltage for histoBNL, 2*(Intrinsic noise ~3k e)"};
 		Gaudi::Property<float> m_stripdeadtime{this,"StripDeadTime",200,"dead-time for strip, default value 200 ns = 8 BCs"};
 		Gaudi::Property<float> m_ARTdeadtime{this,"ARTDeadTime",200,"dead-time for ART, default value 200 ns = 8 BCs"};
@@ -176,8 +173,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
 
-		// Temporary until moving away from TRandom
-		Gaudi::Property<unsigned long int> m_randomSeed{this, "RandomSeed", 42, ""};
 
 		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
 		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
@@ -223,8 +218,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
 
-		float m_noiseSlope;
-		float m_noiseIntercept;
+		float m_noiseSlope = 0.0F;
+		float m_noiseIntercept = 0.0F;
 };
 
 #endif // MM_DigitizationTool

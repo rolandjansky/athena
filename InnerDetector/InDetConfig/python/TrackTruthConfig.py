@@ -16,12 +16,12 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
     kwargs.setdefault("TruthNameTRT", 'PRD_MultiTruthTRT')
 
     # this is how the truth maker gets to know which detector is on ...
-    if (not flags.Detector.RecoPixel):
+    if (not flags.Detector.EnablePixel):
         kwargs.setdefault("TruthNamePixel", "")
-    if (not flags.Detector.RecoSCT):
+    if (not flags.Detector.EnableSCT):
         kwargs.setdefault("TruthNameSCT", "")
     # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
-    if ((not flags.Detector.RecoTRT) or (flags.Beam.Type == 'cosmics' and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
+    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type == 'cosmics' and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
         kwargs.setdefault("TruthNameTRT", "")
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
@@ -86,11 +86,6 @@ if __name__ == "__main__":
 
     ConfigFlags.InDet.doPixelClusterSplitting = True
 
-    ConfigFlags.Detector.RecoIBL = True
-    ConfigFlags.Detector.RecoPixel = True
-    ConfigFlags.Detector.RecoTRT = True
-    ConfigFlags.Detector.RecoSCT = True
-
     ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -126,7 +121,7 @@ if __name__ == "__main__":
     top_acc.addPublicTool(PixelLorentzAngleTool(ConfigFlags))
     top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(ConfigFlags)))
 
-    from InDetOverlay.PixelOverlayConfig import PixelRawDataProviderAlgCfg
+    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
     top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,6 +52,8 @@ public:
     sel_assocobjs->addChild(sel_assocobjs_click);
     root->addChild(sel_assocobjs);
   }
+  Imp(const Imp &) = delete;
+  Imp & operator=(const Imp &) = delete;
   ~Imp()
   {
     system->unregisterSelectionNode(sel_assocobjs_click);
@@ -185,7 +187,7 @@ void AscObjSelectionManager::unregisterAscObj(SoSeparator*simple,SoSeparator *de
 AssociatedObjectHandleBase* AscObjSelectionManager::Imp::ascObjHandle(const SoPath*path)
 {
   const int n(path?path->getLength():0);
-  AssociatedObjectHandleBase * handle(0);
+  AssociatedObjectHandleBase * handle(nullptr);
   for (int i = 0; i < n; ++i) {
     if (path->getNodeFromTail(i)->getTypeId()==SoSeparator::getClassTypeId()) {
       handle = ascObjHandle(static_cast<SoSeparator*>(path->getNodeFromTail(i)));
@@ -193,7 +195,7 @@ AssociatedObjectHandleBase* AscObjSelectionManager::Imp::ascObjHandle(const SoPa
 	return handle;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //____________________________________________________________________
@@ -231,7 +233,7 @@ void AscObjSelectionManager::Imp::updateSelectionVisuals()
 bool AscObjSelectionManager::handleUserSelectedSingleNode( SoCooperativeSelection* sel, SoNode*, SoPath* pickedPath, AssociatedObjectHandleBase*& pickedHandle )
 {
   messageVerbose("handleUserSelectedSingleNode");
-  pickedHandle = 0;
+  pickedHandle = nullptr;
   if (sel==m_d->sel_assocobjs) {
     messageVerbose("  => ignore selections for m_d->sel_assocobjs");
     return true;//We simply ignore those
@@ -260,7 +262,7 @@ void AscObjSelectionManager::pretendUserClicked(AssociatedObjectHandleBase*handl
   if (!handle)
     return;
   const bool alreadyselected = m_d->selAscObjHandles.contains(handle);
-  qSort(m_d->selAscObjHandles);
+  std::sort(m_d->selAscObjHandles.begin(), m_d->selAscObjHandles.end());
   QList<AssociatedObjectHandleBase*> selHandlesBefore = m_d->selAscObjHandles;
 
   if (m_d->mode==SINGLE) {
@@ -301,7 +303,7 @@ void AscObjSelectionManager::pretendUserClicked(AssociatedObjectHandleBase*handl
     deselectAll();
     return;
   }
-  qSort(m_d->selAscObjHandles);
+  std::sort(m_d->selAscObjHandles.begin(), m_d->selAscObjHandles.end());
 
   if (selHandlesBefore!=m_d->selAscObjHandles) {
     m_d->updateSelectionVisuals();
@@ -366,7 +368,7 @@ void AscObjSelectionManager::ensureSelected(const QList<AssociatedObjectHandleBa
       if (!m_d->selAscObjHandles.contains(handle))
 	m_d->selAscObjHandles << handle;
     }
-    qSort(m_d->selAscObjHandles);
+    std::sort(m_d->selAscObjHandles.begin(), m_d->selAscObjHandles.end());
     if (selHandlesBefore!=m_d->selAscObjHandles) {
       m_d->updateSelectionVisuals();
       currentSelectionChanged(m_d->selAscObjHandles);

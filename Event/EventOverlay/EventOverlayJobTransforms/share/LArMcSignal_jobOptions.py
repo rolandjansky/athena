@@ -46,22 +46,20 @@ if DetFlags.overlay.LAr_on():
    job += theLArDigits
 
 
+   from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+   LArADC2MeVCondAlgDefault()
+
    from LArROD.LArRODConf import LArRawChannelBuilder
    newLArRawChannelBuilder =  LArRawChannelBuilder( "newLArRawChannelBuilder" )
    newLArRawChannelBuilder.DataLocation = job.LArRawChannelBuilder.DataLocation
-   newLArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVToolDefault
    if globalflags.DataSource()=='data' or larRODFlags.forceIter() :
-      newLArRawChannelBuilder.UseOFCTool= False
       newLArRawChannelBuilder.PhaseInversion=True
       newLArRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels"
       newLArRawChannelBuilder.PedestalKey='LArPedestal'
    else :
-      from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-      theOFCTool = LArOFCToolDefault()
-      ToolSvc += theOFCTool
-      newLArRawChannelBuilder.OFCTool =  theOFCTool
+      from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+      LArOFCCondAlgDefault()
       newLArRawChannelBuilder.LArRawChannelContainerName = job.LArRawChannelBuilder.LArRawChannelContainerName
-      newLArRawChannelBuilder.UseOFCTool= True
    newLArRawChannelBuilder.EvtStore = "BkgEvent_0_SG"
    newLArRawChannelBuilder.OutputLevel = DEBUG
    job += newLArRawChannelBuilder

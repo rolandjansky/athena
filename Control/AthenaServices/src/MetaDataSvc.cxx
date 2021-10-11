@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -91,27 +91,15 @@ MetaDataSvc::~MetaDataSvc() {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthService::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_INFO("Initializing " << name());
 
    // Retrieve InputMetaDataStore
-   if (!m_inputDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get InputMetaDataStore.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_inputDataStore.retrieve() );
    // Retrieve OutputMetaDataStore
-   if (!m_outputDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get OutputMetaDataStore.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_outputDataStore.retrieve() );
    // Retrieve AddressCreator
-   if (!m_addrCrtr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get AddressCreator.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_addrCrtr.retrieve() );
+
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
       m_storageType = cnvSvc->repSvcType();
@@ -119,19 +107,12 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_WARNING("Cannot get ConversionSvc Interface.");
    }
    // Get FileMgr
-   if (!m_fileMgr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get FileMgr.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_fileMgr.retrieve() );
+
    // Set to be listener for end of event
-   if (!m_incSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IncidentSvc.");
-      return(StatusCode::FAILURE);
-   }
-   if (m_metaDataTools.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_incSvc.retrieve() );
+
+   ATH_CHECK( m_metaDataTools.retrieve() );
    ATH_MSG_INFO("Found " << m_metaDataTools);
 
    m_incSvc->addListener(this, "FirstInputFile", 80);
@@ -140,14 +121,9 @@ StatusCode MetaDataSvc::initialize() {
 
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
-   if (!iomgr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IoComponentMgr.");
-      return(StatusCode::FAILURE);
-   }
-   if (!iomgr->io_register(this).isSuccess()) {
-      ATH_MSG_FATAL("Cannot register myself with the IoComponentMgr.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( iomgr.retrieve() );
+   ATH_CHECK( iomgr->io_register(this) );
+
    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
@@ -187,7 +163,7 @@ StatusCode MetaDataSvc::finalize() {
    if (!m_inputDataStore.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release InputMetaDataStore.");
    }
-   return(::AthService::finalize());
+   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
@@ -500,7 +476,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 178309087 || clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
+      if (clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
          toolInstName += "_" + keyName;
       }
       bool foundTool = false;
@@ -518,7 +494,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
          }
-         if (clid == 178309087 || clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
+         if (clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
             IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
             if (property == nullptr) {
                ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
@@ -574,7 +550,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    }
    if (fileName.find("BSF:") == 0) {
       ATH_MSG_DEBUG("MetaDataSvc called for non ROOT file.");
-   } else if (fileName.substr(0, 3) == "SHM") {
+   } else if (fileName.compare(0, 3, "SHM")==0) {
       ATH_MSG_DEBUG("MetaDataSvc called for shared memory.");
    } else {
       const std::string par[2] = { fileName,  m_metaDataCont.value() + "(DataHeader)" };

@@ -24,6 +24,9 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 
+#include "AsgDataHandles/ReadHandleKey.h"
+
+
 class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(ChargedHadronSubtractionTool, IJetConstituentModifier)
 
@@ -44,6 +47,7 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   const xAOD::Vertex* getPrimaryVertex() const;
   bool m_useTrackToVertexTool;
   bool m_ignoreVertex;
+  float m_z0sinThetaCutValue;
 	
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
   SG::ReadHandleKey<jet::TrackVertexAssociation> m_trkVtxAssoc_key;

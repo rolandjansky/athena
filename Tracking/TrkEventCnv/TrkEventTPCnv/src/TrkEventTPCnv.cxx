@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // generate the T/P converter entries
@@ -26,7 +26,10 @@
 //-----------------------------------------------------------------------------
 // TrkTrack
 //-----------------------------------------------------------------------------
-#include "TrkEventTPCnv/TrkTrack/TrackCollection_p1.h"
+#include "TrkEventTPCnv/TrkTrack/TrackCollectionCnv_p1.h"
+#include "TrkEventTPCnv/TrkTrack/TrackCollectionCnv_p2.h"
+#include "TrkEventTPCnv/TrkTrack/TrackCollectionCnv_p3.h"
+#include "TrkEventTPCnv/TrkTrack/TrackCollectionCnv_p4.h"
 #include "TrkEventTPCnv/TrkTrack/Track_p1.h"
 #include "TrkEventTPCnv/TrkTrack/TrackStateOnSurface_p1.h"
 #include "TrkEventTPCnv/TrkTrack/Track_p2.h"
@@ -48,7 +51,7 @@
 //-----------------------------------------------------------------------------
 // TrkSegment
 //-----------------------------------------------------------------------------
-#include "TrkEventTPCnv/TrkSegment/SegmentCollection_p1.h"
+#include "TrkEventTPCnv/TrkSegment/SegmentCollectionCnv_p1.h"
 #include "TrkEventTPCnv/TrkSegment/Segment_p1.h"
 #include "TrkEventTPCnv/TrkSegment/TrackSegment_p1.h"
 
@@ -176,6 +179,33 @@ DECLARE_TPCNV_FACTORY(Trk::ClusterSplitProbabilityContainerCnv_p1,
                       Trk::ClusterSplitProbabilityContainer_p1,
                       Athena::TPCnvVers::Current)
 
+// Current version is in TrkEventTopLevelCnv
+DECLARE_TPCNV_FACTORY(SegmentCollectionCnv_p1,
+                      Trk::SegmentCollection,
+                      Trk::SegmentCollectionCnv_p1,
+                      Athena::TPCnvVers::Old)
+
+DECLARE_TPCNV_FACTORY(TrackCollectionCnv_p1,
+                      TrackCollection,
+                      Trk::TrackCollection_p1,
+                      Athena::TPCnvVers::Old)
+
+DECLARE_TPCNV_FACTORY(TrackCollectionCnv_p2,
+                      TrackCollection,
+                      Trk::TrackCollection_p2,
+                      Athena::TPCnvVers::Old)
+
+DECLARE_TPCNV_FACTORY(TrackCollectionCnv_p3,
+                      TrackCollection,
+                      Trk::TrackCollection_p3,
+                      Athena::TPCnvVers::Old)
+
+// Current version is in TrkEventTopLevelCnv
+DECLARE_TPCNV_FACTORY(TrackCollectionCnv_p4,
+                      TrackCollection,
+                      Trk::TrackCollection_p4,
+                      Athena::TPCnvVers::Old)
+
 typedef T_TPCnv<VxContainer, Trk::VxContainer_tlp1 >
 		VxContainerARACnv_tlp1;
 DECLARE_ARATPCNV_FACTORY(VxContainerARACnv_tlp1,
@@ -183,8 +213,7 @@ DECLARE_ARATPCNV_FACTORY(VxContainerARACnv_tlp1,
 			 Trk::VxContainer_tlp1,
 			     Athena::TPCnvVers::Old)
 		     
-typedef T_TPCnv<VxContainer, Trk::VxContainer_tlp2 >
-		VxContainerARACnv_tlp2;
+using VxContainerARACnv_tlp2 = T_TPCnv<VxContainer, Trk::VxContainer_tlp2>;
 DECLARE_ARATPCNV_FACTORY(VxContainerARACnv_tlp2,
 			 VxContainer,
 			 Trk::VxContainer_tlp2,

@@ -27,13 +27,13 @@
 Trk::ExtrapolationValidation::ExtrapolationValidation(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthAlgorithm(name,pSvcLocator),
-  m_highestVolume(0),
+  m_highestVolume(nullptr),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_materialCollectionValidation(true),
   m_direct(false),
-  m_validationTree(0),  
+  m_validationTree(nullptr),  
   m_validationTreeName("ExtrapolationValidation"),
   m_validationTreeDescription("Output of the ExtrapolationValidation Algorithm"),
   m_validationTreeFolder("/val/ExtrapolationValidation"),
@@ -159,14 +159,14 @@ StatusCode Trk::ExtrapolationValidation::initialize()
    m_validationTree->Branch("DestinationSurfaceZ",              &m_destinationZ,               "surfaceZ/F");
 
    // now register the Tree
-   ITHistSvc* tHistSvc = 0;
+   ITHistSvc* tHistSvc = nullptr;
    if (service("THistSvc",tHistSvc).isFailure()){ 
       ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
    }
    if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
       ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
    }
 
   // intialize the random number generators
@@ -208,9 +208,9 @@ StatusCode Trk::ExtrapolationValidation::execute()
   if (!m_highestVolume){
      // get TrackingGeometry and highest volume
      const Trk::TrackingGeometry* trackingGeometry = m_extrapolator->trackingGeometry();
-     m_highestVolume = trackingGeometry ? trackingGeometry->highestTrackingVolume() : 0;
+     m_highestVolume = trackingGeometry ? trackingGeometry->highestTrackingVolume() : nullptr;
      const Trk::CylinderVolumeBounds* cylBounds = m_highestVolume ? 
-         dynamic_cast<const Trk::CylinderVolumeBounds*>(&(m_highestVolume->volumeBounds())) : 0;
+         dynamic_cast<const Trk::CylinderVolumeBounds*>(&(m_highestVolume->volumeBounds())) : nullptr;
     // bail out
     if (!cylBounds){
        ATH_MSG_WARNING("No highest TrackingVolume / no VolumeBounds ... pretty useless! ");
@@ -322,8 +322,8 @@ StatusCode Trk::ExtrapolationValidation::execute()
    m_estimationR        = m_maximumR * m_flatDist->shoot();
 
    // --------------- propagate to find a first intersection ---------------------
-   Amg::Transform3D * CylTrf = new Amg::Transform3D;
-   CylTrf->setIdentity();
+   Amg::Transform3D CylTrf;
+   CylTrf.setIdentity();
    Trk::CylinderSurface estimationCylinder(CylTrf, m_estimationR, 10e10);
    const Trk::TrackParameters* estimationParameters = m_extrapolator->extrapolateDirectly(startParameters,
                                                                                           estimationCylinder,
@@ -376,7 +376,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
    m_estimationZ        = estimatedPosition.z();
 
    // cleanup for memory reasons
-   delete estimationParameters; estimationParameters = 0;
+   delete estimationParameters; estimationParameters = nullptr;
 
    // create the radom surface at the destination point
    Trk::PlaneSurface destinationSurface(createTransform(m_estimationX,
@@ -389,7 +389,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
    ATH_MSG_VERBOSE( "Extrapolation to Destination Surface: " << destinationSurface );
 
    // the destination parameters
-   const Trk::TrackParameters* destParameters = 0; 
+   const Trk::TrackParameters* destParameters = nullptr; 
    // the standard validation ... 
    if (!m_materialCollectionValidation && !m_direct)
        destParameters = m_extrapolator->extrapolate(startParameters,
@@ -410,7 +410,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
       if (collectedMaterial && collectedMaterial->size()){
         // get the last track state on surface & clone the destination parameters
         const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
-        destParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : 0;
+        destParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
         m_collectedLayerFront += collectedMaterial->size();
         // delete the layers / cleanup
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsosIter    =  collectedMaterial->begin();
@@ -463,7 +463,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
        m_destinationR = destinationPosition.perp();
 
        // now simply go backwards
-       const Trk::TrackParameters* backParameters = 0;
+       const Trk::TrackParameters* backParameters = nullptr;
        // the standard validation ... 
        if (!m_materialCollectionValidation && !m_direct)
             backParameters = m_extrapolator->extrapolate(*destParameters,
@@ -484,7 +484,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                 // get the last track state on surface & clone the destination parameters
                 const Trk::TrackStateOnSurface* startState = collectedBackMaterial->back();
                 // assign the last ones of the call
-                backParameters = startState->trackParameters() ? startState->trackParameters()->clone() : 0;
+                backParameters = startState->trackParameters() ? startState->trackParameters()->clone() : nullptr;
                 m_collectedLayerBack += collectedBackMaterial->size();
                 // delete the layers / cleanup
                 std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsosIter    =  collectedBackMaterial->begin();
@@ -553,7 +553,8 @@ StatusCode Trk::ExtrapolationValidation::execute()
 }
 
 //============================================================================================
-Amg::Transform3D * Trk::ExtrapolationValidation::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
+Amg::Transform3D 
+Trk::ExtrapolationValidation::createTransform(double x, double y, double z, double phi, double theta, double alphaZ)
 {
 
  if (phi!=0. && theta != 0.){
@@ -586,12 +587,12 @@ Amg::Transform3D * Trk::ExtrapolationValidation::createTransform(double x, doubl
    surfaceRotation.col(2) = surfaceZdirection;
    // return it
    if (alphaZ==0.)
-     return new Amg::Transform3D(surfaceRotation, surfacePosition);   
+     return Amg::Transform3D(surfaceRotation, surfacePosition);   
    Amg::Transform3D nominalTransform(surfaceRotation, surfacePosition);   
-   return new Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
+   return Amg::Transform3D(nominalTransform*Amg::AngleAxis3D(alphaZ,zAxis));
    
  }
 
-  return new Amg::Transform3D(Amg::Translation3D(x,y,z));
+  return Amg::Transform3D(Amg::Translation3D(x,y,z));
 }
 

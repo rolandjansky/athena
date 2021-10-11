@@ -165,7 +165,7 @@ std::unique_ptr<const Trk::TrackParameters> TrigL2MuonSA::FtfRoadDefiner::extTra
   }
 
   // Disk
-  Amg::Transform3D* matrix = new Amg::Transform3D( Amg::Vector3D( 0.,0.,Z ) );
+  Amg::Transform3D matrix = Amg::Transform3D( Amg::Vector3D( 0.,0.,Z ) );
 
   std::unique_ptr<const Trk::DiscSurface> disc = std::make_unique<const Trk::DiscSurface>( matrix, 0, R );
   std::unique_ptr<const Trk::TrackParameters> param2( m_extrapolator->extrapolate(*trk, *disc, Trk::anyDirection, boundaryCheck, Trk::muon) );
@@ -179,8 +179,6 @@ std::unique_ptr<const Trk::TrackParameters> TrigL2MuonSA::FtfRoadDefiner::extTra
   ATH_MSG_DEBUG("R: " << R << ", Z: " << Z);
   ATH_MSG_DEBUG("bCylinder:" << bCylinder << ", bDisk:" << bDisk );
 
-  matrix = 0;
-  delete matrix;
 
   if ( bCylinder && bDisk ){
     extFlag = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMDetectorDescription_H
@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+
+class AGDDDetectorStore;
 
 struct MMReadoutParameters {
     double stripPitch;
@@ -40,7 +42,8 @@ struct MMReadoutParameters {
 
 class MMDetectorDescription: public AGDDDetector {
 public:
-	MMDetectorDescription(std::string s);
+	MMDetectorDescription(const std::string& s,
+                              AGDDDetectorStore& ds);
 	void Register();
 
 	static MMDetectorDescription* GetCurrent() {return s_current;}
@@ -69,6 +72,8 @@ protected:
 	double m_xFrame;
 	double m_ysFrame;
 	double m_ylFrame;
+
+        AGDDDetectorStore& m_ds;
 
 	void SetDetectorAddress(AGDDDetectorPositioner*);
 	static MMDetectorDescription* s_current;

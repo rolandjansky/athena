@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # ConfiguredLArVolumeBuilder module
@@ -14,7 +14,7 @@ from LArTrackingGeometry.LArTrackingGeometryConf import LAr__LArVolumeBuilder
 # define the class
 class ConfiguredLArVolumeBuilder( LAr__LArVolumeBuilder ):
     # constructor
-    def __init__(self,name = 'LArVolumeBuilder'):
+    def __init__(self,name = 'LArVolumeBuilder', nameSuffix=''):
         
         from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
@@ -25,11 +25,11 @@ class ConfiguredLArVolumeBuilder( LAr__LArVolumeBuilder ):
         
         # The volume helper
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-        LArTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
+        LArTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper'+nameSuffix)
         ToolSvc += LArTrackingVolumeHelper 
           
         LAr__LArVolumeBuilder.__init__(self,
-                                       name,
+                                       name+nameSuffix,
                                        UseCaloSurfBuilder = TrkDetFlags.LArUseCaloSurfBuilder(),
                                        TrackingVolumeHelper = LArTrackingVolumeHelper,
                                        BarrelEnvelopeCover  = TrkDetFlags.LArBarrelEnvelopeCover(),

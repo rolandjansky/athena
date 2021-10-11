@@ -124,7 +124,7 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 elif hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
 else:
-    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
@@ -208,7 +208,7 @@ from ISF_Config.ISF_jobProperties import ISF_Flags
 if hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator = runArgs.simulator
 else:
-    ISF_Flags.Simulator = 'MC12G4'
+    ISF_Flags.Simulator = 'FullG4'
 
 #### *********** import ISF_Example code here **************** ####
 

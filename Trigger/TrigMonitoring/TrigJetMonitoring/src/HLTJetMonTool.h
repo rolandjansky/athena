@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -134,6 +134,7 @@ class HLTJetMonTool : public IHLTMonTool {
     //std::vector<std::string> /*m_OFJetKeys,*/ m_sampSelTriggers, m_chainsByRegexp;
     JetSigtype m_HLTJetKeys;
     JetSigtype m_OFJetKeys;
+    std::map<std::string, SG::ReadHandleKey<xAOD::JetContainer>> m_OFJetRHK;
 
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;

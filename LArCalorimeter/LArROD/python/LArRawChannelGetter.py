@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # specifies LArRawChannels getting
 
@@ -34,13 +34,12 @@ class LArRawChannelGetter ( Configured )  :
 
         from LArROD.LArRODFlags import larRODFlags
 
+        # ADC2MeV
+        from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+        LArADC2MeVCondAlgDefault()
+
         from AthenaCommon.GlobalFlags import globalflags
         if globalflags.DataSource()=='data' or larRODFlags.forceIter() :
-
-            # ADC2MeV tool
-            from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-            theADC2MeVTool = LArADC2MeVToolDefault()
-            ToolSvc += theADC2MeVTool
 
 
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -73,16 +72,12 @@ class LArRawChannelGetter ( Configured )  :
                     # The first tool filters out bad channels
                     from LArROD.LArRODConf import LArRawChannelBuilderToolBadChannelTool
                     theLArRawChannelBuilderToolBadChannel=LArRawChannelBuilderToolBadChannelTool()
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-                    theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-                    theLArRCBMasker.DoMasking=True
-                    theLArRCBMasker.ProblemsToMask=[
+                    theLArRawChannelBuilderToolBadChannel.ProblemsToMask=[
                        "deadReadout","deadPhys","almostDead","short",
                        "lowNoiseHG","highNoiseHG","unstableNoiseHG",
                        "lowNoiseMG","highNoiseMG","unstableNoiseMG",
                        "lowNoiseLG","highNoiseLG","unstableNoiseLG"
                       ]
-                    theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
                     theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel]
                     ToolSvc+=theLArRawChannelBuilderToolBadChannel
 
@@ -138,7 +133,6 @@ class LArRawChannelGetter ( Configured )  :
                 from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
                 theLArRawChannelBuilderADC2EDataBase=LArRawChannelBuilderADC2EDataBase()
                 theLArRawChannelBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase]
-                theLArRawChannelBuilderADC2EDataBase.ADC2MeVTool = theADC2MeVTool
                 theLArRawChannelBuilder += theLArRawChannelBuilderADC2EDataBase 
 
                 # no fallback when emulating exactly DSP computation

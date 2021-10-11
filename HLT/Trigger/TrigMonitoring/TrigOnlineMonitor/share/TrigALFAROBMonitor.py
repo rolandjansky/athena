@@ -38,14 +38,6 @@ topSequence += TrigALFAROBMonitor()
 #MuCTPiROBMonitor.HistFailedChecksumForROB   = ('FailedChecksumForROB', 0, 50, 50)
 #MuCTPiROBMonitor.HistFailedChecksumForSD    = ('FailedChecksumForSubDetector', 0, 60, 60)
 #
-# --- put events with checksum failures on debug stream
-#
-#MuCTPiROBMonitor.SetDebugStream             = True
-#
-# --- debug stream name for events with checksum failures
-#
-#MuCTPiROBMonitor.DebugStreamName            = 'MuCTPiROBErrorStream'
-#
 # --- plot generic/specific status bits for ROB fragments
 #
 #MuCTPiROBMonitor.TestROBStatus              = True

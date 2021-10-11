@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1GeometrySystems/VisAttributes.h"
@@ -103,7 +103,7 @@ VisAttributes::VisAttributes() : m_d(new Imp) {
 VisAttributes::~VisAttributes() {
 
   std::map<std::string, SoMaterial *>::iterator m,e=m_d->_map.end();
-  for (m=m_d->_map.begin();m!=e;m++)
+  for (m=m_d->_map.begin();m!=e;++m)
     (*m).second->unref();
 
   delete m_d;

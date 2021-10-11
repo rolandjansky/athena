@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 # The earliest bunch crossing time for which interactions will be sent
@@ -44,7 +44,7 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
             kwargs.setdefault("OutputRDOKey", overlayFlags.evtStore() + "+BCM_RDOs")
             kwargs.setdefault("OutputSDOKey", overlayFlags.evtStore() + "+BCM_SDO_Map")
     else:
-        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
             from OverlayCommonAlgs.OverlayFlags import overlayFlags
             kwargs.setdefault("OutputRDOKey", overlayFlags.bkgPrefix() + "BCM_RDOs")
             kwargs.setdefault("OutputSDOKey", overlayFlags.bkgPrefix() + "BCM_SDO_Map")

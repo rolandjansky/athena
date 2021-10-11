@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,17 +11,6 @@ interface defined in AthenaKernel or in GaudiKernel. Among those you'll find
  - services to manage random number sequences
  - a framework to specify which data object to write out 
 (AthenaOutputStream and AthenaOutputStreamTool)
-
-
-
-@section AthenaServices_tests Unit Tests
-
- - AthenaOutputStream_test.cxx
- - AtRndmGen_test.cxx
- - AtRanlux_test.cxx
- - SimplePOSIXTimeKeeperSvc_test.cxx
- - SimplePOSIXTimeKeeperSvc_test.py
-
 
 
 @section AthenaServices_refs More Documentation

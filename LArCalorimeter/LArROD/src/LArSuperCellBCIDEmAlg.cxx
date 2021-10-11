@@ -53,7 +53,7 @@ LArSuperCellBCIDEmAlg::execute(const EventContext& context) const
         ATH_MSG_DEBUG("Got a CaloCellContainer input with size : "<<scells_from_sg->size());
 
         SG::WriteHandle<CaloCellContainer> scellContainerHandle( m_sCellContainerOutKey, context);
-        auto new_scell_cont = std::make_unique<CaloCellContainer> (SG::VIEW_ELEMENTS);
+        auto new_scell_cont = std::make_unique<CaloCellContainer> ();
         
         new_scell_cont->reserve(scells_from_sg->size());
 

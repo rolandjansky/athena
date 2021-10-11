@@ -196,7 +196,7 @@ class AtlRunQuery:
         elif self.cmdlineOptions.timelist is not None:
             # translate time into run-range
             if 'last' in self.cmdlineOptions.timelist[0]:
-                 # contains 'last'
+                # contains 'last'
                 from CoolRunQuery.utils.AtlRunQueryUtils import get_runs_last_dt
                 rlist = get_runs_last_dt(self.cmdlineOptions.timelist[0])
 
@@ -260,7 +260,6 @@ class AtlRunQuery:
                 self.selectionOutput += ["%s" % s.__str__()]
             with timer("run AfterQuery for selector '%s'" % s.name):
                 s.runAfterQuery(runlist)
-            #print ([r.runNr for r in runlist])
 
         # reverse list for presentation: newest run on top
         runlist.reverse()

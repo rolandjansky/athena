@@ -41,7 +41,7 @@ public:
     ATH_CHECK(AthAlgTool::initialize());
     ATH_CHECK(m_siPropertiesTool.retrieve());
     ATH_CHECK(m_moduleDataKey.initialize());
-    ATH_CHECK(m_fluenceDataKey.initialize());
+    ATH_CHECK(m_fluenceDataKey.initialize(m_doRadDamage && !m_fluenceDataKey.empty()));
     return StatusCode::SUCCESS;
   }
 
@@ -66,6 +66,11 @@ protected:
   SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
   {
     this, "PixelModuleData", "PixelModuleData", "Pixel module data"
+  };
+
+  Gaudi::Property<bool> m_doRadDamage
+  {
+    this, "doRadDamage", false, "doRadDmaage bool: should be flag"
   };
 
   SG::ReadCondHandleKey<PixelRadiationDamageFluenceMapData> m_fluenceDataKey

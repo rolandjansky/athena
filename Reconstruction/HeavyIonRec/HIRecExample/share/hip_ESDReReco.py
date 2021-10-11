@@ -1,6 +1,3 @@
-from RecExConfig.RecAlgsFlags import recAlgs
-recAlgs.doTrigger.set_Value_and_Lock(False)
-
 rec.doTrigger.set_Value_and_Lock(False)
 rec.doAODCaloCells.set_Value_and_Lock(False)
 rec.doESDReconstruction.set_Value_and_Lock(True)

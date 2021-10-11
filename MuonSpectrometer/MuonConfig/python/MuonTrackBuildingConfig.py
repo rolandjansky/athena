@@ -17,7 +17,6 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     mctb_fitter = result.getPrimary()
     result.addPublicTool(mctb_fitter)
     kwargs.setdefault("Fitter",          mctb_fitter)
-    kwargs.setdefault("FitterPreFit",          mctb_fitter)
         
     acc = MuPatHitToolCfg(flags)
     mu_pat_hit_tool = acc.getPrimary()
@@ -88,7 +87,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     Muon__MooTrackBuilder=CompFactory.Muon.MooTrackBuilder
     Trk__STEP_Propagator=CompFactory.Trk.STEP_Propagator
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg, MuonTrackExtrapolationToolCfg
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     
     # Based on this: https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L221
@@ -110,8 +109,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     prop = Trk__STEP_Propagator(name = 'MuonStraightLinePropagator')
     result.addPublicTool(prop)
     
-    # TODO - check why Fitter and FitterPreFit are identical
-    acc = MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, FitterPreFit=mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True)
+    acc = MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True)
     moo_sl_track_fitter = acc.getPrimary()
     result.addPublicTool(moo_sl_track_fitter)
     result.merge(acc)
@@ -144,7 +142,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     hole_recovery_tool =  acc.getPrimary()
     result.addPublicTool(hole_recovery_tool)
     result.merge(acc)
-    kwargs.setdefault("HitRecoveryTool", hole_recovery_tool)
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
 
     acc  = MagneticFieldSvcCfg(flags) 
@@ -157,8 +154,10 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
 
+    kwargs.setdefault('Extrapolator', result.popToolsAndMerge( MuonTrackExtrapolationToolCfg(flags) ) )
+
     # FIXME - remove ErrorOptimisationTool from cxx?
-    # declareProperty("ErrorOptimisationTool","" );
+    # declareProperty("ErrorOptimisationTool","" );Extrapolator
 
     acc=MuPatCandidateToolCfg(flags)
     cand_tool = acc.getPrimary()
@@ -205,18 +204,12 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
 def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=False, **kwargs):
     Muon__MooCandidateMatchingTool=CompFactory.Muon.MooCandidateMatchingTool
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonStraightLineExtrapolatorCfg
     
     result = ComponentAccumulator()
 
     # Won't explicitly configure MuonEDMHelperSvc
     kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
 
-    acc = MuonStraightLineExtrapolatorCfg(flags)
-    slextrap = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("SLExtrapolator", slextrap)
-    
     acc = AtlasExtrapolatorCfg(flags)
     extrap = acc.getPrimary()
     result.merge(acc)

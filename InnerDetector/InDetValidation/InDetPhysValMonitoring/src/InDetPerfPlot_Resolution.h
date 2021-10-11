@@ -45,7 +45,7 @@ public:
 
   InDetPerfPlot_Resolution(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
+  void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt, float weight);
 //  virtual bool isDefined(TString t);
   virtual ~InDetPerfPlot_Resolution() {/** nop **/
   }
@@ -81,7 +81,7 @@ private:
   void getTrackParameters(const xAOD::TruthParticle& truthprt);
   void getTrackParameters(const xAOD::TrackParticle& truthprt);
   void getPlotParameters();
-  void getPlots();
+  void getPlots(float weight=1.0);
 
   float m_trkP[NPARAMS];
   float m_truetrkP[NPARAMS];

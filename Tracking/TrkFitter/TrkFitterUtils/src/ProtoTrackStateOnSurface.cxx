@@ -13,11 +13,6 @@
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkFitterUtils/DNA_MaterialEffects.h"
-#include "TrkFitterUtils/ProtoMaterialEffects.h"
-
-//#include "GaudiKernel/MsgStream.h"
-//#include <string>
 #include <algorithm>
 
 Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
@@ -26,11 +21,6 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   m_iOwnMeasurement(false),
   m_tsType(Trk::TrackState::Fittable),
   m_iterationShowingOutlier(0),
-  m_forwardState(nullptr),
-  m_smoothedState(nullptr),
-  m_fitQuality(nullptr),
-  m_dnaMaterialEffects(nullptr),
-  m_protoMaterialEffects(nullptr),
   m_stateID(0),
   m_identifier(),
   m_mType(Trk::TrackState::unidentified),
@@ -100,11 +90,6 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_tsType(is_outlier ? Trk::TrackState::ExternalOutlier : 
            Trk::TrackState::Fittable),
   m_iterationShowingOutlier(0),
-  m_forwardState(nullptr),
-  m_smoothedState(nullptr),
-  m_fitQuality(nullptr),
-  m_dnaMaterialEffects(nullptr),
-  m_protoMaterialEffects(nullptr),
   m_stateID(positionOnTrajectory),
   m_identifier(),
   m_mType(Trk::TrackState::unidentified),
@@ -128,11 +113,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
 Trk::ProtoTrackStateOnSurface::~ProtoTrackStateOnSurface()
 {
   if (m_iOwnMeasurement) delete m_measurement;
-  delete m_forwardState;
-  delete m_smoothedState;
-  delete m_fitQuality;
-  delete m_dnaMaterialEffects;
-  delete m_protoMaterialEffects;
+  
   if ( m_iOwnJacobian ) {
     delete m_transportJacobian;
     m_transportJacobian =nullptr;
@@ -155,9 +136,6 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
 {
   if (this!=&rhs){
     if (m_iOwnMeasurement) delete m_measurement;
-    delete m_forwardState;
-    delete m_smoothedState;
-    delete m_fitQuality;
     if ( m_iOwnJacobian ) delete m_transportJacobian;
     if ( m_iOwnRefPars )  delete m_referenceParameters;
     if ( m_iOwnParametersDifference ) delete m_parametersDifference;
@@ -168,11 +146,11 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
     m_iOwnMeasurement = rhs.m_iOwnMeasurement;
     m_tsType = rhs.m_tsType;
     m_iterationShowingOutlier = rhs.m_iterationShowingOutlier;
-    m_forwardState = rhs.m_forwardState ? rhs.m_forwardState->clone() : nullptr;
-    m_smoothedState = rhs.m_smoothedState ? rhs.m_smoothedState->clone() : nullptr;
-    m_fitQuality = rhs.m_fitQuality ? new Trk::FitQualityOnSurface(*rhs.m_fitQuality) : nullptr ;
-    m_dnaMaterialEffects = rhs.m_dnaMaterialEffects ? new Trk::DNA_MaterialEffects(*rhs.m_dnaMaterialEffects) : nullptr ;
-    m_protoMaterialEffects = rhs.m_protoMaterialEffects ? new Trk::ProtoMaterialEffects(*rhs.m_protoMaterialEffects) : nullptr ;
+    m_forwardState.reset(rhs.m_forwardState ? rhs.m_forwardState->clone() : nullptr);
+    m_smoothedState.reset(rhs.m_smoothedState ? rhs.m_smoothedState->clone() : nullptr);
+    m_fitQuality.reset(rhs.m_fitQuality ? new Trk::FitQualityOnSurface(*rhs.m_fitQuality) : nullptr );
+    m_dnaMaterialEffects.reset(rhs.m_dnaMaterialEffects ? new Trk::DNA_MaterialEffects(*rhs.m_dnaMaterialEffects) : nullptr );
+    m_protoMaterialEffects.reset(rhs.m_protoMaterialEffects ? new Trk::ProtoMaterialEffects(*rhs.m_protoMaterialEffects) : nullptr) ;
     m_stateID          = rhs.m_stateID;
     m_identifier       = rhs.m_identifier;
     m_mType            = rhs.m_mType;
@@ -235,7 +213,7 @@ void Trk::ProtoTrackStateOnSurface::swap(ProtoTrackStateOnSurface& rhs) throw ()
     std::swap(this->m_measurementDifferenceVector, rhs.m_measurementDifferenceVector);
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinMeasurement(const Trk::MeasurementBase* meas,
+void Trk::ProtoTrackStateOnSurface::checkinMeasurement(Trk::MeasurementBase* meas,
                                                        bool classShallOwnMbase) 
 {
   if (m_measurement) {
@@ -248,7 +226,8 @@ void Trk::ProtoTrackStateOnSurface::checkinMeasurement(const Trk::MeasurementBas
   m_measurementDifferenceVector.store(nullptr);
 }
 
-void Trk::ProtoTrackStateOnSurface::replaceMeasurement(const Trk::MeasurementBase* meas,
+void 
+Trk::ProtoTrackStateOnSurface::replaceMeasurement(const Trk::MeasurementBase* meas,
                                                        Trk::TrackState::CalibrationType ct) 
 {
   if (meas!=nullptr && meas != m_measurement) { // chk that there *is* something to replace 
@@ -261,20 +240,35 @@ void Trk::ProtoTrackStateOnSurface::replaceMeasurement(const Trk::MeasurementBas
   }
 }
 
-const Trk::MeasurementBase* Trk::ProtoTrackStateOnSurface::checkoutMeasurement() 
+void 
+Trk::ProtoTrackStateOnSurface::replaceMeasurement(std::unique_ptr<const Trk::MeasurementBase> meas,
+                                                       Trk::TrackState::CalibrationType ct) 
+{
+  if (meas!=nullptr && meas.get() != m_measurement) { // chk that there *is* something to replace 
+    if (m_iOwnMeasurement) delete m_measurement;
+    m_measurement = meas.release();
+    m_iOwnMeasurement = true;
+    m_calib           = ct;
+    m_measurementDifferenceVector.store(nullptr);
+    // assume that replacements are done with the same detector type (recalibration)
+  }
+}
+
+std::unique_ptr<Trk::MeasurementBase> 
+Trk::ProtoTrackStateOnSurface::checkoutMeasurement() 
 {
   if (!m_measurement) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutMeasurement!" << std::endl;
     return nullptr;
   }
-  const Trk::MeasurementBase* helper = m_measurement;
-  m_measurement = nullptr;
+ 
   m_measurementDifferenceVector.store(nullptr);
   if (!m_iOwnMeasurement) {
-    return helper->clone();
+    return m_measurement->uniqueClone();
   } else {
-    //  not needed : m_iOwnMeasurement=false;
-    return helper;
+    //const_cast is safe here, purely for reasons of interface; should be changed to shared_ptr later
+    auto ncMeasurement ATLAS_THREAD_SAFE = const_cast<Trk::MeasurementBase*>(m_measurement);
+    return std::unique_ptr<Trk::MeasurementBase>(ncMeasurement);
   }
 }
 
@@ -341,7 +335,6 @@ void Trk::ProtoTrackStateOnSurface::checkinParametersDifference ( const AmgVecto
   }
   m_parametersDifference     = inParametersDifference;
   m_iOwnParametersDifference = classShallOwnParametersDifference;
-//   m_mType           = Trk::TrackState::unidentified;
 }
 
 const AmgVector(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersDifference()
@@ -389,64 +382,54 @@ const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersCovarian
 }
 
 
-void Trk::ProtoTrackStateOnSurface::checkinForwardPar(const Trk::TrackParameters* par) 
+void 
+Trk::ProtoTrackStateOnSurface::checkinForwardPar(std::unique_ptr<const Trk::TrackParameters> par) 
 {
   if (m_forwardState) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinForwardPar!" << std::endl;
-    delete m_forwardState;
   }
-  m_forwardState = par;
+  m_forwardState = std::move(par);
 }
 
-const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutForwardPar() 
-{
+std::unique_ptr<const Trk::TrackParameters>
+Trk::ProtoTrackStateOnSurface::checkoutForwardPar() {
   if (!m_forwardState) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutForwardPar!" << std::endl;
-    return nullptr;
   }
-  const Trk::TrackParameters* helper = m_forwardState;
-  m_forwardState = nullptr;
-  return helper;
+ return std::move(m_forwardState);
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinSmoothedPar(const Trk::TrackParameters* par) 
+void 
+Trk::ProtoTrackStateOnSurface::checkinSmoothedPar(std::unique_ptr<const Trk::TrackParameters> par) 
 {
   if (m_smoothedState) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinSmoothedPar!" << std::endl;
-    delete m_smoothedState;
   }
-  m_smoothedState = par;
+  m_smoothedState = std::move(par);
 }
 
-const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutSmoothedPar() 
-{
+std::unique_ptr<const Trk::TrackParameters> 
+Trk::ProtoTrackStateOnSurface::checkoutSmoothedPar() {
   if (!m_smoothedState) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutSmoothedPar!" << std::endl;
-    return nullptr;
   }
-  const Trk::TrackParameters* helper = m_smoothedState;
-  m_smoothedState = nullptr;
-  return helper;
+  return std::move(m_smoothedState);
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinFitQuality(const Trk::FitQualityOnSurface* par) 
-{
+void 
+Trk::ProtoTrackStateOnSurface::checkinFitQuality(std::unique_ptr<const Trk::FitQualityOnSurface> par) {
   if (m_fitQuality) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinFitQuality!" << std::endl;
-    delete m_fitQuality;
   }
-  m_fitQuality = par;
+  m_fitQuality = std::move(par);
 }
 
-const Trk::FitQualityOnSurface* Trk::ProtoTrackStateOnSurface::checkoutFitQuality() 
-{
+std::unique_ptr<const Trk::FitQualityOnSurface> 
+Trk::ProtoTrackStateOnSurface::checkoutFitQuality() {
   if (!m_fitQuality) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutFitQuality!" << std::endl;
-    return nullptr;
   }
-  const Trk::FitQualityOnSurface* helper = m_fitQuality;
-  m_fitQuality = nullptr;
-  return helper;
+  return std::move(m_fitQuality);
 }
 
 void Trk::ProtoTrackStateOnSurface::setForwardStateFitQuality(const FitQualityOnSurface& fq) 
@@ -465,45 +448,38 @@ void Trk::ProtoTrackStateOnSurface::backwardStateChiSquared(double c2)
 { m_backwardStateChi2 = c2; }
 
 
-void Trk::ProtoTrackStateOnSurface::checkinDNA_MaterialEffects(const Trk::DNA_MaterialEffects* mef) 
-{
+void 
+Trk::ProtoTrackStateOnSurface::checkinDNA_MaterialEffects(std::unique_ptr<const Trk::DNA_MaterialEffects> mef) {
   if (m_dnaMaterialEffects) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinDNA_MaterialEffects!" << std::endl;
-    delete m_dnaMaterialEffects;
   }
-  m_dnaMaterialEffects = mef;
+  m_dnaMaterialEffects = std::move(mef);
 }
 
-const Trk::DNA_MaterialEffects* Trk::ProtoTrackStateOnSurface::checkoutDNA_MaterialEffects() 
+std::unique_ptr<const Trk::DNA_MaterialEffects> 
+Trk::ProtoTrackStateOnSurface::checkoutDNA_MaterialEffects() 
 {
   if (!m_dnaMaterialEffects) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutDNA_MaterialEffects!" << std::endl;
-    return nullptr;
   }
-  const Trk::DNA_MaterialEffects* helper = m_dnaMaterialEffects;
-  m_dnaMaterialEffects = nullptr;
-  return helper;
+  return std::move(m_dnaMaterialEffects);
 }
 
 
-void Trk::ProtoTrackStateOnSurface::checkinMaterialEffects(const Trk::ProtoMaterialEffects* mef)
-{
+void 
+Trk::ProtoTrackStateOnSurface::checkinMaterialEffects(std::unique_ptr<const Trk::ProtoMaterialEffects> mef){
   if (m_protoMaterialEffects) {
-    std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinDNA_MaterialEffects!" << std::endl;
-    delete m_protoMaterialEffects;
+    std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinMaterialEffects!" << std::endl;
   }
-  m_protoMaterialEffects = mef;
+  m_protoMaterialEffects = std::move(mef);
 }
 
-const Trk::ProtoMaterialEffects* Trk::ProtoTrackStateOnSurface::checkoutMaterialEffects()
-{
+std::unique_ptr<const Trk::ProtoMaterialEffects> 
+Trk::ProtoTrackStateOnSurface::checkoutMaterialEffects(){
   if (!m_protoMaterialEffects) {
-    std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutDNA_MaterialEffects!" << std::endl;
-    return nullptr;
+    std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutMaterialEffects!" << std::endl;
   }
-  const Trk::ProtoMaterialEffects* helper = m_protoMaterialEffects;
-  m_protoMaterialEffects = nullptr;
-  return helper;
+  return std::move(m_protoMaterialEffects);
 }
 
 bool Trk::ProtoTrackStateOnSurface::isCluster() const
@@ -545,21 +521,20 @@ const Trk::TrackStateOnSurface* Trk::ProtoTrackStateOnSurface::createState(bool 
   else if (!m_measurement && m_protoMaterialEffects) typePattern.set(TrackStateOnSurface::Scatterer);
   else return nullptr;
 
-  const Trk::MaterialEffectsBase* mefot = nullptr;
+  std::unique_ptr<const Trk::MaterialEffectsBase> mefot;
   if (m_dnaMaterialEffects) {
-    mefot = m_dnaMaterialEffects->makeMEFOT();
+    mefot=m_dnaMaterialEffects->makeUniqueMEFOT();
     typePattern.set(TrackStateOnSurface::BremPoint);
   } else if (m_protoMaterialEffects)
-    mefot = m_protoMaterialEffects->makeMEOT();
+    mefot=m_protoMaterialEffects->makeUniqueMEOT();
   if (isOutlier() && makeSlimOutlier) {
     return new TrackStateOnSurface(m_measurement ? checkoutMeasurement() : nullptr,
-                                   nullptr,nullptr,mefot,typePattern);
+                                   nullptr,nullptr,std::move(mefot),typePattern);
   } else {
     return new TrackStateOnSurface(m_measurement ? checkoutMeasurement() : nullptr,
                                    checkoutSmoothedPar(),
-// for testing                     checkoutForwardPar(),
                                    m_fitQuality ? checkoutFitQuality() : nullptr,
-                                   mefot,typePattern);
+                                   std::move(mefot),typePattern);
   }
 }
 

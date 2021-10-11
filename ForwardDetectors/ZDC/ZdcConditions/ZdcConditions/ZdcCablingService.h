@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCCABLINGSERVICE_H
@@ -66,16 +66,16 @@ public:
  private:
 
     bool        m_dbFilled;
-    int         m_side_db[4][64];
-    int         m_module_db[4][64];
-    int         m_type_db[4][64];
-    int         m_gain_db[4][64];
-    int         m_delay_db[4][64];
-    int         m_channel_db[4][64];
-    int         m_hv_db[4][64];
-    int         m_ppm_db[16];
-    int         m_crate_index[4];
-    int         m_ncrate;
+    int         m_side_db[4][64]{};
+    int         m_module_db[4][64]{};
+    int         m_type_db[4][64]{};
+    int         m_gain_db[4][64]{};
+    int         m_delay_db[4][64]{};
+    int         m_channel_db[4][64]{};
+    int         m_hv_db[4][64]{};
+    int         m_ppm_db[16]{};
+    int         m_crate_index[4]{};
+    int         m_ncrate{};
     //int         m_crate_lookup[2][3][2];
     //int         m_channel_lookup[2][3][2][16][2][2];
     //int         crate_index_lookup(int crate);
@@ -85,7 +85,7 @@ public:
     const ZdcHardwareID*    m_zdcHWID;
 
 
-    int m_connected[16][16];
+    int m_connected[16][16]{};
     void setConnected(int ppm, int channel);
     void fillConnectionTables();
     void fillDB();

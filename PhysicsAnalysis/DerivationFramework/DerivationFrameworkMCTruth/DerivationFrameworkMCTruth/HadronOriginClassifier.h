@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -69,9 +69,9 @@ namespace DerivationFramework{
     void buildPartonsHadronsMaps();
 
 
-    int hadronType(int pdgid) const;
-    bool isBHadron(const xAOD::TruthParticle* part) const;
-    bool isCHadron(const xAOD::TruthParticle* part) const;
+    static int hadronType(int pdgid) ;
+    static bool isBHadron(const xAOD::TruthParticle* part) ;
+    static bool isCHadron(const xAOD::TruthParticle* part) ;
 
     bool passHadronSelection(const xAOD::TruthParticle* part) const;
 
@@ -88,10 +88,10 @@ namespace DerivationFramework{
     const xAOD::TruthParticle* findInitial(const xAOD::TruthParticle* part, bool looping) const;
     
     bool isFromTop(const xAOD::TruthParticle* part, bool looping) const;
-    bool isDirectlyFromTop(const xAOD::TruthParticle* part, bool looping) const;
+    static bool isDirectlyFromTop(const xAOD::TruthParticle* part, bool looping) ;
     bool isDirectlyFromWTop(const xAOD::TruthParticle* part, bool looping) const;
 
-    bool isDirectlyFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const;
+    static bool isDirectlyFromGluonQuark(const xAOD::TruthParticle* part, bool looping) ;
     bool isFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const;
     bool isDirectlyFSRPythia6(const xAOD::TruthParticle* part, bool looping) const;
 
@@ -100,14 +100,14 @@ namespace DerivationFramework{
     bool isDirectlyFSR(const xAOD::TruthParticle* part, bool looping) const;
     bool isFromWTop(const xAOD::TruthParticle* part, bool looping) const;
 
-    bool isDirectlyMPIPythia6(const xAOD::TruthParticle* part, bool looping) const;
+    static bool isDirectlyMPIPythia6(const xAOD::TruthParticle* part, bool looping) ;
 
     bool isDirectlyMPIPythia8(const xAOD::TruthParticle* part, bool looping) const;
     bool isDirectlyFromQuarkTopPythia8(const xAOD::TruthParticle* part, bool looping) const;
     bool isFromQuarkTopPythia8(const xAOD::TruthParticle* part, bool looping) const;
     bool isDirectlyFSRPythia8(const xAOD::TruthParticle* part, bool looping) const;
 
-    bool isDirectlyMPISherpa(const xAOD::TruthParticle* part) const;
+    static bool isDirectlyMPISherpa(const xAOD::TruthParticle* part) ;
 
      
     inline bool IsHerwigPP(){return m_GenUsed==HerwigPP;};
@@ -132,7 +132,7 @@ namespace DerivationFramework{
     double m_HadronEtaMaxCut;
     int m_DSID;
     GEN_id m_GenUsed;
-    bool m_ttbb;
+    bool m_ttbb = false;
     
   };
 

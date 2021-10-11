@@ -228,7 +228,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       return false;
     }
     const xAOD::Vertex* pv = 0;
-    for( const auto& v: *vertices ){
+    for( const auto v: *vertices ){
       if( v->vertexType() == xAOD::VxType::PriVtx ){
         pv = v;
         break;
@@ -240,7 +240,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     }
     
     bool passIsolatedTracklet = false;
-    for(const auto& Tracklet : *pixelTrackletContainer){
+    for(const auto Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
       for(unsigned int i=0;i<goodJets.size();i++){
 	double deltaPhi = (std::abs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-std::abs(Tracklet->phi()-goodJets.at(i)->phi()) : std::abs(Tracklet->phi()-goodJets.at(i)->phi());
@@ -302,7 +302,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       }
       
       
-      for(const auto& StdTrack : *standardTrackContainer){
+      for(const auto StdTrack : *standardTrackContainer){
 	if(StdTrack->pt()/1000.0 < 20.0)
 	  continue;
 

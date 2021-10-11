@@ -20,7 +20,7 @@
 *  @author Peter Faulkner
 */
 
-class L1CaloPprConditions {
+class L1CaloPprConditions final {
 	friend std::ostream& operator<<(std::ostream& output, const L1CaloPprConditions& r);
 public:
 
@@ -32,7 +32,7 @@ public:
 			 unsigned short lutStrategy, unsigned short lutOffset, unsigned short lutSlope, unsigned short lutNoiseCut,
 			 unsigned int pedValue, float pedMean);
 
-	virtual ~L1CaloPprConditions() {};
+	~L1CaloPprConditions() = default;
 
 	// getters
 	inline unsigned short extBcidThreshold()    const { return m_extBcidThreshold; }

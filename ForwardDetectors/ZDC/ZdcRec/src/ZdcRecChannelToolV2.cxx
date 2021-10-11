@@ -13,9 +13,9 @@
 #include <iostream>
 #include <fstream>
 
-#include <vector>
+#include <cmath>
 #include <map>
-#include <math.h>
+#include <vector>
 
 #include "TMath.h"
 
@@ -79,7 +79,7 @@ StatusCode ZdcRecChannelToolV2::initialize()
 
 	// NONE
 	
-	const ZdcID* zdcId = 0;
+	const ZdcID* zdcId = nullptr;
 	if (detStore()->retrieve( zdcId ).isFailure() ) {
 	    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
 	    return StatusCode::FAILURE;
@@ -231,7 +231,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module) const
 
       if ( module.TTg1d0Link().isValid() )
 	{
-	  if ( (*module.TTg1d0Link())->adc().size())
+	  if ( !(*module.TTg1d0Link())->adc().empty())
 	    {
 	      presamp  = (*module.TTg1d0Link())->adc().at(0);
 	      rawamp =  (*module.TTg1d0Link())->adc().at(isamp);
@@ -243,7 +243,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module) const
       
       if ( module.TTg0d0Link().isValid() )
 	{
-	  if ( (*module.TTg0d0Link())->adc().size())
+	  if ( !(*module.TTg0d0Link())->adc().empty())
 	    {
 	      presamp  = (*module.TTg0d0Link())->adc().at(0);
 	      rawampL = (*module.TTg0d0Link())->adc().at(isamp);
@@ -260,7 +260,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module) const
 	{
 	  if ( module.TTg1d1Link().isValid() )
 	    {
-	      if ( (*module.TTg1d1Link())->adc().size())
+	      if ( !(*module.TTg1d1Link())->adc().empty())
 		{
 		  presamp  = (*module.TTg1d1Link())->adc().at(0);
 		  rawamp =  (*module.TTg1d1Link())->adc().at(isamp);
@@ -272,7 +272,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module) const
 	  
 	  if ( module.TTg0d1Link().isValid() )
 	    {
-	      if ((*module.TTg0d1Link())->adc().size())
+	      if (!(*module.TTg0d1Link())->adc().empty())
 		{
 		  presamp  = (*module.TTg0d1Link())->adc().at(0);
 		  rawampL = (*module.TTg0d1Link())->adc().at(isamp);
@@ -332,7 +332,7 @@ int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  ChannelCo
 	return 0;
 }
 
-int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs) const
+int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs) 
 {
   times.clear();
   adcs.clear();

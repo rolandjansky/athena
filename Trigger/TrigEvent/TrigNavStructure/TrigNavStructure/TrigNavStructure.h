@@ -396,7 +396,7 @@ namespace HLT {
     TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
 #endif
 
-    mutable std::recursive_mutex m_rmutex;
+    static std::recursive_mutex s_rmutex;
 
   };
 } // end of HLT namespace

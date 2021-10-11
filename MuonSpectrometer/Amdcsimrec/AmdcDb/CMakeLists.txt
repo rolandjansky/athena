@@ -14,13 +14,13 @@ atlas_add_library( AmdcDbLib
                    src/*.cxx
                    PUBLIC_HEADERS AmdcDb
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests AmdcAthLib RDBAccessSvcLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib AmdcAthLib RDBAccessSvcLib
                    PRIVATE_LINK_LIBRARIES AmdcCore )
 
 atlas_add_component( AmdcDb
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests AmdcAthLib AmdcCore AmdcDbLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib AmdcAthLib AmdcCore AmdcDbLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

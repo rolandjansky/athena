@@ -60,7 +60,7 @@ namespace Trk {
     declareProperty("SelectHits", m_selectHits);
     declareProperty("FixMomentum", m_fixMomentum);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -131,7 +131,7 @@ namespace Trk {
     ATH_MSG_DEBUG("AlignTrackPreProcessor::processTrackCollection()");
 
     if (!tracks || tracks->empty())
-      return 0;
+      return nullptr;
 
     // the output collection of AlignTracks
     // we define it as collection of Tracks but fill AlignTracks inside
@@ -231,7 +231,7 @@ namespace Trk {
 
     if (newTracks->empty()) {
       delete newTracks;
-      return 0;
+      return nullptr;
     }
 
     return newTracks;

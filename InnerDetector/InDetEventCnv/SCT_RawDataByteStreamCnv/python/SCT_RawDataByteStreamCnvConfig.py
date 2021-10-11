@@ -24,7 +24,8 @@ def SCTRawDataProviderToolCfg(flags, prefix="InDet", suffix="", **kwargs):
     return acc
 
 def SCTRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
-    acc = ComponentAccumulator()
+    """ Configures the main algorithm for SCT raw data decoding """
+    acc = ComponentAccumulator()    
     kwargs.setdefault("ProviderTool", acc.popToolsAndMerge(SCTRawDataProviderToolCfg(flags, prefix, suffix)))
     acc.addEventAlgo(CompFactory.SCTRawDataProvider(name=prefix+"SCTRawDataProvider"+suffix,
                                                     **kwargs))

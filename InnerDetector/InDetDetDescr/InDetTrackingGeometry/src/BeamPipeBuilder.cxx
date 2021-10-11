@@ -101,15 +101,18 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
   std::vector<const Trk::CylinderLayer*>* beamPipe = new std::vector<const Trk::CylinderLayer*>;
   
   // the geometry
-  Amg::Transform3D* beamPipeTransform =  new Amg::Transform3D;
-  beamPipeTransform->setIdentity();
+  Amg::Transform3D beamPipeTransform;
+  beamPipeTransform.setIdentity();
 
   double beamPipeRadius = m_beamPipeRadius;
   
   if (m_beamPipeMgr){
         // get the central top volume
         PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
-        (*beamPipeTransform) = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
+        if (m_beamPipeMgr->getNumTreeTops()==1){ // Beampipe implementation using assembly volume has only one tree top instead of 3 in the default case(union of a central and two forward beampipes)   
+          beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0)->getChildVol(0)->getChildVol(0);//the BeamPipeCentral volume is the child of the child volume of the top volume in this case 
+        }
+        beamPipeTransform = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
                                                   beamPipeTopVolume->getX().translation().y(),
                                                   beamPipeTopVolume->getX().translation().z());
         const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
@@ -144,12 +147,12 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
         }
         ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );        
   } else 
-      (*beamPipeTransform) = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
+       beamPipeTransform = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
 
   ATH_MSG_VERBOSE("BeamPipe shift estimated as    : " 
-      <<  beamPipeTransform->translation().x() << ", "
-      <<  beamPipeTransform->translation().y() << ","
-      <<  beamPipeTransform->translation().y());
+      <<  beamPipeTransform.translation().x() << ", "
+      <<  beamPipeTransform.translation().y() << ","
+      <<  beamPipeTransform.translation().y());
   
   Trk::CylinderBounds* beamPipeBounds    = new Trk::CylinderBounds(beamPipeRadius, m_beamPipeHalflength);
   ATH_MSG_VERBOSE("BeamPipe bounds constructed as : " << (*beamPipeBounds) );

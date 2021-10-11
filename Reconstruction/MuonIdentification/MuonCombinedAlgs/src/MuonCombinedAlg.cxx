@@ -4,7 +4,7 @@
 
 #include "MuonCombinedAlg.h"
 
-MuonCombinedAlg::MuonCombinedAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
+MuonCombinedAlg::MuonCombinedAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode MuonCombinedAlg::initialize() {
     ATH_CHECK(m_muonCombinedTool.retrieve());
@@ -17,8 +17,8 @@ StatusCode MuonCombinedAlg::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonCombinedAlg::execute() {
-    SG::ReadHandle<InDetCandidateCollection> inDetCandidateCollection(m_indetCandidateCollectionName);
+StatusCode MuonCombinedAlg::execute(const EventContext& ctx) const {
+    SG::ReadHandle<InDetCandidateCollection> inDetCandidateCollection(m_indetCandidateCollectionName, ctx);
     if (!inDetCandidateCollection.isValid()) {
         ATH_MSG_ERROR("Could not read " << m_indetCandidateCollectionName);
         return StatusCode::FAILURE;
@@ -28,7 +28,7 @@ StatusCode MuonCombinedAlg::execute() {
         return StatusCode::SUCCESS;
     }
 
-    SG::ReadHandle<MuonCandidateCollection> muonCandidateCollection(m_muonCandidateCollectionName);
+    SG::ReadHandle<MuonCandidateCollection> muonCandidateCollection(m_muonCandidateCollectionName, ctx);
     if (!muonCandidateCollection.isValid()) {
         ATH_MSG_ERROR("Could not read " << m_muonCandidateCollectionName);
         return StatusCode::FAILURE;
@@ -38,23 +38,23 @@ StatusCode MuonCombinedAlg::execute() {
         return StatusCode::SUCCESS;
     }
 
-    std::vector<SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> > tagMaps = m_combTagMaps.makeHandles();
+    std::vector<SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> > tagMaps = m_combTagMaps.makeHandles(ctx);
     std::vector<MuonCombined::InDetCandidateToTagMap*> maps;
     for (auto& h : tagMaps) {
         ATH_CHECK(h.record(std::make_unique<MuonCombined::InDetCandidateToTagMap>()));
         maps.push_back(h.ptr());
     }
 
-    SG::WriteHandle<TrackCollection> muidCombTracks(m_muidCombinedTracks);
+    SG::WriteHandle<TrackCollection> muidCombTracks(m_muidCombinedTracks, ctx);
     ATH_CHECK(muidCombTracks.record(std::make_unique<TrackCollection>()));
 
-    SG::WriteHandle<TrackCollection> muidMETracks(m_muidMETracks);
+    SG::WriteHandle<TrackCollection> muidMETracks(m_muidMETracks, ctx);
     ATH_CHECK(muidMETracks.record(std::make_unique<TrackCollection>()));
 
     if (inDetCandidateCollection->empty() || muonCandidateCollection->empty()) return StatusCode::SUCCESS;
 
     // note that STACO does not create new Trk::Tracks so it doesn't need collections here
-    m_muonCombinedTool->combine(*muonCandidateCollection, *inDetCandidateCollection, maps, muidCombTracks.ptr(), muidMETracks.ptr());
+    m_muonCombinedTool->combine(*muonCandidateCollection, *inDetCandidateCollection, maps, muidCombTracks.ptr(), muidMETracks.ptr(), ctx);
 
     return StatusCode::SUCCESS;
 }

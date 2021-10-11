@@ -19,8 +19,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
-#include "GaudiKernel/EventIDRange.h"
-
 LArOFCCondAlg::LArOFCCondAlg(const std::string &name,
         ISvcLocator *pSvcLocator)
     : ::AthAlgorithm(name, pSvcLocator),
@@ -121,8 +119,6 @@ StatusCode LArOFCCondAlg::execute() {
         larOnlineID = idhelper; // cast to base-class
     }
 
-
-    EventIDRange rangeMapping;
     // Mapping helper
     const LArOnOffIdMapping *larOnOffIdMapping = nullptr;
     SG::ReadCondHandle<LArOnOffIdMapping> larOnOffIdMappingHdl{
@@ -131,15 +127,12 @@ StatusCode LArOFCCondAlg::execute() {
     larOnOffIdMapping = *larOnOffIdMappingHdl;
     if (larOnOffIdMapping == nullptr) {
         ATH_MSG_ERROR("Failed to retrieve LArOnOffIdMapping object");
-    } else if (!larOnOffIdMappingHdl.range(rangeMapping)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for LArOnOffIdMapping object with " <<  larOnOffIdMappingHdl.key());
         return StatusCode::FAILURE;
     }
+    writeHandle.addDependency(larOnOffIdMappingHdl);
 
     // Get pointers to inputs
     // Retrieve validity ranges and determine their intersection
-    EventIDRange rangeShape, rangeAutoCorrTotal;
-
     SG::ReadCondHandle<ILArShape> ShapeHdl{ m_LArShapeObjKey };
     // FIXME: should check if handle is properly created and/or check if handle is
     // properly retrieved
@@ -147,63 +140,43 @@ StatusCode LArOFCCondAlg::execute() {
     const ILArShape *larShape{ *ShapeHdl };
     if (larShape == nullptr) {
         ATH_MSG_ERROR("Failed to retrieve LArShape object");
-    } else if (!ShapeHdl.range(rangeShape)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << ShapeHdl.key());
+	return StatusCode::FAILURE;
     }
+    writeHandle.addDependency(ShapeHdl);
 
     SG::ReadCondHandle<LArAutoCorrTotal> AutoCorrTotalHdl{ m_LArAutoCorrTotalObjKey };
     const LArAutoCorrTotal *larAutoCorrTotal = nullptr;
     larAutoCorrTotal= *AutoCorrTotalHdl;
     if (larAutoCorrTotal == nullptr) {
         ATH_MSG_ERROR("Failed to retrieve LArADC2MeV object");
-    } else if (!AutoCorrTotalHdl.range(rangeAutoCorrTotal)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << AutoCorrTotalHdl.key());
+	return StatusCode::FAILURE;
     }
-
-    // Determine intersection of the two required objects
-    EventIDRange rangeIntersection =
-        EventIDRange::intersect(rangeShape, rangeAutoCorrTotal);
-    // if ( rangeIntersection.start() > rangeIntersection.stop() ) {
-    // ATH_MSG_ERROR( "Invalid intersection range: " << rangeIntersection);
-    // return StatusCode::FAILURE;
-    //}
+    writeHandle.addDependency(AutoCorrTotalHdl);
 
     // Consider the determinstic objects
     const ILArNoise *larNoise = nullptr;
     const ILArPedestal *larPedestal = nullptr;
 
     if (m_isMC) {
-        EventIDRange rangeNoise;
         SG::ReadCondHandle<ILArNoise> NoiseHdl{ m_LArNoiseObjKey };
         larNoise = *NoiseHdl;
         if (larNoise == nullptr) {
             ATH_MSG_ERROR("Failed to retrieve object LArNoise");
-        } else if (!NoiseHdl.range(rangeNoise)) {
-            ATH_MSG_ERROR("Failed to retrieve validity range for "
-                    << NoiseHdl.key());
+	    return StatusCode::FAILURE;
         }
-        rangeIntersection.intersect(rangeIntersection, rangeNoise);
+	writeHandle.addDependency(NoiseHdl);
     } else {
-        EventIDRange rangePedestal;
         SG::ReadCondHandle<ILArPedestal> PedestalHdl{ m_LArPedestalObjKey };
         larPedestal = *PedestalHdl;
         if (larPedestal == nullptr) {
             ATH_MSG_ERROR("Failed to retrieve object LArPedestal");
-        } else if (!PedestalHdl.range(rangePedestal)) {
-            ATH_MSG_ERROR("Failed to retrieve validity range for "
-                    << PedestalHdl.key());
+	    return StatusCode::FAILURE;
         }
-        rangeIntersection.intersect(rangeIntersection, rangePedestal);
-    }
-
-    // Check sanity of final range
-    if (rangeIntersection.start() > rangeIntersection.stop()) {
-        ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
-        return StatusCode::FAILURE;
+	writeHandle.addDependency(PedestalHdl);
     }
 
     ATH_MSG_INFO("IOV found from intersection for LArOFCCondObj object: "
-            << rangeIntersection);
+		 << writeHandle.getRange());
 
     // make output object
     // dimensions: number of gains x number of channel IDs x elements of
@@ -399,7 +372,7 @@ StatusCode LArOFCCondAlg::execute() {
     } // end loop over all channels
 
 
-    ATH_CHECK(writeHandle.record(rangeIntersection,larOFC.release()));
+    ATH_CHECK(writeHandle.record(std::move(larOFC)));
     ATH_MSG_INFO("Wrote LArOFC obj to CondStore");
     return StatusCode::SUCCESS;
 }

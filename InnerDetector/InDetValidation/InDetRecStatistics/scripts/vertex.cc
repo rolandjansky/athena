@@ -10,7 +10,7 @@
 #include "TCut.h"
 #include "TLegend.h"
 
-void vertex (TTree *tree, const string plotfile= "",
+void vertex (TTree *tree, const string & plotfile= "",
              const TCut data_cut="", const TCut mc_cut="", double match=-1,
              const int s_bins=20)
 {
@@ -27,21 +27,12 @@ void vertex (TTree *tree, const string plotfile= "",
   TCut truth_cut ("track_truth_prob>"+TString::Format("%g",(match>=0?match:0.7)));
 
   tree->Project("vertexgen",    "mctrack_z0",              "abs(1/mctrack_qoverpt)>1000" && mc_cut);
+  //cppcheck-suppress incorrectStringBooleanError
   tree->Project("vertexgenrec", "track_truth_z0",          truth_cut && "abs(1/track_truth_qoverpt)>1000" && data_cut);
   tree->Project("vertexrec",    "track_z0",                "abs(1/track_qoverpt)>1000" && data_cut);
   tree->Project("vertexdiff",   "track_z0-track_truth_z0", "abs(1/track_qoverpt)>1000" && data_cut);
   
-  /*
-  TH1F *etaeff = etagenrec->Clone("etaeff");
-  etaeff->SetTitle("tracking efficiency versus eta");
-  etaeff->Reset();
-  etaeff->Divide(etagenrec,etagen,1,1);
-
-  TH1F *pteff = ptgenrec->Clone("pteff");
-  pteff->SetTitle("tracking efficiency versus P_T");
-  pteff->Reset();
-  pteff->Divide(ptgenrec,ptgen,1,1);
-  */
+ 
   
   vertexgen->GetXaxis()->SetTitle("z0 [mm]"); 
   vertexdiff->GetXaxis()->SetTitle("#Deltaz0 (gen-rec) [mm]"); 
@@ -57,7 +48,6 @@ void vertex (TTree *tree, const string plotfile= "",
   eff->cd(1); vertexgenrec->Draw("same"); 
   leg->Draw();
 
-  //eff->cd(3); vertexrec->Draw();
   eff->cd(2); vertexdiff->Draw();
 
   if (plotfile != "") eff->Print(plotfile.c_str());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,6 +33,6 @@ AODCollWidget * AODCollWidget::Imp::theclass = 0;
 void AODCollWidget::sortSections(QList<QString>& sections)
 {
   Imp::theclass = this;//I guess this is not really threadsafe...
-  qSort(sections.begin(),sections.end(),Imp::sectionSorting);
+  std::sort(sections.begin(),sections.end(),Imp::sectionSorting);
   Imp::theclass = 0;
 }

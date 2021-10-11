@@ -77,7 +77,7 @@ void compare (const Muon::MdtPrepDataContainer& p1,
 
 void testit (const Muon::MdtPrepDataContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::MdtPrepDataContainerCnv_p1 cnv;
   MdtPrepDataContainerCnv_tlp1 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());
@@ -114,7 +114,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
         (clusId,
          clusHash,
          driftRadius,
-         std::make_unique<Amg::MatrixX>(cov),
+         std::move(cov),
          std::vector<Identifier> (rdoList),
          muo_dd.getMdtReadoutElement (clusId),
          4.5 + offs,

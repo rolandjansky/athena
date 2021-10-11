@@ -39,7 +39,7 @@ namespace Muon
             double fW;          /**< Weight */
             double fChi2;       /**< Contribution to the Chi2 */
             bool   bExclude;    /**< If set, exclude the point from all calculations */
-            void*  pData;       /**< Any external data provided by the caller */
+            const void*   pData;       /**< Any external data provided by the caller */
 
             /**
              * Default constructor
@@ -53,7 +53,7 @@ namespace Muon
              * \param fY The Y coordinate
              * \param fW The weight
              */
-            Point(int nIdx, double fX, double fY, double fW = 1.0, void* pData = NULL);
+            Point(int nIdx, double fX, double fY, double fW = 1.0, const void* pData = nullptr);
         };
 
         typedef std::vector<Point*> PointArray;     /**< A vector of points */
@@ -141,7 +141,7 @@ namespace Muon
     {
     }
 
-    inline Fit2D::Point::Point(int nIdx, double fX, double fY, double fW, void* pData) :
+    inline Fit2D::Point::Point(int nIdx, double fX, double fY, double fW, const void*  pData) :
     nIdx(nIdx), fX(fX), fY(fY), fW(fW), fChi2(0.0), bExclude(false), pData(pData)
     {
     }

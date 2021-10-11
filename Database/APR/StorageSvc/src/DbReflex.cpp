@@ -39,13 +39,13 @@ void genMD5(const string& s, void* code);
 
 typedef map<Guid,TypeH> GuidMap;
 static GuidMap& guid_mapping()  {
-  static GuidMap s_map;
+  static GuidMap s_map ATLAS_THREAD_SAFE; // protected by guidMapMutex
   return s_map;
 }
 
 typedef map<TypeH,Guid> TypeMap;
 static TypeMap& type_mapping()  {
-  static TypeMap s_map;
+  static TypeMap s_map ATLAS_THREAD_SAFE; // protected by guidMapMutex
   return s_map;
 }
 

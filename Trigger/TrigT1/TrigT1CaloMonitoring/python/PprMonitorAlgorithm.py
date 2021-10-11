@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 def PprMonitoringConfig(inputFlags):
@@ -10,10 +10,6 @@ def PprMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
-
-    # any things that need setting up for job e.g.
-    #from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    #result.merge(AtlasGeometryCfg(inputFlags))
 
     # make the athena monitoring helper
     from AthenaMonitoring import AthMonitorCfgHelper

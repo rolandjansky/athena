@@ -67,7 +67,7 @@ double EMTrackFit::parameter(egammaParameters::ParamDef key) const
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
 
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) {
       result = (*p).second;
       break;
@@ -84,11 +84,11 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
     set_parameterInt(key,(int)value,overwrite);
   }
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
 
   std::vector<elParams>::iterator p = m_parameters.begin();
 
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -109,12 +109,12 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
 // ==================================================================
 int EMTrackFit::intParameter(egammaParameters::ParamDef key) const
 {
-  typedef std::pair<egammaParameters::ParamDef,int> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, int>;
 
   int result = (int)egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parametersInt.begin();
 
-  for (;p !=m_parametersInt.end(); p++) {
+  for (;p !=m_parametersInt.end(); ++p) {
     if ( (*p).first == key ){
       result = (*p).second;
       break;
@@ -127,11 +127,11 @@ int EMTrackFit::intParameter(egammaParameters::ParamDef key) const
 // ===================================================================
 void EMTrackFit::set_parameterInt(egammaParameters::ParamDef key, int value, bool overwrite) {
 
-  typedef std::pair<egammaParameters::ParamDef,int> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, int>;
 
   std::vector<elParams>::iterator p = m_parametersInt.begin();
 
-  for (;p !=m_parametersInt.end(); p++) {
+  for (;p !=m_parametersInt.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 

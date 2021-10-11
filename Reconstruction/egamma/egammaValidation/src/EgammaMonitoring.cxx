@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -50,7 +50,7 @@ StatusCode EgammaMonitoring::initialize() {
   ATH_CHECK(cluster10GeV->initializePlots());
   ATH_CHECK(clusterPromptAll->initializePlots());
   ATH_CHECK(clusterPrompt10GeV->initializePlots());
-  ATH_CHECK(isolationAll->initializePlots());
+  ATH_CHECK(isolationAll->initializePlots(m_sampleType == "electron"));
 
   if ("electron" == m_sampleType) {
 
@@ -84,21 +84,16 @@ StatusCode EgammaMonitoring::initialize() {
     truthRecoElectronTightLH = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
       "truthRecoElectronTightLH","TLH Electrons Reco Electron", "/MONITORING/truthRecoElectronTightLH/", rootHistSvc);
 
-    recoElectronIsoFixedCutTightTrackOnly = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
-      "recoElectronIsoFixedCutTightTrackOnly","Isolation Fixed Cut Tight Track Only Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTightTrackOnly/", rootHistSvc);
-
     ATH_CHECK(recoElectronAll->initializePlots());
     ATH_CHECK(truthRecoElectronLooseLH->initializePlots());
     ATH_CHECK(truthRecoElectronMediumLH->initializePlots());
     ATH_CHECK(truthRecoElectronTightLH->initializePlots());
-    ATH_CHECK(truthElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronAll->initializePlots());
+    ATH_CHECK(truthElectronAll->initializePlots(true));
+    ATH_CHECK(truthPromptElectronAll->initializePlots(true));
     ATH_CHECK(truthElectronRecoElectronAll->initializePlots());
-    ATH_CHECK(truthPromptElectronWithTrack->initializePlots());
-    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots());
+    ATH_CHECK(truthPromptElectronWithTrack->initializePlots(true));
+    ATH_CHECK(truthPromptElectronWithGSFTrack->initializePlots(true));
     ATH_CHECK(truthPromptElectronWithReco->initializePlots());
-    ATH_CHECK(recoElectronIsoFixedCutTightTrackOnly->initializePlots());
-
   } // electron Hists
 
   if ("gamma" == m_sampleType) {
@@ -364,7 +359,6 @@ StatusCode EgammaMonitoring::initialize() {
 
   //*****************Iso Requirements********************
   ATH_CHECK(m_IsoFixedCutTight.retrieve());
-  ATH_CHECK(m_IsoFixedCutTightTrackOnly.retrieve());
   ATH_CHECK(m_IsoFixedCutTightCaloOnly.retrieve());
   ATH_CHECK(m_IsoFixedCutLoose.retrieve());
   //*****************MC Truth Classifier Requirement********************
@@ -434,7 +428,7 @@ StatusCode EgammaMonitoring::execute() {
 
 
     ATH_MSG_DEBUG( "------------ Truth Egamma Container ---------------" );
-    for (auto egtruth : *egTruthParticles) {
+    for (const auto *egtruth : *egTruthParticles) {
 
       if (!egtruth) continue;
 
@@ -454,7 +448,7 @@ StatusCode EgammaMonitoring::execute() {
 
     ATH_MSG_DEBUG( "------------ Truth Particles Container ---------------" );
     unsigned int promtpElectronTruthIndex = - 9;
-    for (auto truth : *truthParticles) {
+    for (const auto *truth : *truthParticles) {
 
       if (!truth) continue;
       if (fabs(truth->pdgId()) != 11) continue;
@@ -491,7 +485,7 @@ StatusCode EgammaMonitoring::execute() {
 
     bool foundPromptElectron = false;
 
-    for (auto tp : *InDetTracks) {
+    for (const auto *tp : *InDetTracks) {
 
       if (!tp) continue;
 
@@ -544,7 +538,7 @@ StatusCode EgammaMonitoring::execute() {
 
     foundPromptElectron = false;
 
-    for (auto gsf : *GSFTracks) {
+    for (const auto *gsf : *GSFTracks) {
 
       if (!gsf) continue;
 
@@ -616,7 +610,7 @@ StatusCode EgammaMonitoring::execute() {
 
     foundPromptElectron = false;
 
-    for (auto elrec : *RecoEl) {
+    for (const auto *elrec : *RecoEl) {
 
       if (!elrec) continue;
       clusterAll->fill(*elrec,mu);
@@ -649,8 +643,6 @@ StatusCode EgammaMonitoring::execute() {
         if (m_LooseLH->accept(elrec)) truthRecoElectronLooseLH->fill(truth,elrec);
         if (m_MediumLH->accept(elrec)) truthRecoElectronMediumLH->fill(truth,elrec);
         if (m_TightLH->accept(elrec)) truthRecoElectronTightLH->fill(truth,elrec);
-        if (m_IsoFixedCutTightTrackOnly->accept(*elrec)) recoElectronIsoFixedCutTightTrackOnly->fill(truth,elrec);
-
       } else {
         const xAOD::TruthParticle *firstElTruth = xAOD::EgammaHelpers::getBkgElectronMother(truth);
         if (!firstElTruth) continue;
@@ -664,7 +656,6 @@ StatusCode EgammaMonitoring::execute() {
             if (m_LooseLH->accept(elrec)) truthRecoElectronLooseLH->fill(firstElTruth,elrec);
             if (m_MediumLH->accept(elrec)) truthRecoElectronMediumLH->fill(firstElTruth,elrec);
             if (m_TightLH->accept(elrec)) truthRecoElectronTightLH->fill(firstElTruth,elrec);
-            if (m_IsoFixedCutTightTrackOnly->accept(*elrec)) recoElectronIsoFixedCutTightTrackOnly->fill(firstElTruth,elrec);
           }
 
         }
@@ -685,7 +676,7 @@ StatusCode EgammaMonitoring::execute() {
       return StatusCode::FAILURE;
     }
 
-    for (auto phrec : *RecoPh) {
+    for (const auto *phrec : *RecoPh) {
 
       if (!phrec) continue;
 
@@ -702,7 +693,7 @@ StatusCode EgammaMonitoring::execute() {
 
     } // RecoPh Loop
 
-    for (auto egtruth : *egTruthParticles) {
+    for (const auto *egtruth : *egTruthParticles) {
 
       if (!egtruth) continue;
 
@@ -805,13 +796,13 @@ StatusCode EgammaMonitoring::execute() {
 
     //loop over InDetTrackParticles
 
-    const xAOD::TrackParticleContainer* InDetTPs = 0;
+    const xAOD::TrackParticleContainer* InDetTPs = nullptr;
     if(!evtStore()->retrieve(InDetTPs, "InDetTrackParticles").isSuccess()) {
       Error("execute()", "Failed to retrieve InDetTrackParticles. Exiting.");
       return StatusCode::FAILURE;
     }
 
-    for(auto tp : *InDetTPs) {
+    for(const auto *tp : *InDetTPs) {
 
       InDetTracks->fill(*tp, mu);
       if(matchedToElectron(*tp)) InDetTracksMatchElectron->fill(*tp, mu);
@@ -869,8 +860,6 @@ StatusCode EgammaMonitoring::finalize() {
     ATH_CHECK(recoElectronMediumLHEfficiency.divide(truthRecoElectronMediumLH.get(), truthPromptElectronAll.get()));
     egammaMonitoring::EfficiencyPlot recoElectronTightLHEfficiency("recoElectronTightLHEfficiency", "/MONITORING/recoElectronTightLHEfficiency/", rootHistSvc );
     ATH_CHECK(recoElectronTightLHEfficiency.divide( truthRecoElectronTightLH.get(), truthPromptElectronAll.get()));
-    egammaMonitoring::EfficiencyPlot recoElectronIsoFixedCutTightTrackOnlyEfficiency("recoElectronIsoFixedCutTightTrackOnlyEfficiency", "/MONITORING/recoElectronIsoFixedCutTightTrackOnlyEfficiency/", rootHistSvc );
-    ATH_CHECK(recoElectronIsoFixedCutTightTrackOnlyEfficiency.divide( recoElectronIsoFixedCutTightTrackOnly.get(), truthPromptElectronWithReco.get()));
   }
 
   if ("gamma" == m_sampleType) {

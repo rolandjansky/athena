@@ -95,9 +95,5 @@ class WriteMuonD3PD (JobProperty):
 jobproperties.D3PDProdFlags.add_JobProperty (WriteMuonD3PD)
 listAllKnownD3PD.append (prodFlags.WriteMuonD3PD)
 
-
-# Jet tag D3PDs
-_importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
-
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')

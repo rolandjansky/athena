@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_CONTAINER_H
@@ -26,7 +26,7 @@ namespace pool {
     class Container : virtual public IContainer,
                       virtual public ITechnologySpecificAttributes {
     public:
-      Container( const FileDescriptor& fileDescriptor,
+      Container( FileDescriptor& fileDescriptor,
                  IStorageExplorer& storageExplorer,
                  long technology,
                  const std::string& name );
@@ -35,36 +35,38 @@ namespace pool {
       ~Container();
       
       /// Returns the name (fid) of the parent database
-      const std::string& parentDatabaseName() const;
+      virtual const std::string& parentDatabaseName() const override;
 
       /// Returns the technology identifier for this container
-      long technology() const;
+      virtual long technology() const override;
 
       /** Starts an iteration over the tokens in the container.
        *  Returns a token iterator whose ownership is passed to the user.
        */
-      ITokenIterator* tokens( const std::string& selection );
+      virtual ITokenIterator* tokens( const std::string& selection ) override;
       
       /// Returns the object holding the technology specific attributes for a given technology domain
-      const ITechnologySpecificAttributes& technologySpecificAttributes() const;
-      ITechnologySpecificAttributes& technologySpecificAttributes();
+      virtual const ITechnologySpecificAttributes& technologySpecificAttributes() const override;
+      virtual ITechnologySpecificAttributes& technologySpecificAttributes() override;
 
     protected:
       /// The actual method returning the attribute data given a name
+      virtual
       bool attributeOfType( const std::string& attributeName,
                             void* data,
                             const std::type_info& typeInfo,
-                            const std::string& option ) const;
+                            const std::string& option ) override;
 
       /// The actual method setting the attribute data given a name
+      virtual
       bool setAttributeOfType( const std::string& attributeName,
                                const void* data,
                                const std::type_info& typeInfo,
-                               const std::string& option );
+                               const std::string& option ) override;
 
     private:
       /// Reference to file descriptor of the parent database
-      const FileDescriptor& m_fileDescriptor;
+      FileDescriptor& m_fileDescriptor;
       
       /// Reference to the storage explorer
       IStorageExplorer& m_storageExplorer;

@@ -29,4 +29,6 @@ def ClusterTimeProjectionMMClusterBuilderTool(name="ClusterTimeProjectionMMClust
 ##
 def SimpleSTgcClusterBuilderTool(name="SimpleSTgcClusterBuilderTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__SimpleSTgcClusterBuilderTool(name,**kwargs)
-    
+
+def CaruanaSTgcClusterBuilderTool(name="CaruanaSTgcClusterBuilderTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__CaruanaSTgcClusterBuilderTool(name,**kwargs)

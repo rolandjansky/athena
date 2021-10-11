@@ -37,9 +37,24 @@ void SqliteRecordset::getData(sqlite3* db, const std::string& nodeName)
   m_nodeName = nodeName;
 
   std::ostringstream sql;
-  sql << "select * from " << m_nodeName << " order by " << m_nodeName << "_data_id";
+
+  // First check if the table exists in the database
+  sql << "select * from " << m_nodeName;
+  sqlite3_stmt* stTable{nullptr};
+  int rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &stTable, NULL);
+  if(rc!=SQLITE_OK) {
+    ATH_MSG_INFO(m_nodeName << " table is not found in the database");
+    return;
+  }
+
+  sql << " order by " << m_nodeName << "_data_id";
   sqlite3_stmt* st{nullptr};
-  int rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &st, NULL);
+  rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &st, NULL);
+  if(rc!=SQLITE_OK) {
+    ATH_MSG_ERROR("Error occurred when preparing to fetch data for " << m_nodeName);
+    ATH_MSG_ERROR("SQLite Error: " << sqlite3_errmsg(db));
+    return;
+  }
   int ctotal = sqlite3_column_count(st);
 
   bool all_ok{true};
@@ -98,16 +113,12 @@ void SqliteRecordset::getData(sqlite3* db, const std::string& nodeName)
       }
       m_records.push_back(record);
     }
-    else if(rc == SQLITE_ERROR) {
-      ATH_MSG_ERROR(sqlite3_errmsg(db));
-      all_ok = false;
-      break;
-    }
     else if(rc == SQLITE_DONE) {
       break;
     }
     else {
-      ATH_MSG_ERROR("Unexpected error occurred while fetching " << m_nodeName);
+      ATH_MSG_ERROR("Error occurred when fetching data for " << m_nodeName);
+      ATH_MSG_ERROR("SQLite Error: " << sqlite3_errmsg(db));
       all_ok = false;
       break;
     }

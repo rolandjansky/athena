@@ -435,7 +435,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 }
 
 const char * TileRawChannelBuilder::BadPatternName(float ped) {
-  static const char * const errname[25] = {
+  static const char * const errname[26] = {
       "-10 - good signal",
       "-9 - underflow",
       "-8 - overflow",
@@ -460,7 +460,7 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
       "11 - jump down in last sample in low gain",
       "12 - jump up in one sample above const",
       "13 - jump down in one sample below const",
-      "14 - unrecoverable timing jump"
+      "14 - unrecoverable timing jump",
       "15 - unknown error"
   };
   

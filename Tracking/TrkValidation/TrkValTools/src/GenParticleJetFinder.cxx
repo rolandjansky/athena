@@ -44,7 +44,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 {
   if (GenStableCharged.size() == 0) {
     ATH_MSG_INFO ("no selected charged particles!");
-    return NULL;
+    return nullptr;
   }
   std::vector< Trk::GenParticleJet >* myJets 
     = new std::vector< Trk::GenParticleJet >;
@@ -59,7 +59,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 
   std::vector<Trk::GenParticleJet>::iterator iAtMin, jAtMin;
 
-  for( auto  i = GenStableCharged.begin() ; i < GenStableCharged.end();  i++){
+  for( auto  i = GenStableCharged.begin() ; i < GenStableCharged.end();  ++i){
     totalEnergyFromTracks = totalEnergyFromTracks + (*i)->momentum().e();
     Trk::GenParticleJet tempPJ;
     tempPJ.addParticle( *i, int(i - GenStableCharged.begin()) );
@@ -70,9 +70,9 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
   do {   
     combineParticles = false;
     yijmin=100.;
-    for( std::vector<Trk::GenParticleJet>::iterator i = myJets->begin() ; i<myJets->end(); i++) {
+    for( std::vector<Trk::GenParticleJet>::iterator i = myJets->begin() ; i<myJets->end(); ++i) {
 
-      for( std::vector<Trk::GenParticleJet>::iterator j = myJets->begin() ; j<myJets->end(); j++) {
+      for( std::vector<Trk::GenParticleJet>::iterator j = myJets->begin() ; j<myJets->end(); ++j) {
 
         if (i!=j) {
 
@@ -85,7 +85,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
             ATH_MSG_WARNING ("JetMCFinder: momenta / total energy is 0, "
                   << "can't continue calculations." );
             delete myJets;
-            return NULL;
+            return nullptr;
 
           } else {
             yij=2*(i->getEnergy())*(j->getEnergy())/pow(totalEnergyFromTracks,2)*(1-(IdotJ/(absI*absJ)));
@@ -126,7 +126,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 
 		  ATH_MSG_WARNING ("No particles in this jet, logic failed, stop finder." );
           delete myJets;
-		  return NULL;
+		  return nullptr;
 		}
         myJets->erase(jAtMin);
       }
@@ -145,19 +145,19 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
         else {
           ATH_MSG_WARNING ( "No particles in this jet, logic failed, stop finder." );
           delete myJets;
-          return NULL;
+          return nullptr;
         }
         myJets->erase(iAtMin);
       }
     }
     int currentNumParts = 0;
-    for(std::vector<Trk::GenParticleJet>::iterator k = myJets->begin(); k<myJets->end(); k++)
+    for(std::vector<Trk::GenParticleJet>::iterator k = myJets->begin(); k<myJets->end(); ++k)
       currentNumParts = currentNumParts + k->getNumParticles();
 
     if(numParts != currentNumParts){
       ATH_MSG_WARNING ( "Losing particles in jets!!" );
       delete myJets;
-      return NULL;
+      return nullptr;
     }
     if(partIterations==999)
       ATH_MSG_INFO ( "JetMCFinder cut off because of too many (1000) iterations");

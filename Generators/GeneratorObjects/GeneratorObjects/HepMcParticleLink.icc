@@ -318,7 +318,7 @@ HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= nullptr*/)
  */
 inline
 HepMcParticleLink::HepMcParticleLink (const EventContext& ctx)
-  : HepMcParticleLink (ctx.getExtension<Atlas::ExtendedEventContext>().proxy())
+  : HepMcParticleLink (Atlas::getExtendedEventContext(ctx).proxy())
 {
 }
 
@@ -391,7 +391,7 @@ HepMcParticleLink::HepMcParticleLink (barcode_type barCode,
                                       PositionFlag positionFlag,
                                       const EventContext& ctx)
   : HepMcParticleLink (barCode, eventIndex, evColl, positionFlag,
-                       ctx.getExtension<Atlas::ExtendedEventContext>().proxy())
+                       Atlas::getExtendedEventContext(ctx).proxy())
 {
 }
 
@@ -440,7 +440,7 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
                                       PositionFlag positionFlag,
                                       const EventContext& ctx)
   : HepMcParticleLink (part, eventIndex, evColl, positionFlag,
-                       ctx.getExtension<Atlas::ExtendedEventContext>().proxy())
+                       Atlas::getExtendedEventContext(ctx).proxy())
 {
 }
 

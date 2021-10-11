@@ -1,53 +1,53 @@
-Tue Oct  6 19:46:10 CEST 2020
+Tue Jun  1 21:16:05 CEST 2021
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.19] [x86_64-centos7-gcc8-opt] [master-refs/ea3e66422c4] -- built on [2020-10-06T1923]
+Py:Athena            INFO using release [WorkDir-22.0.37] [x86_64-centos7-gcc8-dbg] [atlas-work3/e3ed65c80d6] -- built on [2021-06-01T1750]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/CondReader_jo.py"
 Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5569 configurables from 10 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5048 configurables from 35 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
-EventInfoMgtInit: Got release version  Athena-22.0.19
+EventInfoMgtInit: Got release version  Athena-22.0.37
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:Athena            INFO including file "DataModelRunTests/commonTrailer.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
-                                          running on aibuild028.cern.ch on Tue Oct  6 19:46:21 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r1)
+                                          running on lxplus714.cern.ch on Tue Jun  1 21:16:41 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3308 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 3151 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1971 CLIDRegistry entries for module ALL
-CondInputLoader      INFO Initializing CondInputLoader...
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host aibuild028.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-dbg/2021-05-31T2101/Athena/22.0.37/InstallArea/x86_64-centos7-gcc8-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus714.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbFolder          INFO Read from meta data only for folder /TagInfo
 IOVDbSvc             INFO Initialised with 2 connections and 5 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1629 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+TagInfoMgr           INFO   AlgTool: TagInfoMgr.IOVDbMetaDataTool
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
+ClassIDSvc           INFO getRegistryEntries: read 3637 CLIDRegistry entries for module ALL
+CondInputLoader      INFO Initializing CondInputLoader...
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
@@ -57,6 +57,7 @@ IOVDbSvc             INFO Added taginfo remove for /DMTest/RLTest
 IOVDbSvc             INFO Added taginfo remove for /DMTest/S2
 IOVDbSvc             INFO Added taginfo remove for /DMTest/TSTest
 IOVDbSvc             INFO Added taginfo remove for /DMTest/TestAttrList
+ClassIDSvc           INFO getRegistryEntries: read 12 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Adding base classes:
   +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/RLTest' )   ->
   +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TSTest' )   ->
@@ -68,18 +69,17 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
     +  ( 'DMTest::S1' , 'ConditionStore+/DMTest/S2' ) 
     +  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' ) 
-ClassIDSvc           INFO  getRegistryEntries: read 452 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 271 CLIDRegistry entries for module ALL
-xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
-xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
-xAODMaker::Even...WARNING Beam conditions service not available
-xAODMaker::Even...WARNING Will not fill beam spot information into xAOD::EventInfo
+ClassIDSvc           INFO getRegistryEntries: read 452 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 271 CLIDRegistry entries for module ALL
+xAODMaker::Even...   INFO Initializing xAODMaker::EventInfoCnvAlg
+xAODMaker::Even...   INFO Beam conditions service not available
+xAODMaker::Even...   INFO Will not fill beam spot information into xAOD::EventInfo
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 9320 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 8690 CLIDRegistry entries for module ALL
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/RLTest'
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/TSTest'
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/TestAttrList'
@@ -87,21 +87,22 @@ CondInputLoader      INFO created CondCont<DMTest::S2> with key 'ConditionStore+
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
-EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 04EAD7FD-B145-8B49-BF7D-419CCEC08071
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] FA09CDCE-56C9-5B40-9C1E-341EDDF7D02B
 Domain[ROOT_All]     INFO                           condtest.pool.root
-RootDatabase.open    INFO condtest.pool.root File version:62200
+RootDatabase.open    INFO condtest.pool.root File version:62400
 DMTest::CondRea...   INFO Event 0 LBN 0
 DMTest::CondRea...   INFO   xint xint (int) : 10
 DMTest::CondRea...   INFO   scond 1000
@@ -110,6 +111,9 @@ DMTest::CondRea...   INFO   rl xint (int) : 1
 DMTest::CondRea...   INFO   ts xint (int) : 100
 DMTest::CondRea...   INFO   s3 101
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
+condtest.pool.root   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FA09CDCE-56C9-5B40-9C1E-341EDDF7D02B
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 DMTest::CondRea...   INFO Event 1 LBN 0
 DMTest::CondRea...   INFO   xint xint (int) : 10
@@ -156,6 +160,11 @@ DMTest::CondRea...   INFO   ts xint (int) : 200
 DMTest::CondRea...   INFO   s3 202
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] FA09CDCE-56C9-5B40-9C1E-341EDDF7D02B
+Domain[ROOT_All]     INFO                           condtest.pool.root
+RootDatabase.open    INFO condtest.pool.root File version:62400
 DMTest::CondRea...   INFO Event 6 LBN 2
 DMTest::CondRea...   INFO   xint xint (int) : 30
 DMTest::CondRea...   INFO   scond 3000
@@ -371,23 +380,21 @@ DMTest::CondRea...   INFO   rl xint (int) : 7
 DMTest::CondRea...   INFO   ts xint (int) : 900
 DMTest::CondRea...   INFO   s3 907
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #0 30 events processed so far  <<<===
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 04EAD7FD-B145-8B49-BF7D-419CCEC08071
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FA09CDCE-56C9-5B40-9C1E-341EDDF7D02B
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 LoadReadDicts        INFO Finalizing LoadReadDicts...
-IncidentProcAlg2     INFO Finalize
-EventSelector        INFO finalize
 PyComponentMgr       INFO Finalizing PyComponentMgr...
-IOVDbFolder          INFO Folder /DMTest/RLTest (AttrList) db-read 4/7 objs/chan/bytes 28/1/112 ((     0.02 ))s
-IOVDbFolder          INFO Folder /DMTest/S2 (PoolRef) db-read 4/5 objs/chan/bytes 60/1/10860 ((     0.01 ))s
-IOVDbFolder          INFO Folder /DMTest/TSTest (AttrList) db-read 4/9 objs/chan/bytes 36/1/144 ((     0.00 ))s
-IOVDbFolder          INFO Folder /DMTest/TestAttrList (AttrList) db-read 4/10 objs/chan/bytes 120/1/480 ((     0.01 ))s
-IOVDbSvc             INFO  bytes in ((      0.03 ))s
+IOVDbFolder          INFO Folder /DMTest/RLTest (AttrList) db-read 4/7 objs/chan/bytes 28/1/112 ((     0.06 ))s
+IOVDbFolder          INFO Folder /DMTest/S2 (PoolRef) db-read 4/5 objs/chan/bytes 60/1/10860 ((     0.03 ))s
+IOVDbFolder          INFO Folder /DMTest/TSTest (AttrList) db-read 4/9 objs/chan/bytes 36/1/144 ((     0.02 ))s
+IOVDbFolder          INFO Folder /DMTest/TestAttrList (AttrList) db-read 4/10 objs/chan/bytes 120/1/480 ((     0.03 ))s
+IOVDbSvc             INFO  bytes in ((      0.14 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection sqlite://;schema=condtest.db;dbname=OFLP200 : nConnect: 5 nFolders: 4 ReadTime: ((     0.03 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=condtest.db;dbname=OFLP200 : nConnect: 5 nFolders: 4 ReadTime: ((     0.14 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ChronoStatSvc.f...   INFO  Service finalized successfully 

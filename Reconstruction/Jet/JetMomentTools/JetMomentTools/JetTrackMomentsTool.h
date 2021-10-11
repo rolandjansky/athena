@@ -58,6 +58,7 @@ private:
   // Configurable parameters
   Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for input jet container"};
   Gaudi::Property<std::string> m_assocTracksName{this, "AssociatedTracks", "", "Name of associated tracks collection"};
+  Gaudi::Property<std::string> m_suffix{this, "MomentSuffix", "", "Suffix for track moment decorations"};
   Gaudi::Property<std::vector<float> > m_minTrackPt{this, "TrackMinPtCuts", {}, "Vector of track pt cuts"};
   Gaudi::Property<bool> m_doPFlowMoments{this, "DoPFlowMoments", false, "Calculate PFlow Object track moments?"};
 

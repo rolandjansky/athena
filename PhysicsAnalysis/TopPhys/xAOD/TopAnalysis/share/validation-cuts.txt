@@ -52,8 +52,6 @@ PerfStats No
 
 ### Systematics configuration
 Systematics Nominal
-JetUncertainties_NPModel CategoryReduction
-LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
@@ -68,7 +66,6 @@ PhotonID Tight
 PhotonIDLoose Loose
 PhotonIsolation FixedCutTight
 PhotonIsolationLoose FixedCutLoose
-PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
@@ -88,8 +85,6 @@ TauJetIDWP RNNMedium
 TauJetIDWPLoose RNNLoose
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
-TauEleOLR False
-TauEleOLRLoose False
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False
@@ -97,7 +92,6 @@ DoTight Both
 DoLoose Data
 
 # Turn on MetaData to pull IsAFII from metadata
-UseAodMetaData True
 #IsAFII False
 
 ### B-tagging configuration

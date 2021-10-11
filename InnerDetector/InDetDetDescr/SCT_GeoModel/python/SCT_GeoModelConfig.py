@@ -3,6 +3,7 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def SCT_GeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -31,7 +32,20 @@ def SCT_GeometryCfg( flags ):
             sctAlignCondAlg = SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
                                                UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic)
             acc.addCondAlgo(sctAlignCondAlg)
-            SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
-            sctDetectorElementCondAlg = SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
-            acc.addCondAlgo(sctDetectorElementCondAlg)
+
+            acc.merge(SCT_DetectorElementCondAlgCfg(flags))
+    return acc
+
+def SCT_DetectorElementCondAlgCfg(flags, name = "SCT_DetectorElementCondAlg", **kwargs):
+
+    def merge_lists(a, b):
+        a.extend([item for item in b if item not in a])
+        return a
+    SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
+    sctDetectorElementCondAlg = SCT_DetectorElementCondAlg(name, **kwargs)
+    acc = ComponentAccumulator()
+    sctDetectorElementCondAlg._descriptors['MuonManagerKey'].semantics.merge = merge_lists
+    sctDetectorElementCondAlg._descriptors['TRT_DetEltContKey'].semantics.merge = merge_lists
+    sctDetectorElementCondAlg._descriptors['PixelAlignmentStore'].semantics.merge = merge_lists
+    acc.addCondAlgo(sctDetectorElementCondAlg)
     return acc

@@ -15,7 +15,6 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/IDynamicLayerCreator.h"
-//#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkDetDescrUtils/SharedObject.h"
@@ -35,20 +34,13 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
-#include "TrkSurfaces/PlaneSurface.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include <memory>
-// CLHEP
-//#include "CLHEP/Geometry/Transform3D.h"
+//#include "TrkSurfaces/PlaneSurface.h"
 
-//using HepGeom::Transform3D;
-//using HepGeom::Translate3D;
-//using HepGeom::RotateZ3D;
-//using HepGeom::Vector3D;
-//using CLHEP::Hep3Vector;
-//using CLHEP::HepRotation;
-//using CLHEP::mm;
-//using CLHEP::radian;
+#include "AthenaKernel/IOVInfiniteRange.h"
+
+#include "GaudiKernel/SystemOfUnits.h"
+
+#include <memory>
 
 // constructor
 Calo::CaloTrackingGeometryBuilderCond::CaloTrackingGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
@@ -219,7 +211,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
   
   //TODO/FIXME: just passing on range, no Calo IOV range used
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
   const Trk::TrackingVolume* innerVol = nullptr;
   if(tVolPair.second != nullptr){
     range = tVolPair.first;
@@ -525,8 +517,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
        //float d = mbtsBounds->halflengthZ();
        Trk::DiscBounds* dibo = new Trk::DiscBounds(rmin,rmax);
        // MBTS positions
-       Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
-       Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
+       Amg::Transform3D mbtsNegZpos = Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
+       Amg::Transform3D mbtsPosZpos = Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
        // create the two Layers ( TODO: add trd surface subarray )
        Trk::DiscLayer* mbtsNegLayer = new Trk::DiscLayer(mbtsNegZpos,dibo,
                                                          //mbtsNegLayerSurfArray,
@@ -855,7 +847,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    if ( rFcalBP > lArPositiveFcalBounds->innerRadius()) {
      ATH_MSG_ERROR("PROBLEM : beam pipe collide with Fcal:"<< rFcalBP <<">" << lArPositiveFcalBounds->innerRadius()<<", abort" );  
      // create dummy infinite IOV Range 
-     EventIDRange range;
+     EventIDRange range=IOVInfiniteRange::infiniteMixed();
      return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range,0);
      
    }

@@ -17,9 +17,6 @@
 
 namespace Rec {
 
-    /** Interface ID for IMuidCaloEnergyMeas*/
-    static const InterfaceID IID_IMuidCaloEnergyMeas("IMuidCaloEnergyMeas", 1, 0);
-
     /**@class IMuidCaloEnergyMeas
 
     Base class for MuidCaloEnergyMeas AlgTool
@@ -33,15 +30,19 @@ namespace Rec {
     class IMuidCaloEnergyMeas : virtual public IAlgTool {
     public:
         /**Virtual destructor*/
-        virtual ~IMuidCaloEnergyMeas() {}
+        virtual ~IMuidCaloEnergyMeas() = default;
 
         /** AlgTool and IAlgTool interface methods */
-        static const InterfaceID& interfaceID() { return IID_IMuidCaloEnergyMeas; }
+        static const InterfaceID& interfaceID() { /** Interface ID for IMuidCaloEnergyMeas*/
+            static const InterfaceID IID_IMuidCaloEnergyMeas("IMuidCaloEnergyMeas", 1, 0);
+            return IID_IMuidCaloEnergyMeas;
+        }
 
         /**IMuidCaloEnergyMeas interface:
            to get the muon energy loss measurement from the calorimeter,
            knowing the track intersection at the em and had cals*/
-        virtual CaloMeas* energyMeasurement(double etaEM, double phiEM, double etaHad, double phiHad) const = 0;
+        virtual std::unique_ptr<CaloMeas> energyMeasurement(const EventContext& ctx, double etaEM, double phiEM, double etaHad,
+                                                            double phiHad) const = 0;
     };
 
 }  // namespace Rec

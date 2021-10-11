@@ -2,55 +2,151 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
 
-def TrigEgammaFastPhotonHypoToolFromDict( chainDict ):
+
+#
+# For photons
+#
+class TrigEgammaFastPhotonHypoToolConfig:
+
+  __operation_points  = [  'tight'    , 
+                           'medium'   , 
+                           'loose'    , 
+                           'etcut'    , 
+                           ]
+
+  def same( self, val ):
+    return [val]*( len( self.tool().EtaBins ) - 1 )
+
+  def __init__(self, name, cpart, tool=None):
+
+    from AthenaCommon.Logging import logging
+    self.__log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
+    self.__name       = name
+    self.__threshold  = float(cpart['threshold']) 
+    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+
+    if not tool:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaFastPhotonHypoTool(name)
+
+    self.__tool = tool
+
+    tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]  
+    tool.ETthr = self.same( 0. )
+    tool.CARCOREthr = self.same( 0.0 )
+    tool.CAERATIOthr = self.same( 0.0)
+    tool.F1thr = self.same( 0.005 )
+    tool.ET2thr = self.same( 90.0 * GeV )
+    tool.HADET2thr = self.same( 999. * GeV )
+    tool.HADETthr =  self.same( 999. * GeV ) 
+
+ 
+
+    
+    self.__log.debug( 'Chain     :%s', self.__name )
+    self.__log.debug( 'Threshold :%s', self.__threshold )
+    self.__log.debug( 'Pidname   :%s', self.__sel )
+
+
+
+  def chain(self):
+    return self.__name
+  
+  def pidname( self ):
+    return self.__sel
+
+  def etthr(self):
+    return self.__threshold
+
+  def tool(self):
+    return self.__tool
+  
+  def etcut(self):
+    self.__log.debug( 'Chain     :%s configured with etcut selection', self.chain() )
+    self.tool().ETthr = self.same( self.etthr() *GeV - 3.* GeV) # Set the eT cut 3 GeV below HLT threshold
+
+  def nocut(self):
+    self.__log.debug( 'Chain     :%s configured with nocut selection', self.chain() )
+    self.tool().AcceptAll = True
+
+  def nominal(self):
+    from TrigEgammaHypo.TrigEgammaFastCutDefs import TrigFastPhotonCutMaps
+    self.__log.debug( 'Chain     :%s configured with nominal selection', self.chain() )
+    self.tool().ETthr = self.same( self.etthr() *GeV - 3.* GeV) # Set the eT cut 3 GeV below HLT threshold
+    self.tool().CARCOREthr     = TrigFastPhotonCutMaps( self.etthr() ).MapsCARCOREthr[ self.pidname() ]
+    self.tool().CAERATIOthr    = TrigFastPhotonCutMaps( self.etthr() ).MapsCAERATIOthr [ self.pidname() ]
+    self.tool().HADETthr       = TrigFastPhotonCutMaps( self.etthr() ).MapsHADETthr[ self.pidname() ]
+    self.tool().HADET2thr = self.same(999.0 * GeV)
+    self.tool().F1thr = self.same(0.005)
+    self.tool().ET2thr = self.same( 90.0*GeV )
+
+
+  #
+  # Compile the chain
+  #
+  def compile(self):
+    if 'etcut' == self.pidname() or 'ion' in self.pidname():       
+        self.etcut()
+    elif 'noalg' == self.pidname():
+        self.nocut()
+    elif 0 == self.etthr():
+        self.nocut()
+    else:
+        self.nominal()
+
+
+    # add mon tool
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
+
+
+  #
+  # Monitoring code
+  #
+  def addMonitoring(self):
+    
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+
+    monTool = GenericMonitoringTool("MonTool"+self.chain())
+    monTool.Histograms = [
+      defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="FastPhoton Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
+      defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="FastPhoton Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
+      defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="FastPhoton Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
+      defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="FastPhoton Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2),
+    ]
+    monTool.HistPath = 'FastPhotonHypo/'+self.chain()
+    self.__tool.MonTool = monTool
+
+
+
+
+def _IncTool(name, cpart, tool=None):
+  config = TrigEgammaFastPhotonHypoToolConfig(name, cpart, tool=tool)
+  config.compile()
+  return config.tool()
+
+
+
+def TrigEgammaFastPhotonHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
-    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
-
-    name = chainDict['chainName']
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastPhotonHypoTool(name)
-
-    monTool = GenericMonitoringTool("MonTool"+name)
-    monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="FastPhoton Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
-    monTool.defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="FastPhoton Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
-    monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="FastPhoton Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
-    monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="FastPhoton Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
-
-    monTool.HistPath = 'FastPhotonHypo/'+tool.getName()
-    tool.MonTool = monTool
-
-    nt = len( thresholds )
-    tool.ETthr = [ [0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV] ] *nt
-    tool.CARCOREthr = [ [0., 0., 0., 0., 0., 0., 0., 0., 0.] ] *nt
-    tool.CAERATIOthr = [ [0., 0., 0., 0., 0., 0., 0., 0., 0.] ] *nt
-    tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47] *nt
-    tool.dETACLUSTERthr = [0.1] * nt
-    tool.dPHICLUSTERthr = [0.1] *nt 
-    tool.F1thr = [0.005] *nt
-    tool.ET2thr = [ [90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV] ] *nt
-    tool.HADET2thr = [ [999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0] ] *nt
-    tool.HADETthr = [ [0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035] ] *nt
-
-    return tool
+    cparts = [i for i in d['chainParts'] if i['signature']=='Photon' ]
+    name = d['chainName']
+    return _IncTool( name,  cparts[0] , tool=tool)
 
 
-def TrigEgammaFastPhotonHypoToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
+
+def TrigEgammaFastPhotonHypoToolFromName( name, conf , tool=None):
+    """ provides configuration of the hypo tool given the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-        
-    return TrigEgammaFastPhotonHypoToolFromDict( decodedDict )
+    return TrigEgammaFastPhotonHypoToolFromDict( decodedDict, tool=tool )
 
 
 if __name__ == "__main__":
+    
     tool = TrigEgammaFastPhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")   
     assert tool, "Not configured simple tool"
-
-    log.info("ALL OK")

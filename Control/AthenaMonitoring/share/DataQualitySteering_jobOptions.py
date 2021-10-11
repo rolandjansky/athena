@@ -13,7 +13,34 @@ TRTELEMON=False
 local_logger = logging.getLogger('DataQualitySteering_jobOptions')
 
 if DQMonFlags.doMonitoring():
-   def doOldStylePostSetup():
+   def doOldStylePreSetup():
+      # don't set up lumi access if in MC or enableLumiAccess == False
+      if globalflags.DataSource.get_Value() != 'geant4' and DQMonFlags.enableLumiAccess():
+         if athenaCommonFlags.isOnline:
+            local_logger.debug("luminosity tool not found, importing online version")
+            from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+            LuminosityCondAlgOnlineDefault()
+         else:
+            local_logger.debug("luminosity tool not found, importing offline version")
+            from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault 
+            LuminosityCondAlgDefault()
+
+         from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault 
+         LBDurationCondAlgDefault()
+
+         from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
+         TrigLiveFractionCondAlgDefault()
+
+      if DQMonFlags.monManEnvironment() == 'AOD':
+         from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+         BunchCrossingCondAlgDefault()
+
+         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+         from AthenaMonitoring.AthenaMonitoringAODRecoCfg import AthenaMonitoringAODRecoCfg
+         ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringAODRecoCfg, ConfigFlags)
+
+   def doOldStylePostSetup(addlSequences=[]):
       #------------------------#
       # Trigger chain steering #
       #------------------------#
@@ -41,21 +68,25 @@ if DQMonFlags.doMonitoring():
       # now the DQ tools are private, extract them from the set of monitoring algorithms
       toolset = set()
       from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-      for _ in topSequence:
-         if isinstance(_, AthenaMonManager):
-            toolset.update(_.AthenaMonTools)
+      local_logger.info(f'Configuring LWHist ROOT backend flag to {jobproperties.ConcurrencyFlags.NumThreads()>0} because NumThreads is {jobproperties.ConcurrencyFlags.NumThreads()}')
 
-            # in MT the initialization can be in random order ... force all managers to have common setup
-            _.FileKey             = DQMonFlags.monManFileKey()
-            _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
-            _.DataType            = DQMonFlags.monManDataType()
-            _.Environment         = DQMonFlags.monManEnvironment()
-            _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
-            _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
-            _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
-            _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
-            _.Run                 = DQMonFlags.monManRun()
-            _.LumiBlock           = DQMonFlags.monManLumiBlock()
+      for sq in [topSequence] + addlSequences:
+         for _ in sq:
+            if isinstance(_, AthenaMonManager):
+               toolset.update(_.AthenaMonTools)
+
+               # in MT the initialization can be in random order ... force all managers to have common setup
+               _.FileKey             = DQMonFlags.monManFileKey()
+               _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
+               _.DataType            = DQMonFlags.monManDataType()
+               _.Environment         = DQMonFlags.monManEnvironment()
+               _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
+               _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
+               _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
+               _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
+               _.Run                 = DQMonFlags.monManRun()
+               _.LumiBlock           = DQMonFlags.monManLumiBlock()
+               _.ROOTBackend         = (jobproperties.ConcurrencyFlags.NumThreads()>0)
 
       for tool in toolset:
          # stop lumi access if we're in MC or enableLumiAccess == False
@@ -108,23 +139,7 @@ if DQMonFlags.doMonitoring():
             local_logger.debug("trigger decision tool not found, including it now")
             include("AthenaMonitoring/TrigDecTool_jobOptions.py")
 
-
-      # don't set up lumi access if in MC or enableLumiAccess == False
-      if globalflags.DataSource.get_Value() != 'geant4' and DQMonFlags.enableLumiAccess():
-         if athenaCommonFlags.isOnline:
-            local_logger.debug("luminosity tool not found, importing online version")
-            from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
-            LuminosityCondAlgOnlineDefault()
-         else:
-            local_logger.debug("luminosity tool not found, importing offline version")
-            from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault 
-            LuminosityCondAlgDefault()
-
-         from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault 
-         LBDurationCondAlgDefault()
-
-         from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
-         TrigLiveFractionCondAlgDefault()
+      doOldStylePreSetup()
 
       #---------------------------#
       # Inner detector monitoring #
@@ -139,7 +154,7 @@ if DQMonFlags.doMonitoring():
       #----------------------------#
       # Global combined monitoring #
       #----------------------------#
-      if DQMonFlags.doGlobalMon():
+      if DQMonFlags.doDataFlowMon() or DQMonFlags.doGlobalMon():
          try:
             include("DataQualityTools/DataQualityMon_jobOptions.py")
          except Exception:
@@ -148,18 +163,19 @@ if DQMonFlags.doMonitoring():
       #--------------------#
       # Trigger monitoring #
       #--------------------#
-      if DQMonFlags.doLVL1CaloMon():
-         try:
-            include("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission.py")
-            include("TrigT1Monitoring/TrigT1Monitoring_forRecExCommission.py")
-         except Exception:
-            treatException("DataQualitySteering_jobOptions.py: exception when setting up L1 Calo monitoring")
 
       if DQMonFlags.doCTPMon():
          try:
             include("TrigT1CTMonitoring/TrigT1CTMonitoringJobOptions_forRecExCommission.py")
          except Exception:
             treatException("DataQualitySteering_jobOptions.py: exception when setting up central trigger monitoring")
+
+      if DQMonFlags.doLVL1CaloMon():
+         try:
+            include("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission.py")
+            include("TrigT1Monitoring/TrigT1Monitoring_forRecExCommission.py")
+         except Exception:
+            treatException("DataQualitySteering_jobOptions.py: exception when setting up L1 Calo monitoring")
 
       if DQMonFlags.doHLTMon():
          try:
@@ -328,62 +344,35 @@ if DQMonFlags.doMonitoring():
       doOldStylePostSetup()
 
    else:
-      local_logger.info("DQ: setting up ConfigFlags")
-      from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-      # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-      ConfigFlags = getNewConfigFlags()
       from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-      ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
-      ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
+      # schedule legacy HLT and L1 monitoring if Run 2 EDM
+      if mixedModeFlag and (DQMonFlags.doHLTMon()
+                            or DQMonFlags.doLVL1CaloMon()
+                            or DQMonFlags.doCTPMon()):
+         local_logger.info('Using mixed mode monitoring')
+         include("AthenaMonitoring/TrigDecTool_jobOptions.py")
+         doOldStylePreSetup()
 
-      ConfigFlags.Output.HISTFileName=DQMonFlags.histogramFile()
-      ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
-      ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
-      ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
-      ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
-      ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
-      ConfigFlags.DQ.isReallyOldStyle=False
-
-      from AthenaConfiguration import ComponentAccumulator
-      from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
-      from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
-      from AthenaMonitoring import AthenaMonitoringConf
-
-      Steering = ConfigFlags.DQ.Steering
-      Steering.doGlobalMon=DQMonFlags.doGlobalMon()
-      Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon()
-      Steering.doCTPMon=DQMonFlags.doCTPMon()
-      # do not enable new HLT monitoring if we are not in Run 3 EDM
-      Steering.doHLTMon=DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 3
-      Steering.doPixelMon=DQMonFlags.doPixelMon()
-      Steering.doSCTMon=DQMonFlags.doSCTMon()
-      Steering.doTRTMon=DQMonFlags.doTRTMon()
-      Steering.doInDetMon=DQMonFlags.doInDetGlobalMon()
-      Steering.doLArMon=DQMonFlags.doLArMon()
-      Steering.doTileMon=DQMonFlags.doTileMon()
-      Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()
-      Steering.Muon.doRawMon=DQMonFlags.doMuonRawMon()
-      Steering.Muon.doTrackMon=DQMonFlags.doMuonTrackMon()
-      Steering.doMuonMon=(Steering.Muon.doRawMon or Steering.Muon.doTrackMon)
-      Steering.doLucidMon=DQMonFlags.doLucidMon()
-      Steering.doAFPMon=DQMonFlags.doAFPMon()
-      Steering.doHIMon=DQMonFlags.doHIMon()
-      Steering.doEgammaMon=DQMonFlags.doEgammaMon()
-      Steering.doJetMon=DQMonFlags.doJetMon()
-      Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
-      Steering.doTauMon=DQMonFlags.doTauMon()
-      Steering.doJetTagMon=DQMonFlags.doJetTagMon()
-
-      # schedule legacy HLT monitoring if Run 2 EDM
-      if DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 2:
-         try:
-            include("AthenaMonitoring/TrigDecTool_jobOptions.py")
-            include("TrigHLTMonitoring/HLTMonitoring_topOptions.py")
-            HLTMonMan = topSequence.HLTMonManager
-            doOldStylePostSetup()
-         except Exception:
-            treatException("DataQualitySteering_jobOptions.py: exception when setting up HLT monitoring")
+         addlSequences=[]
+         if DQMonFlags.doHLTMon():
+            try:
+               include("TrigHLTMonitoring/HLTMonitoring_topOptions.py")
+            except Exception:
+               treatException("DataQualitySteering_jobOptions.py: exception when setting up HLT monitoring")
+         if DQMonFlags.doLVL1CaloMon():
+            try:
+               include("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission.py")
+               include("TrigT1Monitoring/TrigT1Monitoring_forRecExCommission.py")
+            except Exception:
+               treatException("DataQualitySteering_jobOptions.py: exception when setting up L1 Calo monitoring")
+         if DQMonFlags.doCTPMon():
+            try:
+               include("TrigT1CTMonitoring/TrigT1CTMonitoringJobOptions_forRecExCommission.py")
+               addlSequences.append(CTPMonSeq)
+            except Exception:
+               treatException("DataQualitySteering_jobOptions.py: exception when setting up central trigger monitoring")
+         doOldStylePostSetup(addlSequences)
 
       ConfigFlags.dump()
       ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringCfg, ConfigFlags)
@@ -392,5 +381,17 @@ if DQMonFlags.doMonitoring():
          local_logger.info("DQ: force ID conditions loading")
          asq = AthSequencer("AthBeginSeq")
          asq += AthenaMonitoringConf.ForceIDConditionsAlg("ForceIDConditionsAlg")
+
+   if DQMonFlags.doPostProcessing():
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      asq = AthSequencer("AthEndSeq")
+      from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
+      ppa = DQPostProcessingAlg("DQPostProcessingAlg")
+      ppa.ExtraInputs = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+      ppa.Interval = DQMonFlags.postProcessingInterval()
+      if ConfigFlags.Common.isOnline:
+         ppa.FileKey = ((ConfigFlags.DQ.FileKey + '/') if not ConfigFlags.DQ.FileKey.endswith('/') 
+                        else ConfigFlags.DQ.FileKey) 
+      asq += ppa
 
 del local_logger

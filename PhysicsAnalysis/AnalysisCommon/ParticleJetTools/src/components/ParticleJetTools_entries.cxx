@@ -10,7 +10,6 @@
 #include "ParticleJetTools/JetPartonTruthLabel.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
-#include "ParticleJetTools/JetParticleAssociationAlg.h"
 #include "ParticleJetTools/ParticleJetGhostLabelTool.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
@@ -35,5 +34,4 @@ DECLARE_COMPONENT( ParticleJetGhostLabelTool )
 DECLARE_COMPONENT( JetParticleShrinkingConeAssociation )
 DECLARE_COMPONENT( JetParticleCenterOfMassAssociation )
 DECLARE_COMPONENT( JetTruthLabelingTool )
-DECLARE_COMPONENT( JetParticleAssociationAlg )
 

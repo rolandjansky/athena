@@ -21,7 +21,6 @@ EGPhotonCleaningWrapper::EGPhotonCleaningWrapper(const std::string& t,
   , m_sgName("DFCommonPhotonsCleaning")
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
-  declareProperty("EGammaFudgeMCTool", m_fudgeMCTool);
   declareProperty("StoreGateEntryName", m_sgName);
 }
 

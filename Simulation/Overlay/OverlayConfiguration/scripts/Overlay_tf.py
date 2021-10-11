@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
-Run overlay between either pre-mixed MC background RDO or zero-bias data RDO and hard scatter HITS
+Run overlay between either presampled MC background RDO or zero-bias data RDO and hard scatter HITS
 """
 
 import sys
@@ -19,7 +19,7 @@ msg.info('logging set in %s', sys.argv[0])
 
 
 # Prodsys hack...
-ListOfDefaultPositionalKeys = ['--AMIConfig', '--AMITag', '--AddCaloDigi', '--CA', '--DBRelease', '--PileUpPremixing', '--argJSON', '--asetup', '--athena', '--athenaMPEventsBeforeFork', '--athenaMPMergeTargetSize', '--athenaMPStrategy', '--athenaMPUseEventOrders', '--athenaopts', '--attempt', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--detectors', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--eventService', '--execOnly', '--fSampltag', '--fileValidation', '--geometryVersion', '--ignoreErrors', '--ignoreFiles',
+ListOfDefaultPositionalKeys = ['--AMIConfig', '--AMITag', '--AddCaloDigi', '--CA', '--DBRelease', '--PileUpPresampling', '--argJSON', '--asetup', '--athena', '--athenaMPEventsBeforeFork', '--athenaMPMergeTargetSize', '--athenaMPStrategy', '--athenaMPUseEventOrders', '--athenaopts', '--attempt', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--detectors', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--eventService', '--execOnly', '--fSampltag', '--fileValidation', '--geometryVersion', '--ignoreErrors', '--ignoreFiles',
                                '--ignorePatterns', '--imf', '--inputBS_SKIMFile', '--inputFileValidation', '--inputHITSFile', '--inputRDO_BKGFile', '--jobid', '--maxEvents', '--multiprocess', '--multithreaded', '--outputFileValidation', '--outputRDOFile', '--outputRDO_FILTFile', '--outputRDO_SGNLFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--runNumber', '--samplingFractionDbTag', '--sharedWriter', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--steering', '--taskid', '--tcmalloc', '--triggerConfig', '--valgrind', '--valgrindDefaultOpts', '--valgrindExtraOpts']
 
 

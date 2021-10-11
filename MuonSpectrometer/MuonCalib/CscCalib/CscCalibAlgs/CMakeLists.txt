@@ -13,7 +13,7 @@ atlas_add_component( CscCalibAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests GaudiKernel CscCalibData CscCalibToolsLib MuonCSC_CnvToolsLib MuonCondInterface MuonCondData MuonReadoutGeometry MuonIdHelpersLib MuonRDO )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib GaudiKernel CscCalibData CscCalibToolsLib MuonCSC_CnvToolsLib MuonCondInterface MuonCondData MuonReadoutGeometry MuonIdHelpersLib MuonRDO )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

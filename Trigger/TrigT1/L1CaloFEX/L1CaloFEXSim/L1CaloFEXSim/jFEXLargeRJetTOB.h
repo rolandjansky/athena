@@ -21,7 +21,7 @@ namespace LVL1 {
     unsigned int m_eta;
     unsigned int m_phi;
     unsigned int m_ET;
-    unsigned int m_Sub;
+    unsigned int m_Res;
     unsigned int m_Sat;
 
 
@@ -32,7 +32,7 @@ namespace LVL1 {
     unsigned int setEta(unsigned int);
     unsigned int setPhi(unsigned int);
     unsigned int setET(unsigned int);
-    unsigned int setSub(unsigned int);
+    unsigned int setRes(unsigned int);
     unsigned int setSat(unsigned int);
 
   };

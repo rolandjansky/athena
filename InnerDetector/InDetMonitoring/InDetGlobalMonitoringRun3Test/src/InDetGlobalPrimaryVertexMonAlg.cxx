@@ -44,11 +44,10 @@ InDetGlobalPrimaryVertexMonAlg::~InDetGlobalPrimaryVertexMonAlg() {}
 
 
 StatusCode InDetGlobalPrimaryVertexMonAlg::initialize() {
-  
+
   
   ATH_CHECK( m_vxContainerName.initialize() );
-  ATH_CHECK( m_vxContainerNameWithoutBeamConstraint.initialize() );
-  ATH_CHECK( m_vxContainerNameSplit.initialize() );
+  //ATH_CHECK( m_vxContainerNameSplit.initialize() );
   
   
   return AthMonitorAlgorithm::initialize();
@@ -61,6 +60,7 @@ StatusCode InDetGlobalPrimaryVertexMonAlg::fillHistograms( const EventContext& c
   //*******************************************************************************
   //************************** Begin of filling Track Histograms ******************
   //*******************************************************************************
+
   ATH_MSG_DEBUG("Filling InDetGlobalPrimaryVertexMonAlg");
   
   // For histogram naming

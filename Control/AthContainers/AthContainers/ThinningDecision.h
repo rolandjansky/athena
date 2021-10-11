@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthContainers/ThinningDecision.h
@@ -39,10 +39,6 @@ class ThinningDecision
   : public ThinningDecisionBase, public ILockable
 {
 public:
-  /// Flag used to show that an index has been thinned away.
-  static const std::size_t RemovedIdx = ThinningDecisionBase::RemovedIdx;
-
-
   /**
    * @brief Constructor.
    * @param link Link to the container being thinned.

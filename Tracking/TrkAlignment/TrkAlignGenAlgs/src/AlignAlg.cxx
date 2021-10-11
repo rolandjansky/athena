@@ -32,8 +32,8 @@ AlignAlg::AlignAlg(const std::string& name, ISvcLocator* pSvcLocator)
   , m_trkAlignDBTool("Trk::TrkAlignDBTool", this)
   , m_fillNtupleTool("",this)
   , m_nDoF(-1)
-  , m_ntuple(0)
-  , m_logStream(0)
+  , m_ntuple(nullptr)
+  , m_logStream(nullptr)
   , m_nevents(0)
   , m_ntracks(0)
   , m_ntracksSel(0)
@@ -401,7 +401,7 @@ StatusCode AlignAlg::execute()
   if(evtStore()->record(alignTracks,m_alignTracksName,false).isFailure()) {
     ATH_MSG_ERROR("Unable to record "<<m_alignTracksName<<" in the StoreGate");
     delete alignTracks;
-    alignTracks = 0;
+    alignTracks = nullptr;
   }
   if (alignTracks) ATH_MSG_DEBUG("Recorded \'"<<m_alignTracksName<<"\' with size "<<alignTracks->size()<<" to StoreGate");
 

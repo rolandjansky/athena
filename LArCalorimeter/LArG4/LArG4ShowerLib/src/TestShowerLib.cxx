@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -160,7 +160,7 @@ bool TestShowerLib::storeShower(HepMC::ConstGenParticlePtr genParticle, const Sh
 		  return false;
 	  }
 
-	  genInfo theinfo;
+	  genInfo theinfo{};
 	  theinfo.vertex = new HepMC::FourVector(genParticle->production_vertex()->position());
 	  theinfo.momentum = new HepMC::FourVector(genParticle->momentum());
 
@@ -223,7 +223,7 @@ bool TestShowerLib::storeShower(HepMC::ConstGenParticlePtr genParticle, const Sh
 		  int nhits = (int)(e+0.1); // +0.1 just in case - c++ has low round
 		  Shower shower;
 		  shower.setZSize(time);
-		  genInfo theinfo;
+		  genInfo theinfo{};
 		  theinfo.vertex = new HepMC::FourVector(x,y,z,0);
 		  source->GetEntry(entr++);
 		  shower.setRSize(time);

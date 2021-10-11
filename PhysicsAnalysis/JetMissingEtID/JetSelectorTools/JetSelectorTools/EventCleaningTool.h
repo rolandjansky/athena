@@ -21,6 +21,8 @@
 // Base classes
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 // Local includes
 #include "IEventCleaningTool.h"
@@ -55,20 +57,18 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     virtual int keepJet(const xAOD::Jet& jet) const override; 
     
   private:
-    double m_pt; 
-    double m_eta; 
-    std::string m_jvt; 
-    std::string m_or; 
-    std::string m_prefix; 
-    bool m_decorate; 
-    bool m_useDecorations;
-    std::string m_cleaningLevel; 
+    Gaudi::Property<double>      m_pt            {this, "PtCut" ,         20000.,     "Jet pt cut"};
+    Gaudi::Property<double>      m_eta           {this, "EtaCut" ,        4.5,        "Jet eta cut"};
+    Gaudi::Property<std::string> m_prefix        {this, "JetCleanPrefix", "",         "Jet cleaning decoration prefix"}; 
+    Gaudi::Property<bool>        m_decorate      {this, "DoDecorations",  true,       "Decorate jets with cleaning decision?"}; 
+    Gaudi::Property<bool>        m_useDecorations{this, "UseDecorations", false,      "Use decorations in cleaning tool?"};
+    Gaudi::Property<std::string> m_cleaningLevel {this, "CleaningLevel",  "LooseBad", "Jet cleaning level"}; 
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool; //!
 
-    std::unique_ptr<SG::AuxElement::Decorator<char>> m_dec_jetClean;
-    std::unique_ptr<SG::AuxElement::Accessor<char>> m_acc_passJvt;
-    std::unique_ptr<SG::AuxElement::Accessor<char>> m_acc_passOR;
-
+    Gaudi::Property<std::string> m_jetContainerName          {this, "JetContainer", "",        "Input jet container key"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_passJvtKey  {this, "JvtDecorator", "passJvt", "JVT decision decoration key"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_passORKey   {this, "OrDecorator" , "passOR",  "Overlap removal decision decoration key"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_jetCleanKey{this, "JetCleanKey" , "",        "Jet-level cleaning decoration key (autoconfigured)"};
 
 }; // End: class definition
 }//ECUtils

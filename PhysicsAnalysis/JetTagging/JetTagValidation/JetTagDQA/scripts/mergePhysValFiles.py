@@ -12,7 +12,7 @@ from __future__ import print_function
 import getopt,os,sys,glob,argparse,ROOT,time
 from ROOT import gDirectory
 
-start = time.clock()
+start = time.process_time()
 
 # define the categories (= sub-folders)
 categories = ['jet',
@@ -73,11 +73,9 @@ sub_categories_TProfiles = ['IP3D',
                  ]
 
 # define the jet containers
-jetcontainers = ['AntiKt2PV0TrackJets',
-                 'AntiKt4PV0TrackJets',
-                 'AntiKt4EMTopoJets',
+jetcontainers = ['AntiKt4EMTopoJets',
                  'AntiKt4EMPFlowJets',
-                 'AntiKtVR30Rmax4Rmin02TrackJets'
+                 'AntiKtVR30Rmax4Rmin02PV0TrackJets'
                  ]
 
 # parser arguments
@@ -273,5 +271,5 @@ if len(errors)>0:
     for phrase in errors:
         print(phrase)
 
-end = time.clock()
+end = time.process_time()
 print("Wall time used: %s sec" % (end - start))

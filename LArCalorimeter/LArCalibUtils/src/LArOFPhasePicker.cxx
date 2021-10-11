@@ -47,9 +47,11 @@ StatusCode LArOFPhasePicker::initialize()
      m_groupingType = LArConditionsContainerBase::ExtendedFTGrouping ;
   } else if ( m_groupingName == "ExtendedSubDetector" ) {
      m_groupingType = LArConditionsContainerBase::ExtendedSubDetGrouping ;
+  } else if ( m_groupingName == "SuperCells" ) {
+    m_groupingType = LArConditionsContainerBase::SuperCells;
   } else {
      ATH_MSG_ERROR( "Grouping type " << m_groupingName << " is not foreseen!" ) ;
-     ATH_MSG_ERROR( "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" ) ;
+     ATH_MSG_ERROR( "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\", \"ExtendedSubDetector\" and \"SuperCells\" are allowed" ) ;
      return StatusCode::FAILURE ;
   }
 

@@ -18,8 +18,8 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern = r'^maskSEP'\
-    r'(?P<etalo>\d*)(?P<etatype>neta|ceta|peta>)(?P<etahi>\d*)SEP'\
+pattern = r'^MASK'\
+    r'(?P<etalo>\d*)(?P<etatype>neta|ceta|peta>)(?P<etahi>\d*)XX'\
     r'(?P<philo>\d*)(?P<phitype>nphi|cphi|pphi>)(?P<phihi>\d*)$'
 
 rgx = re.compile(pattern)
@@ -30,7 +30,7 @@ def prefilter_mask(pf_string):
     AlgTool starting from the prefilter substring if it appears in the 
     chain dict"""
 
-    assert pf_string.startswith('mask'),\
+    assert pf_string.startswith('MASK'),\
         'routing error, module %s: bad prefilter %s' % (__name__, pf_string)
 
     m = rgx.match(pf_string)

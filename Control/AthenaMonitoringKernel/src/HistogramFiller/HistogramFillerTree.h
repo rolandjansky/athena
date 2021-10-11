@@ -78,7 +78,7 @@ namespace Monitored {
       std::vector<std::string> tokenized;
       boost::split(tokenized, m_histDef->treeDef, [](char c){ return c ==':'; });
       for (const auto& token : tokenized) {
-        auto ipart = token.find("/");
+        auto ipart = token.find('/');
         if (ipart == std::string::npos) {
           MsgStream log(Athena::getMessageSvc(), "HistogramFillerTree");
           log << MSG::ERROR << "Tree " << m_histDef->alias << ": Badly formed variable definition " << token 

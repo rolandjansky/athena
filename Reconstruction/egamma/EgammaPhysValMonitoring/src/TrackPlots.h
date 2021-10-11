@@ -16,7 +16,7 @@ namespace Egamma{
 class TrackPlots:public PlotBase {
     public:
       TrackPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo);
+      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo) const;
      
       std::string m_sParticleType;
         

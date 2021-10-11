@@ -15,8 +15,6 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkSurfaces/Surface.h"
 
-// #include "GaudiKernel/MsgStream.h"
-// #include <string>
 
 namespace Trk {
   GXFTrackState::GXFTrackState(GXFTrackState & rhs):
@@ -135,7 +133,7 @@ namespace Trk {
   }
 
   void
-    GXFTrackState::setMeasurementErrors(double *measerror) {
+    GXFTrackState::setMeasurementErrors(const double *measerror) {
     m_measerror[0] = measerror[0];
     m_measerror[1] = measerror[1];
     m_measerror[2] = measerror[2];
@@ -144,7 +142,7 @@ namespace Trk {
   }
 
   double
-    GXFTrackState::sinStereo() {
+    GXFTrackState::sinStereo() const {
     return m_sinstereo;
   }
 
@@ -214,7 +212,7 @@ namespace Trk {
   }
 
   bool
-    GXFTrackState::measuresPhi() {
+    GXFTrackState::measuresPhi() const {
     return m_measphi;
   }
 
@@ -228,7 +226,7 @@ namespace Trk {
     m_recalib = isrecal;
   }
 
-  bool GXFTrackState::hasTrackCovariance(void) {
+  bool GXFTrackState::hasTrackCovariance(void) const {
     return m_covariance_set;
   }
 

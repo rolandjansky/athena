@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTools/LArHVPathologyDbTool.h" 
@@ -8,7 +8,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "CxxUtils/checker_macros.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListException.h"
 #include "CoralBase/Blob.h"
@@ -42,7 +41,7 @@ StatusCode LArHVPathologyDbTool::finalize()
 AthenaAttributeList*
 LArHVPathologyDbTool::hvPathology2AttrList(const LArHVPathologiesDb& pathologyContainer) const
 {
-  AthenaAttributeList* attrList ATLAS_THREAD_SAFE = newAttrList();
+  AthenaAttributeList* attrList = newAttrList();
      
   (*attrList)["blobVersion"].data<unsigned int>()=(unsigned int)0;
   coral::Blob& blob=(*attrList)["Constants"].data<coral::Blob>();
@@ -69,12 +68,8 @@ LArHVPathologyDbTool::hvPathology2AttrList(const LArHVPathologiesDb& pathologyCo
 }
 
 
-// Split off as a separate function:
-// The thread-safety checker will warn about calling the AthenaAttributeList
-// ctor.  But in this case, it's ok because the specification isn't
-// shared with anything else.
 AthenaAttributeList*
-LArHVPathologyDbTool::newAttrList ATLAS_NOT_THREAD_SAFE () const
+LArHVPathologyDbTool::newAttrList () const
 {
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("blobVersion","unsigned int");   //Should allow schema evolution if needed

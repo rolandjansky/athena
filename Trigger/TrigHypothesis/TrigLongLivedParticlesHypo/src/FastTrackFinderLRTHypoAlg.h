@@ -36,4 +36,4 @@ private:
   Gaudi::Property<std::vector<float>> m_max_xi2{this, "max_xi2",{10}, "Accept events with Xi2 of the track less than this limit"};
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
-#endif // TRIGT2MINBIAS_TRACKCOUNTHYPOALGMT_H
+#endif

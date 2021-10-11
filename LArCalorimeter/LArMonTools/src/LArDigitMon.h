@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,8 @@
 
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 //STL:
 #include <string>
@@ -83,7 +84,10 @@ protected:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
   
   /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
   
   /** Handle to pedestal */
   SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
@@ -93,12 +97,13 @@ protected:
 
   SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey{this,"LArDigitContainerKey","FREE","SG key of LArDigitContainer read from Bytestream"};
 
+
   
 private:
   
   /**declaration histo summary*/
   TH2F_LW* m_summary;
-  TH2F_LW* m_summaryGain;
+  TH2F_LW* m_summaryGain = nullptr;
   
   
   /** Define the monitoring histograms used for each partitions of the LArCalorimeter*/
@@ -213,29 +218,29 @@ private:
   
   /** Declare methods used*/
   void BookPartitions(partition& sub, const std::string& hTitle,MonGroup& ShiftGroup,MonGroup& ExpertGroup, MonGroup& ExpertGroupEff);
-  void HistTitle(LWHist2D* hist,partition& sub);
-  void HistTitle(TProfile2D_LW* hist,partition& sub);
-  void HistTitleSum(LWHist2D* hist);
-  void FillSaturation(partition& sub);
-  void FillSaturationLow(partition& sub);
-  void FillOutOfRange(partition& sub);
+  void HistTitle(LWHist2D* hist,partition& sub) const;
+  void HistTitle(TProfile2D_LW* hist,partition& sub) const;
+  void HistTitleSum(LWHist2D* hist) const;
+  void FillSaturation(partition& sub) const;
+  void FillSaturationLow(partition& sub) const;
+  void FillOutOfRange(partition& sub) const;
   void FillAverMaxDig(partition& sub, int& i, float nrj, unsigned int& m_l1Trig,unsigned int& lumiblock);
   void FillSumary(partition& sub);
   void OutHistTitle(partition& sub); 
-  void FillSignShape(partition& sub, int& i,float nrj,float sample_max);
-  void FillNullHisto(partition& sub);
+  static void FillSignShape(partition& sub, int& i,float nrj,float sample_max);
+  void FillNullHisto(partition& sub) const;
   void ScalePartition(partition& sub);
   void EndOfRun(partition& sub);
-  void DeleteHist(partition& sub);
-  void ScaleHisto(LWHist2D * h,int& events);
-  void ComputeError(LWHist2D* hist,int& events);
+  void DeleteHist(partition& sub) const;
+  void ScaleHisto(LWHist2D * h,int& events) const;
+  static void ComputeError(LWHist2D* hist,int& events);
   partition& WhatPartition(HWIdentifier id); 
-  int GetNumberCells(TProfile2D_LW* hist1,double treshold);
-  double GetMeanVal(LWHist2D* hist1);
+  static int GetNumberCells(TProfile2D_LW* hist1,double treshold);
+  static double GetMeanVal(LWHist2D* hist1);
   
   void ScaleOnlinePartition(partition& sub);
-  void DumpHisto(LWHist2D* hist1,TProfile2D_LW* hist2);
-  void DumpOnlineHisto(LWHist2D* hist1,LWHist2D* hist2);
+  static void DumpHisto(LWHist2D* hist1,TProfile2D_LW* hist2);
+  void DumpOnlineHisto(LWHist2D* hist1,LWHist2D* hist2) const;
   
   /** control string name types for histo names and titles*/
   // LArOnlineIDStrHelper::NameType m_histoNameType; // dws << never used

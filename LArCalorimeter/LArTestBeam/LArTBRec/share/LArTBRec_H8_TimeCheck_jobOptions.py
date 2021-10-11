@@ -40,6 +40,8 @@ theApp.TopAlg += [ "LArTimeChecker" ]
 LArTimeChecker = Algorithm( "LArTimeChecker" )
 LArTimeChecker.DataLocation = "FREE"
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
 theApp.TopAlg += [ "LArRawChannelBuilder" ]
 LArRawChannelBuilder = Algorithm("LArRawChannelBuilder");
@@ -47,7 +49,6 @@ LArRawChannelBuilder.DataLocation = "FREE"
 LArRawChannelBuilder.UseTDC=True
 
 
-ToolSvc.LArADC2MeV.BeginRunPriority = 100
 ToolSvc.LArRodDecoder.FirstSample=2
 # Turn off printing for LArRoI_Map
 ToolSvc.LArRoI_Map.Print=FALSE; 

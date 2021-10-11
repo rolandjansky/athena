@@ -88,7 +88,7 @@ void compare (const InDet::SCT_ClusterContainer& p1,
 
 void testit (const InDet::SCT_ClusterContainer& trans1, const SCT_ID& sct_id)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   SCT_ClusterContainerCnv_p2 cnv;
   cnv.setIdHelper(&sct_id);
   cnv.setUseDetectorElement(false);
@@ -130,7 +130,7 @@ makeclusts(const SCT_ID& sct_id)
          rdoList,
          width,
          nullptr,
-         new Amg::MatrixX(cov));
+         Amg::MatrixX(cov));
       cl->setHitsInThirdTimeBin (543 + offs);
       cl->setHashAndIndex (hash, i);
       coll->push_back (std::move (cl));
@@ -171,7 +171,7 @@ const SCT_ID& make_dd()
   sct_id->initialize_from_dictionary (idd);
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* detStore = 0;
+  StoreGateSvc* detStore = nullptr;
   assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
   assert ( detStore->record (std::move (sct_id), "SCT_ID") );
 

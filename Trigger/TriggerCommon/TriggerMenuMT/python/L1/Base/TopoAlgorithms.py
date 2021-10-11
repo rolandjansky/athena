@@ -5,7 +5,7 @@ from operator import attrgetter
 from enum import Enum
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Base.TopoAlgorithms')
+log = logging.getLogger(__name__)
 
 from .TopoAlgos import DecisionAlgo, MultiplicityAlgo, SortingAlgo
 

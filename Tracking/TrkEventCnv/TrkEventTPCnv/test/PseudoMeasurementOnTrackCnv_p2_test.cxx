@@ -59,7 +59,7 @@ void compare (const Trk::PseudoMeasurementOnTrack& p1,
               
 void testit (const Trk::PseudoMeasurementOnTrack& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   PseudoMeasurementOnTrackCnv_p2 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);

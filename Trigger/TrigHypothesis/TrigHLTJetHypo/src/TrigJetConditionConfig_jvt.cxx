@@ -7,7 +7,7 @@
  */
 #include "TrigJetConditionConfig_jvt.h"
 #include "GaudiKernel/StatusCode.h"
-#include "./JVTConditionMT.h"
+#include "./JVTCondition.h"
 #include "./ArgStrToDouble.h"
 
 TrigJetConditionConfig_jvt::TrigJetConditionConfig_jvt(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -22,9 +22,9 @@ StatusCode TrigJetConditionConfig_jvt::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_jvt::getCondition() const {
+Condition TrigJetConditionConfig_jvt::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<JVTConditionMT>(a2d(m_min));
+  return std::make_unique<JVTCondition>(a2d(m_min));
 }
 
  

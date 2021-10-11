@@ -13,9 +13,9 @@ namespace Trk{
   //this class creates kinematic plots at different layers in the detector
   class ExtrLayerPlots:public PlotBase {
   public:
-    ExtrLayerPlots(PlotBase *pParent, std::string sDir, std::string sLayerName);
+    ExtrLayerPlots(PlotBase *pParent, const std::string& sDir, std::string sLayerName);
 
-    void fill (const xAOD::TruthParticle& truthprt, std::string sLayerName, float weight=1.0);
+    void fill (const xAOD::TruthParticle& truthprt, const std::string& sLayerName, float weight=1.0);
     std::string m_sLayerName;
 
     TH1* p;
@@ -41,9 +41,9 @@ namespace Trk{
   //this class creates kinematic plots for different regions in the detector
   class ExtrRegionPlots:public PlotBase {
   public:
-    ExtrRegionPlots(PlotBase *pParent, std::string sDir, std::string sRegionBegin, std::string sRegionEnd);
+    ExtrRegionPlots(PlotBase *pParent, const std::string& sDir, std::string sRegionBegin, std::string sRegionEnd);
 
-    void fill (const xAOD::TruthParticle& truthprt, std::string sRegionBegin, std::string sRegionEnd, float weight=1.0);
+    void fill (const xAOD::TruthParticle& truthprt, const std::string& sRegionBegin, const std::string& sRegionEnd, float weight=1.0);
     std::string m_sRegionBegin;
     std::string m_sRegionEnd;
 
@@ -86,7 +86,7 @@ namespace Trk{
 
 class TruthTrkExtrapolationPlots: public PlotBase {
   public:
-    TruthTrkExtrapolationPlots(PlotBase *pParent, std::string sDir);
+    TruthTrkExtrapolationPlots(PlotBase *pParent, const std::string& sDir);
     void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
 
     ExtrLayerPlots m_CaloEntry;

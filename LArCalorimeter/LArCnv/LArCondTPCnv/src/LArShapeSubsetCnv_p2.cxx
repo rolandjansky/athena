@@ -10,10 +10,15 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                                   LArShapeTransType2* transObj, 
                                   MsgStream & log)
 {
+    // Copy basic metadata
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
     // Copy conditions
     unsigned int nfebids    = persObj->m_subset.m_febIds.size();
+    const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
     unsigned int nPhases    = persObj->m_nPhases;
     unsigned int nSamples   = persObj->m_nSamples;
     unsigned int dataIndex  = 0;
@@ -42,7 +47,7 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
         }
             
         // Loop over channels in feb - only some channels are filled
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+        for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 
             bool copyChannel = true;
             if (hasSparseData) {
@@ -50,7 +55,7 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                     // Channel is missing data - skip
                     copyChannel = false;
 		                    }
-                if (j%32 == 31 && j < 126) {
+                if (j%32 == 31 && j < nChannelsPerFeb-2) {
                     chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
                     chansOffset += 32;
                     ifebWithData++;
@@ -152,10 +157,6 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
     }
     transObj->insertCorrections (std::move (corrs));
 
-    // Copy the rest
-    transObj->setChannel       (persObj->m_subset.m_channel);
-    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
-
     transObj->shrink_to_fit();
 }
 
@@ -201,6 +202,7 @@ LArShapeSubsetCnv_p2::transToPers(const LArShapeTransType2* transObj,
     // Get the number of channels, corrections and the size of shape vectors
     unsigned int nsubsetsNotEmpty = 0;
     unsigned int ncorrs           = transObj->correctionVecSize();
+    const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
     unsigned int nchans           = 0;
     unsigned int nPhases          = 0;
     unsigned int nSamples         = 0;
@@ -216,7 +218,7 @@ LArShapeSubsetCnv_p2::transToPers(const LArShapeTransType2* transObj,
     {
         unsigned int nfebChans = (*subsetIt).second.size();
 
-        if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+        if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
             log << MSG::ERROR 
                 << "LArShapeSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans
                 << endmsg;
@@ -319,7 +321,7 @@ LArShapeSubsetCnv_p2::transToPers(const LArShapeTransType2* transObj,
 		  saveShapes = false;
                 }
                 // Save chansSet
-                if  (j == (chansOffset + 31)) {
+                if  (j == (chansOffset + 31) || j == nfebChans-1 ) {
                     persObj->m_subset.m_febsWithSparseData.push_back(chansSet);
                     chansSet    =   0;
                     chansOffset += 32;

@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigValTools )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Graf Gpad RIO Core MathCore Postscript )
+find_package( psutil )
 
 # Component(s) in the package:
 atlas_add_library( TrigValTools
@@ -26,7 +27,7 @@ atlas_install_data( share/*.json share/*.conf )
 
 # Unit tests:
 atlas_add_test( TrigValSteering_unit_test
-                SCRIPT test_unit_trigvalsteering.py
+                SCRIPT test_unit_trigvalsteering_build.py
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh )
 

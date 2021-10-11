@@ -72,7 +72,6 @@ namespace top {
     std::unique_ptr<top::GlobalLeptonTriggerCalculator> m_globalLeptonTriggerSF;
     ToolHandle<PMGTools::IPMGTruthWeightTool>           m_pmg_truth_weight_tool;
 
-    bool m_sample_multiple_MCweights;
     std::string m_nominal_weight_name;
   };
 }  // namespace top

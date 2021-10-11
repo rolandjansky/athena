@@ -78,16 +78,16 @@
 
 // FIXME   Total maximum array size for ntuple hardcoded... not very nice
    int m_nsymcell = 0;
-   double m_nevt[MAX_SYM_CELLS];
-   int m_layer[MAX_SYM_CELLS];
-   int m_region[MAX_SYM_CELLS];
-   int m_identifier[MAX_SYM_CELLS];
-   int m_ieta[MAX_SYM_CELLS];
-   float m_eta[MAX_SYM_CELLS];
-   float m_phi[MAX_SYM_CELLS];
-   double m_average[MAX_SYM_CELLS];
-   double m_rms[MAX_SYM_CELLS];
-   double m_offset[MAX_SYM_CELLS];
+   double m_nevt[MAX_SYM_CELLS]{};
+   int m_layer[MAX_SYM_CELLS]{};
+   int m_region[MAX_SYM_CELLS]{};
+   int m_identifier[MAX_SYM_CELLS]{};
+   int m_ieta[MAX_SYM_CELLS]{};
+   float m_eta[MAX_SYM_CELLS]{};
+   float m_phi[MAX_SYM_CELLS]{};
+   double m_average[MAX_SYM_CELLS]{};
+   double m_rms[MAX_SYM_CELLS]{};
+   double m_offset[MAX_SYM_CELLS]{};
 
 
   struct CellInfo {

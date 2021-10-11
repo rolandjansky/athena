@@ -45,25 +45,16 @@ class MdtDigitVariables : public ValAlgVariables
 
   int m_MDT_nDigits;
   std::vector<std::string> m_MDT_dig_stationName;
+  std::vector<double> m_MDT_dig_time;
+  std::vector<double> m_MDT_dig_charge;
   std::vector<int> m_MDT_dig_stationEta;
   std::vector<int> m_MDT_dig_stationPhi;
-  std::vector<int> m_MDT_dig_multiplet;
   std::vector<int> m_MDT_dig_channel;
-  std::vector<int> m_MDT_dig_stationEtaMin;
-  std::vector<int> m_MDT_dig_stationEtaMax;
-  std::vector<int> m_MDT_dig_stationPhiMin;
-  std::vector<int> m_MDT_dig_stationPhiMax;
   std::vector<int> m_MDT_dig_numberOfMultilayers;
-  std::vector<int> m_MDT_dig_multilayerMin;
-  std::vector<int> m_MDT_dig_multilayerMax;
-  std::vector<int> m_MDT_dig_tubeLayerMin;
-  std::vector<int> m_MDT_dig_tubeLayerMax;
-  std::vector<int> m_MDT_dig_tubeMin;
-  std::vector<int> m_MDT_dig_tubeMax; 
-  std::vector<int> m_MDT_dig_channelNumber;
+  std::vector<int> m_MDT_dig_multilayer;
+  std::vector<int> m_MDT_dig_tubeLayer;
+  std::vector<int> m_MDT_dig_tube;
   
-  std::vector< double > m_MDT_dig_channelPosX;
-  std::vector< double > m_MDT_dig_channelPosY;
   std::vector< double > m_MDT_dig_localPosX;
   std::vector< double > m_MDT_dig_localPosY;
   std::vector< double > m_MDT_dig_globalPosX;

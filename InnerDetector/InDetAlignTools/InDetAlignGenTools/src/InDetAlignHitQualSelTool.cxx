@@ -103,7 +103,7 @@ const Trk::RIO_OnTrack* InDetAlignHitQualSelTool::getGoodHit( const Trk::TrackSt
   
   
   if( m_rejectGangedPixels && isGangedPixel( prd ) ) return 0 ;
-  const vector<Identifier> idVec = prd->rdoList() ;
+  const vector<Identifier> &idVec = prd->rdoList() ;
 
   // cut on the cluster size
   if( m_maxClusterSize > 0 && !isGoodClusterSize( idVec ) ) return 0 ;
@@ -202,7 +202,7 @@ bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos
   }
 
   if( m_rejectGangedPixels && isGangedPixel( prd ) ) return false ;
-  const vector<Identifier> idVec = prd->rdoList() ;
+  const vector<Identifier> &idVec = prd->rdoList() ;
 
   // cut on the cluster size
   if( m_maxClusterSize > 0 && !isGoodClusterSize( idVec ) ) return false ;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcRdoToRpcDigit.h"
@@ -10,21 +10,12 @@ RpcRdoToRpcDigit::RpcRdoToRpcDigit(const std::string& name,
 {
 }
 
-StatusCode RpcRdoToRpcDigit::initialize()
-{
+StatusCode RpcRdoToRpcDigit::initialize() {
   ATH_CHECK(m_idHelperSvc.retrieve());
-
-  // get RPC cabling
-  ATH_CHECK(m_rpcCablingServerSvc.retrieve());
-  ATH_CHECK(m_rpcCablingServerSvc->giveCabling(m_rpcCabling) );
-
   ATH_CHECK(m_rpcRdoKey.initialize());
   ATH_CHECK(m_rpcDigitKey.initialize());
-
   ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
-
   ATH_CHECK(m_rpcReadKey.initialize());
-
   return StatusCode::SUCCESS;
 }
 

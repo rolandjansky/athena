@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file StoreGate/test/VarHandleKeyProperty_test.cxx
@@ -195,13 +195,13 @@ public:
   { return mgr.setPropertyRepr(n,r); }
   virtual StatusCode getProperty( Gaudi::Details::PropertyBase* p ) const override
   { return mgr.getProperty (p); }
-  virtual const Gaudi::Details::PropertyBase& getProperty( const std::string& name) const override
+  virtual const Gaudi::Details::PropertyBase& getProperty( std::string_view name) const override
   { return mgr.getProperty (name); }
-  virtual StatusCode getProperty( const std::string& n, std::string& v ) const override
+  virtual StatusCode getProperty( std::string_view n, std::string& v ) const override
   { return mgr.getProperty (n, v); }
   virtual const std::vector<Gaudi::Details::PropertyBase*>& getProperties( ) const override
   { return mgr.getProperties(); }
-  virtual bool hasProperty(const std::string& name) const override
+  virtual bool hasProperty(std::string_view name) const override
   { return mgr.hasProperty(name); }
 
   AnonymousPropertyHolder mgr;

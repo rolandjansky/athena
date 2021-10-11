@@ -100,12 +100,12 @@ Trk::TrackParameters * SimHitHandle_ForwardHit::createTrackParameters() const
 
 	//  const Trk::StraightLineSurface * surf = new Trk::StraightLineSurface(new HepGeom::Translate3D(0,0,0));
 	Amg::Transform3D transf = Amg::CLHEPTranslate3DToEigen( HepGeom::Translate3D(0,0,0) );
-    const Trk::StraightLineSurface * surf = new Trk::StraightLineSurface( &transf );
+  const Trk::StraightLineSurface * surf = new Trk::StraightLineSurface( transf );
 
 
   if (!surf) {
     VP1Msg::message("SimHitHandle_ForwardHit::createTrackParameters ERROR: could not get Trk::StraightLineSurface");
-    return 0;
+    return nullptr;
   }
 
   double c;

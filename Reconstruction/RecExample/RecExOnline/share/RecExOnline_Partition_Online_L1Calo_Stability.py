@@ -441,8 +441,6 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
    #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
 
 
-#from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-#tf.configForStartup = "HLTonline"
 #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 #cfg = TriggerConfigGetter()
 #if rec.doLArg and rec.doTile:

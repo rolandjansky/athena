@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file PixelDigitization/EfieldInterpolator.h
@@ -34,29 +34,29 @@ public:
   virtual ~EfieldInterpolator();
   void setLayer(int layer);
   //Recommended constructor
-  StatusCode loadTCADlist(const std::string TCADfileListToLoad);
+  StatusCode loadTCADlist(const std::string& TCADfileListToLoad);
   //defFct
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
   // Member Functions
-  const std::string loadTCADfiles(const std::string targetList = "");
-  const std::string createInterpolationFromTCADtree(const std::string fTCAD);//TTree* tTCAD);
-  bool initializeFromFile(const std::string finpath);
-  bool initializeFromDirectory(const std::string fpath);
-  double estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double> > vfluvvol,
-                        double aimFlu, double aimVol, const std::string prepend = "", bool debug = false);
+  const std::string loadTCADfiles(const std::string& targetList = "");
+  const std::string createInterpolationFromTCADtree(const std::string& fTCAD);//TTree* tTCAD);
+  bool initializeFromFile(const std::string& finpath);
+  bool initializeFromDirectory(const std::string& fpath);
+  double estimateEfield(std::vector<double> vvol, const std::vector<double>& vflu, const std::vector<std::vector<double> >& vfluvvol,
+                        double aimFlu, double aimVol, const std::string& prepend = "", bool debug = false);
   double estimateEfieldInvDistance(std::vector<double> vvol, std::vector<double> vflu,
                                    std::vector<std::vector<double> > vfluvvol, double aimFlu, double aimVol,
                                    double measure = 1.);
 
   TH1D* createEfieldProfile(double aimFluence, double aimVoltage);
   TH1D* getEfield(double aimFluence, double aimVoltage);
-  TH1D* loadEfieldFromDat(const std::string fname, bool fillEdges = true);
-  void scaleIntegralTo(TH1* hin, double aimInt, int first = 1, int last = -1);
+  TH1D* loadEfieldFromDat(const std::string& fname, bool fillEdges = true);
+  static void scaleIntegralTo(TH1* hin, double aimInt, int first = 1, int last = -1);
   void reliabilityCheck(double aimFluence, std::vector<double> fluences, double aimVoltage,
-                        std::vector<double> voltages);
+                        const std::vector<double>& voltages);
 private:
   // Member variables
   Gaudi::Property<bool> m_initialized
@@ -75,10 +75,10 @@ private:
   };
 
   interpolationMethod m_efieldOrigin;
-  TH1D* m_efieldProfile;            //Final efield profile
+  TH1D* m_efieldProfile{};            //Final efield profile
   std::string m_fInter;  //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
-  std::vector<std::vector<TString> > list_files(TString fileList_TCADsamples);
-  double extrapolateLinear(double x1, double y1, double x2, double y2, double xaim);
+  std::vector<std::vector<TString> > list_files(const TString& fileList_TCADsamples);
+  static double extrapolateLinear(double x1, double y1, double x2, double y2, double xaim);
   int fillXYvectors(std::vector<double> vLoop, int ifix, std::vector<std::vector<double> > v2vsv1,
                     std::vector<double>& xx, std::vector<double>& yy, bool regularOrder = true);
   void fillEdgeValues(TH1D* hin);
@@ -86,11 +86,11 @@ private:
   {return(vval.front() <= aimval && aimval <= vval.back());};
   bool isInterpolation(std::vector<double>* vval, double aimval)
   {return(vval->front() <= aimval && aimval <= vval->back());};
-  double relativeDistance(double x1, double x2);                            //difference between x1 x2 scaled to x1
-  double relativeDistance(double x1, double y1, double x2, double y2);
+  static double relativeDistance(double x1, double x2);                            //difference between x1 x2 scaled to x1
+  static double relativeDistance(double x1, double y1, double x2, double y2);
   double estimateEfieldLinear(double aimVoltage);
   void saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double> > vfluvvol,
-                  double aimFlu, double aimVol, const std::string prepend, bool skipNegative = true);
+                  double aimFlu, double aimVol, const std::string& prepend, bool skipNegative = true);
 };
 
 #endif //> !PIXELDIGITIZATION_EFIELDINTERPOLATOR_H

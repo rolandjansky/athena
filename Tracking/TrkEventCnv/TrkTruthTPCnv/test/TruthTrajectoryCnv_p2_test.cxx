@@ -49,7 +49,7 @@ void compare (const TruthTrajectory& p1,
 
 void testit (const TruthTrajectory& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TruthTrajectoryCnv_p2 cnv;
   Trk::TruthTrajectory_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

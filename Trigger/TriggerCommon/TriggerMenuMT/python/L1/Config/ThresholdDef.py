@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from ..Base.Thresholds import MuonThreshold, EMThreshold, TauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
+from ..Base.Thresholds import MuonThreshold, eEMThreshold, jEMThreshold, eTauThreshold, jTauThreshold, cTauThreshold, jJetThreshold, jLJetThreshold, XEThreshold, TEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
 
 class ThresholdDef:
 
@@ -8,8 +8,21 @@ class ThresholdDef:
 
     eEMVar = {
         1 : {
-            "eta_bin_boundaries": [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.7, 2.5], # 8 bins => 9 boundaries
-            "shift": [ 2, 1, 0, 0,  -1, -3, -1, 1]
+            "eta_bin_boundaries": [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.8, 2.5], # 8 bins => 9 boundaries
+            "shift": [ 1, 1, -1, -2,  -2, -3, -1, 0]
+        }
+    }
+
+    jJVar = {
+        0 : {
+            # boundaries fixed in L1Topo FW, do not change!
+            "eta_bin_boundaries": [0, 0.8, 1.6, 4.9], # 3 bins => 4 boundaries
+            "shift": [ 0, 0, 0]
+        },
+        1 : {
+            # boundaries fixed in L1Topo FW, do not change!
+            "eta_bin_boundaries": [0, 0.8, 1.6, 4.9], # 3 bins => 4 boundaries
+            "shift": [ 1, -1, 0]
         }
     }
 
@@ -28,6 +41,31 @@ class ThresholdDef:
             thr.addThrValue( pt + sh, eta_min, eta_max, priority=2)
         return thr
 
+    def addJetVaryingThrValues(thr, pt, shift_set, rangemin, rangemax):
+        eta_bin_boundaries = ThresholdDef.jJVar[shift_set]["eta_bin_boundaries"]
+        shift = ThresholdDef.jJVar[shift_set]["shift"]
+        for idx,sh in reversed(list(enumerate(shift))):
+            eta_min = int(10 * eta_bin_boundaries[idx])
+            eta_max = int(10 * eta_bin_boundaries[idx+1])
+            if -eta_min < -rangemax or -eta_max > -rangemin:
+                continue
+            if -eta_min > - rangemin:
+                eta_min = rangemin
+            if -eta_max < - rangemax:
+                eta_max = rangemax
+            thr.addThrValue( pt + sh, -eta_max, -eta_min, priority=1)
+        for idx,sh in enumerate(shift):
+            eta_min = int(10 * eta_bin_boundaries[idx])
+            eta_max = int(10 * eta_bin_boundaries[idx+1])
+            if eta_min > rangemax or eta_max < rangemin:
+                continue
+            if eta_max > rangemax:
+                eta_max = rangemax
+            if eta_min < rangemin:
+                eta_min = rangemin
+            thr.addThrValue( pt + sh, eta_min, eta_max, priority=1)
+        return thr
+
 
     @staticmethod
     def registerThresholds(tc, menuName):
@@ -36,161 +74,146 @@ class ThresholdDef:
             raise RuntimeError("Calling ThresholdDef.registerThresholds twice")
         ThresholdDef.alreadyExecuted = True
  
-        # MU
-        # from Junpei https://indico.cern.ch/event/1011425
-
-        MuonThreshold( "MU4"      ).setThrValue( thr=4 )                           # similar to Run-2 MU4 efficiency
-        MuonThreshold( "MU4F"     ).setThrValue( thr=4 ).setTGCFlags("F")          # similar to Run-2 MU4 rate
-        MuonThreshold( "MU6VF"    ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
+        # MU (ATR-23227)
+        # Primary and emergency:
+        MuonThreshold( "MU3V"     ).setThrValue( thr=3, ba=4 )                     # similar to Run-2 MU4 efficiency
+        MuonThreshold( "MU3VF"    ).setThrValue( thr=3, ba=4 ).setTGCFlags("F")    # similar to Run-2 MU4 rate
+        MuonThreshold( "MU3VC"    ).setThrValue( thr=3, ba=4 ).setTGCFlags("C")    # to be checked
+        MuonThreshold( "MU5VF"    ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
         MuonThreshold( "MU8F"     ).setThrValue( thr=8 ).setTGCFlags("F")          # similar to Run-2 MU10
-        MuonThreshold( "MU10VF"   ).setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
+        MuonThreshold( "MU8FC"    ).setThrValue( thr=8 ).setTGCFlags("F & C")      # backup for MU8F
+        MuonThreshold( "MU9VF"    ).setThrValue( thr=9,ba=8 ).setTGCFlags("F")     # backup for MU8F
+        MuonThreshold( "MU9VFC"   ).setThrValue( thr=9,ba=8 ).setTGCFlags("F & C") # backup for MU8F
+        MuonThreshold( "MU8VF"    ).setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
+        MuonThreshold( "MU8VFC"   ).setThrValue( thr=8, ba=10 ).setTGCFlags("F & C")   # backup for MU8VF
         MuonThreshold( "MU14FCH"  ).setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
         MuonThreshold( "MU14FCHR" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
+        MuonThreshold( "MU15VFCH" ).setThrValue( thr=15, ba=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20, bit lower rate than MU14
+        MuonThreshold( "MU15VFCHR").setThrValue( thr=15, ba=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # emergency        
+        MuonThreshold( "MU18VFCH" ).setThrValue( thr=18, ba=14 ).setTGCFlags("F & C & H") # emergency 
+        # Close-by barrel muon:
+        MuonThreshold( "MU10BOM"  ).setThrValue( thr=10 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barrel-only
+        MuonThreshold( "MU12BOM"  ).setThrValue( thr=12 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barel-only, emergency
+        # Late muon:
+        MuonThreshold( "MU8FH"    ).setThrValue( thr=8 ).setTGCFlags("F & H") # for late muon 
+        # Alignment:
+        MuonThreshold( "MU20FC"   ).setThrValue( thr=20, ba=14 ).setTGCFlags("F & C") # alignment with toroid off
+        # Commissioning:
+        MuonThreshold( "MU12FCH"  ).setThrValue( thr=12 ).setTGCFlags("F & C & H")             # commissioning
+        MuonThreshold( "MU4BOM"   ).setThrValue( thr=4  ).setRPCFlags("M").setRegion("BA")     # multiple close-by muons, barrel-only, commissioning
+        MuonThreshold( "MU4BO"    ).setThrValue( thr=4  ).setRegion("BA")                      # barrel-only, commissioning
+        MuonThreshold( "MU10BO"   ).setThrValue( thr=10 ).setRegion("BA")                      # barrel-only, commissioning
+        MuonThreshold( "MU14EOF"  ).setThrValue( thr=14 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
+        MuonThreshold( "MU8EOF"   ).setThrValue( thr=8  ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
+        MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
-        # examples for regional muons
-        MuonThreshold( 'MU20BA').setThrValue( thr=14 ).setTGCFlags("F & C & H").setRegion("BA")  # barrel only 
-        MuonThreshold( 'MU20EC').setThrValue( thr=14 ).setTGCFlags("F & C & H").setRegion("EC,FW")  # forward muon
+        # eEM 
+        for thrV in [3, 5, 8, 15, 20, 22]:
+            eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%i'% thrV, 'eEM'), pt = thrV, shift_set = 1 )
 
-        # backward compatible threshold names (definition like above)
-        MuonThreshold( "MU6" ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
-        MuonThreshold( "MU10").setThrValue( thr=8 ).setTGCFlags("F")          # similar to Run-2 MU10
-        MuonThreshold( "MU11").setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
-        MuonThreshold( "MU15").setThrValue( thr=12).setTGCFlags("F & c & H")  # guess
-        MuonThreshold( "MU20").setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
-        MuonThreshold( "MU21" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
+        # L section (used to be VH in Run2)
+        for thrV in [8,10,15,20,22]:
+            eEMThreshold('eEM%iL' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iL' % thrV, 'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt = thrV, shift_set = 1 )
 
-        # special threshold for magnet-off menu
-        MuonThreshold( "MU0").setThrValue( thr=0 )
+        # M section (used to be VHI in Run2)
+        for thrV in [8,15,20,22]:
+            eEMThreshold('eEM%iM' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt = thrV, shift_set = 1 )
 
+        # T section (used to be VHIM in Run2)
+        for thrV in [22]:
+            eEMThreshold('eEM%iT' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iT' % thrV, 'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt= thrV, shift_set = 1 )
 
+        # jEM
+        for thrV in [15]:
+            jEMThreshold('jEM%i' % thrV, 'jEM').addThrValue(thrV)
 
-        # EM 
-        for thrV in [3, 7, 8, 10, 15, 20, 22]:
-            EMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
+        for thrV in [15,18]:
+            jEMThreshold('jEM%iM' % thrV, 'jEM').addThrValue(thrV).setIsolation( iso = "Medium", frac = "Medium", frac2 = "Medium" )
 
-        # VH section
+        # eTAU
+        for et in [8, 12, 20, 25, 40, 60, 100]:
+            eTauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
 
-        EMThreshold( 'eEM8VH', 'eEM').setIsolation( rhad = "Tight" )\
-            .addThrValue(9, priority=1)\
-            .addThrValue(9, -8, 8, priority=2)\
-            .addThrValue(7, -11, -9, priority=2).addThrValue(7, 9, 11, priority=2)\
-            .addThrValue(6, -14, -12, priority=2).addThrValue(6, 12, 14, priority=2)\
-            .addThrValue(5, -15, -15, priority=2).addThrValue(5, 15, 15, priority=2)\
-            .addThrValue(7, -18, -16, priority=2).addThrValue(7, 16, 18, priority=2)\
-            .addThrValue(8, -25, -19, priority=2).addThrValue(8, 19, 25, priority=2)
-        
-        EMThreshold( 'eEM10VH', 'eEM' ).setIsolation( rhad = "Medium" )\
-            .addThrValue(11, priority=1)\
-            .addThrValue(11, -8, 8, priority=2)\
-            .addThrValue(9, -11, -9, priority=2).addThrValue(9, 9, 11, priority=2)\
-            .addThrValue(8, -14, -12, priority=2).addThrValue(8, 12, 14, priority=2)\
-            .addThrValue(7, -15, -15, priority=2).addThrValue(7, 15, 15, priority=2)\
-            .addThrValue(9, -18, -16, priority=2).addThrValue(9, 16, 18, priority=2)\
-            .addThrValue(10, -25, -19, priority=2).addThrValue(10, 19, 25, priority=2)
+        for et in [12]:
+            eTauThreshold('eTAU%iL' % et, 'eTAU').setEt(et).setIsolation( rCore = "Loose" )
+        for et in [12]:
+            eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( rCore = "Medium" )
+        for et in [30]:
+            eTauThreshold('eTAU%iHM' % et, 'eTAU').setEt(et).setIsolation( rHad = "HadMedium" )
+  
+        # cTAU
+        for et in [12, 20, 25]:
+            cTauThreshold('cTAU%iM' % et, 'cTAU').setEt(et).setIsolation( isolation = "Medium" )
 
-        EMThreshold( 'eEM15VH', 'eEM').setIsolation( rhad = "Loose" )\
-            .addThrValue(17, priority=1)\
-            .addThrValue(17, -7, 7, priority=2)\
-            .addThrValue(16, -9, -8, priority=2).addThrValue(16, 8, 9, priority=2)\
-            .addThrValue(15, -12, -10, priority=2).addThrValue(15, 10, 12, priority=2)\
-            .addThrValue(14, -14, -13, priority=2).addThrValue(14, 13, 14, priority=2)\
-            .addThrValue(13, -15, -15, priority=2).addThrValue(13, 15, 15, priority=2)\
-            .addThrValue(15, -17, -16, priority=2).addThrValue(15, 16, 17, priority=2)\
-            .addThrValue(16, -25, -18, priority=2).addThrValue(16, 18, 25, priority=2)  
-      
-        EMThreshold( 'eEM20VH', 'eEM').setIsolation( rhad = "Loose" )\
-            .addThrValue(22, priority=1)\
-            .addThrValue(22, -7, 7, priority=2)\
-            .addThrValue(21, -8, -8, priority=2).addThrValue(21, 8, 8, priority=2)\
-            .addThrValue(20, -11, -9, priority=2).addThrValue(20, 9, 11, priority=2)\
-            .addThrValue(19, -13, -12, priority=2).addThrValue(19, 12, 13, priority=2)\
-            .addThrValue(18, -14, -14, priority=2).addThrValue(18, 14, 14, priority=2)\
-            .addThrValue(17, -15, -15, priority=2).addThrValue(17, 15, 15, priority=2)\
-            .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
-            .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)       
+        # jTAU
+        for et in [12]:
+            jTauThreshold('jTAU%i' % et, 'jTAU').setEt(et)
+        for et in [12]:
+            jTauThreshold('jTAU%iM' % et, 'jTAU').setEt(et).setIsolation( isolation = "Medium" )
 
-        # (V)HI section
+        # jJET (default range)
+        for thrV in [12, 15, 20, 25, 30, 40, 50, 75, 85, 100, 120, 400]:
+            ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%i' % thrV, 'jJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=31 )
 
-        EMThreshold( 'eEM15VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(17, priority=1)\
-            .addThrValue(17, -7, 7, priority=2)\
-            .addThrValue(16, -9, -8, priority=2).addThrValue(16, 8, 9, priority=2)\
-            .addThrValue(15, -12, -10, priority=2).addThrValue(15, 10, 12, priority=2)\
-            .addThrValue(14, -14, -13, priority=2).addThrValue(14, 13, 14, priority=2)\
-            .addThrValue(13, -15, -15, priority=2).addThrValue(13, 15, 15, priority=2)\
-            .addThrValue(15, -17, -16, priority=2).addThrValue(15, 16, 17, priority=2)\
-            .addThrValue(16, -25, -18, priority=2).addThrValue(16, 18, 25, priority=2)
+        # jJET central
+        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25), (45,20)]:
+            ThresholdDef.addJetVaryingThrValues( jJetThreshold( 'jJ%ip0ETA%i'  % (thrV, etamax), 'jJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=etamax )
 
-        EMThreshold( 'eEM18VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(20, priority=1)\
-            .addThrValue(20, -7, 7, priority=2)\
-            .addThrValue(19, -8, -8, priority=2).addThrValue(19, 8, 8, priority=2)\
-            .addThrValue(18, -11, -9, priority=2).addThrValue(18, 9, 11, priority=2)\
-            .addThrValue(17, -13, -12, priority=2).addThrValue(17, 12, 13, priority=2)\
-            .addThrValue(16, -14, -14, priority=2).addThrValue(16, 14, 14, priority=2)\
-            .addThrValue(15, -15, -15, priority=2).addThrValue(15, 15, 15, priority=2)\
-            .addThrValue(17, -17, -16, priority=2).addThrValue(17, 16, 17, priority=2)\
-            .addThrValue(19, -25, -18, priority=2).addThrValue(19, 18, 25, priority=2)
+        # jJET central, variable eta (EXAMPLE)
+        # ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ12p0ETA25V', 'jJ'), pt=12, shift_set=1, rangemin=0, rangemax=25 )
 
-        EMThreshold( 'eEM20VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(22, priority=1)\
-            .addThrValue(22, -7, 7, priority=2)\
-            .addThrValue(21, -8, -8, priority=2).addThrValue(21, 8, 8, priority=2)\
-            .addThrValue(20, -11, -9, priority=2).addThrValue(20, 9, 11, priority=2)\
-            .addThrValue(19, -13, -12, priority=2).addThrValue(19, 12, 13, priority=2)\
-            .addThrValue(18, -14, -14, priority=2).addThrValue(18, 14, 14, priority=2)\
-            .addThrValue(17, -15, -15, priority=2).addThrValue(17, 15, 15, priority=2)\
-            .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
-            .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)
+        # jJET forward jet
+        for thrV in [15, 20, 30, 50, 75]:
+            ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%ip31ETA49' % thrV, 'jJ'), pt=thrV, shift_set=0, rangemin=31, rangemax=49 )
 
-        ThresholdDef.addVaryingThrValues(EMThreshold('eEM22VHI', 'eEM').setIsolation(reta="Loose", wstot="Medium"), pt=22, shift_set=1)
-        # EMThreshold( 'eEM22VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-        #     .addThrValue(24, priority=1)\
-        #     .addThrValue(24, -7, 7, priority=2)\
-        #     .addThrValue(23, -8, -8, priority=2).addThrValue(23, 8, 8, priority=2)\
-        #     .addThrValue(22, -11, -9, priority=2).addThrValue(22, 9, 11, priority=2)\
-        #     .addThrValue(21, -13, -12, priority=2).addThrValue(21, 12, 13, priority=2)\
-        #     .addThrValue(20, -14, -14, priority=2).addThrValue(20, 14, 14, priority=2)\
-        #     .addThrValue(19, -15, -15, priority=2).addThrValue(19, 15, 15, priority=2)\
-        #     .addThrValue(21, -17, -16, priority=2).addThrValue(21, 16, 17, priority=2)\
-        #     .addThrValue(23, -25, -18, priority=2).addThrValue(23, 18, 25, priority=2)
-        
+        # jLJET (default range)
+        for thrV in [80, 100, 140, 160]:
+            ThresholdDef.addJetVaryingThrValues( jLJetThreshold('jLJ%i' % thrV, 'jLJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=31 )
 
-
-        # TAU
-        for et in [12, 20, 40, 60, 100]:
-            TauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
-
-        for et in [12,20, 25]:
-            TauThreshold('eTAU%iIM' % et, 'eTAU').setEt(et)
-
-        # JET
-        for thrV in [12, 15, 20, 25, 30, 40, 50, 85, 100]:
-            JetThreshold('jJ%i' % thrV, 'jJ').setPt(thrV).addRange(etamin=-31, etamax=31) # jets are between -31 and 31 -ATR-11526
-
-        # Central jet
-        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25)]:
-            JetThreshold('jJ%ip0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
-
-        # Standard forward jet
-        for thrV in [15, 20, 75]:
-            JetThreshold('jJ%ip31ETA49' % thrV, 'jJ').setPt(thrV).addRange(etamin=31, etamax=49).addRange(etamin=-49, etamax=-31)
-
-        # XE
-        for thrV in [20, 50]:
+        # gXE
+        for thrV in [30, 50]:
             XEThreshold('gXEPUFIT%i' % thrV, 'gXE').setXE(thrV)
 
-        for thrV in [20, 30, 35, 40, 45, 50]:
+        for thrV in [30, 50]:
             XEThreshold('gXERHO%i' % thrV, 'gXE').setXE(thrV)
 
-        for thrV in [50]:
+        for thrV in [30, 40, 50]:
             XEThreshold('gXE%i' % thrV, 'gXE').setXE(thrV)
 
+        # gTE
         for thrV in [50]:
+            TEThreshold('gTE%i' % thrV, 'gTE').setTE(thrV)
+
+        # jXE
+        for thrV in [30, 35, 40, 50, 55, 300]:
             XEThreshold('jXE%i' % thrV, 'jXE').setXE(thrV)
 
+        for thrV in [50]:
+            XEThreshold('jXEC%i' % thrV, 'jXE').setXE(thrV)
 
+        # ATR-24037
+        for thrV in [50]:
+            XEThreshold('jXEPerf%i' % thrV, 'jXE').setXE(thrV)
 
+        # jTE
+        for thrV in [100,]:
+            TEThreshold('jTE%i' % thrV, 'jTE').setTE(thrV)
+
+        for thrV in [100,]:
+            TEThreshold('jTEC%i' % thrV, 'jTE').setTE(thrV)
+
+        for thrV in [100,]:
+            TEThreshold('jTEFWD%i' % thrV, 'jTE').setTE(thrV)
+
+        for thrV in [100,]:
+            TEThreshold('jTEFWDA%i' % thrV, 'jTE').setTE(thrV)
+
+        for thrV in [100,]:
+            TEThreshold('jTEFWDC%i' % thrV, 'jTE').setTE(thrV)
 
         # CALREQ
             
@@ -251,15 +274,19 @@ class ThresholdDef:
         NimThreshold('LUCID_05', 'LUCID')
         NimThreshold('LUCID_06', 'LUCID')
 
-        ## AFP
-        NimThreshold('AFP_NSC', 'NIM', mapping=2)        
-        NimThreshold('AFP_NSA', 'NIM', mapping=3)        
-        NimThreshold('AFP_FSA_SIT', 'NIM', mapping=4)        
-        NimThreshold('AFP_FSA_TOF', 'NIM', mapping=5)  
-        NimThreshold('AFP_FSA_LOG', 'NIM', mapping=6)        
-        NimThreshold('AFP_FSC_SIT', 'NIM', mapping=7)        
-        NimThreshold('AFP_FSC_LOG', 'NIM', mapping=8)        
-        NimThreshold('AFP_FSC_TOF', 'NIM', mapping=9)  
+        ## AFP (ATR-23476)
+        NimThreshold('AFP_NSA', 'NIM', mapping=2)        
+        NimThreshold('AFP_FSA', 'NIM', mapping=3)        
+        NimThreshold('AFP_FSA_TOF_T0', 'NIM', mapping=4)        
+        NimThreshold('AFP_FSA_TOF_T1', 'NIM', mapping=5)  
+        NimThreshold('AFP_FSA_TOF_T2', 'NIM', mapping=6)        
+        NimThreshold('AFP_FSA_TOF_T3', 'NIM', mapping=7)        
+        NimThreshold('AFP_NSC', 'NIM', mapping=15)        
+        NimThreshold('AFP_FSC', 'NIM', mapping=16)        
+        NimThreshold('AFP_FSC_TOF_T0', 'NIM', mapping=17)     
+        NimThreshold('AFP_FSC_TOF_T1', 'NIM', mapping=18)
+        NimThreshold('AFP_FSC_TOF_T2', 'NIM', mapping=19)     
+        NimThreshold('AFP_FSC_TOF_T3', 'NIM', mapping=20)
 
 
         ## BPTX

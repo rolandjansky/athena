@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // SimpleJetTrackSelectionTool.h
@@ -18,6 +18,9 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "AsgTools/ToolHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+
 #include "AthContainers/ConstDataVector.h"
 
 class SimpleJetTrackSelectionTool
@@ -43,10 +46,7 @@ protected:
   float m_ptmin;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inputContainer_key;
-  SG::WriteHandleKey<ConstDataVector< xAOD::TrackParticleContainer>> 
-    m_outputContainer_key;
-
-
+  SG::WriteHandleKey<ConstDataVector< xAOD::TrackParticleContainer>> m_outputContainer_key;
 };
 
 #endif

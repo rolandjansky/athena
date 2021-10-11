@@ -1,29 +1,26 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, SelectionCA, InEventRecoCA
-from TrigCaloRec.TrigCaloRecConfig import hltCaloCellMakerCfg
-from TrigEDMConfig.TriggerEDMRun3 import recordable
-from AthenaConfiguration.ComponentFactory import CompFactory
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
+from .ConfigHelpers import AlgConfig
+from .METChainConfiguration import extractMETRecoDict
+from ..Menu.ChainMerging import mergeChainDefs
+from AthenaCommon.Logging import logging
 
-def _cellsMET(flags, chainDict):
-    recoAcc = InEventRecoCA('FastCaloMETReco')
-    recoAcc.merge(hltCaloCellMakerCfg(flags, name="HLTCaloCellMaker_FS", roisKey="HLT_FSRoI"))
-    from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
-    cellMETKey=recordable("HLT_MET_cell")
-    recoAcc.addEventAlgo(CompFactory.HLT.MET.CellFex(MonTool=getMETMonTool(), METContainerKey=cellMETKey, CellName="CaloCellsFS"))
-
-    selAcc=SelectionCA('FastCaloMET')
-    selAcc.mergeReco(recoAcc)
-
-    hypoAlg = CompFactory.TrigMissingETHypoAlgMT("METHypoAlg_Cells", METContainerKey=cellMETKey)
-    selAcc.addHypoAlgo(hypoAlg)
-
-    from TrigMissingETHypo.TrigMissingETHypoConfigMT import TrigMETCellHypoToolFromDict
-
-    menuCellsSequence = MenuSequenceCA(selAcc,
-                                      HypoToolGen=TrigMETCellHypoToolFromDict)                                      
-    return ChainStep(name=selAcc.name, Sequences=[menuCellsSequence], chainDicts=[chainDict], multiplicity=[1])
+log = logging.getLogger(__name__)
 
 def generateChains(flags, chainDict):
-    thresholds = [p["L1threshold"] for p in chainDict['chainParts'] if p['signature'] == 'MET' ]
-    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ _cellsMET(flags, chainDict) ] )
-    return chain
+    log.debug("Received chain dict %s", chainDict)
+    parts = []
+    for subDict in chainDict["chainParts"]:
+        if subDict["signature"] != "MET":
+            raise ValueError(f"Non-MET signature '{subDict['signature']}' received!")
+        recoDict = extractMETRecoDict(subDict)
+        config = AlgConfig.fromRecoDict(**recoDict)
+        parts.append(
+            Chain(
+                name=chainDict["chainName"],
+                L1Thresholds=[subDict["L1threshold"]],
+                ChainSteps=config.make_accumulator_steps(flags, chainDict),
+                alignmentGroups=[subDict["alignmentGroup"]],
+            )
+        )
+    return mergeChainDefs(parts, chainDict)

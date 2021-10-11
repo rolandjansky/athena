@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
  
 from AthenaCommon.SystemOfUnits import GeV
@@ -7,39 +7,47 @@ from AthenaCommon.SystemOfUnits import GeV
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 #
 # Create the hypo alg with all selectors
 #
-def createTrigEgammaPrecisionElectronHypoAlgMT(name, sequenceOut):
-    # make the Hypo
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
-    #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
-
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlgMT
-    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT(name)
-    thePrecisionElectronHypo.Electrons = sequenceOut
-    thePrecisionElectronHypo.RunInView = True
-    thePrecisionElectronHypo.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
-    #thePrecisionElectronHypo.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors()
-    thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose"] # just like the pidnames
-    #thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose", "dnnvloose"] # just like the pidnames
-
+def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     MonTool = GenericMonitoringTool("MonTool_"+name)
+    
+    # make the Hypo
+    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
+    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
+    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
+    thePrecisionElectronHypo = CompFactory.TrigEgammaPrecisionElectronHypoAlg(name)
+    thePrecisionElectronHypo.Electrons = sequenceOut
+    thePrecisionElectronHypo.Do_idperf = do_idperf
+    thePrecisionElectronHypo.RunInView = True
+    thePrecisionElectronHypo.ElectronCBSelectorTools = createTrigEgammaPrecisionElectronCBSelectors()
+    thePrecisionElectronHypo.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
+    thePrecisionElectronHypo.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors()
+    thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose"] # just like the pidnames
+    thePrecisionElectronHypo.CBNames = ["medium", "loose", "mergedtight"] # just like the pidnames
+    thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose", 
+                                        "lhtight_nopix", "lhmedium_nopix","lhloose_nopix","lhvloose_nopix"] # just like the pidnames
     MonTool.Histograms = [ 
-          defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
-          defineHistogram('TIME_LH_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo LH Algtime; time [ us ] ; Nruns", xbins=30, xmin=0.0, xmax=3000.0),
-          #defineHistogram('TIME_DNN_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo DNN Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
+                defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
+                defineHistogram('TIME_LH_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo LH Algtime; time [ us ] ; Nruns", xbins=20, xmin=0.0, xmax=2000),
+                defineHistogram('TIME_DNN_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo DNN Algtime; time [ us ] ; Nruns", xbins=20, xmin=0.0, xmax=2000),
     ]
-
     MonTool.HistPath = 'PrecisionElectronHypo/'+name
     thePrecisionElectronHypo.MonTool=MonTool
 
 
     return thePrecisionElectronHypo
 
-
+def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection, doIDperf ):
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  acc = ComponentAccumulator()
+  acc.addEventAlgo( createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection, do_idperf=doIDperf ))
+  acc.addService( CompFactory.AthONNX.ONNXRuntimeSvc())
+  return acc
 
 class TrigEgammaPrecisionElectronHypoToolConfig:
 
@@ -52,11 +60,19 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
                            'lhmedium' ,
                            'lhloose'  ,
                            'lhvloose' ,
-                           #'dnntight',
-                           #'dnnmedium',
-                           #'dnnloose',
-                           #'dnnvloose',
+                           'lhtight_nopix'  ,
+                           'lhmedium_nopix' ,
+                           'lhloose_nopix'  ,
+                           'lhvloose_nopix' ,
+                           'dnntight' ,
+                           'dnnmedium',
+                           'dnnloose' ,
+                           'mergedtight'
                            ]
+
+  __operation_points_lhInfo = [
+        'nopix'
+        ]
 
   # isolation cuts:w
   __isolationCut = {
@@ -66,36 +82,61 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
         'ivartight': 0.05
         }
 
-  def __init__(self, name, threshold, sel, iso):
+  # LRT d0 cuts
+  __lrtD0Cut = {
+      '': -1.,
+      None: None,
+      'lrtloose':2.0,
+      'lrtmedium':3.0,
+      'lrttight':5.
+      }
+
+
+  def __init__(self, name, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionElectronHypoTool')
     self.__name = name
-    self.__threshold = float(threshold)
-    self.__sel = sel
-    self.__iso = iso
+    self.__threshold = float(cpart['threshold'])
+    self.__sel = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__iso = cpart['isoInfo']
+    self.__d0  = cpart['lrtInfo']
+    self.__gsfInfo = cpart['gsfInfo']
+    self.__idperfInfo = cpart['idperfInfo']
+    self.__lhInfo = cpart['lhInfo']
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoToolInc
-    tool = TrigEgammaPrecisionElectronHypoToolInc( name )
+    if not tool:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( self.__threshold*GeV, tool )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
     tool.RelPtConeCut   = -999
-    tool.PidName        = ":wq!"
+    tool.PidName        = ""
+    tool.d0Cut          = -1
+    tool.AcceptAll      = False
     self.__tool         = tool    
 
-    self.__log.debug( 'Electron_Chain     :%s', name )
-    self.__log.debug( 'Electron_Threshold :%s', threshold )
-    self.__log.debug( 'Electron_Pidname   :%s', sel )
-    self.__log.debug( 'Electron_iso       :%s', iso )
+    self.__log.debug( 'Electron_Chain     :%s', self.__name )
+    self.__log.debug( 'Electron_Threshold :%s', self.__threshold )
+    self.__log.debug( 'Electron_Pidname   :%s', self.__sel )
+    self.__log.debug( 'Electron_iso       :%s', self.__iso )
+    self.__log.debug( 'Electron_d0        :%s', self.__d0 )
 
   def chain(self):
     return self.__name
 
+  #
+  # Get the pidname
+  #
   def pidname( self ):
-    return self.__sel
+    # if LLH, we should append the LH extra information if exist
+    if 'lh' in self.__sel and self.__lhInfo and self.__lhInfo in self.__operation_points_lhInfo:
+      return self.__sel + '_' + self.__lhInfo
+    else:
+      return self.__sel
 
   def etthr(self):
     return self.__threshold
@@ -103,13 +144,21 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   def isoInfo(self):
     return self.__iso
 
+  def d0Info(self):
+    return self.__d0
+
+  def gsfInfo(self):
+    return self.__gsfInfo
+
+  def idperfInfo(self):
+    return self.__idperfInfo
+
   def tool(self):
     return self.__tool
   
   def nocut(self):
 
     self.__log.debug( 'Configure nocut' )
-    #self.tool().AcceptAll = True
     self.tool().ETthr          = same( self.etthr()*GeV, self.tool())
     self.tool().dETACLUSTERthr = 9999.
     self.tool().dPHICLUSTERthr = 9999.
@@ -122,13 +171,24 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.tool().dETACLUSTERthr = 9999.
     self.tool().dPHICLUSTERthr = 9999.
 
+  #
+  # LRT extra cut
+  #
+  def addLRTCut(self):
+    if not self.d0Info() in self.__lrtD0Cut:
+      self.__log.fatal(f"Bad LRT selection name: {self.d0Info()}")
+    self.__tool.d0Cut = self.__lrtD0Cut[self.d0Info()]
 
+  def acceptAll(self):
+     self.tool().AcceptAll = True
   #
-  # Isolation and nominal cut
+  # Isolation extra cut
   #
-  def isoCut(self):
+  def addIsoCut(self):
+    if not self.isoInfo() in self.__isolationCut:
+      self.__log.fatal(f"Bad Iso selection name: {self.isoInfo()}")
     self.tool().RelPtConeCut = self.__isolationCut[self.isoInfo()]
-    self.nominal()
+
  
 
   def nominal(self):
@@ -136,30 +196,31 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
       self.__log.fatal("Bad selection name: %s" % self.pidname())
     self.tool().PidName = self.pidname()
 
-
+  
   #
   # Compile the chain
   #
   def compile(self):
 
-    if 'etcut' == self.pidname():
-      self.etcut()
+    if 'idperf' in self.idperfInfo():
+      self.acceptAll()
 
     elif 'nocut' == self.pidname():
       self.nocut()
 
-    elif self.isoInfo() and self.isoInfo() != '':
-
-      if self.isoInfo() not in self.__isolationCut.keys():
-        self.__log.error('Isolation cut %s not defined!', self.isoInfo())
-
-      self.__log.debug('Configuring Isolation cut %s with value %d',self.isoInfo(),self.__isolationCut[self.isoInfo()])
-      self.isoCut()
-
-    else:
+    else: # nominal chain using pid selection
       self.nominal()
 
-    self.addMonitoring()
+
+    # secundary cut configurations
+    if self.isoInfo() and self.isoInfo()!="":
+      self.addIsoCut()
+    if self.d0Info() and self.d0Info()!="" and 'idperf' not in self.idperfInfo():
+      self.addLRTCut()
+    
+
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -187,35 +248,22 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.tool().MonTool = monTool
 
 
-def _IncTool( name, threshold, sel, iso ):
-    config = TrigEgammaPrecisionElectronHypoToolConfig(name, threshold, sel, iso)
+def _IncTool( name, cpart, tool=None):
+    config = TrigEgammaPrecisionElectronHypoToolConfig(name, cpart, tool=tool)
     config.compile()
     return config.tool()
 
 
 
-def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
+def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Electron'))]
-
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
-
-    def __th(cpart):
-        return cpart['threshold']
-    
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-
-    def __iso(cpart):
-        return cpart['isoInfo']
-
     name = d['chainName']
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0])  )
+    return _IncTool( name, cparts[0] , tool=tool )
+
                    
     
-def TrigEgammaPrecisionElectronHypoToolFromName(name, conf):
+def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-    return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict )
-
+    return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict , tool=tool )

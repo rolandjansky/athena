@@ -8,8 +8,7 @@
 
 
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "LArElecCalib/ILArHVScaleCorr.h"
-#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArHVCorr.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -18,19 +17,18 @@ class CaloCellContainer;
 
 class LArCellContHVCorrTool : public extends<AthAlgTool, ICaloCellMakerTool>  {
 public:
-  
-  LArCellContHVCorrTool (const std::string& type, const std::string& name, 
-		   const IInterface* parent);
+  using base_class::base_class;
+  //LArCellContHVCorrTool (const std::string& type, const std::string& name, 
+  //		   const IInterface* parent);
 
-  ~LArCellContHVCorrTool();
+  ~LArCellContHVCorrTool() = default;
   virtual StatusCode initialize() override final;
 
   //Implements the ICaloCellMaker interface
   virtual StatusCode process(CaloCellContainer* cellCollection, const EventContext& ctx) const override final;
 
  private: 
-  SG::ReadCondHandleKey<ILArHVScaleCorr> m_offlineHVScaleCorrKey{this, "keyOfflineHVCorr", "LArHVScaleCorrRecomputed","Key for LArHVScaleCorr"};
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArHVCorr> m_offlineHVScaleCorrKey{this, "keyOfflineHVCorr", "LArHVScaleCorrRecomputed","Key for LArHVScaleCorr"};
 
 };
 

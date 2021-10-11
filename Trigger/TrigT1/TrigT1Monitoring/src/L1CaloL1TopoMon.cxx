@@ -26,8 +26,6 @@
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1Interfaces/FrontPanelCTP.h"
-#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
@@ -117,9 +115,6 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
 		   = LVL1::TrigT1CaloDefs::CMXJetTobLocation);
   declareProperty( "CMXCPTobLocation", m_CMXCPTobLocation
 		   = LVL1::TrigT1CaloDefs::CMXCPTobLocation);
-  declareProperty( "TopoCTPLocation", m_topoCTPLoc
-		   = LVL1::DEFAULT_L1TopoCTPLocation, 
-		   "StoreGate location of topo inputs" );
 }
   
 /*---------------------------------------------------------*/
@@ -160,6 +155,8 @@ StatusCode L1CaloL1TopoMon::initialize()
                     << endmsg;
     return sc;
   }
+
+  ATH_CHECK( m_topoCTPLoc.initialize( SG::AllowEmpty ) );
 
   return StatusCode::SUCCESS;
 }
@@ -515,13 +512,12 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
   
   // Retrieve L1Topo CTP simulted decision if present
-  if (!evtStore()->contains<LVL1::FrontPanelCTP>(m_topoCTPLoc.value())){
+  if (!evtStore()->contains<LVL1::FrontPanelCTP>(m_topoCTPLoc.key())){
     ATH_MSG_DEBUG("Could not retrieve LVL1::FrontPanelCTP with key "
-		  << m_topoCTPLoc.value());
+		  << m_topoCTPLoc.key());
   }
   else {
-    const LVL1::FrontPanelCTP* topoCTP = nullptr;
-    CHECK_RECOVERABLE(evtStore()->retrieve(topoCTP,m_topoCTPLoc.value()));
+    const LVL1::FrontPanelCTP* topoCTP = SG::get(m_topoCTPLoc);
     if (!topoCTP){
       ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed." );
     }
@@ -605,7 +601,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       //   set version 15, BCN -7, which is unlikely:
       L1Topo::Header header(0xf, 0, 0, 0, 0, 1, 0x7);
       int i_fpga=-1;
-      for (auto word : cDataWords){
+      for (const uint32_t word : cDataWords){
 	switch (L1Topo::blockType(word)){
 	case L1Topo::BlockTypes::HEADER:
 	  {
@@ -769,7 +765,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       m_h_l1topo_1d_Errors->Fill(NO_ROI);
       topo_error|=(1<<NO_ROI);
     }
-    for (auto word : cDataWords) {
+    for (const uint32_t word : cDataWords) {
       switch (L1Topo::blockType(word)) {
       case L1Topo::BlockTypes::L1TOPO_TOB:
       {

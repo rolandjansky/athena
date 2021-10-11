@@ -38,22 +38,15 @@ namespace Trk
 
   //get the extrapolator
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
+    ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
   }
 
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
+    ATH_MSG_DEBUG( "Initialize successful" );
     return StatusCode::SUCCESS; 
   }
- 
-  StatusCode V0Tools::finalize()
-  {
-    msg(MSG::INFO) << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS; 
-  }
-
 
   const xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) const
   {

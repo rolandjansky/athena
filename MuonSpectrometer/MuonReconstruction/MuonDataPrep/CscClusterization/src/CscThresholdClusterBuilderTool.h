@@ -53,31 +53,28 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CscClusterization/ICscClusterBuilder.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "CscClusterization/ICscClusterBuilder.h"
 
 class ICscCalibTool;
 class ICscStripFitter;
 class ICscClusterFitter;
 
 namespace Muon {
-class CscPrepData;
-class CscStripPrepData;
+    class CscPrepData;
+    class CscStripPrepData;
 }  // namespace Muon
 typedef Muon::CscPrepData MyCscDigit;
 class CscDigit;
 
-
 class CscThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public AthAlgTool {
-
-  public:  // methods
+public:  // methods
     enum NoiseOption { rms = 0, sigma, f001 };
-
 
     // Constructor.
     CscThresholdClusterBuilderTool(const std::string& type, const std::string& aname, const IInterface*);
@@ -89,34 +86,32 @@ class CscThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public
      */
     //  static const InterfaceID& interfaceID( ) ;
 
-
     // Initialization.
     StatusCode initialize();
 
     // Event processing.
-    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *object);
+    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect,
+                           Muon::CscPrepDataContainer* object);
 
     // Finalization.
     StatusCode finalize();
 
-  private:  // Private methods.
+private:  // Private methods.
     // Cluster a cathode plane.
     //  int make_clusters(bool dump, int maxstrip, double pitch,
     //                    const std::vector<MyCscDigit*>& idstrip, const std::vector<double>& qstrip);
     //  int make_clusters(bool dump, int maxstrip, double pitch, const std::vector<Muon::CscStripPrepData*>& strips);
-    int        make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips,
-                             Muon::CscPrepDataCollection*& collection);
+    int make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips, Muon::CscPrepDataCollection*& collection);
     StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect);
-    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect,
-                           Muon::CscPrepDataContainer* pclusters);
+    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer* pclusters);
     StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer* pclusters);
 
-  private:  // data
+private:  // data
     // Properties.
-    double                                             m_threshold;  // Charge threshold to include strip in cluster
-    float                                              m_kFactor;
-    std::string                                        m_noiseOptionStr;
-    NoiseOption                                        m_noiseOption;
+    double m_threshold;  // Charge threshold to include strip in cluster
+    float m_kFactor;
+    std::string m_noiseOptionStr;
+    NoiseOption m_noiseOption;
     SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;  // SG key for input digits
 
     // Calibration tool.

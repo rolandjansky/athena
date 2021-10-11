@@ -47,12 +47,12 @@
 //____________________________________________________________________
 class IParticleHandle_TrackParticle::Imp {
 public:
-  IParticleHandle_TrackParticle * theclass;
-  const xAOD::TrackParticle * trackparticle;
-  IParticleCollHandle_TrackParticle* collHandle;
+  IParticleHandle_TrackParticle * theclass = nullptr;
+  const xAOD::TrackParticle * trackparticle = nullptr;
+  IParticleCollHandle_TrackParticle* collHandle = nullptr;
   
-  SoSeparator * sep; // everything hangs from this.
-  SoLineSet * line;//This represents the line(s) representing the trackparticle. Can be interpolated.
+  SoSeparator * sep = nullptr; // everything hangs from this.
+  SoLineSet * line = nullptr;//This represents the line(s) representing the trackparticle. Can be interpolated.
   QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> > parametersAndPositions; // cache - do we really need this?
   QList< Amg::Vector3D > positionsToWrite; // FIXME - this is just a quick hack so we can easily dump the points used in the lines to JSON 
   

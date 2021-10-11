@@ -39,7 +39,7 @@
 namespace MuonCombined {
     MuonCaloTagTool::MuonCaloTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
 
-        AthAlgTool(type, name, parent), m_nTrueMuons(0), m_nTracksTagged(0), m_nMuonsTagged(0) {
+        AthAlgTool(type, name, parent) {
         declareInterface<IMuonCombinedInDetExtensionTool>(this);
         declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
     }

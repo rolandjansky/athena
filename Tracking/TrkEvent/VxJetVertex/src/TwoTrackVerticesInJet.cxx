@@ -29,11 +29,11 @@ namespace Trk
   
   TwoTrackVerticesInJet::TwoTrackVerticesInJet() {}
 
-  TwoTrackVerticesInJet::TwoTrackVerticesInJet(const std::vector<const xAOD::Vertex*> & twoTrackVertices,
-                                               const std::vector<const TrackParticleBase*> & neutralTrackOfVertex)
+  TwoTrackVerticesInJet::TwoTrackVerticesInJet(std::vector<const xAOD::Vertex*> twoTrackVertices,
+                                               std::vector<const TrackParticleBase*> neutralTrackOfVertex)
           :
-      m_twoTrackVertices(twoTrackVertices),
-      m_neutralTrackOfVertex(neutralTrackOfVertex)
+      m_twoTrackVertices(std::move(twoTrackVertices)),
+      m_neutralTrackOfVertex(std::move(neutralTrackOfVertex))
   {}
   
 
@@ -120,16 +120,16 @@ namespace Trk
   }
   
      
-  void TwoTrackVerticesInJet::setTwoTrackVertices(std::vector<const xAOD::Vertex*> & twoTrackVertices)
+  void TwoTrackVerticesInJet::setTwoTrackVertices(std::vector<const xAOD::Vertex*> twoTrackVertices)
   {
     deleteAll(m_twoTrackVertices);
-    m_twoTrackVertices=twoTrackVertices;
+    m_twoTrackVertices=std::move(twoTrackVertices);
   }
 
-  void TwoTrackVerticesInJet::setNeutralTrackOfVertices(std::vector<const TrackParticleBase*> & neutralTrackOfVertex)
+  void TwoTrackVerticesInJet::setNeutralTrackOfVertices(std::vector<const TrackParticleBase*> neutralTrackOfVertex)
   {
     deleteAll(m_neutralTrackOfVertex);
-    m_neutralTrackOfVertex=neutralTrackOfVertex;
+    m_neutralTrackOfVertex=std::move(neutralTrackOfVertex);
   }
 
   const std::vector<const xAOD::Vertex*> & TwoTrackVerticesInJet::getTwoTrackVertice() const {
@@ -142,7 +142,7 @@ namespace Trk
   }
   
 
-  void TwoTrackVerticesInJet::deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices)
+  void TwoTrackVerticesInJet::deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices) noexcept
   {
     std::vector<const xAOD::Vertex*>::iterator vxBegin=twoTrackVertices.begin();
     std::vector<const xAOD::Vertex*>::iterator vxEnd=twoTrackVertices.end();
@@ -153,12 +153,12 @@ namespace Trk
       if (*vxIter!=0)
       {
         delete *vxIter;
-        *vxIter=0;
       }
     }
+    twoTrackVertices.clear();
   }
   
-  void TwoTrackVerticesInJet::deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex)
+  void TwoTrackVerticesInJet::deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex) noexcept
   {
 
     std::vector<const TrackParticleBase*>::iterator mapBegin=neutralTrackOfVertex.begin();
@@ -171,9 +171,9 @@ namespace Trk
       if (*mapIter!=0)
       {
         delete *mapIter;
-        *mapIter=0;
       }
     }
+    neutralTrackOfVertex.clear();
   }
 
 

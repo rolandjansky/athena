@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -81,7 +81,7 @@ QString VP1MD5Sum::sumToString(const QByteArray& ba )
 //____________________________________________________________________
 QByteArray VP1MD5Sum::sumToByteArray(const QString& str )
 {
-  return QByteArray::fromHex(QByteArray().append(str));
+  return QByteArray::fromHex(str.toUtf8());
 }
 
 //____________________________________________________________________

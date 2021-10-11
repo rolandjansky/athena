@@ -74,8 +74,8 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers
     }
     
     std::vector<unsigned int> uintvector;
-    const InDet::SiCluster* keyPixelCluster(0);
-    const InDet::SiCluster* gangedPixelCluster(0);
+    const InDet::SiCluster* keyPixelCluster(nullptr);
+    const InDet::SiCluster* gangedPixelCluster(nullptr);
     unsigned int count(1);
     for( ; itr != itrE ; ++itr ) {
     
@@ -118,14 +118,14 @@ void  PixelGangedClusterAmbiguitiesCnv_p1::persToTrans(const InDet::PixelGangedC
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << "Name of the pixel cluster container is empty. Most likely cause: input is a single particle file and there were no pixel ambiguities." << endmsg;
   } else
   {    
-  const InDet::PixelClusterContainer* pCC(0);
+  const InDet::PixelClusterContainer* pCC(nullptr);
   if (m_storeGate->retrieve(pCC, persObj->m_pixelClusterContainerName).isFailure()) {
     log << MSG::FATAL << "PixelGangedClusterAmbiguitiesCnv_p1: Cannot retrieve "
         << persObj->m_pixelClusterContainerName << endmsg;
   }
     
-  const InDet::PixelCluster* keyPixelCluster(0);
-  const InDet::PixelCluster* gangedPixelCluster(0);
+  const InDet::PixelCluster* keyPixelCluster(nullptr);
+  const InDet::PixelCluster* gangedPixelCluster(nullptr);
 
   for (const std::pair<uint32_t, std::vector<uint32_t> >& mapElement : persObj->m_ambiguityMap)
   {

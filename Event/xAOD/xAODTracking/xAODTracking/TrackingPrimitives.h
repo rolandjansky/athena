@@ -181,8 +181,8 @@ namespace xAOD {
     SiSPSeededFinderSimple                 = 48,
     // Large d0 for displaced vertex searches
     SiSpacePointsSeedMaker_LargeD0         = 49,
-    // SLHCConversion Track flag
-    SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+    // ITkConversion Track flag
+    SiSpacePointsSeedMaker_ITkConversionTracks = 50,
     // Pseudotracking
     Pseudotracking			   = 51,
      ///maximum number of enums
@@ -290,8 +290,9 @@ namespace xAOD {
     // removed:   eProbabilityToT                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].    
     // removed:   eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
+    TRTTrackOccupancy               = 67,  //!< TRT track occupancy. 
     // -- numbers...
-    numberOfTrackSummaryTypes       = 67
+    numberOfTrackSummaryTypes       = 68
   };
 
   /// Enumerates the different types of information stored in Summary. 
@@ -426,6 +427,62 @@ namespace xAOD {
 
     // -- numbers...
     numberOfMuonSummaryTypes       = 89
+  };
+
+  // Enums for rejection locations
+  enum RejectionStep {
+    // Rejections within DenseEnvironmentsAmbiguityProcessorTool::solveTracks
+    solveTracks,
+    // Rejections within DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks
+    addNewTracks,
+    // Rejections within AmbiguityProcessorBase::refitTrack
+    refitTrack,
+    // Rejections within AmbiguityProcessorBase::addTrack
+    addTrack,
+    // Rejections within InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep
+    decideWhichHitsToKeep,
+    // Rejections within InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
+    getCleanedOutTrack
+  };
+  enum RejectionReason {
+    acceptedTrack,
+    // Reason for rejection within DenseEnvironmentsAmbiguityProcessorTool::solveTracks
+    stillBeingProcessed,
+    // Reason for rejection within DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks
+    trackScoreZero,
+    duplicateTrack,
+    // Reason for rejection within AmbiguityProcessorBase::refitTrack
+    subtrackCreated,
+    refitFailed,
+    // Reason for rejection within AmbiguityProcessorBase::addTrack
+    bremRefitFailed,
+    bremRefitSubtrackCreated,
+    bremRefitTrackScoreZero,
+    refitTrackScoreZero,
+    // Reason for rejection within decideWhichHitsToKeep
+    TSOSRejectedHit,
+    TSOSOutlierShared,
+    pixelSplitButTooManyShared2Ptc,
+    pixelSplitButTooManyShared3Ptc,
+    tooManySharedRecoverable,
+    tooManySharedNonRecoverable,
+    sharedSCT,
+    sharedHitsBadChi2,
+    sharedHitsNotEnoughUniqueHits,
+    firstHitSharedAndPixIBL,
+    firstHitSharedAndExtraShared,
+    sharedHitsNotEnoughUniqueSiHits,
+    sharedIBLSharedWithNoIBLTrack,
+    sharedPixelSharedWithDifferentIBLTrack,
+    tooManySharedAfterIncreasingShared,
+    // Reason for rejection within getCleanedOutTrack
+    notEnoughSiHits,
+    notEnoughTRTHits,
+    notEnoughUniqueSiHits,
+    tooFewHits,
+    failedSubtrackCreation,
+    subtrackCreatedWithRecoveredShared,
+    other
   };
 
   /// A convenience namespace to make the client code easier to understand

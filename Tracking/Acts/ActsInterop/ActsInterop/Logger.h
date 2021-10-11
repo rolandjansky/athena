@@ -20,7 +20,7 @@ public:
   ActsAthenaPrintPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
 
   void
-  flush(const Acts::Logging::Level& lvl, const std::ostringstream& input);
+  flush(const Acts::Logging::Level& lvl, const std::string& input);
 
 private:
   std::shared_ptr<MsgStream> m_msg;

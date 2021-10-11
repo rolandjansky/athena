@@ -25,7 +25,7 @@ RpcPrepData::RpcPrepData( const Identifier& RDOId,
                           const IdentifierHash &idDE,
                           const Amg::Vector2D& locpos,
                           const std::vector<Identifier>& rdoList,
-                          const Amg::MatrixX* locErrMat,
+                          const Amg::MatrixX& locErrMat,
                           const MuonGM::RpcReadoutElement* detEl,
                           const float time,
                           const int triggerInfo,
@@ -41,7 +41,7 @@ RpcPrepData::RpcPrepData( const Identifier& RDOId,
                           const IdentifierHash &idDE,
                           const Amg::Vector2D& locpos,
                           const std::vector<Identifier>& rdoList,
-                          const Amg::MatrixX* locErrMat,
+                          const Amg::MatrixX& locErrMat,
                           const MuonGM::RpcReadoutElement* detEl,
                           const float time,
                           const int ambiguityFlag) :
@@ -54,6 +54,40 @@ RpcPrepData::RpcPrepData( const Identifier& RDOId,
     m_triggerInfo = 0;
 }
 
+RpcPrepData::RpcPrepData( const Identifier& RDOId,
+                          const IdentifierHash &idDE,
+                          const Amg::Vector2D& locpos,
+                          std::vector<Identifier>&& rdoList,
+                          Amg::MatrixX&& locErrMat,
+                          const MuonGM::RpcReadoutElement* detEl,
+                          const float time,
+                          const int triggerInfo,
+                          const int ambiguityFlag) :
+    MuonCluster(RDOId, idDE, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
+    m_detEl(detEl),
+    m_time(time),
+    m_triggerInfo(triggerInfo),
+    m_ambiguityFlag(ambiguityFlag)
+{ }
+
+RpcPrepData::RpcPrepData( const Identifier& RDOId,
+                          const IdentifierHash &idDE,
+                          const Amg::Vector2D& locpos,
+                          std::vector<Identifier>&& rdoList,
+                          Amg::MatrixX&& locErrMat,
+                          const MuonGM::RpcReadoutElement* detEl,
+                          const float time,
+                          const int ambiguityFlag) :
+    MuonCluster(RDOId, idDE, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
+    m_detEl(detEl),
+    m_time(time),
+    m_ambiguityFlag(ambiguityFlag)
+{
+    // set to default for readout data 
+    m_triggerInfo = 0;
+}
+
+
 // Destructor:
 RpcPrepData::~RpcPrepData()
 {
@@ -63,7 +97,7 @@ RpcPrepData::~RpcPrepData()
 // Default constructor:
 RpcPrepData::RpcPrepData():
         MuonCluster(),
-        m_detEl(0),
+        m_detEl(nullptr),
         m_time(0),
         m_triggerInfo(0),
         m_ambiguityFlag(0)

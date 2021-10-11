@@ -4,10 +4,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// CaloClusterMatchLinkAlg.cxx 
+// CaloClusterMatchLinkAlg.cxx
 // Implementation file for class CaloClusterMatchLinkAlg
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // CaloClusterMatching includes
 #include "CaloClusterMatchLinkAlg.h"
@@ -20,7 +20,7 @@
 
 
 namespace ClusterMatching {
-  
+
   // Destructor
   ///////////////
   CaloClusterMatchLinkAlg::~CaloClusterMatchLinkAlg()
@@ -52,7 +52,7 @@ namespace ClusterMatching {
   }
 
   StatusCode CaloClusterMatchLinkAlg::execute(const EventContext& ctx) const
-  {  
+  {
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
     SG::ReadHandle<xAOD::CaloClusterContainer> clustersToDecorate (m_clusterKey, ctx);

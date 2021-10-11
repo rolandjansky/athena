@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -195,7 +195,7 @@ void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpaceP
   double sinp = sin(phi);
   double cosp = cos(phi);
   
-  std::array<float, 4> xtrf, ytrf, ztrf;
+  std::array<float, 4> xtrf{}, ytrf{}, ztrf{};
 
   xtrf[0] = float(origin.x());
   xtrf[1] = float(cost*cosp*cosp+sinp*sinp);

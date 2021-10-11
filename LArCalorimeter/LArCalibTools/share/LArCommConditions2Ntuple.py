@@ -1,5 +1,4 @@
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
-from string import split,join
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
@@ -53,8 +52,8 @@ if not "DBTag" in dir():
      DBTag="LARCALIB-RUN2-00"
 
 if not "TagSuffix" in dir():
-   if SuperCells: # no linking to global tag yet
-      TagSuffix="-000"
+  if SuperCells: # no linking to global tag yet
+    TagSuffix="-000"
 
 def doObj(objName):
   for o in Objects:
@@ -64,7 +63,7 @@ def doObj(objName):
 
 def getDBFolderAndTag(folder):
   if ("TagSuffix" in globals()) and (TagSuffix != ""):
-    tag="<tag>"+join(split(folder, '/'),'') + TagSuffix+"</tag>"
+    tag="<tag>"+"".join(folder.split('/')) + TagSuffix+"</tag>"
   else:
     tag=""
   return "<db>"+InputDB+"</db>"+folder+tag
@@ -97,12 +96,16 @@ from AtlasGeoModel import GeoModelInit
 svcMgr.IOVDbSvc.GlobalTag=DBTag
 if IsMC:
    include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
-   conddb.addFolder("LAR_OFL","/LAR/BadChannels/BadChannels<tag>LArBadChannelsBadChannels-IOVDEP-06</tag>")
-   conddb.addFolder("LAR_OFL","/LAR/BadChannels/MissingFEBs<tag>LArBadChannelsMissingFEBs-IOVDEP-04</tag>")
+   conddb.addFolder("LAR_OFL","/LAR/BadChannels/BadChannels<tag>LArBadChannelsBadChannels-IOVDEP-06</tag>",className="CondAttrListCollection")
 else:
    include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
-   conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>")
-   conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>")
+   conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>",className="CondAttrListCollection")
+
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg()
+theLArBadChannelCondAlg.ReadKey="/LAR/BadChannels/BadChannels"
+condSeq+=theLArBadChannelCondAlg
 
 theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = RunNumber
@@ -169,7 +172,7 @@ if doObj("AUTOCORR"):
        conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/AutoCorr"))
        LArAutoCorr2Ntuple.ContainerKey="LArAutoCorr"
   elif IsFlat:
-       print ('No Flat Autocorr exists !!!')
+       print( 'No Flat Autocorr exists !!!')
        import sys; sys.exit(-1) 
   else:
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"))
@@ -193,26 +196,25 @@ if doObj("OFC"):
   LArOFC2Ntuple.OffId=OffIdDump
   if IsMC: 
     if SuperCells:
-       LArOFC2Ntuple.IsMC=IsMC
-       from LArRecUtils.LArOFCSCToolDefault import LArOFCSCToolDefault
-       theOFCTool = LArOFCSCToolDefault()
-       theOFCTool.Dump=True
-       ToolSvc += theOFCTool
-       LArOFC2Ntuple.OFCTool = theOFCTool
+       from LArRecUtils.LArOFCSCCondAlgDefault import LArOFCCondAlgDefault
+       ofcAlg = LArOFCSCCondAlgDefault()
     else:   
-       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/OFC"))
-       LArOFC2Ntuple.IsMC=IsMC
-       from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-       theOFCTool = LArOFCToolDefault()
-       theOFCTool.Dump=True
-       ToolSvc += theOFCTool
-       LArOFC2Ntuple.OFCTool = theOFCTool
+       from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+       ofcAlg = LArOFCCondAlgDefault()
+    LArOFC2Ntuple.ContainerKey = ofcAlg.LArOFCObjKey
+
   elif IsFlat:
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/OFC"))     
-    svcMgr.LArFlatConditionSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
-  else:     
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder))
-  LArOFC2Ntuple.ContainerKey = "LArOFC"
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg 
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    folder = '/LAR/ElecCalibFlat/OFC'
+    conddb.addFolder('LAR_ONL', getDBFolderAndTag(folder), className = 'CondAttrListCollection')
+    condSequence += LArOFCCondAlg  (ReadKey=folder, WriteKey='LArOFC')
+
+  else:
+    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder) + '<key>LArOFC</key>',
+                     className='LArOFCComplete')
+
   LArOFC2Ntuple.isSC=SuperCells
   LArOFC2Ntuple.isFlat=IsFlat  
   topSequence+=LArOFC2Ntuple
@@ -298,7 +300,7 @@ if (doObj("MPHYSOVERMCAL")):
   if IsMC: 
     if SuperCells:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMCSC/MphysOverMcal"))
-      print ('Not MPHYSOVERMCAL fo SuperCells yet !!')
+      print( 'Not MPHYSOVERMCAL fo SuperCells yet !!' )
       import sys; sys.exit(-2)
     else:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/MphysOverMcal"))
@@ -318,12 +320,12 @@ if (doObj("MPHYSOVERMCAL")):
 if (doObj("CALIWAVE")):
   if IsMC: 
     if SuperCells:
-      print ('No CALIWAVE for SuperCells yet !!!')
+      print( 'No CALIWAVE for SuperCells yet !!!')
       import sys; sys.exit(-3)
     else:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/CaliWave"))
   elif IsFlat: 
-    print ('No Flat CALIWAVE !!!')
+    print( 'No Flat CALIWAVE !!!')
     import sys; sys.exit(-3)
   else:  
     loadCastorCat=True
@@ -373,10 +375,10 @@ if (doObj("NOISE")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Noise"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
-    print ('No Flat LArNoise yet !!!')
+    print( 'No Flat LArNoise yet !!!')
     import sys; sys.exit(-5) 
   else:  
-    print ('For Cell noise use the CaloNoise2Ntuple algo !')
+    print( 'For Cell noise use the CaloNoise2Ntuple algo !')
     import sys; sys.exit(-5)
   pass
   from LArCalibTools.LArCalibToolsConf import LArNoise2Ntuple
@@ -395,7 +397,7 @@ if (doObj("FSAMPL")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/fSampl"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/fSampl"))
-    print ('No Flat LArfSampl yet !!!')
+    print( 'No Flat LArfSampl yet !!!')
     import sys; sys.exit(-5) 
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/fSampl/Symmetry"))
@@ -417,7 +419,7 @@ if doObj("HVSCALE"):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/HVScaleCorr"))
       svcMgr.LArFlatConditionSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
     else:
-      print ('Only Flat HVSCALE !!!')
+      print( 'Only Flat HVSCALE !!!')
       import sys; sys.exit(-5) 
 
 
@@ -436,7 +438,7 @@ if (doObj("MINBIAS")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/MinBiasAverage"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
-    print ('No Flat LArMinBias yet !!!')
+    print( 'No Flat LArMinBias yet !!!')
     import sys; sys.exit(-5) 
   from LArCalibTools.LArCalibToolsConf import LArMinBias2Ntuple
   LArMinBias2Ntuple=LArMinBias2Ntuple("LArMinBias2Ntuple")
@@ -446,13 +448,13 @@ if (doObj("MINBIAS")):
 if (doObj("PILEUP")):
   if IsMC: 
     if SuperCells:
-      print ('No LArPileup for SC yet !!!')
+      print( 'No LArPileup for SC yet !!!')
       import sys; sys.exit(-5) 
     else:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/LArPileupAverage"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
-    print ('No Flat LArPileup yet !!!')
+    print( 'No Flat LArPileup yet !!!')
     import sys; sys.exit(-5) 
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/LArPileupAverage"))

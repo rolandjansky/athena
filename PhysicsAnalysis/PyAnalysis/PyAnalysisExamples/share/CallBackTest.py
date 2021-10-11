@@ -12,12 +12,12 @@ pylcgdict.load_library("libPyAnalysisExamplesDict")
 obj = g.CallBackTest()
 
 # setup reverse proxy
-g.PyReverseProxy(g.MyDetObj).setConv(g.PyReverseProxy(g.MyDetObj).getObj)
+g.PyReverseProxy(g.AthPyEx.MyDetObj).setConv(g.PyReverseProxy(g.AthPyEx.MyDetObj).getObj)
 
 # define a python function
 def aPyFunc(dobj):
-    print "   aPyFunc called"
-    print dobj.name()
+    print ("   aPyFunc called")
+    print (dobj.name())
     
 # set callback
 obj.setCallBack(aPyFunc)

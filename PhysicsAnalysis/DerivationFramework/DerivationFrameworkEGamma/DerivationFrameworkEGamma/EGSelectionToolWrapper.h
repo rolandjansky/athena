@@ -57,8 +57,10 @@ private:
 
   // Write decoration handle keys
   // these are not really configuarable
-  SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_decoratorPass{};
-  SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_decoratorIsEM{};
+  SG::WriteDecorHandleKey<xAOD::EgammaContainer>
+    m_decoratorPass{ this, "decoratorPass", "", "" };
+  SG::WriteDecorHandleKey<xAOD::EgammaContainer>
+    m_decoratorIsEM{ this, "decoratorIsEM", "", "" };
   Gaudi::Property<std::string> m_cut{ this, "CutType", "", "cut type" };
 
   Gaudi::Property<std::string> m_sgName{ this,

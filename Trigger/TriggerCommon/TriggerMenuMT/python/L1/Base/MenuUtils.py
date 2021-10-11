@@ -3,7 +3,7 @@
 __all__ = ['log', 'idgen', 'binstr', 'get_smk_psk_Name']
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.MenuUtils")
+log = logging.getLogger(__name__)
 
 
 # unique id generator

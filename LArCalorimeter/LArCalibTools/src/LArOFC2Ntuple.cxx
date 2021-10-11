@@ -3,20 +3,17 @@
 */
 
 #include "LArCalibTools/LArOFC2Ntuple.h"
-#include "LArRawConditions/LArOFCComplete.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 LArOFC2Ntuple::LArOFC2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
   LArCond2NtupleBase(name, pSvcLocator)
 {
-  declareProperty("ContainerKey", m_contKey  = "LArOFC");
   declareProperty("Nsamples",     m_nSamples = 5);
   declareProperty("NtupleName",   m_ntName   = "OFC");
   declareProperty("NtupleFile",   m_ntFile   = "FILE1");
-  declareProperty("IsMC",         m_isMC=false);
-  declareProperty("OFCTool",      m_OFCTool );
 }
 
 LArOFC2Ntuple::~LArOFC2Ntuple() 
@@ -26,80 +23,47 @@ StatusCode LArOFC2Ntuple::initialize() {
   m_ntTitle="Optimal Filtering Coefficients";
   m_ntpath=std::string("/NTUPLES/")+m_ntFile+std::string("/")+m_ntName;
 
-  if ( LArCond2NtupleBase::initialize().isFailure() ) {
-	return StatusCode::FAILURE;
-  }
-  if ( m_isMC && m_OFCTool.retrieve().isFailure() ) {
-        ATH_MSG_ERROR( "OFC tool required for MC conditions but not available" );
-        return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_ofcKey.initialize() );
 
+  ATH_CHECK( LArCond2NtupleBase::initialize() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArOFC2Ntuple::stop() {
-  StatusCode sc;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // Ntuple booking: Specific
   NTuple::Item<long> gain, phase, nSamples;
   NTuple::Item<float> timeOffset, phasetime;
   NTuple::Array<float> OFCa, OFCb;
   
-  sc=m_nt->addItem("Gain",gain,-1,2);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'gain' failed" );
-    return StatusCode::FAILURE;
+  ATH_CHECK( m_nt->addItem("Gain",gain,-1,2) );
+  ATH_CHECK( m_nt->addItem("TimeOffset",timeOffset,0,100) );
+  ATH_CHECK( m_nt->addItem("Phase",phase,0,49) );
+  ATH_CHECK( m_nt->addItem("PhaseTime",phasetime,0,800) );
+  ATH_CHECK( m_nt->addItem("nSamples",nSamples,0,100) );
+  ATH_CHECK( m_nt->addItem("OFCa",m_nSamples,OFCa) );
+  ATH_CHECK( m_nt->addItem("OFCb",m_nSamples,OFCb) );
+  
+  // retrieve OFC object
+
+  const ILArOFC* larOFC=nullptr;
+  //Try Det-Store (real data, elec-calib case)
+  if (detStore()->contains<ILArOFC>(m_ofcKey.key())) {
+    ATH_CHECK(detStore()->retrieve(larOFC,m_ofcKey.key()));
+  }
+  else {//Via ReadCondHandle from CondStore (MC case)
+    SG::ReadCondHandle<ILArOFC> larOFCHdl (m_ofcKey, ctx);  
+    larOFC=larOFCHdl.cptr();
   }
 
-  //Specific:
-  sc=m_nt->addItem("TimeOffset",timeOffset,0,100);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'TimeOffset' failed" );
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("Phase",phase,0,49);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'phase' failed" );
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("PhaseTime",phasetime,0,800);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'PhaseTime' failed" );
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("nSamples",nSamples,0,100);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'nSamples' failed" );
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("OFCa",m_nSamples,OFCa);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'OFCa' failed" );
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("OFCb",m_nSamples,OFCb);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'OFCb' failed" );
-    return StatusCode::FAILURE;
-  }
-  
-  // retrieve OFC object 
-  const ILArOFC* larOFC = NULL ;
-  if ( !m_isMC ) {
-     ATH_MSG_DEBUG( "Retrieving ILArOFC object with key " << m_contKey );
-     sc = m_detStore->retrieve(larOFC,m_contKey);
-     if (sc.isFailure()) {
-       ATH_MSG_ERROR( "Can't retrieve ILArOFC with key " << m_contKey << " from Conditions Store" );
-       return StatusCode::FAILURE;
-     }
-  }
-  
   const LArOnOffIdMapping *cabling=0;
   if(m_isSC) {
     ATH_MSG_DEBUG( "LArOFC2Ntuple: using SC cabling" );
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey};
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey, ctx};
     cabling=*cablingHdl;
   }else{
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
     cabling=*cablingHdl;
   }
 
@@ -111,42 +75,12 @@ StatusCode LArOFC2Ntuple::stop() {
 
   unsigned cellCounter=0;  
   for ( unsigned igain=CaloGain::LARHIGHGAIN; 
-	igain<CaloGain::LARNGAIN ; ++igain ) {
-    std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-    std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-    if ( m_isMC ) {
-     for (;it!=it_e;it++) {
-      const HWIdentifier chid = *it;
-      if (!cabling->isOnlineConnected(chid)) continue;
-        ATH_MSG_VERBOSE( "Dumping OFC for channel 0x" << MSG::hex 
-	  << chid.get_compact() << MSG::dec );
-        ILArOFC::OFCRef_t ofc_a=m_OFCTool->OFC_a(chid,igain);
-        ILArOFC::OFCRef_t ofc_b=m_OFCTool->OFC_b(chid,igain);
-	fillFromIdentifier(chid);
-	gain  = (long)igain ;
-	phase = (long)0 ;	  
-	nSamples=ofc_a.size();
-	for (int k=0;k<nSamples;k++ ) {
-	  OFCa[k] = ofc_a[k] ;
-	  OFCb[k] = ofc_b[k] ;	  
-	}
-	
-	timeOffset = 0;	
-	phasetime  = 0;
-	
-	sc = ntupleSvc()->writeRecord(m_nt);
-	cellCounter++;
-	if (sc!=StatusCode::SUCCESS) {
-	  ATH_MSG_ERROR( "writeRecord failed" );
-	  return StatusCode::FAILURE;
-	}
-     }//loop over channels
-    }  else { // is_MC
-     for (;it!=it_e;it++) {
-      const HWIdentifier chid = *it;
+	igain<CaloGain::LARNGAIN ; ++igain )
+  {
+    for (HWIdentifier chid : m_onlineId->channel_range()) {
       if ( !cabling->isOnlineConnected(chid)) continue;
       ATH_MSG_VERBOSE( "Dumping OFC for channel 0x" << MSG::hex
-          << chid.get_compact() << MSG::dec );
+                       << chid.get_compact() << MSG::dec );
       for (unsigned iphase=0;iphase<larOFC->nTimeBins(chid,igain);iphase++) {
         ILArOFC::OFCRef_t ofc_a=larOFC->OFC_a(chid,igain,iphase);
         //Check if we have OFC for this channel and gain
@@ -165,15 +99,10 @@ StatusCode LArOFC2Ntuple::stop() {
         phasetime  = phase*larOFC->timeBinWidth(chid,igain);
 
 
-        sc = ntupleSvc()->writeRecord(m_nt);
+        ATH_CHECK( ntupleSvc()->writeRecord(m_nt) );
         cellCounter++;
-        if (sc!=StatusCode::SUCCESS) {
-          ATH_MSG_ERROR( "writeRecord failed" );
-          return StatusCode::FAILURE;
-        }
       }//loop over phases
      }//loop over channels
-    } 
   }//loop over gains
   ATH_MSG_INFO( "Total number of cells = " << cellCounter );
   ATH_MSG_INFO( "LArOFC2Ntuple has finished." );

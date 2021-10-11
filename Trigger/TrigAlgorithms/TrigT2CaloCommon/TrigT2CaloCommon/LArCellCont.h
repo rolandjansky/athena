@@ -19,14 +19,16 @@
 
 #include "LArRecEvent/LArCellCollection.h"
 #include "TrigT2CaloCommon/LArRodIdHash.h"
-#include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "LArRawConditions/LArMCSym.h"
+#include "LArRecConditions/LArFebRodMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include <vector>
 
-class ILArBadChannelMasker;
 class ILArBadFebMasker;
 class CaloBCIDAverage;
 static std::vector<float> corrBCIDref_example;
@@ -47,13 +49,13 @@ class LArCellCont : public std::vector<LArCellCollection*>
   *   @param[in] ReadOut Module ID
   *   @return @c const_iterator to a pointer to LArCellCollection.
   */
-  const std::vector<LArCellCollection*>::const_iterator&
+  const std::vector<LArCellCollection*>::const_iterator
 		find(const HWIdentifier& id) const ;
   /** @brief Finds a collection by its ROD ID
   *   @param[in] Read Out ID as provided by RegionSelector.
   *   @return @c const_iterator to a pointer to LArCellCollection.
   */
-  const std::vector<LArCellCollection*>::const_iterator&
+  const std::vector<LArCellCollection*>::const_iterator
 		find(const unsigned int& id) const ;
   /** @brief Each Collection contains data from 2 FEBs.
   *   @return for each collection the ID of the second FEB.
@@ -68,7 +70,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   virtual ~LArCellCont() { };
 
   /** initialize method. Builds all cells and collections. */
-  StatusCode initialize( ) ;
+  StatusCode initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) ;
   /** finalize method. Destroys all cells and collections. */
   StatusCode finalize( void ) ;
   /** sets Event Number */
@@ -83,7 +85,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
 
   bool lumiBCIDCheck( const EventContext& context );
   /** update BCID dependent correction table for MT case */
-  void updateBCID( const CaloBCIDAverage& );
+  void updateBCID( const CaloBCIDAverage&, const LArOnOffIdMapping& );
 
 private:    
 
@@ -94,8 +96,6 @@ private:
 	/** FEB Hardware Identifier for second FEBs in a
 	    Collection */
 	std::vector<HWIdentifier> m_second;
-	/** @c const_iterator to LArCellCollections */
-        mutable std::vector<LArCellCollection*>::const_iterator m_it;
 	/** eventNumber of a given Collection */
 	mutable std::vector<unsigned int> m_eventNumber;
 	/** this event number */
@@ -104,7 +104,7 @@ private:
 	std::vector<DataVector<LArCell>*> m_vecs;
 
 	/** A tool to help mask cells */
-	const ILArBadChannelMasker  *m_masker;
+	//const ILArBadChannelMasker  *m_masker;
 	/** A tool to help mask febs */
 	const ILArBadFebMasker *m_badFebMasker;
 	/** List of Missing ROBs to be disabled at the RS */
@@ -120,8 +120,6 @@ private:
 	unsigned int m_bcid;
 	EventIDBase::event_number_t m_bcidEvt;
 	
-	/** Needs also the LArCablingSvc */
-	LArCablingLegacyService* m_larCablingSvc;  
 	/** flag to only update cache when trying to apply corrections */
 	bool m_BCIDcache;
 };

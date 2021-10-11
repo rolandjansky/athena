@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -151,7 +151,7 @@ public:
 
       void *ptr( 0 );
       if( m_log->level() <= MSG::DEBUG ) {
-	*m_log << MSG::DEBUG << "In createObj for : " << clname << " normalized to " << normalized << endmsg;
+         *m_log << MSG::DEBUG << "In createObj for : " << clname << " normalized to " << normalized << endmsg;
       }
 
       StatusCode sc = m_convHelper->createObj( normalized, iAddr, ptr, typeIsxAOD);
@@ -176,8 +176,10 @@ public:
          TrigStreamAddress *addr = dynamic_cast< TrigStreamAddress* >( iAddr );
          if( addr ) {
             if( m_sgsvc->contains< DATA >( addr->sgkey() ) ) {
-	      //std::cout << "NOT OVERWRITING! ptr " << nObj << " key: " << addr->sgkey() << std::endl;
-	      sc = m_sgsvc->overwrite( nObj, addr->sgkey(), false );
+               *m_log << MSG::WARNING << "TrigSerializeConverter::createObj object "
+                      << clname << " / " << addr->sgkey()
+                      << " is already in the store; not overwriting"
+                      <<  endmsg;
             } else {
                sc = m_sgsvc->record( nObj, addr->sgkey() );
             }

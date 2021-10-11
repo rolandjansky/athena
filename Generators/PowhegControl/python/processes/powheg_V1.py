@@ -16,8 +16,11 @@ class PowhegV1(PowhegBase):
 
         @param base_directory  path to PowhegBox code.
         @param executable_name folder containing appropriate PowhegBox executable.
+        @param warning_output list of patterns which if found in the output will be treated as warning in the log.
+        @param error_output list of patterns which if found in the output will be treated as error in the log.
+        @param info_output list of patterns which if found in the output will be treated as info in the log.
         """
-        super(PowhegV1, self).__init__(base_directory, "POWHEG-BOX", executable_name, is_reweightable=False, **kwargs)
+        super(PowhegV1, self).__init__(base_directory, "POWHEG-BOX", executable_name, is_reweightable=False, warning_output = [], info_output = [], error_output = [], **kwargs)
 
     @property
     def default_PDFs(self):
@@ -51,12 +54,13 @@ class PowhegV1(PowhegBase):
             "pwgremnupb*.dat",
             "pwgstat*.dat",
             "pwgubound*.dat",
-            "pwgxgrid.dat"
+            "pwgxgrid*.dat"
         ]
 
     @property
     def mandatory_integration_file_names(self):
         """! Wildcarded list of integration files that are needed for this process."""
+        """! If some of the patterns don't match any files before running, a warning will be made to inform that no pre-made integration grid will be used."""
         return self.integration_file_names
 
     @property

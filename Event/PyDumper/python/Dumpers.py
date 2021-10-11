@@ -287,7 +287,7 @@ def dump_AmgMatrix (m, f, thresh=1e-38):
         for c in range(m.cols()):
             v = m(r,c)
             if abs(v) < thresh: v = 0
-            fprint (f, '%6.3g' % v)
+            fprint (f, '%#6.3g' % v)
         fprint (f, ']')
     fprint (f, ']')
     return
@@ -300,7 +300,7 @@ def dump_AmgVector (m, f, thresh=1e-38):
     for r in range(m.rows()):
         v = m(r)
         if abs(v) < thresh: v = 0
-        fprint (f, '%6.3g' % v)
+        fprint (f, '%#6.3g' % v)
     fprint (f, ']')
     return
 
@@ -4704,14 +4704,14 @@ def format_el(x):
     if not key:
         key = '(%d)' % x.key()
     return '%s[%d]' % (key, x.index())
-char_accessor_ = getattr (ROOT, 'SG::AuxElement::ConstAccessor<char>')
+char_accessor_ = getattr (ROOT, 'SG::ConstAuxElement::ConstAccessor<char>')
 class char_accessor:
     def __init__ (self, name):
         self.ac = char_accessor_ (name)
         return
     def __call__ (self, x):
         return ord(self.ac(x))
-uchar_accessor_ = getattr (ROOT, 'SG::AuxElement::ConstAccessor<unsigned char>')
+uchar_accessor_ = getattr (ROOT, 'SG::ConstAuxElement::ConstAccessor<unsigned char>')
 class uchar_accessor:
     def __init__ (self, name):
         self.ac = uchar_accessor_ (name)
@@ -4734,7 +4734,7 @@ accessors = {
     'unsigned char' : uchar_accessor,
     }
 for t in tlist:
-    aname = 'SG::AuxElement::ConstAccessor<' + t
+    aname = 'SG::ConstAuxElement::ConstAccessor<' + t
     if t[-1] == '>': aname += ' '
     aname += '>'
     accessors[t] = getattr (ROOT, aname)
@@ -4798,7 +4798,7 @@ def generic_dump_auxitem (x, auxid, f):
             
     reg=ROOT.SG.AuxTypeRegistry.instance()
     tname = reg.getTypeName (auxid)
-    ac = ROOT.SG.AuxElement.TypelessConstAccessor (reg.getName(auxid))
+    ac = ROOT.SG.ConstAuxElement.TypelessConstAccessor (reg.getName(auxid))
     try:
         buf = ac(x)
     except TypeError:

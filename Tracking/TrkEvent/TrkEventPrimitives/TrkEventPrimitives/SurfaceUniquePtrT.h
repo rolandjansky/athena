@@ -6,7 +6,7 @@
 
 // $Id$
 /**
- * @file TrkParametersBase/SurfaceUniquePtrT.h
+ * @file TrkEventPrimitives/SurfaceUniquePtrT.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Sep, 2015
  * @brief Handle conditional ownership of surfaces.

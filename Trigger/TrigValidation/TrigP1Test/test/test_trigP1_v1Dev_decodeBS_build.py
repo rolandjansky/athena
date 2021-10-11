@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: build
@@ -41,8 +41,16 @@ writeBS = ExecStep.ExecStep("WriteBS")
 writeBS.type = 'athenaHLT'
 writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
-writeBS.args = '-o output'
-writeBS.args += ' -c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+writeBS.max_events = 50
+precommand = ''.join([
+  "setMenu='LS2_v1_TriggerValidation_prescale';",
+  "doL1Sim=True;",
+  "rewriteLVL1=True;",
+  "doRuntimeNaviVal=True;",
+])
+writeBS.args = '-c "{:s}"'.format(precommand)
+writeBS.args += ' -o output'
+writeBS.args += ' --dump-config-reload'
 
 # Extract and decode physics_Main
 filterMain = filterBS("Main")
@@ -65,11 +73,21 @@ test.get_step('CheckFile').input_file = 'ESD.pool.root,ESD.Module1.pool.root'
 # Ultimately there should be no per-event messages
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 600,
+  'WARNING': 4000,  # TODO: Fix the warnings and decrease the limit, ATR-23548, ATR-22942
   'INFO': 600,
   'other': 100
 }
 msgcount.required = True # make the test exit code depend on this step
+
+# Add a step comparing counts against a reference
+chaindump = test.get_step("ChainDump")
+chaindump.args = '--json --yaml ref_v1Dev_decodeBS_build.new'
+refcomp = CheckSteps.ChainCompStep("CountRefComp")
+refcomp.input_file = 'ref_v1Dev_decodeBS_build.new'
+refcomp.args += ' --patch'
+refcomp.reference_from_release = True # installed from TrigP1Test/share
+refcomp.required = True # Final exit code depends on this step
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 
 import sys
 sys.exit(test.run())

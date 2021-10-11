@@ -175,8 +175,8 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
 
   bool separateSAFMuons = true;
   if (m_slowMuonsName!="") separateSAFMuons = false; // no such muons in case of SlowMuon reco
-  
-  std::string muonContainerName = m_muonsName.name();
+
+  std::string muonContainerName = m_muonsName;  
   for (const auto& category : m_selectMuonCategoriesStr) {
     std::string categoryPath = m_muonsName+"/"+category+"/";
     m_muonValidationPlots.push_back( new MuonValidationPlots(0, categoryPath,
@@ -537,7 +537,6 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       return sc;
     }
     else ATH_MSG_DEBUG("TriggerDecision accessed");
-    m_trigDec->ExperimentalAndExpertMethods()->enable();
     auto chainGroups = m_trigDec->getChainGroup("HLT_.*mu.*");
     for(auto &trig : chainGroups->getListOfTriggers()) {
       if(m_trigDec->isPassed(trig, TrigDefs::EF_passedRaw )) {ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");}

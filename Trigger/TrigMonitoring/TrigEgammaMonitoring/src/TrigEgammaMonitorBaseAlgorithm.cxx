@@ -12,6 +12,7 @@ TrigEgammaMonitorBaseAlgorithm::TrigEgammaMonitorBaseAlgorithm( const std::strin
     m_matchTool("Trig::TrigEgammaMatchingToolMT/TrigEgammaMatchingToolMT")
 {
   declareProperty( "MatchTool" , m_matchTool );
+  declareProperty( "EmulationTool" , m_emulatorTool );
 }
 
 
@@ -22,19 +23,15 @@ TrigEgammaMonitorBaseAlgorithm::~TrigEgammaMonitorBaseAlgorithm() {}
 
 StatusCode TrigEgammaMonitorBaseAlgorithm::initialize() 
 {
-    
+
+  ATH_MSG_INFO("TrigEgammaMonitorBaseAlgorithm::initialize()...");
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_trigdec.retrieve());
   ATH_CHECK(m_photonIsEMTool.retrieve());
   ATH_CHECK(m_electronIsEMTool.retrieve());
   ATH_CHECK(m_electronLHTool.retrieve());
-
-
-  m_trigdec->ExperimentalAndExpertMethods()->enable();
-
-  
-
-  for(const auto& cut:m_trigLevel) 
+  ATH_CHECK(m_electronDNNTool.retrieve());
+  for(const auto& cut:m_trigLevel)
     m_accept.addCut(cut,cut);
 
 
@@ -48,9 +45,9 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidname) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string& pidname) const
 {
-    auto ctx = Gaudi::Hive::currentContext() ;
+    const auto& ctx = Gaudi::Hive::currentContext() ;
     if (pidname == "tight"){
         return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
@@ -72,6 +69,15 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
     else if (pidname == "lhvloose"){
         return (bool) this->m_electronLHTool[3]->accept(ctx,eg);
     }
+    else if (pidname == "dnntight"){
+        return (bool) this->m_electronDNNTool[0]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnmedium"){
+        return (bool) this->m_electronDNNTool[1]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnloose"){
+        return (bool) this->m_electronDNNTool[2]->accept(ctx,eg);
+    }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
 }
@@ -81,9 +87,9 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
 // ************************************************************************************************
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidname) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string& pidname) const
 {
-    auto ctx = Gaudi::Hive::currentContext() ;
+    const auto& ctx = Gaudi::Hive::currentContext() ;
     if (pidname == "tight"){
         return (bool) this->m_photonIsEMTool[0]->accept(ctx,eg);
     }
@@ -102,7 +108,7 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, con
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const std::string isolation) const {
+bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const std::string& isolation) const {
   ATH_MSG_DEBUG("Apply Isolation " << isolation);
   float ptcone20;
   eg->isolationValue(ptcone20, xAOD::Iso::ptcone20);
@@ -130,7 +136,7 @@ bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const 
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) const {
+bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string& trigger) const {
 
     bool efprescale=false;
     bool l1prescale=false;
@@ -163,12 +169,11 @@ bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) cons
 
 
 
-
-asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo info) const {
+asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo& info) const {
     
     ATH_MSG_DEBUG("setAccept");
 
-    unsigned int condition=TrigDefs::Physics;
+    unsigned int condition=TrigDefs::includeFailedDecisions;
 
     asg::AcceptData acceptData (&m_accept);
    
@@ -180,41 +185,62 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     bool passedEF=false;
     
     if (dec) {
-      auto trigger = info.trigName; 
-      passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
 
-      if(!info.trigL1){ // HLT item get full decision
-          ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
+        auto trigger = info.trigName; 
+        // Step 1
+        passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
 
-          passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_FastCaloEMClusters", condition);  
-          passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters", condition);
+        if(!info.trigL1 && passedL1Calo ){ // HLT item get full decision
+            // Step 2
+            passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, match()->key("FastCalo"), condition);  
+          
+            if(passedL2Calo){
+
+                // Step 3
+                if(info.trigType == "electron"){
+                    std::string key = match()->key("FastElectrons");
+                    if(info.isLRT)  key = match()->key("FastElectrons_LRT");
+                    passedL2 = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, key, condition);
+                }else if(info.trigType == "photon"){
+                    passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, match()->key("FastPhotons"), condition);
+                }
+
+                if(passedL2){
 
 
-          if(info.trigType == "electron"){
-              ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
-              passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons", condition);
-              if (info.trigEtcut){
-                passedEF=true;
-              }else{
-                  if(info.isGSF){
-                    passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons_GSF", condition);
-                    }else{
-                        passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
-                    }
-              }
-              passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
-          }
-          else if(info.trigType == "photon"){
-              ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-              passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons", condition);
-              if (info.trigEtcut){
-                passedEF=true;
-              }else{
-                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons", condition);
-              }
-              passedEFTrk=true;// Assume true for photons
-          }
-      }
+                    // Step 4
+                    std::string key = match()->key("PrecisionCalo");
+                    if(info.isLRT)  key = match()->key("PrecisionCalo_LRT");
+                    passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, key, condition);
+
+                    if(passedEFCalo){
+
+                        // Step 5
+                        passedEFTrk=true;// Assume true for photons
+
+                        // Step 6
+                        if(info.trigType == "electron"){
+                            if( info.trigEtcut || info.trigPerf){// etcut or idperf
+                                passedEF = true; // since we dont run the preciseElectron step
+                            }else{
+                                std::string key = match()->key("Electrons");
+                                if(info.isLRT)  key = match()->key("Electrons_LRT");
+                                if(info.isGSF)  key = match()->key("Electrons_GSF");
+                                passedEF = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, key, condition);
+                            }
+   
+                        }else if(info.trigType == "photon"){
+                            if (info.trigEtcut){
+                                passedEF = true; // since we dont run the precisePhoton step
+                            }else{
+                                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, match()->key("Photons"), condition);
+                            }
+                        }
+                    } // EFCalo
+                }// L2
+            }// L2Calo
+        }// L2Calo
+
     }
 
     acceptData.setCutResult("L1Calo",passedL1Calo);
@@ -543,7 +569,7 @@ float TrigEgammaMonitorBaseAlgorithm::getE0Eaccordion(const xAOD::Egamma *eg) co
 
 
 
-TrigInfo TrigEgammaMonitorBaseAlgorithm::getTrigInfo(const std::string trigger) const{ 
+TrigInfo TrigEgammaMonitorBaseAlgorithm::getTrigInfo(const std::string& trigger) const{ 
   return m_trigInfo.at(trigger); 
 }
 
@@ -551,7 +577,7 @@ TrigInfo TrigEgammaMonitorBaseAlgorithm::getTrigInfo(const std::string trigger) 
 
 // This is not const function and can not be used in execute mode (not thread safe)
 // adds entry in TrigInfo map to retrieve later via trigger name
-void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
+void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
 
     /********************************************
       std::string trigName; //Trigger Name
@@ -563,6 +589,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
       bool trigPerf; // Performance chain
       bool trigEtcut; // Et cut only chain
       bool isGSF; // GSF Chain
+      bool isLRT; // LRT Chain
       float trigThrHLT; // HLT Et threshold
       float trigThrL1; // L1 Et threshold
      *******************************************/
@@ -577,6 +604,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     bool etcut=false;
     bool trigIsEmulation=false;
     bool trigGSF=false;
+    bool trigLRT=false;
     parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
 
     std::string l1item = "";
@@ -589,7 +617,10 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     if (boost::contains(trigger,"gsf")){
         trigGSF=true;
     }
-    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,trigIsEmulation,trigGSF};
+    if (boost::contains(trigger,"lrt")){
+        trigLRT=true;
+    }
+    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,trigIsEmulation,trigGSF,trigLRT};
     m_trigInfo[trigger] = info;
 }
 
@@ -599,61 +630,8 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::splitTriggerName(const std::string trigger, 
-                                                  std::string &p1trigger, 
-                                                  std::string &p2trigger) const {
-
-  p1trigger="";
-  p2trigger="";
-
-  std::string hltinfo=trigger;
-  if(boost::contains(hltinfo,"HLT")) hltinfo.erase(0,4);
-  std::vector<std::string> strs;
-  boost::split(strs,hltinfo,boost::is_any_of("_"));
-
-  if((strs.at(0))[0]=='2'){
-    ((p1trigger+=("HLT_"+((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_"));
-
-    for(unsigned int i=1; i<strs.size();i++){
-      if(strs.at(i)=="Jpsiee") continue;
-      (p1trigger+="_")+=strs.at(i);
-    }
-
-    p2trigger=p1trigger;
-    return true;
-  }
-  else{
-
-    if(strs.size()<4){
-      return false;
-    }
-
-    int index=-1;
-    p1trigger+=("HLT_"+strs.at(0));
-
-    for(int i=1; index<0;i++)
-      {
-        (p1trigger+="_")+=strs.at(i);
-
-        if(strs.at(i+1)[0]=='e' || strs.at(i+1)[0]=='g') index=(i+1);
-      }
-
-    p2trigger+=("HLT_"+strs.at(index));
-
-    for(unsigned int i=index+1; i< strs.size();i++){
-      if(strs.at(i)=="Jpsiee") continue;
-      (p2trigger+="_")+=strs.at(i);
-    }
-    return true;
-  }
-
-
-}
-
-
-
-void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger, 
-                                                  std::string defaultPid,
+void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string& trigger, 
+                                                  const std::string& defaultPid,
                                                   bool &isL1,
                                                   std::string &type,
                                                   float &threshold, 
@@ -694,7 +672,7 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
         if(boost::contains(strs.at(0),"e")) type = "electron";
         else if(boost::contains(strs.at(0),"g")) type = "photon";
         else ATH_MSG_ERROR("Cannot set trigger type from name");
-        if(boost::contains(strs.at(1),"perf")){
+        if(boost::contains(strs.at(1),"idperf")){
             pidname = defaultPid;
             perf=true;
             ATH_MSG_DEBUG("Perf " << perf << " " << pidname );
@@ -718,7 +696,6 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
         }
 
         //Get the L1 information
-
         if(boost::contains(strs.back(),"L1")){
             std::string l1info = strs.back();
             l1info.erase(0,4);
@@ -743,15 +720,15 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
 
 
 
-std::string TrigEgammaMonitorBaseAlgorithm::getProbePid(const std::string pidtype) const {
+std::string TrigEgammaMonitorBaseAlgorithm::getProbePid(const std::string& pidtype) const {
     // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
     return m_pidMap.at(pidtype);
 }
 
 
 
-std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(std::string trigger) const{
-    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(const std::string& trigger) const{
+    const auto *trig_conf = m_trigdec->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
     if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");
@@ -761,17 +738,17 @@ std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(std::string trigger) const
 }
 
 
+bool TrigEgammaMonitorBaseAlgorithm::isHLTTruncated() const {
+    return m_trigdec->ExperimentalAndExpertMethods().isHLTTruncated();
+}
+
+
 
 
 
 const std::vector<std::string> TrigEgammaMonitorBaseAlgorithm::m_trigLevel = {"L1Calo","L2Calo","L2","EFCalo","EFTrack","HLT"};
 
-const std::map<std::string,std::string> TrigEgammaMonitorBaseAlgorithm::m_trigLvlMap = {{"L1Calo","Trigger L1Calo step"},
-                                                                                        {"L2Calo","Trigger L2Calo step"},
-                                                                                        {"L2","Trigger L2 step"},
-                                                                                        {"EFCalo","Trigger EFCalo step"},
-                                                                                        {"EFTrack","Trigger EFTrack step"},
-                                                                                        {"HLT","Trigger HLT accept"}};
+
 
 const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMap = { {"vloose"   , "loose"   },
                                                                                       {"loose"    , "loose"   },
@@ -783,7 +760,39 @@ const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMa
                                                                                       {"lhvloose" , "lhvloose" },
                                                                                       {"lhloose"  , "lhloose" },
                                                                                       {"lhmedium" , "lhmedium"},
-                                                                                      {"lhtight"  , "lhtight" } };
+                                                                                      {"lhtight"  , "lhtight" },
+                                                                                      {"dnnloose"  , "dnnloose" },
+                                                                                      {"dnnmedium" , "dnnmedium"},
+                                                                                      {"dnntight"  , "dnntight" } };
 
+//!=============================================================================
 
+// Define the parser
+#include "GaudiKernel/ParsersFactory.h"
+
+namespace Gaudi
+{
+  namespace Parsers
+  {
+    // Parse function... nothing special, but it must be done explicitely.
+    StatusCode parse( VecDict_t& result, const std::string& input ) { return parse_( result, input ); }
+  }
+}
+
+// We also need to be able to print an object of our type as a string that both
+// Python and our parser can understand,
+#include "GaudiKernel/ToStream.h"
+namespace std
+{
+  // This is an example valid for any mapping type.
+  ostream& operator<<( ostream& s, const Gaudi::Parsers::VecDict_t& vecDict )
+  {
+    s << '{';
+    for ( const auto& dict : vecDict ) {
+      Gaudi::Utils::toStream( dict, s );
+    }
+    s << '}';
+    return s;
+  }
+}
 

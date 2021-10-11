@@ -108,7 +108,7 @@ namespace Trk {
       }        
       //--- This creates Perigee in GLOBAL frame from input in realtive coordinates
       const Perigee* inpPer = 
-          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni, state);
+          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni, state).release();
       const TrackParameters * inpPar= (const TrackParameters*) inpPer;
 //
 // ----- Magnetic field is taken at target point (GLOBAL calculated from relative frame input)
@@ -317,8 +317,8 @@ namespace Trk {
           }
           return endPer;
         }
-        Amg::Transform3D* trnsf = new Amg::Transform3D();
-        (*trnsf).setIdentity();
+        Amg::Transform3D trnsf;
+        trnsf.setIdentity();
         CylinderSurface surfBorder(trnsf, Border, 3000.);
         if (iniPoint.perp() < Border) {
           tmpPer = m_extrapolator->extrapolate(ctx,
@@ -432,8 +432,8 @@ namespace Trk {
     if(!xprt->isAvailable<float>("radiusOfFirstHit")) return nullptr;  // No radiusOfFirstHit on track
 
     const Trk::Perigee*  mPer = &(xprt->perigeeParameters()); 
-    Amg::Transform3D *trnsf = new Amg::Transform3D(); 
-    (*trnsf).setIdentity();
+    Amg::Transform3D trnsf; 
+    trnsf.setIdentity();
     CylinderSurface surfacePntOnTrk( trnsf, xprt->radiusOfFirstHit(), 20000.);        
     ParticleHypothesis prtType = pion;
     

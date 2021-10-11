@@ -32,7 +32,7 @@ class TrigBmumuxComboHypoTool: public ComboHypoToolBase {
 
  private:
   bool passed(const xAOD::TrigBphys*) const;
-  virtual bool executeAlg(std::vector<LegDecision>&) const override { return true; }
+  virtual bool executeAlg(const std::vector<Combo::LegDecision>&) const override;
 
   Gaudi::Property<int> m_decay {this, "Decay", 9999, "decay as enumerated in xAOD::TrigBphys::pType"};
 

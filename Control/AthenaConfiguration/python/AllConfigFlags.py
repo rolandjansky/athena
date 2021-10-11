@@ -1,10 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict
+from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict, getSpecialConfigurationMetadata
 from AthenaConfiguration.Enums import ProductionStep
 from PyUtils.moduleExists import moduleExists
 
@@ -23,8 +21,12 @@ def _createCfgFlags():
     from AthenaCommon.Constants import INFO
     acf.addFlag('Exec.OutputLevel',INFO) #Global Output Level
     acf.addFlag('Exec.MaxEvents',-1) 
-    acf.addFlag("Exec.SkipEvents",0)
-    acf.addFlag("Exec.DebugStage","")
+    acf.addFlag('Exec.SkipEvents',0)
+    acf.addFlag('Exec.DebugStage','')
+
+    acf.addFlag('ExecutorSplitting.TotalSteps', 0)
+    acf.addFlag('ExecutorSplitting.Step', -1)
+    acf.addFlag('ExecutorSplitting.TotalEvents', -1)
 
     #Flags describing the input data 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
@@ -40,6 +42,8 @@ def _createCfgFlags():
 
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
+    acf.addFlag('Input.ProcessingTags', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("processingTags","") ) # list of names of streams written to this file
+    acf.addFlag('Input.SpecialConfiguration', lambda prevFlags : getSpecialConfigurationMetadata(prevFlags.Input.Files))  # special Configuration options read from input file metadata
 
     def _inputCollections(inputFile):
         if not inputFile:
@@ -100,6 +104,7 @@ def _createCfgFlags():
 
 
     acf.addFlag('Output.EVNTFileName', '')
+    acf.addFlag('Output.EVNT_TRFileName', '')
     acf.addFlag('Output.HITSFileName', '')
     acf.addFlag('Output.RDOFileName',  '')
     acf.addFlag('Output.RDO_SGNLFileName', '')
@@ -219,6 +224,11 @@ def _createCfgFlags():
         from METReconstruction.METConfigFlags import createMETConfigFlags
         return createMETConfigFlags()
     _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
+
+    def __tau():
+        from tauRec.TauConfigFlags import createTauConfigFlags
+        return createTauConfigFlags()
+    _addFlagsCategory(acf, "Tau",__tau, 'tauRec')
 
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags

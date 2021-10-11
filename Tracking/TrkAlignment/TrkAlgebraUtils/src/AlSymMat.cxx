@@ -10,12 +10,12 @@
 #include "TrkAlgebraUtils/AlMat.h"
 
 #include <algorithm>
-#include <iostream>
-#include <iomanip>
+#include <cfloat> //for DBL_EPSILON
+#include <cmath>
+#include <cstdint>
 #include <fstream>
-#include <math.h>
-#include <float.h> //for DBL_EPSILON
-#include <stdint.h>
+#include <iomanip>
+#include <iostream>
 #include <stdexcept>
 
 #include <TMatrixDSparse.h>

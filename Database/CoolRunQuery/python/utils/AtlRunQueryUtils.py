@@ -408,7 +408,7 @@ def GetTimeRanges(timeranges, intRepFnc=timeStringToSecondsUTC, maxval=1<<30):
     return MergeRanges(listOfRanges),listOfRangesHR
 
 
-def SmartRangeCalulator(runlist,singleRuns=False):
+def SmartRangeCalulator(runlist,singleRuns=True):
     if len(runlist) == 0:
         return []
     if isinstance(runlist[0], list):
@@ -480,17 +480,24 @@ def Poisson( n, mu ):
         return p
 
 def ComputePileup( lumi_mb, sigma, nbunch, fOrbit ):
+    print("Calling compute pileup with")
+    print(" lumi_mb  :", lumi_mb)
+    print(" sigma    :", sigma)
+    print(" # bunches:", nbunch)
+    print(" # fOrbit :", fOrbit)
+    p = []
     # sanity
     if nbunch <= 0:
-        return 0
+        return 0, None
 
     # compute first probability of interaction    
-    nint = lumi_mb*sigma/fOrbit/nbunch
+    nint = lumi_mb * sigma / fOrbit / nbunch
+
+    # large 
     if nint > 100:
-        return nint
+        return nint, None
 
     # small 'nint', compute poisson probabilities
-    p = []
     for n in range(40):
         p.append(Poisson(n,nint))
         if n > 20 and p[-1] < 1e40:
@@ -521,29 +528,34 @@ def Pileup( args ):
             # input expects first argument to be luminosity in cm-2s-1
             lumi     = float(args[0])
             sigma    = float(args[1])
-            nbunch   = float(args[2])
+            nbunch   = int(args[2])
             nevents  = 1
             if len(args) == 4:
-                nevents = float(args[3])
+                nevents = int(args[3])
 
         # compute pileup
         lumi_mb = lumi/1.e27  # luminosity in mb-1s-1
-        pint, plist = ComputePileup( lumi_mb, sigma, nbunch, fOrbit )
-
+        nint, plist = ComputePileup( lumi_mb, sigma, nbunch, fOrbit )
+        print("Resultat:")
+        print("  nint  ",nint)
+        print("  plist ",plist)
+        referenceInfo = '7TeV: 60.3&pm;2.1 mb' 
+        referenceInfo += ' [<a href="https://arxiv.org/abs/1104.0326" target="_blank" title="Measurement of the Inelastic Proton-Proton Cross Section at &sqrt;s=7 TeV with the ATLAS Detector at the LHC">arXiv:1104.0326</a>], '
+        referenceInfo += '13TeV: 78.1&pm;2.9mb'
+        referenceInfo += ' [<a href="https://arxiv.org/abs/1606.02625" target="_blank" title="Measurement of the Inelastic Proton-Proton Cross Section at &sqrt;s=13 TeV with the ATLAS Detector at the LHC">arXiv:1606.02625</a>]'
         # create output string        
         s = ' '
         s += '<table class="datasettable" style="font-size: 140%">'
         s += '<tr><td>Instantaneous luminosity :</td><td> %g cm&minus;2s&minus;1 (= %g mb&minus;1s&minus;1)</td></tr>' % (lumi, lumi_mb)
-        s += '<tr><td>Inelastic cross section :</td><td> %g mb</td></tr>' % sigma
+        s += '<tr><td>Inelastic cross section :</td><td> %g mb &nbsp;(%s)</td></tr>' % (sigma, referenceInfo)
         s += '<tr><td>Number of colliding bunches :</td><td> %g</td></tr>' % nbunch
         s += '<tr><td colspan="2"><hr style="width:100%; #999999; background-color: #999999; height:1px; margin-left:0px; border:0"></td></tr>'
         s += '<tr><td>Inelastic interaction rate:</td><td>%g Hz</td></tr>' % (lumi_mb*sigma)
-        s += '<tr><td>Average number of interactions per crossing:&nbsp;&nbsp;</td><td> %g</td></tr>' % pint
+        s += '<tr><td>Average number of interactions per crossing:&nbsp;&nbsp;</td><td> %g</td></tr>' % nint
         s += '</table>'
         s += '<hr style="width:100%; #999999; background-color: #999999; height:0px; border:0">\n<p>\n'
-        if not plist:        
-            p = plist[0]
-            s += 'Very large pileup probability (assume Gaussian distribution): %g +- %g' % (p, sqrt(p))
+        if nint > 100:
+            s += 'Very large pileup probability (assume Gaussian distribution): %g +- %g' % (nint, sqrt(nint))
         else:
             s += '<table class="pileuptable">'
             s += '<tr><th>Num. of interactions per filled bunch crossing</th><th>Probability per filled bunch crossing</th><th>Probability per triggered minimum bias event*</th>'

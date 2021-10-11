@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -11,7 +11,7 @@
 #include "xAODForward/AFPSiHitAuxContainer.h"
 
 AFP_Raw2Digi::AFP_Raw2Digi(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_DigiTool( "AFP_Raw2DigiTool")
 {
   declareProperty("DigiTool", m_DigiTool , "Tool to translate RawData to xAOD");
@@ -33,11 +33,11 @@ StatusCode AFP_Raw2Digi::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_Raw2Digi::execute() {
+StatusCode AFP_Raw2Digi::execute(const EventContext &ctx) const{
 
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
-  CHECK (m_DigiTool->recoAll() );
+  CHECK (m_DigiTool->recoAll(ctx) );
 
   return StatusCode::SUCCESS;
 }

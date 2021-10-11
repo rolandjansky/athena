@@ -41,13 +41,6 @@ topSequence.SCTHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
 topSequence.BCMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
 topSequence.BLMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
 
-
-#Add some more TH2 histograms
-topSequence.PixelHitAnalysis.ExpertMode= "off"
-topSequence.SCTHitAnalysis.ExpertMode= "off"
-topSequence.BCMHitAnalysis.ExpertMode= "off"
-topSequence.BLMHitAnalysis.ExpertMode= "off"
-
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += [ "SiHitAnalysis DATAFILE='SiHitAnalysis.root' OPT='RECREATE'" ]

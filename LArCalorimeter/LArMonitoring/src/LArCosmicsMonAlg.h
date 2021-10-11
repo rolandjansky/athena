@@ -27,10 +27,11 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+
 
 class LArEM_ID;
 class LArOnlineID;
@@ -73,7 +74,9 @@ class LArCosmicsMonAlg: public AthMonitorAlgorithm
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
 
   /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
 
   //properties
   Gaudi::Property<float>         m_muonADCthreshold_EM_barrel  {this, "MuonADCthreshold_EM_barrel", 30};

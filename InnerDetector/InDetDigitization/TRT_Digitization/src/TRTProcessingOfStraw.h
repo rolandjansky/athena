@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
@@ -31,7 +31,9 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "AtlasCLHEP_RandomGenerators/RandBinomialFixedP.h"
 
+#include <memory>
 #include <vector>
 
 class TRTDigit;
@@ -125,22 +127,15 @@ private:
   ITRT_PAITool* m_pPAItoolKr;
   ITRT_SimDriftTimeTool* m_pSimDriftTimeTool;
 
-  /** TR efficiency: this fraction of TR photons will be kept */
-  double m_trEfficiencyBarrel;
-  double m_trEfficiencyEndCapA;
-  double m_trEfficiencyEndCapB;
-
   /** Time to be corrected for flight and wire propagation delays false when beamType='cosmics' */
   bool m_timeCorrection;
 
-  double m_ionisationPotential;
   double m_signalPropagationSpeed;
   double m_attenuationLength;
 
   bool m_useAttenuation;
   bool m_useMagneticFieldMap;
 
-  double m_smearingFactor;
   double m_maxCrossingTime;
   double m_minCrossingTime;
   double m_shiftOfZeroPoint;
@@ -241,6 +236,10 @@ private:
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
 
   mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+
+  std::unique_ptr<CLHEP::RandBinomialFixedP> m_randBinomialXe{};
+  std::unique_ptr<CLHEP::RandBinomialFixedP> m_randBinomialKr{};
+  std::unique_ptr<CLHEP::RandBinomialFixedP> m_randBinomialAr{};
 
 protected:
   const TRT_ID* m_id_helper;

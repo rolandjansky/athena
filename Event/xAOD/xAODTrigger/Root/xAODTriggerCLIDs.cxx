@@ -39,6 +39,18 @@
 #include "xAODTrigger/jFexSRJetRoIContainer.h"
 #include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexSumETRoIContainer.h"
+#include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexMETRoIAuxContainer.h"
+
 #include "xAODTrigger/gFexJetRoIContainer.h"
 #include "xAODTrigger/gFexJetRoIAuxContainer.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"

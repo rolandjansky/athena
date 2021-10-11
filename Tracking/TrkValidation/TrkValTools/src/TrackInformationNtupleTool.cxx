@@ -128,7 +128,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
   m_trackFitAuthor = track.info().trackFitter() ;
   m_trackSeedAuthor = getSeed(track.info());
   m_particleHypothesis = int(track.info().particleHypothesis());
-  if (track.fitQuality() != NULL) {
+  if (track.fitQuality() != nullptr) {
     m_Rec_chi2overNdof = (track.fitQuality()->numberDoF()>0) ? track.fitQuality()->chiSquared()/track.fitQuality()->numberDoF() : 0.0; // 0.0 expected for underconstrained fit anyway
     m_ndof=track.fitQuality()->numberDoF();
   } else {
@@ -140,11 +140,11 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
   // Get pointer to track state on surfaces
   const DataVector<const Trk::TrackStateOnSurface>* trackStates=track.trackStateOnSurfaces();
   m_nHits = 0;
-  if (trackStates != NULL) {
+  if (trackStates != nullptr) {
 
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
          it!=trackStates->end();
-         it++) {
+         ++it) {
 
       if (!(*it)) {
         msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
@@ -197,7 +197,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackParticleData
   m_trackFitAuthor = particle.info().trackFitter() ;
   m_trackSeedAuthor = getSeed(particle.info());
   m_particleHypothesis = int(particle.info().particleHypothesis());
-  if (particle.fitQuality() != NULL) {
+  if (particle.fitQuality() != nullptr) {
     m_Rec_chi2overNdof = (particle.fitQuality()->numberDoF()>0) ? particle.fitQuality()->chiSquared()/particle.fitQuality()->numberDoF() : 0.0; // 0.0 expected for underconstrained fit anyway
     m_ndof=particle.fitQuality()->numberDoF();
   } else {
@@ -207,7 +207,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackParticleData
 
   // fill variable nHits (more for compatibility with track-based filling)
   const Trk::TrackSummary* summary = particle.trackSummary();
-  if (summary==NULL) m_nHits = -1;
+  if (summary==nullptr) m_nHits = -1;
   else {
     m_nHits = (unsigned char)summary->get(Trk::numberOfPixelHits);
     m_nHits += (unsigned char)summary->get(Trk::numberOfSCTHits);
@@ -261,7 +261,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
 
   // Loop over all proto track states on surfaces
   Trk::ProtoTrajectory::const_iterator it = trajectory.begin();
-  for (; it!=trajectory.end(); it++) {
+  for (; it!=trajectory.end(); ++it) {
     // get the measurement            
     const Trk::MeasurementBase *measurement = it->measurement();
     if (!measurement) {

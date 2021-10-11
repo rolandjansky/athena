@@ -29,7 +29,8 @@ def LArAutoCorrNoiseSCCondAlgDefault():
     theAutoCorrNoiseCondAlg=LArAutoCorrNoiseCondAlg("LArAutoCorrNoiseSCCondAlg",isSuperCell=True,LArAutoCorrNoiseObjKey="LArAutoCorrNoiseSC",LArAutoCorrObjKey="LArAutoCorrSC",LArOnOffIdMappingObjKey='LArOnOffIdMapSC')
 
     from LArROD.LArRODFlags import larRODFlags
-    theAutoCorrNoiseCondAlg.nSampl = larRODFlags.nSamples()
+    # we need to keep one sample before, another after
+    theAutoCorrNoiseCondAlg.nSampl = larRODFlags.nSamples()+2
  
     condSeq+=theAutoCorrNoiseCondAlg
     return theAutoCorrNoiseCondAlg

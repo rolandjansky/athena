@@ -55,8 +55,6 @@ TagInfoMgr::~TagInfoMgr()
 StatusCode
 TagInfoMgr::queryInterface( const InterfaceID& riid, void** ppvInterface ) 
 {
-    ATH_MSG_DEBUG("in queryInterface()");
-
     if ( ITagInfoMgr::interfaceID().versionMatch(riid) ) {
         ATH_MSG_DEBUG("matched ITagInfoMgr");
         *ppvInterface = (ITagInfoMgr*)this;
@@ -65,7 +63,6 @@ TagInfoMgr::queryInterface( const InterfaceID& riid, void** ppvInterface )
         // Interface is not directly available: try out a base class
         return(::AthService::queryInterface(riid, ppvInterface));
     }
-
     return StatusCode::SUCCESS;
 }
 

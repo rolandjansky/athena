@@ -256,16 +256,15 @@ namespace InDet {
       double Ax[3] = {T(0,0),T(1,0),T(2,0)};
       double Ay[3] = {T(0,1),T(1,1),T(2,1)};
       double Az[3] = {T(0,2),T(1,2),T(2,2)};
-      double R [3] = {T(0,3),T(1,3),T(2,3)};
       
       spacepointCollection->reserve(spacepointCollection->size()+clusters->size());
       
       for(; clusStart!=clusFinish; ++clusStart){    
         const InDet::SiCluster* c = (*clusStart);
-        const Amg::Vector2D&    M = c->localPosition();
         const Amg::MatrixX&     V = c->localCovariance();
         
-        Amg::Vector3D  pos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
+	// Global position is already computed during pixel cluster creation and cached in the SiCluster object
+        const Amg::Vector3D&  pos = c->globalPosition();
         
         double B0[2] = {Ax[0]*V(0,0)+Ax[1]*V(1,0),Ax[0]*V(1,0)+Ax[1]*V(1,1)};
         double B1[2] = {Ay[0]*V(0,0)+Ay[1]*V(1,0),Ay[0]*V(1,0)+Ay[1]*V(1,1)};
@@ -426,13 +425,15 @@ namespace InDet {
   {
     const Amg::Transform3D& T1 = element1->transform();
     const Amg::Transform3D& T2 = element2->transform();
+    Amg::Vector3D           C  = element1->center() ;
+    bool isAnnulus = (element1->design().shape() == InDetDD::Annulus);
 
     double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
-    double r   = std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
+    double r   = isAnnulus ? std::sqrt(C[0]*C[0]+C[1]*C[1]) : std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3));
     double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
 
     double dm  = (m_SCTgapParameter*r)*std::abs(s*x12);
-    double d   = dm/std::sqrt((1.-x12)*(1.+x12));
+    double d   = isAnnulus ? dm/.04 : dm/std::sqrt((1.-x12)*(1.+x12));
     
     if (std::abs(T1(2,2)) > 0.7) d*=(r/std::abs(T1(2,3))); // endcap d = d*R/Z
 

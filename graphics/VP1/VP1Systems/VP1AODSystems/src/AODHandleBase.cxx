@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -302,7 +302,7 @@ void AODHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) {
   m_d->m_objBrowseTree->setText(1, l );    
 
   if (!visible()) {
-    m_d->m_objBrowseTree->setFlags(0); // not selectable, not enabled
+    m_d->m_objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
   listOfItems << browserTreeItem();
 }
@@ -321,7 +321,7 @@ void AODHandleBase::visibleStateChanged()
   }
     
   if (!visible()) {
-    browserTreeItem()->setFlags(0); // not selectable, not enabled
+    browserTreeItem()->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   } else {
     browserTreeItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
   }  

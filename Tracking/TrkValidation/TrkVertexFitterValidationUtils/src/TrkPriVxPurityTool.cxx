@@ -61,19 +61,19 @@ namespace Trk {
 //analysis method
     const TrkPriVxPurity * TrkPriVxPurityTool::purity ( const Trk::VxCandidate * vertex ) const {
 //protection and related
-        if ( vertex != 0 ) {
+        if ( vertex != nullptr ) {
             const std::vector<Trk::VxTrackAtVertex *> * tracks = vertex->vxTrackAtVertex();
-            if ( tracks !=0 ) {
+            if ( tracks !=nullptr ) {
 
 // first getting the Mc Event collection
-                const McEventCollection * mcCollection ( 0 );
+                const McEventCollection * mcCollection ( nullptr );
                 StatusCode sc = evtStore()->retrieve ( mcCollection, m_mc_collection_name );
                 if ( sc.isFailure() ) {
                     if (msgLvl(MSG::DEBUG))                                      {
                         msg() << "Unable to retrieve MC collection: " << m_mc_collection_name << endmsg;
                         msg() << "Zero pointer returned." << endmsg;
                     }
-                    return 0;
+                    return nullptr;
                 }
 
 //getting the signal event itself
@@ -89,7 +89,7 @@ namespace Trk {
 //        std::cout<<"The ID of the first event of the collection: "<<genEvent->event_number()<<std::endl;
                 if( genEvent->vertices_empty() ) {
                   ATH_MSG_DEBUG( "No vertices found in first GenEvent" );
-                  return 0;
+                  return nullptr;
                 }
                auto pv = *(genEvent->vertices_begin());
 #endif
@@ -125,7 +125,7 @@ namespace Trk {
 
 
 //getting the track truth collection
-                const TrackParticleTruthCollection * trackParticleTruthCollection ( 0 );
+                const TrackParticleTruthCollection * trackParticleTruthCollection ( nullptr );
                 sc = evtStore()->retrieve ( trackParticleTruthCollection, m_trackParticleTruthCollName );
 
                 if ( sc.isFailure() ) {
@@ -133,7 +133,7 @@ namespace Trk {
                         msg() << "Cannot retrieve " << m_trackParticleTruthCollName << endmsg;
                         msg() << "Zero pointer returned" << endmsg;
                     }
-                    return 0;
+                    return nullptr;
                 }
 
 //looping over the tracks to find those matched to the GenParticle originating from signal PV
@@ -153,10 +153,10 @@ namespace Trk {
 
                         ITrackLink * origLink = ( **vt ).trackOrParticleLink();
 
-                        if ( origLink !=0 ) {
+                        if ( origLink !=nullptr ) {
                             // get to the original track particle
                             LinkToTrackParticleBase * tr_part = dynamic_cast< LinkToTrackParticleBase * > ( origLink );
-                            if ( tr_part !=0  && tr_part->isValid()) {
+                            if ( tr_part !=nullptr  && tr_part->isValid()) {
                 
 
                                 std::map< Rec::TrackParticleTruthKey, TrackParticleTruth>::const_iterator ttItr = trackParticleTruthCollection->end();
@@ -284,9 +284,9 @@ namespace Trk {
                 msg()<<"Empty vertex pointer received"<<endmsg;
                 msg()<<"Empty pointer returned."<<endmsg;
             }
-            return 0;
+            return nullptr;
         }//end of empty vertex check
-        return 0;
+        return nullptr;
     }//end of purity method
 
 

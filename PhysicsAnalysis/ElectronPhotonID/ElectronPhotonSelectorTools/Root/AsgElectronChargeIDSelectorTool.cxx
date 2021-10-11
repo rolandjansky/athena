@@ -146,20 +146,21 @@ AsgElectronChargeIDSelectorTool::initialize()
 
   ATH_MSG_INFO("ECIDS nfold configuration: " << nfold);
 
-  TObjArray* toa = (TObjArray*)bdtfile->Get(
-    "/ECIDS_" + m_pid_name + TString::Format("_0o%d", nfold) + "/variables");
-  std::string commaSepVars = "";
+  const TString toaPath = "/ECIDS_" + m_pid_name
+    + TString::Format("_0o%d", nfold) + "/variables";
+  const TObjArray* toa = bdtfile->Get<TObjArray>(toaPath);
+  std::string commaSepVars;
   if (toa) {
-    TObjString* tos = nullptr;
-    if (toa->GetEntries() > 0)
-      tos = (TObjString*)toa->At(0);
-    commaSepVars = tos->GetString().Data();
+    const TObjString* tos = dynamic_cast<const TObjString*>(toa->At(0));
+    if(tos) commaSepVars = tos->GetString().Data();
+  }
+  if(commaSepVars.length()) {
     ATH_MSG_INFO("Variables for ECIDS= " << commaSepVars);
-  } else
+  }
+  else {
     ATH_MSG_FATAL("Cannot access the list of input variables @"
-                  << bdtfile->GetName()
-                  << ":/ECIDS_" + m_pid_name + TString::Format("_0o%d", nfold) +
-                       "/variables");
+                  << bdtfile->GetName() << toaPath);
+  }
 
   // prepare m_inputVars
   m_inputVars.clear();

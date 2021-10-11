@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CBNODE_H
@@ -81,7 +81,8 @@ public:
   const SG::DataProxy* proxy() const { return m_proxy; }
   void setProxy(const SG::DataProxy* p);
 
-  BFCN* fcn() const { return m_fcn; }
+  BFCN* fcn() { return m_fcn; }
+  const BFCN* fcn() const { return m_fcn; }
 
   unsigned int serial() const { return m_serial; }
 

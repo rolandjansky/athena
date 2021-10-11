@@ -7,5 +7,6 @@
    <class name="EL::AnaReentrantAlgorithmConfig" />
    <class name="EL::AnaReentrantAlgorithmWrapper" />
    <class name="EL::IAlgorithmWrapper" />
+   <class name="EL::PythonConfigBase" />
    
 </lcgdict>

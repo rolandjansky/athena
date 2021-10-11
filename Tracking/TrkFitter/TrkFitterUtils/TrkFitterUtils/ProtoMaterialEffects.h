@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "CxxUtils/checker_macros.h"
+#include <memory>
 namespace Trk{
 
   class MaterialEffectsOnTrack;
@@ -59,9 +60,9 @@ namespace Trk{
      const Surface *surface() const;
      void setSurface(const Surface*);
      MaterialEffectsBase *makeMEOT ATLAS_NOT_THREAD_SAFE() const;
+     std::unique_ptr<MaterialEffectsBase> makeUniqueMEOT() const;
      const MaterialProperties *materialProperties() const;
      void setMaterialProperties(const MaterialProperties *);
-     //std::vector<double> &momentumJacobians();    
 
     private:
      double m_scatphi;
@@ -82,7 +83,6 @@ namespace Trk{
      bool m_owneloss; //This the main MT issue in this package
      double m_measscatphi; // fudge to stabilize fit in muon system
      double m_sintheta;
-     //std::vector<double> m_pjac;
   };
 
 }

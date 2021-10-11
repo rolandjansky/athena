@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerEDMRun3 import TriggerHLTListRun3, EDMDetailsRun3, AllowedOutputFormats
 from AthenaCommon.Logging import logging
@@ -11,8 +11,7 @@ cgen = clidGenerator("", False)
 
 def isCLIDDefined(typename):
   c = cgen.genClidFromName(typename)
-  pkg = cgen.getPackageFromClid(c)
-  return bool(pkg)
+  return (cgen.getNameFromClid(c) is not None)
 
 def main():
   import re

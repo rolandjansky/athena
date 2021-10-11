@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETACCESSORS_H
@@ -282,6 +282,7 @@ namespace xAOD {
       bool isAvailable(const SG::AuxElement& p) const { return m_a.isAvailable(p);}
 
       // // forward calls to internal accessor. useful for performance critical code.
+      // cppcheck-suppress CastIntegerToAddressAtReturn // false positive
       const TYPE* operator()  (const SG::AuxElement& p)  const  { return getAttribute(p); }
       // TYPE& operator()(SG::AuxElement& p)  { LinkType &el=m_a(p); return *el;}
 

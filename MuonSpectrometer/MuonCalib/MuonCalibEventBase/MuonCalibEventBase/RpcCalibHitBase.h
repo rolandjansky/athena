@@ -39,12 +39,15 @@ namespace MuonCalib {
     */
     class RpcCalibHitBase {
     public:
-        RpcCalibHitBase();  //!< default constructor
+        RpcCalibHitBase() = default;                                       //!< default constructor
+        RpcCalibHitBase& operator=(const RpcCalibHitBase& rhs) = default;  //!< assignment operator
+        RpcCalibHitBase(const RpcCalibHitBase& event) = default;           //!< Copy constructor
+        ~RpcCalibHitBase() = default;                                      //!< destructor
+
         RpcCalibHitBase(int nStrips, double stripWidth, double time, double error, const Amg::Vector3D& globalPos,
                         const Amg::Vector3D& localPos);  //!< constructor initializing most of its members.
         RpcCalibHitBase(int nStrips, double stripWidth, double stripLength, double time, double error, const Amg::Vector3D& globalPos,
                         const Amg::Vector3D& localPos);  //!< constructor initializing most of its members.
-        ~RpcCalibHitBase();                              //!< destructor
 
         void setIdentifier(const MuonFixedId& id);          //!< sets the MuonFixedId of the hit
         void setNStrips(int nStrips);                       //!< sets the number of strips used to construct the hit
@@ -69,52 +72,16 @@ namespace MuonCalib {
         std::ostream& dump(std::ostream& stream) const;  //!< dump to be used for operator<<() to dump the RpcCalibHitBase
 
     private:
-        MuonFixedId m_id;                //!< Indentifier of the RpcCalibHit (is not of the type Identifier but MuonFixedId )
-        int m_nStrips;                   //!< number of strips
-        double m_stripWidth;             //!< strip width
-        double m_stripLength;            //!< strip length
-        double m_time;                   //!< time
-        double m_error;                  //!< error
-        Amg::Vector3D m_globalPosition;  //!< position expressed in global coordinates
-        Amg::Vector3D m_localPosition;   //!< position expressed in local (station) coordinates
-        double m_distanceToRO;           //!< distance from hit to readout of the strip
+        MuonFixedId m_id{0};                         //!< Indentifier of the RpcCalibHit (is not of the type Identifier but MuonFixedId )
+        int m_nStrips{0};                            //!< number of strips
+        double m_stripWidth{0.};                     //!< strip width
+        double m_stripLength{0.};                    //!< strip length
+        double m_time{0.};                           //!< time
+        double m_error{0.};                          //!< error
+        Amg::Vector3D m_globalPosition{0., 0., 0.};  //!< position expressed in global coordinates
+        Amg::Vector3D m_localPosition{0., 0., 0.};   //!< position expressed in local (station) coordinates
+        double m_distanceToRO{0.};                   //!< distance from hit to readout of the strip
     };
-
-    inline void RpcCalibHitBase::setIdentifier(const MuonFixedId& id) { m_id = id; }
-
-    inline void RpcCalibHitBase::setNStrips(int nStrips) { m_nStrips = nStrips; }
-
-    inline void RpcCalibHitBase::setStripWidth(double stripWidth) { m_stripWidth = stripWidth; }
-
-    inline void RpcCalibHitBase::setStripLength(double stripLength) { m_stripLength = stripLength; }
-
-    inline void RpcCalibHitBase::setTime(double time) { m_time = time; }
-
-    inline void RpcCalibHitBase::setError(double error) { m_error = error; }
-
-    inline void RpcCalibHitBase::setGlobalPos(const Amg::Vector3D& globalPos) { m_globalPosition = globalPos; }
-
-    inline void RpcCalibHitBase::setLocalPos(const Amg::Vector3D& localPos) { m_localPosition = localPos; }
-
-    inline void RpcCalibHitBase::setDistanceToRO(const double distance) { m_distanceToRO = distance; }
-
-    inline const MuonFixedId& RpcCalibHitBase::identify() const { return m_id; }
-
-    inline int RpcCalibHitBase::nStrips() const { return m_nStrips; }
-
-    inline double RpcCalibHitBase::stripWidth() const { return m_stripWidth; }
-
-    inline double RpcCalibHitBase::stripLength() const { return m_stripLength; }
-
-    inline double RpcCalibHitBase::time() const { return m_time; }
-
-    inline double RpcCalibHitBase::error() const { return m_error; }
-
-    inline const Amg::Vector3D& RpcCalibHitBase::globalPosition() const { return m_globalPosition; }
-
-    inline const Amg::Vector3D& RpcCalibHitBase::localPosition() const { return m_localPosition; }
-
-    inline double RpcCalibHitBase::distanceToRO() const { return m_distanceToRO; }
 
 }  // namespace MuonCalib
 

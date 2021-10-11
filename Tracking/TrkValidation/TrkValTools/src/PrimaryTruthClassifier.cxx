@@ -81,7 +81,7 @@ unsigned int Trk::PrimaryTruthClassifier::classify(HepMC::ConstGenParticlePtr ge
     if ( fabs(startVertex.perp()) < m_maxRStartPrimary 
          && fabs(startVertex.z()) < m_maxZStartPrimary)
       {
-        if (genParticle->end_vertex() == 0) {  
+        if (genParticle->end_vertex() == nullptr) {  
           primary=true;
         } else {
           HepMC::FourVector endVertex = genParticle->end_vertex()->position();
@@ -93,7 +93,7 @@ unsigned int Trk::PrimaryTruthClassifier::classify(HepMC::ConstGenParticlePtr ge
     else if ( startVertex.perp()    <  m_maxRStartSecondary && 
               fabs(startVertex.z()) <  m_maxZStartSecondary)
       {
-        if (genParticle->end_vertex() == 0) {  
+        if (genParticle->end_vertex() == nullptr) {  
           secondary=true;
         } else {
           HepMC::FourVector endVertex = genParticle->end_vertex()->position();

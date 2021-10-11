@@ -8,7 +8,7 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 //____________________________________________________________________
@@ -18,7 +18,7 @@ public:
   VP1BanksSystem * theclass;
   bool useDetStore();
   bool allowRefresh;
-  Ui::VP1BanksSystemControllerForm ui;
+  Ui::VP1BanksSystemControllerForm ui{};
 
   QString idToName(const CLID&) const;
   IClassIDSvc *clidSvc;

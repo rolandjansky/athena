@@ -80,7 +80,7 @@ public:
    *
    * Uses SG::crc64 method as hash-function (only lower 32bits uses)
    */
-  unsigned nameToChannelNumber(const std::string& name) const;
+  static unsigned nameToChannelNumber(const std::string& name) ;
 
   /**
    * @brief Method to register a folder to be read from COOL inline storage

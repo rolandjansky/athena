@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTSequence.h"
@@ -85,9 +85,9 @@ std::string
 TrigConf::HLTSequence::concise() const {
    std::stringstream str;
    str << "(";
-   vector<TrigConf::HLTTriggerElement*>::const_iterator inputTE = m_inputTEs.begin();
-   for (; inputTE != m_inputTEs.end(); inputTE++)
-      str << (*inputTE)->name() << ",";
+   for (TrigConf::HLTTriggerElement* inputTE : m_inputTEs) {
+      str << inputTE->name() << ",";
+   }
    str << outputTE()->name() << ")";
    return str.str();
 }
@@ -145,10 +145,13 @@ std::ostream &
 TrigConf::operator<<(std::ostream & o, const TrigConf::HLTSequence & s) {
    o << "- -- HLTSequence printout ---------------------------------- " << std::endl;
    o << "- -- inputTEs : ";
-   vector<TrigConf::HLTTriggerElement*>::const_iterator inputTE = s.m_inputTEs.begin();
-   for (; inputTE != s.m_inputTEs.end(); inputTE++) {
-      if(inputTE != s.m_inputTEs.begin()) o << ", "; 
-      o << *(*inputTE);
+   bool first = true;
+   for (TrigConf::HLTTriggerElement* inputTE : s.m_inputTEs) {
+      if (first)
+        first = false;
+      else
+        o << ", "; 
+      o << *inputTE;
    }
 
    if (s.m_topoStartTE) {
@@ -157,10 +160,13 @@ TrigConf::operator<<(std::ostream & o, const TrigConf::HLTSequence & s) {
       o << *s.m_topoStartTE;
    }
    o << "\n- -- algorithms";
-   vector<std::string>::const_iterator algorithm = s.m_algorithms.begin();
-   for (; algorithm != s.m_algorithms.end(); algorithm++) {
-      if(algorithm != s.m_algorithms.begin()) o << ", ";
-      o << *algorithm;
+   first = true;
+   for (const std::string& algorithm : s.m_algorithms) {
+      if (first)
+        first = false;
+      else
+        o << ", ";
+      o << algorithm;
    }
    o << "\n- -- outputTE   : "; o << *s.outputTE();
    o << "\n- ---------------------------------------------------------- " << std::endl;

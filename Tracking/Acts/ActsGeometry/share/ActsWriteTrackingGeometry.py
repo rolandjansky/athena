@@ -24,7 +24,7 @@ def ActsWriteTrackingGeometryCfg(configFlags, name="ActsWriteTrackingGeometry", 
   result.merge(acc)
   ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "geometry-maps.json",
                                                              processSensitives = False,
-                                                             processnonmaterial = True)
+                                                             processNonMaterial = True)
 
   kwargs["MaterialJsonWriterTool"] = ActsMaterialJsonWriterTool.getPrimary()                                                           
   result.merge(ActsMaterialJsonWriterTool)

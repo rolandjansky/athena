@@ -104,7 +104,7 @@ InDetPerfPlot_TRTExtension::initializePlots() {
 }
 
 void
-InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle) {
+InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, float weight) {
 
   double eta = particle.eta();
   double pt = particle.pt() / Gaudi::Units::GeV;
@@ -118,16 +118,16 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle) {
   std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
   bool isTRTExtension = patternInfo.test(xAOD::TrackPatternRecoInfo::InDetExtensionProcessor) or iTrtHits > 0;
 
-  fillHisto(m_fracTRTExtensions_vs_eta, eta, isTRTExtension);
-  fillHisto(m_fracTRTExtensions_vs_pt, pt, isTRTExtension);
+  fillHisto(m_fracTRTExtensions_vs_eta, eta, isTRTExtension, weight);
+  fillHisto(m_fracTRTExtensions_vs_pt, pt, isTRTExtension, weight);
 
-  if(isTRTExtension) fillHisto(m_chi2ndofTRTExtensions, chi2Overndof);
-  else { fillHisto(m_chi2ndofNoTRTExtensions, chi2Overndof); }
+  if(isTRTExtension) fillHisto(m_chi2ndofTRTExtensions, chi2Overndof, weight);
+  else { fillHisto(m_chi2ndofNoTRTExtensions, chi2Overndof, weight); }
 
 }
 
 void
-InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nvertices) {
+InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nvertices, float weight) {
 
   uint8_t iTrtHits = 0;
   particle.summaryValue(iTrtHits, xAOD::numberOfTRTHits);
@@ -135,13 +135,13 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const floa
   std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
   bool isTRTExtension = patternInfo.test(xAOD::TrackPatternRecoInfo::InDetExtensionProcessor) or iTrtHits > 0;
 
-  fillHisto(m_fracTRTExtensions_vs_mu, mu, isTRTExtension);
-  fillHisto(m_fracTRTExtensions_vs_nvertices, nvertices, isTRTExtension);
+  fillHisto(m_fracTRTExtensions_vs_mu, mu, isTRTExtension, weight);
+  fillHisto(m_fracTRTExtensions_vs_nvertices, nvertices, isTRTExtension, weight);
 
 }
 
 void
-InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle) {
+InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, float weight) {
 
   //Fraction of extended for truth matched tracks
 
@@ -174,21 +174,21 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD
 
 
   if(isTRTExtension){
-    fillHisto(m_ptresTRTExtensions_vs_eta, eta, ptres);
-    fillHisto(m_ptresTRTExtensions_vs_pt, pt, ptres);
+    fillHisto(m_ptresTRTExtensions_vs_eta, eta, ptres, weight);
+    fillHisto(m_ptresTRTExtensions_vs_pt, pt, ptres, weight);
 
-    fillHisto(m_ptpullTRTExtensions_vs_eta, eta, ptpull);
-    fillHisto(m_ptpullTRTExtensions_vs_pt, pt, ptpull);
+    fillHisto(m_ptpullTRTExtensions_vs_eta, eta, ptpull, weight);
+    fillHisto(m_ptpullTRTExtensions_vs_pt, pt, ptpull, weight);
   } else {
-    fillHisto(m_ptresNoTRTExtensions_vs_eta, eta, ptres);
-    fillHisto(m_ptresNoTRTExtensions_vs_pt, pt, ptres);
+    fillHisto(m_ptresNoTRTExtensions_vs_eta, eta, ptres, weight);
+    fillHisto(m_ptresNoTRTExtensions_vs_pt, pt, ptres, weight);
 
-    fillHisto(m_ptpullNoTRTExtensions_vs_eta, eta, ptpull);
-    fillHisto(m_ptpullNoTRTExtensions_vs_pt, pt, ptpull);
+    fillHisto(m_ptpullNoTRTExtensions_vs_eta, eta, ptpull, weight);
+    fillHisto(m_ptpullNoTRTExtensions_vs_pt, pt, ptpull, weight);
   } 
 
-  fillHisto(m_fracTRTExtensions_matched_vs_eta, eta, isTRTExtension);
-  fillHisto(m_fracTRTExtensions_matched_vs_pt, pt, isTRTExtension);
+  fillHisto(m_fracTRTExtensions_matched_vs_eta, eta, isTRTExtension, weight);
+  fillHisto(m_fracTRTExtensions_matched_vs_pt, pt, isTRTExtension, weight);
 
 
 }

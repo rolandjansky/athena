@@ -1199,7 +1199,7 @@ Trk::KalmanUpdatorSMatrix::convertToClonedTrackPars(const Trk::TrackParameters& 
   return resultPar;
 }
 
-SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const SCovMatrix5& M, const int& key) const
+SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const SCovMatrix5& M, const int& key) 
 {
   if (key == 3) { // shortcut the most-used case
     SCovMatrix2 S = M.Sub<SCovMatrix2> (0,0);
@@ -1218,7 +1218,7 @@ SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const SCovMatrix5& M, const
 }
 
 SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const Amg::MatrixX& M,
-                                              const int& key) const
+                                              const int& key) 
 {
     ROOT::Math::SVector<int,2>  iv;
     for (int i=0,k=0; i<5; ++i) { if (key & (1<<i)) iv(k++)=i; }
@@ -1231,7 +1231,7 @@ SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const Amg::MatrixX& M,
     return covSubMatrix;
 }
 
-SCovMatrix3 Trk::KalmanUpdatorSMatrix::projection_3D(const SCovMatrix5& M, const int& key) const
+SCovMatrix3 Trk::KalmanUpdatorSMatrix::projection_3D(const SCovMatrix5& M, const int& key) 
 {
   if (key == 7) { // shortcut the most-used case
     return M.Sub<SCovMatrix3> (0,0);
@@ -1248,7 +1248,7 @@ SCovMatrix3 Trk::KalmanUpdatorSMatrix::projection_3D(const SCovMatrix5& M, const
 
 }
 
-SCovMatrix4 Trk::KalmanUpdatorSMatrix::projection_4D(const SCovMatrix5& M, const int& key) const
+SCovMatrix4 Trk::KalmanUpdatorSMatrix::projection_4D(const SCovMatrix5& M, const int& key) 
 {
   if (key == 15) { // shortcut the most-used case
     return M.Sub<SCovMatrix4> (0,0);

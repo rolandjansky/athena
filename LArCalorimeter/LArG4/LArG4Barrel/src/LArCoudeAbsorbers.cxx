@@ -8,11 +8,11 @@ LArCoudeAbsorbers* LArCoudeAbsorbers::s_instance=nullptr;
 
 PhysicalVolumeAccessor* LArCoudeAbsorbers::s_theCoudes=nullptr;
 
+std::once_flag LArCoudeAbsorbers::s_flag;
+
 LArCoudeAbsorbers*  LArCoudeAbsorbers::GetInstance(const std::string& strDetector)
 {
-  if (s_instance==nullptr) {
-    s_instance = new LArCoudeAbsorbers(strDetector);
-  }
+  std::call_once( s_flag, [&](){ s_instance = new LArCoudeAbsorbers(strDetector); } );
   return s_instance;
 }
 

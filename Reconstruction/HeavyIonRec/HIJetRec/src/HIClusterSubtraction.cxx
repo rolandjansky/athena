@@ -162,7 +162,7 @@ int HIClusterSubtraction::execute() const
 			m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
 			HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
 
-			if(isOriginPossible)
+			if(isOriginPossible && m_originCorrection)
 			{
 				ATH_MSG_DEBUG("Applying origin correction"
 							<< std::setw(12) << "Before:"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DBM_ModuleCage.h"
@@ -185,7 +185,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
     } else if (i == 2) {
       flexSupp_matName = "pix::DBMPeek7";
     }
-    const GeoMaterial* dbmFlexSupp_mat = m_mat_mgr->getMaterialForVolume(flexSupp_matName.c_str(), flexSupp->volume());
+    const GeoMaterial* dbmFlexSupp_mat = m_mat_mgr->getMaterialForVolume(flexSupp_matName, flexSupp->volume());
 
     const GeoLogVol* flexSuppLog = new GeoLogVol("dbmWallLog", flexSupp, dbmFlexSupp_mat);
     GeoPhysVol* flexSuppPhys = new GeoPhysVol(flexSuppLog);

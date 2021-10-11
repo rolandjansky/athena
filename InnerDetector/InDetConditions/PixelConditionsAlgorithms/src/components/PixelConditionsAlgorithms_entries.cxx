@@ -16,6 +16,8 @@
 #include "../PixelAlignCondAlg.h"
 #include "../PixelDetectorElementCondAlg.h"
 #include "../PixeldEdxAlg.h"
+#include "../PixelRadSimFluenceMapAlg.h"
+#include "../ITkPixelOfflineCalibCondAlg.h"
 
 DECLARE_COMPONENT( PixelDCSCondHVAlg )
 DECLARE_COMPONENT( PixelDCSCondTempAlg )
@@ -35,3 +37,5 @@ DECLARE_COMPONENT( PixelHitDiscCnfgAlg )
 DECLARE_COMPONENT( PixelAlignCondAlg )
 DECLARE_COMPONENT( PixelDetectorElementCondAlg )
 DECLARE_COMPONENT( PixeldEdxAlg )
+DECLARE_COMPONENT( PixelRadSimFluenceMapAlg )
+DECLARE_COMPONENT( ITkPixelOfflineCalibCondAlg )

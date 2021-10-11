@@ -41,13 +41,11 @@ namespace ActsExtrapolationDetail {
 
   
   using VariantPropagatorBase = boost::variant<
-      Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper, 
-                                          Acts::StepperExtensionList<Acts::DefaultExtension,  
+      Acts::Propagator<Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,  
                                                                      Acts::DenseEnvironmentExtension>, 
                                           Acts::detail::HighestValidAuctioneer>,
                        Acts::Navigator>,
-      Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField,
-                                          Acts::StepperExtensionList<Acts::DefaultExtension,  
+      Acts::Propagator<Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,  
                                                                      Acts::DenseEnvironmentExtension>, 
                                           Acts::detail::HighestValidAuctioneer>,        
                        Acts::Navigator> > ;
@@ -89,18 +87,16 @@ ActsExtrapolationTool::initialize()
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
     = m_trackingGeometryTool->trackingGeometry();
 
-  Acts::Navigator navigator(trackingGeometry);
+  Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );
 
   if (m_fieldMode == "ATLAS"s) {    
     ATH_MSG_INFO("Using ATLAS magnetic field service");
-    using BField_t = ATLASMagneticFieldWrapper;
-    using Stepper = Acts::EigenStepper<BField_t,
-                                       Acts::StepperExtensionList<Acts::DefaultExtension,
+    using Stepper = Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,
                                                                   Acts::DenseEnvironmentExtension>,
                                        Acts::detail::HighestValidAuctioneer>;
                                        
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
-    BField_t bField;
+    auto bField = std::make_shared<ATLASMagneticFieldWrapper>();
 
     auto stepper = Stepper(std::move(bField));
     auto propagator = Acts::Propagator<Stepper, Acts::Navigator>(std::move(stepper),
@@ -108,17 +104,25 @@ ActsExtrapolationTool::initialize()
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
   else if (m_fieldMode == "Constant") {
-    std::vector<double> constantFieldVector = m_constantFieldVector;
-    double Bx = constantFieldVector.at(0);
-    double By = constantFieldVector.at(1);
-    double Bz = constantFieldVector.at(2);
-    ATH_MSG_INFO("Using constant magnetic field: (Bx, By, Bz) = (" << Bx << ", " << By << ", " << Bz << ")");
-    using BField_t = Acts::ConstantBField;
-    using Stepper = Acts::EigenStepper<BField_t,
-                                       Acts::StepperExtensionList<Acts::DefaultExtension,
+    if (m_constantFieldVector.value().size() != 3)
+    {
+      ATH_MSG_ERROR("Incorrect field vector size. Using empty field.");
+      return StatusCode::FAILURE; 
+    }
+    
+    Acts::Vector3 constantFieldVector = Acts::Vector3(m_constantFieldVector[0], 
+                                                      m_constantFieldVector[1], 
+                                                      m_constantFieldVector[2]);
+
+    ATH_MSG_INFO("Using constant magnetic field: (Bx, By, Bz) = (" << m_constantFieldVector[0] << ", " 
+                                                                   << m_constantFieldVector[1] << ", " 
+                                                                   << m_constantFieldVector[2] << ")");
+    
+    using Stepper = Acts::EigenStepper<Acts::StepperExtensionList<Acts::DefaultExtension,
                                                                   Acts::DenseEnvironmentExtension>,
                                        Acts::detail::HighestValidAuctioneer>;
-    BField_t bField(Bx, By, Bz);
+
+    auto bField = std::make_shared<Acts::ConstantBField>(constantFieldVector);
     auto stepper = Stepper(std::move(bField));
     auto propagator = Acts::Propagator<Stepper, Acts::Navigator>(std::move(stepper),
                                                                  std::move(navigator));

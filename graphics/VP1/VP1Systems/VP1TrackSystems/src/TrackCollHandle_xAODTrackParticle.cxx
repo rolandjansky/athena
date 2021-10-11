@@ -61,7 +61,7 @@ TrackCollHandle_xAODTrackParticle::~TrackCollHandle_xAODTrackParticle()
 bool TrackCollHandle_xAODTrackParticle::load()
 {
   //Get collection:
-  const xAOD::TrackParticleContainer * coll(0);
+  const xAOD::TrackParticleContainer * coll(nullptr);
   if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
     message("Error: Could not retrieve track particle collection with key="+name());
     return false;

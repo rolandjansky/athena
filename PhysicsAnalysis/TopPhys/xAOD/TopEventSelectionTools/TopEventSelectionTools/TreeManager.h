@@ -64,7 +64,7 @@ namespace top {
     const std::string& name() const;
 
     /** @brief function object type used for branch filters */
-    typedef std::function<int (TreeManager const*, std::string const&)> BranchFilter;
+    typedef std::function<int (top::TreeManager const*, std::string const&)> BranchFilter;
 
     /** @copydoc TreeManager::m_branchFilters */
     std::vector<BranchFilter>& branchFilters() {return m_branchFilters;}

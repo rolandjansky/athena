@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -465,7 +465,7 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
       errorWord |= (error_errors << 21);
       if ( sid_errors > 0xf ) 
 	sid_errors = 0xf;
-      errorWord |= ((sid_errors & 0xf) << 28);   // Only report first 15
+      errorWord |= ((static_cast<uint32_t>(sid_errors) & 0xf) << 28);   // Only report first 15
       
       if ( errorWord )
       { 

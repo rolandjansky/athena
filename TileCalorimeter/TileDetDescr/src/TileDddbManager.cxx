@@ -1743,76 +1743,23 @@ double TileDddbManager::TICLholes(unsigned int ind) const
   }
 }
 
-bool TileDddbManager::addPlatesToCell() const
+int TileDddbManager::getSwitch(const char *name, int val) const
 {
-  if (m_tileSwitches)
-    {
-      if ((*m_tileSwitches)[0]->isFieldNull("ADDPLATESTOCELL"))
-        {
-          MLOG(DEBUG) << "TileDddbManager::addPlatesToCell() - TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE" << endmsg;
-          return true;
-        }
-      else
-	{  
-	  return (*m_tileSwitches)[0]->getInt("ADDPLATESTOCELL");
-	}
-    }
-  else
-    {
-      MLOG(ERROR) << "TileDddbManager::addPlatesToCell() - TileSwitches is not set, returning addPlatesToCell= TRUE" << endmsg;
-      return true;
-    }
-}
-
-int TileDddbManager::uShape() const
-{
-  if (m_tileSwitches)
-    {
-        try {
-          if ((*m_tileSwitches)[0]->isFieldNull("USHAPE"))
-            {
-              MLOG(DEBUG) << "TileDddbManager::uShape() - TileSwitches(USHAPE) is EMPTY, returning uShape= 0" << endmsg;
-              return 0;
-            }
-          else
-	    {  
-	      return (*m_tileSwitches)[0]->getInt("USHAPE");
-	    }
-        } catch (std::exception& e) {
-          MLOG(WARNING) << "TileDddbManager::uShape() - TileSwitches table does not contain field USHAPE, returning uShape= 0" << endmsg;
-          return 0;
+  if (m_tileSwitches) {
+    try {
+      if ((*m_tileSwitches)[0]->isFieldNull(name)) {
+        MLOG(DEBUG) << "TileDddbManager::getSwitch() - TileSwitches(" << name << ") is EMPTY, returning " << name << " = " << val << endmsg;
+        return val;
+      } else {
+        return (*m_tileSwitches)[0]->getInt(name);
       }
+    } catch (std::exception& e) {
+      MLOG(WARNING) << "TileDddbManager::getSwitch() - TileSwitches table does not contain field " << name << ", returning " << name << " = " << val << endmsg;
+      return val;
     }
-  else
-    {
-      MLOG(ERROR) << "TileDddbManager::uShape() - TileSwitches is not set, returning uShape= 0" << endmsg;
-      return 0;
-    }
-}
-
-int TileDddbManager::glue() const
-{
-  if (m_tileSwitches)
-    {
-        try {
-          if ((*m_tileSwitches)[0]->isFieldNull("GLUE"))
-            {
-              MLOG(DEBUG) << "TileDddbManager::glue() - TileSwitches(GLUE) is EMPTY, returning glue= 1" << endmsg;
-              return 1;
-            }
-          else
-            {
-              return (*m_tileSwitches)[0]->getInt("GLUE");
-            }
-        } catch (std::exception& e) {
-          MLOG(WARNING) << "TileDddbManager::glue() - TileSwitches table does not contain field GLUE, returning glue= 1" << endmsg;
-          return 1;
-      }
-    }
-  else
-    {
-      MLOG(ERROR) << "TileDddbManager::glue() - TileSwitches is not set, returning glue= 1" << endmsg;
-      return 1;
-    }
+  } else {
+    MLOG(ERROR) << "TileDddbManager::getSwitch() - TileSwitches is not set, returning " << name << " = " << val << endmsg;
+    return val;
+  }
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWDEPTHCALCULATOR_H
@@ -101,7 +101,7 @@ class eflowDepthCalculator {
   static const int m_nDepth = FCAL2;//Tile_back;  // number of region bounds
   static const DEPTHLAYER m_layerDepthMap[eflowCalo::nRegions];
 
-  double m_layerDepth[m_nDepth+1];
+  double m_layerDepth[m_nDepth+1]{};
 };
 
 

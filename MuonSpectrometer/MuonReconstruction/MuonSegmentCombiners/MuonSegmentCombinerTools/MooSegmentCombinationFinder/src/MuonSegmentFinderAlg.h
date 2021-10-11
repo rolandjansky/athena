@@ -6,6 +6,7 @@
 #define MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CscSegmentMakers/ICscSegmentFinder.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -18,26 +19,24 @@
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "CscSegmentMakers/ICscSegmentFinder.h"
 
 class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
-  public:
+public:
     MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-    virtual ~MuonSegmentFinderAlg()=default;
+    virtual ~MuonSegmentFinderAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
 
-
-  private:
+private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
         this,
         "MuonIdHelperSvc",
@@ -155,12 +154,10 @@ class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
                                 const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const;
     void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const;
 
-    Gaudi::Property<bool> m_printSummary{this,"PrintSummary",false};
-    Gaudi::Property<bool> m_doTGCClust{this,"doTGCClust",false,"selection flags for cluster based segment finding"};
-    Gaudi::Property<bool> m_doRPCClust{this,"doRPCClust",false,"selection flags for cluster based segment finding"};
-    Gaudi::Property<bool> m_doClusterTruth{this,"doClusterTruth",false,"selection flags for cluster based segment finding"};
-
+    Gaudi::Property<bool> m_printSummary{this, "PrintSummary", false};
+    Gaudi::Property<bool> m_doTGCClust{this, "doTGCClust", false, "selection flags for cluster based segment finding"};
+    Gaudi::Property<bool> m_doRPCClust{this, "doRPCClust", false, "selection flags for cluster based segment finding"};
+    Gaudi::Property<bool> m_doClusterTruth{this, "doClusterTruth", false, "selection flags for cluster based segment finding"};
 };
 
 #endif
-

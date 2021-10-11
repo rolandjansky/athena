@@ -3,7 +3,7 @@
 */
 
 
-#include "TrigHLTResultByteStream/HLTSrcIdMap.h" 
+#include "HLTSrcIdMap.h" 
 #include "eformat/SourceIdentifier.h"
 
 // implementation of HLTSrcIdMap

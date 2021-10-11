@@ -94,7 +94,7 @@ std::vector<std::pair<size_t, T>> IdentifiableValueContainer<T>::getAll() const{
    list.reserve(m_mask.size());
    const auto& raw = m_cache->rawReadAccess();
    for(size_t i : m_mask){
-       list.emplace_back(i, raw[i].load());
+       list.emplace_back(i, raw[i].load(std::memory_order_relaxed));
    }
    return list;
 }

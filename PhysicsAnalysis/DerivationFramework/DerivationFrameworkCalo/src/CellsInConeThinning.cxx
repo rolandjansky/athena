@@ -25,6 +25,7 @@ StatusCode DerivationFramework::CellsInConeThinning::initialize(){
   ATH_CHECK(m_InputCellsSGKey.initialize());
   ATH_CHECK(m_OutputClusterSGKey.initialize());
   ATH_CHECK(m_OutputCellLinkSGKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   if (!m_selectionString.empty()) {
     ATH_CHECK( initializeParser(m_selectionString) );
@@ -61,6 +62,10 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
       ATH_MSG_ERROR( "Couldn't retrieve cell container with key: " <<m_InputCellsSGKey);
       return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
   //We have a selection string 
   if (!m_selectionString.empty()) {
     std::vector<int> entries =  m_parser->evaluateAsVector();
@@ -73,9 +78,9 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
     //Loop over the egammas, pick the selected ones and fill the cluster
     int index(0);
     for (const xAOD::Egamma* eg : *egammas){
-      if(entries.at(index)==true){
+      if(static_cast<bool>(entries.at(index))){
 	xAOD::CaloCluster *dummy = CaloClusterStoreHelper::makeCluster(cells);
-	DerivationFramework::CellsInCone::egammaSelect(dummy,cells,eg,m_dr);
+	DerivationFramework::CellsInCone::egammaSelect(dummy,cells,caloDDMgr,eg,m_dr);
 	dclHdl->push_back(dummy);
       }
       ++index;
@@ -85,7 +90,7 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
   else{
     for (const xAOD::Egamma* eg : *egammas){
       xAOD::CaloCluster *dummy = CaloClusterStoreHelper::makeCluster(cells);
-      DerivationFramework::CellsInCone::egammaSelect(dummy,cells,eg,m_dr);
+      DerivationFramework::CellsInCone::egammaSelect(dummy,cells,caloDDMgr,eg,m_dr);
       dclHdl->push_back(dummy);
     }
   }

@@ -10,6 +10,7 @@
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
@@ -81,6 +82,10 @@ StatusCode TrigBphysStreamerHypo::execute( const EventContext& context ) const {
       auto muonLinkInfo = TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(previousDecision, TrigCompositeUtils::featureString(), true);
       ATH_CHECK( muonLinkInfo.isValid() );
       decision->setObjectLink<xAOD::L2StandAloneMuonContainer>(TrigCompositeUtils::featureString(), muonLinkInfo.link);
+
+      //set roi link (to use same roi in EF CB muon step)
+      auto roiLink = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(decision, "roi");
+      decision->setObjectLink(m_roiLinkName.value(), roiLink.link);
     }
     else if (m_triggerLevel == "EF") {
       auto muonLinkInfo = TrigCompositeUtils::findLink<xAOD::MuonContainer>(previousDecision, TrigCompositeUtils::featureString(), true);

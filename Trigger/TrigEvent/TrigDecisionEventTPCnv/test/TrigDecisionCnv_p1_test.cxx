@@ -65,7 +65,6 @@ void test1()
   // Get proxies created outside of leak check.
   DataLink<HLT::HLTResult> l2link ("l2result");
   DataLink<HLT::HLTResult> eflink ("efresult");
-  Athena_test::Leakcheck check;
 
   LVL1CTP::Lvl1Result l1result (true);
   l1result.itemsBeforePrescale().assign ({1, 2, 3});
@@ -76,7 +75,9 @@ void test1()
                                 l2link, eflink,
                                 12345,
                                 10);
+  trans1.getL2Result();
   
+  Athena_test::Leakcheck check;
   testit (trans1);
 }
 

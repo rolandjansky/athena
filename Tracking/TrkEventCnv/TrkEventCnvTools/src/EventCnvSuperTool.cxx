@@ -17,7 +17,7 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     const IInterface*  p )
     :
     base_class(t,n,p),
-    m_detID(0),
+    m_detID(nullptr),
     m_haveIdCnvTool(false),   // Will be set to true on retrieval
     m_haveMuonCnvTool(false), // Will be set to true on retrieval
     m_doMuons(true),
@@ -94,7 +94,7 @@ Trk::EventCnvSuperTool::finalize(){
 
 const Trk::ITrkEventCnvTool*    
 Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
-    if (m_detID==0) return 0;
+    if (m_detID==nullptr) return nullptr;
 
     if(m_detID->is_indet(id))
     {
@@ -106,7 +106,7 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
             if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)
                 << "ID RIO_OnTrack, but have no ID cnv tool!"
                 << endmsg;
-            return 0;
+            return nullptr;
         }
     }else{
         if(m_detID->is_muon(id) )
@@ -119,7 +119,7 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
                 if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)
                     << "Muon RIO_OnTrack, but have no muon cnv tool. Cannot set check RoT."
                     << endmsg;
-                return 0;
+                return nullptr;
             }
         }
     }
@@ -130,17 +130,17 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
         << "Unknown Identifier: ("<< ident<<"), that is ("<<id<<")"
         << endmsg;
     }
-    return 0;
+    return nullptr;
     
 }
 
 const Trk::Surface* 
 Trk::EventCnvSuperTool::getSurface(const Identifier& id) const {
-    const Surface* surface = 0;
+    const Surface* surface = nullptr;
     const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(id);
-    if (cnvTool!=0) {
+    if (cnvTool!=nullptr) {
         const TrkDetElementBase* detEl = cnvTool->getDetectorElement( id );
-        if (detEl!=0)
+        if (detEl!=nullptr)
             surface = &(detEl->surface(id));
         else
             if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get detector element from id:"<<id<<" Returning 0." << endmsg;            
@@ -155,7 +155,7 @@ Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
 {
     using namespace std;
     const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
-    if (cnvTool!=0) {
+    if (cnvTool!=nullptr) {
         cnvTool->recreateRIO_OnTrack( RoT );
     } else {
         const type_info& info = typeid(*RoT);
@@ -169,7 +169,7 @@ void
 Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
 {
     const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
-    if (cnvTool!=0) {
+    if (cnvTool!=nullptr) {
         cnvTool->prepareRIO_OnTrack( RoT );
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
@@ -183,7 +183,7 @@ Trk::EventCnvSuperTool::prepareRIO_OnTrackLink ( const Trk::RIO_OnTrack *RoT,
                                                  ELIndex_t& index ) const
 {
     const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
-    if (cnvTool!=0) {
+    if (cnvTool!=nullptr) {
         cnvTool->prepareRIO_OnTrackLink ( RoT, key, index );
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 

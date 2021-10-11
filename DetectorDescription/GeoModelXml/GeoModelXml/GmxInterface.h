@@ -31,5 +31,58 @@ public:
     virtual void addAlignable(int level, std::map<std::string, int> &index, 
                               GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
 
+    // helpers
+    template <typename T>
+    bool checkParameter(const std::string /* &typeName */,  
+                        const std::map<std::string, std::string> &parameters,
+                        const std::string &name,
+                        T &value)
+    {
+        // Needs some kind of versioning to stop this being abused...
+        auto it = parameters.find(name);
+        if (it != parameters.end()) {
+            std::istringstream(it->second) >> value;
+            return true;
+        }
+        return false;
+    }
+
+    template <typename T>
+    void getParameter(const std::string &typeName,
+                      const std::map<std::string, std::string> &parameters,
+                      const std::string &name,
+                      T &value) const
+    {
+        auto it = parameters.find(name);
+        if (it != parameters.end()) {
+            std::istringstream(it->second) >> value;
+        } else {
+            std::string err("GmxInterface Error: missing parameter " + name + " for " + typeName);
+            throw std::runtime_error(err);
+        }
+    }
+
+    template <typename T, typename A>
+    void getParameters(const std::string &typeName,
+                       const std::map<std::string, std::string> &parameters,
+                       const std::string &name, 
+                       std::vector<T, A> &vec) const
+    {
+        auto it = parameters.find(name);
+        if (it != parameters.end()) {
+            T value;
+            std::string strVal(it->second);
+            strVal.erase(strVal.find_last_not_of(" \t\n\r\f\v") + 1); // trailing white space or you get an extra 0
+            std::istringstream inString(strVal);
+            do {
+                inString >> value;
+                vec.push_back(value);
+            } while (inString.good());
+        } else {
+            std::string err("GmxInterface Error: missing parameters " + name + " for " + typeName);
+            throw std::runtime_error(err);
+        }
+    }
+
 };
 #endif // GMX_INTERFACE_H

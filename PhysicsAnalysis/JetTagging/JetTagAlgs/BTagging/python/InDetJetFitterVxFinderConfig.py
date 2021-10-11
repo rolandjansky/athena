@@ -10,7 +10,7 @@ from BTagging.InDetImprovedJetFitterTrackSelectorToolConfig import InDetImproved
 # import the InDetDetailedTrackSelectorTool configurable
 InDet__InDetJetFitterVxFinder=CompFactory.InDet.InDetJetFitterVxFinder
 
-def InDetInDetJetFitterVxFinderCfg(name, suffix="", useBTagFlagsDefaults = True, **options):
+def InDetInDetJetFitterVxFinderCfg(flags, name, suffix="", useBTagFlagsDefaults = True, **options):
     """Sets up a InDetJetFitterVxFinder  tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -30,7 +30,7 @@ def InDetInDetJetFitterVxFinderCfg(name, suffix="", useBTagFlagsDefaults = True,
     if useBTagFlagsDefaults:
         improvedJetFitterInitializationHelper = acc.popToolsAndMerge(ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper'+suffix))
         improvedJetFitterRoutines = acc.popToolsAndMerge(ImprovedJetFitterRoutinesCfg('ImprovedJFRoutines'+suffix))
-        inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg('InDetImprovedJFTrackSelTool'+suffix))
+        inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg(flags, 'InDetImprovedJFTrackSelTool'+suffix))
         defaults = { 'MaxNumDeleteIterations'              : 30,
                      'VertexProbCut'                       : 0.001,
                      'MaxClusteringIterations'             : 30,

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LAROFPEAKRECOTOOL_H
@@ -85,7 +85,7 @@ class LArOFPeakRecoTool: public AthAlgTool
   float m_samplingPeriod;
   bool m_forceHighGain;
   bool m_isSC;
-  const LArOnlineID_Base*        m_lar_on_id; 
+  const LArOnlineID_Base*        m_lar_on_id = nullptr; 
 
 };
 

@@ -86,13 +86,13 @@ namespace DerivationFramework {
       }
     }
 
-    SG::WriteDecorHandle<xAOD::PFOContainer,char> dec_PVmatched(m_PVmatchedKey);
-    SG::WriteDecorHandle<xAOD::PFOContainer,float> dec_corrP4_pt(m_corrP4_ptKey);
-    SG::WriteDecorHandle<xAOD::PFOContainer,float> dec_z0(m_z0Key);
-    SG::WriteDecorHandle<xAOD::PFOContainer,float> dec_vz(m_vzKey);
-    SG::WriteDecorHandle<xAOD::PFOContainer,float> dec_d0(m_d0Key);
-    SG::WriteDecorHandle<xAOD::PFOContainer,float> dec_theta(m_thetaKey);
-    SG::WriteDecorHandle<xAOD::PFOContainer,float> dec_envWeight(m_envWeightKey);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,char> dec_PVmatched(m_PVmatchedKey);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_corrP4_pt(m_corrP4_ptKey);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_z0(m_z0Key);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_vz(m_vzKey);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_d0(m_d0Key);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_theta(m_thetaKey);
+    SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_envWeight(m_envWeightKey);
 
     auto pfoContainer = SG::makeHandle (m_pfoContainer_key);
     if (!pfoContainer.isValid()){
@@ -102,12 +102,12 @@ namespace DerivationFramework {
     }
     auto cpfos = pfoContainer.cptr();
 
-    for ( const xAOD::PFO* cpfo : *cpfos ) {
+    for ( const xAOD::FlowElement* cpfo : *cpfos ) {
       if ( cpfo == 0 ) {
         ATH_MSG_WARNING("Have NULL pointer to charged PFO");
         continue;
       }
-      const xAOD::TrackParticle* ptrk = cpfo->track(0);
+      const xAOD::TrackParticle* ptrk = dynamic_cast<const xAOD::TrackParticle*>(cpfo->chargedObject(0));
       if ( ptrk == 0 ) {
         ATH_MSG_WARNING("Skipping charged PFO with null track pointer.");
         continue;
@@ -131,10 +131,10 @@ namespace DerivationFramework {
       }// if pv available
 
       //find the weights from the tool
-      int isInDenseEnvironment = false;
       float weight = 1.0;
-      if(cpfo->attribute(xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment,isInDenseEnvironment)){
-	ATH_CHECK( m_weightPFOTool->fillWeight( *cpfo, weight ) );
+      const static SG::AuxElement::ConstAccessor<int> accIsInDE("IsInDenseEnvironment");
+      if(accIsInDE.isAvailable(*cpfo)){
+        ATH_CHECK( m_weightPFOTool->fillWeight( *cpfo, weight ) );
       }
 
       // decorate the computed variables	

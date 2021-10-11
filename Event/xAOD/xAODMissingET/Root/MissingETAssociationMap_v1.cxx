@@ -11,6 +11,8 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODBase/ObjectType.h"
 
+#include "xAODPFlow/FEHelpers.h"
+
 #include <cstdio>
 #include <iterator>
 #include <utility>
@@ -31,8 +33,9 @@ MissingETAssociationMap_v1::MissingETAssociationMap_v1(SG::OwnershipPolicy own, 
 {
 }
 
-MissingETAssociationMap_v1::MissingETAssociationMap_v1(MissingETAssociationMap_v1::iterator first, MissingETAssociationMap_v1::iterator last,
-						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
+MissingETAssociationMap_v1::MissingETAssociationMap_v1(const MissingETAssociationMap_v1::iterator& first,
+                                                       const MissingETAssociationMap_v1::iterator& last,
+                                                       SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETAssociation_v1>(first,last,own,trackIndices)
 {
 }
@@ -166,7 +169,12 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(const ElementLink<IPartic
 {
   size_t index = MissingETBase::Numerical::invalidIndex();
   std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
-  if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+  if (iConstMap==m_jetConstLinks.end()) {
+    for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); ++jConstMap)
+    {
+      if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+    }
+  }
   if(iConstMap!=m_jetConstLinks.end()) {
     index = iConstMap->second;
     const_iterator fAssoc(this->begin());
@@ -212,26 +220,27 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
   for(IParticleContainer::const_iterator iSig=signals->begin();
       iSig!=signals->end(); ++iSig) {
+    xAOD::Type::ObjectType objType = (*iSig)->type();
+    if(objType == xAOD::Type::FlowElement) objType = FEHelpers::signalToXAODType(static_cast<const xAOD::FlowElement&>(**iSig));
     switch(p) {
     case MissingETBase::UsageHandler::TrackCluster:      
-      if((*iSig)->type()==xAOD::Type::CaloCluster
-	 || (*iSig)->type()==xAOD::Type::TrackParticle) {break;}
+      if(objType==xAOD::Type::CaloCluster
+      || objType==xAOD::Type::TrackParticle) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::OnlyCluster:
-      if((*iSig)->type()==xAOD::Type::CaloCluster) {break;}
+      if(objType==xAOD::Type::CaloCluster) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::OnlyTrack:
-      if((*iSig)->type()==xAOD::Type::TrackParticle) {break;}
+      if(objType==xAOD::Type::TrackParticle) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::ParticleFlow:
-      if((*iSig)->type()==xAOD::Type::ParticleFlow) {break;}
-      else if((*iSig)->type()==xAOD::Type::FlowElement && ((static_cast<const xAOD::FlowElement*>(*iSig))->signalType() & xAOD::FlowElement::PFlow)) {break;}
+      if(objType==xAOD::Type::ParticleFlow) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::TruthParticle:
-      if((*iSig)->type()==xAOD::Type::TruthParticle) {break;}
+      if(objType==xAOD::Type::TruthParticle) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::AllCalo:
-      if((*iSig)->type()!=xAOD::Type::TrackParticle) {break;}
+      if(objType!=xAOD::Type::TrackParticle) {break;}
       else {continue;}
     default: {continue;}
     }
@@ -261,7 +270,7 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSig
 {
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
   for(const auto *const sig : *signals) {
-    if(!MissingETAssociation_v1::testPolicy(sig->type(),p)) continue;
+    if(!MissingETAssociation_v1::testPolicy(*sig,p)) continue;
     
     size_t assocIndex = findIndexByJetConst(sig);
     if(assocIndex==MissingETBase::Numerical::invalidIndex()) {

@@ -63,15 +63,22 @@ namespace Muon
     @param timeOfFirstSample   The time measured by the CSC @todo More info.
     @param samplingRate The sampling rate.
     */
-    CscStripPrepData( const Identifier& RDOId,
-                      const IdentifierHash &collectionHash,
-                      const Amg::Vector2D& locpos,
-                      const Amg::MatrixX* locErrMat,
-                      const MuonGM::CscReadoutElement* detEl,
-                      const std::vector<float>& sampleCharges,
-                      float timeOfFirstSample,
-                      unsigned short samplingRate
-                      );
+    CscStripPrepData(const Identifier& RDOId,
+                     const IdentifierHash& collectionHash,
+                     const Amg::Vector2D& locpos,
+                     const Amg::MatrixX& locErrMat,
+                     const MuonGM::CscReadoutElement* detEl,
+                     const std::vector<float>& sampleCharges,
+                     float timeOfFirstSample,
+                     unsigned short samplingRate);
+    CscStripPrepData(const Identifier& RDOId,
+                     const IdentifierHash& collectionHash,
+                     const Amg::Vector2D& locpos,
+                     Amg::MatrixX&& locErrMat,
+                     const MuonGM::CscReadoutElement* detEl,
+                     const std::vector<float>& sampleCharges,
+                     float timeOfFirstSample,
+                     unsigned short samplingRate);
 
     /// Destructor:
       virtual ~CscStripPrepData();
@@ -84,7 +91,7 @@ namespace Muon
       virtual const MuonGM::CscReadoutElement* detectorElement() const override final;
 
       /** Interface method checking the type*/
-      virtual bool type(Trk::PrepRawDataType::Type type) const override final
+      virtual bool type(Trk::PrepRawDataType type) const override final
       {
         return type == Trk::PrepRawDataType::MdtPrepData;
       }

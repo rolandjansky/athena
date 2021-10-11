@@ -7,8 +7,8 @@
 // and optional registration in IOV database
 // Richard Hawkings, started 1/9/05, from skeleton by Walter Lampl
 
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "OutputConditionsAlg.h"

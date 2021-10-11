@@ -84,10 +84,17 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
             continue;
           }
 
+
+          // at some point the time measurement should be converted to tdc counts and relBcid
+          // but for now we set relBcid to zero for the simulation
+          // Patrick Scholer 6. September 2021
+          uint16_t relBcid = 0;   
+
           MM_RawData* rdo = new MM_RawData(newId,
                                            digit->stripResponsePosition().at(i),
                                            digit->stripResponseTime().at(i),
-                                           digit->stripResponseCharge().at(i));
+                                           digit->stripResponseCharge().at(i),
+                                           relBcid);
 
           coll->push_back(rdo);
 

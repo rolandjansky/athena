@@ -62,20 +62,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
     #from AthenaCommon.Constants import VERBOSE
     #larRODMonAlg.OutputLevel=VERBOSE
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg() :
-        # adding BadChan masker private tool
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"],ToolName="BadLArChannelMask")
-        larRODMonAlg.LArBadChannelMask=acc.popPrivateTools()
-        helper.resobj.merge(acc)
-    else :
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-        theLArBadChannelsMasker.DoMasking=True
-        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
-        larRODMonAlg.LArBadChannelMask=theLArBadChannelsMasker
-    
+    larRODMonAlg.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"]
 
     Group = helper.addGroup(
         larRODMonAlg,
@@ -171,7 +158,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                            ylabels=lArDQGlobals.DSPRanges 
           )
     Group.defineHistogram('Ediff,Erange;E_ranges_all', title='E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
-                           type='TH2F', path=dqmd_hist_path,
+                           type='TH2F', path='DQMD/',
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
                            ylabels=lArDQGlobals.DSPRanges

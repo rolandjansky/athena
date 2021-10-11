@@ -3,8 +3,8 @@
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/MuonSectorProcessor.h"
-#include "TrigT1MuctpiPhase1/L1TopoLUT.h"
+#include "MuonSectorProcessor.h"
+#include "L1TopoLUT.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
@@ -69,11 +69,6 @@ namespace LVL1MUCTPIPHASE1 {
   class OverlapHelper
   {
   public:
-    int active_side = -1;
-    std::string sub_left="";
-    std::string sub_right="";
-    int sec_left = -1;
-    int sec_right = -1;
     std::map<int,std::set<std::string> > global_pairs;
     
     std::array<std::map<std::string,std::vector<std::string>>,2> lhs_index;
@@ -147,12 +142,11 @@ namespace LVL1MUCTPIPHASE1 {
 	std::string topElementName = x.first;
 	ptree lut = x.second;
 	
-	
 	if (topElementName != "LUT") continue;
 
 	std::string SectorId1 = MuctpiXMLHelper::getAttribute(lut,"SectorId1");
 	std::string SectorId2 = MuctpiXMLHelper::getAttribute(lut,"SectorId2");
-	
+
 	unsigned left_mod = 32;
 	unsigned right_mod = 32;
 	if (SectorId1[0] == 'E') left_mod = 48;
@@ -161,61 +155,27 @@ namespace LVL1MUCTPIPHASE1 {
 	if (SectorId2[0] == 'F') right_mod = 24;
 	
 	std::string snum_left = std::string(1,SectorId1[1])+std::string(1,SectorId1[2]);
-	sub_left = std::string(1,SectorId1[0]);
-	sec_left = std::stoi(snum_left) % left_mod;
+	int sec_left = std::stoi(snum_left) % left_mod;
 	
 	std::string snum_right = std::string(1,SectorId2[1])+std::string(1,SectorId2[2]);
-	sub_right = std::string(1,SectorId2[0]);
-	sec_right = std::stoi(snum_right) % right_mod;
+	int sec_right = std::stoi(snum_right) % right_mod;
 	
 	std::string side = MuctpiXMLHelper::getAttribute(lut,"Side");
-	if (side == "C") active_side = 0;
-	else active_side = 1;
-	
+	int active_side = (side == "C") ? 0 : 1;
+
+	std::string System1 = SectorId1.substr(0,1);
+	std::string System2 = SectorId2.substr(0,1);
+
 	for(const boost::property_tree::ptree::value_type &z: lut) {
 	  std::string menuElementName = z.first;
+	  if(menuElementName!="Element" && menuElementName!="BBElement")continue;
 	  ptree ele = z.second;
-	  
-	  if (std::string("BBElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
-	    auto lhs_key = make_key("B",sec_left,roi1);
-	    auto rhs_key = make_key("B",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("BEElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "BRoI");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "ERoI");
-	    auto lhs_key = make_key("B",sec_left,roi1);
-	    auto rhs_key = make_key("E",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("EEElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
-	    auto lhs_key = make_key("E",sec_left,roi1);
-	    auto rhs_key = make_key("E",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("EFElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "ERoI");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "FRoI");
-	    auto lhs_key = make_key("E",sec_left,roi1);
-	    auto rhs_key = make_key("F",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("FFElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
-	    auto lhs_key = make_key("F",sec_left,roi1);
-	    auto rhs_key = make_key("F",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
+	  auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
+	  auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
+	  auto lhs_key = make_key(System1,sec_left,roi1);
+	  auto rhs_key = make_key(System2,sec_right,roi2);
+	  auto region = make_pair(lhs_key,rhs_key);
+	  global_pairs[active_side].insert(region);
 	}
       }
       create_indices();
@@ -225,20 +185,21 @@ namespace LVL1MUCTPIPHASE1 {
 
   MuonSectorProcessor::MuonSectorProcessor(bool side)
     :
-    m_muctpiInput(nullptr),
-    m_overlapHelper(new OverlapHelper),
+    m_overlapHelper(std::make_unique<OverlapHelper>()),
     m_l1menu(nullptr),
     m_l1topoLUT(nullptr),
     m_side(side)
   {
-    
-  }
-  
-  MuonSectorProcessor::~MuonSectorProcessor()
-  {
-    delete m_overlapHelper;
   }
 
+  MuonSectorProcessor::~MuonSectorProcessor()
+  {
+  }
+
+  MuonSectorProcessor::MuonSectorProcessor(MuonSectorProcessor &&o)
+    : m_overlapHelper(std::move(o.m_overlapHelper))
+  {
+  }
 
   void MuonSectorProcessor::setMenu(const TrigConf::L1Menu* l1menu)
   {
@@ -307,12 +268,7 @@ namespace LVL1MUCTPIPHASE1 {
   }
 
   
-  void MuonSectorProcessor::setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input)
-  {
-    m_muctpiInput=input;
-  }
-  
-  void MuonSectorProcessor::runOverlapRemoval(int bcid)
+  void MuonSectorProcessor::runOverlapRemoval(LVL1MUONIF::Lvl1MuCTPIInputPhase1* inputs, int bcid) const
   {
     std::map<std::string,std::vector<std::pair<std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1>, unsigned> > > buckets;
 
@@ -328,7 +284,7 @@ namespace LVL1MUCTPIPHASE1 {
 	  if (isub != size_t(m_side)) continue;
 
 	  //get a pointer to this since we'll need to modify the 'veto' flag of the SL data
-	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = m_muctpiInput->getSectorLogicDataPtr(isys, isub, isec, bcid);
+	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = inputs->getSectorLogicDataPtr(isys, isub, isec, bcid);
 	  if (!sectorData) continue;
 	  
 	  for (unsigned int icand=0;icand<LVL1MUONIF::NCAND[isys];icand++)
@@ -344,8 +300,13 @@ namespace LVL1MUCTPIPHASE1 {
 	    int ptword = sectorData->pt(icand);
 	    if (ptword < 0) continue;
 
+	    // initializing veto flag for the latter removal step
+	    sectorData->veto(icand,0);
+
 	    for(auto rr : m_overlapHelper->relevant_regions(m_side,sectorName,roiID,isec))
 	    {
+	      // for the barrel-barrel overlap removal, only the muons having the phi-overlap flag are considered
+              if( std::count(rr.begin(),rr.end(),'B') == 2 && isys == 0 && sectorData->ovl(icand) == 0 )continue;
 	      buckets[rr].push_back(std::make_pair(sectorData, icand));
 	    }
 	  }
@@ -354,18 +315,31 @@ namespace LVL1MUCTPIPHASE1 {
     }
 
     for(auto candidate_vector : buckets){ // loop over candidates in OL region pair
-      //for each candidate above the first, mark them as overlapping
-      for (unsigned i=1;i<candidate_vector.second.size();i++)
+
+      // sorting (to be tuned)
+      unsigned i_notRemove = 0;
+      int ptMax = 0;
+      for (unsigned i=0;i<candidate_vector.second.size();i++){
+	if( candidate_vector.second[i].first->veto(candidate_vector.second[i].second)==1 ) continue; // skipping already-flagged candidate
+	int pt = candidate_vector.second[i].first->pt(candidate_vector.second[i].second);
+	if(pt > ptMax){
+	  ptMax = pt;
+	  i_notRemove = i;
+	}
+      }
+
+      //for each candidate except the highest pt, mark them for removal
+      for (unsigned i=0;i<candidate_vector.second.size();i++)
       {
-	candidate_vector.second[i].first->veto(candidate_vector.second[i].second, 1);
+	if( candidate_vector.second[i].first->veto(candidate_vector.second[i].second)==1 ) continue; // skipping already-flagged candidate
+	candidate_vector.second[i].first->veto(candidate_vector.second[i].second, (i==i_notRemove)?0:1 );
       }
     }
   }
   
-  std::string MuonSectorProcessor::makeL1TopoData(int bcid)
+  std::string MuonSectorProcessor::makeL1TopoData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* inputs, int bcid, 
+						  LVL1::MuCTPIL1Topo& l1topoData) const
   {
-    if (m_bcid_to_l1topo[bcid]) delete m_bcid_to_l1topo[bcid];
-    m_bcid_to_l1topo[bcid] = new LVL1::MuCTPIL1Topo();
     // Barrel + EC + Fwd
     for (unsigned short isys=0;isys<LVL1MUONIF::Lvl1MuCTPIInputPhase1::numberOfSystems();isys++)
     {
@@ -377,7 +351,7 @@ namespace LVL1MUCTPIPHASE1 {
 	for (unsigned short isub=0;isub<2;isub++)
 	{
 	  if (isub != (unsigned short)(m_side)) continue;
-	  const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_muctpiInput->getSectorLogicData(isys, isub, isec, bcid);
+	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = inputs->getSectorLogicDataPtr(isys, isub, isec, bcid);
 	  if (!sectorData) continue;
 
 	  //build the sector name
@@ -480,7 +454,7 @@ namespace LVL1MUCTPIPHASE1 {
 				  sectorData->charge(icand));
 
 	    
-	    m_bcid_to_l1topo[bcid]->addCandidate(cand);
+	    l1topoData.addCandidate(cand);
 	  }
 	}
       }
@@ -488,13 +462,4 @@ namespace LVL1MUCTPIPHASE1 {
     return "";
   }
 
-  LVL1MUONIF::Lvl1MuCTPIInputPhase1* MuonSectorProcessor::getOutput()
-  {
-    return m_muctpiInput;
-  }
-
-  LVL1::MuCTPIL1Topo* MuonSectorProcessor::getL1TopoData(int bcid)
-  {
-    return m_bcid_to_l1topo[bcid];
-  }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -19,6 +19,7 @@
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainer.h"
+#include "CxxUtils/checker_macros.h"
 #include <stdexcept>
 
 using namespace std;
@@ -61,19 +62,25 @@ const DbContainer& DbObjectAccessor::containedIn(const DbObject* pObj)  {
 
 
 /// Add a link entry to the Database
-DbStatus DbObjectAccessor::makeObjectLink(const DbObject* pObj,
-                                          const Token* pTok, 
-                                          Token::OID_t& lnkH)
+DbStatus DbObjectAccessor::makeObjectLink ATLAS_NOT_THREAD_SAFE
+  (const DbObject* pObj,
+   Token* pTok, 
+   Token::OID_t& lnkH)
 {
   if ( 0 != pTok )   {
-    const DbDatabase& dbH = DbHeap::container(pObj).containedIn();
+    DbDatabase& dbH = DbHeap::container(const_cast<DbObject*>(pObj)).containedIn();
     return dbH.makeLink(pTok, lnkH);  
   }
   return Error;
 }
 
 /// Validate an association of an object
-Token::OID_t& DbObjectAccessor::objectOid(const DbObject* pObj) {
+Token::OID_t& DbObjectAccessor::objectOid(DbObject* pObj) {
+  return DbHeap::oid(pObj);
+}
+
+/// Validate an association of an object
+const Token::OID_t& DbObjectAccessor::objectOid(const DbObject* pObj) {
   return DbHeap::oid(pObj);
 }
 

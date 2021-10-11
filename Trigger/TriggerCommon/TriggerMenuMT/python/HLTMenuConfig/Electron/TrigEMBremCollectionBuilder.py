@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactory to instantiate  TrigEMBremCollectionBuilder
 with default configuration"""
@@ -16,12 +16,13 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_GSF
 
+log = logging.getLogger(__name__)
+
 class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
     __slots__ = ()
 
     def __init__(self, name="TrigEgammaBremCollectionBuilder", **kw):
-        mlog = logging.getLogger(name + '::__init__')
-        mlog.info("entering")
+        log.debug("entering")
 
         super(TrigEgammaBremCollectionBuilder, self).__init__(name, **kw)
 
@@ -67,8 +68,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         #  TRT_ElectronPidTool (private =True)
         #
         GSFBuildTRT_ElectronPidTool = None
-        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
-        ) and not InDetFlags.doHighPileup():
+        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doHighPileup():
 
             from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
             from AthenaCommon.GlobalFlags import globalflags

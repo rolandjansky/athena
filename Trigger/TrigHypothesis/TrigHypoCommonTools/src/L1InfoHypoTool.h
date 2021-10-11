@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHYPOCOMMONTOOLS_L1INFOHYPOTOOL_H
@@ -8,7 +8,7 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "L1Decoder/ICTPUnpackingTool.h"
+#include "HLTSeeding/ICTPUnpackingTool.h"
 
 #include "IL1InfoHypoTool.h"
 

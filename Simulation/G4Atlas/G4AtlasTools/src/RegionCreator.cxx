@@ -32,26 +32,36 @@ StatusCode RegionCreator::initialize()
     }
     ATH_MSG_INFO( "m_regionName default value reset to "<<m_regionName.value());
   }
+  return StatusCode::SUCCESS;
+}
 
+void RegionCreator::Construct()
+{
   //create a new G4Region
   G4Region* theRegion=new G4Region(m_regionName.value());
 
   // loop over volumes and fish for those in the list
-  int nVolumes = 0;
+  size_t nVolumes{0};
   G4LogicalVolumeStore* logStore=G4LogicalVolumeStore::GetInstance();
-  for (const auto& vol: m_logicalVolumes)
+  for (const auto& vol: m_logicalVolumes) {
+    size_t nVolumesCurrent{0};
     for (auto* it: *logStore)
       {
 
         if (vol == static_cast<const std::string&>(it->GetName()))
           {
-            nVolumes++;
+            nVolumesCurrent++;
             it->SetRegion(theRegion);
             theRegion->AddRootLogicalVolume(it);
           }
       }
+    if (nVolumesCurrent==0) {
+      ATH_MSG_WARNING("No volumes matching \"" << vol << "\" found in G4 LogicalVolumeStore. " << m_regionName.value() << " G4PhysicsRegion may not behave as intended.");
+    }
+    nVolumes += nVolumesCurrent;
+  }
 
-  ATH_MSG_INFO(" a total of "<<nVolumes<<" volumes was assigned to region "<<m_regionName.value() );
+  ATH_MSG_INFO("A total of "<<nVolumes<<" volumes was assigned to region "<<m_regionName.value() );
 
   // create a G4ProductionCuts object and set appropriate values
   G4ProductionCuts* cuts=new G4ProductionCuts();
@@ -64,8 +74,6 @@ StatusCode RegionCreator::initialize()
   theRegion->SetProductionCuts(cuts);
 
   Dump();
-
-  return StatusCode::SUCCESS;
 }
 
 void RegionCreator::Dump()

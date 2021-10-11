@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloTileRetriever.h"
@@ -36,13 +36,11 @@ namespace JiveXML {
   CaloTileRetriever::CaloTileRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("TileDigit"),
-    m_calocell_id(nullptr)
+    m_calocell_id(nullptr),
+    m_sgKey ("AllCalo")
   {
-
    //Only declare the interface
    declareInterface<IDataRetriever>(this);
-
-   m_sgKey = "AllCalo";
 
    declareProperty("StoreGateKey" , m_sgKey);
    declareProperty("CellThreshold", m_cellThreshold = 50.);
@@ -331,7 +329,7 @@ namespace JiveXML {
 
     double energyAllTile = 0.; 
 
-    for (;it1!=it2;it1++) {
+    for (;it1!=it2;++it1) {
 
       if ((*it1)->badcell()) BadCell.push_back(1);
       else if ((*it1)->energy()>= m_cellThreshold) BadCell.push_back(0);

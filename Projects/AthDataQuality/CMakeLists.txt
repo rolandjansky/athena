@@ -4,11 +4,11 @@
 cmake_minimum_required( VERSION 3.6 )
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-project( AthDataQuality VERSION ${_version} LANGUAGES CXX )
+project( AthDataQuality VERSION ${_version} LANGUAGES C CXX )
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "04-02-01" CACHE STRING
+set( TDAQ-COMMON_VERSION "04-03-00" CACHE STRING
    "The version of tdaq-common to use for the build" )
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
@@ -18,11 +18,14 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake REQUIRED )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "python3_ATLAS_8"
+set( LCG_VERSION_POSTFIX "_ATLAS_7"
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 98
+set( LCG_VERSION_NUMBER 100
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
+
+# Set up tdaq-common explicitly.
+find_package( tdaq-common REQUIRED )
 
 # External(s) needed at build/runtime:
 find_package( Xrootd )
@@ -30,6 +33,17 @@ find_package( GSL )
 find_package( PNG )
 find_package( TBB )
 find_package( TIFF )
+
+# Disable flake8.
+set( ATLAS_FLAKE8 true   # <- this is the shell builtin `true`
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER ""
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
+# Set up the build/runtime environment:
+set( AthDataQualityReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
+   "Path to AthDataQualityReleaseEnvironmentConfig.cmake" )
+find_package( AthDataQualityReleaseEnvironment REQUIRED )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )

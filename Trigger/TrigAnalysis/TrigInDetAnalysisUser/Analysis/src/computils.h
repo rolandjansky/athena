@@ -55,6 +55,7 @@ double Entries( TH1* h );
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
+bool contains( const std::string& s, char p) noexcept;
 
 /// does a string contain the substring at the beginning of the string
 bool fcontains( const std::string& s, const std::string& p);
@@ -76,6 +77,13 @@ void contents( std::vector<std::string>& keys,
 	       const std::string& directory="", 
 	       const std::string& pattern="", 
 	       const std::string& path="" );
+
+void contents( std::vector<std::string>& keys, 
+	       TDirectory* td, 
+	       const std::string& directory="", 
+	       const std::vector<std::string>& patterns=std::vector<std::string>(), 
+	       const std::string& path="" );
+
 
 double realmax( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 double realmin( TH1* h, bool include_error=true, double lo=0, double hi=0 );
@@ -368,10 +376,18 @@ public:
     /// ha ! don't actually create the legend until we want to draw it, 
     /// then we can determine the size etc automatically
 
-    double y0 = m_y[1] - 0.3*m_entries.size()*(m_y[1]-m_y[0]);
+    double y0 = 0;
 
+    if ( m_y[0]>0.5 ) { 
+      y0 = m_y[1] - m_entries.size()*0.05;
+    }
+    else { 
+      y0 = m_y[0];
+      m_y[1] = y0 + m_entries.size()*0.05;
+    }
+      
     m_leg = new TLegend( m_x[0], y0, m_x[1], m_y[1] );
-
+     
     m_leg->SetBorderSize(0);
     m_leg->SetTextFont(42);
     m_leg->SetTextSize(0.04);
@@ -465,11 +481,11 @@ public:
   std::string plotfilename() const { return m_plotfilename; }
 
   void trim_errors(bool b) { m_trim_errors=b; } 
-
+  
   bool  trim_errors() const { return m_trim_errors; } 
-
-  void Draw( int i, Legend& leg, bool mean=false, bool first=true ) { 
-
+  
+  void Draw( int i, Legend& leg, bool mean=false, bool first=true, bool drawlegend=false ) { 
+    
     if ( htest() ) {
       gStyle->SetOptStat(0);
       if ( href() ) { 
@@ -483,15 +499,17 @@ public:
       if ( LINEF ) htest()->SetMarkerColor(htest()->GetLineColor());
       if ( LINEF ) htest()->SetMarkerStyle(markers[i%6]);
 
-      if ( htest() ) std::cout << "\tentries " << plotable( htest() );
+      if ( htest() ) std::cout << "\tentries: " << plotable( htest() );
       std::cout << std::endl;
 
-      if(first)  {
+      if ( first )  {
 
 	if ( tgtest() ) { 
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
 	    if ( trim_errors() ) trim_tgraph( htest(), tgtest() );
+
+
 	    htest()->Draw("ep");
 	    if ( LINES ) htest()->Draw("lhistsame");
 	    setParameters( htest(), tgtest() );
@@ -504,6 +522,7 @@ public:
 	}
        
       }
+
 
       if ( plotref && href() ) { 
 	if ( contains(href()->GetName(),"_vs_")  || 
@@ -579,18 +598,19 @@ public:
 	
 	std::string dkey = key;
 
-	std::string remove[6] = { "TIME_", "Time_", "All_", "Algorithm_", "Class_", "HLT_" };
+	std::string remove[7] = { "TIME_", "Time_", "All_", "Algorithm_", "Class_", "HLT_", "Chain_HLT_" };
 
-	for ( int ir=0 ; ir<6 ; ir++ ) { 
+	if ( dkey.find("Chain")!=std::string::npos ) {
+	  if ( dkey.find("__")!=std::string::npos ) dkey.erase( 0, dkey.find("__")+2 );
+	} 
+	  
+
+	for ( int ir=0 ; ir<7 ; ir++ ) { 
 	  if ( dkey.find( remove[ir] )!=std::string::npos ) dkey.erase( dkey.find( remove[ir]), remove[ir].size() );
 	} 
 
-	std::cout << "alg: " << m_plotfilename << " " << dkey << " " << meanc << "\tref: " << meanrefc << std::endl;
-     	
 	std::string rkey = dkey;
 
-
-	
 
 	if ( LINEF || leg.size() < m_max_entries ) { 
 	  dkey += std::string(" : ");
@@ -605,7 +625,7 @@ public:
 
 	  if ( displayref ) { 
 	    rkey += std::string(" : ");
-	    leg.AddEntry( hnull, "", "l" );
+	    //  leg.AddEntry( hnull, "", "l" );
 
 	    if ( (rkey+meanrefc).size()>58 ) { 
 	      leg.AddEntry( href(), rkey.c_str(), "l" );
@@ -624,7 +644,7 @@ public:
 
       m_entries++;
 
-      leg.Draw();
+      if ( drawlegend ) leg.Draw();
 
     }
   }
@@ -824,7 +844,7 @@ public:
       
     if ( size()>0 ) v = ::findxrangeuser( hf, symmetric );
 
-    bool first = true;
+    bool first = false;
 
     for ( unsigned i=1 ; i<size() ; i++ ) { 
   
@@ -854,6 +874,12 @@ public:
 
     double upper = ( v[1]-v[0] )*1.1 + v[0];
     double lower = v[0] - ( v[1]-v[0] )*0.1; 
+
+    if ( m_logx ) {
+      double dx = std::log10(v[1])-std::log10(v[0]);
+      upper = std::pow(10,dx*1.1 + std::log10(v[0]));
+      lower = std::pow(10,std::log10(v[0]) - dx*0.1); 
+    }
 
     if ( lower<vlo ) lower = vlo;
     if ( upper>vhi ) upper = vhi;
@@ -922,7 +948,6 @@ public:
     double rmin = realmin();    
     if ( rmin<0 ) { 
       std::cout << "\tlimits \t" << m_name << "\tmin " << rmin << "\tmax " << rmax << std::endl; 
-      std::cout << "\tlimits \t" << m_name << "\tmin " << rmin << "\tmax " << rmax << std::endl; 
     }
   }
 
@@ -938,9 +963,9 @@ public:
   }
 
   void Draw_i( Legend& leg, bool means=false ) {  
-    
-    bool first = true;
 
+    bool first = true;
+    
     if ( m_logy ) {
       /// increase the number of log labels if only a few decades
       for ( unsigned i=0 ; i<size() ; i++, first=false ) { 
@@ -954,7 +979,7 @@ public:
 
     for ( unsigned i=0 ; i<size() ; i++ ) at(i).trim_errors( m_trim_errors );
 
-    for ( unsigned i=0 ; i<size() ; i++, first=false ) at(i).Draw( i, leg, means, first );
+    for ( unsigned i=0 ; i<size() ; i++,  first=false ) at(i).Draw( i, leg, means, first, (i==size()-1) );
     if ( watermark ) DrawLabel(0.1, 0.02, "built "+stime()+release, kBlack, 0.03 );
 
     gPad->SetLogy(m_logy);
@@ -1030,19 +1055,22 @@ class HistDetails {
 
 public:
 
-  HistDetails( const std::vector<std::string>& v ) : m_xinfo(v[2]), m_yinfo(v[4]) { 
+  HistDetails( const std::vector<std::string>& v ) : m_extra(""), m_xinfo(v[2]), m_yinfo(v[4]) { 
     if ( v.size() < 6 ) throw std::exception();
     m_details.reserve(6);
     for ( size_t i=0 ; i<6 ; i++ ) m_details.push_back(v[i]); 
+    getextra();
   }
 
-  HistDetails( const std::string* vp ) : m_xinfo(vp[2]), m_yinfo(vp[4]) { 
+  HistDetails( const std::string* vp ) : m_extra(""), m_xinfo(vp[2]), m_yinfo(vp[4]) { 
     m_details.reserve(6);
     for ( size_t i=0 ; i<6 ; i++ ) m_details.push_back(vp[i]); 
+    getextra();
   }
 
-
   std::string  name() const { return m_details[0]; } 
+
+  std::string  detail() const { return m_extra; }
 
   std::string  info() const { return m_details[1]; } 
 
@@ -1054,7 +1082,22 @@ public:
 
 private:
 
+  void getextra() { 
+    if ( contains( m_details[0], "-" ) ) { 
+      m_extra = m_details[0].substr( m_details[0].find('-'), m_details[0].size() );
+      m_details[0] = m_details[0].substr( 0, m_details[0].find('-') );
+    }
+    if ( contains( m_details[0], "+" ) ) { 
+      m_extra = m_details[0].substr( m_details[0].find('+'), m_details[0].size() );
+      m_details[0] = m_details[0].substr( 0, m_details[0].find('+') );
+    }
+  }
+
+private:
+
   std::vector<std::string> m_details;
+
+  std::string m_extra;
 
   AxisInfo m_xinfo;
   AxisInfo m_yinfo;

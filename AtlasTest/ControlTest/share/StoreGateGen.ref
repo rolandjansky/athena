@@ -22,15 +22,15 @@ AthDictLoaderSvc     INFO in initialize...[m
 AthDictLoaderSvc     INFO acquired Dso-registry[m
 ClassIDSvc           INFO  getRegistryEntries: read 7027 CLIDRegistry entries for module ALL[m
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) [m
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00[m
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr[m
 ClassIDSvc           INFO  getRegistryEntries: read 1095 CLIDRegistry entries for module ALL[m
 WriteData            INFO in initialize()[m
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00[m
+StoreGateSvc      VERBOSE Initializing StoreGateSvc
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl[m
 StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 1[m
-StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl - package version StoreGate-00-00-00[m
+StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl
 StoreGateSvc_Impl   DEBUG Service base class initialized successfully[m
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
@@ -323,8 +323,8 @@ IncidentProcAlg1     INFO Finalize[m
 WriteData            INFO in finalize()[m
 ReadData             INFO in finalize()[m
 IncidentProcAlg2     INFO Finalize[m
-StoreGateSvc      VERBOSE Finalizing StoreGateSvc - package version StoreGate-00-00-00[m
-StoreGateSvc_Impl VERBOSE Finalizing StoreGateSvc_Impl - package version StoreGate-00-00-00[m
+StoreGateSvc      VERBOSE Finalizing StoreGateSvc
+StoreGateSvc_Impl VERBOSE Finalizing StoreGateSvc_Impl
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
 AthDictLoaderSvc     INFO in finalize...[m
 ToolSvc              INFO Removing all tools created by ToolSvc[m

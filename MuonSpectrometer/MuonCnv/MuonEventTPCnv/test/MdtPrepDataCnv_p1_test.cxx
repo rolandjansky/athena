@@ -43,7 +43,7 @@ void compare (const Muon::MdtPrepData& p1,
 
 void testit (const Muon::MdtPrepData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MdtPrepDataCnv_p1 cnv;
   MdtPrepDataContainerCnv_tlp1 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());
@@ -73,7 +73,7 @@ void test1()
   Muon::MdtPrepData trans1 (Identifier (1234),
                             IdentifierHash (1234),
                             driftRadius,
-                            std::make_unique<Amg::MatrixX>(cov),
+                            std::move(cov),
                             std::vector<Identifier> (rdoList),
                             nullptr, // detEl,
                             4,

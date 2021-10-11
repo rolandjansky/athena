@@ -301,7 +301,9 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
 
   m_taggerName = taggerName;
 
-  TEnv env(configname.c_str());
+  TEnv env;
+  env.ReadFile(configname.c_str(),kEnvGlobal);
+
 
   // ROOT file containing the calibrations
   TString filename = env.GetValue("File", "BTaggingPerformanceCalibrations.root");

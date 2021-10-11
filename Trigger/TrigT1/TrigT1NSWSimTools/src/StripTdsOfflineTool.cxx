@@ -57,8 +57,6 @@ namespace NSWL1 {
     {
       declareInterface<NSWL1::IStripTdsTool>(this);
       declareProperty("RndmEngineName", m_rndmEngineName = "StripTdsOfflineTool", "the name of the random engine");
-      declareProperty("sTGC_DigitContainerName", m_sTgcDigitContainer = "sTGC_DIGITS", "the name of the sTGC digit container");
-      declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
       declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
     }
 
@@ -70,20 +68,21 @@ namespace NSWL1 {
     }
 
     void StripTdsOfflineTool::clear_cache() {
-      ATH_MSG_INFO( "Clearing Strip Cache"); 
+      ATH_MSG_DEBUG( "Clearing Strip Cache"); 
       for(unsigned int i = 0; i < m_strip_cache.size(); ++i)
       m_strip_cache.clear();     
     }
   
   StatusCode StripTdsOfflineTool::initialize() {
-    ATH_MSG_INFO( "initializing " << name() ); 
+    ATH_MSG_DEBUG( "initializing " << name() ); 
     
-    ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+    ATH_MSG_DEBUG( name() << " configuration:");
+    ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
+    ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                        << std::setfill(' ') << std::setiosflags(std::ios::right) );
+
+    ATH_CHECK(m_sTgcDigitContainer.initialize());
+    ATH_CHECK(m_sTgcSdoContainer.initialize());
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -201,7 +200,7 @@ namespace NSWL1 {
     
     for (unsigned int p=0; p<m_strip_cache.size(); p++) {
       m_nStripHits++;
-      ATH_MSG_INFO("Hits :" << m_nStripHits << " index " <<  p << " Cache strip  " << m_strip_cache.at(p).get() << "  " << m_strip_cache.size() );	
+      ATH_MSG_DEBUG("Hits :" << m_nStripHits << " index " <<  p << " Cache strip  " << m_strip_cache.at(p).get() << "  " << m_strip_cache.size() );
 
       m_stripCharge->push_back(m_strip_cache.at(p)->strip_charge());
       m_stripCharge_6bit->push_back(m_strip_cache.at(p)->strip_charge_6bit());
@@ -217,7 +216,7 @@ namespace NSWL1 {
 
 
   StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) {
-      ATH_MSG_INFO( "gather_strip_data: start gathering all strip htis");
+      ATH_MSG_DEBUG( "gather_strip_data: start gathering all strip htis");
 
       // No sector implemented yet!!!
      
@@ -257,15 +256,13 @@ namespace NSWL1 {
 
       ATH_MSG_DEBUG( "fill_strip_cache: start filling the cache for STRIP hits" );
 
-      const MuonSimDataCollection* sdo_container = 0;
-      StatusCode sc = evtStore()->retrieve( sdo_container, m_sTgcSdoContainer.value().c_str() );
-      if ( !sc.isSuccess() ) {
+      SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
+      if(!sdo_container.isValid()){
         ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
       }
 
-      const sTgcDigitContainer* digit_container = 0;
-      sc = evtStore()->retrieve( digit_container, m_sTgcDigitContainer.value().c_str() );
-      if ( !sc.isSuccess() ) {
+      SG::ReadHandle<sTgcDigitContainer> digit_container(m_sTgcDigitContainer);
+      if(!digit_container.isValid()){
         ATH_MSG_ERROR("could not retrieve the sTGC Digit container: cannot return the STRIP hits");
         return FILL_ERROR;
       }

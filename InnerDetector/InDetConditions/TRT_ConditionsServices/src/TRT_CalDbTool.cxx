@@ -21,7 +21,7 @@
 
 TRT_CalDbTool::TRT_CalDbTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_trtId(0)
+    m_trtId(nullptr)
 {}
 
 
@@ -92,7 +92,7 @@ double TRT_CalDbTool::driftRadius(const double& time, float& t0, const Identifie
   t0 = this->getT0(ident);
   const TRTCond::RtRelation* rtr = getRtRelation(ident) ;
   double radius = 0;
-  if (rtr != 0)
+  if (rtr != nullptr)
      radius = rtr->radius( time - t0 );
   else
     ATH_MSG_FATAL(" cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtId->layer_or_wheel(ident) << " Please check IOV ranges ");
@@ -106,7 +106,7 @@ double TRT_CalDbTool::driftRadius(const double& time, float& t0, const Identifie
   if (time - t0 > 55){
     ATH_MSG_VERBOSE(" time " << time << " t0 " << t0 << " t " << time-t0  << " > 55, check Rt derivative");
     // Check Second Derivative.
-    if (rtr != 0){
+    if (rtr != nullptr){
       if (rtr->drdt( time - t0 ) < 0 ){
 	ATH_MSG_VERBOSE(" time " << time << " t0 " << t0 << " t " << time-t0  << " and rt derivative: " <<  rtr->drdt( time - t0 ));
 	radius=2.;

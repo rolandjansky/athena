@@ -34,17 +34,26 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
 
     if flags.Beam.Type == 'collisions':
         kwargs.setdefault("pTMin", 2000 )
-        kwargs.setdefault("IPd0Max", 50.0 )
-        kwargs.setdefault("IPz0Max", 9999.0 )
-        kwargs.setdefault("z0Max", 9999.0 )
-        kwargs.setdefault("useTrackSummaryInfo", True )
         kwargs.setdefault("nHitBLayer", 0 )
-        kwargs.setdefault("nHitPix", 1 )
         kwargs.setdefault("nHitBLayerPlusPix", 0 )
-        kwargs.setdefault("nHitSct", 3 )
-        kwargs.setdefault("nHitSi", 4 )
         kwargs.setdefault("nHitTrt", 0 )
         kwargs.setdefault("useTrackQualityInfo", False )
+        if flags.Muon.SAMuonTrigger:
+            kwargs.setdefault("IPd0Max", 19999.0 )
+            kwargs.setdefault("IPz0Max", 19999.0 )
+            kwargs.setdefault("z0Max", 19999.0 )
+            kwargs.setdefault("useTrackSummaryInfo", False )
+            kwargs.setdefault("nHitPix", 0 )
+            kwargs.setdefault("nHitSct", 0 )
+            kwargs.setdefault("nHitSi", 0 )
+        else:
+            kwargs.setdefault("IPd0Max", 50.0 )
+            kwargs.setdefault("IPz0Max", 9999.0 )
+            kwargs.setdefault("z0Max", 9999.0 )
+            kwargs.setdefault("useTrackSummaryInfo", True )
+            kwargs.setdefault("nHitPix", 1 )
+            kwargs.setdefault("nHitSct", 3 )
+            kwargs.setdefault("nHitSi", 4 )
     else:
         kwargs.setdefault("pTMin", 500 )
         kwargs.setdefault("IPd0Max", 19999.0 )
@@ -52,6 +61,7 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
         kwargs.setdefault("z0Max", 19999.0 )
         kwargs.setdefault("useTrackSummaryInfo", False )
         kwargs.setdefault("useTrackQualityInfo", False )
+
 
     result = AtlasExtrapolatorCfg(flags)
     extrapolator = result.getPrimary()
@@ -179,13 +189,21 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     if flags.Muon.MuonTrigger:
         useCaloEnergyMeas = False
 
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc  = TrackingGeometrySvcCfg(flags)
-    result.merge(acc)
-    tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas,
-                                                   TrackingGeometrySvc = acc.getPrimary())
-    result.addPublicTool(tool)
-    result.setPrivateTools(tool)
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+        acc  = TrackingGeometryCondAlgCfg(flags)
+        result.merge( acc )
+        tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas, TrackingGeometryReadKey= acc.getPrimary().TrackingGeometryWriteKey)
+        result.addPublicTool(tool)
+        result.setPrivateTools(tool)
+    else:
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        acc  = TrackingGeometrySvcCfg(flags)
+        result.merge(acc)
+        tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas, TrackingGeometrySvc = acc.getPrimary())
+        result.addPublicTool(tool)
+        result.setPrivateTools(tool)
     return result 
 
 
@@ -372,21 +390,23 @@ def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs)
 # From Combined fit tools.py
 
 def MuidMaterialAllocatorCfg(flags, name='MuidMaterialAllocator', **kwargs): 
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     kwargs.setdefault("AggregateMaterial",True)
     kwargs.setdefault("AllowReordering",False)
 
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("Extrapolator", result.getPrimary() )
-    acc  = TrackingGeometrySvcCfg(flags)
-    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
-    result.merge(acc)
 
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
     if use_tracking_geometry_cond_alg:
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
       result.merge( TrackingGeometryCondAlgCfg(flags) )
       kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
+    else:
+      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+      acc  = TrackingGeometrySvcCfg(flags)
+      kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
+      result.merge(acc)
+
 
     tool = CompFactory.Trk.MaterialAllocator(name,**kwargs)
     result.setPrivateTools(tool)
@@ -691,11 +711,11 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     # configure tools for data reprocessing 
     if flags.Muon.enableErrorTuning and 'MuonErrorOptimizer' not in kwargs:
         # use alignment effects on track for all algorithms
-        useAlignErrs = False # FIXME - change this once the MuonAlignmentErrorDBAlg issues are sorted out.
+        useAlignErrs = True
+        if flags.IOVDb.DatabaseInstance == 'COMP200' or \
+                'HLT'  in flags.IOVDb.GlobalTag or flags.Common.isOnline or flags.Muon.MuonTrigger:
+            useAlignErrs = False
 
-        # FIXME - handle this.
-        #    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
-        #         useAlignErrs = False
         from MuonConfig.MuonRecToolsConfig import MuonRefitToolCfg
         acc = MuonRefitToolCfg(flags, name="MuidRefitTool", AlignmentErrors = useAlignErrs, Fitter = ipatFitter)
         # refitTool = getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter"),
@@ -758,7 +778,6 @@ def MuidMuonRecoveryCfg(flags, name='MuidMuonRecovery',**kwargs):
     return result
 
 def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs ):
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     from MuonConfig.MuonRecToolsConfig import MuonNavigatorCfg
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
 
@@ -780,9 +799,16 @@ def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs )
     kwargs.setdefault("MeasurementUpdateTool" , CompFactory.Trk.KalmanUpdator() ) 
     #FIXME? Shouldn't this be configured? Was MuonMeasUpdator
 
-    acc  = TrackingGeometrySvcCfg(flags)
-    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
-    result.merge(acc)
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+      result.merge( TrackingGeometryCondAlgCfg(flags) )
+      kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
+    else:
+      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+      acc  = TrackingGeometrySvcCfg(flags)
+      kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
+      result.merge(acc)
     kwargs.setdefault("ExtrapolatorMaterial"  , True )
     acc = MuidMaterialEffectsOnTrackProviderCfg(flags)
     kwargs.setdefault("MuidTool"              , acc.getPrimary() )
@@ -807,16 +833,17 @@ def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs )
 def CombinedMuonTagTestToolCfg(flags, name='CombinedMuonTagTestTool', **kwargs ):
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("ExtrapolatorTool",result.getPrimary() )
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc  = TrackingGeometrySvcCfg(flags)
-    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
-    result.merge(acc)
     kwargs.setdefault("Chi2Cut",50000.)
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
     if use_tracking_geometry_cond_alg:
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
       result.merge( TrackingGeometryCondAlgCfg(flags) )
       kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
+    else:
+      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+      acc  = TrackingGeometrySvcCfg(flags)
+      kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
+      result.merge(acc)
     tool = CompFactory.MuonCombined.MuonTrackTagTestTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result
@@ -841,14 +868,6 @@ def CaloTrkMuIdAlgTrackSelectorToolCfg(flags, name='CaloTrkMuIdAlgTrackSelectorT
     result.setPrivateTools(tool)
     return result
 
-def TrackEnergyInCaloToolCfg(flags, name ='TrackEnergyInCaloTool', **kwargs ):
-    result = AtlasExtrapolatorCfg(flags)
-    extrapolator = result.popPrivateTools()
-    result.addPublicTool( extrapolator )
-    kwargs.setdefault("ExtrapolatorHandle", extrapolator )
-    tool = CompFactory.TrackEnergyInCaloTool(name, **kwargs )
-    result.setPrivateTools(tool)
-    return result
 
 def TrackDepositInCaloToolCfg(flags, name ='TrackDepositInCaloTool', **kwargs ):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg, ParticleCaloCellAssociationToolCfg
@@ -930,6 +949,9 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     kwargs.setdefault("Csc4DSegmentMaker",               csc4d )
 
     kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge( MuonPRDSelectionToolCfg(flags) ) )
+    if flags.Beam.Type != 'collisions':
+        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
+
 
     acc = DCMathSegmentMakerCfg(flags, name = "DCMathSegmentMaker")
     segmentmaker = acc.popPrivateTools()

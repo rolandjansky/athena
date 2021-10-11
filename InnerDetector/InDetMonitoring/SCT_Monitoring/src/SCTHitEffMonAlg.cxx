@@ -27,7 +27,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "TrkTrack/Track.h" 
 #include "TrkTrackSummary/TrackSummary.h"
 
 // SCT
@@ -243,7 +243,7 @@ int SCTHitEffMonAlg::previousChip(double xl, int side, bool swap) const {
   return chipPos;
 }
 
-StatusCode SCTHitEffMonAlg::failCut(bool value, std::string name) const {
+StatusCode SCTHitEffMonAlg::failCut(bool value, const std::string & name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;

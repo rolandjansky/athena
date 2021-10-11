@@ -26,6 +26,7 @@ m_physicsType = "physics_Main"
 m_mcDataSetName = "mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201"
 m_scriptName = "runzmumu_UserConstants.py"
 m_userDataSet = "NONE"
+m_userExtOutFile = "NONE"
 
 ###################################################################################################
 def findListOfDataSets():
@@ -542,11 +543,11 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
         theOptions = "%s --nFiles %d" % (theOptions, m_userFiles)
 
     theExtraOptions = "" 
-    if (len(m_workDirPlatform)>0): 
-        theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
-    else:
-        theExtraOptions = "--excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC"
-    theExtraOptions = " " 
+    if ("NONE" not in m_userExtOutFile):
+        theExtraOptions = " --extOutFile %s" %(m_userExtOutFile)
+
+    # SALVA: trying to remove the request of AOD.pool.root which we don't produce 
+    theExtraOptions = "%s --supStream StreamAOD" %(theExtraOptions)
 
     theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print ('%s ' %theCommand)
@@ -603,6 +604,8 @@ def welcomeBanner ():
     print ("  ** script: %s" %m_scriptName)
     if ("NONE" not in m_userDataSet):
         print ("  ** user data set: %s" %m_userDataSet)
+    if ("NONE" not in m_userExtOutFile):
+        print ("  ** user ext out file: %s" %m_userExtOutFile)
     print ("\n")
 
     return
@@ -632,12 +635,14 @@ def optParsing():
     p_reconmerge = m_reconmerge
     p_scriptName = m_scriptName
     p_userDataSet = m_userDataSet
+    p_userExtOutFile = m_userExtOutFile
 
     parser = OptionParser()
     parser.add_option("--amiTag", dest="p_amitag", help="Name of the requested AMI tag (example: r10258_r10258_p3399). Wild card is also possible. Default %s" %(p_amitag), default = p_amitag)
     parser.add_option("--dataProject", dest="p_dataProject", help="data project of the data sets (examples: data17_13TeV). Default %s" %(p_dataProject), default = p_dataProject)
     parser.add_option("--dataSet", dest="p_userDataSet", help="User defined data set. Default %s" %(p_userDataSet), default = p_userDataSet)
     parser.add_option("--dataType", dest="p_dataType", help="User defined data type (examples: DAOD_ZMUMU, DESDM_MCP). Default %s" %(p_dataType), default = p_dataType)
+    parser.add_option("--extOutFile", dest="p_userExtOutFile", help="List of extra output files defined by the user. Default: %s" %(p_userExtOutFile), default = p_userExtOutFile)
     parser.add_option("--EXEC", dest="p_submitExec", help="Submit the Grid jobs. Default: no submission", action="store_true", default = False)
     parser.add_option("--firstRun", dest="p_firstRun", help="First run number (inclusive). Default %s" %(p_firstRun), default = p_firstRun)    
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
@@ -707,6 +712,7 @@ if __name__ == '__main__':
     m_scriptName = config.p_scriptName
     m_userDataSet = config.p_userDataSet
     m_reconmerge = config.p_reconmerge
+    m_userExtOutFile = config.p_userExtOutFile
 
     welcomeBanner ()
     preliminaries ()

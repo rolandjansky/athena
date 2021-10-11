@@ -29,6 +29,7 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <set>
 
 class LArOnlineID;
 class CaloDetDescrManager;
@@ -71,7 +72,7 @@ class LArHVCorrectionMonAlg: public AthMonitorAlgorithm
 
   // Other things
   // FIXME: How to find new LB, and fill only once per LB ?
-  mutable unsigned int m_lastLB ATLAS_THREAD_SAFE;
+  mutable std::set<unsigned int> m_filledLB ATLAS_THREAD_SAFE;
   mutable std::mutex m_mut ATLAS_THREAD_SAFE;
 
 };

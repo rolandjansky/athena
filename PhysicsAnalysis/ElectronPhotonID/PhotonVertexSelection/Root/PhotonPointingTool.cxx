@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -8,9 +8,9 @@
 
 // EDM includes
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/EgammaContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEgamma/EgammaDefs.h"
+#include "xAODMetaData/FileMetaData.h"
 
 // Framework includes
 #include "IsolationCorrections/ShowerDepthTool.h"
@@ -25,21 +25,16 @@
 
 namespace CP {
 
-  //____________________________________________________________________________
-  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_zvertex("zvertex");
-  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_errz("errz");
-  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_HPV_zvertex("HPV_zvertex");
-  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_HPV_errz("HPV_errz");
-
 //____________________________________________________________________________
 PhotonPointingTool::PhotonPointingTool(const std::string &name)
-  : asg::AsgTool(name)
+  : asg::AsgMetadataTool(name)
     , m_showerTool(nullptr)
     , m_zCorrection(nullptr)
 { 
   declareProperty("isSimulation", m_isMC);
   declareProperty("zOscillationFileMC", m_zOscFileMC ="PhotonVertexSelection/v1/pointing_correction_mc.root");
   declareProperty("zOscillationFileData", m_zOscFileData ="PhotonVertexSelection/v1/pointing_correction_data.root");
+  declareProperty("ContainerName", m_ContainerName ="Photons");
 }
 
 //____________________________________________________________________________
@@ -52,7 +47,21 @@ PhotonPointingTool::~PhotonPointingTool()
 //____________________________________________________________________________
 StatusCode PhotonPointingTool::initialize()
 {
-  ATH_MSG_INFO("Initializing PhotonPointingTool...");
+  ATH_MSG_INFO("Initializing PhotonVertexSelectionTool..." << name());
+
+  ATH_CHECK( m_evtInfo.initialize() );
+
+  if (!m_ContainerName.empty()){
+    m_zvertex = m_ContainerName + ".zvertex";
+    m_errz = m_ContainerName + ".errz";
+    m_HPV_zvertex = m_ContainerName + ".HPV_zvertex";
+    m_HPV_errz = m_ContainerName + ".HPV_errz";
+  }
+
+  ATH_CHECK(m_zvertex.initialize());
+  ATH_CHECK(m_errz.initialize());
+  ATH_CHECK(m_HPV_zvertex.initialize());
+  ATH_CHECK(m_HPV_errz.initialize());
 
   // Shower depth tool
   m_showerTool = new CP::ShowerDepthTool();
@@ -64,18 +73,25 @@ StatusCode PhotonPointingTool::initialize()
 
   // Get the z-oscillation correction histogram
   // FIXME: The files need to go to calib area
-#if ( defined(XAOD_STANDALONE) )
-  {
-    // AnalysisRelease: determine if this is data or MC
-    // Cannot load the eventInfo before the first event in athena    
-    const xAOD::EventInfo *eventInfo = nullptr;
-    if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
-      ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, failed to initialize.");
-      return StatusCode::FAILURE;
-    }    
-    m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+
+
+  // Determine if this is MC or data
+  std::string dataType("");
+  m_isMC = true;
+  if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
+    const xAOD::FileMetaData* fmd = nullptr;
+    ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
+    std::string simType("");
+    const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simType);
+    if (!s) {
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
+      m_isMC = false;
+    }
+  } else {
+    ATH_MSG_WARNING("Failed to retrieve FileMetaData : assuming to be MC");
   }
-#endif
+
+
   std::string filepath = PathResolverFindCalibFile(m_isMC ? m_zOscFileMC :
                                                    m_zOscFileData);
   TFile *file = TFile::Open(filepath.c_str(), "READ");
@@ -107,9 +123,21 @@ StatusCode PhotonPointingTool::initialize()
 //____________________________________________________________________________
 StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer &egammas) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  // create the decorators
+  SG::WriteDecorHandle<xAOD::EgammaContainer, float> s_zvertex(m_zvertex, ctx);
+  SG::WriteDecorHandle<xAOD::EgammaContainer, float> s_errz(m_errz, ctx);
+  SG::WriteDecorHandle<xAOD::EgammaContainer, float> s_HPV_zvertex(m_HPV_zvertex, ctx);
+  SG::WriteDecorHandle<xAOD::EgammaContainer, float> s_HPV_errz(m_HPV_errz, ctx);
+
   // Loop over photons and add calo pointing auxdata
   std::pair<float, float> result;
-  for (auto egamma: egammas) {
+  for (const auto *egamma: egammas) {
+    if(egamma==nullptr){
+      ATH_MSG_DEBUG("Passed Egamma was a nullptr  -- skipping");
+      continue;
+    }
     // Get calo pointing variables
     result = getCaloPointing(egamma);
 
@@ -151,8 +179,8 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
     }
 
     // Get the EventInfo
-    const xAOD::EventInfo *eventInfo = nullptr;
-    if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtInfo);
+    if(!eventInfo.isValid()){
       ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, egamma won't be decorated.");
       return std::make_pair(0, 0);
     }
@@ -201,8 +229,8 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
     }
 
     // Get the EventInfo
-    const xAOD::EventInfo *eventInfo = nullptr;
-    if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtInfo);
+    if(!eventInfo.isValid()){
       ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, photons won't be decorated.");
       return std::make_pair(0, 0);
     }
@@ -319,7 +347,7 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
   float PhotonPointingTool::getCorrectedMass(const xAOD::EgammaContainer &egammas, float PVz) const
   {
     TLorentzVector v;
-    for (auto eg : egammas) {
+    for (const auto *eg : egammas) {
       if (!eg) {
         ATH_MSG_WARNING("Null pointer to egamma object, skipping it in mass calculation");
         continue;

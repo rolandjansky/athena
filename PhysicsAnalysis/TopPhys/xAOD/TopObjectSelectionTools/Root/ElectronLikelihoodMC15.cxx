@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
@@ -69,15 +69,10 @@ namespace top {
     m_operatingPointLoose_DF = egammaNamesAreNotConsistantAnywhereLoose;
     m_operatingPoint = operatingPoint;
     m_operatingPointLoose = operatingPointLoose;
-  }
 
-  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
-                                                 const double ptcut, const bool vetoCrack,
-                                                 const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose, StandardIsolation* isolation,
-                                                 const bool applyTTVACut, const bool applyChargeIDCut) :
-    ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
-                                                   operatingPointLoose, isolation, applyTTVACut, applyChargeIDCut) {}
+    m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
+    top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
+  }
 
   bool ElectronLikelihoodMC15::passSelection(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPoint_DF, m_operatingPoint)) return false;
@@ -157,6 +152,11 @@ namespace top {
     if (m_applyTTVACut) {
       if (!passTTVACuts(el)) return false;
     }
+
+    // removing electron cluster in EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    if (!m_deadHVTool->accept(el)) return false;  
+
 
     // Electron Charge ID Selector Tool
     // apply decoration only

@@ -114,20 +114,13 @@ if doObj("OFC"):
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/HVScaleCorr"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Noise"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/AutoCorr"))
-  from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-  theLArADC2MeVToolDefault = LArADC2MeVToolDefault()
-  ToolSvc += theLArADC2MeVToolDefault
-  from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-  theOFCTool = LArOFCToolDefault()
-  theOFCTool.Dump=True
-  ToolSvc += theOFCTool
+
+  from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+  LArOFCCondAlgDefault()
   
   from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
   LArOFC2Ntuple = LArOFC2Ntuple("LArOFC2Ntuple")
-  LArOFC2Ntuple.ContainerKey = "LArOFC"
   LArOFC2Ntuple.AddFEBTempInfo=False
-  LArOFC2Ntuple.IsMC = True
-  LArOFC2Ntuple.OFCTool = theOFCTool
   topSequence+=LArOFC2Ntuple
 
 if (doObj("SHAPE")):

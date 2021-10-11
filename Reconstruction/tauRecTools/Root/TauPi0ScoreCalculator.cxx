@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauPi0ScoreCalculator.h"
@@ -27,13 +27,14 @@ StatusCode TauPi0ScoreCalculator::initialize() {
 
 
 StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const {
-  // Only run on 1-5 prong taus 
-  if (pTau.nTracks() == 0 || pTau.nTracks() > 5 ) {
+  // Only run on 0-5 prong taus 
+  if (!tauRecTools::doPi0andShots(pTau)) {
     return StatusCode::SUCCESS;
   }
 
   // retrieve neutral PFOs from tau, calculate BDT scores and store them in PFO
-  for (xAOD::PFO* neutralPFO : neutralPFOContainer) {
+  for(size_t i=0; i<pTau.nProtoNeutralPFOs(); i++) {
+    xAOD::PFO* neutralPFO = neutralPFOContainer.at( pTau.protoNeutralPFO(i)->index() );
     float BDTScore = calculateScore(neutralPFO);
     neutralPFO->setBDTPi0Score(BDTScore);
   }

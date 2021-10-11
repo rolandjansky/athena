@@ -1,8 +1,0 @@
-#
-print """========================================
-This is your local PYTHONSTARTUP file."""
-import clidGen
-c = clidGen.clidGenerator("")
-id = c.genClidFromName("Craig")
-print id,"Craig"
-#

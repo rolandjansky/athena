@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterization/TgcHitClustering.h"
@@ -28,7 +28,7 @@ namespace Muon {
     channelsPhi.clear();
     channelsEta.resize(m_tgcIdHelper->channelMax()+2);
     channelsPhi.resize(m_tgcIdHelper->channelMax()+2);
-    std::vector<Triplet>* channelsPtr = 0;
+    std::vector<Triplet>* channelsPtr = nullptr;
     for( ; cit!=cit_end;++cit ) {
       const Muon::TgcPrepData* prd = *cit;
       if( !prd ) continue;
@@ -60,26 +60,26 @@ namespace Muon {
       }else{
 	
 	std::vector<Id> neighbours;
-	if( channel != 0 )                         neighbours.push_back( Id(gasgap,channel-1) );
-	if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(gasgap,channel+1) );
+	if( channel != 0 )                         neighbours.emplace_back(gasgap,channel-1 );
+	if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(gasgap,channel+1 );
 
 	if( combinedGasGaps ){
 	  if( gasgap != 1 ){
-	    neighbours.push_back( Id(1,channel) );
-	    if( channel != 0 )                         neighbours.push_back( Id(1,channel-1) );
-	    if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(1,channel+1) );
+	    neighbours.emplace_back(1,channel );
+	    if( channel != 0 )                         neighbours.emplace_back(1,channel-1 );
+	    if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(1,channel+1 );
 	  }
 	  
 	  if( gasgap != 2 ) {
-	    neighbours.push_back( Id(2,channel) );
-	    if( channel != 0 )                         neighbours.push_back( Id(2,channel-1) );
-	    if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(2,channel+1) );
+	    neighbours.emplace_back(2,channel );
+	    if( channel != 0 )                         neighbours.emplace_back(2,channel-1 );
+	    if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(2,channel+1 );
 	  }
 	  
 	  if( ngasgaps == 3 && gasgap != 3 ){
-	    neighbours.push_back( Id(3,channel) );
-	    if( channel != 0 )                         neighbours.push_back( Id(3,channel-1) );
-	    if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(3,channel+1) );
+	    neighbours.emplace_back(3,channel );
+	    if( channel != 0 )                         neighbours.emplace_back(3,channel-1 );
+	    if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(3,channel+1 );
 	  }
 	}
 
@@ -90,7 +90,7 @@ namespace Muon {
 	}
 	std::vector<Id>::iterator nit = neighbours.begin();
 	std::vector<Id>::iterator nit_end = neighbours.end();
-	TgcClusterObj* currentCluster = 0;
+	TgcClusterObj* currentCluster = nullptr;
 	int currentClusterId = -1;
 	for( ;nit!=nit_end;++nit ){
 
@@ -103,7 +103,7 @@ namespace Muon {
 	  TgcClusterObj& cluster = clusters[clusterNumber];
 	  
 	  // if the hit is unassigned add it to the cluster
-	  if( currentCluster == 0 ){
+	  if( currentCluster == nullptr ){
 	    cluster.add(prd,gasgap);
 	    currentCluster = &cluster;
 	    if( gasgap==1 )      triplet.first  = clusterNumber;
@@ -132,7 +132,7 @@ namespace Muon {
 	  }
 	}
 	// now check whether the hit was already assigned to a cluster, if not create a new cluster
-	if( currentCluster == 0 ){
+	if( currentCluster == nullptr ){
 	  if( debug ) std::cout << " no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
 	  TgcClusterObj cl;
 	  cl.add(prd,gasgap);

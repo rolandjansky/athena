@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###### Here some graphical methods to produce dot files from Decision Handling
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
@@ -8,20 +8,15 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import algColor, isPassFilt
 import itertools
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
 
-def create_dot():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    return TriggerFlags.generateMenuDiagnostics() or ConfigFlags.Trigger.generateMenuDiagnostics
-
 
 DrawHypoTools=True
 
 def drawHypoTools(file, all_hypos):
     all_hypos=list(set(all_hypos))
     for hp in all_hypos:
-        for hypotool in hp.tools:
-            file.write("    %s[fillcolor=yellow,style=filled,shape= Mdiamond]\n"%(hypotool))
-            file.write("    %s -> %s [style=dashed, color=grey]\n"%(compName(hp.Alg), hypotool))
+        for hypotool in hp.Alg.HypoTools:
+            file.write("    %s[fillcolor=yellow,style=filled,shape= Mdiamond]\n" % hypotool.getName())
+            file.write("    %s -> %s [style=dashed, color=grey]\n"%(compName(hp.Alg), hypotool.getName()))
 
 
 def stepCF_ControlFlow_to_dot(stepCF):

@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRecTools/TrackVertexAssociationTool.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 #include <cmath>
 
 TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& t)

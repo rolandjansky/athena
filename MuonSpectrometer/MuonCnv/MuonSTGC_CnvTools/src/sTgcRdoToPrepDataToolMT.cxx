@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,8 +14,7 @@ Muon::sTgcRdoToPrepDataToolMT::sTgcRdoToPrepDataToolMT(const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p )
   :
-  AthAlgTool(t,n,p),
-  sTgcRdoToPrepDataToolCore(t,n,p)
+  base_class(t,n,p)
 {
 }
 

@@ -7,14 +7,13 @@
 
 #if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
 #define EIGEN_DONT_VECTORIZE
-#endif // __GCCXML__
+#endif  // __GCCXML__
 
 // Includes for the dictionary generation:
 
-#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
-
-#endif // MUONANALYSISINTERFACES_MUONANALYSISINTERFACESDICT_H
+#endif  // MUONANALYSISINTERFACES_MUONANALYSISINTERFACESDICT_H

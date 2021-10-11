@@ -11,7 +11,7 @@
 # art-output: dcube
 # art-html: dcube
 
-NEVENTS=500
+NEVENTS=200
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q431"
 
 # run the reconstruction
@@ -19,7 +19,8 @@ Reco_tf.py --maxEvents ${NEVENTS} --AMI=q431
 echo "art-result: $? Reconstrution"
 
 # compare the AOD file
-art.py compare ref --entries 200 --mode=semi-detailed --order-trees --diff-root myAOD.pool.root ${REF_DIR}/myAOD.pool.root >> AOD_diff_root.log 2>&1
+#art.py compare ref --entries ${NEVENTS} --mode=semi-detailed --order-trees --branches-of-interest Tau* DiTau* InDetTrackParticles* CaloCalTopoClusters* AntiKt4LCTopoJets* --diff-root myAOD.pool.root ${REF_DIR}/myAOD.pool.root >> AOD_diff_root.log 2>&1
+acmd.py diff-root myAOD.pool.root ${REF_DIR}/myAOD.pool.root --entries ${NEVENTS} --mode=semi-detailed --order-trees --branches-of-interest Tau* DiTau* InDetTrackParticles* CaloCalTopoClusters* AntiKt4LCTopoJets* >> AOD_diff_root.log 2>&1
 echo "art-result: $? diff-root"
 
 # run the physics validation

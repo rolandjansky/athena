@@ -8,6 +8,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.BeamFlags import jobproperties
+from IOVDbSvc.CondDB import conddb
 
 
 def LumiBlockMuWriterDefault (name = 'LumiBlockMuWriter', sequence = None):
@@ -20,7 +21,7 @@ def LumiBlockMuWriterDefault (name = 'LumiBlockMuWriter', sequence = None):
         return
 
     LumiBlockMuWriter = CompFactory.LumiBlockMuWriter # LumiBlockComps
-    if jobproperties.Beam.beamType() == 'cosmics':
+    if (jobproperties.Beam.beamType() == 'cosmics' or conddb.isMC):
         condkey = ''
     else:
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault

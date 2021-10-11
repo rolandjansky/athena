@@ -173,7 +173,7 @@ void TrigL2LayerNumberTool::createModuleHashMap(std::map<std::tuple<short,short,
 
     for(std::vector<PhiEtaHash>::iterator hIt = (*it).second.begin();hIt != (*it).second.end();++hIt) {
    
-      const InDetDD::SiDetectorElement *p = NULL;
+      const InDetDD::SiDetectorElement *p{nullptr};
 
       if(subdetId == 1) {//pixel
 	m_pixelLayers[(*hIt).m_hash] = layerId;
@@ -184,6 +184,10 @@ void TrigL2LayerNumberTool::createModuleHashMap(std::map<std::tuple<short,short,
 	p = m_sctManager->getDetectorElement((*hIt).m_hash);
       }
     
+      if (p==nullptr) {
+        ATH_MSG_ERROR("nullptr SiDetectorElement with idHash " << (*hIt).m_hash);
+        continue;
+      }
       const Amg::Vector3D& C = p->center();
       if(barrel_ec == 0) {
 	rc += sqrt(C(0)*C(0)+C(1)*C(1));

@@ -4,7 +4,7 @@
 namespace Trk {
 
 /** Return the surface type */
-inline Surface::SurfaceType
+inline SurfaceType
 StraightLineSurface::type() const
 {
   return StraightLineSurface::staticType;
@@ -124,6 +124,11 @@ inline StraightLineSurface*
 StraightLineSurface::clone() const
 {
   return new StraightLineSurface(*this);
+}
+
+inline std::unique_ptr<StraightLineSurface> 
+StraightLineSurface::uniqueClone() const{
+  return std::unique_ptr<StraightLineSurface>(clone());
 }
 
 inline const SurfaceBounds&

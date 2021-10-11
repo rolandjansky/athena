@@ -52,11 +52,6 @@ namespace Trk {
         /** AlgTool and IAlgTool interface methods */
         static const InterfaceID& interfaceID() { return IID_ITrackingVolumeArrayCreator; }
 
-        /** AlgTool initialize method */
-        StatusCode initialize();
-
-        /** AlgTool finalize method */
-        StatusCode finalize();
 
         /** TrackingVolumeArrayCreator interface method -
             create a R-binned cylindrical volume array*/

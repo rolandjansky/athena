@@ -73,7 +73,7 @@ void compare (const Trk::CompetingRIOsOnTrack& p1,
 
 void testit (const Trk::CompetingRIOsOnTrack& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CompetingRIOsOnTrackCnv_p1 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);

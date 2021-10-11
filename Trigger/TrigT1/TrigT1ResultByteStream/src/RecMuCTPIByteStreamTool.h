@@ -13,7 +13,6 @@
 
 // Trigger include(s):
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Local include(s):
 #include "MuCTPISrcIdMap.h"
@@ -62,9 +61,6 @@ private:
   };
   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcRoITool {
     this, "TGCRecRoiSvc", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC RoI reconstruction tool"
-  };
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
-    this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "LVL1 Config Service"
   };
 
 }; // class RecMuCTPIByteStreamTool

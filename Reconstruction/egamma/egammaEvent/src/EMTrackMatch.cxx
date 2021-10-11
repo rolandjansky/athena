@@ -131,7 +131,7 @@ double EMTrackMatch::parameter(egammaParameters::ParamDef key) const
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ){
       result = (*p).second;
       break;
@@ -153,11 +153,11 @@ void EMTrackMatch::set_parameter(egammaParameters::ParamDef key, double value, b
     return;
   }
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
 
   std::vector<elParams>::iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -178,11 +178,11 @@ void EMTrackMatch::set_parameter(egammaParameters::ParamDef key, double value, b
 // ====================================================================
 void EMTrackMatch::set_boolParameter(egammaParameters::ParamDef key, bool value, bool overwrite) 
 {
-  typedef std::pair<egammaParameters::ParamDef,bool> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, bool>;
 
   std::vector<elParams>::iterator p = m_parametersBool.begin();
  
-  for (;p !=m_parametersBool.end(); p++) {
+  for (;p !=m_parametersBool.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -202,12 +202,12 @@ void EMTrackMatch::set_boolParameter(egammaParameters::ParamDef key, bool value,
 // ====================================================================
 bool EMTrackMatch::boolParameter(egammaParameters::ParamDef key) const 
 {
-  typedef std::pair<egammaParameters::ParamDef,bool> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, bool>;
 
   double result = false;
   std::vector<elParams>::const_iterator p = m_parametersBool.begin();
  
-  for (;p !=m_parametersBool.end(); p++) {
+  for (;p !=m_parametersBool.end(); ++p) {
     if ( (*p).first == key ) {
       result = (*p).second;
       break;

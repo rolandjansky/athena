@@ -37,14 +37,14 @@ Trk::ResidualValidationNtupleHelper::ResidualValidationNtupleHelper(
   m_pullWarning(false),
   m_trkParametersWarning(false),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-  m_isUnbiased(0),
-  m_PixPullPhi(0), m_PixPullEta(0), m_PixResPhi(0), m_PixResEta(0),
-  m_SCTPull(0),  m_SCTRes(0),
-  m_TRTPull(0),  m_TRTRes(0),
-  m_MDTPull(0),  m_MDTRes(0),
-  m_RPCPull(0),  m_RPCRes(0),
-  m_TGCPull(0),  m_TGCRes(0),
-  m_CSCPull(0),  m_CSCRes(0)
+  m_isUnbiased(nullptr),
+  m_PixPullPhi(nullptr), m_PixPullEta(nullptr), m_PixResPhi(nullptr), m_PixResEta(nullptr),
+  m_SCTPull(nullptr),  m_SCTRes(nullptr),
+  m_TRTPull(nullptr),  m_TRTRes(nullptr),
+  m_MDTPull(nullptr),  m_MDTRes(nullptr),
+  m_RPCPull(nullptr),  m_RPCRes(nullptr),
+  m_TGCPull(nullptr),  m_TGCRes(nullptr),
+  m_CSCPull(nullptr),  m_CSCRes(nullptr)
 {
     declareInterface<IValidationNtupleHelperTool>(this);
     // Declare the properties
@@ -228,7 +228,7 @@ StatusCode Trk::ResidualValidationNtupleHelper::fillMeasurementData (
         fillValues(detectorType);
         return StatusCode::SUCCESS;
     } */
-    const Trk::ResidualPull* residualPull=0;
+    const Trk::ResidualPull* residualPull=nullptr;
     if (detectorType!=TrackState::unidentified) {
         residualPull = m_residualPullCalculator->residualPull(measurement, trkParameters,
           (*m_isUnbiased==1) ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased);

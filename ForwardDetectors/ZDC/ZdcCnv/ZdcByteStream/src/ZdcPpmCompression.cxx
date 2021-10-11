@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include <stdint.h>
 #include <algorithm>
+#include <cstdint>
 #include <vector>
 
 //#include "ZdcByteStream/ZdcSubBlock.h"
@@ -64,7 +64,7 @@ bool ZdcPpmCompression::pack(ZdcPpmSubBlock& subBlock)
       subBlock.packer(dataPresent, 1);
       if ( !dataPresent ) continue;
     }
-    const int lutLen = subBlock.minBits(lutData[0]);
+    const int lutLen = ZdcPpmSubBlock::minBits(lutData[0]);
     int  minFadc   = 0;
     int  minOffset = 0;
     bool fadcSame  = true;
@@ -96,7 +96,7 @@ bool ZdcPpmCompression::pack(ZdcPpmSubBlock& subBlock)
       for (int sl = 0; sl < sliceF; ++sl) {
         if (sl != 0) {
 	  fadcDout[idx] = fadcData[sl] - minFadc;
-	  fadcLens[idx] = subBlock.minBits(fadcDout[idx]);
+	  fadcLens[idx] = ZdcPpmSubBlock::minBits(fadcDout[idx]);
 	  if (idx == 0 || fadcLens[idx] > maxFadcLen) {
 	    maxFadcLen = fadcLens[idx];
 	  }
@@ -140,7 +140,7 @@ bool ZdcPpmCompression::pack(ZdcPpmSubBlock& subBlock)
 	const int header = minOffset + 10;
 	subBlock.packer(header, 4);
 	if ( !minFadcInRange) {
-	  const int minFadcLen = subBlock.minBits(minFadc);
+	  const int minFadcLen = ZdcPpmSubBlock::minBits(minFadc);
 	  if (minFadcLen > maxFadcLen) maxFadcLen = minFadcLen;
 	}
 	format = 5;

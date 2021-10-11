@@ -24,14 +24,14 @@ echo "Output Validation file : ${ART_Validation}"
 echo "Submitting Reconstruction ..."
 
 Reco_tf.py \
-    --maxEvents -1 \
+    --maxEvents=${Nevents} \
     --inputHITSFile=${HITSFile} \
     --outputAODFile=${ART_AOD} \
     --outputNTUP_PHYSVALFile ${ART_Validation} \
     --valid=True \
     --validationFlags 'doInDet,doMET' \
     --autoConfiguration everything \
-    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False'
+    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False; from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True)'
 
 rc=$?
 echo "art-result: $rc Reco"

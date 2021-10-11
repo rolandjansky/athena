@@ -12,6 +12,6 @@ atlas_add_library( LArGeoH6Cryostats
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoH6Cryostats
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} StoreGateLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel GeoModelInterfaces RDBAccessSvcLib )
 

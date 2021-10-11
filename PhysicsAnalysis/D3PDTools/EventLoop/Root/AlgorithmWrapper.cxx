@@ -15,8 +15,10 @@
 #include <AnaAlgorithm/MessageCheck.h>
 #include <AnaAlgorithm/AlgorithmWorkerData.h>
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/IWorker.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
+#include <TTree.h>
 
 //
 // method implementations
@@ -106,15 +108,6 @@ namespace EL
     using namespace msgAlgorithmConfig;
     RCU_CHANGE_INVARIANT (this);
 
-    if (m_isInitialized == false)
-    {
-      if (m_algorithm->initialize().isFailure())
-      {
-        ANA_MSG_ERROR ("failed to call initialize() on algorithm: " << m_algorithm->name());
-        return StatusCode::FAILURE;
-      }
-      m_isInitialized = true;
-    }
     if (m_algorithm->execute().isFailure())
     {
       ANA_MSG_ERROR ("failed to call execute() on algorithm: " << m_algorithm->name());
@@ -193,6 +186,17 @@ namespace EL
       return StatusCode::FAILURE;
     }
     m_firstFile = false;
+    if (m_isInitialized == false &&
+        m_algorithm->m_wk->tree() != nullptr &&
+        m_algorithm->m_wk->tree()->GetEntries() > 0)
+    {
+      if (m_algorithm->initialize().isFailure())
+      {
+        ANA_MSG_ERROR ("failed to call initialize() on algorithm: " << m_algorithm->name());
+        return StatusCode::FAILURE;
+      }
+      m_isInitialized = true;
+    }
     return StatusCode::SUCCESS;
   }
 

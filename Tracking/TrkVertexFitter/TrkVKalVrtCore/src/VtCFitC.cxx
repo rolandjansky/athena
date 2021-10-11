@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -12,9 +12,7 @@
 namespace Trk {
 
 
-    //extern void digx(double *, double *, double *, long int , long int );
     extern void dsinv(long int, double *, long int , long int *) noexcept;
-    extern void scaleg(double *, double *, long int  ,long int ) noexcept;
 
 
 int vtcfitc( VKVertex * vk )
@@ -162,21 +160,12 @@ int vtcfitc( VKVertex * vk )
     } else {
     	//This is deliberately written without make_unqiue to bypass auto intialization!!
     	std::unique_ptr<double[]> adenom( new double[totNC*totNC] );
-//        auto work   = std::make_unique<double[]>(totNC*totNC);
-//        auto eigv   = std::make_unique<double[]>(totNC*totNC);
-        std::unique_ptr<double[]> scale( new double[totNC] );
 
 	for (ic=0; ic<totNC; ic++) {
 	    for (jc=0; jc<totNC; jc++) {
 		adenom[ic*totNC + jc] = denom[ic][jc];
 	    }
 	}
-	scaleg(adenom.get(), scale.get(),  totNC,  totNC);
-	//digx(adenom, eigv, work, totNC, 0);
-	//if (eigv[0] <= eigv[totNC-1] * 1.e-10) {
-	//    double sdet = fabs(eigv[0]) + eigv[totNC-1] * 1.e-15;
-	//    for (ic=0; ic<totNC; ++ic) { adenom[ic*totNC + ic] += sdet;}
-	//}
 /* -- INVERT */
 	dsinv(totNC, adenom.get(), totNC, &IERR);
 	if (IERR) {
@@ -186,7 +175,6 @@ int vtcfitc( VKVertex * vk )
 	    coef[ic] = 0.;
 	    for (jc=0; jc<totNC; ++jc) {
 		index = ic*totNC + jc;
-		adenom[index] = scale[ic] * adenom[index] * scale[jc];
 		coef[ic] += adenom[index] * anum[jc];
 	    }
 	}

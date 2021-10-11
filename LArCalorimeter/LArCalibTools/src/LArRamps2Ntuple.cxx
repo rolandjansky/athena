@@ -74,17 +74,15 @@ StatusCode LArRamps2Ntuple::stop() {
   NTuple::Item<float> RampRMS;
 
  if (m_rawRamp && m_contKey.size() > 0) {
-   //Retrieve Raw Ramp Container  
-   std::vector<std::string>::const_iterator key_it=m_contKey.begin();
-   std::vector<std::string>::const_iterator key_it_e=m_contKey.end();
-   for (;key_it!=key_it_e;key_it++) {
+   //Retrieve Raw Ramp Container
+   for (const std::string& key : m_contKey) {
        LArRawRampContainer* rawRampContainer=NULL;
-       sc=m_detStore->retrieve(rawRampContainer,*key_it);
+       sc=m_detStore->retrieve(rawRampContainer,key);
        if (sc!=StatusCode::SUCCESS || !rawRampContainer) {
-         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << *key_it );
+         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << key );
        } 
        else {
-         ATH_MSG_DEBUG( "Got LArRawRampContainer with key " << *key_it );
+         ATH_MSG_DEBUG( "Got LArRawRampContainer with key " << key );
          hasRawRampContainer = true;
        }
    }
@@ -289,19 +287,15 @@ StatusCode LArRamps2Ntuple::stop() {
  if (hasRawRampContainer) { //Loop over raw ramp container and fill ntuple
 
    //Retrieve Raw Ramp Container
-   std::vector<std::string>::const_iterator key_it=m_contKey.begin();
-   std::vector<std::string>::const_iterator key_it_e=m_contKey.end();
-   for (;key_it!=key_it_e;key_it++) {
+   for (const std::string& key : m_contKey) {
        LArRawRampContainer* rawRampContainer=NULL;
-       sc=m_detStore->retrieve(rawRampContainer,*key_it);
+       sc=m_detStore->retrieve(rawRampContainer,key);
        if (sc!=StatusCode::SUCCESS || !rawRampContainer) {
-         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << *key_it );
+         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << key );
          continue;
        }
-       LArRawRampContainer::const_iterator cont_it=rawRampContainer->begin();
-       LArRawRampContainer::const_iterator cont_it_e=rawRampContainer->end();
-       for (;cont_it!=cont_it_e;cont_it++) {
-         const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=(*cont_it)->theRamp();
+       for (const LArRawRamp* rawramp : *rawRampContainer) {
+         const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=rawramp->theRamp();
 
          for (DACIndex=0;DACIndex<singleRamp.size();DACIndex++) {
            SampleMax[DACIndex] = singleRamp[DACIndex].iMaxSample;
@@ -336,8 +330,8 @@ StatusCode LArRamps2Ntuple::stop() {
 
          }    
 
-        HWIdentifier chid=(*cont_it)->channelID();
-	unsigned igain = (unsigned)(*cont_it)->gain();
+        HWIdentifier chid=rawramp->channelID();
+	unsigned igain = (unsigned)rawramp->gain();
 	gain = igain;
 	if (m_addCorrUndo) corrUndo=0;
 	if (ramp && cabling->isOnlineConnected(chid)) {
@@ -386,11 +380,9 @@ StatusCode LArRamps2Ntuple::stop() {
 
    //Iterate over gains and cells
    for ( unsigned igain=CaloGain::LARHIGHGAIN; 
-	 igain<CaloGain::LARNGAIN ; ++igain ) {
-     std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-     std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-     for (;it!=it_e;it++) {
-       const HWIdentifier chid=*it;
+	 igain<CaloGain::LARNGAIN ; ++igain )
+   {
+     for (HWIdentifier chid : m_onlineId->channel_range()) {
        if (cabling->isOnlineConnected(chid)) {
 	 gain  = (long)igain;
 	 if (m_addCorrUndo) corrUndo = 0;

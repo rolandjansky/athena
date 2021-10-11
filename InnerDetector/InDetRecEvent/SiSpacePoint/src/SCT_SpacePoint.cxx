@@ -10,6 +10,8 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 #include <memory>
+#include <ostream>
+#include <sstream>
 
 namespace InDet
 {
@@ -46,10 +48,11 @@ namespace InDet
     m_elemIdList.second = elementIdList.second ;
     assert( (clusList.first!=0) && (clusList.second!=0) );
     assert(clusList.first->detectorElement()) ;
-    std::unique_ptr<const Amg::Vector2D> locpos{clusList.first->detectorElement()->surface().globalToLocal(position)};
+    std::optional<Amg::Vector2D> locpos{
+      clusList.first->detectorElement()->surface().globalToLocal(position)
+    };
     assert(locpos);
-    Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos ) ;
-
+    Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos);
   }
 
   //-------------------------------------------------------------
@@ -85,16 +88,9 @@ namespace InDet
 
 MsgStream&    SCT_SpacePoint::dump( MsgStream& out ) const
 {
-  out << "SCT_SpacePoint  contains: " << std::endl;
-  out << "Identifier Hashes ( " << int(this->elementIdList().first) << " , " ;
-  out <<  int(this->elementIdList().second) << " ) " << std::endl ;
-  out << "Global Position:  " << Amg::toString(this->globalPosition(),3) << std::endl;
-  out << "Global Covariance Matrix " <<  Amg::toString(this->globCovariance(),3) << std::endl;
-  out << "Local Parameters " << this->localParameters() << std::endl;
-  out << "Local Covariance " << Amg::toString(this->localCovariance()) << std::endl; 
-  out << "Cluster 1 :" << std::endl << (*this->clusterList().first) << std::endl;
-  out << "Cluster 2 :" << std::endl << (*this->clusterList().second) << std::endl;
-
+  std::ostringstream os;
+  dump(os);
+  out << os.str();
   return out;
 }
 
@@ -103,15 +99,16 @@ MsgStream&    SCT_SpacePoint::dump( MsgStream& out ) const
 
 std::ostream& SCT_SpacePoint::dump( std::ostream& out ) const
 {
-  out << "SCT_SpacePoint  contains: " << std::endl;
+  const std::string lf{"\n"};//linefeed
+  out << "SCT_SpacePoint  contains: " << lf;
   out << "Identifier Hashes ( " << int(this->elementIdList().first) << " , " ;
-  out <<  int(this->elementIdList().second) << " ) " << std::endl ;
-  out << "Global Position:  " << Amg::toString(this->globalPosition(),3) << std::endl;
-  out << "Global Covariance Matrix " <<  Amg::toString(this->globCovariance(),3) << std::endl;
-  out << "Local Parameters " << this->localParameters() << std::endl;
-  out << "Local Covariance " << Amg::toString(this->localCovariance()) << std::endl; 
-  out << "Cluster 1 :" << std::endl << (*this->clusterList().first) << std::endl;
-  out << "Cluster 2 :" << std::endl << (*this->clusterList().second) << std::endl;
+  out <<  int(this->elementIdList().second) << " ) " << lf ;
+  out << "Global Position:  " << Amg::toString(this->globalPosition(),3) << lf;
+  out << "Global Covariance Matrix " <<  Amg::toString(this->globCovariance(),3) << lf;
+  out << "Local Parameters " << this->localParameters() << lf;
+  out << "Local Covariance " << Amg::toString(this->localCovariance()) << lf; 
+  out << "Cluster 1 :" << lf << (*this->clusterList().first) << lf;
+  out << "Cluster 2 :" << lf << (*this->clusterList().second) << std::endl;
  
   return out;
 }

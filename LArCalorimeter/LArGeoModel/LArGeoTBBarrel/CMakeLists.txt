@@ -11,6 +11,6 @@ atlas_add_library( LArGeoTBBarrel
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoTBBarrel
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib
                    PRIVATE_LINK_LIBRARIES GeoModelUtilities GaudiKernel LArGeoBarrel )
 

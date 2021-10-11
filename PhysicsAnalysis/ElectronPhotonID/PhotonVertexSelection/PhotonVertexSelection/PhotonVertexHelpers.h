@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PhotonVertexSelection_PhotonVertexHelpers_H
@@ -29,7 +29,7 @@ namespace xAOD {
     float getVertexSumPt(const xAOD::Vertex *vertex, int power = 1, bool useAux = true);
 
     ///@brief Return vector sum of tracks associated with vertex (from auxdata if available and useAux = true)
-    TLorentzVector getVertexMomentum(const xAOD::Vertex *vertex, bool useAux = true, std::string derivationPrefix = "");
+    TLorentzVector getVertexMomentum(const xAOD::Vertex *vertex, bool useAux = true, const std::string& derivationPrefix = "");
 
     ///@brief Return vertex with highest sum pT^2
     const xAOD::Vertex* getHardestVertex(const xAOD::VertexContainer *vertices);

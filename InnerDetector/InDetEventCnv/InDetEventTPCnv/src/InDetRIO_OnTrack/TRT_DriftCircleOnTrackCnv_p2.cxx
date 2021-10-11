@@ -39,7 +39,7 @@ void TRT_DriftCircleOnTrackCnv_p2::persToTrans( const InDet::TRT_DriftCircleOnTr
                                                );
 
     m_eventCnvTool->recreateRIO_OnTrack(transObj);
-    if (transObj->detectorElement()==0) 
+    if (transObj->detectorElement()==nullptr) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
             << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;

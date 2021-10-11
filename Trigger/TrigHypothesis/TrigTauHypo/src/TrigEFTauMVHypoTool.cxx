@@ -85,10 +85,11 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
   using namespace Monitored;
 
   auto PassedCuts         = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto ptAccepted         = Monitored::Scalar<double>( "ptAccepted", -1);
+  auto ptAccepted         = Monitored::Scalar<float>( "ptAccepted", -1);
   auto nTrackAccepted	  = Monitored::Scalar<int>( "nTrackAccepted", -1);
   auto nWideTrackAccepted = Monitored::Scalar<int>( "nWideTrackAccepted", -1);
   auto ninputTaus         = Monitored::Scalar<int>( "nInputTaus", -1);
+  auto monitorIt          = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus);
 
   // general reset
   PassedCuts = 0;

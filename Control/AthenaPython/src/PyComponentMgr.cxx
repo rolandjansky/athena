@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyComponentMgr.cxx 
@@ -29,8 +29,43 @@ CLASS_DEF (PyObject, 72785480, 1)
 // PyROOT includes
 #include "CPyCppyy/PyException.h"
 #include "TPython.h"
+#include "TROOT.h"
+#include "TClassGenerator.h"
 
 using namespace PyAthena;
+
+namespace {
+
+// Remove the TPyClassGenerator from the list of class generators.
+// TPyClassGenerator makes classes defined in Python accessible to ROOT.
+// We don't rely on this at all in Athena.  Further, in MT jobs,
+// we can get deadlocks.   TClass::GetClass holds the ROOT internal
+// mutexes, and if it ends up calling TPyClassGenerator, then the
+// generator will end up acquiring the Python GIL.
+// On the other hand, Python-based algorithms will hold the GIL.
+// If they then use PyROOT (or do anything which could trigger I/O),
+// then they can try to acquire the ROOT internal locks.
+// Since we have the same locks being acquired in different orders
+// in different threads, we can deadlock.
+//
+// Ideally, TClass::GetClass should probably drop the ROOT locks
+// before calling a class generator.  But since we don't actually
+// use this functionality on Athena, just suppress it.
+void removePyGen ()
+{
+   TCollection* gens = gROOT->GetListOfClassGenerators();
+   TIter next(gens);
+   TClassGenerator *gen;
+   while( (gen = (TClassGenerator*) next()) ) {
+     if (System::typeinfoName (typeid (*gen)) == "TPyClassGenerator") {
+       gens->Remove (gen);
+       break;
+     }
+   }
+}
+} // anonymous namespace
+
+
 
 // Constructors
 ////////////////
@@ -217,6 +252,8 @@ PyComponentMgr::pyObject( IPyComponent* cppComp )
                     << cppComp->typeName() << "/" << cppComp->name()
                     << "] with its python cousin !");
   }
+
+  removePyGen();
 
   Py_INCREF(o);
   return o;

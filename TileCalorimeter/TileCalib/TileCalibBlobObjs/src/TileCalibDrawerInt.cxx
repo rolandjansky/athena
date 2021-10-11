@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibDrawerInt.h"
@@ -46,3 +46,15 @@ TileCalibDrawerInt::TileCalibDrawerInt(const coral::Blob& blob)
   }
 }
 
+//
+//_______________________________________________________________
+TileCalibDrawerInt::TileCalibDrawerInt(coral::Blob& blob)
+  : TileCalibDrawerDat<uint32_t>(blob)
+{
+  //=== check for correct blob type
+  if(getBlobSize()){
+    if(getObjType() != getType()){
+      throw TileCalib::TypeConflict("TileCalibDrawerInt::Ctor",getObjType(),getType());
+    }
+  }
+}

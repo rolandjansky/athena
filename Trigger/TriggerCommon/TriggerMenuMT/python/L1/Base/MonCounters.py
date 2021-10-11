@@ -4,7 +4,7 @@ from collections import OrderedDict as odict
 from functools import total_ordering
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Base.MonCounters')
+log = logging.getLogger(__name__)
 
 class MenuMonCountersCollection(object):
 

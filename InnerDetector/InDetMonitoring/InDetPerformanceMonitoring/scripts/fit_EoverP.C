@@ -1466,6 +1466,7 @@ void MakeScaling(TString inputDir)
 
   if(!meanPlotNeg || !meanPlotNeg){
     std::cout<< "ERROR  : inputfile does not contain the desired histograms "  << std::endl; 
+    return;
   }
   
   meanPlotNeg->Draw("colz");

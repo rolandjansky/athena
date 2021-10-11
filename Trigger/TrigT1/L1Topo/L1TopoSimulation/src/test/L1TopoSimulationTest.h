@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_LVL1_L1TopoSimulationTest_h
@@ -21,10 +21,6 @@ class ITHistSvc;
 
 namespace TCS {
   class TopoSteering;
-}
-
-namespace TrigConf {
-   class IL1TopoConfigSvc;
 }
 
 namespace LVL1 {
@@ -55,7 +51,6 @@ namespace LVL1 {
 
     StringProperty  m_OffhistBaseDir; //! sets base dir for monitoring histograms
     StringProperty  m_OffinputASCIIFile { "" }; // input dump file
-    StringProperty  m_OffinputXMLFile { "" }; // XML file can be register in case of enabling the ASCII file read for validation purposes
     StringProperty  m_OffinputJSONFile { "" }; // JSON file for menu
 
     std::unique_ptr<TCS::TopoSteering>  m_OfftopoSteering; //!< the topo steering

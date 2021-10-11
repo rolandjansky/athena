@@ -38,9 +38,7 @@
 #include "../CaloNoiseSigmaDiffCondAlg.h"
 
 //Includes for CaloTopoTowers
-#include "../CaloTowerGeometrySvc.h"
 #include "../CaloTopoClusterTowerMerger.h"
-#include "../CaloTopoClusterFromTowerMonitor.h"
 #include "../CaloTopoTowerFromClusterCalibrator.h"
 #include "../CaloTopoTowerFromClusterMaker.h"
 #include "../CaloTopoTowerMaker.h"
@@ -90,8 +88,6 @@ DECLARE_COMPONENT (CaloCellContainerAliasAlg)
 DECLARE_COMPONENT (ToolConstantsCondAlg)
 DECLARE_COMPONENT (CaloNoiseSigmaDiffCondAlg)
 
-DECLARE_COMPONENT( CaloTopoClusterFromTowerMonitor )
-DECLARE_COMPONENT( CaloTowerGeometrySvc )
 DECLARE_COMPONENT( CaloTopoClusterTowerMerger )
 DECLARE_COMPONENT( CaloTopoTowerFromClusterMaker )
 DECLARE_COMPONENT( CaloTopoTowerFromClusterCalibrator )

@@ -25,7 +25,7 @@ namespace top {
   }
 
   void TrackJetMC15::print(std::ostream& os) const {
-    os << "Track jet\n"
+    os << "TrackJetMC15\n"
        << "    * pT > " << m_ptcut << "\n"
        << "    * |eta| < " << m_etamax << "\n"
        << "    * >= 2 tracks \n";

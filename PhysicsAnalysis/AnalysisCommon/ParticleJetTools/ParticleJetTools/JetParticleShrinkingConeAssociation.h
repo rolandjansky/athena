@@ -13,7 +13,7 @@
 #include <string>
 
 class JetParticleShrinkingConeAssociation : public JetParticleAssociation {
-    ASG_TOOL_CLASS(JetParticleShrinkingConeAssociation, JetParticleAssociation)
+    ASG_TOOL_CLASS(JetParticleShrinkingConeAssociation, IJetDecorator)
     public:
 
         JetParticleShrinkingConeAssociation(const std::string& name);

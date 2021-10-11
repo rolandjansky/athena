@@ -320,11 +320,15 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 				       const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, 
 				       const std::string_view callerName)
 {
+  EventCache* cache = m_eventsCache.get( context );
+
+  // lock for event cache update with DCM
+  std::lock_guard<std::mutex> lock( cache->eventCache_mtx );
+
   TrigTimeStamp rosStartTime;
 
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << ": Number of ROB Ids to get = " << robIds.size() 
 		  << " caller name = " << callerName);
-  EventCache* cache = m_eventsCache.get( context );
 
   // allocate vector of missing ROB Ids
   std::vector<uint32_t> robIds_missing ;
@@ -488,6 +492,9 @@ int HltROBDataProviderSvc::collectCompleteEventData(const EventContext& context,
   ATH_MSG_VERBOSE("start of " << __FUNCTION__  << " caller name = " << callerName);
 
   EventCache* cache = m_eventsCache.get( context );
+
+  // lock for event cache update with DCM
+  std::lock_guard<std::mutex> lock( cache->eventCache_mtx );
 
   // return if event is already complete 
   if (cache->isEventComplete) return 0;

@@ -10,7 +10,7 @@
 pylcgdict.load_library("libPyAnalysisExamplesDict")
 
 # instantiate a C++ class from python
-cut = g.MyCutClass(30*GeV)
+cut = g.AthPyEx.MyCutClass(30*GeV)
 
 # init application mgr
 theApp.initialize()
@@ -32,10 +32,10 @@ for ievent in range(5):
     for ie in range(len(econ)):
         eobj = econ[ie]
         if cut.isAccepted(eobj):
-            print "accept %f" % eobj.pt()
+            print ("accept %f" % eobj.pt())
             ha.Fill(eobj.pt())
         else:
-            print "reject %f" % eobj.pt()
+            print ("reject %f" % eobj.pt())
             hr.Fill(eobj.pt())            
 
 ha.Draw()

@@ -3,24 +3,23 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// MuonTGSegments.h, (c) ATLAS Detector Softwareop 
+// MuonTGSegments.h, (c) ATLAS Detector Softwareop
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGMEASASSOCALG_MUONTGSEGMENTS_H
 #define MUONTGMEASASSOCALG_MUONTGSEGMENTS_H
 
 #include "AthContainers/DataVector.h"
-#include "TrkGeometry/Layer.h"
-#include "TrkGeometry/DetachedTrackingVolume.h"
-#include "TrkSegment/Segment.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "TrkGeometry/DetachedTrackingVolume.h"
+#include "TrkGeometry/Layer.h"
+#include "TrkSegment/Segment.h"
 
-namespace Muon{
+namespace Muon {
 
-typedef std::pair<const Trk::DetachedTrackingVolume*,std::vector<const Trk::Segment*>*> StationSgs;
-typedef DataVector<StationSgs> MuonTGSegments;
-}
-CLASS_DEF(Muon::MuonTGSegments,55557,1)
+    typedef std::pair<const Trk::DetachedTrackingVolume*, std::vector<const Trk::Segment*>*> StationSgs;
+    typedef DataVector<StationSgs> MuonTGSegments;
+}  // namespace Muon
+CLASS_DEF(Muon::MuonTGSegments, 55557, 1)
 
-#endif //MUONTGMEASASSOCALG_MUONTGSEGMENTS_H
-
+#endif  // MUONTGMEASASSOCALG_MUONTGSEGMENTS_H

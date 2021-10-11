@@ -28,6 +28,7 @@
 #include "CaloDetDescr/CaloSubdetNames.h"
 
 #include <mutex>
+#include <vector>
 
 class CaloDetDescrManager;
 class ICaloCoordinateTool;
@@ -49,7 +50,6 @@ namespace Trk {
 }
 
 
-//<<<<<< INCLUDES >>>>>>
 
 /** This class creates the Surfaces needed to perform track extrapolation.
     All numbers are provided by the CaloDetDescr tools
@@ -148,19 +148,15 @@ private:
   void fill_tg_surfaces() const;
 
   // CaloDetDescr usal stuff
-  //const CaloCell_ID* m_calo_id;
   const mutable CaloDetDescrManager* m_calo_dd;
 
   //TileDetDescr stuff
   const TileDetDescrManager* m_tile_dd;
 
-  // cash the surfaces for TG builder
+  // cache the surfaces for TG builder
   mutable std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > m_layerEntries;
   mutable std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > m_layerExits;
   mutable std::once_flag m_fillOnce;
-
-// needed to cover TestBeam
-//  ToolHandle<ICaloCoordinateTool>               m_calo_tb_coord;
 
   // Simplified geometry :
   ToolHandle<ICaloRecoMaterialTool>             m_lar_mat;
@@ -169,11 +165,6 @@ private:
   // Defines the depths for DD and User surfaces : 
   ToolHandle<CaloDepthTool>                     m_calodepth;
  
-  //ToolHandle<Trk::ITrackingVolumeBuilder>       m_tileVolumeBuilder;             //!< Volume Builder for the Tile Calorimeter
-
-
-  //IToolSvc* m_toolsvc;
-  //IMessageSvc*  m_msgSvc;
 };
 
 inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces() const

@@ -63,14 +63,14 @@ void VxTrackAtVertexCnv_p2::transToPers (const Trk::VxTrackAtVertex * transObj, 
   persObj->m_perigeeAtVertex = toPersistent (&m_paramsCnv, transObj->perigeeAtVertex(), log);
 
   Trk::LinkToTrack * trLink = dynamic_cast < Trk::LinkToTrack * >(const_cast <Trk::ITrackLink *>(transObj->trackOrParticleLink ()));
-  if (trLink != 0) {
+  if (trLink != nullptr) {
     persObj->m_typeOfLink = 0;
     // m_elementLinkConverterForTrack.resetForCnv(persObj->m_origTrackNames);
     ElementLink < TrackCollection > *el = dynamic_cast < ElementLink < TrackCollection > *>(trLink);
 	m_elementLinkConverterForTrack.transToPers (el, &persObj->m_origTrack, log);
   } else {
 	Trk::LinkToTrackParticleBase * trPBLink = dynamic_cast < Trk::LinkToTrackParticleBase * >(const_cast <Trk::ITrackLink *>(transObj->trackOrParticleLink()));
-    if (trPBLink != 0) {
+    if (trPBLink != nullptr) {
       persObj->m_typeOfLink = 1;
       // m_elementLinkConverterForTrackParticle.resetForCnv(persObj->m_origTrackNames);
       ElementLink < Trk::TrackParticleBaseCollection > *el = dynamic_cast < ElementLink < Trk::TrackParticleBaseCollection > *>(trPBLink);

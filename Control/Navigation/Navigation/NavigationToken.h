@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATIONTOKEN_H
@@ -129,7 +129,7 @@ class NavigationToken : public INavigationToken
        unsigned int indexCtr = 0;
        while ( indexCtr != theIndex )
 	 {
-	   indexCtr++; m_actual++;
+	   ++indexCtr; ++m_actual;
 	 }
        return (*m_actual).first;
      }
@@ -273,6 +273,7 @@ class NavigationToken : public INavigationToken
        m_data         = anotherToken.m_data;
        m_navCondition = anotherToken.m_navCondition; 
        m_navSelector  = anotherToken.m_navSelector;
+       m_lastReject   = anotherToken.m_lastReject;
      }   
    return *this;
  }
@@ -285,6 +286,7 @@ class NavigationToken : public INavigationToken
        m_data         = std::move (anotherToken.m_data);
        m_navCondition = anotherToken.m_navCondition; 
        m_navSelector  = anotherToken.m_navSelector;
+       m_lastReject   = anotherToken.m_lastReject;
      }   
    return *this;
  }

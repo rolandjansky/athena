@@ -67,6 +67,10 @@ We try to make the naming of processes consistent in Athena. Therefore some proc
 | `ttbb`             | -                         | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{b}\bar{\mathrm{b}}`$  | TODO                                         | [1802.00426](https://arxiv.org/abs/1802.00426) | [Process-specific documentation](process_specific/ttbb.md) |
 | `ttH`              | -                         | ttbar+Higgs                   | `PowhegControl-00-02-09`                                                 | [1501.04498](https://arxiv.org/abs/1501.04498) |                      |
 | `ttj`              | `ttJ`                     | ttbar+1 jet                   | `PowhegControl-00-02-14`                                                 | [1110.5251](https://arxiv.org/abs/1110.5251)   |                      |
+| `ttWm_EW`          | `Wtt_dec/pp_ttWm_EW`      | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^{-}`$, NLO electroweak | `ATLASOTF-04-05-02`                      | [2101.11808](https://arxiv.org/abs/2101.11808) | [Process-specific documentation](process_specific/ttW.md). :hot_pepper: : **Physics validation ongoing.** |
+| `ttWm_QCD`         | `Wtt_dec/pp_ttWm_QCD`     | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^{-}`$, NLO QCD | `ATLASOTF-04-05-02`                              | [2101.11808](https://arxiv.org/abs/2101.11808) | [Process-specific documentation](process_specific/ttW.md). :hot_pepper: : **Physics validation ongoing.** |
+| `ttWp_EW`          | `Wtt_dec/pp_ttWp_EW`      | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^{+}`$, NLO electroweak | `ATLASOTF-04-05-02`                      | [2101.11808](https://arxiv.org/abs/2101.11808) | [Process-specific documentation](process_specific/ttW.md). :hot_pepper: : **Physics validation ongoing.** |
+| `ttWp_QCD`         | `Wtt_dec/pp_ttWp_QCD`     | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{W}^{+}`$, NLO QCD | `ATLASOTF-04-05-02`                              | [2101.11808](https://arxiv.org/abs/2101.11808) | [Process-specific documentation](process_specific/ttW.md). :hot_pepper: : **Physics validation ongoing.** |
 | `VBF_H`            | -                         | VBF Higgs                     | `PowhegControl-00-02-00`                                                 | [0911.5299](https://arxiv.org/abs/0911.5299)   |                      |
 | `VBF_osWW`         | `VBF_Wp_Wm`               | VBF $`\mathrm{W}^+\mathrm{W}^-`$ | In testing phase                                                      | [1301.1695](https://arxiv.org/abs/1301.1695)   | [Process-specific documentation](process_specific/VBF_osWW.md). PDF/scale reweighting broken, being investigated |
 | `VBF_ssWW`         | `Wp_Wp_J_J`               | VBF $`\mathrm{W}^{\pm}\mathrm{W}^{\pm}`$ | `PowhegControl-00-02-14`                                      | [1108.0864](https://arxiv.org/abs/1108.0864)   |                      |
@@ -128,7 +132,7 @@ specifically noted otherwise. To set up, do the following on any machine with ac
 
 ```bash
 setupATLAS # = source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-asetup 21.6.31 AthGeneration # or whichever release number you want
+asetup AthGeneration 21.6.57 # or whichever release number you want
 ```
 
 #### Side note about releases and versioning
@@ -240,10 +244,10 @@ include("PowhegControl/PowhegControl_tt_Common.py")
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
-# Pythia8 showering with the A14 NNPDF2.3 tune
+# Pythia8 showering with the A14 NNPDF2.3 tune, main31 routine
 #--------------------------------------------------------------
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_Powheg.py")
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
 ```
 
 Powheg Box processes have many parameters which can be changed via the
@@ -276,7 +280,7 @@ include("PowhegControl/PowhegControl_tt_Common.py")
 PowhegConfig.decay_mode = 't t~ > b j j b~ j j'
 PowhegConfig.generate()
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_Powheg.py")
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
 ```
 
 As the native runcard for Powheg Box is generated when the job options are run,
@@ -284,8 +288,19 @@ parameter changes like this **must be placed before the call to
 `PowhegConfig.generate()`**, or they will be ignored in favour of the
 default settings.
 
-
-
+The last two includes would run Pythia8 after the production of the LHE events by Powheg.
+The line
+```py
+include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
+```
+makes use of the A14 parton shower tune of Pythia8, and the line
+```py
+include("Pythia8_i/Pythia8_Powheg_Main31.py")
+```
+instructs Pythia8 to use the events in the produced LHE file assuming they
+are events produced by Powheg, using the main31 routine which is appropriate
+for ttbar events. Other tunes and/or other routines may be more appropriate
+to your case; in doubt, ask your MC expert.
 
 
 
@@ -477,6 +492,10 @@ Hint: use `ls $POWHEGPATH/..` to list the available ATLAS Powheg installations.
 
 
 ### Re-using integration files - :warning: section contains outdated information and will be revised soon :warning:
+
+:warning: :warning: :warning: Also, the needed files are (or should be, if everything works) put by PowhegControl in a tarball called integration_grids.tar.gz at the end of the run. So if you want to re-use them later in a clean directory, you just need to either (in releases older than 21) use it as argument of the --inputGenConfFile option of the transform, or (from release 21, which uses the new workflow for MC production) rename it according to the convention explained here (i.e. mc_13TeV.[physicsShort].GRID.tar.gz) and put it in the directory where the joboption is (and this directory would be your argument for --jobConfig).
+
+
 
 If the integration step (before events are generated) is lengthy, the
 integration step can be skipped by re-using the Powheg integration

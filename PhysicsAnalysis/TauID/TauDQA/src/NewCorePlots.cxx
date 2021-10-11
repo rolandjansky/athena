@@ -230,7 +230,7 @@ namespace Tau{
 	rConvII = track->rConvII();
       }
 
-      double dRJetSeedAxis = track->dRJetSeedAxis(tau);
+      double dRJetSeedAxis = track->p4().DeltaR(tau.p4(xAOD::TauJetParameters::JetSeed));
       double qOverP = trackParticle->qOverP();
       double trackPt = trackParticle->pt();
 
@@ -297,7 +297,9 @@ namespace Tau{
     // clusters
     std::vector<const xAOD::IParticle*> particleList = tau.clusters();  
     std::vector<xAOD::CaloVertexedTopoCluster> clusters;
-    const xAOD::Vertex* vertex = tau.vertex();
+    const xAOD::Vertex* vertex = nullptr;
+    if(tau.vertexLink().isValid()) vertex = tau.vertex();
+
     for (const xAOD::IParticle* particle : particleList) {
       const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
       if (vertex) {
@@ -365,8 +367,8 @@ namespace Tau{
     if(test) m_PFOEngRelDiff->Fill(avariable, weight);
 
     // tau vertex
-    if(tau.vertex()) {
-      m_TVz->Fill(tau.vertex()->z(), weight);
+    if(vertex) {
+      m_TVz->Fill(vertex->z(), weight);
     }
   }
 }

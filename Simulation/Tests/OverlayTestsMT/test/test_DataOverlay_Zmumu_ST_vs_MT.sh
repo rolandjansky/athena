@@ -21,7 +21,7 @@ Overlay_tf.py \
 --outputRDOFile MC_plus_data.MT.RDO.pool.root \
 --triggerConfig 'Overlay=NONE' \
 --maxEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
@@ -30,6 +30,7 @@ Overlay_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlayMT"
 mv log.Overlay log.OverlayMT
 
@@ -42,7 +43,7 @@ then
     --outputRDOFile MC_plus_data.ST.RDO.pool.root \
     --triggerConfig 'Overlay=NONE' \
     --maxEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
-    --conditionsTag CONDBR2-BLKPA-2016-12 \
+    --conditionsTag CONDBR2-BLKPA-2016-12-01 \
     --samplingFractionDbTag FTFP_BERT_BIRK \
     --fSampltag LARElecCalibMCfSampl-G496-19213- \
     --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
@@ -50,6 +51,7 @@ then
     --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
     --imf False
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 overlayST"
 
@@ -58,6 +60,7 @@ if [ $rc2 -eq 0 ]
 then
     acmd.py diff-root MC_plus_data.ST.RDO.pool.root MC_plus_data.MT.RDO.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
 
@@ -68,5 +71,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 "${ArtPackage}" "${ArtJobName}" --mode=semi-detailed --order-trees --diff-root
     rc4=$?
+    status=$rc4
 fi
 echo  "art-result: $rc4 regression"
+
+exit $status

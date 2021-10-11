@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetFinder.cxx
@@ -24,13 +24,6 @@
 #include "xAODJet/Jet_PseudoJet.icc"  // templated Jet_v1::setPseudoJet
 
 #include <algorithm>
-
-#ifdef USE_BOOST_AUTO
-#include <boost/typeof/typeof.hpp>
-#endif
-#ifdef USE_BOOST_FOREACH
-#include <boost/foreach.hpp>
-#endif
 
 using std::string;
 using std::setw;
@@ -102,8 +95,8 @@ StatusCode JetFinder::initialize() {
 
 //**********************************************************************
 
-int JetFinder::find(const PseudoJetContainer& pjContainer, 
-                    xAOD::JetContainer & finalJets, 
+int JetFinder::find(const PseudoJetContainer& pjContainer,
+                    xAOD::JetContainer & finalJets,
                     xAOD::JetInput::Type inputtype ) const {
 
   constexpr bool doSave = true;
@@ -113,8 +106,8 @@ int JetFinder::find(const PseudoJetContainer& pjContainer,
 
 //**********************************************************************
 
-int JetFinder::findNoSave(const PseudoJetContainer& pjContainer, 
-                    xAOD::JetContainer & finalJets, 
+int JetFinder::findNoSave(const PseudoJetContainer& pjContainer,
+                    xAOD::JetContainer & finalJets,
                           xAOD::JetInput::Type inputtype,
                           fastjet::ClusterSequence*& pcs) const {
 
@@ -161,9 +154,9 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
     pcs = new fastjet::ClusterSequence(*inps, jetdef);
   } else {
     fastjet::GhostedAreaSpec gspec(5.0, 1, m_ghostarea);
+    std::vector<int> inseeds;
     if ( m_ranopt == 1 ) {
       // Use run/event number as random number seeds.
-      std::vector<int> inseeds;
 
       auto handle = SG::makeHandle(m_eventinfokey);
       if (!handle.isValid()){
@@ -172,15 +165,10 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
       }
       const xAOD::EventInfo* pevinfo = handle.cptr();
 
-      
+
       if ( pevinfo != 0 ) {
-#ifdef USE_BOOST_AUTO
-        BOOST_AUTO(ievt, pevinfo->eventNumber());
-        BOOST_AUTO(irun, pevinfo->runNumber());
-#else
         auto ievt = pevinfo->eventNumber();
         auto irun = pevinfo->runNumber();
-#endif
         if ( pevinfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
           // For MC, use the channel and MC event number
           ievt = pevinfo->mcEventNumber();
@@ -191,7 +179,6 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
       } else {
         ATH_MSG_ERROR("Unable to retrieve event info");
       }
-      if ( inseeds.size() ) gspec.set_random_status(inseeds);
     } // if (m_ranopt==1)
     ATH_MSG_DEBUG("Active area specs:");
     ATH_MSG_DEBUG("  Requested ghost area: " << m_ghostarea);
@@ -200,23 +187,20 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
     ATH_MSG_DEBUG("              # ghosts: " << gspec.n_ghosts());
     ATH_MSG_DEBUG("       # rapidity bins: " << gspec.nrap());
     ATH_MSG_DEBUG("            # phi bins: " << gspec.nphi());
-    std::vector<int> seeds;
-    gspec.get_random_status(seeds);
-    if ( seeds.size() == 2 ) {
-      ATH_MSG_DEBUG("          Random seeds: " << seeds[0] << ", " << seeds[1]);
+
+    if ( inseeds.size() == 2 ) {
+      ATH_MSG_DEBUG("          Random seeds: " << inseeds[0] << ", "
+                    << inseeds[1]);
     } else {
-      ATH_MSG_WARNING("Random generator size is not 2: " << seeds.size());
+      ATH_MSG_WARNING("Random generator size is not 2: " << inseeds.size());
       ATH_MSG_DEBUG("          Random seeds: ");
-#ifdef USE_BOOST_FOREACH
-      BOOST_FOREACH(unsigned int seed, seeds) ATH_MSG_DEBUG("                 " << seed);
-#else
-      for ( auto seed : seeds ) ATH_MSG_DEBUG("                 " << seed);
-#endif
+      for ( auto seed : inseeds ) ATH_MSG_DEBUG("                 " << seed);
     }
     fastjet::AreaDefinition adef(fastjet::active_area_explicit_ghosts, gspec);
     //fastjet::AreaDefinition adef(fastjet::active_area, gspec);
     ATH_MSG_DEBUG("Creating input area cluster sequence");
-    pcs = new fastjet::ClusterSequenceArea(*inps, jetdef, adef);
+    pcs = new fastjet::ClusterSequenceArea(*inps, jetdef,
+                                           adef.with_fixed_seed(inseeds));
   }
 
   ATH_MSG_DEBUG("Calling fastjet");
@@ -225,7 +209,7 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
   // for ( PseudoJetVector::const_iterator ijet=outs.begin(); ijet!=outs.end(); ++ijet ) {
   for (const auto &  pj: outs ) {
     xAOD::Jet* pjet = m_bld->add(pj, pjContainer, jets, inputtype);
-    
+
     // transfer the  contituents of pseudojet (which are pseudojets)
     // to constiuents of jet (which are IParticles)
     // pjContainer.extractConstituents(*pjet, pj);

@@ -22,7 +22,7 @@
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
 
-class L1CaloPprDisabledChannel {
+class L1CaloPprDisabledChannel final {
     friend std::ostream& operator<<(std::ostream& output, const L1CaloPprDisabledChannel& r);
 
  public:
@@ -33,7 +33,7 @@ class L1CaloPprDisabledChannel {
     L1CaloPprDisabledChannel( unsigned int channelId, ChanDeadErrorCode deadErrorCode, ChanCalibErrorCode calibErrorCode, bool isMasked, unsigned int noiseCut, unsigned int disabledBits);
     L1CaloPprDisabledChannel( const L1CaloCoolChannelId& channelId, ChanDeadErrorCode deadErrorCode, ChanCalibErrorCode calibErrorCode, bool isMasked, unsigned int noiseCut, unsigned int disabledBits);
 
-    virtual ~L1CaloPprDisabledChannel() {};
+    ~L1CaloPprDisabledChannel() = default;
 
     // getters
     inline L1CaloCoolChannelId channelId(void) const { return m_channelId; };

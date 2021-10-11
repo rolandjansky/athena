@@ -40,7 +40,7 @@ namespace Trk {
 /*   STPCNV :   track momentum from track (theta,phi,1/r) at vertex       	*/
 /*------------------------------------------------------------------------------*/
 
-void ForCFT::prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double  *vrt, double  *vrte) noexcept
+void ForCFT::prcfit( long int ntrk, double  *wm, double  *wmfit, double  bmag, double  *vrt, double  *vrte) noexcept
 {
     long int i__1;
     double   summ;
@@ -75,11 +75,11 @@ void ForCFT::prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag,
 /*										*/
 /*------------------------------------------------------------------------------*/
 
-    localbmag = (*bmag);
+    localbmag = bmag;
     nmcnst = 0;
     for (int i=0; i<8; ++i) wmfit[i] = -10000.;
     summ = 0.;
-    i__1 = (*ntrk)<vkalNTrkM ? (*ntrk): vkalNTrkM;
+    i__1 = ntrk<vkalNTrkM ? ntrk: vkalNTrkM;
     for (int i=0; i<i__1; ++i) {
 	wm[i] =  fabs(wm[i]);
 	summ += wm[i];
@@ -89,7 +89,7 @@ void ForCFT::prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag,
 	nmcnst = 1;
 	for (int i = 0; i < vkalNTrkM; ++i) {
 	    indtrkmc[0][i] = 0;
-	    if (i < (*ntrk)) {indtrkmc[0][i] = 1;}
+	    if (i < ntrk) {indtrkmc[0][i] = 1;}
 	}
 	wmfit[0] = (*wmfit);
     }
@@ -118,6 +118,23 @@ usePointingCnst = 0;
 usePassNear = 0;
 //forcft_1.usePlaneCnst = 0;   //Used only on demand=> must NOT be reset here!!!
 } 
+
+ForCFT::ForCFT() noexcept{
+  nmcnst=0;
+  useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0; usePlaneCnst=0;
+  useAprioriVrt=0; usePassNear=0;
+  Ap=Bp=Dp=Cp=0.;
+  IterationNumber = 50;
+  IterationPrecision=1.e-3;
+  RobustScale = 1.; irob=0;
+  for (int ic=0; ic<vkalMaxNMassCnst; ++ic) wmfit[ic] = -10000.;
+  for (int it=0; it<vkalNTrkM; ++it) {
+     wm[it] = 139.57018;
+     robres[it] = 1.;
+     for(int ic=0; ic<vkalMaxNMassCnst; ic++) indtrkmc[ic][it]=0;
+  }
+  localbmag=1.997;   // Safety: standard magnetic field in ID 
+}
 
 
 void ForCFT::vksetIterationNum(long int Iter) noexcept
@@ -158,7 +175,7 @@ void ForCFT::vksetUsePlaneCnst(double a, double b, double c, double d) noexcept 
 
 
 
-void ForCFT::setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst) noexcept
+void ForCFT::setmasscnst_(long int ncnsttrk, long int *indextrk, double  wmcnst) noexcept
 {
     if (indextrk==nullptr) return;  //Protection!  Track indices start from 1 (not 0)!
     --indextrk;
@@ -168,12 +185,12 @@ void ForCFT::setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcns
     for (int i = 0; i < vkalNTrkM; ++i) {
 	indtrkmc[nmcnst-1][i] = 0;
     }
-    for (int i = 0; i < (*ncnsttrk);  ++i) {
+    for (int i = 0; i < ncnsttrk;  ++i) {
 	if (indextrk[i] > 0 && indextrk[i] < vkalNTrkM) {
 	    indtrkmc[nmcnst-1][indextrk[i]] = 1;
 	}
     }
-    wmfit[nmcnst - 1] = (*wmcnst);
+    wmfit[nmcnst - 1] = wmcnst;
  }
 
 } /* End of namespace */

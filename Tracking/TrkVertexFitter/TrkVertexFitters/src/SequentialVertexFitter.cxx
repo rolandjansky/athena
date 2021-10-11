@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitters/SequentialVertexFitter.h"
@@ -23,6 +23,7 @@
 //xAOD includes
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
+#include <cmath>
 
 //ugly so far: the fitter is connected directly to the
 //perigee track parametrization, which is not right.
@@ -98,9 +99,6 @@ namespace Trk{
                                              const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
                                              const Amg::Vector3D& startingPoint)  const
   {
-  
-    // std::cout << " Starting point: " << startingPoint << std::endl;
-
     xAOD::Vertex constraint;
     constraint.makePrivateStore();
     constraint.setPosition( startingPoint );
@@ -187,12 +185,8 @@ namespace Trk{
 
     } else {
       priorInfo=true;
-      //std::cout << " prior information exists: WRONG! " << std::endl;
       priorErrorMatrix = initialVertexError;
     }
-
-    //   std::cout <<  "STARTING FIT" << std::endl;
-
     // creating an initial vertex to update
     std::unique_ptr<xAOD::Vertex> returnVertex = std::make_unique<xAOD::Vertex>();	
     returnVertex->makePrivateStore(); // xAOD::VertexContainer will take ownership of AuxStore when returnVertex is added to it
@@ -204,8 +198,6 @@ namespace Trk{
     //converting the input perigee to the Vertex tracks
     std::vector<Trk::VxTrackAtVertex> tracks_to_fit = linearizeTracks(perigeeList, neutralPerigeeList, *returnVertex);
     std::vector<Trk::VxTrackAtVertex> fittedTracks(0);
-    //   std::cout << "Linearized tracks to fit: " << tracks_to_fit.size() << std::endl;
-
     returnVertex->vxTrackAtVertex() = fittedTracks;
 
     //the actual fitting loop
@@ -213,30 +205,22 @@ namespace Trk{
     Amg::Vector3D previousPreviousPosition = newPosition;
     Amg::Vector3D previousPosition = newPosition;
     double newChi2= returnVertex->chiSquared();
-    double previousChi2;
+    double previousChi2{};
     unsigned int n_iter = 0;
+    double deltaR{};
+    bool fitFailed{false};
 
     std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin = tracks_to_fit.begin();
     std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd = tracks_to_fit.end();
-
-    do
-    {
-
-      if (!priorInfo)
-      {
-        //previously, before xAOD::Vertex:
-        //Trk::RecVertex  newInitialRecVertex(newPosition, priorErrorMatrix , in_ndf, in_chi);
-        //returnVertex->setRecVertex(newInitialRecVertex);
-
+    auto deltaChi2 = [](double chi1, double chi0){
+      return std::abs((chi1-chi0)*2./(chi1+chi0+2.));
+    };
+    do {
+      if (!priorInfo){
         returnVertex->setPosition( newPosition );
         returnVertex->setCovariancePosition( priorErrorMatrix );
         returnVertex->setFitQuality( in_chi, in_ndf );
-      }
-      else
-      {
-        //previously, before xAOD::Vertex:
-        //returnVertex->setRecVertex(initialRecVertex);
-
+      } else {
         returnVertex->setPosition( priorVertexPosition );
         returnVertex->setCovariancePosition( priorErrorMatrix );
         returnVertex->setFitQuality( in_chi, in_ndf );            
@@ -244,29 +228,19 @@ namespace Trk{
 
       //optional relinearization
       if(n_iter !=0) {
-        //std::cout << " relinearization " << std::endl;
         reLinearizeTracks(tracks_to_fit, returnVertex->position());
       }
-
-      // std::cout << " relinarzation " << std::endl;
-
       //loop over available tracks
       int cnt = 0;
 
       for(std::vector<Trk::VxTrackAtVertex>::iterator i = tracksBegin; i != tracksEnd;++i)
       {                  
-        
         xAOD::Vertex *new_vertex = m_Updator->add(*returnVertex, *i);
-
         if (new_vertex != returnVertex.get()) {
             returnVertex.reset( new_vertex );
-           }
-
-        //std::cout << " Vertex after add of track: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
-        //std::cout << " Adding track " << cnt << std::endl;
+        }
         ++cnt;
       }//end of loop over available tracks
-      //std::cout << "Number of tracks at vertex: " << returnVertex->vxTrackAtVertex().size() <<std::endl; //TODO: this will always the total # of tracks I believe - fix this!
 
       //now the updated state that is stored in returnVertex
       previousPreviousPosition = previousPosition;
@@ -274,91 +248,32 @@ namespace Trk{
       previousChi2 = newChi2;
       newPosition = returnVertex->position();
       newChi2 = returnVertex->chiSquared();
-      // std::cout << " new position " << newPosition << std::endl;
       ++n_iter;
+      //the fit always fails if a negative chisquared was returned at some point
+      fitFailed = (n_iter == m_maxStep) or (newChi2 <0.);
+      deltaR = (previousPosition - newPosition).perp();
+      // the rest after 'fitFailed' won't be evaluated if the fit failed, 
+      // so hopefully no more FPE in the division
+    } while ( (not fitFailed) && 
+              ( ( deltaR > m_maxShift && m_useLooseConvergence )
+                || ( !m_useLooseConvergence && deltaChi2(newChi2, previousChi2) > m_maxDeltaChi2 ) ) );
 
-      /*
-        std::cout << " iter: " << n_iter << std::setprecision(6) << " chi2: " << newChi2 << " deltaChi2: " <<
-                     fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) << " deltaR: " <<
-                     (previousPosition - newPosition).perp() << std::endl;
-        std::cout << " new Position: " << newPosition << std::endl;
-        std::cout << " error x " << sqrt(returnVertex->covariancePosition()[0][0]) <<
-                     " error y " << sqrt(returnVertex->covariancePosition()[1][1]) <<
-                     " error z " << sqrt(returnVertex->covariancePosition()[2][2])  << std::endl;
-      */
-    } while ( (n_iter != m_maxStep) &&
-              ( ( (previousPosition - newPosition).perp() > m_maxShift && m_useLooseConvergence )
-                || ( !m_useLooseConvergence && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
-
-    if (n_iter==m_maxStep) 
-    {    
-      ATH_MSG_DEBUG( " Fit didn't converge after " << m_maxStep );
-      ATH_MSG_DEBUG( " steps. Deltachi2: " << fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) ); 	         
-      ATH_MSG_DEBUG( " DeltaR "  << (previousPosition - newPosition).perp() ); 
-    }
-
-    /*
-    if (n_iter!=m_maxStep)
-    {
-      std::cout << " Converged after : " << n_iter << " steps. " << std::endl;
-    }
-    */
-
-    //****************************************************************************************
-    //      This is no longer necessary with a std::vector<Trk::VxTrackAtVertex>!
-    //      Memory for VxTrackAtVertices is now deleted in linearizeTracks method
-    //      through vTrack just after the object is added to the vector
-    //
-    //      -David S.
-    //****************************************************************************************
-    /*
-    //GP: memory leak (delete the used tracks!)
-    for(std::vector<Trk::VxTrackAtVertex*>::iterator i = tracksBegin; i != tracksEnd;++i)
-    {
-      delete *i;
-      *i=0;
-    }//end of loop over available tracks
-    */
-
-    //FIT FAILED
-    if (n_iter==m_maxStep)
-    {
+    if (fitFailed) {    
       ATH_MSG_DEBUG( " Fit failed. " );
+      ATH_MSG_DEBUG( " Fit didn't converge after " << n_iter );
+      ATH_MSG_DEBUG( " steps. Deltachi2: " << deltaChi2(newChi2, previousChi2) ); 	         
+      ATH_MSG_DEBUG( " DeltaR "  << deltaR); 
       returnVertex.reset();
       return nullptr;
     }
-
     //smoothing and related
-    if(returnVertex !=nullptr)
-    {
+    if(returnVertex !=nullptr){
       if(m_doSmoothing)m_Smoother->smooth(*returnVertex);
-      //std::cout << " after smoothing: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
-    } else ATH_MSG_INFO( "Sequential vertex fit fails:: zero pointer returned" );
-
+    } else {
+      ATH_MSG_INFO( "Sequential vertex fit fails:: zero pointer returned" );
+    }
     //here the vertex is returned. It is foreseen that a vertex is _always_
     //returned (initial guess in worst case) unless there is a runtime crash
-
-
-    //some debug output which may be useful later
-
-    /*
-    std::cout << "Returning the vertex " << std::endl;
-    std::cout << "With fitted position " << returnVertex->position() << std::endl;
-    //std::cout << "With position error " << returnVertex->recVertex().errorPosition() << std::endl; //TODO: xAOD::Vertex doesn't have this method
-    std::cout << "Number of fitted tracks " << returnVertex->vxTrackAtVertex().size() << std::endl;
-    std::cout << "chi2 of the vertex: " << returnVertex->chiSquared() << std::endl;
-    std::cout << "ndf of the vertex: " << returnVertex->numberDoF() << std::endl;
-    std::cout << "checking the track contents: " << std::endl;
-  
-    const std::vector<Trk::VxTrackAtVertex> ftrk = returnVertex->vxTrackAtVertex();
-   
-    for(std::vector<Trk::VxTrackAtVertex>::const_iterator i = ftrk.begin(); i != ftrk.end(); ++i)
-    {
-      std::cout << "Vertex compatibility " << (*i).vtxCompatibility() << std::endl;
-      std::cout << "Track weight: " << (*i).weight() << std::endl;
-    }
-    */
-
     return returnVertex.release();
 
   }//end of the actual fit method
@@ -429,9 +344,8 @@ namespace Trk{
  //relinearization of tracks during iterations------------------------------------------------------
  void SequentialVertexFitter::reLinearizeTracks(std::vector<Trk::VxTrackAtVertex>& tracks, const Amg::Vector3D & vrt) const
  {
-
    Amg::Vector3D linVertexPos = vrt;
-   if ( linVertexPos.perp() > m_maxR || fabs(linVertexPos.z()) > m_maxZ )
+   if ( linVertexPos.perp() > m_maxR || std::abs(linVertexPos.z()) > m_maxZ )
    {
      ATH_MSG_DEBUG( " Linearization position outside ID. Setting back to (0,0,0) " );
      linVertexPos.x()=0;

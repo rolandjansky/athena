@@ -205,9 +205,9 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   }
 
   // Build the vectors of shaping amplitudes
-  m_lowThresholdSignalShape[0] = vpXeLT; m_highThresholdSignalShape[0] = vpXeHT;
-  m_lowThresholdSignalShape[1] = vpKrLT; m_highThresholdSignalShape[1] = vpKrHT;
-  m_lowThresholdSignalShape[2] = vpArLT; m_highThresholdSignalShape[2] = vpArHT;
+  m_lowThresholdSignalShape[0] = std::move(vpXeLT); m_highThresholdSignalShape[0] = std::move(vpXeHT);
+  m_lowThresholdSignalShape[1] = std::move(vpKrLT); m_highThresholdSignalShape[1] = std::move(vpKrHT);
+  m_lowThresholdSignalShape[2] = std::move(vpArLT); m_highThresholdSignalShape[2] = std::move(vpArHT);
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endmsg;
 }
@@ -304,7 +304,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 
   // Only attempt this if the digit is non-zero
   if ( m_settings->isOverlay() && digit ) { //doing overlay
-    digit += (1<<31);//flag digit a "MC" one
+    digit += (1u<<31);//flag digit a "MC" one
     if (m_first){
       m_first=false;
       msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;

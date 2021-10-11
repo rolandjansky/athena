@@ -1,4 +1,4 @@
 
-#include "../TrigT2HistoPrmVtxAllTEMT.h"
+#include "../TrigT2HistoPrmVtxAllTE.h"
 
-DECLARE_COMPONENT( TrigT2HistoPrmVtxAllTEMT )
+DECLARE_COMPONENT( TrigT2HistoPrmVtxAllTE )

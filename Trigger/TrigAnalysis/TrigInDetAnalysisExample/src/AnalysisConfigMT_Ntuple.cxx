@@ -3,13 +3,15 @@
  **
  **     @author  mark sutton
  **
- **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include "TrigInDetAnalysisExample/AnalysisConfigMT_Ntuple.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
+
+#include "TrigDecisionTool/FeatureRequestDescriptor.h"
 
 #include "TrigInDetAnalysis/Filter_AcceptAll.h"
 #include "TrigInDetAnalysisUtils/Filter_etaPT.h"
@@ -18,6 +20,7 @@
 
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysisUtils/TIDARoiDescriptorBuilder.h"
+
 
 std::string date();
 
@@ -41,28 +44,15 @@ void AnalysisConfigMT_Ntuple::loop() {
         m_provider->msg(MSG::DEBUG) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
 				   << " compiled " << __DATE__ << " " << __TIME__ << "\t: " << date() << "[m" << endmsg;
 
+
+	bool foundOffline = false;
+
 	// get (offline) beam position
 	double xbeam = 0;
 	double ybeam = 0;
 	double zbeam = 0;
 	std::vector<double> beamline;
 
-	bool foundOffline = false;
-
-	if ( m_iBeamCondSvc ) {
-
-	  const Amg::Vector3D& vertex = m_iBeamCondSvc->beamPos();
-	  xbeam = vertex[0];
-	  ybeam = vertex[1];
-	  zbeam = vertex[2];
-
-	  /// leave this code commented here - useful for debugging 
-	  //	  m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << "\tz=" << zbeam <<endmsg; 
-	  beamline.push_back(xbeam);
-	  beamline.push_back(ybeam);
-	  beamline.push_back(zbeam);
-	  //     m_provider->msg(MSG::INFO) << " beamline values : " << beamline[0] << "\t" << beamline[1]  << "\t" << beamline[2] << endmsg;	
-	}
 
 	// get (online) beam position
 	double xbeam_online = 0;
@@ -70,23 +60,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	double zbeam_online = 0;
 
 	std::vector<double> beamline_online;
-
-	if ( m_iOnlineBeamCondSvc ) {
-
-	  const Amg::Vector3D& vertex = m_iOnlineBeamCondSvc->beamPos();
-	  xbeam_online = vertex[0];
-	  ybeam_online = vertex[1];
-	  zbeam_online = vertex[2];
-
-	  beamline_online.push_back( xbeam_online );
-	  beamline_online.push_back( ybeam_online );
-	  beamline_online.push_back( zbeam_online );
-
-	  //	  m_provider->msg(MSG::INFO) << " using online beam position" 
-	  //				     << "\tx=" << xbeam_online 
-	  //				     << "\ty=" << ybeam_online 
-	  //				     << "\tz=" << zbeam_online << endmsg; 
-	}
 
 	//	m_provider->msg(MSG::INFO) << " offline beam position\tx=" << xbeam        << "\ty=" << ybeam        << "\tz=" << zbeam        << endmsg; 
 	//	m_provider->msg(MSG::INFO) << " online  beam position\tx=" << xbeam_online << "\ty=" << ybeam_online << "\tz=" << zbeam_online << endmsg; 
@@ -177,11 +150,14 @@ void AnalysisConfigMT_Ntuple::loop() {
 	TrigTrackSelector selectorRef( &filter_etaPT ); 
 	TrigTrackSelector selectorTest( &filter ); 
 
+	if ( xbeam!=0 || ybeam!=0 ) { 
+	  selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
+	  selectorRef.setBeamline( xbeam, ybeam, zbeam );
+	}
 
-	selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorRef.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
-
+	if ( xbeam_online!=0 || ybeam_online!=0 ) { 
+	    selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
+	}
 
 	selectorTruth.correctTracks( true );
 	selectorRef.correctTracks( true );
@@ -498,6 +474,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 	
 	std::vector<TIDA::Vertex> vertices;
 
+	// store offline vertex track ids along with vertices                                                                                                                                      
+
+    std::vector<TrackTrigObject> offVertexTracks;
+
 	//	std::vector<TIDA::Vertex> vertices;
 	
 	m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
@@ -520,18 +500,35 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    //	    std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() << "\tvtxtype " << (*vtxitr)->vertexType() << "\tntrax " << (*vtxitr)->nTrackParticles() << std::endl; 
 
 	    if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
-              vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-						(*vtxitr)->y(),
-						(*vtxitr)->z(),
-						/// variances                                                                                          
-						(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-						(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-						(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-						(*vtxitr)->nTrackParticles(),
-						/// quality                                                                                            
-						(*vtxitr)->chiSquared(),
-						(*vtxitr)->numberDoF() ) );
-            }
+			vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+					(*vtxitr)->y(),
+					(*vtxitr)->z(),
+					/// variances                                                                                          
+					(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+					(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+					(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+					(*vtxitr)->nTrackParticles(),
+					/// quality                                                                                            
+					(*vtxitr)->chiSquared(),
+					(*vtxitr)->numberDoF() ) );
+
+
+			// get tracks associated to vertex
+			const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tracks = (*vtxitr)->trackParticleLinks();
+
+			// convert from xAOD into TIDA::Track
+			TrigTrackSelector selector( &filter_etaPT ); // not sure about the filter, copied line 147
+			selector.selectTracks( tracks );
+			const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
+
+			// Store ids of tracks belonging to vertex in TrackTrigObject
+			TrackTrigObject vertexTracks = TrackTrigObject();
+			for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
+				vertexTracks.addChild( (*trkitr)->id() );
+			}
+			offVertexTracks.push_back( vertexTracks );
+
+        }
 
 	  }
 	}
@@ -576,6 +573,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_event->addChain( "Vertex" );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addVertices( vertices );
+	  m_event->back().back().addObjects( offVertexTracks );
 	}	 
 
 
@@ -594,10 +592,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    beamline_.push_back( selectorRef.getBeamZ() );
 	    m_event->back().back().addUserData(beamline_);
 	  }
-	  else { 
-	    m_event->back().back().addUserData(beamline);
-	  }
-
 
 
 	  Noff = selectorRef.tracks().size();
@@ -733,9 +727,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	      beamline_.push_back( selectorTest.getBeamZ() );
 	      m_event->back().back().addUserData(beamline_);
 	    }
-	    else { 
-	      m_event->back().back().addUserData(beamline);
-	    }
 	    
 	    int Ntest = selectorTest.tracks().size();
 	    
@@ -793,9 +784,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    beamline_.push_back( selectorRef.getBeamZ() );
 	    m_event->back().back().addUserData(beamline_);
 	  }
-	  else { 	  
-	    m_event->back().back().addUserData(beamline);
-	  }
+
 	}
 	
        
@@ -825,15 +814,13 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_event->addChain(mchain);
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
+
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	      std::vector<double> beamline_;
 	      beamline_.push_back( selectorRef.getBeamX() );
 	      beamline_.push_back( selectorRef.getBeamY() );
 	      beamline_.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(beamline_);
-	  }
-	  else { 	  
-	      m_event->back().back().addUserData(beamline);
 	  }
 
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endmsg; 
@@ -909,9 +896,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	      beamline_.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(beamline_);
 	    }
-	    else { 	  
-	      m_event->back().back().addUserData(beamline);
-	    }
+
 	  }
 	}
 	
@@ -1008,17 +993,19 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		if ( roi_key!="" ) feature_type = TrigDefs::allFeaturesOfType;
 
+		int leg = -1;
+
+		if ( m_chainNames[ichain].element()!="" ) { 
+		  leg = std::atoi(m_chainNames[ichain].element().c_str());
+		}
+
 		std::vector< TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> > rois = 
-		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainName, 
-									    decisiontype, 
-									    roi_key, 
-									    //   TrigDefs::lastFeatureOfType, 
-									    //   TrigDefs::allFeaturesOfType,
-									    feature_type,
-									    "roi" );
-		 
-		/// leave this here for the moment until we know everything is working ...
-		// const unsigned int featureCollectionMode = const std::string& navElementLinkKey = "roi") const;
+		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( Trig::FeatureRequestDescriptor( chainName,  
+													    decisiontype, 
+													    roi_key, 
+													    feature_type,
+													    "roi", 
+													    leg ) );
 		
 		int iroi = 0; /// count of how many rois processed so far
 
@@ -1033,7 +1020,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		TIDA::Chain& chain = m_event->back();
 
 
-		for ( const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roi_info : rois ) {
+		for ( const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection>& roi_info : rois ) {
 		    
 		  iroi++;
 
@@ -1084,6 +1071,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  /// fetch vertices if available ...
 		  
 		  std::vector<TIDA::Vertex> tidavertices;	
+
+		  // store trigger vertex track ids along with vertices                                                                                                                                      
+
+		  std::vector<TrackTrigObject> tidaVertexTracks;
 		  
 		  if ( vtx_name!="" ) { 
 		    
@@ -1104,7 +1095,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      
 		      xAOD::VertexContainer::const_iterator vtxitr = vtx_itrpair.first; 
 		      
-		      for (  ; vtxitr!=vtx_itrpair.second  ;  vtxitr++ ) {
+		for (  ; vtxitr!=vtx_itrpair.second  ;  vtxitr++ ) {
 			
 			/// leave this code commented so that we have a record of the change - as soon as we can 
 			/// fix the missing track multiplicity from the vertex this will need to go back  
@@ -1121,12 +1112,29 @@ void AnalysisConfigMT_Ntuple::loop() {
 								/// quality
 								(*vtxitr)->chiSquared(),
 								(*vtxitr)->numberDoF() ) );
+
+
+				// get tracks associated to vertex
+				const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tracks = (*vtxitr)->trackParticleLinks();
+
+				// covert from xAOD into TIDA::Track
+				TrigTrackSelector selector( &filter ); // not sure about the filter, copied line 148
+				selector.selectTracks( tracks );
+				const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
+
+				// Store ids of tracks belonging to vertex in TrackTrigObject
+				TrackTrigObject vertexTracks = TrackTrigObject();
+				for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
+					vertexTracks.addChild( (*trkitr)->id() );
+				}
+				tidaVertexTracks.push_back( vertexTracks );
+
 			}
-		      }
+		}
 		      
-		    }
+	}
 		    
-		  }
+}
 
 #if 0 
 		  //// not yet ready to get the jet yet - this can come once everything else is working 
@@ -1153,11 +1161,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  }
 		  
 		  
-		  
 		  chain.addRoi( *roi_tmp );
 		  chain.back().addTracks(testTracks);
 		  chain.back().addVertices(tidavertices);
-		  chain.back().addUserData(beamline_online);
+		  chain.back().addObjects(tidaVertexTracks);
 		  
 #if 0
 		  /// jets can't be added yet
@@ -1171,10 +1178,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		    beamline_.push_back( selectorTest.getBeamZ() );
 		    chain.back().addUserData(beamline_);
 		  }
-		  else { 	  
-		    if ( beamline_online.size()>3 ) chain.back().addUserData(beamline_online);
-		  }
-		  
+	  
 		  if ( roi_tmp ) delete roi_tmp;
 		  roi_tmp = 0;
 		}

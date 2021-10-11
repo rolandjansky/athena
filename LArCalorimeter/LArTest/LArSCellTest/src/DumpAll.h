@@ -43,17 +43,17 @@ public :
 private :
 
 	/** base file */
-	TFile* m_file;
+	TFile* m_file = nullptr;
 	/** base histograms about super-cells */
-        TTree* m_evt;
-        TTree* m_selectron;
-	TTree* m_truth;
-	TTree* m_l1;
-	TTree* m_offelectron;
-	TTree* m_cell_infront;
-	TTree* m_allcell_infront;
+        TTree* m_evt = nullptr;
+        TTree* m_selectron = nullptr;
+	TTree* m_truth = nullptr;
+	TTree* m_l1 = nullptr;
+	TTree* m_offelectron = nullptr;
+	TTree* m_cell_infront = nullptr;
+	TTree* m_allcell_infront = nullptr;
 	/** event counter */
-	int m_counter;
+	int m_counter = 0;
 	/** some keys */
 	std::string m_inputClusterName;
         std::string m_inputLvl1Name;

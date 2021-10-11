@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -1341,7 +1341,7 @@ void VP1GeometrySystem::restoreFromState(QByteArray ba) {
   m_d->controller->restoreSettings(state.restoreByteArray());
 
   //Subsystem checkboxes:
-  VP1GeoFlags::SubSystemFlags flags(0);
+  VP1GeoFlags::SubSystemFlags flags;
   QMap<QString,bool> subsysstate = state.restore<QMap<QString,bool> >();
   foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList) {
     state.widgetHandled(subsys->checkbox);

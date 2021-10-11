@@ -31,17 +31,17 @@ void standardVrtOnlyPlots(TTree *);
 
 struct VrtH { // holder for histograms for each ID 
   VrtH(){}
-  TH1D *hx,*hy,*hz;
-  TH1D *hxbs,*hybs,*hzbs;
-  TProfile* vrtxvsz, *vrtyvsz;
-  TH1D *hpullx, *hpully, *hpullz;
+  TH1D *hx{},*hy{},*hz{};
+  TH1D *hxbs{},*hybs{},*hzbs{};
+  TProfile* vrtxvsz{}, *vrtyvsz{};
+  TH1D *hpullx{}, *hpully{}, *hpullz{};
 };
 
 struct BsH { // holder for BS values
   BsH(){}
-  double xc,yc,x0,y0,z;
-  double ax,ay,sx,sy,sxc,syc,sz;
-  double rho,k;
+  double xc{},yc{},x0{},y0{},z{};
+  double ax{},ay{},sx{},sy{},sxc{},syc{},sz{};
+  double rho{},k{};
 };
 std::map<ID,BsH> _beamspotMap;
 

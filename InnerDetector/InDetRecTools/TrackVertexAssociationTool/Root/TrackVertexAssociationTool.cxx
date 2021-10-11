@@ -29,8 +29,8 @@
 namespace {
 
   // Let's access the public helper typedefs/class in the TTVA tool
-  using AMVFVerticesRDH = CP::TrackVertexAssociationTool::AMVFVerticesRDH;
-  using AMVFWeightsRDH = CP::TrackVertexAssociationTool::AMVFWeightsRDH;
+  using AMVFVerticesAcc = CP::TrackVertexAssociationTool::AMVFVerticesAcc;
+  using AMVFWeightsAcc = CP::TrackVertexAssociationTool::AMVFWeightsAcc;
   using WorkingPoint = CP::TrackVertexAssociationTool::WorkingPoint;
 
   // ------------------------------------------------------------------------------------------------------------ //
@@ -39,7 +39,7 @@ namespace {
 
   typedef std::pair<float, float> FitWeight; // (fit weight for a given vertex, max fit weight)
 
-  FitWeight fitWeight(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) {
+  FitWeight fitWeight(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) {
 
     // Get our AMVF vertices/weights decorations
     const std::vector<ElementLink<xAOD::VertexContainer>> AMVFVertices = vtxDeco(*trk);
@@ -77,8 +77,8 @@ namespace {
     : public WorkingPoint
   {
   public:
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt,
-      const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo*,
+      const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const
     {
       FitWeight weight = fitWeight(trk, vtx, vtxDeco, wgtDeco);
       return ((weight.second > 0.) ? (weight.first > 0.) : (absDzSinTheta(trk, vtx) < 3.0));
@@ -89,8 +89,8 @@ namespace {
     : public WorkingPoint
   {
   public:
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt,
-      __attribute__((unused)) const AMVFVerticesRDH& vtxDeco, __attribute__((unused)) const AMVFWeightsRDH& wgtDeco) const
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo*,
+      const AMVFVerticesAcc&, const AMVFWeightsAcc&) const
     {
       return (absD0(trk) < 2.0 && absDzSinTheta(trk, vtx) < 3.0);
     };
@@ -100,8 +100,8 @@ namespace {
     : public WorkingPoint
   {
   public:
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt,
-      __attribute__((unused)) const AMVFVerticesRDH& vtxDeco, __attribute__((unused)) const AMVFWeightsRDH& wgtDeco) const
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo*,
+      const AMVFVerticesAcc&, const AMVFWeightsAcc&) const
     {
       return (absD0(trk) < 0.5 && absDzSinTheta(trk, vtx) < 0.5);
     };
@@ -112,7 +112,7 @@ namespace {
   {
   public:
     virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,
-      __attribute__((unused)) const AMVFVerticesRDH& vtxDeco, __attribute__((unused)) const AMVFWeightsRDH& wgtDeco) const
+      const AMVFVerticesAcc&, const AMVFWeightsAcc&) const
     {
       return (absD0Sig(trk, evt) < 5.0 && absDzSinTheta(trk, vtx) < 0.5);
     };
@@ -122,8 +122,8 @@ namespace {
     : public WorkingPoint
   {
   public:
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt, 
-      __attribute__((unused)) const AMVFVerticesRDH& vtxDeco, __attribute__((unused)) const AMVFWeightsRDH& wgtDeco) const
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,
+      const AMVFVerticesAcc&, const AMVFWeightsAcc&) const
     {
       return (absD0Sig(trk, evt) < 3.0 && absDzSinTheta(trk, vtx) < 0.5);
     };
@@ -133,8 +133,8 @@ namespace {
     : public WorkingPoint
   {
   public:
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt,
-      const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo*,
+      const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const
     {
       return (fitWeight(trk, vtx, vtxDeco, wgtDeco).first > 0.03);
     }
@@ -146,7 +146,7 @@ namespace {
   {                                                                                                                                                                     \
   public:                                                                                                                                                               \
     virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,                                                             \
-      const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const                                                                                              \
+      const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const                                                                                              \
     {                                                                                                                                                                   \
       return (absD0(trk) < RADIAL_CUT && ((absD0Sig(trk, evt) < 3.0) ? (fitWeight(trk, vtx, vtxDeco, wgtDeco).first > 0.03) : (absDzSinTheta(trk, vtx) < RADIAL_CUT))); \
     }                                                                                                                                                                   \
@@ -160,8 +160,8 @@ namespace {
     : public WorkingPoint
   {
   public:
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt,
-      const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo*,
+      const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const
     {
       FitWeight weight = fitWeight(trk, vtx, vtxDeco, wgtDeco);
       return (weight.first > 0.03 && weight.first >= weight.second);
@@ -173,8 +173,8 @@ namespace {
     : public WorkingPoint                                                                                                                   \
   {                                                                                                                                         \
   public:                                                                                                                                   \
-    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, __attribute__((unused)) const xAOD::EventInfo* evt,         \
-      const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const                                                                  \
+    virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo*,                                     \
+      const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const                                                                  \
     {                                                                                                                                       \
       FitWeight weight = fitWeight(trk, vtx, vtxDeco, wgtDeco);                                                                             \
       return ((weight.second > 0.) ? (weight.first >= weight.second) : (absD0(trk) < RADIAL_CUT && absDzSinTheta(trk, vtx) < RADIAL_CUT));  \
@@ -198,7 +198,7 @@ namespace {
       m_doUsedInFit    = doUsedInFit;
     }
     virtual bool apply(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const xAOD::EventInfo* evt,
-      const AMVFVerticesRDH& vtxDeco, const AMVFWeightsRDH& wgtDeco) const
+      const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) const
     {
       // If vertex fit information is flagged to be used
       if (m_doUsedInFit) {
@@ -244,6 +244,7 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
   m_d0sig_cut(-1),
   m_dzSinTheta_cut(-1),
   m_doUsedInFit(false),
+  m_doPVPriority(false),
   m_requirePriVtx(false),
   m_hardScatterDeco("hardScatterVertexLink"),
   m_trkContName("InDetTrackParticles")
@@ -254,6 +255,7 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) 
   declareProperty("d0sig_cut",           m_d0sig_cut,       "Cut on d0Sig. Not applied if set to -1.");
   declareProperty("dzSinTheta_cut",      m_dzSinTheta_cut,  "Cut on |dz*sinTheta| (in mm). Not applied if set to -1.");
   declareProperty("doUsedInFit",         m_doUsedInFit,     "Control whether to allow for a MatchStatus of UsedInFit.");
+  declareProperty("doPVPriority",        m_doPVPriority,    "Control whether to give priority to matching to PV instead of closest vertex.");
   declareProperty("requirePriVtx",       m_requirePriVtx,   "Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it.");
   declareProperty("HardScatterLinkDeco", m_hardScatterDeco, "The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)");
   declareProperty("TrackContName",       m_trkContName,     "The name of the xAOD::TrackParticleContainer to access the AMVF vertices+weights for (not actually read).");
@@ -328,8 +330,10 @@ StatusCode TrackVertexAssociationTool::initialize()
   ATH_CHECK(m_eventInfo.initialize());
   m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
   ATH_CHECK(m_hardScatterDecoKey.initialize());
+  m_vtxDecoAcc = std::make_unique<AMVFVerticesAcc>(m_vtxDecoKey.key());
   m_vtxDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_vtxDecoKey.key());
   ATH_CHECK(m_vtxDecoKey.initialize());
+  m_wgtDecoAcc = std::make_unique<AMVFWeightsAcc>(m_wgtDecoKey.key());
   m_wgtDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_wgtDecoKey.key());
   ATH_CHECK(m_wgtDecoKey.initialize());
 
@@ -417,12 +421,8 @@ bool TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle& trk, const x
     evt = evtInfo;
   }
 
-  // Instantiate our AMVF vertices+weights ReadDecorHandles
-  AMVFVerticesRDH vtxDeco(m_vtxDecoKey, ctx);
-  AMVFWeightsRDH wgtDeco(m_wgtDecoKey, ctx);
-
   // Apply the working point
-  return m_applicator->apply(&trk, &vx, evt, vtxDeco, wgtDeco);
+  return m_applicator->apply(&trk, &vx, evt, *m_vtxDecoAcc, *m_wgtDecoAcc);
 
 }
 
@@ -449,20 +449,13 @@ xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMapInternal(
 template <typename T>
 const xAOD::Vertex* TrackVertexAssociationTool::getUniqueMatchVertexInternal(const xAOD::TrackParticle& trk, T& vx_list) const
 {
-
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-
-  // Instantiate our AMVF vertices+weights ReadDecorHandles (done twice?? also instantiated in isMatch via isCompatible call)
-  AMVFVerticesRDH vtxDeco(m_vtxDecoKey, ctx);
-  AMVFWeightsRDH wgtDeco(m_wgtDecoKey, ctx);
-
   FitWeight weight;
   float dzSinTheta;
   float min_dz = ((m_dzSinTheta_cut >= 0) ? m_dzSinTheta_cut : +999.0);
   const xAOD::Vertex* bestMatchVertex = nullptr;
 
   for (const auto& vertex : vx_list) {
-    weight = ::fitWeight(&trk, vertex, vtxDeco, wgtDeco);
+    weight = ::fitWeight(&trk, vertex, *m_vtxDecoAcc, *m_wgtDecoAcc);
     if (m_doUsedInFit && weight.first > 0.0 && weight.first >= weight.second) {
       bestMatchVertex = vertex;
       break;
@@ -474,6 +467,7 @@ const xAOD::Vertex* TrackVertexAssociationTool::getUniqueMatchVertexInternal(con
         if (dzSinTheta < min_dz) {
           min_dz = dzSinTheta;
           bestMatchVertex = vertex;
+          if(m_doPVPriority) break; //This will stop the iteration on the vertices. This works since the PV should always be the first entry in the vertex collection
         }
       }
     }

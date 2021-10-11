@@ -6,7 +6,7 @@ from .METChainConfiguration import METChainConfiguration
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.MET.generateChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
 

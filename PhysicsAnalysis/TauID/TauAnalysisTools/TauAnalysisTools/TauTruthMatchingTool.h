@@ -80,7 +80,7 @@ private:                        // private helper functions
 
   StatusCode findTruthTau(const xAOD::TauJet& xTau,
                           TruthTausEvent& truthTausEvent) const;
-  StatusCode checkTruthMatch (const xAOD::TauJet& xTau, const xAOD::TruthParticleContainer& xTauContainer) const;
+  StatusCode checkTruthMatch (const xAOD::TauJet& xTau, const xAOD::TruthParticleContainer& xTauContainer, const TruthTausEvent& truthTausEvent) const;
 
 private:                        // steering variables
 

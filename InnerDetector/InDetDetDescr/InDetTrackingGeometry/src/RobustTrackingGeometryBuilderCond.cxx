@@ -26,6 +26,7 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkSurfaces/DiscBounds.h"
 // Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "CxxUtils/checker_macros.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
@@ -71,7 +72,7 @@ InDet::RobustTrackingGeometryBuilderCond::RobustTrackingGeometryBuilderCond(cons
   // volume namespace & contaienr name
   declareProperty("VolumeNamespace",                  m_namespace); 
   declareProperty("ExitVolumeName",                   m_exitVolume);
-  declareProperty("isSLHC",                           m_isSLHC=false);
+  declareProperty("isITk",                            m_isITk=false);
 }
 
 // destructor
@@ -173,7 +174,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    std::vector< double > discMaxZ(numLayBuilders,0.);
 
    //Start with a range covering 0 - inf, then narrow down
-   EventIDRange range;
+   EventIDRange range = IOVInfiniteRange::infiniteMixed();
    
    // (I) PARSE THE LAYERS FOR OVERALL DIMENSIONS -------------------------------------------------------------
    ATH_MSG_DEBUG( "[ STEP 1 ] : Parse the provided layers for the dimensions." );
@@ -400,7 +401,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        double currentCentralOuterR  = 0.;
        double currentEndcapOuterR   = 0.;
        
-       if (m_isSLHC){
+       if (m_isITk){
 	       double NextInnerRadii = ((ilb!=cylinderOuterRadii.size()-1) && cylinderInnerRadii[ilb+1]<discInnerRadii[ilb+1]) ? cylinderInnerRadii[ilb+1] : discInnerRadii[ilb+1]; 
 	       currentCentralOuterR = (ilb!=cylinderOuterRadii.size()-1) ? 0.5*(NextInnerRadii+cylinderOuterRadii[ilb]) : overallRmax;
 	       currentEndcapOuterR = (ilb!=discOuterRadii.size()-1) ? 0.5*(NextInnerRadii+discOuterRadii[ilb]) : overallRmax;

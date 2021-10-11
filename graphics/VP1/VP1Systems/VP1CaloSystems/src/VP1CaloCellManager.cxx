@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1CaloSystems/VP1CaloCellManager.h"
@@ -14,7 +14,7 @@ VP1CaloCellManager::VP1CaloCellManager(VP1CC_SelectionTypes type,
 				       bool useEt,
 				       const QPair<bool,double>& scale,
 				       bool outline,
-				       VP1CC_GlobalCuts globalCuts):
+				       const VP1CC_GlobalCuts& globalCuts):
   m_type(type),
   m_node2cc(node2cc),
   m_useEt(useEt),
@@ -40,7 +40,7 @@ VP1CaloCellManager::~VP1CaloCellManager()
       delete it->second;
       it->second = 0;
     }
-    it++;
+    ++it;
   }
 
   it = m_negativeCells.begin();
@@ -49,7 +49,7 @@ VP1CaloCellManager::~VP1CaloCellManager()
       delete it->second;
       it->second = 0;
     }
-    it++;
+    ++it;
   }
 
   m_positiveCells.clear();
@@ -96,12 +96,12 @@ void VP1CaloCellManager::scaleUpdated(const QPair<bool,double>& new_scale)
 
   // Redraw objects with new scale
   // Pos
-  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; it++) {
+  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; ++it) {
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
   }
 
   // Neg
-  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; it++) {
+  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; ++it) {
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
   }
 }
@@ -112,12 +112,12 @@ void VP1CaloCellManager::outlineUpdated(const bool& new_outline)
 
   // Redraw objects with new outline settings
   // Pos
-  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; it++) {
+  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; ++it) {
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
   }
 
   // Neg
-  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; it++) {
+  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; ++it) {
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
   }
 }
@@ -125,23 +125,23 @@ void VP1CaloCellManager::outlineUpdated(const bool& new_outline)
 void VP1CaloCellManager::globalCutsUpdated(const VP1CC_GlobalCuts& new_cuts)
 {
   m_globalCuts = new_cuts;
-  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; it++)
+  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; ++it)
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
-  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; it++)
+  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; ++it)
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
 }
 
 void VP1CaloCellManager::clipVolumeRadiusChanged(double radius)
 {
   m_globalCuts.clipRadius=radius; // Adjust radius to match new value
-  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; it++)
+  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; ++it)
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
-  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; it++)
+  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; ++it)
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
 }
 
 // ----------------- Private methods ------------------------
-void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
+void VP1CaloCellManager::updateScene(const VP1Interval& newInterval, bool positive)
 {
   // We need to choose which map to work with, according to the value of 'positive' flag
   VP1CCMultimap* useMap = 0;
@@ -163,14 +163,14 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
 
   // If new iterval is equal to the existing one just check global cuts
   if(*currentInterval==newInterval) {
-    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; it++)
+    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; ++it)
       it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
     return;
   }
 
   // If new interval is empty hide everything and update the current interval
   if(newInterval.isEmpty()) {
-    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; it++)
+    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; ++it)
       it->second->remove3DObjects(m_node2cc);
     *currentInterval = newInterval;
     *useItFirst = useMap->end();
@@ -187,7 +187,7 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
     else
       *useItLast = useMap->upper_bound(newInterval.upper());
 
-    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; it++)
+    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; ++it)
       it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
 
     *currentInterval = newInterval;
@@ -201,7 +201,7 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
      currentInterval->upper() != newInterval.upper()) {
     // This is unexpected!
     // Hide everything what was there before and display new thresholds
-    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; it++)
+    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; ++it)
       it->second->remove3DObjects(m_node2cc);
 
     *useItFirst = useMap->lower_bound(newInterval.lower());
@@ -210,7 +210,7 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
     else
       *useItLast = useMap->upper_bound(newInterval.upper());
 
-    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; it++)
+    for(VP1CCMultimapIterator it=*useItFirst; it!=*useItLast; ++it)
       it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
 
   } else if (currentInterval->lower() != newInterval.lower()) {
@@ -219,11 +219,11 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
 
     if(currentInterval->lower() < newInterval.lower())
       // May need to hide something
-      for(VP1CCMultimapIterator it=*useItFirst; it!=newIterator; it++)
+      for(VP1CCMultimapIterator it=*useItFirst; it!=newIterator; ++it)
 	it->second->remove3DObjects(m_node2cc);
     else
       // May need to add new objects to the scene
-      for(VP1CCMultimapIterator it=newIterator; it!=*useItFirst; it++)
+      for(VP1CCMultimapIterator it=newIterator; it!=*useItFirst; ++it)
 	it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
 
     *useItFirst = newIterator;
@@ -235,7 +235,7 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
       newIterator = useMap->end();
 
       // May need to add new objects to the scene
-      for(VP1CCMultimapIterator it=*useItLast; it!=newIterator; it++)
+      for(VP1CCMultimapIterator it=*useItLast; it!=newIterator; ++it)
 	it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
     } else {
       newIterator = useMap->upper_bound(newInterval.upper());
@@ -243,11 +243,11 @@ void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
       if(*useItLast == useMap->end() ||
 	 currentInterval->upper() > newInterval.upper()) {
 	// May need to hide something
-	for(VP1CCMultimapIterator it=newIterator; it!=*useItLast; it++)
+	for(VP1CCMultimapIterator it=newIterator; it!=*useItLast; ++it)
 	  it->second->remove3DObjects(m_node2cc);
       } else {
 	// May need to add new objects to the scene
-	for(VP1CCMultimapIterator it=*useItLast; it!=newIterator; it++)
+	for(VP1CCMultimapIterator it=*useItLast; it!=newIterator; ++it)
 	  it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
       }
     }

@@ -7,7 +7,7 @@ atlas_subdir( AthContainers )
 
 # Extra dependencies, based on the environment we are in:
 if( NOT XAOD_STANDALONE )
-   set( extra_libs AthenaKernel SGTools GaudiKernel )
+   set( extra_libs AthenaKernel AthAllocators SGTools GaudiKernel )
    set( extra_sources src/*.cxx )
 endif()
 
@@ -90,7 +90,9 @@ if( NOT XAOD_STANDALONE )
    _add_test( DataVector_d_test )
    _add_test( DataVector_e_test )
    _add_test( DataVector_f_test )
+   _add_test( DataVector_rule5_test )
    _add_test( copyAuxStoreThinned_test )
    _add_test( copyThinned_test )
    _add_test( dataVectorAsELV_test )
+   _add_test( DataVectorWithAlloc_test )
 endif()

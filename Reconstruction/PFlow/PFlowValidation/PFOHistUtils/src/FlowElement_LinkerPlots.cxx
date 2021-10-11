@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PFOHistUtils/FlowElement_LinkerPlots.h"
@@ -131,6 +131,10 @@ namespace PFO {
       for (ElementLink<xAOD::MuonContainer> MuonLink: MuonLinks){
 
 	      //get Muon from link by de-referencing it
+        if (!MuonLink.isValid()){
+          std::cerr << "FlowElement_LinkerPlots encountered an invalid muon element link. Skipping. "<<std::endl;
+          continue; 
+        }
 	      const xAOD::Muon* muon = *MuonLink;
 	      TLorentzVector muon_fourvec=muon->p4();
 	      double deltaR=muon_fourvec.DeltaR(FE_fourvec);
@@ -163,6 +167,10 @@ namespace PFO {
 
       for (ElementLink<xAOD::ElectronContainer> ElectronLink: ElectronLinks){
 	      //get Electron from link by de-referencing it
+        if (!ElectronLink.isValid()){
+          std::cerr << "FlowElement_LinkerPlots encountered an invalid electron element link. Skipping. "<<std::endl;
+          continue; 
+        }
 	      const xAOD::Electron* electron = *ElectronLink;
 	      TLorentzVector electron_fourvec=electron->p4();
 	      double deltaR=electron_fourvec.DeltaR(FE_fourvec);
@@ -186,6 +194,10 @@ namespace PFO {
 
       for (ElementLink<xAOD::PhotonContainer> PhotonLink: PhotonLinks){
   	  //get Photon from link by de-referencing it
+      if (!PhotonLink.isValid()){
+        std::cerr << "FlowElement_LinkerPlots encountered an invalid photon element link. Skipping. "<<std::endl;
+        continue; 
+      }
 	    const xAOD::Photon* photon = *PhotonLink;
 	    TLorentzVector photon_fourvec=photon->p4();
 	    double deltaR=photon_fourvec.DeltaR(FE_fourvec);
@@ -210,6 +222,10 @@ namespace PFO {
       TLorentzVector FE_fourvec=FE.p4();
       for (ElementLink<xAOD::TauJetContainer> TaujetLink: TaujetLinks){
 	      //get Taujet from link by de-referencing it
+        if (!TaujetLink.isValid()){
+          std::cerr << "FlowElement_LinkerPlots encountered an invalid tau jet element link. Skipping. "<<std::endl;
+          continue; 
+        }
 	      const xAOD::TauJet* taujet = *TaujetLink;
 	      TLorentzVector taujet_fourvec=taujet->p4();
 	      double deltaR=taujet_fourvec.DeltaR(FE_fourvec);

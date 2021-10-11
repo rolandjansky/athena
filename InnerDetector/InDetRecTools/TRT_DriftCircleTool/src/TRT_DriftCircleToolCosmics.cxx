@@ -284,14 +284,15 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 	  error = 4./sqrt(12.);
 	}
 
-      Amg::MatrixX* errmat = new Amg::MatrixX(1,1);                          ;
-      (*errmat)(0,0) = error*error;
+      auto errmat = Amg::MatrixX(1,1);                          ;
+      (errmat)(0,0) = error*error;
 
       Amg::Vector2D loc(radius,0.);
 
-      // if(Mode<1) dvi.push_back(id);  we dont need this 
+      // if(Mode<1) dvi.push_back(id);  we dont need this
 
-      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word);
+      InDet::TRT_DriftCircle* tdc =
+        new InDet::TRT_DriftCircle(id, loc, std::move(errmat), pE, word);
 
       if (tdc) {
 	     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -10,8 +10,8 @@
 // Pure abstract base class interface to L1CaloCells2TriggerTowers
 //
 
-#ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H_
-#define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H_
+#ifndef TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H
+#define TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -25,6 +25,7 @@ class CaloCell;
 class Identifier;
 class LArDigit;
 class TileDigits;
+class LArOnOffIdMapping;
 
 namespace LVL1{
 
@@ -48,6 +49,7 @@ namespace LVL1{
       virtual float energy(const Identifier& ttId) const = 0;
       virtual float et(const Identifier& ttId) const = 0;
       virtual void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const = 0;
+    virtual void matchCell2Tower(const LArOnOffIdMapping& cabling, const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const = 0;
       // Return a vector digits belonging the to requested trigger tower
       virtual std::vector<double> samples(const Identifier& ttId) const = 0;
       virtual std::vector<const LArDigit*> larDigits(const Identifier& ttId) const = 0;

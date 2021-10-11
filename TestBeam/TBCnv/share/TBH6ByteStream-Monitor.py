@@ -41,7 +41,6 @@ Seq1 = Algorithm( "Seq1" )
 Seq1.SubAlgorithms = [
     "TBEventStreamer/BeamStreamer",
     "TBBPCRec/TBBPCRec",
-    "LArDigitProcessor<TBLArDigitContainer>/TBLArDigProcessor",
 #                       "ReadTBLArDigits",
     "AthenaMon/TBMon1",
     "AthenaMon/LArMon1",
@@ -78,12 +77,6 @@ TBBPCRec.OutputLevel = WARNING
 #ReadTBLArDigits.OutputLevel=3
 #NtupleSvc = Service( "NtupleSvc" )
 #NtupleSvc.Output=["FILE1 DATAFILE='TBLArDigits.root' TYP='ROOT' OPT='NEW'"]
-
-TBLArDigProcessor = Algorithm("TBLArDigProcessor")
-TBLArDigProcessor.InputContainers = ["MEDIUM","FREE"]
-TBLArDigProcessor.NumberOfSamples = 16
-TBLArDigProcessor.FirstSample     = 0
-#TBLArDigProcessor.OutputLevel = 3
 
 #ReadLArDigits = Algorithm( "ReadLArDigits" )
 #ReadLArDigits.ContainerKey="FREE"

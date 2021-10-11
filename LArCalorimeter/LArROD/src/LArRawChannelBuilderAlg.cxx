@@ -19,8 +19,8 @@ LArRawChannelBuilderAlg::LArRawChannelBuilderAlg(const std::string& name, ISvcLo
   
 StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_digitKey.initialize());	 
-  if ( m_isSC ) ATH_CHECK(m_cellKey.initialize());
-  else ATH_CHECK(m_rawChannelKey.initialize());
+  ATH_CHECK(m_cellKey.initialize(m_isSC));
+  ATH_CHECK(m_rawChannelKey.initialize(!m_isSC));
   ATH_CHECK(m_pedestalKey.initialize());	 
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
@@ -128,6 +128,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     const size_t nSamples=samples.size();
     const int gain=digit->gain();
     const float p=peds->pedestal(id,gain);
+   
 
 
     //The following autos will resolve either into vectors or vector-proxies
@@ -165,11 +166,32 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     float A=0;
     bool saturated=false;
     unsigned int init=0;
-    if (m_isSC) init=1;
-    for (size_t i=0;i<len;++i) {
-      A+=(samples[i+init]-p)*ofca[i];
-      if (samples[i+init]==4096 || samples[i+init]==0) saturated=true;
+    bool passBCIDmax=false;
+    // Check saturation AND discount pedestal
+    std::vector<float> samp_no_ped(nSamples,0.0);
+    for (size_t i=0;i<nSamples;++i) {
+      if (samples[i]==4096 || samples[i]==0) saturated=true;
+      samp_no_ped[i]=samples[i]-p;
     }
+    if (!m_isSC){
+      for (size_t i=0;i<len;++i) {
+        A+=(samp_no_ped[i])*ofca[i];
+      }
+    } else {
+      init=1;
+      for (size_t i=0;i<len;++i) {
+        A+=(samp_no_ped[i+init])*ofca[i];
+      }
+      float Am1=0.;
+      for (size_t i=0;i<len;++i) {
+        Am1+=(samp_no_ped[i])*ofca[i];
+      }
+      float AM1=0.;
+      for (size_t i=0;i<len;++i) {
+        AM1+=(samp_no_ped[i+2])*ofca[i];
+      }
+      if ( (A>Am1) && (A>AM1) ) passBCIDmax=true;
+    } // end of m_isSC 
     
     //Apply Ramp
     const float E=adc2mev[0]+A*adc2mev[1];
@@ -206,7 +228,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
       const auto& ofcb=ofcs->OFC_b(id,gain);
       float At=0;
       for (size_t i=0;i<len;++i) {
-	At+=(samples[i]-p)*ofcb[i];
+	At+=(samp_no_ped[i+init])*ofcb[i];
       }
       //Divide A*t/A to get time
       tau=(std::fabs(A)>0.1) ? At/A : 0.0;
@@ -246,13 +268,13 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
 	const float* shapeDer=&*fullshapeDer.begin()+firstSample;
 	for (size_t i=0;i<len;++i) {
-	  q += std::pow((A*(shape[i]-tau*shapeDer[i])-(samples[i]-p)),2);
+	  q += std::pow((A*(shape[i]-tau*shapeDer[i])-(samp_no_ped[i+init])),2);
 	}
       }//end if useShapeDer
       else {
 	//Q-factor w/o shape derivative
 	for (size_t i=0;i<len;++i) {
-	  q += std::pow((A*shape[i]-(samples[i]-p)),2);
+	  q += std::pow((A*shape[i]-(samp_no_ped[i+init])),2);
 	}
       }
 
@@ -272,9 +294,17 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     const CaloDetDescrElement* dde = m_sem_mgr->get_element (offId);
     ss->setCaloDDE(dde);
     ss->setEnergy(E);
+    tau*=1e-3; // time in ns
     ss->setTime(tau);
     ss->setGain((CaloGain::CaloGain)0);
+    float et = ss->et()*1e-3; // et in GeV
+    // for super-cells provenance and time are slightly different
+    uint16_t prov = 0x2000;
+    if(et>10e3 && tau>-8 && tau<16) prov |= 0x200;
+    else if(et<=10e3 && fabs(tau)<8) prov |= 0x200; 
+    if ( passBCIDmax ) prov |=0x40;
     ss->setProvenance(prov);
+    
     ss->setQuality(iquaShort);
     outputContainerCellPtr->push_back(ss);
     }
@@ -286,7 +316,6 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
   }
   if ( m_isSC ) {
   SG::WriteHandle<CaloCellContainer>outputContainer(m_cellKey,ctx);
-  outputContainerCellPtr->reserve( m_onlineId->channelHashMax() );
   ATH_CHECK(outputContainer.record(std::move(outputContainerCellPtr) ) );
   } else {
   SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);

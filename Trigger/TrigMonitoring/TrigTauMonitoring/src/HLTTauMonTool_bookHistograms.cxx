@@ -29,7 +29,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-    size_t posit=trigItem.rfind("_");
+    size_t posit=trigItem.rfind('_');
     if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
@@ -83,7 +83,6 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   //--------------------
   //Pre-selection Tau
   //--------------------
-  // no preselection taus for some chains  
   if(trigItem.find("tracktwoMVA")==string::npos && trigItem.find("tracktwoEF")==string::npos && trigItem.find("ptonly")==string::npos) {
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/PreselectionTau",run));
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/PreselectionTau");    
@@ -128,6 +127,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/EFTau");
   //Basic kinematic variables
   addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",50,0.0,100.0));
+  addHistogram(new TH1F("hEFEt2","EF Et;E_{T}[GeV];Nevents",100,0.0,1000.0));
   addHistogram(new TH1F("hEFEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
   addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",100,0,100));
   addHistogram(new TH2F("hEFNUMvsmu","Online vs offline mu; Online #mu ; Offline #mu",  100,0,100,100,0,100));
@@ -135,7 +135,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   addHistogram(new TH1F("hEFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
   addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));
   addHistogram(new TH2F("hEFEtVsPhi","Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]",16,-3.2,3.2,50,0.0,100.0));
+  addHistogram(new TH2F("hEFEt2VsPhi","Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]",16,-3.2,3.2,100,0.0,1000.0));  
   addHistogram(new TH2F("hEFEtVsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",26,-2.6,2.6,50,0.0,100.0));
+  addHistogram(new TH2F("hEFEt2VsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",26,-2.6,2.6,100,0.0,1000.0));
   addHistogram(new TH1F("hEFEtRaw","EF Et Raw;Uncalibrated E_{T}[GeV];Nevents",50,0.,100.));
   addHistogram(new TH1F("hEFnWideTrack","EF number of wide tracks;number of tracks;Nevents",10,0,10));
   addHistogram(new TH1F("hEFIsoFrac", "Iso Fraction at EF; isoFrac at EF; Candidates",50,-0.1,1.1));
@@ -724,11 +726,11 @@ void HLTTauMonTool::bookHistogramsAllItem(){
   if(m_emulation){
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
     setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-    if(m_emulation_l1_tau.size() > 0) {
+    if(!m_emulation_l1_tau.empty()) {
       addProfile(new TProfile("hL1Emulation", " L1 Emulation-TDT Mismatched events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
     }
 
-    if(m_emulation_hlt_tau.size() > 0) {
+    if(!m_emulation_hlt_tau.empty()) {
       addProfile(new TProfile("hHLTEmulation", " HLT Emulation-TDT Mismatched events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
     }
 

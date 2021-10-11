@@ -95,7 +95,7 @@ void compare (const Trk::MaterialEffectsOnTrack& p1,
 
 void testit (const Trk::MaterialEffectsOnTrack& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MaterialEffectsOnTrackCnv_p2 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
@@ -125,12 +125,12 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit (me2);
 
   Trk::MaterialEffectsOnTrack me3 (12.5,
-                                   new Trk::ScatteringAngles (sa),
+                                   Trk::ScatteringAngles (sa),
                                    psurf);
   testit (me3);
 
   Trk::MaterialEffectsOnTrack me4 (12.5,
-                                   new Trk::ScatteringAngles (sa),
+                                   Trk::ScatteringAngles (sa),
                                    new Trk::EnergyLoss (el),
                                    psurf);
   testit (me4);

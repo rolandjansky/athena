@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -15,7 +15,6 @@ static const InterfaceID IID_ILArCellHVCorrTool("ILArCellHVCorrTool", 1 ,0);
 class Identifier;
  /**
   * Abstract interface for LArCellHVCorr tool that also derives from CaloCellCorrection
-  * Purpose: Allow to used LArCellHVCorr  tool also from the CaloNoiseTool
   */
 class ILArCellHVCorrTool: virtual public IAlgTool {
   public: 

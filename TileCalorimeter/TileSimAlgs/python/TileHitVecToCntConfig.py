@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured private Tile hit vector to container tool"""
 
@@ -21,9 +21,12 @@ def getTileLastXing():
 
 def TileRangeCfg(flags, name = 'TileRange', **kwargs):
     """Return a PileUpXingFolder tool for Tile"""
+    item_list = ['TileHitVector#TileHitVec']
+    if flags.Detector.EnableMBTS:
+        item_list += ['TileHitVector#MBTSHits']
     kwargs.setdefault('FirstXing', getTileFirstXing() )
     kwargs.setdefault('LastXing',  getTileLastXing() )
-    kwargs.setdefault('ItemList', ['TileHitVector#TileHitVec', 'TileHitVector#MBTSHits'] )
+    kwargs.setdefault('ItemList', item_list )
     return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
@@ -46,7 +49,10 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
 
-    kwargs.setdefault('TileHitVectors', ['TileHitVec' , 'MBTSHits'])
+    if flags.Detector.EnableMBTS:
+        kwargs.setdefault('TileHitVectors', ['TileHitVec', 'MBTSHits'])
+    else:
+        kwargs.setdefault('TileHitVectors', ['TileHitVec'])
     kwargs.setdefault('TileHitContainer', 'TileHitCnt')
 
     kwargs.setdefault('DoHSTruthReconstruction', flags.Digitization.DoDigiTruth)
@@ -103,6 +109,9 @@ def TileHitVecToCntCfg(flags, **kwargs):
 
     # choose which alg to attach to, following PileUpToolsCfg
     if flags.Common.ProductionStep == ProductionStep.Overlay:
+        if flags.Concurrency.NumThreads > 0:
+            kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
         kwargs.setdefault('name', 'TileHitVecToCnt')
         Alg = CompFactory.TileHitVecToCnt
         acc.addEventAlgo(Alg(**kwargs))

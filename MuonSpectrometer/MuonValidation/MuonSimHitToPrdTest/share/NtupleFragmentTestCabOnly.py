@@ -37,29 +37,6 @@ rpcdigi.turnON_clustersize = 1 # gaps and panels always efficient
 rpcdigi.ClusterSize_fromCOOL = 0 # irrelevant since the above     
 
 
-from AthenaCommon.AppMgr import ServiceMgr
-import MuonRPC_Cabling.MuonRPC_CablingConfig
-#####################
-ServiceMgr.MuonRPC_CablingSvc.RPCMapfromCool=True
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="ConfFileName_type7_12_16_17_v006.txt" # default is "ConfFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="ConfFileName_type7_v001.txt" # default is "ConfFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="ConfFileName_type7_v002.txt" # default is "ConfFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="ConfFileName_type7_v003.txt" # default is "ConfFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="ConfFileName_type7_v004.txt" # default is "ConfFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.ConfFileName="ConfFileName_type7.txt" # default is "ConfFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.CorrFileName="CorrFileName.txt"
-#ServiceMgr.MuonRPC_CablingSvc.CorrFileName="CorrFileName_v003.txt"
-#ServiceMgr.MuonRPC_CablingSvc.CorrFileName="CorrFileName_v004.txt"
-#ServiceMgr.MuonRPC_CablingSvc.CorrFileName="CorrFileName_v007.txt"
-#######################
-#######################
-ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=True
-#ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False
-#ServiceMgr.MuonRPC_CablingSvc.DatabaseRepository="DUMMY";
-#######################
-#######################
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 

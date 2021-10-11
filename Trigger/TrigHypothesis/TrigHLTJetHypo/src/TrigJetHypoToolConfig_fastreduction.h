@@ -20,8 +20,8 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-#include "./IJetsMatcherMT.h"
-#include "./ConditionsDefsMT.h"
+#include "./IJetsMatcher.h"
+#include "./ConditionsDefs.h"
 #include "./ITrigJetRepeatedConditionConfig.h"
 #include "./ITrigHypoJetVectorFilterConfig.h"
 
@@ -37,7 +37,7 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
   virtual ~TrigJetHypoToolConfig_fastreduction();
 
   virtual StatusCode initialize() override;
-  virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const override;
+  virtual std::unique_ptr<IJetsMatcher> getMatcher() const override;
 
   virtual std::size_t requiresNJets() const override;
   virtual StatusCode checkVals() const override;

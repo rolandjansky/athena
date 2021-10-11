@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/EventID.h"
 #include "EventTPCnv/EventIDCnv_p1.h"
-
-void EventIDCnv_p1::transToPers(const EventID* trans, EventID_p1* pers, MsgStream &log)
-{
-  const EventIDCnv_p1* cthis = this;
-  cthis->transToPers (trans, pers, log);
-}
 
 void EventIDCnv_p1::transToPers(const EventID* trans, EventID_p1* pers, MsgStream &) const {
    pers->m_run_number            = trans->run_number();
@@ -22,12 +16,6 @@ void EventIDCnv_p1::transToPers(const EventID* trans, EventID_p1* pers, MsgStrea
    pers->m_detector_mask1        = trans->detector_mask1();
    pers->m_detector_mask2        = trans->detector_mask2();
    pers->m_detector_mask3        = trans->detector_mask3();
-}
-
-void EventIDCnv_p1::persToTrans(const EventID_p1* pers, EventID* trans, MsgStream &log)
-{
-  const EventIDCnv_p1* cthis = this;
-  cthis->persToTrans (pers, trans, log);
 }
 
 void EventIDCnv_p1::persToTrans(const EventID_p1* pers, EventID* trans, MsgStream &) const {
@@ -43,13 +31,7 @@ void EventIDCnv_p1::persToTrans(const EventID_p1* pers, EventID* trans, MsgStrea
                                     pers->m_detector_mask3);
 }
 
-EventID* EventIDCnv_p1::createTransient (const EventID_p1* persObj, MsgStream& log)
-{
-  const EventIDCnv_p1* cthis = this;
-  return cthis->createTransient (persObj, log);
-}
-
-EventID* EventIDCnv_p1::createTransient (const EventID_p1* persObj, MsgStream& log) const
+EventID* EventIDCnv_p1::createTransientConst (const EventID_p1* persObj, MsgStream& log) const
 {
   auto trans = std::make_unique<EventID>();
   persToTrans(persObj, trans.get(), log);

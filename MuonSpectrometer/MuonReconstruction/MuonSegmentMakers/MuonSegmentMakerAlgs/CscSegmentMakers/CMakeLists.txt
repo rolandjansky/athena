@@ -19,6 +19,6 @@ atlas_add_component( CscSegmentMakers
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CscSegmentMakersLib AthenaBaseComps StoreGateLib SGtests Identifier EventPrimitives xAODEventInfo MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonRIO_OnTrack MuonRecHelperToolsLib MuonCondData TrkSurfaces TrkEventPrimitives TrkRoad TrkSegment  )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CscSegmentMakersLib AthenaBaseComps StoreGateLib Identifier EventPrimitives xAODEventInfo MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonRIO_OnTrack MuonRecHelperToolsLib MuonCondData TrkSurfaces TrkEventPrimitives TrkRoad TrkSegment  )
 
 

@@ -170,7 +170,7 @@ def addTriggerArgs(parser):
 
 def addTrigCostArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
-    parser.defineArgGroup('TrigCost', 'Specific options related to the trigger costmon steps in trigger reprocessings')
+    parser.defineArgGroup('TrigCost', 'Specific options related to the trigger costmon and rates steps in trigger reprocessings')
 
     # without a outputDRAW_TRIGCOSTFile name specified then it will not be possible to run any further COST analysis if the BS is slimmed to a specific stream
     parser.add_argument('--outputDRAW_TRIGCOSTFile', nargs='+',
@@ -193,6 +193,15 @@ def addTrigCostArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='D3PD output NTUP_TRIGRATE file', group='TrigCost')
 
+    # Additional cost arguments for cost processing step
+    parser.add_argument('--costopts', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, splitter=' ', runarg=False),
+                        help='Extra options to pass to cost processing.', group='TrigCost')
+
+    # Additional rate arguments for rates analysis step
+    parser.add_argument('--rateopts', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, splitter=' ', runarg=False),
+                        help='Extra options to pass to rates analysis.', group='TrigCost')
 
 def addTriggerDBArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)

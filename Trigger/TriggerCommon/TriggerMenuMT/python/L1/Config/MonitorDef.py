@@ -30,7 +30,7 @@ For each of these type 64 L1Items can be monitored independently
 """
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.MonitorDef')
+log = logging.getLogger(__name__)
 
 from ..Base.MonCounters import CtpinCounter, CtpmonCounter
 
@@ -73,8 +73,9 @@ class MonitorDef:
         counters = []
 
         cThr = {}
-        cThr[1] = [ 'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_NSA', 'AFP_NSC',
-                    'BPTX0', 'BPTX1', 'LUCID_C', 'J20', 'MU4', 'TE50', 'XE35', 'XE60',
+        cThr[1] = [ 'AFP_NSA', 'AFP_NSC', 'AFP_FSA', 'AFP_FSC', 'AFP_FSA_TOF_T0', 'AFP_FSC_TOF_T0',
+                    'AFP_FSA_TOF_T1', 'AFP_FSC_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSC_TOF_T2', 'AFP_FSA_TOF_T3', 'AFP_FSC_TOF_T3',
+                    'BPTX0', 'BPTX1', 'LUCID_C', 'J20', 'MU3V', 'TE50', 'XE35', 'XE60',
                     'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
                     'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',
                     'MBTS_C0', 'MBTS_C1', 'MBTS_C2',  'MBTS_C3',  'MBTS_C4',  'MBTS_C5',  'MBTS_C6',  'MBTS_C7',
@@ -110,24 +111,24 @@ class MonitorDef:
 
         monItems[TBP|TAP|TAV] = [
             "L1_EM3","L1_EM20VH","L1_EM22VHI",
-            "L1_MU4","L1_MU10","L1_MU20",
+            "L1_MU3V","L1_MU8F","L1_MU14FCH",
             "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
             "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20p31ETA49", "L1_J30p31ETA49",
-            "L1_XE35", "L1_XE80", "L1_XS20", 
+            "L1_XE35", "L1_XE60",
             "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
             "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
             "L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
             "L1_CALREQ2",
             "L1_AFP_NSC","L1_AFP_FSC",
-            "L1_BPH-2M8-2MU4","L1_BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4","L1_BPH-2M9-2MU6_BPH-2DR15-2MU6",
-            "L1_MU6MU4-BO","L1_2MU4-B",
+            "L1_BPH-2M8-2MU3V","L1_BPH-2M8-MU5VFMU3V_BPH-0DR15-MU5VFMU3V","L1_BPH-2M9-2MU5VF_BPH-2DR15-2MU5VF",
+            "L1_MU5VFMU3V-BO","L1_2MU3V-B",
             "L1_LFV-EM8I",
             "L1_TGC_BURST",
             "L1_LLP-NOMATCH",
             "L1_DR-TAU20ITAU12I",
             "L1_HT190-J15s5pETA21",
-            "L1_3J15_BTAG-MU4J15",
+            "L1_3J15_BTAG-MU3VJ15",
             "L1_MJJ-900",
             "L1_J40_DPHI-J20s2XE50",
             "L1_KF-XE55",

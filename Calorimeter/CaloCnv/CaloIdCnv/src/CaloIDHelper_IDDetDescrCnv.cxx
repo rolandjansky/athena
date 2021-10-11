@@ -17,8 +17,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "Identifier/IdHelper.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 

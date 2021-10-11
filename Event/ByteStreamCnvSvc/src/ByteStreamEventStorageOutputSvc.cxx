@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration */
 #include "ByteStreamEventStorageOutputSvc.h"
 
 #include <stdexcept>
@@ -35,8 +35,7 @@ ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(
 
 StatusCode
 ByteStreamEventStorageOutputSvc::initialize() {
-  ATH_MSG_INFO("Initializing " << name() << " - package version "
-               << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing");
 
   ATH_CHECK(ByteStreamOutputSvc::initialize());
 

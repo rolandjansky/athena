@@ -11,5 +11,6 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/SurfaceHolderImpl.h"
 
 #endif

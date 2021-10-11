@@ -1,6 +1,6 @@
 """Define methods to construct configured SCT Digitization tools and algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -59,7 +59,7 @@ def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(SCT_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "SCT_SDO_Map")
     else:
@@ -208,7 +208,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     acc = SCT_ReadCalibChipDataCfg(flags)
     kwargs.setdefault("SCT_ReadCalibChipDataTool", acc.popPrivateTools())
     # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("DataCompressionMode", 3)
     elif flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
         kwargs.setdefault("DataCompressionMode", 2)

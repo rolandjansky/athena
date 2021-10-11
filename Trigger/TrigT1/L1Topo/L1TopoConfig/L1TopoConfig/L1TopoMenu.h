@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TOPOMENU_HPP
@@ -77,13 +77,10 @@ namespace TXC {
 
       L1TopoMenu& operator=(L1TopoMenu&& o) noexcept = default;
       
-      void writeXML(const std::string& xmlfile);
-
    private:
 
       L1TopoMenu& operator=(const L1TopoMenu&) {return *this;}
 
-      friend class L1TopoXMLParser;
       friend class TrigConf::L1TopoConfig;
       friend class TrigConf::L1TopoMenuLoader;
 

@@ -191,56 +191,12 @@ void AnalysisConfig_Ntuple::loop() {
 
 	bool foundOffline = false;
 
-	if ( m_iBeamCondSvc ) {
-
-#ifdef EIGEN_GEOMETRY_MODULE_H	  
-	  const Amg::Vector3D& vertex = m_iBeamCondSvc->beamPos();
-	  xbeam = vertex[0];
-	  ybeam = vertex[1];
-	  zbeam = vertex[2];
-#else
-	  HepGeom::Point3D<double> vertex = m_iBeamCondSvc->beamPos();
-	  xbeam = vertex.x();
-	  ybeam = vertex.y();
-	  zbeam = vertex.z();
-#endif
-	  m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << "\tz=" << zbeam <<endmsg; 
-	  beamline.push_back(xbeam);
-	  beamline.push_back(ybeam);
-	  beamline.push_back(zbeam);
-	  m_provider->msg(MSG::INFO) << " beamline values : " << beamline[0] << "\t" << beamline[1]  << "\t" << beamline[2] << endmsg;	
-	}
-
 	// get (online) beam position
 	double xbeam_online = 0;
 	double ybeam_online = 0;
 	double zbeam_online = 0;
 
 	std::vector<double> beamline_online;
-
-	if ( m_iOnlineBeamCondSvc ) {
-
-#ifdef EIGEN_GEOMETRY_MODULE_H	  
-	  const Amg::Vector3D& vertex = m_iOnlineBeamCondSvc->beamPos();
-	  xbeam_online = vertex[0];
-	  ybeam_online = vertex[1];
-	  zbeam_online = vertex[2];
-#else
-	  // TRKPARAMETERS_MEASUREDPERIGEE_H
-	  HepGeom::Point3D<double> vertex = m_iOnlineBeamCondSvc->beamPos();
-	  xbeam_online = vertex.x();
-	  ybeam_online = vertex.y();
-	  zbeam_online = vertex.z();
-#endif
-	  beamline_online.push_back( xbeam_online );
-	  beamline_online.push_back( ybeam_online );
-	  beamline_online.push_back( zbeam_online );
-
-	  m_provider->msg(MSG::INFO) << " using online beam position" 
-				     << "\tx=" << xbeam_online 
-				     << "\ty=" << ybeam_online 
-				     << "\tz=" << zbeam_online << endmsg; 
-	}
 
 	m_provider->msg(MSG::INFO) << " offline beam position\tx=" << xbeam        << "\ty=" << ybeam        << "\tz=" << zbeam        << endmsg; 
 	m_provider->msg(MSG::INFO) << " online  beam position\tx=" << xbeam_online << "\ty=" << ybeam_online << "\tz=" << zbeam_online << endmsg; 
@@ -342,10 +298,15 @@ void AnalysisConfig_Ntuple::loop() {
 	TrigTrackSelector selectorTest( &filter ); 
 	//	TrigTrackSelector selectorFTK( &filter_etaPT ); 
 
-	selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorRef.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
+	if ( xbeam!=0 || ybeam!=0 ) { 
+	  selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
+	  selectorRef.setBeamline( xbeam, ybeam, zbeam );
+	}
 
+ 
+	if ( xbeam_online!=0 || ybeam_online!=0 ) { 
+	  selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
+	}
 
 	selectorTruth.correctTracks( true );
 	selectorRef.correctTracks( true );
@@ -363,7 +324,7 @@ void AnalysisConfig_Ntuple::loop() {
 #endif
 
 	unsigned           run_number         = 0;
-	unsigned long long event_number       = 0;
+	uint64_t           event_number       = 0;
 	unsigned           lumi_block         = 0;
 	unsigned           bunch_crossing_id  = 0;
 	unsigned           time_stamp         = 0;
@@ -937,10 +898,6 @@ void AnalysisConfig_Ntuple::loop() {
 	    _beamline.push_back( selectorRef.getBeamZ() );
 	    m_event->back().back().addUserData(_beamline);
 	  }
-	  else { 
-	    m_event->back().back().addUserData(beamline);
-	  }
-
 
 
 	  Noff = selectorRef.tracks().size();
@@ -1010,10 +967,7 @@ void AnalysisConfig_Ntuple::loop() {
 	      _beamline.push_back( selectorTest.getBeamZ() );
 	      m_event->back().back().addUserData(_beamline);
 	    }
-	    else { 
-	      m_event->back().back().addUserData(beamline);
-	    }
-	    
+
 	    int Ntest = selectorTest.tracks().size();
 	    
 	    m_provider->msg(MSG::INFO) << "collection " << collectionname << "\ttest tracks.size() " << Ntest << endmsg; 
@@ -1069,9 +1023,8 @@ void AnalysisConfig_Ntuple::loop() {
 	    _beamline.push_back( selectorRef.getBeamZ() );
 	    m_event->back().back().addUserData(_beamline);
 	  }
-	  else { 	  
-	    m_event->back().back().addUserData(beamline);
-	  }
+
+
 	}
 	
        
@@ -1101,6 +1054,7 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->addChain(mchain);
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
+
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	      std::vector<double> _beamline;
 	      _beamline.push_back( selectorRef.getBeamX() );
@@ -1108,9 +1062,7 @@ void AnalysisConfig_Ntuple::loop() {
 	      _beamline.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(_beamline);
 	  }
-	  else { 	  
-	      m_event->back().back().addUserData(beamline);
-	  }
+
 
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endmsg; 
 	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endmsg;  
@@ -1185,9 +1137,7 @@ void AnalysisConfig_Ntuple::loop() {
 	      _beamline.push_back( selectorRef.getBeamZ() );
 	      m_event->back().back().addUserData(_beamline);
 	    }
-	    else { 	  
-	      m_event->back().back().addUserData(beamline);
-	    }
+
 	  }
 	}
 	
@@ -1529,7 +1479,7 @@ void AnalysisConfig_Ntuple::loop() {
 			}
 			else {
 
-			    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
+			    m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
 
 			    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 			    
@@ -1598,8 +1548,9 @@ void AnalysisConfig_Ntuple::loop() {
 			chain.addRoi( *roiInfo );
 			chain.back().addTracks(testTracks);
 			chain.back().addVertices(tidavertices);
-			chain.back().addUserData(beamline_online);
 			if ( chainName.find("HLT_j")!=std::string::npos ) chain.back().addObjects( jets );
+
+			chain.back().addUserData(beamline_online);
 			if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
 			  std::vector<double> _beamline;
 			  _beamline.push_back( selectorTest.getBeamX() );
@@ -1607,10 +1558,6 @@ void AnalysisConfig_Ntuple::loop() {
 			  _beamline.push_back( selectorTest.getBeamZ() );
 			  chain.back().addUserData(_beamline);
 			}
-			else { 	  
-			  if ( beamline_online.size()>3 ) chain.back().addUserData(beamline_online);
-			}
-
 		     
 			//			m_provider->msg(MSG::INFO) << " done" << endmsg;      
 
@@ -1731,26 +1678,6 @@ void AnalysisConfig_Ntuple::book() {
 	}
 
 
-	// get the beam condition services - one for online and one for offline
-
-	m_iBeamCondSvc = 0;
-	m_iOnlineBeamCondSvc = 0;
-
-	if ( m_useBeamCondSvc ) { 
-	  if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() )  { 
-	    m_provider->msg(MSG::WARNING) << " failed to retrieve BeamCondSvc: " << "BeamCondSvc" << endmsg;
-	  }
-	  else { 
-	    m_provider->msg(MSG::INFO) << " successfully retrieves BeamCondSvc: " << "BeamCondSvc" << endmsg;
-	  }
-	  
-	  if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
-	    m_provider->msg(MSG::WARNING) << " failed to retrieve Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
-	  }
-	  else { 
-	    m_provider->msg(MSG::INFO) << " successfuly retrieved Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
-	  }
-	}
 
 	// get the TriggerDecisionTool
 

@@ -61,7 +61,7 @@ StatusCode InDetGlobalMotherTrigMonTool::CheckTriggers()
     m_activeMenuItems.clear();
     SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
     if ( evtInfo.isValid() ){
-	if ( evtInfo->trigger_info() == 0) // Trigger info not available, will not do trigger aware plots
+	if ( evtInfo->trigger_info() == nullptr) // Trigger info not available, will not do trigger aware plots
 	    return StatusCode::FAILURE;
 	std::vector<unsigned int> level1TriggerInfo = evtInfo->trigger_info()->level1TriggerInfo();
 	if ( level1TriggerInfo.size() != 24 ) // LVL1 trigger info not of correct size, will not do trigger aware plots
@@ -92,8 +92,7 @@ StatusCode InDetGlobalMotherTrigMonTool::PrintTriggers()
 
 bool InDetGlobalMotherTrigMonTool::hasTriggerFired(int trigger)
 {
-  if ( m_firedTriggers[trigger] == 1 ) return true;
-  else return false;
+  return m_firedTriggers[trigger] == 1;
 }
 
 

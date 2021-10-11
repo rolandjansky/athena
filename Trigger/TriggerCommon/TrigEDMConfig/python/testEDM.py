@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testEDM')
@@ -13,8 +13,7 @@ cgen = clidGenerator("", False)
 
 def isCLIDDefined(typename):
   c = cgen.genClidFromName(typename)
-  pkg = cgen.getPackageFromClid(c)     
-  return bool(pkg)
+  return (cgen.getNameFromClid(c) is not None)
 
 def main():
   import re
@@ -43,7 +42,7 @@ def main():
     
     file_types = TriggerSerializable[1].split(" ")
 
-    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM", "AODBLSSLIM")
+    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM", "AODBLSSLIM", "AODCONV")
 
     for file_type in file_types:
       if file_type not in allowed_file_types:

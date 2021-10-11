@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHECWheelCalculator.h"
@@ -49,8 +49,7 @@ LArHECWheelCalculator::~LArHECWheelCalculator()
   if(m_birksLaw) delete m_birksLaw;
 }
 
-// not thread safe due to HECHVManager::getData()
-StatusCode LArHECWheelCalculator::initialize ATLAS_NOT_THREAD_SAFE ()
+StatusCode LArHECWheelCalculator::initialize()
 {
   ATH_MSG_DEBUG("Use the LArHECWheelCalculator for the HEC");
 
@@ -69,10 +68,16 @@ StatusCode LArHECWheelCalculator::initialize ATLAS_NOT_THREAD_SAFE ()
       ATH_CHECK(detStore.retrieve() );
       ATH_CHECK(detStore->retrieve(manager));
       m_DetectorManager=manager->getHecManager();
-      m_hvdata = m_DetectorManager->getHVManager().getData();
+      m_hvdata = m_DetectorManager->getHVManager().getDataSim();
     }
 
   return StatusCode::SUCCESS;
+}
+
+// Implement this here (rather than header) since geometry class is forward-declared
+void LArHECWheelCalculator::initializeForSDCreation()
+{
+  m_Geometry->initializeForSDCreation();
 }
 
 G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const

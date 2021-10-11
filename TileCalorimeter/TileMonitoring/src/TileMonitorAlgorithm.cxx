@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileMonitorAlgorithm.h"
@@ -42,7 +42,7 @@ TileMonitorAlgorithm::getL1TriggerTypeBitFromName(const std::string& triggerBitN
     return L1TriggerTypeBit::BIT0_RNDM;
   } else if( loCaseTriggerBitName == "bit1_zerobias" ) {
     return L1TriggerTypeBit::BIT1_ZEROBIAS;
-  } else if( loCaseTriggerBitName == "bit2_l1calo" ) {
+  } else if( loCaseTriggerBitName == "bit2_l1cal" ) {
     return L1TriggerTypeBit::BIT2_L1CAL;
   } else if( loCaseTriggerBitName == "bit3_muon" ) {
     return L1TriggerTypeBit::BIT3_MUON;

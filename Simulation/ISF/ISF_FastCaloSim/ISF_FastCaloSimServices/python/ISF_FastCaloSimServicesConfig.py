@@ -64,6 +64,7 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
         simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
+    kwargs.setdefault("ParticleTruthSvc"                 , simFlags.TruthStrategy.TruthServiceName() )
     return CfgMgr.ISF__FastCaloSimSvcPU(name, **kwargs )
 
 #### FastCaloSimV2

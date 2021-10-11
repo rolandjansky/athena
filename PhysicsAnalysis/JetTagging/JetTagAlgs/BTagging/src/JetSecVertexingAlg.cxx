@@ -69,7 +69,7 @@ namespace Analysis {
     // This will check that the properties were initialized properly
     // by job configuration.
     ATH_CHECK( m_JetCollectionName.initialize() );
-    ATH_CHECK( m_jetParticleLinkName.initialize() );
+    ATH_CHECK( m_TrackCollectionName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
     if ((m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV")) ATH_CHECK( m_BTagSVCollectionName.initialize() );
@@ -123,12 +123,14 @@ namespace Analysis {
      return StatusCode::SUCCESS;
     }
 
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
-    if (!h_jetParticleLinkName.isAvailable()) {
-      ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
+    SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackCollectionName (m_TrackCollectionName);
+    if (!h_TrackCollectionName.isValid()) {
+      ATH_MSG_ERROR( " cannot retrieve track container with key " << m_TrackCollectionName.key()  );
       return StatusCode::FAILURE;
     }
  
+    const xAOD::TrackParticleContainer* theTrackParticleContainer = h_TrackCollectionName.ptr();
+
     const xAOD::Vertex* primaryVertex(0);
 
     //retrieve primary vertex
@@ -178,32 +180,7 @@ namespace Analysis {
     for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter, ++infoSVIter) {
       const xAOD::Jet& jetToTag = **jetIter;
       const Trk::VxSecVertexInfo* myVertexInfo = *infoSVIter;
-      const xAOD::TrackParticleContainer* theTrackParticleContainer = 0;
 
-      //Get it from decor jet
-      const std::vector<ElementLink< xAOD::TrackParticleContainer > >& tracksInJet = h_jetParticleLinkName(jetToTag);
-
-      if(tracksInJet.size()==0){
-        ATH_MSG_DEBUG("#BTAG# No track in Jet");
-        continue;
-      }
-   
-      std::vector<const xAOD::IParticle*> inputIParticles;
-
-      std::vector<ElementLink< xAOD::TrackParticleContainer > >::const_iterator itEL = tracksInJet.begin();
-      std::vector<ElementLink< xAOD::TrackParticleContainer > >::const_iterator itELend = tracksInJet.end();
-       
-      //Before splitting empty tracksInJet case
-
-      for (  ; itEL != itELend; ++itEL ) {
-        const xAOD::TrackParticle* const *inputTrackParticle ;
-        inputTrackParticle = (*itEL).cptr(); //ElementConstPointer cptr
-
-	      /// warning -> will not work if at some point we decide to associate to several track collections at the same time (in the same assoc object)
-	  
-        theTrackParticleContainer = (*itEL).getStorableObjectPointer();
-        inputIParticles.push_back(*inputTrackParticle);
-      }
 
       if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
 	      ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
@@ -235,7 +212,7 @@ namespace Analysis {
           return sc;
         }
       } else {
-	        ATH_MSG_WARNING("#BTAG# VxSecVertexInfo pointer cannot be interpreted for " << m_VxSecVertexInfoName.key());
+	        ATH_MSG_WARNING("#BTAG# JetSecVertexingAlg VxSecVertexInfo pointer cannot be interpreted for " << m_VxSecVertexInfoName.key());
       }
     }// for loop on jets
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AFP_ByteStream2RawCnv includes
@@ -43,10 +43,18 @@ StatusCode AFP_ByteStream2RawCnv::initialize() {
 
   if (m_robDataProvider.retrieve().isFailure()) {
     ATH_MSG_WARNING("Failed to retrieve service " << m_robDataProvider
-		    << "...");
+                    << "...");
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider << "...");
+  }
+
+   if (m_wordReadout.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_wordReadout
+                    << "...");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_wordReadout << "...");
   }
 
   return StatusCode::SUCCESS;
@@ -58,7 +66,7 @@ StatusCode AFP_ByteStream2RawCnv::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer) {
+StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer) const {
   ATH_MSG_DEBUG("AFP_ByteStream2RawCnv::fillColelction rob_source_id: in decimal="<<std::dec<<robFrag->rob_source_id()<<",  in hex=0x"<<std::hex<<robFrag->rob_source_id()<<std::dec);
 
   try {
@@ -112,105 +120,232 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
   AFP_SiRawCollection *collectionSi = nullptr;
   AFP_ToFRawCollection *collectionToF = nullptr;
 
+  std::vector<std::vector<uint16_t>> picoTDC1_channels, picoTDC2_channels;
+  std::vector<bool> picoTDC_hasTrigger;
+  std::vector<int> ToF_links;
+
   const uint32_t size = robFrag->rod_ndata();
   for (unsigned i = 0; i < size; i++) {
-    m_wordReadout.setWord(vint[i]);
+    uint32_t the_word=vint[i];
+    uint32_t the_link=m_wordReadout->link(the_word);
 
-    if (m_wordReadout.isHeader()) {
+    if (m_wordReadout->isHeader(the_word)) {
       AFP_RawCollectionHead* collectionHead = nullptr;
-      if ( isLinkToF (m_wordReadout.link()) ) {
-	// prepare collection for time-of-flight
-	collectionToF = getCollectionToF(//m_wordReadout.link(), robFrag->rob_source_id(), 
+      if ( isLinkToF (the_link) ) {
+        // prepare collection for time-of-flight
+        collectionToF = getCollectionToF(//m_wordReadout->link(), robFrag->rob_source_id(), 
                                            rawContainer);
-	collectionHead = collectionToF;
+        collectionHead = collectionToF;
+        
+        std::vector<uint16_t> helper;
+        picoTDC1_channels.push_back(helper);
+        picoTDC2_channels.push_back(helper);
+        picoTDC_hasTrigger.push_back(false);
+        ToF_links.push_back(the_link);
       }
-      else if ( isLinkSi (m_wordReadout.link()) ) {
-	// prepare collection for silicon detector
-	collectionSi = getCollectionSi(//m_wordReadout.link(), robFrag->rob_source_id(), 
+      else if ( isLinkSi (the_link) ) {
+        // prepare collection for silicon detector
+        collectionSi = getCollectionSi(//m_wordReadout->link(), robFrag->rob_source_id(), 
                                          rawContainer);
-	collectionHead = collectionSi;
+        collectionHead = collectionSi;
       }
       else {
-        ATH_MSG_WARNING("Unidentified value of link="<<m_wordReadout.link()<<" for header record.");
-        return StatusCode::SUCCESS;
+        ATH_MSG_ERROR("Unidentified value of link="<<the_link<<" for header record.");
+        return StatusCode::FAILURE;
       }
 
       if (!collectionHead) {
         ATH_MSG_WARNING("nullptr returned by getCollection(link = "
-			<< m_wordReadout.link() << ", robID = " << robFrag->rob_source_id() <<")");
+                        << the_link << ", robID = " << robFrag->rob_source_id() <<")");
         return StatusCode::SUCCESS;
       }
 
       // set head collection informaiton
-      collectionHead->setLvl1Id(m_wordReadout.getBits(14, 10));
-      collectionHead->setLink(m_wordReadout.link());
-      collectionHead->setFrontendFlag(m_wordReadout.getBits(15, 15));
-      collectionHead->setBcId(m_wordReadout.getBits(9, 0));
+      collectionHead->setLvl1Id(m_wordReadout->getBits(the_word, 14, 10));
+      collectionHead->setLink(the_link);
+      collectionHead->setFrontendFlag(m_wordReadout->getBits(the_word, 15, 15));
+      collectionHead->setBcId(m_wordReadout->getBits(the_word, 9, 0));
       collectionHead->setRobId(robFrag->rob_source_id());
     }
-    else if (m_wordReadout.isData()) {
+    else if (m_wordReadout->isData(the_word)) {
       // fill time-of-flight collection
-      if ( isLinkToF (m_wordReadout.link()) ) {
+      if ( isLinkToF (the_link) ) {
 
-	// check if collection is available
-	if ( !collectionToF ) {
-	  ATH_MSG_WARNING("No ToF collection available to fill data.");
-	  return StatusCode::SUCCESS;
-	}
+        // check if collection is available
+        if ( !collectionToF ) {
+          ATH_MSG_WARNING("No ToF collection available to fill data.");
+          return StatusCode::SUCCESS;
+        }
 
-	AFP_ToFRawData& ToFData = collectionToF->newDataRecord();
-	ToFData.setHeader( m_wordReadout.getBits (23, 21) );
-	ToFData.setEdge( m_wordReadout.getBits (20, 20) );
-	ToFData.setChannel( m_wordReadout.getBits (19, 16) );
-	ToFData.setPulseLength( m_wordReadout.getBits (15, 10) );
-	ToFData.setTime( m_wordReadout.getBits (9, 0) );
+        uint32_t bit23=m_wordReadout->getBits(the_word, 23, 23);
+        if(!bit23)
+        {
+          // HPTDC 2017
+          AFP_ToFRawData& ToFData = collectionToF->newDataRecord();
+          ToFData.setHeader( m_wordReadout->getBits(the_word, 23, 21) );
+          ToFData.setEdge( m_wordReadout->getBits(the_word, 20, 20) );
+          ToFData.setChannel( m_wordReadout->getBits(the_word, 19, 16) );
+          ToFData.setPulseLength( m_wordReadout->getBits(the_word, 15, 10) );
+          ToFData.setTime( m_wordReadout->getBits(the_word, 9, 0) );
 
-	setDataHeader (&ToFData);
+          setDataHeader (the_word, &ToFData);
+        }
+        else
+        {
+          // picoTDC
+          
+          uint32_t bits19_22=m_wordReadout->getBits(the_word, 22, 19);
+            
+          if(bits19_22==0 || bits19_22==1)
+          {
+            // picoTDC #1 (==0) or picoTDC #2 (==1)
+            uint16_t channel=m_wordReadout->getBits(the_word, 18, 13);
+              
+            // find entry with the same channel number
+            auto ToFData_itr=std::find_if( collectionToF->begin(), collectionToF->end(),
+                                           [&](const AFP_ToFRawData entry){return entry.channel()==channel;});
+
+            if(ToFData_itr==collectionToF->end())
+            {
+              // create a new entry if such channel number doesn't exist
+              auto& ToFData = collectionToF->newDataRecord();
+                  
+              ToFData.setHeader( bit23 );
+              ToFData.setEdge( 0 );
+              ToFData.setChannel( m_wordReadout->getBits(the_word, 18, 13) );
+              ToFData.setPulseLength( 0 );
+              ToFData.setTime( 0 );
+              setDataHeader (the_word, &ToFData);
+              
+              ToFData_itr = std::prev(collectionToF->end());
+            }
+              
+            if(!bits19_22)
+            {
+              // picoTDC #1
+              if(ToFData_itr->time() !=0 )
+              {
+                ATH_MSG_WARNING("trying to set time to "<<m_wordReadout->getBits(the_word, 12, 0)<<", but it is already set to = "<<ToFData_itr->time()<<", will not overwrite");
+              }
+              else
+              {
+                ToFData_itr->setTime( m_wordReadout->getBits(the_word, 12, 0) );
+                picoTDC1_channels.back().push_back(channel);
+              }
+            }
+            else
+            {
+              // picoTDC #2
+              if(ToFData_itr->pulseLength() !=0 )
+              {
+                ATH_MSG_WARNING("trying to set pulseLength to "<<m_wordReadout->getBits(the_word, 12, 0)<<", but it is already set to = "<<ToFData_itr->pulseLength()<<", will not overwrite");
+              }
+              else
+              {
+                ToFData_itr->setPulseLength( m_wordReadout->getBits(the_word, 12, 0) );
+                picoTDC2_channels.back().push_back(channel);
+              }
+            }
+          }
+          else if(bits19_22==4)
+          {              
+            // check if there's already some other trigger word
+            auto ToFData_itr=std::find_if( collectionToF->begin(), collectionToF->end(),
+                                           [&](const AFP_ToFRawData e){return e.isTrigger();});
+            if(ToFData_itr!=collectionToF->end())
+            {
+              // there shouldn't be any other trigger word
+              ATH_MSG_WARNING("already found a trigger word with delayedTrigger = "<<ToFData_itr->delayedTrigger()<<" and triggerPattern = "<<ToFData_itr->triggerPattern()<<", will ignore new word with delayedTrigger = "<<m_wordReadout->getBits(the_word, 18,16)<<" and triggerPattern = "<<m_wordReadout->getBits(the_word, 15, 0));
+            }
+            else
+            {
+              // if there isn't any other trigger word, create a new entry
+              auto& ToFData = collectionToF->newDataRecord();
+            
+              ToFData.setHeader( bit23 );
+              ToFData.setEdge( 0 );
+              ToFData.setTrigger(); // mark this entry as a trigger entry; must be done before setting delayedTrigger or triggerPattern
+              ToFData.setDelayedTrigger( m_wordReadout->getBits(the_word, 18,16) );
+              ToFData.setTriggerPattern( m_wordReadout->getBits(the_word, 15, 0) );
+              picoTDC_hasTrigger.back()=true;
+            }
+          }
+          else
+          {
+            ATH_MSG_WARNING("unknown pattern in bits 19-22 = "<<bits19_22<<", ignoring word = "<<the_word);
+          }
+        }
       }
-      else if ( isLinkSi (m_wordReadout.link()) ) {
-	// fill silicon detector collection
+      else if ( isLinkSi (the_link) ) {
+        // fill silicon detector collection
 
-	// check if collection is available
-	if ( !collectionSi ) {
-	  ATH_MSG_WARNING("No silicon detector collection available to fill data.");
-	  return StatusCode::SUCCESS;
-	}
+        // check if collection is available
+        if ( !collectionSi ) {
+          ATH_MSG_WARNING("No silicon detector collection available to fill data.");
+          return StatusCode::SUCCESS;
+        }
 
-	// check first silicon hit information
-	if (m_wordReadout.getBits(7, 4) != s_siNoHitMarker) {
-	  AFP_SiRawData& siData = collectionSi->newDataRecord();
-	  siData.setColumn (m_wordReadout.getBits(23, 17));
-	  siData.setRow (m_wordReadout.getBits(16, 8));
-	  siData.setTimeOverThreshold (m_wordReadout.getBits(7, 4));
-	  
-	  setDataHeader (&siData);
-	}
+        // check first silicon hit information
+        if (m_wordReadout->getBits(the_word, 7, 4) != s_siNoHitMarker) {
+          AFP_SiRawData& siData = collectionSi->newDataRecord();
+          siData.setColumn (m_wordReadout->getBits(the_word, 23, 17));
+          siData.setRow (m_wordReadout->getBits(the_word, 16, 8));
+          siData.setTimeOverThreshold (m_wordReadout->getBits(the_word, 7, 4));
+          
+          setDataHeader (the_word, &siData);
+        }
 
-	// check second silicon hit information
-	if (m_wordReadout.getBits(3, 0) != s_siNoHitMarker) {
-	  AFP_SiRawData& siData = collectionSi->newDataRecord();
-	  siData.setColumn (m_wordReadout.getBits(23, 17));
-	  siData.setRow (m_wordReadout.getBits(16, 8) + 1);
-	  siData.setTimeOverThreshold (m_wordReadout.getBits(3, 0));
+        // check second silicon hit information
+        if (m_wordReadout->getBits(the_word, 3, 0) != s_siNoHitMarker) {
+          AFP_SiRawData& siData = collectionSi->newDataRecord();
+          siData.setColumn (m_wordReadout->getBits(the_word, 23, 17));
+          siData.setRow (m_wordReadout->getBits(the_word, 16, 8) + 1);
+          siData.setTimeOverThreshold (m_wordReadout->getBits(the_word, 3, 0));
 
-	  setDataHeader (&siData);
-	}
+          setDataHeader (the_word, &siData);
+        }
       }
       else {
-	ATH_MSG_WARNING("Not recognised value of link="<<m_wordReadout.link()<<" for data record.");
-	return StatusCode::SUCCESS;
+        ATH_MSG_ERROR("Not recognised value of link="<<the_link<<" for data record.");
+        return StatusCode::FAILURE;
       }
 
-    } 
-    // end is data
-    
+    } // end is data
   } // end of loop
+  
+  // in case of picoTDC, check we always have both words
+  for(unsigned int i=0;i<picoTDC1_channels.size();++i)
+  {
+    if(picoTDC1_channels.at(i).size()>0 || picoTDC2_channels.at(i).size())
+    {
+      for(auto ch1 : picoTDC1_channels.at(i))
+      {
+        if(std::find(picoTDC2_channels.at(i).begin(),picoTDC2_channels.at(i).end(),ch1) == picoTDC2_channels.at(i).end())
+        {
+          ATH_MSG_WARNING("Cannot find channel "<<ch1<<" from picoTDC #1 in picoTDC #2 in ToF collections with link nr. "<<ToF_links.at(i)<<", pulseLength is very probably not set");
+        }
+      }
+      for(auto ch2 : picoTDC2_channels.at(i))
+      {
+        if(std::find(picoTDC1_channels.at(i).begin(),picoTDC1_channels.at(i).end(),ch2) == picoTDC1_channels.at(i).end())
+        {
+          ATH_MSG_WARNING("Cannot find channel "<<ch2<<" from picoTDC #2 in picoTDC #1 in ToF collections with link nr. "<<ToF_links.at(i)<<", time is very probably not set");
+        }
+      }
+      
+      if(!picoTDC_hasTrigger.at(i))
+	  {
+	    ATH_MSG_WARNING("Cannot find trigger word in ToF collections with link nr. "<<ToF_links.at(i));
+	  }
+    }
+  }
+  
   return StatusCode::SUCCESS;
 }
 
 AFP_SiRawCollection *
 AFP_ByteStream2RawCnv::getCollectionSi(//const unsigned int link, const unsigned int robId,
-				       AFP_RawContainer *container) {
+                                       AFP_RawContainer *container) const {
 
   if (!container) {
     ATH_MSG_WARNING("NULL pointer passed in argument: container. NULL pointer returned.");
@@ -234,7 +369,7 @@ AFP_ByteStream2RawCnv::getCollectionSi(//const unsigned int link, const unsigned
 
 AFP_ToFRawCollection *
 AFP_ByteStream2RawCnv::getCollectionToF(// const unsigned int link, const unsigned int robId,
-					AFP_RawContainer *container) {
+                                        AFP_RawContainer *container) const {
 
   if (!container) {
     ATH_MSG_WARNING("NULL pointer passed in argument: container. NULL pointer returned.");
@@ -256,8 +391,8 @@ AFP_ByteStream2RawCnv::getCollectionToF(// const unsigned int link, const unsign
   return &newCollection;
 }
 
-void AFP_ByteStream2RawCnv::setDataHeader (AFP_RawDataCommonHead* dataHead) const
+void AFP_ByteStream2RawCnv::setDataHeader (uint32_t the_word, AFP_RawDataCommonHead* dataHead) const
 {
-  dataHead->setLink (m_wordReadout.link());
-  dataHead->setHitDiscConfig (m_wordReadout.getBits(29, 28));
+  dataHead->setLink (m_wordReadout->link(the_word));
+  dataHead->setHitDiscConfig (m_wordReadout->getBits(the_word, 29, 28));
 }

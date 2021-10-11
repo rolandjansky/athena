@@ -43,8 +43,6 @@
 #include <unordered_map>
 #include <vector>
 
-#define NChannelPerFEB  128
-
 template<class T> 
 class LArConditionsContainerDB 
 {

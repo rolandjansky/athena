@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -92,17 +92,19 @@ namespace DerivationFramework {
     }
 
     // Vertex container and its auxilliary store
-    xAOD::VertexContainer*    vtxContainer = nullptr;
-    xAOD::VertexAuxContainer* vtxAuxContainer = nullptr;
+    xAOD::VertexContainer*    pVtxContainer = nullptr;
+    xAOD::VertexAuxContainer* pVtxAuxContainer = nullptr;
     
     if(callTool) {
     //----------------------------------------------------
     // call Tool
     //----------------------------------------------------
-    if( !m_SearchTool->performSearch(vtxContainer, vtxAuxContainer).isSuccess() ) {
+    if( !m_SearchTool->performSearch(pVtxContainer, pVtxAuxContainer).isSuccess() ) {
       ATH_MSG_FATAL("Tool (" << m_SearchTool << ") failed.");
       return StatusCode::FAILURE;
     }
+    std::unique_ptr<xAOD::VertexContainer>    vtxContainer   (pVtxContainer);
+    std::unique_ptr<xAOD::VertexAuxContainer> vtxAuxContainer(pVtxAuxContainer);
 
     //----------------------------------------------------
     // retrieve primary vertices
@@ -112,13 +114,13 @@ namespace DerivationFramework {
     //----------------------------------------------------
     // Try to retrieve refitted primary vertices
     //----------------------------------------------------
-    xAOD::VertexContainer*    refPvContainer = nullptr;
-    xAOD::VertexAuxContainer* refPvAuxContainer = nullptr;
+    std::unique_ptr<xAOD::VertexContainer>    refPvContainer;
+    std::unique_ptr<xAOD::VertexAuxContainer> refPvAuxContainer;
     if(m_refitPV) {
         // refitted PV container does not exist. Create a new one.
-        refPvContainer = new xAOD::VertexContainer;
-        refPvAuxContainer = new xAOD::VertexAuxContainer;
-        refPvContainer->setStore(refPvAuxContainer);
+        refPvContainer = std::make_unique<xAOD::VertexContainer>();
+        refPvAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+        refPvContainer->setStore(refPvAuxContainer.get());
     }
     
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
@@ -130,25 +132,25 @@ namespace DerivationFramework {
 
     if(m_refitPV){ 
        if(vtxContainer->size() >0){
-        StatusCode SC = helper.FillCandwithRefittedVertices(vtxContainer,  pvContainer.cptr(), refPvContainer, &(*m_pvRefitter) , m_PV_max, m_DoVertexType);
+         StatusCode SC = helper.FillCandwithRefittedVertices(vtxContainer.get(),  pvContainer.cptr(), refPvContainer.get(), &(*m_pvRefitter) , m_PV_max, m_DoVertexType);
         if(SC.isFailure()){
             ATH_MSG_FATAL("refitting failed - check the vertices you passed");
             return SC;
         }
         }
     }else{
-        if(vtxContainer->size() >0)CHECK(helper.FillCandExistingVertices(vtxContainer, pvContainer.cptr(), m_DoVertexType));
+        if(vtxContainer->size() >0)CHECK(helper.FillCandExistingVertices(vtxContainer.get(), pvContainer.cptr(), m_DoVertexType));
     }
     
     //----------------------------------------------------
     // save in the StoreGate
     //----------------------------------------------------
     SG::WriteHandle<xAOD::VertexContainer> handle(m_outputVtxContainerName);
-    ATH_CHECK(handle.record(std::unique_ptr<xAOD::VertexContainer>(vtxContainer ), std::unique_ptr<xAOD::VertexAuxContainer>(vtxAuxContainer )));
+    ATH_CHECK(handle.record(std::move(vtxContainer), std::move(vtxAuxContainer)));
     
     if(m_refitPV) {
        SG::WriteHandle<xAOD::VertexContainer> handle(m_refPVContainerName);
-       ATH_CHECK(handle.record(std::unique_ptr<xAOD::VertexContainer>(refPvContainer ), std::unique_ptr<xAOD::VertexAuxContainer>(refPvAuxContainer )));
+       ATH_CHECK(handle.record(std::move(refPvContainer), std::move(refPvAuxContainer)));
     }
     }
 

@@ -20,7 +20,6 @@
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelModuleData.h"
-#include "PixelConditionsData/PixelRadiationDamageFluenceMapData.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
@@ -37,9 +36,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // Key for basic pixel parameters
     SG::WriteCondHandleKey<PixelModuleData> m_writeKey
     {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
-
-    SG::WriteCondHandleKey<PixelRadiationDamageFluenceMapData> m_writeFluenceMapKey
-    {this, "WriteRadiationFluenceMapKey", "PixelRadiationDamageFluenceMapData", "Output key for radiation damage fluence map"};
 
     // Digitization parameters
     Gaudi::Property<double> m_bunchSpace

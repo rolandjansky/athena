@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+from TrigBjetHypo.TrigBjetMonitoringConfig import TrigBjetBtagHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
 
@@ -36,6 +38,19 @@ bTaggingWP = {
     'dl1r85' : 1.32,
     }
 
+monitoredChains = {
+    'HLT_j275_0eta290_020jvt_pf_ftf_bdl1r60_L1J100' : 'singleJet',
+    'HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI' : 'eJet',
+    }
+
+
+def addMonitoring(tool, monClass, name, thresholdHLT ):
+    try:
+        tool.MonTool = monClass( "MonTool" )
+        tool.MonTool.HistPath = name + "/" + thresholdHLT
+    except AttributeError:
+        log.error('%s Monitoring Tool failed', name)
+
 ####################################################################################################  
 def TrigBjetBtagHypoToolFromDict( chainDict ):
 
@@ -51,6 +66,11 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
     tool = getBjetBtagHypoConfiguration( name,conf_dict )
     
     log.debug("name = %s, tagger = %s, threshold = %s ", name, tool.MethodTag, tool.BTaggingCut)
+
+    import re
+    nolegname = re.sub("(^leg.*?_)", "", name)
+    if nolegname in monitoredChains :
+        addMonitoring( tool, TrigBjetBtagHypoToolMonitoring,'TrigBjetOnlineMonitoring', nolegname )
 
     return tool
 
@@ -105,15 +125,13 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
 
     tool.MethodTag = tagger
     tool.BTaggingCut = tb
-    tool.cFraction = 0.03
+    tool.cFraction = 0.018
 
     return tool
 
 ####################################################################################################
 
 if __name__ == "__main__":
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.enableMonitoring=['Validation']
 
     t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J15","HLT_j45_ftf_subjesgscIS_boffperf_split_L1J15" )
     assert t, "can't configure boffperf chain"

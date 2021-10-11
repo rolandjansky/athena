@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict as odict
 from itertools import groupby
@@ -9,7 +9,7 @@ from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
 
 
-log = logging.getLogger("Menu.L1.Base.BunchGroupSet")
+log = logging.getLogger(__name__)
 
 def createDefaultBunchGroupSetMC():
     """
@@ -33,6 +33,10 @@ def createDefaultBunchGroupSet():
         bgs = BunchGroupSet(name)
         bgs.addBunchGroup( BunchGroupSet.BunchGroup(name = 'BCRVeto', internalNumber = 0).addRange(0,3539).addRange(3561,3563).normalize() )\
            .addBunchGroup( BunchGroupSet.BunchGroup(name = 'Paired', internalNumber = 1).addTrain(0,3564).normalize() )
+        from AthenaCommon.BeamFlags import jobproperties
+        if jobproperties.Beam.beamType == 'cosmics':
+            bgs.addBunchGroup( BunchGroupSet.BunchGroup(name = 'EMPTY', internalNumber = 3).addTrain(0,3564).normalize() )
+
 
         bunchgroupnames = L1MenuFlags.BunchGroupNames()[:Limits.NumBunchgroups]
         bunchgroupnames += ['NotUsed'] * (Limits.NumBunchgroups - len(bunchgroupnames))

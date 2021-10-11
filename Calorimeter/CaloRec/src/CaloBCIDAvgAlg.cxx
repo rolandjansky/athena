@@ -14,7 +14,7 @@ StatusCode CaloBCIDAvgAlg::initialize() {
 
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_bcidAvgKey.initialize());
-  ATH_CHECK(m_mcSym.initialize());
+  if (!m_isSC) ATH_CHECK(m_mcSym.initialize());
   ATH_CHECK(m_bcidLumiKey.initialize());
   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
 
@@ -39,8 +39,11 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const
     avgInteractionsPerCrossingMC = ei->averageInteractionsPerCrossing();
   }
 
-  SG::ReadCondHandle<LArMCSym> mcSymHdl(m_mcSym,ctx);
-  const LArMCSym* mcSym=*mcSymHdl;
+  const LArMCSym* mcSym=nullptr;
+  if ( ! m_isSC) {
+    SG::ReadCondHandle<LArMCSym> mcSymHdl(m_mcSym,ctx);
+    mcSym=*mcSymHdl;
+  }
 
   SG::ReadCondHandle<CaloBCIDLumi> bcidLumi (m_bcidLumiKey, ctx);
   CxxUtils::vec_aligned_vector<float> avgEshift;

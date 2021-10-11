@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigNavigationThinningSvc.h"
@@ -12,6 +12,7 @@
 #include "TrigNavigation/Holder.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <sstream>
 #include <iostream>
@@ -290,10 +291,9 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
   std::lock_guard<std::mutex> lock(TrigNavigationThinningSvcMutex::s_mutex);
 
   // grab the navigation
-  Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
-  navAccess->enable();
-  // FIXME: const_cast
-  HLT::NavigationCore *cnav = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
+  auto navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
+  // protected by above lock
+  HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess.getNavigation());
 
   if(cnav == 0) {
     ATH_MSG_WARNING ( "Could not get navigation from Trigger Decision Tool" );
@@ -367,7 +367,7 @@ StatusCode TrigNavigationThinningSvc::removeTriggerElement(State& state,
 
   if ( m_report )  ATH_MSG_VERBOSE("Removeing TE of ID: " << te->getId() << " removing same RoI relations" );
   // for those in the same RoI, we need only remove the relationship from ones who are related
-  std::vector<TriggerElement*>& sameRoI = te->m_relations[TriggerElement::sameRoIRelation];
+  const std::vector<TriggerElement*>& sameRoI = te->getRelated(TriggerElement::sameRoIRelation);
 
   for( auto nodeInRoI : sameRoI ) {
     if ( m_report )  ATH_MSG_VERBOSE("Removeing TE of ID: " << te->getId() << " bypassing same RoI relation " );
@@ -602,7 +602,7 @@ TrigNavigationThinningSvc::propagateFeaturesToChildren(const TriggerElement *te)
 
   const std::vector<TriggerElement::FeatureAccessHelper>& features = te->getFeatureAccessHelpers() ;
 
-  std::vector<TriggerElement*> children = te->m_relations[TriggerElement::seedsRelation];
+  const std::vector<TriggerElement*> children = te->getRelated(TriggerElement::seedsRelation);
   for( auto ch: children ) {
     if ( m_report ) ATH_MSG_VERBOSE("Propagating features to child: " << ch << " " << ch->getId() );
     // add the parents features to the front of the child features list features list
@@ -764,7 +764,7 @@ StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
 	// Since this is quite tricky code it is outsourced to a helper class IndexRecalculator.
 	
 	IndexRecalculator recalculator( dec );
-	// nowe we need to go over the TEs
+	// now we need to go over the TEs
 	for ( const auto& te: state.navigation.getAllTEs() ) {
 	  for ( auto& fea: te->getFeatureAccessHelpers() ) {
 	    if ( fea.getCLID() == holder->typeClid() 
@@ -773,8 +773,9 @@ StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
 	      uint32_t end   = fea.getIndex().objectsEnd();
 	      uint32_t newEnd = recalculator.getNewIndex(end);
 	      uint32_t newBegin = recalculator.getNewIndex(begin);
-	      
-	      const_cast<HLT::TriggerElement::ObjectIndex&>(fea.getIndex()).updateBeginAndEnd(newBegin, newEnd);
+
+          HLT::TriggerElement::ObjectIndex& idx ATLAS_THREAD_SAFE = const_cast<HLT::TriggerElement::ObjectIndex&>(fea.getIndex());
+          idx.updateBeginAndEnd(newBegin, newEnd);
 	      //ATH_MSG_DEBUG( "Indices changed to " << newBegin << " " << newEnd);
 
 	    }	  

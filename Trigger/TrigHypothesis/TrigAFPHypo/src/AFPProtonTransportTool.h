@@ -6,6 +6,7 @@
 #define TRIGAFPHYPO_AFPPROTONTRANSPORTTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "IAFPProtonTransportTool.h"
 #include "AFPProtonTransportParam.h"
 
 #include <string>
@@ -20,16 +21,18 @@
  * the predicted position of the proton with respect to the AFP near station
  */
 
-class AFPProtonTransportTool
-{
+class AFPProtonTransportTool : public AthAlgTool, virtual public IAFPProtonTransportTool {
 public:
-  AFPProtonTransportTool(std::string filename);
+  AFPProtonTransportTool(const std::string & type, const std::string & name, const IInterface* parent);
 
   virtual ~AFPProtonTransportTool();
-
+  
+  virtual StatusCode initialize();
+  
   /// Loads parametrization file and gets the value of positions, slopes and nominal energy. It takes as argument the path to the txt file containing this information.
-  int load(std::string filename);
+  StatusCode load();
 
+  void setParamFile(std::string paramFile) { m_filename = paramFile; }
 
   /// Evaluates value of the horizontal position equation. It takes as arguments the initial position, slope and nominal beam energy.
   double x(double x0, double y0, double z0, double sx0, double sy0, double E) const {
@@ -71,19 +74,22 @@ private:
   AFPProtonTransportParam* m_y_slope;
 
   /// Beam crossing angle from x axis at the interaction point
-  double m_xSlopeInitIP;
+  Gaudi::Property<double> m_xSlopeInitIP {this, "xSlopeInitIp", 0, "Initial x slope at IP"};
   /// Beam crossing angle from y axis at the interaction point
-  double m_ySlopeInitIP; 
+  Gaudi::Property<double> m_ySlopeInitIP {this, "ySlopeInitIp", 0, "Initial y slope at IP"}; 
   /// Proton's initial x position at the interaction point
-  double m_xPositionInitIP;
+  Gaudi::Property<double> m_xPositionInitIP {this, "xPositionInitIp", 0, "Initial x position at IP"};
   /// Proton's initial y position at the interaction point
-  double m_yPositionInitIP;
+  Gaudi::Property<double> m_yPositionInitIP {this, "yPositionInitIp", 0, "Initial y position at IP"};
   /// Proton's initial z position at the interaction point
-  double m_zPositionInitIP;
+  Gaudi::Property<double> m_zPositionInitIP {this, "zPositionInitIp", 0, "Initial z position at IP"};
   /// Nominal beam energy
-  double m_energy; 
+  Gaudi::Property<double> m_energy {this, "beamEnergy", 0, "Nominal beam energy"}; 
   /// Detector position for which the parameterisation has been done
-  double m_parametrisationPosition; 
+  Gaudi::Property<double> m_parametrisationPosition {this, "parameterisationPosition", 0, "Detector position for which parameterisation was derived"}; 
+  
+  Gaudi::Property<std::string> m_filename {this, "filename", "", "Parameterisation file"};
+
 };
 
 #endif

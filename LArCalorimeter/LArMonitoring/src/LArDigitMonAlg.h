@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONITORING_LARDIGITMON_H
@@ -10,7 +10,8 @@
 
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 //STL:
 #include <string>
@@ -23,6 +24,7 @@
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+
 
 #include <mutex>
 
@@ -75,7 +77,8 @@ private:
   
   //Added for Stream aware:
   /** Give the name of the streams you want to monitor:*/
-  Gaudi::Property<std::vector<std::string> >  m_streams {this, "Streams", {""}};
+  Gaudi::Property<std::vector<std::string> >  m_streams {this, "Streams", {}};
+
   //std::vector<unsigned> m_streamsThisEvent;
   
   //Histogram group names
@@ -85,8 +88,10 @@ private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
   
   /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-  
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
   /** Handle to pedestal */
   SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
   
@@ -108,8 +113,8 @@ private:
   /* set once, guarded by mutex */
   mutable int m_Samplenbr ATLAS_THREAD_SAFE;
   mutable std::mutex m_lock;
-  mutable int m_SampleRangeLow ATLAS_THREAD_SAFE; 
-  mutable int m_SampleRangeUp ATLAS_THREAD_SAFE; 
+  mutable int m_SampleRangeLow ATLAS_THREAD_SAFE = 0; 
+  mutable int m_SampleRangeUp  ATLAS_THREAD_SAFE = 0; 
   
   int WhatPartition(HWIdentifier id, int side) const; 
 };

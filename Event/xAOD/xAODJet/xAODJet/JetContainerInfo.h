@@ -94,8 +94,8 @@ namespace xAOD {
       EMPFlowVorSKTime,
       HI,
       HIClusters,
+      PFlowCustomVtx, // for testing
       Other = 100,
-      EMPFlowFE = 200, // Temporary, until xAOD::PFO is phased out and replaced with xAOD::FlowElement
       Uncategorized= 1000
     };
 

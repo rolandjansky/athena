@@ -30,6 +30,9 @@ if Type == 'Cosmic':
       # this is totaly obsolete and not working
       # not sure if it make sense to have this part
       ###############################################
+
+      from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+      LArADC2MeVCondAlgDefault()
       
       from LArROD.LArRODConf import LArRawChannelSimpleBuilder
       theLArRawChannelBuilder = LArRawChannelSimpleBuilder()

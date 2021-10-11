@@ -42,7 +42,7 @@ class TrigTauXComboHypoTool:  public ComboHypoToolBase {
 
  private:
   
-  virtual bool executeAlg(std::vector<LegDecision>& thecomb) const override;
+  virtual bool executeAlg(const std::vector<Combo::LegDecision>& combination) const override;
   
   // flags
   Gaudi::Property< bool > m_acceptAll {this, "AcceptAll", false, "Ignore selection" };

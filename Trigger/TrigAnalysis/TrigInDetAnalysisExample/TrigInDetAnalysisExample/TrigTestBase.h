@@ -13,7 +13,6 @@
 #define TIDAEXAMPLE_TRIGTESTBASE_H
 
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 

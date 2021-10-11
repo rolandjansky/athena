@@ -57,7 +57,7 @@ namespace
 		Trk::TrackParameters * perigee;
 		const Trk::TrackParameters * originalPerigee;
 		Trk::LinearizedTrack * linTrack;
-		double chi2;
+		double chi2{};
 		AmgMatrix(5,3) Di_mat;
 		AmgMatrix(5,3) Ei_mat;
 		AmgMatrix(3,3) Gi_mat;
@@ -77,8 +77,8 @@ namespace
                   BCB_mat.setZero();
                   BCU_vec.setZero();
                 };
-		double chi2;
-		unsigned int ndf;
+		double chi2{};
+		unsigned int ndf{};
 		AmgMatrix(3,3) A_mat;              // T  = sum{Di.T * Wi * Di}
 		Amg::Vector3D T_vec;              // A  = sum{Di.T * Wi * dqi}
 		AmgMatrix(3,3) BCB_mat;       // BCB = sum{Bi * Ci^-1 * Bi.T}
@@ -529,7 +529,6 @@ namespace Trk
  		   xAOD::Vertex* fittedVertex = fit( measuredPerigees, constraint ); 
  		 
  		   //assigning the input tracks to the fitted vertex through VxTrackAtVertices
- 		   if(fittedVertex !=nullptr) 
  		   { 
  		    if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check! 
  		    { 

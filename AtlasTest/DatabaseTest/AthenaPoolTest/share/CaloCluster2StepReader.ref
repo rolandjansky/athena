@@ -111,7 +111,6 @@ Athena               INFO including file "LArConditionsCommon/LArIdMap_MC_jobOpt
 Athena               INFO including file "LArCondAthenaPool/LArCondAthenaPool_joboptions.py"
 ApplicationMgr       INFO Successfully loaded modules : 
 Athena               INFO including file "LArRawConditions/LArRawConditionsDict_joboptions.py"
-Athena               INFO including file "CaloTools/CaloNoiseTool_jobOptions.py"
 ClassIDSvc           INFO  getRegistryEntries: read 2614 CLIDRegistry entries for module CaloTools
 ApplicationMgr       INFO Successfully loaded modules : CaloTools
 Athena              ERROR inconsistent case used in property name "DLLs" of ApplicationMgr
@@ -130,8 +129,6 @@ Athena               INFO including file "TileConditions/TileConditions_jobOptio
 ClassIDSvc           INFO  getRegistryEntries: read 3654 CLIDRegistry entries for module TileConditions
 ApplicationMgr       INFO Successfully loaded modules : TileConditions
 Athena               INFO including file "TileConditions/TileNoiseOn_jobOptions.py"
-Athena               INFO including file "LArCalibUtils/LArOFCTool_jobOptions.py"
-Athena               INFO including file "LArCalibUtils/LArAutoCorrTotalTool_jobOptions.py"
 Athena               INFO including file "BFieldAth/BFieldAth_jobOptions.py"
 ClassIDSvc           INFO  getRegistryEntries: read 3654 CLIDRegistry entries for module BFieldAth
 ApplicationMgr       INFO Successfully loaded modules : BFieldAth
@@ -252,7 +249,6 @@ DetDescrCnvSvc       INFO  filling address for MuonMgr with CLID 4060 and storag
 DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 

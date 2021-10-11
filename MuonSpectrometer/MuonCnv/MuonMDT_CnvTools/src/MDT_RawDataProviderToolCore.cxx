@@ -3,78 +3,68 @@
 */
 
 #include "MDT_RawDataProviderToolCore.h"
+
 #include "MuonRDO/MdtCsmContainer.h"
 
-Muon::MDT_RawDataProviderToolCore::MDT_RawDataProviderToolCore(const std::string& t, const std::string& n, const IInterface*  p ) :
-  AthAlgTool(t,n,p){ 
+Muon::MDT_RawDataProviderToolCore::MDT_RawDataProviderToolCore(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t, n, p) {}
+
+StatusCode Muon::MDT_RawDataProviderToolCore::initialize() {
+    ATH_MSG_VERBOSE("Starting init");
+
+    ATH_MSG_VERBOSE("Getting m_robDataProvider");
+
+    // Get ROBDataProviderSvc
+    if (m_robDataProvider.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Failed to retrieve serive " << m_robDataProvider);
+        return StatusCode::FAILURE;
+    } else
+        ATH_MSG_INFO("Retrieved service " << m_robDataProvider);
+
+    ATH_CHECK(m_idHelperSvc.retrieve());
+
+    ATH_MSG_VERBOSE("Getting m_decoder");
+
+    // Retrieve decoder
+    if (m_decoder.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Failed to retrieve tool " << m_decoder);
+        return StatusCode::FAILURE;
+    } else
+        ATH_MSG_INFO("Retrieved tool " << m_decoder);
+
+    m_maxhashtoUse = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME") != -1 ? m_idHelperSvc->mdtIdHelper().detectorElement_hash_max()
+                                                                                : m_idHelperSvc->mdtIdHelper().module_hash_max();
+
+    ATH_CHECK(m_rdoContainerKey.initialize());
+    ATH_CHECK(m_readKey.initialize());
+
+    ATH_MSG_INFO("initialize() successful in " << name());
+    return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
-{    
-  ATH_MSG_VERBOSE("Starting init");
+StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer(
+    const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer) const {
+    ATH_MSG_VERBOSE("convert(): " << vecRobs.size() << " ROBFragments.");
 
-  ATH_MSG_VERBOSE("Getting m_robDataProvider");  
-  
-  // Get ROBDataProviderSvc
-  if (m_robDataProvider.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve serive " << m_robDataProvider);
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO("Retrieved service " << m_robDataProvider);
-  
-  ATH_CHECK(m_idHelperSvc.retrieve());
-  
-  ATH_MSG_VERBOSE("Getting m_decoder");  
-  
-  // Retrieve decoder
-  if (m_decoder.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_decoder);
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_INFO("Retrieved tool " << m_decoder);
-  
-  
-  m_maxhashtoUse = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME") != -1 ?
-    m_idHelperSvc->mdtIdHelper().detectorElement_hash_max() : m_idHelperSvc->mdtIdHelper().module_hash_max();
+    for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* frag : vecRobs) {
+        // convert only if data payload is delivered
+        if (frag->rod_ndata() != 0) {
+            // std::vector<IdentifierHash> coll =
+            //                          to_be_converted(*frag,collections);
 
-  ATH_CHECK( m_rdoContainerKey.initialize() );
-  ATH_CHECK( m_readKey.initialize() );  
-  
-  ATH_MSG_INFO("initialize() successful in " << name());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer) const
-{
-  ATH_MSG_VERBOSE("convert(): " << vecRobs.size()<<" ROBFragments.");    
-
-  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* frag : vecRobs)
-    {
-      //convert only if data payload is delivered
-      if ( frag->rod_ndata()!=0 )
-	{
-	  //std::vector<IdentifierHash> coll =
-	  //                          to_be_converted(*frag,collections);
-	  
-	  if (m_decoder->fillCollections(*frag, mdtContainer).isFailure())
-            {
-	      // store the error conditions into the StatusCode and continue
+            if (m_decoder->fillCollections(*frag, mdtContainer).isFailure()) {
+                // store the error conditions into the StatusCode and continue
             }
-	}
-      else
-	{
-	  if(msgLvl(MSG::DEBUG))
-	    {
-	      uint32_t sourceId= frag->source_id();
-	      msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId
-			    << " is delivered with an empty payload" << MSG::dec;
-	    }
-	  // store the error condition into the StatusCode and continue
-	}
+        } else {
+            if (msgLvl(MSG::DEBUG)) {
+                uint32_t sourceId = frag->source_id();
+                msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId << " is delivered with an empty payload" << MSG::dec;
+            }
+            // store the error condition into the StatusCode and continue
+        }
     }
-  //in presence of errors return FAILURE
-  ATH_MSG_DEBUG("After processing numColls="<< mdtContainer.numberOfCollections());
-  //ATH_CHECK( handle.record (std::move (csm)) );
-  return StatusCode::SUCCESS;
+    // in presence of errors return FAILURE
+    ATH_MSG_DEBUG("After processing numColls=" << mdtContainer.numberOfCollections());
+    // ATH_CHECK( handle.record (std::move (csm)) );
+    return StatusCode::SUCCESS;
 }
-

@@ -48,8 +48,7 @@ struct ATLAS_NOT_THREAD_SAFE GetCollection
 
 Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const std::string& name,
 						  const IInterface* parent ) 
-  : AthAlgTool( type, name, parent ),
-    RpcRdoToPrepDataToolCore( type, name, parent )
+  : base_class( type, name, parent )
 {
 }
 
@@ -61,7 +60,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent)
+StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent) const
 {
   SG::WriteHandle< Muon::RpcPrepDataContainer > rpcPrepDataHandle(m_rpcPrepDataContainerKey);
   if(!rpcPrepDataHandle.isPresent()) {
@@ -115,7 +114,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect )
+StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const
 {
   bool firstTimeInTheEvent=false;
   ATH_CHECK( manageOutputContainers (firstTimeInTheEvent) );
@@ -148,7 +147,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
+StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds ) const
 {
   bool firstTimeInTheEvent=false;
   ATH_CHECK( manageOutputContainers (firstTimeInTheEvent) );
@@ -182,7 +181,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
 }
 
 
-void Muon::RpcRdoToPrepDataTool::printPrepData()
+void Muon::RpcRdoToPrepDataTool::printPrepData() const
 {
   printPrepDataImpl(*m_state.m_rpcPrepDataContainer,
                     *m_state.m_rpcCoinDataContainer);

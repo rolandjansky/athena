@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -14,12 +14,8 @@ def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
 ##------------------------------------------------------------------------------
 def PixelClusterizationCfg(flags, name = "InDetPixelClusterization", **kwargs) :
     acc = ComponentAccumulator()
-    sub_acc = MergedPixelsToolCfg(flags, **kwargs)
-    merged_pixels_tool = sub_acc.getPrimary()
-    acc.merge(sub_acc)
-    sub_acc = PixelGangedAmbiguitiesFinderCfg(flags)
-    ambi_finder=sub_acc.getPrimary()
-    acc.merge(sub_acc)
+    merged_pixels_tool = acc.getPrimaryAndMerge(MergedPixelsToolCfg(flags, **kwargs))
+    ambi_finder = acc.getPrimaryAndMerge(PixelGangedAmbiguitiesFinderCfg(flags))
 
     # Region selector tools for Pixel
     from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
@@ -51,9 +47,7 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
     InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
 
     #### Clustering tool ######
-    accbuf = ClusterMakerToolCfg(flags)
-    InDetClusterMakerTool = accbuf.getPrimary()
-    acc.merge(accbuf)
+    InDetClusterMakerTool = acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags))
     InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "InDetSCT_ClusteringTool",
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -84,6 +78,10 @@ def SCTClusterizationPUCfg(flags, name="InDetSCT_ClusterizationPU", **kwargs) :
 ##------------------------------------------------------------------------------
 def PixelGangedAmbiguitiesFinderCfg(flags) :
     acc = ComponentAccumulator()
+
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    acc.merge(PixelGeometryCfg(flags))
+
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
     acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
     return acc
@@ -92,17 +90,11 @@ def PixelGangedAmbiguitiesFinderCfg(flags) :
 def MergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
       # --- now load the framework for the clustering
-      accbuf = ClusterMakerToolCfg(flags)
-      InDetClusterMakerTool = accbuf.getPrimary()
-      kwargs.setdefault("globalPosAlg", InDetClusterMakerTool )
-      acc.merge(accbuf)
+      kwargs.setdefault("globalPosAlg", acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags)) )
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
-      from InDetConfig.InDetRecToolConfig import PixelConditionsSummaryToolCfg
-      accbuf = PixelConditionsSummaryToolCfg(flags)
-      conditionssummarytool = accbuf.popPrivateTools()
-      kwargs.setdefault("PixelConditionsSummaryTool", conditionssummarytool ) 
-      acc.merge(accbuf)
+      from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+      kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) ) 
 
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
@@ -137,7 +129,7 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     return acc
 
 
-def TrackToVertexCfg(flags, name="TrackToVertex", **kwargs):
+def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -154,7 +146,9 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-        kwargs["TrackSummaryTool"] = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+        TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+        result.addPublicTool(TrackSummaryTool)
+        kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.InDet.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
     kwargs.setdefault("KeepParameters", True)
@@ -162,13 +156,13 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
     kwargs.setdefault(
         "PerigeeExpression",
         p_expr if p_expr != "Vertex" else "BeamLine")
-    result.setPrivateTools(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs))
+    result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
     return result
 
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
     result = ComponentAccumulator()
     if TrackParticleCreator is None:
-        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
         name,
         TrackParticleCreator=TrackParticleCreator,
@@ -182,7 +176,7 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticl
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
     if "TrackCollectionCnvTool" not in kwargs:
         kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(TrackCollectionCnvToolCfg(
             flags,
@@ -241,43 +235,50 @@ def TrackRecoCfg(flags):
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
     result.merge(PixelHitDiscCnfgAlgCfg(flags))
     if flags.Input.Format == "BS":
-        result.addEventAlgo(CompFactory.PixelRawDataProvider())
-        result.addEventAlgo(CompFactory.SCTRawDataProvider())
+        from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
+        result.merge(PixelRawDataProviderAlgCfg(flags))
+        from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
+        result.merge(SCTRawDataProviderCfg(flags))
+        result.merge(SCTEventFlagWriterCfg(flags))
+        from InDetConfig.TRTPreProcessing import TRTRawDataProviderCfg
+        result.merge(TRTRawDataProviderCfg(flags))
 
     # up to here
     # needed for brem/seeding, TODO decided if needed here
-    from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
-    result.merge(LArBadFebCfg(flags))
-    from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg
-    result.merge(CaloCellMakerCfg(flags))
-    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(flags, doLCCalib=False))
-    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-    result.merge(egammaTopoClusterCopierCfg(flags))
-    from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-    result.merge(CaloClusterROI_SelectorCfg(flags, ))
+    if flags.Detector.GeometryLAr:
+        from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
+        result.merge(LArBadFebCfg(flags))
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        result.merge(CaloRecoCfg(flags,doLCCalib=True))
+        from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+        result.merge(egammaTopoClusterCopierCfg(flags))
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        result.merge(CaloClusterROI_SelectorCfg(flags))
 
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-    from InDetConfig.TrackingCommonConfig import TRT_DetElementsRoadCondAlgCfg, RIO_OnTrackErrorScalingCondAlgCfg
-    result.merge(TRTActiveCondAlgCfg(flags))
-    result.merge(TRT_DetElementsRoadCondAlgCfg())
-    result.merge(RIO_OnTrackErrorScalingCondAlgCfg(flags))
 
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     result.merge(InDetRecPreProcessingSiliconCfg(flags))
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
-    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+
+    # TRT extension
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    result.merge(TRTPreProcessingCfg(flags))
+    from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
+    result.merge(NewTrackingTRTExtensionCfg(flags, SiTrackCollection = "ResolvedTracks", ExtendedTrackCollection = "ExtendedTracks", ExtendedTracksMap = "ExtendedTracksMap", doPhase=False))
+    # TODO add followup algs
+    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ExtendedTracks"))
+
+    if flags.InDet.doVertexFinding:
+        from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
+        result.merge(primaryVertexFindingCfg(flags))
+
+    from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
     toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
     toESD = []
-    if flags.Output.doWriteESD:
-        result.merge(OutputStreamCfg(flags, "ESD", ItemList=toAOD+toESD))
-
-    if flags.Output.doWriteAOD:
-        result.merge(OutputStreamCfg(flags, "AOD", ItemList=toAOD ))
-    
+    result.merge(addToESD(flags, toAOD+toESD))
+    result.merge(addToAOD(flags, toAOD))
     return result
 
 if __name__ == "__main__":
@@ -294,10 +295,6 @@ if __name__ == "__main__":
     ConfigFlags.InDet.doPixelClusterSplitting = True
     ConfigFlags.InDet.doSiSPSeededTrackFinder = True
 
-    ConfigFlags.Detector.RecoIBL = True
-    ConfigFlags.Detector.RecoPixel = True
-    ConfigFlags.Detector.RecoTRT = True
-    ConfigFlags.Detector.RecoSCT = True
     # TODO add these flags in future
 #    ConfigFlags.addFlag('InDet.doAmbiSolving', True)
 #    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)

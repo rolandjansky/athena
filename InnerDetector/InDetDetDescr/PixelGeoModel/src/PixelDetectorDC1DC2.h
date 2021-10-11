@@ -149,7 +149,7 @@ class GeoPixelDiskSupports : public GeoVPixelFactory {
  private:
   std::vector<double> m_rmin,m_rmax,m_halflength,m_zpos;
   std::vector<std::string> m_material;
-  int m_nframe;
+  int m_nframe{0};
 
 };
 
@@ -299,7 +299,7 @@ class GeoPixelServices : public GeoVPixelFactory {
   std::vector<double> m_rmin,m_rmax,m_halflength,m_zpos;
   std::vector<std::string> m_material;
   std::string m_zone;
-  int m_nframe;
+  int m_nframe{0};
 
 
 };
@@ -341,6 +341,8 @@ class GeoPixelSubDisk : public GeoVPixelFactory {
                   PixelGeometryManager* mgr,
                   GeoPixelSiCrystal &theSensor);
   virtual ~GeoPixelSubDisk();
+  GeoPixelSubDisk (const GeoPixelSubDisk&) = delete;
+  GeoPixelSubDisk& operator= (const GeoPixelSubDisk&) = delete;
   virtual GeoVPhysVol* Build() override;
   double Thickness();
   double RMax();
@@ -361,6 +363,8 @@ class GeoPixelTubeCables : public GeoVPixelFactory {
   GeoPixelTubeCables(InDetDD::PixelDetectorManager* ddmgr,
                      PixelGeometryManager* mgr);
   virtual ~GeoPixelTubeCables();
+  GeoPixelTubeCables (const GeoPixelTubeCables&) = delete;
+  GeoPixelTubeCables& operator= (const GeoPixelTubeCables&) = delete;
   virtual GeoVPhysVol* Build() override;
   double Thickness();
  private:

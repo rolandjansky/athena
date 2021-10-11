@@ -25,7 +25,8 @@ class IRegionCreator : virtual public IAlgTool {
   DeclareInterfaceID(IRegionCreator, 1, 0);
 
   virtual void Dump() = 0;
-  
+
+  virtual void Construct() = 0;
 };
 
 #endif

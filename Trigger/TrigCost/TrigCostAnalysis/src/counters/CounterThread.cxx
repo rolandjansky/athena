@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -17,12 +17,13 @@ CounterThread::CounterThread(const std::string& name, const MonitorBase* parent)
 
   regHistogram("AlgTime_perEventFractional", "Algorithm CPU Time Fractional;Fractional Time;Events", VariableType::kPerEvent, kLinear, 0., 1.);
   regHistogram("FrameworkTime_perEventFractional", "Framework Time/Event CPU Time Fractional;Fractional Time;Events", VariableType::kPerEvent, kLinear, 0., 1.);
+  regHistogram("FrameworkTime_perEventFractional_vs_TotalTime_perEvent", "Framework Fractional Time vs Total Time/Event;Framework Time/Event CPU Time Fractional;Total Time/Event CPU Time Fractional;Events", VariableType::kPerEvent, kLinear, 0., 1., 70, kLog, 0.1, 1000000., 70);
+  regHistogram("AlgTime_perEventFractional_vs_TotalTime_perEvent", "Algorithm Fractional Time vs Total Time/Event;Algorithm Time/Event CPU Time Fractional;Total Time/Event CPU Time Fractional;Events", VariableType::kPerEvent, kLinear, 0., 1., 70, kLog, 0.1, 1000000., 70);
   regHistogram("UnmonitoredTime_perEventFractional", "Unmonitored CPU Time Fractional;Fractional Time;Events", VariableType::kPerEvent, kLinear, 0., 1.);
 
-
-  regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5);
-  regHistogram("ThisAlgCalls_perEvent", "This Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5);
-  regHistogram("OtherAlgCalls_perEvent", "Other Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5);
+  regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLog, 0.5, 10000.5, 500);
+  regHistogram("ThisAlgCalls_perEvent", "This Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLog, 0.5, 10000.5, 500);
+  regHistogram("OtherAlgCalls_perEvent", "Other Event Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLog, 0.5, 10000.5, 500);
   regHistogram("AlgSlot_perCall", "Algorithm Slot/Call;Slot;Calls", VariableType::kPerCall, kLinear, -0.5, 20.5, 21);
 
 }
@@ -51,10 +52,10 @@ StatusCode CounterThread::newEvent(const CostData& data, size_t index, const flo
 }
 
 StatusCode CounterThread::postProcess(float weight) {
-  // Total time from start of L1Decoder to "stop" of SummaryMaker.
+  // Total time from start of HLTSeeding to "stop" of SummaryMaker.
   const float eventTime = timeToMilliSec(m_globalLowTimestamp, m_globalHighTimestamp);
   
-  // We know that we may loose data on algs which started executing before the L1Decoder triggered the data collection.
+  // We know that we may loose data on algs which started executing before the HLTSeeding triggered the data collection.
   // But we truncate the data for algs which are running still when we stop collecting data.
   float unmonitoredTime = 0;
   if (m_highTimestamp > 0) {
@@ -78,6 +79,11 @@ StatusCode CounterThread::postProcess(float weight) {
   ATH_CHECK( setDenominator("AlgTime_perEventFractional", eventTime) );
   ATH_CHECK( setDenominator("FrameworkTime_perEventFractional", eventTime) );
   ATH_CHECK( setDenominator("UnmonitoredTime_perEventFractional", eventTime) );
+
+  ATH_CHECK( fill("FrameworkTime_perEventFractional_vs_TotalTime_perEvent", frameworkTime, eventTime, weight) );
+  ATH_CHECK( fill("AlgTime_perEventFractional_vs_TotalTime_perEvent", getVariable("AlgTime_perEvent").getAccumulator(), eventTime, weight) );
+  ATH_CHECK( setDenominator("FrameworkTime_perEventFractional_vs_TotalTime_perEvent", eventTime) );
+  ATH_CHECK( setDenominator("AlgTime_perEventFractional_vs_TotalTime_perEvent", eventTime) );
 
   m_lowTimestamp = std::numeric_limits<uint64_t>::max();
   m_highTimestamp = 0;

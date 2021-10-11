@@ -132,7 +132,12 @@ int BunchCrossingCondData::gapBeforeTrain( bcid_type bcid,
     return -1;
   }
 
-  int index=bt->m_first-1;
+  return gapBeforeBunch(bt->m_first,type);
+}
+
+int BunchCrossingCondData::gapBeforeBunch( bcid_type bcid,
+					   BunchDistanceType type) const {
+  int index=bcid-1;
   if (index<0) {
     index=m_MAX_BCID-1;
   }
@@ -162,8 +167,12 @@ int BunchCrossingCondData::gapAfterTrain( bcid_type bcid,
   if (bt==nullptr) {
     return -1;
   }
+  return gapAfterBunch(bt->m_last,type);
+}
 
-  int index=bt->m_last+1;
+int BunchCrossingCondData::gapAfterBunch( bcid_type bcid,
+					  BunchDistanceType type) const {
+  int index=bcid+1;
   if (index>=m_MAX_BCID) {
     index=0;
   }

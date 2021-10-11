@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
@@ -22,7 +22,7 @@ class CaloCellGetter (Configured)  :
 
         doStandardCellReconstruction = True
         from CaloRec.CaloCellFlags import jobproperties
-        from AthenaCommon.AppMgr import ToolSvc
+        #from AthenaCommon.AppMgr import ToolSvc
 
         if not jobproperties.CaloCellFlags.doFastCaloSim.statusOn:
             doFastCaloSim = False
@@ -325,33 +325,11 @@ class CaloCellGetter (Configured)  :
                 return False
 
             if doSporadicMask:
-                try:
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-                    theLArSporadicNoiseMasker = LArBadChannelMasker("LArSporadicNoiseMasker")
-                except Exception:
-                    mlog.error("could not access bad channel tool Quit")
-                    print(traceback.format_exc())
-                    return False
-                theLArSporadicNoiseMasker.DoMasking = True
-                theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
-                #ToolSvc += theLArSporadicNoiseMasker
-                theLArCellNoiseMaskingTool.MaskingSporadicTool = theLArSporadicNoiseMasker
+                theLArCellNoiseMaskingTool.SporadicProblemsToMask=["sporadicBurstNoise",]
 
             if doNoiseMask:
-                try:
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-                    theLArNoiseMasker = LArBadChannelMasker("LArNoiseMasker")
-                except Exception:
-                    mlog.error("could not access bad channel tool Quit")
-                    print(traceback.format_exc())
-                    return False
-                theLArNoiseMasker.DoMasking=True
-                theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
-                #ToolSvc+=theLArNoiseMasker
-                theLArCellNoiseMaskingTool.MaskingTool = theLArNoiseMasker
+                theLArCellNoiseMaskingTool.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
 
-            theLArCellNoiseMaskingTool.maskNoise = doNoiseMask
-            theLArCellNoiseMaskingTool.maskSporadic = doSporadicMask
             # quality cut for sporadic noise masking
             theLArCellNoiseMaskingTool.qualityCut=4000
             theCaloCellMaker += theLArCellNoiseMaskingTool
@@ -491,51 +469,6 @@ class CaloCellGetter (Configured)  :
     
             #theCaloCellMaker += theHVCorrTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellHVCorrTool]
-
-        #
-        # Correction for MinBias energy shift for MC pileup reco
-        #
-        doMinBiasAverage = False
-        if jobproperties.CaloCellFlags.doMinBiasAverage.statusOn:
-           from AthenaCommon.GlobalFlags import globalflags  
-           from AthenaCommon.BeamFlags import jobproperties
-           if jobproperties.CaloCellFlags.doMinBiasAverage() and globalflags.DataSource() == 'geant4' and (not jobproperties.Beam.zeroLuminosity()):
-              doMinBiasAverage = True
-        
-        if doMinBiasAverage:
-
-           try:
-               from CaloTools.CaloMBAverageToolDefault import CaloMBAverageToolDefault
-               theCaloMBAverageTool = CaloMBAverageToolDefault()
-           except Exception:
-               mlog.error("could not get handle to CaloMBAverageTool  Quit")
-               print(traceback.format_exc())
-               return False
-           ToolSvc+=theCaloMBAverageTool
-
-           try:
-               from CaloCellCorrection.CaloCellCorrectionConf import CaloCellMBAverageCorr
-               theCaloCellMBAverageCorr = CaloCellMBAverageCorr("CaloCellMBAverageCorr")
-               theCaloCellMBAverageCorr.CaloMBAverageTool = theCaloMBAverageTool
-           except Exception:
-               mlog.error("could not get handle to  CaloCellMBAverageCorr  Quit")
-               print(traceback.format_exc())
-               return False
-
-           try:
-              from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
-              from CaloIdentifier import SUBCALO 
-              theMBAverageTool = CaloCellContainerCorrectorTool("MBAverageTool",
-                           CaloNums = [ SUBCALO.NSUBCALO],
-                           CellCorrectionToolNames = [theCaloCellMBAverageCorr] )
-           except Exception:
-               mlog.error("could not get handle to CaloCellContainerCorrectorTool/MBAverageTool Quit")
-               print(traceback.format_exc())
-               return False
-
-           theCaloCellMaker += theMBAverageTool
-           theCaloCellMaker.CaloCellMakerToolNames += [theMBAverageTool]
-
 
         #
         # Correction for dead cells, where we average the energy density of neighbor cells                     

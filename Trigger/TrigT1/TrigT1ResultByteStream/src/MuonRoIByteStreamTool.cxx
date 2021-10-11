@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRoIByteStreamTool.h"
@@ -29,6 +29,9 @@ StatusCode MuonRoIByteStreamTool::initialize() {
 
   ATH_CHECK(m_roiWriteKey.initialize(!m_roiWriteKey.empty()));
   ATH_CHECK(m_roiReadKey.initialize(!m_roiReadKey.empty()));
+
+  ATH_MSG_DEBUG((m_roiWriteKey.empty() ? "Encoding" : "Decoding") << " ROB IDs: "
+                << MSG::hex << m_robIds.value() << MSG::dec);
 
   CHECK( m_rpcTool.retrieve() );
   CHECK( m_tgcTool.retrieve() );
@@ -77,12 +80,12 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
     else roiData = m_tgcTool->roiData(*data);
 
     //get the threshold decisions to find the lowest pt threshold passed
-    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_thresholdTool->getThresholdDecisions(*data);
+    std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_thresholdTool->getThresholdDecisions(*data, eventContext);
     std::pair<std::string, double> minThrInfo = m_thresholdTool->getMinThresholdNameAndValue(decisions, roiData.eta());
 
     //add an additional flag in the unused MSB to indicate if this is in RUN3 format
     uint32_t word = *data;
-    if (m_useRun3Config) word |= 0x1<<31;
+    if (m_useRun3Config) word |= 0x1u<<31;
 
     //initialize the xAOD
     handle->back()->initialize(word, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);

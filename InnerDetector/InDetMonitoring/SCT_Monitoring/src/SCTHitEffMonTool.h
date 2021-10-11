@@ -24,7 +24,7 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -82,7 +82,7 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   typedef std::array<std::array<TH2F*, SCT_Monitoring::N_ENDCAPS>, SCT_Monitoring::N_REGIONS> TH2FArrayLayer;
 
   /** Method to cut on track or hit variables and automatize DEBUG statements */
-  StatusCode failCut(bool value, std::string name) const;
+  StatusCode failCut(bool value, const std::string & name) const;
 
   /** Method to compute incident angle of track to wafer */
   StatusCode findAnglesToWaferSurface(const Amg::Vector3D& mom, const Identifier id,
@@ -130,8 +130,7 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool", "Trig::BunchCrossingTool/BunchCrossingTool"};
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" }; 
 
   ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   ToolHandle<Trk::IRIO_OnTrackCreator> m_rotcreator{this, "ROTCreator", "InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"};

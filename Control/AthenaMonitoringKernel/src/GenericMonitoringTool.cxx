@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -20,9 +20,6 @@
 
 using namespace Monitored;
 
-GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : AthAlgTool(type, name, parent) { }
-
 GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
@@ -39,8 +36,21 @@ StatusCode GenericMonitoringTool::start() {
 }
 
 StatusCode GenericMonitoringTool::stop() {
+  m_alwaysCreateFillers.clear();
   m_fillers.clear();
+  if (m_registerHandler) {
+    ATH_MSG_DEBUG("Deregistering incident handler");
+    IIncidentSvc* incSvc{nullptr};
+    ATH_CHECK(service("IncidentSvc", incSvc));
+    incSvc->removeListener(this, IncidentType::BeginEvent);
+  }
   return StatusCode::SUCCESS;
+}
+
+void GenericMonitoringTool::handle( const Incident& ) {
+  for (const auto& filler : m_alwaysCreateFillers) {
+    filler->touch();
+  }
 }
 
 StatusCode GenericMonitoringTool::book() {
@@ -70,7 +80,14 @@ StatusCode GenericMonitoringTool::book() {
       std::shared_ptr<HistogramFiller> filler(factory.create(def));
 
       if (filler) {
-	m_fillers.push_back(filler);
+        if (def.kAlwaysCreate) {
+          if (m_registerHandler) {
+            m_alwaysCreateFillers.push_back(filler); // prepare list of fillers for handler
+          } else {
+            filler->touch(); // create now and be done with it
+          }
+        }
+      	m_fillers.push_back(filler);
       } else {
         ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
       }
@@ -89,6 +106,14 @@ StatusCode GenericMonitoringTool::book() {
     return StatusCode::FAILURE;
   }
 
+  // are there some histograms that should always be made?
+  // then register to be notified on every event
+  if (! m_alwaysCreateFillers.empty() && m_registerHandler) {
+    ATH_MSG_DEBUG("Registering incident handler");
+    IIncidentSvc* incSvc{nullptr};
+    ATH_CHECK(service("IncidentSvc", incSvc));
+    incSvc->addListener(this, IncidentType::BeginEvent);
+  }
 
   return StatusCode::SUCCESS;
 }

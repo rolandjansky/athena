@@ -265,7 +265,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::vector<float>* mu_pt, std::ve
   xAOD::MuonContainer::const_iterator it  = muonCont->begin();
   xAOD::MuonContainer::const_iterator ite = muonCont->end();
 
-  for( ; it != ite; it++ ){
+  for( ; it != ite; ++it ){
     float pt = (*it)->pt();
     float eta = (*it)->eta();
     float phi = (*it)->phi();
@@ -330,28 +330,24 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::vector<float>* mu_pt, std::ve
       float dphi = std::abs(mu_phi->at(itr) - phi);
       if(dphi > M_PI) dphi = 2*M_PI - dphi;
       if(std::sqrt(deta*deta + dphi*dphi) < 0.1){
-	if(pt > mu_pt->at(itr)){
-	  std::vector<float>::iterator ipt;
-	  ipt = mu_pt->begin();
-	  for(unsigned int j=0; j < itr; j++) ++ipt;
-	  mu_pt->erase(ipt);
+        if(pt > mu_pt->at(itr)){
+          //std::vector<float>::iterator ipt;
+          auto ipt = mu_pt->begin();
+          mu_pt->erase(ipt+itr);
 
-	  std::vector<float>::iterator ieta;
-	  ieta = mu_eta->begin();
-	  for(unsigned int j=0; j < itr; j++) ++ieta;
-	  mu_eta->erase(ieta);
+          //std::vector<float>::iterator ieta;
+          auto ieta = mu_eta->begin();
+          mu_eta->erase(ieta+itr);
 
-	  std::vector<float>::iterator iphi;
-	  iphi = mu_phi->begin();
-	  for(unsigned int j=0; j < itr; j++) ++iphi;
-	  mu_phi->erase(iphi);
+          //std::vector<float>::iterator iphi;
+          auto iphi = mu_phi->begin();
+          mu_phi->erase(iphi+itr);
 
-	  std::vector<float>::iterator iq;
-	  iq = mu_q->begin();
-	  for(unsigned int j=0; j < itr; j++) ++iq;
-	  mu_q->erase(iq);
+          //std::vector<float>::iterator iq;
+          auto iq = mu_q->begin();
+          mu_q->erase(iq+itr);
 
-	} else overlapped = true;
+        } else overlapped = true;
       }
     }
 
@@ -390,9 +386,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
 
   xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
   xAOD::MuonRoIContainer::const_iterator mu_ite= muonRoIs->end(); 
-  for( ;
-      mu_it != mu_ite;
-      mu_it++){
+  for( ; mu_it != mu_ite;++mu_it){
     //RPC
     if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel ){
 
@@ -421,9 +415,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
 
   xAOD::EmTauRoIContainer::const_iterator em_it = emtauRoIs->begin(); 
   xAOD::EmTauRoIContainer::const_iterator em_ite= emtauRoIs->end(); 
-  for( ;
-      em_it != em_ite;
-      em_it++){
+  for( ; em_it != em_ite;++em_it){
 
     m_L1TriggerType[3]++;
     m_L1Caloetas.push_back((*em_it)->eta());
@@ -435,9 +427,7 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
 
   xAOD::JetRoIContainer::const_iterator j_it = jetRoIs->begin(); 
   xAOD::JetRoIContainer::const_iterator j_ite= jetRoIs->end(); 
-  for( ;
-      j_it != j_ite;
-      j_it++){
+  for( ;j_it != j_ite;++j_it){
 
     m_L1TriggerType[3]++;
     m_L1Caloetas.push_back((*j_it)->eta());

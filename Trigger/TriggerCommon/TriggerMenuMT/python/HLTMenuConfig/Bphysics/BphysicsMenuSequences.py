@@ -1,20 +1,23 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
-log = logging.getLogger('BphysicsMenuSequence')
+log = logging.getLogger(__name__)
 
 
 def bmumuxAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from DecisionHandling.DecisionHandlingConf import  ViewCreatorCentredOnIParticleROITool
 
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDConfig = getInDetTrigConfig( "bphysics" )
+
     viewCreatorROITool = ViewCreatorCentredOnIParticleROITool(
-        RoIEtaWidth = 0.75,
-        RoIPhiWidth = 0.75,
+        RoIEtaWidth = IDConfig.etaHalfWidth,
+        RoIPhiWidth = IDConfig.phiHalfWidth,
         RoisWriteHandleKey = recordable('HLT_Roi_Bmumux'))
 
     viewMaker = EventViewCreatorAlgorithm(
@@ -61,7 +64,7 @@ def dimuL2Sequence():
 
     hypo = TrigBphysStreamerHypo(
         name = 'DimuL2StreamerHypoAlg',
-        triggerList = getDefaultChainNames(),
+        triggerList = getNoL2CombChainNames(),
         triggerLevel = 'L2')
 
     return MenuSequence(
@@ -93,12 +96,8 @@ def dimuEFSequence():
         HypoToolGen = TrigBphysStreamerHypoToolFromDict)
 
 
-def getDefaultChainNames():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
-    chains = []
-    if bphysSlice:
-        for chain in bphysSlice:
-            if any(x in chain.name for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']) and 'l2io' not in chain.name:
-                chains.append(chain.name)
+def getNoL2CombChainNames():
+    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()  # get menu singleton
+    chains = [chain.name for chain in menu.chainsInMenu['Bphysics'] if "noL2Comb" in chain.name]
     return chains

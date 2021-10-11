@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -79,21 +79,21 @@ namespace Trk {
     /** @brief fill a new track object from track+measurements using flags
         for sorting and outliers. This method is a factory, that is the
         client needs to take care of deleting the track. */
-    Trk::Track*     copyToTrack (const Track&,  const MeasurementSet&,
-                                 const SortInputFlag, const bool) const;
+    static Trk::Track*     copyToTrack (const Track&,  const MeasurementSet&,
+                                 const SortInputFlag, const bool) ;
 
     /** @brief get the MeasurementSet out of a track+measurements combination.
 
         IMPORTANT: take this interface if you know there are no outliers on
         the track! Uses flags for sorting and outliers. */
-    MeasurementSet  stripMeasurements (const Track&,  const MeasurementSet&,
-                                       const SortInputFlag, const bool) const;
+    static MeasurementSet  stripMeasurements (const Track&,  const MeasurementSet&,
+                                       const SortInputFlag, const bool) ;
 
     /** @brief create a vector of PrepRawData* from the mixed input of track
         and single PrepRawData. Switch for applying a sort function as well
         as re-integration of outliers onto the input track. */
-    PrepRawDataSet  stripPrepRawData (const Track&, const PrepRawDataSet&,
-                                      const SortInputFlag, const bool) const;
+    static PrepRawDataSet  stripPrepRawData (const Track&, const PrepRawDataSet&,
+                                      const SortInputFlag, const bool) ;
 
   private:
     /** @brief the sorting reference point for getting reference track

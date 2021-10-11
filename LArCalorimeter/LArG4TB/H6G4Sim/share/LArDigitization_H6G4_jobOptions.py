@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ################################################################
 #
 # job Options fragment to create LArDigits  from LArHits which
@@ -23,8 +23,6 @@ topSequence = AlgSequence()
 #ToolSvc = Service( "ToolSvc" )
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon.AppMgr import ToolSvc
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theADC2MeVTool = LArADC2MeVToolDefault()
 theADC2MeVTool.MCSym=True
 ToolSvc += theADC2MeVTool
 # The following are properties for LArDigitization:

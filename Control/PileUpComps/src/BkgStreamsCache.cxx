@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -259,9 +259,8 @@ StatusCode BkgStreamsCache::initialize()
 {
   ATH_MSG_DEBUG (  "Initializing " << name()
                    << " - cache for events of type "
-                   << xAOD::EventInfo::PileUpType2Name(m_pileUpEventType)
-                   << " - package version " << PACKAGE_VERSION ) ;
-  
+                   << xAOD::EventInfo::PileUpType2Name(m_pileUpEventType) );
+
   PileUpEventTypeHandler(m_pileUpEventTypeProp);
   //locate the ActiveStoreSvc and initialize our local ptr
   ATH_CHECK(service("ActiveStoreSvc", p_activeStore));

@@ -29,10 +29,10 @@ namespace {
 }
 
 void
-ActsAthenaPrintPolicy::flush(const Acts::Logging::Level& lvl, const std::ostringstream& input)
+ActsAthenaPrintPolicy::flush(const Acts::Logging::Level& lvl, const std::string& input)
 {
   MSG::Level athLevel = athLevelVector[lvl];
-  (*m_msg) << athLevel << input.str() << endmsg;
+  (*m_msg) << athLevel << input << endmsg;
 }
   
 

@@ -13,7 +13,7 @@ atlas_add_component( RpcRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib StoreGateLib xAODEventInfo xAODMuon xAODTrigger xAODTracking GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry MuonGeoModelLib MuonRDO MuonTrigCoinData MuonDQAUtilsLib TrigDecisionToolLib TrigT1Interfaces GeoPrimitives EventPrimitives MuonDigitContainer MuonIdHelpersLib MuonPrepRawData TrkEventPrimitives TrkMeasurementBase TrkMultiComponentStateOnSurface TrkTrack TrigConfL1Data TrigT1Result MuonAnalysisInterfacesLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib StoreGateLib xAODEventInfo xAODMuon xAODTrigger xAODTracking GaudiKernel MuonReadoutGeometry MuonGeoModelLib MuonRDO MuonTrigCoinData MuonDQAUtilsLib TrigDecisionToolLib TrigT1Interfaces GeoPrimitives EventPrimitives MuonDigitContainer MuonIdHelpersLib MuonPrepRawData TrkEventPrimitives TrkMeasurementBase TrkMultiComponentStateOnSurface TrkTrack TrigConfL1Data TrigT1Result MuonAnalysisInterfacesLib RPC_CondCablingLib )
 
 # Install files from the package:
 atlas_install_headers( RpcRawDataMonitoring )

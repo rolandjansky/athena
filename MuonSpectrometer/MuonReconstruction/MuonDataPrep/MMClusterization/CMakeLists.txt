@@ -13,7 +13,7 @@ atlas_add_library( MMClusterizationLib
                    src/*.cxx
                    PUBLIC_HEADERS MMClusterization
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES GaudiKernel MuonPrepRawData MuonIdHelpersLib
+                   LINK_LIBRARIES GaudiKernel MuonPrepRawData MuonIdHelpersLib NSWCalibToolsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventPrimitives MuonReadoutGeometry )
 
 atlas_add_component( MMClusterization

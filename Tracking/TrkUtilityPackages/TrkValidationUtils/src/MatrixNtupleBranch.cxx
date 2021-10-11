@@ -7,7 +7,7 @@
 #include <TString.h>
 
 namespace Trk {
-  bool MatrixNtupleBranch::initForWrite(TTree& tree, std::string varname, int ncol, int nrow, std::string prefix ) {
+  bool MatrixNtupleBranch::initForWrite(TTree& tree, const std::string& varname, int ncol, int nrow, const std::string& prefix ) {
     if( ncol >= COLMAX ) return false;
     if( nrow >= ROWMAX ) return false;
     m_ncols = ncol;
@@ -24,7 +24,7 @@ namespace Trk {
     return true;
   }
 
-  bool MatrixNtupleBranch::initForRead(TTree& tree, std::string varname, int ncol, int nrow, std::string prefix ) { 
+  bool MatrixNtupleBranch::initForRead(TTree& tree, const std::string& varname, int ncol, int nrow, const std::string& prefix ) { 
     if( ncol >= COLMAX ) return false;
     if( nrow >= ROWMAX ) return false;
     m_ncols = ncol;

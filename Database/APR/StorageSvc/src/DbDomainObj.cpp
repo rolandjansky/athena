@@ -78,7 +78,7 @@ DbDomainObj::~DbDomainObj()  {
       << DbPrint::endmsg;
 }
 
-bool DbDomainObj::existsDbase( const string& name)
+bool DbDomainObj::existsDbase( const string& name) const
 {  return (m_info) ? m_info->existsDbase( name ) : false;               }
 
 DbStatus DbDomainObj::open(DbAccessMode mod)   {

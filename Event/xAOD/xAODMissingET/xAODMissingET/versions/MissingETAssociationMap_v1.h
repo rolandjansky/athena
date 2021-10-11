@@ -32,8 +32,9 @@ namespace xAOD
     /*! @brief Default constructor */
     MissingETAssociationMap_v1(SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
     /*! @brief Constructor from iterators */
-    MissingETAssociationMap_v1(MissingETAssociationMap_v1::iterator first, MissingETAssociationMap_v1::iterator last,
-			     SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
+    MissingETAssociationMap_v1(const MissingETAssociationMap_v1::iterator& first,
+                               const MissingETAssociationMap_v1::iterator& last,
+                               SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
     /*! @brief Base class destructor */
     virtual ~MissingETAssociationMap_v1();
 

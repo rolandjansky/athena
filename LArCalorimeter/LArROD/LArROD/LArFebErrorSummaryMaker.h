@@ -13,7 +13,7 @@ NAME:     LArFebSummaryMaker
 
 ********************************************************************/
 
-#include <AthenaBaseComps/AthAlgorithm.h>
+#include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <GaudiKernel/ServiceHandle.h>
 #include <GaudiKernel/ToolHandle.h>
 
@@ -25,35 +25,39 @@ NAME:     LArFebSummaryMaker
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-#include <vector>
+#include <array>
 #include <set>
 
 class LArOnlineID; 
 
-class LArFebErrorSummaryMaker : public AthAlgorithm
+class LArFebErrorSummaryMaker : public AthReentrantAlgorithm
 {
-
  public:
 
-  LArFebErrorSummaryMaker(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~LArFebErrorSummaryMaker();
+  using AthReentrantAlgorithm::AthReentrantAlgorithm; 
+  virtual ~LArFebErrorSummaryMaker() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
   virtual StatusCode finalize() override final;
 
  private:
 
-  int m_missingFebsWarns; //counter for missing FEB warnings
-  std::vector<int> m_errors;  //error types accumulator
+  //Atomic counters:
+  mutable std::atomic<int> m_missingFebsWarns{0}; //counter for missing FEB warnings
+  mutable std::array<std::atomic<unsigned>, LArFebErrorSummary::N_LArFebErrorType > m_errors; //error types accumulator
+
+  //The following variables are set in initialize:
   std::set<unsigned int> m_all_febs ; 
-  bool m_isHec;
-  bool m_isFcal;
-  bool m_isEmb;
-  bool m_isEmec;
-  bool m_isEmPS;
-  bool m_isAside;
-  bool m_isCside;
+  bool m_isHec=false;
+  bool m_isFcal=false;
+  bool m_isEmb=false;
+  bool m_isEmec=false;
+  bool m_isEmPS=false;
+  bool m_isAside=false;
+  bool m_isCside=false;
+
+  const LArOnlineID* m_onlineHelper=nullptr;
 
   // properties:
   Gaudi::Property<int> m_warnLimit{ this, "warnLimit", 10, "Limit the number of warning messages for missing input" };
@@ -63,11 +67,9 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
   Gaudi::Property<std::vector<unsigned int> > m_knownSCACStatus{ this, "MaskFebScacStatus", {}, "ignore these FEBs for ScacStatus" };
   Gaudi::Property<std::vector<unsigned int> > m_knownZeroSample{ this, "MaskFebZeroSample", {}, "ignore these FEBs for ZeroSample" };
 
-  const LArOnlineID* m_onlineHelper;
-
-  SG::ReadCondHandleKey<LArBadFebCont> m_bfKey;
-  SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;  
-  SG::WriteHandleKey<LArFebErrorSummary> m_writeKey;
+  SG::ReadCondHandleKey<LArBadFebCont> m_bfKey{this,"BFKey","LArBadFeb","Key of the BadFebContainer in the conditions store"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_readKey{this,"ReadKey","LArFebHeader"};
+  SG::WriteHandleKey<LArFebErrorSummary> m_writeKey{this,"WriteKey","LArFebErrorSummary"};
 
   // methods:
   bool masked (unsigned int hid, const std::vector<unsigned int>& v_feb) const; 

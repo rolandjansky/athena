@@ -1,5 +1,4 @@
 ## Config for Py8 tune AZNLO with CTEQ6L1
-## changed to Pythia8.2 standard for pdfs, for Pythia8.1 was PDF:LHAPDFset = cteq6ll.LHpdf
 include("Pythia8_i/Pythia8_Base_Fragment.py")
 include('Pythia8_i/Pythia8_Powheg_Main31.py')
 

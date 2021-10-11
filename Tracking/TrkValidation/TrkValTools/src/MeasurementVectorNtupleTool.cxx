@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   m_detTypeHelper = new MeasurementTypeID(m_idHelper);
 
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
   // ----------------------------------
   // use updator to get unbiased states
   if ( ! m_updatorHandle.empty() ) {
@@ -156,7 +156,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
     m_updator = &(*m_updatorHandle);
   } else {
     ATH_MSG_DEBUG ("No Updator for unbiased track states given, use normal states!");
-    m_updator = 0;
+    m_updator = nullptr;
   }
 
   // need an Atlas id-helper to identify sub-detectors, take the one from detStore
@@ -359,7 +359,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
 
     ATH_MSG_VERBOSE ("added own branches to ntuple");
 
-    StatusCode sc(StatusCode::SUCCESS,true);
+    StatusCode sc(StatusCode::SUCCESS);
     ToolHandleArray< IValidationNtupleHelperTool >::const_iterator itTools;
     // get all the given ntuple helper tools for Pixel
     itTools = m_PixelNtupleHelperToolHandles.begin();
@@ -464,7 +464,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   //----------------------------------------------
   // fill info about trackstates in ntuple
   const DataVector<const Trk::TrackStateOnSurface>* trackStates=track.trackStateOnSurfaces();
-  if (trackStates == 0) {
+  if (trackStates == nullptr) {
     msg(MSG::WARNING) << "current track does not have any TrackStateOnSurface vector, no data will be written for this track" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -474,7 +474,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->
          begin();
        it!=trackStates->end();
-       it++) {
+       ++it) {
 
 
     if (!(*it)) {
@@ -495,7 +495,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       } // end if (!measurement)
       TrackState::MeasurementType detectorType = m_detTypeHelper->defineType(measurement);
       const Trk::TrackParameters* theParameters = (*it)->trackParameters();
-      const Trk::TrackParameters* unbiasedParameters = NULL;
+      const Trk::TrackParameters* unbiasedParameters = nullptr;
 
       // -----------------------------------------
       // use unbiased track states or normal ones?
@@ -559,7 +559,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   //----------------------------------------------
   // do hole search if selected
   if (m_doHoleSearch) {
-    const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack = m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis());
+    std::unique_ptr<const Trk::TrackStates> holesOnTrack (m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis()));
     // loop over holes
     if (!holesOnTrack) {
       msg(MSG::WARNING) << "Got no holes on track" << endmsg;
@@ -567,7 +567,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
     }
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
          it!=holesOnTrack->end();
-         it++) {
+         ++it) {
       if (!(*it)) {
         msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
         continue;
@@ -576,8 +576,6 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
         msg(MSG::WARNING) << "info about TrackState (hole) could not be written to ntuple" << endmsg;
       }
     } // end loop on holes
-    delete holesOnTrack;
-    holesOnTrack = 0;
   }
 
   return StatusCode::SUCCESS;
@@ -742,7 +740,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
 
     ATH_MSG_VERBOSE ("in fillMeasurementData");
 
-    if (!isOutlier && trkParameters==NULL) {
+    if (!isOutlier && trkParameters==nullptr) {
       ATH_MSG_VERBOSE ("Given TrackParameters == NULL");
       if(!m_trkParametersWarning) {
         // warn once only!

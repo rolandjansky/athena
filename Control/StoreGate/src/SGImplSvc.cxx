@@ -16,12 +16,12 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -140,8 +140,7 @@ SGImplSvc::~SGImplSvc()  {
 /// Service initialization
 StatusCode SGImplSvc::initialize()    {
 
-  verbose() <<  "Initializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Initializing " << name() << endmsg;
 
   CHECK( Service::initialize() );
 
@@ -310,8 +309,7 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
 //////////////////////////////////////////////////////////////
 /// Service finalization
 StatusCode SGImplSvc::finalize()    {
-  verbose() << "Finalizing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Finalizing " << name() << endmsg ;
   
   // Incident service may not work in finalize.
   // Clear this, so that we won't try to send an incident from clearStore.
@@ -338,8 +336,7 @@ StatusCode SGImplSvc::finalize()    {
 //////////////////////////////////////////////////////////////
 /// Service reinitialization
 StatusCode SGImplSvc::reinitialize()    {
-  verbose() << "Reinitializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Reinitializing " << name() << endmsg ;
   const bool FORCEREMOVE(true);
   clearStore(FORCEREMOVE).ignore();
   //not in v20r2p2! return Service::reinitialize();
@@ -1473,12 +1470,11 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
 
   std::string idname;
   StatusCode sc = m_pCLIDSvc->getTypeNameOfID(id, idname);
-  if (sc.isFailure() || idname == "" ) { 
-    std::ostringstream ost;
-    ost << id;
-    idname = ost.str();
+  if (sc.isFailure() || idname.empty() ) { 
+    idname = std::to_string(id);
   }
-  idname = idname + "/" + key;
+  idname += '/';
+  idname += key;
 
   DataObject* obj = SG::asStorable(dho);
   
@@ -1717,7 +1713,7 @@ CLID SGImplSvc::clid( const std::string& key ) const
 std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
 {
   lock_t lock (m_mutex);
-  std::list<CLID> clids;
+  std::vector<CLID> clids;
   SG::DataStore::ConstStoreIterator s_iter, s_end;
   store()->tRange(s_iter, s_end).ignore();
   
@@ -1727,7 +1723,7 @@ std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
     }
   }
   
-  return std::vector<CLID>(clids.begin(), clids.end());
+  return clids;
 }
 
 
@@ -1889,10 +1885,10 @@ void SG_dump (SGImplSvc* sg, const char* fname)
  *
  *        The default version always returns an empty string.
  */
-SG::SourceID SGImplSvc::sourceID() const
+SG::SourceID SGImplSvc::sourceID (const std::string& key /*= "EventSelector"*/) const
 {
   lock_t lock (m_mutex);
-  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), "EventSelector", true);
+  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), key, true);
   if (dp) {
     const DataHeader* dh = SG::DataProxy_cast<DataHeader> (dp);
     if (dh) {

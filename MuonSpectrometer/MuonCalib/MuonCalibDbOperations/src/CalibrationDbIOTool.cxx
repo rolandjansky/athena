@@ -45,10 +45,10 @@
 #include "string"
 
 namespace MuonCalib {
-
+    CalibrationDbIOTool::~CalibrationDbIOTool() = default;
     CalibrationDbIOTool::CalibrationDbIOTool(const std::string &t, const std::string &n, const IInterface *p) :
         AthAlgTool(t, n, p), m_db_ConnectionString(""), m_db_WorkingSchema(""), m_sitename("") {
-        declareInterface<CalibrationIOTool>(this);
+        declareInterface<ICalibrationIOTool>(this);
         declareProperty("ConnectionString", m_db_ConnectionString);
         declareProperty("WriterConnectionString", m_writer_connection_string);
         declareProperty("WorkingSchema", m_db_WorkingSchema);

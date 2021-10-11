@@ -23,10 +23,10 @@ public:
 private:
 
   /** ReadHandleKey for eflowCaloObjectContainer */
-  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralFEContainerReadHandleKey{this,"FEInputContainerName","JetETMissNeutralFlowElements","ReadHandleKey for neutral FlowElementContainer"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralFEContainerReadHandleKey{this,"FEInputContainerName","JetETMissNeutralParticleFlowObjects","ReadHandleKey for neutral FlowElementContainer"};
   
   /** WriteHandleKey for neutral FE */
-  SG::WriteHandleKey<xAOD::FlowElementContainer> m_neutralFELCContainerWriteHandleKey{this,"FELCOutputName","JetETMissLCNeutralFlowElements","WriteHandleKey for LC neutral FlowElementContainer"};
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_neutralFELCContainerWriteHandleKey{this,"FELCOutputName","JetETMissLCNeutralParticleFlowObjects","WriteHandleKey for LC neutral FlowElementContainer"};
 
 };
 #endif

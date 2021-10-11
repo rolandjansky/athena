@@ -20,28 +20,14 @@ namespace LVL1 {
 
 //================ Constructor =================================================
 
-L1JEMJetTools::L1JEMJetTools(const std::string& t, const std::string& n, const IInterface*  p )
-  : AthAlgTool(t,n,p)
-{
-  declareInterface<IL1JEMJetTools>(this);
-}
-
-//================ Destructor =================================================
-
-L1JEMJetTools::~L1JEMJetTools()
-{
-  if (m_RoI != 0) delete m_RoI;  
-}
-
+L1JEMJetTools::L1JEMJetTools(const std::string& t, const std::string& n, const IInterface* p)
+: base_class(t,n,p) {}
 
 //================ Initialisation =================================================
 
 StatusCode L1JEMJetTools::initialize()
 {
-  ATH_CHECK(m_configSvc.retrieve());
-  if( m_useNewConfig ) {
-    ATH_CHECK(detStore()->retrieve(m_l1menu).ignore());
-  }
+  ATH_CHECK(detStore()->retrieve(m_l1menu).ignore());
   return StatusCode::SUCCESS;
 }
 
@@ -54,7 +40,7 @@ StatusCode L1JEMJetTools::finalize()
 
 //================ Need to load JetInputs into map before can form clusters =======
 
-void L1JEMJetTools::mapJetInputs(const xAOD::JetElementContainer* jes, std::map<int, JetInput*>* elements, int slice){
+void L1JEMJetTools::mapJetInputs(const xAOD::JetElementContainer* jes, std::map<int, JetInput*>* elements, int slice) const {
 
   // Clear map before filling
   elements->clear();
@@ -132,7 +118,7 @@ void L1JEMJetTools::mapJetInputs(const xAOD::JetElementContainer* jes, std::map<
 
 /** Find list of RoIs passing at least 1 threshold */
 
-void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMJetAlgorithm>* rois){
+void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMJetAlgorithm>* rois) const {
 
   // Start with an empty vector
   rois->clear();
@@ -159,7 +145,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVecto
           analysed.insert(std::map<int, int>::value_type(key,1));
           double tempEta = tempCoord.eta();
           double tempPhi = tempCoord.phi();
-          JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_configSvc, m_l1menu);
+          JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_l1menu);
           if (roi->isRoI()) rois->push_back(roi);
           else delete roi;
         }
@@ -175,7 +161,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVecto
 
 /** Find list of RoIs passing at least 1 threshold */
 
-void L1JEMJetTools::findRoIs(const xAOD::JetElementContainer* jes, DataVector<JEMJetAlgorithm>* rois, int slice){
+void L1JEMJetTools::findRoIs(const xAOD::JetElementContainer* jes, DataVector<JEMJetAlgorithm>* rois, int slice) const {
 
   /** Need a map of JetInputs as input */
   std::map<int, JetInput*>* inputs = new std::map<int, JetInput*>;
@@ -195,7 +181,7 @@ void L1JEMJetTools::findRoIs(const xAOD::JetElementContainer* jes, DataVector<JE
 
 /** Find list of RoIs passing at least 1 threshold */
 
-void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEMTobRoIContainer* rois){
+void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEMTobRoIContainer* rois) const {
 
   // Start with an empty DataVector
   rois->clear();
@@ -222,7 +208,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEM
           analysed.insert(std::map<int, int>::value_type(key,1));
           double tempEta = tempCoord.eta();
           double tempPhi = tempCoord.phi();
-          JEMJetAlgorithm roi(tempEta, tempPhi, elements, m_configSvc, m_l1menu);
+          JEMJetAlgorithm roi(tempEta, tempPhi, elements, m_l1menu);
           
           if (roi.isRoI() != 0) rois->push_back(roi.jemTobRoI());
           
@@ -240,7 +226,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEM
 
 /** Find list of RoIs passing at least 1 threshold */
 
-void L1JEMJetTools::findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobRoIContainer* rois, int slice){
+void L1JEMJetTools::findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobRoIContainer* rois, int slice) const {
 
   /** Need a map of JetInputs as input */
   std::map<int, JetInput*>* inputs = new std::map<int, JetInput*>;
@@ -261,7 +247,7 @@ void L1JEMJetTools::findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobR
 /** Form results for a specified module*/
 
 void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
-                                xAOD::JEMTobRoIContainer* rois, std::vector<unsigned int>& jetCMXData) {
+                                xAOD::JEMTobRoIContainer* rois, std::vector<unsigned int>& jetCMXData) const {
 
   /** This tool appends to an existing DataVector of results, so do not clear that.
    *  But reset & resize the module results vectors, to be safe */
@@ -306,7 +292,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc, m_l1menu); 
+          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_l1menu); 
           
           /** Did it pass as JetTOB? If so:
               * Create TOB RoI object and push back into system results
@@ -369,7 +355,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
 }
 
 void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
-                                DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData) {
+                                DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData) const {
 
   /** This tool appends to an existing DataVector of results, so do not clear that.
    *  But reset & resize the module results vectors, to be safe */
@@ -414,7 +400,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc, m_l1menu); 
+          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_l1menu); 
           
           /** Did it pass as JetTOB? If so:
               * Create TOB RoI object and push back into system results
@@ -476,32 +462,20 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
 
 /** Form RoI object for specified coordinate */
 
-JEMJetAlgorithm L1JEMJetTools::findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements){
-  
-  JEMJetAlgorithm roi(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
-
-  return roi;
+JEMJetAlgorithm L1JEMJetTools::findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) const {
+  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_l1menu);
 }
 
 ///=====================Form clusters for given coordinates ====================
 
-void L1JEMJetTools::formSums(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) {
-  
-  // Initialise
-  if (m_RoI != 0) delete m_RoI;
-
+JEMJetAlgorithm L1JEMJetTools::formSums(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) const {
   // Performs all processing for this location
-  m_RoI = new JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
-
+  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_l1menu);
 }
 
 ///=====================Form clusters for given RoI ====================
 
-void L1JEMJetTools::formSums(uint32_t roiWord, const std::map<int, JetInput*>* elements) {
-  
-  // Initialise
-  if (m_RoI != 0) delete m_RoI;
-
+JEMJetAlgorithm L1JEMJetTools::formSums(uint32_t roiWord, const std::map<int, JetInput*>* elements) const {
   // Find RoI coordinate
   CoordinateRange coord = m_conv.coordinate(roiWord);
   float RoIphi = coord.phi();
@@ -510,52 +484,7 @@ void L1JEMJetTools::formSums(uint32_t roiWord, const std::map<int, JetInput*>* e
   if (RoIeta > 3.1 && m_conv.column(roiWord) != 3) RoIeta = 3.1;
 
   // Performs all processing for this location
-  m_RoI = new JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
-
-}
-
-/** Accessors for the current RoI location (if extant) */
-
-int L1JEMJetTools::ET4x4() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->ET4x4();
-  return result;
-}
-
-int L1JEMJetTools::ET6x6() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->ET6x6();
-  return result;
-}
-
-int L1JEMJetTools::ET8x8() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->ET8x8();
-  return result;
-}
-
-int L1JEMJetTools::ETLarge() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->ETLarge();
-  return result;
-}
-
-int L1JEMJetTools::ETSmall() const {
-  int result = 0;
-  if (m_RoI != 0) result = m_RoI->ETSmall();
-  return result;
-}
-
-bool L1JEMJetTools::isEtMax() const {
-  bool result = false;
-  if (m_RoI != 0) result = m_RoI->isEtMax();
-  return result;
-}
-
-bool L1JEMJetTools::isRoI() const {
-  bool result = false;
-  if (m_RoI != 0) result = m_RoI->isRoI();
-  return result;
+  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_l1menu);
 }
 
 //============================================================================================

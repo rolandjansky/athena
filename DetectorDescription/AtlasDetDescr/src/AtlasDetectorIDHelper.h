@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_ATLASDETECTORIDHELPER_H
@@ -65,33 +65,31 @@ private:
 //     AtlasDetectorIDHelper (const AtlasDetectorIDHelper &);
 //     AtlasDetectorIDHelper &operator= (const AtlasDetectorIDHelper &);
 
-
-    /// Flag for slhc layout:
-    bool                m_isSLHC;
-    size_type		m_pixel_region_index;
-    size_type		m_sct_region_index;
-    size_type		m_trt_region_index;
-    size_type		m_lar_em_region_index;
-    size_type		m_lar_hec_region_index;
-    size_type		m_lar_fcal_region_index;
-    size_type		m_lvl1_region_index;
-    size_type		m_dm_region_index;
-    size_type		m_tile_region_index;
-    size_type		m_mdt_region_index;
-    size_type		m_csc_region_index;
-    size_type		m_rpc_region_index;
-    size_type		m_tgc_region_index;
-    size_type		m_mm_region_index;
-    size_type		m_stgc_region_index;
-    size_type		m_muon_station_index;
-    size_type           m_alfa_region_index;
-    size_type           m_bcm_region_index;
-    size_type           m_lucid_region_index;
-    size_type           m_zdc_region_index;
-    bool		m_initialized;
-    IdDictField* 	m_station_field;
+    bool m_isHighLuminosityLHC{};
+    size_type m_pixel_region_index{UNDEFINED};
+    size_type m_sct_region_index{UNDEFINED};
+    size_type m_trt_region_index{UNDEFINED};
+    size_type	m_lar_em_region_index{UNDEFINED};
+    size_type	m_lar_hec_region_index{UNDEFINED};
+    size_type	m_lar_fcal_region_index{UNDEFINED};
+    size_type	m_lvl1_region_index{UNDEFINED};
+    size_type	m_dm_region_index{UNDEFINED};
+    size_type	m_tile_region_index{UNDEFINED};
+    size_type	m_mdt_region_index{UNDEFINED};
+    size_type	m_csc_region_index{UNDEFINED};
+    size_type	m_rpc_region_index{UNDEFINED};
+    size_type	m_tgc_region_index{UNDEFINED};
+    size_type	m_mm_region_index{UNDEFINED};
+    size_type	m_stgc_region_index{UNDEFINED};
+    size_type	m_muon_station_index{UNDEFINED};
+    size_type m_alfa_region_index{UNDEFINED};
+    size_type m_bcm_region_index{UNDEFINED};
+    size_type m_lucid_region_index{UNDEFINED};
+    size_type m_zdc_region_index{UNDEFINED};
+    bool m_initialized{};
+    IdDictField *m_station_field{};
     /// pointer to the message service
-    IMessageSvc*        m_msgSvc;
+    IMessageSvc *m_msgSvc{};
     
 };
 

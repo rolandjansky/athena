@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "xAODEventInfo/EventInfo.h"
-class IBeamCondSvc;
 
 class InDetAlignWrt:public AthAlgorithm
 {

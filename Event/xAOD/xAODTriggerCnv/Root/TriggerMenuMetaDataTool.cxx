@@ -9,6 +9,12 @@
 
 #include <stdexcept>
 
+// Hack to initialise decoration accessors for Trigger EDM in offline jobs
+// starting from ESD or later, see ATR-22421
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#include "TrigOutputHandling/TriggerEDMAuxAccessors.h"
+#endif
+
 // Local include(s):
 #include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
 
@@ -138,6 +144,10 @@ namespace xAODMaker {
    StatusCode TriggerMenuMetaDataTool::checkCopyJSON(const std::string& inputMetaSGKey,
       std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer) {
+
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(inputMetaSGKey)) {
+         return StatusCode::SUCCESS;
+      }
 
       const xAOD::TriggerMenuJsonContainer* input = nullptr;
       if (inputMetaStore()->retrieve( input, inputMetaSGKey ).isSuccess() ) {

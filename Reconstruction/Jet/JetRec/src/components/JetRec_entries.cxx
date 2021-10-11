@@ -1,12 +1,12 @@
-#include "../JetAlgorithm.h"
-#include "../JetRecAlg.h"
-#include "../JetViewAlg.h"
-#include "../JetTrimming.h"
-#include "../JetSoftDropTools.h"
+#include "JetRec/JetAlgorithm.h"
+#include "JetRec/JetRecAlg.h"
+#include "JetRec/JetViewAlg.h"
+#include "JetRec/JetTrimming.h"
+#include "JetRec/JetSoftDropTools.h"
 
-#include "../PseudoJetMerger.h"
-#include "../PseudoJetAlgorithm.h"
-#include "../MuonSegmentPseudoJetAlgorithm.h"
+#include "JetRec/PseudoJetMerger.h"
+#include "JetRec/PseudoJetAlgorithm.h"
+#include "JetRec/MuonSegmentPseudoJetAlgorithm.h"
 
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
@@ -30,6 +30,8 @@
 #include "JetRec/JetConstitRemover.h"
 #include "JetRec/JetClusterer.h"
 #include "JetRec/JetCopier.h"
+
+#include "JetRec/JetDecorationAlg.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
@@ -56,6 +58,7 @@ DECLARE_COMPONENT( PseudoJetMerger )
 
 DECLARE_COMPONENT( JetAlgorithm )
 DECLARE_COMPONENT( JetRecAlg )
+DECLARE_COMPONENT( JetDecorationAlg )
 DECLARE_COMPONENT( JetViewAlg )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
 DECLARE_COMPONENT( MuonSegmentPseudoJetAlgorithm )

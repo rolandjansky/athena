@@ -185,7 +185,7 @@ ISCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const 
       } else {
         for (unsigned int i{0}; i<wantedNPGDefects.begDefects.size(); ++i) {
           if (stripNum>=wantedNPGDefects.begDefects[i] and stripNum<=wantedNPGDefects.endDefects[i]) {
-            theseSummaryDefects.scan.push_back("NPtGain");
+            theseSummaryDefects.scan.emplace_back("NPtGain");
             theseSummaryDefects.defect.push_back(wantedNPGDefects.typeOfDefect[i]);
             theseSummaryDefects.value.push_back(wantedNPGDefects.parValue[i]);
             ATH_MSG_VERBOSE("NPtGain defect summary for strip " << stripNum << " filled");
@@ -198,7 +198,7 @@ ISCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const 
       } else {
         for (unsigned int i{0}; i != wantedNODefects.begDefects.size(); ++i) {
           if (stripNum>=wantedNODefects.begDefects[i] and stripNum <= wantedNODefects.endDefects[i]) {
-            theseSummaryDefects.scan.push_back("NoiseOccupancy");
+            theseSummaryDefects.scan.emplace_back("NoiseOccupancy");
             theseSummaryDefects.defect.push_back(wantedNODefects.typeOfDefect[i]);
             theseSummaryDefects.value.push_back(wantedNODefects.parValue[i]);
             ATH_MSG_VERBOSE("NoiseOccupancy defect summary for strip " << stripNum << "  filled");

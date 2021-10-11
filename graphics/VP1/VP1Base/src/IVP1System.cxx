@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -264,7 +264,7 @@ void IVP1System::updateGUI() {
   //assert(m_d->allowupdategui);
   //assert(m_d->state==ERASED);
 
-  if ( m_d->allowupdategui && qApp->hasPendingEvents() ) {
+  if ( m_d->allowupdategui ) {
     qApp->processEvents();
   }
 

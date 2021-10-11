@@ -32,8 +32,11 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/xAODJetCollectorTest.cxx
    tests/JetTrigTimerTest.cxx
    tests/RangeFilterTest.cxx
+   tests/PassThroughFilterTest.cxx
+   tests/ConditionFilterTest.cxx
+   tests/MultiFilterTest.cxx
    INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} TrigHLTJetHypoLib xAODJet )
+   LINK_LIBRARIES ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} TrigHLTJetHypoLib TrigHLTJetHypoUnitTestsLib xAODJet )
    
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

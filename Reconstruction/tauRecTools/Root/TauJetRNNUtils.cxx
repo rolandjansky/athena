@@ -114,6 +114,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("trFlightPathSig", Variables::trFlightPathSig);
     calc->insert("massTrkSys", Variables::massTrkSys);
     calc->insert("pt", Variables::pt);
+    calc->insert("pt_tau_log", Variables::pt_tau_log);
     calc->insert("ptDetectorAxis", Variables::ptDetectorAxis);
     calc->insert("ptIntermediateAxis", Variables::ptIntermediateAxis);
     //---added for the eVeto
@@ -121,6 +122,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("absleadTrackEta",            Variables::absleadTrackEta  );
     calc->insert("leadTrackDeltaEta",          Variables::leadTrackDeltaEta);
     calc->insert("leadTrackDeltaPhi",          Variables::leadTrackDeltaPhi);
+    calc->insert("leadTrackProbNNorHT",        Variables::leadTrackProbNNorHT);
     calc->insert("EMFracFixed",                Variables::EMFracFixed      );
     calc->insert("etHotShotWinOverPtLeadTrk",  Variables::etHotShotWinOverPtLeadTrk);
     calc->insert("hadLeakFracFixed",           Variables::hadLeakFracFixed);
@@ -131,9 +133,14 @@ std::unique_ptr<VarCalc> get_default_calculator() {
 
     // Track variable calculator functions
     calc->insert("pt_log", Variables::Track::pt_log);
+    calc->insert("pt_tau_log", Variables::Track::pt_tau_log);
     calc->insert("pt_jetseed_log", Variables::Track::pt_jetseed_log);
     calc->insert("d0_abs_log", Variables::Track::d0_abs_log);
     calc->insert("z0sinThetaTJVA_abs_log", Variables::Track::z0sinThetaTJVA_abs_log);
+    calc->insert("z0sinthetaTJVA", Variables::Track::z0sinthetaTJVA);
+    calc->insert("z0sinthetaSigTJVA", Variables::Track::z0sinthetaSigTJVA);
+    calc->insert("d0TJVA", Variables::Track::d0TJVA);
+    calc->insert("d0SigTJVA", Variables::Track::d0SigTJVA);
     calc->insert("dEta", Variables::Track::dEta);
     calc->insert("dPhi", Variables::Track::dPhi);
     calc->insert("nInnermostPixelHits", Variables::Track::nInnermostPixelHits);
@@ -144,9 +151,11 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("nSCTHitsPlusDeadSensors", Variables::Track::nSCTHitsPlusDeadSensors);
     calc->insert("eProbabilityHT", Variables::Track::eProbabilityHT);
     calc->insert("eProbabilityNN", Variables::Track::eProbabilityNN);
+    calc->insert("eProbabilityNNorHT", Variables::Track::eProbabilityNNorHT);
 
     // Cluster variable calculator functions
     calc->insert("et_log", Variables::Cluster::et_log);
+    calc->insert("pt_tau_log", Variables::Cluster::pt_tau_log);
     calc->insert("pt_jetseed_log", Variables::Cluster::pt_jetseed_log);
     calc->insert("dEta", Variables::Cluster::dEta);
     calc->insert("dPhi", Variables::Cluster::dPhi);
@@ -246,6 +255,11 @@ bool pt(const xAOD::TauJet &tau, double &out) {
     return true;
 }
 
+bool pt_tau_log(const xAOD::TauJet &tau, double &out) {
+    out = std::log10(std::max(tau.pt() / GeV, 1e-6));
+    return true;
+}
+
 bool ptDetectorAxis(const xAOD::TauJet &tau, double &out) {
     out = std::log10(std::min(tau.ptDetectorAxis() / GeV, 100.0));
     return true;
@@ -279,6 +293,42 @@ bool leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
   static const SG::AuxElement::ConstAccessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
   float absDeltaPhi = acc_absDeltaPhi(tau);
   out = std::max(0.f, absDeltaPhi);
+  return true;
+}
+
+bool leadTrackProbNNorHT(const xAOD::TauJet &tau, double &out){
+  // Track variables
+  auto tracks       = tau.allTracks();
+
+  // Sort tracks in descending pt order
+  auto cmp_pt = [](const xAOD::TauTrack *lhs, const xAOD::TauTrack *rhs) {
+    return lhs->pt() > rhs->pt();
+  };
+  std::sort(tracks.begin(), tracks.end(), cmp_pt);
+
+  // Filter tracks
+  std::vector<const xAOD::TauTrack *> tracks_filtered;
+  for (auto tautrack : tracks) {
+    // skip tau tracks with invalid link to ID track
+    static const SG::AuxElement::ConstAccessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
+    if (!(trackAcc(*tautrack)[0])) {
+      //ATH_MSG_WARNING("Skipping track with invalid element link");
+      continue;
+    }
+    tracks_filtered.push_back(tautrack);
+  }
+
+  const xAOD::TauTrack*      tauLeadTrack(0);
+  if (tracks_filtered.size()>0){
+    tauLeadTrack = tracks_filtered.at(0);
+    float eProbabilityHT = tauLeadTrack->track()->summaryValue(eProbabilityHT, xAOD::eProbabilityHT);
+    static const SG::AuxElement::ConstAccessor<float> acc_eProbabilityNN("eProbabilityNN");
+    const xAOD::TrackParticle* xTrackParticle = tauLeadTrack->track();
+    float eProbabilityNN = acc_eProbabilityNN(*xTrackParticle);
+    out = (tauLeadTrack->pt()>2000.) ? eProbabilityNN : eProbabilityHT;
+  }else {
+    out = 0.;
+  }
   return true;
 }
 
@@ -353,6 +403,11 @@ bool pt_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &ou
     return true;
 }
 
+bool pt_tau_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/, double &out) {
+    out = std::log10(std::max(tau.pt(), 1e-6));
+    return true;
+}
+
 bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/, double &out) {
     out = std::log10(tau.ptJetSeed());
     return true;
@@ -365,6 +420,26 @@ bool d0_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double
 
 bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     out = std::log10(std::abs(track.z0sinthetaTJVA()) + 1e-6);
+    return true;
+}
+
+bool z0sinthetaTJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.z0sinthetaTJVA();
+    return true;
+}
+
+bool z0sinthetaSigTJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.z0sinthetaSigTJVA();
+    return true;
+}
+
+bool d0TJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.d0TJVA();
+    return true;
+}
+
+bool d0SigTJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.d0SigTJVA();
     return true;
 }
 
@@ -437,6 +512,15 @@ bool eProbabilityNN(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, do
     return true;
 }
 
+bool eProbabilityNNorHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {  
+  auto atrack = track.track();
+  float eProbabilityHT = atrack->summaryValue(eProbabilityHT, xAOD::eProbabilityHT);
+  static const SG::AuxElement::ConstAccessor<float> acc_eProbabilityNN("eProbabilityNN");
+  float eProbabilityNN = acc_eProbabilityNN(*atrack);
+  out = (atrack->pt()>2000.) ? eProbabilityNN : eProbabilityHT;
+  return true;
+}
+
 } // namespace Track
 
 
@@ -445,6 +529,11 @@ using MomentType = xAOD::CaloCluster::MomentType;
 
 bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     out = std::log10(cluster.p4().Et());
+    return true;
+}
+
+bool pt_tau_log(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster& /*cluster*/, double &out) {
+    out = std::log10(std::max(tau.pt(), 1e-6));
     return true;
 }
 

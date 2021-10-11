@@ -11,6 +11,8 @@ from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('aod_to_hist')
 recoLog.info( '****************** STARTING AOD->HIST MAKING *****************' )
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 from RecExConfig.RecFlags import rec
 rec.readESD = False
 rec.readAOD = True
@@ -27,6 +29,7 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
 
 if hasattr(runArgs,"outputHIST_AODFile"):
     rec.doMonitoring.set_Value_and_Lock(True)

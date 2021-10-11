@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARSHAPEFROMSTDNTUPLE_H
 #define LARSHAPEFROMSTDNTUPLE_H
 
+#include "LArRawConditions/LArMCSym.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -18,25 +19,22 @@ LArPhysWaveContainer containing the corresponding PhysWave.
 Version for standard Ntuple, produced by LArCalibTools algos....
  */
 
-class ILArMCSymTool;
-
 class LArShapeFromStdNtuple : public AthAlgorithm
 {
  public:
   LArShapeFromStdNtuple(const std::string & name, ISvcLocator * pSvcLocator);
 
-  ~LArShapeFromStdNtuple();
+  virtual ~LArShapeFromStdNtuple();
 
   //standard algorithm methods
   /// implements IAlgorithm::initialize() 
-  StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   /// implements IAlgorithm::execute()  : Does nothing
-  StatusCode execute() {return StatusCode::SUCCESS;}
+  virtual StatusCode execute() override {return StatusCode::SUCCESS;}
 
-  /// IAlgorithm::finalize() : Where the action takes place...
-  StatusCode finalize(){return StatusCode::SUCCESS;}
-  StatusCode stop();
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
+  virtual StatusCode stop() override;
  
  private:
   /// the first  m_skipPoints points of the waveform in the ntuple are skipped
@@ -56,7 +54,8 @@ class LArShapeFromStdNtuple : public AthAlgorithm
 
   bool m_done;
 
-   ToolHandle<ILArMCSymTool> m_larmcsym;
+  SG::ReadCondHandleKey<LArMCSym> m_mcSymKey
+  {this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object"};
 };
 
 #endif

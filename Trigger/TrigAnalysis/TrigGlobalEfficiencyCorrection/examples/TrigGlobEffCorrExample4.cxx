@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Based on CPToolTester.cxx (A. Kraznahorkay) and ut_ath_checkTrigger_test.cxx (W. Buttinger)
@@ -37,14 +37,14 @@
 // stdlib include(s):
 #include <random>
 
-bool quiet = false;
-
 #define MSGSOURCE "Example 4"
 ANA_MSG_HEADER(Test)
 ANA_MSG_SOURCE(Test, MSGSOURCE)
 using namespace Test;
 int main(int argc, char* argv[])
 {
+    bool quiet = false;
+
     ANA_CHECK_SET_TYPE(bool)
 	const std::string flagQuiet("--quiet");
 	for(int i=1;i<argc;++i)

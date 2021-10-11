@@ -147,7 +147,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
 
   bool selectionPassed;
   for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end();
-       itr++) {
+       ++itr) {
     if (m_useBeamConstraint) {
       selectionPassed =
         static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
@@ -204,7 +204,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
   bool selectionPassed;
   for (TrackParticleDataVecIter itr = (*trackParticles).begin();
        itr != (*trackParticles).end();
-       itr++) {
+       ++itr) {
     if (m_useBeamConstraint) {
       selectionPassed =
         static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
@@ -725,6 +725,9 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
         actualcandidate->covariancePosition();
       const auto& candidateZPositionCovariance =
         candidatePositionCovariance(Trk::z, Trk::z);
+    if(candidatePositionCovariance(0,0)<=0. || candidatePositionCovariance(1,1)<=0. || candidatePositionCovariance(2,2)<=0.){
+      deleteLastVertex = true;
+    }else{
       for (const auto& thisVertex : myxAODVertices) {
         const auto& thisVertexPosition = (thisVertex.second)->position();
         const auto& thisVertexZPosition = thisVertexPosition[Trk::z];
@@ -739,7 +742,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
 
         // in case of no beam spot constraint you should use the full 3d
         // significance on the distance
-        double dependence = 0;
+        double dependence = 0.;
         if (!m_do3dSplitting) {
           if (sumZCovSq > 0.) {
             dependence = std::abs(deltaZPosition) / std::sqrt(sumZCovSq);
@@ -750,13 +753,14 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
           Amg::MatrixX sumCovariances =
             thisVertexPositionCovariance + candidatePositionCovariance;
           sumCovariances = sumCovariances.inverse().eval();
-          Amg::Vector3D hepVectorPosition;
-          hepVectorPosition[0] = deltaPosition.x();
-          hepVectorPosition[1] = deltaPosition.y();
-          hepVectorPosition[2] = deltaPosition.z();
-          dependence = std::sqrt(
-            hepVectorPosition.dot(sumCovariances * hepVectorPosition));
-        }
+          if(sumCovariances(0,0)>0 && sumCovariances(1,1)>0 && sumCovariances(2,2)>0){
+            Amg::Vector3D hepVectorPosition;
+            hepVectorPosition[0] = deltaPosition.x();
+            hepVectorPosition[1] = deltaPosition.y();
+            hepVectorPosition[2] = deltaPosition.z();
+            double interim=hepVectorPosition.dot(sumCovariances * hepVectorPosition);
+            if(interim>0.)dependence = std::sqrt(interim);
+        } }
         if (dependence < m_cutVertexDependence) {
           deleteLastVertex = true;
           nWithin3sigma++;
@@ -764,7 +768,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
             "Vertex failed significance (cut vertex dependence) test");
           break;
         }
-      }
+      }}
     }
     ////////////
     // Ok all tracks in seed were deleted. You can go ahead and discover further
@@ -1008,7 +1012,7 @@ InDetAdaptiveMultiPriVxFinderTool::estimateSignalCompatibility(
 
     for (std::vector<Trk::VxTrackAtVertex*>::iterator i = begintracks;
          i != endtracks;
-         i++) {
+         ++i) {
 
       if (((*i)->vtxCompatibility() < m_finalCutMaxVertexChi2 &&
            m_useFastCompatibility) ||

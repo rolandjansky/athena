@@ -7,7 +7,7 @@
 
 #include "RepeatedConditionsDefs.h"
 #include "./RepeatedCondition.h"
-#include "./IConditionMT.h"
+#include "./ICondition.h"
 
 #include "ITrigJetRepeatedConditionConfig.h"
 #include "ITrigJetConditionConfig.h"
@@ -51,7 +51,7 @@ public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
 
   // make a Compound Condition, used by, eg, RepeatedCondition
   // or ConditionInverter 
-  std::unique_ptr<IConditionMT> getCompoundCondition() const;
+  std::unique_ptr<ICondition> getCompoundCondition() const;
   StatusCode checkVals()  const;
  
 };

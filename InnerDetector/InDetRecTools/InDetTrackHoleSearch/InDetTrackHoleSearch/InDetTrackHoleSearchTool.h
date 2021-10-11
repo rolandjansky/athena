@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ namespace InDet
       /** This method creates a TSOS to represent a detected hole. I creates a new TP from the input and returns
 	  a (pointer to a) new TSOS containing the TP and the typeset 'Hole'
       */
-      const Trk::TrackStateOnSurface* createHoleTSOS(const Trk::TrackParameters* trackPar) const;
+      static const Trk::TrackStateOnSurface* createHoleTSOS(const Trk::TrackParameters* trackPar) ;
 
       /** This Method creates a new Track from the TSOS of the input track combined with the TSOS from listOfHoles
        */

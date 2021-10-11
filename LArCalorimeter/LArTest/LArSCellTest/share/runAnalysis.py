@@ -48,10 +48,6 @@ from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFex
 from TrigL1CaloUpgradeAnalysis.TrigL1CaloUpgradeAnalysisConf import LArFexAnalysis
 from TrigL1CaloUpgradeAnalysis.TrigL1CaloUpgradeAnalysisConf import CaloBandwidth
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool=CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-
 a=SimpleSuperCellChecks()
 a1=SimpleLArDigitsChecks()
 d=EFexAnalysis(EnableMonitoring=True)
@@ -66,7 +62,7 @@ topSequence+=DumpAll(name="DumpAllCl")
 topSequence+=DumpAll(name="DumpAllCl1Sig",InputLArFexName="LArLayer1Vars1Sig",SaveLayer1Cells=False)
 topSequence+=DumpAll(name="DumpAllCl2Sig",InputLArFexName="LArLayer1Vars2Sig",SaveLayer1Cells=False)
 topSequence+=DumpAll(name="DumpAllCl3Sig",InputLArFexName="LArLayer1Vars3Sig",SaveLayer1Cells=False)
-topSequence+=CaloBandwidth(EtInSigma=2.0,CaloNoiseTool=theCaloNoiseTool)
+topSequence+=CaloBandwidth(EtInSigma=2.0)
 topSequence+=EFexEratioAlgo(name="EFexEratioAlgo",InputClusterName="SCluster")
 topSequence+=EFexEratioAlgo(name="EFexEratioAlgoCl",InputClusterName="SClusterCl")
 topSequence+=EFexEratioRateAlgo(name="EFexEratioRateAlgo",InputClusterName="SCluster")

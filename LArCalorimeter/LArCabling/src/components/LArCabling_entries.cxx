@@ -1,6 +1,6 @@
 #include "LArCabling/LArCablingLegacyService.h"
-#include "LArCabling/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingSimTool.h"
 
 
 DECLARE_COMPONENT( LArCablingLegacyService )
-DECLARE_COMPONENT( LArHVCablingTool )
+DECLARE_COMPONENT( LArHVCablingSimTool )

@@ -9,6 +9,9 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODTruth/xAODTruthHelpers.h"
+
 
 #include <memory>
 
@@ -245,7 +248,7 @@ egammaTruthAssociationAlg::getNewTruthParticle(
 xAOD::TruthParticle*
 egammaTruthAssociationAlg::getEgammaTruthParticle(
   const xAOD::TruthParticle* truth,
-  xAOD::TruthParticleContainer& egammaTruthContainer) const
+  xAOD::TruthParticleContainer& egammaTruthContainer) 
 {
   if (!truth) {
     return nullptr;
@@ -307,7 +310,7 @@ egammaTruthAssociationAlg::particleTruthClassifier(
   const T* particle,
   Cache* extrapolationCache) const
 {
-  MCTruthInfo_t info;
+  MCTruthInfo_t info{};
   IMCTruthClassifier::Info mcinfo(ctx);
   mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
@@ -326,7 +329,7 @@ egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(
   const xAOD::Electron* electron,
   Cache* extrapolationCache) const
 {
-  MCTruthInfo_t info;
+  MCTruthInfo_t info{};
   IMCTruthClassifier::Info mcinfo(ctx);
   mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);

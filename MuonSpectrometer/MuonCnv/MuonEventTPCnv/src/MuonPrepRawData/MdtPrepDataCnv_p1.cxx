@@ -20,7 +20,7 @@ persToTrans( const Muon::MdtPrepData_p1 *persObj, Muon::MdtPrepData *transObj,Ms
    *transObj = Muon::MdtPrepData (transObj->identify(),
                                   transObj->collectionHash(),
                                   driftRadius,
-                                  nullptr, // errDriftRadius
+                                  {}, // errDriftRadius
                                   transObj->detectorElement(),
                                   persObj->m_tdc,
                                   persObj->m_adc,

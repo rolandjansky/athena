@@ -27,47 +27,47 @@ Trk::StraightLineSurface::StraightLineSurface()
 {}
 
 // constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
+Trk::StraightLineSurface::StraightLineSurface(const Amg::Transform3D& htrans)
   : Surface(htrans)
   , m_lineDirection{}
   , m_bounds(nullptr)
 {}
 
-// constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Surface(std::move(htrans))
-  , m_lineDirection{}
-  , m_bounds(nullptr)
-{}
-
 // constructors by arguments
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Amg::Transform3D& htrans,
+  double radius,
+  double halez)
   : Surface(htrans)
   , m_lineDirection{}
   , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, halez))
 {}
 
 // dummy implementation
-Trk::StraightLineSurface::StraightLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Trk::TrkDetElementBase& detelement,
+  const Identifier& id)
   : Surface(detelement, id)
   , m_lineDirection{}
   , m_bounds(nullptr)
 {}
 
 // copy constructor
-Trk::StraightLineSurface::StraightLineSurface(const Trk::StraightLineSurface& slsf)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Trk::StraightLineSurface& slsf)
   : Surface(slsf)
   , m_lineDirection{}
   , m_bounds(slsf.m_bounds)
 {}
 
 // copy constructor with shift
-Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, const Amg::Transform3D& transf)
+Trk::StraightLineSurface::StraightLineSurface(
+  const StraightLineSurface& csf,
+  const Amg::Transform3D& transf)
   : Surface(csf, transf)
   , m_lineDirection{}
   , m_bounds(csf.m_bounds)
 {}
-
 
 // assignment operator
 Trk::StraightLineSurface&
@@ -122,7 +122,7 @@ Trk::StraightLineSurface::localToGlobal(const Trk::LocalParameters& locpars,
 // true global to local method - fully defined
 bool
 Trk::StraightLineSurface::globalToLocal(const Amg::Vector3D& glopos,
-                                        const Amg::Vector3D& glomom,
+                                        const Amg::Vector3D&  glomom,
                                         Amg::Vector2D& locpos) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
@@ -145,7 +145,9 @@ __attribute__ ((flatten))
 #endif
 // isOnSurface check
 bool
-Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
+Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo, 
+                                      const BoundaryCheck& bchk, 
+                                      double tol1, double tol2) const
 {
   if (!bchk)
     return true;
@@ -180,7 +182,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
 
 // return the measurement frame
 Amg::RotationMatrix3D
-Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
+Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&  glomom) const
 {
   Amg::RotationMatrix3D mFrame;
   // construct the measurement frame

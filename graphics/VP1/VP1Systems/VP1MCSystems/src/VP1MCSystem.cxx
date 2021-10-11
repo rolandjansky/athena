@@ -11,7 +11,7 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -34,7 +34,7 @@ class VP1MCSystem::Imp {
 public:
   Imp(VP1MCSystem*tc);
   VP1MCSystem * theclass;
-  Ui::VP1MCSystemControllerForm ui;
+  Ui::VP1MCSystemControllerForm ui{};
   QTreeWidget *tw;
   IPartPropSvc *pps;
 

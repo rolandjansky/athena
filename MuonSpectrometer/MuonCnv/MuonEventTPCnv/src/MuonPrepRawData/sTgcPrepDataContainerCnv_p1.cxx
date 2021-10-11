@@ -189,7 +189,7 @@ void  Muon::sTgcPrepDataContainerCnv_p1::persToTrans(const Muon::sTgcPrepDataCon
   // So here we loop over all collection and extract their channels
   // from the vector.
   
-  Muon::sTgcPrepDataCollection* coll = 0;
+  Muon::sTgcPrepDataCollection* coll = nullptr;
   
   sTgcPrepDataCnv_p1  chanCnv;
   unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop 
@@ -273,7 +273,7 @@ Muon::sTgcPrepDataContainer* Muon::sTgcPrepDataContainerCnv_p1::createTransient(
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize sTgcPrepDataContainerCnv_p1 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::sTgcPrepDataContainer> trans(new Muon::sTgcPrepDataContainer(m_sTgcId->module_hash_max()));

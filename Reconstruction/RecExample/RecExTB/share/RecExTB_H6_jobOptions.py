@@ -453,34 +453,15 @@ if doLAr :
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg ('electronicNoise')
 
-    # get public tool LArADC2MeVTool
-    from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-    theADC2MeVTool = LArADC2MeVToolDefault()
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += theADC2MeVTool
-    # get public tool LArOFCTool
-    from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-    theOFCTool = LArOFCToolDefault()
-    ToolSvc += theOFCTool
+    from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+    adc2mev = LArADC2MeVCondAlgDefault()
 
-    ToolSvc.LArADC2MeVToolDefault.UseHVScaleCorr = False
+    adc2mev.LArHVScaleCorrKey = ''
 
     if not doSim :
         # read ByteStream and run RawChannelBuilder
         theApp.Dlls += ["LArRawUtils", "LArROD", "LArTools" ]
-        #
-        from LArROD.LArRODConf import LArDigitPreProcessor_TBLArDigitContainer_
-        TBLArDigProcessor = LArDigitPreProcessor_TBLArDigitContainer_("TBLArDigProcessor")
-        TBLArDigProcessor.InputContainers = ["MEDIUM","FREE"]
-        TBLArDigProcessor.NumberOfSamples = 32
-        TBLArDigProcessor.FirstSample     = 0
-        if doOscillationCorrection:
-            from LArCalibUtils.LArCalibUtilsConf import LArDigitOscillationCorrTool
-            theOscCorr = LArDigitOscillationCorrTool()
-            theOscCorr.SignalCutInSigma=3.0
-            ToolSvc += theOscCorr
-            TBLArDigProcessor.CorrectOscillations=True
-        topSequence += TBLArDigProcessor
+        # LArDigitPreProcessor was removed from the release
         #
         if not doOFC:
             # The modified RawChannelBuilder:
@@ -500,8 +481,6 @@ if doLAr :
             from TBRec.TBRecConf import TBECLArRawChannelBuilder
             LArRawChannelBuilder = TBECLArRawChannelBuilder("LArRawChannelBuilder")
             LArRawChannelBuilder.UseTDC = True
-            LArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVToolDefault
-            LArRawChannelBuilder.UseOFCTool             = False
             LArRawChannelBuilder.NOFCTimeBins = 25
             LArRawChannelBuilder.OFCTimeBin    = 1.0*ns
             LArRawChannelBuilder.BinHalfOffset = False
@@ -663,11 +642,7 @@ if doLAr :
     topSequence +=  CaloCellMaker   
 
     if not doUseRampBuilder:
-       ToolSvc.LArADC2MeVToolDefault.UseMphysOverMcal = False
-
-    # Make sure no symmetrization:    
-    ToolSvc.LArADC2MeVToolDefault.MCSym = False
-    ToolSvc.LArOFCToolDefault.FromDatabase=True
+       adc2mev.LArMphysOverMcalKey = ''
 
 
 if doDMSplit:

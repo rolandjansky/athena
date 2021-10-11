@@ -25,6 +25,9 @@
 #include "AthContainers/DataVector.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
+#include "TrigT1Interfaces/FrontPanelCTP.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+
 class LWHist;
 class TH1F_LW;
 class TH2F_LW;
@@ -86,7 +89,7 @@ class TrigT1CaloLWHistogramTool;
    //const DataHandle< LVL1::FrontPanelCTP > m_topoCTP;
    StringProperty m_CMXJetTobLocation;
    StringProperty m_CMXCPTobLocation;
-   StringProperty m_topoCTPLoc;
+   SG::ReadHandleKey<LVL1::FrontPanelCTP> m_topoCTPLoc { this, "TopoCTPLocation", LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate location of topo inputs" };
 
    /// Root directory
    std::string m_PathInRootFile;   

@@ -56,7 +56,7 @@ void TrackPlots::initializePlots(){
 }
 
 
-  void TrackPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo){
+  void TrackPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo) const{
 
   float deta1(0);
   float dphi2 (0);

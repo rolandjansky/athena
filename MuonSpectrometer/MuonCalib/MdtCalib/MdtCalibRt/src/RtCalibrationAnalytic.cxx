@@ -35,6 +35,10 @@ using namespace MuonCalib;
 
 //*****************************************************************************
 
+RtCalibrationAnalytic::RtCalibrationAnalytic(const std::string &name) : IMdtCalibration(name) {
+    init(0.5 * CLHEP::mm, 1, 5, true, true, true, true, 100, false, false);
+}
+
 RtCalibrationAnalytic::RtCalibrationAnalytic(const std::string &name, const double &rt_accuracy, const unsigned int &func_type,
                                              const unsigned int &ord, const bool &split, const bool &full_matrix, const bool &fix_min,
                                              const bool &fix_max, const int &max_it, bool do_smoothing, bool do_parabolic_extrapolation) :
@@ -88,9 +92,6 @@ void RtCalibrationAnalytic::init(const double &rt_accuracy, const unsigned int &
     m_t_mean = 500.0;
     // default values, correct values will be set when the input r-t
     // has been given
-
-    m_rt_new = 0;
-    m_output = 0;
 
     m_U = std::vector<CLHEP::HepVector>(m_order);
     m_A = CLHEP::HepSymMatrix(m_order, 0);
@@ -335,7 +336,7 @@ void RtCalibrationAnalytic::noParabolicExtrapolation() { m_do_parabolic_extrapol
 void RtCalibrationAnalytic::setEstimateRtAccuracy(const double &acc) { m_rt_accuracy = std::abs(acc); }
 void RtCalibrationAnalytic::splitIntoMultilayers(const bool &yes_or_no) { m_split_into_ml = yes_or_no; }
 void RtCalibrationAnalytic::fullMatrix(const bool &yes_or_no) { m_full_matrix = yes_or_no; }
-const IMdtCalibrationOutput *RtCalibrationAnalytic::analyseSegments(const std::vector<MuonCalibSegment *> &seg) {
+RtCalibrationAnalytic::MdtCalibOutputPtr RtCalibrationAnalytic::analyseSegments(const MuonSegVec &seg) {
     std::shared_ptr<const IRtRelation> tmp_rt;
     std::shared_ptr<const IRtRelation> conv_rt;
 
@@ -368,7 +369,7 @@ const IMdtCalibrationOutput *RtCalibrationAnalytic::analyseSegments(const std::v
     // parabolic extrapolations for small radii //
     if (m_do_parabolic_extrapolation) {
         std::shared_ptr<const RtRelationLookUp> tmprt = performParabolicExtrapolation(true, true, *tmp_rt);
-        m_output = std::make_unique<RtCalibrationOutput>(
+        m_output = std::make_shared<RtCalibrationOutput>(
             tmprt, std::make_shared<RtFullInfo>("RtCalibrationAnalyticExt", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
         tmp_rt = tmprt;
     }
@@ -452,7 +453,7 @@ const IMdtCalibrationOutput *RtCalibrationAnalytic::analyseSegments(const std::v
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
 
-    m_output = std::make_unique<RtCalibrationOutput>(
+    m_output = std::make_shared<RtCalibrationOutput>(
         tmp_rt, std::make_shared<RtFullInfo>("RtCalibrationAnalytic", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     /////////////////////////////////////////
@@ -497,7 +498,6 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment &seg) {
     // hit selection vectors for refits in the first and second multilayer
     unsigned int nb_hits_in_ml[2];       // number of hits in the multilayers
     double x;                            // reduced time = (r(t)-0.5*m_r_max)/(0.5*m_r_max)
-    MTStraightLine track;                // refitted straight line
     std::vector<double> d_track;         // signed distances of the track from the anode wires of the tubes
     std::vector<double> residual_value;  // residuals
     std::vector<MTStraightLine> w;       // anode wires
@@ -613,7 +613,6 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment &seg) {
 
         // fill the autocalibration objects //
         // auxiliary variables //
-        track = track;  // refitted track
         d_track = std::vector<double>(track.numberOfTrackHits());
         residual_value = std::vector<double>(track.numberOfTrackHits());
         w = std::vector<MTStraightLine>(track.numberOfTrackHits());
@@ -728,13 +727,13 @@ void RtCalibrationAnalytic::setInput(const IMdtCalibrationOutput *rt_input) {
     }
 
     // RtChebyshev //
-    if (!rt_Chebyshev) {
+    if (rt_Chebyshev) {
         m_t_length = rt_Chebyshev->tUpper() - rt_Chebyshev->tLower();
         m_t_mean = 0.5 * (rt_Chebyshev->tLower() + rt_Chebyshev->tUpper());
     }
 
     // RtRelationLookUp, dangerous implementation, but the only way right now //
-    if (!rt_LookUp) {
+    if (rt_LookUp) {
         m_t_length = rt_LookUp->par(1) * (rt_LookUp->nPar() - 2) - rt_LookUp->par(0);
         m_t_mean = 0.5 * (rt_LookUp->par(1) * (rt_LookUp->nPar() - 2) + rt_LookUp->par(0));
     }
@@ -902,15 +901,13 @@ bool RtCalibrationAnalytic::analyse() {
     //////////////////////////////////////////////////
     m_iteration = m_iteration + 1;
 
-    m_output = std::make_unique<RtCalibrationOutput>(
+    m_output = std::make_shared<RtCalibrationOutput>(
         m_rt_new, std::make_shared<RtFullInfo>("RtCalibrationAnalytic", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     return true;
 }
 bool RtCalibrationAnalytic::converged() const { return (m_status > 0); }
-const IMdtCalibrationOutput *RtCalibrationAnalytic::getResults() const {
-    return static_cast<const IMdtCalibrationOutput *>(m_output.get());
-}
+RtCalibrationAnalytic::MdtCalibOutputPtr RtCalibrationAnalytic::getResults() const { return m_output; }
 std::shared_ptr<RtRelationLookUp> RtCalibrationAnalytic::performParabolicExtrapolation(const bool &min, const bool &max,
                                                                                        const IRtRelation &in_rt) {
     ///////////////

@@ -187,14 +187,9 @@ def ApplySubtractionToClusters(**kwargs) :
 
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool = CaloNoiseToolDefault()
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += theCaloNoiseTool
 
         HIClusterMoments = CaloClusterMomentsMaker ("HIClusterMoments")
         #HIClusterMoments.MaxAxisAngle = 20*deg
-        #HIClusterMoments.CaloNoiseTool = theCaloNoiseTool
         #HIClusterMoments.UsePileUpNoise = False
         HIClusterMoments.MinBadLArQuality = 4000
         HIClusterMoments.MomentsNames = ["CENTER_MAG",

@@ -12,7 +12,8 @@ Description: Apply the default configurations for the AsgPhotonIsEMSelector,
 
 # Import the needed general stuff
 from PATCore.HelperUtils import SetToolProperties
-from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
+
 import sys
 
 # Import the needed stuff specific to the PhotonPhotonSelectorTools

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCollectionCnv_p6.cxx
@@ -69,13 +69,10 @@ JetCollectionCnv_p6::persToTrans( const JetCollection_p6* pers,
   trans->setOrdered (static_cast<JetCollection::OrderedVar>(pers->m_ordered));
   // not used any more ... trans->m_ROIauthor = //pers->m_roiAuthor;
 
-  /// The jets them selves. Taken care of behind our backs.
+  /// The jets themselves. Taken care of behind our backs.
 
-  for (JetCollection::iterator it = trans->begin();
-       it != trans->end();
-       it++)
-  {
-    (*it)->setJetId(Jet::s_defaultJetId);
+  for (Jet* jet : *trans) {
+    jet->setJetId(Jet::s_defaultJetId);
   }
     
   trans->clear(); 
@@ -87,10 +84,8 @@ JetCollectionCnv_p6::persToTrans( const JetCollection_p6* pers,
   // std::cout << " JetCollectionCnv_p6  Converting "<< trans->author() << std::endl;
   // std::cout << " JetCollectionCnv_p6  dalink "<< trans->m_momentMapLink.isValid() << "  "<< trans->m_momentMapLink.dataID() << std::endl;
 
-  for (JetCollection_p6::const_iterator itr = pers->begin();
-       itr != pers->end();
-       itr++) {
-    Jet* j = createTransFromPStore((ITPConverterFor<Jet>**)0, *itr, msg);
+  for (const TPObjRef& ref : *pers) {
+    Jet* j = createTransFromPStore((ITPConverterFor<Jet>**)0, ref, msg);
     size_t id = j->m_jetId;
     trans->push_back(j);
     //std::cout << " reading jet "<< id << "  "<< pers->m_jetIdBugFixed << std::endl;
@@ -126,10 +121,8 @@ JetCollectionCnv_p6::transToPers( const JetCollection* trans,
   pers->clear();
   pers->reserve(trans->size());
 
-  for (JetCollection::const_iterator itr = trans->begin();
-       itr != trans->end();
-       itr++) {
-    pers->push_back(toPersistent((ITPConverterFor<Jet>**)0, *itr, msg));
+  for (const Jet* jet : *trans) {
+    pers->push_back(toPersistent((ITPConverterFor<Jet>**)0, jet, msg));
   }
 
   // RS now deal with the JetKeyDescriptor

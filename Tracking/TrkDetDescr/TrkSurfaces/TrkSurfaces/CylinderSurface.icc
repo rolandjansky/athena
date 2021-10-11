@@ -5,7 +5,7 @@
 namespace Trk {
 
 /** Return the surface type */
-inline Surface::SurfaceType
+inline SurfaceType
 CylinderSurface::type() const
 {
   return CylinderSurface::staticType;
@@ -124,6 +124,11 @@ inline CylinderSurface*
 CylinderSurface::clone() const
 {
   return new CylinderSurface(*this);
+}
+
+inline std::unique_ptr<CylinderSurface> 
+CylinderSurface::uniqueClone() const{
+  return std::unique_ptr<CylinderSurface>(clone());
 }
 
 inline Amg::Vector3D

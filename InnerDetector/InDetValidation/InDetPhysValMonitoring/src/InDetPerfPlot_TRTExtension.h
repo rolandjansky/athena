@@ -24,10 +24,10 @@
 class InDetPerfPlot_TRTExtension: public InDetPlotBase {
 public:
   InDetPerfPlot_TRTExtension(InDetPlotBase* pParent, const std::string& dirName);
-  void fill(const xAOD::TrackParticle& particle);
-  void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx);
+  void fill(const xAOD::TrackParticle& particle, float weight);
+  void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx, float weight);
 
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthie);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthie, float weight);
 
 private:
 

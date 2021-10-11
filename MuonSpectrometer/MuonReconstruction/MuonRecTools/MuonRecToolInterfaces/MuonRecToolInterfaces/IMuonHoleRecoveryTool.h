@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "GaudiKernel/IAlgTool.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 
 namespace Trk {
     class Track;
@@ -27,7 +28,11 @@ namespace Muon {
         /** @brief recover missing hits (holes) on tracks
             @return a pointer to a track, the ownership of the output track is passed to the client calling the tool.
         */
-        virtual Trk::Track* recover(const Trk::Track& track) const = 0;
+        virtual std::unique_ptr<Trk::Track> recover(const Trk::Track& track, const EventContext& ctx) const = 0;
+
+        virtual void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                      std::set<Identifier>& layIds,
+                                                      std::vector<std::unique_ptr<const Trk::TrackStateOnSurface> >& states) const = 0;
 
         /** virtual destructor **/
         virtual ~IMuonHoleRecoveryTool() = default;

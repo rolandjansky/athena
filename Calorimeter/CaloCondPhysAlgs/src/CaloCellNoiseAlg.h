@@ -52,7 +52,7 @@
 
     StatusCode         fillNtuple();
     StatusCode         fitNoise();
-    StatusCode         readNtuple();
+    static StatusCode         readNtuple();
     float              getLuminosity();
 
   //---------------------------------------------------

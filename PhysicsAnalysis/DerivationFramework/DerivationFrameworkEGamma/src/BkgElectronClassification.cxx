@@ -18,10 +18,6 @@ BkgElectronClassification::BkgElectronClassification(const std::string& t,
 {
 
   declareInterface<DerivationFramework::IAugmentationTool>(this);
-
-  declareProperty("MCTruthClassifierTool",
-                  m_mcTruthClassifier,
-                  "Handle of MCTruthClassifier");
   declareProperty("barcodeCut",
                   m_barcodecut = 200e3,
                   "Cut on the barcode for the xAODEgammaTruthHelpers");
@@ -53,7 +49,7 @@ BkgElectronClassification::initialize()
   m_lastEgMotherPdgId = baseName + ".lastEgMotherPdgId";
 
   ATH_CHECK(m_truthPdgId.initialize());
-  // 
+  //
   ATH_CHECK(m_firstEgMotherTruthType.initialize());
   ATH_CHECK(m_firstEgMotherTruthOrigin.initialize());
   ATH_CHECK(m_firstEgMotherTruthParticleLink.initialize());
@@ -63,7 +59,7 @@ BkgElectronClassification::initialize()
   ATH_CHECK(m_lastEgMotherTruthOrigin.initialize());
   ATH_CHECK(m_lastEgMotherTruthParticleLink.initialize());
   ATH_CHECK(m_lastEgMotherPdgId.initialize());
-  
+
   ATH_MSG_DEBUG("Initialization successful");
 
   return StatusCode::SUCCESS;

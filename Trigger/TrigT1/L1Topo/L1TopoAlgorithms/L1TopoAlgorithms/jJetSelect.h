@@ -9,7 +9,6 @@
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/JetTOB.h"
 
 #include <iostream>
 #include <vector>
@@ -33,12 +32,7 @@ namespace TCS {
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
       parType_t      m_et = { 0 };
-      parType_t      m_jsize = { 0 };   
       parType_t      m_doEtaCut = { 0 };
-
-   protected:
-    
-      JetTOB::JetSize m_jetsize;
     
    };
 

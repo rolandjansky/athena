@@ -7,7 +7,7 @@
 #ifndef TRIGHLTJETHYPOUNITTESTS_JETHYPOEXERCISERCOMPAREALG_H
 #define TRIGHLTJETHYPOUNITTESTS_JETHYPOEXERCISERCOMPAREALG_H
 
-#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelper.h"
 #include "TrigHLTJetHypoUnitTests/IHypoJetVectorGenerator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -27,10 +27,10 @@ private:
 
 
   // ToolHandles as Properties
-  ToolHandle<ITrigJetHypoToolHelperMT> m_helper0  {this, "JetHypoHelperTool0", 
+  ToolHandle<ITrigJetHypoToolHelper> m_helper0  {this, "JetHypoHelperTool0", 
       "Tool0", "private IJetTrigHypoToolHelper0"};
 
-  ToolHandle<ITrigJetHypoToolHelperMT> m_helper1  {this, "JetHypoHelperTool1", 
+  ToolHandle<ITrigJetHypoToolHelper> m_helper1  {this, "JetHypoHelperTool1", 
       "Tool1", "private IJetTrigHypoToolHelper1"};
 
   ToolHandle<IHypoJetVectorGenerator> m_generator  {this, "event_generator", 
@@ -51,10 +51,10 @@ private:
   std::size_t m_agree_jets{0};
   std::size_t m_differ_jets{0};
   
-  StatusCode initialize_(const ToolHandle<ITrigJetHypoToolHelperMT>&,
+  StatusCode initialize_(const ToolHandle<ITrigJetHypoToolHelper>&,
 			 const std::string&);
   
-  StatusCode execute_(ToolHandle<ITrigJetHypoToolHelperMT>&,
+  StatusCode execute_(ToolHandle<ITrigJetHypoToolHelper>&,
 		      HypoJetVector&,
 		      const std::string& collectorName,
 		      xAODJetCollector& jetCollector,

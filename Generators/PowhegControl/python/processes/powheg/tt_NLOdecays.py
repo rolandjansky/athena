@@ -150,7 +150,7 @@ class tt_NLOdecays(PowhegV2):
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers
-        __decay_products = map(str.strip, self.decay_mode.replace("~", "").replace("+", "").replace("-", "").split("b"))
+        __decay_products = list(map(str.strip, self.decay_mode.replace("~", "").replace("+", "").replace("-", "").split("b")))
         __decay_mode_lookup = {"e ve": 11, "mu vm": 13, "tau vt": 15, "u d": 1, "c s": 3}
         list(self.parameters_by_keyword("topdec"))[0].value = __decay_mode_lookup[__decay_products[1]]
         list(self.parameters_by_keyword("tbardec"))[0].value = __decay_mode_lookup[__decay_products[2]]

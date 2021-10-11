@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -44,7 +44,7 @@ static const DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
 
 
 // Standard Constructor
-DbDatabaseObj::DbDatabaseObj( const DbDomain& dom, 
+DbDatabaseObj::DbDatabaseObj( DbDomain&       dom, 
                               const string&   pfn, 
                               const string&   fid, 
                               DbAccessMode    mod) 
@@ -144,12 +144,12 @@ DbStatus DbDatabaseObj::cleanup()  {
 }
 
 // Add association entry
-DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
+DbStatus DbDatabaseObj::makeLink(Token* pTok, Token::OID_t& refLnk) {
   if ( pTok )   {
     int   is_dbTok  = (typeid(*pTok) == typeid(DbToken));
     LinkMap::iterator i;
     if ( is_dbTok )   {
-      DbToken* pdbTok = (DbToken*)pTok;
+      DbToken* pdbTok = static_cast<DbToken*>(pTok);
       pdbTok->setKey(DbToken::TOKEN_CONT_KEY);
       i = m_linkMap.find(pdbTok->contKey());
     }
@@ -279,7 +279,7 @@ DbStatus DbDatabaseObj::addShape (const DbTypeInfo* pShape) {
         for (size_t ic=0; ic < cols.size();++ic)  {
           const DbColumn* c = cols[ic];
           log << "---->[" << ic << "]:" << c->name()
-              << " Typ:" << c->typeName() << " ["<< c->typeID() << "]"
+              << " Typ:" << c->typeName() << " ["<< c->typeID() << ']'
               << " Size:" << c->size()
               << " Offset:" << c->offset()
               << " #Elements:" << c->nElement()
@@ -370,7 +370,7 @@ DbStatus DbDatabaseObj::open()   {
             for (size_t ic=0; ic < cols.size();++ic)  {
               const DbColumn* c = cols[ic];
               log << "---->[" << ic << "]:" << c->name()
-                  << " Typ:" << c->typeName() << " ["<< c->typeID() << "]"
+                  << " Typ:" << c->typeName() << " ["<< c->typeID() << ']'
                   << " Size:" << c->size()
                   << " Offset:" << c->offset()
                   << " #Elements:" << c->nElement()
@@ -424,13 +424,13 @@ DbStatus DbDatabaseObj::open()   {
             size_t id1 = dsc.find("[NAME=");
             size_t id2 = dsc.find("[VALUE=");
             if ( id1 != string::npos && id2 != string::npos )  {
-              size_t id11 = dsc.find("]", id1+6);
-              size_t id22 = dsc.find("]", id2+7);
+              size_t id11 = dsc.find(']', id1+6);
+              size_t id22 = dsc.find(']', id2+7);
               if ( id11 != string::npos && id22 != string::npos )  {
                 string n = dsc.substr(id1+6, id11-id1-6);
                 string v = dsc.substr(id2+7, id22-id2-7);
                 // ParamMap::value_type val(n, v);
-                log << "--->Reading Param:" << n << "=[" << v << "]" 
+                log << "--->Reading Param:" << n << "=[" << v << ']' 
                     << DbPrint::endmsg;
                 m_paramMap[n] = v;
                 if (n == "FID") fids.push_back(v);
@@ -488,7 +488,7 @@ DbStatus DbDatabaseObj::open()   {
 		string cnt = dsc.substr(id1+5, id2-1-5);
 		int section_offset  = ::atoi((tmp=dsc.substr(id2+5,id3-id2-6)).c_str());
 		int section_start   = ::atoi((tmp=dsc.substr(id3+7,id4-id3-8)).c_str());
-		int section_length  = ::atoi((tmp=dsc.substr(id4+5,dsc.find("]",id4+5)-id4-5)).c_str());
+		int section_length  = ::atoi((tmp=dsc.substr(id4+5,dsc.find(']',id4+5)-id4-5)).c_str());
 		m_sections[cnt].push_back(DbSection(section_offset,section_start,section_length));
 		//m_redirects[db].push_back(Redirection(DbSection(section_offset,section_start,section_length));
 		log << "--->Internal section:" << dsc << " offset:" << section_offset 
@@ -609,7 +609,7 @@ DbStatus DbDatabaseObj::retire()  {
 }
 
 /// Access to sections if availible
-const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cnt) const   {
+const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cnt)   {
   Sections::const_iterator i = m_sections.find(cnt);
   if ( i == m_sections.end() ) {
     static const ContainerSections s_sect(1,DbSection());
@@ -633,7 +633,7 @@ DbStatus DbDatabaseObj::addParam(const string& nam, const string& val) {
     if ( m_info )  {
       ParamMap::const_iterator i = m_paramMap.find(nam);
       if ( i == m_paramMap.end() )  {
-        string dsc = "[NAME=" + nam + "][VALUE=" + val + "]";
+        string dsc = "[NAME=" + nam + "][VALUE=" + val + ']';
         DbHandle<DbString> persH = new(m_params, m_string_t) DbString(dsc);
         if ( !m_params.save(persH, m_string_t).isSuccess() )  {
           return Error;
@@ -740,7 +740,7 @@ DbStatus DbDatabaseObj::getLink(const Token::OID_t& oid, int merge_section, Toke
 }
 
 
-std::string DbDatabaseObj::cntName(const Token& token) {
+std::string DbDatabaseObj::cntName(Token& token) {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
     int lnk = m_indexMap[token.oid().first]; // Map link to index
@@ -758,7 +758,9 @@ std::string DbDatabaseObj::cntName(const Token& token) {
       if ( lnk < int(m_linkVec.size()) )   {
 	DbToken* link = m_linkVec[lnk];
         if ( link != 0 ) {
-          if ( token.contID().empty() ) const_cast<Token*>(&token)->setCont(link->contID());
+          if ( token.contID().empty() ) {
+            token.setCont(link->contID());
+          }
           return link->contID(); // in ##Links
         }
       }

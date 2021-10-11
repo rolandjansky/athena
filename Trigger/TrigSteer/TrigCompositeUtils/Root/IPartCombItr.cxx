@@ -62,8 +62,8 @@ namespace TrigCompositeUtils
 
   IPartCombItr::IPartCombItr(
       const std::vector<std::tuple<std::size_t, LInfoItr_t, LInfoItr_t>> &pieces,
-      const std::function<bool(const VecLInfo_t &)> filter)
-      : m_filter(filter)
+      std::function<bool(const VecLInfo_t &)> filter)
+      : m_filter(std::move(filter))
   {
     m_itrs.reserve(pieces.size());
     auto currentItr = std::back_inserter(m_current);
@@ -94,8 +94,8 @@ namespace TrigCompositeUtils
   {
   }
 
-  IPartCombItr::IPartCombItr(const std::function<bool(const VecLInfo_t &)> filter)
-      : m_filter(filter) {}
+  IPartCombItr::IPartCombItr(std::function<bool(const VecLInfo_t &)> filter)
+      : m_filter(std::move(filter)) {}
 
   IPartCombItr::IPartCombItr(FilterType filter)
       : m_filter(getFilter(filter)) {}

@@ -385,7 +385,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
         }
         else { 
             TrackTruth trk_truth=found->second;
-            auto particle = trk_truth.particleLink();
+            const auto& particle = trk_truth.particleLink();
             auto prod_vtx = particle->production_vertex();
 
             //fill parent id

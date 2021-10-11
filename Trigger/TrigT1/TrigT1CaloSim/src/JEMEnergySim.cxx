@@ -25,7 +25,6 @@
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "xAODTrigL1Calo/JetElementContainer.h"
-#include "TrigT1CaloEvent/JEMEtSums_ClassDEF.h"
 #include "TrigT1CaloEvent/EnergyCMXData_ClassDEF.h"
 #include "TrigT1CaloUtils/ModuleEnergy.h"
 

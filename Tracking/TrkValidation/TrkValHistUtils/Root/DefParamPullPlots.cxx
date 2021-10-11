@@ -10,17 +10,17 @@
 namespace Trk {
   void
   DefParamPullPlots::init() {
-    Pull_d0 = NULL;
-    Pull_z0 = NULL;
-    Pull_theta = NULL;
-    Pull_phi = NULL;
-    Pull_qOverP = NULL;
+    Pull_d0 = nullptr;
+    Pull_z0 = nullptr;
+    Pull_theta = nullptr;
+    Pull_phi = nullptr;
+    Pull_qOverP = nullptr;
 
-    Pull_d0_vs_pt = NULL;
-    Pull_z0_vs_pt = NULL;
-    Pull_theta_vs_pt = NULL;
-    Pull_phi_vs_pt = NULL;
-    Pull_qOverP_vs_pt = NULL;
+    Pull_d0_vs_pt = nullptr;
+    Pull_z0_vs_pt = nullptr;
+    Pull_theta_vs_pt = nullptr;
+    Pull_phi_vs_pt = nullptr;
+    Pull_qOverP_vs_pt = nullptr;
   }
 
   void

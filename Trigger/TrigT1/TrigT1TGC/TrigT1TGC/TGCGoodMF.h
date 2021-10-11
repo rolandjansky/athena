@@ -28,7 +28,7 @@ public:
   bool test_GoodMF(int moduleId, int sscId, int subsector) const;
   bool readBadMFList();
 
-  TGCArguments* tgcArgs() const;
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 
 private:
   std::map<int, std::map<int,int> > m_mapisgoodMF; //Number of moduleId
@@ -36,11 +36,6 @@ private:
   std::string m_verName;
 
 };
-
-inline 
-TGCArguments* TGCGoodMF::tgcArgs() const {
-  return m_tgcArgs;
-}
 
 } //end of namespace bracket
 

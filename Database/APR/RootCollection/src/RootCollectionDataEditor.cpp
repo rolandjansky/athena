@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollection.h"
@@ -95,25 +95,26 @@ insertRow( const pool::CollectionRowBuffer& inputRowBuffer, bool )
       // cout << "RootCollection:AddRow: TTree Branch " <<  branch->GetName() << " at " << branch << endl;
    }
 
-   std::vector<std::string> stringBuffer;
+   std::deque<std::string> stringBuffer;
 
    for( pool::TokenList::const_iterator iToken = inputRowBuffer.tokenList().begin();
          iToken != inputRowBuffer.tokenList().end(); ++iToken )  {
       stringBuffer.push_back( iToken->toString() );
-      branchByName[ iToken.tokenName() ]->SetAddress( (void*)stringBuffer.back().c_str() );
+      branchByName[ iToken.tokenName() ]->SetAddress( stringBuffer.back().data() );
    }
-   for( coral::AttributeList::const_iterator iAttribute = inputRowBuffer.attributeList().begin();
-        iAttribute != inputRowBuffer.attributeList().end(); ++iAttribute ) {
-      if( iAttribute->specification().type() == typeid(std::string) ) {
-         const std::string        &str = iAttribute->data<std::string>();
+
+   coral::AttributeList attribs_nc = inputRowBuffer.attributeList();
+   for( coral::Attribute& att : attribs_nc ) {
+      if( att.specification().type() == typeid(std::string) ) {
+         std::string&       str = att.data<std::string>();
          if( str.length()+1 >= c_maxLengthOfStrings ) {
           throw pool::Exception( "String is too long",
                                  "RootCollectionDataEditor:insertRow", 
                                  "RootCollection" );
          }
-         branchByName[ iAttribute->specification().name() ]->SetAddress( (void*)str.c_str() );
+         branchByName[ att.specification().name() ]->SetAddress( str.data() );
       } else {
-         branchByName[ iAttribute->specification().name() ]->SetAddress( (void*)iAttribute->addressOfData() );
+         branchByName[ att.specification().name() ]->SetAddress( att.addressOfData() );
       }
    }
    

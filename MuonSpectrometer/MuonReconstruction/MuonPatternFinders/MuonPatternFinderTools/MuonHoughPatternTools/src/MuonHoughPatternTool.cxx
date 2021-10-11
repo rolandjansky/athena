@@ -182,7 +182,7 @@ void MuonHoughPatternTool::makePatterns(int id_number, double weightmdt, const M
 
   for (int level = 0; level < m_maximum_level; level++)
     {
-      if (test_for_next_level==true)
+      if (test_for_next_level)
 	{
 	  ATH_MSG_DEBUG("Iteration number: " << level);
 	  fillHistos(id_number,level,event_for_hough,houghtransform);
@@ -208,7 +208,7 @@ void MuonHoughPatternTool::makePatterns(int id_number, double weightmdt, const M
 	  // hitcontainer for association not updated
 	  test_for_next_level = analyseHisto(id_number,level,event_for_association,houghtransform, houghpattern);
 	  
-	  if (test_for_next_level == true) {
+	  if (test_for_next_level) {
 	    MuonHoughHitContainer* old_event_hough = event_for_hough;
 	    event_for_hough = whichEventHough(id_number, old_event_hough, weightmdt);
 	    ATH_MSG_DEBUG("New event size for transform: " << event_for_hough->size());
@@ -221,7 +221,7 @@ void MuonHoughPatternTool::makePatterns(int id_number, double weightmdt, const M
   delete event_for_hough;      
   delete event_for_association;
   delete houghtransform;
-  houghtransform=0;
+  houghtransform=nullptr;
 
 }// id_number
 
@@ -262,7 +262,7 @@ StatusCode MuonHoughPatternTool::initialize()
   return sc;
 }
 
-void MuonHoughPatternTool::resetAssociation(const MuonHoughHitContainer* event) const
+void MuonHoughPatternTool::resetAssociation(const MuonHoughHitContainer* event) 
 {
   for (unsigned int i=0; i<event->size(); i++)
     {
@@ -281,7 +281,7 @@ StatusCode MuonHoughPatternTool::finalize()
       m_file->Write();
       m_file->Close();
       delete m_file;
-      m_file=0;
+      m_file=nullptr;
     }
 
   return sc;
@@ -291,7 +291,7 @@ void MuonHoughPatternTool::reset(MuonHoughPatternContainerShip& houghpattern) co
 {
   ATH_MSG_VERBOSE("reset()");
   
-  if (houghpattern.size()!=0)
+  if (!houghpattern.empty())
     {
       for (unsigned int i=0; i<houghpattern.size(); i++)
 	{
@@ -300,7 +300,7 @@ void MuonHoughPatternTool::reset(MuonHoughPatternContainerShip& houghpattern) co
 	      for (unsigned int k=0; k<houghpattern[i][j].size(); k++)
 		{
 		  delete houghpattern[i][j][k];
-		  houghpattern[i][j][k]=0;
+		  houghpattern[i][j][k]=nullptr;
 		}
 	    }
 	}
@@ -327,7 +327,7 @@ MuonHoughPatternContainerShip MuonHoughPatternTool::emptyHoughPattern() const
 	  
 	  for (int maximum_number=0; maximum_number<m_number_of_maxima; maximum_number++)
 	    {
-	      MuonHoughPattern* houghpattern_level = 0;
+	      MuonHoughPattern* houghpattern_level = nullptr;
 	      houghpattern[i][lvl].push_back(houghpattern_level);
 
 	    } // maximum_number
@@ -410,7 +410,7 @@ bool MuonHoughPatternTool::analyseHisto(int id_number,int level,const MuonHoughH
 		}
 	      else 
 		{
-		  if (hitsLeft(event_to_analyse)==true) // any hits left
+		  if (hitsLeft(event_to_analyse)) // any hits left
 		    {
 		      test_for_next_level=true;
 		    }
@@ -443,11 +443,11 @@ void MuonHoughPatternTool::analyseTrack(int /*id_number*/,const MuonHoughHitCont
 {
 } //analyseTrack
 
-bool MuonHoughPatternTool::hitsLeft(const MuonHoughHitContainer* event)const
+bool MuonHoughPatternTool::hitsLeft(const MuonHoughHitContainer* event)
 {
   int number_of_hits=event->size();
   for (int hitid=0; hitid<number_of_hits; hitid++) {
-    if (event->getHit(hitid)->getAssociated()==false) {
+    if (!event->getHit(hitid)->getAssociated()) {
       return true;
     }
   }
@@ -460,7 +460,7 @@ int MuonHoughPatternTool::numberOfHits(const MuonHoughHitContainer* event)const
   int number_of_hits=event->size();
 
   for (int hitid=0; hitid<number_of_hits; hitid++) {
-    if (event->getHit(hitid)->getAssociated()==false) {
+    if (!event->getHit(hitid)->getAssociated()) {
       number_of_hits_left++;
     }
   }
@@ -482,7 +482,7 @@ bool MuonHoughPatternTool::hitInHoughPattern(MuonHoughHit* hit,const MuonHoughPa
 	{
 	  if( houghpattern[i][j] )
 	    {
-	      if (houghpattern[i][j]->hitInHoughPattern(hit)==true)
+	      if (houghpattern[i][j]->hitInHoughPattern(hit))
 		{
 		  ATH_MSG_VERBOSE("Hit in hough pattern found level " << i <<  " max " << j << "hitid: " << hit->getId());
 		  return true;
@@ -701,7 +701,7 @@ MuonHoughHitContainer* MuonHoughPatternTool::whichEventHough(int id_number,const
 	{
 	  MuonHoughHit * hit = hits_not_in_patterns->getHit(hitid);
 	  if (hit->getMeasuresPhi()==1) {
-	    if (true == hitThroughCut(hit, weightmdt)) {
+	    if (hitThroughCut(hit, weightmdt)) {
 	      if (m_use_csc_in_hough == true || (m_use_csc_in_hough == false && hit->getDetectorId()==MuonHough::CSC))
 		{
 		  event_to_analyse->addHit(hit);
@@ -713,7 +713,7 @@ MuonHoughHitContainer* MuonHoughPatternTool::whichEventHough(int id_number,const
     case MuonHough::hough_yz:
       for (unsigned int hitid=0; hitid<hits_not_in_patterns->size(); hitid++) {
 	MuonHoughHit * hit = hits_not_in_patterns->getHit(hitid);
-	if (true == hitThroughCut(hit, weightmdt)) {
+	if (hitThroughCut(hit, weightmdt)) {
 	  event_to_analyse->addHit(hit);
 	}
       }
@@ -722,7 +722,7 @@ MuonHoughHitContainer* MuonHoughPatternTool::whichEventHough(int id_number,const
       for (unsigned int hitid=0; hitid<hits_not_in_patterns->size(); hitid++)
 	{
 	  MuonHoughHit * hit = hits_not_in_patterns->getHit(hitid);
-	  if (true == hitThroughCut(hit,weightmdt)) {
+	  if (hitThroughCut(hit,weightmdt)) {
 	    if (hit->getMeasuresPhi()==0)
 	      {
 		if (m_use_csc_in_hough == true || (m_use_csc_in_hough == false && hit->getDetectorId()==MuonHough::CSC))
@@ -764,7 +764,7 @@ MuonHoughHitContainer* MuonHoughPatternTool::whichEventHough(int id_number,const
 	  if (hits_not_in_patterns->getDetectorId(hitid)==MuonHough::MDT)
 	    {
 	      MuonHoughHit * hit = hits_not_in_patterns->getHit(hitid);
-	      if (true == hitThroughCut(hit, weightmdt)) {
+	      if (hitThroughCut(hit, weightmdt)) {
 		event_to_analyse->addHit(hit);
 	      }
 	    }
@@ -774,14 +774,14 @@ MuonHoughHitContainer* MuonHoughPatternTool::whichEventHough(int id_number,const
     }
 
   delete hits_not_in_patterns;
-  hits_not_in_patterns = 0;
+  hits_not_in_patterns = nullptr;
 
   return event_to_analyse;
 }
 
 MuonHoughTransformSteering* MuonHoughPatternTool::whichHoughTransform(int id_number) const
 {
-  MuonHoughTransformer* houghtransformer=0;
+  MuonHoughTransformer* houghtransformer=nullptr;
 
   int nbins=0;
   int nbins_angle=0;
@@ -867,7 +867,7 @@ int MuonHoughPatternTool::maxLevelHoughPattern(const MuonHoughPatternContainerSh
     {
       unsigned int maximum_number=0;
       
-      while (continu==true  && maximum_number < houghpattern[id_number][maxlevel-1].size()) //m_number_of_maxima)
+      while (continu  && maximum_number < houghpattern[id_number][maxlevel-1].size()) //m_number_of_maxima)
 	{
 	      
 	  ATH_MSG_DEBUG("maximum_number: " << maximum_number << " " << "maxlevel_houghpattern: " << maxlevel << " id: " << id_number);
@@ -878,7 +878,7 @@ int MuonHoughPatternTool::maxLevelHoughPattern(const MuonHoughPatternContainerSh
 
 	} //number_of_maxima
  
-      if (continu==true){maxlevel--;}
+      if (continu){maxlevel--;}
     }// while
   return maxlevel;
 } //maxLevelHoughPattern
@@ -978,7 +978,7 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getPhiMuonPatterns(MuonHoughPatt
 	    }
 	    if ( m_use_ip) {
 	      // Merge and do cleaning  (IP constraint)
-	      Muon::MuonPrdPattern* muonpattern = 0;
+	      Muon::MuonPrdPattern* muonpattern = nullptr;
 	      if ((overlap > 0.8*ns1 || overlap >0.8*ns2)&&  ns1 >= ns2){
 		muonpattern = houghPatternsToOnePhiPattern(phipatterns[i][j],phipatterns[k][l]);
 	      }
@@ -1004,19 +1004,19 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getPhiMuonPatterns(MuonHoughPatt
       for (unsigned int j=0; j<phipatterns[i].size(); j++)
 	{
 	  MuonHoughPattern* houghpattern = phipatterns[i][j];
-	  if( houghpattern==0 ) {
+	  if( houghpattern==nullptr ) {
 	    continue;
 	  }
 	  if( mergedpatterns[houghpattern] == 1) continue ;
 
-	  if (phipatterns[i][j]->size()>0)
+	  if (!phipatterns[i][j]->empty())
 	    {
-	      Muon::MuonPrdPattern* muonpattern=0;
+	      Muon::MuonPrdPattern* muonpattern=nullptr;
 
 	      if( !m_use_ip ) {muonpattern = houghPatternToPhiPattern(phipatterns[i][j]);}
 	      else {muonpattern= houghPatternToCleanPhiPattern(phipatterns[i][j]);}
 
-	      if (muonpattern!=0) {phipatterncollection->push_back(muonpattern);
+	      if (muonpattern!=nullptr) {phipatterncollection->push_back(muonpattern);
 
 		ATH_MSG_DEBUG(" Lift MuonPhiPattern size " << muonpattern->numberOfContainedPrds()); 
 		if(msgLvl(MSG::VERBOSE)) {printPattern(muonpattern);}
@@ -1132,7 +1132,7 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getEtaMuonPatterns(MuonHoughPatt
 	      mergedpatterns[houghpattern1] = 1;
 	      continue;
 	    }
-	    Muon::MuonPrdPattern* muonpattern = 0;
+	    Muon::MuonPrdPattern* muonpattern = nullptr;
 	    // Look for 80% or more overlap
 	    if ( (overlap > 0.8*ns1 || overlap > 0.8*ns2) && ns1 >= ns2) {
 	      muonpattern = houghPatternsToOneEtaPattern(etapatterns[i][j],etapatterns[k][l]);
@@ -1161,7 +1161,7 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getEtaMuonPatterns(MuonHoughPatt
       }	  
       if( mergedpatterns[houghpattern] == 1) continue ;
       
-      if (etapatterns[i][j]->size()>0) {
+      if (!etapatterns[i][j]->empty()) {
 	Muon::MuonPrdPattern* muonpattern= houghPatternToEtaPattern(etapatterns[i][j]);
 	etapatterncollection->push_back(muonpattern);
 
@@ -1193,7 +1193,7 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getCurvedMuonPatterns(MuonHoughP
 	    continue;
 	  }	  
 	  
-	  if (curvedpatterns[i][j]->size()>0)
+	  if (!curvedpatterns[i][j]->empty())
 	    {
 	      Muon::MuonPrdPattern* muonpattern= houghPatternToEtaPattern(curvedpatterns[i][j]);
 	      curvedpatterncollection->push_back(muonpattern);
@@ -1297,7 +1297,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternsToOneEtaPattern(MuonHou
 
   // require at least two eta hits on muon pattern
 
-  if ( ns1+ns2 < 2) return 0;
+  if ( ns1+ns2 < 2) return nullptr;
 
   double invcurvature = invcur;
   double charge = 1.;
@@ -1386,7 +1386,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternsToOnePhiPattern(MuonHou
   ATH_MSG_VERBOSE("Start Merged Phi hits cleaning with " << nphi << " hits ");
   // require at least two phi hits on muon phi pattern
 
-  if ( nphi <  2) return 0;
+  if ( nphi <  2) return nullptr;
 
   double cphit = cos_phi / nphi;
   double sphit = sin_phi / nphi;
@@ -1423,7 +1423,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternsToOnePhiPattern(MuonHou
       }
     }
 
-  if ( nphi <  2) return 0;
+  if ( nphi <  2) return nullptr;
   cphit = cos_phi / nphi;
   sphit = sin_phi / nphi;
 
@@ -1456,7 +1456,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternsToOnePhiPattern(MuonHou
 	} 
       }
     }
-  if ( nphi <  2) return 0;
+  if ( nphi <  2) return nullptr;
   cphit = cos_phi / nphi;
   sphit = sin_phi / nphi;
 
@@ -1494,7 +1494,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternsToOnePhiPattern(MuonHou
 	} 
       }
     }
-  if ( nphi <  2) return 0;
+  if ( nphi <  2) return nullptr;
   cphit = cos_phi / nphi;
   sphit = sin_phi / nphi;
   theta = theta / nphi;
@@ -1589,7 +1589,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
   MuonHoughPattern* newpattern = houghpattern;
   for (int it=0; it<number_of_iterations; it++) {
     bool change = true;
-    while (change == true) {
+    while (change) {
       ATH_MSG_VERBOSE("size: " << newsize << " r0: " << r0 << " phi: " << phi);
 
       double max_dist = 0.;
@@ -1613,7 +1613,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
 	phi = newpattern2->getEPhi();
 	r0 = newpattern2->getERPhi();
 	newsize = newpattern2->size();
-	if (first==false) delete newpattern;
+	if (!first) delete newpattern;
 	else {first = false;}
 	newpattern = newpattern2;
 	scphi = CxxUtils::sincos(phi);
@@ -1655,17 +1655,17 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
     printPattern(muonpattern);
   }
 
-  if (first==false) delete newpattern;
+  if (!first) delete newpattern;
   
   return muonpattern;
 }
 
-MuonHoughHitContainer* MuonHoughPatternTool::hitsNotInPattern(const MuonHoughHitContainer* event, int /*id_number*/ )const
+MuonHoughHitContainer* MuonHoughPatternTool::hitsNotInPattern(const MuonHoughHitContainer* event, int /*id_number*/ )
 {
   MuonHoughHitContainer* hits_not_in_patterns = new MuonHoughHitContainer(false);
   
   for (unsigned int hitid=0; hitid<event->size(); hitid++) {
-    if (event->getHit(hitid)->getAssociated() == false) {
+    if (!event->getHit(hitid)->getAssociated()) {
       hits_not_in_patterns->addHit(event->getHit(hitid));
     }
   }

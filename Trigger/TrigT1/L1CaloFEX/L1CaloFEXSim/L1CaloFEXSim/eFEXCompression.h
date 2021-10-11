@@ -22,22 +22,30 @@ This simple utility class contains 3 functions:
   - Compress:  encodes a signed integer MeV value
   - Expand:    decodes a 10 bit unsigned int into a signed integer MeV value
   - Threshold: applies a threshold (in MeV) to the compressed code, zeroing if below
+  - NoiseCut:  applies a noise cut per layer
   - Linearize: decodes a 10 bit unsigned int into the unsigned 16 bit eFEX ET with
                least count of 25 MeV. A user-defined threshold (in MeV) can be 
                applied, but as the eFEX ET is positive a negative threshold is
                equivalent to a threshold of 0.
+  - Decode:  encodes a signed integer MeV value, checks is noise cut is passed,
+               and then decodes a 10 bit unsigned int into the unsigned 16 bit eFEX ET 
+	       with least count of 25 MeV.
   */
 class eFEXCompression {
 
 public: 
   /** Compress data */
-  static unsigned int Compress(int Et);
+  static unsigned int compress(int Et);
   /** Uncompress data */
-  static int Expand(unsigned int code);
+  static int expand(unsigned int code);
   /** Apply threshold to compressed data */
-  static unsigned int Threshold(unsigned int code, int threshold = -800);
+  static unsigned int threshold(unsigned int code, int threshold = -800);
+  /** Apply supercell noise cut **/
+  static bool noiseCut(unsigned int code, int layer);
   /** Linearize LAr code to eFEX internal format */
-  static unsigned int Linearize(unsigned int code, int threshold = 0);
+  static unsigned int linearize(unsigned int code, int threshold = 0);
+  /** Full sequence **/
+  static unsigned int decode(int EtVal, int layer);
  
 private: 
   /** Maximum ET value that can be encoded */
@@ -70,6 +78,12 @@ private:
   static const unsigned int s_eFEXOverflow = 0xffff;
   /** Error return value */
   static const int s_error = -999;
+  /** Noise Cuts per layer **/
+  static const unsigned int m_noisecutPS = 36; // corresponds to 100 MeV
+  static const unsigned int m_noisecutL1 = 36;
+  static const unsigned int m_noisecutL2 = 36;
+  static const unsigned int m_noisecutL3 = 36;
+  static const unsigned int m_noisecutHad = 36;
 };
 
 

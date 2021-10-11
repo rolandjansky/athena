@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMCNVTEST_CSCDIGITTOCSCRDO_H
@@ -26,8 +26,9 @@ class CscDigitToCscRDO : public AthAlgorithm {
   CscDigitToCscRDO(const std::string& name, ISvcLocator* pSvcLocator);
   ~CscDigitToCscRDO()=default;
 
-  StatusCode initialize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual bool isClonable() const override final { return true; }
 
  private:
    ToolHandle<IMuonDigitizationTool> m_digTool{this};

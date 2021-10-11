@@ -28,7 +28,7 @@
 //____________________________________________________________________
 class SimHitHandle_SiHit::Imp {
 public:
-  Imp( const SiHit * h ) : thehit(h),detelem(0) {}
+  Imp( const SiHit * h ) : thehit(h),detelem(nullptr) {}
   const SiHit * thehit;
   mutable const InDetDD::SiDetectorElement * detelem;
   bool ensureDetElemInit() const;
@@ -77,7 +77,7 @@ bool SimHitHandle_SiHit::Imp::ensureDetElemInit() const
   //Fixme : Handle case where detelem can not be found gracefully. And check pointers from VP1DetInfo!!
   if (!detelem)
     VP1Msg::messageDebug("SimHitHandle_SiHit ERROR: Could not get detector element for hit!");
-  return detelem!=0;
+  return detelem!=nullptr;
 }
 
 //____________________________________________________________________

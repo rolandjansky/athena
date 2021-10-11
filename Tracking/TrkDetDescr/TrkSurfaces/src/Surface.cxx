@@ -44,29 +44,21 @@ Trk::Surface::Surface()
 // to out-of-line Eigen code that is linked from other DSOs; in that case,
 // it would not be optimized.  Avoid this by forcing all Eigen code
 // to be inlined here if possible.
-__attribute__ ((flatten))
+__attribute__((flatten))
 #endif
-Trk::Surface::Surface(Amg::Transform3D* tform)
-  : m_transforms(nullptr)
+Trk::Surface::Surface(const Amg::Transform3D& tform)
+  : m_transforms(std::make_unique<Transforms>(tform))
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  if (tform) {
-    m_transforms = std::make_unique<Transforms>(*tform);
-  }
+
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
 #endif
-}
-
-Trk::Surface::Surface(std::unique_ptr<Amg::Transform3D> tform)
-  : Surface(tform.release())
-{
-  // No EDM monitor here since we delegate to the previous constructor.
 }
 
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
@@ -105,14 +97,13 @@ __attribute__ ((flatten))
 #endif
 // copy constructor - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 Trk::Surface::Surface(const Surface& sf)
-  : m_transforms(nullptr)
+  : m_transforms(std::make_unique<Transforms>(sf.transform()))
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(sf.m_associatedLayer)
   , m_materialLayer(sf.m_materialLayer)
   , m_owner(Trk::noOwn)
 {
-  m_transforms = std::make_unique<Transforms>(sf.transform());
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -180,36 +171,32 @@ Trk::Surface::operator=(const Trk::Surface& sf)
 }
 
 // returns the LocalPosition on a surface of a GlobalPosition
-Amg::Vector2D*
+std::optional<Amg::Vector2D>
 Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo,
                                 const BoundaryCheck& bchk,
                                 double tol1,
                                 double tol2) const
 {
-  Amg::Vector2D* posOnSurface = globalToLocal(glopo, tol1);
+  std::optional<Amg::Vector2D> posOnSurface = globalToLocal(glopo, tol1);
   if (!bchk){
     return posOnSurface;
   }
   if (posOnSurface && insideBounds(*posOnSurface, tol1, tol2)){
     return posOnSurface;
   }
-  delete posOnSurface;
-  return nullptr;
+  return std::nullopt;
 }
 
 // checks if GlobalPosition is on Surface and inside bounds
 bool
 Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
-                          BoundaryCheck bchk,
+                          const BoundaryCheck& bchk,
                           double tol1,
                           double tol2) const
 {
-  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
-  if (posOnSurface) {
-    delete posOnSurface;
-    return true;
-  }
-    return false;
+  std::optional<Amg::Vector2D> posOnSurface =
+    positionOnSurface(glopo, bchk, tol1, tol2);
+  return static_cast<bool>(posOnSurface);
 }
 
 // return the measurement frame

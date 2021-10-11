@@ -22,12 +22,12 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 7027 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 AtRanTestAlg        DEBUG Property update for OutputLevel : new value = 2
 AtRanTestAlg         INFO  Initializing 
 AtRanluxGenSvc      DEBUG Property update for OutputLevel : new value = 1
 AtRanluxGenSvc      DEBUG Service base class initialized successfully
-AtRanluxGenSvc       INFO Initializing AtRanluxGenSvc - package version RngComps-00-00-00
+AtRanluxGenSvc       INFO Initializing AtRanluxGenSvc
  INITIALISING RANDOM NUMBER STREAMS. 
 AtRanluxGenSvc       INFO will be reseeded for every event
 AtRanluxGenSvc    VERBOSE Seeds property: stream LUX seeds 1 2, luxury level 1, reseeding offset 0
@@ -68,7 +68,7 @@ AtRndTestAlg        DEBUG Property update for OutputLevel : new value = 2
 AtRndTestAlg         INFO  Initializing 
 AtRndmGenSvc        DEBUG Property update for OutputLevel : new value = 1
 AtRndmGenSvc        DEBUG Service base class initialized successfully
-AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version RngComps-00-00-00
+AtRndmGenSvc         INFO Initializing AtRndmGenSvc
  INITIALISING RANDOM NUMBER STREAMS. 
 AtRndmGenSvc         INFO will be reseeded for every event
 AtRndmGenSvc      VERBOSE Seeds property: stream RNDM seeds 11 12, reseeding offset 0
@@ -109,7 +109,7 @@ OldTestAlg          DEBUG Property update for OutputLevel : new value = 2
 OldTestAlg           INFO  Initializing 
 LuxOld              DEBUG Property update for OutputLevel : new value = 1
 LuxOld              DEBUG Service base class initialized successfully
-LuxOld               INFO Initializing LuxOld - package version RngComps-00-00-00
+LuxOld               INFO Initializing LuxOld
  INITIALISING RANDOM NUMBER STREAMS. 
 LuxOld            VERBOSE Seeds property: stream LUX seeds 1 2, luxury level 3, reseeding offset 0
 LuxOld              DEBUG  INITIALISING LUX stream with seeds 1  2
@@ -124,7 +124,7 @@ NoReseedTestAlg     DEBUG Property update for OutputLevel : new value = 2
 NoReseedTestAlg      INFO  Initializing 
 RndNoReseed         DEBUG Property update for OutputLevel : new value = 1
 RndNoReseed         DEBUG Service base class initialized successfully
-RndNoReseed          INFO Initializing RndNoReseed - package version RngComps-00-00-00
+RndNoReseed          INFO Initializing RndNoReseed
  INITIALISING RANDOM NUMBER STREAMS. 
 RndNoReseed       VERBOSE Seeds property: stream RNDM seeds 11 12, reseeding offset 0
 RndNoReseed         DEBUG  INITIALISING RNDM stream with seeds 11  12
@@ -139,7 +139,7 @@ MarsTestAlg         DEBUG Property update for OutputLevel : new value = 2
 MarsTestAlg          INFO  Initializing 
 AtDSFMTGenSvc       DEBUG Property update for OutputLevel : new value = 1
 AtDSFMTGenSvc       DEBUG Service base class initialized successfully
-AtDSFMTGenSvc        INFO Initializing AtDSFMTGenSvc - package version RngComps-00-00-00
+AtDSFMTGenSvc        INFO Initializing AtDSFMTGenSvc
  INITIALISING RANDOM NUMBER STREAMS. 
 AtDSFMTGenSvc        INFO will be reseeded for every event
 AtDSFMTGenSvc     VERBOSE Seeds property: stream MARS seeds 1 2, reseeding offset 0

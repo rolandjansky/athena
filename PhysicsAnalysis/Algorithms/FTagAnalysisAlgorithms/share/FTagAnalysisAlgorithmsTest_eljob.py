@@ -54,9 +54,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 from FTagAnalysisAlgorithms.FTagAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
 print (algSeq) # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+algSeq.addSelfToJob( job )
 
 # Find the right output directory:
 submitDir = options.submission_dir

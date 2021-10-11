@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
 //  L1TriggerTowerTool.cxx 
@@ -12,13 +12,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
 
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "TrigT1CaloCalibConditions/ChanCalibErrorCode.h"
@@ -68,19 +61,18 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_caloMgr(0),
   m_lvl1Helper(0),
-  m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
-  m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService"),
-  m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool"),
+  m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools", this),
+  m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService", this),
+  m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool", this),
   m_l1CondSvc("L1CaloCondSvc", n),
-  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
   m_dbFineTimeRefsTowers(0),
-  m_correctFir(false)
+  m_correctFir(false),
+  m_dynamicPedestalProvider("", this)
 {
   declareInterface<IL1TriggerTowerTool>(this);
 
   declareProperty( "BaselineCorrection", m_correctFir );
   declareProperty( "L1DynamicPedestalProvider", m_dynamicPedestalProvider );
-  declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 }
 
 //================ Destructor =================================================
@@ -97,7 +89,6 @@ StatusCode L1TriggerTowerTool::initialize()
 
 
   CHECK(m_l1CondSvc.retrieve());
-  CHECK(m_configSvc.retrieve());
   CHECK(m_l1CaloTTIdTools.retrieve());
 
   if(!m_ttSvc.retrieve().isSuccess()) {
@@ -138,6 +129,8 @@ StatusCode L1TriggerTowerTool::initialize()
   if (incSvc) incSvc->addListener(this, "BeginRun");
 
   ATH_CHECK( m_eventInfoKey.initialize() );
+
+  ATH_CHECK( m_L1MenuKey.initialize() );
   
   ATH_MSG_INFO( "Initialization completed" );
   
@@ -984,7 +977,9 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
       ped        = settings->pedValue();
       pedMean    = settings->pedMean();
       scale_db   = settings->lutJepScale();
-      scale_menu = m_configSvc->thresholdConfig()->caloInfo().globalJetScale(); // Retrieve scale param from menu instead of coolDB
+      
+      auto l1Menu = SG::makeHandle( m_L1MenuKey );
+      scale_menu = l1Menu->thrExtraInfo().JET().jetScale(); // Retrieve scale param from menu
       if (strategy == 3) {
         par1  = settings->lutJepPar1();
         par2  = settings->lutJepPar2();

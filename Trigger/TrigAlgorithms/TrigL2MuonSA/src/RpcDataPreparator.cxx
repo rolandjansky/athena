@@ -52,18 +52,11 @@ void TrigL2MuonSA::RpcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDat
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::RpcDataPreparator::setMultiMuonTrigger( const bool multiMuonTrigger )
-{
-  m_doMultiMuon = multiMuonTrigger;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
                                                         TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
-                                                        const ToolHandle<RpcPatFinder>*   rpcPatFinder) const
+                                                        const ToolHandle<RpcPatFinder>*   rpcPatFinder,
+                                                        const bool dynamicDeltaRpc) const
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
   rpcHits.clear();
@@ -210,7 +203,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        float dynamic_add = 0.02;
 
        //Determine deta, dphi threshold in case of dynamicDeltaRpcMode
-       if( m_doMultiMuon ){
+       if( dynamicDeltaRpc ){
          ATH_MSG_DEBUG("Collected RPC hits by MultiMuonTriggerMode");
          m_recRPCRoiTool->roiData( p_roids->roiWord() );
          double RoiPhiMin(0);
@@ -243,7 +236,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*         p_roids,
                                                         TrigL2MuonSA::RpcLayerClusters&  rpcLayerClusters,
-                                                        const ToolHandle<ClusterPatFinder>*    clusterPatFinder) const
+                                                        const ToolHandle<ClusterPatFinder>*    clusterPatFinder,
+                                                        const bool dynamicDeltaRpc) const
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
 
@@ -309,7 +303,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      }
    }
    ATH_MSG_DEBUG("Do rpc clustering");
-   ATH_CHECK( m_clusterPreparator->clusteringRPCs(m_doMultiMuon, rpcCols, p_roids, clusterPatFinder, rpcLayerClusters) );
+   ATH_CHECK( m_clusterPreparator->clusteringRPCs(dynamicDeltaRpc, rpcCols, p_roids, clusterPatFinder, rpcLayerClusters) );
 
   return StatusCode::SUCCESS;
 }

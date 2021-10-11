@@ -9,13 +9,11 @@
 #define ILVL1L1CPHITSTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-//#include "TrigT1CaloUtils/CPAlgorithm.h"
 
 namespace LVL1 
 {
 
 class CMMCPHits;
-class CPAlgorithm;
 class CPMHits;
 class CPMRoI;
 class EmTauROI;
@@ -29,9 +27,6 @@ Interface definition for L1CPHitsTools
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    // enter declaration of your interface-defining member functions here
-    virtual void formCPMRoI(const DataVector<CPAlgorithm>* cpAlgorithmVec,
-                                  DataVector<CPMRoI>*      cpmRoiVec) const = 0;
     virtual void formCPMRoI(const DataVector<EmTauROI>* emTauRoiVec,
                                   DataVector<CPMRoI>*   cpmRoiVec) const = 0;
     virtual void formCPMHits(const DataVector<CPMRoI>*  cpmRoiVec,

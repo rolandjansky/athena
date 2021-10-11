@@ -22,13 +22,16 @@ atlas_add_test( TriggerConfigFlags_AutoConfTest
 
 atlas_add_test( NewJOL1SimSetup
    SCRIPT python -m TriggerJobOpts.Lvl1SimulationConfig
+   PROPERTIES TIMEOUT 600
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( NewJOL1MuonSimSetup
    SCRIPT python -m TriggerJobOpts.Lvl1MuonSimulationConfig
+   PROPERTIES TIMEOUT 300
    POST_EXEC_SCRIPT nopost.sh )
 
 
 atlas_add_test( Run3ConfigFetchKeysTest
    SCRIPT python -m TriggerJobOpts.TriggerConfigGetter
    POST_EXEC_SCRIPT nopost.sh )
+

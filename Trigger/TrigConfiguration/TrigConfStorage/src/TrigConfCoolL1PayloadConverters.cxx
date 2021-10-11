@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfStorage/TrigConfCoolL1PayloadConverters.h"
@@ -62,7 +62,7 @@ TrigConfCoolL1PayloadConverters::createLvl1ItemDefPayload( cool::IFolderPtr fld,
    string logic, conditions;
    item.buildLogic(logic, thresholdlist);
    vector<string>::iterator thrIt = thresholdlist.begin();
-   for(;thrIt!=thresholdlist.end();thrIt++) {
+   for(;thrIt!=thresholdlist.end();++thrIt) {
       if(thrIt!=thresholdlist.begin()) conditions += ";";
       conditions += *thrIt;
    }
@@ -120,7 +120,7 @@ TrigConfCoolL1PayloadConverters::createLvl1ThresholdPayload( cool::IFolderPtr fl
    string thrValDef("");
    vector<TriggerThresholdValue*>::const_iterator thrValIt = thr.thresholdValueVector().begin();
    vector<TriggerThresholdValue*>::const_iterator thrValEnd = thr.thresholdValueVector().end();
-   for(;thrValIt!=thrValEnd;thrValIt++) {
+   for(;thrValIt!=thrValEnd;++thrValIt) {
       TriggerThresholdValue* thrVal = *thrValIt;
       
       string valName          = thrVal->name();

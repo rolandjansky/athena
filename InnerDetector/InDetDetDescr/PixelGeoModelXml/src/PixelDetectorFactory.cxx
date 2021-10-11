@@ -47,6 +47,10 @@ namespace InDetDDSLHC {
     //    Create the detector manager... should allow the name to be set
     //
     m_detectorManager = new InDetDD::PixelDetectorManager(detStore(),m_options->detectorName());
+
+    //TODO - For now this is always assuemd to be present as a default.
+    //To be revisited once the ITk alignment scheme is a bit clearer
+    m_detectorManager->addFolder("/Indet/Align");
     //
     //   Set Detector Manager pixel version information
     //
@@ -72,7 +76,7 @@ namespace InDetDDSLHC {
     ATH_MSG_INFO( "C R E A T E   W O R L D" );
    
     ATH_MSG_INFO( m_detectorManager->getVersion().fullDescription() );
-    PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
+    ITk::PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
     //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
     //    comment out above line and uncomment the following line; also, switch header files above.
     //    GmxInterface gmxInterface;
@@ -116,16 +120,19 @@ namespace InDetDDSLHC {
     bool foundVolume = false;
 
     for (int iChild = nChildren - 1; iChild>=0; --iChild) {
-      if (world->getNameOfChildVol(iChild) == "ITkPixel") {
-	// The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
-	// the & takes its address.
-	foundVolume  = true;
-	m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
-	break;
+      //stop if you find a volume for pixel plus PP1...
+      if( world->getNameOfChildVol(iChild) == "ITkPixelplusPP1") foundVolume  = true;
+      //otherwise, continue looking for a volume just for the pixel
+      if (foundVolume  == true || world->getNameOfChildVol(iChild) == "ITkPixel") {
+	      // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
+	      // the & takes its address.
+	      foundVolume  = true;
+	      m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
+	      break;
       }
     }
-    
-    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkPixel\" - this is required to provide the Envelope!");
+  
+    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkPixel\" or \"ITkPixelplusPP1\" - this is required to provide the Envelope!");
 
     doNumerology();
 
@@ -163,10 +170,80 @@ namespace InDetDDSLHC {
     
     ATH_MSG_INFO( "\n\nPixel Numerology:\n===============\n\nNumber of parts is " << m_moduleTree.nParts() );
     
+    bool barrelDone = false;
+    for (int b = -1; b <= 1; ++b) {
+        if (m_moduleTree.count(b)) {
+            msg(MSG::INFO) << "    Found barrel with index " << b << endl;
+            n.addBarrel(b);
+            if (!barrelDone) {
+                n.setNumLayers(m_moduleTree[b].nLayers());
+                msg(MSG::INFO) << "        Number of barrel layers = " << n.numLayers() << endl;
+                for (LayerDisk::iterator l = m_moduleTree[b].begin(); l != m_moduleTree[b].end(); ++l) {
+                    n.setNumEtaModulesForLayer(l->first, l->second.nEtaModules());
+                    // All staves within a layer are assumed identical, so we can just look at the first eta
+                    n.setNumPhiModulesForLayer(l->first, l->second.begin()->second.nPhiModules());
+                    msg(MSG::INFO) << "        layer = " << l->first << " has " << n.numEtaModulesForLayer(l->first) <<
+                                     " etaModules each with " <<  n.numPhiModulesForLayer(l->first) << " phi modules" << endl;
+                }
+                barrelDone = true;
+            }
+        }
+
+    }
+    bool endcapDone = false;
+
+    for (int ec = -2; ec <= 2; ec += 4) {
+        if (m_moduleTree.count(ec)) {
+            msg(MSG::INFO) << "    Found endcap with index " << ec << endl;
+            n.addEndcap(ec);
+            if (!endcapDone) {
+                n.setNumDiskLayers(m_moduleTree[ec].nLayers());
+                msg(MSG::INFO) << "        Number of endcap layers = " << n.numDiskLayers() << endl;
+                for (LayerDisk::iterator l = m_moduleTree[ec].begin(); l != m_moduleTree[ec].end(); ++l) {
+                    n.setNumDisksForLayer(l->first, l->second.nEtaModules());
+                    msg(MSG::INFO) << "        Layer " << l->first << " has " << n.numDisksForLayer(l->first) << " disks" << endl;
+                    for (EtaModule::iterator eta = l->second.begin(); eta != l->second.end(); ++eta) {
+                        n.setNumPhiModulesForLayerDisk(l->first, eta->first, eta->second.nPhiModules());
+                        msg(MSG::DEBUG) << "            Disk " << eta->first << " has " <<
+                                           n.numPhiModulesForLayerDisk(l->first, eta->first) << " phi modules" << endl;
+                    }
+                }
+                endcapDone = true;
+            }
+        }
+    }
+    msg(MSG::INFO) << endmsg;
+
+    int totalWafers = 0;
+    for (BarrelEndcap::iterator bec = m_moduleTree.begin(); bec != m_moduleTree.end(); ++bec) {
+        for (LayerDisk::iterator ld = bec->second.begin(); ld != bec->second.end(); ++ld) {
+            for (EtaModule::iterator eta = ld->second.begin(); eta != ld->second.end(); ++eta) {
+                for (PhiModule::iterator phi = eta->second.begin(); phi != eta->second.end(); ++phi) {
+                    for (Side::iterator side =phi->second.begin(); side != phi->second.end(); ++side) {
+                        totalWafers++;
+                    }
+                }
+            }
+        }
+    }
+    msg(MSG::INFO) << "Total number of wafers added is " << totalWafers << endmsg;
+    const PixelID *pixelIdHelper = dynamic_cast<const PixelID *> (m_commonItems->getIdHelper());
+    msg(MSG::INFO) << "Total number of wafer identifiers is " << pixelIdHelper->wafer_hash_max() << endmsg;
+
+    //    Used in digitization to create one vector big enough to hold all pixels
+    n.setMaxNumEtaCells(1);
+    for (int d = 0; d < m_detectorManager->numDesigns(); ++d) {
+        n.setMaxNumPhiCells(m_detectorManager->getPixelDesign(d)->rows());
+        n.setMaxNumEtaCells(m_detectorManager->getPixelDesign(d)->columns());
+    }
+    msg(MSG::INFO) << "Max. eta cells is " << n.maxNumEtaCells() << endl;
+    msg(MSG::INFO) << "Max. phi cells is " << n.maxNumPhiCells() << endl;
+
+    m_detectorManager->numerology() = n;
+
+    msg(MSG::INFO) << "End of numerology\n" << endmsg;
+
   }
-
-
-
 
 }
 

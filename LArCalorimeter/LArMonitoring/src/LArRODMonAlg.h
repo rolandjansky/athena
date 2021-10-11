@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawConditions/LArADC2MeV.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
@@ -144,8 +144,11 @@ private:
   SG::ReadCondHandleKey<ILArPedestal>    m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
 
   SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey{this,"LArADC2MeVKey","LArADC2MeV","SG Key of the LArADC2MeV CDO"};
+  
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
 
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
 
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};

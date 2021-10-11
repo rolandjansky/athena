@@ -57,7 +57,9 @@ private:
   TProfile* rdz_vs_zed;
   TProfile* rdz_vs_ntrax;
   TProfile* rdz_vs_nvtx;
-  TProfile* rdz_vs_mu;
+  //No currently used 
+  //but retained in case
+  //TProfile* rdz_vs_mu;
 
   TProfile* eff_zed;
   TProfile* eff_ntrax;

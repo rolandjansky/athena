@@ -44,7 +44,7 @@ public:
   }
   MuonCollectionSettingsButton * theclass;
   QWidget * editwindow;
-  Ui::MuonCollectionSettingsForm editwindow_ui;
+  Ui::MuonCollectionSettingsForm editwindow_ui{};
   
   VP1MaterialButton* matButton;// main collection colour
   // VP1MaterialButton* defaultParametersMatButton;

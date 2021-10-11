@@ -7,7 +7,7 @@
 
 
 #include "ITrigJetConditionConfig.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class TrigJetConditionConfig_jvt:
@@ -18,7 +18,7 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
   TrigJetConditionConfig_jvt(const std::string& type, const std::string& name, const IInterface* parent);
 
   virtual StatusCode initialize() override;
-  virtual ConditionMT getCondition() const override;
+  virtual Condition getCondition() const override;
 
  private:
 

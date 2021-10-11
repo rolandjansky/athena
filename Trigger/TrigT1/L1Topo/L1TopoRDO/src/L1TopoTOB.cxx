@@ -11,15 +11,15 @@
 
 namespace L1Topo {
 
-  L1TopoTOB::L1TopoTOB(const int32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits, uint32_t error_bits)
+  L1TopoTOB::L1TopoTOB(const uint32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits, uint32_t error_bits)
     : m_ctp_signal(ctp_signal), m_overflow_bits(overflow_bits), m_trigger_bits(trigger_bits),m_error_bits(error_bits),m_word(0){
     this->encode();
   }
-  L1TopoTOB::L1TopoTOB(const int32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits)
+  L1TopoTOB::L1TopoTOB(const uint32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits)
     : m_ctp_signal(ctp_signal), m_overflow_bits(overflow_bits), m_trigger_bits(trigger_bits),m_error_bits(0),m_word(0){
     this->encode();
   }
-  L1TopoTOB::L1TopoTOB(const int32_t word)
+  L1TopoTOB::L1TopoTOB(const uint32_t word)
     : m_word(word){
     this->decode();
   }

@@ -1,21 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <algorithm>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigConfSeq.h"
-#include "TrigMonMSG.h"
 
-using namespace std;
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigConfSeq");
-}
 
 //--------------------------------------------------------------------------------------  
 TrigConfSeq::TrigConfSeq()
@@ -51,15 +44,13 @@ void TrigConfSeq::clearStrings()
 const TrigConfAlg& TrigConfSeq::getAlg(unsigned int pos) const
 {
   if(pos >= m_alg.size()) {
-    std::stringstream ss;
-    ss << "TrigConfSeq::getAlg(" << pos << ") error! Index is greater than alg size=" << m_alg.size() << " for " << m_output_te_name;
-    MSGService::msg.Log(ss.str(), MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfSeq")
+      << "getAlg(" << pos << ") error! Index is greater than alg size=" << m_alg.size() << " for " << m_output_te_name;
     return m_alg.front();
   }
   if(m_alg[pos].getPosition() != pos) {
-    std::stringstream ss;
-    ss << "TrigConfSeq::getAlg(" << pos << ") error! Index mismatch: " << m_alg[pos].getPosition() << "!=" << pos;
-    MSGService::msg.Log(ss.str(), MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfSeq")
+      << "getAlg(" << pos << ") error! Index mismatch: " << m_alg[pos].getPosition() << "!=" << pos;
   }
 
   return m_alg[pos];
@@ -112,7 +103,7 @@ bool TrigConfSeq::matchAlgType(const std::string &atype) const
 //--------------------------------------------------------------------------------------  
 void TrigConfSeq::print(std::ostream &os) const
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------  
@@ -123,7 +114,7 @@ std::string str(const TrigConfSeq &o)
     << " contains " << o.getAlg().size() << " algorithm(s): " << std::endl;
   
   for(unsigned int i = 0; i < o.getAlg().size(); ++i) {
-    s << "   " << str(o.getAlg()[i]) << endl;
+    s << "   " << str(o.getAlg()[i]) << std::endl;
   }
 
   return s.str();

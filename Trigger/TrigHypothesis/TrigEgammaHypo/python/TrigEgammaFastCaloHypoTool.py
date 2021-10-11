@@ -2,9 +2,7 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-#from AthenaCommon.AppMgr import ServiceMgr
 
 
 def same( val , tool):
@@ -14,12 +12,12 @@ def same( val , tool):
 #
 # For electrons only
 #
-def createTrigEgammaFastCaloHypoAlgMT(name, sequenceOut):
+def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-  theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name)
+  #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
 
   # Just for electrons
@@ -37,7 +35,7 @@ def createTrigEgammaFastCaloHypoAlgMT(name, sequenceOut):
   MonTool = GenericMonitoringTool("MonTool_"+name)
   MonTool.Histograms = [ 
         defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
-        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=100, xmin=0.0, xmax=100),
+        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=50, xmin=0.0, xmax=50),
   ]
   MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
   theFastCaloHypo.MonTool=MonTool
@@ -45,15 +43,21 @@ def createTrigEgammaFastCaloHypoAlgMT(name, sequenceOut):
 
   return theFastCaloHypo
 
+def TrigEgammaFastCaloHypoAlgCfg(flags, name, CaloClusters):
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  acc = ComponentAccumulator()
+  acc.addEventAlgo(createTrigEgammaFastCaloHypoAlg(name=name, sequenceOut=CaloClusters))
+  return acc
+
 #
 # For photons only
 # NOTE: For future, ringer will be applied at the fast photon step
 #
-def createTrigEgammaFastCaloHypoAlgMT_noringer(name, sequenceOut):
+def createTrigEgammaFastCaloHypoAlg_noringer(name, sequenceOut):
   
   # make the Hypo
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-  theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name)
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
+  theFastCaloHypo = TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
 
   # Just for electrons
@@ -100,28 +104,30 @@ class TrigEgammaFastCaloHypoToolConfig:
                            'lhmedium' , 
                            'lhloose'  , 
                            'lhvloose' ,
-                           #'dnntight',
-                           #'dnnmedium',
-                           #'dnnloose',
-                           #'dnnvloose',
+                           'dnntight' ,
+                           'dnnmedium',
+                           'dnnloose' ,
+                           'dnnvloose',
                            ]
 
 
-  def __init__(self, name, cand, threshold, sel, trackinfo, noringerinfo):
+  def __init__(self, name, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastCaloHypoTool')
-     
     self.__useRun3 = False
     self.__name = name
-    self.__cand = cand
-    self.__threshold  = float(threshold)
-    self.__sel        = sel
-    self.__trackinfo  = trackinfo
-    self.__noringerinfo = noringerinfo
+    self.__cand = cpart['trigType']
+    self.__threshold  = float(cpart['threshold'])
+    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__gsfinfo  = cpart['gsfInfo'] if cpart['trigType']=='e' and cpart['gsfInfo'] else ''
+    self.__idperfinfo  = cpart['idperfInfo'] if cpart['trigType']=='e' and cpart['idperfInfo'] else ''
+    self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigEgammaFastCaloHypoToolInc( name )
+    if not tool:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaFastCaloHypoTool( name )
+    
     tool.AcceptAll      = False
     tool.UseRinger      = False
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
@@ -141,12 +147,12 @@ class TrigEgammaFastCaloHypoToolConfig:
 
     self.__tool = tool
 
-    self.__log.debug( 'Chain     :%s', name )
-    self.__log.debug( 'Signature :%s', cand )
-    self.__log.debug( 'Threshold :%s', threshold )
-    self.__log.debug( 'Pidname   :%s', sel )
-    self.__log.debug( 'trackinfo  :%s', trackinfo )
-    self.__log.debug( 'noringerinfo :%s', noringerinfo )
+    self.__log.debug( 'Chain     :%s'   , self.__name )
+    self.__log.debug( 'Signature :%s'   , self.__cand )
+    self.__log.debug( 'Threshold :%s'   , self.__threshold )
+    self.__log.debug( 'Pidname   :%s'   , self.__sel )
+    self.__log.debug( 'noringerinfo :%s', self.__noringerinfo )
+
 
   def chain(self):
     return self.__name
@@ -166,8 +172,11 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringerinfo(self):
     return self.__noringerinfo
 
-  def trackinfo(self):
-    return self.__trackinfo
+  def gsfinfo(self):
+    return self.__gsfinfo
+
+  def idperfinfo(self):
+    return self.__idperfinfo
 
   def tool(self):
     return self.__tool
@@ -203,15 +212,15 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringer(self):
 
     self.__log.debug( 'Configure noringer' )
-    from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
+    from TrigEgammaHypo.TrigEgammaFastCutDefs import TrigFastCaloElectronCutMaps
     self.tool().UseRinger   = False
     self.tool().ETthr       = same( ( self.etthr()  - 3 )*GeV , self.tool())
-    self.tool().HADETthr    = L2CaloCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
-    self.tool().CARCOREthr  = L2CaloCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
-    self.tool().CAERATIOthr = L2CaloCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
+    self.tool().HADETthr    = TrigFastCaloElectronCutMaps( self.etthr() ).MapsHADETthr[self.pidname()]
+    self.tool().CARCOREthr  = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCARCOREthr[self.pidname()]
+    self.tool().CAERATIOthr = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
 
 
-  def ringer(self):
+  def nominal(self):
 
     self.__log.debug( 'Configure ringer' )
     self.tool().UseRinger = True
@@ -226,19 +235,23 @@ class TrigEgammaFastCaloHypoToolConfig:
   #
   def compile(self):
 
-    if 'etcut' == self.pidname():
+    if 'etcut' == self.pidname() or 'ion' in self.pidname():
       self.etcut()
 
     elif self.pidname() in self.__operation_points and 'noringer' in self.noringerinfo() and self.isElectron():
       self.noringer()
 
     elif self.pidname() in self.__operation_points and 'noringer' not in self.noringerinfo() and self.isElectron():
-      self.ringer()
-  
-    elif self.pidname() in self.__operation_points and self.isPhoton():
-      self.noringer()
+      self.nominal()
 
-    self.addMonitoring()
+    elif self.pidname() in self.__operation_points and self.isPhoton():
+      self.etcut()
+   
+    elif self.etthr()==0:
+      self.nocut()
+
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -248,103 +261,85 @@ class TrigEgammaFastCaloHypoToolConfig:
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
     
-    if (('Validation' in TriggerFlags.enableMonitoring()) or ('Online' in  TriggerFlags.enableMonitoring()) or (athenaCommonFlags.isOnline)):
-      if self.tool().UseRinger:
-        monTool = GenericMonitoringTool('MonTool'+self.__name)
-        monTool.Histograms = [
-            defineHistogram('Eta', type='TH1F', path='EXPERT',title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5),
-            defineHistogram('Phi',type='TH1F', path='EXPERT',title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2),
-            defineHistogram('Et',type='TH1F', path='EXPERT',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4),
-            defineHistogram('NNOutput',type='TH1F', path='EXPERT',title="NN Output; NN; Count", xbins=17,xmin=-8,xmax=+8),
+    if self.tool().UseRinger:
+      monTool = GenericMonitoringTool('MonTool'+self.__name)
+      monTool.Histograms = [
+          defineHistogram('Eta', type='TH1F', path='EXPERT',title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5),
+          defineHistogram('Phi',type='TH1F', path='EXPERT',title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2),
+          defineHistogram('Et',type='TH1F', path='EXPERT',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4),
+          defineHistogram('NNOutput',type='TH1F', path='EXPERT',title="NN Output; NN; Count", xbins=17,xmin=-8,xmax=+8),
 
-        ]
-    
-        monTool.HistPath= 'FastCaloL2EgammaHypo/'+self.__name
-        self.tool().MonTool=monTool
+      ]
 
-      else:
+      monTool.HistPath= 'FastCaloL2EgammaHypo/'+self.__name
+      self.tool().MonTool=monTool
 
-        monTool = GenericMonitoringTool("MonTool_"+self.__name)
-        monTool.defineHistogram('dEta', type='TH1F', path='EXPERT', title="L2Calo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", 
-                                xbins=80, xmin=-0.01, xmax=0.01)
-        monTool.defineHistogram('dPhi', type='TH1F', path='EXPERT', title="L2Calo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", 
-                                xbins=80, xmin=-0.01, xmax=0.01)
-        monTool.defineHistogram('Et_em', type='TH1F', path='EXPERT', title="L2Calo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", 
-                                xbins=50, xmin=-2000, xmax=100000)
-        monTool.defineHistogram('Eta', type='TH1F', path='EXPERT', title="L2Calo Hypo entries per Eta;Eta", xbins=100, xmin=-2.5, xmax=2.5)
-        monTool.defineHistogram('Phi', type='TH1F', path='EXPERT', title="L2Calo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2)
+    else:
 
-        cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','rCore',
-              'eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}','Weta2','Wstot','F3']
+      monTool = GenericMonitoringTool("MonTool_"+self.__name)
+      monTool.defineHistogram('dEta', type='TH1F', path='EXPERT', title="L2Calo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}",
+                              xbins=80, xmin=-0.01, xmax=0.01)
+      monTool.defineHistogram('dPhi', type='TH1F', path='EXPERT', title="L2Calo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}",
+                              xbins=80, xmin=-0.01, xmax=0.01)
+      monTool.defineHistogram('Et_em', type='TH1F', path='EXPERT', title="L2Calo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]",
+                              xbins=50, xmin=-2000, xmax=100000)
+      monTool.defineHistogram('Eta', type='TH1F', path='EXPERT', title="L2Calo Hypo entries per Eta;Eta", xbins=100, xmin=-2.5, xmax=2.5)
+      monTool.defineHistogram('Phi', type='TH1F', path='EXPERT', title="L2Calo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2)
 
-        monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Calo Hypo Passed Cuts;Cut",
-                                xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts)
+      cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','rCore',
+            'eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}','Weta2','Wstot','F3']
 
-        if 'Validation' in TriggerFlags.enableMonitoring():
-            monTool.defineHistogram('Et_had', type='TH1F', path='EXPERT', title="L2Calo Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]", 
-                xbins=50, xmin=-2000, xmax=100000)
-            monTool.defineHistogram('Rcore', type='TH1F', path='EXPERT', title="L2Calo Hypo R_{core};E^{3x3}/E^{3x7} in sampling 2", 
-                xbins=48, xmin=-0.1, xmax=1.1)
-            monTool.defineHistogram('Eratio', type='TH1F', path='EXPERT', 
-                title="L2Calo Hypo E_{ratio};E^{max1}-E^{max2}/E^{max1}+E^{max2} in sampling 1 (excl.crack)", 
-                xbins=64, xmin=-0.1, xmax=1.5)
-            monTool.defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="L2Calo Hypo entries per Eta bin;Eta bin no.", 
-                xbins=11, xmin=-0.5, xmax=10.5)
-            monTool.defineHistogram('F1', type='TH1F', path='EXPERT', title="L2Calo Hypo f_{1};f_{1}", xbins=34, xmin=-0.5, xmax=1.2)
-            monTool.defineHistogram('Weta2', type='TH1F', path='EXPERT', title="L2Calo Hypo Weta2; E Width in sampling 2", 
-                xbins=96, xmin=-0.1, xmax=0.61)
-            monTool.defineHistogram('Wstot', type='TH1F', path='EXPERT', title="L2Calo Hypo Wstot; E Width in sampling 1", 
-                xbins=48, xmin=-0.1, xmax=11.)
-            monTool.defineHistogram('F3', type='TH1F', path='EXPERT', title="L2Calo Hypo F3; E3/(E0+E1+E2+E3)", 
-                xbins=96, xmin=-0.1, xmax=1.1)
+      monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Calo Hypo Passed Cuts;Cut",
+                              xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts)
 
-        monTool.HistPath = 'FastCaloL2EgammaHypo/'+self.__name
-        self.tool().MonTool = monTool
+      if TriggerFlags.doValidationMonitoring():
+          monTool.defineHistogram('Et_had', type='TH1F', path='EXPERT', title="L2Calo Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]",
+              xbins=50, xmin=-2000, xmax=100000)
+          monTool.defineHistogram('Rcore', type='TH1F', path='EXPERT', title="L2Calo Hypo R_{core};E^{3x3}/E^{3x7} in sampling 2",
+              xbins=48, xmin=-0.1, xmax=1.1)
+          monTool.defineHistogram('Eratio', type='TH1F', path='EXPERT',
+              title="L2Calo Hypo E_{ratio};E^{max1}-E^{max2}/E^{max1}+E^{max2} in sampling 1 (excl.crack)",
+              xbins=64, xmin=-0.1, xmax=1.5)
+          monTool.defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="L2Calo Hypo entries per Eta bin;Eta bin no.",
+              xbins=11, xmin=-0.5, xmax=10.5)
+          monTool.defineHistogram('F1', type='TH1F', path='EXPERT', title="L2Calo Hypo f_{1};f_{1}", xbins=34, xmin=-0.5, xmax=1.2)
+          monTool.defineHistogram('Weta2', type='TH1F', path='EXPERT', title="L2Calo Hypo Weta2; E Width in sampling 2",
+              xbins=96, xmin=-0.1, xmax=0.61)
+          monTool.defineHistogram('Wstot', type='TH1F', path='EXPERT', title="L2Calo Hypo Wstot; E Width in sampling 1",
+              xbins=48, xmin=-0.1, xmax=11.)
+          monTool.defineHistogram('F3', type='TH1F', path='EXPERT', title="L2Calo Hypo F3; E3/(E0+E1+E2+E3)",
+              xbins=96, xmin=-0.1, xmax=1.1)
 
+      monTool.HistPath = 'FastCaloL2EgammaHypo/'+self.__name
+      self.tool().MonTool = monTool
 
 
-def _IncTool(name, cand, threshold, sel, trackinfo, noringerinfo):
-  config = TrigEgammaFastCaloHypoToolConfig(name, cand, threshold, sel, trackinfo, noringerinfo )
+
+def _IncTool(name, cpart, tool=None):
+  config = TrigEgammaFastCaloHypoToolConfig(name, cpart, tool=tool )
   config.compile()
   return config.tool()
 
 
-def TrigEgammaFastCaloHypoToolFromDict( d ):
+def TrigEgammaFastCaloHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-
-    def __th(cpart):
-        return cpart['threshold']
-
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-
-    def __cand(cpart):
-        return cpart['trigType']
-
-    def __trackinfo(cpart):
-        return cpart['trkInfo'] if cpart['trkInfo'] else ''
-
-    def __noringer(cpart):    
-        return cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
-
     name = d['chainName']
+    return _IncTool( name, cparts[0], tool=tool)
 
-    return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]), __trackinfo(cparts[0]), __noringer(cparts[0]))
 
-
-def TrigEgammaFastCaloHypoToolFromName( name, conf ):
+def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
-    return TrigEgammaFastCaloHypoToolFromDict( decodedDict )
+    return TrigEgammaFastCaloHypoToolFromDict( decodedDict , tool=tool)
 
 
 
 if __name__ == "__main__":
-    TriggerFlags.enableMonitoring=['Validation']
+    TriggerFlags.doValidationMonitoring = True
 
     t = TrigEgammaFastCaloHypoToolFromName( "HLT_e10_etcut_L1EM3","HLT_e10_etcut_L1EM3" )
     assert t, "cant configure EtCut"

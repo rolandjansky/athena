@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArCalibDigitsAccumulatorFreeGain.h"
@@ -82,30 +82,25 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 
   unsigned int sizeSteps = (m_nStepTrigger>1 ? (m_nStepTrigger+1):1);
 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-
   // retrieve input calibDigits
   
   //Loop over all containers that are to be processed (e.g. different gains)
-  for (;key_it!=key_it_e;key_it++) { 
+  for (const std::string& key : m_keylist) {
     
-    sc=evtStore()->retrieve(calibDigitContainer,*key_it);
+    sc=evtStore()->retrieve(calibDigitContainer,key);
     if(sc.isFailure()) {
-      ATH_MSG_ERROR( "Can't retrieve LArCalibDigitContainer with key " << *key_it << "from StoreGate." );
+      ATH_MSG_ERROR( "Can't retrieve LArCalibDigitContainer with key " << key << "from StoreGate." );
       return StatusCode::SUCCESS;
     }else{
-      ATH_MSG_DEBUG( "Retrieved LArCalibDigitContainer with key " << *key_it << " from StoreGate." );
+      ATH_MSG_DEBUG( "Retrieved LArCalibDigitContainer with key " << key << " from StoreGate." );
     }
 
     // Loop over CalibDigitContainer
-    LArCalibDigitContainer::const_iterator it=calibDigitContainer->begin();
-    LArCalibDigitContainer::const_iterator it_end=calibDigitContainer->end();
 
-    if(it == it_end) {
-      ATH_MSG_DEBUG( "LArCalibDigitContainer with key=" << *key_it << " is empty " );
+    if(calibDigitContainer->empty()) {
+      ATH_MSG_DEBUG( "LArCalibDigitContainer with key=" << key << " is empty " );
     }else{
-      ATH_MSG_DEBUG( "LArCalibDigitContainer with key=" << *key_it << " has size =  " << calibDigitContainer->size() );
+      ATH_MSG_DEBUG( "LArCalibDigitContainer with key=" << key << " has size =  " << calibDigitContainer->size() );
     }
 
     // counter of triggers 
@@ -125,12 +120,12 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
     LArAccumulatedCalibDigitContainer* larAccuCalibDigitContainerLG = new LArAccumulatedCalibDigitContainer();
 
     //Loop over all cells
-    for (;it!=it_end;it++) {  
+    for (const LArCalibDigit* digit : *calibDigitContainer) {
 
-      if(m_keepPulsed && !(*it)->isPulsed()) continue;
+      if(m_keepPulsed && !digit->isPulsed()) continue;
       
       // identificators
-      HWIdentifier chid=(*it)->hardwareID();      
+      HWIdentifier chid=digit->hardwareID();      
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
       const IdentifierHash febhash = m_onlineHelper->feb_Hash(febid);
       const IdentifierHash hashid = m_onlineHelper->channel_Hash(chid);
@@ -150,20 +145,20 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
       }
 
       // cell is pulsed ? 
-      m_isPulsed = (*it)->isPulsed();
+      m_isPulsed = digit->isPulsed();
       
       //First cell to be processed, set delay
       if (m_delay==-1) { 
-        m_delay=(*it)->delay();
+        m_delay=digit->delay();
       } else {
         // next cells: should be the same delay
-        if (m_delay!=(*it)->delay()) {
-          ATH_MSG_DEBUG( "Delay is changing to " << (*it)->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" );
-          m_delay=(*it)->delay();
+        if (m_delay!=digit->delay()) {
+          ATH_MSG_DEBUG( "Delay is changing to " << digit->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" );
+          m_delay=digit->delay();
         }
       }
       
-      CaloGain::CaloGain gain=(*it)->gain();
+      CaloGain::CaloGain gain=digit->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN) {
 	ATH_MSG_ERROR( "Found not-matching gain number ("<< (int)gain <<")" );
         delete larAccuCalibDigitContainerHG;
@@ -178,9 +173,9 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
       if (gain==CaloGain::LARHIGHGAIN) {
 	// trigger counter for each cell
 	cellAccumulatedHG.m_ntrigger++;
-	ATH_MSG_DEBUG( "HG chid = " << chid << ", trigger = " << cellAccumulatedHG.m_ntrigger << ", DAC = " << (*it)->DAC() );
+	ATH_MSG_DEBUG( "HG chid = " << chid << ", trigger = " << cellAccumulatedHG.m_ntrigger << ", DAC = " << digit->DAC() );
 	// at first trigger, initialize vectors
-	unsigned int sizeSamples = (*it)->samples().size();
+	unsigned int sizeSamples = digit->samples().size();
 	ATH_MSG_DEBUG( "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples );
 	if(cellAccumulatedHG.m_ntrigger==1){
 	  cellAccumulatedHG.m_sum.clear();
@@ -189,8 +184,8 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 	  cellAccumulatedHG.m_sum2.resize(sizeSamples,0);
 	}
 	for(unsigned int j=0;j<sizeSamples;j++) {
-	  cellAccumulatedHG.m_sum[j] += (*it)->samples()[j];
-	  cellAccumulatedHG.m_sum2[j] += (*it)->samples()[j]*(*it)->samples()[j];
+	  cellAccumulatedHG.m_sum[j] += digit->samples()[j];
+	  cellAccumulatedHG.m_sum2[j] += digit->samples()[j]*digit->samples()[j];
 	}
 	ATH_MSG_DEBUG( "Sum = " << cellAccumulatedHG.m_sum[2] );
 	ATH_MSG_DEBUG( "Sum2 = " << cellAccumulatedHG.m_sum2[2] );
@@ -202,9 +197,9 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
       if (gain==CaloGain::LARMEDIUMGAIN) {
 	// trigger counter for each cell
 	cellAccumulatedMG.m_ntrigger++;
-	ATH_MSG_DEBUG( "MG chid = " << chid << ", trigger = " << cellAccumulatedMG.m_ntrigger << ", DAC = " << (*it)->DAC() );
+	ATH_MSG_DEBUG( "MG chid = " << chid << ", trigger = " << cellAccumulatedMG.m_ntrigger << ", DAC = " << digit->DAC() );
 	// at first trigger, initialize vectors
-	unsigned int sizeSamples = (*it)->samples().size();
+	unsigned int sizeSamples = digit->samples().size();
 	ATH_MSG_DEBUG( "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples );
 	if(cellAccumulatedMG.m_ntrigger==1){
 	  cellAccumulatedMG.m_sum.clear();
@@ -213,8 +208,8 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 	  cellAccumulatedMG.m_sum2.resize(sizeSamples,0);
 	}
 	for(unsigned int j=0;j<sizeSamples;j++){
-	  cellAccumulatedMG.m_sum[j] += (*it)->samples()[j];
-	  cellAccumulatedMG.m_sum2[j] += (*it)->samples()[j]*(*it)->samples()[j];
+	  cellAccumulatedMG.m_sum[j] += digit->samples()[j];
+	  cellAccumulatedMG.m_sum2[j] += digit->samples()[j]*digit->samples()[j];
 	}
 	ATH_MSG_DEBUG( "Sum = " << cellAccumulatedMG.m_sum[2] );
 	ATH_MSG_DEBUG( "Sum2 = " << cellAccumulatedMG.m_sum2[2] );
@@ -224,9 +219,9 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
       // object to be filled for each cell
       LArAccumulated& cellAccumulatedLG = m_AccumulatedLG[hashid];
       if (gain==CaloGain::LARLOWGAIN) {
-	if (chid==959628800) std::cout << "---> in loop LG - DAC = " << (*it)->DAC() << std::endl;
+	if (chid==959628800) std::cout << "---> in loop LG - DAC = " << digit->DAC() << std::endl;
 	cellAccumulatedLG.m_ntrigger++;
-	unsigned int sizeSamples = (*it)->samples().size();
+	unsigned int sizeSamples = digit->samples().size();
 	if(cellAccumulatedLG.m_ntrigger==1){
 	  cellAccumulatedLG.m_sum.clear();
 	  cellAccumulatedLG.m_sum2.clear();
@@ -234,8 +229,8 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 	  cellAccumulatedLG.m_sum2.resize(sizeSamples,0);
 	}
 	for(unsigned int j=0;j<sizeSamples;j++){
-	  cellAccumulatedLG.m_sum[j] += (*it)->samples()[j];
-	  cellAccumulatedLG.m_sum2[j] += (*it)->samples()[j]*(*it)->samples()[j];
+	  cellAccumulatedLG.m_sum[j] += digit->samples()[j];
+	  cellAccumulatedLG.m_sum2[j] += digit->samples()[j]*digit->samples()[j];
 	}
 	ATH_MSG_DEBUG( "Sum = " << cellAccumulatedLG.m_sum[2] );
 	ATH_MSG_DEBUG( "Sum2 = " << cellAccumulatedLG.m_sum2[2] );
@@ -245,9 +240,9 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
       // when reached total number of triggers for this step, fill LArAccumulatedCalibDigit and reset number of triggers
       if( (cellAccumulatedHG.m_ntrigger+cellAccumulatedMG.m_ntrigger+cellAccumulatedLG.m_ntrigger)==nTriggerPerStep[febhash]){
 	ATH_MSG_DEBUG( "filling LArAccumulatedCalibDigit " );
-	ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", DAC = " << (*it)->DAC() << ", isPulsed = " << m_isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] );
+	ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", DAC = " << digit->DAC() << ", isPulsed = " << m_isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] );
 	iStepTrigger[febhash]++;
-	unsigned int sizeSamples = (*it)->samples().size();
+	unsigned int sizeSamples = digit->samples().size();
 
 	if (cellAccumulatedHG.m_ntrigger>0) {
 	  LArAccumulatedCalibDigit* accuCalibDigitHG;
@@ -255,7 +250,7 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 	  std::vector < uint32_t > sample2SumHG;
 	  sampleSumHG.resize(sizeSamples,0);
 	  sample2SumHG.resize(sizeSamples,0);
-	  accuCalibDigitHG = new LArAccumulatedCalibDigit(chid, gain, sampleSumHG, sample2SumHG, 0, (uint16_t)(*it)->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
+	  accuCalibDigitHG = new LArAccumulatedCalibDigit(chid, gain, sampleSumHG, sample2SumHG, 0, (uint16_t)digit->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
 	  accuCalibDigitHG->setAddSubStep(cellAccumulatedHG.m_sum,cellAccumulatedHG.m_sum2,cellAccumulatedHG.m_ntrigger);
 	  larAccuCalibDigitContainerHG->push_back(accuCalibDigitHG);
 	}
@@ -266,7 +261,7 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 	  std::vector < uint32_t > sample2SumMG;
 	  sampleSumMG.resize(sizeSamples,0);
 	  sample2SumMG.resize(sizeSamples,0);
-	  accuCalibDigitMG = new LArAccumulatedCalibDigit(chid, gain, sampleSumMG, sample2SumMG, 0, (uint16_t)(*it)->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
+	  accuCalibDigitMG = new LArAccumulatedCalibDigit(chid, gain, sampleSumMG, sample2SumMG, 0, (uint16_t)digit->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
 	  accuCalibDigitMG->setAddSubStep(cellAccumulatedMG.m_sum,cellAccumulatedMG.m_sum2,cellAccumulatedMG.m_ntrigger);
 	  larAccuCalibDigitContainerMG->push_back(accuCalibDigitMG);
 	}
@@ -277,7 +272,7 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 	  std::vector < uint32_t > sample2SumLG;
 	  sampleSumLG.resize(sizeSamples,0);
 	  sample2SumLG.resize(sizeSamples,0);
-	  accuCalibDigitLG = new LArAccumulatedCalibDigit(chid, gain, sampleSumLG, sample2SumLG, 0, (uint16_t)(*it)->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
+	  accuCalibDigitLG = new LArAccumulatedCalibDigit(chid, gain, sampleSumLG, sample2SumLG, 0, (uint16_t)digit->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
 	  accuCalibDigitLG->setAddSubStep(cellAccumulatedLG.m_sum,cellAccumulatedLG.m_sum2,cellAccumulatedLG.m_ntrigger);
 	  larAccuCalibDigitContainerLG->push_back(accuCalibDigitLG);
 	}

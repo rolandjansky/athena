@@ -46,6 +46,7 @@ class LumiblockHistogramProviderTestSuite {
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedAlias),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithLatestLumiBlocks),
+        REGISTER_TEST_CASE(test_shouldCreateNewEfficiencyWithLatestLumiBlocks),
       };
     }
 
@@ -178,15 +179,16 @@ class LumiblockHistogramProviderTestSuite {
         make_tuple(11, 10, 1.5, 11.5),
       };
 
-      TNamed histogram;
+      TH1F histogram("histogram", "", 10, 0.5, 10.5);
 
       HistogramDef histogramDef;
+      histogramDef.type = "TH1F";
       histogramDef.xbins = 10;
       histogramDef.xmin = 0.5;
       histogramDef.xmax = 10.5;
       histogramDef.kLive = 10;
 
-      LiveHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+      LiveHistogramProvider provider(m_gmTool.get(), m_histogramFactory, histogramDef);
 
       for (auto input : expectedFlow) {
         const unsigned lumiBlock = get<0>(input);
@@ -203,11 +205,52 @@ class LumiblockHistogramProviderTestSuite {
           return &histogram;
         };
 
-        TNamed* const result = testObj.histogram();
+        TNamed* result = provider.histogram();
+
         VALUE(result) EXPECTED(&histogram);
       }
     }
 
+    void test_shouldCreateNewEfficiencyWithLatestLumiBlocks() {
+      auto expectedFlow = {
+        // tuple elements are: (LB, xbins, xmin, xmax)
+        make_tuple(1, 10, 0.5, 10.5),
+        make_tuple(2, 10, 0.5, 10.5),
+        make_tuple(10, 10, 0.5, 10.5),
+        make_tuple(11, 10, 1.5, 11.5),
+      };
+
+      TEfficiency efficiency("efficiency", "", 10, 0.5, 10.5);
+
+      HistogramDef histogramDef;
+      histogramDef.type = "TEfficiency";
+      histogramDef.xbins = 10;
+      histogramDef.xmin = 0.5;
+      histogramDef.xmax = 10.5;
+      histogramDef.kLive = 10;
+
+      LiveHistogramProvider provider(m_gmTool.get(), m_histogramFactory, histogramDef);
+
+      for (auto input : expectedFlow) {
+        const unsigned lumiBlock = get<0>(input);
+        const float expected_xbins = get<1>(input);
+        const float expected_xmin = get<2>(input);
+        const float expected_xmax = get<3>(input);
+
+        m_gmTool->mock_lumiBlock = [lumiBlock]() { return lumiBlock; };
+
+        m_histogramFactory->mock_create = [&](const HistogramDef& def) mutable {
+          VALUE(def.xbins) EXPECTED(expected_xbins);
+          VALUE(def.xmin) EXPECTED(expected_xmin);
+          VALUE(def.xmax) EXPECTED(expected_xmax);
+          return &efficiency;
+        };
+
+        TNamed* result = provider.histogram();
+
+        VALUE(result) EXPECTED(&efficiency);
+      }
+    }
 
   // ==================== Helper methods ====================
   private:

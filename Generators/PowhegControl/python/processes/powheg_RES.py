@@ -18,8 +18,11 @@ class PowhegRES(PowhegBase):
         @param base_directory  path to PowhegBox code.
         @param executable_name folder containing appropriate PowhegBox executable.
         @param is_LO           True if this is a leading-order process.
+        @param warning_output list of patterns which if found in the output will be treated as warning in the log.
+        @param error_output list of patterns which if found in the output will be treated as error in the log.
+        @param info_output list of patterns which if found in the output will be treated as info in the log.
         """
-        super(PowhegRES, self).__init__(base_directory, "POWHEG-BOX-RES", executable_name, **kwargs)
+        super(PowhegRES, self).__init__(base_directory, "POWHEG-BOX-RES", executable_name, warning_output = [], info_output = [], error_output = [], **kwargs)
 
     @property
     def default_PDFs(self):
@@ -53,17 +56,6 @@ class PowhegRES(PowhegBase):
             "sigreal_btl0_equiv",
             "sigregular_equiv",
             "sigvirtual_equiv"
-        ]
-
-    @property
-    def integration_file_names(self):
-        """! Wildcarded list of integration files that might be created by this process."""
-        return [
-            "pwg*upb*.dat",
-            "pwg*xgrid*.dat",
-            "pwgfullgrid*.dat",
-            "pwggrid*.dat",
-            "pwgubound*.dat"
         ]
 
     @property

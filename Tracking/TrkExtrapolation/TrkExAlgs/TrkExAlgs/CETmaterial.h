@@ -53,10 +53,10 @@ namespace Trk
 
     private:
        void printMat(double th, double ph, double mat,double dtheta=0.,double dphi=0.) const;
-       void printMatScan(double theta, double phi, double r, double z, double mat, std::string name) const;
+       void printMatScan(double theta, double phi, double r, double z, double mat, const std::string& name) const;
        void printMatPrec(double theta, double phi, const Trk::TrackParameters*, const Trk::TrackParameters*, 
-			 double mat, int id, std::string name) const;
-       void printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, std::string name, double mat, double matApp,double dx, double dy) const;
+			 double mat, int id, const std::string& name) const;
+       void printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, const std::string& name, double mat, double matApp,double dx, double dy) const;
             
       /** class member version of retrieving MsgStream */
       mutable MsgStream                 m_log;

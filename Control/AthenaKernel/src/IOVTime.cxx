@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -18,40 +18,12 @@
 #include "AthenaKernel/IOVTime.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/EventIDBase.h"
-#include <limits>
-
-const uint32_t IOVTime::MINRUN = 
-  std::numeric_limits<uint32_t>::min();
-
-// We remove the top bit from MAXRUN to allow use of this to set
-// CondDBKey which has a sign bit
-const uint32_t IOVTime::MAXRUN = 
-  (std::numeric_limits<uint32_t>::max() >> 1);
-
-const uint32_t IOVTime::MINEVENT = 
-  std::numeric_limits<uint32_t>::min();
-const uint32_t IOVTime::MAXEVENT = 
-  (std::numeric_limits<uint32_t>::max());
-
-const uint64_t IOVTime::MAXRETIME = 
-  ( ((uint64_t) IOVTime::MAXRUN << 32) + IOVTime::MAXEVENT );
-const uint64_t IOVTime::UNDEFRETIME = 
-  std::numeric_limits<uint64_t>::max();
-
-const uint64_t IOVTime::MINTIMESTAMP = 
-  std::numeric_limits<uint64_t>::min();
-
-// Set MAXTIMESTAMP to 63 bit max
-const uint64_t IOVTime::MAXTIMESTAMP = 
-  (std::numeric_limits<uint64_t>::max() >> 1);
-const uint64_t IOVTime::UNDEFTIMESTAMP = 
-  std::numeric_limits<uint64_t>::max();
 
 //
 ///////////////////////////////////////////////////////////////////////////
 //
 
-IOVTime::IOVTime(const uint32_t& run, const uint32_t& event):
+IOVTime::IOVTime(uint32_t run, uint32_t event):
   m_status(IOVTime::RUN_EVT),
   m_timestamp(IOVTime::UNDEFTIMESTAMP)
 {
@@ -60,8 +32,8 @@ IOVTime::IOVTime(const uint32_t& run, const uint32_t& event):
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-IOVTime::IOVTime(const uint32_t& run, const uint32_t& event,
-		 const uint64_t& time):  
+IOVTime::IOVTime( uint32_t run,  uint32_t event,
+		  uint64_t time):  
   m_status(IOVTime::BOTH), m_timestamp(time)
 {
   m_time =  ( (uint64_t) run << 32) + event;
@@ -97,7 +69,7 @@ IOVTime::IOVTime(const EventIDBase& eid)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void
-IOVTime::setTimestamp( const uint64_t& timestamp ) {
+IOVTime::setTimestamp( uint64_t timestamp ) noexcept {
   if (isRunEvent()) { 
     m_status = IOVTime::BOTH;
   } else {
@@ -109,7 +81,7 @@ IOVTime::setTimestamp( const uint64_t& timestamp ) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void
-IOVTime::setRETime( const uint64_t& time ) {
+IOVTime::setRETime( uint64_t time ) noexcept {
   if (isTimestamp()) { 
     m_status = IOVTime::BOTH;
   } else {
@@ -121,7 +93,7 @@ IOVTime::setRETime( const uint64_t& time ) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void
-IOVTime::setRunEvent( const uint32_t& run, const uint32_t& event ) {
+IOVTime::setRunEvent( uint32_t run, uint32_t event ) noexcept {
   if (isTimestamp()) { 
     m_status = IOVTime::BOTH;
   } else {
@@ -133,7 +105,7 @@ IOVTime::setRunEvent( const uint32_t& run, const uint32_t& event ) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void
-IOVTime::reset() {
+IOVTime::reset() noexcept {
   m_status = IOVTime::UNDEF;
   m_time = IOVTime::UNDEFRETIME;
   m_timestamp = IOVTime::UNDEFTIMESTAMP;
@@ -142,7 +114,7 @@ IOVTime::reset() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 bool
-IOVTime::isValid() const {
+IOVTime::isValid() const noexcept {
 
   // Cannot have BOTH undefined
   if (m_timestamp == IOVTime::UNDEFTIMESTAMP && 

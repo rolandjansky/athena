@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -41,15 +41,15 @@ StatusCode CalibratedEgammaProvider::initialize() {
 
 StatusCode CalibratedEgammaProvider::execute() {
 
-   const xAOD::EventInfo* event_info = 0;
+   const xAOD::EventInfo* event_info = nullptr;
    if(m_inputEventInfo.length()>0) ATH_CHECK( evtStore()->retrieve( event_info, m_inputEventInfo) );
    else ATH_CHECK( evtStore()->retrieve( event_info) );
 
-   xAOD::EgammaContainer* nonconst_egamma = 0;
-   const xAOD::EgammaContainer* egamma = 0;
+   xAOD::EgammaContainer* nonconst_egamma = nullptr;
+   const xAOD::EgammaContainer* egamma = nullptr;
    std::pair< xAOD::EgammaContainer*, xAOD::ShallowAuxContainer* > out;
-   const xAOD::ElectronContainer* a = 0;
-   const xAOD::PhotonContainer* b = 0;
+   const xAOD::ElectronContainer* a = nullptr;
+   const xAOD::PhotonContainer* b = nullptr;
    if(m_inputKey==m_outputKey) { //attempt to modify in-situ, but must retrieve as non-const
       CHECK( evtStore()->retrieve( nonconst_egamma, m_inputKey ) );
       egamma = nonconst_egamma;

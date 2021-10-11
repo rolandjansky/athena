@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/test/T_AthenaPoolTPCnvCnv_test.cxx
@@ -59,7 +59,6 @@ public:
       std::abort();
   }
 
-  std::string m_name;
   XCont* m_pers0;
   XCont_p1* m_pers1;
   XCont_p2* m_pers2;

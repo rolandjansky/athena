@@ -195,7 +195,7 @@ StatusCode IPCMat::init(void){
   }
 
   // destroy message queue if existed
-  msgctl(m_msgid, IPC_RMID, NULL);
+  msgctl(m_msgid, IPC_RMID, nullptr);
 
   m_msgid = msgget(key, IPC_CREAT | 0666);
   if(m_msgid < 0) {
@@ -302,7 +302,7 @@ StatusCode IPCMat::setVersion(float version, bool isMatrix){
 //=====================================================================
 //  write
 //=====================================================================
-StatusCode IPCMat::write(const std::string ipcname, bool isMatrix){
+StatusCode IPCMat::write(const std::string& ipcname, bool isMatrix){
   //MsgStream log(m_msgSvc,name());
   if (m_log->level()>=MSG::INFO)
     *m_log << MSG::INFO << "Writting ipcmat. Selected name is : " <<  ipcname
@@ -334,7 +334,7 @@ StatusCode IPCMat::end(){
   }
 
   // let chid finish its jobs
-  wait4(ipcmat_pid, NULL, 0, NULL);
+  wait4(ipcmat_pid, nullptr, 0, nullptr);
   return StatusCode::SUCCESS;
 }
 

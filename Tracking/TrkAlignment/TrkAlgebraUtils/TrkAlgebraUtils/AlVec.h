@@ -80,7 +80,7 @@ class AlVec {
   StatusCode WritePartial(const std::string&, bool, double, std::map<int,std::string>, float);
   StatusCode InitializeOutputVector(const std::string&, bool, double, float, std::ofstream&);
 
-  StatusCode CheckVecVersion(const std::string, bool&);
+  StatusCode CheckVecVersion(const std::string&, bool&);
   StatusCode Read(const std::string&, double&, std::map<int,unsigned long long>&, float&);
   StatusCode ReadPartial(const std::string&, double&, std::map<int,unsigned long long>&, float&);
   StatusCode ReadProjected(const std::string&, double&, std::map<int,unsigned long long>&, float&);

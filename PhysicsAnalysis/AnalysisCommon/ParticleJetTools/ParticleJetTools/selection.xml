@@ -1,13 +1,18 @@
 <lcgdict>
-    <class name="CopyTruthParticles" />  
-    <class name="CopyBosonTopLabelTruthParticles" />  
-    <class name="CopyTruthPartons" />  
-    <class name="CopyFlavorLabelTruthParticles" />  
-    <class name="CopyTruthJetParticles" />  
-    <class name="ParticleJetDeltaRLabelTool" />  
-    <class name="JetParticleAssociationAlg" />  
-    <class name="JetParticleAssociation" />  
-    <class name="JetParticleShrinkingConeAssociation" />  
-    <class name="JetParticleCenterOfMassAssociation" />  
-    <class name="JetTruthLabelingTool" />
+  <namespace name="Analysis"/>
+  <class name="Analysis::JetPartonTruthLabel" />  
+  <class name="Analysis::JetConeLabeling" />  
+  <class name="Analysis::JetQuarkLabel" />  
+  
+  <class name="CopyTruthParticles" />  
+  <class name="CopyBosonTopLabelTruthParticles" />  
+  <class name="CopyTruthPartons" />  
+  <class name="CopyFlavorLabelTruthParticles" />  
+  <class name="CopyTruthJetParticles" />  
+  <class name="ParticleJetDeltaRLabelTool" />  
+  <class name="JetParticleAssociationAlg" />  
+  <class name="JetParticleAssociation" />  
+  <class name="JetParticleShrinkingConeAssociation" />  
+  <class name="JetParticleCenterOfMassAssociation" />  
+  <class name="JetTruthLabelingTool" />
 </lcgdict>

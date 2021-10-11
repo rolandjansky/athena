@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 
+#include "PerfMonEvent/mallinfo.h"
 #include <sys/time.h>
 #include <fcntl.h>
 #include <ctime>
@@ -473,7 +474,7 @@ inline double PMonSD::get_malloc_kb() {
   //~0.2microsec/call under libc malloc, 4microsec/call under tcmalloc (mallinfo() call dominates).
   //NB: Bug in http://sourceware.org/bugzilla/show_bug.cgi?id=4349
   //makes mallinfo quite slow for fragmented processes on libc<=2.5 (like on SLC5)
-  struct mallinfo m=mallinfo();
+  PerfMon::mallinfo_t m=PerfMon::mallinfo();
   //mallinfo fields are always "int" which is pretty annoying. As long
   //as the true amount of mallocs between two calls does not change
   //more than 2GB, we can work around this with the following ugly

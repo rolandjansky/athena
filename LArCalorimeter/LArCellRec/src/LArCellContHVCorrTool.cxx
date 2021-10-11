@@ -7,18 +7,11 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 
-LArCellContHVCorrTool::LArCellContHVCorrTool (const std::string& type, 
-				  const std::string& name, 
-				  const IInterface* parent) :
-  base_class (type, name, parent) {}
-
-LArCellContHVCorrTool::~LArCellContHVCorrTool() {}
 
 
 StatusCode LArCellContHVCorrTool::initialize() {
 
   ATH_CHECK(m_offlineHVScaleCorrKey.initialize());
-  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -26,18 +19,11 @@ StatusCode LArCellContHVCorrTool::initialize() {
 StatusCode LArCellContHVCorrTool::process(CaloCellContainer* cellCollection, const EventContext& ctx) const {
 
    // get offline HVScaleCorr
-   SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey, ctx);
-   const ILArHVScaleCorr *oflHVCorr = *oflHVCorrHdl;
+   SG::ReadCondHandle<LArHVCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey, ctx);
+   const LArHVCorr *oflHVCorr = *oflHVCorrHdl;
    if(!oflHVCorr) {
        ATH_MSG_ERROR("Do not have ofline HV corr. conditions object !!!!");
        return StatusCode::FAILURE;
-   }
-
-   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
-   const LArOnOffIdMapping* cabling{*cablingHdl};
-   if(!cabling){
-     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
-     return StatusCode::FAILURE;
    }
 
    if (!cellCollection) {
@@ -52,7 +38,7 @@ StatusCode LArCellContHVCorrTool::process(CaloCellContainer* cellCollection, con
        //Could possibly also break the loop, assuming all Tile cells come after LAr in an 
        //odered CaloCellContainer
      }
-     float hvcorr = oflHVCorr->HVScaleCorr(cabling->createSignalChannelID((theCell->ID())));
+     float hvcorr = oflHVCorr->HVScaleCorr(theCell->ID());
 
      //Report large correction values
      if (hvcorr<0.9 ) {

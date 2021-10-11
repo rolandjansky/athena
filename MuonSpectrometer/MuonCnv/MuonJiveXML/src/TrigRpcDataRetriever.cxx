@@ -1,21 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/TrigRpcDataRetriever.h"
 
-#include <vector>
-#include <list>
-
 #include "MuonJiveXML/MuonFullIDHelper.h"
-
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
 #include "MuonRDO/RpcPadContainer.h"
-#include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include <vector>
+#include <list>
 
 namespace JiveXML {
 
@@ -26,19 +21,13 @@ namespace JiveXML {
     m_typeName("RPC") // same datatype name as RPC ! Must not be run together
   {
     declareInterface<IDataRetriever>(this);
-    declareProperty("StoreGateKey",   m_sgKey = "RPCPAD", "StoreGate key for the RPC RDO container" );
   }
 
   //--------------------------------------------------------------------------
 
   StatusCode TrigRpcDataRetriever::initialize(){
-
-    const IRPCcablingServerSvc* RpcCabGet;
-    ATH_CHECK(service("RPCcablingServerSvc", RpcCabGet));
-    ATH_CHECK(RpcCabGet->giveCabling(m_rpcCabling));
-
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_readKey.initialize());
+    ATH_CHECK(m_rpcCab.initialize());
     ATH_CHECK(m_rpcDecoder.retrieve());
     ATH_CHECK(m_DetectorManagerKey.initialize());
     return StatusCode::SUCCESS;
@@ -103,7 +92,7 @@ namespace JiveXML {
 
  
     //loop on pad
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey, Gaudi::Hive::currentContext()};
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_rpcCab, Gaudi::Hive::currentContext()};
     const RpcCablingCondData* rpcCabling{*readHandle};
 
     const DataHandle<RpcPad> itColl(firstRdoColl);
@@ -159,7 +148,7 @@ namespace JiveXML {
                   // transform the pad sectorId according to the cabling convention
                   uint16_t side                   = (sectorId<32) ? 0 : 1;
                   uint16_t sl                     = sectorId-side*32     ;
-                  std::list<Identifier> stripList = m_rpcCabling->give_strip_id(side,sl,padId,cmaId,rpcChan->ijk(),rpcChan->channel());
+                  std::list<Identifier> stripList = rpcCabling->give_strip_id(side,sl,padId,cmaId,rpcChan->ijk(),rpcChan->channel(),&m_idHelperSvc->rpcIdHelper());
                   std::list<Identifier>::const_iterator it_list;
                   for (it_list=stripList.begin() ; it_list != stripList.end() ; ++it_list) {
                     Identifier stripOfflineId = *it_list;
@@ -206,7 +195,7 @@ namespace JiveXML {
                  // transform the pad sectorId according to the cabling convention
                 uint16_t side                   = (sectorId<32) ? 0 : 1;
                 uint16_t sl                     = sectorId-side*32     ;
-                std::list<Identifier> stripList1 = m_rpcCabling->give_strip_id(side,sl,padId,cmaId,rpcChan1->ijk(),rpcChan1->channel());
+                std::list<Identifier> stripList1 = rpcCabling->give_strip_id(side,sl,padId,cmaId,rpcChan1->ijk(),rpcChan1->channel(),&m_idHelperSvc->rpcIdHelper());
                 std::list<Identifier>::const_iterator it_list1;
                 for (it_list1=stripList1.begin() ; it_list1 != stripList1.end() ; ++it_list1) {
                   Identifier stripOfflineId1 = *it_list1;

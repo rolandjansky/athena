@@ -28,7 +28,7 @@
 AthenaPoolTestAttrWriter::AthenaPoolTestAttrWriter(const std::string& name,
 						   ISvcLocator* pSvcLocator)
     :
-    AthAlgorithm(name, pSvcLocator), m_attributes(0)
+    AthAlgorithm(name, pSvcLocator), m_attributes(nullptr)
 {}
 
 AthenaPoolTestAttrWriter::~AthenaPoolTestAttrWriter()

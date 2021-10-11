@@ -16,18 +16,31 @@ from copy import deepcopy
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
-pattern = r'^dijetSEP'\
-    r'((?P<j12etlo>\d*)j12et(?P<j12ethi>\d*)SEP|'\
-    r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)SEP'\
-    r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)SEP)'\
-    r'((?P<j12etalo>\d*)j12eta(?P<j12etahi>\d*)SEP|'\
-    r'((?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP)?'\
-    r'((?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP)?)?'\
-    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*)'\
-    r'(SEP(?P<djdphilo>\d*)djdphi(?P<djdphihi>\d*))?'\
-    r'(SEP(?P<djdetalo>\d*)djdeta(?P<djdetahi>\d*))?$'
+pattern_thresh_pt = r'^DIJET'\
+    r'((?P<j12ptlo>\d*)j12pt(?P<j12pthi>\d*)XX|'\
+    r'(?P<j1ptlo>\d*)j1pt(?P<j1pthi>\d*)XX'\
+    r'(?P<j2ptlo>\d*)j2pt(?P<j2pthi>\d*)XX)'
 
-rgx = re.compile(pattern)
+
+pattern_thresh_et = r'^DIJET'\
+    r'((?P<j12etlo>\d*)j12et(?P<j12ethi>\d*)XX|'\
+    r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)XX'\
+    r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)XX)'
+
+
+pattern_common =  r'((?P<j12etalo>\d*)j12eta(?P<j12etahi>\d*)XX|'\
+    r'((?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)XX)?'\
+    r'((?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)XX)?)?'\
+    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*)'\
+    r'(XX(?P<djdphilo>\d*)djdphi(?P<djdphihi>\d*))?'\
+    r'(XX(?P<djdetalo>\d*)djdeta(?P<djdetahi>\d*))?$'
+
+    
+pattern_pt = pattern_thresh_pt + pattern_common
+rgx_pt = re.compile(pattern_pt)
+
+pattern_et = pattern_thresh_et + pattern_common
+rgx_et = re.compile(pattern_et)
 
 
 def get_dijet_args_from_matchdict(groupdict, keystubs):
@@ -46,15 +59,19 @@ def get_dijet_args_from_matchdict(groupdict, keystubs):
     return condargs
 
 
-def get_singlejet_args_from_matchdict(groupdict, jstr):
-    """obtain the single jet cuts"""
+def get_singlejet_args_from_matchdict(groupdict, threshold_var, jstr):
+    """obtain the single jet cuts."""
 
     assert jstr in ('j1','j2')
+    assert threshold_var in ('pt', 'et')
     
     condargs = []
 
-    vals = defaults('et', groupdict[jstr+'etlo'], groupdict[jstr+'ethi'])
-    condargs.append(('et', deepcopy(vals)))
+    vals = defaults(threshold_var,
+                    groupdict[jstr+threshold_var+'lo'],
+                    groupdict[jstr+threshold_var+'hi'])
+    
+    condargs.append((threshold_var, deepcopy(vals)))
    
     vals = defaults('eta', groupdict[jstr+'etalo'], groupdict[jstr+'etahi'],)
     condargs.append(('eta', deepcopy(vals)))
@@ -83,22 +100,22 @@ def scenario_dijet(scenario, chainPartInd):
 
 
     example scenarios:
-    dijetSEP50j1etSEP80j2etSEP0j1eta240SEP0j2eta320SEP700djmass 
+    DIJET50j1etXX80j2etXX0j1eta240XX0j2eta320XX700djmass
        mixed j1/j2 et/eta values
    
-    dijetSEP80j12etSEP0j12eta240SEP700djmass                    
+    DIJET80j12etXX0j12eta240XX700djmass
        same et/eta cuts for j1 and j2
 
-    dijetSEP80j12etSEP700djmassSEP26djdphi
+    DIJET80j12etXX700djmassXX26djdphi
        including delta phi cut
 
-    dijetSEP70j12etSEP1000djmassSEP20djdphiSEP40djdeta
+    DIJET70j12etXX1000djmassXX20djdphiXX40djdeta
        including delta eta cut
 
     The tree vector is [0, 0, 1, 1]
     # pos 0: root; pos 1 dijet cuts; pos 2: j1 cuts; pos 3: j2 cuts'"""
 
-    assert scenario.startswith('dijet'), \
+    assert scenario.startswith('DIJET'), \
         'routing error, module %s: bad scenario %s' % (__name__, scenario)
 
     # Note:
@@ -109,29 +126,42 @@ def scenario_dijet(scenario, chainPartInd):
     # djdphi/djdeta is allowed not to be in the scenario,
     # no djdphi/djdeta cut will be applied in such a case
 
- 
-    m = rgx.match(scenario)
+
+    threshold_var = 'pt'
+    m = rgx_pt.match(scenario)
+
+    if m is None:
+        threshold_var = 'et'
+        m = rgx_et.match(scenario)
 
     assert m is not None, \
-        'scenario_dijet.py - regex pat %s does not match scenario %s' % (
-            pattern, scenario)
+        'scenario_dijet.py - regex pat %s or %s do not match scenario %s' % (
+            pattern_pt, pattern_et, scenario)
     
     groupdict = m.groupdict()
 
     to_delete = [k for k in groupdict if groupdict[k] is None]
     for k in to_delete: del groupdict[k]
-    
-    to_delete = []
-    for k in ('j12etlo', 'j12ethi', 'j12etalo', 'j12etahi'):
-        if k in groupdict:
-            to_delete.append(k)
-            new_key = 'j1' + k[len('j12'):]
-            groupdict[new_key] = groupdict[k]
-            new_key = 'j2' + k[len('j12'):]
-            groupdict[new_key] = groupdict[k]
 
-    for k in to_delete:
-        del groupdict[k]
+    def massage_thresh(threshold_var, gdict):
+        to_delete = []
+        for k in ('j12'+threshold_var+'lo',
+                  'j12'+threshold_var+'hi',
+                  'j12etalo',
+                  'j12etahi'):
+            if k in gdict:
+                to_delete.append(k)
+                new_key = 'j1' + k[len('j12'):]
+                gdict[new_key] = gdict[k]
+                new_key = 'j2' + k[len('j12'):]
+                gdict[new_key] = gdict[k]
+
+        for k in to_delete:
+            del gdict[k]
+
+        return gdict
+        
+    groupdict = massage_thresh(threshold_var, groupdict)
 
     # always make an eta cut even if not in scenario
     if 'j1etalo' not in groupdict: groupdict['j1etalo'] = '0'
@@ -153,7 +183,9 @@ def scenario_dijet(scenario, chainPartInd):
    
     # make the condargs and the containing rep condition for j1
 
-    condargs = get_singlejet_args_from_matchdict(groupdict, 'j1')
+    condargs = get_singlejet_args_from_matchdict(groupdict,
+                                                 threshold_var,
+                                                 'j1')
 
     repcondargs.append(RepeatedConditionParams(tree_id = 2,
                                            tree_pid=1,
@@ -162,7 +194,9 @@ def scenario_dijet(scenario, chainPartInd):
           
     # make the condargs and the containing rep condition for j2
 
-    condargs = get_singlejet_args_from_matchdict(groupdict, 'j2')
+    condargs = get_singlejet_args_from_matchdict(groupdict,
+                                                 threshold_var,
+                                                 'j2')
 
     repcondargs.append(RepeatedConditionParams(tree_id = 3,
                                                tree_pid=1,

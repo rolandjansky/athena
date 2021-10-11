@@ -15,7 +15,7 @@ from __future__ import division, print_function
 import sys, time
 from functools import reduce
 import xml.etree.cElementTree as et
-import xmlrpclib
+import xmlrpc.client
 from PyCool import cool
 dbSvc = cool.DatabaseSvcFactory.databaseService()
 
@@ -122,7 +122,7 @@ def GetDQEfficiency( rundict ):
     for runnum in rundict.keys():
         runset.add(runnum)
 
-    s = xmlrpclib.ServerProxy(SERVER)
+    s = xmlrpc.client.ServerProxy(SERVER)
     flaginfo = s.get_dqmf_summary_flags_lb({'run_list': list(runset)}, FLAGS_WE_CARE_ABOUT, 'SHIFTOFL')
     #print (flaginfo)
     record = {}

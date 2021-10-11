@@ -46,7 +46,7 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     return CfgMgr.EnergyDepositionTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
@@ -400,18 +400,15 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         condSeq += PixelConfigCondAlg_MC()
 
-    useNewChargeFormat  = False
+    if digitizationFlags.doRadiationDamage.get_Value():
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelRadSimFluenceMapAlg
+        condSeq += PixelRadSimFluenceMapAlg()
 
     ############################################################################################
     # Set up Conditions DB
     ############################################################################################
     if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        # TODO: Once new global tag is updated, this line should be removed. (Current MC global tag is too old!!! (before RUN-2!!!))
-        if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-        else:
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
@@ -444,52 +441,44 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Calibration Setup #
     #####################
-    if not useNewChargeFormat:
-        if not conddb.folderRequested("/PIXEL/PixCalib"):
-            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-    else:
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run()=="RUN3":
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+    else:
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     #####################
     # Cabling map Setup #
     #####################
-    if geoFlags.isIBL() and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
-        conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
-
-    if geoFlags.isIBL() and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-        condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
-
-    if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
-        conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
-
-    if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
-        condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
-
-    pixelReadKey = ''
     if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
+        if geoFlags.isIBL() and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
+
+        if geoFlags.isIBL() and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+            condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+
+        if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+
+        if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+            condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
+
         if not conddb.folderRequested("/PIXEL/CablingMap"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
 
-    if not hasattr(condSeq, 'PixelCablingCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey = pixelReadKey)
-
-    if not conddb.folderRequested("/PIXEL/PixReco"):
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
-
-    if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
-        condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        PixelOfflineCalibCondAlg.InputSource = 2
+        if not hasattr(condSeq, 'PixelCablingCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey = '')
 
     if not conddb.folderRequested("/Indet/PixelDist"):
         conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
@@ -533,10 +522,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Setup Cabling Svc #
     #####################
-    from PixelCabling.PixelCablingConf import PixelCablingSvc
-    PixelCablingSvc = PixelCablingSvc()
-    ServiceMgr += PixelCablingSvc
-    print ( PixelCablingSvc)
+    from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+    PixelReadoutManager = InDetDD__PixelReadoutManager("PixelReadoutManager")
+    ServiceMgr += PixelReadoutManager
+    print (PixelReadoutManager)
     kwargs.setdefault("InputObjectName", "PixelHits")
 
     chargeTools = []
@@ -562,7 +551,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("RDOCollName", overlayFlags.bkgPrefix() + "PixelRDOs")
         kwargs.setdefault("SDOCollName", overlayFlags.bkgPrefix() + "PixelSDO_Map")

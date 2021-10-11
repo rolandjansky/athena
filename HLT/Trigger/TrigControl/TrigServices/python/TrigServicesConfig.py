@@ -52,26 +52,24 @@ def setupMessageSvc():
    MessageSvc.statLevel = WARNING
 
 
-# old-JO style function used in Modifier postSetup (see TriggerJobOpts/python/Modifiers.py)
-def enableCOOLFolderUpdates(cool_helper, folders = ['/Indet/Onl/Beampos',
-                                                    '/TRIGGER/LUMI/HLTPrefLumi',
-                                                    '/TRIGGER/HLT/PrescaleKey']):
-   '''Enable COOL folder updates for given folders (only use this for data)'''
+# Finalize COOL update configuration (called from TriggerUnixStandardSetup.setupCommonServicesEnd)
+def enableCOOLFolderUpdates():
+   '''Enable COOL folder updates'''
 
    from AthenaCommon.Logging import logging
-   log = logging.getLogger('enableCOOLFolderUpdates')
+   log = logging.getLogger('TrigServicesConfig')
 
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    if not hasattr(svcMgr,'IOVDbSvc'):
       return
 
-   cool_helper.CoolFolderMap = '/TRIGGER/HLT/COOLUPDATE'
-   cool_helper.Folders = folders
+   cool_helper = svcMgr.HltEventLoopMgr.CoolUpdateTool
 
-   from IOVDbSvc.CondDB import conddb
-   conddb.addFolder('TRIGGER', cool_helper.CoolFolderMap)
+   # Add the COOL folder map to IOVDbSvc. This is done 'manually' so it
+   # works both in new and old-style configurations:
+   svcMgr.IOVDbSvc.Folders.append('<db>COOLONL_TRIGGER/CONDBR2</db> %s' % cool_helper.CoolFolderMap)
 
-   # Make sure relevant folders are marked as 'extensible'
+   # Make sure relevant folders are marked as 'extensible':
    for i, dbf in enumerate(svcMgr.IOVDbSvc.Folders):
       for f in cool_helper.Folders:
          if f in dbf and '<extensible/>' not in f:
@@ -85,6 +83,15 @@ def getTrigCOOLUpdateHelper(name='TrigCOOLUpdateHelper'):
    cool_helper.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
                                        title='Time for conditions update;time [ms]',
                                        xbins=100, xmin=0, xmax=200)
+
+   # Name of COOL folder map:
+   cool_helper.CoolFolderMap = '/TRIGGER/HLT/COOLUPDATE'
+
+   # List of folders that can be updated during the run:
+   cool_helper.Folders = ['/Indet/Onl/Beampos',
+                          '/TRIGGER/LUMI/HLTPrefLumi',
+                          '/TRIGGER/HLT/PrescaleKey']
+
    return cool_helper
 
 
@@ -153,6 +160,13 @@ def getHltEventLoopMgr(name='HltEventLoopMgr'):
    svc.MonTool.defineHistogram('TIME_clearStore;TIME_clearStore_extRange', path='EXPERT', type='TH1F',
                               title='Time of clearStore() calls;Time [ms];Calls',
                               xbins=200, xmin=0, xmax=200, opt='kCanRebin')
+
+   svc.MonTool.defineHistogram('PopSchedulerTime', path='EXPERT', type='TH1F',
+                              title='Time spent waiting for a finished event from the Scheduler;Time [ms];drainScheduler() calls',
+                              xbins=250, xmin=0, xmax=250)
+   svc.MonTool.defineHistogram('PopSchedulerNumEvt', path='EXPERT', type='TH1F',
+                              title='Number of events popped out of scheduler at the same time;Time [ms];drainScheduler() calls',
+                              xbins=50, xmin=0, xmax=50)
 
    from TrigSteerMonitor.TrigSteerMonitorConfig import getTrigErrorMonTool
    svc.TrigErrorMonTool = getTrigErrorMonTool()

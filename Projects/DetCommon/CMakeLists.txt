@@ -8,7 +8,7 @@ project( DetCommon VERSION ${_version} LANGUAGES C CXX )
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "04-02-01" CACHE STRING
+set( TDAQ-COMMON_VERSION "04-03-00" CACHE STRING
    "The version of tdaq-common to use for the build" )
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
@@ -18,15 +18,18 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake QUIET )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "python3"   # Needs to match tdaq release (NO layer, ATLINFR-3977)
+set( LCG_VERSION_POSTFIX ""   # Needs to match tdaq release (NO layer, ATLINFR-3977)
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 98
+set( LCG_VERSION_NUMBER 100
    CACHE STRING "Version number for the LCG release to use" )
 # Reduced set of LCG components (i.e. no generators):
 set( LCG_COMPONENTS "externals"
    CACHE STRING "LCG components to set up" )
 
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
+
+# Set up tdaq-common explicitly.
+find_package( tdaq-common REQUIRED )
 
 # Set up the build/runtime environment:
 set( DetCommonReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH

@@ -29,7 +29,9 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
       from RecExConfig.AutoConfiguration import GetRunNumber
       runNum = GetRunNumber()
       IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-      if (runNum<222222):
+      if (runNum is None):
+        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+      elif (runNum<222222):
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
       else:
         # Even though we are reading from COOL, set the correct fallback map.
@@ -100,7 +102,7 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
     if (globalflags.DataSource=='data'):
       from RecExConfig.AutoConfiguration import GetRunNumber
       runNum = GetRunNumber()
-      if (runNum<222222):
+      if (runNum is not None and runNum<222222):
         alg.ReadKey = ''
       # data-overlay does not need DB for cabling. 
       if (globalflags.isOverlay()):
@@ -108,11 +110,11 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 
     condSeq += alg
 
-  from PixelCabling.PixelCablingConf import PixelCablingSvc
-  PixelCablingSvc = PixelCablingSvc()
-  ServiceMgr += PixelCablingSvc
+  from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+  PixelReadoutManager = InDetDD__PixelReadoutManager("PixelReadoutManager")
+  ServiceMgr += PixelReadoutManager
   if (InDetFlags.doPrintConfigurables()):
-    printfunc  (PixelCablingSvc)
+    printfunc  (PixelReadoutManager)
       
 #
 # --- SCT cabling

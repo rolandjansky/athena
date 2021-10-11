@@ -60,8 +60,48 @@ If you want to create tarballs for an older release (<=21.6.48) in which the she
 # Some practical information for users
 
 ## MC event weight
-* The weights can have an unusual normalization, such that numbers at the order of 10e7 are expected. But this will not affect distributions, as the overall factor will always be divided out through the sum of weights when scaling distributions to the luminosity/cross section.
+* The weights can have an unusual normalization, such that numbers on the order of 10e7 are expected. But this will not affect distributions, as the overall factor will always be divided out through the sum of weights when scaling distributions to the luminosity/cross section.
 * For samples with N different enrichment factors you will see a smooth weight distribution with N bumps, due to additional internal (MENLOPS) weights.
+## Electroweak corrections
+* Approximate NLO EW corrections are included in newer Sherpa setups as on-the-fly weights using the electroweak virtual approximation. 
+The electroweak and QCD components can be combined using an additive or a multiplicative prescription 
+(cf. section 6 of [arXiv:1412.5157](https://arxiv.org/abs/1412.5157)), the difference of the two being
+an estimate of the uncertainty on the size of the approximate electroweak correction. 
+The corresponding weights using the additive prescription will have a name pattern similar to `MUR1_MUF1_PDF303200_ASSEW` 
+(`ASSEW` _clearly_ being short-hand for associated electroweak contribution), whereas the corresponding weights using the
+multiplicative prescription will follow a pattern similar to `MUR1_MUF1_PDF303200_MULTIASSEW`.
+* The weights correspond to the final cross-section, i.e. in practice they should be used to replace the nominal weight, 
+similar to the usual scale and PDF variations (see also this
+[twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PmgSystematicUncertaintyRecipes#On_the_fly_systematic_variations)).
+* As of Sherpa 2.2.11 a third approach, which exponentiates the electroweak correction, will be available as an additional on-the-fly weight
+  * additive approach: `(B + VI_QCD + VI_EW) * PS = B * (1 + delta_QCD + delta_EW) * PS`
+  * multiplicative approach: `(B + VI_QCD) * (1 + delta_EW) * PS = B * (1 + delta_QCD) * (1 + delta_EW) * PS`
+  * exponentiated approach: `(B + VI_QCD) * exp(delta_EW) * PS = B * (1+delta_QCD) * exp(delta_EW) * PS`
+* Note that for each approach additional weights might exist with `LO1` or `LO1LO2` attached: These are are the same as the EW virtual correction 
+plus - if available - subleading Born corrections, which are formally part of the NNLO EW correction. 
+Their effect is typically negligible compared to the dominant electroweak virtual correction 
+but they might still be interesting for phenomenological studies. 
+(These weights are added automatically. For processes where the corresponding libraries for these subleading Born terms don't exist yet, 
+the weights will be identical to the virtual-only weights.)
+* Note that the usual on-the-fly weights for scale and PDF variations will be with respect to the QCD-only nominal and that if
+you choose a QCD+EW weight as the new nominal, you should strictly speaking evaluate the other generator systematics with respect
+to the QCD-only nominal and transfer the relative uncertainty onto the new nominal.
+## QCD scale variation weights
+* As of Sherpa 2.2.1, variations of the renormalisation and factorisation scales in the matrix elements 
+are provided as on-the-fly weights. The variations are encoded in the weight names e.g. as `MUR1_MUF1_PDF261000`
+for the trivial (1,1) variation, `MUR2_MUF1_PDF261000` for a renormalisation scale up-variation by a factor 2
+or `MUR1_MUF0.5_PDF261000` for a factorisation scale down-variation by a factor 2 for instance. 
+The PDF is also specified via its [LHAPDF ID](https://lhapdf.hepforge.org/pdfsets.html).
+* As of Sherpa 2.2.10, this has been extended to include coherent variations of the renormalisation and factorisation scales
+in the parton shower. The weight names have been extended to encode this e.g. as 
+`MUR2_MUF1_PDF261000_PSMUR2_PSMUF1` for a renormalisation scale up-variation by a factor 2 in both ME and PS or 
+`MUR1_MUF0.5_PDF261000_PSMUR1_PSMUF0.5` for a factorisation scale down-variation by a factor 2 in both ME and PS, 
+while the trivial (1,1) variation is still labelled as `MUR1_MUF1_PDF261000`.
+* In case the reweighting of the parton-shower is found to be unstable, an additional set of multiweights is provided
+where the parton-shower scales are _not_ reweighted, which is equivalent to the behaviour in the older Sherpa versions.
+For technical reasons, these weights are simply prefixed with `ME_ONLY_` but the rest of the weight name is the same.
+This means that e.g. `ME_ONLY_MUR2_MUF1_PDF261000_PSMUR2_PSMUF1` is an up-variation of the renormalisation scale *in the matrix element
+only*, as indicated by the prefix and despite the `PSMUR2` in the remainder of the string.
 ## Sherpa event record
 * Starting from 1.4.0, Sherpa follows the [current HepMC convention](http://lcgapp.cern.ch/project/simu/HepMC/206/HepMC2_user_manual.pdf). Final state particles still have status=1 but status 2 was replaced by multiple status codes: 2 for "physical" intermediate states (hadron resonances), 11 for non-physical intermediate states (e.g. parton shower evolution), 3 for particles in the hard scattering matrix element, and 4 for incoming beams. An example: If in a Z-&gt;ee sample you need the electron/positron before QEDFSR radiation, you need to select status==11
 * For NLO processes the status 3 particles from the hard scattering matrix element will contain the one additional parton emission which is matched between ME and shower. An additional level of original particles before that emission is being made available as separate status 20 particles for events where they would be different from status 3 particles. So if you want to select parton-level event kinematics, you should always use status 20 if available in the event and otherwise status 3.

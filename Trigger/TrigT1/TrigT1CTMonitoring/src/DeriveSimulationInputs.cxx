@@ -19,7 +19,6 @@
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_RIO.h"
-#include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Result/CTP_RIO.h"
 #include "TrigT1Result/CTP_Decoder.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -56,9 +55,6 @@
 #include "TrigT1Interfaces/EnergyCTP.h"
 #include "TrigT1Interfaces/MbtsCTP.h"
 #include "TrigT1Interfaces/BcmCTP.h"
-#include "TrigT1Interfaces/TrtCTP.h"
-#include "TrigT1Interfaces/LucidCTP.h"
-#include "TrigT1Interfaces/ZdcCTP.h"
 #include "TrigT1Interfaces/NimCTP.h"
 #include "TrigT1Interfaces/BptxCTP.h"
 #include "TrigT1Interfaces/FrontPanelCTP.h"
@@ -101,6 +97,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::initialize() {
 
    ATH_CHECK( detStore()->regFcn( &TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool, this,
                                   m_ctpCoreMapping, "/TRIGGER/LVL1/CTPCoreInputMapping" ) );
+
+   ATH_CHECK( m_CTP_RDOKey.initialize() );
    return StatusCode::SUCCESS;
 }
 	
@@ -139,8 +137,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
 
 
    // get CTP RDO from storegate
-   const CTP_RDO* theCTP_RDO = nullptr;
-   CHECK( evtStore()->retrieve(theCTP_RDO, "CTP_RDO") );
+   const CTP_RDO* theCTP_RDO = SG::get(m_CTP_RDOKey);
+   CHECK( theCTP_RDO != nullptr );
 
    
    // we should not use the ctpVersion from the menu to guaranty consistency
@@ -330,8 +328,6 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
    unsigned int energyCables = 0;
    unsigned int bcmCables = 0;
    unsigned int bptxCables = 0;
-   unsigned int lucidCables = 0;
-   unsigned int zdcCables = 0;
    unsigned int mbtsCablesA = 0;
    unsigned int mbtsCablesC = 0;
    unsigned int nimCables0 = 0;
@@ -430,11 +426,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
             energyCables |= cable;
          else if (!thr->type().find("BCM"))
             bcmCables |= cable;
-         else if (thr->type() == "LUCID")
-            lucidCables |= cable;
-         else if (thr->type() == "ZDC")
-            zdcCables |= cable;
-			
+
          //belof 4 are a hack but I don't think there is another way other than connecting threshold->pit
          else if ((thr->type().find("MBTS") != std::string::npos)&&(thr->cableConnector() == "CON0"))
             mbtsCablesA |= cable;
@@ -629,33 +621,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_BcmCTPLocation);
       return sc;
    }
-    
-   LVL1::LucidCTP* newLUCID{nullptr};
-   if (ctpVersionNumber<=3) {
-      newLUCID = new LVL1::LucidCTP(lucidCables);
-   } else {
-      newLUCID = new LVL1::LucidCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
-   sc = evtStore()->record(newLUCID, LVL1::DEFAULT_LucidCTPLocation);
-   if ( sc.isFailure() ) {
-      ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_LucidCTPLocation);
-      return sc;
-   }
-    
-   LVL1::ZdcCTP* newZDC{nullptr};
-   if (ctpVersionNumber<=3) {
-      newZDC = new LVL1::ZdcCTP(zdcCables);
-   } else {
-      newZDC = new LVL1::ZdcCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
-   sc = evtStore()->record(newZDC, LVL1::DEFAULT_ZdcCTPLocation); 
-   if ( sc.isFailure() ) {
-      ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_ZdcCTPLocation);
-      return sc;
-   }
-		
+
+
    LVL1::BptxCTP* newBPTX = new LVL1::BptxCTP(bptxCables);
    if (ctpVersionNumber<=3) {
       newBPTX = new LVL1::BptxCTP(bptxCables);
@@ -672,8 +639,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
 
 
    //retrieve muctpi nim object if it is there
-   LVL1::NimCTP* MuctpiNim(nullptr);
    if ( evtStore()->contains< LVL1::NimCTP >( LVL1::DEFAULT_NimCTPLocation ) ) {
+      const LVL1::NimCTP* MuctpiNim = nullptr;
 
       ATH_CHECK( evtStore()->retrieve( MuctpiNim, LVL1::DEFAULT_NimCTPLocation ) );
 
@@ -708,17 +675,13 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       // if muctpi sim has not already put something into SG
       // construct the NIM object from scratch and write to SG
 
-      MuctpiNim = new LVL1::NimCTP();
+      auto MuctpiNim = std::make_unique<LVL1::NimCTP>();
       MuctpiNim->SetCableWord0(nimCables0);
       MuctpiNim->SetCableWord1(nimCables1);
       MuctpiNim->SetCableWord2(nimCables2);
 			
       //writing SG NIM information 
-      sc = evtStore()->record(MuctpiNim, LVL1::DEFAULT_NimCTPLocation); 
-      if ( sc.isFailure() ) {
-         ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_NimCTPLocation);
-         return sc;
-      }
+      ATH_CHECK( evtStore()->record(std::move(MuctpiNim), LVL1::DEFAULT_NimCTPLocation) );
    }
    return sc;
 }

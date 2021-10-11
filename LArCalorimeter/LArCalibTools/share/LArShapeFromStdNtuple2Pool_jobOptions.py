@@ -132,6 +132,9 @@ svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/
                                "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/fragments/PoolCat_comcond.000006.lar_conditions.recon.pool.v0000_castor.xml"]
 
 
+from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
+LArMCSymCondAlgDefault()
+
 
 
 #########################################################################################################

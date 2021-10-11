@@ -51,7 +51,7 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
    'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
     MuonAlignAlg.IsData = False
 condSequence+=MuonAlignAlg
-
+    
 MuonDetectorTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
 
 # Condition DB is needed only if A-lines or B-lines are requested
@@ -102,10 +102,6 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
-# temporary way to pass MM correction for passivation:
-from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
-MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
-
 MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
 MuonDetectorManagerCond.MuonDetectorTool.FillCacheInitTime = 1 # CondAlg cannot update itself later - not threadsafe
 

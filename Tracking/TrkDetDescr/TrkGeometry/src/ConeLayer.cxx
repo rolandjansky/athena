@@ -16,42 +16,57 @@
 // CLHEP
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform, Trk::ConeBounds* cbounds,
+Trk::ConeLayer::ConeLayer(const Amg::Transform3D& transform,
+                          Trk::ConeBounds* cbounds,
                           const Trk::LayerMaterialProperties& laymatprop,
-                          double thickness, Trk::OverlapDescriptor* olap,
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
                           int laytyp)
-    : ConeSurface(transform, cbounds),
-      Layer(laymatprop, thickness, olap, laytyp) {}
+  : ConeSurface(transform, cbounds)
+  , Layer(laymatprop, thickness, olap, laytyp)
+{}
 
 Trk::ConeLayer::ConeLayer(Trk::ConeSurface* cyl,
                           const Trk::LayerMaterialProperties& laymatprop,
-                          double thickness, Trk::OverlapDescriptor* olap,
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
                           int laytyp)
-    : ConeSurface(*cyl), Layer(laymatprop, thickness, olap, laytyp) {}
+  : ConeSurface(*cyl)
+  , Layer(laymatprop, thickness, olap, laytyp)
+{}
 
-Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform, Trk::ConeBounds* cbounds,
-                          Trk::SurfaceArray* surfaceArray, double thickness,
-                          Trk::OverlapDescriptor* olap, int laytyp)
-    : ConeSurface(transform, cbounds),
-      Layer(surfaceArray, thickness, olap, laytyp) {}
+Trk::ConeLayer::ConeLayer(const Amg::Transform3D& transform,
+                          Trk::ConeBounds* cbounds,
+                          Trk::SurfaceArray* surfaceArray,
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
+                          int laytyp)
+  : ConeSurface(transform, cbounds)
+  , Layer(surfaceArray, thickness, olap, laytyp)
+{}
 
-Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform, Trk::ConeBounds* cbounds,
+Trk::ConeLayer::ConeLayer(const Amg::Transform3D& transform,
+                          Trk::ConeBounds* cbounds,
                           Trk::SurfaceArray* surfaceArray,
                           const Trk::LayerMaterialProperties& laymatprop,
-                          double thickness, Trk::OverlapDescriptor* olap,
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
                           int laytyp)
-    : ConeSurface(transform, cbounds),
-      Layer(surfaceArray, laymatprop, thickness, olap, laytyp) {}
+  : ConeSurface(transform, cbounds)
+  , Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
+{}
 
-Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay)
-
-    = default;
+Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay) = default;
 
 Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay,
                           const Amg::Transform3D& transf)
-    : ConeSurface(clay, transf), Layer(clay) {}
+  : ConeSurface(clay, transf)
+  , Layer(clay)
+{}
 
-Trk::ConeLayer& Trk::ConeLayer::operator=(const ConeLayer& clay) {
+Trk::ConeLayer&
+Trk::ConeLayer::operator=(const ConeLayer& clay)
+{
   if (this != &clay) {
     // call the assignments of the base classes
     Trk::ConeSurface::operator=(clay);
@@ -60,13 +75,18 @@ Trk::ConeLayer& Trk::ConeLayer::operator=(const ConeLayer& clay) {
   return (*this);
 }
 
-const Trk::ConeSurface& Trk::ConeLayer::surfaceRepresentation() const {
+const Trk::ConeSurface&
+Trk::ConeLayer::surfaceRepresentation() const
+{
   return (*this);
 }
 
-double Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
-                                               Trk::PropDirection dir) const {
-  if (!Trk::Layer::m_layerMaterialProperties.get()) return 0.;
+double
+Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
+                                        Trk::PropDirection dir) const
+{
+  if (!Trk::Layer::m_layerMaterialProperties.get())
+    return 0.;
   // calculate the direction to the normal
   const Amg::Vector3D& parmPos = parm.position();
   Amg::Vector3D pastStep(parmPos + dir * parm.momentum().normalized());
@@ -75,9 +95,12 @@ double Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
   return Trk::Layer::m_layerMaterialProperties->oppositePreFactor();
 }
 
-double Trk::ConeLayer::postUpdateMaterialFactor(
-    const Trk::TrackParameters& parm, Trk::PropDirection dir) const {
-  if (!Trk::Layer::m_layerMaterialProperties.get()) return 0;
+double
+Trk::ConeLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
+                                         Trk::PropDirection dir) const
+{
+  if (!Trk::Layer::m_layerMaterialProperties.get())
+    return 0;
   const Amg::Vector3D& parmPos = parm.position();
   Amg::Vector3D pastStep(parmPos + dir * parm.momentum().normalized());
   if (pastStep.perp() > parm.position().perp())
@@ -85,7 +108,9 @@ double Trk::ConeLayer::postUpdateMaterialFactor(
   return Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
 }
 
-void Trk::ConeLayer::moveLayer(Amg::Transform3D& shift) {
+void
+Trk::ConeLayer::moveLayer(Amg::Transform3D& shift)
+{
   Trk::ConeSurface::m_transforms =
-      std::make_unique<Transforms>(shift * m_transforms->transform);
+    std::make_unique<Transforms>(shift * m_transforms->transform);
 }

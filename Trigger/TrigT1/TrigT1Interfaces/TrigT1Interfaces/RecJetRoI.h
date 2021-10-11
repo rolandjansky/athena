@@ -88,10 +88,10 @@ namespace LVL1 {
       virtual unsigned int etSmall() const;
 
       /** returns TRUE if threshold number <em>threshold_number</em> has been passed by this ROI. */
-      bool passedThreshold( int thresholdNumber ) const;
+      bool passedThreshold( unsigned int thresholdNumber ) const;
 
       /** Same for forward jets. Deprecated in Run 2, will always return false. */
-      bool passedFwdThreshold( int thresholdNumber ) const;
+      bool passedFwdThreshold( unsigned int thresholdNumber ) const;
 
       /** @brief returns the CoordinateRange.
        * This is worked out from the RoIWord's hardware coords
@@ -144,8 +144,8 @@ namespace LVL1 {
       /** Information on trigger thresholds passed by RoI */ 
       unsigned long int m_thresholdMask { 0 };
 
-      std::map< int, unsigned int > m_triggerThresholdValue;
-      std::map< int, unsigned int > m_windowSize;
+      std::map< unsigned int, unsigned int > m_triggerThresholdValue; //< {threshold number, threshold value}
+      std::map< unsigned int, unsigned int > m_windowSize; //< {threshold number, window size}
       
    private:
       // Constructor for Run 1 RoI format

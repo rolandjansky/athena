@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaBaseComps )
@@ -38,6 +38,7 @@ atlas_add_test( AthAlgTool_test
 atlas_add_test( AthAlgorithmDHUpdate_test
    SOURCES test/AthAlgorithmDHUpdate_test.cxx
    LINK_LIBRARIES StoreGateLib GaudiKernel TestTools AthenaBaseComps
+   LOG_IGNORE_PATTERN "FATAL uncheckedSetTypePackageForID"   # temporary: ATEAM-731
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
  atlas_add_test( AthAlgStartVisitor_test

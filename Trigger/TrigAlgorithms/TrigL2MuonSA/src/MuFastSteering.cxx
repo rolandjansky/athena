@@ -19,7 +19,7 @@
 // --------------------------------------------------------------------------------
 
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
-  : AthAlgorithm(name, svc),
+  : AthReentrantAlgorithm(name, svc),
     m_timerSvc("TrigTimerSvc", name),
     m_recMuonRoIUtils()
 {
@@ -148,7 +148,7 @@ const xAOD::MuonRoI* matchingRecRoI( uint32_t roiWord,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode MuFastSteering::execute()
+StatusCode MuFastSteering::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute start");
   ATH_MSG_DEBUG("InsideOutMode: " << m_insideOut);
@@ -158,8 +158,7 @@ StatusCode MuFastSteering::execute()
   auto monitorIt	= Monitored::Group(m_monTool, totalTimer );
   totalTimer.start();
 
-  auto ctx = getContext();
-  ATH_MSG_DEBUG("Get event context << " << ctx );
+  ATH_MSG_DEBUG("Event context << " << ctx );
 
   // retrieve with ReadHandle
   auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey, ctx );
@@ -202,6 +201,7 @@ StatusCode MuFastSteering::execute()
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector.size());
   }
 
+  bool dynamicDeltaRpc = false;
   int nPassedBarrelSurrRoi = 0;
   if(m_topoRoad ){
     for( const auto recRoI: *recRoiCollection ){
@@ -227,7 +227,8 @@ StatusCode MuFastSteering::execute()
     }
     ATH_MSG_DEBUG( "nPassedBarrelSurrRoi = " << nPassedBarrelSurrRoi);
     //dynamicDeltaRpcMode
-    if( m_topoRoad )m_dataPreparator->setMultiMuonTrigger( (nPassedBarrelSurrRoi >= 1)? true : false );
+    if( nPassedBarrelSurrRoi >= 1 )
+      dynamicDeltaRpc = true;
   }
 
   // record data objects with WriteHandle
@@ -260,7 +261,7 @@ StatusCode MuFastSteering::execute()
     const xAOD::TrackParticleContainer *tracks = trackHandle.cptr();
 
     ATH_CHECK(findMuonSignatureIO(*tracks, internalRoI, recRoIVector,
-				  *muonCBColl, *muFastContainer ));
+				  *muonCBColl, *muFastContainer, dynamicDeltaRpc, ctx ));
 
     ATH_MSG_DEBUG("REGTEST: xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " size = " << muonCBColl->size());
     for (const auto p_CBmuon : *muonCBColl){
@@ -271,13 +272,12 @@ StatusCode MuFastSteering::execute()
   }
   else if(m_multiTrack){ //multi-track SA mode
     ATH_MSG_DEBUG("start multi-track SA mode...");
-    ATH_CHECK(findMultiTrackSignature(internalRoI, recRoIVector, *muFastContainer));
+    ATH_CHECK(findMultiTrackSignature(internalRoI, recRoIVector, *muFastContainer, dynamicDeltaRpc, ctx));
   }
   else {
     // to StatusCode findMuonSignature()
     ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
-				*muFastContainer, *muIdContainer, *muMsContainer// , *muCompositeContainer
-				));
+				*muFastContainer, *muIdContainer, *muMsContainer, dynamicDeltaRpc, ctx));
   }
 
   // DEBUG TEST: Recorded data objects
@@ -333,6 +333,7 @@ StatusCode MuFastSteering::execute()
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector.size());
   }
 
+  bool dynamicDeltaRpc = false;
   int nPassedBarrelSurrRoi = 0;
   if(m_topoRoad ){
     for( const auto recRoI: *recRoiCollection ){
@@ -358,7 +359,8 @@ StatusCode MuFastSteering::execute()
     }
     ATH_MSG_DEBUG( "nPassedBarrelSurrRoi = " << nPassedBarrelSurrRoi);
     //dynamicDeltaRpcMode
-    if( m_topoRoad )m_dataPreparator->setMultiMuonTrigger( (nPassedBarrelSurrRoi >= 1)? true : false );
+    if( nPassedBarrelSurrRoi >= 1 )
+      dynamicDeltaRpc = true;
   }
 
   // record data objects with WriteHandle
@@ -391,7 +393,7 @@ StatusCode MuFastSteering::execute()
     const xAOD::TrackParticleContainer *tracks = trackHandle.cptr();
 
     ATH_CHECK(findMuonSignatureIO(*tracks, internalRoI, recRoIVector,
-				  *muonCBColl, *muFastContainer ));
+				  *muonCBColl, *muFastContainer, dynamicDeltaRpc, ctx ));
 
     ATH_MSG_DEBUG("REGTEST: xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " size = " << muonCBColl->size());
     for (const auto p_CBmuon : *muonCBColl){
@@ -402,13 +404,12 @@ StatusCode MuFastSteering::execute()
   }
   else if(m_multiTrack){ //multi-track SA mode
     ATH_MSG_DEBUG("start multi-track SA mode...");
-    ATH_CHECK(findMultiTrackSignature(internalRoI, recRoIVector, *muFastContainer));
+    ATH_CHECK(findMultiTrackSignature(internalRoI, recRoIVector, *muFastContainer, dynamicDeltaRpc, ctx));
   }
   else {
     // to StatusCode findMuonSignature()
     ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
-				*muFastContainer, *muIdContainer, *muMsContainer// , *muCompositeContainer
-				));
+				*muFastContainer, *muIdContainer, *muMsContainer, dynamicDeltaRpc, ctx));
   }
 
   // DEBUG TEST: Recorded data objects
@@ -445,9 +446,9 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
                                              const std::vector<const LVL1::RecMuonRoI*>&  muonRoIs,
 				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
 					     TrigRoiDescriptorCollection& 		outputID,
-					     TrigRoiDescriptorCollection&		outputMS// ,
-					     // DataVector<xAOD::TrigComposite>&          	outputComposite
-					     ) const
+					     TrigRoiDescriptorCollection&		outputMS,
+					     const bool                                 dynamicDeltaRpc,
+					     const EventContext&                        ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -521,7 +522,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
                                          mdtRegion,
                                          rpcFitResult,
                                          mdtHits_normal,
-                                         mdtHits_overlap);
+                                         mdtHits_overlap,
+                                         dynamicDeltaRpc);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
 	TrigL2MuonSA::TrackPattern trackPattern;
@@ -530,7 +532,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
@@ -548,7 +550,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
@@ -567,7 +569,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
@@ -586,7 +588,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -617,7 +619,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
@@ -640,7 +642,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
@@ -669,7 +671,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
 
@@ -690,7 +692,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
         }
       if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -721,7 +723,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
       	                  rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			  stgcHits, mmHits,
-                          trackPatterns, outputTracks, outputID, outputMS);
+                          trackPatterns, outputTracks, outputID, outputMS, ctx);
       continue;
     }
     if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
@@ -735,7 +737,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
        	                  rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			  stgcHits, mmHits,
-                          trackPatterns, outputTracks, outputID, outputMS);
+                          trackPatterns, outputTracks, outputID, outputMS, ctx);
       continue;
     }
 
@@ -743,7 +745,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
     	                rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			stgcHits, mmHits,
-                        trackPatterns, outputTracks, outputID, outputMS);
+                        trackPatterns, outputTracks, outputID, outputMS, ctx);
 
     p_roids++;
     if (p_roids==roids.end()) break;
@@ -771,9 +773,9 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
                                              const std::vector<const xAOD::MuonRoI*>&   muonRoIs,
 				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
 					     TrigRoiDescriptorCollection& 		outputID,
-					     TrigRoiDescriptorCollection&		outputMS// ,
-					     // DataVector<xAOD::TrigComposite>&          	outputComposite
-					     ) const
+					     TrigRoiDescriptorCollection&		outputMS,
+					     const bool                                 dynamicDeltaRpc,
+					     const EventContext&                        ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -847,7 +849,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
                                          mdtRegion,
                                          rpcFitResult,
                                          mdtHits_normal,
-                                         mdtHits_overlap);
+                                         mdtHits_overlap,
+                                         dynamicDeltaRpc);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
 	TrigL2MuonSA::TrackPattern trackPattern;
@@ -856,7 +859,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
@@ -874,7 +877,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
@@ -893,7 +896,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
@@ -912,7 +915,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -943,7 +946,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
@@ -966,7 +969,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
       if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
@@ -995,7 +998,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
       }
 
@@ -1016,7 +1019,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
         updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
         	            rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			    stgcHits, mmHits,
-                            trackPatterns, outputTracks, outputID, outputMS);
+                            trackPatterns, outputTracks, outputID, outputMS, ctx);
 	continue;
         }
       if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -1047,7 +1050,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
       	                  rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			  stgcHits, mmHits,
-                          trackPatterns, outputTracks, outputID, outputMS);
+                          trackPatterns, outputTracks, outputID, outputMS, ctx);
       continue;
     }
     if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
@@ -1061,7 +1064,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
        	                  rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			  stgcHits, mmHits,
-                          trackPatterns, outputTracks, outputID, outputMS);
+                          trackPatterns, outputTracks, outputID, outputMS, ctx);
       continue;
     }
 
@@ -1069,7 +1072,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     updateOutputObjects(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
     	                rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			stgcHits, mmHits,
-                        trackPatterns, outputTracks, outputID, outputMS);
+                        trackPatterns, outputTracks, outputID, outputMS, ctx);
 
     p_roids++;
     if (p_roids==roids.end()) break;
@@ -1099,7 +1102,9 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 					       const std::vector<const TrigRoiDescriptor*> roids,
 					       const std::vector<const LVL1::RecMuonRoI*>  muonRoIs,
 					       DataVector<xAOD::L2CombinedMuon>&           outputCBs,
-					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs) const
+					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs,
+					       const bool                                  dynamicDeltaRpc,
+					       const EventContext&                         ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignatureIO start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -1169,7 +1174,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       cscHits.clear();
       stgcHits.clear();
       mmHits.clear();
-      bool hasSP = false;
+      trackPatterns.clear();
 
       sc = m_ftfRoadDefiner->defineRoad(idtrack, muonRoad);
       if (!sc.isSuccess()) {
@@ -1185,7 +1190,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	ATH_MSG_DEBUG("FTF track at IP is in  Endcap: " << idtrack->eta());
       }
 
-      if ( std::abs(muonRoad.extFtfMiddleEta) < 1.05 ){ // Barrel Inside-out
+      if ( m_recMuonRoIUtils.isBarrel(p_roi) ) { // Barrel Inside-out
 	ATH_MSG_DEBUG("muonRoad.extFtfMiddleEta Barrel: " << muonRoad.extFtfMiddleEta);
 
 	ATH_MSG_DEBUG("Barrel algorithm of IOmode starts");
@@ -1203,7 +1208,8 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 					   mdtRegion,
 					   rpcFitResult,
 					   mdtHits_normal,
-					   mdtHits_overlap);
+					   mdtHits_overlap,
+					   dynamicDeltaRpc);
 	if (!sc.isSuccess()) {
 	  ATH_MSG_WARNING("Data preparation failed");
 	  continue;
@@ -1240,13 +1246,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
 	stationFitterTimer.stop();
 
-	// Check if at least 1 SP
-	for (size_t i=0; i<std::extent<decltype(trackPatterns.back().superPoints), 0>::value; i++) {
-	  if ( std::abs(trackPatterns.back().superPoints[i].R) > ZERO_LIMIT && std::abs(trackPatterns.back().superPoints[i].Z) > ZERO_LIMIT ) { // if R and Z exist
-	    hasSP = true;
-	  }
-	}
-
 	// Track fitting
 	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
 	trackFitterTimer.start();
@@ -1255,25 +1254,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 				       trackPatterns);
 	if (!sc.isSuccess()) {
 	  ATH_MSG_WARNING("Track fitter failed");
-	  if(hasSP) {
-	    storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
-	    		rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-	    		stgcHits, mmHits,
-	    		trackPatterns.back(), outputSAs);
-	    xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
-	    muonCB->makePrivateStore();
-	    muonCB->setStrategy(0);
-	    muonCB->setErrorFlag(-9);
-	    muonCB->setPt(idtrack->pt());
-	    muonCB->setEta(idtrack->eta());
-	    muonCB->setPhi(idtrack->phi());
-	    muonCB->setCharge(idtrack->charge());
-	    ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
-	    muonCB->setMuSATrackLink(muonSAEL);
-	    ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
-	    muonCB->setIdTrackLink(idtrkEL);
-	    outputCBs.push_back(muonCB);
-	  }
 	  continue;
         }
 	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -1337,13 +1317,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
 	stationFitterTimer.stop();
 
-	// Check if at least 1 SP
-	for (size_t i=0; i<std::extent<decltype(trackPatterns.back().superPoints), 0>::value; i++) {
-	  if ( std::abs(trackPatterns.back().superPoints[i].R) > ZERO_LIMIT && std::abs(trackPatterns.back().superPoints[i].Z) > ZERO_LIMIT ) { // if R and Z exist
-	    hasSP = true;
-	  }
-	}
-
 	// Track fittingh
         if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
 	trackFitterTimer.start();
@@ -1353,25 +1326,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 				       muonRoad);
         if (!sc.isSuccess()) {
           ATH_MSG_WARNING("Track fitter failed");
-	  if(hasSP) {
-	    storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
-	    		rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-	    		stgcHits, mmHits,
-	    		trackPatterns.back(), outputSAs);
-	    xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
-	    muonCB->makePrivateStore();
-	    muonCB->setStrategy(0);
-	    muonCB->setErrorFlag(-9);
-	    muonCB->setPt(idtrack->pt());
-	    muonCB->setEta(idtrack->eta());
-	    muonCB->setPhi(idtrack->phi());
-	    muonCB->setCharge(idtrack->charge());
-	    ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
-	    muonCB->setMuSATrackLink(muonSAEL);
-	    ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
-	    muonCB->setIdTrackLink(idtrkEL);
-	    outputCBs.push_back(muonCB);
-	  }
 	  continue;
 	}
 	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -1380,15 +1334,13 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       }
 
       // fix if eta is strange
-      for (unsigned int i=0 ;i<trackPatterns.size(); i++) {
-	TrigL2MuonSA::TrackPattern track = trackPatterns[i];
-	const float ETA_LIMIT       = 2.8;
-	const float DELTA_ETA_LIMIT = 1.0;
-	float roiEta = (*p_roi).eta();
-	if (std::abs(track.pt) > ZERO_LIMIT
-	    && ( std::abs(track.etaMap) > ETA_LIMIT || std::abs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
-          trackPatterns[i].etaMap = roiEta;
-        }
+      TrigL2MuonSA::TrackPattern track = trackPatterns.back();
+      const float ETA_LIMIT       = 2.8;
+      const float DELTA_ETA_LIMIT = 1.0;
+      float roiEta = (*p_roi).eta();
+      if (std::abs(track.pt) > ZERO_LIMIT
+	  && ( std::abs(track.etaMap) > ETA_LIMIT || std::abs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
+	trackPatterns.back().etaMap = roiEta;
       }
 
       // Update monitoring variables
@@ -1398,11 +1350,11 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       }
 
       // Update output trigger element
-      if(hasSP) {
+      if ( std::abs(trackPatterns.back().pt) > ZERO_LIMIT ) {
 	storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		    rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 		    stgcHits, mmHits,
-		    trackPatterns.back(), outputSAs);
+		    trackPatterns.back(), outputSAs, ctx);
 	xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
 	muonCB->makePrivateStore();
 	muonCB->setStrategy(0);
@@ -1437,7 +1389,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
       		  rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
       		  stgcHits, mmHits,
-      		  trackPattern, outputSAs);
+      		  trackPattern, outputSAs, ctx);
       xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
       muonCB->makePrivateStore();
       muonCB->setStrategy(-9);
@@ -1487,7 +1439,9 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 					       const std::vector<const TrigRoiDescriptor*> roids,
 					       const std::vector<const xAOD::MuonRoI*>     muonRoIs,
 					       DataVector<xAOD::L2CombinedMuon>&           outputCBs,
-					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs) const
+					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs,
+					       const bool                                  dynamicDeltaRpc,
+					       const EventContext&                         ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignatureIO start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -1557,7 +1511,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       cscHits.clear();
       stgcHits.clear();
       mmHits.clear();
-      bool hasSP = false;
+      trackPatterns.clear();
 
       sc = m_ftfRoadDefiner->defineRoad(idtrack, muonRoad);
       if (!sc.isSuccess()) {
@@ -1573,7 +1527,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	ATH_MSG_DEBUG("FTF track at IP is in  Endcap: " << idtrack->eta());
       }
 
-      if ( std::abs(muonRoad.extFtfMiddleEta) < 1.05 ){ // Barrel Inside-out
+      if ( m_recMuonRoIUtils.isBarrel(p_roi) ) { // Barrel Inside-out
 	ATH_MSG_DEBUG("muonRoad.extFtfMiddleEta Barrel: " << muonRoad.extFtfMiddleEta);
 
 	ATH_MSG_DEBUG("Barrel algorithm of IOmode starts");
@@ -1591,7 +1545,8 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 					   mdtRegion,
 					   rpcFitResult,
 					   mdtHits_normal,
-					   mdtHits_overlap);
+					   mdtHits_overlap,
+					   dynamicDeltaRpc);
 	if (!sc.isSuccess()) {
 	  ATH_MSG_WARNING("Data preparation failed");
 	  continue;
@@ -1628,13 +1583,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
 	stationFitterTimer.stop();
 
-	// Check if at least 1 SP
-	for (size_t i=0; i<std::extent<decltype(trackPatterns.back().superPoints), 0>::value; i++) {
-	  if ( std::abs(trackPatterns.back().superPoints[i].R) > ZERO_LIMIT && std::abs(trackPatterns.back().superPoints[i].Z) > ZERO_LIMIT ) { // if R and Z exist
-	    hasSP = true;
-	  }
-	}
-
 	// Track fitting
 	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
 	trackFitterTimer.start();
@@ -1643,25 +1591,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 				       trackPatterns);
 	if (!sc.isSuccess()) {
 	  ATH_MSG_WARNING("Track fitter failed");
-	  if(hasSP) {
-	    storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
-	    		rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-	    		stgcHits, mmHits,
-	    		trackPatterns.back(), outputSAs);
-	    xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
-	    muonCB->makePrivateStore();
-	    muonCB->setStrategy(0);
-	    muonCB->setErrorFlag(-9);
-	    muonCB->setPt(idtrack->pt());
-	    muonCB->setEta(idtrack->eta());
-	    muonCB->setPhi(idtrack->phi());
-	    muonCB->setCharge(idtrack->charge());
-	    ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
-	    muonCB->setMuSATrackLink(muonSAEL);
-	    ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
-	    muonCB->setIdTrackLink(idtrkEL);
-	    outputCBs.push_back(muonCB);
-	  }
 	  continue;
         }
 	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -1725,13 +1654,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
 	stationFitterTimer.stop();
 
-	// Check if at least 1 SP
-	for (size_t i=0; i<std::extent<decltype(trackPatterns.back().superPoints), 0>::value; i++) {
-	  if ( std::abs(trackPatterns.back().superPoints[i].R) > ZERO_LIMIT && std::abs(trackPatterns.back().superPoints[i].Z) > ZERO_LIMIT ) { // if R and Z exist
-	    hasSP = true;
-	  }
-	}
-
 	// Track fittingh
         if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
 	trackFitterTimer.start();
@@ -1741,25 +1663,6 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 				       muonRoad);
         if (!sc.isSuccess()) {
           ATH_MSG_WARNING("Track fitter failed");
-	  if(hasSP) {
-	    storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
-	    		rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-	    		stgcHits, mmHits,
-	    		trackPatterns.back(), outputSAs);
-	    xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
-	    muonCB->makePrivateStore();
-	    muonCB->setStrategy(0);
-	    muonCB->setErrorFlag(-9);
-	    muonCB->setPt(idtrack->pt());
-	    muonCB->setEta(idtrack->eta());
-	    muonCB->setPhi(idtrack->phi());
-	    muonCB->setCharge(idtrack->charge());
-	    ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
-	    muonCB->setMuSATrackLink(muonSAEL);
-	    ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
-	    muonCB->setIdTrackLink(idtrkEL);
-	    outputCBs.push_back(muonCB);
-	  }
 	  continue;
 	}
 	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -1768,15 +1671,13 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       }
 
       // fix if eta is strange
-      for (unsigned int i=0 ;i<trackPatterns.size(); i++) {
-	TrigL2MuonSA::TrackPattern track = trackPatterns[i];
-	const float ETA_LIMIT       = 2.8;
-	const float DELTA_ETA_LIMIT = 1.0;
-	float roiEta = (*p_roi).eta();
-	if (std::abs(track.pt) > ZERO_LIMIT
-	    && ( std::abs(track.etaMap) > ETA_LIMIT || std::abs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
-          trackPatterns[i].etaMap = roiEta;
-        }
+      TrigL2MuonSA::TrackPattern track = trackPatterns.back();
+      const float ETA_LIMIT       = 2.8;
+      const float DELTA_ETA_LIMIT = 1.0;
+      float roiEta = (*p_roi).eta();
+      if (std::abs(track.pt) > ZERO_LIMIT
+	  && ( std::abs(track.etaMap) > ETA_LIMIT || std::abs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
+	trackPatterns.back().etaMap = roiEta;
       }
 
       // Update monitoring variables
@@ -1786,11 +1687,11 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       }
 
       // Update output trigger element
-      if(hasSP) {
+      if ( std::abs(trackPatterns.back().pt) > ZERO_LIMIT ) {
 	storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		    rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 		    stgcHits, mmHits,
-		    trackPatterns.back(), outputSAs);
+		    trackPatterns.back(), outputSAs, ctx);
 	xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
 	muonCB->makePrivateStore();
 	muonCB->setStrategy(0);
@@ -1825,7 +1726,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       storeMuonSA(p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
       		  rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
       		  stgcHits, mmHits,
-      		  trackPattern, outputSAs);
+      		  trackPattern, outputSAs, ctx);
       xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
       muonCB->makePrivateStore();
       muonCB->setStrategy(-9);
@@ -1872,7 +1773,9 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 
 StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>& roids,
                                                   const std::vector<const LVL1::RecMuonRoI*>&  muonRoIs,
-                                                  DataVector<xAOD::L2StandAloneMuon>&          outputTracks) const
+                                                  DataVector<xAOD::L2StandAloneMuon>&          outputTracks,
+                                                  const bool                                   dynamicDeltaRpc,
+                                                  const EventContext&                          ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMultiTrackSignature start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -1955,7 +1858,8 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
                                          clusterFitResults,
                                          mdtHits_normal,
                                          mdtHits_overlap,
-                                         mdtHits_cluster_normal);
+                                         mdtHits_cluster_normal,
+                                         dynamicDeltaRpc);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
@@ -2048,7 +1952,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 
 	storeMuonSA(*p_roi, *p_roids, clusterRoad.at(i_road), mdtRegion, rpcHits, tgcHits,
 		    clusterFitResults.at(i_road), tgcFitResult, mdtHits_cluster_normal.at(i_road), cscHits,
-		    stgcHits, mmHits, trackPatterns.back(), outputTracks);
+		    stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
 
       } // end the clusterRoad loop
       if(trackPatterns.empty()){
@@ -2057,7 +1961,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 	trackPatterns.push_back(trackPattern);
 	storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		    rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-		    stgcHits, mmHits, trackPatterns.back(), outputTracks);
+		    stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
 
 	continue;
       }
@@ -2087,7 +1991,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           // Update output trigger element
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
                       rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
@@ -2109,7 +2013,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           // Update output trigger element
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		      rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
@@ -2136,7 +2040,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           ATH_MSG_WARNING("Super point fitter failed");
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		      rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
 
@@ -2155,7 +2059,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           ATH_MSG_WARNING("Track fitter failed");
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		      rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -2182,7 +2086,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           ATH_MSG_WARNING("Track extrapolator failed");
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
                       rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
@@ -2190,7 +2094,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 
 	storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		    rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-		    stgcHits, mmHits, trackPatterns.back(), outputTracks);
+		    stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
       }
     }
     // Update monitoring variables
@@ -2224,7 +2128,9 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 
 StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigRoiDescriptor*>& roids,
                                                   const std::vector<const xAOD::MuonRoI*>&     muonRoIs,
-                                                  DataVector<xAOD::L2StandAloneMuon>&          outputTracks) const
+                                                  DataVector<xAOD::L2StandAloneMuon>&          outputTracks,
+                                                  const bool                                   dynamicDeltaRpc,
+                                                  const EventContext&                          ctx) const
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMultiTrackSignature start");
   StatusCode sc = StatusCode::SUCCESS;
@@ -2307,7 +2213,8 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
                                          clusterFitResults,
                                          mdtHits_normal,
                                          mdtHits_overlap,
-                                         mdtHits_cluster_normal);
+                                         mdtHits_cluster_normal,
+                                         dynamicDeltaRpc);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
@@ -2400,7 +2307,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 
 	storeMuonSA(*p_roi, *p_roids, clusterRoad.at(i_road), mdtRegion, rpcHits, tgcHits,
 		    clusterFitResults.at(i_road), tgcFitResult, mdtHits_cluster_normal.at(i_road), cscHits,
-		    stgcHits, mmHits, trackPatterns.back(), outputTracks);
+		    stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
 
       } // end the clusterRoad loop
       if(trackPatterns.empty()){
@@ -2409,7 +2316,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 	trackPatterns.push_back(trackPattern);
 	storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		    rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-		    stgcHits, mmHits, trackPatterns.back(), outputTracks);
+		    stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
 
 	continue;
       }
@@ -2439,7 +2346,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           // Update output trigger element
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
                       rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
@@ -2461,7 +2368,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           // Update output trigger element
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		      rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
@@ -2488,7 +2395,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           ATH_MSG_WARNING("Super point fitter failed");
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		      rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
 
@@ -2507,7 +2414,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           ATH_MSG_WARNING("Track fitter failed");
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		      rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
@@ -2534,7 +2441,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
           ATH_MSG_WARNING("Track extrapolator failed");
           storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
                       rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-                      stgcHits, mmHits, trackPatterns.back(), outputTracks);
+                      stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
           continue;
         }
         if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
@@ -2542,7 +2449,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
 
 	storeMuonSA(*p_roi, *p_roids, muonRoad, mdtRegion, rpcHits, tgcHits,
 		    rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
-		    stgcHits, mmHits, trackPatterns.back(), outputTracks);
+		    stgcHits, mmHits, trackPatterns.back(), outputTracks, ctx);
       }
     }
     // Update monitoring variables
@@ -2588,7 +2495,8 @@ bool MuFastSteering::updateOutputObjects(const LVL1::RecMuonRoI*                
                                          const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 				         DataVector<xAOD::L2StandAloneMuon>&	        outputTracks,
 				         TrigRoiDescriptorCollection&  	                outputID,
-				         TrigRoiDescriptorCollection&   	        outputMS) const
+				         TrigRoiDescriptorCollection&   	        outputMS,
+					 const EventContext&                            ctx) const
 {
 
   if( trackPatterns.size() > 0 ) {
@@ -2599,7 +2507,7 @@ bool MuFastSteering::updateOutputObjects(const LVL1::RecMuonRoI*                
     storeMuonSA(roi, roids, muonRoad, mdtRegion, rpcHits, tgcHits,
     	        rpcFitResult, tgcFitResult, mdtHits, cscHits,
 		stgcHits, mmHits,
-                pattern, outputTracks);
+                pattern, outputTracks, ctx);
     storeMSRoiDescriptor(roids, pattern, outputTracks, outputMS);
     storeIDRoiDescriptor(roids, pattern, outputTracks, outputID);
 
@@ -2628,7 +2536,8 @@ bool MuFastSteering::updateOutputObjects(const xAOD::MuonRoI*                   
                                          const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 				         DataVector<xAOD::L2StandAloneMuon>&	        outputTracks,
 				         TrigRoiDescriptorCollection&  	                outputID,
-				         TrigRoiDescriptorCollection&   	        outputMS) const
+				         TrigRoiDescriptorCollection&   	        outputMS,
+					 const EventContext&                            ctx) const
 {
 
   if( trackPatterns.size() > 0 ) {
@@ -2639,7 +2548,7 @@ bool MuFastSteering::updateOutputObjects(const xAOD::MuonRoI*                   
     storeMuonSA(roi, roids, muonRoad, mdtRegion, rpcHits, tgcHits,
     	        rpcFitResult, tgcFitResult, mdtHits, cscHits,
 		stgcHits, mmHits,
-                pattern, outputTracks);
+                pattern, outputTracks, ctx);
     storeMSRoiDescriptor(roids, pattern, outputTracks, outputMS);
     storeIDRoiDescriptor(roids, pattern, outputTracks, outputID);
 
@@ -2664,13 +2573,13 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
 				 const TrigL2MuonSA::StgcHits&       stgcHits,
 				 const TrigL2MuonSA::MmHits&         mmHits,
              	                 const TrigL2MuonSA::TrackPattern&   pattern,
-                                 DataVector<xAOD::L2StandAloneMuon>& outputTracks ) const
+                                 DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+                                 const EventContext&                 ctx ) const
 {
   const float ZERO_LIMIT = 1.e-5;
 
   const int currentRoIId = roids->roiId();
 
-  const EventContext& ctx = getContext();
   const EventIDBase& eventID = ctx.eventID();
   auto eventInfo = SG::makeHandle(m_eventInfoKey, ctx);
   if (!eventInfo.isValid()) {
@@ -3087,13 +2996,13 @@ bool MuFastSteering::storeMuonSA(const xAOD::MuonRoI*                roi,
 				 const TrigL2MuonSA::StgcHits&       stgcHits,
 				 const TrigL2MuonSA::MmHits&         mmHits,
              	                 const TrigL2MuonSA::TrackPattern&   pattern,
-                                 DataVector<xAOD::L2StandAloneMuon>& outputTracks ) const
+                                 DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+                                 const EventContext&                 ctx ) const
 {
   const float ZERO_LIMIT = 1.e-5;
 
   const int currentRoIId = roids->roiId();
 
-  const EventContext& ctx = getContext();
   const EventIDBase& eventID = ctx.eventID();
   auto eventInfo = SG::makeHandle(m_eventInfoKey, ctx);
   if (!eventInfo.isValid()) {

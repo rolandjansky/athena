@@ -130,8 +130,11 @@ if rec.doLArg() and globalflags.DataSource()=='data' and globalflags.InputFormat
       from LArConditionsCommon.LArRunFormat import getLArFormatForRun
       from RecExConfig.AutoConfiguration import GetRunNumber
       runNum = GetRunNumber()
-      lri=getLArFormatForRun(runNum)
-      if lri.runType()==0:
+      if runNum is not None:
+         lri=getLArFormatForRun(runNum)
+      else:
+         lri=None
+      if lri is not None and lri.runType()==0:
         topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="") 
       else:   
         topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 

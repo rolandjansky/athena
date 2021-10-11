@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBTAILCATCHERRAWMONTOOL_H
@@ -51,7 +51,6 @@ class TBTailCatcherRawMonTool: public MonitorToolBase
   bool m_monitor_tailcatcher_raw;
   bool m_monitor_tailcatcher_reco;
   bool m_testTool;
-  bool m_isBooked;
 
   // Tailcatcher histogram
   IHistogram1D** m_histo_tcScintADC;

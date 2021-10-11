@@ -28,8 +28,8 @@ def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
     # Setup Boundary Check Tool
     acc = InDetBoundaryCheckToolCfg(flags,
                                     name="AtlasBoundaryCheckTool",
-                                    UsePixel=flags.Detector.RecoPixel,
-                                    UseSCT=flags.Detector.RecoSCT)
+                                    UsePixel=flags.Detector.EnablePixel,
+                                    UseSCT=flags.Detector.EnableSCT)
     atlasBoundaryCheckTool = acc.getPrimary()
     result.merge(acc)
 

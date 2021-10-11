@@ -245,7 +245,7 @@ StatusCode LArHVPathologyDbAlg::createCondObjects (const EventContext & ctx)
           msg(MSG::INFO) << " cellId , elecList size " << cellID << " " << elecList.size() << endmsg;
         }
         for (unsigned int i=0;i<elecList.size();i++) {
-	 LArHVPathologiesDb::LArHVElectPathologyDb electPath;
+	 LArHVPathologiesDb::LArHVElectPathologyDb electPath{};
 	 electPath.cellID = cellID;
 	 electPath.electInd = elecList[i];
          if(m_mode==2) electPath.pathologyType = ((pathologyType&0x0FFF)<<4);

@@ -28,7 +28,7 @@
  
 \begin{tikzpicture} 
 
-\umlclass{TrigJetHypoToolHelperMT}{
+\umlclass{TrigJetHypoToolHelper}{
 }{
  name:string='helper\_0\_fn\_n1p0'\\
  %HypoConfigurer=TrigJetHypoToolConfig\_fastreduction('fastreduction\_0\_fn'\\
@@ -47,11 +47,11 @@ conditionMakers:PrivateToolHandleArray=[\\
 \hspace{20pt}TrigJetConditionConfig\_acceptAll\\
 \hspace{20pt}TrigJetConditionConfig\_compound]\\
 }
-\umluniassoc[mult=1]{TrigJetHypoToolHelperMT}{TrigJetHypoToolConfig-fastreduction}
+\umluniassoc[mult=1]{TrigJetHypoToolHelper}{TrigJetHypoToolConfig-fastreduction}
 
-%\umlsimpleclass[right=4cm of TrigJetHypoAlgMT] {TrigJetHypoToolMT}{
+%\umlsimpleclass[right=4cm of TrigJetHypoAlg] {TrigJetHypoTool}{
 %}{}
-%\umlsimpleclass[below=2cm of TrigJetHypoToolMT] {TrigJetHypoToolHelper}{}{}
+%\umlsimpleclass[below=2cm of TrigJetHypoTool] {TrigJetHypoToolHelper}{}{}
 %\umlclass[left=3cm of TrigJetHypoToolHelper, type=Interface] {ITrigJetHypoToolConfig}{}{+ getMatcher()\\
 %+ getGrouper()\\}
 %\umlclass[below=2cm of ITrigJetHypoToolConfig] {TrigJetHypoToolConfig-fastreducer}{}{- getConditions\\
@@ -64,8 +64,8 @@ conditionMakers:PrivateToolHandleArray=[\\
 %\umlsimpleclass[below right =4.5cm  and -3.5 of ITrigJetConditionConfig] {TrigJetConditionConfig-moment}
 %
 %
-%\umluniassoc[mult=*]{TrigJetHypoAlgMT}{TrigJetHypoToolMT}
-%\umluniassoc[mult=1]{TrigJetHypoToolMT}{TrigJetHypoToolHelper}
+%\umluniassoc[mult=*]{TrigJetHypoAlg}{TrigJetHypoTool}
+%\umluniassoc[mult=1]{TrigJetHypoTool}{TrigJetHypoToolHelper}
 %\umluniassoc[mult=1]{TrigJetHypoToolHelper}{ITrigJetHypoToolConfig}
 %\umluniassoc[mult=*]{TrigJetHypoToolConfig-fastreducer}{ITrigJetConditionConfig}
 %\umlimpl{TrigJetHypoToolConfig-fastreducer}{ITrigJetHypoToolConfig}

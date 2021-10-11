@@ -22,7 +22,6 @@
 #include "TrigT1CaloEvent/JetROI.h"
 #include "L1JetCMXTools.h"
 #include "TrigT1CaloUtils/DataError.h"
-#include "TrigT1CaloUtils/JetAlgorithm.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/RecJetRoI.h"
@@ -35,10 +34,9 @@ namespace LVL1 {
 L1JetCMXTools::L1JetCMXTools(const std::string &type, const std::string &name,
                              const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name), m_crates(2),
+      m_crates(2),
       m_modules(16), m_maxTobs(4), m_sysCrate(1), m_debug(false) {
   declareInterface<IL1JetCMXTools>(this);
-  declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 }
 
 /** Destructor */
@@ -50,25 +48,10 @@ L1JetCMXTools::~L1JetCMXTools() {}
 StatusCode L1JetCMXTools::initialize() {
   m_debug = msgLvl(MSG::DEBUG);
 
-  // Connect to the LVL1ConfigSvc for the trigger configuration:
+  ATH_CHECK( m_L1MenuKey.initialize() );
 
-  StatusCode sc = m_configSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
-                    << endmsg;
-    return sc;
-  } else if (m_debug) {
-    msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endmsg;
-  }
-
-  msg(MSG::INFO) << "Initialization completed" << endmsg;
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
-
-/** Finalisation */
-
-StatusCode L1JetCMXTools::finalize() { return StatusCode::SUCCESS; }
 
 /** form CMX-Jet TOBs from RoIs - single slice */
 
@@ -344,8 +327,6 @@ void L1JetCMXTools::formCMXJetHitsTopo(
   }
 }
 
-/** Temporary for testing, mostly lifted from JetAlgorithm */
-
 void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
                             HitsVector &hit11, HitsVector &hit20,
                             HitsVector &hit21) const {
@@ -360,8 +341,6 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
   hit20.assign(timeslices, 0);
   hit21.assign(timeslices, 0);
 
-  std::vector<TrigConf::TriggerThreshold *> thresholds =
-      m_configSvc->ctpConfig()->menu().thresholdVector();
   for (int slice = 0; slice < timeslices; ++slice) {
     if (err.get(LVL1::DataError::Overflow)) {
       hit10[slice] = 0x7fff;
@@ -378,15 +357,17 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
     tobRoi.makePrivateStore();
     tobRoi.initialize(tob->crate(), tob->jem(), tob->frame(), tob->location(),
                       energyLg[slice], energySm[slice]);
-    LVL1::RecJetRoI roi(tobRoi.roiWord(), &thresholds);
 
-    int numThresholdsHalf = 5;
-    int numBitsPerCounter = 3;
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
+    LVL1::RecJetRoI roi(tobRoi.roiWord(), &(*l1Menu));
 
-    for (int i = 0; i < numThresholdsHalf * 2; ++i) {
+    unsigned int numThresholdsHalf = 5;
+    unsigned int numBitsPerCounter = 3;
+
+    for (unsigned int i = 0; i < numThresholdsHalf * 2; ++i) {
       if (roi.passedThreshold(i)) {
         HitsVector &hit = i < numThresholdsHalf ? hit10 : hit11;
-        int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
+        unsigned int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
         hit[slice] |= (1 << (ibit * numBitsPerCounter));
       }
     }
@@ -394,10 +375,10 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
     numThresholdsHalf = 8;
     numBitsPerCounter = 2;
 
-    for (int i = 0; i < numThresholdsHalf * 2; ++i) {
+    for (unsigned int i = 0; i < numThresholdsHalf * 2; ++i) {
       if (roi.passedThreshold(10 + i)) {
         HitsVector &hit = i < numThresholdsHalf ? hit20 : hit21;
-        int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
+        unsigned int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
         hit[slice] |= (1 << (ibit * numBitsPerCounter));
       }
     }

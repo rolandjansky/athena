@@ -40,7 +40,6 @@
 #include "GaudiKernel/AlgTool.h"
 
 #include <vector>
-#include <list>
 #include <utility> /* pair */
 #include <map>
 #include <string>
@@ -110,7 +109,7 @@ private:
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::list<SiHitCollection*> m_siHitCollList;
+  std::vector<SiHitCollection*> m_siHitCollList;
 
   const SCT_ID* m_sct_ID;                              //!< Handle to the ID helper
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;            //!< PileUp Merge service

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,11 +20,9 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-
 /** constructor */
-Rec::MuonPrintingTool::MuonPrintingTool(const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
-{
+Rec::MuonPrintingTool::MuonPrintingTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent) {
     declareInterface<IMuonPrintingTool>(this);
 }
 
@@ -32,43 +30,31 @@ Rec::MuonPrintingTool::MuonPrintingTool(const std::string& type, const std::stri
 Rec::MuonPrintingTool::~MuonPrintingTool() {}
 
 /** initialization */
-StatusCode
-Rec::MuonPrintingTool::initialize()
-{
+StatusCode Rec::MuonPrintingTool::initialize() {
     ATH_CHECK(m_edmPrinter.retrieve());
-    ATH_MSG_DEBUG ("Retrieved " << m_edmPrinter);
+    ATH_MSG_DEBUG("Retrieved " << m_edmPrinter);
 
     ATH_MSG_INFO("Initialize() successful in " << name());
     return StatusCode::SUCCESS;
 }
 
 /** end of the job - finalize */
-StatusCode
-Rec::MuonPrintingTool::finalize()
-{
-
+StatusCode Rec::MuonPrintingTool::finalize() {
     ATH_MSG_DEBUG("Nothing to finalize.");
     return StatusCode::SUCCESS;
 }
 
-
-std::string
-Rec::MuonPrintingTool::print(const xAOD::TrackParticle& tp) const
-{
+std::string Rec::MuonPrintingTool::print(const xAOD::TrackParticle& tp) const {
     std::ostringstream sout;
     sout << "  pt : " << tp.pt() << " eta : " << tp.eta() << " phi : " << tp.phi();
     return sout.str();
 }
 
-std::string
-Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
-{
-
+std::string Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const {
     std::ostringstream sout;
 
-    sout << "#####   Muon,  pt : " << muon.pt() << " eta : " << muon.eta() << " phi : " << muon.phi()
-         << " mass : " << muon.m() << " author " << muon.author() << " type : " << muon.muonType()
-         << " secondary authors: ";
+    sout << "#####   Muon,  pt : " << muon.pt() << " eta : " << muon.eta() << " phi : " << muon.phi() << " mass : " << muon.m()
+         << " author " << muon.author() << " type : " << muon.muonType() << " secondary authors: ";
     for (int a = 0; a < xAOD::Muon::NumberOfMuonAuthors; ++a) {
         xAOD::Muon::Author author = static_cast<xAOD::Muon::Author>(a);
         if (author != muon.author() && muon.isAuthor(author)) sout << " " << a;
@@ -89,11 +75,9 @@ Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
     if (muon.parameter(momentumBalanceSignificance, xAOD::Muon::momentumBalanceSignificance))
         sout << "  momentumBalanceSignificance : " << momentumBalanceSignificance << std::endl;
     float segmentDeltaEta = 0;
-    if (muon.parameter(segmentDeltaEta, xAOD::Muon::segmentDeltaEta))
-        sout << "  segmentDeltaEta : " << segmentDeltaEta << std::endl;
+    if (muon.parameter(segmentDeltaEta, xAOD::Muon::segmentDeltaEta)) sout << "  segmentDeltaEta : " << segmentDeltaEta << std::endl;
     float segmentDeltaPhi = 0;
-    if (muon.parameter(segmentDeltaPhi, xAOD::Muon::segmentDeltaPhi))
-        sout << "  segmentDeltaPhi : " << segmentDeltaPhi << std::endl;
+    if (muon.parameter(segmentDeltaPhi, xAOD::Muon::segmentDeltaPhi)) sout << "  segmentDeltaPhi : " << segmentDeltaPhi << std::endl;
     float segmentChi2OverDoF = 0;
     if (muon.parameter(segmentChi2OverDoF, xAOD::Muon::segmentChi2OverDoF))
         sout << "  segmentChi2OverDoF : " << segmentChi2OverDoF << std::endl;
@@ -110,43 +94,33 @@ Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
     float midAngle = 0;
     if (muon.parameter(midAngle, xAOD::Muon::midAngle)) sout << "  midAngle : " << midAngle << std::endl;
     float msInnerMatchChi2 = 0;
-    if (muon.parameter(msInnerMatchChi2, xAOD::Muon::msInnerMatchChi2))
-        sout << "  msInnerMatchChi2 : " << msInnerMatchChi2 << std::endl;
+    if (muon.parameter(msInnerMatchChi2, xAOD::Muon::msInnerMatchChi2)) sout << "  msInnerMatchChi2 : " << msInnerMatchChi2 << std::endl;
     int msInnerMatchDOF = 0;
-    if (muon.parameter(msInnerMatchDOF, xAOD::Muon::msInnerMatchDOF))
-        sout << "  msInnerMatchDOF : " << msInnerMatchDOF << std::endl;
+    if (muon.parameter(msInnerMatchDOF, xAOD::Muon::msInnerMatchDOF)) sout << "  msInnerMatchDOF : " << msInnerMatchDOF << std::endl;
     float msOuterMatchChi2 = 0;
-    if (muon.parameter(msOuterMatchChi2, xAOD::Muon::msOuterMatchChi2))
-        sout << "  msOuterMatchChi2 : " << msOuterMatchChi2 << std::endl;
+    if (muon.parameter(msOuterMatchChi2, xAOD::Muon::msOuterMatchChi2)) sout << "  msOuterMatchChi2 : " << msOuterMatchChi2 << std::endl;
     int msOuterMatchDOF = 0;
-    if (muon.parameter(msOuterMatchDOF, xAOD::Muon::msOuterMatchDOF))
-        sout << "  msOuterMatchDOF : " << msOuterMatchDOF << std::endl;
+    if (muon.parameter(msOuterMatchDOF, xAOD::Muon::msOuterMatchDOF)) sout << "  msOuterMatchDOF : " << msOuterMatchDOF << std::endl;
     float meanDeltaADCCountsMDT = 0;
     if (muon.parameter(meanDeltaADCCountsMDT, xAOD::Muon::meanDeltaADCCountsMDT))
         sout << "  meanDeltaADCCountsMDT : " << meanDeltaADCCountsMDT << std::endl;
     float CaloLRLikelihood = 0;
-    if (muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloLRLikelihood))
-        sout << "  CaloLRLikelihood : " << CaloLRLikelihood << std::endl;
+    if (muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloLRLikelihood)) sout << "  CaloLRLikelihood : " << CaloLRLikelihood << std::endl;
     float CaloMuonScore = 0;
-    if (muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloMuonScore))
-        sout << "  CaloMuonScore : " << CaloMuonScore << std::endl;
+    if (muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloMuonScore)) sout << "  CaloMuonScore : " << CaloMuonScore << std::endl;
     int CaloMuonIDTag = 0;
-    if (muon.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag))
-        sout << "  CaloMuonIDTag : " << CaloMuonIDTag << std::endl;
+    if (muon.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag)) sout << "  CaloMuonIDTag : " << CaloMuonIDTag << std::endl;
     float FSR_CandidateEnergy = 0;
     if (muon.parameter(FSR_CandidateEnergy, xAOD::Muon::FSR_CandidateEnergy))
         sout << "  FSR_CandidateEnergy : " << FSR_CandidateEnergy << std::endl;
     float EnergyLoss = 0;
     if (muon.parameter(EnergyLoss, xAOD::Muon::EnergyLoss)) sout << "  EnergyLoss : " << EnergyLoss << std::endl;
     float ParamEnergyLoss = 0;
-    if (muon.parameter(ParamEnergyLoss, xAOD::Muon::ParamEnergyLoss))
-        sout << "  ParamEnergyLoss : " << ParamEnergyLoss << std::endl;
+    if (muon.parameter(ParamEnergyLoss, xAOD::Muon::ParamEnergyLoss)) sout << "  ParamEnergyLoss : " << ParamEnergyLoss << std::endl;
     float MeasEnergyLoss = 0;
-    if (muon.parameter(MeasEnergyLoss, xAOD::Muon::MeasEnergyLoss))
-        sout << "  MeasEnergyLoss : " << MeasEnergyLoss << std::endl;
+    if (muon.parameter(MeasEnergyLoss, xAOD::Muon::MeasEnergyLoss)) sout << "  MeasEnergyLoss : " << MeasEnergyLoss << std::endl;
     float EnergyLossSigma = 0;
-    if (muon.parameter(EnergyLossSigma, xAOD::Muon::EnergyLossSigma))
-        sout << "  EnergyLossSigma : " << EnergyLossSigma << std::endl;
+    if (muon.parameter(EnergyLossSigma, xAOD::Muon::EnergyLossSigma)) sout << "  EnergyLossSigma : " << EnergyLossSigma << std::endl;
     float ParamEnergyLossSigmaPlus = 0;
     if (muon.parameter(ParamEnergyLossSigmaPlus, xAOD::Muon::ParamEnergyLossSigmaPlus))
         sout << "  ParamEnergyLossSigmaPlus : " << ParamEnergyLossSigmaPlus << std::endl;
@@ -160,15 +134,14 @@ Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
     //  if(muon.parameter(energyLossType, xAOD::Muon::EnergyLossType))
     sout << "  EnergyLossType : " << static_cast<int>(energyLossType) << std::endl;
 
-
-    uint8_t nprecisionLayers     = 0;
+    uint8_t nprecisionLayers = 0;
     uint8_t nprecisionHoleLayers = 0;
-    uint8_t nphiLayers           = 0;
-    uint8_t ntrigEtaLayers       = 0;
-    uint8_t nphiHoleLayers       = 0;
-    uint8_t ntrigEtaHoleLayers   = 0;
-    uint8_t mainSector           = 0;
-    uint8_t secondSector         = 0;
+    uint8_t nphiLayers = 0;
+    uint8_t ntrigEtaLayers = 0;
+    uint8_t nphiHoleLayers = 0;
+    uint8_t ntrigEtaHoleLayers = 0;
+    uint8_t mainSector = 0;
+    uint8_t secondSector = 0;
     if (muon.primaryTrackParticleLink().isValid()) {
         const xAOD::TrackParticle& tp = **muon.primaryTrackParticleLink();
         if (!tp.summaryValue(nprecisionLayers, xAOD::numberOfPrecisionLayers)) nprecisionLayers = 0;
@@ -182,11 +155,10 @@ Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
 
     if (!muon.summaryValue(mainSector, xAOD::primarySector)) mainSector = 0;
     if (!muon.summaryValue(secondSector, xAOD::secondarySector)) secondSector = 0;
-    sout << " Station Layers: precision " << static_cast<int>(nprecisionLayers) << " holes "
-         << static_cast<int>(nprecisionHoleLayers) << " phi " << static_cast<int>(nphiLayers) << " holes "
-         << static_cast<int>(nphiHoleLayers) << " trigEta " << static_cast<int>(ntrigEtaLayers) << " holes "
-         << static_cast<int>(ntrigEtaHoleLayers) << " main sector " << static_cast<int>(mainSector) << " secondary "
-         << static_cast<int>(secondSector) << std::endl;
+    sout << " Station Layers: precision " << static_cast<int>(nprecisionLayers) << " holes " << static_cast<int>(nprecisionHoleLayers)
+         << " phi " << static_cast<int>(nphiLayers) << " holes " << static_cast<int>(nphiHoleLayers) << " trigEta "
+         << static_cast<int>(ntrigEtaLayers) << " holes " << static_cast<int>(ntrigEtaHoleLayers) << " main sector "
+         << static_cast<int>(mainSector) << " secondary " << static_cast<int>(secondSector) << std::endl;
 
     bool printMeasurements = true;
 
@@ -207,7 +179,6 @@ Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
     }
 
     if (muon.inDetTrackParticleLink().isValid()) {
-
         const xAOD::TrackParticle* idtp = *muon.inDetTrackParticleLink();
         if (idtp) {
             sout << " --- InDet  ---  " << print(*idtp);
@@ -284,17 +255,10 @@ Rec::MuonPrintingTool::print(const xAOD::Muon& muon) const
     return sout.str();
 }
 
-
-std::string
-Rec::MuonPrintingTool::print(const xAOD::MuonContainer& muons) const
-{
-
-
+std::string Rec::MuonPrintingTool::print(const xAOD::MuonContainer& muons) const {
     std::ostringstream sout;
     sout << "Muon Container Size :" << muons.size() << std::endl;
 
-    for (auto m : muons) {
-        sout << print(*m);
-    }
+    for (const auto *m : muons) { sout << print(*m); }
     return sout.str();
 }

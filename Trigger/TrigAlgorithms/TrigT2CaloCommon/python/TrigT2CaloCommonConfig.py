@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc as _TrigCaloDataAccessSvc
 
@@ -9,7 +9,7 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
         super(TrigCaloDataAccessSvc, self).__init__(name)
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from AthenaCommon.GlobalFlags import globalflags
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         from AthenaCommon.Logging import logging
@@ -17,7 +17,8 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_TTEM, makeRegSelTool_TTHEC, makeRegSelTool_FCALEM, makeRegSelTool_FCALHAD, makeRegSelTool_TILE
         from AthenaCommon.AlgSequence import AthSequencer
-        from LArCabling.LArCablingAccess import LArOnOffIdMapping
+        from LArCabling.LArCablingAccess import LArOnOffIdMapping, LArFebRodMapping
+        LArFebRodMapping()
         LArOnOffIdMapping()
         self.RegSelToolEM = makeRegSelTool_TTEM()
         self.RegSelToolHEC = makeRegSelTool_TTHEC()
@@ -26,14 +27,19 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
         self.RegSelToolTILE = makeRegSelTool_TILE()
         condseq = AthSequencer('AthCondSeq')
         condseq.RegSelCondAlg_TTEM.RegSelLUT="ConditionStore+RegSelLUTCondData_TTEM"
+        from IOVDbSvc.CondDB import conddb
+        from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+        if conddb.isMC:
+           LArBadChannelAccess(dbString="<db>COOLOFL_LAR/OFLP200</db>/LAR/BadChannels/BadChannels")
+        else:
+           LArBadChannelAccess(dbString="<db>COOLONL_LAR/CONDBR2</db>/LAR/BadChannels/BadChannels")
 
-        if ( globalflags.DatabaseInstance == "COMP200" and TriggerFlags.doCaloOffsetCorrection() ) :
+        if ( globalflags.DatabaseInstance == "COMP200" and ConfigFlags.Trigger.calo.doOffsetCorrection ) :
             log.warning("Not possible to run BCID offset correction with COMP200")
         else:
-            if TriggerFlags.doCaloOffsetCorrection():
+            if ConfigFlags.Trigger.calo.doOffsetCorrection:
                 if globalflags.DataSource()=='data' and athenaCommonFlags.isOnline():
                     log.info('Enable HLT calo offset correction for data')
-                    from IOVDbSvc.CondDB import conddb
                     conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/OFC")
                     from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
                     svcMgr += LArFlatConditionSvc()

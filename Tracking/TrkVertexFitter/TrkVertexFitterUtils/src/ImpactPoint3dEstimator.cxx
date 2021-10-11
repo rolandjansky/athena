@@ -89,13 +89,13 @@ namespace Trk
       //store the plane...
       ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << momentumUnit);
 
-      auto thePlane = std::make_unique<Amg::Transform3D>(DeltaRcorrected, YDir, momentumUnit, *theVertex);
+      Amg::Transform3D thePlane(DeltaRcorrected, YDir, momentumUnit, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG
       std::cout << "the translation is, directly from Transform3d: " << thePlane->getTranslation() << endmsg;
 #endif
 
-      return std::make_unique<PlaneSurface>(std::move (thePlane));
+      return std::make_unique<PlaneSurface>(thePlane);
 
   }
 
@@ -274,14 +274,12 @@ namespace Trk
     //store the plane...
     ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << MomentumDir  );
 
-    auto thePlane = std::make_unique<Amg::Transform3D>(DeltaRcorrected, YDir, MomentumDir, *theVertex);
+    Amg::Transform3D thePlane(DeltaRcorrected, YDir, MomentumDir, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-    std::cout << "the translation is, directly from Transform3d: " << thePlane->getTranslation() << endmsg;
+    std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endmsg;
 #endif
-
-    return std::make_unique<PlaneSurface>(std::move(thePlane));
-
+    return std::make_unique<PlaneSurface>(thePlane);
   }//end of estimate 3dIP method
 
   bool 

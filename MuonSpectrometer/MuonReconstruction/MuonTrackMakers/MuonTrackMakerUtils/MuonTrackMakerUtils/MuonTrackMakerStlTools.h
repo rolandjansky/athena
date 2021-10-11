@@ -5,17 +5,12 @@
 #ifndef MUONTRACKMAKERSTLTOOLS_H
 #define MUONTRACKMAKERSTLTOOLS_H
 
-
 namespace Muon {
 
-  template<class T>
-  struct MuonDeleteObject {
-    void operator()( T* entry )
-    {
-      delete entry;
-    }
-  };
+    template <class T> struct MuonDeleteObject {
+        void operator()(T* entry) { delete entry; }
+    };
 
-}
+}  // namespace Muon
 
 #endif

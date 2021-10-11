@@ -70,7 +70,7 @@ StatusCode MdtDigitToMdtRDO::initialize()
   if ( m_BMGpresent ){
     ATH_MSG_INFO( "Processing configuration for layouts with BME chambers (stationID: "<<m_BMG_station_name<<")."  );
   }
-  
+  m_BIS_station_name = m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
   return StatusCode::SUCCESS;
 }
  
@@ -100,7 +100,16 @@ StatusCode MdtDigitToMdtRDO::execute(const EventContext& ctx) const {
       }
       
       if(!cabling_ptr->getOnlineId(name, eta, phi, 1, 1, tube_to_use,
-                                  subsystem, mrod, link, tdc, channel)){
+                                  subsystem, mrod, link, tdc, channel, msgStream())){
+        if (name == m_BMG_station_name){
+            if (!bmgWarningPrinted) {
+                ATH_MSG_WARNING("Apparently BMG chambers are disconnected to the cabling. "<<
+                               "This has been checked to only appear in mc16a-like setups as the chambers were installed in the end-of-the-year shutdown 2016. "<<
+                               "In any other case, be despaired in facing the villian and check what has gone wrong");
+                bmgWarningPrinted.store(true, std::memory_order_relaxed);                    
+            }
+            return nullptr;
+        }
         ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
         ATH_MSG_ERROR( name << " "
                             << eta << " " << phi << " "
@@ -141,6 +150,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
+  auto &msg = msgStream();
 
   // Iterate on the collections
   for ( const MdtDigitCollection* mdtCollection : *container) {
@@ -195,11 +205,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
         bool cabling = cabling_ptr->getOnlineId(name, eta, phi, 
                                                multilayer, layer, tube,
                                                subsystem, mrod, link, 
-                                               tdc, channel);
+                                               tdc, channel, msg);
 	            
        if (!cabling) {
           if (name == m_BMG_station_name) {
-                if (!bmgWarningPrinted){
+                if (!bmgWarningPrinted.load(std::memory_order_relaxed)){
                     ATH_MSG_WARNING("Apparently BMG chambers are disconnected to the cabling. "<<
                                     "This has been checked to only appear in mc16a-like setups as the chambers were installed in the end-of-the-year shutdown 2016. "<<
                                     "In any other case, be despaired in facing the villian and check what has gone wrong");
@@ -209,13 +219,13 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
           }
           // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
-          if (m_idHelperSvc->mdtIdHelper().stationName(channelId)==1 && m_idHelperSvc->issMdt(channelId)) {
+          if (m_idHelperSvc->mdtIdHelper().stationName(channelId)== m_BIS_station_name && m_idHelperSvc->issMdt(channelId)) {
                 unsigned int theLayer = (layer==4) ? 3 : layer;
                  if (!bisWarningPrinted) {
                     ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to "<<theLayer<<",1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
                     bisWarningPrinted.store(true, std::memory_order_relaxed);
                  }
-               cabling = cabling_ptr->getOnlineId(name, eta, phi, multilayer, theLayer, 1,subsystem, mrod, link, tdc, channel);
+               cabling = cabling_ptr->getOnlineId(name, eta, phi, multilayer, theLayer, 1,subsystem, mrod, link, tdc, channel, msg);
           }
           if (!cabling) {
                 ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );

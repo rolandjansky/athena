@@ -4,7 +4,7 @@ from .UnconventionalTrackingChainConfiguration import UnconventionalTrackingChai
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.generateChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
 

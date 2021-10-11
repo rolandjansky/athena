@@ -91,14 +91,19 @@ namespace Analysis {
         return false;
     }
 
-    const xAOD::Vertex* JpsiUpsilonCommon::ClosestRefPV(xAOD::BPhysHelper& bHelper,
+    Analysis::CleanUpVertex JpsiUpsilonCommon::ClosestRefPV(xAOD::BPhysHelper& bHelper,
 							const xAOD::VertexContainer* importedPVerticesCollection,
 							const Analysis::PrimaryVertexRefitter *pvRefitter){
        const xAOD::Vertex* vtx_closest = nullptr; // vertex closest to bVertex track
+       if(importedPVerticesCollection->empty()) return Analysis::CleanUpVertex(nullptr, false);
        double dc = 1e10;
+       std::vector<const xAOD::Vertex*> tocleanup;
+       if(pvRefitter) tocleanup.reserve(importedPVerticesCollection->size());
+       bool vertexrefitted = false;
        for (const xAOD::Vertex* PV : *importedPVerticesCollection) {
-	  const xAOD::Vertex* refPV = pvRefitter ? pvRefitter->refitVertex(PV, bHelper.vtx(), false) : nullptr;
-	  const xAOD::Vertex* vtx = refPV ? refPV : PV;
+          const xAOD::Vertex* refPV = pvRefitter ? pvRefitter->refitVertex(PV, bHelper.vtx(), false) : nullptr;
+          const xAOD::Vertex* vtx = refPV ? refPV : PV;
+          if(refPV) tocleanup.push_back(refPV);
           TVector3 posPV(vtx->position().x(),vtx->position().y(),vtx->position().z());
           auto &helperpos = bHelper.vtx()->position();
           TVector3 posV(helperpos.x(), helperpos.y(), helperpos.z());
@@ -109,9 +114,13 @@ namespace Analysis {
           if (d<dc) {
              dc = d;
              vtx_closest = vtx;
+             vertexrefitted = (vtx_closest == refPV);
           }
        }
-       return vtx_closest;
+       for(auto ptr : tocleanup){
+           if(ptr != vtx_closest) delete ptr;
+       }
+       return Analysis::CleanUpVertex(vtx_closest, vertexrefitted);
     }
 }
 

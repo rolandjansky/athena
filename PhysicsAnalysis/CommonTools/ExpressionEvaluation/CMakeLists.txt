@@ -20,7 +20,7 @@ atlas_add_library( ExpressionEvaluationLib
 	   # atlas_add_component( ExpressionEvaluation
 	   #          src/components/*.cxx
 	   #          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-	   #:          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers SGTools StoreGateLib SGtests GaudiKernel TrigDecisionToolLib xAODBTagging xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMissingET xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth ExpressionEvaluationLib )
+	   #:          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers SGTools StoreGateLib GaudiKernel TrigDecisionToolLib xAODBTagging xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMissingET xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth ExpressionEvaluationLib )
 
 atlas_add_test( ExpressionParser_test
                 SOURCES test/ExpressionParser_test.cxx

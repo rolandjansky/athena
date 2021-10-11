@@ -6,12 +6,6 @@
 #include <forward_list>
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "AthenaKernel/IOVInfiniteRange.h"
-
-CaloNoiseCondAlg::CaloNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_condSvc("CondSvc",name)
-{}
 
 StatusCode CaloNoiseCondAlg::initialize() {
 
@@ -79,16 +73,16 @@ StatusCode CaloNoiseCondAlg::initialize() {
 }
 
 
-StatusCode CaloNoiseCondAlg::execute() {
+StatusCode CaloNoiseCondAlg::execute(const EventContext& ctx) const {
 
   //Set up write handle
-  SG::WriteCondHandle<CaloNoise> writeHandle{m_outputKey};
+  SG::WriteCondHandle<CaloNoise> writeHandle{m_outputKey,ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   writeHandle.addDependency(cablingHdl);
   ATH_MSG_DEBUG("Range of LArCabling " << cablingHdl.getRange() << ", intersection:" << writeHandle.getRange());
@@ -97,21 +91,21 @@ StatusCode CaloNoiseCondAlg::execute() {
 
   if (!m_larNoiseKey.key().empty()) {
     //Separete LAr/Tile folder
-    SG::ReadCondHandle<CondAttrListCollection> larNoiseHdl{m_larNoiseKey};
+    SG::ReadCondHandle<CondAttrListCollection> larNoiseHdl{m_larNoiseKey,ctx};
     attrListNoise.push_back(*larNoiseHdl);
     writeHandle.addDependency(larNoiseHdl);
     ATH_MSG_DEBUG("Range of LArNoise " << larNoiseHdl.getRange() << ", intersection:" << writeHandle.getRange());
   }
 
   if (!m_tileNoiseKey.key().empty()) {
-    SG::ReadCondHandle<CondAttrListCollection> tileNoiseHdl{m_tileNoiseKey};
+    SG::ReadCondHandle<CondAttrListCollection> tileNoiseHdl{m_tileNoiseKey,ctx};
     attrListNoise.push_back(*tileNoiseHdl);
      writeHandle.addDependency(tileNoiseHdl);
      ATH_MSG_DEBUG("Range of TileNoise " << tileNoiseHdl.getRange() << ", intersection:" <<  writeHandle.getRange());
   }
 
   if (!m_caloNoiseKey.key().empty()) {
-    SG::ReadCondHandle<CondAttrListCollection> caloNoiseHdl{m_caloNoiseKey};
+    SG::ReadCondHandle<CondAttrListCollection> caloNoiseHdl{m_caloNoiseKey,ctx};
     attrListNoise.push_back(*caloNoiseHdl);
     writeHandle.addDependency(caloNoiseHdl);
     ATH_MSG_DEBUG("Range of CaloNoise " << caloNoiseHdl.getRange() << ", intersection:" << writeHandle.getRange());
@@ -134,7 +128,7 @@ StatusCode CaloNoiseCondAlg::execute() {
   //Get LAr HVScale Corr (if requested)
   const ILArHVScaleCorr* larHVCorr=nullptr;
   if (m_useHVCorr) {
-    SG::ReadCondHandle<ILArHVScaleCorr> larHVCorrHdl{m_hvCorrKey};
+    SG::ReadCondHandle<ILArHVScaleCorr> larHVCorrHdl{m_hvCorrKey,ctx};
     larHVCorr=*larHVCorrHdl;
      writeHandle.addDependency(larHVCorrHdl);
      ATH_MSG_DEBUG("Range of LArHVScale " << larHVCorrHdl.getRange() << ", intersection:" << writeHandle.getRange());
@@ -143,7 +137,7 @@ StatusCode CaloNoiseCondAlg::execute() {
   //Get Luminosity:
   float lumi=m_lumi0;
   if (m_lumi0<0) {    
-    SG::ReadCondHandle<CondAttrListCollection> lumiHdl{m_lumiFolderKey};
+    SG::ReadCondHandle<CondAttrListCollection> lumiHdl{m_lumiFolderKey,ctx};
     const CondAttrListCollection* lumiAttrListColl=*lumiHdl;
     writeHandle.addDependency(lumiHdl);
     ATH_MSG_DEBUG("Range of Luminosity " << lumiHdl.getRange() << ", intersection:" << writeHandle.getRange() );

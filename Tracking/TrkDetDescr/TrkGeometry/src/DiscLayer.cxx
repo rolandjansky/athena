@@ -18,51 +18,66 @@
 // CLHEP
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform, Trk::DiscBounds* dbounds,
+Trk::DiscLayer::DiscLayer(const Amg::Transform3D& transform,
+                          Trk::DiscBounds* dbounds,
                           const Trk::LayerMaterialProperties& laymatprop,
-                          double thickness, Trk::OverlapDescriptor* olap,
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
                           int laytyp)
-    : DiscSurface(transform, dbounds),
-      Layer(laymatprop, thickness, olap, laytyp),
-      m_approachDescriptor(nullptr) {
+  : DiscSurface(transform, dbounds)
+  , Layer(laymatprop, thickness, olap, laytyp)
+  , m_approachDescriptor(nullptr)
+{
   DiscSurface::associateLayer(*this);
 }
 
 Trk::DiscLayer::DiscLayer(Trk::DiscSurface* disc,
                           const Trk::LayerMaterialProperties& laymatprop,
-                          double thickness, Trk::OverlapDescriptor* olap,
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
                           int laytyp)
-    : DiscSurface(*disc),
-      Layer(laymatprop, thickness, olap, laytyp),
-      m_approachDescriptor(nullptr) {
+  : DiscSurface(*disc)
+  , Layer(laymatprop, thickness, olap, laytyp)
+  , m_approachDescriptor(nullptr)
+{
   DiscSurface::associateLayer(*this);
 }
 
-Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform, Trk::DiscBounds* dbounds,
-                          Trk::SurfaceArray* surfaceArray, double thickness,
+Trk::DiscLayer::DiscLayer(const Amg::Transform3D& transform,
+                          Trk::DiscBounds* dbounds,
+                          Trk::SurfaceArray* surfaceArray,
+                          double thickness,
                           Trk::OverlapDescriptor* olap,
-                          Trk::IApproachDescriptor* ades, int laytyp)
-    : DiscSurface(transform, dbounds),
-      Layer(surfaceArray, thickness, olap, laytyp),
-      m_approachDescriptor(ades) {
+                          Trk::IApproachDescriptor* ades,
+                          int laytyp)
+  : DiscSurface(transform, dbounds)
+  , Layer(surfaceArray, thickness, olap, laytyp)
+  , m_approachDescriptor(ades)
+{
   DiscSurface::associateLayer(*this);
   if (!ades && surfaceArray) buildApproachDescriptor();
   // register the layer
   if (ades) m_approachDescriptor->registerLayer(*this);
 }
 
-Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform, Trk::DiscBounds* dbounds,
+Trk::DiscLayer::DiscLayer(const Amg::Transform3D& transform,
+                          Trk::DiscBounds* dbounds,
                           Trk::SurfaceArray* surfaceArray,
                           const Trk::LayerMaterialProperties& laymatprop,
-                          double thickness, Trk::OverlapDescriptor* olap,
-                          Trk::IApproachDescriptor* ades, int laytyp)
-    : DiscSurface(transform, dbounds),
-      Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
-      m_approachDescriptor(ades) {
+                          double thickness,
+                          Trk::OverlapDescriptor* olap,
+                          Trk::IApproachDescriptor* ades,
+                          int laytyp)
+  : DiscSurface(transform, dbounds)
+  , Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
+  , m_approachDescriptor(ades)
+{
   DiscSurface::associateLayer(*this);
-  if (!ades && surfaceArray) buildApproachDescriptor();
+  if (!ades && surfaceArray)
+    buildApproachDescriptor();
   // register the layer
-  if (ades) m_approachDescriptor->registerLayer(*this);
+  if (ades)
+    m_approachDescriptor->registerLayer(*this);
 }
 
 Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay)
@@ -221,10 +236,10 @@ void Trk::DiscLayer::buildApproachDescriptor() {
       dynamic_cast<const Trk::DiscBounds*>(m_bounds.get());
   if (db) {
     // create new surfaces
-    Amg::Transform3D* asnTransform =
-        new Amg::Transform3D(Amg::Translation3D(asnPosition));
-    Amg::Transform3D* aspTransform =
-        new Amg::Transform3D(Amg::Translation3D(aspPosition));
+    Amg::Transform3D asnTransform =
+      Amg::Transform3D(Amg::Translation3D(asnPosition));
+    Amg::Transform3D aspTransform =
+      Amg::Transform3D(Amg::Translation3D(aspPosition));
     aSurfaces->push_back(new Trk::DiscSurface(aspTransform, db->clone()));
     aSurfaces->push_back(new Trk::DiscSurface(asnTransform, db->clone()));
     // set the layer and make TGOwn

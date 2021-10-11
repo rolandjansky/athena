@@ -39,19 +39,19 @@ class PixeldEdxData {
     double getdEdx(const double p, const double mass, const std::array<double,9> & par) const;
 
     // Crystal Ball distribution
-    double crystalBall(const double x, const double x0,const double sig,const double alp,const double n) const;
+    static double crystalBall(const double x, const double x0,const double sig,const double alp,const double n) ;
     // Asymetric Gaussian distribution
-    double asymGaus(const double x,const double x0,const double sig,const double asym) const;
+    static double asymGaus(const double x,const double x0,const double sig,const double asym) ;
     // Moyal distribution
-    double moyal(const double x,const double Ep,const double R) const;
+    static double moyal(const double x,const double Ep,const double R) ;
 
-    double dEdx_5p_BG_aleph(const double xbg, const std::array<double,9>& pp) const;
-    double dEdx_5p_aleph(const double p,double mass, const std::array<double,9>& pp) const;
-    double dEdx_5p_BG(const double xbg, const std::array<double,9>& pp) const;
-    double dEdx_5p(const double p,const double mass, const std::array<double,9>& pp) const;
-    double dEdx_BG(const double xbg, const std::array<double,9>& pp) const;
-    double dEdx_def(const double p,const double mass, const std::array<double,9>& pp) const;
-    double dEdx_3p(const double p, const double mass, const std::array<double,9>& pp) const;
+    static double dEdx_5p_BG_aleph(const double xbg, const std::array<double,9>& pp) ;
+    static double dEdx_5p_aleph(const double p,double mass, const std::array<double,9>& pp) ;
+    static double dEdx_5p_BG(const double xbg, const std::array<double,9>& pp) ;
+    static double dEdx_5p(const double p,const double mass, const std::array<double,9>& pp) ;
+    static double dEdx_BG(const double xbg, const std::array<double,9>& pp) ;
+    static double dEdx_def(const double p,const double mass, const std::array<double,9>& pp) ;
+    static double dEdx_3p(const double p, const double mass, const std::array<double,9>& pp) ;
 
     std::vector<float> getLikelihoods(const double dedx2, const double p2, const int nGoodPixels) const;
 

@@ -36,17 +36,13 @@ topSequence += theLArRawChannelBuilder
 # The first tool filters out bad channels
 from LArROD.LArRODConf import LArRawChannelBuilderToolBadChannelTool
 theLArRawChannelBuilderToolBadChannel=LArRawChannelBuilderToolBadChannelTool()
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-theLArRCBMasker.DoMasking=True
-theLArRCBMasker.ProblemsToMask=[
+
+theLArRawChannelBuilderToolBadChannel.ProblemsToMask=[
     "deadReadout","deadPhys","almostDead","short",
     "lowNoiseHG","highNoiseHG","unstableNoiseHG",
     "lowNoiseMG","highNoiseMG","unstableNoiseMG",
     "lowNoiseLG","highNoiseLG","unstableNoiseLG"
     ]
-ToolSvc+=theLArRCBMasker
-theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
 theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel]
 ToolSvc+=theLArRawChannelBuilderToolBadChannel
 
@@ -70,14 +66,12 @@ theLArRawChannelBuilderPedestalDataBase.LArPedestalKey = "Pedestal"
 theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase]
 theLArRawChannelBuilder += theLArRawChannelBuilderPedestalDataBase
 
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theLArADC2MeVTool=LArADC2MeVToolDefault()
-ToolSvc+=theLArADC2MeVTool
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
 from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
 theLArRawChannelBuilderADC2EDataBase=LArRawChannelBuilderADC2EDataBase()
 theLArRawChannelBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase]
-theLArRawChannelBuilderADC2EDataBase.ADC2MeVTool = theLArADC2MeVTool
 theLArRawChannelBuilder += theLArRawChannelBuilderADC2EDataBase
 
 from LArRecUtils.LArRecUtilsConf import LArOFPeakRecoTool

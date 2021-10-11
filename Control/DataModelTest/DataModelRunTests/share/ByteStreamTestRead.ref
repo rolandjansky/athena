@@ -24,14 +24,13 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3269 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 8126 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
-ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
-ByteStreamAddre...   INFO initialized 
+ByteStreamAddre...   INFO Initializing
 ByteStreamAddre...   INFO -- Will fill Store with id =  0
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
@@ -44,14 +43,14 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
+ToolSvc.ByteStr...   INFO Initializing
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool','ByteStreamMetadataTool'])
 ClassIDSvc           INFO  getRegistryEntries: read 3346 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
-ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ByteStreamInputSvc   INFO Initializing
+ROBDataProviderSvc   INFO Initializing
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0

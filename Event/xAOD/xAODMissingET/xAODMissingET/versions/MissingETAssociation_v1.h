@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_v1_H
@@ -29,7 +29,7 @@ namespace xAOD
   {
   public:
 
-    static bool testPolicy(unsigned int type, MissingETBase::UsageHandler::Policy p);
+    static bool testPolicy(const xAOD::IParticle& part, MissingETBase::UsageHandler::Policy p);
 
     /*! @brief Vector sum of constituents for subtractive overlap removal */                                                                                                            
     class ConstVec
@@ -235,7 +235,7 @@ namespace xAOD
 		     const std::vector<unsigned char>& overlapTypes);  /*!< @brief Set overlap indices and types for a given contributing object referenced by pointer */
     bool setOverlaps(size_t objIdx,const std::vector<size_t>& overlapIndices,
 		     const std::vector<unsigned char>& overlapTypes);           /*!< @brief Set overlap indices and types for a given contributing object referenced by index */
-    void setOverrideMom(std::map<const IParticle*,ConstVec> pOverride);         /*!< @brief Set override momenta */
+    void setOverrideMom(const std::map<const IParticle*,ConstVec>& pOverride);         /*!< @brief Set override momenta */
     std::map<const IParticle*,ConstVec> overrideMom();                          /*!< @brief Get override momenta */
     void addOverrideMom(std::map<const IParticle*,ConstVec> &pOverride);        /*!< @brief Extend override momentum map */
 
@@ -354,6 +354,9 @@ namespace xAOD
     /*!@}*/
 
   protected:
+
+    static bool testPolicy(xAOD::Type::ObjectType type, MissingETBase::UsageHandler::Policy p);
+
     /// Function initialising the object to work in standalone mode
     void createPrivateStore();
 

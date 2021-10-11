@@ -42,6 +42,14 @@ def TrigTauMonitoringTool():
         
 
         MVA_chains = [
+              # Run 2 data reprocessing
+              'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+              'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+              'tau80_mediumRNN_tracktwoMVA_L1TAU60_tau35_mediumRNN_tracktwoMVA_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+              'tau60_medium1_tracktwoEF_tau25_medium1_tracktwoEF_xe50',
+              'tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50',
+              'tau35_mediumRNN_tracktwoMVA_xe70_L1XE45',
+              #  Run 3
               'tau25_idperf_tracktwoMVA_L1TAU12IM',
               'tau25_idperf_tracktwoMVABDT_L1TAU12IM',
               'tau25_perf_tracktwoMVA_L1TAU12IM',
@@ -52,42 +60,76 @@ def TrigTauMonitoringTool():
               'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
               'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
               'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-              'tau35_idperf_tracktwoMVA_L1TAU12IM',
-              'tau35_idperf_tracktwoMVABDT_L1TAU12IM',
-              'tau35_perf_tracktwoMVA_L1TAU12IM',
-              'tau35_perf_tracktwoMVABDT_L1TAU12IM',
-              'tau35_looseRNN_tracktwoMVA_L1TAU12IM',
-              'tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
-              'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
-              'tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-              'tau35_tightRNN_tracktwoMVA_L1TAU12IM',
-              'tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',     
+              'tau35_idperf_tracktwoMVA_L1TAU20IM',
+              'tau35_idperf_tracktwoMVABDT_L1TAU20IM',
+              'tau35_perf_tracktwoMVA_L1TAU20IM',
+              'tau35_perf_tracktwoMVABDT_L1TAU20IM',
+              'tau35_looseRNN_tracktwoMVA_L1TAU20IM',
+              'tau35_looseRNN_tracktwoMVABDT_L1TAU20IM',
+              'tau35_mediumRNN_tracktwoMVA_L1TAU20IM',
+              'tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
+              'tau35_tightRNN_tracktwoMVA_L1TAU20IM',
+              'tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',     
               'tau160_idperf_tracktwoMVA_L1TAU100',
               'tau160_idperf_tracktwoMVABDT_L1TAU100',
               'tau160_perf_tracktwoMVA_L1TAU100',
               'tau160_perf_tracktwoMVABDT_L1TAU100',
               'tau160_mediumRNN_tracktwoMVA_L1TAU100',
               'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
+              'tau180_mediumRNN_tracktwoLLP_L1TAU100',
+              'tau180_tightRNN_tracktwoLLP_L1TAU100',
+              'tau200_mediumRNN_tracktwoLLP_L1TAU100',
+              'tau200_tightRNN_tracktwoLLP_L1TAU100',
+              # Phase-I
+              'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+              'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+              'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+              'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
         ]
 
         RNN_chains = [
+             # Run 2 data reprocessing
+             'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+             'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+             'tau80_mediumRNN_tracktwoMVA_L1TAU60_tau35_mediumRNN_tracktwoMVA_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
+             'tau60_medium1_tracktwoEF_tau25_medium1_tracktwoEF_xe50',
+             'tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50',
+             'tau35_mediumRNN_tracktwoMVA_xe70_L1XE45',
+             #  Run 3
              'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
              'tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
              'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
              'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
              'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
              'tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-             'tau35_looseRNN_tracktwoMVA_L1TAU12IM',
-             'tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
-             'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
-             'tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-             'tau35_tightRNN_tracktwoMVA_L1TAU12IM',
-             'tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
+             'tau35_looseRNN_tracktwoMVA_L1TAU20IM',
+             'tau35_looseRNN_tracktwoMVABDT_L1TAU20IM',
+             'tau35_mediumRNN_tracktwoMVA_L1TAU20IM',
+             'tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
+             'tau35_tightRNN_tracktwoMVA_L1TAU20IM',
+             'tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
              'tau160_mediumRNN_tracktwoMVA_L1TAU100',
-             'tau160_mediumRNN_tracktwoMVABDT_L1TAU100', 
+             'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
+             'tau180_mediumRNN_tracktwoLLP_L1TAU100',
+             'tau180_tightRNN_tracktwoLLP_L1TAU100',
+             'tau200_mediumRNN_tracktwoLLP_L1TAU100',
+             'tau200_tightRNN_tracktwoLLP_L1TAU100',
+             # Phase-I
+             'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+             'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+             'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+             'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
         ]
 
         BDTRNN_chains = [
+             # Run 2 data reprocessing
+             'tau25_idperf_tracktwo',
+             'tau25_idperf_tracktwoEF',
+             'tau25_idperf_tracktwoMVA',
+             'tau25_perf_tracktwo',
+             'tau25_perf_tracktwoEF',
+             'tau25_perf_tracktwoMVA', 
+             # Run 3
              'tau0_idperf_tracktwoMVA_L1eTAU12',
              'tau0_idperf_tracktwoMVA_L1eTAU5',
              'tau0_ptonly_L1TAU8',
@@ -103,17 +145,17 @@ def TrigTauMonitoringTool():
              'tau25_perf_tracktwoEF_L1TAU12IM',
              'tau25_perf_tracktwoMVA_L1TAU12IM',
              'tau25_perf_tracktwoMVABDT_L1TAU12IM',
-             'tau35_ptonly_L1TAU12IM',
-             'tau35_idperf_track_L1TAU12IM',
-             'tau35_idperf_tracktwo_L1TAU12IM',
-             'tau35_idperf_tracktwoEF_L1TAU12IM',
-             'tau35_idperf_tracktwoMVA_L1TAU12IM',
-             'tau35_idperf_tracktwoMVABDT_L1TAU12IM',
-             'tau35_perf_track_L1TAU12IM',
-             'tau35_perf_tracktwo_L1TAU12IM',
-             'tau35_perf_tracktwoEF_L1TAU12IM',
-             'tau35_perf_tracktwoMVA_L1TAU12IM',
-             'tau35_perf_tracktwoMVABDT_L1TAU12IM',            
+             'tau35_ptonly_L1TAU20IM',
+             'tau35_idperf_track_L1TAU20IM',
+             'tau35_idperf_tracktwo_L1TAU20IM',
+             'tau35_idperf_tracktwoEF_L1TAU20IM',
+             'tau35_idperf_tracktwoMVA_L1TAU20IM',
+             'tau35_idperf_tracktwoMVABDT_L1TAU20IM',
+             'tau35_perf_track_L1TAU20IM',
+             'tau35_perf_tracktwo_L1TAU20IM',
+             'tau35_perf_tracktwoEF_L1TAU20IM',
+             'tau35_perf_tracktwoMVA_L1TAU20IM',
+             'tau35_perf_tracktwoMVABDT_L1TAU20IM',            
              'tau160_ptonly_L1TAU100',
              'tau160_idperf_track_L1TAU100',
              'tau160_idperf_tracktwo_L1TAU100',
@@ -124,8 +166,14 @@ def TrigTauMonitoringTool():
              'tau160_perf_tracktwo_L1TAU100',
              'tau160_perf_tracktwoEF_L1TAU100',
              'tau160_perf_tracktwoMVA_L1TAU100',
-             'tau160_perf_tracktwoMVABDT_L1TAU100', 
+             'tau160_perf_tracktwoMVABDT_L1TAU100',
+             'tau180_mediumRNN_tracktwoLLP_L1TAU100',
+             'tau180_tightRNN_tracktwoLLP_L1TAU100',
+             'tau200_mediumRNN_tracktwoLLP_L1TAU100',
+             'tau200_tightRNN_tracktwoLLP_L1TAU100',
+
         ]
+
 
         tau_topo_support_chains = [
 
@@ -143,22 +191,19 @@ def TrigTauMonitoringTool():
 #       ]
 
         ztt_RNN_tau = [
-                'tau25_mediumRNN_tracktwoMVA',
+                'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
         ]
         ztt_BDT_tau = [
-                'tau25_medium1_tracktwoEF',
+                'tau25_medium1_tracktwoEF_L1TAU12IM',
         ]
         # removed ztt_tau chains
         # 'tau25_idperf_tracktwo',
         # 'tau25_perf_tracktwo',
 
         highpt_tau = [
-                'tau80_medium1_tracktwo_L1TAU60',
-                'tau160_idperf_tracktwo',
-                'tau160_medium1_tracktwo',
-                'tau160_medium1HighptL_tracktwo',
-                'tau160_medium1HighptM_tracktwo',
-                'tau160_medium1HighptH_tracktwo'
+          'tau160_idperf_tracktwo_L1TAU100',
+          'tau160_mediumRNN_tracktwoMVA_L1TAU100',
+          'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
         ]
 
         # get the Level1 Emulation tool from the emulation python config

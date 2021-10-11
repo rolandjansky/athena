@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -45,7 +45,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     virtual StatusCode checkHists(bool fromFinalize) override;
 
     void bookHists(int ros, int drawer);
-    void drawHists(int ros, int drawer, std::string moduleName);
+    void drawHists(int ros, int drawer, const std::string& moduleName);
 
     virtual const uint8_t* stuckBitProb (int ros, int module, int channel, int gain) const override;
     virtual void saveStuckBitsProbabilities(TTree* tree) override;
@@ -59,7 +59,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     /** A crude method to check  Read-Out ADC channel stuckbits.
      */
     int stuckBits_Amp(TH1S *hist, int adc);
-    int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0, uint8_t *stuck_probs = NULL);
+    int stuckBits_Amp2(TH1S *hist, TH1C *modhist, int adc, TH2C *outhist = NULL, int ch = 0, uint8_t *stuck_probs = NULL);
     /** Method to check global CRC and DMU CRC.
      */
     void CRCcheck(const TileDQstatus* dqStatus,
@@ -122,7 +122,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     const uint32_t* m_cispar;
 
     bool m_bigain;
-    int m_nEvents;
+    int m_nEventsTileMon;
     int m_nSamples;
     // Factor these out to avoid triggering the ubsan sanity checks.
     struct Data {
@@ -144,6 +144,7 @@ class TileDigitsMonTool: public TilePaterMonTool
       //Pointers to Histograms
       std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
       std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+      std::vector<TH1C *> m_histC[5][64][48][2]; // ros,drawer,channel,gain
       std::vector<TH1I *> m_hist_DMUerr[5][64][48][2]; // ros,drawer,channel,gain for DMU BCID/CRC errors
       std::vector<TH2F *> m_hist2[5][64][2];
       std::vector<TProfile *> m_histP[5][64][48][2];
@@ -174,6 +175,9 @@ class TileDigitsMonTool: public TilePaterMonTool
 
     bool m_is12bit;
     int m_shiftnbins;
+
+    int m_zeroLimitHG;
+    int m_saturationLimitHG;
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };

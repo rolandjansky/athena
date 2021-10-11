@@ -29,9 +29,10 @@ class SiHitIdHelper : HitIdHelper {
   static const SiHitIdHelper* GetHelper();
   //
   // Info retrieval:
-  // Pixel or SCT
+  // Pixel, SCT, or HGTD
   bool isPixel(const int& hid) const;
   bool isSCT(const int& hid) const;
+  bool isHGTD(const int& hid) const;
 
   // Barrel or Endcap
   int getBarrelEndcap(const int& hid) const;

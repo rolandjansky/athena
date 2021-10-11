@@ -466,8 +466,7 @@ if InDetTrigFlags.loadFitter():
                                                  Acceleration          = True,
                                                  #Momentum=1000.,
                                                  Momentum=0.,
-                                                 TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
-                                                 )
+                                                 TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
     if InDetTrigFlags.useBroadClusterErrors():
       InDetTrigTrackFitter.RecalibrateSilicon = False
 
@@ -501,8 +500,8 @@ if InDetTrigFlags.loadFitter():
                                                       TRTExtensionCuts      = True, 
                                                       MaxIterations         = 40,
                                                       Momentum=0.,
-                                                      TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
-                                                      )
+                                                      TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '',
+                                                      TrackingGeometrySvc    = AtlasTrackingGeometrySvc)
     ToolSvc += InDetTrigTrackFitterLowPt
 
 
@@ -527,8 +526,8 @@ if InDetTrigFlags.loadFitter():
                               MaxOutliers           = 99,
                               RecalculateDerivatives = True,
                               Momentum=1000,
-                              TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
-                              )
+                              TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '',
+                              TrackingGeometrySvc   = AtlasTrackingGeometrySvc)
     InDetTrigTrackFitterCosmics.Acceleration       = False
     ToolSvc += InDetTrigTrackFitterCosmics
 
@@ -546,8 +545,8 @@ if InDetTrigFlags.loadFitter():
                                                     RecalculateDerivatives= True,
                                                     TrackChi2PerNDFCut    = 999999,
                                                     Momentum=0.,
-                                                    TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
-                                                    )
+                                                    TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '',
+                                                    TrackingGeometrySvc   = AtlasTrackingGeometrySvc)
     if InDetTrigFlags.doRobustReco():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             

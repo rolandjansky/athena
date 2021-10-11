@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRecTools/JetTrackSelectionTool.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 JetTrackSelectionTool::JetTrackSelectionTool(const std::string &name):
   asg::AsgTool(name), m_hidselector("",this) {

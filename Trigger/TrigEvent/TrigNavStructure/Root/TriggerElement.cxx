@@ -188,7 +188,7 @@ void TriggerElement::deserialize( std::vector<uint32_t>::const_iterator& inputIt
 
     std::map<uint16_t, TriggerElement*>::const_iterator id;
     unsigned relationsCount = 0;
-    uint16_t key;
+    uint16_t key{0};
     for ( unsigned int i = 0 ; i < size; ++i ) {
 	extractUint16FromUint32Vector(inputIt, key, relationsCount); // extract the key from the payload
 	++relationsCount;

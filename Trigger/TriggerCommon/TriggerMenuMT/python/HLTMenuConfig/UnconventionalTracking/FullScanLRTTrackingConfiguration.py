@@ -5,7 +5,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.Logging import logging
 
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.FullScanLRTConfiguration")
+log = logging.getLogger(__name__)
 
 
 def FullScanLRTTriggerSequence(ConfigFlags):
@@ -14,14 +14,18 @@ def FullScanLRTTriggerSequence(ConfigFlags):
     lrtcfg = getInDetTrigConfig( 'fullScanLRT' )
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    reco_algs = makeInDetAlgsNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
+    ft_reco_algs = makeInDetAlgsNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
     im_alg = getTrackingInputMaker()
 
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
 
-    TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, reco_algs])
-    sequenceOut = lrtcfg.tracks_FTF()
+    tracks_name, track_particles_names, pt_reco_algs = makeInDetPrecisionTracking(config = lrtcfg, rois = trkFSRoI)
+
+
+    TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, ft_reco_algs, pt_reco_algs])
+    sequenceOut = track_particles_names[0]
 
     return (TrkSeq,im_alg, sequenceOut)
 

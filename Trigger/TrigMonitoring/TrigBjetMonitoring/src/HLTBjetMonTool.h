@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************
@@ -19,11 +19,6 @@
 #include <string>
 #include <vector>
 #include <map>
-
-
-
-#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
-
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -57,8 +52,6 @@ class HLTBjetMonTool : public IHLTMonTool {
 
 
  private:
-
-  ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
 
   std::vector<std::string> m_TriggerChainBjet, m_TriggerChainMujet;
   std::vector<std::string> m_TriggerChainBjet_x, m_TriggerChainMujet_x;

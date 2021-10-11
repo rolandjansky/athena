@@ -7,7 +7,7 @@ atlas_subdir( AthExJobOptions )
 atlas_add_component( AthExJobOptions
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests EventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib EventInfo )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@ DerivationFramework::TruthIsolationTool::TruthIsolationTool(const std::string& t
         const std::string& n,
         const IInterface* p ) :
   AthAlgTool(t,n,p),
-  m_coneSizesSort(0),
-  m_coneSizes2(0)
+  m_coneSizesSort(nullptr),
+  m_coneSizes2(nullptr)
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty ("isoParticlesKey",
@@ -91,7 +91,7 @@ StatusCode DerivationFramework::TruthIsolationTool::addBranches() const
       std::ostringstream sizess;
       if (m_variableR) sizess << "var";
       sizess << m_isoVarNamePrefix << (int)((csize_itr)*100.);
-      decorators_iso.push_back( SG::AuxElement::Decorator< float >(sizess.str()) );
+      decorators_iso.emplace_back(sizess.str() );
     }
 
     //get struct of helper functions
@@ -164,7 +164,7 @@ void DerivationFramework::TruthIsolationTool::calcIsos(const xAOD::TruthParticle
     return;
 }
 
-float DerivationFramework::TruthIsolationTool::calculateDeltaR2(const xAOD::IParticle *p1, float eta2, float phi2) const
+float DerivationFramework::TruthIsolationTool::calculateDeltaR2(const xAOD::IParticle *p1, float eta2, float phi2) 
 {
   //calculate dR^2 this way to hopefully do fewer sqrt and TVector3::Pseudorapidity calls
   float phi1 = p1->phi();

@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LArPhysWaveBuilder.h,v 1.6 2006-11-07 11:31:36 mdelmast Exp $
 /**
  * @file  LArCalibUtils/LArPhysWaveBuilder.h
  * @brief Build LAr wave shapes from real data.
@@ -30,6 +29,7 @@
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
 #include <vector>
@@ -39,7 +39,6 @@
 class LArPhysWave;
 class LArPhysWaveContainer;
 class LArParabolaPeakRecoTool;
-class ILArADC2MeVTool;
 class ILArPhaseTool;
 class TH1F;
 class TH2F;
@@ -59,13 +58,13 @@ class LArPhysWaveBuilder : public AthAlgorithm
   LArPhysWaveBuilder(const std::string & name, ISvcLocator * pSvcLocator);
 
   /// Destructor.
-  ~LArPhysWaveBuilder();
+  virtual ~LArPhysWaveBuilder();
 
   /// Standard algorithm methods.
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode stop();
-  StatusCode finalize(){ return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override { return StatusCode::SUCCESS;}
 
   /// ===  Constants.
   /// Number of distinct gain values.
@@ -79,6 +78,9 @@ private:
    
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+    { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
+
   /// === Private methods
   /// Make the wave container from the accumulated waves.
   StatusCode make_container (std::unique_ptr<LArPhysWaveContainer>& larPhysWaveContainer);
@@ -89,9 +91,6 @@ private:
   /// === Services & Tools 
   /// Tool to fit a parabola to the shape.
   LArParabolaPeakRecoTool* m_peakParabolaTool;
-
-  /// Tool to convert from ADC counts to energy.
-  const ILArADC2MeVTool* m_adc2mevTool;
 
   /// Tool to retrieve per-cell phase information.
   ILArPhaseTool* m_phase_tool;
@@ -168,7 +167,7 @@ private:
     /// that it isn't valid (doesn't exist, isn't connected),
     /// then the gains pointers will be set to the special value
     /// wave_invalid.
-    LArPhysWave* gains[N_GAINS];
+    LArPhysWave* gains[N_GAINS]{};
 
     /// Constructor, to zero the gains[] pointers.
     Cellwave();
@@ -187,14 +186,14 @@ private:
   TH2F* m_hDigiGainSampling;
 
   /// Histogram of energy per sampling.
-  TH1F* m_henergy[N_SAMPLINGS];
+  TH1F* m_henergy[N_SAMPLINGS]{};
 
   /// Histogram of peak significance, in sigma, per sampling.
-  TH1F* m_hsigma[N_SAMPLINGS];
+  TH1F* m_hsigma[N_SAMPLINGS]{};
 
   /// Histogram of the (pedestal subtracted) peak sample value,
   /// per samplng.
-  TH1F* m_hlaymax[N_SAMPLINGS];
+  TH1F* m_hlaymax[N_SAMPLINGS]{};
   
   // Grouping type
   std::string m_groupingType;

@@ -19,8 +19,6 @@
 #include <string>
  
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRawConditions/LArOFCComplete.h"

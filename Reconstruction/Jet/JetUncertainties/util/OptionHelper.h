@@ -77,6 +77,8 @@ class OptionHelper : public asg::AsgMessaging
         int  GetNjetFlavour()       const { checkInit(); return m_nJetFlavour;       }
         int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;        }
         LargeRJetTruthLabel::TypeEnum FixedLargeRJetTruthLabel() const {checkInit(); return m_largeRJetTruthLabel; }
+        TString TruthLabelMoment()  const {checkInit(); return m_truthLabelMoment; }
+
         
         // Tagging SFs
         TString TagScaleFactorName() const { checkInit(); return m_tagSFname;        }
@@ -142,6 +144,7 @@ class OptionHelper : public asg::AsgMessaging
         int     m_nJetFlavour;
         int     m_truthLabel;
         LargeRJetTruthLabel::TypeEnum m_largeRJetTruthLabel;
+        TString m_truthLabelMoment;
         bool    m_isDijet; // legacy support
 
         TString m_tagSFname;
@@ -216,6 +219,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_nJetFlavour(-1)
     , m_truthLabel(0)
     , m_largeRJetTruthLabel(LargeRJetTruthLabel::UNKNOWN)
+    , m_truthLabelMoment("")
     , m_isDijet(false)
 
     , m_tagSFname("")
@@ -312,7 +316,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_composition    = getOptionValueWithDefault(options,"Composition",m_composition);
     m_nJetFlavour    = getOptionValueWithDefault(options,"NjetFlavour",m_nJetFlavour);
     m_truthLabel     = getOptionValueWithDefault(options,"TruthLabel",m_truthLabel);
-    TString largeRJetTruthLabelStr = getOptionValue(options,"FatjetTruthLabel");
+    TString largeRJetTruthLabelStr = getOptionValue(options,"LargeRJetTruthLabel");
     if (largeRJetTruthLabelStr != "")
     {
         m_largeRJetTruthLabel = LargeRJetTruthLabel::stringToEnum(largeRJetTruthLabelStr);
@@ -321,6 +325,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
             ATH_MSG_WARNING("LargeRJetTruthLabel is UNKNOWN value, skipping usage: " << largeRJetTruthLabelStr.Data());
         }
     }
+    m_truthLabelMoment = getOptionValueWithDefault(options,"TruthLabelMoment",m_truthLabelMoment);
     m_isDijet        = getOptionValueWithDefault(options,"isDijet",m_isDijet);
     if (m_isDijet)
     {

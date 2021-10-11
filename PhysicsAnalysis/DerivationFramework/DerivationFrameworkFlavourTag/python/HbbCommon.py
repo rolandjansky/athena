@@ -292,8 +292,6 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
-    BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-    BTaggingFlags.CalibrationChannelAliases += ["%s->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo" % (VRJetName)]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -667,9 +665,5 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):
    ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True, doGhostAssoc=True, ExGhostLabels=GhostLabels, min_subjet_pt_mev=1)
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
-
-   from BTagging.BTaggingFlags import BTaggingFlags
-   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__FatJet ]
-   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__SubJet ]
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])

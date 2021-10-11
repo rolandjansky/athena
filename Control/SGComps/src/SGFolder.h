@@ -16,11 +16,10 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "SGTools/SGIFolder.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
 
 namespace SG {
   class Folder_tester;

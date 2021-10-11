@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELROOT_ROOT_TYPE_H
@@ -94,7 +94,7 @@ public:
    TReturnTypeAdapter   ReturnType() const;
    TScopeAdapter        DeclaringScope ATLAS_NOT_THREAD_SAFE () const;
    TTypeAdapter         DeclaringType ATLAS_NOT_THREAD_SAFE () const;
-   TTypeAdapter         TypeOf ATLAS_NOT_THREAD_SAFE () const;
+   TTypeAdapter         TypeOf() const;
 
 private:
    TDictionary* fMember;

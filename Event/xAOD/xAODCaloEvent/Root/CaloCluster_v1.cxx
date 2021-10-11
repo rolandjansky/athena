@@ -6,6 +6,7 @@
 #include <cmath>
 #include <iostream>
 #include <array>
+#include <numeric>
 
 // EDM include(s):
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -16,7 +17,6 @@
 #include "xAODCaloEvent/versions/CaloCluster_v1.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloClusterAccessors_v1.h"
-
 
 namespace xAOD {
 
@@ -741,11 +741,25 @@ namespace xAOD {
       return true;
    }
 
+  void CaloCluster_v1::insertMoment( MomentType type, double value ) {
+    const Accessor<float>* acc = momentAccessorV1(type); 
+    if ( acc != nullptr ) { (*acc)(*this) = value; } // new protection needed non-scalar moment type!
+  }
 
- void CaloCluster_v1::insertMoment( MomentType type, double value ) {
-   ( *( momentAccessorV1( type ) ) )( *this ) = value;
- }
+  void CaloCluster_v1::insertMoment( MomentType type, const ncells_store_t& values) {  
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(type);
+    // only implemented for one moment
+    if ( acc != nullptr ) { (*acc)(*this) = values; }
+  }
 
+  bool CaloCluster_v1::retrieveMoment( MomentType type, ncells_store_t& values ) const { 
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(type); 
+    // only known moments of this type
+    if ( acc == nullptr || !acc->isAvailable(*this)  ) { return false; }
+    // retrieve data
+    values = (*acc)(*this); 
+    return true; 
+  }
 
   /** for debugging only ...
   std::vector<std::pair<std::string,float> > CaloCluster_v1::getAllMoments() {
@@ -761,6 +775,40 @@ namespace xAOD {
     return retval;
   }
   **/
+
+  // Set the number of cells in a given sampling
+  void CaloCluster_v1::setNumberCellsInSampling(CaloSampling::CaloSample samp,int ncells,bool isInnerWheel) { 
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(NCELL_SAMPLING); // should always be valid!
+    // cast to cell counter type and limit value range
+    ncells_t nc(adjustToRange<int,ncells_t>(ncells)); 
+    // check index and extend store if needed
+    size_t idx((size_t)samp); 
+    if ( idx >= (*acc)(*this).size() ) { (*acc)(*this).resize(idx+1,0); }
+    // set counts
+    (*acc)(*this)[idx] = isInnerWheel ? setUpperCount<ncells_t>((*acc)(*this)[idx],nc) : setLowerCount<ncells_t>((*acc)(*this)[idx],nc);   
+  }
+
+  // Retrieve the number of cells in a given sampling
+  int CaloCluster_v1::numberCellsInSampling(CaloSampling::CaloSample samp,bool isInnerWheel) const { 
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(NCELL_SAMPLING); 
+    //
+    if ( acc != nullptr && acc->isAvailable(*this) ) { 
+      size_t idx((size_t)samp); 
+      return ( idx < (*acc)(*this).size() )             // valid sampling 
+	? isInnerWheel                                  // check if inner wheel cell count is requested
+	? extractUpperCount<int>((*acc)(*this)[idx])
+	: extractLowerCount<int>((*acc)(*this)[idx])
+	: 0; 
+    } else { 
+      return 0;
+    }
+  }
+
+  // Get number of all cells
+  int CaloCluster_v1::numberCells() const { 
+    std::vector<int> ncells; 
+    return getNumberCellsInSampling<std::vector<int> >(ncells) ? std::accumulate(ncells.begin(),ncells.end(),0) : 0; 
+  }
 
   unsigned int CaloCluster_v1::getClusterEtaSize() const{
     const unsigned clustersize=clusterSize();

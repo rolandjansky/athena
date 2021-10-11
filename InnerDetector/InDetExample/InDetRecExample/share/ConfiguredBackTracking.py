@@ -230,9 +230,10 @@ class ConfiguredBackTracking:
          #
          # --- Load selection tool
          #
+         drift_circle_cut_tool = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco() if NewTrackingCuts.useParameterizedTRTCuts() else ''
          from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
          InDetTRT_SeededAmbiTrackSelectionTool = InDet__InDetAmbiTrackSelectionTool(name                = 'InDetTRT_SeededAmbiTrackSelectionTool',
-                                                                                    DriftCircleCutTool  =  InDetTRTDriftCircleCut,
+                                                                                    DriftCircleCutTool  = drift_circle_cut_tool,
                                                                                     AssociationTool     = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                                                     minScoreShareTracks = -1., # off !
                                                                                     minHits             = NewTrackingCuts.minSecondaryClusters(),

@@ -1,6 +1,19 @@
 ## -- Overview of all default local settings that one can change 
 ## -- The default values are also shown.
 
+## ------------------------------------------- name of the partition from which to read data and configuration parameters
+partitionName   = 'ATLAS'
+#partitionName   = 'GMTestPartitionT9' #Test partition serving events from a raw data file if you want to test when no run is ongoing.
+
+## ------------------------------------------- set online defaults for AthenaConfiguration.AllConfigFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
+ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
+autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
+
+## ------------------------------------------- update selected ConfigFlags if needed
+# ConfigFlags.Input.RunNumber = [390732]  # for testing with GMTestPartitionT9
+
 ## ------------------------------------------- flags set in: RecExOnline_jobOptions.py  
 isOnline          = True
 isOnlineStateless = True
@@ -29,10 +42,12 @@ streamLogic       = 'Or'#HAS TO BE OR AT ALL TIMES WHEN SPECIFYING A CERTAIN STR
 
 useAtlantisEmon   = False
 
+# Set a unique group name for ED jobs so that: Events are distributed between ED jobs with the same groupName
+# and shared between different (non ED) groups.
+groupName         = "EventDisplaysOnline"
+
 
 ## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
-partitionName   = 'ATLAS'
-#partitionName   = 'GMTestPartition' #Test partition serving events from a raw data file if you want to test when no run is ongoing.
 publishName     = 'EventDisplays'
 
 if (partitionName == 'ATLAS'):

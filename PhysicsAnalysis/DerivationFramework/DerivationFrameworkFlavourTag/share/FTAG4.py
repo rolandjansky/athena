@@ -100,7 +100,6 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 ExCoMJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 ExCoMJetCollection__SubJet = addExKtCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False, subjetAlgName="CoM")
 
-BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
 #==============================================================================
 # Soft Tagging
@@ -165,9 +164,6 @@ addHbbTagger(
     FTAG4Seq, ToolSvc,
     nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
     nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
-
-# alias for VR
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #===================================================================
 # Tag custom or pre-built jet collections

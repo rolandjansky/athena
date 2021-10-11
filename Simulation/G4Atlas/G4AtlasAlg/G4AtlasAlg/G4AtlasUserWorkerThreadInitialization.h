@@ -37,11 +37,6 @@ public:
     m_detGeoSvcName = typeAndName;
   }
 
-  /// Configure the Sensitive Detector Master Tool handle
-  void SetSDMasterTool(const std::string& typeAndName) {
-    m_senDetToolName = typeAndName;
-  }
-
   /// Configure the Fast Simulation Master Tool handle
   void SetFastSimMasterTool(const std::string& typeAndName) {
     m_fastSimToolName = typeAndName;
@@ -49,7 +44,6 @@ public:
 
 private:
   std::string m_detGeoSvcName{"DetectorGeometrySvc"};
-  std::string m_senDetToolName{"SensitiveDetectorMasterTool"};
   std::string m_fastSimToolName{"FastSimulationMasterTool"};
 
 }; // class G4AtlasUserWorkerThreadInitialization

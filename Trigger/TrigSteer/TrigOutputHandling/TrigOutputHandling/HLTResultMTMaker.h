@@ -12,6 +12,8 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
+#include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 // Gaudi includes
@@ -29,6 +31,7 @@ public:
 
   // ------------------------- IStateful methods -------------------------------
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   virtual StatusCode finalize() override;
 
   // ------------------------- Specific methods of this tool -------------------
@@ -41,12 +44,19 @@ private:
   // ------------------------- Methods -----------------------------------------
   /// Check ROB and SubDet lists in StreamTags and remove those which are disabled
   void validatePEBInfo(HLT::HLTResultMT& hltResult) const;
+  /// Check ExtraROBs and ExtraSubDets against the detector mask and drop the masked out IDs
+  StatusCode validateExtraROBsAndSubDets();
 
   // ------------------------- Properties --------------------------------------
   /// StoreGate key for the HLTResultMT
   SG::WriteHandleKey<HLT::HLTResultMT> m_hltResultWHKey {
     this, "HLTResultWHKey", "HLTResultMT",
     "Key of the output HLTResultMT object"
+  };
+  /// StoreGate key for the ByteStreamMetadata container to retrieve detector mask
+  SG::ReadHandleKey<ByteStreamMetadataContainer> m_bsMetaDataContRHKey {
+    this, "ByteStreamMetadataRHKey", "InputMetaDataStore+ByteStreamMetadata",
+    "Key of the ByteStreamMetadataContainer to retrieve the detector mask"
   };
   /// Tool creating stream tags (defines if event is accepted)
   ToolHandle<HLTResultMTMakerTool> m_streamTagMaker {
@@ -73,10 +83,20 @@ private:
     this, "ExtraEnabledROBs", {},
     "Extra ROBs which can be requested in a stream tag, but are not part of the ROS-ROB map"
   };
+  /// Extra enabled ROBs checked against detector mask
+  Gaudi::Property<std::vector<uint32_t>> m_extraROBs {
+    this, "ExtraROBs", {},
+    "Same as ExtraEnabledROBs but checked against detector mask and dropped if SubDet is masked out"
+  };
   /// Extra enabled SubDets
   Gaudi::Property<std::vector<uint32_t>> m_extraEnabledSubDets {
     this, "ExtraEnabledSubDets", {},
     "Extra SubDets which can be requested in a stream tag, but are not part of the ROS-ROB map"
+  };
+  /// Extra enabled SubDets checked against detector mask
+  Gaudi::Property<std::vector<uint32_t>> m_extraSubDets {
+    this, "ExtraSubDets", {},
+    "Same as ExtraEnabledSubDets but checked against detector mask and dropped if SubDet is masked out"
   };
 
   // ------------------------- Other private members ---------------------------

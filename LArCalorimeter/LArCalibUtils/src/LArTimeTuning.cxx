@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimeTuning.h"
@@ -14,7 +14,6 @@
 
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -215,10 +214,8 @@ StatusCode LArTimeTuning::execute() {
         larGlobalTimeOffset_corr->setTimeOffset(-999);
       }
       if (m_scope==FEB) {
-        WeightedAverageMAP::const_iterator it=FebTimeAverage.begin();
-        WeightedAverageMAP::const_iterator it_e=FebTimeAverage.end();
-        for (;it!=it_e;it++) {
-	  larFebTimeOffset_corr->setTimeOffset(it->first,-999);
+        for (const std::pair<const HWIdentifier, WeightedAverage>& p : FebTimeAverage) {
+	  larFebTimeOffset_corr->setTimeOffset(p.first,-999);
         }
       }
       return StatusCode::SUCCESS;
@@ -280,7 +277,7 @@ StatusCode LArTimeTuning::execute() {
       // check if a ADC sample is above ADC cut
       std::vector<short>::const_iterator sIt=samples.begin();
       std::vector<short>::const_iterator sIt_e=samples.end();
-      for (;sIt!=sIt_e;sIt++) {
+      for (;sIt!=sIt_e;++sIt) {
 	if (*sIt>m_AdcCut)
 	  break;
       }
@@ -289,7 +286,7 @@ StatusCode LArTimeTuning::execute() {
       // check for saturating cell, if selected skip them
       int nSatur=-1 ;
       if ( m_skipSaturCell ) {
-        for (;sIt!=sIt_e;sIt++) {
+        for (;sIt!=sIt_e;++sIt) {
 	  if (*sIt>=m_AdcMax) {
 	    nSatur++ ;	  
 	    break ;
@@ -462,12 +459,10 @@ StatusCode LArTimeTuning::execute() {
       larGlobalTimeOffset_corr->setTimeOffset(oldoffset-correction);
     }
     else if (m_scope==FEB) {
-      WeightedAverageMAP::const_iterator it=FebTimeAverage.begin();
-      WeightedAverageMAP::const_iterator it_e=FebTimeAverage.end();
-      for (;it!=it_e;it++) {
-	const float oldoffset=larFebTimeOffset_corr->TimeOffset(it->first);
-	const float correction=it->second.get();
-	larFebTimeOffset_corr->setTimeOffset(it->first,oldoffset-correction);
+      for (const std::pair<const HWIdentifier, WeightedAverage>& p : FebTimeAverage) {
+	const float oldoffset=larFebTimeOffset_corr->TimeOffset(p.first);
+	const float correction=p.second.get();
+	larFebTimeOffset_corr->setTimeOffset(p.first,oldoffset-correction);
       }
     }
     else if (m_scope==PHASE) {
@@ -485,10 +480,8 @@ StatusCode LArTimeTuning::execute() {
     if (m_scope==GLOBAL) 
       larGlobalTimeOffset_corr->setTimeOffset(-999);
     if (m_scope==FEB) {
-      WeightedAverageMAP::const_iterator it=FebTimeAverage.begin();
-      WeightedAverageMAP::const_iterator it_e=FebTimeAverage.end();
-      for (;it!=it_e;it++) {
-	larFebTimeOffset_corr->setTimeOffset(it->first,-999);
+      for (const std::pair<const HWIdentifier, WeightedAverage>& p : FebTimeAverage) {
+	larFebTimeOffset_corr->setTimeOffset(p.first,-999);
       }
     }
     return StatusCode::SUCCESS;
@@ -513,11 +506,9 @@ StatusCode LArTimeTuning::execute() {
           larGlobalTimeOffset_corr->setTimeOffset(oldoffset+(double)m_corrSign*err_timePeak/err_Peak); // *SIGN*   
        } 
        else if (m_scope==FEB) {
-         WeightedAverageMAP::const_iterator it=FebTimeAverage.begin();
-         WeightedAverageMAP::const_iterator it_e=FebTimeAverage.end();
-         for (;it!=it_e;it++) {
-	   const float oldoffset=larFebTimeOffset_corr->TimeOffset(it->first);
-	   larFebTimeOffset_corr->setTimeOffset(it->first,oldoffset+(double)m_corrSign*err_timePeak/err_Peak); // *SIGN*
+         for (const std::pair<const HWIdentifier, WeightedAverage>& p : FebTimeAverage) {
+	   const float oldoffset=larFebTimeOffset_corr->TimeOffset(p.first);
+	   larFebTimeOffset_corr->setTimeOffset(p.first,oldoffset+(double)m_corrSign*err_timePeak/err_Peak); // *SIGN*
          }
        }
     }
@@ -528,12 +519,10 @@ StatusCode LArTimeTuning::execute() {
        ATH_CHECK( SG::makeHandle(m_tbPhaseWriteKey, ctx).record (std::move (thePhase)) );
     }     
     else if (m_scope==CELL) { //Fill cell time offset map member variable
-      WeightedAverageMAP::const_iterator it=CellTimeMap.begin();
-      WeightedAverageMAP::const_iterator it_e=CellTimeMap.end();
-      for (;it!=it_e;it++) {
-	const HWIdentifier chid=it->first;
-	m_CellTimeAverage[chid].timePeak+=(double)m_corrSign*it->second.timePeak*it->second.peak; // *SIGN*
-	m_CellTimeAverage[chid].peak+=it->second.peak;
+      for (const std::pair<const HWIdentifier, WeightedAverage>& p : CellTimeMap) {
+	const HWIdentifier chid=p.first;
+	m_CellTimeAverage[chid].timePeak+=(double)m_corrSign*p.second.timePeak*p.second.peak; // *SIGN*
+	m_CellTimeAverage[chid].peak+=p.second.peak;
       }
     }
 
@@ -548,12 +537,10 @@ StatusCode LArTimeTuning::stop()
 {
  if (m_scope==CELL) {
    auto cellTimeOffset = std::make_unique<LArCellTimeOffset>();
-   WeightedAverageMAP::const_iterator it=m_CellTimeAverage.begin();
-   WeightedAverageMAP::const_iterator it_e=m_CellTimeAverage.end();
-   for (;it!=it_e;it++) {
-     cellTimeOffset->setTimeOffset(it->first,it->second.get());
-     ATH_MSG_DEBUG ( "Ch = " << std::hex << it->first.get_compact() << std::dec
-                     << " Time = " << cellTimeOffset->TimeOffset(it->first) );
+   for (const std::pair<const HWIdentifier, WeightedAverage>& p : m_CellTimeAverage) {
+     cellTimeOffset->setTimeOffset(p.first,p.second.get());
+     ATH_MSG_DEBUG ( "Ch = " << std::hex << p.first.get_compact() << std::dec
+                     << " Time = " << cellTimeOffset->TimeOffset(p.first) );
    }
    ATH_CHECK( SG::makeHandle(m_cellTimeOffsetOut).record (std::move (cellTimeOffset)) );
 

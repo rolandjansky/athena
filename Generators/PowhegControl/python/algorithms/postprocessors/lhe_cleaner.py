@@ -13,6 +13,10 @@ def lhe_cleaner(powheg_LHE_output):
 
     @param powheg_LHE_output  Name of LHE file produced by PowhegBox.
     """
+    logger.info("Starting to run PowhegControl LHE file cleaner")
+    import os
+    os.system('cp {0} unmodified_{0}'.format(powheg_LHE_output))
+
     ## Remove rwgt and pdf lines, which crash Pythia
     #FileParser(powheg_LHE_output).text_remove("^#pdf")
     #FileParser(powheg_LHE_output).text_remove("^#rwgt")
@@ -27,6 +31,7 @@ def lhe_cleaner(powheg_LHE_output):
     pdf_removed = FileParser(powheg_LHE_output).text_remove_all_if_one_line_matches("^#pdf", "NaN")
     rwg_removed = FileParser(powheg_LHE_output).text_remove_all_if_one_line_matches("^#rwgt", "NaN")
     new_removed = FileParser(powheg_LHE_output).text_remove_all_if_one_line_matches("^#new weight", "NaN")
+    matching_removed = FileParser(powheg_LHE_output).text_remove_all_if_one_line_matches("^#matching", "NaN")
     rdm_removed = FileParser(powheg_LHE_output).text_remove_all_if_one_line_matches("^ #Random", "NaN") # this one starts with a space
 
     if pdf_removed != 0:
@@ -35,8 +40,10 @@ def lhe_cleaner(powheg_LHE_output):
         logger.info("{} line(s) starting with '#rwgt' were removed in {} since at least one looked buggy".format(rwg_removed, powheg_LHE_output))
     if new_removed != 0:
         logger.info("{} line(s) starting with '#new weight' were removed in {} since at least one looked buggy".format(new_removed, powheg_LHE_output))
+    if matching_removed != 0:
+        logger.info("{} line(s) starting with '#matching' were removed in {} since at least one looked buggy".format(matching_removed, powheg_LHE_output))
     if rdm_removed != 0:
-        logger.info("{} line(s) starting with ' #Random' were removed in {} since at least one looked buggy".format(new_removed, powheg_LHE_output)) # this one starts with a space
+        logger.info("{} line(s) starting with ' #Random' were removed in {} since at least one looked buggy".format(rdm_removed, powheg_LHE_output)) # this one starts with a space
 
     # Correct LHE version identification; otherwise Pythia will treat all files as v1
     FileParser(powheg_LHE_output).text_replace('LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"')

@@ -20,7 +20,7 @@
 #include "D3PDMakerUtils/ObjGetterToolImpl.h"
 #include "D3PDMakerUtils/SGGetterImpl.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <string>
 

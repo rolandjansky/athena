@@ -12,13 +12,11 @@
 #include "xAODTracking/TrackSummaryAccessors_v1.h"
 
 /// Helper macro for Accessor objects
-#define DEFINE_ACCESSOR(TYPE, NAME )                               \
-   case xAOD::NAME:                                                \
-   {                                                               \
-      static const SG::AuxElement::Accessor< TYPE > a( #NAME );          \
-      return &a;                                                   \
-   }                                                               \
-   break;
+#define DEFINE_ACCESSOR(TYPE, NAME)                                            \
+  case xAOD::NAME: {                                                           \
+    static const SG::AuxElement::Accessor<TYPE> a(#NAME);                      \
+    return &a;                                                                 \
+  } break;
 
 namespace xAOD {
 
@@ -32,34 +30,34 @@ namespace xAOD {
    const SG::AuxElement::Accessor< uint8_t >*
    trackSummaryAccessorV1<uint8_t>( xAOD::SummaryType type ) {
 
-      switch( type ) {
-        DEFINE_ACCESSOR( uint8_t, numberOfContribPixelLayers        );
-      case xAOD:: numberOfBLayerHits:                                                    { 
-        static const SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerHits" ); 
-        return &a;								
-      }								    
-	break;
-      case xAOD:: numberOfBLayerOutliers:                                                    { 
-        static const SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerOutliers" ); 
-        return &a;								
-      }								    
-	break;
-      case xAOD:: numberOfBLayerSharedHits:                                                    { 
-        static const SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerSharedHits" ); 
-        return &a;								
-      }								    
-	break;
-      case xAOD:: numberOfBLayerSplitHits:                                                    { 
-        static const SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerSplitHits" ); 
-	return &a;								
-      }								    
-	break;	
-      case xAOD:: expectBLayerHit:                                                    { 
-        static const SG::AuxElement::Accessor< uint8_t > a( "expectInnermostPixelLayerHit" ); 
-        return &a;								
-      }								    
-	break;	
-        DEFINE_ACCESSOR( uint8_t, numberOfPixelHits                 );
+    switch (type) {
+      DEFINE_ACCESSOR(uint8_t, numberOfContribPixelLayers);
+      case xAOD::numberOfBLayerHits: {
+        static const SG::AuxElement::Accessor<uint8_t> a(
+          "numberOfInnermostPixelLayerHits");
+        return &a;
+      } break;
+      case xAOD::numberOfBLayerOutliers: {
+        static const SG::AuxElement::Accessor<uint8_t> a(
+          "numberOfInnermostPixelLayerOutliers");
+        return &a;
+      } break;
+      case xAOD::numberOfBLayerSharedHits: {
+        static const SG::AuxElement::Accessor<uint8_t> a(
+          "numberOfInnermostPixelLayerSharedHits");
+        return &a;
+      } break;
+      case xAOD::numberOfBLayerSplitHits: {
+        static const SG::AuxElement::Accessor<uint8_t> a(
+          "numberOfInnermostPixelLayerSplitHits");
+        return &a;
+      } break;
+      case xAOD::expectBLayerHit: {
+        static const SG::AuxElement::Accessor<uint8_t> a(
+          "expectInnermostPixelLayerHit");
+        return &a;
+      } break;
+        DEFINE_ACCESSOR(uint8_t, numberOfPixelHits);
         DEFINE_ACCESSOR( uint8_t, numberOfPixelOutliers             );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelHoles                );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelSharedHits           );	
@@ -109,7 +107,7 @@ namespace xAOD {
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;
          return nullptr;
-      }
+    }
    }
    
    template<>
@@ -118,9 +116,8 @@ namespace xAOD {
       switch( type ) {
         DEFINE_ACCESSOR( float, eProbabilityComb       ); 
         DEFINE_ACCESSOR( float, eProbabilityHT       );   
-        //        DEFINE_ACCESSOR( float, eProbabilityToT       );  
-        //        DEFINE_ACCESSOR( float, eProbabilityBrem       ); 
         DEFINE_ACCESSOR( float, pixeldEdx       ); 
+        DEFINE_ACCESSOR( float,  TRTTrackOccupancy ); 
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;

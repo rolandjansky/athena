@@ -19,7 +19,7 @@ atlas_add_component( DetDescrCondTools
                      src/CoolHistSvc.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel FileCatalog AthenaPoolUtilities DetDescrConditions Identifier PoolSvcLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib GaudiKernel FileCatalog AthenaPoolUtilities DetDescrConditions Identifier PoolSvcLib )
 
 # Install files from the package:
 atlas_install_scripts( share/coolHist_setFileIdentifier.sh share/coolHist_extractFileIdentifier.sh share/coolHist_setReference.py share/coolHist_insertFileToCatalog.py share/coolStrFileSvc_set.py )

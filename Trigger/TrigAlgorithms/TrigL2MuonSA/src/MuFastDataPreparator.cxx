@@ -150,14 +150,6 @@ void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuo
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::MuFastDataPreparator::setMultiMuonTrigger( const bool multiMuonTrigger )
-{
-  m_rpcDataPreparator->setMultiMuonTrigger(multiMuonTrigger);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
                                                            const TrigRoiDescriptor*    p_roids,
                                                            const bool                  insideOut,
@@ -166,7 +158,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                                            TrigL2MuonSA::MdtRegion&    mdtRegion,
                                                            TrigL2MuonSA::RpcFitResult& rpcFitResult,
                                                            TrigL2MuonSA::MdtHits&      mdtHits_normal,
-                                                           TrigL2MuonSA::MdtHits&      mdtHits_overlap) const
+                                                           TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+                                                           const bool                  dynamicDeltaRpc) const
 {
 
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
@@ -183,7 +176,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     sc = m_rpcDataPreparator->prepareData(p_roids,
                                           rpcHits,
                                           rpcLayerHits,
-                                          &m_rpcPatFinder);
+                                          &m_rpcPatFinder,
+                                          dynamicDeltaRpc);
 
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
@@ -246,7 +240,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
                                                            TrigL2MuonSA::MdtRegion&    mdtRegion,
                                                            TrigL2MuonSA::RpcFitResult& rpcFitResult,
                                                            TrigL2MuonSA::MdtHits&      mdtHits_normal,
-                                                           TrigL2MuonSA::MdtHits&      mdtHits_overlap) const
+                                                           TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+                                                           const bool                  dynamicDeltaRpc) const
 {
 
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
@@ -263,7 +258,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
     sc = m_rpcDataPreparator->prepareData(p_roids,
                                           rpcHits,
                                           rpcLayerHits,
-                                          &m_rpcPatFinder);
+                                          &m_rpcPatFinder,
+                                          dynamicDeltaRpc);
 
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
@@ -326,7 +322,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                                            std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                                                            TrigL2MuonSA::MdtHits&               mdtHits_normal,
                                                            TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                                                           std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal) const
+                                                           std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal,
+                                                           const bool                           dynamicDeltaRpc) const
 {
 
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
@@ -346,7 +343,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 
     sc = m_rpcDataPreparator->prepareData(p_roids,
                                           rpcLayerClusters,
-                                          &m_clusterPatFinder);
+                                          &m_clusterPatFinder,
+                                          dynamicDeltaRpc);
 
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration and clustering. Continue using RoI");
@@ -441,7 +439,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
                                                            std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
                                                            TrigL2MuonSA::MdtHits&               mdtHits_normal,
                                                            TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                                                           std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal) const
+                                                           std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal,
+                                                           const bool                           dynamicDeltaRpc) const
 {
 
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
@@ -461,7 +460,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
 
     sc = m_rpcDataPreparator->prepareData(p_roids,
                                           rpcLayerClusters,
-                                          &m_clusterPatFinder);
+                                          &m_clusterPatFinder,
+                                          dynamicDeltaRpc);
 
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration and clustering. Continue using RoI");

@@ -25,26 +25,39 @@ namespace InDet
   m_maxSiZ0  (200.),
   m_maxTrtZ0 (1200),
   m_minPt    (500.),
-  m_trRatio1  (0.5),
-  m_trRatio2  (0.1),
-  m_trRatio3 (0.05),
-  m_trRatioTRT(0.1),
+  m_trRatio1  (0.5), /** eProbHT cut for Si trks, ntrt<=15 **/
+  m_trRatio2  (0.1), /** eProbHT cut for Si trks, ntrt >15 **/
+  m_trRatio3 (0.05), /** eProbHT cut for Si trks, ntrt >25 **/
+  m_trRatioTRT(0.1), /** eProbHT cut for all TRT tracks **/
   m_trRatioV0  (1.),
   m_sD0_Si     (2.),
   m_sD0_Trt   (0.5),
   m_sZ0_Trt    (3.),
   m_isConv(true)
  {
+   // There is room for 10 bins, for future development.
+   // The default below represents one eta bin between 0 and 999
+   // and no cuts applied.
+   m_TRTTrksEtaBins.clear();
+   m_TRTTrksBinnedRatioTRT.clear();
+   for (unsigned int i=0;i<10;++i) {
+     m_TRTTrksEtaBins.push_back(999);
+     m_TRTTrksBinnedRatioTRT.push_back(0);
+   }
+
    declareInterface<ITrackSelectorTool>(this);
    declareProperty("maxSiD0",              m_maxSiD0);
    declareProperty("maxTrtD0",             m_maxTrtD0);
    declareProperty("maxSiZ0",              m_maxSiZ0);
    declareProperty("maxTrtZ0",             m_maxTrtZ0);
    declareProperty("minPt",                m_minPt);
-   declareProperty("RatioCut1",            m_trRatio1);
-   declareProperty("RatioCut2",            m_trRatio2);
-   declareProperty("RatioCut3",            m_trRatio3);
-   declareProperty("RatioTRT",             m_trRatioTRT);
+   declareProperty("RatioCut1",            m_trRatio1); /** eProbHT cut for Si trks, ntrt<=15 **/
+   declareProperty("RatioCut2",            m_trRatio2); /** eProbHT cut for Si trks, ntrt >15 **/
+   declareProperty("RatioCut3",            m_trRatio3); /** eProbHT cut for Si trks, ntrt >25 **/
+   declareProperty("RatioTRT",             m_trRatioTRT); /** eProbHT cut for all TRT tracks **/
+   // See InDet Trt Track Scoring Tool for nTRT cut on TRT-only tracks
+   declareProperty("TRTTrksEtaBins"       , m_TRTTrksEtaBins); /* expects 10 eta bins (set unused bins to e.g. 999) */
+   declareProperty("TRTTrksBinnedRatioTRT"          , m_TRTTrksBinnedRatioTRT); /* expects 10 values */
    declareProperty("RatioV0",              m_trRatioV0);
    declareProperty("significanceD0_Si",    m_sD0_Si);
    declareProperty("significanceD0_Trt",   m_sD0_Trt);
@@ -59,7 +72,24 @@ namespace InDet
  {
    ATH_CHECK( m_extrapolator.retrieve() );
    ATH_CHECK(m_beamSpotKey.initialize());
+
    return StatusCode::SUCCESS;
+ }
+
+
+ unsigned int InDetConversionTrackSelectorTool::getEtaBin(const Trk::Perigee& perigee) const
+ {
+   // Find the correct bin for applying eta-dependent cuts
+
+   double tanThetaOver2 = std::tan( perigee.parameters()[Trk::theta] / 2.);
+   double abs_eta = (tanThetaOver2 == 0) ? 999.0 : std::fabs( std::log(tanThetaOver2) );
+
+   for (unsigned int i=0;i<m_TRTTrksEtaBins.size();++i) {
+     if (abs_eta < m_TRTTrksEtaBins[i]) {
+       return i;
+     }
+   }
+   return m_TRTTrksEtaBins.size()-1;
  }
 
 
@@ -131,25 +161,39 @@ namespace InDet
    if(tSum){
      double ratioTrk = 1.0;
      int nclus  = tSum->get(Trk::numberOfPixelHits) + tSum->get(Trk::numberOfSCTHits);
+     bool isSilicon = (nclus > 0);
      int nTrtHits       = tSum->get(Trk::numberOfTRTHits);
      int nTrtOutliers   = tSum->get(Trk::numberOfTRTOutliers);
      int ntrt           = nTrtHits + nTrtOutliers;
      int nTrtXenonHits  = tSum->get(Trk::numberOfTRTXenonHits);
      if(m_isConv) {
-       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){ // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	       ratioTrk = tSum->getPID(Trk::eProbabilityHT);
+       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){
+         // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
+         ratioTrk = tSum->getPID(Trk::eProbabilityHT);
        }
+
+       // Start of track cuts
        if ( pt >= m_minPt ) {
-         if ( (nclus==0 && std::fabs(d0)<=m_maxTrtD0) || (nclus>0 && std::fabs(d0)<=m_maxSiD0) ) {
-           if ( (nclus==0 && std::fabs(z0)<=m_maxTrtZ0) || (nclus>0 && std::fabs(z0)<=m_maxSiZ0) ) {
-             if (nclus>0) {
-               if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
-                (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
-                (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
-             } else if (ratioTrk>=m_trRatioTRT) pass = true;
-           }
+
+         // Silicon track cuts
+         if ( isSilicon && (std::fabs(d0)<=m_maxSiD0) && (fabs(z0)<=m_maxSiZ0) ) {
+           if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
+              (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
+              (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
          }
-       }
+
+         // TRT-only track cuts
+         if ( (not isSilicon) && (std::fabs(d0)<=m_maxTrtD0) && (std::fabs(z0)<=m_maxTrtZ0) ) {
+
+           unsigned int eta_bin = getEtaBin(*perigee);
+           // TRT-only Tracks: eProbabilityHT cut below
+           // See InDet Trt Track Scoring Tool for nTRT cut on TRT-only tracks
+           double trRatioTRT = std::max( m_trRatioTRT, m_TRTTrksBinnedRatioTRT[eta_bin] );
+
+           if ( ratioTrk >= trRatioTRT ) pass = true; // TRT Track cuts
+         }
+       } // end of track cuts for isConv
+
      } else {
        //The cuts below are necessary for the V0 track selection
        const AmgSymMatrix(5)& err = *perigee->covariance();
@@ -237,26 +281,40 @@ namespace InDet
    if(tSum){
      double ratioTrk = 1.0;
      int nclus  = tSum->get(Trk::numberOfPixelHits) + tSum->get(Trk::numberOfSCTHits);
+     bool isSilicon = (nclus > 0);
      int nTrtHits       = tSum->get(Trk::numberOfTRTHits);
      int nTrtOutliers   = tSum->get(Trk::numberOfTRTOutliers);
      int ntrt           = nTrtHits + nTrtOutliers;
      int nTrtXenonHits  = tSum->get(Trk::numberOfTRTXenonHits);
 
      if(m_isConv){
-       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){ // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	       ratioTrk = tSum->getPID(Trk::eProbabilityHT);
+       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){
+         // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
+         ratioTrk = tSum->getPID(Trk::eProbabilityHT);
        }
+
+       // Start of track cuts
        if ( pt >= m_minPt ) {
-         if ( (nclus==0 && std::fabs(d0)<=m_maxTrtD0) || (nclus>0 && std::fabs(d0)<=m_maxSiD0) ) {
-           if ( (nclus==0 && std::fabs(z0)<=m_maxTrtZ0) || (nclus>0 && std::fabs(z0)<=m_maxSiZ0) ) {
-             if (nclus > 0) {
-               if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
-                (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
-                (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
-             } else if (ratioTrk>=m_trRatioTRT) pass = true;
-           }
+
+         // Silicon track cuts
+         if ( isSilicon && (std::fabs(d0)<=m_maxSiD0) && (fabs(z0)<=m_maxSiZ0) ) {
+           if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
+              (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
+              (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
          }
-       }
+
+         // TRT-only track cuts
+         if ( (not isSilicon) && (std::fabs(d0)<=m_maxTrtD0) && (std::fabs(z0)<=m_maxTrtZ0) ) {
+
+           unsigned int eta_bin = getEtaBin(*perigee);
+           // TRT-only Tracks: eProbabilityHT cuts below
+           // See InDet Trt Track Scoring Tool for nTRT cut on TRT-only tracks
+           double trRatioTRT = std::max( m_trRatioTRT, m_TRTTrksBinnedRatioTRT[eta_bin] );
+
+           if ( ratioTrk >= trRatioTRT ) pass = true; // TRT Track cuts
+         }
+       } // end of track cuts for isConv
+
      } else {
        //The cuts below are necessary for the V0 track selection
        const AmgSymMatrix(5)& err = *perigee->covariance();
@@ -323,6 +381,7 @@ namespace InDet
 
     double ratioTrk = 1.0;
     int nclus  = getCount(tp,xAOD::numberOfPixelHits) + getCount(tp,xAOD::numberOfSCTHits);
+    bool isSilicon = (nclus > 0);
     int nTrtHits       = getCount(tp,xAOD::numberOfTRTHits);
     int nTrtOutliers   = getCount(tp,xAOD::numberOfTRTOutliers);
     int ntrt           = nTrtHits + nTrtOutliers;
@@ -330,21 +389,33 @@ namespace InDet
 
     if(m_isConv){
      float temp(0);
-     if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){ // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-      ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityHT)  ?  temp: 0 ;
+     if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){
+       // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
+       ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityHT)  ?  temp: 0 ;
      }
 
+     // Start of track cuts
      if ( pt >= m_minPt ) {
-       if ( (nclus==0 && std::fabs(d0)<=m_maxTrtD0) || (nclus>0 && std::fabs(d0)<=m_maxSiD0) ) {
-         if ( (nclus==0 && std::fabs(z0)<=m_maxTrtZ0) || (nclus>0 && std::fabs(z0)<=m_maxSiZ0) ) {
-           if (nclus > 0) {
-             if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
-              (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
-              (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
-           } else if (ratioTrk>=m_trRatioTRT) pass = true;
-         }
+
+       // Silicon track cuts
+       if ( isSilicon && (std::fabs(d0)<=m_maxSiD0) && (fabs(z0)<=m_maxSiZ0) ) {
+         if((ntrt<=15 && ratioTrk>=m_trRatio1) ||
+            (ntrt>15 && ntrt<=25 && ratioTrk>=m_trRatio2) ||
+            (ntrt>25 && ratioTrk>=m_trRatio3)) pass = true;
        }
-     }
+
+       // TRT-only track cuts
+       if ( (not isSilicon) && (std::fabs(d0)<=m_maxTrtD0) && (std::fabs(z0)<=m_maxTrtZ0) ) {
+
+         unsigned int eta_bin = getEtaBin(perigee);
+         // TRT-only Tracks: eProbabilityHT cuts below
+         // See InDet Trt Track Scoring Tool for nTRT cut on TRT-only tracks
+         double trRatioTRT = std::max( m_trRatioTRT, m_TRTTrksBinnedRatioTRT[eta_bin] );
+
+         if ( ratioTrk >= trRatioTRT ) pass = true; // TRT Track cuts
+       }
+     } // end of track cuts for isConv
+
     } else {
      //The cuts below are necessary for the V0 track selection
      const AmgSymMatrix(5)& err = *perigee.covariance();

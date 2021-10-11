@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMBDETECTORMANAGER_H
@@ -129,7 +129,7 @@ class EMBDetectorManager : public GeoVDetectorManager
    *	provide iterative  access to any EMBDetectorRegion held
    *	by this manager.
    */
-  EMBDetRegionArray             m_DetRegionsRandom;
+  EMBDetRegionArray             m_DetRegionsRandom{};
   std::unique_ptr<const EMBBasicReadoutNumbers>  m_basicReadoutNumbers;
   CxxUtils::CachedUniquePtr<EMBAccordionDetails> m_accordionDetails;
   const EMBHVManager&           m_hvManager;

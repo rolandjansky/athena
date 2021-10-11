@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,17 +10,15 @@
  */
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/AlignedDynArray.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
-#include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
-#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
+#include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateCombiner.h"
+#include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
+//
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
-
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
 namespace {
@@ -55,7 +53,8 @@ Trk::GsfMaterialMixtureConvolution::initialize()
     ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
     return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_materialEffects.retrieve());
+  m_materialEffects = GsfCombinedMaterialEffects(
+    m_parameterisationFileName, m_parameterisationFileNameHighX0);
   return StatusCode::SUCCESS;
 }
 
@@ -65,7 +64,7 @@ Trk::GsfMaterialMixtureConvolution::initialize()
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::update(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -99,7 +98,7 @@ Trk::GsfMaterialMixtureConvolution::update(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::preUpdate(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -137,7 +136,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::postUpdate(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -174,7 +173,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::update(
-  std::vector<Trk::IMultiStateMaterialEffects::Cache>& caches,
+  std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& inputState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -248,12 +247,12 @@ Trk::GsfMaterialMixtureConvolution::update(
     // Apply the update factor
     matPropPair.second *= updateFactor;
 
-    m_materialEffects->compute(caches[i],
-                               inputState[i],
-                               *matPropPair.first,
-                               matPropPair.second,
-                               direction,
-                               particleHypothesis);
+    m_materialEffects.compute(caches[i],
+                              inputState[i],
+                              *matPropPair.first,
+                              matPropPair.second,
+                              direction,
+                              particleHypothesis);
 
     // check vectors have the same size
     if (caches[i].numWeights != caches[i].numDeltaPs) {
@@ -350,7 +349,8 @@ Trk::GsfMaterialMixtureConvolution::update(
                                      updatedStateVector[Trk::qOverP],
                                      std::move(updatedCovariance));
 
-    Trk::ComponentParameters dummyCompParams(std::move(updatedTrackParameters), 1.);
+    Trk::ComponentParameters dummyCompParams(std::move(updatedTrackParameters),
+                                             1.);
     Trk::MultiComponentState returnMultiState;
     returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;

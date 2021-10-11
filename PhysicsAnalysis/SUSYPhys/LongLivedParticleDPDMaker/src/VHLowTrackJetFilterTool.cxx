@@ -96,7 +96,6 @@ StatusCode DerivationFramework::VHLowTrackJetFilterTool::finalize()
 // The filter itself
 bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
 {
-  typedef std::vector<const xAOD::TrackParticle*> Particles;
   typedef ElementLink<xAOD::TrackParticleContainer> TrackLink;
   typedef std::vector<TrackLink> TrackLinks;
   

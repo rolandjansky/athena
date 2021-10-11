@@ -6,7 +6,7 @@
 // JetRecAlg.cxx
 
 #include <memory>
-#include "JetRecAlg.h"
+#include "JetRec/JetRecAlg.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "xAODJet/JetAuxContainer.h"
 
@@ -79,7 +79,7 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
     Monitored::ScopedTimer time_provider(t_jpv);
 #endif
     ATH_CHECK( m_jetprovider->getAndRecordJets(jetContHandle) );
-    ATH_MSG_DEBUG("Created jet container of size "<< jetContHandle->size() << "  | writing to "<< m_output.key() );
+    ATH_MSG_DEBUG("Created jet container of size "<< (*jetContHandle).size() << "  | writing to "<< m_output.key() );
   }
 
   // Define a scope to ease monitoring of the JetModifier action
@@ -95,25 +95,17 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
     }
   }
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
+#ifdef DOMONITORING
   // monitor jet multiplicity and basic jet kinematics
   auto njets = Monitored::Scalar<int>("JET_n");
   njets      = jetContHandle->size();
-  std::vector<float> jetpt, jetet, jeteta, jetphi, jetmass;
-  for (const xAOD::Jet* j : *jetContHandle) {
-    constexpr float invGeV = 1./Gaudi::Units::GeV;
-    jetpt.push_back(j->pt() * invGeV);
-    jetet.push_back(j->p4().Et() * invGeV);
-    jetmass.push_back(j->m() * invGeV);
-    jeteta.push_back(j->eta());
-    jetphi.push_back(j->phi());
-  }
-  auto pt    = Monitored::Collection("JET_pt",  jetpt);
-  auto et    = Monitored::Collection("JET_et",  jetet);
-  auto eta   = Monitored::Collection("JET_eta", jeteta);
-  auto mass  = Monitored::Collection("JET_m",   jetmass);
-  auto phi   = Monitored::Collection("JET_phi", jetphi);
-  
+  constexpr float invGeV = 1./Gaudi::Units::GeV;
+  auto pt    = Monitored::Collection("JET_pt",  *jetContHandle, [c=invGeV]( const xAOD::Jet* jet ) { return jet->pt()*c; });
+  auto et    = Monitored::Collection("JET_et",  *jetContHandle, [c=invGeV]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
+  auto mass  = Monitored::Collection("JET_m",   *jetContHandle, [c=invGeV]( const xAOD::Jet* jet ) { return jet->m()*c; });
+  auto eta   = Monitored::Collection("JET_eta", *jetContHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
+  auto phi   = Monitored::Collection("JET_phi", *jetContHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
+
   auto mon   = Monitored::Group(m_monTool,t_total,t_jpv,t_mod,njets,pt,et,mass,eta,phi);
 #endif
 
@@ -123,3 +115,4 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
 }
 
 //**********************************************************************
+

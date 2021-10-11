@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_REGIONCREATOR_H
@@ -28,9 +28,11 @@ public:
   RegionCreator(const std::string& type, const std::string& name, const IInterface *parent);
   ~RegionCreator() {}
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  void Dump();
+  void Dump() override;
+
+  void Construct() override;
 
 private:
    Gaudi::Property<std::string> m_regionName{this, "RegionName", "", "Region name (same as the Tool name if not set)"};

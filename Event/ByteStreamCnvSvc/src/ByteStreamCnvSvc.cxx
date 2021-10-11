@@ -14,7 +14,7 @@
 #include "eformat/SourceIdentifier.h"
 #include "eformat/StreamTag.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 

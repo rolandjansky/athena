@@ -116,9 +116,6 @@ addVRJets(FTAG2Seq, do_ghost=True, doFlipTagger=True)
 # Also add Hbb Tagger
 addHbbTagger(FTAG2Seq, ToolSvc)
 
-# alias for VR
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
 #==============================================================================
 # Soft Tagging
 #==============================================================================

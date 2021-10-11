@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // StorePayloadMon.cxx 
@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // PerfMonComps includes
+#include "PerfMonEvent/mallinfo.h"
 #include "PerfMonStorePayloadMon.h"
 
 // C includes
@@ -132,7 +133,7 @@ inline
 PerfMon::MallocStats::return_type
 pmon_get_mem()
 { 
-  struct mallinfo m = mallinfo();
+  PerfMon::mallinfo_t m = PerfMon::mallinfo();
   return m.uordblks + m.hblkhd - m.fsmblks;
 }
 

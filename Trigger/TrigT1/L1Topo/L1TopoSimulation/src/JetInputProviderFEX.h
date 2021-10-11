@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-// Based on handling of gFEX objects implemeted in Trigger/TrigT1/TrigT1CTP/src/CTPEmulation by Joerg Stelzer.  
 
 
-#ifndef L1TopoSimulation_JetInputProviderFEX
-#define L1TopoSimulation_JetInputProviderFEX
+#ifndef JETINPUTPROVIDERFEX_H
+#define JETINPUTPROVIDERFEX_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/LockedHandle.h"
 
-#include "xAODTrigger/JetRoIContainer.h" //jets from gFEX
+#include "xAODTrigger/jFexSRJetRoIContainer.h" //small R jets from jFEX
+#include "xAODTrigger/jFexLRJetRoIContainer.h" //large R jets from jFEX
+#include "xAODTrigger/jFexTauRoIContainer.h" //large R jets from jFEX
 
 #include "TH1.h"
 #include "TH2.h"
@@ -39,10 +40,20 @@ namespace LVL1 {
 
       StringProperty m_gFEXJetLoc {""};
 
-      mutable LockedHandle<TH1> m_hPt1 ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH1> m_hPt2 ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
-   };
+      mutable LockedHandle<TH1> m_hjJetPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjJetEtaPhi ATLAS_THREAD_SAFE;
+
+      mutable LockedHandle<TH1> m_hjLargeRJetPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjLargeRJetEtaPhi ATLAS_THREAD_SAFE;
+     
+      mutable LockedHandle<TH1> m_hjTauPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjTauEtaPhi ATLAS_THREAD_SAFE;
+     
+      SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jEDMKey {this, "L1_jFexSRJetRoI", "L1_jFexSRJetRoI", "jFEX EDM"};
+      SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_JEDMKey {this, "L1_jFexLRJetRoI", "L1_jFexLRJetRoI", "JFEX EDM"};
+      SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jTauEDMKey {this, "L1_jFexTauRoI", "L1_jFexTauRoI", "JFEX EDM"};
+     
+  };
 }
 
 #endif

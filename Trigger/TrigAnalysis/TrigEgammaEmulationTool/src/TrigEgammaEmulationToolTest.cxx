@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
@@ -5,29 +6,17 @@
 // TrigEgammaMatchingToolTest.cxx 
 
 #include "TrigEgammaEmulationToolTest.h"
-#include "Gaudi/Property.h"
-#include "xAODTrigger/EmTauRoI.h"
-#include "xAODTrigCalo/TrigEMCluster.h"
-#include "xAODTrigRinger/TrigRingerRings.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-using std::string;
+
+
 
 //**********************************************************************
-namespace Trig{
-TrigEgammaEmulationToolTest::
-TrigEgammaEmulationToolTest(const std::string& name, 
-                    ISvcLocator* pSvcLocator )
-: ::AthAlgorithm( name, pSvcLocator ),
-    m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this),
-    m_emulationTool("Trig::TrigEgammaEmulationTool/TrigEgammaEmulationTool",this)
+
+TrigEgammaEmulationToolTest::TrigEgammaEmulationToolTest(const std::string& name, ISvcLocator* pSvcLocator )
+    : AthMonitorAlgorithm( name, pSvcLocator ),
+    m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
-    declareProperty("TrigEgammaMatchingTool", m_matchTool);
-    declareProperty("TrigEgammaEmulationTool",m_emulationTool);
-    declareProperty("TriggerList",m_triggerList);
+    declareProperty("MatchTool"    , m_matchTool     );
+    declareProperty("EmulatorTool" , m_emulatorTool );
 }
 
 //**********************************************************************
@@ -38,12 +27,15 @@ TrigEgammaEmulationToolTest::~TrigEgammaEmulationToolTest() { }
 
 StatusCode TrigEgammaEmulationToolTest::initialize() {
 
-  ATH_MSG_INFO("Initializing " << name() << "...");
-  ATH_MSG_INFO("Retrieving tools...");
-  if ( (m_trigdec.retrieve()).isFailure() ){
-      ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
-      return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG("Initializing " << name() << "...");
+  ATH_CHECK(AthMonitorAlgorithm::initialize());
+  ATH_MSG_DEBUG("Retrieving tools...");
+
+  ATH_CHECK(m_trigdec.retrieve());
+  ATH_CHECK(m_offElectronKey.initialize());
+  ATH_CHECK(m_offPhotonKey.initialize());
+  ATH_CHECK(m_matchTool.retrieve());
+  ATH_CHECK(m_emulatorTool.retrieve());
 
   m_accept.addCut("L1Calo","");
   m_accept.addCut("L2Calo","");
@@ -56,203 +48,248 @@ StatusCode TrigEgammaEmulationToolTest::initialize() {
   return StatusCode::SUCCESS;
 }
 
-//**********************************************************************
-
-StatusCode TrigEgammaEmulationToolTest::finalize() {
-  
-  writeEmulationSummary();
-  return StatusCode::SUCCESS;
-}
-//**********************************************************************
-float TrigEgammaEmulationToolTest::ratio(float a, float b) {
-  if (b > 0) {
-    return a/b;
-  }
-  else {
-    return -1;
-  }
-}
 
 //**********************************************************************
-StatusCode TrigEgammaEmulationToolTest::execute() {  
-  
-  if ( (evtStore()->retrieve(m_offElectrons,"Electrons")).isFailure() ){
-    ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
-    return StatusCode::FAILURE;
-  }
-  
-  StatusCode sc1 = Method1();
-  if (sc1 != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Something went wrong");
-    return StatusCode::FAILURE;
-  }
-  StatusCode sc2 = Method2();
-  if (sc2 != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Something went wrong");
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-//**********************************************************************
-
-StatusCode TrigEgammaEmulationToolTest::Method1() {
-  
-  for (const auto &trigger : m_triggerList) {
-    
-    for (const auto eg : *m_offElectrons) {
-      const HLT::TriggerElement *finalFC = nullptr;
-      m_matchTool->match(eg,trigger,finalFC);
-
-      if (!finalFC) {
-        ATH_MSG_DEBUG("TE is nullptr");
-        continue;
-      }
-      asg::AcceptData acceptData = setAccept(finalFC);
-      
-      count("Method1__total__"+trigger);      
-      if(acceptData.getCutResult("L1Calo"))   count("Method1__TDT__L1Calo__" +trigger);
-      if(acceptData.getCutResult("L2Calo"))   count("Method1__TDT__L2Calo__" +trigger);
-      if(acceptData.getCutResult("L2"))       count("Method1__TDT__L2__"     +trigger);
-      if(acceptData.getCutResult("EFTrack"))  count("Method1__TDT__EFTrack__"+trigger);
-      if(acceptData.getCutResult("EFCalo"))   count("Method1__TDT__EFCalo__" +trigger);
-      if(acceptData.getCutResult("HLT"))      count("Method1__TDT__HLT__"    +trigger);
-
-      asg::AcceptData accept2 = m_emulationTool->executeTool(finalFC, trigger);
-      if(accept2.getCutResult("L1Calo"))   count("Method1__EMU__L1Calo__" +trigger);
-      if(accept2.getCutResult("L2Calo"))   count("Method1__EMU__L2Calo__" +trigger);
-      if(accept2.getCutResult("L2"))       count("Method1__EMU__L2__"     +trigger);
-      if(accept2.getCutResult("EFTrack"))  count("Method1__EMU__EFTrack__"+trigger);
-      if(accept2.getCutResult("EFCalo"))   count("Method1__EMU__EFCalo__" +trigger);
-      if(accept2.getCutResult("HLT"))      count("Method1__EMU__HLT__"    +trigger);
-      
-    }// loop over electrons offline
-  }// loop over triggers
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigEgammaEmulationToolTest::Method2() {
-  
-  for (const auto &trigger : m_triggerList) {
-    
-    m_emulationTool->EventWiseContainer();
-    for (const auto eg : *m_offElectrons) {
-      
-      const HLT::TriggerElement *finalFC = nullptr;
-      m_matchTool->match(eg,trigger,finalFC);
-      
-      if (!finalFC) {
-        ATH_MSG_DEBUG("TE is nullptr");
-        continue;
-      }
-
-      asg::AcceptData acceptData = setAccept(finalFC);
-      count("Method2__total__"+trigger);      
-      if(acceptData.getCutResult("L1Calo"))   count("Method2__TDT__L1Calo__" +trigger);
-      if(acceptData.getCutResult("L2Calo"))   count("Method2__TDT__L2Calo__" +trigger);
-      if(acceptData.getCutResult("L2"))       count("Method2__TDT__L2__"     +trigger);
-      if(acceptData.getCutResult("EFTrack"))  count("Method2__TDT__EFTrack__"+trigger);
-      if(acceptData.getCutResult("EFCalo"))   count("Method2__TDT__EFCalo__" +trigger);
-      if(acceptData.getCutResult("HLT"))      count("Method2__TDT__HLT__"    +trigger);
-
-      asg::AcceptData accept2 = m_emulationTool->executeTool(trigger);
-      if(accept2.getCutResult("L1Calo"))   count("Method2__EMU__L1Calo__" +trigger);
-      if(accept2.getCutResult("L2Calo"))   count("Method2__EMU__L2Calo__" +trigger);
-      if(accept2.getCutResult("L2"))       count("Method2__EMU__L2__"     +trigger);
-      if(accept2.getCutResult("EFTrack"))  count("Method2__EMU__EFTrack__"+trigger);
-      if(accept2.getCutResult("EFCalo"))   count("Method2__EMU__EFCalo__" +trigger);
-      if(accept2.getCutResult("HLT"))      count("Method2__EMU__HLT__"    +trigger);
-    
-    }
-  }
-  return StatusCode::SUCCESS;
-}
 
 
-void TrigEgammaEmulationToolTest::writeEmulationSummary(){
-
-  std::ofstream countsFile("TriggerCountsEmulator.txt");
-  std::vector<std::string> keys = {"L1Calo","L2Calo","L2","EFCalo","EFTrack","HLT"};
-
-  if (countsFile.is_open()) {
-    countsFile << "************************** Emulation summary *************************************\n";
-    countsFile << "              Method1 Navigation \t Method2 Event-Wise Containers \n";
-    for (auto trigger : m_triggerList) {
-      countsFile << "*******************************************************************************" << "\n";
-      countsFile << "Trigger: " << trigger << "\n";
-
-      // TDT passed: 300/450   | emulated (method 1): 298/450 | emulated (method 2): 302/450
-
-      for (auto key : keys){
-        float  total=m_countMap["Method1__total__"+trigger];
-        float  p0=m_countMap["Method1__TDT__"+key+"__"+trigger];
-        float  p1=m_countMap["Method1__EMU__"+key+"__"+trigger];
-        float  p2=m_countMap["Method2__EMU__"+key+"__"+trigger];
-
-        countsFile << std::setw(10)<<key <<" | TDT passed: " << std::setw(10) << ratio(p0,total) << "(" << p0 << "/" << total << ")"
-                                         <<" | emulated (method 1): " << std::setw(10) << ratio(p1,total) << "(" << p1 << "/" << total << ")"
-                                         <<" | emulated (method 2): " << std::setw(10) << ratio(p2,total) << "(" << p2 << "/" << total << ")\n";
-      }// loop over trigger levels
-      
-      countsFile << "*******************************************************************************" << "\n";
-    }
-
-    countsFile << "*******************************************************************************\n";
-  }
-  countsFile.close();
- 
-}
-
-asg::AcceptData
-TrigEgammaEmulationToolTest::setAccept( const HLT::TriggerElement *finalFC)
+StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx ) const
 {
-  asg::AcceptData acceptData (&m_accept);
-  if(!finalFC)
-    return acceptData;
-    
-  bool passedL1         = false;
-  bool passedL2Calo     = false;
-  bool passedL2         = false;
-  bool passedEFCalo     = false;
-  bool passedEFTrack    = false;
-  bool passedHLT        = false;
-  bool hasRnn           = false;
+  ATH_MSG_DEBUG("=============== Start Event ===============");
 
-  if( m_trigdec->ancestor<xAOD::TrigRNNOutput>(finalFC).te() )
-    hasRnn=true;
-
-  if( m_trigdec->ancestor<xAOD::EmTauRoI>(finalFC).te() != nullptr )
-    passedL1=m_trigdec->ancestor<xAOD::EmTauRoI>(finalFC).te()->getActiveState();
-  
-  if(hasRnn){
-    if( m_trigdec->ancestor<xAOD::TrigRNNOutput>(finalFC).te() != nullptr )
-      passedL2Calo=m_trigdec->ancestor<xAOD::TrigRNNOutput>(finalFC).te()->getActiveState();
-  }else{
-    if( m_trigdec->ancestor<xAOD::TrigEMCluster>(finalFC).te() != nullptr )
-      passedL2Calo=m_trigdec->ancestor<xAOD::TrigEMCluster>(finalFC).te()->getActiveState();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo (ctx);
+  if( !eventInfo.isValid() ){
+    ATH_MSG_WARNING("Failed to retrieve EventInfo");
+    return StatusCode::SUCCESS;
   }
-  
-  
-  if( m_trigdec->ancestor<xAOD::TrigElectronContainer>(finalFC).te() != nullptr )
-    passedL2=m_trigdec->ancestor<xAOD::TrigElectronContainer>(finalFC).te()->getActiveState();
-  
-  if( m_trigdec->ancestor<xAOD::CaloClusterContainer>(finalFC,"TrigEFCaloCalibFex").te() != nullptr )
-    passedEFCalo=m_trigdec->ancestor<xAOD::CaloClusterContainer>(finalFC,"TrigEFCaloCalibFex").te()->getActiveState(); 
-  
-  if( m_trigdec->ancestor<xAOD::TrackParticleContainer>(finalFC,"InDetTrigTrackingxAODCnv_Electron_IDTrig").te() != nullptr )
-    passedEFTrack=m_trigdec->ancestor<xAOD::TrackParticleContainer>(finalFC,"InDetTrigTrackingxAODCnv_Electron_IDTrig").te()->getActiveState();
-  
-  if( m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC).te() != nullptr )
-    passedHLT=m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC).te()->getActiveState();
+  if (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) {
+      ATH_MSG_WARNING("Event not passing LAr");
+      return StatusCode::SUCCESS;
+  }
 
-  acceptData.setCutResult("L1Calo", passedL1);
-  acceptData.setCutResult("L2Calo", passedL2Calo);
-  acceptData.setCutResult("L2", passedL2);
-  acceptData.setCutResult("EFTrack", passedEFTrack);
-  acceptData.setCutResult("EFCalo", passedEFCalo);
-  acceptData.setCutResult("HLT", passedHLT);
+  SG::ReadHandle<xAOD::ElectronContainer> offElectrons(m_offElectronKey, ctx);
+  if(!offElectrons.isValid())
+  {
+    ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
+    return StatusCode::SUCCESS;
+  }
 
-  return acceptData;
+  ATH_MSG_DEBUG( "Electron size is " << offElectrons->size() );
+
+  for (const auto &trigger : m_electronTriggerList) 
+  {
+    auto info = getInfo(trigger);
+    ATH_MSG_DEBUG(trigger);
+    for (const auto el : *offElectrons) 
+    {
+
+
+      ATH_MSG_DEBUG( "Offline Electron cluster object is "<< el->caloCluster());
+      const TrigCompositeUtils::Decision *dec=nullptr;
+      //m_matchTool->match(el,trigger,dec, TrigDefs::includeFailedDecisions);
+      m_matchTool->match(el,trigger,dec, TrigDefs::Physics);
+
+      if (!dec) {
+        ATH_MSG_DEBUG("e/g matching fail. skip...");
+        continue;
+      }
+
+      auto accept = setAccept(dec, info);
+      bool valid=false;
+      auto emu_accept = m_emulatorTool->emulate( dec, info.trigger, valid );
+
+      ATH_MSG_DEBUG( "trigger : " << info.trigger << " (tdt/emu)");
+      ATH_MSG_DEBUG( "L1Calo  : " << accept.getCutResult(0) << " / " << emu_accept.getCutResult(0));
+      ATH_MSG_DEBUG( "L2Calo  : " << accept.getCutResult(1) << " / " << emu_accept.getCutResult(1));
+      ATH_MSG_DEBUG( "L2      : " << accept.getCutResult(2) << " / " << emu_accept.getCutResult(2));
+      ATH_MSG_DEBUG( "EFCalo  : " << accept.getCutResult(3) << " / " << emu_accept.getCutResult(3));
+      ATH_MSG_DEBUG( "EFTrack : " << accept.getCutResult(4) << " / " << emu_accept.getCutResult(4));
+      ATH_MSG_DEBUG( "HLT     : " << accept.getCutResult(5) << " / " << emu_accept.getCutResult(5));
+
+      auto monGroup = getGroup( trigger );
+
+      
+      // Fill trigger decision tool steps
+      if (accept.getCutResult(0)){
+        fillLabel(monGroup, "decisions", "L1Calo");
+        if (accept.getCutResult(1)){
+          fillLabel(monGroup, "decisions", "L2Calo");
+          if(accept.getCutResult(2)){
+            fillLabel(monGroup, "decisions", "L2");
+            if(accept.getCutResult(3)){
+              fillLabel(monGroup, "decisions", "EFCalo");
+              if(accept.getCutResult(5)){
+                fillLabel(monGroup, "decisions", "HLT");
+              }
+            }
+          }
+        }
+      }
+
+      // Fill emulation
+      if (emu_accept.getCutResult(0)){
+        fillLabel(monGroup, "emulations", "L1Calo");
+        if (emu_accept.getCutResult(1)){
+          fillLabel(monGroup, "emulations", "L2Calo");
+          if(emu_accept.getCutResult(2)){
+            fillLabel(monGroup, "emulations", "L2");
+            if(emu_accept.getCutResult(3)){
+              fillLabel(monGroup, "emulations", "EFCalo");
+              if(emu_accept.getCutResult(5)){
+                fillLabel(monGroup, "emulations", "HLT");
+              }
+            }
+          }
+        }
+      }
+
+
+
+
+    }
+  }
+
+
+  ATH_MSG_DEBUG("================= End Event =================");
+
+  return StatusCode::SUCCESS;
 }
 
-}///namespace
+
+
 //**********************************************************************
+
+
+
+asg::AcceptData TrigEgammaEmulationToolTest::setAccept( const TrigCompositeUtils::Decision *dec, 
+                                                        const TrigEgammaEmulationToolTest::TrigInfo info) const 
+{
+    
+    ATH_MSG_DEBUG("setAccept");
+    unsigned int condition=TrigDefs::includeFailedDecisions;
+
+    asg::AcceptData acceptData (&m_accept);
+    bool passedL1Calo=false;
+    bool passedL2Calo=false;
+    bool passedEFCalo=false;
+    bool passedL2=false;
+    bool passedEFTrk=false;
+    bool passedEF=false;
+    
+    if (dec) {
+
+        auto trigger = info.trigger; 
+        // Step 1
+        passedL1Calo = m_matchTool->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
+
+        if( passedL1Calo ){ // HLT item get full decision
+            // Step 2
+            passedL2Calo = m_matchTool->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, m_matchTool->key("FastCalo"), condition);  
+          
+            if(passedL2Calo){
+
+                // Step 3
+                if(info.type == "electron"){
+                    std::string key = m_matchTool->key("FastElectrons");
+                    if(info.lrt)  key = m_matchTool->key("FastElectrons_LRT");
+                    passedL2 = m_matchTool->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, key, condition);
+                }else if(info.type == "photon"){
+                    passedL2 = m_matchTool->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, m_matchTool->key("FastPhotons"), condition);
+                }
+
+                if(passedL2){
+
+
+                    // Step 4
+                    std::string key = m_matchTool->key("PrecisionCalo");
+                    if(info.lrt)  key = m_matchTool->key("PrecisionCalo_LRT");
+                    passedEFCalo = m_matchTool->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, key, condition);
+
+                    if(passedEFCalo){
+
+                        // Step 5
+                        passedEFTrk=true;// Assume true for photons
+
+                        // Step 6
+                        if(info.type == "electron"){
+
+                            if( info.etcut || info.idperf){// etcut or idperf
+                                passedEF = true; // since we dont run the preciseElectron step
+                            }else{
+                                std::string key = m_matchTool->key("Electrons");
+                                if(info.lrt)  key = m_matchTool->key("Electrons_LRT");
+                                if(info.gsf)  key = m_matchTool->key("Electrons_GSF");
+                                passedEF = m_matchTool->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, key, condition);
+                            }
+   
+                        }else if(info.type == "photon"){
+                            if (info.etcut){
+                                passedEF = true; // since we dont run the precisePhoton step
+                            }else{
+                                passedEF = m_matchTool->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, m_matchTool->key("Photons"), condition);
+                            }
+                        }
+                    } // EFCalo
+                }// L2
+            }// L2Calo
+        }// L2Calo
+
+    }
+
+    acceptData.setCutResult("L1Calo",passedL1Calo);
+    acceptData.setCutResult("L2Calo",passedL2Calo);
+    acceptData.setCutResult("L2",passedL2);
+    acceptData.setCutResult("EFCalo",passedEFCalo);
+    acceptData.setCutResult("EFTrack",passedEFTrk);
+    acceptData.setCutResult("HLT",passedEF);
+    
+    ATH_MSG_DEBUG("Accept results:");
+    ATH_MSG_DEBUG("L1: "<< passedL1Calo);
+    ATH_MSG_DEBUG("L2Calo: " << passedL2Calo);
+    ATH_MSG_DEBUG("L2: "<< passedL2);
+    ATH_MSG_DEBUG("EFCalo: "<< passedEFCalo);
+    ATH_MSG_DEBUG("HLT: "<<passedEF);
+
+    return acceptData;
+}
+
+//**********************************************************************
+
+
+TrigEgammaEmulationToolTest::TrigInfo TrigEgammaEmulationToolTest::getInfo( std::string trigger ) const
+{
+    std::string type = "electron"; // default
+    std::vector<std::string> strs;
+    boost::split(strs,trigger,boost::is_any_of("_"));
+    if(boost::contains(trigger,"HLT_e")) type = "electron";
+    else if(boost::contains(trigger,"HLT_g")) type = "photon";
+    bool idperf = boost::contains(trigger, "idperf"); 
+    bool etcut = boost::contains(trigger, "etcut"); 
+    bool lrt = boost::contains(trigger, "lrt"); 
+    bool gsf = boost::contains(trigger, "gsf");
+    std::string str_thr = strs.at(1);
+    str_thr.erase(0, 1);
+    float et = atof(str_thr.c_str());
+
+    ATH_MSG_DEBUG("type   : " << type );
+    ATH_MSG_DEBUG("idperf : " << (idperf?"Yes":"No"));
+    ATH_MSG_DEBUG("etcut  : " << (etcut?"Yes":"No"));
+    ATH_MSG_DEBUG("gsf    : " << (gsf?"Yes":"No"));
+    ATH_MSG_DEBUG("lrt    : " << (lrt?"Yes":"No"));
+
+
+
+    return TrigEgammaEmulationToolTest::TrigInfo{trigger,type,et,etcut,idperf,gsf,lrt};
+}
+
+//**********************************************************************
+
+
+void TrigEgammaEmulationToolTest::fillLabel( const ToolHandle<GenericMonitoringTool>& groupHandle, 
+                                                    const std::string &histname, 
+                                                    const std::string &label ) const
+{
+  auto mon = Monitored::Scalar<std::string>( histname, label );
+  fill( groupHandle, mon );
+}
+
+

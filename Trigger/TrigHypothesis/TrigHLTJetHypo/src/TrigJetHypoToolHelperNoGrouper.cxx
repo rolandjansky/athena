@@ -8,7 +8,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
 #include "./nodeIDPrinter.h"
 #include "./DebugInfoCollector.h"
-#include "./CompoundConditionMT.h"
+#include "./CompoundCondition.h"
 #include <algorithm>
 #include <sstream>
 
@@ -19,10 +19,6 @@ TrigJetHypoToolHelperNoGrouper::TrigJetHypoToolHelperNoGrouper(const std::string
 }
 
 StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
-
-  for (const auto& pf_maker : m_prefilterMakers){
-    m_prefilters.push_back(pf_maker->getHypoJetVectorFilter());
-  }
 
   for (const auto& config : m_configs) {
     m_matchers.push_back(config->getMatcher());
@@ -51,12 +47,16 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
     return pass;
   }
 
-  // prefiltering.
+  // prefilters are now local variables
+  std::vector<FilterPtr> prefilters{}; 
+  prefilters.reserve(m_prefilterMakers.size());
+  for (const auto& pf_maker : m_prefilterMakers){
+    prefilters.push_back(pf_maker->getHypoJetVectorFilter());
+  }
 
-  std::pair<HypoJetCIter, HypoJetCIter> iters =
-    std::make_pair(jetsIn.begin(), jetsIn.end());
-  for (const auto& pf : m_prefilters) {
-    iters = pf->filter(iters.first, iters.second, collector);
+  auto hjv = jetsIn;
+  for (const auto& pf : prefilters) {
+    hjv = pf->filter(hjv, collector);
   }
   
   // see if matchers pass. Each matcher conatains a FastReducer tree.
@@ -64,8 +64,7 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jetsIn,
   // share jets.
   bool pass = true;
   for (const auto& matcher : m_matchers){
-    auto matcher_pass = matcher->match(iters.first,
-				       iters.second,
+    auto matcher_pass = matcher->match(hjv,
 				       jetCollector,
 				       collector);
     if (!matcher_pass.has_value()) {
@@ -87,8 +86,17 @@ std::string TrigJetHypoToolHelperNoGrouper::toString() const {
   std::stringstream ss;
   ss << name();
 
-  ss << "prefilters: [" << m_prefilters.size() << "]:\n";
-  for (const auto& pf : m_prefilters){
+
+
+  std::vector<FilterPtr> prefilters{};
+  prefilters.reserve(m_prefilterMakers.size());
+  for (const auto& pf_maker : m_prefilterMakers){
+    prefilters.push_back(pf_maker->getHypoJetVectorFilter());
+  }
+
+
+  ss << "prefilters: [" << prefilters.size() << "]:\n";
+  for (const auto& pf : prefilters){
     ss << '\n'<<  *pf;
   }
   

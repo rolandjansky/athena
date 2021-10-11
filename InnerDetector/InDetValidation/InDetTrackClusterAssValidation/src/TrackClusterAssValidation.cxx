@@ -76,6 +76,9 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   declareProperty("pdgParticle"           ,m_pdg                   );
 }
 
+InDet::TrackClusterAssValidation::~TrackClusterAssValidation() =default;
+
+
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////

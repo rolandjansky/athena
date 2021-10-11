@@ -10,7 +10,7 @@ find_package( nlohmann_json )
 atlas_add_component( DumpEventDataToJSON
    src/*.cxx
    src/components/*.cxx
-   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrkExInterfaces TrkTrack nlohmann_json::nlohmann_json xAODCaloEvent xAODEventInfo xAODJet xAODMuon xAODTracking )
+   LINK_LIBRARIES AthenaBaseComps CaloEvent GaudiKernel StoreGateLib TrkExInterfaces MuonPrepRawData InDetPrepRawData TrkTrack nlohmann_json::nlohmann_json xAODCaloEvent xAODEventInfo xAODJet xAODMuon xAODTracking )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

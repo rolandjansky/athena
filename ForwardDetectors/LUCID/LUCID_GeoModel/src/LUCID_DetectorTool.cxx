@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_DetectorTool.h"
@@ -23,7 +23,7 @@ LUCID_DetectorTool::LUCID_DetectorTool(const std::string& type,
 				       const std::string& name, 
 				       const IInterface* parent): 
   GeoModelTool(type, name, parent),
-  m_manager(0)
+  m_manager(nullptr)
 {
 }
 
@@ -39,7 +39,7 @@ StatusCode LUCID_DetectorTool::create() {
   StatusCode sc = service("GeoDbTagSvc",geoDbTag);
   if (sc.isFailure()) { log << MSG::FATAL << "Could not locate GeoDbTagSvc" << endmsg; return StatusCode::FAILURE; }
 
-  IRDBAccessSvc* raccess = 0;
+  IRDBAccessSvc* raccess = nullptr;
   
   sc = service("RDBAccessSvc",raccess);
   
@@ -61,7 +61,7 @@ StatusCode LUCID_DetectorTool::create() {
     return StatusCode::FAILURE; 
   } 
   
-  if(0 == m_detector) {
+  if(nullptr == m_detector) {
 
     GeoPhysVol* world = &*theExpt->getPhysVol();
         
@@ -88,7 +88,7 @@ StatusCode LUCID_DetectorTool::clear() {
 
   if(proxy) {
     proxy->reset();
-    m_manager = 0;
+    m_manager = nullptr;
   }
   
   proxy = detStore()->proxy(ClassID_traits<GeoBorderSurfaceContainer>::ID(), "LUCID", false);

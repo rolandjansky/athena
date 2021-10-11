@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventDensityTool.cxx 
@@ -11,6 +11,8 @@
 #include "xAODEventShape/EventShape.h"
 #include "xAODEventShape/EventShapeAuxInfo.h"
 #include "JetEDM/PseudoJetVector.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 using fastjet::JetAlgorithm;
 using fastjet::JetDefinition;
@@ -125,16 +127,15 @@ StatusCode EventDensityTool::fillEventShape() const {
   
   ATH_MSG_DEBUG("Begin fillEventShape()");
 
-
-  std::unique_ptr<xAOD::EventShape> pevs(std::make_unique<xAOD::EventShape>());
-  std::unique_ptr<xAOD::EventShapeAuxInfo> pevsaux(std::make_unique<xAOD::EventShapeAuxInfo>());
-  pevs->setStore( pevsaux.get() );
+  std::unique_ptr<xAOD::EventShape> eventShape(std::make_unique<xAOD::EventShape>());
+  std::unique_ptr<xAOD::EventShapeAuxInfo> eventShapeaux(std::make_unique<xAOD::EventShapeAuxInfo>());
+  eventShape->setStore( eventShapeaux.get() );
 
   // Change the order: first fill the object and then record
-  ATH_CHECK(fillEventShape(pevs.get()));  
+  ATH_CHECK(fillEventShape(eventShape.get()));  
 
   auto h_out = makeHandle(m_outEDKey);
-  if ( ! h_out.record(std::move(pevs), std::move(pevsaux) )) {
+  if ( ! h_out.record(std::move(eventShape), std::move(eventShapeaux) )) {
     ATH_MSG_WARNING("Unable to write new EventShape and aux store to event store: " << m_outEDKey.key());
   } else {
     ATH_MSG_DEBUG("Created new EventShape container: " << m_outEDKey.key());
@@ -144,18 +145,22 @@ StatusCode EventDensityTool::fillEventShape() const {
 }
 
 //**********************************************************************
-StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
+StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *eventShape) const {
 
   if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
     auto h_in = makeHandle(m_inPJKey);
-    // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+    if( ! h_in.isValid() ) {
+      ATH_MSG_ERROR("No input PseudoJetContainer "<< m_inPJKey.key() );
+      return StatusCode::FAILURE;
+    }
     if ( h_in->size() == 0 ) {
+      // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
       ATH_MSG_WARNING( "Input PseudoJetContainer size()=0 for pseudojets from "<< m_inPJKey.key() );
       //return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("Retrieved input pseudojets " << m_inPJKey.key() << " , count: " <<  h_in->size());
     }
-    return fillEventShape(pevs, *(h_in->casVectorPseudoJet()));
+    return fillEventShape(eventShape, *(h_in->casVectorPseudoJet()));
   }
   // { FIXME: To be removed when trigger moves to DataHandles fully
   else if(m_inPJKey.key().empty() && !m_trigPJGet.empty()) {
@@ -167,7 +172,7 @@ StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
     } else {
       ATH_MSG_DEBUG("Retrieved input pseudojets " << m_trigPJGet.name() << " , count: " <<  ppjv.size());
     }
-    return fillEventShape(pevs, ppjv);
+    return fillEventShape(eventShape, ppjv);
   }
   // } FIXME
   
@@ -177,9 +182,9 @@ StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
 //**********************************************************************
 
 StatusCode EventDensityTool::
-fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const { 
+fillEventShape( xAOD::EventShape* eventShape, const PseudoJetVector& pjv) const { 
   ATH_MSG_DEBUG("Input pseudojet count: " << pjv.size());
-  ATH_MSG_DEBUG("Event shape container address: " << pevs);
+  ATH_MSG_DEBUG("Event shape container address: " << eventShape);
 
   for(const auto & pj : pjv) {
     ATH_MSG_DEBUG(" pj input e="<<pj.e() << " pz="<<pj.pz() << " px="<<pj.px() );
@@ -199,9 +204,9 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
   const static SG::AuxElement::Accessor<float> rhoDec("Density");
   const static SG::AuxElement::Accessor<float> sigmaDec("DensitySigma");
   const static SG::AuxElement::Accessor<float> areaDec("DensityArea");
-  rhoDec(*pevs) = rho;
-  sigmaDec(*pevs) = sigma;
-  areaDec(*pevs) = area;
+  rhoDec(*eventShape) = rho;
+  sigmaDec(*eventShape) = sigma;
+  areaDec(*eventShape) = area;
 
   ATH_MSG_DEBUG("Recorded event density:  = " << 0.001*rho << " GeV");
 

@@ -416,7 +416,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedHiveEvtQueueConsumer::e
 
   ATH_MSG_INFO("Starting loop on events");
 
-  StatusCode sc(StatusCode::SUCCESS,true);
+  StatusCode sc(StatusCode::SUCCESS);
 
   while(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
     ATH_MSG_DEBUG("Event queue is empty");

@@ -17,7 +17,9 @@ EVTMAX = 1000
 xAODFileName = "DAOD_AST.topaod_jul20.pool.root"
 
 # Input dataset
+# SZ - MIND that if you change this, you should also change accordingly the hard-coded "dataSource = 1" in line 73
 svcMgr.EventSelector.InputCollections= [os.environ['ASG_TEST_FILE_MC']]
+
 
 from glob import glob
 #inputDir = "/usatlas/groups/bnl_local2/paige/SUSY1/mc15_13TeV.387200.MadGraphPythia8EvtGen_A14NNPDF23LO_TT_directTT_800_100.merge.DAOD_SUSY1.e3969_s2608_r7772_r7676_p2666"
@@ -55,9 +57,9 @@ if isMC:
 # dataSource = 1:  fullsim in ST__SUSYObjDef_xAOD
 # dataSource = 2:  AtlFastII in ST__SUSYObjDef_xAOD
 
-if isMC:  
+if isMC:
     isData = 0
-    if isFullSim: 
+    if isFullSim:
         dataSource = 1
     else:
         dataSource = 2
@@ -65,6 +67,10 @@ else:
     isData = 1
     dataSource = 0
 
+# SZ - UNFORTUNATELY METADATA IS BROKEN IN R21 :-(
+# UUNCOMMENT BELOW TO HARD-CODE 'dataSource' TO FULLSIM MC
+# SINCE ANYWAY WE'RE RUNNING OVER 'ASG_TEST_FILE_MC'
+#dataSource = 1
 
 ###############
 # Configure job
@@ -79,10 +85,14 @@ auxList = ["PrimaryVerticesAux.", "AntiKt4EMTopoJetsAux.", "ElectronsAux.",
     "MuonSpectrometerTrackParticlesAux.", "MET_TrackAux.", "TauJetsAux.",
     "PhotonsAux.", "GSFConversionVerticesAux."]
 
+# Get the configuration manager
+from AthenaCommon import CfgMgr
+
 # Get a handle to the main athsequencer, for adding things to later!
 AST99Job = CfgMgr.AthSequencer("AthAlgSeq")
 
-AST99Job += CfgMgr.xAODMaker__AuxStoreWrapper("AST99AuxStoreWrapperAlg", 
+# Add a tool for thinning derivations
+AST99Job += CfgMgr.xAODMaker__AuxStoreWrapper("AST99AuxStoreWrapperAlg",
                                               SGKeys = auxList,
                                               OutputLevel = INFO)
 
@@ -111,7 +121,6 @@ skimmingTools = []
 AST99ObjDef = CfgMgr.ST__SUSYObjDef_xAOD("AST99ObjDef",
                                          DataSource = dataSource,
                                          ConfigFile = "SUSYTools/SUSYTools_Default.conf",
-                                         JESNuisanceParameterSet = 1, 
                                          PRWConfigFiles = [
                                          "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
                                          "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"],
@@ -120,7 +129,7 @@ AST99ObjDef = CfgMgr.ST__SUSYObjDef_xAOD("AST99ObjDef",
 ToolSvc += AST99ObjDef
 
 # For tau CP tools need to run TauTruthMatchingTool. Should be provided
-# by most derivations but NOT in xAOD. 
+# by most derivations but NOT in xAOD.
 # Can avoid by using SkipTruthMatchCheck = True.
 
 ### Not needed for 2.4?
@@ -129,6 +138,15 @@ AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
                               WriteTruthTaus = True,
                                  OutputLevel = INFO)
 ToolSvc += AST99tauTruthTool
+
+# SZ - commenting BuildTruthTaus out, after having discussed this with David Kirchmeier:
+# TauTruthMatchingTool inherits from it and can be used instead
+#
+#AST99tauBuildTruthTaus = CfgMgr.tauRecTools__BuildTruthTaus(
+#                                        name = "AST99TauBuildTruthTaus",
+#                              WriteTruthTaus = True,
+#                                 OutputLevel = INFO)
+#ToolSvc += AST99tauBuildTruthTaus
 
 # Not until https://its.cern.ch/jira/browse/ATLASG-794 is solved
 #tauSmearingTool = CfgMgr.TauAnalysisTools__TauSmearingTool("TauSmearingTool",
@@ -179,8 +197,9 @@ applyST = CfgMgr.ST__ApplySUSYTools(
                              DoTST = True,
                             IsData = isData,
                           MaxCount = 10,
-                       SUSYObjTool = ToolSvc.AST99ObjDef,
+                         SUSYTools = ToolSvc.AST99ObjDef,
               TauTruthMatchingTool = AST99tauTruthTool,
+                    #BuildTruthTaus = AST99tauBuildTruthTaus,
                        ThinningSvc = "AST99ThinningSvc",
                        OutputLevel = Lvl.INFO)
 AST99Job += applyST

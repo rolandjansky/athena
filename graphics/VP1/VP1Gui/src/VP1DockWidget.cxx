@@ -31,6 +31,8 @@ class VP1DockWidget::Imp {
 public:
   class FilterItem;
   Imp(VP1DockWidget*_dw,IVP1ChannelWidget * cw,VP1TabManager * tabmanager);
+  Imp (const Imp&) = delete;
+  Imp& operator= (const Imp&) = delete;
   FilterItem* filteritem;
   VP1DockWidget * dw;
   QFrame * frame;
@@ -143,10 +145,9 @@ VP1DockWidget::VP1DockWidget ( IVP1ChannelWidget * cw, VP1TabManager* tm )
 
   //Figure out what margin our drawn frame imposes:
   setSelected();
-  int marg_left, marg_top, marg_right, marg_bottom;
-  m_d->frame->getContentsMargins ( &marg_left, &marg_top, &marg_right, &marg_bottom );
-  Q_ASSERT(marg_left==marg_top&&marg_left==marg_right&&marg_left==marg_bottom&&"Qt changed its margin behaviour for QFrame!!");
-  m_d->unselectedmargin=marg_left;
+  QMargins marg = m_d->frame->contentsMargins();
+  Q_ASSERT(marg.left()==marg.top()&&marg.left()==marg.right()&&marg.left()==marg.bottom()&&"Qt changed its margin behaviour for QFrame!!");
+  m_d->unselectedmargin=marg.left();
 
   //Channel starts unselected:
   setUnselected();

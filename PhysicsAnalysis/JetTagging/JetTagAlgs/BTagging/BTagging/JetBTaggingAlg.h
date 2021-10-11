@@ -44,7 +44,12 @@ class  JetBTaggingAlg:
   private:
   
     SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
-    Gaudi::Property<SG::ReadDecorHandleKeyArray<xAOD::JetContainer>> m_jetParticleLinkNameList{ this, "TrackToJetAssociatorNames", {""}, "Element Link vector from jet to particle container"};
+
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_IncomingTracks{ this, "IncomingTracks", "", "Element Link vector from jet to particle container"};
+    SG::WriteDecorHandleKey<xAOD::BTaggingContainer> m_OutgoingTracks{ this, "OutgoingTracks", "", "Element Link vector from BTagging to track container"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_IncomingMuons{ this, "IncomingMuons", "", "Element Link vector from jet to particle container"};
+    SG::WriteDecorHandleKey<xAOD::BTaggingContainer> m_OutgoingMuons{ this, "OutgoingMuons", "", "Element Link vector from BTagging to muon container"};
+
     //SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
     SG::ReadHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", "Input BTagging secondary vertex container"};
     SG::ReadHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", "Input BTagging Jet Fitter container"};
@@ -55,6 +60,8 @@ class  JetBTaggingAlg:
     SG::WriteDecorHandleKey<xAOD::BTaggingContainer> m_bTagJetDecorLinkName {this, "JetLinkName", "", "Element Link from BTagging to Jet container"};
 
     std::string m_JetName;
+
+    bool m_DoMuons;
 
     ToolHandle< IBTagTool > m_bTagTool;
     ToolHandle< IBTagLightSecVertexing > m_bTagSecVtxTool;

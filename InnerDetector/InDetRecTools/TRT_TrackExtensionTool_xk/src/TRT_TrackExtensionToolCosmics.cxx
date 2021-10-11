@@ -155,7 +155,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) 
 {
 
   return out;
@@ -165,7 +165,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out 
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) 
 {
   return out;
 }
@@ -218,14 +218,12 @@ InDet::TRT_TrackExtensionToolCosmics::newEvent(const EventContext& ctx) const
   std::unique_ptr<EventData> event_data(new EventData(trtcontainer.cptr()));
 
   Amg::RotationMatrix3D r; r.setIdentity();
-  Amg::Transform3D* t = nullptr;
-
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
+  Amg::Transform3D t = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
   event_data->m_trtcylinder= new Trk::CylinderSurface(t,1150.,3000.);
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
-  event_data->m_trtdiscA   = new Trk::DiscSurface    (t,1.,1200.);
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
-  event_data->m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
+  Amg::Transform3D transf = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
+  event_data->m_trtdiscA   = new Trk::DiscSurface    (transf,1.,1200.);
+  transf = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
+  event_data->m_trtdiscC   = new Trk::DiscSurface    (transf,1.,1200.);
 
   return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());
 
@@ -330,13 +328,13 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //take the closest one in case it satisfies some default cuts
 	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
-	  for (; driftCircleIterator != container->end(); driftCircleIterator++) {
+	  for (; driftCircleIterator != container->end(); ++driftCircleIterator) {
 
 	    //get the associated surface of the driftcircle
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());
 
 	    //get the local position of the track prediction in the frame of the driftcircle
-	    const Amg::Vector2D *lpos=dc_surface.globalToLocal((*parameterIter)->position());
+      std::optional<Amg::Vector2D> lpos=dc_surface.globalToLocal((*parameterIter)->position());
 
 	    double distance=m_roadwidth+1;
 	    if(lpos){
@@ -352,7 +350,6 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 		}
 	      }
 
-	      delete lpos;
 	    }
 
 	    if(distance<maxdist){

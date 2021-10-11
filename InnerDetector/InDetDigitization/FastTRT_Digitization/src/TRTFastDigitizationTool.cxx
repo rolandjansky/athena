@@ -182,7 +182,7 @@ StatusCode TRTFastDigitizationTool::processBunchXing( int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++) {
+  for( ; iColl != endColl; ++iColl) {
     TRTUncompressedHitCollection *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<
@@ -377,8 +377,9 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx)
       Amg::Vector2D hitLocalPosition( smearedRadius, 0. );
       std::vector< Identifier > rdoList = { straw_id };
 
-      Amg::MatrixX *hitErrorMatrix = new Amg::MatrixX( 1, 1 );
-      ( *hitErrorMatrix )( Trk::driftRadius, Trk::driftRadius ) = sigmaTrt * sigmaTrt * m_cFit[ idx ][ 1 ] * m_cFit[ idx ][ 1 ];
+      auto hitErrorMatrix = Amg::MatrixX(1, 1);
+      (hitErrorMatrix)(Trk::driftRadius, Trk::driftRadius) =
+        sigmaTrt * sigmaTrt * m_cFit[idx][1] * m_cFit[idx][1];
 
       // the TRT word simulate only TR information for the moment
       // consult TRTElectronicsProcessing::EncodeDigit() in TRT_Digitization/src/TRTElectronicsProcessing.cxx
@@ -421,8 +422,15 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx)
 
       }
 
-      InDet::TRT_DriftCircle *trtDriftCircle = new InDet::TRT_DriftCircle( straw_id, hitLocalPosition, rdoList, hitErrorMatrix, trtBaseElement, word );
-      if ( !trtDriftCircle ) continue;
+      InDet::TRT_DriftCircle* trtDriftCircle =
+        new InDet::TRT_DriftCircle(straw_id,
+                                   hitLocalPosition,
+                                   rdoList,
+                                   std::move(hitErrorMatrix),
+                                   trtBaseElement,
+                                   word);
+      if (!trtDriftCircle)
+        continue;
 
       m_driftCircleMap.insert( std::multimap< Identifier, InDet::TRT_DriftCircle * >::value_type( straw_id, trtDriftCircle ) );
 
@@ -518,18 +526,13 @@ StatusCode TRTFastDigitizationTool::mergeEvent(const EventContext& ctx) {
   CHECK( this->createOutputContainers() );
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  if ( m_thpctrt != 0 ) {
+  if ( m_thpctrt != nullptr ) {
     CHECK( this->produceDriftCircles(ctx) );
   }
 
   // Clean up temporary containers
   delete m_thpctrt;
-  std::list< TRTUncompressedHitCollection * >::iterator trtHitColl( m_trtHitCollList.begin() );
-  std::list< TRTUncompressedHitCollection * >::iterator trtHitCollEnd( m_trtHitCollList.end() );
-  while( trtHitColl != trtHitCollEnd ) {
-    delete ( *trtHitColl );
-    ++trtHitColl;
-  }
+  for(TRTUncompressedHitCollection* ptr : m_trtHitCollList) delete ptr;
   m_trtHitCollList.clear();
 
   CHECK( this->createAndStoreRIOs() );
@@ -574,15 +577,20 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
       unsigned int newword = 0;
       if(highTRMergeProb*(numberOfHitsInOneStraw-1) > CLHEP::RandFlat::shoot( m_randomEngine )) newword += 1 << (26-9); 
       const unsigned int newword2 = newword;
-const Amg::Vector2D locpos = trtDriftCircle->localPosition();
-      std::vector<Identifier> rdolist = trtDriftCircle->rdoList();
-      Amg::MatrixX* errRadius =  new Amg::MatrixX(trtDriftCircle->localCovariance());
+      const Amg::Vector2D locpos = trtDriftCircle->localPosition();
+      const std::vector<Identifier> &rdolist = trtDriftCircle->rdoList();
       const InDetDD::TRT_BaseElement* detEl = trtDriftCircle->detectorElement();
-      InDet::TRT_DriftCircle *trtDriftCircle2 = new InDet::TRT_DriftCircle( trtid, locpos,  
-									    rdolist, errRadius, 
-                                                                            detEl, newword2 );
-      idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle2 ) ); 
-      delete trtDriftCircle;  
+      InDet::TRT_DriftCircle* trtDriftCircle2 = new InDet::TRT_DriftCircle(
+        trtid,
+        locpos,
+        rdolist,
+        Amg::MatrixX(trtDriftCircle->localCovariance()),
+        detEl,
+        newword2);
+      idHashMap.insert(
+        std::multimap<IdentifierHash, InDet::TRT_DriftCircle*>::value_type(
+          hash, trtDriftCircle2));
+      delete trtDriftCircle;
     }
     else{
       idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle ) );

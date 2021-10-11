@@ -52,14 +52,14 @@ void Initialize (string inputfile, string trkcollection)
 
   //cout << "    hisname = " << hisname.c_str() << endl;
   _hd0phi0z0 = (TH3F*)_InputFile->Get(hisname.c_str());
-
-  _hd0phi0z0_prof = _hd0phi0z0->Project3DProfile("yx");
-
-  if (_hd0phi0z0 == NULL) {
+  
+  if (_hd0phi0z0 != nullptr){
+    _hd0phi0z0_prof = _hd0phi0z0->Project3DProfile("yx");
+  } else {
     cout << " ** BeamSpotCalculator::Initialize ** ERROR ** histogram " << hisname.c_str() << " ** Not found ** " << endl;
     exit(-1); // leave program
   }
-  else cout << " ** BeamSpotCalculator::Initialize ** SUCCESSFUL **"<< endl;
+  cout << " ** BeamSpotCalculator::Initialize ** SUCCESSFUL **"<< endl;
   return;
 }
 

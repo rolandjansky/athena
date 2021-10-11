@@ -25,14 +25,14 @@ createRpcPrepData( const Muon::RpcPrepData_p3 *persObj,
   std::vector<Identifier> rdoList(1);
   rdoList[0]=id;
     
-  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
-  (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
+  auto cmat = Amg::MatrixX(1,1);
+  cmat(0,0) = static_cast<double>(persObj->m_errorMat);
 
   Muon::RpcPrepData data (id,
                           0, // collectionHash
                           localPos,
                           rdoList,
-                          cmat.release(),
+                          std::move(cmat),
                           detEl,
                           persObj->m_time,
                           persObj->m_triggerInfo,

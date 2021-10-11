@@ -28,15 +28,19 @@ public:
   {
     if (!trackStateOnSurfaces) {
       VP1Msg::messageDebug("TrackHandle_TrackParticle WARNING: Could not create track due to null TSOS vector");
-      return 0;
+      return nullptr;
     }
     if (trackStateOnSurfaces->size()==0) {
       VP1Msg::messageDebug("TrackHandle_TrackParticle WARNING: Could not create track due to empty TSOS vector");
       delete trackStateOnSurfaces;
-      return 0;
+      return nullptr;
     }
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,theclass->extrapolationParticleHypothesis());
-    const Trk::Track * trk = new Trk::Track(ti,trackStateOnSurfaces/*track assumes ownership*/,0/*fitquality*/);
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(trackStateOnSurfaces);
+    const Trk::Track* trk =
+      new Trk::Track(ti,
+                     std::move(*sink),
+                     nullptr /*fitquality*/);
     if (VP1Msg::verbose())
       VP1Msg::messageVerbose("TrackHandle_TrackParticle created track with "
  			     +QString::number(trackStateOnSurfaces->size())+" parameters");
@@ -57,7 +61,7 @@ TrackHandle_TrackParticle::TrackHandle_TrackParticle(TrackCollHandleBase* ch, co
 {
   m_d->theclass = this;
   m_d->trackparticle = tp;
-  m_d->trkTrack = 0;
+  m_d->trkTrack = nullptr;
   m_d->trkTrackInit = false;
 
 }
@@ -110,7 +114,7 @@ const Trk::Track * TrackHandle_TrackParticle::provide_pathInfoTrkTrack() const
     if (needresorting) {
       const Trk::TrackParameters* p = trackpars.at(trackpars.size()-1);
       if (p)
-        trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+        trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->uniqueClone(),nullptr,nullptr));
     }
     unsigned limit(needresorting?trackpars.size()-1:trackpars.size());
 
@@ -121,7 +125,7 @@ const Trk::Track * TrackHandle_TrackParticle::provide_pathInfoTrkTrack() const
         continue;
       if (!common()->trackSanityHelper()->isSafe(p))
         continue;
-      trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+      trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->uniqueClone(),nullptr,nullptr));
     }
   }
 
@@ -136,48 +140,48 @@ void TrackHandle_TrackParticle::ensureTouchedMuonChambersInitialised() const
 
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNPixelHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfPixelHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfPixelHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNSCTHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfSCTHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfSCTHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNTRTHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfTRTHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfTRTHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNMuonPhiHits() const
-{ 
+{
   return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNMDTHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNRPCHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) : 0;
 }//____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNTGCHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNCSCHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0;
 }
 
 //____________________________________________________________________
 unsigned TrackHandle_TrackParticle::getNMuonPrecisionHits() const
-{ 
-  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
+{
+  return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0;
 }
 
 

@@ -28,16 +28,17 @@ using std::abs;
 // Constructor with parameters:
 
 PixelModuleDesign::PixelModuleDesign(const double thickness,
-				     const int circuitsPerColumn,
-				     const int circuitsPerRow,
-				     const int cellColumnsPerCircuit,
-				     const int cellRowsPerCircuit,
-				     const int diodeColumnsPerCircuit,
-				     const int diodeRowsPerCircuit,
-				     std::shared_ptr<const PixelDiodeMatrix> matrix,
-				     InDetDD::CarrierType carrierType,
-				     int readoutSide,
-				     bool is3D) :
+                                    const int circuitsPerColumn,
+                                    const int circuitsPerRow,
+                                    const int cellColumnsPerCircuit,
+                                    const int cellRowsPerCircuit,
+                                    const int diodeColumnsPerCircuit,
+                                    const int diodeRowsPerCircuit,
+                                    std::shared_ptr<const PixelDiodeMatrix> matrix,
+                                    InDetDD::CarrierType carrierType,
+                                    int readoutSide,
+                                    bool is3D,
+                                    InDetDD::DetectorType detectorType) :
 
   SiDetectorDesign(thickness, 
 		   true, true, true, // phi,eta,depth axes symmetric
@@ -48,7 +49,8 @@ PixelModuleDesign::PixelModuleDesign(const double thickness,
 		  cellColumnsPerCircuit,cellRowsPerCircuit,
 		  diodeColumnsPerCircuit,diodeRowsPerCircuit),
   m_bounds(),
-  m_is3D(is3D)
+  m_is3D(is3D),
+  m_detectorType(detectorType)
 {
 }
 
@@ -242,5 +244,9 @@ PixelModuleDesign::cellIdInRange(const SiCellId & cellId) const
   return m_diodeMap.cellIdInRange(cellId);
 }
 
+DetectorType PixelModuleDesign::type() const
+{
+  return m_detectorType;
+}
 
 } // namespace InDetDD

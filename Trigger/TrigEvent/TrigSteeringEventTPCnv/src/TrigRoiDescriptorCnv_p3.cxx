@@ -17,12 +17,56 @@ void TrigRoiDescriptorCnv_p3::persToTrans(const TrigRoiDescriptor_p3* persObj,
    double phi       = persObj->geom[PHI]        ;                 
    double eta       = persObj->geom[ETA]        ;                 
    double zed       = persObj->geom[ZED]        ;                 
+
    double phiPlus   = persObj->geom[PHIPLUS]    ;
    double phiMinus  = persObj->geom[PHIMINUS]   ;
    double etaPlus   = persObj->geom[ETAPLUS]    ;
    double etaMinus  = persObj->geom[ETAMINUS]   ;
    double zedPlus   = persObj->geom[ZEDPLUS]    ;
    double zedMinus  = persObj->geom[ZEDMINUS]   ;
+
+   /// won't remap the central values - they should never be nan really, and if they are 
+   /// we have no idea what to set them to, so leave those to throw in the RoiDescriptor 
+   /// constructor 
+
+   /// not sure whether these are best remapped to the central Roi size, or set to some non 
+   /// physical value - a non-physical may cause problems wit hthe code down the line, which 
+   /// would actually be a good thing, but it would not be obvious why, if the user hadm't 
+   /// spotted these warnings - we at least it is not correcting these silently
+ 
+   /// NB: here we se the log << MSG::WARNING since this code si old, and the rest is done 
+   ///     this way and I dont want to touch the log output in the bits I am not modifying, 
+   ///     so done like this for consistency  
+
+   if ( std::isnan(phiPlus)  ) {
+     log << MSG::WARNING << "TrigRoiDescriptorCnv_p3::persToTrans: remapping nan for phiPlus " << endmsg;
+     phiPlus  = phi;
+   }
+   
+   if ( std::isnan(phiMinus) ) { 
+     log << MSG::WARNING << "TrigRoiDescriptorCnv_p3::persToTrans: remapping nan for phiMinus " << endmsg;
+     phiMinus = phi;
+   }
+   
+   if ( std::isnan(etaPlus)  ) {  
+     log << MSG::WARNING << "TrigRoiDescriptorCnv_p3::persToTrans: remapping nan for etaPlus " << endmsg;
+     etaPlus  = eta;
+   }
+   
+   if ( std::isnan(etaMinus) ) { 
+     log << MSG::WARNING << "TrigRoiDescriptorCnv_p3::persToTrans: remapping nan for etaMinus " << endmsg;
+     etaMinus = eta;
+   }
+   
+   if ( std::isnan(zedPlus) ) { 
+     log << MSG::WARNING << "TrigRoiDescriptorCnv_p3::persToTrans: remapping nan for zedPlus " << endmsg;
+     zedPlus  = zed;
+   }
+   
+   if ( std::isnan(zedMinus) ) { 
+     log << MSG::WARNING << "TrigRoiDescriptorCnv_p3::persToTrans: remapping nan for zedMinus " << endmsg;
+     zedMinus = zed;
+   }
    
    *transObj = TrigRoiDescriptor (persObj->ids[ROIWORD],
                                   0,
@@ -67,7 +111,6 @@ void TrigRoiDescriptorCnv_p3::transToPers(const TrigRoiDescriptor* transObj,
    persObj->ids[ROIWORD]   = transObj->roiWord()    ;
 
    persObj->fullscan       = transObj->isFullscan() ;
-   
    
 
    if ( transObj->size()>0 ) {

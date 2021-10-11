@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CosmicChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
@@ -15,7 +15,7 @@ class CosmicChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):       
+    def assembleChainImpl(self):       
                          
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)

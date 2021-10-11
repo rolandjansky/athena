@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughHisto2DContainer.h"
@@ -37,7 +37,7 @@ std::pair <int,int> MuonHoughHisto2DContainer::getMaximumBinnumber(unsigned int 
   
 }
 
-void MuonHoughHisto2DContainer::reset()
+void MuonHoughHisto2DContainer::reset() const
 {
   for (int histoid=0; histoid<size(); histoid++)
     {

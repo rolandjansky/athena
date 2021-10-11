@@ -10,7 +10,6 @@
 
 #include "PeriodicScaler.h"
 #include "TrigConfBase/MsgStream.h"
-#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigT1Interfaces/FrontPanelCTP.h"
@@ -65,6 +64,9 @@ namespace LVL1 {
       // outputs
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { this, "TopoCTPLocation", LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP"}; ///< SG key of decision bits for CTP
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { this, "TopoOverflowCTPLocation", LVL1::DEFAULT_L1TopoOverflowCTPLocation, "StoreGate key of topo overflow output for CTP"}; ///< SG key of overflow bits for CTP
+     
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_legacyTopoCTPLocation { this, "LegacyTopoCTPLocation", LVL1::DEFAULT_L1TopoLegacyCTPLocation, "StoreGate key of topo decision output for CTP"}; ///< SG key of decision bits for CTP
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_legacyTopoOverflowCTPLocation { this, "LegacyTopoOverflowCTPLocation", LVL1::DEFAULT_L1TopoLegacyOverflowCTPLocation, "StoreGate key of topo overflow output for CTP"}; ///< SG key of overflow bits for CTP
 
       Gaudi::Property<bool> m_isLegacyTopo { this, "IsLegacyTopo", false, "Simulation of Legacy L1Topo boards" };
       Gaudi::Property<bool> m_enableInputDump { this, "EnableInputDump", false, "Enable writing of input data for standalone running" };
@@ -74,7 +76,7 @@ namespace LVL1 {
       Gaudi::Property<int> m_topoSteeringOutputLevel { this, "TopoSteeringOutputLevel", TrigConf::MSGTC::WARNING, "OutputLevel for L1Topo steering"};
 
       // Properties for hardware monitoring
-      Gaudi::Property<bool> m_fillHistogramsBasedOnHardwareDecision { this, "FillHistoBasedOnHardware", true, "Fill accept/reject histograms based on hdw; default based on sim" };
+      Gaudi::Property<bool> m_fillHistogramsBasedOnHardwareDecision { this, "FillHistoBasedOnHardware", false, "Fill accept/reject histograms based on hdw; default based on sim" };
       Gaudi::Property<unsigned int> m_prescaleForDAQROBAccess { this, "PrescaleDAQROBAccess", 4, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events"}; 
       Gaudi::Property<unsigned int> m_prescale { this, "Prescale", 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything"};
       Gaudi::Property<std::string> m_histBaseDir { this, "MonHistBaseDir", "L1/L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>"}; 

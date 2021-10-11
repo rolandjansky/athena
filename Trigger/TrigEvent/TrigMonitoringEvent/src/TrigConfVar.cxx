@@ -1,27 +1,20 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigConfVar.h"
-#include "TrigMonMSG.h"
 
-using namespace std;
 
 namespace TrigVar {
   static std::vector<TrigConfVar> gVarVec;
   static unsigned int gCounter = 60000;
 }
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigConfVar");
-}
-
-//--------------------------------------------------------------------------------------      
+//--------------------------------------------------------------------------------------
 TrigConfVar::TrigConfVar()
   :m_id(0),
    m_name()
@@ -38,20 +31,20 @@ TrigConfVar::TrigConfVar(const std::string &name, uint32_t id)
 //--------------------------------------------------------------------------------------      
 void TrigConfVar::print(std::ostream &os) const
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------  
 std::string str(const TrigConfVar &o)
 {
-  stringstream s;
+  std::stringstream s;
   s << "TrigConfVar: " << o.name() << "=" << o.id();
   
   return s.str();  
 }
 
 //--------------------------------------------------------------------------------------      
-uint16_t Trig::ReserveVarId(const std::string &name)
+uint16_t Trig::ReserveVarId ATLAS_NOT_THREAD_SAFE (const std::string &name)
 {
   //
   // Return matching id, if it does not exist then create new id
@@ -66,7 +59,7 @@ uint16_t Trig::ReserveVarId(const std::string &name)
   }
   
   if(TrigVar::gCounter+1 >= 65535) {
-    MSGService::msg.Log("ReserveVarId - error! Overflow of 16 bits key.", MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "ReserveVarId") << "Overflow of 16 bits key.";
     return 0;
   }
   
@@ -79,7 +72,7 @@ uint16_t Trig::ReserveVarId(const std::string &name)
 }
 
 //--------------------------------------------------------------------------------------      
-uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
+uint16_t Trig::ReserveVarId ATLAS_NOT_THREAD_SAFE (const std::string &name, uint16_t id)
 {
   //
   // Create new id using input id as suggestion.
@@ -93,9 +86,8 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
       // Check if already stored id matches
       //
       if(TrigVar::gVarVec[i].getId() != id) {
-        std::stringstream ss;
-        ss << "ReserveVarId - error! Existing var with " << name << " and id=" << TrigVar::gVarVec[i].getId() << ": new id=" << id;
-        MSGService::msg.Log(ss.str(), MSG::ERROR);
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "ReserveVarId")
+          << "ReserveVarId - error! Existing var with " << name << " and id=" << TrigVar::gVarVec[i].getId() << ": new id=" << id;
       }
 
       return TrigVar::gVarVec[i].getId();
@@ -107,9 +99,8 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
       matched_id = true;
 
       if(TrigVar::gVarVec[i].getName() != name) {
-        std::stringstream ss;
-        ss << "ReserveVarId - error! Existing var with " << name << " and id=" << TrigVar::gVarVec[i].getId() << ": new name=" << name;
-        MSGService::msg.Log(ss.str(), MSG::ERROR);
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "ReserveVarId")
+          << "ReserveVarId - error! Existing var with " << name << " and id=" << TrigVar::gVarVec[i].getId() << ": new name=" << name;
       }
       else {
         return id;
@@ -122,7 +113,7 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
   //
   if(matched_id) {
     if(TrigVar::gCounter+1 >= 65535) {
-      MSGService::msg.Log("ReserveVarId - error! Overflow of 16 bits key.", MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "ReserveVarId") << "Overflow of 16 bits key";
       return 0;
     }
     
@@ -136,7 +127,7 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
 }
 
 //--------------------------------------------------------------------------------------      
-bool Trig::FindVarId(const std::string &name, uint16_t &id)
+bool Trig::FindVarId ATLAS_NOT_THREAD_SAFE (const std::string &name, uint16_t &id)
 {
   //
   // Find id for variable name
@@ -153,7 +144,7 @@ bool Trig::FindVarId(const std::string &name, uint16_t &id)
 }
 
 //--------------------------------------------------------------------------------------      
-bool Trig::FindVarName(const uint16_t id, std::string &name)
+bool Trig::FindVarName ATLAS_NOT_THREAD_SAFE (const uint16_t id, std::string &name)
 {
   //
   // Find id for variable name
@@ -170,7 +161,7 @@ bool Trig::FindVarName(const uint16_t id, std::string &name)
 }
 
 //--------------------------------------------------------------------------------------      
-std::vector<TrigConfVar> Trig::GetCurrentTrigConfVarVector()
+std::vector<TrigConfVar> Trig::GetCurrentTrigConfVarVector ATLAS_NOT_THREAD_SAFE ()
 {
   //
   // Return copy of static vector

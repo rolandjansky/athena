@@ -26,7 +26,7 @@ class MM_RawDataCollection;
 namespace Muon 
 {
 
-  class MmRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class MmRdoToPrepDataToolCore : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
   {
   public:
     MmRdoToPrepDataToolCore(const std::string&,const std::string&,const IInterface*);
@@ -38,17 +38,17 @@ namespace Muon
     virtual StatusCode initialize() override;
     
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
-    virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+    virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const override;
     //new decode methods for Rob based readout
-    StatusCode decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs );
-    virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
+    StatusCode decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs ) const;
+    virtual StatusCode decode( const std::vector<uint32_t>& robIds ) const override;
     
     StatusCode processCollection(Muon::MMPrepDataContainer* mmPrepDataContainer,
                                  const MM_RawDataCollection *rdoColl, 
    				 std::vector<IdentifierHash>& idWithDataVect) const;
 
-    virtual void printInputRdo() override;
-    virtual void printPrepData() override;
+    virtual void printInputRdo() const override;
+    virtual void printPrepData() const override;
     
   protected:
     

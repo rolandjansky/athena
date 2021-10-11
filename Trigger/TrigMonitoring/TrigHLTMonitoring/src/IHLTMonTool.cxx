@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -38,7 +38,7 @@ IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, c
     m_log(0), m_cafonly(0),
     m_storeGate("StoreGateSvc",myname),
     m_inputMetaStore("StoreGateSvc/InputMetaDataStore",myname),
-    m_configsvc("TrigConf::TrigConfigSvc/TrigConfigSvc",myname), //pickup previously configured configSvc from svcMgr (same as TDT)
+    m_configsvc("TrigConf::xAODConfigSvc/xAODConfigSvc",myname),
     m_tdthandle("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_configTool("") //defaults to empty
 {
@@ -65,14 +65,11 @@ StatusCode IHLTMonTool::initialize() {
   // retrieve the trigger decision tool
   ATH_CHECK(  m_tdthandle.retrieve() );
 
-  // After retrieve enable Expert methods
-  getTDT()->ExperimentalAndExpertMethods()->enable();
-
   ATH_CHECK( m_storeGate.retrieve() );
   ATH_CHECK( m_inputMetaStore.retrieve() );
 
   if(m_configTool.empty()){
-      ATH_MSG_INFO("No TrigConfigTool provided, using TrigConfigSvc (default)");
+      ATH_MSG_INFO("No TrigConfigTool provided, using " << m_configsvc);
       StatusCode sc = m_configsvc.retrieve();
       if ( sc.isFailure() ) {
           ATH_MSG_WARNING("Could not retrieve TrigConfigSvc - trying TrigConf::xAODConfigTool");
@@ -198,7 +195,7 @@ void IHLTMonTool::addHistogram(TH1 *h, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -234,7 +231,7 @@ void IHLTMonTool::addHistogram(TH2 *h, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -270,7 +267,7 @@ void IHLTMonTool::addTree(TTree *t, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -307,7 +304,7 @@ void IHLTMonTool::addGraph(TGraph *g, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -345,7 +342,7 @@ void IHLTMonTool::addProfile(TProfile *h, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -382,7 +379,7 @@ void IHLTMonTool::removeHistogram(const std::string &histName, const std::string
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -413,7 +410,7 @@ void IHLTMonTool::removeHistogram2(const std::string &histName, const std::strin
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -444,7 +441,7 @@ void IHLTMonTool::removeProfile(const std::string &histName, const std::string &
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -477,7 +474,7 @@ TH1 *IHLTMonTool::hist(const std::string &histName, const std::string &monGroup)
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -503,7 +500,7 @@ TH2 *IHLTMonTool::hist2(const std::string &histName, const std::string &monGroup
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -528,7 +525,7 @@ TH2 *IHLTMonTool::hist2(const std::string &histName, const std::string &monGroup
 TTree *IHLTMonTool::tree(const std::string &treeName, const std::string &monGroup) {
   std::string theMonGroup;
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -552,7 +549,7 @@ TTree *IHLTMonTool::tree(const std::string &treeName, const std::string &monGrou
 TGraph *IHLTMonTool::graph(const std::string &graphName, const std::string &monGroup) {
   std::string theMonGroup;
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -577,7 +574,7 @@ TProfile *IHLTMonTool::profile(const std::string &histName, const std::string &m
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -608,7 +605,7 @@ TNtuple *IHLTMonTool::ntuple(const std::string &treeName, const std::string &mon
   if (!mntuple) {
     std::string theMonGroup;
     std::map<std::string, MonGroup *>::iterator groupItr;
-    if (monGroup == "") {
+    if (monGroup .empty()) {
       theMonGroup = m_currentMonGroup;
     } else {
       theMonGroup = monGroup;
@@ -659,7 +656,7 @@ StatusCode IHLTMonTool::fillHistograms() {
     ATH_MSG_DEBUG("Running fill() for " << name());
    
     // Require non-truncated HLTResult
-    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) {
+    if(getTDT()->ExperimentalAndExpertMethods().isHLTTruncated()) {
       ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
     }
     else { 

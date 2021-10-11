@@ -76,7 +76,7 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
 
     std::vector<elParams>::const_iterator p = m_egammaID.begin();
     
-    for (;p !=m_egammaID.end(); p++) {
+    for (;p !=m_egammaID.end(); ++p) {
       if ( (*p).first == key ){
 	if (found != nullptr) {
 	  *found = true;
@@ -108,11 +108,11 @@ bool egPID::set_egammaID(egammaPIDObs::PID key, double value)
   case egammaPIDObs::IsGoodOQ:
     return set_egammaIDint( key, (unsigned int) value);
   default:
-    typedef std::pair<egammaPIDObs::PID,double> elParams;
+    using elParams = std::pair<egammaPIDObs::PID, double>;
     
     std::vector<elParams>::iterator p = m_egammaID.begin();
     
-    for (;p !=m_egammaID.end(); p++) {
+    for (;p !=m_egammaID.end(); ++p) {
       if ( (*p).first == key ) break;
     }
     
@@ -134,11 +134,11 @@ bool egPID::set_egammaIDint(egammaPIDObs::PID key, unsigned int value)
   // method to set value
   //
 
-  typedef std::pair<egammaPIDObs::PID,unsigned int> elParams;
+  using elParams = std::pair<egammaPIDObs::PID, unsigned int>;
 
   std::vector<elParams>::iterator p = m_egammaIDint.begin();
  
-  for (;p !=m_egammaIDint.end(); p++) {
+  for (;p !=m_egammaIDint.end(); ++p) {
     if ( (*p).first == key ) break;
   }
 
@@ -192,11 +192,11 @@ unsigned int egPID::egammaIDint(egammaPIDObs::PID key, bool *found) const
   // method to retrieve value
   //
   
-  typedef std::pair<egammaPIDObs::PID,unsigned int> elParams;
+  using elParams = std::pair<egammaPIDObs::PID, unsigned int>;
 
   std::vector<elParams>::const_iterator p = m_egammaIDint.begin();
  
-  for (;p !=m_egammaIDint.end(); p++) {
+  for (;p !=m_egammaIDint.end(); ++p) {
     if ( (*p).first == key ){
       if (found != nullptr) {
 	*found = true;

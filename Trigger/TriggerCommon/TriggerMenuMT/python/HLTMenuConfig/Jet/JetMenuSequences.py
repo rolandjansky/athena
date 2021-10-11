@@ -8,6 +8,10 @@ from .JetRecoConfiguration import jetRecoDictToString
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
 
+from AthenaCommon.Logging import logging
+logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger(__name__)
+
 # For step 1, starting from the basic calo reco and topoclustering
 # Used for calo-only chains and preselection for tracking
 def getInitialInputMaker():
@@ -34,6 +38,8 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
     if jetRecoDict["trkopt"] != "notrk":
         raise ValueError("Calorimeter jet reco called with a tracking option!")
 
+    log.debug("Generating jetCaloRecoSequences for configuration %s",jetRecoDictToString(jetRecoDict))
+
     # Get the topocluster reconstruction sequence
     from .JetRecoSequences import jetClusterSequence, jetRecoSequence
     topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
@@ -45,11 +51,30 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
 
     return [topoClusterSequence,jetRecoSeq], jetsOut, jetDef, clustersKey
 
+# This sets up the reconstruction starting from calo towers for heavy ion events.
+def jetHICaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
+    if jetRecoDict["ionopt"] == "noion":
+        raise ValueError("Heavy-ion calorimeter jet reco called without a ion option!")
+
+    # Get the tower reconstruction sequence 
+    from .JetHIConfig import jetHIClusterSequence
+    jetHIClusterSequence, clustersKey, towerKey = RecoFragmentsPool.retrieve(
+        jetHIClusterSequence, configFlags, ionopt=jetRecoDict["ionopt"], RoIs=RoIs)
+
+    # Get the jet reconstruction sequence including the jet definition and output collection
+    from .JetHIConfig import jetHIRecoSequence
+    jetHIRecoSeq, jetsOut, jetDef  = RecoFragmentsPool.retrieve(
+        jetHIRecoSequence, configFlags, clustersKey=clustersKey, towerKey=towerKey, **jetRecoDict )
+
+    return [jetHIClusterSequence,jetHIRecoSeq], jetsOut, jetDef, clustersKey
+
 # This sets up the reconstruction where tracks are required.
 # Topoclustering will not be scheduled, we just pass in the name of the cluster collection.
 def jetTrackingRecoSequences(configFlags, RoIs, clustersKey, **jetRecoDict):
     if jetRecoDict["trkopt"] == "notrk":
         raise ValueError("Jet reco with tracks called without a tracking option!")
+
+    log.debug("Generating jetTrackingRecoSequences for configuration %s",jetRecoDictToString(jetRecoDict))
 
     # Get the track reconstruction sequence
     from .JetTrackingConfig import JetTrackingSequence
@@ -85,19 +110,21 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
     def trigStreamerHypoTool(chain_dict):
-        return conf2toConfigurable(CompFactory.TrigStreamerHypoToolMT(chain_dict["chainName"]))
+        return conf2toConfigurable(CompFactory.TrigStreamerHypoTool(chain_dict["chainName"]))
 
-    hyponame = "TrigJetHypoAlgMT_"+jetDefString
+    hyponame = "TrigJetHypoAlg_"+jetDefString
     trigHypoToolGen = trigJetHypoToolFromDict
     if hypoType==JetHypoAlgType.PASSTHROUGH:
-        hyponame = "TrigStreamerHypoAlgMT_caloReco"
-        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame))
+        hyponame = "TrigStreamerHypoAlg_caloReco"
+        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlg(hyponame))
         trigHypoToolGen = trigStreamerHypoTool
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"
-        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlgMT(hyponame, Jets=jetsIn, DoPresel=True))
+        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn, DoPresel=True))
     else:
-        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlgMT(hyponame, Jets=jetsIn))
+        hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn))
+
+    log.debug("Generating jet menu sequence for hypo %s",hyponame)
 
     return  MenuSequence(   Sequence    = jetSeq,
                             Maker       = IMAlg,
@@ -112,6 +139,7 @@ def jetCaloPreselMenuSequence(configFlags, **jetRecoDict):
         configFlags, RoIs=caloFSRoI, **jetRecoDict)
 
     jetDefString = jetRecoDictToString(jetRecoDict)
+    log.debug("Generating jet preselection menu sequence for reco %s",jetDefString)
     jetAthSeq = seqAND("jetSeqCaloPresel_"+jetDefString,[InputMakerAlg]+jetSequences)
 
     return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString,
@@ -127,6 +155,7 @@ def jetCaloRecoMenuSequence(configFlags, clusterCalib):
 
     jetAthSeq = seqAND("jetSeqCaloRecoPassThrough_"+clusterCalib,[InputMakerAlg,topoClusterSequence])
 
+    log.debug("Generating jet calocluster reco sequence")
     return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,"caloreco",
                             hypoType=JetHypoAlgType.PASSTHROUGH), clustersKey
 
@@ -138,11 +167,28 @@ def jetCaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
         jetCaloRecoSequences,
         configFlags, RoIs=caloFSRoI, **jetRecoDict)
     jetDefString = jetRecoDictToString(jetRecoDict)
+    log.debug("Generating jet calo hypo menu sequence for reco %s",jetDefString)
     jetAthSeq = seqAND("jetSeqCaloHypo_"+jetDefString,[InputMakerAlg]+jetSequences)
 
     hypoType = JetHypoAlgType.STANDARD
     if isPerf: hypoType = JetHypoAlgType.PASSTHROUGH
     return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString,hypoType) ,jetDef
+
+# A full hypo selecting only on heavy ion calo jets (step 1)
+# Passing isPerf = True disables the hypo
+def jetHICaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
+    InputMakerAlg = getInitialInputMaker()
+    jetSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
+        jetHICaloRecoSequences,
+        configFlags, RoIs=caloFSRoI, **jetRecoDict)
+
+    strtemp = "HI_{recoAlg}_{jetCalib}"
+    jetDefString = strtemp.format(**jetRecoDict)
+    jetAthSeq = seqAND("jetSeqHICaloHypo_"+jetDefString,[InputMakerAlg]+jetSequences)
+
+    hypoType = JetHypoAlgType.STANDARD
+    if isPerf: hypoType = JetHypoAlgType.PASSTHROUGH
+    return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString,hypoType), jetDef
 
 # A full hypo selecting on jets with track reco (step 2)
 # To combine either with a presel or a passthrough sequence
@@ -155,6 +201,7 @@ def jetTrackingHypoMenuSequence(configFlags, clustersKey, isPerf, **jetRecoDict)
         configFlags, RoIs=trkFSRoI, clustersKey=clustersKey, **jetRecoDict)
 
     jetDefString = jetRecoDictToString(jetRecoDict)
+    log.debug("Generating jet tracking hypo menu sequence for reco %s",jetDefString)
     jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,[InputMakerAlg]+jetSequences)
 
     hypoType = JetHypoAlgType.STANDARD

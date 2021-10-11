@@ -72,7 +72,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if 'truthpartdressedwz' not in jtm.tools:
             jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
                                           MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                          IncludePromptLeptons=False,IncludePromptPhotons=False,
+                                          IncludePromptLeptons=False,IncludePromptPhotons=True,
                                           IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
                                           FSRPhotonCone=-1., DressingDecorationName=decorationDressing
                                          )
@@ -103,6 +103,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                         )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetAlgorithm
+        from JetRec.JetRecFlags import jetFlags
         jtm += JetToolRunner("jetchargedrun", EventShapeTools=[], Tools=[jtm.truthpartcharged], Timer=jetFlags.timeJetToolRunner() )
         # And an algorithm to run in
         kernel += JetAlgorithm("jetchargedalg")
@@ -154,6 +155,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         truthgetters = [jtm.truthget]
         truthgetters += trackjetgetters
         flavorgetters = []
+        from JetRec.JetRecFlags import jetFlags
         for ptype in jetFlags.truthFlavorTags():
             flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
         truthgetters   += flavorgetters

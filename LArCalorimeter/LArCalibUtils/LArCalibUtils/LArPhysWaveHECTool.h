@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -66,9 +66,9 @@ class LArPhysWaveHECTool : public AthAlgTool
   static const int DEFAULT ;
   //LArCaliWave m_gCali;
   //LArPhysWave m_gPhys;
-  const LArPhysWave* m_gIdealPhys;	
+  const LArPhysWave* m_gIdealPhys = nullptr;	
   
-  const LArOnlineID* m_onlineHelper;
+  const LArOnlineID* m_onlineHelper = nullptr;
   //  bool m_verb;
   //int m_region, m_layer ;
   bool m_normalizeCali , m_timeOriginShift , m_subtractBaseline;
@@ -78,8 +78,8 @@ class LArPhysWaveHECTool : public AthAlgTool
 
   //  std::vector<bool> m_injPointCorrLayer, m_injPointUseTauR ;
   
-  double m_Omega0, m_Taur;
-  unsigned m_Tstart;
+  double m_Omega0 = 0.0, m_Taur = 0.0;
+  unsigned m_Tstart = 0U;
   double m_MinAmp;
   //void predict_phys_HEC(const HWIdentifier& chid, unsigned gain);
   void predict_phys_HEC(LArWFParams& wfParams, LArCaliWave &caliWave,

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEVENT_TRIGMUONEFINFOTRACK_H
@@ -43,13 +43,17 @@ public:
 	void setExtrapolatedTrack( TrigMuonEFTrack* track );
 	void setCombinedTrack( TrigMuonEFCbTrack* track );
 
-        void setSpectrometerTrack( std::unique_ptr<TrigMuonEFTrack> track );
-        void setExtrapolatedTrack( std::unique_ptr<TrigMuonEFTrack> track );
-        void setCombinedTrack( std::unique_ptr<TrigMuonEFCbTrack> track );
+	void setSpectrometerTrack( std::unique_ptr<TrigMuonEFTrack> track );
+	void setExtrapolatedTrack( std::unique_ptr<TrigMuonEFTrack> track );
+	void setCombinedTrack( std::unique_ptr<TrigMuonEFCbTrack> track );
 
-	TrigMuonEFTrack* SpectrometerTrack() const { return m_spectrometerTrack; }
-	TrigMuonEFTrack* ExtrapolatedTrack() const { return m_extrapolatedTrack; }
-	TrigMuonEFCbTrack* CombinedTrack()   const { return m_combinedTrack; }
+	TrigMuonEFTrack* SpectrometerTrack() { return m_spectrometerTrack; }
+	TrigMuonEFTrack* ExtrapolatedTrack() { return m_extrapolatedTrack; }
+	TrigMuonEFCbTrack* CombinedTrack()   { return m_combinedTrack; }
+
+	const TrigMuonEFTrack* SpectrometerTrack() const {return m_spectrometerTrack;}
+	const TrigMuonEFTrack* ExtrapolatedTrack() const {return m_extrapolatedTrack;}
+	const TrigMuonEFCbTrack* CombinedTrack()   const {return m_combinedTrack;}
 
 	unsigned short int MuonType() const
 	{

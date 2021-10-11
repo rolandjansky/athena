@@ -19,14 +19,14 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
 						  const std::string & name,
 						  const IInterface* parent):
   ManagedMonitorToolBase(type, name, parent),
-  m_pixID( 0 ),
-  m_sctID( 0 ),
+  m_pixID( nullptr ),
+  m_sctID( nullptr ),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
   m_errorGeoSCT(),
   m_disabledGeoSCT(),
-  m_disabledModulesMapPixel( 0 ),
-  m_disabledModulesMapSCT( 0 ),
+  m_disabledModulesMapPixel( nullptr ),
+  m_disabledModulesMapSCT( nullptr ),
   m_badModulesMapPixel(nullptr),
   m_errorModulesMapPixel(nullptr),
   m_errorModulesMapSCT(nullptr),
@@ -122,7 +122,7 @@ StatusCode InDetGlobalErrorMonTool::fillHistograms()
 
 StatusCode InDetGlobalErrorMonTool::procHistograms()
 {
-    if ( ( endOfLumiBlockFlag() || endOfRunFlag() ) && m_manager->lumiBlockNumber() % 1 == 0 )
+    if ( ( endOfLumiBlockFlag() || endOfRunFlag() ) && AthenaMonManager::lumiBlockNumber() % 1 == 0 )
     {	
       m_disabledModulesMapPixel->Reset("ICE");
       m_errorModulesMapPixel->Reset("ICE");
@@ -185,7 +185,7 @@ StatusCode InDetGlobalErrorMonTool::procHistograms()
   return StatusCode::SUCCESS;
 }
 
-void InDetGlobalErrorMonTool::FillModule( moduleGeo_t module, TH2F * histo )
+void InDetGlobalErrorMonTool::FillModule( moduleGeo_t module, TH2F * histo ) const
 {
   unsigned int lowX  = 0;
   unsigned int highX = 0;
@@ -247,7 +247,7 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   double deltaZ = 0;
   
   m_errorGeoSCT.clear();
-
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
@@ -257,7 +257,7 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
-      const std::set<IdentifierHash> sctErrors = m_byteStreamErrTool->getErrorSet( i );
+      const std::set<IdentifierHash> sctErrors = m_byteStreamErrTool->getErrorSet( i, ctx );
       // Check that all modules are registered
       for(const auto& idHash : sctErrors) {
 	    // The module is already registered, no need to do something
@@ -304,7 +304,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
       IdentifierHash waferHash = m_pixID->wafer_hash((*fit));
       
       // Inactive module, flagging time!
-      if ( m_pixelCondSummaryTool->isActive( waferHash ) == false )
+      if ( !m_pixelCondSummaryTool->isActive( waferHash ) )
 	{
 	  moduleGeo_t moduleGeo;
 	  
@@ -318,7 +318,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
 	  
 	}
       // Bad module, flagging time!
-      if ( m_pixelCondSummaryTool->isActive( waferHash ) == true && m_pixelCondSummaryTool->isGood( waferHash ) == false )
+      if ( m_pixelCondSummaryTool->isActive( waferHash ) && !m_pixelCondSummaryTool->isGood( waferHash ) )
 	{
 	  moduleGeo_t moduleGeo;
 	  

@@ -24,7 +24,7 @@
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "eformat/SourceIdentifier.h"  // change to new eformat v3
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 
@@ -86,60 +86,60 @@ private:
     // Define Identifiers of Collections for the given ROBID
   void defineCollID();
 
-  int m_numberOfWheelsA;
-  int m_numberOfWheelsAB;
-  int m_numberOfWheelsABC;
-  int m_numberOfStrawsAInRod;
-  int m_numberOfStrawsABInRod;
-  int m_numberOfStrawsInWheelAForRod;
-  int m_numberOfStrawsInWheelBForRod;
-  int m_numberOfStrawsInWheelCForRod;
+  int m_numberOfWheelsA{};
+  int m_numberOfWheelsAB{};
+  int m_numberOfWheelsABC{};
+  int m_numberOfStrawsAInRod{};
+  int m_numberOfStrawsABInRod{};
+  int m_numberOfStrawsInWheelAForRod{};
+  int m_numberOfStrawsInWheelBForRod{};
+  int m_numberOfStrawsInWheelCForRod{};
 
-  int m_numberOfPlanesAB;
-  int m_totalNumberOfPlanes;
-  int m_numberOfPhiSectorsInIDSector;
-  int m_numberOfStrawsInPhiSectorAB;
-  int m_numberOfStrawsInPhiSectorC;
-  int m_totalNumberOfStrawsInPhiSectorsAB;
+  int m_numberOfPlanesAB{};
+  int m_totalNumberOfPlanes{};
+  int m_numberOfPhiSectorsInIDSector{};
+  int m_numberOfStrawsInPhiSectorAB{};
+  int m_numberOfStrawsInPhiSectorC{};
+  int m_totalNumberOfStrawsInPhiSectorsAB{};
 
-  int m_numberOfRings;
-  int m_numberOfStrawsA;
-  int m_numberOfStrawsAB;
-  int m_numberOfLayersA;
-  int m_numberOfLayersB;
-  int m_numberOfLayersC;
-  int m_numberOfLayersAB;
+  int m_numberOfRings{};
+  int m_numberOfStrawsA{};
+  int m_numberOfStrawsAB{};
+  int m_numberOfLayersA{};
+  int m_numberOfLayersB{};
+  int m_numberOfLayersC{};
+  int m_numberOfLayersAB{};
 
-  int m_numberOfLayersInPhiSector;
-  int m_numberOfStrawsInPhiSector;
+  int m_numberOfLayersInPhiSector{};
+  int m_numberOfStrawsInPhiSector{};
 
-  int m_numberOfStrawsInROD;
-  int m_numberOfStrawsInBarrelROD;
+  int m_numberOfStrawsInROD{};
+  int m_numberOfStrawsInBarrelROD{};
   
-  int m_numberOfIdentifierSectors;
-  int m_numberOfEndCapPhiSectors;
+  int m_numberOfIdentifierSectors{};
+  int m_numberOfEndCapPhiSectors{};
   
-  int m_shiftForLeftEndCap;
-  int m_shiftForLeftBarrel;
-  int m_shiftForRightBarrel;
-  int m_shiftForRightEndCap;
+  int m_shiftForLeftEndCap{};
+  int m_shiftForLeftBarrel{};
+  int m_shiftForRightBarrel{};
+  int m_shiftForRightEndCap{};
   
-  int m_shiftForLeftEndCapStraws;
-  int m_shiftForLeftBarrelStraws;
-  int m_shiftForRightBarrelStraws;
-  int m_shiftForRightEndCapStraws;  
+  int m_shiftForLeftEndCapStraws{};
+  int m_shiftForLeftBarrelStraws{};
+  int m_shiftForRightBarrelStraws{};
+  int m_shiftForRightEndCapStraws{};  
 
-  int m_numberOfStrawPlanesAC;
-  int m_numberOfStrawPlanesB;
+  int m_numberOfStrawPlanesAC{};
+  int m_numberOfStrawPlanesB{};
 
-  int* m_layerID;
-  int* m_strawIDInLayer;
-  int* m_numberOfStrawsInPreviousLayers;
+  int* m_layerID{};
+  int* m_strawIDInLayer{};
+  int* m_numberOfStrawsInPreviousLayers{};
 
-  const TRT_ID* m_id_trt;
+  const TRT_ID* m_id_trt{};
   IdContext m_cntx;
 
-  TRT_CablingData* m_cabling;
+  TRT_CablingData* m_cabling{};
 };
 
 #endif  // TRT_FILLCABLINGDATA_DC1_H

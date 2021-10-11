@@ -24,11 +24,11 @@
  
  #include "AthContainers/DataVector.h"
 
- // Athena/Gaudi includes
- #include "GaudiKernel/DataSvc.h"
- 
+#include "StoreGate/WriteHandleKey.h"
+
  // LVL1 Calo Trigger
- #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
+#include "TrigT1CaloEvent/JEMEtSums_ClassDEF.h"
+#include "TrigT1CaloToolInterfaces/IL1EtTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 

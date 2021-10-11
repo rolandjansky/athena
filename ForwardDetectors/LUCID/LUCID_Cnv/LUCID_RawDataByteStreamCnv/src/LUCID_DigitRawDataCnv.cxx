@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,8 +12,8 @@ LUCID_DigitRawDataCnv::LUCID_DigitRawDataCnv(const std::string& name, ISvcLocato
   declareProperty("lucid_RawDataContainerKey", m_lucid_RawDataContainerKey = "Lucid_RawData");
   declareProperty("lucid_DigitContainerKey",   m_digitContainerKey         = "Lucid_Digits");
 
-  m_digitContainer = 0;
-  m_LUCID_RawDataContainer = 0;
+  m_digitContainer = nullptr;
+  m_LUCID_RawDataContainer = nullptr;
 }
 
 LUCID_DigitRawDataCnv::~LUCID_DigitRawDataCnv(){}

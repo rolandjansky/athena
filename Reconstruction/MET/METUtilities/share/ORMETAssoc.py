@@ -14,7 +14,6 @@ associators = [AssocConfig(JetType),
 cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow' if metFlags.DoORMet==False else 'AntiKt4OverlapRemovedEMPFlow',
                                 associators,
                                 doPFlow=True,
-                                usePFOLinks=metFlags.UsePFOLinks(), 
                                 useFELinks=metFlags.UseFELinks() 
                             )
 

@@ -555,7 +555,6 @@ PhotonContainer
 loosePPIso
 ConversionVertexAssociationTool
 MuonHits
-egammaObjectDecisionFillerTool
 PositionInCalo
 deltaeta
 deltaEta

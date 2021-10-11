@@ -6,7 +6,7 @@
 #define XAODDATASOURCE_MAKEDATAFRAME_H
 
 // ROOT include(s).
-#include "RootUtils/TClassEditRootUtils.h"
+
 #include <ROOT/RDataFrame.hxx>
 #include <ROOT/RStringView.hxx>
 

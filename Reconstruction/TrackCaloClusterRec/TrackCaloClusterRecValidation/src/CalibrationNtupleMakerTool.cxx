@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,21 +42,21 @@ CalibrationNtupleMakerTool::CalibrationNtupleMakerTool(const std::string& name, 
   m_trueIsoPtCut(100.*GeV),  
   m_matchingCut(0.6),  
   m_h_events(nullptr),
-  m_index(0),  
-  m_etaCalo(0),
-  m_etaDetCalo(0),
-  m_phiCalo(0),
-  m_eCalo(0),
-  m_mCalo(0),  
-  m_etaCorr(0),
-  m_etaDetCorr(0),
-  m_phiCorr(0),
-  m_eCorr(0),
-  m_mCorr(0),              
-  m_etaTrue(0),
-  m_phiTrue(0),
-  m_eTrue(0),
-  m_mTrue(0)
+  m_index(nullptr),  
+  m_etaCalo(nullptr),
+  m_etaDetCalo(nullptr),
+  m_phiCalo(nullptr),
+  m_eCalo(nullptr),
+  m_mCalo(nullptr),  
+  m_etaCorr(nullptr),
+  m_etaDetCorr(nullptr),
+  m_phiCorr(nullptr),
+  m_eCorr(nullptr),
+  m_mCorr(nullptr),              
+  m_etaTrue(nullptr),
+  m_phiTrue(nullptr),
+  m_eTrue(nullptr),
+  m_mTrue(nullptr)
   {    
     declareProperty("FolderName" , m_treeFolder);
     declareProperty("Description", m_treeDescription);
@@ -130,14 +130,14 @@ StatusCode CalibrationNtupleMakerTool::bookTree()
   }
   
   // now register the Tree
-  ITHistSvc* tHistSvc = 0;
+  ITHistSvc* tHistSvc = nullptr;
   if (service("THistSvc",tHistSvc).isFailure()) {
     ATH_MSG_ERROR( "initialize() Could not find Hist Service!" );
     return StatusCode::FAILURE;
   }
   
   if (tHistSvc) {
-    for (auto name : m_collectionNames) {
+    for (const auto& name : m_collectionNames) {
       if((tHistSvc->regTree(m_treeFolder+name, m_trees.at(name))).isFailure()) {
 	ATH_MSG_ERROR( "initialize() Could not register the validation Tree!" );
 	return StatusCode::FAILURE;
@@ -169,10 +169,10 @@ StatusCode CalibrationNtupleMakerTool::execute()
   } 
   float ev_weight = evt->mcEventWeight();
 
-  const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);  
+  const auto *const truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);  
   if (not truths) return StatusCode::FAILURE;
   
-  const auto vertices = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
+  const auto *const vertices = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
   if (not vertices) return StatusCode::FAILURE;
   
   // get mu
@@ -187,7 +187,7 @@ StatusCode CalibrationNtupleMakerTool::execute()
   }
   
   for (auto& name : m_collectionNames) {
-    const auto jets = getContainer<xAOD::JetContainer>(name);
+    const auto *const jets = getContainer<xAOD::JetContainer>(name);
 
     m_etaCalo       ->clear();
     m_etaDetCalo    ->clear();
@@ -263,7 +263,7 @@ StatusCode CalibrationNtupleMakerTool::execute()
   
 }
 
-int CalibrationNtupleMakerTool::Matched(const xAOD::Jet* truth, const xAOD::JetContainer* jets, std::vector<const xAOD::Jet*>& matched, int& index) {
+int CalibrationNtupleMakerTool::Matched(const xAOD::Jet* truth, const xAOD::JetContainer* jets, std::vector<const xAOD::Jet*>& matched, int& index) const {
   
   int Nmatches = 0;
   double drmin = 999.;

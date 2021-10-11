@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,23 +42,23 @@
 //____________________________________________________________________
 class GeoSysController::Imp {
 public:
-  GeoSysController * theclass;
-  Ui::GeometrySystemControllerForm ui;
-  Ui::GeoSysSettingsDisplayForm ui_disp;
-  Ui::GeoSysSettingsIconisedVolumesForm ui_iconisedvols;
-  Ui::GeoSysSettingsInteractionsForm ui_int;
-  Ui::GeoSysSettingsMiscForm ui_misc;
-  Ui::GeoSysSettingsMuonChamberForm ui_muon;
-  Ui::GeoSysSettingsTreeBrowserForm ui_treebrowser;
+  GeoSysController * theclass = nullptr;
+  Ui::GeometrySystemControllerForm ui{};
+  Ui::GeoSysSettingsDisplayForm ui_disp{};
+  Ui::GeoSysSettingsIconisedVolumesForm ui_iconisedvols{};
+  Ui::GeoSysSettingsInteractionsForm ui_int{};
+  Ui::GeoSysSettingsMiscForm ui_misc{};
+  Ui::GeoSysSettingsMuonChamberForm ui_muon{};
+  Ui::GeoSysSettingsTreeBrowserForm ui_treebrowser{};
   std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*> subSysCheckBoxMap;
-  float last_transparency;
-  bool last_showVolumeOutLines;
+  float last_transparency = 0.0F;
+  bool last_showVolumeOutLines = false;
   VP1GeoFlags::MuonChamberAdaptionStyleFlags last_muonChamberAdaptionStyle;
-  int last_labels; //!< needed for POSSIBLECHANGE_IMP macro.
+  int last_labels = 0; //!< needed for POSSIBLECHANGE_IMP macro.
   QList<int> last_labelPosOffset; //!< needed for  POSSIBLECHANGE_IMP macro.
-  SoPickStyle * pickStyle;
-  VolumeHandle * lastSelectedVolHandle;
-  ZappedVolumeListModel * zappedVolumeListModel;
+  SoPickStyle * pickStyle = nullptr;
+  VolumeHandle * lastSelectedVolHandle = nullptr;
+  ZappedVolumeListModel * zappedVolumeListModel = nullptr;
 
   QString lastSaveMaterialsFile;
   QString lastLoadMaterialsFile;
@@ -459,7 +459,7 @@ bool GeoSysController::showVolumeOutLines() const
 //____________________________________________________________________
 VP1GeoFlags::MuonChamberAdaptionStyleFlags GeoSysController::muonChamberAdaptionStyle() const
 {
-  VP1GeoFlags::MuonChamberAdaptionStyleFlags f(0);
+  VP1GeoFlags::MuonChamberAdaptionStyleFlags f;
   if (m_d->ui_muon.checkBox_muonadapt_openmdtchambers->isChecked())
     f |= VP1GeoFlags::OpenMDTChambers;
   if (m_d->ui_muon.checkBox_muonadapt_hidetubes->isChecked())
@@ -609,7 +609,7 @@ void GeoSysController::emit_actionOnAllNonStandardVolumes() {
 */
 void GeoSysController::emit_resetSubSystems()
 {
-  VP1GeoFlags::SubSystemFlags f(0);
+  VP1GeoFlags::SubSystemFlags f;
   if (sender()==m_d->ui_misc.toolButton_pixelmod_reset)
     f = VP1GeoFlags::Pixel;
   else if (sender()==m_d->ui_misc.toolButton_sctmod_reset)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4ATLASMTRUNMANAGER_H
@@ -68,7 +68,7 @@ public:
     m_physListSvc.setTypeAndName(typeAndName);
   }
 
-protected:
+ protected:
 
   /// Initialize the G4 geometry on the master
   void InitializeGeometry() override final;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JetQGTaggerBDT.h"
@@ -112,6 +112,11 @@ namespace CP {
     // configure the bdt
     m_bdtTagger->BookMVA( m_BDTmethod.c_str(), m_tmvaConfigFilePath.c_str() );
 
+    /// Initialize WriteDecorHandle keys
+    m_decScoreKey = m_containerName + "." + m_decScoreKey.key();
+
+    ATH_CHECK( m_decScoreKey.initialize() );
+
     /// Call base class initialize
     ATH_CHECK( JSSTaggerBase::initialize() );
 
@@ -134,6 +139,7 @@ namespace CP {
 
     /// Create WriteDecorHandles
     SG::WriteDecorHandle<xAOD::JetContainer, bool> decTagged(m_decTaggedKey);
+    SG::WriteDecorHandle<xAOD::JetContainer, float> decScore(m_decScoreKey);
 
     /// TODO: Is this actually needed?
     if ( !passKinRange(jet) ) {
@@ -141,17 +147,20 @@ namespace CP {
       return StatusCode::SUCCESS;
     }
 
-    // get BDT score
+    /// Get BDT score
     float jet_score = getScore( jet, acceptData );
     ATH_MSG_DEBUG(TString::Format("jet score %g",jet_score) );
 
-    //get cut from cut function
+    /// Get cut from cut function
     float cut = m_funcScoreCut->Eval(jet.pt()/1000.);
 
+    /// Decorate score to jet
+    decScore(jet) = jet_score;
+
+    /// Check score against cut and decorate result
     if ( jet_score < cut ) acceptData.setCutResult("QuarkJetTag", true);
     decTagged(jet) = acceptData.getCutResult( "QuarkJetTag" );
 
-    // return the AcceptData object that you created and filled
     return StatusCode::SUCCESS;
 
   }

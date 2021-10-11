@@ -31,7 +31,9 @@ namespace Muon {
 
 /////////////////////////////////////////////////////////////////////////////
 
-class RpcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool {
+class RpcRdoToPrepDataToolCore
+  : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
+{
 public:
 
   using getPrepCollection_func = std::function<RpcPrepDataCollection* (Identifier)>;
@@ -39,20 +41,14 @@ public:
        
   RpcRdoToPrepDataToolCore( const std::string&, const std::string&, const IInterface* );
 
-  // to allow access to the IMuonRdoToPrepDataTool interface
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
-
   // setup/teardown functions, similar like those for Algorithm/Service
   virtual StatusCode initialize() override;
 
   // debugging 
-  virtual void printInputRdo() override;
+  virtual void printInputRdo() const override;
   void printPrepDataImpl(const Muon::RpcPrepDataContainer& rpcPrepDataContainer,
                          const Muon::RpcCoinDataContainer& rpcCoinDataContainer) const;
   void printCoinDataImpl(const Muon::RpcCoinDataContainer& rpcCoinDataContainer) const;
-
-  // to resolve possible conflicts with IProperty::interfaceID()
-  static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
 
 
 protected:

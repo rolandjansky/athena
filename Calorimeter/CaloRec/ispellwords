@@ -929,7 +929,6 @@ momentsNames
 CaloClusterLockVars
 copierName
 HECCellsMergerTool
-CaloCellMBAverageCorr
 swin
 SigmaPerRegion
 NSUBCALO

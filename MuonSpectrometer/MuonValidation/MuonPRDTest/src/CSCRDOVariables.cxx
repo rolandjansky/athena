@@ -4,20 +4,32 @@
 
 #include "CSCRDOVariables.h"
 #include "AthenaKernel/errorcheck.h"
-
 #include "MuonSimData/MuonSimDataCollection.h"
-
 #include "MuonRDO/CscRawDataContainer.h"
-
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-
 #include "TTree.h"
-
 
 using namespace Muon;
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
+
+
+CSCRDOVariables::CSCRDOVariables(StoreGateSvc* evtStore,
+		const MuonGM::MuonDetectorManager* detManager,
+		const MuonIdHelper* idhelper,
+		TTree* tree,
+	 	std::string containername,
+	 	MSG::Level msglvl,     
+   const Muon::ICSC_RDO_Decoder* rdo_decoder
+     ) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
+    m_rdo_decoder{rdo_decoder}
+   {
+    setHelper(idhelper);
+  
+  }
+
 StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG("do fillCSCRDOVariables()");
@@ -26,16 +38,15 @@ StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
   CHECK( this->clearVariables() );
 
   const CscRawDataContainer* rdo_container = nullptr;
-  CHECK( m_evtStore->retrieve(rdo_container, m_ContainerName.c_str()) );
+  ATH_CHECK( m_evtStore->retrieve(rdo_container, m_ContainerName) );
 
-  if(rdo_container->size()==0) ATH_MSG_WARNING(" CSC RDO Container empty ");
+  if(rdo_container->size()==0) ATH_MSG_DEBUG(" CSC RDO Container empty ");
 
   for(const CscRawDataCollection* coll : *rdo_container) {
-  
-    for (auto rdo: *coll) {
-   
-      Identifier Id;
-      Id = rdo->identify();
+    int strip_num{0};
+    for (const CscRawData* rdo: *coll) {
+      const Identifier Id { m_rdo_decoder->channelIdentifier(rdo, m_CscIdHelper,strip_num)};
+      ++strip_num;
 
       std::string stName   = m_CscIdHelper->stationNameString(m_CscIdHelper->stationName(Id));
       int stationEta       = m_CscIdHelper->stationEta(Id);
@@ -44,10 +55,10 @@ StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
       int chamberLayer     = m_CscIdHelper->chamberLayer(Id);
       int wireLayer        = m_CscIdHelper->wireLayer(Id);
       int strip            = m_CscIdHelper->strip(Id);
-      bool measuresPhi       = m_CscIdHelper->measuresPhi(Id);
+      bool measuresPhi     = m_CscIdHelper->measuresPhi(Id);
 
 
-      ATH_MSG_DEBUG(     "MicroMegas RDO Offline id:  Station Name [" << stName << " ]"
+      ATH_MSG_DEBUG(     "CSC RDO Offline id:  Station Name [" << stName << " ]"
                       << " Station Eta ["  << stationEta      << "]"
                       << " Station Phi ["  << stationPhi      << "]"
                       << " channel ["      << channel         << "]"
@@ -56,7 +67,18 @@ StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
                       << " strip ["        << strip           << "]"
                       << " measuresPhi ["  << measuresPhi      << "]" );
 
-      // to be stored in the ntuple
+      const MuonGM::CscReadoutElement* rdoEl = nullptr;
+      try{
+         rdoEl =  MuonDetMgr->getCscReadoutElement(Id);	   
+      } catch (const std::runtime_error&) {
+        ATH_MSG_WARNING("CSCRDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ <<" "<< m_CscIdHelper->print_to_string(Id));
+        continue;
+      }
+      if (!rdoEl) {
+          ATH_MSG_ERROR("CSCRDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(Id));
+          return StatusCode::FAILURE;
+      }
+      /// to be stored in the ntuple
       m_Csc_rdo_stationName.push_back(stName);
       m_Csc_rdo_stationEta.push_back(stationEta);
       m_Csc_rdo_stationPhi.push_back(stationPhi);
@@ -66,11 +88,25 @@ StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
       m_Csc_rdo_strip.push_back(strip);
       m_Csc_rdo_measuresPhi.push_back(measuresPhi);
       m_Csc_rdo_time.push_back(rdo->time());
+      
+  
 
-      if (!MuonDetMgr->getCscReadoutElement(Id)) {
-        ATH_MSG_ERROR("CSCRDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(Id).c_str());
-        return StatusCode::FAILURE;
+      Amg::Vector2D localStripPos(0.,0.);
+      if ( rdoEl->stripPosition(Id,localStripPos) )  {
+        m_Csc_rdo_localPosX.push_back(localStripPos.x());
+        m_Csc_rdo_localPosY.push_back(localStripPos.y());
+        ATH_MSG_DEBUG("CSC RDO: local pos.:  x=" << localStripPos[0] << ",  y=" << localStripPos[1]);
+      } else { 
+        ATH_MSG_WARNING("CSC RDO: local Strip position not defined"); 
       }
+      
+      // asking the detector element to transform this local to the global position
+      Amg::Vector3D globalStripPos(0., 0., 0.);
+      static const Amg::Vector3D null_vec{0,0,0};
+      rdoEl->surface(Id).localToGlobal(localStripPos,null_vec, globalStripPos);
+      m_Csc_rdo_globalPosX.push_back(globalStripPos.x());
+      m_Csc_rdo_globalPosY.push_back(globalStripPos.y());
+      m_Csc_rdo_globalPosZ.push_back(globalStripPos.z());
 
       // rdo counter for the ntuple
       m_Csc_nrdo++;
@@ -97,6 +133,11 @@ StatusCode CSCRDOVariables::clearVariables()
   m_Csc_rdo_strip.clear();
   m_Csc_rdo_measuresPhi.clear();
   m_Csc_rdo_time.clear();
+  m_Csc_rdo_localPosX.clear();
+  m_Csc_rdo_localPosY.clear();
+  m_Csc_rdo_globalPosX.clear();
+  m_Csc_rdo_globalPosY.clear();
+  m_Csc_rdo_globalPosZ.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -118,6 +159,11 @@ StatusCode CSCRDOVariables::initializeVariables()
     m_tree->Branch("RDO_CSC_strip",         &m_Csc_rdo_strip);
     m_tree->Branch("RDO_CSC_measuresPhi",   &m_Csc_rdo_measuresPhi);    
     m_tree->Branch("RDO_CSC_time",          &m_Csc_rdo_time);
+    m_tree->Branch("RDO_CSC_localPosX",     &m_Csc_rdo_localPosX);
+    m_tree->Branch("RDO_CSC_localPosY",     &m_Csc_rdo_localPosY);
+    m_tree->Branch("RDO_CSC_globalPosX",    &m_Csc_rdo_globalPosX);
+    m_tree->Branch("RDO_CSC_globalPosY",    &m_Csc_rdo_globalPosY);
+    m_tree->Branch("RDO_CSC_globalPosZ",    &m_Csc_rdo_globalPosZ);
 
   }
   return StatusCode::SUCCESS;

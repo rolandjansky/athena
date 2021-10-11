@@ -50,22 +50,18 @@ def initialiseCoolDataBaseFolder():
             MagicTag      = TrkDetFlags.MaterialMagicTag()
             DataBaseConnection = '<dbConnection>sqlite://X;schema='+DataBasePath+DataBaseName+';dbname=OFLP200</dbConnection>'
             conddb.blockFolder('/GLOBAL/TrackingGeo/LayerMaterial')
-            conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True)
+            conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True,
+                                    className = 'Trk::LayerMaterialMap')
             if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                 print ('[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection)
             # make sure that the pool files are in the catalog
             #from PoolSvc.PoolSvcConf import PoolSvc
             #PoolSvc.ReadCatalog += [ DataBasePath+'PoolFileCatalog.xml' ]
-        elif TrkDetFlags.SLHC_Geometry() :
-            # set the folder to the SLHC location
-            CoolDataBaseFolder = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-            ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
-            cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
         else :
             # load the right folders (preparation for calo inclusion)
             cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
+            conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder,
+                                    className = 'Trk::LayerMaterialMap')
 
     #HACK: CoolDataBaseFolder may not be set at this point! Is this right? -KG
     return CoolDataBaseFolder
@@ -84,21 +80,20 @@ def getFatrasPhysicsValidationTool(name="ISF_FatrasPhysicsValidationTool", **kwa
 # The Geometry Builder
 #################################################################################
 
+# Not used anywhere - not migrated to CA config
 def getInDetTrackingGeometryBuilder(name="ISF_InDetTrackingGeometryBuilder", **kwargs):
     # get hand on the ID Tracking Geometry Builder
     kwargs.setdefault("namePrefix"              , 'Fatras')
     kwargs.setdefault("setLayerAssociation"     , False)
     #kwargs.setdefault("VolumeEnclosureOuterR"   , 1148.) ### HACK: Cannot set via imput arguments. Is this right?? -kg
-    if not TrkDetFlags.SLHC_Geometry() :
-        kwargs.setdefault("buildTrtStrawLayers" , True)
-        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-    else :
-        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+    kwargs.setdefault("buildTrtStrawLayers" , True)
+    from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
     t = IDGeometryBuilder(name, **kwargs )
     t.VolumeEnclosureOuterR = 1148.
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'
     return t
 
+# Not used anywhere - not migrated to CA config
 def getFatrasCaloTrackingGeometryBuilder(name="ISF_FatrasCaloTrackingGeometryBuilder", **kwargs):
     # get hand on the ID Tracking Geometry Builder
     #kwargs.setdefault("RecordLayerIndexCaloSampleMap"   , True) ### HACK: Cannot set via imput arguments. Is this right?? -kg
@@ -109,6 +104,7 @@ def getFatrasCaloTrackingGeometryBuilder(name="ISF_FatrasCaloTrackingGeometryBui
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'
     return t
 
+# Not used anywhere - not migrated to CA config
 def getFatrasMuonTrackingGeometryBuilder(name="ISF_FatrasMuonTrackingGeometryBuilder", **kwargs):
     # get hand on the MS Tracking Geometry Builder
 
@@ -116,6 +112,7 @@ def getFatrasMuonTrackingGeometryBuilder(name="ISF_FatrasMuonTrackingGeometryBui
     t = ConfiguredMuonGeo(name, **kwargs)
     return t
 
+# Not used anywhere - not migrated to CA config
 def getFatrasGeometryBuilder(name="ISF_FatrasGeometryBuilder", **kwargs):
     # the geometry builder alg tool
     # switch on the Detectors
@@ -132,6 +129,7 @@ def getFatrasGeometryBuilder(name="ISF_FatrasGeometryBuilder", **kwargs):
     from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
     return Trk__GeometryBuilder(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasTrackingGeometrySvc(name="ISF_FatrasTrackingGeometrySvc", **kwargs):
     # get hand on the ID Tracking Geometry Builder
     # register the Builder
@@ -181,6 +179,7 @@ def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     from TrkExTools.TrkExToolsConf import Trk__Navigator
     return Trk__Navigator(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasNeutralPropagatorID(name="ISF_FatrasNeutralPropagatorID", **kwargs):
     # the neutral particle propagator
     from TrkExSlPropagator.TrkExSlPropagatorConf import Trk__StraightLinePropagator as NeutralPropagator
@@ -195,6 +194,7 @@ def getFatrasChargedPropagator(name="ISF_FatrasChargedPropagator", **kwargs):
 
 # Propagators for the Extrapolation Engine
 # load the RungeKutta Propagator
+# Not used anywhere - not migrated to CA config
 def getFatrasPropagator(name="ISF_FatrasPropagator", **kwargs):
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RungeKuttaPropagator
     return RungeKuttaPropagator(name, **kwargs)
@@ -210,6 +210,7 @@ def getFatrasStaticPropagator(name="ISF_FatrasStaticPropagator", **kwargs):
     return StaticPropagator(name, **kwargs)
 
 # load the static navigation engine
+# Not used anywhere - not migrated to CA config
 def getFatrasStaticNavigationEngine(name="ISF_FatrasStaticNavigationEngine", **kwargs):
     #give the tools it needs
     kwargs.setdefault("PropagationEngine", getPublicTool('ISF_FatrasStaticPropagator'))
@@ -226,6 +227,7 @@ def getFatrasStaticNavigationEngine(name="ISF_FatrasStaticNavigationEngine", **k
 # PARTICLE DECAY SECTION
 ################################################################################
 
+# Not used anywhere - not migrated to CA config
 def getG4RunManagerHelper(name="ISF_G4RunManagerHelper", **kwargs):
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4RunManagerHelper
     return iGeant4__G4RunManagerHelper(name, **kwargs)
@@ -346,6 +348,7 @@ def getFatrasEnergyLossUpdator(name="ISF_FatrasEnergyLossUpdator", **kwargs):
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McEnergyLossUpdator
     return iFatras__McEnergyLossUpdator(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasEnergyLossSamplerBetheHeitler(name="ISF_FatrasEnergyLossSamplerBetheHeitler", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
@@ -368,6 +371,7 @@ def getFatrasMultipleScatteringUpdator(name="ISF_FatrasMultipleScatteringUpdator
     from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator
     return Trk__MultipleScatteringUpdator(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasMultipleScatteringSamplerHighland(name="ISF_MultipleScatteringSamplerHighland", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
@@ -377,6 +381,7 @@ def getFatrasMultipleScatteringSamplerHighland(name="ISF_MultipleScatteringSampl
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__MultipleScatteringSamplerHighland
     return iFatras__MultipleScatteringSamplerHighland(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasMultipleScatteringSamplerGaussianMixture(name="ISF_MultipleScatteringSamplerGaussianMixture", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
@@ -386,6 +391,7 @@ def getFatrasMultipleScatteringSamplerGaussianMixture(name="ISF_MultipleScatteri
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__MultipleScatteringSamplerGaussianMixture
     return iFatras__MultipleScatteringSamplerGaussianMixture(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasMultipleScatteringSamplerGeneralMixture(name="ISF_MultipleScatteringSamplerGeneralMixture", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
@@ -442,6 +448,7 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McMaterialEffectsUpdator
     return iFatras__McMaterialEffectsUpdator(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasMaterialEffectsEngine(name="ISF_FatrasMaterialEffectsEngine", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService"         , simFlags.RandomSvc() )
@@ -503,6 +510,7 @@ def getFatrasExtrapolator(name="ISF_FatrasExtrapolator", **kwargs):
     #return Extrapolator(name, **kwargs )
 
 # load the Static ExtrapolationEngine
+# Not used anywhere - not migrated to CA config
 def getFatrasStaticExtrapolator(name="ISF_FatrasStaticExEngine", **kwargs):
     # give the tools it needs 
     kwargs.setdefault("PropagationEngine", getPublicTool('ISF_FatrasStaticPropagator'))
@@ -515,6 +523,8 @@ def getFatrasStaticExtrapolator(name="ISF_FatrasStaticExEngine", **kwargs):
     from TrkExEngine.TrkExEngineConf import Trk__StaticEngine
     return Trk__StaticEngine(name, **kwargs)
 
+# Used only in TransportEngine config (getFatrasSimEngine) which is not migrated to CA config
+# getFatrasExEngine not migrated to CA
 def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
     # load the tracking geometry service
     # assign the tools
@@ -704,6 +714,7 @@ def getFatrasSimTool(name="ISF_FatrasSimTool", **kwargs):
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__TransportTool
     return iFatras__TransportTool(name, **kwargs )
 
+# Not used anywhere - not migrated to CA config
 def getFatrasSimEngine(name="ISF_FatrasSimEngine", **kwargs):
     kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasSimHitCreatorID'))
     # TODO: G4 Tools can not be used at the same time as Geant4 inside ISF
@@ -747,6 +758,7 @@ def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc
     return getFatrasSimServiceID(name, **kwargs )
 
 
+# Not used anywhere - not migrated to CA config
 def getFatrasGeoIDFixSimServiceID(name="ISF_FatrasGeoIDFixSimSvc", **kwargs):
     kwargs.setdefault("EnableGeoIDOverride"      , True  )
     kwargs.setdefault("GeoIDOverrideZ"           , 3150. )
@@ -771,7 +783,7 @@ def getFatrasSimulatorToolST(name="ISF_FatrasSimulatorToolST", **kwargs):
       simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
     return CfgMgr.ISF__FatrasSimTool(name, **kwargs)
 
-
+# Not used anywhere - not migrated to CA config
 def getFatrasSimulatorTool(name="ISF_FatrasSimulatorTool", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonFatrasSelector' ]    )
@@ -784,7 +796,7 @@ def getFatrasNewExtrapolationSimulatorToolST(name="ISF_FatrasNewExtrapolationSim
     kwargs.setdefault("UseSimulationTool" , True)
     return getFatrasSimulatorToolST(name, **kwargs)
 
-
+# Not used anywhere - not migrated to CA config
 def getFatrasNewExtrapolationSimulatorTool(name="ISF_FatrasSNewExtrapolationimulatorTool", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonFatrasSelector' ]    )

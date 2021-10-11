@@ -471,7 +471,7 @@ class TriggerSelector(RunLBBasedCondition):
         efmenucache  = defaultdict(dict)
 
         # fill the menu and prescale caches
-        for smk in smks:
+        for smk in set(smks):
 
             # the l1 menu
             l1items = getL1Menu(smk)
@@ -534,7 +534,7 @@ class TriggerSelector(RunLBBasedCondition):
         sys.stdout.flush()
         newrunlist = []
 
-        smks = [r.result['SMK'] for r in runlist]
+        smks = [int(r.result['SMK']) for r in runlist]
         runl1psks = dict()
         runhltpsks = dict()
         for r in runlist:
@@ -549,7 +549,7 @@ class TriggerSelector(RunLBBasedCondition):
 
         for run in runlist: # go through old runlist and see
 
-            smk  = run.result['SMK']
+            smk  = int(run.result['SMK'])
             psks = [(x[2],x[3]) for x in run.stats['PSK']['blocks']]
 
             l1items  = [it for it in l1menucache[smk] if it and (it.forshow or it.forselect)]

@@ -61,6 +61,8 @@ class TileBchStatus
   bool isHalfGainL1() const;
   bool isBadTiming() const;
   bool isTimingDmuBcOffset() const;
+  bool isTimingDmuBcOffsetPos() const;
+  bool isTimingDmuBcOffsetNeg() const;
   bool isWrongBCID() const;
 
  private:
@@ -199,6 +201,22 @@ inline bool
 TileBchStatus::isTimingDmuBcOffset() const
 {
   return m_prbSet.size() ? (s_refTimingDmuBcOffset.test (m_prbSet)) : false;
+}
+
+//
+//_________________________________________________________
+inline bool
+TileBchStatus::isTimingDmuBcOffsetPos() const
+{
+  return m_prbSet.size() ? (contains(TileBchPrbs::TimingDmuBcOffsetPos) || contains(TileBchPrbs::OnlineTimingDmuBcOffsetPos)): false;
+}
+
+//
+//_________________________________________________________
+inline bool
+TileBchStatus::isTimingDmuBcOffsetNeg() const
+{
+  return m_prbSet.size() ? (contains(TileBchPrbs::TimingDmuBcOffsetNeg) || contains(TileBchPrbs::OnlineTimingDmuBcOffsetNeg)): false;
 }
 
 //

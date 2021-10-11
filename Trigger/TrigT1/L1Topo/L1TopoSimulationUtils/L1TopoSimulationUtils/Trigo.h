@@ -15,15 +15,14 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include "L1TopoDataTypes.h"
 
 namespace TSU {
    struct Trigo{
-     static const std::unordered_map<unsigned,std::string> Cosleg;
-     static const std::unordered_map<unsigned,std::string> Sinleg;
-     static const std::unordered_map<unsigned,std::string> Cos;
-     static const std::unordered_map<unsigned,std::string> Sin;
+     static const std::vector<std::string> Cosleg;
+     static const std::vector<std::string> Sinleg;
+     static const std::vector<std::string> Cos;
+     static const std::vector<std::string> Sin;
      static int atan2leg(TSU::L1TopoDataTypes<16,0> x, TSU::L1TopoDataTypes<16,0> y);
      static int atan2(TSU::L1TopoDataTypes<16,0> x, TSU::L1TopoDataTypes<16,0> y);
    };

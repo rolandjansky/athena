@@ -130,7 +130,7 @@ void compare (const Trk::Segment& p1,
 
 void testit (const Trk::Segment& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   SegmentCnv_p1 cnv;
   SegmentCollectionCnv_tlp3 tlcnv;
   //cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());

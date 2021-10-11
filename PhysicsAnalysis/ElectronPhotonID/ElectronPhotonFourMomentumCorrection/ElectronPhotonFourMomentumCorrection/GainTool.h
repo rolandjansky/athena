@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINTOOL_H
@@ -33,10 +33,10 @@ namespace egGain {
     std::unique_ptr <TFile> m_TOFile;
     std::unique_ptr <TFile> m_varFile;
 
-    TF1* m_funcTO[m_NUM_ETA_BINS];
-    TF1* m_funcG[m_NUM_ENERGY_BINS][m_NUM_ETA_BINS];
-    TF1* m_conv_funcG[m_NUM_ENERGY_BINS][m_NUM_ETA_BINS];
-    TF1* m_unconv_funcG[m_NUM_UNCONV_ENERGY_BINS][m_NUM_ETA_BINS];
+    TF1* m_funcTO[m_NUM_ETA_BINS]{};
+    TF1* m_funcG[m_NUM_ENERGY_BINS][m_NUM_ETA_BINS]{};
+    TF1* m_conv_funcG[m_NUM_ENERGY_BINS][m_NUM_ETA_BINS]{};
+    TF1* m_unconv_funcG[m_NUM_UNCONV_ENERGY_BINS][m_NUM_ETA_BINS]{};
 
   };
 

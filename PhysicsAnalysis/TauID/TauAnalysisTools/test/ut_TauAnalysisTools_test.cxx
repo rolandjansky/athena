@@ -57,6 +57,15 @@ int main( int argc, char* argv[] )
   // TauSelectionTool
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelTool("TauAnalysisTools::TauSelectionTool/TauSelectionTool");
+  ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "OutputLevel", MSG::Level::DEBUG ));
+  ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "SelectionCuts", int(
+    TauAnalysisTools::CutPt |
+    TauAnalysisTools::CutAbsEta |
+    TauAnalysisTools::CutAbsCharge |
+    TauAnalysisTools::CutNTrack |
+    TauAnalysisTools::CutJetIDWP 
+  )));
+  ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "JetIDWP", int(TauAnalysisTools::JETIDRNNVERYLOOSE))); 
   ANA_CHECK(TauSelTool.retrieve()); //this will cause the tool to be created and initialized
 
   // ===========================================================================

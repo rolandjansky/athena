@@ -20,51 +20,70 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 Trk::CylinderLayer::CylinderLayer(
-    Amg::Transform3D* transform, Trk::CylinderBounds* cbounds,
-    const Trk::LayerMaterialProperties& laymatprop, double thickness,
-    Trk::OverlapDescriptor* olap, int laytyp)
-    : CylinderSurface(transform, cbounds),
-      Layer(laymatprop, thickness, olap, laytyp),
-      m_approachDescriptor(nullptr) {
+  const Amg::Transform3D& transform,
+  Trk::CylinderBounds* cbounds,
+  const Trk::LayerMaterialProperties& laymatprop,
+  double thickness,
+  Trk::OverlapDescriptor* olap,
+  int laytyp)
+  : CylinderSurface(transform, cbounds)
+  , Layer(laymatprop, thickness, olap, laytyp)
+  , m_approachDescriptor(nullptr)
+{
   CylinderSurface::associateLayer(*this);
 }
 
 Trk::CylinderLayer::CylinderLayer(
-    Trk::CylinderSurface* cyl, const Trk::LayerMaterialProperties& laymatprop,
-    double thickness, Trk::OverlapDescriptor* olap, int laytyp)
-    : CylinderSurface(*cyl),
-      Layer(laymatprop, thickness, olap, laytyp),
-      m_approachDescriptor(nullptr) {
+  Trk::CylinderSurface* cyl,
+  const Trk::LayerMaterialProperties& laymatprop,
+  double thickness,
+  Trk::OverlapDescriptor* olap,
+  int laytyp)
+  : CylinderSurface(*cyl)
+  , Layer(laymatprop, thickness, olap, laytyp)
+  , m_approachDescriptor(nullptr)
+{
   CylinderSurface::associateLayer(*this);
 }
 
-Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
+Trk::CylinderLayer::CylinderLayer(const Amg::Transform3D& transform,
                                   Trk::CylinderBounds* cbounds,
                                   Trk::SurfaceArray* surfaceArray,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
-                                  Trk::IApproachDescriptor* ades, int laytyp)
-    : CylinderSurface(transform, cbounds),
-      Layer(surfaceArray, thickness, olap, laytyp),
-      m_approachDescriptor(ades) {
+                                  Trk::IApproachDescriptor* ades,
+                                  int laytyp)
+  : CylinderSurface(transform, cbounds)
+  , Layer(surfaceArray, thickness, olap, laytyp)
+  , m_approachDescriptor(ades)
+{
   CylinderSurface::associateLayer(*this);
-  if (!ades && surfaceArray) buildApproachDescriptor();
+  if (!ades && surfaceArray)
+    buildApproachDescriptor();
   // register the layer
-  if (ades) m_approachDescriptor->registerLayer(*this);
+  if (ades)
+    m_approachDescriptor->registerLayer(*this);
 }
 
 Trk::CylinderLayer::CylinderLayer(
-    Amg::Transform3D* transform, Trk::CylinderBounds* cbounds,
-    Trk::SurfaceArray* surfaceArray,
-    const Trk::LayerMaterialProperties& laymatprop, double thickness,
-    Trk::OverlapDescriptor* olap, Trk::IApproachDescriptor* ades, int laytyp)
-    : CylinderSurface(transform, cbounds),
-      Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
-      m_approachDescriptor(ades) {
+  const Amg::Transform3D& transform,
+  Trk::CylinderBounds* cbounds,
+  Trk::SurfaceArray* surfaceArray,
+  const Trk::LayerMaterialProperties& laymatprop,
+  double thickness,
+  Trk::OverlapDescriptor* olap,
+  Trk::IApproachDescriptor* ades,
+  int laytyp)
+  : CylinderSurface(transform, cbounds)
+  , Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
+  , m_approachDescriptor(ades)
+{
   CylinderSurface::associateLayer(*this);
-  if (!ades && surfaceArray) buildApproachDescriptor();
+  if (!ades && surfaceArray)
+    buildApproachDescriptor();
   // register the layer
-  if (ades) m_approachDescriptor->registerLayer(*this);
+  if (ades)
+    m_approachDescriptor->registerLayer(*this);
 }
 
 Trk::CylinderLayer::CylinderLayer(
@@ -255,14 +274,19 @@ void Trk::CylinderLayer::buildApproachDescriptor() {
   // delete it
   // delete the surfaces
   auto aSurfaces = std::make_unique<Trk::ApproachSurfaces>();
-  // create new surfaces
-  Amg::Transform3D* asTransform =
-      m_transforms ? new Amg::Transform3D(m_transforms->transform) : nullptr;
   // create the new surfaces
-  aSurfaces->push_back(new Trk::CylinderSurface(
+  if (m_transforms) {
+    Amg::Transform3D asTransform = m_transforms->transform;
+    aSurfaces->push_back(new Trk::CylinderSurface(
       asTransform, m_bounds->r() - 0.5 * thickness(), m_bounds->halflengthZ()));
-  aSurfaces->push_back(new Trk::CylinderSurface(
+    aSurfaces->push_back(new Trk::CylinderSurface(
       asTransform, m_bounds->r() + 0.5 * thickness(), m_bounds->halflengthZ()));
+  } else {
+    aSurfaces->push_back(new Trk::CylinderSurface(
+      m_bounds->r() - 0.5 * thickness(), m_bounds->halflengthZ()));
+    aSurfaces->push_back(new Trk::CylinderSurface(
+      m_bounds->r() + 0.5 * thickness(), m_bounds->halflengthZ()));
+  }
   // set the layer and make TGOwn
   for (auto& sIter : (*aSurfaces)) {
     sIter->associateLayer(*this);

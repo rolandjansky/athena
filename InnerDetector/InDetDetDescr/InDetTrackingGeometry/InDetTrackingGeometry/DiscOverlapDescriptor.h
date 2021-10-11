@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,15 +22,38 @@
 
 #ifndef INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
 #define INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
-#define addSurfaceDO(cur,surfaces) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
-#define addOtherSideDO(cur, surfaces) if (cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
-#define addNextInPhiDO(cur, surfaces) addSurfaceDO(cur->nextInPhi(), surfaces); addOtherSideDO(cur->nextInPhi(),surfaces)
-#define addPrevInPhiDO(cur, surfaces) addSurfaceDO(cur->prevInPhi(), surfaces); addOtherSideDO(cur->prevInPhi(),surfaces)
-#define addNextInEtaDO(cur, surfaces) addSurfaceDO(cur->nextInEta(), surfaces); addOtherSideDO(cur->nextInEta(),surfaces)
-#define addPrevInEtaDO(cur, surfaces) addSurfaceDO(cur->prevInEta(), surfaces); addOtherSideDO(cur->prevInEta(),surfaces)
+
+#define addSurfaceDO(cur, surfaces)                                            \
+  surfaces.emplace_back(Trk::SurfaceIntersection(                              \
+    Trk::Intersection(Amg::Vector3D(0., 0., 0.), 0., true),                    \
+    &(cur->surface(cur->identify()))))
+
+#define addOtherSideDO(cur, surfaces)                                          \
+  if (cur->otherSide())                                                        \
+  surfaces.emplace_back(Trk::SurfaceIntersection(                              \
+    Trk::Intersection(Amg::Vector3D(0., 0., 0.), 0., true),                    \
+    &(cur->otherSide()->surface(cur->otherSide()->identify()))))
+
+#define addNextInPhiDO(cur, surfaces)                                          \
+  addSurfaceDO(cur->nextInPhi(), surfaces);                                    \
+  addOtherSideDO(cur->nextInPhi(), surfaces)
+
+#define addPrevInPhiDO(cur, surfaces)                                          \
+  addSurfaceDO(cur->prevInPhi(), surfaces);                                    \
+  addOtherSideDO(cur->prevInPhi(), surfaces)
+
+#define addNextInEtaDO(cur, surfaces)                                          \
+  addSurfaceDO(cur->nextInEta(), surfaces);                                    \
+  addOtherSideDO(cur->nextInEta(), surfaces)
+
+#define addPrevInEtaDO(cur, surfaces)                                          \
+  addSurfaceDO(cur->prevInEta(), surfaces);                                    \
+  addOtherSideDO(cur->prevInEta(), surfaces)
+
 #endif // INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
 
 class SCT_ID;
+class PixelID;
 
 namespace Trk {
   class Surface;
@@ -58,7 +81,8 @@ namespace InDet {
     
     /** Constructor */
     DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array = 0,
-			  std::vector<Trk::BinUtility*>* singleBinUtils = 0);
+                          std::vector<Trk::BinUtility*>* singleBinUtils = 0,
+                          bool isPixel = false);
     
     /** Destructor */
     virtual ~DiscOverlapDescriptor() {
@@ -89,10 +113,13 @@ namespace InDet {
                            const Amg::Vector3D& dir) const override;
     
   private:
+    bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
     
     const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
     std::vector<Trk::BinUtility*>*                  m_singleBinUtils;
+    bool                                            m_pixelCase;    
     mutable std::atomic<const SCT_ID*>              m_sctIdHelper{nullptr};
+    mutable std::atomic<const PixelID*>             m_pixIdHelper{nullptr};
     
   };
   

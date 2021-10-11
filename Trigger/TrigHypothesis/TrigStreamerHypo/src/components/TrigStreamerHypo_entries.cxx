@@ -1,5 +1,5 @@
-#include "../TrigStreamerHypoAlgMT.h"
-#include "../TrigStreamerHypoToolMT.h"
+#include "../TrigStreamerHypoAlg.h"
+#include "../TrigStreamerHypoTool.h"
 
-DECLARE_COMPONENT( TrigStreamerHypoAlgMT )
-DECLARE_COMPONENT( TrigStreamerHypoToolMT )
+DECLARE_COMPONENT( TrigStreamerHypoAlg )
+DECLARE_COMPONENT( TrigStreamerHypoTool )

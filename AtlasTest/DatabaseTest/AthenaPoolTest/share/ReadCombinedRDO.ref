@@ -41,7 +41,7 @@ Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOpt
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdMap with tag LARIdentifierOnOffIdMap-012
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/CalibIdMap with tag LARIdentifierCalibIdMap-012
 Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodMap with tag LARIdentifierFebRodMap-005
-Py:Athena            INFO including file "InDetBeamSpotService/BeamCondSvc.py"
+Py:Athena            INFO including file "BeamSpotConditions/BeamCondAlgSetup.py"
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0

@@ -11,23 +11,19 @@
 
 namespace CP {
 
+    class MuonQualityUpdaterAlg : public AthAlgorithm {
+    public:
+        MuonQualityUpdaterAlg(const std::string& name, ISvcLocator* svcloc);
 
+        virtual StatusCode initialize();
+        virtual StatusCode execute();
 
-  class MuonQualityUpdaterAlg : public AthAlgorithm {
+    private:
+        std::string m_input_muons;
+        std::string m_output_muons;
+        ToolHandle<CP::IMuonSelectionTool> m_tool;
+    };
 
-  public:
-    MuonQualityUpdaterAlg( const std::string& name, ISvcLocator* svcloc);
-
-    virtual StatusCode initialize();
-    virtual StatusCode execute();
-
-  private:
-    std::string m_input_muons;
-    std::string m_output_muons;
-    ToolHandle<CP::IMuonSelectionTool> m_tool;
-
-  };
-
-}
+}  // namespace CP
 
 #endif

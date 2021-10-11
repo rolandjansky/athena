@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthTPCnvSvc.cxx 
@@ -141,5 +141,44 @@ AthTPCnvSvc::p2t_cnv(const std::string& persClassName,
   else {
     m_cnvs.push_back (cnv);
   }
+  return cnv;
+}
+
+
+/** @brief Return the T/P converter for a transient class.
+ *         Ownership is returned to the caller.
+ */ 
+std::unique_ptr<ITPCnvBase>
+AthTPCnvSvc::t2p_cnv_unique(const std::string& transClassName) const
+{
+  return ITPCnvBase::Factory::create ("_TRANS_" + transClassName);
+}
+
+
+/** @brief Return the T/P converter for a transient class.
+ *         Returns null on failure (with no warning printed).
+ *         Ownership is returned to the caller.
+ */ 
+std::unique_ptr<ITPCnvBase>
+AthTPCnvSvc::t2p_cnv_unique(const CLID transClid) const
+{
+  std::string trans_type;
+  if (!m_clidSvc->getTypeNameOfID(transClid, trans_type).isSuccess()) {
+    return nullptr;
+  }
+
+  std::unique_ptr<ITPCnvBase> cnv = ITPCnvBase::Factory::create (/*prefix(type) +*/ "_TRANS_" + trans_type);
+  if (cnv == nullptr) {
+    // try a typeinfo-name before bailing out...
+    if (!m_clidSvc->getTypeInfoNameOfID(transClid, trans_type).isSuccess()) {
+      return nullptr;
+    }
+    cnv = ITPCnvBase::Factory::create (/*prefix(type) +*/ "_TRANS_" + trans_type);
+  }
+  /*
+  ** FIXME: support other types.
+  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
+    return t2p_cnv (transClid);
+  */
   return cnv;
 }

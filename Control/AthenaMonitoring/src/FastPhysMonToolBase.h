@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -72,7 +72,7 @@ class ATLAS_NOT_THREAD_SAFE FastPhysMonToolBase: public ManagedMonitorToolBase,
    *
    * Forwards to regTree method of ManagedMonitorToolBase
    */
-  TTree* regFPMTree(const std::string& treeName, const std::string treeTitle, const std::string& systemName, 
+  TTree* regFPMTree(const std::string& treeName, const std::string& treeTitle, const std::string& systemName, 
 		    const std::string& chain="", const std::string& merge="");
 
 

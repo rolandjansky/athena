@@ -336,8 +336,8 @@ namespace AtlasRoot {
                               egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::Gaussian) const;
 
 
-    std::string variationName(egEnergyCorr::Scale::Variation& var) const;
-    std::string variationName(egEnergyCorr::Resolution::Variation& var) const;
+    static std::string variationName(egEnergyCorr::Scale::Variation& var) ;
+    static std::string variationName(egEnergyCorr::Resolution::Variation& var) ;
 
 
     // convenient method for decorrelation of statistical error
@@ -384,10 +384,10 @@ namespace AtlasRoot {
     // functions for resolution uncertainty evaluation
 
     // functions for old model
-    double mcSamplingTerm(double cl_eta) const;
-    double mcSamplingTermRelError( double cl_eta ) const;
-    double mcNoiseTerm( double cl_eta ) const;
-    double mcConstantTerm( double cl_eta ) const;
+    static double mcSamplingTerm(double cl_eta) ;
+    static double mcSamplingTermRelError( double cl_eta ) ;
+    static double mcNoiseTerm( double cl_eta ) ;
+    static double mcConstantTerm( double cl_eta ) ;
 
     // to access Z smearing and uncertainty
     double dataConstantTerm(double eta) const;
@@ -397,16 +397,16 @@ namespace AtlasRoot {
     double dataZPeakResolution( double cl_eta ) const;
     double mcZPeakResolution( double cl_eta ) const;
     double dataConstantTermCorError( double cl_eta ) const;
-    double fcn_sigma( double energy, double Cdata, double Cdata_er, double S, double S_er ) const;
+    static double fcn_sigma( double energy, double Cdata, double Cdata_er, double S, double S_er ) ;
     void   resolutionError( double energy, double cl_eta, double& errUp, double& errDown ) const;
 
     // functions for energy scale corrections
 
-    double getZeeMeanET( double cl_eta ) const;
+    static double getZeeMeanET( double cl_eta ) ;
 
     double getAlphaZee(long int runnumber, double eta, egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
-    double getE4Uncertainty(double eta) const;
+    static double getE4Uncertainty(double eta) ;
     double getE4NonLinearity(double cl_eta, double meanE, PATCore::ParticleType::Type) const;
 
     double getWtots1Uncertainty(double cl_eta, double energy, PATCore::ParticleType::Type ptype) const;
@@ -439,8 +439,8 @@ namespace AtlasRoot {
     double getLayerPedestal(double cl_eta, PATCore::ParticleType::Type ptype, int iLayer,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
     double get_ZeeSyst(double eta) const;
-    bool isInCrack( double cl_eta ) const;
-    double nearestEtaBEC( double cl_eta ) const;
+    static bool isInCrack( double cl_eta ) ;
+    static double nearestEtaBEC( double cl_eta ) ;
 
  /** @brief get resolution and its uncertainty)
      @brief particle type : 0=electron, 1=reco unconverted photon, 2=reco converted photon

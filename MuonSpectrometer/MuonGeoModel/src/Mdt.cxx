@@ -29,7 +29,7 @@ namespace MuonGM {
         return std::round(toRound * factor) / factor;
     }
 
-    Mdt::Mdt(Component *ss, std::string lVName) : DetectorElement(ss->name) {
+    Mdt::Mdt(Component *ss, const std::string& lVName) : DetectorElement(ss->name) {
         logVolName = lVName;
         MdtComponent *s = (MdtComponent *)ss;
         MDT *thism = (MDT *)(MYSQL::GetPointer()->GetTechnology(s->name));

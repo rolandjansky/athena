@@ -55,7 +55,7 @@ void testit (const Trk::MaterialStep& trans1)
 {
   MaterialStepCnv_p1 cnv;
   Trk::MaterialStep_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Trk::MaterialStep trans2;
   cnv.persToTrans (&pers, &trans2, log);

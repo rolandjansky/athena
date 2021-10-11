@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibPedMonAlg.h"
@@ -75,7 +75,7 @@ LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const
     for ( ; itDig!=itDig_e;++itDig) {
         pLArDigit = *itDig;
         unsigned int id = (pLArDigit->hardwareID()).get_identifier32().get_compact();
-        if(chanids.find(id) == chanids.end()) chanids.emplace(id);
+        chanids.emplace (id);
     }
 
     ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());
@@ -101,7 +101,7 @@ LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const
     for ( ; itDig!=itDig_e;++itDig) {
         pLArDigit = *itDig;
         unsigned int id = (pLArDigit->hardwareID()).get_identifier32().get_compact();
-        if(chanids.find(id) == chanids.end()) chanids.emplace(id);
+        chanids.emplace (id);
     }
 
     ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());

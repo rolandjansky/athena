@@ -71,19 +71,34 @@ StatusCode SiAlignDBTester::execute()
     ATH_MSG_ERROR("local shiftX data for key " << m_rch_locshiftX.fullKey() << " not found");
     return StatusCode::FAILURE;
   }
-  CondAttrListCollection::const_iterator chanIt=attrLocList->begin();
-  CondAttrListCollection::const_iterator chanIt_e=attrLocList->end();
-  for(;chanIt!=chanIt_e;++chanIt) {
-    const unsigned channel=chanIt->first;
-    if (channel>16) {
-      ATH_MSG_ERROR("Found unexpected COOL-channel number:" << channel);
-      return StatusCode::FAILURE;
+
+  int counter=1;
+  CondAttrListCollection::const_iterator itr;
+  for (itr = attrLocList->begin(); itr != attrLocList->end(); ++itr) {
+    if(counter>1) ATH_MSG_INFO("there should be only one real channel in /FWD/AFP/LocalAlignment, this is real channel nr. "<<counter);
+
+    const coral::AttributeList &atr = itr->second;
+    std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
+
+    nlohmann::json jsondata = nlohmann::json::parse(data);
+    int nchannels=jsondata["nchannels"];
+    nlohmann::json channeldata=jsondata["data"];
+    for(auto& chan : channeldata.items())
+    {
+      // channels are ordered alphabetically: 0,1,10,...,15,2,3,...,9
+      ATH_MSG_INFO("reading channel nr. "<<chan.key());
+      nlohmann::json aligndata=chan.value();
+      
+      std::string channel=chan.key();
+      int layerID=aligndata["layerID"];
+      float shiftX=aligndata["shiftX"];
+
+      ATH_MSG_INFO("execute: run "<<getContext().eventID().run_number()<<", lb "<<getContext().eventID().lumi_block()<<", evnt "<<getContext().eventID().event_number()<<", channel "<<channel<<"/"<<nchannels<<", layerID "<<layerID<<", shiftX = "<<shiftX);
     }
-    const coral::AttributeList& attr=chanIt->second;
-    float shiftX = (attr)["shiftX"].data<float>();
-    int layerID = (attr)["layerID"].data<int>();
-    ATH_MSG_INFO("execute: run "<<getContext().eventID().run_number()<<", lb "<<getContext().eventID().lumi_block()<<", evnt "<<getContext().eventID().event_number()<<", channel "<<channel<<", layerID "<<layerID<<", shiftX = "<<shiftX);
+
+    ++counter;
   }
+
 
 // load global AFP alignment and print out something else
   ATH_MSG_INFO("test: "<<getContext().eventID().event_number()<<" , before glob shiftX");
@@ -94,20 +109,34 @@ StatusCode SiAlignDBTester::execute()
     ATH_MSG_ERROR("global shiftX data for key " << m_rch_globshiftX.fullKey() << " not found");
     return StatusCode::FAILURE;
   }
-  CondAttrListCollection::const_iterator chanIt2=attrGlobList->begin();
-  CondAttrListCollection::const_iterator chanIt2_e=attrGlobList->end();
-  for(;chanIt2!=chanIt2_e;++chanIt2) {
-    const unsigned channel=chanIt2->first;
-    if (channel>16) {
-      ATH_MSG_ERROR("Found unexpected COOL-channel number:" << channel);
-      return StatusCode::FAILURE;
+
+  counter=1;
+  CondAttrListCollection::const_iterator itr2;
+  for (itr2 = attrGlobList->begin(); itr2 != attrGlobList->end(); ++itr2) {
+    if(counter>1) ATH_MSG_INFO("there should be only one real channel in /FWD/AFP/GlobalAlignment, this is real channel nr. "<<counter);
+
+    const coral::AttributeList &atr = itr2->second;
+    std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
+
+    nlohmann::json jsondata = nlohmann::json::parse(data);
+    int nchannels=jsondata["nchannels"];
+    nlohmann::json channeldata=jsondata["data"];
+    for(auto& chan : channeldata.items())
+    {
+      // channels are ordered alphabetically: 0,1,10,...,15,2,3,...,9
+      ATH_MSG_INFO("reading channel nr. "<<chan.key());
+      nlohmann::json aligndata=chan.value();
+      
+      std::string channel=chan.key();
+      std::string alignType=aligndata["alignType"];
+      float shiftX=aligndata["shiftX"];
+
+      ATH_MSG_INFO("execute: run "<<getContext().eventID().run_number()<<", lb "<<getContext().eventID().lumi_block()<<", evnt "<<getContext().eventID().event_number()<<", channel "<<channel<<"/"<<nchannels<<", alignType "<<alignType<<", shiftX = "<<shiftX);
     }
-    const coral::AttributeList& attr2=chanIt2->second;
-    float shiftX = (attr2)["shiftX"].data<float>();
-    std::string alignType = (attr2)["alignType"].data<std::string>();
-    ATH_MSG_INFO("execute: run "<<getContext().eventID().run_number()<<", lb "<<getContext().eventID().lumi_block()<<", evnt "<<getContext().eventID().event_number()<<", channel "<<channel<<", align type "<<alignType<<" , shiftX = "<<shiftX);
+
+    ++counter;
   }
-  
+
   return StatusCode::SUCCESS;
 }
 

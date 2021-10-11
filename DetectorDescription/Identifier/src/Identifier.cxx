@@ -35,6 +35,8 @@ std::string Identifier::getString() const
 //-----------------------------------------------
 void Identifier::show () const
 {
+    static_assert(std::is_trivially_destructible<Identifier>::value);
+    static_assert(std::is_trivially_copy_constructible<Identifier>::value);
     const Identifier& me = *this;
     std::cout << me.getString();
 }

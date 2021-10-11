@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 # ****************************************************************************
@@ -49,13 +49,13 @@ topSequence = AlgSequence()
 #  Set up TilePulseForTileMuonReceiver
 from TileConditions.TileConditionsConf import TileCondToolNoiseSample
 topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver'
-                                                   , IntegerDigits = not jobproperties.Digitization.PileUpPremixing()
+                                                   , IntegerDigits = not jobproperties.Digitization.PileUpPresampling()
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
                                                    , TileCondToolPulseShape = TileCondToolMuRcvPulseShape
                                                    , TileRawChannelBuilderMF = TileMuRcvRawChannelBuilderMF
                                                    , TileCondToolNoiseSample = TileCondToolNoiseSample (TileOnlineSampleNoise = ''))
-if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = overlayFlags.bkgPrefix() + "MuRcvDigitsCnt"
 
@@ -75,6 +75,6 @@ topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
                                                 , MuonReceiverEneThreshCellD5andD6 = 500)
 
 
-if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = overlayFlags.bkgPrefix() + "TileMuRcvCnt"

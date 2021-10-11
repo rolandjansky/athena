@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # this is based on MuonConfigFlags as a guide
 
@@ -30,6 +30,7 @@ def createEgammaConfigFlags():
 
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion", 'v12phiflip_noecorrnogap')
+    egcf.addFlag("Egamma.Calib.SuperClusterCorrectionVersion", 'v12phiflip_supercluster')
     egcf.addFlag("Egamma.Calib.MVAVersion", 'egammaMVACalib/offline/v7')
 
     ##################################################
@@ -81,7 +82,7 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppAOD",
-                 '-e033.-e011.-e333.-e335.-e337.-e377.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight')
+                 '-e033.-e011.-e333.-e335.-e337.-e377.-EgammaCovarianceMatrix.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight')
 
     egcf.addFlag("Egamma.Keys.Input.ForwardTopoClusters", 'CaloCalTopoClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectrons", 'ForwardElectrons')

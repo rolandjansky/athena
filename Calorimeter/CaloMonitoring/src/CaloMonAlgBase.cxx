@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloMonAlgBase.h" 
@@ -51,9 +51,8 @@ StatusCode CaloMonAlgBase::initialize() {
    m_BadLBTool.disable();
  } 
 
- if(m_useCollisionFilterTool) ATH_CHECK( m_LArCollisionTimeKey.initialize() );
-
- if(m_useBeamBackgroundRemoval) ATH_CHECK( m_beamBackgroundKey.initialize() );
+ ATH_CHECK( m_LArCollisionTimeKey.initialize(m_useCollisionFilterTool) );
+ ATH_CHECK( m_beamBackgroundKey.initialize(m_useBeamBackgroundRemoval) );
 
  return AthMonitorAlgorithm::initialize();
 }
@@ -61,7 +60,6 @@ StatusCode CaloMonAlgBase::initialize() {
 StatusCode CaloMonAlgBase::checkFilters(bool &ifPass, bool &passBeamBackgroundRemoval, const std::string &MonGroupName, const EventContext &ctx) const{
 
   ATH_MSG_DEBUG("CaloMonAlgBase:checkFilters() starts "<<MonGroupName);
-  StatusCode sc = StatusCode::SUCCESS;
 
   auto evtbin = Monitored::Scalar<int>("EvtBin",1);
   fill(MonGroupName,evtbin);

@@ -37,7 +37,7 @@ StatusCode Muon::RpcPadContByteStreamTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcPadContByteStreamTool::convert(CONTAINER* cont, RawEventWrite* /*re*/) const
+StatusCode Muon::RpcPadContByteStreamTool::convert(RpcPadContainer* cont) const
 {
    FullEventAssembler<RPC_Hid2RESrcID>* fea = nullptr;
    ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,

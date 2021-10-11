@@ -22,14 +22,14 @@ Trk::TrackPositionNtupleHelper::TrackPositionNtupleHelper(
         :
   AthAlgTool(t,n,p),
   m_trkParametersWarning(false),
-  m_trkX(0),
-  m_trkY(0),
-  m_trkZ(0),
-  m_trkMomentumX(0),
-  m_trkMomentumY(0),
-  m_trkMomentumZ(0),
-  m_trkLoc1(0),
-  m_trkLoc2(0)
+  m_trkX(nullptr),
+  m_trkY(nullptr),
+  m_trkZ(nullptr),
+  m_trkMomentumX(nullptr),
+  m_trkMomentumY(nullptr),
+  m_trkMomentumZ(nullptr),
+  m_trkLoc1(nullptr),
+  m_trkLoc2(nullptr)
 
  {
     declareInterface<IValidationNtupleHelperTool>(this);

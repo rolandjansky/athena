@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-MinBiasScintillatorSDTool=CompFactory.MinBiasScintillatorSDTool
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 
 def MinBiasScintillatorSDCfg(ConfigFlags, name="MinBiasScintillatorSD", **kwargs):
@@ -23,6 +22,7 @@ def MinBiasScintillatorSDCfg(ConfigFlags, name="MinBiasScintillatorSD", **kwargs
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
 
-    result.setPrivateTools( MinBiasScintillatorSDTool(name, **kwargs) )
+    MinBiasScintillatorSDTool = CompFactory.MinBiasScintillatorSDTool
+    result.setPrivateTools(MinBiasScintillatorSDTool(name, **kwargs))
 
     return result

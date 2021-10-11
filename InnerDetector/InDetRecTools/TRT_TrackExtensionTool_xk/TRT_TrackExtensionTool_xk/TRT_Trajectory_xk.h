@@ -184,7 +184,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       void stabline(int,double);
-      void sort    (samiStruct*,int);
+      static void sort    (samiStruct*,int);
       void erase   (int);
       std::pair<const Trk::PseudoMeasurementOnTrack*,const Trk::PseudoMeasurementOnTrack*>
 	pseudoMeasurements(const Trk::Surface*,const Trk::Surface*,int bec);

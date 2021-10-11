@@ -57,8 +57,7 @@ DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const D
    DataHeader* trans = new DataHeader();
    const unsigned int provSize = pers->m_provenanceSize;
    trans->m_inputDataHeader.resize(provSize);
-   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize);
-
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize - 1); // Take into account self reference
    unsigned i = 0;
    for( auto& elem : trans->m_dataHeader ) {
       persToElem( pers, i++, &elem, form );
@@ -66,6 +65,9 @@ DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const D
    for( auto& elem : trans->m_inputDataHeader ) {
       persToElem( pers, i++, &elem, form );
    }
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize); // Add self reference, which was appended to end
+   auto& elem = trans->m_dataHeader.back();
+   persToElem( pers, i++, &elem, form );
    trans->setStatus(DataHeader::Input);
    return trans;
 }
@@ -88,7 +90,8 @@ void DataHeaderCnv_p6::elemToPers(const DataHeaderElement* trans,
       // StoreGate Type/Key & persistent Class GUID
       DataHeaderForm_p6::ObjRecord transObj( token->classID(), token->contID(), trans->m_key,
                                              trans->m_pClid, token->oid().first );
-      unsigned obj_idx = form.insertObj(transObj, trans->m_alias, trans->m_clids, trans->m_hashes);
+      unsigned obj_idx = form.insertObj(transObj, trans->m_alias, m_SGAliasFiltering,
+                                        trans->m_clids, trans->m_hashes);
       unsigned long long oid2 = token->oid().second;
 
       // first element sets the common DB

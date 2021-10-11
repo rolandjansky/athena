@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerMatchingTool/MatchFromCompositeTool.h"
@@ -53,7 +53,7 @@ namespace Trig {
           "Failed to retrieve composite corresponding to chain " + chain);
     }
     for (const xAOD::TrigComposite* composite : *composites) {
-      static constAcc_t<vecLink_t<xAOD::IParticleContainer>> accMatched(
+      static const constAcc_t<vecLink_t<xAOD::IParticleContainer>> accMatched(
           "TrigMatchedObjects");
       if (testCombination(accMatched(*composite), recoObjects) )
         return true;
@@ -109,7 +109,7 @@ namespace Trig {
       return xAOD::P4Helpers::deltaR(lhs, rhs, false) < m_drThreshold;
     }
     else if (m_matchShallow) {
-      static SG::AuxElement::ConstAccessor<
+      static const SG::AuxElement::ConstAccessor<
         ElementLink<xAOD::IParticleContainer>> accOOL("originalObjectLink");
       // For now assume that we've got a shallow copy iff this is available
       const xAOD::IParticle* lhsOrig = 

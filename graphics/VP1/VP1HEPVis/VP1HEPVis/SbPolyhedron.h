@@ -571,7 +571,7 @@ class SbPolyhedronArbitrary : public SbPolyhedron {
 
 class SbPolyhedronGenericTrap : public SbPolyhedron {
 public:
-  SbPolyhedronGenericTrap(double Dz, const std::vector<std::pair<double,double> > Vertices);
+  SbPolyhedronGenericTrap(double Dz, const std::vector<std::pair<double,double> >& Vertices);
   virtual ~SbPolyhedronGenericTrap();
   virtual SbPolyhedron& operator = (const SbPolyhedron& from) {
     return SbPolyhedron::operator = (from);

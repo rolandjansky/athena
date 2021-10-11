@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 */
 
 #ifndef FORCEMSCONDITIONSALG_H
@@ -21,8 +21,6 @@ class ForceMSConditionsAlg : public AthReentrantAlgorithm {
  protected:
   SG::ReadCondHandleKey<ALineMapContainer> m_ALineKey{this, "ALineKey", "ALineMapContainer", "Key of muon alignment ALine condition data"}; 
   SG::ReadCondHandleKey<BLineMapContainer> m_BLineKey{this, "BLineKey", "BLineMapContainer", "Key of muon alignment BLine condition data"};
-  SG::ReadCondHandleKey<CscInternalAlignmentMapContainer> m_ILineKey{this, "ILineKey", "CscInternalAlignmentMapContainer", "Key of muon alignment CSC/ILine condition data"};
-  SG::ReadCondHandleKey<MdtAsBuiltMapContainer> m_MdtAsBuiltKey{this, "MdtAsBuiltKey", "MdtAsBuiltMapContainer", "Key of muon alignment MDT/AsBuilt condition data"};
 
 };
 

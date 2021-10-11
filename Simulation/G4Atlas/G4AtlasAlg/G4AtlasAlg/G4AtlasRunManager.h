@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4AtlasRunManager_h
@@ -46,11 +46,6 @@ public:
     m_detGeoSvc.setTypeAndName(typeAndName);
   }
 
-  /// Configure the Sensitive Detector Master Tool handle
-  void SetSDMasterTool(const std::string& typeAndName) {
-    m_senDetTool.setTypeAndName(typeAndName);
-  }
-
   /// Configure the Fast Simulation Master Tool handle
   void SetFastSimMasterTool(const std::string& typeAndName) {
     m_fastSimTool.setTypeAndName(typeAndName);
@@ -64,6 +59,10 @@ public:
   void SetRecordFlux(bool b, std::unique_ptr<IFluxRecorder> f) { m_recordFlux = b; m_fluxRecorder=std::move(f);}
   void SetLogLevel(int) { /* Not implemented */ }
   /// @}
+
+  void SetVolumeSmartlessLevel(const std::map<std::string,double>& nameAndValue){
+    m_volumeSmartlessLevel = nameAndValue;
+  }
 
 protected:
 
@@ -91,7 +90,6 @@ private:
 
   bool m_recordFlux;
 
-  ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
   ServiceHandle<IPhysicsListSvc> m_physListSvc;
 
@@ -100,6 +98,11 @@ private:
   /// Interface to flux recording
 
   std::unique_ptr<IFluxRecorder> m_fluxRecorder;
+
+  //Property to allow an arbitrary volume (named by string) to have its
+  //"smartless" value set
+  std::map<std::string, double> m_volumeSmartlessLevel;
+
 };
 
 #endif // G4ATLASALG_G4AtlasRunManager_h

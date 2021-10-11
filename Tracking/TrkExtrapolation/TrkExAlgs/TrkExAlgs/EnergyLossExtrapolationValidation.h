@@ -20,7 +20,8 @@
 // CylinderSurfaces
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
-
+//
+#include <memory>
 class TTree;
 
 #ifndef TRKEXALGS_MAXPARAMETERS
@@ -73,8 +74,13 @@ namespace Trk
        StatusCode          finalize();
 
     private:
-      /** private helper method to create a HepTransform */
-      Amg::Transform3D* createTransform(double x, double y, double z, double phi=0., double theta=0., double alphaZ=0.);      
+      /** private helper method to create a Transform */
+      std::unique_ptr<Amg::Transform3D> createTransform(double x,
+                                                        double y,
+                                                        double z,
+                                                        double phi = 0.,
+                                                        double theta = 0.,
+                                                        double alphaZ = 0.);
 
       /** the highest volume */
       const TrackingVolume*     m_highestVolume;

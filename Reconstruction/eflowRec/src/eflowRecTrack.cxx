@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -82,7 +82,7 @@ void eflowRecTrack::setCaloDepthArray(const double* depthArray) {
   m_caloDepthArray.assign(depthArray, depthArray + eflowDepthCalculator::NDepth() + 1);
 }
 
-const std::vector<eflowTrackClusterLink*>* eflowRecTrack::getAlternativeClusterMatches(std::string key) const  { 
+const std::vector<eflowTrackClusterLink*>* eflowRecTrack::getAlternativeClusterMatches(const std::string& key) const  { 
 
   std::map<std::string,std::vector<eflowTrackClusterLink*> >::const_iterator thisIterator = m_alternativeClusterMatches.find(key);
   if (thisIterator !=  m_alternativeClusterMatches.end()) return  &m_alternativeClusterMatches.at(key);

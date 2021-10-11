@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -151,7 +151,7 @@ LArOnlineIDStrHelper::feedthrough_str(HWIdentifier id,
     outStr += m_feedthroughExpertsNames[feedthroughHash];
   } else if (type == LARONLINEID) {
     std::string s = (noSpaces) ? "" : " ";
-    outStr += s + "FT" + this->int_to_str(m_LArOnlineIDHelper->feedthrough(id), 2, true);
+    outStr += s + "FT" + LArOnlineIDStrHelper::int_to_str(m_LArOnlineIDHelper->feedthrough(id), 2, true);
   }
 
   return outStr;
@@ -174,7 +174,7 @@ LArOnlineIDStrHelper::feedthroughOnly_str(HWIdentifier id,
     IdentifierHash feedthroughHash = m_LArOnlineIDHelper->feedthrough_Hash(feedthroughID);
     outStr = m_feedthroughExpertsNames[feedthroughHash];
   } else if (type == LARONLINEID || type == LARONLINEIDCOMPACT) {
-    outStr = this->int_to_str(m_LArOnlineIDHelper->feedthrough(id), 2, true);
+    outStr = LArOnlineIDStrHelper::int_to_str(m_LArOnlineIDHelper->feedthrough(id), 2, true);
   }
 
   return outStr;
@@ -210,7 +210,7 @@ LArOnlineIDStrHelper::feb_str(HWIdentifier id,
     outStr += m_febExpertsCompactNames[febHash];
   } else if (type == LARONLINEID) {
     std::string s = (noSpaces) ? "" : " ";
-    outStr += s + "Slot" + this->int_to_str(m_LArOnlineIDHelper->slot(id), 2, true);
+    outStr += s + "Slot" + LArOnlineIDStrHelper::int_to_str(m_LArOnlineIDHelper->slot(id), 2, true);
   }
  
   return outStr;
@@ -237,7 +237,7 @@ LArOnlineIDStrHelper::febOnly_str(HWIdentifier id,
     IdentifierHash febHash = m_LArOnlineIDHelper->feb_Hash(febID);
     outStr = m_febExpertsCompactNames[febHash];
   } else if (type == LARONLINEID || type == LARONLINEIDCOMPACT) {
-    outStr = this->int_to_str(m_LArOnlineIDHelper->slot(id), 2, true);
+    outStr = LArOnlineIDStrHelper::int_to_str(m_LArOnlineIDHelper->slot(id), 2, true);
   }
  
   return outStr;
@@ -264,9 +264,9 @@ LArOnlineIDStrHelper::channel_str(HWIdentifier id,
 
   if (type == EXPERTS || type == LARONLINEID) {
     std::string s = (noSpaces) ? "" : " ";
-    outStr += s + "Channel" + this->int_to_str(m_LArOnlineIDHelper->channel(id), 3, true);
+    outStr += s + "Channel" + LArOnlineIDStrHelper::int_to_str(m_LArOnlineIDHelper->channel(id), 3, true);
   } else if (type == EXPERTSCOMPACT) {
-    outStr += "Ch" + this->int_to_str(m_LArOnlineIDHelper->channel(id), 3, true);
+    outStr += "Ch" + LArOnlineIDStrHelper::int_to_str(m_LArOnlineIDHelper->channel(id), 3, true);
   }
 
   return outStr;
@@ -277,7 +277,7 @@ HWIdentifier
 LArOnlineIDStrHelper::feedthrough_id(const std::string& feedthroughName)
 {
   // get feedthrough HWId from feedthrough name (case insensitive)
-  std::map<std::string, HWIdentifier>::iterator iFeed = m_feedthroughHWIds.find(this->str_to_upper(feedthroughName));
+  std::map<std::string, HWIdentifier>::iterator iFeed = m_feedthroughHWIds.find(LArOnlineIDStrHelper::str_to_upper(feedthroughName));
   if (iFeed != m_feedthroughHWIds.end()) return iFeed->second;
   // invalid name, returns an invalid id
   HWIdentifier idInvalid;
@@ -290,7 +290,7 @@ HWIdentifier
 LArOnlineIDStrHelper::feb_id(const std::string& febName)
 {
   // get feb HWId from feb name (case insensitive)
-  std::map<std::string, HWIdentifier>::iterator iFeb = m_febHWIds.find(this->str_to_upper(febName));
+  std::map<std::string, HWIdentifier>::iterator iFeb = m_febHWIds.find(LArOnlineIDStrHelper::str_to_upper(febName));
   if (iFeb != m_febHWIds.end()) return iFeb->second;
   // invalid name, returns an invalid id
   HWIdentifier idInvalid;
@@ -733,9 +733,9 @@ LArOnlineIDStrHelper::test()
 
   std::cout << "Id searches" << std::endl;
   std::vector<std::string> febNames;
-  febNames.push_back("banana");
-  febNames.push_back("BarrelCFT09LMiddle3");
-  febNames.push_back("BarrelCfT09Lmiddle3");
+  febNames.emplace_back("banana");
+  febNames.emplace_back("BarrelCFT09LMiddle3");
+  febNames.emplace_back("BarrelCfT09Lmiddle3");
   for (std::vector<std::string>::iterator it = febNames.begin(); it != febNames.end(); ++it) {
     std::string febName = *it;
     HWIdentifier febID = this->feb_id(febName);

@@ -91,9 +91,9 @@ ERROR_COUNT=0
 # (In order to make the build continue through any possible errors.)
 if [[ "${ATLAS_CI_BUILD}" = "" && "${ATLAS_EXTRA_MAKE_ARGS[@]}" = "" ]]; then
    if [[ "${ATLAS_EXTRA_CMAKE_ARGS[@]}" =~ "Ninja" ]]; then
-      ATLAS_EXTRA_MAKE_ARGS+=(-- -k0)
+      ATLAS_EXTRA_MAKE_ARGS+=(-k0)
    else
-      ATLAS_EXTRA_MAKE_ARGS+=(-- -k)
+      ATLAS_EXTRA_MAKE_ARGS+=(-k)
    fi
 fi
 

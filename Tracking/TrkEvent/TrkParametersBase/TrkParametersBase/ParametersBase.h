@@ -14,10 +14,14 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 //system
 #include <memory>
 #include <type_traits>
 #include <optional>
+#include <limits>
+#include <iosfwd>
+
 class MsgStream;
 
 template<typename T>
@@ -167,7 +171,7 @@ public:
 
   /** Returns the Surface Type enum for the surface used
    * to define the derived class*/
-  virtual int surfaceType() const = 0;
+  virtual SurfaceType surfaceType() const = 0;
 
   /** Dumps relevant information about the track parameters into the ostream */
   virtual MsgStream& dump(MsgStream& out) const;
@@ -195,8 +199,8 @@ protected:
    * Default Move ctor/assignment, private can be used
    * only by derived classes.
    */
-  ParametersBase(ParametersBase&&) = default;
-  ParametersBase& operator=(ParametersBase&&) = default;
+  ParametersBase(ParametersBase&&) noexcept = default;
+  ParametersBase& operator=(ParametersBase&&) noexcept  = default;
   /*
    * Default copy ctor/assignment
    * Deleted due unique_ptr.
@@ -205,8 +209,8 @@ protected:
    * Polymorphic deep copy can happen via the clone
    * method
    */
-  ParametersBase(const ParametersBase&) = delete;
-  ParametersBase& operator=(const ParametersBase&) = delete;
+  ParametersBase(const ParametersBase&) = default;
+  ParametersBase& operator=(const ParametersBase&) = default;
 
   /* Helper implementing the specific per derived class logic for
    * the update of parameters*/

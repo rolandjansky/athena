@@ -32,7 +32,7 @@ namespace Trk {
 
     declareProperty("DerivCalcTool",   m_derivCalcTool,   "tool for calculating derivatives");
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________

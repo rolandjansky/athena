@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TrkVertexFitters/share/AdaptiveMultiVertexFitter_test.py
 # Author: scott snyder <snyder@bnl.gov>
@@ -52,14 +52,23 @@ topSequence += eialg
 from AthenaCommon import Constants
 GeoModelSvc().OutputLevel=Constants.WARNING
 
-from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+
+from InDetRecExample.TrackingCommon import getInDetExtrapolator, getInDetFullLinearizedTrackFactory
+
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__ImpactPoint3dEstimator
+InDetImpactPoint3dEstimator = Trk__ImpactPoint3dEstimator(name              = "InDetImpactPoint3dEstimator",
+                                                          Extrapolator      = getInDetExtrapolator())
+ToolSvc += InDetImpactPoint3dEstimator
 
 
 from TrkVertexFitters.TrkVertexFittersConf import \
     Trk__AdaptiveMultiVertexFitterTestAlg, Trk__AdaptiveMultiVertexFitter
 fitter = Trk__AdaptiveMultiVertexFitter ('AdaptiveMultiVertexFitter',
+                                         ImpactPoint3dEstimator = InDetImpactPoint3dEstimator,
+                                         LinearizedTrackFactory = getInDetFullLinearizedTrackFactory(),
                                          OutputLevel = INFO)
 testalg1 = Trk__AdaptiveMultiVertexFitterTestAlg ('testalg1',
                                                   OutputLevel = VERBOSE,
                                                   Tool = fitter)
 topSequence += testalg1
+

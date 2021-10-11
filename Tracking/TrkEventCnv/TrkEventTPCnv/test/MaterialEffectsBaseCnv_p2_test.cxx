@@ -56,7 +56,7 @@ void compare (const Trk::MaterialEffectsBase& p1,
 
 void testit (const Trk::MaterialEffectsBase& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MaterialEffectsBaseCnv_p2 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);

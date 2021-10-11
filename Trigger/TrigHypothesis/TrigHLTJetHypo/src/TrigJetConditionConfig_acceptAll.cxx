@@ -4,7 +4,7 @@
 
 #include "TrigJetConditionConfig_acceptAll.h"
 
-#include "./AcceptAllConditionMT.h"
+#include "./AcceptAllCondition.h"
 
 TrigJetConditionConfig_acceptAll::TrigJetConditionConfig_acceptAll
 (const std::string& type,
@@ -13,6 +13,6 @@ TrigJetConditionConfig_acceptAll::TrigJetConditionConfig_acceptAll
 
 }
 
-ConditionMT TrigJetConditionConfig_acceptAll::getCondition() const {
-  return std::make_unique<AcceptAllConditionMT>();
+Condition TrigJetConditionConfig_acceptAll::getCondition() const {
+  return std::make_unique<AcceptAllCondition>();
 }

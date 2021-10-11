@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "LArReadoutGeometry/FCALModule.h"
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArReadoutGeometry/FCALDetectorManager.h"
+
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTubs.h"
-
-// FCALModule
-#include "LArReadoutGeometry/FCALModule.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 #include <algorithm>
 
@@ -27,12 +27,12 @@ bool operator < (const FCALTile &t, unsigned int i) {
 // Class FCALModule 
 
 FCALModule::FCALModule (const GeoVFullPhysVol *physVol, Module module, Endcap endcap, double projectivityDisplacement)
-  :GeoVDetectorElement(physVol),
-   m_Mod(module),
-   m_EC(endcap),
-   m_manager(0),
-   m_dz(((const GeoTubs *) physVol->getLogVol()->getShape())->getZHalfLength()*2.0),
-   m_projectivityDisplacement(projectivityDisplacement)
+  : GeoVDetectorElement(physVol)
+  , m_Mod(module)
+  , m_EC(endcap)
+  , m_manager(nullptr)
+  , m_dz(((const GeoTubs *) physVol->getLogVol()->getShape())->getZHalfLength()*2.0)
+  , m_projectivityDisplacement(projectivityDisplacement)
 {
 
 }
@@ -93,26 +93,20 @@ double FCALModule::getFullDepthZ (const FCALTile& ) const
   return m_dz;
 }
 
-const GeoTrf::Transform3D &  FCALModule::getAbsoluteTransform () const
+const Amg::Transform3D&  FCALModule::getAbsoluteTransform (const GeoAlignmentStore* alignStore) const
 {
   const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
-  return fullPhysVol->getAbsoluteTransform();
+  return alignStore
+    ? fullPhysVol->getCachedAbsoluteTransform(alignStore)
+    : fullPhysVol->getAbsoluteTransform();
 }
 
-const GeoTrf::Transform3D &  FCALModule::getDefAbsoluteTransform () const
+const Amg::Transform3D&  FCALModule::getDefAbsoluteTransform (const GeoAlignmentStore* alignStore) const
 {
   const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
-  return fullPhysVol->getDefAbsoluteTransform();
-}
-
-const Amg::Transform3D  FCALModule::getAbsoluteTransformAmg () const
-{
-  return getAbsoluteTransform();
-}
-
-const Amg::Transform3D  FCALModule::getDefAbsoluteTransformAmg () const
-{
-  return getDefAbsoluteTransform();
+  return alignStore
+    ? fullPhysVol->getCachedDefAbsoluteTransform(alignStore)
+    : fullPhysVol->getDefAbsoluteTransform();
 }
 
 void FCALModule::setManager (FCALDetectorManager* fcalManager)
@@ -120,7 +114,7 @@ void FCALModule::setManager (FCALDetectorManager* fcalManager)
   m_manager = fcalManager;
   const FCAL_ChannelMap *cMap = m_manager->getChannelMap();
   FCAL_ChannelMap::tileMap_const_iterator t,begin=cMap->begin(m_Mod),end=cMap->end(m_Mod);
-  for (t=begin;t!=end;t++) {
+  for (t=begin;t!=end;++t) {
     FCALTile tile(this,t);
     m_tileList.push_back(tile);
   }

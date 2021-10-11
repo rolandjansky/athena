@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -37,6 +37,7 @@
 #include <algorithm>
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -92,16 +93,20 @@ namespace LArG4 {
 
       // get GeoModelSvc & RDBAccessSvc
       ISvcLocator *svcLocator = Gaudi::svcLocator();
-      IGeoModelSvc *geoModel(0);
+      IGeoModelSvc *geoModel(nullptr);
       StatusCode status = svcLocator->service ("GeoModelSvc",geoModel);
       if (status != StatusCode::SUCCESS)
         throw std::runtime_error ("LArFCALCalibCalculatorBase ERROR: Cannot locate GeoModelSvc!");
 
-      // Access the geometry database:
-      IRDBAccessSvc *pAccessSvc(0);
-      status=svcLocator->service("RDBAccessSvc",pAccessSvc);
+      IGeoDbTagSvc *geoDbTagSvc(nullptr);
+      status=svcLocator->service("GeoDbTagSvc",geoDbTagSvc);
       if (status != StatusCode::SUCCESS)
-        throw std::runtime_error ("LArFCALCalibCalculatorBase ERROR: Cannot locate RDBAccessSvc!");
+        throw std::runtime_error ("LArFCALCalibCalculatorBase ERROR: Cannot locate GeoDbTagSvc");
+      // Access the geometry database:
+      IRDBAccessSvc *pAccessSvc(nullptr);
+      status=svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc);
+      if (status != StatusCode::SUCCESS)
+        throw std::runtime_error ("LArFCALCalibCalculatorBase ERROR: Cannot locate " + geoDbTagSvc->getParamSvcName());
 
       // Obtain the geometry version information:
 

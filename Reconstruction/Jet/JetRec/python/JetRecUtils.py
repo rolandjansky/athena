@@ -3,12 +3,28 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
-def retrieveAODList():
+def retrieveAODList(enableOutputOverride = False):
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
+    #We always want to write pileup truth jets to AOD, irrespective of whether we write jets to AOD in general
+    #This is because we cannot rebuild jets from pileup truth particles from the AOD
+    jetPileUpTruthList = []
+    if rec.doTruth():
+      jetPileUpTruthList += [
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights',
+      ]
+
+    #If we don't want to write jets to AOD then we just return the above list of pileup truth jets
+    if (not enableOutputOverride) and (not jetFlags.writeJetsToAOD()):
+        return jetPileUpTruthList
+
     if rec.doWriteESD():
-        return jetFlags.jetAODList()
+        jetAODList = jetFlags.jetAODList()
+        if rec.doTruth():
+          jetAODList += jetPileUpTruthList 
+        return jetAODList
     # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some
     # jobs starts from empty files. See ATEAM-191.
@@ -28,15 +44,17 @@ def retrieveAODList():
         'xAOD::EventShape#TopoClusterIsoCentralEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.',
         'xAOD::EventShape#TopoClusterIsoForwardEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.',
 
-        'xAOD::PFOContainer#CHSChargedParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.',
-        'xAOD::PFOContainer#CHSNeutralParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux.',
-
         'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
         'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
 
-    if jetFlags.detailLevel()>=JetContentDetail.Full:
+    if rec.doTruth():
+      l += jetPileUpTruthList
+
+    if jetFlags.detailLevel()==JetContentDetail.Trigger:
+        l += ['xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.']
+    elif jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
             'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.',
@@ -53,7 +71,7 @@ def retrieveAODList():
                 'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
                 'xAOD::JetContainer#CamKt12TruthJets',                  'xAOD::JetAuxContainer#CamKt12TruthJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
+                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',                
                 ]
 
     if jetFlags.detailLevel()>=JetContentDetail.Validation:

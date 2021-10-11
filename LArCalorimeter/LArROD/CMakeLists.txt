@@ -15,7 +15,7 @@ atlas_add_library( LArRODLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRecConditions TBEvent StoreGateLib LArCablingLib LArElecCalib LArRawUtilsLib LArRecUtilsLib
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArDigitizationLib LArRecConditions TBEvent StoreGateLib LArCablingLib LArElecCalib LArRawUtilsLib LArRecUtilsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions )
 
 atlas_add_component( LArROD

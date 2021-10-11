@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IOVRANGE_H
@@ -17,9 +17,8 @@
  *****************************************************************************/
 
 #include "AthenaKernel/IOVTime.h"
-#include <iostream>
 #include <string>
-#include <sstream>
+#include <iosfwd>
 
 class MsgStream;
 class EventIDRange;
@@ -33,11 +32,11 @@ public:
   IOVRange(): m_start(0),m_stop(0) {};
   IOVRange( const IOVTime& start, const IOVTime& stop );
   IOVRange( const EventIDRange& eir);
-  IOVRange( const IOVRange& r ):m_start(r.m_start),m_stop(r.m_stop) {};
-  IOVRange& operator= (const IOVRange& r);
+  IOVRange( const IOVRange& r ) = default;
+  IOVRange& operator= (const IOVRange& r) = default;
 
-  IOVTime start() const { return m_start; }
-  IOVTime stop() const { return m_stop; }
+  const IOVTime& start() const { return m_start; }
+  const IOVTime& stop() const { return m_stop; }
 
   bool isInRange(const IOVTime& t) const {
     return ( t>=m_start && t<m_stop );
@@ -69,11 +68,5 @@ inline bool operator!=(const IOVRange& lhs, const IOVRange& rhs) {
   return ! (lhs == rhs);
 }
 
-
-inline IOVRange::operator std::string () const {
-  std::ostringstream os;
-  os << "{" << m_start << " - " << m_stop << "}";
-  return os.str();
-}
 
 #endif

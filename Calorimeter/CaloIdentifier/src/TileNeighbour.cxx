@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -29,14 +29,12 @@
 
 using namespace LArNeighbours;
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
 
 #define MAX_TOKEN_SIZE 256
 
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
 
-typedef struct
+namespace {
+struct Cell
 {
   Identifier id;
   IdentifierHash hash_id;
@@ -46,14 +44,9 @@ typedef struct
   std::vector<std::string> neighbours[4];
   std::vector<int> neighbours_ind[4];
 
-} Cell;
+};
+} // anonymous namespace
 
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 TileNeighbour::TileNeighbour(void) 
   : m_debug(0)

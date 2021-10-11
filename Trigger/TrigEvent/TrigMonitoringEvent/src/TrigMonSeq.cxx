@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -7,9 +7,8 @@
 #include <iomanip>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonSeq.h"
-#include "TrigMonMSG.h"
 
 namespace SeqBits
 {
@@ -18,12 +17,6 @@ namespace SeqBits
   const uint32_t shiftIndex = 20;
 }
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonSeq");
-}
-
-using namespace std;
 
 // This is to work around an edm change
 const static uint16_t LARGE_INDEX_SEQ_LOCATION = 321;
@@ -251,8 +244,8 @@ void TrigMonSeq::print(const TrigConfSeq &confg, std::ostream &os) const
     const TrigMonAlg &alg_entry = m_alg[j];
     const TrigConfAlg &alg_confg = confg.getAlg(alg_entry.getPosition());
     
-    st << "  " << setw(2) << setfill(' ') << std::right << j << ": " 
-       << setw(iwidth) << std::left << alg_confg.getName()
+    st << "  " << std::setw(2) << std::setfill(' ') << std::right << j << ": "
+       << std::setw(iwidth) << std::left << alg_confg.getName()
        << " isCached=" << int(alg_entry.isCached()) 
        << " timer=" << alg_entry.elapsed()
        << " RoiId=";

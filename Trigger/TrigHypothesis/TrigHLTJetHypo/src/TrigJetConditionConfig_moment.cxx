@@ -7,7 +7,7 @@
  */
 #include "TrigJetConditionConfig_moment.h"
 #include "GaudiKernel/StatusCode.h"
-#include "./MomentConditionMT.h"
+#include "./MomentCondition.h"
 #include "./ArgStrToDouble.h"
 
 
@@ -24,9 +24,9 @@ StatusCode TrigJetConditionConfig_moment::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_moment::getCondition() const {
+Condition TrigJetConditionConfig_moment::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<MomentConditionMT>(a2d(m_min),
+  return std::make_unique<MomentCondition>(a2d(m_min),
 					     a2d(m_max),
 					     m_moment
 					     );

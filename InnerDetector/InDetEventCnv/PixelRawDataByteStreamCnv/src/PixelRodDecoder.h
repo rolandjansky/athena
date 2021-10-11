@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
 #define PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
 
-#include <atomic>
+
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -14,9 +14,9 @@
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
-class IPixelCablingSvc;
+#include <atomic>
 class PixelID;
 
 class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
@@ -107,7 +107,7 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     uint32_t treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) const;
 
-
+    constexpr static size_t ERROR_CONTAINER_MAX = 56506;  // see explanation in PixelRawDataProviderTool.cxx. Increased to accommodate space for the SvcCounter
   private:
     mutable std::atomic_uint m_masked_errors{};
     mutable std::atomic_uint m_numGenWarnings{};
@@ -131,9 +131,10 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     mutable std::atomic_uint m_numLinkMaskedByPPC{0};
     mutable std::atomic_uint m_numLimitError{0};
 
-    ServiceHandle<IPixelCablingSvc>  m_pixelCabling;
-
     const PixelID*              m_pixel_id=nullptr;
+
+    ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+    {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
     SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
@@ -145,9 +146,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     bool checkDataWordsCorruption( uint32_t word ) const;
 
     //!< flags concerning the detector configuration; set at config time
-    bool m_is_ibl_present;
-    bool m_is_ibl_module;
-    bool m_is_dbm_module;
+    bool m_is_ibl_present{};
+    bool m_is_ibl_module{};
+    bool m_is_dbm_module{};
 
     //!< if the flag is set to true appropriate bits are set in event info
     StatusCode updateEventInfoIfEventCorrupted( bool isCorrupted ) const;
@@ -157,6 +158,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     
     //!< if the check duplicated RDO flag is true, check that this RDO is unique (returns true if unique)
     inline bool thisRdoIsUnique(const Identifier & pixelRdo, std::unordered_set<Identifier> & pixelRdosSeenSoFar) const;
+
+    //!< get local FEI4
+    unsigned int getLocalFEI4(const uint32_t fe, const uint64_t onlineId) const;
 };
 
 bool 

@@ -9,7 +9,6 @@
 #include <numeric>
 
 #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
-#include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloEvent/CMMCPHits.h"
 #include "TrigT1CaloEvent/CPMHits.h"
 #include "TrigT1CaloEvent/CPMRoI.h"
@@ -55,19 +54,6 @@ StatusCode L1CPHitsTools::initialize()
 StatusCode L1CPHitsTools::finalize()
 {
   return StatusCode::SUCCESS;
-}
-
-/** CPAlgorithm to CPMRoI conversion */
-
-void L1CPHitsTools::formCPMRoI(const DataVector<CPAlgorithm>* cpAlgorithmVec,
-                                     DataVector<CPMRoI>*      cpmRoiVec) const
-{
-  DataVector<CPAlgorithm>::const_iterator pos  = cpAlgorithmVec->begin();
-  DataVector<CPAlgorithm>::const_iterator pose = cpAlgorithmVec->end();
-  for (; pos != pose; ++pos) {
-    CPMRoI* roi = new CPMRoI((*pos)->RoIWord());
-    cpmRoiVec->push_back(roi);
-  }
 }
 
 /** EmTauROI to CPMRoI conversion */

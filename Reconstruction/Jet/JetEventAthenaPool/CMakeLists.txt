@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetEventAthenaPool )
@@ -20,7 +20,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( JETEVENTATHENAPOOL_REFERENCE_TAG
-       JetEventAthenaPoolReference-01-00-01 )
+       JetEventAthenaPoolReference-02-00-00 )
   run_tpcnv_test( JetTPCnv_15.9.0.5   AOD-15.9.0.5-full
                    REFERENCE_TAG ${JETEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( JetTPCnv_17.0.0     AOD-17.0.0-full

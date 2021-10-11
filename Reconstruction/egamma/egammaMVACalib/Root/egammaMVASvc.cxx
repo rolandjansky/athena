@@ -14,6 +14,7 @@
 egammaMVASvc::egammaMVASvc(const std::string& name, ISvcLocator* svc) :
   asg::AsgService( name, svc )
 {
+  declareServiceInterface<IegammaMVASvc>();
 }
 
 StatusCode egammaMVASvc::initialize()
@@ -47,13 +48,14 @@ StatusCode egammaMVASvc::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
-                                 const xAOD::Egamma& eg) const
+StatusCode egammaMVASvc::getEnergy(const xAOD::CaloCluster& cluster,
+                                   const xAOD::Egamma& eg,
+                                   double& mvaE) const
 {
 
-  ATH_MSG_DEBUG("calling execute with cluster and eg");
+  ATH_MSG_DEBUG("calling egammaMVASvc::getEnergy with cluster and eg");
 
-  float mvaE = 0.0;
+  mvaE = 0.;
 
   if (xAOD::EgammaHelpers::isElectron(&eg)) {
     if (!m_mvaElectron.empty()) {
@@ -83,24 +85,17 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
   }
 
   ATH_MSG_DEBUG( "Calculated MVA calibrated energy = " << mvaE );
-  if (mvaE > eg.m()) {
-    cluster.setCalE(mvaE);
-  }
-  else {
-    ATH_MSG_DEBUG("MVA energy (" << mvaE << ") < particle mass ("
-                  << eg.m() << "), setting e = cluster energy (" << cluster.e() << ")");
-    cluster.setCalE(cluster.e());
-  }
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
-                                 const xAOD::EgammaParameters::EgammaType egType) const
+StatusCode egammaMVASvc::getEnergy(const xAOD::CaloCluster& cluster,
+                                   const xAOD::EgammaParameters::EgammaType egType,
+                                   double& mvaE) const
 {
 
-  ATH_MSG_DEBUG("calling execute with cluster and egType (" << egType <<")");
+  ATH_MSG_DEBUG("calling egammaMVASvc::getEnergy with cluster and egType (" << egType <<")");
 
-  float mvaE = 0.0;
+  mvaE = 0.0;
   switch (egType) {
   case xAOD::EgammaParameters::electron:
     if (!m_mvaElectron.empty()) {
@@ -126,6 +121,36 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
   }
 
   ATH_MSG_DEBUG( "Calculated MVA calibrated energy = " << mvaE );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
+                                 const xAOD::Egamma& eg) const
+{
+  double mvaE = 0.;
+
+  ATH_CHECK(getEnergy(cluster, eg, mvaE));
+
+  if (mvaE > eg.m()) {
+    cluster.setCalE(mvaE);
+  }
+  else {
+    ATH_MSG_DEBUG("MVA energy (" << mvaE << ") < particle mass ("
+                  << eg.m() << "), setting e = cluster energy (" << cluster.e() << ")");
+    cluster.setCalE(cluster.e());
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
+                                 const xAOD::EgammaParameters::EgammaType egType) const
+{
+
+  double mvaE = 0.;
+
+  ATH_CHECK(getEnergy(cluster, egType, mvaE));
+
   if (mvaE > 0) {
     cluster.setCalE(mvaE);
   }

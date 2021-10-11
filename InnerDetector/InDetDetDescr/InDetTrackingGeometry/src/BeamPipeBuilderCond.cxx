@@ -25,6 +25,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
+//Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 InDet::BeamPipeBuilderCond::BeamPipeBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
@@ -102,15 +104,15 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
   std::vector<const Trk::CylinderLayer*>* beamPipe = new std::vector<const Trk::CylinderLayer*>;
   
   // the geometry
-  Amg::Transform3D* beamPipeTransform =  new Amg::Transform3D;
-  beamPipeTransform->setIdentity();
+  Amg::Transform3D beamPipeTransform;
+  beamPipeTransform.setIdentity();
 
   double beamPipeRadius = m_beamPipeRadius;
   
   if (m_beamPipeMgr){
         // get the central top volume
         PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
-        (*beamPipeTransform) = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
+        beamPipeTransform = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
                                                   beamPipeTopVolume->getX().translation().y(),
                                                   beamPipeTopVolume->getX().translation().z());
         const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
@@ -145,12 +147,12 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
         }
         ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );        
   } else 
-      (*beamPipeTransform) = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
+      beamPipeTransform = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
 
   ATH_MSG_VERBOSE("BeamPipe shift estimated as    : " 
-      <<  beamPipeTransform->translation().x() << ", "
-      <<  beamPipeTransform->translation().y() << ","
-      <<  beamPipeTransform->translation().y());
+      <<  beamPipeTransform.translation().x() << ", "
+      <<  beamPipeTransform.translation().y() << ","
+      <<  beamPipeTransform.translation().y());
   
   Trk::CylinderBounds* beamPipeBounds    = new Trk::CylinderBounds(beamPipeRadius, m_beamPipeHalflength);
   ATH_MSG_VERBOSE("BeamPipe bounds constructed as : " << (*beamPipeBounds) );
@@ -164,24 +166,25 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
 					   m_beamPipeRho);
   
   // binned layer material for the beam pipe possible
-  Trk::LayerMaterialProperties* beamPipeLayerMaterial=nullptr;
-  if (  m_beamPipeBinsZ == 1) 
-     beamPipeLayerMaterial = new Trk::HomogeneousLayerMaterial(beamPipeMaterial, 1.0);
-  else { 
-      Trk::BinUtility layerBinUtility(m_beamPipeBinsZ, -m_beamPipeHalflength, m_beamPipeHalflength, Trk::open, Trk::binZ );
-      beamPipeLayerMaterial = new Trk::BinnedLayerMaterial(layerBinUtility);  
-  }
-  
-  ATH_MSG_DEBUG( "BeamPipe constructed with material-properties: " << beamPipeMaterial ); 
-                                                                                    
-  beamPipe->push_back(new Trk::CylinderLayer(beamPipeTransform,
+  const Trk::CylinderLayer * pThisCylinderLayer{};
+  if (  m_beamPipeBinsZ == 1) {
+     const auto &beamPipeLayerMaterial = Trk::HomogeneousLayerMaterial(beamPipeMaterial, 1.0);
+     pThisCylinderLayer = new Trk::CylinderLayer(beamPipeTransform,
                                              beamPipeBounds,
-                                             *beamPipeLayerMaterial,
-                                             m_beamPipeThickness));
-  //delete beamPipeLayerMaterial; 
-  
-  //create dummy infinite range
-  EventIDRange range;
+                                             beamPipeLayerMaterial,
+                                             m_beamPipeThickness);
+     
+  } else { 
+      Trk::BinUtility layerBinUtility(m_beamPipeBinsZ, -m_beamPipeHalflength, m_beamPipeHalflength, Trk::open, Trk::binZ );
+      const auto &beamPipeLayerMaterial = Trk::BinnedLayerMaterial(layerBinUtility);
+      pThisCylinderLayer = new Trk::CylinderLayer(beamPipeTransform,
+                                             beamPipeBounds,
+                                             beamPipeLayerMaterial,
+                                             m_beamPipeThickness);
+  }
+  beamPipe->push_back(pThisCylinderLayer);
+   //create dummy infinite range
+  EventIDRange range = IOVInfiniteRange::infiniteMixed();
   return std::make_pair(range,beamPipe);
   
 } 

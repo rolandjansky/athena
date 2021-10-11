@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
-from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFTrackIsolationHypoToolFromDict
+from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFTrackIsolationHypoToolFromDict
 from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
@@ -32,32 +32,33 @@ from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDe
 from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg, MuonFilterAlgCfg, MergeEFMuonsAlgCfg
 from AthenaCommon.CFElements import seqAND, parOR, seqOR
 
-from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateMuon' )
+log = logging.getLogger(__name__)
 
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
-def EFMuonCBViewDataVerifierCfg(name):
-    config = getInDetTrigConfig( "muon" )
+@AccumulatorCache
+def EFMuonCBViewDataVerifierCfg(flags, name):
     EFMuonCBViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFCBMuon_"+name)
     EFMuonCBViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                                             ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                             ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                             ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                             ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                            ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' ),
                                             ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     if 'FS' in name:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
+    elif flags.Beam.Type != 'collisions':
+        EFMuonCBViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
+
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
-                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+config.tracks_FTF() ),
+                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+flags.Trigger.InDetTracking.Muon.tracks_FTF ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
@@ -186,6 +187,7 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     result.addEventAlgo( trackcnv, primary=True )
     return result
 
+@AccumulatorCache
 def decodeCfg(flags, RoIs):
     acc = ComponentAccumulator()
 
@@ -275,7 +277,8 @@ def efMuIsoHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     efHypo.EFMuonsName = inputMuons
     return efHypo
 
-def muFastStep(flags, chainDict):
+@AccumulatorCache
+def _muFastStepSeq(flags):
     # Step 1 (L2MuonSA)
     selAcc = SelectionCA("L2MuFastReco")
     # Set EventViews for L2MuonSA step
@@ -302,9 +305,16 @@ def muFastStep(flags, chainDict):
     l2muFastSequence = MenuSequenceCA(selAcc, 
                                       HypoToolGen = TrigMufastHypoToolFromDict )
 
+    return (selAcc , l2muFastSequence)
+
+def muFastStep(flags, chainDict):
+
+    selAcc , l2muFastSequence = _muFastStepSeq(flags)
+
     return ChainStep( name=selAcc.name, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
-def muCombStep(flags, chainDict):
+@AccumulatorCache
+def _muCombStepSeq(flags):
     ### Set muon step2 - L2muComb ###
     selAccL2CB = SelectionCA("L2MuonCB")
 
@@ -327,9 +337,16 @@ def muCombStep(flags, chainDict):
     l2muCombSequence = MenuSequenceCA(selAccL2CB,
                                       HypoToolGen = TrigmuCombHypoToolFromDict)
 
+    return (selAccL2CB , l2muCombSequence)
+
+def muCombStep(flags, chainDict):
+
+    selAccL2CB , l2muCombSequence = _muCombStepSeq(flags)
+
     return ChainStep( name=selAccL2CB.name, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
 
-def muEFSAStep(flags, chainDict, name='RoI'):
+@AccumulatorCache
+def _muEFSAStepSeq(flags, name='RoI'):
     #EF MS only
     selAccMS = SelectionCA('EFMuMSReco_'+name)
     
@@ -387,19 +404,23 @@ def muEFSAStep(flags, chainDict, name='RoI'):
     efmuMSSequence = MenuSequenceCA(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
+    return (selAccMS , efmuMSSequence)
+
+def muEFSAStep(flags, chainDict, name='RoI'):
+
+    selAccMS , efmuMSSequence = _muEFSAStepSeq(flags, name)
+
     return ChainStep( name=selAccMS.name, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
-def muEFCBStep(flags, chainDict, name='RoI'):
+@AccumulatorCache
+def _muEFCBStepSeq(flags, name='RoI'):
     #EF combined muons
     selAccEFCB = SelectionCA("EFCBMuon_"+name)
 
-    config = getInDetTrigConfig( "muon" )
-
     viewName = 'EFMuCBReco_'+name                                                       
-    trackName = config.tracks_FTF()
+    trackName = flags.Trigger.InDetTracking.Muon.tracks_FTF
     muonCandName = "MuonCandidates"
     if 'FS' in name:
-        config = getInDetTrigConfig( "muonFS" )
         muonCandName = "MuonCandidates_FS"
         ViewCreatorCentredOnIParticleROITool=CompFactory.ViewCreatorCentredOnIParticleROITool
         roiTool         = ViewCreatorCentredOnIParticleROITool(RoisWriteHandleKey="MuonCandidates_FS_ROIs")
@@ -417,15 +438,15 @@ def muEFCBStep(flags, chainDict, name='RoI'):
         recoCB = InViewRecoCA("EFMuCBReco_"+name, viewMaker=viewMakerAlg)
         #ID tracking
         recoCB.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoCB.inputMaker().InViewRoIs, signatureName="MuonFS" ))
-        trackName = config.tracks_FTF()
+        trackName = flags.Trigger.InDetTracking.MuonFS.tracks_FTF
     else:
         recoCB = InViewRecoCA(viewName)
         recoCB.inputMaker().RequireParentView = True
 
-    recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(name))
+    recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(flags, name))
     
     indetCandCfg = MuonCombinedInDetCandidateAlgCfg(flags, name="TrigMuonCombinedInDetCandidateAlg_"+name, TrackParticleLocation=[trackName], 
-                                                 InDetCandidateLocation="IndetCandidates_"+name, TrackSelector="",DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
+                                                 InDetCandidateLocation="IndetCandidates_"+name, DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
     recoCB.mergeReco(indetCandCfg)
     muonCombCfg = MuonCombinedAlgCfg(flags, name="TrigMuonCombinedAlg_"+name, MuonCandidateLocation=muonCandName, 
                                      InDetCandidateLocation="IndetCandidates_"+name)
@@ -472,10 +493,17 @@ def muEFCBStep(flags, chainDict, name='RoI'):
 
     efmuCBSequence = MenuSequenceCA(selAccEFCB,
                                     HypoToolGen = TrigMuonEFCombinerHypoToolFromDict)
+   
+    return (selAccEFCB , efmuCBSequence)
+
+def muEFCBStep(flags, chainDict, name='RoI'):
+
+    selAccEFCB , efmuCBSequence = _muEFCBStepSeq(flags, name)
     
     return ChainStep( name=selAccEFCB.name, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
 
-def muEFIsoStep(flags, chainDict):
+@AccumulatorCache
+def _muEFIsoStepSeq(flags):
     #Track isolation
     selAccEFIso = SelectionCA("EFIsoMuon")
 
@@ -495,10 +523,12 @@ def muEFIsoStep(flags, chainDict):
                                                          ViewNodeName    = viewName+"InView")
     recoIso = InViewRecoCA("EFMuIsoReco", viewMaker=viewMakerAlg)
     #ID tracking
-    config = getInDetTrigConfig( "muonIso" )
     recoIso.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoIso.inputMaker().InViewRoIs, signatureName="MuonIso" ))
     recoIso.mergeReco(MuIsoViewDataVerifierCfg())
-    recoIso.mergeReco(TrigMuonEFTrackIsolationAlgCfg(flags, IdTrackParticles=config.tracks_FTF(), MuonEFContainer="InViewIsoMuons", ptcone02Name="InViewIsoMuons.ptcone02", ptcone03Name="InViewIsoMuons.ptcone03"))
+    recoIso.mergeReco(TrigMuonEFTrackIsolationAlgCfg(flags, IdTrackParticles=flags.Trigger.InDetTracking.MuonIso.tracks_FTF,
+                                                    MuonEFContainer="InViewIsoMuons", 
+                                                    ptcone02Name="InViewIsoMuons.ptcone02", 
+                                                    ptcone03Name="InViewIsoMuons.ptcone03"))
 
     selAccEFIso.mergeReco(recoIso)
     efmuIsoHypo = efMuIsoHypoCfg( flags,
@@ -509,8 +539,12 @@ def muEFIsoStep(flags, chainDict):
     efmuIsoSequence = MenuSequenceCA(selAccEFIso,
                                      HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict)
     
-    return ChainStep( name=selAccEFIso.name, Sequences=[efmuIsoSequence], chainDicts=[chainDict] )
+    return (selAccEFIso , efmuIsoSequence)
 
+def muEFIsoStep(flags, chainDict):
+    selAccEFIso , efmuIsoSequence = _muEFIsoStepSeq(flags)
+    
+    return ChainStep( name=selAccEFIso.name, Sequences=[efmuIsoSequence], chainDicts=[chainDict] )
 
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]

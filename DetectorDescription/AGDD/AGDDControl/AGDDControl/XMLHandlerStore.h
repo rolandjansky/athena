@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XMLHandlerStore_H
 #define XMLHandlerStore_H
 
 class XMLHandler;
+class AGDDController;
 
 #include <map>
 #include <string>
@@ -18,13 +19,11 @@ typedef std::map<std::string,XMLHandler*,std::less<std::string> > handlerStore;
 
 class XMLHandlerStore:public handlerStore {
 public:
-	static XMLHandlerStore* GetHandlerStore();
-	void RegisterHandler(XMLHandler*);
-	XMLHandler* GetHandler(xercesc::DOMNode *);
-	void Handle(xercesc::DOMNode *);
-private:
 	XMLHandlerStore();
-	static XMLHandlerStore *s_theStore;
+	void RegisterHandler(XMLHandler*);
+        XMLHandler* GetHandler(const std::string& name);
+	XMLHandler* GetHandler(xercesc::DOMNode *);
+	void Handle(AGDDController& c, xercesc::DOMNode *);
 };
 
 #endif

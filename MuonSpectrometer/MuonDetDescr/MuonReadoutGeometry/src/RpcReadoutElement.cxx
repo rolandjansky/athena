@@ -37,7 +37,7 @@ namespace {
 namespace MuonGM {
 
 
-  RpcReadoutElement::RpcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+  RpcReadoutElement::RpcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
 				       int zi, int fi, bool is_mirrored,
 				       MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
@@ -230,6 +230,7 @@ namespace MuonGM {
 
     // if there's a DED at the bottom, the Rpc is rotated by 180deg around its local y axis
     // gg numbering is swapped
+    // except for BI chambers (with 3 gas gaps -> this is taken into account in localTopGasGap()
     // -> eta strip n. 1 (offline id) is "last" eta strip (local)
     int lstrip = strip;
     int lgg = gasGap;
@@ -381,7 +382,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
@@ -408,7 +409,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
@@ -675,7 +676,7 @@ namespace MuonGM {
   {
     return localToGlobalTransf(id).inverse();
   }
-  const Amg::Vector3D RpcReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+  const Amg::Vector3D RpcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
   {
     return globalToLocalTransf(id)*x;
   }
@@ -1032,7 +1033,7 @@ __attribute__ ((flatten))
     if( phipanel > (int)m_phiDesigns.size() ) {
       MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
       log << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
-      return 0;
+      return nullptr;
     }
     return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];
   }

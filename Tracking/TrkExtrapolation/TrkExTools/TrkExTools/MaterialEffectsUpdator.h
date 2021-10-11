@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -348,9 +348,9 @@ class MaterialEffectsUpdator : public AthAlgTool,
       MaterialUpdateMode matupmode = addNoise
     ) const;
 
-    void validationActionImpl(Cache& cache) const;
+    static void validationActionImpl(Cache& cache) ;
 
-    void modelActionImpl(Cache& cache, const TrackParameters* parm = nullptr) const;
+    static void modelActionImpl(Cache& cache, const TrackParameters* parm = nullptr) ;
 
     /** A simple check method for the 'removeNoise' update model */
     bool checkCovariance(AmgSymMatrix(5)& updated) const ;

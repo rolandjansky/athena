@@ -21,6 +21,8 @@ def navigationThinningSvc (config):
     svc.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
   if config['mode'] == 'cleanup':    
     svc.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'Save']
+  if config['mode'] == 'cleanup_noreload':    
+    svc.Actions = [ 'DropFeatures', 'SyncThinning', 'Save']
 
   if 'Print' in svc.Actions:
     from AthenaCommon.Constants import DEBUG

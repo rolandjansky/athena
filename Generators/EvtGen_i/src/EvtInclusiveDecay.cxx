@@ -305,15 +305,7 @@ StatusCode EvtInclusiveDecay::execute() {
   }
 
   if(m_readExisting && m_outputKeyName==key) {
-    McEventCollection* newmcEvtColl=0;
-    newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
-    newmcEvtColl->clear();
-    for (McEventCollection::const_iterator evt = m_mcEvtColl->begin(); evt != m_mcEvtColl->end(); ++evt) {
-      newmcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
-    }
-    m_mcEvtColl->clear();
-    delete m_mcEvtColl;
-    m_mcEvtColl=NULL;
+    CHECK(evtStore()->overwrite(m_mcEvtColl, m_outputKeyName));
   }
 
   return StatusCode::SUCCESS;
@@ -462,6 +454,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
 // isToBeDecayed() to never enable decays of such particles by EvtGen.
 //
 void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part) {
+// TODO the printout below crashes with segfault for HepMC3 - needs expert action
   ATH_MSG_DEBUG("Decaying particle " << pdgName(part) << " (barcode " << HepMC::barcode(part) << ")");
   if (msgLvl(MSG::VERBOSE)) HepMC::Print::line(std::cout,part);
 

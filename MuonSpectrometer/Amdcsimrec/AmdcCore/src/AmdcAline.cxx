@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcCore/AmdcAline.h"
@@ -97,7 +97,7 @@ void AmdcAline::SuperPrint()                  const
             << std::endl; 
             
 }
-void AmdcAline::SetStationType(std::string StationType){
+void AmdcAline::SetStationType(const std::string& StationType){
                                                         m_StationType = StationType;
                                                         m_StationNameChar[0]= m_StationType[0];
                                                         m_StationNameChar[1]= m_StationType[1];

@@ -1,13 +1,22 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 def getNewConfigFlags():
+    """Create new ConfigFlags from old-style jobproperties. Usage:
+
+    from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+    ConfigFlags = getNewConfigFlags()
+    """
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     # Import some old-style flags
     from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.GlobalFlags import globalflags # noqa: F401
     from AthenaCommon.AthenaCommonFlags import jobproperties
+    import AthenaCommon.GlobalFlags      # noqa: F401
+    import AthenaCommon.BeamFlags        # noqa: F401
+    import AthenaCommon.ConcurrencyFlags # noqa: F401
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -15,11 +24,17 @@ def getNewConfigFlags():
     elif jobproperties.Global.InputFormat() == 'pool':
         ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput.get_Value()
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
-    ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing
-
+    ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
+    ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
     # Geometry - General
     ConfigFlags.GeoModel.AtlasVersion = jobproperties.Global.DetDescrVersion()
     ConfigFlags.GeoModel.Align.Dynamic = InDetGeometryFlags.useDynamicAlignFolders()
+    # Environment
+    ConfigFlags.Common.isOnline = jobproperties.AthenaCommonFlags.isOnline()
+
+    # Concurrency
+    ConfigFlags.Concurrency.NumProcs = jobproperties.ConcurrencyFlags.NumProcs()
+    ConfigFlags.Concurrency.NumThreads = jobproperties.ConcurrencyFlags.NumThreads()
 
     # Let's build a map whose key is new flagname, and whose value is old flagname.
     geom_flag_map = {}
@@ -50,10 +65,19 @@ def getNewConfigFlags():
     ConfigFlags.Detector.GeometrysTGC = MuonGeometryFlags.hasSTGC()
     ConfigFlags.Detector.GeometryMM = MuonGeometryFlags.hasMM()
     ConfigFlags.Detector.GeometryCSC = MuonGeometryFlags.hasCSC()
-    
-    # Now setup Reco:
-    reco_flag_map = { 'BCM':'BCM', 'IBL':'pixel', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
+
+    # Now setup Enable flags:
+    reco_flag_map = { 'BCM':'BCM', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
     for flag in reco_flag_map:   
-        ConfigFlags._set('Detector.Reco'+flag, getattr(DetFlags.haveRIO,reco_flag_map[flag]+'_on')() )
+        ConfigFlags._set('Detector.Enable'+flag, getattr(DetFlags.haveRIO,reco_flag_map[flag]+'_on')() )
+
+    # miscellaneous settings
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+    ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
 
     return ConfigFlags
+
+
+if __name__=="__main__":
+    ConfigFlags = getNewConfigFlags()

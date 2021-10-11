@@ -46,7 +46,9 @@ char* snip (char* buf, char* p, char fill = '\0')
 
 void filter (char* buf)
 {
+  char* buf0 = buf;
   char* sl = 0;
+  char* sp = 0;
   while (*buf) {
     if (buf[0] == '0' && buf[1] == 'x') {
       buf += 2;
@@ -57,15 +59,41 @@ void filter (char* buf)
     }
 
     else if (buf[0] == '/') {
-      if (sl)
+      if (sl) {
+        if (*sl == '[') ++sl;
         buf = snip (sl, buf);
+      }
       sl = buf;
       ++buf;
+    }
+
+    else if (buf[0] == ' ' && buf > buf0 && buf[-1] == ' ') {
+      char* p = buf;
+      while (*p == ' ') ++p;
+      buf = snip (buf, p);
+      sl = 0;
     }
 
     else if (buf[0] == ' ') {
       ++buf;
       sl = 0;
+      sp = buf;
+    }
+
+    else if (buf[0] == '?') {
+      char* p = buf+1;
+      while (*p == '?') ++p;
+      buf = snip (buf, p);
+    }
+
+    else if (buf[0] == '[') {
+      sl = buf;
+      ++buf;
+    }
+
+    else if (buf[0] == ']') {
+      ++buf;
+      sl = nullptr;
     }
 
     else if (buf[0] == '.' && buf[1] == '.') {
@@ -78,14 +106,26 @@ void filter (char* buf)
 
     // Get rid of file/line number.
     // Unfortunate, but we don't get these for opt builds.
-    else if (buf[0] == ':' && sl) {
+    else if (buf[0] == ':' && isdigit (buf[1])) {
+      char* p = buf;
       ++buf;
       while (isdigit (*buf))
         ++buf;
       if (*buf == ' ')
         ++buf;
-      buf = snip (sl, buf);
-      sl = 0;
+      if (sp) {
+        buf = snip (sp, buf);
+        sp = 0;
+        sl = 0;
+      }
+      else if (sl) {
+        buf = snip (sl, buf);
+        sp = 0;
+        sl = 0;
+      }
+      else {
+        buf = snip (p, buf);
+      }
     }
 
     else
@@ -101,6 +141,7 @@ void dumptrace (FILE* fp)
   while (fgets (buf, sizeof (buf), fp)) {
     if (strstr (buf, "libasan") != nullptr)
       continue;
+    fputs (buf, stdout);
     filter (buf);
     fputs (buf, stdout);
   }
@@ -276,6 +317,11 @@ std::string accumtrace (FILE* fp)
       continue;
     if (strstr (buf, "DebugAids::stacktrace") != nullptr)
       continue;
+    // These entries can differ depending on libc version.
+    if (strstr (buf, "funlockfile") != nullptr)
+      continue;
+    if (strstr (buf, "__restore_rt") != nullptr)
+      continue;
     filter (buf);
     s += std::string (buf);
   }
@@ -312,7 +358,6 @@ void testhandle(int)
 
   const char* exp = " 0xX CxxUtils::backtraceByUnwind(void (*)(int, unsigned long), int) + 0xX [/libCxxUtils.so D[0xX]]\n\
  0xX testhandle(int) + 0xX [/stacktrace_test.exe D[0xX]]\n\
- 0xX __restore_rt sigaction.c:? + 0xX [/libpthread.so.0 D[0xX]]\n\
  0xX <unknown function>\n\
  0xX crashMe(Foo const*) + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX testbad + 0xX [/stacktrace_test.exe D[0xX]]\n\
@@ -362,7 +407,6 @@ void testbad()
 int main()
 {
   initpointers();
-  Athena::DebugAids::setStackTraceAddr2Line ("/usr/bin/addr2line");
   fromhere();
 #ifdef HAVE_LINUX_UNWIND_BACKTRACE
   testbad();

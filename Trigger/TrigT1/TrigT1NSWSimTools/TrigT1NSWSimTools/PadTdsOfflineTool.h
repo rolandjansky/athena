@@ -17,6 +17,9 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include "MuonDigitContainer/sTgcDigitContainer.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+
 class sTgcDigit;
 class TTree;
 class MuonSimDataCollection;
@@ -120,8 +123,6 @@ namespace NSWL1 {
         */
         bool determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,
                                     double &delayed_time, uint16_t &BCtag);
-        bool retrieve_sim_data(const MuonSimDataCollection* &s);
-        bool retrieve_digits(const sTgcDigitContainer* &d);
         /// store the pads in the internal pad cache
         void store_pads(const std::vector<PadHits> &pad_hits);
         /// print digit info (debugging)
@@ -148,8 +149,6 @@ namespace NSWL1 {
 
         // properties: container and service names
         StringProperty   m_rndmEngineName;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        StringProperty   m_sTgcDigitContainer;                  //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
 
         // properties: configuration
         FloatProperty    m_VMMTimeOverThreshold;                //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
@@ -169,6 +168,8 @@ namespace NSWL1 {
 
         PadTdsValidationTree m_validation_tree;
 
+	SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
+	SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};
     };
 
 }

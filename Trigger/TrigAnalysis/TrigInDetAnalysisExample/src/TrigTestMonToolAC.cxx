@@ -199,16 +199,16 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
     // track filters 
     // reference (offline) tracks...
     //  TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, m_z0CutOffline, m_pTCutOffline,
-    TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, m_z0CutOffline, m_pTCutOffline,
-					       1, 6, -1, -1,  -2, -2 );
+    TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, 0.,  m_z0CutOffline, m_pTCutOffline,
+					       1, 6, -1, -1,  -2, -2 ); // d-min cut set to 0.
   
     // test (trigger) tracks...
     //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
     TrackFilter* filterTest = new Filter_AcceptAll();
     
     // test (trt trigger) track selector 
-    TrackFilter* filterTest_TRT = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut,
-						    -1, -1, -1, -1, m_strawHits, -2 );
+    TrackFilter* filterTest_TRT = new Filter_Track( m_etaCut, m_d0Cut, 0., m_z0Cut, m_pTCut,
+						    -1, -1, -1, -1, m_strawHits, -2 ); // d0min cut set to 0.
     
     // keep track of the filters so they can be cleaned up at the end
     m_filters.push_back(filterRef);

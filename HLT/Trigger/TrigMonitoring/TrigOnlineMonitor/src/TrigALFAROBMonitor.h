@@ -4,7 +4,6 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
-//#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/HistoProperty.h"
@@ -33,10 +32,9 @@ class TrigALFAROBMonitor:public AthReentrantAlgorithm {
 public:
   TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator);
 
-  StatusCode initialize();
-  StatusCode execute(const EventContext& ctx) const;
-  StatusCode start();  
-  StatusCode stop();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode start() override;
 
 private:
 	
@@ -59,11 +57,6 @@ private:
 
   UnsignedIntegerProperty          m_ctpModuleID;
 
-  /// Switch for setting the debug StreamTag and name for debug stream
-  BooleanProperty                  m_setDebugStream;
-  StringProperty                   m_debugStreamName;
-  StringProperty		   m_calibrationStreamName;
-
   /// Switch for ROB checksum test
   BooleanProperty                  m_doROBChecksum;
 
@@ -84,6 +77,8 @@ private:
   std::map<int, int>         m_map_TrgItemNumbersToHistGroups;
 
   std::string m_pathHisto;
+
+  bool m_inTDAQPart;
 
   int m_elast15 {0}, m_elast18 {0},  m_syst17 {0}, m_syst18 {0};     // ctp-items id numbers to select golden alfa trigger for data quality assesment
 

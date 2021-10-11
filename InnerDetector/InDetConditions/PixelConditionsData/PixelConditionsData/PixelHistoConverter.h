@@ -31,13 +31,13 @@ public:
   StatusCode setHisto2D(const TH2* histo);
   StatusCode setHisto3D(const TH3* histo);
 
-  inline float getContent(const std::size_t& x) const {
+  inline float getContent(std::size_t x) const {
     return m_content[x];
   }
-  inline float getContent(const std::size_t& x, const std::size_t& y) const {
+  inline float getContent(std::size_t x, std::size_t y) const {
     return m_content[x + y*(m_xAxis.nBins)];
   }
-  inline float getContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const {
+  inline float getContent(std::size_t x, std::size_t y, std::size_t z) const {
     return m_content[x + m_xAxis.nBins*(y + (m_yAxis.nBins * z))];
   }
 
@@ -45,9 +45,6 @@ public:
     return (value >= m_zAxis.max);
   }
   bool isFirstZ(const float value) const;
-  float getBinX(const float value) const;
-  float getBinY(const float value) const;
-  float getBinZ(const float value) const;
 
 private:
   struct Axis {
@@ -57,21 +54,36 @@ private:
     float width;
   };
 
-  Axis m_xAxis;
-  Axis m_yAxis;
-  Axis m_zAxis;
+  Axis m_xAxis{};
+  Axis m_yAxis{};
+  Axis m_zAxis{};
 
   std::vector<float> m_content;
 
-  bool setAxis(Axis& axis, const TAxis* rootAxis);
+  static bool setAxis(Axis& axis, const TAxis* rootAxis);
 
   inline std::size_t findBin(const Axis& axis, const float value) const {
     if (value <= axis.min) return 0;
     if (value >= axis.max) return (axis.nBins - 1);
-
     return ((value - axis.min) * axis.width);
   }
 
+public:
+
+  template<typename... Args>
+  std::size_t getBinX(Args&& ...args) const {
+    return findBin(m_xAxis, std::forward<Args>(args)...);
+  }
+
+  template<typename... Args>
+  std::size_t getBinY(Args&& ...args) const {
+    return findBin(m_yAxis, std::forward<Args>(args)...);
+  }
+
+  template<typename... Args>
+  std::size_t getBinZ(Args&& ...args) const {
+    return findBin(m_zAxis, std::forward<Args>(args)...);
+  }
 };
 
 #endif

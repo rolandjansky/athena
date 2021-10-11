@@ -24,12 +24,8 @@ LArRawChannelBuilderToolBadChannelTool::LArRawChannelBuilderToolBadChannelTool(c
 StatusCode LArRawChannelBuilderToolBadChannelTool::initTool()
 {
   MsgStream log(msgSvc(), name());
-  if(m_badChannelMask.retrieve().isFailure())
-    {
-      log << MSG::ERROR << "Could not retrieve private BadChannelMask "
-	  << m_badChannelMask << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,log));
   
   return StatusCode::SUCCESS;
 }
@@ -39,10 +35,14 @@ bool LArRawChannelBuilderToolBadChannelTool::buildRawChannel(const LArDigit* /*d
 							     const std::vector<float>& /*ramps*/,
 							     MsgStream* /* pLog */ )
 {
+  //retrieve BadChannel info:
+  const LArBadChannelCont* bcCont=nullptr;
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+  bcCont=(*bcContHdl);
+  
   // zero means channel ok
   const HWIdentifier chid=m_parent->curr_chid;
-  const CaloGain::CaloGain gain=m_parent->curr_gain;
-  if (m_badChannelMask->cellShouldBeMasked(chid,gain)) {
+  if (m_bcMask.cellShouldBeMasked(bcCont,chid)) {
     // inverse logic, true means building went ok.
     m_helper->incrementErrorCount(1);
     return true;

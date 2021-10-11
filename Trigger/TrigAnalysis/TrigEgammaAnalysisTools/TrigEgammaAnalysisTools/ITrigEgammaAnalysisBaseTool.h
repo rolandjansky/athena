@@ -10,7 +10,7 @@
 #include "AsgTools/IAsgTool.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
-#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
+//#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 
 
 class ITrigEgammaAnalysisBaseTool : virtual public asg::IAsgTool {
@@ -27,7 +27,7 @@ public:
   virtual void setDetail(bool)=0;
   virtual void setTP(bool)=0;
   virtual void setEmulation(bool)=0;
-  virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool>)=0;
+  //virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool>)=0;
   virtual void setAvgMu(const float, const float)=0;
   virtual void setPVertex(const float, const float)=0;
   virtual void setSGContainsRnn(bool)=0;

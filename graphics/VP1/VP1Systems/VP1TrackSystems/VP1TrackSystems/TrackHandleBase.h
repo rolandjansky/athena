@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,6 +29,7 @@
 #include <QTreeWidgetItem>
 #include <vector>
 #include <set>
+#include <optional>
 #include <QList>
 #include <QFlags>
 
@@ -150,6 +151,7 @@ protected:
 
   QList<AssociatedObjectHandleBase*> getAllAscObjHandles() const; //!< Return list of all AscObj handles. Not guaranteed to be filled unless tsoses are visible.
 
+  virtual bool containsDetElement(const QString&) const {return false; }
 private:
 
   // It is illegal to copy/assign a TrackHandleBase:

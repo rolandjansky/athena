@@ -584,7 +584,7 @@ StatusCode electronMonTool::fillHistograms() {
   m_LhTightElectrons->m_nElectronsPerRegion.resize(NREGION,0);
   m_CbTightElectrons->m_nElectronsPerRegion.resize(NREGION,0);
 
-  for (; e_iter!=e_end; e_iter++){
+  for (; e_iter!=e_end; ++e_iter){
     if(!(*e_iter)) continue;
     
     // Formally unnecessary because all electrons in the container have these authors by construction

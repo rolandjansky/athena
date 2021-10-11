@@ -510,9 +510,6 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     jet_phi_kin = jetItr->phi();
     fill(tool,Cutflow_Jet,jet_eta_kin,jet_phi_kin);
    
-    // fill histograms with properties of jet associated tracks
-    fillJetTracksHistos(jetItr, PVZ);
-
     jet_MV_2_beforeJVTCut = mv;
     fill(tool,jet_MV_2_beforeJVTCut);
 
@@ -558,6 +555,9 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     jet_eta_overlap = jetItr->eta();
     jet_phi_overlap = jetItr->phi();
     fill(tool,Cutflow_Jet,jet_eta_overlap,jet_phi_overlap);
+
+    // fill histograms with properties of jet associated tracks
+    fillJetTracksHistos(jetItr, PVZ);
 
     // check if jet is taggable (defined as goodJet or suspectJet or badJet)
     Jet_t qualityLabel = getQualityLabel(jetItr, PVZ); 

@@ -43,7 +43,7 @@ namespace MuonGM {
         return build(minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoPhysVol *MMSpacer::build(int minimalgeo, int, std::vector<Cutout *>) {
+    GeoPhysVol *MMSpacer::build(int minimalgeo, int, const std::vector<Cutout *>&) {
         MYSQL *mysql = MYSQL::GetPointer();
 
         MMSpacer_Technology *t = (MMSpacer_Technology *)mysql->GetTechnology(name);

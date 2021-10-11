@@ -64,7 +64,11 @@ int JetKinematicHistos::buildHistos(){
                m_e_high     = bookHisto( new TH1F(prefixn+"E_high"   ,  "Jet Energy pT.gt.200 GeV;Energy (GeV);Entries", 100,1, 2000) );
              }
 
-  if(m_doN) m_njet  = bookHisto( new TH1F(prefixn+"num"  ,  "Jet number;Number of jets;Entries", 40,0,40) );  
+  if(m_doN){
+    m_njet  = bookHisto( new TH1F(prefixn+"num"  ,  "Jet multiplicity;Number of jets;Entries", 40,0,40) );  
+    m_njet_passJVT = bookHisto( new TH1F(prefixn+"num_passJVT"  ,  "Jet multiplicity (passing JVT cut);Number of jets (passing JVT);Entries", 40,0,40) );
+    m_njet_failJVT = bookHisto( new TH1F(prefixn+"num_failJVT"  ,  "Jet multiplicity (failing JVT cut);Number of jets (failing JVT);Entries", 40,0,40) );
+  }
   if(m_doOccupancy) m_occupancyEtaPhi = bookHisto( new TH2F(prefixn+"OccupancyEtaPhi", "Occupancy;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
   if(m_doAveragePt) m_averagePtEtaPhi = bookHisto( new TProfile2D(prefixn+"AveragePtEtaPhi", "Average P_{T};#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
   if(m_doAverageE) m_averageE_EtaPhi = bookHisto( new TProfile2D(prefixn+"AverageE_EtaPhi", "Average E;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
@@ -98,7 +102,33 @@ int JetKinematicHistos::buildHistos(){
 
 int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont, float weight){
   // fill the N if needed. 
-  if (m_doN) m_njet->Fill( cont.size(), weight );
+  if (m_doN){
+    m_njet->Fill( cont.size(), weight );
+
+    int counter_passJVT = 0;
+    int counter_failJVT = 0;
+
+    float JVT_cut = 0.50;
+
+    if(cont.size() > 0){
+      if(cont[0]->isAvailable<float>("Jvt")){
+	xAOD::JetInput::Type inputtype = cont[0]->getInputType();
+	if(inputtype == xAOD::JetInput::EMTopoOrigin || inputtype == xAOD::JetInput::LCTopoOrigin)
+	  JVT_cut = 0.59;
+      }
+    }
+
+    for(auto *jet : cont){
+      if(jet->isAvailable<float>("Jvt")){
+        if(jet->getAttribute<float>("Jvt") > JVT_cut) counter_passJVT++;
+        else counter_failJVT++;
+      }
+    }
+
+    m_njet_passJVT->Fill( counter_passJVT, weight);
+    m_njet_failJVT->Fill( counter_failJVT, weight);
+  }
+
   // Perform the loop over jets in the base class :
   return JetHistoBase::fillHistosFromContainer(cont, weight);
 }

@@ -19,7 +19,7 @@
 void TrackStateOnSurfaceCnv_p3::
 persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurface *transObj, MsgStream &log )
 {
-  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = 0;
+  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = nullptr;
   const Trk::MeasurementBase* meas = createTransFromPStore( &measureCnv, persObj->m_measurementOnTrack, log );
 
   ITPConverter* dummy = topConverter ()->converterForType( typeid(Trk::TrackParameters));    
@@ -28,7 +28,7 @@ persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurfac
 
   const Trk::FitQualityOnSurface* fitQoS = createTransFromPStore( &m_fitQCnv, persObj->m_fitQualityOnSurface, log );
 
-  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;  
+  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = nullptr;  
   const Trk::MaterialEffectsBase* materialEffects = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
 
   // There were some tracks saved that violate the isSane test in
@@ -42,8 +42,8 @@ persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurfac
                                         fitQoS,
                                         nullptr,
                                         persObj->m_typeFlags);
-  transObj->m_measurementOnTrack = meas;
-  transObj->m_materialEffectsOnTrack = materialEffects;
+  transObj->m_measurementOnTrack.reset(meas);
+  transObj->m_materialEffectsOnTrack.reset(materialEffects);
   transObj->setFlags();
 }
 
@@ -68,14 +68,14 @@ transToPers( const Trk::TrackStateOnSurface *transObj, Trk::TrackStateOnSurface_
                                                   : nullptr),
                                                  log ); 
 
-  ITPConverterFor<Trk::MeasurementBase>  *measureCnv = 0;
+  ITPConverterFor<Trk::MeasurementBase>  *measureCnv = nullptr;
   persObj->m_measurementOnTrack = toPersistent( &measureCnv,
                                                 ((persistify_all || transObj->type(Trk::TrackStateOnSurface::PersistifyMeasurement) )
                                                  ? transObj->measurementOnTrack()
                                                  : nullptr),
                                                 log );
 
-  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;
+  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = nullptr;
   // @TODO create slimmed material effects on track object
   persObj->m_materialEffects = toPersistent( &matBaseCnv,
                                              ((persistify_all ||  transObj->type(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit))

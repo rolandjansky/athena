@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_FastCaloSimServices
@@ -16,7 +16,6 @@ addTool("ISF_FastCaloSimServices.AdditionalConfig.getEmptyCellBuilderTool",     
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getLegacyFastShowerCellBuilderTool", "ISF_LegacyFastShowerCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getPileupFastShowerCellBuilderTool", "ISF_PileupFastShowerCellBuilderTool")
-addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloNoiseTool",                   "ISF_FCS_CaloNoiseTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getAddNoiseCellBuilderTool",         "ISF_AddNoiseCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFinalizerTool",  "ISF_CaloCellContainerFinalizerTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFCSFinalizerTool",  "ISF_CaloCellContainerFCSFinalizerTool")

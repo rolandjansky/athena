@@ -21,6 +21,6 @@ main()
 
   for (const auto& i : params) {
      std::cout << "Dimensions: " << i->dim << " isCharged: " << i->isCharged()
-              << " SurfaceType: " << i->surfaceType() << '\n';
+              << " SurfaceType: " << static_cast<int>(i->surfaceType()) << '\n';
   }
 }

@@ -21,12 +21,12 @@
 
 // Athena includes
 #include "IOVDbSvc/IIOVCondDbSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "SGTools/TransientAddress.h"
 
 // Gaudi includes
 #include "GaudiKernel/IAddressCreator.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IConverter.h"

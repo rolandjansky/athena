@@ -58,7 +58,7 @@ TrackCollHandle_TrackParticle::~TrackCollHandle_TrackParticle()
 bool TrackCollHandle_TrackParticle::load()
 {
   //Get collection:
-  const Rec::TrackParticleContainer * coll(0);
+  const Rec::TrackParticleContainer * coll(nullptr);
   if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
     message("Error: Could not retrieve track particle collection with key="+name());
     return false;

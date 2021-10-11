@@ -7,9 +7,9 @@
 namespace Trk {
   void
   ResolutionPlots::init() {
-    Res_pT = NULL;
-    Res_eta = NULL;
-    Res_phi = NULL;
+    Res_pT = nullptr;
+    Res_eta = nullptr;
+    Res_phi = nullptr;
   }
 
   void

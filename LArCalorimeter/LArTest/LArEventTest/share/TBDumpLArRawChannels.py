@@ -39,6 +39,9 @@ MessageSvc.OutputLevel = DEBUG
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=4
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 theApp.topAlg+=["LArRawChannelSimpleBuilder/TBLArRawChannelBuilder"]
 ### Liquid argon reco
 TBLArRawChannelBuilder = Algorithm("TBLArRawChannelBuilder");

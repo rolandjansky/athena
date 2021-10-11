@@ -96,7 +96,7 @@ const Trk::ResidualPull* Muon::RPC_ResidualPullCalculator::residualPull(
 
     // create the Trk::ResidualPull.
     ATH_MSG_DEBUG ( "Calculating Pull for channel " << m_idHelperSvc->toString(ID) << " residual " << residual[Trk::loc1] << " pull " << pull[Trk::loc1] );
-    return new Trk::ResidualPull(residual, pull, pullIsValid, resType, 1);
+    return new Trk::ResidualPull(std::move(residual), std::move(pull), pullIsValid, resType, 1);
 
   } else {
     ATH_MSG_DEBUG ( "Input problem measurement is not RPC." );

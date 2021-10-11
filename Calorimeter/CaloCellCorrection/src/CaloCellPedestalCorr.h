@@ -8,9 +8,7 @@
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "CaloCondBlobObjs/ICaloCoolIdTool.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CaloConditions/CaloCellPedShift.h"
 #include "StoreGate/ReadHandle.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 
@@ -37,19 +35,13 @@ public:
 		      const EventContext& ctx) const override;
 
 private:
-  // const DataHandle<CondAttrListCollection> m_noiseAttrListColl;
 
-
-  ToolHandle<ICaloCoolIdTool> m_caloCoolIdTool;
-  float m_lumi0;
-  
-  SG::ReadCondHandleKey<CondAttrListCollection> m_pedShiftFolder{this,"PedestalShiftFolder","/CALO/Pedestal/CellPedestal","SG Key of Attr list containing pedestal shifts"};
-  SG::ReadCondHandleKey<CondAttrListCollection> m_lumiFolderName{this,"LumiFolderName","/TRIGGER/LUMI/LBLESTONL","SG Key of Attr list for Luminosity estimate"};
-  const CaloCell_ID* m_cellId;
-
+  SG::ReadCondHandleKey<CaloCellPedShift> m_pedShiftKey{this,"CaloPedShiftKey","CaloPedShift"};
   SG::ReadHandleKey<CaloBCIDAverage> m_caloBCIDAvg{this,"CaloBCIDAverageKey","","SG Key of CaloBCIDAverage object"};
 
-  bool m_isMC;
+  Gaudi::Property<bool> m_isMC{this,"isMC",false,"Data/MC flag"};
+  const CaloCell_ID* m_cellId=nullptr;
+
 };
 
 #endif

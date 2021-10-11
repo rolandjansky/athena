@@ -14,7 +14,6 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   AthAlgorithm(name,pSvcLocator),
   m_thistSvc(nullptr),
   m_calo_id(nullptr),
-  m_averageTool(""),
   m_iCool(0),
   m_SubHash(0),
   m_Hash(0),
@@ -26,12 +25,10 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   m_noise(0),
   m_elecNoise(0),
   m_pileupNoise(0),
-  m_average(0),
   m_tree(nullptr),
   m_runNumber(0),
   m_lumiBlock(0)
 {
-  declareProperty("averageTool",m_averageTool,"average tool");
   declareProperty("TreeName",m_treeName="mytree");
 }
 
@@ -56,13 +53,6 @@ StatusCode CaloNoise2Ntuple::initialize()
   ATH_CHECK( m_elecNoiseKey.initialize() );
   ATH_CHECK( m_pileupNoiseKey.initialize() );
 
-  if (!m_averageTool.empty()) {
-    ATH_CHECK( m_averageTool.retrieve() );
-  }
-  else {
-    m_averageTool.disable();
-  }
-
   m_tree = new TTree(m_treeName.c_str(),"Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
   m_tree->Branch("iSubHash",&m_SubHash,"iSubHash/I");
@@ -75,7 +65,6 @@ StatusCode CaloNoise2Ntuple::initialize()
   m_tree->Branch("Noise",&m_noise,"Noise/F");
   m_tree->Branch("ElecNoise",&m_elecNoise,"ElecNoise/F");
   m_tree->Branch("PileupNoise",&m_pileupNoise,"PileupNoise/F");
-  m_tree->Branch("Average",&m_average,"Average/F");
   ATH_CHECK( m_thistSvc->regTree((std::string("/file1/calonoise/")+m_treeName).c_str(),m_tree));
 
   ATH_MSG_INFO ( " end of CaloNoise2Ntuple::initialize " );
@@ -179,13 +168,6 @@ StatusCode CaloNoise2Ntuple::stop()
           m_noise       = totalNoise->getNoise(id,gain);
           m_elecNoise   = elecNoise->getNoise(id,gain);
           m_pileupNoise = pileupNoise->getNoise(id,gain);
-
-          if (!m_averageTool.empty()) {
-              m_average = m_averageTool->average(calodde,gain);
-          }
-          else {
-              m_average=0.;
-          }
 
           m_tree->Fill();
 

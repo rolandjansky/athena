@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileRawChannel creation from TileDigits 
@@ -120,16 +120,14 @@ class TileRawChannelGetter ( Configured)  :
                 if globalflags.DataSource() == 'data':
 
                     # check if there are DSP thresholds in DB
-                    if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits():
+                    if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() and not tileInfoConfigurator.setupCOOLDspThreshold():
                         jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits = False
 
                     if jobproperties.TileRecFlags.correctPedestalDifference():
                         # check if offline and there are OFCs in DB for OF1 method
-                        toolOfcCoolOF1 = getTileCondToolOfcCool('COOL', TilePulse, 'OF1', 'TileCondToolOfcCoolOF1')
-                        if athenaCommonFlags.isOnline() or not toolOfcCoolOF1:
-                            jobproperties.TileRecFlags.correctPedestalDifference = False
-                        #else:
-                        #    tileInfoConfigurator.setupCOOLTIME(online = True)
+                        if not athenaCommonFlags.isOnline():
+                            toolOfcCoolOF1 = getTileCondToolOfcCool('COOL', TilePulse, 'OF1', 'TileCondToolOfcCoolOF1')
+                        jobproperties.TileRecFlags.correctPedestalDifference = True if toolOfcCoolOF1 else False
 
                     if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() or jobproperties.TileRecFlags.correctPedestalDifference():
                         from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
@@ -142,14 +140,16 @@ class TileRawChannelGetter ( Configured)  :
                             toolOnlineTiming = getTileCondToolTiming('COOL', TilePulse, True, 'TileCondToolOnlineTiming')
                             theTileRawChannelOF1Corrector.TileCondToolTiming = toolOnlineTiming
                             theTileRawChannelOF1Corrector.TileCondToolOfc = toolOfcCoolOF1
+                            theTileRawChannelOF1Corrector.TileCondToolNoiseSample.TileOnlineSampleNoise = 'TileOnlineSampleNoise'
+                        else:
+                            theTileRawChannelOF1Corrector.TileCondToolTiming = None
+                            theTileRawChannelOF1Corrector.TileCondToolOfc = None
 
                         NoiseFilterTools += [theTileRawChannelOF1Corrector]
 
 
                 from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
                 theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
-                if not athenaCommonFlags.isOnline():
-                    theTileRawChannelNoiseFilter.TileCondToolNoiseSample.TileOnlineSampleNoise = ''
                 NoiseFilterTools += [theTileRawChannelNoiseFilter]
 
             if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
@@ -286,8 +286,6 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderFitFilter.FrameLength = TileFrameLength
                 theTileRawChannelBuilderFitFilter.DSPContainer = TileRawChannelContainerDSP
-                if not athenaCommonFlags.isOnline():
-                    theTileRawChannelBuilderFitFilter.TileCondToolNoiseSample.TileOnlineSampleNoise = ''
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
                 mlog.info(" adding now TileRawChannelBuilderFitFilter to the algorithm: %s", theTileRawChannelMaker.name())
@@ -525,6 +523,10 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderWienerFilter.AmplitudeCorrection     = False # don't need correction after iterations
                 theTileRawChannelBuilderWienerFilter.TimeCorrection          = False # don't need correction after iterations
                 theTileRawChannelBuilderWienerFilter.DSPContainer            = TileRawChannelContainerDSP
+
+                from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+                BunchCrossingCondAlgDefault()
+
 
                 ServiceMgr.TileInfoLoader.LoadWienerFilterWeights            = True
 

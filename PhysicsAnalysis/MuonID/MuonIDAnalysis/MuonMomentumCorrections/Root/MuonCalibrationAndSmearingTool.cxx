@@ -34,6 +34,7 @@ namespace CP {
     m_SagittaCorrPhaseSpace(false),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
+    m_IterWeight(0.5),
     m_SagittaRelease("sagittaBiasDataAll_03_02_19"),
     m_MuonSelectionTool("") {
     
@@ -53,6 +54,7 @@ namespace CP {
     declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_03_02_19");
     declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=true);
     declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
+    declareProperty("SagittaIterWeight", m_IterWeight=0.5);
     declareProperty("sgItersCB",m_sgItersCB=4);
     declareProperty("sgItersID",m_sgItersID=4);
     declareProperty("sgItersME",m_sgItersME=4);
@@ -155,7 +157,6 @@ namespace CP {
     m_MacroRegionIdxMap( tool.m_MacroRegionIdxMap ),
     m_MacroRegionName( tool.m_MacroRegionName ),
     m_MacroRegionInnerEta( tool.m_MacroRegionInnerEta ),
-    m_Parameters( tool.m_Parameters ),
     m_currentParameters( nullptr),
     m_StatCombPtThreshold(tool.m_StatCombPtThreshold),
     m_HighPtSystThreshold(tool.m_HighPtSystThreshold),
@@ -163,6 +164,7 @@ namespace CP {
     m_SagittaCorrPhaseSpace(tool.m_SagittaCorrPhaseSpace),
     m_doSagittaCorrection(tool.m_doSagittaCorrection),
     m_doNotUseAMGMATRIXDECOR(tool.m_doNotUseAMGMATRIXDECOR),
+    m_IterWeight(tool.m_IterWeight),
     m_SagittaIterations(tool.m_SagittaIterations),
     m_GlobalZScales(tool.m_GlobalZScales){
     declareProperty( "Year", m_year = "Data16" );
@@ -260,6 +262,8 @@ namespace CP {
         ATH_MSG_ERROR( "Unkown region values");
         return StatusCode::FAILURE;
     }
+    m_Parameters.initialize( affectingSystematics(), [this] ( const SystematicSet& systConfig, ParameterSet& param ) {
+      return calcSystematicVariation( systConfig, param );});
     if( !applySystematicVariation( SystematicSet() ) ) {
       ATH_MSG_ERROR( "Unable to run with no systematic" );
       return StatusCode::FAILURE;
@@ -1336,24 +1340,8 @@ namespace CP {
     return affectingSystematics();
   }
 
-  StatusCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
+  StatusCode MuonCalibrationAndSmearingTool::calcSystematicVariation( const SystematicSet& systConfig, ParameterSet& param ) const {
 
-    // First check if we already know this systematic configuration
-    std::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
-    if( parIter != m_Parameters.end() ) {
-      m_currentParameters = &parIter->second;
-      return StatusCode::SUCCESS;
-    }
-
-    // Then check if it is actually supported
-    static CP::SystematicSet affSysts = affectingSystematics();
-    SystematicSet checkSysConf;
-    if( !SystematicSet::filterForAffectingSystematics( systConfig, affSysts, checkSysConf ) ) {
-      ATH_MSG_ERROR( "Passing unsupported systematic to the tool!" );
-      return StatusCode::FAILURE;
-    }
-
-    ParameterSet param;
     param.SmearTypeID = MCAST::SystVariation::Default;
     param.SmearTypeMS = MCAST::SystVariation::Default;
     param.Scale = MCAST::SystVariation::Default;
@@ -1462,9 +1450,12 @@ namespace CP {
     ATH_MSG_DEBUG( "Systematic variation's parameters, SmearTypeID: " << param.SmearTypeID );
     ATH_MSG_DEBUG( "Systematic variation's parameters, SmearTypeMS: " << param.SmearTypeMS );
     ATH_MSG_DEBUG( "Systematic variation's parameters, Scale: " << param.Scale );
-    // store this calibration for future use, and make it current
-    m_currentParameters = &m_Parameters.insert( std::make_pair( systConfig, param ) ).first->second;
     return StatusCode::SUCCESS;
+  }
+
+  StatusCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
+
+    return m_Parameters.get( systConfig, m_currentParameters );
 
   }
 

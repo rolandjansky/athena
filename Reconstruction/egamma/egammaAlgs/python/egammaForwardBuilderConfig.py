@@ -1,17 +1,14 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from ROOT import egammaPID
+from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 from ElectronPhotonSelectorTools.AsgForwardElectronIsEMSelectorsConfig import (
     AsgForwardElectronIsEMSelectorCfg)
-import cppyy
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTools.egammaOQFlagsBuilderConfig import egammaOQFlagsBuilderCfg
 EMFourMomBuilder = CompFactory.EMFourMomBuilder
 egammaForwardBuilder = CompFactory.egammaForwardBuilder
-
-cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 
 def egammaForwardBuilderCfg(flags, name='egammaForwardElectron', **kwargs):

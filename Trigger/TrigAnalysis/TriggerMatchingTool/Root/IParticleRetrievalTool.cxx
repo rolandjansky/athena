@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Package includes
@@ -17,7 +17,7 @@ namespace {
       typename std::tuple_element<TO, CLIDTuple_t>::type& to,
       const typename std::tuple_element<FROM, CLIDTuple_t>::type& from)
     {
-      static std::vector<CLIDTuple_t> CLIDVector {
+      static const std::vector<CLIDTuple_t> CLIDVector {
         {1178459224, xAOD::Type::Muon, "xAOD::MuonContainer"},
         {1087532415, xAOD::Type::Electron, "xAOD::ElectronContainer"},
         {1219821989, xAOD::Type::CaloCluster, "xAOD::CaloClusterContainer"},
@@ -67,8 +67,6 @@ namespace Trig {
   {
     ATH_MSG_INFO("Initializing " << name() );
     ATH_CHECK( m_tdt.retrieve() );
-    /// We need the expert methods for the navigation
-    m_tdt->ExperimentalAndExpertMethods()->enable();
     return StatusCode::SUCCESS;
   }
 
@@ -159,7 +157,7 @@ namespace Trig {
           // feature
           const HLT::TriggerElement* sourceTE = nullptr;
           const HLT::TrigNavStructure* navigation = 
-            m_tdt->ExperimentalAndExpertMethods()->getNavigation();
+            m_tdt->ExperimentalAndExpertMethods().getNavigation();
           HLT::TriggerElement::FeatureAccessHelper egFeature = 
             navigation->getFeatureRecursively(te, clid, "", sourceTE);
           if (!sourceTE) {
@@ -257,7 +255,7 @@ namespace Trig {
     // Build a vector of typeless features so that we can use the central
     // functions.
     const HLT::TrigNavStructure* navigation = 
-      m_tdt->ExperimentalAndExpertMethods()->getNavigation();
+      m_tdt->ExperimentalAndExpertMethods().getNavigation();
 
 
     /// Expand the typedGet function here

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -76,7 +76,7 @@ private:
 
   /** Private bool set at initialisation : 
       decides if the GeoModel is parsed or bypassed */
-  bool  m_parseGeoModelForMaterial;
+  bool  m_parseGeoModelForMaterial = false;
 
   /**  Private method called at initialisation : 
        fills all arrays by calling the "optimised" methods */

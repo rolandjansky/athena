@@ -174,7 +174,7 @@ int PixelClusterErrorData::getEndcapBin(int etaClusterSize, int phiClusterSize) 
   return m_nZ*iphi+iz; 
 }
 
-void PixelClusterErrorData::Print(std::string file) const {
+void PixelClusterErrorData::Print(const std::string& file) const {
 
   std::ofstream* outfile = new std::ofstream(file.c_str()); 
 
@@ -198,7 +198,7 @@ void PixelClusterErrorData::Print(std::string file) const {
   delete outfile; 
 }
 
-void PixelClusterErrorData::Load(std::string file) {
+void PixelClusterErrorData::Load(const std::string& file) {
   std::ifstream infile(file.c_str()); 
 
   // number of bins for barrel and endcap

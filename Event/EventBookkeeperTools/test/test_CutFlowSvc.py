@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Test CutFlowSvc
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from argparse import ArgumentParser
@@ -62,7 +62,7 @@ acc.merge(OutputStreamCfg(ConfigFlags, "AOD", MetadataItemList=CutFlowOutputList
 # Debugging
 from AthenaCommon.Constants import VERBOSE
 acc.getService('CutFlowSvc').OutputLevel = VERBOSE
-acc.getPublicTool('CutBookkeepersTool').OutputLevel = VERBOSE
+acc.getPublicTool('BookkeeperTool').OutputLevel = VERBOSE
 acc.getEventAlgo('AllExecutedEventsCounterAlg').OutputLevel = VERBOSE
 
 # Execute and finish

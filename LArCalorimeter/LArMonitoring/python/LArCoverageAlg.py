@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file LArCoverageAlg
@@ -36,21 +36,7 @@ def LArCoverageConfig(inputFlags):
 def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     larCoverageAlg = helper.addAlgorithm(algoinstance,'LArCoverageAlg')
-
-    # adding BadChan masker private tool
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg():
-       from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg#,LArBadChannelCfg
-       acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-       larCoverageAlg.LArBadChannelMask=acc.popPrivateTools()
-       helper.resobj.merge(acc)
-    else:   
-       from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-       theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
-       theLArRCBMasker.DoMasking=True
-       theLArRCBMasker.ProblemsToMask=["deadReadout","deadPhys","highNoiseHG","highNoiseMG","highNoiseLG"]
-       larCoverageAlg.LArBadChannelMask=theLArRCBMasker
-
+    larCoverageAlg.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
@@ -127,18 +113,22 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                          type='TProfile',
                                          path='LAr/'+caloNoiseTool_path,
                                          title='DBNoise in EM',
-                                         xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min)
+                                         xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min,
+                                         merge='identical')               
 
     caloNoiseToolArrayHEC.defineHistogram('etaChan,noise;CaloNoiseHEC_Sampling',
-                                         type='TProfile',
-                                         path='LAr/'+caloNoiseTool_path,
-                                         title='DBNoise in HEC',
-                                         xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min)
+                                          type='TProfile',
+                                          path='LAr/'+caloNoiseTool_path,
+                                          title='DBNoise in HEC',
+                                          xbins=lArDQGlobals.etaCaloNoise_Bins,xmax=lArDQGlobals.etaCaloNoise_Max,xmin=lArDQGlobals.etaCaloNoise_Min,
+                                          merge='identical')
+
     caloNoiseToolArrayFCal.defineHistogram('etaChan,noise;CaloNoiseFCal_Sampling',
-                                         type='TProfile',
-                                         path='LAr/'+caloNoiseTool_path,
-                                         title='DBNoise in FCal',
-                                         xbins=lArDQGlobals.etaCaloNoise_FcalBins,xmax=lArDQGlobals.etaCaloNoise_FcalMax,xmin=lArDQGlobals.etaCaloNoise_FcalMin)
+                                           type='TProfile',
+                                           path='LAr/'+caloNoiseTool_path,
+                                           title='DBNoise in FCal',
+                                           xbins=lArDQGlobals.etaCaloNoise_FcalBins,xmax=lArDQGlobals.etaCaloNoise_FcalMax,xmin=lArDQGlobals.etaCaloNoise_FcalMin,
+                                           merge='identical')
 
 
     # -- badChannels histograms --
@@ -155,7 +145,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
                                               xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel,
-                                              merge='weightedAverage')
+                                              merge='identical')
     badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;RAW_DBBadChannelsEndcap',
                                               type='TH2I',
                                               path=badChannels_path,
@@ -168,7 +158,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
                                               xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap,
-                                              merge='weightedAverage')
+                                              merge='identical')
 
 
     #--coverageHW histograms
@@ -209,7 +199,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECA_statusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECC_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - EMECC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -233,7 +223,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECA_statusCode',
+    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECC_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - HECC - statusCode={0};Feedthrough(+Slot increasing);Channel',

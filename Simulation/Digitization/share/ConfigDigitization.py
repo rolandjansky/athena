@@ -118,17 +118,34 @@ if digitizationFlags.readSeedsFromFile.get_Value():
 printNameAuditor=False
 
 from AthenaCommon.AppMgr import theAuditorSvc
+theApp.AuditAlgorithms=True  
+theApp.AuditServices=True
+theApp.AuditTools=True  
+
 from GaudiAud.GaudiAudConf import ChronoAuditor, MemStatAuditor, NameAuditor
-if not 'ChronoAuditor/ChronoAuditor' in theAuditorSvc.Auditors:
+if 'ChronoAuditor/ChronoAuditor' not in theAuditorSvc.Auditors:
     theAuditorSvc += ChronoAuditor()
-if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
+if 'MemStatAuditor/MemStatAuditor' not in theAuditorSvc.Auditors:
     theAuditorSvc += MemStatAuditor()
 if printNameAuditor:
   from AthenaCommon.AppMgr import ServiceMgr
   ServiceMgr.MessageSvc.infoLimit = 0
-  if not 'MemStatAuditor/NameAuditor' in theAuditorSvc.Auditors:
+  if 'MemStatAuditor/NameAuditor' not in theAuditorSvc.Auditors:
       theAuditorSvc += NameAuditor()
+if 'FPEAuditor/FPEAuditor' not in theAuditorSvc.Auditors:
+    from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
+    theAuditorSvc += FPEAuditor()
+    import signal
+    try:
+        ServiceMgr.CoreDumpSvc.Signals.remove (signal.SIGFPE)
+    except ValueError:
+        pass
 
+# Disable LOG printing
+if hasattr(ServiceMgr, 'ChronoStatSvc'):
+    ServiceMgr.ChronoStatSvc.ChronoPrintOutTable = False
+    ServiceMgr.ChronoStatSvc.PrintUserTime       = False
+    ServiceMgr.ChronoStatSvc.StatPrintOutTable   = False
 
 # LSFTimeLimi. Temporary disable
 # include( "LSFTimeKeeper/LSFTimeKeeperOptions.py" )

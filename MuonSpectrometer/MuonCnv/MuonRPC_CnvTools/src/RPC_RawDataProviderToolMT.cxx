@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_RawDataProviderToolMT.h"
@@ -21,9 +21,8 @@ Muon::RPC_RawDataProviderToolMT::RPC_RawDataProviderToolMT(
     const std::string& t,
     const std::string& n,
     const IInterface*  p) :
-    RPC_RawDataProviderToolCore(t, n, p)
+    base_class(t, n, p)
 {
-  declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("RpcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the RPC container");
 }
 
@@ -53,7 +52,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::initialize()
 
 
 // the new one 
-StatusCode Muon::RPC_RawDataProviderToolMT::convert()
+StatusCode Muon::RPC_RawDataProviderToolMT::convert() const
 {
   return this->convert( Gaudi::Hive::currentContext() );
 }
@@ -71,7 +70,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::convert(const EventContext& ctx) con
   return convert(vecOfRobf, ctx); // using the old one
 }
 // the old one 
-StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs)
+StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs) const
 {
   return this->convert( vecRobs, Gaudi::Hive::currentContext() );
 }
@@ -85,7 +84,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRo
 }
 
 // the new one 
-StatusCode Muon::RPC_RawDataProviderToolMT::convert(const std::vector<uint32_t>& robIds)
+StatusCode Muon::RPC_RawDataProviderToolMT::convert(const std::vector<uint32_t>& robIds) const
 {
   return this->convert( robIds, Gaudi::Hive::currentContext() );
 }
@@ -101,7 +100,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::convert(const std::vector<uint32_t>&
 }
 
 // the new one
-StatusCode Muon::RPC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect)
+StatusCode Muon::RPC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect) const
 {
   return this->convert( rdoIdhVect, Gaudi::Hive::currentContext() );
 }
@@ -119,7 +118,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::convert(const std::vector<Identifier
     return convert(vecOfRobf, rdoIdhVect, ctx); // using the old one 
 }
 // the old one 
-StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& collections)
+StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& collections) const
 {
   return this->convert( vecRobs, collections, Gaudi::Hive::currentContext() );
 }
@@ -147,7 +146,7 @@ StatusCode Muon::RPC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRo
   }
   RpcPadContainer* pad = rdoContainerHandle.ptr();
   
-  RpcSectorLogicContainer* logic = 0;
+  RpcSectorLogicContainer* logic = nullptr;
   if(m_WriteOutRpcSectorLogic) {
     ATH_MSG_DEBUG("Writing out RpcSectorLogicContainer");
     ATH_CHECK( logicHandle.record (std::make_unique<RpcSectorLogicContainer>()) );

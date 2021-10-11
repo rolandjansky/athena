@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonL1Item.h"
-#include "TrigMonMSG.h"
 
 namespace L1Bits
 {
@@ -15,14 +14,7 @@ namespace L1Bits
   //const uint32_t maskDecis = 0x7000;  // mask decision bits
 }
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonL1Item");
-}
-
-using namespace std;
-
-//--------------------------------------------------------------------------------------      
+//--------------------------------------------------------------------------------------
 TrigMonL1Item::TrigMonL1Item()
   :m_encoded(0x0)
 {
@@ -45,7 +37,8 @@ void TrigMonL1Item::setCtpId(unsigned int ctpid)
     m_encoded |= ctpid;
   }
   else {
-    MSGService::msg.Log("TrigMonL1Item::setCtpId error! Bad ctp id", MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonL1Item")
+      << "setCtpId error! Bad ctp id";
   }
 }
 
@@ -85,7 +78,7 @@ bool TrigMonL1Item::isPassed(Decision value) const
 //--------------------------------------------------------------------------------------      
 void TrigMonL1Item::print(std::ostream &os) const
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------  

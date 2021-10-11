@@ -62,7 +62,9 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( stacktrace_test
       SOURCES test/stacktrace_test.cxx
       LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS}
-      LOG_IGNORE_PATTERN "DebugAids::stacktrace|CxxUtils::backtraceByUnwind")
+      # With clang12 i see DWARF error messages from addr2line.
+      # It still works ok, though.
+      LOG_IGNORE_PATTERN "DebugAids::stacktrace|CxxUtils::backtraceByUnwind|DWARF error")
 endif()
 
 atlas_add_test( MD5_test
@@ -129,7 +131,8 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
       MurmurHash2_test bitmask_test crc64_test Ring_test
       restrict_test vectorize_test get_unaligned_test aligned_vector_test
       vec_int_test vec_float_test vec_fb_int_test vec_fb_float_test
-      ConcurrentHashmapImpl_test SimpleUpdater_test )
+      ConcurrentHashmapImpl_test SimpleUpdater_test hexdump_test
+      FPControl_test LockedPointer_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LOG_IGNORE_PATTERN "no version information available"

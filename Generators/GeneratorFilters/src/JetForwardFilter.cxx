@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Filter to suppress events in the low pt/deltaY region.
@@ -148,6 +148,7 @@ StatusCode JetForwardFilter::filterEvent() {
   ATH_MSG_INFO("1stJet OK? : " << flag1stJet);
   ATH_MSG_INFO("2ndJet OK? : " << flag2ndJet);
   ATH_MSG_INFO("DeltaY OK? : " << flagJJ);
+  // cppcheck-suppress shiftNegative
   ATH_MSG_INFO("Weight OK? : " << flagW);
 
   if (flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0 && flagJJ != 0 && flagW != 0) {

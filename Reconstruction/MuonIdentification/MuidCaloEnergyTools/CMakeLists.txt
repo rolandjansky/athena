@@ -15,7 +15,8 @@ atlas_add_component( MuidCaloEnergyTools
                      src/MuidCaloEnergyParam.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MuidInterfaces CaloEvent CaloIdentifier CaloUtilsLib MuidEvent muonEvent TrkMaterialOnTrack TrkTrack )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MuidInterfaces FourMomUtils 
+                                   CaloEvent CaloIdentifier CaloUtilsLib MuidEvent muonEvent TrkMaterialOnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( MuidCaloEnergyTools )

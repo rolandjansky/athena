@@ -14,7 +14,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkSurfaces/Surface.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include <memory>
 class MsgStream;
 
@@ -47,7 +47,7 @@ template<int DIM, class T, class S>
 class CurvilinearParametersT final : public ParametersBase<DIM, T>
 {
 public:
-  static_assert(S::staticType == Surface::Plane,
+  static_assert(S::staticType == SurfaceType::Plane,
                 "The surface type must be Plane");
 
   /** default constructor only for POOL */
@@ -83,7 +83,7 @@ public:
   CurvilinearParametersT(const CurvilinearParametersT<DIM, T, S>&);
 
   /** Move Constructor */
-  CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) = default;
+  CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) noexcept = default;
 
   /** Assignment operator*/
   CurvilinearParametersT<DIM, T, S>& operator=(
@@ -91,7 +91,7 @@ public:
 
   /** Move assignment operator*/
   CurvilinearParametersT<DIM, T, S>& operator=(
-    CurvilinearParametersT<DIM, T, S>&&) = default;
+    CurvilinearParametersT<DIM, T, S>&&) noexcept = default;
 
   /** Destructor */
   virtual ~CurvilinearParametersT() = default;
@@ -130,7 +130,7 @@ public:
   virtual ParametersType type() const override final;
 
   /** Return the Surface Type enum*/
-  virtual int surfaceType() const override final;
+  virtual SurfaceType surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;

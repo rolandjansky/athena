@@ -7,8 +7,8 @@
 namespace Trk {
   void
   TruthInfoPlots::init() {
-    truthType = NULL;
-    origin = NULL;
+    truthType = nullptr;
+    origin = nullptr;
   }
 
   void

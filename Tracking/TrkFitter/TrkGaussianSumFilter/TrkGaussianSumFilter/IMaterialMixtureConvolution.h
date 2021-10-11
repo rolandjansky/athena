@@ -12,11 +12,14 @@
 #ifndef TrkIMaterialMixtureConvolution_H
 #define TrkIMaterialMixtureConvolution_H
 
-#include "GaudiKernel/IAlgTool.h"
+//
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+#include "TrkGaussianSumFilterUtils/GsfMaterial.h"
+//
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+//
+#include "GaudiKernel/IAlgTool.h"
 
 namespace Trk {
 class Layer;
@@ -38,7 +41,7 @@ public:
 
   //!< Convolution with full material properties
   virtual MultiComponentState update(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -46,7 +49,7 @@ public:
 
   //!< Convolution with pre-measurement-update material properties
   virtual MultiComponentState preUpdate(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
@@ -54,7 +57,7 @@ public:
 
   //!< Convolution with post-measurement-update material properties
   virtual MultiComponentState postUpdate(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+    std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,

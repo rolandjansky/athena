@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_RawDataProviderToolMT.h"
@@ -12,9 +12,8 @@ Muon::TGC_RawDataProviderToolMT::TGC_RawDataProviderToolMT(
 						       const std::string& t,
 						       const std::string& n,
 						       const IInterface*  p) :
-  TGC_RawDataProviderToolCore(t, n, p)
+  base_class(t, n, p)
 {
-  declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("TgcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the TGC container");
 }
 
@@ -34,7 +33,7 @@ StatusCode Muon::TGC_RawDataProviderToolMT::initialize()
 
 //============================================================================================
 
-StatusCode Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs){
+StatusCode Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs) const {
   return this->convert( vecRobs, Gaudi::Hive::currentContext() );
 }
 
@@ -67,7 +66,7 @@ StatusCode Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRo
   return convertIntoContainer(vecRobs, *rdoContainer);
 }
 
-StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>&){
+StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>&) const {
   // This function does not use the IdentifierHash so we pass to the EventContext function which also does not use it
   return this->convert( vecRobs, Gaudi::Hive::currentContext() );
 }
@@ -77,7 +76,7 @@ StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecR
   return convert(vecRobs, ctx);
 }
 
-StatusCode  Muon::TGC_RawDataProviderToolMT::convert(){
+StatusCode  Muon::TGC_RawDataProviderToolMT::convert() const {
   return this->convert( Gaudi::Hive::currentContext() );
 }
 
@@ -91,7 +90,7 @@ StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const EventContext& ctx) co
   return convert(vecOfRobf, ctx); 
 }
 
-StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect){
+StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect) const {
   return this->convert( rdoIdhVect, Gaudi::Hive::currentContext() );
 }
 

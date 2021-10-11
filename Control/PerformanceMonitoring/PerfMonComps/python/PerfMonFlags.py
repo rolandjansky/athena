@@ -131,22 +131,22 @@ class doMonitoringMT(JobProperty):
             svcMgr += PerfMonMTSvc("PerfMonMTSvc")
         # Setup PerfMonAlg
         from AthenaCommon.AlgSequence import AthSequencer
-        algSeq = AthSequencer("AthAlgSeq")
-        if not hasattr(algSeq, "PerfMonMTAlg"):
+        begSeq = AthSequencer("AthBeginSeq")
+        if not hasattr(begSeq, "PerfMonMTAlg"):
             from PerfMonComps.PerfMonCompsConf import PerfMonMTAlg
-            algSeq += PerfMonMTAlg("PerfMonMTAlg")
+            begSeq.insert(0, PerfMonMTAlg("PerfMonMTAlg"))
         return
 
     def _undo_action(self):
         # Uninstall the service and the algorithm
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.AlgSequence import AthSequencer
-        algSeq = AthSequencer("AthAlgSeq")
+        begSeq = AthSequencer("AthBeginSeq")
 
         if hasattr(svcMgr, 'PerfMonMTSvc'):
             del svcMgr.PerfMonMTSvc
-        if hasattr(algSeq, 'PerfMonMTAlg'):
-            del algSeq.PerfMonMTAlg
+        if hasattr(begSeq, 'PerfMonMTAlg'):
+            del begSeq.PerfMonMTAlg
         return
 #
 class doFastMonMT(JobProperty):
@@ -318,6 +318,14 @@ class OutputFile(JobProperty):
     allowedTypes = ['str']
     StoredValue  = "ntuple.pmon.gz"
 
+#
+class OutputJSON(JobProperty):
+    """ Flag to override the default output file name of the perfmonmt json
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = "perfmonmt.json"
+
 # Defines the container for the performance monitoring flags  
 class PerfMonFlags(JobPropertyContainer):
     """ The global performance monitoring flag/job property container.
@@ -351,6 +359,7 @@ list_jobproperties = [
     enableDoubleCountingCorrection,
     OutMonLevel,
     OutputFile,
+    OutputJSON,
     ]
 
 for i in list_jobproperties:

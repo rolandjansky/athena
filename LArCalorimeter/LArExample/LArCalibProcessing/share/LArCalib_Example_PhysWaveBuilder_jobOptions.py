@@ -107,6 +107,9 @@ theApp.Dlls += ["LArEventTest"]
 theApp.Dlls += ["LArCalibUtils"]     
 theApp.Dlls += ["LArRecUtils"]
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 #
 # LArPhysWaveBuilder settings
 #

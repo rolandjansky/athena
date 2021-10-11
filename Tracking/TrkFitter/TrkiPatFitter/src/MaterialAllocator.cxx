@@ -727,7 +727,7 @@ namespace Trk
       leadingTSOS->emplace_back(new TrackStateOnSurface(nullptr,
                                                      nullptr,
                                                      nullptr,
-                                                      m->materialEffects()->clone()));
+                                                      m->materialEffects()->uniqueClone()));
 
     deleteMaterial(extrapolatedTSOS.release(), garbage);
 
@@ -1026,7 +1026,7 @@ namespace Trk
 
   void
   MaterialAllocator::deleteMaterial(const std::vector<const TrackStateOnSurface*>* material,
-                                    Garbage_t& garbage) const {
+                                    Garbage_t& garbage) {
     if (material) {
       for (const TrackStateOnSurface* m : *material) {
         garbage.push_back (std::unique_ptr<const TrackStateOnSurface>(m));
@@ -1114,8 +1114,8 @@ namespace Trk
         if (!(**m).isPositionMeasurement()) continue;
         if (!endIndetMeasurement
             && (**m).hasIntersection(FittedTrajectory)
-            && ((**m).surface()->type() == Surface::SurfaceType::Plane
-                || (**m).surface()->type() == Surface::SurfaceType::Disc)) {
+            && ((**m).surface()->type() == Trk::SurfaceType::Plane
+                || (**m).surface()->type() == Trk::SurfaceType::Disc)) {
           const TrackSurfaceIntersection* intersection = &(**m).intersection(FittedTrajectory);
           Amg::Vector3D offset = intersection->direction() * tolerance;
           CurvilinearUVT uvt(intersection->direction());
@@ -2015,7 +2015,7 @@ namespace Trk
   FitMeasurement*
   MaterialAllocator::measurementFromTSOS(const TrackStateOnSurface& tsos,
                                          double outgoingEnergy,
-                                         double particleMass) const {
+                                         double particleMass) {
     if (!tsos.trackParameters() || !tsos.materialEffectsOnTrack()) return nullptr;
 
     double deltaE = outgoingEnergy - tsos.trackParameters()->momentum().mag();

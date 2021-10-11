@@ -99,11 +99,6 @@ namespace { // utility functions used here
   }
 
   bool
-  acceptVertex(const xAOD::Vertex* vtx) {
-    return(vtx->vertexType() != xAOD::VxType::NoVtx);
-  }
-
-  bool
   acceptTruthVertex(const xAOD::TruthVertex* vtx) {
     const float x(vtx->x()), y(vtx->y()), z(vtx->z());
     const float vrtR2 = (x * x + y * y); // radial distance squared
@@ -120,30 +115,7 @@ namespace { // utility functions used here
 ///Parametrized constructor
 InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, const std::string& name,
                                                        const IInterface* parent) :
-  ManagedMonitorToolBase(type, name, parent),
-  m_useTrackSelection(false),
-  m_useVertexTruthMatchTool(false),
-  m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
-  m_vtxValidTool("InDetVertexTruthMatchTool/VtxTruthMatchTool"),
-  m_truthSelectionTool("AthTruthSelectionTool", this),
-  m_doTrackInJetPlots(true),
-  m_fillTruthToRecoNtuple(false) {
-  declareProperty("useTrackSelection", m_useTrackSelection);
-  declareProperty("TrackSelectionTool", m_trackSelectionTool);
-  declareProperty("VertexTruthMatchTool", m_vtxValidTool);
-  declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
-  declareProperty("TruthSelectionTool", m_truthSelectionTool);
-  declareProperty("doTruthOriginPlots", m_doTruthOriginPlots);
-  declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
-  declareProperty("FillTrackInBJetPlots", m_doBjetPlots);
-  declareProperty("FillTruthToRecoNtuple", m_fillTruthToRecoNtuple);
-  declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
-  declareProperty("DirName", m_dirName = "SquirrelPlots/");
-  declareProperty("SubFolder", m_folder);
-  declareProperty("PileupSwitch", m_pileupSwitch = "HardScatter");
-  declareProperty("LowProb", m_lowProb=0.50);
-  declareProperty("HighProb", m_highProb=0.80);
-  declareProperty("SkillLevel", m_detailLevel=10);
+  ManagedMonitorToolBase(type, name, parent){
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -160,17 +132,20 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
   ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
   ATH_CHECK(m_trackTruthOriginTool.retrieve( EnableTool {m_doTruthOriginPlots} ));
+  ATH_CHECK(m_hardScatterSelectionTool.retrieve());
 
   ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
-  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder, m_detailLevel); // m_detailLevel := DEBUG, enable expert histograms
-  m_monPlots->SetFillJetPlots(m_doTrackInJetPlots,m_doBjetPlots);
+
+  m_monPlots = std::make_unique<InDetRttPlots>
+    (nullptr, static_cast<std::string>(m_dirName) + static_cast<std::string>(m_folder),
+     getFilledPlotConfig()); // m_detailLevel := DEBUG, enable expert histograms
 
   ATH_CHECK( m_trkParticleName.initialize() );
   ATH_CHECK( m_truthParticleName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthParticleName.key().empty() ) );
-  ATH_CHECK( m_vertexContainerName.initialize() );
+  ATH_CHECK( m_vertexContainerName.initialize( not m_vertexContainerName.empty() ) );
   ATH_CHECK( m_truthVertexContainerName.initialize( not m_truthVertexContainerName.key().empty() ) );
   ATH_CHECK( m_eventInfoContainerName.initialize() );
 
@@ -195,6 +170,113 @@ InDetPhysValMonitoringTool::initialize() {
     IDPVM::addReadDecoratorHandleKeys(*this, m_jetContainerName, empty_prefix, required_int_jet_decorations, m_intJetDecor);
   }
   return StatusCode::SUCCESS;
+}
+
+
+InDetRttPlotConfig InDetPhysValMonitoringTool::getFilledPlotConfig() const{
+
+
+  InDetRttPlotConfig rttConfig; 
+  rttConfig.detailLevel = m_detailLevel; 
+
+  rttConfig.doTrkInJetPlots = m_doTrackInJetPlots;
+  rttConfig.doTrkInJetPlots_fake = m_doTrackInJetPlots;
+  rttConfig.doTrkInJetPlots_matched = m_doTrackInJetPlots;
+  rttConfig.doTrkInJetPlots_unlinked = m_doTrackInJetPlots;
+
+  rttConfig.doHitResidualPlot = m_doHitLevelPlots; 
+  rttConfig.doHitEffPlot = m_doHitLevelPlots; 
+
+  rttConfig.doTrkInJetPlots_bjets = m_doBjetPlots;
+  rttConfig.doTrkInJetPlots_fake_bjets = m_doBjetPlots;
+  rttConfig.doTrkInJetPlots_matched_bjets = m_doBjetPlots;
+  rttConfig.doTrkInJetPlots_unlinked_bjets = m_doBjetPlots;
+
+  rttConfig.doTrkInJetPlots_truthFromB = m_doTruthOriginPlots && m_doTrackInJetPlots; 
+  rttConfig.doResolutionPlotPrim_truthFromB = m_doTruthOriginPlots; 
+
+  rttConfig.doNtupleTruthToReco = m_fillTruthToRecoNtuple;
+
+  rttConfig.doFakesPerAuthor = m_doPerAuthorPlots;
+  rttConfig.doTrackParametersPerAuthor = m_doPerAuthorPlots;
+  rttConfig.doEfficienciesPerAuthor = m_doPerAuthorPlots;
+  rttConfig.doResolutionsPerAuthor = m_doPerAuthorPlots;
+
+  rttConfig.doTrtExtensionPlots = m_doTRTExtensionPlots;
+
+  /// turn off truth if none is present
+  if (m_truthParticleName.key().empty()){
+    rttConfig.doFakePlots = false; 
+    rttConfig.doMissingTruthFakePlots = false; 
+    rttConfig.doHitsFakeTracksPlots = false; 
+    rttConfig.doHitsUnlinkedTracksPlots = false; 
+    rttConfig.doEffPlots = false; 
+    rttConfig.doResolutionPlotPrim = false; 
+    rttConfig.doResolutionPlotPrim_truthFromB = false; 
+    rttConfig.doResolutionPlotSecd = false; 
+    rttConfig.doHitsMatchedTracksPlots = false; 
+    rttConfig.doVertexTruthMatchingPlots = false; 
+    rttConfig.doHardScatterVertexTruthMatchingPlots = false; 
+    rttConfig.doEfficienciesPerAuthor = false; 
+    rttConfig.doFakesPerAuthor = false; 
+    rttConfig.doResolutionsPerAuthor = false; 
+    rttConfig.doNtupleTruthToReco = false; 
+    rttConfig.doTrkInJetPlots_fake_bjets = false;
+    rttConfig.doTrkInJetPlots_matched_bjets = false;
+    rttConfig.doTrkInJetPlots_unlinked_bjets = false;
+    rttConfig.doTrkInJetPlots_truthFromB = false;
+    rttConfig.doResolutionPlotPrim_truthFromB = false;
+  }
+
+  /// allow to disable non-truth-matched 
+  if (m_onlyFillMatched){ 
+    rttConfig.doTrackParameters = false;
+    rttConfig.doNTracks = false;
+    rttConfig.doHitResidualPlot = false;
+    rttConfig.doHitEffPlot = false;
+    rttConfig.doHitsRecoTracksPlots = false;
+    rttConfig.doTrtExtensionPlots = false;
+    rttConfig.doFakePlots = false;
+    rttConfig.doMissingTruthFakePlots = false;
+    rttConfig.doHitsFakeTracksPlots = false;
+    rttConfig.doHitsUnlinkedTracksPlots = false;
+    rttConfig.doVertexPlots = false;
+    rttConfig.doVerticesVsMuPlots = false;
+    rttConfig.doHardScatterVertexPlots = false;
+    rttConfig.doVertexTruthMatchingPlots = false;
+    rttConfig.doHardScatterVertexTruthMatchingPlots = false;
+    rttConfig.doAnTrackingPlots = false;
+    rttConfig.doTrkInJetPlots = false;
+    rttConfig.doTrkInJetPlots_bjets = false;
+    rttConfig.doTrkInJetPlots_matched = false;
+    rttConfig.doTrkInJetPlots_matched_bjets = false;
+    rttConfig.doTrkInJetPlots_fake = false;
+    rttConfig.doTrkInJetPlots_fake_bjets = false;
+    rttConfig.doTrkInJetPlots_unlinked = false;
+    rttConfig.doTrkInJetPlots_unlinked_bjets = false;
+    rttConfig.doTrkInJetPlots_truthFromB = false;
+  }
+
+  /// account for detail level 
+  if (m_detailLevel < 200){
+    rttConfig.doResolutionPlotSecd = false;
+    rttConfig.doHitsMatchedTracksPlots = false;
+    rttConfig.doHitsFakeTracksPlots = false; 
+    rttConfig.doHitsUnlinkedTracksPlots = false; 
+    rttConfig.doVertexTruthMatchingPlots = false; 
+    rttConfig.doFakesPerAuthor = false;
+    rttConfig.doTrackParametersPerAuthor = false;
+    rttConfig.doEfficienciesPerAuthor = false;
+    rttConfig.doResolutionsPerAuthor = false;
+    rttConfig.doTrkInJetPlots_matched = false;  
+    rttConfig.doTrkInJetPlots_fake = false;  
+    rttConfig.doTrkInJetPlots_unlinked = false;  
+    rttConfig.doTrkInJetPlots_matched_bjets = false;  
+    rttConfig.doTrkInJetPlots_fake_bjets = false;  
+    rttConfig.doTrkInJetPlots_unlinked_bjets = false;  
+  }
+
+  return rttConfig; 
 }
 
 StatusCode
@@ -226,41 +308,52 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING("Shouldn't happen - EventInfo is buggy, setting mu to 0");
   }
 
-  ATH_MSG_DEBUG("Getting number of pu interactings per event");
-
-  ATH_MSG_DEBUG("Filling vertex plots");
-  SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
   const xAOD::Vertex* primaryvertex = nullptr;
-  const float puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->actualInteractionsPerCrossing() : 0;
-  const float nVertices = not vertices->empty() ? vertices->size() : 0;
+  float puEvents = 0;
+  float nVertices = 0;
+  float beamSpotWeight = 1;
 
-  if (vertices.isValid() and not vertices->empty()) {
-    ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
-    const auto& stdVertexContainer = vertices->stdcont();
-    //Find the first non-dummy vertex; note *usually* there is only one (or maybe zero)
-    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptVertex);
-    primaryvertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
-    //Filling plots for all reconstructed vertices and the hard-scatter
-    ATH_MSG_DEBUG("Filling vertices info monitoring plots");
+  if(not m_vertexContainerName.key().empty()){
+    ATH_MSG_DEBUG("Getting number of pu interactings per event");
 
-    // Fill vectors of truth HS and PU vertices
-    std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
-    std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
-    std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
+    ATH_MSG_DEBUG("Filling vertex plots");
+    SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
+    puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->actualInteractionsPerCrossing() : 0;
+    nVertices = not vertices->empty() ? vertices->size() : 0;
+    beamSpotWeight = pie->beamSpotWeight();
+    ATH_MSG_DEBUG("beamSpotWeight is equal to " <<  beamSpotWeight);
 
-    // Decorate vertices
-    if (m_useVertexTruthMatchTool && m_vtxValidTool) {
-       ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
-       ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
+    if (vertices.isValid() and not vertices->empty()) {
+      ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
+      //Find the HS vertex following the user-configured strategy
+      primaryvertex = m_hardScatterSelectionTool->getHardScatter(vertices.get());
+      if (!primaryvertex){
+	/// In case of no HS, print a debug message - no warning since this is expected
+	/// in single particle MC. The downstream code is able to handle the absence of a HS vertex.
+	ATH_MSG_DEBUG("Failed to find a hard scatter vertex in this event.");
+      }
+      //Filling plots for all reconstructed vertices and the hard-scatter
+      ATH_MSG_DEBUG("Filling vertices info monitoring plots");
+
+      // Fill vectors of truth HS and PU vertices
+      std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
+      std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
+      std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
+
+      // Decorate vertices
+      if (m_useVertexTruthMatchTool && m_vtxValidTool) {
+	ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
+	ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
+      }
+      m_monPlots->fill(*vertices, primaryvertex, truthHSVertices, truthPUVertices, beamSpotWeight);
+
+      ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
+      //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
+      m_monPlots->fill(*vertices, puEvents, beamSpotWeight);
+    } else {
+      //FIXME: Does this happen for single particles?
+      ATH_MSG_WARNING("Skipping vertexing plots.");
     }
-    m_monPlots->fill(*vertices, truthHSVertices, truthPUVertices);
-
-    ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
-    //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
-    m_monPlots->fill(*vertices, puEvents);
-  } else {
-    //FIXME: Does this happen for single particles?
-    ATH_MSG_WARNING("Skipping vertexing plots.");
   }
 
 
@@ -309,6 +402,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     selectedTracks.push_back(thisTrack);
     //Number of selected reco tracks
     nSelectedRecoTracks++;
+
     //Fill plots for selected reco tracks, hits / perigee / ???
     std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = thisTrack->patternRecoInfo();
     bool isBAT = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);
@@ -318,8 +412,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
     if(isSTD) nTrackSTD++;
     if(isANT) nTrackANT++;
     nTrackTOT++;
-    m_monPlots->fill(*thisTrack);                                      
-    m_monPlots->fill(*thisTrack, puEvents, nVertices);  //fill mu dependent plots
+    m_monPlots->fill(*thisTrack, beamSpotWeight);                                      
+    m_monPlots->fill(*thisTrack, puEvents, nVertices, beamSpotWeight);  //fill mu dependent plots
     const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
     float prob = getMatchingProbability(*thisTrack); 
 
@@ -340,7 +434,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
           truthIsFromB = true;
         }
-        m_monPlots->fill(*thisTrack, *associatedTruth, truthIsFromB); // Make plots requiring matched truth
+        m_monPlots->fill(*thisTrack, *associatedTruth, truthIsFromB, puEvents, beamSpotWeight); // Make plots requiring matched truth
       }
     }
 
@@ -349,7 +443,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     if(isFake) nFakeTracks++;
     if(!isAssociatedTruth) nMissingAssociatedTruth++;
-    m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth, puEvents, nVertices);
+    m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth, puEvents, nVertices, beamSpotWeight);
 
     if (m_fillTruthToRecoNtuple) {
       // Decorate track particle with extra flags
@@ -401,8 +495,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
     }
   }
-  m_monPlots->fill(nTrackANT, nTrackSTD, nTrackBAT, puEvents, nVertices);
-  m_monPlots->fill(nTrackTOT, puEvents, nVertices);
+  m_monPlots->fill(nTrackANT, nTrackSTD, nTrackBAT, puEvents, nVertices,beamSpotWeight);
+  m_monPlots->fill(nTrackTOT, puEvents, nVertices,beamSpotWeight);
 
   //FIXME: I don't get why... this is here
   if (m_truthSelectionTool.get()) {
@@ -424,7 +518,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       ++nSelectedTruthTracks; // total number of truth which pass cuts per event
       bool isEfficient(false); // weight for the trackeff histos
       
-      m_monPlots->fill(*thisTruth); // This is filling truth-only plots
+      m_monPlots->fill(*thisTruth, beamSpotWeight); // This is filling truth-only plots
       //
       //Loop over reco tracks to find the match
       //
@@ -440,8 +534,16 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
         }
       }
-      ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
-      m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices);
+      if (!thisTruth){ 
+        ATH_MSG_ERROR("An error occurred: Truth particle for tracking efficiency calculation is a nullptr");
+      }
+      else if (isEfficient && !matchedTrack){
+        ATH_MSG_ERROR("Something went wrong - we log a truth particle as reconstructed, but the reco track is a nullptr! Bailing out... ");  
+      }
+      else{ 
+        ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
+        m_monPlots->fillEfficiency(*thisTruth, matchedTrack, isEfficient, puEvents, nVertices, beamSpotWeight);
+      }
     }
     
     if (m_fillTruthToRecoNtuple) {
@@ -464,12 +566,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_DEBUG(nAssociatedTruth << " tracks out of " << tracks->size() << " had associated truth.");
   }
 
-  m_monPlots->fillCounter(nSelectedRecoTracks, InDetPerfPlot_nTracks::SELECTEDRECO);
-  m_monPlots->fillCounter(tracks->size(), InDetPerfPlot_nTracks::ALLRECO);
-  m_monPlots->fillCounter(nSelectedTruthTracks, InDetPerfPlot_nTracks::SELECTEDTRUTH);
-  m_monPlots->fillCounter(nTruths, InDetPerfPlot_nTracks::ALLTRUTH);
-  m_monPlots->fillCounter(nAssociatedTruth, InDetPerfPlot_nTracks::ALLASSOCIATEDTRUTH);
-  m_monPlots->fillCounter(nSelectedMatchedTracks, InDetPerfPlot_nTracks::MATCHEDRECO);
+  m_monPlots->fillCounter(nSelectedRecoTracks, InDetPerfPlot_nTracks::SELECTEDRECO, beamSpotWeight);
+  m_monPlots->fillCounter(tracks->size(), InDetPerfPlot_nTracks::ALLRECO, beamSpotWeight);
+  m_monPlots->fillCounter(nSelectedTruthTracks, InDetPerfPlot_nTracks::SELECTEDTRUTH, beamSpotWeight);
+  m_monPlots->fillCounter(nTruths, InDetPerfPlot_nTracks::ALLTRUTH, beamSpotWeight);
+  m_monPlots->fillCounter(nAssociatedTruth, InDetPerfPlot_nTracks::ALLASSOCIATEDTRUTH, beamSpotWeight);
+  m_monPlots->fillCounter(nSelectedMatchedTracks, InDetPerfPlot_nTracks::MATCHEDRECO, beamSpotWeight);
   
   // Tracking In Dense Environment
   if (!m_doTrackInJetPlots) return StatusCode::SUCCESS;
@@ -533,7 +635,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
             if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(truth, 5) ) {
               truthIsFromB = true;
             }
-            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient, isBjet, truthIsFromB);
+            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient, isBjet, truthIsFromB, beamSpotWeight);
           }
         }
       }
@@ -555,9 +657,9 @@ InDetPhysValMonitoringTool::fillHistograms() {
         if ( m_doTruthOriginPlots and m_trackTruthOriginTool->isFrom(associatedTruth, 5) ) {
           truthIsFromB = true;
         }
-        m_monPlots->fill(*thisTrack, *thisJet, isBjet, isFake, unlinked, truthIsFromB);                                   
+        m_monPlots->fill(*thisTrack, *thisJet, isBjet, isFake, unlinked, truthIsFromB, beamSpotWeight);                                   
         if (associatedTruth){
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake, isBjet, truthIsFromB);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake, isBjet, truthIsFromB, beamSpotWeight);
        }
       }
     }

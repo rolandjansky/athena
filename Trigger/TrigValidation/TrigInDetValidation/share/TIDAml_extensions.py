@@ -1,4 +1,3 @@
-ftf = findAlgorithm(topSequence, "TrigFastTrackFinder__jet")
-ftf.UseTrigSeedML  = 4 
-##ftf.OutputLevel=DEBUG 
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+getInDetTrigConfig("jet")._UseTrigSeedML  = None
 

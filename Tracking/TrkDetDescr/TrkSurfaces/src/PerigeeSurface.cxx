@@ -31,20 +31,14 @@ Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp)
   Surface::m_transforms = std::make_unique<Transforms>(transform, gp, s_xAxis);
 }
 
-Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
-  : Surface()
+Trk::PerigeeSurface::PerigeeSurface(const Amg::Transform3D& tTransform)
+  : Surface() // default for base
   , m_lineDirection{}
 {
-  if (tTransform) {
-    Surface::m_transforms = std::make_unique<Transforms>(
-      *tTransform, tTransform->translation(), s_xAxis);
-  }
-}
 
-Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform)
-  : Surface(std::move(tTransform))
-  , m_lineDirection{}
-{}
+  Surface::m_transforms =
+    std::make_unique<Transforms>(tTransform, tTransform.translation(), s_xAxis);
+}
 
 #if defined(FLATTEN) && defined(__GNUC__)
 // We compile this function with optimization, even in debug builds; otherwise,
@@ -103,15 +97,16 @@ Trk::PerigeeSurface::operator==(const Trk::Surface& sf) const
 }
 
 // simple local to global - from LocalParameters /
-const Amg::Vector3D*
+Amg::Vector3D
 Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars) const
 {
   if (locpars.contains(Trk::phi0)) {
-    Amg::Vector3D loc3Dframe(
-      -locpars[Trk::d0] * sin(locpars[Trk::phi0]), locpars[Trk::d0] * cos(locpars[Trk::phi0]), locpars[Trk::z0]);
-    return new Amg::Vector3D(transform() * loc3Dframe);
+    Amg::Vector3D loc3Dframe(-locpars[Trk::d0] * sin(locpars[Trk::phi0]),
+                             locpars[Trk::d0] * cos(locpars[Trk::phi0]),
+                             locpars[Trk::z0]);
+    return Amg::Vector3D(transform() * loc3Dframe);
   }
-    return new Amg::Vector3D(0., 0., locpars[Trk::z0] + (center().z()));
+  return Amg::Vector3D(0., 0., locpars[Trk::z0] + (center().z()));
 }
 
 #if defined(FLATTEN) && defined(__GNUC__)
@@ -145,19 +140,21 @@ Trk::PerigeeSurface::localToGlobal(const Amg::Vector2D& locpos,
 }
 
 // true local to global method - from LocalParameters /
-const Amg::Vector3D*
-Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars, const Amg::Vector3D& glomom) const
+Amg::Vector3D
+Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars,
+                                   const Amg::Vector3D& glomom) const
 {
   if (Surface::m_transforms) {
-    Amg::Vector3D* glopos = new Amg::Vector3D(0., 0., 0.);
-    localToGlobal(Amg::Vector2D(locpars[Trk::d0], locpars[Trk::z0]), glomom, *glopos);
+    Amg::Vector3D glopos = Amg::Vector3D(0., 0., 0.);
+    localToGlobal(
+      Amg::Vector2D(locpars[Trk::d0], locpars[Trk::z0]), glomom, glopos);
     return glopos;
   }
   double phi = glomom.phi();
   double x = -locpars[Trk::d0] * sin(phi) + center().x();
   double y = locpars[Trk::d0] * cos(phi) + center().y();
   double z = locpars[Trk::z0] + center().z();
-  return new Amg::Vector3D(x, y, z);
+  return Amg::Vector3D(x, y, z);
 }
 
 // true global to local method

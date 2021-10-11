@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,8 +10,8 @@
  * $Id: CaloDetectorElements.h,v 1.13 2009-04-22 19:54:16 ssnyder Exp $
  */
 
-#ifndef CALODETECTORELEMENTS_H
-#define CALODETECTORELEMENTS_H
+#ifndef CALODETDESCR_CALODETECTORELEMENTS_H
+#define CALODETDESCR_CALODETECTORELEMENTS_H
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
@@ -28,6 +28,7 @@
 #include "Identifier/Identifier.h"
 
 class CaloDetDescriptor;
+class GeoAlignmentStore;
 
 /**
  * @struct CaloElementPositionShift
@@ -50,66 +51,69 @@ typedef struct
 class EMBDetectorElement : public CaloDetDescrElement
 {
  public:
-  /** @brief Constructor, takes all necessary parameters for the base class constructor 
-      plus some specific parameters for this class
-      @param subcaloHash [IN] for the base class
-      @param onl1 [IN] for the base class
-      @param onl2 [IN] for the base class
-      @param descriptor [IN] for the base class
-      @param embCell [IN] EMB Cell description from LArReadoutGeometry
-      @param embRegion [IN] EMB Region description from LArReadoutGeometry
+  /**
+   * @brief Constructor, takes all necessary parameters for the base class constructor 
+   *        plus some specific parameters for this class
+   * @param subcaloHash [IN] for the base class
+   * @param onl1 [IN] for the base class
+   * @param onl2 [IN] for the base class
+   * @param descriptor [IN] for the base class
+   * @param embCell [IN] EMB Cell description from LArReadoutGeometry
+   * @param embRegion [IN] EMB Region description from LArReadoutGeometry
    */
-  EMBDetectorElement(const IdentifierHash subcaloHash,
-		     const IdentifierHash onl1,
-		     const IdentifierHash onl2,
-		     const CaloDetDescriptor* descriptor,
-		     EMBCellConstLink& embCell,
-		     const EMBDetectorRegion* embRegion,
-		     bool isTestBeam);
+  EMBDetectorElement(const IdentifierHash subcaloHash
+		     , const IdentifierHash onl1
+		     , const IdentifierHash onl2
+		     , const CaloDetDescriptor* descriptor
+		     , EMBCellConstLink& embCell
+		     , const EMBDetectorRegion* embRegion
+		     , bool isTestBeam
+		     , const GeoAlignmentStore* geoAlignStore = nullptr
+                     , const CaloElementPositionShift* posShift = nullptr);
   
-  /** @brief EMB Cell description from LArReadoutGeometry
+  /**
+   * @brief EMB Cell description from LArReadoutGeometry
    */
-  inline EMBCellConstLink         getEMBCell() const          {return m_cell;}
-  /** @brief EMB Region description from LArReadoutGeometry
-   */
-  inline const EMBDetectorRegion* getEMBDetectorRegion() const
-  {return m_region;}
+  inline EMBCellConstLink getEMBCell() const {return m_cell;}
   
-  /** @brief the method called by CaloAlignTool, updates alignment information
-      @param embCell [IN] misaligned EMB Cell description from LArReadoutGeometry
-      @param embRegion [IN] misaligned EMB Region description from LArReadoutGeometry
+  /**
+   * @brief the method called by CaloAlignTool, updates alignment information
+   * @param embCell [IN] misaligned EMB Cell description from LArReadoutGeometry
+   * @param embRegion [IN] misaligned EMB Region description from LArReadoutGeometry
    */
-  void updateAlignment(EMBCellConstLink& embCell,
-		       const EMBDetectorRegion* embRegion,
-		       const CaloElementPositionShift* posShift = nullptr);
+  void updateAlignment(EMBCellConstLink& embCell
+		       , const EMBDetectorRegion* embRegion
+		       , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief get layer
+  /**
+   * @brief get layer
    */
-  int getLayer() const;
+  virtual int getLayer() const override;
 
  private:
-  /** @brief EMB Cell description from LArReadoutGeometry
+  /**
+   * @brief EMB Cell description from LArReadoutGeometry
    */
   EMBCellConstLink m_cell;
-  /** @brief EMB Region description from LArReadoutGeometry
+  /**
+   * @brief EMB Region description from LArReadoutGeometry
    */
   const EMBDetectorRegion* m_region;
   
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   EMBDetectorElement() = delete;
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   EMBDetectorElement & operator=(const EMBDetectorElement &right) = delete;
   
-  /** @brief initialize base description
+  /**
+   * @brief initialize base description
    */
-  void init_description(const CaloElementPositionShift* posShift = nullptr);
-
-  /** @brief Fill all missing fields of CaloDetDescrElement which
-      have not been filled by init_description()
-   */
-  void init_interpretation();  
+  void init_description(const GeoAlignmentStore* geoAlignStore
+			, const CaloElementPositionShift* posShift);
 };
 
 /**
@@ -120,65 +124,74 @@ class EMBDetectorElement : public CaloDetDescrElement
 class EMECDetectorElement : public CaloDetDescrElement
 {
  public:
-  /** @brief Constructor, takes all necessary parameters for the base class constructor 
-      plus some specific parameters for this class
-      @param subcaloHash [IN] for the base class
-      @param onl1 [IN] for the base class
-      @param onl2 [IN] for the base class
-      @param descriptor [IN] for the base class
-      @param emecCell [IN] EMEC Cell description from LArReadoutGeometry
-      @param emecRegion [IN] EMEC Region description from LArReadoutGeometry
+  /**
+   * @brief Constructor, takes all necessary parameters for the base class constructor 
+   *        plus some specific parameters for this class
+   *  @param subcaloHash [IN] for the base class
+   *  @param onl1 [IN] for the base class
+   *  @param onl2 [IN] for the base class
+   *  @param descriptor [IN] for the base class
+   *  @param emecCell [IN] EMEC Cell description from LArReadoutGeometry
+   *  @param emecRegion [IN] EMEC Region description from LArReadoutGeometry
    */
-  EMECDetectorElement(const IdentifierHash subcaloHash,
-		      const IdentifierHash onl1,
-		      const IdentifierHash onl2,
-		      const CaloDetDescriptor* descriptor,
-		      EMECCellConstLink& emecCell,
-		      const EMECDetectorRegion* emecRegion,
-		      bool isTestBeam);
+  EMECDetectorElement(const IdentifierHash subcaloHash
+		      , const IdentifierHash onl1
+		      , const IdentifierHash onl2
+		      , const CaloDetDescriptor* descriptor
+		      , EMECCellConstLink& emecCell
+		      , const EMECDetectorRegion* emecRegion
+		      , bool isTestBeam
+		      , const GeoAlignmentStore* geoAlignStore = nullptr
+                      , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief EMEC Cell description from LArReadoutGeometry
+  /**
+   * @brief EMEC Cell description from LArReadoutGeometry
    */
-  inline EMECCellConstLink         getEMECCell() const         {return m_cell;}
-  /** @brief EMEC Region description from LArReadoutGeometry
-   */
-  inline const EMECDetectorRegion* getEMECDetectorRegion() const
-  {return m_region;}
+  inline EMECCellConstLink getEMECCell() const {return m_cell;}
 
-  /** @brief the method called by CaloAlignTool, updates alignment information
-      @param emecCell [IN] misaligned EMEC Cell description from LArReadoutGeometry
-      @param emecRegion [IN] misaligned EMEC Region description from LArReadoutGeometry
+  /**
+   * @brief the method called by CaloAlignTool, updates alignment information
+   * @param emecCell [IN] misaligned EMEC Cell description from LArReadoutGeometry
+   * @param emecRegion [IN] misaligned EMEC Region description from LArReadoutGeometry
    */
-  void updateAlignment(EMECCellConstLink& emecCell,
-		       const EMECDetectorRegion* emecRegion,
-		       const CaloElementPositionShift* posShift = nullptr);
+  void updateAlignment(EMECCellConstLink& emecCell
+		       , const EMECDetectorRegion* emecRegion
+		       , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief get layer
+  /**
+   * @brief get layer
    */
-  int getLayer() const;
+  virtual int getLayer() const override;
 
  private:
-  /** @brief EMEC Cell description from LArReadoutGeometry
+  /**
+   * @brief EMEC Cell description from LArReadoutGeometry
    */
   EMECCellConstLink m_cell;
-  /** @brief EMEC Region description from LArReadoutGeometry
+  /**
+   * @brief EMEC Region description from LArReadoutGeometry
    */
   const EMECDetectorRegion* m_region;
  
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   EMECDetectorElement() = delete;
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   EMECDetectorElement & operator=(const EMECDetectorElement &right) = delete;
 
-  /** @brief initialize base description
+  /**
+   * @brief initialize base description
    */
-  void init_description(bool isTestBeam,
-			const CaloElementPositionShift* posShift = nullptr);
+  void init_description(bool isTestBeam
+			, const GeoAlignmentStore* geoAlignStore
+			, const CaloElementPositionShift* posShift);
 
-  /** @brief Fill all missing fields of CaloDetDescrElement which
-      have not been filled by init_description()
+  /**
+   * @brief Fill all missing fields of CaloDetDescrElement which
+   * have not been filled by init_description()
    */
   void init_interpretation();
 
@@ -193,65 +206,74 @@ class EMECDetectorElement : public CaloDetDescrElement
 class HECDetectorElement : public CaloDetDescrElement
 {
  public:
-  /** @brief Constructor, takes all necessary parameters for the base class constructor 
-      plus some specific parameters for this class
-      @param subcaloHash [IN] for the base class
-      @param onl1 [IN] for the base class
-      @param onl2 [IN] for the base class
-      @param descriptor [IN] for the base class
-      @param hecCell [IN] HEC Cell description from LArReadoutGeometry
-      @param hecRegion [IN] HEC Region description from LArReadoutGeometry
+  /**
+   * @brief Constructor, takes all necessary parameters for the base class constructor 
+   *        plus some specific parameters for this class
+   *  @param subcaloHash [IN] for the base class
+   *  @param onl1 [IN] for the base class
+   *  @param onl2 [IN] for the base class
+   *  @param descriptor [IN] for the base class
+   *  @param hecCell [IN] HEC Cell description from LArReadoutGeometry
+   *  @param hecRegion [IN] HEC Region description from LArReadoutGeometry
    */
-  HECDetectorElement(const IdentifierHash subcaloHash,
-		     const IdentifierHash onl1,
-		     const IdentifierHash onl2,
-		     const CaloDetDescriptor* descriptor,
-		     HECCellConstLink& hecCell,
-		     const HECDetectorRegion* hecRegion,
-		     bool isTestBeam);
+  HECDetectorElement(const IdentifierHash subcaloHash
+		     , const IdentifierHash onl1
+		     , const IdentifierHash onl2
+		     , const CaloDetDescriptor* descriptor
+		     , HECCellConstLink& hecCell
+		     , const HECDetectorRegion* hecRegion
+		     , bool isTestBeam
+		     , const GeoAlignmentStore* geoAlignStore = nullptr
+		     , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief HEC Cell description from LArReadoutGeometry
+  /**
+   * @brief HEC Cell description from LArReadoutGeometry
    */
-  inline HECCellConstLink         getHECCell()    const       {return m_cell;}
-  /** @brief HEC Region description from LArReadoutGeometry
-   */
-  inline const HECDetectorRegion* getHECDetectorRegion() const
-  {return m_region;}
+  inline HECCellConstLink getHECCell() const {return m_cell;}
 
-  /** @brief the method called by CaloAlignTool, updates alignment information
-      @param hecCell [IN] misaligned HEC Cell description from LArReadoutGeometry
-      @param hecRegion [IN] misaligned HEC Region description from LArReadoutGeometry
+  /**
+   * @brief the method called by CaloAlignTool, updates alignment information
+   *  @param hecCell [IN] misaligned HEC Cell description from LArReadoutGeometry
+   *  @param hecRegion [IN] misaligned HEC Region description from LArReadoutGeometry
    */
-  void updateAlignment(HECCellConstLink& hecCell,
-		       const HECDetectorRegion* hecRegion,
-		       const CaloElementPositionShift* posShift = nullptr);
+  void updateAlignment(HECCellConstLink& hecCell
+		       , const HECDetectorRegion* hecRegion
+		       , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief get layer
+  /**
+   * @brief get layer
    */
-  int getLayer() const;
+  virtual int getLayer() const override;
 
  private:
-  /** @brief HEC Cell description from LArReadoutGeometry
+  /**
+   * @brief HEC Cell description from LArReadoutGeometry
    */
   HECCellConstLink m_cell;
-  /** @brief HEC Region description from LArReadoutGeometry
+  /**
+   * @brief HEC Region description from LArReadoutGeometry
    */
   const HECDetectorRegion* m_region;
   
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   HECDetectorElement() = delete;
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   HECDetectorElement & operator=(const HECDetectorElement &right) = delete;
 
-  /** @brief initialize base description
+  /**
+   * @brief initialize base description
    */
-  void init_description(bool isTestBeam,
-			const CaloElementPositionShift* posShift = nullptr);
+  void init_description(bool isTestBeam
+			, const GeoAlignmentStore* geoAlignStore
+			, const CaloElementPositionShift* posShift);
 
-  /** @brief Fill all missing fields of CaloDetDescrElement which
-      have not been filled by init_description()
+  /**
+   * @brief Fill all missing fields of CaloDetDescrElement which
+   *  have not been filled by init_description()
    */
   void init_interpretation();
 
@@ -265,66 +287,70 @@ class HECDetectorElement : public CaloDetDescrElement
 class FCALDetectorElement : public CaloDetDescrElement
 {
  public:
-  /** @brief Constructor, takes all necessary parameters for the base class constructor 
-      plus some specific parameters for this class
-      @param subcaloHash [IN] for the base class
-      @param onl1 [IN] for the base class
-      @param onl2 [IN] for the base class
-      @param descriptor [IN] for the base class
-      @param fcalTile [IN] FCAL Tile description from LArReadoutGeometry
-      @param fcalModule [IN] FCAL Module description from LArReadoutGeometry
+  /**
+   * @brief Constructor, takes all necessary parameters for the base class constructor 
+   *        plus some specific parameters for this class
+   * @param subcaloHash [IN] for the base class
+   * @param onl1 [IN] for the base class
+   * @param onl2 [IN] for the base class
+   * @param descriptor [IN] for the base class
+   * @param fcalTile [IN] FCAL Tile description from LArReadoutGeometry
+   * @param fcalModule [IN] FCAL Module description from LArReadoutGeometry
    */
-  FCALDetectorElement(const IdentifierHash subcaloHash,
-		      const IdentifierHash onl1,
-		      const IdentifierHash onl2,
-		      const CaloDetDescriptor* descriptor,
-		      const FCALTile* fcalTile,
-		      const FCALModule* fcalModule,
-		      bool isTestBeam);
+  FCALDetectorElement(const IdentifierHash subcaloHash
+		      , const IdentifierHash onl1
+		      , const IdentifierHash onl2
+		      , const CaloDetDescriptor* descriptor
+		      , const FCALTile* fcalTile
+		      , const FCALModule* fcalModule
+		      , bool isTestBeam
+		      , const GeoAlignmentStore* geoAlignStore = nullptr
+		      , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief FCAL Tile description from LArReadoutGeometry
+  /**
+   * @brief FCAL Tile description from LArReadoutGeometry
    */
-  inline const FCALTile*    getFCALTile()  const  {return m_tile;}
-  /** @brief FCAL Module description from LArReadoutGeometry
-   */
-  inline const FCALModule*  getFCALModule() const {return m_module;}
+  inline const FCALTile* getFCALTile() const {return m_tile;}
 
-  /** @brief the method called by CaloAlignTool, updates alignment information
-      @param fcalTile [IN] misaligned FCAL Tile description from LArReadoutGeometry
-      @param fcalModule [IN] misaligned FCAL Module description from LArReadoutGeometry
+  /**
+   * @brief the method called by CaloAlignTool, updates alignment information
+   * @param fcalTile [IN] misaligned FCAL Tile description from LArReadoutGeometry
+   * @param fcalModule [IN] misaligned FCAL Module description from LArReadoutGeometry
    */
-  void updateAlignment(const FCALTile* fcalTile,
-		       const FCALModule* fcalModule,
-		       const CaloElementPositionShift* posShift = nullptr);
+  void updateAlignment(const FCALTile* fcalTile
+		       , const FCALModule* fcalModule
+		       , const CaloElementPositionShift* posShift = nullptr);
 
-  /** @brief get layer
+  /**
+   * @brief get layer
    */
-  int getLayer() const;
+  virtual int getLayer() const override;
 
  private:
-  /** @brief FCAL Tile description from LArReadoutGeometry
+  /**
+   * @brief FCAL Tile description from LArReadoutGeometry
    */
   const FCALTile*   m_tile;
-  /** @brief FCAL Module description from LArReadoutGeometry
+  /**
+   * @brief FCAL Module description from LArReadoutGeometry
    */
   const FCALModule* m_module;
   
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   FCALDetectorElement() = delete;
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   FCALDetectorElement & operator=(const FCALDetectorElement &right) = delete;
 
-  /** @brief initialize base description
+  /**
+   * @brief initialize base description
    */
-  void init_description(bool isTestBeam,
-			const CaloElementPositionShift* posShift = nullptr);
-
-  /** @brief Fill all missing fields of CaloDetDescrElement which
-      have not been filled by init_description()
-   */
-  void init_interpretation();
+  void init_description(bool isTestBeam
+			, const GeoAlignmentStore* geoAlignStore
+			, const CaloElementPositionShift* posShift);
 
 };
 
@@ -336,41 +362,50 @@ class FCALDetectorElement : public CaloDetDescrElement
 class TileDetectorElement : public CaloDetDescrElement
 {
  public:
-  /** @brief Constructor, takes all necessary parameters for the base class constructor 
+  /**
+   * @brief Constructor, takes all necessary parameters for the base class constructor 
    */
-  TileDetectorElement(const IdentifierHash subcaloHash,
-		      const IdentifierHash onl1,
-		      const IdentifierHash onl2,
-		      const CaloDetDescriptor* descriptor);
+  TileDetectorElement(const IdentifierHash subcaloHash
+		      , const IdentifierHash onl1
+		      , const IdentifierHash onl2
+		      , const CaloDetDescriptor* descriptor);
 
-  /** @brief set raw cylindric coordinates
+  /**
+   * @brief set raw cylindric coordinates
    */
-  void set_cylindric_raw(double eta_raw, 
-			 double phi_raw, 
-			 double r_raw);
+  void set_cylindric_raw(double eta_raw
+			 , double phi_raw
+			 , double r_raw);
 
-  /** @brief set cylindric coordinates
+  /**
+   * @brief set cylindric coordinates
    */
-  void set_cylindric(double eta, 
-                     double phi, 
-                     double r);
+  void set_cylindric(double eta
+                     , double phi
+                     , double r);
 
-  /** @brief set cylindric size deta
+  /**
+   * @brief set cylindric size deta
    */
   inline void set_deta(double deta) {m_deta = static_cast<float> (deta);}
-  /** @brief set cylindric size dphi
+  /**
+   * @brief set cylindric size dphi
    */
   inline void set_dphi(double dphi) {m_dphi = static_cast<float> (dphi);}
-  /** @brief set cartezian size dz
+  /**
+   * @brief set cartezian size dz
    */
   inline void set_dz(double dz) {m_dz = static_cast<float> (dz);}
-  /** @brief set cylindric size dr
+  /**
+   * @brief set cylindric size dr
    */
   inline void set_dr(double dr) {m_dr = static_cast<float> (dr);}
-  /** @brief set z
+  /**
+   * @brief set z
    */
   inline void set_z(double z) {m_z = static_cast<float> (z);}
-  /** @brief set r
+  /**
+   * @brief set r
    */
   inline void set_r(double r) {
     m_r = static_cast<float> (r);
@@ -387,7 +422,8 @@ class TileDetectorElement : public CaloDetDescrElement
 class MbtsDetectorElement : public CaloDetDescrElement
 {
  public:
-  /** @brief Constructor, initializes base class constructor parameters with default values
+  /**
+   * @brief Constructor, initializes base class constructor parameters with default values
    */
   MbtsDetectorElement();
 

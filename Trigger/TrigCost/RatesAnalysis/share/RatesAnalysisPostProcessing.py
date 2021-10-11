@@ -53,21 +53,25 @@ def main():
   metadata['n_evts'] = normHist.GetBinContent(2)
   metadata['details'] = args.userDetails
 
-  HLTGlobalGroup = getGlobalGroup(inputFile, 'Main')
-  L1GlobalGroup = getGlobalGroup(inputFile, 'L1')
+  HLTGlobalGroup = getGlobalGroup(inputFile, 'RATE_GLOBAL_HLT')
+  L1GlobalGroup = getGlobalGroup(inputFile, 'RATE_GLOBAL_L1')
 
-  L1Triggers = populateTriggers(inputFile, metadata, L1GlobalGroup, 'L1_')
-  HLTTriggers = populateTriggers(inputFile, metadata, HLTGlobalGroup, 'HLT_')
+  L1Triggers = populateTriggers(inputFile, metadata, L1GlobalGroup, 'ChainL1')
+  HLTTriggers = populateTriggers(inputFile, metadata, HLTGlobalGroup, 'ChainHLT')
+  AllGlobalGroups = populateTriggers(inputFile, metadata, HLTGlobalGroup, 'Group')
 
   L1Table = getTableName("L1")
   HLTTable = getTableName("HLT")
+  GroupTable = getTableName("Group")
 
   log.info("Exporting " + args.outputJSONFile)
   toJson(args.outputJSONFile, metadata, L1Triggers, HLTTriggers)
   log.info("Exporting " + HLTTable)
   toCSV(HLTTable, metadata, HLTTriggers)
   log.info("Exporting " + L1Table)
-  toCSV(L1Table, metadata, L1Triggers, readL1=True)
+  toCSV(L1Table, metadata, L1Triggers)
+  log.info("Exporting " + GroupTable)
+  toCSV(GroupTable, metadata, AllGlobalGroups)
   
 if __name__== "__main__":
   main()

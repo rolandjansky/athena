@@ -31,7 +31,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Trk::FitQuality trans1 (1.5, 2.5);
   FitQualityCnv_p1 cnv;
   Trk::FitQuality_p1 pers;

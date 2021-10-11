@@ -5,6 +5,8 @@
 #ifndef ATHENAKERNEL_IATHENAIPCTOOL_H
 #define ATHENAKERNEL_IATHENAIPCTOOL_H
 
+#include <string>
+
 #include "GaudiKernel/IAlgTool.h"
 
 static const InterfaceID IID_IAthenaIPCTool( "IAthenaIPCTool", 1, 0 );
@@ -13,9 +15,9 @@ class IAthenaIPCTool : virtual public ::IAlgTool {
 public:
    static const InterfaceID& interfaceID() { return IID_IAthenaIPCTool; }
  
-   virtual StatusCode makeServer(int num) = 0;
+   virtual StatusCode makeServer(int num, const std::string& streamPortSuffix) = 0;
    virtual bool isServer() const = 0;
-   virtual StatusCode makeClient(int num) = 0;
+   virtual StatusCode makeClient(int num, std::string& streamPortSuffix) = 0;
    virtual bool isClient() const = 0;
 
    virtual StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) const = 0;

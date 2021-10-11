@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -14,7 +14,6 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkVertexSeedFinderUtils/TwoTracks.h"
-#include <TMath.h>
 #include <cmath>
 
 namespace {
@@ -26,75 +25,118 @@ namespace {
 	if (of-to<-M_PI) return of+2*M_PI;
 	return of;
   }
-  inline double getangle(const double Dy, const double Dx) {//get the right angle between -M_PI and M_PI
-    return TMath::ATan2(Dy,Dx);
-    //    if (Dx==0.) return  Dy>=0 ?  M_PI/2. : -M_PI/2.;
-    //    if (Dx<0) {
-    //      if (Dy<0) {
-    //	return atan(Dy/Dx)-M_PI;
-    //      } else {
-    //	return atan(Dy/Dx)+M_PI;
-    //      }
-    //    }
-    //    return atan(Dy/Dx);
-  }
-  inline double oppositeangle(const double angle) {
-    return  angle>0. ? angle-M_PI : angle+M_PI;
-  }
-#if 0
-  inline const std::pair<double,double> gettwoanglesfromcos(const double cos) {
-    return std::pair<double,double>(acos(cos),-acos(cos)); 
-  }
-  inline double shiftangle(const double angle,const double of) {
-    if (angle+of>M_PI) return angle+of-2*M_PI;
-    if (angle+of<=-M_PI) return angle+of+2*M_PI;
-    return angle+of;
-  }
-#endif
-  inline double square(const double tosquare) {
-    return std::pow(tosquare,2);
-  }
-  //inline double getphipoca(const Trk::Perigee & myPerigee) {
-  //  return myPerigee.parameters()[Trk::d0]>=0 ? myPerigee.parameters()[Trk::phi0]+M_PI/2. :
-  //    myPerigee.parameters()[Trk::phi0]-M_PI/2.;
-  //}
-  inline double getphipoca(const Trk::Perigee & myPerigee) {
-    return myPerigee.parameters()[Trk::phi0]+M_PI/2;
-  }
-  inline double setphipoca(const double phi) {
-    return phi-M_PI/2.;
-  }
-  inline double goFromPhipocaToPhi(const double phipoca)
+
+  inline double
+  safeAtan2(const double y, const double x)
   {
-    return phipoca+M_PI/2.;
+    //This is basically what TMath::Atan2 does
+    //up until 6.24 at least. 
+    if (x != 0){
+      return std::atan2(y, x);
+    }
+    //x ==0 cases 
+    if (y == 0){
+      return 0;
+    }
+    if (y > 0){
+      return M_PI_2;
+    }
+    else{
+      return -M_PI_2;
+    }
   }
 
-  inline double getRadiusOfCurvature(const Trk::Perigee & myPerigee,const double Bzfield) {
-    return sin(myPerigee.parameters()[Trk::theta])/(Bzfield*myPerigee.parameters()[Trk::qOverP]);
+  inline double
+  safeAcos(const double x)
+  {
+    // This is what TMath::Acos did up to 6.22 but not
+    // from 6.24 onwards...
+    if (x < -1.) {
+      return M_PI;
+    }
+    if (x > 1.) {
+      return 0;
+    }
+    return std::acos(x);
   }
-  inline Amg::Vector3D getCenterOfCurvature(const Trk::Perigee & myPerigee,const double RadiusOfCurvature,const double phipoca) {
-    return Amg::Vector3D(myPerigee.associatedSurface().center().x()+myPerigee.parameters()[Trk::d0]*cos(phipoca)-RadiusOfCurvature*cos(phipoca),
-			 myPerigee.associatedSurface().center().y()+myPerigee.parameters()[Trk::d0]*sin(phipoca)-RadiusOfCurvature*sin(phipoca),
-			 myPerigee.associatedSurface().center().z()+myPerigee.parameters()[Trk::z0]+RadiusOfCurvature*
-			 myPerigee.parameters()[Trk::phi0]/tan(myPerigee.parameters()[Trk::theta]));
+
+  inline double
+  oppositeangle(const double angle)
+  {
+    return angle > 0. ? angle - M_PI : angle + M_PI;
   }
-  inline Amg::Vector3D getSeedPoint(const Trk::Perigee & myPerigee,const Amg::Vector3D & center,
-					  const double radius,const double newphi) {
-    //    short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
-    return Amg::Vector3D(center.x()+radius*cos(newphi+M_PI/2.),
-			       center.y()+radius*sin(newphi+M_PI/2.),
-			       //		eliminated sgnd0 from center.z()-radius*(newphi-sgnd0*M_PI/2.)/tan(myPerigee.parameters()[Trk::theta]));
-			       center.z()-radius*newphi/tan(myPerigee.parameters()[Trk::theta]));
+  inline double
+  square(const double tosquare)
+  {
+    return std::pow(tosquare, 2);
   }
-  inline Amg::Vector3D getSeedPoint(const Amg::Vector3D & center,
-					  const double radius,const double newphi) {
-    //    short int sgnd0=(short int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
-    return Amg::Vector3D(center.x()+radius*cos(newphi+M_PI/2.),
-			 center.y()+radius*sin(newphi+M_PI/2.),
-			 0.);
+  inline double
+  getphipoca(const Trk::Perigee& myPerigee)
+  {
+    return myPerigee.parameters()[Trk::phi0] + M_PI / 2;
   }
-  
-}
+  inline double
+  setphipoca(const double phi)
+  {
+    return phi - M_PI / 2.;
+  }
+  inline double
+  goFromPhipocaToPhi(const double phipoca)
+  {
+    return phipoca + M_PI / 2.;
+  }
+
+  inline double
+  getRadiusOfCurvature(const Trk::Perigee& myPerigee, const double Bzfield)
+  {
+    return sin(myPerigee.parameters()[Trk::theta]) /
+           (Bzfield * myPerigee.parameters()[Trk::qOverP]);
+  }
+  inline Amg::Vector3D
+  getCenterOfCurvature(const Trk::Perigee& myPerigee,
+                       const double RadiusOfCurvature,
+                       const double phipoca)
+  {
+    return Amg::Vector3D(myPerigee.associatedSurface().center().x() +
+                           myPerigee.parameters()[Trk::d0] * cos(phipoca) -
+                           RadiusOfCurvature * cos(phipoca),
+                         myPerigee.associatedSurface().center().y() +
+                           myPerigee.parameters()[Trk::d0] * sin(phipoca) -
+                           RadiusOfCurvature * sin(phipoca),
+                         myPerigee.associatedSurface().center().z() +
+                           myPerigee.parameters()[Trk::z0] +
+                           RadiusOfCurvature *
+                             myPerigee.parameters()[Trk::phi0] /
+                             tan(myPerigee.parameters()[Trk::theta]));
+  }
+  inline Amg::Vector3D
+  getSeedPoint(const Trk::Perigee& myPerigee,
+               const Amg::Vector3D& center,
+               const double radius,
+               const double newphi)
+  {
+    //    short int sgnd0=(short
+    //    int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
+    return Amg::Vector3D(
+      center.x() + radius * cos(newphi + M_PI / 2.),
+      center.y() + radius * sin(newphi + M_PI / 2.),
+      //		eliminated sgnd0 from
+      // center.z()-radius*(newphi-sgnd0*M_PI/2.)/tan(myPerigee.parameters()[Trk::theta]));
+      center.z() - radius * newphi / tan(myPerigee.parameters()[Trk::theta]));
+  }
+  inline Amg::Vector3D
+  getSeedPoint(const Amg::Vector3D& center,
+               const double radius,
+               const double newphi)
+  {
+    //    short int sgnd0=(short
+    //    int)(myPerigee.parameters()[Trk::d0]/fabs(myPerigee.parameters()[Trk::d0]));
+    return Amg::Vector3D(center.x() + radius * cos(newphi + M_PI / 2.),
+                         center.y() + radius * sin(newphi + M_PI / 2.),
+                         0.);
+  }
+
+}//end anonymous namespace
   
 namespace Trk
 {
@@ -184,7 +226,7 @@ StatusCode Trk2dDistanceSeeder::finalize()
       ATH_MSG_DEBUG ("Distinct circles " );
 #endif
 
-      phi1 = getangle(centersofcurv.second.y()-centersofcurv.first.y(),
+      phi1 = safeAtan2(centersofcurv.second.y()-centersofcurv.first.y(),
                       centersofcurv.second.x()-centersofcurv.first.x());
     
       if (sgnr2<0) {
@@ -218,7 +260,7 @@ StatusCode Trk2dDistanceSeeder::finalize()
 #ifdef TRK2DDISTANCESEEDER_DEBUG
           ATH_MSG_DEBUG("  second radius smaller than first " );
 #endif 
-          phi1 = getangle(centersofcurv.second.y()-centersofcurv.first.y(),
+          phi1 = safeAtan2(centersofcurv.second.y()-centersofcurv.first.y(),
                           centersofcurv.second.x()-centersofcurv.first.x());	
           phi2=phi1;
         }
@@ -229,7 +271,7 @@ StatusCode Trk2dDistanceSeeder::finalize()
 #endif 
 	
 	
-          phi1 = getangle(-(centersofcurv.second.y()-centersofcurv.first.y()),
+          phi1 = safeAtan2(-(centersofcurv.second.y()-centersofcurv.first.y()),
                           -(centersofcurv.second.x()-centersofcurv.first.x()));
           phi2=phi1;
         }
@@ -262,13 +304,12 @@ StatusCode Trk2dDistanceSeeder::finalize()
                        << "projection2: " << projection2 << " cosinus2 " << cosinus2 );
 #endif
 
-        const double phibase2=
-          TMath::ATan2(centersofcurv.second.y()-centersofcurv.first.y(),
-                       centersofcurv.second.x()-centersofcurv.first.x());
-
+        const double phibase2 =
+          safeAtan2(centersofcurv.second.y() - centersofcurv.first.y(),
+                    centersofcurv.second.x() - centersofcurv.first.x());
 
         const double addtophi2=
-          TMath::ACos(cosinus2);
+          safeAcos(cosinus2);
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
         ATH_MSG_DEBUG( " phibase2 is : " << phibase2 << " add to phi " << addtophi2 );
@@ -282,19 +323,19 @@ StatusCode Trk2dDistanceSeeder::finalize()
 
         const std::pair<double,double> 
           possiblecosphitrack1((centersofcurv.second.x()-centersofcurv.first.x()
-                                +sgnr2*abs2*TMath::Cos(possiblephiontrack2.first))/sgnr1/abs1,
+                                +sgnr2*abs2*std::cos(possiblephiontrack2.first))/sgnr1/abs1,
                                (centersofcurv.second.x()-centersofcurv.first.x()
-                                +sgnr2*abs2*TMath::Cos(possiblephiontrack2.second))/sgnr1/abs1);
+                                +sgnr2*abs2*std::cos(possiblephiontrack2.second))/sgnr1/abs1);
 
         const std::pair<double,double>
           possiblesigntrack1(sgnr1*(centersofcurv.second.y()-centersofcurv.first.y()
-                                    +sgnr2*abs2*TMath::Sin(possiblephiontrack2.first))>0?1.:-1.,
+                                    +sgnr2*abs2*std::sin(possiblephiontrack2.first))>0?1.:-1.,
                              sgnr1*(centersofcurv.second.y()-centersofcurv.first.y()
-                                    +sgnr2*abs2*TMath::Sin(possiblephiontrack2.second))>0?1.:-1.);
+                                    +sgnr2*abs2*std::sin(possiblephiontrack2.second))>0?1.:-1.);
 
         const std::pair<double,double>
-          possiblephiontrack1(possiblesigntrack1.first*TMath::ACos(possiblecosphitrack1.first),
-                              possiblesigntrack1.second*TMath::ACos(possiblecosphitrack1.second));
+          possiblephiontrack1(possiblesigntrack1.first*safeAcos(possiblecosphitrack1.first),
+                              possiblesigntrack1.second*safeAcos(possiblecosphitrack1.second));
 						   
 						     
         const std::pair<PointOnTrack,PointOnTrack>
@@ -389,7 +430,7 @@ StatusCode Trk2dDistanceSeeder::finalize()
 
     cache.getField(posXYZ,magnFieldVect);
     const double bfield = magnFieldVect[2]*299.792;//should be in GeV/mm
-    if (bfield==0. || isnan(bfield)) {
+    if (bfield==0. || std::isnan(bfield)) {
       ATH_MSG_DEBUG( "Could not find a magnetic field different from zero: very very strange" );
       return 0.60407; //Value in GeV/mm (ATLAS units)
     } 

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
@@ -44,12 +42,9 @@ namespace Trig {
          const EventContext& ctx = Gaudi::Hive::currentContext();
          SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_deckey, ctx);
          if( ! decisionReadHandle.isValid() ) {
-            static bool warningPrinted = false;
-            if( ! warningPrinted ) {
-               ATH_MSG_WARNING( "xAOD::TrigDecision is not available on the "
-                                "input" );
-               warningPrinted = true;
-            }
+            [[maybe_unused]] static std::atomic<bool> warningPrinted =
+               [&]() { ATH_MSG_WARNING( "xAOD::TrigDecision is not available on the input" );
+                       return true; }();
             return nullptr;
          }
          m_decision = decisionReadHandle.ptr();
@@ -64,12 +59,9 @@ namespace Trig {
          const EventContext& ctx = Gaudi::Hive::currentContext();
          SG::ReadHandle<xAOD::TrigNavigation> navReadHandle = SG::makeHandle(*m_navikey, ctx);
          if( ! navReadHandle.isValid() ) {
-            static bool warningPrinted = false;
-            if( ! warningPrinted ) {
-               ATH_MSG_WARNING( "xAOD::TrigNavigation is not available on the "
-                                "input" );
-               warningPrinted = true;
-            }
+            [[maybe_unused]] static std::atomic<bool> warningPrinted =
+               [&]() { ATH_MSG_WARNING( "xAOD::TrigNavigation is not available on the input" );
+                       return true; }();
             return nullptr;
          }
          m_navigation = navReadHandle.ptr();

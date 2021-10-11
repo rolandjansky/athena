@@ -2,24 +2,13 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/// Gaudi includes
-#include "GaudiKernel/GaudiException.h"
-
 // Package includes
 #include "BSMonitoring.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
-#include "TrigT1Result/MuCTPI_RDO.h"
-#include "TrigT1Result/MuCTPI_RIO.h"
-#include "TrigT1Result/CTP_RDO.h"
-#include "TrigT1Result/CTP_RIO.h"
 #include "TrigT1Result/CTP_Decoder.h"
-#include "TrigT1Result/RoIBResult.h"
 
 // TrigConf includes
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfStorage/TrigConfCoolFolderSpec.h"
 #include "TrigConfData/L1Menu.h"
 
 // COOL includes
@@ -36,8 +25,6 @@
 #include "CoraCool/CoraCoolObject.h"
 #include "CoralBase/Blob.h"
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 // ROOT includes
 #include "Rtypes.h" // for Int_t
 #include "TH1F.h" // for SetRangeUser
@@ -50,11 +37,7 @@
 #include "LWHists/TProfile_LW.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h" //for environment
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include <cmath>
-
-#include "boost/lexical_cast.hpp"
 
 
 using namespace std;
@@ -69,15 +52,21 @@ TrigT1CTMonitoring::BSMonitoring::initialize()
   // make sure to call initialize of the base class!
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
 
-  
-  // connect to the config service
-  ATH_CHECK( m_configSvc.retrieve() );
-
   // connect to RPC and TGC RoI tools
   if ( m_processMuctpi ) {
     ATH_CHECK( m_rpcRoiTool.retrieve() );
     ATH_CHECK( m_tgcRoiTool.retrieve() );
   }
+
+  ATH_CHECK( m_MuCTPI_RDOKey.initialize(m_processMuctpi) );
+  ATH_CHECK( m_MuCTPI_RIOKey.initialize(m_processMuctpi && m_processMuctpiRIO && ! m_runOnESD) );
+  ATH_CHECK( m_CTP_RDOKey.initialize(m_processCTP) );
+  ATH_CHECK( m_CTP_RIOKey.initialize(m_processCTP && ! m_runOnESD) );
+  ATH_CHECK( m_CTP_RDO_RerunKey.initialize(m_processCTP && m_compareRerun) );
+  ATH_CHECK( m_RoIBResultKey.initialize(m_processRoIB && m_processMuctpiRIO) );
+  ATH_CHECK( m_RPCContainerKey.initialize(m_processMuctpi) );
+  ATH_CHECK( m_TGCContainerKey.initialize(m_processMuctpi) );
+  ATH_CHECK( m_EventInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -116,8 +105,8 @@ TrigT1CTMonitoring::BSMonitoring::bookHistograms()
          m_lbStartFreqMeasurements.clear();
          m_freqMeasurements.clear();
          m_beamMode.clear();
-         const DataHandle<CTP_RIO> theCTP_RIO = 0;
-         if (!(evtStore()->retrieve(theCTP_RIO, "CTP_RIO").isFailure())) {
+         const CTP_RIO* theCTP_RIO = SG::get(m_CTP_RIOKey);
+         if (theCTP_RIO!=nullptr) {
             getCoolData(theCTP_RIO->getRunNumber());
             ATH_MSG_DEBUG( m_lumiBlocks.size() << " lumi blocks found");
             for ( std::vector<uint32_t>::const_iterator lbIt = m_lumiBlocks.begin(); 
@@ -155,14 +144,14 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms()
       ATH_MSG_DEBUG( "begin fillHistograms()");
 
       // Now see what exists in StoreGate...
-      const DataHandle<MuCTPI_RDO> theMuCTPI_RDO = 0;
-      const DataHandle<MuCTPI_RIO> theMuCTPI_RIO = 0;
-      const DataHandle<CTP_RDO> theCTP_RDO = 0;
-      const DataHandle<CTP_RIO> theCTP_RIO = 0;
-      const DataHandle<ROIB::RoIBResult> roIBResult = 0;
-      const DataHandle <Muon::TgcCoinDataContainer> theTGCContainer = 0;
-      const DataHandle <RpcSectorLogicContainer> theRPCContainer = 0;
-      const EventInfo* eventInfo = 0; 
+      const MuCTPI_RDO* theMuCTPI_RDO = 0;
+      const MuCTPI_RIO* theMuCTPI_RIO = 0;
+      const CTP_RDO* theCTP_RDO = 0;
+      const CTP_RIO* theCTP_RIO = 0;
+      const ROIB::RoIBResult* roIBResult = 0;
+      const Muon::TgcCoinDataContainer* theTGCContainer = 0;
+      const RpcSectorLogicContainer* theRPCContainer = 0;
+      const xAOD::EventInfo* eventInfo = 0; 
 
       bool validMuCTPI_RIO = true;
       bool validMuCTPI_RDO = true;
@@ -182,31 +171,29 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms()
          ATH_MSG_FATAL("Problems finding error histograms!");
          return StatusCode::FAILURE;
       }
-    
-      StatusCode sc = StatusCode::SUCCESS;
 
       if (m_processMuctpi) {
-         sc = evtStore()->retrieve(theMuCTPI_RDO, "MUCTPI_RDO");
-         if (sc.isFailure()) {
-	   ATH_MSG_WARNING( "Could not find \"MUCTPI_RDO\" in StoreGate");
+         theMuCTPI_RDO = SG::get(m_MuCTPI_RDOKey);
+         if (!theMuCTPI_RDO) {
+	   ATH_MSG_WARNING( "Could not find \"" << m_MuCTPI_RDOKey.key() << "\" in StoreGate");
 	   validMuCTPI_RDO = false;
 	   ++numberOfInvalidFragments;
          }
-	 // now try to get RPC and TGC SL output for comparisons
-	 sc = evtStore()->retrieve(theRPCContainer, "RPC_SECTORLOGIC");
-         if (sc.isFailure()) {
+      	 // now try to get RPC and TGC SL output for comparisons
+	       theRPCContainer = SG::get(m_RPCContainerKey);
+         if (!theRPCContainer) {
 	   ATH_MSG_WARNING( "Could not find RPC container in StoreGate");
             validRPCContainer = false;
          }
-	 sc = evtStore()->retrieve(theTGCContainer, "TrigT1CoinDataCollection");
-         if (sc.isFailure()) {
+	       theTGCContainer = SG::get(m_TGCContainerKey);
+         if (!theTGCContainer) {
 	   ATH_MSG_WARNING( "Could not find TGC container in StoreGate");
             validTGCContainer = false;
          }
          if (m_processMuctpiRIO && !m_runOnESD) {
-            sc = evtStore()->retrieve(theMuCTPI_RIO, "MUCTPI_RIO");
-            if (sc.isFailure()) {
-               ATH_MSG_WARNING( "Could not find \"MUCTPI_RIO\" in StoreGate");
+            theMuCTPI_RIO = SG::get(m_MuCTPI_RIOKey);
+            if (!theMuCTPI_RIO) {
+               ATH_MSG_WARNING( "Could not find \"" << m_MuCTPI_RIOKey.key() << "\" in StoreGate");
                validMuCTPI_RIO = false;
                ++numberOfInvalidFragments;
             }
@@ -214,38 +201,38 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms()
       }
 
       if (m_processCTP) {
-         sc = evtStore()->retrieve(theCTP_RDO, "CTP_RDO");
-         if (sc.isFailure()) {
-            ATH_MSG_WARNING( "Could not find \"CTP_RDO\" in StoreGate");
+         theCTP_RDO = SG::get(m_CTP_RDOKey);
+         if (!theCTP_RDO) {
+            ATH_MSG_WARNING( "Could not find \"" << m_CTP_RDOKey.key() << "\" in StoreGate");
             validCTP_RDO = false;
             ++numberOfInvalidFragments;
          }
          if (!m_runOnESD) {
-            sc = evtStore()->retrieve(theCTP_RIO, "CTP_RIO");
-            if (sc.isFailure()) {
-               ATH_MSG_WARNING( "Could not find \"CTP_RIO\" in StoreGate");
+            theCTP_RIO = SG::get(m_CTP_RIOKey);
+            if (!theCTP_RIO) {
+               ATH_MSG_WARNING( "Could not find \"" << m_CTP_RIOKey.key() << "\" in StoreGate");
                validCTP_RIO = false;
                ++numberOfInvalidFragments;
             }
          }
       }
       if (m_processRoIB && m_processMuctpiRIO) {
-         sc = evtStore()->retrieve(roIBResult, "RoIBResult");
-         if (sc.isFailure()) {
-            ATH_MSG_WARNING( "Could not find \"RoIBResult\" in StoreGate");
+         roIBResult = SG::get(m_RoIBResultKey);
+         if (!roIBResult) {
+            ATH_MSG_WARNING( "Could not find \"" << m_RoIBResultKey.key() << "\" in StoreGate");
             validRoIBResult = false;
             ++numberOfInvalidFragments;
          }
       }
 
       bool incompleteEvent = false;
-      sc = evtStore()->retrieve(eventInfo);
-      if (sc.isSuccess()) {
-         m_runNumber = eventInfo->event_ID()->run_number();
-         m_eventNumber = eventInfo->event_ID()->event_number();
+      eventInfo = SG::get(m_EventInfoKey);
+      if (eventInfo) {
+         m_runNumber = eventInfo->runNumber();
+         m_eventNumber = eventInfo->eventNumber();
          m_lumiBlockOfPreviousEvent = m_currentLumiBlock;
-         m_currentLumiBlock = eventInfo->event_ID()->lumi_block();
-         incompleteEvent = eventInfo->eventFlags(EventInfo::Core) & 0x40000;
+         m_currentLumiBlock = eventInfo->lumiBlock();
+         incompleteEvent = eventInfo->eventFlags(xAOD::EventInfo::Core) & 0x40000;
          ATH_MSG_DEBUG( "Successfully retrieved EventInfo (run: " << m_runNumber << ", event: " << m_eventNumber << ")");
       }
       else {
@@ -311,8 +298,8 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms()
                << ", BCID: " << theCTP_RIO->getBCID());
          }
          else if (eventInfo) {
-            ATH_MSG_WARNING( "CTP_RIO missing, EventInfo says LB: " << eventInfo->event_ID()->lumi_block()
-                             << ", BCID: " << eventInfo->event_ID()->bunch_crossing_id()); // no L1ID available
+            ATH_MSG_WARNING( "CTP_RIO missing, EventInfo says LB: " << eventInfo->lumiBlock()
+                             << ", BCID: " << eventInfo->bcid()); // no L1ID available
          }
          else {
             ATH_MSG_WARNING( "Not printing event details since both CTP_RIO and EventInfo objects are missing");
@@ -439,19 +426,11 @@ TrigT1CTMonitoring::BSMonitoring::initCtpHistograms()
 
    // bin lables
    TH1F_LW* l1ItemsBPSimMismatch = getTH1("l1ItemsBPSimMismatch");
-   if(m_useNewConfig) {
-      const TrigConf::L1Menu * l1menu = nullptr;
-      ATH_CHECK(detStore()->retrieve(l1menu));
-      for(const TrigConf::L1Item & item : *l1menu) {
-         string label = item.name() + " (CTP ID " + boost::lexical_cast<string,int>(item.ctpId())+ ")";
-         l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item.ctpId()+1,label.c_str());
-      }
-   } else {  
-      for(const TrigConf::TriggerItem * item : m_configSvc->ctpConfig()->menu().itemVector()) {
-         if(item==nullptr) continue;
-         string label = item->name() + " (CTP ID " + boost::lexical_cast<string,int>(item->ctpId())+ ")";
-         l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
-      }
+   const TrigConf::L1Menu * l1menu = nullptr;
+   ATH_CHECK(detStore()->retrieve(l1menu));
+   for(const TrigConf::L1Item & item : *l1menu) {
+      string label = item.name() + " (CTP ID " + std::to_string(item.ctpId())+ ")";
+      l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item.ctpId()+1,label.c_str());
    }
    std::map<int, std::string> errorSummaryBinLabels;
    errorSummaryBinLabels[1] = "CTP/ROD BCID Offset";
@@ -615,9 +594,9 @@ TrigT1CTMonitoring::BSMonitoring::initRoIHistograms()
 }
 
 void
-TrigT1CTMonitoring::BSMonitoring::doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO> theMuCTPI_RIO, 
-                                            const DataHandle <RpcSectorLogicContainer> theRPCContainer, 
-                                            const DataHandle <Muon::TgcCoinDataContainer> theTGCContainer)
+TrigT1CTMonitoring::BSMonitoring::doMuctpi(const MuCTPI_RDO* theMuCTPI_RDO, const MuCTPI_RIO* theMuCTPI_RIO, 
+                                            const RpcSectorLogicContainer* theRPCContainer, 
+                                            const Muon::TgcCoinDataContainer* theTGCContainer)
 {
 
   TProfile_LW* errorSummary = getTProfile("errorSummary");
@@ -927,10 +906,8 @@ TrigT1CTMonitoring::BSMonitoring::doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTP
     }
   }
 
-  const EventInfo* eventInfo = 0; 
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = evtStore()->retrieve(eventInfo);
-  if (!sc.isSuccess()) {
+  const xAOD::EventInfo* eventInfo = SG::get(m_EventInfoKey); 
+  if (!eventInfo) {
     ATH_MSG_WARNING( "Could not retrieve EventInfo from StoreGate");
   }
 
@@ -1093,7 +1070,7 @@ TrigT1CTMonitoring::BSMonitoring::doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTP
 }
 
 void
-TrigT1CTMonitoring::BSMonitoring::doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
+TrigT1CTMonitoring::BSMonitoring::doCtp(const CTP_RDO* theCTP_RDO,const CTP_RIO* theCTP_RIO)
 {
    TProfile_LW *errorSummary = getTProfile("errorSummary");
    TH1F_LW *errorPerLumiBlock = getTH1("errorPerLumiBlock");
@@ -1463,8 +1440,8 @@ TrigT1CTMonitoring::BSMonitoring::updateRangeUser()
 }
 
 void
-TrigT1CTMonitoring::BSMonitoring::doCtpMuctpi( const DataHandle<CTP_RDO> theCTP_RDO, const DataHandle<CTP_RIO> theCTP_RIO,
-                                                const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO> theMuCTPI_RIO)
+TrigT1CTMonitoring::BSMonitoring::doCtpMuctpi( const CTP_RDO* theCTP_RDO, const CTP_RIO* theCTP_RIO,
+                                                const MuCTPI_RDO* theMuCTPI_RDO, const MuCTPI_RIO* theMuCTPI_RIO)
 {
   TProfile_LW *errorSummary = getTProfile("errorSummary");
   TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
@@ -1518,8 +1495,8 @@ TrigT1CTMonitoring::BSMonitoring::doCtpMuctpi( const DataHandle<CTP_RDO> theCTP_
 }
 
 void
-TrigT1CTMonitoring::BSMonitoring::doMuonRoI( const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO> theMuCTPI_RIO,
-                                             const DataHandle<ROIB::RoIBResult> roib)
+TrigT1CTMonitoring::BSMonitoring::doMuonRoI( const MuCTPI_RDO* theMuCTPI_RDO, const MuCTPI_RIO* theMuCTPI_RIO,
+                                             const ROIB::RoIBResult* roib)
 {
    TProfile_LW *errorSummary = getTProfile("errorSummary");
    TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
@@ -1680,9 +1657,9 @@ TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCrossing)
    TH1F_LW* l1ItemsBPSimMismatch = getTH1("l1ItemsBPSimMismatch");
    TH1F_LW* l1ItemsBPSimMismatchItems = getTH1("l1ItemsBPSimMismatchItems");
 
-   const CTP_RDO* theCTP_RDO_Rerun = 0;
+   const CTP_RDO* theCTP_RDO_Rerun = nullptr;
    ATH_MSG_DEBUG( "Retrieving CTP_RDO from SG with key CTP_RDO_Rerun");
-   CHECK( evtStore()->retrieve(theCTP_RDO_Rerun, "CTP_RDO_Rerun") );
+   CHECK( (theCTP_RDO_Rerun = SG::get(m_CTP_RDO_RerunKey)) != nullptr );
    
    CTP_Decoder ctp_rerun;
    ctp_rerun.setRDO(theCTP_RDO_Rerun);
@@ -1705,57 +1682,29 @@ TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCrossing)
    const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP());
    
    if ( currentTBP != currentTBP_rerun ) {
-      if(m_useNewConfig) {
-         const TrigConf::L1Menu * l1menu = nullptr;
-         ATH_CHECK(detStore()->retrieve(l1menu));
-         for(const TrigConf::L1Item & item : *l1menu) {
+      const TrigConf::L1Menu * l1menu = nullptr;
+      ATH_CHECK(detStore()->retrieve(l1menu));
+      for(const TrigConf::L1Item & item : *l1menu) {
 
-            //do not include random and non-simulated triggers in this test (can be configured)
-            bool skip = item.definition().find("RNDM") != string::npos;
-            for(const std::string & p : m_ignorePatterns) {
-               if(item.name().find(p) != string::npos) {
-                  skip = true;
-                  break;
-               }
-            }
-            if( skip ) continue;
-
-            bool tbp       = currentTBP.test( item.ctpId() );
-            bool tbp_rerun = currentTBP_rerun.test( item.ctpId() );
-            if ( tbp !=  tbp_rerun) {
-               ATH_MSG_WARNING( "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item.name() 
-                              << "' (CTP ID " << item.ctpId() << "): data=" 
-                              << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail"));
-               itemMismatch=true;
-               l1ItemsBPSimMismatch->Fill(item.ctpId(),1);
-               l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item.name()).c_str(), 1 );
+         //do not include random and non-simulated triggers in this test (can be configured)
+         bool skip = item.definition().find("RNDM") != string::npos;
+         for(const std::string & p : m_ignorePatterns) {
+            if(item.name().find(p) != string::npos) {
+               skip = true;
+               break;
             }
          }
-      } else {  
-         for ( TrigConf::TriggerItem* item: m_configSvc->ctpConfig()->menu().items() ) {
-            std::vector<unsigned int> randoms;
-            item->topNode()->getAllRandomTriggers(randoms);
+         if( skip ) continue;
 
-            //do not include random and non-simulated triggers in this test (can be configured)
-            bool skip = randoms.size()>0;
-            for(const std::string & p : m_ignorePatterns) {
-               if(item->name().find(p) != string::npos) {
-                  skip = true;
-                  break;
-               }
-            }
-            if( skip ) continue;
-
-            bool tbp       = currentTBP.test( item->ctpId() );
-            bool tbp_rerun = currentTBP_rerun.test( item->ctpId() );
-            if ( tbp !=  tbp_rerun) {
-               ATH_MSG_WARNING( "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item->name() 
-                              << "' (CTP ID " << item->ctpId() << "): data=" 
-                              << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail"));
-               itemMismatch=true;
-               l1ItemsBPSimMismatch->Fill(item->ctpId(),1);
-               l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item->name()).c_str(), 1 );
-            }
+         bool tbp       = currentTBP.test( item.ctpId() );
+         bool tbp_rerun = currentTBP_rerun.test( item.ctpId() );
+         if ( tbp !=  tbp_rerun) {
+            ATH_MSG_WARNING( "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item.name()
+                             << "' (CTP ID " << item.ctpId() << "): data="
+                             << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail"));
+            itemMismatch=true;
+            l1ItemsBPSimMismatch->Fill(item.ctpId(),1);
+            l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item.name()).c_str(), 1 );
          }
       }
    }
@@ -1772,9 +1721,9 @@ TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCrossing)
 }
 
 void
-TrigT1CTMonitoring::BSMonitoring::dumpData( const DataHandle<CTP_RDO> theCTP_RDO, const DataHandle<CTP_RIO> theCTP_RIO,
-                                            const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO> theMuCTPI_RIO,
-                                            const DataHandle<ROIB::RoIBResult> roib)
+TrigT1CTMonitoring::BSMonitoring::dumpData( const CTP_RDO* theCTP_RDO, const CTP_RIO* theCTP_RIO,
+                                            const MuCTPI_RDO* theMuCTPI_RDO, const MuCTPI_RIO* theMuCTPI_RIO,
+                                            const ROIB::RoIBResult* roib)
 {
    if ( !msgLvl(MSG::DEBUG) )
       return;

@@ -17,6 +17,7 @@ std::ostream& operator << (std::ostream& out, const HypoJetVector& hjv) {
 	<< " px " << (j->p4()).Px()
 	<< " py " << (j->p4()).Py()
 	<< " pz " << (j->p4()).Pz()
+	<< " pt " << j->pt()
 	<< '\n';
   }
   return out;

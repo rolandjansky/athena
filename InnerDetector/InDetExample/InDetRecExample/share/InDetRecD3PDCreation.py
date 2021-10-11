@@ -20,14 +20,6 @@ if InDetFlags.doTruth():
    InDetTrackD3PDMaker += TruthTrackD3PDObject(levelOfDetail)
    from TrackD3PDMaker.TruthVertexD3PDObject import TruthVertexD3PDObject
    InDetTrackD3PDMaker += TruthVertexD3PDObject(levelOfDetail)
-if InDetFlags.doTriggerD3PD():
-   from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-   cfg = TriggerConfigGetter("ReadPool")
-   from TriggerD3PDMaker.defineTriggerBits import defineTriggerBits
-   from TriggerD3PDMaker.TrigConfMetadata  import addTrigConfMetadata
-   from TriggerD3PDMaker.TrigDecisionD3PDObject import TrigDecisionD3PDObject
-   InDetTrackD3PDMaker += TrigDecisionD3PDObject(0)
-   addTrigConfMetadata(InDetTrackD3PDMaker)
 if InDetFlags.doTrkD3PD():
    from TrackD3PDMaker.TrackD3PDObject import TrackParticleD3PDObject
    InDetTrackD3PDMaker += TrackParticleD3PDObject(levelOfDetail)

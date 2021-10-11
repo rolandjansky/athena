@@ -31,9 +31,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "04-02-01" CACHE STRING
+    set( TDAQ-COMMON_VERSION "04-03-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "09-02-01" CACHE STRING
+    set( TDAQ_VERSION "09-03-00" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -61,6 +61,8 @@ find_package( AtlasCMake QUIET )
 # Find the base project(s):
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
+find_package( tdaq-common REQUIRED )
+find_package( tdaq REQUIRED )
 
 # Turn on HIP as a compiler, if it's available.
 find_package( AtlasHIP )
@@ -81,6 +83,7 @@ find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )
 find_package( TIFF )
+find_package( heaptrack )
 
 # Set up the correct runtime environment for OpenBLAS.
 set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"

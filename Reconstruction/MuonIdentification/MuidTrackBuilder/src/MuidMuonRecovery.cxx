@@ -34,16 +34,11 @@
 namespace Rec {
 
     MuidMuonRecovery::MuidMuonRecovery(const std::string& type, const std::string& name, const IInterface* parent) :
-        AthAlgTool(type, name, parent),
-        m_minP(10. * Gaudi::Units::GeV),
-        m_minPt(5. * Gaudi::Units::GeV),
-        m_recoveryAttempts(0),
-        m_recoveryFitFailure(0),
-        m_recoverySuccess(0) {
+        AthAlgTool(type, name, parent), m_minP(10. * Gaudi::Units::GeV), m_minPt(5. * Gaudi::Units::GeV), m_pullCut(5) {
         declareInterface<IMuidMuonRecovery>(this);
         declareProperty("MinP", m_minP);
         declareProperty("MinPt", m_minPt);
-        declareProperty("PullCut", m_pullCut = 5);
+        declareProperty("PullCut", m_pullCut);
     }
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -77,8 +72,8 @@ namespace Rec {
 
         return StatusCode::SUCCESS;
     }
-
-    Trk::Track* MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack) const {
+    std::unique_ptr<Trk::Track> MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                                   const EventContext& ctx) const {
         // skip low pt ID tracks
         if (!indetTrack.perigeeParameters() || indetTrack.perigeeParameters()->momentum().mag() < m_minP ||
             indetTrack.perigeeParameters()->momentum().perp() < m_minPt) {
@@ -152,7 +147,7 @@ namespace Rec {
                 ATH_MSG_DEBUG("Using existing pars");
                 exPars = lastPars;
             } else {
-                exPars = m_extrapolator->extrapolate(*lastPars, meas->associatedSurface(), Trk::alongMomentum, false, Trk::muon);
+                exPars = m_extrapolator->extrapolate(ctx, *lastPars, meas->associatedSurface(), Trk::alongMomentum, false, Trk::muon);
             }
 
             if (!exPars) {
@@ -281,10 +276,10 @@ namespace Rec {
         }
 
         // fit the combined track
-        Trk::Track* combinedTrack = nullptr;
+        std::unique_ptr<Trk::Track> combinedTrack;
         if (!m_trackBuilder.empty()) {
-            combinedTrack =
-                m_trackBuilder->indetExtension(indetTrack, spectrometerMeasurements, innerParameters, middleParameters, outerParameters);
+            combinedTrack = m_trackBuilder->indetExtension(indetTrack, spectrometerMeasurements, ctx, innerParameters, middleParameters,
+                                                           outerParameters);
         }
 
         delete innerParameters;

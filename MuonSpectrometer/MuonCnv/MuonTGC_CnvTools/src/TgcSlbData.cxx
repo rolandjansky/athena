@@ -49,7 +49,7 @@ bool Muon::TgcSlbData::equal(uint16_t /* bcId */,
 
 const bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag) const 
 {
-  const bool* bitArray = 0; 
+  const bool* bitArray = nullptr; 
   switch (bcTag)
     {
     case BC_CENTRAL:
@@ -65,7 +65,7 @@ const bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag) const
       bitArray = m_bitArray_C; // for backward compatibility
       break;
     default:
-      bitArray = 0;
+      bitArray = nullptr;
       break;
     }
   return bitArray;
@@ -74,7 +74,7 @@ const bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag) const
 // This function avoids using const cast internally
 bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag)
 {
-  bool* bitArray = 0;
+  bool* bitArray = nullptr;
   switch (bcTag)
     {
     case BC_CENTRAL:
@@ -90,7 +90,7 @@ bool* Muon::TgcSlbData::getBitArray(const uint16_t bcTag)
       bitArray = m_bitArray_C; // for backward compatibility           
       break;
     default:
-      bitArray = 0;
+      bitArray = nullptr;
       break;
     }
   return bitArray;

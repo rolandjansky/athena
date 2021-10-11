@@ -7,15 +7,15 @@
 #include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 
 namespace Trk {
-  EfficiencyPlots::EfficiencyPlots(PlotBase *pParent, std::string sDir, ParamPlots *pNumPlots,
+  EfficiencyPlots::EfficiencyPlots(PlotBase *pParent, const std::string& sDir, ParamPlots *pNumPlots,
                                    ParamPlots *pDenomPlots) : PlotBase(pParent, sDir) {
     m_pNumPlots = pNumPlots;
     m_pDenomPlots = pDenomPlots;
 
-    eff_eta = NULL;
-    eff_phi = NULL;
-    eff_pt = NULL;
-    eff_pti = NULL;
+    eff_eta = nullptr;
+    eff_phi = nullptr;
+    eff_pt = nullptr;
+    eff_pti = nullptr;
   }
 
   void

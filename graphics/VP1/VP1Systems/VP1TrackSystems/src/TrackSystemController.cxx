@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -70,6 +70,7 @@
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QtCoreVersion>
 
 
 
@@ -77,16 +78,16 @@
 //____________________________________________________________________
 class TrackSystemController::Imp {
 public:
-  TrackSystemController * theclass;
-  Ui::VP1TrackControllerForm ui;
-  TrackCollWidget * trackcollwidget;
+  TrackSystemController * theclass = nullptr;
+  Ui::VP1TrackControllerForm ui{};
+  TrackCollWidget * trackcollwidget = nullptr;
   void initMaterials();
   SoMaterial * createMaterial(const int& r,const int& g,const int& b) const;
   SoMaterial * getMat(VP1MaterialButton*) const;
-  SoMaterial * materialFallback;
+  SoMaterial * materialFallback = nullptr;
   // SoDrawStyle * trackDrawStyle;
-  SoDrawStyle * ascObjDrawStyle;
-  SoComplexity * ascObjComplexity;
+  SoDrawStyle * ascObjDrawStyle = nullptr;
+  SoComplexity * ascObjComplexity = nullptr;
   // SoLightModel * trackLightModel;
 
   QString restoredLastPropagator;
@@ -95,71 +96,72 @@ public:
   QStringList lastUpdatedAvailableFitters;
   bool updateComboBoxContents(QComboBox*cb,QStringList l,QString& restoredSelection);
   static const QString noneAvailString;
-  unsigned numberOfSelectedPRDs;
-  unsigned numberOfSelectedTracks;
+  unsigned numberOfSelectedPRDs = 0U;
+  unsigned numberOfSelectedTracks = 0U;
   void updateFitPRDButtonState();
 
-  VP1SoMaterialMixer * matmixer;
-  VP1AvailableToolsHelper *  toolhelper_extrapolators;
-  VP1AvailableToolsHelper *  toolhelper_fitters;
-  VP1ToolAccessHelper * toolaccesshelper;
+  VP1SoMaterialMixer * matmixer = nullptr;
+  VP1AvailableToolsHelper *  toolhelper_extrapolators = nullptr;
+  VP1AvailableToolsHelper *  toolhelper_fitters = nullptr;
+  VP1ToolAccessHelper * toolaccesshelper = nullptr;
   TrackCommonFlags::TrackPartsFlags last_shownTrackParts;
-  int last_vertexProjectionAngle;
-  double last_trackTubeRadius;
+  int last_vertexProjectionAngle = 0;
+  double last_trackTubeRadius = 0.0;
   TrackLabelModes last_trackLabels;
-  float last_trackLabelTrkOffset;
+  float last_trackLabelTrkOffset = 0.0F;
   QList<int> last_trackLabelPosOffset;
-  Trk::IExtrapolator * last_propagator;
+  Trk::IExtrapolator * last_propagator = nullptr;
   // bool last_ignoreMeasurementEffectsOnTrackInProp;  
   PropagationOptionFlags last_propagationOptions;
-  float last_propMaxRadius;
-  Trk::ITrackFitter * last_trackFitter;
-  Muon::MuonEDMPrinterTool * muonedmprintertool;
+  float last_propMaxRadius = 0.0F;
+  Trk::ITrackFitter * last_trackFitter = nullptr;
+  Muon::MuonEDMPrinterTool * muonedmprintertool = nullptr;
   TrackCommonFlags::SELECTIONMODE last_selectionMode;
-  bool last_showTruthAscObjs;
+  bool last_showTruthAscObjs = false;
   TrackCommonFlags::DETAILLEVEL last_assocObjDetailLevel;
   TrackCommonFlags::TSOSPartsFlags last_shownTSOSParts;
   TrackCommonFlags::TSOSPartsFlags last_customColouredTSOSParts;
-  bool last_useShortTRTMeasurements;
-  bool last_useShortMDTMeasurements;
-  bool last_drawMeasGlobalPositions;
-  double last_measurementsShorttubesScale;
-  double last_nStdDevForParamErrors;
-  bool last_parTubeErrorsDrawCylinders;
-  int last_numberOfPointsOnCircles;
-  double last_materialEffectsOnTrackScale;
+  bool last_useShortTRTMeasurements = false;
+  bool last_useShortMDTMeasurements = false;
+  bool last_drawMeasGlobalPositions = false;
+  double last_measurementsShorttubesScale = 0.0;
+  double last_nStdDevForParamErrors = 0.0;
+  bool last_parTubeErrorsDrawCylinders = false;
+  int last_numberOfPointsOnCircles = 0;
+  double last_materialEffectsOnTrackScale = 0.0;
   VP1Interval last_cutAllowedPt;
   VP1Interval last_cutAllowedP;
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;
   QList<unsigned> last_cutRequiredNHits;
-  bool last_cutTruthFromIROnly;
-  bool last_cutExcludeBarcodeZero;
-  bool last_cutTruthExcludeNeutrals;
-  bool last_cutOnlyVertexAssocTracks;
-  bool last_showTotMomentumOnMultiTrackSelection;
+  QString last_cutRequiredDetectorElement;
+  bool last_cutTruthFromIROnly = false;
+  bool last_cutExcludeBarcodeZero = false;
+  bool last_cutTruthExcludeNeutrals = false;
+  bool last_cutOnlyVertexAssocTracks = false;
+  bool last_showTotMomentumOnMultiTrackSelection = false;
 
-  Ui::TrackSysSettingsColouringForm ui_col;
-  Ui::TrackSysSettingsExtrapolationsForm ui_extrap;
-  Ui::TrackSysSettingsInteractionsForm ui_int;
-  Ui::TrackSysSettingsProjectionsForm ui_proj;
-  Ui::TrackSysSettingsCutsForm ui_cuts;
-  Ui::TrackSysSettingsAscObjsForm ui_ascobjs;
-  Ui::TrackSysShiftMuonChambersForm ui_shiftmuonchambers;
-  Ui::ObjectBrowser ui_objBrowser;
+  Ui::TrackSysSettingsColouringForm ui_col{};
+  Ui::TrackSysSettingsExtrapolationsForm ui_extrap{};
+  Ui::TrackSysSettingsInteractionsForm ui_int{};
+  Ui::TrackSysSettingsProjectionsForm ui_proj{};
+  Ui::TrackSysSettingsCutsForm ui_cuts{};
+  Ui::TrackSysSettingsAscObjsForm ui_ascobjs{};
+  Ui::TrackSysShiftMuonChambersForm ui_shiftmuonchambers{};
+  Ui::TrackObjectBrowser ui_objBrowser{};
   
   static bool extrapolatorsCreated;
   static void ensureExtrapolatorsCreated(IVP1System *);
   static bool fittersCreated;
   static void ensureFittersCreated(IVP1System *);
   
-  QTreeWidget* objBrowserWidget;
-  TrackSysCommonData * common;
+  QTreeWidget* objBrowserWidget = nullptr;
+  TrackSysCommonData * common = nullptr;
   
   // Added because TrackingVolumeSvc doesn't work any more. Can remove when we move to new extrapolator
-  Trk::Volume* calorimeterEntryLayer;
-  Trk::Volume* muonSpectrometerEntryLayer;
-  Trk::Volume* muonSpectrometerExitLayer;
+  Trk::Volume* calorimeterEntryLayer = nullptr;
+  Trk::Volume* muonSpectrometerEntryLayer = nullptr;
+  Trk::Volume* muonSpectrometerExitLayer = nullptr;
 };
 
 const QString TrackSystemController::Imp::noneAvailString = QString("None available");
@@ -202,7 +204,12 @@ void TrackSystemController::Imp::ensureExtrapolatorsCreated(IVP1System * sys) {
   delete availTools;
 
   VP1ToolAccessHelper toolaccess(sys);
-  foreach (QString key,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS").split(';',QString::SkipEmptyParts)) {
+#if QTCORE_VERSION >= 0x050E00
+  foreach (QString key,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS").split(';',Qt::SkipEmptyParts))
+#else
+  foreach (QString key,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS").split(';',QString::SkipEmptyParts))
+#endif
+  {
     if (existingExtrapolators.contains(key))
       continue;
     sys->messageDebug("Attempting creation of fitter with tooltype/key "+key);
@@ -234,7 +241,12 @@ void TrackSystemController::Imp::ensureFittersCreated(IVP1System * sys) {
   delete availTools;
 
   VP1ToolAccessHelper toolaccess(sys);
-  foreach (QString instance,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_FITTERS").split(';',QString::SkipEmptyParts)) {
+#if QTCORE_VERSION >= 0x050E00
+  foreach (QString instance,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_FITTERS").split(';',Qt::SkipEmptyParts))
+#else
+  foreach (QString instance,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_FITTERS").split(';',QString::SkipEmptyParts))
+#endif
+  {
     if (existingFitters.contains(instance))
       continue;
     sys->messageDebug("Attempting creation of fitter with tooltype/key "+instance);
@@ -254,10 +266,10 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   m_d->lastUpdatedAvailableFitters = QStringList("<dummy>");//special.
 
   //Stuff with tools waits until ::initTools() is called:
-  m_d->toolaccesshelper = 0;
-  m_d->toolhelper_extrapolators = 0;
-  m_d->toolhelper_fitters = 0;
-  m_d->matmixer = 0;
+  m_d->toolaccesshelper = nullptr;
+  m_d->toolhelper_extrapolators = nullptr;
+  m_d->toolhelper_fitters = nullptr;
+  m_d->matmixer = nullptr;
 
   m_d->ui.setupUi(this);
   m_d->trackcollwidget = new TrackCollWidget;
@@ -317,8 +329,8 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
 
   //These we init explicitly since we might otherwise trigger a change
   //before initlastvars (fixme: is this true and the right fix??)
-  m_d->last_propagator = 0;
-  m_d->last_trackFitter = 0;
+  m_d->last_propagator = nullptr;
+  m_d->last_trackFitter = nullptr;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
@@ -458,6 +470,10 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_muon);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nprecisionhits_muon);
 
+// Required detector element
+  connect(m_d->ui_cuts.checkBox_requireDetectorElement,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredDetectorElement()));
+  connect(m_d->ui_cuts.lineEdit_detectorElementId,SIGNAL(textChanged(QString)),this,SLOT(possibleChange_cutRequiredDetectorElement()));
+
   // -> cutTruthFromIROnly
   addUpdateSlot(SLOT(possibleChange_cutTruthFromIROnly()));
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_truthtracks_creationvertexinIR);
@@ -507,9 +523,9 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   m_d->ui_int.checkBox_selsingle_printinfo->setChecked(true);
   
   // Since TrkVolumesSvc isn't working anymore, hardcode values. (Remove when we move to new extrapolator)
-  m_d->calorimeterEntryLayer      = new Trk::Volume(0, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
-  m_d->muonSpectrometerEntryLayer = new Trk::Volume(0, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
-  m_d->muonSpectrometerExitLayer  = new Trk::Volume(0, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
+  m_d->calorimeterEntryLayer      = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
+  m_d->muonSpectrometerEntryLayer = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
+  m_d->muonSpectrometerExitLayer  = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
   initLastVars();
 }
 
@@ -548,8 +564,8 @@ void TrackSystemController::initTools()
     availableFittersChanged(m_d->toolhelper_fitters->availableTools());
     messageVerbose("Setting up tool helper to monitor fitters - end");
   } else {
-    m_d->toolhelper_extrapolators = 0;
-    m_d->toolhelper_fitters = 0;
+    m_d->toolhelper_extrapolators = nullptr;
+    m_d->toolhelper_fitters = nullptr;
     m_d->ui_extrap.comboBox_propagator->clear();
     m_d->ui_extrap.comboBox_propagator->addItem(Imp::noneAvailString);
     m_d->ui_extrap.comboBox_propagator->setEnabled(false);
@@ -1270,7 +1286,7 @@ SoMaterial * TrackSystemController::Imp::getMat(VP1MaterialButton* mb) const
 //____________________________________________________________________
 SoMaterial * TrackSystemController::getMaterialForPDGCode(const int& pdgCode) const
 {
-  VP1MaterialButton * matbutton(0);
+  VP1MaterialButton * matbutton(nullptr);
   int abspdg = abs(pdgCode);
   switch (abspdg) {
   case 211:  matbutton = m_d->ui_col.matButton_pions; break;
@@ -1617,12 +1633,12 @@ Trk::IExtrapolator * TrackSystemController::propagator() const
   if (!m_d->toolaccesshelper
       ||!m_d->ui_extrap.radioButton_athenaExtrapolator->isChecked()
       ||m_d->ui_extrap.comboBox_propagator->count()==0)
-    return 0;
+    return nullptr;
 
   QString key = m_d->ui_extrap.comboBox_propagator->currentText();
   if (key==Imp::noneAvailString)
-    return 0;
-  return key.isEmpty() ? 0 : m_d->toolaccesshelper->getToolPointer<Trk::IExtrapolator>(key);
+    return nullptr;
+  return key.isEmpty() ? nullptr : m_d->toolaccesshelper->getToolPointer<Trk::IExtrapolator>(key);
 }
 
 TrackSystemController::PropagationOptionFlags TrackSystemController::propagationOptions() const{
@@ -1651,12 +1667,12 @@ Trk::ITrackFitter * TrackSystemController::trackFitter() const
 {
   if (!m_d->toolaccesshelper
       ||m_d->ui_int.comboBox_fitters->count()==0)
-  return 0;
+  return nullptr;
 
   QString key = m_d->ui_int.comboBox_fitters->currentText();
   if (key==Imp::noneAvailString)
-    return 0;
-  return key.isEmpty() ? 0 : m_d->toolaccesshelper->getToolPointer<Trk::ITrackFitter>(key);
+    return nullptr;
+  return key.isEmpty() ? nullptr : m_d->toolaccesshelper->getToolPointer<Trk::ITrackFitter>(key);
 }
 
 Muon::MuonEDMPrinterTool * TrackSystemController::muonEDMPrinterTool() const
@@ -1678,7 +1694,7 @@ const Trk::Volume * TrackSystemController::extrapolateToThisVolume() const
     return m_d->muonSpectrometerEntryLayer;
   if (m_d->ui_extrap.comboBox_extendAllInDetTracksToHere->currentText()=="Muon Exit")
     return m_d->muonSpectrometerExitLayer;
-  return 0;
+  return nullptr;
 }
 
 //____________________________________________________________________
@@ -1827,6 +1843,12 @@ QList<unsigned> TrackSystemController::cutRequiredNHits() const
   l << npixel << nsct << ntrt << nmuon << nprecmuon;
   return l;
 }
+
+QString TrackSystemController::cutRequiredDetectorElement() const {
+  QString tmp = m_d->ui_cuts.checkBox_requireDetectorElement->isChecked() ? m_d->ui_cuts.lineEdit_detectorElementId->text(): QString();
+  return tmp;
+}
+
 
 //____________________________________________________________________
 bool TrackSystemController::cutTruthFromIROnly() const
@@ -2238,6 +2260,7 @@ POSSIBLECHANGE_IMP(cutAllowedPt)
 POSSIBLECHANGE_IMP(cutAllowedEta)
 POSSIBLECHANGE_IMP(cutAllowedPhi)
 POSSIBLECHANGE_IMP(cutRequiredNHits)
+POSSIBLECHANGE_IMP(cutRequiredDetectorElement)
 POSSIBLECHANGE_IMP(cutTruthFromIROnly)
 POSSIBLECHANGE_IMP(cutExcludeBarcodeZero)
 POSSIBLECHANGE_IMP(cutTruthExcludeNeutrals)

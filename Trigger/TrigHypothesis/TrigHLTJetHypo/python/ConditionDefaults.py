@@ -18,6 +18,7 @@ class ConditionDefaults:
         # cannot appear in the chain name.
         self.defaults = {
             'et': {'min': '0', 'max': 'inf'},
+            'pt': {'min': '0', 'max': 'inf'},
             'eta': {'min': '0', 'max': 'inf'},
             'neta': {'min': '-inf', 'max': '0'},  # scenario etas: -eta  -eta
             'ceta': {'min': '-inf', 'max': 'inf'},  # scenario etas: -eta, +eta
@@ -36,6 +37,7 @@ class ConditionDefaults:
 
         self.scale_factor = {
             'et': 1000.,
+            'pt': 1000.,
             'eta': 0.01,
             'neta': 0.01,
             'ceta': 0.01,

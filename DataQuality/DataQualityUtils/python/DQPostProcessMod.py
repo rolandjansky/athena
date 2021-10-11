@@ -112,6 +112,17 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
             os.unlink(tmpfilename)
     return success
 
+def rundir(fname):
+    import ROOT
+    f = ROOT.TFile.Open(fname)
+    lk = f.GetListOfKeys()
+    if len(lk) != 1:
+        return None
+    kn = lk[0].GetName()
+    if not kn.startswith('run_'):
+        return None
+    return kn
+
 def DQPostProcess( outFileName, isIncremental=False ):
     ## Import the ROOT library for reading han results
     from ROOT import gSystem
@@ -149,8 +160,10 @@ def DQPostProcess( outFileName, isIncremental=False ):
                 print("Unable to resolve DataQualityUtils data path, not running new-style postprocessing")
                 return
             import subprocess, glob, os.path
-            cmdline = (['histgrinder', fname, fname, '-c']
-                       + glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
+            inputs = glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
+            print(f'Input configurations: {" ".join(inputs)}')
+            cmdline = (['histgrinder', '--prefix', f'/{rundir(fname)}/', fname, fname, '-c']
+                       + inputs
                        )
             subprocess.run(cmdline, check=True)
  
@@ -173,8 +186,6 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['michele.bianco@le.infn.it', 'monica.verducci@cern.ch']),
                  (mdt_create,
                   ['john.stakely.keller@cern.ch', 'monica.verducci@cern.ch']),
-                 (mf.MDTPostProcess,
-                  ['john.stakely.keller@cern.ch']),
                  (mf.TGCPostProcess,
                   ['lyuan@ihep.ac.cn', 'kingmgl@stu.kobe-u.ac.jp']),
                  (mf.MDTvsTGCPostProcess,
@@ -197,8 +208,6 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['m.neumann@cern.ch']),
                  (mf.L1CaloPostProcess,
                   ['ivana.hristova@cern.ch', 'pjwf@hep.ph.bham.ac.uk']),
-                 (mf.SCTPostProcess,
-                  ['masaki.endo@cern.ch']),
                  (mf.PixelPostProcess,
                   ['daiki.yamaguchi@cern.ch']),
                  (mf.MuonTrackPostProcess,

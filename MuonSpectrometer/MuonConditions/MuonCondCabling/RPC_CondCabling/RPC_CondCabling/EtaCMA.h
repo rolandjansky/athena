@@ -1,60 +1,54 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ETACMA_H
 #define ETACMA_H
 
-#include <map>
 #include <algorithm>
+#include <map>
+
 #include "RPC_CondCabling/CMAparameters.h"
 #include "RPC_CondCabling/RPCchamber.h"
 
-class IMessageSvc;
+class MsgStream;
 
 namespace RPC_CondCabling {
 
-class SectorLogicSetup;
+    class SectorLogicSetup;
 
-class EtaCMA : public CMAparameters
-{
-     private:
-     typedef std::map < int,RPCchamber*,std::less < int > > RPClink;
- 
-     RPClink m_pivot_RPCs;
-     RPClink m_lowPt_RPCs;
-     RPClink m_highPt_RPCs;
-     
-     bool m_inversion;     
+    class EtaCMA : public CMAparameters {
+    private:
+        typedef std::map<int, RPCchamber*, std::less<int> > RPClink;
 
-     bool cable_CMA_channels(HalfType);
-     bool connect(SectorLogicSetup&);
-     bool doInversion(SectorLogicSetup&);
-     bool got_confirm_cabling(SectorLogicSetup&,int);
-     bool end_at_RPC_Z_boundary(void) const;
-     bool begin_at_RPC_Z_boundary(void) const;
-     bool m_debug;
-     bool m_verbose;
-     IMessageSvc* m_msgSvc;
+        RPClink m_pivot_RPCs;
+        RPClink m_lowPt_RPCs;
+        RPClink m_highPt_RPCs;
 
-     public:
-     EtaCMA(int,int,int,CMAcoverage,int,int,int,int,int,int,int,
-            int,int,int,int);
-     EtaCMA(int,int,int,int,int,int,int,int,int,int,int);
-     EtaCMA(const EtaCMA&);
-     ~EtaCMA();
+        bool m_inversion{false};
 
-     EtaCMA& operator =(const EtaCMA&);
+        bool cable_CMA_channels(HalfType);
+        bool connect(SectorLogicSetup&);
+        bool doInversion(SectorLogicSetup&);
+        bool got_confirm_cabling(SectorLogicSetup&, int);
+        bool end_at_RPC_Z_boundary(void) const;
+        bool begin_at_RPC_Z_boundary(void) const;
 
-     const RPClink& pivot_RPCs(void)  const {return m_pivot_RPCs;}
-     const RPClink& lowPt_RPCs(void)  const {return m_lowPt_RPCs;}
-     const RPClink& highPt_RPCs(void) const {return m_highPt_RPCs;}
+    public:
+        EtaCMA(parseParams parse);
+        EtaCMA(const EtaCMA&);
+        virtual ~EtaCMA();
 
-     bool inversion(void)             const { return m_inversion;}
-     
-     bool setup(SectorLogicSetup&);
+        EtaCMA& operator=(const EtaCMA&);
 
-};
+        const RPClink& pivot_RPCs(void) const { return m_pivot_RPCs; }
+        const RPClink& lowPt_RPCs(void) const { return m_lowPt_RPCs; }
+        const RPClink& highPt_RPCs(void) const { return m_highPt_RPCs; }
 
-}
+        bool inversion(void) const { return m_inversion; }
+
+        bool setup(SectorLogicSetup&, MsgStream&);
+    };
+
+}  // namespace RPC_CondCabling
 #endif

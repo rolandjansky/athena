@@ -695,7 +695,10 @@ StatusCode JEPSimMon::fillHistograms()
     {
         msg(MSG::DEBUG) << "No DAQ CMX RoIs found" << endmsg;
     }
-    cmxRoiTES = *cmxRoiTEScontainer->begin();
+    else
+    {
+        cmxRoiTES = *cmxRoiTEScontainer->begin();
+    }
 
     // Retrieve JEM Et Sums from SG
     const xAOD::JEMEtSumsContainer *jemEtSumsTES = 0;

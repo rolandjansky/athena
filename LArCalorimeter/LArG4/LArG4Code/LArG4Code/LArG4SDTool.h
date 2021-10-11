@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARRELSDTOOL_H
@@ -59,7 +59,7 @@ class LArG4SDTool : public SensitiveDetectorBase
   /// What time bin width for regular hits?
   float m_timeBinWidth;
   /// Is there going to be a fast simulation coming into this SD?
-  G4bool m_useFrozenShowers;
+  G4bool m_useFrozenShowers = false;
 
   /// Method actually doing the work to assign all of these SDs
   /// FIXME: this argument type is nasty:

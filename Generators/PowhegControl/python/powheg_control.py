@@ -139,7 +139,7 @@ class PowhegControl(object):
         @param create_run_card_only         Only generate the run card.
         @param save_integration_grids       Save the integration grids for future reuse.
         @param use_external_run_card        Use a user-provided Powheg run card (powheg.input).
-        @param remove_oldStyle_rwt_comments Removes old-style '#rwgt', '#pdf', '#new weight', and ' #Random' comments in lhe files (kept by default despite using xml reweighting).
+        @param remove_oldStyle_rwt_comments Removes old-style '#rwgt', '#pdf', '#new weight', '#matching', and ' #Random' comments in lhe files (kept by default despite using xml reweighting).
         """
         # we are now always using xml reweighting - set this to False if you still want the old style
         self.process.use_XML_reweighting = True

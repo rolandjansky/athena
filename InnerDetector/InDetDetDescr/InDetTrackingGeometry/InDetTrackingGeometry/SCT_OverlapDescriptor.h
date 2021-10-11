@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,15 +14,39 @@
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
 #include "TrkDetDescrUtils/Intersection.h"
+// STL include
+#include <atomic>
 
 #ifndef TRKDETDESCR_SIDETADDNEXTPHIETA
 #define TRKDETDESCR_SIDETADDNEXTPHIETA
-#define addSurface(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
-#define addOtherSide(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
-#define addNextInPhiOS(cur, surfaces) addSurface(cur->nextInPhi(), surfaces); addOtherSide(cur->nextInPhi(),surfaces)
-#define addPrevInPhiOS(cur, surfaces) addSurface(cur->prevInPhi(), surfaces); addOtherSide(cur->prevInPhi(),surfaces)
-#define addNextInEtaOS(cur, surfaces) addSurface(cur->nextInEta(), surfaces); addOtherSide(cur->nextInEta(),surfaces)
-#define addPrevInEtaOS(cur, surfaces) addSurface(cur->prevInEta(), surfaces); addOtherSide(cur->prevInEta(),surfaces)
+
+#define addSurface(cur, surfaces)                                              \
+  if (cur)                                                                     \
+  surfaces.emplace_back(Trk::SurfaceIntersection(                              \
+    Trk::Intersection(Amg::Vector3D(0., 0., 0.), 0., true),                    \
+    &(cur->surface(cur->identify()))))
+
+#define addOtherSide(cur, surfaces)                                            \
+  if (cur && cur->otherSide())                                                 \
+  surfaces.emplace_back(Trk::SurfaceIntersection(                              \
+    Trk::Intersection(Amg::Vector3D(0., 0., 0.), 0., true),                    \
+    &(cur->otherSide()->surface(cur->otherSide()->identify()))))
+
+#define addNextInPhiOS(cur, surfaces)                                          \
+  addSurface(cur->nextInPhi(), surfaces);                                      \
+  addOtherSide(cur->nextInPhi(), surfaces)
+
+#define addPrevInPhiOS(cur, surfaces)                                          \
+  addSurface(cur->prevInPhi(), surfaces);                                      \
+  addOtherSide(cur->prevInPhi(), surfaces)
+
+#define addNextInEtaOS(cur, surfaces)                                          \
+  addSurface(cur->nextInEta(), surfaces);                                      \
+  addOtherSide(cur->nextInEta(), surfaces)
+
+#define addPrevInEtaOS(cur, surfaces)                                          \
+  addSurface(cur->prevInEta(), surfaces);                                      \
+  addOtherSide(cur->prevInEta(), surfaces)
 #endif
 
 namespace Trk {
@@ -33,6 +57,8 @@ namespace Trk {
 namespace InDetDD {   
      class SiDetectorElement;
 }
+
+class SCT_ID;
           
 namespace InDet {
 
@@ -48,7 +74,7 @@ namespace InDet {
        public:
 
          /** Constructor */
-         SCT_OverlapDescriptor();
+         SCT_OverlapDescriptor(bool addMoreSurfaces = false, int eta_slices = 3);
          
          /** Destructor */
          virtual ~SCT_OverlapDescriptor() = default;
@@ -63,8 +89,11 @@ namespace InDet {
                                 const Amg::Vector3D& dir) const;
 
         private:
-	 bool m_robustMode;
-	 
+          bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
+          bool                                 m_robustMode;
+          bool                                 m_addMoreSurfaces;
+          int                                  m_etaSlices;         
+          mutable std::atomic<const SCT_ID*>   m_sctIdHelper{nullptr};
     };
 
   inline SCT_OverlapDescriptor* SCT_OverlapDescriptor::clone() const { return new SCT_OverlapDescriptor(); }     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -113,8 +113,7 @@ StatusCode StoreGateSvc::initialize()    {
   // Initialize service:
   CHECK( Service::initialize() );
 
-  verbose() << "Initializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Initializing " << name() << endmsg;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
   // retrieve the job options svc (TODO: the code below relies heavily on
@@ -200,7 +199,7 @@ StatusCode StoreGateSvc::stop()    {
 }
 
 void StoreGateSvc::handle(const Incident &inc) {
-  m_defaultStore->handle(inc);
+  currentStore()->handle(inc);
 }
 
 //////////////////////////////////////////////////////////////
@@ -208,8 +207,7 @@ void StoreGateSvc::handle(const Incident &inc) {
 StatusCode
 StoreGateSvc::finalize() {
   CHECK( Service::finalize() );
-  verbose() << "Finalizing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Finalizing " << name() << endmsg;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
     CHECK( m_defaultStore->finalize());

@@ -19,8 +19,8 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-
-class MsgStream;
+#include <vector>
+#include <string>
 
 namespace Trk {
 
@@ -45,20 +45,12 @@ class SlidingDiscSurface final : public DiscSurface
 {
 
 public:
-  /**Default Constructor*/
-  SlidingDiscSurface();
-
+ 
   /**Constructor */
   SlidingDiscSurface(DiscSurface& surf,
-                     Trk::BinUtility* bu = nullptr,
-                     const std::vector<float>* offset = nullptr,
-                     Amg::Transform3D* align = nullptr);
+                     const Trk::BinUtility & bu,
+                     const std::vector<float> & offset);
 
-  /**Constructor for DiscSegment from DetectorElement*/
-  // DiscSurface(const TrkDetElementBase& dmnt);
-
-  /**Copy Constructor*/
-  SlidingDiscSurface(const SlidingDiscSurface& psf);
 
   /**Copy Constructor with shift*/
   SlidingDiscSurface(const SlidingDiscSurface& psf,
@@ -66,15 +58,9 @@ public:
 
   /**Constructor */
   SlidingDiscSurface(const DiscSurface& surf,
-                     Trk::BinUtility* bu = nullptr,
-                     const std::vector<float>* offset = nullptr,
-                     Amg::Transform3D* align = nullptr);
+                     const Trk::BinUtility & bu,
+                     const std::vector<float> & offset);
 
-  /**Destructor*/
-  virtual ~SlidingDiscSurface();
-
-  /**Assignement operator*/
-  SlidingDiscSurface& operator=(const SlidingDiscSurface& dsf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override final;
@@ -86,7 +72,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 
@@ -121,7 +107,7 @@ public:
       @f$ u = \frac{\vec n (\vec p - \vec l_{1})}{\vec n \vec v}@f$ <br>
       If the denominator is 0 then the line lies:
       - either in the plane
-      - perpenticular to the normal of the plane
+      - perpendicular to the normal of the plane
    */
 
   /** fast straight line distance evaluation to Surface */
@@ -133,24 +119,23 @@ public:
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
-    bool Bound) const override final;
+    bool bound) const override final;
 
   /**This method allows access to the bin utility*/
-  const Trk::BinUtility* binUtility() const { return m_etaBin; }
+  const Trk::BinUtility & binUtility() const { return m_etaBin; }
 
   /**This method allows access to the radial offset values*/
-  const std::vector<float>* offset() const { return m_depth; }
+  const std::vector<float> & offset() const { return m_depth; }
 
   /** Return properly formatted class name for screen output */
-  virtual std::string name() const override
+  virtual std::string name() const override final
   {
     return "Trk::SlidingDiscSurface";
   }
 
 protected: //!< data members
-  const std::vector<float>* m_depth;
-  Trk::BinUtility* m_etaBin;
-  Amg::Transform3D* m_align;
+  std::vector<float> m_depth{};
+  Trk::BinUtility m_etaBin{};
 };
 
 inline SlidingDiscSurface*

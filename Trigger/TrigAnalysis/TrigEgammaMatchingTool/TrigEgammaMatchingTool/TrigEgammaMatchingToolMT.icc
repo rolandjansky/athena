@@ -11,8 +11,9 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::
 {
 
   if( !dec ) return false;
+
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
-  if( !initRoi.link.isValid() ) 
+  if( !initRoi.isValid() ) 
     return false;
 
   auto vec =  tdt()->features< T >(trigger,condition ,key);
@@ -23,7 +24,8 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::
     if( ! roi.isValid()) continue;                                                              
     if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord()) 
     {
-      return true;
+      bool passed = (featLinkInfo.state==TrigCompositeUtils::ActiveState::ACTIVE);
+      if(passed)  return true;
     }
   }
   return false;                      
@@ -38,21 +40,21 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed<TrigRoiDescriptorCollection
 {
   if( !dec ) return false;
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
-  if( !initRoi.link.isValid() ) 
+  if( !initRoi.isValid() ) 
     return false;
 
-  
-  
   auto vec =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
- 
+
   for( auto &featLinkInfo : vec )
-  {                                                       
+  {                   
+    if(!featLinkInfo.isValid())  continue;                             
     if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord()) 
     {
-      return true;
+      bool passed = (featLinkInfo.state==TrigCompositeUtils::ActiveState::ACTIVE);
+      if(passed)  return true; 
     }
   }
-  return false;                      
+  return true;                      
 }
 
 
@@ -88,7 +90,7 @@ const
 {
   std::vector<TrigCompositeUtils::LinkInfo<T>> vec;
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
-  if( !initRoi.link.isValid() ) return vec;
+  if( !initRoi.isValid() ) return vec;
 
   auto vec_dec = tdt()->features<T>(trigger,condition, key);
   for ( auto& featLinkInfo : vec_dec ){
@@ -102,23 +104,7 @@ const
 }
 
 
-inline const xAOD::EmTauRoI* TrigEgammaMatchingToolMT::getL1Feature( const TrigCompositeUtils::Decision *dec ) const
-{
-  if( !dec )  return nullptr;
-  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
-  if( !initRoi.link.isValid() ) return nullptr;
 
-  SG::ReadHandle<xAOD::EmTauRoIContainer> l1_cont( m_emTauRoIKey, Gaudi::Hive::currentContext());
-  if( !l1_cont.isValid() ) return nullptr;
-
-  for( const auto *l1 : *l1_cont ){
-    if ( l1->roiType() != xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
-    if((*initRoi.link)->roiWord()==l1->roiWord()){
-      return l1;
-    }
-  }
-  return nullptr;
-} 
 
 
 // L1Calo
@@ -128,14 +114,17 @@ inline TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> TrigEgammaMatch
 const
 {
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
-  if( initRoi.link.isValid() ){
+
+  if( initRoi.isValid() ){
     // includeFailedDecisions
+
     auto vec_dec =  tdt()->features<TrigRoiDescriptorCollection>(trigger, condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
-    for( auto &featLinkInfo: vec_dec ){               
-      if( !featLinkInfo.isValid() ) continue;      
+    for( auto &featLinkInfo: vec_dec ){  
+      if( !featLinkInfo.isValid() ) continue; 
       if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord() )  return featLinkInfo; 
     }                                                               
   }
+
   return TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection>();
 }
 
@@ -146,7 +135,7 @@ inline TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer> TrigEgammaMatc
                                                                                                                   std::string trigger, unsigned int condition)
 const
 {
-  std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer>> vec = getFeatures<xAOD::TrigEMClusterContainer>(dec, trigger, key("L2Calo") , condition);
+  std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer>> vec = getFeatures<xAOD::TrigEMClusterContainer>(dec, trigger, key("FastCalo") , condition);
   return !vec.empty() ? vec.front() : TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer>();
 }
 
@@ -157,17 +146,22 @@ inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigElectronContainer>> Tr
                                                                 const TrigCompositeUtils::Decision *dec , std::string trigger, unsigned int condition)
 const
 {
-  return getFeatures<xAOD::TrigElectronContainer>(dec, trigger, key("L2Electron"), condition);
+  if(boost::contains(trigger,"lrt")){
+    return getFeatures<xAOD::TrigElectronContainer>(dec, trigger, key("FastElectrons_LRT"), condition);
+  }else{
+    return getFeatures<xAOD::TrigElectronContainer>(dec, trigger, key("FastElectrons"), condition);
+  }
 }
 
 
 // L2Photon
 template<>
-inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigPhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigPhotonContainer>( 
+inline TrigCompositeUtils::LinkInfo<xAOD::TrigPhotonContainer> TrigEgammaMatchingToolMT::getFeature<xAOD::TrigPhotonContainer>( 
                                                                 const TrigCompositeUtils::Decision *dec , std::string trigger, unsigned int condition)
 const
 {
-  return getFeatures<xAOD::TrigPhotonContainer>(dec, trigger, key("L2Photon") , condition);
+  auto vec = getFeatures<xAOD::TrigPhotonContainer>(dec, trigger, key("FastPhotons") , condition);
+  return !vec.empty() ? vec.front() : TrigCompositeUtils::LinkInfo<xAOD::TrigPhotonContainer>();
 }
 
 
@@ -177,7 +171,11 @@ inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::CaloClusterContainer>> Tri
                                                                 const TrigCompositeUtils::Decision *dec , std::string trigger, unsigned int condition)
 const
 {
-  return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("EFCalo"), condition );
+  if(boost::contains(trigger,"lrt")){
+    return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("PrecisionCalo_LRT"), condition );
+  }else{
+    return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("PrecisionCalo"), condition );
+  }
 }
 
 
@@ -187,7 +185,13 @@ inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::ElectronContainer>> TrigEg
                                                                 const TrigCompositeUtils::Decision *dec , std::string trigger, unsigned int condition)
 const
 {
-  return getFeatures<xAOD::ElectronContainer>(dec, trigger, key("Electron") , condition);
+  if (boost::contains(trigger,"gsf")){
+    return getFeatures<xAOD::ElectronContainer>(dec, trigger, key("Electrons_GSF") , condition);
+  }else if(boost::contains(trigger,"lrt")){
+    return getFeatures<xAOD::ElectronContainer>(dec, trigger, key("Electrons_LRT") , condition);
+  }else{
+    return getFeatures<xAOD::ElectronContainer>(dec, trigger, key("Electrons") , condition);
+  }
 }
 
 
@@ -197,7 +201,7 @@ inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::PhotonContainer>> TrigEgam
                                                                                                                   std::string trigger, unsigned int condition)
 const
 {
-  return getFeatures<xAOD::PhotonContainer>(dec, trigger, key("Photon"), condition );
+  return getFeatures<xAOD::PhotonContainer>(dec, trigger, key("Photons"), condition );
 }
 
 

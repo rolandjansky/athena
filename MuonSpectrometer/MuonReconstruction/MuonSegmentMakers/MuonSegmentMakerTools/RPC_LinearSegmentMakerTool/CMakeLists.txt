@@ -9,7 +9,7 @@ atlas_subdir( RPC_LinearSegmentMakerTool )
 atlas_add_component( RPC_LinearSegmentMakerTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonRecToolInterfaces StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonRIO_OnTrack MuonSegment MuonLinearSegmentMakerUtilities TrkSurfaces TrkEventPrimitives TrkRoad )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonRecToolInterfaces StoreGateLib GeoPrimitives MuonReadoutGeometry MuonRIO_OnTrack MuonSegment MuonLinearSegmentMakerUtilities TrkSurfaces TrkEventPrimitives TrkRoad )
 
 # Install files from the package:
 atlas_install_headers( RPC_LinearSegmentMakerTool )

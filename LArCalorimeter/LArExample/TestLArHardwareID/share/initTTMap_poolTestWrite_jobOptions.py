@@ -26,7 +26,7 @@ DetDescrVersion="ATLAS-DC3-05"
 include( "AtlasGeoModel/SetGeometryVersion.py" )
 include( "AtlasGeoModel/GeoModelInit.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-include( "CaloDetMgrDetDescrCnv/CaloTTDetMgrDetDescrCnv_joboptions.py" )
+include( "CaloConditions/CaloConditions_jobOptions.py" )
 include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py" )
 
 

@@ -61,10 +61,12 @@ class ConfiguredTRTStandalone:
     #
     # --- set up special Scoring Tool for standalone TRT tracks
     #
+    drift_circle_cut_tool = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco() if NewTrackingCuts.useTRTonlyParamCuts() else ''
+
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetTrtTrackScoringTool
     InDetTRT_StandaloneScoringTool = InDet__InDetTrtTrackScoringTool(name                = 'InDetTRT_StandaloneScoringTool'+extension,
                                                                      SummaryTool         = TrackingCommon.getInDetTrackSummaryTool(),
-                                                                     DriftCircleCutTool  = InDetTRTDriftCircleCut,
+                                                                     DriftCircleCutTool  = drift_circle_cut_tool,
                                                                      useAmbigFcn         = True,
                                                                      useSigmaChi2        = False,
                                                                      PtMin               = pTmin,
@@ -72,6 +74,9 @@ class ConfiguredTRTStandalone:
                                                                      maxEta              = 2.1,
                                                                      UseParameterization = NewTrackingCuts.useTRTonlyParamCuts(),
                                                                      OldTransitionLogic  = NewTrackingCuts.useTRTonlyOldLogic(),
+                                                                     TRTTrksEtaBins      = NewTrackingCuts.TrkSel_TRTTrksEtaBins(),
+                                                                     TRTTrksMinTRTHitsThresholds = NewTrackingCuts.TrkSel_TRTTrksMinTRTHitsThresholds(),
+                                                                     TRTTrksMinTRTHitsMuDependencies = NewTrackingCuts.TrkSel_TRTTrksMinTRTHitsMuDependencies(),
                                                                      minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac())
     # InDetTRT_StandaloneScoringTool.OutputLevel = VERBOSE 
     ToolSvc += InDetTRT_StandaloneScoringTool

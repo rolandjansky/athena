@@ -144,7 +144,7 @@ LArRawScContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
   StatusCode sc;
 
   //Supercell readout
-  sc=m_scTool->convert(re,adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
+  sc=m_scTool->convert(re,nullptr,adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
   if (sc!=StatusCode::SUCCESS)
     (*m_log) << MSG::WARNING << "Conversion tool returned an error. LAr SC containers might be empty." << endmsg;
   

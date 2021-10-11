@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import os
 from AthenaCommon.Configurable import Configurable
@@ -11,7 +11,7 @@ from AthenaPoolUtilities.DumperConfig import Dumper, find_file
 #from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 Configurable.configurableRun3Behavior = True
 
-def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=False, doSCT=False, doTRT=False, doLAr=False, doTile=False, doMuon=False, doTracks=False, configOnly=False):
+def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=False, doSCT=False, doTRT=False, doLAr=False, doTile=False, doMuon=False, doTracks=False, configOnly=False, adjustMessageSvc=True):
 
     # Needed to prevent spurious root errors about streams in CreateRealData.
     import ROOT
@@ -87,6 +87,9 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
             Trk_EventCnvSuperTool=CompFactory.Trk.EventCnvSuperTool
             EventCnvSuperTool = Trk_EventCnvSuperTool('EventCnvSuperTool', MaxErrorCount=10)
     acc.addEventAlgo(Dumper ('dumper', ConfigFlags.Input.Files[0], keys, refpaths), 'AthAlgSeq')
+    if adjustMessageSvc:
+        acc.getService("MessageSvc").enableSuppression = True
+        acc.getService("MessageSvc").Format = "% F%18W%S%7W%R%T %0W%M"
     if EventCnvSuperTool is not None:
         acc.addPublicTool(EventCnvSuperTool)
     if configOnly:

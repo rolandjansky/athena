@@ -11,7 +11,7 @@ atlas_add_library( JetJvtEfficiencyLib
    JetJvtEfficiency/*.h Root/*.cxx
    PUBLIC_HEADERS JetJvtEfficiency
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet xAODEventInfo JetAnalysisInterfacesLib PATInterfaces
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet xAODEventInfo JetInterface JetAnalysisInterfacesLib PATInterfaces
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )

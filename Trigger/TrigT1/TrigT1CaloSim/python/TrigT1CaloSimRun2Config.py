@@ -6,25 +6,7 @@ class Run2TriggerTowerMakerBase (LVL1__Run2TriggerTowerMaker):
     __slots__ = []
     def __init__(self, name):
         super( Run2TriggerTowerMakerBase, self ).__init__( name )
-        from AthenaCommon.DetFlags import DetFlags
-        from AthenaCommon.Constants import WARNING
-        if DetFlags.digitize.LVL1_on():
-            from Digitization.DigitizationFlags import jobproperties
-            self.RndmSvc=jobproperties.Digitization.rndmSvc.get_Value()
-            self.DigiEngine =  "%s_Digitization"%name
-            jobproperties.Digitization.rndmSeedList.addSeed( str(self.DigiEngine), 8631309, 4492432) 
-        else:
-            self.RndmSvc = 'AtRanluxGenSvc'
-            self.DigiEngine = "%s_Digitization" % name
-          
-            from AthenaCommon.AppMgr import ServiceMgr
-            if not hasattr( ServiceMgr, 'AtRanluxGenSvc'):
-                from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
-                ServiceMgr += AtRanluxGenSvc()
-               
-            # init random number seeds
-            ServiceMgr.AtRanluxGenSvc.Seeds += [ str(self.DigiEngine) + " 8631309 4492432" ]
-            ServiceMgr.AtRanluxGenSvc.OutputLevel = WARNING # suppress 1 per event INFO messages.
+        self.DigiEngine =  "%s_Digitization"%name
     
 class Run2TriggerTowerMaker(Run2TriggerTowerMakerBase):
     """ Baseline Run2 TriggerTower configuration:
@@ -40,11 +22,6 @@ class Run2TriggerTowerMaker(Run2TriggerTowerMakerBase):
         from SGComps.AddressRemappingSvc import addInputRename
         addInputRename ( 'xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers')
         
-        from AthenaCommon import CfgMgr
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, "LumiBlockMuTool"):
-            ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")
-
 class Run2TriggerTowerMaker25ns(Run2TriggerTowerMaker):
     """ Run2 TriggerTower configuration for 25ns running """
     __slots__ = []
@@ -71,7 +48,6 @@ def Run2TriggerTowerMakerCfg(flags, name):
     #    acc.merge(InputRenameCfg('xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers'))
 
     alg = CompFactory.LVL1.Run2TriggerTowerMaker(name,
-                                                 RndmSvc = 'AtRanluxGenSvc',
                                                  DigiEngine = "{}_Digitization".format(name),
                                                  # TODO make these settings flags dependent
                                                  CellType = 3,
@@ -80,16 +56,13 @@ def Run2TriggerTowerMakerCfg(flags, name):
                                                  ZeroSuppress = True, 
                                                  #ExtraInputs = ['LArTTL1Container#LArTTL1EM', 'LArTTL1Container#LArTTL1HAD', 'TileTTL1Container#TileTTL1Cnt']
                                                  )
-    acc.addPublicTool(CompFactory.LumiBlockMuTool('LumiBlockMuTool'))
-    from RngComps.RandomServices import Ranlux64
-    acc.merge(Ranlux64( str(alg.DigiEngine) + ' 8631309 4492432') )
     acc.addEventAlgo(alg)
 
     return acc
 
 
 
-def L1LegacyCaloSimMCCfg(flags):
+def L1LegacyCaloSimCfg(flags):
     '''
     Configures Legacy 1 calo in new JO style
     '''
@@ -127,26 +100,35 @@ def L1LegacyCaloSimMCCfg(flags):
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
     acc.merge(LumiBlockMuWriterCfg(flags))
 
-    L1CaloFolderList = []
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib']
-    # TODO decide what is needed form below items, (likely only needed when re-running on the data)
-    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
-    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
-    #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
-    #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Conditions/DisabledTowers']
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels']
-    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults']
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
-
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     acc.merge(L1ConfigSvcCfg(flags))
 
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg
-    acc.merge(Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'))
-    acc.addEventAlgo(CompFactory.LVL1.Run2CPMTowerMaker('CPMTowerMaker'))
-    acc.addEventAlgo(CompFactory.LVL1.Run2JetElementMaker('JetElementMaker'))
+    if not flags.Input.isMC:
+        from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+        acc.merge(LVL1CaloRun2ReadBSCfg(flags))
+
+    if flags.Input.isMC:
+        L1CaloFolderList = []
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib']
+
+        # TODO decide what is needed form below items, (likely only needed when re-running on the data)
+        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
+        #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
+        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
+        #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Conditions/DisabledTowers']
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels']
+        L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults']
+
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
+
+
+        from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg
+        acc.merge(Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'))
+        acc.addEventAlgo(CompFactory.LVL1.Run2CPMTowerMaker('CPMTowerMaker'))
+        acc.addEventAlgo(CompFactory.LVL1.Run2JetElementMaker('JetElementMaker'))
+
     acc.addEventAlgo(CompFactory.LVL1.CPMSim('CPMSim'))
     acc.addEventAlgo(CompFactory.LVL1.JEMJetSim('JEMJetSim'))
     acc.addEventAlgo(CompFactory.LVL1.JEMEnergySim('JEMEnergySim'))
@@ -154,8 +136,8 @@ def L1LegacyCaloSimMCCfg(flags):
     acc.addEventAlgo(CompFactory.LVL1.JetCMX('JetCMX'))
     acc.addEventAlgo(CompFactory.LVL1.EnergyCMX('EnergyCMX'))
     acc.addEventAlgo(CompFactory.LVL1.RoIROD('RoIROD'))
-    acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS())
-    acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC())
+    if flags.Input.isMC:
+        acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS())
     return acc
 
 if __name__ == '__main__':
@@ -176,8 +158,8 @@ if __name__ == '__main__':
     acc.merge(PoolReadCfg(flags))
 
     from AthenaCommon.CFElements import seqAND
-    acc.addSequence(seqAND('L1CaloLegacySimSeq'))
-    acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
+    acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='AthAlgSeq')
+    acc.merge(L1LegacyCaloSimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
     acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
     with open("L1CaloSim.pkl", "wb") as p:

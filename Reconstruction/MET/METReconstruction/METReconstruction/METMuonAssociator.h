@@ -86,11 +86,24 @@ namespace met{
     /// Default constructor: 
     METMuonAssociator();  
     SG::ReadHandleKey<xAOD::MuonContainer> m_muContKey;
-    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_neutralFEReadDecorKey{this,"NeutralFEReadDecorKey","", "Neutral FlowElement links key"};
-    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_chargedFEReadDecorKey{this,"ChargedFEReadDecorKey","", "Charged FlowElement links key"};
-    SG::ReadDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{this,"ElementLinkName","CaloCalTopoClusters.constituentClusterLinks"};
-  }; 
-
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_neutralFEReadDecorKey{
+      this,
+      "NeutralFEReadDecorKey",
+      "",
+      "Neutral FlowElement links key"
+    };
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_chargedFEReadDecorKey{
+      this,
+      "ChargedFEReadDecorKey",
+      "",
+      "Charged FlowElement links key"
+    };
+    SG::ReadDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{
+      this,
+      "ElementLinkName",
+      "MuonClusterCollection.constituentClusterLinks"
+    };
+  };
 }
 
 #endif //> !METRECONSTRUCTION_METMUONASSOCIATOR_H

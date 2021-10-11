@@ -234,9 +234,9 @@ namespace Muon {
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;
     Gaudi::Property<bool>       m_doNtuple{this,"DoNtuple",false};
-    TFile*     m_file;
-    TTree*     m_tree;
-    mutable MuonHough::HitNtuple* m_ntuple ATLAS_THREAD_SAFE; // Marked as thread-safe because it's disabled when running multi-threaded
+    TFile*     m_file{};
+    TTree*     m_tree{};
+    mutable MuonHough::HitNtuple* m_ntuple ATLAS_THREAD_SAFE = {}; // Marked as thread-safe because it's disabled when running multi-threaded
 
     SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames{this, "TruthNames", {}}; 
     SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey{this,"MuonTruthParticlesKey","MuonTruthParticles"};

@@ -35,29 +35,17 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       std::string stName   = m_MdtIdHelper->stationNameString(m_MdtIdHelper->stationName(Id));
       int stationEta       = m_MdtIdHelper->stationEta(Id);
       int stationPhi       = m_MdtIdHelper->stationPhi(Id);
-      int multiplet        = m_MdtIdHelper->multilayer(Id);
+      int tube          = m_MdtIdHelper->tube(Id);
+      int tubeLayer          = m_MdtIdHelper->tubeLayer(Id);
+      int multilayer       = m_MdtIdHelper->multilayer(Id);
       int channel          = m_MdtIdHelper->channel(Id);
-      int stationEtaMin    = m_MdtIdHelper->stationEtaMin(Id);
-      int stationEtaMax    = m_MdtIdHelper->stationEtaMax(Id);
-      int stationPhiMin    = m_MdtIdHelper->stationPhiMin(Id);
-      int stationPhiMax    = m_MdtIdHelper->stationPhiMax(Id);
       int NofMultilayers   = m_MdtIdHelper->numberOfMultilayers(Id);
-      int multilayerMin    = m_MdtIdHelper->multilayerMin(Id);
-      int multilayerMax    = m_MdtIdHelper->multilayerMax(Id);
-      int tubeLayerMin     = m_MdtIdHelper->tubeLayerMin(Id);
-      int tubeLayerMax     = m_MdtIdHelper->tubeLayerMax(Id);
-      int tubeMin          = m_MdtIdHelper->tubeMin(Id);
-      int tubeMax          = m_MdtIdHelper->tubeMax(Id);
 
       ATH_MSG_DEBUG(     "MDT Digit Offline id:  Station Name [" << stName << " ]"
                          << " Station Eta ["  << stationEta      << "]"
                          << " Station Phi ["  << stationPhi      << "]"
-                         << " Multiplet  ["   << multiplet       << "]"
-                         << " ChNr ["         << channel         << "]"
-                         << " Station EtaMin ["  << stationEtaMin      << "]"
-                         << " Station EtaMax ["  << stationEtaMax      << "]"
-                         << " Station PhiMin ["  << stationPhiMin      << "]"
-                         << " Station PhiMax ["  << stationPhiMax      << "]");
+                         << " Multilayer  ["   << multilayer       << "]"
+                         << " ChNr ["         << channel         << "]");
 
       const MuonGM::MdtReadoutElement* rdoEl = MuonDetMgr->getMdtReadoutElement(Id);
       if (!rdoEl) return StatusCode::FAILURE;
@@ -65,7 +53,7 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       Amg::Vector3D gpos(0.,0.,0.);
       Amg::Vector2D lpos(0.,0.);
 
-      rdoEl->surface(Id).localToGlobal(lpos, gpos,gpos);
+      rdoEl->surface(Id).globalToLocal(gpos, gpos, lpos);
       
       m_MDT_dig_localPosX.push_back( lpos.x() );
       m_MDT_dig_localPosY.push_back( lpos.y() );
@@ -73,22 +61,16 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       m_MDT_dig_globalPosY.push_back( gpos.y() );
       m_MDT_dig_globalPosZ.push_back( gpos.z() );
       
+      m_MDT_dig_time.push_back(digit->tdc());
+      m_MDT_dig_charge.push_back(digit->adc());
       m_MDT_dig_stationName.push_back(stName);
       m_MDT_dig_stationEta.push_back(stationEta);
       m_MDT_dig_stationPhi.push_back(stationPhi);
-      m_MDT_dig_multiplet.push_back(multiplet);
+      m_MDT_dig_tube.push_back(tube);
+      m_MDT_dig_tubeLayer.push_back(tubeLayer);
+      m_MDT_dig_multilayer.push_back(multilayer);
       m_MDT_dig_channel.push_back(channel);
-      m_MDT_dig_stationEtaMin.push_back(stationEtaMin);
-      m_MDT_dig_stationEtaMax.push_back(stationEtaMax);
-      m_MDT_dig_stationPhiMin.push_back(stationPhiMin);
-      m_MDT_dig_stationPhiMax.push_back(stationPhiMax);
       m_MDT_dig_numberOfMultilayers.push_back(NofMultilayers);
-      m_MDT_dig_multilayerMin.push_back(multilayerMin);
-      m_MDT_dig_multilayerMax.push_back(multilayerMax);
-      m_MDT_dig_tubeLayerMin.push_back(tubeLayerMin);
-      m_MDT_dig_tubeLayerMax.push_back(tubeLayerMax);
-      m_MDT_dig_tubeMin.push_back(tubeMin);
-      m_MDT_dig_tubeMax.push_back(tubeMax);
       
       m_MDT_nDigits++;
     }
@@ -102,24 +84,16 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
 StatusCode MdtDigitVariables::clearVariables()
 {
   m_MDT_nDigits = 0;
+  m_MDT_dig_time.clear();
+  m_MDT_dig_charge.clear();
   m_MDT_dig_stationName.clear();
   m_MDT_dig_stationEta.clear();
   m_MDT_dig_stationPhi.clear();
-  m_MDT_dig_multiplet.clear();
+  m_MDT_dig_tube.clear();
+  m_MDT_dig_tubeLayer.clear();
+  m_MDT_dig_multilayer.clear();
   m_MDT_dig_channel.clear();
-  m_MDT_dig_stationEtaMin.clear();
-  m_MDT_dig_stationEtaMax.clear();
-  m_MDT_dig_stationPhiMin.clear();
-  m_MDT_dig_stationPhiMax.clear();
   m_MDT_dig_numberOfMultilayers.clear();
-  m_MDT_dig_multilayerMin.clear();
-  m_MDT_dig_multilayerMax.clear();
-  m_MDT_dig_tubeLayerMin.clear();
-  m_MDT_dig_tubeLayerMax.clear();
-  m_MDT_dig_tubeMin.clear();
-  m_MDT_dig_tubeMax.clear(); 
-  m_MDT_dig_channelPosX.clear();
-  m_MDT_dig_channelPosY.clear();
   m_MDT_dig_localPosX.clear();
   m_MDT_dig_localPosY.clear();
   m_MDT_dig_globalPosX.clear();
@@ -137,24 +111,15 @@ StatusCode MdtDigitVariables::initializeVariables()
   if(m_tree) {
     ATH_MSG_DEBUG("MDT digit:  init m_tree ");
     m_tree->Branch("Digits_MDT",              &m_MDT_nDigits, "Digits_MDT_n/i");
+    m_tree->Branch("Digits_MDT_time", &m_MDT_dig_time); 
+    m_tree->Branch("Digits_MDT_charge", &m_MDT_dig_charge); 
     m_tree->Branch("Digits_MDT_stationName", &m_MDT_dig_stationName);
     m_tree->Branch("Digits_MDT_stationEta",  &m_MDT_dig_stationEta);
     m_tree->Branch("Digits_MDT_stationPhi",  &m_MDT_dig_stationPhi);
-    m_tree->Branch("Digits_MDT_stationEtaMin",  &m_MDT_dig_stationEtaMin);
-    m_tree->Branch("Digits_MDT_stationEtaMax",  &m_MDT_dig_stationEtaMax);
-    m_tree->Branch("Digits_MDT_stationPhiMin",  &m_MDT_dig_stationPhiMin);
-    m_tree->Branch("Digits_MDT_stationPhiMax",  &m_MDT_dig_stationPhiMax);
     m_tree->Branch("Digits_MDT_numberOfMultilayers",  &m_MDT_dig_numberOfMultilayers);
-    m_tree->Branch("Digits_MDT_multilayerMin",  &m_MDT_dig_multilayerMin);
-    m_tree->Branch("Digits_MDT_multilayerMax",  &m_MDT_dig_multilayerMax);
-    
-    m_tree->Branch("Digits_MDT_tubeLayerMin",  &m_MDT_dig_tubeLayerMin);
-    m_tree->Branch("Digits_MDT_tubeLayerMax",  &m_MDT_dig_tubeLayerMax);
-    m_tree->Branch("Digits_MDT_tubeMin",  &m_MDT_dig_tubeMin);
-    m_tree->Branch("Digits_MDT_tubeMax",  &m_MDT_dig_tubeMax);
-    
-    m_tree->Branch("Digits_MDT_channelPosX",  &m_MDT_dig_channelPosX);
-    m_tree->Branch("Digits_MDT_channelPosY",  &m_MDT_dig_channelPosY);
+    m_tree->Branch("Digits_MDT_tube",  &m_MDT_dig_tube);
+    m_tree->Branch("Digits_MDT_tubeLayer",  &m_MDT_dig_tubeLayer);
+    m_tree->Branch("Digits_MDT_multilayer",  &m_MDT_dig_multilayer);
     m_tree->Branch("Digits_MDT_localPosX", &m_MDT_dig_localPosX);
     m_tree->Branch("Digits_MDT_localPosY", &m_MDT_dig_localPosY);
     m_tree->Branch("Digits_MDT_globalPosX", &m_MDT_dig_globalPosX);

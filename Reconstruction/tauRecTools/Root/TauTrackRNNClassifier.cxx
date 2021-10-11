@@ -2,17 +2,15 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// ASG include(s)
-#include "PathResolver/PathResolver.h"
+#include "tauRecTools/TauTrackRNNClassifier.h"
+#include "tauRecTools/HelperFunctions.h"
 
-// xAOD include(s)
+#include "PathResolver/PathResolver.h"
+#include "AsgDataHandles/ReadHandle.h"
+
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauxAODHelpers.h"
-
-// local include(s)
-#include "tauRecTools/TauTrackRNNClassifier.h"
-#include "tauRecTools/HelperFunctions.h"
 
 #include <fstream>
 
@@ -40,12 +38,21 @@ StatusCode TauTrackRNNClassifier::initialize()
     ATH_MSG_INFO("Intialize TauTrackRNNClassifier tool : " << classifier );
     ATH_CHECK(classifier.retrieve());
   }
+
+  ATH_CHECK( m_vertexContainerKey.initialize() );
  
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
 StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const {
+
+  SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexContainerKey );
+  if (!vertexInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+      return StatusCode::FAILURE;
+   }
+  const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
 
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
 
@@ -74,13 +81,13 @@ StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAO
 
     // decorate LRTs with default RNN scores
     for (auto classifier : m_vClassifier) {
-      ATH_CHECK(classifier->classifyTracks(vLRTs, xTau, true));
+      ATH_CHECK(classifier->classifyTracks(vLRTs, xTau, vertexContainer, true));
     }
   }
 
   // classify tracks
   for (auto classifier : m_vClassifier) {
-    ATH_CHECK(classifier->classifyTracks(vTracks, xTau));
+    ATH_CHECK(classifier->classifyTracks(vTracks, xTau, vertexContainer));
   }
 
   std::vector< ElementLink< xAOD::TauTrackContainer > >& tauTrackLinks(xTau.allTauTrackLinksNonConst());
@@ -122,11 +129,8 @@ TrackRNN::TrackRNN(const std::string& name)
   : TauRecToolBase(name)
   , m_inputWeightsPath("")
 {
-  // for conversion compatibility cast nTracks 
-  int nMaxNtracks = 0;
-  declareProperty( "InputWeightsPath", m_inputWeightsPath );
-  declareProperty( "MaxNtracks",  nMaxNtracks);
-  m_nMaxNtracks = (unsigned int)nMaxNtracks;
+  declareProperty("InputWeightsPath", m_inputWeightsPath = "");
+  declareProperty("MaxNtracks", m_nMaxNtracks = 0);
 }
 
 //______________________________________________________________________________
@@ -137,13 +141,27 @@ TrackRNN::~TrackRNN()
 //______________________________________________________________________________
 StatusCode TrackRNN::initialize()
 {  
-  ATH_CHECK(addWeightsFile());
+  std::string inputWeightsPath = find_file(m_inputWeightsPath);
+  ATH_MSG_INFO("Using calibration file: " << inputWeightsPath);
+  
+  std::ifstream nn_config_istream(inputWeightsPath);  
+
+  lwtDev::GraphConfig NNconfig = lwtDev::parse_json_graph(nn_config_istream);
+  
+  m_RNNClassifier = std::make_unique<lwtDev::LightweightGraph>(NNconfig, NNconfig.outputs.begin()->first);
+  if(!m_RNNClassifier) {
+    ATH_MSG_FATAL("Couldn't configure neural network!");
+    return StatusCode::FAILURE;
+  }
   
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau, bool skipTracks) const
+StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks,
+				    xAOD::TauJet& xTau,
+				    const xAOD::VertexContainer* vertexContainer,
+				    bool skipTracks) const
 {
   if(vTracks.empty()) {
     return StatusCode::SUCCESS;
@@ -168,7 +186,7 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
   std::sort(vTracks.begin(), vTracks.end(), [](const xAOD::TauTrack * a, const xAOD::TauTrack * b) {return a->pt() > b->pt();});
 
   VectorMap valueMap;
-  ATH_CHECK(calulateVars(vTracks, xTau, valueMap));
+  ATH_CHECK(calulateVars(vTracks, xTau, vertexContainer, valueMap));
 
   SeqNodeMap seqInput;
   NodeMap nodeInput;
@@ -223,35 +241,12 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
   return StatusCode::SUCCESS;
 }
 
-//______________________________________________________________________________
-//StatusCode TrackRNN::classifyTriggerTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track, double mu)
-//{
-//  // NOT YET IMPLEMENTED 
-//  return StatusCode::SUCCESS;
-//}
 
 //______________________________________________________________________________
-StatusCode TrackRNN::addWeightsFile()
-{
-  std::string inputWeightsPath = find_file(m_inputWeightsPath);
-  ATH_MSG_DEBUG("InputWeightsPath: " << inputWeightsPath);
-
-  std::ifstream nn_config_istream(inputWeightsPath);
-  
-  lwtDev::GraphConfig NNconfig = lwtDev::parse_json_graph(nn_config_istream);
-  
-  m_RNNClassifier = std::make_unique<lwtDev::LightweightGraph>(NNconfig, NNconfig.outputs.begin()->first);
-
-  if(!m_RNNClassifier) {
-    ATH_MSG_FATAL("Couldn't configure neural network!");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
-StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, const xAOD::TauJet& xTau, tauRecTools::VectorMap& valueMap) const
+StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
+				  const xAOD::TauJet& xTau,
+				  const xAOD::VertexContainer* vertexContainer,
+				  tauRecTools::VectorMap& valueMap) const
 {
   // initialize map with values
   valueMap.clear();
@@ -262,13 +257,16 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
 
   valueMap["log(trackPt)"] = std::vector<double>(n_timeSteps);
   valueMap["log(jetSeedPt)"] = std::vector<double>(n_timeSteps);
-  valueMap["(trackPt/jetSeedPt[0])"] = std::vector<double>(n_timeSteps);
+  valueMap["trackPt/tauPtIntermediateAxis"] = std::vector<double>(n_timeSteps);
   valueMap["trackEta"] = std::vector<double>(n_timeSteps);
-  valueMap["z0sinThetaTJVA"] = std::vector<double>(n_timeSteps);
+  valueMap["z0sinthetaTJVA"] = std::vector<double>(n_timeSteps);
+  valueMap["z0sinthetaSigTJVA"] = std::vector<double>(n_timeSteps);
   valueMap["log(rConv)"] = std::vector<double>(n_timeSteps);
   valueMap["tanh(rConvII/500)"] = std::vector<double>(n_timeSteps);
   valueMap["dRJetSeedAxis"] = std::vector<double>(n_timeSteps);
-  valueMap["tanh(d0/10)"] = std::vector<double>(n_timeSteps);
+  valueMap["dRIntermediateAxis"] = std::vector<double>(n_timeSteps);
+  valueMap["tanh(d0SigTJVA/10)"] = std::vector<double>(n_timeSteps);
+  valueMap["tanh(d0TJVA/10)"] = std::vector<double>(n_timeSteps);
   valueMap["qOverP*1000"] = std::vector<double>(n_timeSteps);
   valueMap["numberOfInnermostPixelLayerHits"] = std::vector<double>(n_timeSteps);
   valueMap["numberOfPixelSharedHits"] = std::vector<double>(n_timeSteps);
@@ -276,27 +274,44 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
   valueMap["numberOfTRTHits"] = std::vector<double>(n_timeSteps);
   valueMap["eProbabilityHT"] = std::vector<double>(n_timeSteps);
   valueMap["nPixHits"] = std::vector<double>(n_timeSteps);
-  valueMap["nSiHits"] = std::vector<double>(n_timeSteps);
+  valueMap["nSCTHits"] = std::vector<double>(n_timeSteps);
+  valueMap["dz0_TV_PV0"] = std::vector<double>(n_timeSteps);
+  valueMap["log_sumpt_TV"] = std::vector<double>(n_timeSteps);
+  valueMap["log_sumpt2_TV"] = std::vector<double>(n_timeSteps);
+  valueMap["log_sumpt_PV0"] = std::vector<double>(n_timeSteps);
+  valueMap["log_sumpt2_PV0"] = std::vector<double>(n_timeSteps);
   valueMap["charge"] = std::vector<double>(n_timeSteps);
 
-  double ptJetSeed = xTau.ptJetSeed();
-  double log_TauSeedPt = std::log(ptJetSeed);
+  // tau variable
+  double log_ptJetSeed = std::log( xTau.ptJetSeed() );
 
+  // vertex variables
+  double dz0_TV_PV0 = 0., sumpt_TV = 0., sumpt2_TV = 0., sumpt_PV0 = 0., sumpt2_PV0 = 0.;
+  if(vertexContainer != nullptr && !vertexContainer->empty()) {
+    dz0_TV_PV0 = xTau.vertex()->z() - vertexContainer->at(0)->z();
+
+    for (const ElementLink<xAOD::TrackParticleContainer>& trk : vertexContainer->at(0)->trackParticleLinks()) {
+      sumpt_PV0 += (*trk)->pt();
+      sumpt2_PV0 += pow((*trk)->pt(), 2.);
+    }
+    for (const ElementLink<xAOD::TrackParticleContainer>& trk : xTau.vertex()->trackParticleLinks()) {
+      sumpt_TV += (*trk)->pt();
+      sumpt2_TV += pow((*trk)->pt(), 2.);
+    }
+  }
+
+  double log_sumpt_TV = (sumpt_TV>0.) ? std::log(sumpt_TV) : 0.;
+  double log_sumpt2_TV = (sumpt2_TV>0.) ? std::log(sumpt2_TV) : 0.;
+  double log_sumpt_PV0 = (sumpt_PV0>0.) ? std::log(sumpt_PV0) : 0.;
+  double log_sumpt2_PV0 = (sumpt2_PV0>0.) ? std::log(sumpt2_PV0) : 0.;
+
+  // track variables
   unsigned int i = 0;
+
   for(xAOD::TauTrack* xTrack : vTracks)
     {
       const xAOD::TrackParticle* xTrackParticle = xTrack->track();
-
-      double trackPt = xTrackParticle->pt();
-      double trackEta = xTrackParticle->eta();
-      double charge = xTrackParticle->charge();
-      double z0SinthetaTJVA = xTrack->z0sinthetaTJVA();
-      double rConv = xTrack->rConv();
-      double rConvII = xTrack->rConvII();
-      double dRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
-      double d0 = xTrack->d0TJVA();
-      double qOverP = xTrackParticle->qOverP();
-
+      
       uint8_t numberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(numberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
       uint8_t nPixelHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nPixelHits, xAOD::numberOfPixelHits) );
       uint8_t nPixelSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nPixelSharedHits, xAOD::numberOfPixelSharedHits) );
@@ -304,29 +319,35 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
       uint8_t nSCTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTHits, xAOD::numberOfSCTHits) );
       uint8_t nSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTSharedHits, xAOD::numberOfSCTSharedHits) );
       uint8_t nSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
-      uint8_t nTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
       uint8_t nTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nTRTHits, xAOD::numberOfTRTHits) );
-
       float eProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( eProbabilityHT, xAOD::eProbabilityHT) );
-  
-      valueMap["log(trackPt)"][i] = std::log(trackPt);
-      valueMap["log(jetSeedPt)"][i] = log_TauSeedPt;
-      valueMap["(trackPt/jetSeedPt[0])"][i] = (trackPt/ptJetSeed);
-      valueMap["trackEta"][i] = trackEta;
-      valueMap["z0sinThetaTJVA"][i] = z0SinthetaTJVA;
-      valueMap["log(rConv)"][i] = std::log(rConv);
-      valueMap["tanh(rConvII/500)"][i] = std::tanh(rConvII/500.0);
-      valueMap["dRJetSeedAxis"][i] = dRJetSeedAxis;
-      valueMap["tanh(d0/10)"][i] = std::tanh(d0/10.);
-      valueMap["qOverP*1000"][i] = qOverP*1000.0;
-      valueMap["numberOfInnermostPixelLayerHits"][i] = (float) numberOfInnermostPixelLayerHits;
-      valueMap["numberOfPixelSharedHits"][i] = (float) nPixelSharedHits;
-      valueMap["numberOfSCTSharedHits"][i] = (float) nSCTSharedHits;
-      valueMap["numberOfTRTHits"][i] = (float) nTRTHits;
+
+      valueMap["log(trackPt)"][i] = std::log( xTrackParticle->pt() );
+      valueMap["log(jetSeedPt)"][i] = log_ptJetSeed;
+      valueMap["trackPt/tauPtIntermediateAxis"][i] = xTrackParticle->pt()/xTau.ptIntermediateAxis();
+      valueMap["trackEta"][i] = xTrackParticle->eta();
+      valueMap["z0sinthetaTJVA"][i] = xTrack->z0sinthetaTJVA();
+      valueMap["z0sinthetaSigTJVA"][i] = xTrack->z0sinthetaSigTJVA();
+      valueMap["log(rConv)"][i] = std::log( xTrack->rConv() );
+      valueMap["tanh(rConvII/500)"][i] = std::tanh( xTrack->rConvII()/500. );
+      valueMap["dRJetSeedAxis"][i] = xTrack->dRJetSeedAxis(xTau);
+      valueMap["dRIntermediateAxis"][i] = xTrack->p4().DeltaR( xTau.p4(xAOD::TauJetParameters::IntermediateAxis) );
+      valueMap["tanh(d0SigTJVA/10)"][i] = std::tanh( xTrack->d0SigTJVA()/10. );
+      valueMap["tanh(d0TJVA/10)"][i] = std::tanh( xTrack->d0TJVA()/10. );
+      valueMap["qOverP*1000"][i] = xTrackParticle->qOverP()*1000.;
+      valueMap["numberOfInnermostPixelLayerHits"][i] = (double) numberOfInnermostPixelLayerHits;
+      valueMap["numberOfPixelSharedHits"][i] = (double) nPixelSharedHits;
+      valueMap["numberOfSCTSharedHits"][i] = (double) nSCTSharedHits;
+      valueMap["numberOfTRTHits"][i] = (double) nTRTHits;
       valueMap["eProbabilityHT"][i] = eProbabilityHT;
-      valueMap["nPixHits"][i] = (float) (nPixelHits + nPixelDeadSensors);
-      valueMap["nSiHits"][i] = (float) (nPixelHits + nPixelDeadSensors + nSCTHits + nSCTDeadSensors);
-      valueMap["charge"][i] = charge;
+      valueMap["nPixHits"][i] = (double) (nPixelHits + nPixelDeadSensors);
+      valueMap["nSCTHits"][i] = (double) (nSCTHits + nSCTDeadSensors);
+      valueMap["dz0_TV_PV0"][i] = dz0_TV_PV0;
+      valueMap["log_sumpt_TV"][i] = log_sumpt_TV;
+      valueMap["log_sumpt2_TV"][i] = log_sumpt2_TV;
+      valueMap["log_sumpt_PV0"][i] = log_sumpt_PV0;
+      valueMap["log_sumpt2_PV0"][i] = log_sumpt2_PV0;
+      valueMap["charge"][i] = xTrackParticle->charge();
 
       ++i;
       if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks) {
@@ -336,11 +357,3 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
 
   return StatusCode::SUCCESS;
 } 
-
-//______________________________________________________________________________
-//StatusCode TrackRNN::setTriggerVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track)
-//{
-//  // NOT YET IMPLEMENTED
-//
-//  return StatusCode::SUCCESS;
-//}

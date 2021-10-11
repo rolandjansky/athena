@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -118,13 +118,13 @@ G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
     // Generate random position of photon on cone surface defined by Theta
     rand = G4UniformRand();
     const float phi = 2.*M_PI*rand;
-    const float sinPhi = sin(phi);
-    const float cosPhi = cos(phi);
+    const float sinPhi = std::sin(phi);
+    const float cosPhi = std::cos(phi);
 
     // calculate x,y, and z components of photon momentum
     // (in coord system with primary particle direction aligned with the z axis)
     // and Rotate momentum direction back to global reference system
-    const float sinTheta = sqrt(sin2Theta);
+    const float sinTheta = std::sqrt(sin2Theta);
     const float px = sinTheta*cosPhi;
     const float py = sinTheta*sinPhi;
     const float pz = cosTheta;
@@ -145,7 +145,7 @@ G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
     else if (PT==0) Transmission=1.0; // if photon is along Y-axis it will be completely transmitted into the PMT
     else {
 
-      const float Theta = M_PI/2.0-atan(PT/PY);
+      const float Theta = M_PI/2.0-std::atan(PT/PY);
 
       if (Theta < THETA_CRITICAL_QUARTZ) continue;
       else Transmission=1.0;

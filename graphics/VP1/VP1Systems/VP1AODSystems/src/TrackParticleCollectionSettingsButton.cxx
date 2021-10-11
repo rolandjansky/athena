@@ -44,7 +44,7 @@ public:
   }
   TrackParticleCollectionSettingsButton * theclass;
   QWidget * editwindow;
-  Ui::TrackParticleCollectionSettingsForm editwindow_ui;
+  Ui::TrackParticleCollectionSettingsForm editwindow_ui{};
   
   VP1MaterialButton* matButton;// main collection colour
   VP1MaterialButton* defaultParametersMatButton;

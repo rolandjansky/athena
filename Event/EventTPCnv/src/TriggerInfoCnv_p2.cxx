@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/TriggerInfo.h"
 #include "EventTPCnv/TriggerInfoCnv_p2.h"
-
-void TriggerInfoCnv_p2::transToPers(const TriggerInfo* trans, TriggerInfo_p2* pers, MsgStream &log)
-{
-  const TriggerInfoCnv_p2* cthis = this;
-  cthis->transToPers (trans, pers, log);
-}
 
 void TriggerInfoCnv_p2::transToPers(const TriggerInfo* trans, TriggerInfo_p2* pers, MsgStream &) const {
 
@@ -30,12 +24,6 @@ void TriggerInfoCnv_p2::transToPers(const TriggerInfo* trans, TriggerInfo_p2* pe
     
 }
 
-void TriggerInfoCnv_p2::persToTrans(const TriggerInfo_p2* pers, TriggerInfo* trans, MsgStream &log)
-{
-  const TriggerInfoCnv_p2* cthis = this;
-  cthis->persToTrans (pers, trans, log);
-}
-
 void TriggerInfoCnv_p2::persToTrans(const TriggerInfo_p2* pers, TriggerInfo* trans, MsgStream &)  const {
 
     trans->setStatusElement       (pers->m_statusElement);
@@ -54,13 +42,7 @@ void TriggerInfoCnv_p2::persToTrans(const TriggerInfo_p2* pers, TriggerInfo* tra
     trans->setStreamTags (std::move (st));
 }
 
-TriggerInfo* TriggerInfoCnv_p2::createTransient (const TriggerInfo_p2* persObj, MsgStream& log)
-{
-  const TriggerInfoCnv_p2* cthis = this;
-  return cthis->createTransient (persObj, log);
-}
-
-TriggerInfo* TriggerInfoCnv_p2::createTransient (const TriggerInfo_p2* persObj, MsgStream& log) const
+TriggerInfo* TriggerInfoCnv_p2::createTransientConst (const TriggerInfo_p2* persObj, MsgStream& log) const
 {
   auto trans = std::make_unique<TriggerInfo>();
   persToTrans(persObj, trans.get(), log);

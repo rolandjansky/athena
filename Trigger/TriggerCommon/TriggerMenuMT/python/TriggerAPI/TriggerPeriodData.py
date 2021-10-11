@@ -218,7 +218,7 @@ class TriggerPeriodData:
 
 def test():
     from AthenaCommon.Logging import logging
-    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.TriggerEnums' )
+    log = logging.getLogger(__name__)
     log.info(TriggerPeriodData( TriggerPeriod.y2017 ).grl)
     log.info(TriggerPeriodData( TriggerPeriod.y2017lowmu ).grl)
 

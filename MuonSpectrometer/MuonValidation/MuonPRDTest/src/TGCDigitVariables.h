@@ -19,23 +19,12 @@ class TGCDigitVariables : public ValAlgVariables
                    TTree* tree,
 						 std::string containername,
 						 MSG::Level msglvl) :
-ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
-    m_TgcIdHelper(0),
-    m_TGC_nDigits(0),
-    m_TGC_dig_stationName(0),
-    m_TGC_dig_stationEta(0),
-    m_TGC_dig_stationPhi(0),
-    m_TGC_dig_gas_gap(0),
-    m_TGC_dig_channel(0),
-    m_TGC_dig_isStrip(0)
+ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
   {
     setHelper(idhelper);
   }
 
-  ~TGCDigitVariables()
-  {
-    deleteVariables();
-  }
+  ~TGCDigitVariables() = default;
 
   StatusCode initializeVariables();
   StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
@@ -62,7 +51,11 @@ ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
   std::vector<int> m_TGC_dig_gas_gap;
   std::vector<int> m_TGC_dig_channel;
   std::vector<int> m_TGC_dig_isStrip;
-
+  std::vector<double> m_TGC_dig_localPosX;
+  std::vector<double> m_TGC_dig_localPosY;
+  std::vector<double> m_TGC_dig_globalPosX;
+  std::vector<double> m_TGC_dig_globalPosY;
+  std::vector<double> m_TGC_dig_globalPosZ;
 };
 
 #endif // TGCDIGITVARIABLES_H

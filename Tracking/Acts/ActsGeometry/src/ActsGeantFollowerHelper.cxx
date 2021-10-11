@@ -194,7 +194,7 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
 
     Acts::Vector4 actsStart(pos.x(),pos.y(),pos.z(),0);
     Acts::Vector3 dir = nmom.normalized();
-    m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters(surface, gctx.context(), actsStart, dir, mom.mag()/1000, charge));
+    m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters::create(surface, gctx.context(), actsStart, dir, mom.mag()/1000, charge).value());
   }
   // jumping over inital step
   m_treeData->m_g4_steps = (m_treeData->m_g4_steps == -1) ? 0 : m_treeData->m_g4_steps;

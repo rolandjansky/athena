@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNT_BeamInstrumentation.h"
@@ -168,10 +168,7 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
   else
     {
       const unsigned nScint=m_scint_names.size();
-      TBScintillatorCont::const_iterator it_scint = scintc->begin();
-      TBScintillatorCont::const_iterator last_scint = scintc->end();
-      for(;it_scint!=last_scint;it_scint++) {
-	const TBScintillator * scint = (*it_scint);
+      for (const TBScintillator * scint : *scintc) {
  	const std::string name = scint->getDetectorName();
 	//In the initialize method we build the vectors of ntuple-items for ADCs and BPCs that
 	//the same scintillators have the same index. We search the name-vector and use the index
@@ -204,10 +201,7 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
   else
     {
       const unsigned nBPCs=m_bpc_names.size();
-      TBBPCCont::const_iterator it_bpc = bpcc->begin();
-      TBBPCCont::const_iterator last_bpc = bpcc->end();
-      for(;it_bpc!=last_bpc;it_bpc++) {
-        const TBBPC * bpc = (*it_bpc);
+      for (const TBBPC * bpc : *bpcc) {
 	std::string name = bpc->getDetectorName();
 	unsigned NtupleVectorIndex;
 	for ( NtupleVectorIndex=0; NtupleVectorIndex!=nBPCs; NtupleVectorIndex++) 
@@ -228,10 +222,7 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
       ATH_MSG_ERROR ( " Cannot read TBBPCRawCont from StoreGate! key= " <<m_containerKey3);
     } else {
       const unsigned nBPCs=m_bpc_names.size();
-      TBBPCRawCont::const_iterator it_bpcr = bpccr->begin();
-      TBBPCRawCont::const_iterator last_bpcr = bpccr->end();      
-      for(;it_bpcr!=last_bpcr;it_bpcr++) {
-        const TBBPCRaw * bpcr = (*it_bpcr);
+      for (const TBBPCRaw * bpcr : *bpccr) {
 	std::string name = bpcr->getDetectorName();
         unsigned NtupleVectorIndex;
         for ( NtupleVectorIndex=0; NtupleVectorIndex!=nBPCs; NtupleVectorIndex++){
@@ -311,7 +302,7 @@ StatusCode CBNT_BeamInstrumentation::CBNT_finalize()
   return StatusCode::SUCCESS;
 }
 
-std::string CBNT_BeamInstrumentation::add_name(const char* base, const std::string extension) {
+std::string CBNT_BeamInstrumentation::add_name(const char* base, const std::string& extension) {
   std::string retval(base);
   for (unsigned i=0;i<extension.size();i++) {
     const char& ch=extension[i];

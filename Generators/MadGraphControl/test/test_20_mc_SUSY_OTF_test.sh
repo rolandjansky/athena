@@ -4,13 +4,13 @@
 # art-include: master/AthGeneration
 # art-description: MadGraph Event Generation Test - SUSY OTF EVNT+TXT
 # art-type: grid
-# art-output: test_lhe_events.events
+# art-output: test_lhe_events.tar.gz
 # art-output: output_hists.root
 # art-output: EVNT.root
 # art-output: dcube
 # art-html: dcube
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --outputTXTFile=test_lhe_events --jobConfig=950120
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --outputTXTFile=test_lhe_events.tar.gz --jobConfig=950120
 
 echo "art-result: $? Gen_tf"
 

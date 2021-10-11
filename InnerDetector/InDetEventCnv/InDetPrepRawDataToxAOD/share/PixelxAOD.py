@@ -96,8 +96,6 @@ xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = True
 xAOD_PixelPrepDataToxAOD.WriteNNinformation   = InDetDxAODFlags.DumpPixelNNInfo()
 #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
 #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
-if InDetFlags.doSLHC():
-    xAOD_PixelPrepDataToxAOD.WriteNNinformation=False
 
 IDDerivationSequence += xAOD_PixelPrepDataToxAOD
 if (printIdTrkDxAODConf):
@@ -141,18 +139,18 @@ if (printIdTrkDxAODConf):
     print(DFTSOS)
     print(DFTSOS.properties())
 
-# Add BS error augmentation tool
-if dumpBytestreamErrors:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoBSErrDecorator
-    DFEI = DerivationFramework__EventInfoBSErrDecorator(name = "DFEventInfoBSErrDecorator",
-                                                        ContainerName = "EventInfo",
-                                                        DecorationPrefix = prefixName,
-                                                        OutputLevel =INFO)
-    ToolSvc += DFEI
-    augmentationTools+=[DFEI]
-    if (printIdTrkDxAODConf):
-        print(DFEI)
-        print(DFEI.properties())
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoPixelModuleStatusMonitoring
+DFEI = DerivationFramework__EventInfoPixelModuleStatusMonitoring(name = "DFEventInfoPixelModuleStatusMonitoring",
+                                                                 ContainerName = "EventInfo",
+                                                                 DecorationPrefix = prefixName,
+                                                                 OutputLevel =INFO)
+ToolSvc += DFEI
+augmentationTools+=[DFEI]
+if (printIdTrkDxAODConf):
+    print(DFEI)
+    print(DFEI.properties())
+
+
 
 # Add decoration with truth parameters if running on simulation
 #if isIdTrkDxAODSimulation:

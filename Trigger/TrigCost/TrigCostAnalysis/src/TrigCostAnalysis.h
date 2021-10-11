@@ -5,7 +5,7 @@
 #ifndef TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H
 #define TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H 1
 
-#include "AthenaBaseComps/AthHistogramAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigConfData/HLTMenu.h"
@@ -14,12 +14,14 @@
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
 #include "Gaudi/Parsers/Factory.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "MonitoredRange.h"
 
 #include <unordered_map>
 
-class TH1; //!< Forward reference
+#include "TH1.h"
+#include "TTree.h"
 
 /**
  * @class TrigCostAnalysis
@@ -29,7 +31,7 @@ class TH1; //!< Forward reference
  * config service, identify the time Range that the event falls into, and dispatches monitoring to the
  * correct time range. Time ranges, their monitors, and their monitor's counters are all instantiated on-demand.
  */
-class TrigCostAnalysis: public ::AthHistogramAlgorithm { 
+class TrigCostAnalysis: public ::AthAlgorithm { 
   public: 
 
     /**
@@ -70,7 +72,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      * @param[in] tDir Histogram name & directory.
      * @return Cached pointer to histogram. Used to fill histogram without having to perform THishSvc lookup. 
      */
-    TH1* bookGetPointer_fwd(TH1* hist, const std::string& tDir = "");
+    TH1* bookGetPointer(TH1* hist, const std::string& tDir = "");
+
+    ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
 
     Gaudi::Property<bool> m_singleTimeRange { this, "UseSingleTimeRange", false,
       "Use a single time range rather than splitting by LB" };
@@ -78,8 +82,11 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<std::string> m_singleTimeRangeName { this, "SingleTimeRangeName", "All",
       "Name for single time range" };
 
-    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_18022021.txt",
+    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_29042021.txt",
       "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains. To be updated periodically." };
+
+    Gaudi::Property<std::vector<std::string>> m_additionalHashList { this, "AdditionalHashList", {},
+      "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains." };
 
     Gaudi::Property<size_t> m_TimeRangeLengthLB { this, "TimeRangeLengthLB", 50,
       "Length of each variable length Time Range in LB" };
@@ -96,7 +103,7 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<bool> m_doMonitorGlobal { this, "DoMonitorGlobal", true,
       "Monitor global event properties" };
 
-    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
+    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", false,
       "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
     Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
@@ -104,6 +111,12 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     Gaudi::Property<bool> m_doMonitorChain { this, "DoMonitorChain", true,
       "Monitor individual chains by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorChainAlgorithm { this, "DoMonitorChainAlgorithm", false,
+      "Monitor algorithms associated with chains by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorSequence { this, "DoMonitorSequence", true,
+      "Monitor individual sequences by name" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };

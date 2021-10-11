@@ -21,6 +21,7 @@ namespace InDet {
       // secondaries
       KshortDecay,
       LambdaDecay,
+      TauDecay,
       GammaConversion,
       OtherDecay,
       HadronicInteraction,
@@ -67,6 +68,12 @@ namespace InDet {
       return false;
     }
 
+    /** from tau decay */
+    inline bool isFromTau(int origin) {
+      if (origin & (0x1 << TauDecay)) return true;
+      return false;
+    }
+
     /** from long living particle decays or gamma conversions or hadronic interactions and anything else with barcode > 200000 */ 
     inline bool isSecondary(int origin) {
       if (origin & (0x1 << KshortDecay)) return true;
@@ -78,26 +85,33 @@ namespace InDet {
       return false;
     }
 
-    /** from B decay chain */
+    /** from B decay chain including B-->D */
     inline bool isFromB(int origin) {
       if (origin & (0x1 << BHadronDecay)) return true;
       return false;
     }
 
-    /** from D decay chain*/
+    /** from D decay chain including B-->D */
     inline bool isFromD(int origin) {
       if (origin & (0x1 << DHadronDecay)) return true;
       return false;
     }
 
-    /** from D decay chain excluding D from B */
+    /** from B decay chain excluding B-->D */
+    inline bool isFromBNotFromD(int origin) {
+      if (isFromD(origin)) return false;
+      if (origin & (0x1 << BHadronDecay)) return true;
+      return false;
+    }
+    
+    /** from D decay chain excluding B-->D */
     inline bool isFromDNotFromB(int origin) {
       if (isFromB(origin)) return false;
       if (origin & (0x1 << DHadronDecay)) return true;
       return false;
     }
 
-    /** from from B-->D decay chain */
+    /** from B-->D decay chain */
     inline bool isFromDfromB(int origin) {
       if (isFromB(origin) && isFromD(origin)) return true;
       return false;

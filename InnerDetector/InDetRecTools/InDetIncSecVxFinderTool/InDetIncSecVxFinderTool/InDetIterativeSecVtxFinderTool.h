@@ -30,13 +30,15 @@
 #include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
 #include "TrkParameters/TrackParameters.h"
 // we may save out some private stuff
-#include "TTree.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include <vector>
 
+
+class TTree;
 
 namespace Trk
 {
@@ -46,10 +48,7 @@ namespace Trk
  class ITrackLink;
  class IVertexSeedFinder;
  class IImpactPoint3dEstimator;
-// class IVertexTrackCompatibilityEstimator;
-// class ImpactPoint3dAtaPlaneFactory;
  class IVertexLinearizedTrackFactory;
-// class ITrkDistanceFinder;
  class IVxCandidateXAODVertex;
 }
 //
@@ -170,34 +169,34 @@ public:
    bool m_doMaxTracksCut; 
    unsigned int m_maxTracks;
 
-   std::vector<const Trk::TrackParameters*> * m_seedperigees;
+   std::vector<const Trk::TrackParameters*> * m_seedperigees{};
 
    void SGError(const std::string& errService);
 
    virtual void printParameterSettings();
  
-   TTree*              m_OTree ;
+   TTree*              m_OTree{} ;
 
-   long int m_evtNum ;
-   int m_iterations ;
+   long int m_evtNum{} ;
+   int m_iterations{} ;
 
-   std::vector<int> *m_leastmodes ;
-   std::vector< std::vector < float > > * m_sdFsmwX;
-   std::vector< std::vector < float > > * m_sdFsmwY;
-   std::vector< std::vector < float > > * m_sdFsmwZ;
-   std::vector< std::vector < float > > * m_sdcrsWght;
+   std::vector<int> *m_leastmodes{} ;
+   std::vector< std::vector < float > > * m_sdFsmwX{};
+   std::vector< std::vector < float > > * m_sdFsmwY{};
+   std::vector< std::vector < float > > * m_sdFsmwZ{};
+   std::vector< std::vector < float > > * m_sdcrsWght{};
 
-   std::vector<int> * m_nperiseed ;
-   std::vector < float > *m_seedX ;
-   std::vector < float > *m_seedY ;
-   std::vector < float > *m_seedZ ;
-   std::vector < float > *m_seedXYdist ;
-   std::vector < float > *m_seedZdist ;
-   std::vector < int > *m_seedac ;
+   std::vector<int> * m_nperiseed{} ;
+   std::vector < float > *m_seedX{} ;
+   std::vector < float > *m_seedY{} ;
+   std::vector < float > *m_seedZ{} ;
+   std::vector < float > *m_seedXYdist{} ;
+   std::vector < float > *m_seedZdist{} ;
+   std::vector < int > *m_seedac{} ;
 
-   mutable float m_v0mass, m_v0ee, m_dir, m_ndf, m_hif ;
-   mutable int m_ntracks ;
-   mutable bool m_goodVertex ;
+   mutable float m_v0mass{}, m_v0ee{}, m_dir{}, m_ndf{}, m_hif{} ;
+   mutable int m_ntracks{} ;
+   mutable bool m_goodVertex{} ;
    mutable std::vector< Amg::VectorX > m_trkdefiPars ;
 
  };//end of class definitions

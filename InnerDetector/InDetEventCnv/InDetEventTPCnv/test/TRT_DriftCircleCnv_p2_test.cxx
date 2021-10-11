@@ -39,7 +39,7 @@ void compare (const InDet::TRT_DriftCircle& p1,
 
 void testit (const InDet::TRT_DriftCircle& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TRT_DriftCircleCnv_p2 cnv;
   InDet::TRT_DriftCircle_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -72,7 +72,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   InDet::TRT_DriftCircle trans1 (Identifier (1234),
                                  locpos,
                                  rdoList,
-                                 new Amg::MatrixX(cov),
+                                 Amg::MatrixX(cov),
                                  nullptr,
                                  54321);
   testit (trans1);

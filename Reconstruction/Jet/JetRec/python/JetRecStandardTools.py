@@ -342,45 +342,25 @@ ctm.add( CorrectPFOTool("CorrectPFOTool",
                         InputIsEM = True,
                         CalibratePFO = False,
                         UseChargedWeights = True,
-                        InputType = xAODType.ParticleFlow
+                        InputType = xAODType.FlowElement
                         ),
          alias = 'correctPFO' )
 
-ctm.add( CorrectPFOTool("CorrectPFOTool_FE",
-                        WeightPFOTool = jtm.pflowweighter,
-                        InputIsEM = True,
-                        CalibratePFO = False,
-                        UseChargedWeights = True,
-                        InputType = xAODType.FlowElement
-                        ),
-         alias = 'correctPFO_FE' )
-
 # this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
-ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.ParticleFlow),
+ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.FlowElement),
          alias = 'chsPFO' )
-
-ctm.add( ChargedHadronSubtractionTool("CHSTool_FE", InputType = xAODType.FlowElement),
-         alias = 'chsPFO_FE' )
 
 # Options to disable dependence on primary vertex container
 # for PFO corrections (e.g. when running cosmics)
 if not (jetFlags.useTracks and jetFlags.useVertices):
   ctm.modifiersMap['correctPFO'].CorrectNeutral=False
-  ctm.modifiersMap['correctPFO_FE'].CorrectNeutral=False
   ctm.modifiersMap['chsPFO'].IgnoreVertex=True
-  ctm.modifiersMap['chsPFO_FE'].IgnoreVertex=True
 
 # Run the above tools to modify PFO
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
                                       InputContainer = "JetETMiss",
                                       OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
                                       modList = ['correctPFO', 'chsPFO'] )
-
-jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS_FE",
-                                      InputContainer = "JetETMiss",
-                                      OutputContainer = "CHS",  #"FlowElements" will be appended later
-                                      modList = ['correctPFO_FE', 'chsPFO_FE'],
-                                      InputType = xAODType.FlowElement )
 
 # EM-scale pflow.
 jtm += PseudoJetAlgorithm(
@@ -389,14 +369,10 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
   SkipNegativeEnergy = True,
-)
-
-jtm += PseudoJetAlgorithm(
-  "empflowget_fe",
-  Label = "EMPFlowFE",
-  InputContainer = "CHSFlowElements",
-  OutputContainer = "PseudoJetEMPFlowFE",
-  SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
 )
 
 # EM-scale pflow with custom selection for the primary vertex 
@@ -406,6 +382,36 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CustomVtxParticleFlowObjects",
   OutputContainer = "PseudoJetPFlowCustomVtx",
   SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
+)
+
+#New sideband definition (default for precision recs)
+jtm += PseudoJetAlgorithm(
+  "empflowpusbget",
+  Label = "EMPFlowPUSB",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowPUSB",
+  SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = True,
+)
+
+# EM-scale pflow - neutral objects only
+jtm += PseudoJetAlgorithm(
+  "empflowneutget",
+  Label = "EMPFlowNeut",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowNeut",
+  SkipNegativeEnergy = True,
+  UseCharged = False,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = False,
 )
 
 # AntiKt2 track jets.
@@ -573,6 +579,7 @@ jtm += JetWidthTool("width")
 jtm += JetCaloEnergies("jetens")
 
 # Jet vertex fraction with selection.
+# This is never used without jtm.trksummoms when configured from here, so suppress input dependence.
 jtm += JetVertexFractionTool(
   "jvf",
   VertexContainer = jtm.vertexContainer,
@@ -583,11 +590,12 @@ jtm += JetVertexFractionTool(
   JVFName = "JVF",
   K_JVFCorrScale = 0.01,
   #Z0Cut = 3.0,
-  PUTrkPtCut = 30000.0
+  PUTrkPtCut = 30000.0,
+  SuppressInputDependence = True
 )
 
 # Jet vertex tagger.
-# This is never used without jtm.jvf when configured from here, so suppress input dependence.
+# This is never used without jtm.jvf and jtm.trksummoms when configured from here, so suppress input dependence.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,

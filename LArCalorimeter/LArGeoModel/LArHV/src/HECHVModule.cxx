@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/HECHVModule.h"
@@ -35,7 +35,7 @@ public:
   unsigned int iPhi;
   unsigned int iSampling;
   
-  const HECHVSubgap* subgaps[4];
+  const HECHVSubgap* subgaps[4]{};
 };
 
 HECHVModule::HECHVModule(const HECHVManager *manager

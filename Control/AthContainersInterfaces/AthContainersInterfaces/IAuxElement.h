@@ -22,6 +22,7 @@
 namespace SG {
 
 
+class ConstAuxElement;
 class AuxElement;
 
 
@@ -87,9 +88,10 @@ protected:
 
  
 private:
-  // These functions are for the use of SG::AuxElement, but should not
+  // These functions are for the use of SG::*AuxElement, but should not
   // be accessible to any further derived classes.  So make them private
   // with friendship rather than protected.
+  friend class SG::ConstAuxElement;
   friend class SG::AuxElement;
 
 

@@ -3,6 +3,15 @@
 */
 
 namespace Trk {
+
+/** Return the surface type */
+inline SurfaceType
+PerigeeSurface::type() const
+{
+  return PerigeeSurface::staticType;
+}
+
+
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
 inline Surface::ChargedTrackParametersUniquePtr
@@ -111,17 +120,15 @@ PerigeeSurface::createParameters(const Amg::Vector3D& position,
     position, momentum, charge, *this, std::move(cov));
 }
 
-/** Return the surface type */
-inline Surface::SurfaceType
-PerigeeSurface::type() const
-{
-  return PerigeeSurface::staticType;
-}
-
 inline PerigeeSurface*
 PerigeeSurface::clone() const
 {
   return new PerigeeSurface(*this);
+}
+
+inline std::unique_ptr<PerigeeSurface> 
+PerigeeSurface::uniqueClone() const{
+  return std::unique_ptr<PerigeeSurface>(clone());
 }
 
 inline const Amg::Vector3D&
@@ -151,7 +158,7 @@ PerigeeSurface::insideBoundsCheck(const Amg::Vector2D&,
 
 inline bool
 PerigeeSurface::isOnSurface(const Amg::Vector3D&,
-                            BoundaryCheck,
+                            const BoundaryCheck&,
                             double,
                             double) const
 {

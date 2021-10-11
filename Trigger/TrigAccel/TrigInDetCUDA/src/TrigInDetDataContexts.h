@@ -50,6 +50,39 @@ private:
   SeedMakingDeviceContext(const SeedMakingDeviceContext& sc) : m_deviceId(sc.m_deviceId) {};
 };
 
+struct SeedMakingManagedDeviceContext {
+public:
+SeedMakingManagedDeviceContext() : m_deviceId(-1), m_spacepoints(0), d_size(0), h_size(0), m_size(0) {};
+  size_t hostSize() { return h_size;}
+  size_t deviceSize() { return d_size;}
+  size_t managedSize() { return m_size;}
+  
+  int m_deviceId;
+  cudaStream_t m_stream;
+
+
+  unsigned char *m_settings;
+
+
+  unsigned char *m_spacepoints;
+
+  unsigned char *d_detmodel;
+  
+
+
+
+  unsigned char *m_outputseeds;
+  
+  unsigned char *d_doubletstorage;
+  unsigned char *d_doubletinfo;
+  
+  size_t d_size, h_size, m_size;
+  GPU_PARAMETERS m_gpuParams;
+  
+private:
+  SeedMakingManagedDeviceContext(const SeedMakingManagedDeviceContext& sc) : m_deviceId(sc.m_deviceId) {};
+};
+
 
 
 

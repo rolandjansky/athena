@@ -67,34 +67,34 @@ InDetGlobalSynchMonTool::InDetGlobalSynchMonTool(
     const std::string & name,
     const IInterface* parent)			 
     : InDetGlobalMotherTrigMonTool(type, name, parent),
-      m_tracks(0),
+      m_tracks(nullptr),
       m_n_sct_robs_JO(90),
       m_n_trt_robs_JO(190),
       m_n_pix_robs_JO(132),
-      m_diff_LVL1ID(0),
-      m_diff_Overview_LVL1ID(0),
-      m_diff_BCID(0),
-      m_diff_Pixel_SCT_TRT_BCID(0),
-      m_diff_Overview_BCID(0),
-      m_diff_SCT_BCID(0),
-      m_diff_TRT_BCID(0),
-      m_diff_PIX_BCID(0), 
-      m_diff_SCT_TRT_BCID(0),
-      m_diff_SCT_PIX_BCID(0),
-      m_diff_SCT_TRT_BCID_evt(0),
-      m_diff_SCT_PIX_BCID_evt(0),
+      m_diff_LVL1ID(nullptr),
+      m_diff_Overview_LVL1ID(nullptr),
+      m_diff_BCID(nullptr),
+      m_diff_Pixel_SCT_TRT_BCID(nullptr),
+      m_diff_Overview_BCID(nullptr),
+      m_diff_SCT_BCID(nullptr),
+      m_diff_TRT_BCID(nullptr),
+      m_diff_PIX_BCID(nullptr), 
+      m_diff_SCT_TRT_BCID(nullptr),
+      m_diff_SCT_PIX_BCID(nullptr),
+      m_diff_SCT_TRT_BCID_evt(nullptr),
+      m_diff_SCT_PIX_BCID_evt(nullptr),
       m_BCID(0),
       m_det_diff_BCID(0),
       m_LVL1ID(0),
       m_det_diff_LVL1ID(0),
-      m_SCT_BCID(0),
-      m_TRT_BCID(0),
-      m_PIX_BCID(0),
-      m_Pixel_Hits_BCID(0),
-      m_SCT_Hits_BCID(0),
-      m_TRT_Hits_BCID(0),
-      m_InDet_Hits_BCID(0),
-      m_Tracks_BCID(0)
+      m_SCT_BCID(nullptr),
+      m_TRT_BCID(nullptr),
+      m_PIX_BCID(nullptr),
+      m_Pixel_Hits_BCID(nullptr),
+      m_SCT_Hits_BCID(nullptr),
+      m_TRT_Hits_BCID(nullptr),
+      m_InDet_Hits_BCID(nullptr),
+      m_Tracks_BCID(nullptr)
 {
     // Get parameter values from jobOptions file 
     declareProperty("sct_robs_JO", m_n_sct_robs_JO);
@@ -145,7 +145,7 @@ StatusCode InDetGlobalSynchMonTool::bookHistograms()
 {
     bool status = true;
    
-    LWHist::LWHistAxis *axis = 0;	
+    LWHist::LWHistAxis *axis = nullptr;	
     m_diff_LVL1ID = TProfile_LW::create( "m_diff_LVL1ID",
 					 "Fraction of RODS with synchronized LVL1ID in each ID region",
 					 11,0,11);
@@ -351,20 +351,20 @@ StatusCode InDetGlobalSynchMonTool::fillHistograms()
     int prev_bcm_bcid = -1;
     int prev_bcm_lvl1id = -1;
 
-    if ( m_doTrigger == true && InDetGlobalMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS ){
+    if ( m_doTrigger && InDetGlobalMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS ){
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Triggers not found!" << endmsg;
 	m_doTrigger = false;
     }
       
     //m_doTrigger = false;  // REMOVE
 
-    if ( m_BCM_RDO != 0 ) // Protection for when there is no BCM data
+    if ( m_BCM_RDO != nullptr ) // Protection for when there is no BCM data
     {  
 	// loop over RDO container
 
 	BCM_RDO_Container::const_iterator it_bcmraw,it_bcmraw_E(m_BCM_RDO->end());
 	for ( it_bcmraw = m_BCM_RDO->begin(); it_bcmraw != it_bcmraw_E; ++it_bcmraw) {
-	    if ( (*it_bcmraw)->size() != 0) {
+	    if ( !(*it_bcmraw)->empty()) {
 		BCM_RDO_Collection::const_iterator RDO_element_first = (*it_bcmraw)->begin();
 		int bcm_bcid   = (*RDO_element_first)->getBCID();
 		int bcm_lvl1id = (*RDO_element_first)->getLVL1ID();
@@ -473,7 +473,7 @@ StatusCode InDetGlobalSynchMonTool::fillHistograms()
     n_InDet_hits += n_SCT_hits;
     // Fill the trigger related histograms
  
-    if (m_driftCircleContainer!=0) {
+    if (m_driftCircleContainer!=nullptr) {
 	int n_TRT_hits=0;
 	TRT_DriftCircleContainer::const_iterator it_col,it_col_E(m_driftCircleContainer->end());
 	for ( it_col = m_driftCircleContainer->begin(); it_col != it_col_E;  ++it_col) {
@@ -512,12 +512,12 @@ void InDetGlobalSynchMonTool::fillNTimesFast(TH2I_LW*h,double x,double y, int co
 unsigned int InDetGlobalSynchMonTool::getPixelHits(const PixelRDO_Container * collection)
 {
     int n_hits=0;
-    if ( collection != 0 )
+    if ( collection != nullptr )
     {
 	PixelRDO_Container::const_iterator it_pixcol,it_pixcol_E(collection->end());
 	for ( it_pixcol=collection->begin(); it_pixcol != it_pixcol_E; ++it_pixcol) {
 	    const InDetRawDataCollection<PixelRDORawData>* PIX_Collection(*it_pixcol);
-	    if (PIX_Collection == 0) continue;
+	    if (PIX_Collection == nullptr) continue;
    
 	    n_hits = n_hits + PIX_Collection->size();
 	}
@@ -528,11 +528,11 @@ unsigned int InDetGlobalSynchMonTool::getPixelHits(const PixelRDO_Container * co
 unsigned int InDetGlobalSynchMonTool::getSctHits(const SCT_RDO_Container * collection )
 {
     unsigned int n_SCT_hits =0 ;
-    if ( m_sctRdoContainer != 0){
+    if ( m_sctRdoContainer != nullptr){
 	SCT_RDO_Container::const_iterator it_sctcol,it_sctcol_E(collection->end());
 	for (it_sctcol = collection->begin(); it_sctcol != it_sctcol_E; ++it_sctcol) {
 	    const InDetRawDataCollection<SCT_RDORawData> * SCT_Collection(*it_sctcol);
-	    if (SCT_Collection == 0) continue;
+	    if (SCT_Collection == nullptr) continue;
 	    n_SCT_hits = n_SCT_hits + SCT_Collection->size();
 	}
     }

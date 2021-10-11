@@ -78,7 +78,7 @@ RecoMuonPlotOrganizer::~RecoMuonPlotOrganizer()
 }
   
   void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu, float weight) {
-  if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle));
+    if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle), weight);
   if (m_oTrkParamPlots) m_oTrkParamPlots->fill(mu,weight);
   if (m_oMuonParamPlots) m_oMuonParamPlots->fill(mu,weight);
   if (m_oMuRecoInfoPlots) m_oMuRecoInfoPlots->fill(mu,weight);
@@ -93,7 +93,7 @@ RecoMuonPlotOrganizer::~RecoMuonPlotOrganizer()
   // tracking related plots
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
   if (!primaryTrk) return;
-  if (m_oImpactPlots) m_oImpactPlots->fill(*primaryTrk);
+  if (m_oImpactPlots) m_oImpactPlots->fill(*primaryTrk,weight);
 }
 
 }

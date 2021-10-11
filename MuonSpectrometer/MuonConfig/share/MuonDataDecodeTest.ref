@@ -26,7 +26,6 @@ RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool          INFO Correct prd time from 
 RpcRdoToRpcPrepData                                  INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool')
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool          INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
 TgcRdoToTgcPrepData                                  INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool')
-MdtRdoToMdtPrepData.MdtRdoToM...MdtCalibrationTool   INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool          INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool          INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrepData                                  INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')

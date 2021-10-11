@@ -33,8 +33,3 @@ if doCaloTopoCluster:
      "SECOND_ENG_DENS" ,
   ]
 
-  if not doSim:
-     ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0
-  if doLArOFC:
-     if not doSim:
-         ToolSvc.LArOFCToolDefault.FromDatabase=TRUE  

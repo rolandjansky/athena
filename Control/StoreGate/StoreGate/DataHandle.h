@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHandle.h
@@ -18,6 +18,7 @@
 #include "SGTools/DataHandleBase.h"
 #include "CxxUtils/checker_macros.h"
 #include <iterator>
+#include <iostream>
 
 /** @class DataHandle
  * @brief an iterator over instances of a given type in StoreGateSvc. It d-casts
@@ -34,7 +35,6 @@
  *
  * @param DATA the data object type
  * @author ATLAS Collaboration
- * $Id: DataHandle.h,v 1.40 2008-09-26 23:37:52 calaf Exp $
  **/
 template <typename DATA> 
 class ATLAS_NOT_THREAD_SAFE DataHandle :

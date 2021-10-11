@@ -12,7 +12,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 namespace Trk {
-    class ITrackingVolumeDisplayer;
     class Surface;
     class TrackStateOnSurface;
 }  // namespace Trk
@@ -57,7 +56,7 @@ namespace Rec {
 
         /**IMuidCaloMaterialParam interface:
            TrackStateOnSurface for parameters at a scattering surface */
-        virtual const Trk::TrackStateOnSurface* trackStateOnSurface(const Trk::TrackParameters*) const = 0;
+        virtual std::unique_ptr<Trk::TrackStateOnSurface> trackStateOnSurface(const Trk::TrackParameters& params) const = 0;
     };
 
 }  // namespace Rec

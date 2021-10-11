@@ -21,7 +21,7 @@ StatusCode EFMuonMonMT :: initialize(){
   ATH_CHECK( m_CBtrackContainerKey.initialize() );
   ATH_CHECK( m_muonIso30Key.initialize() );
 
-  for( std::string chain : m_monitored_chains ){
+  for( const std::string& chain : m_monitored_chains ){
     m_doEFSA[chain] = true;
 
     if( chain.find("msonly") != std::string::npos ) m_doEFCB[chain] = false;

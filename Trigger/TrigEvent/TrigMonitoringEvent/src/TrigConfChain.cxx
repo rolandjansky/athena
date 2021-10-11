@@ -1,22 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <algorithm>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonSeq.h"
 #include "TrigMonitoringEvent/TrigConfChain.h"
-#include "TrigMonMSG.h"
 
-using namespace std;
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigConfChain");
-}
 
 //--------------------------------------------------------------------------------------      
 uint16_t Trig::getEncodedId(int level,
@@ -26,11 +19,11 @@ uint16_t Trig::getEncodedId(int level,
   uint16_t word = 0x0;
   
   if(level < 1 || level > 2) {
-    MSGService::msg.Log("Trig::getEncoded error! Bad level",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "Trig::getEncoded") << "Bad level";
     return word;
   }
   if(counter < 0 || counter >= 16384) {
-    MSGService::msg.Log("Trig::getEncoded error! Bad counter",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "Trig::getEncoded") << "Bad counter";
     return word;
   }
 
@@ -64,11 +57,11 @@ TrigConfChain::TrigConfChain()
 }
 
 //--------------------------------------------------------------------------------------      
-TrigConfChain::TrigConfChain(const string &chain_name,
+TrigConfChain::TrigConfChain(const std::string &chain_name,
 			     int           chain_counter,
 			     unsigned int  chain_id,
-			     const string &level,
-			     const string &lower_chain_name,
+                 const std::string &level,
+                 const std::string &lower_chain_name,
 			     int           lower_chain_counter,
 			     unsigned int  lower_chain_id,
 			     float         prescale,
@@ -88,7 +81,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
     m_chain_counter = static_cast<unsigned int>(chain_counter);
   }
   else {
-    MSGService::msg.Log("TrigConfChain ctor error! Bad chain counter",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfChain") << "Bad chain counter";
   }
 
   if(0 <= lower_chain_counter && lower_chain_counter < 16384) {
@@ -99,14 +92,13 @@ TrigConfChain::TrigConfChain(const string &chain_name,
   if     (level == "L1")  m_level = 1;
   else if(level == "HLT") m_level = 2;
   else {
-    std::stringstream ss;
-    ss << "TrigConfChain ctor error! " << chain_name << ": bad level " << level ;
-    MSGService::msg.Log(ss.str(),MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfChain")
+    << "TrigConfChain ctor error! " << chain_name << ": bad level " << level;
   }
 }
 
 //--------------------------------------------------------------------------------------      
-TrigConfChain::TrigConfChain(const string &chain_name,
+TrigConfChain::TrigConfChain(const std::string &chain_name,
 			     int           chain_counter,
 			     unsigned int  chain_id,
 			     float         prescale)
@@ -125,7 +117,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
     m_chain_counter = static_cast<unsigned int>(chain_counter);
   }
   else {
-    MSGService::msg.Log("TrigConfChain ctor error! Bad chain counter", MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfChain") << "Bad chain counter";
   }
 }
 
@@ -200,7 +192,7 @@ float TrigConfChain::getSignaturePrescale(const std::string &name) const
   // Find stream prescale
   //
   if(m_stream_prescale.size() != m_stream_name.size()) {
-    MSGService::msg.Log("TrigConfChain::getSignaturePrescale - logic error!",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigConfChain") << "getSignaturePrescale - logic error!";
     return 0.0;
   }
 
@@ -230,7 +222,7 @@ bool TrigConfChain::matchOutputTE(const uint32_t te_id) const
 //--------------------------------------------------------------------------------------      
 void TrigConfChain::print(std::ostream &os) const
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------      
@@ -241,25 +233,25 @@ std::string str(const TrigConfChain &o)
   s << "TrigConfChain: "
     << o.getLevel() << " " << o.getName()
     << " PS=" << o.getPS() << " PT=" << o.getPT() 
-    << " lower chain=" << o.getLowerName() << endl;
+    << " lower chain=" << o.getLowerName() << std::endl;
 
   s << "   signatures: ";
   for(unsigned int i = 0; i < o.getSignature().size(); ++i) {
     s << str(o.getSignature()[i]) << " ";
   }
-  s << endl;
+  s << std::endl;
   
   s << "   streams: ";
   for(unsigned int i = 0; i < o.getStream().size(); ++i) {
     s << o.getStream()[i] << " ";
   }
-  s << endl;
+  s << std::endl;
 
   s << "   groups: ";
   for(unsigned int i = 0; i < o.getGroup().size(); ++i) {
     s <<  o.getGroup()[i] << " ";
   }
-  s << endl;
+  s << std::endl;
   
   return s.str();
 }

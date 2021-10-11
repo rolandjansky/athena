@@ -42,27 +42,38 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
   ConeLayer() {}
 
   /**Constructor with ConeBounds components and  MaterialProperties */
-  ConeLayer(Amg::Transform3D* transform, ConeBounds* cbounds,
-            const LayerMaterialProperties& laymatprop, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+  ConeLayer(const Amg::Transform3D& transform,
+            ConeBounds* cbounds,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Constructor with ConeSurface and  MaterialProperties */
-  ConeLayer(ConeSurface* cyl, const LayerMaterialProperties& laymatprop,
-            double thickness = 0., OverlapDescriptor* od = nullptr,
+  ConeLayer(ConeSurface* cyl,
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
             int laytyp = int(Trk::active));
 
   /**Constructor with ConeSurface components and pointer to SurfaceArray
    * (passing ownership) */
-  ConeLayer(Amg::Transform3D* transform, ConeBounds* cbounds,
-            SurfaceArray* surfaceArray, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+  ConeLayer(const Amg::Transform3D& transform,
+            ConeBounds* cbounds,
+            SurfaceArray* surfaceArray,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Constructor with ConeSurface components,
      MaterialProperties and pointer SurfaceArray (passing ownership) */
-  ConeLayer(Amg::Transform3D* transform, ConeBounds* cbounds,
+  ConeLayer(const Amg::Transform3D& transform,
+            ConeBounds* cbounds,
             SurfaceArray* surfaceArray,
-            const LayerMaterialProperties& laymatprop, double thickness = 0.,
-            OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+            const LayerMaterialProperties& laymatprop,
+            double thickness = 0.,
+            OverlapDescriptor* od = nullptr,
+            int laytyp = int(Trk::active));
 
   /**Copy constructor of ConeLayer*/
   ConeLayer(const ConeLayer& cla);
@@ -92,12 +103,6 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<ConeLayer*>(this)->moveLayer(shift);
-  };
-
  private:
   /** Resize the layer to the tracking volume - not (yet) supported for
    * ConeLayer */
@@ -109,10 +114,6 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
                                         const Amg::Vector3D&,
                                         double) override final {}
 
-  /** Resize the layer to the tracking volume - not supported since this an
-   * entry layer method*/
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
 };
 
 }  // namespace Trk

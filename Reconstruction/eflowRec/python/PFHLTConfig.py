@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -39,70 +39,232 @@ def CaloGeoAndNoiseCfg(inputFlags):
 
     return result
 
+def PFExtrapolatorCfg(flags):
+    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    result = ComponentAccumulator()
+    extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
+    result.merge(extrapolator_acc)
+    result.setPrivateTools(
+        CompFactory.Trk.ParticleCaloExtensionTool(
+            "HLTPF_ParticleCaloExtension",
+            Extrapolator=extrapolator_acc.getPrimary(),
+        )
+    )
+    return result
+
+def PFTrackExtensionCfg(flags, tracktype, tracksin):
+    """ Get the track-to-calo extension after a preselection
+
+    Returns the component accumulator, the preselected track collection and the extension cache
+    """
+    result = ComponentAccumulator()
+    pretracks_name = f"HLTPFPreselTracks_{tracktype}"
+    cache_name = f"HLTPFtrackExtensionCache_{tracktype}"
+
+    result.addEventAlgo(CompFactory.PFTrackPreselAlg(
+        f"HLTPFTrackPresel_{tracktype}",
+        InputTracks=tracksin,
+        OutputTracks=pretracks_name,
+        TrackSelTool=CompFactory.InDet.InDetTrackSelectionTool(
+            CutLevel="TightPrimary",
+            minPt=500.0,
+        )
+    ))
+    result.addEventAlgo(CompFactory.Trk.PreselCaloExtensionBuilderAlg(
+        f"HLTPFTrackExtension_{tracktype}",
+        ParticleCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
+        InputTracks=pretracks_name,
+        OutputCache=cache_name,
+    ))
+
+    return result, pretracks_name, cache_name
+
+def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
+    """ Create the muon calo tagging configuration
+    
+    Return the component accumulator and the tracks with muons removed
+    """
+    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    result = ComponentAccumulator()
+    extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
+    result.merge(extrapolator_acc)
+    output_tracks = f"PFMuonCaloTagTracks_{tracktype}"
+
+    result.addEventAlgo(
+        CompFactory.PFTrackMuonCaloTaggingAlg(
+            f"PFTrackMuonCaloTaggingAlg_{tracktype}",
+            InputTracks = tracksin,
+            InputCaloExtension = extcache,
+            InputCells = cellsin,
+            OutputTracks = output_tracks,
+            MinPt = flags.Trigger.FSHad.PFOMuonRemovalMinPt,
+            MuonScoreTool = CompFactory.CaloMuonScoreTool(
+                CaloMuonEtaCut=3,
+                ParticleCaloCellAssociationTool = CompFactory.Rec.ParticleCaloCellAssociationTool(
+                    ParticleCaloExtensionTool = result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
+                    CaloCellContainer="",
+                )
+            ),
+            LooseTagTool=CompFactory.CaloMuonTag("LooseCaloMuonTag", TagMode="Loose"),
+            TightTagTool=CompFactory.CaloMuonTag("TightCaloMuonTag", TagMode="Tight"),
+            DepositInCaloTool=CompFactory.TrackDepositInCaloTool(
+                ExtrapolatorHandle=extrapolator_acc.getPrimary(),
+                ParticleCaloCellAssociationTool=CompFactory.Rec.ParticleCaloCellAssociationTool(
+                    ParticleCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
+                    CaloCellContainer=""
+                ),
+                ParticleCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
+            )
+        ),
+        primary=True,
+    )
+    return result, output_tracks
+
+def MuonIsoTagCfg(flags, tracktype, tracksin, verticesin, extcache, clustersin):
+    """ Create the muon iso tagging configuration
+    
+    Return the component accumulator and the tracks with muons removed
+    """
+    result = ComponentAccumulator()
+    output_tracks = f"PFMuonIsoTagTracks_{tracktype}"
+    result.addEventAlgo(
+        CompFactory.PFTrackMuonIsoTaggingAlg(
+            f"PFTrackMuonIsoTaggingalg_{tracktype}",
+            InputTracks = tracksin,
+            InputClusters = clustersin,
+            InputVertices = verticesin,
+            OutputTracks = output_tracks,
+            MinPt = flags.Trigger.FSHad.PFOMuonRemovalMinPt,
+            TrackIsoTool = CompFactory.xAOD.TrackIsolationTool(
+                TrackParticleLocation=tracksin,
+                VertexLocation="",
+            ),
+            CaloIsoTool = CompFactory.xAOD.CaloIsolationTool(
+                ParticleCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
+                InputCaloExtension=extcache,
+                ParticleCaloCellAssociationTool="",
+                saveOnlyRequestedCorrections=True,
+            )
+        ),
+        primary=True,
+    )
+    return result, output_tracks
+
 #---------------------------------------------------------------------------------#
 # PFlow track selection
-def HLTPFTrackSelectorCfg(inputFlags,tracksin,verticesin):
+def HLTPFTrackSelectorCfg(inputFlags,tracktype,tracksin,verticesin,clustersin,cellsin=None):
+    from eflowRec import PFOnlineMon
+    result = ComponentAccumulator()
 
-    from eflowRec.PFCfg import PFTrackSelectorAlgCfg
-    result = PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector_HLT",False)
-    PFTrackSelector = result.getEventAlgo ("PFTrackSelector_HLT")
-    PFTrackSelector.electronsName = ""
-    PFTrackSelector.muonsName = ""
-    PFTrackSelector.tracksName = tracksin
-    PFTrackSelector.VertexContainer = verticesin
+    muon_mode = inputFlags.Trigger.FSHad.PFOMuonRemoval
+    if muon_mode == "None":
+        tracks = tracksin
+        extension_cache=""
+    else:
+        ext_acc, pretracks, extension_cache = PFTrackExtensionCfg(
+            inputFlags, tracktype, tracksin
+        )
+        result.merge(ext_acc)
+        if muon_mode == "Calo":
+            if cellsin is None:
+                raise ValueError("Cells must be provided for the 'Calo' muon mode!")
+            tag_acc, tracks = MuonCaloTagCfg(
+                inputFlags, tracktype, tracksin, extension_cache, cellsin
+            )
+        elif muon_mode == "Iso":
+            tag_acc, tracks = MuonIsoTagCfg(
+                inputFlags, tracktype, tracksin, verticesin, extension_cache, clustersin
+            )
+        else:
+            raise ValueError(f"Invalid muon removal mode '{muon_mode}'")
+        result.merge(tag_acc)
+
+    result.addEventAlgo(
+        CompFactory.PFTrackSelector(
+            f"PFTrackSelector_{tracktype}",
+            trackExtrapolatorTool = CompFactory.eflowTrackCaloExtensionTool(
+                "HLTPF_eflowTrkCaloExt",
+                TrackCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(inputFlags)),
+                PFParticleCache = extension_cache,
+            ),
+            trackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool(
+                CutLevel="TightPrimary",
+                minPt = 500.0,
+            ),
+            electronsName="",
+            muonsName="",
+            tracksName=tracksin,
+            VertexContainer=verticesin,
+            eflowRecTracksOutputName=f"eflowRecTracks_{tracktype}",
+            MonTool = PFOnlineMon.getMonTool_PFTrackSelector(),
+        ),
+        primary=True,
+    )
 
     return result
 
 def getHLTPFMomentCalculatorTool(inputFlags):
-
+    result = ComponentAccumulator()
     from eflowRec.PFCfg import getPFMomentCalculatorTool
-    MomentsNames = [
-       "FIRST_PHI" 
-       ,"FIRST_ETA"
-       ,"SECOND_R" 
-       ,"SECOND_LAMBDA"
-       ,"DELTA_PHI"
-       ,"DELTA_THETA"
-       ,"DELTA_ALPHA" 
-       ,"CENTER_X"
-       ,"CENTER_Y"
-       ,"CENTER_Z"
-       ,"CENTER_MAG"
-       ,"CENTER_LAMBDA"
-       ,"LATERAL"
-       ,"LONGITUDINAL"
-       ,"FIRST_ENG_DENS" 
-       ,"ENG_FRAC_EM" 
-       ,"ENG_FRAC_MAX" 
-       ,"ENG_FRAC_CORE" 
-       ,"FIRST_ENG_DENS" 
-       ,"SECOND_ENG_DENS"
-       ,"ISOLATION"
-       ,"EM_PROBABILITY"
-       ,"ENG_POS"
-       ,"ENG_BAD_CELLS"
-       ,"N_BAD_CELLS"
-       ,"BADLARQ_FRAC"
-       ,"AVG_LAR_Q"
-       ,"AVG_TILE_Q"
-       ,"SIGNIFICANCE"
-    ]
-    PFMomentCalculatorTool = getPFMomentCalculatorTool(inputFlags,MomentsNames)
-    
-    return PFMomentCalculatorTool
 
-def PFCfg(inputFlags):
+    if inputFlags.PF.useClusterMoments:
+        MomentsNames = [
+            "FIRST_PHI" 
+            ,"FIRST_ETA"
+            ,"SECOND_R" 
+            ,"SECOND_LAMBDA"
+            ,"DELTA_PHI"
+            ,"DELTA_THETA"
+            ,"DELTA_ALPHA" 
+            ,"CENTER_X"
+            ,"CENTER_Y"
+            ,"CENTER_Z"
+            ,"CENTER_MAG"
+            ,"CENTER_LAMBDA"
+            ,"LATERAL"
+            ,"LONGITUDINAL"
+            ,"FIRST_ENG_DENS" 
+            ,"ENG_FRAC_EM" 
+            ,"ENG_FRAC_MAX" 
+            ,"ENG_FRAC_CORE" 
+            ,"FIRST_ENG_DENS" 
+            ,"SECOND_ENG_DENS"
+            ,"ISOLATION"
+            ,"EM_PROBABILITY"
+            ,"ENG_POS"
+            ,"ENG_BAD_CELLS"
+            ,"N_BAD_CELLS"
+            ,"BADLARQ_FRAC"
+            ,"AVG_LAR_Q"
+            ,"AVG_TILE_Q"
+            ,"SIGNIFICANCE"
+        ]
+    else:
+        MomentsNames = ["CENTER_MAG"]
+    PFMomentCalculatorTool = result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,MomentsNames))
+    result.setPrivateTools(PFMomentCalculatorTool)
+    return result
+
+def PFCfg(inputFlags, tracktype="", clustersin=None, calclustersin=None, tracksin=None, verticesin=None, cellsin=None):
 
     result=ComponentAccumulator()
+
+    # Set defaults for the inputs
+    if clustersin is None:
+        clustersin=inputFlags.eflowRec.RawClusterColl
+    if calclustersin is None:
+        calclustersin=inputFlags.eflowRec.CalClusterColl
+    if tracksin is None:
+        tracksin = inputFlags.eflowRec.TrackColl
+    if verticesin is None:
+        verticesin = inputFlags.eflowRec.VertexColl
 
     result.merge(TrackingGeoCfg(inputFlags))
     calogeocfg = CaloGeoAndNoiseCfg(inputFlags)
     result.merge(calogeocfg)
 
-    selcfg = HLTPFTrackSelectorCfg(inputFlags,
-                                   inputFlags.eflowRec.TrackColl,
-                                   inputFlags.eflowRec.VertexColl)
-    PFTrackSelector = selcfg.getEventAlgo ("PFTrackSelector_HLT")
+    selcfg = HLTPFTrackSelectorCfg(inputFlags, tracktype, tracksin, verticesin, clustersin, cellsin)
+    PFTrackSelector = selcfg.getPrimary()
 
     # Add monitoring tool
     from eflowRec import PFOnlineMon
@@ -114,35 +276,53 @@ def PFCfg(inputFlags):
     #---------------------------------------------------------------------------------#
     # PFlowAlgorithm -- subtraction steps
 
-    PFAlgorithm=CompFactory.PFAlgorithm
-    PFAlgorithm = PFAlgorithm("PFAlgorithm_HLT")
+
     from eflowRec.PFCfg import getPFClusterSelectorTool
-    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(inputFlags.eflowRec.RawClusterColl,
-                                                                 inputFlags.eflowRec.CalClusterColl,"PFClusterSelectorTool_HLT")
-
     from eflowRec.PFCfg import getPFCellLevelSubtractionTool,getPFRecoverSplitShowersTool
-    
-    PFAlgorithm.SubtractionToolList = [
-        getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool_HLT"),
-        getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool_HLT"),
-        ]
 
-    pfmoments = getHLTPFMomentCalculatorTool(inputFlags)
-    if not inputFlags.PF.useClusterMoments:
-        pfmoments.CaloClusterMomentsMaker.MomentsNames = ["CENTER_MAG"]
-    PFAlgorithm.BaseToolList = [pfmoments]
-
-    monTool = PFOnlineMon.getMonTool_PFAlgorithm()
-    PFAlgorithm.MonTool = monTool
-
-    result.addEventAlgo(PFAlgorithm)
+    result.addEventAlgo(
+        CompFactory.PFAlgorithm(
+            f"PFAlgorithm_HLT{tracktype}",
+            PFClusterSelectorTool = getPFClusterSelectorTool(
+                clustersin,
+                calclustersin,
+                f"PFClusterSelectorTool_HLT{tracktype}",
+            ),
+            SubtractionToolList = [
+                getPFCellLevelSubtractionTool(
+                    inputFlags,
+                    f"PFCellLevelSubtractionTool_HLT{tracktype}",
+                ),
+                getPFRecoverSplitShowersTool(
+                    inputFlags,
+                    f"PFRecoverSplitShowersTool_HLT{tracktype}"
+                )
+            ],
+            BaseToolList = [
+                result.popToolsAndMerge(getHLTPFMomentCalculatorTool(inputFlags)),
+            ],
+            MonTool = PFOnlineMon.getMonTool_PFAlgorithm(),
+            eflowRecTracksInputName = PFTrackSelector.eflowRecTracksOutputName,
+            eflowRecClustersOutputName = f"eflowRecClusters_{tracktype}",
+            PFCaloClustersOutputName = f"PFCaloCluster_{tracktype}",
+            eflowCaloObjectsOutputName = f"eflowCaloObjects_{tracktype}",
+        )
+    )
 
     #---------------------------------------------------------------------------------#
     # PFO creators here
 
     from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
-    result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,"HLTChargedParticleFlowObjects"))
-    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,"HLTNeutralParticleFlowObjects"))    
+    result.addEventAlgo(getChargedPFOCreatorAlgorithm(
+        inputFlags,
+        f"HLT_{tracktype}ChargedParticleFlowObjects",
+        f"eflowCaloObjects_{tracktype}"
+    ))
+    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(
+        inputFlags,
+        f"HLT_{tracktype}NeutralParticleFlowObjects",
+        f"eflowCaloObjects_{tracktype}"
+    ))    
     
     return result
 

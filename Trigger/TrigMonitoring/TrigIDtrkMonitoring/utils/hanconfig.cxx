@@ -70,10 +70,10 @@ std::vector<std::string> exclude;
 std::string tail( const std::string& s ) { 
   
   std::string _s = s;
-  size_t pos = _s.find("/");
+  size_t pos = _s.find('/');
   while ( pos!=std::string::npos ) { 
     _s.erase( 0, pos+1 );
-    pos = _s.find("/");
+    pos = _s.find('/');
   }
   return _s;
 }
@@ -83,12 +83,12 @@ std::string head( const std::string& s ) {
   
   std::string h = "";
   std::string _s = s;
-  size_t pos = _s.find("/");
+  size_t pos = _s.find('/');
   while ( pos!=std::string::npos ) { 
-    if ( h!="" ) h += "/";
+    if ( !h.empty() ) h += '/';
     h += _s.substr( 0, pos ); 
     _s.erase( 0, pos+1 );
-    pos = _s.find("/");
+    pos = _s.find('/');
   }
   return h;
 }
@@ -100,12 +100,12 @@ std::string strip( const std::string& s, const std::string& dir ) {
   if ( dir=="" ) return s;
 
   std::string _s = s;
-  size_t pos = _s.find("/");
+  size_t pos = _s.find('/');
   while ( pos!=std::string::npos ) { 
     std::string h = _s.substr( 0, pos );
     if ( h==dir ) return _s;
     _s.erase( 0, pos+1 );
-    pos = _s.find("/");
+    pos = _s.find('/');
   }
   return _s;
 }
@@ -113,14 +113,14 @@ std::string strip( const std::string& s, const std::string& dir ) {
 
 std::string chop( const std::string& s ) {   
   std::string _s = s;
-  size_t pos = _s.find("/");
+  size_t pos = _s.find('/');
   if ( pos!=std::string::npos ) _s.erase( 0, pos+1 );
   return _s;
 }
 
 
 std::string first( const std::string& s ) {   
-  size_t pos = s.find("/");
+  size_t pos = s.find('/');
   if ( pos!=std::string::npos ) return s.substr( 0, pos );
   return s;
 }
@@ -170,7 +170,7 @@ bool add( const std::string& hname, TKey* tobj, const std::string depth="" ) {
  
       if ( dbg ) out << depth << spacer <<  "\033[91;1m" << base << " - object :" << hname << ":\t:" << cwd << ":\t:" << strip(cwd, base) << ":\t:" <<  head(strip(cwd, base)) << ":\t:" << head(cwd) << ":\t:" << strip( head(cwd), base ) << ": \033[m\n";
     
-      if ( basepath!="" ) out << depth << spacer <<  spacer << "output = " << head(basepath+"/"+hname) << "\n";
+      if ( basepath!="" ) out << depth << spacer <<  spacer << "output = " << head(basepath+'/'+hname) << "\n";
       else                out << depth << spacer <<  spacer << "output = " << head(hname) << "\n";
 
       std::cerr << depth << spacer <<  spacer << "output = " << head(hname) << "\t\t " << basepath << " " << h0->GetName() << "\tFilled: " << hfilled( h0 ) << "\t" << h0->GetEntries() << "\n";
@@ -258,7 +258,7 @@ void search(TDirectory* td=0, const std::string& s="") {
   std::string ns = s;
 
 
-  if ( ns!="" ) ns += "/"; 
+  if ( !ns.empty() ) ns += '/';
 
 
   bool print_trailer = false;
@@ -316,7 +316,7 @@ void search(TDirectory* td=0, const std::string& s="") {
       //      bool status = false;
       
       std::string objname = ns;
-      if ( objname!="" ) objname += std::string("/") + tobj->GetName();
+      if ( !objname.empty()) objname += std::string('/') + tobj->GetName();
       
       //      if ( std::string(tobj->GetClassName()).find("TH1")!=std::string::npos )  status = add<TH1>( objname.c_str(), tobj );
       //      if ( std::string(tobj->GetClassName()).find("TH2")!=std::string::npos )  status = add<TH2>( objname.c_str(), tobj );
@@ -433,7 +433,7 @@ void cost( std::vector<std::string>& files, const std::string& directory="" ) {
   
     fptr[i]->cd();
   
-    if ( directory!="" ) fptr[i]->cd(directory.c_str());
+    if ( !directory.empty() ) fptr[i]->cd(directory.c_str());
     
     //    gDirectory->pwd();
 
@@ -578,7 +578,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if ( base == "" ) base = directory;
+  if ( base.empty() ) base = directory;
 
   /// if output file is not defined
   //  if ( output_file == "" ) return usage( std::cerr, argc, argv );
@@ -593,7 +593,7 @@ int main(int argc, char** argv) {
   
   basepath = strip( directory, base );
 
-  //  if ( basepath!="" ) basepath += "/";
+  //  if ( basepath!="" ) basepath += '/';
   
 
   std::cerr << directory << "\t" << base << "\tbasepath " << basepath << std::endl; 

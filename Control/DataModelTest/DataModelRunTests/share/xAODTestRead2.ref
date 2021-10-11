@@ -23,12 +23,12 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3308 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 2301 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 8898 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
@@ -66,9 +66,8 @@ RootDatabase.open    INFO xaoddata2.root File version:62200
 ClassIDSvc           INFO  getRegistryEntries: read 1534 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream1_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: xaoddata2x.root

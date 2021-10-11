@@ -11,6 +11,8 @@
 #include "../TRT_FastRDOAnalysis.h"
 #include "../PixelFastRDOAnalysis.h"
 #include "../SCT_FastRDOAnalysis.h"
+#include "../ITkPixelRDOAnalysis.h"
+#include "../StripRDOAnalysis.h"
 
 DECLARE_COMPONENT( TRT_RDOAnalysis )
 DECLARE_COMPONENT( PixelRDOAnalysis )
@@ -25,4 +27,6 @@ DECLARE_COMPONENT( MDT_RDOAnalysis )
 DECLARE_COMPONENT( TRT_FastRDOAnalysis )
 DECLARE_COMPONENT( PixelFastRDOAnalysis )
 DECLARE_COMPONENT( SCT_FastRDOAnalysis )
+DECLARE_COMPONENT( StripRDOAnalysis )
+DECLARE_COMPONENT( ITkPixelRDOAnalysis )
 

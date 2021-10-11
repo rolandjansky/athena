@@ -117,16 +117,6 @@ namespace TrigConf {
 
       /// @}
 
-      /// @name Implementation of the IL1TopoConfigSvc interface
-      /// @{
-
-      /// Get the LVL1 topo menu (not available from xAOD)
-      virtual const TXC::L1TopoMenu* menu() const override {
-         return 0;
-      }
-
-      /// @}
-
       /// @name Dummy implementation of the ILVL1ConfigSvc interface
       /// @{
 

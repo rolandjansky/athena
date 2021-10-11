@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBTDCRAWMONTOOL_H
@@ -50,7 +50,6 @@ class TBTDCRawMonTool: public MonitorToolBase
   //Declared properties
   bool m_monitor_tdc;
   bool m_testTool;
-  bool m_isBooked;
 
   // TDC histograms
   IHistogram1D** m_histo_tdc;

@@ -5,6 +5,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
 
 def getTrigByteStreamInputSvc(name='ByteStreamInputSvc'):
     svc = CompFactory.TrigByteStreamInputSvc(name)
@@ -112,5 +113,8 @@ def TrigByteStreamCfg(flags, type_names=[]):
     proxy = CompFactory.ProxyProviderSvc()
     proxy.ProviderNames += [address_provider.name]
     acc.addService(proxy)
+
+    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
+    acc.merge(SGInputLoaderCfg(flags, Load=loader_type_names, FailIfNoProxy=True))
 
     return acc

@@ -8,12 +8,8 @@
 #include <TCanvas.h>
 #include <TH1F.h>
 #include <TLegend.h>
-#include <iostream>
 #include <TPad.h>
-//#include <stdio.h>
-#include <string.h>
-//#include <stdlib.h>
-#include <math.h>
+
 #include "../TJetNet.h"
 #include "../doNormalization.C"
 #include "Riostream.h"
@@ -29,6 +25,9 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <string>
+#include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -444,7 +443,6 @@ if(useTrackEstimate){
     simu->GetEntry(i);
     
     for( unsigned int clus =0; clus<NN_sizeX->size(); clus++ ){
-      //  cout << clus << endl;
 
       vector<float>  *matrixOfToT=0;
       vector<float>   *vectorOfPitchesY=0;
@@ -460,8 +458,7 @@ if(useTrackEstimate){
       std::vector<float> * thetaTr=0;
       std::vector<float> * phiTr=0;
 
-//      std::vector<float> positionX_reorder;
-//      std::vector<float> positionY_reorder;
+
       
       int   sizeX = (*NN_sizeX)[clus];      
       positionX =&(*NN_positionX)[clus];
@@ -486,29 +483,7 @@ if(useTrackEstimate){
         if ( badTrackInfo(useTrackEstimate, theta ) )continue;
 
 
-//    bool sthWrong=false;
-//     for (int o=0;o<positionsX_id->size();o++)
-//     {
-//       if (fabs((*positionsX_id)[o])>900 ||
-//           fabs((*positionsY_id)[o])>900)
-//       {
-//         sthWrong=true;
-//       }
-//     }
 
-//     for (int o=0;o<outputNN_X->size();o++)
-//     {
-//       if (fabs((*outputNN_X)[o])>900 ||
-//           fabs((*outputNN_Y)[o])>900)
-//       {
-//         sthWrong=true;
-//       }
-//     }
-
-//     if (sthWrong)
-//     {
-//       continue;
-//     }
     
 	
 	if (iClus%dilutionFactor==0) numberTrainingEvents+=1;
@@ -592,8 +567,7 @@ if(useTrackEstimate){
       std::vector<float> positionX_reorder;
       std::vector<float> positionY_reorder;
 
-//      std::vector<float> * position_idX=0;
-//      std::vector<float> * position_idY=0;
+
 
 
       std::vector<float> * thetaTr=0;
@@ -619,11 +593,9 @@ if(useTrackEstimate){
       positionY =&(*NN_positionY)[clus];
 
       positionX_reorder=*positionX;
-//      positionY_reorder=*positionY;
       positionY_reorder.clear();
 
-//      position_idX =&(*NN_position_idX)[clus];
-//      position_idY =&(*NN_position_idY)[clus];
+
       
       thetaTr = &(*NN_theta)[clus];
       phiTr = &(*NN_phi)[clus];
@@ -643,10 +615,8 @@ if(useTrackEstimate){
       if(isBadCluster(sizeX, nParticles ) )continue;
       
 
-      //      cout << i <<" " << clus << " " << NN_localColumnWeightedPosition->size() << " " << (*NN_localColumnWeightedPosition)[clus] << " " << (*NN_localRowWeightedPosition)[clus] << endl;
       
 
-      //      continue;
 
       
       std::sort(positionX_reorder.begin(),
@@ -673,11 +643,7 @@ if(useTrackEstimate){
         positionY_reorder.push_back(corry);
       }
       
-//      for (int s=0;s<positionX->size();s++)
-//      {
-//        cout << "posX: " << (*positionX)[s] << " posY: " << (*positionY)[s]
-//             << " pos_ordX: " << positionX_reorder[s] << " pos_ordY: " << positionY_reorder[s] << endl;
-//      }
+
 
       for( unsigned int P = 0; P < positionX->size(); P++){
 	
@@ -697,9 +663,7 @@ if(useTrackEstimate){
 	iClus++;	 
 
 	if ( badTrackInfo(useTrackEstimate, theta ) )continue;
-//	if ( skipSingle(nParticles, iClus, dilutionFactor) )continue;
-	
-	//	cout << "formatting" << endl;
+
 	// formatting cluster infos for the NN input 
 	
 	std::vector<Double_t> inputData;
@@ -733,20 +697,11 @@ if(useTrackEstimate){
 
 	vector<double> outputNN_idX;
 	vector<double> outputNN_idY;
-	// using the trained network for position to obtain the position
-//	cout << "Obtaining Positions... " << endl;
-//        cout << " input Data size: " << inputData.size() << endl;
-//        for (int s=0;s<inputData.size();s++)
-//        {
-//          cout << s << " : " << inputData[s] << endl;
-//        }
+
         
 	vector<double> resultNN = positionTrainedNetwork->calculateOutputValues(inputData);
 
-//        for (int s=0;s<resultNN.size();s++)
-//        {
-//          cout << "resultNN[" << s << "]=" << resultNN[s] << endl;
-//        }
+
 	
 
 	// storing the obtained X and Y position in vectors of position // nParticlesTraining
@@ -834,7 +789,7 @@ if(useTrackEstimate){
 	if (matrixOfToT->size()!=sizeX*sizeY)
 	  {
 	    std::cout << " Event: " << i << " PROBLEM: size Y is: " << matrixOfToT->size() << std::endl;
-	    throw;
+	    throw std::runtime_error("Error in errors/trainNN.cxx");
 	  }
 	
 	// loop over elements of matrixOfTot which is actually a vector
@@ -908,7 +863,6 @@ if(useTrackEstimate){
 	    if (iClus%dilutionFactor==1) jn->SetInputTestSet( counter1, (sizeX+1)*sizeY+addNumber+2*o,norm_posX(outputNN_idX[o]) );
 	    if (iClus%dilutionFactor==1) jn->SetInputTestSet( counter1, (sizeX+1)*sizeY+addNumber+2*o+1,norm_posY(outputNN_idY[o]) );
 
-//            cout << o  <<  "\t" << outputNN_X[o] << " " << (*positionX)[o] << endl;
 
 	    	    
             if (counter==0) std::cout << " n. " << o << 
@@ -999,233 +953,7 @@ if(useTrackEstimate){
   
   
   
-  /*   
-       cout << " setting pattern for testing events " << endl;
-       
-       std::cout << " D " << std::endl;
-       
-       cout << " copying over testing events " << endl;
-       counter=0;
-       
-  
-       //input and output of first event
-       vector<double> inputVar;
-       vector<double> outputVar;
-       vector<double> inputVar2;
-       vector<double> outputVar2;
-       
-       
-       for (Int_t i = 0; i < totEntries; i++) {
-       
-       if (i % 100000 == 0 ) {
-       std::cout << " Copying over testing events. Looping over event " << i << std::endl;
-       }
-       
-       if (i%dilutionFactor!=1) continue;
-       
-       simu->GetEntry(i);
-       
-       if (nParticlesTraining!=nParticles) {
-       continue;
-       }
-       
-       if (useTrackEstimate)
-       {
-       if (fabs(theta)<1e-8) {
-       //        std::cout << " Skipping theta==0 " << std::endl;
-       continue;
-       }
-       }
-       
-       bool sthWrong=false;
-       for (int o=0;o<positionsX_id->size();o++)
-       {
-       if (fabs((*positionsX_id)[o])>900 ||
-       fabs((*positionsY_id)[o])>900)
-       {
-       cout << " skipping " << endl;
-       sthWrong=true;
-       }
-       }
-       
-       for (int o=0;o<outputNN_X->size();o++)
-       {
-       if (fabs((*outputNN_X)[o])>900 ||
-       fabs((*outputNN_Y)[o])>900)
-       {
-       sthWrong=true;
-       }
-       }
-       
-       
-       if (sthWrong)
-       {
-       continue;
-       }
-       
-       
-       for (int u=0;u<sizeX;u++)
-       {
-       for (int s=0;s<sizeY;s++)
-       {
-       jn->SetInputTestSet( counter, s+u*sizeY, norm_ToT((*matrixOfToT)[u][s]));
-       if (counter==0) inputVar.push_back(norm_ToT((*matrixOfToT)[u][s]));
-       if (counter==1) inputVar2.push_back(norm_ToT((*matrixOfToT)[u][s]));
-       }
-       }
-       for (int s=0;s<sizeY;s++)
-       {
-       jn->SetInputTestSet( counter, sizeX*sizeY+s, norm_pitch((*vectorOfPitchesY)[s]));
-       if (counter==0) inputVar.push_back(norm_pitch((*vectorOfPitchesY)[s]));
-       if (counter==1) inputVar2.push_back(norm_pitch((*vectorOfPitchesY)[s]));
-       }
-       
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY, norm_layerNumber(ClusterPixLayer));
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+1, norm_layerType(ClusterPixBarrelEC));
-       if (counter==0) inputVar.push_back(norm_layerNumber(ClusterPixLayer));
-       if (counter==1) inputVar2.push_back(norm_layerNumber(ClusterPixLayer));
-       if (counter==0) inputVar.push_back(norm_layerType(ClusterPixBarrelEC));
-       if (counter==1) inputVar2.push_back(norm_layerType(ClusterPixBarrelEC));
-       
-
-       if (useTrackEstimate)
-       {
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+2, norm_phi(phi) );
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+3, norm_theta(theta) );
-       if (counter==0) inputVar.push_back(norm_phi(phi));
-       if (counter==0) inputVar.push_back(norm_theta(theta));
-       if (counter==1) inputVar2.push_back(norm_phi(phi));
-       if (counter==1) inputVar2.push_back(norm_theta(theta));
-       }
-       else
-       {
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+2, norm_phiBS(phiBS) );
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+3, norm_thetaBS(thetaBS) );
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+4, norm_etaModule(etaModule) );
-       if (counter==0) inputVar.push_back(norm_phiBS(phiBS));
-       if (counter==0) inputVar.push_back(norm_thetaBS(thetaBS));
-       if (counter==0) inputVar.push_back(norm_etaModule(etaModule));
-       if (counter==1) inputVar2.push_back(norm_phiBS(phiBS));
-       if (counter==1) inputVar2.push_back(norm_thetaBS(thetaBS));
-       if (counter==1) inputVar2.push_back(norm_etaModule(etaModule));
-       
-       }
-       
-       
-       if (positionsX_id->size()!=positionsX->size())
-       {
-       std::cout << " Inconsistency " << std::endl;
-       throw;
-       }
-       
-       int startFrom=0;
-       if (nParticlesTraining==2)
-       {
-       startFrom=1;
-       }
-       if (nParticlesTraining==3)
-       {
-       startFrom=3;
-       }
-       
-       int addNumber=5;
-       if (useTrackEstimate) addNumber=4;
-       
-       for (int o=0;o<nParticlesTraining;o++)
-       {
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+addNumber+2*o,norm_posX((*outputNN_idX)[o]) );
-       jn->SetInputTestSet( counter, (sizeX+1)*sizeY+addNumber+2*o+1,norm_posY((*outputNN_idY)[o]) );
-       if (counter==0) std::cout << " n. " << o << 
-       " posX: " << norm_posX((*outputNN_idX)[o])  <<
-       " posY: " << norm_posY((*outputNN_idY)[o]) << std::endl;
-       if (counter==0) inputVar.push_back(norm_posX((*outputNN_idX)[o]));
-       if (counter==0) inputVar.push_back(norm_posY((*outputNN_idY)[o]));
-       if (counter==1) inputVar2.push_back(norm_posX((*outputNN_idX)[o]));
-       if (counter==1) inputVar2.push_back(norm_posY((*outputNN_idY)[o]));
-       
-       }
-       
-       
-       //OK now the new particular output
-       
-       
-       for (int r=0;r<nParticlesTraining;r++)
-       {
-       if (counter==0) std::cout << " particle: " << r << std::endl;
-      for (int u=0;u<numberBinsErrorEstimate;u++)
-      {
-      if (trainXerrors)
-      {
-      bool full=binIsFull(u,true,((*outputNN_X)[r]-(*positionsX_id)[r]),nParticlesTraining,numberBinsErrorEstimate);
-      int nValueFull=0;
-      if (full) nValueFull=1;
-      jn->SetOutputTestSet(counter, r*numberBinsErrorEstimate+u,nValueFull  );
-      if (counter==0) outputVar.push_back(nValueFull);
-      if (counter==1) outputVar2.push_back(nValueFull);
-      if (counter==0) std::cout << " X bin: " << u << " gl: "<< r*2*numberBinsErrorEstimate+u << " val: " << nValueFull;
-      }
-      }
-      for (int u=0;u<numberBinsErrorEstimate;u++)
-      {
-      if (!trainXerrors)
-      {
-      bool full=binIsFull(u,false,((*outputNN_Y)[r]-(*positionsY_id)[r]),nParticlesTraining,numberBinsErrorEstimate);
-      int nValueFull=0;
-      if (full) nValueFull=1;
-      jn->SetOutputTestSet(counter, r*numberBinsErrorEstimate+u,nValueFull );
-      if (counter==0) std::cout << " Y bin: " << u << " gl: " << r*2*numberBinsErrorEstimate+numberBinsErrorEstimate+u << " val: " << nValueFull;
-      if (counter==0) outputVar.push_back(nValueFull);
-      if (counter==1) outputVar2.push_back(nValueFull);
-      }
-      }
-      }
-      
-      if (counter==0) std::cout << std::endl << " total number of bins: " << numberoutputs << std::endl;
-  */
-  
-  /*
-    for (int o=0;o<positionsX_id->size();o++)
-    {
-    
-    double residualX=norm_errorX(((*outputNN_X)[o]-(*positionsX_id)[o])*((*outputNN_X)[o]-(*positionsX_id)[o]));
-    double residualY=norm_errorY((((*outputNN_Y)[o]-(*positionsY_id)[o]))*((*outputNN_Y)[o]-(*positionsY_id)[o]));
-    
-    jn->SetOutputTestSet(counter, 2*o, residualX);
-    jn->SetOutputTestSet(counter, 2*o+1, residualY);
-    
-      if (counter==0) std::cout << " output node: " << 2*o << " set to: " << residualX << endl;
-      if (counter==0) std::cout << " output node: " << 2*o+1 << " set to: " << residualY << endl;
-      if (counter==0) outputVar.push_back(residualX);
-      if (counter==0) outputVar.push_back(residualY);
-      }
-  */    
-  
-
-  /*
-    
-  
-  
-  jn->SetEventWeightTestSet(  counter, 1 );
-
-  counter+=1;
-  
-  //not used!
-  //    eventWeight=weight;
-  }
-  
-  std::cout << " For simple test have input(" << inputVar.size() << ") and output("<< outputVar.size() << ")" << std::endl;
-  
-  if (counter!=numberTestingEvents)
-  {
-  cout << " counter up to: " << counter << " while events in testing sample are " << numberTestingEvents << ". Normal due to cuts..." << endl;
-  return;  }
-  
-  //normalize inputvariables?
-  //jn->Normalize();
-  
-
-  */
-
+ 
   jn->Shuffle(true,false);
   
   std::cout << " Potts units are: " << jn->GetPottsUnits() << std::endl; 
@@ -1236,7 +964,6 @@ if(useTrackEstimate){
   if (restartTrainingFrom==0)
     {
       jn->Init();
-      //    jn->DumpToFile("WeightsInitial.w");
     }
   else
     {
@@ -1391,50 +1118,7 @@ if(useTrackEstimate){
       TFile* file=new TFile(name,"recreate");
       TTrainedNetwork* trainedNetwork=jn->createTrainedNetwork();
 
-      /*
-      jn->Evaluate( 0  ); //evaluate the first test pattern
-      double sum=0;
-      for (int z=0;z<numberoutputs;z++)
-      {
-        std::cout << "-"<<z<<":" << jn->GetOutput(z);
-        sum+=jn->GetOutput(z);
-      }
-      std::cout << " sum: " << sum << std::endl;
-      
-      std::vector<double> myTestOutput=trainedNetwork->calculateOutputValues(inputVar);
-      std::cout << std::endl << "output TTNet "<<std::endl;
-      for (int z=0;z<numberoutputs;z++)
-      {
-        std::cout << "-"<<z<<":" << myTestOutput[z];
-      }
-
-       std::cout << std::endl << "should be "<<std::endl;
-      for (int z=0;z<numberoutputs;z++)
-      {
-        std::cout << "-"<<z<<":" << outputVar[z];
-      }
-
-      std::cout << std::endl;
-      jn->Evaluate( 1  );
-      for (int z=0;z<numberoutputs;z++)
-      {
-        std::cout << "-"<<z<<":" << jn->GetOutput(z);
-      }
-      
-      myTestOutput=trainedNetwork->calculateOutputValues(inputVar2);
-//      std::cout << std::endl << "output TTNet "<<std::endl;
-//      for (int z=0;z<numberoutputs;z++)
-//      {
-//        std::cout << "-"<<z<<":" << myTestOutput[z];
-//      }
-       std::cout << std::endl << "should be "<<std::endl;
-      for (int z=0;z<numberoutputs;z++)
-      {
-        std::cout << "-"<<z<<":" << outputVar2[z];
-      }
-
-      std::cout << std::endl;
-      */
+     
 
       trainedNetwork->Write();
       histoControlTestX->Write();
@@ -1443,13 +1127,7 @@ if(useTrackEstimate){
       file->Close();
       delete file;
 
-      /*
-      TFile* file2=new TFile(name);
-      trainedNetwork=(TTrainedNetwork*)file2->Get("TTrainedNetwork");
-      cout <<" hid lay 1 size: " << trainedNetwork->getnHiddenLayerSize()[0] << endl;
-      file2->Close();
-      delete file2;
-      */
+
 
       //      jn->DumpToFile(name);
     }
@@ -1457,12 +1135,9 @@ if(useTrackEstimate){
       
   jn->writeNetworkInfo(1);
   jn->writeNetworkInfo(2);
-  //  jn->writeNetworkInfo(3);
-  //  jn->writeNetworkInfo(4);
-  //  jn->writeNetworkInfo(5);
+ 
 
 
-  //  cout << " Now try to understand how to get the weights..." << endl;
 
   ////////////WWWWWAAAAASSSSSS HERE
   Int_t nInput=jn->GetInputDim();
@@ -1471,60 +1146,7 @@ if(useTrackEstimate){
   
   TTrainedNetwork* trainedNetwork=jn->createTrainedNetwork();
 
-/*
-  cout << " now getting value with trained Network ";
 
-  
-
-
-  double inputexample[9]={norm_nVTX(1),
-			  norm_nTracksAtVtx(2),
-			  norm_nSingleTracks(0),
-			  norm_energyFraction(0.6),
-			  norm_mass(2500),
-			  norm_significance3d(4 ),
-			  norm_IP3D(3),
-			  norm_cat_pT(3),
-			  norm_cat_eta(1)};
-
-  for (Int_t i=0;i<nInput;++i)
-  {
-    jn->SetInputs(i,inputexample[i]);
-  }
-
-  cronology.open("weights/trainingCronology.txt",ios_base::app);
-
-  jn->Evaluate();
-
-  cronology << "----------------CONSISTENCY CHECK-----------" << endl;
-  cout << "Result 0:" << jn->GetOutput(0);
-  cronology << "Result 0:" << jn->GetOutput(0);
-  cout << " Result 1:" << jn->GetOutput(1);
-  cronology << "Result 0:" << jn->GetOutput(1);
-  cout << " Result 2:" << jn->GetOutput(2) << endl;
-  cronology << " Result 2:" << jn->GetOutput(2) << endl;
-
-  cout << " Reading back old network " << endl;
-  jn->readBackTrainedNetwork(trainedNetwork);
-
-  cout <<" resetting input " << endl;
-  for (Int_t i=0;i<nInput;++i)
-  {
-    jn->SetInputs(i,inputexample[i]);
-  }
-
-  jn->Evaluate();
- 
-  cout << "After reading back - Result 0:" << jn->GetOutput(0);
-  cronology << "After reading back - Result 0:" << jn->GetOutput(0);
-  // <<     " my: " << result[0] << endl;
-  cout << " After reading back - Result 1:" << jn->GetOutput(1);
-  cronology << "After reading back - Result 1:" << jn->GetOutput(1);
-  //<<     " my: " << result[1] << endl;
-  cout << " After reading back - Result 2:" << jn->GetOutput(2) << endl;
-  cronology << "After reading back - Result 2:" << jn->GetOutput(2);
-  // << " my: " << result[2] << endl;
-  */
 
   cout << " Now getting histograms from trainingResult" << endl;
   cronology << " Now getting histograms from trainingResult" << endl;
@@ -1540,40 +1162,6 @@ if(useTrackEstimate){
   cout << " reading back " << endl;
   jn->readBackTrainedNetwork(trainedNetwork2);
    
-/*
-  cout <<" resetting input " << endl;
-  for (Int_t i=0;i<nInput;++i)
-  {
-    jn->SetInputs(i,inputexample[i]);
-  }
-
-  jn->Evaluate();
-
-  cout << "After reading back - Result 0:" << jn->GetOutput(0);
-  cronology << "After reading back - Result 0:" << jn->GetOutput(0);
-  // <<     " my: " << result[0] << endl;
-  cout << " After reading back - Result 1:" << jn->GetOutput(1);
-  cronology << "After reading back - Result 1:" << jn->GetOutput(1);
-  //<<     " my: " << result[1] << endl;
-  cout << " After reading back - Result 2:" << jn->GetOutput(2) << endl;
-  cronology << "After reading back - Result 2:" << jn->GetOutput(2);
-  // << " my: " << result[2] << endl;
-
-
-  cout << " Directly from the trainedNetwork read back from HISTOS...!" << endl;
-
-  std::vector<Double_t> inputData;
-  for (Int_t u=0;u<nInput;++u)
-  {
-    inputData.push_back(inputexample[u]);
-  }
-
-  std::vector<Double_t> outputData=trainedNetwork2->calculateOutputValues(inputData);
-
-  cout << "After reading back - Result 0:" << outputData[0] << endl;
-  cout << " After reading back - Result 1:" << outputData[1] << endl;
-  cout << " After reading back - Result 2:" << outputData[2] << endl;
-*/   
 
   
 
@@ -1632,9 +1220,7 @@ if(useTrackEstimate){
       fileHistos->Close();
       delete fileHistos;
 
-      //        " filename: " << name << endl;
-      
-    //    jn->ReadFromFile(name);
+
 
   } 
   else
@@ -1671,340 +1257,7 @@ if(useTrackEstimate){
   TCanvas* mlpa_canvas = new TCanvas("jetnet_canvas","Network analysis");
   mlpa_canvas->Divide(2,4);
 
-/*
-  
-//  TCanvas* mlpa_canvas_5=gDirectory->Get("mlpa_canvas_5");
-//  mlpa_canvas_5->SetLogy(kTrue);
-  gPad->SetLogy();
 
-  // Use the NN to plot the results for each sample
-  // This will give approx. the same result as DrawNetwork.
-  // All entries are used, while DrawNetwork focuses on 
-  // the test sample. Also the xaxis range is manually set.
-  TH1F *bg2 = new TH1F("bg2h", "NN output", 50, -.5, 1.5);
-  TH1F *bg = new TH1F("bgh", "NN output", 50, -.5, 1.5);
-  TH1F *sig = new TH1F("sigh", "NN output", 50, -.5, 1.5);
-
-  //sig = 1 part; bg = 2 part; bg2 = 3 part
-
-  TH1F *bg2test = new TH1F("bg2htest", "NN output", 50, -.5, 1.5);
-  TH1F *bgtest = new TH1F("bghtest", "NN output", 50, -.5, 1.5);
-  TH1F *sigtest = new TH1F("sightest", "NN output", 50, -.5, 1.5);
-
-  int weight=1;
-      
-  for (Int_t i = 0; i < nTotal; i++) {
-    
-    if (i % 100000 == 0 ) {
-      std::cout << " First plot. Looping over event " << i << std::endl;
-    }
-    
-    if (i%dilutionFactor!=0&&i%dilutionFactor!=1) continue;
-    
-    simu->GetEntry(i);
-
-    for (int u=0;u<sizeX;u++)
-    {
-      for (int s=0;s<sizeY;s++)
-      {
-        jn->SetInputs(  s+u*sizeY, norm_ToT((*matrixOfToT)[u][s]));
-      }
-    }
-    for (int s=0;s<sizeY;s++)
-    {
-      jn->SetInputs( sizeX*sizeY+s, norm_pitch((*vectorOfPitchesY)[s]));
-    }
-
-    jn->SetInputs( (sizeX+1)*sizeY, norm_phi(phi) );
-    jn->SetInputs( (sizeX+1)*sizeY+1, norm_theta(theta) );
-
-    jn->Evaluate();
-
-    float p1=jn->GetOutput(0);
-    float p2=jn->GetOutput(1);
-    float p3=jn->GetOutput(2);
-
-    if (nParticles==1)
-    {
-      if (i%dilutionFactor==0)
-      {
-        sig->Fill(p1/(p1+p2+p3),weight);
-      }
-      else if (i%dilutionFactor==1)
-      {
-        sigtest->Fill(p1/(p1+p2+p3),weight);
-      }
-    }
-    if (nParticles==2)
-    {
-      if (i%dilutionFactor==0)
-      {
-        bg->Fill(p1/(p1+p2+p3),weight);
-      }
-      else if (i%dilutionFactor==1)
-      {
-        bgtest->Fill(p1/(p1+p2+p3),weight);
-      }
-    }
-    if (nParticles>=3)
-    {
-      if (i%dilutionFactor==0)
-      {
-        bg2->Fill(p1/(p1+p2+p3),weight);
-      }
-      else  if (i%dilutionFactor==1)
-      {
-        bg2test->Fill(p1/(p1+p2+p3),weight);
-      }
-    }
-  }
-
-  //now you need the maximum
-  float maximum=1;
-  for (Int_t a=0;a<bg->GetNbinsX();a++)
-  {
-    if (bg->GetBinContent(a)>maximum)
-    {
-      maximum=1.2*bg->GetBinContent(a);
-    }
-  }
-
-
-  bg2->SetLineColor(kYellow);
-  bg2->SetFillStyle(3008);   bg2->SetFillColor(kYellow);
-  bg->SetLineColor(kBlue);
-  bg->SetFillStyle(3008);   bg->SetFillColor(kBlue);
-  sig->SetLineColor(kRed);
-  sig->SetFillStyle(3003); sig->SetFillColor(kRed);
-  bg2->SetStats(0);
-  bg->SetStats(0);
-  sig->SetStats(0);
-
-
-  bg2test->SetLineColor(kYellow);
-  bg2test->SetFillStyle(3008);   bg2test->SetFillColor(kYellow);
-  bgtest->SetLineColor(kBlue);
-  bgtest->SetFillStyle(3008);   bgtest->SetFillColor(kBlue);
-  sigtest->SetLineColor(kRed);
-  sigtest->SetFillStyle(3003); sigtest->SetFillColor(kRed);
-  bg2test->SetStats(0);
-  bgtest->SetStats(0);
-  sigtest->SetStats(0);
-
- mlpa_canvas->cd(1);
- gPad->SetLogy();
-
- bg->GetYaxis()->SetRangeUser(1,maximum);
- bgtest->GetYaxis()->SetRangeUser(1,maximum);
-
- mlpa_canvas->cd(1);
- bg->Draw();
- bg2->Draw("same");
- sig->Draw("same");
-
- TLegend *legend = new TLegend(.75, .80, .95, .95);
- legend->AddEntry(bg2, "particles >=3");
- legend->AddEntry(bg, "particles = 2");
- legend->AddEntry(sig, "particles = 1");
- legend->Draw();
- 
- mlpa_canvas->cd(2);
- gPad->SetLogy();
-
- bgtest->Draw();
- bg2test->Draw("same");
- sigtest->Draw("same");
-
- TLegend *legendtest = new TLegend(.75, .80, .95, .95);
- legendtest->AddEntry(bg2test, "particles >=3");
- legendtest->AddEntry(bgtest, "particles = 2");
- legendtest->AddEntry(sigtest, "particles = 1");
- legendtest->Draw();
-
- mlpa_canvas->cd(5);
- gPad->SetLogy();
- bg->DrawNormalized();
- bg2->DrawNormalized("same");
- sig->DrawNormalized("same");
- legend->Draw();
- 
- mlpa_canvas->cd(6);
- gPad->SetLogy();
- bgtest->DrawNormalized();
- bg2test->DrawNormalized("same");
- sigtest->DrawNormalized("same");
- legendtest->Draw();
-
-
- 
- mlpa_canvas->cd(3);
- gPad->SetLogy();
- 
- // Use the NN to plot the results for each sample
- // This will give approx. the same result as DrawNetwork.
- // All entries are used, while DrawNetwork focuses on 
- // the test sample. Also the xaxis range is manually set.
- TH1F *c_bg2 = new TH1F("c_bg2h", "NN output", 50, -.5, 1.5);
- TH1F *c_bg = new TH1F("c_bgh", "NN output", 50, -.5, 1.5);
- TH1F *c_sig = new TH1F("c_sigh", "NN output", 50, -.5, 1.5);
-
- TH1F *c_bg2test = new TH1F("c_bg2htest", "NN output", 50, -.5, 1.5);
- TH1F *c_bgtest = new TH1F("c_bghtest", "NN output", 50, -.5, 1.5);
- TH1F *c_sigtest = new TH1F("c_sightest", "NN output", 50, -.5, 1.5);
-
- for (Int_t i = 0; i < nTotal; i++) {
-   
-   if (i % 100000 == 0 ) {
-     std::cout << " Second plot. Looping over event " << i << std::endl;
-   }
-   
-   if (i%dilutionFactor!=0&&i%dilutionFactor!=1) continue;
-   
-   simu->GetEntry(i);
-
-    for (int u=0;u<sizeX;u++)
-    {
-      for (int s=0;s<sizeY;s++)
-      {
-        jn->SetInputs(  s+u*sizeY, norm_ToT((*matrixOfToT)[u][s]));
-      }
-    }
-    for (int s=0;s<sizeY;s++)
-    {
-      jn->SetInputs( sizeX*sizeY+s, norm_pitch((*vectorOfPitchesY)[s]));
-    }
-
-    jn->SetInputs( (sizeX+1)*sizeY, norm_phi(phi) );
-    jn->SetInputs( (sizeX+1)*sizeY+1, norm_theta(theta) );
-
-    jn->Evaluate();
-
-    float p1=jn->GetOutput(0);
-    float p2=jn->GetOutput(1);
-    float p3=jn->GetOutput(2);
-
-    float discr=(p1+p2)/(p1+p2+p3);
-
-    if (nParticles==1)
-    {
-      if (i%dilutionFactor==0)
-      {
-        c_sig->Fill(discr,weight);
-      }
-      else if (i%dilutionFactor==1)
-      {
-        c_sigtest->Fill(discr,weight);
-      }
-    }
-    if (nParticles==2)
-    {
-      if (i%dilutionFactor==0)
-      {
-        c_bg->Fill(discr,weight);
-      }
-      else if (i%dilutionFactor==1)
-      {
-        c_bgtest->Fill(discr,weight);
-      }
-    }
-    if (nParticles>=3)
-    {
-      if (i%dilutionFactor==0)
-      {
-        c_bg2->Fill(discr,weight);
-      }
-      else  if (i%dilutionFactor==1)
-      {
-        c_bg2test->Fill(discr,weight);
-      }
-    }
-   }
-
-  //now you need the maximum
- maximum=1;
-  for (Int_t a=0;a<c_bg->GetNbinsX();a++)
-  {
-    if (c_bg->GetBinContent(a)>maximum)
-    {
-      maximum=1.2*c_bg->GetBinContent(a);
-    }
-  }
-
-   c_bg2->SetLineColor(kYellow);
-   c_bg2->SetFillStyle(3008);   c_bg2->SetFillColor(kYellow);
-   c_bg->SetLineColor(kBlue);
-   c_bg->SetFillStyle(3008);   c_bg->SetFillColor(kBlue);
-   c_sig->SetLineColor(kRed);
-   c_sig->SetFillStyle(3003); c_sig->SetFillColor(kRed);
-   c_bg2->SetStats(0);
-   c_bg->SetStats(0);
-   c_sig->SetStats(0);
- 
-   c_bg2test->SetLineColor(kYellow);
-   c_bg2test->SetFillStyle(3008);   c_bg2test->SetFillColor(kYellow);
-   c_bgtest->SetLineColor(kBlue);
-   c_bgtest->SetFillStyle(3008);   c_bgtest->SetFillColor(kBlue);
-   c_sigtest->SetLineColor(kRed);
-   c_sigtest->SetFillStyle(3003); c_sigtest->SetFillColor(kRed);
-   c_bg2test->SetStats(0);
-   c_bgtest->SetStats(0);
-   c_sigtest->SetStats(0);
-
-   mlpa_canvas->cd(3);
-   gPad->SetLogy();
-
-
-   c_bg->GetYaxis()->SetRangeUser(1,maximum);
-   c_bgtest->GetYaxis()->SetRangeUser(1,maximum);
-   
-   c_bg->Draw();
-   c_bg2->Draw("same");
-   c_sig->Draw("same");
-
-   TLegend *legend2 = new TLegend(.75, .80, .95, .95);
-   legend2->AddEntry(c_bg2, "particles >=3");
-   legend2->AddEntry(c_bg, "particles = 2");
-   legend2->AddEntry(c_sig, "particles = 1");
-   legend2->Draw();
-
-   mlpa_canvas->cd(4);
-   gPad->SetLogy();
-   
-   c_bgtest->Draw();
-   c_bg2test->Draw("same");
-   c_sigtest->Draw("same");
-
-   TLegend *legend2test = new TLegend(.75, .80, .95, .95);
-   legend2test->AddEntry(c_bg2test, "particles >=3");
-   legend2test->AddEntry(c_bgtest, "particles = 2");
-   legend2test->AddEntry(c_sigtest, "particles = 1");
-   legend2test->Draw();
-
-   mlpa_canvas->cd(7);
-   gPad->SetLogy();
-   c_bg->DrawNormalized();
-   c_bg2->DrawNormalized("same");
-   c_sig->DrawNormalized("same");
-   legend2->Draw();
- 
-   mlpa_canvas->cd(8);
-   gPad->SetLogy();
-   c_bgtest->DrawNormalized();
-   c_bg2test->DrawNormalized("same");
-   c_sigtest->DrawNormalized("same");
-   legend2test->Draw();
-
-
-   mlpa_canvas->cd(0);
-
-
-  mlpa_canvas->SaveAs("weights/result.eps");
-
-
-
-
-
-*/
   
 }
 

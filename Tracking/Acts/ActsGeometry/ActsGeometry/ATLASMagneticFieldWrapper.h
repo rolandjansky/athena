@@ -10,10 +10,9 @@
 #include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Definitions/Units.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
+#include "Acts/MagneticField/MagneticFieldProvider.hpp"
 
-class ATLASMagneticFieldWrapper
-{
-
+class ATLASMagneticFieldWrapper final : public Acts::MagneticFieldProvider {
 
 public:
 
@@ -30,9 +29,15 @@ public:
 
   ATLASMagneticFieldWrapper() = default;
 
-  Acts::Vector3
-  getField(const Acts::Vector3& position, Cache& cache) const
-  {
+
+  MagneticFieldProvider::Cache 
+  makeCache(const Acts::MagneticFieldContext& mctx) const override {
+    return Acts::MagneticFieldProvider::Cache::make<Cache>(mctx);
+  }
+
+  Acts::Result<Acts::Vector3>
+  getField(const Acts::Vector3& position, Acts::MagneticFieldProvider::Cache& gcache) const override {
+    Cache& cache = gcache.get<Cache>();
     double posXYZ[3];
     posXYZ[0] = position.x();
     posXYZ[1] = position.y();
@@ -46,14 +51,15 @@ public:
 
     bfield *= m_bFieldUnit; // kT -> T;
 
-    return bfield;
+    return Acts::Result<Acts::Vector3>::success(bfield);
   }
 
-  Acts::Vector3
+  Acts::Result<Acts::Vector3>
   getFieldGradient(const Acts::Vector3& position,
                    Acts::ActsMatrix<3, 3>& gradient,
-                   Cache& cache) const
+                   Acts::MagneticFieldProvider::Cache& gcache) const override
   {
+    Cache& cache = gcache.get<Cache>();
     double posXYZ[3];
     posXYZ[0] = position.x();
     posXYZ[1] = position.y();
@@ -73,7 +79,7 @@ public:
     bfield *= m_bFieldUnit; // kT -> T;
     gradient *= m_bFieldUnit;
 
-    return bfield;
+    return Acts::Result<Acts::Vector3>::success(bfield);
   }
 
 private:

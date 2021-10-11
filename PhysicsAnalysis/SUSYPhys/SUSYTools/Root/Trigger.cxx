@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -10,7 +10,8 @@
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Conditions.h"
 
@@ -24,28 +25,33 @@
 
 namespace ST {
 
-  const static SG::AuxElement::Decorator<int> dec_trigmatched("trigmatched");
+  const static SG::AuxElement::Decorator<char> dec_trigmatched("trigmatched");
 
 bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) const {
 
-  //Returns MET trigger decision for recommended lowest unprescaled evolution described in 
-  //https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled#Jets_MET_Jet_MET_HT
-  //Note: _mht triggers are taken as default, as have shown better turn-on performance (a combined mht+cell trigger is planned for the next transition ~1.5E34)
+  // Returns MET trigger decision for recommended lowest unprescaled evolution described in 
+  // https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled
+  // For period vs run number, see https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_Period_Report.php
 
-  //if no runNumber specified, just read it from the current event
+  // if no runNumber specified, just read it from the current event
   unsigned int rn;
   if(runnumber>0){
     rn = runnumber;
   }
   else{
-    rn = GetRunNumber(); //it takes care of dealing with data and MC
+    rn = GetRunNumber(); // it takes care of dealing with data and MC
   }
+  
+  int year = treatAsYear(rn);
 
-  if(rn < 290000)                        return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
-  else if(rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
-  else if(rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
-  else if(rn >= 303943 )                 return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
-
+  if (year == 2015)                                      return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
+  else if(year == 2016 && rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
+  else if(year == 2016 && rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
+  else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) 
+  else if(year == 2017 && rn >= 325713 && rn <= 331975 ) return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // 2017 B1-D5
+  else if(year == 2017 && rn >= 332303 )                 return IsMETTrigPassed("HLT_xe110_pufit_L1XE50", false); // 2017 D6-(open)
+  else if(year == 2018 && rn >= 348885 && rn <= 350013 ) return IsMETTrigPassed("HLT_xe110_pufit_xe70_L1XE50", false); // 2018 B-C5
+  else if(year == 2018 && rn >= 350067 )                 return IsMETTrigPassed("HLT_xe110_pufit_xe65_L1XE50", false); // 2018 C5-(open)
   return false; 
 }
 
@@ -56,11 +62,12 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(const std::string& triggerName, bool j400_
 
   // First check if we're affected by the L1_XE50 bug
   bool L1_XE50 = m_trigDecTool->isPassed("L1_XE50");
+  bool L1_XE55 = m_trigDecTool->isPassed("L1_XE55");
   bool HLT_noalg_L1J400 = m_trigDecTool->isPassed("HLT_noalg_L1J400");
   if (!L1_XE50 && j400_OR && HLT_noalg_L1J400) {
     return m_emulateHLT(triggerName);
   }
-  else if (L1_XE50) {
+  else if (L1_XE50 || L1_XE55) {
     // See if the TDT knows about this
     if (m_isTrigInTDT(triggerName) ) return m_trigDecTool->isPassed(triggerName);
     else return m_emulateHLT(triggerName);
@@ -226,7 +233,7 @@ void SUSYObjDef_xAOD::TrigMatch(const xAOD::IParticle* p, std::initializer_list<
   for(auto it = i1; it != i2; ++it) {
     auto result = static_cast<int>(this->IsTrigMatched(p, *it));
     dec_trigmatched(*p) += result;
-    p->auxdecor<int>(*it) = result;
+    p->auxdecor<char>(*it) = result;
   }
 }
 
@@ -237,12 +244,12 @@ void SUSYObjDef_xAOD::TrigMatch(const xAOD::IParticle* p, const std::initializer
 
 
 void SUSYObjDef_xAOD::TrigMatch(const xAOD::IParticle* p, const std::vector<std::string>& items) {
-  p->auxdecor<int>("trigger_matched") = 0;
+  dec_trigmatched(*p) = 0;
 
   for(const auto& item: items) {
     auto result = static_cast<int>(this->IsTrigMatched(p, item));
-    p->auxdecor<int>("trigger_matched") += result;
-    p->auxdecor<int>(item) = result;
+    dec_trigmatched(*p) += result;
+    p->auxdecor<char>(item) = result;
   }
 }
 
@@ -304,35 +311,43 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
 
     static std::string delOR = "_OR_";
     std::vector<std::string> trigchains = {};
-    
+    std::string newtrigExpr = TString(trigExpr).Copy().ReplaceAll("||",delOR).Data();
+    newtrigExpr = TString(trigExpr).Copy().ReplaceAll(" ","").Data();
+ 
     size_t pos = 0;
-    while ((pos = trigExpr.find(delOR)) != std::string::npos) {
-      trigchains.push_back( "HLT_"+trigExpr.substr(0, pos) );
-      trigExpr.erase(0, pos + delOR.length());
+    while ((pos = newtrigExpr.find(delOR)) != std::string::npos) {
+      trigchains.push_back( "HLT_"+newtrigExpr.substr(0, pos) );
+      newtrigExpr.erase(0, pos + delOR.length());
     }
     if(pos==std::string::npos)
-      trigchains.push_back("HLT_"+trigExpr);
+      trigchains.push_back("HLT_"+newtrigExpr);
     
     return trigchains;
   }
 
-  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache) const {
+  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache, std::vector<std::string>& v_trigs17_cache, std::vector<std::string>& v_trigs18_cache) const {
+
+    // e.g. SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
 
     static std::string del15 = "_2015_";
     static std::string del16 = "_2016_";
-    static std::string delOR = "_OR_";
+    static std::string del17 = "_2017_";
+    static std::string del18 = "_2018_";
 
     size_t pos = 0;
-    std::string token15, token16;
+    std::string token15, token16, token17, token18;
 
-    //get trigger tokens for 2015 and 2016 
+    //get trigger tokens for 2015, 2016, 2017, and 2018 
     if ( (pos = trigExpr.find(del15)) != std::string::npos) {
-      trigExpr.erase(0, pos + del15.length());
+      trigExpr.erase(0, pos + del15.length()); 
 
       pos = 0;
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
-	token15 = trigExpr.substr(0, pos);
-	token16 = trigExpr.erase(0, pos + del16.length());
+        token15 = trigExpr.substr(0, pos);
+        token16 = trigExpr.erase(0, pos + del16.length() + del17.length() - 1);
+        // 2016-2018 use exact the same trigger string
+        token17 = token16; 
+        token18 = token16;
       }
     }
 
@@ -343,18 +358,17 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     if(token16.empty())
       token16 = trigExpr;
 
+    if(token17.empty())
+      token17 = trigExpr;
+
+    if(token18.empty())
+      token18 = trigExpr;
+
     //get trigger chains for matching in 2015 and 2016                                  
     v_trigs15_cache = GetTriggerOR(token15);
     v_trigs16_cache = GetTriggerOR(token16);
-
-    // std::cout << "\n2015 triggers" << std::endl;
-    // for(auto& chain : trigs15)
-    //   std::cout << "    " << chain << std::endl;
-
-    // std::cout << "\n2016 triggers" << std::endl;
-    // for(auto& chain : trigs16)
-    //   std::cout << "    " << chain << std::endl;
-
+    v_trigs17_cache = GetTriggerOR(token17);
+    v_trigs18_cache = GetTriggerOR(token18);
   }
 
   Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const
@@ -362,5 +376,270 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     return m_trigDecTool->features(chainName,condition);
   }
 
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
+
+  double trig_sf(1.);
+
+  if (trigExpr!="multiLepton" && trigExpr!="diLepton") {
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger SF");
+    return trig_sf;
+  }
+
+  std::vector<const xAOD::Electron*> elec_trig;
+  elec_trig.clear();
+  for (const xAOD::Electron* electron : electrons) {
+    if (!acc_passOR(*electron)) continue;
+    if (!acc_signal(*electron)) continue;
+    elec_trig.push_back(electron);
+  }
+
+  std::vector<const xAOD::Muon*> muon_trig;
+  muon_trig.clear();
+  for (const xAOD::Muon* muon : muons) {
+    if (!acc_passOR(*muon)) continue;
+    if (!acc_signal(*muon)) continue;
+    muon_trig.push_back(muon);
+  }
+
+  bool matched = false;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") {
+    if ( m_trigGlobalEffCorrTool_diLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  } else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") {
+    if ( m_trigGlobalEffCorrTool_multiLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  }
+
+  CP::CorrectionCode result;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
+  }
+  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger SF");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for multi-lepton trigger SF");
+    return 1.;
+  default:
+    break;
+  }
+
+  return trig_sf;
 
 }
+
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const std::string& trigExpr) {
+  
+  double sf(1.);
+
+  //Set the new systematic variation
+  if (trigExpr == "diLepton") {
+    StatusCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) for systematic var. " << systConfig.name() );
+    }
+  }
+
+  if (trigExpr == "multiLepton") {
+    StatusCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) for systematic var. " << systConfig.name() );
+    }
+  }
+
+  //Get the SF for new config
+  sf = GetTriggerGlobalEfficiencySF (electrons, muons, trigExpr);
+
+  //Roll back to default
+  if (trigExpr == "diLepton") {
+    StatusCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(m_currentSyst);
+    if (ret != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) back to default.");
+    }
+  }
+  if (trigExpr == "multiLepton") {
+    StatusCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(m_currentSyst);
+    if (ret != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) back to default.");
+    }
+  }
+
+  return sf;
+
+}
+
+//
+// GetTriggerGlobalEfficiencySF function is meant to be used for "asymmetric" diphoton trigger SFs
+//
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::PhotonContainer& photons, const std::string& trigExpr) {
+
+  double trig_sf(1.);
+
+  if (trigExpr!="diPhoton") {
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger SF");
+    return trig_sf;
+  }
+
+  std::vector<const xAOD::Photon*> ph_trig;
+  ph_trig.clear();
+  for (const xAOD::Photon* photon : photons) {
+    if (!acc_passOR(*photon)) continue;
+    if (!acc_signal(*photon)) continue;
+    ph_trig.push_back(photon);
+  }
+
+  CP::CorrectionCode result;
+  if (ph_trig.size()>1) {
+    result = m_trigGlobalEffCorrTool_diPhoton->getEfficiencyScaleFactor(ph_trig, trig_sf);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger SF");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for diphoton trigger SF");
+    return 1.;
+  default:
+    break;
+  }
+
+  return trig_sf;
+
+}
+
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr) {
+  
+  double sf(1.);
+
+  //Set the new systematic variation
+  StatusCode ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(systConfig);
+  if (ret != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) for systematic var. " << systConfig.name() );
+  }
+
+  //Get the SF for new config
+  sf = GetTriggerGlobalEfficiencySF (photons, trigExpr);
+
+  //Roll back to default
+  ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(m_currentSyst);
+  if (ret != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) back to default.");
+  }
+
+  return sf;
+
+}
+
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
+
+  double trig_eff(1.);
+  double trig_eff_data(1.);
+
+  if (trigExpr!="multiLepton" && trigExpr!="diLepton") {
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger efficiency");
+    return trig_eff;
+  }
+
+  std::vector<const xAOD::Electron*> elec_trig;
+  elec_trig.clear();
+  for (const xAOD::Electron* electron : electrons) {
+    if (!acc_passOR(*electron)) continue;
+    if (!acc_signal(*electron)) continue;
+    elec_trig.push_back(electron);
+  }
+
+  std::vector<const xAOD::Muon*> muon_trig;
+  muon_trig.clear();
+  for (const xAOD::Muon* muon : muons) {
+    if (!acc_passOR(*muon)) continue;
+    if (!acc_signal(*muon)) continue;
+    muon_trig.push_back(muon);
+  }
+
+  bool matched = false;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") {
+    if ( m_trigGlobalEffCorrTool_diLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  } else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") {
+    if ( m_trigGlobalEffCorrTool_multiLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  }
+
+  CP::CorrectionCode result;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
+  }
+  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger efficiency");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for multi-lepton trigger efficiency");
+    return 1.;
+  default:
+    break;
+  }
+
+  if (isData()) return trig_eff_data;
+  else return trig_eff;
+
+}
+
+//
+// GetTriggerGlobalEfficiency function is meant to be used for "asymmetric" diphoton trigger SFs
+//
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::PhotonContainer& photons, const std::string& trigExpr) {
+
+  double trig_eff(1.);
+  double trig_eff_data(1.);
+
+  if (trigExpr!="diPhoton") {
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger efficiency");
+    return trig_eff;
+  }
+
+  std::vector<const xAOD::Photon*> ph_trig;
+  ph_trig.clear();
+  for (const xAOD::Photon* photon : photons) {
+    if (!acc_passOR(*photon)) continue;
+    if (!acc_signal(*photon)) continue;
+    ph_trig.push_back(photon);
+  }
+
+  CP::CorrectionCode result;
+  if (ph_trig.size()>1) {
+    result = m_trigGlobalEffCorrTool_diPhoton->getEfficiency(ph_trig, trig_eff_data, trig_eff);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger efficiency");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for diphoton trigger efficiency");
+    return 1.;
+  default:
+    break;
+  }
+
+  if (isData()) return trig_eff_data;
+  else return trig_eff;
+
+}
+
+}
+

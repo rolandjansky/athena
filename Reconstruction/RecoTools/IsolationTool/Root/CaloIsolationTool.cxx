@@ -38,8 +38,9 @@
 
 #include "boost/format.hpp"
 #include <cmath>
-#include <map>
 
+#include "PathResolver/PathResolver.h"
+#include <TFile.h>
 
 namespace {
 #if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
@@ -119,6 +120,34 @@ namespace xAOD {
     ATH_CHECK(m_tpEDveryForward.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDCentral.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDForward.initialize(m_InitializeReadHandles));
+
+    if (m_useEtaDepPU) {
+      std::string filename = PathResolverFindCalibFile(m_puZetaCorrectionFileName);
+      if (filename.empty()){
+	ATH_MSG_ERROR ( "Could NOT resolve file name " << m_puZetaCorrectionFileName );
+	return StatusCode::FAILURE ;
+      }
+      ATH_MSG_INFO("Path found for pileup correction = "<< filename);
+      std::unique_ptr<TFile> f(TFile::Open(filename.c_str(), "READ"));
+      m_puZetaCorrection[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone20"));
+      m_puZetaCorrection[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30"));
+      m_puZetaCorrection[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone40"));
+      f->Close();
+
+      if (m_isMC) {
+	filename = PathResolverFindCalibFile(m_puZetaMCCorrectionFileName);
+	if (filename.empty()){
+	  ATH_MSG_ERROR ( "Could NOT resolve file name " << m_puZetaMCCorrectionFileName );
+	  return StatusCode::FAILURE ;
+	}
+	ATH_MSG_INFO("Path found for mc additional correction of pileup correction = "<< filename);
+	std::unique_ptr<TFile> g(TFile::Open(filename.c_str(), "READ"));
+	m_puZetaMCCorrection[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)g->Get("topoetcone20"));
+	m_puZetaMCCorrection[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)g->Get("topoetcone30"));
+	m_puZetaMCCorrection[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)g->Get("topoetcone40"));
+	g->Close();
+      }
+    }
 
     // Exit function
     return StatusCode::SUCCESS;
@@ -235,7 +264,7 @@ namespace xAOD {
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
     if ( egam ) return neutralEflowIsolation(result,*egam,cones,corrlist,coneCoreSize);
 
-    ATH_MSG_WARNING("PFlowObjectIsolation only supported for Egamma and TrackParticle");
+    ATH_MSG_WARNING("FlowElementIsolation only supported for Egamma and TrackParticle");
 
     return true;
   }
@@ -354,7 +383,6 @@ namespace xAOD {
     float phi = eg.caloCluster()->phi();
     float eta = eg.caloCluster()->eta();
 
-    // JB
     const CaloCluster* fwdClus = eg.author(xAOD::EgammaParameters::AuthorFwdElectron) ? eg.caloCluster() : nullptr;
 
     if (!topoConeIsolation(result, eta, phi, coneSizes, true, container, fwdClus, &eg, coneCoreSize)) {
@@ -395,6 +423,10 @@ namespace xAOD {
 
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
+      return false;
+    }
+    if(!m_useEMScale){
+      ATH_MSG_WARNING("Only EM scale is supported by neutralEflowIsolation");
       return false;
     }
 
@@ -546,7 +578,8 @@ namespace xAOD {
     const Trk::CaloExtension* caloExtension = nullptr;
     if (m_caloExtensionKey.empty())
     {
-      caloExtensionUPtr = m_caloExtTool->caloExtension(*tp);
+      caloExtensionUPtr =
+        m_caloExtTool->caloExtension(Gaudi::Hive::currentContext(), *tp);
       caloExtension = caloExtensionUPtr.get();
     }
     else
@@ -845,6 +878,9 @@ for( auto isoType : isoTypes ){
       return false;
     }
 
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     std::vector<float> coneSizes;        coneSizes.resize(3);
     std::vector<float> coneSizesSquared; coneSizesSquared.resize(3);
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
@@ -861,13 +897,13 @@ for( auto isoType : isoTypes ){
     for (unsigned int n=0; n < m_EMCaloNums.size(); ++n) {
       Vec_EMCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_EMCaloNums[n] ));
     }
-    CaloCellList EMccl(container, Vec_EMCaloEnums);
+    CaloCellList EMccl(caloDDMgr,container, Vec_EMCaloEnums);
 
     std::vector<CaloCell_ID::SUBCALO> Vec_HadCaloEnums;
     for (unsigned int n=0; n < m_HadCaloNums.size(); ++n) {
       Vec_HadCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_HadCaloNums[n] ));
     }
-    CaloCellList HADccl(container, Vec_HadCaloEnums);
+    CaloCellList HADccl(caloDDMgr,container, Vec_HadCaloEnums);
 
     // Let's determine some values based on the input specs
     // Search for largest radius
@@ -974,20 +1010,20 @@ for( auto isoType : isoTypes ){
                                         float phi,
                                         std::vector<float>& coneSizes,
                                         bool coreEMonly,
-                                        const PFOContainer* container,
+                                        const FlowElementContainer* container,
                                         double coneCoreSize) const
   {
 
     // container is large: preselect only those in max cone size
     auto max_cone_iter=std::max_element(coneSizes.begin(), coneSizes.end());
     float max_cone = (*max_cone_iter);
-    std::vector<const PFO*> clusts;
+    std::vector<const FlowElement*> clusts;
     if (!container) {
 #ifndef XAOD_ANALYSIS
       if (m_pflowObjectsInConeTool) {
 	m_pflowObjectsInConeTool->particlesInCone(eta,phi,max_cone,clusts);
       } else {
-	ATH_MSG_WARNING("No PFlowObjectsInConeTool available");
+	ATH_MSG_WARNING("No FlowElementsInConeTool available");
       }
 #else
       if(!particlesInCone(eta,phi,max_cone,clusts)) ATH_MSG_WARNING("Failed to get particles in cone.");
@@ -1053,15 +1089,13 @@ for( auto isoType : isoTypes ){
    */
   bool CaloIsolationTool::pflowObjCones (CaloIsolation& result, float eta, float phi,
 					 std::vector<float>& coneSizes,
-					 const std::vector<const PFO*>& clusts) const
+					 const std::vector<const FlowElement*>& clusts) const
   {
 
     ATH_MSG_DEBUG("In pflowObjCones obj eta = " << eta << " phi = " << phi);
 
-    for (const PFO* cl : clusts) {
+    for (const FlowElement* cl : clusts) {
       float et = cl->pt();
-      if (m_useEMScale)
-	et = cl->ptEM();
       if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
       float dPhi = Phi_mpi_pi(cl->phi()-phi);
@@ -1286,13 +1320,12 @@ for( auto isoType : isoTypes ){
 
 bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, float eta, float phi,
 							 float detaMax, float dphiMax, float dR2Max,
-							 const std::vector<const PFO*>& clusts, bool onlyEM) const
+							 const std::vector<const FlowElement*>& clusts, bool onlyEM) const
   {
 
     float pflowCore(0.);
-    for (const PFO* cl : clusts) {
-      ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " ptEM = " << cl->ptEM()
-		    << " charge " << cl->charge());
+    for (const FlowElement* cl : clusts) {
+      ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " charge " << cl->charge());
       float dphi = Phi_mpi_pi(cl->phi()-phi);
       if (detaMax > 0 && fabs(dphi) > dphiMax) continue;
       float deta = cl->eta()-eta;
@@ -1301,16 +1334,14 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
       /// get energy
       float et = cl->pt();
-      if (m_useEMScale)
-	et = cl->ptEM();
       if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
       double emfrac = 1.;
       if (onlyEM) {
-	const xAOD::CaloCluster *ocl = cl->cluster(0);
+	const xAOD::CaloCluster *ocl = dynamic_cast<const xAOD::CaloCluster*>(cl->otherObject(0));
 	if(ocl) {
 	  double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
-	  emfrac     = std::min(1.,eEM / cl->eEM());
+	  emfrac     = std::min(1.,eEM / cl->e());
 	}
       }
       et *= emfrac;
@@ -1411,7 +1442,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
   {
     // assume two densities for the time being
-    const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5) ? &m_tpEDCentral : &m_tpEDForward;
+    const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5 || m_useEtaDepPU) ? &m_tpEDCentral : &m_tpEDForward;
     if (type == "PFlow") {
       esKey = (fabs(eta) < 1.5) ? &m_efEDCentral : &m_efEDForward;
     } else if (fwdClus != nullptr) {
@@ -1452,6 +1483,25 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
       float dR    = Iso::coneSize(isoTypes.at(i));
       float toSub = rho*(dR*dR*M_PI - areacore);
+      // The improved PU correction is only for central EGamma objects, and topoetcone
+      if (m_useEtaDepPU && fwdClus == nullptr && Iso::isolationFlavour(isoTypes.at(i)) == Iso::topoetcone) {
+	double areaCorr = 0;
+	auto puZeta = m_puZetaCorrection.find(isoTypes.at(i));
+	if (puZeta != m_puZetaCorrection.end()) {
+	  areaCorr = puZeta->second->Eval(std::abs(eta)); // CW might have done it vs etaBE(2). This eta here is caloCluster eta...
+	} else {
+	  ATH_MSG_WARNING("Requested refined eta dependent pileup correction but no zeta correction provided " << Iso::toCString(isoTypes.at(i)));
+	}
+	if (m_isMC) {
+	  auto puZetaMC = m_puZetaMCCorrection.find(isoTypes.at(i));
+	  if (puZetaMC != m_puZetaMCCorrection.end()) {
+	    areaCorr -= puZetaMC->second->Eval(std::abs(eta));
+	  } else {
+	    ATH_MSG_WARNING("Requested refined eta dependent pileup correction for mc but no zeta correction provided " << Iso::toCString(isoTypes.at(i)));
+	  }
+	}
+	toSub *= areaCorr;
+      }
       corrvec[i] = toSub;
       if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))){
 	result.etcones[i] -= toSub;
@@ -1518,9 +1568,9 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
     return true;
   }
-  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ) const{
+  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const FlowElement*>& output ) const{
     /// retrieve container
-    const PFOContainer* Clusters = 0;
+    const FlowElementContainer* Clusters = 0;
     std::string m_ClusterLocation = "JetETMissNeutralParticleFlowObjects";
     if(evtStore()->retrieve(Clusters,m_ClusterLocation).isFailure()) {
       ATH_MSG_FATAL( "Unable to retrieve " << m_ClusterLocation);

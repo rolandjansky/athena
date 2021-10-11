@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1LegoSystems/VP1CaloLegoSystem.h"
@@ -49,10 +49,10 @@ public:
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
   QMap<QString,QCheckBox*>   checkBoxMap;
 
-  SoSwitch          *fcalSwitch[3];     // FCAL
-  SoSwitch          *hecSwitch[4];      // HEC
-  SoSwitch          *emecSwitch[4];     // EMEC
-  SoSwitch          *embSwitch[4];      // EMB
+  SoSwitch          *fcalSwitch[3]{};     // FCAL
+  SoSwitch          *hecSwitch[4]{};      // HEC
+  SoSwitch          *emecSwitch[4]{};     // EMEC
+  SoSwitch          *embSwitch[4]{};      // EMB
 
 
   std::map < SoNode *, const FCALTile *>   TileMap;
@@ -60,8 +60,8 @@ public:
   std::map < SoNode *, EMECCellConstLink>  EMECMap;
   std::map < SoNode *, EMBCellConstLink>   EMBMap;
 
-  SoSeparator * dummyCubeSep;
-  SoSeparator * root;
+  SoSeparator * dummyCubeSep = nullptr;
+  SoSeparator * root = nullptr;
 
 };
 
@@ -258,14 +258,14 @@ void VP1CaloLegoSystem::createEtaPhi() {
 
     if (manager) {
       FCALDetectorManager::ConstIterator e;
-      for (e=manager->beginFCAL();e!=manager->endFCAL();  e++) {
+      for (e=manager->beginFCAL();e!=manager->endFCAL();  ++e) {
 
 	const FCALModule *fcalMod = *e;
 	SoSeparator *sep1 = new SoSeparator();
 	VP1ExtraSepLayerHelper *sep = new VP1ExtraSepLayerHelper(sep1);
 
 	FCALModule::ConstIterator   t;
-	for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+	for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 	  double x = t->getX();
 	  double y = t->getY();
 	  double dx = fcalMod->getFullWidthX(*t)/2.0;
@@ -302,7 +302,7 @@ void VP1CaloLegoSystem::createEtaPhi() {
     if (manager) {
 
       HECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 
 	const HECDetectorRegion *region=*e;
 	SoSeparator *sep1 = new SoSeparator();
@@ -354,7 +354,7 @@ void VP1CaloLegoSystem::createEtaPhi() {
     if (manager) {
 
       EMECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMECDetectorRegion *region = *e;
 
 	// Then grid:
@@ -407,7 +407,7 @@ void VP1CaloLegoSystem::createEtaPhi() {
     if (manager) {
 
       EMBDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMBDetectorRegion *region = *e;
 	SoSeparator *sep1 = new SoSeparator();
 	VP1ExtraSepLayerHelper *sep = new VP1ExtraSepLayerHelper(sep1);

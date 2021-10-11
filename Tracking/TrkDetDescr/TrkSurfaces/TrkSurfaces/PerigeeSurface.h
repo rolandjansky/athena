@@ -35,6 +35,8 @@ class ParametersT;
  It inherits from Surface.
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class PerigeeSurface final : public Surface
@@ -42,34 +44,40 @@ class PerigeeSurface final : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Perigee;
+  static constexpr SurfaceType staticType = SurfaceType::Perigee;
 
   /**Default Constructor - needed for persistency*/
   PerigeeSurface();
 
-  /**Constructor from GlobalPosition*/
-  PerigeeSurface(const Amg::Vector3D& gp);
-
-  /**Constructor with a Transform - needed for tilt */
-  PerigeeSurface(Amg::Transform3D* tTransform);
-
-  /**Constructor with a Transform by unique_ptr - needed for tilt */
-  PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform);
-
   /**Copy constructor*/
   PerigeeSurface(const PerigeeSurface& pesf);
 
-  /**Copy constructor with shift*/
-  PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
+  /**Assignment operator*/
+  PerigeeSurface& operator=(const PerigeeSurface& slsf);
+
+  /**Copy constructor*/
+  PerigeeSurface(PerigeeSurface&& pesf) noexcept = default;
+
+  /**Assignment operator*/
+  PerigeeSurface& operator=(PerigeeSurface&& slsf) noexcept = default;
 
   /**Destructor*/
   virtual ~PerigeeSurface() = default;
 
+  /**Constructor from GlobalPosition*/
+  PerigeeSurface(const Amg::Vector3D& gp);
+
+  /**Constructor with a Transform by ref - needed for tilt */
+  PerigeeSurface(const Amg::Transform3D& tTransform);
+
+  /**Copy constructor with shift*/
+  PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& transf);
+
   /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override final;
-
-  /**Assignment operator*/
-  PerigeeSurface& operator=(const PerigeeSurface& slsf);
+  
+  /** NVI unique_ptr method **/
+  std::unique_ptr<PerigeeSurface> uniqueClone() const;
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -169,7 +177,7 @@ public:
      into the global frame. for calculating the global position, a momentum
      direction has to be provided as well, use the appropriate function!
        */
-  const Amg::Vector3D* localToGlobal(const LocalParameters& locpos) const;
+  Amg::Vector3D localToGlobal(const LocalParameters& locpos) const;
 
   /** This method is the true local->global transformation.<br>
       by providing a locR and locZ coordinate such as a GlobalMomentum
@@ -177,8 +185,8 @@ public:
       The choice between the two possible canditates is done by the sign of the
      radius
       */
-  const Amg::Vector3D* localToGlobal(const LocalParameters& locpos,
-                                     const Amg::Vector3D& glomom) const;
+  Amg::Vector3D localToGlobal(const LocalParameters& locpos,
+                              const Amg::Vector3D& glomom) const;
 
   /** LocalToGlobal method without dynamic memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
@@ -245,7 +253,7 @@ public:
 
   /**This method checks if a globalPosition in on the Surface or not*/
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 

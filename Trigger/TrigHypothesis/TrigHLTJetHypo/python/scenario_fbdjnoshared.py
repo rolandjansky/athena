@@ -16,10 +16,10 @@ logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
 
-pattern = r'^fbdjnosharedSEP'\
-    r'(?P<j1etlo>\d*)et(?P<j1ethi>\d*)SEP'\
-    r'(?P<j2etlo>\d*)et(?P<j2ethi>\d*)SEP'\
-    r'(?P<masslo>\d*)mass(?P<masshi>\d*)SEP'\
+pattern = r'^FBDJNOSHARED'\
+    r'(?P<j1etlo>\d*)et(?P<j1ethi>\d*)XX'\
+    r'(?P<j2etlo>\d*)et(?P<j2ethi>\d*)XX'\
+    r'(?P<masslo>\d*)mass(?P<masshi>\d*)XX'\
     r'(?P<fbetlo>\d*)fbet(?P<fbethi>\d*)$'
 
 rgx = re.compile(pattern)
@@ -87,7 +87,7 @@ def scenario_fbdjnoshared(scenario, chainPartInd):
 
     No  conditions are filtered"""
 
-    assert scenario.startswith('fbdjnoshared'),\
+    assert scenario.startswith('FBDJNOSHARED'),\
         'routing error, module %s: bad scenario %s' % (__name__, scenario)
 
     m = rgx.match(scenario)

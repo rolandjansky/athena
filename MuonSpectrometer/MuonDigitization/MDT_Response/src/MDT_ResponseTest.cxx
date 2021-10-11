@@ -12,10 +12,10 @@
 #include "TH1.h"
 #include "TFile.h"
 
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
 #include <iostream>
-#include <stdlib.h>
-#include <errno.h>
-#include <limits.h>
 
 // random generator
 CLHEP::RanluxEngine ranEngine;

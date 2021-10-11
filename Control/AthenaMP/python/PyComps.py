@@ -56,59 +56,64 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         from .AthenaMPFlags import jobproperties as jp
         import AthenaCommon.ConcurrencyFlags # noqa: F401
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
+        from PyUtils.MetaReaderPeeker import metadata
         if (jp.AthenaMPFlags.ChunkSize() > 0):
             chunk_size = jp.AthenaMPFlags.ChunkSize()
             msg.info('Chunk size set to %i', chunk_size)
+        #Don't use auto flush for shared reader
+        elif (jp.AthenaMPFlags.UseSharedReader()):
+            chunk_size = 1
+            msg.info('Shared Reader in use, chunk_size set to default (%i)', chunk_size)
         #Use auto flush only if file is compressed with LZMA, else use default chunk_size
         elif (jp.AthenaMPFlags.ChunkSize() == -1):
-            from PyUtils.MetaReaderPeeker import metadata
             if (metadata['file_comp_alg'] == 2):
                 chunk_size = metadata['auto_flush']
                 msg.info('Chunk size set to auto flush (%i)', chunk_size)
             else:
-                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue
+                chunk_size = 1
                 msg.info('LZMA algorithm not in use, chunk_size set to default (%i)', chunk_size)
         #Use auto flush only if file is compressed with LZMA or ZLIB, else use default chunk_size
         elif (jp.AthenaMPFlags.ChunkSize() == -2):
-            from PyUtils.MetaReaderPeeker import metadata
             if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2):
                 chunk_size = metadata['auto_flush']
                 msg.info('Chunk size set to auto flush (%i)', chunk_size)
             else:
-                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+                chunk_size = 1
                 msg.info('LZMA nor ZLIB in use, chunk_size set to default (%i)', chunk_size)
         #Use auto flush only if file is compressed with LZMA, ZLIB or LZ4, else use default chunk_size
         elif (jp.AthenaMPFlags.ChunkSize() == -3):
-            from PyUtils.MetaReaderPeeker import metadata
             if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2 or metadata['file_comp_alg'] == 4):
                 chunk_size = metadata['auto_flush']
                 msg.info('Chunk size set to auto flush (%i)', chunk_size)
             else:
-                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
-                msg.info('LZMA, ZLIB nor LZ4 in use, chunk_size set to default (%i)', chunk_size)
+                chunk_size = 1
+                msg.info('LZMA, ZLIB nor LZ4 in use, chunk_size set to (%i)', chunk_size)
         #Use auto flush value for chunk_size, regarldess of compression algorithm
         elif (jp.AthenaMPFlags.ChunkSize() <= -4):
-            from PyUtils.MetaReaderPeeker import metadata
             chunk_size = metadata['auto_flush']
             msg.info('Chunk size set to auto flush (%i)', chunk_size)
         else:
-            chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+            chunk_size = 1
             msg.warning('Invalid ChunkSize, Chunk Size set to default (%i)', chunk_size)
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
         use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
         use_parallel_compression = jp.AthenaMPFlags.UseParallelCompression()
+        if use_shared_writer and use_parallel_compression and events_before_fork > 0:
+            msg.info('SharedWriter with parallel compression is not compatible with EventsBeforeFork > 0. Therefore, disabling parallel compression.')
+            use_parallel_compression = False
 
         if strategy=='SharedQueue' or strategy=='RoundRobin':
             if use_shared_reader:
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+                svcMgr.PoolSvc.MaxFilesOpen = 2
                 from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                 svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool", SharedMemoryName="EventStream"+str(os.getpid()))
                 if 'AthenaPoolCnvSvc.ReadAthenaPool' in sys.modules:
-                    svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool", SharedMemoryName="InputStream"+str(os.getpid()))
+                    svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool", SharedMemoryName="InputStream"+str(os.getpid()), UseMultipleSegments=True)
             if use_shared_writer:
+                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                 if 'AthenaPoolCnvSvc.WriteAthenaPool' in sys.modules:
-                    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                     svcMgr.AthenaPoolCnvSvc.OutputStreamingTool += [ AthenaSharedMemoryTool("OutputStreamingTool_0", SharedMemoryName="OutputStream"+str(os.getpid())) ]
                 svcMgr.AthenaPoolCnvSvc.ParallelCompression=use_parallel_compression
@@ -139,7 +144,6 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             if use_shared_writer:
                 from AthenaMPTools.AthenaMPToolsConf import SharedWriterTool
                 self.Tools += [ SharedWriterTool() ]
-
 
             # Enable seeking
             if not use_shared_reader:

@@ -18,13 +18,11 @@
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // calorimeter include(s)
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "TileConditions/TileInfo.h"
 
-#include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //For getting TriggerTowers from BS
@@ -32,8 +30,11 @@
 
 // For the Athena-based random numbers.
 #include "PathResolver/PathResolver.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "GaudiKernel/IIncidentSvc.h"
+
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/Randomize.h"
@@ -74,16 +75,13 @@ namespace LVL1 {
 
   OverlayRun2TriggerTowerMaker::OverlayRun2TriggerTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
-      m_rndGenSvc("AtRndmGenSvc", name),
+      m_rngSvc("AthRNGSvc", name),
       m_condSvc("L1CaloCondSvc", name), 
       m_rndmADCs(0),
-      m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-      m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
-      m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-      m_bstowertool("LVL1BS__TrigT1CaloDataAccessV2/TrigT1CaloDataAccessV2",0), //ACH
+      m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool", this),
+      m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool", this),
+      m_bstowertool("LVL1BS__TrigT1CaloDataAccessV2/TrigT1CaloDataAccessV2", this),
       m_caloId(0),
-      m_digitScale(250.),
       m_cpLutScale(1.),
       m_jepLutScale(1.),
       m_TileToMeV(s_MEV/4.1), // Scale for converting ET -> counts
@@ -91,12 +89,10 @@ namespace LVL1 {
       m_isDataReprocessing(false),
       m_doOverlay(false), m_isReco(false)
   {
-    declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
+    declareProperty("RngSvc", m_rngSvc, "Random number service");
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
-    declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
     declareProperty("PpmMappingTool", m_mappingTool);
-    declareProperty("LumiBlockMuTool", m_lumiBlockMuTool);
 
     declareProperty("inputTTLocation", m_inputTTLocation=TrigT1CaloDefs::xAODTriggerTowerLocation);
     declareProperty("EmTTL1ContainerName",m_EmTTL1ContainerName= "LArTTL1EM");
@@ -159,16 +155,16 @@ namespace LVL1 {
   {
     ATH_MSG_INFO("ACH445: Initialising");
 
+    ATH_CHECK( m_L1MenuKey.initialize() );
+
     CHECK(detStore()->retrieve(m_caloId).isSuccess());
-    CHECK(m_configSvc.retrieve());
     CHECK(m_mappingTool.retrieve());
     CHECK(m_TTtool.retrieve());
-    CHECK(m_rndGenSvc.retrieve());
-    CHECK(m_lumiBlockMuTool.retrieve());
+    CHECK(m_rngSvc.retrieve());
     CHECK(m_condSvc.retrieve());
     CHECK(m_bstowertool.retrieve());
 
-    m_rndmADCs = m_rndGenSvc->GetEngine(m_digiEngine);
+    m_rndmADCs = m_rngSvc->getEngine(this, m_digiEngine);
     if(!m_rndmADCs) {
       ATH_MSG_ERROR("Failed to retrieve random engine");
       return StatusCode::FAILURE;
@@ -191,9 +187,9 @@ namespace LVL1 {
   {
     if(inc.type() != "BeginRun") return;
     /// Get global scales from configSvc
-    double globalScale = m_configSvc->thresholdConfig()->caloInfo().globalScale();
-    m_cpLutScale = m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
-    m_jepLutScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
+    m_cpLutScale = l1Menu->thrExtraInfo().EM().emScale();
+    m_jepLutScale = l1Menu->thrExtraInfo().JET().jetScale();
 
     ATH_MSG_INFO("doOverlay: "<<m_doOverlay<<", isReco: "<<m_isReco);
     if (m_doOverlay && m_isReco) {
@@ -201,13 +197,8 @@ namespace LVL1 {
       return;
     }
 
-    ATH_MSG_INFO("REGTEST Digit scale = " << globalScale << " GeV/count");
     ATH_MSG_INFO("REGTEST CP scale = " << m_cpLutScale << " count/GeV");
     ATH_MSG_INFO("REGTEST JEP scale = " << m_jepLutScale << " count/GeV");
-
-    /// globalScale is number of GeV/count. As code is already written to use
-    /// MeV/count, safest thing here is to convert:
-    m_digitScale = 1000.*globalScale;
 
     // retrieve conditions
     if (! m_condSvc->retrieve(m_chanCalibContainer, m_chanCalibKey).isSuccess()){ATH_MSG_ERROR("failed!");}
@@ -301,6 +292,9 @@ namespace LVL1 {
 
     if (m_isReco && m_doOverlay) return StatusCode::SUCCESS; // nothing to to, since we did overlay and made towers during digi
 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    m_rndmADCs->setSeed (m_digiEngine, ctx);
+
     m_xaodTowers.reset(new xAOD::TriggerTowerContainer);
     m_xaodTowersAux.reset(new xAOD::TriggerTowerAuxContainer);
     m_xaodTowers->setStore(m_xaodTowersAux.get());
@@ -324,15 +318,13 @@ namespace LVL1 {
       ATH_MSG_ERROR("Unsupported Cell Type!!!!!!"); return StatusCode::FAILURE;
     }
     
-    // Pedestal Correction: Get the BCID number
     const xAOD::EventInfo* evt = nullptr;
     CHECK(evtStore()->retrieve(evt));
-    int eventBCID = evt->bcid();    
     
-    CHECK(preProcess(eventBCID)); // FIR, BCID etc
+    CHECK(preProcess(*evt)); // FIR, BCID etc
     
     if (m_doOverlay) {         
-      CHECK( addOverlay(eventBCID) );
+      CHECK( addOverlay(*evt) );
     }
 
     // store them thar trigger towers
@@ -364,7 +356,7 @@ namespace LVL1 {
     return false;
   }
 
-  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const int eventBCID)
+  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const xAOD::EventInfo& event)
   {
     // Get the overlay data TTs from Bytestream
     xAOD::TriggerTowerContainer* overlayDataTTs = new xAOD::TriggerTowerContainer();
@@ -407,7 +399,7 @@ namespace LVL1 {
       Itr match = overlayMap.find( tt->coolId() );
       if (match != overlayMap.end()) {
         
-        CHECK( addOverlay(eventBCID,tt,(*match).second) );
+        CHECK( addOverlay(event,tt,(*match).second) );
         
         // Let the overlay TT know that it has been used
         (*match).second->auxdecor<char>(decor_name) = decor_ttUsedInOverlay;
@@ -442,7 +434,7 @@ namespace LVL1 {
   }
   
   /** Add the overlay TriggerTower to the signal TriggerTower **/
-  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT)
+  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const xAOD::EventInfo& event,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT)
   {
     // Get the relevant databases 
     const L1CaloPprChanCalib* sigDB = m_chanCalibContainer->pprChanCalib(sigTT->coolId());
@@ -467,8 +459,8 @@ namespace LVL1 {
     
     // Get LUT input
     std::vector<int> sigLutIn,ovLutIn;
-    CHECK( preProcessTower_getLutIn(eventBCID,sigTT,sigDB,sigDigits,sigLutIn) );
-    CHECK( preProcessTower_getLutIn(eventBCID,ovTT,ovDB,normOverlayDigits,ovLutIn) );
+    CHECK( preProcessTower_getLutIn(event,sigTT,sigDB,sigDigits,sigLutIn) );
+    CHECK( preProcessTower_getLutIn(event,ovTT,ovDB,normOverlayDigits,ovLutIn) );
        
     // LUT ouput
     std::vector<int> lutOut_cp,lutOut_jep;
@@ -564,7 +556,7 @@ namespace LVL1 {
     }     
   }
   
-  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower_getLutIn(const xAOD::EventInfo& event,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output)
   {
     // factorised version of OverlayRun2TriggerTowerMaker::preProcessTower 
     
@@ -589,8 +581,8 @@ namespace LVL1 {
                                   firPed,
                                   etaToElement(tower->eta(), tower->layer()),
                                   tower->layer(),
-                                  eventBCID,
-                                  m_lumiBlockMuTool->actualInteractionsPerCrossing(),
+                                  event.bcid(),
+                                  event.actualInteractionsPerCrossing(),
                                   correction);
     }
     
@@ -650,16 +642,16 @@ namespace LVL1 {
 
   /** Emulate FIR filter, bunch-crossing identification & LUT, and create & fill
       TriggerTowers. */
-  StatusCode OverlayRun2TriggerTowerMaker::preProcess(const int eventBCID)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcess(const xAOD::EventInfo& event)
   {
     // Loop over all existing towers and simulate preprocessor functions
     for(auto tower : *m_xaodTowers) {
-      CHECK(preProcessTower(eventBCID,tower));
+      CHECK(preProcessTower(event,tower));
     }
     return StatusCode::SUCCESS;
   }
 
-  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower(const int eventBCID,xAOD::TriggerTower *tower)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower(const xAOD::EventInfo& event,xAOD::TriggerTower *tower)
   {
     
     const L1CaloPprChanCalib* chanCalib =  m_chanCalibContainer->pprChanCalib(tower->coolId());
@@ -710,8 +702,8 @@ namespace LVL1 {
                                   firPed,
                                   etaToElement(tower->eta(), tower->layer()),
                                   tower->layer(),
-                                  eventBCID,
-                                  m_lumiBlockMuTool->actualInteractionsPerCrossing(),
+                                  event.bcid(),
+                                  event.actualInteractionsPerCrossing(),
                                   correction);
     } 
     
@@ -1101,31 +1093,35 @@ namespace LVL1 {
   /** Digitize pulses and store results back in xAOD::TriggerTowers */
   void OverlayRun2TriggerTowerMaker::digitize()
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CLHEP::HepRandomEngine* rndmADCs = m_rndmADCs->getEngine (ctx);
+
     // Loop over all existing towers and digitize pulses
     for(auto tower : *m_xaodTowers) {
       // First process EM layer
       L1CaloCoolChannelId id(tower->coolId());
-      std::vector<int> digits = ADC(id, m_xaodTowersAmps[tower->index()]); // ADC simulation
+      std::vector<int> digits = ADC(rndmADCs, id, m_xaodTowersAmps[tower->index()]); // ADC simulation
       tower->setAdc(std::vector<uint16_t>(std::begin(digits), std::end(digits)));
       tower->setAdcPeak(digits.size()/2);
     }
   }
 
-  std::vector<int> OverlayRun2TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const
+  std::vector<int> OverlayRun2TriggerTowerMaker::ADC(CLHEP::HepRandomEngine* rndmADCs,
+                                                     L1CaloCoolChannelId channel, const std::vector<double>& amps) const
   {
     auto* chanCalib = m_chanCalibContainer->pprChanCalib(channel);
     if(!chanCalib) { ATH_MSG_WARNING("No database entry for tower " << channel.id()); return {}; }
     double ped = chanCalib->pedMean();
 
     // dice the calibration uncertainty if requested
-    double adcCal = (m_gainCorr > 0.) ? CLHEP::RandGaussZiggurat::shoot(m_rndmADCs, 1., m_gainCorr) : 1.;  
+    double adcCal = (m_gainCorr > 0.) ? CLHEP::RandGaussZiggurat::shoot(rndmADCs, 1., m_gainCorr) : 1.;  
 
     std::vector<int> digits;
     const int nSamples = amps.size();
     digits.reserve(nSamples);
     for(int i = 0; i < nSamples; ++i) {
       // dice the adc noise if requested
-      double adcNoise = (m_adcVar > 0.) ? CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,m_adcVar) : 0.;
+      double adcNoise = (m_adcVar > 0.) ? CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,m_adcVar) : 0.;
 
       int digit = int((amps[i]*adcCal/m_adcStep) + ped + adcNoise);
       if(digit > ADCMAX) digit = ADCMAX;

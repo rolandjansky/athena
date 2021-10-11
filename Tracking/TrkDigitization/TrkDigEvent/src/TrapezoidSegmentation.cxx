@@ -7,6 +7,10 @@
 ///////////////////////////////////////////////////////////////////
 
 // Trk includes
+#include <memory>
+
+
+
 #include "TrkDigEvent/TrapezoidSegmentation.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkSurfaces/PlaneSurface.h"
@@ -17,18 +21,18 @@
 
 Trk::TrapezoidSegmentation::TrapezoidSegmentation(std::shared_ptr<const Trk::TrapezoidBounds> mBounds,
                                                       size_t numCellsX, size_t numCellsY) :
-   m_activeBounds(mBounds),
+   m_activeBounds(std::move(mBounds)),
    m_binUtility(nullptr),
    m_binsX(numCellsX),
    m_binsY(numCellsY)
 {
     // first the x dimension if needed
     if (numCellsX > 1) {
-         m_binUtility = new Trk::BinUtility(numCellsX, -0.5*(mBounds->minHalflengthX()+mBounds->maxHalflengthX()), 0.5*(mBounds->minHalflengthX()+mBounds->maxHalflengthX()), Trk::open, Trk::binX);
+         m_binUtility = new Trk::BinUtility(numCellsX, -0.5*(m_activeBounds->minHalflengthX()+m_activeBounds->maxHalflengthX()), 0.5*(m_activeBounds->minHalflengthX()+m_activeBounds->maxHalflengthX()), Trk::open, Trk::binX);
     }
     // use y dimension if needed
     if (numCellsY > 1){
-        Trk::BinUtility yBinUtility(numCellsY, -mBounds->halflengthY(), mBounds->halflengthY(), Trk::open, Trk::binY);
+        Trk::BinUtility yBinUtility(numCellsY, -m_activeBounds->halflengthY(), m_activeBounds->halflengthY(), Trk::open, Trk::binY);
         if (m_binUtility)
             (*m_binUtility) += yBinUtility;
         else 
@@ -56,20 +60,20 @@ void Trk::TrapezoidSegmentation::createSegmenationSurfaces(std::vector< std::sha
     std::unique_ptr<Trk::TrapezoidBounds> moduleTrapBounds(new Trk::TrapezoidBounds(m_activeBounds->minHalflengthX(),m_activeBounds->maxHalflengthX(),m_activeBounds->halflengthY()));
     Trk::SharedObject<const Trk::SurfaceBounds> moduleBounds(&*moduleTrapBounds);
     // - they are separated by half a thickness in z
-    std::unique_ptr<Amg::Transform3D> readoutPlaneTransform(new Amg::Transform3D(Amg::Transform3D::Identity()));
-    std::unique_ptr<Amg::Transform3D> counterPlaneTransform(new Amg::Transform3D(Amg::Transform3D::Identity()));
+    Amg::Transform3D readoutPlaneTransform(Amg::Transform3D::Identity());
+    Amg::Transform3D counterPlaneTransform(Amg::Transform3D::Identity());
     // readout and counter readout bounds, the bounds of the readout plane are like the active ones
     Trk::SharedObject<const Trk::SurfaceBounds> readoutPlaneBounds = moduleBounds;
     Trk::SharedObject<const Trk::SurfaceBounds> counterPlaneBounds(nullptr);
     // the transform of the readout plane is always centric
-    readoutPlaneTransform->translation()     = Amg::Vector3D(0.,0.,readoutDirection*halfThickness);
+    readoutPlaneTransform.translation()     = Amg::Vector3D(0.,0.,readoutDirection*halfThickness);
     // no lorentz angle and everything is straight-forward
     counterPlaneBounds = moduleBounds;
-    counterPlaneTransform->translation()     = Amg::Vector3D(0.,0.,-readoutDirection*halfThickness);
+    counterPlaneTransform.translation()     = Amg::Vector3D(0.,0.,-readoutDirection*halfThickness);
     
     // - build the readout & counter readout surfaces
-    boundarySurfaces.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(&*readoutPlaneTransform,readoutPlaneBounds)));
-    boundarySurfaces.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(&*counterPlaneTransform,counterPlaneBounds)));
+    boundarySurfaces.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(readoutPlaneTransform,readoutPlaneBounds)));
+    boundarySurfaces.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(counterPlaneTransform,counterPlaneBounds)));
     
     // (B) - bin X -----------------------------------------------------------
     // easy stuff first, constant pitch size and 
@@ -92,14 +96,14 @@ void Trk::TrapezoidSegmentation::createSegmenationSurfaces(std::vector< std::sha
       double stereoLocal = asin(sinStereoLocal(Amg::Vector2D(cPosX, 0.)));
       const Amg::RotationMatrix3D xRotation = xBinRotationMatrix*Amg::AngleAxis3D(stereoLocal, Amg::Vector3D::UnitY()); 
       // build the rotation from it
-      std::unique_ptr<Amg::Transform3D> binTransform(new Amg::Transform3D(Amg::getTransformFromRotTransl(xRotation, xPosition)));
+      Amg::Transform3D binTransform(Amg::getTransformFromRotTransl(xRotation, xPosition));
       // the correct bounds for this
       std::unique_ptr<Trk::RectangleBounds> xBinBounds(new Trk::RectangleBounds(m_activeBounds->halflengthY()/cos(stereoLocal),halfThickness));
       // these are the boundaries
       if (ibinx==0 || ibinx == m_binsX) // (i) this is the low/high boundary --- ( ibin == 0/m_binsX )
-	boundarySurfaces.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(&*binTransform,&*xBinBounds)));
+	boundarySurfaces.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(binTransform,&*xBinBounds)));
       else // these are the bin boundaries
-	segmentationSurfacesX.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(&*binTransform,&*xBinBounds)));
+	segmentationSurfacesX.push_back(std::shared_ptr<const Trk::PlaneSurface>(new Trk::PlaneSurface(binTransform,&*xBinBounds)));
     }
     
     // (C) - bin Y surfaces - everything is defined -----------------------------------------------------------
@@ -118,12 +122,12 @@ void Trk::TrapezoidSegmentation::createSegmenationSurfaces(std::vector< std::sha
         Amg::Vector3D binSurfaceCenter(0.,binPosY,0.);
 	double localPitchX = PitchX(Amg::Vector2D(0., binPosY));
   std::unique_ptr<Trk::RectangleBounds> yBinBounds(new Trk::RectangleBounds(localPitchX*m_binsX*0.5,halfThickness));
-  std::unique_ptr<Amg::Transform3D> binTransform(new Amg::Transform3D(Amg::getTransformFromRotTransl(yBinRotationMatrix,binSurfaceCenter)));
+  Amg::Transform3D binTransform(Amg::getTransformFromRotTransl(yBinRotationMatrix,binSurfaceCenter));
         // these are the boundaries
         if (ibiny == 0 || ibiny == m_binsY)
-            boundarySurfaces.push_back(std::shared_ptr<Trk::PlaneSurface>(new Trk::PlaneSurface(&*binTransform,&*yBinBounds)));
+            boundarySurfaces.push_back(std::make_shared<Trk::PlaneSurface>(binTransform,&*yBinBounds));
         else // these are the bin boundaries
-            segmentationSurfacesY.push_back(std::shared_ptr<Trk::PlaneSurface>(new Trk::PlaneSurface(&*binTransform,&*yBinBounds)));
+            segmentationSurfacesY.push_back(std::make_shared<Trk::PlaneSurface>(binTransform,&*yBinBounds));
     }  
 }
 
@@ -147,10 +151,10 @@ const Trk::DigitizationStep Trk::TrapezoidSegmentation::digitizationStep(const A
    
     Amg::Vector3D stepCenter = 0.5*(startStep+endStep);
     // project to parameter surface
-    double lorentzDeltaX = -readoutDirection*stepCenter.z()*tan(lorentzAngle);
+    double lorentzDeltaX = -readoutDirection*stepCenter.z()*std::tan(lorentzAngle);
     // take the full drift length
     double driftInZ = (halfThickness-readoutDirection*stepCenter.z());
-    double driftLength  = fabs(driftInZ/cos(lorentzAngle)); 
+    double driftLength  = std::abs(driftInZ/std::cos(lorentzAngle)); 
     // the projected center
     Amg::Vector2D stepCenterProjected(stepCenter.x()+lorentzDeltaX,stepCenter.y());
     // the cell & its center

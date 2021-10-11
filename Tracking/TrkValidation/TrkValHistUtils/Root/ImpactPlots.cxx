@@ -7,11 +7,11 @@
 namespace Trk {
   void
   ImpactPlots::init() {
-    z0 = NULL;
-    z0sig = NULL;
-    d0 = NULL;
-    d0sig = NULL;
-    d0_small = NULL;
+    z0 = nullptr;
+    z0sig = nullptr;
+    d0 = nullptr;
+    d0sig = nullptr;
+    d0_small = nullptr;
   }
 
   void

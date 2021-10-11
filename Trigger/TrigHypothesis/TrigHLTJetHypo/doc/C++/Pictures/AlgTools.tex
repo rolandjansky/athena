@@ -28,12 +28,12 @@
  
 \begin{tikzpicture} 
 
-\umlsimpleclass{TrigJetHypoAlgMT}{
+\umlsimpleclass{TrigJetHypoAlg}{
 }{}
 
-\umlsimpleclass[right=4cm of TrigJetHypoAlgMT] {TrigJetHypoToolMT}{
+\umlsimpleclass[right=4cm of TrigJetHypoAlg] {TrigJetHypoTool}{
 }{}
-\umlsimpleclass[below=2cm of TrigJetHypoToolMT] {TrigJetHypoToolHelper}{}{}
+\umlsimpleclass[below=2cm of TrigJetHypoTool] {TrigJetHypoToolHelper}{}{}
 \umlclass[left=3cm of TrigJetHypoToolHelper, type=Interface] {ITrigJetHypoToolConfig}{}{+ getMatcher()\\
 + getGrouper()\\}
 \umlclass[below=2cm of ITrigJetHypoToolConfig] {TrigJetHypoToolConfig-fastreducer}{}{- getConditions\\
@@ -46,8 +46,8 @@
 \umlsimpleclass[below right =4.5cm  and -3.5 of ITrigJetConditionConfig] {TrigJetConditionConfig-moment}
 
 
-\umluniassoc[mult=*]{TrigJetHypoAlgMT}{TrigJetHypoToolMT}
-\umluniassoc[mult=1]{TrigJetHypoToolMT}{TrigJetHypoToolHelper}
+\umluniassoc[mult=*]{TrigJetHypoAlg}{TrigJetHypoTool}
+\umluniassoc[mult=1]{TrigJetHypoTool}{TrigJetHypoToolHelper}
 \umluniassoc[mult=1]{TrigJetHypoToolHelper}{ITrigJetHypoToolConfig}
 \umluniassoc[mult=*]{TrigJetHypoToolConfig-fastreducer}{ITrigJetConditionConfig}
 \umlimpl{TrigJetHypoToolConfig-fastreducer}{ITrigJetHypoToolConfig}

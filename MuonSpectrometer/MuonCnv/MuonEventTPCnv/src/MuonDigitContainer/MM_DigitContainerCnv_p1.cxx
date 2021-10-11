@@ -161,7 +161,7 @@ void  Muon::MM_DigitContainerCnv_p1::persToTrans(const Muon::MM_DigitContainer_p
     } 
   }
 
-  MmDigitCollection* coll = 0;
+  MmDigitCollection* coll = nullptr;
 
   MM_DigitCnv_p1  chanCnv;
   unsigned int pchanIndex(0); // position within persCont->m_digits. Incremented inside innermost loop 
@@ -217,7 +217,7 @@ MmDigitContainer* Muon::MM_DigitContainerCnv_p1::createTransient(const Muon::MM_
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
       log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p1 " << endmsg;
-      return 0;
+      return nullptr;
     } 
   }
   std::unique_ptr<MmDigitContainer> trans(new MmDigitContainer(m_MMId->detectorElement_hash_max()));

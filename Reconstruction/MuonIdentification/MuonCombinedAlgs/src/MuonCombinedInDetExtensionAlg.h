@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
@@ -21,13 +21,13 @@
 
 // uses (further down the call chain) the MuPatHitTool that has a mutable cache of pointers to-be-deleted at the end of the event
 // thus, currently, the MuonCombinedInDetExtensionAlg cannot become an AthReentrantAlgorithm
-class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
+class MuonCombinedInDetExtensionAlg : public AthReentrantAlgorithm {
 public:
     MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator);
     ~MuonCombinedInDetExtensionAlg() = default;
 
-    StatusCode initialize();
-    StatusCode execute();
+    StatusCode initialize() override;
+    StatusCode execute(const EventContext& ctx) const override;
 
 private:
     ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools{

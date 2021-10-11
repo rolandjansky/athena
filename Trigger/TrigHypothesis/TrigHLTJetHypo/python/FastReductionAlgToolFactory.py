@@ -14,7 +14,7 @@ class FastReductionAlgToolFactory:
     def __init__(self):
         
         self.tool_factories = {
-            'hypo_tool': [CompFactory.TrigJetHypoToolMT, 0],
+            'hypo_tool': [CompFactory.TrigJetHypoTool, 0],
             'helper_tool': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
 
             'HelperToolConfigTool':
@@ -40,6 +40,7 @@ class FastReductionAlgToolFactory:
             'cphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'nphi': [CompFactory.TrigJetConditionConfig_phi, 0],
             'et': [CompFactory.TrigJetConditionConfig_et, 0],
+            'pt': [CompFactory.TrigJetConditionConfig_pt, 0],
             'djmass': [CompFactory.TrigJetConditionConfig_dijet_mass, 0],
             'djdphi': [CompFactory.TrigJetConditionConfig_dijet_dphi, 0],
             'djdeta': [CompFactory.TrigJetConditionConfig_dijet_deta, 0],
@@ -47,6 +48,7 @@ class FastReductionAlgToolFactory:
             'smc': [CompFactory.TrigJetConditionConfig_smc, 0],
             'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
             'ht': [CompFactory.TrigJetConditionConfig_htfr, 0],
+            'clean': [CompFactory.TrigJetConditionConfig_clean, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
             }
 

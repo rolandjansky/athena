@@ -99,7 +99,7 @@ StatusCode TBClusterMaker::initialize(){
   std::vector<std::string>::const_iterator sampling = m_samplingNames.begin();
   std::vector<float>::const_iterator cut = m_coneCuts.begin();
   m_samplingConeCuts.resize (CaloSampling::getNumberOfSamplings());
-  for (; sampling != m_samplingNames.end(); sampling++, cut++) {
+  for (; sampling != m_samplingNames.end(); ++sampling, ++cut) {
      CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[*sampling];
     if (idSamp == CaloSampling::Unknown) {
       log << MSG::FATAL << " Unknown sampling: \042" << *sampling << "\042 "
@@ -112,7 +112,7 @@ StatusCode TBClusterMaker::initialize(){
       m_samplingConeCuts[idSamp] = *cut;
       CaloCell_ID::SUBCALO idCalo = m_caloLookup[idSamp];
       std::vector<CaloCell_ID::SUBCALO>::iterator it=m_calos.begin();
-      for (;it!=m_calos.end();it++) if (*it == idCalo) break;
+      for (;it!=m_calos.end();++it) if (*it == idCalo) break;
       if (it == m_calos.end()) m_calos.push_back(idCalo);
   }
   log << MSG::INFO << endmsg;
@@ -169,12 +169,11 @@ StatusCode TBClusterMaker::execute(const EventContext& ctx,
   int nIter = 0;
   for (; nIter<m_maxIter+1; nIter++) {
     // loop over calorimeters
-    std::vector<CaloCell_ID::SUBCALO>::const_iterator calo=m_calos.begin();
-    for (; calo!=m_calos.end(); calo++) {
+    for (CaloCell_ID::SUBCALO calo : m_calos) {
       // loop over cells of the current calorimeter
-      CaloCellContainer::const_iterator itc= cellContainer->beginConstCalo(*calo);
-      int cindex=cellContainer->indexFirstCellCalo(*calo);
-      for (; itc!=cellContainer->endConstCalo(*calo); itc++,cindex++) {
+      CaloCellContainer::const_iterator itc= cellContainer->beginConstCalo(calo);
+      int cindex=cellContainer->indexFirstCellCalo(calo);
+      for (; itc!=cellContainer->endConstCalo(calo); ++itc,++cindex) {
 	const CaloCell* cell = (*itc);
 	double e = cell->energy();
         double noiseRMS = elecNoise->getNoise(cell->ID(), cell->gain());

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
@@ -35,13 +35,12 @@ def MUCTPI_AthToolCfg(name):
   
   # Decide which LUT to use, based on which run we are simulating:
   tool.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
-  logger.info( "Configuring MuCTPI simulation with configuration file:" )
-  logger.info( "  "+tool.LUTXMLFile )
+  logger.info( "Configuring MuCTPI simulation with configuration file: %s", tool.LUTXMLFile )
 
   return tool
 
 
-def MUCTPI_AthAlgCfg(name):
+def MUCTPI_AthAlgCfg(flags):
   acc = ComponentAccumulator()
   alg = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthAlg")(name="MUCTPI_AthAlg")
   alg.MUCTPI_AthTool = MUCTPI_AthToolCfg(name="MUCTPI_AthTool")

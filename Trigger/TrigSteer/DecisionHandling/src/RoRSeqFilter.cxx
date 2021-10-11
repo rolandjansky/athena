@@ -193,8 +193,7 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
                                   DecisionContainer& output, const std::set<HLT::Identifier>& topass,
                                   const EventContext& ctx ) const {
   size_t passCounter = 0;
-  for (size_t i = 0; i < input.size(); ++i) {
-    const Decision* inputDecision = input.at(i);
+  for (const Decision* inputDecision : input) {
 
     DecisionIDContainer objDecisions;      
     decisionIDs( inputDecision, objDecisions );

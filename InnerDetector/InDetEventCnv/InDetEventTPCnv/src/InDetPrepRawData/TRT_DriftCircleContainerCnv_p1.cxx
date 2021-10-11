@@ -70,7 +70,7 @@ void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCi
         persCont->m_PRD.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const InDet::TRT_DriftCircle* chan = collection[i];
-            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing TRT_DriftCircleContainer ***" << endmsg;
@@ -94,7 +94,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
     // from the vector.
 
 
-    InDet::TRT_DriftCircleCollection* coll = 0;
+    InDet::TRT_DriftCircleCollection* coll = nullptr;
 
     TRT_DriftCircleCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
@@ -115,7 +115,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
-            InDet::TRT_DriftCircle* chan = dynamic_cast<InDet::TRT_DriftCircle*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            InDet::TRT_DriftCircle* chan = dynamic_cast<InDet::TRT_DriftCircle*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
             if (chan) {
                chan->m_detEl = de;
                (*coll)[ichan] = chan;

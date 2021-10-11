@@ -126,7 +126,7 @@ private:
 
   // INPUT
   std::string m_trtHitCollectionKey;
-  std::list< TRTUncompressedHitCollection * > m_trtHitCollList;
+  std::vector< TRTUncompressedHitCollection * > m_trtHitCollList;
 
   // OUTPUT 
   SG::WriteHandle< InDet::TRT_DriftCircleContainer > m_trtDriftCircleContainer;

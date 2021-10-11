@@ -52,19 +52,28 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
   ATH_CHECK( trigEmClusterCollection.record(std::make_unique<xAOD::TrigEMClusterContainer>(),
                                             std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
+
   auto roisHandle = SG::makeHandle(m_roiCollectionKey, context);
   if (!roisHandle.isValid()) {
     ATH_MSG_DEBUG("no RoI");
     return StatusCode::SUCCESS;
   }
 
+
   trigEmClusterCollection->reserve(roisHandle->size());
+  
+  ATH_MSG_DEBUG("RoI descriptor size is " << roisHandle->size() );
+
   for (const TrigRoiDescriptor* roiDescriptor : *roisHandle) {
     float etaL1, phiL1;
     double etamin, etamax, phimin, phimax;
+
+    ATH_MSG_DEBUG( "RoI eta = " << roiDescriptor->eta() << " RoI phi = " << roiDescriptor->phi());
+
     if ((m_l1eta < -9.9) && (m_l1phi < -9.9)) {
+      
       etamin = std::max(-2.5, roiDescriptor->eta() - m_etaWidth);
-      etamax = std::min(2.5, roiDescriptor->eta() + m_etaWidth);
+      etamax = std::min( 2.5, roiDescriptor->eta() + m_etaWidth);
 
       phimin = CxxUtils::wrapToPi(roiDescriptor->phi() - m_phiWidth);
       phimax = CxxUtils::wrapToPi(roiDescriptor->phi() + m_phiWidth);
@@ -74,7 +83,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     }
     else {
       etamin = std::max(-2.5, m_l1eta - m_etaWidth);
-      etamax = std::min(2.5, static_cast<double>(m_l1eta) + m_etaWidth);
+      etamax = std::min( 2.5, static_cast<double>(m_l1eta) + m_etaWidth);
 
       phimin = CxxUtils::wrapToPi(m_l1phi - m_phiWidth);
       phimax = CxxUtils::wrapToPi(static_cast<double>(m_l1phi) + m_phiWidth);
@@ -85,6 +94,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 
     TrigRoiDescriptor newroi(roiDescriptor->eta(), etamin, etamax,
                              roiDescriptor->phi(), phimin, phimax);
+
 
     ATH_MSG_DEBUG(" etamin = " << etamin << " etamax = " << etamax <<
                   " phimin = " << phimin << " phimax = " << phimax);

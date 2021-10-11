@@ -151,6 +151,7 @@ convertRun2L1MenuToRun3(const TrigConf::CTPConfig* ctpConfig, const TXC::L1TopoM
          thr["ecIdx"] = mapping;
          thr["fwIdx"] = mapping;
          thr["tgcFlags"] = "";
+         thr["rpcFlags"] = "";
          thr["region"] = "ALL";
          jThisType["roads"]["rpc"][std::to_string(ptCut)] = mapping;
          jThisType["roads"]["tgc"][std::to_string(ptCut)] = mapping;

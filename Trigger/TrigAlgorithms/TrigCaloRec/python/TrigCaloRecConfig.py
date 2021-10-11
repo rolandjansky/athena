@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMakerMT,
-                                         TrigCaloTowerMakerMT,
-                                         TrigCaloClusterCalibratorMT)
+from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMaker,
+                                         TrigCaloTowerMaker,
+                                         TrigCaloClusterCalibrator)
 
 #from CaloRec.CaloRecConf import (CaloCellContainerCorrectorTool,
 #                                 CaloCellContainerFinalizerTool,
@@ -30,16 +30,16 @@ def AddFolderCheck(folder, tag):
 
 # MT classes
 
-class TrigCaloTowerMakerMTBase (TrigCaloTowerMakerMT):
+class TrigCaloTowerMakerBase (TrigCaloTowerMaker):
     __slots__ = []
     def __init__(self, name):
-        super( TrigCaloTowerMakerMTBase, self ).__init__(name)
+        super( TrigCaloTowerMakerBase, self ).__init__(name)
 
 
-class TrigCaloClusterMakerMTBase (TrigCaloClusterMakerMT):
+class TrigCaloClusterMakerBase (TrigCaloClusterMaker):
     __slots__ = []
     def __init__(self, name):
-        super( TrigCaloClusterMakerMTBase, self ).__init__(name)
+        super( TrigCaloClusterMakerBase, self ).__init__(name)
 
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
@@ -69,10 +69,10 @@ class TrigCaloClusterMakerMTBase (TrigCaloClusterMakerMT):
         self.MonTool = monTool
 
 
-class TrigCaloTowerMakerMT_eGamma (TrigCaloTowerMakerMTBase):
+class TrigCaloTowerMaker_eGamma (TrigCaloTowerMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMakerMT_eGamma'):
-        super(TrigCaloTowerMakerMT_eGamma, self).__init__(name)
+    def __init__ (self, name='TrigCaloTowerMaker_eGamma'):
+        super(TrigCaloTowerMaker_eGamma, self).__init__(name)
 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
         lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",  # noqa: ATL900 (OutputLevel)
@@ -94,10 +94,10 @@ class TrigCaloTowerMakerMT_eGamma (TrigCaloTowerMakerMTBase):
         
 
 
-class TrigCaloTowerMakerMT_jet (TrigCaloTowerMakerMTBase):
+class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMakerMT_jet'):
-        super(TrigCaloTowerMakerMT_jet, self).__init__(name)
+    def __init__ (self, name='TrigCaloTowerMaker_jet'):
+        super(TrigCaloTowerMaker_jet, self).__init__(name)
 
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
@@ -146,10 +146,10 @@ class TrigCaloTowerMakerMT_jet (TrigCaloTowerMakerMTBase):
         self.TowerMakerTools = [ tilecmbtwrbldr.getFullName(), larcmbtwrbldr.getFullName(), fcalcmbtwrbldr.getFullName() ]
         
         
-class TrigCaloTowerMakerMT_tau (TrigCaloTowerMakerMTBase):
+class TrigCaloTowerMaker_tau (TrigCaloTowerMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMakerMT_tau'):
-        super(TrigCaloTowerMakerMT_tau, self).__init__(name)
+    def __init__ (self, name='TrigCaloTowerMaker_tau'):
+        super(TrigCaloTowerMaker_tau, self).__init__(name)
 
         #input to  LArTowerMBuilder:  Cells in LArEM 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
@@ -173,10 +173,10 @@ class TrigCaloTowerMakerMT_tau (TrigCaloTowerMakerMTBase):
         self.TowerMakerTools=[lartowerbuilder.getFullName()]
         
 
-class TrigCaloClusterMakerMT_slw (TrigCaloClusterMakerMTBase):
+class TrigCaloClusterMaker_slw (TrigCaloClusterMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMakerMT_slw', cells="cells", towers="calotowers"):
-        super(TrigCaloClusterMakerMT_slw, self).__init__(name)
+    def __init__ (self, name='TrigCaloClusterMaker_slw', cells="cells", towers="calotowers"):
+        super(TrigCaloClusterMaker_slw, self).__init__(name)
 
         from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
         trigslw= make_CaloClusterBuilderSW ("trigslw",
@@ -209,10 +209,10 @@ class TrigCaloClusterMakerMT_slw (TrigCaloClusterMakerMTBase):
             mlog.info("Adding tool %s", tool.getFullName())
 
 
-class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
+class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMakerMT_topo', cells="cells",doMoments=True, doLC=True ):
-        super(TrigCaloClusterMakerMT_topo, self).__init__(name)
+    def __init__ (self, name='TrigCaloClusterMaker_topo', cells="cells",doMoments=True, doLC=True ):
+        super(TrigCaloClusterMaker_topo, self).__init__(name)
 
         self.Cells=cells
 
@@ -466,10 +466,10 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
 
 
 
-class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
+class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
     __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMakerMT_EMtopo'):
-        super(TrigCaloClusterMakerMT_EMtopo, self).__init__(name)
+    def __init__ (self, name='TrigCaloClusterMaker_EMtopo'):
+        super(TrigCaloClusterMaker_EMtopo, self).__init__(name)
 
         from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker
         from CaloRec.CaloTopoClusterFlags import jobproperties
@@ -574,7 +574,7 @@ class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
         setMinimalCaloSetup()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
         self.CellsName="SeedLessFS"
         self.RoIs=''
         self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
@@ -584,7 +584,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' )  ]
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0
@@ -603,11 +603,11 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
         self.MonTool = monTool
         self.monitorCells = monitorCells
 
-class TrigCaloClusterCalibratorMT_LC(TrigCaloClusterCalibratorMT):
+class TrigCaloClusterCalibrator_LC(TrigCaloClusterCalibrator):
     """ Class to set up the default configurations for LC calibrations """
 
-    def __init__(self, name="TrigCaloClusterCalibratorMT_LC", **kwargs):
-        super(TrigCaloClusterCalibratorMT_LC, self).__init__(name, **kwargs)
+    def __init__(self, name="TrigCaloClusterCalibrator_LC", **kwargs):
+        super(TrigCaloClusterCalibrator_LC, self).__init__(name, **kwargs)
 
         from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
         from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
@@ -699,20 +699,23 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
                                              TrigDataAccessMT = acc.getService('TrigCaloDataAccessSvc'),
                                              monitorCells = True,
                                              ExtraInputs = CaloDataAccessSvcDependencies+
-                                                          [('TileEMScale', 'ConditionStore+TileEMScale'),
-                                                           ('TileBadChannels', 'ConditionStore+TileBadChannels'),
-                                                           ('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap')], # TODO check if this depends on data/MC
+                                                          [("TileEMScale", "ConditionStore+TileEMScale"),
+                                                           ("TileBadChannels", "ConditionStore+TileBadChannels"),
+                                                           ("LArOnOffIdMapping", "ConditionStore+LArOnOffIdMap"),
+                                                           ("LArFebRodMapping" , "ConditionStore+LArFebRodMap") ], # TODO check if this depends on data/MC
                                              RoIs=roisKey)
-
-    acc.addEventAlgo(cellMaker)
+    acc.addEventAlgo(cellMaker, primary=True)
     return acc
 
-def hltTopoClusterMakerCfg(flags, name=None, clustersKey=None):
+def hltTopoClusterMakerCfg(flags, name, clustersKey, cellsKey="CaloCells"):
     acc = ComponentAccumulator()
-    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterToolCfg, CaloTopoClusterSplitterToolCfg
-    topoMaker = acc.popToolsAndMerge(CaloTopoClusterToolCfg(flags, cellsname='CaloCells'))
-    topoSplitter = acc.popToolsAndMerge(CaloTopoClusterSplitterToolCfg(flags))
+    from CaloRec.CaloTopoClusterConfig import (
+        CaloTopoClusterToolCfg,
+        CaloTopoClusterSplitterToolCfg,
+    )
 
+    topoMaker = acc.popToolsAndMerge(CaloTopoClusterToolCfg(flags, cellsname=cellsKey))
+    topoSplitter = acc.popToolsAndMerge(CaloTopoClusterSplitterToolCfg(flags))
 
     topoMoments = CompFactory.CaloClusterMomentsMaker ('TrigTopoMoments')
     topoMoments.MaxAxisAngle = 20*deg
@@ -752,19 +755,167 @@ def hltTopoClusterMakerCfg(flags, name=None, clustersKey=None):
                                 'AVG_TILE_Q'
                                 ]
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    alg = CompFactory.TrigCaloClusterMakerMT(name,
-                                             Cells = 'CaloCells',
+
+    alg = CompFactory.TrigCaloClusterMaker(name,
+                                             Cells=cellsKey,
                                              CaloClusters=recordable(clustersKey),
                                              ClusterMakerTools = [ topoMaker, topoSplitter, topoMoments] # moments are missing yet
                                             )
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     acc.merge(CaloNoiseCondAlgCfg(flags))
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(alg, primary=True)
     return acc
 
 
-def hltCaloTopoClusteringCfg(flags, namePrefix=None, roisKey='UNSPECIFIED', clustersKey='HLT_TopoCaloClustersRoI'):
+def hltCaloTopoClusteringCfg(
+    flags, namePrefix=None, roisKey="UNSPECIFIED", clustersKey="HLT_TopoCaloClustersRoI"
+):
     acc = ComponentAccumulator()
-    acc.merge(hltCaloCellMakerCfg(flags, namePrefix+"HLTCaloCellMaker", roisKey=roisKey))
-    acc.merge(hltTopoClusterMakerCfg(flags, namePrefix+'TrigCaloClusterMaker_topo', clustersKey=clustersKey))
+    acc.merge(
+        hltCaloCellMakerCfg(flags, namePrefix + "HLTCaloCellMaker", roisKey=roisKey)
+    )
+    acc.merge(
+        hltTopoClusterMakerCfg(
+            flags, namePrefix + "TrigCaloClusterMaker_topo", clustersKey=clustersKey
+        )
+    )
+    return acc
+
+
+def hltCaloTopoClusterCalibratorCfg(flags, name, clustersin, clustersout, **kwargs):
+    """ Create the LC calibrator """
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+
+    # We need the electronic noise for the LC weights
+    acc = ComponentAccumulator()
+    acc.merge(CaloNoiseCondAlgCfg(flags, noisetype="electronicNoise"))
+
+    from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
+    acc.merge(caloTopoCoolFolderCfg(flags))
+
+    # Figure out the detector version
+    det_version_is_rome = flags.GeoModel.AtlasVersion.startswith("Rome")
+
+    calibrator = CompFactory.TrigCaloClusterCalibrator(
+        name, InputClusters=clustersin, OutputClusters=clustersout, **kwargs
+    )
+
+    calibrator.ClusterCorrectionTools = [
+        CompFactory.CaloClusterLocalCalib(
+            "TrigLocalCalib",
+            ClusterRecoStatus=[1, 2],
+            ClusterClassificationTool=[
+                CompFactory.CaloLCClassificationTool(
+                    "TrigLCClassify",
+                    ClassificationKey="EMFracClassify",
+                    UseSpread=False,
+                    MaxProbability=0.85 if det_version_is_rome else 0.5,
+                    UseNormalizedEnergyDensity=not det_version_is_rome,
+                    StoreClassificationProbabilityInAOD=True,
+                ),
+            ],
+            LocalCalibTools=[
+                CompFactory.CaloLCWeightTool(
+                    "TrigLCWeight",
+                    CorrectionKey="H1ClusterCellWeights",
+                    SignalOverNoiseCut=2.0,
+                    UseHadProbability=True,
+                )
+            ],
+        ),
+        CompFactory.CaloClusterLocalCalib(
+            "TrigOOCCalib",
+            ClusterRecoStatus=[1, 2],
+            LocalCalibTools=[
+                CompFactory.CaloLCOutOfClusterTool(
+                    "TrigLCOut",
+                    CorrectionKey="OOCCorrection",
+                    UseEmProbability=False,
+                    UseHadProbability=True,
+                ),
+            ],
+        ),
+        CompFactory.CaloClusterLocalCalib(
+            "TrigOOCPi0Calib",
+            ClusterRecoStatus=[1, 2],
+            LocalCalibTools=[
+                CompFactory.CaloLCOutOfClusterTool(
+                    "TrigLCOutPi0",
+                    CorrectionKey="OOCPi0Correction",
+                    UseEmProbability=True,
+                    UseHadProbability=False,
+                ),
+            ],
+        ),
+        CompFactory.CaloClusterLocalCalib(
+            "TrigDMCalib",
+            ClusterRecoStatus=[1, 2],
+            LocalCalibTools=[
+                CompFactory.CaloLCDeadMaterialTool(
+                    "TrigLCDeadMaterial",
+                    HadDMCoeffKey="HadDMCoeff2",
+                    ClusterRecoStatus=0,
+                    WeightModeDM=2,
+                    UseHadProbability=True,
+                )
+            ],
+        ),
+    ]  # End ClusterCorrectionTools
+    #NB: Could we take these from CaloRec.CaloTopoClusterConfig.getTopoClusterLocalCalibTools?
+
+    acc.addEventAlgo(calibrator, primary=True)
+    return acc
+
+## Heavy Ion 
+class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
+    __slots__ = []
+    def __init__ (self, name='TrigCaloTowerMaker_hijet'):
+        super(TrigCaloTowerMaker_hijet, self).__init__(name)
+
+        # input to LArTowerBuilder:  cells in LArEM and LARHEC 
+        from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
+
+        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr", # noqa: ATL900 (OutputLevel)
+                                            CellContainerName = "AllCalo",
+                                            IncludedCalos     = [ "LAREM", "LARHEC" ],
+                                            OutputLevel=ERROR
+                                            )
+        
+        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",  # noqa: ATL900 (OutputLevel)
+                                                 CellContainerName = "AllCalo",
+                                                 MinimumEt         = 0.*MeV,
+                                                 OutputLevel=ERROR
+                                                 )
+
+        #input to  TileTowerBuilder:  cells in TILE
+        from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
+        tilecmbtwrbldr = TileTowerBuilderTool("TileCmbTwrBldr",
+                                              CellContainerName = "AllCalo",
+                                              #DumpTowers        = False,
+                                              #DumpWeightMap     = False
+                                              )
+
+        
+        self +=larcmbtwrbldr
+        self +=fcalcmbtwrbldr
+        self +=tilecmbtwrbldr
+        self.NumberOfPhiTowers=64
+        self.NumberOfEtaTowers=100
+        self.EtaMin=-5.0
+        self.EtaMax=5.0
+        self.DeltaEta=1.2
+        self.DeltaPhi=1.2
+        self.TowerMakerTools = [ tilecmbtwrbldr.getFullName(), larcmbtwrbldr.getFullName(), fcalcmbtwrbldr.getFullName() ]
+
+def hltHICaloTowerMakerCfg(flags, name, clustersKey, cellsKey="CaloCells"):
+    acc = ComponentAccumulator()
+
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    alg = CompFactory.TrigCaloTowerMaker(name,
+                                             Cells=cellsKey,
+                                             CaloClusters=recordable(clustersKey),
+                                            )
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    acc.merge(CaloNoiseCondAlgCfg(flags))
+    acc.addEventAlgo(alg, primary=True)
     return acc

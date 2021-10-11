@@ -89,13 +89,11 @@ class HistogramFillerVec1DTestSuite {
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(0.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(5.0);
 
-      m_testObj->fill(vars);
+      unsigned entriesAdded = m_testObj->fill(vars);
+      VALUE(entriesAdded) EXPECTED(0);
 
-      for (unsigned i: {0, 4, 5, 6}) {
-          VALUE(m_histogram->GetBinContent(i)) EXPECTED(0.0);
-      }
       for (unsigned i = 0; i != values.size(); ++ i) {
-        VALUE(m_histogram->GetBinContent(i+1)) EXPECTED(values[i]);
+        VALUE(m_histogram->GetBinContent(i+1)) EXPECTED(0);
       }
     }
 
@@ -121,7 +119,7 @@ class HistogramFillerVec1DTestSuite {
     void test_fillWithShortVectorUO() {
 
       using Coll = vector<double>;
-      Coll values({1., 2., 3., 4., 5.});
+      Coll values({1., 1., 2., 3., 4., 5., 12.});
       auto var = Monitored::Collection("values", values);
 
       HistogramFiller::VariablesPack vars({&var});
@@ -131,10 +129,11 @@ class HistogramFillerVec1DTestSuite {
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(5.0);
 
       m_testObj->fill(vars);
+      // underflow
+      VALUE(m_histogram->GetBinContent(0)) EXPECTED(1.0);
+      // overflow
+      VALUE(m_histogram->GetBinContent(7)) EXPECTED(12.0);
 
-      for (unsigned i: {5, 6}) {
-          VALUE(m_histogram->GetBinContent(i)) EXPECTED(0.0);
-      }
       for (unsigned i = 0; i != values.size(); ++ i) {
         VALUE(m_histogram->GetBinContent(i)) EXPECTED(values[i]);
       }

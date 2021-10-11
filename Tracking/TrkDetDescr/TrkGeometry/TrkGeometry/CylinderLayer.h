@@ -43,14 +43,18 @@ class CylinderLayer : public CylinderSurface, public Layer {
   CylinderLayer() {}
 
   /**Constructor with CylinderSurface components and  MaterialProperties */
-  CylinderLayer(Amg::Transform3D* transform, CylinderBounds* cbounds,
+  CylinderLayer(const Amg::Transform3D& transform,
+                CylinderBounds* cbounds,
                 const LayerMaterialProperties& laymatprop,
-                double thickness = 0., OverlapDescriptor* od = nullptr,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
                 int laytyp = int(Trk::active));
 
   /**Constructor with CylinderSurface and  MaterialProperties */
-  CylinderLayer(CylinderSurface* cyl, const LayerMaterialProperties& laymatprop,
-                double thickness = 0., OverlapDescriptor* od = nullptr,
+  CylinderLayer(CylinderSurface* cyl,
+                const LayerMaterialProperties& laymatprop,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
                 int laytyp = int(Trk::active));
 
   /**Constructor with CylinderSurface components and pointer to SurfaceArray
@@ -58,18 +62,22 @@ class CylinderLayer : public CylinderSurface, public Layer {
       - has optionally an OverlapDescriptor and ApproachDescriptor for the
      surfaceArray
       */
-  CylinderLayer(Amg::Transform3D* transform, CylinderBounds* cbounds,
-                SurfaceArray* surfaceArray, double thickness = 0.,
+  CylinderLayer(const Amg::Transform3D& transform,
+                CylinderBounds* cbounds,
+                SurfaceArray* surfaceArray,
+                double thickness = 0.,
                 OverlapDescriptor* od = nullptr,
                 IApproachDescriptor* ad = nullptr,
                 int laytyp = int(Trk::active));
 
   /**Constructor with CylinderSurface components,
      MaterialProperties and pointer SurfaceArray (passing ownership) */
-  CylinderLayer(Amg::Transform3D* transform, CylinderBounds* cbounds,
+  CylinderLayer(const Amg::Transform3D& transform,
+                CylinderBounds* cbounds,
                 SurfaceArray* surfaceArray,
                 const LayerMaterialProperties& laymatprop,
-                double thickness = 0., OverlapDescriptor* od = nullptr,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
                 IApproachDescriptor* ad = nullptr,
                 int laytyp = int(Trk::active));
 
@@ -130,37 +138,18 @@ class CylinderLayer : public CylinderSurface, public Layer {
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<CylinderLayer*>(this)->moveLayer(shift);
-  }
-
  private:
   /** Resize the layer to the tracking volume - only works for
    * CylinderVolumeBouns */
   virtual void resizeLayer(const VolumeBounds& vBounds,
                            double envelope) override final;
 
-  /** Resize the layer to the tracking volume - only works for
-   * CylinderVolumeBouns */
-  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds& vBounds, double envelope) const override final {
-    const_cast<CylinderLayer*>(this)->resizeLayer(vBounds, envelope);
-  }
 
   /** Resize the layer to the tracking volume */
   virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
                                         const Amg::Vector3D& cCenter,
                                         double envelope) override final;
 
-  /** Resize the layer to the tracking volume */
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds& vBounds, const Amg::Vector3D& cCenter,
-      double envelope) const override final {
-    const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds, cCenter,
-                                                               envelope);
-  }
 
   /** Surface seen on approach - if not defined differently, it is the
    * surfaceRepresentation() */

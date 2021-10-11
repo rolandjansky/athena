@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileDigits creation from TileHit
@@ -63,14 +63,11 @@ class TileDigitsGetter ( Configured )  :
 
         theTileDigitsMaker.CalibrationRun=False
 
-        # Save integer numbers in digits vector if not pile-up premixing
-        theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPremixing()
-
-        from TileConditions.TileConditionsConf import TileCondToolNoiseSample
-        theTileDigitsMaker.TileCondToolNoiseSample = TileCondToolNoiseSample (TileOnlineSampleNoise = '')
+        # Save integer numbers in digits vector if pile-up presampling not enabled
+        theTileDigitsMaker.IntegerDigits = not digitizationFlags.PileUpPresampling()
 
         # sets output key  
-        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
             from OverlayCommonAlgs.OverlayFlags import overlayFlags
             theTileDigitsMaker.TileDigitsContainer = overlayFlags.bkgPrefix() + self.outputKey()
         else:

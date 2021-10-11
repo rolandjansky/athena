@@ -22,7 +22,12 @@
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
+#include "LArRawConditions/LArMCSym.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -72,6 +77,14 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   Gaudi::Property<bool> m_applyOffsetCorrection { this, "ApplyOffsetCorrection", true, "Enable offset correction" };
 
   SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
+  SG::ReadCondHandleKey<LArMCSym> m_mcsymKey 
+   {this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object"} ;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffIdMappingKey
+   {this, "CablingKey", "LArOnOffIdMap", "SG Key for LArOnOffIdMapping"} ;
+  SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
+   {this, "RodFebKey", "LArFebRodMap", "SG Key for LArFebRodMapping"} ;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey
+   {this, "LArBadChannelKey", "LArBadChannel", "Key of the LArBadChannelCont CDO" };
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)
@@ -124,7 +137,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::mutex m_lardecoderProtect;  // protection for the larRodDecoder
   std::mutex m_tiledecoderProtect;  // protection for the tileRodDecoder
 
-  unsigned int lateInit();
+  unsigned int lateInit( const EventContext& context );
   bool m_lateInitDone = false;
 
   unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
@@ -156,7 +169,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   unsigned int prepareTileCollections( const EventContext& context,
 				const IRoiDescriptor& roi );
 
-  unsigned int prepareMBTSCollections( const EventContext& context );
+  unsigned int prepareMBTSCollections( const EventContext& context);
 
   unsigned int prepareFullCollections( const EventContext& context );
 

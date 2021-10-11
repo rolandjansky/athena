@@ -11,7 +11,7 @@ atlas_add_library( TileGeoModelLib
                    src/*.cxx
                    PUBLIC_HEADERS TileGeoModel
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities TileDetDescr StoreGateLib SGtests CaloDetDescrLib TileConditionsLib
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities TileDetDescr StoreGateLib CaloDetDescrLib TileConditionsLib
                    PRIVATE_LINK_LIBRARIES CaloIdentifier SGTools GaudiKernel TileIdentifier )
 
 atlas_add_component( TileGeoModel

@@ -20,7 +20,7 @@
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
 #include "TrigT1CaloEvent/EnergyCMXData.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 
 {
@@ -104,9 +104,8 @@ namespace LVL1
       
       /** Map of JetElements masked out of TE trigger */
       std::map<int, int>* m_TEMasks;
+      SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
       
-      /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
     };
 } // end of namespace

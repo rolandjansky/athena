@@ -15,19 +15,23 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/ChannelSelection.h"
 #include "CoolKernel/IObjectIterator.h"
 #include "CoolKernel/IObject.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
+#include "TrigT1Result/MuCTPI_RDO.h"
+#include "TrigT1Result/MuCTPI_RIO.h"
+#include "TrigT1Result/CTP_RDO.h"
+#include "TrigT1Result/CTP_RIO.h"
+#include "TrigT1Result/RoIBResult.h"
+#include "xAODEventInfo/EventInfo.h"
+
 // RPC and TGC includes for access to SL data
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 #include "MuonDigitContainer/TgcDigit.h"
-
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class CTP_RDO;
 class CTP_RIO;
@@ -56,9 +60,6 @@ namespace LVL1 {
   class EnergyCTP;
   class MbtsCTP;
   class BcmCTP;
-  class TrtCTP;
-  class LucidCTP;
-  class ZdcCTP;
   class BptxCTP;
   class NimCTP;
   class RecMuonRoiSvc;
@@ -125,28 +126,28 @@ namespace TrigT1CTMonitoring {
 
     void getCoolData(unsigned int runNumber);
 
-    void doMuonRoI( const DataHandle < MuCTPI_RDO > theMuCTPI_RDO,
-                    const DataHandle < MuCTPI_RIO > theMuCTPI_RIO,
-                    const DataHandle < ROIB::RoIBResult > roib);
+    void doMuonRoI( const MuCTPI_RDO* theMuCTPI_RDO,
+                    const MuCTPI_RIO* theMuCTPI_RIO,
+                    const ROIB::RoIBResult* roib);
 
-    void doCtp( const DataHandle < CTP_RDO > theCTP_RDO,
-                const DataHandle < CTP_RIO > theCTP_RIO);
+    void doCtp( const CTP_RDO* theCTP_RDO,
+                const CTP_RIO* theCTP_RIO);
 
-    void doMuctpi(const DataHandle < MuCTPI_RDO > theMuCTPI_RDO,
-                  const DataHandle < MuCTPI_RIO > theMuCTPI_RIO,
-                  const DataHandle < RpcSectorLogicContainer > theRPCContainer,
-                  const DataHandle < Muon::TgcCoinDataContainer > theTGCContainer);
+    void doMuctpi(const MuCTPI_RDO* theMuCTPI_RDO,
+                  const MuCTPI_RIO* theMuCTPI_RIO,
+                  const RpcSectorLogicContainer* theRPCContainer,
+                  const Muon::TgcCoinDataContainer* theTGCContainer);
 
-    void doCtpMuctpi( const DataHandle < CTP_RDO > theCTP_RDO,
-                      const DataHandle < CTP_RIO > theCTP_RIO,
-                      const DataHandle < MuCTPI_RDO > theMuCTPI_RDO,
-                      const DataHandle < MuCTPI_RIO > theMuCTPI_RIO);
+    void doCtpMuctpi( const CTP_RDO* theCTP_RDO,
+                      const CTP_RIO* theCTP_RIO,
+                      const MuCTPI_RDO* theMuCTPI_RDO,
+                      const MuCTPI_RIO* theMuCTPI_RIO);
 
-    void dumpData(const DataHandle < CTP_RDO > theCTP_RDO,
-                  const DataHandle < CTP_RIO > theCTP_RIO,
-                  const DataHandle < MuCTPI_RDO > theMuCTPI_RDO,
-                  const DataHandle < MuCTPI_RIO > theMuCTPI_RIO,
-                  const DataHandle < ROIB::RoIBResult > roib);
+    void dumpData(const CTP_RDO* theCTP_RDO,
+                  const CTP_RIO* theCTP_RIO,
+                  const MuCTPI_RDO* theMuCTPI_RDO,
+                  const MuCTPI_RIO* theMuCTPI_RIO,
+                  const ROIB::RoIBResult* roib);
                   
     StatusCode compareRerun(const CTP_BC &bunchCrossing);
 
@@ -162,11 +163,18 @@ namespace TrigT1CTMonitoring {
     unsigned int m_runNumber{0};
     unsigned int m_eventNumber{0};
 
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{ this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger Config Service" };
     ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
     ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};
 
-    Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
+    SG::ReadHandleKey<MuCTPI_RDO> m_MuCTPI_RDOKey{ this, "MuCTPI_RDOKey", "MUCTPI_RDO" };
+    SG::ReadHandleKey<MuCTPI_RIO> m_MuCTPI_RIOKey{ this, "MuCTPI_RIOKey", "MUCTPI_RIO" };
+    SG::ReadHandleKey<CTP_RDO> m_CTP_RDOKey{ this, "CTP_RDOKey", "CTP_RDO" };
+    SG::ReadHandleKey<CTP_RIO> m_CTP_RIOKey{ this, "CTP_RIOKey", "CTP_RIO" };
+    SG::ReadHandleKey<CTP_RDO> m_CTP_RDO_RerunKey{ this, "CTP_RDO_RerunKey", "CTP_RDO_Rerun" };
+    SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{ this, "RoIBResultKey", "RoIBResult" };
+    SG::ReadHandleKey<RpcSectorLogicContainer> m_RPCContainerKey{ this, "RPCContainerKey", "RPC_SECTORLOGIC" };
+    SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TGCContainerKey{ this, "TGCContainerKey", "TrigT1CoinDataCollection" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{ this,"EventInfoKey", "EventInfo" };
 
     Gaudi::Property<std::string> m_baseDirName{ this, "DirectoryName", "CT/", "Directory in output root file where the histograms will be stored." };
     Gaudi::Property<bool> m_inclusiveTriggerThresholds{ this, "InclusiveTriggerThresholds", true, "Flag to activate the inclusive counting of PT thresholds in trigger patterns" };

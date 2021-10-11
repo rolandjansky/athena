@@ -25,14 +25,14 @@ class useElectrons(JobProperty):
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = True
+    StoredValue = False
 
 class useMuons(JobProperty):
     """ Flag to toggle usage of muon tracks on/off - if on muon tracks are masked out
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = True
+    StoredValue = False
 
 class storeLeptonCells(JobProperty):
     """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowPreparation
@@ -55,12 +55,12 @@ class useCalibHitTruth(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class usePFEGammaPFOAssoc(JobProperty):
-    """ Flag to toggle use of linking between Egamma objects and PFOs
+class usePFlowFlowElementTauAssoc(JobProperty):
+    """ Flag to toggle use of linking  between tau objects and flow elements 
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
 
 class usePFFlowElementAssoc(JobProperty):
     """ Flag to toggle use of linking  between objects (egamma,muon,tau) and flow elements
@@ -76,17 +76,17 @@ class provideShowerSubtractedClusters(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class useFlowElements(JobProperty):
-    """ Flag to toggle whether to create the new FlowElement EDM objects in addition to the PFO EDM objects. """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
 class doFlowElementValidation(JobProperty):
     """Flag to turn on Validation plots for Flow Elements (only works if useFlowElements also set ON)"""
     statusOn=True
     allowedTypes= ['bool']
     StoredValue= False
+
+class useRun2_mc20_EOverP(JobProperty):
+    """ Flag to enable usage of Run2_MC16 E/p reference file """
+    statusOn=True
+    allowedTypes= ['bool']
+    StoredValue= True
 
 # Defines the container for the eflowRec flags
 
@@ -98,7 +98,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFEGammaPFOAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation]
+eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFlowFlowElementTauAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, doFlowElementValidation, useRun2_mc20_EOverP]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

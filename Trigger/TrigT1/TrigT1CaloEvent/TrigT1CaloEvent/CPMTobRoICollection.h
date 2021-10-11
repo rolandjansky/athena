@@ -9,7 +9,6 @@
 
 /** Container class for CPMTobRoI objects */
 
-using namespace LVL1;
-typedef DataVector<CPMTobRoI> CPMTobRoICollection;
+typedef DataVector<LVL1::CPMTobRoI> CPMTobRoICollection;
 
 #endif

@@ -19,12 +19,12 @@ knownVar = dict(
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
-
 )
 
 # Explicitly declare variables which have underlying type vector<int> (otherwise the system would automatically configure them as vector<float>)
 knownVar['NumTrkPt1000[0]'] = VarSpec('NumTrkPt1000[0]', 'vecint', )
 knownVar['NumTrkPt500[0]']  = VarSpec('NumTrkPt500[0]', 'vecint', )
+knownVar['numConstituents'] = VarSpec('numConstituents', 'int', )
 
 knownEventVar = dict(    
     # These always are of type 'float'
@@ -36,14 +36,28 @@ knownEventVar = dict(
     njetsEt20 = ToolSpec('NumJetVarTool', 'njetsEt20', EtCut=20.),
     njetsEt50 = ToolSpec('NumJetVarTool', 'njetsEt50', EtCut=50.),
     njetsEt20Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt20Eta0_32', EtCut=20., EtaMin=0., EtaMax=3.2),
+    njetsEt30Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt30Eta0_32', EtCut=30., EtaMin=0., EtaMax=3.2),
     njetsEt40Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt40Eta0_32', EtCut=40., EtaMin=0., EtaMax=3.2),
     njetsEt50Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt50Eta0_32', EtCut=50., EtaMin=0., EtaMax=3.2),
     njetsEt70Eta0_24 = ToolSpec('NumJetVarTool', 'njetsEt70Eta0_24', EtCut=70., EtaMin=0., EtaMax=2.4),
     njetsEt60Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt60Eta0_32', EtCut=60., EtaMin=0., EtaMax=3.2),
+    njetsEt80Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt80Eta0_32', EtCut=80., EtaMin=0., EtaMax=3.2),
     njetsEt100Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt100Eta0_32', EtCut=100., EtaMin=0., EtaMax=3.2),
     njetsEt260Eta32_49 = ToolSpec('NumJetVarTool', 'njetsEt260Eta32_49', EtCut=260., EtaMin=3.2, EtaMax=4.9),
     njetsEt200Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt200Eta0_32', EtCut=200., EtaMin=0., EtaMax=3.2),
     njetsEt330Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt330Eta0_32', EtCut=330., EtaMin=0., EtaMax=3.2),
+    njetsPt20Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt20Eta0_32', PtCut=20., EtaMin=0., EtaMax=3.2),
+    njetsPt30Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt30Eta0_32', PtCut=30., EtaMin=0., EtaMax=3.2),
+    njetsPt40Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt40Eta0_32', PtCut=40., EtaMin=0., EtaMax=3.2),
+    njetsPt50Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt50Eta0_32', PtCut=50., EtaMin=0., EtaMax=3.2),
+    njetsPt70Eta0_24 = ToolSpec('NumJetVarTool', 'njetsPt70Eta0_24', PtCut=70., EtaMin=0., EtaMax=2.4),
+    njetsPt60Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt60Eta0_32', PtCut=60., EtaMin=0., EtaMax=3.2),
+    njetsPt80Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt80Eta0_32', PtCut=80., EtaMin=0., EtaMax=3.2),
+    njetsPt100Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt100Eta0_32', PtCut=100., EtaMin=0., EtaMax=3.2),
+    njetsPt260Eta32_49 = ToolSpec('NumJetVarTool', 'njetsPt260Eta32_49', PtCut=260., EtaMin=3.2, EtaMax=4.9),
+    njetsPt200Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt200Eta0_32', PtCut=200., EtaMin=0., EtaMax=3.2),
+    njetsPt330Eta0_32 = ToolSpec('NumJetVarTool', 'njetsPt330Eta0_32', PtCut=330., EtaMin=0., EtaMax=3.2),
+    njetsPt200 = ToolSpec('NumJetVarTool', 'njetsPt200', PtCut=200.),
 
 )
 
@@ -60,18 +74,21 @@ _knownHistos = [
     # Simple form : histogram of variable 'eta' (the name of spec is the same as the name of variable)
     #        As in TH1 ctor, ';' in the title is interpreted as in "Main Title;Title xAxis;Title yAxis"
     HistoSpec( 'eta',  (50,-5,5) , title='#eta;#eta;Entries'),
+    HistoSpec( 'rapidity',  (50,-5,5) , title='rapidity;y;Entries'), # Test non-EDM variable 
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
-    HistoSpec( 'pt:GeV',  (100,0,750) , title='p_{T};p_{T} [GeV];'),    
+    HistoSpec( 'pt:GeV',  (200,0,800) , title='p_{T};p_{T} [GeV];'),
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
-    HistoSpec( 'e:GeV',  (100,0,750) , title='E;E [GeV];'),    
-    HistoSpec( 'et:GeV', (100,0,750), title='E_{T};E_{T} [GeV],'),
+    HistoSpec( 'e:GeV',  (200,0,800) , title='E;E [GeV];'),
+    HistoSpec( 'et:GeV', (200,0,800), title='E_{T};E_{T} [GeV],'),
 
     # We want an other pT histo, with different bins.
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
-    HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
+    HistoSpec( 'highpt',  (390,200.,8000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),
 
+    HistoSpec( 'avgMu', (100, 0., 200.) , title='Ave. Interactions per Crossing; Ave. mu' , xvar='avgMu'),
     #EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
+    #HistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' , xvar='njets'),
     # When the jet variable is not a simple float, use the xvar argument to refer to a detailed variable spec in 'knownVar'
     HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;Entries', xvar='JVF'),    
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')
@@ -160,7 +177,8 @@ _knownHistos = [
     HistoSpec('C1', (100, -1, 1), title='C1;C1;', ),
 
     HistoSpec('NegativeE:GeV', (80, -10, 0), title='Negative E in Jet;Energy;', ),
-    HistoSpec('N90Constituents', (15, 0, 15), title='N90Constituents; N90Constituents;', ),
+    HistoSpec('N90Constituents', (100, 0, 100), title='N90Constituents; N90Constituents;', ),
+    HistoSpec('nconstit', (100,0, 200), title='Num. of Consituents; Nconstituents;'),
 
     HistoSpec('BchCorrDotx', (50, 0, 1), title='BchCorrDotx:BchCorrDotx;', ),
     HistoSpec('BchCorrCell', (50, 0, 1), title='BchCorrCell:BchCorrCell;', ),
@@ -208,22 +226,22 @@ _knownHistos = [
 
     HistoSpec( 'JetConstitScaleMomentum_eta',  (50,-5,5) , title='ConstitScale #eta;ConstitScale #eta;Entries'),
     HistoSpec( 'JetConstitScaleMomentum_phi',  (50,-3.3,3.3) , title='ConstitScale #phi;ConstitScale #phi;Entries'),
-    HistoSpec( 'JetConstitScaleMomentum_pt:GeV',  (100,0,200) , title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetConstitScaleMomentum_pt:GeV',  (200,0,800) , title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetConstitScaleMomentum_m:GeV',  (100,0,300) , title='ConstitScale mass;ConstitScale mass [GeV];Entries'),
     
     HistoSpec( 'JetEMScaleMomentum_eta',  (50,-5,5) , title='EMScale #eta;EMScale #eta;Entries'),
     HistoSpec( 'JetEMScaleMomentum_phi',  (50,-3.3,3.3) , title='EMScale #phi;EMScale #phi;Entries'),
-    HistoSpec( 'JetEMScaleMomentum_pt:GeV',  (100,0,200) , title='EMScale p_{T};EMScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEMScaleMomentum_pt:GeV',  (200,0,800) , title='EMScale p_{T};EMScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetEMScaleMomentum_m:GeV',  (100,0,300) , title='EMScale mass;EMScale mass [GeV];Entries'),
 
     HistoSpec( 'JetPileupScaleMomentum_eta',  (50,-5,5) , title='PileupScale #eta;PileupScale #eta;Entries'),
     HistoSpec( 'JetPileupScaleMomentum_phi',  (50,-3.3,3.3) , title='PileupScale #phi;PileupScale #phi;Entries'),
-    HistoSpec( 'JetPileupScaleMomentum_pt:GeV',  (100,0,200) , title='PileupScale p_{T};PileupScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetPileupScaleMomentum_pt:GeV',  (200,0,800) , title='PileupScale p_{T};PileupScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetPileupScaleMomentum_m:GeV',  (100,0,300) , title='PileupScale mass;PileupScale mass [GeV];Entries'),
 
     HistoSpec( 'JetEtaJESScaleMomentum_eta',  (50,-5,5) , title='EtaJESScale #eta;EtaJESScale #eta;Entries'),
     HistoSpec( 'JetEtaJESScaleMomentum_phi',  (50,-3.3,3.3) , title='EtaJESScale #phi;EtaJESScale #phi;Entries'),
-    HistoSpec( 'JetEtaJESScaleMomentum_pt:GeV',  (100,0,200) , title='EtaJESScale p_{T};EtaJESScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEtaJESScaleMomentum_pt:GeV',  (200,0,800) , title='EtaJESScale p_{T};EtaJESScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetEtaJESScaleMomentum_m:GeV',  (100,0,300) , title='EtaJESScale mass;EtaJESScale mass [GeV];Entries'),
     # ---------------------
     # 2D histogram (x and y vars are separated by ';' )

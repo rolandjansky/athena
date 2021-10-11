@@ -4,21 +4,21 @@ def SpCountMonitoring():
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
-    monTool.defineHistogram('pixCL_1', path='EXPERT', type='TH1I', title='pixCL_1',xbins=100, xmin=-0, xmax=60999.5)
-    monTool.defineHistogram('pixCLBeforeCuts', path='EXPERT', type='TH1I', title='totPixBeforeCuts', xbins = 250, xmin=-0.5, xmax=6999.5)
-    monTool.defineHistogram('pixCL_2', path='EXPERT', type='TH1I', title='pixCL_2',xbins=100, xmin=-0, xmax=60999.5)
-    monTool.defineHistogram('pixCLmin3', path='EXPERT', type='TH1I', title='pixCLmin3',xbins=100, xmin=-0, xmax=60999.5)
-    monTool.defineHistogram('pixCL', path='EXPERT', type='TH1I', title='pixCL', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('pixClBarrel', path='EXPERT', type='TH1I', title='pixClBarrel', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('pixClEndcapA', path='EXPERT', type='TH1I', title='pixClEndcapA', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('pixClEndcapC', path='EXPERT', type='TH1I', title='pixClEndcapC', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('pixModulesOverThreshold', path='EXPERT', type='TH1I', title='Pixels ModulesOverThreshold', xbins = 100, xmin=0, xmax=100)
-    monTool.defineHistogram('sctSP', path='EXPERT', type='TH1I', title='sctSP', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('sctSPEndcapC', path='EXPERT', type='TH1I', title='sctSPEndcapC', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('sctSPBarrel', path='EXPERT', type='TH1I', title='sctSPBarrel', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('sctSPEndcapA', path='EXPERT', type='TH1I', title='sctSPEndcapA', xbins = 500, xmin=-0.5, xmax=60999.5)
-    monTool.defineHistogram('pixCL, sctSP', path='EXPERT', type='TH2I', title='SP ; pix SP after ToT cut; sct SP', xbins = 500, xmin=-0.5, xmax=60999.5, ybins = 500, ymin=-0.5, ymax=60999.5)
-    monTool.defineHistogram('sctModulesOverThreshold', path='EXPERT', type='TH1I', title='ACT ModulesOverThreshold', xbins = 100, xmin=0, xmax=100)
+    monTool.defineHistogram('pixCL_1', path='EXPERT', type='TH1I', title='pixCL_1',xbins=100, xmin=0, xmax=6000)
+    monTool.defineHistogram('pixCLBeforeCuts', path='EXPERT', type='TH1I', title='totPixBeforeCuts', xbins = 250, xmin=0, xmax=6000)
+    monTool.defineHistogram('pixCL_2', path='EXPERT', type='TH1I', title='pixCL_2',xbins=100, xmin=0, xmax=6000)
+    monTool.defineHistogram('pixCLmin3', path='EXPERT', type='TH1I', title='pixCLmin3',xbins=100, xmin=0, xmax=6000)
+    monTool.defineHistogram('pixCL', path='EXPERT', type='TH1I', title='pixCL', xbins = 500, xmin=0, xmax=6000)
+    monTool.defineHistogram('pixCLBarrel', path='EXPERT', type='TH1I', title='pixClBarrel', xbins = 500, xmin=0, xmax=6000)
+    monTool.defineHistogram('pixCLEndcapA', path='EXPERT', type='TH1I', title='pixClEndcapA', xbins = 500, xmin=0, xmax=3000)
+    monTool.defineHistogram('pixCLEndcapC', path='EXPERT', type='TH1I', title='pixClEndcapC', xbins = 500, xmin=0, xmax=3000)
+    monTool.defineHistogram('pixModulesOverThreshold', path='EXPERT', type='TH1I', title='Pixels ModulesOverThreshold', xbins = 100, xmin=1, xmax=200)
+    monTool.defineHistogram('sctSP', path='EXPERT', type='TH1I', title='sctSP', xbins = 500, xmin=0, xmax=6000)
+    monTool.defineHistogram('sctSPEndcapC', path='EXPERT', type='TH1I', title='sctSPEndcapC', xbins = 500, xmin=0, xmax=3000)
+    monTool.defineHistogram('sctSPBarrel', path='EXPERT', type='TH1I', title='sctSPBarrel', xbins = 500, xmin=0, xmax=6000)
+    monTool.defineHistogram('sctSPEndcapA', path='EXPERT', type='TH1I', title='sctSPEndcapA', xbins = 500, xmin=0, xmax=3000)
+    monTool.defineHistogram('pixCL, sctSP', path='EXPERT', type='TH2I', title='SP ; pix SP after ToT cut; sct SP', xbins = 50, xmin=0, xmax=6000, ybins = 50, ymin=0, ymax=6000)
+    monTool.defineHistogram('sctModulesOverThreshold', path='EXPERT', type='TH1I', title='SCT ModulesOverThreshold', xbins = 100, xmin=1, xmax=200)
 
     return monTool
 
@@ -34,14 +34,15 @@ def MbtsFexMonitoring():
     return monTool
 
 
-def TrackCountMonitoring():
+def TrackCountMonitoring(hypoAlg):
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
-    monTool.defineHistogram('ntrks', path='EXPERT', type='TH1I', title='ntrks', xbins=100, xmin=-0.5, xmax=4999.5)
-    from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlg
-    alg=TrackCountHypoAlg()
-    for i in range(len(alg.minPt)):
-        monTool.defineHistogram('countsForSelection{}'.format(i),
+    monTool.defineHistogram('ntrks', path='EXPERT', type='TH1I', title='ntrks', xbins=200, xmin=0, xmax=200)
+    for i in range(len(hypoAlg.minPt)):
+        monTool.defineHistogram('countsSelection{}'.format(i),
                                 path='EXPERT', type='TH1I', title='counts for min pT and max z0 cut',
-                                xbins=100, xmin=-0.5, xmax=4999.5)
+                                xbins=200, xmin=0, xmax=200)
+    monTool.defineHistogram( "trkPt", path='EXPERT', type='TH1I', title="Tracks pt (low pt part);p_{T} [GeV]", xbins=100, xmin=0, xmax=10)
+    monTool.defineHistogram( "trkEta", path='EXPERT', type='TH1I', title="Tracks eta;#eta", xbins=50, xmin=-2.5, xmax=2.5)
+
     return monTool

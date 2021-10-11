@@ -14,10 +14,10 @@
 CounterROS::CounterROS(const std::string& name, const MonitorBase* parent) 
   : CounterBase(name, parent) {
 
-  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 20.5, 21);
-  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
-  regHistogram("CachedROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
-  regHistogram("NetworkROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 49.5, 50);
+  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 20.5, 21);
+  regHistogram("CachedROBSize_perEvent", "Total Cached ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+  regHistogram("NetworkROBSize_perEvent", "Total Network ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
   regHistogram("Time_perEvent", "ROB Elapsed Time/Event;Elapsed Time [ms];Events", VariableType::kPerEvent);
   regHistogram("ROBStatus_perCall", "ROB status/Call;Status;Events", VariableType::kPerCall, LogType::kLinear, 0, robmonitor::NUM_ROBHIST_CODES+1, robmonitor::NUM_ROBHIST_CODES+1);
 }

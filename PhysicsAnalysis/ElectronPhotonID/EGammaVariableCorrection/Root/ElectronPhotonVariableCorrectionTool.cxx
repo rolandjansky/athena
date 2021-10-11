@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,7 +32,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     if (!m_configFile.empty())
     {
         configFile = PathResolverFindCalibFile(m_configFile);
-        if (configFile == "")
+        if (configFile.empty())
         {
             ATH_MSG_ERROR("Could not locate configuration file " << m_configFile);
             return StatusCode::FAILURE;
@@ -46,7 +46,8 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
 
     // Retreive properties from configuration file, using TEnv class
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
@@ -72,7 +73,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
 
     ATH_MSG_VERBOSE("number of files for the electron case : " << m_electronConfFiles.size());
-    for (auto fN : m_electronConfFiles)
+    for (const auto& fN : m_electronConfFiles)
       ATH_MSG_VERBOSE("file " << fN);
 
     // initialize the ElectronPhotonVariableCorrectionTools
@@ -105,7 +106,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::findAllConfigFiles( std::
     {
         std::string tmp_confFile = confFiles.at(confFile_itr);
         confFiles.at(confFile_itr) = PathResolverFindCalibFile(confFiles.at(confFile_itr));
-        if (confFiles.at(confFile_itr) == "")
+        if (confFiles.at(confFile_itr).empty())
         {
             ATH_MSG_ERROR("Could not locate configuration file " << tmp_confFile);
             return StatusCode::FAILURE;
@@ -237,8 +238,9 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( co
 
 const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
 {
-    // Retreive properties from configuration file, using TEnv class
-    TEnv env(confFile.c_str());
+    // Retrieve properties from configuration file, using TEnv class
+    TEnv env;
+    env.ReadFile(confFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 

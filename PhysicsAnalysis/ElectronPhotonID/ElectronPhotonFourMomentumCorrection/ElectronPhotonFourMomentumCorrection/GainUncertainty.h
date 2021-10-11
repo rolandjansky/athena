@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINUNCERTAINTYY_H
@@ -37,9 +37,9 @@ private:
 
   TH1* m_alpha_specialGainRun;
   TH1* m_gain_impact_Zee;
-  TH1* m_gain_Impact_elec[5];
-  TH1* m_gain_Impact_conv[5];
-  TH1* m_gain_Impact_unco[5];
+  TH1* m_gain_Impact_elec[5]{};
+  TH1* m_gain_Impact_conv[5]{};
+  TH1* m_gain_Impact_unco[5]{};
 
 };
 

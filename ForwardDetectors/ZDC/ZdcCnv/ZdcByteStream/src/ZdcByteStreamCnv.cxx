@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,8 +18,8 @@
  *
  */
 
+#include <cstdint>
 #include <vector>
-#include <stdint.h>
 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
@@ -156,7 +156,7 @@ StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 	auto aux = std::make_unique<xAOD::TriggerTowerAuxContainer>();
 	TTCollection->setStore(aux.get());
 
-	if (robFrags.size() == 0)
+	if (robFrags.empty())
 	{
 	  pObj = SG::asStorable(std::move(TTCollection));
           ATH_CHECK( m_evtStore->record (std::move(aux), nm + "Aux.") );

@@ -22,7 +22,7 @@
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 
-class LArOnlineID;
+class  LArOnlineID_Base;
 
 //-----------------------------------------------------------------------
 class LArPedestalAutoCorrBuilder : public AthAlgorithm
@@ -49,7 +49,7 @@ class LArPedestalAutoCorrBuilder : public AthAlgorithm
   virtual StatusCode finalize(){return StatusCode::SUCCESS;}
 
 private:
-  const LArOnlineID * m_onlineHelper;
+  const LArOnlineID_Base *m_onlineHelper;
   // Container key list
   std::vector<std::string> m_keylist;
   

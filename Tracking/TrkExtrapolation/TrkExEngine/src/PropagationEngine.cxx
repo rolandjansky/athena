@@ -18,12 +18,9 @@
 // constructor
 Trk::PropagationEngine::PropagationEngine(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
-  m_propagator(""),
   m_pathLimitTolerance(0.01)
 {
     declareInterface<Trk::IPropagationEngine>(this);
-    // configure the Propagator
-    declareProperty("Propagator"                            , m_propagator);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);
@@ -75,7 +72,7 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellCharged& eCe
     // it is the final propagation if it is the endSurface
     bool finalPropagation = (eCell.endSurface == (&sf));
 
-    Trk::TransportJacobian* tjac = 0;
+    Trk::TransportJacobian* tjac = nullptr;
     // we need to first fill the propagation parameters in order to be able to updates & fallbacks
     //release, otherwise need to change the Trk::ExCell code
     auto pParameters = m_propagator->propagate(*eCell.leadParameters,

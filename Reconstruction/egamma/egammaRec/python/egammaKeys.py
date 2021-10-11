@@ -10,17 +10,19 @@ __author__ = "Bruno Lenzi"
 
 from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
 
-
 class egammaKeysDict:
     inputs = dict(
     )
 
     ShowerShapesSuppress = '.-e033.-e011.-e333.-e335.-e337.-e377'
-    PhotonisemSupress = '.-isEMLoose.-isEMTight'
+    PhotonisemSuppress = '.-isEMLoose.-isEMTight'
     ElectronisemSupress = '.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight'
+    ElectronSuppress = ShowerShapesSuppress + ElectronisemSupress + '.-EgammaCovarianceMatrix'
+    PhotonSuppress = ShowerShapesSuppress + PhotonisemSuppress
     FwdElectronisemSupress = '.-isEMTight.-isEMMedium.-isEMLoose'
-    # Strip off the leading dot
     isovar_suppress = "-" + ".-".join(iso_vars())
+    egisovar_suppress = isovar_suppress + '.-ptconeCorrBitset.-ptconecoreTrackPtrCorrection.-topoetconeCorrBitset'
+    phisovar_suppress = egisovar_suppress + '.-ptvarcone30.-ptvarcone20'
 
     outputs = dict(
         Conversion=[
@@ -49,8 +51,8 @@ class egammaKeysDict:
         Electron=[
             'xAOD::ElectronContainer',
             'Electrons',
-            isovar_suppress,
-            ShowerShapesSuppress+ElectronisemSupress],
+            egisovar_suppress,
+            ElectronSuppress],
         EgammaRec=['egammaRecContainer',
                    'egammaRecCollection',
                    '',
@@ -69,8 +71,9 @@ class egammaKeysDict:
                     'ForwardElectronClusters',
                     '-SisterCluster', ''],
         Photon=['xAOD::PhotonContainer',
-                'Photons', isovar_suppress,
-                ShowerShapesSuppress+PhotonisemSupress],
+                'Photons',
+                phisovar_suppress,
+                PhotonSuppress],
         TrackParticle=[
             'xAOD::TrackParticleContainer',
             'GSFTrackParticles',

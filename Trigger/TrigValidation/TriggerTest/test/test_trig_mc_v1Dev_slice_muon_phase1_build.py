@@ -12,7 +12,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'ttbar_phase1'
+ex.input = 'ttbar'
 ex.threads = 1
 precommand = ''.join([
   "setMenu='LS2_v1';",

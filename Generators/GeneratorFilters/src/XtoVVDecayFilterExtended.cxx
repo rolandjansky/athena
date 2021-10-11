@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/XtoVVDecayFilterExtended.h"
@@ -95,9 +95,19 @@ bool XtoVVDecayFilterExtended::RunHistory(HepMC::ConstGenParticlePtr pitr) {
     return false;
   }
   int result = 999;
+
+  // Check if the first mother is ok
+  pitr = CheckGrandparent(pitr, result);
+  ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
+  if(std::abs(pitr->pdg_id()) != m_PDGGrandParent && std::abs(pitr->pdg_id()) != m_PDGParent) return false;
+  if (result == m_PDGGrandParent) return true;
+
   auto pitr_current = pitr->production_vertex()->particles_in().at(0);
   while ( result >= 0 ) {
     pitr_current = CheckGrandparent(pitr_current, result);
+    ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
+    if(std::abs(pitr_current->pdg_id()) != m_PDGGrandParent && std::abs(pitr_current->pdg_id()) != m_PDGParent) return false;
+
     if (result == m_PDGGrandParent) return true;
   }
 #else
@@ -109,9 +119,17 @@ bool XtoVVDecayFilterExtended::RunHistory(HepMC::ConstGenParticlePtr pitr) {
     return false;
   }
   int result = 999;
+  // Check if the first mother is ok
+  pitr = CheckGrandparent(pitr, result);
+  ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
+  if(std::abs(pitr->pdg_id()) != m_PDGGrandParent && std::abs(pitr->pdg_id()) != m_PDGParent) return false;
+  if (result == m_PDGGrandParent) return true;
+
   HepMC::ConstGenParticlePtr pitr_current = (*firstMother);
   while ( result >= 0 ) {
     pitr_current = CheckGrandparent(pitr_current, result);
+    ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
+    if(std::abs(pitr_current->pdg_id()) != m_PDGGrandParent && std::abs(pitr_current->pdg_id()) != m_PDGParent) return false;
     if (result == m_PDGGrandParent) return true;
   }
 #endif
@@ -137,12 +155,23 @@ HepMC::ConstGenParticlePtr  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::Co
     return NULL;
   }
 
+  int n_mothers = 1;
+
   for (auto thisMother: pitr->production_vertex()->particles_in()) {
-    if ( thisMother->pdg_id() == m_PDGGrandParent ) { isGrandParentOK = true;   }
+    ATH_MSG_DEBUG("Now on this mother: " << (thisMother)->pdg_id() << " " << n_mothers);
+    if ( (thisMother)->pdg_id() != m_PDGGrandParent && std::abs((thisMother)->pdg_id()) != m_PDGParent)
+       break;
+    if ( (thisMother)->pdg_id() == m_PDGGrandParent && n_mothers == 1) { isGrandParentOK = true; }
+    n_mothers++;
   }
 
-  if (isGrandParentOK) result = m_PDGGrandParent;
-  else result = 0;
+  if (isGrandParentOK) {
+    result = m_PDGGrandParent;
+  }
+  else {
+    result = 0;
+  }
+
   return pitr->production_vertex()->particles_in()[0];
 #else
   HepMC::GenVertex::particle_iterator firstMother = pitr->production_vertex()->particles_begin(HepMC::parents);
@@ -154,12 +183,23 @@ HepMC::ConstGenParticlePtr  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::Co
     return NULL;
   }
 
+  int n_mothers = 1;
+
   for (; thisMother != endMother; ++thisMother) {
-    if ( (*thisMother)->pdg_id() == m_PDGGrandParent ) { isGrandParentOK = true;   }
+    ATH_MSG_DEBUG("Now on this mother: " << (*thisMother)->pdg_id() << " " << n_mothers);
+    if ( (*thisMother)->pdg_id() != m_PDGGrandParent && std::abs((*thisMother)->pdg_id()) != m_PDGParent)
+       break;
+    if ( (*thisMother)->pdg_id() == m_PDGGrandParent && n_mothers == 1) { isGrandParentOK = true; }
+    n_mothers++;
+
   }
 
-  if (isGrandParentOK) result = m_PDGGrandParent;
-  else result = 0;
+  if (isGrandParentOK) {
+     result = m_PDGGrandParent;
+  }
+  else {
+     result = 0;
+  }
   return (*firstMother);
 #endif
 }

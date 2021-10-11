@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // based on LArCellMonTool by W.Lampl (Spring 2017: Major re-design, early 2020: migration to AthenaMT)
 
@@ -8,7 +8,8 @@
 
 #include "CaloMonAlgBase.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "Identifier/IdentifierHash.h"
@@ -100,10 +101,9 @@ private:
   enum TriggerType{RNDM,CALO,MINBIAS,MET,MISC,NOTA,MAXTRIGTYPE};
 
   BooleanProperty m_useTrigger{this, "useTrigger", true};
-  std::array<std::string,NOTA> m_triggerNames; 
-  std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};
+  StringProperty   m_triggerNames[NOTA];
 
-  BooleanProperty m_maskKnownBadChannels{this, "MaskBadChannels", false, "Do not fill histograms with values from known bad channels"};
+  BooleanProperty m_ignoreKnownBadChannels{this, "MaskBadChannels", false, "Do not fill histograms with values from known bad channels"};
   BooleanProperty m_maskNoCondChannels{this, "MaskNoCondChannels", false, "Do not fill histograms with values from cells reco'ed w/o conditions database"};
 
   BooleanArrayProperty m_doBeamBackgroundRemovalProp{this, "DoBeamBackgroundRemoval"}; 
@@ -237,8 +237,9 @@ private:
   // other private variables
  
   // bad channel mask  
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-  
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
   std::vector<threshold_t> m_thresholds;
 
   // Identifer helpers and such

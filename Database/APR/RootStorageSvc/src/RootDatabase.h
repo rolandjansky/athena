@@ -60,6 +60,10 @@ namespace pool  {
     int           m_defAutoSave;
     /// Default buffer size parameter for Branches
     int           m_defBufferSize;
+    /// Maximum buffer size parameter for Branches
+    int           m_maxBufferSize;
+    /// Minimum buffer entries parameter for Branches
+    int           m_minBufferEntries;
     /// Default policy mode for keyed objects
     int           m_defWritePolicy;
     /// Offset table length for branches
@@ -165,7 +169,7 @@ namespace pool  {
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus onOpen(const DbDatabase& dbH, DbAccessMode      mode);
+    virtual DbStatus onOpen(DbDatabase& dbH, DbAccessMode      mode);
 
     /// Close database access
     /** @param mode     [IN]  Desired session access mode.

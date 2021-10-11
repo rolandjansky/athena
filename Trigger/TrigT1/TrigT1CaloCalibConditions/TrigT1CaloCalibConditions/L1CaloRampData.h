@@ -38,14 +38,14 @@ class L1CaloRampStep
  *
  * @author Veit Scharf <veit.scharf@kip.uni-heidelberg.de>
  */
-class L1CaloRampData 
+class L1CaloRampData final
 {
  public:
     // first L1CaloRampStep is calorimeter data, second is level-1 trigger data
     typedef std::pair<L1CaloRampStep, L1CaloRampStep> L1CaloRampDataPoint;
     
     L1CaloRampData() : m_rampDataVector(1), m_iStep(0) {}
-    virtual ~L1CaloRampData() {}
+    ~L1CaloRampData() = default;
 
     // adds calorimeter and level-1 trigger energiy to energy step i
     void addData(unsigned int step, const std::pair<double, double>& energy);

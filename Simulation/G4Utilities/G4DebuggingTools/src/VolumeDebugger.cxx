@@ -10,6 +10,8 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
+#include "G4NistManager.hh"
+#include "G4PVPlacement.hh"
 
 #include <iostream>
 #include <vector>
@@ -69,7 +71,15 @@ namespace G4UA
       for (unsigned int i=0;i<lvs->size();++i){
         for (unsigned int j=0;j<(*lvs)[i]->GetNoDaughters();++j){
           if ( (*lvs)[i]->GetDaughter(j)->GetName().c_str()==m_config.targetVolume ){
-            W = (*lvs)[i]->GetDaughter(j);
+             //Create a World volume for the sub-tree that will be dumped in the GDML file
+             //NB: without a world volume, the dumped geometry will not be properly defined
+             //in Geant4 and in simulation this will lead to segfaults
+             G4NistManager* nist = G4NistManager::Instance();
+             G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
+             G4VSolid* vBox = W->GetLogicalVolume()->GetSolid();
+             G4LogicalVolume* logicWorld = new G4LogicalVolume(vBox,world_mat,"World");
+             W  = new G4PVPlacement(0,G4ThreeVector(),logicWorld,"World",0,false,0,false);
+             new G4PVPlacement(0,G4ThreeVector(),(*lvs)[i]->GetDaughter(j)->GetLogicalVolume(),m_config.targetVolume,logicWorld,false,0,false);
             // FIXME: Remove this goto!!!
             goto exitLoop;
           } // If we found the volume

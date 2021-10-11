@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECDetectorRegion.h"
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 HECDetectorRegion::HECDetectorRegion (const GeoVFullPhysVol *physVol
 				      , const HECDetDescr *hecDescriptor
@@ -31,31 +32,25 @@ HECCellConstLink HECDetectorRegion::getHECCell (unsigned int ieta, unsigned int 
   return HECCellConstLink(cell);
 }
 
-const GeoTrf::Transform3D &  HECDetectorRegion::getAbsoluteTransform () const
-{
-  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
-  return fullPhysVol->getAbsoluteTransform();
-}
-
-const GeoTrf::Transform3D &  HECDetectorRegion::getDefAbsoluteTransform () const
-{
-  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
-  return fullPhysVol->getDefAbsoluteTransform();
-}
-
 Amg::Vector3D HECDetectorRegion::getRefPlanePosAmg () const
 {
     HepGeom::Point3D<double> clhepPoint = getRefPlanePos();
     return Amg::Vector3D(clhepPoint.x(), clhepPoint.y(), clhepPoint.z());
 }
-const Amg::Transform3D  HECDetectorRegion::getAbsoluteTransformAmg () const
+const Amg::Transform3D&  HECDetectorRegion::getAbsoluteTransform (const GeoAlignmentStore* alignStore) const
 {
-  return getAbsoluteTransform();
+  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
+  return alignStore
+    ? fullPhysVol->getCachedAbsoluteTransform(alignStore)
+    : fullPhysVol->getAbsoluteTransform();
 }
 
-const Amg::Transform3D  HECDetectorRegion::getDefAbsoluteTransformAmg () const
+const Amg::Transform3D&  HECDetectorRegion::getDefAbsoluteTransform (const GeoAlignmentStore* alignStore) const
 {
-  return getDefAbsoluteTransform();
+  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
+  return alignStore
+    ? fullPhysVol->getCachedDefAbsoluteTransform(alignStore)
+    : fullPhysVol->getDefAbsoluteTransform();
 }
 
 Amg::Vector3D HECDetectorRegion::getFocalPointPosAmg () const

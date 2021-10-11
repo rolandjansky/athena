@@ -53,16 +53,11 @@ namespace MuonCalib {
         double S(0), Sz(0), Sy(0);
         double Zc(0), Yc(0);
 
-        std::vector<double> y(N);
-        std::vector<double> z(N);
-        std::vector<double> r(N);
-        std::vector<double> w(N);
+        std::vector<double> y(N), z(N), r(N), w(N);
         {
-            MuonCalibSegment::MdtHitIt hit = seg.mdtHOTBegin();
-
             int ii(0);
-            while (hit != seg.mdtHOTEnd()) {
-                const MdtCalibHitBase& h = **hit;
+            for (const MuonCalibSegment::MdtHitPtr& hit_ptr : seg.mdtHOT()) {
+                const MdtCalibHitBase& h = *hit_ptr;
 
                 y[ii] = getY(h.localPosition());
                 z[ii] = getZ(h.localPosition());
@@ -82,14 +77,12 @@ namespace MuonCalib {
                 }
 
                 if (selection[ii]) {
-                    ++hit;
                     ++ii;
                     continue;
                 }
                 S += w[ii];
                 Sz += w[ii] * z[ii];
                 Sy += w[ii] * y[ii];
-                ++hit;
                 ++ii;
             }
         }
@@ -298,15 +291,9 @@ namespace MuonCalib {
 
         seg.set(chi2 / (N - 2), npos, ndir);
 
-        MuonCalibSegment::MdtHitIt it = seg.mdtHOTBegin();
-
         int i(0);
-        while (it != seg.mdtHOTEnd()) {
-            MdtCalibHitBase& hit = const_cast<MdtCalibHitBase&>(**it);
-
-            hit.setDistanceToTrack(yl[i], dyl[i]);
-
-            ++it;
+        for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+            mdt_hit->setDistanceToTrack(yl[i], dyl[i]);
             ++i;
         }
 

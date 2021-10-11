@@ -91,8 +91,8 @@ public:
   */
   bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, bool resolFromRtrack=false  ) const;
 
-  /** TDC bin size. 25/32 ns for all MDT/sMDT, except BMG=0.2ns */
-  double tdcBinSize(const Identifier &id) const;
+  /** TDC bin size. 25/32 ns for all MDT/sMDT */
+  double tdcBinSize() const;
 
   /** Convert the raw MDT times of two twin hits into a Twin position (coordinate along tube)
       It returns whether the conversion was successful. */

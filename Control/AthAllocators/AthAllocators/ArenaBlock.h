@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaBlock.h 470529 2011-11-24 23:54:22Z ssnyder $
-
 /**
  * @file  AthAllocators/ArenaBlock.h
  * @author scott snyder
@@ -59,6 +55,10 @@ public:
    * @param elt_size The size in bytes of each element.
    * @param ctor If non-null, call this function on each element
    *             in the new block.
+   *
+   * The block will be allocated so that it entirely occupies
+   * a set of contiguous pages.  The requested size may be rounded
+   * up for this.
    */
   static ArenaBlock* newBlock (size_t n, size_t elt_size, func_t* ctor);
 
@@ -156,6 +156,44 @@ public:
 
   /// Return the global number of blocks in use.
   static size_t nactive();
+
+
+  /**
+   * @brief Write-protect this block.
+   *
+   * Adjust protection on the memory allocated for this block
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable this block.
+   *
+   * Adjust protection on the memory allocated for this block
+   * to allow writes.
+   */
+  void unprotect();
+
+
+  /**
+   * @brief Write-protect all blocks in a list.
+   * @param p The first block to protect.
+   *
+   * Adjust protection on the memory allocated for these blocks
+   * to disallow writes.
+   */
+  static void protectList (ArenaBlock* p);
+
+
+  /**
+   * @brief Write-enable all blocks in a list.
+   * @param p The first block to protect.
+   *
+   * Adjust protection on the memory allocated for these blocks
+   * to allow writes.
+   */
+  static void unprotectList (ArenaBlock* p);
 
 
 private:

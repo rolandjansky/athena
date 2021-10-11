@@ -42,7 +42,7 @@ PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComp
   m_detectorManager = new PixelDetectorManager(detStore());
 
   // Create the geometry manager.
-  m_geometryManager =  new OraclePixGeoManager(athenaComps);
+  m_geometryManager =  std::make_unique<OraclePixGeoManager>(athenaComps);
 
   // Pass the switches
   m_geometryManager->SetServices(switches.services());
@@ -105,9 +105,7 @@ PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComp
 
 PixelDetectorFactory::~PixelDetectorFactory()
 {
-  delete m_geometryManager;
 }
-
 
 
 //## Other Operations (implementation)
@@ -131,15 +129,14 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
 
   //
   // Create the Pixel Envelope...
-  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager);
+  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager.get());
   GeoVPhysVol* pephys = pe.Build() ;
-  GeoAlignableTransform * transform = new GeoAlignableTransform(topTransform);
-  
+
   //
   // Add this to the world
   //
-  GeoNameTag *tag = new GeoNameTag("Pixel");         
-  world->add(tag);
+  world->add(new GeoNameTag("Pixel"));
+  GeoAlignableTransform * transform = new GeoAlignableTransform(topTransform);
   world->add(transform);
   world->add(pephys);
 
@@ -147,7 +144,6 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
   Identifier id = m_geometryManager->getIdHelper()->wafer_id(0,0,0,0);
   m_detectorManager->addAlignableTransform(2, id, transform, pephys);
 
-  //
   // Add this to the list of top level physical volumes:             
   //
   m_detectorManager->addTreeTop(pephys);                                       

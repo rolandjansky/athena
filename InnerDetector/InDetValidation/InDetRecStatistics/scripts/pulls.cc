@@ -15,7 +15,7 @@
 
 using std::string;
 
-void pulls (TTree *n1, TTree *n2=0, TTree *n3=0, const string plotfile= "",
+void pulls (TTree *n1, TTree *n2=0, TTree *n3=0, const string & plotfile= "",
             const TCut data_cut="", double match=-1)
 {
   TStyle plotStyle ("PlotStyle", "My Plot Style");
@@ -25,8 +25,7 @@ void pulls (TTree *n1, TTree *n2=0, TTree *n3=0, const string plotfile= "",
   const int s_bins     = 50;
   const double s_pullMax = 6.0;
   TCut truth_cut ("track_truth_prob>"+TString::Format("%g",(match>=0?match:0.8)));
-  //  TCut cuta("abs(1/track_qoverpt)>1000");
-//  TCut cuta("track_truth_prob>0.8 && abs(1./track_truth_qoverpt)>3 && abs(track_truth_pdgid)==13");
+  //cppcheck-suppress incorrectStringBooleanError
   TCut cuta(data_cut && truth_cut && "abs(1/track_truth_qoverpt)>3");
   TCut cutb(data_cut);
 

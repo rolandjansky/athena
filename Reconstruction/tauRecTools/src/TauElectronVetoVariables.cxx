@@ -100,7 +100,8 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const {
     if (m_useOldCalo) {
       /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
       ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-      uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+      uniqueExtension = m_caloExtensionTool->caloExtension(
+        Gaudi::Hive::currentContext(), *orgTrack);
       caloExtension = uniqueExtension.get();
     } else {
       /*get the CaloExtension object*/
@@ -110,14 +111,19 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const {
       ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
       if( not caloExtension ){
         ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-        uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+        uniqueExtension = m_caloExtensionTool->caloExtension(
+          Gaudi::Hive::currentContext(), *orgTrack);
         caloExtension = uniqueExtension.get();
       }
     }
+    if( not caloExtension){
+      ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloExtension is nullptr" );
+      return StatusCode::RECOVERABLE;
+    }
     const std::vector<Trk::CurvilinearParameters>& clParametersVector = caloExtension->caloLayerIntersections();
-    if( not caloExtension || clParametersVector.empty() ){
+    if(clParametersVector.empty() ){
       ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloLayerIntersection is empty" );
-      return StatusCode::SUCCESS;
+      return StatusCode::RECOVERABLE;
     }
     // loop over calo layers
     for( const Trk::CurvilinearParameters& cur : clParametersVector ){

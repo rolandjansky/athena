@@ -20,6 +20,22 @@
 namespace {
   constexpr int electronId(11);
   constexpr int gammaId(22);
+  bool hasAncestor(const xAOD::TruthParticle* particle, const std::vector<int>& allowedAncestors) {
+    bool pass = false;
+    uint nPar = particle->nParents(); 
+    for (uint i = 0; i < nPar; i++) {
+      for (const int & ancestorID : allowedAncestors) {
+        if (std::abs(particle->parent(i)->pdgId()) ==  ancestorID) {
+          return true;
+        }
+      }
+    }
+    for (uint i = 0; i < nPar; i++) {
+      const xAOD::TruthParticle* parent = particle->parent(i);
+      if (hasAncestor(parent, allowedAncestors)) return true;
+    }
+    return pass;
+  }
 }
 
 
@@ -40,6 +56,7 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
   declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
   declareProperty("hasNoGrandparent", m_grandparent = false);
+  declareProperty("ancestorList", m_ancestors = {});
   declareProperty("poselectronfromgamma", m_poselectronfromgamma = false);
   declareProperty("radiusCylinder", m_radiusCylinder=-1, "Select truth particle based on extrapolated position on cylinder placed at this radius. Enabled if greater than 0.");
   declareProperty("minZCylinder", m_minZCylinder=0.0, "Minimum |Z| on cylinder for accepting extrapolated truth particle to surface.");
@@ -69,18 +86,18 @@ AthTruthSelectionTool::initialize() {
   //
   m_cutList = CutList<P_t>(filters);
   if (m_maxProdVertRadius>0) {
-    m_cutList.add(Accept_t([this](const P_t& p) -> bool {
+    m_cutList.add(Accept_t([&m_maxProdVertRadius = std::as_const(m_maxProdVertRadius)](const P_t& p) -> bool {
                        return((not (p.hasProdVtx()))or(p.prodVtx()->perp() < m_maxProdVertRadius));
                   },
                   "decay_before_" + std::to_string(m_maxProdVertRadius)));
   }
   if (m_maxPt > 0) {
-    m_cutList.add(Accept_t([this](const P_t& p) {
+    m_cutList.add(Accept_t([&m_maxPt = std::as_const(m_maxPt)](const P_t& p) {
       return(p.pt() < m_maxPt);
     }, "max_pt"));
   }
   if (m_maxBarcode > -1) {
-    m_cutList.add(Accept_t([this](const P_t& p) {
+    m_cutList.add(Accept_t([&m_maxBarcode = std::as_const(m_maxBarcode)](const P_t& p) {
       return(p.barcode() < m_maxBarcode);
     }, "barcode < " + std::to_string(m_maxBarcode)));
   }
@@ -95,7 +112,7 @@ AthTruthSelectionTool::initialize() {
     }, "status1"));
   }
   if (m_pdgId > 0) {
-    m_cutList.add(Accept_t([this](const P_t& p) {
+    m_cutList.add(Accept_t([&m_pdgId = std::as_const(m_pdgId)](const P_t& p) {
       return(std::abs(p.pdgId()) == m_pdgId);
     }, "pdgId"));
   }
@@ -103,6 +120,14 @@ AthTruthSelectionTool::initialize() {
     m_cutList.add(Accept_t([](const P_t& p) {
       return((p.nParents() == 0) || ((p.nParents() == 1)and((p.parent(0))->nParents() == 0)));
     }, "hasNoGrandparent"));
+  }
+  //require the truth particles to come from certain ancesters
+  if (!m_ancestors.empty()) {
+    m_cutList.add(Accept_t([&m_ancestors = std::as_const(m_ancestors)](const P_t& p) -> bool {
+      const xAOD::TruthParticle* pTruth = dynamic_cast<const xAOD::TruthParticle*>(&p);  
+      if (not pTruth) return false;
+      else return hasAncestor(pTruth, m_ancestors);   
+    }, "ancestors"));
   }
   if (m_poselectronfromgamma) {
     m_cutList.add(Accept_t([](const P_t& p) {
@@ -113,8 +138,8 @@ AthTruthSelectionTool::initialize() {
     //    m_cutList.add(Accept_t(acceptExtrapolatedTPToSurface, "SelectCylinder"));
     if (not m_cylinder) {
       ATH_MSG_VERBOSE("Creating and caching cylinder surface");
-      Amg::Transform3D *trnsf = new Amg::Transform3D;
-      trnsf->setIdentity();
+      Amg::Transform3D trnsf;
+      trnsf.setIdentity();
       m_cylinder = std::make_unique<Trk::CylinderSurface>( trnsf, m_radiusCylinder, 20000.);
     }
     m_cutList.add(Accept_t([this](const P_t& p) -> bool {
@@ -151,10 +176,9 @@ AthTruthSelectionTool::initialize() {
     //m_cutList.add(Accept_t(acceptExtrapolatedTPToSurface, "SelectDisc"));
     if (not m_disc1 || not m_disc2) { //m_disc2 == 0 implied
       ATH_MSG_VERBOSE("Creating and caching disc surface");
-      Amg::Transform3D *trnsf_shiftZ = new Amg::Transform3D();
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,m_zDisc);
+      Amg::Transform3D trnsf_shiftZ = Amg::Transform3D(Amg::Translation3D(0.,0.,m_zDisc));
       m_disc1 = std::make_unique<Trk::DiscSurface>( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,-m_zDisc);
+      trnsf_shiftZ = Amg::Translation3D(0.,0.,-m_zDisc);
       m_disc2 = std::make_unique<Trk::DiscSurface>( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
     }
     m_cutList.add(Accept_t([this](const P_t& p) -> bool {
@@ -248,6 +272,7 @@ AthTruthSelectionTool::testAllCuts(const xAOD::IParticle * particle, std::vector
   }
   return m_cutList.testAllCuts(*pTruth,counter);
 }
+
 
 /*
 bool AthTruthSelectionTool::acceptExtrapolatedTPToSurface(const xAOD::TruthParticle& p) const

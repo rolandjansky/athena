@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"

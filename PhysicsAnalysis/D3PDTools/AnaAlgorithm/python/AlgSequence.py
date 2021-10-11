@@ -10,6 +10,7 @@ except ImportError:
     # Import(s):
     import unittest
     from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig, indentBy
+    from AnaAlgorithm.PythonConfig import PythonConfig
 
     class AlgSequence( object ):
         """Standalone algorithm sequence
@@ -52,6 +53,17 @@ except ImportError:
             """
 
             return self.__iadd__( algOrSeq, index = index )
+
+        def addSelfToJob( self, job ):
+            """add a copy of this config to the EventLoop job object
+
+            Keyword arguments:
+              job      -- The job object to add ourself to
+            """
+            for alg in self:
+                alg.addSelfToJob (job)
+                pass
+            pass
 
         def __getitem__( self, index ):
             """Return one algorithm/sequence from the sequence by index
@@ -135,9 +147,10 @@ except ImportError:
 
             # Check that the received object is of the right type:
             if not isinstance( algOrSeq, AnaAlgorithmConfig ) and \
+               not isinstance( algOrSeq, PythonConfig ) and \
                not isinstance( algOrSeq, AlgSequence ):
                 raise TypeError( 'The received object is not of type ' \
-                                 'AnaAlgorithmConfig or AlgSequence' )
+                                 'AnaAlgorithmConfig or PythonConfig or AlgSequence' )
                 pass
 
             # Now check if an equivalent algorithm/sequence is already in the

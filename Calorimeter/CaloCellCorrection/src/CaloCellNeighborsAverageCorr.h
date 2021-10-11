@@ -12,7 +12,6 @@
 #include <string>
 
 class CaloCellContainer;
-class CaloDetDescrManager;
 class CaloCell_ID;
 class TileID;
 

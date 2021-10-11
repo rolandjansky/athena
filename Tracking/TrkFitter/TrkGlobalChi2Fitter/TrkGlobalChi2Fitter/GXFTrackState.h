@@ -17,8 +17,8 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/Vector.h"
+#include <memory>
+#include <bitset>
 
 /**
  * These headers, as well as other headers in the TrkGlobalChi2Fitter package
@@ -29,7 +29,6 @@
 namespace Trk {
 
   class MeasurementBase;
-  class TrackStateOnSurface;
   class GXFMaterialEffects;
   class TransportJacobian;
 
@@ -58,7 +57,7 @@ namespace Trk {
 
     void setTrackCovariance(AmgSymMatrix(5) *);
     AmgSymMatrix(5) & trackCovariance(void);
-    bool hasTrackCovariance(void);
+    bool hasTrackCovariance(void) const;
     void zeroTrackCovariance(void);
 
     void setFitQuality(std::unique_ptr<const FitQualityOnSurface>);
@@ -67,11 +66,11 @@ namespace Trk {
     TrackState::MeasurementType measurementType();
     void setMeasurementType(TrackState::MeasurementType);
 
-    double sinStereo();
+    double sinStereo() const;
     void setSinStereo(double);
 
     double *measurementErrors();
-    void setMeasurementErrors(double *);
+    void setMeasurementErrors(const double *);
 
     int numberOfMeasuredParameters();
 
@@ -81,7 +80,7 @@ namespace Trk {
     Amg::Vector3D position();
     void setPosition(Amg::Vector3D &);
 
-    bool measuresPhi();
+    bool measuresPhi() const;
     void setMeasuresPhi(bool);
 
     /**
@@ -129,7 +128,7 @@ namespace Trk {
     bool m_covariance_set;
 
     std::unique_ptr<const FitQualityOnSurface> m_fitqual;
-    double m_measerror[5];      //!< Measurement errors (corrected for stereo angle)
+    double m_measerror[5]{};      //!< Measurement errors (corrected for stereo angle)
     double m_sinstereo;         //!< stereo angle
     TrackState::MeasurementType m_mType;      //!< Measurement type, eg pixel, SCT, ...
     bool m_recalib;             //!< Has this measurement already been recalibrated?

@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file clidGenerator.py
 # @author CETull@lbl.gov
 # @brief Athena CLID Generator Class
 #
-from __future__ import print_function
 import string, re, os, csv
 
 # CLID assignment was originally based on the builtin hash() function.
@@ -25,19 +24,15 @@ def py2_hash (s):
 
 ## Athena CLID Generator Class
 class clidGenerator (object):
-    "Athena CLID Generator"
-    __clidGenerator_type = "Basic"
-    __clidGenerator_version = "$Revision: 1.4 $"
+    """Athena CLID Generator"""
     # CLID Mask: Determines bits used for CLID
     __mask = 0x0FFFFFFF
     # CLID Repositories - Dictionaries of CLID<=>Name
     __clidRep = {} # Lookup by CLID
-    __clidPkg = {} # Lookup by CLID
     __clidTid = {} # Lookup by CLID
     __nameRep = {} # Lookup by ClassName
     __tidRep  = {} # Lookup by typeid-name
-    # CLID DataBase (Default = clid.db)
-#   __cliddb = os.getenv('CLIDDB')
+
     def __init__(self, db, debug=False):
         self.setCLIDDB(db, debug)
         self.readdb()
@@ -47,22 +42,19 @@ class clidGenerator (object):
         clidGenerator.__nameRep = {} # Lookup by ClassName
         
     def readdb(self):
-        "Read CLID DataBase file"
+        """Read CLID DataBase file"""
         try:
             for cliddb in self.__cliddbs:
                 if os.path.isfile(cliddb):
                     with open(cliddb, 'r') as f_cliddb:
                         for row in csv.reader (f_cliddb, delimiter=';'):
                             row = [i.strip() for i in row]
-                            if len(row) >= 3:
+                            if len(row) >= 2:
                                 clid = int(row[0])
                                 class_name = row[1]
-                                pkg_name   = row[2]
-                                if len(row) > 3: tid_name = row[3]
-                                else:            tid_name = class_name
+                                tid_name = row[2] if len(row)>2 else class_name
 
                                 self.__clidRep[clid] = class_name
-                                self.__clidPkg[clid] = pkg_name
                                 self.__clidTid[clid] = tid_name
                                 self.__nameRep[class_name] = clid
                                 self.__tidRep [tid_name]   = clid
@@ -75,7 +67,7 @@ class clidGenerator (object):
                 err))
             
     def setCLIDDB(self, db, debug):
-        "Initializes a CLID Generator object with a CLID Database"
+        """Initializes a CLID Generator object with a CLID Database"""
         if db:
             self.__cliddbs = search_files(db, os.getenv('DATAPATH'))
             if debug: print ("Using specified CLID DataBase files %s " % self.__cliddbs)
@@ -88,11 +80,12 @@ class clidGenerator (object):
             if debug: print ("Using DataBase file from DATAPATH %s " % self.__cliddbs)
 
     def writedb(self,db):
-        "Read CLID DataBase file"
+        """Read CLID DataBase file"""
         output = open(db,'w')
         for k in self.__clidRep.keys():
             output.write("%d "%k+self.__clidRep[k]+"\n")
         output.close()
+
     def genClidFromName(self,className):
         """Generate CLID from ClassName: A recursive hash with a bit
         mask and validity range. Will check collisions against and
@@ -115,36 +108,23 @@ class clidGenerator (object):
             self.__nameRep[n] = c
             self.__tidRep [n] = c # idem
         return c
+
     def getClidFromName(self,className):
-        "Get the CLID in the repository of class name <className>"
-        if className in self.__nameRep:
-            return self.__nameRep[className]
-        else:
-            return None
+        """Get the CLID in the repository of class name <className>"""
+        return self.__nameRep.get(className, None)
+
     def getClidFromTid(self,tidName):
-        "Get the CLID in the repository of typeid name <tidName>"
-        if tidName in self.__tidRep:
-            return self.__tidRep[tidName]
-        else:
-            return None
+        """Get the CLID in the repository of typeid name <tidName>"""
+        return self.__tidRep.get(tidName, None)
+
     def getNameFromClid(self,clid):
-        "Get the class name in the repository with CLID <clid>"
-        if clid in self.__clidRep:
-            return self.__clidRep[clid]
-        else:
-            return None
+        """Get the class name in the repository with CLID <clid>"""
+        return self.__clidRep.get(clid, None)
+
     def getTidFromClid(self,clid):
-        "Get the typeid name in the repository with CLID <clid>"
-        if clid in self.__clidTid:
-            return self.__clidTid[clid]
-        else:
-            return None
-    def getPackageFromClid(self,clid):
-        "Get the name of the package defining <clid>"
-        if clid in self.__clidPkg:
-            return self.__clidPkg[clid]
-        else:
-            return None
+        """Get the typeid name in the repository with CLID <clid>"""
+        return self.__clidTid.get(clid, None)
+
     def demangleClassName(self,s):
         return s
 #        pat = re.compile('\s*(.?)__*\s*')

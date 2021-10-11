@@ -37,7 +37,6 @@
 LArRODMonAlg::LArRODMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthMonitorAlgorithm(name, pSvcLocator),
     m_LArOnlineIDHelper(nullptr),
-    m_badChannelMask(this),
     m_BC(25000.), // picoseconds time unit
     m_ndump(0),
     m_counter(0),
@@ -51,7 +50,6 @@ LArRODMonAlg::LArRODMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   /*declareProperty("numberOfLB",m_nb_lb = 2000.);*/
 
-  declareProperty("LArBadChannelMask", m_badChannelMask);
   //declareProperty("IsOnline",m_IsOnline = false);  // exists in the base class
 
 
@@ -89,15 +87,9 @@ LArRODMonAlg::initialize() {
   ATH_CHECK(m_noiseCDOKey.initialize());
   ATH_CHECK(m_cablingKey.initialize());
 
-  if (m_skipKnownProblematicChannels) { 
-    if (!m_badChannelMask.empty()) {
-       ATH_CHECK(m_badChannelMask.retrieve());
-    } else {
-       ATH_MSG_WARNING("Disabling bad channel masking !!!");
-       m_badChannelMask.disable();
-    }
-  }
-  
+  ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
   // Open output files for DspTest
   std::ofstream fai;
   std::ofstream fdig;
@@ -155,6 +147,10 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
 
   SG::ReadCondHandle<ILArPedestal>    pedestalHdl{m_keyPedestal, ctx};
   const ILArPedestal* pedestals=*pedestalHdl;
+
+  //retrieve BadChannel info:
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
+  const LArBadChannelCont* bcCont{*bcContHdl};
 
   bool isEventFlaggedByLArNoisyROAlg = false; // keep default as false
   bool isEventFlaggedByLArNoisyROAlgInTimeW = false; // keep deault as false
@@ -288,7 +284,7 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
       if (ignoreFEBs.find(febId)!=ignoreFebsEnd) continue;
     }
     //Check if this is a bad channel
-    if (m_skipKnownProblematicChannels && m_badChannelMask->cellShouldBeMasked(idDig)) continue;
+    if (m_skipKnownProblematicChannels && m_bcMask.cellShouldBeMasked(bcCont,idDig)) continue;
 
     const CaloGain::CaloGain gain = rcDigIt->gain();
     //Check pedestal if needed

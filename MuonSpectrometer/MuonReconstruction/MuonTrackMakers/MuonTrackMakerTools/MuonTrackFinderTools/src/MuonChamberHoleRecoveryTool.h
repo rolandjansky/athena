@@ -28,8 +28,6 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 
-static const InterfaceID IID_MuonChamberHoleRecoveryTool("Muon::MuonChamberHoleRecoveryTool", 1, 0);
-
 namespace Trk {
     class Track;
 }
@@ -40,39 +38,34 @@ namespace Muon {
        @brief tool to select tracks
 
     */
-    class MuonChamberHoleRecoveryTool : virtual public IMuonHoleRecoveryTool, public AthAlgTool {
+    class MuonChamberHoleRecoveryTool : public AthAlgTool, virtual public IMuonHoleRecoveryTool {
     public:
         /** @brief vector of cluster holes in a given chamber. The first entry of the pair is the gas gap index, the second measuresPhi */
-        typedef std::vector<std::pair<int, int> > LayerHoleVec;
+        typedef std::vector<std::pair<int, int>> LayerHoleVec;
 
     public:
         MuonChamberHoleRecoveryTool(const std::string&, const std::string&, const IInterface*);
         virtual ~MuonChamberHoleRecoveryTool() = default;
 
-        StatusCode initialize();
-
-        /** @brief access to tool interface */
-        static const InterfaceID& interfaceID() { return IID_MuonChamberHoleRecoveryTool; }
-
-        /** @brief calculate holes in a given chamber using local straight line extrapolation
-            @param pars TrackParameters in the chamber
-            @param chId Identifier of the chamber
-            @param tubeIds set containing the Identifier of the hits that should not be counted as holes
-            @return a vector of hole Identifiers
-        */
-        std::set<Identifier> holesInMdtChamber(const Amg::Vector3D& position, const Amg::Vector3D& direction, const Identifier& chId,
-                                               const std::set<Identifier>& tubeIds) const;
+        StatusCode initialize() override;
 
         /** @brief returns a new track with holes recovered */
-        Trk::Track* recover(const Trk::Track& track) const;
+        std::unique_ptr<Trk::Track> recover(const Trk::Track& track, const EventContext& ctx) const override;
 
         // made public
-        void createHoleTSOSsForClusterChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                              std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                              std::set<Identifier>& layIds,
+                                              std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const override;
 
     private:
-        /** @brief returns a new track with holes recovered, actual implementation */
-        Trk::Track* recoverTrack(const Trk::Track& track) const;
+        /** @brief calculate holes in a given chamber using local straight line extrapolation
+                @param pars TrackParameters in the chamber
+                @param chId Identifier of the chamber
+                @param tubeIds set containing the Identifier of the hits that should not be counted as holes
+                @return a vector of hole Identifiers
+            */
+        std::set<Identifier> holesInMdtChamber(const Amg::Vector3D& position, const Amg::Vector3D& direction, const Identifier& chId,
+                                               const EventContext& ctx, const std::set<Identifier>& tubeIds) const;
 
         /** @brief Find missing layers in a given detector element. Look whether there is PrepData compatible with the track, if so add it.
             @param tsit     iterator pointing to the current TSOS
@@ -81,9 +74,9 @@ namespace Muon {
             @return an iterator pointing to the last hit in the chamber
         */
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator insertClustersWithHoleSearch(
-            std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
+            const EventContext& ctx, std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
             std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
-            std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& newStates) const;
+            std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& newStates) const;
 
         /** @brief Find holes in a given MDT chamber. Look whether there is MdtPrepData in the hole-tubes, if so add them.
             @param tsit     iterator pointing to the current TSOS
@@ -92,47 +85,55 @@ namespace Muon {
             @return an iterator pointing to the last MDT hit in the chamber
         */
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator insertMdtsWithHoleSearch(
-            std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
+            const EventContext& ctx, std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
             std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
-            std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& newStates,
+            std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& newStates,
             std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack) const;
 
         // ----- create holes functions per technology ------ //
 
-        void createHoleTSOSsForMdtChamber(const Identifier& chId, const Trk::TrackParameters& pars, const Trk::TrackParameters* parsLast,
-                                          std::set<Identifier>& ids,
-                                          std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForMdtChamber(const Identifier& chId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                          const Trk::TrackParameters* parsLast, std::set<Identifier>& ids,
+                                          std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
-        void createHoleTSOSsForCscChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                          std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForCscChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                          std::set<Identifier>& layIds,
+                                          std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
-        void createHoleTSOSsForTgcChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                          std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForTgcChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                          std::set<Identifier>& layIds,
+                                          std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
-        void createHoleTSOSsForRpcChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                          std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForRpcChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                          std::set<Identifier>& layIds,
+                                          std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
         // New Small Wheel
-        void createHoleTSOSsForStgcChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                           std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForStgcChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                           std::set<Identifier>& layIds,
+                                           std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
-        void createHoleTSOSsForMmChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForMmChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                         std::set<Identifier>& layIds,
+                                         std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
-        void createHoleTSOSsForClusterChamber(const Identifier& detElId, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
-                                              std::set<Identifier>& chHoles, const std::vector<const MuonCluster*>& prds,
-                                              std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const;
+        void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                              std::set<Identifier>& layIds, std::set<Identifier>& chHoles,
+                                              const std::vector<const MuonCluster*>& prds,
+                                              std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& states) const;
 
         LayerHoleVec holesInClusterChamber(const Trk::TrackParameters& pars, const Identifier& detElId, const std::set<Identifier>& layIds,
                                            unsigned nGasGaps) const;
 
+        const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const EventContext& ctx) const;
+
         // get collections
-        const MdtPrepDataCollection* findMdtPrdCollection(const Identifier& chId) const;
-        const CscPrepDataCollection* findCscPrdCollection(const Identifier& detElId) const;
-        const TgcPrepDataCollection* findTgcPrdCollection(const Identifier& detElId) const;
-        const RpcPrepDataCollection* findRpcPrdCollection(const Identifier& detElId) const;
-        const sTgcPrepDataCollection* findStgcPrdCollection(const Identifier& detElId) const;
-        const MMPrepDataCollection* findMmPrdCollection(const Identifier& detElId) const;
+        const MdtPrepDataCollection* findMdtPrdCollection(const Identifier& chId, const EventContext& ctx) const;
+        const CscPrepDataCollection* findCscPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
+        const TgcPrepDataCollection* findTgcPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
+        const RpcPrepDataCollection* findRpcPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
+        const sTgcPrepDataCollection* findStgcPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
+        const MMPrepDataCollection* findMmPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
 
         ServiceHandle<MuonStationIntersectSvc> m_intersectSvc{this, "MuonStationIntersectSvc", "MuonStationIntersectSvc",
                                                               "pointer to hole search service"};

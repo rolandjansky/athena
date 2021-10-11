@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTMONITORINGRUN3RAW_ALG_H
@@ -32,6 +32,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
 // STDLIB
 #include <string>
@@ -46,6 +47,7 @@ class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
 class ITRT_StrawStatusSummaryTool;
+class ITRT_ByteStream_ConditionsSvc;
 
 class TRTMonitoringRun3RAW_Alg : public AthMonitorAlgorithm {
 public:
@@ -65,6 +67,7 @@ private:
     enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
     
     static const int s_Straw_max[2];
+    static const int s_iChip_max[2];
     
     static const int s_numberOfBarrelStacks;
 	static const int s_numberOfEndCapStacks;
@@ -72,6 +75,7 @@ private:
     bool m_doStraws;
     bool m_doExpert;
     bool m_doChips;
+    bool m_doTracksMon;
     bool m_doRDOsMon;
     bool m_doShift;
     bool m_doMaskStraws;
@@ -79,10 +83,10 @@ private:
     bool m_useHoleFinder;
     bool m_doHitsMon;
     float m_DistToStraw;
+    float m_usedEvents;
     
     BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
-    int m_totalEvents{0};
     FloatProperty m_longToTCut{this, "LongToTCut", 9.375};
     
     Gaudi::Property<std::vector<int>> m_strawMax {this,"strawMax", {-1, -1}};
@@ -109,15 +113,19 @@ private:
     int chipToBoard(int chip) const;
     int chipToBoard_EndCap(int chip) const;
     StatusCode checkTRTReadoutIntegrity(const xAOD::EventInfo& eventInfo) const;
+    std::vector<std::vector<std::vector<int>>>  initScaleVectors() const;
     bool checkEventBurst(const TRT_RDO_Container& rdoContainer) const;
     int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const;
     int strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber) const;
     int strawLayerNumber(int strawLayerNumber, int LayerNumber) const;
     float radToDegrees(float radValue) const;
+    int strawNumber_reverse(int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber) const;
+	int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber) const;
 
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};

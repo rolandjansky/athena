@@ -802,9 +802,11 @@ StatusCode CaloFillRectangularCluster::initialize()
 {
   // The method from the base class.
   CHECK( CaloClusterCorrection::initialize() );
-  if (!m_cellsName.key().empty())
+  if (!m_cellsName.key().empty()){
     CHECK( m_cellsName.initialize() );
+  }
 
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -1074,12 +1076,14 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
                                                  CaloCluster* cluster) const
 {
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
-  
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){
+ 
+   // retrieve CaloDetDescr
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, myctx.ctx()};
+  if(!caloDetDescrMgrHandle.isValid()){
     ATH_MSG_ERROR ("Failed to retrieve CaloDetDescrManager : CaloMgr");
   }
 
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   CaloClusterCorr::Segmentation seg (calodetdescrmgr);
   if (seg.m_detas2 == 0) {
@@ -1117,8 +1121,8 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
     // Build the candidate cell list.
     // This 5 is a safe margin for cell_list calculation
     // and should not be changed.
-    CaloCellList cell_list(cell_container); 
-    cell_list.select(*calodetdescrmgr,eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
+    CaloCellList cell_list(calodetdescrmgr,cell_container); 
+    cell_list.select(eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
 
     // Do the calculation.
     CaloClusterCorr::SamplingHelper_CaloCellList helper (*this,

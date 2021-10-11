@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -146,10 +146,6 @@ private:
                         double*,
                         MagField::AtlasFieldCache& fieldCache) const;
 
-  void matrixInversion5x5(double a[5][5]) const;
-
-  Perigee* createMeasuredPerigee(TrkTrackState*) const;
-
 
   double integrate(double Rk[5],
                    TrkPlanarSurface* pSB,
@@ -160,9 +156,6 @@ private:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-
-  //    RunOutlierRemoval             m_option_runOutlier;
-  //    ParticleHypothesis               m_option_matEffects;
 
   const AtlasDetectorID* m_idHelper;
 

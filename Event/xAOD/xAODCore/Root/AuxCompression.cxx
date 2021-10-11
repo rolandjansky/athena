@@ -57,7 +57,7 @@ namespace xAOD {
 
       // Set helper variables
       const unsigned int nmantissa = val.first;
-      const std::set< std::string > names = val.second;
+      const std::set< std::string > &names = val.second;
 
       // Start from an empty list
       SG::auxid_set_t auxids;

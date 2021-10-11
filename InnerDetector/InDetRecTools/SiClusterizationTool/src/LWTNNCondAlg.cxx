@@ -33,7 +33,7 @@
 namespace InDet {
 
   LWTNNCondAlg::LWTNNCondAlg (const std::string& name, ISvcLocator* pSvcLocator)
-    : ::AthAlgorithm( name, pSvcLocator )
+    : ::AthReentrantAlgorithm( name, pSvcLocator )
   {}
 
   StatusCode LWTNNCondAlg::initialize() {
@@ -58,7 +58,7 @@ namespace InDet {
   }
 
   StatusCode LWTNNCondAlg::configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN,
-                                        const std::string& thisJson) {
+                                        const std::string& thisJson) const {
 
     // Read DNN weights from input json config
     lwt::GraphConfig config;
@@ -88,15 +88,15 @@ namespace InDet {
 
   }
 
-  StatusCode LWTNNCondAlg::execute() {
+  StatusCode LWTNNCondAlg::execute(const EventContext& ctx) const {
 
-    SG::WriteCondHandle<LWTNNCollection> NnWriteHandle{m_writeKey};
+    SG::WriteCondHandle<LWTNNCollection> NnWriteHandle{m_writeKey, ctx};
     if (NnWriteHandle.isValid()) {
       ATH_MSG_DEBUG("Write CondHandle "<< NnWriteHandle.fullKey() << " is already valid");
       return StatusCode::SUCCESS;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
     if(!readHandle.isValid()) {
       ATH_MSG_ERROR("Invalid read handle " << m_readKey.key());
       return StatusCode::FAILURE;

@@ -27,6 +27,7 @@ def egammaMonitorPrecisionCfg(name):
                                 defineHistogram('deltaPhiRescaled2',title='Precision#Delta#phiRescaled2', path='EXPERT',xbins=40, xmin=-0.1,xmax=0.1),
                                 defineHistogram('deltaPhiRescaled3',title='Precision#Delta#phiRescaled3', path='EXPERT',xbins=40, xmin=-0.1,xmax=0.1),
                                 defineHistogram('deltaPhiLast',title='Precision#Delta#phiLastMeasurement', path='EXPERT',xbins=40, xmin=-0.1,xmax=0.1),
+                                defineHistogram('d0',title='Precision#d0', path='EXPERT',xbins=40, xmin=-1,xmax=1),
 
                            #Shower Shapes variables monitoring
                                 defineHistogram('Reta', type='TH1F', path='EXPERT',title="Reta",xbins=15, xmin=0.4, xmax=1.2),

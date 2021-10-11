@@ -10,8 +10,8 @@ PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, 
   :AthAlgTool(type, name, parent),
   m_pixelID(nullptr)
 {
-  m_isActiveStatus.push_back("OK");
-  m_isActiveStates.push_back("READY");
+  m_isActiveStatus.emplace_back("OK");
+  m_isActiveStates.emplace_back("READY");
 
   declareProperty("IsActiveStatus", m_isActiveStatus);
   declareProperty("IsActiveStates", m_isActiveStates);
@@ -27,13 +27,13 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
 //  const EventContext& ctx{Gaudi::Hive::currentContext()};
 //  bool useByteStream = (SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI4() || SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI3());
-  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
 //  ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
   ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));
   ATH_CHECK(m_condDeadMapKey.initialize());
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
  
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
@@ -74,7 +74,7 @@ const IDCInDetBSErrContainer* PixelConditionsSummaryTool::getContainer(const Eve
 PixelConditionsSummaryTool::IDCCacheEntry* PixelConditionsSummaryTool::getCacheEntry(const EventContext& ctx) const {
   IDCCacheEntry* cacheEntry = m_eventCache.get(ctx);
   if (cacheEntry->needsUpdate(ctx)) {
-    auto idcErrContPtr = getContainer(ctx);
+    const auto *idcErrContPtr = getContainer(ctx);
     if (idcErrContPtr==nullptr) {     // missing or not, the cache needs to be reset
       cacheEntry->reset(ctx.evt(), nullptr);
     }
@@ -106,13 +106,15 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
   const InDetDD::SiDetectorElement *element = elements->getDetectorElement(moduleHash);
   const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
 
-  if (!m_useByteStreamFEI4 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) { return 0; }
-  if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { return 0; }
+  if (!m_useByteStreamFEI4 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) { return 0; }
+  if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI3) { return 0; }
+  if (!m_useByteStreamRD53 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::RD53) { return 0; }
 
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
-  auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
+  const auto *idcCachePtr = getCacheEntry(ctx)->IDCCache;
   if (idcCachePtr==nullptr) {
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
+    return 0;
   }
   uint64_t word = (uint64_t)idcCachePtr->retrieve(index);
   return word<m_missingErrorInfo ? word : 0;
@@ -150,7 +152,7 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
 
   int maxHash = m_pixelID->wafer_hash_max();
   Identifier moduleID = m_pixelID->wafer_id(pixid);
-  int chFE = m_pixelCabling->getFE(&pixid,moduleID);
+  int chFE = m_pixelReadout->getFE(pixid, moduleID);
 
   int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
   uint64_t word = getBSErrorWord(moduleHash,indexFE,ctx);
@@ -190,7 +192,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
   // Here, 52736 is a separator beween error flags and isActive flags.
-  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
   if (useByteStream && getBSErrorWord(moduleHash,moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
@@ -211,7 +213,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
   // Here, 52736 is a separator beween error flags and isActive flags.
-  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
   if (useByteStream && getBSErrorWord(moduleHash,moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);

@@ -36,7 +36,7 @@ def ActsMaterialMappingCfg(configFlags, name = "ActsMaterialMapping", **kwargs):
 
   ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "material-maps.json",
                                                             processSensitives = False,
-                                                            processnonmaterial = False)
+                                                            processNonMaterial = False)
                                                             
   kwargs["MaterialJsonWriterTool"] = ActsMaterialJsonWriterTool.getPrimary()   
   result.merge(ActsMaterialJsonWriterTool)
@@ -78,7 +78,8 @@ if "__main__" == __name__:
 
   cfg = MainServicesCfg(ConfigFlags)
 
-  cfg.merge(ActsMaterialTrackWriterSvcCfg("ActsMaterialTrackWriterSvc",
+  cfg.merge(ActsMaterialTrackWriterSvcCfg(ConfigFlags,
+                                          "ActsMaterialTrackWriterSvc",
                                           "MaterialTracks_mapping.root"))
 
   cfg.merge(PoolReadCfg(ConfigFlags))

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RALEmb.h
@@ -29,16 +29,16 @@ namespace LArGeo {
                             const int i1 = INT_MIN,
                             const int i2 = INT_MIN,
                             const int i3 = INT_MIN,
-                            const int i4 = INT_MIN );
+                            const int i4 = INT_MIN ) const override;
 
   private:
 
 
     class Clockwork;
     Clockwork *m_c;
-    bool m_oldDB;
-    bool m_oldSagging;
-    bool m_oldContract;
+    bool m_oldDB{false};
+    bool m_oldSagging{false};
+    bool m_oldContract{false};
 
     RALEmb (const RALEmb&);
     RALEmb& operator= (const RALEmb&);

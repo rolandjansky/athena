@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -14,7 +14,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArROD/LArRawChannelBuilderADC2EToolBase.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
+#include "LArRawConditions/LArADC2MeV.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArOnlineID;
 
@@ -27,15 +28,17 @@ class LArRawChannelBuilderADC2EDataBase
 				    const std::string& name,
 				    const IInterface* parent);
   
-  bool ADC2E(std::vector<float>& Ramps, MsgStream* pLog);
+  virtual bool ADC2E(const EventContext& ctx,
+                     std::vector<float>& Ramps, MsgStream* pLog) override;
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  StatusCode initTool();
+  virtual StatusCode initTool() override;
   
  private:
   
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+  { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
   
   bool m_testRamps;
   float m_ramp_max_high;

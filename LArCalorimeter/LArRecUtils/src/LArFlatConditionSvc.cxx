@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFlatConditionSvc.h"
@@ -454,7 +454,7 @@ void LArFlatConditionSvc::printCheckSums(const objInfo_t& objInfo, const CondAtt
   union {
     int sn;
     unsigned usn;
-  } cnv;
+  } cnv{};
 
   boost::crc_32_type crc32;
 

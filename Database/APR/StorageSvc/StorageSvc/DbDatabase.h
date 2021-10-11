@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -66,14 +66,14 @@ namespace pool  {
     typedef std::vector< Parameter >            Parameters;
 
     /// Assign transient object properly (including reference counting)
-    void switchPtr(const DbDatabaseObj* obj) const;
+    void switchPtr(DbDatabaseObj* obj);
   public:
     /// Constructor with initializing arguments
     DbDatabase(const DbType& typ=POOL_StorageType) { m_type = typ;        }
     /// Copy constructor
     DbDatabase(const DbDatabase& cp) : Base()   { switchPtr(cp.m_ptr);    }
     /// Constructor
-    DbDatabase(const DbDatabaseObj* obj)        { switchPtr(obj);         }
+    DbDatabase(DbDatabaseObj* obj)              { switchPtr(obj);         }
     /// Standard destructor
     virtual ~DbDatabase()                       { switchPtr(0);           }
     /// Assignment (copy) operator
@@ -100,19 +100,23 @@ namespace pool  {
     /// Access to db logon string
     const std::string& logon() const;
     /// Access the size of the database: May be undefined for some technologies
-    long long int size()  const;
+    long long int size();
     /// Allow access to the Database implementation
-    IOODatabase* db()   const;
+    IOODatabase* db();
+    const IOODatabase* db()   const;
     /// Add domain to session
-    DbStatus add(const std::string& name, DbContainerObj* cnt) const;
+    DbStatus add(const std::string& name, DbContainerObj* cnt);
     /// Find domain in session
     DbStatus remove(const DbContainerObj* cnt);
     /// Select container object in Database
     const DbContainerObj* find(const std::string& nam) const;
+    /// Select container object in Database
+    DbContainerObj* find(const std::string& nam);
     /// Access the token of the database object
     const Token* token() const;
     /// Access to domain object
     const DbDomain& containedIn()    const;
+          DbDomain& containedIn();
     /// Check for existence of Database within domain
     bool exist(const DbDomain& domH, const std::string& nam) const;
     /// Open Database using given domain
@@ -122,19 +126,19 @@ namespace pool  {
       * @param   mode      [IN]  Open mode (Default=READ).
       * @return Status code indicating success or failure.
       */
-    DbStatus open(const DbDomain& domH,
+    DbStatus open(DbDomain&          domH,
                   const std::string& pfn,
                   const std::string& fid,
-                  DbAccessMode mode = pool::READ) const;
+                  DbAccessMode mode = pool::READ);
     /// Re-open database with changing access permissions
     /** @param   mode      [IN]  Open mode (Valid modes are READ, UPDATE).
       * @return Status code indicating success or failure.
       */
-    DbStatus reopen(DbAccessMode mode = pool::READ) const;
+    DbStatus reopen(DbAccessMode mode = pool::READ);
     /// Close Database
-    DbStatus close() const;
+    DbStatus close();
     /// End database access, but still leave database accessible
-    DbStatus retire() const;
+    DbStatus retire();
     /// Check if the database was opened
     bool isOpen() const;
     /// Commit/Rollback Database Transaction
@@ -151,15 +155,15 @@ namespace pool  {
     /** @param   refOpt    [IN]  Reference to option object.
       * @return Status code indicating success or failure.
       */
-    DbStatus getOption(DbOption& refOpt) const;
+    DbStatus getOption(DbOption& refOpt);
     /// Add a persistent parameter to the file
-    DbStatus addParam(const std::string& nam, const std::string& val) const;
+    DbStatus addParam(const std::string& nam, const std::string& val);
     /// Retrieve the number of user parameters
-    int nParam() const;
+    int nParam();
     /// Retrieve existing parameter by name
-    DbStatus param(const std::string& nam, std::string& val) const;
+    DbStatus param(const std::string& nam, std::string& val);
     /// Retrieve all parameters
-    DbStatus params(Parameters& vals) const;
+    DbStatus params(Parameters& vals);
     /// Access to all token redirections from merged files
     const Redirections& redirections() const;
 
@@ -170,32 +174,33 @@ namespace pool  {
     /// Expand OID into a full Token, based on the Links table. For merged files provide links section#
     DbStatus getLink(const Token::OID_t& oid, int merge_section, Token* pTok);
     /// Retrieve container name from link container (using token oid, rather than contID)
-    std::string cntName(const Token& token) const;
+    std::string cntName(Token& token);
     /// Add association link to link container
-    DbStatus makeLink(const Token* pToken, Token::OID_t& linkH) const;
+    DbStatus makeLink(Token* pToken, Token::OID_t& linkH);
     /// Access to sections if availible
-    const ContainerSections& sections(const std::string& cnt) const;
+    const ContainerSections& sections(const std::string& cnt);
     /// Add persistent shape to the Database
     DbStatus addShape (const DbTypeInfo* pShape);
     /// Retrieve persistent type information by class handle
-    const DbTypeInfo* objectShape(const RootType& typeH)  const;
+    const DbTypeInfo* objectShape(const RootType& typeH);
     /// Retrieve persistent type information by name
-    const DbTypeInfo* objectShape(const Guid& nam) const;
+    const DbTypeInfo* objectShape(const Guid& nam);
     /// Retrieve persistent type information by container
-    const DbTypeInfo* contShape(const std::string& nam) const;
+    const DbTypeInfo* contShape(const std::string& nam);
     /// Access local container token (if container exists)
-    const Token* cntToken(const std::string& cntName) const;
+    const Token* cntToken(const std::string& cntName);
     /// Allow access to all known containers
     DbStatus containers(std::vector<const Token*>& conts, 
-                        bool intern=false) const;
+                        bool intern=false);
     /// Allow access to all known associations between containers
-    DbStatus associations(std::vector<const Token*>& assocs) const;
+    DbStatus associations(std::vector<const Token*>& assocs);
     /// Allow access to all known shapes used by the database
-    DbStatus shapes(std::vector<const DbTypeInfo*>& shaps) const;
+    DbStatus shapes(std::vector<const DbTypeInfo*>& shaps);
     /// Let the implementation access the internals
-    IDbDatabase* info()  const;
+    IDbDatabase* info();
+    const IDbDatabase* info()  const;
     /// Update database age
-    void setAge(int value) const;
+    void setAge(int value);
     /// Access age value
     int age()  const;
   };

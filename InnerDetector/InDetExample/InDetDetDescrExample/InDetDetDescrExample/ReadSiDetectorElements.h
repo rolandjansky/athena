@@ -67,7 +67,8 @@ public:
 
   bool m_first;
   bool m_printProbePositions;
-  
+  bool m_printTransforms;
+  bool m_printDirections;
 
 };
 

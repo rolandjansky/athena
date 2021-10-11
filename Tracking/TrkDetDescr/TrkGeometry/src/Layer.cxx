@@ -228,16 +228,16 @@ void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
   // set the layer surface representation
   ++tSurfaces;
   if (surfaceRepresentation().owner() == Trk::noOwn) {
-    surfaceRepresentation().setOwner(Trk::TGOwn);
+    const_cast<Trk::Surface&>(surfaceRepresentation()).setOwner(Trk::TGOwn);
     ++cSurfaces;
   }
   // set the subsurface representation, usually already owned by DetElement
   if (m_surfaceArray) {
     const std::vector<const Trk::Surface*>& surfaces =
         m_surfaceArray->arrayObjects();
-    for (const auto& sIter : surfaces) {
+    for (const auto *sIter : surfaces) {
       if (sIter && (*sIter).owner() == Trk::noOwn) {
-        (*sIter).setOwner(Trk::TGOwn);
+        const_cast<Trk::Surface&>((*sIter)).setOwner(Trk::TGOwn);
         ++cSurfaces;
       }
       ++tSurfaces;

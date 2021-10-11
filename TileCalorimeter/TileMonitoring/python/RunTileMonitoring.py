@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 '''@file RunTileMonitoring.py
 @brief Script to run Tile Reconstrcution/Monitoring with new-style configuration
 '''
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-def ByteStreamEmonReadCfg( inputFlags, typeNames=[]):
+def ByteStreamEmonReadCfg( inputFlags, type_names=[]):
     """
     Creates accumulator for BS Emon reading
     """
@@ -39,7 +39,7 @@ def ByteStreamEmonReadCfg( inputFlags, typeNames=[]):
     acc.addService( robDPSvc )
 
     ByteStreamAddressProviderSvc = CompFactory.ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
+    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=type_names)
     acc.addService( bsAddressProviderSvc )
 
     ProxyProviderSvc = CompFactory.ProxyProviderSvc
@@ -130,9 +130,11 @@ if __name__=='__main__':
     _addBoolArgument(parser, 'raw-chan-noise',dest='rawChanNoise', help='Tile raw channel noise monitoring')
     _addBoolArgument(parser, 'tmdb', help='TMDB monitoring')
     _addBoolArgument(parser, 'tmdb-digits', dest='tmdbDigits', help='TMDB digits monitoring')
+    _addBoolArgument(parser, 'tmdb-raw-channels', dest='tmdbRawChannels', help='TMDB raw channels monitoring')
     _addBoolArgument(parser, 'online', help='Online environment running')
 
     parser.add_argument('--stateless', action="store_true", help='Run Online Tile monitoring in partition')
+    parser.add_argument('--use-mbts-trigger', action="store_true", dest='useMbtsTrigger', help='Use L1 MBTS triggers')
     parser.add_argument('--partition', default="", help='EMON, Partition name, default taken from $TDAQ_PARTITION if not set')
     parser.add_argument('--key', type=str, default="",
                         help='EMON, Selection key, e.g.: SFI, default: dcm (ATLAS), CompleteEvent (TileMon), ReadoutApplication (Tile)')
@@ -158,9 +160,10 @@ if __name__=='__main__':
     args, _ = parser.parse_known_args()
 
     # Set up default arguments which can be overriden via command line
-    if not any([args.laser, args.noise]):
-        mbts = False if args.stateless and not args.mbts else True
-        parser.set_defaults(cells=True, towers=True, clusters=True, muid=True, muonfit=True, mbts=mbts, rod=True, tmdb=True, tmdbDigits=True)
+    if not any([args.laser, args.noise, args.mbts]):
+        mbts = False if args.stateless else True
+        parser.set_defaults(cells=True, towers=True, clusters=True, muid=True, muonfit=True, mbts=mbts,
+                            rod=True, tmdb=True, tmdbDigits=True, tmdbRawChannels=True)
     elif args.noise:
         parser.set_defaults(digiNoise=True, rawChanNoise=True)
 
@@ -181,11 +184,12 @@ if __name__=='__main__':
         if args.laser:
             parser.set_defaults(streamType='calibration', streamNames=['Tile'], streamLogic='And', keyCount=1000, groupName='TileLasMon')
         elif args.noise:
-            publishInclude = ".*Summary.*|.*DMUErrors.*|.*DigiNoise.*"
+            publishInclude = ""
             parser.set_defaults(streamType='physics', streamNames=['CosmicCalo'], streamLogic='And', include=publishInclude,
                                 triggerType=0x82, frequency=300, updatePeriod=0, keyCount=1000, groupName='TileNoiseMon')
         elif args.mbts:
-            parser.set_defaults(lvl1Logic='Or', lvl1Origin='TAV', lvl1Items=[164], streamNames=[], streamLogic='Ignore', groupName='TileMBTSMon')
+            parser.set_defaults(lvl1Logic='Or', lvl1Origin='TAV', lvl1Items=[164], streamNames=[], streamLogic='Ignore',
+                                groupName='TileMBTSMon', useMbtsTrigger = True)
 
     args, _ = parser.parse_known_args()
 
@@ -207,11 +211,15 @@ if __name__=='__main__':
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
+    ConfigFlags.Tile.RunType = 'PHY'
 
     if args.stateless:
         _configFlagsFromPartition(ConfigFlags, args.partition, log)
         ConfigFlags.Input.isMC = False
         ConfigFlags.Input.Format = 'BS'
+        if args.mbts and args.useMbtsTrigger:
+            from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
+            autoConfigOnlineRecoFlags(ConfigFlags, args.partition)
     else:
         if args.filesInput:
             ConfigFlags.Input.Files = args.filesInput.split(",")
@@ -249,9 +257,6 @@ if __name__=='__main__':
         ConfigFlags.Tile.doOverflowFit = False
         ConfigFlags.Tile.BestPhaseFromCOOL = True
         ConfigFlags.Tile.NoiseFilter = 1
-    else:
-        if ConfigFlags.Tile.RunType == 'UNDEFINED':
-            ConfigFlags.Tile.RunType = 'PHY'
 
     # Override default configuration flags from command line arguments
     ConfigFlags.fillFromArgs(parser=parser)
@@ -269,14 +274,16 @@ if __name__=='__main__':
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     cfg = MainServicesCfg(ConfigFlags)
 
-    tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
+    typeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
     if any([args.tmdbDigits, args.tmdb]):
-        tileTypeNames += ['TileDigitsContainer/MuRcvDigitsCnt']
-    if args.tmdb:
-        tileTypeNames += ['TileRawChannelContainer/MuRcvRawChCnt']
+        typeNames += ['TileDigitsContainer/MuRcvDigitsCnt']
+    if any([args.tmdbRawChannels, args.tmdb]):
+        typeNames += ['TileRawChannelContainer/MuRcvRawChCnt']
+    if args.mbts:
+        typeNames += ['CTP_RDO/CTP_RDO']
 
     if args.stateless:
-        cfg.merge( ByteStreamEmonReadCfg(ConfigFlags, typeNames=tileTypeNames) )
+        cfg.merge( ByteStreamEmonReadCfg(ConfigFlags, type_names=typeNames) )
         bsEmonInputSvc = cfg.getService( "ByteStreamInputSvc" )
         bsEmonInputSvc.Partition = args.partition
         bsEmonInputSvc.Key = args.key
@@ -296,7 +303,9 @@ if __name__=='__main__':
         bsEmonInputSvc.GroupName = args.groupName
     else:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
+        cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = typeNames) )
+
+    cfg.addPublicTool( CompFactory.TileROD_Decoder(fullTileMode = runNumber) )
 
     from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
     cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )
@@ -318,6 +327,10 @@ if __name__=='__main__':
     if args.tmdbDigits:
         from TileMonitoring.TileTMDBDigitsMonitorAlgorithm import TileTMDBDigitsMonitoringConfig
         cfg.merge(TileTMDBDigitsMonitoringConfig(ConfigFlags))
+
+    if args.tmdbRawChannels:
+        from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitoringConfig
+        cfg.merge(TileTMDBRawChannelMonitoringConfig(ConfigFlags))
 
     if args.tmdb:
         from TileMonitoring.TileTMDBMonitorAlgorithm import TileTMDBMonitoringConfig
@@ -341,7 +354,7 @@ if __name__=='__main__':
 
     if args.mbts:
         from TileMonitoring.TileMBTSMonitorAlgorithm import TileMBTSMonitoringConfig
-        cfg.merge(TileMBTSMonitoringConfig(ConfigFlags, FillHistogramsPerMBTS = True))
+        cfg.merge(TileMBTSMonitoringConfig(ConfigFlags, FillHistogramsPerMBTS = True, useTrigger = args.useMbtsTrigger))
 
     if args.muid:
         from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg

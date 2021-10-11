@@ -17,8 +17,9 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 //#include "AthenaMonitoring/IDQFilterTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCabling/LArCablingLegacyService.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -147,11 +148,16 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
   const LArOnlineID         *m_lar_online_id_ptr; //!< LAr online structure
   const CaloIdManager       *m_calo_id_mgr_ptr; //!< offline calo structure
 
-  ToolHandle<LArCablingLegacyService>    m_cable_service_tool;//!< LAr connections
-  ToolHandle<ILArBadChannelMasker> m_masking_tool;      //!< LAr Masking
 
+ /** Handle to bad-channel mask */
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
   SG::ReadCondHandleKey<CaloNoise> m_noiseKey
     { this, "NoiseKey", "totalNoise", "SG key for noise" };
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   // -- for ATLAS Ready Filter
   bool isATLASReady() { return m_atlas_ready; }
@@ -267,7 +273,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
   bool registerHistogram( LWHist* histo, const std::string& dir,
 			  const std::string& merge = "");
 
-  LArMonTools::IHistoProxyBase * createLWHistProxy(LWHist*h);
+  static LArMonTools::IHistoProxyBase * createLWHistProxy(LWHist*h);
 };
 
 

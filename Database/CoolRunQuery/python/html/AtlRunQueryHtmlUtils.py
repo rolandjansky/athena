@@ -173,7 +173,7 @@ def CreateStreamOverlapTooltip(run,k):
     allt0text = ''
     for p in prodsteps:
         if p in run.stats[k.ResultKey]:
-            typelist = run.stats[k.ResultKey][p].keys()
+            typelist = list(run.stats[k.ResultKey][p])
             if not typelist:
                 continue
 
@@ -229,8 +229,7 @@ def CreateStreamOverlapTooltip(run,k):
             ev[lb]=0
         for lb,nev in lbrecinfo:
             ev[lb] += nev
-        lbs = ev.keys()
-        lbs.sort()
+        lbs = sorted(ev.keys())
         output = '<tr>'
         idx = 0
         while idx <len(lbs):
@@ -409,7 +408,7 @@ def makeSummaryPlotForLHC(run):
             if entry.startlb == 0:
                 continue
 
-            val = float(entry.value) if (entry.value!='n.a.' and entry.value>0) else 0
+            val = float(entry.value) if (entry.value!='n.a.') else 0
 
             if ik==0 or ik==1:
                 if val > 1e30:

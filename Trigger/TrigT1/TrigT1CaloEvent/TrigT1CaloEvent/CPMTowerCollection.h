@@ -11,7 +11,6 @@
     CPMTower contains the Trigger Tower information received by the
     Cluster Processor Modules. */
 
-using namespace LVL1;
-typedef DataVector<CPMTower> CPMTowerCollection;
+typedef DataVector<LVL1::CPMTower> CPMTowerCollection;
 
 #endif

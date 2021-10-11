@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_IGEODBTAGSVC_H
@@ -9,16 +9,19 @@
 #include "GaudiKernel/IInterface.h"
 #include <string>
 
+namespace GeoModelIO {
+  class ReadGeoModel;
+}
+
 namespace GeoModel {
   enum GeoConfig {
     GEO_RUN1,
     GEO_RUN2,
     GEO_RUN3,
     GEO_RUN4,
-    GEO_ITk,
     GEO_TESTBEAM
   };
-}  
+}
 
 static const InterfaceID IID_IGeoDbTagSvc("IGeoDbTagSvc", 1, 0);
 
@@ -53,9 +56,14 @@ class IGeoDbTagSvc : virtual public IInterface {
   virtual const std::string & forwardDetectorsVersionOverride() const =0;
   
   virtual GeoModel::GeoConfig geoConfig() const = 0;
+
+  // Get the name of the IRDBAccessSvc used in the given job
+  virtual const std::string & getParamSvcName() const = 0;
+  
+  // Are we building GeoModel description from the GeometryDB or from the SQLite file?
+  // Yes - if the returned pointer in not null
+  // No  - otherwise
+  virtual GeoModelIO::ReadGeoModel* getSqliteReader() = 0;
 };
 
 #endif // GEOMODELINTERFACES_IGEODBTAGSVC_H
-
-
-

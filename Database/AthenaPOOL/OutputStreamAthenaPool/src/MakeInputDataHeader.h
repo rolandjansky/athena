@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MAKEINPUTDATAHEADER_H
@@ -7,7 +7,6 @@
 /** @file MakeInputDataHeader.h
  *  @brief This file contains the class definition for the MakeInputDataHeader class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: MakeInputDataHeader.h,v 1.2 2008-02-27 21:59:41 gemmeren Exp $
  **/
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -34,12 +33,9 @@ class MakeInputDataHeader : public ::AthReentrantAlgorithm {
 public:
    /// Standard Algorithm Constructor
    MakeInputDataHeader(const std::string& name, ISvcLocator* pSvcLocator);
-   /// Destructor
-   virtual ~MakeInputDataHeader();
    /// AthAlgorithm Interface method implementations:
    virtual StatusCode initialize() override;
    virtual StatusCode execute(const EventContext& ctx) const override;
-   virtual StatusCode finalize() override;
 
 private:
    /// StreamName, name of Stream to be made Input.

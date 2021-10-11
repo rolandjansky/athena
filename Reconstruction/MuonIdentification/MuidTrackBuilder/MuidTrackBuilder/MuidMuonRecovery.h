@@ -32,12 +32,13 @@ namespace Rec {
         MuidMuonRecovery(const std::string& type, const std::string& name, const IInterface* parent);
         ~MuidMuonRecovery() = default;
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
         /** IMuidMuonRecovery interface:
             algorithmic code for recovering muon spectrometer using the inner detector track */
-        Trk::Track* recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack) const;
+        std::unique_ptr<Trk::Track> recoverableMatch(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                     const EventContext& ctx) const override;
 
     private:
         // helpers, managers, tools
@@ -87,9 +88,9 @@ namespace Rec {
         double m_pullCut;
 
         // counters
-        mutable std::atomic<unsigned int> m_recoveryAttempts;
-        mutable std::atomic<unsigned int> m_recoveryFitFailure;
-        mutable std::atomic<unsigned int> m_recoverySuccess;
+        mutable std::atomic<unsigned int> m_recoveryAttempts{0};
+        mutable std::atomic<unsigned int> m_recoveryFitFailure{0};
+        mutable std::atomic<unsigned int> m_recoverySuccess{0};
 
     };  // end of class MuidMuonRecovery
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,9 +34,9 @@ class RpcCoinData : public RpcPrepData
     /** Public, Copy, operator=, constructor*/
     RpcCoinData();
     RpcCoinData(const RpcCoinData &);
-    RpcCoinData(RpcCoinData &&);
+    RpcCoinData(RpcCoinData &&) noexcept;
     RpcCoinData &operator=(const RpcCoinData &);
-    RpcCoinData &operator=(RpcCoinData &&);
+    RpcCoinData &operator=(RpcCoinData &&) noexcept;
 
     /** @brief Dumps information about the RpcCoinData*/
     virtual MsgStream&    dump( MsgStream&    stream) const;
@@ -49,7 +49,7 @@ class RpcCoinData : public RpcPrepData
                  const IdentifierHash &idDE,
                  const Amg::Vector2D& locpos,
                  const std::vector<Identifier>& stripList,
-                 const Amg::MatrixX* locErrMat,
+                 const Amg::MatrixX& locErrMat,
                  const MuonGM::RpcReadoutElement* detEl,
                  const float time,
                  const unsigned short ambiguityFlag,

@@ -24,36 +24,36 @@
 
 class RingerReFex : public IReAlgToolCalo
 {
-
+  
   public:
-
-
     class RingSet {
      
       public:
-        RingSet( unsigned int maxRings , 
-                 double deta, 
-                 double dphi, 
+        RingSet( unsigned int maxRings , double deta, double dphi, 
                  const std::vector<int> &detectors,
                  const std::vector<int> &samplings,
-                 const std::vector<int> &samples );
+                 const std::vector<int> &samples,
+                 bool doQuarter, bool doEtaAxesDivision, bool doPhiAxesDivision );
         
         ~RingSet()=default;
 
-        void push_back( const std::vector<const CaloCell *>& cells, const double eta_hot, const double phi_hot);
+        void buildRings( const double eta_hot, const double phi_hot);
 
-        const std::vector<double>& rings(void) const { return m_rings; };
-        
+        const std::vector<double>& rings() const;
         const std::vector<std::pair<int,int>>  detectors() const;
-      
-        bool isValid( const CaloCell *c ) const;
-
+        bool isValid( const CaloCell * ) const;
+        void push_back( const CaloCell * );
+        void clear();
+        void fill_cells_info(std::vector<float> &cells_eta, std::vector<float> &cells_phi, std::vector<float> &cells_et,  std::vector<int> &cells_sampling, std::vector<int> &cells_size, std::vector < double > &rings_sum);
+        
       private:
 
         double m_deltaEta, m_deltaPhi;
         std::vector<int> m_detectors, m_samplings, m_samples;
-        std::vector<double>  m_rings; 
+        bool m_doQuarter, m_doEtaAxesDivision, m_doPhiAxesDivision;
 
+        std::vector<const CaloCell*> m_cells;
+        std::vector<double>  m_rings; 
     };
 
 
@@ -71,8 +71,6 @@ class RingerReFex : public IReAlgToolCalo
                                const CaloDetDescrElement*& /*caloDDE*/,
                                const EventContext& context) const override;
 
-
-
   private:
 
 
@@ -82,8 +80,6 @@ class RingerReFex : public IReAlgToolCalo
     
     void printRings( std::vector<RingSet> &, const xAOD::TrigEMCluster & ) const;
 
-
-    unsigned m_maxRingsAccumulated;
     
     
     ToolHandle< GenericMonitoringTool >                m_monTool { this, "MonTool", "", "Monitoring tool"};
@@ -93,15 +89,22 @@ class RingerReFex : public IReAlgToolCalo
 
     Gaudi::Property<double>                        m_etaSearchWindowSize  {this, "EtaSearchWindowSize", 0.1,  ""};
     Gaudi::Property<double>                        m_phiSearchWindowSize  {this, "PhiSearchWindowSize", 0.1,  ""};
-    Gaudi::Property<bool>                          m_globalCenter{this, "GlobalCenter", false,  "Use cluster position as center" };
-    Gaudi::Property<bool>                          m_useTile     {this, "UseTile"     , true ,  "Use tile cells"                 };
     Gaudi::Property<std::vector<float>>            m_deltaEta    {this, "DeltaEta"    , {}   ,  "Eta step for each layer"        };
     Gaudi::Property<std::vector<float>>            m_deltaPhi    {this, "DeltaPhi"    , {}   ,  "Phi step for each layer"        };
     Gaudi::Property<std::vector<unsigned int>>     m_nRings      {this, "NRings"      , {}   ,  "Number of rings for each layer" };
-    Gaudi::Property<std::vector<float>>            m_etaBins     { this, "EtaBins"    , {}   , "Eta bins range cover by the reconstruction."};
-    Gaudi::Property<std::vector<std::vector<int>>> m_detectors   { this, "Detectors"  , {}   , "" };
-    Gaudi::Property<std::vector<std::vector<int>>> m_samplings   { this, "Samplings"  , {}   , "" };
-    Gaudi::Property<std::vector<std::vector<int>>> m_samples     { this, "Samples"    , {}   , "samples per layer" };
+    Gaudi::Property<std::vector<float>>            m_etaBins     {this, "EtaBins"    , {}   , "Eta bins range cover by the reconstruction."};
+    Gaudi::Property<std::vector<std::vector<int>>> m_detectors   {this, "Detectors"  , {}   , "" };
+    Gaudi::Property<std::vector<std::vector<int>>> m_samplings   {this, "Samplings"  , {}   , "" };
+    Gaudi::Property<std::vector<std::vector<int>>> m_samples     {this, "Samples"    , {}   , "samples per layer" };
+    
+    Gaudi::Property<bool>                          m_useTile     {this, "UseTile"     , true ,  "Use tile cells"                 };
+    Gaudi::Property<bool>                          m_decorateWithCells     {this, "DumpCells"     , false ,  "Dump Ringer Cells Information"                 };
+    Gaudi::Property<bool>                          m_globalCenter{this, "GlobalCenter", false,  "Use cluster position as center" };
+    Gaudi::Property<std::vector<bool>>             m_doQuarter     {this, "DoQuarter", {} ,  "Do Quarter Rings" };
+    Gaudi::Property<std::vector<bool>>             m_doEtaAxesDivision{this, "DoEtaAxesDivision", {} ,  "Do Eta axes division" };
+    Gaudi::Property<std::vector<bool>>             m_doPhiAxesDivision{this, "DoPhiAxesDivision",{},  "Do Phi axes division" };
+
+ 
 
 };
 #endif

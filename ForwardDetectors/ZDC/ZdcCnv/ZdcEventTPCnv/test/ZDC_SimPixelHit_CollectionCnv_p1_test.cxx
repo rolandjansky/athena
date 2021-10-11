@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -41,7 +41,7 @@ void compare (const ZDC_SimPixelHit_Collection& p1,
 
 void testit (const ZDC_SimPixelHit_Collection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   ZDC_SimPixelHit_CollectionCnv_p1 cnv;
   ZDC_SimPixelHit_Collection_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

@@ -20,7 +20,7 @@
 #include "D3PDMakerInterfaces/IObjGetterTool.h"
 #include "D3PDMakerUtils/SGKeyResolver.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 

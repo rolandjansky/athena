@@ -26,8 +26,10 @@
 ElectronDNNCalculator::ElectronDNNCalculator(AsgElectronSelectorTool* owner,
                                              const std::string& modelFileName,
                                              const std::string& quantileFileName,
-                                             const std::vector<std::string>& variables) :
-                                            asg::AsgMessagingForward(owner)
+                                             const std::vector<std::string>& variables,
+                                             const bool multiClass) :
+                                            asg::AsgMessagingForward(owner),
+                                            m_multiClass(multiClass)
 {
   ATH_MSG_INFO("Initializing ElectronDNNCalculator...");
 
@@ -53,8 +55,19 @@ ElectronDNNCalculator::ElectronDNNCalculator(AsgElectronSelectorTool* owner,
   // create the model
   inputFile.open(modelFileName);
   auto parsedGraph = lwt::parse_json_graph(inputFile);
-  m_graph = std::make_unique<lwt::generic::FastGraph<float>>(parsedGraph, order);
+  // Test whether the number of outputs of the given network corresponds to the expected number
+  size_t nOutputs = parsedGraph.outputs.begin()->second.labels.size();
+  if (nOutputs != 6 && nOutputs != 1){
+    throw std::runtime_error("Given model does not have 1 or 6 outputs. Something seems to be wrong with the model file.");
+  }
+  else if (nOutputs == 1 && m_multiClass){
+    throw std::runtime_error("Given model has 1 output but config file specifies mutliclass. Something is wrong");
+  }
+  else if (nOutputs == 6 && !m_multiClass){
+    throw std::runtime_error("Given model has 6 output but config file does not specify mutliclass. Something is wrong");
+  }
 
+  m_graph = std::make_unique<lwt::generic::FastGraph<float>>(parsedGraph, order);
 
   if (quantileFileName.empty()){
     throw std::runtime_error("No file found at '" + quantileFileName + "'");
@@ -62,16 +75,16 @@ ElectronDNNCalculator::ElectronDNNCalculator(AsgElectronSelectorTool* owner,
 
   // Open quantiletransformer file
   ATH_MSG_INFO("Loading QuantileTransformer " << quantileFileName);
-  TFile* qtfile = TFile::Open(quantileFileName.data());
+  std::unique_ptr<TFile> qtfile(TFile::Open(quantileFileName.data()));
   if (readQuantileTransformer((TTree*)qtfile->Get("tree"), variables) == 0){
-      throw std::runtime_error("Could not load all variables for the QuantileTransformer");
+    throw std::runtime_error("Could not load all variables for the QuantileTransformer");
 
   }
 }
 
 
-// takes the input variables, transforms them according to the given QuantileTransformer and predicts the DNN value
-double ElectronDNNCalculator::calculate( const MVAEnum::MVACalcVars& varsStruct ) const
+// takes the input variables, transforms them according to the given QuantileTransformer and predicts the DNN value(s)
+Eigen::Matrix<float, -1, 1> ElectronDNNCalculator::calculate( const MVAEnum::MVACalcVars& varsStruct ) const
 {
   // Create the input for the model
   Eigen::VectorXf inputVector(20);
@@ -99,11 +112,10 @@ double ElectronDNNCalculator::calculate( const MVAEnum::MVACalcVars& varsStruct 
   inputVector(19) = transformInput( m_quantiles.wtots1, varsStruct.wtots1);
 
   std::vector<Eigen::VectorXf> inp;
-  inp.push_back(inputVector);
+  inp.emplace_back(std::move(inputVector));
 
   auto output = m_graph->compute(inp);
-  double score = output(0);
-  return score;
+  return output;
 }
 
 
@@ -151,7 +163,7 @@ int ElectronDNNCalculator::readQuantileTransformer( TTree* tree, const std::vect
 
   std::map<std::string, double> readVars;
   for ( const auto& var : variables ){
-      sc = tree->SetBranchAddress(TString(var), &readVars[var]) == -5 ? 0 : 1;
+    sc = tree->SetBranchAddress(TString(var), &readVars[var]) == -5 ? 0 : 1;
   }
   for (int i = 0; i < tree->GetEntries(); i++){
     tree->GetEntry(i);

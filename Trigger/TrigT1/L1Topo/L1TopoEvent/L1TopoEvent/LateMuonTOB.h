@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent__LateMuonTOB
 #define L1TopoEvent__LateMuonTOB
@@ -20,10 +20,10 @@ namespace TCS {
 
 
       // default constructor
-      LateMuonTOB(uint32_t roiWord = 0, std::string tobName = "LateMuonTOB");
+      LateMuonTOB(uint32_t roiWord = 0, const std::string& tobName = "LateMuonTOB");
       
       // constructor with individual values
-      LateMuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "LateMuonTOB");
+      LateMuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, const std::string& tobName = "LateMuonTOB");
 
       // constructor with initial values
       LateMuonTOB(const LateMuonTOB & latemuon);

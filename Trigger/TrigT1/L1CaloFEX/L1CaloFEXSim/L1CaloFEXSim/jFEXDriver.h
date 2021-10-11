@@ -13,12 +13,14 @@
 #include "L1CaloFEXSim/jTowerBuilder.h"
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
 #include "L1CaloFEXToolInterfaces/IjFEXSysSim.h"
-#include "L1CaloFEXSim/jFEXSim.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 #include "xAODTrigger/jFexSRJetRoIContainer.h" 
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h" 
+
 
 class CaloIdManager;
 
@@ -35,7 +37,10 @@ class jFEXDriver : public AthAlgorithm
   virtual StatusCode initialize();
   virtual StatusCode execute(/*const EventContext& ctx*/);// const;
   StatusCode finalize();
-  virtual StatusCode testEDM();
+
+  virtual StatusCode testSRJetEDM();
+  virtual StatusCode testLRJetEDM();
+  virtual StatusCode testTauEDM();
 
  private: 
 
@@ -47,13 +52,16 @@ class jFEXDriver : public AthAlgorithm
 
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
-  SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetEDMKey {this, "myEDM", "L1_jFexSRJetRoI", "Reading container of jFexSRRoIs"};
+  SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetEDMKey {this, "myEDMSR", "L1_jFexSRJetRoI", "Reading container of jFexSRRoIs"};
+  SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jFexLRJetEDMKey {this, "myEDMLR", "L1_jFexLRJetRoI", "Reading container of jFexLRRoIs"};
+  SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jFexTauEDMKey {this, "myEDMTau", "L1_jFexTauRoI", "Reading container of jFexTauRoIs"};
+
 
   ToolHandle<IjTowerBuilder> m_jTowerBuilderTool {this, "jTowerBuilderTool", "LVL1::jTowerBuilder", "Tool that builds jTowers for simulation"};
   ToolHandle<IjSuperCellTowerMapper> m_jSuperCellTowerMapperTool {this, "jSuperCellTowerMapperTool", "LVL1::jSuperCellTowerMapper", "Tool that maps supercells to jTowers"};
   ToolHandle<IjFEXSysSim> m_jFEXSysSimTool {this, "jFEXSysSimTool", "LVL1::jFEXSysSim", "Tool that creates the jFEX System Simulation"};
 
-  std::map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
+  std::unordered_map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
 
 };
 

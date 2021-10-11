@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -21,11 +21,6 @@ namespace MuonCalib {
 
 //*****************************************************************************
 
-/////////////////////////////////////
-// SET LEGENDRE-POLYNOMIAL POINTER //
-/////////////////////////////////////
-
- Legendre_polynomial *Legendre_polynomial::s_polynomial_pointer=0;
 
 //*****************************************************************************
 
@@ -33,12 +28,9 @@ namespace MuonCalib {
 // METHOD get_Legendre_polynomial //
 ////////////////////////////////////
 
- Legendre_polynomial * Legendre_polynomial::get_Legendre_polynomial(void) {
-
-    if (s_polynomial_pointer == 0) {
-      s_polynomial_pointer = new Legendre_polynomial();
-    }
-    return s_polynomial_pointer;
+ const Legendre_polynomial * Legendre_polynomial::get_Legendre_polynomial(void) {
+    static const Legendre_polynomial s_polynomial; 
+    return &s_polynomial;
 
   }
 

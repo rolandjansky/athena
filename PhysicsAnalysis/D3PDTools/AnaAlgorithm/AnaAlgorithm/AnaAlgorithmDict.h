@@ -12,6 +12,7 @@
 #include "AnaAlgorithm/AnaAlgorithmWrapper.h"
 #include "AnaAlgorithm/AnaReentrantAlgorithmConfig.h"
 #include "AnaAlgorithm/AnaReentrantAlgorithmWrapper.h"
+#include "AnaAlgorithm/PythonConfigBase.h"
 #endif
 
 #endif

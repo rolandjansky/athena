@@ -12,12 +12,11 @@ PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.
 PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
 
 
-BTagCDIPath xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root
 
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMTopoJets_BTagging201810
+JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
@@ -57,8 +56,6 @@ PerfStats No
 
 ### Systematics configuration
 Systematics All
-JetUncertainties_NPModel CategoryReduction
-LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
@@ -73,7 +70,6 @@ PhotonID Tight
 PhotonIDLoose Loose
 PhotonIsolation FixedCutTight
 PhotonIsolationLoose FixedCutLoose
-PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
@@ -87,8 +83,6 @@ TauJetIDWP Medium
 TauJetIDWPLoose Medium
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
-TauEleOLR False
-TauEleOLRLoose False
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False
@@ -96,7 +90,6 @@ DoTight Both
 DoLoose Data
 
 # Turn on MetaData to pull IsAFII from metadata
-UseAodMetaData True
 #IsAFII False
 
 ### Boosted jet taggers configuration

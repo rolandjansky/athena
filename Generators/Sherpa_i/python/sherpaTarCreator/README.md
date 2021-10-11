@@ -4,7 +4,7 @@ Input tarballs containing integration results are often used to avoid a lengthy 
 
 # Setup
 
-The `sherpaTarCreator.py` script will be automatically available after `asetup` (since 21.6.49,AthGeneration). One crucial argument you need to specify when running it is the choice of batch system you are running on (`sherpaTarCreator.py -b <batchSystem>`). The default is set up for HTCondor on lxplus, and other options can be found with `sherpaTarCreator.py --help`
+The `sherpaTarCreator.py` script will be automatically available after `asetup`. One crucial argument you need to specify when running it is the choice of batch system you are running on (`sherpaTarCreator.py -b <batchSystem>`). The default is set up for HTCondor on lxplus, and other options can be found with `sherpaTarCreator.py --help`
 
 At the moment sherpaTarCreator is available for the batch systems HTCondor, LSF, Slurm and SGE. These are successfully tested on the clusters: naf, lxplus, taurus in Dresden, and Grace at UCL.
 If creating a new batch system setup, to make best use of the batch queues available at a given local cluster, you might want to adapt the memory requirements in the .py files for the correct batch system.
@@ -15,7 +15,7 @@ The JO can contain the following steering parameters for the tar creator:
 * `genSeq.Sherpa_i.RunCard` (mandatory): the RunCard of the process
 * `genSeq.Sherpa_i.NCores` (default=24): number of cores used for the integration
 * `genSeq.Sherpa_i.MemoryMB` (default=2500): reserved memory for the integration
-* `genSeq.Sherpa_i.OpenLoopsLibs` (default=[]): list of needed OpenLoops libraries -- this is usually not needed anymore for Sherpa >=2.2.8 in Athena >=21.6.13 since they can be read from the central cvmfs installation (`/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/proclib/`) and thus don't need to be included in the tarball anymore. In case you need a library that is not included in cvmfs you can add it through `OpenLoopsLibs`.
+* `genSeq.Sherpa_i.OpenLoopsLibs` (default=[]): list of needed OpenLoops libraries -- this is usually not needed since they can be read from the central cvmfs installation (`${OPENLOOPSPATH}/proclib/`) and thus don't need to be included in the tarball anymore. In case you need a library that is not included in cvmfs you can add it through `OpenLoopsLibs`.
 * `genSeq.Sherpa_i.ExtraFiles` (default=[]): list of extra files which should end up in the tarball (if needed)
 
 Example for a setup with a few options:
@@ -27,14 +27,25 @@ genSeq.Sherpa_i.ExtraFiles = [ "libSherpaFastjetMAXHTPTV.so" ]
 
 # Starting the input tarball creation
 * Create the `mc.*.py` JO in a fresh working directory:
-```
-$ ls myExampleSetup/
-mc.Sh_Example.py
-```
+  ```
+  $ ls myExampleSetup/
+  mc.Sh_Example.py
+  ```
 * Optional: Copy or link additional needed files into the working directory, like "libSherpaFastjetMAXHTPTV.so" (these files have to be listed in "genSeq.Sherpa_i.ExtraFiles" in the JO in order to end up in the tarball)
-* `asetup 21.6.xy,AthGeneration`
-* Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster: `sherpaTarCreator.py myExampleSetup -d`
-* Start sherpaTarCreator and submit jobs to the cluster: `sherpaTarCreator.py myExampleSetup`
+* Setup environment
+  ```
+  asetup 22.6.xy,AthGeneration
+  ```
+* Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster:
+  ```
+  sherpaTarCreator.py myExampleSetup -d
+  ```
+* Start sherpaTarCreator and submit jobs to the cluster:
+  ```
+  sherpaTarCreator.py myExampleSetup
+  ```
+
+You can learn about various options using `sherpaTarCreator.py --help`. An important one is the `--ecm 13.0` default, which you would have to change if you want to generate tarballs for other sqrt(s).
 
 # Monitoring the progress
 

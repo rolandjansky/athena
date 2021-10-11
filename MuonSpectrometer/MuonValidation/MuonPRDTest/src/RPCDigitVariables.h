@@ -45,30 +45,23 @@ class RpcDigitVariables : public ValAlgVariables
 
   int m_RPC_nDigits;
   std::vector<std::string> m_RPC_dig_stationName;
+  std::vector<double> m_RPC_dig_time;
   std::vector<int> m_RPC_dig_stationEta;
   std::vector<int> m_RPC_dig_stationPhi;
   std::vector<int> m_RPC_dig_gas_gap;
-  std::vector<int> m_RPC_dig_stationEtaMin;
-  std::vector<int> m_RPC_dig_stationEtaMax;
-  std::vector<int> m_RPC_dig_stationPhiMin;
-  std::vector<int> m_RPC_dig_stationPhiMax;
   std::vector<int> m_RPC_dig_doubletR;
   std::vector<int> m_RPC_dig_doubletZ;
   std::vector<int> m_RPC_dig_doubletPhi;
-  std::vector<int> m_RPC_dig_doubletRMin;
-  std::vector<int> m_RPC_dig_doubletRMax;
-  std::vector<int> m_RPC_dig_doubletZMin;
-  std::vector<int> m_RPC_dig_doubletZMax;
-  std::vector<int> m_RPC_dig_doubletPhiMin;
-  std::vector<int> m_RPC_dig_doubletPhiMax;
-  std::vector<int> m_RPC_dig_gas_gapMin;
-  std::vector<int> m_RPC_dig_gas_gapMax;
-
+  std::vector<int> m_RPC_dig_strip; 
+  std::vector<int> m_RPC_dig_channel;
+  std::vector<int> m_RPC_dig_stripNumber;
+  std::vector<bool> m_RPC_dig_measuresPhi;
+  
   std::vector< double > m_RPC_dig_localPosX;
   std::vector< double > m_RPC_dig_localPosY;
   std::vector< double > m_RPC_dig_globalPosX;
   std::vector< double > m_RPC_dig_globalPosY;
-  std::vector< double > m_RPC_dig_globalPosZ;
+  std::vector< double > m_RPC_dig_globalPosZ;  
 };
 
 #endif // MuonPRDTEST_RPCDigitVARIABLES_H

@@ -19,4 +19,4 @@ atlas_add_component( MuonPatternSegmentMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} MuonPatternSegmentMakerLib SGtests MuonReadoutGeometry MuonRIO_OnTrack MuonRecHelperToolsLib MuonEDM_AssociationObjects TrkParameters TrkSegment TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} MuonPatternSegmentMakerLib MuonReadoutGeometry MuonRIO_OnTrack MuonRecHelperToolsLib MuonEDM_AssociationObjects TrkParameters TrkSegment TrkToolInterfaces )

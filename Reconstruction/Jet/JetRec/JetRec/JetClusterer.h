@@ -1,6 +1,6 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_JETCLUSTERER_H
@@ -43,8 +43,10 @@ class JetClusterer
 
 public:
 
-  using asg::AsgTool::AsgTool;
-
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  JetClusterer(const std::string &name): AsgTool(name){}
+  
+  
   StatusCode initialize() override;
 
   /// Return the final jets with their aux store.
@@ -81,11 +83,10 @@ protected:
   fastjet::JetAlgorithm m_fjalg;
 
   
-  // support of variable R to be transferred to a dedicated IJetProvider
-  // Gaudi::Property<float> m_minrad        {this, "VariableRMinRadius", -1.0, "Variable-R min radius" };
-  // Gaudi::Property<float> m_massscale     {this, "VariableRMassScale", -1.0, "Variable-R mass scale" };
-  // bool m_isVariableR;  
-  // bool isVariableR()const { return m_isVariableR;}
+  Gaudi::Property<float> m_minrad        {this, "VariableRMinRadius", -1.0, "Variable-R min radius" };
+  Gaudi::Property<float> m_massscale     {this, "VariableRMassScale", -1.0, "Variable-R mass scale" };
+  bool m_isVariableR;  
+  bool isVariableR() const { return m_isVariableR;}
   
 };
 

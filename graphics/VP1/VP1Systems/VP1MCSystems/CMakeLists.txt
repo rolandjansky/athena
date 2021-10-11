@@ -22,6 +22,6 @@ atlas_add_library( VP1MCSystems VP1MCSystems/*.h src/*.h src/*.cxx src/*.qrc
                    PUBLIC_HEADERS VP1MCSystems
                    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES VP1Base StoreGateLib SGtests
+                   LINK_LIBRARIES VP1Base StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel GaudiKernel GeneratorObjects VP1Utils )
 

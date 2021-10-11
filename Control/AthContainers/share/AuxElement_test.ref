@@ -5,3 +5,5 @@ test_copy
 test_standalone
 test_decoration
 test_private_store
+test_const1
+test_const_decoration

@@ -8,13 +8,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCellGroup.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "CaloConditions/CaloNoise.h"
 
 class LArOnlineID;
-class ILArBadChannelMasker;
 
 class LArDSPThresholdFillInline:public AthAlgorithm {
  public:
@@ -34,8 +34,8 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
   std::vector<std::string> m_cellGroupStr;
   float m_tqThrsh, m_samplesThrsh;
   float m_maskedtqThrsh, m_maskedsamplesThrsh;
-  float m_sigmaNoiseSamples, m_sigmaNoiseQt;
-  bool m_usePileupNoiseSamples, m_usePileupNoiseQt;
+  float m_sigmaNoiseSamples = 0.0F, m_sigmaNoiseQt = 0.0F;
+  bool m_usePileupNoiseSamples = false, m_usePileupNoiseQt = false;
   bool m_dump, m_maskBadChannels;
   std::string m_outFileName, m_inFileName;
   bool m_fill;
@@ -45,7 +45,11 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
   SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
     { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
 
-  ToolHandle < ILArBadChannelMasker > m_badChannelMasker;
+  /** Handle to bad-channel mask */
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
 
   enum mode_t{
     FIXED,GROUP,NOISE

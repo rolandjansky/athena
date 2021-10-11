@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_BYTESTREAM2RAWCNV_H
@@ -11,6 +11,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -38,7 +39,7 @@ public:
   virtual StatusCode finalize();
 
   /// Fills rawContainer with collections from ROBFragment
-  StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer);
+  StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer) const;
 
   /// returns true if provided link corresponds to time-of-flight information
   bool isLinkToF (const unsigned int link) const {return ( (link == 12) || (link == 13));}
@@ -53,7 +54,7 @@ public:
   /// issued and nullptr is returned. If it is not, then it is created
   /// and pointer to the new collection is returned.
   AFP_SiRawCollection* getCollectionSi(//const unsigned int link, const unsigned int robId, 
-                                       AFP_RawContainer *container);
+                                       AFP_RawContainer *container) const;
 
   /// @brief Adds new time-of-flight collection to AFP_RawContainer
   ///
@@ -62,17 +63,19 @@ public:
   /// issued and nullptr is returned. If it is not, then it is created
   /// and pointer to the new collection is returned.
   AFP_ToFRawCollection* getCollectionToF(//const unsigned int link, const unsigned int robId, 
-                                         AFP_RawContainer *container);
+                                         AFP_RawContainer *container) const;
 
   /// Sets data header information for given argument based on #m_wordReadout
-  void setDataHeader (AFP_RawDataCommonHead* dataHead) const;
+  void setDataHeader (uint32_t the_word, AFP_RawDataCommonHead* dataHead) const;
   
 private:
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
-  AFP_WordReadOut m_wordReadout;
+  ToolHandle<AFP_WordReadOut> m_wordReadout {this, "AFP_WordReadOut", "AFP_WordReadOut", "Tool that reads word"};
   
   static const uint32_t s_siNoHitMarker = 15;
+
+
 };
 
 #endif //> !DECODER_AFP_DECODER_H

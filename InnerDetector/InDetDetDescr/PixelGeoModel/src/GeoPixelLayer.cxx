@@ -35,14 +35,14 @@
 
 GeoPixelLayer::GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
                              PixelGeometryManager* mgr)
-  : GeoVPixelFactory (ddmgr, mgr)
+  : GeoVPixelFactory (ddmgr, mgr),
+    m_supportPhysA (nullptr),
+    m_supportPhysC (nullptr),
+    m_supportMidRing (nullptr),
+    m_xformSupportA (nullptr),
+    m_xformSupportC (nullptr),
+    m_xformSupportMidRing (nullptr)
 {
-  m_supportPhysA=nullptr;
-  m_supportPhysC=nullptr;
-  m_supportMidRing=nullptr;
-  m_xformSupportA=nullptr;
-  m_xformSupportC=nullptr;
-  m_xformSupportMidRing=nullptr;
 }
 
 GeoVPhysVol* GeoPixelLayer::Build() {
@@ -70,16 +70,16 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
-  GeoPixelStaveSupport * staveSupport = nullptr;
+  std::unique_ptr<GeoPixelStaveSupport> staveSupport;
   if (staveLayout ==0 || staveLayout==1) {
-    staveSupport = new GeoPixelTMT (m_DDmgr, m_gmt_mgr);
+    staveSupport.reset( new GeoPixelTMT (m_DDmgr, m_gmt_mgr) );
   }
   if (staveLayout == 3) {
-    staveSupport = new GeoPixelSimpleStaveSupport (m_DDmgr, m_gmt_mgr);
+    staveSupport.reset( new GeoPixelSimpleStaveSupport (m_DDmgr, m_gmt_mgr) );
   }
   else if (staveLayout >3 && staveLayout <7)
   {
-    staveSupport = new GeoPixelDetailedStaveSupport (m_DDmgr, m_gmt_mgr);
+    staveSupport.reset( new GeoPixelDetailedStaveSupport (m_DDmgr, m_gmt_mgr));
   }
 
   if (staveLayout >3 && staveLayout <7)
@@ -97,7 +97,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   m_gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<m_gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
 
 
-  GeoPixelLadder pixelLadder(m_DDmgr, m_gmt_mgr, theSensor, staveSupport);
+  GeoPixelLadder pixelLadder(m_DDmgr, m_gmt_mgr, theSensor, staveSupport.get());
 
   //
   // layer radius, number of sectors and tilt used in various places
@@ -470,7 +470,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 
     }
 
-  delete staveSupport;
 
   return layerPhys;
 }

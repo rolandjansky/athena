@@ -14,9 +14,9 @@
 #define TRKSPACEPOINT_PIXELSPACEPOINT_H
 
 
-#include "Identifier/IdentifierHash.h"
-#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkSpacePoint/SpacePoint.h"
+
+class IdentifierHash;
 
 namespace Trk
 {
@@ -32,26 +32,26 @@ namespace InDet
    * A PixelSpacePoint is created from a PixelCluster.
    */
 
-  class PixelSpacePoint : public Trk::SpacePoint {
-    
+  class PixelSpacePoint final : public Trk::SpacePoint {
+
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
   public:
-    
+
     /** Default constructor */
     PixelSpacePoint() ;
 
     /** Parametrised constructor */
-    PixelSpacePoint( IdentifierHash elementId, 
+    PixelSpacePoint( IdentifierHash elementId,
                      const Trk::PrepRawData* clus);
-    
+
     /** add Covariance Matrix and global position directly */
     PixelSpacePoint( IdentifierHash elementId,
                      const Trk::PrepRawData* clus,
                      const Amg::Vector3D& globpos,
                      const Amg::MatrixX& globcov);
-    
+
     /** Copy constructor */
     PixelSpacePoint( const PixelSpacePoint & PSP);
 
@@ -62,23 +62,23 @@ namespace InDet
     PixelSpacePoint &operator=(const PixelSpacePoint &);
 
     /** Clones */
-    virtual SpacePoint* clone() const;       
+    virtual SpacePoint* clone() const override final;
 
     /** Interface method for output, to be overloaded by child classes */
-    virtual MsgStream&    dump( MsgStream& out ) const;  
+    virtual MsgStream&    dump( MsgStream& out ) const override final;
 
     /** Interface method for output, to be overloaded by child classes */
-    virtual std::ostream& dump( std::ostream& out ) const;
-      
+    virtual std::ostream& dump( std::ostream& out ) const override final;
+
 };
-  
+
   ///////////////////////////////////////////////////////////////////
   // Inline methods:
   ///////////////////////////////////////////////////////////////////
-  
+
   inline Trk::SpacePoint* PixelSpacePoint::clone() const
     {  return new PixelSpacePoint(*this);  }
-  
+
 } // end of namespace Trk
 
 

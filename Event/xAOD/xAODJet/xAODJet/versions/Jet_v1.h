@@ -24,6 +24,8 @@
 #include "xAODJet/JetTypes.h"
 #include "xAODJet/JetContainerInfo.h"
 
+#include "xAODJet/JetContainerFwd.h"
+
 namespace fastjet {
   class PseudoJet;
 }
@@ -350,7 +352,7 @@ namespace xAOD {
 } // namespace xAOD
 
 // Declare IParticle as a base class of Jet_v1:
-DATAVECTOR_BASE( xAOD::Jet_v1, xAOD::IParticle );
+DATAVECTOR_BASE_FIN( xAOD::Jet_v1, xAOD::IParticle );
 
 #include "xAODJet/versions/Jet_v1.icc"
 

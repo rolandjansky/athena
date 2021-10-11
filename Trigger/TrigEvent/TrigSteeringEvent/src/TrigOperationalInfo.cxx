@@ -57,10 +57,9 @@ void TrigOperationalInfo::updateAtLocation(unsigned int location, float value) {
 std::string str ( const TrigOperationalInfo& d ) {
   std::stringstream ss;
   std::pair<std::vector<std::string>, std::vector<float> > quantities = d.infos();
-  unsigned int i;
   std::vector<std::string>::const_iterator keyIt = quantities.first.begin();
   std::vector<float>::const_iterator valueIt     = quantities.second.begin();
-  for ( i = 0; i < quantities.first.size(); i++ ) {
+  for (unsigned int i = 0; i < quantities.first.size(); i++ ) {
     ss << " " << *keyIt << ": " << *valueIt;
     ++keyIt;
     ++valueIt;

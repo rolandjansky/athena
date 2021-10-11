@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOWERBUILDERTOOL_H
@@ -110,9 +110,9 @@ private:
   CaloTowerStore m_cellStore;
 
   virtual StatusCode checkSetup(MsgStream& log);
-  void addTower (const CaloTowerStore::tower_iterator tower_it,
+  static void addTower (const CaloTowerStore::tower_iterator tower_it,
                  const ElementLink<CaloCellContainer>& cellsEL,
-                 CaloTower* tower) const;
+                 CaloTower* tower) ;
   void iterateFull (CaloTowerContainer* towers,
                     const ElementLink<CaloCellContainer>& cellsEL) const;
   void iterateSubSeg (CaloTowerContainer* towers,

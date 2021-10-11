@@ -46,7 +46,7 @@ atlas_add_library( FastCaloSimLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib CaloEvent CaloIdentifier CaloInterfaceLib AthenaBaseComps AthenaKernel FastCaloSimAthenaPool FastSimulationEventLib GeneratorObjects Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib CaloEvent CaloIdentifier CaloInterfaceLib AthenaBaseComps AthenaKernel FastCaloSimAthenaPool FastSimulationEventLib GeneratorObjects Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthAllocators AthenaPoolUtilities AtlasDetDescr DetDescrCondToolsLib GeoPrimitives EventKernel NavFourMom TruthUtils PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
 
 atlas_add_component( FastCaloSim

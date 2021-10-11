@@ -46,15 +46,15 @@ Muon::IDC_Helper::addCollection( const Identifier collId,  IDC* idc, const IDHEL
             << endmsg;
         collId.show();
     }
-    
-    typename IDC::IDENTIFIABLE* collection=0;
+
+    std::unique_ptr<typename IDC::IDENTIFIABLE> collection;
     auto collptr = idc->indexFindPtr(idHash);
     if (collptr == nullptr) {
-        collection = new typename IDC::IDENTIFIABLE(idHash);
+        collection = std::make_unique<typename IDC::IDENTIFIABLE>(idHash);
         collection->setIdentifier(collId);
-        StatusCode status = idc->addCollection(collection, idHash );
+        StatusCode status = idc->addCollection(collection.get(), idHash );
         if (status.isFailure()) {
-          delete collection;
+          collection.reset();
           if (idc->indexFindPtr(idHash)) {
             log << MSG::ERROR << "Attempt to get unsafe access to external cache" << endmsg;
           }
@@ -65,6 +65,6 @@ Muon::IDC_Helper::addCollection( const Identifier collId,  IDC* idc, const IDHEL
     } else {
       log << MSG::ERROR << "Attempt to get unsafe access to external cache" << endmsg;
     }
-    return collection;
+    return collection.release();
 }
 

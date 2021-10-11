@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,18 +39,23 @@ namespace Trk {
      SaggedLineSurface();
 
      /** Constructor for private surface */
-     SaggedLineSurface(Amg::Transform3D* htrans, 
+     SaggedLineSurface(const Amg::Transform3D& htrans, 
                        double radius,
                        double halez,
                        LineSaggingDescriptor* lsd);
 
-     SaggedLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
+     SaggedLineSurface(const Amg::Transform3D& htrans);
 
      /** Constructor for public surface */
      SaggedLineSurface(const TrkDetElementBase& detelement, const Identifier& id);
 
      /** Constructor for public surface */
-     SaggedLineSurface(const TrkDetElementBase& detelement, const Identifier& id, double wireLength, double wireTension, double linearDensity);
+     SaggedLineSurface(
+       const TrkDetElementBase& detelement,
+       const Identifier& id,
+       double wireLength,
+       double wireTension,
+       double linearDensity);
 
      /** Copy Constructor */
      SaggedLineSurface(const SaggedLineSurface& sls);
@@ -72,7 +77,7 @@ namespace Trk {
 
    protected:
      LineSaggingDescriptor*                         m_saggingDescriptor; //!< the distortion descriptor
-     CxxUtils::CachedValue<Amg::Vector3D>           m_lineDirection;     //!< nominal end position 
+     CxxUtils::CachedValue<Amg::Vector3D>           m_saggedLineDirection;     //!< nominal end position 
   };
  
 /** provide the Surface interface */

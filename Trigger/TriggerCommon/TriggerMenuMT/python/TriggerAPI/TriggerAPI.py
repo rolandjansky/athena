@@ -11,7 +11,7 @@ from TriggerMenuMT.TriggerAPI import SerializeAPI
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI' )
+    log = logging.getLogger(__name__)
     dbQueries = {}
     customGRL = None
     release   = None
@@ -159,7 +159,7 @@ class TriggerAPI:
 
 def main(dumpFullAPI=False):
     ''' Run some tests or dump the full pickle/json for CalibPath '''
-    log = logging.getLogger( 'TriggerMenuMT.TriggerAPI.main' )
+    log = logging.getLogger(__name__)
 
     if dumpFullAPI:
         for triggerPeriod in TriggerPeriod:

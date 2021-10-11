@@ -18,12 +18,13 @@ else()
    atlas_add_library( AnaAlgorithmLib
       AnaAlgorithm/Global.h
       AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/AnaAlgorithm.icc
-      Root/AnaAlgorithm.cxx
+      AnaAlgorithm/AnaReentrantAlgorithm.h
+      Root/AnaAlgorithm.cxx Root/AnaReentrantAlgorithm.cxx
       AnaAlgorithm/MessageCheck.h Root/MessageCheck.cxx
       PUBLIC_HEADERS AnaAlgorithm
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES AsgMessagingLib GaudiKernel AthenaBaseComps AsgTools StoreGateLib
-      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils )
+      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES}  )
 endif()
 
 # Dictionary for the package's types:

@@ -45,27 +45,19 @@ def LArShapeDumperCfg(flags):
     result.getService("PoolSvc").ReadCatalog += ["apcfile:poolcond/PoolCat_comcond_castor.xml"]
 
     if flags.LArShapeDump.doTrigger:
-        from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+        from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
         result.merge(getTrigDecisionTool(flags))
-        result.getPublicTool("TrigDecisionTool").TrigConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         result.merge(L1TriggerByteStreamDecoderCfg(flags))
 
     
-    masker = CompFactory.LArBadChannelMasker('LArBadChannelMasker')
-    masker.DoMasking=True
-    masker.ProblemsToMask=[
-         'deadReadout', 'deadPhys',
-         'almostDead', 'short',
-         'highNoiseHG','highNoiseMG','highNoiseLG'
-    ]
-
-
     result.merge(addFolders(flags,'/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<tag>LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00</tag>','LAR_OFL'))
     result.getService("IOVDbSvc").overrideTags+=['<prefix>/LAR/ElecCalibOfl/Shape/RTM/5samples1phase</prefix><tag>LARElecCalibOflShapeRTM5samples1phase-RUN2-UPD1-04</tag>']
 
     
+    print("Dumping flags: ")
+    flags.dump()
     dumperAlg=CompFactory.LArShapeDumper("LArShapeDumper")
     dumperAlg.CaloType = flags.LArShapeDump.caloType
     dumperAlg.Prescale = flags.LArShapeDump.prescale
@@ -76,10 +68,14 @@ def LArShapeDumperCfg(flags):
     dumperAlg.DumpChannelInfos = flags.LArShapeDump.dumpChannelInfos
     dumperAlg.DumpDisconnected = False
     dumperAlg.DigitsKey = flags.LArShapeDump.digitsKey
-    dumperAlg.BadChannelMasker = masker
+    dumperAlg.ProblemsToMask=['deadReadout', 'deadPhys','almostDead', 'short',
+                              'highNoiseHG','highNoiseMG','highNoiseLG']
     dumperAlg.LArShapeDumperTool=CompFactory.LArShapeDumperTool(DoShape=True)
     dumperAlg.FileName=flags.LArShapeDump.outputNtup
     dumperAlg.TriggerNames = flags.LArShapeDump.triggerNames
+    if flags.LAr.RawChannelSource == "calculated":
+       dumperAlg.ChannelsKey = "LArRawChannels_FromDigits"
+
     result.addEventAlgo(dumperAlg)
 
     if (flags.LArShapeDump.HECNoiseNtup!=""):
@@ -94,7 +90,9 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from LArShapeDumperFlags import addShapeDumpFlags
     addShapeDumpFlags(ConfigFlags)
-    ConfigFlags.Input.Files=['/scratch/wlampl/data18_13TeV/data18_13TeV.00357750.physics_Main.daq.RAW._lb0102._SFO-2._0003.data']
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files=defaultTestFiles.RAW
     ConfigFlags.LAr.ROD.forceIter=True
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg

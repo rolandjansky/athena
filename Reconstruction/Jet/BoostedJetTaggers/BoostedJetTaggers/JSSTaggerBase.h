@@ -36,6 +36,14 @@ class JSSTaggerBase :   public asg::AsgTool ,
 {
   ASG_TOOL_CLASS1(JSSTaggerBase, IJetDecorator )
 
+  public:
+
+    /// Initialize the tool
+    virtual StatusCode initialize() override;
+
+    /// Decorate jet collection with tagging info
+    virtual StatusCode decorate( const xAOD::JetContainer& jets ) const override;
+
   protected:
 
     /// Default constructor - to be used in all derived classes
@@ -43,12 +51,6 @@ class JSSTaggerBase :   public asg::AsgTool ,
 
     /// Default destructor - to be used in all derived classes
     ~JSSTaggerBase() {};
-
-    /// Initialize the tool
-    virtual StatusCode initialize() override;
-
-    /// Decorate jet collection with tagging info
-    virtual StatusCode decorate( const xAOD::JetContainer& jets ) const override;
 
     /// Decorate single jet with tagging info
     virtual StatusCode tag( const xAOD::Jet& jet ) const = 0;
@@ -64,6 +66,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidPtRangeHighKey{this, "ValidPtRangeHighName", "ValidPtRangeHigh", "SG key for ValidPtRangeHigh"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidPtRangeLowKey{this, "ValidPtRangeLowName", "ValidPtRangeLow", "SG key for ValidPtRangeLow"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidEtaRangeKey{this, "ValidEtaRangeName", "ValidEtaRange", "SG key for ValidEtaRange"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidKinRangeKey{this, "ValidKinRangeName", "ValidKinRange", "SG key for ValidKinRange"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidJetContentKey{this, "ValidJetContentName", "ValidJetContent", "SG key for ValidJetContent"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decValidEventContentKey{this, "ValidEventContentName", "ValidEventContent", "SG key for ValidEventContent"};
     
@@ -221,6 +224,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decWeightKey{this, "weightName", "weight", "SG key for weight"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decEfficiencyKey{this, "efficiencyName", "efficiency", "SG key for efficiency"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_decEffSFKey{this, "effSFName", "effSF", "SG key for effSF"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_decSigeffSFKey{this, "sigeffSFName", "sigeffSF", "SG key for effSF"};    
 
     /// Get configReader StatusCode
     StatusCode getConfigReader();
@@ -242,7 +246,8 @@ class JSSTaggerBase :   public asg::AsgTool ,
     StatusCode getWeight( const xAOD::Jet& jet, bool passSel, asg::AcceptData &acceptData ) const;
 
     /// Get scale factor and efficiency
-    std::pair<double,double> getSF( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const;
+    std::pair<double,double> getSF( const xAOD::Jet& jet, std::string truthLabelStr ) const;
+    std::string getTruthLabelStr( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const;
 
     /// Print configured cuts
     void printCuts() const;

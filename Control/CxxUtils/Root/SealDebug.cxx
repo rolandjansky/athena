@@ -115,7 +115,7 @@ static const int MAX_BACKTRACE_DEPTH = 128;
 namespace {
 
 
-std::string addr2LinePath = "/usr/bin/addr2line";
+std::string addr2LinePath = "/usr/bin/eu-addr2line";
 
 
 struct ATLAS_NOT_THREAD_SAFE BacktraceInit
@@ -127,9 +127,30 @@ struct ATLAS_NOT_THREAD_SAFE BacktraceInit
     void* trace[1];
     backtrace (trace, 1);
 
-    // Also test for eu-addr2line.
-    if (access ("/usr/bin/eu-addr2line", F_OK) == 0)
-      addr2LinePath = "/usr/bin/eu-addr2line";
+    if (access (addr2LinePath.c_str(), F_OK) == 0) {
+      return;
+    }
+
+    // Search PATH for addr2line / eu-addr2line.
+    std::string path = getenv ("PATH");
+    while (!path.empty()) {
+      std::string::size_type pos = path.find (':');
+      std::string dir = path.substr (0, pos);
+      if (pos != std::string::npos) ++pos;
+      path.erase (0, pos);
+
+      std::string p1 = dir + "/eu-addr2line";
+      if (access (p1.c_str(), F_OK) == 0) {
+        addr2LinePath = p1;
+        break;
+      }
+
+      std::string p2 = dir + "/addr2line";
+      if (access (p2.c_str(), F_OK) == 0) {
+        addr2LinePath = p2;
+        break;
+      }
+    }
   }
 };
 BacktraceInit backtraceInit;

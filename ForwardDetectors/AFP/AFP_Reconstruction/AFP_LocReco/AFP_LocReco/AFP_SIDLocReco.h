@@ -18,6 +18,9 @@
 #include "AthenaKernel/errorcheck.h" // CHECK( )
 #include "AthenaBaseComps/AthMsgStreamMacros.h" 
 
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 #include "AFP_Geometry/AFP_GeometryTool.h"
 #include "CLHEP/Geometry/Point3D.h"
 
@@ -47,6 +50,7 @@ class AFP_SIDLocReco : public AthReentrantAlgorithm
 	private:
 		AFP_CONFIGURATION m_Config;
 		ToolHandle<AFP_GeometryTool> m_pGeometry {this, "AFP_Geometry", "AFP_GeometryTool", "Tool that provides AFP geometry"};
+		ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "Monitoring tool"};
 
 		SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "name of EventInfo container" };
 		SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_AFPSiHitContainerKey { this, "AFPSiHitsContainerName", "AFPSiHitContainer", "name of AFPSiHit container" };
@@ -60,10 +64,10 @@ class AFP_SIDLocReco : public AthReentrantAlgorithm
 	private:
 
 		//slope and X,Y,Z-pos for SID plates [4][6]
-		Float_t m_fsSID[SIDSTATIONID][SIDCNT];
-		Float_t m_fxSID[SIDSTATIONID][SIDCNT];
-		Float_t m_fySID[SIDSTATIONID][SIDCNT];
-		Float_t m_fzSID[SIDSTATIONID][SIDCNT];
+		Float_t m_fsSID[SIDSTATIONID][SIDCNT]{};
+		Float_t m_fxSID[SIDSTATIONID][SIDCNT]{};
+		Float_t m_fySID[SIDSTATIONID][SIDCNT]{};
+		Float_t m_fzSID[SIDSTATIONID][SIDCNT]{};
 	
 	public:
 		StatusCode initialize();
@@ -78,7 +82,7 @@ class AFP_SIDLocReco : public AthReentrantAlgorithm
 		std::list<SIDHIT> AFPCollectionReading(SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, SG::ReadHandle<xAOD::EventInfo> eventInfo) const;
 
 		// perform the track reconstrution
-		StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const;
+		StatusCode ExecuteRecoMethod(const std::string& strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const;
 };
 
 #endif	//AFP_TDLOCRECO_h

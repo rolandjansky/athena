@@ -1,4 +1,7 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "EventSelectorByteStream.h"
 
 #include <vector>
@@ -902,7 +905,7 @@ StatusCode EventSelectorByteStream::makeServer(int /*num*/) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   return(m_eventStreamingTool->makeServer(1));
+   return(m_eventStreamingTool->makeServer(1, ""));
 }
 
 //________________________________________________________________________________
@@ -911,7 +914,8 @@ StatusCode EventSelectorByteStream::makeClient(int /*num*/) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   return(m_eventStreamingTool->makeClient(0));
+   std::string dummyStr;
+   return(m_eventStreamingTool->makeClient(0, dummyStr));
 }
 
 //________________________________________________________________________________

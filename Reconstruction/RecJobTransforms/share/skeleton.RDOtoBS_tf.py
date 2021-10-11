@@ -7,10 +7,10 @@
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
-# disable ESD object making, but still enable trigger
+# disable ESD object making
 rec.doESD.set_Value_and_Lock(False)
-rec.doTrigger=True
-recAlgs.doTrigger.set_Value_and_Lock(True)
+
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('rdo_to_bs')
@@ -22,6 +22,7 @@ if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
 
 ##Outputs
 if hasattr(runArgs,"outputBSFile"):

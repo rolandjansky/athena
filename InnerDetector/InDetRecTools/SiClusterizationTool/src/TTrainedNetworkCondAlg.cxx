@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -20,7 +20,7 @@
 namespace InDet {
 
   TTrainedNetworkCondAlg::TTrainedNetworkCondAlg (const std::string& name, ISvcLocator* pSvcLocator)
-    : ::AthAlgorithm( name, pSvcLocator )
+    : ::AthReentrantAlgorithm( name, pSvcLocator )
   {}
 
   StatusCode TTrainedNetworkCondAlg::initialize() {
@@ -46,47 +46,54 @@ namespace InDet {
   }
 
   namespace {
-    template <class T> T *getObject(TFile &a_file, const std::string &path) {
-      std::unique_ptr<TObject> obj_raw(a_file.Get(path.c_str()));
-      T  *obj = dynamic_cast<T *>(obj_raw.get());
-      if (!obj) {
-        std::stringstream msg;
-        if (obj_raw != nullptr) {
-          msg << "Failed object "  << path << " from File " << a_file.GetName()
-              << " is not of type " << typeid(T).name() << " but " << typeid(obj_raw).name() << ".";
-        }
-        else {
-          msg << "Failed to get object "  << path << " from File " << a_file.GetName();
-        }
-        throw std::runtime_error( msg.str() );
-      }
-      obj_raw.release();
-      return obj;
+  template<class T>
+  std::unique_ptr<T>
+  getObject(TFile& a_file, const std::string& path)
+  {
+    std::unique_ptr<T> obj(dynamic_cast<T*>(a_file.Get(path.c_str())));
+    if (!obj) {
+      std::stringstream msg;
+      msg << "Failed object " << path << " from File " << a_file.GetName()
+          << " with type " << typeid(T).name();
+      throw std::runtime_error(msg.str());
     }
+    obj->SetDirectory(nullptr);
+    return obj;
+  }
   }
 
   TTrainedNetwork* TTrainedNetworkCondAlg::retrieveNetwork(TFile &input_file, const std::string& folder) const
   {
-    std::vector<TH1*> retrievedHistos;
-    const unsigned int layer_info = retrievedHistos.size();
+    //The following means that Histos we own get deleted at the end of this method
+    //when we are done with them.
+    std::vector<std::unique_ptr<TH1>> ownedRetrievedHistos;
+    const unsigned int layer_info = ownedRetrievedHistos.size();
     // the information about the layers
-    retrievedHistos.push_back( getObject<TH1>(input_file, folder+m_layerInfoHistogram.value()) );
+    ownedRetrievedHistos.push_back( getObject<TH1>(input_file, folder+m_layerInfoHistogram.value()) );
 
     if(!m_getInputsInfo){
       // the info about the input nodes 
-      retrievedHistos.push_back( getObject<TH2>(input_file, folder+"InputsInfo") );
+      ownedRetrievedHistos.push_back( getObject<TH2>(input_file, folder+"InputsInfo") );
     }
 
     // retrieve the number of hidden layers from the LayerInfo histogram
-    unsigned int  n_hidden = retrievedHistos.at(layer_info)->GetNbinsX()-2;
+    unsigned int  n_hidden = ownedRetrievedHistos.at(layer_info)->GetNbinsX()-2;
     ATH_MSG_VERBOSE(" Retrieving calibration: " << folder  << " for NN with: " << n_hidden << " hidden layers.");
 
-    retrievedHistos.reserve( retrievedHistos.size() + n_hidden*2 );
+    ownedRetrievedHistos.reserve( ownedRetrievedHistos.size() + n_hidden*2 );
     for (unsigned int  i=0; i<=n_hidden; ++i) {
       std::stringstream folder_name; 
       folder_name << folder <<  m_layerPrefix.value() << i;
-      retrievedHistos.push_back( getObject<TH2>(input_file, folder_name.str()+m_weightIndicator.value() ) );
-      retrievedHistos.push_back( getObject<TH1>(input_file, folder_name.str()+m_thresholdIndicator.value() ) );
+      ownedRetrievedHistos.push_back( getObject<TH2>(input_file, folder_name.str()+m_weightIndicator.value() ) );
+      ownedRetrievedHistos.push_back( getObject<TH1>(input_file, folder_name.str()+m_thresholdIndicator.value() ) );
+    }
+
+    //We need this in order to keep compatibility with legacy code
+    std::vector<const TH1*> retrievedHistos;
+    retrievedHistos.reserve(ownedRetrievedHistos.size());
+
+for(const auto & h: ownedRetrievedHistos){
+      retrievedHistos.push_back(h.get());
     }
 
     std::unique_ptr<TTrainedNetwork> a_nn(m_networkToHistoTool->fromHistoToTrainedNetwork(retrievedHistos));
@@ -101,15 +108,15 @@ namespace InDet {
   }
 
 
-  StatusCode TTrainedNetworkCondAlg::execute() {
+  StatusCode TTrainedNetworkCondAlg::execute(const EventContext& ctx) const {
 
-    SG::WriteCondHandle<TTrainedNetworkCollection > NnWriteHandle{m_writeKey};
+    SG::WriteCondHandle<TTrainedNetworkCollection > NnWriteHandle{m_writeKey, ctx};
     if (NnWriteHandle.isValid()) {
       ATH_MSG_DEBUG("Write CondHandle "<< NnWriteHandle.fullKey() << " is already valid");
       return StatusCode::SUCCESS;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
     if(!readHandle.isValid()) {
       ATH_MSG_ERROR("Invalid read handle " << m_readKey.key());
       return StatusCode::FAILURE;
@@ -141,7 +148,7 @@ namespace InDet {
       ATH_MSG_VERBOSE("Get NNs from file " << pfname.c_str() << " [" << coolguid << " <- " << readHandle.key() << "]." );
       std::unique_ptr<TFile> a_file( TFile::Open(pfname.c_str(),"READ") );
       if (!a_file || !a_file->IsOpen()) {
-        ATH_MSG_ERROR("Failed to open  file " << pfname << " referenced by " << readHandle.key());
+        ATH_MSG_ERROR("Failed to open  file " << pfname << " referenced by " << readHandle.key() << " GUID " << coolguid);
         return StatusCode::FAILURE;
       }
 

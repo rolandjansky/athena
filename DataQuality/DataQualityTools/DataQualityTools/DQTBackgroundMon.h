@@ -41,7 +41,6 @@ private:
     RHK<MBTSCollisionTime> m_MBTSCollisionTimeKey {this, "MBTSCollisionTimeKey", "MBTSCollisionTime", ""};
     RHK<TileCellContainer> m_TileCellContainerKey {this, "MBTSContainerName", "MBTSContainer", ""};
     RHK<LUCID_RawDataContainer> m_LUCID_RawDataContainerKey {this, "Lucid_RawDataKey","Lucid_RawData", ""};
-    RHK<Trk::SegmentCollection> m_SegmentCollectionKey {this, "MuonSegmentsKey", "MuonSegments", ""};
     RHK<BeamBackgroundData> m_BeamBackgroundDataKey {this, "BeamBackgroundDataKey", "BeamBackgroundData", ""};
     RHK<xAOD::VertexContainer> m_VertexContainerKey {this, "PrimaryVerticesKey", "PrimaryVertices", ""};
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoDecorKey{this,"eventInfoDecorKey",

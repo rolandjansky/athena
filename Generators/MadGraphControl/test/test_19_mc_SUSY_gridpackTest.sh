@@ -4,7 +4,7 @@
 # art-include: master/AthGeneration
 # art-description: MadGraph Event Generation Test - SUSY LO gridpack
 # art-type: grid
-# art-output: test_lhe_events.events
+# art-output: test_lhe_events.tar.gz
 # art-output: output_hists.root
 # art-output: dcube
 # art-html: dcube
@@ -12,7 +12,7 @@
 mkdir run_makeGridpack
 cd run_makeGridpack
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --jobConfig=950119 --outputTXTFile=fake_lhe_events --outputFileValidation=False
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --jobConfig=950119 --outputTXTFile=fake_lhe_events.tar.gz --outputFileValidation=False
 
 echo "art-result: $? gridpack_creation"
 
@@ -25,7 +25,7 @@ cp -r /cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/950xxx/950119/ .
 # Wildcard match in order to check for errors in naming
 cp ../run_makeGridpack/mc*.tar.gz 950119/
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events --jobConfig=./950119
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events.tar.gz --jobConfig=./950119
 
 echo "art-result: $? Gen_tf"
 
@@ -33,7 +33,7 @@ simple_lhe_plotter.py test_lhe_events.events
 
 echo "art-result: $? Plot"
 
-cp output_hists.root test_lhe_events.events ../
+cp output_hists.root test_lhe_events.tar.gz ../
 cd ..
 
 dcubeName="LHE"

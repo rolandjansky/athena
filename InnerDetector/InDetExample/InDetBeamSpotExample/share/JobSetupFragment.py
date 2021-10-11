@@ -1,4 +1,3 @@
-# $Id: JobSetupFragment.py 714548 2015-12-14 16:30:23Z amorley $
 #
 # Job option fragment for JobRunner templates to do common job setup.
 #
@@ -77,7 +76,7 @@ if 'GlobalTag' in jobConfig:
 
 
 # Configure beam spot service
-include("InDetBeamSpotService/BeamCondSvc.py")
+include("BeamSpotConditions/BeamCondAlgSetup.py")
 if jobConfig['beamspotfile']:
     db = jobConfig['beamspotdb'] if jobConfig['beamspotdb'] else 'BEAMSPOT'
     tag = jobConfig['beamspottag'] if jobConfig['beamspottag'] else 'nominal'
@@ -111,10 +110,3 @@ if jobConfig['alignmenttrttag']:
 if jobConfig['alignmenttrtdxtag']:
     conddb.addFolder('TRT_OFL','/TRT/Calib/DX')
     conddb.addOverride("/TRT/Calib/DX", jobConfig['alignmenttrtdxtag'])
-
-#if jobConfig['UseFilledBCIDsOnly']:
-#    # Setup trigger config service (needed for Bunch Crossing Tool)
-#    from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-#    trigcfg = SetupTrigConfigSvc()
-#    trigcfg.SetStates("ds")
-#    trigcfg.InitialiseSvc()

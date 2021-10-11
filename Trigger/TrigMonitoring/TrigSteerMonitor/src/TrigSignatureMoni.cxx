@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include <regex>
@@ -375,7 +375,7 @@ StatusCode TrigSignatureMoni::execute( const EventContext& context ) const {
   }
 
   if (l1SeededChains == nullptr || unprescaledChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder.");
+    ATH_MSG_ERROR("Unable to read in the summary from the HLTSeeding.");
     return StatusCode::FAILURE;
   }
 
@@ -607,7 +607,7 @@ TrigSignatureMoni::RateHistogram::~RateHistogram(){
 }
 
 StatusCode TrigSignatureMoni::RateHistogram::init( const std::string& histoName, const std::string& histoTitle,
-  const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc ){
+  const int x, const int y, const std::string& registerPath, const ServiceHandle<ITHistSvc>& histSvc ){
   std::unique_ptr<TH2> h = std::make_unique<TH2F>(histoName.c_str(), histoTitle.c_str(), x, 1, x + 1, y, 1, y + 1);
   ATH_CHECK( histSvc->regShared( registerPath.c_str(), std::move(h), m_histogram));
   
@@ -618,11 +618,11 @@ StatusCode TrigSignatureMoni::RateHistogram::init( const std::string& histoName,
   return StatusCode::SUCCESS;
 }
 
-LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getHistogram() const {
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getHistogram ATLAS_NOT_CONST_THREAD_SAFE () const {
   return m_histogram;
 }
 
-LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getBuffer() const {
+LockedHandle<TH2> & TrigSignatureMoni::RateHistogram::getBuffer ATLAS_NOT_CONST_THREAD_SAFE () const {
   return m_bufferHistogram;
 }
 
@@ -642,7 +642,7 @@ void TrigSignatureMoni::RateHistogram::startTimer(unsigned int duration, unsigne
 
 void TrigSignatureMoni::RateHistogram::stopTimer() {
   if (m_timer) {
-    m_timer.reset();
+    m_timer->stop();
     time_t t = time(0);
     unsigned int interval;
     unsigned int duration = m_timeDivider->forcePassed(t, interval);
@@ -658,7 +658,7 @@ void TrigSignatureMoni::RateHistogram::updatePublished(unsigned int duration) co
 }
 
 
-void TrigSignatureMoni::RateHistogram::callback() const {
+void TrigSignatureMoni::RateHistogram::callback() {
   // Ask time divider if we need to switch to new interval
   time_t t = time(0);
   unsigned int newinterval;

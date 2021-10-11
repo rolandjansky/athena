@@ -62,6 +62,9 @@ private:
     return val > 0 ? val : 0;
   }
 
+  // Get Eta bin for eta-dependent TRT-track cuts
+  unsigned int getEtaBin(const Trk::Perigee& perigee) const;
+
   Amg::Vector3D getPosOrBeamSpot(const EventContext& ctx,
                                  const xAOD::Vertex*) const;
 
@@ -75,6 +78,7 @@ private:
     "BeamSpotData",
     "SG key for beam spot"
   };
+
   /** Properties for track selection:all cuts are ANDed */
   double m_maxSiD0;    //!< Maximal d0 at (0,0,0) for tracks with Si hits
   double m_maxTrtD0;   //!< Maximal d0 at (0,0,0) for standalone TRT tracks
@@ -85,6 +89,8 @@ private:
   double m_trRatio2;   //!< TR ratio for tracks with 20-25 TRT hits
   double m_trRatio3;   //!< TR ratio for tracks with >25 TRT hits
   double m_trRatioTRT; //!< TR ratio for TRT only tracks
+  std::vector<double> m_TRTTrksEtaBins; //!< Eta bins (10 expected) for TRT-only track cuts
+  std::vector<double> m_TRTTrksBinnedRatioTRT; //!< Eta-binned eProbabilityHT for TRT-only track cuts
   double m_trRatioV0;  //!< TR ratio for pion selection during V0 reconstruction
   double m_sD0_Si;     //!< Cut on D0 significance of Si tracks
   double m_sD0_Trt;    //!< Cut on D0 significance of TRT tracks

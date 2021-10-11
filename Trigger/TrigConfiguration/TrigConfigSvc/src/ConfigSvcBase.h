@@ -33,8 +33,7 @@ namespace TrigConf {
    protected:
 
       // properties
-      std::string        m_configSourceString { "XML" };
-      std::string        m_xmlFile { "NONE" };
+      std::string        m_configSourceString { "none" };
       std::string        m_dbServer { "" };
       std::string        m_dbUser { "" };
       std::string        m_dbPassword { "" };

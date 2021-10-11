@@ -6,7 +6,7 @@ atlas_subdir( TrigL2MuonSA )
 # External dependencies:
 find_package( CLHEP )
 find_package( GSL )
-find_package( ROOT COMPONENTS Core Math )
+find_package( ROOT COMPONENTS Core MathCore )
 
 # Component(s) in the package:
 atlas_add_component( TrigL2MuonSA

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PhotonVertexSelection )
@@ -11,7 +11,7 @@ atlas_add_library( PhotonVertexSelectionLib
    PhotonVertexSelection/*.h Root/*.cxx
    PUBLIC_HEADERS PhotonVertexSelection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgDataHandlesLib AsgTools xAODEgamma xAODEventInfo xAODMetaData
    xAODTracking
    PRIVATE_LINK_LIBRARIES IsolationCorrectionsLib PathResolver )
 
@@ -30,5 +30,6 @@ atlas_add_dictionary( PhotonVertexSelectionDict
 # Test(s) in the package:
 if( NOT XAOD_ANALYSIS )
    atlas_add_test( PhotonVertexSelection_test
-      SCRIPT test/testPhotonVertexSelection.py )
+      SCRIPT test/testPhotonVertexSelection.py
+      POST_EXEC_SCRIPT nopost.sh )
 endif()

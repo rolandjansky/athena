@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -27,7 +27,7 @@ namespace InDet {
   // ----------------------------------
   VertexPointEstimator::VertexPointEstimator(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_maxChi2(20.)
+    m_maxChi2(20.), m_returnOnError(true)
   {
     declareInterface<VertexPointEstimator>(this);
     /// Cuts for selecting track pairs
@@ -77,6 +77,7 @@ namespace InDet {
     declareProperty("MaxDeltaR",              m_maxDr);
     declareProperty("MaxHl",                  m_maxHl);
     declareProperty("MaxPhi",                 m_maxPhi);
+    declareProperty("ReturnOnError",          m_returnOnError);
   }
 
   // ----------------------------------
@@ -125,7 +126,7 @@ namespace InDet {
   }
 
 
-  std::vector<std::string> VertexPointEstimator::decorKeys() const
+  std::vector<std::string> VertexPointEstimator::decorKeys() 
   {
     return {"deltaPhiTracks", "DR1R2"};
   }
@@ -246,6 +247,7 @@ namespace InDet {
     if (D == 0.) {
       ATH_MSG_DEBUG("Concentric circles, should not happen return (0,0,0)");
       errorcode = 1;
+      if(m_returnOnError) return intPoint;
     }
     U = D - RA[0] - RA[1]; // signed separation, if > 0., the circles do not intersect, if < 0., they might
     //  rotate, translate to a system, where the two circle centres lie on the X axis
@@ -312,6 +314,7 @@ namespace InDet {
         //Cut if distance of minimum approach is too big
         ATH_MSG_DEBUG("XY distance of minimum approach is too large, return (0,0,0)");
         errorcode = 2;
+        if(m_returnOnError) return intPoint;
       }
     }
     
@@ -351,6 +354,7 @@ namespace InDet {
     if (std::max(A,B) < minArcLength || std::max(A,B) > maxArcLength) {          // limit the minimum arc length
       ATH_MSG_DEBUG("Unacceptable arc length");
       errorcode = 5;
+      if(m_returnOnError) return intPoint;
     }
     
     int J = 0;
@@ -364,17 +368,20 @@ namespace InDet {
     if(deltaR>maxDr || deltaR<minDr){
       ATH_MSG_DEBUG("Unaceptable circle distance");
       errorcode = 6;
+      if(m_returnOnError) return intPoint;
     }
     
     if(hl>maxHl){
       ATH_MSG_DEBUG("Unacceptable h/D ratio");
       errorcode = 7;
+      if(m_returnOnError) return intPoint;
     }
     
     deltaPhi = PHI; // quick fix: cannot get rid of (double) PHI as it is passed by ref and deltaPhi is a float
     if(deltaPhi>maxPhi){
       ATH_MSG_DEBUG("Unacceptable difference in phi");
       errorcode = 8;
+      if(m_returnOnError) return intPoint;
     }
 
     return intPoint;
@@ -498,7 +505,7 @@ namespace InDet {
   }
 
   // ----------------------------------
-  bool VertexPointEstimator::secondDegree(double a, double b, double c, double& y1, double& y2) const
+  bool VertexPointEstimator::secondDegree(double a, double b, double c, double& y1, double& y2) 
   {
     y1 = -999999999;
     y2 = -999999999;
@@ -513,7 +520,7 @@ namespace InDet {
   // ----------------------------------
   double VertexPointEstimator::areaTriangle(double a, double b,  // double c,
 					    double d, double e,  // double f,
-					    double g, double h) const { // double i)
+					    double g, double h) { // double i)
     double c = 1;
     double f = 1;
     double i = 1;

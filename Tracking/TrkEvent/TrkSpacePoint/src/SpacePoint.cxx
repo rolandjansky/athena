@@ -17,7 +17,7 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
-#include <cmath>
+#include <ostream>
 #include <new>
 
 namespace Trk

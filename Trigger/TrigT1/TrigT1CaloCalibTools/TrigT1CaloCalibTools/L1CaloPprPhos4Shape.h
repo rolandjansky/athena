@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -110,7 +110,7 @@ public:
 
    StatusCode Fill(const unsigned int ns_step, const unsigned int adc);
    StatusCode Fill(const unsigned int timeSlice, const unsigned int rodHeaderStep, const int adc);
-   StatusCode Fill(const unsigned int rodHeaderStep, const std::vector<int> adc);
+   StatusCode Fill(const unsigned int rodHeaderStep, const std::vector<int>& adc);
 
    StatusCode Finalize(void);
 
@@ -248,8 +248,8 @@ private:
    bool IsSignalSaturated(TH1* histo, const unsigned int saturationPoint) const;
    void CheckRisingSlope(TH1* histo, unsigned int peakBin, float peakValue);
 
-   std::string GetPlotName(const std::string base, const L1CaloCoolChannelId& coolId) const;
-   std::string GetPlotTitle(const std::string base, const L1CaloCoolChannelId& coolId) const;
+   std::string GetPlotName(const std::string& base, const L1CaloCoolChannelId& coolId) const;
+   std::string GetPlotTitle(const std::string& base, const L1CaloCoolChannelId& coolId) const;
    std::string CoolIdToString(const L1CaloCoolChannelId& coolId) const;
 
 };

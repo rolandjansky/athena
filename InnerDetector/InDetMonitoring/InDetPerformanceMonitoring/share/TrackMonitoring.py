@@ -146,7 +146,8 @@ for trackCollection in trackCollections:
                                                              triggerChainName = "Tracks",
                                                              #VxPrimContainerName = InDetKeys.PrimaryVertices(),
                                                              VxPrimContainerName = InDetKeys.xAODVertexContainer(), # Salva 24/OCT/2020 test for R22
-                                                             d0BsRange = 0.090,
+                                                             d0BsRange = 0.060,
+                                                             d0BsNbins = 60,
                                                              z0Range = 160.,
                                                              applyHistWeight = useWeightInMonitoring,
                                                              hWeightHistName = "h_eventMuVsTrkEta",

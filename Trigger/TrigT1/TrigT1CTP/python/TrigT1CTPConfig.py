@@ -2,73 +2,33 @@
 
 from TrigT1CTP.TrigT1CTPConf import LVL1CTP__CTPSimulation
 
-class DefaultCTPSimulation(LVL1CTP__CTPSimulation):
+class CTPSimulation(LVL1CTP__CTPSimulation):
 
-    def __init__(self, name = "DefaultCTPSimulation"):
-        super( DefaultCTPSimulation, self ).__init__( name )
+    def __init__(self, name = "CTPSimulation"):
+        super( CTPSimulation, self ).__init__( name )
 
         from AthenaCommon.Logging import logging
         self.log = logging.getLogger( 'CTPSimulation' )
 
-    def setDefaultRandomService(self, rndmSvc = 'AtRanluxGenSvc'):
-        # Random service is not needed anymore in Run 3 for CTP
-        pass
-        
-class CTPSimulation(DefaultCTPSimulation):
-    __slots__ = []
-    
-    def __init__(self, name = "CTPSimulation"):
-        super( CTPSimulation, self ).__init__( name )
 
-        self.setDefaultRandomService()
-        self.DoRNDM=True
-        self.DoPSCL=True
-        
-    def setDefaults(self, handle):
-        pass
-
-class CTPSimulationOnData(DefaultCTPSimulation):
+class CTPSimulationOnData(CTPSimulation):
     __slots__ = []
     
     def __init__(self, name = "CTPSimulation"):
         super( CTPSimulationOnData, self ).__init__( name )
 
-        self.setDefaultRandomService()
-        self.IsData = True 
-        self.PrescaleMode = 2
-        self.DoBPTX=True
-        self.DoNIM=True
-        self.DoRNDM=True
-        self.DoPSCL=False
+        self.IsData = True
         self.ForceBunchGroupPattern = False # on data we will take the bunchgroups from COOL
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'DSConfigSvc'):
-            # this case is still needed for reading Run 2 data configuration from the TriggerDB
-            self.TrigConfigSvc = "TrigConfigSvc"
 
-    def setDefaults(self, handle):
-        pass
 
-class CTPSimulationInReco(DefaultCTPSimulation):
+class CTPSimulationInReco(CTPSimulation):
     __slots__ = []
     
     def __init__(self, name = "CTPSimulation"):
         super( CTPSimulationInReco, self ).__init__( name )
 
-        self.setDefaultRandomService()
-        self.DoRNDM=True
-        self.DoPSCL=True
-        self.DoNIM=True
-        
-    def setDefaults(self, handle):
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        handle.DoCalo  = TriggerFlags.doCalo()
-        handle.DoMuon  = TriggerFlags.doMuon()
-        handle.DoBCM   = TriggerFlags.doBcm()
-        handle.DoLUCID = TriggerFlags.doLucid()
-        handle.DoZDC   = TriggerFlags.doZdc()
-            
-class CTPSimulationInDigi(DefaultCTPSimulation):
+
+class CTPSimulationInDigi(CTPSimulation):
     __slots__ = []
     
     def __init__(self, name = "CTPSimulation"):
@@ -84,17 +44,9 @@ class CTPSimulationInDigi(DefaultCTPSimulation):
 
             self.RndmSvc = jobproperties.Digitization.rndmSvc()
             jobproperties.Digitization.rndmSeedList.addSeed(self.RndmEngine, 1979283043, 1924452189)
-        else:
-            self.setDefaultRandomService()
 
-    def setDefaults(self, handle):
-        DefaultCTPSimulation.setDefaults(handle)
-        handle.DoBPTX=False
-        handle.DoNIM=True
-        handle.DoRNDM=True
-        handle.DoPSCL=True
-        
-class CTPSimulationInOverlay(DefaultCTPSimulation):
+
+class CTPSimulationInOverlay(CTPSimulation):
     __slots__ = []
     
     def __init__(self, name = "CTPSimulation2", OverlayCTPRandomEngineName = "CTPSimulation2"):
@@ -111,8 +63,4 @@ class CTPSimulationInOverlay(DefaultCTPSimulation):
 
             self.RndmSvc = jobproperties.Digitization.rndmSvc()
             jobproperties.Digitization.rndmSeedList.addSeed(self.RndmEngine, 1979283043, 1924452189)
-        else:
-            self.setDefaultRandomService()
 
-    def setDefaults(self, handle):
-        DefaultCTPSimulation.setDefaults(handle)

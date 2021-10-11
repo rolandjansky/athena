@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigOnlineMonitor.TrigOnlineMonitorConf import TrigOpMonitor as _TrigOpMonitor
 from AthenaCommon.AlgSequence import AthSequencer
@@ -76,7 +76,7 @@ def TrigALFAROBMonitor():
       #detector
       monToolDetectors.defineHistogram(station + "_,PMF", type='TH2F', path='EXPERT', title=station + " activity;channels;PMF", xbins=64, xmin=0., xmax=64., ybins=23, ymin=1.,ymax=24.)
 
-      if station.find("U") is not -1:
+      if station.find("U") != -1:
          monToolTrackingElast.defineHistogram("elastic_" + station + ",y", type='TH2F', path='EXPERT', title=station + " f elastic;x;y",              xbins=260, xmin=-23., xmax=23., ybins=175, ymin=0.,ymax=35.)
          monToolTrackingAny.defineHistogram("ANY_" + station + ",y", type='TH2F', path='EXPERT', title=station + " f ANY;x;y",                        xbins=260, xmin=-23., xmax=23., ybins=175, ymin=0.,ymax=35.)
          monToolTrackingElast_SB.defineHistogram("elastic_" + station + "_SB,y", type='TH2F', path='EXPERT', title=station + " SB elastic ;x;y",      xbins=260, xmin=-23., xmax=23., ybins=175, ymin=0.,ymax=35.)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDSectionStore.h"
@@ -10,12 +10,7 @@
 AGDDSectionStore::AGDDSectionStore():m_currentSection(0)
 {
 }
-AGDDSectionStore* AGDDSectionStore::GetSectionStore()
-{
-	static AGDDSectionStore* theStore=new AGDDSectionStore;
-	return theStore;
-}
-AGDDSection* AGDDSectionStore::GetSection(std::string n)
+AGDDSection* AGDDSectionStore::GetSection(const std::string& n)
 {
 	if (m_theSections.find(n) != m_theSections.end())
 		return m_theSections[n];
@@ -34,10 +29,10 @@ void AGDDSectionStore::RegisterSection(AGDDSection *s)
 		m_theSections[n]=s;
 	m_currentSection=s;
 }
-void AGDDSectionStore::PrintAllSections()
+void AGDDSectionStore::PrintAllSections() const
 {
 	sectionList::const_iterator it;
-	for (it=m_theSections.begin();it!=m_theSections.end();it++)
+	for (it=m_theSections.begin();it!=m_theSections.end();++it)
 	{
 		(*it).second->Print();
 	}
@@ -46,7 +41,7 @@ void AGDDSectionStore::PrintAllSections()
 void AGDDSectionStore::Clean()
 {
 	sectionList::const_iterator it;
-	for (it=m_theSections.begin();it!=m_theSections.end();it++)
+	for (it=m_theSections.begin();it!=m_theSections.end();++it)
 	{
 		delete (*it).second;
 	}

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CLIDComps )
@@ -29,13 +29,13 @@ atlas_add_test( ClassIDSvc_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( clid
-                SCRIPT test/_clid_unittest.py
+                SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/clid_unittest.py
                 LOG_IGNORE_PATTERN "Ran 3 tests in" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_runtime( share/Gaudi_clid.db )
-atlas_install_scripts( share/clid test/_clid_unittest.py )
+atlas_install_scripts( util/clid )
 atlas_install_joboptions( share/*.opts )
 
 # Wait with the build of genCLIDDB until the jobOptions are installed:

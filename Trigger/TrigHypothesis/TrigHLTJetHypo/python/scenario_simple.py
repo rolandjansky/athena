@@ -23,7 +23,7 @@ all_elemental_keys = ('etaRange', 'jvt', 'smc', 'threshold', 'momCuts')
 
 # Extract moment cuts
 def _cuts_from_momCuts(momCuts):
-    separator = 'SEP'
+    separator = 'XX'
     args      = momCuts.split(separator)
     if len(args) > 1:
         return args
@@ -49,7 +49,7 @@ def get_condition_args_from_chainpart(cp):
     
     for k, v in cp_elemental_args.items():
         if k == 'threshold':
-            key = 'et'
+            key = 'pt'
             vals = defaults(key, lo=v)
             condargs.append((key, deepcopy(vals)))
                 
@@ -66,14 +66,16 @@ def get_condition_args_from_chainpart(cp):
             condargs.append((key, deepcopy(vals)))
                 
         if k == 'jvt':
-            key='jvt'
-            lo, hi = v.split(key)
-            vals = defaults(key, lo=lo, hi=hi)
+            key    = 'jvt'
+            values = v.split(key)
+            assert values[1] == '','jvt condition takes only one argument, two were given' # protection when an upper (not supported) cut is requested
+            lo   = values[0]
+            vals = defaults(key, lo=lo)
             condargs.append((key, deepcopy(vals)))
 
         if k == 'momCuts':
             from TrigHLTJetHypo.FastReductionAlgToolFactory import jetMoments
-            if 'SEP' in v: # several moment cuts are requested
+            if 'XX' in v: # several moment cuts are requested
 
                 # loop over requested moment strings
                 for cutstr in _cuts_from_momCuts(v): 

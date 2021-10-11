@@ -13,15 +13,13 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 namespace Trk {
 /**
 This algorithm creates a calo extension collection and stores it in a Gaudi Gate
@@ -102,6 +100,6 @@ private:
     "Key of TRT_DetElementContainer"
   };
 };
-}
+} // namespace Trk
 
 #endif //

@@ -33,8 +33,9 @@ class LArSCellGetter ( Configured )  :
 
 # Only MC case
 
-        from LArROD.LArSuperCellBuilderAlgDefault import LArSuperCellBuilderAlgDefault
+        from LArROD.LArSuperCellBuilderAlgDefault import LArSuperCellBuilderAlgDefault,LArSuperCellBCIDAlgDefault
         topSequence+=LArSuperCellBuilderAlgDefault()
+        topSequence+=LArSuperCellBCIDAlgDefault()
 
 
         return True

@@ -1,9 +1,5 @@
-#include "../LArADC2MeVTool.h"
-#include "../LArAutoCorrNoiseTool.h"
-#include "../LArAutoCorrTotalTool.h"
 //#include "LArRecUtils/LArCellFakeProbHV.h"
 //#include "LArRecUtils/LArHVGeometryTool.h"
-#include "../LArOFCTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
 #include "LArRecUtils/LArShapePeakRecoTool.h"
@@ -13,6 +9,7 @@
 #include "../LArFCalTowerBuilderToolTestAlg.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
+#include "../LArLATOMEMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
 #include "../LArFebRodMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
@@ -27,12 +24,8 @@
 #include "../LArFEBConfigCondAlg.h"
 
 
-DECLARE_COMPONENT( LArADC2MeVTool )
-DECLARE_COMPONENT( LArAutoCorrNoiseTool )
-DECLARE_COMPONENT( LArAutoCorrTotalTool )
 //DECLARE_COMPONENT( LArCellFakeProbHV )
 //DECLARE_COMPONENT( LArHVGeometryTool )
-DECLARE_COMPONENT( LArOFCTool )
 DECLARE_COMPONENT( LArOFPeakRecoTool )
 DECLARE_COMPONENT( LArParabolaPeakRecoTool )
 DECLARE_COMPONENT( LArShapePeakRecoTool )
@@ -46,6 +39,7 @@ DECLARE_COMPONENT( LArCondAlgDAC2uASC )
 DECLARE_COMPONENT( LArCondAlgHVScaleCorrFlat )
 DECLARE_COMPONENT( LArCondAlgHVScaleCorrSC )
 DECLARE_COMPONENT( LArCondAlgMinBiasSC )
+DECLARE_COMPONENT( LArCondAlgMinBiasAverageSC )
 DECLARE_COMPONENT( LArCondAlgMphysOverMcalFlat )
 DECLARE_COMPONENT( LArCondAlgMphysOverMcalSC )
 DECLARE_COMPONENT( LArCondAlgNoiseSC )
@@ -60,6 +54,7 @@ DECLARE_COMPONENT( LArCondAlgfSamplSC )
 DECLARE_COMPONENT( LArCondAlguA2MeVFlat )
 DECLARE_COMPONENT( LArCondAlguA2MeVSC )
 DECLARE_COMPONENT( LArOnOffMappingAlg )
+DECLARE_COMPONENT( LArLATOMEMappingAlg )
 DECLARE_COMPONENT( LArCalibLineMappingAlg )
 DECLARE_COMPONENT( LArFebRodMappingAlg )
 DECLARE_COMPONENT( LArMCSymCondAlg )

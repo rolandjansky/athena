@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_CALOFCALRETRIEVER_H
@@ -12,10 +12,12 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRawConditions/LArADC2MeV.h"
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class IToolSvc;
 
@@ -70,6 +72,9 @@ namespace JiveXML{
       const CaloCell_ID*   m_calocell_id;
       SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     
+      SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+        { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
+
       /// for properties
       std::string m_sgKey; 
       double m_cellThreshold;

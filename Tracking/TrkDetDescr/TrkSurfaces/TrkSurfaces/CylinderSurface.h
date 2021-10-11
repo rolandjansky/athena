@@ -45,6 +45,8 @@ class ParametersT;
  @image html CylinderSurface.gif
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class CylinderSurface : public Surface
@@ -52,32 +54,44 @@ class CylinderSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cylinder;
+  static constexpr SurfaceType staticType = SurfaceType::Cylinder;
 
   /**Default Constructor*/
   CylinderSurface();
 
-  /**Constructor from EigenTransform, radius and halflength*/
-  CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
+  /**Copy constructor */
+  CylinderSurface(const CylinderSurface& csf);
+
+  /**Assignment operator*/
+  CylinderSurface& operator=(const CylinderSurface& csf);
+
+  /**Move constructor */
+  CylinderSurface(CylinderSurface&& csf) noexcept = default;
+
+  /**Move Assignment operator*/
+  CylinderSurface& operator=(CylinderSurface&& csf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~CylinderSurface() = default;
 
   /**Constructor from EigenTransform, radius and halflength*/
-  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
+  CylinderSurface(const Amg::Transform3D& htrans,
                   double radius,
                   double hlength);
 
   /**Constructor from EigenTransform, radius halfphi, and halflength*/
-  CylinderSurface(Amg::Transform3D* htrans,
+  CylinderSurface(const Amg::Transform3D& htrans,
                   double radius,
                   double hphi,
                   double hlength);
 
   /**Constructor from EigenTransform and CylinderBounds
     - ownership of the bounds is passed */
-  CylinderSurface(Amg::Transform3D* htrans, CylinderBounds* cbounds);
+  CylinderSurface(const Amg::Transform3D& htrans, CylinderBounds* cbounds);
 
   /**Constructor from EigenTransform from unique_ptr.
      - bounds is not set */
-  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
+  CylinderSurface(const Amg::Transform3D& htrans);
 
   /** Constructor from radius and halflength - speed optimized for concentric
    * volumes */
@@ -92,24 +106,16 @@ public:
       - speed optimized fron concentric volumes */
   CylinderSurface(CylinderBounds* cbounds);
 
-  /**Copy constructor */
-  CylinderSurface(const CylinderSurface& csf);
-
-  /**Copy constructor with shift */
+   /**Copy constructor with shift */
   CylinderSurface(const CylinderSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~CylinderSurface();
-
-  /**Assignment operator*/
-  CylinderSurface& operator=(const CylinderSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
   /**Implicit Constructor*/
   virtual CylinderSurface* clone() const override;
-
+  
+  std::unique_ptr<CylinderSurface> uniqueClone() const;
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
@@ -243,7 +249,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 
@@ -294,7 +300,8 @@ protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
 
-  SharedObject<const CylinderBounds> m_bounds; //!< bounds (shared)
+  //!< bounds (shared)
+  SharedObject<const CylinderBounds> m_bounds;
   //!< The global reference point (== a point on the  surface)
   CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis

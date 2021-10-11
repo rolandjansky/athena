@@ -42,26 +42,26 @@ namespace MuonCombined {
         MuonSegmentTagTool(const std::string& type, const std::string& name, const IInterface* parent);
         ~MuonSegmentTagTool() = default;
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize()override;
+        StatusCode finalize()override;
 
         /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */
-        void tag(const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments,
-                 InDetCandidateToTagMap* tagMap) const;
-        void tag(const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments,
-                 SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap) const;
+        void tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments,
+                 InDetCandidateToTagMap* tagMap) const override;
+        void tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments,
+                 SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap) const override;
 
     private:
-        void printTable(std::vector<std::string> didEx, std::vector<std::string> segStation,
-                        std::vector<std::vector<std::string>> segToSurf, MSSurfaces& surfaces) const;  //!< method for extra DEBUG
+        void printTable(const std::vector<std::string>& didEx, const std::vector<std::string> &segStation,
+                       const std::vector<std::vector<std::string>>& segToSurf, MSSurfaces& surfaces) const;  //!< method for extra DEBUG
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                               "Handle to the service providing the IMuonEDMHelperSvc interface"};
 
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-        ToolHandle<IMuTagMatchingTool> p_MuTagMatchingTool{this, "MuTagMatchingTool", "MuTagMatchingTool/MuTagMatchingTool"};
-        ToolHandle<IMuTagAmbiguitySolverTool> p_MuTagAmbiguitySolverTool{this, "MuTagAmbiguitySolverTool",
+        ToolHandle<IMuTagMatchingTool> m_MuTagMatchingTool{this, "MuTagMatchingTool", "MuTagMatchingTool/MuTagMatchingTool"};
+        ToolHandle<IMuTagAmbiguitySolverTool> m_MuTagAmbiguitySolverTool{this, "MuTagAmbiguitySolverTool",
                                                                          "MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool"};
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool",
                                                                         "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",
@@ -96,11 +96,11 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_ignoreSiAssocated{this, "IgnoreSiAssociatedCandidates", true,
                                                   "If true, ignore InDetCandidates which are SiAssociated"};
 
-        mutable std::atomic_uint m_ntotTracks;
-        mutable std::atomic_uint m_nangleMatch;
-        mutable std::atomic_uint m_npmatch;
-        mutable std::atomic_uint m_natMSEntrance;
-        mutable std::atomic_uint m_naccepted;
+        mutable std::atomic_uint m_ntotTracks{0};
+        mutable std::atomic_uint m_nangleMatch{0};
+        mutable std::atomic_uint m_npmatch{0};
+        mutable std::atomic_uint m_natMSEntrance{0};
+        mutable std::atomic_uint m_naccepted{0};
         mutable std::array<std::atomic_int, 15> m_extrapolated ATLAS_THREAD_SAFE{
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // 15 is maximum possible size. Guarded by atomicity
         mutable std::array<std::atomic_int, 15> m_goodExtrapolated ATLAS_THREAD_SAFE{

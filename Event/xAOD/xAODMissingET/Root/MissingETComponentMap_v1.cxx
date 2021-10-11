@@ -29,7 +29,8 @@ MissingETComponentMap_v1::MissingETComponentMap_v1(SG::OwnershipPolicy own, SG::
   this->f_setupLookupCache(m_trackLinks,m_trackLinkReserve); 
 }
 
-MissingETComponentMap_v1::MissingETComponentMap_v1(MissingETComponentMap_v1::iterator first, MissingETComponentMap_v1::iterator last,
+MissingETComponentMap_v1::MissingETComponentMap_v1(const MissingETComponentMap_v1::iterator& first,
+                                                   const MissingETComponentMap_v1::iterator& last,
 						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETComponent_v1>(first,last,own,trackIndices)
 {
@@ -227,7 +228,7 @@ bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_v
       if( fIdx >= signalLinks.size() ) {
 	// if invalid, something probably went wrong in reconstruction, so complain
 	// this should raise an out-of-range exception
-	printf("MissingETComponentMap::f_checkObjectUsage(...) - ERROR - searching for a signal with index (%lu) beyond signal container range (%lu).", fIdx, signalLinks.size());
+	printf("MissingETComponentMap::f_checkObjectUsage(...) - ERROR - searching for a signal with index (%zu) beyond signal container range (%zu).", fIdx, signalLinks.size());
 	printf("MissingETComponentMap::f_checkObjectUsage(...) - ERROR - this may indicate an inconsistency in the signal containers.");	
       }
       // signal already used

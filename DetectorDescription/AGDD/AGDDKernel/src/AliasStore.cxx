@@ -1,17 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AliasStore.h"
 #include <iostream>
 
-AliasStore* AliasStore::GetAliasList()
-{
-	static AliasStore* theStore=new AliasStore;
-	return theStore;
-}
-
-void AliasStore::AddAlias(std::string tag,std::string alias)
+void AliasStore::AddAlias(const std::string& tag,const std::string& alias)
 {
 	if (this->find(tag)!=this->end())
 	{
@@ -21,7 +15,7 @@ void AliasStore::AddAlias(std::string tag,std::string alias)
 		(*this)[tag]=alias;
 }
 
-std::string AliasStore::Alias(std::string tag)
+std::string AliasStore::Alias(const std::string& tag)
 {
 	if (this->find(tag)!=this->end())
 		return (*this)[tag];
@@ -29,7 +23,7 @@ std::string AliasStore::Alias(std::string tag)
 		return tag;
 }
 
-bool AliasStore::IsAliased(std::string tag)
+bool AliasStore::IsAliased(const std::string& tag)
 {
 	if (this->find(tag)!=this->end())
 		return true;

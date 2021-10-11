@@ -17,14 +17,11 @@
  **     @author  mark sutton
  **     @date    Tue 16 May 2017 09:28:55 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfigMT_Tier0_H
 #define TrigInDetAnalysisExample_T_AnalysisConfigMT_Tier0_H
-
-
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
@@ -234,16 +231,6 @@ protected:
     // get (offline) beam position
     double xbeam = 0;
     double ybeam = 0;
-    if ( m_iBeamCondSvc ) {
-
-      const Amg::Vector3D& vertex = m_iBeamCondSvc->beamPos();
-      xbeam = vertex[0];
-      ybeam = vertex[1];
-
-      if(m_provider->msg().level() <= MSG::VERBOSE) {
-        m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
-      }
-    }
 
     if ( m_first ) {
 
@@ -373,10 +360,9 @@ protected:
     TrigTrackSelector selectorTest( &filterTest );
     m_selectorTest = &selectorTest;
 
-
-    m_selectorRef->setBeamline(  xbeam, ybeam );
-  
-    //   m_selectorRef->setBeamline(  -0.693, -0.617 );
+    if ( xbeam!=0 || ybeam!=0 ) { 
+      m_selectorRef->setBeamline(  xbeam, ybeam );
+    }  
 
     /// now start everything going for this event properly ...
 
@@ -467,7 +453,7 @@ protected:
     }
     
 
-    //    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
+    //    if ( (*m_tdt)->ExperimentalAndExpertMethods().isHLTTruncated() ) {
     //    m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
     //   return;
     //  }
@@ -570,9 +556,9 @@ protected:
       const std::string& chainname = m_chainNames[ichain].head();
       const std::string&       key = m_chainNames[ichain].tail();
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
-      const std::string&  roi_name = m_chainNames[ichain].roi();
-      const std::string&   te_name = m_chainNames[ichain].element();
-
+      //Not used left just in case
+      //const std::string&  roi_name = m_chainNames[ichain].roi();
+      //const std::string&  te_name = m_chainNames[ichain].element();
       m_pTthreshold = 0;  /// why does this need to be a class variable ???
 
       if ( m_chainNames[ichain].postcount() ) { 
@@ -698,7 +684,7 @@ protected:
 
 	//	std::cout << "\tgot rois collection: key: " << roi_key << "\tsize: " << rois.size() << std::endl;
 
-	for ( const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roi_info : rois ) {
+	for ( const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection>& roi_info : rois ) {
 	  
 	  iroi++;
 
@@ -1103,15 +1089,6 @@ protected:
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << "AnalysisConfigMT_Tier0::book() " << name() << endmsg;
 
-    // get the beam condition services - one for online and one for offline
-
-    m_iBeamCondSvc = 0;
-    if ( m_useBeamCondSvc ) { 
-      if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() && m_provider->msg().level() <= MSG::ERROR ) {
-	m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
-      }
-    }
-    
     // get the TriggerDecisionTool
 
     if( m_tdt->retrieve().isFailure() ) {
@@ -1362,9 +1339,6 @@ protected:
 
 
 protected:
-
-  IBeamCondSvc*  m_iBeamCondSvc;
-  IBeamCondSvc*  m_iOnlineBeamCondSvc;
 
   bool           m_useBeamCondSvc;
 

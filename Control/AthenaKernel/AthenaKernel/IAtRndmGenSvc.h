@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class IAtRndmGenSvc
@@ -7,7 +7,6 @@
   * 
   * @author Giorgos Stavropoulos <George.Stavropoulos@cern.ch> 
   * @author Paolo Calafiura <pcalafiura@lbl.gov> 
-  * $Id: IAtRndmGenSvc.h,v 1.9 2007-02-08 17:48:38 binet Exp $
   */
 
 #ifndef ATHENAKERNEL_IATRNDMGENSVC_H
@@ -23,6 +22,8 @@ namespace CLHEP {
 
 class IAtRndmGenSvc : virtual public IService {
 public:
+  DeclareInterfaceID( IAtRndmGenSvc, 1, 0);
+
   /// Interface to the CLHEP engine
   //@{
   virtual CLHEP::HepRandomEngine* GetEngine(const std::string& streamName)=0;
@@ -47,16 +48,6 @@ public:
   virtual void print(const std::string& streamName)=0;
   virtual void print()=0;
   //@}
-
-  /// Gaudi boilerplate
-  static const InterfaceID& interfaceID();
-  
 };
-inline
-const InterfaceID& 
-IAtRndmGenSvc::interfaceID() {
-  static const InterfaceID IID("IAtRndmGenSvc", 1, 0);
-  return IID;
-}
 
 #endif // ATHENAKERNEL_IATRNDMGENSVC_H

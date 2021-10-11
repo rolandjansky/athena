@@ -136,7 +136,7 @@ class yj(PowhegV2):
         self.add_keyword("rwl_add", 0)
         self.add_keyword("rwl_file", 'reweighting_needed_for_enhancedradfac.xml')
         self.add_keyword("rwl_format_rwgt")
-        self.add_keyword("rwl_group_events")
+        self.add_keyword("rwl_group_events", 20000)
         self.add_keyword("skipextratests")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
@@ -156,7 +156,11 @@ class yj(PowhegV2):
         self.add_keyword("xupbound", 2)
 
     def write_enhancedradfac_reweighting_file(self):
-        """Writes reweighting XML file needed for initial event generation."""
+        """Writes reweighting XML file needed for initial event generation.
+
+        Caution: it seems that the weight has to be called "default". Otherwise
+        Powheg will give an error.
+        """
         with open('reweighting_needed_for_enhancedradfac.xml', 'w') as xmlfile:
             contents = dedent('''\
             <initrwgt>

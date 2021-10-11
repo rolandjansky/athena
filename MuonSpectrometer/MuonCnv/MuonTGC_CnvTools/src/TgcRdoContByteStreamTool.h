@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRDOCONTRAWEVENTTOOL_H
@@ -53,7 +53,7 @@ namespace Muon {
       ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
       { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
 
-      TGC_Hid2RESrcID * m_hid2re; 
+      std::unique_ptr<TGC_Hid2RESrcID> m_hid2re; 
     };
 } // end of namespace 
 

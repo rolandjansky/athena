@@ -113,12 +113,13 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
 
     Gaudi::Property<bool> m_toroidOn{this, "ToroidOn", true, "Status of toroidal B-Field"};
 
-    mutable std::atomic_uint m_straightLineMatches;
-    mutable std::atomic_uint m_straightLineMatchesGood;
-    mutable std::atomic_uint m_overlapMatches;
-    mutable std::atomic_uint m_overlapMatchesGood;
-    mutable std::atomic_uint m_curvedMatches;
-    mutable std::atomic_uint m_curvedMatchesGood;
+    mutable std::atomic_uint m_straightLineMatches{0};
+    mutable std::atomic_uint m_straightLineMatchesGood{0};
+    mutable std::atomic_uint m_overlapMatches{0};
+    mutable std::atomic_uint m_overlapMatchesGood{0};
+    mutable std::atomic_uint m_curvedMatches{0};
+    mutable std::atomic_uint m_curvedMatchesGood{0};
+    mutable std::atomic_uint m_duplicateHitUses{0};
 
     bool m_isCosmics;
     bool m_doOverlapMatch;
@@ -126,7 +127,7 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
     bool m_doCurvedMatch;
     bool m_thetaMatch;
     bool m_phiMatch;
-    bool m_useLocalAngles;
+    bool m_useLocalAngles{};
 
     // cuts for straight line match
     double m_straightLineMatchAngleCut;
@@ -142,9 +143,9 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
     double m_overlapMatchPhiHitPullCut;  //!< cut on the average pull of the phi hits with the new segment parameters
 
     // cuts for matching segments from different stations
-    double m_angleABCut;
+    double m_angleABCut{};
     double m_maxDistSegments;         //!< cut on the maximum distance between the segments
-    double m_minDistSegmentsCosmics;  //!< cut on the minimum distance between the segments, if the distance is larger
+    double m_minDistSegmentsCosmics{};  //!< cut on the minimum distance between the segments, if the distance is larger
                                       //!< than the cut the segments are always matched (for cosmics)
     double m_matchingbibm_lphisec;
     double m_matchingbibo_lphisec;
@@ -159,7 +160,7 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
     double m_matchingeieo_sphisec;
     double m_matchingemeo_sphisec;
 
-    double m_matchingbee_sphisec;
+    double m_matchingbee_sphisec{};
 
     bool m_onlySameSectorIfTight;  //!< reject all segments in different sectors if in tight matching
     bool m_useTightCuts;           //!< only apply tight selection for busy combinations

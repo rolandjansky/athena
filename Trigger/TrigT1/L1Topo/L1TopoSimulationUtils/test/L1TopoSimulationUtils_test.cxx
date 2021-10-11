@@ -39,9 +39,9 @@ void test1()
     ClusterTOB cluster_fix0; // one cluster fixed at eta=0
     ClusterTOB cluster_var; // one cluster scanning eta values
 
-    for(double ieta : {23., 23.5, 24.}) {
+    for(double ieta : {10*2.30, 10*2.35, 10*2.40}) {
         cluster_var.setEta(ieta);
-        auto cosh_val = TSU::Hyperbolic::Cosh.at(static_cast<int>(100*abs(cluster_fix0.eta() - cluster_var.eta())));
+        auto cosh_val = TSU::Hyperbolic::Coshleg.at(static_cast<int>(abs(cluster_fix0.eta() - cluster_var.eta())));
         cout<<"delta eta: "
             <<" abs("<<cluster_fix0.eta()<<" - "<<cluster_var.eta()<<")"
             <<" = "<<abs(cluster_fix0.eta() - cluster_var.eta())

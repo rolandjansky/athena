@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 # ConfiguredNewtrackingCuts class
@@ -55,7 +55,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- this is for the TRT-extension
     self.__minTRTonTrk             = 9
-    self.__minTRTPrecFrac          = self.__indetflags.minPrecHitFractionTrtExt()
+    self.__minTRTPrecFrac          = 0.3
 
     # --- general pattern cuts for NewTracking
     self.__radMax                  = 600. * Units.mm # default R cut for SP in SiSpacePointsSeedMaker
@@ -131,6 +131,9 @@ class ConfiguredNewTrackingCuts :
     self.__maxTRTonlyShared          = 0.7
     self.__useTRTonlyParamCuts       = False
     self.__useTRTonlyOldLogic        = True
+    self.__TrkSel_TRTTrksEtaBins                  = [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+    self.__TrkSel_TRTTrksMinTRTHitsThresholds     = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
+    self.__TrkSel_TRTTrksMinTRTHitsMuDependencies = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep nTRT, mu dependence for TRT conversion tracks
 
     #
     # --------------------------------------
@@ -173,7 +176,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts
       self.__maxSecondarySCTHoles      = 1                # tighten hole cuts
       self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts
-      self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking
+      self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking. See "TRTStandalone" for standalone TRT tracks.
       self.__rejectShortExtensions     = True             # fall back onto segment if TRT extension is short
       self.__SiExtensionCuts           = True             # use cuts from ambi scoring already early
       # self.__maxSecondaryTRTShared     = 0.2              # tighen shared hit cut for segment maker ?
@@ -268,22 +271,6 @@ class ConfiguredNewTrackingCuts :
       self.__nWeightedClustersMin    = 6
       self.__minSiNotShared   = 5
       self.__rejectShortExtensions = False
-
-
-    # --- SLHC setup
-    if mode == "SLHC":
-      self.__extension               = "SLHC"
-      # --- higher pt cut and impact parameter cut
-      self.__minPT                   = 0.9 * Units.GeV
-      self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
-      self.__maxZImpact              = 250.0 * Units.mm
-
-      # --- cluster cuts
-      self.__minClusters             = 9
-      self.__minSiNotShared          = 8
-
-      # --- also tighten pattern cuts
-      self.__radMax                  = 1000. * Units.mm
 
     # --- IBL setup
     if mode == "IBL" :
@@ -418,23 +405,6 @@ class ConfiguredNewTrackingCuts :
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
 
-    if mode == "SLHCConversionFinding":
-      self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
-      self.__minPT                   = 0.9 * Units.GeV
-      self.__maxPrimaryImpact        = 10.0 * Units.mm
-      self.__maxZImpact              = 150.0 * Units.mm
-      self.__minClusters             = 6
-      self.__minSiNotShared          = 4
-      self.__maxHoles                = 0
-
-      # --- also tighten pattern cuts
-      self.__radMax                  = 1000. * Units.mm
-      self.__radMin                  = 0. * Units.mm # not turn on this cut for now
-
-      # --- turn on Z Boundary seeding
-      self.__doZBoundary              = False #
-
-
     # --- change defaults for very low pt tracking
     if mode == "VeryLowPt":
       self.__extension        = "VeryLowPt" # this runs parallel to NewTracking
@@ -473,44 +443,6 @@ class ConfiguredNewTrackingCuts :
       self.__nHolesGapMax     = self.__maxHoles
       self.__radMax           = 600. * Units.mm
 
-      self.__useTRT           = False # no TRT for forward tracks
-
-
-    if mode == "ForwardSLHCTracks":
-      self.__extension        = "ForwardSLHCTracks" # this runs parallel to NewTracking
-      self.__minEta           = 2.4 # restrict to minimal eta
-      self.__maxEta           = 3.0
-      self.__minPT            = 0.9 * Units.GeV
-      self.__minClusters      = 5
-      self.__minSiNotShared   = 3
-      self.__maxShared        = 1
-      self.__minPixel         = 3
-      self.__maxHoles         = 1
-      self.__maxPixelHoles    = 1
-      self.__maxSctHoles      = 1
-      self.__maxDoubleHoles   = 0
-      self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles
-      self.__radMax           = 600. * Units.mm
-
-      self.__useTRT           = False # no TRT for forward tracks
-
-    if mode == "VeryForwardSLHCTracks":
-      self.__extension        = "VeryForwardSLHCTracks" # this runs parallel to NewTracking
-      self.__minEta           = 2.4 # restrict to minimal eta
-      self.__maxEta           = 4.0
-      self.__minPT            = 0.9 * Units.GeV
-      self.__minClusters      = 5
-      self.__minSiNotShared   = 3
-      self.__maxShared        = 1
-      self.__minPixel         = 3
-      self.__maxHoles         = 1
-      self.__maxPixelHoles    = 1
-      self.__maxSctHoles      = 0
-      self.__maxDoubleHoles   = 0
-      self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles
-      self.__radMax           = 600. * Units.mm
       self.__useTRT           = False # no TRT for forward tracks
 
     # --- change defauls for beam gas tracking
@@ -757,6 +689,16 @@ class ConfiguredNewTrackingCuts :
       self.__minTRTonly              = 15
       self.__maxTRTonlyShared        = 0.7
 
+    # --- TRT Standalone tracks (used by conversion finding)
+    if mode == "TRTStandalone":
+      # minSecondaryTRTPrecFrac is fed into ConfiguredTRTStandalone and eventually
+      # into InDet__InDetTrtTrackScoringTool:
+      self.__minSecondaryTRTPrecFrac = 0.15
+      # Mu- and eta- dependent cuts on nTRT
+      self.__TrkSel_TRTTrksEtaBins                  = [  0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+      self.__TrkSel_TRTTrksMinTRTHitsThresholds     = [   27,    18,    18,   18,   26,   28,   26,   24,   22,    0] # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
+      self.__TrkSel_TRTTrksMinTRTHitsMuDependencies = [  0.2,  0.05,  0.05, 0.05, 0.15, 0.15, 0.15, 0.15, 0.15,    0] # eta-dep nTRT, mu dependence for TRT conversion tracks
+
     # --- mode for SCT and TRT
     if mode == "SCTandTRT":
       self.__extension        = "SCTandTRT" # this runs parallel to NewTracking
@@ -930,6 +872,15 @@ class ConfiguredNewTrackingCuts :
 
   def minTRTonTrk( self ) :
     return self.__minTRTonTrk
+
+  def TrkSel_TRTTrksEtaBins( self ) :
+    return self.__TrkSel_TRTTrksEtaBins
+
+  def TrkSel_TRTTrksMinTRTHitsThresholds( self ) :
+    return self.__TrkSel_TRTTrksMinTRTHitsThresholds
+
+  def TrkSel_TRTTrksMinTRTHitsMuDependencies( self ) :
+    return self.__TrkSel_TRTTrksMinTRTHitsMuDependencies
 
   def minTRTPrecFrac( self ) :
     return self.__minTRTPrecFrac
@@ -1134,6 +1085,9 @@ class ConfiguredNewTrackingCuts :
     if self.__useTRT:
       print('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)
       print('* useNewParameterizationTRT   :  ', self.__useNewParameterizationTRT)
+      print('* - TRT Trks Eta Bins                 : ',self.__TrkSel_TRTTrksEtaBins                 )
+      print('* - TRT Trks MinTRTHits Thresholds    : ',self.__TrkSel_TRTTrksMinTRTHitsThresholds    )
+      print('* - TRT Trks MinTRTHits Mu Dependency : ',self.__TrkSel_TRTTrksMinTRTHitsMuDependencies)
       print('* excludeUsedTRToutliers      :  ', self.__excludeUsedTRToutliers)
       print('*')
       print('* TRT only cuts:')

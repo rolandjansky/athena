@@ -11,14 +11,23 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
       
 class precisionCaloMenuDefs(object):
-      """Static class to collect all string manipulation in Calo sequences """
-      precisionCaloClusters= recordable("HLT_CaloEMClusters")
+    """Static class to collect all string manipulation in Calo sequences """
+    precisionCaloClusters = recordable("HLT_CaloEMClusters")
+    precisionHICaloClusters = recordable("HLT_HICaloEMClusters")
+    egEventShape = recordable('HLT_HIEventShapeEG')
 
-def precisionCaloSequence(ConfigFlags):
+    @classmethod
+    def caloClusters(cls, ion):
+        return cls.precisionHICaloClusters if ion is True else cls.precisionCaloClusters
+
+def tag(ion):
+    return 'precision' + ('HI' if ion is True else '') + 'Calo'
+
+def precisionCaloSequence(ConfigFlags, ion=False):
     """ Creates PrecisionCalo sequence """
     # EV creator
     InViewRoIs="PrecisionCaloRoIs"     
-    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCalo")
+    precisionCaloViewsMaker = EventViewCreatorAlgorithm('IM' + tag(ion))
     precisionCaloViewsMaker.ViewFallThrough = True
     precisionCaloViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     roiTool = ViewCreatorPreviousROITool()
@@ -28,31 +37,47 @@ def precisionCaloSequence(ConfigFlags):
     roiTool.RoISGKey = "HLT_Roi_FastElectron"
     precisionCaloViewsMaker.RoITool = roiTool
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
-    precisionCaloViewsMaker.Views = "precisionCaloViews"
+    precisionCaloViewsMaker.Views = tag(ion) + 'Views'
     precisionCaloViewsMaker.RequireParentView = True
+    precisionCaloViewsMaker.CacheDisabled = True
 
     # reco sequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec import precisionCaloRecoSequence
-    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None,InViewRoIs)
-
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRecoSequences import precisionCaloRecoSequence
+    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None, InViewRoIs, ion)
+        
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
-    
+
+    theSequence = seqAND(tag(ion) + 'Sequence', [])
+
+    if ion is True:
+        # add UE subtraction for heavy ion e/gamma triggers
+        # NOTE: UE subtraction requires an average pedestal to be calculated
+        # using the full event (FS info), and has to be done outside of the
+        # event views in this sequence. the egammaFSRecoSequence is thus placed
+        # before the precisionCaloInViewSequence.
+        from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRecoSequences import egammaFSCaloRecoSequence
+        egammaFSRecoSequence = egammaFSCaloRecoSequence()
+
+        theSequence += egammaFSRecoSequence
+
     # connect EVC and reco
-    theSequence = seqAND("precisionCaloSequence", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
+    theSequence += [precisionCaloViewsMaker, precisionCaloInViewSequence]
     return (theSequence, precisionCaloViewsMaker, sequenceOut)
 
-def precisionCaloMenuSequence(name):
+def precisionCaloMenuSequence(name, is_probe_leg=False, ion=False):
     """ Creates precisionCalo MENU sequence """
-    (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence, ConfigFlags)
+
+    (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence, ConfigFlags, ion=ion)
 
     #Hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoAlg
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
 
-    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT(name+"precisionCaloHypo")
+    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlg(name + tag(ion) + 'Hypo')
     thePrecisionCaloHypo.CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionCaloViewsMaker, 
                          Hypo        = thePrecisionCaloHypo,
-                         HypoToolGen = TrigEgammaPrecisionCaloHypoToolFromDict)
+                         HypoToolGen = TrigEgammaPrecisionCaloHypoToolFromDict,
+                         IsProbe     = is_probe_leg)

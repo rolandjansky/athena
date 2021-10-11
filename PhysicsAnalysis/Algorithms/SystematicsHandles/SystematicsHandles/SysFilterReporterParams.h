@@ -10,8 +10,8 @@
 #define SYSTEMATICS_HANDLES__FILTER_REPORTER_PARAMS_H
 
 #include <AsgMessaging/AsgMessagingForward.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <xAODEventInfo/EventInfo.h>
 #include <functional>
 
@@ -86,11 +86,11 @@ namespace CP
 
     /// \brief the event info we run on
   private:
-    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle;
+    SysReadHandle<xAOD::EventInfo> m_eventInfoHandle;
 
     /// \brief the decoration for writing the event decision
   private:
-    SysDecorationHandle<char> m_eventDecisionOutputDecoration;
+    SysWriteDecorHandle<char> m_eventDecisionOutputDecoration;
 
     /// \brief counter for passed events
   private:

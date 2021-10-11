@@ -2,6 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
+
+
+
 #include "TRTActiveCondAlg.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -11,7 +15,7 @@ TRTActiveCondAlg::TRTActiveCondAlg(const std::string& name
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
-    m_trtId(0)
+    m_trtId(nullptr)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus); }
 TRTActiveCondAlg::~TRTActiveCondAlg(){}
 
@@ -103,7 +107,7 @@ StatusCode TRTActiveCondAlg::execute()
   float rMinEndcap = 617.; 
   float rMaxEndcap = 1106.;
   int countAll(0), countDead(0), countSaved(0), countPhiSkipped(0), countEtaSkipped(0), countInvalidEtaValues(0); 
-  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
+  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); ++it  ) {
      int nStrawsInLayer = m_trtId->straw_max(*it);
      for (int i=0; i<=nStrawsInLayer; i++) { 
 
@@ -117,7 +121,7 @@ StatusCode TRTActiveCondAlg::execute()
         countAll++; if (status) countDead++;
 
         const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);
-        double phi = atan2( strawPosition.y(), strawPosition.x() );
+        double phi = std::atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = writeCdo->findPhiBin( phi );
 	if (phiBin<0) { 
            ATH_MSG_DEBUG("TRTCond::ActiveFraction phiBin<0: " << phi << " " << phiBin);
@@ -127,17 +131,17 @@ StatusCode TRTActiveCondAlg::execute()
 
 	// calculate etaMin, etaMax
 	int side = m_trtId->barrel_ec(id);
-        float z = fabs( strawPosition.z() );
+        float z = std::abs( strawPosition.z() );
 	float thetaMin(0.), thetaMax(0.);
 	if (abs(side)==1) { // barrel
            float zRange = 360.; // straw length / 2  
 	   if ( m_trtId->layer_or_wheel(id) == 0 && m_trtId->straw_layer(id) < 9 ) zRange = 160.;  // short straws
-	   float r = sqrt( pow(strawPosition.x(), 2) + pow(strawPosition.y(), 2) );
-	   thetaMin = atan( r / (z+zRange) );
-	   thetaMax = ((z-zRange)>0.) ? atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
+	   float r = std::sqrt( std::pow(strawPosition.x(), 2) + std::pow(strawPosition.y(), 2) );
+	   thetaMin = std::atan( r / (z+zRange) );
+	   thetaMax = ((z-zRange)>0.) ? std::atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
 	} else { // endcap
-	   thetaMin = atan( rMinEndcap / z );		
-	   thetaMax = atan( rMaxEndcap / z );	
+	   thetaMin = std::atan( rMinEndcap / z );		
+	   thetaMax = std::atan( rMaxEndcap / z );	
 	}
         if (side<0) { // theta -> M_PI - theta
           float thetaDummy = thetaMin;
@@ -149,13 +153,13 @@ StatusCode TRTActiveCondAlg::execute()
         float etaCheck[] = {0., 0.};
         for (int ti=0; ti<2; ti++) {
            if (thetaCheck[ti]<=0.||thetaCheck[ti]>=M_PI) ATH_MSG_DEBUG("TRTCond::ActiveFraction: theta " << ti << " " << thetaCheck[ti]);
-           float tanTheta = tan(thetaCheck[ti]/2.);
+           float tanTheta = std::tan(thetaCheck[ti]/2.);
            if (tanTheta<=0.) {
               ATH_MSG_DEBUG("TRTCond::ActiveFraction: theta tan " << ti << " " << tanTheta );
               countInvalidEtaValues++;
               continue;
            }
-           etaCheck[ti] = -log( tanTheta );
+           etaCheck[ti] = -std::log( tanTheta );
         }
         float etaMin = etaCheck[0];
         float etaMax = etaCheck[1];

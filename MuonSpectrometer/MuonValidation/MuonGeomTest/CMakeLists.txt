@@ -13,7 +13,7 @@ atlas_add_component( MuonGeomTest
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib TrkSurfaces TrkValidationUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib GeoPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib TrkSurfaces TrkValidationUtils )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

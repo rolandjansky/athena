@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -18,7 +18,7 @@
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -258,8 +258,8 @@ IdDictDetDescrCnv::parseXMLDescription()
             << endmsg;
     }
 
-    if (m_idDictFromRDB && !serviceLocator()->existsService("GeoModelSvc")) {
-      log << MSG::WARNING << "GeoModelSvc not part of this job. Falling back to files name from job options" << endmsg;
+    if (m_idDictFromRDB && !serviceLocator()->existsService("GeoDbTagSvc")) {
+      log << MSG::WARNING << "GeoDbTagSvc not part of this job. Falling back to files name from job options" << endmsg;
       m_idDictFromRDB=false;
       m_doNeighbours=false;
     }
@@ -762,44 +762,45 @@ IdDictDetDescrCnv::getFileNamesFromProperties(IProperty* propertyServer)
 StatusCode 
 IdDictDetDescrCnv::getFileNamesFromTags()
 {
-
     // Fetch file names and tags from the RDB 
 
     MsgStream log(msgSvc(), "IdDictDetDescrCnv");
 
-    const IGeoModelSvc* geoModelSvc  = 0;
-    IRDBAccessSvc*      rdbAccessSvc = 0;
+    IGeoDbTagSvc*       geoDbTagSvc{nullptr};
+    IRDBAccessSvc*      rdbAccessSvc{nullptr};
 
-    // Get GeoModelSvc and RDBAccessSvc in order to get the XML filenames and tags from the 
-    // database
-    StatusCode sc = service ("GeoModelSvc",geoModelSvc);
+    StatusCode sc = service ("GeoDbTagSvc",geoDbTagSvc);
     if (!sc.isSuccess()) {
-        log << MSG::ERROR << "Unable to get GeoModelSvc." << endmsg;
-        return sc;
+      log << MSG::ERROR << "Unable to get GeoDbTagSvc." << endmsg;
+      return sc;
     }
-    else log << MSG::DEBUG << "Accessed GeoModelSvc." << endmsg;
-          
-    sc = service("RDBAccessSvc",rdbAccessSvc);
+    else {
+      log << MSG::DEBUG << "Accessed GeoDbTagSvc." << endmsg;
+    }
+     
+    sc = service(geoDbTagSvc->getParamSvcName(),rdbAccessSvc);
     if (!sc.isSuccess()) {
-        log << MSG::ERROR << "Unable to get RDBAccessSvc." << endmsg;
-        return sc;
+      log << MSG::ERROR << "Unable to get " << geoDbTagSvc->getParamSvcName() << endmsg;
+      return sc;
     }
-    else log << MSG::DEBUG << "Accessed RDBAccessSvc." << endmsg;
+    else {
+      log << MSG::DEBUG << "Accessed " << geoDbTagSvc->getParamSvcName() <<endmsg;
+    }
 
-
-    // RDS: not clear what a custom tag means.
-    //     if (detectorKey.custom()) {
-    //  // Get from properties - below. 
-    //  inDetCustom = true;
-    //} else {
+    bool useGeomDB = (geoDbTagSvc->getSqliteReader()==nullptr);
+    std::string detTag{""}, detNode{""};
+    DecodeVersionKey detectorKey("ATLAS");
 
     // Get InDet
-    DecodeVersionKey detectorKey(geoModelSvc, "InnerDetector");
-    log << MSG::DEBUG << "From Version Tag: " 
-	<< detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
-    IRDBRecordset_ptr idDictSet   = rdbAccessSvc->getRecordsetPtr("InDetIdentifier",
-								  detectorKey.tag(), 
-								  detectorKey.node());
+    if(useGeomDB) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "InnerDetector");
+      log << MSG::DEBUG << "From Version Tag: " 
+	  << detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    IRDBRecordset_ptr idDictSet   = rdbAccessSvc->getRecordsetPtr("InDetIdentifier",detTag,detNode);
+
     std::string        dictName;
     const IRDBRecord*  idDictTable = 0;
     // Size == 0 if not found
@@ -819,15 +820,20 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << ", dictionary tag: " << m_inDetIdDictTag
 	  << endmsg;
     }
-    else log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
     
     // Get LAr
-    detectorKey = DecodeVersionKey(geoModelSvc, "LAr");
-    log << MSG::DEBUG << "From Version Tag: " 
-	<< detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
-    idDictSet = rdbAccessSvc->getRecordsetPtr("LArIdentifier", 
-					      detectorKey.tag(), 
-					      detectorKey.node());
+    if(useGeomDB) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "LAr");
+      log << MSG::DEBUG << "From Version Tag: " 
+	  << detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    idDictSet = rdbAccessSvc->getRecordsetPtr("LArIdentifier", detTag,detNode);
+
     // Size == 0 if not found
     if (idDictSet->size()) {
       idDictTable      = (*idDictSet)[0];
@@ -839,16 +845,21 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << ", dictionary tag: " << m_larIdDictTag
 	  << endmsg;
     }
-    else log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
     
     
     // Get Tile
-    detectorKey = DecodeVersionKey(geoModelSvc, "TileCal");
-    log << MSG::DEBUG << "From Version Tag: " 
-	<< detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
-    idDictSet = rdbAccessSvc->getRecordsetPtr("TileIdentifier",
-					      detectorKey.tag(), 
-					      detectorKey.node());
+    if(useGeomDB) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "TileCal");
+      log << MSG::DEBUG << "From Version Tag: " 
+	  << detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    idDictSet = rdbAccessSvc->getRecordsetPtr("TileIdentifier",detTag,detNode);
+
     // Size == 0 if not found
     if (idDictSet->size()) {
       idDictTable       = (*idDictSet)[0];
@@ -860,15 +871,20 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << ", dictionary tag: " << m_tileIdDictTag
 	  << endmsg;
     }
-    else log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
     
     // Get Calo
-    detectorKey = DecodeVersionKey(geoModelSvc, "Calorimeter");
-    log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()  
-	<< " at Node: " << detectorKey.node() << endmsg;
-    idDictSet = rdbAccessSvc->getRecordsetPtr("CaloIdentifier",
-					      detectorKey.tag(), 
-					      detectorKey.node());
+    if(useGeomDB) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "Calorimeter");
+      log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()  
+	  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    idDictSet = rdbAccessSvc->getRecordsetPtr("CaloIdentifier",detTag,detNode);
+
     // Size == 0 if not found
     if (idDictSet->size()) {
       idDictTable       = (*idDictSet)[0];
@@ -880,13 +896,14 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << ", dictionary tag: " << m_caloIdDictTag
 	  << endmsg;
     }
-    else log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
     
     // Calo neighbor files:
-    IRDBRecordset_ptr caloNeighborTable = rdbAccessSvc->getRecordsetPtr("CaloNeighborTable",
-									detectorKey.tag(), 
-									detectorKey.node());
-    if (caloNeighborTable->size()==0) {
+    IRDBRecordset_ptr caloNeighborTable = rdbAccessSvc->getRecordsetPtr("CaloNeighborTable",detTag,detNode);
+
+    if (caloNeighborTable->size()==0 && useGeomDB) {
       caloNeighborTable = rdbAccessSvc->getRecordsetPtr("CaloNeighborTable","CaloNeighborTable-00");
     }
     // Size == 0 if not found
@@ -909,17 +926,20 @@ IdDictDetDescrCnv::getFileNamesFromTags()
       log << MSG::DEBUG << "   TileNeighborsFileName:       " << m_tileNeighborsName        
 	  << endmsg;
     }
-    else log << MSG::ERROR << " no record set found neighbor file " << endmsg;
-    
-    
+    else {
+      log << MSG::ERROR << " no record set found neighbor file " << endmsg;
+    }
     
     // Get Muon
-    detectorKey = DecodeVersionKey(geoModelSvc, "MuonSpectrometer");
-    log << MSG::DEBUG << "From Version Tag: " 
-	<< detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
-    idDictSet = rdbAccessSvc->getRecordsetPtr("MuonIdentifier",
-					      detectorKey.tag(), 
-					      detectorKey.node());
+    if(useGeomDB) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "MuonSpectrometer");
+      log << MSG::DEBUG << "From Version Tag: " 
+	  << detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    idDictSet = rdbAccessSvc->getRecordsetPtr("MuonIdentifier",detTag,detNode);
+
     // Size == 0 if not found
     if (idDictSet->size()) {
       idDictTable       = (*idDictSet)[0];
@@ -941,17 +961,22 @@ IdDictDetDescrCnv::getFileNamesFromTags()
       }
       
     }
-    else log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
     
     // Get Forward
-    detectorKey = DecodeVersionKey(geoModelSvc, "ForwardDetectors");
-    log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()
-	<< " at Node: " << detectorKey.node() << endmsg;
-    idDictSet = rdbAccessSvc->getRecordsetPtr("ForDetIdentifier",
-					      detectorKey.tag(), 
-					      detectorKey.node());
+    if(useGeomDB) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "ForwardDetectors");
+      log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()
+	  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    idDictSet = rdbAccessSvc->getRecordsetPtr("ForDetIdentifier",detTag,detNode);
+
     // For older datasets use ForDetIdentifier-00 as fallback
-    if (0 == idDictSet->size()) {
+    if (idDictSet->size()==0 && useGeomDB) {
       idDictSet = rdbAccessSvc->getRecordsetPtr("ForDetIdentifier",
 						"ForDetIdentifier-00");
       log << MSG::DEBUG << " explicitly requesting ForDetIdentifier-00 tag for pre-forward detector data  " 
@@ -968,7 +993,9 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << ", dictionary tag: " << m_forwardIdDictTag
 	  << endmsg;
     }
-    else log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
                         
 
     log << MSG::DEBUG << "End access to RDB for id dictionary info " << endmsg;

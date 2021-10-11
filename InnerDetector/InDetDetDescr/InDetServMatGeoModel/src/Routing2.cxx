@@ -332,9 +332,8 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
   if (route.volumes().empty()) rMin = route.rMin();
   else rMin = route.volumes().back()->rMax() + m_c_safetyGap;
 
-  LayerContainer::const_iterator blnext = bl+1;
-  if (blnext != blend) {
-    rMax = std::min((**blnext).radius(), route.rExit());
+  if (bl+1 != blend) {
+    rMax = std::min((**(bl+1)).radius(), route.rExit());
   }
   else rMax = route.rExit();
 

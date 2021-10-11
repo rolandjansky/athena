@@ -21,6 +21,9 @@ def integration_gridpack_creator(process):
     output_tarball_name = "integration_grids.tar.gz"
     file_names = sum([glob.glob(_f) for _f in process.integration_file_names], [])
 
+# removing duplicates
+    file_names = list(dict.fromkeys(file_names))
+
     if file_names:
         logger.info("Tar-ing {} integration grids into {}".format(len(file_names), output_tarball_name))
         for line in subprocess.check_output(["tar", "cvzf", output_tarball_name] + file_names, stderr=subprocess.STDOUT).splitlines():

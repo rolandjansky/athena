@@ -1,8 +1,8 @@
-#include "MuonTGRecTools/MuonHolesOnTrackTool.h"
-#include "MuonTGRecTools/MuonTGMeasurementTool.h"
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 #include "../MuonSystemExtensionTool.h"
+#include "MuonTGRecTools/MuonTGMeasurementTool.h"
 
-using namespace Muon;
-DECLARE_COMPONENT( Muon::MuonHolesOnTrackTool )
-DECLARE_COMPONENT( Muon::MuonTGMeasurementTool )
-DECLARE_COMPONENT( Muon::MuonSystemExtensionTool )
+DECLARE_COMPONENT(Muon::MuonTGMeasurementTool)
+DECLARE_COMPONENT(Muon::MuonSystemExtensionTool)

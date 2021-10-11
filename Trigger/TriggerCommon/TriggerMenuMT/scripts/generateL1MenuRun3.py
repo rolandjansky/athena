@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
@@ -20,7 +20,10 @@ def generateL1Menu(menu, cmdline):
     from AthenaCommon.Logging import logging
     log = logging.getLogger(sys.argv[0].split('/')[-1])
     log.setLevel(logging.INFO)
-    logging.getLogger("TriggerMenuMT.LVL1.Lvl1Menu").setLevel(logging.INFO)
+    logging.getLogger("Menu.L1.L1MenuConfig").setLevel(logging.INFO)
+    if cmdline.verbose:
+        log.setLevel(logging.DEBUG)
+        logging.getLogger("Menu.L1.L1MenuConfig").setLevel(logging.DEBUG)
 
     # setup
 
@@ -70,6 +73,10 @@ def main():
     ])
 
     cmdline = parseCmdLine(possibleMenus = availableMenus.keys())
+
+    # Make sure output directory exists
+    from pathlib import Path
+    Path(cmdline.dest).mkdir(parents=True, exist_ok=True)
 
     if cmdline.menu.lower() in availableMenus:
         menu = availableMenus[cmdline.menu.lower()]

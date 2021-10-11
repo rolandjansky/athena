@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -21,6 +21,7 @@
 #include "StorageSvc/DbToken.h"
 #include "StorageSvc/DbReflex.h"
 #include "DbContainerObj.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <memory>
 
@@ -34,15 +35,15 @@ int DbContainer::refCount() const  {
 }
 
 // Open container from handle
-DbStatus DbContainer::open( const DbDatabase&  dbH, 
+DbStatus DbContainer::open( DbDatabase&  dbH, 
                             const string& nam, 
                             const DbTypeInfo*  typ, 
                             const DbType&      dbtyp,
-                            DbAccessMode mod) const
+                            DbAccessMode mod)
 {
   if ( dbH.isValid() )  {
     if ( !(dbH.openMode() == pool::READ && mod != pool::READ) ) {
-      const DbContainerObj* q = dbH.find(nam);
+      DbContainerObj* q = dbH.find(nam);
       switchPtr(q ? q : new DbContainerObj(dbH, nam, dbtyp, mod));
       if ( mod == pool::READ || mod == pool::UPDATE )  {
         if ( 0 == typ )  {
@@ -58,12 +59,12 @@ DbStatus DbContainer::open( const DbDatabase&  dbH,
   return Error;
 }
 
-void DbContainer::switchPtr(const DbContainerObj* obj) const  {
+void DbContainer::switchPtr(DbContainerObj* obj) {
   if (   obj ) obj->addRef();
   if ( m_ptr ) {
     if (m_ptr->release() == 0) m_ptr = 0;
   }
-  m_ptr = const_cast<DbContainerObj*>(obj);
+  m_ptr = obj;
   if ( m_ptr )  {
     m_type = obj->type();
   }
@@ -72,6 +73,11 @@ void DbContainer::switchPtr(const DbContainerObj* obj) const  {
 const DbDatabase& DbContainer::containedIn() const {
   static const DbDatabase null_dbH(type());
   return isValid() ? m_ptr->database() : null_dbH;
+}
+
+DbDatabase& DbContainer::containedIn() {
+  if (!isValid()) std::abort();
+  return m_ptr->database();
 }
 
 long long int DbContainer::size() const {
@@ -89,7 +95,7 @@ const string& DbContainer::name() const {
 }
 
 /// Close container object if handle is valid
-DbStatus DbContainer::close() const {
+DbStatus DbContainer::close() {
   if ( isValid() )  {
     DbStatus res = m_ptr->close();
     switchPtr(0);
@@ -124,7 +130,10 @@ const Token* DbContainer::token() const {
 }
 
 /// Access implementation internals
-IDbContainer* DbContainer::info() const {
+const IDbContainer* DbContainer::info() const {
+  return isValid() ? m_ptr->info() : 0;
+}
+IDbContainer* DbContainer::info() {
   return isValid() ? m_ptr->info() : 0;
 }
 
@@ -210,7 +219,7 @@ DbStatus DbContainer::update(const void* object, ShapeH shape, const Token::OID_
 }
 
 /// Save object in the container identified by its handle
-DbStatus DbContainer::_save(const DbObjectHandle<DbObject>& objH, const DbTypeInfo* typ) {
+DbStatus DbContainer::_save(DbObjectHandle<DbObject>& objH, const DbTypeInfo* typ) {
   if ( isValid() && objH.isValid() )    {
     const DbContainer& cnt = objH.containedIn();
     // Object MUST be allocated on this container!

@@ -16,7 +16,8 @@
 #define CALOREC_CALOCELLPOSITIONSHIFT_H
 
 
-#include "AthenaKernel/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
 #include <vector>
 
 namespace CaloRec {
@@ -75,5 +76,6 @@ class CaloCellPositionShift
 }// end namespace
 
 CLASS_DEF(CaloRec::CaloCellPositionShift,96609121,1)
+CONDCONT_DEF(CaloRec::CaloCellPositionShift,219045687);
 
 #endif

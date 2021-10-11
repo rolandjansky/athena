@@ -21,7 +21,7 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3308 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 849 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 1817 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 8511 CLIDRegistry entries for module ALL

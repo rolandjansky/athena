@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoInterfaces/AlgFactory.h" 
@@ -47,17 +47,6 @@ TopoSteering::~TopoSteering() {
 }
 
 TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
-  
-  // Keep this method to avoid crashes. TO-DO: Switch menu loading in L1TopoSimulation.cxx
-  TRG_MSG_WARNING("Cannot configure simulation from XML. Use JSON format");
-
-  return TCS::StatusCode::SUCCESS;
-
-}
-
-
-TCS::StatusCode
 TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
 
   TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
@@ -73,7 +62,9 @@ TCS::StatusCode
 TopoSteering::reset() {
 
    ClusterTOB::clearHeap();
+   eEmTOB::clearHeap();
    JetTOB::clearHeap();
+   jJetTOB::clearHeap();
    MuonTOB::clearHeap();
    LateMuonTOB::clearHeap();
    MuonNextBCTOB::clearHeap();
@@ -398,14 +389,16 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    for(const Connector* inConn: inputConnectors)
    {
       const SortingConnector * sc = dynamic_cast<const SortingConnector *>(inConn);
-      if (sc==NULL) {
+      if (sc==nullptr && inConn!=nullptr) {
 	 TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " could not cast as SortingConnector* the input connector " << inConn->name());
       }
-      const TOBArray * tobA = dynamic_cast<const TOBArray *>( sc->outputData());
-      if(tobA==NULL) {
-         TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " expects TOBArray(s) as input, but did not get it from connector " << inConn->name());
+      else {
+        const TOBArray * tobA = dynamic_cast<const TOBArray *>( sc->outputData());
+        if(tobA==nullptr) {
+          TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " expects TOBArray(s) as input, but did not get it from connector " << inConn->name());
+        }
+        input.push_back( tobA );
       }
-      input.push_back( tobA );
    }
 
    alg->reset();
@@ -437,7 +430,9 @@ TopoSteering::executeCountingAlgorithm(TCS::CountingAlg *alg,
 void
 TopoSteering::printDebugInfo() {
    TRG_MSG_INFO("Number of ClusterTOB  : " << ClusterTOB::heap().size());
+   TRG_MSG_INFO("Number of eEmTOB      : " << eEmTOB::heap().size());
    TRG_MSG_INFO("Number of JetTOB      : " << JetTOB::heap().size());
+   TRG_MSG_INFO("Number of jJetTOB     : " << jJetTOB::heap().size());
    TRG_MSG_INFO("Number of GenericTOB  : " << GenericTOB::heap().size());
    TRG_MSG_INFO("Number of CompositeTOB: " << CompositeTOB::heap().size());
    TRG_MSG_INFO("Number of MuonTOB     : " << MuonTOB::heap().size());

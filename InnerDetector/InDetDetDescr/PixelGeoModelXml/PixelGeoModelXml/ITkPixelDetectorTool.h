@@ -19,7 +19,6 @@
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class IGeoDbTagSvc;
-class IGeometryDBSvc;
 
 namespace InDetDD {
   class PixelDetectorManager;
@@ -45,7 +44,6 @@ class ITkPixelDetectorTool : public GeoModelTool {
   InDetDD::SiCommonItems *m_commonItems;
   ServiceHandle<IGeoModelSvc> m_geoModelSvc;
   ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
-  ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
 };
 

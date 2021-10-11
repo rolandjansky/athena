@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -30,7 +30,6 @@ TBBPCMonTool::TBBPCMonTool(const std::string & type,
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_bpcnum(0)
 /*---------------------------------------------------------*/
 {
@@ -105,9 +104,6 @@ TBBPCMonTool::~TBBPCMonTool()
 StatusCode TBBPCMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  //set to true whitin bookHist() 
-  m_isBooked = false;
-
   return StatusCode::SUCCESS;
 }
 
@@ -250,7 +246,7 @@ StatusCode TBBPCMonTool::mybookHists()
 	 TBBPCCont::const_iterator last_bc   = bpcCont->end();
 	 while(it_bc!=last_bc) {
 	   if((*it_bc)->getDetectorName()==m_bpc_names[j]) break;
-	   it_bc++;
+	   ++it_bc;
 	 }
 	 if(it_bc!=last_bc){
 	   m_bpc_map.push_back(j);
@@ -313,7 +309,7 @@ StatusCode TBBPCMonTool::mybookHists()
 	 TBBPCRawCont::const_iterator last_bc   = bpcrawCont->end();
 	 while(it_bc!=last_bc) {
 	   if((*it_bc)->getDetectorName()==m_bpc_names[j]) break;
-	   it_bc++;
+	   ++it_bc;
 	 }
 	 if(it_bc!=last_bc){
 	   m_bpc_map.push_back(j);
@@ -377,15 +373,6 @@ StatusCode TBBPCMonTool::mybookHists()
   return StatusCode::SUCCESS;
 }
 
-// /*---------------------------------------------------------*/
-// bool TBBPCMonTool::histsNotBooked()
-// /*---------------------------------------------------------*/
-// {
-
-//   if(m_isBooked) return false;
-//   else return true;
-// }
-
 /*---------------------------------------------------------*/
 StatusCode TBBPCMonTool::fillHists()
 /*---------------------------------------------------------*/
@@ -439,7 +426,7 @@ StatusCode TBBPCMonTool::fillHists()
 	if((*it_bc)->getDetectorName() != m_bpc_names[m_bpc_map[nameind]]){
 	  it_bc=bpcCont->begin();
 	  while(it_bc!=last_bc)
-	    if ((*it_bc)->getDetectorName() != m_bpc_names[m_bpc_map[nameind]]) it_bc++;
+	    if ((*it_bc)->getDetectorName() != m_bpc_names[m_bpc_map[nameind]]) ++it_bc;
 	    else break;
 
 	  if(it_bc==last_bc) {
@@ -473,7 +460,7 @@ StatusCode TBBPCMonTool::fillHists()
 	}
 	
 	// get next bpc :
-	it_bc++;
+	++it_bc;
 
       } // nameind loop
 
@@ -506,7 +493,7 @@ StatusCode TBBPCMonTool::fillHists()
 	if((*it_bc)->getDetectorName() != m_bpc_names[m_bpc_map[nameind]]){
 	  it_bc=bpcrawCont->begin();
 	  while(it_bc!=last_bc){
-	    if ((*it_bc)->getDetectorName() != m_bpc_names[m_bpc_map[nameind]]) it_bc++;
+	    if ((*it_bc)->getDetectorName() != m_bpc_names[m_bpc_map[nameind]]) ++it_bc;
 	    else break;
 	  }
 	  if(it_bc==last_bc) {
@@ -539,7 +526,7 @@ StatusCode TBBPCMonTool::fillHists()
 	if(!bpcraw->isOverflow(TBBPCRaw::adcVertical))   m_histo_bpcadcVertical[nameind]->fill(bpcraw->getADCVertical(),1.0);
 	
 	
-	it_bc++;
+	++it_bc;
 
       }
     }

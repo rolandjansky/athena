@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -88,6 +88,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
             #Shape taken from real-data DB has a different SG key
             kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
+    kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value())
     kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
@@ -115,7 +116,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     else:
         kwargs.setdefault("LArHitFloatContainers",[])
 
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
     else:
@@ -150,13 +151,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         LArAutoCorrNoiseCondAlgDefault()
 
     # bad channel masking
-    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-    theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-    theLArRCBMasker.DoMasking=True
-    theLArRCBMasker.ProblemsToMask=[
-         "deadReadout","deadPhys"]
-    kwargs.setdefault('MaskingTool', theLArRCBMasker )
-    
+    kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
     # CosmicTriggerTimeTool for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :

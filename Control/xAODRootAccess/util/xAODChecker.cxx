@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODChecker.cxx 673572 2015-06-09 08:40:47Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -40,8 +38,6 @@ int main( int argc, char* argv[] ) {
 
    // The object used in the checks:
    xAOD::TFileChecker checker;
-   checker.addIgnoredVariable( "calkey" ); // Variable missing from MC15a
-   checker.addIgnoredVariable( "trkkey" ); // Variable missing from MC15a
    checker.setStopOnError( kFALSE ); // Don't stop on errors, print them all
 
    // Loop over the files:

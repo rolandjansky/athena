@@ -265,7 +265,7 @@ namespace Analysis {
   	  return sc;
   	}
       } else {
-	ATH_MSG_WARNING("#BTAG# VxSecVertexInfo pointer cannot be interpreted for tool " << *itSecVtxFinders);
+	ATH_MSG_WARNING("#BTAG# BTagSecVertexing: VxSecVertexInfo pointer cannot be interpreted for tool " << *itSecVtxFinders);
       }
 
       delete myVertexInfo;
@@ -778,7 +778,7 @@ namespace Analysis {
             return sc;
           }
         } else {
-	  ATH_MSG_WARNING("#BTAG# VxSecVertexInfo pointer cannot be interpreted for tool " << *itSecVtxFinders);
+	  ATH_MSG_WARNING("#BTAG# BTagSecVertexing VxSecVertexInfo pointer cannot be interpreted for tool " << *itSecVtxFinders);
         }
 
         delete myVertexInfo;

@@ -53,10 +53,10 @@ ZdcByteStreamTool::ZdcByteStreamTool(const std::string& type,
 			m_crates(8),
 			//m_modules(16),
 			m_subDetector(eformat::FORWARD_ZDC),
-			m_srcIdMap(0),
+			m_srcIdMap(nullptr),
 			//m_towerKey(0),
 			//m_errorBlock(0),
-			m_rodStatus(0)
+			m_rodStatus(nullptr)
 
 {
 	declareInterface<ZdcByteStreamTool> (this);
@@ -106,7 +106,7 @@ StatusCode ZdcByteStreamTool::initialize()
 	m_errorBlock = new ZdcPpmSubBlock();
 	m_rodStatus = new std::vector<uint32_t>(2);
 
-	const ZdcID* zdcID = 0;
+	const ZdcID* zdcID = nullptr;
 	if (detStore()->retrieve( zdcID ).isFailure() ) {
 	  msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
 	  return StatusCode::FAILURE;
@@ -189,18 +189,18 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
       const uint32_t sourceID = (*rob)->rod_source_id();
       if (debug)
 	{
-	  if (m_srcIdMap->subDet(sourceID) != m_subDetector || m_srcIdMap->daqOrRoi(sourceID)
+	  if (ZdcSrcIdMap::subDet(sourceID) != m_subDetector || ZdcSrcIdMap::daqOrRoi(sourceID)
 	      != 0)
 	    {
 	      msg() << "ZDC: Wrong source identifier in data: " << MSG::hex << sourceID << MSG::dec
 		    << endmsg;
 	    }
 	}
-      const int rodCrate = m_srcIdMap->crate(sourceID);
+      const int rodCrate = ZdcSrcIdMap::crate(sourceID);
       if (debug)
 	{
-	  msg() << "ZDC: Treating crate " << rodCrate << " slink " << m_srcIdMap->slink(sourceID)
-		<< "From SubDetectorID " << m_srcIdMap->subDet(sourceID) << endmsg;
+	  msg() << "ZDC: Treating crate " << rodCrate << " slink " << ZdcSrcIdMap::slink(sourceID)
+		<< "From SubDetectorID " << ZdcSrcIdMap::subDet(sourceID) << endmsg;
 	}
 
       /* Comment out - this needs adaptation as there are too much L1 dialect in here
@@ -602,13 +602,13 @@ void ZdcByteStreamTool::printCompStats() const
 const std::vector<uint32_t>& ZdcByteStreamTool::sourceIDs()
 {
   if (m_sourceIDs.empty()) {
-    const int maxlinks = m_srcIdMap->maxSlinks();
+    const int maxlinks = ZdcSrcIdMap::maxSlinks();
     for (int crate = 0; crate < m_crates; ++crate) {
       for (int slink = 0; slink < maxlinks; ++slink) {
         const int daqOrRoi = 0;
-        const uint32_t rodId = m_srcIdMap->getRodID(crate, slink, daqOrRoi,
+        const uint32_t rodId = ZdcSrcIdMap::getRodID(crate, slink, daqOrRoi,
                                                             m_subDetector);
-        const uint32_t robId = m_srcIdMap->getRobID(rodId);
+        const uint32_t robId = ZdcSrcIdMap::getRobID(rodId);
         m_sourceIDs.push_back(robId);
       }
     }

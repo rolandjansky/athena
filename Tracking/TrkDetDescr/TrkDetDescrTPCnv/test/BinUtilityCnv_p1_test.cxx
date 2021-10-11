@@ -52,7 +52,7 @@ void testit (const Trk::BinUtility& trans1)
 {
   BinUtilityCnv_p1 cnv;
   Trk::BinUtility_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   Trk::BinUtility trans2;
   cnv.persToTrans (&pers, &trans2, log);

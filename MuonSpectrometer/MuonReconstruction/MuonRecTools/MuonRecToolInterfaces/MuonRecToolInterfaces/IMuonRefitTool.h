@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONREFITTOOL_H
@@ -8,8 +8,6 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "Identifier/Identifier.h"
 #include "MuonStationIndex/MuonStationIndex.h"
-
-static const InterfaceID IID_IMuonRefitTool("Muon::IMuonRefitTool", 1, 0);
 
 namespace Trk {
     class Track;
@@ -62,16 +60,19 @@ namespace Muon {
 
     public:
         /** access to tool interface */
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonRefitTool("Muon::IMuonRefitTool", 1, 0);
+            return IID_IMuonRefitTool;
+        }
 
+        virtual ~IMuonRefitTool() = default;
         /** refit a track */
-        virtual std::unique_ptr<Trk::Track> refit(Trk::Track* track, const Settings* settings = 0) const = 0;
-
+        virtual std::unique_ptr<Trk::Track> refit(const Trk::Track& track, const EventContext& ctx,
+                                                  const Settings* settings = nullptr) const = 0;
         /** refit and back extrapolate a vector of track pairs */
-        virtual std::vector<std::unique_ptr<Trk::Track> > refit(std::vector<Trk::Track*>& tracks, const Settings* settings = 0) const = 0;
+        virtual std::vector<std::unique_ptr<Trk::Track> > refit(const std::vector<Trk::Track*>& tracks, const EventContext& ctx,
+                                                                const Settings* settings = nullptr) const = 0;
     };
-
-    inline const InterfaceID& IMuonRefitTool::interfaceID() { return IID_IMuonRefitTool; }
 
 }  // namespace Muon
 

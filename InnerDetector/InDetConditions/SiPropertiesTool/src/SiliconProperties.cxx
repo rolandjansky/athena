@@ -107,7 +107,7 @@ double SiliconProperties::diffusionConstant(CarrierType carrierType) const {
   }
 }
 
-double SiliconProperties::charge(CarrierType carrierType) const {
+double SiliconProperties::charge(CarrierType carrierType) {
   return (carrierType == holes) ? +1 : -1;
 }
 
@@ -120,18 +120,18 @@ double SiliconProperties::signedHallMobility(CarrierType carrierType) const {
 }
 
 
-double SiliconProperties::calcElectronHallFactor(double temperature) const {
+double SiliconProperties::calcElectronHallFactor(double temperature) {
   // Equation from ATL-INDET-2001-004
   return elecHallFactZero + elecHallFact_drdt * (temperature - temperatureZero);
 }
 
-double SiliconProperties::calcHoleHallFactor(double temperature) const {
+double SiliconProperties::calcHoleHallFactor(double temperature) {
   // Equation from ATL-INDET-2001-004
   return holeHallFactZero + holeHallFact_drdt * (temperature - temperatureZero);
 }
 
 // driftMobility
-double SiliconProperties::calcDriftMobility(double electricField, double electricField_critical, double saturationVelocity, double beta) const {
+double SiliconProperties::calcDriftMobility(double electricField, double electricField_critical, double saturationVelocity, double beta) {
   // Equation from ATL-INDET-2001-004
   return saturationVelocity / electricField_critical / 
     pow(std::abs(1. + pow(std::abs(electricField/electricField_critical), beta)), 1./beta);
@@ -156,7 +156,7 @@ double SiliconProperties::calcHoleDriftMobility(double temperature, double elect
 } 
 
 
-double SiliconProperties::calcDiffusionConstant(double temperature, double mobility) const {
+double SiliconProperties::calcDiffusionConstant(double temperature, double mobility) {
   // Einstein's relationship (in many text books)
   return -CLHEP::k_Boltzmann * temperature / CLHEP::electron_charge * mobility; // CLHEP::k_Boltzmann and CLHEP::electron_charge
 }

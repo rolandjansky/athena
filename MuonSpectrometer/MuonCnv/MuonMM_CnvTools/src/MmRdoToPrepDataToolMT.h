@@ -11,7 +11,7 @@
 
 namespace Muon 
 {
-  class MmRdoToPrepDataToolMT : virtual public MmRdoToPrepDataToolCore
+  class MmRdoToPrepDataToolMT : public extends<MmRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
   {
   public:
     MmRdoToPrepDataToolMT(const std::string&,const std::string&,const IInterface*);

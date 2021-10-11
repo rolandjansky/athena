@@ -33,7 +33,9 @@
 #include "muonEvent/CaloEnergy.h"
 
 namespace Units = Athena::Units;
-
+namespace {
+    constexpr double OneOverSqrt2 = M_SQRT1_2;
+}
 namespace Rec {
 
     MuonTrackQuery::MuonTrackQuery(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -75,12 +77,11 @@ namespace Rec {
     const CaloEnergy* MuonTrackQuery::caloEnergy(const Trk::Track& track) const {
         const CaloEnergy* caloEnergy = nullptr;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
             // select MaterialEffects inside calorimeter volume
-            if (!(**s).type(Trk::TrackStateOnSurface::CaloDeposit) || !(**s).materialEffectsOnTrack()) { continue; }
+            if (!tsos->type(Trk::TrackStateOnSurface::CaloDeposit) || !tsos->materialEffectsOnTrack()) { continue; }
 
-            const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
+            const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
 
             if (!meot) { continue; }
 
@@ -92,16 +93,15 @@ namespace Rec {
 
         return caloEnergy;
     }
-
-    double MuonTrackQuery::caloEnergyDeposit(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    double MuonTrackQuery::caloEnergyDeposit(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
             return 0.;
         }
 
-        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
+        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector", ctx);
 
         if (!indetVolume) {
             ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -111,18 +111,17 @@ namespace Rec {
         const Trk::TrackParameters* indetExitParameters = nullptr;
         const Trk::TrackParameters* caloExitParameters = nullptr;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            if (!(**s).trackParameters()) continue;
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
+            if (!tsos->trackParameters()) continue;
 
-            if (indetVolume->inside((**s).trackParameters()->position())) {
-                indetExitParameters = (**s).trackParameters();
+            if (indetVolume->inside(tsos->trackParameters()->position())) {
+                indetExitParameters = tsos->trackParameters();
                 continue;
             }
 
-            if (!calorimeterVolume->inside((**s).trackParameters()->position()) && caloExitParameters) { break; }
+            if (!calorimeterVolume->inside(tsos->trackParameters()->position()) && caloExitParameters) { break; }
 
-            caloExitParameters = (**s).trackParameters();
+            caloExitParameters = tsos->trackParameters();
         }
 
         if (!indetExitParameters || !caloExitParameters) { return 0.; }
@@ -134,22 +133,22 @@ namespace Rec {
         return energyDeposit;
     }
 
-    FieldIntegral MuonTrackQuery::fieldIntegral(const Trk::Track& track) const {
+    FieldIntegral MuonTrackQuery::fieldIntegral(const Trk::Track& track, const EventContext& ctx) const {
         // field integral null for straight tracks + method is not valid for slimmed tracks
         if (isLineFit(track) || isSlimmed(track)) { return FieldIntegral(); }
 
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
             return FieldIntegral();
         }
 
-        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
+        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector", ctx);
 
         if (!indetVolume) {
             ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
-            return 0.;
+            return FieldIntegral();
         }
 
         // sum Bdl between measurements
@@ -164,38 +163,35 @@ namespace Rec {
         const Trk::TrackParameters* parameters = nullptr;
 
         // loop over TSOS to integrate vector Bdl
-        int hit = 1;
-
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s, ++hit) {
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
             // not going to use trigger hits, outliers or pseudoMeasurements
-            bool isPreciseHit = ((**s).measurementOnTrack() && dynamic_cast<const Trk::MeasurementBase*>((**s).measurementOnTrack()) &&
-                                 !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack()) &&
-                                 !(**s).type(Trk::TrackStateOnSurface::Outlier));
+            bool isPreciseHit = (tsos->measurementOnTrack() && dynamic_cast<const Trk::MeasurementBase*>(tsos->measurementOnTrack()) &&
+                                 !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack()) &&
+                                 !tsos->type(Trk::TrackStateOnSurface::Outlier));
 
             // skip slimmed measurements
-            if (!(**s).trackParameters() || dynamic_cast<const Trk::Perigee*>((**s).trackParameters())) { continue; }
+            if (!tsos->trackParameters() || dynamic_cast<const Trk::Perigee*>(tsos->trackParameters())) { continue; }
 
             // skip spectrometer phi measurements
-            if (isPreciseHit && !calorimeterVolume->inside((**s).trackParameters()->position())) {
-                Identifier id = m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
+            if (isPreciseHit && !calorimeterVolume->inside(tsos->trackParameters()->position())) {
+                Identifier id = m_edmHelperSvc->getIdentifier(*tsos->measurementOnTrack());
                 isPreciseHit = (id.is_valid() && !m_idHelperSvc->measuresPhi(id));
             }
 
-            if (!(**s).materialEffectsOnTrack() && !isPreciseHit) { continue; }
+            if (!tsos->materialEffectsOnTrack() && !isPreciseHit) { continue; }
 
             // careful with first hit + skip any flipped parameters
-            if (!parameters) { parameters = (**s).trackParameters(); }
+            if (!parameters) { parameters = tsos->trackParameters(); }
 
             Amg::Vector3D startMomentum = parameters->momentum();
-            parameters = (**s).trackParameters();
+            parameters = tsos->trackParameters();
             Amg::Vector3D endDirection = parameters->momentum().unit();
 
             if (startMomentum.dot(endDirection) < 0.) continue;
 
             // subtract scattering angle
-            if ((**s).materialEffectsOnTrack()) {
-                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
+            if (tsos->materialEffectsOnTrack()) {
+                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
 
                 if (meot && meot->scatteringAngles()) {
                     double theta = endDirection.theta() - meot->scatteringAngles()->deltaTheta();
@@ -242,36 +238,35 @@ namespace Rec {
         return FieldIntegral(betweenInDetMeasurements, betweenSpectrometerMeasurements, 0., 0.);
     }
 
-    bool MuonTrackQuery::isCaloAssociated(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    bool MuonTrackQuery::isCaloAssociated(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
             return false;
         }
 
-        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
+        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector", ctx);
 
         if (!indetVolume) {
             ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
-            return 0.;
+            return false;
         }
 
         bool haveCaloDeposit = false;
         int numberCaloTSOS = 0;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
+        for (const Trk::TrackStateOnSurface* s : *track.trackStateOnSurfaces()) {
             // CaloDeposit?
-            if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit)) {
+            if (s->type(Trk::TrackStateOnSurface::CaloDeposit)) {
                 ATH_MSG_VERBOSE("haveCaloDeposit, " << numberCaloTSOS << " TSOS in calo volume");
                 haveCaloDeposit = true;
             }
 
             // select MaterialEffects inside calorimeter volume
-            if (!(**s).materialEffectsOnTrack()) { continue; }
+            if (!s->materialEffectsOnTrack()) { continue; }
 
-            Amg::Vector3D position = (**s).materialEffectsOnTrack()->associatedSurface().globalReferencePoint();
+            Amg::Vector3D position = s->materialEffectsOnTrack()->associatedSurface().globalReferencePoint();
 
             if (indetVolume->inside(position)) { continue; }
             if (!calorimeterVolume->inside(position)) { break; }
@@ -283,19 +278,19 @@ namespace Rec {
         return false;
     }
 
-    bool MuonTrackQuery::isCombined(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    bool MuonTrackQuery::isCombined(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
             return false;
         }
 
-        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
+        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector", ctx);
 
         if (!indetVolume) {
             ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
-            return 0.;
+            return false;
         }
 
         // combined tracks have indet and spectrometer active measurements
@@ -303,17 +298,16 @@ namespace Rec {
         bool spectrometer = false;
 
         // find innermost measurement (assume some degree of measurement ordering)
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            if (!(**s).measurementOnTrack() || (**s).type(Trk::TrackStateOnSurface::Outlier) ||
-                dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())) {
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
+            if (!tsos->measurementOnTrack() || tsos->type(Trk::TrackStateOnSurface::Outlier) ||
+                dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) {
                 continue;
             }
 
-            if (indetVolume->inside((**s).measurementOnTrack()->globalPosition())) {
+            if (indetVolume->inside(tsos->measurementOnTrack()->globalPosition())) {
                 indet = true;
                 break;
-            } else if (!calorimeterVolume->inside((**s).measurementOnTrack()->globalPosition())) {
+            } else if (!calorimeterVolume->inside(tsos->measurementOnTrack()->globalPosition())) {
                 spectrometer = true;
                 break;
             }
@@ -339,19 +333,19 @@ namespace Rec {
         return indet && spectrometer;
     }
 
-    bool MuonTrackQuery::isExtrapolated(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    bool MuonTrackQuery::isExtrapolated(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
             return false;
         }
 
-        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
+        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector", ctx);
 
         if (!indetVolume) {
             ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
-            return 0.;
+            return false;
         }
 
         // perigee needs to be inside indet
@@ -364,17 +358,16 @@ namespace Rec {
         bool spectrometer = false;
 
         // find innermost measurement (assume some degree of measurement ordering)
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            if (!(**s).measurementOnTrack() || (**s).type(Trk::TrackStateOnSurface::Outlier) ||
-                dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())) {
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
+            if (!tsos->measurementOnTrack() || tsos->type(Trk::TrackStateOnSurface::Outlier) ||
+                dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) {
                 continue;
             }
 
-            if (indetVolume->inside((**s).measurementOnTrack()->globalPosition())) {
+            if (indetVolume->inside(tsos->measurementOnTrack()->globalPosition())) {
                 indet = true;
                 break;
-            } else if (!calorimeterVolume->inside((**s).measurementOnTrack()->globalPosition())) {
+            } else if (!calorimeterVolume->inside(tsos->measurementOnTrack()->globalPosition())) {
                 spectrometer = true;
                 break;
             }
@@ -429,12 +422,10 @@ namespace Rec {
     bool MuonTrackQuery::isProjective(const Trk::Track& track) const {
         // get start and end measured positions
         Amg::Vector3D startPosition(0., 0., 0.);
-
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            if ((**s).measurementOnTrack() && !(**s).type(Trk::TrackStateOnSurface::Outlier) &&
-                !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())) {
-                startPosition = (**s).measurementOnTrack()->globalPosition();
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
+            if (tsos->measurementOnTrack() && !tsos->type(Trk::TrackStateOnSurface::Outlier) &&
+                !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) {
+                startPosition = tsos->measurementOnTrack()->globalPosition();
                 break;
             }
         }
@@ -492,19 +483,18 @@ namespace Rec {
         double cosPhi = 0.;
         double sinPhi = 0.;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            if (!(**s).measurementOnTrack() || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())) { continue; }
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
+            if (!tsos->measurementOnTrack() || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) { continue; }
 
             if (isOverlap) {
                 isOverlap = false;
 
-                Amg::Vector3D position = (**s).measurementOnTrack()->associatedSurface().globalReferencePoint();
+                const Amg::Vector3D& position = tsos->measurementOnTrack()->associatedSurface().globalReferencePoint();
 
                 cosPhi = position.x() / position.perp();
                 sinPhi = position.y() / position.perp();
             } else {
-                Amg::Vector3D position = (**s).measurementOnTrack()->associatedSurface().globalReferencePoint();
+                const Amg::Vector3D& position = tsos->measurementOnTrack()->associatedSurface().globalReferencePoint();
 
                 double sinDeltaPhi = (position.x() * sinPhi - position.y() * cosPhi) / position.perp();
 
@@ -533,9 +523,9 @@ namespace Rec {
         return false;
     }
 
-    double MuonTrackQuery::momentumBalanceSignificance(const Trk::Track& track) const {
+    double MuonTrackQuery::momentumBalanceSignificance(const Trk::Track& track, const EventContext& ctx) const {
         // significance only defined for combined muons
-        if (!isCombined(track)) return 0.;
+        if (!isCombined(track, ctx)) return 0.;
 
         // find the TSOS carrying caloEnergy (TSOS type CaloDeposit)
         // compare parameters with those from previous TSOS
@@ -544,18 +534,17 @@ namespace Rec {
         const Trk::EnergyLoss* energyLoss = nullptr;
         const Trk::TrackParameters* previousParameters = nullptr;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            if (!(**s).trackParameters()) continue;
+        for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
+            if (!tsos->trackParameters()) continue;
 
-            if ((**s).materialEffectsOnTrack()) {
-                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
+            if (tsos->materialEffectsOnTrack()) {
+                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
 
                 if (!meot) continue;
                 energyLoss = meot->energyLoss();
 
-                if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit) && energyLoss && previousParameters) {
-                    energyBalance = previousParameters->momentum().mag() - energyLoss->deltaE() - (**s).trackParameters()->momentum().mag();
+                if (tsos->type(Trk::TrackStateOnSurface::CaloDeposit) && energyLoss && previousParameters) {
+                    energyBalance = previousParameters->momentum().mag() - energyLoss->deltaE() - tsos->trackParameters()->momentum().mag();
 
                     if (std::abs(energyBalance) < energyLoss->sigmaDeltaE()) {
                         ATH_MSG_DEBUG(std::setiosflags(std::ios::fixed)
@@ -563,7 +552,7 @@ namespace Rec {
                                       << "   significance " << std::setw(6) << std::setprecision(1)
                                       << energyBalance / energyLoss->sigmaDeltaE() << "  p before/after calo" << std::setw(7)
                                       << std::setprecision(2) << previousParameters->momentum().mag() / Units::GeV << " /" << std::setw(7)
-                                      << std::setprecision(2) << (**s).trackParameters()->momentum().mag() / Units::GeV
+                                      << std::setprecision(2) << tsos->trackParameters()->momentum().mag() / Units::GeV
                                       << "   energy deposit sigma  " << energyLoss->sigmaDeltaE() / Units::GeV << " GeV");
 
                         energyBalance /= energyLoss->sigmaDeltaE();
@@ -573,7 +562,7 @@ namespace Rec {
                                       << "   significance " << std::setw(6) << std::setprecision(1)
                                       << energyBalance / energyLoss->sigmaDeltaE() << "  p before/after calo" << std::setw(7)
                                       << std::setprecision(2) << previousParameters->momentum().mag() / Units::GeV << " /" << std::setw(7)
-                                      << std::setprecision(2) << (**s).trackParameters()->momentum().mag() / Units::GeV
+                                      << std::setprecision(2) << tsos->trackParameters()->momentum().mag() / Units::GeV
                                       << "   energy deposit sigma- " << energyLoss->sigmaMinusDeltaE() / Units::GeV << " GeV");
 
                         energyBalance /= energyLoss->sigmaMinusDeltaE();
@@ -583,7 +572,7 @@ namespace Rec {
                                       << "   significance " << std::setw(6) << std::setprecision(1)
                                       << energyBalance / energyLoss->sigmaDeltaE() << "  p before/after calo" << std::setw(7)
                                       << std::setprecision(2) << previousParameters->momentum().mag() / Units::GeV << " /" << std::setw(7)
-                                      << std::setprecision(2) << (**s).trackParameters()->momentum().mag() / Units::GeV
+                                      << std::setprecision(2) << tsos->trackParameters()->momentum().mag() / Units::GeV
                                       << "   energy deposit sigma+ " << energyLoss->sigmaPlusDeltaE() / Units::GeV << " GeV");
 
                         energyBalance /= energyLoss->sigmaPlusDeltaE();
@@ -593,7 +582,7 @@ namespace Rec {
             }
 
             // update previous parameters
-            previousParameters = (**s).trackParameters();
+            previousParameters = tsos->trackParameters();
         }
 
         return energyBalance;
@@ -614,12 +603,12 @@ namespace Rec {
         return numberPseudo;
     }
 
-    const Trk::Perigee* MuonTrackQuery::outgoingPerigee(const Trk::Track& track) const {
+    std::unique_ptr<const Trk::Perigee> MuonTrackQuery::outgoingPerigee(const Trk::Track& track) const {
         // only flip Perigee
         const Trk::Perigee* perigee = track.perigeeParameters();
         if (!perigee) {
             ATH_MSG_WARNING(" input track without Perigee");
-            return track.perigeeParameters();
+            return nullptr;
         }
 
         const Trk::PerigeeSurface& surface = perigee->associatedSurface();
@@ -627,50 +616,47 @@ namespace Rec {
         const Trk::TrackStateOnSurface* outerTSOS = track.trackStateOnSurfaces()->back();
         if (!perigee->covariance()) {
             ATH_MSG_WARNING(" perigee has no covariance");
-            return track.perigeeParameters();
+            return perigee->uniqueClone();
         }
 
         if (outerTSOS->trackParameters() == perigee && perigee->momentum().dot(perigee->position()) <= 0.) {
-            AmgSymMatrix(5) perigeeCov = AmgSymMatrix(5)(*perigee->covariance());
+            const AmgSymMatrix(5)& perigeeCov = (*perigee->covariance());
 
             // need to flip
-            perigee = new Trk::Perigee(perigee->position(), -perigee->momentum(), -perigee->charge(), surface, perigeeCov);
+            return std::make_unique<Trk::Perigee>(perigee->position(), -perigee->momentum(), -perigee->charge(), surface, perigeeCov);
         }
 
-        return perigee;
+        return perigee->uniqueClone();
     }
-
-    ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
-
+    ScatteringAngleSignificance MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
-            return false;
+            return ScatteringAngleSignificance{};
         }
 
-        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
+        const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector", ctx);
 
         if (!indetVolume) {
             ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
-            return 0.;
+            return ScatteringAngleSignificance{};
         }
 
         // provide refit for slimmed tracks
-        const Trk::Track* fullTrack = &track;
-        const Trk::Track* refittedTrack = nullptr;
+        std::unique_ptr<const Trk::Track> refittedTrack;
 
         if (isSlimmed(track)) {
             if (!m_fitter.empty()) {
                 ATH_MSG_VERBOSE(" perform refit as track has been slimmed");
-                refittedTrack = m_fitter->fit(track, false, Trk::muon);
-                fullTrack = refittedTrack;
+                refittedTrack = m_fitter->fit(ctx, track, false, Trk::muon);
             }
-
             if (!refittedTrack) return ScatteringAngleSignificance(0);
+        } else {
+            refittedTrack = std::make_unique<Trk::Track>(track);
         }
 
         // collect sigma of scatterer up to TSOS carrying caloEnergy
-        double charge = fullTrack->perigeeParameters()->charge();
+        double charge = refittedTrack->perigeeParameters()->charge();
         bool haveMeasurement = false;
         unsigned scatterers = 0;
         double totalSigma = 0.;
@@ -679,24 +665,22 @@ namespace Rec {
         std::vector<double> sigmas;
         std::vector<double> radii;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = fullTrack->trackStateOnSurfaces()->begin();
-        for (; s != fullTrack->trackStateOnSurfaces()->end(); ++s) {
+        for (const Trk::TrackStateOnSurface* tsos : *refittedTrack->trackStateOnSurfaces()) {
             // skip leading material
             if (!haveMeasurement) {
-                if ((**s).measurementOnTrack()) { haveMeasurement = true; }
+                if (tsos->measurementOnTrack()) { haveMeasurement = true; }
                 continue;
             }
 
             // select MaterialEffects up to calorimeter volume
-            if (!(**s).materialEffectsOnTrack()) continue;
+            if (!tsos->materialEffectsOnTrack()) continue;
 
-            Amg::Vector3D position = (**s).materialEffectsOnTrack()->associatedSurface().globalReferencePoint();
+            const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
+
+            const Amg::Vector3D& position = meot->associatedSurface().globalReferencePoint();
 
             if (!calorimeterVolume->inside(position)) break;
 
-            const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
-
-            if (!meot) continue;
             if (!indetVolume->inside(position) && meot->energyLoss()) break;
 
             // get scattering angle
@@ -705,23 +689,20 @@ namespace Rec {
 
             ++scatterers;
 
-            if ((**s).measurementOnTrack()) {
+            if (tsos->measurementOnTrack()) {
                 isMeasurement.push_back(true);
             } else {
                 isMeasurement.push_back(false);
             }
 
-            radii.push_back((**s).trackParameters()->position().perp());
+            radii.push_back(tsos->trackParameters()->position().perp());
             double sigma = charge * scattering->deltaPhi() / scattering->sigmaDeltaPhi();
             totalSigma += sigma;
             sigmas.push_back(sigma);
 
-            ATH_MSG_VERBOSE(scatterers << " radius " << (**s).trackParameters()->position().perp() << "   deltaPhi "
+            ATH_MSG_VERBOSE(scatterers << " radius " << tsos->trackParameters()->position().perp() << "   deltaPhi "
                                        << scattering->deltaPhi() << "   significance " << sigma << "  totalSignificance " << totalSigma);
         }
-
-        // quit if no scatterers selected
-        delete refittedTrack;
 
         if (!scatterers) { return ScatteringAngleSignificance(0); }
 
@@ -761,7 +742,7 @@ namespace Rec {
 
         // normalize
         curvatureSignificance /= std::sqrt(static_cast<double>(scatterers));
-        neighbourSignificance /= std::sqrt(2.);
+        neighbourSignificance *= OneOverSqrt2;
 
         ATH_MSG_DEBUG(" scatteringAngleSignificance " << curvatureSignificance << " at radius " << curvatureRadius
                                                       << " neighbourSignificance " << neighbourSignificance << " at radius "
@@ -770,8 +751,8 @@ namespace Rec {
         return ScatteringAngleSignificance(scatterers, curvatureRadius, curvatureSignificance, neighbourRadius, neighbourSignificance);
     }
 
-    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::spectrometerParameters(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -781,10 +762,7 @@ namespace Rec {
         // find parameters at innermost spectrometer measurement
         // clone perigee if track has been slimmed
         const Trk::TrackParameters* parametersView{};
-
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-        for (; s != track.trackStateOnSurfaces()->end(); ++s) {
-            const auto* const pThisTrackState = *s;
+        for (const Trk::TrackStateOnSurface* pThisTrackState : *track.trackStateOnSurfaces()) {
             if (!pThisTrackState->measurementOnTrack() || pThisTrackState->type(Trk::TrackStateOnSurface::Outlier) ||
                 !pThisTrackState->trackParameters() ||
                 dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(pThisTrackState->measurementOnTrack()) ||
@@ -809,8 +787,8 @@ namespace Rec {
 
     /** IMuonTrackQuery interface:
         assess the number of additional phi measurements needed for MS (or SA) track fit */
-    unsigned MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    unsigned MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track, const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -874,10 +852,9 @@ namespace Rec {
         return 0;
     }
 
-    /** IMuonTrackQuery interface:
-        trackParameters at innermost trigger chamber TSOS in MS */
-    const Trk::TrackParameters* MuonTrackQuery::triggerStationParameters(const Trk::Track& track) const {
-        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
+    std::unique_ptr<const Trk::TrackParameters> MuonTrackQuery::triggerStationParameters(const Trk::Track& track,
+                                                                                         const EventContext& ctx) const {
+        const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container", ctx);
 
         if (!calorimeterVolume) {
             ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -886,7 +863,7 @@ namespace Rec {
 
         // find parameters at innermost trigger station measurement
         // fails if track has been slimmed
-        const Trk::TrackParameters* parameters = nullptr;
+        std::unique_ptr<const Trk::TrackParameters> parameters;
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
         for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -898,23 +875,23 @@ namespace Rec {
 
             if (parameters && (**s).trackParameters()->position().mag() > parameters->position().mag()) { break; }
 
-            parameters = (**s).trackParameters();
+            parameters = (**s).trackParameters()->uniqueClone();
         }
 
         if (!parameters) return nullptr;
 
         // if necessary, flip to outgoing parameters
         if (parameters->momentum().dot(parameters->position()) > 0.) {
-            parameters = parameters->clone();
+            parameters = parameters->uniqueClone();
         } else {
             ATH_MSG_VERBOSE(" flip spectrometer parameters ");
-            parameters = flippedParameters(*parameters).release();
+            parameters = flippedParameters(*parameters);
         }
 
         return parameters;
     }
 
-    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const {
+    std::unique_ptr<Trk::TrackParameters> MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) {
         double phi = parameters.parameters()[Trk::phi0];
         if (phi > 0.) {
             phi -= M_PI;

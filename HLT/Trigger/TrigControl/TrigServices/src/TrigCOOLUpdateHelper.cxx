@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -197,14 +197,22 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
   for (auto& [idx, f] : m_folderUpdates) {
           
     if (f.needsUpdate) {
+
+      if ( m_iovSvc==nullptr || m_coolFolderName.empty() ) {
+        ATH_MSG_DEBUG("Request to reload COOL folder ID " << idx << " for IOV change in lumiblock "
+                      << f.lumiBlock << " but running without IOVSvc. Current event: "  << ctx.eventID());
+        f.needsUpdate = false;
+        continue;
+      }
+
       std::string folderName;
       if (getFolderName(f.folderIndex, folderName).isFailure()) {
         continue;  // On purpose not a failure
       }
 
-      ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock " << f.lumiBlock
-                   << ". Current event: "  << ctx.eventID());
-              
+      ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock "
+                   << f.lumiBlock << ". Current event: "  << ctx.eventID());
+
       if ( hltCoolUpdate(folderName, ctx).isFailure() ) {
         ATH_MSG_ERROR("COOL update failed for " << folderName << ". Aborting.");
         return StatusCode::FAILURE;
@@ -219,11 +227,6 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
 
 StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, const EventContext& ctx)
 {
-  if ( m_iovSvc==nullptr || m_coolFolderName.empty() ) {
-    ATH_MSG_DEBUG("Passive mode. Not updating COOL folders");
-    return StatusCode::SUCCESS;
-  }
-
   if (std::find(m_folders.begin(), m_folders.end(), folderName)==m_folders.end()) {
     ATH_MSG_ERROR("Received request to update COOL folder '" << folderName
                   << "' but this folder is not in the allowed list:" << m_folders);
@@ -244,8 +247,6 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
 
 StatusCode TrigCOOLUpdateHelper::getFolderName(CTPfragment::FolderIndex idx, std::string& folderName) const
 {
-  if (m_coolFolderName.empty()) return StatusCode::SUCCESS;
-
   const auto& itr = m_folderNames.find(idx);
   if (itr==m_folderNames.end()) {
     ATH_MSG_ERROR(m_coolFolderName << " does not contain a folder for index/channel " << idx

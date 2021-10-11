@@ -24,7 +24,7 @@ def TrigMuonEFTrackIsolationToolCfg(flags, name = "TrigMuonTrackIsoTool", **kwar
 
 def TrigMuonEFTrackIsolationAlgCfg(flags, name = "TrigMuonEFTrackIsolation", **kwargs):
 
-    trackIsolationAlg = CompFactory.TrigMuonEFTrackIsolationAlgMT
+    trackIsolationAlg = CompFactory.TrigMuonEFTrackIsolationAlg
     acc = TrigMuonEFTrackIsolationToolCfg(flags)
 
     kwargs.setdefault('OnlineIsolationTool', acc.popPrivateTools())

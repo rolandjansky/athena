@@ -36,10 +36,10 @@ class LumiBlockMuTool: public extends<AthAlgTool, ILumiBlockMuTool> {
   // ---------------- user interface -------------------
 
   // Return interactions per crossing (mu) averaged over all BCIDs in physics bunch group
-  virtual float averageInteractionsPerCrossing() const override;
+  virtual float averageInteractionsPerCrossing() const override final;
 
   // Return interactions per crossing (mu) for this specific BCID
-  virtual float actualInteractionsPerCrossing() const override;
+  virtual float actualInteractionsPerCrossing() const override final;
 
   // Functions
   virtual StatusCode initialize() override;

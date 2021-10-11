@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoToPrepDataTool.h"
@@ -55,8 +55,7 @@ struct ATLAS_NOT_THREAD_SAFE GetCoinCollection
 }
 
 Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p), 
-    TgcRdoToPrepDataToolCore(t, n, p)
+  : base_class(t, n, p)
 {
 }  
 
@@ -69,7 +68,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
 }
 
 StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
-  std::vector<IdentifierHash>& selectedIdHashVect)
+  std::vector<IdentifierHash>& selectedIdHashVect) const
 {
   int sizeVectorRequested = requestedIdHashVect.size();
   ATH_MSG_DEBUG("decode for " << sizeVectorRequested << " offline collections called");
@@ -225,11 +224,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     // select RDOs to be decoded when seeded mode is used  
     std::vector<const TgcRdo*> rdoCollVec; 
     if(sizeVectorRequested!=0) { 
-      unsigned int nRdo = 0; 
-      std::vector<IdentifierHash>::iterator tgchid   = requestedIdHashVect.begin(); 
-      std::vector<IdentifierHash>::iterator tgchid_e = requestedIdHashVect.end(); 
-      for(; tgchid!=tgchid_e; tgchid++) { 
-        IdentifierHash offlineCollHash = *tgchid; 
+      unsigned int nRdo = 0;
+      for (IdentifierHash offlineCollHash : requestedIdHashVect) {
         uint16_t onlineId = cinfo->m_hashToOnlineId.at(static_cast<unsigned int>(offlineCollHash)); 
 
         if(m_decodedOnlineId.at(onlineId)) { 
@@ -243,7 +239,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
 
         TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin(); 
         TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end(); 
-        for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) { 
+        for(; rdo_container_it!=rdo_container_it_e; ++rdo_container_it) { 
           const TgcRdo* rdoColl = *rdo_container_it; 
           if(rdoColl->identify()==onlineId) { 
             if(!isAlreadyConverted(m_decodedRdoCollVec, rdoCollVec, rdoColl)) { 
@@ -260,29 +256,25 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     // Decode Hits
     if(sizeVectorRequested!=0) {
       ATH_MSG_DEBUG("Start loop over rdos - seeded mode");
-    
-      std::vector<const TgcRdo*>::const_iterator iRdo   = rdoCollVec.begin();
-      std::vector<const TgcRdo*>::const_iterator iRdo_e = rdoCollVec.end();
-      for(; iRdo!=iRdo_e; iRdo++) {
-        TgcRdo::const_iterator itD   = (*iRdo)->begin(); 
-        TgcRdo::const_iterator itD_e = (*iRdo)->end();
-        for(; itD!=itD_e; itD++) { 
+
+      for (const TgcRdo* rdo : rdoCollVec) {
+        for (const TgcRawData* rd : *rdo) {
 	  //Since OnlineIds are not unique, need some additional filtering on offline hashId 
 	  //to avoid decoding RDO outside of an RoI
 	  Identifier offlineId;
 	  IdentifierHash tgcHashId;
 	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
 
-	  if(tgcCabling->getElementIDfromReadoutID(offlineId, (*itD)->subDetectorId(), (*itD)->rodId(), (*itD)->sswId(), (*itD)->slbId(), (*itD)->bitpos())){
-	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)){
+	  if(tgcCabling->getElementIDfromReadoutID(offlineId, rd->subDetectorId(), rd->rodId(), rd->sswId(), rd->slbId(), rd->bitpos())){
+	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)!=1){
 	      if(std::find(requestedIdHashVect.begin(), requestedIdHashVect.end(), tgcHashId) != requestedIdHashVect.end()){
 		selectDecoder(getHitCollection, getCoinCollection,
-                              itD, (*iRdo));
+                              *rd, rdo);
 	      }
 	    }
 	  }
         }
-        m_decodedRdoCollVec.push_back(*iRdo);
+        m_decodedRdoCollVec.push_back(rdo);
       }
       // show the vector of IdentifierHash which contains the data within requested range
       showIdentifierHashVector(m_state, selectedIdHashVect);
@@ -291,17 +283,15 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     
       TgcRdoContainer::const_iterator rdoColli   = rdoContainer->begin();
       TgcRdoContainer::const_iterator rdoColli_e = rdoContainer->end();
-      for(; rdoColli!=rdoColli_e; rdoColli++) {
+      for(; rdoColli!=rdoColli_e; ++rdoColli) {
         // loop over all elements of the rdo container 
         const TgcRdo* rdoColl = *rdoColli;
 
         if(rdoColl->size()>0 && !isAlreadyConverted(m_decodedRdoCollVec, rdoCollVec, rdoColl)) {
           ATH_MSG_DEBUG(" Number of RawData in this rdo " << rdoColl->size());
-          TgcRdo::const_iterator itD   = rdoColl->begin(); 
-          TgcRdo::const_iterator itD_e = rdoColl->end();
-          for(; itD!=itD_e; itD++) { 
+          for (const TgcRawData* rd : *rdoColl) {
             selectDecoder(getHitCollection, getCoinCollection,
-                          itD, rdoColl);
+                          *rd, rdoColl);
           }
           m_decodedRdoCollVec.push_back(rdoColl);
         }
@@ -334,7 +324,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
   return StatusCode::SUCCESS;
 }
 
-void Muon::TgcRdoToPrepDataTool::printPrepData()
+void Muon::TgcRdoToPrepDataTool::printPrepData() const
 {
   return printPrepDataImpl (m_state.m_tgcPrepDataContainer,
                             m_state.m_tgcCoinDataContainer);

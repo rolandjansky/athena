@@ -114,7 +114,7 @@ protected:
   /// stations and layers monitors and creates a TProfile with bins
   /// for each layer. On Y axis mean value of o given histogram is
   /// inserted.
-  void makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle);
+  void makeLayerSummaryHist (const std::string& inputHistName, const std::string& outputHistName, const std::string& outputHistTitle);
 
 private:
   SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey

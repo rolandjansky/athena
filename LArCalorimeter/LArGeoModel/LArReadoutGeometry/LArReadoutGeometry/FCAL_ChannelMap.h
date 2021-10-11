@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -158,10 +158,10 @@ private:
 
     /** Geometrical parameters here, in CLHEP::cm please to be compatible with G3 */
     static const double m_tubeSpacing[];
-    double 		m_tubeDx[3];
-    double 		m_tubeDy[3];
-    double 		m_tileDx[3];
-    double 		m_tileDy[3];
+    double 		m_tubeDx[3]{};
+    double 		m_tubeDy[3]{};
+    double 		m_tileDx[3]{};
+    double 		m_tileDy[3]{};
     bool		m_invert_x;   // Some geometry need x inverted
     bool		m_invert_xy;  // Some geometry need xy crossed 
     

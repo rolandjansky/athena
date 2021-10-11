@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,31 +20,34 @@ Trk::SaggedLineSurface::SaggedLineSurface() :
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(),
   m_saggingDescriptor(nullptr),
-  m_lineDirection{}
+  m_saggedLineDirection{}
 {}
 
-Trk::SaggedLineSurface::SaggedLineSurface(Amg::Transform3D* htrans,
-                                          double radius,
-                                          double halez,
-                                          Trk::LineSaggingDescriptor* lsd) :
-  Trk::DistortedSurface(),
-  Trk::StraightLineSurface(htrans, radius, halez),
-  m_saggingDescriptor(lsd),
-  m_lineDirection{}
+Trk::SaggedLineSurface::SaggedLineSurface(
+  const Amg::Transform3D& htrans,
+  double radius,
+  double halez,
+  Trk::LineSaggingDescriptor* lsd)
+  : Trk::DistortedSurface()
+  , Trk::StraightLineSurface(htrans, radius, halez)
+  , m_saggingDescriptor(lsd)
+  , m_saggedLineDirection{}
 {}
 
-Trk::SaggedLineSurface::SaggedLineSurface(std::unique_ptr<Amg::Transform3D> htrans) :
-  Trk::DistortedSurface(),
-  Trk::StraightLineSurface(std::move(htrans)),
-  m_saggingDescriptor(nullptr),
-  m_lineDirection{}
+Trk::SaggedLineSurface::SaggedLineSurface(const Amg::Transform3D& htrans)
+  : Trk::DistortedSurface()
+  , Trk::StraightLineSurface(htrans)
+  , m_saggingDescriptor(nullptr)
+  , m_saggedLineDirection{}
 {}
 
-Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
-  Trk::DistortedSurface(),
-  Trk::StraightLineSurface(detelement,id),
-  m_saggingDescriptor(),
-  m_lineDirection{}
+Trk::SaggedLineSurface::SaggedLineSurface(
+  const Trk::TrkDetElementBase& detelement,
+  const Identifier& id)
+  : Trk::DistortedSurface()
+  , Trk::StraightLineSurface(detelement, id)
+  , m_saggingDescriptor()
+  , m_saggedLineDirection{}
 {}
 
 Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id,
@@ -52,7 +55,7 @@ Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& deteleme
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(detelement,id),
   m_saggingDescriptor(),
-  m_lineDirection{}
+  m_saggedLineDirection{}
 {
      m_saggingDescriptor = new Trk::LineSaggingDescriptor(wireLength, wireTension, linearDensity);
 }
@@ -61,7 +64,7 @@ Trk::SaggedLineSurface::SaggedLineSurface(const Trk::SaggedLineSurface& sls) :
   Trk::DistortedSurface(sls),
   Trk::StraightLineSurface(sls),
   m_saggingDescriptor(new Trk::LineSaggingDescriptor(sls.distortionDescriptor())),
-  m_lineDirection{}
+  m_saggedLineDirection{}
 {}
 
 Trk::SaggedLineSurface::~SaggedLineSurface()
@@ -75,7 +78,7 @@ Trk::SaggedLineSurface& Trk::SaggedLineSurface::operator=(const Trk::SaggedLineS
     Trk::DistortedSurface::operator=(sls);
     Trk::StraightLineSurface::operator=(sls);
     delete m_saggingDescriptor;
-    m_lineDirection=sls.m_lineDirection;
+    m_saggedLineDirection=sls.m_saggedLineDirection;
     m_saggingDescriptor=new Trk::LineSaggingDescriptor(sls.distortionDescriptor());
   }
   return *this;
@@ -84,23 +87,22 @@ Trk::SaggedLineSurface& Trk::SaggedLineSurface::operator=(const Trk::SaggedLineS
 Trk::StraightLineSurface* Trk::SaggedLineSurface::correctedSurface(const Amg::Vector2D& lp) const
 {
   // prepare
-  Amg::Transform3D* newHepTransform =nullptr;
-  if (!m_lineDirection.isValid()) {
-    m_lineDirection.set(transform().rotation().col(3));
+  std::unique_ptr<Amg::Transform3D> newHepTransform =nullptr;
+  if (!m_saggedLineDirection.isValid()) {
+    m_saggedLineDirection.set(transform().rotation().col(3));
   }
   if (m_saggingDescriptor){
     // first get the hep transform from the distortion descriptor
-    newHepTransform = m_saggingDescriptor->correctedSurfaceTransform(lp,
-                                                                     center(),
-                                                                     *(m_lineDirection.ptr()));
+    newHepTransform.reset(m_saggingDescriptor->correctedSurfaceTransform(
+      lp, center(), *(m_saggedLineDirection.ptr())));
   } else if (Trk::Surface::associatedDetectorElement()) {
-     // get the sagging descriptor and the endpoints from GeoModel
-     // m_saggingDescriptor
+    // get the sagging descriptor and the endpoints from GeoModel
+    // m_saggingDescriptor
     throw std::logic_error("Condition not implemented ( Trk::SaggedLineSurface::correctedSurface (1) ).");
-  }else{
+  } else {
     throw std::logic_error("Condition not implemented ( Trk::SaggedLineSurface::correctedSurface (2) ).");
   }
-  return (newHepTransform) ? new Trk::StraightLineSurface(newHepTransform,bounds().r(),10e3) : nullptr;
+  return (newHepTransform) ? new Trk::StraightLineSurface(*newHepTransform,bounds().r(),10e3) : nullptr;
 }
 
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODPRIMITIVES_TOOLS_GETISOLATIONCORRECTIONACCESSOR_H
@@ -22,11 +22,11 @@ namespace xAOD {
    const SG::AuxElement::Accessor< uint32_t >
    getIsolationCorrectionBitsetAccessor( Iso::IsolationFlavour type );
    const SG::AuxElement::Accessor< float >
-   getIsolationCorrectionAccessor( Iso::IsolationFlavour, Iso::IsolationCaloCorrection type, Iso::IsolationCorrectionParameter param );
+   getIsolationCorrectionAccessor( Iso::IsolationFlavour, Iso::IsolationCaloCorrection corr, Iso::IsolationCorrectionParameter param );
    const SG::AuxElement::Accessor< float >
-   getIsolationCorrectionAccessor( Iso::IsolationType, Iso::IsolationCaloCorrection type);
+   getIsolationCorrectionAccessor( Iso::IsolationType, Iso::IsolationCaloCorrection corr);
    const SG::AuxElement::Accessor< float >
-   getIsolationCorrectionAccessor( Iso::IsolationFlavour, Iso::IsolationTrackCorrection type);   
+   getIsolationCorrectionAccessor( Iso::IsolationFlavour, Iso::IsolationTrackCorrection corr);   
 } // namespace xAOD
 
 #endif

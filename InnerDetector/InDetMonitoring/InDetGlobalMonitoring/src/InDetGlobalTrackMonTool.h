@@ -126,7 +126,7 @@ private:
     unsigned int m_nBinsEta;
     unsigned int m_nBinsPhi;
     unsigned int m_trackBin;
-    unsigned int m_trackMax;
+    unsigned int m_trackMax{};
 
     /// Contants for various histogram properties
     const float m_c_etaRange;
@@ -171,7 +171,7 @@ private:
     TH2F *m_holes_quality;
     TProfile *m_holes_quality_profile;
     
-    TH1I * m_Trk_Base;
+    TH1I * m_Trk_Base{};
     ///Distribution of eta vs phi for combined tracks
     TH2F  * m_Trk_eta_phi_Base;
     TH2F  * m_Trk_eta_phi_Tight;
@@ -236,30 +236,30 @@ private:
     TProfile2D * m_trk_holes_pix_eta_phi;
     TProfile2D * m_trk_holes_sct_eta_phi;
 
-    TProfile * m_trk_jetassoc_d0_reso_dr; 
-    TProfile * m_trk_jetassoc_z0_reso_dr; 
-    TProfile * m_trk_jetassoc_split_pix_dr; 
-    TProfile * m_trk_jetassoc_shared_pix_dr; 
+    TProfile * m_trk_jetassoc_d0_reso_dr{}; 
+    TProfile * m_trk_jetassoc_z0_reso_dr{}; 
+    TProfile * m_trk_jetassoc_split_pix_dr{}; 
+    TProfile * m_trk_jetassoc_shared_pix_dr{}; 
 
-    TProfile * m_trk_jetassoc_res_pix_l0_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_l1_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_l2_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_l3_x_dr;
+    TProfile * m_trk_jetassoc_res_pix_l0_x_dr{};
+    TProfile * m_trk_jetassoc_res_pix_l1_x_dr{};
+    TProfile * m_trk_jetassoc_res_pix_l2_x_dr{};
+    TProfile * m_trk_jetassoc_res_pix_l3_x_dr{};
 
-    TProfile * m_trk_jetassoc_res_pix_l0_y_dr;
-    TProfile * m_trk_jetassoc_res_pix_l1_y_dr;
-    TProfile * m_trk_jetassoc_res_pix_l2_y_dr;
-    TProfile * m_trk_jetassoc_res_pix_l3_y_dr;
+    TProfile * m_trk_jetassoc_res_pix_l0_y_dr{};
+    TProfile * m_trk_jetassoc_res_pix_l1_y_dr{};
+    TProfile * m_trk_jetassoc_res_pix_l2_y_dr{};
+    TProfile * m_trk_jetassoc_res_pix_l3_y_dr{};
 
-    TProfile * m_trk_jetassoc_res_pix_eca_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_eca_y_dr;
+    TProfile * m_trk_jetassoc_res_pix_eca_x_dr{};
+    TProfile * m_trk_jetassoc_res_pix_eca_y_dr{};
 
-    TProfile * m_trk_jetassoc_res_pix_ecc_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_ecc_y_dr;
+    TProfile * m_trk_jetassoc_res_pix_ecc_x_dr{};
+    TProfile * m_trk_jetassoc_res_pix_ecc_y_dr{};
 
-    TProfile * m_trk_jetassoc_ip_reso_lb; 
-    TProfile * m_trk_jetassoc_split_pix_lb; 
-    TProfile * m_trk_jetassoc_shared_pix_lb; 
+    TProfile * m_trk_jetassoc_ip_reso_lb{}; 
+    TProfile * m_trk_jetassoc_split_pix_lb{}; 
+    TProfile * m_trk_jetassoc_shared_pix_lb{}; 
    
     //--- Combined tracks debug histograms-----------------------------------
     TH2F * m_Trk_FORW_FA_eta_phi;

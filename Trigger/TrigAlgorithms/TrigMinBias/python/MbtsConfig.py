@@ -8,6 +8,13 @@ def MbtsFexCfg(flags=None, name="MbtsFex", **kwargs):
     alg.MonTool =  MbtsFexMonitoring()
     from TrigT2CaloCommon.TrigCaloDataAccessConfig import CaloDataAccessSvcDependencies
     alg.ExtraInputs = CaloDataAccessSvcDependencies
+
+    # Tell SGInputLoader to get TileTBID from the DetectorStore
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    if hasattr(topSequence,"SGInputLoader"):
+        topSequence.SGInputLoader.Load += [('TileTBID','DetectorStore+TileTBID')]
+
     return alg
 
 

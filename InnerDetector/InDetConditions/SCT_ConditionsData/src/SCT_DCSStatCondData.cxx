@@ -19,7 +19,7 @@ SCT_DCSStatCondData::SCT_DCSStatCondData():
 }
 //////////////////////////////////
 //add map entries
-void SCT_DCSStatCondData::fill(const CondAttrListCollection::ChanNum& chanNum, const std::string param) {
+void SCT_DCSStatCondData::fill(const CondAttrListCollection::ChanNum& chanNum, const std::string& param) {
   if (m_bad_channels.find(chanNum)!=m_bad_channels.end()) {
     // chan num has an entry already
     //get the parameter list for this chan num
@@ -43,7 +43,7 @@ void SCT_DCSStatCondData::fill(const CondAttrListCollection::ChanNum& chanNum, c
 }
 //////////////////////////////////
 //remove entries in map vector
-void SCT_DCSStatCondData::remove(const CondAttrListCollection::ChanNum& chanNum, const std::string param) {
+void SCT_DCSStatCondData::remove(const CondAttrListCollection::ChanNum& chanNum, const std::string& param) {
   std::map<CondAttrListCollection::ChanNum, std::vector<std::string> >::iterator itr{m_bad_channels.find(chanNum)};
   if (itr!=m_bad_channels.end()) {
     std::vector<std::string>::iterator vec_itr{std::find((*itr).second.begin(), (*itr).second.end(), param)};

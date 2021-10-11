@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -149,7 +149,7 @@ DbStatus DbContainerImp::transAct(Transaction::Action action)
 }
 
 DbStatus 
-DbContainerImp::save(const DbObjectHandle<DbObject>& objH)  {
+DbContainerImp::save(DbObjectHandle<DbObject>& objH)  {
   // Can only be done if no Transaction is ongoing...
   // i.e. exactly one object was allocated
   if ( m_writeSize == 1 )   {

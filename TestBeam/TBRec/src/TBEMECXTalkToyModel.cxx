@@ -209,8 +209,8 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN2 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN2 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN2->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -229,8 +229,8 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN3 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN3 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN3->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -253,8 +253,8 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN4 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN4 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN4->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -273,8 +273,8 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN5 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN5 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN5->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );

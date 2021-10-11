@@ -67,7 +67,7 @@ def setBeamSpot(run,lb,x,y,z,
    log.info('============================= Creating new beamspot in COOL ===================================')
    log.info('run=%d, lb=%d, x=%f, y=%f, z=%f', run, lb, x, y, z)
    sys.stdout.flush()
-   os.system("CORAL_DBLOOKUP_PATH=$PWD beamSpotOnl_set.py --run=%d --lbn=%d %d %f %f %f" % (run,lb,status,x,y,z))
+   os.system("beamSpotOnl_set.py --output=sqlite:beampos.db --run=%d --lbn=%d %d %f %f %f" % (run,lb,status,x,y,z))
    if log.level<=logging.DEBUG:
       log.info('Current content of beampos.db sqlite file:')
       os.system("AtlCoolConsole.py 'sqlite://;schema=beampos.db;dbname=CONDBR2' <<< 'more Indet/Onl/Beampos'")
@@ -125,18 +125,6 @@ def setup():
    """Initial setup"""
 
    log.info('Will perform beamspot udpate on these LBs (LB,status): %s', sorted(Config.lb_updateBeamspot.values()))
-
-   # Create dblookup file for beamSpotOnl_set.py
-   dblookup="""\
-<?xml version="1.0" ?>
-<servicelist>
-  <logicalservice name="COOLONL_INDET">
-    <service name="sqlite_file:beampos.db" accessMode="update" />
-  </logicalservice>
-</servicelist>
-"""
-   with open('dblookup.xml','w') as f:
-      f.write(dblookup)
 
    # Delete any previous sqlite file
    try:

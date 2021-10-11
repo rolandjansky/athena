@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -38,13 +38,12 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
 					       const std::string& name,
 					       const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-    m_LArOnlineIDHelper(0),
-    m_LArEM_IDHelper(0),
-    m_LArFCAL_IDHelper(0),
-    m_LArHEC_IDHelper(0),
-    m_caloIdMgr(0),
-    m_rootStore(0),
-    m_larCablingService("LArCablingLegacyService"),
+    m_LArOnlineIDHelper(nullptr),
+    m_LArEM_IDHelper(nullptr),
+    m_LArFCAL_IDHelper(nullptr),
+    m_LArHEC_IDHelper(nullptr),
+    m_caloIdMgr(nullptr),
+    m_rootStore(nullptr),
     m_eventsCounter(0)
 {
   declareProperty("ErrorThreshold",m_threshold=0.02);
@@ -54,14 +53,14 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
   
   for( unsigned i = 0; i < 2; ++i )
   {
-    m_hLArHVCorrectionEMB[i]		= NULL;
-    m_hLArHVCorrectionEMEC[i]		= NULL;
-    m_hLArHVCorrectionHEC[i]		= NULL;
-    m_hLArHVCorrectionFCAL[i]		= NULL;  
-    m_hNDeviatingChannelsEMB[i]		= NULL;
-    m_hNDeviatingChannelsEMEC[i]	= NULL;
-    m_hNDeviatingChannelsHEC[i]		= NULL;
-    m_hNDeviatingChannelsFCAL[i]	= NULL;
+    m_hLArHVCorrectionEMB[i]		= nullptr;
+    m_hLArHVCorrectionEMEC[i]		= nullptr;
+    m_hLArHVCorrectionHEC[i]		= nullptr;
+    m_hLArHVCorrectionFCAL[i]		= nullptr;  
+    m_hNDeviatingChannelsEMB[i]		= nullptr;
+    m_hNDeviatingChannelsEMEC[i]	= nullptr;
+    m_hNDeviatingChannelsHEC[i]		= nullptr;
+    m_hNDeviatingChannelsFCAL[i]	= nullptr;
   }
   
 }
@@ -86,10 +85,9 @@ StatusCode LArHVCorrectionMonTool::initialize()
   m_LArHEC_IDHelper  = idHelper->hec_idHelper();
   m_LArFCAL_IDHelper = idHelper->fcal_idHelper();
   
-  ATH_CHECK( m_larCablingService.retrieve() );
-
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
   
   ATH_CHECK( m_channelKey.initialize() );
 
@@ -260,6 +258,7 @@ LArHVCorrectionMonTool::fillHistograms()
 
     SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
     SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
     
     // Loop over LArRawChannels
     //SelectAllLArRawChannels AllRaw(pRawChannelsContainer);
@@ -270,15 +269,15 @@ LArHVCorrectionMonTool::fillHistograms()
     for (const LArRawChannel& rawChannel : *pRawChannelsContainer) {
       HWIdentifier id  = rawChannel.hardwareID();
       //CaloGain::CaloGain gain = pRawChannel->gain();
-      Identifier offlineID = m_larCablingService->cnvToIdentifier(id);
+      Identifier offlineID = cabling->cnvToIdentifier(id);
       
       // Skip disconnected channels
-      if(!m_larCablingService->isOnlineConnected(id)) continue;
+      if(!cabling->isOnlineConnected(id)) continue;
       
       // Get Physical Coordinates
       float etaChan = 0; float phiChan = 0.;
       const CaloDetDescrElement* caloDetElement = ddman->get_element(offlineID);
-      if(caloDetElement == 0 ){
+      if(caloDetElement == nullptr ){
 	ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	continue; 
       }else{

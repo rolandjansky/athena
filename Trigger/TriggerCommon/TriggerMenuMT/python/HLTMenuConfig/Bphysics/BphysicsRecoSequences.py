@@ -3,7 +3,7 @@
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.CFElements import seqAND, parOR
 from AthenaCommon.Logging import logging
-log = logging.getLogger('BphysicsRecoSequences')
+log = logging.getLogger(__name__)
 
 
 def bmumuxRecoSequence(rois, muons):

@@ -116,9 +116,7 @@ TrigHisto1D& TrigHisto1D::operator=(TrigHisto1D&& trigHisto) {
 //---------------------------------------------------------------
 
 void TrigHisto1D::fill(float value_x, float weight) {
-  unsigned int ibin;
-  
-  ibin = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
+  const unsigned int ibin = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
   
   m_contents[ibin] += weight; // Append the weight to this bin.
 }
@@ -126,13 +124,10 @@ void TrigHisto1D::fill(float value_x, float weight) {
 //---------------------------------------------------------------
 
 double TrigHisto1D::sumEntries(float value_x, int cutType) const {
-  unsigned int ibin_x, ibin_x_selected;
-  double entries;
-  
   // Find which bin contains the value_x.
-  ibin_x_selected = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
+  const unsigned int ibin_x_selected = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
   
-  entries = 0.;
+  double entries = 0.;
 
   if( m_nbins_x==0 ){
     return 0;
@@ -140,12 +135,12 @@ double TrigHisto1D::sumEntries(float value_x, int cutType) const {
   else{
 
     if (cutType == BELOW_X) {
-      for(ibin_x = m_underflowBin_x; ibin_x <= ibin_x_selected; ibin_x++) {
+      for(unsigned int ibin_x = m_underflowBin_x; ibin_x <= ibin_x_selected; ibin_x++) {
 	entries += m_contents[ibin_x];
       }
     }
     else if(cutType == ABOVE_X) {
-      for(ibin_x = ibin_x_selected; ibin_x <= m_overflowBin_x; ibin_x++) {
+      for(unsigned int ibin_x = ibin_x_selected; ibin_x <= m_overflowBin_x; ibin_x++) {
 	entries += m_contents[ibin_x];
       }
     }

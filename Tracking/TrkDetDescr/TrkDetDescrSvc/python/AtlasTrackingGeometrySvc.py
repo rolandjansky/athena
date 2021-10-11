@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##################################################################################
 # The AtlasTrackingGeometry Svc fragment
@@ -42,7 +42,12 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         #################################################################################
         
         # the name to register the Geometry
-        AtlasTrackingGeometryName = 'AtlasTrackingGeometry'
+        from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+        # previously set to 'AtlasTrackingGeometry', now defaulted to empty string to
+        # trigger the use of the condAlg in place of this service
+        AtlasTrackingGeometryName = ''
+        if not use_tracking_geometry_cond_alg :
+          AtlasTrackingGeometryName = 'AtlasTrackingGeometry'
         
         # the geometry builder alg tool
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
@@ -64,12 +69,10 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
               if hasattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName()):
                   InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName())
           else:
-              if not TrkDetFlags.SLHC_Geometry() and not TrkDetFlags.InDetStagedGeometryBuilder():
+              if not TrkDetFlags.InDetStagedGeometryBuilder():
                   from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-              elif not TrkDetFlags.SLHC_Geometry() :   
+              else:
                   from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilder import ConfiguredStagedTrackingGeometryBuilder as IDGeometryBuilder
-              else :
-                  from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
               InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
                 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
@@ -110,6 +113,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
             AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
             AtlasMaterialProvider.LayerMaterialMapName  = TrkDetFlags.MaterialStoreGateKey()
+            AtlasMaterialProvider.LayerMaterialMapKey   = ''
         
             AtlasGeometryProcessors += [ AtlasMaterialProvider ]
         
@@ -134,12 +138,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                     print ('[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection        )
                 # make sure that the pool files are in the catalog
-            elif TrkDetFlags.SLHC_Geometry() :
-                # set the folder to the SLHC location        
-                CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
-                ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
-                cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-                conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
             else :
                 print ('[ TrackingGeometrySvc ]     base material tag : ', AtlasMaterialTag)
                 cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'

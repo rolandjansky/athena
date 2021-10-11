@@ -78,15 +78,15 @@
 
 class VP1AODSystem::Imp {
 public:
-  VP1AODSystem * theclass;
-  AODSysCommonData * common;
-  SoCooperativeSelection * selObjects;
+  VP1AODSystem * theclass = nullptr;
+  AODSysCommonData * common = nullptr;
+  SoCooperativeSelection * selObjects = nullptr;
   // AODHandleSelectionManager * ascObjSelManager;
 
-  SoSeparator * totmomsep;
-  SoLineSet * totmomline;
+  SoSeparator * totmomsep = nullptr;
+  SoLineSet * totmomline = nullptr;
   Amg::Vector3D totmomgev;
-  double totmass;
+  double totmass = 0.0;
 
 
   // TrackCommonFlags::SELECTIONMODE selMode;

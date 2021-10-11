@@ -99,7 +99,7 @@ void compare (const InDet::PixelClusterContainer& p1,
 
 void testit (const InDet::PixelClusterContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   InDet::PixelClusterContainerCnv_p1 cnv;
   cnv.setUseDetectorElement(false);
   PixelClusterContainerCnv_tlp1 tlcnv;
@@ -150,7 +150,7 @@ makeclusts()
          chargeList,
          width,
          nullptr,
-         new Amg::MatrixX(cov),
+         Amg::MatrixX(cov),
          offs+10.5,
          offs+11.5,
          i&1,
@@ -197,7 +197,7 @@ void make_dd()
   pix_id->initialize_from_dictionary (idd);
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* sg = 0;
+  StoreGateSvc* sg = nullptr;
   assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
   assert ( sg->record (std::move (pix_id), "PixelID") );
 }

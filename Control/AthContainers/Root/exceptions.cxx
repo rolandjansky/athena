@@ -501,4 +501,37 @@ ExcInvalidThinningTarget::ExcInvalidThinningTarget (unsigned int clid,
 }
 
 
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcBadIterSwap::ExcBadIterSwap()
+  : std::runtime_error ("SG::ExcBadIterSwap: Attempt to swap between containers with inconsistent ownership.")
+{
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcAllocOwnership::ExcAllocOwnership()
+  : std::runtime_error ("SG::ExcAllocOwnership: Bad allocation ownership.")
+{
+}
+
+
+/**
+ * @brief Throw a SG::ExcAllocOwnership exception.
+ */
+void throwExcAllocOwnership()
+{
+  throw ExcAllocOwnership();
+}
+
+
 } // namespace SG

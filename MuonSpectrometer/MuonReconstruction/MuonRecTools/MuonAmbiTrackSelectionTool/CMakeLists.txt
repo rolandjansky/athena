@@ -9,7 +9,7 @@ atlas_subdir( MuonAmbiTrackSelectionTool )
 atlas_add_component( MuonAmbiTrackSelectionTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkToolInterfaces AthContainers StoreGateLib SGtests MuonIdHelpersLib MuonRecHelperToolsLib TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkToolInterfaces AthContainers StoreGateLib MuonIdHelpersLib MuonRecHelperToolsLib TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( MuonAmbiTrackSelectionTool )

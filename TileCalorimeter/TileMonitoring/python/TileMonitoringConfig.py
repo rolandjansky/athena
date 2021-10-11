@@ -52,6 +52,9 @@ def TileMonitoringCfg(flags):
             from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitoringConfig
             acc.merge( TileTMDBRawChannelMonitoringConfig(flags, FillRawChannelHistograms = False, FillEfficiencyHistograms = True) )
 
+        if flags.Beam.Type in ('cosmics', 'singlebeam'):
+            from TileMonitoring.TileMuonFitMonitorAlgorithm import TileMuonFitMonitoringConfig
+            acc.merge( TileMuonFitMonitoringConfig(flags) )
 
     return acc
 
@@ -59,34 +62,35 @@ def TileMonitoringCfg(flags):
 
 if __name__=='__main__':
 
-   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-   from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import INFO
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior = True
-   log.setLevel(INFO)
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import INFO
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    log.setLevel(INFO)
 
-   ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/22.0/v1/myESD.pool.root']
-   ConfigFlags.Output.HISTFileName = 'TileMonitoringOutput.root'
-   ConfigFlags.DQ.enableLumiAccess = False
-   ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.DQ.Environment = 'tier0'
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/22.0/v1/myESD.pool.root']
+    ConfigFlags.Output.HISTFileName = 'TileMonitoringOutput.root'
+    ConfigFlags.DQ.enableLumiAccess = False
+    ConfigFlags.DQ.useTrigger = False
+    ConfigFlags.DQ.Environment = 'tier0'
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
+    ConfigFlags.lock()
 
-   ConfigFlags.lock()
+    # Initialize configuration object, add accumulator, merge, and run.
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc = MainServicesCfg(ConfigFlags)
+    acc.merge(PoolReadCfg(ConfigFlags))
 
-   # Initialize configuration object, add accumulator, merge, and run.
-   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-   acc = MainServicesCfg(ConfigFlags)
-   acc.merge(PoolReadCfg(ConfigFlags))
+    acc.merge( TileMonitoringCfg(ConfigFlags) )
 
-   acc.merge( TileMonitoringCfg(ConfigFlags) )
+    acc.printConfig(withDetails = True, summariseProps = True)
+    ConfigFlags.dump()
+    acc.store(open("TileMonitoring.pkl","wb"))
 
-   acc.printConfig(withDetails = True, summariseProps = True)
-   ConfigFlags.dump()
-   acc.store(open("TileMonitoring.pkl","wb"))
-
-   sc = acc.run(maxEvents = 3)
-   import sys
-   # Success should be 0
-   sys.exit(not sc.isSuccess())
+    sc = acc.run()
+    import sys
+    # Success should be 0
+    sys.exit(not sc.isSuccess())

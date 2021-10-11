@@ -1,4 +1,4 @@
-#include "../muCombMT.h"
+#include "../muComb.h"
 
-DECLARE_COMPONENT( muCombMT )
+DECLARE_COMPONENT( muComb )
 

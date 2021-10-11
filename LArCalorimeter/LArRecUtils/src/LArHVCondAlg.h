@@ -26,6 +26,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArHVIdMapping.h"
 #include "LArRecConditions/LArHVCorr.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -71,6 +72,8 @@ private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
   SG::ReadCondHandleKey<AthenaAttributeList>   m_hvRKey{this, "RvaluesKey", "/LAR/HVPathologiesOfl/Rvalues", "Cool folder with HV R values"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
   // Conditions keys write:
   SG::WriteCondHandleKey<CaloAffectedRegionInfoVec> m_affectedKey{this, "OutputKey", "LArAffectedRegionInfo", "SG key for output"};
@@ -137,7 +140,7 @@ private:
   void addHV(voltageCell_t& v, float hv, float weight) const;
 
   /// Read HV from DCS, store them in internal data structure per HV-line (Step 1)
-  StatusCode  dcs2LineVoltage(voltagePerLine_t& result, const std::vector<const CondAttrListCollection* > fldvec) const;
+  StatusCode  dcs2LineVoltage(voltagePerLine_t& result, const std::vector<const CondAttrListCollection* >& fldvec) const;
 
   /// Read the voltage per HV line and store it in structure per readout-cell (resolve the many-HV-lines-to-many-cells mapping). Simulanitously fill the pathologies
   StatusCode fillPathAndCellHV(voltagePerCell_t& hvdata

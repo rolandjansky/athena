@@ -32,7 +32,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Trk::EnergyLoss trans1 (1.5, 2.5, 3.5, 4.5);
   EnergyLossCnv_p1 cnv;
   Trk::EnergyLoss_p1 pers;

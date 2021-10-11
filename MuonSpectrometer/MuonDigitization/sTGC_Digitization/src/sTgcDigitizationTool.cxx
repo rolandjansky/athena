@@ -64,23 +64,27 @@ typedef struct {
   bool isPileup;
 } structDigitType; 
 
-typedef std::pair<float, structDigitType> tempDigitType; // pair<float digitTime, structDigitType>  
+using tempDigitType = std::pair<float, structDigitType>; // pair<float digitTime, structDigitType>  
 
-typedef struct {
+using structReadoutElement = struct {
+
   int readLevel;
-  float deadtimeStart;
-  float neighborOnTime;
-} structReadoutElement;
-typedef std::map<Identifier,std::pair<structReadoutElement, std::vector<tempDigitType> > > tempDigitCollectionType; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
-typedef std::map<IdentifierHash, tempDigitCollectionType> tempDigitContainerType; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
-typedef std::map<sTGCSimHit*, int> tempHitEventMap; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
 
-inline bool sort_EarlyToLate(tempDigitType a, tempDigitType b){
+  float deadtimeStart;
+
+  float neighborOnTime;
+
+};
+using tempDigitCollectionType = std::map<Identifier, std::pair<structReadoutElement, std::vector<tempDigitType> > >; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
+using tempDigitContainerType = std::map<IdentifierHash, tempDigitCollectionType>; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
+using tempHitEventMap = std::map<sTGCSimHit *, int>; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
+
+inline bool sort_EarlyToLate(const tempDigitType& a, const tempDigitType& b){
   return a.first < b.first;
 }
 
-inline bool sort_digitsEarlyToLate(sTgcSimDigitData a, sTgcSimDigitData b){
-  return (a.getSTGCDigit()).time() < (b.getSTGCDigit()).time();
+inline bool sort_digitsEarlyToLate(const sTgcSimDigitData &a, const sTgcSimDigitData &b){
+  return a.getSTGCDigit().time() < b.getSTGCDigit().time();
 }
 
 /*******************************************************************************/
@@ -143,11 +147,12 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   
-  // initialize class to execute digitization 
+  // initialize sTgcDigitMaker class to digitize hits
   m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
+  ATH_CHECK(m_digitizer->initialize(m_doChannelTypes));
+
   ATH_CHECK(m_rndmSvc.retrieve());
-    
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
 
@@ -183,12 +188,12 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
   if (m_thpcsTGC == nullptr) {
     m_thpcsTGC = std::make_unique<TimedHitCollection<sTGCSimHit>>();
   }
-  typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
                                           bSubEvents, eSubEvents).isSuccess()) &&
-      hitCollList.size() == 0) {
+      hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -200,7 +205,7 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator endColl(hitCollList.end());
 
   // Iterating over the list of collections
-  for( ; iColl != endColl; iColl++){
+  for( ; iColl != endColl; ++iColl){
 
     auto hitCollPtr = std::make_unique<sTGCSimHitCollection>(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
@@ -222,7 +227,7 @@ StatusCode sTgcDigitizationTool::getNextEvent(const EventContext& ctx) {
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::getNextEvent()" );
 
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type;
 
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
@@ -246,7 +251,7 @@ StatusCode sTgcDigitizationTool::getNextEvent(const EventContext& ctx) {
     ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
   }
-  if (hitCollList.size()==0) {
+  if (hitCollList.empty()) {
     ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
     return StatusCode::FAILURE;
   }
@@ -328,8 +333,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
 
-  ATH_CHECK(m_digitizer->initialize(rndmEngine, m_doChannelTypes));
-
   // create and record the Digit container in StoreGate
   SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())));
@@ -356,14 +359,14 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   
   float earliestEventTime = 9999;
 
-  // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
+  // --nextDetectorElement>sets an iterator range with the hits of current detector element , returns a bool when done
   while(m_thpcsTGC->nextDetectorElement(i, e)) {
     int nhits = 0;
     ATH_MSG_VERBOSE("Next Detector Element");
     while(i != e){ //loop through the hits on this Detector Element
       ATH_MSG_VERBOSE("Looping over hit " << nhits+1 << " on this Detector Element." );
 
-      nhits++;
+      ++nhits;
       TimedHitPtr<sTGCSimHit> phit = *i++;
       const sTGCSimHit& hit = *phit;
       ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
@@ -429,9 +432,9 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
       Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire plane in local coordinates
 
-      ATH_MSG_VERBOSE("Local Z " << LOCAL_Z );
-      ATH_MSG_VERBOSE("Local Direction " << LOCDIRE );
-      ATH_MSG_VERBOSE("Local Position " << LPOS );
+      ATH_MSG_VERBOSE("Local Z: (" << LOCAL_Z.x() << ", " << LOCAL_Z.y() << ", " << LOCAL_Z.y() <<")" );
+      ATH_MSG_VERBOSE("Local Direction: (" << LOCDIRE.x() << ", " << LOCDIRE.y() << ", " << LOCDIRE.z() << ")" );
+      ATH_MSG_VERBOSE("Local Position: (" << LPOS.x() << ", " << LPOS.y() << ", " << LPOS.z() << ")" );
 
       double e = 1e-5;
 
@@ -455,8 +458,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;  //Hit on the wire surface attached to the closest wire in local coordinates
       Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
 
-      ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
-      ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
+      ATH_MSG_VERBOSE("Local Hit on Wire Surface: (" << HITONSURFACE_WIRE.x() << ", " << HITONSURFACE_WIRE.y() << ", " << HITONSURFACE_WIRE.z() << ")"  );
+      ATH_MSG_VERBOSE("Global Hit on Wire Surface: (" << G_HITONSURFACE_WIRE.x() << ", " << G_HITONSURFACE_WIRE.y() << ", " << G_HITONSURFACE_WIRE.z() << ")" );
 
       ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
 
@@ -477,7 +480,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
       float bunchTime = globalHitTime - tof;
 
-      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+      // Create all the digits for this particular Sim Hit
+      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime, rndmEngine);
       if (digiHits == nullptr) {
         continue;
       }
@@ -525,19 +529,18 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         if(eventId != 0)  //hit not from the main signal subevent
           isPileup = 1;
 
-        ATH_MSG_VERBOSE("...Check time 5: " << newTime );
         // Create a new digit with updated time and BCTag
-        auto newDigit = std::make_unique<sTgcDigit>(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
+        sTgcDigit newDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);
         ATH_MSG_VERBOSE("Unmerged Digit") ;
-        ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
-        ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
-        ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
+        ATH_MSG_VERBOSE(" BC tag = "    << newDigit.bcTag()) ;
+        ATH_MSG_VERBOSE(" digitTime = " << newDigit.time()) ;
+        ATH_MSG_VERBOSE(" charge = "    << newDigit.charge()) ;
 
         // Create a MuonSimData (SDO) corresponding to the digit
         MuonSimData::Deposit deposit(particleLink, MuonMCData(hit.depositEnergy(), tof));
         std::vector<MuonSimData::Deposit> deposits;
         deposits.push_back(deposit);
-        MuonSimData simData(deposits, hit.particleEncoding());
+        MuonSimData simData(std::move(deposits), hit.particleEncoding());
         // The sTGC SDO should be placed at the center of the gap, same as the digits.
         // We use the position from the hit on the wire surface which is by construction in the center of the gap
         // G_HITONSURFACE_WIRE projects the whole hit to the center of the gap
@@ -546,15 +549,15 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
         if(newChannelType == 0){ //Pad Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedPadDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedPadDigits[elemId][newDigitId].emplace_back(simData, newDigit);
         }
         else if(newChannelType == 1){ //Strip Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedStripDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedStripDigits[elemId][newDigitId].emplace_back(simData, newDigit);
         }
         else if(newChannelType == 2){ //Wire Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedWireDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedWireDigits[elemId][newDigitId].emplace_back(simData, newDigit);
         }
       } // end of loop digiHits
     } // end of while(i != e)
@@ -580,7 +583,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
       std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
-      e--;  //decrement e to be the last element and not the beyond the last element iterator
+      --e;  //decrement e to be the last element and not the beyond the last element iterator
 
       while( i!=e ) { 
         sTgcDigit digit1 = i->getSTGCDigit();
@@ -598,7 +601,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
           it_REID->second.erase (i+1); //remove the later time digit
           e = it_REID->second.end();  //update the end iterator
-          e--; //decrement e to be the last element and not the beyond the last element iterator
+          --e; //decrement e to be the last element and not the beyond the last element iterator
           ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
         }
         else {
@@ -633,7 +636,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_pad_digits.begin())).time();
 
-      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_pad_digits), vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
       theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       theVMM->initialReport();
 
@@ -649,7 +652,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
           sTgcDigit* flushedDigit = theVMM->flush(); // Flush the digit buffer
           if(flushedDigit) {
             outputDigits[it_DETEL->first][it_REID->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
-            nPadDigits++;
+            ++nPadDigits;
             ATH_MSG_VERBOSE("Flushed Digit") ;
             ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
             ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
@@ -689,7 +692,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
       std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
-      e--;
+      --e;
 
       while( i!=e ) { 
         sTgcDigit digit1 = i->getSTGCDigit();
@@ -703,7 +706,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
           it_REID->second.erase (i+1); //remove the later time digit
           e = it_REID->second.end();  //update the end iterator
-          e--; //decrement e to be the last element and not the beyond the last element iterator
+          --e; //decrement e to be the last element and not the beyond the last element iterator
           ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
         }
         else {
@@ -732,7 +735,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
       vmmArray[it_DETEL->first][it_REID->first].first = true;
-      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(std::move(merged_strip_digits), (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
       vmmArray[it_DETEL->first][it_REID->first].second = std::move(vMMSimPtr);
       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
@@ -790,14 +793,15 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         sTgcDigit* flushedDigit = it_VMM->second.second->flush();  //Readout the digit buffer
         if(flushedDigit) {
           outputDigits[it_DETEL->first][it_VMM->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
-          nStripDigits++;
+          ++nStripDigits;
         }
         else ATH_MSG_VERBOSE("No digit for this timestep on Strip REID[" << it_VMM->first.getString() << "]");
       }
     }
   }
   ATH_MSG_VERBOSE("There are " << nStripDigits << " flushed strip digits in this event.");
-
+  static_assert(std::is_nothrow_move_constructible<MuonSimData>::value);
+  static_assert(std::is_nothrow_move_constructible<sTgcSimDigitData>::value);//CscSimData
   /**********************************
    * PROCESS WIRE DIGIT *
    *********************************/
@@ -823,7 +827,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       
       std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
       std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
-      e--;  //decrement e to be the last element and not the beyond the last element iterator
+      --e;  //decrement e to be the last element and not the beyond the last element iterator
 
       while( i!=e ) {
         sTgcDigit digit1 = i->getSTGCDigit();
@@ -840,7 +844,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
           it_REID->second.erase (i+1); //remove the later time digit
           e = it_REID->second.end();  //update the end iterator
-          e--; //decrement e to be the last element and not the beyond the last element iterator
+          --e; //decrement e to be the last element and not the beyond the last element iterator
           ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
         }
         else {
@@ -875,7 +879,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
-      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_wire_digits), vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
       theVMM->setMessageLevel(msgLevel());
       theVMM->initialReport();
 
@@ -891,7 +895,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
           sTgcDigit* flushedDigit = theVMM->flush(); // Flush the digit buffer
           if(flushedDigit) {
             outputDigits[it_DETEL->first][it_REID->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
-            nWGDigits++;
+            ++nWGDigits;
             ATH_MSG_VERBOSE("Flushed wiregroup digit") ;
             ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
             ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
@@ -927,14 +931,20 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
-	  if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
-	    //Only strips since strips are readout in PDO counts and not charge
-      chargeAfterSmearing = 1000*chargeAfterSmearing; // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
-	    chargeAfterSmearing = chargeAfterSmearing*1.0304 + 59.997; // conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
+    if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
+      // Change strip charge to PDO
+      // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
+      // Conversion from V to PDO from Shandong Cosmics tests: PDO = mV * 1.0304 + 59.997
       // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
-	  }
+      /* Note from Alexandre Laurier - 2021-05-17
+      // Removing the pedestal of 59.997; It us causing issues in clustering
+         This instead needs to be accounted for by calibration tools.
+      */
+      chargeAfterSmearing = 1000*chargeAfterSmearing;
+      chargeAfterSmearing = chargeAfterSmearing*1.0304;
+    }
 
-	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
+    std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 
 									      it_digit->time(), 
 									      chargeAfterSmearing, 
@@ -982,7 +992,7 @@ void sTgcDigitizationTool::readDeadtimeConfig()
   ATH_MSG_INFO("Reading deadtime config file");
 
   std::ifstream ifs;
-  if (fileWithPath != "") {
+  if (!fileWithPath.empty()) {
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {

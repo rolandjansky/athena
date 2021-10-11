@@ -20,7 +20,7 @@ void HomogeneousLayerMaterialCnv_p1::persToTrans( const Trk::HomogeneousLayerMat
     
     // create the persistent material properties
     // pointer to converter (will be auto-retrieved)
-    ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0;
+    ITPConverterFor<Trk::MaterialProperties> *materialCnv = nullptr;
     transObj->m_fullMaterial = std::unique_ptr<Trk::MaterialProperties>( createTransFromPStore( &materialCnv, persObj->material, mlog ));
     transObj->m_splitFactor = persObj->splitFactor;
     
@@ -35,6 +35,6 @@ void HomogeneousLayerMaterialCnv_p1::transToPers( const Trk::HomogeneousLayerMat
     
     // create the persistent material properties
     // pointer to converter (will be auto-retrieved)
-    ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0; 
+    ITPConverterFor<Trk::MaterialProperties> *materialCnv = nullptr; 
     persObj->material =  toPersistent( &materialCnv, transObj->m_fullMaterial.get(), mlog );
 }

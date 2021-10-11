@@ -78,7 +78,7 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
    
     msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endmsg;
 
-    StripGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
+    ITk::StripGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
 //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
 //    comment out above line and uncomment the following line; also, switch header files above.
 //    GmxInterface gmxInterface;

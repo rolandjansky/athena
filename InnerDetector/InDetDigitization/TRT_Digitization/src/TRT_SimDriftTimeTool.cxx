@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////
@@ -19,6 +19,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include <stdexcept>
 
 TRT_SimDriftTimeTool::TRT_SimDriftTimeTool( const std::string& type,
                                             const std::string& name,
@@ -70,10 +71,10 @@ StatusCode TRT_SimDriftTimeTool::initialize()
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
 
-  std::vector<ITRT_DriftTimeData*> pDTData;
-  pDTData.push_back(new TRT_BarrelDriftTimeData(m_digversion,0)); // Xe straws
-  pDTData.push_back(new TRT_BarrelDriftTimeData(m_digversion,1)); // Kr straws
-  pDTData.push_back(new TRT_BarrelDriftTimeData(m_digversion,2)); // Ar straws
+  std::vector<std::unique_ptr<ITRT_DriftTimeData>> pDTData;
+  pDTData.emplace_back(std::make_unique<TRT_BarrelDriftTimeData>(m_digversion,0)); // Xe straws
+  pDTData.emplace_back(std::make_unique<TRT_BarrelDriftTimeData>(m_digversion,1)); // Kr straws
+  pDTData.emplace_back(std::make_unique<TRT_BarrelDriftTimeData>(m_digversion,2)); // Ar straws
 
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
@@ -135,7 +136,7 @@ double TRT_SimDriftTimeTool::getAverageDriftTime( const double& dist,
     {
       ATH_MSG_FATAL("getAverageDriftTime: Somehow distIndex (" << distIndex << " ) is out of bounds ("
                     << m_nTabulatedDistances << "). The job will die now.");
-      throw;
+      throw std::runtime_error("getAverageDriftTime distIndex out of bounds");
     }
 
   const double C(m_table_of_dist2meanDT_at_noField[strawGasType][distIndex]);

@@ -222,7 +222,7 @@ std::unique_ptr<const Trk::TrackParameters> MuonTPExtrapolationTool::extrapolate
 
 // create the barrel as a cylinder surface centered at 0,0,0
     Amg::Vector3D barrelCentre(0., 0., 0.);
-    Amg::Transform3D* matrix = new Amg::Transform3D(Amg::RotationMatrix3D::Identity(), barrelCentre);
+    Amg::Transform3D matrix = Amg::Transform3D(Amg::RotationMatrix3D::Identity(), barrelCentre);
 
     std::unique_ptr<Trk::CylinderSurface> cylinder = std::make_unique< Trk::CylinderSurface>(matrix, m_barrelPivotPlaneRadius, m_barrelPivotPlaneHalfLength);
     
@@ -246,8 +246,7 @@ std::unique_ptr<const Trk::TrackParameters> MuonTPExtrapolationTool::extrapolate
 
     Amg::Vector3D endcapCentre(0., 0., m_endcapPivotPlaneZ);
     // much better!
-    matrix = new Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
-
+    matrix = Amg::Transform3D(Amg::RotationMatrix3D::Identity(), SignOfEta * endcapCentre);
     std::unique_ptr<Trk::DiscSurface> disc = std::make_unique< Trk::DiscSurface>(matrix, m_endcapPivotPlaneMinimumRadius, m_endcapPivotPlaneMaximumRadius);
    
 

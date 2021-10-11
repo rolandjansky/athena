@@ -51,12 +51,12 @@ protected:
   /// @brief Create a string with station number. Used for creating names of distributions.
   ///
   /// @param name text which should be prepended to the standard one e.g. "Station1"
-  std::string makeName (const std::string name) const;
+  std::string makeName (const std::string& name) const;
 
   /// @brief Create a string with station number. Used for creating titles of distributions.
   ///
   /// @param title text which should be prepended to the standard one e.g. " in station 1"
-  std::string makeTitle (const std::string title) const;
+  std::string makeTitle (const std::string& title) const;
 
   /// ID number of the first layer
   static const int s_firstLayerIndex;

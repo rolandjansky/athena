@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
@@ -17,6 +17,9 @@ AthMonitorAlgorithm::~AthMonitorAlgorithm() {}
 
 StatusCode AthMonitorAlgorithm::initialize() {
     StatusCode sc;
+
+    // ROOT global histogram flag: off (not thread-safe to have it on)
+    TH1::AddDirectory(kFALSE);
 
     // Retrieve the generic monitoring tools (a ToolHandleArray)
     if ( !m_tools.empty() ) {
@@ -57,7 +60,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
     m_dataType = dataTypeStringToEnum(m_dataTypeStr);
     m_environment = envStringToEnum(m_environmentStr);
 
-    ATH_CHECK( m_lumiDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
+    ATH_CHECK( m_lumiDataKey.initialize (m_useLumi) );
     ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
     ATH_CHECK( m_trigLiveFractionDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
 
@@ -173,12 +176,13 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
 	  ATH_MSG_FATAL("It seems that the AthMonitorAlgorithm::initialize was not called in derived class initialize method");
 	} else {
 	  std::string available = std::accumulate( m_toolLookupMap.begin(), m_toolLookupMap.end(),
-						   std::string(""), [](std::string s, auto h){return s + "," + h.first;} );
+						   std::string(""), [](const std::string& s, auto h){return s + "," + h.first;} );
 	  ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
 			 "monitoring algorithm " << m_name << ". This probably reflects a discrepancy between " <<
 			 "your python configuration and c++ filling code. Note: your available groups are {" <<
 			 available << "}." );
 	}
+        return ToolHandle<GenericMonitoringTool>();
     }
     const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
     if ( ATH_UNLIKELY(toolHandle.empty()) ) {
@@ -260,7 +264,8 @@ float AthMonitorAlgorithm::lbLuminosityPerBCID (const EventContext& ctx /*= Gaud
 
 float AthMonitorAlgorithm::lbAverageLivefraction (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if (m_environment == Environment_t::online) {
+    if (m_environment == Environment_t::online
+        || m_dataType == DataType_t::monteCarlo) {
         return 1.0;
     }
 
@@ -276,7 +281,8 @@ float AthMonitorAlgorithm::lbAverageLivefraction (const EventContext& ctx /*= Ga
 
 float AthMonitorAlgorithm::livefractionPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if (m_environment == Environment_t::online) {
+    if (m_environment == Environment_t::online
+        || m_dataType == DataType_t::monteCarlo) {
         return 1.0;
     }
 
@@ -303,7 +309,8 @@ double AthMonitorAlgorithm::lbLumiWeight (const EventContext& ctx /*= Gaudi::Hiv
 
 double AthMonitorAlgorithm::lbDuration (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_environment == Environment_t::online ) {
+    if ( m_environment == Environment_t::online
+         || m_dataType == DataType_t::monteCarlo ) {
         return m_defaultLBDuration;
     }
 
@@ -337,7 +344,7 @@ void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTri
     for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
         std::string& thisName = vTrigChainNames[i];
 
-        if (thisName.substr(0,9) == "CATEGORY_") {
+        if (thisName.compare(0,9, "CATEGORY_")==0) {
             ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". Unpacking.");
             std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(9,std::string::npos));
             std::ostringstream oss;

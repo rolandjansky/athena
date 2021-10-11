@@ -6,7 +6,7 @@ from copy import copy
 from enum import Enum
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Base.Logic')
+log = logging.getLogger(__name__)
 
 class LogicType( Enum ):
     NONE = ('')

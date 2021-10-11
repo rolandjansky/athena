@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <vector>
@@ -10,7 +10,6 @@
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfData/L1Menu.h"
 
-#include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoCoreSim/StandaloneL1TopoHistSvc.h"
 #include "L1TopoCoreSim/TopoASCIIReader.h"
@@ -48,6 +47,7 @@ int run(int argc, const char* argv[]) {
    TrigConf::MSGTC::Level algMsgLvl = TrigConf::MSGTC::WARNING;
    string filename = "L1TopoSimulation.root";
    int nevt=-1;
+   bool isLegacy = false;
 
    int cmsg=0;
    for(int c=0; c<argc; ++c) {
@@ -64,6 +64,9 @@ int run(int argc, const char* argv[]) {
       }
       if( (arg=="-o" or arg=="--outfile") and c<=argc ) {
          filename = std::string(argv[++c]);
+      }
+      if( (arg=="-l" or arg=="--legacy") and c<=argc ) {
+         isLegacy = true;
       }
       if( arg=="--algMsgLvl" and c<=argc ) {
          string msgInput(argv[++c]);
@@ -122,8 +125,8 @@ int run(int argc, const char* argv[]) {
 
    // instantiate steering
    TCS::TopoSteering steering;
-   steering.setUseBitwise(true);
-   steering.setLegacyMode(false);
+   steering.setUseBitwise(false);
+   steering.setLegacyMode(isLegacy);
    steering.setupFromConfiguration(l1menu);
 
    steering.setMsgLevel( msgLvl );

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbDomainObj.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbDomainObj object definition
 //--------------------------------------------------------------------
@@ -53,15 +52,17 @@ namespace pool    {
     /// Standard destructor
     virtual ~DbDomainObj();
     /// Access to technology dependent implementation
-    IDbDomain* info() const             {    return m_info;     }
+    IDbDomain* info()                   {    return m_info;     }
+    const IDbDomain* info() const       {    return m_info;     }
     /// Access session handle
     DbSession& session()                {    return m_session;  }
+    const DbSession& session() const    {    return m_session;  }
     /// Set the maximal allowed age limit for files in this domain
     void       setAgeLimit(int value)   {    m_maxAge = value;  }
     /// Access the maximal age limit
     int        ageLimit()  const        {    return m_maxAge;   }
     /// Check for Database existence within domain
-    bool existsDbase(const std::string& nam);
+    bool existsDbase(const std::string& nam) const;
     /// Open domain with possible change of access mode
     DbStatus open(DbAccessMode mode);
     /// Open domain in default access mode

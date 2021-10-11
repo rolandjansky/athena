@@ -32,8 +32,10 @@ namespace Analysis {
   {
     // This will check that the properties were initialized properly
     // by job configuration.
+    m_TracksToTag = m_JetCollectionName.key() + "." + m_TracksToTag.key();
+
     ATH_CHECK( m_JetCollectionName.initialize() );
-    ATH_CHECK( m_jetParticleLinkName.initialize() );
+    ATH_CHECK( m_TracksToTag.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
 
@@ -68,9 +70,11 @@ namespace Analysis {
       return StatusCode::SUCCESS;
     }
 
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
-    if (!h_jetParticleLinkName.isAvailable()) {
-      ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::IParticleContainer> > >
+      h_TracksToTag (m_TracksToTag);
+
+    if (!h_TracksToTag.isAvailable()) {
+      ATH_MSG_ERROR( "cannot retrieve jet container particle EL decoration with key " << h_TracksToTag.decorKey()  );
       return StatusCode::FAILURE;
     }
  
@@ -109,30 +113,21 @@ namespace Analysis {
     for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter) {
       const xAOD::Jet& jetToTag = **jetIter;
 
-      //Get it from decor jet
-      const std::vector<ElementLink< xAOD::TrackParticleContainer > >& tracksInJet = h_jetParticleLinkName(jetToTag);
+      const std::vector<ElementLink< xAOD::IParticleContainer > >& tracksInJet
+        = h_TracksToTag(jetToTag);
 
       if(tracksInJet.size()==0){
-        ATH_MSG_DEBUG("#BTAG# No track in Jet");
+        ATH_MSG_INFO("#BTAG# No track in Jet");
         h_VxSecVertexInfoName->push_back(nullptr);
         continue;
       } 
-   
+
       std::vector<const xAOD::IParticle*> inputIParticles;
-
-      std::vector<ElementLink< xAOD::TrackParticleContainer > >::const_iterator itEL = tracksInJet.begin();
-      std::vector<ElementLink< xAOD::TrackParticleContainer > >::const_iterator itELend = tracksInJet.end();
        
-      //Before splitting empty tracksInJet case
 
-      for (  ; itEL != itELend; ++itEL ) {
-        const xAOD::TrackParticle* const *inputTrackParticle ;
-        inputTrackParticle = (*itEL).cptr(); //ElementConstPointer cptr
-
+      for (auto iparticle : tracksInJet)
 	      /// warning -> will not work if at some point we decide to associate to several track collections at the same time (in the same assoc object)
-	  
-        inputIParticles.push_back(*inputTrackParticle);
-      }
+        inputIParticles.push_back(*iparticle);
 
       ATH_MSG_DEBUG("#BTAG#  Running " << m_secVertexFinderToolHandle);
 

@@ -64,9 +64,9 @@ def finalizeJobs(dryRun):
         p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         retcode = p.communicate()
         if len(retcode[0]):
-            print (retcode[0])
+            print (retcode[0].decode('utf-8'))
         if len(retcode[1]):
-            print (retcode[1])
+            print (retcode[1].decode('utf-8'))
         if p.returncode:
             print ("ERROR: error while submitting job")
             print ("return code: " + str(p.returncode))

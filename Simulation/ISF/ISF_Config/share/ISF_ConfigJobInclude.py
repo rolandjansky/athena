@@ -15,8 +15,6 @@ from AthenaCommon import AthenaCommonFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 
 # TODO: ELLI: remove this once the envelopes are stored in the DDDB
 #             -> currently a fallback python definition is used
@@ -86,9 +84,17 @@ from AthenaCommon.ConfigurableDb import getConfigurable
 ServiceMgr.AuditorSvc += getConfigurable("ChronoAuditor")()
 # --- write out a short message upon entering or leaving each algorithm
 # ServiceMgr.AuditorSvc += getConfigurable("NameAuditor")()
+# --- check for FPEs
+ServiceMgr.AuditorSvc += getConfigurable("FPEAuditor")()
+import signal
+try:
+    ServiceMgr.CoreDumpSvc.Signals.remove (signal.SIGFPE)
+except ValueError:
+    pass
 #
 theApp.AuditAlgorithms = True
 theApp.AuditServices   = True
+theApp.AuditTools      = True  
 #
 # --- Display detailed size and timing statistics for writing and reading
 ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
@@ -131,8 +137,9 @@ if nThreads > 0:
         svcMgr+=ThreadPoolSvc("ThreadPoolSvc")
     svcMgr.ThreadPoolSvc.ThreadInitTools+=["G4ThreadInitTool"]
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg")
+if not ISF_Flags.ReSimulation():
+    from AthenaCommon.CfgGetter import getAlgorithm
+    topSeq += getAlgorithm("BeamEffectsAlg")
 
 #--------------------------------------------------------------
 # ISF kernel configuration
@@ -144,6 +151,7 @@ topSeq += getAlgorithm("BeamEffectsAlg")
 collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
 
 SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
+topSeq += SimKernel
 
 if ISF_Flags.ValidationMode():
     topSeq += getAlgorithm("ISF_SimHitTreeCreator")
@@ -169,7 +177,7 @@ createSimulationParametersMetadata()
 configureRunNumberOverrides()
 
 if ISF_Flags.HITSMergingRequired.anyOn():
-    topSequence += collection_merger_alg
+    topSeq += collection_merger_alg
 
 #--------------------------------------------------------------
 # Post kernel configuration
@@ -191,7 +199,7 @@ if ISF_Flags.DumpStoreGate() :
 if ISF_Flags.RunVP1() :
     # VP1 part (better switch off PerMon when using VP1)
     from VP1Algs.VP1AlgsConf import VP1Alg
-    topSequence += VP1Alg()
+    topSeq += VP1Alg()
 
 elif ISF_Flags.DoPerfMonStats() :
     # Performance Monitoring (VP1 does not like this)
@@ -205,7 +213,7 @@ if ISF_Flags.DumpMcEvent() :
     # McEventCollection Dumper
     DumpMC = CfgMgr.DumpMC("DumpMC")
     DumpMC.McEventKey = "TruthEvent"
-    topSequence += DumpMC
+    topSeq += DumpMC
 
 
 if ISF_Flags.RunValgrind() :
@@ -217,4 +225,4 @@ if ISF_Flags.RunValgrind() :
     ServiceMgr += valgrindSvc
 
 # useful for debugging:
-printfunc (topSequence)
+printfunc (topSeq)

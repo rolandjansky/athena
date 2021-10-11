@@ -7,13 +7,13 @@
 import ROOT
 ROOT.xAOD.Init().ignore()
 
+# Instantiate an xAOD::ElectronContainer object explicitly, to help ROOT "sort
+# out" that type's dictionary before the data frame would try to use it.
+ROOT.xAOD.ElectronContainer()
+
 # Create a data frame object.
 from xAODDataSource.Helpers import MakexAODDataFrame
 df = MakexAODDataFrame( "${ASG_TEST_FILE_DATA}" )
-
-# Instantiate an xAOD::ElectronContainer object explicitly, to help ROOT "sort
-# out" that type's dictionary before the data frame would try to use it.
-dummy = ROOT.xAOD.ElectronContainer()
 
 # Test its histogramming.
 elPt = df.Define( "ElectronsPt",

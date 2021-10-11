@@ -25,9 +25,9 @@
 
 Muon::TgcSlbDataHelper::TgcSlbDataHelper(void)
 {
-  m_log = 0;
+  m_log = nullptr;
   m_debug = false;
-  IMessageSvc* msgSvc = 0; 
+  IMessageSvc* msgSvc = nullptr; 
   ISvcLocator* svcLocator = Gaudi::svcLocator(); 
   StatusCode sc = svcLocator->service("MessageSvc", msgSvc); 
   if(!sc.isFailure()) {
@@ -39,7 +39,7 @@ Muon::TgcSlbDataHelper::TgcSlbDataHelper(void)
 Muon::TgcSlbDataHelper::~TgcSlbDataHelper(void)
 {
   delete m_log; 
-  m_log = 0;
+  m_log = nullptr;
 }
  
 // reconstruct to Hits. subDetectorID and ROD ID are dummy

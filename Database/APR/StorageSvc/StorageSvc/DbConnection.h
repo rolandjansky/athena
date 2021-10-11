@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STORAGESVC_DBCONNECTION_H
@@ -62,7 +62,8 @@ namespace pool {
     /// Increase reference count 
     int addRef()                              {  return ++m_refCount;         }
     /// Access object identifier
-    virtual void* handle() const              {  return m_handle;             }
+    virtual void* handle()                    {  return m_handle;             }
+    virtual const void* handle() const        {  return m_handle;             }
     /// Access Database identifier
     virtual const std::string& name() const   {  return m_name;               }
     /// Access technoliogy type

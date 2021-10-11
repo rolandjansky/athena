@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDSTACOTAGTOOL_H
@@ -33,7 +33,8 @@ namespace MuonCombined {
 
         /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */
         virtual void combine(const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates,
-                             InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* METracks) const override;
+                             InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* METracks,
+                             const EventContext& ctx) const override;
 
     private:
         std::unique_ptr<const Trk::Perigee> theCombIdMu(const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee,

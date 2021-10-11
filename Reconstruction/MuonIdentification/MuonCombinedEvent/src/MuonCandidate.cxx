@@ -9,7 +9,7 @@
 namespace MuonCombined {
   
   MuonCandidate::MuonCandidate( const Trk::Track& msTrack ) :
-    m_extrapolatedTrack(0),
+    m_extrapolatedTrack(nullptr),
     m_muonSpectrometerTrack(&msTrack),
     m_ownsExtrapolatedTrack(false){}
 
@@ -20,7 +20,7 @@ namespace MuonCombined {
 
   MuonCandidate::MuonCandidate( const ElementLink<xAOD::TrackParticleContainer>& trackLink ) :
     m_muonSpectrometerTrackLink(trackLink),
-    m_extrapolatedTrack(0),
+    m_extrapolatedTrack(nullptr),
     m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()),
     m_ownsExtrapolatedTrack(false){}
 

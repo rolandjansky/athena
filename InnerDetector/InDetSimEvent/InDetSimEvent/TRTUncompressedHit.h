@@ -7,7 +7,7 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-class TRTUncompressedHit
+class TRTUncompressedHit final
 {
 public:
   TRTUncompressedHit(int hit, int track, int particle,
@@ -24,8 +24,8 @@ public:
   // needed by athenaRoot
   TRTUncompressedHit();
 
-  // Destructor: FIXME POOL
-  inline virtual ~TRTUncompressedHit() {};
+  // Destructor:
+  ~TRTUncompressedHit() = default;
   
   //copy c'tor defaulted
   TRTUncompressedHit(const TRTUncompressedHit &) = default;

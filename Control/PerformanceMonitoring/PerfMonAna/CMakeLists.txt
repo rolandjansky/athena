@@ -8,7 +8,7 @@ find_package( matplotlib )
 find_package( numpy )
 find_package( pandas )
 find_package( sqlalchemy )
-find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

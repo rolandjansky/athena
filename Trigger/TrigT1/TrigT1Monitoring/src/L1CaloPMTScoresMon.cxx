@@ -15,6 +15,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "LWHists/TH2F_LW.h"
 
@@ -138,6 +139,8 @@ StatusCode L1CaloPMTScoresMon:: initialize()
     return sc;
   }
 
+  ATH_CHECK( m_cablingKey.initialize() );
+
   return StatusCode::SUCCESS;
 
 }
@@ -212,6 +215,8 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
 {
   if (m_events > 0) return StatusCode::SUCCESS;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
+
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
 
@@ -260,7 +265,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
     Identifier ttId1(0);
     Identifier ttId2(0);
 
-    m_cells2tt->matchCell2Tower(caloCell, ttId1, ttId2);
+    m_cells2tt->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
 
     if (ttId1 != invalidId) {
       const double eta = m_ttIdTools->IDeta(ttId1);

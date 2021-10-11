@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSELECTIONTOOL_INDETTRACKSELECTIONTOOL_H
@@ -11,6 +11,7 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "AsgMessaging/AsgMessaging.h"
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,6 +24,15 @@
 #include <map>
 #include <mutex>
 #include <unordered_map>
+
+namespace InDetAccessor {
+
+   class TrackParticleHelper;
+
+#ifndef XAOD_ANALYSIS
+   class TrkTrackHelper;
+#endif
+}
 
 namespace InDet {
 
@@ -96,16 +106,30 @@ namespace InDet {
     // this is the setCutLevel function that actually does the work, so that it doesn't warn if called in athena.
     void setCutLevelPrivate( InDet::CutLevel level, Bool_t overwrite = true );
 
+    // helper method to setup the cut functions for TrackParticles and Trk::Tracks
+    template <int VERBOSE, class Trk_Helper>
+    StatusCode setupCuts(std::map< std::string, std::vector< std::function<bool(Trk_Helper helper, asg::AsgMessaging &msgHelper)> > > &trackCuts);
+
+    template <class Trk_Helper>
+    asg::AcceptData accept(Trk_Helper helper, const std::map< std::string, std::vector< std::function<bool(Trk_Helper helper, asg::AsgMessaging &msgHelper)> > > &trackCuts) const;
+
     std::unordered_map< std::string, std::shared_ptr<TrackAccessor> > m_trackAccessors; //!< list of the accessors that need to be run for each track
 
-    // first element is cut family, second is the set of cuts
-    std::map< std::string, std::vector< std::unique_ptr<TrackCut> > > m_trackCuts; //!< First element is the name of the cut family, second element is the set of cuts
+    std::unique_ptr<asg::AsgMessaging> m_msgHelper;
+    std::map< std::string, std::vector< std::function<bool(InDetAccessor::TrackParticleHelper helper, asg::AsgMessaging &msgHelper)> > >
+           m_trackParticleCuts; //!< First element is the name of the cut family, second element is the set of cuts
+#ifndef XAOD_ANALYSIS
+    std::map< std::string, std::vector< std::function<bool(InDetAccessor::TrkTrackHelper helper, asg::AsgMessaging &msgHelper)> > >
+           m_trkTrackCuts; //!< First element is the name of the cut family, second element is the set of cuts
+#endif
 
     mutable std::atomic<ULong64_t> m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
     mutable std::atomic<ULong64_t> m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
     mutable std::vector<ULong64_t> m_numTracksPassedCuts ATLAS_THREAD_SAFE; //!< tracks the number of tracks that passed each cut family. Guarded by m_mutex
     mutable std::mutex m_mutex;
 
+    static inline bool maxDoubleIsSet(Double_t cutValue) {return cutValue < InDet::InDetTrackSelectionTool::LOCAL_MAX_DOUBLE && cutValue >= 0.;}
+    static inline bool maxIntIsSet(Int_t cutValue){return cutValue < InDet::InDetTrackSelectionTool::LOCAL_MAX_INT && cutValue >= 0;}
     constexpr static Double_t LOCAL_MAX_DOUBLE = 1.0e16;
     constexpr static Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();
 
@@ -185,7 +209,7 @@ namespace InDet {
 
     // we need a map from strings (for use in Athena) to the CutLevel enum
     static const std::unordered_map<std::string, CutLevel> s_mapCutLevel;
-   
+
 #ifndef XAOD_ANALYSIS
     Bool_t m_initTrkTools = false; //!< Whether to initialize the Trk::Track tools
     Bool_t m_trackSumToolAvailable = false; //!< Whether the summary tool is available    

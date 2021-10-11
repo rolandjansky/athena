@@ -146,8 +146,9 @@ namespace InDet{
       BooleanProperty m_useCaloSeeds{this, "doCaloSeededBrem", false};
       BooleanProperty m_useSSSfilter{this, "useSSSseedsFilter", true};
       BooleanProperty m_useHClusSeed{this, "doHadCaloSeedSSS", false, "Hadronic Calorimeter Seeds"};
-      BooleanProperty m_ITKGeomtry{this, "ITKGeometry", false, "ITK geometry"};
+      BooleanProperty m_ITKGeometry{this, "ITKGeometry", false, "ITK geometry"};
       BooleanProperty m_seedsegmentsWrite{this, "SeedSegmentsWrite", false, "Call seed to track conversion"};
+
       DoubleProperty m_xi2max{this, "Xi2max", 15., "max Xi2 for updators"};
       DoubleProperty m_xi2maxNoAdd{this, "Xi2maxNoAdd", 35., "max Xi2 for clusters"};
       DoubleProperty m_xi2maxlink{this, "Xi2maxlink", 200., "max Xi2 for clusters"};
@@ -162,6 +163,8 @@ namespace InDet{
       IntegerProperty m_nwclusmin{this, "nWeightedClustersMin", 6, "Min umber weighted clusters(pix=2 sct=1)"};
       DoubleProperty m_phiWidth{this, "phiWidth", 0.3};
       DoubleProperty m_etaWidth{this, "etaWidth", 0.3};
+      DoubleArrayProperty m_etabins{this, "etaBins", {}, "eta bins"};
+      DoubleArrayProperty m_ptbins{this, "pTBins", {}, "pT bins"};
       //@}
 
       /// @name Data members, which are updated only in initialize method
@@ -220,7 +223,6 @@ namespace InDet{
 
       std::vector<statAllTypes> m_indexToEnum {kTwoClusters,kWrongInit,kWrongRoad,kNoTrack,kNotNewTrack,kBremAttempt};
 
-
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
@@ -229,7 +231,8 @@ namespace InDet{
         MagField::AtlasFieldCache& fieldCache,
         SiTrackMakerEventData_xk& data,
         bool sss,
-        const std::vector<const Trk::SpacePoint*>& SP) const;
+        const std::vector<const Trk::SpacePoint*>& SP,
+        const EventContext& ctx) const;
       std::unique_ptr<Trk::TrackParameters> getAtaPlaneDBM(
         MagField::AtlasFieldCache& fieldCache,
         SiTrackMakerEventData_xk& data,
@@ -254,6 +257,7 @@ namespace InDet{
       bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isDBMSeeds(const Trk::SpacePoint* s) const;
       void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
+      double pTmin(double eta) const;
 
       MsgStream& dumpStatistics(MsgStream &out) const;
       MsgStream& dumpconditions(MsgStream& out) const;

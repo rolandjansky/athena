@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CxxUtils/cPtrAccessSEGVHandler.h"
@@ -39,16 +39,13 @@ bool PageAccessControlSvc::accessed(const void* address) const {
 
 StatusCode PageAccessControlSvc::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Initializing " << name() 
-		 << " - package version " << PACKAGE_VERSION << endmsg ;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg ;
   if (m_autoMonitor.value() && !this->startMonitoring()) sc = StatusCode::FAILURE;
   return sc;
 }
 
 StatusCode PageAccessControlSvc::finalize() {
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Finalizing " << name() 
-		 << " - package version " << PACKAGE_VERSION << endmsg ;
   if (m_autoMonitor.value()) {
     if (this->stopMonitoring()) this->report();
     else sc = StatusCode::FAILURE;

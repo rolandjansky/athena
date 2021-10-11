@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbHandleBase.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  Pool Handle Base class definitions
 //--------------------------------------------------------------------
@@ -39,26 +38,28 @@ namespace pool    {
     /// Data type definition
     typedef  DbHandleBase<_DataType> Base;
     /// Data member: Object pointer. Sub-classes need access on re-assignment
-    mutable  T*                      m_ptr;
+    T*                      m_ptr;
     /// Data member: Technology type. Sub-classes need access on re-assignment
-    mutable  DbType                  m_type;
+     DbType                  m_type;
 
     /// Standard destructor
     ~DbHandleBase() {  m_type.check();                  }
     /// Standard constructor
     DbHandleBase() : m_ptr(0), m_type(0)  {             }
     /// Set handle type
-    void setType(const DbType& typ) const { m_type=typ; }
+    void setType(const DbType& typ)       { m_type=typ; }
     /// Set data pointer
-    void setPtr(T* ptr) const             { m_ptr=ptr;  }
+    void setPtr(T* ptr)                   { m_ptr=ptr;  }
 
   public:
     /// Dereference operator
-    T* operator->() const         { return m_ptr;       }
+    T* operator->()               { return m_ptr;       }
+    const T* operator->() const   { return m_ptr;       }
     /// Validity check through operator NOT
     bool operator!() const        { return !isValid();  }
     /// Access to underlying object
-    T* ptr() const                { return m_ptr;       }
+    const T* ptr() const          { return m_ptr;       }
+    T* ptr()                      { return m_ptr;       }
     /// Validity check (Objy like)
     bool isValid() const          { return 0 != m_ptr;  }
     /// Inquire storage type of the handle

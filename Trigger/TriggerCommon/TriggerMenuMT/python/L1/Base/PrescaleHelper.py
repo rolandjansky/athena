@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Base.PrescaleHelper')
+log = logging.getLogger(__name__)
 
 """
 The prescaling uses a pseudo-random binary sequence generator of 24 bit width (31 bit internal)

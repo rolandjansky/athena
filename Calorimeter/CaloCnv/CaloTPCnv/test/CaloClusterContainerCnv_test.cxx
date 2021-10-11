@@ -25,7 +25,9 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TestTools/leakcheck.h"
+#include "TestTools/random.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 
 
@@ -34,34 +36,10 @@
 #include "CaloClusterContainerCnvTest_p6.icc"
 
 
+using Athena_test::randi_seed;
+using Athena_test::randf_seed;
 using CLHEP::Hep3Vector;
 using CLHEP::HepLorentzVector;
-
-
-// Dufus-quality RNG, using LCG.  Constants from numerical recipies.
-// I don't particularly care about RNG quality here, just about
-// getting something that's reproducible.
-#include <stdint.h>
-uint32_t seed = 1;
-uint32_t rngmax = static_cast<uint32_t> (-1);
-uint32_t rng()
-{
-  seed = (1664525*seed + 1013904223);
-  return seed;
-}
-
-float randf (float rmax, float rmin = 0)
-{
-  return static_cast<float>(rng()) / rngmax * (rmax-rmin) + rmin;
-}
-int randi (int rmax, int rmin = 0)
-{
-  return static_cast<int> (randf(rmax, rmin));
-}
-struct randi_fn
-{
-  int operator() (int rmax) { return randi(rmax); }
-};
 
 
 std::vector<CaloSampling::CaloSample> getSamplingList()
@@ -75,17 +53,17 @@ std::vector<CaloSampling::CaloSample> getSamplingList()
 }
 
 
-CaloCluster* make_cluster (int iclus)
+CaloCluster* make_cluster (uint32_t& seed, int iclus)
 {
-  float eta0 = randf (4, -4);
-  float phi0 = randf (3, -3);
+  float eta0 = randf_seed (seed, 4, -4);
+  float phi0 = randf_seed (seed, 3, -3);
 
   int nvars = 10;
   std::vector<CaloVariableType::VariableType> vtypes (nvars);
   unsigned int mask = 0;
   for (int i = 0; i < nvars; i++) {
-    vtypes[i] = (CaloVariableType::VariableType)randi
-      (CaloVariableType::getNumberOfVariables());
+    vtypes[i] = (CaloVariableType::VariableType)randi_seed
+      (seed, CaloVariableType::getNumberOfVariables());
     mask |= CaloVariableType::getVariableBit (vtypes[i]);
   }
   
@@ -94,50 +72,50 @@ CaloCluster* make_cluster (int iclus)
   std::vector<CaloSampling::CaloSample> vsamp = getSamplingList();
   for (int i = 0; i < nvars; i++) {
     assert (c->setVariable (vtypes[i],
-                            vsamp[randi(vsamp.size())],
-                            randf(100000)));
+                            vsamp[randi_seed(seed, vsamp.size())],
+                            randf_seed(seed, 100000)));
   }
 
   Hep3Vector dir;
   HepLorentzVector hlv;
-  dir.setREtaPhi (randf (100000), randf (4, -4), randf (3, -3));
-  hlv.setVectM (Hep3Vector(dir), randf (100000));
+  dir.setREtaPhi (randf_seed (seed, 100000), randf_seed (seed, 4, -4), randf_seed (seed, 3, -3));
+  hlv.setVectM (Hep3Vector(dir), randf_seed (seed, 100000));
   c->set4Mom (hlv);
 
   {
     SignalStateHelper sig (c);
     sig.setSignalState(P4SignalState::UNCALIBRATED);
-    dir.setREtaPhi (randf (100000), randf (4, -4), randf (3, -3));
-    hlv.setVectM (Hep3Vector(dir), randf (100000));
+    dir.setREtaPhi (randf_seed (seed, 100000), randf_seed (seed, 4, -4), randf_seed (seed, 3, -3));
+    hlv.setVectM (Hep3Vector(dir), randf_seed (seed, 100000));
     c->set4Mom (hlv);
   }
 
-  c->setBasicEnergy (randf (100000, -10000));
-  c->setTime (randf (32, -32));
-  c->setClusterSize (randi (14));
+  c->setBasicEnergy (randf_seed (seed, 100000, -10000));
+  c->setTime (randf_seed (seed, 32, -32));
+  c->setClusterSize (randi_seed (seed, 14));
 
-  c->setBarrel (randi (2));
-  c->setEndcap (randi (2));
+  c->setBarrel (randi_seed (seed, 2));
+  c->setEndcap (randi_seed (seed, 2));
 
-  c->setAthenaBarCode (randi (1000000) + 10LL*1000*1000*1000);
+  c->setAthenaBarCode (randi_seed (seed, 1000000) + 10LL*1000*1000*1000);
 
-  c->insertMoment (CaloClusterMoment::SECOND_R,  randf(100000), false);
-  c->insertMoment (CaloClusterMoment::ISOLATION, randf(100000));
-  c->insertMoment (CaloClusterMoment::DELTA_PHI, randf(100000));
+  c->insertMoment (CaloClusterMoment::SECOND_R,  randf_seed(seed, 100000), false);
+  c->insertMoment (CaloClusterMoment::ISOLATION, randf_seed(seed, 100000));
+  c->insertMoment (CaloClusterMoment::DELTA_PHI, randf_seed(seed, 100000));
 
   c->addBadChannel (CaloClusterBadChannelData
-                    (randf (4, -4),
-                     randf (3, -3),
-                     vsamp[randi(vsamp.size())],
-                     CaloBadChannel (randi (256))));
+                    (randf_seed (seed, 4, -4),
+                     randf_seed (seed, 3, -3),
+                     vsamp[randi_seed(seed, vsamp.size())],
+                     CaloBadChannel (randi_seed (seed, 256))));
   c->addBadChannel (CaloClusterBadChannelData
-                    (randf (4, -4),
-                     randf (3, -3),
-                     vsamp[randi(vsamp.size())],
-                     CaloBadChannel (randi (256))));
+                    (randf_seed (seed, 4, -4),
+                     randf_seed (seed, 3, -3),
+                     vsamp[randi_seed(seed, vsamp.size())],
+                     CaloBadChannel (randi_seed (seed, 256))));
 
   c->setRecoStatus (CaloRecoStatus
-                    ((CaloRecoStatus::StatusIndicator)randi (100000)));
+                    ((CaloRecoStatus::StatusIndicator)randi_seed (seed, 100000)));
 
   ElementLink<CaloCellLinkContainer> el ("celllinkkey", iclus);
   c->resetCellLink (el);
@@ -151,8 +129,9 @@ std::unique_ptr<const CaloClusterContainer> make_clusters()
   auto ccc = std::make_unique<CaloClusterContainer>();
   ccc->setROIAuthor ("theauthor");
   ccc->setTowerSeg (CaloTowerSeg (20, 10, -4, 4, -3, 3));
+  uint32_t seed = 1;
   for (int i=0; i < 5; i++)
-    ccc->push_back (make_cluster(i));
+    ccc->push_back (make_cluster(seed, i));
   return std::unique_ptr<const CaloClusterContainer>(ccc.release());
 }
 
@@ -301,7 +280,7 @@ void compare (const CaloClusterContainer& clust1,
 
   for (size_t i = 0; i < clust1.size(); i++) {
     compare (*clust1[i], *clust2[i], version);
-    CaloCluster& cl = *const_cast<CaloCluster*> (clust2[i]);
+    const CaloCluster& cl = *clust2[i];
     assert (cl.cellLink().index() == i);
     assert (cl.cellLink().dataID() == "celllinkkey");
   }
@@ -326,11 +305,11 @@ void testit (const CaloClusterContainer& clust, int version)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   (void)Gaudi::Hive::currentContext();
-  SGTest::initTestStore();
+  auto store = SGTest::getTestStore();
   Athena::getMessageSvc();
   AthenaBarCodeImpl abci;
   ElementLink<CaloCellLinkContainer> dum ("celllinkkey", 0);

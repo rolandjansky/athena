@@ -77,6 +77,10 @@ if (rec.doTrigger() == False and
    DQMonFlags.doLVL1CaloMon=False
    DQMonFlags.doCTPMon=False
    DQMonFlags.doHLTMon=False
+elif rec.doTrigger() == True and ConfigFlags.Trigger.EDMVersion < 3:
+   # CTP/L1Calo monitoring currently not supported on old data (ATR-24262)
+   DQMonFlags.doLVL1CaloMon=False
+   DQMonFlags.doCTPMon=False
 
 if not DQMonFlags.doMonitoring():
    local_logger.info("monitoring globally switched off")
@@ -111,6 +115,17 @@ if not DQMonFlags.doMonitoring():
 else:
    local_logger.info("monitoring environment set to %s", DQMonFlags.monManEnvironment())
 
+   # while we're in mixed mode for the following packages, drive these even if in new-style monitoring
+   # AOD monitoring
+   if DQMonFlags.monManEnvironment == 'AOD':
+      DQMonFlags.histogramFile='MonitorAOD.root'
+      DQMonFlags.doCTPMon=False
+      DQMonFlags.doLVL1CaloMon=False
+   # ESD monitoring: switch off DQ monitoring packages which are not yet migrated:
+   elif DQMonFlags.monManEnvironment == 'tier0ESD':
+      DQMonFlags.histogramFile='MonitorESD.root'
+      DQMonFlags.doCTPMon=False
+
    # new-style monitoring drives this internally so skip this section
    if not DQMonFlags.doNewMonitoring:
 
@@ -128,9 +143,7 @@ else:
          DQMonFlags.doInDetGlobalMon=False
          DQMonFlags.doInDetAlignMon=False
 
-         DQMonFlags.doGlobalMon=False
          DQMonFlags.doLVL1CaloMon=False
-         DQMonFlags.doHLTMon=False
          DQMonFlags.doEgammaMon=False
          DQMonFlags.doMuonRawMon=False
          DQMonFlags.doLucidMon=False
@@ -159,6 +172,10 @@ else:
          DQMonFlags.doLucidMon=False
          DQMonFlags.doJetTagMon=False
          DQMonFlags.doJetMon=False
+   
+   # no HLT monitoring if new monitoring and input is Run 2 EDM
+   if DQMonFlags.doNewMonitoring() and ConfigFlags.Trigger.EDMVersion == 2:
+      DQMonFlags.doHLTMon = False
       
    # switch off monitoring if reco is off during BS reading
    if rec.readRDO() and not 'DetFlags' in dir():
@@ -470,5 +487,51 @@ if (rec.projectName.get_Value().endswith('comm') and
 
 DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()
+
+local_logger.info("DQ: setting up ConfigFlags")
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+# Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+ConfigFlags = getNewConfigFlags()
+
+ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
+ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
+ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
+ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
+ConfigFlags.DQ.isReallyOldStyle=False
+
+from AthenaConfiguration import ComponentAccumulator
+from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
+from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
+from AthenaMonitoring import AthenaMonitoringConf
+
+Steering = ConfigFlags.DQ.Steering
+Steering.doDataFlowMon=DQMonFlags.doDataFlowMon()
+Steering.doGlobalMon=DQMonFlags.doGlobalMon()
+# do not enable new trigger monitoring in mixed mode if we are not in Run 3 EDM
+mixedModeFlag = (DQMonFlags.triggerMixedMode() and ConfigFlags.Trigger.EDMVersion == 2)
+Steering.doHLTMon=DQMonFlags.doHLTMon() and not mixedModeFlag
+Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon() and not mixedModeFlag
+Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
+Steering.doPixelMon=DQMonFlags.doPixelMon()
+Steering.doSCTMon=DQMonFlags.doSCTMon()
+Steering.doTRTMon=DQMonFlags.doTRTMon()
+Steering.InDet.doGlobalMon=DQMonFlags.doInDetGlobalMon()
+Steering.InDet.doAlignMon=DQMonFlags.doInDetAlignMon()
+Steering.doInDetMon = Steering.InDet.doGlobalMon or Steering.InDet.doAlignMon
+Steering.doLArMon=DQMonFlags.doLArMon()
+Steering.doTileMon=DQMonFlags.doTileMon()
+Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()
+Steering.Muon.doRawMon=DQMonFlags.doMuonRawMon()
+Steering.Muon.doTrackMon=DQMonFlags.doMuonTrackMon()
+Steering.doMuonMon=(Steering.Muon.doRawMon or Steering.Muon.doTrackMon)
+Steering.doLucidMon=DQMonFlags.doLucidMon()
+Steering.doAFPMon=DQMonFlags.doAFPMon()
+Steering.doHIMon=DQMonFlags.doHIMon()
+Steering.doEgammaMon=DQMonFlags.doEgammaMon()
+Steering.doJetMon=DQMonFlags.doJetMon()
+Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
+Steering.doTauMon=DQMonFlags.doTauMon()
+Steering.doJetTagMon=DQMonFlags.doJetTagMon()
+Steering.doJetInputsMon=DQMonFlags.doJetInputsMon()
 
 del local_logger

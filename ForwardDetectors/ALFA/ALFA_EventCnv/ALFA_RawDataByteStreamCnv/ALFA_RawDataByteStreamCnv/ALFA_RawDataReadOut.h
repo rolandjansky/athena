@@ -70,21 +70,21 @@ class ALFA_RawDataReadOut : public ALFA_ReadOut {
 
   // Word header Position and values
   // The word header occupies the 4 highest bits of each TDC data word 
-  static const uint16_t s_headerPos  = 28;  // from bit 28 to 31
-  static const uint16_t s_headerBits = 0xf;
+  static constexpr uint16_t s_headerPos  = 28;  // from bit 28 to 31
+  static constexpr uint16_t s_headerBits = 0xf;
 
   // Beginning of TDC 
-  static const uint16_t s_BOTvalue  = 0xa;
+  static constexpr uint16_t s_BOTvalue  = 0xa;
     
   // End of TDC
-  static const uint16_t s_EOTvalue   = 0xc;
+  static constexpr uint16_t s_EOTvalue   = 0xc;
   
   // TDC single measurement
-  static const uint16_t s_TSMvalue   = 0x3;  
+  static constexpr uint16_t s_TSMvalue   = 0x3;  
   
  public:
   
-  // Constructor and destructor
+  // constructor and destructor
   ALFA_RawDataReadOut();
   ~ALFA_RawDataReadOut();
 
@@ -95,35 +95,35 @@ class ALFA_RawDataReadOut : public ALFA_ReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return (m_wordHeader == s_BOTvalue);};
+  bool is_BOT() const {return (m_wordHeader == s_BOTvalue);};
   // End of TDC
-  bool is_EOT() {return (m_wordHeader == s_EOTvalue);};
+  bool is_EOT() const{return (m_wordHeader == s_EOTvalue);};
   // TDC single measurement
-  bool is_TDCt() {return (m_wordHeader == s_TSMvalue);};
+  bool is_TDCt()const {return (m_wordHeader == s_TSMvalue);};
    
   // Methods to retrieve the decoded word content (Get)
   
-  uint16_t MBId()  {return m_MBId;}
+  uint16_t MBId() const  {return m_MBId;}
   
-  uint16_t SlotId() {return m_SlotId;}
-  uint16_t LsbTdcId() {return m_LsbTdcId;}
-  uint16_t ecnt_BOT()  {return m_ecnt_BOT;}
-  uint16_t ecnt_EOT()  {return m_ecnt_EOT;}
-  uint16_t bcId()  {return m_bcId;}
-  uint16_t WordId()        {return m_WordId;}
-  uint16_t PMFId()   {return m_PMFId;}
-  uint16_t fiber()    {return m_fiber;}
-  uint16_t ADC()    {return m_ADC;}
-  std::vector<bool> pattern()    {return m_pattern;}
-  uint16_t scaler()    {return m_scaler;}
-  bool     bit16()   {return m_bit16;}
-  bool     error_bit17() {return m_error_bit17;}
-  bool     bit18()   {return m_bit18;}
-  bool     isError() {return m_error_bit17;}
-  uint16_t     bit26_27()   {return m_bit26_27;}
-  uint16_t     bit24_27()   {return m_bit24_27;}
+  uint16_t SlotId() const {return m_SlotId;}
+  uint16_t LsbTdcId() const {return m_LsbTdcId;}
+  uint16_t ecnt_BOT() const {return m_ecnt_BOT;}
+  uint16_t ecnt_EOT() const {return m_ecnt_EOT;}
+  uint16_t bcId() const {return m_bcId;}
+  uint16_t WordId()   const     {return m_WordId;}
+  uint16_t PMFId() const  {return m_PMFId;}
+  uint16_t fiber() const   {return m_fiber;}
+  uint16_t ADC()   const {return m_ADC;}
+  const std::vector<bool>& pattern()  const  {return m_pattern;}
+  uint16_t scaler()  const  {return m_scaler;}
+  bool     bit16()  const {return m_bit16;}
+  bool     error_bit17() const{return m_error_bit17;}
+  bool     bit18() const  {return m_bit18;}
+  bool     isError()const {return m_error_bit17;}
+  uint16_t     bit26_27() const  {return m_bit26_27;}
+  uint16_t     bit24_27() const  {return m_bit24_27;}
 
-  std::vector<uint32_t> HitChan() const {return m_MarocChan;}
+  const std::vector<uint32_t>& HitChan() const {return m_MarocChan;}
 
  private:
 

@@ -4,7 +4,7 @@
 
 namespace Trk {
 
-inline Surface::SurfaceType
+inline SurfaceType
 PlaneSurface::type() const
 {
   return PlaneSurface::staticType;
@@ -127,6 +127,11 @@ inline PlaneSurface*
 PlaneSurface::clone() const
 {
   return new PlaneSurface(*this);
+}
+
+inline std::unique_ptr<PlaneSurface>
+PlaneSurface::uniqueClone() const{
+  return std::unique_ptr<PlaneSurface>(clone());
 }
 
 inline bool

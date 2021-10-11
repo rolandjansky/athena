@@ -64,6 +64,8 @@ if rec.doTruth():
                                           "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                                           "xAOD::TruthParticleContainer#TruthParticles",
                                           "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                                          "xAOD::TruthParticleContainer#TruthPileupParticles",
+                                          "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                                           "xAOD::TruthVertexContainer#TruthVertices", 
                                           "xAOD::TruthVertexAuxContainer#TruthVerticesAux.",
                                           "xAOD::TruthPileupEventContainer#TruthPileupEvents",
@@ -142,7 +144,7 @@ except Exception:
 # Jet classes. 
 try:
    from JetRec.JetRecUtils import retrieveAODList
-   jetAODList = retrieveAODList()
+   jetAODList = retrieveAODList(True)
    fullESDList += CfgItemList( "jets", items = jetAODList )
 except Exception:
    treatException("Could not load jet item list")
@@ -151,7 +153,7 @@ except Exception:
 try:
     if rec.doBTagging():
         include("BTagging/BTaggingReconstructionOutputAODList_jobOptions.py")
-        fullESDList += CfgItemList( "BTaggingAod", items = BTaggingAODList, allowWildCard = True )
+        fullESDList += CfgItemList( "BTaggingEsd", items = BTaggingESDList, allowWildCard = True )
 except Exception:
     treatException("Could not load BTagging item list")    
 
@@ -232,6 +234,11 @@ if rec.doHeavyIon():
     protectedInclude ("HIRecExample/HIRecOutputESDList_jobOptions.py")
     fullESDList += CfgItemList( "HeavyIonsEsd", items = HIESDItemList )
 
+# remove decorations that might be created by monitoring
+if rec.doMonitoring():
+    fullESDList += CfgItemList( "MonitoringEsd", 
+                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                              )
 
 ## StreamESD_Augmented.AddItem( "RecoTimingObj#RAWtoESD_timings" )
 #fullESDList += CfgItemList( "TimingEsd",

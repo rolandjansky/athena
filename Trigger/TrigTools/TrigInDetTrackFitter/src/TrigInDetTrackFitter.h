@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETTRACKFITTER_TRIGINDETTRACKFITTER_H
@@ -36,9 +36,9 @@ class TrigInDetTrackFitter: public AthAlgTool, virtual public ITrigInDetTrackFit
   TrigInDetTrackFitter( const std::string&, const std::string&, const IInterface* );
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  Trk::Track* fitTrack(const Trk::Track&, MagField::AtlasFieldCache&, const Trk::ParticleHypothesis& matEffects = Trk::pion, const bool addTPtoTSoS=false) const;
+std::pair<Trk::Track*,Trk::Track*> fitTrack(const Trk::Track&, MagField::AtlasFieldCache&, const Trk::ParticleHypothesis& matEffects = Trk::pion, const bool addTPtoTSoS=false) const;
   void fit(const TrackCollection&, TrackCollection&, const EventContext&, const Trk::ParticleHypothesis& matEffects = Trk::pion) const;
-  void fit(const TrackCollection&, TrackCollection&, const EventContext&, const Trk::ParticleHypothesis& matEffects = Trk::pion, const bool addTPtoTSoS=false) const;
+  void fit(const TrackCollection&, TrackCollection&, TrackCollection&, const EventContext&, const Trk::ParticleHypothesis& matEffects = Trk::pion, const bool addTPtoTSoS=false) const;
   StatusCode getUnbiasedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&, const EventContext&) const;
 
 private:
@@ -66,9 +66,9 @@ private:
   ToolHandle<ITrigDkfTrackMakerTool>    m_trackMaker;
 	ToolHandle<Trk::IRIO_OnTrackCreator>  m_ROTcreator;
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-  const PixelID* m_pixelId;
-  const SCT_ID* m_sctId;
-  const AtlasDetectorID* m_idHelper;
+  const PixelID* m_pixelId = nullptr;
+  const SCT_ID* m_sctId = nullptr;
+  const AtlasDetectorID* m_idHelper = nullptr;
 };
 
 #endif

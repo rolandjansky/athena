@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
 // PatternTrackParameters.cxx , (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <iomanip>
-#include <boost/io/ios_state.hpp>
+
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/ConeSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
@@ -16,6 +14,9 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////
 // Conversion Trk::PatternTrackParameters to  Trk::TrackParameters
@@ -54,7 +55,7 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 
   if(C) {
     if (m_covariance == std::nullopt) {
-      m_covariance = AmgSymMatrix(5)();
+      m_covariance.emplace();
     }
 
     for (std::size_t i = 0; i < 5; i++) {
@@ -159,69 +160,51 @@ MsgStream& Trk::operator    <<
 }
 
 ///////////////////////////////////////////////////////////////////
+// Put track parameters information in a string representation
+///////////////////////////////////////////////////////////////////
+
+std::string
+Trk::PatternTrackParameters::to_string() const {
+  std::stringstream ss;
+  const Trk::Surface*  s = m_surface.get();
+  const AmgVector(5)&  P = m_parameters;
+  const std::string name{s?s->name():""};
+  const std::string N("\n");
+  ss << "Track parameters for " << name << " surface " << N;
+  ss.unsetf(std::ios::fixed);
+  ss.setf  (std::ios::showpos);
+  ss.setf  (std::ios::scientific);
+  if (m_covariance != std::nullopt) {
+    const AmgSymMatrix(5) & V = *m_covariance;
+    ss << std::setprecision(4) <<
+      P[ 0]<<" |"<<V(0, 0) << N;
+    ss << std::setprecision(4) <<
+      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << N;
+    ss << std::setprecision(4) <<
+      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << N;
+    ss << std::setprecision(4) <<
+      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << N;
+    ss << std::setprecision(4) <<
+      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << N;
+  }
+  else {
+    ss << std::setprecision(4) << P[ 0] << " |" << N;
+    ss << std::setprecision(4) << P[ 1] << " |" << N;
+    ss << std::setprecision(4) << P[ 2] << " |" << N;
+    ss << std::setprecision(4) << P[ 3] << " |" << N;
+    ss << std::setprecision(4) << P[ 4] << " |" << N;
+  }
+  return ss.str();
+}
+
+
+///////////////////////////////////////////////////////////////////
 // Print track parameters information
 ///////////////////////////////////////////////////////////////////
 
 std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 {
-  const Trk::Surface*  s = m_surface.get();
-  const AmgVector(5)&  P = m_parameters;
-  std::string name;
-  std::string iscov;
-
-  boost::io::ios_all_saver ias(out);
-
-  const Trk::DiscSurface* di;
-  const Trk::ConeSurface* cn;
-  const Trk::PlaneSurface* pl;
-  const Trk::PerigeeSurface* pe;
-  const Trk::CylinderSurface* cy;
-  const Trk::StraightLineSurface* li;
-
-  if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) { name = "Plane"   ;
-  } else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) { name = "Line"    ;
-  } else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) { name = "Disc"    ;
-  } else if((cy=dynamic_cast<const Trk::CylinderSurface*>    (s))) { name = "Cylinder";
-  } else if((pe=dynamic_cast<const Trk::PerigeeSurface*>     (s))) { name = "Perigee" ;
-  } else if((cn=dynamic_cast<const Trk::ConeSurface*>        (s))) { name = "Cone"    ;
-  } else  {
-    out << "Track parameters are not valid " << std::endl;
-    ias.restore();
-    return out;
-  }
-
-  out << "Track parameters for " << name << " surface " << std::endl;
-
-  out.unsetf(std::ios::fixed);
-  out.setf  (std::ios::showpos);
-  out.setf  (std::ios::scientific);
-
-  if (m_covariance != std::nullopt) {
-    const AmgSymMatrix(5) & V = *m_covariance;
-    out << std::setprecision(4) <<
-      P[ 0]<<" |"<<V(0, 0) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << std::endl;
-  }
-  else {
-    out << std::setprecision(4) << P[ 0] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 1] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 2] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 3] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 4] << " |" << std::endl;
-  }
-  out << std::setprecision(-1);
-
-  out.setf  (std::ios::fixed);
-  out.unsetf(std::ios::showpos);
-  out.unsetf(std::ios::scientific);
-  ias.restore();
+  out<<to_string();
   return out;
 }
 
@@ -231,60 +214,7 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 
 MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
 {
-  const Trk::Surface*  s = m_surface.get();
-  const AmgVector(5)&  P = m_parameters;
-  std::string name;
-  std::string iscov;
-
-  const Trk::DiscSurface* di;
-  const Trk::ConeSurface* cn;
-  const Trk::PlaneSurface* pl;
-  const Trk::PerigeeSurface* pe;
-  const Trk::CylinderSurface* cy;
-  const Trk::StraightLineSurface* li;
-
-  if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) { name = "Plane"   ;
-  } else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) { name = "Line"    ;
-  } else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) { name = "Disc"    ;
-  } else if((cy=dynamic_cast<const Trk::CylinderSurface*>    (s))) { name = "Cylinder";
-  } else if((pe=dynamic_cast<const Trk::PerigeeSurface*>     (s))) { name = "Perigee" ;
-  } else if((cn=dynamic_cast<const Trk::ConeSurface*>        (s))) { name = "Cone"    ;
-  } else  {
-    out << "Track parameters are not valid " << std::endl;
-    return out;
-  }
-
-  out << "Track parameters for " << name << " surface " << std::endl;
-
-  out.unsetf(std::ios::fixed);
-  out.setf  (std::ios::showpos);
-  out.setf  (std::ios::scientific);
-
-  if (m_covariance != std::nullopt) {
-    const AmgSymMatrix(5) & V = *m_covariance;
-    out << std::setprecision(4) <<
-      P[ 0]<<" |"<<V(0, 0) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << std::endl;
-    out << std::setprecision(4) <<
-      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << std::endl;
-  }
-  else {
-    out << std::setprecision(4) << P[ 0] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 1] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 2] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 3] << " |" << std::endl;
-    out << std::setprecision(4) << P[ 4] << " |" << std::endl;
-  }
-  out << std::setprecision(-1);
-
-  out.setf  (std::ios::fixed);
-  out.unsetf(std::ios::showpos);
-  out.unsetf(std::ios::scientific);
+  out<<to_string();
   return out;
 }
 
@@ -330,7 +260,7 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Bx = A[1]*P5-A[2]*P4;
   double By = A[2]*P3-A[0]*P5;
   double Bz = A[0]*P4-A[1]*P3;
-  double Bn = 1./sqrt(Bx*Bx+By*By+Bz*Bz); Bx*=Bn; By*=Bn; Bz*=Bn;
+  double Bn = 1./std::sqrt(Bx*Bx+By*By+Bz*Bz); Bx*=Bn; By*=Bn; Bz*=Bn;
 
   Amg::Vector3D gp
     (m_parameters[1]*A[0]+Bx*m_parameters[0]+T(0,3),
@@ -410,7 +340,7 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Bx = A[1]*P5-A[2]*P4;
   double By = A[2]*P3-A[0]*P5;
   double Bz = A[0]*P4-A[1]*P3;
-  double Bn = 1./sqrt(Bx*Bx+By*By+Bz*Bz); Bx*=Bn; By*=Bn; Bz*=Bn;
+  double Bn = 1./std::sqrt(Bx*Bx+By*By+Bz*Bz); Bx*=Bn; By*=Bn; Bz*=Bn;
 
   Amg::Vector3D gp
     (m_parameters[1]*A[0]+Bx*m_parameters[0]+T(0,3),
@@ -464,7 +394,7 @@ bool Trk::PatternTrackParameters::initiate
     }
   } else {
     if (m_covariance == std::nullopt) {
-      m_covariance = AmgSymMatrix(5)();
+      m_covariance.emplace();
     }
   }
 
@@ -499,8 +429,8 @@ bool Trk::PatternTrackParameters::initiate
 
 void Trk::PatternTrackParameters::changeDirection()
 {
-  const double pi = M_PI;
-  const double pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
+  constexpr double pi = M_PI;
+  constexpr double pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
 
   m_parameters[ 2] =  m_parameters[2]-pi;
   m_parameters[ 3] =  pi-m_parameters[3];
@@ -513,8 +443,9 @@ void Trk::PatternTrackParameters::changeDirection()
   if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()) &&
      !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface.get())) {
 
-    if(m_covariance == std::nullopt) { return;
-}
+    if(m_covariance == std::nullopt) { 
+      return;
+    }
 
     m_covariance->fillSymmetric(0, 3, -(*m_covariance)(0, 3));
     m_covariance->fillSymmetric(1, 3, -(*m_covariance)(1, 3));
@@ -529,8 +460,9 @@ void Trk::PatternTrackParameters::changeDirection()
   m_parameters[ 0] = -m_parameters[ 0];
 
 
-  if(m_covariance == std::nullopt) { return;
-}
+  if(m_covariance == std::nullopt) { 
+    return;
+  }
 
   m_covariance->fillSymmetric(0, 1, -(*m_covariance)(0, 1));
   m_covariance->fillSymmetric(0, 2, -(*m_covariance)(0, 2));
@@ -544,20 +476,26 @@ Amg::Vector3D Trk::PatternTrackParameters::calculatePosition(void) const {
   if (!m_surface) {
     return Amg::Vector3D(0, 0, 0);
   }
-
-  if (const Trk::PlaneSurface * plane = dynamic_cast<const Trk::PlaneSurface*>(m_surface.get()); plane != nullptr) {
-    return localToGlobal(plane);
-  } else if (const Trk::StraightLineSurface * line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()); line != nullptr) {
-    return localToGlobal(line);
-  } else if (const Trk::DiscSurface * disc = dynamic_cast<const Trk::DiscSurface*>(m_surface.get()); disc != nullptr) {
-    return localToGlobal(disc);
-  } else if (const Trk::CylinderSurface * cylinder = dynamic_cast<const Trk::CylinderSurface*>(m_surface.get()); cylinder != nullptr) {
-    return localToGlobal(cylinder);
-  } else if (const Trk::PerigeeSurface * pline = dynamic_cast<const Trk::PerigeeSurface*>(m_surface.get()); pline != nullptr) {
-    return localToGlobal(pline);
-  } else if (const Trk::ConeSurface * cone = dynamic_cast<const Trk::ConeSurface*>(m_surface.get()); cone != nullptr) {
-    return localToGlobal(cone);
-  } else {
+  switch ( m_surface->type()){
+  case Trk::SurfaceType::Plane:
+    return localToGlobal(static_cast<const Trk::PlaneSurface*>(m_surface.get()));
+    break;
+  case Trk::SurfaceType::Line:
+    return localToGlobal(static_cast<const Trk::StraightLineSurface*>(m_surface.get()));
+    break;
+  case Trk::SurfaceType::Disc:
+    return localToGlobal(static_cast<const Trk::DiscSurface*>(m_surface.get()));
+    break;
+  case Trk::SurfaceType::Cylinder:
+    return localToGlobal(static_cast<const Trk::CylinderSurface*>(m_surface.get()));
+    break;
+  case Trk::SurfaceType::Perigee:
+    return localToGlobal(static_cast<const Trk::PerigeeSurface*>(m_surface.get()));
+    break;
+  case Trk::SurfaceType::Cone:
+    return localToGlobal(static_cast<const Trk::ConeSurface*>(m_surface.get()));
+    break;
+  default:
     return Amg::Vector3D(0, 0, 0);
   }
 }
@@ -587,7 +525,7 @@ Trk::ParametersType Trk::PatternTrackParameters::type() const {
   return Trk::Pattern;
 }
 
-int Trk::PatternTrackParameters::surfaceType() const {
+Trk::SurfaceType Trk::PatternTrackParameters::surfaceType() const {
   return m_surface->type();
 }
 

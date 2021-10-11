@@ -32,7 +32,7 @@ atlas_add_library( tauRecToolsLib
    LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} ${LWTNN_LIBRARIES}
    ${ROOT_LIBRARIES}
    CxxUtils AthLinks AsgMessagingLib AsgDataHandlesLib AsgTools xAODCaloEvent
-   xAODEventInfo xAODJet xAODParticleEvent xAODPFlow xAODTau xAODTracking
+   xAODEventInfo xAODJet xAODParticleEvent xAODPFlow xAODTau xAODTracking xAODEventShape
    MVAUtils ${extra_public_libs}
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers FourMomUtils PathResolver )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -48,6 +48,7 @@ AtlasDetectorID::AtlasDetectorID()
         m_PIXEL_ID(1),
         m_SCT_ID(2),
         m_TRT_ID(3),
+        m_HGTD_ID(4),
         m_LAR_EM_ID(1),
         m_LAR_HEC_ID(2),
         m_LAR_FCAL_ID(3),
@@ -56,14 +57,13 @@ AtlasDetectorID::AtlasDetectorID()
         m_CSC_ID(1),
         m_RPC_ID(2),
         m_TGC_ID(3),
-	m_STGC_ID(4),
-	m_MM_ID(5),
+        m_STGC_ID(4),
+        m_MM_ID(5),
         m_FWD_ID(13),
         m_ALFA_ID(1),
         m_BCM_ID(3),
         m_LUCID_ID(5),
         m_ZDC_ID(7),
-        m_isSLHC(false),
         m_atlas_dict(0),
         m_indet_dict(0),
         m_lar_dict(0),
@@ -99,6 +99,7 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_PIXEL_ID                (other.m_PIXEL_ID),
         m_SCT_ID                  (other.m_SCT_ID),
         m_TRT_ID                  (other.m_TRT_ID),
+        m_HGTD_ID                 (other.m_HGTD_ID),
         m_LAR_EM_ID               (other.m_LAR_EM_ID),
         m_LAR_HEC_ID              (other.m_LAR_HEC_ID),
         m_LAR_FCAL_ID             (other.m_LAR_FCAL_ID),
@@ -107,14 +108,14 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_CSC_ID                  (other.m_CSC_ID),
         m_RPC_ID                  (other.m_RPC_ID),
         m_TGC_ID                  (other.m_TGC_ID),
-	m_STGC_ID                 (other.m_STGC_ID),
-	m_MM_ID                   (other.m_MM_ID),
-	m_FWD_ID                  (other.m_FWD_ID),
-	m_ALFA_ID                 (other.m_ALFA_ID),
-	m_BCM_ID                  (other.m_BCM_ID),
-	m_LUCID_ID                (other.m_LUCID_ID),
-	m_ZDC_ID                  (other.m_ZDC_ID),
-        m_isSLHC                  (other.m_isSLHC),
+        m_STGC_ID                 (other.m_STGC_ID),
+        m_MM_ID                   (other.m_MM_ID),
+        m_FWD_ID                  (other.m_FWD_ID),
+        m_ALFA_ID                 (other.m_ALFA_ID),
+        m_BCM_ID                  (other.m_BCM_ID),
+        m_LUCID_ID                (other.m_LUCID_ID),
+        m_ZDC_ID                  (other.m_ZDC_ID),
+        m_isHighLuminosityLHC     (other.m_isHighLuminosityLHC),
         m_lvl1_field              (other.m_lvl1_field),
         m_lvl1_onl_field          (other.m_lvl1_onl_field),
         m_lar_dm_field            (other.m_lar_dm_field),
@@ -165,6 +166,7 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_PIXEL_ID              = other.m_PIXEL_ID;
         m_SCT_ID                = other.m_SCT_ID;
         m_TRT_ID                = other.m_TRT_ID;
+        m_HGTD_ID               = other.m_HGTD_ID;
         m_LAR_EM_ID             = other.m_LAR_EM_ID;
         m_LAR_HEC_ID            = other.m_LAR_HEC_ID;
         m_LAR_FCAL_ID           = other.m_LAR_FCAL_ID;
@@ -173,14 +175,14 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_CSC_ID                = other.m_CSC_ID;
         m_RPC_ID                = other.m_RPC_ID;
         m_TGC_ID                = other.m_TGC_ID;
-	m_STGC_ID               = other.m_STGC_ID;
-	m_MM_ID                 = other.m_MM_ID;
+        m_STGC_ID               = other.m_STGC_ID;
+        m_MM_ID                 = other.m_MM_ID;
         m_FWD_ID                = other.m_FWD_ID;
         m_ALFA_ID               = other.m_ALFA_ID;
         m_BCM_ID                = other.m_BCM_ID;
         m_LUCID_ID              = other.m_LUCID_ID;
         m_ZDC_ID                = other.m_ZDC_ID;
-        m_isSLHC                = other.m_isSLHC;
+        m_isHighLuminosityLHC   = other.m_isHighLuminosityLHC;
         m_lvl1_field            = other.m_lvl1_field;
         m_lvl1_onl_field        = other.m_lvl1_onl_field;
         m_lar_dm_field          = other.m_lar_dm_field;
@@ -287,6 +289,16 @@ AtlasDetectorID::trt          (void) const
     // Pack field
     m_det_impl.pack       (indet_field_value(), result);
     m_indet_part_impl.pack(m_TRT_ID, result);
+    return (result);
+}
+
+Identifier
+AtlasDetectorID::hgtd        (void) const
+{
+    Identifier result((Identifier::value_type)0);
+    // Pack field
+    m_det_impl.pack       (indet_field_value(), result);
+    m_indet_part_impl.pack(m_HGTD_ID, result);
     return (result);
 }
 
@@ -616,6 +628,16 @@ AtlasDetectorID::is_trt         (const ExpandedIdentifier& id) const
     bool result = false;
     if ( is_indet(id) && id.fields() > 1 ){
         if ( id[1] == m_TRT_ID ) result = true;
+    }
+    return result;
+}
+
+bool
+AtlasDetectorID::is_hgtd        (const ExpandedIdentifier& id) const
+{
+    bool result = false;
+    if ( is_indet(id) && id.fields() > 1 ){
+        if ( id[1] == m_HGTD_ID) result = true;
     }
     return result;
 }
@@ -979,6 +1001,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
     m_PIXEL_ID              = -1;
     m_SCT_ID                = -1;
     m_TRT_ID                = -1;
+    m_HGTD_ID               = -1;
     m_FWD_ID                = -1;
     m_ALFA_ID               = -1;
     m_BCM_ID                = -1;
@@ -1026,8 +1049,8 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
 
         top_dict = m_indet_dict;  // save as top_dict
 
-        // Check if this is SLHC layout
-        m_isSLHC = (m_indet_dict->m_version=="SLHC");
+        // Check if this is High Luminosity LHC layout
+        m_isHighLuminosityLHC = (m_indet_dict->m_version=="ITkHGTD");
 
         // Get InDet subdets
 
@@ -1105,7 +1128,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
             return (1);
         }
-        if (!m_isSLHC) {
+        if (!m_isHighLuminosityLHC) {
             label = field->find_label("TRT");
             if (label) {
                 if (label->m_valued) {
@@ -1137,6 +1160,39 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
                 return (1);
             }
         }
+        if(m_isHighLuminosityLHC) {
+            label = field->find_label("HGTD");
+            if (label) {
+                if (label->m_valued) {
+                    m_HGTD_ID = label->m_value;
+                }
+                else {
+                    if(m_msgSvc) {
+                        MsgStream log(m_msgSvc, "AtlasDetectorID" );
+                        log << MSG::ERROR << "initLevelsFromDict - label HGTD does NOT have a value "
+                            << endmsg;
+                    }
+                    else {
+                        std::cout << "AtlasDetectorID::initLevelsFromDict - label HGTD does NOT have a value "
+                                  << std::endl;
+                    }
+                    return (1);
+                }
+            }
+            else {
+                if(m_msgSvc) {
+              MsgStream log(m_msgSvc, "AtlasDetectorID" );
+              log << MSG::ERROR << "initLevelsFromDict - unable to find 'HGTD' label "
+              << endmsg;
+                }
+                else {
+                std::cout << "AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label "
+                << std::endl;
+                }
+                return (1);
+            }
+        }
+
     }
 
 

@@ -2,13 +2,87 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 
-def Lvl1MCMuonSimulationCfg(flags):
+def _TileMuonReceiverDecision(flags):
     acc = ComponentAccumulator()
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
+    TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'
+                                                                    , TileRawChannelContainer = "MuRcvRawChCnt" # input
+                                                                    , TileMuonReceiverContainer = "rerunTileMuRcvCnt" # output
+                                                                    , ManualRunPeriod = 2 # forcing Run 2 format (=2) for now, until TGC implements Run 3 format (=3)
+                                                                    # run 2 thresholds
+                                                                    , MuonReceiverEneThreshCellD6Low = 500
+                                                                    , MuonReceiverEneThreshCellD6andD5Low = 500
+                                                                    , MuonReceiverEneThreshCellD6High = 600
+                                                                    , MuonReceiverEneThreshCellD6andD5High = 600
+                                                                    # run 3 thresholds
+                                                                    , MuonReceiverEneThreshCellD5 = 500
+                                                                    , MuonReceiverEneThreshCellD6 = 500
+                                                                    , MuonReceiverEneThreshCellD5andD6 = 500)
+    acc.addEventAlgo(TileMuonReceiverDecision)
+    return acc
+
+
+def _MuonBytestream2RdoSequence(flags):
+    acc = ComponentAccumulator()
+    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
+    MuonCacheCreator=CompFactory.MuonCacheCreator
+    cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
+                                    CscCacheKey    = MuonCacheNames.CscCache,
+                                    RpcCacheKey    = MuonCacheNames.RpcCache,
+                                    TgcCacheKey    = MuonCacheNames.TgcCache)
+    acc.addEventAlgo(cacheCreator)
+    postFix = "_L1MuonSim"
+    # for MDT
+    MDTRodDecoder = CompFactory.MdtROD_Decoder(name = "MdtROD_Decoder" + postFix)
+    MuonMdtRawDataProviderTool = CompFactory.Muon.MDT_RawDataProviderToolMT(name = "MDT_RawDataProviderToolMT" + postFix,
+                                                                             CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
+                                                                             Decoder = MDTRodDecoder )
+    MdtRawDataProvider = CompFactory.Muon.MdtRawDataProvider(name = "MdtRawDataProvider" + postFix,
+                                                              ProviderTool = MuonMdtRawDataProviderTool)
+    acc.addEventAlgo(MdtRawDataProvider)
+    # for RPC
+    RPCRodDecoder = CompFactory.Muon.RpcROD_Decoder(name = "RpcROD_Decoder" + postFix)
+    MuonRpcRawDataProviderTool = CompFactory.Muon.RPC_RawDataProviderToolMT(name = "RPC_RawDataProviderToolMT" + postFix,
+                                                                             RpcContainerCacheKey = MuonCacheNames.RpcCache,
+                                                                             WriteOutRpcSectorLogic = False,
+                                                                             Decoder = RPCRodDecoder )
+    RpcRawDataProvider = CompFactory.Muon.RpcRawDataProvider(name = "RpcRawDataProvider" + postFix,
+                                                              ProviderTool = MuonRpcRawDataProviderTool)
+    acc.addEventAlgo(RpcRawDataProvider)
+    # for TGC
+    TGCRodDecoder = CompFactory.Muon.TGC_RodDecoderReadout(name = "TGC_RodDecoderReadout" + postFix)
+    MuonTgcRawDataProviderTool = CompFactory.Muon.TGC_RawDataProviderToolMT(name = "TGC_RawDataProviderToolMT" + postFix,
+                                                                             TgcContainerCacheKey = MuonCacheNames.TgcCache,
+                                                                             Decoder = TGCRodDecoder )
+    TgcRawDataProvider = CompFactory.Muon.TgcRawDataProvider(name = "TgcRawDataProvider" + postFix,
+                                                              ProviderTool = MuonTgcRawDataProviderTool)
+    acc.addEventAlgo(TgcRawDataProvider)
+    # for CSC
+    CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
+                                                     IsCosmics = False,
+                                                     IsOldCosmics = False )
+    MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
+                                                                             CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                             Decoder = CSCRodDecoder )
+    CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
+                                                              ProviderTool = MuonCscRawDataProviderTool)
+    acc.addEventAlgo(CscRawDataProvider)
+    return acc
+
+def Lvl1MuonSimulationCfg(flags):
+    acc = ComponentAccumulator()
+
+    if not flags.Input.isMC:
+        acc.merge(_TileMuonReceiverDecision(flags))
+        acc.merge(_MuonBytestream2RdoSequence(flags))
 
     #TODO make sure that the RdoToDigit does not not depend on all muon detectors
     #    acc.addCondAlgo(CompFactory.CscCondDbAlg())
-
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags))
     rdoToDigitTool = CompFactory.MuonRdoToMuonDigitTool(DecodeMdtRDO = False,
                                                         DecodeRpcRDO = True,
                                                         DecodeTgcRDO = True,
@@ -31,23 +105,31 @@ def Lvl1MCMuonSimulationCfg(flags):
     # RPC
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
     acc.merge( RPCCablingConfigCfg(flags) )
+
     rpcL1Alg = CompFactory.TrigT1RPC("TrigT1RPC",
-                                        Hardware = True, # not sure if needed, not there in old config, present in JO
-                                        DataDetail = False,
-                                        RPCbytestream = False,
-                                        RPCbytestreamFile = "",
-                                        RPCDigitContainer = "RPC_DIGITS_L1")
+                                     Hardware = True, # not sure if needed, not there in old config, present in JO
+                                     DataDetail = False,
+                                     RPCbytestream = False,
+                                     RPCbytestreamFile = "",
+                                     RPCDigitContainer = "RPC_DIGITS_L1",
+                                     useRun3Config = True)
     acc.addEventAlgo(rpcL1Alg)
 
     #TGC
     from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
     acc.merge( TGCCablingConfigCfg(flags) )
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
     # only needed for MC
-    acc.merge(addFolders(flags, ["/TGC/TRIGGER/CW_EIFI", "/TGC/TRIGGER/CW_BW", "/TGC/TRIGGER/CW_TILE"],
-                        "TGC_OFL", className="CondAttrListCollection"))
+    if flags.Input.isMC:
+        acc.merge(addFolders(flags, ["/TGC/TRIGGER/CW_EIFI", "/TGC/TRIGGER/CW_BW", "/TGC/TRIGGER/CW_TILE"],
+                            "TGC_OFL", className="CondAttrListCollection"))
+    else:
+        tagName = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
 
+        acc.merge(addFolders(flags, ["<db>COOLOFL_TGC/OFLP200</db> /TGC/TRIGGER/CW_EIFI",
+                                     "<db>COOLOFL_TGC/OFLP200</db> /TGC/TRIGGER/CW_BW",
+                                     "<db>COOLOFL_TGC/OFLP200</db> /TGC/TRIGGER/CW_TILE"], 
+                             tag=tagName, className="CondAttrListCollection"))
     #COOL DB will be used.
     from PathResolver import PathResolver
     bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
@@ -63,30 +145,19 @@ def Lvl1MCMuonSimulationCfg(flags):
 
 
     tgcL1Alg = CompFactory.LVL1TGCTrigger.LVL1TGCTrigger("LVL1TGCTrigger",
-                                                            InputData_perEvent  = "TGC_DIGITS_L1", 
-                                                            MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                                            MaskFileName12      = "TrigT1TGCMaskedChannel._12.db")
+                                                         InputData_perEvent  = "TGC_DIGITS_L1",
+                                                         MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
+                                                         MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
+                                                         useRun3Config = True)
+    if not flags.Input.isMC:
+        tgcL1Alg.TileMuRcv_Input = "rerunTileMuRcvCnt"
+
     acc.addEventAlgo(tgcL1Alg)
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     acc.merge(L1ConfigSvcCfg(flags))
 
-    # based on: Trigger/TrigT1/TrigT1Muctpi/python/TrigT1MuctpiConfig.py
-    muctpiAlg = CompFactory.LVL1MUCTPI.L1Muctpi("L1Muctpi", 
-                                                OverlapStrategyName = "LUT",
-                                                DumpLUT = False,
-                                                FlaggingMode = False,
-                                                MultiplicityStrategyName = "INCLUSIVE",
-                                                # TODO this value depends on the flags on original however seem always to default to this two settings below
-                                                # is definitely different for Run3 
-                                                LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml",
-                                                RunPeriod = "RUN2",
-                                                GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml",
-                                                DoNIMOutput = True,
-                                                NIMBarrelBit = 29,
-                                                NIMEndcapBit = 30,
-                                                LVL1ConfigSvc = acc.getService("LVL1ConfigSvc"))
-
-    acc.addEventAlgo(muctpiAlg)
+    from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import MUCTPI_AthAlgCfg
+    acc.merge(MUCTPI_AthAlgCfg(flags))
 
     return acc
 
@@ -104,6 +175,7 @@ if __name__ == "__main__":
     flags.Scheduler.ShowDataDeps=True
     flags.Scheduler.CheckDependencies=True
     flags.Scheduler.ShowDataFlow=True
+    flags.Trigger.enableL1MuonPhase1=True
 
     acc = MainServicesCfg(flags)
 
@@ -112,7 +184,7 @@ if __name__ == "__main__":
     from AthenaCommon.CFElements import seqAND
 
     acc.addSequence(seqAND("L1MuonSim"))
-    acc.merge(Lvl1MCMuonSimulationCfg(flags), sequenceName="L1MuonSim")
+    acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName="L1MuonSim")
     from AthenaCommon.Constants import DEBUG
     acc.foreach_component("*/L1MuonSim/*").OutputLevel = DEBUG   # noqa: ATL900
     acc.printConfig(withDetails=True, summariseProps=True)

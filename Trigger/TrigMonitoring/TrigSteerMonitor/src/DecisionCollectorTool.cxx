@@ -16,7 +16,7 @@ StatusCode DecisionCollectorTool::initialize() {
 }
 
 void DecisionCollectorTool::getSequencesPerEvent( std::set<std::string>& output ) const {
-  for (auto decisionKey: m_decisionsKey) {
+  for (const auto& decisionKey: m_decisionsKey) {
     auto handle = SG::makeHandle( decisionKey );
     if ( handle.isValid() ) {
       output.insert(decisionKey.key());
@@ -25,13 +25,13 @@ void DecisionCollectorTool::getSequencesPerEvent( std::set<std::string>& output 
 }
 
 void DecisionCollectorTool::getSequencesNames( std::set<std::string>& output ) const {
-  for (auto decisionKey: m_decisionsKey) {
+  for (const auto& decisionKey: m_decisionsKey) {
     output.insert(decisionKey.key());
   }
 }
 
 void DecisionCollectorTool::getDecisions( std::vector<TrigCompositeUtils::DecisionID>& output ) const {
-  for (auto decisionKey: m_decisionsKey ) {
+  for (const auto& decisionKey: m_decisionsKey ) {
     auto handle = SG::makeHandle( decisionKey );
     if ( handle.isValid() ) {
       for ( const TrigCompositeUtils::Decision* d : *handle.cptr() )  {	

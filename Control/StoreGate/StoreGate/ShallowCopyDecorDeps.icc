@@ -47,8 +47,8 @@ ShallowCopyDecorDeps<T>::initialize (const SG::ReadHandleKey<T>& origKey,
   m_readKeys.clear();
   if (used) {
     for (SG::WriteHandleKey<T>& k : m_writeKeys) {
-      m_readKeys.emplace_back (origKey.key() + "." + k.key());
-      k = copyKey.key() + "." + k.key();
+      m_readKeys.emplace_back (origKey.key() + '.' + k.key());
+      k = copyKey.key() + '.' + k.key();
     }
     CHECK( m_readKeys.initialize() );
     CHECK( m_writeKeys.initialize() );

@@ -5,7 +5,7 @@
 
 // JetAlgorithm.cxx 
 
-#include "JetAlgorithm.h"
+#include "JetRec/JetAlgorithm.h"
 #include "JetInterface/IJetExecuteTool.h"
 
 JetAlgorithm::~JetAlgorithm() { }

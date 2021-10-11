@@ -26,7 +26,7 @@ Muon::TGC_RodDecoderRawdata::TGC_RodDecoderRawdata(const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p) :
   base_class(t, n, p),
-  m_tgcRODReadOut(0)
+  m_tgcRODReadOut(nullptr)
 {
   declareProperty("ReadSlbHeaderId", m_readSlbHeaderId=false);
   declareProperty("CheckRawData", m_checkRawData=false);
@@ -55,7 +55,7 @@ StatusCode Muon::TGC_RodDecoderRawdata::initialize()
 
 StatusCode Muon::TGC_RodDecoderRawdata::finalize()
 {
-  delete m_tgcRODReadOut; m_tgcRODReadOut=0;
+  delete m_tgcRODReadOut; m_tgcRODReadOut=nullptr;
   
   StatusCode sc = AthAlgTool::finalize();
   return sc;
@@ -118,7 +118,7 @@ StatusCode Muon::TGC_RodDecoderRawdata::fillCollection(const ROBFragment& robFra
 
 TgcRdo* Muon::TGC_RodDecoderRawdata::getCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const
 {
-  TgcRdo* theColl = 0;
+  TgcRdo* theColl = nullptr;
 
   uint32_t source_id = robFrag.rod_source_id();
   SourceIdentifier sid(source_id);
@@ -135,8 +135,8 @@ TgcRdo* Muon::TGC_RodDecoderRawdata::getCollection(const ROBFragment& robFrag, T
   if(rdoIdc.addCollection(theColl, idHash).isFailure())
     {
       ATH_MSG_WARNING( "Failed to add TGC RDO collection to container" );
-      delete theColl; theColl = 0;
-      return 0;
+      delete theColl; theColl = nullptr;
+      return nullptr;
     }
   theColl->setL1Id(robFrag.rod_lvl1_id());
   theColl->setBcId(robFrag.rod_bc_id());

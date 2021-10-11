@@ -14,7 +14,7 @@ namespace Trk{
 
 class MSHitPlots: public PlotBase {
   public:
-    MSHitPlots(PlotBase *pParent, std::string sDir);
+    MSHitPlots(PlotBase *pParent, const std::string& sDir);
     void fill(const xAOD::TrackParticle& trkprt, float weight=1.0);
     void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
     

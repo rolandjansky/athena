@@ -61,9 +61,7 @@ job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 from MetAnalysisAlgorithms.MetAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
 print (algSeq) # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+algSeq.addSelfToJob( job )
 
 # Find the right output directory:                                                                                      
 submitDir = options.submission_dir

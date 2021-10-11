@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramDef_h
@@ -49,6 +49,7 @@ namespace Monitored {
     bool kVecUO{false}; //!< add content to each bin from vector, including overflow/underflow
     bool kCumulative{false}; //!< fill bin of monitored object's value, and every bin below it
     int kLive{0}; //!< fill only the last N lumiblocks in y_vs_lb plots
+    bool kAlwaysCreate{false}; //!< always create this histogram, even if never filled
 
     std::string xvar; //!< name of x variable
     int xbins{0}; //!< number of y bins

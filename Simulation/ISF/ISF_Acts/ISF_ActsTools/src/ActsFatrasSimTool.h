@@ -32,10 +32,11 @@
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "Acts/Utilities/UnitVectors.hpp"
-#include "ActsFatras/Kernel/PhysicsList.hpp"
-#include "ActsFatras/Kernel/Simulator.hpp"
-#include "ActsFatras/Physics/StandardPhysicsLists.hpp"
-#include "ActsFatras/Selectors/ChargeSelectors.hpp"
+#include "ActsFatras/Kernel/InteractionList.hpp"
+#include "ActsFatras/Kernel/Simulation.hpp"
+#include "ActsFatras/Physics/Decay/NoDecay.hpp"
+#include "ActsFatras/Physics/StandardInteractions.hpp"
+#include "ActsFatras/Selectors/ParticleSelectors.hpp"
 #include "ActsFatras/Selectors/SurfaceSelectors.hpp"
 #include "ActsFatras/Utilities/ParticleData.hpp"
 #include "ActsInterop/Logger.h"
@@ -79,7 +80,7 @@ class ActsFatrasSimTool : public BaseSimulatorTool {
  public:
   using Navigator = Acts::Navigator;
   using MagneticField = Acts::ConstantBField;
-  using ChargedStepper = Acts::EigenStepper<MagneticField>;
+  using ChargedStepper = Acts::EigenStepper<>;
   using ChargedPropagator = Acts::Propagator<ChargedStepper, Navigator>;
   using NeutralStepper = Acts::StraightLineStepper;
   using NeutralPropagator = Acts::Propagator<NeutralStepper, Navigator>;
@@ -88,16 +89,17 @@ class ActsFatrasSimTool : public BaseSimulatorTool {
   using ChargedSelector =
       ActsFatras::CombineAnd<ActsFatras::ChargedSelector, MinP>;
   using ChargedPhysicsList =
-      ActsFatras::PhysicsList<ActsFatras::detail::StandardScattering,
+      ActsFatras::InteractionList<ActsFatras::detail::StandardScattering,
                               SplitEnergyLoss>;
-  using ChargedSimulator = ActsFatras::ParticleSimulator<
-      ChargedPropagator, ActsFatras::ChargedElectroMagneticPhysicsList,
-      ActsFatras::EverySurface>;
+  using ChargedSimulator = ActsFatras::SingleParticleSimulation<
+      ChargedPropagator, ActsFatras::StandardChargedElectroMagneticInteractions,
+      ActsFatras::EverySurface, ActsFatras::NoDecay>;
   using NeutralSelector =
       ActsFatras::CombineAnd<ActsFatras::NeutralSelector, MinP>;
-  using NeutralSimulator = ActsFatras::ParticleSimulator<
-      NeutralPropagator, ActsFatras::PhysicsList<>, ActsFatras::NoSurface>;
-  using Simulator = ActsFatras::Simulator<ChargedSelector, ChargedSimulator,
+  using NeutralSimulator = ActsFatras::SingleParticleSimulation<
+      NeutralPropagator, ActsFatras::InteractionList<>, ActsFatras::NoSurface,
+      ActsFatras::NoDecay>;
+  using Simulator = ActsFatras::Simulation<ChargedSelector, ChargedSimulator,
                                           NeutralSelector, NeutralSimulator>;
 
   ActsFatrasSimTool(const std::string& type, const std::string& name,
@@ -141,17 +143,20 @@ class ActsFatrasSimTool : public BaseSimulatorTool {
   std::unique_ptr<const Acts::Logger> m_logger{nullptr};
 
   // Acts propagators
-  Navigator m_navigator{std::move(m_trackingGeometry)};
-  ChargedStepper m_chargedStepper{Acts::ConstantBField(0, 0, 1_T)};
+  Navigator m_navigator{ Acts::Navigator::Config{m_trackingGeometry}};
+  std::shared_ptr<Acts::ConstantBField> m_bField = std::make_shared<Acts::ConstantBField>(Acts::Vector3(0, 0, 1_T));
+  ChargedStepper m_chargedStepper{m_bField};
   ChargedPropagator m_chargedPropagator{std::move(m_chargedStepper),
                                         m_navigator};
   NeutralPropagator m_neutralPropagator{NeutralStepper(), m_navigator};
 
   // Acts simulators
   ChargedSimulator m_chargedSimulator{std::move(m_chargedPropagator),
-                                      Acts::Logging::Level::VERBOSE};
+                                      Acts::getDefaultLogger("Simulation", 
+                                      Acts::Logging::Level::VERBOSE)};
   NeutralSimulator m_neutralSimulator{std::move(m_neutralPropagator),
-                                      Acts::Logging::Level::VERBOSE};
+                                      Acts::getDefaultLogger("Simulation", 
+                                      Acts::Logging::Level::VERBOSE)};
   Simulator m_simulator{std::move(m_chargedSimulator),
                         std::move(m_neutralSimulator)};
 

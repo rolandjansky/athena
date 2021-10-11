@@ -2,6 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <memory>
+
+
+
 #include "TrkTruthAlgs/TrackTruthSimilaritySelector.h"
 #include "TrkToolInterfaces/IDetailedTrackTruthSimilarity.h"
 
@@ -47,8 +51,8 @@ StatusCode TrackTruthSimilaritySelector::execute() {
   //----------------------------------------------------------------
   // Produce and store the output.
 
-  m_out = std::unique_ptr<TrackTruthCollection>
-               (new TrackTruthCollection(m_detailed->trackCollectionLink()));
+  m_out = std::make_unique<TrackTruthCollection>
+               (m_detailed->trackCollectionLink());
 
   fillOutput(m_out.ptr(), m_detailed.cptr());
   

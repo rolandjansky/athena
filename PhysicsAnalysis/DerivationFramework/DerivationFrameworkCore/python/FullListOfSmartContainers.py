@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 FullListOfSmartContainers = [
+   "EventInfo",
    "Electrons",
    "Photons",
    "Muons",
@@ -47,7 +48,6 @@ FullListOfSmartContainers = [
    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASubJets",
    "AntiKt4EMPFlowJets",
    "AntiKt4EMPTopoJets",
-   "AntiKt4EMPFlowFEJets",
    "AntiKt4EMPFlowJets_BTagging201903",
    "AntiKt4EMPFlowJets_BTagging201810",
    "AntiKt4EMTopoJets_BTagging201810",
@@ -70,8 +70,9 @@ FullListOfSmartContainers = [
    "BTagging_AntiKt4EMTopo_201810",
    "BTagging_AntiKt4EMPFlow_201810",
    "BTagging_AntiKt4EMPFlow_201903",
-   'BTagging_AntiKt4EMPFlow',
-   'BTagging_AntiKt4EMTopo',
+   "BTagging_AntiKt4EMPFlow",
+   "BTagging_AntiKt4EMTopo",
+   "BTagging_AntiKtVR30Rmax4Rmin02Track",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert",

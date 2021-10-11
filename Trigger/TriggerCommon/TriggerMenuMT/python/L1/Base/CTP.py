@@ -3,7 +3,7 @@
 from collections import OrderedDict as odict
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.CTP") 
+log = logging.getLogger(__name__)
 
 from ..Config.MonitorDef import MonitorDef
 from ..Config.CTPInputConfig import CTPInputConfig

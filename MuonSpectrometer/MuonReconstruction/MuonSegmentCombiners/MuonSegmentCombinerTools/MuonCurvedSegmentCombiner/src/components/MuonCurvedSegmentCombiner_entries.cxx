@@ -1,6 +1,3 @@
 #include "MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner.h"
 
-
-
-DECLARE_COMPONENT( Muon::MuonCurvedSegmentCombiner )
-
+DECLARE_COMPONENT(Muon::MuonCurvedSegmentCombiner)

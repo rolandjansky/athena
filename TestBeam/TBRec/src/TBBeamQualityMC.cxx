@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBBeamQualityMC.h"
@@ -166,10 +166,7 @@ StatusCode TBBeamQualityMC::execute() {
      const DataHandle<CaloClusterContainer> cc ;
      ATH_CHECK( evtStore()->retrieve(cc,m_clusterCollName) );
      bool haveit=false;
-     CaloClusterContainer::const_iterator clusIter = cc->begin();
-     CaloClusterContainer::const_iterator clusIterEnd = cc->end();
-     for( ;clusIter!=clusIterEnd;clusIter++) {
-           const CaloCluster * theCluster = (*clusIter);
+     for (const CaloCluster * theCluster : *cc) {
            double cL = theCluster->getMomentValue(CaloClusterMoment::CENTER_LAMBDA);
            double eD = theCluster->getMomentValue(CaloClusterMoment::FIRST_ENG_DENS);
            unsigned int cSize = theCluster->getClusterSize();

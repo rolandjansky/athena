@@ -89,7 +89,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
       #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
       mode_name = remapToOffline( config.name )
-      if config.name == "cosmics":
+      if config.name == "cosmics" or config.name == "minBias":
          from InDetTrigRecExample.InDetTrigTrackingCuts import InDetTrigTrackingCuts
          trackingCuts = InDetTrigTrackingCuts( mode_name ) 
       #MinBias cuts need to be revisited: ATR-23077
@@ -116,17 +116,32 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #-----------------------------------------------------------------------------
       #                      Track building stage
 
+      # not sure yet about the TRT extension ...   
+      #   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+      #   from TrigInDetConf.TrigInDetRecCommonTools           import InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+         
+      #   #Load shared hits with Ele PID if TRT specified
+      #   if doTRT:
+      #      return InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+      #   else:
+      #      return InDetTrigTrackSummaryTool
 
-      #FIXME Use trigger flags instead of indetflags ATR-22756
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+      summaryTool = InDetTrigTrackSummaryTool
+
+
+      # FIXME Use trigger flags instead of indetflags ATR-22756
       # What are the instances when we don't need this?
-      #if InDetFlags.doSiSPSeededTrackFinder():
-      doSiSPSeededTrackFinder = True #True by default to test this
+      # if InDetFlags.doSiSPSeededTrackFinder():
+
+      doSiSPSeededTrackFinder = True 
+
       if doSiSPSeededTrackFinder:
 
          #FIXME: do we need this covered by detflag condition? ATR-22756
          #from AthenaCommon.DetFlags import DetFlags 
          # --- Loading Pixel, SCT conditions
-         if True:#DetFlags.haveRIO.pixel_on():
+         if True: #DetFlags.haveRIO.pixel_on():
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
@@ -136,8 +151,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
                                                                      WriteKey = "PixelDetElementBoundaryLinks_xk",)
 
 
-
-         if True:#FIXME trackingCuts.useSCT()? ATR-22756
+         if True: #FIXME trackingCuts.useSCT()? ATR-22756
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
@@ -151,14 +165,14 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
                                                                   WriteKey = "SCT_DetElementBoundaryLinks_xk")
             #-------------------------------------------------------
 
-
-         from .InDetTrigCommon import siSPSeededTrackFinder_builder, get_full_name
-         siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = get_full_name( 'siSPSeededTrackFinder', config.input_name ),
+         from .InDetTrigCommon import siSPSeededTrackFinder_builder, add_prefix
+         siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = add_prefix( 'siSPSeededTrackFinder', config.input_name ),
                                                                 config                = config,
                                                                 outputTracks          = config.trkTracks_IDTrig(), 
                                                                 trackingCuts          = trackingCuts,
                                                                 usePrdAssociationTool = usePrdAssociationTool,
-                                                                nameSuffix            = config.input_name )
+                                                                nameSuffix            = config.input_name,
+                                                                trackSummaryTool      = summaryTool )
 
          viewAlgs.append( siSPSeededTrackFinder )
 
@@ -168,7 +182,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #                        atm disabled but might be useful later for debugging
       #
       #from .InDetTrigCommon import trackParticleCnv_builder
-      #trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_EFID' ), 
+      #trackParticleCnvAlg = trackParticleCnv_builder(name                 = add_prefix( 'xAODParticleCreatorAlg',config.name + '_EFID' ), 
       #                                               config               = config,
       #                                               inTrackCollectionKey = config.trkTracks_IDTrig(),
       #                                               outTrackParticlesKey = config.tracks_EFID(),
@@ -181,7 +195,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #Also provides particle cnv alg inside
       precisionAlgs = ambiguitySolverForIDPatternRecognition(config      = config,
                                                              inputTracks = config.trkTracks_IDTrig(), 
-                                                             verifier    = None )
+                                                             verifier    = None, 
+                                                             summaryTool = summaryTool )
 
 
       viewAlgs += precisionAlgs
@@ -190,8 +205,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       return  viewAlgs, dataVerifier
 
 
-#This could potentially be unified with makeInDetPrecisionTracking in the InDetPT.py?
-def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None ):
+# This could potentially be unified with makeInDetPrecisionTracking in the InDetPT.py?
+def ambiguitySolverForIDPatternRecognition( config, summaryTool, inputTracks,verifier=None ):
    ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
    
    #-----------------------------------------------------------------------------
@@ -203,20 +218,23 @@ def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None 
    
    #-----------------------------------------------------------------------------
    #                        Ambiguity solving stage
-   from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name, get_scoremap_name
+   from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, add_prefix
+
+   scoreMapName = "ScoreMap"+config.input_name
    
-   ambiguityScoreAlg = ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.input_name ),
+   ambiguityScoreAlg = ambiguityScoreAlg_builder( name                  = add_prefix( core='TrkAmbiguityScore', suffix=config.input_name ),
                                                   config                = config,
                                                   inputTrackCollection  = inputTracks,
-                                                  outputTrackScoreMap   = get_scoremap_name( config.input_name ), #Map of tracks and their scores
-                                                 )
+                                                  outputTrackScoreMap   = scoreMapName )
+                                                 
    ptAlgs.append( ambiguityScoreAlg )
-   
+
    #FIXME: these alg internally don't expect EFID setting (but FTF), have to take into consideration
-   ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.input_name ),
+
+   ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = add_prefix( core='TrkAmbiguitySolver', suffix=config.input_name ),
                                                     config                = config,
-                                                    summaryTool           = None, # this argument is not used at the moment
-                                                    inputTrackScoreMap    = get_scoremap_name( config.input_name ), #Map of tracks and their scores, 
+                                                    summaryTool           = summaryTool,
+                                                    inputTrackScoreMap    = scoreMapName, #Map of tracks and their scores, 
                                                     outputTrackCollection = config.trkTracks_IDTrig()+"_Amb" )  #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
 
    ptAlgs.append( ambiguitySolverAlg )
@@ -224,11 +242,14 @@ def ambiguitySolverForIDPatternRecognition( config, inputTracks,verifier = None 
    #-----------------------------------------------------------------------------
    #                      Track particle conversion algorithm
    from .InDetTrigCommon import trackParticleCnv_builder
-   trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), 
+   from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary
+   creatorTool = InDetTrigParticleCreatorToolWithSummary
+   
+   trackParticleCnvAlg = trackParticleCnv_builder(name                 = add_prefix( 'xAODParticleCreatorAlg', config.name + '_IDTrig' ), 
                                                   config               = config,
                                                   inTrackCollectionKey = config.trkTracks_IDTrig()+"_Amb",
                                                   outTrackParticlesKey = config.tracks_IDTrig(),
-                                                  )
+                                                  trackParticleCreatorTool     =  creatorTool )
    
    ptAlgs.append( trackParticleCnvAlg )
 

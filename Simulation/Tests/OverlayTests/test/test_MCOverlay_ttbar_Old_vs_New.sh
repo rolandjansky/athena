@@ -15,13 +15,14 @@ Overlay_tf.py \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile MC_plus_MC.NEW.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-20 \
+--conditionsTag OFLCOND-MC16-SDR-20-01 \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlay_tf"
 
 OverlayPool_tf.py \
@@ -29,7 +30,7 @@ OverlayPool_tf.py \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup.100events.pool.root \
 --outputRDOFile MC_plus_MC.OLD.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-20 \
+--conditionsTag OFLCOND-MC16-SDR-20-01 \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
@@ -37,6 +38,7 @@ OverlayPool_tf.py \
 --imf False
 
 rc2=$?
+status=$rc2
 echo "art-result: $rc2 overlaypool_tf"
 
 
@@ -52,5 +54,8 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventTime \
             xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 comparison"
+
+exit $status

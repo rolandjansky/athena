@@ -31,8 +31,8 @@ TRT_StrawAlignDbSvc::TRT_StrawAlignDbSvc( const std::string& name,
     m_par_dxcontainerkey("/TRT/Calib/DX"),
     m_par_strawtextfile(""),
     m_par_forcecallback(false),
-    m_trtid(0),
-    m_trtman(0),
+    m_trtid(nullptr),
+    m_trtman(nullptr),
     m_streamer("AthenaOutputStreamTool/CondStream1")
 {
   declareProperty("StrawTextFile",m_par_strawtextfile);
@@ -58,7 +58,7 @@ StatusCode TRT_StrawAlignDbSvc::initialize()
 
   // Get the geometry.
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtman,"TRT") || 
-      m_trtman==0) {
+      m_trtman==nullptr) {
     msg(MSG::FATAL) << "Could not find TRT manager " << endmsg;
     return StatusCode::FAILURE;
   }

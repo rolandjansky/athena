@@ -36,9 +36,9 @@ public:
   //@name main methods
   //@{
   /// Add defect
-  void fill(const CondAttrListCollection::ChanNum& chanNum, const std::string param);
+  void fill(const CondAttrListCollection::ChanNum& chanNum, const std::string& param);
   /// Remove a defect
-  void remove(const CondAttrListCollection::ChanNum& chanNum, const std::string param);
+  void remove(const CondAttrListCollection::ChanNum& chanNum, const std::string& param);
   /// Copy all defects to a users vector, the return value is the size
   int output(const CondAttrListCollection::ChanNum& chanNum, std::vector<std::string>& usersVector) const;
   /// Return the number of defects

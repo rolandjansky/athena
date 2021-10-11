@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolBase_CXX
@@ -361,7 +361,6 @@ deregAll()
    if( m_tool != 0 ) {
       bool isSuccess(true);
       StatusCode sc;
-      sc.setChecked();
 
       typedef HistMap_t::const_iterator MapIter_t;
       MapIter_t mapEnd = m_map.end();
@@ -866,13 +865,9 @@ fillHists()
 
 
    StatusCode sc0( StatusCode::SUCCESS );
-   sc0.setChecked();
    StatusCode sc1( StatusCode::SUCCESS );
-   sc1.setChecked();
    StatusCode sc2( StatusCode::SUCCESS );
-   sc2.setChecked();
    StatusCode sc3( StatusCode::SUCCESS );
-   sc3.setChecked();
 
    // Set end of LowStat, LumiBlock and Run variables
    // These are needed to be used in procHistograms().
@@ -896,7 +891,6 @@ fillHists()
 	     m_d->benchPreProcHistograms();
          sc0 = procHistograms();
 	     m_d->benchPostProcHistograms();
-         sc0.setChecked();
       }
       // Re-book new histograms
       m_d->benchPreBookHistograms();
@@ -955,9 +949,6 @@ fillHists()
       sc3 = bookHistogramsRecurrent( );
       
       m_d->benchPostBookHistograms();
-      sc1.setChecked();
-      sc3.setChecked();
-      
 
       if (m_manager->forkedProcess()) {
 	ATH_MSG_INFO("Child process: Resetting all " << m_lwhists.size() <<  " LW Histograms");
@@ -985,10 +976,9 @@ fillHists()
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
      ATH_MSG_DEBUG("Passed trigger, presumably");
       m_d->benchPreFillHistograms();
-      StatusCode sc3 = fillHistograms();
+      fillHistograms().ignore();
       m_haveClearedLastEventBlock = true;
       m_d->benchPostFillHistograms();
-      sc3.setChecked();
       ++m_nEvents;
    } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
 
@@ -1022,7 +1012,7 @@ registerMetadata(const std::string& streamName, const std::string& hName,
   if( m_environment != AthenaMonManager::online ) {
     TTree* metadata(0);
     std::string mdStreamName( streamName );
-    size_t found=mdStreamName.rfind("/");
+    size_t found=mdStreamName.rfind('/');
     
     if ( found != std::string::npos )
       mdStreamName.replace( found, mdStreamName.length(), "/metadata" );
@@ -1329,7 +1319,6 @@ ManagedMonitorToolBase::
 regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& templateLWHistograms)
 {
     StatusCode sc1;
-    sc1.setChecked();
 
     for( std::vector< MgmtParams<LWHist> >::iterator it = templateLWHistograms.begin(); it != templateLWHistograms.end(); ++it ) {
         // Get histogram group
@@ -1369,7 +1358,6 @@ finalHists()
 
 /*
      StatusCode sc1( StatusCode::SUCCESS );
-     sc1.setChecked();
 
 #if 0
      for (const auto interval: m_supportedIntervalsForRebooking) {
@@ -1379,7 +1367,6 @@ finalHists()
        
        // Yura: commented out when fixing online environment
        //sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
-       sc1.setChecked();
      }
 */
 
@@ -1494,7 +1481,7 @@ regHist( TH1* h, const MonGroup& group )
        track of "proper" attribute for X_VS_LB
     */
     
-    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
       ATH_MSG_WARNING("HEY! You're attempting to register " << h->GetName() << " as a per-LB histogram, but you're not setting the merge algorithm! This is a SUPER-BAD idea! Use \"merge\", at least.");
     }
     
@@ -1508,8 +1495,7 @@ regHist( TH1* h, const MonGroup& group )
     std::string hName = h->GetName();
     MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
     std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, hName, false );
-    StatusCode smd = registerMetadata(streamName, hName, group);
-    smd.setChecked();
+    registerMetadata(streamName, hName, group).ignore();
     return m_THistSvc->regHist( streamName, h );
   }
   
@@ -1588,8 +1574,7 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 
     std::string streamName = streamNameFunction()->getStreamName( this, group, hName );
     LWHistAthMonWrapper::setStreamName(h,streamName);
-    StatusCode smd = registerMetadata(streamName, hName, group);
-    smd.setChecked();
+    registerMetadata(streamName, hName, group).ignore();
 
     //Delay registration with THistSvc (unless root backend):
     //m_lwhistMap.insert(std::pair<LWHist*,std::string>(h,streamName));
@@ -1674,7 +1659,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
     // MANAGED
     if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
         // warn about not using merge algorithms
-        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
             ATH_MSG_WARNING("HEY! Attempting to register "<<name<<" as a per-LB histogram, but not setting the merge algorithm! Use \"merge\", at least.");
         }
         // add the efficiency to rebooking vector
@@ -1687,8 +1672,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
 
         MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
         std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-        StatusCode smd = registerMetadata(streamName, name, group);
-        smd.setChecked();
+        registerMetadata(streamName, name, group).ignore();
         return m_THistSvc->regGraph( streamName, g );
     } else {
     // UNMANAGED
@@ -1741,8 +1725,7 @@ regGraph( TGraph* g, const MonGroup& group )
 
        std::string name = g->GetName();
        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-       StatusCode smd = registerMetadata(streamName, name, group);
-       smd.setChecked();
+       registerMetadata(streamName, name, group).ignore();
        return m_THistSvc->regGraph( streamName, g );
        //return m_THistSvc->regGraph( streamName );
    } 
@@ -1797,8 +1780,7 @@ regTree( TTree* t, const MonGroup& group )
        std::string name = t->GetName();
        std::string genericName = NoOutputStream().getStreamName( this, group_unmanaged, name );
        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-       StatusCode smd = registerMetadata(streamName, name, group);
-       smd.setChecked();
+       registerMetadata(streamName, name, group).ignore();
        return m_THistSvc->regTree( streamName, t );
    }
 
@@ -2133,9 +2115,9 @@ fill( const std::string& name,
    // this to the ROOT developers yet because I don't have time to develope a simple test case
    // for them (independent of Atlas software).
    // --M.G.Wilson, 7 July 2008
-   if( trigger == "" )
+   if( trigger.empty() )
       trigger = "<none>";
-   if( merge == "" )
+   if( merge.empty() )
       merge = "<default>";
 
    copyString( m_nameData, name );
@@ -2181,7 +2163,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2331,7 +2313,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2385,7 +2367,7 @@ ManagedMonitorToolBase::
 updateTriggersForGroups(std::vector<std::string>& vTrigChainNames) {
   for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
     std::string& thisName = vTrigChainNames[i];
-    if (thisName.substr(0, 9) == "CATEGORY_") {
+    if (thisName.compare(0, 9, "CATEGORY_") ==0) {
       ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". We will unpack it.");
       std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(9,std::string::npos));
       std::ostringstream oss;
@@ -2436,7 +2418,7 @@ getNewStreamNameFcn() const
 void
 ManagedMonitorToolBase::StreamNameFcn::
 parseString(const std::string& streamName, std::string& root, std::string& rem) {
-  std::string::size_type pos = streamName.find("/");
+  std::string::size_type pos = streamName.find('/');
 
   if (pos == std::string::npos) {
     root = "";

@@ -14,20 +14,6 @@
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
 
-LArOnOffMappingAlg::LArOnOffMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("/LAr/Identifier/OnOnffMap"),
-  m_writeKey("LArOnOffIdMap"),
-  m_condSvc("CondSvc",name),
-  m_isSuperCell(false)
-{
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("WriteKey",m_writeKey);
-  declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
-}
-
-LArOnOffMappingAlg::~LArOnOffMappingAlg() {}
-
 StatusCode LArOnOffMappingAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
@@ -47,8 +33,6 @@ StatusCode LArOnOffMappingAlg::initialize() {
 
 
 StatusCode LArOnOffMappingAlg::execute() {
-    
-
   ATH_MSG_DEBUG("executing");
 
   SG::WriteCondHandle<LArOnOffIdMapping> writeHandle{m_writeKey};
@@ -66,12 +50,13 @@ StatusCode LArOnOffMappingAlg::execute() {
     return StatusCode::FAILURE;
   }
 
+  writeHandle.addDependency(readHandle);
+
   const LArOnlineID_Base* larOnlineID=nullptr;
   const CaloCell_Base_ID* calocellID=nullptr;
 
   //Identifier helper:
   if (m_isSuperCell) {
-    //SG::ReadCondHandle<LArOnline_SuperCellID> larOnlineHdl{m_larSCOnlineIDKey}
     const LArOnline_SuperCellID* scidhelper;
     ATH_CHECK(detStore()->retrieve(scidhelper,"LArOnline_SuperCellID"));
     larOnlineID=scidhelper; //cast to base-class
@@ -82,7 +67,6 @@ StatusCode LArOnOffMappingAlg::execute() {
 
   }
   else {//regular cells
-    //SG::ReadCondHandle<LArOnlineID> larOnlineHdl{m_larOnlineIDKey};
     const LArOnlineID* idhelper;
     ATH_CHECK(detStore()->retrieve(idhelper,"LArOnlineID"));
     larOnlineID=idhelper; //cast to base-class
@@ -107,7 +91,7 @@ StatusCode LArOnOffMappingAlg::execute() {
   }
 
 
-   unsigned nConnected=0;
+  unsigned nConnected=0;
 
   for (unsigned i=0;i<nChan;++i) {
     const Identifier id=Identifier(Identifier32(pBlobOnOff[i]));
@@ -123,24 +107,15 @@ StatusCode LArOnOffMappingAlg::execute() {
   ATH_MSG_INFO("Done reading online/offline identifier mapping");
   ATH_MSG_INFO("Found " << nChan << " online identifier and " << nConnected << " offline identifier. "
 	       << nChan-nConnected << " disconnected channels.");
-
   
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-
-  if(writeHandle.record(rangeW,onOffMap.release()).isFailure()) {
+  if(writeHandle.record(std::move(onOffMap)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArOnOffMapping object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
-
+    }
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
  
   return StatusCode::SUCCESS;
 }

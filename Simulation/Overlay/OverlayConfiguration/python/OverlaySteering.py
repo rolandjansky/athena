@@ -8,6 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
+from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 
 from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
@@ -19,7 +20,7 @@ from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
 from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
 from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
-    CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
+    CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyPileupParticleTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileOverlayTriggerDigitizationCfg
 from TrigT1CaloSim.TTL1OverlayConfig import LArTTL1OverlayCfg, TileTTL1OverlayCfg
@@ -50,15 +51,25 @@ def OverlayMainCfg(configFlags):
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
 
+    # Handle metadata correctly
+    overlayMetadataCheck(configFlags)
+    acc.merge(overlayMetadataWrite(configFlags))
+
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))
 
     # Add truth overlay (needed downstream)
     acc.merge(CopyMcEventCollectionCfg(configFlags))
     acc.merge(CopyJetTruthInfoCfg(configFlags))
+    acc.merge(CopyPileupParticleTruthInfoCfg(configFlags))
     acc.merge(CopyTimingsCfg(configFlags))
     acc.merge(CopyCaloCalibrationHitContainersCfg(configFlags))
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
+
+    # Beam spot reweighting
+    if configFlags.Digitization.InputBeamSigmaZ > 0:
+        from BeamEffects.BeamEffectsAlgConfig import BeamSpotReweightingAlgCfg
+        acc.merge(BeamSpotReweightingAlgCfg(configFlags))
 
     # Inner detector
     if configFlags.Detector.EnableBCM:

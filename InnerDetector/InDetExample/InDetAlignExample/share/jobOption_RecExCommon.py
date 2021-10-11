@@ -203,7 +203,6 @@ recAlgs.doStaco.set_Value_and_Lock           (False)
 recAlgs.doCaloTrkMuId.set_Value_and_Lock     (False)
 recAlgs.doTileMuID.set_Value_and_Lock        (False)
 # --- trigger
-recAlgs.doTrigger.set_Value_and_Lock         (False)
 rec.doTagRawSummary.set_Value_and_Lock   (False)
 rec.doTrigger.set_Value_and_Lock             (False)
 
@@ -309,10 +308,6 @@ else:
 #InDetFlags.doPRDFormation = False
 
 # Only for Data
-
-from AthenaCommon.AppMgr import ServiceMgr;
-import MuonRPC_Cabling.MuonRPC_CablingConfig;
-ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False
 
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
 # This way RecExCommon just needs to import the properties without doing anything else!

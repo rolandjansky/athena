@@ -114,18 +114,12 @@ InDet::PixelClusterOnTrackTool::initialize() {
   ATH_CHECK(m_clusterSplitProbContainer.initialize( !m_clusterSplitProbContainer.key().empty()));
 
   // get the error scaling tool
-  if (!m_pixelErrorScalingKey.key().empty()) {
-    ATH_CHECK(m_pixelErrorScalingKey.initialize());
-    ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
-  }
-
+  ATH_CHECK(m_pixelErrorScalingKey.initialize(!m_pixelErrorScalingKey.key().empty()));
+  if (!m_pixelErrorScalingKey.key().empty()) ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
 
   // get the module distortions tool
-  if (!m_disableDistortions) {
-    ATH_CHECK(m_distortionKey.initialize());
-  } else {
-    ATH_MSG_INFO("No PixelDistortions will be simulated.");
-  }
+  ATH_CHECK(m_distortionKey.initialize(!m_disableDistortions));
+  if (m_disableDistortions) ATH_MSG_INFO("No PixelDistortions will be simulated.");
 
   ATH_CHECK (detStore()->retrieve(m_pixelid, "PixelID"));
 
@@ -724,7 +718,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
-  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+  if (trackPar.surfaceType() != Trk::SurfaceType::Plane ||
       trackPar.type() != Trk::AtaSurface) {
     ATH_MSG_WARNING(
       "Parameters are not at a plane ! Aborting cluster correction... ");
@@ -855,7 +849,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   }
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
-  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+  if (trackPar.surfaceType() != Trk::SurfaceType::Plane ||
       trackPar.type() != Trk::AtaSurface) {
     ATH_MSG_WARNING("Parameters are not at a plane surface ! Aborting cluster "
                     "correction... ");

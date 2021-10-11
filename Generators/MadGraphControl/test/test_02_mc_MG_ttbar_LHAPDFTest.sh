@@ -5,12 +5,12 @@
 # art-include: master/AthGeneration
 # art-description: MadGraph Event Generation Test - LHE generation with LHAPDF
 # art-type: grid
-# art-output: test_lhe_events.events
+# art-output: test_lhe_events.tar.gz
 # art-output: output_hists.root
 # art-output: dcube
 # art-html: dcube
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events --jobConfig=950102
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events.tar.gz --jobConfig=950102
 
 echo "art-result: $? Gen_tf"
 

@@ -5,7 +5,7 @@ from ..Menu.ChainMerging import mergeChainDefs
 from .TestChainConfiguration import TestChainConfiguration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Test.generateChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
 

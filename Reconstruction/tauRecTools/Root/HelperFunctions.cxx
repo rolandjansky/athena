@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/HelperFunctions.h"
@@ -217,4 +217,11 @@ TLorentzVector tauRecTools::GetConstituentP4(const xAOD::JetConstituent& constit
   }
 
   return constituentP4;
+}
+
+
+
+bool tauRecTools::doPi0andShots(const xAOD::TauJet& tau) {
+  // build pi0s and shots for 0-5p taus
+  return ( tau.nTracks() <= 5 );
 }

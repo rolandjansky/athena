@@ -12,7 +12,6 @@
 #include "GaudiKernel/extend_interfaces.h"
 
 // Local include(s):
-#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
 
@@ -25,8 +24,7 @@ namespace TrigConf {
     * Note that this is used in particular to retrieve config info in an
     * offline analysis.
     */
-   class ITrigConfigSvc : public extend_interfaces< IL1TopoConfigSvc,
-                                                    ILVL1ConfigSvc,
+   class ITrigConfigSvc : public extend_interfaces< ILVL1ConfigSvc,
                                                     IHLTConfigSvc > {
 
    public:

@@ -42,9 +42,9 @@ public:
    StatusCode stop();
    StatusCode finalize();
 
-   StatusCode makeServer(int num);
+   StatusCode makeServer(int num, const std::string& streamPortSuffix);
    bool isServer() const;
-   StatusCode makeClient(int num);
+   StatusCode makeClient(int num, std::string& streamPortSuffix);
    bool isClient() const;
 
    StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) const;
@@ -58,6 +58,7 @@ public:
 
 private:
    StringProperty m_sharedMemory;
+   BooleanProperty m_multipleSegments;
    const size_t m_maxSize;
    const int m_maxDataClients;
    int m_num;

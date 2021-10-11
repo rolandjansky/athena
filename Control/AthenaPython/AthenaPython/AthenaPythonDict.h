@@ -10,7 +10,7 @@
 #include <string>
 #include <typeinfo>
 #include "GaudiKernel/IEvtSelector.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IThinningHdlr.h"
 #include "AthenaKernel/ISlimmingHdlr.h"
 #include "AthenaKernel/IValgrindSvc.h"

@@ -16,7 +16,7 @@ atlas_add_component( ISF_ActsTools
                      ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ActsCore ActsFatras AthenaBaseComps
                      TrkTrack ISF_Event AthenaKernel AtlasDetDescr GeoPrimitives
-                     GaudiKernel GeneratorObjects ISF_Event StoreGateLib SGtests
+                     GaudiKernel GeneratorObjects ISF_Event StoreGateLib
                      GeoModelUtilities ActsInteropLib ActsGeometryLib
                      ISF_InterfacesLib ActsPluginJson ISF_FatrasInterfaces )
 

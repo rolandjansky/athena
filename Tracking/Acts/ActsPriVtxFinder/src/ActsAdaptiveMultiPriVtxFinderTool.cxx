@@ -59,11 +59,10 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     ATH_CHECK( m_extrapolationTool.retrieve() );
 
-    Acts::Navigator navigator(trackingGeometry);
+    Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );
 
-    using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField;
-    auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
+    auto bField = std::make_shared<ATLASMagneticFieldWrapper>();
+    auto stepper = Acts::EigenStepper<>(bField);
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
     // IP Estimator
@@ -107,7 +106,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     seedFinderConfig.trackDensityEstimator = trackDensity;
     VertexSeedFinder seedFinder(seedFinderConfig, extractParameters);
     VertexFinder::Config finderConfig(std::move(fitter), seedFinder,
-      ipEst, linearizer);
+      ipEst, linearizer, bField);
 
     // Vertex finder config
     finderConfig.useBeamSpotConstraint = m_useBeamConstraint;

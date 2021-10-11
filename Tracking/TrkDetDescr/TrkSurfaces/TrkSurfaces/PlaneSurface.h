@@ -54,19 +54,33 @@ class ParametersT;
  @image html PlaneSurface.gif
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class PlaneSurface : public Surface
 {
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Plane;
+  static constexpr SurfaceType staticType = SurfaceType::Plane;
 
   /** Default Constructor - needed for persistency*/
   PlaneSurface();
 
   /** Copy Constructor*/
   PlaneSurface(const PlaneSurface& psf) = default;
+
+  /**Assignment operator*/
+  PlaneSurface& operator=(const PlaneSurface& psf) = default;
+
+  /** Move Constructor*/
+  PlaneSurface(PlaneSurface&& psf) noexcept = default;
+
+  /**Move assignment operator*/
+  PlaneSurface& operator=(PlaneSurface&& psf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~PlaneSurface() = default;
 
   /** Copy Constructor with shift*/
   PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf);
@@ -76,72 +90,75 @@ public:
 
   /** Constructor from TrkDetElementBase*/
   PlaneSurface(const TrkDetElementBase& detelement,
-               Amg::Transform3D* transf = nullptr);
+               const Amg::Transform3D& transf);
+               
+  /** Constructor from TrkDetElementBase*/
+  PlaneSurface(const TrkDetElementBase& detelement);
 
   /** Constructor from TrkDetElementBase and Identifier in case one element
    * holds more surfaces*/
   PlaneSurface(const TrkDetElementBase& detelement,
                const Identifier& id,
-               Amg::Transform3D* transf = nullptr);
+               const Amg::Transform3D & transf);
+               
+  /** Constructor from TrkDetElementBase and Identifier in case one element
+   * holds more surfaces*/
+  PlaneSurface(const TrkDetElementBase& detelement,
+               const Identifier& id);
 
-  /** Constructor for planar Surface without Bounds */
-  PlaneSurface(Amg::Transform3D* htrans);
+  /** Constructor for planar Surface without Bounds , reference */
+  PlaneSurface(const Amg::Transform3D& htrans);
 
-  /** Constructor for planar Surface from unique_ptr without Bounds */
-  PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans);
-
+  
   /** Constructor for Rectangular Planes*/
-  PlaneSurface(Amg::Transform3D* htrans, double halephi, double haleta);
+  PlaneSurface(const Amg::Transform3D & htrans, double halephi, double haleta);
 
   /** Constructor for Trapezoidal Planes*/
-  PlaneSurface(Amg::Transform3D* htrans,
+  PlaneSurface(const Amg::Transform3D & htrans,
                double minhalephi,
                double maxhalephi,
                double haleta);
 
   /** Constructor for Planes with provided RectangleBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, RectangleBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D & htrans, RectangleBounds* rbounds);
 
   /** Constructor for Planes with provided TriangleBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, TriangleBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D & htrans, TriangleBounds* rbounds);
 
   /** Constructor for Planes with provided AnnulusBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, AnnulusBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, AnnulusBounds* rbounds);
 
   /** Constructor for Planes with provided TrapezoidBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, TrapezoidBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, TrapezoidBounds* rbounds);
 
   /** Constructor for Planes with provided RotatedTrapezoidBounds - ownership of
    * bounds is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, RotatedTrapezoidBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, RotatedTrapezoidBounds* rbounds);
 
   /** Constructor for Planes with provided DiamondBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, DiamondBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, DiamondBounds* rbounds);
 
   /** Constructor for Planes with provided EllipseBounds - ownership of bounds
    * is passed*/
-  PlaneSurface(Amg::Transform3D* htrans, EllipseBounds* rbounds);
+  PlaneSurface(const Amg::Transform3D& htrans, EllipseBounds* rbounds);
 
   /** Constructor for Planes with shared object*/
-  PlaneSurface(Amg::Transform3D* htrans,
+  PlaneSurface(const Amg::Transform3D& htrans,
                Trk::SharedObject<const Trk::SurfaceBounds>& sbounds);
-
-  /**Destructor*/
-  virtual ~PlaneSurface() = default;
-
-  /**Assignment operator*/
-  PlaneSurface& operator=(const PlaneSurface& psf) = default;
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
   /**Virtual constructor*/
   virtual PlaneSurface* clone() const override;
+  
+   /** NVI uniqueClone method */
+  std::unique_ptr<PlaneSurface>uniqueClone() const;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
@@ -235,7 +252,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override final;
 

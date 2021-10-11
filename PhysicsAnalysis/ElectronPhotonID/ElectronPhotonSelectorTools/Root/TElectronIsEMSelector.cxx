@@ -742,8 +742,9 @@ Root::TElectronIsEMSelector::TrackCut(
   if (ibin_eta >= 0 && ibin_combined >= 0) {
     // Track quality cuts
     // cuts on number of b-layer hits
-    if(CheckVar(m_cutBL,1) && m_cutBL[ibin_eta] == 1 && !passBLayerRequirement){
-      iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron);
+    if (CheckVar(m_cutBL, 1) && m_cutBL[ibin_eta] == 1 &&
+        !passBLayerRequirement) {
+      iflag |= (0x1 << egammaPID::TrackBlayer_Electron);
     }
     // cuts on number of pixel hits
     if (CheckVar(m_cutPi, 1)) {
@@ -766,34 +767,32 @@ Root::TElectronIsEMSelector::TrackCut(
         iflag |= (0x1 << egammaPID::TrackA0Tight_Electron);
     }
 
-    if (ibin_combined>=0) {
-      // matching (eta,phi) and energy-momentum
-      // cut on Delta Eta and Delta Phi
-      deltaeta=std::abs(deltaeta);
+    // matching (eta,phi) and energy-momentum
+    // cut on Delta Eta and Delta Phi
+    deltaeta = std::abs(deltaeta);
 
-      if (CheckVar(m_cutDeltaEta, 4)) {
-        if (deltaeta > m_cutDeltaEta[ibin_combined])
-          iflag |= (0x1 << egammaPID::TrackMatchEta_Electron);
-      }
-      if (CheckVar(m_cutminDeltaPhi, 4)) {
-        if (deltaphi < m_cutminDeltaPhi[ibin_combined])
-          iflag |= (0x1 << egammaPID::TrackMatchPhi_Electron);
-      }
-      if (CheckVar(m_cutmaxDeltaPhi, 4)) {
-        if (deltaphi > m_cutmaxDeltaPhi[ibin_combined])
-          iflag |= (0x1 << egammaPID::TrackMatchPhi_Electron);
-      }
-      // cut on Delta Eta for Tight selection
-      if (CheckVar(m_cutDeltaEtaTight, 4)) {
-        if (deltaeta > m_cutDeltaEtaTight[ibin_combined])
-          iflag |= (0x1 << egammaPID::TrackMatchEtaTight_Electron);
-      }
+    if (CheckVar(m_cutDeltaEta, 4)) {
+      if (deltaeta > m_cutDeltaEta[ibin_combined])
+        iflag |= (0x1 << egammaPID::TrackMatchEta_Electron);
+    }
+    if (CheckVar(m_cutminDeltaPhi, 4)) {
+      if (deltaphi < m_cutminDeltaPhi[ibin_combined])
+        iflag |= (0x1 << egammaPID::TrackMatchPhi_Electron);
+    }
+    if (CheckVar(m_cutmaxDeltaPhi, 4)) {
+      if (deltaphi > m_cutmaxDeltaPhi[ibin_combined])
+        iflag |= (0x1 << egammaPID::TrackMatchPhi_Electron);
+    }
+    // cut on Delta Eta for Tight selection
+    if (CheckVar(m_cutDeltaEtaTight, 4)) {
+      if (deltaeta > m_cutDeltaEtaTight[ibin_combined])
+        iflag |= (0x1 << egammaPID::TrackMatchEtaTight_Electron);
+    }
 
-      // cut on E/p
-      if (CheckVar(m_cutminEp, 4) && CheckVar(m_cutmaxEp, 4)) {
-        if (ep < m_cutminEp[ibin_combined] || ep > m_cutmaxEp[ibin_combined])
-          iflag |= (0x1 << egammaPID::TrackMatchEoverP_Electron);
-      }
+    // cut on E/p
+    if (CheckVar(m_cutminEp, 4) && CheckVar(m_cutmaxEp, 4)) {
+      if (ep < m_cutminEp[ibin_combined] || ep > m_cutmaxEp[ibin_combined])
+        iflag |= (0x1 << egammaPID::TrackMatchEoverP_Electron);
     }
   }
 

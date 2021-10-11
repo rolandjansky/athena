@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,8 @@
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 template <class T> class ServiceHandle;
@@ -81,8 +81,8 @@ namespace InDet
 
       enum SplitType { PhiSplit = 0, EtaSplit = 1, NoSplit = 2 };
 
-      ServiceHandle<IPixelCablingSvc>  m_pixelCabling
-         {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+      ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+      {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
       SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
          {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};

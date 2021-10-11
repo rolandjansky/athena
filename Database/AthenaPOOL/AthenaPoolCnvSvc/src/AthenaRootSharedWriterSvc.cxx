@@ -20,7 +20,11 @@
 #include "TMonitor.h"
 #include "TServerSocket.h"
 #include "TSocket.h"
+#include "TString.h"
 #include "TTree.h"
+
+#include <set>
+#include <map>
 
 /// Definiton of a branch descriptor from RootTreeContainer
 struct BranchDesc {
@@ -164,18 +168,24 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
       if (propertyServer->getProperty(&parallelCompressionProp).isFailure()) {
          ATH_MSG_INFO("Conversion service does not have ParallelCompression property");
       } else if (parallelCompressionProp.value()) {
-         int streamPort = 1095;
+         int streamPort = 0;
          propertyName = "StreamPortString";
          std::string streamPortString("");
          StringProperty streamPortStringProp(propertyName, streamPortString);
          if (propertyServer->getProperty(&streamPortStringProp).isFailure()) {
             ATH_MSG_INFO("Conversion service does not have StreamPortString property, using default: " << streamPort);
          } else {
-            streamPort = atoi(streamPortStringProp.value().substr(streamPortStringProp.value().find(":") + 1).c_str());
+            streamPort = atoi(streamPortStringProp.value().substr(streamPortStringProp.value().find(':') + 1).c_str());
          }
-         m_rootServerSocket = new TServerSocket(streamPort, true, 100);
+         m_rootServerSocket = new TServerSocket(streamPort, (streamPort == 0 ? false : true), 100);
          if (m_rootServerSocket == nullptr || !m_rootServerSocket->IsValid()) {
             ATH_MSG_FATAL("Could not create ROOT TServerSocket: " << streamPort);
+            return StatusCode::FAILURE;
+         }
+         streamPort = m_rootServerSocket->GetLocalPort();
+         const std::string newStreamPortString{streamPortStringProp.value().substr(0,streamPortStringProp.value().find(':')+1) + std::to_string(streamPort)};
+         if(propertyServer->setProperty(propertyName,newStreamPortString).isFailure()) {
+            ATH_MSG_FATAL("Could not set Conversion Service property " << propertyName << " from " << streamPortString << " to " << newStreamPortString);
             return StatusCode::FAILURE;
          }
          m_rootMonitor = new TMonitor;
@@ -190,7 +200,10 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
 StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
    ATH_MSG_VERBOSE("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
-   while (m_rootClientCount > 0 || (m_rootClientIndex < numClients && (sc.isSuccess() || sc.isRecoverable()))) {
+   int workerCounter = 0;
+   std::set<int> rootClientSet;
+   std::map<TString, int> workerCount;
+   while ((m_rootClientCount > 0 || workerCounter < (numClients - 1)) && (sc.isSuccess() || sc.isRecoverable())) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {
@@ -228,6 +241,11 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
                   message->ReadInt(clientId);
                   message->ReadTString(filename);
                   message->ReadLong64(length);
+                  if (rootClientSet.insert(clientId).second) {
+                    // new client
+                     workerCount[filename]++;
+                     if (workerCount[filename] > workerCounter) workerCounter = workerCount[filename];
+                  }
                   ATH_MSG_INFO("ROOT Monitor client: " << socket << ", " << clientId << ": " << filename << ", " << length);
                   std::unique_ptr<TMemFile> transient(new TMemFile(filename, message->Buffer() + message->Length(), length, "UPDATE"));
                   message->SetBufferOffset(message->Length() + length);

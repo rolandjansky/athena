@@ -46,7 +46,7 @@ namespace DerivationFramework {
 
       void setJetClustersMask(std::vector<bool>&, const xAOD::JetContainer*, const xAOD::CaloClusterContainer*) const;
       void setJetClustersMask(std::vector<bool>&, std::vector<const xAOD::Jet*>&, const xAOD::CaloClusterContainer*) const;
-      void select(const xAOD::Jet* particle, float coneSize, const xAOD::CaloClusterContainer* clusters, std::vector<bool> &mask) const;
+      static void select(const xAOD::Jet* particle, float coneSize, const xAOD::CaloClusterContainer* clusters, std::vector<bool> &mask) ;
   };
 
 }

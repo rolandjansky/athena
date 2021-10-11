@@ -17,7 +17,7 @@
 
 namespace SG {
 
-class AuxElement
+class ConstAuxElement
   : public IAuxElement
 {
 public:
@@ -39,13 +39,13 @@ void test1()
 {
   std::cout << "test1\n";
 
-  SG::AuxElement e1;
+  SG::ConstAuxElement e1;
   assert (e1.index() == 0);
   assert (e1.noPrivateData());
   assert (!e1.havePrivateData());
   assert (!e1.hadPrivateData());
 
-  SG::AuxElement e2 (10);
+  SG::ConstAuxElement e2 (10);
   assert (e2.index() == 10);
   assert (e2.noPrivateData());
   assert (!e2.havePrivateData());

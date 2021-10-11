@@ -54,12 +54,6 @@ CalibHitToCaloCell::CalibHitToCaloCell(const std::string& name, ISvcLocator* pSv
      m_storeUnknown(false),
      m_caloCell_Tot("TotalCalibCell"), m_caloCell_Vis("VisCalibCell"), 
      m_caloCell_Em(""), m_caloCell_NonEm(""),
-     m_caloCell_ID(nullptr),
-     m_caloDM_ID(nullptr),
-     //m_tile_ID(0),
-     //m_larEm_ID(0),
-     //m_larHec_ID(0),
-     //m_larFcal_ID(0),
      m_nchan(0)
 
 //      The names suggestion if one needs to have them
@@ -87,8 +81,9 @@ StatusCode CalibHitToCaloCell::initialize()
   // retrieve ID helpers from det store
   ATH_MSG_INFO("initialisation ID helpers" );
 
-  ATH_CHECK(  detStore()->retrieve(m_caloCell_ID) );
-  ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
+  ATH_CHECK( detStore()->retrieve(m_caloCell_ID) );
+  ATH_CHECK( detStore()->retrieve(m_caloDM_ID) );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   m_store_Tot = !m_caloCell_Tot.empty();
   m_store_Vis = !m_caloCell_Vis.empty();
@@ -103,8 +98,9 @@ StatusCode CalibHitToCaloCell::initialize()
 /////////////////   EXECUTE   //////////////////////
 StatusCode CalibHitToCaloCell::execute()
 {
-    const CaloDetDescrManager* caloDDMgr = nullptr;
-    ATH_CHECK(  detStore()->retrieve(caloDDMgr, "CaloMgr") );
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
 
     // OUTPUT CONTAINERS
     CaloCellContainer* cnt   = nullptr;

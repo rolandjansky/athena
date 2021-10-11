@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from builtins import str
 def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
@@ -19,20 +18,20 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
       SubDetector.TDAQ_CALO_DIGITAL_PROC,
       SubDetector.TDAQ_CALO_FEAT_EXTRACT_ROI,
    ]
-   m.ExtraEnabledSubDets = []
+   m.ExtraSubDets = []
    for subdetId in subdets:
-      m.ExtraEnabledSubDets.append( int(subdetId) )
+      m.ExtraSubDets.append( int(subdetId) )
 
    def addROBs(dest,subdet,modules):
       for moduleId in modules:
          dest.append(SourceIdentifier(subdet,moduleId).code())
 
-   m.ExtraEnabledROBs = []
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, [0xa8, 0xa9, 0xaa, 0xab])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_JET_PROC_ROI,     [0xac, 0xad])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_MUON_CTP_INTERFACE,    [0x01])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CTP,                   [0x01])
-   addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
+   m.ExtraROBs = []
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, [0xa8, 0xa9, 0xaa, 0xab])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CALO_JET_PROC_ROI,     [0xac, 0xad])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_MUON_CTP_INTERFACE,    [0x01])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CTP,                   [0x01])
+   addROBs(m.ExtraROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
 
    # Configure HLT result monitoring histograms
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
@@ -41,7 +40,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
 
    return m
 
-def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
+def TriggerEDMSerialiserToolCfg(name="Serialiser"):
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior += 1
 
@@ -50,7 +49,8 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    TriggerEDMSerialiserTool = CompFactory.TriggerEDMSerialiserTool  
    # Configuration helper methods
    def addCollection(self, typeNameAux, moduleIds):
-      self.CollectionsToSerialize[typeNameAux] = moduleIds
+      moduleIdsRepresentation = ','.join([f"{id}" for id in moduleIds])
+      self.CollectionsToSerialize.append( f"{typeNameAux};{moduleIdsRepresentation}")
 
    def addCollectionToMainResult(self, typeNameAux):
       self.addCollection(typeNameAux,moduleIds=[getFullHLTResultID()])
@@ -69,42 +69,15 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
-   from collections import OrderedDict
-   import GaudiConfig2.semantics
-   class OD(OrderedDict):
-      """Purpose of this class is to present map (ordered by insertion order) interface on python side, 
-      whereas the property to look like vector of such strings
-      "type#key;id0,id1"
-      when it gets to setting the serialiser property
-      """
-      def __repr__(self):
-         return '[' +','.join( ['"'+str(typekey)+';'+','.join([str(_) for _ in ids] )+'"'  for typekey,ids in self.items()] ) + ']'
-      def __str__(self):
-         return self.__repr__()
 
-   class TrigSerializerSemantics(GaudiConfig2.semantics.PropertySemantics):
-      __handled_types__ = ( "SerializerObjs", )
-    
-      def __init__(self,cpp_type,name=None):
-         super(TrigSerializerSemantics, self).__init__(cpp_type,name)
+   # Allow appending to the collections list
+   def merge_collection_list(a, b):
+      for item in b:
+         if item not in a:
+               a.append(item)
+      return a
+   serialiser._descriptors['CollectionsToSerialize'].semantics.merge = merge_collection_list
 
-      def store(self,value):
-         return OD(value)
-
-      def default(self,value):
-         return OD()
-    
-      def merge(self,a,b):
-         a.update(b)
-         return a
-
-      def load (self,value):
-         return value
-
-   TriggerEDMSerialiserTool._descriptors["CollectionsToSerialize"].semantics=TrigSerializerSemantics(cpp_type="SerializerObjs")
-   TriggerEDMSerialiserTool._descriptors["CollectionsToSerialize"].semantics.name="CollectionsToSerialize"
-
-   #serialiser.CollectionsToSerialize = OD()
 
    from TrigEDMConfig.TriggerEDMRun3 import tpMap
    tpTool = CompFactory.TrigSerTPTool()

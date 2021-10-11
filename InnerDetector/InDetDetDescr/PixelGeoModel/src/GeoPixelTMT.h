@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELTMT_H
@@ -24,8 +24,8 @@ public:
   virtual double thicknessP() const override {return 0;} // Use ladder thickness from database
   virtual double thicknessN() const override {return 0;} // Use ladder thickness from database
   virtual GeoSimplePolygonBrep* computeStaveEnvelopShape(double) override { return 0;}
-  virtual GeoVPhysVol* getEndblockEnvelopShape(int) const override {return 0;}
-  virtual GeoTransform* getEndblockEnvelopShapeTrf(int) const override {return 0;}
+  virtual GeoVPhysVol* getEndblockEnvelopShape(int) override {return 0;}
+  virtual GeoTransform* getEndblockEnvelopShapeTrf(int) override {return 0;}
   virtual double getEndblockZpos() const override { return 0.; }
   virtual double getServiceZpos() const override { return 0; }
   virtual double getEndblockLength() const override { return 0.; }

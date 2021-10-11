@@ -10,10 +10,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "MuonLayerEvent/MuonLayerRecoData.h"
-
-namespace Trk {
-    class Track;
-}
+#include "TrkTrack/Track.h"
 
 namespace Muon {
 
@@ -26,7 +23,9 @@ namespace Muon {
             return IID_IMuonCandidateTrackBuilderTool;
         }
         /** @brief build a track out of a MuonCandidate */
-        virtual Trk::Track* buildCombinedTrack(const Trk::Track& idTrack, const MuonCandidate& candidate) const = 0;
+        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack, const MuonCandidate& candidate) const = 0;
+
+        virtual ~IMuonCandidateTrackBuilderTool() = default;
     };
 
 }  // namespace Muon

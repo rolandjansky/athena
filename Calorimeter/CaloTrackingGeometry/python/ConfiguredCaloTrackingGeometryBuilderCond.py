@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # ConfiguredCaloTrackingGeometry module
@@ -12,9 +12,9 @@
 from CaloTrackingGeometry.CaloTrackingGeometryConf import Calo__CaloTrackingGeometryBuilderCond
 
 # define the class
-class ConfiguredCaloTrackingGeometryBuilderCond( Calo__CaloTrackingGeometryBuilderCond ):
+class ConfiguredCaloTrackingGeometryBuilderCond( Calo__CaloTrackingGeometryBuilderCond, ):
     # constructor
-    def __init__(self,name = 'CaloTrackingGeometryBuilderCond'):
+    def __init__(self,name = 'CaloTrackingGeometryBuilder', nameSuffix='Cond'):
         
         from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
                 
@@ -25,20 +25,34 @@ class ConfiguredCaloTrackingGeometryBuilderCond( Calo__CaloTrackingGeometryBuild
         if 'ToolSvc' not in dir() :
             ToolSvc = ToolSvc()
 
-        ConfLArVolumeBuilder = ConfiguredLArVolumeBuilder()
-        ToolSvc += ConfLArVolumeBuilder
+        the_name='LArVolumeBuilder'+nameSuffix
+        if not hasattr(ToolSvc,the_name) :
+           ConfLArVolumeBuilder = ConfiguredLArVolumeBuilder(name='LArVolumeBuilder', nameSuffix=nameSuffix)
+           ToolSvc += ConfLArVolumeBuilder
+           print (dir(ToolSvc),hasattr(ToolSvc,the_name))
+        else :
+           ConfLArVolumeBuilder=getattr(ToolSvc,the_name)
 
         from TileTrackingGeometry.ConfiguredTileVolumeBuilder import ConfiguredTileVolumeBuilder
 
-        ConfTileVolumeBuilder = ConfiguredTileVolumeBuilder()
-        ToolSvc += ConfTileVolumeBuilder
+        the_name='TileVolumeBuilder'+nameSuffix
+        if not hasattr(ToolSvc,the_name) :
+            ConfTileVolumeBuilder = ConfiguredTileVolumeBuilder(name='TileVolumeBuilder',nameSuffix=nameSuffix)
+            ToolSvc += ConfTileVolumeBuilder
+        else :
+            ConfTileVolumeBuilder=getattr(ToolSvc,the_name)
+
 
         # The volume helper
-        from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-        CaloTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
-        ToolSvc += CaloTrackingVolumeHelper         
+        the_name='TrackingVolumeHelper'+nameSuffix
+        if not hasattr(ToolSvc,the_name) :
+           from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
+           CaloTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper'+nameSuffix)
+           ToolSvc += CaloTrackingVolumeHelper
+        else :
+            CaloTrackingVolumeHelper=getattr(ToolSvc,the_name)
         
-        Calo__CaloTrackingGeometryBuilderCond.__init__(self,name,\
+        Calo__CaloTrackingGeometryBuilderCond.__init__(self,name+nameSuffix,\
                                                    LArVolumeBuilder = ConfLArVolumeBuilder,\
                                                    TileVolumeBuilder = ConfTileVolumeBuilder,\
                                                    TrackingVolumeHelper = CaloTrackingVolumeHelper,\

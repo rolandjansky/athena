@@ -21,13 +21,14 @@ Overlay_tf.py \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile MC_plus_MC.MT.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-20 \
+--conditionsTag OFLCOND-MC16-SDR-20-01 \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlayMT"
 mv log.Overlay log.OverlayMT
 
@@ -40,12 +41,13 @@ then
     --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
     --outputRDOFile MC_plus_MC.ST.RDO.pool.root \
     --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
-    --conditionsTag OFLCOND-MC16-SDR-20 \
+    --conditionsTag OFLCOND-MC16-SDR-20-01 \
     --geometryVersion ATLAS-R2-2016-01-00-01 \
     --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
     --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
     --imf False
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 overlayST"
 
@@ -54,5 +56,8 @@ if [ $rc2 -eq 0 ]
 then
     acmd.py diff-root MC_plus_MC.ST.RDO.pool.root MC_plus_MC.MT.RDO.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
+    status=$rc3
 fi
 echo  "art-result: $rc3 comparison"
+
+exit $status

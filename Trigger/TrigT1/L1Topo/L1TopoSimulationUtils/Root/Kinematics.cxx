@@ -81,10 +81,10 @@ float TSU::Kinematics::calcSinLegacy(unsigned phi){
 
 unsigned int TSU::Kinematics::calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2){
   int dphiB = std::abs( tob1->phi() - tob2->phi() );
+  if(dphiB>128)
+    dphiB = dphiB - 128;
   if(dphiB>64)
-    dphiB = dphiB - 64;
-  if(dphiB>32)
-    dphiB = 64 - dphiB;
+    dphiB = 128 - dphiB;
 
   return dphiB ;
 }
@@ -96,17 +96,17 @@ unsigned int TSU::Kinematics::calcDeltaEtaBW(const TCS::GenericTOB* tob1, const 
 
 unsigned int TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2){
 
-  auto bit_cosheta = TSU::L1TopoDataTypes<14,10>(TSU::Hyperbolic::Cosh.at(100*std::abs(tob1->eta() - tob2->eta())));
-  //In case of EM objects / jets / taus the phi angle goes between 0 and 64 while muons are between -32 and 32, applying a shift to keep delta-phi in the allowed range. 
+  auto bit_cosheta = TSU::L1TopoDataTypes<14,10>(TSU::Hyperbolic::Cosh.at(std::abs(tob1->eta() - tob2->eta())));
+  //In case of EM objects / jets / taus the phi angle goes between 0 and 128 while muons are between -128 and 128, applying a shift to keep delta-phi in the allowed range. 
   //those cases should happen only in mixed EM/jets/tau plus mu triggers, if both phi's are in [0,2pi] will not get in
   int phi_tob1 = tob1->phi();
   int phi_tob2 = tob2->phi();
-  if ( std::abs(phi_tob1-phi_tob2)>=64 )
+  if ( std::abs(phi_tob1-phi_tob2)>=128 )
     {
-      if(phi_tob1 >= 32) phi_tob1 = phi_tob1-64;
-      if(phi_tob2 >= 32) phi_tob2 = phi_tob2-64;
+      if(phi_tob1 >= 64) phi_tob1 = phi_tob1-128;
+      if(phi_tob2 >= 64) phi_tob2 = phi_tob2-128;
     }
-  auto bit_cosphi = TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Cos.at(100*std::abs( phi_tob1 - phi_tob2 )));
+  auto bit_cosphi = TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Cos.at(std::abs( phi_tob1 - phi_tob2 )));
   TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
   TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
   auto bit_invmass2 = bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi)*2;
@@ -115,7 +115,7 @@ unsigned int TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, const T
 }
 
 unsigned int TSU::Kinematics::calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  auto bit_cosphi = TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Cos.at(100*std::abs(tob1->phi() - tob2->phi())));
+  auto bit_cosphi = TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Cos.at(std::abs(tob1->phi() - tob2->phi())));
   TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
   TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
   TSU::L1TopoDataTypes<22,0> bit_tmass2 = 2*bit_Et1*bit_Et2*(1.  - bit_cosphi);
@@ -126,10 +126,10 @@ unsigned int TSU::Kinematics::calcTMassBW(const TCS::GenericTOB* tob1, const TCS
 unsigned int TSU::Kinematics::calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
   int detaB = std::abs( tob1->eta() - tob2->eta() );
   int dphiB = std::abs( tob1->phi() - tob2->phi() );
-  if(dphiB>64) //Probably same error here as in DeltaPhiBW. Check
-    dphiB = dphiB - 64;
-  if(dphiB>32)
-    dphiB = 64 - dphiB;
+  if(dphiB>128) //Probably same error here as in DeltaPhiBW. Check
+    dphiB = dphiB - 128;
+  if(dphiB>64)
+    dphiB = 128 - dphiB;
 
   unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
   return bit_dr2;
@@ -168,8 +168,8 @@ unsigned int TSU::Kinematics::calcXi1(const TCS::GenericTOB* tob1, const TCS::Ge
   double shift = 20; // this will be converted MeV and unsigned when unit is right
   TSU::L1TopoDataTypes<11,0> bit_Et1(static_cast<unsigned>(scale*tob1->Et()+shift));
   TSU::L1TopoDataTypes<11,0> bit_Et2(static_cast<unsigned>(scale*tob2->Et()+shift));
-  auto bit_eeta1 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(100*tob1->eta()));
-  auto bit_eeta2 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(100*tob2->eta()));
+  auto bit_eeta1 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(tob1->eta()));
+  auto bit_eeta2 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(tob2->eta()));
 
   auto xi_bit = bit_Et1*bit_eeta1+bit_Et2*bit_eeta2;
 
@@ -181,8 +181,8 @@ unsigned int TSU::Kinematics::calcXi2(const TCS::GenericTOB* tob1, const TCS::Ge
   double shift = 20; // this will be converted MeV and unsigned when unit is right
   TSU::L1TopoDataTypes<11,0> bit_Et1(static_cast<unsigned>(scale*tob1->Et()+shift));
   TSU::L1TopoDataTypes<11,0> bit_Et2(static_cast<unsigned>(scale*tob2->Et()+shift));
-  auto bit_eeta1 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(-100*tob1->eta()));
-  auto bit_eeta2 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(-100*tob2->eta()));
+  auto bit_eeta1 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(-tob1->eta()));
+  auto bit_eeta2 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(-tob2->eta()));
 
   auto xi_bit = bit_Et1*bit_eeta1+bit_Et2*bit_eeta2;
 
@@ -190,11 +190,11 @@ unsigned int TSU::Kinematics::calcXi2(const TCS::GenericTOB* tob1, const TCS::Ge
 }
 
 float TSU::Kinematics::calcCos(unsigned phi){
-  return float(TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Cos.at(100*phi)));
+  return float(TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Cos.at(phi)));
 }
 
 float TSU::Kinematics::calcSin(unsigned phi){
-  return float(TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Sin.at(100*phi)));
+  return float(TSU::L1TopoDataTypes<12,10>(TSU::Trigo::Sin.at(phi)));
 }
 
 /*------------------------------------------ NON-BITWISE --------------------------------------------------*/

@@ -30,7 +30,7 @@
 
 #include <vector>
 #include <functional>
-#include <iostream>
+#include <memory> //for unique_ptr
 
 namespace lwtDev {
 
@@ -310,8 +310,8 @@ namespace lwtDev {
   class BidirectionalLayer : public IRecurrentLayer
   {
   public:
-    BidirectionalLayer(IRecurrentLayer* forward_layer,
-                       IRecurrentLayer* backward_layer,
+    BidirectionalLayer(std::unique_ptr<IRecurrentLayer> forward_layer,
+                       std::unique_ptr<IRecurrentLayer> backward_layer,
                        std::string merge_mode,
                        bool return_sequence);
 
@@ -319,8 +319,8 @@ namespace lwtDev {
     virtual MatrixXd scan( const MatrixXd&) const override;
 
   private:
-    IRecurrentLayer* m_forward_layer;
-    IRecurrentLayer* m_backward_layer;
+    std::unique_ptr<const IRecurrentLayer> m_forward_layer;
+    std::unique_ptr<const IRecurrentLayer> m_backward_layer;
 
     std::string m_merge_mode;
   };

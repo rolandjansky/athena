@@ -74,6 +74,12 @@ namespace LVL1CTP {
       return static_cast<int>((bits&mask).to_ulong());
    }
 
+  int CTPUtil::getOptMult( std::bitset<128> bits, unsigned int startbit, unsigned int endbit ) {
+    std::bitset<128> mask = pow( 2, endbit - startbit + 1 ) - 1;
+    bits >>= startbit;
+    return static_cast<int>((bits&mask).to_ulong());
+  }
+
    unsigned int CTPUtil::getMultTopo( uint64_t word, unsigned int cableStart, unsigned int cableEnd, unsigned int clock ) {
 
       unsigned int mult = 0;

@@ -18,10 +18,6 @@
  **/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/Bootstrap.h"
-
 #include <stdint.h>
 
 class MdtMezzanineType;
@@ -43,7 +39,7 @@ class MdtAmtMap {
   MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t channel, 
 	    int station, int eta, int phi, 
 	    int multiLayer, int layerZero, int tubeZero, 
-	    const MdtIdHelper* helper, std::shared_ptr<MsgStream> ext_log);
+	    const MdtIdHelper* helper, MsgStream &ext_log);
 
   /** destructor */
   ~MdtAmtMap()=default;
@@ -52,33 +48,33 @@ class MdtAmtMap {
   //bool setMultiLayer(uint8_t multiLayer) {m_multiLayer = multiLayer;}
 
   /** add a channel */
-  bool setChannel(uint8_t channel, uint8_t layer, uint8_t tube);
+  bool setChannel(uint8_t channel, uint8_t layer, uint8_t tube, MsgStream& log);
 
   /** retrieve the full information */
   bool offlineId(uint8_t channel, int& station, int& eta, int& phi, 
-		 int& multilayer, int& layer, int& tube);
+		 int& multilayer, int& layer, int& tube, MsgStream& log);
 
   /** get the mezzanine type */
-  uint8_t mezzanineType() {return m_mezType;}
+  uint8_t mezzanineType() const {return m_mezType;}
  
   /** return the tdc id */
-  uint8_t moduleId() {return m_moduleId;}
+  uint8_t moduleId() const {return m_moduleId;}
 
   /** get the multilayer (independent of the channel) */
-  int multiLayer() {return m_multiLayer;} 
+  int multiLayer() const {return m_multiLayer;} 
 
   /** get the layer number */
-  int layer(uint8_t channel) {return m_layer[channel];}
+  int layer(uint8_t channel) const{return m_layer[channel];}
 
   /** get the tube number */
-  int tube(uint8_t channel) {return m_tube[channel];}
+  int tube(uint8_t channel) const {return m_tube[channel];}
 
  private:
   
   /** Private functions */
 
   /** initialize the channel-to-tube map */
-  bool initMap(const MdtMezzanineType* mezType, uint8_t channel, int layerZero, int tubeZero);
+  bool initMap(const MdtMezzanineType* mezType, uint8_t channel, int layerZero, int tubeZero, MsgStream& log);
 
 
   uint8_t m_moduleId;
@@ -88,18 +84,13 @@ class MdtAmtMap {
   int m_eta;
   int m_phi;
   int m_multiLayer;
-  int m_layer[CHANMAX];
-  int m_tube[CHANMAX];
+  int m_layer[CHANMAX]{};
+  int m_tube[CHANMAX]{};
 
   /** mezzanine type */
   uint8_t m_mezType;
 
-  /** Output level and message service */
-  bool m_debug;
-  std::shared_ptr<MsgStream> m_log;
-
   const MdtIdHelper* m_mdtIdHelper;
-
 };
 
 #endif   // MUONMDT_CABLING_MDTAMTMAP_H

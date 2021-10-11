@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/AuxTypeRegistry.h
@@ -86,6 +86,14 @@ public:
    * @brief Return the singleton registry instance.
    */
   static AuxTypeRegistry& instance();
+
+
+  /**
+   * @brief Return the total number of registered auxiliary variable.
+   *
+   * (This will be one more than the current largest auxid.)
+   */
+  size_t numVariables() const;
 
 
   /**

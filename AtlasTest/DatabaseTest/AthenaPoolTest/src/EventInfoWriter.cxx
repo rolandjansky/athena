@@ -28,7 +28,7 @@ EventInfoWriter::EventInfoWriter(const std::string &name,
         m_createDummyTags(false),
         m_removeDummyTags(false),
         m_createDummyOverrideTags(false),
-        m_tagInfoMgr(0)
+        m_tagInfoMgr(nullptr)
 {
     declareProperty("CreateDummyTags", m_createDummyTags);
     declareProperty("RemoveDummyTags", m_removeDummyTags);
@@ -78,7 +78,7 @@ StatusCode EventInfoWriter::execute()
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("EventInfoWriter::execute()");
 
-    const EventInfo * evt = 0;
+    const EventInfo * evt = nullptr;
     if (evtStore()->retrieve( evt ).isFailure() ) {
  	ATH_MSG_ERROR("  Could not get event info");      
  	return StatusCode::FAILURE;

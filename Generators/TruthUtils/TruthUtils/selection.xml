@@ -1,0 +1,6 @@
+<lcgdict>
+  <function name="MC::weightNameCleanup" />
+  <function name="MC::weightNameWithPrefix" />
+
+  <struct name="MC::ROOT6_NamespaceAutoloadHook" />
+</lcgdict>

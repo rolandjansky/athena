@@ -29,7 +29,8 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
 
     def __init__(self,name='MuPatCandidateTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
-        if not MuonGeometryFlags.hasCSC():
+        reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+        if not reco_cscs:
             kwargs["CscRotCreator"] = ""
         super(MuPatCandidateTool,self).__init__(name,**kwargs)        
 
@@ -38,8 +39,10 @@ class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
     __slots__ = ()
     
     def __init__(self,name="MuPatHitTool",**kwargs):
+        reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+  
         self.applyUserDefaults(kwargs,name)
-        if not muonRecFlags.doCSCs():
+        if not reco_cscs:
             # overwrite whatever is set
             kwargs["CscRotCreator"] = ""
         super(MuPatHitTool,self).__init__(name,**kwargs)
@@ -47,7 +50,7 @@ class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
 
 
 MuPatHitTool.setDefaultProperties(
-    CscRotCreator = ("FixedErrorMuonClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""),
+    CscRotCreator = ("FixedErrorMuonClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() and  muonRecFlags.doCSCs() else ""),
     MdtRotCreator = "MdtDriftCircleOnTrackCreatorPreFit" )
 # end of class MuPatHitTool
 

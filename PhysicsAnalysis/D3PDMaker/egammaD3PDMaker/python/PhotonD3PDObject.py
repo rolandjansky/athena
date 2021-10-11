@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file egammaD3PDMaker/python/PhotonD3PDObject.py
@@ -194,12 +194,12 @@ PhotonD3PDObject.defineBlock (
     1, 'Iso',
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['rphiallcalo = r33over37allcalo',
-            'Etcone20 = etcone20',
-            'Etcone30 = etcone30',
-            'Etcone40 = etcone40',
-            'ptcone20',
-            'ptcone30',
-            'ptcone40',
+            'Etcone20 = etcone20 < float: 0',
+            'Etcone30 = etcone30 < float: 0',
+            'Etcone40 = etcone40 < float: 0',
+            'ptcone20 < float: 0',
+            'ptcone30 < float: 0',
+            'ptcone40 < float: 0',
         ])
 PhotonD3PDObject.defineBlock (
     2, 'IsoPtCorrected',
@@ -423,50 +423,3 @@ PhotonTopoD3PDAssoc.defineBlock (2, 'TopoKinematics',
 # PhotonTopoEMD3PDAssoc.defineBlock (2, 'TopoEMKinematics',
 #                                    EventCommonD3PDMaker.FourMomFillerTool,
 #                                    WriteM = False)
-
-
-############################################################################
-# Trigger matching
-#
-
-# if D3PDMakerFlags.DoTrigger():
-
-#     defineTriggerBits (PhotonD3PDObject, 0,
-#                        ['EF_g20_loose',
-#                         ])
-#     defineTriggerBits (PhotonD3PDObject, 1,
-#                        D3PDMakerFlags.egammaL1TrigPattern())
-#     defineTriggerBits (PhotonD3PDObject, 1,
-#                        D3PDMakerFlags.PhotonL2TrigPattern())
-#     defineTriggerBits (PhotonD3PDObject, 1,
-#                        D3PDMakerFlags.PhotonEFTrigPattern())
-
-
-#     ### Matching indices.
-    
-#     PhotonEFIndexAssoc = IndexAssociation(
-#         PhotonD3PDObject,
-#         egammaD3PDMaker.egammaEFPhotonTriggerObjectAssociationTool,
-#         target = "trig_EF_ph_", prefix = "EF_", level = 1,
-#         blockname = "EFIndex",
-#         ChainPattern = D3PDMakerFlags.PhotonEFTrigPattern(),
-#         MaxDR = 0.15,
-#         allowMissing = True )
-    
-#     PhotonL2IndexAssoc = IndexAssociation(
-#         PhotonD3PDObject,
-#         egammaD3PDMaker.PhotonL2TriggerObjectAssociationTool,
-#         target = "trig_L2_ph_", # For IndexAssociation.
-#         prefix = "L2_", level = 1,
-#         blockname = "L2Index",
-#         ChainPattern = D3PDMakerFlags.PhotonL2TrigPattern(),
-#         MaxDR = 0.15,
-#         allowMissing = True )
-    
-#     PhotonL1IndexAssoc = IndexAssociation(
-#         PhotonD3PDObject,
-#         egammaD3PDMaker.egammaL1TriggerObjectAssociationTool,
-#         target = "trig_L1_emtau_", prefix = "L1_", level = 1,
-#         ChainPattern = D3PDMakerFlags.egammaL1TrigPattern(),
-#         MaxDR = 0.15,
-#         blockname = "L1Index")

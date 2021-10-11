@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArAccumulatedDigits2Ntuple.h"
@@ -114,22 +114,19 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
  
  if (accuDigitContainer) { 
    
-   LArAccumulatedDigitContainer::const_iterator it=accuDigitContainer->begin();
-   LArAccumulatedDigitContainer::const_iterator it_e=accuDigitContainer->end();
-
-    if(it == it_e) {
-      ATH_MSG_DEBUG( "LArAccumulatedDigitContainer with key=" << m_contKey << " is empty " );
-      return StatusCode::SUCCESS;
-    }else{
-      ATH_MSG_DEBUG( "LArAccumulatedDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
-    }
+   if(accuDigitContainer->empty()) {
+     ATH_MSG_DEBUG( "LArAccumulatedDigitContainer with key=" << m_contKey << " is empty " );
+     return StatusCode::SUCCESS;
+   }else{
+     ATH_MSG_DEBUG( "LArAccumulatedDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
+   }
 
    unsigned cellCounter=0;
-   for (;it!=it_e;it++) {
+   for (const LArAccumulatedDigit* digit : *accuDigitContainer) {
 
      m_IEvent=m_event;
-     m_Ntrigger = (*it)->nTrigger();
-     unsigned int trueMaxSample = (*it)->nsample();
+     m_Ntrigger = digit->nTrigger();
+     unsigned int trueMaxSample = digit->nsample();
      m_ntNsamples = trueMaxSample;
 
      //     std::cout << "trigger = " << m_Ntrigger << ", samples = "<< m_ntNsamples << std::endl;
@@ -142,21 +139,21 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
 
-     m_mean = (*it)->mean();
-     m_rms  = (*it)->RMS();
-     const std::vector<uint64_t> sampleSquare = (*it)->sampleSquare();
-     const std::vector<uint64_t> sampleSum    = (*it)->sampleSum();
+     m_mean = digit->mean();
+     m_rms  = digit->RMS();
+     const std::vector<uint64_t> sampleSquare = digit->sampleSquare();
+     const std::vector<uint64_t> sampleSum    = digit->sampleSum();
      for(unsigned i=0;i<trueMaxSample;i++) {
        m_sumsq[i] = sampleSquare[i];
        m_sum[i]   = sampleSum[i];
      }
      std::vector<float> cov;
-     (*it)->getCov(cov,m_normalize);
+     digit->getCov(cov,m_normalize);
      for(unsigned i=0;i<trueMaxSample-1;i++) {
        m_covr[i] = cov[i];
      }
 
-     fillFromIdentifier((*it)->hardwareID());      
+     fillFromIdentifier(digit->hardwareID());      
      sc=ntupleSvc()->writeRecord(m_nt);
      if (sc!=StatusCode::SUCCESS) {
        ATH_MSG_ERROR( "writeRecord failed" );

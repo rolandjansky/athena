@@ -14,7 +14,10 @@ monitoring_bjet      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S
                         "E_HLT_j360_subjesgscIS_ftf_bdl1r77_split_L1J100","E_HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20",
                         "E_HLT_j275_pf_subjesgscIS_ftf_bdl1r60_split_L1J100","E_HLT_j275_pf_subjesgscIS_ftf_boffperf_split_L1J100",
                         "E_HLT_j300_pf_subjesgscIS_ftf_bdl1r70_split_L1J100","E_HLT_j360_pf_subjesgscIS_ftf_bdl1r77_split_L1J100","E_HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20",
-                        "E_HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20"]
+                        "E_HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20",
+                        "E_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
+                        "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100",
+                        "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100"]
 
 monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
                         "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
@@ -27,7 +30,10 @@ monitoring_bjet_pp      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split"
                            "E_HLT_j360_subjesgscIS_ftf_bdl1r77_split_L1J100","E_HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20",
                            "E_HLT_j275_pf_subjesgscIS_ftf_bdl1r60_split_L1J100","E_HLT_j275_pf_subjesgscIS_ftf_boffperf_split_L1J100",
                            "E_HLT_j300_pf_subjesgscIS_ftf_bdl1r70_split_L1J100","E_HLT_j360_pf_subjesgscIS_ftf_bdl1r77_split_L1J100","E_HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20",
-                           "E_HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20"]
+                           "E_HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20",
+                           "E_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
+                           "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100",
+                           "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100"]
 
 
 monitoring_mujet_pp  = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
@@ -55,7 +61,10 @@ monitoring_bjet_validation = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_spl
                               "E_HLT_j360_subjesgscIS_ftf_bdl1r77_split_L1J100","E_HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20",
                               "E_HLT_j275_pf_subjesgscIS_ftf_bdl1r60_split_L1J100","E_HLT_j275_pf_subjesgscIS_ftf_boffperf_split_L1J100",
                               "E_HLT_j300_pf_subjesgscIS_ftf_bdl1r70_split_L1J100","E_HLT_j360_pf_subjesgscIS_ftf_bdl1r77_split_L1J100","E_HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20",
-                              "E_HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20"]
+                              "E_HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20",
+                              "E_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
+                              "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100",
+                              "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100"]
 
 
 

@@ -99,7 +99,7 @@ namespace met {
   StatusCode METTauAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
-
+    
     SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_tauContKey);
     if (!tauCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input tau container " << m_input_data_key);
@@ -182,6 +182,11 @@ namespace met {
       else {
         const TrackParticle* pfotrk = pfo->track(0);
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
+          static const SG::AuxElement::Accessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
+          if (!(trackAcc(*ttrk)[0])){
+            ATH_MSG_DEBUG("skipping thinned track");
+            continue;
+          }
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
             ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
@@ -274,6 +279,10 @@ namespace met {
                                          const met::METAssociator::ConstitHolder& constits) const
   {
     //const TauJet* tau = static_cast<const TauJet*>(obj);
+    if(!tau->jetLink().isValid()){
+      ATH_MSG_ERROR("Tau seed jet link is invalid. Cannot extract FlowElements.");
+      return StatusCode::FAILURE;
+    }
     const Jet* seedjet = *tau->jetLink();
     TLorentzVector momentum;
     for(const xAOD::FlowElement* pfo : *constits.feCont) {

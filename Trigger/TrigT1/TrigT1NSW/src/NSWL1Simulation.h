@@ -22,7 +22,14 @@
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
 
+#include "MuonRDO/NSW_PadTriggerDataContainer.h"
+#include "TrigT1NSWSimTools/PadTriggerAdapter.h"
+
+#include "xAODEventInfo/EventInfo.h"
+
 // Forward includes
+class StoreGateSvc;
+class IMonitorToolBase;
 class TTree;
 
 
@@ -42,7 +49,7 @@ namespace NSWL1 {
    * or the detailed hardware simulation.
    *
    *  @authors Alessandro Di Mattia <dimattia@cern.ch>, Geraldine Conti <geraldine.conti@cern.ch>
-   *
+   *  Major updates for Release 22 processing: Francesco Giuseppe Gravili <francesco.giuseppe.gravili@cern.ch>
    *
    */
 
@@ -74,7 +81,7 @@ namespace NSWL1 {
     ToolHandle < IStripClusterTool >     m_strip_cluster;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IStripSegmentTool >     m_strip_segment;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IMMStripTdsTool >       m_mmstrip_tds;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink                                                   
-    ToolHandle < IMMTriggerTool >        m_mmtrigger;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink                                                   
+    ToolHandle < IMMTriggerTool >        m_mmtrigger;       //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
 
     // put analysis variables here
     TTree*       m_tree;                                    //!< analysis ntuple
@@ -87,12 +94,14 @@ namespace NSWL1 {
     bool        m_useLookup;
     bool        m_doNtuple;                                 //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink 
+    bool        m_doMMDiamonds;                             //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     
     
     protected:
+    SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey{this,"xAODEventInfoKey","EventInfo","Key of xAOD::EventInfo"};
     SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-    
+    SG::WriteHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerRdoKey;
 
   };  // end of NSWL1Simulation class
 

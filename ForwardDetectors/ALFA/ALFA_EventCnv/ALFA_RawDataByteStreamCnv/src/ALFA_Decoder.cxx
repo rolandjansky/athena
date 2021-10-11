@@ -124,7 +124,6 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 
   uint16_t tmpADC1=10000;
   uint16_t tmpADC2=10000;
-  std::vector<bool> tmpPattern;
   uint16_t tmpScaler=100;
 
   std::vector<bool> tmpLvl1Pattern;
@@ -455,7 +454,7 @@ StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 
 		      if(m_ALFA_RawDataReadOut->WordId()==0)
 			{
-			  tmpPattern=m_ALFA_RawDataReadOut->pattern();
+			  const auto& tmpPattern=m_ALFA_RawDataReadOut->pattern();
 			  if(collection) collection->Set_pattern_POT(tmpPattern);
 
 			  // 			  // TEST of the readed trigger pattern

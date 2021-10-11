@@ -43,10 +43,6 @@ atlas_add_test( MsgStreamMember_test
    LOG_IGNORE_PATTERN "^Wall clock time |ref count"
    LINK_LIBRARIES TestTools AthenaKernel )
 
-atlas_add_test( AthenaPackageInfo_test
-   SOURCES test/AthenaPackageInfo_test.cxx
-   LINK_LIBRARIES AthenaKernel )
-
 atlas_add_test( DirSearchPath_test
    SOURCES test/DirSearchPath_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}

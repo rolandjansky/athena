@@ -18,7 +18,13 @@ namespace LVL1 {
 
     DeclareInterfaceID( ITrigThresholdDecisionTool, 1, 0);
 
-    virtual std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > getThresholdDecisions(const unsigned& dataWord) const = 0;
+    virtual std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >
+    getThresholdDecisions(uint32_t dataWord,
+                          const EventContext& eventContext) const = 0;
+    virtual std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >
+    getThresholdDecisions(uint32_t dataWord,
+                          const std::vector<std::shared_ptr<TrigConf::L1Threshold>>& menuThresholds,
+                          const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const = 0;
     virtual std::pair<std::string, double> getMinThresholdNameAndValue(const std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> >& decisions,
 								       const double& eta = 0) const = 0;
 

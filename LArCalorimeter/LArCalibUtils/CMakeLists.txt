@@ -16,7 +16,7 @@ atlas_add_component( LArCalibUtils
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${TBB_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaKernel StoreGateLib Identifier GaudiKernel LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRawUtilsLib LArRecConditions LArRecUtilsLib LArCablingLib TBEvent CaloDetDescrLib AthenaPoolUtilities xAODEventInfo LArBadChannelToolLib LArCOOLConditions LArSimEvent TrigAnalysisInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${TBB_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaKernel StoreGateLib Identifier GaudiKernel LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRawUtilsLib LArRecConditions LArRecUtilsLib LArCablingLib TBEvent CaloDetDescrLib AthenaPoolUtilities xAODEventInfo LArBadChannelToolLib LArCOOLConditions LArSimEvent LumiBlockData )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

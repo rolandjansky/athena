@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/BadLArRetriever.h"
@@ -11,7 +11,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannel.h"
@@ -31,13 +30,11 @@ namespace JiveXML {
   BadLArRetriever::BadLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("BadLAr"),
-    m_calocell_id(nullptr)
+    m_calocell_id(nullptr),
+    m_sgKey ("AllCalo")
   {
-
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
-
-    m_sgKey = "AllCalo"; 
 
     declareInterface<IDataRetriever>(this);
     declareProperty("StoreGateKey" , m_sgKey);
@@ -125,7 +122,7 @@ namespace JiveXML {
 
       ATH_MSG_DEBUG( "Start iterator loop over cells"  );
       
-      for(;it1!=it2;it1++){
+      for(;it1!=it2;++it1){
 
 	if( !(*it1)->badcell() ) continue;
 	//if( (*it1)->energy() < m_cellThreshold) continue;

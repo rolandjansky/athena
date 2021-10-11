@@ -18,47 +18,47 @@
 namespace InDetDD {
 
   /**
-   *  
+   *
    * @class SiDetectorElement
    *
-   * Class to hold geometrical description of a silicon detector element. 
+   * Class to hold geometrical description of a silicon detector element.
    * A detector element is a module in the pixels and one side of a module in the SCT.
    * This class is shared between the Pixel and SCT detector since there is a lot of commonality.
    * It inherits frm ReadoutGeometryBase/SolidStateDetectorElement, which is also used for HGTD
-   * 
+   *
    * @par Coordinate Frames.
    *
    * The following coordinate frames are used in these elements.
    *
    * - Global frame:\n
    * Currently global frame in G4/GeoModel. Probably eventually
-   * will be global frame most suitable for reconstruction 
+   * will be global frame most suitable for reconstruction
    * (eg solenoid axis).
    *
-   * - Local hit frame:\n 
-   * Local frame for hits. It is the same as local frame in G4 and GeoModel. 
-   * I also refer to this as the local simulation frame. 
+   * - Local hit frame:\n
+   * Local frame for hits. It is the same as local frame in G4 and GeoModel.
+   * I also refer to this as the local simulation frame.
    * By convention elements are orientated such that:
    * - hitDepth = local x
    * - hitPhi   = local y
    * - hitEta   = local z
-   * . 
-   * Directions of these correspond to the physical wafer. Consequently hitDepth and hitPhi axes go in 
+   * .
+   * Directions of these correspond to the physical wafer. Consequently hitDepth and hitPhi axes go in
    * different directions depending on the orientation of the module.
-   * The readout side is determined from design()->readoutSide(). 
+   * The readout side is determined from design()->readoutSide().
    *
-   * - Local reconstruction frame:\n 
+   * - Local reconstruction frame:\n
    * - distPhi  = local x
-   * - distEta  = local y  
+   * - distEta  = local y
    * - distDepth = local z
    * .
    * The directions of the axes are defined as
    * - distPhi in direction of increasing phi
    * - distEta in direction of increasing z in barrel and increasing r in endcap.
-   * - distDepth (normal) choosen to give right-handed coordinate. 
+   * - distDepth (normal) choosen to give right-handed coordinate.
    * =>  away from intersection point for barrel, decreasing z for endcap
-   * 
-   * @par Overview of Methods 
+   *
+   * @par Overview of Methods
    *
    * Methods are grouped into the the following categories
    *
@@ -75,7 +75,7 @@ namespace InDetDD {
    *
    * @author Grant Gorfine
    * - modified & maintained: Nick Styles, Andreas Salzburger
-   * - modified Nigel Hessey: get directions from the design instead of hard-wiring them   
+   * - modified Nigel Hessey: get directions from the design instead of hard-wiring them
    *
    * @par Some notes on Thread safety for  AthenaMT
    *
@@ -105,26 +105,26 @@ namespace InDetDD {
    * can be done via write/read handles or similar EventContext aware
    * framework machinery.
    */
- 
+
 
   class SiDetectorElement final : public InDetDD::SolidStateDetectorElementBase {
 
   public:
-    
+
     /**
      * Constructor with parameters
      */
-    SiDetectorElement(const Identifier& id, 
+    SiDetectorElement(const Identifier& id,
                       const SiDetectorDesign* design,
                       const GeoVFullPhysVol* geophysvol,
                       const SiCommonItems* commonItems,
                       const GeoAlignmentStore* geoAlignStore=nullptr);
-    
+
     /**
      * Destructor
      */
     virtual ~SiDetectorElement();
-    
+
     /**
      * Don't allow no-argument constructor
      */
@@ -137,7 +137,7 @@ namespace InDetDD {
 
     /**
      * Don't allow assignment operator
-     */ 
+     */
     SiDetectorElement& operator=(const SiDetectorElement&) = delete;
 
     /**
@@ -185,9 +185,9 @@ namespace InDetDD {
     /**
      * @name Identification
      * Methods to identify the element and identifier manipulation.
-     */ 
+     */
     //@{
-    
+
     bool isPixel() const;
     bool isSCT() const;
     bool isDBM() const;
@@ -201,12 +201,12 @@ namespace InDetDD {
      * Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
      * Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
      */
-    Identifier identifierFromCellId(const SiCellId &cellId) const;
+    virtual Identifier identifierFromCellId(const SiCellId &cellId) const override final;
     /**
      * SiCellId from Identifier
      */
-    SiCellId cellIdFromIdentifier(const Identifier& identifier) const;
-      
+    virtual SiCellId cellIdFromIdentifier(const Identifier& identifier) const override final;
+
     //@}
 
     /**
@@ -270,9 +270,9 @@ namespace InDetDD {
 
     /**
      * @name Element Extent
-     *  Methods to get extent of element in r,phi and z.  
+     *  Methods to get extent of element in r,phi and z.
      */
-    double get_rz() const;
+    virtual double get_rz() const override final;
     //@}
 
     /**
@@ -292,7 +292,7 @@ namespace InDetDD {
      * at given global position
      */
     double sinTilt(const Amg::Vector3D& globalPosition) const;
-    
+
     /**
      * Compute sin(stereo angle) at a given position: at center
      */
@@ -305,9 +305,9 @@ namespace InDetDD {
      * at given global position
      */
     double sinStereo(const Amg::Vector3D& globalPosition) const;
-    
+
     /**
-     * Angle of strip in local frame with respect to the etaAxis. 
+     * Angle of strip in local frame with respect to the etaAxis.
      * Zero for all elements except trapezoidal detectors (ie SCT forward modules).
      */
     double sinStereoLocal(const Amg::Vector2D& localPos) const;
@@ -315,24 +315,24 @@ namespace InDetDD {
      * See previous method
      */
     double sinStereoLocal(const Amg::Vector3D& globalPos) const;
-    
+
     /**
      * Check if it is the stereo side (useful for SCT)
      */
     bool isStereo() const;
-    
+
     //@}
-    
-    
+
+
     /**
      * @name Design methods
      */
     //@{
-    
+
     /**
      * access to the local description (inline):
      */
-    const SiDetectorDesign& design() const;
+    virtual const SiDetectorDesign& design() const override final;
 
     /**
      * Pitch (inline methods)
@@ -345,7 +345,7 @@ namespace InDetDD {
      * phiPitch:  For SCT Forward returns pitch at center.\n
      * etaPitch:  For pixel returns average pitch. (Active_length/number_of_cells)\n
      *
-     * All return pitch in distance units. 
+     * All return pitch in distance units.
      */
 
     double phiPitch() const;
@@ -371,7 +371,7 @@ namespace InDetDD {
     bool swapEtaReadoutDirection() const;
 
     //@}
-    
+
     /**
      * @name Intersection Tests
      */
@@ -380,19 +380,19 @@ namespace InDetDD {
      * Test if near bond gap within tolerances
      */
     bool nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const;
-    bool nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const; 
-    
+    bool nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const;
+
     /**
      * If cell is ganged return the id of the other cell which shares the readout
      * for this cell, otherwise return an invalid id.
-     * This is a more convenient (and slightly faster) alternative than 
+     * This is a more convenient (and slightly faster) alternative than
      * using the above two methods.
      * Only relevant for pixel. For SCT always returns an invalid ID. (inline)
      */
     SiCellId gangedCell(const SiCellId& cellId) const;
-    
+
     //@}
-    
+
     /**
      * @name Miscellaneous
      */
@@ -403,7 +403,11 @@ namespace InDetDD {
      */
     std::pair<Amg::Vector3D,Amg::Vector3D> endsOfStrip(const Amg::Vector2D& position) const;
     //@}
-    
+
+     /** TrkDetElementBase interface detectorType
+     */
+     virtual Trk::DetectorElemType detectorType() const override final;
+
   private:
     /**
      * @name Private Methods
@@ -419,13 +423,13 @@ namespace InDetDD {
     /**
      * Recalculate cached values.
      */
-    void updateCache() const;
-   
+    virtual void updateCache() const override final;
+
     /**
      * Determine m_isStereo variable and m_stereoCacheValid variable.
      */
     void determineStereo() const;
-    
+
     /**
      * Private implementation method with no lock at center
      */
@@ -434,7 +438,7 @@ namespace InDetDD {
      * Private implementation method with no lock at given global position
      */
     double sinStereoImpl(const Amg::Vector3D& globalPosition) const;
-    
+
     /**
      * Protected data:
      */
@@ -444,7 +448,7 @@ namespace InDetDD {
      * @name Variables for cache validities
      */
     //@{
- 
+
     /**
      * Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
      */
@@ -518,15 +522,15 @@ namespace InDetDD {
      * Declaring the Message method for further use (inline)
      */
     MsgStream& msg(MSG::Level lvl) const;
-    
+
     /**
      * Declaring the Method providing Verbosity Level (inline)
      */
     bool msgLvl(MSG::Level lvl) const;
     //@}
-    
+
   };
-    
+
 } // namespace InDetDD
 
 /**

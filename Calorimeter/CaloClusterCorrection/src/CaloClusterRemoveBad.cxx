@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // include header files
@@ -78,7 +78,7 @@ CaloClusterRemoveBad::execute (const EventContext& /*ctx*/,
       continue ; 
     }
 
-    iter1++;
+    ++iter1;
 
   } 
   ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endmsg);

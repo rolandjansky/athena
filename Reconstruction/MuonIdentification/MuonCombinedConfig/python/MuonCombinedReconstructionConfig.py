@@ -278,7 +278,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
-    # if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    # if not flags.Muon.MuonTrigger:
     #     recordMuonCreatorAlgObjs (kwargs)
     acc = MuonCreatorAlgCfg(flags, name,**kwargs)
     result.merge(acc)
@@ -311,8 +311,14 @@ def MuonCombinedReconstructionCfg(flags):
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     result.merge(TRT_GeometryCfg(flags))
 
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    result.merge(TrackingGeometrySvcCfg(flags))
+# @TODO retire once migration to TrackingGeometry conditions data is complete
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg :
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+        result.merge( TrackingGeometryCondAlgCfg(flags) )
+    else :
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        result.merge( TrackingGeometrySvcCfg(flags) )
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
@@ -379,9 +385,6 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryPixel = True 
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True  
-    ConfigFlags.Detector.RecoPixel = True 
-    ConfigFlags.Detector.RecoSCT   = True 
-    ConfigFlags.Detector.RecoTRT   = True 
     ConfigFlags.Output.ESDFileName=args.output
 
     if args.debug:
@@ -399,7 +402,7 @@ if __name__=="__main__":
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True, clustersname="CaloTopoClusters"))
+    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     

@@ -53,7 +53,7 @@ if not 'FullFileName' in dir():
       if (int(RunNumberList[0]))<99800 :
          Trigger = "*"+Partition
       else :
-         Trigger = "calibration_LArElec-Ramp"+".*"+Partition   
+         Trigger = "calibration_LArElec-Ramp"+".*"
    
    FullFileName = []
    for RunNumber in RunNumberList :
@@ -64,7 +64,7 @@ if not 'GainList' in dir():
    
 if not 'GroupingType' in dir():
    if not SuperCells: GroupingType = "ExtendedSubDetector"
-   if SuperCells:     GroupingType = "ExtendedFeedThrough"
+   if SuperCells:     GroupingType = "SuperCells"
 
         
 if not 'ChannelSelection' in dir():
@@ -326,9 +326,10 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
 LArOnOffIdMapping()
 if SuperCells:
-  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC,LArLATOMEMappingSC
   LArOnOffIdMappingSC()
   LArCalibIdMappingSC()
+  LArLATOMEMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -380,7 +381,6 @@ if ( runAccumulator ):
       from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
 
       theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-      theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
       theLArLATOMEDecoder.DumpFile = SC_DumpFile
       theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
       from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
@@ -390,15 +390,22 @@ if ( runAccumulator ):
       larRawSCDataReadingAlg.etCollKey = ""
       larRawSCDataReadingAlg.etIdCollKey = ""
       larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
-      larRawSCDataReadingAlg.OutputLevel = DEBUG
+      larRawSCDataReadingAlg.OutputLevel = WARNING
       topSequence += larRawSCDataReadingAlg
-   include("./LArCalib_CalibrationPatterns.py")
+   else:
+      from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+ 
+      theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+      theLArRawCalibDataReadingAlg.LArDigitKey=Gain
+      theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+      topSequence+=theLArRawCalibDataReadingAlg
+   include("./LArCalib_CalibrationPatterns_"+str(IOVBegin)+".py")
 
 else:
    from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
 
    theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
-   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
+   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=Gain
    theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
    topSequence+=theLArRawCalibDataReadingAlg
       
@@ -416,9 +423,9 @@ from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RampLog.info( "Read Bad Channels from Oracle DB")
@@ -583,46 +590,29 @@ if ( len(PoolFileList)>0 ):
    ServiceMgr.CondProxyProvider.InputCollections += PoolFileList
 
 if ( StripsXtalkCorr ) :
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
    from LArCalibUtils.LArCalibUtilsConf import LArStripsCrossTalkCorrector
    theLArStripsCrossTalkCorrector = LArStripsCrossTalkCorrector()
    theLArStripsCrossTalkCorrector.KeyList = GainList
    theLArStripsCrossTalkCorrector.ADCsaturation = ADCsaturation
-   theLArStripsCrossTalkCorrector.NoXtalkCorr=LArBadChannelMasker("NoXtalkCorr",
-                                                                  DoMasking=True,
-                                                                  ProblemsToMask=["deadReadout","deadPhys","deadCalib","almostDead"]
-                                                               )
-   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=LArBadChannelMasker("DontUseForXtalkCorr",
-                                                                          DoMasking=True,
-                                                                          ProblemsToMask=["short","peculiarCalibrationLine","deadReadout"]
-                                                                          )
+   theLArStripsCrossTalkCorrector.NoXtalkCorr=["deadReadout","deadPhys","deadCalib","almostDead"]
+   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=["short","peculiarCalibrationLine","deadReadout"]
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent
    topSequence +=theLArStripsCrossTalkCorrector
 
-
-
-#Bad-channel mask used by the LArRampBuilder and the Ramp-patcher
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-theLArRCBMasker.DoMasking=True
-theLArRCBMasker.ProblemsToMask=[
-   "deadCalib","deadReadout","deadPhys","almostDead","short" 
-   ]
-ToolSvc+=theLArRCBMasker
 
 
 from LArCalibUtils.LArCalibUtilsConf import LArRampBuilder
 theLArRampBuilder = LArRampBuilder()
 theLArRampBuilder.KeyList      = GainList
 theLArRampBuilder.SubtractDac0 = False
-theLArRampBuilder.BadChannelMask=theLArRCBMasker
+theLArRampBuilder.ProblemsToMask=["deadCalib","deadReadout","deadPhys","almostDead","short"]
 
 if ( PeakOF ):
     theLArRampBuilder.RecoType = "OF"
     from LArRecUtils.LArRecUtilsConf import LArOFPeakRecoTool
     theLArOFPeakRecoTool=LArOFPeakRecoTool()
     theLArOFPeakRecoTool.UseShape = False
-    ToolSvc+=theLArOFPeakRecoTool
+    theLArRampBuilder.PeakOFTool=theLArOFPeakRecoTool
 else :
     theLArRampBuilder.RecoType = "Parabola"
     from LArRecUtils.LArRecUtilsConf import LArParabolaPeakRecoTool
@@ -639,15 +629,13 @@ theLArRampBuilder.Polynom      = 1
 theLArRampBuilder.RampRange    = RampRangeValue # Check on the raw data ADC sample before ped subtraction
                                                 # and pulse reconstruction to include point in fit
 theLArRampBuilder.correctBias  = CorrectBias
-theLArRampBuilder.ConsecutiveADCs = 0;
 theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
 theLArRampBuilder.KeyOutput = KeyOutput
 theLArRampBuilder.DeadChannelCut = -9999
 theLArRampBuilder.GroupingType = GroupingType
 
-theLArRampBuilder.LongNtuple = SaveAllSamples
-
 theLArRampBuilder.isSC = SuperCells
+
 
 if ( isHEC ) :
    theLArRampBuilder.isHEC = isHEC
@@ -668,7 +656,7 @@ if CorrectBadChannels:
    theLArRampPatcher.ContainerKey=KeyOutput
    theLArRampPatcher.PatchMethod="PhiAverage"
    
-   theLArRampPatcher.MaskingTool=theLArRCBMasker
+   theLArRampPatcher.ProblemsToPatch=["deadCalib","deadReadout","deadPhys","almostDead","short"]
    theLArRampPatcher.UseCorrChannels=False      
    topSequence+=theLArRampPatcher
 
@@ -707,19 +695,13 @@ if ( ApplyAdHocCorrection ):
 ######################################################################
 
 if ( doLArCalibDataQuality  ) :
-   from LArCalibDataQuality.Thresholds import rampThr, rampThrFEB
    from LArCalibDataQuality.LArCalibDataQualityConf import LArRampValidationAlg
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArRampValBCMask=LArBadChannelMasker("RampValBCMask",
-                                           DoMasking=True,
-                                           ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
-                                                           "highNoiseHG","highNoiseMG","highNoiseLG"]
-                                           )
-   ServiceMgr.ToolSvc+=theLArRampValBCMask
+   from LArCalibDataQuality.Thresholds import rampThr, rampThrFEB
    theRampValidationAlg=LArRampValidationAlg("RampVal")
    theRampValidationAlg.RampTolerance=rampThr
    theRampValidationAlg.RampToleranceFEB=rampThrFEB
-   theRampValidationAlg.BadChannelMaskingTool=theLArRampValBCMask
+   theRampValidationAlg.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                        "highNoiseHG","highNoiseMG","highNoiseLG"]
    theRampValidationAlg.KeyList=GainList
    theRampValidationAlg.PatchMissingFEBs=True
    theRampValidationAlg.UseCorrChannels=False 
@@ -734,7 +716,8 @@ if ( doLArCalibDataQuality  ) :
 
    ## second instance of the validation tool to detect "bad" channel 
    theBadRamp=LArRampValidationAlg("RampFail")
-   theBadRamp.BadChannelMaskingTool=theLArRampValBCMask
+   theBadRamp.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                              "highNoiseHG","highNoiseMG","highNoiseLG"]
    theBadRamp.RampTolerance=["0.05,0.05,0.05"]
    theBadRamp.RampToleranceFEB=["0.05,0.05,0.05"]
    theBadRamp.KeyList=GainList
@@ -774,7 +757,7 @@ if ( doMonitoring ) :
       os.remove(OutputRampRootFileDir+ "/" +RootHistOutputFileName)
    ServiceMgr += THistSvc()
 
-   ServiceMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputRampRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
+   #ServiceMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputRampRootFileDir+ "/" +RootHistOutputFileName+"' OPT='NEW'"]
    
 if WriteNtuple or doMonitoring:
 
@@ -829,21 +812,16 @@ if (WriteNtuple):
       from LArCalibTools.LArCalibToolsConf import LArAverages2Ntuple
       
       if not SuperCells:
-         LArAverages2NtupleHIGH=LArAverages2Ntuple("LArAverages2NtupleHIGH")
-         LArAverages2NtupleHIGH.ContainerKey = "HIGH"
-         topSequence+= LArAverages2NtupleHIGH
-         
-         LArAverages2NtupleMEDIUM=LArAverages2Ntuple("LArAverages2NtupleMEDIUM")
-         LArAverages2NtupleMEDIUM.ContainerKey = "MEDIUM"
-         topSequence+= LArAverages2NtupleMEDIUM
-
-         LArAverages2NtupleLOW=LArAverages2Ntuple("LArAverages2NtupleLOW")
-         LArAverages2NtupleLOW.ContainerKey = "LOW"
-         topSequence+= LArAverages2NtupleLOW
-      
+         for g in GainList:
+            LArAverages2Ntuple=LArAverages2Ntuple("LArAverages2Ntuple"+g)
+            LArAverages2Ntuple.ContainerKey = g
+            topSequence+= LArAverages2Ntuple
+               
       if SuperCells:
          LArAverages2NtupleSC=LArAverages2Ntuple("LArAverages2NtupleSC")
          LArAverages2NtupleSC.ContainerKey = "SC"
+         LArAverages2Ntuple.OffId = True
+         LArAverages2NtupleSC.RealGeometry = True
          #LArAverages2NtupleSC.NSamples = 50
          LArAverages2NtupleSC.isSC = SuperCells
          topSequence+= LArAverages2NtupleSC

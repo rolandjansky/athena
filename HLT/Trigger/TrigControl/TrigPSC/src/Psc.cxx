@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -175,7 +175,10 @@ bool psc::Psc::configure(const ptree& config)
       ERS_DEBUG(1,"Initializing Python interpreter");
 
       Py_Initialize();
-      if (!PyEval_ThreadsInitialized()) PyEval_InitThreads();
+
+      /*
+       * The GIL is initialized by Py_Initialize() since Python 3.7."
+       */
 
       // check
       if ( ! Py_IsInitialized() ) {
@@ -506,6 +509,13 @@ bool psc::Psc::prepareForRun (const ptree& args)
     return false;
   }
 
+  if ( Py_IsInitialized() ) {
+    // After prepareForRun the HLTMPPU will fork the workers. Tell the Python
+    // interpreter this is happening to avoid deadlocks (ATR-23428).
+    ERS_DEBUG(1, "Pre-fork initialization of Python interpreter");
+    PyOS_BeforeFork();
+  }
+
   return true;
 }
 
@@ -669,10 +679,8 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
     /* Release the Python GIL (which we inherited from the mother)
        to avoid dead-locking on the first call to Python. Only relevant
        if Python is initialized and Python-based algorithms are used. */
-    if (PyEval_ThreadsInitialized()) {
-      ERS_DEBUG(1, "Releasing Python GIL");
-      PyEval_SaveThread();
-    }
+    ERS_DEBUG(1, "Releasing Python GIL");
+    PyEval_SaveThread();
   }
 
   m_workerID = args.get<int>("workerId");

@@ -74,11 +74,16 @@ def LuminosityCondAlgOnlineDefault (name = None,
 
 
 def configureLuminosityCondAlgMC (name):
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested('/Digitization/Parameters'):
+        conddb.addFolderWithTag('', '/Digitization/Parameters', 'HEAD',
+                         className = 'AthenaAttributeList')
     return { 'LuminosityFolderInputKey' : '',
              'OnlineLumiCalibrationInputKey' : '',
              'BunchLumisInputKey' : '',
              'BunchGroupInputKey' : '',
-             'FillParamsInputKey' : '' }
+             'FillParamsInputKey' : '',
+             'IsMC' : True }
              
 
 

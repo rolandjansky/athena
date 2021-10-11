@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -182,7 +182,7 @@ namespace pool    {
                             ShapeH shape,
                             const DbObjectHandle<DbObject>& objH);
     /// Add single entry to container
-    virtual DbStatus save(  const DbObjectHandle<DbObject>& objH);
+    virtual DbStatus save(  DbObjectHandle<DbObject>& objH);
 
     /// Save new object in the container and return its handle
     /** @param  cntH      [IN]   Handle to container object.

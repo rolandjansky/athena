@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include <iostream>
@@ -149,12 +149,12 @@ const std::map<std::string, T>& TrigComposite::detailsMap() const {
 }
 
 // this macro helps instantiating methods for all necessary template arguments
-// disallowing impleicit specializations we have a control over detail which at attached
+// disallowing implicit specializations we have a control over detail which at attached
 #define GEN_(type, varaible) \
   template<> std::map<std::string, type>& TrigComposite::detailsMap() { return varaible; } \
   template<> const std::map<std::string, type>& TrigComposite::detailsMap() const { return varaible; } \
   template<> std::set<std::string>& TrigComposite::detailsMustSetList<type>() { return varaible##ToBeSet; } \
-  template<> const type& TrigComposite::specimen<type>() const { static type x; return x;} \
+  template<> const type& TrigComposite::specimen<type>() const { static const type x{}; return x;} \
   template   void TrigComposite::addDetail<type>(const std::string&, const type&); \
   template   void TrigComposite::setDetail<type>(const std::string&, const type&); \
   template   bool  TrigComposite::hasDetail<type>(const std::string& ) const; \

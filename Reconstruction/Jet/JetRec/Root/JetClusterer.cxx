@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <memory>
@@ -9,6 +9,7 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/config.h"
+#include "fastjet/contrib/VariableRPlugin.hh"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
@@ -56,6 +57,8 @@ StatusCode JetClusterer::initialize() {
   PseudoJetVector empty;
   fastjet::ClusterSequence cs(empty, jetdef);
   cs.inclusive_jets(m_ptmin);
+  m_isVariableR = m_minrad >= 0.0 && m_massscale >= 0.0;
+
 
   // Input DataHandles
   if( !m_finalPseudoJets.empty() ) {
@@ -97,6 +100,32 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // -----------------------
   // Build the cluster sequence
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
+  using fastjet::contrib::VariableRPlugin;
+  std::unique_ptr<VariableRPlugin> VRJetPlugin(nullptr);
+  if ( isVariableR() ) {
+    /* clustering algorithm 
+     * They correspond to p parameter of Sequential recombination algs
+     * AKTLIKE = -1, CALIKE = 0, KTLIKE = 1
+     */
+    VariableRPlugin::ClusterType VRClusterType = VariableRPlugin::AKTLIKE; 
+    switch (m_fjalg) {
+      case fastjet::kt_algorithm:
+        VRClusterType = VariableRPlugin::KTLIKE;
+        break;
+      case fastjet::antikt_algorithm:
+        VRClusterType = VariableRPlugin::AKTLIKE;
+        break;
+      case fastjet::cambridge_algorithm:
+        VRClusterType = VariableRPlugin::CALIKE;
+        break;
+      default:
+        ATH_MSG_ERROR("Unsupported clustering algorithm for Variable-R jet finding.");
+        return nullreturn;
+    }
+    VRJetPlugin = std::make_unique<VariableRPlugin>(m_massscale, m_minrad, m_jetrad, VRClusterType, false);
+    jetdef = fastjet::JetDefinition(VRJetPlugin.get());
+  }
+
   std::unique_ptr<fastjet::ClusterSequence> clSequence(nullptr);
   bool useArea = m_ghostarea > 0 ;
   if ( useArea ) {
@@ -109,7 +138,7 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   } else {
     ATH_MSG_DEBUG("Creating input cluster sequence");
     clSequence = std::make_unique<fastjet::ClusterSequence>(*pseudoJetVector, jetdef);
-  } 
+  }
 
 
   // -----------------------
@@ -178,6 +207,7 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
 
     fastjet::GhostedAreaSpec gspec(5.0, 1, m_ghostarea);
     seedsok = true;
+    std::vector<int> seeds;
 
     if ( m_ranopt == 1 ) {
       // Use run/event number as random number seeds.
@@ -188,11 +218,8 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
         return fastjet::AreaDefinition();
       }
 
-      std::vector<int> inseeds;
-      JetClustererHelper::seedsFromEventInfo(evtInfoHandle.cptr(), inseeds);
-      gspec.set_random_status(inseeds);
+      JetClustererHelper::seedsFromEventInfo(evtInfoHandle.cptr(), seeds);
     }
-
 
     ATH_MSG_DEBUG("Active area specs:");
     ATH_MSG_DEBUG("  Requested ghost area: " << m_ghostarea);
@@ -201,8 +228,7 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
     ATH_MSG_DEBUG("              # ghosts: " << gspec.n_ghosts());
     ATH_MSG_DEBUG("       # rapidity bins: " << gspec.nrap());
     ATH_MSG_DEBUG("            # phi bins: " << gspec.nphi());
-    std::vector<int> seeds;
-    gspec.get_random_status(seeds);
+
     if ( seeds.size() == 2 ) {
       ATH_MSG_DEBUG("          Random seeds: " << seeds[0] << ", " << seeds[1]);
     } else {
@@ -211,5 +237,8 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
       for ( auto seed : seeds ) ATH_MSG_DEBUG("                 " << seed);
     }
 
-    return fastjet::AreaDefinition(fastjet::active_area, gspec);
+    // We use with_fixed_seed() as recommended for thread safety in
+    // fastjet 3.4.0.
+    return fastjet::AreaDefinition(fastjet::active_area,
+                                   gspec).with_fixed_seed(seeds);
 }

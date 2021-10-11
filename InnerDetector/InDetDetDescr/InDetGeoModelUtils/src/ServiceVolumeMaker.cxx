@@ -236,6 +236,7 @@ namespace InDetDD {
     IRDBRecordset_ptr PixelLayer = rdbSvc->getRecordsetPtr("PixelLayer", detectorKey, detectorNode);
 
     int numLayers = db()->getInt(PixelBarrelGeneral, "NLAYER");
+    layerShift.reserve(numLayers);
     for (int iLayer = 0; iLayer < numLayers; iLayer++) {
       double shift = 0;
       if (db()->testField(PixelLayer, "GBLSHIFT", iLayer)) shift = db()->getDouble(PixelLayer, "GBLSHIFT", iLayer);

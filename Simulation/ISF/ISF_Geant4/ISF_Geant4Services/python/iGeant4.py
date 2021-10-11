@@ -3,7 +3,7 @@
 G4Eng = None
 
 class iGeant4:
-  def __init__(self, **kwargs):
+  def __init__(self, name='ISFG4SimSvc', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -27,7 +27,7 @@ class iGeant4:
 
     # configure Geant4SimSvc
     from ISF_Geant4Services.ISF_Geant4ServicesConf import iGeant4__Geant4SimSvc
-    Geant4SimService = iGeant4__Geant4SimSvc('ISFG4SimSvc', **kwargs)
+    Geant4SimService = iGeant4__Geant4SimSvc(name, **kwargs)
 
     # DEBUG: dump Geant4SimService
     print (Geant4SimService)

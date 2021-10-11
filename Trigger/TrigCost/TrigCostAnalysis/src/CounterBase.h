@@ -80,6 +80,15 @@ class CounterBase {
     StatusCode fill(const std::string& name, float value, float weight = 1.0);
 
     /**
+     * @brief Fill (for per-Call) or accumulate in a buffer (for per-Event) a quantity histogrammed by a named Variable 
+     * @param[in] name Variable to increment
+     * @param[in] xvalue The payload x-axis value
+     * @param[in] yvalue The payload y-axis value
+     * @param[in] weight Global event weight
+     */
+    StatusCode fill(const std::string& name, float xvalue, float yvalue, float weight);
+
+    /**
      * @brief Convenience function. Equivalent to fill(name, 1.0, weight);
      * @param[in] name Variable to increment
      * @param[in] weight Global event weight
@@ -122,8 +131,35 @@ class CounterBase {
       const VariableType type = VariableType::kPerCall, 
       const LogType xaxis = kLog,
       const float min = 0.1, 
-      const float max = 100000.,
-      const size_t bins = 60);
+      const float max = 1000000.,
+      const size_t bins = 70);
+
+
+    /**
+     * @brief Book a 2D histogram for this Counter, to be filled in per-event monitoring.
+     * @param[in] name The name of the histogram (and corresponding Variable)
+     * @param[in] title ROOT histogram title string in format "title;xaxis;yaxis"
+     * @param[in] xaxis Controls if the x-axis should use fixed-width or logarithmic bin boundaries.
+     * @param[in] xmin X-axis minimum bound.
+     * @param[in] xmax X-axis maximum bound.
+     * @param[in] xbins Number of histogram bins.
+     * @param[in] yaxis Controls if the y-axis should use fixed-width or logarithmic bin boundaries.
+     * @param[in] ymin Y-axis minimum bound.
+     * @param[in] ymax Y-axis maximum bound.
+     * @param[in] ybins Number of histogram bins.
+     */
+    void regHistogram(const std::string& name,
+      const std::string& title, 
+      const VariableType type, 
+      const LogType xaxis,
+      const float xmin, 
+      const float xmax,
+      const size_t xbins,
+      const LogType yaxis,
+      const float ymin, 
+      const float ymax,
+      const size_t ybins);
+
 
     /**
      * @brief Appends Counter name (to histogram path) and forwards histogram book request to parent Monitor.

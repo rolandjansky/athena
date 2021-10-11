@@ -23,7 +23,7 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   declareProperty( "RecommendationTag",   m_sRecommendationTag = "2019-summer" );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty( "ApplyFading",         m_bApplyFading = true);
-  declareProperty( "ApplyMVATES",         m_bApplyMVATES = true);
+  declareProperty( "ApplyMVATES",         m_bApplyMVATES = false);
   declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
   declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );

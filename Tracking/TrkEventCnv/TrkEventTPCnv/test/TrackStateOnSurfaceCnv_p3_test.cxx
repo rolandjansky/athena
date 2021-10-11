@@ -141,7 +141,7 @@ void compare (const Trk::TrackStateOnSurface& p1,
               
 void testit (const Trk::TrackStateOnSurface& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TrackStateOnSurfaceCnv_p3 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());

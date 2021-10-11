@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // DataModel.h 
@@ -13,9 +13,7 @@
 
 // STL includes
 #include <time.h>
-#if !defined(__APPLE__)
-#include <malloc.h>
-#endif
+#include "PerfMonEvent/mallinfo.h"
 
 // PerfMonEvent includes
 
@@ -82,8 +80,7 @@ namespace PerfMon {
     inline float mallInfo()
     { 
 #if !defined(__APPLE__)
-      typedef struct mallinfo MallInfo_t;
-      const MallInfo_t mi = ::mallinfo();
+      const PerfMon::mallinfo_t mi = PerfMon::mallinfo();
       return float(mi.uordblks+mi.hblkhd);
 #else
       return -999.;

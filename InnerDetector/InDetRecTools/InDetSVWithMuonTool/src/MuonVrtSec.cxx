@@ -143,7 +143,7 @@ namespace InDet{
  {
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called with Ntrk="<<ListSecondTracks.size()<< endmsg;
 //preparation
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       ListSecondTracks.insert(ListSecondTracks.begin(), Muon);
       RemoveDoubleEntries(ListSecondTracks);
       int NTracksVrt = ListSecondTracks.size();
@@ -257,7 +257,7 @@ namespace InDet{
       }
 
 
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for sigle vertex
 
       Amg::Vector3D iniVrt(0.,0.,0.);

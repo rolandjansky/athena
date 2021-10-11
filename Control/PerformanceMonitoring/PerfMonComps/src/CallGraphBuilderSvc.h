@@ -16,6 +16,9 @@
 #include <stack>
 
 // boost includes
+//Remove in boost > 1.76 when the boost iterator issue
+//is solved see ATLASRECTS-6358
+#define BOOST_ALLOW_DEPRECATED_HEADERS
 #include <boost/graph/adjacency_list.hpp>
 
 // FrameWork includes

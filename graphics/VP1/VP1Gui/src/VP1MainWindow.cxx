@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -787,7 +787,15 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 
 
 	//Add directories from extradirenvvar (e.g. $VP1PLUGINPATH)
-	QStringList vp1pluginpath = extradirenvvar.isEmpty() ? QStringList() : QString(::getenv(extradirenvvar.toStdString().c_str())).split(":",QString::SkipEmptyParts);
+	QStringList vp1pluginpath =
+          extradirenvvar.isEmpty() ?
+          QStringList() :
+          QString(::getenv(extradirenvvar.toStdString().c_str())) .
+#if QTCORE_VERSION >= 0x050E00
+            split(":",Qt::SkipEmptyParts);
+#else
+            split(":",QString::SkipEmptyParts);
+#endif
     if(VP1Msg::debug()){
       qDebug() << "extradirenvvar:" << extradirenvvar;
       qDebug()  << "vp1pluginpath:" << vp1pluginpath;
@@ -815,7 +823,11 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 	QString path = QString(::getenv(pathvar.toStdString().c_str()));
 	if (!path.isEmpty()) {
 		//!instareasubdir.isEmpty()&&
+#if QTCORE_VERSION >= 0x050E00
+		QStringList tmp = path.split(":",Qt::SkipEmptyParts);//This 'tmp' is for SLC3 compilation.
+#else
 		QStringList tmp = path.split(":",QString::SkipEmptyParts);//This 'tmp' is for SLC3 compilation.
+#endif
 		foreach (QString dir,tmp) {
 			vp1pluginpath << ( instareasubdir.isEmpty() ? dir : dir+QDir::separator()+QDir::separator()+instareasubdir );
 		}

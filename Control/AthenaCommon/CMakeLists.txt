@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaCommon )
@@ -17,7 +17,6 @@ atlas_install_python_modules( python/*.py python/Utils
 atlas_install_joboptions( share/Preparation.py share/Execution.py share/Atlas.UnixStandardJob.py test/*.py
                           share/zeroJO.py share/Atlas_Gen.UnixStandardJob.py share/MemTraceInclude.py share/runbatch.py)
 atlas_install_scripts( share/athena.py share/athena_preload.sh share/chappy.py share/test_cfg_pickling.py share/ThinCAWrapper.sh)
-atlas_install_runtime(share/*.pkl)
 
 # Aliases:
 atlas_add_alias( athena "athena.py" )
@@ -39,10 +38,3 @@ atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
                 LOG_IGNORE_PATTERN "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in|^outFileName: " )
 atlas_add_test( CFElementsTest SCRIPT python -m unittest -v AthenaCommon.CFElements
 		POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( GenerateBootstrapTest
-   SCRIPT test/test_gen_bootstrap.sh
-   PROPERTIES TIMEOUT 300
-   #ignore location of bootstrap file and whether it was already downloaded
-   LOG_IGNORE_PATTERN ".*copy bootstrap.*pkl|.*\/share\/bootstrap.*pkl|File.*exists in the current directory|^Willing to acquire"
-   )

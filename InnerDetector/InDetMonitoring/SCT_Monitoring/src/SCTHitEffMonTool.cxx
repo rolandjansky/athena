@@ -111,6 +111,7 @@ namespace {// anonymous namespace for functions at file scope
 }// namespace end
 
 // Constructor with parameters:
+//cppcheck-suppress uninitMemberVar
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent) {
   m_Eff_summaryHisto.fill(0);
@@ -147,8 +148,8 @@ SCTHitEffMonTool::initialize() {
   ATH_MSG_INFO("Retrieved pull calculator tool " << m_residualPullCalculator);
   ATH_CHECK(m_rotcreator.retrieve());
   ATH_MSG_INFO("Retrieved tool " << m_rotcreator);
-  ATH_CHECK(m_bunchCrossingTool.retrieve());
-  ATH_MSG_INFO("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
+  ATH_CHECK( m_bunchCrossingKey.initialize() );
+  ATH_MSG_INFO("Initialized bunch crossing conditions key: " << m_bunchCrossingKey);
   ATH_CHECK(m_configConditions.retrieve());
 
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
@@ -445,7 +446,14 @@ SCTHitEffMonTool::fillHistograms() {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const EventIDBase& pEvent{ctx.eventID()};
   unsigned BCID{pEvent.bunch_crossing_id()};
-  int BCIDpos{m_bunchCrossingTool->distanceFromFront(BCID)};
+
+  SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+  if (!bcidHdl.isValid()) {
+     ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+     return StatusCode::FAILURE;
+  }
+
+  int BCIDpos{bcidHdl->distanceFromFront(BCID, BunchCrossingCondData::BunchCrossings)};
 
   SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldHandle{m_fieldCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*fieldHandle};
@@ -887,7 +895,7 @@ SCTHitEffMonTool::procHistograms() {
 }
 
 StatusCode
-SCTHitEffMonTool::failCut(bool value, string name) const {
+SCTHitEffMonTool::failCut(bool value, const string & name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;

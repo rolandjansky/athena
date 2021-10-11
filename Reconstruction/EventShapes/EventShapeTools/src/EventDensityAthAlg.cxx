@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // EventShapeTools includes
-#include "EventDensityAthAlg.h"
+#include "EventShapeTools/EventDensityAthAlg.h"
 
 // Athena Algorithm's Hooks
 ////////////////////////////

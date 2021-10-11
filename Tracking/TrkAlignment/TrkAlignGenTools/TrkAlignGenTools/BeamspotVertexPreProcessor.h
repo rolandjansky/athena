@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRKALIGNGENTOOLS_BEAMSPOTVERTEXPREPROCESSOR_H
@@ -38,7 +38,6 @@
    -> updated 2015 Matthias Danninger
 */
  
-class IBeamCondSvc;
 
 namespace Trk {
   class IGlobalTrackFitter;
@@ -116,6 +115,7 @@ namespace Trk {
     bool m_runOutlierRemoval;                            //!< switch whether to run outlier logics or not
     bool m_selectVertices;                 	         //!< do vertex selection  
     int  m_particleNumber;             		         //!< type of material interaction in extrapolation
+    bool m_doTrkSelection;                               //!< to activate the preprocessor track selection
     bool m_doBSTrackSelection;                           //!< the selection mechanism which is based on cutting the perigee parameters, pt, etc.
     bool m_doAssociatedToPVSelection;        		 //!< the selection mechanism that only use the tracks associated to PV
 
@@ -154,7 +154,7 @@ namespace Trk {
   class CompareTwoTracks {
 
     public:
-         CompareTwoTracks(const Track* track, std::string compareMethod)
+         CompareTwoTracks(const Track* track, const std::string& compareMethod)
          :m_method(compareMethod)
          ,m_track(track)
          { //std::cout <<"compareMethod: "<< m_method <<std::endl; 

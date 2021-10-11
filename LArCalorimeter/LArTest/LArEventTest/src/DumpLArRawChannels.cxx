@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/DumpLArRawChannels.h"
@@ -118,13 +118,11 @@ StatusCode DumpLArRawChannels::execute()
  
  mySort aSort;
  std::sort(channelVector.begin(),channelVector.end(),aSort);
- LArRawChannelVector::const_iterator vec_it=channelVector.begin();
- LArRawChannelVector::const_iterator vec_it_e=channelVector.end();
- for (;vec_it!=vec_it_e;vec_it++)
+ for (const LArRawChannel* chan : channelVector)
    {
-     //if ((*vec_it)->energy()==0)
+     //if (chan->energy()==0)
      //continue;
-    const HWIdentifier chid=(*vec_it)->channelID();//hardwareID();
+    const HWIdentifier chid=chan->channelID();//hardwareID();
     if (m_toLog) std::cout << "Channel: " << m_onlineHelper->channel_name(chid);
     if (m_toFile) m_outfile << "Channel: " << m_onlineHelper->channel_name(chid);
 
@@ -154,7 +152,7 @@ StatusCode DumpLArRawChannels::execute()
     }
 
 
-    int Time=(*vec_it)->time();
+    int Time=chan->time();
     /*
     if (Time>0x1fff)
       Time=0x1fff;
@@ -163,17 +161,17 @@ StatusCode DumpLArRawChannels::execute()
     */
     //if (abs(Time)>24000)
     //Time=0;
-    if (m_toLog) std::cout << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x" 
-	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
+    if (m_toLog) std::cout << " E= " << chan->energy() << " t= " << Time << " Q= " << chan->quality() << " P=0x" 
+	      << std::hex << chan->provenance() << std::dec << " G=" << chan->gain() << std::endl;
     
-    if (m_toFile) m_outfile << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x"
-	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
+    if (m_toFile) m_outfile << " E= " << chan->energy() << " t= " << Time << " Q= " << chan->quality() << " P=0x"
+	      << std::hex << chan->provenance() << std::dec << " G=" << chan->gain() << std::endl;
 
     if (m_tree) {
-      m_e=(*vec_it)->energy();
-      m_t=(*vec_it)->time();
-      m_Q=(*vec_it)->quality();
-      m_gain=(*vec_it)->gain();
+      m_e=chan->energy();
+      m_t=chan->time();
+      m_Q=chan->quality();
+      m_gain=chan->gain();
       m_id=chid.get_identifier32().get_compact();
       m_tree->Fill();
     }

@@ -8,7 +8,7 @@
 
 namespace Trk {
 
-  void SurfaceNtupleBranch::initForWrite(TTree& tree, std::string prefix ){
+  void SurfaceNtupleBranch::initForWrite(TTree& tree, const std::string& prefix ){
     m_transform.initForWrite(tree,prefix);
     m_center.initForWrite(tree,"center",3,prefix);
     m_normal.initForWrite(tree,"normal",3,prefix);
@@ -18,7 +18,7 @@ namespace Trk {
     tree.Branch(bname,&m_id);
   }
 
-  void SurfaceNtupleBranch::initForRead(TTree& tree, std::string prefix ) { 
+  void SurfaceNtupleBranch::initForRead(TTree& tree, const std::string& prefix ) { 
     m_transform.initForRead(tree,prefix);
     m_center.initForRead(tree,"center",3,prefix);
     m_normal.initForRead(tree,"normal",3,prefix);

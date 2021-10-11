@@ -203,7 +203,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
     int layerColor = lay.enclosingTrackingVolume() ? lay.enclosingTrackingVolume()->colorCode() : 22;
 
     // CYLINDER SECTION
-    if (lSurface.type() == Trk::Surface::Cylinder && layerIndex > 0) {
+    if (lSurface.type() == Trk::SurfaceType::Cylinder && layerIndex > 0) {
         // get the Bounds
         const Trk::CylinderBounds* cylBo = dynamic_cast<const Trk::CylinderBounds*>(&lSurface.bounds());
         if (!cylBo) {
@@ -227,7 +227,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
 
         return StatusCode::SUCCESS;
         }
-    } else if (lSurface.type() == Trk::Surface::Disc && layerIndex > 0) {
+    } else if (lSurface.type() == Trk::SurfaceType::Disc && layerIndex > 0) {
         // get the Bounds
         const Trk::DiscBounds* discBo = dynamic_cast<const Trk::DiscBounds*>(&lSurface.bounds());
         if (!discBo) {

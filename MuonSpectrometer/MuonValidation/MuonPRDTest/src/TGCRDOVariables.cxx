@@ -32,7 +32,7 @@ StatusCode TGCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
 
   for(const TgcRdo* coll : *rdo_container) {
 
-    for (auto rdo: *coll) {
+    for (const TgcRawData* rdo: *coll) {
 
       bool orFlag = m_tgcCabling->isOredChannel(rdo->subDetectorId(),
                                                  rdo->rodId(),
@@ -78,10 +78,27 @@ StatusCode TGCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
       m_TGC_rdo_isStrip.push_back(isStrip);
       m_TGC_rdo_channel.push_back(channel);
 
-      if (!MuonDetMgr->getTgcReadoutElement(Id)) {
+      const MuonGM::TgcReadoutElement* rdoEl = MuonDetMgr->getTgcReadoutElement(Id);
+	  if (!rdoEl) {
         ATH_MSG_ERROR("TGCRDOVariables::fillVariables() - Failed to retrieve TgcReadoutElement for" << __FILE__ << __LINE__ << m_TgcIdHelper->print_to_string(Id).c_str());
         return StatusCode::FAILURE;
       }
+
+      Amg::Vector2D localStripPos(0.,0.);
+      if ( rdoEl->stripPosition(Id,localStripPos) )  {
+        m_TGC_rdo_localPosX.push_back(localStripPos.x());
+        m_TGC_rdo_localPosY.push_back(localStripPos.y());
+        ATH_MSG_DEBUG("TGC RDO: local pos.:  x=" << localStripPos[0] << ",  y=" << localStripPos[1]);
+      } else { 
+        ATH_MSG_WARNING("TGC RDO: local Strip position not defined"); 
+      }
+      
+      // asking the detector element to transform this local to the global position
+      Amg::Vector3D globalStripPos(0., 0., 0.);
+      rdoEl->surface(Id).localToGlobal(localStripPos,Amg::Vector3D(0.,0.,0.),globalStripPos);
+      m_TGC_rdo_globalPosX.push_back(globalStripPos.x());
+      m_TGC_rdo_globalPosY.push_back(globalStripPos.y());
+      m_TGC_rdo_globalPosZ.push_back(globalStripPos.z());
 
       // rdo counter for the ntuple
       m_TGC_nrdo++;
@@ -105,6 +122,11 @@ StatusCode TGCRDOVariables::clearVariables()
   m_TGC_rdo_gas_gap.clear();
   m_TGC_rdo_isStrip.clear();
   m_TGC_rdo_channel.clear();
+  m_TGC_rdo_localPosX.clear();
+  m_TGC_rdo_localPosY.clear();
+  m_TGC_rdo_globalPosX.clear();
+  m_TGC_rdo_globalPosY.clear();
+  m_TGC_rdo_globalPosZ.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -123,12 +145,25 @@ StatusCode TGCRDOVariables::initializeVariables()
     m_tree->Branch("RDO_TGC_gas_gap",     &m_TGC_rdo_gas_gap);
     m_tree->Branch("RDO_TGC_isStrip",     &m_TGC_rdo_isStrip);
     m_tree->Branch("RDO_TGC_channel",     &m_TGC_rdo_channel);
+    m_tree->Branch("RDO_TGC_localPosX",   &m_TGC_rdo_localPosX);
+    m_tree->Branch("RDO_TGC_localPosY",   &m_TGC_rdo_localPosY);
+    m_tree->Branch("RDO_TGC_globalPosX",  &m_TGC_rdo_globalPosX);
+    m_tree->Branch("RDO_TGC_globalPosY",  &m_TGC_rdo_globalPosY);
+    m_tree->Branch("RDO_TGC_globalPosZ",  &m_TGC_rdo_globalPosZ);
     
   }
   return StatusCode::SUCCESS;
 }
 
-void TGCRDOVariables::deleteVariables()
-{
-  return;
-}
+TGCRDOVariables::TGCRDOVariables(StoreGateSvc* evtStore,
+		const MuonGM::MuonDetectorManager* detManager,
+		const MuonIdHelper* idhelper,
+    const ITGCcablingSvc* cabling_svc,
+		TTree* tree,
+	 	const std::string& containername,
+	 	MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
+    m_tgcCabling{cabling_svc}  {
+    setHelper(idhelper);
+
+  }

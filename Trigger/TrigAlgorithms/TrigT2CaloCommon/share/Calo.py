@@ -23,14 +23,14 @@ doL2Egamma=True
 from AthenaCommon.CFElements import stepSeq,seqOR,findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 
-topSequence.remove( findAlgorithm(topSequence, "L1Decoder") )
-from L1Decoder.L1DecoderConf import L1TestDecoder
-topSequence += L1TestDecoder("L1TestDecoder", OutputLevel=DEBUG)
+topSequence.remove( findAlgorithm(topSequence, "HLTSeeding") )
+from HLTSeeding.HLTSeedingConf import HLTSeedingNoCtpForTesting
+topSequence += HLTSeedingNoCtpForTesting("HLTSeedingNoCtpForTesting", OutputLevel=DEBUG)
 
 steps = seqOR("HLTTop")
 topSequence += steps
 
-if TriggerFlags.doCalo:
+if ConfigFlags.Trigger.doCalo:
   if ( doHLTCaloTopo ) :
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
     recosequence, caloclusters = HLTFSTopoRecoSequence("HLT_TestFSRoI")
@@ -46,6 +46,11 @@ if TriggerFlags.doCalo:
      steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
   if (True):
+    from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
+    LArMCSymCondAlgDefault()
+    from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+    LArBadChannelAccess()
+
     from TrigMinBias.TrigMinBiasConf import MbtsFex
     alg=MbtsFex()
     steps += alg

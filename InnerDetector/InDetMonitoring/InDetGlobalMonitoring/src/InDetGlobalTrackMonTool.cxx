@@ -45,15 +45,11 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-//Root
-#include "TMath.h"
 
 //Standard c++
-#include <algorithm>
 #include <vector>
 #include <string>
 #include <cmath>
-#include <functional>
 
 
 InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
@@ -157,19 +153,19 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   StatusCode sc;
 
   // If any of the ID helpers are not found then we don't make the hit maps
-  m_trtID = 0;
+  m_trtID = nullptr;
   if (detStore()->retrieve(m_trtID, "TRT_ID").isFailure()) {
       ATH_MSG_DEBUG("Could not get TRT ID helper");
       m_doHitMaps = false;
   }
 
-  m_sctID = 0;
+  m_sctID = nullptr;
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()) {
       ATH_MSG_DEBUG("Could not get SCT ID helper");
       m_doHitMaps = false;
   }
 
-  m_pixelID = 0;
+  m_pixelID = nullptr;
   if (detStore()->retrieve(m_pixelID, "PixelID").isFailure()) {
       ATH_MSG_DEBUG("Could not get Pixel ID helper");
       m_doHitMaps = false;
@@ -642,7 +638,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
     for ( ; itrack!= itrack_end; ++itrack)
     {
 	const Trk::Track * track = (*itrack);
-	if ( !track || track->perigeeParameters() == 0 )
+	if ( !track || track->perigeeParameters() == nullptr )
 	{
 	    ATH_MSG_DEBUG( "NULL track pointer in collection" );
 	    continue;
@@ -676,31 +672,31 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
 	    {
 		nNoIBL++;
-		m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+		m_Trk_noIBLhits_frac_LB->Fill( AthenaMonManager::lumiBlockNumber(), 1 );
 	    }
 	    else
 	    {
-		m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+		m_Trk_noIBLhits_frac_LB->Fill( AthenaMonManager::lumiBlockNumber(), 0 );
 	    }
 	}
 
 	if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) )
 	{
 	    nNoBL++;
-	    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+	    m_Trk_noBLhits_frac_LB->Fill( AthenaMonManager::lumiBlockNumber(), 1 );
 	}
 	else
 	{
-	    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+	    m_Trk_noBLhits_frac_LB->Fill( AthenaMonManager::lumiBlockNumber(), 0 );
 	}
 	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
 	{
 	    nNoTRText++;
-	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
+	    m_Trk_noTRText_frac_LB->Fill(AthenaMonManager::lumiBlockNumber(), 1);
 	}
 	else
 	{
-	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 0);
+	    m_Trk_noTRText_frac_LB->Fill(AthenaMonManager::lumiBlockNumber(), 0);
 	}
 
 	if ( m_tight_selTool->accept(*track) )
@@ -720,13 +716,13 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 
 	m_Trk_Base->Fill( nBase );
 
-	m_Trk_nBase_LB->Fill( m_manager->lumiBlockNumber(), nBase );
-	m_Trk_nTight_LB->Fill( m_manager->lumiBlockNumber(), nTight );
+	m_Trk_nBase_LB->Fill( AthenaMonManager::lumiBlockNumber(), nBase );
+	m_Trk_nTight_LB->Fill( AthenaMonManager::lumiBlockNumber(), nTight );
 	if ( m_doIBL )
-	    m_Trk_noIBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoIBL );
+	    m_Trk_noIBLhits_LB->Fill( AthenaMonManager::lumiBlockNumber(), nNoIBL );
 
-	m_Trk_noBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoBL );
-	m_Trk_noTRText_LB->Fill( m_manager->lumiBlockNumber(), nNoTRText );
+	m_Trk_noBLhits_LB->Fill( AthenaMonManager::lumiBlockNumber(), nNoBL );
+	m_Trk_noTRText_LB->Fill( AthenaMonManager::lumiBlockNumber(), nNoTRText );
     }
 
     if ( m_doTide )
@@ -792,13 +788,13 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const std::uniq
     if ( m_doIBL )
     {
 	m_trk_hits_eta_phi[0]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], summary->get( Trk::numberOfInnermostPixelLayerHits ) );
-	m_trk_hits_LB[0]->Fill( m_manager->lumiBlockNumber(), summary->get( Trk::numberOfInnermostPixelLayerHits ) );
+	m_trk_hits_LB[0]->Fill( AthenaMonManager::lumiBlockNumber(), summary->get( Trk::numberOfInnermostPixelLayerHits ) );
     }
 
     m_trk_hits_eta_phi[1]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], pixHits );
     m_trk_disabled_eta_phi[1]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				     ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ) ? summary->get(Trk::numberOfPixelDeadSensors) : 0 );
-    m_trk_hits_LB[1]->Fill( m_manager->lumiBlockNumber(), pixHits );
+    m_trk_hits_LB[1]->Fill( AthenaMonManager::lumiBlockNumber(), pixHits );
     m_trk_shared_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				    ( summary->get(Trk::numberOfPixelSharedHits) >= 0 ) ? summary->get(Trk::numberOfPixelSharedHits) : 0 );
     m_trk_holes_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
@@ -809,7 +805,7 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const std::uniq
     m_trk_hits_eta_phi[2]->Fill(  perigee->eta(), perigee->parameters()[Trk::phi0],sctHits );
     m_trk_disabled_eta_phi[2]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				     ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfSCTDeadSensors) : 0 ) ;
-    m_trk_hits_LB[2]->Fill( m_manager->lumiBlockNumber(), sctHits );
+    m_trk_hits_LB[2]->Fill( AthenaMonManager::lumiBlockNumber(), sctHits );
     m_trk_shared_sct_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				    ( summary->get(Trk::numberOfSCTSharedHits) >= 0 ) ? summary->get(Trk::numberOfSCTSharedHits) : 0 );
 
@@ -819,7 +815,7 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const std::uniq
     m_trk_hits_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],trtHits );
     m_trk_disabled_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				     ( summary->get(Trk::numberOfTRTDeadStraws) >= 0 ) ? summary->get(Trk::numberOfTRTDeadStraws) : 0 );
-    m_trk_hits_LB[3]->Fill( m_manager->lumiBlockNumber(), trtHits );
+    m_trk_hits_LB[3]->Fill( AthenaMonManager::lumiBlockNumber(), trtHits );
 }
 
 
@@ -932,7 +928,7 @@ void InDetGlobalTrackMonTool::FillTIDE()
 	    if ( !(*jetItr)->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack, trackVector) )
 		continue;
 
-	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ )
+	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; ++trkItr )
 	    {
 		const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
 
@@ -949,7 +945,7 @@ void InDetGlobalTrackMonTool::FillTIDE()
 		    const xAOD::Vertex* foundVertex { nullptr };
 		    if ( vertices.isValid() )
 		    {
-		      for ( const auto vx : *vertices )
+		      for ( const auto *const vx : *vertices )
 		      {
 			for ( const auto& tpLink : vx->trackParticleLinks() )
 			{
@@ -969,40 +965,40 @@ void InDetGlobalTrackMonTool::FillTIDE()
 											foundVertex ));
 			if ( myIPandSigma )
 			{
-			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );
-			    m_trk_jetassoc_z0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPz0 / sqrt( myIPandSigma->sigmaz0*myIPandSigma->sigmaz0 + myIPandSigma->PVsigmaz0*myIPandSigma->PVsigmaz0 ) ) );
-			    m_trk_jetassoc_ip_reso_lb->Fill( m_manager->lumiBlockNumber(), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) )  );
+			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), std::abs( myIPandSigma->IPd0 / std::sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );
+			    m_trk_jetassoc_z0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), std::abs( myIPandSigma->IPz0 / std::sqrt( myIPandSigma->sigmaz0*myIPandSigma->sigmaz0 + myIPandSigma->PVsigmaz0*myIPandSigma->PVsigmaz0 ) ) );
+			    m_trk_jetassoc_ip_reso_lb->Fill( AthenaMonManager::lumiBlockNumber(), std::abs( myIPandSigma->IPd0 / std::sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) )  );
 			}
 		    }
 		    if ( trackPart->summaryValue( split, xAOD::numberOfPixelSplitHits) )
 		    {
 			float frac = (double)split / pix;
 			m_trk_jetassoc_split_pix_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), frac );
-			m_trk_jetassoc_split_pix_lb->Fill( m_manager->lumiBlockNumber(), frac );
+			m_trk_jetassoc_split_pix_lb->Fill( AthenaMonManager::lumiBlockNumber(), frac );
 		    }
 
 		    if ( trackPart->summaryValue( shared, xAOD::numberOfPixelSharedHits) )
 		    {
 			float frac = (float)shared / pix;
 			m_trk_jetassoc_shared_pix_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), frac );
-			m_trk_jetassoc_shared_pix_lb->Fill( m_manager->lumiBlockNumber(), frac );
+			m_trk_jetassoc_shared_pix_lb->Fill( AthenaMonManager::lumiBlockNumber(), frac );
 		    }
 
 		    if ( m_doTideResiduals )
 		    {
-			auto track = trackPart->track();
+			const auto *track = trackPart->track();
 			if ( ! track )
 			    continue;
 
 			const DataVector<const Trk::TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
-			if ( trackStates == 0 ) return;
+			if ( trackStates == nullptr ) return;
 
 			DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin();
 			DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = trackStates->end();
 			for (;it!=it_end; ++it) {
 			    const Trk::TrackStateOnSurface* tsos=(*it);
 
-			    if (tsos == 0) continue;
+			    if (tsos == nullptr) continue;
 
 			    //SILICON (SCT + Pixel)
 			    const InDet::SiClusterOnTrack *clus = dynamic_cast<const InDet::SiClusterOnTrack*>( tsos->measurementOnTrack() );
@@ -1080,14 +1076,14 @@ void InDetGlobalTrackMonTool::FillTIDE()
 void InDetGlobalTrackMonTool::FillHitMaps( const Trk::Track *track )
 {
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
-    if ( trackStates == 0 ) return;
+    if ( trackStates == nullptr ) return;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = trackStates->end();
     for (;it!=it_end; ++it) {
 	const Trk::TrackStateOnSurface* trackState=(*it);
 
-	if (trackState == 0) continue;
+	if (trackState == nullptr) continue;
 
 	//TRT
 	const InDet::TRT_DriftCircleOnTrack *trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trackState->measurementOnTrack());
@@ -1223,7 +1219,7 @@ void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
     } else {
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
 	     it!=holesOnTrack->end();
-	     it++) {
+	     ++it) {
 	    if (!(*it)) {
 		msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
 		continue;
@@ -1233,7 +1229,7 @@ void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
 	    if (clus){
 		m_HolesMAP_XY->Fill(clus->position()[0],clus->position()[1]);
 		m_HolesMAP_ZX->Fill( clus->position()[2], clus->position()[0]);
-		m_HolesMAP_ZR->Fill(clus->position()[2], sqrt( pow( clus->position()[0], 2) + pow( clus->position()[1], 2) ));
+		m_HolesMAP_ZR->Fill(clus->position()[2], std::sqrt( std::pow( clus->position()[0], 2) + std::pow( clus->position()[1], 2) ));
 
 	    }
 	}

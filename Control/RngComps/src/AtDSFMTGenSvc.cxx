@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -25,7 +25,7 @@ using namespace std;
 
 /// Standard Constructor
 AtDSFMTGenSvc::AtDSFMTGenSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc), 
+  : base_class(name,svc),
     m_reseedingOffsets(),
     m_engines(), m_engines_copy() {
     // Set Default values
@@ -45,41 +45,17 @@ AtDSFMTGenSvc::~AtDSFMTGenSvc()
   while (i != e) delete (i++)->second;
 }
 
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode AtDSFMTGenSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-    if ( IAtRndmGenSvc::interfaceID().versionMatch(riid) )    {
-        *ppvInterface = (IAtRndmGenSvc*)this;
-    }
-    else  {
-        // Interface is not directly available: try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-    }
-    addRef();
-    return StatusCode::SUCCESS;
-}
-
 StatusCode AtDSFMTGenSvc::initialize()
 {
-  ATH_CHECK( AthService::initialize() );
   ATH_MSG_INFO
-    ("Initializing " << name()
-     << " - package version " << PACKAGE_VERSION 
-     << "\n INITIALISING RANDOM NUMBER STREAMS. ");
+    ("Initializing " << name() << "\n INITIALISING RANDOM NUMBER STREAMS. ");
 
   /// Incident Service
   ServiceHandle<IIncidentSvc> pIncSvc("IncidentSvc", name());
 
   // set up the incident service:
-  if (!(pIncSvc.retrieve()).isSuccess()) {
-    ATH_MSG_ERROR ("Could not locate IncidentSvc ");
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( pIncSvc.retrieve() );
+
   //start listening to "EndEvent"
   static const int PRIORITY = 100;
   pIncSvc->addListener(this, "EndEvent", PRIORITY);
@@ -287,7 +263,7 @@ StatusCode AtDSFMTGenSvc::finalize()
       ATH_MSG_DEBUG (" wrote seeds to " << m_file_to_write.value() );
     }
   }
-  return AthService::finalize();
+  return StatusCode::SUCCESS;
 }
 
 CLHEP::HepRandomEngine* AtDSFMTGenSvc::GetEngine        ( const std::string& streamName )

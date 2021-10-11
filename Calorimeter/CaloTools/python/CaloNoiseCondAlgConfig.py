@@ -1,11 +1,13 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 CaloNoiseCondAlg=CompFactory.CaloNoiseCondAlg
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
+@AccumulatorCache
 def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     if noisetype not in ("electronicNoise","pileupNoise","totalNoise"):
         raise RuntimeError("Requested noise of unknown type %s" % noisetype)
@@ -13,7 +15,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     noiseAlgName="Calo_"+noisetype+"Alg"
     
 
-    log = logging.getLogger("CaloNoiseToolCfg")
+    log = logging.getLogger("CaloNoiseCondAlgCfg")
     result=ComponentAccumulator()
 
     isMC=configFlags.Input.isMC
@@ -65,7 +67,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
                 result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL',className="CondAttrListCollection"))
-                log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
+                log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
                 theCaloNoiseAlg.LumiFolder = lumiFolder
                 theCaloNoiseAlg.Luminosity=-1.
             else:

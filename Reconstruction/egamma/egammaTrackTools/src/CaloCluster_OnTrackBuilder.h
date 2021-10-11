@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTER_ONTRACKBUILER_H
@@ -37,12 +37,12 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   ~CaloCluster_OnTrackBuilder();
 
   // standard Athena methods
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
 
   virtual Trk::CaloCluster_OnTrack*
   buildClusterOnTrack(const xAOD::CaloCluster* cl,
-                      int charge = 0) const override;
+                      int charge = 0) const override final;
 
 private:
 
@@ -54,9 +54,7 @@ private:
   const Amg::MatrixX*      getClusterErrorMatrix( const xAOD::CaloCluster* cluster,
                                                   const Trk::Surface* surf,
                                                   int charge) const;
-
-  static double getClusterPhiError( const xAOD::CaloCluster* cluster ) ;
-
+  
   /** @brief Tool to build calorimeter layer surfaces */
   ToolHandle<ICaloSurfaceBuilder>  m_calosurf {this,
       "CaloSurfaceBuilder", "CaloSurfaceBuilder", "Tool to build calorimeter layer surfaces"};

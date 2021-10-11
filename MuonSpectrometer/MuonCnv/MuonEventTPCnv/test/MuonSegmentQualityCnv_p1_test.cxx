@@ -39,7 +39,7 @@ void compare (const Muon::MuonSegmentQuality& p1,
 
 void testit (const Muon::MuonSegmentQuality& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MuonSegmentQualityCnv_p1 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());

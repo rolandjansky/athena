@@ -6,31 +6,32 @@
             MultiComponentStateOnSurface.h  -  description
             -----------------------------------------------
 begin                : Monday 20th December 2004
-author               : atkinson, amorley,anastopoulos
-email                : Anthony.Morley@cern.ch (adapted from Edward Moyse)
-description          : This class is a multi component adaption of the class
-                      TrackStateOnSurface.
-                      In that class the track state was
-                      represented by a single 5 component track paramter
+author               : atkinson, amorley,anastopoulos (adapted from Moyse)
+description          : This class is a multi component adaptation of the
+                      class TrackStateOnSurface.
+                      In that class the track state was represented
+                      by a single 5 component track paramter
                       vector (a0, z0, phi0, theta0, q/p) and the associated
                       covariance matrix.
-                      In its multi-component form the track state on surface
-                      is represented by many track parameters each with a covariance matrix
-                      and additionally a weighting is attached to each component
-                      which reflects the importance of that particular component
-                      in the overall mixture of components which is used to describe
+                      In its multi-component form the track
+                      state on surface is represented by many track parameters
+                      each with a covariance matrix and additionally a
+                      weighting is attached to each component which reflects
+                      the importance of that particular component in the
+                      overall mixture of components which is used to describe
                       the track state at that surface.
-                      Instances  of this class are EDM objects. So objects passed
-                      to this class as inputs via the ctors are owned by this class instances.
+                      Instances  of this
+                      class are EDM objects. So objects passed to this class
+                      as inputs via the ctors are owned by this class instances.
 *******************************************************************************/
 
 #ifndef TrkMultiComponentStateOnSurface_H
 #define TrkMultiComponentStateOnSurface_H
 
 #include "TrkEventPrimitives/FitQualityOnSurface.h" //typedef
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <iostream>
 
 class MsgStream;
@@ -55,29 +56,29 @@ public:
       a single track paramters vector is now repleaced with a pointer to a
      multi-component state */
   MultiComponentStateOnSurface(
-    const MeasurementBase*,
-    const MultiComponentState*,
-    const FitQualityOnSurface*,
-    const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
+    std::unique_ptr<const MeasurementBase>,
+    std::unique_ptr<MultiComponentState>,
+    std::unique_ptr<const FitQualityOnSurface>,
+    std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack = nullptr,
     double modeQoverP = 0.);
 
   /** Create a MultiComponentStateOnSurface Object with an explicit declaration
    * of the track parameters to be passed to the Trk::TrackStateOnSurface base
    * class */
   MultiComponentStateOnSurface(
-    const MeasurementBase*,
-    const TrackParameters*,
-    const MultiComponentState*,
-    const FitQualityOnSurface*,
-    const MaterialEffectsBase* materialEffectsOnTrack = nullptr,
+    std::unique_ptr<const MeasurementBase>,
+    std::unique_ptr<const TrackParameters>,
+    std::unique_ptr<MultiComponentState>,
+    std::unique_ptr<const FitQualityOnSurface>,
+    std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack = nullptr,
     double modeQoverP = 0.);
 
   /** Create TrackStateOnSurface with TrackStateOnSurfaceType. */
   MultiComponentStateOnSurface(
-    const MeasurementBase*,
-    const MultiComponentState*,
-    const FitQualityOnSurface*,
-    const MaterialEffectsBase*,
+    std::unique_ptr<const MeasurementBase>,
+    std::unique_ptr<MultiComponentState>,
+    std::unique_ptr<const FitQualityOnSurface>,
+    std::unique_ptr<const MaterialEffectsBase>,
     const std ::bitset<NumberOfTrackStateOnSurfaceTypes>&,
     double modeQoverP = 0.);
 
@@ -85,30 +86,31 @@ public:
    * o the track parameters to be passed to the base and also a
    * TrackStateOnSurfaceType */
   MultiComponentStateOnSurface(
-    const MeasurementBase*,
-    const TrackParameters*,
-    const MultiComponentState*,
-    const FitQualityOnSurface*,
-    const MaterialEffectsBase*,
+    std::unique_ptr<const MeasurementBase>,
+    std::unique_ptr<const TrackParameters>,
+    std::unique_ptr<MultiComponentState>,
+    std::unique_ptr<const FitQualityOnSurface>,
+    std::unique_ptr<const MaterialEffectsBase>,
     const std ::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
     double modeQoverP = 0.);
 
   /** Constructor without a FitQualityOnSurface. */
-  MultiComponentStateOnSurface(const MeasurementBase*,
-                               const MultiComponentState*);
+  MultiComponentStateOnSurface(std::unique_ptr<const MeasurementBase>,
+                               std::unique_ptr<MultiComponentState>);
 
-  /** Copy constructor */
+  /** Copy constructor and assignment*/
   MultiComponentStateOnSurface(const MultiComponentStateOnSurface& other);
+  MultiComponentStateOnSurface& operator=(
+    const MultiComponentStateOnSurface& other);
 
-  /** Deleted move ctor and copy/move assignment */
+  /** Move constructor and assignment*/
+  MultiComponentStateOnSurface(MultiComponentStateOnSurface&& other) noexcept =
+    default;
   MultiComponentStateOnSurface& operator=(
-    const MultiComponentStateOnSurface& other) = delete;
-  MultiComponentStateOnSurface(MultiComponentStateOnSurface&& other) = delete;
-  MultiComponentStateOnSurface& operator=(
-    MultiComponentStateOnSurface&& other) = delete;
+    MultiComponentStateOnSurface&& other) noexcept = default;
 
   /** Virtual destructor */
-  virtual ~MultiComponentStateOnSurface();
+  virtual ~MultiComponentStateOnSurface() = default;
 
   /** Clone method for deep copy of MultiComponentStateOnSurface - overidden
    * from base class */
@@ -117,15 +119,19 @@ public:
   /** This is Multi, since we MultiComponent */
   virtual TrackStateOnSurface::Variety variety() const override final;
 
-  /** Method to return a pointer to the multi-component state */
+  /** Method to return a pointer to the multi-component state  const overload*/
   const MultiComponentState* components() const;
+
+  /** Method to return a pointer to the multi-component state non const
+   * overload*/
+  MultiComponentState* components();
 
   /** Method to return the mode of the multi-component state */
   double mixtureModeQoverP() const;
 
 private:
-  const MultiComponentState* m_multiComponentState;
-  double m_mixtureModeQoverP;
+  std::unique_ptr<MultiComponentState> m_multiComponentState;
+  double m_mixtureModeQoverP{};
 };
 
 /** Overload of << operator for MsgStream for debug output */

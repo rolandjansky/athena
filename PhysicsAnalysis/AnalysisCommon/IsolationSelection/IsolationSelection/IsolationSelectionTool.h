@@ -76,8 +76,8 @@ namespace CP {
             StatusCode addElectronWP(std::string wpname);
             StatusCode addUserDefinedWP(std::string WPname, xAOD::Type::ObjectType ObjType, std::vector<std::pair<xAOD::Iso::IsolationType, std::string> >& cuts, std::string key = "", IsoWPType type = Efficiency);
             StatusCode setIParticleCutsFrom(xAOD::Type::ObjectType ObjType);
-            void addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression, const xAOD::Iso::IsolationType isoCutRemap);
-            void addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression);
+            StatusCode addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression, const xAOD::Iso::IsolationType isoCutRemap);
+            StatusCode addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression);
 
             // Clearing, for very special use
             void clearPhotonWPs();

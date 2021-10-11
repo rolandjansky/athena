@@ -125,6 +125,7 @@ namespace InDetDD {
         const SCT_ID* sctIdHelper = dynamic_cast<const SCT_ID*>(getIdHelper());
         if (sctIdHelper) {
           id = sctIdHelper->strip_id(m_id, cellId.strip());
+	  
         }
       }
     }
@@ -149,8 +150,19 @@ namespace InDetDD {
       } else {
         const SCT_ID* sctIdHelper = dynamic_cast<const SCT_ID*>(getIdHelper());
         if (sctIdHelper) {
-          cellId =  SiCellId(sctIdHelper->strip(identifier));
-        }
+	  //This adds some extra code for supporting rows, 
+	  //but this method is only used in validation-type code
+	  //So should not add an overhead in normal running
+	  //(although we perhaps still try to avoid this...)
+	  int strip = sctIdHelper->strip(identifier);
+	  int row = sctIdHelper->row(identifier);
+	  if(row>0){
+	    auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_design);
+	    int strip1D = sctDesign.strip1Dim(strip, row);
+	    cellId = SiCellId(strip1D);
+	  }
+	  else cellId =  SiCellId(strip);
+	}
       }
     }
 
@@ -443,12 +455,11 @@ namespace InDetDD {
     SolidStateDetectorElementBase::updateCache();
 
     //Similar to 21.9, but ... Do we actually need this? If not, we could just rely on the base-class implementation?
-
-      if (isBarrel() && !m_barrelLike) {
-        ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
-      } else if (!isBarrel() && m_barrelLike) {
-        ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
-      }
+    if (isBarrel() && !m_barrelLike) {
+      ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
+    } else if (!isBarrel() && m_barrelLike && (m_design->type())!=InDetDD::PixelInclined) {
+      ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
+    }
 
     m_cacheValid.store(true);
     if (m_firstTime) m_firstTime.store(false);

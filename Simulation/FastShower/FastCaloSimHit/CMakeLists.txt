@@ -18,7 +18,7 @@ atlas_subdir( FastCaloSimHit )
 atlas_add_library( FastCaloSimHitLib
                    src/*.cxx
                    PUBLIC_HEADERS FastCaloSimHit
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloInterfaceLib LArSimEvent TileSimEvent StoreGateLib SGtests PileUpToolsLib TileConditionsLib
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloInterfaceLib LArSimEvent TileSimEvent StoreGateLib PileUpToolsLib TileConditionsLib
                    PRIVATE_LINK_LIBRARIES CaloEvent CaloIdentifier EventInfo TileEvent )
 
 atlas_add_component( FastCaloSimHit

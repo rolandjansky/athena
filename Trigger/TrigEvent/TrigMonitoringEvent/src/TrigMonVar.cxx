@@ -1,20 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: $
-
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonVar.h"
-#include "TrigMonMSG.h"
 
-using namespace std;
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonVar");
-}
-
-//--------------------------------------------------------------------------------------      
+//--------------------------------------------------------------------------------------
 TrigMonVar::TrigMonVar()
   :m_key(0),
    m_data(0.)
@@ -27,7 +18,8 @@ TrigMonVar::TrigMonVar(const unsigned int key, const float data)
    m_data(data)
 {
   if(key >= 65535) {
-    MSGService::msg.Log("TrigMonVar ctor - error! Overflow of 16 bits key.", MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonVar")
+      << "ctor - error! Overflow of 16 bits key.";
   }
 }
 

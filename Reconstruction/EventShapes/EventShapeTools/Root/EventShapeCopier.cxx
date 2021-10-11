@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventShapeCopier.cxx 
@@ -8,6 +8,8 @@
 
 #include "xAODEventShape/EventShape.h"
 #include "xAODEventShape/EventShapeAuxInfo.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 //**********************************************************************
 
@@ -51,16 +53,16 @@ StatusCode EventShapeCopier::fillEventShape() const {
   }
 
   xAOD::EventShape *evs = new xAOD::EventShape();
-  std::unique_ptr<const xAOD::EventShape> evs_ptr(evs);
+  std::unique_ptr<xAOD::EventShape> evs_ptr(evs);
 
   xAOD::EventShapeAuxInfo* evsaux = new xAOD::EventShapeAuxInfo();
-  std::unique_ptr<const xAOD::EventShapeAuxInfo> evsaux_ptr( evsaux);
+  std::unique_ptr<xAOD::EventShapeAuxInfo> evsaux_ptr( evsaux);
   evs->setStore( evsaux );
 
   ATH_CHECK(fillEventShape(evs));  
 
-  SG::WriteHandle<xAOD::EventShape> h_out(m_outputEventShape);
-  if ( ! h_out.put(std::move(evs_ptr), std::move(evsaux_ptr)) ) {
+  auto h_out = makeHandle(m_outputEventShape);
+  if ( ! h_out.record(std::move(evs_ptr), std::move(evsaux_ptr)) ) {
     ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outputEventShape.key());
   } else {
     ATH_MSG_DEBUG("Created new EventShape container: " << m_outputEventShape.key());

@@ -21,11 +21,11 @@
 #include <vector>
 #include <memory>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "./IJetsMatcherMT.h"
-#include "./ConditionsDefsMT.h"
+#include "./IJetsMatcher.h"
+#include "./ConditionsDefs.h"
 #include "./ITrigHypoJetVectorFilterConfig.h"
 
-#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelper.h"
 #include "ITrigJetHypoToolNoGrouperConfig.h"
 #include "./ITrigJetConditionConfig.h"
 
@@ -33,7 +33,7 @@ class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
 class TrigJetHypoToolHelperNoGrouper:
-public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
+public extends<AthAlgTool, ITrigJetHypoToolHelper> {
 
  public:
   TrigJetHypoToolHelperNoGrouper(const std::string& type,
@@ -56,7 +56,7 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
  private:
 
   // Object that matches jet groups with Conditions
-  std::vector<std::unique_ptr<IJetsMatcherMT>> m_matchers;
+  std::vector<std::unique_ptr<IJetsMatcher>> m_matchers;
 
   ///////////////////////////////
 
@@ -70,10 +70,6 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   m_prefilterMakers{this, "prefilterMakers", {},
     "configuration tool to create prefilter"};
 
-  // object that copies selected incomming jets into a new vector.
-  std::vector<FilterPtr> m_prefilters{}; 
-
-  
   Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
   

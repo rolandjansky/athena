@@ -21,7 +21,7 @@ atlas_install_scripts( bin/acmd.py bin/checkFile.py bin/checkPlugins.py
    bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py
    bin/apydep.py bin/pool_extractFileIdentifier.py
    bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py
-   bin/vmem-sz.py bin/meta-reader.py bin/meta-diff.py bin/tree-orderer.py
+   bin/vmem-sz.py bin/meta-reader.py bin/meta-diff.py bin/tree-orderer.py bin/dump-event-from-file.py
    POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Aliases:

@@ -47,7 +47,7 @@ namespace Trk {
   {
     ATH_MSG_DEBUG("in TrackCollectionProvider::trackCollection");
 
-    originalTracks=0;
+    originalTracks=nullptr;
     
     // check if m_inputCol is a TrackCollection and exists for this event
     // perhaps this can be done in a much nicer way on the python side ala PyUtils/checkFile.py
@@ -55,7 +55,7 @@ namespace Trk {
     if( !evtStore()->contains<TrackCollection>(m_inputCol) ||
 	evtStore()->retrieve(originalTracks,m_inputCol).isFailure() ) {
       
-      originalTracks=0;
+      originalTracks=nullptr;
       
       ATH_MSG_DEBUG("input track collection \'"<<m_inputCol<<"\' not found for this event");
       

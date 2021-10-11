@@ -20,6 +20,7 @@
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/Guards.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 
@@ -27,7 +28,6 @@
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVRange.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"

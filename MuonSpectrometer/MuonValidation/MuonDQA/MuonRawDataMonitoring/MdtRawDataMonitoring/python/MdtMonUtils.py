@@ -2,7 +2,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 import MdtRawDataMonitoring.MdtRawMonLabels as labels
-from ROOT import TBox, kGray, TLine
+from ROOT import TBox, kGray, TLine, TMath , TF1, kBlue, kRed
 from MdtRawDataMonitoring.MdtRawMonLabels import * # noqa
 
 def getMDTLabel(x,y):
@@ -119,3 +119,208 @@ def putLine(h, x1, y1, x2, y2, offset, c=1):
     line = TLine(x1-offset, y1*0.5, x2-offset, y2*0.5)
     line.SetLineColor(c)
     h.GetListOfFunctions().Add(line)
+
+tubeLenght_dict = {
+    "BEE": 0.9115,
+    "BIS": 1.6715,
+    "BIS8": 0.8515,
+    "BIL": 2.6715,
+    "BIM" : 1.5365,
+    "BIR" : 1.1055,
+    "BIR1" : 2.6715,
+    "BIR2" : 1.5365,
+    "BIR4": 1.5365,
+    "BIR5" : 1.5365,
+    "BIR3" : 1.1055,
+    "BIR6" : 1.1055,
+    "BME" : 2.15, #approximate!                                                                                                                                   
+    "BMG" : 1.12, #approximate!                                                                                                               
+    "BML" : 3.5515,
+    "BMS" : 3.0715,
+    "BMF" : 3.0715,
+    "BOL" : 4.9615,
+    "BOG" : 3.7715,
+    "BOS": 3.7733,
+    "BOF" : 3.7733,
+    "EES1" : 2.1945,
+    "EES2" : 2.5905,
+    "EEL105": 2.6265,
+    "EEL1" : 4.2015,
+    "EEL2" : 3.6015,
+    "EIS1" : 1.0605,
+    "EIS2" : 1.4115,
+    "EIL1" : 1.5465,
+    "EIL2" : 2.0865,
+    "EIL311" : 1.7415,
+    "EIL315" : 1.7415,
+    "EIL3" : 2.0715,
+    "EIL411" : 1.5515,
+    "EIL415" : 1.5515,
+    "EIL401" : 1.5365,
+    "EIL409" : 1.5365,
+    "EIL403" : 2.8015,
+    "EIL405" : 2.8015,
+    "EIL413" : 2.8015,
+    "EIL407" : 2.0115,
+    "EIL501" : 2.8015,
+    "EIL509" : 2.8015,
+    "EML1" : 1.5465,
+    "EML2" : 2.4465,
+    "EML3" : 3.4065,
+    "EML4" : 4.3665,
+    "EML5" : 5.3265,
+    "EMS1" : 1.0875,
+    "EMS2" : 1.6635,
+    "EMS3" : 2.2395,
+    "EMS4" : 2.8155,
+    "EMS5" : 3.3915,
+    "EOL1" : 2.0415,
+    "EOL2" : 3.0015,
+    "EOL3" : 3.7815,
+    "EOL4" : 4.5015,
+    "EOL5" : 5.2215,
+    "EOL6" : 5.9415,
+    "EOS1" : 1.4655,
+    "EOS2" : 1.9695,
+    "EOS3" : 2.4735,
+    "EOS4" : 2.9415,
+    "EOS5" : 3.3735,
+    "EOS6" : 3.8055,
+}
+
+def getTubeLength( name ):
+
+    name03=name[0:3]
+    name04=name[0:4]
+    name56= name[5:7]
+
+    tubeLength = 4.9615
+
+    tubeLength = tubeLenght_dict.get(name03, tubeLength)
+    tubeLength = tubeLenght_dict.get(name04, tubeLength)
+    tubeLength = tubeLenght_dict.get(name03+name56, tubeLength)
+    tubeLength = tubeLenght_dict.get(name04+name56, tubeLength)
+
+    return tubeLength 
+
+
+def MDT2DHWName(name):
+   statphi_s = name[5:7]
+   eta_s = name[3:4]
+   #ME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BME4[AC]13 in histogram position
+   if(name[0:3]=="BME"):
+      eta_s = "4"
+      statphi_s = "13"
+
+   statphi_c = statphi_s+" 1"
+   statphi_c2 = statphi_s+" 2"
+   if(name[0:3]=="BIR" or name[0:3]=="BIM") :
+      statphi_c = statphi_c +" "+name[2:3]
+      statphi_c2 = statphi_c2 +" "+name[2:3]
+
+   #BML[45][AC]13-->BML[56][AC]13
+   if(name[0:3] == "BML" and int(name[3:4])>=4 and name[5:7] == "13"):
+      eta_s = str(int(name[3:4])+1)
+
+   #BMF1,2,3 corresponds to eta stations 1,3,5
+   if( name[0:3] == "BMF"):
+      eta_s=str(int(name[3:4])*2-1)
+
+   stateta_c = name[0:2]
+   stateta_c += name[4:5]
+   stateta_c += eta_s
+   
+   return (stateta_c, statphi_c, statphi_c2)
+
+
+def MDTTubeEff(name,hi_num,hi_den):
+   nBinsNum = hi_num.GetNbinsX()
+   BinsML1 = nBinsNum/2
+   if(name[0:4]=="BIS8" or name[0:2]=="BE"):
+      BinsML1=nBinsNum
+   if(nBinsNum!=hi_den.GetNbinsX()):
+      return
+   countsML1=0
+   countsML2=0
+   entriesML1=0
+   entriesML2=0
+   for ibin in range(nBinsNum):
+      entries    = hi_den.GetBinContent(ibin)
+      counts     = hi_num.GetBinContent(ibin)
+      if(ibin<BinsML1 or BinsML1==nBinsNum) :
+         countsML1+=counts
+         entriesML1+=entries
+      else:
+         countsML2+=counts
+         entriesML2+=entries
+
+   return (countsML1, countsML2, entriesML1, entriesML2)
+
+
+def fittzero(x, par):
+   fitvaltzero = par[0] + ( par[3] / ( 1 + ( TMath.Exp((-x[0]+par[1])/par[2]) ) ) )
+   return fitvaltzero
+
+tf1_fittzero = TF1("func1", fittzero, 0., 200., 4)
+
+
+def fittmax(x, par):
+   fitvaltmax = par[0] + ( par[3] / ( 1 + ( TMath.Exp((x[0]-par[1])/par[2]) ) ) )
+   return fitvaltmax
+
+tf1_fittmax = TF1("func2", fittmax, 0., 200., 4)
+
+def MDTFitTDC(h):
+   t0 = 0
+   tmax = 0
+   t0err = 0
+   tmaxerr = 0
+   up = h.GetBinCenter(h.GetMaximumBin()+1)
+   if( up > 200 ):
+      up = 200
+   down = up + 650
+   if( up < 50 ):
+      up = 50
+   parESD0 = h.GetBinContent(h.GetMinimumBin())
+   parESD1 = up
+   parESD2 = 20
+   parESD3 = h.GetBinContent(h.GetMaximumBin()) - h.GetBinContent(h.GetMinimumBin())
+   func1 = tf1_fittzero
+   func1.SetRange(0., up)
+   func1.SetParameters(parESD0, parESD1, parESD2, parESD3)
+   func1.SetLineColor(kBlue+2)
+   if(h.GetEntries()>100):
+      h.Fit("func1","RQN")
+      t0 = func1.GetParameter(1)
+      t0err = func1.GetParError(1)
+      binAtT0 = h.GetBinContent(h.FindBin(t0))
+      if(binAtT0<1):
+         binAtT0 = 1
+      # // to additionally account for bad fits                                                                                                                                                         
+      if(func1.GetNumberFitPoints()!=0):
+         t0err += 10.0 * func1.GetChisquare() / (0.01*binAtT0*binAtT0*func1.GetNumberFitPoints())
+
+   parESD0 = h.GetBinContent(h.GetMinimumBin())
+   parESD1 = down
+   parESD2 = 50
+   parESD3 = (h.GetBinContent(h.GetMaximumBin())-h.GetBinContent(h.GetMinimumBin()))/10.
+   func2 = tf1_fittmax
+   func2.SetRange((down-135), (down+135))
+   func2.SetParameters(parESD0,parESD1,parESD2,parESD3)
+   func2.SetLineColor(kRed+1)
+   if(h.GetEntries()>100):
+      func2.SetParLimits(0, parESD0, 2.0*parESD0+1)
+      func2.SetParLimits(2, 5, 90)
+      func2.SetParLimits(3, 0.2*parESD3, 7*parESD3)
+      h.Fit("func2","WWRQN+")
+      tmax = func2.GetParameter(1)
+      tmaxerr = func2.GetParError(1)
+      binAtTmax = h.GetBinContent(h.FindBin(tmax))
+      if(binAtTmax<1):
+         binAtTmax = 1
+      # to additionally account for bad fits                                                                                                                                                            
+      tmaxerr += 10.0 * func2.GetChisquare() / (0.01*binAtTmax*binAtTmax*func2.GetNumberFitPoints())
+
+   return [t0, t0err, tmax, tmaxerr]
+
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UserHooksUtils.h"
@@ -31,11 +31,18 @@ namespace Pythia8 {
       std::cout << "*       Enhancing shower emissions with UserHook!        *" << endl;
       std::cout << "*                                                        *" << endl;
       std::cout << "**********************************************************" << endl;
+
+#ifdef PYTHIA8_304SERIES
+      settingsPtr->readString("Enhancements:doEnhance = true");
+      settingsPtr->readString("Enhancements:doEnhanceTrial = false");
+#endif // PYTHIA8_304SERIES
     }
 
+#ifndef PYTHIA8_304SERIES
     // Enhance real-emission rate. Thus no trial-emission enhancement.
     bool canEnhanceEmission() { return true;}
     bool canEnhanceTrial()    { return false;}
+#endif // not PYTHIA8_304SERIES
 
     // Function to return the weight enhance factor.
     double enhanceFactor(std::string name) {

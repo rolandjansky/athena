@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,13 +36,13 @@ StatusCode JetTrackMomentsTool::initialize() {
   for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {
     const float minPt = m_minTrackPt[iCut];
     const std::string baseName = getMomentBaseName(minPt);
-    m_keysNumTrk.emplace_back(  m_jetContainerName + ".NumTrk"     + baseName);
-    m_keysSumPtTrk.emplace_back(m_jetContainerName + ".SumPtTrk"   + baseName);
-    m_keysTrkWidth.emplace_back(m_jetContainerName + ".TrackWidth" + baseName);
+    m_keysNumTrk.emplace_back(  m_jetContainerName + ".NumTrk"     + baseName + m_suffix);
+    m_keysSumPtTrk.emplace_back(m_jetContainerName + ".SumPtTrk"   + baseName + m_suffix);
+    m_keysTrkWidth.emplace_back(m_jetContainerName + ".TrackWidth" + baseName + m_suffix);
     if(m_doPFlowMoments){
-      m_keysNumCPFO.emplace_back(  m_jetContainerName + ".NumChargedPFO"   + baseName);
-      m_keysSumPtCPFO.emplace_back(m_jetContainerName + ".SumPtChargedPFO" + baseName);
-      m_keysCPFOWidth.emplace_back(m_jetContainerName + ".ChargedPFOWidth" + baseName);
+      m_keysNumCPFO.emplace_back(  m_jetContainerName + ".NumChargedPFO"   + baseName + m_suffix);
+      m_keysSumPtCPFO.emplace_back(m_jetContainerName + ".SumPtChargedPFO" + baseName + m_suffix);
+      m_keysCPFOWidth.emplace_back(m_jetContainerName + ".ChargedPFOWidth" + baseName + m_suffix);
     }
   }
 
@@ -192,7 +192,7 @@ const std::vector<JetTrackMomentsTool::TrackMomentStruct> JetTrackMomentsTool::g
 JetTrackMomentsTool::TrackMomentStruct JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet, const xAOD::Vertex* vertex, const float minTrackPt, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
 {
     // Prepare the moments
-    TrackMomentStruct moments;
+    TrackMomentStruct moments{};
     moments.numTrk = 0;
     moments.sumPtTrk = 0;
     moments.trackWidth = 0;

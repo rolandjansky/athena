@@ -20,9 +20,9 @@
  */
 template <class AUXSTORE, class ... TPCNVS>
 T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::T_AthenaPoolAuxContainerCnv( ISvcLocator* svcLoc )
-  : Base( svcLoc )
+  : Base( svcLoc ),
+    m_guid (AthenaPoolCnvSvc::guidFromTypeinfo (typeid (AUXSTORE)))
 {
-  m_guid = AthenaPoolCnvSvc::guidFromTypeinfo (typeid (AUXSTORE));
 }
 
 

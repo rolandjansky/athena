@@ -29,6 +29,7 @@ class TrigBphysStreamerHypo : public ::HypoBase {
 
   Gaudi::Property<std::vector<std::string>> m_triggerList {this, "triggerList", {}, "The streamer will copy ID from the previous Decision if it matches with some trigger from the list; all IDs will be copied if no trigger is specified"};
   TrigCompositeUtils::DecisionIDContainer m_triggerIDs;
+  Gaudi::Property<std::string>m_roiLinkName{this, "RoILinkName", "l2cbroi", "Name for RoI Link"};
 };
 
 #endif  // TRIG_TrigBphysStreamerHypo_H

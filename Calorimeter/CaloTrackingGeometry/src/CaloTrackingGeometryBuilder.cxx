@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,6 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/IDynamicLayerCreator.h"
-//#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkDetDescrUtils/SharedObject.h"
@@ -35,20 +34,9 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
-#include "TrkSurfaces/PlaneSurface.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include <memory>
-// CLHEP
-//#include "CLHEP/Geometry/Transform3D.h"
 
-//using HepGeom::Transform3D;
-//using HepGeom::Translate3D;
-//using HepGeom::RotateZ3D;
-//using HepGeom::Vector3D;
-//using CLHEP::Hep3Vector;
-//using CLHEP::HepRotation;
-//using CLHEP::mm;
-//using CLHEP::radian;
 
 // constructor
 Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -518,8 +506,8 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
        //float d = mbtsBounds->halflengthZ();
        Trk::DiscBounds* dibo = new Trk::DiscBounds(rmin,rmax);
        // MBTS positions
-       Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
-       Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
+       Amg::Transform3D mbtsNegZpos = Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
+       Amg::Transform3D mbtsPosZpos = Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
        // create the two Layers ( TODO: add trd surface subarray )
        Trk::DiscLayer* mbtsNegLayer = new Trk::DiscLayer(mbtsNegZpos,dibo,
                                                          //mbtsNegLayerSurfArray,

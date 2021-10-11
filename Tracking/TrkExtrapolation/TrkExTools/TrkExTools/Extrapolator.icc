@@ -77,14 +77,6 @@ Extrapolator::resetRecallInformation(Cache& cache) const
   cache.m_recallTrackingVolume = nullptr;
 }
 
-inline void
-Extrapolator::throwIntoGarbageBin(Cache& cache,
-                                  const Trk::TrackParameters* pars) const
-{
-  if (pars)
-    cache.m_garbageBin[pars] = true;
-}
-
 inline const Trk::TrackParameters*
 Extrapolator::returnResult(Cache& cache,
                            const Trk::TrackParameters* result) const

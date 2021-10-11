@@ -15,8 +15,9 @@ void sctBarrelResiduals(TString trkCol, TCanvas *cSCTBarrelRes){
 }
 
 void sctBarrelResiduals(TString trkCol, TCanvas *cSCTBarrelRes, TString trkCol2) {
-	TH1F *hSCTBarrelRes[3];
-	TH1F *hSCTBarrelRes_2[3];
+  constexpr size_t nLayers{4};
+	TH1F *hSCTBarrelRes[nLayers];
+	TH1F *hSCTBarrelRes_2[nLayers];
 	
 	TString histname, histtitle;
 	Color_t Color;
@@ -30,7 +31,7 @@ void sctBarrelResiduals(TString trkCol, TCanvas *cSCTBarrelRes, TString trkCol2)
 			      CanvasSizeX4[0],CanvasSizeX4[1]);
 	}
 	cSCTBarrelRes->Divide(2,2);
-	for(int layer=0; layer<4; layer++){
+	for(int layer=0; layer<nLayers; layer++){
 		cSCTBarrelRes->cd(layer+1);
 		
 		histname = "IDAlignMon/"+trkCol+"/Residuals/sct_b";

@@ -24,6 +24,8 @@
 #include "TrkDetDescrUtils/MemoryLogger.h"
 #endif  
 
+
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
     class TrackingGeometry;
@@ -55,12 +57,11 @@ namespace Trk {
 
         /** AlgTool initialize method */
         StatusCode initialize();
-        
-        /** AlgTool finalize method */
-        StatusCode finalize();
+
         
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
-        const TrackingGeometry* trackingGeometry(const TrackingVolume* tvol = 0) const;
+        const TrackingGeometry* trackingGeometry
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume* tvol = 0) const;
 
         /** The unique signature */
         GeometrySignature geometrySignature() const { return Trk::Global; }
@@ -68,7 +69,8 @@ namespace Trk {
       private:
 
         /** TrackingGeometry for ATLAS setup */
-        const TrackingGeometry* atlasTrackingGeometry() const;
+        const TrackingGeometry* atlasTrackingGeometry
+        ATLAS_NOT_THREAD_SAFE() const;
 
 #ifdef TRKDETDESCR_MEMUSAGE         
         MemoryLogger                        m_memoryLogger;                //!< in case the memory is logged

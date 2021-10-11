@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile raw channel maker algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 def TileRawChannelMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile raw channel maker algorithm
@@ -20,7 +21,10 @@ def TileRawChannelMakerCfg(flags, **kwargs):
     kwargs.setdefault('name', 'TileRChMaker')
     name = kwargs['name']
 
-    kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')
+    else:
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
 
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'TileRawChannelMakerCfg' )
@@ -64,6 +68,9 @@ def TileRawChannelMakerCfg(flags, **kwargs):
                   tileRawChannelBuilderOptATLAS.name, name)
 
     kwargs.setdefault('TileRawChannelBuilder', tileRawChannelBuilder)
+
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
     TileRawChannelMaker=CompFactory.TileRawChannelMaker
     acc.addEventAlgo(TileRawChannelMaker(**kwargs), primary = True)

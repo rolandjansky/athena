@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace InDet {
 
@@ -49,6 +50,20 @@ namespace InDet {
 
   void SiCombinatorialTrackFinderData_xk::setSctContainer(const InDet::SCT_ClusterContainer* sctcont) {
     m_sctcontainer = sctcont;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setResultCode(const ResultCode code) {
+    m_resultCode = code;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setFlagToReturnFailedTrack(const bool flag) {
+    if( flag &&  (! m_simpleTrack) ) {
+       MsgStream log(Athena::getMessageSvc(), "SiCombinatorialTrackFinderData_xk");
+       log << MSG::WARNING << "not simpleTrack, keep flagToReturnFailedTrack as false" << endmsg;
+       m_flagToReturnFailedTrack = false;
+       return;
+    }
+    m_flagToReturnFailedTrack = flag;
   }
 
   const InDet::PixelClusterContainer* SiCombinatorialTrackFinderData_xk::pixContainer() const {
@@ -143,6 +158,14 @@ namespace InDet {
     return m_simpleTrack;
   }
 
+  bool SiCombinatorialTrackFinderData_xk::flagToReturnFailedTrack() {
+    return m_flagToReturnFailedTrack;
+  }
+
+  SiCombinatorialTrackFinderData_xk::ResultCode SiCombinatorialTrackFinderData_xk::resultCode() {
+    return m_resultCode;
+  }
+
   double& SiCombinatorialTrackFinderData_xk::pTmin() {
     return m_pTmin;
   }
@@ -161,6 +184,14 @@ namespace InDet {
 
   double& SiCombinatorialTrackFinderData_xk::xi2maxlink() {
     return m_xi2maxlink;
+  }
+
+  bool& SiCombinatorialTrackFinderData_xk::isITkGeometry() {
+    return m_ITkGeometry;
+  }
+
+  bool& SiCombinatorialTrackFinderData_xk::useFastTracking() {
+    return m_doFastTracking;
   }
 
   void SiCombinatorialTrackFinderData_xk::setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCalibDigitMaker.h"
@@ -56,39 +56,54 @@ StatusCode LArCalibDigitMaker::initialize()
     ATH_CHECK( m_calibMapKey.initialize() );
   }
     
-//  std::cout << "Pattern.size()=" << m_vPattern.size() << std::endl;
-//   std::cout << "DAC.size()=" << m_vDAC.size() << std::endl;
-//   std::cout << "Delay.size()=" << m_vDelay.size() << std::endl;
-//   std::cout << "nTrigger=" << m_nTrigger << std::endl;
-//   std::cout << "BoardIDs.size()=" << m_vBoardIDs.size() << std::endl;
 
   //Check if calibParams are given consistently: Either all or non
-
-
-
-  if (!((m_vBoardIDs.size()==0 && m_vDAC.size()==0 && m_vDelay.size()==0 && m_vPattern.size()==0 && m_nTrigger==0) ||
-      (m_vBoardIDs.size() && m_vDAC.size() && m_vDelay.size() && m_vPattern.size() && m_nTrigger))) {
-    ATH_MSG_ERROR ( "Problem with jobOptions! Please set either ALL calibration parameters" << std:: endl 
-                    << "(DAC, Delay, Pattern, BoardIDs and nTigger) or non!" );
+  // FIXME - the check should be implemented properly
+ /* 
+  if (! ((m_vBoardIDs[0].size()==0 && m_vBoardIDs[1].size()==0 && m_vBoardIDs[2].size()==0 && m_vBoardIDs[3].size()==0 && m_vBoardIDs[4].size()==0 && m_vDAC.size()==0 && m_vDelay.size()==0 && m_vPattern[0].size()==0 && m_vPattern[1].size()==0 && m_vPattern[2].size()==0 && m_vPattern[3].size()==0 && m_vPattern[4].size()==0 && m_nTrigger==0) ||
+      (m_vBoardIDs[0].size() && m_vBoardIDs[1].size() && m_vBoardIDs[2].size() && m_vBoardIDs[3].size() && m_vBoardIDs[4].size() && m_vDAC.size() && m_vDelay.size() && m_vPattern[0].size() && m_vPattern[1].size() && m_vPattern[2].size() && m_vPattern[3].size() && m_vPattern[4].size() && m_nTrigger))) {
+    ATH_MSG_ERROR ( "Problem with jobOptions! Please set either ALL calibration parameters (DAC, Delay, Pattern, BoardIDs and nTigger) or none!" );
+   
     return StatusCode::FAILURE;
   }
+  */
+  
   //if we have calib board params as jobOpts, set them
-  if (m_vBoardIDs.size() && m_vDAC.size() && m_vDelay.size() && m_vPattern.size() && m_nTrigger) {
-    if (m_vPattern.size()%4) {
-      ATH_MSG_ERROR ( "Problem with jobOptions! One Pattern must conists of 4 32bit values!" );
-      return StatusCode::FAILURE;
-    }
-    auto calibParams = std::make_unique<LArCalibParams>();
-    ATH_CHECK( calibParams->initialize() ); 
 
-    //void LArCalibParams::set(const HWIdentifier CalibModuleID, const unsigned nTrigger,
-    //		 const  std::vector<unsigned>& Pattern, const std::vector<unsigned>& DAC, const std::vector<unsigned>& Delay)
-    for (std::vector<unsigned>::const_iterator it=m_vBoardIDs.begin();it!=m_vBoardIDs.end();it++) {
-      const HWIdentifier calibBoardHWID(*it);
-      calibParams->set(calibBoardHWID,m_nTrigger,m_vPattern,m_vDAC,m_vDelay);
+  std::vector<std::vector<unsigned>> theseBoardIDs;
+  std::vector<std::vector<unsigned>> thesePatterns;
+  std::vector<std::vector<unsigned>> theseDACs;
+  theseBoardIDs.reserve(m_vBoardIDs.size());
+  thesePatterns.reserve(m_vPattern.size());
+  theseDACs.reserve(m_vDAC.size());
+  for (const auto& elem : m_vBoardIDs) {
+    theseBoardIDs.emplace_back(elem.begin(), elem.end());
+  }
+  for (const auto& elem : m_vPattern) {
+    thesePatterns.emplace_back(elem.begin(), elem.end());
+  }
+  for (const auto& elem : m_vDAC) {
+    theseDACs.emplace_back(elem.begin(), elem.end());
+  }
+
+  auto calibParams = std::make_unique<LArCalibParams>();
+  ATH_CHECK( calibParams->initialize() ); 
+
+  for( long unsigned int i=0; i < theseBoardIDs.size(); i++ ){
+    if (theseBoardIDs[i].size() && m_vDAC[i].size() && m_vDelay.size() && thesePatterns[i].size() && m_nTrigger) {
+      if (thesePatterns[i].size()%4) {
+	ATH_MSG_ERROR ( "Problem with jobOptions! One Pattern must conists of 4 32bit values! Pattern "<< i );
+	return StatusCode::FAILURE;
+      }
+      for (std::vector<unsigned>::const_iterator it=theseBoardIDs[i].begin();it!=theseBoardIDs[i].end();it++) {
+	const HWIdentifier calibBoardHWID(*it);
+	calibParams->set(calibBoardHWID,m_nTrigger,thesePatterns[i],theseDACs[i],m_vDelay);
+      }
     }
-    ATH_CHECK( detStore()->record(std::move(calibParams),"LArCalibParams") );
-  }//End set calib board parameters
+  }
+
+  ATH_CHECK( detStore()->record(std::move(calibParams),"LArCalibParams") );
+  // End set calib board parameters
 
   if (m_keylist.size()==0) {
     m_keylist.push_back("HIGH");
@@ -128,36 +143,32 @@ StatusCode LArCalibDigitMaker::execute() {
  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
  //  const unsigned eventNb=thisEventInfo->event_ID()->event_number();
- const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;
+ const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;        // Are we sure?
  ATH_MSG_DEBUG ( "======== executing event "<< eventNb << " ========" );
  
  const LArCalibParams* calibParams = nullptr;
  ATH_CHECK( detStore()->retrieve(calibParams,"LArCalibParams") );
 
- std::vector<std::string>::const_iterator key_it=m_keylist.begin();
- std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
- for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
-   ATH_MSG_DEBUG ( "Retrieving LArDigitContainer. Key= " << (*key_it) );
+ for (const std::string& key : m_keylist) { //Loop over all containers that are to be processed (e.g. different gains)
+   ATH_MSG_DEBUG ( "Retrieving LArDigitContainer. Key= " << key );
    const LArDigitContainer* larDigitCont;
-   StatusCode sc = evtStore()->retrieve(larDigitCont,*key_it);
+   StatusCode sc = evtStore()->retrieve(larDigitCont,key);
    if (sc.isFailure())  {
-     ATH_MSG_DEBUG ( "Cannot read LArDigitContainer from StoreGate! key=" << *key_it );
+     ATH_MSG_DEBUG ( "Cannot read LArDigitContainer from StoreGate! key=" << key );
      continue; //Try next container
    }
    if (larDigitCont->size()==0) {
-     ATH_MSG_DEBUG ( "LArDigitContainer with key '" << *key_it << "' is empty. Ignored." );
+     ATH_MSG_DEBUG ( "LArDigitContainer with key '" << key << "' is empty. Ignored." );
      continue; //Try next container
    }
    //Iterate over LArDigitContainer and build LArCalibDigitContainer
    LArCalibDigitContainer* calibDigitContainer=new LArCalibDigitContainer();
    calibDigitContainer->setDelayScale(m_delayScale);
-   LArDigitContainer::const_iterator it=larDigitCont->begin();
-   LArDigitContainer::const_iterator it_end=larDigitCont->end();
-   for (;it!=it_end;it++) {
-     HWIdentifier chid=(*it)->hardwareID();
+   for (const LArDigit* digit : *larDigitCont) {
+     HWIdentifier chid=digit->hardwareID();
      //Get data members of LArDigit
-     const std::vector<short>& samples=(*it)->samples();
-     CaloGain::CaloGain gain=(*it)->gain();
+     const std::vector<short>& samples=digit->samples();
+     CaloGain::CaloGain gain=digit->gain();
      const std::vector<HWIdentifier>& calibChannelIDs=clcabling->calibSlotLine(chid);
      if (calibChannelIDs.size()==0) {
        continue; //Disconnected channel
@@ -174,8 +185,9 @@ StatusCode LArCalibDigitMaker::execute() {
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
-   ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
-   ATH_MSG_DEBUG ("LArCalibDigitContainer recorded to StoreGate. key=" << *key_it );
+   ATH_MSG_DEBUG("Trying to store with key "<<key);
+   ATH_CHECK( evtStore()->record(calibDigitContainer,key) );
+   ATH_MSG_DEBUG ("LArCalibDigitContainer recorded to StoreGate. key=" << key );
  } //End loop key list
  return StatusCode::SUCCESS;
 }

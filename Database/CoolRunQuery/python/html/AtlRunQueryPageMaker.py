@@ -23,7 +23,7 @@ class PageMaker:
         
         fh = open("%s/index.html" % QC.datapath, "w")
         print (top, file = fh)
-        print (body.encode("utf-8"), file = fh)
+        print (body, file = fh)
         print (bottom, file = fh)
         fh.close()
 
@@ -45,6 +45,7 @@ class PageMaker:
 
     @classmethod
     def _copySomeFilesToCache(cls):
-        from commands import getoutput
+        from subprocess import call
         from CoolRunQuery.AtlRunQueryQueryConfig import QC
-        getoutput("cp html/atlas-runquery-lb.css %s" % QC.datapath)
+        call("mkdir -p %s/css" % QC.datapath, shell=True)
+        call("cp html/css/atlas-runquery-lb.css %s/css/" % QC.datapath, shell=True)

@@ -11,4 +11,4 @@ atlas_add_component( LArGeoH62002Algs
                      src/*.cxx
                      src/components/*.cxx
                      PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                     PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib SGtests GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats RDBAccessSvcLib )
+                     PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats RDBAccessSvcLib )

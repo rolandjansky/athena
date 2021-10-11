@@ -5,7 +5,7 @@
 ###########################################################################
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Bphysics.generateChainConfigs')
+log = logging.getLogger(__name__)
 logging.getLogger().info('Importing %s', __name__)
 
 from ..Menu.ChainDictTools import splitChainDict

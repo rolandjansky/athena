@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "QratCscClusterFitter.h"
@@ -22,54 +22,43 @@ using Muon::CscStripPrepData;
 using MuonGM::CscReadoutElement;
 
 typedef ICscClusterFitter::DataNames DataNames;
-typedef ICscClusterFitter::Result    Result;
-typedef std::vector<Result>          Results;
+using Result = ICscClusterFitter::Result;
+using Results = std::vector<Result>;
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
 namespace {
-std::string
-splane(CscPlane plane)
-{
-    switch (plane) {
-        case CSS_ETA:
-            return "CSS eta";
-        case CSL_ETA:
-            return "CSL eta";
-        case CSS_PHI:
-            return "CSS phi";
-        case CSL_PHI:
-            return "CSL phi";
-        case UNKNOWN_PLANE:
-            return "no such plane";
+    std::string splane(CscPlane plane) {
+        switch (plane) {
+            case CSS_ETA: return "CSS eta";
+            case CSL_ETA: return "CSL eta";
+            case CSS_PHI: return "CSS phi";
+            case CSL_PHI: return "CSL phi";
+            case UNKNOWN_PLANE: return "no such plane";
+        }
+        return "no such plane";
     }
-    return "no such plane";
-}
 
-CscPlane
-findPlane(int station, bool measphi)
-{
-    if (station == 1) {
-        if (measphi)
-            return CSS_PHI;
-        else
-            return CSS_ETA;
-    } else if (station == 2) {
-        if (measphi)
-            return CSL_PHI;
-        else
-            return CSL_ETA;
+    CscPlane findPlane(int station, bool measphi) {
+        if (station == 1) {
+            if (measphi)
+                return CSS_PHI;
+            else
+                return CSS_ETA;
+        } else if (station == 2) {
+            if (measphi)
+                return CSL_PHI;
+            else
+                return CSL_ETA;
+        }
+        return UNKNOWN_PLANE;
     }
-    return UNKNOWN_PLANE;
-}
 }  // namespace
 
 //******************************************************************************
 
-int
-qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat)
-{
+int qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat) {
     std::vector<double> pfac;
     if (plane == CSS_ETA) {
         if (qrat < 0.095) return 1;
@@ -112,8 +101,8 @@ qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat)
     } else {
         return 3;
     }
-    cor         = 0.0;
-    dcordqrat   = 0.0;
+    cor = 0.0;
+    dcordqrat = 0.0;
     double term = 1.0;
     for (unsigned int ipow = 0; ipow < pfac.size(); ++ipow) {
         dcordqrat += ipow * pfac[ipow] * term;
@@ -135,16 +124,14 @@ qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat)
 //   cor = output correction
 //   dcordqrat = derivative of cor w.r.t. qrat
 
-int
-qrat_interpolation(double qrmin, const std::vector<double>& corvals, double qrat, double& cor, double& dcordqrat)
-{
+int qrat_interpolation(double qrmin, const std::vector<double>& corvals, double qrat, double& cor, double& dcordqrat) {
     int nbin = corvals.size();
     if (!nbin) return 1;
     // Treat any QRAT below the minimum as if it were at the minumum.
     if (qrat < qrmin) qrat = qrmin;
     // Find the bin holding dqrat.
     double dqrat = 1.0 / nbin;
-    int    bin   = int(qrat / dqrat);
+    int bin = int(qrat / dqrat);
     // Extract the value for this bin (x1) and the preceding (x0)
     // and the following (x2).
     double x1 = corvals[bin];
@@ -157,27 +144,25 @@ qrat_interpolation(double qrmin, const std::vector<double>& corvals, double qrat
     double qrat1 = qrat0 + dqrat;
 
     if (x0 == 0.0) {
-        if (qrmin > qrat0 && qrmin < qrat1) {
-            qrat0 = qrmin;
-        }
+        if (qrmin > qrat0 && qrmin < qrat1) { qrat0 = qrmin; }
     }
     // Calculate correction and derivative.
     // Use quadratic interpolation with the high edge of this bin,
     // the preceding and the following. For the last bin, use linear
     // interpolation.
     if (bin == nbin - 1) {
-        double a  = x0;
-        double b  = (x1 - x0) / dqrat;
-        cor       = a + b * (qrat - qrat0);
+        double a = x0;
+        double b = (x1 - x0) / dqrat;
+        cor = a + b * (qrat - qrat0);
         dcordqrat = b;
     } else {
         double d0 = qrat1 - qrat0;
-        double d  = dqrat;
-        double w  = 1.0 / (d0 * d * d + d0 * d0 * d);
-        double a  = x1;
-        double b  = w * d * d * (x1 - x0) + w * d0 * d0 * (x2 - x1);
-        double c  = w * d0 * (x2 - x1) - w * d * (x1 - x0);
-        cor       = a + b * (qrat - qrat1) + c * (qrat - qrat1) * (qrat - qrat1);
+        double d = dqrat;
+        double w = 1.0 / (d0 * d * d + d0 * d0 * d);
+        double a = x1;
+        double b = w * d * d * (x1 - x0) + w * d0 * d0 * (x2 - x1);
+        double c = w * d0 * (x2 - x1) - w * d * (x1 - x0);
+        cor = a + b * (qrat - qrat1) + c * (qrat - qrat1) * (qrat - qrat1);
         dcordqrat = b + 2.0 * c * (qrat - qrat1);
     }
     if (cor < 0.0) cor = 0.0;
@@ -185,7 +170,6 @@ qrat_interpolation(double qrmin, const std::vector<double>& corvals, double qrat
     cor -= 0.50;
     return 0;
 }
-
 
 //****************************************************************************
 
@@ -206,28 +190,24 @@ qrat_interpolation(double qrmin, const std::vector<double>& corvals, double qrat
 @param   dcordqrat = derivative of cor w.r.t. qrat for error estimates
 @return  0 if no error, 1 if qrat is negative
 */
-int
-qrat_atanh(const double a, const double b, double c, const double x0, double qrat, double& cor, double& dcordqrat)
-{
+int qrat_atanh(const double a, const double b, double c, const double x0, double qrat, double& cor, double& dcordqrat) {
     if (qrat <= 0) return 1;  // avoid trouble in error calculation
     // minimum qrat value (at pos=-1) or use pos = -0.5?
     double qrmin = a + b * tanh(c * (-1 - x0));
 
     // Treat any QRAT below the minimum as if it were at the minumum.
     if (qrat < qrmin) qrat = qrmin;
-    double z  = (qrat - a) / b;
-    cor       = atanh(z) / c + x0;
+    double z = (qrat - a) / b;
+    cor = atanh(z) / c + x0;
     dcordqrat = 1.0 / (1.0 - z * z) / b / c;
 
     return 0;
 }
 
-
 //****************************************************************************
 
-QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent)
-{
+QratCscClusterFitter::QratCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
+    AthAlgTool(type, aname, parent) {
     declareInterface<ICscClusterFitter>(this);
     m_max_width.push_back(5);                   // CSS eta
     m_max_width.push_back(5);                   // CSL eta
@@ -255,7 +235,6 @@ QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, 
     declareProperty("qratcor_css_eta", m_qratcor_css_eta);  // in strips
     declareProperty("qratcor_csl_eta", m_qratcor_csl_eta);  // in strips
 
-
     declareProperty("atanh_a_css_eta", m_atanh_a_css_eta = 1.5);
     declareProperty("atanh_b_css_eta", m_atanh_b_css_eta = 1.411);
     declareProperty("atanh_c_css_eta", m_atanh_c_css_eta = 2.329);
@@ -270,10 +249,7 @@ QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, 
 
 //**********************************************************************
 
-StatusCode
-QratCscClusterFitter::initialize()
-{
-
+StatusCode QratCscClusterFitter::initialize() {
     ATH_MSG_VERBOSE("Initalizing " << name());
 
     // retrieve MuonDetectorManager from the conditions store
@@ -322,13 +298,11 @@ QratCscClusterFitter::initialize()
 
 //**********************************************************************
 
-const DataNames&
-QratCscClusterFitter::dataNames() const
-{
+const DataNames& QratCscClusterFitter::dataNames() const {
     auto init = [&]() {
         DataNames dnames;
-        bool      dofixed  = false;
-        bool      docharge = false;
+        bool dofixed = false;
+        bool docharge = false;
         if (m_posopt_phi == "POLYNOMIAL" || m_posopt_phi == "TABLE" || m_posopt_phi == "ATANH") {
             if (m_erropt_phi == "FIXED") dofixed = true;
             if (m_erropt_phi == "CHARGE") docharge = true;
@@ -357,9 +331,7 @@ QratCscClusterFitter::dataNames() const
 
 //**********************************************************************
 
-Results
-QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
-{
+Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const {
     ATH_MSG_VERBOSE("QRAT fit with tool " << name());
 
     Results results;
@@ -369,8 +341,7 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     if (nstrip < 3) {
         ATH_MSG_VERBOSE("  Input has fewer than three strips.");
         if (nstrip == 2) {
-            Muon::CscTimeStatus tstatus =
-                (sfits[0].charge > sfits[1].charge) ? sfits[0].timeStatus : sfits[1].timeStatus;
+            Muon::CscTimeStatus tstatus = (sfits[0].charge > sfits[1].charge) ? sfits[0].timeStatus : sfits[1].timeStatus;
             results.push_back(Result(1, Muon::CscStatusNarrow, tstatus));
         } else if (nstrip == 1) {
             Muon::CscTimeStatus tstatus = sfits[0].timeStatus;
@@ -381,7 +352,7 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
 
     // Fetch the number of strips and check the input arrays.
     for (unsigned int istrip = 0; istrip < nstrip; ++istrip) {
-        if (sfits[istrip].strip == 0) {
+        if (sfits[istrip].strip == nullptr) {
             ATH_MSG_WARNING("Strip pointer is null.");
             results.push_back(Result(2));
             return results;
@@ -389,23 +360,23 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     }
 
     // Use the first strip to extract the layer parameters.
-    const CscStripPrepData* pstrip   = sfits[0].strip;
-    Identifier              idStrip0 = pstrip->identify();
+    const CscStripPrepData* pstrip = sfits[0].strip;
+    Identifier idStrip0 = pstrip->identify();
 
     // retrieve MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-    const MuonGM::MuonDetectorManager*              MuonDetMgr = DetectorManagerHandle.cptr();
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();
     if (MuonDetMgr == nullptr) {
         ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");
         return results;
     }
     const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(idStrip0);
 
-    bool         measphi  = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
-    double       pitch    = pro->cathodeReadoutPitch(0, measphi);
+    bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
+    double pitch = pro->cathodeReadoutPitch(0, measphi);
     unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-    unsigned int strip0   = m_idHelperSvc->cscIdHelper().strip(idStrip0) - 1;
-    int          station  = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;  // 1=CSS, 2=CSL
+    unsigned int strip0 = m_idHelperSvc->cscIdHelper().strip(idStrip0) - 1;
+    int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;  // 1=CSS, 2=CSL
 
     CscPlane plane = findPlane(station, measphi);
     if (plane == UNKNOWN_PLANE) {
@@ -418,9 +389,8 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     ATH_MSG_VERBOSE("QRAT fittter input has " << nstrip << " strips");
     for (unsigned int istrip = 0; istrip < nstrip; ++istrip) {
         Identifier id = sfits[istrip].strip->identify();
-        ATH_MSG_VERBOSE("  " << station << " : " << measphi << "  " << m_idHelperSvc->cscIdHelper().wireLayer(id)
-                             << "  " << istrip << " " << m_idHelperSvc->cscIdHelper().strip(id) << " "
-                             << sfits[istrip].charge);
+        ATH_MSG_VERBOSE("  " << station << " : " << measphi << "  " << m_idHelperSvc->cscIdHelper().wireLayer(id) << "  " << istrip << " "
+                             << m_idHelperSvc->cscIdHelper().strip(id) << " " << sfits[istrip].charge);
     }
 
     // Find the peak strip and check the shape.
@@ -428,10 +398,10 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     // Loop over strips excluding the edges.
     double charge_clu = sfits[0].charge + sfits[nstrip - 1].charge;
     for (unsigned int istrip = 1; istrip < nstrip - 1; ++istrip) {
-        StripFit sfit  = sfits[istrip];
-        float    qthis = sfit.charge;
-        float    qlast = sfits[istrip - 1].charge;
-        float    qnext = sfits[istrip + 1].charge;
+        StripFit sfit = sfits[istrip];
+        float qthis = sfit.charge;
+        float qlast = sfits[istrip - 1].charge;
+        float qnext = sfits[istrip + 1].charge;
         charge_clu += qthis;
         // Peak if the adjacent strips have less charge.
         bool ispeak = qthis > qlast && qthis > qnext;
@@ -439,9 +409,7 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
         // Require the previous strip has less charge and the next following
         // strip be absent or have less charge.
         if (!ispeak) {
-            if (qthis == qnext) {
-                ispeak = (qthis > qlast) && (istrip + 2 == nstrip || sfits[istrip + 2].charge < qthis);
-            }
+            if (qthis == qnext) { ispeak = (qthis > qlast) && (istrip + 2 == nstrip || sfits[istrip + 2].charge < qthis); }
         }
         // Special case: first and second strips have the same charge.
         // Require the third strip has less charge.
@@ -454,9 +422,8 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
         }
         // Record if peak.
         if (ispeak) {
-            if (istrip_peak) {  // Error if multiple peaks are found.
-                results.push_back(
-                    Result(6, Muon::CscStatusMultiPeak));  // Time status should be defined in SimpleClusterFit...
+            if (istrip_peak) {                                           // Error if multiple peaks are found.
+                results.push_back(Result(6, Muon::CscStatusMultiPeak));  // Time status should be defined in SimpleClusterFit...
                 return results;
             }
             istrip_peak = istrip;
@@ -481,40 +448,31 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     ***************************************/
 
     // Cluster is spoiled if peak is not at the center.
-    bool is_even  = 2 * (nstrip / 2) == nstrip;
+    bool is_even = 2 * (nstrip / 2) == nstrip;
     bool atcenter = istrip_peak == nstrip / 2 || (is_even && istrip_peak + 1 == nstrip / 2);
     if (!atcenter) {
         results.push_back(Result(7, Muon::CscStatusSkewed, sfits[istrip_peak].timeStatus));
         return results;
     }
 
-
-    if (sfits[istrip_peak].stripStatus == Muon::CscStrStatSaturated
-        || sfits[istrip_peak - 1].stripStatus == Muon::CscStrStatSaturated
-        || sfits[istrip_peak + 1].stripStatus == Muon::CscStrStatSaturated)
-    {
+    if (sfits[istrip_peak].stripStatus == Muon::CscStrStatSaturated || sfits[istrip_peak - 1].stripStatus == Muon::CscStrStatSaturated ||
+        sfits[istrip_peak + 1].stripStatus == Muon::CscStrStatSaturated) {
         results.push_back(Result(15, Muon::CscStatusSaturated, sfits[istrip_peak].timeStatus));
         return results;
     }
-
 
     // left/peak/right strip should have good time information....
     if (sfits[istrip_peak].stripStatus != Muon::CscStrStatSuccess
         //       || sfits[istrip_peak-1].stripStatus != Muon::CscStrStatSuccess
         //       || sfits[istrip_peak+1].stripStatus != Muon::CscStrStatSuccess ) {
-    )
-    {
+    ) {
         results.push_back(Result(14, Muon::CscStatusStripFitFailed, sfits[istrip_peak].timeStatus));
         return results;
-    } else if (sfits[istrip_peak - 1].stripStatus == Muon::CscStrStatHot
-               || sfits[istrip_peak - 1].stripStatus == Muon::CscStrStatDead
-               || sfits[istrip_peak + 1].stripStatus == Muon::CscStrStatHot
-               || sfits[istrip_peak + 1].stripStatus == Muon::CscStrStatDead)
-    {
+    } else if (sfits[istrip_peak - 1].stripStatus == Muon::CscStrStatHot || sfits[istrip_peak - 1].stripStatus == Muon::CscStrStatDead ||
+               sfits[istrip_peak + 1].stripStatus == Muon::CscStrStatHot || sfits[istrip_peak + 1].stripStatus == Muon::CscStrStatDead) {
         results.push_back(Result(14, Muon::CscStatusStripFitFailed, sfits[istrip_peak].timeStatus));
         return results;
     }
-
 
     ///////////////////////////////////////////////////////////////
     // Set initial strip position.
@@ -523,39 +481,39 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     // Calculate QRAT correction to strip position.
     std::string posopt = m_posopt_eta;
     std::string erropt = m_erropt_eta;
-    double      dpos   = 0.0;
+    double dpos = 0.0;
     if (measphi) {
         posopt = m_posopt_phi;
         erropt = m_erropt_phi;
     }
-    double q1    = sfits[istrip_peak - 1].charge;
-    double q0    = sfits[istrip_peak].charge;
-    double q2    = sfits[istrip_peak + 1].charge;
+    double q1 = sfits[istrip_peak - 1].charge;
+    double q0 = sfits[istrip_peak].charge;
+    double q2 = sfits[istrip_peak + 1].charge;
     double qrat1 = q1 / q0;
     double qrat2 = q2 / q0;
-    double dq1   = sfits[istrip_peak - 1].dcharge;
-    double dq0   = sfits[istrip_peak].dcharge;
-    double dq2   = sfits[istrip_peak + 1].dcharge;
+    double dq1 = sfits[istrip_peak - 1].dcharge;
+    double dq0 = sfits[istrip_peak].dcharge;
+    double dq2 = sfits[istrip_peak + 1].dcharge;
 
     ATH_MSG_VERBOSE("  QRAT charge ratios: " << qrat1 << " " << qrat2);
-    double scor1       = 0.;  // left side correction.
+    double scor1 = 0.;  // left side correction.
     double dscordqrat1 = 0.;
-    double scor2       = 0;  // right side correction.
+    double scor2 = 0;  // right side correction.
     double dscordqrat2 = 0.;
-    int    stat1       = 0;
-    int    stat2       = 0;
+    int stat1 = 0;
+    int stat2 = 0;
     if (posopt == "POLYNOMIAL") {
         stat1 = qrat_correction(plane, qrat1, scor1, dscordqrat1);
         stat2 = qrat_correction(plane, qrat2, scor2, dscordqrat2);
     } else if (posopt == "TABLE") {
-        double                     qrmin = 0.0;
-        const std::vector<double>* pcor  = 0;
+        double qrmin = 0.0;
+        const std::vector<double>* pcor = nullptr;
         if (plane == CSS_ETA) {
             qrmin = m_qratmin_css_eta;
-            pcor  = &m_qratcor_css_eta;
+            pcor = &m_qratcor_css_eta;
         } else if (plane == CSL_ETA) {
             qrmin = m_qratmin_csl_eta;
-            pcor  = &m_qratcor_csl_eta;
+            pcor = &m_qratcor_csl_eta;
         } else {
             ATH_MSG_WARNING("    Invalid QRAT plane: " << splane(plane));
             results.push_back(Result(8));
@@ -570,14 +528,14 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
     } else if (posopt == "ATANH") {  // MS: atanh parametrization
         double a, b, c, x0;          // parameters
         if (plane == CSS_ETA) {
-            a  = m_atanh_a_css_eta;
-            b  = m_atanh_b_css_eta;
-            c  = m_atanh_c_css_eta;
+            a = m_atanh_a_css_eta;
+            b = m_atanh_b_css_eta;
+            c = m_atanh_c_css_eta;
             x0 = m_atanh_x0_css_eta;
         } else if (plane == CSL_ETA) {
-            a  = m_atanh_a_csl_eta;
-            b  = m_atanh_b_csl_eta;
-            c  = m_atanh_c_csl_eta;
+            a = m_atanh_a_csl_eta;
+            b = m_atanh_b_csl_eta;
+            c = m_atanh_c_csl_eta;
             x0 = m_atanh_x0_csl_eta;
         } else {
             ATH_MSG_WARNING("    Invalid QRAT plane: " << splane(plane));
@@ -602,23 +560,23 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
 
     // Compare left and right.
     // Flip sign of the left side correction.
-    scor1        = -scor1;
-    dscordqrat1  = -dscordqrat1;
-    double  scor = 0.0;
+    scor1 = -scor1;
+    dscordqrat1 = -dscordqrat1;
+    double scor = 0.0;
     DataMap dmap;
     // Calculation weighting corrections by their derivatives, i.e. assuming the
     // two charge ratios have the same error.
     if (erropt == "FIXED") {
-        double w1        = 1 / (dscordqrat1 * dscordqrat1);
-        double w2        = 1 / (dscordqrat2 * dscordqrat2);
-        scor             = (w1 * scor1 + w2 * scor2) / (w1 + w2);
+        double w1 = 1 / (dscordqrat1 * dscordqrat1);
+        double w2 = 1 / (dscordqrat2 * dscordqrat2);
+        scor = (w1 * scor1 + w2 * scor2) / (w1 + w2);
         double scor_diff = std::abs(scor2 - scor1);
         ATH_MSG_VERBOSE("  Combined corr: " << scor);
         dpos = measphi ? m_error_phi : m_error_eta;
         // Fill data map.
         dmap["scor1"] = scor1;
         dmap["scor2"] = scor2;
-        dmap["scor"]  = scor;
+        dmap["scor"] = scor;
         // Exit if measurements are inconsistent.
         if (scor_diff > m_qrat_maxdiff) {
             ATH_MSG_VERBOSE("  SPOILED (scor_diff=" << scor_diff << ")");
@@ -628,8 +586,8 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
         // Calculation using the (independent) errors in the three charges.
     } else if (erropt == "CHARGE") {
         // Calculate intermediate variables.
-        double x1   = dscordqrat1 * qrat1;
-        double x2   = dscordqrat2 * qrat2;
+        double x1 = dscordqrat1 * qrat1;
+        double x2 = dscordqrat2 * qrat2;
         double dqq0 = dq0 / q0;
         double dqq1 = dq1 / q1;
         double dqq2 = dq2 / q2;
@@ -638,31 +596,31 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
         double rfac = rnum / rden;
         // Calculate the significance of the difference between the measurements.
         double dscor_diff = sqrt(rden);
-        double scor_diff  = scor2 - scor1;
-        double scor_sig   = std::abs(scor_diff) / dscor_diff;
+        double scor_diff = scor2 - scor1;
+        double scor_sig = std::abs(scor_diff) / dscor_diff;
         // Calculate the weighted average of the corrections.
         double w1 = 0.5 * (1.0 + rfac);
         double w2 = 0.5 * (1.0 - rfac);
-        scor      = w1 * scor1 + w2 * scor2;
+        scor = w1 * scor1 + w2 * scor2;
         // Calculate the error in this average.
         double ddscor1 = w1 * x1 * dqq1;
         double ddscor2 = w2 * x2 * dqq2;
         double ddscor0 = (w1 * x1 + w2 * x2) * dqq0;
-        double dscor   = sqrt(ddscor1 * ddscor1 + ddscor2 * ddscor2 + ddscor0 * ddscor0);
-        dpos           = pitch * dscor;
+        double dscor = sqrt(ddscor1 * ddscor1 + ddscor2 * ddscor2 + ddscor0 * ddscor0);
+        dpos = pitch * dscor;
         // add minimum error (in mm) in quadrature:
         dpos = sqrt(dpos * dpos + m_dposmin * m_dposmin);
         // Fill data map.
-        double dscor1     = std::abs(x1) * sqrt(dqq1 * dqq1 + dqq0 * dqq0);
-        double dscor2     = std::abs(x2) * sqrt(dqq2 * dqq2 + dqq0 * dqq0);
-        dmap["scor1"]     = scor1;
-        dmap["dscor1"]    = dscor1;
-        dmap["scor2"]     = scor2;
-        dmap["dscor2"]    = dscor2;
-        dmap["scordiff"]  = scor_diff;
+        double dscor1 = std::abs(x1) * sqrt(dqq1 * dqq1 + dqq0 * dqq0);
+        double dscor2 = std::abs(x2) * sqrt(dqq2 * dqq2 + dqq0 * dqq0);
+        dmap["scor1"] = scor1;
+        dmap["dscor1"] = dscor1;
+        dmap["scor2"] = scor2;
+        dmap["dscor2"] = dscor2;
+        dmap["scordiff"] = scor_diff;
         dmap["dscordiff"] = dscor_diff;
-        dmap["scor"]      = scor;
-        dmap["dscor"]     = dscor;
+        dmap["scor"] = scor;
+        dmap["dscor"] = dscor;
         // Debugging.
         ATH_MSG_VERBOSE("QRAT CHARGE calculation");
         ATH_MSG_VERBOSE("       q1, q0, q2: " << q1 << " " << q0 << " " << q2);
@@ -700,41 +658,39 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
 
     // Set return values.
     Result res(0, Muon::CscStatusUnspoiled);
-    res.strip    = istrip_peak;
+    res.strip = istrip_peak;
     res.position = pitch * (savg + 0.5 - 0.5 * maxstrip);
 
     // internal alignment ...
-    Identifier id     = sfits[res.strip].strip->identify();
-    double     offset = m_alignmentTool->getAlignmentOffset(id);
+    Identifier id = sfits[res.strip].strip->identify();
+    double offset = m_alignmentTool->getAlignmentOffset(id);
     res.position -= offset;
-
 
     res.dposition = sqrt(dpos * dpos + dpostht * dpostht);
 
-    res.fstrip            = 0;
-    res.lstrip            = nstrip - 1;
-    res.time              = sfits[istrip_peak].time;
+    res.fstrip = 0;
+    res.lstrip = nstrip - 1;
+    res.time = sfits[istrip_peak].time;
     res.time_beforeT0Corr = sfits[istrip_peak].time_beforeT0Corr;
     res.time_beforeBPCorr = sfits[istrip_peak].time_beforeBPCorr;
-    res.timeStatus        = sfits[istrip_peak].timeStatus;
+    res.timeStatus = sfits[istrip_peak].timeStatus;
 
-
-    res.qleft  = q1;
-    res.qpeak  = q0;
+    res.qleft = q1;
+    res.qpeak = q0;
     res.qright = q2;
 
     //  res.diff = dmap["scordiff"];
     //  res.sig  = dmap["scordiff"]/dmap["dscordiff"];
 
     // cluster charge should be qsum over three strip... 3/21/2011
-    res.charge              = res.qleft + res.qpeak + res.qright;
-    res.charge_beforeBPCorr = sfits[istrip_peak].charge_beforeBPCorr + sfits[istrip_peak - 1].charge_beforeBPCorr
-                              + sfits[istrip_peak + 1].charge_beforeBPCorr;
+    res.charge = res.qleft + res.qpeak + res.qright;
+    res.charge_beforeBPCorr =
+        sfits[istrip_peak].charge_beforeBPCorr + sfits[istrip_peak - 1].charge_beforeBPCorr + sfits[istrip_peak + 1].charge_beforeBPCorr;
 
     res.dataMap = dmap;
 
-    ATH_MSG_VERBOSE("   Position :: pos=" << res.position << " dpos:dtht=" << dpos << ":" << dpostht << " ==>"
-                                          << res.dposition << "  at tanth=" << tantheta);
+    ATH_MSG_VERBOSE("   Position :: pos=" << res.position << " dpos:dtht=" << dpos << ":" << dpostht << " ==>" << res.dposition
+                                          << "  at tanth=" << tantheta);
 
     results.push_back(res);
     return results;
@@ -745,18 +701,15 @@ QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) const
 //    unsigned int& /*istrip*/, double& /*charge*/, double& /*time*/, DataMap* /*pdmap*/) const { return 0;}
 //**********************************************************************
 
-double
-QratCscClusterFitter::getCorrectedError(const CscPrepData* pclu, double slope) const
-{
-
+double QratCscClusterFitter::getCorrectedError(const CscPrepData* pclu, double slope) const {
     // Cluster position.
     Trk::ParamDefs icor = Trk::loc1;
     Trk::ParamDefs ierr = Trk::loc1;
-    double         pos  = pclu->localPosition()[icor];
-    double         dpos = Amg::error(pclu->localCovariance(), ierr);
+    double pos = pclu->localPosition()[icor];
+    double dpos = Amg::error(pclu->localCovariance(), ierr);
 
     Identifier idStrip0 = pclu->identify();
-    int        station  = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;  // 1=CSS, 2=CSL
+    int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;  // 1=CSS, 2=CSL
     // Calculate the angle of incidence.
     double tantht = 0.0;
     if (station == 1) {
@@ -771,23 +724,17 @@ QratCscClusterFitter::getCorrectedError(const CscPrepData* pclu, double slope) c
 
     double newError = sqrt(dpos * dpos - old_dpostht * old_dpostht + new_dpostht * new_dpostht);
 
+    ATH_MSG_VERBOSE("   Position :: pos=" << pos << " dpos:newdpos=" << dpos << " : " << newError << "  " << old_dpostht << "  "
+                                          << new_dpostht);
 
-    ATH_MSG_VERBOSE("   Position :: pos=" << pos << " dpos:newdpos=" << dpos << " : " << newError << "  " << old_dpostht
-                                          << "  " << new_dpostht);
-
-    if (slope < -990) {
-        newError = sqrt(dpos * dpos + old_dpostht * old_dpostht);
-    }
+    if (slope < -990) { newError = sqrt(dpos * dpos + old_dpostht * old_dpostht); }
 
     return newError;
 }
 
-
 //**********************************************************************
 
-Results
-QratCscClusterFitter::fit(const StripFitList& sfits) const
-{
+Results QratCscClusterFitter::fit(const StripFitList& sfits) const {
     Results results = fit(sfits, 0.0);
     Results new_results;
     for (unsigned int iresult = 0; iresult < results.size(); ++iresult) {
@@ -797,12 +744,12 @@ QratCscClusterFitter::fit(const StripFitList& sfits) const
             continue;
         }
         // Fetch the chamber type.
-        const CscStripPrepData* pstrip   = sfits[0].strip;
-        Identifier              idStrip0 = pstrip->identify();
-        int                     station  = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;  // 1=CSS, 2=CSL
+        const CscStripPrepData* pstrip = sfits[0].strip;
+        Identifier idStrip0 = pstrip->identify();
+        int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;  // 1=CSS, 2=CSL
         // Calculate the angle of incidence.
         double tantht = 0.0;
-        double pos    = res.position;
+        double pos = res.position;
         if (station == 1) {
             tantht = m_xtan_css_eta_offset + m_xtan_css_eta_slope * pos;
         } else {
@@ -810,7 +757,7 @@ QratCscClusterFitter::fit(const StripFitList& sfits) const
         }
         // Correct the error using this angle.
         double dpostht = m_error_tantheta * std::abs(tantht);
-        double dpos    = res.dposition;
+        double dpos = res.dposition;
 
         res.dposition = sqrt(dpos * dpos + dpostht * dpostht);
 

@@ -46,6 +46,7 @@ __global__ static void doubletCountingKernel(TrigAccel::SEED_FINDER_SETTINGS* dS
   const float maxTheta = 2*atan(exp(-maxEta));
   const float maxCtg = cos(maxTheta)/sin(maxTheta);
   const bool DoPSS = dSettings->m_tripletDoPSS;
+  const bool NoPPS = !dSettings->m_tripletDoPPS;
   const float minOuterZ = dSettings->m_zedMinus - maxOuterRadius*maxCtg - zTolerance; 
   const float maxOuterZ = dSettings->m_zedPlus + maxOuterRadius*maxCtg + zTolerance; 
 
@@ -86,6 +87,8 @@ __global__ static void doubletCountingKernel(TrigAccel::SEED_FINDER_SETTINGS* dS
 
 	const TrigAccel::SILICON_LAYER& layerGeo =  dDetModel->m_layers[nextLayerIdx];
 	bool isBarrel = (layerGeo.m_type == 0);
+
+	
 	float refCoord = layerGeo.m_refCoord;
 	
 	if(isBarrel && fabs(refCoord-rm)>maxDoubletLength) continue;
@@ -127,7 +130,11 @@ __global__ static void doubletCountingKernel(TrigAccel::SEED_FINDER_SETTINGS* dS
 	  if(fabs(dr)>maxDoubletLength || fabs(dr)<minDoubletLength) continue;
 
 	  if(!DoPSS && dr<0 && !isPixel && isPixel2) continue; 
-
+          
+          if(isPixel && !isPixel2) {// i.e. xPS (or SPx)
+           if(NoPPS) continue;//no mixed PPS seeds allowed	    
+	  }
+          
 	  float dz = zsp - zm;
 	  float t = dz/dr;
 

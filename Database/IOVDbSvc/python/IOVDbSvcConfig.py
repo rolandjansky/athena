@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
@@ -53,8 +53,12 @@ def IOVDbSvcCfg(configFlags):
     PoolSvc=CompFactory.PoolSvc
     poolSvc=PoolSvc()
     poolSvc.MaxFilesOpen=0
-    poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml"]
+    poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
+                         "apcfile:poolcond/PoolCat_oflcond.xml",
+                         ]
 
+    if not isMC:
+         poolSvc.ReadCatalog+=["apcfile:poolcond/PoolCat_comcond.xml",]
     result.addService(poolSvc)
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
@@ -224,6 +228,7 @@ def addOverride(configFlags,folder,tag):
   result=IOVDbSvcCfg(configFlags)
   iovDbSvc=result.getPrimary()
   iovDbSvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
+  return result
 
 
 def _extractFolder(folderstr):

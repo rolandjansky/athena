@@ -161,6 +161,57 @@ SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) co
   return p;
 }
 
+SeedMakingManagedDeviceContext* TrigInDetModuleCuda::createManagedSeedMakingContext(int id) const {
+
+  cudaSetDevice(id);
+  checkError(11);
+  SeedMakingManagedDeviceContext* p = new SeedMakingManagedDeviceContext;
+
+  p->m_deviceId = id;
+
+  //set stream
+
+  cudaStreamCreate(&p->m_stream);
+  checkError(12);
+  //check device property
+
+  cudaDeviceProp deviceProp;
+  cudaGetDeviceProperties(&deviceProp, id);
+
+  p->m_gpuParams.m_nSMX = deviceProp.multiProcessorCount;
+
+  int ncores = 0;
+
+  if ((deviceProp.minor == 1) || (deviceProp.minor == 2)) ncores = 128;
+  else if (deviceProp.minor == 0) ncores = 64;	   
+       else printf("Cannot determine the number of cores: unknown device type\n"); 
+
+  p->m_gpuParams.m_nNUM_SMX_CORES = ncores;//_ConvertSMVer2Cores_local(deviceProp.major, deviceProp.minor);
+  p->m_gpuParams.m_nNUM_TRIPLET_BLOCKS = NUM_TRIPLET_BLOCKS;
+  if(deviceProp.maxThreadsPerBlock < p->m_gpuParams.m_nNUM_TRIPLET_BLOCKS) 
+    p->m_gpuParams.m_nNUM_TRIPLET_BLOCKS = deviceProp.maxThreadsPerBlock;
+
+  //Allocate memory
+  
+  cudaMallocManaged((void **)&p->m_settings,    sizeof(TrigAccel::SEED_FINDER_SETTINGS));
+  cudaMallocManaged((void **)&p->m_spacepoints, sizeof(TrigAccel::SPACEPOINT_STORAGE));
+  cudaMallocManaged((void **)&p->m_outputseeds, sizeof(TrigAccel::OUTPUT_SEED_STORAGE));
+
+  cudaMalloc((void **)&p->d_detmodel,    sizeof(TrigAccel::DETECTOR_MODEL));
+  checkError();
+  cudaMalloc((void **)&p->d_doubletstorage, sizeof(DOUBLET_STORAGE));
+  cudaMalloc((void **)&p->d_doubletinfo, sizeof(DOUBLET_INFO));
+  checkError(13);
+
+  p->d_size = sizeof(DOUBLET_STORAGE) + sizeof(DOUBLET_INFO) + sizeof(TrigAccel::DETECTOR_MODEL);
+  
+  p->h_size = 0;
+  
+  p->m_size = sizeof(TrigAccel::SEED_FINDER_SETTINGS) + sizeof(TrigAccel::SPACEPOINT_STORAGE) + sizeof(TrigAccel::OUTPUT_SEED_STORAGE);
+
+  checkError(14);
+  return p;
+}
 
 TrigAccel::Work* TrigInDetModuleCuda::createWork(int workType, std::shared_ptr<TrigAccel::OffloadBuffer> data){
   
@@ -171,7 +222,7 @@ TrigAccel::Work* TrigInDetModuleCuda::createWork(int workType, std::shared_ptr<T
     return 0;
   }
 
-  if(workType == TrigAccel::InDetJobControlCode::MAKE_SEEDS){
+  if(workType == TrigAccel::InDetJobControlCode::FIND_SEEDS){
  
     int deviceId = 0;//always using device 0 for the time being
 
@@ -202,13 +253,45 @@ TrigAccel::Work* TrigInDetModuleCuda::createWork(int workType, std::shared_ptr<T
     return w;
   }
 
+  if(workType == TrigAccel::InDetJobControlCode::MAKE_SEEDS){
+ 
+    int deviceId = 0;//always using device 0 for the time being
+
+    //TO-DO: to support mult-GPU load balancing get deviceId from a tbb_concurrent_queue
+
+    SeedMakingManagedDeviceContext* ctx = createManagedSeedMakingContext(deviceId);
+
+    cudaMemcpy(ctx->d_detmodel, m_h_detmodel, sizeof(TrigAccel::DETECTOR_MODEL), cudaMemcpyHostToDevice);//TO-DO: try CoW here
+    checkError(21);
+    TrigAccel::SEED_MAKING_JOB *pArray = reinterpret_cast<TrigAccel::SEED_MAKING_JOB*>(data->get());
+    
+    //1. copy settings to the context host array
+
+    TrigAccel::SEED_FINDER_SETTINGS* p_settings = reinterpret_cast<TrigAccel::SEED_FINDER_SETTINGS*>(ctx->m_settings);
+    memcpy(p_settings, &pArray->m_settings, sizeof(TrigAccel::SEED_FINDER_SETTINGS));
+
+    //2. copy spacepoints to the context host array
+
+    TrigAccel::SPACEPOINT_STORAGE* p_spacePoints = reinterpret_cast<TrigAccel::SPACEPOINT_STORAGE*>(ctx->m_spacepoints);
+    memcpy(p_spacePoints, &pArray->m_data, sizeof(TrigAccel::SPACEPOINT_STORAGE));
+    
+    unsigned int workNum = m_workItemCounters[0]++;//seed making uses counter #0
+    
+    unsigned int workId = workNum*100;
+    
+    SeedMakingWorkCudaManaged* w = new SeedMakingWorkCudaManaged(workId, ctx, data, &m_timeLine);
+    
+    return w;
+  }
+
   return 0;
 }
 
 const std::vector<int> TrigInDetModuleCuda::getProvidedAlgs(){
   std::vector<int> v{
       TrigAccel::InDetJobControlCode::SIL_LAYERS_EXPORT,
-      TrigAccel::InDetJobControlCode::MAKE_SEEDS
+      TrigAccel::InDetJobControlCode::MAKE_SEEDS,//the default
+      TrigAccel::InDetJobControlCode::FIND_SEEDS //the alternative
   };
   return v;
 }

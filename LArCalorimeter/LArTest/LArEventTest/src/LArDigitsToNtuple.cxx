@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/LArDigitsToNtuple.h"
@@ -143,10 +143,7 @@ StatusCode LArDigitsToNtuple::execute()
 	//return StatusCode::FAILURE;
       }
     else {
-      TBScintillatorCont::const_iterator it_scint = theTBScint->begin();
-      TBScintillatorCont::const_iterator last_scint = theTBScint->end();
-      for(;it_scint!=last_scint;it_scint++) {
-	const TBScintillator * scint = (*it_scint);
+      for (const TBScintillator* scint : *theTBScint) {
 	const std::string name = scint->getDetectorName();
 	if (name=="S1") {
 	  S1Adc = scint->getSignal();
@@ -299,15 +296,13 @@ StatusCode LArDigitsToNtuple::execute()
     // Fill SCA numbers
     if(m_sca) {
       const HWIdentifier febid=m_onlineHelper->feb_Id(hwid);
-      LArFebHeaderContainer::const_iterator feb_it=larFebHeaderContainer->begin();
-      LArFebHeaderContainer::const_iterator feb_it_e=larFebHeaderContainer->end();
-      for (;feb_it!=feb_it_e;feb_it++) {
-	const HWIdentifier this_febid=(*feb_it)->FEBId();
+      for (const LArFebHeader* feb : *larFebHeaderContainer) {
+	const HWIdentifier this_febid=feb->FEBId();
 	
 	if(this_febid!=febid) continue;
-	for(unsigned int i=0;i<(*feb_it)->SCA().size();i++) {
+	for(unsigned int i=0;i<feb->SCA().size();i++) {
 	  if((int)i>=m_nsamples) break;
-	  m_nt_sca[i]=(*feb_it)->SCA()[i];
+	  m_nt_sca[i]=feb->SCA()[i];
 	}
 	break;
       } // End FebHeader loop

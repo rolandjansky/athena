@@ -69,32 +69,32 @@ StatusCode BcidOffsetCorrection::initializeTool(const std::string&) {
   }
   BCIDFile.Insert(14,m_calibAreaTag);
   TString fileName = PathResolverFindCalibFile(BCIDFile.Data());
-  TFile *inputFile = TFile::Open(fileName);
+  std::unique_ptr<TFile> inputFile(TFile::Open(fileName));
   if (!inputFile){
     ATH_MSG_FATAL("Cannot open BCID offset calibration file" << fileName);
     return StatusCode::FAILURE;
   }
 
-  m_bcid_nCells_EMECIW2 = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_nCells_EMECIW2");
-  m_bcid_nCells_HEC0 = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_nCells_HEC0");
-  m_bcid_nCells_HEC1 = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_nCells_HEC1");
-  m_bcid_nCells_FCal0 = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_nCells_FCal0big");
+  m_bcid_nCells_EMECIW2 = JetCalibUtils::GetHisto2(*inputFile,"bcid_nCells_EMECIW2");
+  m_bcid_nCells_HEC0 = JetCalibUtils::GetHisto2(*inputFile,"bcid_nCells_HEC0");
+  m_bcid_nCells_HEC1 = JetCalibUtils::GetHisto2(*inputFile,"bcid_nCells_HEC1");
+  m_bcid_nCells_FCal0 = JetCalibUtils::GetHisto2(*inputFile,"bcid_nCells_FCal0big");
 
-  m_bcid_slope_EMECIW2_pos = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_EMECIW2_pos");
-  m_bcid_slope_EMECIW2_neg = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_EMECIW2_neg");
-  m_bcid_slope_HEC0_pos = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC0_pos");
-  m_bcid_slope_HEC0_neg = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC0_neg");
-  m_bcid_slope_HEC1_pos = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC1_pos");
-  m_bcid_slope_HEC1_neg = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC1_neg");
-  m_bcid_slope_FCal0 = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_FCal0big");
+  m_bcid_slope_EMECIW2_pos = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_EMECIW2_pos");
+  m_bcid_slope_EMECIW2_neg = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_EMECIW2_neg");
+  m_bcid_slope_HEC0_pos = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC0_pos");
+  m_bcid_slope_HEC0_neg = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC0_neg");
+  m_bcid_slope_HEC1_pos = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC1_pos");
+  m_bcid_slope_HEC1_neg = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC1_neg");
+  m_bcid_slope_FCal0 = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_FCal0big");
 
-  m_bcid_slope_EMECIW2_8b4e_pos = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_EMECIW2_8b4e_pos");
-  m_bcid_slope_EMECIW2_8b4e_neg = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_EMECIW2_8b4e_neg");
-  m_bcid_slope_HEC0_8b4e_pos = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC0_8b4e_pos");
-  m_bcid_slope_HEC0_8b4e_neg = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC0_8b4e_neg");
-  m_bcid_slope_HEC1_8b4e_pos = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC1_8b4e_pos");
-  m_bcid_slope_HEC1_8b4e_neg = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_HEC1_8b4e_neg");
-  m_bcid_slope_FCal0_8b4e = (TH2F*)JetCalibUtils::GetHisto2(inputFile,"bcid_slope_FCal0big_8b4e");
+  m_bcid_slope_EMECIW2_8b4e_pos = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_EMECIW2_8b4e_pos");
+  m_bcid_slope_EMECIW2_8b4e_neg = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_EMECIW2_8b4e_neg");
+  m_bcid_slope_HEC0_8b4e_pos = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC0_8b4e_pos");
+  m_bcid_slope_HEC0_8b4e_neg = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC0_8b4e_neg");
+  m_bcid_slope_HEC1_8b4e_pos = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC1_8b4e_pos");
+  m_bcid_slope_HEC1_8b4e_neg = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_HEC1_8b4e_neg");
+  m_bcid_slope_FCal0_8b4e = JetCalibUtils::GetHisto2(*inputFile,"bcid_slope_FCal0big_8b4e");
 
   return StatusCode::SUCCESS;
 }
