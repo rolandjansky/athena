@@ -45,6 +45,16 @@ def StreamerDimuL2IOComboHypoCfg(name):
         trigLevel = 'L2IO')
     return hypo
 
+def StreamerDimuL2MTComboHypoCfg(name):
+    log.debug('DimuL2MTComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'Dimu',
+        trigLevel = 'L2MT')
+    return hypo
+
 def DimuEFComboHypoCfg(name):
     log.debug('DimuEFComboHypoCfg.name = %s ', name)
 
@@ -146,13 +156,13 @@ class TrigMultiTrkComboHypoConfig(object):
 
     def ConfigurationComboHypo(self, isStreamer='False', trigSequenceName='Dimu', trigLevel='L2', trackCollection='', outputTrigBphysCollection='TrigBphysContainer', doElectrons = False):
 
-        trigLevelDict = {'L2':0, 'L2IO':1, 'EF':2}
+        trigLevelDict = {'L2':0, 'L2IO':1, 'L2MT':2, 'EF':3}
 
         try:
             value = trigLevelDict[trigLevel]
             log.debug('TrigMultiTrkComboHypo.trigLevel = %s ', value)
         except KeyError:
-            raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2, L2IO or EF, but %s provided.', trigLevel)
+            raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2, L2IO, L2MT or EF, but %s provided.', trigLevel)
 
         baseName = 'Streamer'+trigSequenceName+trigLevel if isStreamer else trigSequenceName+trigLevel
 
