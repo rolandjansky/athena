@@ -274,7 +274,10 @@ def MuonSystemFastPhysicsRegionToolCfg(ConfigFlags, name='MuonSystemFastPhysicsR
     kwargs.setdefault("RegionName", 'MuonSystemFastRegion')
     volumeList = []
     if ConfigFlags.Sim.CavernBG  == 'World':
-        volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
+        if ConfigFlags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+            volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
+        else:
+            volumeList += ['BeamPipe::BeamPipe', 'ITK::ITK']
     volumeList = ['Muon::MuonSys']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 1.0)
