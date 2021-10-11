@@ -15,9 +15,9 @@ public:
                          AGDDController& c);
 	virtual void ElementHandle(AGDDController& c,
                                    xercesc::DOMNode *t) override;
-	static Polyplane CurrentPolyplane() {return s_pPlane;}
+	Polyplane CurrentPolyplane() {return m_pPlane;}
 private:
-	static Polyplane s_pPlane;
+	Polyplane m_pPlane;
 };
 
 #endif

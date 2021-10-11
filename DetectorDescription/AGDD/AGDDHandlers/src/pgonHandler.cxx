@@ -4,6 +4,7 @@
 
 #include "AGDDHandlers/pgonHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/XMLHandlerStore.h"
 #include "AGDDControl/AGDDController.h"
 #include "AGDDModel/AGDDPgon.h"
 #include "AGDDHandlers/polyplaneHandler.h"
@@ -45,13 +46,17 @@ void pgonHandler::ElementHandle(AGDDController& c,
 
     DOMNode* child;
 
+    polyplaneHandler* pplaneHand = dynamic_cast<polyplaneHandler*>
+      (c.GetHandlerStore().GetHandler("polyplane"));
+    if (!pplaneHand) std::abort();
+
     IAGDDParser& parser = *c.GetParser();
     for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
     {
         if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-        	parser.elementLoop(c, child);
-                Polyplane p=polyplaneHandler::CurrentPolyplane();
-                vol->SetPlane(p.rin(),p.rou(),p.z());
+            parser.elementLoop(c, child);
+            Polyplane p = pplaneHand->CurrentPolyplane();
+            vol->SetPlane(p.rin(),p.rou(),p.z());
         }
     }
 

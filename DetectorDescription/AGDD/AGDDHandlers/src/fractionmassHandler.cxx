@@ -3,8 +3,6 @@
 */
 
 #include "AGDDHandlers/fractionmassHandler.h"
-#include "AGDDHandlers/AddMaterial.h"
-#include "AGDDHandlers/globals.h"
 #include <iostream>
 
 fractionmassHandler::fractionmassHandler(const std::string& s,
@@ -17,5 +15,13 @@ void fractionmassHandler::ElementHandle(AGDDController& c,
                                         xercesc::DOMNode *t)
 {
 	double fractionmass=getAttributeAsDouble(c, t, "fraction");
-	globals::addMaterial.fractions.push_back(fractionmass);
+        m_fractions.push_back (fractionmass);
+}
+
+
+std::vector<double> fractionmassHandler::GetFractions()
+{
+  std::vector<double> v;
+  v.swap (m_fractions);
+  return v;
 }

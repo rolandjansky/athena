@@ -6,12 +6,11 @@
 
 #include <iostream>
 
-GeoTrf::Vector3D snake_pointHandler::s_point(GeoTrf::Vector3D::Identity());
-
 snake_pointHandler::snake_pointHandler(const std::string& s,
                                        AGDDController& c)
   : XMLHandler(s, c)
 {
+  m_point.setZero();
 }
 
 void snake_pointHandler::ElementHandle(AGDDController& c,
@@ -19,5 +18,5 @@ void snake_pointHandler::ElementHandle(AGDDController& c,
 {
 	bool res=false;
 	std::vector<double> vvv=getAttributeAsVector(c, t, "X_Y_Z",res);
-	s_point = GeoTrf::Vector3D(vvv[0], vvv[1], vvv[2]);
+	m_point = GeoTrf::Vector3D(vvv[0], vvv[1], vvv[2]);
 }
