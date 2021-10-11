@@ -8,11 +8,7 @@ def BCMPrimeGeometryCfg(flags):
     acc = GeoModelCfg(flags)
     geoModelSvc = acc.getPrimary()
 
-    GeometryDBSvc = CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("BCMPrimeGeometryDBSvc"))
-
-    BCMPrimeDetectorTool = CompFactory.BCMPrimeDetectorTool
-    bcmPrimeDetectorTool = BCMPrimeDetectorTool()
+    bcmPrimeDetectorTool = CompFactory.BCMPrimeDetectorTool()
     bcmPrimeDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     bcmPrimeDetectorTool.DetectorName = "BCMPrime"
     if flags.GeoModel.useLocalGeometry:
