@@ -2822,6 +2822,9 @@ namespace top {
 
     // tracks                   
     if (m_config->useTracks()) {
+      const xAOD::EventInfo* eventInfo(nullptr);
+
+      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
 
       m_track_pt.resize(event.m_tracks.size());
       m_track_eta.resize(event.m_tracks.size());
@@ -2847,7 +2850,7 @@ namespace top {
         m_track_e[i]   = trkPtr->e();
         m_track_charge[i] = trkPtr->charge();
         m_track_d0[i] = trkPtr->d0();
-        m_track_d0_significance[i] = xAOD::TrackingHelpers::d0significance(trkPtr);
+        m_track_d0_significance[i] = xAOD::TrackingHelpers::d0significance(trkPtr, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY());
         m_track_z0[i] = trkPtr->z0();
         m_track_z0_significance[i] = xAOD::TrackingHelpers::z0significance(trkPtr);
         m_track_phi0[i]   = trkPtr->phi0();
