@@ -132,7 +132,7 @@ void LCE_CellList:: printThresholds() const {
 void LCE_CellList::readDefectLBList(const char* LBfile) {
 
   if (!m_badLBs.empty()) 
-    printf("Appending to already-existing list of bad lumi-blocks of size %lu\n",m_badLBs.size());
+    printf("Appending to already-existing list of bad lumi-blocks of size %zu\n",m_badLBs.size());
     
 
   std::ifstream infile(LBfile);
@@ -173,9 +173,6 @@ std::vector< LCE_CellList::thrCounter_t>  LCE_CellList::buildList(const char* in
     const LArSamples::History* hist = tuple->cellHistory(ichan);
     if (!hist) continue;
     const LArSamples::CellInfo* cellInfo = hist->cellInfo();
-    if (!cellInfo) {
-      std::cout << "CellInfo is NULL" << std::endl;
-    }
     const int nEvents=hist->nData();
  
     thrCounter_t cnt(cellInfo->onlid());
@@ -382,7 +379,7 @@ int main(int argc, char** argv) {
   lceList.printThresholds();
   
   std::vector<LCE_CellList::thrCounter_t> celllist=lceList.buildList(inputFile, nSigma, Ethr, Qthr, nLBsSeen);
-  printf("Total number of cells read from LCE ntuple: %lu\n",celllist.size());
+  printf("Total number of cells read from LCE ntuple: %zu\n",celllist.size());
   lceList.addFlags(celllist, nLBsSeen);
   lceList.writeList(outputFile,celllist);
  

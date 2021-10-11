@@ -79,8 +79,9 @@ bool D3PDConverter::makeSamplesTuple(const TString& outputFileName)
       if (digitIndex >= 0) {
         gain = (CaloGain::CaloGain)(*lardigit_gain)[digitIndex];
         std::vector<int> intSamples = (*lardigit_Samples)[digitIndex];
-        for (std::vector<int>::const_iterator s = intSamples.begin(); s != intSamples.end(); s++)
-          samples.push_back((short)*s);
+        for (int s : intSamples) {
+          samples.push_back((short)s);
+        }
       }
       DataContainer* data =
         new DataContainer(gain, samples, (*cc_sel_E)[j], (*cc_sel_TimeCells)[j],
