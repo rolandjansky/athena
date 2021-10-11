@@ -1347,7 +1347,7 @@ namespace top {
       }//ib1
 
    if(!hasrun) ATH_MSG_ERROR("WARNING   KLFitterRun:: KLF hasn't run. Something wrong with the combinatorics!");
-   return true;
+   return hasrun;
   }
 
 
@@ -1388,8 +1388,7 @@ namespace top {
     }//ib1
     
     if(!hasrun) ATH_MSG_ERROR("WARNING   KLFitterTool:: KLF hasn't run. Something wrong with the combinatorics!");
-
-    return true;
+    return hasrun;
   }
  
   void KLFitterTool::findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,float& sumEventProbability) {
