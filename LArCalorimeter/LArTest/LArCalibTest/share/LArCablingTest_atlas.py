@@ -61,15 +61,10 @@ include( "LArCondCnv/LArCondCnv_IdMapAtlas_jobOptions.py")
 DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
 DetDescrCnvSvc.DoIdChecks
 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
-
 theApp.Dlls += ["LArRawUtils"]
 theApp.Dlls += ["LArTools"]
 theApp.Dlls += ["LArCalibTest"]
 theApp.Dlls += ["LArRecUtils"]
-
-#ToolSvc.LArBadChannelTool.geometry="H8"
 
 theApp.TopAlg += [ "LArCablingChecker" ]
 LArCablingChecker = Algorithm( "LArCablingChecker" )

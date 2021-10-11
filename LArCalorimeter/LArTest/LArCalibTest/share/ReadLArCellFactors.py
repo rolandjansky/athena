@@ -37,7 +37,6 @@ DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
 DetDescrCnvSvc.DoIdChecks
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 
 # Number of events to be processed (default is 10)
 theApp.EvtMax = 0
