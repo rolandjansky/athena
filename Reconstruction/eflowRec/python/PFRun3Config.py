@@ -57,23 +57,9 @@ def PFCfg(inputFlags,**kwargs):
     TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
     result.addCondAlgo(TRTAlignCondAlg(name = "TRTAlignCondAlg",UseDynamicFolders = inputFlags.GeoModel.Align.Dynamic))
 
-    #Setup Pixel conditions
-    PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
-    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
-    
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
-    result.merge(PixelDetectorElementCondAlgCfg(inputFlags))
+    # TODO: Pixel
 
-    #Setup SCT conditions
-    SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
-    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
-    result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
-
-    #from AthenaCommon import CfgGetter
-    #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
-    #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
+    # TODO: SCT
 
     #Setup TRT geometry
     TRT_DetectorTool=CompFactory.TRT_DetectorTool

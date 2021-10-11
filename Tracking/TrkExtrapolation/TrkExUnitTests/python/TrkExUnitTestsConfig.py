@@ -57,18 +57,7 @@ def ExtrapolationEngineTestITkCfg(configFlags, name = "ExtrapolationEngineTest",
   from AthenaConfiguration.ComponentFactory import CompFactory
   
   result=ComponentAccumulator()  
-  
-  from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-  itkPixel = ITkPixelGeometryCfg(configFlags)
-  result.merge(itkPixel)
-  
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  itkStrip = ITkStripGeometryCfg(configFlags)
-  result.merge(itkStrip)
-  
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(configFlags))
-  
+
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   result.merge(TrackingGeometrySvcCfg(configFlags))
   

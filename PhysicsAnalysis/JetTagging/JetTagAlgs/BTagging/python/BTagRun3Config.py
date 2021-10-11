@@ -54,12 +54,6 @@ def PrepareStandAloneBTagCfg(inputFlags):
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
-    
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg( inputFlags ))
-
     # get standard config for magnetic field - map and cache
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg( inputFlags ))
@@ -67,15 +61,10 @@ def PrepareStandAloneBTagCfg(inputFlags):
     #Beamspot conditions
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     result.merge(BeamSpotCondAlgCfg(inputFlags))
-
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     
     #load folders needed for Run2 ID alignment
-    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-
-    #load folders needed for IBL
-    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
     return result
 

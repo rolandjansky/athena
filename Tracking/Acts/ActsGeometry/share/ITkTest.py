@@ -33,21 +33,8 @@ ConfigFlags.lock()
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 acc = MainServicesCfg(ConfigFlags)
-from AthenaConfiguration.ComponentFactory import CompFactory
 
-
-from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-itkPixel = ITkPixelGeometryCfg(ConfigFlags)
-acc.merge(itkPixel)
-
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-itkStrip = ITkStripGeometryCfg(ConfigFlags)
-acc.merge(itkStrip)
-
-from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-acc.merge(BeamPipeGeometryCfg(ConfigFlags))
-
-from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg, ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg, ActsTrackingGeometrySvcCfg
+from ActsGeometry.ActsGeometryConfig import ActsExtrapolationAlgCfg, ActsTrackingGeometrySvcCfg
 
 from ActsGeometry.ActsGeometryConfig import NominalAlignmentCondAlgCfg
 acc.merge(NominalAlignmentCondAlgCfg(ConfigFlags))

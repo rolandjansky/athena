@@ -287,10 +287,6 @@ def geoModelCfg(flags):
   return acc
 
 
-def sctCondCfg(flags):
-  # acc = ComponentAccumulator()
-  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-  return SCT_GeometryCfg(flags)
 def pixelCondCfg(flags):
   acc = ComponentAccumulator()
   ###############
@@ -407,8 +403,6 @@ def pixelDataPrepCfg(flags, roisKey, signature):
 
 def sctDataPrepCfg(flags, roisKey, signature):
   acc = ComponentAccumulator()
-
-  acc.merge(sctCondCfg(flags))
 
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))

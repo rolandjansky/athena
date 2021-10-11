@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__ == "__main__":
@@ -29,8 +29,8 @@ if __name__ == "__main__":
     acc.merge(writingAcc)
 
     # For SCT geometry and cabling
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg(ConfigFlags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
     from InDetConfig.InDetRecToolConfig import SCT_CablingToolCfg
     acc.popToolsAndMerge(SCT_CablingToolCfg(ConfigFlags))
 

@@ -9,12 +9,12 @@ def InDetGeometryCfg (flags):
     acc = ComponentAccumulator()
 
     if flags.Detector.GeometryPixel:
-        from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-        acc.merge(PixelGeometryCfg( flags ))
+        from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+        acc.merge(PixelReadoutGeometryCfg( flags ))
 
     if flags.Detector.GeometrySCT:
-        from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-        acc.merge(SCT_GeometryCfg( flags ))
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+        acc.merge(SCT_ReadoutGeometryCfg( flags ))
     
     if flags.Detector.GeometryTRT:
         from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
@@ -25,12 +25,12 @@ def InDetGeometryCfg (flags):
         acc.merge(InDetServiceMaterialCfg( flags ))
 
     if flags.Detector.GeometryITkPixel:
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-        acc.merge(ITkPixelGeometryCfg( flags ))
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        acc.merge(ITkPixelReadoutGeometryCfg( flags ))
 
     if flags.Detector.GeometryITkStrip:
-        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-        acc.merge(ITkStripGeometryCfg( flags ))
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        acc.merge(ITkStripReadoutGeometryCfg( flags ))
 
     return acc
 
