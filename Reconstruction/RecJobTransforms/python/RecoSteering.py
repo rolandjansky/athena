@@ -66,6 +66,11 @@ def RecoSteering(flags):
     acc.merge(egammaSelectedTrackCopyCfg(flags))
     from egammaAlgs.EMBremCollectionBuilderConfig import EMBremCollectionBuilderCfg
     acc.merge(EMBremCollectionBuilderCfg(flags))
+    from egammaAlgs.EMGSFCaloExtensionBuilderConfig import EMGSFCaloExtensionBuilderCfg
+    acc.merge(EMGSFCaloExtensionBuilderCfg(flags))
+    from egammaAlgs.EMVertexBuilderConfig import EMVertexBuilderCfg
+    acc.merge(EMVertexBuilderCfg(flags))
+
     # TBC
 
     #    from egammaAlgs.egammaRecBuilderConfig import egammaRecBuilderCfg
@@ -139,11 +144,16 @@ def _run(input):
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
     acc.printConfig(withDetails=True)
 
+    confFileName=f"recoConfig{input}.pkl"
     if args.configOnly:
-        with open(args.configOnly, "wb") as confFile:
-            acc.store(confFile)
-            log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
-            sys.exit(0)
+        confFileName=args.configOnly
+
+    with open(confFileName, "wb") as confFile:
+        acc.store(confFile)
+        log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
+    if args.configOnly:
+        sys.exit(0)
+
     # running        
     statusCode = acc.run()
     endStamp = datetime.datetime.now()
