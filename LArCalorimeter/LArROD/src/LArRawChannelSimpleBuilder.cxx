@@ -23,7 +23,6 @@ using CLHEP::MeV;
 
 LArRawChannelSimpleBuilder::LArRawChannelSimpleBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name, pSvcLocator),
-  //  m_roiMap("LArRoI_Map"),
   m_emId(0),
   m_fcalId(0),
   m_hecId(0),
