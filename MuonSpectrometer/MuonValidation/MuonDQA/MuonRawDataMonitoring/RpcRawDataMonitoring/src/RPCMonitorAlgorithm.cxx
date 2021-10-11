@@ -6,16 +6,8 @@
 
 //========================================================================================================
 RPCMonitorAlgorithm::RPCMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
-  :AthMonitorAlgorithm(name,pSvcLocator),
-  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool")
-{
-  //  Declare the properties
-  declareProperty("MinRoIDR",    m_minRoIDR = 0.3);
-  declareProperty("MinPt",       m_minPt    = 2.0e3);
-  declareProperty("MinEta",      m_minEta   = 0.0);
-  declareProperty("MaxEta",      m_maxEta   = 1.05);
-  declareProperty("MuQuality",   m_quality  = 1);
-}
+  :AthMonitorAlgorithm(name,pSvcLocator)
+{}
 
 RPCMonitorAlgorithm::~RPCMonitorAlgorithm() {} 
 
@@ -25,8 +17,6 @@ StatusCode RPCMonitorAlgorithm::initialize()
   ATH_CHECK( m_MuonContainerKey  .initialize());
   ATH_CHECK( m_rpcPadContainerKey.initialize());
   ATH_CHECK( m_l1RoiContainerKey .initialize(SG::AllowEmpty));
-
-  ATH_CHECK( m_muonSelectionTool.retrieve());
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -113,7 +103,7 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
     float eta = muon->eta();
     float phi = muon->phi();
 
-    xAOD::Muon::Quality quality = m_muonSelectionTool->getQuality(*muon);
+    xAOD::Muon::Quality quality = muon->quality();
 
     if(std::abs(pt) < m_minPt || std::abs(eta) < m_minEta || std::abs(eta) > m_maxEta) {
       continue;
@@ -152,22 +142,6 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
       fill("RPCMonitorAlgorithm", ptNumThr1, etaNumThr1, phiNumThr1);
     }
   }
-
-  //
-  // read rpcPad
-  //
-  // * Problematic for MuonRPC_CablingSvc...
-  /*SG::ReadHandle<RpcPadContainer> rpcRDO(m_rpcPadContainerKey, ctx);
-  if(!rpcRDO.isValid()) {
-    ATH_MSG_ERROR("evtStore() does not contain RpcPadContainer with name "<<m_rpcPadContainerKey);
-    return StatusCode::FAILURE;
-  }
-
-  RpcPadContainer::const_iterator pad = rpcRDO->begin();
-  RpcPadContainer::const_iterator endpad = rpcRDO->end();
-  for(; pad != endpad; pad++) {
-    ATH_MSG_INFO("Got pad back " << pad->sector());
-  }*/
 
   //
   // Fill histograms

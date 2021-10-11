@@ -2,8 +2,8 @@
  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPCMONITORDQ_RPCMONITORALGORITHM_H
-#define RPCMONITORDQ_RPCMONITORALGORITHM_H
+#ifndef RPCMONITORDQ_RPCLV1ANAALG_H
+#define RPCMONITORDQ_RPCLV1ANAALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -14,17 +14,19 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 
-class RPCMonitorAlgorithm : public AthMonitorAlgorithm
+class RPCLv1AnaAlg : public AthMonitorAlgorithm
 {
 
   public:
 
-    RPCMonitorAlgorithm(const std::string& name, ISvcLocator* svcLocator);
-    virtual ~RPCMonitorAlgorithm();
+    RPCLv1AnaAlg(const std::string& name, ISvcLocator* svcLocator);
+    virtual ~RPCLv1AnaAlg();
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
   private:
+    DoubleProperty   m_l1trigMatchWindow{this,"L1TrigMatchingWindow",0.3,"Window size in R for L1 trigger matching"};
+    StringProperty   m_packageName{this,"PackageName", "RPCLv1AnaAlg","group name for histograming"};
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey
       { this, "MuonContainerKey", "Muons", "Key for Muon Containers" };
@@ -36,7 +38,6 @@ class RPCMonitorAlgorithm : public AthMonitorAlgorithm
     //
     // Define configurable cuts
     //
-
     // cuts for muon and roi matching
     Gaudi::Property<float> m_minRoIDR {this, "MinRoIDR", 0.3};
     
@@ -47,6 +48,9 @@ class RPCMonitorAlgorithm : public AthMonitorAlgorithm
     
     // xAOD::Muon::Quality m_quality;
     Gaudi::Property<int>   m_quality  {this, "MuQuality", 1};
+
+    std::map<std::string,int> m_TriggerThrGroup;
+
 };
 
 
