@@ -110,7 +110,7 @@ public:
   void   print	(void) const; 
 
   /** @brief clone this cell into another one*/
-  virtual CaloCell* clone() const;
+  virtual std::unique_ptr<CaloCell> clone() const;
   
   /** @brief Add energy to this cell. 
       This is typically used in case of duplicate cells 

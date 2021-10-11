@@ -152,6 +152,9 @@ public:
   /** @brief reimplementation of push_back to gain speed in readin */
   void push_back_fast (const CaloCell* cell);
 
+  /** @brief reimplementation of push_back to gain speed in readin (UP version)*/
+  void push_back_fast (std::unique_ptr<const CaloCell> cell);
+
 
   /** @brief reset look up table */
   void resetLookUpTable();
