@@ -183,9 +183,9 @@ for radius in [0.2, 0.6]:
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 if DerivationFrameworkIsMonteCarlo:
-    addMETTruthMap('AntiKt4EMTopo',"JETMX")
+    ###addMETTruthMap('AntiKt4EMTopo',"JETMX")
     #addMETTruthMap('AntiKt4LCTopo',"JETMX")
-    addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+    ###addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm3Seq,"JETMX")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
