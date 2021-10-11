@@ -19,6 +19,8 @@
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigConfHLTData/HLTSignature.h"
+#include "TrigConfHLTData/HLTTriggerElement.h"
 
 // STL includes
 #include <string>

@@ -197,8 +197,23 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
 
 StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMap_t& allTEs, TEIdToChainsMap_t& finalTEs) const {
   // port chains iteration code from previous version
+  for (auto ptrChain : m_configSvc->chains()) {
+      std::string chainName = ptrChain->name();
+      HLT::Identifier chainId = HLT::Identifier(chainName);
+      ATH_MSG_DEBUG(" CHAIN name " << chainName << " CHAIN Id " << chainId);
+      for (auto ptrHLTSignature : ptrChain->signatures()) {  
+        for (auto ptrHLTTE : ptrHLTSignature->outputTEs()) { 
+          unsigned int trigConfDataId = ptrHLTTE->id();
+          allTEs[trigConfDataId].insert(chainId);
+          ATH_MSG_DEBUG("REGTEST TE Id " << trigConfDataId);
+          if (ptrHLTSignature == ptrChain->signatures().back()) {
+            finalTEs[trigConfDataId].insert(chainId);
+            ATH_MSG_DEBUG("REGTEST final TE Id " << trigConfDataId);
+          }
+        }
+      }
+  }
   ATH_MSG_DEBUG("Recognised " << allTEs.size() << " kinds of TEs and among them " << finalTEs.size() << " final types");
-
   return StatusCode::SUCCESS;
 }
 
@@ -237,9 +252,31 @@ StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& conv
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::associateChainsToProxies(ConvProxySet_t&, const TEIdToChainsMap_t&) const {
-  // using map chain IDs mapping 
+StatusCode Run2ToRun3TrigNavConverterV2::associateChainsToProxies(ConvProxySet_t& convProxies, const TEIdToChainsMap_t& allTEs) const {
+  // using map chain IDs mapping
+  for (auto& ptrConvProxy : convProxies) {
+    auto teId = ptrConvProxy->te->getId();
+    bool teActive = ptrConvProxy->te->getActiveState();
+    auto iter = allTEs.find(teId);
+    if ( iter != allTEs.end() ) {
+      ptrConvProxy->runChains.insert( iter->second.begin(), iter->second.end());
+      if (teActive) {
+        ptrConvProxy->passChains.insert( iter->second.begin(), iter->second.end());
+      }
+      for (auto i = iter->second.begin(); i != iter->second.end(); ++i) {
+        ATH_MSG_DEBUG("REGTEST TE: getActiveState, TE Id, CHAIN Id " << teActive << ", " << teId << ", " << *i);
+      }
+    }
 
+    for (auto& objTeIdToChain : allTEs) {
+      if (teId == objTeIdToChain.first) {
+        for (auto& chainId : objTeIdToChain.second) {
+          (ptrConvProxy->runChains).insert(chainId);
+        }
+        break;
+      }
+    }
+  }
   return StatusCode::SUCCESS;
 }
 

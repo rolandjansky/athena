@@ -32,7 +32,7 @@ if __name__=='__main__':
 #    ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_e5_lhvloose_nod0","HLT_e9_etcut","HLT_e26_lhtight_nod0","HLT_e28_lhtight_nod0"])
     #ConfigFlags.addFlag("TestNavConversion.Collections",["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer","xAOD::TrigMissingET","xAOD::JetContainer"])
  #   ConfigFlags.addFlag("TestNavConversion.Collections",["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer","xAOD::CaloCluster","xAOD::CaloClusterContainer"])
-#    ConfigFlags.fillFromArgs()
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

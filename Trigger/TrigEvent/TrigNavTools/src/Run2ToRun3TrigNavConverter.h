@@ -55,6 +55,7 @@ private:
 
     Gaudi::Property<bool> m_onlyFeaturePriting { this, "onlyFeaturePrinting", false, "When enabled do not do conversion but scan all chains in all events for features attached to related TEs"};
     Gaudi::Property<bool> m_convertAllChains { this, "convertAllChains", false, "When enabled ignore chains list and covert all chains"};
+    Gaudi::Property<bool> m_recursiveAlgoSelector { this, "recursiveAlgoSelector", true, "When enabled recursive feature collection searched"};
 
 
     std::set<CLID> m_setCLID;
@@ -94,7 +95,9 @@ private:
     CLID m_CaloClusterCLID { 0 };
     CLID m_CaloClusterContainerCLID { 0 };
     CLID m_TrackParticleContainerCLID { 0 };
+    CLID m_TrackParticleAuxContainerCLID { 0 };
     CLID m_TauTrackContainerCLID { 0 };
+    CLID m_TauTrackAuxContainerCLID { 0 };
 
 
     StatusCode printFeatures(const HLT::TrigNavStructure& ) const;
