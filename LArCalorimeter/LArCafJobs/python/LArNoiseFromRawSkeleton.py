@@ -51,7 +51,6 @@ def fromRunArgs(runArgs):
     ConfigFlags.Trigger.doID=False
     ConfigFlags.Trigger.doMuon=False
     ConfigFlags.Trigger.doLVL1=False
-    ConfigFlags.Trigger.doL1Topo=False
     ConfigFlags.Trigger.doHLT=False
 
     ConfigFlags.Calo.Cell.doDeadCellCorr=True

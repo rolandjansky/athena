@@ -14,7 +14,10 @@ def LArCellBuilderCfg(configFlags):
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
     theLArCellBuilder.LArCablingKey = "ConditionStore+LArOnOffIdMap"
     theLArCellBuilder.MissingFebKey = "ConditionStore+LArBadFeb"
-    theLArCellBuilder.RawChannelsName = "LArRawChannels"
+    if configFlags.LAr.RawChannelSource=="calculated":
+       theLArCellBuilder.RawChannelsName="LArRawChannels_FromDigits"
+    else:
+       theLArCellBuilder.RawChannelsName = "LArRawChannels"
     theLArCellBuilder.addDeadOTX = True #Create flag? Requires bad-feb DB access
     result.setPrivateTools(theLArCellBuilder)
     return result
