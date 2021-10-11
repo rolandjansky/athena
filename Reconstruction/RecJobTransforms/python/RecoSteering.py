@@ -29,9 +29,14 @@ def RecoSteering(flags):
     acc.merge(CaloRecoCfg(flags,doLCCalib=True))
     log.info("---------- Configured calorimeter reconstruction")
 
-    # ID    
-    from InDetConfig.TrackRecoConfig import TrackRecoCfg
-    acc.merge(TrackRecoCfg(flags))
+    # ID / ITk
+    if flags.Detector.GeometryID:
+        from InDetConfig.TrackRecoConfig import TrackRecoCfg
+        acc.merge(TrackRecoCfg(flags))
+    elif flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
+        acc.merge(ITkTrackRecoCfg(flags))
+        return acc #stop here for now with ITk
     log.info("---------- Configured tracking")
 
     # muons
@@ -102,15 +107,6 @@ def _run(input):
     flags.Input.Files = []
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
-
-    flags.Detector.GeometryBCM=True
-    flags.Detector.GeometryDBM=True
-    flags.Detector.GeometryPixel=True
-    flags.Detector.GeometrySCT=True
-    flags.Detector.GeometryTRT=True
-
-    flags.Detector.GeometryTile=True
-    flags.Detector.GeometryLAr=True
 
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
