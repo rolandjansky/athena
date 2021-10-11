@@ -188,7 +188,7 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 void AGDD2GeoModelBuilder::CreateElements() const
 {
 	ElementIterator it;
-	for (it=m_ms.ElementBegin();it!=m_ms.ElementEnd();it++)
+	for (it=m_ms.ElementBegin();it!=m_ms.ElementEnd();++it)
 	{
 		CreateElement((*it).second->GetName());
 	}
@@ -196,7 +196,7 @@ void AGDD2GeoModelBuilder::CreateElements() const
 void AGDD2GeoModelBuilder::CreateMaterial() const
 {
 	MaterialIterator it;
-	for (it=m_ms.MaterialBegin();it!=m_ms.MaterialEnd();it++)
+	for (it=m_ms.MaterialBegin();it!=m_ms.MaterialEnd();++it)
 	{
 		CreateMaterial((*it).second->GetName());
 	}
@@ -563,7 +563,7 @@ void AGDD2GeoModelBuilder::BuildAllVolumes() const
   AGDDVolumeMap::const_iterator it;
   GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
   
-  for (it=m_vs.begin();it!=m_vs.end();it++)
+  for (it=m_vs.begin();it!=m_vs.end();++it)
   {
   	AGDDVolume* vol=(*it).second;
 	if (!vol->HasParent())
@@ -604,7 +604,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
     std::string topVolumeName=sect->TopVolume();
     if (topVolumeName!="useless" && !topVolumeName.empty())
     {
-       for (it=sect->VolumeBegin();it!=sect->VolumeEnd();it++)
+       for (it=sect->VolumeBegin();it!=sect->VolumeEnd();++it)
        {
           AGDDVolume* vol=(*it).second;
           if (vol->GetName()==topVolumeName)
@@ -632,7 +632,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
        }
     }
     else 
-      for (it=sect->VolumeBegin();it!=sect->VolumeEnd();it++)
+      for (it=sect->VolumeBegin();it!=sect->VolumeEnd();++it)
       {
   	    AGDDVolume* vol=(*it).second;
 	    if (!vol->HasParent())

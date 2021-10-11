@@ -43,7 +43,7 @@ bool ExpressionEvaluator::RegisterConstant( std::string& c, double v )
   RegisterVariable( c, value );
   return true;
 }
-bool ExpressionEvaluator::RegisterArray( std::string& c, std::vector<double> v)
+bool ExpressionEvaluator::RegisterArray( std::string& c, const std::vector<double>& v)
 {  
    for(unsigned int i=0; i<v.size(); i++)
    {
@@ -145,7 +145,7 @@ double ExpressionEvaluator::EvaluateString(const std::string& str)
 /*********************************************************************************************************/
 
 
-bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string value, std::string unit  )
+bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, const std::string& value, const std::string& unit  )
 {
   std::string expr = value;
   expr += "*(";
@@ -167,7 +167,7 @@ bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string valu
   return true;
 }
 
-bool ExpressionEvaluator::RegisterExpression( std::string& name, std::string text )
+bool ExpressionEvaluator::RegisterExpression( std::string& name, const std::string& text )
 {
   std::string expr = "(";
   expr += text;
@@ -271,7 +271,7 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
   return result;
 }
 
-std::string ExpressionEvaluator::trim (const std::string s)
+std::string ExpressionEvaluator::trim (const std::string& s)
 //-------------------------------------------------------------
 {
         if (s.size () == 0) return (s);
