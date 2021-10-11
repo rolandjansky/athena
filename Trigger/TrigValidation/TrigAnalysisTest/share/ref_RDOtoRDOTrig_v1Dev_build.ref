@@ -1184,8 +1184,16 @@ HLT_3j65_0eta290_020jvt_pf_ftf_bdl1r85_L1J45p0ETA21_3J15p0ETA25:
     2: 7
 HLT_3mu4_b3mu_L1BPH-0M10C-3MU3V:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_3mu4_b3mu_noos_L1BPH-0M10-3MU3V:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_3mu4_bDimu2700_L13MU3V:
   eventCount: 0
   stepCounts:

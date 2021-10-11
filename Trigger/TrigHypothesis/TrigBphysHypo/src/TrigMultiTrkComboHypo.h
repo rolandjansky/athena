@@ -252,7 +252,7 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   Gaudi::Property<bool> m_doElectrons {this, "doElectrons", false,
     "use electrons if true, otherwise use muons"};
   Gaudi::Property<std::string> m_trigLevel {this, "trigLevel", "EF",
-    "trigger Level to set for created TrigBphys objects: L2, L2IO or EF"};
+    "trigger Level to set for created TrigBphys objects: L2, L2IO, L2MT or EF"};
   Gaudi::Property<std::vector<std::string>> m_mergedElectronChains {this, "mergedElectronChains", {"BPH-0DR3-EM7J15"},
     "patterns for BPH-0DR3-EM7J15 like chains"};
 

@@ -823,7 +823,7 @@ def getInsideOutMuonChainNames():
     from ..Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2io" in chain.name]
-    chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if "noL2Comb" not in chain.name]
+    chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if not any(key in chain.name for key in ['noL2Comb','l2mt'])]
     return chains
 
 ############################################################
@@ -835,4 +835,5 @@ def getMultiTrackChainNames():
     from ..Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()  # get menu singleton
     chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2mt" in chain.name]
+    chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if "l2mt" in chain.name]
     return chains
