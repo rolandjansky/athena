@@ -16,7 +16,6 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "GaudiKernel/EventContext.h"
 #include <vector>
-class CaloDetDescrManager;
 class CaloDetDescrElement;
 
 
@@ -153,7 +152,7 @@ public:
 private:
   /// Retrieve the detector description helper,
   /// creating it if needed.
-  const CaloClusterCorr::DDHelper& ddhelper() const;
+  const CaloClusterCorr::DDHelper& ddhelper(const CaloDetDescrManager* dd_man) const;
 
   /// Calibration constant: The calorimeter region for which this correction
   /// is intended.  This should be one of the constants above.
