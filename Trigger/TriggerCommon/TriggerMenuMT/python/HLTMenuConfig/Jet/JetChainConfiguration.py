@@ -264,18 +264,25 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetlegs = sum([p['signature'] in ["Jet","Bjet"] for p in self.chainPart])
         padding = jetlegs-len(preselChainDict['chainParts'])
         if padding>0:
+            preselChainDict['chainParts'][-1]['chainPartName']+='_SHARED'
             preselChainDict['chainParts'][-1]['tboundary']='SHARED'
             dummyLegPart = dict(preselCommonJetParts)
             dummyLegPart.update(
                 {'L1threshold': 'FSNOSEED',
-                 'chainPartName': 'j0',
+                 'chainPartName': 'j0_SHARED',
                  'multiplicity': '1',
                  'threshold': '0',
                  'jvt':'',
+                 'tboundary': 'SHARED'
                  }
             )
             preselChainDict['chainParts'] += [dummyLegPart]*padding
+            # Last one is not permitted to be shared as there is nothing following
+            preselChainDict['chainParts'][-1]['chainPartName']='j0'
+            preselChainDict['chainParts'][-1]['tboundary']=''
 
+        for ip,p in enumerate(preselChainDict['chainParts']):
+            p['chainPartIndex'] = ip
         jetDefStr = jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr
