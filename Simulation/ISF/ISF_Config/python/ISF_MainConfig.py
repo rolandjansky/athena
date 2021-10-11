@@ -191,10 +191,6 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernel
     SimKernel = ISF__SimKernel(name, **kwargs)
-    ##FIXME shouldn't really be doing this here
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence += SimKernel
     return SimKernel
 
 ############## Simulator: GenericSimulatorMT ###############
@@ -219,10 +215,6 @@ def getKernel_GenericSimulatorMT(name="ISF_Kernel_GenericSimulatorMT", **kwargs)
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernelMT
     SimKernelMT = ISF__SimKernelMT(name, **kwargs)
-    ##FIXME shouldn't really be doing this here
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence += SimKernelMT
     return SimKernelMT
 
 ############## Simulator: GenericSimulatorNoG4 ###############
@@ -281,8 +273,8 @@ def getKernel_FullG4MT(name="ISF_Kernel_FullG4MT", **kwargs):
                                           "ISF_FullGeant4Tool"])
     return getKernel_GenericG4OnlyMT(name, **kwargs)
 
-############## Simulator: FullG4_longLived ###############
-def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
+############## Simulator: FullG4_QS ###############
+def getKernel_FullG4_QS(name="ISF_Kernel_FullG4_QS", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
@@ -292,12 +284,20 @@ def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
     kwargs.setdefault("QuasiStablePatcher"          , 'ZeroLifetimePositioner')
     return getKernel_GenericG4Only(name, **kwargs)
 
-############## Simulator: FullG4MT_longLived ###############
-def getKernel_FullG4MT_LongLived(name="ISF_Kernel_FullG4MT_LongLived", **kwargs):
+############## Simulator: FullG4_longLived ###############
+def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs): # deprecated name
+    return getKernel_FullG4_QS(name, **kwargs)
+
+############## Simulator: FullG4MT_QS ###############
+def getKernel_FullG4MT_QS(name="ISF_Kernel_FullG4MT_QS", **kwargs):
     kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
                                           "ISF_LongLivedGeant4Tool"])
     kwargs.setdefault("InputConverter", 'ISF_LongLivedInputConverter')
     return getKernel_GenericG4OnlyMT(name, **kwargs)
+
+############## Simulator: FullG4MT_longLived ###############
+def getKernel_FullG4MT_LongLived(name="ISF_Kernel_FullG4MT_LongLived", **kwargs): # deprecated name
+    return getKernel_FullG4MT_QS(name, **kwargs)
 
 ############## Simulator: FullG4_IDOnly ###############
 def getKernel_FullG4_IDOnly(name="ISF_Kernel_FullG4_IDOnly", **kwargs):
@@ -341,26 +341,6 @@ def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
 def getKernel_StoppingG4(name="ISF_Kernel_StoppingG4", **kwargs):
     kwargs.setdefault("EventFilterTools"            , [ 'ISF_StoppedParticleFilter' ]   )
     return getKernel_GenericG4Only(name, **kwargs)
-
-############## Simulator: MC12G4 ###############
-def getKernel_MC12G4(name="ISF_Kernel_MC12G4", **kwargs):
-    # Legacy only
-    return getKernel_FullG4(name, **kwargs)
-
-############## Simulator: MC12G4_longLived ###############
-def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
-    # Legacy only
-    return getKernel_FullG4_LongLived(name, **kwargs)
-
-############## Simulator: MC12G4_IDOnly ###############
-def getKernel_MC12G4_IDOnly(name="ISF_Kernel_MC12G4_IDOnly", **kwargs):
-    # Legacy only
-    return getKernel_FullG4_IDOnly(name, **kwargs)
-
-############## Simulator: MC12G4_IDCalo ###############
-def getKernel_MC12G4_IDCalo(name="ISF_Kernel_MC12G4_IDCalo", **kwargs):
-    # Legacy only
-    return getKernel_FullG4_IDCalo(name, **kwargs)
 
 ############## Simulator: ATLFAST3 #################
 def getKernel_ATLFAST3(name="ISF_Kernel_ATLFAST3", **kwargs):
@@ -540,8 +520,9 @@ def getKernel_ATLFASTIIMT(name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     kwargs.setdefault("SimulationTools"            , ['ISF_ParticleKillerTool',
                                                       'ISF_LegacyAFIIFastCaloTool',
                                                       'ISF_AFIIGeant4Tool'])
-    kwargs.setdefault("ParticleOrderingTool"       , 'ISF_ParticleOrderingTool' )
-    #kwargs.setdefault('EntryLayerTool'             , 'ISF_AFIIEntryLayerTool')
+    kwargs.setdefault("ParticleOrderingTool"       , 'ISF_EnergyParticleOrderingTool' )
+    kwargs.setdefault('EntryLayerTool'             , 'ISF_AFIIEntryLayerToolMT')
+    kwargs.setdefault("GeoIDSvc", "ISF_AFIIGeoIDSvc" )
     # set the simFlags accordingly (TODO: is this even needed?)
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTII"

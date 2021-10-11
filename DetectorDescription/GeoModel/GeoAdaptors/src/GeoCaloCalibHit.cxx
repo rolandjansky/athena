@@ -10,7 +10,7 @@
 
 const CaloDetDescrManager* GeoCaloCalibHit::initDDMgr()
 {
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoLArHit");
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoCaloCalibHit");
   const CaloDetDescrManager* mgr = nullptr;
   if (detStore->retrieve(mgr).isFailure()) {
     std::abort();

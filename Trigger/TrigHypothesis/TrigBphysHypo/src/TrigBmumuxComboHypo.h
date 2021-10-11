@@ -44,10 +44,17 @@ typedef struct PDG20 PDG;
  */
 class TrigBmumuxState: public ::ITrigBphysState {
  public:
-  const EventContext* context;
-  const TrigCompositeUtils::DecisionContainer* previousDecisions;
-  TrigCompositeUtils::DecisionContainer* decisions;
-  xAOD::TrigBphysContainer* trigBphysCollection;
+  TrigBmumuxState() = delete;
+  TrigBmumuxState(const EventContext& context,
+                  const TrigCompositeUtils::DecisionContainer& previousDecisions,
+                  TrigCompositeUtils::DecisionContainer& decisions,
+                  xAOD::TrigBphysContainer* trigBphysCollection = nullptr,
+                  const InDet::BeamSpotData* beamSpotData = nullptr)
+      : ITrigBphysState(context, previousDecisions, decisions, trigBphysCollection, beamSpotData) {
+    dimuons.setStore(&dimuonsStore);
+  }
+  virtual ~TrigBmumuxState() = default;
+
   struct Muon {
     ElementLink<xAOD::MuonContainer> link;
     ElementLinkVector<TrigCompositeUtils::DecisionContainer> decisionLinks;
@@ -62,7 +69,7 @@ class TrigBmumuxState: public ::ITrigBphysState {
     if (!triggerObject) {
       return StatusCode::FAILURE;
     }
-    trigBphysCollection->push_back(triggerObject);
+    trigBphysCollection().push_back(triggerObject);
     return StatusCode::SUCCESS;
   }
 };
@@ -85,26 +92,28 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   enum Decay : size_t {
     kPsi_2mu,      // psi -> mu+ mu-
     kB_2mu1trk,    // B -> mu+ mu- trk1
-    kB_2mu2trk,     // B -> mu+ mu- trk1 trk2
+    kB_2mu2trk,    // B -> mu+ mu- trk1 trk2
     kB_2mu3trk     // B -> mu+ mu- trk1 trk2 trk3
   };
 
  private:
-  std::unique_ptr<TrigBmumuxState> makeState(const EventContext* context,
-                                             const TrigCompositeUtils::DecisionContainer* previousDecisions,
-                                             TrigCompositeUtils::DecisionContainer* decisions,
-                                             xAOD::TrigBphysContainer* trigBphysCollection) const;
-  StatusCode mergeMuonsFromViews(TrigBmumuxState&) const;
+  StatusCode mergeMuonsFromDecisions(TrigBmumuxState&) const;
   StatusCode mergeTracksFromViews(TrigBmumuxState&) const;
   StatusCode findDimuonCandidates(TrigBmumuxState&) const;
   StatusCode findBmumuxCandidates(TrigBmumuxState&) const;
   StatusCode createDecisionObjects(TrigBmumuxState&) const;
-  xAOD::Vertex* fit(const EventContext* context, const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist,
-                                     Decay = kPsi_2mu, const xAOD::TrigBphys* dimuon = nullptr) const;
-  xAOD::TrigBphys* makeTriggerObject(const xAOD::Vertex*,
-                                     xAOD::TrigBphys::pType type = xAOD::TrigBphys::MULTIMU,
-                                     const std::vector<double>& trkMass = {PDG::mMuon, PDG::mMuon},
-                                     const ElementLink<xAOD::TrigBphysContainer>& dimuonLink = ElementLink<xAOD::TrigBphysContainer>()) const;
+
+  std::unique_ptr<xAOD::Vertex> fit(
+      const EventContext& context,
+      const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
+      Decay decay = kPsi_2mu,
+      const xAOD::TrigBphys* dimuon = nullptr) const;
+
+  xAOD::TrigBphys* makeTriggerObject(
+      const xAOD::Vertex&,
+      xAOD::TrigBphys::pType type = xAOD::TrigBphys::MULTIMU,
+      const std::vector<double>& trkMass = {PDG::mMuon, PDG::mMuon},
+      const ElementLink<xAOD::TrigBphysContainer>& dimuonLink = ElementLink<xAOD::TrigBphysContainer>()) const;
 
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::Muon* rhs) const;
@@ -206,25 +215,39 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   Gaudi::Property<float> m_LambdaBToMuMuProtonKaon_chi2 {this,
     "LambdaBToMuMuProtonKaon_chi2", 60., "maximum chi2 of the fitted Lambda_b0 vertex"};
 
-  Gaudi::Property<bool> m_Bc_DsMuMuDecay {this,
-    "BcToDsMuMuPhiPi", true, "switch on/off B_c -> J/psi(-> mu+ mu-) phi Pi decay"};
-  Gaudi::Property<double> m_Bc_DsMuMuKaon_minKaonPt {this,
-    "Bc_DsMuMuKaon_minKaonPt", 1000., "minimum pT of kaon track"};
-  Gaudi::Property<std::pair<double, double>> m_rangePhiDs_MassCut {this,
-    "Bc_rangePhiDs_MassCut", {980., 1080.}, "range for mass of phi"};
-  Gaudi::Property<std::pair<double, double>> m_rangeDs_MassCut {this,
-    "Bc_rangeDs_MassCut", { 1600., 2400.} , "range for mass of Ds"};
-  Gaudi::Property<float> m_Bc_DsMuMu_chi2 {this,
-    "Bc_DsMuMu_chi2", 60., "maximum chi2 of the fitted Bc vertex"};
+  // B_c+ -> J/psi(-> mu+ mu-) D_s+(->phi(-> K+ K-) pi+)
+  Gaudi::Property<bool> m_BcToDsMuMu {this,
+    "BcToDsMuMu", true, "switch on/off B_c+ -> J/psi(-> mu+ mu-) D_s+(->phi(-> K+ K-) pi+) decay"};
+  Gaudi::Property<double> m_BcToDsMuMu_minKaonPt {this,
+    "BcToDsMuMu_minKaonPt", 1000., "minimum pT of kaon track from phi(1020)"};
+  Gaudi::Property<double> m_BcToDsMuMu_minPionPt {this,
+    "BcToDsMuMu_minPionPt", 1000., "minimum pT of pion track from D_s+"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDsMuMu_massRange {this,
+    "BcToDsMuMu_massRange", {5500., 7300.}, "B_c+ mass range"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDsMuMu_dimuonMassRange {this,
+    "BcToDsMuMu_dimuonMassRange", {2500., 4300.}, "dimuon mass range for B_c+ -> J/psi D_s+ decay"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDsMuMu_phiMassRange {this,
+    "BcToDsMuMu_phiMassRange", {940., 1100.}, "phi(1020) mass range"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDsMuMu_DsMassRange {this,
+    "BcToDsMuMu_DsMassRange", {1850., 2100.}, "D_s+ mass range"};
+  Gaudi::Property<float> m_BcToDsMuMu_chi2 {this,
+    "BcToDsMuMu_chi2", 60., "maximum chi2 of the fitted B_c+ vertex"};
 
-  Gaudi::Property<bool> m_Bc_DpMuMuDecay {this,
-    "BcToDpMuMuPhiPi", true, "switch on/off B_c -> J/psi(-> mu+ mu-) phi Pi decay"};
-  Gaudi::Property<double> m_Bc_DpMuMuKaon_minKaonPt {this,
-    "Bc_DpMuMuKaon_minKaonPt", 1000., "minimum pT of kaon track"};
-  Gaudi::Property<std::pair<double, double>> m_rangeDp_MassCut {this,
-    "Bc_rangeDp_MassCut", { 1500., 2300.} , "range for mass of Ds"};
-  Gaudi::Property<float> m_Bc_DpMuMu_chi2 {this,
-    "Bc_DpMuMu_chi2", 60., "maximum chi2 of the fitted Bc vertex"};
+  // B_c+ -> J/psi(-> mu+ mu-) D+(-> K- pi+ pi+)
+  Gaudi::Property<bool> m_BcToDplusMuMu {this,
+    "BcToDplusMuMu", true, "switch on/off B_c+ -> J/psi(-> mu+ mu-) D+(-> K- pi+ pi+) decay"};
+  Gaudi::Property<double> m_BcToDplusMuMu_minKaonPt {this,
+    "BcToDplusMuMu_minKaonPt", 1000., "minimum pT of kaon track from D+"};
+  Gaudi::Property<double> m_BcToDplusMuMu_minPionPt {this,
+    "BcToDplusMuMu_minPionPt", 1000., "minimum pT of pion track from D+"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDplusMuMu_massRange {this,
+    "BcToDplusMuMu_massRange", {5500., 7300.}, "B_c+ mass range"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDplusMuMu_dimuonMassRange {this,
+    "BcToDplusMuMu_dimuonMassRange", {2500., 4300.}, "dimuon mass range for B_c+ -> J/psi D+ decay"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDplusMuMu_DplusMassRange {this,
+    "BcToDplusMuMu_DplusMassRange", {1750., 2000.}, "D+ mass range"};
+  Gaudi::Property<float> m_BcToDplusMuMu_chi2 {this,
+    "BcToDplusMuMu_chi2", 60., "maximum chi2 of the fitted B_c+ vertex"};
 
 
   // external tools
@@ -240,7 +263,7 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
 
   const static std::vector<std::vector<double>> s_trkMass;
-  
+
 };
 
 #endif  // TRIG_TrigBmumuxComboHypo_H

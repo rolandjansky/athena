@@ -101,6 +101,10 @@ public:
   // cppcheck-suppress duplInheritedMember
   static const bool has_virtual = DV::has_virtual;
 
+  /// Type of a unique_ptr that can be used to insert elements
+  /// into this container.
+  typedef std::unique_ptr<const base_value_type> unique_type;
+
   /// This type is used to proxy lvalue accesses to @c DataVector
   /// elements, in order to handle ownership.
   typedef DataModel_detail::ElementProxy<ConstDataVector> ElementProxy;
@@ -114,6 +118,11 @@ public:
     reverse_iterator;
 
   typedef boost::true_type isSequence;
+
+  /// If true, then this type must own its contents.
+  // cppcheck-suppress duplInheritedMember
+  static constexpr bool must_own = DV::must_own;
+
 
   /// Expose methods from the base that don't allow getting back
   /// non-const pointers.
@@ -627,7 +636,7 @@ public:
   /**
    * @brief Swap the referents of two @c DataVector iterators.
    * @param a The first iterator for the swap.
-   * @param b The second iterator for the swap/
+   * @param b The second iterator for the swap.
    */
   static void iter_swap (iterator a, iterator b);
 
@@ -800,9 +809,8 @@ public:
 
   /**
    * @brief  Vector ordering relation.
-   * @param  a  A @c ConstDataVector.
-   * @param  b  A @c ConstDataVector of the same type as @a x.
-   * @return  True iff @a x is lexicographically less than @a y.
+   * @param  b  A @c ConstDataVector of the same type as @a *this.
+   * @return  True iff @a *this is lexicographically less than @a b.
    *
    * This is a total ordering relation.  It is linear in the size of the
    * vectors.  Comparisons are done on the pointer values of the elements.
@@ -823,8 +831,7 @@ public:
 
   /**
    * @brief  Vector equality comparison.
-   * @param  a  A @c ConstDataVector.
-   * @param  b  A @c ConstDataVector of the same type as @a x.
+   * @param  b  A @c ConstDataVector of the same type as @a *this.
    * @return  True iff the size and elements of the vectors are equal.
    *
    * This is an equivalence relation.  It is linear in the size of the
@@ -847,6 +854,7 @@ private:
 
   friend class DataModel_detail::ElementProxy<ConstDataVector>;
   friend void test2_assignelement1<ConstDataVector>();
+  friend void test2_assignelement1a<ConstDataVector>();
 
 
   /**

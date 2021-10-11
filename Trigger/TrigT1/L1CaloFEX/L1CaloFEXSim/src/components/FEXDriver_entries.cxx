@@ -32,6 +32,7 @@
 #include "L1CaloFEXSim/gFEXSim.h"
 #include "L1CaloFEXSim/gFEXFPGA.h"
 #include "L1CaloFEXSim/gFEXJetAlgo.h"
+#include "L1CaloFEXSim/gFEXJwoJAlgo.h"
 #include "L1CaloFEXSim/gFEXNtupleWriter.h"
 
 
@@ -75,5 +76,6 @@ DECLARE_COMPONENT(gTowerBuilder)
 DECLARE_COMPONENT(gSuperCellTowerMapper)
 DECLARE_COMPONENT(gFEXFPGA)
 DECLARE_COMPONENT(gFEXJetAlgo)
+DECLARE_COMPONENT(gFEXJwoJAlgo)
 DECLARE_COMPONENT(gFEXNtupleWriter)
 

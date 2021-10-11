@@ -36,12 +36,7 @@ namespace MuonCombined {
         ATH_CHECK(m_beamSpotKey.initialize());
         return StatusCode::SUCCESS;
     }
-
-    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                                   TrackCollection& outputTracks) const {
-        create(tracks, outputCollection, outputTracks, Gaudi::Hive::currentContext());
-    }
-    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                                    TrackCollection& outputTracks, const EventContext& ctx) const {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;

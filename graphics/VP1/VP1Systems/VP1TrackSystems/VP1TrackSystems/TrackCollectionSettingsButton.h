@@ -41,6 +41,7 @@ public:
   //Cuts for number of hits per subsystem:
   QList<unsigned> cutRequiredNHits() const;//Empty list: no requirements. Otherwise a list
                                           // with a length of four (pixel,sct,trt,muon)
+  QString cutRequiredDetectorElement() const;  //Null string, no requirement. Otherwise the string is converted into an identifier.
   //Truth cuts:
   bool cutTruthFromIROnly() const;
   bool cutExcludeBarcodeZero() const;
@@ -63,6 +64,7 @@ public:
     void cutAllowedEtaChanged(const VP1Interval&);
     void cutAllowedPhiChanged(const QList<VP1Interval>&);
     void cutRequiredNHitsChanged(const QList<unsigned>&);
+    void cutRequiredDetectorElementChanged(const QString&);
     void cutTruthFromIROnlyChanged(bool);
     void cutExcludeBarcodeZeroChanged(bool);
     void cutTruthExcludeNeutralsChanged(bool);
@@ -96,6 +98,7 @@ public:
     void possibleChange_cutAllowedEta();
     void possibleChange_cutAllowedPhi();
     void possibleChange_cutRequiredNHits();
+    void possibleChange_cutRequiredDetectorElement();
     void possibleChange_cutTruthFromIROnly();
     void possibleChange_cutExcludeBarcodeZero();
     void possibleChange_cutTruthExcludeNeutrals();

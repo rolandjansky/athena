@@ -188,7 +188,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
 		  );
 
-    if (!eFexRoI->isTOB()) {return StatusCode::SUCCESS;}
+    if (!eFexRoI->isTOB()) {continue;}
 
     unsigned int EtTopo = eFexRoI->etTOB();
     int etaTopo = eFexRoI->iEtaTopo();
@@ -198,7 +198,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     unsigned int wstot = eFexRoI->WstotThresholds();
 
     //Em TOB
-    TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->Word0()) );
+    TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
     eem.setEtDouble( static_cast<double>(EtTopo/10.) );
     eem.setEtaDouble( static_cast<double>(etaTopo/40.) );
     eem.setPhiDouble( static_cast<double>(phiTopo/20.) );
@@ -216,7 +216,6 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
   }
 
-
   //eTau
   SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
   //Temporarily check EDM status by hand to avoid the crash!
@@ -225,7 +224,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     
     return StatusCode::SUCCESS;
   }
-
+  
   for(const auto it : * eTau_EDM){
     const xAOD::eFexTauRoI* eFexRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
@@ -242,7 +241,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
 		  );
 
-    if (!eFexRoI->isTOB()) {return StatusCode::SUCCESS;}
+    if (!eFexRoI->isTOB()) {continue;}
 
     unsigned int EtTopo = eFexRoI->etTOB();
     int etaTopo = eFexRoI->iEta();
@@ -258,6 +257,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     etau.setWstot( 0 );
     
     inputEvent.addeTau( etau );
+    inputEvent.addcTau( etau );
     
     m_hTauEt->Fill(etau.EtDouble());  // GeV
     m_hTauEtaPhi->Fill(etau.eta(),etau.phi());

@@ -92,7 +92,6 @@ DoTight Both
 DoLoose Data
 
 # Turn on MetaData to pull IsAFII from metadata
-UseAodMetaData True
 #IsAFII False
 
 ### B-tagging configuration

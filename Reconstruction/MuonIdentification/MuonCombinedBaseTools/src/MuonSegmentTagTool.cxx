@@ -77,7 +77,7 @@ namespace MuonCombined {
         return StatusCode::SUCCESS;
     }
 
-    void MuonSegmentTagTool::tag(const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments,
+    void MuonSegmentTagTool::tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments,
                                  InDetCandidateToTagMap* tagMap) const {
         // loop over segments are extract MuonSegments + create links between segments and xAOD segments
         std::map<const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer>> segmentToxAODSegmentMap;
@@ -94,12 +94,11 @@ namespace MuonCombined {
                 segmentToxAODSegmentMap[mseg] = link;
             }
         }
-        tag(inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
+        tag(ctx, inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
     }
     // todo: fix segmentToxAODSegmentMap
-    void MuonSegmentTagTool::tag(const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments,
+    void MuonSegmentTagTool::tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments,
                                  SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         MSSurfaces surfaces{};
 
         std::vector<const Muon::MuonSegment*> FilteredSegmentCollection;
@@ -158,7 +157,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("performing tag of " << inDetCandidates.size() << " tracks with " << FilteredSegmentCollection.size()
                                            << " segments. ");
         // Checking which surfaces have segments, to avoid useless extrapolations
-        std::vector<bool> hasSeg(12, false);
+        std::array<bool,12> hasSeg{false};
         if (m_doBidirectional) {
             for (const Muon::MuonSegment* itSeg : FilteredSegmentCollection) {
                 Identifier chId = m_edmHelperSvc->chamberId(*itSeg);
@@ -231,8 +230,7 @@ namespace MuonCombined {
             ++m_ntotTracks;
             bool hasMatch = m_doBidirectional;
             if (!m_doBidirectional) {
-                hasSeg.clear();
-                hasSeg.resize(12, false);
+                hasSeg.fill(false);
                 bool hasAngleMatch = false;
                 const Amg::Vector3D id_mom = track->perigeeParameters()->momentum();
                 const double qID = track->perigeeParameters()->charge();
@@ -319,7 +317,7 @@ namespace MuonCombined {
 
                 std::unique_ptr<const Trk::TrackParameters> atSurface;
                 std::unique_ptr<const Trk::TrackParameters> nextSurface;
-                std::vector<bool> hasSurf(12, false);
+                std::array<bool,12> hasSurf{false};
 
                 for (unsigned int surface_counter = 0; surface_counter < 12; ++surface_counter, ++extrapolation_counter) {
                     ATH_MSG_DEBUG("Surface " << surface_counter);
@@ -640,12 +638,10 @@ namespace MuonCombined {
             segmentsInfoTag.reserve(segmentsInfoFinal.size());
             bool match = false;
             for (unsigned int ns1 = 0; ns1 < segmentsInfoFinal.size(); ns1++) {
-                if (segmentsInfoFinal[ns1].track == track) {
-                    if (segmentsInfoFinal[ns1].nsegments > 0) {
-                        segmentsInfoTag.push_back(segmentsInfoFinal[ns1]);
-                        match = true;                      
-                    }
-                }
+                if (segmentsInfoFinal[ns1].track == track && segmentsInfoFinal[ns1].nsegments > 0) {
+                    segmentsInfoTag.push_back(segmentsInfoFinal[ns1]);
+                    match = true;                      
+                }                
             }
             if (match) {
                 ATH_MSG_DEBUG("make Segment Tag object for " << m_printer->print(*track) << " nr segments " << segmentsInfoTag.size());

@@ -10,8 +10,6 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
-
-
 def generateChainConfigs( chainDict ):
 
     log.debug('bjet full dictionary is: %s\n', pprint.pformat(chainDict))
@@ -22,14 +20,17 @@ def generateChainConfigs( chainDict ):
 
     for subChainDict in listOfChainDicts:
 
-        jet = JetChainConfiguration(chainDict).assembleChain()
+        jet_cfg = JetChainConfiguration(chainDict)
+        jet_name = jet_cfg.jetName
+        jet = jet_cfg.assembleChain()
 
         # don't setup btagging for legs that are jet-only
         # happens for bjet + normal jet chains
         if subChainDict['chainParts'][0]['signature'] != 'Bjet':
             listOfChainDefs += [jet]
         else:
-            Bjet = BjetChainConfiguration(subChainDict, jet).assembleChain() 
+            log.debug('input jet collection name is: %s\n', jet_name)
+            Bjet = BjetChainConfiguration(subChainDict, jet_name).assembleChain() 
             jet.steps = jet.steps + Bjet.steps
             listOfChainDefs += [ jet ] 
 

@@ -43,6 +43,7 @@ class TrigEgammaMonAlgBuilder:
   activate_photon = False
   activate_zee = False
   activate_jpsiee = False
+  activate_topo = False
   tagItems = []
   jpsitagItems = []
   electronList = []
@@ -94,6 +95,7 @@ class TrigEgammaMonAlgBuilder:
         self.activate_jpsiee=True 
         self.activate_electron=True
         self.activate_photon=True
+        self.activate_topo= True
     elif self.HI_mode or self.pPb_mode or self.cosmic_mode:
       self.activate_electron=True
       self.activate_photon=True
@@ -165,13 +167,14 @@ class TrigEgammaMonAlgBuilder:
 
   def setDefaultProperties(self):
    
-    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron,validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee
+    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee
     
     if self.pp_mode:
         self.electronList = monitoring_electron
         self.photonList   = monitoring_photon
         self.tpList       = monitoringTP_electron
         self.tagItems     = [] # monitoring_tags
+        self.topoList     = monitoring_topo
     elif self.mc_mode:
         self.electronList = validation_electron + validation_Zee
         self.photonList   = validation_photon
@@ -179,8 +182,9 @@ class TrigEgammaMonAlgBuilder:
         self.jpsiList     = validation_jpsi
         self.jpsitagItems = validationTP_jpsiee
         self.tagItems     = [] #monitoring_tags    
+        self.topoList     = monitoring_topo
 
- 
+
   #
   # Create all minitor algorithms
   #
@@ -388,12 +392,13 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
       self.elMonAlg.DetailedHistograms=self.detailedHistograms
+      self.elMonAlg.DoEmulation = False
+
       if self.emulator:
         self.elMonAlg.DoEmulation = True
         self.emulator.TriggerList += self.electronList
         self.elMonAlg.EmulationTool = self.emulator.core()
-      else:
-        self.elMonAlg.DoEmulation = False
+        
 
     if self.activate_photon:
 
@@ -408,13 +413,31 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
       self.phMonAlg.ForcePidSelection=True
+      self.phMonAlg.DoEmulation = False
+
       if self.emulator:
         self.phMonAlg.DoEmulation = True
         self.emulator.TriggerList += self.photonList
         self.phMonAlg.EmulationTool = self.emulator.core()
-      else:
-        self.phMonAlg.DoEmulation = False
 
+
+
+    if self.activate_topo:
+
+      self.__logger.info( "Creating the combo monitor algorithm...")
+      self.topoMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorTopoAlgorithm, "TrigEgammaMonitorTopoAlgorithm" )
+      self.topoMonAlg.MatchTool = EgammaMatchTool
+      self.topoMonAlg.ElectronKey = 'Electrons'
+      self.topoMonAlg.PhotonKey = 'Photons'
+      self.topoMonAlg.isEMResultNames=self.isemnames
+      self.topoMonAlg.LHResultNames=self.lhnames
+      self.topoMonAlg.DNNResultNames=self.dnnnames
+      self.topoMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
+      self.topoMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.topoMonAlg.DetailedHistograms=self.detailedHistograms
+      self.topoMonAlg.TriggerListConfig  = self.topoList # this is a list of dicts
+
+      
 
 
   
@@ -447,6 +470,12 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_photon:
       self.bookExpertHistograms( self.phMonAlg, self.phMonAlg.TriggerList )
   
+
+    # configure topo chains
+    if self.activate_topo:
+      self.bookTopoHistograms( self.topoMonAlg, self.topoMonAlg.TriggerListConfig )
+
+
   # If we've already defined the group, return the object already defined
   @functools.lru_cache(None)
   def addGroup( self, monAlg, name, path ):
@@ -992,8 +1021,39 @@ class TrigEgammaMonAlgBuilder:
 
 
 
+  def bookTopoHistograms(self, monAlg, trigger_configs ):
+    
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TProfile
+    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import topo_config
+  
 
+    for d in trigger_configs:
 
+      trigger = d['trigger_num']
+
+      if not d['topo'] in topo_config.keys():
+        self.__logger.fatal("Mon combo tool only support Zee, Jpsiee, Heg trigger. Current chain is %s", trigger)
+
+      monGroup_on  = self.addGroup( monAlg, trigger+'_Efficiency_HLT', self.basePath+'/'+trigger+'/Efficiency/HLT' )
+      monGroup_off = self.addGroup( monAlg, trigger+'_Efficiency_Offline', self.basePath+'/'+trigger+'/Efficiency/Offline' )
+
+      xmin = topo_config[d['topo']]['mass'][0]
+      xmax = topo_config[d['topo']]['mass'][1]
+      self.addHistogram(monGroup_on, TH1F("mass", "Online M(ee); m_ee [GeV] ; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_on, TH1F("match_mass", "Online M(ee); m_ee [GeV] ; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_on, TProfile("mass,match_mass", "Online #epsilon(M(ee)); m_ee; #epsilon(M(ee))", 50, xmin, xmax))
+      self.addHistogram(monGroup_off, TH1F("mass", "Offline M(ee); m_ee [GeV] ; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_off, TH1F("match_mass", "Offline M(ee); m_ee [GeV] ; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_off, TProfile("mass,match_mass", "Offline #epsilon(M(ee)); p_{T} ; #epsilon(M(ee))", 50, xmin, xmax))
+
+      xmin = topo_config[d['topo']]['dphi'][0]
+      xmax = topo_config[d['topo']]['dphi'][1]
+      self.addHistogram(monGroup_on, TH1F("dphi", "Online #Delta#phi; #Delte#phi; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_on, TH1F("match_dphi", "Online #Delta#phi; #Delte#phi; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_on, TProfile("dphi,match_dphi", "Online #epsilon(#Delta#phi); #Delta#phi; #epsilon(#Delta#phi)", 50, xmin, xmax))
+      self.addHistogram(monGroup_off, TH1F("dphi", "Offline #Delta#phi; #Delte#phi; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_off, TH1F("match_dphi", "Offline #Delta#phi; #Delte#phi; Count", 50, xmin, xmax))
+      self.addHistogram(monGroup_off, TProfile("dphi,match_dphi", "Offline #epsilon(#Delta#phi); #Delta#phi; #epsilon(#Delta#phi)", 50, xmin, xmax))
 
 
   #

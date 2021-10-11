@@ -27,19 +27,19 @@ def setupMenu():
 
 
     chains["muon"] = [
-        ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu10_L1MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu20_L1MU14FCH', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_L1MU8F', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu8_L1MU5VF',   groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu20_msonly_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu20_msonly_L1MU14FCH', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_msonly_L1MU8F', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu8_msonly_L1MU5VF',   groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu8_ivarmedium_L1MU6',   groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu8_ivarmedium_L1MU5VF',   groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6noL1_L1MU5VF', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
     ]
     chains["bphysics"] = [
-#        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup),
+#        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU3V', groups=BphysicsGroup),
     ]
 
     chains["electron"] = [
@@ -89,8 +89,8 @@ def setupMenu():
     ]
 
     chains["combined"] = [
-        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=EgammaMuonGroup),
-        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', groups=EgammaMuonGroup)
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU8F', groups=EgammaMuonGroup),
+        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU8F', groups=EgammaMuonGroup)
     ]
 
 

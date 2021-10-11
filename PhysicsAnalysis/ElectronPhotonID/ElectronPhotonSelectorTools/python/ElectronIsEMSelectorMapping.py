@@ -26,29 +26,12 @@ from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 
 
 class electronPIDmenu:
-    menu2012 = 0
-    menuTrig2012 = 1
-    menuTrigDC14 = 2
-    menuDC14 = 3
+    menuTrig2012 = 0
+    menuTrigDC14 = 1
+    menuDC14 = 2
 
 
 # format - key: (mask, function)
-ElectronIsEMMap2012 = {
-    egammaPID.ElectronIDLoosePP: (
-        egammaPID.ElectronLoosePP,
-        ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfig2012),
-    egammaPID.ElectronIDMediumPP: (
-        egammaPID.ElectronMediumPP,
-        ElectronIsEMMediumSelectorCutDefs.ElectronIsEMMediumSelectorConfig2012),
-    egammaPID.ElectronIDTightPP: (
-        egammaPID.ElectronTightPP,
-        ElectronIsEMTightSelectorCutDefs.ElectronIsEMTightSelectorConfig2012),
-    egammaPID.NoIDCut: (
-        0,
-        ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfig2012)
-}
-
-
 ElectronIsEMMapDC14 = {
     egammaPID.ElectronIDLoosePP: (
         egammaPID.ElectronLoosePP,
@@ -96,9 +79,7 @@ TrigElectronIsEMMapDC14 = {
 
 
 def ElectronIsEMMap(quality, menu):
-    if menu == electronPIDmenu.menu2012:
-        return ElectronIsEMMap2012[quality]
-    elif menu == electronPIDmenu.menuDC14:
+    if menu == electronPIDmenu.menuDC14:
         return ElectronIsEMMapDC14[quality]
     elif menu == electronPIDmenu.menuTrig2012:
         return TrigElectronIsEMMap2012[quality]

@@ -8,63 +8,63 @@
 #include <string>
 #include <vector>
 
-namespace MuonCalib{
+namespace MuonCalib {
 
-  /**
-     Simplified class designed to store information from RpcSectorLogic. It has :
-     
-     @author Giuseppe Salamanna
-  */
-  class MuonCalibRpcSectorLogic{
-  public:
-    MuonCalibRpcSectorLogic();                                                       
-    MuonCalibRpcSectorLogic( int sectorId, int fel1Id, int bcid, int errorCode, int crc, int hasMoreThan2TriggerCand, int slIndex, float triggerRates, int counters, int slIndex2, int rowinBcid, int padid, int ptid, int roi, int outerPlane, int overlapPhi, int overlapEta, int triggerBcid, int isInput ); //!< constructor setting all members
-    ~MuonCalibRpcSectorLogic() {} ;                                                                          //!< destructor
-    
-    int sectorId()  const      { return m_sectorId; }
-    int fel1Id()  const      { return m_fel1Id; }
-    int bcid()  const      { return m_bcid; }
-    int errorCode()  const      { return m_errorCode; }
-    int crc()  const      { return m_crc; }
-    int hasMoreThan2TriggerCand()  const      { return m_hasMoreThan2TriggerCand; }
-    int slIndex()  const      { return m_slIndex; };
-    float triggerRates()   const      { return m_triggerRates; };
-    int counters()   const  {return m_counters; };
-    int slIndex2()  const      { return m_slIndex2; }  
-    int rowinBcid()  const      { return m_rowinBcid; }
-    int padid()  const      { return m_padid; }
-    int ptid()  const      { return m_ptid; }
-    int roi()  const      { return m_roi; }
-    int outerPlane()  const      { return m_outerPlane; }
-    int overlapPhi()  const      { return m_overlapPhi; }
-    int overlapEta()  const      { return m_overlapEta; }
-    int triggerBcid()  const      { return m_triggerBcid; }
-    int isInput()  const      { return m_isInput; }
-    
-  private:
+    /**
+       Simplified class designed to store information from RpcSectorLogic. It has :
+   */
+    class MuonCalibRpcSectorLogic {
+    public:
+        struct defineParams {
+            int sectorId{0};
+            int fel1Id{0};
+            int bcid{0};
+            int errorCode{0};
+            int crc{0};
+            int hasMoreThan2TriggerCand{0};
+            int slIndex{0};
+            float triggerRates{0};
+            int counters{0};
+            int slIndex2{0};
+            int rowinBcid{0};
+            int padid{0};
+            int ptid{0};
+            int roi{0};
+            int outerPlane{0};
+            int overlapPhi{0};
+            int overlapEta{0};
+            int triggerBcid{0};
+            int isInput{0};
+        };
+        MuonCalibRpcSectorLogic() = default;
 
-    int m_sectorId;
-    int m_fel1Id;
-    int m_bcid;
-    int m_errorCode;
-    int m_crc;
-    int m_hasMoreThan2TriggerCand;
-    int m_slIndex;
-    float m_triggerRates;
-    int m_counters; 
-    int m_slIndex2;  
-    int m_rowinBcid;
-    int m_padid;
-    int m_ptid;
-    int m_roi;
-    int m_outerPlane;
-    int m_overlapPhi;
-    int m_overlapEta;
-    int m_triggerBcid;
-    int m_isInput;
-    
-  } ;
+        MuonCalibRpcSectorLogic(defineParams pars);  //!< constructor setting all members
+        ~MuonCalibRpcSectorLogic() = default;        //!< destructor
 
-}//namespace MuonCalib
+        int sectorId() const;
+        int fel1Id() const;
+        int bcid() const;
+        int errorCode() const;
+        int crc() const;
+        int hasMoreThan2TriggerCand() const;
+        int slIndex() const;
+        float triggerRates() const;
+        int counters() const;
+        int slIndex2() const;
+        int rowinBcid() const;
+        int padid() const;
+        int ptid() const;
+        int roi() const;
+        int outerPlane() const;
+        int overlapPhi() const;
+        int overlapEta() const;
+        int triggerBcid() const;
+        int isInput() const;
 
-#endif 
+    private:
+        defineParams m_params;
+    };
+
+}  // namespace MuonCalib
+
+#endif

@@ -10,7 +10,7 @@
 
 //____________________________________________________________________________
 
-TRT_PAI_element::TRT_PAI_element(std::string nm,
+TRT_PAI_element::TRT_PAI_element(const std::string & nm,
 				 const float *E,
 				 const float *S,
 				 int          N,
@@ -21,8 +21,8 @@ TRT_PAI_element::TRT_PAI_element(std::string nm,
   m_atomicZ(Z)
 {
   for ( int i=0; i<N; ++i ) {
-    m_lnEnergyLvls.push_back( log(E[i]) );
-    m_lnCrossScts.push_back( log(S[i]) );
+    m_lnEnergyLvls.push_back( std::log(E[i]) );
+    m_lnCrossScts.push_back( std::log(S[i]) );
   }
   return;
 }

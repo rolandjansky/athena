@@ -72,6 +72,18 @@ private:
   /// Flag indicating to treat objects with E<0 as ghosts  (useful for HI)
   Gaudi::Property<bool> m_negEnergyAsGhosts{this, "TreatNegativeEnergyAsGhost", false, "Whether to convert negative energy inputs into ghosts"};
 
+  /// Flag to define if charged PFOs / FEs should be considered
+  Gaudi::Property<bool> m_useCharged{this, "UseCharged", true, "Whether to use charged PFOs/FEs"};
+
+  /// Flag to define if neutral PFOs / FEs should be considered
+  Gaudi::Property<bool> m_useNeutral{this, "UseNeutral", true, "Whether to use neutral PFOs/FEs"};
+
+  /// Flag to define if charged PFOs / FEs should be matched to PV
+  Gaudi::Property<bool> m_useChargedPV{this, "UseChargedPV", true, "Whether to use charged PFOs/FEs matched to the PV"};
+
+  /// Flag for PFlow sideband definition
+  Gaudi::Property<bool> m_useChargedPUsideband{this, "UseChargedPUsideband", false, "Whether to use charged PU sideband only"};
+
   /// Internal steering flags
   /// Set in initialize()
   bool m_isGhost{false}; /// Determines whether the PJs should be made ghosts

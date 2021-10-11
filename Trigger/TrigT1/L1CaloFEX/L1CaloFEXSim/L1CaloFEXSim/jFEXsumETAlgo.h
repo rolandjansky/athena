@@ -50,7 +50,7 @@ namespace LVL1 {
     virtual void buildFWDSumET()  override;
     virtual int getETlowerEta(uint bin)  override;
     virtual int getETupperEta(uint bin)  override;   
-    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
+    virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  override;
     
     virtual std::unique_ptr<jFEXsumETTOB> getsumETTOBs() override;
     
@@ -65,7 +65,7 @@ protected:
         int m_SumlowEta =0;
         int m_SumhighEta=0;
         
-        std::map<int,std::vector<int> > m_map_Etvalues;
+        std::unordered_map<int,std::vector<int> > m_map_Etvalues;
         
         
   };

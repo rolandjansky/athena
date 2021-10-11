@@ -63,6 +63,8 @@ egammaSelectedTrackCopy::initialize()
 
   ATH_CHECK(m_egammaCaloClusterSelector.retrieve());
 
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -123,8 +125,10 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
   auto allTRTTracks = m_AllTRTTracks.buffer();
   auto selectedTRTTracks = m_SelectedTRTTracks.buffer();
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster*> passingClusters;

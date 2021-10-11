@@ -16,8 +16,24 @@
 #include "EventInfo/EventID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
+#include <algorithm> //std::unique
 
 namespace SCT_CalibAlgs {
+  std::string
+  normalizeList(std::string s) {
+    auto binaryPredicate=[](char s0, char s1){
+    return (s0==' ' and s0==s1);
+  };
+  auto normalised= std::unique(s.begin(), s.end(), binaryPredicate);
+  s.erase(normalised,s.end());
+  size_t first=0;
+  size_t last=s.size()-1;
+  if (s[first] == ' ') first =1;
+  if (s[last] == ' ') last-=1;
+  return s.substr(first,last);
+}
+
+
 std::string
 eventInfoAsString(const EventInfo* theEvent) {
    using std::string;

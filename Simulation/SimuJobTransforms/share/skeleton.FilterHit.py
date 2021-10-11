@@ -38,7 +38,7 @@ if not hasattr(runArgs,"inputHITSFile"):
         raise RuntimeError("No inputHITSFile provided.")
 
 from SimuJobTransforms.HitsFilePeeker import HitsFilePeeker
-HitsFilePeeker(runArgs, filterHitLog)
+peekInfo = HitsFilePeeker(runArgs, filterHitLog)
 
 #==============================================================
 # Job Configuration parameters:
@@ -259,13 +259,21 @@ if hasattr(runArgs,'TruthReductionScheme'):
         filterHitLog.warning( 'Unknown TruthReductionScheme (' + runArgs.TruthReductionScheme + '). Currently just a dummy value, but please check.' )
     ## here configure the level of Truth reduction required
     topSequence += McEventCollectionFilter
+    from AthenaCommon.CfgGetter import getAlgorithm
+    if peekInfo["AntiKt4TruthJetsPresent"]:
+        topSequence += getAlgorithm("DecoratePileupAntiKt4TruthJets")
+    if peekInfo["AntiKt6TruthJetsPresent"]:
+        topSequence += getAlgorithm("DecoratePileupAntiKt6TruthJets")
+    if peekInfo["PileUpTruthParticlesPresent"]:
+        topSequence += getAlgorithm("DecorateTruthPileupParticles")
+
     if DetFlags.detdescr.TRT_on():
         try:
             from McEventCollectionFilter.McEventCollectionFilterConf import TRT_HitsTruthRelink
             topSequence += TRT_HitsTruthRelink("TRT_HitsTruthRelink")
         except:
             filterHitLog.error('Trying to run on upgrade samples (no TRT) with an old tag of McEventCollectionFilter - job will fail.')
-    
+
     if DetFlags.detdescr.BCM_on():
         try:
             from McEventCollectionFilter.McEventCollectionFilterConf import SiliconHitsTruthRelink

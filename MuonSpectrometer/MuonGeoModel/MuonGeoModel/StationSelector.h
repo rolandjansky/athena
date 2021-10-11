@@ -17,7 +17,7 @@ namespace MuonGM {
     class StationSelector {
       public:
         typedef std::map<std::string, Station *, std::less<std::string>>::const_iterator StationIterator;
-        StationSelector(std::string filename);
+        StationSelector(const std::string& filename);
         StationSelector(std::vector<std::string> s);
         StationIterator begin();
         StationIterator end();

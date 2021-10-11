@@ -44,7 +44,7 @@ namespace SCT_Cabling{
   
   std::string formatModuleOutput(const unsigned int rod, const unsigned int fibre, 
                                  const int bec,const int layerDisk, const int eta, const int phi, const int side, const int robId,
-                                 const std::string fullsn){
+                                 const std::string & fullsn){
     const std::string sep(" ");
     using std::to_string;
     std::string result= to_string(rod)+sep+to_string(fibre)+sep+to_string(bec)+sep+to_string(layerDisk)+sep;

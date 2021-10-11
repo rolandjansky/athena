@@ -197,15 +197,15 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
          }
          pos1 = output.find('[', pos3);
       }
-      if (tname.substr(0, 14) == "DataHeaderForm") {
+      if (tname.compare(0, 14, "DataHeaderForm") == 0) {
          containerName = dhContainerPrefix + "Form" + "(" + tname + ")";
-      } else if (tname.substr(0, 10) == "DataHeader") {
-         if (key.substr(key.size() - 1) == "/") {
+      } else if (tname.compare(0, 10, "DataHeader") == 0) {
+         if (key[key.size() - 1] == '/') {
             containerName = dhContainerPrefix + "(" + key + tname + ")";
          } else {
             containerName = dhContainerPrefix + "(" + tname + ")";
          }
-      } else if (tname.substr(0, 13) == "AttributeList") {
+      } else if (tname.compare(0, 13, "AttributeList") == 0) {
          containerName = "ROOTTREE:POOLCollectionTree(" + key + ")";
       } else {
          const std::string typeTok = "<type>", keyTok = "<key>";

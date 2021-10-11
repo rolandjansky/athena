@@ -39,7 +39,7 @@ Interface definition for eFEXFPGA
 
     virtual void SetTowersAndCells_SG(int [][6]) = 0;
     
-    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) = 0;
+    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &, unsigned int &) = 0;
 
     virtual std::vector<uint32_t> getEmTOBs() = 0; 
 

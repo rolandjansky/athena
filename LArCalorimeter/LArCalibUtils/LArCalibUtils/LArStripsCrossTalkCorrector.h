@@ -54,20 +54,16 @@ private:
 class LArStripsCrossTalkCorrector : public AthAlgorithm
 {
  public:
-  LArStripsCrossTalkCorrector(const std::string & name, ISvcLocator * pSvcLocator);
-  ~LArStripsCrossTalkCorrector();
+  using AthAlgorithm::AthAlgorithm;
 
   //standard algorithm methods
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 
  private:
-  StatusCode executeWithAccumulatedDigits();
-  StatusCode executeWithStandardDigits();
-
-
+  
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey {this, "MissingFEBKey", "LArBadFeb", "SG key for miffing FEB object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
@@ -82,29 +78,34 @@ class LArStripsCrossTalkCorrector : public AthAlgorithm
 
 
 
-  const LArOnlineID*  m_onlineHelper;
-  const LArEM_ID*     m_emId;
-
-  const DataHandle<ILArPedestal> m_larPedestal;
-  unsigned int        m_event_counter;
-  unsigned int        m_MAXeta, m_MINeta;
-  const unsigned int  m_MAXphi;
-  int                 m_nStrips;
+  const LArOnlineID*  m_onlineHelper{nullptr};
+  const LArEM_ID*     m_emId{nullptr};
+  unsigned int        m_event_counter=0;
+  //Ranges for eta and phi indices for barrel(0) and endcap(1)
+  const std::array<unsigned,2> m_MAXeta{448,208};
+  const std::array<unsigned,2> m_MINeta{1,0};
+  const unsigned int  m_MAXphi=64;
+  int                 m_nStrips=-1;
   //Algorithm-Properties:
-  std::vector<std::string> m_keylist;
-  unsigned int m_ADCsatur;
-  bool m_useAccumulatedDigits;
-  float m_acceptableDifference;
+  Gaudi::Property<std::vector<std::string> > m_keylist{this,"KeyList",{},"List of input keys ('HIGH','MEDIUM','LOW')"};
+  Gaudi::Property<unsigned int> m_ADCsatur {this,"ADCsaturation",0,"Cutoff value to ignore saturated digits"};
+  Gaudi::Property<float> m_acceptableDifference{this,"AcceptableDifference",20, "For sanity check: By how much the corrected value may differ from the original one (in %)"};
 
-  std::string m_pedKey;
 
-  uint16_t m_fatalFebErrorPattern;
+  SG::ReadCondHandleKey<ILArPedestal> m_pedKey{this,"PedestalKey","Pedestal","Key of Pedestal object"};
 
-  const size_t m_noIdx;
+  uint16_t m_fatalFebErrorPattern{0xffff};
 
-  std::vector < std::vector < const LArAccumulatedCalibDigit* > > m_stripsLookUp;
+  const size_t m_noIdx{9999999};
 
-  std::vector < std::bitset< 128 > > m_knownMissingFebs;
+  //2D Eta-phi array of strip cells. A/C side is accomodated by duplicating the number of phi-bins
+  //One such array for barrel, one for endcap
+  //Idexing: Barrel/EC, eta-index, phi-index
+  std::array<std::vector < std::vector < const LArAccumulatedCalibDigit* > >,2> m_stripsLookUp;
+
+  std::array<std::vector < std::bitset< 128 > >,2> m_knownMissingFebs;
+
+  bool m_missingFEBsDone=false;
 
   std::set<HWIdentifier> m_uncorrectedIds;
 
@@ -116,10 +117,10 @@ class LArStripsCrossTalkCorrector : public AthAlgorithm
  };
 
 
-  XtalkCorrHisto m_differences;
+  XtalkCorrHisto m_differences{6,0.3};
 
   std::string printMaxSample(const LArAccumulatedCalibDigit* thisDig);
-  StatusCode initKnownMissingFebs(const int bec);
+  StatusCode initKnownMissingFebs();
 
   size_t getEtaIndex(const Identifier) const;
   size_t getPhiIndex(const Identifier) const;

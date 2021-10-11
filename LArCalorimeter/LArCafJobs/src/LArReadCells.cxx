@@ -48,7 +48,9 @@ StatusCode LArReadCells::initialize() {
   ServiceHandle<ITHistSvc> histSvc("THistSvc",name()); 
   CHECK( histSvc.retrieve() );
   m_tree = new TTree("myTree","myTree");
-  CHECK( histSvc->regTree("/SPLASH/myTree",m_tree) );
+  std::string out("/"+m_outStream+"/myTree");
+  CHECK( histSvc->regTree(out.c_str(),m_tree) );
+  ATH_MSG_INFO("Registered tree: " << out);
   m_tree->Branch("RunNumber",&m_runNumber,"RunNumber/I");
   m_tree->Branch("LBNumber",&m_lbNumber,"LBNumber/I");
   m_tree->Branch("EventNumber",&m_eventNumber,"EventNumber/I");
@@ -72,7 +74,7 @@ StatusCode LArReadCells::initialize() {
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK(m_pedestalKey.initialize());
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_INFO("Energy cut for time and quality computation: " << m_etcut);
 
   return StatusCode::SUCCESS;
@@ -93,6 +95,9 @@ StatusCode LArReadCells::execute() {
      ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping" );
      return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey}; 
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
 
   //Get Conditions input
   SG::ReadCondHandle<ILArPedestal> pedHdl{m_pedestalKey};
@@ -150,7 +155,7 @@ StatusCode LArReadCells::execute() {
         if ((m_calo_id->calo_sample(cellID)==CaloSampling::CaloSample::EMB2 || m_calo_id->calo_sample(cellID)==CaloSampling::CaloSample::EME2) 
               && et>m_etcut2) {
 
-           CaloCellList myList(cell_container);
+           CaloCellList myList(caloDDMgr, cell_container);
            myList.select((*first_cell)->eta(),(*first_cell)->phi(),0.10);
            for (const CaloCell* cell : myList) {
              Identifier cellID2 =cell->ID();

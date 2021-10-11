@@ -30,7 +30,6 @@
 #include "CaloUtils/CaloSamplingHelper.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "StoreGate/ReadHandle.h"
 

@@ -15,7 +15,6 @@
 #include "LArRawConditions/LArShapeComplete.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -49,7 +48,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nLArError(0),
   m_nNoDigits(0),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_caloDetDescrMgr(nullptr),
   m_onlineHelper(nullptr),
   m_doEM(false),
   m_doHEC(false),
@@ -99,7 +97,7 @@ StatusCode LArShapeDumper::initialize()
   ATH_CHECK( m_bcDataKey.initialize() );
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
-  ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
@@ -236,7 +234,10 @@ StatusCode LArShapeDumper::execute()
     ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
     return StatusCode::FAILURE;
   }
-  
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;  
 
   if (m_onlyEmptyBC) {
     if (!bccd->isFilled(bunchId)) {
@@ -328,7 +329,7 @@ StatusCode LArShapeDumper::execute()
       if (!histCont) {
         HWIdentifier channelID = channel->hardwareID();
         const Identifier id = cabling->cnvToIdentifier(channelID);
-        const CaloDetDescrElement* caloDetElement = m_caloDetDescrMgr->get_element(id);
+        const CaloDetDescrElement* caloDetElement = caloMgr->get_element(id);
         info = m_dumperTool->makeCellInfo(channelID, id, caloDetElement);
         if (!info) continue;
         m_samples->makeNewHistory(hash, info);
@@ -391,7 +392,7 @@ StatusCode LArShapeDumper::execute()
     HistoryContainer* histCont = m_samples->hist_cont(hash);
     CellInfo* info = 0;
     if (!histCont) {
-      if (!caloDetElement) caloDetElement = m_caloDetDescrMgr->get_element(id);
+      if (!caloDetElement) caloDetElement = caloMgr->get_element(id);
       info = m_dumperTool->makeCellInfo(channelID, id, caloDetElement);
       if (!info) continue;
       histCont = m_samples->makeNewHistory(hash, info);
@@ -402,7 +403,7 @@ StatusCode LArShapeDumper::execute()
     float noise = -1;
     unsigned int status = 0xFFFFFFFF;
     if (connected) {
-      if (!caloDetElement) caloDetElement = m_caloDetDescrMgr->get_element(id);
+      if (!caloDetElement) caloDetElement = caloMgr->get_element(id);
       noise = noiseCDO->getNoise(id,gain);
       status = bcCont->status(channelID).packedData();
       HWIdentifier febId = m_onlineHelper->feb_Id(m_onlineHelper->feedthrough_Id(channelID), m_onlineHelper->slot(channelID));

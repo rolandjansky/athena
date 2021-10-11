@@ -72,7 +72,7 @@ InDet::RobustTrackingGeometryBuilderCond::RobustTrackingGeometryBuilderCond(cons
   // volume namespace & contaienr name
   declareProperty("VolumeNamespace",                  m_namespace); 
   declareProperty("ExitVolumeName",                   m_exitVolume);
-  declareProperty("isSLHC",                           m_isSLHC=false);
+  declareProperty("isITk",                            m_isITk=false);
 }
 
 // destructor
@@ -401,7 +401,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        double currentCentralOuterR  = 0.;
        double currentEndcapOuterR   = 0.;
        
-       if (m_isSLHC){
+       if (m_isITk){
 	       double NextInnerRadii = ((ilb!=cylinderOuterRadii.size()-1) && cylinderInnerRadii[ilb+1]<discInnerRadii[ilb+1]) ? cylinderInnerRadii[ilb+1] : discInnerRadii[ilb+1]; 
 	       currentCentralOuterR = (ilb!=cylinderOuterRadii.size()-1) ? 0.5*(NextInnerRadii+cylinderOuterRadii[ilb]) : overallRmax;
 	       currentEndcapOuterR = (ilb!=discOuterRadii.size()-1) ? 0.5*(NextInnerRadii+discOuterRadii[ilb]) : overallRmax;

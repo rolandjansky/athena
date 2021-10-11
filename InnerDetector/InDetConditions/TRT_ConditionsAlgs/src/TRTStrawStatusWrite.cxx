@@ -158,6 +158,7 @@ int TRTStrawStatusWrite::getStatus(Identifier offlineID){
 
    if (!strawstatuscontainer) {
      ATH_MSG_WARNING( "::getStatus, strawstatuscontainer == 0, dead straws not set"); 
+     return stat;
   }
   stat=int((*strawstatuscontainer).get(id).getstatus());
   return stat;

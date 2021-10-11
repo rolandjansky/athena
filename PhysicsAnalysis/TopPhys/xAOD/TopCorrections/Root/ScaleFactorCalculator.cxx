@@ -29,7 +29,6 @@ namespace top {
     m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool"),
     m_globalLeptonTriggerSF(nullptr),
     m_pmg_truth_weight_tool("PMGTruthWeightTool"),
-    m_sample_multiple_MCweights(false),
     m_nominal_weight_name("") {
     declareProperty("config", m_config);
   }
@@ -113,56 +112,30 @@ namespace top {
     }
     ///-- Start using the PMG tool to get the nominal event weights --///
     // in case PMGTruthWeightTool init fails, e.g. due to broken metadata
+    // leave the possibility to force nominal weight above
     if (!m_pmg_truth_weight_tool.retrieve()) {
-      // we don't know how many MC weights there are and user didn't specify nominal index
-      if (m_config->MCweightsVectorSize() == size_t(-1)
-          && m_config->nominalWeightIndex() == size_t(-1)) {
-        ATH_MSG_ERROR("\nPMGTruthWeightTool instance could not be retrieved."
-            << "We could not determine the number of MC generator weights in this sample.\n"
-            << "We cannot determine the nominal MC weight. Please specify the index of "
-            << "nominal MC weight via config option NominalWeightFallbackIndex.");
-        return StatusCode::FAILURE;
-      }
-      // we know there are multiple MC weights and user didn't specify nominal index
-      if (m_config->MCweightsVectorSize() > 1
-          && m_config->nominalWeightIndex() == size_t(-1)) {
-        ATH_MSG_ERROR("\nPMGTruthWeightTool instance could not be retrieved."
-            << "We detect multiple MC generator weights in the sample.\n "
-            << "We cannot determine which one is nominal. Please specify the index of "
-            << "nominal MC weight via config option NominalWeightFallbackIndex.");
-        return StatusCode::FAILURE;
-      }
-      // only one MC weight in the sample, this is sovable unambiguously
-      if (m_config->MCweightsVectorSize() == 1) {
-        m_config->setNominalWeightIndex(0);
-        ATH_MSG_WARNING("PMGTruthWeightTool instance could not be retrieved."
-            << "This sample has only one MC weight, will use that one.");
-        return StatusCode::SUCCESS;
-      }
-      // possibly multiple weights, but the user already gave us fallback option
-      ATH_MSG_WARNING("PMGTruthWeightTool instance could not be retrieved."
-          << "Falling back to specified NominalWeightFallbackIndex "
-          << m_config->nominalWeightIndex());
-      return StatusCode::SUCCESS;
+      ATH_MSG_ERROR("\nPMGTruthWeightTool instance could not be retrieved."
+                    << "\nWe cannot determine if this sample has multiple weights, "
+                    << "nor which one is nominal. Please specify the index of "
+                    << "nominal MC weight via config option NominalWeightFallbackIndex, "
+                    << " and set ForceNominalWeightFallbackIndex to true.");
+      return StatusCode::FAILURE;
     }
+
     // PMGTruthWeightTool was initialized succesfully, let's see if we have weights
     const std::vector<std::string>& pmg_weight_names = m_pmg_truth_weight_tool->getWeightNames();
-    m_sample_multiple_MCweights = (pmg_weight_names.size() > 1);
-    if (!m_sample_multiple_MCweights) {
-      ATH_MSG_WARNING("PMGTruthWeightTool did not find multiple MC generator weights in metadata for this sample."
-          << "\nThis most likely means that the sample has only one weight."
-          << "\nCheck the top-xaod output for PMGTruthWeightTool-related errors just to be sure.");
-      if (m_config->nominalWeightIndex() != size_t(-1)) {
-        ATH_MSG_WARNING("Using MC weight index " << m_config->nominalWeightIndex()
-            << " as specified in config.");
-      } else {
-        ATH_MSG_WARNING("Will use 0th weight index. "
-            << "If you want a different weight, specify it via config option NominalWeightFallbackIndex");
+
+    // scenario 1 -- sample has only one weight
+    if (pmg_weight_names.size() == 1) {
+      ATH_MSG_INFO("PMGTruthWeightTool reports single weight in sample, assuming nominal weight index = 0");
         m_config->setNominalWeightIndex(0);
-      }
       return StatusCode::SUCCESS;
     }
-    // here we try to find the first weight name from the NominalWeightNames config option, that matches any MC weight in the sample
+
+    // scenario 2 -- sample has multiple weights, try to find the nominal one
+    // one should not blindly assume that 0th weight is nominal
+    // here we try to find the first weight name from the NominalWeightNames config option,
+    // which that matches any MC weight in the sample
     const std::vector<std::string> &nominal_weight_names = m_config->nominalWeightNames();
     bool found_match = false;
     std::vector<std::string> multiple_matches;

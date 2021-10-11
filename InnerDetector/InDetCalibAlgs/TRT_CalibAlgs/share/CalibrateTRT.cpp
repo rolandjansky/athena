@@ -35,12 +35,12 @@ int Simple2dHist(float minx, float maxx, int nbinsx, float miny, float maxy, int
   int binnoy=(nbinsy*((valuey-miny)/(maxy-miny)));
   return binnoy*nbinsx+binnox;
 }
-
+//cppcheck-suppress ctuOneDefinitionRuleViolation
 struct databundle{
   int det{}, lay{}, mod{}, brd{}, chp{}, stl{}, stw{}, sid{}, ievt{};
   float tres{}, weight{}, res{}, t{}, r{}, t0{}, x{}, y{}, z{}, rt0{};
 };
-
+//cppcheck-suppress ctuOneDefinitionRuleViolation
 struct caldata{
   int det{}, lay{}, mod{}, brd{}, chp{}, stl{}, stw{};
   int sid{}, nres{}, minntres{}, maxntres{}, minnres{}, maxnres{}, minnrt{}, maxnrt{}, t0fittype{};

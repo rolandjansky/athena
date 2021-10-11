@@ -212,7 +212,13 @@ void PixelGmxInterface::addSensor(std::string typeName,
   //
   // Create the detector element and add to the DetectorManager
   //
-  const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[typeName]);
+  auto it = m_geometryMap.find(typeName);
+  if(it == m_geometryMap.end()) {
+    ATH_MSG_ERROR("addSensor: Error: Readout sensor type " << typeName << " not found.");
+    throw std::runtime_error("readout sensor type " + typeName + " not found.");
+  }
+  const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(it->second);
+  ATH_MSG_VERBOSE("Adding sensor with design: " << typeName << " " << design);
   if (design == nullptr) {
     ATH_MSG_ERROR("addSensor: Error: Readout sensor type " << typeName << " not found.");
     throw std::runtime_error("readout sensor type " + typeName + " not found.");

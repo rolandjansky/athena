@@ -215,11 +215,11 @@ StatusCode Sherpa_i::callGenerator() {
 
 StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
   ATH_MSG_DEBUG( "Sherpa_i Filling event");
-
-  p_sherpa->FillHepMCEvent(*event);
 #ifdef HEPMC3
   if (!event->run_info()) event->set_run_info(m_runinfo);
 #endif
+  p_sherpa->FillHepMCEvent(*event);
+
   if (event->weights().size()>2) {
     //double weight_normalisation = event->weights()[2];
     for (size_t i=0; i<event->weights().size(); ++i) {
@@ -228,7 +228,7 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
         // cap variation weights at m_variation_weight_cap*nominal to avoid spikes from numerical instability
         if (fabs(event->weights()[i]) > m_variation_weight_cap*fabs(event->weights()[0])) {
           ATH_MSG_INFO("Capping variation" << i << " = " << event->weights()[i]/event->weights()[0] << "*nominal");
-          event->weights()[i] *= m_variation_weight_cap*fabs(event->weights()[0])/fabs(event->weights()[i]);
+          event->weights()[i] *= m_variation_weight_cap*std::abs(event->weights()[0])/std::abs(event->weights()[i]);
         }
       }
       ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);

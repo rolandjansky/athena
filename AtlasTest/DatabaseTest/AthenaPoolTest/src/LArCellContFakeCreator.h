@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SRC_LARCELLCONTFAKECREATOR_H
-# define SRC_LARCELLCONTFAKECREATOR_H
+#ifndef ATHENAPOOLTEST_LARCELLCONTFAKECREATOR_H
+#define ATHENAPOOLTEST_LARCELLCONTFAKECREATOR_H
 
 /**
  * @file LArCellContFakeCreator.h

@@ -4,6 +4,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from SGComps.AddressRemappingConfig import InputRenameCfg
+AthSequencer=CompFactory.AthSequencer
 
 
 def McEventCollectionFilterCfg(flags, **kwargs):
@@ -181,9 +182,39 @@ def sTGC_HitsTruthRelinkCfg(flags, **kwargs):
     return acc
 
 
-def TruthResetAlgCfg(flags, sequenceName='SimSequence', **kwargs):
+def DecorateTruthPileupParticlesCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("InputParticleContainer", "TruthPileupParticles")
+    kwargs.setdefault("OutputDecoration", "TruthPileupParticles.PVz")
+
+    acc.addEventAlgo(CompFactory.PileUpTruthDecoration(name="DecorateTruthPileupParticles", **kwargs))
+    return acc
+
+
+def DecoratePileupAntiKt4TruthJetsCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("InputParticleContainer", "AntiKt4TruthJets")
+    kwargs.setdefault("OutputDecoration", "AntiKt4TruthJets.PVz")
+
+    acc.addEventAlgo(CompFactory.PileUpTruthDecoration(name="DecoratePileupAntiKt4TruthJets", **kwargs))
+    return acc
+
+
+def DecoratePileupAntiKt6TruthJetsCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("InputParticleContainer", "AntiKt6TruthJets")
+    kwargs.setdefault("OutputDecoration", "AntiKt6TruthJets.PVz")
+
+    acc.addEventAlgo(CompFactory.PileUpTruthDecoration(name="DecoratePileupAntiKt6TruthJets", **kwargs))
+    return acc
+
+
+def TruthResetAlgCfg(flags, **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("InputMcEventCollection", "TruthEventOLD")
     kwargs.setdefault("OutputMcEventCollection", "BeamTruthEvent")
-    result.addEventAlgo(CompFactory.TruthResetAlg(name="TruthResetAlg", **kwargs), sequenceName)
+    result.addEventAlgo(CompFactory.TruthResetAlg(name="TruthResetAlg", **kwargs))
     return result

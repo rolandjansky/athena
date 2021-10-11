@@ -64,8 +64,8 @@ if DetFlags.digitize.LVL1_on():
     if not hasattr( ServiceMgr, 'LVL1ConfigSvc' ):
         log.info( "Will setup LVL1ConfigSvc and add instance to ServiceMgr" )
 
-        from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
-        LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
+        from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+        LVL1ConfigSvc = TrigConf__LVL1ConfigSvc('LVL1ConfigSvc')
 
         #If read from DB then set up the connection and pass keys
         from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -114,12 +114,8 @@ if DetFlags.digitize.LVL1_on():
     #--------------------------------------------------------------
     if DetFlags.simulateLVL1.RPC_on() or DetFlags.simulateLVL1.TGC_on():
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.enableL1MuonPhase1:
-            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-            topSequence += L1MuctpiPhase1()
-        else:
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-            topSequence += L1Muctpi()
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
+        topSequence += L1MuctpiPhase1()
 
     #-------------------------------------------------------
     # TrigT1CaloSim Algos

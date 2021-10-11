@@ -26,7 +26,7 @@ namespace MuonGM {
 
     SpacerBeam::SpacerBeam(Component *ss) : DetectorElement(ss->name), m_hole_pos1(0), m_hole_pos2(0), m_lb_height(0), m_lb_width(0), m_cross_excent(0) {
         StandardComponent *s = (StandardComponent *)ss;
-        std::string componentType = (s->name).substr(0, 3);
+        std::string_view componentType = std::string_view(s->name).substr(0, 3);
 
         double tol = 1.e-4;
 
@@ -84,11 +84,11 @@ namespace MuonGM {
         GeoPhysVol *pvol = 0;
         GeoLogVol *lvol = 0;
         const GeoMaterial *mat = getMaterialManager()->getMaterial("std::Aluminium");
-        if (name.substr(0, 3) == "CHV" || name.substr(0, 3) == "CRO" || name.substr(0, 3) == "CMI") {
+        if (name.compare(0, 3, "CHV") == 0 || name.compare(0, 3, "CRO") == 0 || name.compare(0, 3, "CMI") == 0) {
             double sinexc = 0.;
             double cosexc = 1.;
             double volumelargeness = largeness;
-            if ((name.substr(0, 3) == "CHV" || name.substr(0, 3) == "CRO") && !is_barrel) {
+            if ((name.compare(0, 3, "CHV") == 0 || name.compare(0, 3, "CRO") == 0) && !is_barrel) {
                 double ltemp = std::sqrt(length * length + excent * excent);
                 sinexc = std::abs(excent) / ltemp;
                 cosexc = length / ltemp;
@@ -121,7 +121,7 @@ namespace MuonGM {
             }
             return pvol;
 
-        } else if (name.substr(0, 2) == "LB") {
+        } else if (name.compare(0, 2, "LB") == 0) {
             const GeoShape *LBbox = new GeoBox(height / 2., (width - length / 4.) / 2., length / 2.);
             // (width - length/4) is temporary until excent parameter is put into LbiComponent
             GeoBox *innerBox = new GeoBox(height / 2. - thickness, width / 2. + 1., length / 2. - lowerThickness);

@@ -75,7 +75,7 @@ namespace MuonGM {
 
   public:
     /** constructor */
-    RpcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+    RpcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
 		      int zi, int fi, bool is_mirrored,
 		      MuonDetectorManager* mgr);
 
@@ -213,7 +213,7 @@ namespace MuonGM {
     const Amg::Transform3D localToGlobalTransf(Identifier id) const;
     const Amg::Transform3D localToGlobalTransf(int dbZ, int dbPhi, int gasGap) const;
     // global to local
-    const Amg::Vector3D globalToLocalCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D globalToLocalTransf(Identifier id) const;
 
     const Amg::Vector3D stripPos(Identifier id) const;

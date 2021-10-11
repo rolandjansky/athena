@@ -20,7 +20,10 @@ theRampValidationAlg.RawRampTimeTolerance=20.
 theRampValidationAlg.UseCorrChannels=False
 
 theLArRampPatcher.OutputLevel = INFO
-theLArRCBMasker.OutputLevel = INFO
 
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
+
+conddb.addOverride("/LAR/Align","LARAlign-UPD4-00")
+conddb.addOverride("/LAR/LArCellPositionShift","LArCellPositionShift-ideal")
+print(svcMgr.IOVDbSvc.Folders)

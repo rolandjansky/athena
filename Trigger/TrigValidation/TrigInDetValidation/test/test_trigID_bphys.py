@@ -33,8 +33,8 @@ Input   = 'Bphys_JpsiPhi'    # defined in TrigValTools/share/TrigValInputs.json
 
 preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO  
 
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root " ),
-         ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
+Jobs = [ ( "Truth",       " TIDAdata-run3-larged0.dat                    -o data-hists.root " ),
+         ( "Offline",     " TIDAdata-run3-offline-larged0.dat -r Offline -o data-hists-offline.root" ) ]
 
 Comp = [ ( "L2bphys",             "L2bphys",    "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
          ( "L2bphysoffline",      "L2bphys",    "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ),

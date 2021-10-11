@@ -25,6 +25,7 @@ from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 import re
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 
 
@@ -712,6 +713,11 @@ HIGG1D1SlimmingHelper.AppendToDictionary.update({  "AntiKt4PFlowCustomVtxJets": 
         "Kt4EMPFlowEventShape":"xAOD::EventShape", "Kt4EMPFlowEventShapeAux":"xAOD::EventShapeAuxInfo",
         "BTagging_AntiKt4PFlowCustomVtx":"xAOD::BTaggingContainer", "BTagging_AntiKt4PFlowCustomVtxAux" : "xAOD::BTaggingAuxContainer",
         "ZeeRefittedPrimaryVertices":"xAOD::VertexContainer","ZeeRefittedPrimaryVerticesAux":"xAOD:VertexAuxContainer",
+        "MET_Track":"xAOD::MissingETContainer","MET_TrackAux":"xAOD::MissingETAuxContainer",
+        "egammaTopoSeededClusters":"xAOD::CaloClusterContainer","egammaTopoSeededClustersAux":"xAOD::CaloClusterAuxContainer",
+        "NeutralParticleFlowIsoCentralEventShape":"xAOD::EventShape", "NeutralParticleFlowIsoForwardEventShapeAux":"xAOD::EventShapeAuxInfo",
+        "NeutralParticleFlowIsoForwardEventShape":"xAOD::EventShape", "NeutralParticleFlowIsoForwardEventShapeAux":"xAOD::EventShapeAuxInfo",
+        "Kt4EMTopoOriginEventShape":"xAOD::EventShape", "Kt4EMTopoOriginEventShapeAux":"xAOD::EventShapeAuxInfo",
      })
 
 HIGG1D1SlimmingHelper.AllVariables += [HggVertexContainerName,"ZeeRefittedPrimaryVertices","AntiKt4PFlowCustomVtxJets","Kt4PFlowCustomVtxEventShape","Kt4EMPFlowEventShape"]
@@ -739,14 +745,12 @@ for tool in HIGG1D1_ClusterEnergyPerLayerDecorators:
 
 from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
 addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4EMPFlow","AntiKt4PFlowCustomVtxHgg"])
-HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETAssociationMap#METAssoc_AntiKt4PFlowCustomVtxHgg")
-HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4PFlowCustomVtxHggAux.")
-HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETContainer#MET_Core_AntiKt4PFlowCustomVtxHgg")
-HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_Core_AntiKt4PFlowCustomVtxHggAux.")
-
+HIGG1D1Stream.AddItem("xAOD::MissingETAssociationMap#METAssoc_AntiKt4PFlowCustomVtxHgg")
+HIGG1D1Stream.AddItem("xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4PFlowCustomVtxHggAux.")
+HIGG1D1Stream.AddItem("xAOD::MissingETContainer#MET_Core_AntiKt4PFlowCustomVtxHgg")
+HIGG1D1Stream.AddItem("xAOD::MissingETAuxContainer#MET_Core_AntiKt4PFlowCustomVtxHggAux.")
 
 HIGG1D1SlimmingHelper.IncludeEGammaTriggerContent = True
-
 
 HIGG1D1Stream.AddItem("xAOD::CutBookkeeperContainer#CutBookkeepers")
 HIGG1D1Stream.AddItem("xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.")
@@ -760,7 +764,6 @@ HIGG1D1_trigmatching_helper_tau.add_to_slimming(HIGG1D1SlimmingHelper)
 
 # Final construction of output stream
 HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
-    
 #====================================================================
 # Add our sequence to the top sequence
 #====================================================================

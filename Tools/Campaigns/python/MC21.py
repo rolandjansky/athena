@@ -33,3 +33,11 @@ def MC21NoPileUp(flags):
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
+
+
+def BeamspotSplitMC21a():
+    """MC21a beamspot splitting configuration"""
+    substeps = 3
+    event_fractions = [0.3, 0.3, 0.4]
+
+    return substeps, event_fractions

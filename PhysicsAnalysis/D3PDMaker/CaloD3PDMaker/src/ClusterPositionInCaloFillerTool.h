@@ -43,6 +43,7 @@ public:
                                const std::string& name,
                                const IInterface* parent);
 
+  virtual StatusCode initialize() override;
 
   /// Book variables for this block.
   virtual StatusCode book() override;
@@ -96,8 +97,13 @@ private:
   /// Variable: whether to dump the seed coordinates
   bool m_FillSeedCoordinates;
 
-  /// Position helper.
-  CaloCellDetPos m_caloCellDetPos;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
+
 };
 
 

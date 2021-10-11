@@ -868,14 +868,6 @@ def CaloTrkMuIdAlgTrackSelectorToolCfg(flags, name='CaloTrkMuIdAlgTrackSelectorT
     result.setPrivateTools(tool)
     return result
 
-def TrackEnergyInCaloToolCfg(flags, name ='TrackEnergyInCaloTool', **kwargs ):
-    result = AtlasExtrapolatorCfg(flags)
-    extrapolator = result.popPrivateTools()
-    result.addPublicTool( extrapolator )
-    kwargs.setdefault("ExtrapolatorHandle", extrapolator )
-    tool = CompFactory.TrackEnergyInCaloTool(name, **kwargs )
-    result.setPrivateTools(tool)
-    return result
 
 def TrackDepositInCaloToolCfg(flags, name ='TrackDepositInCaloTool', **kwargs ):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg, ParticleCaloCellAssociationToolCfg

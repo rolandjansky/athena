@@ -17,7 +17,7 @@
 #include "LArRawConditions/LArCaliWave.h"
 #include "LArRawConditions/LArWaveHelper.h" 
 #include "LArCabling/LArOnOffIdMapping.h"
-
+#include <optional>
 
 static const InterfaceID IID_LArWFParamTool("LArWFParamTool", 1 , 0); 
 
@@ -59,9 +59,9 @@ public:
 			      const CaloGain::CaloGain gain,
 			      LArWFParams& wfParams,
                               const LArOnOffIdMapping *cabling,
-			      LArCaliWave* omegaScan=NULL,
-			      LArCaliWave* resOscill0=NULL,
-			      LArCaliWave* resOscill1=NULL
+			      std::optional<LArCaliWave>& omegaScan,
+			      std::optional<LArCaliWave>& resOscill0,
+			      std::optional<LArCaliWave>& resOscill1
 			      ) const;
  
   
@@ -92,6 +92,7 @@ private:
 
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
 
   const LArEM_Base_ID* m_emId = nullptr;
   const LArOnlineID_Base* m_onlineHelper = nullptr;
@@ -144,7 +145,7 @@ private:
   LArWave dstepRespDfstep (const LArWave& gCali, const double& fstep, const double& Tc) const ;
   double dstepCorrDfstep (const double t, const double& fstep, const double& Tc ) const ;
   LArWave dstepCorrDfstep(const LArWave& gCali, const double& fstep, const double& Tcal ) const ;
-  StatusCode RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, const LArOnOffIdMapping *cabling, LArCaliWave* omegaScan=NULL) const;
+  StatusCode RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, const LArOnOffIdMapping *cabling, std::optional<LArCaliWave>& omegaScan) const;
   StatusCode RTM_Taur(const LArWave& gCali, LArWFParams& wfParams, const WaveTiming_t& wt) const;
   double logChi2CosRespShaper (const double omega, const LArWave& gCali, const LArWFParams& wf, const waveRange_t& range) const;
   double logChi2InjRespRes (const double taur, const LArWave& gCali, const LArWFParams& wf, const waveRange_t& range ) const ;

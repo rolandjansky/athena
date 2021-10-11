@@ -31,7 +31,6 @@
 #include <list>
 #include <iterator>
 #include <sstream>
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloClusterContainer.h"

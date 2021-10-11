@@ -60,6 +60,13 @@ private:
   std::vector<float>* m_hits_eloss{};
   std::vector<float>* m_hits_step{};
   std::vector<float>* m_hits_barcode{};
+  std::vector<float>* m_hits_pdgId{};
+  std::vector<float>* m_hits_pT{};
+  std::vector<float>* m_hits_eta{};
+  std::vector<float>* m_hits_phi{};
+  std::vector<float>* m_hits_prodVtx_x{};
+  std::vector<float>* m_hits_prodVtx_y{};
+  std::vector<float>* m_hits_prodVtx_z{};
   std::vector<int>* m_barrel_endcap{};
   std::vector<int>* m_layer_disk{};
   std::vector<int>* m_module_phi{};
@@ -70,6 +77,7 @@ private:
   Gaudi::Property<std::string> m_histPath {this, "HistPath", "/SiHitAnalysis/", ""};
   Gaudi::Property<std::string> m_ntuplePath {this, "NtupleFileName", "/SiHitAnalysis/", ""};
   Gaudi::Property<bool> m_expert {this, "ExpertMode", false, ""};
+  Gaudi::Property<bool> m_extraTruthBranches {this, "ExtraTruthBranches", false, ""};
 
   ServiceHandle<ITHistSvc> m_thistSvc {this, "HistSvc", "THistSvc", ""};
 

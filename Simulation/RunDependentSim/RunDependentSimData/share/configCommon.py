@@ -8,6 +8,17 @@ if 'runArgs' in dir():
     if hasattr(runArgs,"jobNumber") and hasattr(runArgs,"maxEvents"):
         trfJobNumber = runArgs.jobNumber
         trfMaxEvents = runArgs.maxEvents
+        trfTotalEvents = runArgs.maxEvents
+        trfSkipEvents = runArgs.skipEvents if hasattr(runArgs, "skipEvents") else 0
+
+        # do executor step filtering
+        if hasattr(runArgs, "totalExecutorSteps") and runArgs.totalExecutorSteps > 1:
+            JobMaker = list(filter(lambda lb: 'step' not in lb or lb['step'] == runArgs.executorStep, JobMaker))
+            if runArgs.totalExecutorSteps != len(runArgs.executorEventCounts):
+                raise ValueError("Mismatch between total executor steps and event fractions size!")
+            trfMaxEvents = runArgs.executorEventCounts[runArgs.executorStep]
+            trfSkipEvents = runArgs.executorEventSkips[runArgs.executorStep]
+
         if runArgs.maxEvents==-1:
             raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job."%(runArgs.maxEvents,))
         if not 'DoNotCorrectMaxEvents' in dir():
@@ -21,6 +32,7 @@ else:
     #this is a test job not a trf job
     trfJobNumber=1
     trfMaxEvents=10
+    trfTotalEvents=10
     corrMaxEvents=float(trfMaxEvents)
     
 #We may need to repeat this run for long production jobs.
@@ -45,11 +57,11 @@ if randomMuSampling:
     digilog.info('Mu values will be sampled randomly from the set profile.')
     #Load needed tools 
     from Digitization.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
-    fragment=getRandomlySampledRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,sequentialEventNumbers=sequentialEventNumbers)
+    fragment=getRandomlySampledRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,totalEvents=trfTotalEvents,skipEvents=trfSkipEvents,sequentialEventNumbers=sequentialEventNumbers)
 else:
     #Load needed tools 
     from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
-    fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,sequentialEventNumbers=sequentialEventNumbers)
+    fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,totalEvents=trfTotalEvents,skipEvents=trfSkipEvents,sequentialEventNumbers=sequentialEventNumbers)
 
 from RunDependentSimComps.RunLumiConfigTools import condenseRunLumiInfoFragment
 digilog.info( 'Writing RunDMC trigger configuration fragment to file.  listOfRunsEvents = %s' %

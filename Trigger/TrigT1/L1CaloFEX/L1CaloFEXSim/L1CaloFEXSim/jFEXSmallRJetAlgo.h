@@ -51,7 +51,7 @@ namespace LVL1 {
     virtual bool checkDisplacedLM() override;
     virtual std::unique_ptr<jFEXSmallRJetTOB> getSmallRJetTOBs() override;
     virtual unsigned int getTTIDcentre() override;
-    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
+    virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  override;
   //  virtual jFEXSmallRJetTOB* getSmallRJetTOBs() override;
 //LVL1::jFEXSmallRJetAlgoTOB * LVL1::jFEXSmallRJetAlgo::getSmallRJetTOB()
     
@@ -63,7 +63,7 @@ protected:
         int m_jFEXalgoSearchWindowSeedET[5][5];
 	bool m_seedSet;
         bool m_LMDisplaced;
-        std::map<int,std::vector<int> > m_map_Etvalues;
+        std::unordered_map<int,std::vector<int> > m_map_Etvalues;
   };
 
 

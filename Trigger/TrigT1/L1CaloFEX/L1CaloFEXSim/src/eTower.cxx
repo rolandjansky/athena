@@ -101,13 +101,8 @@ namespace LVL1 {
     addET(et, cell);
     
     //multi linear digitisation encoding
-    unsigned int ecode = eFEXCompression::Compress(m_et_float[cell]);
-    int outET = eFEXCompression::Expand(ecode);
-    
-    //noise cut
-    const bool SCpass = noiseCut(outET,layer);
-    if (SCpass){ m_et[cell] = outET;}
-    else{ m_et[cell] = 0; }
+    unsigned int outET = eFEXCompression::decode((unsigned int)m_et_float[cell],layer);
+    m_et[cell] = outET;
   }
 
   /** Set supercell position ID and ET**/
@@ -122,16 +117,10 @@ namespace LVL1 {
       addET(et, cell);
       
       m_scID[cell] = ID;
-      
+    
       //multi linear digitisation encoding
-      unsigned int ecode = eFEXCompression::Compress(m_et_float[cell]);
-      int outET = eFEXCompression::Expand(ecode);
-      
-      //noise cut
-      const bool SCpass = noiseCut(outET,layer);
-      if (SCpass){ m_et[cell] = outET;}
-      else{ m_et[cell] = 0; }
-      
+      unsigned int outET = eFEXCompression::decode((unsigned int)m_et_float[cell],layer);
+      m_et[cell] = outET;
     }
     else{
 
@@ -142,48 +131,14 @@ namespace LVL1 {
       m_etSplits[cell] = 1;
       m_etSplits[cell+1] = 1;
 
-      unsigned int ecode1 = eFEXCompression::Compress(m_et_float[cell]);
-      int outET1 = eFEXCompression::Expand(ecode1);
-      unsigned int ecode2 = eFEXCompression::Compress(m_et_float[cell+1]);
-      int outET2 = eFEXCompression::Expand(ecode2);
-
-      //noise cuts
-      const bool SCpass1 = noiseCut(outET1,layer);
-      if (SCpass1){ m_et[cell] = outET1;}
-      else{ m_et[cell] = 0; }
-      const bool SCpass2 = noiseCut(outET2,layer);
-      if (SCpass2){ m_et[cell+1] = outET2;}
-      else{ m_et[cell+1] = 0; }
-
+      unsigned int outET1 = eFEXCompression::decode((unsigned int)m_et_float[cell],layer);
+      unsigned int outET2 = eFEXCompression::decode((unsigned int)m_et_float[cell+1],layer);
+      
+      m_et[cell] = outET1;
+      m_et[cell+1] = outET2;
     }
 
     return;
-
-  }
-
-  /** Apply noise cut per layer **/
-  bool eTower::noiseCut(int et, int layer) const
-  {
-
-    bool pass=true;                                                                                                         
-    if(layer==0) {
-      if(et<m_noisecutPS){ pass = false; }
-    } 
-    else if (layer==1) {
-      if(et<m_noisecutL1){ pass = false; }
-    } 
-    else if (layer==2) {
-      if(et<m_noisecutL2){ pass = false; }
-    } 
-    else if (layer==3) {
-      if(et<m_noisecutL3){ pass = false; }
-    } 
-    else if (layer==4) {
-      if(et<m_noisecutHad){ pass = false; }
-    } 
-    else { pass = false; }
-    
-    return pass;
 
   }
 
@@ -203,7 +158,7 @@ namespace LVL1 {
   }
   
   /** Return ET of specified supercell */
-  int eTower::getET(unsigned int layer,  int cell) const {
+  unsigned int eTower::getET(unsigned int layer,  int cell) const {
     
     /// Check cell index in range for layer
     if (layer > 5 || cell < 0 || cell >= s_cells[layer]) return 0;
@@ -225,9 +180,9 @@ namespace LVL1 {
   }
 
   /** Return ET of all supercells together*/
-  int eTower::getTotalET() const{
+  unsigned int eTower::getTotalET() const{
     
-    int tmp = 0;
+    unsigned int tmp = 0;
     for (unsigned int i=0; i<m_et.size(); i++){
       tmp += m_et[i];
     }
@@ -250,10 +205,10 @@ namespace LVL1 {
 
   
   /** Return supercell ET values for specified layer */
-  std::vector<int> eTower::getLayerETvec(unsigned int layer) const {
+  std::vector<unsigned int> eTower::getLayerETvec(unsigned int layer) const {
     
     /// Create empty vector of data
-    std::vector<int> cells;
+    std::vector<unsigned int> cells;
     
     /// Check cell index in range for layer
     if (layer > 5) return cells;
@@ -282,7 +237,7 @@ namespace LVL1 {
 
 
   /** Return supercell ET values for specified layer */
-  int eTower::getLayerTotalET(unsigned int layer) const {
+  unsigned int eTower::getLayerTotalET(unsigned int layer) const {
         
     if (layer == 0){
       return m_et[0];

@@ -83,7 +83,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
 
     // Check HLTResult
-    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
+    if(isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS;
     }
@@ -385,24 +385,14 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( const ToolHandle<Gene
     // Check matching to a given trigger
     // The statement below is more general
     bool tagPassed=false;
-    for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-      std::string tag = m_tagTrigList[ilist];
+    for( auto& tag : m_tagTrigList){
       if(tdt()->isPassed(tag)){ 
-        if(m_tp){
-          std::string p1trigger;
-          std::string p2trigger;
-          if(splitTriggerName(tag,p1trigger,p2trigger)){
-            if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
-            if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
-          }
-          if( match()->isPassed(el,tag) )
-            tagPassed=true;
-        }
-        else{
-          tagPassed=true; 
-        }
+        tagPassed=true;
+        break;
       }
     }
+
+
     if(!tagPassed) {
         ATH_MSG_DEBUG("Failed tag trigger "); 
         return false;

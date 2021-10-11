@@ -1,6 +1,6 @@
 
 rm -f simpledummy.RAW tmp.*
-trigb="-1" #240
+trigb="" # "L1_ZB"
 
 #input="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/mc15_valid/ad/84/DRAW.07898478._000025.pool.root.1"
 #input="/afs/cern.ch/user/a/ahaas/temp/mc15_valid/DRAW.07898490._001594.pool.root.1" #eventnumber>2^32
@@ -38,8 +38,7 @@ if [ $doreco == 1 ]; then
 #domon="rec.doMonitoring=True;"
 #rdotrig="--outputRDO_TRIGFile testRTT.RDO_TRIG.pool.root --triggerConfig MCRECO:DBF:TRIGGERDBMC:2046,20,48 "
 aodout="--outputAODFile testRTT.AOD.pool.root"
-#trigflag="from TriggerJobOpts.TriggerFlags import TriggerFlags as TF; TF.doLVL1.set_Value_and_Lock(False); TF.doL1Topo.set_Value_and_Lock(False); TF.doLVL2.set_Value_and_Lock(True); TF.doEF.set_Value_and_Lock(True);"
-trigflag="from TriggerJobOpts.TriggerFlags import TriggerFlags as TF; TF.readLVL1configFromXML.set_Value_and_Lock(True); TF.configForStartup.set_Value_and_Lock('HLToffline'); TF.configurationSourceList.set_Value_and_Lock('xml');"
+trigflag="from TriggerJobOpts.TriggerFlags import TriggerFlags as TF; TF.configForStartup.set_Value_and_Lock('HLToffline');"
 #dotrig="rec.doTrigger=True;"
 
 Reco_tf.py \

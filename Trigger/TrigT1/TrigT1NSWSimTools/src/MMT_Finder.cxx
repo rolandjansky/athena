@@ -10,40 +10,39 @@ using std::map;
 using std::pair;
 using std::string;
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads) :
+MMT_Finder::MMT_Finder(std::shared_ptr<MMT_Parameters> par, int nUVRoads) :
   AthMessaging(Athena::getMessageSvc(), "MMT_Finder") {
 
   ATH_MSG_DEBUG("MMT_Finder::building finder");
 
-  m_par = par;
   m_nUVRoads = nUVRoads;
 
-  m_nRoads = ceil(  ( ( m_par->slope_max - m_par->slope_min ) / m_par->h  )  ); //initialization, can use floats
+  m_nRoads = std::ceil(  ( ( par->slope_max - par->slope_min ) / par->h  )  ); //initialization, can use floats
 
   if(m_nUVRoads>1){
     m_nRoads *= m_nUVRoads; // This should probably be configurable and dynamic based on the geometry of the chamber
   }
 
-  int nplanes=m_par->setup.size();
+  int nplanes=par->setup.size();
 
-  ATH_MSG_DEBUG( "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max << " " << m_par->slope_min << " " << m_par->h << " " << nplanes );
+  ATH_MSG_DEBUG( "MMT_Finder entries " << m_nRoads << " " << par->slope_max << " " << par->slope_min << " " << par->h << " " << nplanes );
 
   m_gateFlags = vector<vector<double> >(m_nRoads,(vector<double>(2,0)));// sloperoad,
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
 
-  ATH_MSG_DEBUG("MMT_Find::built finder");
+  ATH_MSG_DEBUG("MMT_Finder built");
 
   return;
 
 }
 
 void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer, // Map (road,plane) -> Finder entry
-                                const Hit& hit) const {
+                                const Hit& hit, std::shared_ptr<MMT_Parameters> par) const {
   // This function takes in the Hit object and places it into the hit buffer hitBuffer, putting it in any relevant (road,plane)
 
   //Get initial parameters: tolerance, step size (h), slope of hit
   double tol;
-  double h=m_par->h;
+  double h=par->h;
 
   //Conver hit to slope here
   double slope=hit.info.slope;
@@ -52,10 +51,10 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
   //Plane and key info of the hit
   int plane=hit.info.plane;
 
-  string plane_type=m_par->setup.substr(plane,1);
+  string plane_type=par->setup.substr(plane,1);
 
-  if(plane_type=="x") tol=m_par->x_error;
-  else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error;
+  if(plane_type=="x") tol=par->x_error;
+  else if(plane_type=="u"||plane_type=="v") tol=par->uv_error;
   else {
     ATH_MSG_WARNING("WARNING: unsupported plane option!");
     return;
@@ -65,8 +64,8 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
   //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
   double s_min = slope - tol, s_max = slope + tol;
 
-  int road_min = round( (  (s_min - m_par->slope_min)/h  ) );
-  int road_max = round( (  (s_max - m_par->slope_min)/h  ) );
+  int road_min = std::round( (  (s_min - par->slope_min)/h  ) );
+  int road_max = std::round( (  (s_max - par->slope_min)/h  ) );
 
   if( road_min < 0 ) road_min = 0 ;
   if( road_max >= (m_nRoads/m_nUVRoads) ){ road_max = (m_nRoads/m_nUVRoads) - 1 ; }
@@ -145,11 +144,12 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
 void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit,
                                     vector<Hit>& track,
                                     int road,
-                                    map<pair<int,int>,finder_entry> hitBuffer
+                                    map<pair<int,int>,finder_entry> hitBuffer,
+                                    std::shared_ptr<MMT_Parameters> par
                                     ) const{
   //Loops through the buffer which should have entries = nplanes
   //Takes the hit and bool for each plane (if it exists)
-  int nplanes=m_par->setup.size();
+  int nplanes=par->setup.size();
 
   pair<int,int> key (road,0);
 
@@ -165,7 +165,7 @@ void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit,
   }
 }
 
-int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
+int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits, std::shared_ptr<MMT_Parameters> par) const{
 
   // This function should be updated to include the clock and age of the hits...
 
@@ -177,7 +177,7 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   //Eg, 4X+4UV > 3+3.   Also,
   int X_count=0,U_count=0,V_count=0,value=0;bool front=false,back=false;
   //search the string
-  vector<int> u_planes=m_par->q_planes("u"), x_planes=m_par->q_planes("x"), v_planes=m_par->q_planes("v");
+  vector<int> u_planes=par->q_planes("u"), x_planes=par->q_planes("x"), v_planes=par->q_planes("v");
   for(unsigned int ip=0;ip<x_planes.size();ip++){
     if(plane_hits[x_planes[ip]]){
       X_count++;
@@ -188,7 +188,7 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   for(unsigned int ip=0;ip<u_planes.size();ip++) U_count+=plane_hits[u_planes[ip]];
   for(unsigned int ip=0;ip<v_planes.size();ip++) V_count+=plane_hits[v_planes[ip]];
   int UV_count = U_count + V_count;
-  bool xpass=X_count>=m_par->CT_x,uvpass=UV_count>=m_par->CT_uv,fbpass=front&&back;
+  bool xpass=X_count>=par->CT_x,uvpass=UV_count>=par->CT_uv,fbpass=front&&back;
   value = 10*X_count+UV_count;
   if(!xpass||!uvpass){
     value*=-1;

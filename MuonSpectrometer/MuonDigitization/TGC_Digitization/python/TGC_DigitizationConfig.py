@@ -13,6 +13,14 @@ def TGC_FirstXing():
 def TGC_LastXing():
     return 75
 
+def setupTgcDigitASDposCondAlg():
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence, "TgcDigitASDposCondAlg"):
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS", className='CondAttrListCollection')
+        condSequence += CfgMgr.TgcDigitASDposCondAlg("TgcDigitASDposCondAlg")
+
 def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the TGC in Simulation/Digitization/share/MuonDigitization.py 
@@ -25,6 +33,11 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "TGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.UseUpdatedTGCConditions():
+        setupTgcDigitASDposCondAlg()
+        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
 
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
@@ -46,6 +59,12 @@ def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
         kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.UseUpdatedTGCConditions():
+        setupTgcDigitASDposCondAlg()
+        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")    
+
     return TgcDigitizationTool(name,**kwargs)
 
 def getTGC_OverlayDigitizer(name="TGC_OverlayDigitizer", **kwargs):

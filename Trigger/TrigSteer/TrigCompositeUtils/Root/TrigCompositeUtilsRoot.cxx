@@ -210,7 +210,7 @@ namespace TrigCompositeUtils {
 
     if ( hasLinkToPrevious(start) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
       }
@@ -356,7 +356,7 @@ namespace TrigCompositeUtils {
     // Continue to the path(s) by looking at this Decision object's seed(s)
     if ( hasLinkToPrevious(node) ) {
       // Do the recursion
-      for ( const ElementLink<DecisionContainer>& seed : getLinkToPrevious(node)) {
+      for ( const ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
         recursiveGetDecisionsInternal(seedDecision, node, navGraph, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
@@ -483,7 +483,7 @@ namespace TrigCompositeUtils {
       return true;
     }
     // If not Early Exit, then recurse
-    for (const ElementLink<DecisionContainer>& seed : getLinkToPrevious(start)) {
+    for (const ElementLink<DecisionContainer> seed : getLinkToPrevious(start)) {
 #if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
       if (fullyExploredFrom != nullptr) {
         // We only need to recursively explore back from each node in the graph once.
@@ -735,7 +735,7 @@ namespace TrigCompositeUtils {
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
     }

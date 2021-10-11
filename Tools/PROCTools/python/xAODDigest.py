@@ -32,6 +32,17 @@ def xAODDigest(evt, counter=False, extravars=False):
             "xAOD::TrackParticleContainer", "InDetTrackParticles")
         nIdTracks = len(idTracks)
 
+        tautracks = safeRetrieve(evt, "xAOD::TauTrackContainer", "TauTracks")
+        nTauTracks = len(tautracks)
+        taus = safeRetrieve(evt, "xAOD::TauJetContainer", "TauJets")
+        nTaus = len(taus)
+        if taus:
+          tau1pt = taus[0].pt()
+          tau1eta = taus[0].eta()
+          tau1phi = taus[0].phi()
+        else:
+          tau1pt = tau1eta = tau1phi = 0
+
         muons = safeRetrieve(evt, "xAOD::MuonContainer", "Muons")
         nMuons = len(muons)
         if muons:
@@ -85,11 +96,12 @@ def xAODDigest(evt, counter=False, extravars=False):
 
         if extravars:
             result.append((runnbr, evtnbr, nclus, nIdTracks,
+                           nTauTracks, nTaus, tau1pt, tau1eta, tau1phi,
                            nMuons, muon1pt, muon1eta, muon1phi,
                            nElec, elec1pt, elec1eta, elec1phi, nTrueElectrons, nFakeElectrons,
                            nPhot, phot1pt, phot1eta, phot1phi ,nTruePhotons, nFakePhotons))
         else:
-            result.append((runnbr, evtnbr, nclus, nIdTracks, nMuons,
+            result.append((runnbr, evtnbr, nclus, nIdTracks, nTauTracks, nTaus, nMuons,
                            nElec, nTrueElectrons, nFakeElectrons,
                            nPhot, nTruePhotons, nFakePhotons))
 
@@ -156,6 +168,7 @@ def main():
 
     if args.extravars:
         header = ("run", "event", "nTopo", "nIdTracks",
+                  "nTauTracks", "nTaus", "tau1pt", "tau1eta", "tau1phi", 
                   "nMuons", "muon1pt", "muon1eta", "muon1phi",
                   "nElec", "elec1pt", "elec1eta", "elec1phi", "nTrueElec", "nFakeElec",
                   "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot")
@@ -164,7 +177,7 @@ def main():
         row_format_data = "{:d} {:d} " + "{:20.4f}" * (len(header)-2)
         row_format_data += os.linesep
     else:
-        header = ("run", "event", "nTopo", "nIdTracks", "nMuons",
+        header = ("run", "event", "nTopo", "nIdTracks", "nTauTracks", "nTaus", "nMuons", 
                   "nElec", "nTrueElec", "nFakeElec",
                   "nPhot", "nTruePhot", "nFakePhot")
         row_format_header = "{:>12}" * len(header)

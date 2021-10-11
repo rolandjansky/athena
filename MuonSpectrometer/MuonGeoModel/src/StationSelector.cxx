@@ -11,12 +11,13 @@
 
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 namespace MuonGM {
 
     std::atomic<int> StationSelector::m_selectType = 0;
 
-    StationSelector::StationSelector(std::string filename) {
+    StationSelector::StationSelector(const std::string& filename) {
         std::ifstream from;
         from.open(filename.c_str());
         char buffer[200];
@@ -36,7 +37,7 @@ namespace MuonGM {
         }
     }
 
-    StationSelector::StationSelector(std::vector<std::string> s) : m_selector(s) {
+    StationSelector::StationSelector(std::vector<std::string> s) : m_selector(std::move(s)) {
         MYSQL *mysql = MYSQL::GetPointer();
         StationIterator it;
         for (it = mysql->StationBegin(); it != mysql->StationEnd(); it++) {

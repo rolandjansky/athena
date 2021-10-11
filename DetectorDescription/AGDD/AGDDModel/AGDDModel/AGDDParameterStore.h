@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDParameterStore_H
@@ -17,11 +17,11 @@ public:
 
 	virtual ~AGDDParameterStore() {}
 
-        void RegisterParameterBag(std::string volName, AGDDParameterBag* paraBag) {
+        void RegisterParameterBag(const std::string& volName, AGDDParameterBag* paraBag) {
 		(*this)[volName]=paraBag;
 	}
 
-        AGDDParameterBag* GetParameterBag(std::string volName) {
+        AGDDParameterBag* GetParameterBag(const std::string& volName) {
 		if ((*this).find(volName) != (*this).end())
 			return (*this)[volName];
 		else {
@@ -30,13 +30,8 @@ public:
 		}
 	}
 
-        bool Exist(std::string volName) {
+        bool Exist(const std::string& volName) const {
 		return ((*this).find(volName) != (*this).end());
-	}
-
-	static AGDDParameterStore* GetParameterStore() {
-		static AGDDParameterStore* thePointer=new AGDDParameterStore();
-		return thePointer;
 	}
 };
 

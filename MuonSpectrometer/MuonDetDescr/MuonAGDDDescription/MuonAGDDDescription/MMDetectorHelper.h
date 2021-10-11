@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMDetectorHelper_H
 #define MMDetectorHelper_H
 
+#include "AGDDControl/IAGDD2GeoSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include <map>
 #include <string>
 
@@ -24,14 +26,16 @@ public:
 	MicromegasIterator MM_end()   {return m_MicromegasList.end();}
 	
 	MMDetectorDescription* Get_MMDetectorType(const std::string& type);
-    MMDetectorDescription* Get_MMDetectorSubType(const std::string& type);
+        MMDetectorDescription* Get_MMDetectorSubType(const std::string& type);
 	MMDetectorDescription* Get_MMDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	AGDDPositionedDetector Get_MMPositionedDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 
+        IAGDDtoGeoSvc::LockedController Get_Controller();
+
 private:
 	MicromegasMap m_MicromegasList;
-    MicromegasMapSubType m_MicromegasListSubType;
-
+        MicromegasMapSubType m_MicromegasListSubType;
+        ServiceHandle<IAGDDtoGeoSvc> m_svc {"AGDDtoGeoSvc", "MMDetectorHelper"};
 };
 
 #endif

@@ -369,6 +369,10 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
   SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
 )
 
 # EM-scale pflow with custom selection for the primary vertex 
@@ -378,6 +382,36 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CustomVtxParticleFlowObjects",
   OutputContainer = "PseudoJetPFlowCustomVtx",
   SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
+)
+
+#New sideband definition (default for precision recs)
+jtm += PseudoJetAlgorithm(
+  "empflowpusbget",
+  Label = "EMPFlowPUSB",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowPUSB",
+  SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = True,
+)
+
+# EM-scale pflow - neutral objects only
+jtm += PseudoJetAlgorithm(
+  "empflowneutget",
+  Label = "EMPFlowNeut",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowNeut",
+  SkipNegativeEnergy = True,
+  UseCharged = False,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = False,
 )
 
 # AntiKt2 track jets.

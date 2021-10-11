@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef mmSpacer_TechHandler_H
@@ -10,9 +10,10 @@
 
 class mmSpacer_TechHandler:public XMLHandler {
 public:
-	mmSpacer_TechHandler(std::string);
-	void ElementHandle();
-
+	mmSpacer_TechHandler(const std::string&,
+                             AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

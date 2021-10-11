@@ -184,29 +184,23 @@ namespace JiveXML{
     geometryVersion = DataType(m_geometryVersionIn).toString();
 
     //Retrieve eventInfo from StoreGate
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     if (evtStore()->retrieve(eventInfo).isFailure()){
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Could not find EventInfo" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    const xAOD::EventInfo* eventInfo2;
-    if (evtStore()->retrieve(eventInfo2).isFailure()){
       if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Could not find xAODEventInfo" << endmsg;
       return StatusCode::FAILURE;
     }else{
-    //Get run and event numbers - Test only ! Still using old EventInfo for xml output
-    //    Event/xAOD/xAODEventInfo/trunk/xAODEventInfo/versions/EventInfo_v1.h
+    // Event/xAOD/xAODEventInfo/trunk/xAODEventInfo/versions/EventInfo_v1.h
      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " xAODEventInfo: " 
-          << ", runNumber: "  << eventInfo2->runNumber()  // is '222222' for mc events ?
-          << ", eventNumber: " << eventInfo2->eventNumber() 
-          << ", mcChannelNumber: "  << eventInfo2->mcChannelNumber()
-          << ", mcEventNumber: "  << eventInfo2->mcEventNumber() // MC: use this instead of runNumber
-          << ", lumiBlock: "  << eventInfo2->lumiBlock()
-          << ", timeStamp: "  << eventInfo2->timeStamp()
-          << ", bcid: "  << eventInfo2->bcid()
-          << ", eventTypeBitmask: "  << eventInfo2->eventTypeBitmask()
-          << ", actualInteractionsPerCrossing: "  << eventInfo2->actualInteractionsPerCrossing()
-          << ", averageInteractionsPerCrossing: "  << eventInfo2->averageInteractionsPerCrossing()
+          << ", runNumber: "  << eventInfo->runNumber()  // is '222222' for mc events ?
+          << ", eventNumber: " << eventInfo->eventNumber()
+          << ", mcChannelNumber: "  << eventInfo->mcChannelNumber()
+          << ", mcEventNumber: "  << eventInfo->mcEventNumber() // MC: use this instead of runNumber
+          << ", lumiBlock: "  << eventInfo->lumiBlock()
+          << ", timeStamp: "  << eventInfo->timeStamp()
+          << ", bcid: "  << eventInfo->bcid()
+          << ", eventTypeBitmask: "  << eventInfo->eventTypeBitmask()
+          << ", actualInteractionsPerCrossing: "  << eventInfo->actualInteractionsPerCrossing()
+          << ", averageInteractionsPerCrossing: "  << eventInfo->averageInteractionsPerCrossing()
           << endmsg; 
     }
 
@@ -255,8 +249,8 @@ namespace JiveXML{
     }
 
     //Get run and event numbers
-    runNo   = eventInfo->event_ID()->run_number();
-    eventNo = eventInfo->event_ID()->event_number(); 
+    runNo   = eventInfo->runNumber();
+    eventNo = eventInfo->eventNumber();
 
 // Note: 4294967293 is the maximum value for a unsigned long
 
@@ -264,8 +258,8 @@ namespace JiveXML{
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " runNumber for filename: " << runNo 
         << ", eventNumber: " << eventNo << endmsg;
 
-    if ( eventInfo->event_ID()->lumi_block() ){ 
-      lumiBlock = eventInfo->event_ID()->lumi_block(); 
+    if ( eventInfo->lumiBlock() ){
+      lumiBlock = eventInfo->lumiBlock();
     }else{ 
       lumiBlock = -1; // placeholder 
     } 
@@ -279,8 +273,8 @@ namespace JiveXML{
     //Only option to avoid odd timezones. jpt 29Mar11
     size_t found1;
     size_t found2;
-    if (eventInfo->event_ID()->time_stamp() > 0) {
-      time_t unixtime = (time_t) eventInfo->event_ID()->time_stamp(); 
+    if (eventInfo->timeStamp() > 0) {
+      time_t unixtime = (time_t) eventInfo->timeStamp();
       struct tm *time = localtime(&unixtime);
       strftime(dateTime, 32, "%Y-%m-%d %H:%M:%S %Z", time);
       struct tm *utctime = gmtime(&unixtime);

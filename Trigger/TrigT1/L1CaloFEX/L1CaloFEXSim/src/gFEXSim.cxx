@@ -45,6 +45,13 @@ namespace LVL1 {
    gFEXSim::~gFEXSim(){
    }
 
+   StatusCode gFEXSim::initialize(){
+      ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
+      ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
+      ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+      return StatusCode::SUCCESS;
+   }
+
  void gFEXSim::execute(){
 
  }
@@ -65,7 +72,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    gTowersForward CNtwr = {{{0}}};
 
 
-   ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
 
    //FPGA A----------------------------------------------------------------------------------------------------------------------------------------------
    gTowersCentral tmp_gTowersIDs_subset_centralFPGA;
@@ -100,7 +106,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    //Use a matrix with 32 rows, even if FPGA-C (positive) mostly deals with regions of 16 bins in phi.
    //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
    //but we fill half of it in the region 2.8<|eta|<4.8.
-   // int tmp_gTowersIDs_subset_forwardFPGA[32][7];
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA;
    memset(&tmp_gTowersIDs_subset_forwardFPGA, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA);
    for (int myrow = 0; myrow<32; myrow++){
@@ -124,7 +129,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    //Use a matrix with 32 rows, even if FPGA-C (negative) mostly deals with regions of 16 bins in phi.
    //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
    //but we fill half of it in the region 2.8<|eta|<4.8.
-   // int tmp_gTowersIDs_subset_forwardFPGA[32][7];
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA_N;
    memset(&tmp_gTowersIDs_subset_forwardFPGA_N, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA_N);
    for (int myrow = 0; myrow<16; myrow++){
@@ -154,8 +158,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    std::array<uint32_t, 7> BTOB1_dat = {0};
    std::array<uint32_t, 7> BTOB2_dat = {0};
 
-   // Retrieve the gFEXJetAlgoTool
-   ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
+   // Use the gFEXJetAlgoTool
 
    // Pass the energy matrices to the algo tool, and run the algorithms
    auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr,
@@ -187,6 +190,28 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    m_gJetTobWords[2] = BTOB1_dat[3];//leading gJet in FPGA B, eta bins (0--5)
    m_gJetTobWords[3] = BTOB2_dat[3];//leading gJet in FPGA B, eta bins (6--11)
 
+
+   // Use the gFEXJetAlgoTool
+   std::array<uint32_t, 4> outTOB = {0};
+
+   m_gFEXJwoJAlgoTool->setAlgoConstant(FEXAlgoSpaceDefs::aFPGA_A, FEXAlgoSpaceDefs::bFPGA_A,
+                                       FEXAlgoSpaceDefs::aFPGA_B, FEXAlgoSpaceDefs::bFPGA_B,
+                                       FEXAlgoSpaceDefs::gblockThreshold);
+
+   auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
+
+   m_gScalarEJwojTobWords.resize(1);
+   m_gMETComponentsJwojTobWords.resize(1);
+   m_gMHTComponentsJwojTobWords.resize(1);
+   m_gMSTComponentsJwojTobWords.resize(1);
+
+
+   //Placing the global TOBs into a dedicated array
+   m_gScalarEJwojTobWords[0] = outTOB[0];//
+   m_gMETComponentsJwojTobWords[0] = outTOB[1];//
+   m_gMHTComponentsJwojTobWords[0] = outTOB[2];//
+   m_gMSTComponentsJwojTobWords[0] = outTOB[3];//
+
    gFEXOutputCollection* gFEXOutputs;
    ATH_CHECK(evtStore()->retrieve(gFEXOutputs, "gFEXOutputCollection"));
 
@@ -202,9 +227,22 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
 
    }
 
+   for (int i = 0; i <4; i++){
+     gFEXOutputs->addGlobalTob(global_tobs[i]->getWord());
+     gFEXOutputs->addValueGlobal("GlobalQuantity1", global_tobs[i]->getQuantity1());
+     gFEXOutputs->addValueGlobal("GlobalQuantity2", global_tobs[i]->getQuantity2());
+     gFEXOutputs->addValueGlobal("SaturationGlobal", global_tobs[i]->getSaturation());
+     gFEXOutputs->addValueGlobal("TobIDGlobal", global_tobs[i]->getTobID());
+     gFEXOutputs->addValueGlobal("GlobalStatus1", global_tobs[i]->getStatus1());
+     gFEXOutputs->addValueGlobal("GlobalStatus2", global_tobs[i]->getStatus2());
+     gFEXOutputs->fillGlobal();
+
+   }
+
     return StatusCode::SUCCESS;
 
 }
+
 
 std::vector<uint32_t> gFEXSim::getgRhoTOBs() const
 {
@@ -220,6 +258,27 @@ std::vector<uint32_t> gFEXSim::getgJetTOBs() const
 {
   return m_gJetTobWords;
 }
+
+std::vector<uint32_t> gFEXSim::getgScalarEJwojTOBs() const
+{
+  return m_gScalarEJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMETComponentsJwojTOBs() const
+{
+  return m_gMETComponentsJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMHTComponentsJwojTOBs() const
+{
+  return m_gMHTComponentsJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMSTComponentsJwojTOBs() const
+{
+  return m_gMSTComponentsJwojTobWords;
+}
+
 
 
 } // end of namespace bracket

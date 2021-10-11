@@ -12,31 +12,6 @@
 #include <math.h>
 
 
-LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator),
-  m_onlineHelper(nullptr),
-  m_emId(nullptr),
-  m_event_counter(0),
-  m_MAXeta(208), 
-  m_MINeta(1),
-  m_MAXphi(64),
-  m_nStrips(-1),
-  m_fatalFebErrorPattern(0xffff),
-  m_noIdx(9999999),
-  m_differences(6,0.3) { 
-  declareProperty("KeyList",             m_keylist,
-		  "List of input keys (normally the 'HIGH','MEDIUM','LOW')"); 
-  declareProperty("ADCsaturation",       m_ADCsatur=0);
-  declareProperty("UseAccumulatedDigits",m_useAccumulatedDigits=true); 
-  declareProperty("AcceptableDifference",m_acceptableDifference=20,
-		  "For sanity check: By how much the corrected value may differ from the original one (in %)");
-  declareProperty("PedestalKey",m_pedKey="Pedestal",
-		  "Key of the pedestal object (to be subtracted)");
-   
-}
-
-LArStripsCrossTalkCorrector::~LArStripsCrossTalkCorrector()  {}
-
 StatusCode LArStripsCrossTalkCorrector::initialize() {
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
@@ -58,17 +33,19 @@ StatusCode LArStripsCrossTalkCorrector::initialize() {
   ATH_CHECK(m_BCKey.initialize());
   ATH_CHECK(m_BFKey.initialize());
   ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK(m_pedKey.initialize());
+  
+  m_acceptableDifference.value()/=100; //Convert from % to fraction
 
-  sc = detStore()->regHandle(m_larPedestal,m_pedKey);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Could not register DataHandle for pedestal with key " << m_pedKey  );
-    return sc;
+  //Initialize strips lookup table:
+  for (unsigned bec : {0,1}) {
+    m_stripsLookUp[bec].resize(2*m_MAXphi); //change index to coded index
+    for (unsigned iside=0;iside<2;++iside) {
+      for (unsigned iphi=0; iphi!=m_MAXphi; ++iphi) {
+	      m_stripsLookUp[bec][iphi+iside*m_MAXphi].resize(m_MAXeta[bec],nullptr); 
+      }   
+    }
   }
-
-  m_event_counter=0;
-  m_nStrips=-1;
-  m_acceptableDifference/=100; //Convert from % to fraction
-
   return StatusCode::SUCCESS;
 }
 
@@ -84,14 +61,6 @@ StatusCode LArStripsCrossTalkCorrector::execute()
     return StatusCode::FAILURE;
   }
   
-  if (m_useAccumulatedDigits)
-    return executeWithAccumulatedDigits();
-  else
-    return executeWithStandardDigits();  
-}
-
-
-StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
 
   StatusCode sc;
   unsigned nSaturation=0;
@@ -115,9 +84,12 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
      return StatusCode::FAILURE;
   }
 
-
   SG::ReadCondHandle<LArBadChannelCont> bcHdl{m_BCKey};
   const LArBadChannelCont* bcCont{*bcHdl};
+
+  SG::ReadCondHandle<ILArPedestal> pedHdl{m_pedKey};
+  const ILArPedestal* larPedestal=*pedHdl; 
+
 
   const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
   
@@ -133,7 +105,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
     
 
     LArAccumulatedCalibDigit febErrorDummy; //Use the address of this object to mark cells belonging to a errornous FEB
-    LArAccumulatedCalibDigit inexistingDummy; //Use the address of this object for "cells" that woudl be outside of cryostat
+    LArAccumulatedCalibDigit inexistingDummy; //Use the address of this object for "cells" that would be outside of cryostat
     
     
     HWIdentifier  lastFailedFEB(0);
@@ -147,44 +119,27 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
 			 << ". Size: " << larAccumulatedCalibDigitContainer->size() );
     }
     
-    //Get barrel/ec for online Identifier of the first cell in the container
-    HWIdentifier chid=larAccumulatedCalibDigitContainer->front()->hardwareID();
-    const int have_barrel_ec=m_onlineHelper->barrel_ec(chid);
-
-    if (have_barrel_ec==1) {
-      m_MINeta = 0;
-      m_MAXeta = 208;  //Endcap
-    }
-    else {
-      m_MINeta = 1;
-      m_MAXeta = 448;  //Barrel
+    //Fill missing febs (if not done yet)
+    if (!m_missingFEBsDone) {
+      ATH_CHECK(initKnownMissingFebs());
     }
     
-    if (m_knownMissingFebs.size()!=(unsigned)m_MAXeta) {
-      sc=initKnownMissingFebs(have_barrel_ec);
-      if (sc.isFailure()) return sc;
-    }
-
-    m_stripsLookUp.resize(2*m_MAXphi); //change index to coded index
-    for (unsigned iside=0;iside<2;++iside) {
-      for (unsigned iphi=0; iphi!=m_MAXphi; ++iphi) {
-	m_stripsLookUp[iphi+iside*m_MAXphi].resize(m_MAXeta); 
-      }
-    }
-    
-    for (unsigned ieta=0;ieta!=m_MAXeta;++ieta) {  //Loop over Strips cells
-      for (unsigned iphi=0;iphi!=m_MAXphi;++iphi) {  //Loop over Strips cells	   
-        for (unsigned iside=0;iside<2;++iside) {
-	  m_stripsLookUp[iphi+iside*m_MAXphi][ieta]=0;
+      
+    //Reset strips lookup table to nullptr:
+    for (int bec : {0,1}) {
+      for (unsigned ieta=0;ieta!=m_MAXeta[bec];++ieta) {  //Loop over Strips cells
+        for (unsigned iphi=0;iphi!=m_MAXphi;++iphi) {  //Loop over Strips cells	   
+          for (unsigned iside=0;iside<2;++iside) {
+	          m_stripsLookUp[bec][iphi+iside*m_MAXphi][ieta]=nullptr;
+          }
         }
-      }
-    }    
-    
-    ATH_MSG_DEBUG( "Filling Strips lookup table..." ) ;
+      }    
+    } //end loop over barrel & EC
+    ATH_MSG_DEBUG( "Filling strips lookup table..." ) ;
     int nStrips=0;
     
     for (const LArAccumulatedCalibDigit* dig : *larAccumulatedCalibDigitContainer) {  //Loop over all cells to fill Strips lookup table
-      chid=dig->hardwareID();     
+      const HWIdentifier chid=dig->hardwareID();     
       if (!(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid))) continue; //Deal only with EM calos case
       if (!cabling->isOnlineConnected(chid)) continue; //ignore disconnected channels
 	  
@@ -194,30 +149,26 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
 	
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
       if (febErrSum) {
-	const uint16_t febErrs=febErrSum->feb_error(febid);
-	if (febErrs & m_fatalFebErrorPattern) {
-	  if (febid!=lastFailedFEB) {
-	    lastFailedFEB=febid;
-	    ATH_MSG_ERROR( "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
-			    << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." );
-	  }
-	  dig=&febErrorDummy;
-	} //end if fatal feb error
+	      const uint16_t febErrs=febErrSum->feb_error(febid);
+	       if (febErrs & m_fatalFebErrorPattern) {
+	         if (febid!=lastFailedFEB) {
+	          lastFailedFEB=febid;
+	           ATH_MSG_ERROR( "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
+		          << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." );
+	        }   
+	        dig=&febErrorDummy;
+	      } //end if fatal feb error
       }//end if check feb error summary
 
 
-      if (m_onlineHelper->barrel_ec(chid) != have_barrel_ec) {
-	ATH_MSG_FATAL( "Found barrel and endcap cells in same event. This is not supported by the LArStripsCrossTalkCorrector!" );
-	return StatusCode::FAILURE;
-      }
-    
+      const int bec=m_onlineHelper->barrel_ec(chid);  
       const size_t ieta=getEtaIndex(id);
       if (ieta==m_noIdx) continue; //Not a cell we care about
       const size_t iphi=getPhiIndex(id);
-      if (iphi>=2*m_MAXphi || ieta>=m_MAXeta) {
-	ATH_MSG_FATAL( "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
-			 << ieta << "(max " << m_MAXphi << ")" );
-	return StatusCode::FAILURE;
+      if (iphi>=2*m_MAXphi || ieta>=m_MAXeta[bec]) {
+	      ATH_MSG_FATAL( "Array index out of range: iphi=" <<  iphi << " (max " << m_MAXphi << "), ieta=" 
+			                << ieta << "(max " << m_MAXeta[bec] << ")" );
+	      return StatusCode::FAILURE;
       }
       ++nStrips;
 
@@ -225,28 +176,26 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
       //check for saturation:
       bool saturated=false;
       if (m_ADCsatur>0) {
-	const std::vector<uint32_t>& samples=dig->sampleSum();
-	const size_t& nS=samples.size();
-	const uint32_t maxValue=(uint32_t)(m_ADCsatur*dig->nTriggers());
-	for (size_t i=0;i<nS;++i) {
-	  if (samples[i] >= maxValue) {
-	    saturated=true;
-	    ATH_MSG_DEBUG("Found saturating digit (index = " << i           
-			  << ", <ADC> = " << samples[i]/dig->nTriggers()
-			  << ", DAC = " << dig->DAC()
-			  << ") for channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
-			  << ". Skipping.");
-	    break;
-	  }//end if>maxvalue
-	}//end loop over digits
-      }
-      if (saturated) {
-	++nSaturation;
-	continue; //Skip this channel
-      }
+	      const std::vector<uint32_t>& samples=dig->sampleSum();
+	      const size_t& nS=samples.size();
+	      const uint32_t maxValue=(uint32_t)(m_ADCsatur*dig->nTriggers());
+	      for (size_t i=0;i<nS;++i) {
+	        if (samples[i] >= maxValue) {
+	        saturated=true;
+	        ATH_MSG_DEBUG("Found saturating digit (index = " << i << ", <ADC> = " << samples[i]/dig->nTriggers()
+			      << ", DAC = " << dig->DAC() << ") for channel " << m_onlineHelper->channel_name(chid)
+			      << ". Skipping.");
+	        break;
+	        }//end if>maxvalue
+	      }//end loop over digits
+      }//end if m_ADCsatur>0
+    if (saturated) {
+	    ++nSaturation;
+	    continue; //Skip this channel
+    }
 
      
-      m_stripsLookUp[iphi][ieta]=dig;
+    m_stripsLookUp[bec][iphi][ieta]=dig;
 
     }//End loop over all cells
     
@@ -254,13 +203,12 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
       m_nStrips=nStrips;
     
     if (m_nStrips != nStrips) {
-      ATH_MSG_WARNING( "Number of strips changed! Have " <<  nStrips << ", had " << m_nStrips 
-			<< " before. Size of map: " << 2*m_MAXphi*(m_MAXeta-m_MINeta) );
+      ATH_MSG_WARNING( "Number of strips changed! Have " <<  nStrips << ", had " << m_nStrips << " before.");
       m_nStrips=nStrips;
     }
     else
-      ATH_MSG_DEBUG("Strips lookup table filled. Have " <<  nStrips << " out of " << 2*m_MAXphi*(1+m_MAXeta-m_MINeta) 
-		      << " channels.");
+      ATH_MSG_DEBUG("strips lookup table filled. Have " <<  nStrips << " out of " << 2*m_MAXphi*(1+m_MAXeta[0]-m_MINeta[0]) 
+		      << " barrel channels plus " << 2*m_MAXphi*(1+m_MAXeta[1]-m_MINeta[1]) << "endcap channels.");
 
 
     //Weight for the four neighbors: 
@@ -273,209 +221,200 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
     neighbours[2].dist=1;
     neighbours[3].dist=2;
 
-    for (unsigned iside=0; iside<2; iside++) {          //Loop over both sides of the detector
-      for (int ieta=0; ieta<(int)m_MAXeta; ieta++) {    // Loop over eta range
-	for (unsigned iphi=0; iphi<m_MAXphi; iphi++) {  // Loop over phi range
-	 
-	  const unsigned iphi2=iphi+m_MAXphi*iside;    //Phi index inside lookup table 
-	  const LArAccumulatedCalibDigit* currDig=m_stripsLookUp[iphi2][ieta];
-
-	  if (currDig==0 || currDig==&febErrorDummy) continue; //Digit not found or FEB in error: ignore
-
-	  if ( currDig->isPulsed() ) {
-	    chid = currDig->hardwareID();
-	    CaloGain::CaloGain t_gain = currDig->gain();
-	    if (m_dontCorrMask.cellShouldBeMasked(bcCont,chid)) {
-	      ATH_MSG_DEBUG("Strips 0x"  << MSG::hex << chid.get_compact() << MSG::dec << " (Eta = " << ieta << ", Phi = " 
-			    << iphi2 << ") should not be touched accoring to jobConfig");
-	      continue;
-	    }
-
-	    const unsigned NtotSamples = currDig->nsamples();	
-	    const unsigned NbTriggers = currDig->nTriggers();	    
-            ATH_MSG_VERBOSE("Now processing Strips 0x"  << MSG::hex << chid.get_compact() << MSG::dec
-			    << " (Eta = " << ieta << ", Phi = " << iphi2 << ")");
-
-	    //Fill the pointers and pedestal in the 'neighbours' array
-	    for (unsigned i=0;i<4;i++) {
-	      //Set all zero to start with...
-	      neighbours[i].dig=NULL;
-	      neighbours[i].ped=0.;
-	      const int neigbEtaItx=neighbours[i].dist+(int)ieta;
-	      //Check if we are supposed to have this neighbour
-	      if (neigbEtaItx<(int)m_MINeta || neigbEtaItx>=(int)m_MAXeta) {
-		ATH_MSG_DEBUG("Neighbour " << neighbours[i].dist <<" , ieta=" << neigbEtaItx 
-			      << " doesn't exist. (min="<< m_MINeta << " ,max=" << m_MAXeta <<  ")");
-		neighbours[i].dig=&inexistingDummy;
-		continue;
-	      }
-	      const LArAccumulatedCalibDigit* neighDig=m_stripsLookUp[iphi2][neigbEtaItx];
-	      //Check if neighbour is present
-	      if (!neighDig) {
-		//neighbor missing. Could be known missing FEB or new problem
-		//Reported only if at least WARNING
-		if (msgLvl(MSG::WARNING)) {
-		  if (m_knownMissingFebs[neigbEtaItx].test(iphi2)) {
-		    ATH_MSG_DEBUG("FEB missing for neighbour " << neighbours[i].dist << " to be added to Strip 0x" 
-				  << MSG::hex << chid.get_compact() << MSG::dec
-				  << " (Eta = " << ieta << ", Phi = " << iphi << ")");
-		  }
-		  else {
-		    ATH_MSG_WARNING( "Cannot find neighbour " << neighbours[i].dist << " to be added to Strip 0x" 
-				      << MSG::hex << chid.get_compact() << MSG::dec
-				      << " (Eta = " << ieta << ", Phi = " << iphi << ")" );
-		  }
-		}//end if msgLvl(INFO)
- 		continue;
- 	      }
-	      if (neighDig==&febErrorDummy) { //Pointer comparison!!
-		ATH_MSG_WARNING("Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
-				<< " (Eta = " << ieta << ", Phi = " << iphi <<"), has a FEB error. Ignored.");
+    for (unsigned bec : {0,1}) { //Loop over barrel and endcap
+      for (unsigned iside=0; iside<2; iside++) {          //Loop over both sides of the detector
+        for (int ieta=0; ieta<(int)m_MAXeta[bec]; ieta++) {    // Loop over eta range
+	  for (unsigned iphi=0; iphi<m_MAXphi; iphi++) {  // Loop over phi range
+	    const unsigned iphi2=iphi+m_MAXphi*iside;    //Phi index inside lookup table 
+	    const LArAccumulatedCalibDigit* currDig=m_stripsLookUp[bec][iphi2][ieta];
+	    if (currDig==0 || currDig==&febErrorDummy) continue; //Digit not found or FEB in error: ignore
+	    
+	    if ( currDig->isPulsed() ) {
+	      HWIdentifier chid = currDig->hardwareID();
+	      CaloGain::CaloGain t_gain = currDig->gain();
+	      if (m_dontCorrMask.cellShouldBeMasked(bcCont,chid)) {
+		ATH_MSG_DEBUG("Strip " << m_onlineHelper->channel_name(chid) <<" (Eta = " << ieta << ", Phi = " 
+			      << iphi2 << ") should not be touched accoring to jobConfig");
 		continue;
 	      }
 
-	      //Check if neighbour is pulsed
-	      if (neighDig->isPulsed()) {
-		ATH_MSG_WARNING( "Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
-				  << " (Eta = " << ieta << ", Phi = " << iphi <<", " << printMaxSample(neighDig) 
-				  << ") is pulsed. Not used for correction." );
-		continue;
-	      }
-	      //Check if neighbour is on the bad-channel list
-	      if (m_dontUseForCorrMask.cellShouldBeMasked(bcCont,neighDig->hardwareID())) {
-		ATH_MSG_DEBUG("Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
-			      << " (Eta = " << ieta << ", Phi = " << iphi 
-			      << ") is flagged by the LArBadChannelMaskingTool. Not used for correction.");
+	      const unsigned NtotSamples = currDig->nsamples();	
+	      const unsigned NbTriggers = currDig->nTriggers();	    
+	      ATH_MSG_VERBOSE("Now processing strip "<< m_onlineHelper->channel_name(chid) << " (Eta = " << ieta << ", Phi = " << iphi2 << ")");
+
+	      //Fill the pointers and pedestal in the 'neighbours' array
+	      for (unsigned i=0;i<4;i++) {
+		//Set all zero to start with...
+		neighbours[i].dig=NULL;
+		neighbours[i].ped=0.;
+		const int neigbEtaItx=neighbours[i].dist+(int)ieta;
+		//Check if we are supposed to have this neighbour
+		if (neigbEtaItx<(int)m_MINeta[bec] || neigbEtaItx>=(int)m_MAXeta[bec]) {
+		  ATH_MSG_DEBUG("Neighbour " << neighbours[i].dist <<" , ieta=" << neigbEtaItx 
+				<< " doesn't exist. (min="<< m_MINeta[bec] << " ,max=" << m_MAXeta[bec] <<  ")");
+		  neighbours[i].dig=&inexistingDummy;
 		  continue;
-	      }
-	      //Get Pedestal
-	      const float pedestal = m_larPedestal->pedestal(neighDig->hardwareID(),t_gain);
-	      if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
-		ATH_MSG_ERROR( "No pedestal are available for neighbour " << neighbours[i].dist << " of Strip 0x" 
-				<< MSG::hex << chid.get_compact() << MSG::dec
-				<< " (Eta = " << ieta << ", Phi = " << iphi << "). Not used for correction!" );
-		continue;
-	      }
-	      //All went ok, fill struct
-	      neighbours[i].dig=neighDig;
-	      neighbours[i].ped=pedestal;
-
-	      //The weight is one, unless the neighbor-of-the-neighbor is pulsed too
-	      neighbours[i].weight=1.0;	
-	      //Now check if the neighbor-of-the-neighbor is pulsed to set a different weight.
-	      const int nnEta=ieta+2*neighbours[i].dist;
-	      if (nnEta>=(int)m_MINeta && nnEta<(int)m_MAXeta) {
-		const LArAccumulatedCalibDigit* nnDig=m_stripsLookUp[iphi2][nnEta];
-		if (nnDig!=0) {
-		  //Could bea also FebErrorDummy (which will always pretentd to be not pulsed)
-		  if (nnDig->isPulsed()) {
-		     ATH_MSG_VERBOSE("Neighbour " << neighbours[i].dist << " of Strip 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-				     << " has another pulsed cell in the neighborhood. Setting weight to 0.5");
-		    neighbours[i].weight=0.5;
-		  }
-		}//end if neighbor-of-neighbor not NULL
-	      }//end if neighbor-of-neighbor in eta range
-	    
-	    }//End loop over four neighbours
-
-
-	    //Now loop over samples to apply xtalk correction
-	    std::vector<double> SampleSums(NtotSamples);
-	    for (std::size_t SampleIndex=0;SampleIndex<NtotSamples; ++SampleIndex ) {
-	      SampleSums[SampleIndex]=(double)currDig->sampleSum()[SampleIndex];
-	      ATH_MSG_VERBOSE("SampleSum " << SampleIndex << " (" << SampleSums[SampleIndex] << " ADC counts / " << NbTriggers << " Ntriggers)");
-	    }
-	    //Loop over the neighbours and apply corrections
-	    for (unsigned i=0;i<4;i++) {   
-	      if (neighbours[i].dig==&inexistingDummy) { //Pointer comparision!
-		ATH_MSG_VERBOSE("Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
-				<< " (Eta = " << ieta << ", Phi = " << iphi << ") does not exist.");
-		//no neighbor (end of calorimeter). Do nothing
-		continue;
-	      }
-	      
-	      if (neighbours[i].dig) { //"Normal" case
-		correctSamples(SampleSums,neighbours[i]);
-		ATH_MSG_VERBOSE("Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
-			       << " (Eta = " << ieta << ", Phi = " << iphi << ") is used for correction");
-	      } //end if have pointer to neighbor cell
-	      else { //Neighbor not usable for some reason, try mirrored neighbor
-		const int j = 3-i; //get mirrored neighbor
-		ATH_MSG_INFO( "Neighbour " << neighbours[i].dist << " of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-			       << " cannot be used. Taking mirrored neighbour " << neighbours[j].dist << " instead." );
-		if (neighbours[j].dig!=0 && neighbours[j].dig!=&inexistingDummy){
-		  correctSamples(SampleSums,neighbours[j]);
-		  ATH_MSG_VERBOSE("Mirrored neighbour " << neighbours[j].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
-				  << " (Eta = " << ieta << ", Phi = " << iphi << ") is used for correction");
-		}//end if neighbours[j].dig
-		else {
-		  ATH_MSG_WARNING( "Mirrored Neighbour " << neighbours[j].dist << " of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-				    << " cannot be used too. No correction applied" );
 		}
-	      }//end if no neighboring cell
-	    }//end loop over the four neighbors
+		const LArAccumulatedCalibDigit* neighDig=m_stripsLookUp[bec][iphi2][neigbEtaItx];
+		//Check if neighbour is present
+		if (!neighDig) {
+		  //neighbor missing. Could be known missing FEB or new problem
+		  //Reported only if at least WARNING
+		  if (msgLvl(MSG::WARNING)) {
+		    if (m_knownMissingFebs[bec][neigbEtaItx].test(iphi2)) {
+		      ATH_MSG_DEBUG("FEB missing for neighbour " << neighbours[i].dist << " to be added to strip 0x" 
+				    << m_onlineHelper->channel_name(chid) << " (Eta = " << ieta << ", Phi = " << iphi << ")");
+		    }
+		    else {
+		      ATH_MSG_WARNING( "Cannot find neighbour " << neighbours[i].dist << " to be added to strip 0x" 
+				       << m_onlineHelper->channel_name(chid) << " (Eta = " << ieta << ", Phi = " << iphi << ")" );
+		    } 
+		  }//end if msgLvl(WARNING)
+		  continue;
+		}//end if !neighDIg
+		if (neighDig==&febErrorDummy) { //Pointer comparison!!
+		  ATH_MSG_WARNING("Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid)
+				  << " (Eta = " << ieta << ", Phi = " << iphi <<"), has a FEB error. Ignored.");
+		  continue;
+		}
+		
+		//Check if neighbour is pulsed
+		if (neighDig->isPulsed()) {
+		  ATH_MSG_WARNING( "Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid)
+				   << " (Eta = " << ieta << ", Phi = " << iphi <<", " << printMaxSample(neighDig) 
+				   << ") is pulsed. Not used for correction." );
+		  continue;
+		}
+		
+		//Check if neighbour is on the bad-channel list
+		if (m_dontUseForCorrMask.cellShouldBeMasked(bcCont,neighDig->hardwareID())) {
+		  ATH_MSG_DEBUG("Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				<< " (Eta = " << ieta << ", Phi = " << iphi 
+				<< ") is flagged by the LArBadChannelMaskingTool. Not used for correction.");
+		  continue;
+		}
+
+		//Get Pedestal
+		const float pedestal = larPedestal->pedestal(neighDig->hardwareID(),t_gain);
+		if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
+		  ATH_MSG_ERROR( "No pedestal are available for neighbour " << neighbours[i].dist << " of strip " 
+				 << m_onlineHelper->channel_name(chid) << " (Eta = " << ieta << ", Phi = " << iphi << "). Not used for correction!" );
+		  continue;
+		}
+		//All went ok, fill struct
+		neighbours[i].dig=neighDig;
+		neighbours[i].ped=pedestal;
+
+		//The weight is one, unless the neighbor-of-the-neighbor is pulsed too
+		neighbours[i].weight=1.0;	
+		//Now check if the neighbor-of-the-neighbor is pulsed to set a different weight.
+		const int nnEta=ieta+2*neighbours[i].dist;
+		if (nnEta>=(int)m_MINeta[bec] && nnEta<(int)m_MAXeta[bec]) {
+		  const LArAccumulatedCalibDigit* nnDig=m_stripsLookUp[bec][iphi2][nnEta];
+		  if (nnDig!=nullptr) {
+		    //Could be also FebErrorDummy (which will always pretentd to be not pulsed)
+		    if (nnDig->isPulsed()) {
+		      ATH_MSG_VERBOSE("Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				      << " has another pulsed cell in the neighborhood. Setting weight to 0.5");
+		      neighbours[i].weight=0.5;
+		    }//end if isPulsed
+		  }//end if neighbor-of-neighbor not NULL
+		}//end if neighbor-of-neighbor in eta range
+	      }//End loop over four neighbours
+
+
+	      //Now loop over samples to apply xtalk correction
+	      std::vector<double> SampleSums(NtotSamples);
+	      for (std::size_t SampleIndex=0;SampleIndex<NtotSamples; ++SampleIndex ) {
+		SampleSums[SampleIndex]=(double)currDig->sampleSum()[SampleIndex];
+		ATH_MSG_VERBOSE("SampleSum " << SampleIndex << " (" << SampleSums[SampleIndex] << " ADC counts / " << NbTriggers << " Ntriggers)");
+	      }
+	      //Loop over the neighbours and apply corrections
+	      for (unsigned i=0;i<4;i++) {   
+		if (neighbours[i].dig==&inexistingDummy) { //Pointer comparision!
+		  ATH_MSG_VERBOSE("Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				  << " (Eta = " << ieta << ", Phi = " << iphi << ") does not exist.");
+		  //no neighbor (end of calorimeter). Do nothing
+		  continue;
+		}
+	      
+		if (neighbours[i].dig) { //"Normal" case
+		  correctSamples(SampleSums,neighbours[i]);
+		  ATH_MSG_VERBOSE("Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				  << " (Eta = " << ieta << ", Phi = " << iphi << ") is used for correction");
+		} //end if have pointer to neighbor cell
+		else { //Neighbor not usable for some reason, try mirrored neighbor
+		  const int j = 3-i; //get mirrored neighbor
+		  ATH_MSG_INFO( "Neighbour " << neighbours[i].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				<< " cannot be used. Taking mirrored neighbour " << neighbours[j].dist << " instead." );
+		  if (neighbours[j].dig!=0 && neighbours[j].dig!=&inexistingDummy){
+		    correctSamples(SampleSums,neighbours[j]);
+		    ATH_MSG_VERBOSE("Mirrored neighbour " << neighbours[j].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				    << " (Eta = " << ieta << ", Phi = " << iphi << ") is used for correction");
+		  }//end if neighbours[j].dig
+		  else {
+		    ATH_MSG_WARNING( "Mirrored Neighbour " << neighbours[j].dist << " of strip " << m_onlineHelper->channel_name(chid) 
+				     << " cannot be used too. No correction applied" );
+		  } 
+		}//end if no neighboring cell
+	      }//end loop over the four neighbors
 	    
 	    
-	    std::vector<uint32_t> SampleSumInt(NtotSamples);
-	    bool unresonable=false;
-	    std::size_t iPeak=std::max_element(currDig->sampleSum().begin(),currDig->sampleSum().end())-currDig->sampleSum().begin();
-	    for (std::size_t SampleIndex=0;SampleIndex<NtotSamples; ++SampleIndex ) {
-	      const double& thisSampleSum=SampleSums[SampleIndex];
-	      const uint32_t& oldVal=currDig->sampleSum()[SampleIndex];
-	      if (thisSampleSum<0) {
-		unresonable=true;
-		ATH_MSG_WARNING( "Channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
+	      std::vector<uint32_t> SampleSumInt(NtotSamples);
+	      bool unresonable=false;
+	      std::size_t iPeak=std::max_element(currDig->sampleSum().begin(),currDig->sampleSum().end())-currDig->sampleSum().begin();
+	      for (std::size_t SampleIndex=0;SampleIndex<NtotSamples; ++SampleIndex ) {
+		const double& thisSampleSum=SampleSums[SampleIndex];
+		const uint32_t& oldVal=currDig->sampleSum()[SampleIndex];
+		if (thisSampleSum<0) {
+		  unresonable=true;
+		  ATH_MSG_WARNING("Strip " << m_onlineHelper->channel_name(chid) 
 				  << " (Eta = " << ieta << ", Phi = " << iphi << ") Resulting ADC sample " << SampleIndex <<" negative! " 
 				  << thisSampleSum << " instead of " << oldVal << " Not corrected." );
-                break;
-	      }
-
-	      if (SampleIndex==iPeak) { //check value of correction at peak
-		const float dev=(thisSampleSum-oldVal)/oldVal;
-		m_differences.add(currDig,dev);
-		if (fabs(dev)>m_acceptableDifference) {
-		  unresonable=true;
-		  ATH_MSG_WARNING("Channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
-				  << " (Eta = " << ieta << ", Phi = " << iphi
-				  << ") DAC=" << currDig->DAC() << ":  Resulting ADC sample " << SampleIndex <<" looks unreasonable: " 
-				  << thisSampleSum << " instead of " << oldVal << " (off by " << dev*100 << "%)" 
-				  << " (=" << thisSampleSum/NbTriggers << " -> " << oldVal/NbTriggers <<", ped=" 
-				  << m_larPedestal->pedestal(chid,t_gain)
-				  << " Not Corrected.");
 		  break;
-		}//end if dev>m_acceptableDifference
-	      } // end if at peak sample
-	      SampleSumInt[SampleIndex] = (uint32_t)(thisSampleSum);
-	    }//End loop over samples
-	 
-	    if (unresonable) {
-	      m_uncorrectedIds.insert(chid);
-	      ATH_MSG_DEBUG("Correction for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec << " failed");
-	    }
-	    else {
-	      ATH_MSG_VERBOSE("Correction for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec << " DAC="<<currDig->DAC() << " succeeded " 
-			      << currDig->sampleSum()[2] << "->" << SampleSumInt[2]);
-              // FIXME: const_cast, modifying object in SG.
-	      const_cast<LArAccumulatedCalibDigit*>(currDig)->setSampleSum(SampleSumInt);
-	    }
+		}
 
-	  }// end if-pulsed 
-	}//end loop over phi
-      }//end loop over eta
-    }//End loop over sides   
+		if (SampleIndex==iPeak) { //check value of correction at peak
+		  const float dev=(thisSampleSum-oldVal)/oldVal;
+		  m_differences.add(currDig,dev);
+		  if (fabs(dev)>m_acceptableDifference) {
+		    unresonable=true;
+		    ATH_MSG_WARNING("Strip " << m_onlineHelper->channel_name(chid) << " (Eta = " << ieta << ", Phi = " << iphi
+				    << ") DAC=" << currDig->DAC() << ":  Resulting ADC sample " << SampleIndex <<" looks unreasonable: " 
+				    << thisSampleSum << " instead of " << oldVal << " (off by " << dev*100 << "%)" 
+				    << " (=" << thisSampleSum/NbTriggers << " -> " << oldVal/NbTriggers <<", ped=" 
+				    << larPedestal->pedestal(chid,t_gain)
+				    << " Not Corrected.");
+		    break;
+		  }//end if dev>m_acceptableDifference
+		} // end if at peak sample
+		SampleSumInt[SampleIndex] = (uint32_t)(thisSampleSum);
+	      }//End loop over samples
+	 
+	      if (unresonable) {
+		m_uncorrectedIds.insert(chid);
+		ATH_MSG_DEBUG("Correction for channel " << m_onlineHelper->channel_name(chid) << " failed");
+	      }
+	      else {
+		ATH_MSG_VERBOSE("Correction for channel " << m_onlineHelper->channel_name(chid) << " DAC="<<currDig->DAC() << " succeeded " 
+				<< currDig->sampleSum()[2] << "->" << SampleSumInt[2]);
+		// FIXME: const_cast, modifying object in SG.
+		const_cast<LArAccumulatedCalibDigit*>(currDig)->setSampleSum(SampleSumInt);
+	      }      
+	    }// end if-pulsed 
+	  }//end loop over phi
+	}//end loop over eta
+      }//End loop over sides
+    }//End loop over barrel-EC   
   } //End loop over all containers    
 
-  if (nSaturation) 
+  if (nSaturation) {
     ATH_MSG_INFO( "Found " << nSaturation << " saturating digits in this event." );
-  
+  }
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode LArStripsCrossTalkCorrector::executeWithStandardDigits() {
-  ATH_MSG_FATAL( "Xtalk correction wiht non-accumulated digits not supported any more." );
-  return StatusCode::FAILURE;
-}
+  
 
 StatusCode LArStripsCrossTalkCorrector::finalize() { 
   if (msgLvl(MSG::WARNING) && m_uncorrectedIds.size()>0 ) {
@@ -509,10 +448,13 @@ std::string  LArStripsCrossTalkCorrector::printMaxSample(const LArAccumulatedCal
 }
 
 
-StatusCode LArStripsCrossTalkCorrector::initKnownMissingFebs(const int bec) {
-  unsigned nMissing=0;
-  m_knownMissingFebs.clear();
-  m_knownMissingFebs.resize(m_MAXeta);
+StatusCode LArStripsCrossTalkCorrector::initKnownMissingFebs() {
+unsigned nMissing=0;  
+
+  for (unsigned bec : {0,1}) {    
+    m_knownMissingFebs[bec].clear();
+    m_knownMissingFebs[bec].resize(m_MAXeta[bec]);
+  }
   
   //const std::vector<HWIdentifier> mf=m_badChannelTool->missingFEBs();
   SG::ReadCondHandle<LArBadFebCont> bfHdl{m_BFKey};
@@ -533,6 +475,7 @@ StatusCode LArStripsCrossTalkCorrector::initKnownMissingFebs(const int bec) {
       const HWIdentifier hid=HWIdentifier(entry.first);
       mf.emplace_back(LArBadChannelDBTools::BadFebEntry(hid,entry.second));
   } 
+
   //ATH_MSG_DEBUG( "Got " << mf.size() << " missing FEBs" );
   LArBadChannelDBTools::BadFebVec::const_iterator it=mf.begin();
   LArBadChannelDBTools::BadFebVec::const_iterator it_e=mf.end();
@@ -540,45 +483,31 @@ StatusCode LArStripsCrossTalkCorrector::initKnownMissingFebs(const int bec) {
     const HWIdentifier& fid=it->first;
     const LArBadFeb& bf=it->second;
     if (bf.deadAll() || bf.deadReadout() || bf.deactivatedInOKS()) {
-      if ((bec==0 && m_onlineHelper->isEMBchannel(fid)) ||
-	  (bec==1 && m_onlineHelper->isEMECchannel(fid))) {
-	ATH_MSG_DEBUG( "Feb  " << MSG::hex << fid.get_compact() << MSG::dec << " reported as missing" );
-	const int nChan=m_onlineHelper->channelInSlotMax(fid);
-	for (int c=0;c<nChan;++c) {
-	  const HWIdentifier chid=m_onlineHelper->channel_Id(fid,c);
-	  const Identifier id=cabling->cnvToIdentifier(chid);
-	  const size_t ieta=getEtaIndex(id);
-	  if (ieta==m_noIdx) continue; //Not a cell we care about
-	  const size_t iphi=getPhiIndex(id);
-	  if (iphi>=2*m_MAXphi || ieta>=m_MAXeta) {
-	    ATH_MSG_FATAL( "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
-			    << ieta << "(max " << m_MAXphi << ")" );
-	    return StatusCode::FAILURE;
-	  }
-	  m_knownMissingFebs[ieta].set(iphi);
-	  ++nMissing;
-	}//end loop over channels of one feb
+      if (m_onlineHelper->isEMBchannel(fid) || m_onlineHelper->isEMECchannel(fid)) {
+	      ATH_MSG_DEBUG( "Feb  " << MSG::hex << fid.get_compact() << MSG::dec << " reported as missing" );
+	      const int nChan=m_onlineHelper->channelInSlotMax(fid);
+        const unsigned bec=m_onlineHelper->barrel_ec(fid);
+	      for (int c=0;c<nChan;++c) {
+	        const HWIdentifier chid=m_onlineHelper->channel_Id(fid,c);
+	        const Identifier id=cabling->cnvToIdentifier(chid);
+	        const size_t ieta=getEtaIndex(id);
+	        if (ieta==m_noIdx) continue; //Not a cell we care about
+	        const size_t iphi=getPhiIndex(id);
+	        if (iphi>=2*m_MAXphi || ieta>=m_MAXeta[bec]) {
+	          ATH_MSG_FATAL( "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
+			        << ieta << "(max " << m_MAXeta[bec] << ")" );
+	          return StatusCode::FAILURE;
+	        }
+	        m_knownMissingFebs[bec][ieta].set(iphi);
+	        ++nMissing;
+	      }//end loop over channels of one feb
       }//end if is barrel/endcap & EM
     }//end if is dead
   }//end loop over problematic febs
-  ATH_MSG_INFO( "Number of known missing Strip cells: "<< nMissing );
+  ATH_MSG_INFO( "Number of known missing strip cells: "<< nMissing );
+  m_missingFEBsDone=true;
   return StatusCode::SUCCESS;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 XtalkCorrHisto::XtalkCorrHisto(const unsigned nBins, const float upperLimit) :

@@ -72,12 +72,44 @@ class JetChainConfiguration(ChainConfigurationBase):
             if p["trkpresel"]!="nopresel":
                 if ip+1==len(jChainParts): # Last jet chainPart, presel should go here
                     self.trkpresel=p["trkpresel"]
+                    self.trkpresel_parsed_reco = {key:p[key] for key in ['recoAlg']} #Storing here the reco options from last chain part that we want to propagate to preselection (e.g. jet radius)
                 else:
                     log.error("Likely inconsistency encountered in preselection specification for %s",self.chainName)
                     raise RuntimeError("Preselection %s specified earlier than in the last chainPart!",p["trkpresel"])
 
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
+
+        self._setJetName()
+
+
+    # ----------------------
+    # Assemble jet collection name based on reco dictionary
+    # ----------------------
+    def _setJetName(self):
+        from ..Menu.ChainDictTools import splitChainDict
+        from .JetRecoSequences import JetRecoConfiguration
+        from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
+        try:
+            subChainDict = splitChainDict(self.dict)[0]
+        except IndexError:
+            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
+        prefix = JetRecoConfiguration.getHLTPrefix()
+        suffix = "_"+jetRecoDict["jetCalib"]
+        if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
+            suffix += "_{}".format(jetRecoDict["trkopt"])
+        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, clustersKey = clustersKey, pfoPrefix=prefix+jetRecoDict["trkopt"])
+        jetalg, jetradius, jetextra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])
+        actualradius = float(jetradius)/10
+        self.jetName = prefix+buildJetAlgName("AntiKt", actualradius)+inputDef.label+"Jets"+suffix
+        if inputDef.basetype == xAODType.CaloCluster:
+             # Omit cluster origin correction from jet name
+             # Keep the origin correction explicit because sometimes we may not
+             # wish to apply it, whereas PFlow corrections are applied implicitly
+             self.jetName = self.jetName.replace("Origin","")
+        
 
     # ----------------------
     # Assemble the chain depending on information from chainName
@@ -91,7 +123,10 @@ class JetChainConfiguration(ChainConfigurationBase):
         # Only one step for now, but we might consider adding steps for
         # reclustering and trimming workflows
         chainSteps = []
-        if self.recoDict["trkopt"]=="ftf":
+        if self.recoDict["ionopt"]=="ion":
+            jetCollectionName, jetDef, jetHICaloHypoStep = self.getJetHICaloHypoChainStep()
+            chainSteps.append( jetHICaloHypoStep )
+        elif self.recoDict["trkopt"]=="ftf":
             if self.trkpresel=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
@@ -136,6 +171,16 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
+    def getJetHICaloHypoChainStep(self):
+        stepName = "MainStep_HIjet"
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetHICaloHypoMenuSequence
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetHICaloHypoMenuSequence,
+                                                     ConfigFlags, isPerf=self.isPerf, **self.recoDict )
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
+
+        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
     def getJetTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
@@ -158,36 +203,60 @@ class JetChainConfiguration(ChainConfigurationBase):
         return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetCaloPreselChainStep(self):
+        #Find if a a4 or a10 calo jet needs to be used in the pre-selection from the last chain dict
+        import re
+        assert 'recoAlg' in self.trkpresel_parsed_reco.keys(), "Impossible to find \'recoAlg\' key in last chain dictionary for preselection"
+        #Want to match now only a4 and a10 in the original reco algorithm. We don't want to use a10sd or a10t in the preselection
+        matched_reco = re.match(r'^a\d?\d?',self.trkpresel_parsed_reco['recoAlg'])
+        assert matched_reco is not None, "Impossible to get matched reco algorithm for jet trigger preselectiona The reco expression {0} seems to be impossible to be parsed.".format(self.trkpresel_parsed_reco['recoAlg'])
+
         # Define a fixed preselection dictionary for prototyping -- we may expand the options
         preselRecoDict = {
-            'recoAlg':'a4',
+            'recoAlg':matched_reco.group(), #Getting the outcome of the regex reco option (it should correspond to a4 or a10 depending by which chain you are configuring)
             'constitType':'tc',
             'clusterCalib':'em',
             'constitMod':'',
-            'jetCalib':'subjesIS',
             'trkopt':'notrk',
+            'ionopt':'noion',
         }
+        ''' #Here you can set custom calibrations for large-R preselections. If you set to LCW you'll get an issue though, as the trigger expects the *same* topocluster collection to be used in the preselection and in the PFlow stage with tracking. Therefore this would need to be adapted, but it might not be so easy...
+         
+        if preselRecoDict['recoAlg']=='a10': #Setting LC calibrations for large-R jets
+            preselRecoDict['clusterCalib']='lcw'
+        '''
+        from .JetRecoConfiguration import interpretJetCalibDefault
+        preselRecoDict.update({'jetCalib':interpretJetCalibDefault(preselRecoDict) if preselRecoDict['recoAlg']=='a4' else 'nojcalib'}) #Adding default calibration for corresponding chain
         from ..Menu.SignatureDicts import JetChainParts_Default
-        preselJetParts = dict(JetChainParts_Default)
-        # Get from the last chainPart... trying to anticipate potential developments
-        # For now they are only in single-threshold chains anyway
-        preselParts    = self.trkpresel.split('j')
-        multiplicity   = preselParts[0].split('presel')[1] if preselParts[0] != 'presel' else '1'
-        threshold      = preselParts[1]
-        chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
-        preselJetParts.update(preselRecoDict)
-        preselJetParts.update(
-            {'L1threshold': 'FSNOSEED',
-             'chainPartName': chainPartName,
-             'multiplicity': multiplicity,
-             'threshold': threshold,
-             # fix selections that we don't want even if they
-             # become default
-             'jvt':'',
-             }
-        )
+        preselCommonJetParts = dict(JetChainParts_Default)
+        preselCommonJetParts.update(preselRecoDict)
+
         preselChainDict = dict(self.dict)
-        preselChainDict['chainParts'] = [preselJetParts]
+        preselChainDict['chainParts']=[]
+
+        # Get from the last chainPart in order to avoid to specify preselection for every leg
+        #TODO: add protection for cases where the preselection is not specified in the last chainPart
+        presel_matched = re.match(r'presel(?P<cut>\d?\d?j[\d\D]+)', self.trkpresel)
+        assert presel_matched is not None, "Impossible to match preselection pattern for self.trkpresel=\'{0}\'.".format(self.trkpresel)
+        presel_cut_str = presel_matched.groupdict()['cut'] #This is the cut string you want to parse. For example 'presel2j50XXj40'
+
+        for p in presel_cut_str.split('XX'):
+            matched = re.match(r'(?P<mult>\d?\d?)j(?P<cut>\d+)', p)
+            assert matched is not None, "Impossible to extract preselection cut for \'{0}\' substring. Please investigate.".format(p)
+            cut_dict = matched.groupdict()
+            mult,cut=cut_dict['mult'],cut_dict['cut']
+            chainPartName=f'{mult}j{cut}'
+            if mult=='': mult='1'
+
+            tmpChainDict = dict(preselCommonJetParts) 
+            tmpChainDict.update(
+                {'L1threshold': 'FSNOSEED',
+                 'chainPartName': chainPartName,
+                 'multiplicity': mult,
+                 'threshold': cut,
+                 'jvt':'',
+                 }
+            )
+            preselChainDict['chainParts'] += [tmpChainDict]
 
         jetDefStr = jetRecoDictToString(preselRecoDict)
 

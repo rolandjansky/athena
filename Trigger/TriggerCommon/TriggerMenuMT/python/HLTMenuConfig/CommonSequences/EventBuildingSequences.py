@@ -79,8 +79,8 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.MaxRoIs = 99
         tool.EtaWidth= 0.75#values from run2 check later
         tool.PhiWidth= 0.75#values from run2 check later
-        tool.addHLTResultToROBList()
-        tool.addCTPResultToROBList()  # add the CTP result to the list
+        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'LArPEBCalib' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.LAR_EM_BARREL_A_SIDE,
@@ -101,13 +101,17 @@ def pebInfoWriterTool(name, eventBuildType):
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
-        tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
-        tool.addCTPResultToROBList()  # add the CTP result to the list
+        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'LArPEB' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
-        tool.addCTPResultToROBList()  # add the CTP result to the list
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
+    elif 'LATOMEPEB' == eventBuildType:
+        from .LATOMESourceIDs import LATOMESourceIDs
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addROBs(LATOMESourceIDs)
     elif 'RPCPEBSecondaryReadout' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
@@ -143,6 +147,11 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.MUON_CSC_ENDCAP_A_SIDE,
             SubDetector.MUON_CSC_ENDCAP_C_SIDE
          ])
+    elif 'ZDCPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_ZDC,
+                         SubDetector.TDAQ_CTP
+        ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration

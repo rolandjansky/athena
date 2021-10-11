@@ -44,7 +44,7 @@ namespace {
 // Needed because the track->truth assoc gives us the particles but they don't store event normally
 // Add as decoration to avoid full loop for every track ( this time only once per event )
 // Use a vector so any number of truth event collections can be used at once -- but the pointers need to be valid
-void createTruthMap(std::vector<const xAOD::TruthEventBaseContainer *> truthEventContainers ) {
+void createTruthMap(const std::vector<const xAOD::TruthEventBaseContainer *> & truthEventContainers ) {
 
   static const xAOD::TruthParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
 
@@ -70,7 +70,7 @@ void createTruthMap(std::vector<const xAOD::TruthEventBaseContainer *> truthEven
 
 }
 
-void createTrackTruthMap(std::vector<const xAOD::TruthEventBaseContainer *> truthEventContainers,
+void createTrackTruthMap(const std::vector<const xAOD::TruthEventBaseContainer *> & truthEventContainers,
                          const xAOD::TrackParticleContainer & trackParticleContainer,
                          float matchCut)
 {

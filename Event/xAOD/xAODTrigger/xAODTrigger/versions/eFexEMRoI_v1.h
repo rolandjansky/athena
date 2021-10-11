@@ -37,7 +37,10 @@ namespace xAOD {
       eFexEMRoI_v1();
 
       /// Initialise the object with its most important properties
-      void initialize( uint8_t eFexNumber, uint8_t shelf, uint32_t Word0, uint32_t Word1 = 0 );
+      /// TOB initialiser
+      void initialize( unsigned int eFexNumber, unsigned int shelf, uint32_t word0 );
+      /// xTOB initialiser
+      void initialize( uint32_t word0, uint32_t word1 );
 
       /// Object types
       enum ObjectType {
@@ -46,21 +49,11 @@ namespace xAOD {
       };
 
       /// The "raw" 32-bit words describing the e/gamma candidate
-      uint32_t Word0() const;
-      uint32_t Word1() const;
+      uint32_t word0() const;
+      uint32_t word1() const;
       /// Set the "raw" 32-bit words describing the e/gamma candidate
       void setWord0( uint32_t value );
       void setWord1( uint32_t value );
-
-      /// The eFEX number
-      uint8_t eFexNumber() const;
-      /// Set the eFEX number
-      void seteFexNumber( uint8_t value );
-
-      /// The shelf number
-      uint8_t shelfNumber() const;
-      /// Set the shelf number
-      void setShelfNumber( uint8_t value );
 
       /// TOB ET (decoded from TOB, stored for convenience)
       float    et() const; /// floating point value (MeV, TOB scale)
@@ -114,6 +107,11 @@ namespace xAOD {
       /// Object type (TOB or xTOB)
       ObjectType type() const;
 
+      // Shelf number
+      unsigned int shelfNumber() const;
+
+      // eFEX number
+      unsigned int eFexNumber() const;
 
       /// FPGA number
       unsigned int fpga() const;
@@ -174,6 +172,8 @@ namespace xAOD {
       static const int s_etBit           =  0;
       static const int s_etBitXTOB       =  3;
       static const int s_bcn4Bit         = 28;
+      static const int s_shelfBit        = 24;
+      static const int s_eFexBit         = 20;
 
       //  Data masks
       static const int s_fpgaMask        = 0x3;
@@ -188,6 +188,8 @@ namespace xAOD {
       static const int s_etMask          = 0xfff;
       static const int s_etFullMask      = 0xffff;
       static const int s_bcn4Mask        = 0xf;
+      static const int s_eFexMask        = 0xf;
+      static const int s_shelfMask       = 0xf;
       // For decoding coordinates
       // 
       static const int s_numPhi          = 64;

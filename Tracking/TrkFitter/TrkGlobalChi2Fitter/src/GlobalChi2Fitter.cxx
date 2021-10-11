@@ -2070,6 +2070,7 @@ namespace Trk {
       int nscats = 0;
       bool isbrem = false;
       double bremdp = 0;
+      unsigned int n_brem=0;
       
       for (std::unique_ptr<GXFTrackState> & state : trajectory.trackStates()) {
         GXFMaterialEffects *meff = state->materialEffects();
@@ -2110,6 +2111,7 @@ namespace Trk {
             sigmascat
           );
 
+
           if (matEffects == electron) {
             state->resetStateType(TrackStateOnSurface::Scatterer);
             meff->setDeltaE(oldde);
@@ -2121,6 +2123,9 @@ namespace Trk {
             }
           } else if (eloss != nullptr) {
             meff->setSigmaDeltaE(eloss->sigmaDeltaE());
+          }
+          if (meff->sigmaDeltaE() > 0) {
+             ++n_brem;
           }
         }
       }
@@ -2140,10 +2145,12 @@ namespace Trk {
           trajectory.brems().resize(1);
           trajectory.brems()[0] = bremdp;
         }
-        
+
         cache.m_asymeloss = false;
         trajectory.setNumberOfScatterers(nscats);
-        trajectory.setNumberOfBrems((isbrem ? 1 : 0));
+        // @TODO fillResiduals assumes that numberOfBrems == number of states with material effects and sigmaDeltaE() > 0
+        //       not clear whether fillResiduals has to be adjusted for electrons rather than this
+        trajectory.setNumberOfBrems(n_brem);
       }
     }
 
@@ -7794,6 +7801,7 @@ __attribute__ ((flatten))
         forward ? (hitno < hit_end) : (hitno >= hit_end); 
         hitno += (forward ? 1 : -1)
       ) {
+
         state = states[hitno].get();
         
         bool fillderivmat = (!state->getStateType(TrackStateOnSurface::Scatterer) && !state->getStateType(TrackStateOnSurface::BremPoint));

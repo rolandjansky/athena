@@ -69,7 +69,7 @@ def precisionElectronRecoSequence_GSF(RoIs):
     TrigEgammaRecAlgo_GSF = TrigEgammaRecElectron("TrigEgammaRecElectron_GSF")
     thesequence_GSF += TrigEgammaRecAlgo_GSF
     TrigEgammaRecAlgo_GSF.TrackMatchBuilderTool = TrigEMTrackMatchBuilder_GSF
-    TrigEgammaRecAlgo_GSF.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
+    TrigEgammaRecAlgo_GSF.InputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
 
     ## TrigElectronSuperClusterBuilder_GSF ##
     TrigSuperElectronAlgo_GSF = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_GSF")

@@ -35,11 +35,11 @@ ZdcCablingService::ZdcCablingService (const ZdcID* zdcID,
       std::abort();
     }
   }
-  if (!m_zdcHWID) {
-    if (detStore->retrieve (m_zdcHWID).isFailure()) {
-      std::abort();
-    }
-  }
+  // if (!m_zdcHWID) {
+  //   if (detStore->retrieve (m_zdcHWID).isFailure()) {
+  //     std::abort();
+  //   }
+  // }
 
   fillConnectionTables();
   fillDB();

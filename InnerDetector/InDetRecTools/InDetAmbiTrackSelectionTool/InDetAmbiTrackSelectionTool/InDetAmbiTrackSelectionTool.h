@@ -60,7 +60,8 @@ namespace InDet
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
                                                             Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                            Trk::PRDtoTrackMap &prd_to_track_map) const override;
+                                                            Trk::PRDtoTrackMap &prd_to_track_map,
+                                                            int trackId = -1, int subtrackId = -1) const override;
 
   private:
       

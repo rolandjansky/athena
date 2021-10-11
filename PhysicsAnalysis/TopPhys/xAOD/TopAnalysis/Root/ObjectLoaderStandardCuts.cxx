@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/ObjectLoaderStandardCuts.h"
@@ -63,8 +63,7 @@ namespace top {
       } else if (topConfig->electronID().find("LH") != std::string::npos &&
                  topConfig->electronIDLoose().find("LH") != std::string::npos) {
         //user wants likelihood electrons
-        objectSelection->electronSelection(new top::ElectronLikelihoodMC15(topConfig->isPrimaryxAOD(),
-                                                                           topConfig->electronPtcut(),
+        objectSelection->electronSelection(new top::ElectronLikelihoodMC15(topConfig->electronPtcut(),
                                                                            topConfig->electronVetoLArCrack(),
                                                                            topConfig->electronID(),
                                                                            topConfig->electronIDLoose(),

@@ -45,21 +45,15 @@ using namespace GeoXF;
 // Constructor:
 TileTBFactory::TileTBFactory(StoreGateSvc *pDetStore,
                              TileDetDescrManager *manager,
-                             bool addPlates,
-                             int ushape,
-                             int glue,
-                             int cstube,
+                             const TileSwitches & switches,
                              MsgStream *log)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log)
-  , m_addPlatesToCellVolume(addPlates)
-  , m_uShape(ushape)
-  , m_glue(glue)
-  , m_csTube(cstube)
-  , m_testbeamGeometry(true)
+  , m_switches(switches)
   , m_verbose(log->level()<=MSG::VERBOSE)
 {
+  m_switches.testBeam = true;
 }
   
 // Destructor:
@@ -83,7 +77,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_csTube,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_switches,m_log);
 
   //Tile envelope thickness, Extended & ITC offset
   //and Central module center Z coordinate
@@ -452,7 +446,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    dbManager->TILErmax(),
                                    dbManager->TILBrmax(),
                                    deltaPhi,
-                                   m_testbeamGeometry,
+                                   m_switches.testBeam,
                                    ModuleNcp,
                                    thicknessWedgeMother*(1./Gaudi::Units::cm));
        
@@ -538,7 +532,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    dbManager->TILErmax(),
                                    dbManager->TILBrmax(),
                                    deltaPhi,
-                                   m_testbeamGeometry);
+                                   m_switches.testBeam);
         
         // --- Position N modules inside mother (positive/negative) -----
   
@@ -616,7 +610,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    dbManager->TILErmax(),
                                    dbManager->TILBrmax(),
                                    deltaPhi,
-                                   m_testbeamGeometry);
+                                   m_switches.testBeam);
           
         TRANSFUNCTION xfEFingerModuleMotherNeg = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*Gaudi::Units::cm)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
 
@@ -1056,7 +1050,7 @@ void TileTBFactory::create(GeoPhysVol *world)
     if (ii%2 == 0) {
       sectionBuilder->computeCellDim(m_detectorManager,
                                      dete[ii],
-                                     m_addPlatesToCellVolume,
+                                     m_switches.addPlatesToCell,
                                      zShiftInSection[ii+1], // zShiftPos
                                      zShiftInSection[ii]);  // zShiftNeg
     }
@@ -1065,8 +1059,8 @@ void TileTBFactory::create(GeoPhysVol *world)
     sectionBuilder->fillDescriptor(descriptor,
                                    dete[ii],
                                    side[ii],
-                                   m_testbeamGeometry,      // TB
-                                   m_addPlatesToCellVolume, // add front/end plates to cell volume
+                                   m_switches.testBeam,        // TB
+                                   m_switches.addPlatesToCell, // add front/end plates to cell volume
                                    nModulesInSection[ii],   // 0-3 modules
                                    zShiftInSection[ii]);    // Z-shift
   

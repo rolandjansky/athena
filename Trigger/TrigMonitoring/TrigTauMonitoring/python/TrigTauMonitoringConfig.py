@@ -80,7 +80,11 @@ def TrigTauMonitoringTool():
               'tau180_tightRNN_tracktwoLLP_L1TAU100',
               'tau200_mediumRNN_tracktwoLLP_L1TAU100',
               'tau200_tightRNN_tracktwoLLP_L1TAU100',
-
+              # Phase-I
+              'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+              'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+              'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+              'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
         ]
 
         RNN_chains = [
@@ -110,7 +114,11 @@ def TrigTauMonitoringTool():
              'tau180_tightRNN_tracktwoLLP_L1TAU100',
              'tau200_mediumRNN_tracktwoLLP_L1TAU100',
              'tau200_tightRNN_tracktwoLLP_L1TAU100',
-
+             # Phase-I
+             'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+             'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+             'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+             'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
         ]
 
         BDTRNN_chains = [

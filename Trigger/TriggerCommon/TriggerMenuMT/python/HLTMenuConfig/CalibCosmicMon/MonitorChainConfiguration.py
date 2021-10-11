@@ -100,7 +100,10 @@ class MonitorChainConfiguration(ChainConfigurationBase):
         if monType == 'timeburner':
             chainSteps.append(self.getTimeBurnerStep())
         elif monType == 'l1topodebug':
-            chainSteps.append(self.getL1TopoOnlineMonitorStep())
+            if ConfigFlags.Trigger.enableL1MuonPhase1:
+                chainSteps.append(self.getL1TopoOnlineMonitorStep())
+            else:
+                log.warning('Not adding chain %s. L1Topo monitoring only supported with Phase-1 MUCTPI (ATR-24179)', self.chainName)
         else:
             raise RuntimeError('Unexpected monType '+monType+' in MonitorChainConfiguration')
 

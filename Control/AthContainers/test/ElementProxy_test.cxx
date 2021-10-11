@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ElementProxy_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file ElementProxy_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -22,6 +20,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <memory>
+#include <iostream>
 
 class test_err
   : public std::exception
@@ -104,7 +103,9 @@ struct Cont
   typedef B* value_type;
   typedef B base_value_type;
   typedef value_type& reference;
-  static const bool has_virtual = false;
+  typedef std::unique_ptr<B> unique_type;
+  static constexpr bool has_virtual = false;
+  static constexpr bool must_own = false;
 
   Cont (SG::OwnershipPolicy ownPolicy = SG::OWN_ELEMENTS,
         bool can_insert_p = false)
@@ -160,6 +161,7 @@ struct Cont
 // own/cannot insert
 void test1()
 {
+  std::cout << "test1\n";
   Cont v;
   B* b1 = new B(1);
   v.push_back (b1);
@@ -204,6 +206,7 @@ void test1()
 // own/can insert
 void test2()
 {
+  std::cout << "test2\n";
   Cont v (SG::OWN_ELEMENTS, true);
   B* b1 = new B(1);
   v.push_back (b1);
@@ -260,6 +263,7 @@ void test2()
 // unowned/can insert
 void test3()
 {
+  std::cout << "test3\n";
   Cont v (SG::VIEW_ELEMENTS, true);
   B* b1 = new B(1);
   v.push_back (b1);
@@ -291,10 +295,45 @@ void test3()
 }
 
 
+class Cont2 : public Cont
+{
+public:
+  // cppcheck-suppress duplInheritedMember
+  static constexpr bool must_own = true;
+  using Cont::Cont;
+
+  void push_back (std::unique_ptr<A> p)
+  {
+    Cont::push_back (p.release());
+  }
+};
+
+
+// containers with must_own
+void test4()
+{
+  std::cout << "test4\n";
+
+  typedef DataModel_detail::ElementProxy<Cont2> EP;
+  Cont2 v (SG::OWN_ELEMENTS, true);
+  v.push_back (std::make_unique<B>(1));
+  v.push_back (std::make_unique<B>(2));
+  EP ep1 (v.begin(), &v);
+  assert (ep1->x == 1);
+  check_dtor();
+
+  ep1 = std::make_unique<B>(3);
+  assert (ep1->x == 3);
+  check_dtor(1);
+}
+
+
 int main()
 {
+  std::cout << "AthContainers/ElementProxy_test\n";
   test1();
   test2();
   test3();
+  test4();
   return 0;
 }

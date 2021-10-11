@@ -33,7 +33,7 @@ cmd='is_ls -p %(partition)s -n Monitoring -v -R "Monitoring"' % {"partition" : o
 fi, fo = os.popen2(cmd,'t')
 for line in fo: 
    job = line.strip().split(' ',15)[0]
-   print 'line=%(line)s job=%(job)s' % {"line" : line, "job": job}
+   print('line=%(line)s job=%(job)s' % {"line" : line, "job": job})
    if job == 'DigitNoiseMon' :
        include("LArMonTools/LArDigitNoiseMonTool_jobOptions.py")
    if job == 'FebNoiseMon' :
@@ -45,10 +45,10 @@ for line in fo:
 fo.close
 
 try:
-    print 'Trying to remove PoolCat_comcond_castor.xml'
+    print('Trying to remove PoolCat_comcond_castor.xml')
     svcMgr.PoolSvc.ReadCatalog.remove("prfile:poolcond/PoolCat_comcond_castor.xml")
 except ValueError:
-    print 'PoolCat_comcond_castor.xml cannot be removed'
+    print('PoolCat_comcond_castor.xml cannot be removed')
 
 svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:/det/lar/project/databases/cond09_data.000001.lar.COND/PoolFileCatalog.xml"]
 svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:/det/lar/project/databases/cond08_data.000001.lar.COND/PoolFileCatalog.xml"]
@@ -59,7 +59,7 @@ svcMgr.PoolSvc.ReadCatalog.remove("xmlcatalog_file:/det/lar/project/databases/po
 
 include("LArMonTools/LArMyJob.py")
 
-print svcMgr.PoolSvc.ReadCatalog
+print(svcMgr.PoolSvc.ReadCatalog)
 
 #
 include("LArMonTools/LArMonCommonTrailer_jobOptions.py")

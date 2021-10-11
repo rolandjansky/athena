@@ -113,7 +113,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	}
 	cdv->setHasCalo(CaloCell_ID::LARHEC);
 	// TILE PART
-	for(int sampling=0;sampling<4;sampling++){
+	{
 	TileCellCollection sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
@@ -189,7 +189,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         }
         c->setHasCalo(CaloCell_ID::LARHEC);
         // TILE PART
-        for(int sampling=0;sampling<4;sampling++){
+        {
         TileCellCollection sel;
         ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
         for( const auto cell : sel ) {c->push_back( cell ); }

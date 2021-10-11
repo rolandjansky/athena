@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDSection.h"
@@ -8,10 +8,16 @@
 
 #include <iostream>
 
-AGDDSection::AGDDSection(std::string a, std::string b, std::string c, std::string d, std::string e, bool bflag):
+AGDDSection::AGDDSection(const std::string& a,
+                         const std::string& b,
+                         const std::string& c,
+                         const std::string& d,
+                         const std::string& e,
+                         AGDDSectionStore& ss,
+                         bool bflag):
 			m_name(a),m_version(b),m_author(c),m_date(d),m_topVolume(e),m_toBeBuilt(bflag)
 {
-	Register();
+	Register(ss);
 }
 
 void AGDDSection::AddVolume(AGDDVolume* v)
@@ -23,7 +29,7 @@ void AGDDSection::AddVolume(AGDDVolume* v)
 		m_theVolumes[temp]=v;
 }
 
-AGDDVolume* AGDDSection::GetVolume(std::string n)
+AGDDVolume* AGDDSection::GetVolume(const std::string& n)
 {
 	if (m_theVolumes.find(n)!=m_theVolumes.end())
 		return m_theVolumes[n];
@@ -34,10 +40,9 @@ AGDDVolume* AGDDSection::GetVolume(std::string n)
 	}
 }
 
-void AGDDSection::Register()
+void AGDDSection::Register(AGDDSectionStore& ss)
 {
-	AGDDSectionStore *ss=AGDDSectionStore::GetSectionStore();
-	ss->RegisterSection(this);
+	ss.RegisterSection(this);
 }
 void AGDDSection::Print()
 {

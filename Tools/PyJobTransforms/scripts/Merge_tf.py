@@ -49,8 +49,6 @@ def getTransform():
                                    inData = ['AOD_MRG'], outData = ['TAG'],))
     executorSet.add(tagMergeExecutor(name = 'TAGFileMerge', exe = 'CollAppend', inData = set(['TAG']), outData = set(['TAG_MRG'])))
     executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD', 'HIST_AOD'), 'HIST'], outData = ['HIST_MRG']))
-    executorSet.add(athenaExecutor(name = 'RDOMerge', skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
-                                   inData = ['RDO'], outData = ['RDO_MRG']))
     executorSet.add(bsMergeExecutor(name = 'RAWFileMerge', exe = 'file_merging', inData = set(['BS']), outData = set(['BS_MRG'])))
     executorSet.add(athenaExecutor(name = 'EVNTMerge', skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
 
@@ -69,16 +67,30 @@ def getTransform():
     addD3PDArguments(trf.parser, transform=trf, addD3PDMRGtypes=True)
     addExtraDPDTypes(trf.parser, transform=trf, NTUPMergerArgs = True)
 
-    # Add HITSMerge only if SimuJobTransforms is available
+    # Add HITSMerge and RDOMerge only if SimuJobTransforms is available
     try:
         from SimuJobTransforms.SimTransformUtils import addHITSMergeArguments
         addHITSMergeArguments(trf.parser)
-        simStepSet = set()
-        simStepSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                   tryDropAndReload = False, inData = ['HITS'], outData = ['HITS_MRG']))
-        trf.appendToExecutorSet(list(simStepSet)[0])
+        trf.appendToExecutorSet(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
+                                               skeletonCA = 'SimuJobTransforms.HITSMerge_Skeleton',
+                                               tryDropAndReload = False, inData = ['HITS'], outData = ['HITS_MRG']))
+
+        trf.appendToExecutorSet(athenaExecutor(name = 'RDOMerge', skeletonFile = 'SimuJobTransforms/skeleton.RDOMerge.py',
+                                skeletonCA = 'SimuJobTransforms.RDOMerge_Skeleton',
+                                inData = ['RDO'], outData = ['RDO_MRG']))
+
+        trf.parser.defineArgGroup('RDOMerge_tf', 'RDO merge job specific options')
+        trf.parser.add_argument('--inputRDOFile', nargs='+',
+                                type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='input'),
+                                help='Input RDO file', group='RDOMerge_tf')
+        trf.parser.add_argument('--outputRDO_MRGFile', '--outputRDOFile', 
+                                type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
+                                help='Output merged RDO file', group='RDOMerge_tf')
+        trf.parser.add_argument('--PileUpPresampling',
+                                type=trfArgClasses.argFactory(trfArgClasses.argBool),
+                                help='Run digitization with pile-up presampling configuration.', group='RDOMerge_tf')
     except ImportError as e:
-        msg.warning('Failed to import simulation arguments ({0}). HITSMerge will not be available.'.format(e))
+        msg.warning('Failed to import simulation arguments ({0}). HITSMerge and RDOMerge will not be available.'.format(e))
 
 
     return trf
@@ -131,14 +143,6 @@ def addMyArgs(parser):
     parser.add_argument('--outputHIST_MRGFile', '--outputHISTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, type='hist'), 
                         help='Output DQ monitoring file', group='DQHistMerge_tf')
-
-    parser.defineArgGroup('RDOMerge_tf', 'RDO merge job specific options')
-    parser.add_argument('--inputRDOFile', nargs='+',
-                        type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='input'),
-                        help='Input RDO file', group='RDOMerge_tf')
-    parser.add_argument('--outputRDO_MRGFile', '--outputRDOFile', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
-                        help='Output merged RDO file', group='RDOMerge_tf')
 
     parser.defineArgGroup('RAWMerge_tf', 'RAWMerge specific options')
     parser.add_argument('--inputBSFile', nargs='+', 

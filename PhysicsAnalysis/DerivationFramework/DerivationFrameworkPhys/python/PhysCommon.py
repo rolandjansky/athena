@@ -17,7 +17,7 @@ from DerivationFrameworkMuons import MuonsCommon
 InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addBadBatmanFlag, addDistanceInTrain
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 
@@ -67,8 +67,6 @@ largeRJetCollections = [
 OutputJets["PhysCommon"] = largeRJetCollections
 jetList = ["AntiKt4EMTopoJets",
            "AntiKt4EMPFlowJets",
-           "AntiKt2PV0TrackJets",
-           "AntiKt4PV0TrackJets",
            "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
@@ -90,6 +88,10 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob)
 
 # Event cleaning flags
 addEventCleanFlags(sequence=DerivationFrameworkJob)
+# Bad batman flag for events with large EMEC-IW Noise
+addBadBatmanFlag(sequence=DerivationFrameworkJob)
+# Distance in train
+addDistanceInTrain(sequence=DerivationFrameworkJob)
 
 scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociationAlg")
 

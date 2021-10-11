@@ -54,7 +54,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
   StatusCode sc = AlgTool::initialize();
 
   ATH_CHECK(m_spacepointsPixel.initialize(m_pixel));
-  ATH_CHECK(m_spacepointsSCT.initialize(m_sct));
+  ATH_CHECK(m_spacepointsStrip.initialize(m_strip));
   ATH_CHECK(m_spacepointsOverlap.initialize(m_useOverlap));
 
   // Get beam geometry
@@ -148,7 +148,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(const EventContext &ctx, EventD
     initializeEventData(data);
 
   data.trigger = false;
-  if (!m_pixel && !m_sct)
+  if (!m_pixel && !m_strip)
     return;
 
   /// pass the iteration info into our data object
@@ -337,15 +337,15 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(const EventContext &ctx, EventD
     ++data.r_first; ///< increment r_first past the last occupied bin we saw
   }                 ///< end pixel case
 
-  /// Get sct space points containers from store gate
-  if (m_sct)
+  /// Get strip space points containers from store gate
+  if (m_strip)
   {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
-    if (spacepointsSCT.isValid())
+    SG::ReadHandle<SpacePointContainer> spacepointsStrip{m_spacepointsStrip, ctx};
+    if (spacepointsStrip.isValid())
     {
 
-      for (const SpacePointCollection *spc : *spacepointsSCT)
+      for (const SpacePointCollection *spc : *spacepointsStrip)
       {
         for (const Trk::SpacePoint *sp : *spc)
         {
@@ -359,7 +359,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(const EventContext &ctx, EventD
             continue;
 
           /// as for PIX, determine the radial bin.
-          /// Note that for the SCT we do not update data.r_first.
+          /// Note that for the Strip we do not update data.r_first.
           int radiusBin = static_cast<int>(sps->radius() * oneOverBinSizeR);
           if (radiusBin > maxBinR)
             radiusBin = maxBinR;
@@ -376,7 +376,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(const EventContext &ctx, EventD
       }
     }
 
-    /// Get sct overlap space points containers from store gate
+    /// Get strip overlap space points containers from store gate
     if (m_useOverlap && !data.checketa)
     {
 
@@ -426,7 +426,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(const EventContext &ctx, EventD
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::newRegion(const EventContext &ctx, EventData &data,
-                                                  const std::vector<IdentifierHash> &vPixel, const std::vector<IdentifierHash> &vSCT) const
+                                                  const std::vector<IdentifierHash> &vPixel, const std::vector<IdentifierHash> &vStrip) const
 {
   if (not data.initialized)
     initializeEventData(data);
@@ -434,7 +434,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion(const EventContext &ctx, Event
   data.iteration = 0;
   data.trigger = false;
   erase(data);
-  if (!m_pixel && !m_sct)
+  if (!m_pixel && !m_strip)
     return;
 
   data.dzdrmin = m_dzdrmin0;
@@ -509,6 +509,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion(const EventContext &ctx, Event
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid())
     {
+      data.maxSeedsPerSP = m_maxOneSizePPP;
 
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
       // Loop through all trigger collections
@@ -537,22 +538,23 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion(const EventContext &ctx, Event
     }
   }
 
-  // Get sct space points containers from store gate
+  // Get strip space points containers from store gate
   //
-  if (m_sct && !vSCT.empty())
+  if (m_strip && !vStrip.empty())
   {
+    data.maxSeedsPerSP = m_maxOneSizeSSS;
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
-    if (spacepointsSCT.isValid())
+    SG::ReadHandle<SpacePointContainer> spacepointsStrip{m_spacepointsStrip, ctx};
+    if (spacepointsStrip.isValid())
     {
 
-      SpacePointContainer::const_iterator spce = spacepointsSCT->end();
+      SpacePointContainer::const_iterator spce = spacepointsStrip->end();
 
       // Loop through all trigger collections
       //
-      for (const IdentifierHash &l : vSCT)
+      for (const IdentifierHash &l : vStrip)
       {
-        auto w = spacepointsSCT->indexFind(l);
+        auto w = spacepointsStrip->indexFind(l);
         if (w == spce)
           continue;
         for (const Trk::SpacePoint *sp : **w)
@@ -581,14 +583,14 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion(const EventContext &ctx, Event
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::newRegion(const EventContext &ctx, EventData &data,
-                                                  const std::vector<IdentifierHash> &vPixel, const std::vector<IdentifierHash> &vSCT, const IRoiDescriptor &IRD) const
+                                                  const std::vector<IdentifierHash> &vPixel, const std::vector<IdentifierHash> &vStrip, const IRoiDescriptor &IRD) const
 {
   constexpr float twoPi = 2. * M_PI;
 
   if (not data.initialized)
     initializeEventData(data);
 
-  newRegion(ctx, data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vStrip);
   data.trigger = true;
 
   double dzdrmin = 1.f / std::tan(2.f * std::atan(std::exp(-IRD.etaMinus())));
@@ -816,7 +818,7 @@ MsgStream &InDet::SiSpacePointsSeedMaker_ITK::dumpConditions(EventData &data, Ms
   std::string s2;
   for (int i=0; i<n; ++i) s2.append(" ");
   s2.append("|");
-  n     = 42-m_spacepointsSCT.key().size();
+  n     = 42-m_spacepointsStrip.key().size();
   std::string s3;
   for (int i=0; i<n; ++i) s3.append(" ");
   s3.append("|");
@@ -833,7 +835,7 @@ MsgStream &InDet::SiSpacePointsSeedMaker_ITK::dumpConditions(EventData &data, Ms
      <<endmsg;
   out<<"| Pixel    space points   | "<<m_spacepointsPixel.key() <<s2
      <<endmsg;
-  out<<"| SCT      space points   | "<<m_spacepointsSCT.key()<<s3
+  out<<"| Strip    space points   | "<<m_spacepointsStrip.key()<<s3
      <<endmsg;
   out<<"| Overlap  space points   | "<<m_spacepointsOverlap.key()<<s4
      <<endmsg;
@@ -842,8 +844,8 @@ MsgStream &InDet::SiSpacePointsSeedMaker_ITK::dumpConditions(EventData &data, Ms
   out<<"| usePixel                | "
      <<std::setw(12)<<m_pixel 
      <<"                              |"<<endmsg;
-  out<<"| useSCT                  | "
-     <<std::setw(12)<<m_sct 
+  out<<"| useStrip                  | "
+     <<std::setw(12)<<m_strip
      <<"                              |"<<endmsg;
   out<<"| maxSize                 | "
      <<std::setw(12)<<m_maxsize 
@@ -1073,7 +1075,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
     const float radiusPixelEnd = m_fastTracking ? 250. : 320.; /// approximate largest R location of pixel hits (driven by endcap)
     const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin, m_maxdImpact, radiusPixelStart, radiusPixelEnd) / 3. : 0.;
     /// case 2: SSS seeds, if we use them
-    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin, m_maxdImpactSSS, m_rminSSS, m_rmaxSSS) / 3. : 0.;
+    const float binSizePhi_SSS = m_strip ? azimuthalStep(m_ptmin, m_maxdImpactSSS, m_rminSSS, m_rmaxSSS) / 3. : 0.;
     m_inverseBinSizePhiPPP = 1. / binSizePhi_PPP;
     m_inverseBinSizePhiSSS = 1. / binSizePhi_SSS;
   }
@@ -1548,10 +1550,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillListsFast(const EventContext &ctx, E
   };
 
   SG::ReadHandle<SpacePointContainer> spacepoints;
-  if (m_sct)
+  if (m_strip)
   {
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
-    spacepoints = spacepointsSCT;
+    SG::ReadHandle<SpacePointContainer> spacepointsStrip{m_spacepointsStrip, ctx};
+    spacepoints = spacepointsStrip;
   }
   else if (m_pixel)
   {
@@ -1572,8 +1574,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillListsFast(const EventContext &ctx, E
       float r[15];
       if (m_pixel)
         pixInform(*spFirst, r);
-      else if (m_sct)
-        sctInform(data, *spFirst, r);
+      else if (m_strip)
+        stripInform(data, *spFirst, r);
 
       for (const Trk::SpacePoint *sp : *spc)
       {
@@ -1651,7 +1653,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillListsFast(const EventContext &ctx, E
       data.RTmin = m_rminPPPFast ;
       //m_RTmax set per zBin in production3Sp
     }
-    else if(m_sct){
+    else if(m_strip){
       data.RTmin = m_rminSSS ;
       data.RTmax = m_rmaxSSS ;
     }
@@ -1672,10 +1674,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::pixInform(const Trk::SpacePoint *sp, flo
 }
 
 ///////////////////////////////////////////////////////////////////
-// SCT information
+// Strip information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::sctInform(EventData &data, const Trk::SpacePoint *sp, float *r) 
+void InDet::SiSpacePointsSeedMaker_ITK::stripInform(EventData &data, const Trk::SpacePoint *sp, float *r)
 {
   const InDet::SiCluster *c0 = static_cast<const InDet::SiCluster *>(sp->clusterList().first);
   const InDet::SiCluster *c1 = static_cast<const InDet::SiCluster *>(sp->clusterList().second);
@@ -3389,7 +3391,7 @@ InDet::SiSpacePointForSeedITK *InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint(
   return newSpacePoint(data, sp, r, true);
 }
 
-InDet::SiSpacePointForSeedITK *InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint(EventData &data, const Trk::SpacePoint *const &sp, float *r, bool usePixSctInform) const
+InDet::SiSpacePointForSeedITK *InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint(EventData &data, const Trk::SpacePoint *const &sp, float *r, bool usePixStripInform) const
 {
 
   InDet::SiSpacePointForSeedITK *sps = nullptr;
@@ -3417,12 +3419,12 @@ InDet::SiSpacePointForSeedITK *InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint(
       return nullptr;
   }
 
-  if (usePixSctInform)
+  if (usePixStripInform)
   {
     if (!sp->clusterList().second)
       pixInform(sp, r);
     else
-      sctInform(data, sp, r);
+      stripInform(data, sp, r);
   }
 
   /// If we have previously populated the list and just reset

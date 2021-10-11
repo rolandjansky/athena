@@ -102,7 +102,7 @@ class doCaloTopoSignal(CaloRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class doExtendedClusterMoments(CaloRecFlagsJobProperty):
+class doExtendedClusterMoments(JobProperty):
     """ add more cluster moments for R&D
     """
     statusOn=True

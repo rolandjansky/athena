@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArNoiseBursts_H
-#define LArNoiseBursts_H
+#ifndef LARCAFJOBS_LARNOISEBURSTS_H
+#define LARCAFJOBS_LARNOISEBURSTS_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -45,7 +45,6 @@ class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 class CaloNoise;
-//class CaloDetDescrManager;
 
 class TileTBID;
 class TgcIdHelper;
@@ -78,8 +77,14 @@ class LArNoiseBursts : public AthAlgorithm  {
    //functions
    int GetPartitionLayerIndex(const Identifier& id);
      
-   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont,
-                       const CaloNoise& totalNoise);
+   StatusCode fillCell(HWIdentifier onlID
+		       , float eCalo
+		       , float qfactor
+		       , CaloGain::CaloGain gain
+		       , const LArOnOffIdMapping* cabling
+		       , const LArBadChannelCont* bcCont
+		       , const CaloNoise& totalNoise
+		       , const CaloDetDescrManager* caloMgr);
 
  private:
 
@@ -103,7 +108,11 @@ class LArNoiseBursts : public AthAlgorithm  {
    const LArEM_ID* m_LArEM_IDHelper;
    const LArFCAL_ID* m_LArFCAL_IDHelper;
    const LArHEC_ID*  m_LArHEC_IDHelper;
-   const CaloDetDescrManager* m_calodetdescrmgr;
+   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+       , "CaloDetDescrManager"
+       , "CaloDetDescrManager"
+       , "SG Key for CaloDetDescrManager in the Condition Store" };
+
 
    // Electrons
    std::string m_elecContainerName;

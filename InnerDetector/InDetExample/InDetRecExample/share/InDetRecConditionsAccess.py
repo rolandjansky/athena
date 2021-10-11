@@ -329,10 +329,6 @@ if DetFlags.haveRIO.SCT_on():
 
         if InDetFlags.useSctDCS():
             InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_DCSConditionsTool ]
-       
-    # switch conditions off for SLHC usage
-    elif InDetFlags.doSLHC():
-        InDetSCT_ConditionsSummaryTool.ConditionsTools= []
       
     else :
         InDetSCT_ConditionsSummaryTool.ConditionsTools= [ InDetSCT_ConfigurationConditionsTool,

@@ -8,7 +8,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def TrackingGeoCfg(inputFlags):
     result = ComponentAccumulator()
 
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    # TODO: we should properly declare dependencies
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     # Something builds muon stations -- extrapolator?

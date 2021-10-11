@@ -253,6 +253,32 @@ namespace TrigConf {
       return StatusCode::SUCCESS;
    }
 
+
+   /// Helper function ptree key->[] to std::vector<T>
+   template<typename T>
+   std::vector<T> ToVector(const TrigConf::DataStructure& ds, const std::string& child){
+      using ptree = boost::property_tree::ptree;
+      std::vector<T> return_vector;
+      for( const ptree::value_type& entry : ds.data().get_child(child) ) {
+         return_vector.push_back( entry.second.get_value<T>() );
+      }
+      return return_vector;
+   }
+
+   /// Helper function ptree key->[[]] to std::vector<std::vector<T>>
+   template<typename T>
+   std::vector<std::vector<T>> ToVectorVector(const TrigConf::DataStructure& ds, const std::string& child){
+      using ptree = boost::property_tree::ptree;
+      std::vector<std::vector<T>> return_vector;
+      for( const ptree::value_type& outer : ds.data().get_child(child) ) {
+         return_vector.push_back(std::vector<T>());
+         for (const ptree::value_type& inner : outer.second) {
+            return_vector.back().push_back( inner.second.get_value<T>() );
+         }
+      }
+      return return_vector;
+   }
+
    /// Load JSON derived data into legacy structures to maintain 
    /// compatiblity with existing code.
    ///
@@ -315,46 +341,75 @@ namespace TrigConf {
       // Fill the HLT configuration:
       if (loadedHlt.isInitialized()) {
          for (const Chain& loadedChain : loadedHlt) {
-             // Figure out which level this chain is from:
-             std::string level = "";
-             if( loadedChain.name().find( "L2_" ) == 0 ) {
-                level = "L2";
-             } else if( loadedChain.name().find( "EF_" ) == 0 ) {
-                level = "EF";
-             } else if( loadedChain.name().find( "HLT_" ) == 0 ) {
-                level = "HLT";
-             } else {
-                msg << MSG::WARNING << "prepareTriggerMenu(...): "
-                    << "Couldn't figure out 'level' for chain: "
-                    << loadedChain.name() << endmsg;
-             }
-             // An empty signature list for the chain:
-             // This is not populated from JSON data
-             std::vector< HLTSignature* > signatures;
- 
-             // Create the chain object:
-             HLTChain* chain = new HLTChain( loadedChain.name(),
-                                             loadedChain.counter(),
-                                             1, // Chain version not important
-                                             level,
-                                             loadedChain.l1item(), // L1 seeds (string)
-                                             -1, // Lower chain ID not important
-                                             signatures ); // Note: Empty
- 
-             chain->set_rerun_prescale( -1.0 ); // Not used in R3
-             chain->set_pass_through( -1.0 );  // Not used in R3
-             chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
+            // Figure out which level this chain is from:
+            std::string level = "";
+            if( loadedChain.name().find( "L2_" ) == 0 ) {
+               level = "L2";
+            } else if( loadedChain.name().find( "EF_" ) == 0 ) {
+               level = "EF";
+            } else if( loadedChain.name().find( "HLT_" ) == 0 ) {
+               level = "HLT";
+            } else {
+               msg << MSG::WARNING << "prepareTriggerMenu(...): "
+                   << "Couldn't figure out 'level' for chain: "
+                   << loadedChain.name() << endmsg;
+            }
 
-             for (const std::string& group : loadedChain.groups()){
-                chain->addGroup(group);
-             }
+            // An empty signature list for the chain:
+            std::vector< HLTSignature* > signatures;
 
-             if (loadedHltps.isInitialized()) {
-                const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
-                chain->set_prescale( loadedPrescale.prescale );
-             } else {
-                chain->set_prescale( 0 );
-             }
+            // Optional Run2 payload
+            std::vector<uint32_t> counters;
+            std::vector<int> logics;
+            std::vector<std::vector<std::string>> outputTEs;
+            if (loadedChain.hasChild("signature")) {
+               counters = ToVector<uint32_t>(loadedChain, "signature.counters");
+               logics = ToVector<int>(loadedChain, "signature.logics");
+               outputTEs = ToVectorVector<std::string>(loadedChain, "signature.outputTEs");
+            }
+
+            if( msg.level() <= MSG::VERBOSE ) {
+               msg << MSG::VERBOSE << "chain " << loadedChain.name()
+                   << " has counter " << loadedChain.counter()
+                   << " and " << counters.size() << " signatures (runs 1,2 only)" << endmsg;
+            }
+
+            for( size_t sig = 0; sig < counters.size(); ++sig ) {
+               std::vector< HLTTriggerElement* > outTEs;
+               for( size_t outTEcounter = 0; outTEcounter< outputTEs[ sig ].size(); ++outTEcounter ) {
+                  HLTTriggerElement* element = new HLTTriggerElement( outputTEs[ sig ][ outTEcounter ] );
+                  outTEs.push_back( element );
+               }
+               HLTSignature* signature = new HLTSignature( counters[ sig ], logics[ sig ], outTEs );
+               signatures.push_back( signature );
+               if( msg.level() <= MSG::VERBOSE ) {
+                  msg << MSG::VERBOSE << "prepared signature: " << *( signatures.back() ) << endmsg;
+               }
+            }
+ 
+            // Create the chain object:
+            HLTChain* chain = new HLTChain( loadedChain.name(),
+                                            loadedChain.counter(),
+                                            1, // Chain version not important
+                                            level,
+                                            loadedChain.l1item(), // L1 seeds (string)
+                                            -1, // Lower chain ID not important
+                                            signatures ); // Empty for R3 JSONs
+ 
+            chain->set_rerun_prescale( -1.0 ); // Not used in R3
+            chain->set_pass_through( -1.0 );  // Not used in R3
+            chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
+
+            for (const std::string& group : loadedChain.groups()){
+               chain->addGroup(group);
+            }
+
+            if (loadedHltps.isInitialized()) {
+               const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
+               chain->set_prescale( loadedPrescale.prescale );
+            } else {
+               chain->set_prescale( 0 );
+            }
  
             // Add it to the list of chains:
             if( ! chainList.addHLTChain( chain ) ) {
@@ -367,7 +422,25 @@ namespace TrigConf {
          }
       }
 
-      // Do not add sequence info to legacy structures (format is different)
+      // Add sequence information if it's available (R1 or R2 menu):
+      if( loadedHlt.hasChild("sequence_run2") ) {
+         std::vector<std::string> menu_outputTEs = ToVector<std::string>(loadedHlt, "sequence_run2.outputTEs");
+         std::vector<std::vector<std::string>> menu_inputTEs = ToVectorVector<std::string>(loadedHlt, "sequence_run2.inputTEs");
+         std::vector<std::vector<std::string>> menu_algorithms = ToVectorVector<std::string>(loadedHlt, "sequence_run2.algorithms");
+
+         for( size_t i = 0; i< menu_outputTEs.size(); ++i ) {
+            HLTTriggerElement* outputTE = new HLTTriggerElement( menu_outputTEs[ i ] );
+            std::vector< HLTTriggerElement* > inputTEs;
+            for( size_t j = 0; j < menu_inputTEs[ i ].size(); ++j ) {
+               HLTTriggerElement* te = new HLTTriggerElement( menu_inputTEs[ i ][ j ] );
+               inputTEs.push_back( te );
+            }
+            HLTSequence* sequence = new HLTSequence( inputTEs, outputTE, menu_algorithms[ i ] );
+            sequenceList.addHLTSequence( sequence );
+            // This throws a runtime_error if it fails, which we don't need to
+            // handle, since this is a FATAL error anyways.
+         }
+      }
 
       // Bunchgroup data is TODO
       // Create a new BunchGroupSet object, since an existing one can't be

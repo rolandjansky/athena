@@ -1021,7 +1021,7 @@ void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
     if (fname.empty()) return StatusCode::SUCCESS;
     
     std::string fullName = PathResolver::find_file (fname.c_str(), "PWD");
-    if( fullName.length() == 0 )
+    if( fullName.empty())
       fullName =  PathResolver::find_file (fname.c_str(), "DATAPATH");
     
     std::ifstream fin(fullName.c_str());
@@ -1035,7 +1035,7 @@ void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
     std::vector<std::string> mask;
     std::string aLine;
     while(getline(fin,aLine)) {
-      if (aLine.substr(0,3)!="///") break;
+      if (aLine.compare(0,3,"///")!=0) break;
     }
     int id_type = atoi(aLine.c_str());
     while(getline(fin,aLine)) {

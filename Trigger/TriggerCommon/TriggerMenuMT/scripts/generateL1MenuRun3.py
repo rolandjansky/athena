@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
@@ -73,6 +73,10 @@ def main():
     ])
 
     cmdline = parseCmdLine(possibleMenus = availableMenus.keys())
+
+    # Make sure output directory exists
+    from pathlib import Path
+    Path(cmdline.dest).mkdir(parents=True, exist_ok=True)
 
     if cmdline.menu.lower() in availableMenus:
         menu = availableMenus[cmdline.menu.lower()]

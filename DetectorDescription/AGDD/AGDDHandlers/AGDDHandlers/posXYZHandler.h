@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef posXYZHandler_H
@@ -11,9 +11,10 @@
 
 class posXYZHandler:public XMLHandler {
 public:
-	posXYZHandler(std::string);
-	void ElementHandle();
-
+        posXYZHandler(const std::string&,
+                      AGDDController& c);
+        virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

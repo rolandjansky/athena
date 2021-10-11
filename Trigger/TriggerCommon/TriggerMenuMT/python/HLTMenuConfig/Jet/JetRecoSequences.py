@@ -18,8 +18,12 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+
 ###############################################################################################
 # Sequences for input information
+
+# prefix used in naming HLT collections
+jetNamePrefix = JetRecoConfiguration.getHLTPrefix() # "HLT_"
 
 # Calo cell unpacking and topocluster reconstruction
 def jetClusterSequence(configFlags, RoIs, clusterCalib):
@@ -41,7 +45,6 @@ def jetClusterSequence(configFlags, RoIs, clusterCalib):
 
 ###############################################################################################
 # Sequences that set up the concrete jet finding job
-jetNamePrefix = "HLT_"
 
 # Need to do this hacky extraction to get around the inability
 # to hash dicts as input to RecoFragmentsPool.retrieve

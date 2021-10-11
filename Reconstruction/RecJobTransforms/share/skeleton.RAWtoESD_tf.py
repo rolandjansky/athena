@@ -78,7 +78,6 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile)
     ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
     rec.doTrigger.set_Value_and_Lock(False)
-    recAlgs.doTrigger.set_Value_and_Lock(False)
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
     HLTMonFlags.doMonTier0 = False
     from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -196,7 +195,7 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
 #==========================================================
 # Use ZLIB for compression of all temporary outputs
 #==========================================================
-if hasattr(runArgs, "outputESDFile") and ('_000' in runArgs.outputESDFile or 'tmp.' in runArgs.outputESDFile):
+if hasattr(runArgs, "outputESDFile") and (runArgs.outputESDFile.endswith('_000') or runArgs.outputESDFile.startswith('tmp.')):
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
