@@ -48,7 +48,8 @@ public:
     HGTD_DetectorElement(const Identifier &id, 
                          const HGTD_ModuleDesign *design,
                          const GeoVFullPhysVol *geophysvol,
-                         SiCommonItems * commonItems);
+                         const SiCommonItems * commonItems,
+                         const GeoAlignmentStore* geoAlignStore=nullptr);
 
     /// Destructor:
     virtual ~HGTD_DetectorElement();

@@ -620,7 +620,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
 
     // for now create the SiCommonItems here
     // These are items that are shared by all detector elements
-    std::unique_ptr<SiCommonItems> commonItems{std::make_unique<SiCommonItems>(m_athComps->getIdHelper())};
+    std::unique_ptr<const SiCommonItems> commonItems{std::make_unique<const SiCommonItems>(m_athComps->getIdHelper())};
 
     for (int layer = 0; layer < 4; layer++) {
         if (m_outputIdfr) cout << "Layer #" << layer << std::endl;
