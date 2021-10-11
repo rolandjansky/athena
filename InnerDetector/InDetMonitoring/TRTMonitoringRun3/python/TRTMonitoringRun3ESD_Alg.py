@@ -25,8 +25,8 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     if not inputFlags.DQ.triggerDataAvailable:
         algTRTMonitoringRun3ESD.TrigDecisionObjectName = ''
 
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(AtlasGeometryCfg(inputFlags))
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
+    result.merge(InDetGeometryCfg(inputFlags))
 
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
@@ -252,11 +252,6 @@ if __name__ == '__main__':
     from AthenaCommon.AppMgr import ServiceMgr
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-
-    # Configuration of the ATLAS Geo Model
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg = AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
 
     # Force special handling of converters
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
