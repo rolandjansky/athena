@@ -3,12 +3,26 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
 
-def ITkGeometryCfg (flags):
+
+def InDetGeometryCfg (flags):
     acc = ComponentAccumulator()
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("InDetGeometryDBSvc")) #Beampipe builder expects "InDet" rather than "ITk" - can this be steered?
+
+    if flags.Detector.GeometryPixel:
+        from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+        acc.merge(PixelGeometryCfg( flags ))
+
+    if flags.Detector.GeometrySCT:
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+        acc.merge(SCT_GeometryCfg( flags ))
+    
+    if flags.Detector.GeometryTRT:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+        acc.merge(TRT_GeometryCfg( flags ))
+    
+    if flags.Detector.GeometryPixel or flags.Detector.GeometrySCT or flags.Detector.GeometryTRT:
+        from InDetServMatGeoModel.InDetServMatGeoModelConfig import InDetServiceMaterialCfg
+        acc.merge(InDetServiceMaterialCfg( flags ))
 
     if flags.Detector.GeometryITkPixel:
         from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
@@ -45,11 +59,11 @@ if __name__ == "__main__":
   # Construct ComponentAccumulator
   acc = MainServicesCfg(ConfigFlags)
   acc.merge(PoolReadCfg(ConfigFlags))
-  acc.merge(ITkGeometryCfg(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required
+  acc.merge(InDetGeometryCfg(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required
   #acc.getService("StoreGateSvc").Dump=True
   acc.getService("ConditionStore").Dump=True
   acc.printConfig(withDetails=True)
-  f=open('ITkGMCfg2.pkl','wb')
+  f=open('InDetGMCfg2.pkl','wb')
   acc.store(f)
   f.close()
   ConfigFlags.dump()

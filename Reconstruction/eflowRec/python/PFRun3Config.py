@@ -49,7 +49,8 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
 
     #Setup up general geometry
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    # TODO: we should properly declare dependencies
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     #Setup TRT conditions
