@@ -34,7 +34,8 @@ enum key{ sf =1,
   eig=3,
   uncorr=4,	      
   sys=5,
-  end=6
+  sysasymm=6,
+  end=7
 };
 const char* keytostring (int input){
   switch(input){
@@ -48,6 +49,8 @@ const char* keytostring (int input){
     return "uncorr";
   case(sys) : 
     return "sys";
+  case(sysasymm) : 
+    return "asymm";
   }
   return "";
 }
@@ -56,7 +59,7 @@ const char* keytostring (int input){
 
 namespace{
 const std::string LowPt_string("LowPt");
-const std::vector<int> s_keys={mapkey::sf,mapkey::stat,mapkey::eig,mapkey::uncorr};
+const std::vector<int> s_keys={mapkey::sf,mapkey::stat,mapkey::eig,mapkey::uncorr,mapkey::sysasymm};
 }
 
 
@@ -190,7 +193,8 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   const size_t position_uncorrToyMCSF=position_corrSys+m_nSysMax;
   //Set up the non-0 defaults
   result[static_cast<size_t> (Position::SF)]=-999;
-  result[static_cast<size_t> (Position::Total)]=1; 
+  result[static_cast<size_t> (Position::TotalUp)]=1; 
+  result[static_cast<size_t> (Position::TotalDn)]=1; 
   if (m_nSysMax) {
     index_of_corr=position_corrSys;
   }
@@ -360,7 +364,38 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
    * Write the retrieved values to the output
    * */
   result[static_cast<size_t> (Position::SF)]=scaleFactor;
-  result[static_cast<size_t> (Position::Total)]=scaleFactorErr;
+  result[static_cast<size_t> (Position::TotalUp)]=scaleFactorErr;
+  result[static_cast<size_t> (Position::TotalDn)]=scaleFactorErr;
+
+  /* 
+   * Let's start with asymmetric uncertainties (if any)
+   * - stored as an additional histo with suffix '_signed'
+   *   and has been added to currentHist with key 'sysasymm'
+   *   (holding an extra number to be added in quadrature in one direction)
+   * - we only support a single asymmetric source which is treated uncorrelated
+   * - we only support specific file formats, namely those containing stat+sys+signed
+   *   (but only the creators of the file have to know, users don't)
+   * - !!no comb MC toy support!! (and we don't tell the user, but I'm not aware of any)
+   *
+   * So, what we're going to do is the following ...
+   * since the SF histo doesn't contain the correct error (it's symmetric)
+   * we trigger the recalcuation of the error from the dedicated error histograms
+   */
+  currentVector_itr = currentmap.find(mapkey::sysasymm);
+  const bool recalcErr = bool(currentVector_itr != currentmap.end());
+  double scaleFactorErr2Up = 0.;
+  double scaleFactorErr2Dn = 0.;
+  // both should always be either true or false, but for future profing I check both
+  if ( recalcErr && bool(currentVector_itr != currentmap.end()) ) { 
+    const TH1 *asymm = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
+    const double asymmErr = asymm->GetBinContent(globalBinNumber);
+    if ( asymmErr>0. ) {
+      scaleFactorErr2Up += asymmErr*asymmErr;
+    } else {
+      scaleFactorErr2Dn += asymmErr*asymmErr;
+    }
+    result[static_cast<size_t> (Position::Asymm)]=asymmErr;
+  }
   /*
    * Do the stat error using the available info from the above (SF)
    */
@@ -384,6 +419,10 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
   }
   result[static_cast<size_t> (Position::UnCorr)]=val; 
+  if ( recalcErr ) {
+    scaleFactorErr2Up += val*val;
+    scaleFactorErr2Dn += val*val;
+  }
   /* 
    * The previous setup is becoming cumbersome 
    * for the N~16 systematic variations.
@@ -404,7 +443,11 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         tmpHist = (TH2 *) sysList.at(index).at(runnumberIndex).At(sys_entries - 1 - sys);
         corrSys.push_back(tmpHist->GetBinContent(globalBinNumber));
         result[position_corrSys + sys_entries - 1 - sys] =corrSys[sys];
-        }
+	if ( recalcErr ) {
+	  scaleFactorErr2Up += corrSys[sys]*corrSys[sys];
+	  scaleFactorErr2Dn += corrSys[sys]*corrSys[sys];	  
+	}
+      }
       if (m_nSysMax > 0 && sys_entries<=1) {
         if (result[position_corrSys] == 0) {
             result[position_corrSys]=scaleFactorErr;
@@ -427,6 +470,13 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
   }
   result[static_cast<size_t> (Position::GlobalBinNumber)]=globalBinNumber;
+  /* 
+   * If we had to recalc the error, let's store it
+   */
+  if ( recalcErr ) {
+    result[static_cast<size_t> (Position::TotalUp)] = sqrt(scaleFactorErr2Up);
+    result[static_cast<size_t> (Position::TotalDn)] = sqrt(scaleFactorErr2Dn);
+  }
   return 1;
 }
 /*
@@ -817,7 +867,7 @@ void Root::TElectronEfficiencyCorrectionTool::setupTempMapsHelper(TObject* obj,
 
   const TString tmpName(obj->GetName());
   //Special treatment , this is only for photons 
-  if (tmpName.EndsWith("_sys")) {
+  if (tmpName.EndsWith("_" + TString(mapkey::keytostring(mapkey::key::sys)))) {
     objs.find(mapkey::sys)->second.Add(obj);
     TObjArray tmpArray;
     tmpArray.Add(obj);
