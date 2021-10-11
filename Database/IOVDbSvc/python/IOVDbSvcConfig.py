@@ -79,14 +79,14 @@ def IOVDbSvcCfg(configFlags):
 
 
 #Convenience method to add folders:
-def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None,db=None):
+def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None,db=None,modifiers=""):
     tagstr = ''
     if tag is not None:
         tagstr = '<tag>%s</tag>' % tag
 
     #Convenience hack: Allow a single string as parameter:
     if isinstance(folderstrings,str):
-        return addFolderList(configFlags,((folderstrings+tagstr,detDb,className),),extensible,db)
+        return addFolderList(configFlags,((folderstrings+tagstr,detDb,className),),extensible,db,modifiers)
 
     else: #Got a list of folders
         folderdefs=[]
@@ -94,13 +94,13 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=Fa
         for fs in folderstrings:
             folderdefs.append((fs+tagstr,detDb,className))
         
-    return addFolderList(configFlags,folderdefs,extensible,db)
+    return addFolderList(configFlags,folderdefs,extensible,db,modifiers)
     
 
 
 
 
-def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
+def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None,modifiers=""):
     """Add access to the given set of folders, in the identified subdetector schema.
     FolerInfoTuple consists of (foldername,detDB,classname)
 
@@ -139,7 +139,10 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
     
         if extensible:
             fs = fs + '<extensible/>'
-    
+
+        #Add explicitly given xml-modifiers (like channel-selection)
+        fs+=modifiers 
+
         #Append (modified) folder-name string to IOVDbSvc Folders property
         iovDbSvc.Folders.append(fs)
 
@@ -154,7 +157,7 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
 
     return result
     
-def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL", splitMC=False, tag=None, forceDb=None):
+def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL", splitMC=False, tag=None, forceDb=None,modifiers=""):
     "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
     
     if configFlags.Common.isOnline and not configFlags.Input.isMC:
@@ -165,7 +168,7 @@ def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, c
         # MC, so add addMCString
         detDb = detDb+addMCString
         folders = offline_folders
-    result = addFolders(configFlags, folders, className=className, detDb=detDb, tag=tag, db=forceDb) 
+    result = addFolders(configFlags, folders, className=className, detDb=detDb, tag=tag, db=forceDb,modifiers=modifiers) 
     return result
 
 _dblist={
