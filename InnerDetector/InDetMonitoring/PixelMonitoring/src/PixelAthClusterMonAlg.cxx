@@ -169,11 +169,14 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
   ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
-  VecAccumulator2DMap TSOS_Outlier("TSOSOutlier", true);
-  VecAccumulator2DMap TSOS_Hole("TSOSHole", true);
-  VecAccumulator2DMap TSOS_Measurement("TSOSMeasurement", true);
-  VecAccumulator2DMap HolesRatio("HolesRatio", true);
-  VecAccumulator2DMap MissHitsRatio("MissHitsRatio", true);
+  VecAccumulator2DMap TSOS_Outlier("TSOSOutlier");
+  VecAccumulator2DMap TSOS_Outlier_FE("TSOSOutlierFE");
+  VecAccumulator2DMap TSOS_Hole("TSOSHole");
+  VecAccumulator2DMap TSOS_Hole_FE("TSOSHoleFE");
+  VecAccumulator2DMap TSOS_Measurement("TSOSMeasurement");
+  VecAccumulator2DMap TSOS_Measurement_FE("TSOSMeasurementFE");
+  VecAccumulator2DMap HolesRatio("HolesRatio");
+  VecAccumulator2DMap MissHitsRatio("MissHitsRatio");
   auto trackGroup = getGroup("Track");
 
   auto tracks = SG::makeHandle(m_tracksKey, ctx);
@@ -248,70 +251,108 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       float nHole = 0.;
       auto effval = Monitored::Scalar<float>("HitEffAll_val", 0.);
       auto efflb = Monitored::Scalar<float>("HitEffAll_lb", lb);
-      if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
-        nOutlier = 1.0;
-        if (!m_doOnline) TSOS_Outlier.add(pixlayer, surfaceID, m_pixelid, 1.0);
-        if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
-      } else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) {
-        nHole = 1.0;
-        if (!m_doOnline) TSOS_Hole.add(pixlayer, surfaceID, m_pixelid, 1.0);
-        if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
-      } else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) {
-        if (!m_doOnline) TSOS_Measurement.add(pixlayer, surfaceID, m_pixelid, 1.0);
-        effval = 1.;
-        if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
+      const InDetDD::SiDetectorElement *sde = dynamic_cast<const InDetDD::SiDetectorElement *>(trkParameters->associatedSurface().associatedDetectorElement());
+      const InDetDD::SiLocalPosition trkLocalPos = trkParameters->localPosition();
+      Identifier locPosID;
 
-        if (not mesBase) continue;
-        const InDetDD::SiDetectorElement* side =
-          dynamic_cast<const InDetDD::SiDetectorElement*>(mesBase->associatedSurface().associatedDetectorElement());
-        const InDet::SiClusterOnTrack* clus = dynamic_cast<const InDet::SiClusterOnTrack*>(mesBase);
-        if (!side || !clus) continue;
-        const InDet::SiCluster* RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
-        if (!RawDataClus || !RawDataClus->detectorElement()->isPixel()) continue;
+      if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) 
+	{
+	  nOutlier = 1.0;
+	  const InDet::SiClusterOnTrack *siclus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesBase);
+	  if ( mesBase && siclus) { 
+	    locPosID = siclus->identify();
+	    if ( !(locPosID.is_valid()) ) {
+	      ATH_MSG_INFO("Pixel Monitoring: got invalid track local position on surface for an outlier.");
+	      continue;
+	    }
+	    TSOS_Outlier.add(pixlayer, locPosID, m_pixelid, 1.0);
+	    if (!m_doOnline) {
+	      TSOS_Outlier_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
+	    }
+	  }
+	  if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
+	} 
+      else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) 
+	{
+	  nHole = 1.0;
+	  locPosID = sde->identifierOfPosition(trkLocalPos);
+	  if ( !(locPosID.is_valid()) ) {
+	    ATH_MSG_INFO("Pixel Monitoring: got invalid track local position on surface for a hole.");
+	    continue;
+	  }
+	  TSOS_Hole.add(pixlayer, locPosID, m_pixelid, 1.0);
+	  if (!m_doOnline) {
+	    TSOS_Hole_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
+	  }
+	  if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
+	} 
+      else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) 
+	{
+	  if (not mesBase) continue;
+	  const InDetDD::SiDetectorElement* side =
+	    dynamic_cast<const InDetDD::SiDetectorElement*>(mesBase->associatedSurface().associatedDetectorElement());
+	  const InDet::SiClusterOnTrack* clus = dynamic_cast<const InDet::SiClusterOnTrack*>(mesBase);
+	  if (!side || !clus) continue;
+	  const InDet::SiCluster* RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
+	  if (!RawDataClus || !RawDataClus->detectorElement()->isPixel()) continue;
 
-        nPixelHits++;
+	  nPixelHits++;
 
-        const Trk::AtaPlane* trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
-        if (trackAtPlane) {
-          const Amg::Vector2D localpos = trackAtPlane->localPosition();
+	  locPosID = clus->identify();
+	  if ( !(locPosID.is_valid()) ) {
+	    ATH_MSG_INFO("Pixel Monitoring: got invalid cluster on track ID.");
+	    continue;
+	  }
+	  TSOS_Measurement.add(pixlayer, locPosID, m_pixelid, 1.0);
+	  if (!m_doOnline) {
+	    TSOS_Measurement_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
+	  }
 
-          // Get local error matrix for hit and track and calc pull
-          const AmgSymMatrix(5) trackErrMat = (*trackAtPlane->covariance());
-          const Amg::MatrixX clusErrMat = clus->localCovariance();
+	  effval = 1.;
+	  if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
 
-          double error_sum =
-            sqrt(pow(Amg::error(trackErrMat, Trk::locX), 2) + pow(Amg::error(clusErrMat, Trk::locX), 2));
-          auto resPhi = Monitored::Scalar<float>("res_phi", clus->localParameters()[Trk::locX] - localpos[0]);
-          fill(trackGroup, resPhi);
-          if (error_sum != 0) {
-            auto pullPhi = Monitored::Scalar<float>("pull_phi", resPhi / error_sum);
-            fill(trackGroup, pullPhi);
-          }
 
-          error_sum = sqrt(pow(Amg::error(trackErrMat, Trk::locY), 2) + pow(Amg::error(clusErrMat, Trk::locY), 2));
-          auto resEta = Monitored::Scalar<float>("res_eta", clus->localParameters()[Trk::locY] - localpos[1]);
-          fill(trackGroup, resEta);
-          if (error_sum != 0) {
-            auto pullEta = Monitored::Scalar<float>("pull_eta", resEta / error_sum);
-            fill(trackGroup, pullEta);
-          }
-          // Filling containers, which hold id's of hits and clusters on track
-          // _and_ incident angle information for later normalization
+	  const Trk::AtaPlane* trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
+	  if (trackAtPlane) {
+	    const Amg::Vector2D localpos = trackAtPlane->localPosition();
 
-          Amg::Vector3D mynormal = side->normal();
-          Amg::Vector3D mytrack = trackAtPlane->momentum();
-          double trknormcomp = mytrack.dot(mynormal);
+	    // Get local error matrix for hit and track and calc pull
+	    const AmgSymMatrix(5) trackErrMat = (*trackAtPlane->covariance());
+	    const Amg::MatrixX clusErrMat = clus->localCovariance();
+	    
+	    double error_sum =
+	      sqrt(pow(Amg::error(trackErrMat, Trk::locX), 2) + pow(Amg::error(clusErrMat, Trk::locX), 2));
+	    auto resPhi = Monitored::Scalar<float>("res_phi", clus->localParameters()[Trk::locX] - localpos[0]);
+	    fill(trackGroup, resPhi);
+	    if (error_sum != 0) {
+	      auto pullPhi = Monitored::Scalar<float>("pull_phi", resPhi / error_sum);
+	      fill(trackGroup, pullPhi);
+	    }
+	    
+	    error_sum = sqrt(pow(Amg::error(trackErrMat, Trk::locY), 2) + pow(Amg::error(clusErrMat, Trk::locY), 2));
+	    auto resEta = Monitored::Scalar<float>("res_eta", clus->localParameters()[Trk::locY] - localpos[1]);
+	    fill(trackGroup, resEta);
+	    if (error_sum != 0) {
+	      auto pullEta = Monitored::Scalar<float>("pull_eta", resEta / error_sum);
+	      fill(trackGroup, pullEta);
+	    }
+	    // Filling containers, which hold id's of hits and clusters on track
+	    // _and_ incident angle information for later normalization
 
-          double mytrack_mag = mytrack.mag();
-          double cosalpha = 0.;
-          if (mytrack_mag != 0) cosalpha = fabs(trknormcomp / mytrack_mag);
-          ClusterIDs.push_back(std::make_pair(clus->identify(), cosalpha));
-        }
-      } // end of measurement case
+	    Amg::Vector3D mynormal = side->normal();
+	    Amg::Vector3D mytrack = trackAtPlane->momentum();
+	    double trknormcomp = mytrack.dot(mynormal);
+	    
+	    double mytrack_mag = mytrack.mag();
+	    double cosalpha = 0.;
+	    if (mytrack_mag != 0) cosalpha = fabs(trknormcomp / mytrack_mag);
+	    ClusterIDs.push_back(std::make_pair(clus->identify(), cosalpha));
+	  }
+	} // end of measurement case
 
-      if (pass1hole1GeVptTightCut) {
-        HolesRatio.add(pixlayer, surfaceID, m_pixelid, nHole);
-        MissHitsRatio.add(pixlayer, surfaceID, m_pixelid, nOutlier + nHole);
+      if (pass1hole1GeVptTightCut && locPosID.is_valid()) {
+        HolesRatio.add(pixlayer, locPosID, m_pixelid, nHole);
+        MissHitsRatio.add(pixlayer, locPosID, m_pixelid, nOutlier + nHole);
       }
     } // end of TSOS loop
 
@@ -336,10 +377,13 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
   fill2DProfLayerAccum(HolesRatio);
   fill2DProfLayerAccum(MissHitsRatio);
-  if (!m_doOnline) {
-    fill2DProfLayerAccum(TSOS_Outlier);
-    fill2DProfLayerAccum(TSOS_Hole);
-    fill2DProfLayerAccum(TSOS_Measurement);
+  fill2DProfLayerAccum(TSOS_Outlier);
+  fill2DProfLayerAccum(TSOS_Hole);
+  fill2DProfLayerAccum(TSOS_Measurement);
+  if (!m_doOnline) { 
+    fill2DProfLayerAccum(TSOS_Outlier_FE);
+    fill2DProfLayerAccum(TSOS_Hole_FE);
+    fill2DProfLayerAccum(TSOS_Measurement_FE);
   }
 
   sort(ClusterIDs.begin(), ClusterIDs.end(),
