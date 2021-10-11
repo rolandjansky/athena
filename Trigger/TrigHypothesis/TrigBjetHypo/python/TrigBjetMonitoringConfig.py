@@ -1,6 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
+class TrigBjetBtagHypoToolMonitoring(GenericMonitoringTool):
+    def __init__ (self, name):
+        super(TrigBjetBtagHypoToolMonitoring, self).__init__(name)
+        self.defineHistogram('btag_pb', title=': Probability jets are B-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
+        self.defineHistogram('btag_pc', title=': Probability jets are Charm-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
+        self.defineHistogram('btag_pu', title=': Probability jets are Light-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
+        self.defineHistogram('btag_llr', title=': Log(P_{b}/P_{light}), Likelihood Ratio between the B-jet and Light-flavour Jet Hypotheses', xbins=100, xmin=-10, xmax=50, path='EXPERT', type='TH1F' )
+
 class TrigBjetOnlineMonitoring(GenericMonitoringTool):
     def make_flavor_hists(self, tagger):
         self.defineHistogram('btag_'+tagger+'_pb', title=tagger+': Probability jets are B-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
