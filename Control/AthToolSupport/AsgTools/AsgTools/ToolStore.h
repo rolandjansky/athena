@@ -36,10 +36,6 @@ namespace asg {
       /// The name must be non-blank and not already exist in the store.
       static StatusCode put( IAsgTool* ptool );
 
-      /// Store a tool by an alternate name.
-      /// The name must be non-blank and not already exist in the store.
-      static StatusCode put( IAsgTool* ptool, const std::string& name );
-
       /// Retrieve a tool by name.
       static IAsgTool* get( const std::string& name, bool silent = false );
 
