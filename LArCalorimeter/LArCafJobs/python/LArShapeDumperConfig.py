@@ -56,6 +56,8 @@ def LArShapeDumperCfg(flags):
     result.getService("IOVDbSvc").overrideTags+=['<prefix>/LAR/ElecCalibOfl/Shape/RTM/5samples1phase</prefix><tag>LARElecCalibOflShapeRTM5samples1phase-RUN2-UPD1-04</tag>']
 
     
+    print("Dumping flags: ")
+    flags.dump()
     dumperAlg=CompFactory.LArShapeDumper("LArShapeDumper")
     dumperAlg.CaloType = flags.LArShapeDump.caloType
     dumperAlg.Prescale = flags.LArShapeDump.prescale
@@ -71,6 +73,9 @@ def LArShapeDumperCfg(flags):
     dumperAlg.LArShapeDumperTool=CompFactory.LArShapeDumperTool(DoShape=True)
     dumperAlg.FileName=flags.LArShapeDump.outputNtup
     dumperAlg.TriggerNames = flags.LArShapeDump.triggerNames
+    if flags.LAr.RawChannelSource == "calculated":
+       dumperAlg.ChannelsKey = "LArRawChannels_FromDigits"
+
     result.addEventAlgo(dumperAlg)
 
     if (flags.LArShapeDump.HECNoiseNtup!=""):

@@ -32,6 +32,7 @@ class LArReadCells: public ::AthAlgorithm {
 
    Gaudi::Property<double> m_etcut{this,"etCut",7500.,"Et cut to dump cells"};
    Gaudi::Property<double> m_etcut2{this,"etCut2",7500.,"Et cut to dump cells from second layer"};
+   Gaudi::Property< std::string > m_outStream{this, "output","SPLASH", "to which stream write the ntuple"};
 
    const DataHandle<CaloIdManager> m_caloIdMgr;
    const CaloCell_ID*       m_calo_id = nullptr;

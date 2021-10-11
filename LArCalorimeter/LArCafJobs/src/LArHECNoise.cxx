@@ -321,10 +321,12 @@ StatusCode LArHECNoise::execute() {
                  }
               }
               const CaloDetDescrElement *cdde =  caloMgr->get_element(oid);
-              m_nt_eta = cdde->eta();
-              m_nt_phi = cdde->phi();
-              m_nt_z = cdde->z();
-              m_nt_r = cdde->r();
+              if(cdde) {
+                 m_nt_eta = cdde->eta();
+                 m_nt_phi = cdde->phi();
+                 m_nt_z = cdde->z();
+                 m_nt_r = cdde->r();
+              }
               m_tree->Fill();
         }//found our digit
    }//over digits
