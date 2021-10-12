@@ -250,7 +250,7 @@ def regSelTool_CSC_Cfg(flags):
     return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg)
 
 def regSelTool_STGC_Cfg(flags):
-    return regSelToolCfg(flags, "STGC", CompFactory.STGC_RegSelCondAlg)
+    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg)
 
 def regSelTool_MM_Cfg(flags):
     return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)
