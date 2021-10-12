@@ -433,7 +433,7 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
 ## Propagate debug output level requirement to generators
-if (hasattr( runArgs, "VERBOSE") and VERBOSE) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
+if (hasattr( runArgs, "VERBOSE") and runArgs.VERBOSE) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
    include("EvgenJobTransforms/Generate_debug_level.py")
 
 ## Add special config option (extended model info for BSM scenarios)
