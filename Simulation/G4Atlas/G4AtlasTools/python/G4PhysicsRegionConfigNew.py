@@ -85,7 +85,11 @@ def SCTPhysicsRegionToolCfg(ConfigFlags, name='SCTPhysicsRegionTool', **kwargs):
 
 def ITkPixelPhysicsRegionToolCfg(ConfigFlags, name='ITkPixelPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'ITkPixel')
-    volumeList = ['ITkPixel::siLog']
+    volumeList = ['ITkPixel::InnerBarrelSingleMod_Sensor',
+                  'ITkPixel::InnerRingSingleMod_Sensor',
+                  'ITkPixel::InnerQuadMod_Sensor',
+                  'ITkPixel::OuterQuadMod_Sensor',
+                  'ITkPixel::InclinedQuadMod_Sensor']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
@@ -270,7 +274,10 @@ def MuonSystemFastPhysicsRegionToolCfg(ConfigFlags, name='MuonSystemFastPhysicsR
     kwargs.setdefault("RegionName", 'MuonSystemFastRegion')
     volumeList = []
     if ConfigFlags.Sim.CavernBG  == 'World':
-        volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
+        if ConfigFlags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+            volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
+        else:
+            volumeList += ['BeamPipe::BeamPipe', 'ITK::ITK']
     volumeList = ['Muon::MuonSys']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 1.0)

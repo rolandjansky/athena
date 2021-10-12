@@ -26,7 +26,6 @@ PURPOSE:  Apply necessary finalising operation to CaloCellContainer
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloConstCellContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 

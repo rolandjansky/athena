@@ -21,7 +21,6 @@ SliceIDDict = {
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
     'Calib'   : 'calib',
-    #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
@@ -30,15 +29,23 @@ SliceIDDict = {
     'Test'          : 'TestChain',
 }
 
-AllowedSignatures = ["jet", "bjet", "electron", "photon", "egamma",
-                     "muon",
-                     "met",
-                     "tau",
-                     "unconvtrk",
-                     "minbias",
-                     "heavyion",
-                     "cosmic",
-                     "calibration", "streaming", "monitoring", 'eb']
+class ChainStore(dict):
+    """Class to hold list of chains for each signature (dictionary with fixed set of keys)"""
+    _allowedSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
+                          'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
+                          'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias',
+                          'UnconventionalTracking', 'Test']
+
+    def __init__(self):
+        # Create dicionary with fixed set of keys in the orignal order
+        super().__init__({s : [] for s in self._allowedSignatures})
+
+    def __setitem__(self, key, value):
+        if key not in self:
+            raise RuntimeError(f"'{key}' is not in the list of allowed signatures: {self._allowedSignatures}")
+        else:
+            dict.__setitem__(self, key, value)
+
 
 #==========================================================
 # ---- Generic Template for all chains          ----
@@ -128,6 +135,8 @@ JetChainParts = {
       ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'subjesgsc', 'subresjesgsc', 'nojcalib'],
     'scan'         : # No longer used?
       ['FS',],
+    'ionopt'       : # Heavy ion configuration
+      ['noion','ion'],
     'trkopt'       : # Tracking configuration
       ['notrk','ftf'],
     'trkpresel'    : # Tracking preselection
@@ -138,6 +147,7 @@ JetChainParts = {
        'preselj135',       #L1J50, #L1J100
        'presel2j135',      #L1J50, L1J100
        'presel2j135XXj60', #L1J50, L1J100
+       'presel3j100',      #L1J100
        'presel4j33',       #L13J50
        'presel5j24',       #L14J15
        'presel6j36',       #L14J15
@@ -146,6 +156,7 @@ JetChainParts = {
        'preselj180',       #L1J100
        'presel2j180',      #L1J100
        'presel2j180XXj80', #L1J100
+       'presel3j125',      #L1J100
        'presel4j55',       #L13J50
        'presel5j35',       #L14J15
        'presel6j40',       #L14J15
@@ -154,6 +165,7 @@ JetChainParts = {
        'preselj225',        #L1J100
        'presel2j225',       #L1J100
        'presel2j225XXj100', #L1J100
+       'presel3j150',       #L1J100
        'presel4j85',        #L13J50
        'presel5j50',        #L14J15
        'presel6j45',        #L14J15
@@ -224,7 +236,7 @@ JetChainParts = {
                       'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
-    'exotHypo' : ['ExoticPTF0p4dR1p2', 'ExoticPTF0p3dR1p2', 'ExoticPTF0p2dR1p2', 'ExoticPTF0p1dR1p2', 'ExoticPTF0p0dR1p2', 'TracklessdR1p2', 'ExoPhotonPTF0p4dR1p2'],
+    'exotHypo' : ['ExoticPTF0p4dR1p2', 'ExoticPTF0p3dR1p2', 'ExoticPTF0p2dR1p2', 'ExoticPTF0p1dR1p2', 'ExoticPTF0p0dR1p2', 'TracklessdR1p2', 'ExoticPTF0p4dR0p4', 'ExoticPTF0p3dR0p4', 'ExoticPTF0p2dR0p4', 'ExoticPTF0p1dR0p4', 'ExoticPTF0p0dR0p4', 'TracklessdR0p4'],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
@@ -275,6 +287,7 @@ JetChainParts_Default = {
     'constitMod'    :'',
     'jetCalib'      :'default',
     'scan'          :'FS',
+    'ionopt'        : 'noion',
     'trkopt'        : 'notrk',
     'trkpresel'     : 'nopresel',
     #
@@ -314,9 +327,10 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'l2io','l2lrt','l2mt','noL2Comb','probe'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','probe'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
+    'l2AlgInfo'      : ['l2io','l2mt'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
     'invMassInfo'    : ['invmJPsi'],
     'msonlyInfo'     : ['msonly'],
@@ -339,6 +353,7 @@ MuonChainParts_Default = {
     'extra'          : '',
     'IDinfo'         : '',
     'isoInfo'        : '',
+    'l2AlgInfo'      : [],
     'lrtInfo'        : [],
     'addInfo'        : [],
     'invMassInfo'    : '',
@@ -354,9 +369,10 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau',
-    'Lxy0',
-    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose'
+    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
+    'Lxy0','noos','nocut',
+    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
+    'b0dRAB12vtx20'
 ]
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -783,7 +799,7 @@ StreamingChainParts = {
     # disambiguation or to allow events from the same L1 seed
     # to be written to different streams
     # New cases should be discussed with Menu Coordinators
-    'streamingInfo'  : ['laser', 'CIS','idmon'],
+    'streamingInfo'  : ['laser', 'CIS','idmon','mb','l1calo'],
     'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,

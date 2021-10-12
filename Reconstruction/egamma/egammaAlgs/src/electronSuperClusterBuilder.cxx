@@ -41,6 +41,7 @@ electronSuperClusterBuilder::initialize()
   ATH_CHECK(m_electronSuperRecCollectionKey.initialize());
   ATH_CHECK(m_outputElectronSuperClustersKey.initialize());
   ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
 
   // Additional Window we search in
   m_maxDelPhi = m_maxDelPhiCells * s_cellPhiSize * 0.5;
@@ -87,8 +88,9 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
   }
 
   // The calo Det Descr manager
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // Reserve a vector to keep track of what is used
   std::vector<bool> isUsed(egammaRecs->size(), false);

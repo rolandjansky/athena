@@ -10,6 +10,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 // Calo includes
 #include "CaloInterface/ICaloConstCellMakerTool.h"
@@ -40,6 +41,9 @@ class CaloCellContainerFromClusterTool
 
     std::set<int> m_validSamplings;
     SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_clusterKeys;
+
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+
 };
 
 #endif

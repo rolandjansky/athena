@@ -190,8 +190,8 @@ namespace TrigConf {
       virtual ~L1Threshold_eTAU() = default;
       virtual std::string className() const override { return "L1Threshold_eTAU"; }
       // access functions
-      Selection::WP isoConeRel() const { return m_isoConeRel; }
-      Selection::WP fEM() const { return m_fEM; }
+      Selection::WP rCore() const { return m_rCore; }
+      Selection::WP rHad() const { return m_rHad; }
    protected:
       virtual void update() override {
          L1Threshold_Calo::update();
@@ -200,8 +200,8 @@ namespace TrigConf {
    private:
       void load();
       // the isolation requirement
-      Selection::WP m_isoConeRel { Selection::WP::NONE };
-      Selection::WP m_fEM { Selection::WP::NONE };
+      Selection::WP m_rCore { Selection::WP::NONE };
+      Selection::WP m_rHad { Selection::WP::NONE };
    };
 
    class L1Threshold_jTAU final : public L1Threshold_Calo {

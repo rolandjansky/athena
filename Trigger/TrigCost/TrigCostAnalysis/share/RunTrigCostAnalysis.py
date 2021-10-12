@@ -13,7 +13,6 @@ log = logging.getLogger('RunTrigCostAnalysis.py')
 # Configure Cost Analysis algorithm
 def trigCostAnalysisCfg(flags, args, isMC=False):
   from TrigCostAnalysis.ROSToROB import ROSToROBMap
-  from Gaudi.Configuration import DEBUG
 
   acc = ComponentAccumulator()
 
@@ -36,7 +35,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
     enhancedBiasWeighter.MCIgnoreGeneratorWeights = MCpayload.get('MCIgnoreGeneratorWeights')
 
   trigCostAnalysis = CompFactory.TrigCostAnalysis()
-  trigCostAnalysis.OutputLevel = DEBUG
+  trigCostAnalysis.OutputLevel = args.loglevel
   trigCostAnalysis.BaseEventWeight = args.baseWeight
   trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
   trigCostAnalysis.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
@@ -133,7 +132,6 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
     log.debug("Reading HLTMenu from file {0}".format(menuFile))
 
     hltConfigSvc.InputType = "file"
-    hltConfigSvc.XMLMenuFile = "None"
     hltConfigSvc.JsonFileName = menuFile
   elif smk and dbAlias:
     log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))

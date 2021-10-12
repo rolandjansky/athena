@@ -4,6 +4,7 @@ __author__  = 'Javier Montejo'
 __version__="$Revision: 2.0 $"
 __doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
 
+import itertools
 import sys
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
 from TriggerMenuMT.TriggerAPI.TriggerPeriodData import TriggerPeriodData
@@ -319,7 +320,7 @@ def getHLTmap_fromTM(period, release):
     hltMap = {}
     dummyfutureLBs = 1e6
 
-    for chain in menu.chainsInMenu:
+    for chain in itertools.chain.from_iterable(menu.chainsInMenu.values()):
         hltname = chain.name
         l1seed  = chain.name[chain.name.rfind("_L1")+3:] #surely a better way to do this
         primary = any('Primary' in g or 'TagAndProbe' in g for g in chain.groups)

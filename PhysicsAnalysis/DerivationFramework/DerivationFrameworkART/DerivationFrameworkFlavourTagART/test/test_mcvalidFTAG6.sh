@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include: master/Athena
+# art-include: 21.2/AthDerivation
 # art-description: DAOD building FTAG6 validation inputs
 # art-type: grid
 # art-output: *.pool.root

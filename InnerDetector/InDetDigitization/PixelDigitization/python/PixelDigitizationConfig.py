@@ -523,7 +523,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Setup Cabling Svc #
     #####################
     from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
-    PixelReadoutManager = InDetDD__PixelReadoutManager()
+    PixelReadoutManager = InDetDD__PixelReadoutManager("PixelReadoutManager")
     ServiceMgr += PixelReadoutManager
     print (PixelReadoutManager)
     kwargs.setdefault("InputObjectName", "PixelHits")

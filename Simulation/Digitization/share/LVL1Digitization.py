@@ -64,8 +64,8 @@ if DetFlags.digitize.LVL1_on():
     if not hasattr( ServiceMgr, 'LVL1ConfigSvc' ):
         log.info( "Will setup LVL1ConfigSvc and add instance to ServiceMgr" )
 
-        from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
-        LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
+        from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+        LVL1ConfigSvc = TrigConf__LVL1ConfigSvc('LVL1ConfigSvc')
 
         #If read from DB then set up the connection and pass keys
         from TriggerJobOpts.TriggerFlags import TriggerFlags

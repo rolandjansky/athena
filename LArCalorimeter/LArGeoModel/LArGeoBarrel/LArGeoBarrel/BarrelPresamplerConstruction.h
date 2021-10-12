@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,8 +10,8 @@
  * $Id: BarrelPresamplerConstruction.h,v 1.4 2009-02-10 16:49:47 tsulaia Exp $
  */
 
-#ifndef __BarrelPresamplerConstruction_H__
-#define __BarrelPresamplerConstruction_H__
+#ifndef LARGEOBARREL_BARRELPRESAMPLERCONSTRUCTION_H
+#define LARGEOBARREL_BARRELPRESAMPLERCONSTRUCTION_H
 
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -29,7 +29,7 @@ namespace LArGeo {
   public:
 
     // Constructor;
-    BarrelPresamplerConstruction(bool fullGeo, int itb=0);
+    BarrelPresamplerConstruction(bool fullGeo, const VDetectorParameters* params, int itb=0);
 
     // Destructor:
     virtual ~BarrelPresamplerConstruction();
@@ -49,7 +49,7 @@ namespace LArGeo {
     BarrelPresamplerConstruction & operator= (const BarrelPresamplerConstruction &);
 
     // Detector parameters ACCG, ACCA, ACMB, ACCO
-    LArGeo::VDetectorParameters* m_parameters;
+    const LArGeo::VDetectorParameters* m_parameters;
     
     // volumes that are private member variables:
     GeoFullPhysVol*  m_psPhysicalPos;
@@ -62,4 +62,4 @@ namespace LArGeo {
 
 }  // namespace LArGeo
 
-#endif // __BarrelPresamplerConstruction_H__
+#endif // LARGEOBARREL_BARRELPRESAMPLERCONSTRUCTION_H

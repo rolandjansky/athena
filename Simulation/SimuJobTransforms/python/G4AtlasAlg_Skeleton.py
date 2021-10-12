@@ -3,6 +3,8 @@
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
+from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg, specialConfigPreInclude, specialConfigPostInclude
+
 
 def defaultSimulationFlags(ConfigFlags, detectors):
     """Fill default simulation flags"""
@@ -130,6 +132,13 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'truthStrategy'):
         ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
 
+    # Setup perfmon flags from runargs
+    from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
+
+    # Special Configuration preInclude
+    specialConfigPreInclude(ConfigFlags)
+
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -139,8 +148,10 @@ def fromRunArgs(runArgs):
     # Lock flags
     ConfigFlags.lock()
 
-    from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg
     cfg = CommonSimulationCfg(ConfigFlags, log)
+
+    # Special Configuration postInclude
+    specialConfigPostInclude(ConfigFlags, cfg)
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

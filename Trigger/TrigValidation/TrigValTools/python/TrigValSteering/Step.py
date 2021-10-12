@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -12,7 +12,6 @@ import signal
 import subprocess
 import time
 import re
-import psutil
 from enum import Enum
 from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result, running_in_CI
@@ -90,6 +89,7 @@ class Step(object):
         '''
         try:
             # Produce backtrace for the parent and all children
+            import psutil
             parent = psutil.Process(pid)
             backtrace = ''
             for proc in [parent] + parent.children(recursive=True):

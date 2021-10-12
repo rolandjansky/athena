@@ -6,17 +6,20 @@ from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 
-def TRT_GeometryCfg( flags ):
+def TRT_GeometryCfg(flags):
+    from AtlasGeoModel.GeometryDBConfig import InDetGeometryDBSvcCfg
+    db = InDetGeometryDBSvcCfg(flags)
+
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc = GeoModelCfg( flags )
-    geoModelSvc=acc.getPrimary()
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    TRT_DetectorTool=CompFactory.TRT_DetectorTool
-    trtDetectorTool = TRT_DetectorTool()
+    acc = GeoModelCfg(flags)
+    geoModelSvc = acc.getPrimary()
+
+    trtDetectorTool = CompFactory.TRT_DetectorTool()
+    trtDetectorTool.GeometryDBSvc = db.getPrimary()
     trtDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     geoModelSvc.DetectorTools += [ trtDetectorTool ]
-    acc.addService(geoModelSvc)
+    acc.merge(db)
+
     # Inner Detector alignment
     acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Calib/DX","/TRT/Calib/DX"))
     if flags.Common.ProductionStep == ProductionStep.Simulation: # revert to old style CondHandle in case of simulation

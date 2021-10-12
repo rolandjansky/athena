@@ -11,21 +11,11 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, Bedro
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
 #the field config tools
-from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
+from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, ITkFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
 
 GeoDetectorTool=CompFactory.GeoDetectorTool
-from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
-from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
-from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from TileGeoModel.TileGMConfig import TileGMCfg
-from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
-from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg 
-
 CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,VoxelDensityTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","VoxelDensityTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
@@ -44,7 +34,8 @@ def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs
 
 def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
     #set up geometry
-    result=BeamPipeGeometryCfg(ConfigFlags)
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result = BeamPipeGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "BeamPipe")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -55,7 +46,8 @@ def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
     #set up geometry
-    result=InDetGeometryCfg(ConfigFlags)
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result = PixelGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -66,7 +58,8 @@ def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
-    result=InDetGeometryCfg(ConfigFlags)
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    result = SCT_GeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -76,7 +69,8 @@ def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
 
 def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
     #set up geometry
-    result=ITkGeometryCfg(ConfigFlags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+    result = ITkPixelGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkPixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -87,7 +81,8 @@ def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
 
 def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
-    result=ITkGeometryCfg(ConfigFlags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+    result = ITkStripGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -98,7 +93,8 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
 
 def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
     #set up geometry
-    result=HGTD_GeometryCfg(ConfigFlags)
+    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
+    result = HGTD_GeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -109,7 +105,8 @@ def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
-    result=InDetGeometryCfg(ConfigFlags)
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    result = TRT_GeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -120,7 +117,8 @@ def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
 
 def IDetServicesMatGeoDetectorToolCfg(ConfigFlags, name='IDetServicesMat', **kwargs):
     #set up geometry
-    result=InDetServiceMaterialCfg(ConfigFlags)
+    from InDetServMatGeoModel.InDetServMatGeoModelConfig import InDetServiceMaterialCfg
+    result = InDetServiceMaterialCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "InDetServMat")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -131,7 +129,8 @@ def IDetServicesMatGeoDetectorToolCfg(ConfigFlags, name='IDetServicesMat', **kwa
 
 def LArMgrGeoDetectorToolCfg(ConfigFlags, name='LArMgr', **kwargs):
     #set up geometry
-    result=LArGMCfg(ConfigFlags)
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    result = LArGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LArMgr")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -142,7 +141,8 @@ def LArMgrGeoDetectorToolCfg(ConfigFlags, name='LArMgr', **kwargs):
 
 def TileGeoDetectorToolCfg(ConfigFlags, name='Tile', **kwargs):
     #set up geometry
-    result=TileGMCfg(ConfigFlags)
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    result = TileGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Tile")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -153,6 +153,7 @@ def TileGeoDetectorToolCfg(ConfigFlags, name='Tile', **kwargs):
 
 def LucidGeoDetectorToolCfg(ConfigFlags, name='Lucid', **kwargs):
     #set up geometry
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LUCID")
     #add the GeometryNotifierSvc
@@ -164,7 +165,8 @@ def LucidGeoDetectorToolCfg(ConfigFlags, name='Lucid', **kwargs):
 
 def ALFAGeoDetectorToolCfg(ConfigFlags, name='ALFA', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ALFA")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -175,7 +177,8 @@ def ALFAGeoDetectorToolCfg(ConfigFlags, name='ALFA', **kwargs):
 
 def ZDCGeoDetectorToolCfg(ConfigFlags, name='ZDC', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ZDC")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -186,7 +189,8 @@ def ZDCGeoDetectorToolCfg(ConfigFlags, name='ZDC', **kwargs):
 
 def AFPGeoDetectorToolCfg(ConfigFlags, name='AFP', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "AFP")
     kwargs.setdefault("GeoDetectorName", "AFP_GeoModel")
     #add the GeometryNotifierSvc
@@ -198,7 +202,8 @@ def AFPGeoDetectorToolCfg(ConfigFlags, name='AFP', **kwargs):
 
 def FwdRegionGeoDetectorToolCfg(ConfigFlags, name='FwdRegion', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "FwdRegion")
     kwargs.setdefault("GeoDetectorName", "ForwardRegionGeoModel")
     #add the GeometryNotifierSvc
@@ -210,7 +215,8 @@ def FwdRegionGeoDetectorToolCfg(ConfigFlags, name='FwdRegion', **kwargs):
 
 def MuonGeoDetectorToolCfg(ConfigFlags, name='Muon', **kwargs):
     #set up geometry
-    result=MuonGeoModelCfg(ConfigFlags)
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    result = MuonGeoModelCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Muon")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -623,6 +629,10 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         acc = InDetFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
+    if ConfigFlags.Detector.GeometryITk:
+        acc = ITkFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
     #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
     if False:
         acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
@@ -760,6 +770,7 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
 
 
 def CavernInfraGeoDetectorToolCfg(ConfigFlags, name='CavernInfra', **kwargs):
+    from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg
     result = CavernGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "CavernInfra")
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))

@@ -116,10 +116,9 @@ namespace InDet
               if (origtrack) {
                 double  Trk_pt = trk->pt();
                 if ((Trt_hits != 0) && (Trk_pt > 400.0) ){
-                  const Trk::Track& newtrack = Trk::Track(*origtrack);
 
                   CSMP_indicators.clear();
-                  CSMP_indicators = ChargedSMPindicators(newtrack);
+                  CSMP_indicators = ChargedSMPindicators(*origtrack);
 
                   if (CSMP_indicators.size() > 10){
                     if(  ( (CSMP_indicators[5] > 15000.0)  || ((int)CSMP_indicators[4] > 10))   && ((unsigned int)CSMP_indicators[6] > m_minTRThits) )  {

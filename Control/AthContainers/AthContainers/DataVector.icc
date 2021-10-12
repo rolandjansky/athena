@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthContainers/DataVector.icc
@@ -78,10 +78,10 @@ struct VirtBases<B1, DataModel_detail::NoBase, DataModel_detail::NoBase>
   typedef typename DataVector<B1>::difference_type difference_type;
   typedef typename DataVector<B1>::allocator_type allocator_type;
   typedef typename DataVector<B1>::Deleter Deleter;
+  static constexpr bool must_own = DataVector<B1>::must_own;
 
   // We're using virtual derivation.
-  static const bool has_virtual = true;
-
+  static constexpr bool has_virtual = true;
 
   // We need to delete the move ctor; otherwise, we get warnings about
   // a virtual base having a non-trivial move ctor.  Then we also need
@@ -156,9 +156,10 @@ struct VirtBases<B1, B2, DataModel_detail::NoBase>
   typedef typename DataVector<B1>::difference_type difference_type;
   typedef typename DataVector<B1>::allocator_type allocator_type;
   typedef typename DataVector<B1>::Deleter Deleter;
+  static constexpr bool must_own = DataVector<B1>::must_own;
 
   // We're using virtual derivation.
-  static const bool has_virtual = true;
+  static constexpr bool has_virtual = true;
 
 
   // We need to delete the move ctor; otherwise, we get warnings about
@@ -243,9 +244,10 @@ struct VirtBases
   typedef typename DataVector<B1>::difference_type difference_type;
   typedef typename DataVector<B1>::allocator_type allocator_type;
   typedef typename DataVector<B1>::Deleter Deleter;
+  static constexpr bool must_own = DataVector<B1>::must_own;
 
   // We're using virtual derivation.
-  static const bool has_virtual = true;
+  static constexpr bool has_virtual = true;
 
 
   // We need to delete the move ctor; otherwise, we get warnings about
@@ -656,9 +658,8 @@ void DataVector<T, BASE>::resize(size_type sz)
     this->erase (this->begin()+sz, this->end());
   } else {
     this->m_pCont.insert(this->m_pCont.end(), sz - this->m_pCont.size(), 0);
+    SG::AuxVectorBase::resize<DataVector> (sz);
   }
-  // xxx ??? Is this redundant with the erase() above?
-  SG::AuxVectorBase::resize<DataVector> (sz);
 } 
 
 
@@ -1443,7 +1444,9 @@ void DataVector<T, BASE>::swap(DataVector& rhs)
 template <class T, class BASE>
 void DataVector<T, BASE>::iter_swap (iterator a, iterator b)
 {
-  ATHCONTAINERS_ASSERT (a.ownPolicy() == b.ownPolicy());
+  if (a.ownPolicy() != b.ownPolicy()) {
+    throw SG::ExcBadIterSwap();
+  }
   a.testInsert ("iter_swap");
   b.testInsert ("iter_swap");
   std::iter_swap (a.base(), b.base());
@@ -1951,6 +1954,23 @@ DataVector<T, BASE>::do_cast (const typename PtrVector::value_type p)
 
 
 /**
+ * @brief Helper to shorten calls to @c DataVector_detail::DVLCast.
+ * @param p The value to convert.
+ * @return The value as a @c T*.
+ *
+ * The conversion will be done with @c static_cast if possible,
+ * with @c dynamic_cast otherwise.
+ */
+template <class T, class BASE>
+inline
+T*
+DataVector<T, BASE>::do_cast_nc (typename PtrVector::value_type p)
+{
+  return DataModel_detail::DVLCast<DataVector>::cast (p);
+}
+
+
+/**
  * @brief Find the most-derived @c DataVector class in the hierarchy.
  * @return The @c type_info for the class for which this method gets run.
  *
@@ -2349,9 +2369,8 @@ void DATAVECTOR::resize(size_type sz)
     this->erase (this->begin()+sz, this->end());
   } else {
     this->m_pCont.insert(this->m_pCont.end(), sz - this->m_pCont.size(), 0);
+    SG::AuxVectorBase::resize<DataVector> (sz);
   }
-  // xxx ??? Is this redundant with the erase() above?
-  SG::AuxVectorBase::resize<DataVector> (sz);
 } 
 
 
@@ -3159,12 +3178,14 @@ void DATAVECTOR::swap(DataVector& rhs)
 /**
  * @brief Swap the referents of two @c DataVector iterators.
  * @param a The first iterator for the swap.
- * @param b The second iterator for the swap/
+ * @param b The second iterator for the swap.
  */
 template <class T>
 void DATAVECTOR::iter_swap (iterator a, iterator b)
 {
-  ATHCONTAINERS_ASSERT (a.ownPolicy() == b.ownPolicy());
+  if (a.ownPolicy() != b.ownPolicy()) {
+    throw SG::ExcBadIterSwap();
+  }
   a.testInsert ("iter_swap");
   b.testInsert ("iter_swap");
   std::iter_swap (a.base(), b.base());
@@ -3652,6 +3673,21 @@ const T* DATAVECTOR::do_cast (const typename PtrVector::value_type p)
 
 
 /**
+ * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
+ * @param p The value to convert.
+ * @return The value as a @c T*.
+ *
+ * This is a no-op for the base class.
+ */
+template <class T>
+inline
+T* DATAVECTOR::do_cast_nc (typename PtrVector::value_type p)
+{
+  return p;
+}
+
+
+/**
  * @brief Find the most-derived @c DataVector class in the hierarchy.
  * @return The @c type_info for the class for which this method gets run.
  *
@@ -3828,7 +3864,7 @@ void DATAVECTOR::setMostDerived()
 /**
  * @brief  Vector equality comparison.
  * @param  a  A @c DataVector.
- * @param  b  A @c DataVector of the same type as @a x.
+ * @param  b  A @c DataVector of the same type as @a b.
  * @return  True iff the size and elements of the vectors are equal.
  *
  * This is an equivalence relation.  It is linear in the size of the
@@ -3854,7 +3890,7 @@ bool operator!= (const DataVector<T>& a, const DataVector<T>& b)
  * @brief  Vector ordering relation.
  * @param  a  A @c DataVector.
  * @param  b  A @c DataVector of the same type as @a x.
- * @return  True iff @a x is lexicographically less than @a y.
+ * @return  True iff @a a is lexicographically less than @a b.
  *
  * This is a total ordering relation.  It is linear in the size of the
  * vectors.  Comparisons are done on the pointer values of the elements.

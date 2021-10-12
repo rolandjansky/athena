@@ -12,7 +12,6 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"

@@ -14,6 +14,7 @@
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/eEmTOB.h"
 #include "L1TopoEvent/eTauTOB.h"
+#include "L1TopoEvent/cTauTOB.h"
 #include "L1TopoEvent/MuonTOB.h"
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
@@ -56,6 +57,9 @@ namespace TCS {
 
       // constructor from eTau
       GenericTOB(const eTauTOB & etau);
+
+      // constructor from eTau
+      GenericTOB(const cTauTOB & ctau);
 
       // constructor from muon
       GenericTOB(const MuonTOB & muon);

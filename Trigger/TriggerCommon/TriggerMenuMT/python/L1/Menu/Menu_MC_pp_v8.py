@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
 
@@ -51,11 +51,11 @@ def defineMenu():
         # MU
         ##
         'L1_MU3V', 'L1_MU5VF', 'L1_MU8F', 'L1_MU8VF', 'L1_MU14FCH', 'L1_MU14FCHR',
-        'L1_MU3VF', 'L1_MU8FC', 'L1_MU15VFCH', 'L1_MU10BOM', 
+        'L1_MU3VF', 'L1_MU8FC', 'L1_MU8VFC', 'L1_MU15VFCH', 'L1_MU10BOM', 'L1_MU4BOM', 'L1_MU12BOM', 'L1_MU10BO', 
         'L1_2MU3V', 'L1_2MU5VF', 'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_MU5VF_2MU3V',
         'L1_3MU3V', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_4MU3V',
         'L1_2MU5VF_3MU3V', 'L1_2MU8VF', 
-
+        'L1_MU8F_2MU5VF',
 
         'L1_2MU14FCH_OVERLAY',
         'L1_MU3V_EMPTY', 'L1_MU5VF_EMPTY', 'L1_MU3V_FIRSTEMPTY', 'L1_MU8VF_EMPTY',
@@ -68,6 +68,9 @@ def defineMenu():
         'L1_2EM20VH', 'L1_EM20VH_3EM10VH',
         'L1_2EM8VH_MU8F', 'L1_EM15VH_MU8F',  'L1_EM7_MU8F',
 
+        # Combined lepton, new calo (for ATR-24182)
+        'L1_2eEM15M', 'L1_2eEM20L', 'L1_3eEM10L', 'L1_eEM20L_3eEM10L',
+
         # single tau
         'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM',  'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
         'L1_TAU8_EMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_EMPTY', 'L1_TAU40_UNPAIRED_ISO',
@@ -77,11 +80,14 @@ def defineMenu():
         'L1_eTAU12L', 'L1_eTAU12M', 
         'L1_eTAU20', 'L1_cTAU20M', 
         'L1_eTAU25', 'L1_cTAU25M',
-        'L1_eTAU30H', 
+        'L1_eTAU30HM', 
         'L1_eTAU40', 'L1_eTAU60', 'L1_eTAU100',
 
         # multi tau
         'L1_2TAU8', 'L1_TAU20IM_2TAU12IM', 'L1_TAU60_2TAU40',
+
+        # multi tau, new calo
+        'L1_eTAU60_2eTAU40', 
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
@@ -175,10 +181,14 @@ def defineMenu():
 
         'L1_jXE30', 'L1_jXE35', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
         'L1_jXEC50', 'L1_jTE100', 'L1_jTEC100', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
-                
+           
+        # ATR-24037 
+        'L1_jXEPerf50', 
+    
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
         'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11',
+        'L1_RD0_BGRP7',
         'L1_RD1_EMPTY',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',
@@ -235,6 +245,7 @@ def defineMenu():
         'L1_AFP_A_OR_C','L1_AFP_A_OR_C_MBTS_2', 'L1_AFP_A_AND_C_MBTS_2',
 
         # MBTS
+        'L1_MBTS_A', 'L1_MBTS_C',
         'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY', 
         'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_2',

@@ -33,22 +33,6 @@ HGTD_DetectorElement::~HGTD_DetectorElement()
 {
 }
 
-// update cache
-// This is supposed to be called inside a block like
-//
-// if (!m_cacheValid) {
-//     std::lock_guard<std::mutex> lock(m_mutex);
-//     if (!m_cacheValid) updateCache();
-// }
-//
-void 
-HGTD_DetectorElement::updateCache() const
-{
-    SolidStateDetectorElementBase::updateCache();
-    m_cacheValid.store(true);
-    if (m_firstTime) m_firstTime.store(false);
-}
-
 Identifier 
 HGTD_DetectorElement::identifierFromCellId(const SiCellId & cellId) const
 {
@@ -83,16 +67,15 @@ const std::vector<const Trk::Surface*>& HGTD_DetectorElement::surfaces() const
 {
     // This method is needed to satisfy inheritance from TrkDetElementBase
     // so just return the one surface
-    if (!m_surfacesValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_surfacesValid) {
-        // get this surface
-        m_surfaces.push_back(&surface());
-      }
-      m_surfacesValid.store(true);
+    if (!m_surfaces.isValid()) {
+      std::vector<const Trk::Surface*> s;
+      // get this surface
+      s.push_back(&surface());
+      m_surfaces.set (std::move (s));
     }
+
     // return the surfaces
-    return m_surfaces;
+    return *m_surfaces.ptr();
 }
 
 double HGTD_DetectorElement::get_rz() const

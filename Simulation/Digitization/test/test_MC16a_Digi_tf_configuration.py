@@ -136,6 +136,7 @@ class TestDigitizationMC16a(unittest.TestCase):
                               configurable=tested_configurable_name,
                               expected=expected_property_value_sorted,
                               actual=actual_property_value_sorted)
+
         self.assertEqual(expected_property_value_sorted,
                          actual_property_value_sorted,
                          failure_message)
@@ -276,7 +277,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['ADC2MeVKey', 'AutoCorrNoiseKey', 'BadChanKey', 'BadFebKey', 'CablingKey', 'DetStore', 'DigitContainer', 'DigitContainer_DigiHSTruth', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LastXing', 'NoiseKey', 'NoiseOnOff', 'Nsamples', 'OFCKey', 'PedestalKey', 'PileUpMergeSvc', 'ProblemsToMask', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'ShapeKey', 'TriggerTimeToolName', 'fSamplKey', 'firstSample', 'useLArFloat']
+        expected_property_list = ['ADC2MeVKey', 'AutoCorrNoiseKey', 'BadChanKey', 'BadFebKey', 'CablingKey', 'DetStore', 'CaloDetDescrManager', 'DigitContainer', 'DigitContainer_DigiHSTruth', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LastXing', 'NoiseKey', 'NoiseOnOff', 'Nsamples', 'OFCKey', 'PedestalKey', 'PileUpMergeSvc', 'ProblemsToMask', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'ShapeKey', 'TriggerTimeToolName', 'fSamplKey', 'firstSample', 'useLArFloat']
 
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4',
                                          'LArHitContainers': '["StoreGateSvc+LArHitEMB","StoreGateSvc+LArHitEMEC","StoreGateSvc+LArHitHEC","StoreGateSvc+LArHitFCAL"]', 'LArHitFloatContainers':'[]'}

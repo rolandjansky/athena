@@ -29,6 +29,7 @@ class MMRDOVariables : public ValAlgVariables
     m_NSWMM_rdo_gas_gap(0),
     m_NSWMM_rdo_channel(0),
     m_NSWMM_rdo_time(0),
+    m_NSWMM_rdo_relBcid(0),
     m_NSWMM_rdo_charge(0),
     m_NSWMM_rdo_localPosX(0),
     m_NSWMM_rdo_localPosY(0),
@@ -70,6 +71,7 @@ class MMRDOVariables : public ValAlgVariables
   std::vector<int> *m_NSWMM_rdo_gas_gap;
   std::vector<int> *m_NSWMM_rdo_channel;
   std::vector<int> *m_NSWMM_rdo_time;
+  std::vector<uint16_t> *m_NSWMM_rdo_relBcid;
   std::vector<int> *m_NSWMM_rdo_charge;
 
   std::vector<double> *m_NSWMM_rdo_localPosX;

@@ -11,11 +11,11 @@ log = logging.getLogger(__name__)
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from ..Muon.MuonChainConfiguration import MuonChainConfiguration
-from ..Muon.MuonChainConfiguration import mul2IOOvlpRmSequenceCfg, muEFCBSequenceCfg
+from ..Muon.MuonChainConfiguration import mul2IOOvlpRmSequenceCfg, mul2mtCBOvlpRmSequenceCfg, muEFCBSequenceCfg
 
 from .BphysicsMenuSequences import dimuL2Sequence, dimuEFSequence, bmumuxSequence
 
-from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, StreamerDimuL2IOComboHypoCfg, DimuEFComboHypoCfg, BmutrkComboHypoCfg, StreamerDimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, StreamerDimuL2IOComboHypoCfg, StreamerDimuL2MTComboHypoCfg, DimuEFComboHypoCfg, BmutrkComboHypoCfg, StreamerDimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmumuxComboHypoToolFromDict
 
 #--------------------------------------------------------
@@ -86,7 +86,9 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu6000'  : 'dimu',
             'bPhi'       : 'dimu',
             'bTau'       : 'dimu',
-            'bBmumux'    : 'bmumux'
+            'b3mu'       : 'dimu',
+            'bBmumux'    : 'bmumux',
+            'b0dRAB12vtx20' : 'dimu'
         }
 
         return topo_dict[the_topo]
@@ -94,6 +96,8 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     def getDimuL2(self):
         if 'noL2Comb' in self.chainPart['extra']:
             return self.getStep(2, 'dimuL2', [dimuL2SequenceCfg], comboHypoCfg=StreamerDimuL2ComboHypoCfg)
+        elif 'l2mt' in self.chainPart['l2AlgInfo']:
+            return self.getStep(2, 'dimuL2MT', [mul2mtCBOvlpRmSequenceCfg], comboHypoCfg=StreamerDimuL2MTComboHypoCfg)
         else:
             return self.getStep(2, 'dimuL2IO', [mul2IOOvlpRmSequenceCfg], comboHypoCfg=StreamerDimuL2IOComboHypoCfg)
 

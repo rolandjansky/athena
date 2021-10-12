@@ -134,8 +134,8 @@ void
 TrigConf::L1Threshold_eTAU::load()
 {
    // read the isolation requirements
-   m_isoConeRel  = Selection::stringToWP(getAttribute_optional<std::string>("isoConeRel").value_or("None"));
-   m_fEM  = Selection::stringToWP(getAttribute_optional<std::string>("fEM").value_or("None"));
+   m_rCore = Selection::stringToWP(getAttribute_optional<std::string>("rCore").value_or("None"));
+   m_rHad  = Selection::stringToWP(getAttribute_optional<std::string>("rHad").value_or("None"));
 }
 
 void
@@ -154,11 +154,15 @@ TrigConf::L1Threshold_cTAU::load()
 
 void
 TrigConf::L1Threshold_jJ::load()
-{}
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
 
 void
 TrigConf::L1Threshold_jLJ::load()
-{}
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
 
 void
 TrigConf::L1Threshold_jXE::load()

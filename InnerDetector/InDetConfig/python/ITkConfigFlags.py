@@ -39,7 +39,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doITkConversionFinding",True) # Turn running of doITkConversionFinding second pass on and off
   itkcf.addFlag("ITk.doITkLargeD0", False)
   itkcf.addFlag("ITk.storeSeparateLargeD0Container", False)
-  itkcf.addFlag("ITk.doBremRecovery", True) # Turn on running of Brem Recover in tracking
+  itkcf.addFlag("ITk.doBremRecovery", False) # Turn on running of Brem Recover in tracking
   itkcf.addFlag("ITk.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   itkcf.addFlag("ITk.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   itkcf.addFlag("ITk.doCaloSeededAmbi", False) # Use Calo ROIs to seed specific cuts for the ambi

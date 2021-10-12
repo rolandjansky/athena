@@ -12,7 +12,7 @@ atlas_add_library( BCMPrimeGeoModelXmlLib
                    PUBLIC_HEADERS BCMPrimeGeoModelXml
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils BCMPrimeReadoutGeometry
-                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces GeometryDBSvcLib InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
 
 atlas_add_component( BCMPrimeGeoModelXml
                      src/components/*.cxx

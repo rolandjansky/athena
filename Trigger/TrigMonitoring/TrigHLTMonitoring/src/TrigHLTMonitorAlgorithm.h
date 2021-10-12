@@ -16,6 +16,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODTrigger/TrigConfKeys.h"
 
 class TrigHLTMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
@@ -25,7 +26,9 @@ class TrigHLTMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
   private:
-   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultReadKey {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object" };
+   SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", "Key for the event-level configuration identifier object"};
+   SG::ReadHandleKey<xAOD::TrigConfKeys> m_onlineKey{this, "OnlineObjectName", "TrigConfKeysOnline", "Key for the online configuration identifier object"};
+
    ToolHandle<Trig::TrigDecisionTool> m_trigDecTool; 
    ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConfigSvc{ this, "TrigConfigSvc", "" };
    StatusCode fillResultAndConsistencyHistograms( const EventContext& ctx ) const;

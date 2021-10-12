@@ -22,7 +22,14 @@
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
 
+#include "MuonRDO/NSW_PadTriggerDataContainer.h"
+#include "TrigT1NSWSimTools/PadTriggerAdapter.h"
+
+#include "xAODEventInfo/EventInfo.h"
+
 // Forward includes
+class StoreGateSvc;
+class IMonitorToolBase;
 class TTree;
 
 
@@ -92,8 +99,9 @@ namespace NSWL1 {
     
     
     protected:
+    SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey{this,"xAODEventInfoKey","EventInfo","Key of xAOD::EventInfo"};
     SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-    
+    SG::WriteHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerRdoKey;
 
   };  // end of NSWL1Simulation class
 

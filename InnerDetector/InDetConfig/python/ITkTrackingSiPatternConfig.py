@@ -32,8 +32,8 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("minZ", -flags.ITk.Tracking.maxZImpactSeed )
     kwargs.setdefault("usePixel", flags.ITk.Tracking.useITkPixel)
     kwargs.setdefault("SpacePointsPixelName", 'ITkPixelSpacePoints')
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
-    kwargs.setdefault("SpacePointsSCTName", 'ITkStripSpacePoints')
+    kwargs.setdefault("useStrip", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
+    kwargs.setdefault("SpacePointsStripName", 'ITkStripSpacePoints')
     kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
     kwargs.setdefault("radMax", flags.ITk.Tracking.radMax)
@@ -56,7 +56,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     if flags.ITk.doFastTracking :
         kwargs.setdefault("useFastTracking", True)
         kwargs.setdefault("maxSeedsForSpacePoint", 3)
-        kwargs.setdefault("useSCT", False)
+        kwargs.setdefault("useStrip", False)
         if flags.ITk.Tracking.extension == "LargeD0":
             kwargs.setdefault("usePixel", False)
 
@@ -299,6 +299,22 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     acc.addEventAlgo(ITkSiSPSeededTrackFinder)
     return acc
 
+def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", InputCollections = None, SiSPSeededTrackCollectionKey = None, **kwargs) :
+    acc = ComponentAccumulator()
+
+    from RegionSelector.RegSelToolConfig import regSelTool_ITkStrip_Cfg
+    RegSelTool_ITkStrip   = acc.popToolsAndMerge(regSelTool_ITkStrip_Cfg(flags))
+    acc.addPublicTool(RegSelTool_ITkStrip)
+
+    kwargs.setdefault("RegSelTool_Strip", RegSelTool_ITkStrip)
+    kwargs.setdefault("useITkConvSeeded", True)
+    kwargs.setdefault("InputClusterContainerName", "ITkCaloClusterROIs")
+
+    acc.merge(ITkSiSPSeededTrackFinderCfg(flags, name = name,
+                                          InputCollections = InputCollections,
+                                          SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey,
+                                          **kwargs))
+    return acc
 
 def ITkCopyAlgForAmbiCfg(flags, name="ITkCopyAlgForAmbi", InputTrackCollection = None, OutputTrackCollection = None, **kwargs) :
     acc = ComponentAccumulator()
@@ -343,7 +359,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
         kwargs.setdefault("minSiHitsToAllowSplitting" , nhitsToAllowSplitting)
         kwargs.setdefault("minUniqueSCTHits"          , 4)
         kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-        kwargs.setdefault("InputHadClusterContainerName", "InDetHadCaloClusterROIs" + "Bjet" )
+        kwargs.setdefault("InputHadClusterContainerName", "ITkHadCaloClusterROIs" + "Bjet" )
         kwargs.setdefault("doHadCaloSeed"             , flags.ITk.doCaloSeededAmbi)   #Do special cuts in region of interest
         kwargs.setdefault("minPtSplit"                , flags.ITk.pixelClusterSplitMinPt)       #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
@@ -612,9 +628,12 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
     #
     # ------------------------------------------------------------
 
-    acc.merge(ITkSiSPSeededTrackFinderCfg( flags,
-                                           InputCollections = InputCollections,
-                                           SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
+    SiSPSeededTrackFinderCfg = ITkSiSPSeededTrackFinderCfg
+    if flags.ITk.Tracking.extension == "ConversionFinding":
+        SiSPSeededTrackFinderCfg = ITkSiSPSeededTrackFinderROIConvCfg
+    acc.merge(SiSPSeededTrackFinderCfg( flags,
+                                        InputCollections = InputCollections,
+                                        SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
     # ------------------------------------------------------------
     #
     # ---------- Ambiguity solving

@@ -33,7 +33,7 @@ ReSim_tf.py \
 --conditionsTag 'ReSim:OFLCOND-MC16-SDR-14' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---simulator 'FullG4_LongLived' \
+--simulator 'FullG4_QS' \
 --postInclude 'ReSim:PyJobTransforms/UseFrontier.py' \
 --preInclude 'ReSim:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
 --preExec 'ReSim:simFlags.TightMuonStepping=True' \

@@ -316,6 +316,7 @@ IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 LArAlignCondAlg      INFO recorded new GeoAlignmentStore object for LAr with key LArAlignmentStore and range {[0,l:0] - [INVALID]}
+CaloAlignCondAlg     INFO recorded new CaloDetDescr Manager condition object with key CaloDetDescrManager and range {[0,t:0,l:0] - [INVALID]}
 LArOnOffMappingAlg   INFO Done reading online/offline identifier mapping
 LArOnOffMappingAlg   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
 LArOnOffMappingAlg   INFO recorded new LArOnOffIdMap with range {[0,l:0] - [INVALID]} into Conditions Store

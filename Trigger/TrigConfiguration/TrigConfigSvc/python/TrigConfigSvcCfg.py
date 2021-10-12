@@ -96,7 +96,6 @@ def getHLTPrescaleFolderName():
 # L1 Json file name 
 def getL1MenuFileName(flags):
     l1MenuFileName = 'L1Menu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
-    l1MenuFileName = l1MenuFileName.replace(".xml",".json").replace("LVL1config", "L1Menu")
     l1MenuFileName = l1MenuFileName.replace("_newJO","")
     return l1MenuFileName
 
@@ -104,7 +103,6 @@ def getL1MenuFileName(flags):
 # HLT Json file name 
 def getHLTMenuFileName( flags ):
     hltMenuFileName = 'HLTMenu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
-    hltMenuFileName = hltMenuFileName.replace(".xml",".json").replace("HLTconfig", "HLTMenu").replace("HLTmenu", "HLTMenu")
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
@@ -222,14 +220,10 @@ def HLTConfigSvcCfg( flags ):
     hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvc")
 
     if cfg["SOURCE"] == "FILE":
-        hltXMLFile = "None"
         hltConfigSvc.ConfigSource = "none"
-        hltConfigSvc.XMLMenuFile = hltXMLFile
         hltConfigSvc.InputType = "file"
         hltJsonFileName = getHLTMenuFileName( flags )
         hltConfigSvc.JsonFileName = hltJsonFileName
-        # TODO revisit if needed    
-        log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
         log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     elif cfg["SOURCE"] == "DB":
         hltConfigSvc.ConfigSource = "none"

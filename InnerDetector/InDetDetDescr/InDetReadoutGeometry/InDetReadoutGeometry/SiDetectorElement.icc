@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -92,24 +92,18 @@ namespace InDetDD {
 
   inline bool SiDetectorElement::swapPhiReadoutDirection() const
   {
-    if (m_firstTime) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (m_firstTime) updateCache(); // In order to set m_phiDirection
-    }
     // equivalent to (m_design->swapHitPhiReadoutDirection() xor !m_phiDirection)
-    return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
-          || (m_design->swapHitPhiReadoutDirection() &&  m_phiDirection));
+    bool dir = this->phiDirection();
+    return ((!m_design->swapHitPhiReadoutDirection() && !dir)
+          || (m_design->swapHitPhiReadoutDirection() &&  dir));
   }
 
   inline bool SiDetectorElement::swapEtaReadoutDirection() const
   {
-    if (m_firstTime) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (m_firstTime) updateCache(); // In order to set m_etaDirection
-    }
+    bool dir = this->etaDirection();
     // equivalent to (m_design->swapHitEtaReadoutDirection() xor !m_etaDirection)
-    return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
-          || (m_design->swapHitEtaReadoutDirection() &&  m_etaDirection));
+    return ((!m_design->swapHitEtaReadoutDirection() && !dir)
+          || (m_design->swapHitEtaReadoutDirection() &&  dir));
   }
 
   inline SiCellId SiDetectorElement::gangedCell(const SiCellId& cellId) const

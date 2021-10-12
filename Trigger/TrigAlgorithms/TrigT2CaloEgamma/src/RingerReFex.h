@@ -44,7 +44,8 @@ class RingerReFex : public IReAlgToolCalo
         bool isValid( const CaloCell * ) const;
         void push_back( const CaloCell * );
         void clear();
-
+        void fill_cells_info(std::vector<float> &cells_eta, std::vector<float> &cells_phi, std::vector<float> &cells_et,  std::vector<int> &cells_sampling, std::vector<int> &cells_size, std::vector < double > &rings_sum);
+        
       private:
 
         double m_deltaEta, m_deltaPhi;
@@ -97,6 +98,7 @@ class RingerReFex : public IReAlgToolCalo
     Gaudi::Property<std::vector<std::vector<int>>> m_samples     {this, "Samples"    , {}   , "samples per layer" };
     
     Gaudi::Property<bool>                          m_useTile     {this, "UseTile"     , true ,  "Use tile cells"                 };
+    Gaudi::Property<bool>                          m_decorateWithCells     {this, "DumpCells"     , false ,  "Dump Ringer Cells Information"                 };
     Gaudi::Property<bool>                          m_globalCenter{this, "GlobalCenter", false,  "Use cluster position as center" };
     Gaudi::Property<std::vector<bool>>             m_doQuarter     {this, "DoQuarter", {} ,  "Do Quarter Rings" };
     Gaudi::Property<std::vector<bool>>             m_doEtaAxesDivision{this, "DoEtaAxesDivision", {} ,  "Do Eta axes division" };

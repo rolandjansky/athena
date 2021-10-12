@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,15 +38,15 @@ namespace G4UA{
         Config() = delete;
         Config(const std::string& name):
           entryLayerTool(""),
-          geoIDSvc("",name),
-          truthVolLevel(1)
+          geoIDSvc("",name)
         {}
         /** access to the ISF Entry Layer tool which is used to record entry-layer collections */
         ToolHandle<ISF::IEntryLayerTool> entryLayerTool;
         /** access to the central ISF GeoID service*/
         ServiceHandle<ISF::IGeoIDSvc>    geoIDSvc;
-        int truthVolLevel;
+        int truthVolLevel{1};
         unsigned int                     verboseLevel=0;
+        bool isITkGeometry{};
       };
 
       TrackProcessorUserActionFullG4(const Config& config);

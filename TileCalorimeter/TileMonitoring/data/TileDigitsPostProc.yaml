@@ -1,0 +1,130 @@
+#
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile digits monitoring
+## Separate blocks with ---
+---
+Input: [ 'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_sample0' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_ped',  'Tile/Digits/Summary/{module}_{gain}_rms_lfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModulePedestalsAndLFN
+Description: Produce Tile 1D summary histograms per module with pedestals and LFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_sample0' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_ped',  'Tile/Digits/Summary/{module}_{gain}_rms_lfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModulePedestalsAndLFN
+Description: Produce Tile 1D summary histograms per module with pedestals and LFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_sample0' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_ped',  'Tile/Digits/Summary/{module}_{gain}_rms_lfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModulePedestalsAndLFN
+Description: Produce Tile 1D summary histograms per module with pedestals and LFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_sample0' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_ped',  'Tile/Digits/Summary/{module}_{gain}_rms_lfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModulePedestalsAndLFN
+Description: Produce Tile 1D summary histograms per module with pedestals and LFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_meanRMS' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_rms_hfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleHFN
+Description: Produce Tile 1D summary histograms per module with HFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_meanRMS' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_rms_hfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleHFN
+Description: Produce Tile 1D summary histograms per module with HFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_meanRMS' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_rms_hfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleHFN
+Description: Produce Tile 1D summary histograms per module with HFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_meanRMS' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_rms_hfr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleHFN
+Description: Produce Tile 1D summary histograms per module with HFN of all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_CRC_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_crc' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with CRC errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_CRC_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_crc' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with CRC errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_CRC_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_crc' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with CRC errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_CRC_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_crc' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with CRC errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_(?P<gain>[h|l][i|o])_BCID_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bcid' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with BCID errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_(?P<gain>[h|l][i|o])_BCID_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bcid' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with BCID errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_(?P<gain>[h|l][i|o])_BCID_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bcid' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with BCID errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_dmu_(?P<dmu>\d{2})_(?P<gain>[h|l][i|o])_BCID_err' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bcid' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCRC
+Description: Produce Tile 1D summary histograms per module with BCID errors of all DMU in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_samples' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bits' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleStuckBits
+Description: Produce Tile 1D summary histograms per module with stuck bits and zeros for all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_samples' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bits' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleStuckBits
+Description: Produce Tile 1D summary histograms per module with stuck bits and zeros for all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_samples' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bits' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleStuckBits
+Description: Produce Tile 1D summary histograms per module with stuck bits and zeros for all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_samples' ]
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_bits' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleStuckBits
+Description: Produce Tile 1D summary histograms per module with stuck bits and zeros for all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample$',
+         'Tile/Digits/(?P<module>LBA[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample_prod$']
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_covar', 'Tile/Digits/Summary/{module}_{gain}_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCovariance
+Description: Produce Tile 2D histograms per module with covariance all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample$',
+         'Tile/Digits/(?P<module>LBC[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample_prod$']
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_covar', 'Tile/Digits/Summary/{module}_{gain}_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCovariance
+Description: Produce Tile 2D histograms per module with covariance all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample$',
+         'Tile/Digits/(?P<module>EBA[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample_prod$']
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_covar', 'Tile/Digits/Summary/{module}_{gain}_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCovariance
+Description: Produce Tile 2D histograms per module with covariance all channels in the module
+---
+Input: [ 'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample$',
+         'Tile/Digits/(?P<module>EBC[0-6]\d{1})/(?P=module)_(?P<gain>[h|l][i|o])_mean_sample_prod$']
+Output: [ 'Tile/Digits/Summary/{module}_{gain}_covar', 'Tile/Digits/Summary/{module}_{gain}_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleCovariance
+Description: Produce Tile 2D histograms per module with covariance all channels in the module
+

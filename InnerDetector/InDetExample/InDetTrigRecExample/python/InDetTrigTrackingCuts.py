@@ -303,6 +303,20 @@ class InDetTrigTrackingCuts :
       self.__Xi2max           = 60.0
       self.__Xi2maxNoAdd      = 100.0
       self.__nWeightedClustersMin = 8
+    # --- changes for minbias
+    if mode == "minBias":
+      self.__minPT            = 0.100 * Units.GeV
+      self.__maxZImpact       = 150. * Units.mm
+      self.__minClusters      = 5
+      self.__maxHoles         = 2
+      self.__maxPixelHoles    = self.__maxHoles # --> no effect
+      self.__maxSctHoles      = self.__maxHoles # --> no effect
+      self.__Xi2max           = 9.0
+      self.__Xi2maxNoAdd      = 25.0
+      self.__maxdImpactPPSSeeds   = 5
+      self.__maxdImpactSSSSeeds   = 5
+      self.__nHolesGapMax     = 2
+      self.__nHolesMax        = 2
 
     # --- changes for heavy ion
     if mode == "HeavyIon":

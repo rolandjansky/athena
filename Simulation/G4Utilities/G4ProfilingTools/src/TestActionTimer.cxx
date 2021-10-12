@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -60,6 +60,8 @@ namespace G4UA
     m_report.timeName[eCry]   = "Cry";
     m_report.timeName[eLAr]   = "LAr";
     m_report.timeName[eHCB]   = "HCB";
+    m_report.timeName[eITkPix]   = "ITkPixel";
+    m_report.timeName[eITkStrip] = "ITkStrip";
     m_report.timeName[ePre]   = "Pre";
     m_report.timeName[eMu]    = "Mu";
     m_report.timeName[ePx]    = "Px";
@@ -304,6 +306,14 @@ namespace G4UA
              nom.contains("station") ){
       return eMu;
     }
+    else if ( nom.length() >= 8 &&
+              nom(0,8) == "ITkPixel" ){
+      return eITkPix;
+    }
+    else if ( nom.length() >= 8 &&
+              nom(0,8) == "ITkStrip" ){
+      return eITkStrip;
+    }
     else if ((nom.length() >= 5 &&
               nom(0,5) == "Pixel") ||
              nom == "Outside Barrel Service"){
@@ -326,13 +336,18 @@ namespace G4UA
                 nom(0,12) == "InDetServMat" ) ||
               ( nom.length() >= 4 &&
                 nom(0,4) == "IDET" ) ||
+              ( nom.length() >= 3 &&
+                nom(0,3) == "ITK" ) ||
               ( nom.length() >= 8 &&
                 nom(0,8) == "BeamPipe" ) ||
               ( nom.length() >= 7 &&
                 nom(0,7) == "Section" ) ||
               ( nom.length() >= 3 &&
                 ( nom(0,3) == "BLM" ||
-                  nom(0,3) == "BCM" ) ) ){
+                  nom(0,3) == "BCM" ||
+                  nom(0,3) == "PLR" ) ) ||
+              ( nom.length() >= 8 &&
+                nom(0,8) == "BCMPrime" ) ){
       return eSev;
     }
     return eOther;

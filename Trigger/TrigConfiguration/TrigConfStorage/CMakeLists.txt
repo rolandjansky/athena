@@ -4,7 +4,7 @@
 atlas_subdir( TrigConfStorage )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system regex )
+find_package( Boost COMPONENTS regex )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( tdaq-common )
@@ -17,14 +17,6 @@ atlas_add_library( TrigConfStorage
                    PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} TrigConfBase TrigConfHLTData TrigConfL1Data
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} TrigConfJobOptData L1TopoConfig )
-
-atlas_add_executable( TrigConf2COOLApp
-                      src/test/2COOLApp.cxx
-                      LINK_LIBRARIES TrigConfStorage )
-
-atlas_add_executable( TrigConfConsistencyChecker
-                      src/test/ConsistencyChecker.cxx
-                      LINK_LIBRARIES TrigConfStorage )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_executable( TrigConfReadWrite

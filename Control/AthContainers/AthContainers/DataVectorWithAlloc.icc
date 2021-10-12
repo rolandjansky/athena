@@ -1,0 +1,972 @@
+/*
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file AthContainers/DataVectorWithAlloc.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2021
+ * @brief DataVector using a custom allocator for the elements.
+ */
+
+
+//=== Smart pointer.
+
+
+template <class DV, class ALLOC>
+inline
+DataVectorWithAlloc<DV, ALLOC>::UPDeleter::UPDeleter() noexcept
+  : m_heap (nullptr)
+{
+}
+
+
+template <class DV, class ALLOC>
+inline
+DataVectorWithAlloc<DV, ALLOC>::UPDeleter::UPDeleter (elt_allocator_type& heap) noexcept
+  : m_heap (&heap)
+{
+}
+
+
+template <class DV, class ALLOC>
+inline
+void DataVectorWithAlloc<DV, ALLOC>::UPDeleter::operator() (value_type p)
+{
+  using base_value_type_nc = std::remove_const_t<base_value_type>;
+  base_value_type_nc* pp ATLAS_THREAD_SAFE = const_cast<base_value_type_nc*>(DV::do_cast_nc (p));
+  m_heap->destroy (pp);
+  m_heap->deallocate (pp, 1);
+}
+
+
+template <class DV, class ALLOC>
+inline
+const typename DataVectorWithAlloc<DV, ALLOC>::elt_allocator_type*
+DataVectorWithAlloc<DV, ALLOC>::UPDeleter::heap() const noexcept
+{
+  return m_heap;
+}
+
+
+template <class DV, class ALLOC>
+inline
+DataVectorWithAlloc<DV, ALLOC>::Ptr::Ptr (std::nullptr_t) noexcept
+{
+}
+
+
+template <class DV, class ALLOC>
+inline
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator bool() const noexcept
+{
+  return static_cast<bool>(m_ptr);
+}
+
+
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::Ptr&
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator= (std::nullptr_t) noexcept
+{
+  m_ptr = nullptr;
+  return *this;
+}
+
+
+template <class DV, class ALLOC>
+inline
+void DataVectorWithAlloc<DV, ALLOC>::Ptr::swap (Ptr& other) noexcept
+{
+  m_ptr.swap (other.m_ptr);
+}
+
+
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::Ptr::pointer
+DataVectorWithAlloc<DV, ALLOC>::Ptr::get() const noexcept
+{
+  return m_ptr.get();
+}
+
+
+template <class DV, class ALLOC>
+inline
+typename std::add_lvalue_reference<typename DV::base_value_type>::type
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator*() const
+{
+  return *m_ptr;
+}
+
+
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::Ptr::pointer
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator->() const noexcept
+{
+  return m_ptr.get();
+}
+
+
+template <class DV, class ALLOC>
+inline
+bool
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator== (const Ptr& other) const noexcept
+{
+  return m_ptr == other.m_ptr;
+}
+
+
+template <class DV, class ALLOC>
+inline
+bool
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator< (const Ptr& other) const noexcept
+{
+  return m_ptr < other.m_ptr;
+}
+
+
+template <class DV, class ALLOC>
+inline
+bool
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator== (std::nullptr_t) const noexcept
+{
+  return m_ptr == nullptr;
+}
+
+
+template <class DV, class ALLOC>
+inline
+bool
+DataVectorWithAlloc<DV, ALLOC>::Ptr::operator!= (std::nullptr_t) const noexcept
+{
+  return m_ptr != nullptr;
+}
+
+
+template <class DV, class ALLOC>
+inline
+DataVectorWithAlloc<DV, ALLOC>::Ptr::Ptr (pointer p, UPDeleter&& d) noexcept
+   : m_ptr (p, std::move(d))
+{
+}
+
+
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::Ptr::pointer
+DataVectorWithAlloc<DV, ALLOC>::Ptr::release() noexcept
+{
+  return m_ptr.release();
+}
+
+
+template <class DV, class ALLOC>
+inline
+void
+DataVectorWithAlloc<DV, ALLOC>::Ptr::checkHeap (const elt_allocator_type* other_heap) const
+{
+  const elt_allocator_type* this_heap = m_ptr.get_deleter().heap();
+  if (this_heap && this_heap != other_heap) {
+    SG::throwExcAllocOwnership();
+  }
+}
+
+
+//=== Constructors, destructors, assignment.
+
+
+/**
+ * @brief Default constructor.
+ * @param eltAlloc The element allocator.
+ */
+template <class DV, class ALLOC>
+DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
+  (elt_allocator_type&& eltAlloc /*= elt_allocator_type()*/)
+{
+  auto del = std::make_unique<HeapDeleter> (std::move (eltAlloc));
+  m_heap = &del->heap();
+  DV::clear (std::move (del));
+}
+
+
+/**
+ * @brief Sized constructor.
+ * @param n The size of the container.
+ * @param eltAlloc The element allocator.
+ *
+ * Note that unlike the standard vector constructor, you can't specify
+ * an initial value here.  The container will be initialized with 0's.
+ */
+template <class DV, class ALLOC>
+DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
+  (size_type n,
+   elt_allocator_type&& eltAlloc /*= elt_allocator_type()*/)
+{
+  auto del = std::make_unique<HeapDeleter> (std::move (eltAlloc));
+  m_heap = &del->heap();
+  DV::clear (std::move (del));
+  DV::resize (n);
+}
+
+
+/**
+ * @brief Move constructor.
+ * @param rhs The container from which to move.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ *
+ * The existing allocator is moved.  @c rhs will be left with a new,
+ * default-initialized, allocator.
+ */
+template <class DV, class ALLOC>
+DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
+  (DataVectorWithAlloc&& rhs)
+  : DV (std::move (rhs)),
+    m_heap (rhs.m_heap)
+{
+  auto del = std::make_unique<HeapDeleter> (elt_allocator_type());
+  rhs.m_heap = &del->heap();
+  static_cast<DV&>(rhs).clear (std::move (del));
+}
+
+
+/**
+ * @brief Move assignment.
+ * @param rhs The container from which to move.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ *
+ * The existing allocator is moved.  @c rhs will be left with a new,
+ * default-initialized, allocator.
+ */
+template <class DV, class ALLOC>
+DataVectorWithAlloc<DV, ALLOC>&
+DataVectorWithAlloc<DV, ALLOC>::operator= (DataVectorWithAlloc&& rhs)
+{
+  if (this != &rhs) {
+    DV::operator= (std::move (rhs));
+    m_heap = rhs.m_heap;
+    auto del = std::make_unique<HeapDeleter> (elt_allocator_type());
+    rhs.m_heap = &del->heap();
+    static_cast<DV&>(rhs).clear (std::move (del));
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Destructor.
+ */
+template <class DV, class ALLOC>
+DataVectorWithAlloc<DV, ALLOC>::~DataVectorWithAlloc()
+{
+  // If the heap memory was protected, unprotect it now.
+  SG::maybeUnprotect (*m_heap);
+}
+
+
+/**
+ * @brief Return the underlying allocator.
+ */
+template <class DV, class ALLOC>
+inline
+const typename DataVectorWithAlloc<DV, ALLOC>::elt_allocator_type&
+DataVectorWithAlloc<DV, ALLOC>::elt_allocator() const
+{
+  return *m_heap;
+}
+
+
+/**
+ * @brief Return the underlying allocator.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::elt_allocator_type&
+DataVectorWithAlloc<DV, ALLOC>::elt_allocator()
+{
+  return *m_heap;
+}
+
+
+//=== Size and capacity.
+
+
+/**
+ * @fn void reserve (size_type n)
+ * @brief Attempt to preallocate enough memory for a specified number
+ *        of elements.
+ * @param n Number of elements required.
+ */
+template <class DV, class ALLOC>
+void DataVectorWithAlloc<DV, ALLOC>::reserve (size_type n)
+{
+  DV::reserve (n);
+  m_heap->reserve (n);
+}
+
+
+/**
+ * @brief Change the vector capacity to match the current size.
+ *
+ * Note: this does not affect auxiliary data.
+ */
+template <class DV, class ALLOC>
+void DataVectorWithAlloc<DV, ALLOC>::shrink_to_fit()
+{
+  DV::shrink_to_fit();
+  m_heap->reserve (size());
+}
+
+
+//=== Element access.
+
+
+/**
+ * @brief Access an element, as an lvalue.
+ * @param n Array index to access.
+ * @return Proxy to the element at @a n.
+ *
+ * No bounds checking is done.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::ElementProxy
+DataVectorWithAlloc<DV, ALLOC>::operator[] (size_type n)
+{
+  return to_element_proxy (this->m_pCont.begin() + n);
+}
+
+
+/**
+ * @brief Access an element, as an lvalue.
+ * @param n Array index to access.
+ * @return Proxy to the element at @a n.
+ *
+ * Will raise @c std::out_of_range if the index is out-of-bounds.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::ElementProxy
+DataVectorWithAlloc<DV, ALLOC>::at (size_type n)
+{
+  if (n >= this->size())
+    throw std::out_of_range ("DataVector::at range check");
+  return to_element_proxy (this->m_pCont.begin() + n);
+}
+
+
+/**
+ * @brief Access the first element in the collection as an lvalue.
+ * @return Proxy to the first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::ElementProxy
+DataVectorWithAlloc<DV, ALLOC>::front ()
+{
+  return to_element_proxy (this->m_pCont.begin());
+}
+
+
+/**
+ * @brief Access the last element in the collection as an lvalue.
+ * @return Proxy to the last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::ElementProxy
+DataVectorWithAlloc<DV, ALLOC>::back ()
+{
+  return to_element_proxy (this->m_pCont.end()-1);
+}
+
+
+//=== Iterator creation.
+
+
+/**
+ * @brief Return an @c iterator pointing at the beginning
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::begin() noexcept
+{
+  return to_my_iterator (DV::begin());
+}
+
+
+/**
+ * @brief Return an @c iterator pointing past the end
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::end() noexcept
+{
+  return to_my_iterator (DV::end());
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::reverse_iterator
+DataVectorWithAlloc<DV, ALLOC>::rbegin() noexcept
+{
+  return reverse_iterator (to_my_iterator (DV::end()));
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::reverse_iterator
+DataVectorWithAlloc<DV, ALLOC>::rend() noexcept
+{
+  return reverse_iterator (to_my_iterator (DV::begin()));
+}
+
+
+//=== Insertion operations.
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::value_type
+DataVectorWithAlloc<DV, ALLOC>::push_back (Ptr pElem)
+{
+  pElem.checkHeap (m_heap);
+  typename DV::value_type p = pElem.release();
+  DV::push_back (p);
+  return p;
+}
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ *
+ * For @c DataVector, this is like the same as @c push_back, and
+ * it returns the pushed element.
+ * It's included just for interface compatibility with `std::vector`.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::value_type
+DataVectorWithAlloc<DV, ALLOC>::emplace_back (Ptr pElem)
+{
+  return push_back (std::move (pElem));
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::insert(iterator position, Ptr pElem)
+{
+  pElem.checkHeap (m_heap);
+  return to_my_iterator
+    (DV::insert (to_base_iterator (position), pElem.release()));
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ *
+ * For @c DataVector, this is just the same as @c insert.
+ * It's included just for interface compatibility with `std::vector`.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::emplace(iterator position, Ptr pElem)
+{
+  return this->insert (position, std::move(pElem));
+}
+
+
+//=== Erasure operations.
+
+
+/**
+ * @brief Remove element at a given position.
+ * @param position Iterator pointing to the element to be removed.
+ * @return An iterator pointing to the next element (or @c end()).
+ *
+ * The pointed-to element will be deleted.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::erase(iterator position)
+{
+  return to_my_iterator (DV::erase (to_base_iterator (position)));
+}
+
+
+/**
+ * @brief Remove a range of elements.
+ * @param first Iterator pointing to the first element to be removed.
+ * @param last Iterator pointing one past the last element to be removed.
+ * @return An iterator pointing to the element pointed to by @a last
+ *         prior to erasing (or @c end()).
+ *
+ * The removed elements will be deleted.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::erase(iterator first, iterator last)
+{
+  return to_my_iterator
+    (DV::erase (to_base_iterator (first),
+                to_base_iterator (last)));
+}
+
+
+/**
+ * @brief clear()
+ * @brief Erase all the elements in the collection.
+ *
+ * The removed elements will be deleted.
+ */
+template <class DV, class ALLOC>
+inline
+void DataVectorWithAlloc<DV, ALLOC>::clear()
+{
+  DV::clear();
+}
+
+
+//=== Swap and sort.
+
+
+/**
+ * @brief Swap this collection with another.
+ * @param rhs The collection with which to swap.
+ *
+ * Ownership is swapped along with the collection content.
+ *
+ * Note: this method may only be called using the most-derived
+ * @c DataVector in the hierarchy.  The @a rhs must also be
+ * referenced using the most-derived @c DataVector.
+ */
+template <class DV, class ALLOC>
+inline
+void DataVectorWithAlloc<DV, ALLOC>::swap (DataVectorWithAlloc& rhs)
+{
+  DV::swap (rhs);
+  std::swap (m_heap, rhs.m_heap);
+}
+
+
+/**
+ * @brief Swap the referents of two @c DataVector iterators.
+ * @param a The first iterator for the swap.
+ * @param b The second iterator for the swap.
+ *
+ * The iterators must both refer to the same container.
+ */
+template <class DV, class ALLOC>
+inline
+void DataVectorWithAlloc<DV, ALLOC>::iter_swap (iterator a, iterator b)
+{
+  if (a.container() != b.container()) {
+    throw SG::ExcBadIterSwap();
+  }
+  DV::iter_swap (to_base_iterator (a),
+                 to_base_iterator (b));
+}
+
+
+//=== Non-standard operations.
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param index Index of the element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a index of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV, class ALLOC>
+inline
+void
+DataVectorWithAlloc<DV, ALLOC>::swapElement (size_type index,
+                                             Ptr newElem,
+                                             Ptr& oldElem)
+{
+  newElem.checkHeap (m_heap);
+  typename DV::value_type pnew = newElem.release();
+  typename DV::value_type pold = nullptr;
+  DV::swapElement (index, pnew, pold);
+  oldElem = Ptr (pold, UPDeleter (*m_heap));
+}
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param pos The element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a pos of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DV, class ALLOC>
+inline
+void
+DataVectorWithAlloc<DV, ALLOC>::swapElement (iterator pos,
+                                             Ptr newElem,
+                                             Ptr& oldElem)
+{
+  newElem.checkHeap (m_heap);
+  typename DV::value_type pnew = newElem.release();
+  typename DV::value_type pold = nullptr;
+  DV::swapElement (to_base_iterator(pos), pnew, pold);
+  oldElem = Ptr (pold, UPDeleter (*m_heap));
+}
+
+
+/**
+ * @brief Return a pointer to this object, as a const @c DataVector.
+ */
+template <class DV, class ALLOC>
+inline
+const DV*
+DataVectorWithAlloc<DV, ALLOC>::asDataVector() const
+{
+  return static_cast<const DV*>(this);
+}
+
+
+/**
+ * @brief Cast from a @c DataVector to a @c DataVectorWithAlloc.
+ * @param dv Pointer to object to cast.
+ *
+ * Return @c DV cast to a @c DataVectorWithAlloc.
+ */
+template <class DV, class ALLOC>
+const DataVectorWithAlloc<DV, ALLOC>*
+DataVectorWithAlloc<DV, ALLOC>::fromDataVector (const DV* dv)
+{
+  if (typeid (*dv) == typeid (DataVectorWithAlloc))
+    return static_cast<const DataVectorWithAlloc*> (dv);
+  return nullptr;
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ */
+template <class DV, class ALLOC>
+inline
+void DataVectorWithAlloc<DV, ALLOC>::resortAux (iterator beg, iterator end)
+{
+  DV::resortAux (to_base_iterator(beg), to_base_iterator(end));
+}
+
+
+/**
+ * @brief Convert to @c AuxVectorBase.
+ *
+ * Needed to get @x AuxVectorBase from a @c DataVectorWithAlloc.
+ * Present in @c DataVector as well for consistency.
+ */
+template <class DV, class ALLOC>
+inline
+const SG::AuxVectorBase& DataVectorWithAlloc<DV, ALLOC>::auxbase() const
+{
+  return *this;
+}
+
+
+/**
+ * @brief Allocate a new vector element.
+ *
+ * Arguments will be forwarded to the element constructor.
+ */
+template <class DV, class ALLOC>
+template <class... Args>
+typename DataVectorWithAlloc<DV, ALLOC>::Ptr
+DataVectorWithAlloc<DV, ALLOC>::allocate (Args&&... args)
+{
+  typename elt_allocator_type::pointer p = m_heap->allocate(1);
+  try {
+    m_heap->construct (p, std::forward<Args>(args)...);
+  }
+  catch (...) {
+    m_heap->deallocate (p, 1);
+    throw;
+  }
+  return Ptr (p, UPDeleter (*m_heap));
+}
+
+
+//=== Relational operators.
+
+
+/**
+ * @brief  Vector ordering relation.
+ * @param  b  A @c DataVectorWithAlloc of the same type as @a *this.
+ * @return  True iff @a *this is lexicographically less than @a b.
+ *
+ * This is a total ordering relation.  It is linear in the size of the
+ * vectors.  Comparisons are done on the pointer values of the elements.
+ *
+ * See @c std::lexicographical_compare() for how the determination is made.
+ */
+template <class DV, class ALLOC>
+inline
+bool DataVectorWithAlloc<DV, ALLOC>::operator< (const DataVectorWithAlloc& b) const
+{
+  return static_cast<const DV&>(*this) < static_cast<const DV&>(b);
+}
+
+
+/// Based on operator<
+template <class DV, class ALLOC>
+inline
+bool DataVectorWithAlloc<DV, ALLOC>::operator> (const DataVectorWithAlloc& b) const
+{
+  return static_cast<const DV&>(*this) > static_cast<const DV&>(b);
+}
+
+
+/// Based on operator<
+template <class DV, class ALLOC>
+inline
+bool DataVectorWithAlloc<DV, ALLOC>::operator<= (const DataVectorWithAlloc& b) const
+{
+  return static_cast<const DV&>(*this) <= static_cast<const DV&>(b);
+}
+
+
+/// Based on operator<
+template <class DV, class ALLOC>
+inline
+bool DataVectorWithAlloc<DV, ALLOC>::operator>= (const DataVectorWithAlloc& b) const
+{
+  return static_cast<const DV&>(*this) >= static_cast<const DV&>(b);
+}
+
+
+/**
+ * @brief  Vector equality comparison.
+ * @param  b  A @c DataVectorWithAlloc of the same type as @a *this.
+ * @return  True iff the size and elements of the vectors are equal.
+ *
+ * This is an equivalence relation.  It is linear in the size of the
+ * vectors.  Vectors are considered equivalent if their sizes are equal,
+ * and if corresponding elements compare equal.
+ */
+template <class DV, class ALLOC>
+inline
+bool DataVectorWithAlloc<DV, ALLOC>::operator== (const DataVectorWithAlloc& b) const
+{
+  return static_cast<const DV&>(*this) == static_cast<const DV&>(b);
+}
+
+
+/// Based on operator==
+template <class DV, class ALLOC>
+inline
+bool DataVectorWithAlloc<DV, ALLOC>::operator!= (const DataVectorWithAlloc& b) const
+{
+  return static_cast<const DV&>(*this) != static_cast<const DV&>(b);
+}
+
+
+//=== Private helpers.
+
+
+/**
+ * @brief Handle element assignment.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * Auxiliary data are copied if appropriate.
+ */
+template <class DV, class ALLOC>
+inline
+void
+DataVectorWithAlloc<DV, ALLOC>::assignElement (typename BaseContainer::iterator pos,
+                                             Ptr newElem)
+{
+  newElem.checkHeap (m_heap);
+  DV::assignElement (pos, newElem.release());
+}
+
+
+/**
+ * @brief Convert a @c DataVectorWithAlloc::iterator to an iterator
+ *        of the base @c DataVector.
+ * @param it The @c DataVectorWithAlloc::iterator to convert.
+ */
+template <class DV, class ALLOC>
+inline
+typename DV::iterator
+DataVectorWithAlloc<DV, ALLOC>::to_base_iterator (iterator it)
+{
+  return typename DV::iterator (it.base(), it.container());
+}
+
+
+/**
+ * @brief Convert an iterator of the base @c DataVector to
+ *        a @c DataVectorWithAlloc::iterator.
+ * @param it The base @c DataVector iterator to convert.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::iterator
+DataVectorWithAlloc<DV, ALLOC>::to_my_iterator (typename DV::iterator it)
+{
+  return iterator (it.base(), this);
+}
+
+
+/**
+ * @brief Convert an iterator of the base @c vector to
+ *        an @c ElementProxy for the @c DataVectorWithAlloc.
+ * @param it The base @c vector iterator to convert.
+ */
+template <class DV, class ALLOC>
+inline
+typename DataVectorWithAlloc<DV, ALLOC>::ElementProxy
+DataVectorWithAlloc<DV, ALLOC>::to_element_proxy (typename BaseContainer::iterator i)
+{
+  return ElementProxy (i, this);
+}
+
+
+template <class DV, class ALLOC>
+DataVectorWithAlloc<DV, ALLOC>::HeapDeleter::HeapDeleter (elt_allocator_type&& heap)
+  : m_heap (std::move (heap))
+{
+}
+
+
+template <class DV, class ALLOC>
+typename DataVectorWithAlloc<DV, ALLOC>::elt_allocator_type&
+DataVectorWithAlloc<DV, ALLOC>::HeapDeleter::heap() noexcept
+{
+  return m_heap;
+}
+
+
+template <class DV, class ALLOC>
+void DataVectorWithAlloc<DV, ALLOC>::HeapDeleter::doDelete (value_type p)
+{
+  if (p) {
+    using base_value_type_nc = std::remove_const_t<base_value_type>;
+    base_value_type_nc* pp ATLAS_THREAD_SAFE = const_cast<base_value_type_nc*>(DV::do_cast_nc (p));
+    m_heap.destroy (pp);
+    m_heap.deallocate (pp, 1);
+  }
+}
+
+
+template <class DV, class ALLOC>
+void DataVectorWithAlloc<DV, ALLOC>::HeapDeleter::doDelete
+  (typename PtrVector::iterator first,
+   typename PtrVector::iterator last)
+{
+  for (; first != last; ++first) {
+    if (*first) {
+      using base_value_type_nc = std::remove_const_t<base_value_type>;
+      base_value_type_nc* pp ATLAS_THREAD_SAFE = const_cast<base_value_type_nc*>(DV::do_cast_nc (*first));
+      m_heap.destroy (pp);
+      m_heap.deallocate (pp, 1);
+    }
+  }
+}

@@ -210,20 +210,32 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_jEM"; }
       const WorkingPoints_jEM & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jEM> & isolation(TrigConf::Selection::WP wp) const { return m_isolation.at(wp); }
-      float ptMinToTopo(int eta = 0) const { return ptMinToTopoMeV(eta) / 1000.0; }
-      unsigned int ptMinToTopoMeV(int eta = 0) const { return m_ptMinToTopoMeV.at(eta); }
-      unsigned int ptMinToTopoCounts(int eta = 0) const { return energyInCounts( ptMinToTopoMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinToTopoEtaMeV() const { return m_ptMinToTopoMeV; }
-      float ptMinxTOB(int eta = 0) const { return ptMinxTOBMeV(eta) / 1000.0; }
-      unsigned int ptMinxTOBMeV(int eta = 0) const { return m_ptMinxTOBMeV.at(eta); }
-      unsigned int ptMinxTOBCounts(int eta = 0) const { return energyInCounts( ptMinxTOBMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinxTOBEtaMeV() const { return m_ptMinxTOBMeV; }
+      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
+      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
    private:
       /** Update the internal members */
       void load();
       /** jEM specific data */
-      ValueWithEtaDependence<int> m_ptMinToTopoMeV{"jEMptMinTopo"};
-      ValueWithEtaDependence<int> m_ptMinxTOBMeV{"jEMptMinxTOB"};
+      unsigned int m_ptMinToTopoMeV1{0};
+      unsigned int m_ptMinToTopoMeV2{0};
+      unsigned int m_ptMinToTopoMeV3{0};
+      unsigned int m_ptMinxTOBMeV1{0};
+      unsigned int m_ptMinxTOBMeV2{0};
+      unsigned int m_ptMinxTOBMeV3{0};
       std::map<TrigConf::Selection::WP, ValueWithEtaDependence<WorkingPoints_jEM>> m_isolation{};
    };
    std::ostream & operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_jEM::WorkingPoints_jEM & iso);
@@ -234,17 +246,17 @@ namespace TrigConf {
       public:
          WorkingPoints_eTAU( const boost::property_tree::ptree & );
          bool isDefined() const { return m_isDefined; }
-         int isoConeRel_fw() const { return m_isoConeRel_fw; }
-         float isoConeRel_d() const { return m_isoConeRel_d; }
-         int fEM_fw() const { return m_fEM_fw; }
-         float fEM_d() const { return m_fEM_d; }
+         int rCore_fw() const { return m_rCore_fw; }
+         float rCore_d() const { return m_rCore_d; }
+         int rHad_fw() const { return m_rHad_fw; }
+         float rHad_d() const { return m_rHad_d; }
          unsigned int maxEt() const { return m_maxEt; } 
       private:
          bool m_isDefined { false };
-         int m_isoConeRel_fw {0};
-         int m_fEM_fw {0};
-         float m_isoConeRel_d { 0 };
-         float m_fEM_d { 0 };      
+         int m_rCore_fw {0};
+         int m_rHad_fw {0};
+         float m_rCore_d { 0 };
+         float m_rHad_d { 0 };      
          unsigned int m_maxEt { 0 };
       };
       L1ThrExtraInfo_eTAU(const std::string & thrTypeName, const ptree & data) :
@@ -284,22 +296,34 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jTAU() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jTAU"; }
-      float ptMinToTopo(int eta = 0) const { return ptMinToTopoMeV(eta) / 1000.0; }
-      unsigned int ptMinToTopoMeV(int eta = 0) const { return m_ptMinToTopoMeV.at(eta); }
-      unsigned int ptMinToTopoCounts(int eta = 0) const { return energyInCounts( ptMinToTopoMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinToTopoEtaMeV() const { return m_ptMinToTopoMeV; }
-      float ptMinxTOB(int eta = 0) const { return ptMinxTOBMeV(eta) / 1000.0; }
-      unsigned int ptMinxTOBMeV(int eta = 0) const { return m_ptMinxTOBMeV.at(eta); }
-      unsigned int ptMinxTOBCounts(int eta = 0) const { return energyInCounts( ptMinxTOBMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinxTOBEtaMeV() const { return m_ptMinxTOBMeV; }
       const WorkingPoints_jTAU & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jTAU> & isolation(TrigConf::Selection::WP wp) const  { return m_isolation.at(wp); }
+      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
+      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
    private:
       /** Update the internal members */
       void load();
      /** jTAU specific data */
-      ValueWithEtaDependence<int> m_ptMinToTopoMeV{"jTAUptMinTopo"};
-      ValueWithEtaDependence<int> m_ptMinxTOBMeV{"jTAUptMinxTOB"};
+      unsigned int m_ptMinToTopoMeV1{0};
+      unsigned int m_ptMinToTopoMeV2{0};
+      unsigned int m_ptMinToTopoMeV3{0};
+      unsigned int m_ptMinxTOBMeV1{0};
+      unsigned int m_ptMinxTOBMeV2{0};
+      unsigned int m_ptMinxTOBMeV3{0};
       std::map<TrigConf::Selection::WP, ValueWithEtaDependence<WorkingPoints_jTAU>> m_isolation{};
    };
    std::ostream & operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_jTAU::WorkingPoints_jTAU & iso);
@@ -337,20 +361,32 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jJ"; }
-      float ptMinToTopo(int eta = 0) const { return ptMinToTopoMeV(eta) / 1000.0; }
-      unsigned int ptMinToTopoMeV(int eta = 0) const { return m_ptMinToTopoMeV.at(eta); }
-      unsigned int ptMinToTopoCounts(int eta = 0) const { return energyInCounts( ptMinToTopoMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinToTopoEtaMeV() const { return m_ptMinToTopoMeV; }
-      float ptMinxTOB(int eta = 0) const { return ptMinxTOBMeV(eta) / 1000.0; }
-      unsigned int ptMinxTOBMeV(int eta = 0) const { return m_ptMinxTOBMeV.at(eta); }
-      unsigned int ptMinxTOBCounts(int eta = 0) const { return energyInCounts( ptMinxTOBMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinxTOBEtaMeV() const { return m_ptMinxTOBMeV; }
+      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
+      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
    private:
       /** Update the internal members */
       void load();
       /** jJ specific data */
-      ValueWithEtaDependence<int> m_ptMinToTopoMeV{"jJptMinTopo"};
-      ValueWithEtaDependence<int> m_ptMinxTOBMeV{"jJptMinxTOB"};
+      unsigned int m_ptMinToTopoMeV1{0};
+      unsigned int m_ptMinToTopoMeV2{0};
+      unsigned int m_ptMinToTopoMeV3{0};
+      unsigned int m_ptMinxTOBMeV1{0};
+      unsigned int m_ptMinxTOBMeV2{0};
+      unsigned int m_ptMinxTOBMeV3{0};
    };
 
    class L1ThrExtraInfo_jLJ final : public L1ThrExtraInfoBase {
@@ -359,20 +395,32 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jLJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jLJ"; }
-      float ptMinToTopo(int eta = 0) const { return ptMinToTopoMeV(eta) / 1000.0; }
-      unsigned int ptMinToTopoMeV(int eta = 0) const { return m_ptMinToTopoMeV.at(eta); }
-      unsigned int ptMinToTopoCounts(int eta = 0) const { return energyInCounts( ptMinToTopoMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinToTopoEtaMeV() const { return m_ptMinToTopoMeV; }
-      float ptMinxTOB(int eta = 0) const { return ptMinxTOBMeV(eta) / 1000.0; }
-      unsigned int ptMinxTOBMeV(int eta = 0) const { return m_ptMinxTOBMeV.at(eta); }
-      unsigned int ptMinxTOBCounts(int eta = 0) const { return energyInCounts( ptMinxTOBMeV(eta), resolutionMeV() ); }
-      const ValueWithEtaDependence<int> & ptMinxTOBEtaMeV() const { return m_ptMinxTOBMeV; }
+      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
+      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(std::string module) const {
+          if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
+          if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
+          if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
    private:
       /** Update the internal members */
       void load();
       /** jLJ specific data */
-      ValueWithEtaDependence<int> m_ptMinToTopoMeV{"jLJptMinTopo"};
-      ValueWithEtaDependence<int> m_ptMinxTOBMeV{"jLJptMinxTOB"};
+      unsigned int m_ptMinToTopoMeV1{0};
+      unsigned int m_ptMinToTopoMeV2{0};
+      unsigned int m_ptMinToTopoMeV3{0};
+      unsigned int m_ptMinxTOBMeV1{0};
+      unsigned int m_ptMinxTOBMeV2{0};
+      unsigned int m_ptMinxTOBMeV3{0};
    };
 
    class L1ThrExtraInfo_jXE final : public L1ThrExtraInfoBase {
@@ -393,12 +441,28 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jTE() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jTE"; }
-      unsigned int  etaBoundary() const { return m_etaBoundary; }
+      unsigned int etaBoundary_fw(std::string module) const {
+          if(module=="1C" || module=="1A") return m_etaBoundary1_fw;
+          if(module=="2C" || module=="2A") return m_etaBoundary2_fw;
+          if(module=="3C" || module=="3A") return m_etaBoundary3_fw; 
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised"); 
+      }
+      unsigned int etaBoundary(std::string module) const {
+          if(module=="1C" || module=="1A") return m_etaBoundary1;
+          if(module=="2C" || module=="2A") return m_etaBoundary2;
+          if(module=="3C" || module=="3A") return m_etaBoundary3;
+          throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
+      }
    private:
       /** Update the internal members */
       void load();
       /** jTE specific data */
-      unsigned int m_etaBoundary{0};
+      unsigned int m_etaBoundary1{0}; // eta for module 1A, 1C
+      unsigned int m_etaBoundary1_fw{0}; // tower number for module 1A, 1C
+      unsigned int m_etaBoundary2{0}; // eta for module 2A, 2C
+      unsigned int m_etaBoundary2_fw{0}; // tower number for module 2A, 2C
+      unsigned int m_etaBoundary3{0}; // eta for module 3A, 3C
+      unsigned int m_etaBoundary3_fw{0}; // tower number for module 3A, 3C
    };
 
    class L1ThrExtraInfo_gXE final : public L1ThrExtraInfoBase {

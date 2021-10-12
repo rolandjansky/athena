@@ -34,12 +34,12 @@ class LArAlignCondAlg final : public AthReentrantAlgorithm
   virtual StatusCode finalize() override {return StatusCode::SUCCESS;};
 
  private:
-  SG::ReadCondHandleKey<DetCondKeyTrans> m_readKey {this
+  SG::ReadCondHandleKey<DetCondKeyTrans> m_readLArAlignKey {this
       , "LArAlignFolder"
       , "/LAR/Align"
       , "SG key of DetCondKeyTrans object with LAr alignments" };
 
-  SG::WriteCondHandleKey<GeoAlignmentStore>  m_writeKey {this
+  SG::WriteCondHandleKey<GeoAlignmentStore>  m_writeGeoAlignKey {this
       , "LArAlignmentStore"
       , "LArAlignmentStore"
       , "SG key of the resulting GeoAlignmentStore for LAr" };

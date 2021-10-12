@@ -5,6 +5,7 @@
 #include "MuonGeoModel/Micromegas.h"
 
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDControl/AGDDController.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoDefinitions.h"
@@ -50,11 +51,12 @@ namespace MuonGM {
     }
 
     GeoFullPhysVol *Micromegas::build(int minimalgeo, int, const std::vector<Cutout *>&) {
-        AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
         MMDetectorHelper mmHelper;
+        IAGDDtoGeoSvc::LockedController c = mmHelper.Get_Controller();
+        AGDDDetectorStore& ds = c->GetDetectorStore();
         MMDetectorDescription *mm_descr = mmHelper.Get_MMDetectorSubType(m_component->subType);
 
-        MM_Technology *t = (MM_Technology *)ds->GetTechnology(name);
+        MM_Technology *t = (MM_Technology *)ds.GetTechnology(name);
         thickness = t->Thickness();
         double gasTck = t->gasThickness;
         double pcbTck = t->pcbThickness;

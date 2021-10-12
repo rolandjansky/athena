@@ -44,6 +44,12 @@ Updated:  February, 2006 (DLelas)
 
 using xAOD::CaloCluster;
 
+StatusCode CaloClusterCorrection::initialize() {
+  ATH_CHECK(m_caloMgrKey.initialize());
+  ATH_CHECK(base_class::initialize());
+  return StatusCode::SUCCESS;
+}
+
 StatusCode CaloClusterCorrection::execute (const EventContext& ctx,
                                            CaloCluster *cluster) const
 {

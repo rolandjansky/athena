@@ -24,8 +24,6 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   ATH_CHECK( detStore()->retrieve(m_tileID) );
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
-  ATH_CHECK( m_tileBadChanTool.retrieve() );
-
   ATH_CHECK( m_cablingSvc.retrieve() );
   m_cabling = m_cablingSvc->cablingService();
 
@@ -80,6 +78,11 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
 
   m_overThrOccupGainGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellDetailOccMapOvThrGain",
                                                                          Tile::MAX_ROS - 1, Tile::MAX_GAIN, nL1Triggers);
+
+  if (m_fillGapScintHistograms) {
+    m_energyGapScintGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileGapScintilatorEnergy", 2 /* EBA and EBC */,
+                                                                         Tile::MAX_DRAWER, 4 /* E1-E4 */);
+  }
 
   m_nCellsGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellsNumberLB",
                                                   Tile::MAX_ROS, nL1Triggers);
@@ -146,6 +149,7 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   // Weights for E-cells, only towers 10..15
   static const float energyWeight[6] = {1./3., 1./6., 1./11., 1./11., 1./28., 1./28.};
+  static const int gapScintIndex[6] = {0, 1, 2, 2, 3, 3};
 
   std::vector<const CaloCell*> muonCells;
 
@@ -311,20 +315,11 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       // or non-existing E3/E4 - they might appear in CaloCellContainer)
       bool realCell  = single_PMT_C10 || m_cabling->TileGap_connected(id);
 
-      double weight = 1.;
-      if (single_PMT_scin) {
-        int tower = m_tileID->tower(id);
-        if (tower > 9 && tower < 16) {
-          weight = energyWeight[tower - 10];
-        }
-      }
-
       // Note that in single PMT cell both badch1() and badch2() are changed together
       bool isBadChannel1 = tile_cell->badch1();
       bool isBadChannel2 = tile_cell->badch2();
 
       int isCellGood = !tile_cell->badcell();
-
 
       bool isOkChannel1 = (channel1 > -1 && gain1 != CaloGain::INVALIDGAIN);
       bool isOkChannel2 = (channel2 > -1 && gain2 != CaloGain::INVALIDGAIN);
@@ -342,6 +337,21 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       double time2 = tile_cell->time2();
       double timeDiff = (single_PMT) ? 0.0 : 2. * tile_cell->timeDiff(); // Attention! factor of 2 is needed here
 
+      double weight = 1.;
+      if (single_PMT_scin) {
+        int tower = m_tileID->tower(id);
+        if (tower > 9 && tower < 16) {
+          weight = energyWeight[tower - 10];
+        }
+        if (m_fillGapScintHistograms) {
+          if (energy > m_energyThresholdForGapScint) {
+            int gapScintIdx = gapScintIndex[tower - 10];
+            unsigned int partition = (ros1 > 0) ? ros1 - 3 : ros2 - 3;
+            auto monEnergy = Monitored::Scalar<float>("energy", energy);
+            fill(m_tools[m_energyGapScintGroups[partition][drawer][gapScintIdx]], monEnergy);
+          }
+        }
+      }
 
       if (msgLvl(MSG::VERBOSE)) {
 

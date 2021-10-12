@@ -1,26 +1,24 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
-def PixelGeometryCfg( flags ):
+def PixelGeometryCfg(flags):
+  from AtlasGeoModel.GeometryDBConfig import InDetGeometryDBSvcCfg
+  db = InDetGeometryDBSvcCfg(flags)
+
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  acc = GeoModelCfg( flags )
-  geoModelSvc=acc.getPrimary()
-  GeometryDBSvc=CompFactory.GeometryDBSvc
-  acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-  PixelDetectorTool=CompFactory.PixelDetectorTool
-  pixelDetectorTool = PixelDetectorTool("PixelDetectorTool")
-  InDetDD__BCM_Builder=CompFactory.InDetDD.BCM_Builder
-  bcmTool = InDetDD__BCM_Builder()
-  pixelDetectorTool.BCM_Tool = bcmTool
-  InDetDD__BLM_Builder=CompFactory.InDetDD.BLM_Builder
-  blmTool = InDetDD__BLM_Builder()
-  pixelDetectorTool.BLM_Tool = blmTool
+  acc = GeoModelCfg(flags)
+  geoModelSvc = acc.getPrimary()
+
+  pixelDetectorTool = CompFactory.PixelDetectorTool("PixelDetectorTool")
+  pixelDetectorTool.GeometryDBSvc = db.getPrimary()
+  pixelDetectorTool.BCM_Tool = CompFactory.InDetDD.BCM_Builder()
+  pixelDetectorTool.BLM_Tool = CompFactory.InDetDD.BLM_Builder()
   pixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
   geoModelSvc.DetectorTools += [ pixelDetectorTool ]
-  acc.addService(geoModelSvc)
+  acc.merge(db)
 
   # IBL module distortions
   acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))

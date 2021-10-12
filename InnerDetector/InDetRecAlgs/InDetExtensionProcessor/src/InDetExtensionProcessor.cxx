@@ -454,7 +454,7 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
   constexpr std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> outlierPattern(outlierDigit);
   //create new track state on surface
   auto createNewTSOS = [outlierPattern](const Trk::MeasurementBase* pm) -> const Trk::TrackStateOnSurface*{
-                         return new Trk::TrackStateOnSurface(pm->clone(), nullptr, nullptr, nullptr, outlierPattern);
+                         return new Trk::TrackStateOnSurface(pm->uniqueClone(), nullptr, nullptr, nullptr, outlierPattern);
                        };
   //Adding to cosmic tracks beginning or end depending on the direction of track
   auto addNewTSOS_ForCosmics = [&pExtendedTrajectory, siTrack, createNewTSOS](const Trk::MeasurementBase* pm) {

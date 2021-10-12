@@ -738,54 +738,6 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
             }
          }
       }
-   } else {
-      // Run-3 threshold
-      const SG::ReadHandleKey< xAOD::JetRoIContainer > * rhk { nullptr };
-      if( confThr.type() == ("gJ") ) {
-         rhk = & m_iKeyGFexJets;
-      } else if( confThr.name().find("jL") == 0 ) {
-         rhk = & m_iKeyJFexLJets;
-      } else if( confThr.name().find('j') == 0 ) {
-         rhk = & m_iKeyJFexJets;
-      } else {
-         ATH_MSG_ERROR( "Unexpected threshold name " << confThr.name() << ". Should start with j, jL, g, or J.");
-      }
-      if(rhk!=nullptr && !rhk->empty()) {
-         auto jets = SG::makeHandle( *rhk, context );
-         if ( jets.isValid() ) {
-            auto pt = confThr.getAttribute<unsigned int>("pt");
-            auto ranges = confThr.getList("ranges");
-            for ( const auto jet : *jets ) {
-               if( (unsigned int) (jet->et8x8()/1000.) < pt ) continue;
-               // calculate eta index from eta
-               float eta = jet->eta();
-               LVL1::Coordinate coord(/*phi=*/0, eta);
-               LVL1::CoordToHardware converter;
-               unsigned int jepCoord = converter.jepCoordinateWord(coord);
-               uint32_t roiword = jepCoord << 19;
-               auto coordRange = m_jetDecoder->coordinate(roiword);
-               int ieta =
-                  int((coordRange.eta() + ((coordRange.eta() > 0.01) ? 0.025 : -0.025)) / 0.1) - 1;
-               // Adjustment due to irregular geometries
-               if (ieta > 24)
-                  ieta += 2;
-               // copied from
-         // https://acode-browser.usatlas.bnl.gov/lxr/source/athena/Trigger/TrigT1/TrigT1CaloUtils/src/JetAlgorithm.cxx#0337
-         //int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
-         //int iphi = 0; // int((m_refPhi-0.005)*32/M_PI); iphi = 16*(iphi/16) + 8;
-               bool inRange = false;
-               for( auto r : ranges ) {
-                  if( ieta >= r.getAttribute<int>("etamin") &&
-                     ieta <= r.getAttribute<int>("etamax") ) {
-                     inRange = true; break;
-                  }
-               }
-               if( ! inRange )
-                  continue;
-               ++multiplicity;
-            }
-         }
-      }
    }
    get2DHist( "/multi/jet/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
    ATH_MSG_DEBUG("JET MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity);

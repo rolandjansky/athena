@@ -1,19 +1,13 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecFlags  import rec
-from RecExConfig.RecAlgsFlags import recAlgs
+from RecExConfig.Configured import Configured
 
-from AthenaCommon.GlobalFlags  import globalflags
-
-from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-
-from RecExConfig.Configured import Configured 
-
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
-
 from AthenaCommon.Resilience import protectedInclude
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -141,7 +135,7 @@ class TriggerConfigGetter(Configured):
             # self.checkInput() may call TriggerConfigCheckMetadata, this can in turn set "rec.doTrigger.set_Value_and_Lock(False)"
             # but TriggerConfigGetter might have only been called in the first place due to this flag having been true, 
             # so re-check that we're still OK to be executing here
-            if not (recAlgs.doTrigger() or rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+            if not (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
                 log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false in checkInput()")
                 return True
 
@@ -168,22 +162,6 @@ class TriggerConfigGetter(Configured):
             if runNumber is not None and runNumber > 0 and runNumber < 230000 :
                 self.isRun1Data = True
         self.isTriggerReprocessing = False
-
-        # the TriggerFlags.readMenuFromTriggerDb() tells us that we read the trigger menu from the database
-        # the connection itself is defined in TriggerFlags.triggerDbConnection()
-
-        # reading from the TriggerDB can mean different things:
-
-        # a) TriggerFlags doHLT() is False:
-        #    - create a tmp sqlite file with the conditions (menu)
-        #    - use DSConfigSvc
-
-
-        # b) TriggerFlags doHLT() is True:
-        #    - use HLTConfigSvc
-        if self.readTriggerDB and TriggerFlags.doHLT():
-            self.ConfigSrcList = ['xml'] # to use L1/HLTConfigSvc and not DSConfigSvc, but only if we are running the HLT
-
 
         if self._environment: # I don't think anyone calls TriggerConfigGetter with an argument
             self.readPool  = False
@@ -229,29 +207,17 @@ class TriggerConfigGetter(Configured):
             else: # Does not have xAODMeta
                 # Run-3 Trigger Configuration Services (just producing menu data)
                 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
                 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,HLTConfigSvcCfg
                 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
                 CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
-                svcMgr += TrigConfigSvc("TrigConfigSvc")
-                svcMgr.TrigConfigSvc.UseNewConfig = True
 
         else:
             # non-MT (Run-2) Trigger Configuration
-            self.svc = SetupTrigConfigSvc()
+            if 'ds' in self.ConfigSrcList:
+                log.info("setup DSConfigSvc and add instance to ServiceMgr")
+                from TrigConfigSvc.TrigConfigSvcConf import TrigConf__DSConfigSvc
+                svcMgr += TrigConf__DSConfigSvc("DSConfigSvc")
 
-            try:
-                self.svc.SetStates( self.ConfigSrcList )
-            except Exception:
-                log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
-            else:
-                log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
-
-            try:
-                self.svc.InitialiseSvc()
-            except Exception as ex:
-                log.error( 'Failed to activate TrigConfigSvc: %r', ex )
-                raise(ex)
         ########################################################################
         # END OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
         ########################################################################
@@ -306,7 +272,7 @@ class TriggerConfigGetter(Configured):
             TrigCoolDbConnection = 'TRIGGER'
             addNewFolders = TriggerFlags.configForStartup()=="HLTonline" and self.readRDO
         else: # for sqlite COOL: temp (usually /tmp/hltMenu.xxx.db) or predefined (e.g. trigconf.db)
-            log.info("COOL DBConnection: " + TrigCoolDbConnection )
+            log.info("COOL DBConnection: %s", TrigCoolDbConnection)
             addNewFolders = globalflags.DataSource()!='data' and self.readRDO # bytestream or MC RDO
 
         # add folders for reading

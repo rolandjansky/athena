@@ -13,7 +13,6 @@
 if __name__=='__main__':
     import sys
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from argparse import ArgumentParser
     parser = ConfigFlags.getArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
     parser.add_argument('--postExec', help='Code to execute after setup')
@@ -29,6 +28,8 @@ if __name__=='__main__':
                         help='Print detailed Athena configuration')
     parser.add_argument('--perfmon', action='store_true',
                         help='Run perfmon')
+    # change default
+    parser.set_defaults(threads=1)
     args, _ = parser.parse_known_args()
 
     # Setup the Run III behavior

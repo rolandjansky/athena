@@ -427,6 +427,8 @@ Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/r
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root File version:52600
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
+ of type TileDetDescrManager(CLID 2941)
+buildCaloDetDescr WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
 LArOnOffMappingAlg   INFO Done reading online/offline identifier mapping
 LArOnOffMappingAlg   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
 LArOnOffMappingAlg   INFO recorded new LArOnOffIdMap with range {[0,l:0] - [INVALID]} into Conditions Store

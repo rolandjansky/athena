@@ -5,6 +5,7 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
+AGDDtoGeoSvc         INFO  this is AGDDtoGeoSvc::initialize()
  Volume psdum2 not found: returning 0
  Volume psdum3 not found: returning 0
  Volume pmdum2 not found: returning 0

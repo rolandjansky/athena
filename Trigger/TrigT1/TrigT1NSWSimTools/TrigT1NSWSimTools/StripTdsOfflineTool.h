@@ -14,6 +14,9 @@
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 
+#include "MuonDigitContainer/sTgcDigitContainer.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+
 //forward declarations
 class IIncidentSvc;
 class IAtRndmGenSvc;
@@ -101,9 +104,6 @@ namespace NSWL1 {
 
     // properties: container and service names
     StringProperty   m_rndmEngineName;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-    StringProperty   m_sTgcDigitContainer;                  //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-    StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
@@ -128,6 +128,8 @@ namespace NSWL1 {
     std::vector<int > *m_strip_wedge=0;                           //!< multipletId
     std::vector<float > *m_strip_time=0;                           //!< multipletId // And this is not the multiplet id 
 
+    SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
+    SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};
 
   };  // end of StripTdsOfflineTool class
 

@@ -10,15 +10,15 @@
 
 
 importHandler::importHandler(const std::string& s,
-                             AGDDController& controller)
-  : XMLHandler(s),
-    m_controller (controller)
+                             AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void importHandler::ElementHandle()
+void importHandler::ElementHandle(AGDDController& c,
+                                  xercesc::DOMNode *t)
 {
-	std::string filename=getAttributeAsString("filename");
+	std::string filename=getAttributeAsString(c, t, "filename");
 	std::cout<<" trying to parse file "<<filename<<std::endl;
-	m_controller.GetParser()->ParseFileAndNavigate(filename);
+	c.GetParser()->ParseFileAndNavigate(c, filename);
 }

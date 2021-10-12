@@ -56,9 +56,6 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))    
-
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     result.merge(PixelGeometryCfg( inputFlags ))

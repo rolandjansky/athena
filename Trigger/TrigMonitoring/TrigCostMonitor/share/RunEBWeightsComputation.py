@@ -30,7 +30,6 @@ def hltConfigSvcCfg(menuFile):
     hltConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")("HLTConfigSvc")
     hltConfigSvc.ConfigSource = "None"
     hltConfigSvc.InputType = "file"
-    hltConfigSvc.XMLMenuFile = "None"
     hltConfigSvc.JsonFileName = menuFile
 
     acc.addService(hltConfigSvc, False, True)

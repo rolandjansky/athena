@@ -281,7 +281,7 @@ def geoModelCfg(flags):
   acc = ComponentAccumulator()
   from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
   acc.merge( BeamPipeGeometryCfg( flags ) )
-  from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+  from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
   acc.merge( InDetGeometryCfg( flags ) )
 
   return acc

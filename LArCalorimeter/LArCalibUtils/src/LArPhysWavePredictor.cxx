@@ -136,6 +136,7 @@ StatusCode LArPhysWavePredictor::initialize()
 
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   return StatusCode::SUCCESS ;
@@ -194,11 +195,21 @@ StatusCode LArPhysWavePredictor::stop()
   }   
   
   // Retrieve cabling
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling=*cablingHdl;
-  if (!cabling) {
-    ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
-    return StatusCode::FAILURE;
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+        return StatusCode::FAILURE;
+    }
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+       return StatusCode::FAILURE;
+    }
   }
 
   // Get parameters from detStore (access through abtract interfaces)

@@ -31,9 +31,7 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDmDetDescr/CaloDmDescrManager.h"
-#include "CaloDetDescr/CaloDepthTool.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include <CLHEP/Vector/LorentzVector.h>
@@ -62,7 +60,6 @@ using CLHEP::MeV;
 GetLCSinglePionsPerf::GetLCSinglePionsPerf(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
     m_id_helper(nullptr),
-    m_calo_dd_man(nullptr),
     m_calo_id(nullptr),
     m_caloDmDescrManager(nullptr),
     m_outputFileName("CheckSinglePionsReco.root"),
@@ -180,11 +177,7 @@ GetLCSinglePionsPerf::~GetLCSinglePionsPerf()
 **************************************************************************** */
 StatusCode GetLCSinglePionsPerf::initialize()
 {
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();
-
+  ATH_CHECK( detStore()->retrieve(m_calo_id,"CaloCell_ID") );
   ATH_CHECK( detStore()->retrieve(m_id_helper) );
 
 

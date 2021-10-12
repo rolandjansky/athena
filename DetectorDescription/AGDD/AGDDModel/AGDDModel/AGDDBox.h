@@ -12,9 +12,12 @@
 
 class AGDDBox: public AGDDVolume {
 public:
-	AGDDBox(const std::string& s):AGDDVolume(s),m_x(0),m_y(0),m_z(0) {}
+	AGDDBox(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_x(0),m_y(0),m_z(0) {}
 	~AGDDBox() {}
-	void SetXYZ(std::vector<double> v) 
+	void SetXYZ(const std::vector<double>& v) 
 	{
 		m_x=v[0];
 		m_y=v[1];

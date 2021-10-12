@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCSINGLEPIONSPERF_H
@@ -26,9 +26,7 @@
 
 
 class AtlasDetectorID;
-class CaloDetDescrManager;
 class CaloCell_ID;
-class CaloDepthTool;
 class CaloDmDescrManager;
 
 class TFile;
@@ -59,9 +57,7 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     enum keys_norm_level {kLEVEL_PARTICLE, kLEVEL_CALIBHIT, kLEVEL_CALIBHIT_IDEAL };
 
     const AtlasDetectorID* m_id_helper;
-    const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;
-    //CaloDepthTool* m_caloDepthTool;
     const CaloDmDescrManager *m_caloDmDescrManager;
 
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterBasicCollName;

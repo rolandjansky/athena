@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigValTools )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Graf Gpad RIO Core MathCore Postscript )
+find_package( psutil )
 
 # Component(s) in the package:
 atlas_add_library( TrigValTools

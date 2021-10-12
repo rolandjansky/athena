@@ -10,4 +10,4 @@ find_package( GeoModel COMPONENTS GeoModelKernel )
 atlas_add_component( ZDC_GeoM
 		     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel GeoModelInterfaces StoreGateLib )
+                     LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel GeoModelInterfaces StoreGateLib AthenaBaseComps )

@@ -345,8 +345,14 @@ TrigConf::Selection::wpToString(TrigConf::Selection::WP wp)
       return "Medium";
    if (wp == Selection::WP::TIGHT)
       return "Tight";
-   if (wp == Selection::WP::HAD)
-      return "Had";
+   if (wp == Selection::WP::HADLOOSE)
+      return "HadLoose";
+   if (wp == Selection::WP::HADMEDIUM)
+      return "HadMedium";
+   if (wp == Selection::WP::HADTIGHT)
+      return "HadTight";
+   if (wp == Selection::WP::HAD) // Had = HadMedium for backward compatibility
+      return "HadMedium";
    throw std::runtime_error("Unknown working point " + std::to_string(int(wp)));
 }
 
@@ -361,7 +367,13 @@ TrigConf::Selection::stringToWP(const std::string & wpStr)
       return Selection::WP::MEDIUM;
    if (wpStr == "Tight")
       return Selection::WP::TIGHT;
-   if (wpStr == "Had")
-      return Selection::WP::HAD;
+   if (wpStr == "HadLoose")
+      return Selection::WP::HADLOOSE;
+   if (wpStr == "HadMedium")
+      return Selection::WP::HADMEDIUM;
+   if (wpStr == "HadTight")
+      return Selection::WP::HADTIGHT;
+   if (wpStr == "Had") // Had = HadMedium for backward compatibility
+      return Selection::WP::HADMEDIUM; 
    throw std::runtime_error("Unknown working point name " + wpStr);
 }

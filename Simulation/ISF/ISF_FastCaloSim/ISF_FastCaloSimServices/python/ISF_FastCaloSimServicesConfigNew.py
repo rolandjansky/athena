@@ -52,11 +52,8 @@ def EmptyCellBuilderToolCfg(flags, name="ISF_EmptyCellBuilderTool", **kwargs):
 
 
 def LegacyFastShowerCellBuilderToolCfg(flags, name="ISF_LegacyFastShowerCellBuilderTool", **kwargs):
-    acc = FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
-    FastShowerCellBuilderTool = acc.popPrivateTools()
-    FastShowerCellBuilderTool.Invisibles += [13]
-    acc.setPrivateTools(FastShowerCellBuilderTool)
-    return acc
+    kwargs.setdefault("Invisibles", [0, 13])
+    return FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
 
 
 def PileupFastShowerCellBuilderToolCfg(flags, name="ISF_PileupFastShowerCellBuilderTool", **kwargs):

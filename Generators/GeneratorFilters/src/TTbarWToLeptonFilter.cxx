@@ -156,6 +156,7 @@ StatusCode TTbarWToLeptonFilter::filterEvent() {
       HepMC::GenParticle * grandchild_mcpart = (*grandchild_mcpartItr);
 		  int grandchild_pid = grandchild_mcpart->pdg_id();
 
+                  // cppcheck-suppress shiftNegative; false positive!
 		  ATH_MSG_DEBUG("W (t/tbar) has " << mcpart_n_particles_out << " children and the pdg_id of the next is " << grandchild_pid);
 
 		  // Check if the W's child is W again. If yes, then move to its next decay vertex in a decay tree

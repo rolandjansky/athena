@@ -154,14 +154,16 @@ void MuonAGDDToolHelper::SetNSWComponents()
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonAGDDToolHelper::SetNSWComponents() - Could not retrieve %s from ServiceLocator", __FILE__, __LINE__, m_svcName.c_str()));
   }
 	
-  agddsvc->addHandler(new micromegasHandler("micromegas"));
-  agddsvc->addHandler(new mm_TechHandler("mm_Tech"));
-  agddsvc->addHandler(new sTGCHandler("sTGC"));
-  agddsvc->addHandler(new sTGC_readoutHandler("sTGC_readout"));
-  agddsvc->addHandler(new sTGC_TechHandler("sTGC_Tech"));
-  agddsvc->addHandler(new mmSpacerHandler("mmSpacer"));
-  agddsvc->addHandler(new mmSpacer_TechHandler("mmSpacer_Tech"));
-  agddsvc->addHandler(new mm_readoutHandler("mm_readout"));
+  IAGDDtoGeoSvc::LockedController c = agddsvc->getController();
+
+  agddsvc->addHandler(new micromegasHandler("micromegas", *c));
+  agddsvc->addHandler(new mm_TechHandler("mm_Tech", *c));
+  agddsvc->addHandler(new sTGCHandler("sTGC", *c));
+  agddsvc->addHandler(new sTGC_readoutHandler("sTGC_readout", *c));
+  agddsvc->addHandler(new sTGC_TechHandler("sTGC_Tech", *c));
+  agddsvc->addHandler(new mmSpacerHandler("mmSpacer", *c));
+  agddsvc->addHandler(new mmSpacer_TechHandler("mmSpacer_Tech", *c));
+  agddsvc->addHandler(new mm_readoutHandler("mm_readout", *c));
 }	
 
 void MuonAGDDToolHelper::setAGDDtoGeoSvcName(const std::string& name) {

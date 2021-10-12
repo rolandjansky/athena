@@ -12,7 +12,10 @@
 
 class AGDDTrd: public AGDDVolume {
 public:
-	AGDDTrd(const std::string& s):AGDDVolume(s),m_x1(0),m_x2(0),m_y1(0),m_y2(0),m_z(0) {}
+	AGDDTrd(const std::string& s,
+                AGDDVolumeStore& vs,
+                AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_x1(0),m_x2(0),m_y1(0),m_y2(0),m_z(0) {}
 	void SetXYZ(const std::vector<double>& v) 
 	{
 		m_x1=v[0];

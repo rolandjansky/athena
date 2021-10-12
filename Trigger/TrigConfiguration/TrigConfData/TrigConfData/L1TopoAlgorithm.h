@@ -124,7 +124,9 @@ namespace TrigConf {
           gXE     = 7, 
           gXERHO  = 8, 
           gXEPUFIT = 9, 
-          gTE     = 10 };
+          gTE     = 10,
+          jXEPerf = 11, // Only for simulation studies!
+      };
 
       static std::string flavourIntToStr(const unsigned int flavInt){
           if(flavInt==int(FLAV::jXE))     return "jXE";
@@ -138,6 +140,7 @@ namespace TrigConf {
           if(flavInt==int(FLAV::gXERHO))  return "gXERHO";
           if(flavInt==int(FLAV::gXEPUFIT)) return "gXEPUFIT";
           if(flavInt==int(FLAV::gTE))     return "gTE";
+          if(flavInt==int(FLAV::jXEPerf))     return "jXEPerf";
           throw std::runtime_error("Flavour " + std::to_string(flavInt) + " for EnergyThreshold algorithm not recongnised!");
       };
       static unsigned int flavourStrToInt(const std::string & flavStr){
@@ -152,6 +155,7 @@ namespace TrigConf {
           if(flavStr=="gXERHO")  return int(FLAV::gXERHO);
           if(flavStr=="gXEPUFIT") return int(FLAV::gXEPUFIT);
           if(flavStr=="gTE")     return int(FLAV::gTE);
+          if(flavStr=="jXEPerf")     return int(FLAV::jXEPerf);
           throw std::runtime_error("Flavour " + flavStr + " for EnergyThreshold algorithm not recongnised!");
       };
 

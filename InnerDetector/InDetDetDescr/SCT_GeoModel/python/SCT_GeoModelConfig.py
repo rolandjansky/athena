@@ -5,18 +5,22 @@ from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def SCT_GeometryCfg( flags ):
+def SCT_GeometryCfg(flags):
+    from AtlasGeoModel.GeometryDBConfig import InDetGeometryDBSvcCfg
+    db = InDetGeometryDBSvcCfg(flags)
+
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc = GeoModelCfg( flags )
-    geoModelSvc=acc.getPrimary()
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    SCT_DetectorTool=CompFactory.SCT_DetectorTool
-    sctDetectorTool = SCT_DetectorTool()
+    acc = GeoModelCfg(flags)
+    geoModelSvc = acc.getPrimary()
+
+    sctDetectorTool = CompFactory.SCT_DetectorTool()
+    sctDetectorTool.GeometryDBSvc = db.getPrimary()
     sctDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     sctDetectorTool.Alignable = True # make this a flag?
     sctDetectorTool.DetectorName = "SCT"
     geoModelSvc.DetectorTools += [ sctDetectorTool ]
+    acc.merge(db)
+
     if flags.GeoModel.Align.Dynamic:
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))

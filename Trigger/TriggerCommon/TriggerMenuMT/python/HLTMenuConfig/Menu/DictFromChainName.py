@@ -37,7 +37,7 @@ def getOverallL1item(chainName):
     if l1seed == 'L1_test': #Multiseeded chains are build like this
         return 'L1_EM24VHI,L1_MU20'
     if l1seed in ['L1_Bkg', 'L1_Standby', 'L1_Calo', 'L1_Calo_EMPTY', 'L1_PhysicsHigh_noPS', 'L1_PhysicsVeryHigh_noPS',
-        'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS'] :
+                  'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS', 'L1_BKeePrimary', 'L1_BKeePrescaled'] :
         # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         lvl1name = getL1MenuFileName(ConfigFlags)
@@ -502,9 +502,8 @@ def dictFromChainName(chainInfo):
         topoStartFrom   = chainInfo.topoStartFrom
         monGroups       = chainInfo.monGroups
 
-
     else:
-        assert True, "Format of chainInfo passed to genChainDict not known"
+        raise RuntimeError("Format of chainInfo passed to genChainDict not known")
 
     L1item = getL1item(chainName)
 
@@ -531,7 +530,7 @@ def dictFromChainName(chainInfo):
                     #incorrectL1=True
 
         if thisSignature in ['Electron','Photon']:
-            if 'EM' not in thisL1:
+            if 'EM' not in thisL1 and 'BKee' not in thisL1 and 'All' not in thisL1:
                 log.error("Standard egamma chains should be seeded from L1_EM. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
                 #incorrectL1=True
 

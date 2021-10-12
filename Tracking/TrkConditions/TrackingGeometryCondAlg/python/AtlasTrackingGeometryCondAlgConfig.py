@@ -6,6 +6,8 @@ Trk__TrackingGeometryCondAlg=CompFactory.Trk.TrackingGeometryCondAlg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg 
 
+from AthenaCommon.Constants import VERBOSE,INFO
+
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 
 # This file is a placeholder - the entire way we build geometry needs to be rewritten so this is to unblock new configuration developments for the moment.
@@ -248,8 +250,8 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   # Pixel
   if flags.Detector.GeometryITkPixel:
     # for itk pixel DetectorElement conditions data :
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-    result.merge(ITkPixelReadoutGeometryCfg(flags))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+    result.merge(ITkPixelGeometryCfg(flags))
 
     #Pixel building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
@@ -319,8 +321,8 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
 
   if flags.Detector.GeometryITkStrip:
     # for itk strip DetectorElement conditions data :
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-    result.merge(ITkStripReadoutGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+    result.merge(ITkStripGeometryCfg(flags))
 
     # Strip building
     StripLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'StripLayerBuilder'+nameSuffix)
@@ -367,7 +369,7 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
 
   # helpers for the InDetTrackingGeometry Builder : tracking volume helper for gluing
   Trk__TrackingVolumeHelper=CompFactory.Trk.TrackingVolumeHelper
-  InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name ='InDetTrackingVolumeHelper')
+  InDetTrackingVolumeHelper = Trk__TrackingVolumeHelper(name ='InDetTrackingVolumeHelper')
   InDetTrackingVolumeHelper.BarrelLayerBinsZ   = flags.ITk.trackingGeometry.passiveBarrelMatZbins
   InDetTrackingVolumeHelper.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
   InDetTrackingVolumeHelper.EndcapLayerBinsR   = flags.ITk.trackingGeometry.passiveEndcapMatRbins
@@ -408,16 +410,18 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
                                               MinimalRadialGapForVolumeSplit = flags.ITk.trackingGeometry.minimalRadialGapForVolumeSplit,                                              
                                               ReplaceAllJointBoundaries = True,
                                               BuildBoundaryLayers=True,
-                                              ExitVolumeName='InDet::Containers::InnerDetector')
+                                              ExitVolumeName='InDet::Containers::InnerDetector',
+                                              RemoveHGTD=True,
+                                              OutputLevel = VERBOSE)
 
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
-def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, setLayerAssociation = True, namePrefix='',nameSuffix=''):
+def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix='',nameSuffix=''):
   # The following replaces LArCalorimeter/LArTrackingGeometry/python/ConfiguredLArVolumeBuilder.py
   from LArGeoAlgsNV.LArGMConfig import LArGMCfg
   result.merge(LArGMCfg(flags))
   LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
   lArVolumeBuilder = LAr__LArVolumeBuilder(namePrefix+'LArVolumeBuilder'+nameSuffix,
-                                           TrackingVolumeHelper = trackingVolumeHelper,)
+                                           TrackingVolumeHelper = trackingVolumeHelper)
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
@@ -425,7 +429,7 @@ def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, s
   result.merge(TileGMCfg(flags))
   Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
   tileVolumeBuilder = Tile__TileVolumeBuilder( namePrefix+'TileVolumeBuilder'+nameSuffix,
-                                               TrackingVolumeHelper = trackingVolumeHelper,)
+                                               TrackingVolumeHelper = trackingVolumeHelper)
   result.addPublicTool(tileVolumeBuilder)
   
   Calo__CaloTrackingGeometryBuilder=CompFactory.Calo.CaloTrackingGeometryBuilderCond
@@ -441,8 +445,10 @@ def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, s
 
 def _getHGTD_TrackingGeometryBuilder(name, flags, result, envelopeDefinitionSvc, namePrefix='', nameSuffix='', setLayerAssociation = True):
   # for hgtd DetectorElement conditions data :
-  from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-
+  from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_ReadoutGeometryCfg
+  result.merge(HGTD_ReadoutGeometryCfg(flags))
+  
+  # layer builder for HGTD
   HGTD_LayerBuilder=CompFactory.HGTDet.HGTD_LayerBuilderCond(namePrefix+'HGTD_LayerBuilder'+nameSuffix)
   HGTD_LayerBuilder.Identification = 'HGTD'
   HGTD_LayerBuilder.SetLayerAssociation = setLayerAssociation
@@ -463,7 +469,7 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result, envelopeDefinitionSvc,
 
   # helpers for the InDetTrackingGeometry Builder : tracking volume helper for gluing
   Trk__TrackingVolumeHelper=CompFactory.Trk.TrackingVolumeHelper
-  HGTD_TrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name ='HGTD_TrackingVolumeHelper')
+  HGTD_TrackingVolumeHelper = Trk__TrackingVolumeHelper(name ='HGTD_TrackingVolumeHelper')
   #TODO move these variables to HGTD configuration
   HGTD_TrackingVolumeHelper.BarrelLayerBinsZ   = flags.ITk.trackingGeometry.passiveBarrelMatZbins
   HGTD_TrackingVolumeHelper.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
@@ -485,12 +491,18 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result, envelopeDefinitionSvc,
   HGTD_CylinderVolumeCreator.PassiveLayerBinsRZ   = flags.ITk.trackingGeometry.passiveBarrelMatZbins
   HGTD_CylinderVolumeCreator.PassiveLayerBinsPhi  = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
   
+  result.addPublicTool(HGTD_CylinderVolumeCreator)
+  
+  if (namePrefix+name+nameSuffix).find('CondCond')>=0 :
+      raise Exception('Invalid name composition %s + %s + %s ' % (namePrefix,name,nameSuffix))
+  
   # the hgtd tracking geometry builder
   HGTDet__HGTD_TrackingGeometryBuilder=CompFactory.HGTDet.HGTD_TrackingGeometryBuilderCond
   return HGTDet__HGTD_TrackingGeometryBuilder(namePrefix+name+nameSuffix,
                                               LayerBuilder = HGTD_LayerBuilder,
                                               EnvelopeDefinitionSvc=envelopeDefinitionSvc,
-                                              TrackingVolumeCreator = HGTD_CylinderVolumeCreator)
+                                              TrackingVolumeCreator = HGTD_CylinderVolumeCreator,
+                                              OutputLevel = VERBOSE)
 
 # Originally this function would use was TrkDetFlags.MaterialSource() and TrkDetFlags.MaterialValidation(). For new configuration, (temporarily?) pass as parameters.
 # https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py#L112
