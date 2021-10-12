@@ -95,7 +95,7 @@ namespace LVL1
     declareProperty("LumiBCIDTool", m_caloLumiBCIDTool);
     declareProperty("CompensateForNoise", m_useNoise = true);
     declareProperty("CompensateForBCID", m_useBCID = true);
-    declareProperty("CellTimingFile", m_cellTimingFile = "/afs/cern.ch/user/l/lbaltes/public/cellfile.0.root");
+    declareProperty("CellTimingFile", m_cellTimingFile = "Run3L1CaloSimulation/SuperCells/TimingDistributions.20210727.MiddleTrain.r12406.root");
   }
 
   SCEmulation::~SCEmulation() {}
