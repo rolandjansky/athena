@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -57,6 +57,7 @@ namespace asg {
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
       using namespace msgToolStore;
 
+      std::lock_guard<std::mutex> lock (s_toolMutex);
       ToolMap_t::const_iterator itool = s_tools.find( name );
       if( itool != s_tools.end() )
         return itool->second;
