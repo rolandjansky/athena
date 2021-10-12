@@ -276,13 +276,12 @@ class JetChainConfiguration(ChainConfigurationBase):
                  'tboundary': 'SHARED'
                  }
             )
-            preselChainDict['chainParts'] += [dummyLegPart]*padding
+            preselChainDict['chainParts'] += [dict(dummyLegPart) for i in range(padding)]
             # Last one is not permitted to be shared as there is nothing following
             preselChainDict['chainParts'][-1]['chainPartName']='j0'
             preselChainDict['chainParts'][-1]['tboundary']=''
 
-        for ip,p in enumerate(preselChainDict['chainParts']):
-            p['chainPartIndex'] = ip
+        assert(len(preselChainDict['chainParts'])==len(self.chainPart))
         jetDefStr = jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr
