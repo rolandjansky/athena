@@ -1401,6 +1401,12 @@ namespace top {
           systematicTree->makeOutputVariable(m_klfitter_parameters, "klfitter_parameters");
           systematicTree->makeOutputVariable(m_klfitter_parameterErrors, "klfitter_parameterErrors");
           systematicTree->makeOutputVariable(m_klfitter_bestPermutation, "klfitter_bestPermutation");
+
+	  /// Only for SingleT option
+	  if(m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
+	    systematicTree->makeOutputVariable(m_klfitter_logLikelihood_t1, "klfitter_logLikelihood_t1");
+	    systematicTree->makeOutputVariable(m_klfitter_logLikelihood_t2, "klfitter_logLikelihood_t2");
+	  }
         }
 
         if (m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "JETPERM_ONLY") {
@@ -1471,7 +1477,7 @@ namespace top {
                 systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_jetIndex, "klfitter_model_Higgs_b2_jetIndex");
               }
             }
-          } else if (m_config->KLFitterLH() == "ttbar_AllHadronic") {
+          } else if (m_config->KLFitterLH() == "ttbar_AllHadronic" || m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
             systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_pt, "klfitter_model_b_from_top1_pt");
             systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_eta, "klfitter_model_b_from_top1_eta");
             systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_phi, "klfitter_model_b_from_top1_phi");
@@ -3728,12 +3734,12 @@ namespace top {
       unsigned int nPermutations(0), iPerm(0), bestPerm(0);
       bool validKLFitter(false);
       m_klfitter_selected = 0;
+
       if (event.m_KLFitterResults != nullptr) {
         validKLFitter = true;
         m_klfitter_selected = 1;
         nPermutations = event.m_KLFitterResults->size();
       }
-
       m_klfitter_selection.resize(nPermutations);
       m_klfitter_minuitDidNotConverge.resize(nPermutations);
       m_klfitter_fitAbortedDueToNaN.resize(nPermutations);
@@ -3748,7 +3754,14 @@ namespace top {
       m_klfitter_parameters.resize(nPermutations);
       m_klfitter_parameterErrors.resize(nPermutations);
 
+      if(m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
+	m_klfitter_logLikelihood_t1.resize(nPermutations);
+	m_klfitter_logLikelihood_t2.resize(nPermutations);
+      }
+
+
       if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+
         /// Model
         m_klfitter_model_bhad_pt.resize(nPermutations);
         m_klfitter_model_bhad_eta.resize(nPermutations);
@@ -3812,7 +3825,7 @@ namespace top {
         m_klfitter_model_nu_eta.resize(nPermutations);
         m_klfitter_model_nu_phi.resize(nPermutations);
         m_klfitter_model_nu_E.resize(nPermutations);
-      } else if (m_config->KLFitterLH() == "ttbar_AllHadronic") {
+      } else if (m_config->KLFitterLH() == "ttbar_AllHadronic" || m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
         m_klfitter_model_b_from_top1_pt.resize(nPermutations);
         m_klfitter_model_b_from_top1_eta.resize(nPermutations);
         m_klfitter_model_b_from_top1_phi.resize(nPermutations);
@@ -3876,6 +3889,10 @@ namespace top {
           m_klfitter_parameters[iPerm] = klPtr->parameters();
           m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
+	  if(m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
+	    m_klfitter_logLikelihood_t1[iPerm] = klPtr->logLikelihood_t1();
+	    m_klfitter_logLikelihood_t2[iPerm] = klPtr->logLikelihood_t2();
+	  }
           /// Model
           if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
             m_klfitter_model_bhad_pt[iPerm] = klPtr->model_bhad_pt();
@@ -3939,7 +3956,7 @@ namespace top {
             m_klfitter_model_nu_eta[iPerm] = klPtr->model_nu_eta();
             m_klfitter_model_nu_phi[iPerm] = klPtr->model_nu_phi();
             m_klfitter_model_nu_E[iPerm] = klPtr->model_nu_E();
-          } else if (m_config->KLFitterLH() == "ttbar_AllHadronic") {
+          } else if (m_config->KLFitterLH() == "ttbar_AllHadronic" || m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
             m_klfitter_model_b_from_top1_pt[iPerm] = klPtr->model_b_from_top1_pt();
             m_klfitter_model_b_from_top1_eta[iPerm] = klPtr->model_b_from_top1_eta();
             m_klfitter_model_b_from_top1_phi[iPerm] = klPtr->model_b_from_top1_phi();

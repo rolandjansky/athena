@@ -12,7 +12,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "TopConfiguration/Tokenize.h"
-
+#include "TopEvent/KLFitterResult.h"
 
 // KLFitter include(s):
 #include "KLFitter/Fitter.h"
@@ -22,11 +22,13 @@
 #include "KLFitter/LikelihoodTopLeptonJets_Angular.h"
 #include "KLFitter/LikelihoodTTZTrilepton.h"
 #include "KLFitter/LikelihoodTopAllHadronic.h"
+#include "KLFitter/LikelihoodOneHadronicTop.h"
 #include "KLFitter/BoostedLikelihoodTopLeptonJets.h"
 #include "KLFitter/PhysicsConstants.h"
 #include "KLFitter/LikelihoodBase.h"
 #include "KLFitter/DetectorAtlas_8TeV.h"
 #include "KLFitter/Permutations.h"
+
 
 // system include(s):
 #include <iostream>
@@ -60,7 +62,8 @@ namespace top {
       kLeadingThree, kLeadingFour, kLeadingFive, kLeadingSix,
       kLeadingSeven, kLeadingEight, kBtagPriorityThreeJets,
       kBtagPriorityFourJets, kBtagPriorityFiveJets, kBtagPrioritySixJets,
-      kBtagPrioritySevenJets, kBtagPriorityEightJets
+      kBtagPrioritySevenJets, kBtagPriorityEightJets,
+      kAutoSet
     };
   }
 
@@ -78,6 +81,9 @@ namespace top {
     virtual StatusCode execute(const top::Event&);
     /// Function finalizing the tool
     virtual StatusCode finalize();
+
+    bool HasTag(const xAOD::Jet& jet, double& weight) const; //moved here bevause it is used by KLFitterRun
+
   private:
     // set jets depending on selection mode
     bool setJets(const top::Event&, KLFitter::Particles* inputParticles);
@@ -100,6 +106,17 @@ namespace top {
 
     bool setJetskBtagPriority(const top::Event&, KLFitter::Particles* inputParticles, const unsigned int maxJets);
 
+    bool setJetLists(const top::Event& event);
+    bool setJetsFromAutoSet(const top::Event& event,KLFitter::Particles* inputParticles,std::vector<uint> BjetsToRun,std::vector<uint> LFjetsToRun); 
+
+    void permutationLoopStandard(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer);
+    bool permutationLoopAutoSet(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event);
+    bool permutationLoopAutoSetSingleT(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event);
+
+    void findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,float& sumEventProbability);
+    void findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,float& sumEventProbability);
+
+
     // configuration
     std::shared_ptr<top::TopConfig> m_config;
     float m_massTop;
@@ -109,7 +126,6 @@ namespace top {
 
     // Tools and functions for btagging
     ToolHandle<IBTaggingEfficiencyTool> m_btagging_eff_tool;
-    bool HasTag(const xAOD::Jet& jet, double& weight) const;
     void retrieveEfficiencies(const xAOD::Jet& jet, float* efficiency, float* inefficiency);
 
     /// KLFitter parameters, to be set by input file
@@ -134,14 +150,24 @@ namespace top {
     std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> m_myLikelihood_TTZ;
     std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
     std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;
+    std::unique_ptr<KLFitter::LikelihoodOneHadronicTop> m_myLikelihood_SingleTop;
 
     std::unique_ptr<KLFitter::DetectorAtlas_8TeV> m_myDetector;
 
     top::KLFitterJetSelection::JetSelectionMode m_jetSelectionModeKLFitterEnum;
     KLFitter::LikelihoodBase::BtaggingMethod m_bTaggingMethodKLFitterEnum;
 
+    //added for AutoSet option   
+    int m_Njcut;
+    int m_nb;
+    int m_delta;
+    std::vector<unsigned int> m_canBeBJets; //for AutoSet option
+    std::vector<unsigned int> m_canBeLFJets; //for AutoSet option
+
+
     /// The KLFitter
     std::unique_ptr<KLFitter::Fitter> m_myFitter;
+
   };
 }
 #endif

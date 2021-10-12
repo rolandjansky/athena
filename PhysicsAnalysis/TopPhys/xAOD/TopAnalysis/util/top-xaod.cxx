@@ -504,6 +504,13 @@ int main(int argc, char** argv) {
   std::vector<float> totalEventsWeighted_LHE3;
   std::vector<double> totalEventsWeighted_LHE3_temp;// having doubles is necessary in case of re-calculation of the sum
                                                     // of weights on the fly
+  bool saveSumWeightsSquared=true;
+  float processedEventsWeightedSquared = 0;
+  double processedEventsWeightedSquared_temp = 0;
+  float processedEventsWeighted = 0;
+  double processedEventsWeighted_temp = 0;
+  ULong64_t processedEvents = 0;
+
   std::vector<std::string> names_LHE3;
   bool recalc_LHE3 = false;
   bool recalculateNominalWeightSum = false;
@@ -525,6 +532,11 @@ int main(int argc, char** argv) {
     sumWeights->Branch("names_mc_generator_weights", &names_LHE3);
   }
   sumWeights->Branch("totalEvents", &totalEvents, "totalEvents/l");
+  if(saveSumWeightsSquared) {
+    sumWeights->Branch("processedEvents",&processedEvents);
+    sumWeights->Branch("processedEventsWeighted",&processedEventsWeighted);
+    sumWeights->Branch("processedEventsWeightedSquared",&processedEventsWeightedSquared);
+  }
 
   for(auto& it : boostedTaggersSFSysNames) {
     sumWeights->Branch(("sysNames_"+it.first).c_str(),&it.second);
@@ -807,6 +819,13 @@ int main(int argc, char** argv) {
           totalEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
           totalEvents++;
         }
+
+	if(saveSumWeightsSquared) {
+	  processedEvents++;
+	  const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
+	  processedEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
+	  processedEventsWeightedSquared_temp += pow(ei->mcEventWeights().at(nominalWeightIndex),2);
+	}
 
         if(topConfig->doMCGeneratorWeights())
         {
@@ -1114,6 +1133,10 @@ int main(int argc, char** argv) {
   if(recalculateNominalWeightSum)
   {
     totalEventsWeighted=totalEventsWeighted_temp;
+  }
+  if(saveSumWeightsSquared) {
+    processedEventsWeighted=processedEventsWeighted_temp;
+    processedEventsWeightedSquared=processedEventsWeightedSquared_temp;
   }
   sumWeights->Fill();
   outputFile->cd();

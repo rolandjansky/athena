@@ -26,6 +26,9 @@ namespace xAOD {
     AUX_VARIABLE(parameters);
     AUX_VARIABLE(parameterErrors);
 
+    AUX_VARIABLE(logLikelihood_t1);
+    AUX_VARIABLE(logLikelihood_t2);
+
     AUX_VARIABLE(model_bhad_pt);
     AUX_VARIABLE(model_bhad_eta);
     AUX_VARIABLE(model_bhad_phi);
@@ -141,6 +144,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, eventProbability, setEventProbability)
   AUXSTORE_OBJECT_SETTER_AND_GETTER(KLFitterResult, std::vector<double>, parameters, setParameters)
   AUXSTORE_OBJECT_SETTER_AND_GETTER(KLFitterResult, std::vector<double>, parameterErrors, setParameterErrors)
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, logLikelihood_t1, setLogLikelihood_t1)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, logLikelihood_t2, setLogLikelihood_t2)
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, model_bhad_pt, setModel_bhad_pt)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, model_bhad_eta, setModel_bhad_eta)
