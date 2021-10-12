@@ -53,6 +53,8 @@ def makeMetAnalysisSequence( dataType, metSuffix,
     alg.makerTool.DoPFlow = 'PFlow' in metSuffix
     if useFJVT:
         alg.makerTool.JetRejectionDec = 'passFJVT'
+    if dataType != "data" :
+        addPrivateTool( alg, 'systematicsTool', 'met::METSystematicsTool' )
     alg.metCore = 'MET_Core_' + metSuffix
     alg.metAssociation = 'METAssoc_' + metSuffix
     seq.append( alg,
@@ -63,12 +65,6 @@ def makeMetAnalysisSequence( dataType, metSuffix,
                                   'taus'      : 'taus',
                                   'invisible' : 'invisible'},
                 outputPropName = 'met' )
-
-    if dataType != "data" :
-        alg = createAlgorithm( 'CP::MetSystematicsAlg', 'MetSystematicsAlg' + postfix )
-        addPrivateTool( alg, 'systematicsTool', 'met::METSystematicsTool' )
-        seq.append( alg, inputPropName = 'met' )
-        pass
 
     # Set up the met builder algorithm:
     alg = createAlgorithm( 'CP::MetBuilderAlg', 'MetBuilderAlg' + postfix )
