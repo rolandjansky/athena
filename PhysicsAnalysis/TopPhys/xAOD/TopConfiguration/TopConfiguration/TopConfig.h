@@ -835,6 +835,18 @@ namespace top {
       }
     }
 
+    inline virtual void electrond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_electron_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void electrondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_electron_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void electronIsolation(const std::string& iso) {
       if (!m_configFixed) {
         m_electronIsolation = iso;
@@ -916,6 +928,8 @@ namespace top {
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
     inline virtual float electronPtcut()       const {return m_electronPtcut;}
+    inline virtual float electrond0Sigcut()    const {return m_electron_d0SigCut;}
+    inline virtual float electrondeltaz0cut()  const {return m_electron_delta_z0;}
     inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
     inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
     std::string const& electronIsolationSF() const {return m_electronIsolationSF;}
@@ -1030,6 +1044,18 @@ namespace top {
       }
     }
 
+    inline virtual void muond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_muon_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void muondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_muon_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void muonEtacut(const float eta) {
       if (!m_configFixed) {
         m_muonEtacut = eta;
@@ -1110,6 +1136,8 @@ namespace top {
 
     inline virtual float muonPtcut() const {return m_muonPtcut;}
     inline virtual float muonEtacut() const {return m_muonEtacut;}
+    inline virtual float muond0Sigcut()    const {return m_muon_d0SigCut;}
+    inline virtual float muondeltaz0cut()  const {return m_muon_delta_z0;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
     inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
