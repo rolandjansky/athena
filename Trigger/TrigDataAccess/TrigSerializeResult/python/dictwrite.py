@@ -44,6 +44,8 @@ objects = [
 'xAOD::TrigRNNOutput_v1',
 'xAOD::TrigRNNOutputContainer_v1',
 'xAOD::TrigRNNOutputAuxContainer_v1',
+'xAOD::TrigRNNOutputContainer_v2',
+'xAOD::TrigRNNOutputAuxContainer_v2',
 'xAOD::CaloClusterContainer_v1',
 'xAOD::CaloClusterAuxContainer_v2',
 'xAOD::L2StandAloneMuonContainer_v1',
