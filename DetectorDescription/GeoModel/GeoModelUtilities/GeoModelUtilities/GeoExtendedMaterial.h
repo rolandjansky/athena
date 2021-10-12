@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoExtendedMaterial_h
 #define GeoExtendedMaterial_h 1
 
-#include "GeoModelKernel/GeoMaterial.h"
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "GeoPrimitives/GeoPrimitives.h"
 
+#include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
 
 // Physical constants

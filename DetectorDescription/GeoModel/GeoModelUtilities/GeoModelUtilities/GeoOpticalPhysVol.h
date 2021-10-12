@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoOpticalPhysVol_h
 #define GeoOpticalPhysVol_h 1
+
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "GeoPrimitives/GeoPrimitives.h"
 
 #include "GeoModelKernel/GeoPhysVol.h"
 
