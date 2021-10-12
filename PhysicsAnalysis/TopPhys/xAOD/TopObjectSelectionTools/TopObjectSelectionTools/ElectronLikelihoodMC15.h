@@ -21,6 +21,8 @@ namespace top {
      * @brief Cut on likelihood electrons
      *
      * @param ptcut The minimum pT electrons should have
+     * @param d0SigCut The maximum d0 significance electrons should have
+     * @param delta_z0 The maximum delta_z0 electrons should have 
      * @param vetoCrack Do you want to veto 1.37 < |cluster_eta| < 1.52?
      * @param operatingPoint Likelihood operating point for the main object
      * definition
@@ -31,8 +33,17 @@ namespace top {
      */
     ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
                            const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+                           const bool applyTTVACut = true, const double d0SigCut = 5., const double delta_z0 = 0.5, 
+			   const bool applyChargeIDCut = false);
     // this constructor is kept for backward compatibility - isPrimaryxAOD is not needed anymore
+    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                           const std::string& operatingPointLoose, StandardIsolation* isolation,
+                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+    ElectronLikelihoodMC15(const bool,
+                           const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                           const std::string& operatingPointLoose, StandardIsolation* isolation,
+                           const bool applyTTVACut = true,  const double d0SigCut = 5., const double delta_z0 = 0.5,
+			   const bool applyChargeIDCut = false);
     ElectronLikelihoodMC15(const bool,
                            const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
                            const std::string& operatingPointLoose, StandardIsolation* isolation,
@@ -100,6 +111,10 @@ namespace top {
 
     ///Minimum pT that electrons should have
     double m_ptcut;
+
+    /// TTVA cuts
+    double m_d0SigCut;
+    double m_delta_z0;
 
     ///Veto the crack region?
     bool m_vetoCrack;

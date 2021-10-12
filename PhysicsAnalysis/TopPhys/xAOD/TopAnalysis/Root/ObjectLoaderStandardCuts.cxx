@@ -72,6 +72,8 @@ namespace top {
                                                                              topConfig->electronIsolation(),
                                                                              topConfig->electronIsolationLoose()),
                                                                            topConfig->applyTTVACut(),
+									   topConfig->electrond0Sigcut(), 
+									   topConfig->electrondeltaz0cut(),
                                                                            topConfig->useElectronChargeIDSelection()
                                                                            ));
       } else {
@@ -95,9 +97,10 @@ namespace top {
                                                                                           new top::AntiMuonIsolation(
                                                                                             topConfig->muonIsolation())));
       else objectSelection->muonSelection(new top::MuonMC15(topConfig->muonPtcut(),
-                                                            new top::StandardIsolation(topConfig->muonIsolation(),
-                                                                                       topConfig->muonIsolationLoose()),
-                                                            topConfig->applyTTVACut()));
+							    new top::StandardIsolation(topConfig->muonIsolation(),
+										       topConfig->muonIsolationLoose()),
+							    topConfig->applyTTVACut(), topConfig->muond0Sigcut(), topConfig->muondeltaz0cut()));
+      
     }
 
     ///-- Soft Muons --///

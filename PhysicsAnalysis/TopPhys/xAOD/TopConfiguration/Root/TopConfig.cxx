@@ -219,6 +219,8 @@ namespace top {
     m_electronIsolationSF("SetMe"),
     m_electronIsolationSFLoose("SetMe"),
     m_electronIsoSFs(true),
+    m_electron_d0SigCut(5.0),
+    m_electron_delta_z0(0.5),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
@@ -248,6 +250,8 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_muon_d0SigCut(3.0),
+    m_muon_delta_z0(0.5),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
@@ -1208,6 +1212,8 @@ namespace top {
     this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
     this->useEgammaPileupCorrection(settings->value("UseEgammaPileupCorrection"));
     this->electronPtcut(std::stof(settings->value("ElectronPt")));
+    this->electrond0Sigcut(std::stof(settings->value("Electrond0Sig")));
+    this->electrondeltaz0cut(std::stof(settings->value("Electrondeltaz0")));
     this->enablePromptLeptonImprovedVetoStudies(settings->value("EnablePromptLeptonImprovedVetoStudies"));
 
 
@@ -1282,6 +1288,8 @@ namespace top {
     // Muon configuration
     this->muonPtcut(std::stof(settings->value("MuonPt")));
     this->muonEtacut(std::stof(settings->value("MuonEta")));
+    this->muond0Sigcut(std::stof(settings->value("Muond0Sig")));
+    this->muondeltaz0cut(std::stof(settings->value("Muondeltaz0")));
     this->muonQuality(settings->value("MuonQuality"));
     this->muonQualityLoose(settings->value("MuonQualityLoose"));
     {

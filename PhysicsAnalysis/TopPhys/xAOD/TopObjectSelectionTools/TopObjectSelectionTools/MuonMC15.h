@@ -26,6 +26,12 @@ namespace top {
      */
     MuonMC15(const double ptcut,
              IsolationBase* isolation,
+             const bool applyTTVACut = true,
+	     const double d0SigCut = 3.0,
+	     const double delta_z0 = 0.5);
+    // For backward compatibility
+    MuonMC15(const double ptcut,
+             IsolationBase* isolation,
              const bool applyTTVACut = true);
 
     // Does nothing.
@@ -60,6 +66,10 @@ namespace top {
   protected:
     // Lower pT threshold to apply to object selection.
     double m_ptcut;
+
+    // TTVA cuts
+    double m_d0SigCut;
+    double m_delta_z0;
 
     // Proper tool to select muons.
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
