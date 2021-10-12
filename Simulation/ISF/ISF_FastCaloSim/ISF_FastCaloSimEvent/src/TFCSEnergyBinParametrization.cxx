@@ -166,8 +166,13 @@ FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simuls
   const float searchRand = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   const auto& Ebin_probability = m_pdgid_Ebin_probability.at(pdgid);
   int chosenBin=TMath::BinarySearch(n_bins()+1, Ebin_probability.data(), searchRand)+1;
-  if(chosenBin<0)        chosenBin = 0;
-  if(chosenBin>n_bins()) chosenBin = n_bins();
+  if(chosenBin<0){
+    ATH_MSG_WARNING("TFCSEnergyBinParametrization::simulate(): chosenBin<0 (will use chosenBin=0)");
+    chosenBin = 0;
+  } else if (chosenBin>n_bins()){
+    ATH_MSG_WARNING("TFCSEnergyBinParametrization::simulate(): chosenBin>n_bins() (will use chosenBin=n_bins())");
+    chosenBin = n_bins();
+  }
   simulstate.set_Ebin(chosenBin);
   ATH_MSG_DEBUG("Ebin="<<chosenBin);
 
