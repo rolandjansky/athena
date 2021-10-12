@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOMGT_ITAGINFOMGR_H
@@ -15,6 +15,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/Service.h"
 
 class MsgStream;
@@ -90,10 +91,10 @@ public:
     virtual StatusCode        removeTagFromInput(const std::string& tagName) = 0;
 
     /// Find tag by its name, return by value - empty string if not found
-    virtual std::string       findTag(const std::string & name) const = 0;
+    virtual std::string       findTag ATLAS_CHECK_THREAD_SAFETY (const std::string & name) const = 0;
 
     /// Find INPUT tag by its name, return by value - empty string if not found
-    virtual std::string       findInputTag(const std::string& name) const = 0;
+    virtual std::string       findInputTag ATLAS_CHECK_THREAD_SAFETY (const std::string& name) const = 0;
 
     /// Return a vector with all current input tags
     virtual NameTagPairVec    getInputTags() const = 0;
