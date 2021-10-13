@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file RootUtils/test/Type_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -170,10 +168,15 @@ void test2()
   ftype1.fromString (&fx, "42.5");
   assert (fx == 42.5);
 
+  RootUtils::Type sctype1 ("signed char");
+  signed char scx = 0;
+  sctype1.fromString (&scx, "-45");
+  assert (scx == -45);
+
   RootUtils::Type ctype1 ("char");
   char cx = 0;
-  ctype1.fromString (&cx, "-45");
-  assert (cx == -45);
+  ctype1.fromString (&cx, "45");
+  assert (cx == 45);
 
   RootUtils::Type uctype1 ("unsigned char");
   unsigned char ucx = 0;
