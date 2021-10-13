@@ -41,8 +41,8 @@ public:
  private:
 
   std::string m_managerName;
-  bool        m_printTable;
-  bool        m_useCabling;
+  bool        m_printTable{false};
+  bool        m_useCabling{true};
 
   /// Sadly the PIxel and SCT cabling are different classes so need both, 
   /// even if only one is to be used
