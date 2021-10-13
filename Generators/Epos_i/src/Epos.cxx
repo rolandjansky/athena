@@ -326,12 +326,22 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
   hepio.fill_next_event(evt);
 #endif
   // evt->print();
+ //  HepMC::Print::line(std::cout,*evt);
  
 
   HepMC::set_random_states(evt, m_seeds );
 
   evt->weights().push_back(1.0); 
-  GeVToMeV(evt);
+  //correct units, for hepMC printing uncomment lines below
+#ifdef HEPMC3
+    evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+//    std::cout << " print::listing Epos " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+#else
+    GeVToMeV(evt);
+//    std::cout << " print::printing Epos " << std::endl;
+//    evt->print();
+#endif
   
   std::vector<HepMC::GenParticlePtr> beams;
 
