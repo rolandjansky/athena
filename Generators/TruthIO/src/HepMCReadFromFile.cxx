@@ -64,6 +64,7 @@ StatusCode HepMCReadFromFile::execute() {
   if (m_hepmcio) {
     ++m_event_number;
     evt->set_event_number(m_event_number);
+    evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
     mcEvtColl->push_back(evt);
   }
 
