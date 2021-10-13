@@ -259,9 +259,6 @@ def setupMenu():
         ChainProp(name='HLT_2g15_loose_25dphiAA_invmAA80_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=SupportPhIGroup+MultiPhotonGroup),
         ChainProp(name='HLT_2g15_tight_25dphiAA_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=PrimaryPhIGroup+MultiPhotonGroup),
         
-        #------------ 1e_1g HEG ATR-23158
-        ChainProp(name='HLT_e25_mergedtight_g35_medium_Heg_02dRAB_L12EM20VH',l1SeedThresholds=['EM20VH','EM20VH'], groups=PrimaryLegGroup+MultiElectronGroup), 
-
         #------------ hipTRT trigger, ATR-22603
         ChainProp(name='HLT_g0_hiptrt_L1EM22VHI', groups=SinglePhotonGroup), 
 

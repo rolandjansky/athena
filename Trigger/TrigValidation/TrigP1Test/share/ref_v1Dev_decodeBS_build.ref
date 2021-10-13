@@ -812,9 +812,11 @@ HLT_e24_lhvloose_2e12_lhvloose_L1eEM20L_3eEM10L:
   eventCount: 0
 HLT_e250_etcut_L1EM22VHI:
   eventCount: 0
-HLT_e25_mergedtight_g35_medium_Heg_02dRAB_L12EM20VH:
+HLT_e25_mergedtight_g35_medium_90invmAB_02dRAB_L12EM20VH:
   eventCount: 0
 HLT_e25_mergedtight_g35_medium_Heg_02dRAB_L12eEM20L:
+  eventCount: 0
+HLT_e25_mergedtight_g35_medium_Heg_L12EM20VH:
   eventCount: 0
 HLT_e26_dnnloose_L1EM22VHI:
   eventCount: 0
