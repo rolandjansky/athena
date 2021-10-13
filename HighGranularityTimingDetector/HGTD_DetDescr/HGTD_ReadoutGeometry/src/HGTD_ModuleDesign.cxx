@@ -22,8 +22,8 @@ HGTD_ModuleDesign::HGTD_ModuleDesign(const double thickness,
                                      int readoutSide,
                                      DetectorDesign::Axis yDirection,
                                      DetectorDesign::Axis depthDirection):
-    DetectorDesign(thickness, 
-                   true, true, true, // phi,eta,depth axes symmetric
+    DetectorDesign(thickness,
+                   false, false, true, // phi,eta,depth axes symmetric
                    carrierType,
                    readoutSide,
                    yDirection,
@@ -40,14 +40,14 @@ HGTD_ModuleDesign::~HGTD_ModuleDesign() {
     delete m_bounds;
 }
 
-// Returns distance to nearest detector edge 
+// Returns distance to nearest detector edge
 // +ve = inside
 // -ve = outside
 void
 HGTD_ModuleDesign::distanceToDetectorEdge(const SiLocalPosition & localPosition,
                                           double & etaDist, double & phiDist) const
-{ 
-    // This assume element is centered at 0,0 
+{
+    // This assume element is centered at 0,0
     // As the calculation is symmetric around 0,0 we only have to test it for one side.
     double xEta = abs(localPosition.xEta());
     double xPhi = abs(localPosition.xPhi());
@@ -57,7 +57,7 @@ HGTD_ModuleDesign::distanceToDetectorEdge(const SiLocalPosition & localPosition,
 
     // Distance to top/bottom
     etaDist = xEtaEdge - xEta;
-  
+
     // Distance to right/left edge
     phiDist = xPhiEdge - xPhi;
 }
@@ -112,7 +112,7 @@ double HGTD_ModuleDesign::widthFromRowRange(const int rowMin, const int rowMax) 
 double
 HGTD_ModuleDesign::phiPitch() const
 {
-    // Average pitch. 
+    // Average pitch.
     return width() / rows();
 }
 
@@ -132,7 +132,7 @@ HGTD_ModuleDesign::etaPitch() const
     return length() / columns();
 }
 
-const Trk::SurfaceBounds & 
+const Trk::SurfaceBounds &
 HGTD_ModuleDesign::bounds() const
 {
     // We create on demand as width and length are 0 when HGTD_ModuleDesign first gets
@@ -148,7 +148,7 @@ SiDiodesParameters HGTD_ModuleDesign::parameters(const SiCellId & cellId) const
 
 SiLocalPosition HGTD_ModuleDesign::localPositionOfCell(const SiCellId & cellId) const
 {
-    return m_diodeMap.parameters(cellId).centre(); 
+    return m_diodeMap.parameters(cellId).centre();
 }
 
 int HGTD_ModuleDesign::numberOfConnectedCells(const SiReadoutCellId & readoutId) const

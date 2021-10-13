@@ -45,6 +45,11 @@ StatusCode PadClusterizationAlg::execute() {
 
   const HGTD::HGTD_RDOContainer* rdo_container = rdo_container_handle.cptr();
 
+  if (not rdo_container) {
+    //assume this is fast digi input and ignore
+    return StatusCode::SUCCESS;
+  }
+
   // register the PRD container in storegate
   SG::WriteHandle<HGTD::HGTD_ClusterContainer> prd_container_handle(
       m_prd_wh_key);

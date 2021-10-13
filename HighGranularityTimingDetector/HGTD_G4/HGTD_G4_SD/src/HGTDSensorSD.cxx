@@ -30,7 +30,7 @@
 #include "CxxUtils/make_unique.h"
 
 HGTDSensorSD::HGTDSensorSD(const std::string& name)
-    : G4VSensitiveDetector( name ), 
+    : G4VSensitiveDetector( name ),
       m_HitColl( "HGTD_Hits" )
 {
 
@@ -109,15 +109,15 @@ G4bool HGTDSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
         G4cout << "DEBUG HGTDG4SD : LOCAL: x: " << pos_current.x()*CLHEP::mm << ", y: " << pos_current.y()*CLHEP::mm << ", z: " << pos_current.z()*CLHEP::mm << G4endl;
 
         if ( i >= 1) {
-            const G4AffineTransform transformation2 = myTouch->GetHistory()->GetTransform( i-1 ); // Transformation from global to 1 up       
+            const G4AffineTransform transformation2 = myTouch->GetHistory()->GetTransform( i-1 ); // Transformation from global to 1 up
             G4AffineTransform transformation_up; // Transformation from current to 1 up
             transformation_up.Product( transformationInverse, transformation2 );
             G4ThreeVector pos_up = transformation_up.TransformPoint( pos_current );
             G4RotationMatrix rotmat = transformation_up.NetRotation(); // https://www-zeuthen.desy.de/geant4/clhep-2.0.4.3/classCLHEP_1_1HepRotation.html
-            G4ThreeVector translation = transformation_up.NetTranslation(); // https://www-zeuthen.desy.de/ILC/geant4/clhep-2.0.4.3/classCLHEP_1_1Hep3Vector.html        
+            G4ThreeVector translation = transformation_up.NetTranslation(); // https://www-zeuthen.desy.de/ILC/geant4/clhep-2.0.4.3/classCLHEP_1_1Hep3Vector.html
             G4cout << "DEBUG HGTDG4SD : Rotation:"
-                   << "| xx:" << rotmat.xx() << ", xy: " << rotmat.xy() << ", xz: " << rotmat.xz() 
-                   << "| yx:" << rotmat.yx() << ", yy: " << rotmat.yy() << ", yz: " << rotmat.yz() 
+                   << "| xx:" << rotmat.xx() << ", xy: " << rotmat.xy() << ", xz: " << rotmat.xz()
+                   << "| yx:" << rotmat.yx() << ", yy: " << rotmat.yy() << ", yz: " << rotmat.yz()
                    << "| zx:" << rotmat.zx() << ", zy: " << rotmat.zy() << ", zz: " << rotmat.zz() << " | " << G4endl;
             G4cout << "DEBUG HGTDG4SD : Translation: x: " << translation.x() << ", y:" << translation.y() << ", z:" << translation.z() << G4endl;
             G4cout << "DEBUG HGTDG4SD : TRANSFORMED: x:" << pos_up.x()*CLHEP::mm << ", y:" << pos_up.y()*CLHEP::mm << ", z:" << pos_up.z()*CLHEP::mm << G4endl;
@@ -141,27 +141,27 @@ G4bool HGTDSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
 
     G4ThreeVector localPosition1 = transformation.TransformPoint(startCoord);
     G4ThreeVector localPosition2 = transformation.TransformPoint(endCoord);
-  
+
     HepGeom::Point3D<double> lP1,lP2;
-    lP1[SiHit::xEta] = localPosition1[2]*CLHEP::mm;
-    lP1[SiHit::xPhi] = localPosition1[1]*CLHEP::mm;
-    lP1[SiHit::xDep] = localPosition1[0]*CLHEP::mm;
-  
-    lP2[SiHit::xEta] = localPosition2[2]*CLHEP::mm;
-    lP2[SiHit::xPhi] = localPosition2[1]*CLHEP::mm;
-    lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
+    lP1[SiHit::xEta] = localPosition1[1]*CLHEP::mm; //long edge of the module
+    lP1[SiHit::xPhi] = localPosition1[0]*CLHEP::mm; //short edge of the module
+    lP1[SiHit::xDep] = localPosition1[2]*CLHEP::mm; //depth (z)
+
+    lP2[SiHit::xEta] = localPosition2[1]*CLHEP::mm;
+    lP2[SiHit::xPhi] = localPosition2[0]*CLHEP::mm;
+    lP2[SiHit::xDep] = localPosition2[2]*CLHEP::mm;
 
     std::string module_indices = myTouch->GetVolume(1)->GetLogicalVolume()->GetName();
     std::size_t found = module_indices.find_last_of("_");
-  
+
     // get indices from the volume name
     // nomenclature is expected to be e.g. "HGTDModule0_layer_0_1_2"
     // for layer=0, phi=1, eta=2 (defined from HGTD_DetectorFactory)
     int eta   = atoi((module_indices.substr(found+1)).c_str());
-    module_indices.erase(found);  
+    module_indices.erase(found);
     found = module_indices.find_last_of("_");
     int phi   = atoi((module_indices.substr(found+1)).c_str());
-    module_indices.erase(found);  
+    module_indices.erase(found);
     found = module_indices.find_last_of("_");
     int layer   = atoi((module_indices.substr(found+1)).c_str());
 
