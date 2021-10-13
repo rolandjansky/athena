@@ -152,7 +152,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                                'MuonIsolationAlg' + postfix )
         addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
         alg.isolationDecoration = 'isolated_muon' + postfix + ',as_bits'
-        seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
+        seq.append( alg, inputPropName = 'muons',
                     stageName = 'selection',
                     metaConfig = {'selectionDecorNames' : [alg.isolationDecoration],
                                   'selectionDecorNamesOutput' : [alg.isolationDecoration],

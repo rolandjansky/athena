@@ -71,7 +71,7 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
     alg.scaleFactorDecoration = 'tau_effSF' + postfix
     # alg.outOfValidity = 2 #silent
     # alg.outOfValidityDeco = "bad_eff"
-    seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+    seq.append( alg, inputPropName = 'taus',
                 stageName = 'efficiency' )
 
     # Set up the tau truth matching algorithm:
@@ -81,7 +81,7 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
         addPrivateTool( alg, 'matchingTool',
                         'TauAnalysisTools::DiTauTruthMatchingTool' )
         alg.matchingTool.WriteTruthTaus = 1
-        seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+        seq.append( alg, inputPropName = 'taus',
                     stageName = 'selection' )
         pass
 
