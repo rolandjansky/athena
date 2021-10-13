@@ -23,7 +23,7 @@ def createGeoModelConfigFlags():
 
     gcf.addFlag("GeoModel.Run",
                 lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Common']['Run'])
-                # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
+                # Based on CommonGeometryFlags.Run
 
     gcf.addFlag("GeoModel.Type",
                 lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Common']['GeoType'])
