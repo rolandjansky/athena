@@ -113,25 +113,49 @@ namespace Monitored {
      * @brief Copies bin contents from an old to a new histogram (similar to LabelsInflate).
      */
     void copyDataToNewHistogram(TH1* hOld, TH1* hNew) {
+      int offset = hNew->GetXaxis()->GetXmax() - hOld->GetXaxis()->GetXmax();
+      int nNewEntries(0);
+      bool sumw2Filled = (hOld->GetSumw2N()>0);
+
+      TProfile* hOldprof(nullptr);
+      TProfile* hNewprof(nullptr);
+      bool isTProfile = (hOld->InheritsFrom(TProfile::Class()) && hNew->InheritsFrom(TProfile::Class()));
+      if (isTProfile) {
+	hOldprof = static_cast<TProfile* >(hOld);
+	hNewprof = static_cast<TProfile* >(hNew);
+      }
       // Loop through the old histogram bins
       for (int oldBin=0; oldBin < hOld->GetNcells(); oldBin++) {
         // Convert global bin number into x-y-z bin number
         int oldBinX, oldBinY, oldBinZ;
         hOld->GetBinXYZ(oldBin, oldBinX, oldBinY, oldBinZ);
-        if (hOld->IsBinUnderflow(oldBin, 1) || hOld->IsBinOverflow(oldBin, 1)) {
+        if ((oldBinX-offset < 1) || hOld->IsBinUnderflow(oldBin, 1) || hOld->IsBinOverflow(oldBin, 1)) {
           // Overflow bins are ignored since their meaning has changed.
           continue;
         } else {
           // Get the global bin coordinate of this (x, y, z) bin coordinates.
           int newBin = hNew->GetBin(oldBinX, oldBinY, oldBinZ);
-          hNew->AddBinContent(newBin, hOld->GetBinContent(oldBin));
-          if (hOld->GetSumw2N()) {
-            hNew->SetBinError(newBin, hOld->GetBinError(oldBin) + hNew->GetBinError(newBin));
-          }
+	  if (isTProfile) {
+	    int oldBinEntries = hOldprof->GetBinEntries(oldBin);
+	    if (oldBinEntries>0) {
+	      nNewEntries += oldBinEntries;
+	      hNewprof->SetBinEntries(newBin, oldBinEntries);
+	      hNewprof->SetBinContent(newBin, oldBinEntries*hOldprof->GetBinContent(oldBin));
+	      (*hNewprof->GetSumw2())[newBin] = (*hOldprof->GetSumw2())[oldBin];
+	    }
+	  }
+	  else {
+	    if (hOld->GetBinContent(oldBin)) hNew->SetBinContent(newBin, hOld->GetBinContent(oldBin));
+	    if (sumw2Filled) {
+	      hNew->SetBinError(newBin, hOld->GetBinError(oldBin));
+	      nNewEntries+=(*hOld->GetSumw2())[oldBin]; // works correctly only for weight=1
+	    }
+	  }
         }
       }
       // Update the total number of entries member.
-      hNew->SetEntries(hOld->GetEntries());
+      if (sumw2Filled) hNew->SetEntries(nNewEntries);
+      else hNew->SetEntries(hOld->GetEntries()); // a choice since there is no way to get it right.
     }
   private:
     GenericMonitoringTool* const m_gmTool;
