@@ -36,7 +36,6 @@ AGDDsTGC::AGDDsTGC(const std::string& s,
                    AGDDSectionStore& ss)
   : sTGCDetectorDescription(s,ds),AGDDVolume(s,vs,ss,true)
 {
-    s_current=this;
     Register();
 }
 
