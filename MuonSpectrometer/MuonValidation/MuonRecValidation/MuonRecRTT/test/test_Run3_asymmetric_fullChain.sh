@@ -115,7 +115,7 @@ fi
 
 #####################################################################
 # create histograms for dcube
-python $Athena_DIR/bin/createDCubeDigitHistograms.py --doRPC --doMDT
+python $Athena_DIR/bin/createDCubeDigitHistograms.py 
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeDigitHist"
 if [ ${exit_code} -ne 0 ]
