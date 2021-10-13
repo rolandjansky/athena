@@ -32,6 +32,10 @@ def InDetGeometryCfg (flags):
         from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
         acc.merge(ITkStripGeometryCfg( flags ))
 
+    if flags.Detector.GeometryPLR:
+        from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+        acc.merge(PLRGeometryCfg( flags ))
+
     return acc
 
 

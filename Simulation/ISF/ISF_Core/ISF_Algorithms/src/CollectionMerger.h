@@ -78,6 +78,7 @@ namespace ISF {
       void insertCopy(HitType_t * const hit, OutputType_t& outputHandle) const;
 
     /** Input collection ReadHandleKeys */
+    SG::ReadHandleKeyArray<SiHitCollection>              m_inputPLRHits{this, "InputPLRHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputBCMHits{this, "InputBCMHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputBLMHits{this, "InputBLMHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputPixelHits{this, "InputPixelHits", {}, ""};
@@ -102,6 +103,7 @@ namespace ISF {
     SG::ReadHandleKeyArray<TGCSimHitCollection>          m_inputTGCHits{this, "InputTGCHits", {}, ""};
 
     /** Output collection WriteHandleKeys */
+    SG::WriteHandleKey<SiHitCollection>                 m_outputPLRHits{this, "OutputPLRHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputBCMHits{this, "OutputBCMHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputBLMHits{this, "OutputBLMHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputPixelHits{this, "OutputPixelHits", "", ""};
