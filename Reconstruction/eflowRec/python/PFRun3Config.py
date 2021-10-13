@@ -128,8 +128,11 @@ def PFCfg(inputFlags,**kwargs):
     result = tempCA
 
     #Configure the pflow algorithms
-    PFLeptonSelector=CompFactory.PFLeptonSelector
-    result.addEventAlgo(PFLeptonSelector("PFLeptonSelector"))
+    PFLeptonSelectorFactory=CompFactory.PFLeptonSelector
+    PFLeptonSelector = PFLeptonSelectorFactory("PFLeptonSelector") 
+    PFLeptonSelector.selectElectrons=False
+    PFLeptonSelector.selectMuons=False
+    result.addEventAlgo(PFLeptonSelector)
 
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
     result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector"))
