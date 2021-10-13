@@ -420,7 +420,7 @@ namespace InDetDD {
     //Similar to 21.9, but ... Do we actually need this? If not, we could just rely on the base-class implementation?
     if (isBarrel() && !m_axisDir.ptr()->m_barrelLike) {
       ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
-    } else if (!isBarrel() && m_axisDir.ptr()->m_barrelLike && (m_design->type())!=InDetDD::PixelInclined) {
+    } else if (!isBarrel() && m_axisDir.ptr()->m_barrelLike && (m_design->type())!=InDetDD::PixelInclined && (m_design->type())!=InDetDD::PLR) {
       ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
     }
   }

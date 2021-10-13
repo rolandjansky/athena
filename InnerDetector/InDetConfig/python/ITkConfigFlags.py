@@ -10,6 +10,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.pixelGeometryFilename", "ITKLayouts/Pixel/ITkPixel.gmx")
   itkcf.addFlag("ITk.stripGeometryFilename", "ITKLayouts/Strip/ITkStrip.gmx")
   itkcf.addFlag("ITk.bcmPrimeGeometryFilename", "ITKLayouts/Pixel/BCMPrime.gmx")
+  itkcf.addFlag("ITk.plrGeometryFilename", "ITKLayouts/PLR/PLR.gmx")
 
   itkcf.addFlag("ITk.doPrintConfigurables",False) # if this is on all the print(ITkXYZ) lines are activated
   itkcf.addFlag("ITk.doSplitReco", False    	 ) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!

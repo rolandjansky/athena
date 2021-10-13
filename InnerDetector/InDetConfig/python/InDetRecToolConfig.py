@@ -257,11 +257,9 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="InDetSCT_ConfigurationCondit
   cond_kwargs["dbInstance"] = "SCT"
   cond_kwargs["SCT_ConfigurationCondAlgName"] = "SCT_ConfigurationCondAlg"
 
-  result = ComponentAccumulator()
-
   # For SCT_ID and SCT_DetectorElementCollection used in SCT_ConfigurationCondAlg and SCT_ConfigurationConditionsTool
-  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-  result.merge(SCT_GeometryCfg(flags))
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+  result = SCT_ReadoutGeometryCfg(flags)
 
   if 'ChannelFolderDB' not in cond_kwargs:
     result.merge(addFoldersSplitOnline(flags,
@@ -347,11 +345,9 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
 
 
 def SCT_ReadCalibDataToolCfg(flags, name="InDetSCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
-  result = ComponentAccumulator()
-
   # For SCT_ID and SCT_DetectorElementCollection used in SCT_ReadCalibDataCondAlg and SCT_ReadCalibDataTool
-  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-  result.merge(SCT_GeometryCfg(flags))
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+  result = SCT_ReadoutGeometryCfg(flags)
 
   cond_kwargs.setdefault("NoiseFolder","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
   cond_kwargs.setdefault("GainFolder","/SCT/DAQ/Calibration/NPtGainDefects")
@@ -381,11 +377,9 @@ def SCT_ReadCalibDataToolCfg(flags, name="InDetSCT_ReadCalibDataTool", cond_kwar
 
 
 def SCT_FlaggedConditionToolCfg(flags, name="InDetSCT_FlaggedConditionTool", **kwargs):
-  result = ComponentAccumulator()
-
   # For SCT_ID and SCT_DetectorElementCollection used in SCT_FlaggedConditionTool
-  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-  result.merge(SCT_GeometryCfg(flags))
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+  result = SCT_ReadoutGeometryCfg(flags)
 
   tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result.setPrivateTools(tool)

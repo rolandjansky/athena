@@ -2,8 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MuonAGDDBase/micromegasHandler.h"
 #include "MuonAGDDBase/mm_readoutHandler.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "AGDDControl/AGDDController.h"
+#include "AGDDControl/XMLHandlerStore.h"
 #include <iostream>
 
 
@@ -16,7 +19,11 @@ mm_readoutHandler::mm_readoutHandler(const std::string& s,
 void mm_readoutHandler::ElementHandle(AGDDController& c,
                                       xercesc::DOMNode *t)
 {
-    MMDetectorDescription* MM=MMDetectorDescription::GetCurrent();
+    micromegasHandler* mmHand = dynamic_cast<micromegasHandler*>
+      (c.GetHandlerStore().GetHandler("micromegas"));
+    if (!mmHand) std::abort();
+
+    MMDetectorDescription* MM = mmHand->GetMMCurrent();
     // std::cout<<" this is mm_readoutHandler::Handle"<<MM->GetName()<<std::endl;
 
     bool ret=true;

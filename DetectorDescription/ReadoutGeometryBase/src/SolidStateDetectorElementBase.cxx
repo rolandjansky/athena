@@ -418,9 +418,9 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG( "Unable to swap local depth axis.");
             }
         }
-        if (std::abs(dir.m_depthAngle) < 0.5) { // Check that it is in roughly the right direction.
-	  ATH_MSG_ERROR( "Orientation of local depth axis does not follow correct convention.");
-          dir.m_depthDirection = true; // Don't swap.
+        if (std::abs(dir.m_depthAngle) < 0.5 && (m_design->type())!=InDetDD::PLR) { // Check that it is in roughly the right direction. Ignore this for the PLR as it gives values as low as 0.489)
+            ATH_MSG_ERROR( "Orientation of local depth axis does not follow correct convention.");
+            dir.m_depthDirection = true; // Don't swap.
         }
     
         //

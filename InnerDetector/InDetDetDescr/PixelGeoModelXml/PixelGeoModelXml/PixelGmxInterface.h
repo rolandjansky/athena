@@ -28,7 +28,7 @@ public:
   virtual int sensorId(std::map<std::string, int> &index) const override final;
   virtual void addSensorType(std::string clas,
                              std::string typeName,
-                             std::map<std::string, std::string> parameters) override final;
+                             std::map<std::string, std::string> parameters) override;
   virtual void addSensor(std::string typeName,
                          std::map<std::string, int> &index,
                          int sequentialId,
@@ -37,11 +37,6 @@ public:
   //                           std::map<std::string, int> &index,
   //                           GeoVFullPhysVol *fpv,
   //                           GeoAlignableTransform *transform) override final;
-
-
-private:
-  void makePixelModule(const std::string& typeName,
-                       const std::map<std::string, std::string> &parameters);
 
   std::shared_ptr<const InDetDD::PixelDiodeMatrix> buildMatrix(double phiPitch, double etaPitch,
                                                                double etaPitchLong, double etaPitchEnd,
@@ -52,6 +47,11 @@ private:
                                                                int diodeColPerCirc, int diodeRowPerCirc) const;
 
   std::map<std::string, int> m_geometryMap;
+
+private:
+  void makePixelModule(const std::string& typeName,
+                       const std::map<std::string, std::string> &parameters);
+
   InDetDD::PixelDetectorManager *m_detectorManager{};
   InDetDD::SiCommonItems *m_commonItems{};
   WaferTree *m_moduleTree{};

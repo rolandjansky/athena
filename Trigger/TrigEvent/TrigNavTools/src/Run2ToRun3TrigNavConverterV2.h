@@ -39,16 +39,16 @@ struct ConvProxy {
   std::vector<ConvProxy*> parents;
   std::set<HLT::Identifier> runChains;
   std::set<HLT::Identifier> passChains;
-  uint64_t feaHash = 0;
+  static const uint64_t MissingFEA = 0;
+  uint64_t feaHash = MissingFEA;
 
   std::vector<TrigCompositeUtils::Decision*> imNodes; // for checks only
   std::vector<TrigCompositeUtils::Decision*> hNodes;
+  std::string description() const;
 };
 
 using ConvProxySet_t = std::set<ConvProxy*>;
 using TEIdToChainsMap_t = std::map<HLT::te_id_type, std::set<HLT::Identifier>>;
-using FEAToConvProxySet_t = std::map<uint64_t, ConvProxySet_t>;
-
 
 /**
  * @class Run2ToRun3TrigNavConverterV2
@@ -93,13 +93,13 @@ private:
 
   StatusCode doCompression(ConvProxySet_t&) const;
 
-  StatusCode fillFEAHashes(ConvProxySet_t&) const;
-
-  StatusCode findSharedFEAHashes(const ConvProxySet_t&, FEAToConvProxySet_t&) const;
-
-  StatusCode collapseConvProxies(ConvProxySet_t&, FEAToConvProxySet_t&) const;
+  StatusCode collapseFeaturesProxies( ConvProxySet_t& ) const;
 
   StatusCode collapseFeaturelessProxies(ConvProxySet_t&) const;
+
+  template<typename MAP>
+  StatusCode collapseProxies(ConvProxySet_t&, MAP&) const;
+
 
   StatusCode fillRelevantFeatures(ConvProxySet_t&) const;
 
@@ -123,7 +123,6 @@ private:
 
   StatusCode allProxiesConnected(const ConvProxySet_t&) const;
 
-  StatusCode allFEAHashesAreUnique(const FEAToConvProxySet_t&) const;
 
   StatusCode numberOfHNodesPerProxyNotExcessive(const ConvProxySet_t&) const;
 

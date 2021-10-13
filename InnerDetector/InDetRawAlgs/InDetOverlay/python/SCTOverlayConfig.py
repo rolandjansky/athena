@@ -1,6 +1,6 @@
 """Define methods to construct configured SCT overlay algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -10,8 +10,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ConfigurationConditionsCfg(flags, **kwargs):
     """Return a ComponentAccumulator for SCT configuration conditions"""
     # Temporary until available in the central location
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc = SCT_GeometryCfg(flags)
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc = SCT_ReadoutGeometryCfg(flags)
 
     SCT_ConfigurationConditionsTool = CompFactory.SCT_ConfigurationConditionsTool
     acc.addPublicTool(SCT_ConfigurationConditionsTool())

@@ -516,6 +516,8 @@ class ComponentAccumulator(object):
 
     def __getOne(self, allcomps, name=None, typename="???"):
         selcomps = allcomps if name is None else [ t for t in allcomps if t.name == name ]
+        if len( selcomps ) == 0:
+            return None
         if len( selcomps ) == 1:
             return selcomps[0]
         raise ConfigurationError("Number of {} available {} which is != 1 expected by this API".format(typename, len(selcomps)) )

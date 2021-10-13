@@ -1004,5 +1004,7 @@ athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )
 athAlgSeq    = AlgSequence.AthSequencer( "AthAlgSeq" )
 athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
+athBeginSeq  = AlgSequence.AthSequencer( "AthBeginSeq" )
+athEndSeq    = AlgSequence.AthSequencer( "AthEndSeq" )
 
 topSequence  = AlgSequence.AlgSequence( "TopAlg" )     # for backward compatibility

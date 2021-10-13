@@ -172,7 +172,7 @@ touch $summaryFile
 
 
 
-if ! which AtlCoolCopy.exe 1>/dev/null 2>&1
+if ! which AtlCoolCopy 1>/dev/null 2>&1
 then
     echo "No offline setup found!"
     exit
@@ -289,7 +289,7 @@ do
   fi
 
 
-  if grep -q ERROR sqlite2ascii_$t.log
+  if `grep  ERROR sqlite2ascii_$t.log | grep -v "dupe ignored"`
       then
       echo "An error occured during reading back sqlite file ! Please check sqlite2ascii_$t.log!"
       exit
@@ -299,13 +299,13 @@ do
   if [ $t == ${upd4TagName} ]
   then
      echo "Copying UPD4 to Bulk as well..."
-     AtlCoolCopy.exe "sqlite://;schema=${outputSqlite};dbname=CONDBR2"  "sqlite://;schema=${outputSqlite};dbname=CONDBR2"  -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd4TagName} -of /LAR/BadChannelsOfl/BadChannels -ot LARBadChannelsOflBadChannels-${BulkTagName}
+     AtlCoolCopy "sqlite://;schema=${outputSqlite};dbname=CONDBR2"  "sqlite://;schema=${outputSqlite};dbname=CONDBR2"  -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd4TagName} -of /LAR/BadChannelsOfl/BadChannels -ot LARBadChannelsOflBadChannels-${BulkTagName}
   fi   
 
   if [ $t == ${upd1TagName} ]
       then
       echo "Copying UPD1 for online database..."
-      AtlCoolCopy.exe "sqlite://;schema=${outputSqlite};dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd1TagName} -of  /LAR/BadChannels/BadChannels -ot LARBadChannelsBadChannels-${upd1TagName} -a -c > AtlCoolCopy.onl.log 2>&1
+      AtlCoolCopy "sqlite://;schema=${outputSqlite};dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd1TagName} -of  /LAR/BadChannels/BadChannels -ot LARBadChannelsBadChannels-${upd1TagName} -a -c > AtlCoolCopy.onl.log 2>&1
       
       if [ $? -ne 0 ];  then
 	  echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.onl.log!"

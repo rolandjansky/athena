@@ -4,11 +4,9 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetSiElementPropertiesTableCondAlgCfg(flags, name="InDetSiElementPropertiesTableCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-
     # For SCT DetectorElementCollection used
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg(flags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc = SCT_ReadoutGeometryCfg(flags)
 
     acc.addCondAlgo(CompFactory.InDet.SiElementPropertiesTableCondAlg(name = name, **kwargs))
     return acc
@@ -28,14 +26,13 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     return acc
 
 def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFinder", **kwargs):
-    acc = ComponentAccumulator()
     #
     # SiTrackerSpacePointFinder algorithm
     #
 
     # For SCT DetectorElementCollection used
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg(flags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc = SCT_ReadoutGeometryCfg(flags)
 
     InDetSiSpacePointMakerTool = acc.popToolsAndMerge(SiSpacePointMakerToolCfg(flags))
     acc.addPublicTool(InDetSiSpacePointMakerTool) ## I decided to merge it
@@ -69,10 +66,10 @@ def InDetPRD_MultiTruthMakerSiCfg(flags, name="InDetPRD_MultiTruthMakerSi", **kw
     acc = ComponentAccumulator()
 
     # For pixel + SCT DetectorElementCollection used
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    acc.merge(PixelGeometryCfg( flags ))
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg( flags ))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc.merge(PixelReadoutGeometryCfg( flags ))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc.merge(SCT_ReadoutGeometryCfg( flags ))
 
     if flags.InDet.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'PixelClusters') # InDetKeys.PixelClusters()
@@ -102,10 +99,10 @@ def InDetPRD_MultiTruthMakerSiPUCfg(flags, name="InDetPRD_MultiTruthMakerSiPU", 
     acc = ComponentAccumulator()
 
     # For pixel + SCT DetectorElementCollection used
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    acc.merge(PixelGeometryCfg( flags ))
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg( flags ))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc.merge(PixelReadoutGeometryCfg( flags ))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc.merge(SCT_ReadoutGeometryCfg( flags ))
 
     if flags.InDet.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'PixelPUClusters') # InDetKeys.PixelPUClusters()
@@ -278,8 +275,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO
 
-    ConfigFlags.Detector.GeometryPixel   = True 
-    ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.InDet.doPixelClusterSplitting = True
 
     numThreads=1
@@ -302,22 +297,6 @@ if __name__ == "__main__":
 
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(SCT_GeometryCfg(ConfigFlags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg, PixelAlignCondAlgCfg
-    top_acc.merge(PixelAlignCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelDetectorElementCondAlgCfg(ConfigFlags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
-    top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
-
-    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
-    top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
 
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
 

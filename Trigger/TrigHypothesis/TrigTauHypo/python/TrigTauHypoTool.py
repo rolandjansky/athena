@@ -156,6 +156,8 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
         monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
         monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
+        monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
+        monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
         currentHypo.MonTool = monTool
 
  

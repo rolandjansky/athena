@@ -10,6 +10,10 @@
 
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 
+LVL1::gFEXOutputCollection::gFEXOutputCollection() {
+  m_dooutput = false;
+}
+
 LVL1::gFEXOutputCollection::~gFEXOutputCollection()
 {
 }
@@ -41,7 +45,7 @@ void LVL1::gFEXOutputCollection::fillJet()
   m_values_gFEXJet.clear();
 }
 
-int LVL1::gFEXOutputCollection::jetsSize()
+int LVL1::gFEXOutputCollection::jetsSize() const
 {
   return m_allvalues_gFEXjet.size();
 }
@@ -74,7 +78,7 @@ void LVL1::gFEXOutputCollection::fillGlobal()
   m_values_gFEXGlobal.clear();
 }
 
-int LVL1::gFEXOutputCollection::globalsSize()
+int LVL1::gFEXOutputCollection::globalsSize() const
 {
   return m_allvalues_gFEXglobal.size();
 }
@@ -92,4 +96,13 @@ void LVL1::gFEXOutputCollection::addGlobalTob(uint32_t globaltob)
 std::vector<uint32_t> LVL1::gFEXOutputCollection::getGlobalTob() const
 {
   return m_globaltob;
+}
+
+
+void LVL1::gFEXOutputCollection::setdooutput(bool input) {
+  m_dooutput = input;
+}
+
+bool LVL1::gFEXOutputCollection::getdooutput() const {
+  return m_dooutput;
 }

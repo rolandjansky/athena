@@ -37,7 +37,7 @@ from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
 allDetectors = [
     'Bpipe', 'Cavern',
     'BCM', 'DBM', 'Pixel', 'SCT', 'TRT',
-    'BCMPrime', 'ITkPixel', 'ITkStrip', 'HGTD',
+    'BCMPrime', 'PLR', 'ITkPixel', 'ITkStrip', 'HGTD',
     'LAr', 'Tile', 'MBTS',
     'CSC', 'MDT', 'RPC', 'TGC', 'sTGC', 'MM',
     'Lucid', 'ZDC', 'ALFA', 'AFP', 'FwdRegion',
@@ -45,7 +45,7 @@ allDetectors = [
 # all detector groups - used in helper functions
 allGroups = {
     'ID': ['BCM', 'DBM', 'Pixel', 'SCT', 'TRT'],
-    'ITk': ['BCMPrime', 'ITkPixel', 'ITkStrip'],
+    'ITk': ['BCMPrime', 'ITkPixel', 'ITkStrip', 'PLR'],
     'Calo': ['LAr', 'Tile', 'MBTS'],
     'Muon': ['CSC', 'MDT', 'RPC', 'TGC', 'sTGC', 'MM'],
     'Forward': ['Lucid', 'ZDC', 'ALFA', 'AFP', 'FwdRegion'],
@@ -70,12 +70,14 @@ def createDetectorConfigFlags():
                                                               or prevFlags.Detector.GeometryTRT))
 
     # Upgrade ITk Inner Tracker is a separate and parallel detector
+    dcf.addFlag('Detector.GeometryPLR',   lambda prevFlags : 'PLR' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.GeometryBCMPrime', lambda prevFlags : 'BCMPrime' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.GeometryITkPixel', lambda prevFlags : 'ITkPixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.GeometryITkStrip', lambda prevFlags : 'ITkStrip' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.GeometryITk',      lambda prevFlags : (prevFlags.Detector.GeometryBCMPrime
                                                                  or prevFlags.Detector.GeometryITkPixel
-                                                                 or prevFlags.Detector.GeometryITkStrip))
+                                                                 or prevFlags.Detector.GeometryITkStrip
+                                                                 or prevFlags.Detector.GeometryPLR))
     # HGTD
     dcf.addFlag('Detector.GeometryHGTD', lambda prevFlags : 'HGTD' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
 
@@ -123,12 +125,14 @@ def createDetectorConfigFlags():
                                                             or prevFlags.Detector.EnableTRT))
 
     # Upgrade ITk Inner Tracker is a separate and parallel detector
+    dcf.addFlag('Detector.EnablePLR',   lambda prevFlags : prevFlags.Detector.GeometryPLR)
     dcf.addFlag('Detector.EnableBCMPrime', lambda prevFlags : prevFlags.Detector.GeometryBCMPrime)
     dcf.addFlag('Detector.EnableITkPixel', lambda prevFlags : prevFlags.Detector.GeometryITkPixel)
     dcf.addFlag('Detector.EnableITkStrip', lambda prevFlags : prevFlags.Detector.GeometryITkStrip)
     dcf.addFlag('Detector.EnableITk',      lambda prevFlags : (prevFlags.Detector.EnableBCMPrime
                                                                or prevFlags.Detector.EnableITkPixel
-                                                               or prevFlags.Detector.EnableITkStrip))
+                                                               or prevFlags.Detector.EnableITkStrip
+                                                               or prevFlags.Detector.EnablePLR))
     # HGTD
     dcf.addFlag('Detector.EnableHGTD', lambda prevFlags : prevFlags.Detector.GeometryHGTD)
 

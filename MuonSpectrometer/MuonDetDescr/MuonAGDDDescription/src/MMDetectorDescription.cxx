@@ -8,7 +8,6 @@
 
 #include <sstream>
 
-MMDetectorDescription* MMDetectorDescription::s_current=0;
 
 
 MMDetectorDescription::MMDetectorDescription(const std::string& s,

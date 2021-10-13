@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -232,6 +232,15 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
 #endif
   evt->set_pdf_info(pdfi);
   ATH_MSG_DEBUG("Added PDF info to HepMC");
+
+//uncomment to list HepMC events
+//#ifdef HEPMC3
+//    std::cout << " print::listing Herwig7 " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+//#else
+//    std::cout << " print::printing Herwig7 " << std::endl;
+//    evt->print();
+//#endif
 
   return StatusCode::SUCCESS;
 }

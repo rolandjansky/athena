@@ -323,9 +323,20 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
 #endif
   HepMC::set_random_states(evt, m_seeds );
 
-  evt->weights().push_back(1.0); 
-  GeVToMeV(evt);
-  
+  evt->weights().push_back(1.0);
+
+//correct units
+//uncomment to list HepMC events
+#ifdef HEPMC3
+evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+//    std::cout << " print::listing QGSJet " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+#else
+GeVToMeV(evt);
+//    std::cout << " print::printing QGSJet " << std::endl;
+//    evt->print();
+#endif
+ 
   std::vector<HepMC::GenParticlePtr> beams;
 
   for (auto p: *evt) {
