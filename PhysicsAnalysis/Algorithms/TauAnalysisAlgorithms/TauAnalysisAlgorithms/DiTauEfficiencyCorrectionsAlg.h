@@ -12,9 +12,9 @@
 #include <TauAnalysisTools/IDiTauEfficiencyCorrectionsTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <xAODTau/DiTauJetContainer.h>
 
 namespace CP
@@ -47,7 +47,7 @@ namespace CP
 
     /// \brief the tau collection we run on
   private:
-    SysCopyHandle<xAOD::DiTauJetContainer> m_tauHandle {
+    SysReadHandle<xAOD::DiTauJetContainer> m_tauHandle {
       this, "taus", "DiTauJets", "the tau collection to run on"};
 
     /// \brief the preselection we apply to our input
@@ -59,13 +59,10 @@ namespace CP
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-    /// \brief the decoration for the tau scale factor
+    /// \brief the decoration for the muon scale factor
   private:
-    std::string m_scaleFactorDecoration;
-
-    /// \brief the accessor for \ref m_scaleFactorDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
+      this, "scaleFactorDecoration", "", "the decoration for the di-tau efficiency scale factor"};
   };
 }
 
