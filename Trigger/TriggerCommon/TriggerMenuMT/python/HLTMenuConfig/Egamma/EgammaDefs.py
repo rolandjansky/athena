@@ -140,21 +140,21 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
 # Electron CB Selectors
 #
 def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', **kwargs):
-    from AthenaCommon.Configurable import ConfigurableRun3Behavior
-    with ConfigurableRun3Behavior():
-        acc = ComponentAccumulator()
-        from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
+    #from AthenaCommon.Configurable import ConfigurableRun3Behavior
+    #with ConfigurableRun3Behavior():
+    acc = ComponentAccumulator()
+    from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
 
-        ElectronLooseHI = (0
+    ElectronLooseHI = (0
             | 1 << BitDefElectron.ClusterEtaRange_Electron
             | 1 << BitDefElectron.ClusterHadronicLeakage_Electron
             | 1 << BitDefElectron.ClusterMiddleEnergy_Electron
             | 1 << BitDefElectron.ClusterMiddleEratio37_Electron
             | 1 << BitDefElectron.ClusterMiddleWidth_Electron
             | 1 << BitDefElectron.ClusterStripsWtot_Electron
-        )
+    )
 
-        ElectronMediumHI = (ElectronLooseHI
+    ElectronMediumHI = (ElectronLooseHI
             | 1 << BitDefElectron.ClusterMiddleEratio33_Electron
             | 1 << BitDefElectron.ClusterBackEnergyFraction_Electron
             | 1 << BitDefElectron.ClusterStripsEratio_Electron
@@ -162,41 +162,40 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
             | 1 << BitDefElectron.ClusterStripsDeltaE_Electron
             | 1 << BitDefElectron.ClusterStripsFracm_Electron
             | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
-        )
+    )
 
-        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+    ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
 
-        from collections import OrderedDict
-        SelectorNames = OrderedDict({
-            'medium': 'AsgElectronIsEMSelectorHIMedium',
-            'loose': 'AsgElectronIsEMSelectorHILoose',
-            'mergedtight'  : 'AsgElectronIsEMSelectorMergedTight',
-        })
+    from collections import OrderedDict
+    SelectorNames = OrderedDict({
+          'medium': 'AsgElectronIsEMSelectorHIMedium',
+          'loose': 'AsgElectronIsEMSelectorHILoose',
+          'mergedtight'  : 'AsgElectronIsEMSelectorMergedTight',
+    })
 
-        ElectronToolConfigFile = {
-            'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
-            'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
-            'mergedtight'  : 'ElectronIsEMMergedTightSelectorCutDefs.conf',
-        }
+    ElectronToolConfigFile = {
+          'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
+          'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
+          'mergedtight'  : 'ElectronIsEMMergedTightSelectorCutDefs.conf',
+    }
 
-        ElectronMaskBits = {
-            'medium': ElectronMediumHI,
-            'loose': ElectronLooseHI,
-            'mergedtight'  : egammaPID.ElectronTightHLT,
-        }
+    ElectronMaskBits = {
+          'medium': ElectronMediumHI,
+          'loose': ElectronLooseHI,
+          'mergedtight'  : egammaPID.ElectronTightHLT,
+    }
 
-        selectors = []
-        from AthenaCommon.AppMgr import ToolSvc
-        for sel, name in SelectorNames.items():
-            SelectorTool = conf2toConfigurable(CompFactory.AsgElectronIsEMSelector(name))
-            SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
-            SelectorTool.isEMMask = ElectronMaskBits[sel]
-            #if not hasattr(ToolSvc, name):
-            #  ToolSvc += SelectorTool
-            #selectors.append(SelectorTool)
-            acc.addPublicTool(SelectorTool)
-    appendCAtoAthena( acc )
-
+    selectors = []
+    from AthenaCommon.AppMgr import ToolSvc
+    for sel, name in SelectorNames.items():
+        SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
+        SelectorTool.isEMMask = ElectronMaskBits[sel]
+        #if not hasattr(ToolSvc, name):
+        #  ToolSvc += SelectorTool
+        #selectors.append(SelectorTool)
+        acc.addPublicTool(SelectorTool)
+    
     return acc
 
 
