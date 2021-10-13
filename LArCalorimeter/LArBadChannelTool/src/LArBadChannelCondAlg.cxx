@@ -84,7 +84,7 @@ StatusCode LArBadChannelCondAlg::execute() {
      }
      else {//regular readout
         const LArOnlineID* onlID;
-	ATH_CHECK(detStore()->retrieve(onlID,"LArOnline_ID"));
+	ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
 	onlineID=onlID;
      }
      LArBadChannelDecoder decoder(&(*onlineID), msg());
