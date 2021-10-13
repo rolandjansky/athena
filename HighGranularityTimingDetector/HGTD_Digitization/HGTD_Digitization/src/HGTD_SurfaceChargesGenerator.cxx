@@ -71,11 +71,15 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
   double sensor_thickness = element->design().thickness();
   int readout_side = element->design().readoutSide();
 
-  double pixel_size_x = element->design().phiPitch();
-  double pixel_size_y = element->design().etaPitch();
+  float pixel_size_xphi = element->design().phiPitch();
+  float pixel_size_xeta = element->design().etaPitch();
 
   const CLHEP::Hep3Vector start_pos(hit.localStartPosition());
   const CLHEP::Hep3Vector end_pos(hit.localEndPosition());
+
+  ATH_MSG_DEBUG("start_pos xEta=" << start_pos[SiHit::xEta]
+                                  << ", xPhi=" << start_pos[SiHit::xPhi]
+                                  << ", xDep=" << start_pos[SiHit::xDep]);
 
   CLHEP::Hep3Vector direction = end_pos - start_pos;
   double deposit_length = direction.mag();
@@ -94,8 +98,11 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
 
   // FIXME needed to check for deposits in guardrings. This should be taken over
   // by the module design class and not hardcoded here!
-  float x_offset = 9.75;
-  float y_offset = 19.5;
+
+  float xphi_offset = 9.75;
+  float xeta_offset = 19.5;
+  // FIXME this should be handled by the module design class in the future
+  float interpad = 50 * CLHEP::micrometer;
 
   for (int i_step = 0; i_step < n_steps; i_step++) {
     CLHEP::Hep3Vector surface_pos = start_pos + i_step * direction;
@@ -103,7 +110,7 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
     // FIXME ask Noemi about what happens here
-    double spess =
+    float spess =
         0.5 * sensor_thickness - readout_side * surface_pos[SiHit::xDep];
     if (spess < 0) {
       spess = 0; // FIXME this means I am on the surface already?
@@ -114,42 +121,39 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
 
     // position at the surface, adding smearing
     // FIXME currently no Lorentz angle considered, can be studied in the future
-    double surf_pos_x = surface_pos[SiHit::xEta] +
-                        rdif * CLHEP::RandGaussZiggurat::shoot(rndm_engine);
-    double surf_pos_y = surface_pos[SiHit::xPhi] +
-                        rdif * CLHEP::RandGaussZiggurat::shoot(rndm_engine);
+    float surf_pos_xphi = surface_pos[SiHit::xPhi] +
+                          rdif * CLHEP::RandGaussZiggurat::shoot(rndm_engine);
+    float surf_pos_xeta = surface_pos[SiHit::xEta] +
+                          rdif * CLHEP::RandGaussZiggurat::shoot(rndm_engine);
 
     // if the deposit is outside the guard ring, don't consider it
-    if (fabs(surf_pos_x) > x_offset or fabs(surf_pos_y) > y_offset) {
+    if (fabs(surf_pos_xphi) > xphi_offset or
+        fabs(surf_pos_xeta) > xeta_offset) {
+      ATH_MSG_DEBUG("Hit in guard ring");
       continue;
     }
 
-    // FIXME this should be handled by the module design class in the future
-    float interpad = 50 * CLHEP::micrometer;
+    int bin_xphi = floor(fabs(surf_pos_xphi + xphi_offset) / pixel_size_xphi);
+    int bin_xeta = floor(fabs(surf_pos_xeta + xeta_offset) / pixel_size_xeta);
 
-    int bin_x = floor(fabs(surf_pos_x + x_offset) / pixel_size_x);
-    int bin_y = floor(fabs(surf_pos_y + y_offset) / pixel_size_y);
+    float pos_xphi_inpixel =
+        fabs(surf_pos_xphi + xphi_offset) - float(bin_xphi) * pixel_size_xphi;
+    float pos_xeta_inpixel =
+        fabs(surf_pos_xeta + xeta_offset) - float(bin_xeta) * pixel_size_xeta;
 
-    float pos_x_inpixel =
-        fabs(surf_pos_x + x_offset) - float(bin_x) * pixel_size_x;
-    float pos_y_inpixel =
-        fabs(surf_pos_y + y_offset) - float(bin_y) * pixel_size_y;
-
-    bool is_interpad_x =
-        (pos_x_inpixel < interpad or pos_x_inpixel > (pixel_size_x - interpad));
-    bool is_interpad_y =
-        (pos_y_inpixel < interpad or pos_y_inpixel > (pixel_size_y - interpad));
+    bool is_interpad_xphi = (pos_xphi_inpixel < interpad or
+                             pos_xphi_inpixel > (pixel_size_xphi - interpad));
+    bool is_interpad_xeta = (pos_xeta_inpixel < interpad or
+                             pos_xeta_inpixel > (pixel_size_xeta - interpad));
 
     // check if the charge is sitting in the interpad region
-    if (is_interpad_x or is_interpad_y) {
-      ATH_MSG_DEBUG("INTERPAD DETECTED!!!");
-      ATH_MSG_DEBUG("surf_pos_x=" << surf_pos_x
-                                  << ", surf_pos_y=" << surf_pos_y);
+    if (is_interpad_xphi or is_interpad_xeta) {
+      ATH_MSG_DEBUG("Hit in interpad region");
       continue;
     }
     // charges deposited within the active sensor get added
     const InDetDD::SiLocalPosition position(
-        element->hitLocalToLocal(surf_pos_x, surf_pos_y));
+        element->hitLocalToLocal(surf_pos_xeta, surf_pos_xphi));
 
     SiSurfaceCharge surface_charge(
         position, SiCharge(charge_per_step, time_of_flight, hitproc,
@@ -157,7 +161,7 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
 
     InDetDD::SiCellId cell_id =
         element->cellIdOfPosition(surface_charge.position());
-
+    ATH_MSG_DEBUG("cell_id x=" << cell_id);
     if (cell_id.isValid()) {
       // add this charge to the collection (or merge in existing charged
       // diode)

@@ -273,41 +273,37 @@ StatusCode HGTD_SmearedDigitizationTool::digitize() {
     HepGeom::Point3D<double> hit_loc_start_pos = hit->localStartPosition();
     HepGeom::Point3D<double> hit_loc_end_pos = hit->localEndPosition();
 
-    HepGeom::Point3D<double> hit_glob_start_pos =
-        curr_det_element->hitLocalToLocal3D(hit_loc_start_pos);
-    HepGeom::Point3D<double> hit_glob_end_pos =
-        curr_det_element->hitLocalToLocal3D(hit_loc_end_pos);
+    ATH_MSG_DEBUG("hit meanTime=" << hit->meanTime());
+    ATH_MSG_DEBUG("hit_loc_start_pos xEta="
+                  << hit_loc_start_pos[SiHit::xEta]
+                  << ", xPhi=" << hit_loc_start_pos[SiHit::xPhi]
+                  << ", xDep=" << hit_loc_start_pos[SiHit::xDep]);
 
-    double globa_entry_x = hit_glob_start_pos.x();
-    double globa_entry_y = hit_glob_start_pos.y();
+    double globa_entry_x = hit_loc_start_pos[SiHit::xPhi];
+    double globa_entry_y = hit_loc_start_pos[SiHit::xEta];
     m_x_entry_hit = globa_entry_x;
     m_y_entry_hit = globa_entry_y;
-    m_z_entry_hit = hit_glob_start_pos.z();
+    m_z_entry_hit = hit_loc_start_pos[SiHit::xDep];
 
-    double globa_exit_x = hit_glob_end_pos.x();
-    double globa_exit_y = hit_glob_end_pos.y();
+    double globa_exit_x = hit_loc_end_pos[SiHit::xPhi];
+    double globa_exit_y = hit_loc_end_pos[SiHit::xEta];
     m_x_exit_hit = globa_exit_x;
     m_y_exit_hit = globa_exit_y;
-    m_z_exit_hit = hit_glob_end_pos.z();
+    m_z_exit_hit = hit_loc_end_pos[SiHit::xDep];
 
     double dist_x = std::abs(std::abs(globa_exit_x) - std::abs(globa_entry_x));
     double dist_y = std::abs(std::abs(globa_exit_y) - std::abs(globa_entry_y));
 
-    Amg::Vector2D local_entry(globa_entry_x, globa_entry_y);
-    Amg::Vector2D local_exit(globa_exit_x, globa_exit_y);
+    const InDetDD::SiLocalPosition position_entry(
+        curr_det_element->hitLocalToLocal(globa_entry_y, globa_entry_x));
+    const InDetDD::SiLocalPosition position_exit(
+        curr_det_element->hitLocalToLocal(globa_exit_y, globa_exit_x));
 
-    // get the identifier of the entry and the exit
-    Identifier entry_id = curr_det_element->identifierOfPosition(local_entry);
-    Identifier exit_id = curr_det_element->identifierOfPosition(local_exit);
-
-    // now get the cellIds and check whether they're valid
     InDetDD::SiCellId entry_cell_id =
-        curr_det_element->cellIdFromIdentifier(entry_id);
+        curr_det_element->cellIdOfPosition(position_entry);
     InDetDD::SiCellId exit_cell_id =
-        curr_det_element->cellIdFromIdentifier(exit_id);
+        curr_det_element->cellIdOfPosition(position_exit);
 
-    ATH_MSG_DEBUG("--- HGTD_SmearedDigitizationTool: entryId "
-                  << entry_id << " --- exitId " << exit_id);
     ATH_MSG_DEBUG("--- HGTD_SmearedDigitizationTool: entryCellId "
                   << entry_cell_id << " --- exitCellId " << exit_cell_id);
 

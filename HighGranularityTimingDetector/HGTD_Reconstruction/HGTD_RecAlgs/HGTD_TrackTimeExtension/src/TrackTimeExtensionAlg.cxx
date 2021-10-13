@@ -98,9 +98,8 @@ StatusCode TrackTimeExtensionAlg::execute() {
       m_sdo_coll_rh_key);
   const InDetSimDataCollection* sdo_collection = sdo_collection_handle.cptr();
   if (not sdo_collection) {
-    ATH_MSG_ERROR(
-        "[TrackTimeExtensionAlg] SDO Collection not found, aborting execute!");
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("[TrackTimeExtensionAlg] SDO Collection not found, no "
+                    "truth info available!");
   }
 
   SG::ReadHandle<McEventCollection> mc_collection_handle(m_mc_coll_rh_key);
