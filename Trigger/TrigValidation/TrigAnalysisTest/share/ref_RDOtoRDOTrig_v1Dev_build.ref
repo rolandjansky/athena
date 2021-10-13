@@ -520,6 +520,16 @@ HLT_2j45_pf_ftf_bdl1r60_xe50_cell_xe85_tcpufit_L12J15_XE55:
     0: 16
     1: 11
     2: 3
+HLT_2j45_pf_ftf_bdl1r70_j0_pf_ftf_HT300_j0_pf_ftf_DJMASS700j35_L1HT150-J20s5pETA31_MJJ-400-CF:
+  eventCount: 1
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 3
+    1: 12
+    2: 2
 HLT_2j55_0eta290_020jvt_pf_ftf_bdl1r60_2j55_pf_ftf_0eta320_L14J15p0ETA25:
   eventCount: 0
   stepCounts:
@@ -6897,6 +6907,12 @@ HLT_j55_0eta240_xe50_cell_L1J30_EMPTY:
   eventCount: 0
 HLT_j55_0eta240_xe50_cell_L1J30_FIRSTEMPTY:
   eventCount: 0
+HLT_j55_pf_ftf_0eta320_bdl1r70_2j45_pf_ftf_320eta490_L1J25p0ETA23_2J15p31ETA49:
+  eventCount: 0
+  stepCounts:
+    0: 4
+  stepFeatures:
+    0: 8
 HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50:
   eventCount: 14
   stepCounts:
@@ -6939,6 +6955,16 @@ HLT_j70_0eta320_j50_0eta490_j0_DJMASS1000j50dphi240_xe90_tcpufit_xe50_cell_L1MJJ
   eventCount: 0
   stepFeatures:
     0: 3
+? HLT_j70_pf_ftf_0eta490_j50_pf_ftf_0eta490_2j35_pf_ftf_0eta490_SHARED_2j35_pf_ftf_0eta290_bdl1r70_j0_pf_ftf_DJMASS1000j50_L1MJJ-500-NFF
+: eventCount: 1
+  stepCounts:
+    0: 3
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 15
+    1: 21
+    2: 2
 HLT_j75_0eta290_020jvt_pf_ftf_bdl1r60_3j75_pf_ftf_L14J20:
   eventCount: 1
   stepCounts:
