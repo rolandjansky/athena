@@ -131,7 +131,7 @@ public:
   CompBHist(const CompBHist &) = delete;
   CompBHist & operator=(const CompBHist &) = delete;
   int Print();
-  int Write(ofstream*);
+  void Write(ofstream*);
   int GetStat(int);
   int* hist{};
   int id{}
