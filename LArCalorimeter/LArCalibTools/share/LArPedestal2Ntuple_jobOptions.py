@@ -72,9 +72,6 @@ include ("AtlasGeoModel/GeoModelInit.py")
 include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")
 include("LArIdCnv/LArIdCnv_joboptions.py")
 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print = False
-
 ###########################################################################
 #
 # Algorithms sequencer
