@@ -73,10 +73,8 @@ Trig::TrigDecisionTool::initialize() {
   
 #ifndef XAOD_STANDALONE // AthAnalysis or full Athena
    // We setup the TrigConfigSvc interface
-   // Be default this is the standalone xAOD ConfigSvc
+   // This is the standalone xAOD ConfigSvc
    // In Run 3 the standalone xAOD ConfigSvc is useable in both RAWtoALL jobs and from ESD, AOD.
-   // Only in full Athena is it possible to in python instead request the legacy Run2 TrigConfigSvc
-   // There shouldn't be any reason to do this as of Q2 2021
    
    if(m_configSvc.empty()) {
      ATH_MSG_DEBUG("No TrigConfigSvc provided. Using ConfigTool instead...");

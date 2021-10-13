@@ -152,7 +152,7 @@ namespace Trig {
     Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
       "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
 
-    ToolHandle<HLT::Navigation> m_fullNavigation;
+    ToolHandle<HLT::Navigation> m_fullNavigation{this, "Navigation", "HLT::Navigation/Navigation"};
 
     #endif
 
