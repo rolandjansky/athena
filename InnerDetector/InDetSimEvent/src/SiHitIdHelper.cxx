@@ -33,13 +33,16 @@ void SiHitIdHelper::Initialize() {
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
   //Run4 includes ITk and HGTD
   bool isRun4 = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTD");
-  
-  if (isRun4) InitializeField("Part",0,2);
+  //Run4PLR includes PLR as well, we have to increase endcap range to +/- 4
+  bool isRun4PLR = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTDPLR"); 
+
+ 
+  if (isRun4 || isRun4PLR) InitializeField("Part",0,2);
   else InitializeField("Part",0,1);
-  if (isDBM) InitializeField("BarrelEndcap",-4,4);
+  if (isDBM || isRun4PLR) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
   InitializeField("LayerDisk",0,20);
-  if (isRun4) InitializeField("EtaModule",-100,100);
+  if (isRun4 || isRun4PLR) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
   InitializeField("PhiModule",0,200);
   InitializeField("Side",0,3);
@@ -47,7 +50,7 @@ void SiHitIdHelper::Initialize() {
 }
 
 // Info retrieval:
-// Pixel, SCT, or HGTD
+// Pixel, SCT, HGTD, or PLR
 bool SiHitIdHelper::isPixel(const int& hid) const
 {
   int psh = this->GetFieldValue("Part", hid);
@@ -68,6 +71,14 @@ bool SiHitIdHelper::isHGTD(const int& hid) const
   if (psh ==2 ) return true;
   else return false;
 }
+
+bool SiHitIdHelper::isPLR(const int& hid) const
+{
+  int psh = this->GetFieldValue("BarrelEndcap", hid);
+  if (psh ==-4 || psh ==4 ) return true;
+  else return false;
+}
+
 
 // Barrel or Endcap
 int SiHitIdHelper::getBarrelEndcap(const int& hid) const
