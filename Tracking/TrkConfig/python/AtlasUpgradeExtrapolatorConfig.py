@@ -51,13 +51,15 @@ def AtlasUpgradeSTEP_PropagatorCfg(flags, name = 'AtlasUpgradeSTEP_Propagator', 
 def ITkPropagatorCfg(flags, name='ITkPropagator',**kwargs):
        result = ComponentAccumulator()
 
+       ITkPropagator = None
        if flags.ITk.propagatorType == "STEP":
-              result.merge(AtlasUpgradeSTEP_PropagatorCfg(flags, name, **kwargs))
+              ITkPropagator = result.getPrimaryAndMerge(AtlasUpgradeSTEP_PropagatorCfg(flags, name, **kwargs))
        elif flags.ITk.propagatorType == "RungeKutta":
               kwargs.setdefault("AccuracyParameter", 0.0001)
               kwargs.setdefault("MaxStraightLineStep", .004) # Fixes a failed fit
-              result.merge(AtlasUpgradeRKPropagatorCfg(flags, name, **kwargs))
+              ITkPropagator = result.getPrimaryAndMerge(AtlasUpgradeRKPropagatorCfg(flags, name, **kwargs))
 
+       result.addPublicTool(ITkPropagator, primary=True)
        return result
 
 def AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name = 'AtlasUpgradeMaterialEffectsUpdator', **kwargs):
@@ -80,7 +82,7 @@ def ITkMaterialEffectsUpdatorCfg(flags, name = "ITkMaterialEffectsUpdator", **kw
        return AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 # define the class
-def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
+def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
        result=ComponentAccumulator()
 
        acc  = MagneticFieldSvcCfg(flags)
