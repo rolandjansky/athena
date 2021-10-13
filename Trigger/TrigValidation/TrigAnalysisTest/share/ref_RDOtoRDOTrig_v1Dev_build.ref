@@ -109,18 +109,31 @@ HLT_2e5_lhvloose_bBeeM6000_L1All:
     2: 14
     3: 25
     4: 3
+HLT_2e5_lhvloose_bBeeM6000_L1BKeePrescaled:
+  eventCount: 0
+  stepCounts:
+    0: 15
+    1: 13
+    2: 8
+    3: 8
+  stepFeatures:
+    0: 51
+    1: 109
+    2: 26
+    3: 48
+    4: 8
 HLT_2e5_lhvloose_bBeeM6000_L1BKeePrimary:
   eventCount: 0
   stepCounts:
-    0: 11
-    1: 3
-    2: 3
-    3: 3
+    0: 14
+    1: 5
+    2: 4
+    3: 4
   stepFeatures:
-    0: 38
-    1: 58
-    2: 9
-    3: 16
+    0: 49
+    1: 96
+    2: 13
+    3: 25
     4: 3
 HLT_2e5_lhvloose_bBeeM6000_L1BPH-0M9-EM7-EM5_MU5VF:
   eventCount: 0
@@ -3736,18 +3749,31 @@ HLT_e5_lhvloose_bBeeM6000_L1All:
     2: 14
     3: 32
     4: 4
+HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled:
+  eventCount: 0
+  stepCounts:
+    0: 19
+    1: 16
+    2: 13
+    3: 13
+  stepFeatures:
+    0: 51
+    1: 111
+    2: 27
+    3: 60
+    4: 11
 HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary:
   eventCount: 0
   stepCounts:
-    0: 15
-    1: 3
-    2: 3
-    3: 3
+    0: 18
+    1: 5
+    2: 5
+    3: 5
   stepFeatures:
-    0: 38
-    1: 60
-    2: 9
-    3: 16
+    0: 49
+    1: 98
+    2: 13
+    3: 28
     4: 3
 HLT_e5_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15:
   eventCount: 0
