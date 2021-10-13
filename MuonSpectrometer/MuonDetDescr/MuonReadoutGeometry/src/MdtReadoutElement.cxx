@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -1729,17 +1729,17 @@ void MdtReadoutElement::fillCache()
 #endif
 
 #ifndef NDEBUG
-    Trk::PlaneSurface* tmpSurface = (Trk::PlaneSurface*)&surface();//<! filling m_associatedSurface
-    Trk::SurfaceBounds* tmpBounds = nullptr;//<! filling m_associatedBounds
-    if (MuonReadoutElement::barrel()) tmpBounds = (Trk::RectangleBounds*)&bounds();
-    else tmpBounds = (Trk::TrapezoidBounds*)&bounds();
+    const Trk::Surface* tmpSurface = &surface();//<! filling m_associatedSurface
+    const Trk::SurfaceBounds* tmpBounds = nullptr;//<! filling m_associatedBounds
+    if (MuonReadoutElement::barrel()) tmpBounds = &bounds();
+    else tmpBounds = &bounds();
     if (log.level()<=MSG::VERBOSE) {
       log << MSG::VERBOSE<<"global Surface / Bounds pointers "<<tmpSurface<<" "<<tmpBounds<<endmsg;
       log << MSG::VERBOSE<<"global Normal "<<normal()<<endmsg;
     }
 #endif
-    Trk::CylinderBounds* tmpCil = nullptr;
-    Trk::SaggedLineSurface* tmpSaggL = nullptr;
+    const Trk::CylinderBounds* tmpCyl = nullptr;
+    const Trk::SaggedLineSurface* tmpSaggL = nullptr;
     Amg::Vector3D myPoint; 
     Amg::Transform3D myTransform;
     for(int tl=1; tl<=getNLayers(); ++tl)
@@ -1760,8 +1760,8 @@ void MdtReadoutElement::fillCache()
                              if (!found && id == packed_id) {
                                myTransform = transform(tl, tube); //<! filling m_tubeTransf
                                myPoint     = center(tl, tube);    //<! filling m_tubeCenter
-                               tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
-                               tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                               tmpCyl = &bounds(tl, tube); //<! filling m_tubeBounds
+                               tmpSaggL = &surface(tl, tube);//<! filling m_tubeSurfaces
                                found = true;
                              }
                            }, &*cv);
@@ -1769,7 +1769,7 @@ void MdtReadoutElement::fillCache()
                 if (found && log.level()<=MSG::VERBOSE) {
                   log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
                   log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCyl<<endmsg;
                   log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
                 }
 #endif
@@ -1777,13 +1777,13 @@ void MdtReadoutElement::fillCache()
                 // print in order to compute !!!
                 myTransform = transform(tl, tube); //<! filling m_tubeTransf
                 myPoint     = center(tl, tube);    //<! filling m_tubeCenter
-                tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
-                tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                tmpCyl = &bounds(tl, tube); //<! filling m_tubeBounds
+                tmpSaggL = &surface(tl, tube);//<! filling m_tubeSurfaces
 #ifndef NDEBUG
                 if (log.level()<=MSG::VERBOSE) {
                   log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
                   log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCyl<<endmsg;
                   log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
                 }
 #endif
