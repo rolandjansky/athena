@@ -180,7 +180,7 @@ int CompBHist::Print(){
   return 0;
 }
 
-int CompBHist::Write(ofstream* file){
+void CompBHist::Write(ofstream* file){
   file->write((char*)hist,(npop*2+2)*sizeof(int));
 }
 
