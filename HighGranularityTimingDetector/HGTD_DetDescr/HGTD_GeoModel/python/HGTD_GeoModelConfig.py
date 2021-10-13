@@ -11,6 +11,8 @@ def HGTD_GeometryCfg(flags):
     hgtdDetectorTool.DetectorName = "HGTD"
     hgtdDetectorTool.PrintModuleNumberPerRow = False
     geoModelSvc.DetectorTools += [ hgtdDetectorTool ]
+    
+    return acc
 
 def HGTD_ReadoutGeometryCfg(flags):
     # main GeoModel config

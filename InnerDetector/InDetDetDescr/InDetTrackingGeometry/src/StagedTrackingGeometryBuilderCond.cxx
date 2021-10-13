@@ -51,7 +51,8 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   m_checkForRingLayout(false),
   m_ringTolerance(10*Gaudi::Units::mm),
   m_namespace("InDet::"),
-  m_exitVolume("InDet::Containers::InnerDetector")
+  m_exitVolume("InDet::Containers::InnerDetector"),
+  m_removeHGTD(false)
 {
   declareInterface<Trk::IGeometryBuilderCond>(this);  
   // layer builders and their configurations
@@ -78,6 +79,8 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   // volume namespace & contaienr name
   declareProperty("VolumeNamespace",                  m_namespace); 
   declareProperty("ExitVolumeName",                   m_exitVolume);
+  // Remove HGTD volume from ID tracking geometry
+  declareProperty("RemoveHGTD",                       m_removeHGTD);
 }
 
 // destructor
@@ -146,6 +149,24 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeome
    ATH_MSG_VERBOSE("       -> retrieved Inner Detector envelope definitions at size " << envelopeDefs.size());
    double envelopeVolumeRadius = envelopeDefs[1].first;
    double envelopeVolumeHalfZ  = fabs(envelopeDefs[1].second);
+      
+   if (m_removeHGTD) {
+     // If running with the HGTD, we don't want to include its volume
+     // as it will be included in another tracking geometry.
+     // re-evaluating the ID envelope dimension
+     float envelopeVolumeHalfZatBp = envelopeVolumeHalfZ;
+     // now scan the beampipe envelopes, if there is something smalles, pick it.
+     const RZPairVector& envelopeBeamPipeDefs = m_enclosingEnvelopeSvc->getBeamPipeRZBoundary();
+     float beampipeR = envelopeDefs[0].first;
+     for (auto& bounds : envelopeBeamPipeDefs) {
+       if (float(bounds.first) == beampipeR and std::abs(bounds.second)<envelopeVolumeHalfZatBp) {
+         envelopeVolumeHalfZatBp = std::abs(bounds.second);
+       }
+     }
+     if (envelopeVolumeHalfZatBp<envelopeVolumeHalfZ)
+       envelopeVolumeHalfZ = envelopeVolumeHalfZatBp; 
+   }
+   
    ATH_MSG_VERBOSE("       -> envelope R/Z defined as : " << envelopeVolumeRadius << " / " << envelopeVolumeHalfZ );
 
    ATH_MSG_DEBUG( "[ STEP 1 ] : Getting overal dimensions from the different layer builders." );

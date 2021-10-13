@@ -15,6 +15,7 @@
 
 namespace InDetDD {
     class HGTD_ModuleDesign;
+    class SiCommonItems;
 }
 
 class GeoTube ;
@@ -121,6 +122,8 @@ public:
     std::map<std::string,GeoCylVolParams> m_cylVolPars;
     std::map<std::string,GeoBoxVolParams> m_boxVolPars;
     HgtdGeoParams m_hgtdPars;
+    
+    std::unique_ptr<InDetDD::SiCommonItems> m_commonItems;
   };
 
 } // End HGTDGeo namespace

@@ -442,7 +442,7 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG("Unable to swap local xPhi axis.");
             }
         }
-        if (not isHGTD and std::abs(m_phiAngle) < 0.5) { // Check that it is in roughly the right direction.
+        if (not isHGTD and std::abs(dir.m_phiAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xPhi axis does not follow correct convention.");
           dir.m_phiDirection = true; // Don't swap.
         }
@@ -459,7 +459,7 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG("Unable to swap local xEta axis.");
             }
         }
-        if (not isHGTD and std::abs(m_etaAngle) < 0.5) { // Check that it is in roughly the right direction.
+        if (not isHGTD and std::abs(dir.m_etaAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xEta axis does not follow correct convention.");
           dir.m_etaDirection = true; // Don't swap
         }

@@ -2,10 +2,10 @@
 
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
 
 def HGTD_DetectorElementCondAlgCfg(flags, name="HGTD_DetectorElementCondAlg", **kwargs):
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  from AthenaConfiguration.ComponentFactory import CompFactory
   """Return a ComponentAccumulator with configured HGTD_DetectorElementCondAlg for HGTD"""
   acc = ComponentAccumulator()
   kwargs.setdefault("DetManagerName", "HGTD")
