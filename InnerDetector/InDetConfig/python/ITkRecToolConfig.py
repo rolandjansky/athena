@@ -6,9 +6,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-
 def ITkPrdAssociationToolCfg(flags, name='ITkPrdAssociationTool',**kwargs) :
   acc = ComponentAccumulator()
   '''

@@ -150,8 +150,8 @@ def InDetPhysValTruthDecoratorAlgCfg(flags, **kwargs):
 
     Extrapolator = None
     if flags.Detector.GeometryITk:
-        from  InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
     else:
         from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
         Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))

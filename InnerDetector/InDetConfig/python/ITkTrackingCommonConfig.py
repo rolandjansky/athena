@@ -346,7 +346,7 @@ def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs)
         pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
     from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
     kwargs.setdefault("ExtrapolatorHandle", Extrapolator)
 
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
@@ -403,7 +403,7 @@ def ITkKalmanCompetingPixelClustersToolCfg(flags, name='ITkKalmanCompetingPixelC
 
     if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
         kwargs.setdefault("Extrapolator", Extrapolator)
 
     acc.setPrivateTools(CompFactory.InDet.CompetingPixelClustersOnTrackTool(name=name, **kwargs))
@@ -416,7 +416,7 @@ def ITkKalmanCompetingStripClustersToolCfg(flags, name='ITkKalmanCompetingStripC
 
     if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
         kwargs.setdefault("Extrapolator", Extrapolator)
 
     acc.setPrivateTools(CompFactory.InDet.CompetingSCT_ClustersOnTrackTool(name=name,**kwargs))
@@ -544,7 +544,7 @@ def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kw
 
     if 'ExtrapolatorTool' not in kwargs :
         from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
         kwargs.setdefault('ExtrapolatorTool', Extrapolator)
 
     if 'ROTcreator' not in kwargs :
