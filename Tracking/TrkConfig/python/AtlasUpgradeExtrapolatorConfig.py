@@ -48,6 +48,10 @@ def AtlasUpgradeSTEP_PropagatorCfg(flags, name = 'AtlasUpgradeSTEP_Propagator', 
        result.addPublicTool(AtlasSTEP_Propagator, primary=True)
        return result
 
+def AtlasUpgradeNoMatSTEP_PropagatorCfg(flags, name = 'AtlasUpgradeNoMatSTEP_Propagator', **kwargs):
+       kwargs.setdefault("MaterialEffects", False)
+       return AtlasUpgradeSTEP_PropagatorCfg(flags, name, **kwargs)
+
 def ITkPropagatorCfg(flags, name='ITkPropagator',**kwargs):
        result = ComponentAccumulator()
 
@@ -73,6 +77,10 @@ def AtlasUpgradeMaterialEffectsUpdatorLandauCfg(flags, name = 'AtlasUpgradeMater
        kwargs.setdefault("LandauMode", True)
        return AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
+def AtlasUpgradeNoElossMaterialEffectsUpdatorCfg(flags, name = 'AtlasUpgradeNoElossMaterialEffectsUpdator', **kwargs):
+       kwargs.setdefault("EnergyLoss", False)
+       return AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name, **kwargs)
+
 def ITkMaterialEffectsUpdatorCfg(flags, name = "ITkMaterialEffectsUpdator", **kwargs):
        if not flags.BField.solenoidOn:
               import AthenaCommon.SystemOfUnits as Units
@@ -90,63 +98,45 @@ def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
 
        # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
        
-       AtlasPropagators  = []
-       
        AtlasRungeKuttaPropagator = result.getPrimaryAndMerge( AtlasUpgradeRKPropagatorCfg(flags) )
-       AtlasPropagators += [AtlasRungeKuttaPropagator]
-
        AtlasSTEP_Propagator = result.getPrimaryAndMerge( AtlasUpgradeSTEP_PropagatorCfg(flags) )
-       AtlasPropagators += [AtlasSTEP_Propagator]
-
        ITkPropagator = result.getPrimaryAndMerge( ITkPropagatorCfg(flags) )
+
+       AtlasPropagators  = []
+       AtlasPropagators += [AtlasRungeKuttaPropagator]
+       AtlasPropagators += [AtlasSTEP_Propagator]
        AtlasPropagators += [ITkPropagator]
 
        # UPDATOR DEFAULTS -----------------------------------------------------------------------------------------       
-       
-       AtlasUpdators    = []
 
        AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeMaterialEffectsUpdatorCfg(flags) )
-       AtlasUpdators    += [ AtlasMaterialEffectsUpdator ]
-
        AtlasMaterialEffectsUpdatorLandau = result.getPrimaryAndMerge( AtlasUpgradeMaterialEffectsUpdatorLandauCfg(flags) )       
-       AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
-
        ITkMaterialEffectsUpdator = result.getPrimaryAndMerge( ITkMaterialEffectsUpdatorCfg(flags) )
+
+       AtlasUpdators    = []
+       AtlasUpdators    += [ AtlasMaterialEffectsUpdator ]
+       AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
        AtlasUpdators    += [ ITkMaterialEffectsUpdator ]
 
        AtlasNavigator = result.getPrimaryAndMerge( AtlasUpgradeNavigatorCfg(flags) )
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
-       
+
        AtlasSubPropagators = []
+       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ] # Global
+       AtlasSubPropagators += [ ITkPropagator.name ] # ID
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ] # BeamPipe
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ] # Calo
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ] # MS
+       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ] # Cavern
+
        AtlasSubUpdators = []
-
-       # -------------------- set it depending on the geometry ----------------------------------------------------
-       # default for Global is (Rk,Mat)
-       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
-
-       # default for ID is (Rk,Mat)
-       AtlasSubPropagators += [ ITkPropagator.name ]
-       AtlasSubUpdators    += [ ITkMaterialEffectsUpdator.name ]
-
-       # default for BeamPipe is (STEP,Mat)
-       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
-       
-       # default for Calo is (STEP,Mat)
-       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
-       
-       # default for MS is (STEP,Mat)
-       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
-
-       # default for Cavern is (Rk,Mat)
-       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
-       
-       # ----------------------------------------------------------------------------------------------------------          
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ] # Global
+       AtlasSubUpdators    += [ ITkMaterialEffectsUpdator.name ] # ID
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ] # BeamPipe
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ] # Calo
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ] # MS
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ] # Cavern
        
        # call the base class constructor
        Extrapolator = Trk__Extrapolator(name,\
@@ -159,5 +149,95 @@ def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
 
 
        result.addPublicTool(Extrapolator, primary=True)
+
+       return result
+
+
+# Based on Reconstruction/egamma/egammaTools/python/egammaExtrapolators.py
+def EGammaUpgradeExtrapolatorCfg( flags, name = 'EGammaUpgradeExtrapolator' ):
+       result=ComponentAccumulator()
+
+       egammaExtrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags, name))
+
+       # this turns off dynamic calculation of eloss in calorimeters
+       egammaExtrapolator.DoCaloDynamic = False
+
+       RungeKuttaPropagator = result.getPrimaryAndMerge( AtlasUpgradeRKPropagatorCfg(flags) )
+       NoMatSTEP_Propagator = result.getPrimaryAndMerge( AtlasUpgradeNoMatSTEP_PropagatorCfg(flags) )
+       ITkPropagator = result.getPrimaryAndMerge( ITkPropagatorCfg(flags) )
+
+       egammaPropagators  = []
+       egammaPropagators += [RungeKuttaPropagator]
+       egammaPropagators += [NoMatSTEP_Propagator]
+       egammaPropagators += [ITkPropagator]
+
+       MaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeMaterialEffectsUpdatorCfg(flags) )
+       NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeNoElossMaterialEffectsUpdatorCfg(flags) )
+       ITkMaterialEffectsUpdator = result.getPrimaryAndMerge( ITkMaterialEffectsUpdatorCfg(flags) )
+
+       egammaUpdators    = []
+       egammaUpdators    += [ MaterialEffectsUpdator ]
+       egammaUpdators    += [ NoElossMaterialEffectsUpdator ]
+       egammaUpdators    += [ ITkMaterialEffectsUpdator ]
+
+       # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
+
+       egammaSubPropagators = []
+       egammaSubPropagators += [ RungeKuttaPropagator.name ] # Global
+       egammaSubPropagators += [ ITkPropagator.name ] # ID
+       egammaSubPropagators += [ RungeKuttaPropagator.name ] # BeamPipe (default is STEP)
+       egammaSubPropagators += [ RungeKuttaPropagator.name ] # Calo (default is STEP)
+       egammaSubPropagators += [ NoMatSTEP_Propagator.name ] # MS (default is STEP)
+       egammaSubPropagators += [ RungeKuttaPropagator.name ] # Cavern
+
+       egammaSubUpdators = []
+       egammaSubUpdators    += [ MaterialEffectsUpdator.name ] # Global
+       egammaSubUpdators    += [ ITkMaterialEffectsUpdator.name ] # ID
+       egammaSubUpdators    += [ MaterialEffectsUpdator.name ] # BeamPipe
+       egammaSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # Calo (default is Mat)
+       egammaSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # MS (default is Mat)
+       egammaSubUpdators    += [ MaterialEffectsUpdator.name ] # Cavern
+
+       egammaExtrapolator.MaterialEffectsUpdators = egammaUpdators
+       egammaExtrapolator.SubMEUpdators = egammaSubUpdators
+       egammaExtrapolator.Propagators = egammaPropagators
+       egammaExtrapolator.SubPropagators = egammaSubPropagators
+       # egamma STEP with no eloss for calo intersections
+       egammaExtrapolator.STEP_Propagator = NoMatSTEP_Propagator
+
+       result.addPublicTool(egammaExtrapolator, primary=True)
+
+       return result
+
+
+
+# Based on PhysicsAnalysis/MCTruthClassifier/python/MCTruthClassifierBase.py
+def MCTruthClassifierUpgradeExtrapolatorCfg( flags, name = 'MCTruthClassifierUpgradeExtrapolator' ):
+       result=ComponentAccumulator()
+
+       MCTruthExtrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags, name))
+
+       # this turns off dynamic calculation of eloss in calorimeters
+       MCTruthExtrapolator.DoCaloDynamic = False
+
+       MCTruthUpdators    = []
+
+       NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeNoElossMaterialEffectsUpdatorCfg(flags) )
+       MCTruthUpdators    += [ NoElossMaterialEffectsUpdator ]
+
+       MCTruthSubUpdators = []
+
+       # -------------------- set it depending on the geometry ----------------------------------------------------
+       MCTruthSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # Global
+       MCTruthSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # ID
+       MCTruthSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # beampipe
+       MCTruthSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # calo
+       MCTruthSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # MS
+       MCTruthSubUpdators    += [ NoElossMaterialEffectsUpdator.name ] # cavern
+
+       MCTruthExtrapolator.MaterialEffectsUpdators = MCTruthUpdators
+       MCTruthExtrapolator.SubMEUpdators = MCTruthSubUpdators
+
+       result.addPublicTool(MCTruthExtrapolator, primary=True)
 
        return result
