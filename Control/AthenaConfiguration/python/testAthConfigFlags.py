@@ -15,8 +15,6 @@ class FlagsSetup(unittest.TestCase):
 
 
 class BasicTests(FlagsSetup):
-    def setUp(self):
-        super().setUp()
 
     def test_Access(self):
         """Test access"""
@@ -36,10 +34,19 @@ class BasicTests(FlagsSetup):
         self.flags.lock()
         self.assertEqual(self.flags.A.dependentFlag, "TRUE VALUE", " dependent flag setting does not work")
 
+    def test_lock(self):
+        """Test flag locking"""
+        self.flags.lock()
+        with self.assertRaises(RuntimeError):
+            self.flags.Atest = False
+        with self.assertRaises(RuntimeError):
+            self.flags.addFlag("X", True)
+
     def test_hash(self):
         """Test flag hashing"""
         self.assertEqual(self.flags.locked() , False)
-        self.assertIsNone(self.flags.athHash())
+        with self.assertRaises(RuntimeError):
+            self.flags.athHash()
         self.flags.lock()
         self.assertIsNotNone(self.flags.athHash())
         self.assertEqual(self.flags.locked() , True)
