@@ -26,6 +26,8 @@
 #include "TrigT1NSWSimTools/PadTriggerAdapter.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 // Forward includes
 class StoreGateSvc;
@@ -100,6 +102,7 @@ namespace NSWL1 {
     
     protected:
     SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey{this,"xAODEventInfoKey","EventInfo","Key of xAOD::EventInfo"};
+    SG::ReadHandleKey<EventInfo> m_eventInfoKey{this,"EventInfoKey","McEventInfo","Key of RDO EventInfo"};
     SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
     SG::WriteHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerRdoKey;
 
