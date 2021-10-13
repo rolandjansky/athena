@@ -12,11 +12,11 @@
 /**
  * Base class.
  */
-#include "TrkDetElementBase/TrkDetElementBase.h"
-
-#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+/// Ensure that the ATLAS eigen extensions are properly loaded
+#include "TrkDetElementBase/TrkDetElementBase.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "ReadoutGeometryBase/InDetDD_Defs.h"
