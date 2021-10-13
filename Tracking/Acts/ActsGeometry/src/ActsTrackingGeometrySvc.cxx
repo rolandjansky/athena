@@ -430,6 +430,7 @@ ActsLayerBuilder::Config ActsTrackingGeometrySvc::makeLayerBuilderConfig(
       lcCfg, makeActsAthenaLogger(this, managerName + "LayCrtr", "ActsTGSvc"));
 
   ActsLayerBuilder::Config cfg;
+  cfg.surfaceMatcher = matcher;
 
   // set bins from configuration
   if (m_barrelMaterialBins.size() != 2) {
