@@ -15,7 +15,7 @@ def ITkPixelGeoModelCfg(flags):
         ITkPixelDetectorTool.GmxFilename = flags.ITk.pixelGeometryFilename
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]
 
-
+    return acc
 
 def ITkPixelAlignmentCfg(flags):
     if flags.GeoModel.Align.LegacyConditionsAccess:
