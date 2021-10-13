@@ -15,6 +15,9 @@
 #include "lwtnn/lightweight_network_config.hh"
 #include "lwtnn/Exceptions.hh"
 
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "EventPrimitives/EventPrimitives.h"
+
 #include <Eigen/Dense>
 #include <vector>
 
