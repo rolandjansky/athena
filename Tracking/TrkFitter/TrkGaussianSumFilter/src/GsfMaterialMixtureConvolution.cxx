@@ -10,7 +10,6 @@
  */
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
