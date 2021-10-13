@@ -65,18 +65,30 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
     path        = '/Pixel/TrackOnTrack/'
     pathLowStat = '/Pixel/LumiBlockOnTrack/'
     
-    if not doOnline:
-        histoGroupName = 'TSOSMeasurement' 
-        title = 'TSOS of type Measurement'
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    histoGroupName = 'TSOSMeasurement' 
+    title = 'TSOS of type Measurement'
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-        histoGroupName = 'TSOSHole' 
-        title = 'TSOS of type Hole'
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    histoGroupName = 'TSOSHole' 
+    title = 'TSOS of type Hole'
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-        histoGroupName = 'TSOSOutlier' 
-        title = 'TSOS of type Outlier'
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    histoGroupName = 'TSOSOutlier' 
+    title = 'TSOS of type Outlier'
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+    if doFEPlots and not doOnline:
+        histoGroupName = 'TSOSMeasurementFE'
+        title = 'TSOS of type Measurement per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+        histoGroupName = 'TSOSHoleFE'
+        title = 'TSOS of type Hole per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+        histoGroupName = 'TSOSOutlierFE'
+        title = 'TSOS of type Outlier per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     histoGroupName = 'HitEffAll'
     title          = 'hit efficiency'
