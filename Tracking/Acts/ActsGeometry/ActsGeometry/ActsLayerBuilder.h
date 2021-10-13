@@ -62,6 +62,10 @@ public:
     std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
     std::pair<size_t, size_t> barrelMaterialBins = {10, 10};
 
+    std::function<bool(const Acts::GeometryContext &, Acts::BinningValue,
+                       const Acts::Surface *, const Acts::Surface *)>
+        surfaceMatcher;
+
     bool objDebugOutput = false;
   };
 

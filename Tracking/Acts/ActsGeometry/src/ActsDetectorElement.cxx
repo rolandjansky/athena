@@ -56,7 +56,6 @@ ActsDetectorElement::ActsDetectorElement(
 
   auto boundsType = detElem.bounds().type();
 
-  // thickness
   m_thickness = detElem.thickness();
 
   if (boundsType == Trk::SurfaceBounds::Rectangle) {
@@ -116,11 +115,11 @@ ActsDetectorElement::ActsDetectorElement(
     double phiAvg =
         0; // phiAvg is the bounds-internal local rotation. We don't want one
 
-    // // phi is the total opening angle, set up symmetric phi bounds
+    // phi is the total opening angle, set up symmetric phi bounds
     double phiMax = phi / 2.;
     double phiMin = -phiMax;
 
-    // // need to rotate pi/2 to reproduce ABXY orientation, phiS so that phi=0
+    // need to rotate pi/2 to reproduce ABXY orientation, phiS so that phi=0
     // is center and symmetric
     double phiShift = M_PI / 2. - phiS;
 
