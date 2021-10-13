@@ -43,6 +43,7 @@ void sTGCHandler::ElementHandle(AGDDController& c,
                                  c.GetDetectorStore(),
                                  c.GetVolumeStore(),
                                  c.GetSectionStore());
+        m_sTGCCurrent = b;
 	b->SetXYZ(vvv);
 	b->subType(sType);
 	b->tech=technology;
@@ -55,3 +56,9 @@ void sTGCHandler::ElementHandle(AGDDController& c,
 	b->ylFrame(ylf);
 	
 }
+
+sTGCDetectorDescription* sTGCHandler::GetsTGCCurrent()
+{
+  return m_sTGCCurrent;
+}
+

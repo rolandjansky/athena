@@ -98,8 +98,6 @@ public:
 	
 	sTGCReadoutParameters& GetReadoutParameters() {return roParameters;}
 
-	static sTGCDetectorDescription* GetCurrent() {return s_current;}
-	
 	MuonGM::sTGC_Technology* GetTechnology();
 
 protected:
@@ -116,7 +114,6 @@ protected:
 
         AGDDDetectorStore& m_ds;
 
-	static sTGCDetectorDescription* s_current;
 	virtual void SetDetectorAddress(AGDDDetectorPositioner*) override;
 };
 

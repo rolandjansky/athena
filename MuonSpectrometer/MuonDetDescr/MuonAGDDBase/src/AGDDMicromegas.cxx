@@ -32,7 +32,6 @@ AGDDMicromegas::AGDDMicromegas(const std::string& s,
                                AGDDSectionStore& ss)
   : MMDetectorDescription(s,ds),AGDDVolume(s,vs,ss,true)
 {
-	s_current=this;
 	Register();
 }
 
