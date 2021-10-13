@@ -3,6 +3,8 @@
 # Declare the package name:
 atlas_subdir( StripGeoModelXml )
 
+find_package( GeoModelCore )
+
 # Component(s) in the package:
 atlas_add_library( StripGeoModelXmlLib
                    src/*.cxx
