@@ -266,6 +266,7 @@ class _ConfigSettings_electronLRT( _ConfigSettingsBase ):
       self._doSeedRedundancyCheck = True
       self._nClustersMin        = 8
       self._isLRT               = True
+      self._newConfig           = False
 
 
 class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
@@ -285,6 +286,7 @@ class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
       self._isLRT               = True
       self._doResMon            = True
       self._DoPhiFiltering      = False
+      self._newConfig           = False
 
 
 class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
@@ -303,6 +305,7 @@ class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
       self._TrackZ0Max          = 500.
       self._nClustersMin        = 8
       self._isLRT               = True
+      self._newConfig           = False
 
 
 class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
@@ -319,6 +322,7 @@ class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
       self._TrackZ0Max          = 500.
       self._nClustersMin        = 8
       self._isLRT               = True
+      self._newConfig           = False
 
 
 class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
@@ -342,6 +346,7 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._isLRT                 = True
       self._LRTD0Min              = 2.0
       self._LRTHardPtMin          = 1.0*GeV
+      self._newConfig           = False
 
 
 
