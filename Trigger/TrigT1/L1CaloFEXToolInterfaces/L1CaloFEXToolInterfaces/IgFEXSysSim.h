@@ -8,6 +8,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "L1CaloFEXSim/gTowerContainer.h"
+#include "L1CaloFEXSim/gFEXOutputCollection.h"
 
 namespace LVL1 {
 
@@ -21,7 +22,7 @@ Interface definition for gFEXSysSim
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(gFEXOutputCollection* gFEXOutputs) = 0;
 
     virtual void cleanup() = 0;
 
