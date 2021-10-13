@@ -391,22 +391,21 @@ def getL1BKeePrimary(l1seed):
         'L1_MU8F_TAU12IM_3J12',
         'L1_XE50',
         'L1_TAU60_2TAU40',
-        #######
-        # 'L1_TAU40_2TAU12IM_XE40',
-        # 'L1_EM15VHI_2TAU12IM_XE35',
-        # 'L1_TAU25IM_2TAU20IM_2J25_3J20',
-        # 'L1_TAU20IM_2TAU12IM_4J12p0ETA23',
-        # 'L1_EM15VHI_2TAU12IM_4J12',
-        # 'L1_DR-TAU20ITAU12I-J25',
-        # 'L1_MJJ-700',
-        # 'L1_MJJ-500-NFF',
-        # 'L1_J85_3J30',
-        # 'L1_J40p0ETA25_2J25_J20p31ETA49',
-        # 'L1_J25p0ETA23_2J15p31ETA49',
-        # 'L1_J100',
-        # 'L1_4J15', 
-        # 'L1_3J35p0ETA23',
-        # 'L1_3J15p0ETA25_XE40' 
+        'L1_TAU40_2TAU12IM_XE40',
+        'L1_EM15VHI_2TAU12IM_XE35',
+        'L1_TAU25IM_2TAU20IM_2J25_3J20',
+        'L1_TAU20IM_2TAU12IM_4J12p0ETA25',
+        'L1_EM15VHI_2TAU12IM_4J12',
+        'L1_DR-TAU20ITAU12I-J25',
+        'L1_MJJ-700',
+        'L1_MJJ-500-NFF',
+        'L1_J85_3J30',
+        'L1_J40p0ETA25_2J25_J20p31ETA49',
+        'L1_J25p0ETA23_2J15p31ETA49',
+        'L1_J100',
+        'L1_4J15', 
+        'L1_3J35p0ETA23',
+        'L1_3J15p0ETA25_XE40' 
     ]
 
     # check if all the l1 background seeds given are in the current L1 menu
@@ -421,10 +420,9 @@ def getL1BKeePrimary(l1seed):
 def getL1BKeePrescaled(l1seed):
 
     l1bgditems = [
-        'L1_LFV-MU6',
-        'L1_BPH-2M9-0DR15-MU6MU4',
+        'L1_LFV-MU5VF',
         'L1_BPH-2M9-0DR15-MU5VFMU3V',
-        'L1_BPH-2M9-0DR15-2MU4', 
+        'L1_BPH-2M9-0DR15-2MU3V', 
         'L1_BPH-2M9-0DR15-2MU3V',
         'L1_BPH-0M9-EM7-EM5_MU5VF', 
         'L1_BPH-0DR3-EM7J15_MU5VF', 
@@ -435,15 +433,13 @@ def getL1BKeePrescaled(l1seed):
         'L1_J50',
         'L1_J50_DETA20-J50J',
         'L1_J40',
-        'L1_EM22VH',# -> exist in menu, but we may not have it a CTP output 
-        'L1_EM15',# -> exist in menu, but we may not have it a CTP output. L1_EM15VH has been requested as support chain
-        'L1_2EM15',# -> exist in menu, but we may not have it a CTP output 
-        'L1_2EM15VH',# -> already requested as support trigger, so OK. what PS?
-        #L1_3J25.0ETA23 -> exist in menu, but currently not used at HLT. We may drop as CTP output
-        #L1_EM20VH_3J20 -> exist in menu, but currently not used at HLT. We may drop as CTP output
-        #L1_EM18VHI_3J20 -> exist in menu, but currently not used at HLT. We may drop as CTP output
-        #Not in menu:
-        'L1_TAU40_2TAU12IM_XE40'
+        'L1_EM22VH',#  exist in menu, but we may not have it a CTP output 
+        'L1_EM15',#  exist in menu, but we may not have it a CTP output. L1_EM15VH has been requested as support chain
+        'L1_2EM15',#  exist in menu, but we may not have it a CTP output 
+        'L1_2EM15VH',#  already requested as support trigger, so OK. what PS?
+        'L1_3J25p0ETA23', # exist in menu, but currently not used at HLT. We may drop as CTP output
+        'L1_EM20VH_3J20', # exist in menu, but currently not used at HLT. We may drop as CTP output
+        'L1_EM18VHI_3J20' #  exist in menu, but currently not used at HLT. We may drop as CTP output
     ]
 
     # check if all the l1 background seeds given are in the current L1 menu

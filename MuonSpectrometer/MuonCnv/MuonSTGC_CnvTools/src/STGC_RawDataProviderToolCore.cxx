@@ -30,10 +30,8 @@ StatusCode Muon::STGC_RawDataProviderToolCore::convertIntoContainer(const std::v
 {
   // Loop on the passed ROB fragments, and call the decoder for each one to fill the RDO container.
 
-  static std::atomic_int DecodeErrCount{0};
-
   for (const ROBFragment* fragment : vecRobs)
-    StatusCode st = m_decoder->fillCollection(*fragment, rdoIdhVect, stgcRdoContainer); // always returns StatusCode::SUCCESS
+    ATH_CHECK( m_decoder->fillCollection(*fragment, rdoIdhVect, stgcRdoContainer) ); // always returns StatusCode::SUCCESS
 
   ATH_MSG_DEBUG("Size of sTgcRdoContainer is " << stgcRdoContainer.size());
   return StatusCode::SUCCESS;

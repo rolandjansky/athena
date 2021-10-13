@@ -1,4 +1,4 @@
-#   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon import Logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -45,22 +45,6 @@ def tmpSetupTrackServices(inputFlags):
     #Setup TRT conditions                                                                                                                                  
     TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
     result.addCondAlgo(TRTAlignCondAlg(name = "TRTAlignCondAlg",UseDynamicFolders = inputFlags.GeoModel.Align.Dynamic))
- 
-    #Setup Pixel conditions
-    PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
-    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
- 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
-    result.merge(PixelDetectorElementCondAlgCfg(inputFlags))
- 
-    #Setup SCT conditions
-    SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
-    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
- 
-    
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
-    result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
-    
  
     #Setup TRT geometry
     TRT_DetectorTool=CompFactory.TRT_DetectorTool

@@ -40,6 +40,15 @@ const InDetDD::SCT_DetectorManager* GeoSiHit::initSctMgr()
 }
 
 
+const InDetDD::PixelDetectorManager* GeoSiHit::initPlrMgr()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const InDetDD::PixelDetectorManager* plr = nullptr;
+  detStore->retrieve(plr,"PLR").isFailure();
+  return plr;
+}
+
+
 const PixelID* GeoSiHit::initPixID()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
@@ -72,6 +81,13 @@ const InDetDD::PixelDetectorManager* GeoSiHit::pixMgr() const
 const InDetDD::SCT_DetectorManager*  GeoSiHit::sctMgr() const
 {
   const InDetDD::SCT_DetectorManager* const mgr = initSctMgr();
+  return mgr;
+}
+
+
+const InDetDD::PixelDetectorManager* GeoSiHit::plrMgr() const
+{
+  const InDetDD::PixelDetectorManager* const mgr = initPlrMgr();
   return mgr;
 }
 

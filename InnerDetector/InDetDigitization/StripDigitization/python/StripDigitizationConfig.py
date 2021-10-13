@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import logging
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 #Eventually we want ITkStrip specific versions of these
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
 #Doesn't work for ITkStrip - specific verion needed?
@@ -32,7 +32,7 @@ def ITkStripLastXing():
 
 def ITkStripDigitizationCommonCfg(flags, name="ITkStripDigitizationToolCommon", **kwargs):
     """Return ComponentAccumulator with common ITkStrip digitization tool config"""
-    acc = ITkStripGeometryCfg(flags)
+    acc = ITkStripReadoutGeometryCfg(flags)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("OnlyHitElements", True)
     kwargs.setdefault("InputObjectName", "ITkStripHits")

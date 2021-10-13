@@ -101,10 +101,10 @@ public:
     StatusCode           checkTagInfo(IOVSVC_CALLBACK_ARGS);
 
     /// Find tag by name, return by value
-    virtual std::string  findTag(const std::string & name) const override final;
+    virtual std::string  findTag ATLAS_CHECK_THREAD_SAFETY (const std::string & name) const override final;
 
     /// Find tag by its name - for input tags, return by value
-    virtual std::string  findInputTag(const std::string& name) const override final;
+    virtual std::string  findInputTag ATLAS_CHECK_THREAD_SAFETY (const std::string& name) const override final;
 
     /// Return a vector with all current input tags
     virtual NameTagPairVec getInputTags() const override final;

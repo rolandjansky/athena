@@ -27,7 +27,12 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
 			m_hit->getLayerDisk(), 
 			m_hit->getPhiModule(), 
 			m_hit->getEtaModule());
-    geoelement = pixMgr()->getDetectorElement(id);      
+
+    if (m_hit->isPLR()) {
+      geoelement = plrMgr()->getDetectorElement(id);      
+    } else {
+      geoelement = pixMgr()->getDetectorElement(id);
+    }
   }
   else {
     id = sctID()->wafer_id(Barrel,

@@ -75,7 +75,14 @@ void ConvProxy::merge(ConvProxy* other) {
   other->parents.clear();
 }
 
-
+std::string ConvProxy::description()  const { 
+  std::string ret;
+  ret += " N parents: " +std::to_string(parents.size());
+  ret += " N children: " +std::to_string(children.size());
+  ret += " feaHash: " +std::to_string(feaHash);
+  ret += " N run chains: " +std::to_string(runChains.size());
+  return ret;
+}
 
 
 
@@ -323,15 +330,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::removeUnassociatedProxies(ConvProxySet_
 }
 
 StatusCode Run2ToRun3TrigNavConverterV2::doCompression(ConvProxySet_t& convProxies) const {
-  ATH_CHECK(fillFEAHashes(convProxies));
-  { // new scope in order not to leak the fatures map beyond the moment when the pointers in it are invalidated
-    FEAToConvProxySet_t sharedFeaturesMap;
-    ATH_CHECK(findSharedFEAHashes(convProxies, sharedFeaturesMap));
-    if (m_doSelfValidation) {
-      ATH_CHECK(allFEAHashesAreUnique(sharedFeaturesMap));
-    }
-    ATH_CHECK(collapseConvProxies(convProxies, sharedFeaturesMap));
-  }
+  ATH_CHECK(collapseFeaturesProxies(convProxies));
   ATH_CHECK(collapseFeaturelessProxies(convProxies));
   if (m_doSelfValidation) {
     ATH_CHECK(allProxiesHaveChain(convProxies));
@@ -343,33 +342,13 @@ StatusCode Run2ToRun3TrigNavConverterV2::doCompression(ConvProxySet_t& convProxi
 }
 
 
-
-StatusCode Run2ToRun3TrigNavConverterV2::fillFEAHashes(ConvProxySet_t& convProxies) const {
-  // calculate fea hash for each vector<FEA> from te associated to proxy
-  for ( auto proxy: convProxies ) {
-    proxy->feaHash = feaToHash(proxy->te->getFeatureAccessHelpers());
-    ATH_MSG_VERBOSE("TE " << TrigConf::HLTUtils::hash2string(proxy->te->getId()) << " FEA hash " << proxy->feaHash);    
-    for ( auto fea : proxy->te->getFeatureAccessHelpers()) {
-      ATH_MSG_VERBOSE( "FEA: " << fea);
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Run2ToRun3TrigNavConverterV2::findSharedFEAHashes(const ConvProxySet_t& convProxies, FEAToConvProxySet_t& feaToProxyMap) const {
-  // ceate feahash -> [te1, te2...] mapping, these tes are candidates for merging/compression
-  for ( auto proxy: convProxies ) {
-    feaToProxyMap[proxy->feaHash].insert(proxy);
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Run2ToRun3TrigNavConverterV2::collapseConvProxies(ConvProxySet_t& convProxies, FEAToConvProxySet_t& feaToProxyMap) const {
-  // for all entries in the FEA to TES map, use the first TE as a "primary" and merge all others to it
-  const size_t beforeCount = convProxies.size();
+template<typename MAP>
+StatusCode Run2ToRun3TrigNavConverterV2::collapseProxies(ConvProxySet_t& convProxies, MAP& keyToProxyMap) const {
+  // collapse proxies based on the mapping in the map argument(generic) and clean proxiesSet   
   std::vector<ConvProxy*> todelete;
-  for ( auto & [hash, proxies]: feaToProxyMap ) {
+  for ( auto & [key, proxies]: keyToProxyMap ) {
     if (proxies.size() > 1 ) {
+      ATH_MSG_DEBUG("Merging " << proxies.size() << " similar proxies");
       for ( auto p: proxies ) {
         if ( p != *(proxies.begin())) {
           (*proxies.begin())->merge(p);
@@ -382,13 +361,90 @@ StatusCode Run2ToRun3TrigNavConverterV2::collapseConvProxies(ConvProxySet_t& con
     convProxies.erase(proxy);
     delete proxy;
   }
-  ATH_MSG_DEBUG("Proxies with features collapsing reduces size from " << beforeCount << " to " << convProxies.size());
   // remove from proxies set all elements that are now unassociated (remember to delete after)
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::collapseFeaturelessProxies(ConvProxySet_t&) const {
-  // heuristically compres proxies that mirror TEs w/o any feature
+
+StatusCode Run2ToRun3TrigNavConverterV2::collapseFeaturesProxies( ConvProxySet_t& convProxies ) const { 
+  const size_t beforeCount = convProxies.size();
+  std::map<uint64_t, ConvProxySet_t> feaToProxyMap;
+  for ( auto proxy: convProxies ) {
+    proxy->feaHash = feaToHash(proxy->te->getFeatureAccessHelpers());
+    if ( proxy->feaHash != ConvProxy::MissingFEA)
+      feaToProxyMap[proxy->feaHash].insert(proxy);
+  
+    ATH_MSG_VERBOSE("TE " << TrigConf::HLTUtils::hash2string(proxy->te->getId()) << " FEA hash " << proxy->feaHash);    
+    for ( auto fea : proxy->te->getFeatureAccessHelpers()) {
+      ATH_MSG_VERBOSE( "FEA: " << fea);
+    }
+  }
+  if ( m_doSelfValidation ) {
+    for (auto [feaHash, proxies] : feaToProxyMap) {
+      auto first = *proxies.begin();
+      for (auto p : proxies) {
+        if ( not feaEqual(p->te->getFeatureAccessHelpers(), first->te->getFeatureAccessHelpers())) {
+          ATH_MSG_ERROR("Proxies grouped by FEA hash have actually distinct features (specific FEAs are different)");
+          return StatusCode::FAILURE;
+        }
+      }
+    }
+  }
+
+  ATH_CHECK(collapseProxies(convProxies, feaToProxyMap));
+  ATH_MSG_DEBUG("Proxies with features collapsing reduces size from " << beforeCount << " to " << convProxies.size());
+
+  return StatusCode::SUCCESS; 
+}
+
+
+StatusCode Run2ToRun3TrigNavConverterV2::collapseFeaturelessProxies(ConvProxySet_t& convProxies) const {  
+  // merge proxies bases on the parent child relation (this has to run after feature based collapsing)  
+  struct ParentChildCharacteristics {
+    ConvProxy* parent = nullptr;
+    ConvProxy* child = nullptr;
+    size_t distanceFromParent = 0;
+    bool operator<( const ParentChildCharacteristics& rhs) const { 
+      if (parent != rhs.parent ) return parent < rhs.parent;
+      if (child != rhs.child) return child < rhs.child;
+      return distanceFromParent < rhs.distanceFromParent;
+    }
+  };
+  const size_t beforeCount = convProxies.size();
+  std::map<ParentChildCharacteristics, ConvProxySet_t> groupedProxies;
+  for ( auto proxy: convProxies) {
+    if (proxy->feaHash == ConvProxy::MissingFEA ) {
+      ATH_MSG_VERBOSE("Featureless proxy to deal with: " << proxy->description());
+      /* the canonical case
+        merged parent
+         / |  | \
+        C1 C2 C3 C4 <-- proxies to merge
+         \ |  | /    
+        merged child 
+      */
+      if (proxy->children.size() == 1 and 
+          proxy->children[0]->feaHash != ConvProxy::MissingFEA and
+          proxy->parents.size() == 1 and
+          proxy->parents[0]->feaHash != ConvProxy::MissingFEA ) {
+            ATH_MSG_VERBOSE("Proxy to possibly merge: " << proxy->description());
+            groupedProxies[{proxy->parents[0], proxy->children[0], 0}].insert(proxy);
+      // TODO expand it to cover longer featureless sequences            
+      } else {        
+        ATH_MSG_VERBOSE("Featureless proxy in noncanonical situation " << proxy->description());
+        ATH_MSG_VERBOSE("parents " );
+        for ( auto pp: proxy->parents) {
+          ATH_MSG_VERBOSE( pp->description() );
+        }
+        ATH_MSG_VERBOSE("children " );
+        for ( auto cp: proxy->children) {
+          ATH_MSG_VERBOSE( cp->description() );
+        }
+      }
+    }
+  }
+
+  ATH_CHECK(collapseProxies(convProxies, groupedProxies));
+  ATH_MSG_DEBUG("Proxies without features collapsing reduces size from " << beforeCount << " to " << convProxies.size());
   return StatusCode::SUCCESS;
 }
 
@@ -482,20 +538,6 @@ StatusCode Run2ToRun3TrigNavConverterV2::allProxiesConnected(const ConvProxySet_
     }
   }
   ATH_MSG_DEBUG("CHECK OK, no orphanted proxies");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Run2ToRun3TrigNavConverterV2::allFEAHashesAreUnique(const FEAToConvProxySet_t& feaToProxies) const {
-  for (auto [feaHash, proxies] : feaToProxies) {
-    auto first = *proxies.begin();
-    for (auto p : proxies) {
-      if ( not feaEqual(p->te->getFeatureAccessHelpers(), first->te->getFeatureAccessHelpers())) {
-        ATH_MSG_ERROR("Proxies grouped by FEA hash have actually distinct features (specific FEAs are different)");
-        return StatusCode::FAILURE;
-      }
-    }
-  }
-  ATH_MSG_DEBUG("CHECK OK, FE hashes unique");
   return StatusCode::SUCCESS;
 }
 

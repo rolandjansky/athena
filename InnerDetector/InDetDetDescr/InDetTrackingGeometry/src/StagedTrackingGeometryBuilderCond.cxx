@@ -34,8 +34,6 @@
 #include "AthenaKernel/IOVInfiniteRange.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
-#include "GaudiKernel/MsgStream.h"
-#include <boost/lexical_cast.hpp>
 
 // constructor
 InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
@@ -614,7 +612,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::createTrack
             if (!ringSet.size() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
             else {
               std::vector<const Trk::Layer*>::iterator lit = ringSet.begin();
-              while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) lit++;
+              while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) ++lit;
               ringSet.insert(lit,ring);  
             }   
           }

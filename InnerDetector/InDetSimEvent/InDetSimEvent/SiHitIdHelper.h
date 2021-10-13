@@ -33,6 +33,7 @@ class SiHitIdHelper : HitIdHelper {
   bool isPixel(const int& hid) const;
   bool isSCT(const int& hid) const;
   bool isHGTD(const int& hid) const;
+  bool isPLR(const int& hid) const;
 
   // Barrel or Endcap
   int getBarrelEndcap(const int& hid) const;

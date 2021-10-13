@@ -55,3 +55,42 @@ def PerfMonMTSvcCfg(flags, **kwargs):
     
     # Return the CA
     return acc
+
+# A minimal job that demonstrates what PerfMonMTSvc does
+if __name__ == '__main__':
+
+    # Import the common flags/services
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+
+    # Set the necessary configuration flags
+    # Process 100 events in 1 thread/slot and do fast monitoring
+    ConfigFlags.Exec.MaxEvents = 100
+    ConfigFlags.Concurrency.NumProcs = 1
+    ConfigFlags.Concurrency.NumThreads = 1
+    ConfigFlags.PerfMon.doFastMonMT = True
+    ConfigFlags.PerfMon.OutputJSON = 'perfmonmt_test.json'
+    ConfigFlags.lock()
+
+    # Set up the configuration and add the relevant services
+    cfg = MainServicesCfg(ConfigFlags)
+    cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
+
+    # Burn 100 +/- 1 ms per event
+    CpuCruncherAlg = CompFactory.getComp('PerfMonTest::CpuCruncherAlg')
+    cfg.addEventAlgo(CpuCruncherAlg('CpuCruncherAlg', MeanCpu = 100, RmsCpu = 1))
+
+    # Leak 10k ints per event, i.e. 40 KB
+    LeakyAlg = CompFactory.getComp('PerfMonTest::LeakyAlg')
+    cfg.addEventAlgo(LeakyAlg("LeakyAlg", LeakSize = 10000))
+
+    # Print the configuration and dump the flags
+    cfg.printConfig(withDetails = True, summariseProps = True)
+    ConfigFlags.dump()
+
+    # Run the job
+    sc = cfg.run()
+
+    # Exit as appropriate
+    import sys
+    sys.exit(not sc.isSuccess())

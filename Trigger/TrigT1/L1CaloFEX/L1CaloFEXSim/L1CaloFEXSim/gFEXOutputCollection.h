@@ -23,9 +23,10 @@ namespace LVL1 {
   {
    //gFEXOutputCollection class stores the output of gFEX simulation for the use of gFEXNtupleWriter.
 
+  
   public:
     //constructor
-    gFEXOutputCollection() {};
+    gFEXOutputCollection();
 
     //Destructor
     ~gFEXOutputCollection();
@@ -49,8 +50,8 @@ namespace LVL1 {
     void fillGlobal();
 
     //Get total number of TOBs saved
-    int jetsSize();
-    int globalsSize();
+    int jetsSize() const; 
+    int globalsSize() const; 
 
     //Get all jets related values
     std::unordered_map<std::string, float> getJet(int) const;
@@ -64,7 +65,14 @@ namespace LVL1 {
     std::vector<uint32_t> getJetTob() const;
     std::vector<uint32_t> getGlobalTob() const;
 
+    //setting true if ntuple output is needed
+    void setdooutput(bool);
+
+    //return true if ntuple output is needed
+    bool getdooutput() const;
+
   private:
+    bool m_dooutput; //if write Ntuple
     //vector of TOB words
     std::vector<uint32_t> m_jettob;
     std::vector<uint32_t> m_globaltob;

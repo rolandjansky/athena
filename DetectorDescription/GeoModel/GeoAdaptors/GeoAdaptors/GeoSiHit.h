@@ -43,11 +43,13 @@ class GeoSiHit {
 
  private:
   static const InDetDD::PixelDetectorManager* initPixMgr();
+  static const InDetDD::PixelDetectorManager* initPlrMgr();
   static const InDetDD::SCT_DetectorManager*  initSctMgr();
   static const PixelID*                       initPixID();
   static const SCT_ID*                        initSctID();
 
   const InDetDD::PixelDetectorManager* pixMgr() const;
+  const InDetDD::PixelDetectorManager* plrMgr() const;
   const InDetDD::SCT_DetectorManager*  sctMgr() const;
   const PixelID*                       pixID()  const;
   const SCT_ID*                        sctID()  const;

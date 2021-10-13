@@ -45,7 +45,7 @@ RDBAccessSvc::~RDBAccessSvc()
 
 bool RDBAccessSvc::connect(const std::string& connName)
 {
-  std::lock_guard<std::mutex> guard(m_sessionMutex);
+  std::scoped_lock<std::mutex> guard(m_sessionMutex);
   // Check if it is the first attempt to open a connection connName
   if(m_sessions.find(connName)==m_sessions.end()) {
     ATH_MSG_DEBUG(" Trying to open the connection " << connName << " for the first time");
@@ -53,7 +53,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
     // 1. Sessions
     // 2. open connections
     // 3. Recordset by connection
-    m_sessions[connName] = 0;
+    m_sessions[connName] = nullptr;
     m_openConnections[connName] = 0;
     m_recordsetptrs.emplace(connName,RecordsetPtrMap());
   }
@@ -66,7 +66,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
 
   // Request new connection proxy from the Connection Service
   coral::ConnectionService conSvcH;
-  coral::ISessionProxy *proxy = 0;
+  coral::ISessionProxy *proxy = nullptr;
   try {
     proxy = conSvcH.connect(connName,coral::ReadOnly);
     proxy->transaction().start(true);
@@ -91,7 +91,7 @@ bool RDBAccessSvc::disconnect(const std::string& connName)
     return false;
   }
 
-  std::lock_guard<std::mutex> guard(m_sessionMutex); 
+  std::scoped_lock<std::mutex> guard(m_sessionMutex); 
   if(connection->second>0) {
     connection->second--;
     
@@ -135,7 +135,7 @@ bool RDBAccessSvc::shutdown_connection(const std::string& connName)
     ATH_MSG_ERROR("Wrong name for the connection: " << connName);
     return false;
   }
-  std::lock_guard<std::mutex> guard(m_sessionMutex);
+  std::scoped_lock<std::mutex> guard(m_sessionMutex);
   connection->second = 0;
   
   auto session = m_sessions.find(connName);
@@ -163,19 +163,18 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node
   ATH_MSG_DEBUG("Getting RecordsetPtr with key " << key);
 
   Athena::DBLock dblock;
-  std::lock_guard<std::mutex> guard(m_recordsetMutex);
-
-  if(!connect(connName)) {
-    ATH_MSG_ERROR("Unable to open connection " << connName << ". Returning empty recordset");
-    return IRDBRecordset_ptr(new RDBRecordset(this));
-  }
+  std::scoped_lock<std::mutex> guard(m_recordsetMutex);
 
   RecordsetPtrMap& recordsets = m_recordsetptrs[connName];
   RecordsetPtrMap::const_iterator it = recordsets.find(key);
   if(it != recordsets.end()) {
     ATH_MSG_DEBUG("Reusing existing recordset");
-    disconnect(connName);
     return it->second;
+  }
+
+  if(!connect(connName)) {
+    ATH_MSG_ERROR("Unable to open connection " << connName << ". Returning empty recordset");
+    return IRDBRecordset_ptr(new RDBRecordset(this));
   }
 
   RDBRecordset* recConcrete = new RDBRecordset(this);
@@ -224,7 +223,7 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node
 {
   ATH_MSG_DEBUG("getQuery (" << node << "," << tag << "," << tag2node << "," << connName << ")");
   Athena::DBLock dblock;
-  std::lock_guard<std::mutex> guard(m_recordsetMutex);
+  std::scoped_lock<std::mutex> guard(m_recordsetMutex);
 
   std::unique_ptr<IRDBQuery> query;
 
@@ -293,7 +292,7 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode
 {
   ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode);
   Athena::DBLock dblock;
-  std::lock_guard<std::mutex> guard(m_recordsetMutex);
+  std::scoped_lock<std::mutex> guard(m_recordsetMutex);
 
   // Check lookup table first
   std::string lookupMapKey = parentTag + "::" + connName;
@@ -345,7 +344,7 @@ void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails
 {
   ATH_MSG_DEBUG("getTagDetails for tag: " << tag);
   Athena::DBLock dblock;
-  std::lock_guard<std::mutex> guard(m_recordsetMutex);
+  std::scoped_lock<std::mutex> guard(m_recordsetMutex);
 
   if(!connect(connName)) {
     ATH_MSG_ERROR("Failed to open connection " << connName);
@@ -517,18 +516,14 @@ StatusCode RDBAccessSvc::finalize()
   m_recordsetptrs.clear();
 
   // Clear global tag lookup table
-  GlobalTagLookupMap::iterator itbegin = m_globalTagLookup.begin();
-  GlobalTagLookupMap::iterator itend = m_globalTagLookup.end();
-  for(;itbegin!=itend;itbegin++) {
-    delete itbegin->second;
+  for(auto& [lookupName,lookup] : m_globalTagLookup) {
+    delete lookup;
   }
   m_globalTagLookup.clear();
 
   // Shut down all connections
-  SessionMap::iterator first_con = m_sessions.begin();
-  SessionMap::iterator last_con = m_sessions.end();
-  for(;first_con!=last_con; first_con++) {
-    shutdown(first_con->first);
+  for(auto& [sessionName,session] : m_sessions) {
+    shutdown(sessionName);
   }
 
   return StatusCode::SUCCESS;

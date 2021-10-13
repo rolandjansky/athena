@@ -20,12 +20,6 @@ def ExtrapolationEngineTestCfg(configFlags, name = "ExtrapolationEngineTest", **
   
   result=ComponentAccumulator()  
   
-  from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg     
-  result.merge(InDetGeometryCfg(configFlags))
-  
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(configFlags))
-  
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   result.merge(TrackingGeometrySvcCfg(configFlags))
   
@@ -57,7 +51,7 @@ def ExtrapolationEngineTestITkCfg(configFlags, name = "ExtrapolationEngineTest",
   from AthenaConfiguration.ComponentFactory import CompFactory
   
   result=ComponentAccumulator()  
-  
+
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   result.merge(TrackingGeometrySvcCfg(configFlags))
   

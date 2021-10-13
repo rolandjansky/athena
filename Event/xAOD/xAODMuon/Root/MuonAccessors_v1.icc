@@ -19,11 +19,6 @@
 
 namespace xAOD {
 
-  // Generic case. Maybe return warning?
-  template<class T>
-   const SG::AuxElement::Accessor< T >*
-   parameterAccessorV1( Muon_v1::ParamDef /*type*/ )
-   {}
    
   template<>
    const SG::AuxElement::Accessor< float >*
@@ -46,7 +41,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, msOuterMatchChi2                 );
         DEFINE_ACCESSOR( float, meanDeltaADCCountsMDT            );		
         DEFINE_ACCESSOR( float, CaloLRLikelihood                 );		
-	DEFINE_ACCESSOR( float, CaloMuonScore                    );		
+        DEFINE_ACCESSOR( float, CaloMuonScore                    );		
         DEFINE_ACCESSOR( float, FSR_CandidateEnergy              );		
         DEFINE_ACCESSOR( float, EnergyLoss                       );		
         DEFINE_ACCESSOR( float, ParamEnergyLoss                  );		

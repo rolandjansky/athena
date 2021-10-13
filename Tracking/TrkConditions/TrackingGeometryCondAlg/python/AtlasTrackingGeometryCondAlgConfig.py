@@ -63,8 +63,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # Pixel
   if flags.Detector.GeometryPixel:
     # for Pixel DetectorElement conditions data :
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg( flags ))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    result.merge(PixelReadoutGeometryCfg( flags ))
 
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
     PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder'+nameSuffix)
@@ -104,8 +104,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
   if flags.Detector.GeometrySCT:
     # for SCT DetectorElement conditions data :
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result.merge(SCT_GeometryCfg( flags ))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    result.merge(SCT_ReadoutGeometryCfg( flags ))
 
     # SCT building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
@@ -137,7 +137,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
+    from SCT_ConditionsAlgorithms.SCT_DetectorElementCondAlgConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(flags,
                                                 MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and  flags.Detector.GeometryMuon else [],
                                                 TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT   else [],
@@ -249,11 +249,9 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   
   # Pixel
   if flags.Detector.GeometryITkPixel:
-    # for itk pixel DetectorElement conditions data :
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result.merge(ITkPixelGeometryCfg(flags))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    result.merge(ITkPixelReadoutGeometryCfg(flags))
 
-    #Pixel building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
     PixelLayerBuilderInner = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilderInner'+nameSuffix)
     PixelLayerBuilderInner.PixelCase            = True
@@ -320,9 +318,8 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     colors          += [ 3 ]
 
   if flags.Detector.GeometryITkStrip:
-    # for itk strip DetectorElement conditions data :
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result.merge(ITkStripGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    result.merge(ITkStripReadoutGeometryCfg(flags))
 
     # Strip building
     StripLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'StripLayerBuilder'+nameSuffix)
@@ -527,7 +524,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:
-      # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry, SLHC_Geometry
+      # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry
       # So, here we only setup the default InDet geometry builder!
       inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder',
                                                                       flags=flags,
@@ -664,15 +661,6 @@ if __name__ == '__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.Detector.GeometryPixel = True     
-    ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True 
-    ConfigFlags.Detector.GeometryLAr   = True     
-    ConfigFlags.Detector.GeometryTile  = True     
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True 
     ConfigFlags.lock()
 
     acc = TrackingGeometryCondAlgCfg(ConfigFlags )

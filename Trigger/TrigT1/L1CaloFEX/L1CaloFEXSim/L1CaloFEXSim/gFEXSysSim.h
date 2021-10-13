@@ -47,7 +47,7 @@ namespace LVL1 {
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(gFEXOutputCollection* gFEXOutputs) override ;
 
     virtual void cleanup() override;
 

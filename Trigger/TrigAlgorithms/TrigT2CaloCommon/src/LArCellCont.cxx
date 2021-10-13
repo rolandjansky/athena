@@ -18,7 +18,7 @@ LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEv
 {}
 
 StatusCode
-LArCellCont::initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) {
+LArCellCont::initialize( const LArRoI_Map* roiMap, const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -47,7 +47,7 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
    return StatusCode::FAILURE;
  }
 
- sc = m_conv.initialize(); 
+ sc = m_conv.initialize(febrod);
  if(sc.isFailure()){
    std::cout << "Problems to initialize Hid2RESrcID" << std::endl;
    return StatusCode::FAILURE;
@@ -71,11 +71,6 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
  // Not anymore necessary
  //delete larrodid;
 
-LArRoI_Map* roiMap;
-if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map", roiMap ) )
-     {std::cout << " Can't get AlgTool LArRoI_Map " << std::endl;
-      return StatusCode::FAILURE; 
-     }
 std::vector<const CaloCellCorrection*> LArCellCorrTools;
      
 MakeLArCellFromRaw makeCell;
@@ -120,7 +115,7 @@ m_hashSym.resize(onlineId->febHashMax());
  for (unsigned iFeb=0;iFeb<onlineId->febHashMax();++iFeb) {
    const HWIdentifier febid=onlineId->feb_Id(IdentifierHash(iFeb));
     if( (toolAvailable && (m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
-	RobsFromMissingFeb.push_back( m_conv.getRobID( m_conv.getRodID( febid ) ) );
+	RobsFromMissingFeb.push_back( m_conv.getRobID( m_conv.getRodID( febrod, febid ) ) );
     }
     if( (toolAvailable && !(m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
 	// get RodID associated with the collection

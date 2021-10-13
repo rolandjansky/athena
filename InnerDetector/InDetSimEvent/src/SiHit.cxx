@@ -139,6 +139,10 @@ bool SiHit::isHGTD() const {
   return  SiHitIdHelper::GetHelper()->isHGTD(m_ID);
 }
 
+bool SiHit::isPLR() const {
+  return  SiHitIdHelper::GetHelper()->isPLR(m_ID);
+}
+
 HepGeom::Point3D<double> SiHit::localStartPosition() const
 {
   //  return m_localEndPosition;
@@ -174,7 +178,11 @@ int SiHit::getSide() const {
 
 void SiHit::print() const {
   if (isPixel() == true) {
-    std::cout << "*** Pixel Hit " << std::endl;
+    if (isPLR() == true) {
+      std::cout << "*** PLR Hit " << std::endl;
+    } else {
+      std::cout << "*** Pixel Hit " << std::endl;
+    }
   } else if (isSCT() == true) {
     std::cout << "*** SCT Hit " << std::endl;
   }

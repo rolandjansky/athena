@@ -236,10 +236,10 @@ if __name__ == "__main__":
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     top_acc.merge(TRT_GeometryCfg( flags ))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge( PixelGeometryCfg(flags) )
-    top_acc.merge( SCT_GeometryCfg(flags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(flags) )
+    top_acc.merge( SCT_ReadoutGeometryCfg(flags) )
 
     # NewTracking collection keys
     InputCombinedInDetTracks = []

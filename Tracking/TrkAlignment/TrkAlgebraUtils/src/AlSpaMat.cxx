@@ -7,6 +7,7 @@
 // PBdR (17Apr2007) interface ~identcal to AlSymMat
 
 #include "GaudiKernel/StatusCode.h"
+#include "EventPrimitives/EventPrimitives.h"
 
 #include "TrkAlgebraUtils/AlSymMat.h"
 #include "TrkAlgebraUtils/AlSpaMat.h"

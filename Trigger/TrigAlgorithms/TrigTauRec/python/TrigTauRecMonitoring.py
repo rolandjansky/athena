@@ -304,6 +304,9 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
    monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
    monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
+   monTool.defineHistogram('RNNJetScore', path='EXPERT', type='TH1F', title="EF RNN score; RNN score; nTaus", xbins=40, xmin=0, xmax=1) 
+   monTool.defineHistogram('RNNJetScoreSigTrans', path='EXPERT', type='TH1F', title="EF RNN score; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+
 
    return monTool
 

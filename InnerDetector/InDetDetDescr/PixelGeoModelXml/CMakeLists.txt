@@ -16,7 +16,7 @@ atlas_add_library( PixelGeoModelXmlLib
 
 atlas_add_component( PixelGeoModelXml
                      src/components/*.cxx
-  		               LINK_LIBRARIES PixelGeoModelXmlLib )
+                     LINK_LIBRARIES PixelGeoModelXmlLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

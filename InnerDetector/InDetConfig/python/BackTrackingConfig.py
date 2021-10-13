@@ -366,11 +366,11 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(flags))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    top_acc.merge( PixelGeometryCfg(flags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(flags) )
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(SCT_GeometryCfg(flags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge(SCT_ReadoutGeometryCfg(flags))
 
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     top_acc.merge(TRT_GeometryCfg( flags ))

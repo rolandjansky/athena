@@ -46,8 +46,8 @@ def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
     #set up geometry
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result = PixelGeometryCfg(ConfigFlags)
+    from PixelGeoModel.PixelGeoModelConfig import PixelSimulationGeometryCfg
+    result = PixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -58,9 +58,20 @@ def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result = SCT_GeometryCfg(ConfigFlags)
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
+    result = SCT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def PLRGeoDetectorToolCfg(ConfigFlags, name='PLR', **kwargs):
+    #set up geometry
+    from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+    result = PLRGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "PLR")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -69,8 +80,8 @@ def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
 
 def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
     #set up geometry
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result = ITkPixelGeometryCfg(ConfigFlags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelSimulationGeometryCfg
+    result = ITkPixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkPixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -81,8 +92,8 @@ def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
 
 def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result = ITkStripGeometryCfg(ConfigFlags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripSimulationGeometryCfg
+    result = ITkStripSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -255,6 +266,9 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     if ConfigFlags.Detector.GeometryITkStrip:
         toolITkStrip = result.popToolsAndMerge(ITkStripGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [toolITkStrip]
+    if ConfigFlags.Detector.GeometryPLR:
+        toolPLR = result.popToolsAndMerge(PLRGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolPLR]
 
     kwargs.setdefault("SubDetectors", SubDetectorList)
     result.setPrivateTools(CylindricalEnvelope(name, **kwargs))

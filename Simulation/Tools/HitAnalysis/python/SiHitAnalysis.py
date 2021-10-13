@@ -15,8 +15,8 @@ def SiHitAnalysisOutputCfg(flags):
 
 
 def ITkPixelHitAnalysisCfg(flags):
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    acc = ITkPixelGeometryCfg(flags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelSimulationGeometryCfg
+    acc = ITkPixelSimulationGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('ITkPixelHitAnalysis')
     alg.CollectionName = 'ITkPixelHits'
@@ -30,8 +30,8 @@ def ITkPixelHitAnalysisCfg(flags):
 
 
 def ITkStripHitAnalysisCfg(flags):
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc = ITkStripGeometryCfg(flags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripSimulationGeometryCfg
+    acc = ITkStripSimulationGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('ITkStripHitAnalysis')
     alg.CollectionName = 'ITkStripHits'
@@ -59,6 +59,21 @@ def HGTD_HitAnalysisCfg(flags):
     return acc
 
 
+def PLRHitAnalysisCfg(flags):
+    from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+    acc = PLRGeometryCfg(flags)
+
+    alg = CompFactory.SiHitAnalysis('PLRHitAnalysis')
+    alg.CollectionName = 'PLRHits'
+    alg.HistPath='/SiHitAnalysis/Histos/'
+    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    acc.addEventAlgo(alg)
+
+    acc.merge(SiHitAnalysisOutputCfg(flags))
+
+    return acc
+
+
 def SiHitAnalysisCfg(flags):
     acc = ComponentAccumulator()
 
@@ -70,5 +85,8 @@ def SiHitAnalysisCfg(flags):
 
     if flags.Detector.EnableHGTD:
         acc.merge(HGTD_HitAnalysisCfg(flags))
+
+    if flags.Detector.EnablePLR:
+        acc.merge(PLRHitAnalysisCfg(flags))
 
     return acc

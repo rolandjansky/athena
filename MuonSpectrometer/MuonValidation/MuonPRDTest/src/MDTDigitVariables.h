@@ -54,12 +54,16 @@ class MdtDigitVariables : public ValAlgVariables
   std::vector<int> m_MDT_dig_multilayer;
   std::vector<int> m_MDT_dig_tubeLayer;
   std::vector<int> m_MDT_dig_tube;
+  std::vector<bool> m_MDT_dig_measuresPhi;
   
   std::vector< double > m_MDT_dig_localPosX;
   std::vector< double > m_MDT_dig_localPosY;
   std::vector< double > m_MDT_dig_globalPosX;
   std::vector< double > m_MDT_dig_globalPosY;
   std::vector< double > m_MDT_dig_globalPosZ;
+  std::vector< double > m_MDT_dig_localTubePosX;
+  std::vector< double > m_MDT_dig_localTubePosY;
+  std::vector< double > m_MDT_dig_localTubePosZ;
 };
 
 #endif // MuonPRDTEST_MDTDigitVARIABLES_H

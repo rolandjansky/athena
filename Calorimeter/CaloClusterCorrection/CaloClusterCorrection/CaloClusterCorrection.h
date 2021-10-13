@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERCORRECTION_H
@@ -56,7 +56,7 @@ class CaloClusterCorrection
 
  public:
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // modifying CaloCluster object 
   virtual void setsample(xAOD::CaloCluster* cluster,

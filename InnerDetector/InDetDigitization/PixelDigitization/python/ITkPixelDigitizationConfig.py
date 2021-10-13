@@ -14,7 +14,7 @@ from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
     ITkPixelDistortionAlgCfg
 )
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
-from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
 from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
 from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
 from SiPropertiesTool.ITkPixelSiPropertiesConfig import ITkPixelSiPropertiesCfg
@@ -116,7 +116,7 @@ def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
 
 def ITkPixelDigitizationBasicToolCfg(flags, name="ITkPixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool for ITk"""
-    acc = ITkPixelGeometryCfg(flags)
+    acc = ITkPixelReadoutGeometryCfg(flags)
     # set up tool handle lists
     chargeTools = []
     feSimTools = []

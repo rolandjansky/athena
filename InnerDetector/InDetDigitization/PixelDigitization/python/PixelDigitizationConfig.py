@@ -123,22 +123,10 @@ def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
 
 def IdMapping():
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
 
-    # ITk:
-    if geoFlags.isSLHC():
-        IdMappingDat = "ITk_Atlas_IdMapping.dat"
-        if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-        elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-        elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-        elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-    elif not geoFlags.isIBL():
+    if not geoFlags.isIBL():
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
     else:
         # Planar IBL
@@ -529,18 +517,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("InputObjectName", "PixelHits")
 
     chargeTools = []
+    chargeTools += ['SensorSimPlanarTool']
+    chargeTools += ['SensorSim3DTool']
     feSimTools = []
-    if geoFlags.isSLHC():
-      chargeTools += ['SensorSimPlanarTool']
-      feSimTools += ['BarrelRD53SimTool']
-      feSimTools += ['EndcapRD53SimTool']
-    else:
-      chargeTools += ['SensorSimPlanarTool']
-      chargeTools += ['SensorSim3DTool']
-      feSimTools += ['BarrelFEI4SimTool']
-      feSimTools += ['DBMFEI4SimTool']
-      feSimTools += ['BarrelFEI3SimTool']
-      feSimTools += ['EndcapFEI3SimTool']
+    feSimTools += ['BarrelFEI4SimTool']
+    feSimTools += ['DBMFEI4SimTool']
+    feSimTools += ['BarrelFEI3SimTool']
+    feSimTools += ['EndcapFEI3SimTool']
     kwargs.setdefault("ChargeTools", chargeTools)
     kwargs.setdefault("FrontEndSimTools", feSimTools)
     kwargs.setdefault("EnergyDepositionTool", "EnergyDepositionTool")

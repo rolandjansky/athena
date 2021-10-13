@@ -73,14 +73,6 @@ public:
                                          ParticleHypothesis particleHypothesis =
                                            nonInteracting) const override final;
 
-  //!< Retain for now redundant simplified material effects
-  virtual MultiComponentState simplifiedMaterialUpdate(
-    const MultiComponentState&,
-    PropDirection,
-    ParticleHypothesis) const override final
-  {
-    return {};
-  };
 
 private:
   Trk::MultiComponentState update(std::vector<GsfMaterial::Combined>&,

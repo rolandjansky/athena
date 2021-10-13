@@ -518,7 +518,7 @@ void PerfMonMTSvc::report2Log_Summary() {
 
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Number of events processed:" % m_eventCounter);
   ATH_MSG_INFO(format("%1% %|35t|%2$.0f ") % "CPU usage per event [ms]:" %
-               (m_snapshotData[EXECUTE].getDeltaCPU() / m_eventCounter));
+               (m_eventCounter > 0 ? m_snapshotData[EXECUTE].getDeltaCPU() / m_eventCounter : 0));
   ATH_MSG_INFO(format("%1% %|35t|%2$.3f ") % "Events per second:" %
                (m_eventCounter / m_snapshotData[EXECUTE].getDeltaWall() * 1000.));
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "CPU utilization efficiency [%]:" % getCpuEfficiency());
