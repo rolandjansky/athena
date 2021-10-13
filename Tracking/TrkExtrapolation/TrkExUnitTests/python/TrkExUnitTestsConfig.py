@@ -58,21 +58,6 @@ def ExtrapolationEngineTestITkCfg(configFlags, name = "ExtrapolationEngineTest",
   
   result=ComponentAccumulator()  
   
-  from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-  itkPixel = ITkPixelGeometryCfg(configFlags)
-  result.merge(itkPixel)
-  
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  itkStrip = ITkStripGeometryCfg(configFlags)
-  result.merge(itkStrip)
-  
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(configFlags))
-  
-  if configFlags.Detector.GeometryHGTD:
-    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-    result.merge(HGTD_GeometryCfg(configFlags))
-  
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   result.merge(TrackingGeometrySvcCfg(configFlags))
   

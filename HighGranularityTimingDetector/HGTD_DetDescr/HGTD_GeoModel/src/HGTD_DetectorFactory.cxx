@@ -83,7 +83,7 @@ HGTD_DetectorFactory::HGTD_DetectorFactory( HGTD_GeoModelAthenaComps* athComps )
     }
     
     // Create SiCommonItems. These are items that are shared by all elements
-    m_commonItems = std::make_unique<InDetDD::SiCommonItems>(m_athComps->getIdHelper());
+    m_commonItems = std::make_unique<const InDetDD::SiCommonItems>(m_athComps->getIdHelper());
     
     // temporarily hardcode the HGTD version to build until the geo db has been updated with tables for 3-ring layout
     // m_geomVersion = 0; // two-ring layout

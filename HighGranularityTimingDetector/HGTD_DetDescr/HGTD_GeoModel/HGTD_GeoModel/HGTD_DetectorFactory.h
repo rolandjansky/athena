@@ -123,7 +123,7 @@ public:
     std::map<std::string,GeoBoxVolParams> m_boxVolPars;
     HgtdGeoParams m_hgtdPars;
     
-    std::unique_ptr<InDetDD::SiCommonItems> m_commonItems;
+    std::unique_ptr<const InDetDD::SiCommonItems> m_commonItems;
   };
 
 } // End HGTDGeo namespace
