@@ -31,7 +31,14 @@ egammaSuperClusterBuilder::initialize()
   ATH_CHECK(m_egammaSuperRecCollectionKey.initialize());
   ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_caloDetDescrMgrKey.initialize());
-
+  if (m_calibrationType == "electron") {
+    m_egTypeForCalibration = xAOD::EgammaParameters::electron;
+  } else if (m_calibrationType == "photon") {
+    m_egTypeForCalibration = xAOD::EgammaParameters::unconvertedPhoton;
+  } else {
+    ATH_MSG_ERROR("Unsupported calibration for " << m_calibrationType);
+    return StatusCode::FAILURE;
+  }
   return egammaSuperClusterBuilderBase::initialize();
 }
 
@@ -61,16 +68,18 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
     m_egammaSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
-  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
+  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
-    precorrClustersH.emplace (m_precorrClustersKey, ctx);
-    ATH_CHECK( precorrClustersH->record
-               (std::make_unique<xAOD::CaloClusterContainer>(),
-                std::make_unique<xAOD::CaloClusterAuxContainer>()) );
+    precorrClustersH.emplace(m_precorrClustersKey, ctx);
+    ATH_CHECK(precorrClustersH->record(
+      std::make_unique<xAOD::CaloClusterContainer>(),
+      std::make_unique<xAOD::CaloClusterAuxContainer>()));
   }
 
   // The calo Det Descr manager
-  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
   ATH_CHECK(caloDetDescrMgrHandle.isValid());
 
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
@@ -80,7 +89,7 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
   std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    if (isUsed[i]){
+    if (isUsed[i]) {
       continue;
     }
 
@@ -112,7 +121,7 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
-                       xAOD::EgammaParameters::electron,
+                       m_egTypeForCalibration,
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
     if (!newCluster) {
