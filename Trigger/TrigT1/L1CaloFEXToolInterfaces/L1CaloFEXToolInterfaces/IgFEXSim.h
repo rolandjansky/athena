@@ -10,6 +10,7 @@
 #include "L1CaloFEXSim/gTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "L1CaloFEXSim/gFEXOutputCollection.h"
 
 namespace LVL1 {
 
@@ -28,7 +29,7 @@ Interface definition for gFEXSim
 
     virtual void execute() = 0;
 
-    virtual StatusCode executegFEXSim(gTowersIDs tmp) = 0;
+    virtual StatusCode executegFEXSim(gTowersIDs tmp, gFEXOutputCollection* gFEXOutputs) = 0;
 
     virtual std::vector<uint32_t> getgRhoTOBs() const =0;
 
