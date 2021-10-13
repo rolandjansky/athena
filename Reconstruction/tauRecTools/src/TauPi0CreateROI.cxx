@@ -62,8 +62,7 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellConta
     const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
 
     if (!addedCellsMap.test(cellHash)) {
-      CaloCell* newCell = cell->clone();
-      pi0CellContainer.push_back(newCell);
+      pi0CellContainer.push_back(cell->clone());
       addedCellsMap.set(cellHash);
     }
   }

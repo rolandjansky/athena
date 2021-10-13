@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -58,12 +58,13 @@ StatusCode TileCablingSvc::queryInterface(const InterfaceID& riid, void** ppvInt
 
 //
 //_____________________________________________________________________________
-StatusCode TileCablingSvc::initialize() {
+StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
 
   ATH_MSG_DEBUG( "In initialize() " );
 
   //=== creating cabling singleton
-  m_cablingService = TileCablingService::getInstance();
+  TileCablingService* cablingService = TileCablingService::getInstance_nc();
+  m_cablingService = cablingService;
   if (!m_cablingService) {
     ATH_MSG_ERROR( "Cannot get instance of TileCablingService" );
     return StatusCode::FAILURE;
@@ -86,17 +87,17 @@ StatusCode TileCablingSvc::initialize() {
   CHECK( m_detStore->retrieve(tileHWID) );
 
   //=== Initialize TileCablingService singleton
-  m_cablingService->setCaloLVL1(caloID);
-  m_cablingService->setTileID(tileID);
-  m_cablingService->setTileTBID(tileTBID);
-  m_cablingService->setTileHWID(tileHWID);
+  cablingService->setCaloLVL1(caloID);
+  cablingService->setTileID(tileID);
+  cablingService->setTileTBID(tileTBID);
+  cablingService->setTileHWID(tileHWID);
 
   //=== set connected drawers if non-empty list
   if (m_connectedDrawers.size() > 1) {
     //===disconnect all drawers first
     for (int ros = 1; ros < 5; ++ros) {
       for (int drawer = 0; drawer < 64; ++drawer) {
-        m_cablingService->setConnected(ros, drawer, false);
+        cablingService->setConnected(ros, drawer, false);
       }
     }
     int count = 0;
@@ -109,7 +110,7 @@ StatusCode TileCablingSvc::initialize() {
         int ros = frag >> 8;
         int drawer = frag & 0xFF;
         if (ros >= 1 && ros < 5 && drawer >= 0 && drawer < 64) {
-          m_cablingService->setConnected(ros, drawer, true);
+          cablingService->setConnected(ros, drawer, true);
           msg(MSG::INFO) << " 0x" << frag;
           char module[3];
           sprintf(module, "%2.2d", drawer + 1);
@@ -219,7 +220,7 @@ StatusCode TileCablingSvc::initialize() {
   }
 
   ATH_MSG_INFO( "Setting Cabling type to " << m_cablingType );
-  ATH_CHECK( m_cablingService->setCablingType((TileCablingService::TileCablingType) m_cablingType) );
+  ATH_CHECK( cablingService->setCablingType((TileCablingService::TileCablingType) m_cablingType) );
   ATH_MSG_DEBUG( "Maximum number of gains: " <<  m_cablingService->getMaxChannels());
 
   // ------------ Setting TileCal channel hashes in CaloDDE -------------
@@ -602,7 +603,7 @@ StatusCode TileCablingSvc::initialize() {
     std::cout << "===============================" << std::endl;
   }
 
-  if (m_useCache) m_cablingService->fillH2SIdCache();
+  if (m_useCache) cablingService->fillH2SIdCache();
 
   return StatusCode::SUCCESS;
 }

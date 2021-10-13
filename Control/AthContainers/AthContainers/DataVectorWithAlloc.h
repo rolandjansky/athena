@@ -286,6 +286,9 @@ public:
    * @param rhs The container from which to move.
    *
    * Any auxiliary data will be moved along with the container contents.
+   *
+   * The existing allocator is moved.  @c rhs will be left with a new,
+   * default-initialized, allocator.
    */
   DataVectorWithAlloc (DataVectorWithAlloc&& rhs);
 
@@ -295,6 +298,9 @@ public:
    * @param rhs The container from which to move.
    *
    * Any auxiliary data will be moved along with the container contents.
+   *
+   * The existing allocator is moved.  @c rhs will be left with a new,
+   * default-initialized, allocator.
    */
   DataVectorWithAlloc& operator= (DataVectorWithAlloc&& rhs);
 

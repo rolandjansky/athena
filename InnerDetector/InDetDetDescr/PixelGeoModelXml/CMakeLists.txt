@@ -12,7 +12,7 @@ atlas_add_library( PixelGeoModelXmlLib
                    PUBLIC_HEADERS PixelGeoModelXml
                    PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils PixelReadoutGeometryLib
-                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelInterfaces GeometryDBSvcLib ReadoutGeometryBase InDetReadoutGeometry InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelInterfaces ReadoutGeometryBase InDetReadoutGeometry InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
 
 atlas_add_component( PixelGeoModelXml
                      src/components/*.cxx

@@ -202,9 +202,9 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
 
   // Check if this is the first time calling if so create the mesurement data if not use the existing one.
   // Metrics are collected per slot then aggregated before reporting
-  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
-    compLevelDataMap[currentState] = new PMonMT::MeasurementData();
+    compLevelDataMap.insert({currentState, std::make_unique<PMonMT::MeasurementData>()});
   }
 
   // Capture and store
@@ -236,7 +236,7 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Store
-  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
   compLevelDataMap[currentState]->addPointStop_component(meas, doMem);
 
   // Debug
@@ -284,8 +284,8 @@ void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
  * Is it event-level monitoring check point yet?
  */
 bool PerfMonMTSvc::isCheckPoint() {
-  // Always check 1, 10, 25 for short tests
-  if (m_eventCounter == 1 || m_eventCounter == 10 || m_eventCounter == 25)
+  // Always check 1, 2, 10, 25 for short tests
+  if (m_eventCounter <= 2 || m_eventCounter == 10 || m_eventCounter == 25)
     return true;
 
   // Check the user settings
@@ -746,7 +746,7 @@ void PerfMonMTSvc::aggregateSlotData() {
     for (const auto& it : slotData) {
       // Copy the first slot data and sum the rest
       if(m_compLevelDataMap.find(it.first) == m_compLevelDataMap.end()) {
-        m_compLevelDataMap[it.first] = it.second;
+        m_compLevelDataMap.insert({it.first, it.second.get()});
       } else {
         m_compLevelDataMap[it.first]->add2CallCount(it.second->getCallCount());
         m_compLevelDataMap[it.first]->add2DeltaCPU(it.second->getDeltaCPU());

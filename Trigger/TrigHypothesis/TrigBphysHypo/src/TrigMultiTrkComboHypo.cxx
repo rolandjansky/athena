@@ -112,17 +112,17 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( !(m_trigLevel == "L2IO" && m_doElectrons) );
+  ATH_CHECK( !((m_trigLevel == "L2IO" || m_trigLevel == "L2MT") && m_doElectrons) );
 
   if (m_trigLevel == "L2" || (m_trigLevel == "EF" && m_isMuTrkMode)) {
     ATH_CHECK( m_trackParticleContainerKey.initialize() );
     renounce(m_trackParticleContainerKey);
   }
-  else if (m_trigLevel == "L2IO" || m_trigLevel == "EF") {
+  else if (m_trigLevel == "L2IO" || m_trigLevel == "L2MT" || m_trigLevel == "EF") {
     ATH_CHECK( m_trackParticleContainerKey.initialize(false) );
   }
   else {
-    ATH_MSG_ERROR( "trigLevel should be L2, L2IO or EF, but " << m_trigLevel << " provided" );
+    ATH_MSG_ERROR( "trigLevel should be L2, L2IO, L2MT or EF, but " << m_trigLevel << " provided" );
     return StatusCode::FAILURE;
   }
 
@@ -218,7 +218,7 @@ StatusCode TrigMultiTrkComboHypo::execute(const EventContext& context) const {
     if (m_trigLevel == "L2") {
       ATH_CHECK( mergeTracksFromViews(*commonState) );
     }
-    else if (m_trigLevel == "L2IO") {
+    else if (m_trigLevel == "L2IO" || m_trigLevel == "L2MT") {
       ATH_CHECK( mergeTracksFromDecisions<xAOD::L2CombinedMuonContainer>(*commonState) );
     }
     else if (m_trigLevel == "EF") {
@@ -500,7 +500,7 @@ StatusCode TrigMultiTrkComboHypo::filterTrackCombinations(TrigMultiTrkStateBase&
       auto mass = (std::accumulate(p.begin(), p.end(), xAOD::TrackParticle::GenVecFourMom_t())).M();
       ATH_MSG_DEBUG( "invariant mass: " << mass );
 
-      if (!isInMassRange(mass)) continue;
+      if (!isInMassRange(mass, iTrk)) continue;
 
       auto fitterState = m_vertexFitter->makeState(state.context());
       auto vertex = fit(tracklist, m_trkMass[iTrk], *fitterState);
@@ -618,7 +618,7 @@ StatusCode TrigMultiTrkComboHypo::findMultiLeptonCandidates(TrigMultiTrkState<T>
 
       mon_nCombination++;
       trkMassBeforeFit.push_back(mass * 0.001);
-      if (!isInMassRange(mass)) continue;
+      if (!isInMassRange(mass, iTrk)) continue;
 
       mon_nCombinationBeforeFit++;
       auto fitterState = m_vertexFitter->makeState(state.context());
@@ -748,7 +748,7 @@ StatusCode TrigMultiTrkComboHypo::findMuTrkCandidates(TrigMultiTrkState<xAOD::Mu
       if (track->pt() < m_trkPt[0][1] || isIdenticalTracks(track, muonInDetTrack)) continue;
       auto trackMomentum = track->genvecP4();
       trackMomentum.SetM(PDG::mMuon);
-      if (!isInMassRange((muonMomentum + trackMomentum).M())) continue;
+      if (!isInMassRange((muonMomentum + trackMomentum).M(), 0)) continue;
 
       tracklist[1] = ViewHelper::makeLink<xAOD::TrackParticleContainer>(view, tracksHandle, idx);
 
@@ -977,14 +977,8 @@ float TrigMultiTrkComboHypo::Lxy(const xAOD::TrigBphys& vertex, const Amg::Vecto
 }
 
 
-bool TrigMultiTrkComboHypo::isInMassRange(double mass) const {
+bool TrigMultiTrkComboHypo::isInMassRange(double mass, size_t idx) const {
 
-  bool result = false;
-  for (const auto& range : m_massRange) {
-    if (mass > range.first && mass < range.second) {
-      result = true;
-      break;
-    }
-  }
-  return result;
+  const auto& range = m_massRange[idx];
+  return (mass > range.first && mass < range.second);
 }

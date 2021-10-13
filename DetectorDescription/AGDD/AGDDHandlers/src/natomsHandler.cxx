@@ -3,8 +3,6 @@
 */
 
 #include "AGDDHandlers/natomsHandler.h"
-#include "AGDDHandlers/AddMaterial.h"
-#include "AGDDHandlers/globals.h"
 #include <iostream>
 
 natomsHandler::natomsHandler(const std::string& s,
@@ -18,5 +16,13 @@ void natomsHandler::ElementHandle(AGDDController& c,
 {
 	bool res;
 	int natoms=getAttributeAsInt(c, t, "n",res);
-	globals::addMaterial.natoms.push_back(natoms);
+        m_natoms.push_back (natoms);
+}
+
+
+std::vector<int> natomsHandler::GetNatoms()
+{
+  std::vector<int> v;
+  v.swap (m_natoms);
+  return v;
 }

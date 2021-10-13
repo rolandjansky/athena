@@ -72,12 +72,12 @@
     m_larem_id   = mgr->getEM_ID();
     m_calo_id    = mgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr 
-    ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
     ATH_CHECK(m_mcSymKey.initialize());
 
     ATH_CHECK(m_cablingKey.initialize());
+
+    ATH_CHECK(m_caloMgrKey.initialize());
 
     ATH_CHECK(m_eventInfoKey.initialize());
 
@@ -114,6 +114,9 @@
     const EventContext& ctx = Gaudi::Hive::currentContext();
 
     if (m_first) {
+
+      SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+      ATH_CHECK(caloMgrHandle.isValid());
 
       SG::ReadCondHandle<LArMCSym>  mcsym      (m_mcSymKey, ctx);
       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
@@ -158,7 +161,7 @@
            doneCell[i2]=nsym;
            m_symCellIndex[i] = nsym; 
            CellInfo cell;
-           const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+           const CaloDetDescrElement* calodde = (*caloMgrHandle)->get_element(id);
            cell.eta =  calodde->eta();
            cell.phi = calodde->phi();
            cell.region = m_calo_id->region(id);

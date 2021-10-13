@@ -20,5 +20,5 @@ void varHandler::ElementHandle(AGDDController& c,
 	bool bres;
 	std::string name=getAttributeAsString(c, t, "name",bres);
 	double res=getAttributeAsDouble(c, t, "value",bres);
-	Evaluator().RegisterConstant(name,res);
+	c.Evaluator().RegisterConstant(name,res);
 }

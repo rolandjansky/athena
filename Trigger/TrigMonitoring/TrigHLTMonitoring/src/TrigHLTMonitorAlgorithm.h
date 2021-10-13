@@ -27,7 +27,7 @@ class TrigHLTMonitorAlgorithm : public AthMonitorAlgorithm {
 
   private:
    SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", "Key for the event-level configuration identifier object"};
-   SG::ReadHandleKey<xAOD::TrigConfKeys> m_onlineKey{this, "EventObjectName", "TrigConfKeysOnline", "Key for the online configuration identifier object"};
+   SG::ReadHandleKey<xAOD::TrigConfKeys> m_onlineKey{this, "OnlineObjectName", "TrigConfKeysOnline", "Key for the online configuration identifier object"};
 
    ToolHandle<Trig::TrigDecisionTool> m_trigDecTool; 
    ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConfigSvc{ this, "TrigConfigSvc", "" };

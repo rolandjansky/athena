@@ -30,7 +30,8 @@ if not 'GainList' in dir():
    GainList = [ "HIGH", "MEDIUM", "LOW" ]
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "SuperCells"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -268,6 +269,10 @@ theAutoCorrTotalCondAlg.Nsamples = NSamples
 theAutoCorrTotalCondAlg.isMC = False
 theAutoCorrTotalCondAlg.LArAutoCorrObjKey = "LArAutoCorrRef"
 theAutoCorrTotalCondAlg.LArAutoCorrTotalObjKey = KeyOutputAC
+theAutoCorrTotalCondAlg.isSuperCell = SuperCells
+if SuperCells:
+   theAutoCorrTotalCondAlg.LArADC2MeVObjKey = "LArADC2MeVSC"
+   theAutoCorrTotalCondAlg.LArOnOffIdMappingObjKey = "LArOnOffIdMapSC"
 
 #load fsampl, MinBias Average and PulseShape 32 samples from OFLP200
 from IOVDbSvc.CondDB import conddb
@@ -306,7 +311,6 @@ else:
   theAutoCorrTotalCondAlg.LArShapeObjKey = "LArShapeSC"
   theAutoCorrTotalCondAlg.LArMinBiasObjKey = "LArMinBiasSC"
   theAutoCorrTotalCondAlg.LArfSamplObjKey = "LArfSamplSC"
-  theAutoCorrTotalCondAlg.isSuperCell = True
 
   for className,fldr,key,tag,calg in mcfolders:           
      conddb.addFolder("LAR_OFL",fldr, forceMC=True, className=className)
@@ -314,6 +318,7 @@ else:
      condSeq+=calg(ReadKey=fldr,WriteKey=key)
 
   from LArRecUtils.LArADC2MeVSCCondAlgDefault import LArADC2MeVSCCondAlgDefault
+  
   LArADC2MeVSCCondAlgDefault(isMC=True)
 
 condSeq += theAutoCorrTotalCondAlg
@@ -323,7 +328,7 @@ from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrAlgToDB
 theLArAutoCorrAlgToDB=LArAutoCorrAlgToDB()
 theLArAutoCorrAlgToDB.LArAutoCorrTotal=KeyOutputAC
 theLArAutoCorrAlgToDB.isSC = SuperCells
-theLArAutoCorrAlgToDB.GroupingType = "ExtendedSubDetector"
+theLArAutoCorrAlgToDB.GroupingType = GroupingType
 theLArAutoCorrAlgToDB.OutAutoCorrKey = KeyOutputAC
 topSequence += theLArAutoCorrAlgToDB
 

@@ -8,7 +8,6 @@
 #include "MuonCalibDbOperations/CoolInserter.h"
 
 // MuonCalibStandAloneBase
-#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 #include "MuonCalibStandAloneBase/RegionSelectorBase.h"
 
 // MuonCalibMath
@@ -22,7 +21,7 @@
 #include <sstream>
 
 namespace MuonCalib {
-
+    MuonCalibDefaultCalibrationSource::~MuonCalibDefaultCalibrationSource() = default;
     MuonCalibDefaultCalibrationSource::MuonCalibDefaultCalibrationSource(const std::string &t, const std::string &n, const IInterface *p) :
         AthAlgTool(t, n, p) {
         declareInterface<IMuonCalibConditionsSource>(this);
@@ -37,32 +36,25 @@ namespace MuonCalib {
     }
 
     StatusCode MuonCalibDefaultCalibrationSource::initialize() {
-        MsgStream log(msgSvc(), name());
         // get region selection service
-        StatusCode sc = service("RegionSelectionSvc", p_reg_sel_svc);
-        if (!sc.isSuccess()) {
-            log << MSG::ERROR << "Cannot retrieve RegionSelectionSvc!" << endmsg;
-            return sc;
-        }
+        ATH_CHECK(m_reg_sel_svc.retrieve());
         // check matching lengths
         if (m_t0_region_str.size() != m_t0.size()) {
-            log << MSG::FATAL << "Configuration error: T0Regions and T0 have different size!" << endmsg;
+            ATH_MSG_FATAL("Configuration error: T0Regions and T0 have different size!");
             return StatusCode::FAILURE;
         }
         if (m_rt_region_str.size() != m_rt_files.size()) {
-            log << MSG::FATAL << "Configuration error: RtRegions and RtFiles have different size!" << endmsg;
+            ATH_MSG_FATAL("Configuration error: RtRegions and RtFiles have different size!");
             return StatusCode::FAILURE;
         }
         // initialize regions
-        sc = initialize_regions(m_t0_region_str, m_t0_regions);
-        if (!sc.isSuccess()) { return sc; }
+        ATH_CHECK(initialize_regions(m_t0_region_str, m_t0_regions));
         initialize_creation_flags(m_time_slewing_applied_t0, m_bfield_applied_t0, m_t0_regions.size(), m_creation_flags_t0);
-        sc = initialize_regions(m_rt_region_str, m_rt_regions);
-        if (!sc.isSuccess()) { return sc; }
+        ATH_CHECK(initialize_regions(m_rt_region_str, m_rt_regions));
         initialize_creation_flags(m_time_slewing_applied_rt, m_bfield_applied_rt, m_rt_regions.size(), m_creation_flags_rt);
         // load rt files
-        sc = load_rt_files();
-        return sc;
+        ATH_CHECK(load_rt_files());
+        return StatusCode::SUCCESS;
     }
 
     bool MuonCalibDefaultCalibrationSource::insert_calibration(bool store_t0, bool store_rt) {
@@ -72,15 +64,14 @@ namespace MuonCalib {
     }
 
     StatusCode MuonCalibDefaultCalibrationSource::initialize_regions(const std::vector<std::string> &reg_str,
-                                                                     std::vector<RegionSelectorBase *> &reg) {
-        MsgStream log(msgSvc(), name());
-        for (std::vector<std::string>::const_iterator it = reg_str.begin(); it != reg_str.end(); it++) {
-            RegionSelectorBase *r(RegionSelectorBase::GetRegion(*it));
-            if (r == NULL) {
-                log << MSG::FATAL << "Error in region " << *it << endmsg;
+                                                                     std::vector<std::unique_ptr<RegionSelectorBase> > &reg_vec) {
+        for (const std::string &reg : reg_str) {
+            std::unique_ptr<RegionSelectorBase> r = RegionSelectorBase::GetRegion(reg);
+            if (!r) {
+                ATH_MSG_FATAL("Error in region " << reg);
                 return StatusCode::FAILURE;
             }
-            reg.push_back(r);
+            reg_vec.emplace_back(std::move(r));
         }
         return StatusCode::SUCCESS;
     }
@@ -97,13 +88,12 @@ namespace MuonCalib {
     }
 
     inline StatusCode MuonCalibDefaultCalibrationSource::load_rt_files() {
-        MsgStream log(msgSvc(), name());
         for (std::vector<std::string>::const_iterator it = m_rt_files.begin(); it != m_rt_files.end(); it++) {
             const std::string &fname(*it);
             std::string line;
             std::ifstream rtf(fname.c_str());
             if (!rtf.good()) {
-                log << MSG::FATAL << "Cannot open rt file '" << fname << "'!" << endmsg;
+                ATH_MSG_FATAL("Cannot open rt file '" << fname << "'!");
                 return StatusCode::FAILURE;
             }
             std::map<int, SamplePoint> pts;
@@ -128,7 +118,7 @@ namespace MuonCalib {
     }
 
     inline bool MuonCalibDefaultCalibrationSource::store_t0_fun() {
-        const std::vector<NtupleStationId> &regions(p_reg_sel_svc->GetStationsInRegions());
+        const std::vector<NtupleStationId> &regions(m_reg_sel_svc->GetStationsInRegions());
         for (std::vector<NtupleStationId>::const_iterator it = regions.begin(); it != regions.end(); it++) {
             MuonFixedId fid(it->FixedId());
             for (unsigned int i = 0; i < m_t0_regions.size(); i++) {
@@ -144,7 +134,7 @@ namespace MuonCalib {
     }
 
     inline bool MuonCalibDefaultCalibrationSource::store_rt_fun() {
-        const std::vector<NtupleStationId> &regions(p_reg_sel_svc->GetStationsInRegions());
+        const std::vector<NtupleStationId> &regions(m_reg_sel_svc->GetStationsInRegions());
         for (std::vector<NtupleStationId>::const_iterator it = regions.begin(); it != regions.end(); it++) {
             MuonFixedId fid(it->FixedId());
             for (unsigned int i = 0; i < m_rt_regions.size(); i++) {

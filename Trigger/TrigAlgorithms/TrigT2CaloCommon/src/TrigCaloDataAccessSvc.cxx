@@ -370,12 +370,25 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   cache->lastFSEvent = 0xFFFFFFFF;
   CaloCellContainer* cachefullcont = new CaloCellContainer(SG::VIEW_ELEMENTS);
   cachefullcont->reserve(190000);
+  const LArBadChannelCont& badchannel = **larBadChan;
   for(unsigned int lcidx=0; lcidx < larcell->size(); lcidx++){
           LArCellCollection* lcc = larcell->at(lcidx);
           unsigned int lccsize = lcc->size();
           for(unsigned int lccidx=0; lccidx<lccsize; lccidx++){
                   CaloCell* cell = ((*lcc).at(lccidx));
-                  if ( cell && cell->caloDDE() ) local_cell_copy.push_back( cell );
+                  if ( cell && cell->caloDDE() ) {
+		    LArBadChannel bc = badchannel.offlineStatus(cell->ID());
+                    bool good(true);
+                    if (! bc.good() ){
+                      // cell has some specific problems
+                      if ( bc.unstable() ) good=false;
+                      if ( bc.highNoiseHG() ) good=false;
+                      if ( bc.highNoiseMG() ) good=false;
+                      if ( bc.highNoiseLG() ) good=false;
+                      if ( bc.problematicForUnknownReason() ) good=false;
+                    }
+                    if ( good ) local_cell_copy.push_back( cell );
+		  }
           } // end of loop over cells
   } // end of loop over collection
 

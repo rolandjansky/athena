@@ -9,8 +9,6 @@
 /// DCSLFitter.
 /// The user can set a time-out for the track finding. It is set to 10 seconds
 /// by default.
-///
-/// \author Oliver.Kortner@CERN.CH
 
 #include <vector>
 
@@ -23,7 +21,7 @@
 
 namespace MuonCalib {
 
-    class ATLAS_NOT_THREAD_SAFE StraightPatRec : public IMdtPatRecFitter {
+    class StraightPatRec : public IMdtPatRecFitter {
     public:
         // Constructors //
         StraightPatRec() { init(); }

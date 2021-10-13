@@ -6,6 +6,7 @@
 #include "AGDDModel/AGDDGvxy.h"
 #include "AGDDHandlers/gvxy_pointHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/XMLHandlerStore.h"
 #include "AGDDControl/AGDDController.h"
 #include <iostream>
 
@@ -32,12 +33,17 @@ void gvxyHandler::ElementHandle(AGDDController& c,
 	std::vector<TwoPoint> points;	
 	StopLoop(true);	
 	
+        gvxy_pointHandler* pointHand = dynamic_cast<gvxy_pointHandler*>
+          (c.GetHandlerStore().GetHandler("gvxy_point"));
+        if (!pointHand) std::abort();
+
+        IAGDDParser& parser = *c.GetParser();
 	DOMNode *child;
 	for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
 	{
 		if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-			XercesParser::elementLoop(c, child);
-			TwoPoint p=gvxy_pointHandler::CurrentTwoPoint();
+			parser.elementLoop(c, child);
+			TwoPoint p = pointHand->CurrentTwoPoint();
 			points.push_back(p);
 		}
 	}

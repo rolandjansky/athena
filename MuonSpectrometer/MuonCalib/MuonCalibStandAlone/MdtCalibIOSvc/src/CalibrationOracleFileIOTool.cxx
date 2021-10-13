@@ -39,7 +39,7 @@ namespace MuonCalib {
 
     CalibrationOracleFileIOTool::CalibrationOracleFileIOTool(const std::string &t, const std::string &n, const IInterface *p) :
         AthAlgTool(t, n, p), m_calib_dir("oracle_calib") {
-        declareInterface<CalibrationIOTool>(this);
+        declareInterface<ICalibrationIOTool>(this);
         declareProperty("outputLocation", m_calib_dir);
     }
 

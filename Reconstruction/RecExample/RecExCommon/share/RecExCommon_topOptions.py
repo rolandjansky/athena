@@ -45,7 +45,6 @@ excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
-excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
@@ -531,11 +530,10 @@ pdr.flag_domain('trig')
 # no trigger, if readESD _and_ doESD ! (from Simon George, #87654)
 if rec.readESD() and rec.doESD():
     rec.doTrigger=False
-    recAlgs.doTrigger=False
     logRecExCommon_topOptions.info("detected re-reconstruction from ESD, will switch trigger OFF !")
 
-# Disable Trigger output reading in MC if there is none, unless running Trigger selection algorithms
-if not globalflags.InputFormat.is_bytestream() and not recAlgs.doTrigger:
+# Disable Trigger output reading in MC if there is none
+if not globalflags.InputFormat.is_bytestream():
     try:
         from RecExConfig.ObjKeyStore import cfgKeyStore
         from PyUtils.MetaReaderPeeker import convert_itemList
@@ -546,7 +544,7 @@ if not globalflags.InputFormat.is_bytestream() and not recAlgs.doTrigger:
         if not cfgKeyStore.isInInputFile("HLT::HLTResult", "HLTResult_EF") \
                 and not cfgKeyStore.isInInputFile("xAOD::TrigNavigation", "TrigNavigation") \
                 and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", getRun3NavigationContainerFromInput(ConfigFlags) ):
-            logRecExCommon_topOptions.info('Disabled rec.doTrigger because recAlgs.doTrigger=False and there is no Trigger content in the input file')
+            logRecExCommon_topOptions.info('Disabled rec.doTrigger because there is no Trigger content in the input file')
             rec.doTrigger = False
     except Exception:
         logRecExCommon_topOptions.warning('Failed to check input file for Trigger content, leaving rec.doTrigger value unchanged (%s)', rec.doTrigger)
@@ -557,14 +555,14 @@ if rec.doTrigger:
             include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
             treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
-            rec.doTrigger = recAlgs.doTrigger = False
+            rec.doTrigger = False
     else:
         try:
             from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
             triggerGetter = T0TriggerGetter()
         except Exception:
             treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
-            rec.doTrigger = recAlgs.doTrigger = False
+            rec.doTrigger = False
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
     if rec.readESD() and rec.doAOD():
@@ -659,7 +657,7 @@ if rec.doHeavyIon():
 if rec.doHIP ():
     protectedInclude ("HIRecExample/HIPRec_jobOptions.py")
 
-if rec.doWriteBS() and not recAlgs.doTrigger():
+if rec.doWriteBS():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
@@ -1464,11 +1462,6 @@ if rec.doWriteBS():
     StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
 
     ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
-
-    # BS content definition
-    # commented out since it was causing duplicates
-    #if hasattr( topSequence, "StreamBS") and recAlgs.doTrigger() :
-    #    StreamBSFileOutput.ItemList += topSequence.StreamBS.ItemList
 
     # LVL1
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup

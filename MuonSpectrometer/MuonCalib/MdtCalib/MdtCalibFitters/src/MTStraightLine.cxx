@@ -138,5 +138,5 @@ unsigned int MTStraightLine::numberOfTrackHits() const { return m_numTrkHits; }
 
 double MTStraightLine::chi2PerDegreesOfFreedom() const { return m_chi2 / (m_numTrkHits > 2 ? m_numTrkHits - 2 : 0.01); }
 
-void MTStraightLine::setUsedHits(const std::vector<const MdtCalibHitBase*>& hits) { m_used_hits = hits; }
-const std::vector<const MdtCalibHitBase*>& MTStraightLine::trackHits() const { return m_used_hits; }
+void MTStraightLine::setUsedHits(const MdtHitVec& hits) { m_used_hits = hits; }
+const MTStraightLine::MdtHitVec& MTStraightLine::trackHits() const { return m_used_hits; }

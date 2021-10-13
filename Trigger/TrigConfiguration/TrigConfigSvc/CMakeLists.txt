@@ -22,7 +22,7 @@ atlas_install_scripts( share/trigconf_property.py POST_BUILD_CMD ${ATLAS_FLAKE8}
 
 # Tests:
 atlas_add_test( AccumulatorTest
-   SCRIPT python -m TrigConfigSvc.TrigConfigSvcConfig
+   SCRIPT python -m TrigConfigSvc.TrigConfigSvcCfg
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( FrontierTest

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibIOSvc/MdtCalibInputSvc.h"
@@ -7,7 +7,6 @@
 #include <dirent.h>
 #include <sys/types.h>
 
-#include "MdtCalibData/BFieldCorFunc.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/RtFromPoints.h"
@@ -23,9 +22,8 @@
 MdtCalibInputSvc::MdtCalibInputSvc(const std::string &name, ISvcLocator *svc_locator) :
     AthService(name, svc_locator), m_reg_sel_svc("RegionSelectionSvc", name) {
     declareProperty("RegionSelectionSvc", m_reg_sel_svc);
-    p_sel_region_res = nullptr;
-    p_sel_region_rt = nullptr;
-    p_sel_region_b = nullptr;
+    m_sel_region_res = nullptr;
+    m_sel_region_rt = nullptr;
 }
 
 MdtCalibInputSvc::~MdtCalibInputSvc() {
@@ -49,7 +47,7 @@ StatusCode MdtCalibInputSvc::initialize() {
 }
 
 StatusCode MdtCalibInputSvc::queryInterface(const InterfaceID &riid, void **ppvUnknown) {
-    if (IID_IMdtCalibInputSvc.versionMatch(riid)) {
+    if (interfaceID().versionMatch(riid)) {
         *ppvUnknown = (MdtCalibInputSvc *)this;
     } else {
         return AthService::queryInterface(riid, ppvUnknown);
@@ -59,12 +57,14 @@ StatusCode MdtCalibInputSvc::queryInterface(const InterfaceID &riid, void **ppvU
 }
 
 const MuonCalib::MdtStationT0Container *MdtCalibInputSvc::GetT0(const MuonCalib::NtupleStationId &id) const {
+    static std::mutex warn_mutex;
     std::map<MuonCalib::NtupleStationId, MuonCalib::MdtStationT0Container *>::const_iterator it;
     if ((it = m_t0.find(id)) == m_t0.end()) {
         MuonCalib::NtupleStationId chamber_id = id;
         chamber_id.SetMultilayer(0);
         if ((it = m_t0.find(chamber_id)) == m_t0.end()) {
             if (m_t0_warned.find(chamber_id) == m_t0_warned.end()) {
+                std::lock_guard<std::mutex> guard(warn_mutex);
                 ATH_MSG_WARNING("T0 not loaded for station " << id.regionId());
                 m_t0_warned.insert(chamber_id);
             }
@@ -75,12 +75,14 @@ const MuonCalib::MdtStationT0Container *MdtCalibInputSvc::GetT0(const MuonCalib:
 }
 
 const MuonCalib::IRtRelation *MdtCalibInputSvc::GetRtRelation(const MuonCalib::NtupleStationId &id) const {
+    static std::mutex warn_mutex;
     std::map<MuonCalib::NtupleStationId, MuonCalib::IRtRelation *>::const_iterator it;
     if ((it = m_rt_relation.find(id)) == m_rt_relation.end()) {
         MuonCalib::NtupleStationId chamber_id = id;
         chamber_id.SetMultilayer(0);
         if ((it = m_rt_relation.find(chamber_id)) == m_rt_relation.end()) {
             if (m_rt_warned.find(chamber_id) == m_rt_warned.end()) {
+                std::lock_guard<std::mutex> guard(warn_mutex);
                 ATH_MSG_WARNING("Rt relation not loaded for station" << chamber_id.regionId());
                 m_rt_warned.insert(chamber_id);
             }
@@ -114,14 +116,14 @@ const MuonCalib::IRtResolution *MdtCalibInputSvc::GetResolution(const MuonCalib:
     return it->second;
 }
 
-inline StatusCode MdtCalibInputSvc::read_calib_input() {
+StatusCode MdtCalibInputSvc::read_calib_input() {
     ATH_CHECK(m_calib_input_tool->LoadT0(m_t0, -1));
     ATH_CHECK(m_calib_input_tool->LoadRt(m_rt_relation, m_spat_res, -1));
     create_mean_rts();
     return StatusCode::SUCCESS;
 }
 
-inline bool MdtCalibInputSvc::create_b_field_correction(const MuonCalib::NtupleStationId &id) const {
+bool MdtCalibInputSvc::create_b_field_correction(const MuonCalib::NtupleStationId &id) const {
     std::map<MuonCalib::NtupleStationId, MuonCalib::IRtRelation *>::const_iterator it(m_rt_relation.find(id));
     if (it == m_rt_relation.end()) return false;
     ATH_MSG_INFO("Initiailizing B-Field correction for " << id.regionId());
@@ -134,7 +136,7 @@ inline bool MdtCalibInputSvc::create_b_field_correction(const MuonCalib::NtupleS
     return true;
 }
 
-inline void MdtCalibInputSvc::create_mean_rts() {
+void MdtCalibInputSvc::create_mean_rts() {
     ATH_MSG_INFO("MdtCalibInputSvc::create_mean_rts()");
     std::list<const MuonCalib::IRtRelation *> matching_relations;
     std::list<MuonCalib::NtupleStationId> matching_ids;
@@ -172,13 +174,12 @@ inline void MdtCalibInputSvc::create_mean_rts() {
     if (matching_relations.size() == 0) return;
     // averageing over rt relations is not yet implemented - take the first found
     if (matching_relations.size() > 1) { ATH_MSG_WARNING("More than one rt relation for this region loaded! Taking first!"); }
-    p_sel_region_rt = *(matching_relations.begin());
+    m_sel_region_rt = *(matching_relations.begin());
     m_mean_station_id = *(matching_ids.begin());
-    p_sel_region_b = nullptr;
-    p_sel_region_res = GetResolution(*(matching_ids.begin()));
+    m_sel_region_res = GetResolution(*(matching_ids.begin()));
 }  // end MdtCalibInputSvc::create_mean_rts
 
-inline const MuonCalib::BFieldCorFunc *MdtCalibInputSvc::findbfieldfun(const MuonCalib::NtupleStationId &id) const {
+const MuonCalib::BFieldCorFunc *MdtCalibInputSvc::findbfieldfun(const MuonCalib::NtupleStationId &id) const {
     std::map<MuonCalib::NtupleStationId, MuonCalib::BFieldCorFunc *>::const_iterator it(m_B_corr.find(id));
     if (it == m_B_corr.end()) {
         if (!create_b_field_correction(id)) return nullptr;

@@ -7,7 +7,6 @@
 #include "InDetServMatGeoModel/InDetServMatFactoryDC2.h"
 #include "InDetServMatGeoModel/InDetServMatFactoryDC3.h"
 #include "InDetServMatGeoModel/InDetServMatFactoryFS.h"
-#include "InDetServMatGeoModel/InDetServMatFactorySLHC.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 #include "InDetServMatGeoModel/InDetServMatAthenaComps.h"
 
@@ -191,14 +190,6 @@ StatusCode InDetServMatTool::create()
 	    InDetServMatFactory theIDSM(m_athenaComps);
 	    theIDSM.create(world);
 	    m_manager=theIDSM.getDetectorManager();
-	  } else if (versionName == "SLHC") {
-	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory SLHC version " << endmsg;
-	    InDetServMatFactorySLHC theIDSM(m_athenaComps);
-	    if(descrName.compare("TrackingGeometry")!=0)
-	      theIDSM.create(world);
-	    else
-	      msg(MSG::INFO) << "InDetServices - TrackingGeometry tag - no geometry built" << endmsg; 
-	    m_manager=theIDSM.getDetectorManager();    
 	  } else {
 	    // Unrecognized name.
 	    msg(MSG::ERROR) << " Unrecognized VersionName: " << versionName << endmsg;

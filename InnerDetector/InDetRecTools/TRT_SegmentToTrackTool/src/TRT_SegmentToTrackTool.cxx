@@ -198,9 +198,9 @@ namespace InDet {
       // --- create surface at perigee
       Amg::Vector3D perigeePosition(0., 0., 0.);
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
-      // --- turn parameters into perifgee...
-      const Trk::Perigee* perParm = dynamic_cast<const Trk::Perigee*>(
-        m_extrapolator->extrapolate(*segPar, perigeeSurface));
+      // --- turn parameters into perigee...
+      auto perParm = std::unique_ptr<const Trk::Perigee>(dynamic_cast<const Trk::Perigee*>(
+       m_extrapolator->extrapolate(*segPar, perigeeSurface)));
       if (perParm) {
         ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
@@ -218,7 +218,7 @@ namespace InDet {
         typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       par_tsos = new Trk::TrackStateOnSurface(
-        nullptr, perParm, nullptr, nullptr, typePattern);
+        nullptr, std::move(perParm), nullptr, nullptr, typePattern);
       // push new TSOS into the list
       ntsos.push_back(par_tsos);
     }
@@ -483,13 +483,13 @@ namespace InDet {
           newcov(1, 1) = (myqoverp != 0) ? .0001 * myqoverp * myqoverp : 1.e-8;
           Trk::LocalParameters newpar(std::make_pair(0, Trk::locZ),
                                       std::make_pair(myqoverp, Trk::qOverP));
-          Trk::PseudoMeasurementOnTrack* newpseudo =
-            new Trk::PseudoMeasurementOnTrack(
+          auto newpseudo =
+            std::make_unique<Trk::PseudoMeasurementOnTrack>(
               newpar, newcov, firstmeas->associatedSurface());
           // hack replace first measurement with pseudomeasurement
           ntsos.erase(ntsos.begin());
           ntsos.insert(ntsos.begin(),
-                        new Trk::TrackStateOnSurface(newpseudo, nullptr));
+                        new Trk::TrackStateOnSurface(std::move(newpseudo), nullptr));
         }
 
         Amg::Vector3D field1;
@@ -584,13 +584,14 @@ namespace InDet {
       double P[5] = { myd0, myz0, myphi, mytheta, myqoverp };
 
       // create perigee TSOS and add as first (!) TSOS
-      Trk::Perigee* per =
-        new Trk::Perigee(P[0], P[1], P[2], P[3], P[4], Trk::PerigeeSurface());
+      
+      auto per =
+        std::make_unique<Trk::Perigee>(P[0], P[1], P[2], P[3], P[4], Trk::PerigeeSurface());
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
         typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(
-        nullptr, per, nullptr, nullptr, typePattern);
+        nullptr, std::move(per), nullptr, nullptr, typePattern);
       ntsos.insert(ntsos.begin(), seg_tsos);
 
       ATH_MSG_VERBOSE("Constructed perigee at input to fit : " << (*per));

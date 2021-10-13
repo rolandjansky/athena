@@ -10,7 +10,6 @@ acf.FilesInput = fileList  # noqa: F821 - from dir()
 ConfigFlags.Input.Files = acf.FilesInput() or acf.PoolAODInput()
 
 rec.doTrigger=False
-recAlgs.doTrigger=False
 
 rec.readAOD=True
 rec.doWriteAOD=False

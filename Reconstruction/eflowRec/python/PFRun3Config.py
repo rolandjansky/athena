@@ -49,7 +49,8 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
 
     #Setup up general geometry
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    # TODO: we should properly declare dependencies
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     #Setup TRT conditions
@@ -70,9 +71,6 @@ def PFCfg(inputFlags,**kwargs):
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
 
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-
     #from AthenaCommon import CfgGetter
     #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
     #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
@@ -84,10 +82,6 @@ def PFCfg(inputFlags,**kwargs):
     trtDetectorTool.DoXenonArgonMixture = False
     trtDetectorTool.DoKryptonMixture = False
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
-
-    #Setup up material for inner detector
-    InDetServMatTool=CompFactory.InDetServMatTool
-    result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
 
     #Setup up tracking geometry
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg

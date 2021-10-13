@@ -36,6 +36,13 @@ ClusterPositionInCaloFillerTool::ClusterPositionInCaloFillerTool
   book().ignore(); // Avoid coverity warnings.
 }
 
+StatusCode ClusterPositionInCaloFillerTool::initialize()
+{
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
+  return  StatusCode::SUCCESS;
+}
+
+
 
 /**
  * @brief Book variables for this block.
@@ -99,6 +106,8 @@ StatusCode ClusterPositionInCaloFillerTool::fill (const xAOD::CaloCluster& p)
 template <class T>
 StatusCode ClusterPositionInCaloFillerTool::fillT (const T& p)
 {
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey };
   CaloCell_ID::CaloSample sam = CaloCell_ID::EMB2;
   if (p.inBarrel() && !p.inEndcap())  
     sam = CaloCell_ID::EMB2;
@@ -108,12 +117,19 @@ StatusCode ClusterPositionInCaloFillerTool::fillT (const T& p)
     if (p.eSample(CaloSampling::EMB2) > p.eSample(CaloSampling::EME2)) sam=CaloCell_ID::EMB2;
     else sam = CaloCell_ID::EME2;
   }
-  
-  if(m_FillSeedCoordinates)
-    m_caloCellDetPos.getDetPosition(sam, p.eta0(), p.phi0(), *m_eta0Calo, *m_phi0Calo);    
-  else
-    m_caloCellDetPos.getDetPosition(sam, p.eta(), p.phi(), *m_etaCalo, *m_phiCalo);    
-    
+
+  if (m_FillSeedCoordinates) {
+    CaloCellDetPos::getDetPosition(**caloDetDescrMgrHandle,
+                                   sam,
+                                   p.eta0(),
+                                   p.phi0(),
+                                   *m_eta0Calo,
+                                   *m_phi0Calo);
+  } else {
+    CaloCellDetPos::getDetPosition(
+      **caloDetDescrMgrHandle, sam, p.eta(), p.phi(), *m_etaCalo, *m_phiCalo);
+  }
+
   return StatusCode::SUCCESS;
 }
 

@@ -37,7 +37,11 @@ def PerfMonMTSvcCfg(flags, **kwargs):
     kwargs.setdefault("jsonFileName", flags.PerfMon.OutputJSON)
 
     # Get CA and add the service 
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequence="AthBeginSeq")
+    beginSeq = acc.getSequence("AthBeginSeq")
+    beginSeq.IgnoreFilterPassed = False
+    beginSeq.StopOverride = False
+    beginSeq.Sequential = True
     acc.addService(PerfMonMTSvc(**kwargs), create=True)
 
     # Enable the auditors that are necessarry for the service
@@ -47,7 +51,7 @@ def PerfMonMTSvcCfg(flags, **kwargs):
 
     # Add the algorithm that is necessary for the service
     PerfMonMTAlg = CompFactory.PerfMonMTAlg
-    acc.addEventAlgo(PerfMonMTAlg(), sequenceName='AthAlgSeq')
+    acc.addEventAlgo(PerfMonMTAlg(), sequenceName='AthBeginSeq')
     
     # Return the CA
     return acc

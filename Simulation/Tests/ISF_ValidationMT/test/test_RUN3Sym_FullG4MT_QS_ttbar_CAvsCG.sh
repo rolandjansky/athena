@@ -1,6 +1,7 @@
 #!/bin/sh
 #
-# art-description: MC21-style simulation using ATLFAST3_QS
+# art-description: MC21-style simulation using FullG4MT_QS
+# art-include: master/Athena
 # art-type: grid
 # art-output: test.*.HITS.pool.root
 # art-output: log.*
@@ -27,7 +28,7 @@ Sim_tf.py \
     --imf False
 
 rc=$?
-mv log.EVNTtoHITS logEVNTtoHITS.CA
+mv log.EVNTtoHITS log.EVNTtoHITS.CA
 echo  "art-result: $rc simulation_CA"
 status=$rc
 

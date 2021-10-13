@@ -357,7 +357,7 @@ ParticleCaloCellAssociationTool::getCellIntersections(
 
     if (use3D) {
       // m_pathLenUtil.pathInsideCell( *cell, entryExitLayerMap);
-      double pathInMM = m_pathLenUtil.get3DPathLength(
+      double pathInMM = PathLengthUtils::get3DPathLength(
         *cell, pos->second.first, pos2->second.second, drFix, dzFix);
       double totpath = (pos->second.first - pos2->second.second).mag();
       path = totpath != 0 ? pathInMM / totpath : 0.;

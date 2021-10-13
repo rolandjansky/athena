@@ -152,6 +152,7 @@ StatusCode LArRTMParamExtractor::initialize() {
     ATH_MSG_INFO( "Will ignore DAC selection and use first value found per channel per gain" );
 
   ATH_CHECK( m_cablingKey.initialize() );
+  if (m_isSC) ATH_CHECK( m_cablingKeySC.initialize() );
 
   // Retrieve LArWFParamTool
   ATH_CHECK(m_larWFParamTool.retrieve());
@@ -197,12 +198,24 @@ StatusCode LArRTMParamExtractor::stop()
 
   
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
-     return StatusCode::FAILURE;
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+        return StatusCode::FAILURE;
+    }
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+       return StatusCode::FAILURE;
+    }
   }
+
+
       
   // retrieve previous complete objects from DetStore, if needed
   // -----------------------------------------------------------

@@ -65,7 +65,6 @@ def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
 def getIDETEnvelope(name="IDET", **kwargs):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
     isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
     #isRUN1 = not (isRUN2 or isUpgrade)
 
@@ -73,8 +72,6 @@ def getIDETEnvelope(name="IDET", **kwargs):
     innerRadius = 37.*mm # RUN1 default
     if isRUN2:
         innerRadius = 28.9*mm #29.15*mm
-    if isUpgrade:
-        innerRadius = 32.15*mm
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
     kwargs.setdefault("dZ", 347.5*cm)
@@ -84,7 +81,7 @@ def getIDETEnvelope(name="IDET", **kwargs):
         SubDetectorList += ['Pixel']
     if DetFlags.geometry.SCT_on():
         SubDetectorList += ['SCT']
-    if DetFlags.geometry.TRT_on() and not isUpgrade:
+    if DetFlags.geometry.TRT_on():
         SubDetectorList += ['TRT']
     SubDetectorList += ['IDetServicesMat']
     kwargs.setdefault("SubDetectors", SubDetectorList)

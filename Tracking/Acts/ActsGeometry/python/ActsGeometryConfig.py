@@ -33,9 +33,9 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     # ANY of the ID subdetectors are on => we require GM sources
     # In principle we could require only what is enabled, but the group
     # does extra config that I don't want to duplicate here
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(configFlags))
-    
+
     if not all(idSub):
       from AthenaCommon.Logging import log
       log.warning("ConfigFlags indicate %s should be built. Not all ID subdetectors are set, but I'll set all of them up to capture the extra setup happening here.", ", ".join(subDetectors))

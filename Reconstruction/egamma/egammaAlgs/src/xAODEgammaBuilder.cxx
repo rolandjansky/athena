@@ -41,6 +41,8 @@ xAODEgammaBuilder::initialize()
   ATH_CHECK(m_photonClusterRecContainerKey.initialize(m_doPhotons));
   ATH_CHECK(m_electronOutputKey.initialize());
   ATH_CHECK(m_photonOutputKey.initialize());
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
+
   // retrieve tools
   ATH_CHECK(m_clusterTool.retrieve());
   ATH_CHECK(m_ShowerTool.retrieve());
@@ -192,8 +194,9 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
     }
   }
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // Shower Shapes
   if (m_doElectrons) {

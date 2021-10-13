@@ -566,6 +566,9 @@ class MultipleStreamManager:
         # Use ZSTD w/ Level 5 for DAODs
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( FileName, "5" ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( FileName, "5" ) ]
+        # By default use a maximum basket buffer size of 128k and minimum buffer entries of 10
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMaxBufferSize( FileName, "131072" ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMinBufferEntries( FileName, "10" ) ]
         # By default use 20 MB AutoFlush for event data except for DAOD_PHYS which uses 1k events
         TREE_AUTO_FLUSH = -20000000
         if StreamName in ["StreamDAOD_PHYS"]:

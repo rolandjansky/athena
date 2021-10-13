@@ -19,6 +19,8 @@
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigConfHLTData/HLTSignature.h"
+#include "TrigConfHLTData/HLTTriggerElement.h"
 
 // STL includes
 #include <string>
@@ -37,7 +39,7 @@ struct ConvProxy {
   std::vector<ConvProxy*> parents;
   std::set<HLT::Identifier> runChains;
   std::set<HLT::Identifier> passChains;
-  uint64_t feaHash;
+  uint64_t feaHash = 0;
 
   std::vector<TrigCompositeUtils::Decision*> imNodes; // for checks only
   std::vector<TrigCompositeUtils::Decision*> hNodes;
@@ -67,22 +69,21 @@ private:
   SG::ReadHandleKey<xAOD::TrigNavigation> m_trigNavKey{ this, "TrigNavReadKey", "TrigNavigation" };
   PublicToolHandle<Trig::TrigDecisionTool> m_tdt{ this, "TrigDecisionTool","", "When enabled read navigation from TDT/off by default" };
   ServiceHandle< TrigConf::IHLTConfigSvc > m_configSvc{ this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc", "Trigger configuration service" };
+  ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class name" };
 
 
   Gaudi::Property<bool> m_doSelfValidation{ this, "doSelfValidation", false, "Run consistency checks after stages of conversion (slows down the alg)" };
-  Gaudi::Property<bool> m_doCompression{ this, "doCompression", true, "Collapse navigation elements to save ouput space" };
+  Gaudi::Property<bool> m_doCompression{ this, "doCompression", false, "Collapse navigation elements to save ouput space" };
   Gaudi::Property<bool> m_doLinkFeatures{ this, "doLinkFeatures", true, "Add links to objects, setting it false makes sense when running tests" };
   Gaudi::Property<size_t> m_hNodesPerProxyThreshold{ this, "hNodesPerProxyThreshhold", 15, "Limit number of H nodes per TE (if exceeded conversion results in an error)" };
   Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {}, "If not specified, all chains are handled" };
-
+  Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "Collections", {} };
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{ this, "OutputNavKey", "HLTNav_Summary" };
 
-
-
   StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTES, TEIdToChainsMap_t& finalTEs) const;
 
-  StatusCode mirrorTEsStructure(ConvProxySet_t&, const EventContext& context) const;
+  StatusCode mirrorTEsStructure(ConvProxySet_t&, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const;
 
   StatusCode associateChainsToProxies(ConvProxySet_t&, const TEIdToChainsMap_t&) const;
 
@@ -96,9 +97,9 @@ private:
 
   StatusCode findSharedFEAHashes(const ConvProxySet_t&, FEAToConvProxySet_t&) const;
 
-  StatusCode collapseConvProxies(ConvProxySet_t&, const FEAToConvProxySet_t&) const;
+  StatusCode collapseConvProxies(ConvProxySet_t&, FEAToConvProxySet_t&) const;
 
-  StatusCode cureFeaturelessProxies(ConvProxySet_t&) const;
+  StatusCode collapseFeaturelessProxies(ConvProxySet_t&) const;
 
   StatusCode fillRelevantFeatures(ConvProxySet_t&) const;
 
@@ -109,7 +110,12 @@ private:
   StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
 
   // helpers
+  //!< both method skip TrigPassBits
   uint64_t feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>&) const;
+  bool feaEqual(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& a, const std::vector<HLT::TriggerElement::FeatureAccessHelper>& b ) const;
+
+  //!< returns true if this particular feature is to be saved (linked)
+  bool feaToSave(const HLT::TriggerElement::FeatureAccessHelper&) const;
 
   // self validators
   // they return failure if something is not ok 
@@ -123,7 +129,8 @@ private:
 
   StatusCode noUnconnectedHNodes(const xAOD::TrigCompositeContainer&) const;
 
-  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
+  std::map<CLID, std::set<std::string>> m_collectionsToSaveDecoded;
+
 };
 
 #endif // TRIGNAVTOOLS_RUN2TORUN3TRIGNAVCONVERTERV2_H

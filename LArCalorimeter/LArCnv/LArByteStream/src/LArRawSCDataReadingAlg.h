@@ -9,12 +9,11 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandle.h"
-#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArCabling/LArLATOMEMapping.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "LArByteStream/LArLATOMEDecoder.h"
 
@@ -34,14 +33,14 @@ public:
   StatusCode execute(const EventContext& ctx) const override;
 
 private:
+  // Mapping input
+  SG::ReadCondHandleKey<LArLATOMEMapping> m_mapKey {this,"MappingKey","LArLATOMEMap"};
   //Event output:
   SG::WriteHandleKey<LArDigitContainer> m_adcCollKey{this, "adcCollKey", "SC"};
   SG::WriteHandleKey<LArDigitContainer> m_adcBasCollKey{this, "adcBasCollKey", "SC_ADC_BAS"};
   SG::WriteHandleKey<LArRawSCContainer> m_etCollKey{this, "etCollKey", "SC_ET", "SG key of the LArRawSCContainer"};
   SG::WriteHandleKey<LArRawSCContainer> m_etIdCollKey{this, "etIdCollKey", "SC_ET_ID", "SG key of the LArRawSCContainer"};
   SG::WriteHandleKey<LArLATOMEHeaderContainer> m_latomeHeaderCollKey{this, "LArLATOMEHeaderKey", "SC_LATOME_HEADER", "SG key of the LArLATOMEHEaderContainer"};
-
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
 
   //Service providing the input data
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc{this, "ROBDataProviderSvc", "ROBDataProviderSvc"};

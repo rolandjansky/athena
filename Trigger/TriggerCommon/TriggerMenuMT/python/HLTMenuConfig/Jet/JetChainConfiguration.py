@@ -80,6 +80,37 @@ class JetChainConfiguration(ChainConfigurationBase):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
 
+        self._setJetName()
+
+
+    # ----------------------
+    # Assemble jet collection name based on reco dictionary
+    # ----------------------
+    def _setJetName(self):
+        from ..Menu.ChainDictTools import splitChainDict
+        from .JetRecoSequences import JetRecoConfiguration
+        from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
+        try:
+            subChainDict = splitChainDict(self.dict)[0]
+        except IndexError:
+            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
+        prefix = JetRecoConfiguration.getHLTPrefix()
+        suffix = "_"+jetRecoDict["jetCalib"]
+        if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
+            suffix += "_{}".format(jetRecoDict["trkopt"])
+        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, clustersKey = clustersKey, pfoPrefix=prefix+jetRecoDict["trkopt"])
+        jetalg, jetradius, jetextra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])
+        actualradius = float(jetradius)/10
+        self.jetName = prefix+buildJetAlgName("AntiKt", actualradius)+inputDef.label+"Jets"+suffix
+        if inputDef.basetype == xAODType.CaloCluster:
+             # Omit cluster origin correction from jet name
+             # Keep the origin correction explicit because sometimes we may not
+             # wish to apply it, whereas PFlow corrections are applied implicitly
+             self.jetName = self.jetName.replace("Origin","")
+        
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -92,7 +123,10 @@ class JetChainConfiguration(ChainConfigurationBase):
         # Only one step for now, but we might consider adding steps for
         # reclustering and trimming workflows
         chainSteps = []
-        if self.recoDict["trkopt"]=="ftf":
+        if self.recoDict["ionopt"]=="ion":
+            jetCollectionName, jetDef, jetHICaloHypoStep = self.getJetHICaloHypoChainStep()
+            chainSteps.append( jetHICaloHypoStep )
+        elif self.recoDict["trkopt"]=="ftf":
             if self.trkpresel=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
@@ -137,6 +171,16 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
+    def getJetHICaloHypoChainStep(self):
+        stepName = "MainStep_HIjet"
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetHICaloHypoMenuSequence
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetHICaloHypoMenuSequence,
+                                                     ConfigFlags, isPerf=self.isPerf, **self.recoDict )
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
+
+        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
     def getJetTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
@@ -173,11 +217,15 @@ class JetChainConfiguration(ChainConfigurationBase):
             'clusterCalib':'em',
             'constitMod':'',
             'trkopt':'notrk',
+            'ionopt':'noion',
         }
+        ''' #Here you can set custom calibrations for large-R preselections. If you set to LCW you'll get an issue though, as the trigger expects the *same* topocluster collection to be used in the preselection and in the PFlow stage with tracking. Therefore this would need to be adapted, but it might not be so easy...
+         
         if preselRecoDict['recoAlg']=='a10': #Setting LC calibrations for large-R jets
             preselRecoDict['clusterCalib']='lcw'
+        '''
         from .JetRecoConfiguration import interpretJetCalibDefault
-        preselRecoDict.update({'jetCalib':interpretJetCalibDefault(preselRecoDict)}) #Adding default calibration for corresponding chain
+        preselRecoDict.update({'jetCalib':interpretJetCalibDefault(preselRecoDict) if preselRecoDict['recoAlg']=='a4' else 'nojcalib'}) #Adding default calibration for corresponding chain
         from ..Menu.SignatureDicts import JetChainParts_Default
         preselCommonJetParts = dict(JetChainParts_Default)
         preselCommonJetParts.update(preselRecoDict)

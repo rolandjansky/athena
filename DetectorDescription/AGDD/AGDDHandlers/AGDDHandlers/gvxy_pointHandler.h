@@ -15,9 +15,9 @@ public:
                           AGDDController& c);
 	virtual void ElementHandle(AGDDController& c,
                                    xercesc::DOMNode *t) override;
-	static TwoPoint CurrentTwoPoint() {return s_point;}
+	TwoPoint CurrentTwoPoint() {return m_point;}
 private:
-	static TwoPoint s_point;
+	TwoPoint m_point;
 };
 
 #endif

@@ -302,7 +302,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         if not self.chainsInMenu:
             log.warning("There seem to be no chains in the menu - please check")
-        else:
+        elif log.isEnabledFor(logging.DEBUG):
             import pprint
             log.debug("The following chains were found in the menu:")
             pprint.pprint(self.chainsInMenu)

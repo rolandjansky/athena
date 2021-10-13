@@ -11,7 +11,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,PrimaryLegGroup,PrimaryL1MuGroup,SupportLegGroup,SupportGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,PrimaryLegGroup,PrimaryL1MuGroup,SupportLegGroup,SupportGroup,SingleJetGroup
 
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_HI_run3_v1 as HIp1_menu
 
@@ -64,6 +64,16 @@ def setupMenu():
         
         #----------- g isEM
         ChainProp(name='HLT_g20_loose_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+SupportLegGroup),
+    ]
+
+    chains['Jet'] += [
+        ChainProp(name='HLT_j40_ion_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j50_ion_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_j60_ion_L1J15', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j75_ion_L1J20', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j75_ion_L1J30', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j85_ion_L1J15', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_j85_ion_L1J30', l1SeedThresholds=['FSNOSEED'], stream=[HardProbesStream], groups=SingleJetGroup+PrimaryLegGroup),
     ]
 
     chains['MinBias'] += [

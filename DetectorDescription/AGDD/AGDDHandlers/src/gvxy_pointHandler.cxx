@@ -7,12 +7,11 @@
 #include "AGDDKernel/TwoPoint.h"
 #include <iostream>
 
-TwoPoint gvxy_pointHandler::s_point(0.,0.);
-
 
 gvxy_pointHandler::gvxy_pointHandler(const std::string& s,
                                      AGDDController& c)
-  : XMLHandler(s, c)
+  : XMLHandler(s, c),
+    m_point (0, 0)
 {
 //	std::cout<<"Creating handler for gvxy_point"<<std::endl;
 }
@@ -21,6 +20,6 @@ void gvxy_pointHandler::ElementHandle(AGDDController& c,
                                       xercesc::DOMNode *t)
 {
 	std::vector<double> vvv=getAttributeAsVector(c, t, "X_Y");
-	s_point.x(vvv[0]);
-	s_point.y(vvv[1]);
+	m_point.x(vvv[0]);
+	m_point.y(vvv[1]);
 }

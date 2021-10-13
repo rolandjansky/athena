@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC21-style simulation using ATLFAST3
+# art-description: MC21-style simulation using ATLFAST3MT
 # art-type: grid
 # art-output: test.*.HITS.pool.root
 # art-output: log.*
@@ -27,7 +27,7 @@ unset ATHENA_CORE_NUMBER
   --imf False
 
 rc=$?
-mv log.EVNTtoHITS logEVNTtoHITS.CA
+mv log.EVNTtoHITS log.EVNTtoHITS.CA
 echo  "art-result: $rc simulation_CA"
 status=$rc
 
@@ -41,7 +41,7 @@ then
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
+        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \

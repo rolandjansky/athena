@@ -802,9 +802,11 @@ StatusCode CaloFillRectangularCluster::initialize()
 {
   // The method from the base class.
   CHECK( CaloClusterCorrection::initialize() );
-  if (!m_cellsName.key().empty())
+  if (!m_cellsName.key().empty()){
     CHECK( m_cellsName.initialize() );
+  }
 
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -1074,12 +1076,14 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
                                                  CaloCluster* cluster) const
 {
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
-  
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){
+ 
+   // retrieve CaloDetDescr
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, myctx.ctx()};
+  if(!caloDetDescrMgrHandle.isValid()){
     ATH_MSG_ERROR ("Failed to retrieve CaloDetDescrManager : CaloMgr");
   }
 
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   CaloClusterCorr::Segmentation seg (calodetdescrmgr);
   if (seg.m_detas2 == 0) {

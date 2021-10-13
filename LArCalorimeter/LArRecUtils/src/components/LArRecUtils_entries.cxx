@@ -9,6 +9,7 @@
 #include "../LArFCalTowerBuilderToolTestAlg.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
+#include "../LArLATOMEMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
 #include "../LArFebRodMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
@@ -53,6 +54,7 @@ DECLARE_COMPONENT( LArCondAlgfSamplSC )
 DECLARE_COMPONENT( LArCondAlguA2MeVFlat )
 DECLARE_COMPONENT( LArCondAlguA2MeVSC )
 DECLARE_COMPONENT( LArOnOffMappingAlg )
+DECLARE_COMPONENT( LArLATOMEMappingAlg )
 DECLARE_COMPONENT( LArCalibLineMappingAlg )
 DECLARE_COMPONENT( LArFebRodMappingAlg )
 DECLARE_COMPONENT( LArMCSymCondAlg )

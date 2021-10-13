@@ -7,6 +7,7 @@
 
 
 #include <string>
+#include <xercesc/dom/DOM.hpp>
 
 class AGDDController;
 
@@ -14,7 +15,7 @@ class AGDDController;
 class IAGDDParser {
 public:
 	IAGDDParser():m_fileName("") {}
-	IAGDDParser(std::string s):m_fileName(s) {}
+	IAGDDParser(const std::string& s):m_fileName(s) {}
 	virtual ~IAGDDParser() {;}
 	virtual bool ParseFile(const std::string&)=0;
 	virtual bool ParseFileAndNavigate(AGDDController& c,
@@ -24,6 +25,8 @@ public:
                                             const std::string&)=0;
 	virtual bool WriteToFile(const std::string&)=0;
 	virtual void navigateTree(AGDDController& c)=0;
+        virtual void elementLoop() = 0;
+        virtual void elementLoop(AGDDController& c, xercesc::DOMNode*) = 0;
 protected:
 	std::string m_fileName;
 };

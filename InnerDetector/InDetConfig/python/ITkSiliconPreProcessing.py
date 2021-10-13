@@ -71,8 +71,13 @@ def ITkPRD_MultiTruthMakerSiCfg(flags, name="ITkPRD_MultiTruthMakerSi", **kwargs
     acc = ComponentAccumulator()
 
     # For pixel + strip DetectorElementCollection used
-    from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
-    acc.merge(ITkGeometryCfg(flags))
+    if flags.Detector.GeometryITkPixel:
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+        acc.merge(ITkPixelGeometryCfg(flags))
+
+    if flags.Detector.GeometryITkStrip:
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+        acc.merge(ITkStripGeometryCfg(flags))
 
     if flags.ITk.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'ITkPixelClusters')
@@ -105,8 +110,13 @@ def ITkPRD_MultiTruthMakerSiPUCfg(flags, name="ITkPRD_MultiTruthMakerSiPU", **kw
     acc = ComponentAccumulator()
 
     # For pixel + strip DetectorElementCollection used
-    from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
-    acc.merge(ITkGeometryCfg(flags))
+    if flags.Detector.GeometryITkPixel:
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+        acc.merge(ITkPixelGeometryCfg(flags))
+
+    if flags.Detector.GeometryITkStrip:
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+        acc.merge(ITkStripGeometryCfg(flags))
 
     if flags.ITk.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'ITkPixelPUClusters')

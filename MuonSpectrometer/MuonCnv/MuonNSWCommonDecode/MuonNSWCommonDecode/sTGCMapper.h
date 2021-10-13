@@ -8,6 +8,8 @@
 #include <map>
 #include <vector>
 
+#include "MuonNSWCommonDecode/NSWDecodeHelper.h"
+
 namespace Muon
 {
   namespace nsw
@@ -84,7 +86,7 @@ inline uint16_t Muon::nsw::sTGCMapper::channel_number (uint8_t sector_type, uint
 						       uint8_t layer_type, uint16_t vmm,
 						       uint16_t vmm_chan) const
 {
-  unsigned int c = vmm * Muon::nsw::s_VMM_channels + vmm_chan;
+  unsigned int c = vmm * Muon::nsw::VMM_channels + vmm_chan;
   uint32_t id = private_id (sector_type, quadruplet, layer_type, c);
   const uint16_t channel_number = m_channel_map.find (id)->second;
   return channel_number;

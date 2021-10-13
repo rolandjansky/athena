@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DefaultAGDDTool_H
@@ -13,9 +13,9 @@ class DefaultAGDDTool: public AGDDToolBase
 public:
 	DefaultAGDDTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent);
-	virtual StatusCode construct();
+	virtual StatusCode construct ATLAS_NOT_THREAD_SAFE () override;
 	
-	virtual StatusCode initialize();
+	virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 	
 private:
 	

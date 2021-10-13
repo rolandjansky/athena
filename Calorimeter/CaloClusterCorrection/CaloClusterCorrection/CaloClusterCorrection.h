@@ -47,12 +47,17 @@ Updated:  February, 2006 (DLelas)
 // INCLUDE HEADER FILES:
 #include "CaloRec/CaloClusterProcessor.h"
 #include "CaloUtils/ToolWithConstants.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloClusterCorrection
   : public CaloUtils::ToolWithConstants<CaloClusterProcessor>
 {
 
  public:
+
+  virtual StatusCode initialize();
+
   // modifying CaloCluster object 
   virtual void setsample(xAOD::CaloCluster* cluster,
                          CaloSampling::CaloSample sampling,
@@ -75,6 +80,7 @@ class CaloClusterCorrection
  protected:
   /// Delegate to base class constructor.
   using base_class::base_class;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 };
 
 #endif

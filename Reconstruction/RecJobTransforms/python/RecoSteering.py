@@ -29,9 +29,14 @@ def RecoSteering(flags):
     acc.merge(CaloRecoCfg(flags,doLCCalib=True))
     log.info("---------- Configured calorimeter reconstruction")
 
-    # ID    
-    from InDetConfig.TrackRecoConfig import TrackRecoCfg
-    acc.merge(TrackRecoCfg(flags))
+    # ID / ITk
+    if flags.Detector.GeometryID:
+        from InDetConfig.TrackRecoConfig import TrackRecoCfg
+        acc.merge(TrackRecoCfg(flags))
+    elif flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
+        acc.merge(ITkTrackRecoCfg(flags))
+        return acc #stop here for now with ITk
     log.info("---------- Configured tracking")
 
     # muons
@@ -61,6 +66,11 @@ def RecoSteering(flags):
     acc.merge(egammaSelectedTrackCopyCfg(flags))
     from egammaAlgs.EMBremCollectionBuilderConfig import EMBremCollectionBuilderCfg
     acc.merge(EMBremCollectionBuilderCfg(flags))
+    from egammaAlgs.EMGSFCaloExtensionBuilderConfig import EMGSFCaloExtensionBuilderCfg
+    acc.merge(EMGSFCaloExtensionBuilderCfg(flags))
+    from egammaAlgs.EMVertexBuilderConfig import EMVertexBuilderCfg
+    acc.merge(EMVertexBuilderCfg(flags))
+
     # TBC
 
     #    from egammaAlgs.egammaRecBuilderConfig import egammaRecBuilderCfg
@@ -103,15 +113,6 @@ def _run(input):
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
 
-    flags.Detector.GeometryBCM=True
-    flags.Detector.GeometryDBM=True
-    flags.Detector.GeometryPixel=True
-    flags.Detector.GeometrySCT=True
-    flags.Detector.GeometryTRT=True
-
-    flags.Detector.GeometryTile=True
-    flags.Detector.GeometryLAr=True
-
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
     flags.Output.AODFileName="myAOD.pool.root"
@@ -143,11 +144,16 @@ def _run(input):
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
     acc.printConfig(withDetails=True)
 
+    confFileName=f"recoConfig{input}.pkl"
     if args.configOnly:
-        with open(args.configOnly, "wb") as confFile:
-            acc.store(confFile)
-            log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
-            sys.exit(0)
+        confFileName=args.configOnly
+
+    with open(confFileName, "wb") as confFile:
+        acc.store(confFile)
+        log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
+    if args.configOnly:
+        sys.exit(0)
+
     # running        
     statusCode = acc.run()
     endStamp = datetime.datetime.now()

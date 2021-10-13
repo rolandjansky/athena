@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <memory>
 
 class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListener, public AthService {
  public:
@@ -185,6 +186,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
    * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
    */
   typedef std::map<PMonMT::StepComp, PMonMT::MeasurementData*> data_map_t;
+  typedef std::map<PMonMT::StepComp, std::unique_ptr<PMonMT::MeasurementData>> data_map_unique_t;
   // Here I'd prefer to use SG::SlotSpecificObj<data_map_t>
   // However, w/ invalid context it seems to segfault
   // Can investigate in the future, for now std::vector should be OK
@@ -192,7 +194,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   // m_compLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_serial.
   // There should be a more clever way!
-  std::vector<data_map_t> m_compLevelDataMapVec; // all
+  std::vector<data_map_unique_t> m_compLevelDataMapVec; // all
   data_map_t m_compLevelDataMap_ini;  // initialize
   data_map_t m_compLevelDataMap_evt;  // execute
   data_map_t m_compLevelDataMap_fin;  // finalize

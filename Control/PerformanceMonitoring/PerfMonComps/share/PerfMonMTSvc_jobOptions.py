@@ -33,9 +33,8 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
 # Load PerfMonMTAlg
 ###############################
 from AthenaCommon.AlgSequence import AthSequencer
-algSeq = AthSequencer("AthAlgSeq")
-if not hasattr(algSeq, "PerfMonMTAlg"):
+begSeq = AthSequencer("AthBeginSeq")
+if not hasattr(begSeq, "PerfMonMTAlg"):
     from PerfMonComps.PerfMonCompsConf import PerfMonMTAlg
-    algSeq += PerfMonMTAlg("PerfMonMTAlg")
-    pass
-del algSeq
+    begSeq.insert(0, PerfMonMTAlg("PerfMonMTAlg"))
+del begSeq

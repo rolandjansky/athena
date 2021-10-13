@@ -664,7 +664,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
 			       thisWave.getErrors(),
 			       thisWave.getTriggers(),
 			       thisWave.getDt(), 
-			       (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<16)), 
+			       (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<24)), 
 			       thisWave.getFlag() );
        
 	  dacWaves.push_back(newWave);
