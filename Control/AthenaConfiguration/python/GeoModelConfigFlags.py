@@ -18,6 +18,10 @@ def createGeoModelConfigFlags():
     gcf.addFlag("GeoModel.Align.Dynamic",
                 lambda prevFlags : prevFlags.Common.ProductionStep != ProductionStep.Simulation and not prevFlags.Input.isMC)
 
+    gcf.addFlag("GeoModel.Align.LegacyConditionsAccess",
+                lambda prevFlags : prevFlags.Common.Project == "AthSimulation" or prevFlags.Common.ProductionStep == ProductionStep.Simulation)
+            # Mainly for G4 which still loads alignment on initialize
+
     gcf.addFlag("GeoModel.StripGeoType",
                 lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Common']['StripGeoType'])
 

@@ -181,10 +181,8 @@ def ITkStripConfigurationConditionsToolCfg(flags, name="ITkStripConfigurationCon
   cond_kwargs["dbInstance"] = "ITkStrip"
   cond_kwargs["SCT_ConfigurationCondAlgName"] = "ITkStripConfigurationCondAlg"
 
-  result = ComponentAccumulator()
-
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  result.merge(ITkStripGeometryCfg(flags))
+  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+  result = ITkStripReadoutGeometryCfg(flags)
 
   if 'ChannelFolderDB' not in cond_kwargs:
     result.merge(addFoldersSplitOnline(flags,
@@ -265,10 +263,8 @@ def ITkStripConfigurationCondAlgCfg(flags, name="ITkStripConfigurationCondAlg", 
 
 
 def ITkStripReadCalibDataToolCfg(flags, name="ITkStripReadCalibDataTool", cond_kwargs={}, **kwargs):
-  result = ComponentAccumulator()
-
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  result.merge( ITkStripGeometryCfg(flags))
+  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+  result = ITkStripReadoutGeometryCfg(flags)
 
   cond_kwargs.setdefault("NoiseFolder","/ITkStrip/DAQ/Calibration/NoiseOccupancyDefects")
   cond_kwargs.setdefault("GainFolder","/ITkStrip/DAQ/Calibration/NPtGainDefects")
@@ -299,10 +295,8 @@ def ITkStripReadCalibDataToolCfg(flags, name="ITkStripReadCalibDataTool", cond_k
 
 
 def ITkStripFlaggedConditionToolCfg(flags, name="ITkStripFlaggedConditionTool", **kwargs):
-  result = ComponentAccumulator()
-
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  result.merge( ITkStripGeometryCfg(flags))
+  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+  result = ITkStripReadoutGeometryCfg(flags)
 
   tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result.setPrivateTools(tool)
@@ -316,10 +310,8 @@ def ITkStripMonitorConditionsToolCfg(flags, name="ITkStripMonitorConditionsTool"
 
   kwargs.setdefault("CondKey", "ITkStripMonitorCondData")
 
-  result = ComponentAccumulator()
-
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  result.merge( ITkStripGeometryCfg(flags))
+  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+  result = ITkStripReadoutGeometryCfg(flags)
 
   if  "FolderDb" not in cond_kwargs:
     cond_kwargs["FolderDb"] = cond_kwargs["Folder"]

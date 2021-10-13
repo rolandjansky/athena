@@ -14,8 +14,13 @@ if __name__ == "__main__":
     ConfigFlags.GeoModel.Align.Dynamic    = False
     ConfigFlags.lock()
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc = SCT_GeometryCfg(ConfigFlags)
-    f=open('SCT_GeometryCfg.pkl','wb')
+    if ConfigFlags.Common.Project == "AthSimulation":
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
+        acc = SCT_SimulationGeometryCfg(ConfigFlags)
+        f=open('SCT_SimulationGeometryCfg.pkl','wb')
+    else:
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+        acc = SCT_ReadoutGeometryCfg(ConfigFlags)
+        f=open('SCT_ReadoutGeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

@@ -5,7 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 SiPropertiesTool=CompFactory.SiPropertiesTool
 ITkStripSiPropertiesCondAlg=CompFactory.SCTSiPropertiesCondAlg
 
@@ -28,7 +28,7 @@ def ITkStripSiPropertiesCfg(flags, name="ITkStripSiPropertiesCondAlg", **kwargs)
     # used in SCTSiPropertiesCondAlg and SiPropertiesTool
     #Specify correct DetElCollection for ITkStrip
     algkwargs["SCTDetEleCollKey"] = "ITkStripDetectorElementCollection"
-    acc.merge(ITkStripGeometryCfg(flags))
+    acc.merge(ITkStripReadoutGeometryCfg(flags))
     alg = ITkStripSiPropertiesCondAlg(name, **algkwargs)
     acc.addCondAlgo(alg)
 

@@ -3,15 +3,23 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import ProductionStep
+
 
 def AtlasGeometryCfg (flags):
     acc = ComponentAccumulator()
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     acc.merge(BeamPipeGeometryCfg(flags))
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    acc.merge(PixelGeometryCfg(flags))
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc.merge(SCT_GeometryCfg(flags))
+    if flags.Common.ProductionStep == ProductionStep.Simulation:
+        from PixelGeoModel.PixelGeoModelConfig import PixelSimulationGeometryCfg
+        acc.merge(PixelSimulationGeometryCfg(flags))
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
+        acc.merge(SCT_SimulationGeometryCfg(flags))
+    else:
+        from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+        acc.merge(PixelReadoutGeometryCfg(flags))
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+        acc.merge(SCT_ReadoutGeometryCfg(flags))
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     acc.merge(TRT_GeometryCfg(flags))
     from InDetServMatGeoModel.InDetServMatGeoModelConfig import InDetServiceMaterialCfg

@@ -78,6 +78,9 @@ atlas_add_test( TestTdaqEnabled
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
+atlas_add_test( TestAlignNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_AlignCondAlgConfig
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestCalibChipReadNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadCalibChipDataTestAlgConfig
                 PROPERTIES TIMEOUT 600 )

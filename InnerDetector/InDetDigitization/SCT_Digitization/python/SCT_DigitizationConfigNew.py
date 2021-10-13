@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import logging
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
 from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
@@ -30,7 +30,7 @@ def SCT_LastXing():
 
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
     """Return ComponentAccumulator with common SCT digitization tool config"""
-    acc = SCT_GeometryCfg(flags)
+    acc = SCT_ReadoutGeometryCfg(flags)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("OnlyHitElements", True)
     kwargs.setdefault("InputObjectName", "SCT_Hits")
