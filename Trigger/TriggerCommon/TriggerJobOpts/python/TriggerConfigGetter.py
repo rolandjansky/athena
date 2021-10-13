@@ -207,9 +207,8 @@ class TriggerConfigGetter(Configured):
             else: # Does not have xAODMeta
                 # Run-3 Trigger Configuration Services (just producing menu data)
                 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-                from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,HLTConfigSvcCfg
-                CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
-                CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
+                from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
+                CAtoGlobalWrapper(TrigConfigSvcCfg,ConfigFlags)
 
         else:
             # non-MT (Run-2) Trigger Configuration
@@ -325,115 +324,19 @@ class TriggerConfigGetter(Configured):
 
         # Add the algorithm creating the trigger configuration metadata for
         # the output:
-        writeTriggerMenu = False # Run2 offline xAOD metadata summary format. Writing of this now is deprecated. Reading supported still.
-        writeMenuJSON = False # Run3 offline xAOD metadata summary format
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
-            if ConfigFlags.Trigger.doConfigVersionConversion:
-                log.info("Configuring Run-1&2 to Run-3 configuration metadata conversion")
+            from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+            from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
+            CAtoGlobalWrapper(TrigConfigSvcCfg, ConfigFlags)
 
-                # Save the menu in JSON format
-                from RecExConfig.AutoConfiguration import GetRunNumber, GetLBNumber
-                dbKeys = fetchRun3ConfigFiles(isMC=self.readMC, run=GetRunNumber(), lb=GetLBNumber())
-
-                from TrigConfigSvc.TrigConfigSvcConf import (TrigConf__LVL1ConfigSvc,
-                                                             TrigConf__HLTConfigSvc,
-                                                             TrigConf__HLTPrescaleCondAlg,
-                                                             TrigConf__L1PrescaleCondAlg)
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
-
-                from AthenaCommon.AlgSequence import AthSequencer
-                condSeq = AthSequencer ('AthCondSeq')
-                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from AthenaCommon.AppMgr import theApp
-
-                # L1 service and CondAlg
-                l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvcRun3",
-                                                      InputType="file",
-                                                      JsonFileName="L1Menu.json",
-                                                      SMK=dbKeys["SMK"],
-                                                      JsonFileNameBGS="BunchGroups.json",
-                                                      BGSK=dbKeys["BGSK"])
-                svcMgr += l1ConfigSvc
-                theApp.CreateSvc += [ l1ConfigSvc.getFullName() ]
-
-                condSeq += TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlgRun3",
-                                                       Source="FILE",
-                                                       L1Psk=dbKeys["L1PSK"],
-                                                       Filename="L1PrescalesSet.json")
-
-                # HLT service and CondAlg
-                hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvcRun3",
-                                                      InputType="file",
-                                                      JsonFileName="HLTMenu.json",
-                                                      SMK=dbKeys["SMK"])
-                svcMgr += hltConfigSvc
-                theApp.CreateSvc += [ hltConfigSvc.getFullName() ]
-
-                condSeq += TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlgRun3",
-                                                        Source="FILE",
-                                                        HLTPsk=dbKeys["HLTPSK"],
-                                                        Filename="HLTPrescalesSet.json")
-
-                # xAODConfigSvc for accessing the Run-3 converted menu
-                svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc',
-                                                  UseInFileMetadata = False)
-
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
-                menuwriter = TrigConf__xAODMenuWriterMT()
-                menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
-                writeMenuJSON = True
-                topAlgs += menuwriter
-
-            else:
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
-                topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
-                writeTriggerMenu = True
+            # xAODConfigSvc for accessing the Run-3 converted menu
+            from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc',
+                                              UseInFileMetadata = False)
 
         elif ConfigFlags.Trigger.EDMVersion >= 3:
-            from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
-            menuwriter = TrigConf__xAODMenuWriterMT()
-            menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
-            writeMenuJSON = True
-            topAlgs += menuwriter
-            # Schedule also the prescale conditions algs
-            from AthenaCommon.Configurable import Configurable
-            Configurable.configurableRun3Behavior += 1
-            from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
-            from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-            acc = ComponentAccumulator()
-            acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
-            acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
-            appendCAtoAthena( acc )
-            Configurable.configurableRun3Behavior -= 1
-
-        else:
-            raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
-
-          # Set up the metadata for the output ESD and AOD:
-        from RecExConfig.ObjKeyStore import objKeyStore
-
-         # The metadata objects to add to the output:
-        if writeTriggerMenu:
-            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-            objKeyStore.addManyTypesMetaData( metadataItems )
-
-        if writeMenuJSON:
-            metadataItems = [ "xAOD::TriggerMenuJsonContainer#MenuJSON_HLT",
-                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTAux.",
-                              "xAOD::TriggerMenuJsonContainer#MenuJSON_L1",
-                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1Aux.",
-                              "xAOD::TriggerMenuJsonContainer#MenuJSON_HLTPS",
-                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTPSAux.",
-                              "xAOD::TriggerMenuJsonContainer#MenuJSON_L1PS",
-                              "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1PSAux.",
-                              # "xAOD::TriggerMenuJsonContainer#MenuJSON_BG", // TODO
-                              # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
-                            ]
-            objKeyStore.addManyTypesMetaData( metadataItems )
-
-        if ConfigFlags.Trigger.EDMVersion >= 3:
             from TrigEDMConfig.TriggerEDMRun3 import recordable
             from AthenaConfiguration.ComponentFactory import CompFactory
             from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
@@ -443,36 +346,34 @@ class TriggerConfigGetter(Configured):
             from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
             enhancedBiasWeightCompAlg.FinalDecisionKey = getRun3NavigationContainerFromInput(ConfigFlags)
             topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
+        else:
+            raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
 
-""" Retrieve Run2 trigger configuration from the database and save as Run3 .JSON files with known name.
-    The Run3 offline trigger infrastructure should then be configured from these .JSON files.
-"""
-def fetchRun3ConfigFiles(isMC, run, lb):
-    import subprocess
-    triggerDBKeys = {}
-    if isMC:
-        triggerDBKeys['DB'] = TriggerFlags.triggerDbConnection()
-        triggerDBKeys['SMK'] = TriggerFlags.triggerDbKeys()[0]
-        triggerDBKeys['L1PSK'] = TriggerFlags.triggerDbKeys()[1]
-        triggerDBKeys['HLTPSK'] = TriggerFlags.triggerDbKeys()[2]
-        triggerDBKeys['BGSK'] = TriggerFlags.triggerDbKeys()[3]
-    else:
-        from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
-        triggerDBKeys = getTrigConfFromCool(run, lb)
-        triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
+        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
+        topAlgs += TrigConf__xAODMenuWriterMT(KeyWriterTool=TrigConf__KeyWriterTool('KeyWriterToolOffline'))
 
-    cmd = "TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys)
-    log = logging.getLogger( "TriggerConfigGetter.py" )
-    log.info("Running command '%s'", cmd)
-    filesFetchStatus = subprocess.run(cmd, shell=True)
-    assert filesFetchStatus.returncode == 0, "TrigConfReadWrite failed to fetch JSON files"
-    return triggerDBKeys
-    
+        # Schedule also the prescale conditions algs
+        from AthenaCommon.Configurable import ConfigurableRun3Behavior
+        with ConfigurableRun3Behavior():
+            from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
+            from TrigConfigSvc.TrigConfigSvcCfg import L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+            acc = ComponentAccumulator()
+            acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
+            acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
+        appendCAtoAthena( acc )
 
-
-if __name__ == "__main__":
-    keys = fetchRun3ConfigFiles(isMC=False, run=360026, lb=151)
-    for k,v in {"SMK" : 2749, "L1PSK" : 23557, "HLTPSK" : 17824, "BGSK" : 2181}.items():
-        assert  k in keys, "Missing key {}".format(k)
-        assert v == keys[k], "Wrong value {}".format(v)
+        # Set up the metadata for the output ESD and AOD:
+        from RecExConfig.ObjKeyStore import objKeyStore
+        metadataItems = [ "xAOD::TriggerMenuJsonContainer#MenuJSON_HLT",
+                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTAux.",
+                          "xAOD::TriggerMenuJsonContainer#MenuJSON_L1",
+                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1Aux.",
+                          "xAOD::TriggerMenuJsonContainer#MenuJSON_HLTPS",
+                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTPSAux.",
+                          "xAOD::TriggerMenuJsonContainer#MenuJSON_L1PS",
+                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1PSAux.",
+                          # "xAOD::TriggerMenuJsonContainer#MenuJSON_BG", // TODO
+                          # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
+                        ]
+        objKeyStore.addManyTypesMetaData( metadataItems )
