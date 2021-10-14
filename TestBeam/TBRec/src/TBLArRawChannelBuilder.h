@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "LArRawUtils/LArRoI_Map.h"
 #include "LArRawUtils/LArRawOrdering.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
@@ -35,7 +34,6 @@ public:
 
 private:
   //Services & Tools 
-  LArRoI_Map* m_roiMap;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   const LArEM_ID*   m_emId;

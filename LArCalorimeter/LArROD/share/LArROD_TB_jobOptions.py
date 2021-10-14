@@ -79,9 +79,6 @@ LArTBRawChannelBuilder.FirstSample = 1
 LArTBRawChannelBuilder.NSampleEff = 5
 LArTBRawChannelBuilder.IsEMTB = TRUE
 LArTBRawChannelBuilder.WorkMode = 1 
-ToolSvc = Service( "ToolSvc" )
-# Turn off printing for LArRoI_Map
-ToolSvc.LArRoI_Map.Print=FALSE; 
 theApp.Dlls += [ "RootHistCnv" ]
 theApp.HistogramPersistency = "ROOT"
 NTupleSvc = Service( "NTupleSvc" )

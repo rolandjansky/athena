@@ -98,7 +98,6 @@ def createTriggerFlags():
 
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
     flags.addFlag('Trigger.doEDMVersionConversion', False)
-    flags.addFlag('Trigger.doConfigVersionConversion', True)
 
     # Unpack trigger bytestream
     flags.addFlag('Trigger.readBS', False)
@@ -191,49 +190,12 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_BulkMCProd_prescale')
 
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
-
     flags.addFlag('Trigger.triggerMenuModifier', ['all'])
 
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
-    # version of the menu
-    from AthenaCommon.AppMgr import release_metadata
-    flags.addFlag('Trigger.menuVersion',
-                  lambda prevFlags:  release_metadata()['release'] )
-    
-    # generate or not the HLT configuration
-    flags.addFlag('Trigger.generateHLTMenu', False)
-    
-    # HLT XML file name 
-    flags.addFlag('Trigger.HLTMenuFile',
-                  lambda prevFlags: 'HLTMenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
-
-    # generate or not the L1 configuration
-    flags.addFlag('Trigger.generateL1Menu', False)
-    
-    def _deriveL1ConfigName(prevFlags):
-        import re
-        log = logging.getLogger('TrigConfigSvcCfg')
-        pattern = re.compile(r'_v\d+|DC14')
-        menuName=prevFlags.Trigger.triggerMenuSetup
-        patternPos = pattern.search(menuName)
-        if patternPos:
-            menuName=menuName[:patternPos.end()]
-        else:
-            log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
-        
-        return "LVL1config_"+menuName+"_" + prevFlags.Trigger.menuVersion + ".xml"
-
-    # L1 XML file name 
-    flags.addFlag('Trigger.LVL1ConfigFile', _deriveL1ConfigName)
-   
-    # L1 Json file name 
-    flags.addFlag('Trigger.L1MenuFile',
-                  lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
-    
-
-    # trigger reconstruction 
+    # trigger reconstruction
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
@@ -310,24 +272,22 @@ def createTriggerFlags():
     # also not defined the Prescale sets yet
 
     
-import unittest
-class __UseOfOfflineRecoFlagsTest(unittest.TestCase):
-    def runTest(self):
-        """... Check if offline reco flags can be added to trigger"""
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-        flags.Trigger.Offline.Muon.doMDTs=False
-        flags.Muon.doMDTs=True
-        self.assertEqual(flags.Trigger.Offline.Muon.doMDTs, False, " dependent flag setting does not work")
-        self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
-
-        newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
-
-        self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
-        self.assertEqual(newflags.Muon.doMDTs, False, " dependent flag setting does not work")
-        newflags.dump()
-
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    suite.addTest(__UseOfOfflineRecoFlagsTest())
-    runner = unittest.TextTestRunner(failfast=False)
-    runner.run(suite)
+    import unittest
+
+    class Tests(unittest.TestCase):
+        def test_recoFlags(self):
+            """Check if offline reco flags can be added to trigger"""
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+            flags.Trigger.Offline.Muon.doMDTs=False
+            flags.Muon.doMDTs=True
+            self.assertEqual(flags.Trigger.Offline.Muon.doMDTs, False, " dependent flag setting does not work")
+            self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+
+            newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+
+            self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+            self.assertEqual(newflags.Muon.doMDTs, False, " dependent flag setting does not work")
+            newflags.dump()
+
+    unittest.main()

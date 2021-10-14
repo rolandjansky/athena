@@ -17,6 +17,8 @@ def ITkPixelGeoModelCfg(flags):
 
     return acc
 
+
+
 def ITkPixelAlignmentCfg(flags):
     if flags.GeoModel.Align.LegacyConditionsAccess:
         from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline

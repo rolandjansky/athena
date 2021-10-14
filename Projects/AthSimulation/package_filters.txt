@@ -5,7 +5,6 @@
 + AsgExternal/Asg_Test
 + AtlasGeometryCommon/BeamPipeGeoModel
 + AtlasGeometryCommon/GeoModelEnvelopes
-+ AtlasGeometryCommon/Interpreters
 + AtlasGeometryCommon/SubDetectorEnvelopes
 + AtlasTest/TestTools
 + Calorimeter/CaloCnv/CaloDetMgrDetDescrCnv

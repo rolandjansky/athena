@@ -173,9 +173,9 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
  
  
 
-
+    
     SG::ReadHandle<xAOD::JetContainer> jets(m_jetKey,ctx);
-    if(!jets.isValid()){
+    if(!jets.isValid() && m_applyJetNearProbeSelection){
       ATH_MSG_WARNING("Failed to retrieve JetContainer");
       return false;
     }
