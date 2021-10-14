@@ -78,6 +78,11 @@ bool TFCSNewExtrapolationWeightsTester::operator==(const TFCSParametrizationBase
     return false;
   }
   const TFCSNewExtrapolationWeightsTester& ref_typed=static_cast<const TFCSNewExtrapolationWeightsTester&>(ref);
+
+  if(TFCSParametrizationBase::compare(ref))          return true;
+  if(!TFCSParametrization::compare(ref))             return false;
+  if(!TFCSLateralShapeParametrization::compare(ref)) return false;
+
   return (m_input->compare(*ref_typed.m_input) == 0);
 }
 
