@@ -236,7 +236,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     /// for shifter histograms, only want m_shifterMaxChains of each
     int shifter_efid      = 0;
     int shifter_ftf       = 0;
-    int shifter_l2star    = 0;
     int shifter_efid_run1 = 0;
 
     std::string lastvtx = "";
@@ -327,7 +326,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	    
             if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-            if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+            if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
             if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
@@ -372,14 +371,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_efid_run1++;
 		if ( shifter_efid_run1>shifterChains ) {
-		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
-		  continue;
-		}
-	      }
-	      else if ( chainName.tail().find("L2SiTrackFinder")!=std::string::npos ) { 
-		/// EFID chain
-		shifter_l2star++;
-		if ( shifter_l2star>shifterChains ) {
 		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
