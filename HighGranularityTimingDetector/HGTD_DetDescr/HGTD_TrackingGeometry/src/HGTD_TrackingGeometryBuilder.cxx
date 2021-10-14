@@ -182,7 +182,8 @@ const Trk::TrackingGeometry* HGTDet::HGTD_TrackingGeometryBuilder::trackingGeome
   
   float envelope = layerInfo.thickness*0.5;
   float minZ_HGTD = layerInfo.minZ-envelope;
-  float maxZ_HGTD = enclosedOuterSectorHalflength;
+  float maxZ_HGTD = layerInfo.maxZ+envelope;
+  float maxZ_HGTDEnclosure = enclosedOuterSectorHalflength;
   
   // dummy material property 
   Trk::Material* materialProperties = new Trk::Material;
@@ -233,8 +234,7 @@ const Trk::TrackingGeometry* HGTDet::HGTD_TrackingGeometryBuilder::trackingGeome
   const Trk::TrackingVolume* inDetEnclosed = 
            m_trackingVolumeCreator->createContainerTrackingVolume(inBufferVolumes,
                                                                   *materialProperties,
-                                                                  "HGTD::Container::EnclosedInnerDetector");
-    
+                                                                  "HGTD::Container::EnclosedInnerDetector");    
   
   // create the tracking volumes 
   // create the three volumes
@@ -254,31 +254,62 @@ const Trk::TrackingGeometry* HGTDet::HGTD_TrackingGeometryBuilder::trackingGeome
                                                                                      (Trk::BinningType)m_layerBinningType);
   
   // the base volumes have been created
-   ATH_MSG_VERBOSE('\t' << '\t'<< "Volumes have been created, now pack them into a triple.");
-   negativeVolume->registerColorCode(m_colorCodeConfig);   
-   inDetEnclosed->registerColorCode(m_colorCodeConfig);
-   positiveVolume->registerColorCode(m_colorCodeConfig);
-                                                         
-   // pack them together
-   std::vector<const Trk::TrackingVolume*> tripleVolumes;
-   tripleVolumes.push_back(negativeVolume);
-   tripleVolumes.push_back(inDetEnclosed);
-   tripleVolumes.push_back(positiveVolume);
-   
-   // create the tiple container
-   const Trk::TrackingVolume* tripleContainer = 
-         m_trackingVolumeCreator->createContainerTrackingVolume(tripleVolumes,
-                                                                *materialProperties,
-                                                                "HGTD::Detectors::"+m_layerBuilder->identification(),
-                                                                m_buildBoundaryLayers,
-                                                                m_replaceJointBoundaries);
-                                                                
-   ATH_MSG_VERBOSE( '\t' << '\t'<< "Created container volume with bounds: " << tripleContainer->volumeBounds() );
-   
-   hgtdTrackingGeometry = new Trk::TrackingGeometry(tripleContainer);
-   
-   if (m_indexStaticLayers and hgtdTrackingGeometry)
-    hgtdTrackingGeometry->indexStaticLayers( Trk::Global );   
+  ATH_MSG_VERBOSE('\t' << '\t'<< "Volumes have been created, now pack them into a triple.");
+  negativeVolume->registerColorCode(m_colorCodeConfig);   
+  inDetEnclosed->registerColorCode(m_colorCodeConfig);
+  positiveVolume->registerColorCode(m_colorCodeConfig);
+                                                        
+  // pack them together
+  std::vector<const Trk::TrackingVolume*> tripleVolumes;
+  tripleVolumes.push_back(negativeVolume);
+  tripleVolumes.push_back(inDetEnclosed);
+  tripleVolumes.push_back(positiveVolume);
+  
+  // create the tiple container
+  const Trk::TrackingVolume* tripleContainer = 
+        m_trackingVolumeCreator->createContainerTrackingVolume(tripleVolumes,
+                                                               *materialProperties,
+                                                               "HGTD::Containers::"+m_layerBuilder->identification(),
+                                                               m_buildBoundaryLayers,
+                                                               m_replaceJointBoundaries);
+                                                               
+  ATH_MSG_VERBOSE( '\t' << '\t'<< "Created container volume with bounds: " << tripleContainer->volumeBounds() );
+  
+  // finally create the two endplates: negative
+  const Trk::TrackingVolume* negativeEnclosure =  m_trackingVolumeCreator->createGapTrackingVolume(*materialProperties,
+                                                                                                   enclosedInnerRadius,enclosedOuterRadius,
+                                                                                                   -maxZ_HGTDEnclosure, -maxZ_HGTD,
+                                                                                                   1, false,
+                                                                                                   "HGTD::Gaps::NegativeEnclosure"+m_layerBuilder->identification());
+  
+  // finally create the two endplates: positive
+  const Trk::TrackingVolume* positiveEnclosure =  m_trackingVolumeCreator->createGapTrackingVolume(*materialProperties,
+                                                                                                   enclosedInnerRadius,enclosedOuterRadius,
+                                                                                                   maxZ_HGTD,maxZ_HGTDEnclosure,
+                                                                                                   1, false,
+                                                                                                   "HGTD::Gaps::PositiveEnclosure"+m_layerBuilder->identification());
+  // and the final tracking volume
+  std::vector<const Trk::TrackingVolume*> enclosedVolumes;
+  enclosedVolumes.push_back(negativeEnclosure);
+  enclosedVolumes.push_back(tripleContainer);
+  enclosedVolumes.push_back(positiveEnclosure);
+  
+  const Trk::TrackingVolume* enclosedDetector = 
+      m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,     
+                                                             *materialProperties,
+                                                             "HGTD::Detectors::"+m_layerBuilder->identification(),
+                                                             m_buildBoundaryLayers,
+                                                             m_replaceJointBoundaries);
+      
+  ATH_MSG_VERBOSE( '\t' << '\t'<< "Created enclosed HGTD volume with bounds: " << enclosedDetector->volumeBounds() );
+
+  //  create the TrackingGeometry ------------------------------------------------------  
+  hgtdTrackingGeometry = new Trk::TrackingGeometry(enclosedDetector);
+  
+  if (m_indexStaticLayers and hgtdTrackingGeometry)
+   hgtdTrackingGeometry->indexStaticLayers( geometrySignature() );   
+  if (msgLvl(MSG::VERBOSE) && hgtdTrackingGeometry)
+    hgtdTrackingGeometry->printVolumeHierarchy(msg(MSG::VERBOSE)); 
 
   return hgtdTrackingGeometry; 
 }

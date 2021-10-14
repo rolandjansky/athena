@@ -18,22 +18,21 @@ from HGTD_TrackingGeometry.HGTD_TrackingGeometryConf import HGTDet__HGTD_Trackin
 class ConfiguredHGTDTrackingGeometryBuilder( HGTDet__HGTD_TrackingGeometryBuilder ):
     # constructor
     def __init__(self,name = 'HGTDTrackingGeometryBuilder'):
-      from AthenaCommon.AppMgr import ToolSvc
+      from AthenaCommon.AppMgr import ToolSvc, ServiceMgr   
       from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags      
       from HGTD_TrackingGeometry.HGTD_TrackingGeometryConf import HGTDet__HGTD_LayerBuilder
       # HGTD building
       HGTD_LayerBuilder = HGTDet__HGTD_LayerBuilder(name='HGTD_LayerBuilder')
-      HGTD_LayerBuilder.Identification                  = 'HGTD'
-      HGTD_LayerBuilder.SetLayerAssociation           = True        
-      # output level                                 
-      #HGTD_LayerBuilder.OutputLevel                   = TrkDetFlags.InDetBuildingOutputLevel() 
+      HGTD_LayerBuilder.Identification      = 'HGTD'
+      HGTD_LayerBuilder.SetLayerAssociation = True        
+      # output level                       
+      HGTD_LayerBuilder.OutputLevel         = TrkDetFlags.InDetBuildingOutputLevel() 
       # the binning type of the layer     
       HGTD_LayerBinning = 2
       # HGTD -> ToolSvc                             
       ToolSvc += HGTD_LayerBuilder                       
       
-      HGTDCylinderVolumeCreator = ToolSvc.InDetCylinderVolumeCreator
-      
       HGTDet__HGTD_TrackingGeometryBuilder.__init__(self,name,
                                                     LayerBuilder = HGTD_LayerBuilder,
-                                                    TrackingVolumeCreator=ToolSvc.InDetCylinderVolumeCreator)
+                                                    EnvelopeDefinitionSvc = ServiceMgr.AtlasEnvelopeSvcDefinitionSvc,
+                                                    TrackingVolumeCreator = ToolSvc.InDetCylinderVolumeCreator)
