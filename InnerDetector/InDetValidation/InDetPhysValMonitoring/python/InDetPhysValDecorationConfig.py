@@ -153,7 +153,7 @@ def InDetPhysValTruthDecoratorAlgCfg(flags, **kwargs):
         from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
         Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
     else:
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs.setdefault("Extrapolator", Extrapolator)
 

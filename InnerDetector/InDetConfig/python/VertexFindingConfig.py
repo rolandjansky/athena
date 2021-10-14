@@ -95,8 +95,6 @@ def ConversionPostSelectorCfg(flags, name="ConversionPostSelector"):
 def SingleTrackConversionToolCfg(flags, name="SingleTrackConversionTool"):
     acc = ComponentAccumulator()
     kwargs ={}
-    # from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-    # kwargs["Extrapolator"] = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["MaxBLayerHits"] = flags.InDet.SecVertex.SingleTrk.MaxBLayerHits
     kwargs["MinInitialHitRadius"] = flags.InDet.SecVertex.SingleTrk.MinInitialHitRadius
     kwargs["MinInitialHitRadius_noBlay"] = flags.InDet.SecVertex.SingleTrk.MinInitialHitRadius_noBlay
@@ -124,7 +122,7 @@ def TrackPairsSelectorCfg(flags, name="TrackPairsSelector"):
 def InDetConversionTrackSelectorToolCfg(flags, name="InDetConversionTrackSelectorTool"):
     acc = ComponentAccumulator()
     kwargs = {}
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["RatioCut1"] = flags.InDet.SecVertex.TrkSel.RatioCut1
     kwargs["RatioCut3"] = flags.InDet.SecVertex.TrkSel.RatioCut3
@@ -144,7 +142,7 @@ def InDetConversionTrackSelectorToolCfg(flags, name="InDetConversionTrackSelecto
 def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
     acc = ComponentAccumulator()
     kwargs= {}
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs["Extrapolator"] = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["FirstMeasuredPoint"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPoint
     kwargs["FirstMeasuredPointLimit"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPointLimit
@@ -173,7 +171,7 @@ def ConversionFinderCfg(flags, name="ConversionFinderTool"):
 
     acc = ComponentAccumulator()
     kwargs = {}
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["PostSelector"] = acc.getPrimaryAndMerge(ConversionPostSelectorCfg(flags))
     kwargs["SingleTrackConversionTool"] = acc.getPrimaryAndMerge(SingleTrackConversionToolCfg(flags))

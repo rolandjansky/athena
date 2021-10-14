@@ -613,13 +613,13 @@ def ITkGsfExtrapolatorCfg(flags, name='ITkGsfExtrapolator', **kwargs) :
     acc = ComponentAccumulator()
 
     if 'Propagators' not in kwargs :
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import ITkPropagatorCfg
+        from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
         ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
         kwargs.setdefault('Propagators', [ ITkPropagator ])
 
     if 'Navigator' not in kwargs :
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeNavigatorCfg
-        Navigator = acc.getPrimaryAndMerge(AtlasUpgradeNavigatorCfg(flags))
+        from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
+        Navigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
         kwargs.setdefault('Navigator', Navigator)
 
     if 'GsfMaterialConvolution' not in kwargs :
@@ -682,11 +682,12 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
             # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
             kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg, AtlasUpgradeNavigatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
+    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
     from InDetConfig.ITkRecToolConfig  import ITkUpdatorCfg
 
     Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    Navigator = acc.getPrimaryAndMerge(AtlasUpgradeNavigatorCfg(flags))
+    Navigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
     ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
     ITkUpdator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
     ITkMultipleScatteringUpdator = acc.popToolsAndMerge(ITkMultipleScatteringUpdatorCfg(flags))

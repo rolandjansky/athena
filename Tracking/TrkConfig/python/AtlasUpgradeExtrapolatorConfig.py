@@ -7,87 +7,10 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 # @TODO reture once migration to tracking geometry cond alg is complete
 from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
 # import the Extrapolator configurable
 Trk__Extrapolator=CompFactory.Trk.Extrapolator
-
-def AtlasUpgradeNavigatorCfg(flags, name='AtlasUpgradeNavigator') :
-       # get the correct TrackingGeometry setup
-       result=ComponentAccumulator()
-       geom_svc=None
-       geom_cond_key=''
-       if not use_tracking_geometry_cond_alg :
-              from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-              acc = TrackingGeometrySvcCfg(flags)
-              geom_svc = acc.getPrimary()
-              result.merge(acc)
-       else :
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge( TrackingGeometryCondAlgCfg(flags) )
-            geom_cond_key = 'AtlasTrackingGeometry'
-            # @TOOD how to get the key of the TrackingGeometry conditions data ?
-       # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
-       Trk__Navigator=CompFactory.Trk.Navigator
-       AtlasNavigator = Trk__Navigator(name = name,
-                                       TrackingGeometrySvc = geom_svc,
-                                       TrackingGeometryKey = geom_cond_key)
-       result.addPublicTool(AtlasNavigator, primary=True)
-       return result
-
-def AtlasUpgradeRKPropagatorCfg(flags, name = 'AtlasUpgradeRungeKuttaPropagator', **kwargs):
-       result=ComponentAccumulator()
-       RkPropagator=CompFactory.Trk.RungeKuttaPropagator
-       AtlasRungeKuttaPropagator = RkPropagator(name, **kwargs)
-       result.addPublicTool(AtlasRungeKuttaPropagator, primary=True)
-       return result
-
-def AtlasUpgradeSTEP_PropagatorCfg(flags, name = 'AtlasUpgradeSTEP_Propagator', **kwargs):
-       result=ComponentAccumulator()
-       STEP_Propagator=CompFactory.Trk.STEP_Propagator 
-       AtlasSTEP_Propagator = STEP_Propagator(name, **kwargs)
-       result.addPublicTool(AtlasSTEP_Propagator, primary=True)
-       return result
-
-def AtlasUpgradeNoMatSTEP_PropagatorCfg(flags, name = 'AtlasUpgradeNoMatSTEP_Propagator', **kwargs):
-       kwargs.setdefault("MaterialEffects", False)
-       return AtlasUpgradeSTEP_PropagatorCfg(flags, name, **kwargs)
-
-def ITkPropagatorCfg(flags, name='ITkPropagator',**kwargs):
-       result = ComponentAccumulator()
-
-       ITkPropagator = None
-       if flags.ITk.propagatorType == "STEP":
-              ITkPropagator = result.getPrimaryAndMerge(AtlasUpgradeSTEP_PropagatorCfg(flags, name, **kwargs))
-       elif flags.ITk.propagatorType == "RungeKutta":
-              kwargs.setdefault("AccuracyParameter", 0.0001)
-              kwargs.setdefault("MaxStraightLineStep", .004) # Fixes a failed fit
-              ITkPropagator = result.getPrimaryAndMerge(AtlasUpgradeRKPropagatorCfg(flags, name, **kwargs))
-
-       result.addPublicTool(ITkPropagator, primary=True)
-       return result
-
-def AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name = 'AtlasUpgradeMaterialEffectsUpdator', **kwargs):
-       result=ComponentAccumulator()
-       MaterialEffectsUpdator=CompFactory.Trk.MaterialEffectsUpdator
-       AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name, **kwargs)
-       result.addPublicTool(AtlasMaterialEffectsUpdator, primary=True)
-       return result
-
-def AtlasUpgradeMaterialEffectsUpdatorLandauCfg(flags, name = 'AtlasUpgradeMaterialEffectsUpdatorLandau', **kwargs):
-       kwargs.setdefault("LandauMode", True)
-       return AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name, **kwargs)
-
-def AtlasUpgradeNoElossMaterialEffectsUpdatorCfg(flags, name = 'AtlasUpgradeNoElossMaterialEffectsUpdator', **kwargs):
-       kwargs.setdefault("EnergyLoss", False)
-       return AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name, **kwargs)
-
-def ITkMaterialEffectsUpdatorCfg(flags, name = "ITkMaterialEffectsUpdator", **kwargs):
-       if not flags.BField.solenoidOn:
-              import AthenaCommon.SystemOfUnits as Units
-              kwargs.setdefault(EnergyLoss          = False)
-              kwargs.setdefault(ForceMomentum       = True)
-              kwargs.setdefault(ForcedMomentumValue = 1000*Units.MeV)
-       return AtlasUpgradeMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 # define the class
 def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
@@ -97,10 +20,10 @@ def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
        result.merge(acc)
 
        # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
-       
-       AtlasRungeKuttaPropagator = result.getPrimaryAndMerge( AtlasUpgradeRKPropagatorCfg(flags) )
-       AtlasSTEP_Propagator = result.getPrimaryAndMerge( AtlasUpgradeSTEP_PropagatorCfg(flags) )
-       ITkPropagator = result.getPrimaryAndMerge( ITkPropagatorCfg(flags) )
+
+       AtlasRungeKuttaPropagator = result.getPrimaryAndMerge( TC.AtlasRKPropagatorCfg(flags) )
+       AtlasSTEP_Propagator = result.getPrimaryAndMerge( TC.AtlasSTEP_PropagatorCfg(flags) )
+       ITkPropagator = result.getPrimaryAndMerge( TC.ITkPropagatorCfg(flags) )
 
        AtlasPropagators  = []
        AtlasPropagators += [AtlasRungeKuttaPropagator]
@@ -109,16 +32,16 @@ def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
 
        # UPDATOR DEFAULTS -----------------------------------------------------------------------------------------       
 
-       AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeMaterialEffectsUpdatorCfg(flags) )
-       AtlasMaterialEffectsUpdatorLandau = result.getPrimaryAndMerge( AtlasUpgradeMaterialEffectsUpdatorLandauCfg(flags) )       
-       ITkMaterialEffectsUpdator = result.getPrimaryAndMerge( ITkMaterialEffectsUpdatorCfg(flags) )
+       AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge( TC.AtlasMaterialEffectsUpdatorCfg(flags) )
+       AtlasMaterialEffectsUpdatorLandau = result.getPrimaryAndMerge( TC.AtlasMaterialEffectsUpdatorLandauCfg(flags) )
+       ITkMaterialEffectsUpdator = result.getPrimaryAndMerge( TC.ITkMaterialEffectsUpdatorCfg(flags) )
 
        AtlasUpdators    = []
        AtlasUpdators    += [ AtlasMaterialEffectsUpdator ]
        AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
        AtlasUpdators    += [ ITkMaterialEffectsUpdator ]
 
-       AtlasNavigator = result.getPrimaryAndMerge( AtlasUpgradeNavigatorCfg(flags) )
+       AtlasNavigator = result.getPrimaryAndMerge( TC.AtlasNavigatorCfg(flags) )
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 
@@ -154,7 +77,7 @@ def AtlasUpgradeExtrapolatorCfg( flags, name = 'AtlasUpgradeExtrapolator' ):
 
 
 # Based on Reconstruction/egamma/egammaTools/python/egammaExtrapolators.py
-def EGammaUpgradeExtrapolatorCfg( flags, name = 'EGammaUpgradeExtrapolator' ):
+def egammaCaloUpgradeExtrapolatorCfg( flags, name = 'egammaCaloUpgradeExtrapolator' ):
        result=ComponentAccumulator()
 
        egammaExtrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags, name))
@@ -162,18 +85,18 @@ def EGammaUpgradeExtrapolatorCfg( flags, name = 'EGammaUpgradeExtrapolator' ):
        # this turns off dynamic calculation of eloss in calorimeters
        egammaExtrapolator.DoCaloDynamic = False
 
-       RungeKuttaPropagator = result.getPrimaryAndMerge( AtlasUpgradeRKPropagatorCfg(flags) )
-       NoMatSTEP_Propagator = result.getPrimaryAndMerge( AtlasUpgradeNoMatSTEP_PropagatorCfg(flags) )
-       ITkPropagator = result.getPrimaryAndMerge( ITkPropagatorCfg(flags) )
+       RungeKuttaPropagator = result.getPrimaryAndMerge( TC.AtlasRKPropagatorCfg(flags) )
+       NoMatSTEP_Propagator = result.getPrimaryAndMerge( TC.AtlasNoMatSTEP_PropagatorCfg(flags) )
+       ITkPropagator = result.getPrimaryAndMerge( TC.ITkPropagatorCfg(flags) )
 
        egammaPropagators  = []
        egammaPropagators += [RungeKuttaPropagator]
        egammaPropagators += [NoMatSTEP_Propagator]
        egammaPropagators += [ITkPropagator]
 
-       MaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeMaterialEffectsUpdatorCfg(flags) )
-       NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeNoElossMaterialEffectsUpdatorCfg(flags) )
-       ITkMaterialEffectsUpdator = result.getPrimaryAndMerge( ITkMaterialEffectsUpdatorCfg(flags) )
+       MaterialEffectsUpdator = result.getPrimaryAndMerge( TC.AtlasMaterialEffectsUpdatorCfg(flags) )
+       NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge( TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags) )
+       ITkMaterialEffectsUpdator = result.getPrimaryAndMerge( TC.ITkMaterialEffectsUpdatorCfg(flags) )
 
        egammaUpdators    = []
        egammaUpdators    += [ MaterialEffectsUpdator ]
@@ -222,7 +145,7 @@ def MCTruthClassifierUpgradeExtrapolatorCfg( flags, name = 'MCTruthClassifierUpg
 
        MCTruthUpdators    = []
 
-       NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge( AtlasUpgradeNoElossMaterialEffectsUpdatorCfg(flags) )
+       NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge( TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags) )
        MCTruthUpdators    += [ NoElossMaterialEffectsUpdator ]
 
        MCTruthSubUpdators = []

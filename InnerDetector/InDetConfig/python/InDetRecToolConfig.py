@@ -6,9 +6,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-
 def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
   acc = ComponentAccumulator()
   '''
@@ -97,6 +94,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
 def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
   result = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
   if 'BoundaryCheckTool' not in kwargs:
@@ -111,47 +109,6 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
   result.addPublicTool(indet_hole_search_tool, primary=True)
   return result
-
-
-#FIXME: Andi says this and all subtools may become private without needing additional changes
-def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
-    result = ComponentAccumulator()
-    # FIXME copied from the old config, also needs fixing on the c++ side.
-    if 'Propagators' not in kwargs :
-        kwargs.setdefault( "Propagators", [result.getPrimaryAndMerge(InDetPropagatorCfg(flags))  ] ) # [ InDetPropagator, InDetStepPropagator ],
-    propagator= kwargs.get('Propagators')[0].name if kwargs.get('Propagators',None) is not None and len(kwargs.get('Propagators',None))>0 else None
-
-    if 'MaterialEffectsUpdators' not in kwargs :
-        kwargs.setdefault( "MaterialEffectsUpdators", [result.getPrimaryAndMerge(InDetMaterialEffectsUpdatorCfg(flags)) ] )
-    material_updator= kwargs.get('MaterialEffectsUpdators')[0].name if  kwargs.get('MaterialEffectsUpdators',None) is not None and len(kwargs.get('MaterialEffectsUpdators',None))>0  else None
-
-    if 'Navigator' not in kwargs :
-        kwargs.setdefault( "Navigator", result.getPrimaryAndMerge(InDetNavigatorCfg(flags)))
-
-    sub_propagators = []
-    sub_updators    = []
-
-    # -------------------- set it depending on the geometry ----------------------------------------------------
-    # default for ID is (Rk,Mat)
-    sub_propagators += [ propagator ]
-    sub_updators    += [ material_updator ]
-
-    # default for Calo is (Rk,MatLandau)
-    sub_propagators += [ propagator ]
-    sub_updators    += [ material_updator ]
-
-    # default for MS is (STEP,Mat)
-    #  sub_propagators += [ InDetStepPropagator.name() ]
-    sub_updators    += [ material_updator ]
-    # @TODO should check that all sub_propagators and sub_updators are actually defined.
-
-    kwargs.setdefault("SubPropagators"          , sub_propagators)
-    kwargs.setdefault("SubMEUpdators"           , sub_updators)
-
-    extrapolator = CompFactory.Trk.Extrapolator(name, **kwargs)
-    result.addPublicTool(extrapolator, primary=True)
-    return result
-
 
 def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   result = ComponentAccumulator()
@@ -472,6 +429,7 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
     kwargs.setdefault("PixelSummaryTool", result.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
 
   if 'Extrapolator' not in kwargs :
+    from TrkConfig.AtlasUpgradeExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
   kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
@@ -479,55 +437,6 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
-  result.addPublicTool( tool, primary=True )
-  return result
-
-def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
-  the_name = makeName( name, kwargs)
-  result = ComponentAccumulator()
-  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-  result.merge(MagneticFieldSvcCfg(flags))
-
-  tool = None
-  if flags.InDet.propagatorType == "STEP":
-    tool = CompFactory.Trk.STEP_Propagator( name = the_name, **kwargs)
-  else:
-    if flags.InDet.propagatorType == "RungeKutta":
-        kwargs.setdefault("AccuracyParameter", 0.0001)
-        kwargs.setdefault("MaxStraightLineStep", .004) # Fixes a failed fit
-    tool = CompFactory.Trk.RungeKuttaPropagator( name = the_name, **kwargs)
-
-  result.addPublicTool( tool, primary=True )
-  return result
-
-def InDetMaterialEffectsUpdatorCfg(flags, name = "InDetMaterialEffectsUpdator", **kwargs):
-  the_name = makeName( name, kwargs)
-  result = ComponentAccumulator()
-  if not flags.BField.solenoidOn:
-      import AthenaCommon.SystemOfUnits as Units
-      kwargs.setdefault(EnergyLoss          = False)
-      kwargs.setdefault(ForceMomentum       = True)
-      kwargs.setdefault(ForcedMomentumValue = 1000*Units.MeV)
-
-  tool = CompFactory.Trk.MaterialEffectsUpdator( name = the_name, **kwargs)
-  result.addPublicTool( tool, primary=True )
-  return result
-
-def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
-  the_name = makeName( name, kwargs)
-  result = ComponentAccumulator()
-  if 'TrackingGeometrySvc' not in kwargs :
-       if not use_tracking_geometry_cond_alg :
-              from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-              kwargs.setdefault("TrackingGeometrySvc", result.getPrimaryAndMerge(TrackingGeometrySvcCfg(flags)))
-  if 'TrackingGeometryKey' not in kwargs :
-       if use_tracking_geometry_cond_alg :
-              from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-              result.merge( TrackingGeometryCondAlgCfg(flags) )
-              # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-              kwargs.setdefault("TrackingGeometryKey", 'AtlasTrackingGeometry')
-
-  tool = CompFactory.Trk.Navigator( name = the_name, **kwargs)
   result.addPublicTool( tool, primary=True )
   return result
 
