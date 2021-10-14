@@ -7,9 +7,7 @@
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable, appendCAtoAthena
-#from AthenaCommon.Configurable import ConfigurableRun3Behavior
-#from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ROOT import egammaPID
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 IDTrigConfig = getInDetTrigConfig( 'electron' )
@@ -53,7 +51,6 @@ class TrigEgammaKeys_GSF(object):
       outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
       
 
-
 #
 # Electron DNN Selectors
 #
@@ -82,9 +79,6 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
       SelectorTool = CompFactory.AsgElectronSelectorTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
       SelectorTool.skipDeltaPoverP = True
-      #if not hasattr(ToolSvc, name):
-      #    ToolSvc += SelectorTool
-      #selectors.append(SelectorTool)
       acc.addPublicTool(SelectorTool)
 
     return acc
@@ -129,9 +123,6 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
       SelectorTool.usePVContainer = False 
       SelectorTool.skipDeltaPoverP = True
-      #if not hasattr(ToolSvc, name):
-      #    ToolSvc += SelectorTool
-      #selectors.append(SelectorTool)
       acc.addPublicTool(SelectorTool)
     return acc
 
@@ -191,9 +182,6 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
         SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.isEMMask = ElectronMaskBits[sel]
-        #if not hasattr(ToolSvc, name):
-        #  ToolSvc += SelectorTool
-        #selectors.append(SelectorTool)
         acc.addPublicTool(SelectorTool)
     
     return acc

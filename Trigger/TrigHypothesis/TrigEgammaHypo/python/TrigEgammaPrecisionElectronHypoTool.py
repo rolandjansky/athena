@@ -3,17 +3,18 @@
 #
 from __future__ import print_function 
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+#from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
-
-from AthenaConfiguration.ComponentFactory import CompFactory
 
 #
 # Create the hypo alg with all selectors
 #
 def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
-    #acc = ComponentAccumulator()
+    acc = ComponentAccumulator()
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     MonTool = GenericMonitoringTool("MonTool_"+name)
   
@@ -22,17 +23,21 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaPrecisionElectronLHSelectorCfg
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaPrecisionElectronDNNSelectorCfg
 
-    ElectronCBSelectorTools = TrigEgammaPrecisionElectronCBSelectorCfg()
-    ElectronLHSelectorTools = TrigEgammaPrecisionElectronLHSelectorCfg()
-    ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg()
+    acc_ElectronCBSelectorTools = TrigEgammaPrecisionElectronCBSelectorCfg()
+    acc_ElectronLHSelectorTools = TrigEgammaPrecisionElectronLHSelectorCfg()
+    acc_ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg()
+
+    acc.merge(acc_ElectronCBSelectorTools)
+    acc.merge(acc_ElectronLHSelectorTools)
+    acc.merge(acc_ElectronDNNSelectorTools)
   
     thePrecisionElectronHypo = CompFactory.TrigEgammaPrecisionElectronHypoAlg(name)
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.Do_idperf = do_idperf
     thePrecisionElectronHypo.RunInView = True
-    thePrecisionElectronHypo.ElectronCBSelectorTools = ElectronCBSelectorTools.getPublicTools()
-    thePrecisionElectronHypo.ElectronLHSelectorTools = ElectronLHSelectorTools.getPublicTools()
-    thePrecisionElectronHypo.ElectronDNNSelectorTools = ElectronDNNSelectorTools.getPublicTools()
+    thePrecisionElectronHypo.ElectronCBSelectorTools = acc_ElectronCBSelectorTools.getPublicTools()
+    thePrecisionElectronHypo.ElectronLHSelectorTools = acc_ElectronLHSelectorTools.getPublicTools()
+    thePrecisionElectronHypo.ElectronDNNSelectorTools = acc_ElectronDNNSelectorTools.getPublicTools()
     thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose"] # just like the pidnames
     thePrecisionElectronHypo.CBNames = ["medium", "loose", "mergedtight"] # just like the pidnames
     thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose", 
@@ -44,16 +49,19 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     ]
     MonTool.HistPath = 'PrecisionElectronHypo/'+name
     thePrecisionElectronHypo.MonTool=MonTool
-
-
-    return thePrecisionElectronHypo
+    acc.addEventAlgo(thePrecisionElectronHypo)
+    return thePrecisionElectronHypo, acc
 
 def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection, doIDperf ):
-  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-  acc = ComponentAccumulator()
-  acc.addEventAlgo( createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection, do_idperf=doIDperf ))
-  acc.addService( CompFactory.AthONNX.ONNXRuntimeSvc())
-  return acc
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection, do_idperf=doIDperf )
+    hypo_alg = hypo_tuple[0]
+    hypo_acc = hypo_tuple[1]
+    acc.addEventAlgo( hypo_alg )
+    acc.merge(hypo_acc)
+    acc.addService( CompFactory.AthONNX.ONNXRuntimeSvc())
+    return acc
 
 class TrigEgammaPrecisionElectronHypoToolConfig:
 
