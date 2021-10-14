@@ -37,8 +37,6 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        AtlasUpdators    += [ AtlasMaterialEffectsUpdator ]
        AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
 
-       AtlasUpdators    = []
-
        AtlasNavigator = result.getPrimaryAndMerge( TC.AtlasNavigatorCfg(flags) )
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
@@ -78,7 +76,7 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
 def egammaCaloExtrapolatorCfg( flags, name = 'egammaCaloExtrapolator' ):
        result=ComponentAccumulator()
 
-       egammaExtrapolator = result.getPrimaryAndMerge(AtlasExtrapolatorCfg(flags, name))
+       egammaExtrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags, name))
 
        # this turns off dynamic calculation of eloss in calorimeters
        egammaExtrapolator.DoCaloDynamic = False
@@ -122,17 +120,17 @@ def egammaCaloExtrapolatorCfg( flags, name = 'egammaCaloExtrapolator' ):
        # egamma STEP with no eloss for calo intersections
        egammaExtrapolator.STEP_Propagator = NoMatSTEP_Propagator
 
-       result.addPublicTool(egammaExtrapolator, primary=True)
+       result.setPrivateTools(egammaExtrapolator)
 
        return result
 
 
 
 # Based on PhysicsAnalysis/MCTruthClassifier/python/MCTruthClassifierBase.py
-def MCTruthClassifierUpgradeExtrapolatorCfg( flags, name = 'MCTruthClassifierExtrapolator' ):
+def MCTruthClassifierExtrapolatorCfg( flags, name = 'MCTruthClassifierExtrapolator' ):
        result=ComponentAccumulator()
 
-       MCTruthExtrapolator = result.getPrimaryAndMerge(AtlasExtrapolatorCfg(flags, name))
+       MCTruthExtrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags, name))
 
        # this turns off dynamic calculation of eloss in calorimeters
        MCTruthExtrapolator.DoCaloDynamic = False
@@ -155,7 +153,7 @@ def MCTruthClassifierUpgradeExtrapolatorCfg( flags, name = 'MCTruthClassifierExt
        MCTruthExtrapolator.MaterialEffectsUpdators = MCTruthUpdators
        MCTruthExtrapolator.SubMEUpdators = MCTruthSubUpdators
 
-       result.addPublicTool(MCTruthExtrapolator, primary=True)
+       result.setPrivateTools(MCTruthExtrapolator)
 
        return result
 
