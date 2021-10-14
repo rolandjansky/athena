@@ -443,11 +443,9 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
                }
                
              }
-             m_materialtInX0AccumulatedUpTo->push_back(m_materialThicknessInX0Accumulated->back());
-	     m_materialtInL0AccumulatedUpTo->push_back(m_materialThicknessInL0Accumulated->back());
-	     
-	   }
-                
+             m_materialtInX0AccumulatedUpTo->push_back(m_materialThicknessInX0Accumulated->empty() ? 0. : m_materialThicknessInX0Accumulated->back());
+             m_materialtInL0AccumulatedUpTo->push_back(m_materialThicknessInL0Accumulated->empty() ? 0. : m_materialThicknessInL0Accumulated->back());
+           }                
            // collect the material if configured to do so
            if (m_collectMaterial && es.material){
                // VERBOSE output
@@ -485,7 +483,7 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
                m_materialThicknessInX0Accumulated->push_back(m_materialThicknessInX0);
                m_materialThicknessInL0Accumulated->push_back(m_materialThicknessInL0);
                m_materialThicknessInX0Steps->push_back(tInX0);
-               m_materialThicknessInX0Steps->push_back(tInL0);
+               m_materialThicknessInL0Steps->push_back(tInL0);
                m_materialPositionX->push_back(es.materialPosition.x());
                m_materialPositionY->push_back(es.materialPosition.y());
                m_materialPositionZ->push_back(es.materialPosition.z());
@@ -510,9 +508,9 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
                } else if (es.surface && es.surface->type() == Trk::Surface::Plane ){
                    m_materialThicknessInX0Plane          += tInX0;
                }
-               // delete the parameters if there are any there
-               delete parameters;
            }
+           // delete the parameters if there are any there
+           delete parameters;
        }
    }
     

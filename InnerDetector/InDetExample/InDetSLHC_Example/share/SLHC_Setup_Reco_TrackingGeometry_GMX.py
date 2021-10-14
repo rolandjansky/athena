@@ -14,7 +14,7 @@ if DetDescrVersion.startswith('ATLAS-P2-ITK-17') or DetDescrVersion.startswith('
   TrkDetFlags.MaterialVersion       = 20
   TrkDetFlags.InDetBuildMaterialBoundaries = False
 else:
-  TrkDetFlags.MaterialVersion       = 21
+  TrkDetFlags.MaterialVersion       = 22
   
 TrkDetFlags.MaterialSubVersion      = ""
 # change for GMX: also need splitGeo[4] and splitGeo[5]
