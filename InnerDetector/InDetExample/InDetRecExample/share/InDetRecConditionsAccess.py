@@ -466,8 +466,7 @@ if DetFlags.haveRIO.TRT_on():
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
-                                      isGEANT4 = useOldStyle)
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
     # Active Fraction algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
     TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",

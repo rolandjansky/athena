@@ -208,9 +208,10 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
   holeSearchTool = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
   associationTool = acc.getPrimaryAndMerge( InDetPrdAssociationToolGangedPixelsCfg(flags) )
 
-  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg # this will be moved somewhere else so this import will need adjustment
+  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
   acc.merge( TRTStrawCondAlgCfg(flags) )
 
+  from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
   tool = CompFactory.InDet.InDetTrackSummaryHelperTool(name,
                                                        HoleSearch    = holeSearchTool,
                                                        AssoTool      = associationTool,
@@ -727,15 +728,14 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
 prefix="InDetTrigMT"
 
 def TRTDriftCircleCutCfg(flags):
-  acc = ComponentAccumulator()
+  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
+  acc = TRTActiveCondAlgCfg(flags)
   tool = CompFactory.InDet.InDetTrtDriftCircleCutTool('InDetTrigTRTDriftCircleCut',
           MinOffsetDCs     = 5,
           UseNewParameterization = True,
           UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
   )
   acc.addPublicTool(tool, primary=True)
-  from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-  acc.merge(TRTActiveCondAlgCfg( flags ))
   return acc
 
 def TRTDataProviderCfg(flags):

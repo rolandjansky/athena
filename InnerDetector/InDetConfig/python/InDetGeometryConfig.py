@@ -17,8 +17,8 @@ def InDetGeometryCfg (flags):
         acc.merge(SCT_ReadoutGeometryCfg( flags ))
     
     if flags.Detector.GeometryTRT:
-        from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-        acc.merge(TRT_GeometryCfg( flags ))
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc.merge(TRT_ReadoutGeometryCfg( flags ))
     
     if flags.Detector.GeometryPixel or flags.Detector.GeometrySCT or flags.Detector.GeometryTRT:
         from InDetServMatGeoModel.InDetServMatGeoModelConfig import InDetServiceMaterialCfg

@@ -16,13 +16,7 @@ from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_C
 from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg, TgcBytestreamDecodeCfg, MdtBytestreamDecodeCfg, CscBytestreamDecodeCfg
 from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, MdtRDODecodeCfg, CscRDODecodeCfg, CscClusterBuildCfg
 
-from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
@@ -370,14 +364,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
                                                          ViewNodeName    = viewName+"InView")
     recoMS = InViewRecoCA(name=viewName, viewMaker=viewMakerAlg)
     
-    #Probably this block will eventually need to move somewhere more central
-    recoMS.merge( BeamPipeGeometryCfg(flags) )
-    recoMS.merge(PixelReadoutGeometryCfg(flags))
-    recoMS.merge(SCT_ReadoutGeometryCfg(flags))
-    recoMS.merge(TRT_GeometryCfg(flags))
     recoMS.merge(TrackingGeometrySvcCfg(flags))
-    recoMS.merge(LArGMCfg(flags))
-    recoMS.merge(TileGMCfg(flags))
     ###################
 
     recoMS.mergeReco(EFMuonViewDataVerifierCfg(name))
