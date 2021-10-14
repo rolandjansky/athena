@@ -8,13 +8,6 @@
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
 
-# Turn off printing for LArRoI_Map
-from AthenaCommon.AppMgr import ToolSvc
-from LArRawUtils.LArRawUtilsConf import LArRoI_Map
-LArRoI_Map = LArRoI_Map("LArRoI_Map")
-ToolSvc += LArRoI_Map
-LArRoI_Map.Print=FALSE; 
-
 from LArROD.LArRODConf import LArRawChannelBuilder
 LArRawChannelBuilder = LArRawChannelBuilder( "LArRawChannelBuilder" )
 topSequence += LArRawChannelBuilder

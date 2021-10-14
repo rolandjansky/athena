@@ -93,7 +93,7 @@ def plotSnapshotLevel(snapshotData, plotname):
 
   # Collect data
   stepNames, dCPUVals, dWallVals, dVmemVals, dRssVals, dPssVals, dSwapVals = [],[],[],[],[],[],[]
-  for step in ['Finalize', 'Execute', 'Initialize', 'Configure']:
+  for step in ['Finalize', 'FirstEvent', 'Execute', 'Initialize', 'Configure']:
     meas = snapshotData[step]
 
     # Show in seconds

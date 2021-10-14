@@ -31,7 +31,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
   m_onlineHelper(0),
   m_calo_id(0),
   m_calo_dd_man(0),
-  //m_roiMap("LArRoI_Map"),
   m_DataLocation("FREE"),
   m_ChannelContainerName("LArRawChannels"),
   m_useTDC(false),

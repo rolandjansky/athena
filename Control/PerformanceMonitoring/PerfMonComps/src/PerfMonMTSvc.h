@@ -60,12 +60,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   /// Stop Auditing
   virtual void stopAud(const std::string& stepName, const std::string& compName) override;
 
-  /// Count the number of processed events
-  void incrementEventCounter();
-
-  // Do event level monitoring
-  virtual void eventLevelMon() override;
-
   /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
   void startSnapshotAud(const std::string& stepName, const std::string& compName);
   void stopSnapshotAud(const std::string& stepName, const std::string& compName);
@@ -166,14 +160,17 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   /// Snapshots data
   std::vector<PMonMT::MeasurementData> m_snapshotData;
-  std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "Execute", "Finalize"};
-  enum Snapshots {CONFIGURE, INITIALIZE, EXECUTE, FINALIZE, NSNAPSHOTS};
+  std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "FirstEvent", "Execute", "Finalize"};
+  enum Snapshots {CONFIGURE, INITIALIZE, FIRSTEVENT, EXECUTE, FINALIZE, NSNAPSHOTS};
 
   // Store event level measurements
   PMonMT::MeasurementData m_eventLevelData;
 
   // Lock for capturing event loop measurements
   std::mutex m_mutex_capture;
+
+  // Are we processing the first event?
+  std::atomic<bool> m_isFirstEvent;
 
   // Count the number of events processed
   std::atomic<uint64_t> m_eventCounter;
@@ -196,6 +193,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   // There should be a more clever way!
   std::vector<data_map_unique_t> m_compLevelDataMapVec; // all
   data_map_t m_compLevelDataMap_ini;  // initialize
+  data_map_t m_compLevelDataMap_1stevt;  // first event
   data_map_t m_compLevelDataMap_evt;  // execute
   data_map_t m_compLevelDataMap_fin;  // finalize
   data_map_t m_compLevelDataMap_plp;  // preLoadProxy

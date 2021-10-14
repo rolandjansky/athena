@@ -14,7 +14,6 @@ using CLHEP::nanosecond;
 
 TBLArRawChannelBuilder::TBLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_roiMap(0),
   m_emId(0),
   m_fcalId(0),
   m_hecId(0),
@@ -38,18 +37,6 @@ TBLArRawChannelBuilder::TBLArRawChannelBuilder (const std::string& name, ISvcLoc
 
 StatusCode TBLArRawChannelBuilder::initialize(){
   ATH_MSG_DEBUG ( "In Initialize." );
-
-  IToolSvc* toolSvc = 0;
-  ATH_CHECK( service("ToolSvc", toolSvc) );
-  
-  IAlgTool* algtool = 0;
-  ATH_CHECK( toolSvc->retrieveTool("LArRoI_Map",algtool) );
-  m_roiMap=dynamic_cast<LArRoI_Map*>(algtool);
-  if (!m_roiMap) {
-    ATH_MSG_ERROR ( "Unable to d-cast LArRoI_Map" );
-    return StatusCode::FAILURE;
-  }
-
 
   const CaloCell_ID* caloId = nullptr;
   ATH_CHECK( detStore()->retrieve (caloId, "CaloCell_ID") );
@@ -280,59 +267,12 @@ StatusCode TBLArRawChannelBuilder::execute() {
 
   //  larRawChannelContainer->print();
   
-  //Organize Collections  
-  //  sortChannels(larRawChannelContainer);
-
   ATH_MSG_DEBUG ( "sorted RawChannelContainer, now lock it " );
   // lock raw channel container
   ATH_CHECK( evtStore()->setConst(larRawChannelContainer) );
 
   return StatusCode::SUCCESS;
 }
-
-/*
-void TBLArRawChannelBuilder::sortChannels(LArRawChannelContainer* container)
-{ LArRawChannelContainer::const_iterator it = container->begin(); 
-  LArRawChannelContainer::const_iterator it_end = container->end(); 
-  // cout <<" Before "<<endl;
-  // container->print();
-
-  for(; it!=it_end; ++it){
-     LArRawChannelCollection* coll =
-	const_cast<LArRawChannelCollection*>
-	( (const LArRawChannelCollection*)*it );
-    if(coll->size()>0) { 
-     LArRawChannelCollection::iterator chanIt = coll->begin(); 
-     LArRawChannelCollection::iterator chanIt_end = coll->end(); 
-     sort(chanIt,chanIt_end,m_larRawOrdering); 
-
-     // cout <<" sorting:: Collection ID ="<<coll->identify().id()<<endl;
-     // Find all the RoI, and make map entries
-     chanIt = coll->begin(); 
-     chanIt_end = coll->end(); 
-
-     LArRoI_Map::TT_ID first_rId; 
-     bool first = true; 
-     LArRawChannelCollection::iterator firstIt = coll->end(); 
-     for( ; chanIt!=chanIt_end;++chanIt)
-	{LArRoI_Map::TT_ID rId = m_roiMap->TrigTowerID( (*chanIt)->identify() ) ; 
-	 if(rId!=first_rId){
-	   if(first) {
-	     first = false; 
-	   } else {
-//	     cout <<" Adding entry "<<rId.sample()<<" "<<rId.eta()<<" "<<rId.phi()<<endl;
-	     coll->setTT(first_rId,firstIt, chanIt); 
-	   } 
-           firstIt = chanIt; 
-	   first_rId = rId; 
-	 }
-	}
-     if(firstIt!=coll->end()) 
-       coll->setTT(first_rId,firstIt,coll->end());  
-    }
-  }
-}
-*/
 
 StatusCode TBLArRawChannelBuilder::finalize()
 {

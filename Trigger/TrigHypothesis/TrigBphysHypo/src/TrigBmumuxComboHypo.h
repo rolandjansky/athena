@@ -107,10 +107,11 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
       const EventContext& context,
       const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
       Decay decay = kPsi_2mu,
-      const xAOD::TrigBphys* dimuon = nullptr) const;
+      const xAOD::Vertex* dimuon = nullptr) const;
 
   xAOD::TrigBphys* makeTriggerObject(
-      const xAOD::Vertex&,
+      TrigBmumuxState& state,
+      const xAOD::Vertex& vertex,
       xAOD::TrigBphys::pType type = xAOD::TrigBphys::MULTIMU,
       const std::vector<double>& trkMass = {PDG::mMuon, PDG::mMuon},
       const ElementLink<xAOD::TrigBphysContainer>& dimuonLink = ElementLink<xAOD::TrigBphysContainer>()) const;
@@ -119,6 +120,7 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   bool isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::Muon* rhs) const;
   bool passDimuonTrigger(const std::vector<const TrigCompositeUtils::DecisionIDContainer*>& previousDecisionIDs) const;
   bool isInMassRange(double mass, const std::pair<double, double>& range) const { return (mass > range.first && mass < range.second); }
+  double Lxy(const Amg::Vector3D& productionVertex, const xAOD::Vertex& decayVertex) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackCollectionKey", "InDetTrackParticles", "input TrackParticle container name"};
@@ -126,6 +128,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
     "MuonCollectionKey", "Muons", "input EF Muon container name"};
   SG::WriteHandleKey<xAOD::TrigBphysContainer> m_trigBphysContainerKey {this,
     "TrigBphysCollectionKey", "TrigBphysContainer", "output TrigBphysContainer name"};
+  SG::ReadCondHandleKey<InDet::BeamSpotData>
+    m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
   // general properties
   Gaudi::Property<double> m_deltaR {this,
