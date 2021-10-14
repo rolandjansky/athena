@@ -24,15 +24,16 @@ namespace top {
      * @param isolation The isolation the user wants to apply.  Don't want any
      * isolation to be applied?  Then leave this as a nullptr.
      */
-    MuonMC15(const double ptcut,
-             IsolationBase* isolation,
-             const bool applyTTVACut = true,
-	     const double d0SigCut = 3.0,
-	     const double delta_z0 = 0.5);
+    explicit MuonMC15(const double ptcut,
+                      IsolationBase* isolation,
+                      const double d0SigCut,
+                      const double delta_z0,
+                      const bool applyTTVACut = true);
+
     // For backward compatibility
-    MuonMC15(const double ptcut,
-             IsolationBase* isolation,
-             const bool applyTTVACut = true);
+    explicit MuonMC15(const double ptcut,
+                      IsolationBase* isolation,
+                      const bool applyTTVACut = true);
 
     // Does nothing.
     virtual ~MuonMC15() {}

@@ -71,9 +71,9 @@ namespace top {
                                                                            new top::StandardIsolation(
                                                                              topConfig->electronIsolation(),
                                                                              topConfig->electronIsolationLoose()),
+                                                                           topConfig->electrond0Sigcut(), 
+                                                                           topConfig->electrondeltaz0cut(),
                                                                            topConfig->applyTTVACut(),
-									   topConfig->electrond0Sigcut(), 
-									   topConfig->electrondeltaz0cut(),
                                                                            topConfig->useElectronChargeIDSelection()
                                                                            ));
       } else {
@@ -97,9 +97,11 @@ namespace top {
                                                                                           new top::AntiMuonIsolation(
                                                                                             topConfig->muonIsolation())));
       else objectSelection->muonSelection(new top::MuonMC15(topConfig->muonPtcut(),
-							    new top::StandardIsolation(topConfig->muonIsolation(),
-										       topConfig->muonIsolationLoose()),
-							    topConfig->applyTTVACut(), topConfig->muond0Sigcut(), topConfig->muondeltaz0cut()));
+                                                            new top::StandardIsolation(topConfig->muonIsolation(),
+                                                              topConfig->muonIsolationLoose()),
+                                                            topConfig->muond0Sigcut(),
+                                                            topConfig->muondeltaz0cut(),
+                                                            topConfig->applyTTVACut()));
       
     }
 

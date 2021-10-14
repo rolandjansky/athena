@@ -31,23 +31,26 @@ namespace top {
      * @param isolation The isolation tool the user wants to use.  If you don't
      * want any isolation cuts to be applied then leave this as a nullptr.
      */
-    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const double d0SigCut = 5., const double delta_z0 = 0.5, 
-			   const bool applyChargeIDCut = false);
+    explicit ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const double d0SigCut, const double delta_z0,
+                                    const bool applyTTVACut = true, const bool applyChargeIDCut = false);
     // this constructor is kept for backward compatibility - isPrimaryxAOD is not needed anymore
-    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
-    ElectronLikelihoodMC15(const bool,
-                           const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true,  const double d0SigCut = 5., const double delta_z0 = 0.5,
-			   const bool applyChargeIDCut = false);
-    ElectronLikelihoodMC15(const bool,
-                           const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+    explicit ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+
+    explicit ElectronLikelihoodMC15(const bool,
+                                    const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const bool applyTTVACut = true,  const double d0SigCut = 5., const double delta_z0 = 0.5,
+                                    const bool applyChargeIDCut = false);
+
+    explicit ElectronLikelihoodMC15(const bool,
+                                    const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+
     virtual ~ElectronLikelihoodMC15() {}
     /**
      * @brief Selection for the main analysis (i.e. tight object definitions).
