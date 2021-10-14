@@ -126,8 +126,9 @@ class EvgenExecutor(athenaExecutor):
         elif len(configFiles) >1:
             msg.info("more then one gridpack ! ")
             if "--ecmEnergy" in str(sys.argv[1:]):
-               ener=str(sys.argv[1:]).split("ecmEnergy",1)[1]
-               energy=str(ener)[:4].strip(" =0\']")
+               split_args=str(sys.argv[1:]).split("ecmEnergy=",1)[1]
+               ener_GeV=split_args.split(",")[0].strip("\'")
+               energy=str(float(ener_GeV)/1000.0).replace('.','p').strip(" =0\p']")
                msg.info("Should be used gridpack for energy "+energy)
             else:
                energy="13"
