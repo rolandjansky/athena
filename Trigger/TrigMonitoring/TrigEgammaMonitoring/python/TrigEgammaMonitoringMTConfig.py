@@ -308,6 +308,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.TriggerList=tpList
       self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
       self.zeeMonAlg.DoEmulation = False
+      self.zeeMonAlg.ApplyJetNearProbeSelection = False
 
 
       # Separated TaP tool configuration
@@ -336,6 +337,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg_dnn.TriggerList=tpList 
       self.zeeMonAlg_dnn.DetailedHistograms=self.detailedHistograms
       self.zeeMonAlg_dnn.DoEmulation = False
+      self.zeeMonAlg_dnn.ApplyJetNearProbeSelection = False
 
       if self.emulator: # turn on emulator
         self.emulator.TriggerList += self.tpList
@@ -373,7 +375,7 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.TriggerList=self.jpsiList
       self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
       self.jpsieeMonAlg.DoEmulation = False
-
+      self.jpsieeMonAlg.ApplyJetNearProbeSelection = False
 
     if self.activate_electron:
 

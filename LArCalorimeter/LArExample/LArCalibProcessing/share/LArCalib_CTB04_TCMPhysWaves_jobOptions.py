@@ -71,7 +71,6 @@ DetFlags.all_setOff()
 DetFlags.em_setOn() 
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print = False
                                        
 #
 # Condition Database (read cumulated Physics waves and Calibration Waves)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -75,16 +75,16 @@ class TrigHisto2DTest : public CppUnit::TestFixture
     
     
     std::cout<<"Profile X"<< std::endl;
-    
-    for (std::vector<float>::iterator iter = profX.begin(); iter!= profX.end(); iter++)
-      std::cout<<(*iter)<<"\t";
+
+    for (float f : profX)
+      std::cout<<(f)<<"\t";
     std::cout<<std::endl;
     
     
     std::cout<<"Profile Y"<< std::endl;
-    
-    for (std::vector<float>::iterator iter = profY.begin(); iter!= profY.end(); iter++)
-      std::cout<<(*iter)<<"\t";
+
+    for (float f : profY)
+      std::cout<<(f)<<"\t";
     std::cout<<std::endl;
     
     std::cout<<">sumEntries( 2.4, 2.4, TrigHistoCutTypes::BELOW_X_BELOW_Y) = "<<hist1->sumEntries( 2.4, 2.4, TrigHistoCutType::BELOW_X_BELOW_Y)<<std::endl;

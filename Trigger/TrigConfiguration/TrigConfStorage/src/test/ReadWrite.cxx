@@ -92,7 +92,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
    o << "\n";
    o << "\n";
    o << "Output formats can be json or cool. In case a second input is specified for comparison, the output will be on screen or an xml file with the differences\n";
-   o << "  -o r3json [<test>]                              ... will produce Run 3 config files L1PrescalesSet[_<test>].json, BunchGroups[_<test>].json, L1Menu[_<test>].json, HLTPrescalesSet[_<test>].json, and HLTMenu[_<test>].json\n";
+   o << "  -o r3json [<test>]                              ... will produce Run 3 config files L1PrescalesSet[_<test>].json, BunchGroupSet[_<test>].json, L1Menu[_<test>].json, HLTPrescalesSet[_<test>].json, and HLTMenu[_<test>].json\n";
    o << "  -o cool                                         ... will produce trig_cool.db with cool db instance CONDBR2 and infinite IOV\n";
    o << "  -o cool 200000                                  ... will produce trig_cool.db with cool db instance CONDBR2 and run number 200000\n";
    o << "  -o cool test [200000]                           ... will produce trig_cool_test.db with cool db instance CONDBR2 [and run number 200000]\n";
@@ -119,7 +119,7 @@ public:
    string       outBase {""};
 
    string       l1JsonOutFile {"L1Menu.json"};
-   string       bgkJsonOutFile {"BunchGroups.json"};
+   string       bgkJsonOutFile {"BunchGroupSet.json"};
    string       l1PSJsonOutFile { "L1PrescalesSet.json" };
    string       hltJsonOutFile { "HLTMenu.json" };
    string       hltPSJsonOutFile { "HLTPrescalesSet.json" };
@@ -292,11 +292,11 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          }
          coolOutputConnection = "sqlite://;schema="+outfile+";dbname="+dbname;
       } else {
-         l1JsonOutFile = "L1Menu_" + outBase + ".json";
-         bgkJsonOutFile = "BunchGroups_" + outBase + ".json";
-         l1PSJsonOutFile = "L1PrescaleSet_" + outBase + ".json";
-         hltJsonOutFile = "HLTMenu_" + outBase + ".json";
-         hltPSJsonOutFile = "HLTPrescalesSet_" + outBase + ".json";
+         boost::replace_last(l1JsonOutFile, ".json", "_"+outBase+".json");
+         boost::replace_last(bgkJsonOutFile, ".json", "_"+outBase+".json");
+         boost::replace_last(l1PSJsonOutFile, ".json", "_"+outBase+".json");
+         boost::replace_last(hltJsonOutFile, ".json", "_"+outBase+".json");
+         boost::replace_last(hltPSJsonOutFile, ".json", "_"+outBase+".json");
       }
    }
 
