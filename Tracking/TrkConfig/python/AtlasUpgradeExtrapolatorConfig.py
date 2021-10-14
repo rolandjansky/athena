@@ -5,8 +5,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-# @TODO reture once migration to tracking geometry cond alg is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
 # import the Extrapolator configurable

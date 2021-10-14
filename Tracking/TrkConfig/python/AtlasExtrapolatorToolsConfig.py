@@ -46,7 +46,7 @@ def AtlasSTEP_PropagatorCfg(flags, name = 'AtlasSTEP_Propagator', **kwargs):
 
 def AtlasNoMatSTEP_PropagatorCfg(flags, name = 'AtlasNoMatSTEP_Propagator', **kwargs):
        kwargs.setdefault("MaterialEffects", False)
-       return AtlasUpgradeSTEP_PropagatorCfg(flags, name, **kwargs)
+       return AtlasSTEP_PropagatorCfg(flags, name, **kwargs)
 
 def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
        result = ComponentAccumulator()
