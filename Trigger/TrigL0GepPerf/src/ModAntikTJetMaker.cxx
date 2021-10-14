@@ -11,7 +11,9 @@ std::vector<Gep::CustomJet> Gep::ModAntikTJetMaker::makeJet(const std::vector<Ge
   std::vector<Gep::CustomJet> v_jets;
 
   const unsigned int n_constituents = constituents.size();
-  std::vector<int> n_constitutents_in_jet(n_constituents, 1);
+  std::vector< std::vector<int> > v_constitutents_in_jet_indices(n_constituents, std::vector<int>() );
+  // initialize vector of constituents with it's own index
+  for(unsigned int i = 0; i < n_constituents; i++){ v_constitutents_in_jet_indices.at(i).push_back(i); }
 
   int niter = 0;
 
@@ -62,25 +64,27 @@ std::vector<Gep::CustomJet> Gep::ModAntikTJetMaker::makeJet(const std::vector<Ge
 							 constituents.at(minInvPt2DeltaR2_index).vec.Phi(), 
 							 momentum_vector.Mag() );  
 
-      // add one to minInvPt2DeltaR2_index to keep track on number of 
-      // constituents already recombined into a single object
-      n_constitutents_in_jet.at(minInvPt2DeltaR2_index)++;
+      // add indices in j to lilst of constituents of subjet i
+      v_constitutents_in_jet_indices.at(minInvPt2DeltaR2_index).insert( v_constitutents_in_jet_indices.at(minInvPt2DeltaR2_index).end(),
+									v_constitutents_in_jet_indices.at(minDeltaR2_indices[minInvPt2DeltaR2_index]).begin(),
+									v_constitutents_in_jet_indices.at(minDeltaR2_indices[minInvPt2DeltaR2_index]).end() );
 
       constituents.erase(constituents.begin() + minDeltaR2_indices[minInvPt2DeltaR2_index]);
-      n_constitutents_in_jet.erase(n_constitutents_in_jet.begin() + minDeltaR2_indices[minInvPt2DeltaR2_index]);
-
+      v_constitutents_in_jet_indices.erase(v_constitutents_in_jet_indices.begin() + minDeltaR2_indices[minInvPt2DeltaR2_index]);
     } else {
 
       //create custom jet based on constituents.at(minInvPt2DeltaR2_index)
       Gep::CustomJet jet;
       jet.vec.SetXYZT(constituents.at(minInvPt2DeltaR2_index).vec.Px(), constituents.at(minInvPt2DeltaR2_index).vec.Py(),
 		    constituents.at(minInvPt2DeltaR2_index).vec.Pz(), constituents.at(minInvPt2DeltaR2_index).vec.E());
-      jet.nConstituents = n_constitutents_in_jet.at(minInvPt2DeltaR2_index);
+      jet.constituentsIndices.insert( jet.constituentsIndices.end(), 
+				       v_constitutents_in_jet_indices.at( minInvPt2DeltaR2_index).begin(), 
+				       v_constitutents_in_jet_indices.at( minInvPt2DeltaR2_index).end());
 
       v_jets.push_back(jet);
 
       constituents.erase(constituents.begin() + minInvPt2DeltaR2_index);
-      n_constitutents_in_jet.erase(n_constitutents_in_jet.begin() + minDeltaR2_indices[minInvPt2DeltaR2_index]);
+      v_constitutents_in_jet_indices.erase(v_constitutents_in_jet_indices.begin() + minDeltaR2_indices[minInvPt2DeltaR2_index]);
 
     }
 
