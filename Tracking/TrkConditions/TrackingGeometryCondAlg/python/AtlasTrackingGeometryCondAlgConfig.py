@@ -6,8 +6,6 @@ Trk__TrackingGeometryCondAlg=CompFactory.Trk.TrackingGeometryCondAlg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg 
 
-from AthenaCommon.Constants import VERBOSE,INFO
-
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 
 # This file is a placeholder - the entire way we build geometry needs to be rewritten so this is to unblock new configuration developments for the moment.
@@ -408,8 +406,7 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
                                               ReplaceAllJointBoundaries = True,
                                               BuildBoundaryLayers=True,
                                               ExitVolumeName='InDet::Containers::InnerDetector',
-                                              RemoveHGTD=flags.Detector.GeometryHGTD,
-                                              OutputLevel = VERBOSE)
+                                              RemoveHGTD=flags.Detector.GeometryHGTD)
 
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
 def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix='',nameSuffix=''):
@@ -498,8 +495,7 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result, envelopeDefinitionSvc,
   return HGTDet__HGTD_TrackingGeometryBuilder(namePrefix+name+nameSuffix,
                                               LayerBuilder = HGTD_LayerBuilder,
                                               EnvelopeDefinitionSvc=envelopeDefinitionSvc,
-                                              TrackingVolumeCreator = HGTD_CylinderVolumeCreator,
-                                              OutputLevel = VERBOSE)
+                                              TrackingVolumeCreator = HGTD_CylinderVolumeCreator)
 
 # Originally this function would use was TrkDetFlags.MaterialSource() and TrkDetFlags.MaterialValidation(). For new configuration, (temporarily?) pass as parameters.
 # https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py#L112
