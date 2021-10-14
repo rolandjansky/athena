@@ -49,10 +49,6 @@ def PerfMonMTSvcCfg(flags, **kwargs):
     acc.setAppProperty("AuditTools", True)
     acc.setAppProperty("AuditServices", True)
 
-    # Add the algorithm that is necessary for the service
-    PerfMonMTAlg = CompFactory.PerfMonMTAlg
-    acc.addEventAlgo(PerfMonMTAlg(), sequenceName='AthBeginSeq')
-    
     # Return the CA
     return acc
 
@@ -78,11 +74,11 @@ if __name__ == '__main__':
 
     # Burn 100 +/- 1 ms per event
     CpuCruncherAlg = CompFactory.getComp('PerfMonTest::CpuCruncherAlg')
-    cfg.addEventAlgo(CpuCruncherAlg('CpuCruncherAlg', MeanCpu = 100, RmsCpu = 1))
+    cfg.addEventAlgo(CpuCruncherAlg('CpuCruncherAlg', MeanCpu = 100, RmsCpu = 1), sequenceName = 'AthAlgSeq')
 
     # Leak 10k ints per event, i.e. 40 KB
     LeakyAlg = CompFactory.getComp('PerfMonTest::LeakyAlg')
-    cfg.addEventAlgo(LeakyAlg("LeakyAlg", LeakSize = 10000))
+    cfg.addEventAlgo(LeakyAlg("LeakyAlg", LeakSize = 10000), sequenceName = 'AthAlgSeq')
 
     # Print the configuration and dump the flags
     cfg.printConfig(withDetails = True, summariseProps = True)
