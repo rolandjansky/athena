@@ -408,7 +408,7 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
                                               ReplaceAllJointBoundaries = True,
                                               BuildBoundaryLayers=True,
                                               ExitVolumeName='InDet::Containers::InnerDetector',
-                                              RemoveHGTD=True,
+                                              RemoveHGTD=flags.Detector.GeometryHGTD,
                                               OutputLevel = VERBOSE)
 
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py

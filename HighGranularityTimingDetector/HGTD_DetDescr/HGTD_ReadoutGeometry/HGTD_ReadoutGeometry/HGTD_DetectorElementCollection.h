@@ -26,11 +26,8 @@ namespace InDetDD {
 
     */
 
-    class HGTD_DetectorElementCollection : public std::vector<HGTD_DetectorElement *> {
-      public:
-        ~HGTD_DetectorElementCollection();
-        const HGTD_DetectorElement* getDetectorElement(const IdentifierHash& hash) const;
-    };
+    class HGTD_DetectorElementCollection : public std::vector<HGTD_DetectorElement *> 
+    {};
 
 } // namespace InDetDD
 
