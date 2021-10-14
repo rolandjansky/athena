@@ -1,4 +1,0 @@
-#!/bin/bash
-totalview  python -a  `which athenash.py` $@
-
-
