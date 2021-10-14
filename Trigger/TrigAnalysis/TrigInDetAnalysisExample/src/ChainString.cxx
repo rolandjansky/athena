@@ -64,7 +64,7 @@ void ChainString::parse( std::string _s ) {
     
     if ( fields.size() ) mhead = fields[0]; 
 
-    std::string tags[5] = { "collection=", "index=", "roi=", "vtx=", "te=" };
+    std::string tags[5] = { "collection=", "extra=", "roi=", "vtx=", "te=" };
     std::string  alt[5] = {        "key=",   "ind=",     "",     "",    "" };
     bool      tagged[5] = {         false,    false,  false,  false, false };    
  
@@ -126,7 +126,7 @@ void ChainString::parse( std::string _s ) {
     }
     
     /// always enforce tags for the roi, vtx and te, optional for the 
-    /// chain, collection and index
+    /// chain, collection and extra (index)
     /// grrrr, 
     if ( !usetags ) { 
       //      std::cout << "fields.size() " << fields.size() << std::endl;
