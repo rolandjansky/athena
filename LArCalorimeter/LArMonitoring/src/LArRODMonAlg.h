@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONITORING_LArRODMONALG_H
@@ -36,9 +36,6 @@ class LArFebHeaderContainer;
 
 class LArEM_ID;
 class LArDigit;
-
-class CaloDetDescrManager;
-
 
 class LArRODMonAlg: public AthMonitorAlgorithm
 {
