@@ -243,29 +243,17 @@ if __name__ == "__main__":
     top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(ConfigFlags))
     ###
     ###
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className='CondAttrListVec'))
-    # HT probability algorithm
-    TRTHTCondAlg = CompFactory.TRTHTCondAlg(name = "TRTHTCondAlg", HTWriteKey = "HTcalculator")
-    top_acc.addCondAlgo(TRTHTCondAlg)
-    ###
-    ###
     top_acc.merge(addFoldersSplitOnline(ConfigFlags, "PIXEL", "/PIXEL/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
 
     PixeldEdxAlg = CompFactory.PixeldEdxAlg(name="PixeldEdxAlg", ReadFromCOOL = True)
     top_acc.addCondAlgo(PixeldEdxAlg)
     ###
 
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg, TRTToTCondAlg, TRTHTCondAlgCfg
     top_acc.merge(TRTStrawCondAlgCfg(ConfigFlags))
+    top_acc.merge(TRTToTCondAlg(ConfigFlags))
+    top_acc.merge(TRTHTCondAlgCfg(ConfigFlags))
 
-    ###
-    ###
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className='CondAttrListVec'))
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue", className='CondAttrListCollection'))
-
-    TRTToTCondAlg = CompFactory.TRTToTCondAlg(  name        = "TRTToTCondAlg",
-                                                ToTWriteKey = "Dedxcorrection")
-    top_acc.addCondAlgo(TRTToTCondAlg)
     ###
     ###
     from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
