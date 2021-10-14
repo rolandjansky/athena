@@ -14,7 +14,6 @@
 
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('Modifiers.py')
@@ -535,11 +534,11 @@ class enableFPE(_modifier):
 
 class doValidation(_modifier):
     """
-    Force validation mode (i.e. no message timestamps)
+    Enable validation mode (e.g. extra histograms)
     """
-
     def preSetup(self):
-        TriggerFlags.doValidationMonitoring = True
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.doValidationMonitoring = True
 
 class autoConditionsTag(_modifier):
     """
