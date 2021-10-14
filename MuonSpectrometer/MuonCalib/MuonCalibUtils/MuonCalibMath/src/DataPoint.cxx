@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibMath/DataPoint.h"
@@ -29,14 +29,13 @@ DataPoint::DataPoint(void): m_ref_comp(0){
 //:: CONSTRUCTOR ::
 //:::::::::::::::::
 
-DataPoint::DataPoint(const unsigned int & length, const double & fill) {
-
-    m_vec = Amg::VectorX(length);
+DataPoint::DataPoint(const unsigned int & length, const double & fill)
+  : m_vec (length),
+    m_ref_comp (0)
+{
     for (unsigned int k=0; k<length; k++) {
         m_vec[k] = fill;
     }
-    m_ref_comp = 0;
-
 }
 
 //*****************************************************************************
@@ -45,11 +44,10 @@ DataPoint::DataPoint(const unsigned int & length, const double & fill) {
 //:: CONSTRUCTOR ::
 //:::::::::::::::::
 
-DataPoint::DataPoint(const Amg::VectorX & vec, const unsigned int ref_comp) {
-
-    m_vec = vec;
-    m_ref_comp = ref_comp;
-
+DataPoint::DataPoint(const Amg::VectorX & vec, const unsigned int ref_comp)
+  : m_vec(vec),
+    m_ref_comp(ref_comp)
+{
 }
 
 //*****************************************************************************
@@ -58,15 +56,14 @@ DataPoint::DataPoint(const Amg::VectorX & vec, const unsigned int ref_comp) {
 //:: CONSTRUCTOR ::
 //:::::::::::::::::
 
-DataPoint::DataPoint(const CLHEP::HepVector & vec, const unsigned int ref_comp) {
-
-    m_vec = Amg::VectorX(vec.num_row());
+DataPoint::DataPoint(const CLHEP::HepVector & vec, const unsigned int ref_comp)
+  : m_vec(vec.num_row()),
+    m_ref_comp (ref_comp)
+{
     for(int i=0; i<vec.num_row(); i++)
     	{
         m_vec[i]=vec[i];
         }
-        
-    m_ref_comp = ref_comp;
 }
 
 //*****************************************************************************
