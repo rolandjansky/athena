@@ -162,7 +162,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doTransientByteStream', False)
 
     # list of EDM objects to be written to AOD
-    flags.addFlag('Trigger.AODEDMSet', 'AODSLIM')
+    flags.addFlag('Trigger.AODEDMSet', lambda flags: 'AODSLIM' if flags.Input.isMC else 'AODFULL')
 
     # list of objects to be written to ESD
     flags.addFlag('Trigger.ESDEDMSet', 'ESD')
