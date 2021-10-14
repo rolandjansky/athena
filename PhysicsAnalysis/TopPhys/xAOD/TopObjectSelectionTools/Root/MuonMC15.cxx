@@ -10,7 +10,7 @@
 using namespace TopObjectSelectionTools;
 
 namespace top {
-  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut, const double d0SigCut, const double delta_z0) :
+  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const double d0SigCut, const double delta_z0, const bool applyTTVACut) :
     m_ptcut(ptcut),
     m_d0SigCut(d0SigCut),
     m_delta_z0(delta_z0),
@@ -24,7 +24,7 @@ namespace top {
   }
 
   MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut) :
-    MuonMC15::MuonMC15(ptcut, isolation, applyTTVACut, 3.0, 0.5) {}
+    MuonMC15::MuonMC15(ptcut, isolation, 3.0, 0.5, applyTTVACut) {}
 
   bool MuonMC15::passSelection(const xAOD::Muon& mu) const {
     if (mu.pt() < m_ptcut) return false;
