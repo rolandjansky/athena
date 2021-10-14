@@ -13,12 +13,6 @@
 #include <ReadoutGeometryBase/SiCommonItems.h>
 
 
-namespace
-{
-constexpr int PixelHitIndex{0};
-}
-
-
 namespace ITk
 {
 
