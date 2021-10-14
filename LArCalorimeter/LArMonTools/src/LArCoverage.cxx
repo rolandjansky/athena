@@ -99,6 +99,7 @@ LArCoverage::initialize()
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
    
   // LArOnlineIDStrHelper
@@ -548,8 +549,9 @@ LArCoverage::fillHistograms()
 
   if(m_eventsCounter > m_nevents ) return StatusCode::SUCCESS;
 
-  const CaloDetDescrManager* ddman = nullptr;
-  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
 
   // Retrieve Raw Channels Container
   
