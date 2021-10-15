@@ -45,9 +45,9 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     # --- TRT_DriftFunctionTool
     #
     # Calibration DB Service
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    acc.addPublicTool(InDetTRTCalDbTool)
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
+    CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(CalDbTool)
 
     # --- overwrite for uncalibrated DC production
     if (not useTimeInfo) or flags.InDet.noTRTTiming:
@@ -65,7 +65,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
         kwargs.setdefault("AllowDigiVersionOverride", True)
         kwargs.setdefault("ForcedDigiVersion", 9)
 
-    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
+    kwargs.setdefault("TRTCalDbTool", CalDbTool)
     # --- set HT corrections
     kwargs.setdefault("HTCorrectionBarrelXe", 1.5205)
     kwargs.setdefault("HTCorrectionEndcapXe", 1.2712)
@@ -80,14 +80,14 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
                             -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958])
     kwargs.setdefault("ToTCorrectionsEndcapAr"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
-                    
-    # Second calibration DB Service in case pile-up and physics hits have different calibrations
-    if flags.Detector.EnableTRT:
-        from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-        InDetTRTCalDbTool2 = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-        acc.addPublicTool(InDetTRTCalDbTool2)
 
-        kwargs.setdefault("TRTCalDbTool2", InDetTRTCalDbTool2)
+    # Second calibration DB Service in case pile-up and physics hits have different calibrations for data overlay
+    if flags.Overlay.DataOverlay:
+        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_MCCalDbToolCfg
+        MCCalDbTool = acc.popToolsAndMerge(TRT_MCCalDbToolCfg(flags))
+        acc.addPublicTool(MCCalDbTool)
+
+        kwargs.setdefault("TRTCalDbTool2", MCCalDbTool)
         kwargs.setdefault("IsOverlay", True)
         kwargs.setdefault("IsMC", False)
     acc.setPrivateTools(CompFactory.TRT_DriftFunctionTool(name, **kwargs))
@@ -138,7 +138,7 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = prefix + "DriftFunctionTool", **kwargs))
     acc.addPublicTool(InDetTRT_DriftFunctionTool)
 
-    from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
     InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
     acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
 
@@ -177,15 +177,15 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
 def TRT_LocalOccupancyCfg(flags, name = "InDet_TRT_LocalOccupancy", **kwargs):
     acc = ComponentAccumulator()
     # Calibration DB Service
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    acc.addPublicTool(InDetTRTCalDbTool)
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
+    CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(CalDbTool)
     # Straw status DB Tool
-    from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
     InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
     acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
     kwargs.setdefault("isTrigger", False)
-    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
+    kwargs.setdefault("TRTCalDbTool", CalDbTool)
     kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
     
     InDetTRT_LocalOccupancy = CompFactory.TRT_LocalOccupancy(name, **kwargs)
@@ -195,17 +195,17 @@ def TRT_LocalOccupancyCfg(flags, name = "InDet_TRT_LocalOccupancy", **kwargs):
 def TRTOccupancyIncludeCfg(flags, name = "InDetTRT_TRTOccupancyInclude", **kwargs):
     acc = ComponentAccumulator()
     # Calibration DB Service
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-    InDetTRTCalDbTool = acc.popToolsAndMerge( TRT_CalDbToolCfg(flags) )
-    acc.addPublicTool(InDetTRTCalDbTool)
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
+    CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(CalDbTool)
     # Straw status DB Tool
-    from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
     InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
     acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
     InDetTRT_LocalOccupancy = acc.popToolsAndMerge(TRT_LocalOccupancyCfg(flags))
     acc.addPublicTool(InDetTRT_LocalOccupancy)
     kwargs.setdefault("isTrigger", False)
-    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
+    kwargs.setdefault("TRTCalDbTool", CalDbTool)
     kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
     kwargs.setdefault("TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
 
@@ -344,8 +344,8 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
 
     from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg

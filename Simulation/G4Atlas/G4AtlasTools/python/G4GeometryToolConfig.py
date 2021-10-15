@@ -116,8 +116,8 @@ def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result = TRT_GeometryCfg(ConfigFlags)
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_SimulationGeometryCfg
+    result = TRT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
