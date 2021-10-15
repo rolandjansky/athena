@@ -33,6 +33,7 @@
 
 #include <cstdlib>
 #include <csignal>
+#include <sstream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/preprocessor/repetition.hpp>
@@ -435,11 +436,12 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             try {
                 m_re->check_tree();
                 ATH_MSG_INFO("nextEvent: Got valid fragment of size:" << event.size());
-                m_robProvider->setNextEvent(m_re.get());
-                m_robProvider->setEventStatus(0);
             } catch (ers::Issue& ex) {
+	      
                 // log in any case
-                ATH_MSG_ERROR("nextEvent: Invalid event fragment");
+		std::stringstream ss;
+		ss << ex;
+                ATH_MSG_ERROR("nextEvent: Invalid event fragment: " << ss.str());
                
                 if(!m_corrupted_events) {
 
@@ -448,6 +450,8 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
                     continue;
                 } // else fall through
             }
+	    m_robProvider->setNextEvent(m_re.get());
+	    m_robProvider->setEventStatus(0);	    
 
         } else {
             // We got something we didn't expect.
