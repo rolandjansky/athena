@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorManager_H
@@ -166,7 +166,7 @@ namespace MuonGM {
     inline std::string geometryVersion() const; //!< it can be Rome-Initial or P03, or ... it's the name of the layout
     inline void setGeometryVersion(std::string version);
     inline std::string get_DBMuonVersion() const;//!< the name of the MuonSpectrometer tag (in the geometry DB) actually accessed
-    inline void set_DBMuonVersion(std::string );
+    inline void set_DBMuonVersion(const std::string& );
 
     // Access to identifier helpers
     inline const MdtIdHelper* mdtIdHelper() const;
@@ -522,7 +522,7 @@ namespace MuonGM {
   std::string MuonDetectorManager::get_DBMuonVersion() const
     {return m_DBMuonVersion;}
 
-  void MuonDetectorManager::set_DBMuonVersion(std::string version)
+  void MuonDetectorManager::set_DBMuonVersion(const std::string& version)
   {m_DBMuonVersion = version;}
 
   unsigned int MuonDetectorManager::nMuonStation() const {return m_MuonStationMap.size();}

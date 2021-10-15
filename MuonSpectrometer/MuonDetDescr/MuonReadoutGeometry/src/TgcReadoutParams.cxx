@@ -16,7 +16,7 @@
 
 namespace MuonGM {
 
-TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const float NCHRNG,
+TgcReadoutParams::TgcReadoutParams(const std::string& name, int iCh, int Version, float WireSp, const float NCHRNG,
                                      const float* NWGS, const float* IWGS1, const float* IWGS2,
                                      const float* IWGS3, const float* ROFFST, const float* NSPS,
 				   const float* POFFST)
@@ -53,7 +53,7 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
 }
 
 
-TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const int NCHRNG,
+TgcReadoutParams::TgcReadoutParams(const std::string& name, int iCh, int Version, float WireSp, const int NCHRNG,
                                    const float* NWGS, const float* IWGS1, const float* IWGS2, const float* IWGS3,
                                    float PDIST, const float* SLARGE, const float* SSHORT, 
                                    const float* ROFFST, const float* NSPS, const float* POFFST)
