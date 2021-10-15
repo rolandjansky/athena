@@ -64,7 +64,7 @@ struct AFP_CONSTANTS {
 	const double SiT_Pixel_x=0.5*(SiT_Chip_length_x-SiT_Pixel_length_totx);
 	const double SiT_Pixel_y=0.0*CLHEP::mm;
 
-	const double SiT_DeathEdge=1.9*CLHEP::mm;
+	const double SiT_DeathEdge=0.0*CLHEP::mm;
 	const double SiT_LowerEdge=0.1*CLHEP::mm;
 
 	const double ToF_MinBarGap=0.02*CLHEP::mm;
