@@ -18,6 +18,7 @@ namespace MuonGM {
     class Cutout;
     class Component;
     class MdtComponent;
+    class MYSQL;
 
     class Mdt : public DetectorElement {
 
@@ -30,12 +31,15 @@ namespace MuonGM {
         double tubelenStepSize;
         double tubePitch;
 
-        Mdt(Component *s1, const std::string& s2);
+        Mdt(const MYSQL& mysql, Component *s1, const std::string& s2);
         ~Mdt();
         MultiLayer *layer;
-        GeoFullPhysVol *build();
-        GeoFullPhysVol *build(std::vector<Cutout *>);
-        void print();
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         MdtComponent *m_component;
