@@ -2,23 +2,21 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 // SiChargedDiode.h // Header file for class SiChargedDiode
-/////////////////////////////////////////////////////////////////// 
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////// 
-// Class which contains the sum and the composition of all bare 
-//charges (SiTotalCharge) deposited in one SiDiode 
-/////////////////////////////////////////////////////////////////// 
-// Version 2.1 09/06/2001 David Calvet 
+///////////////////////////////////////////////////////////////////
+// Class which contains the sum and the composition of all bare
+//charges (SiTotalCharge) deposited in one SiDiode
+///////////////////////////////////////////////////////////////////
+// Version 2.1 09/06/2001 David Calvet
 // Revisited 04-03-03 Davide Costanzo
-//  added a int flag as a private data member to store the noise, 
-//  disconnected, bad_tot information. The relative bunch number is 
-//  also stored in this word. 
+//  added a int flag as a private data member to store the noise,
+//  disconnected, bad_tot information. The relative bunch number is
+//  also stored in this word.
 //  the word will is meant to be copied as it is in the SDO
 ///////////////////////////////////////////////////////////////////
 
-#ifndef SIDIGITIZATION_SICHARGEDDIODE_H 
+#ifndef SIDIGITIZATION_SICHARGEDDIODE_H
 #define SIDIGITIZATION_SICHARGEDDIODE_H
 
 // Data member classes
@@ -48,20 +46,20 @@ public:
   // Diode which contains this charge:
   const InDetDD::SiCellId & diode() const;
 
-  // Readout cell associated to diode 
+  // Readout cell associated to diode
   // (usually the same id as the diode except for ganged pixels):
-  const InDetDD::SiReadoutCellId & getReadoutCell();
+  const InDetDD::SiReadoutCellId & getReadoutCell() const;
 
   // total charge and its composition:
   const SiTotalCharge & totalCharge() const;
 
   // total deposited charge:
   double charge() const;
-  
+
   // flag, disconnected etc.
   int flag() const;
-  
-  //neighbouring strip for navigation 
+
+  //neighbouring strip for navigation
   SiChargedDiode * nextInCluster();
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
@@ -71,7 +69,7 @@ public:
   void add(const SiCharge &charge);
   // add a total charge
   void add(const SiTotalCharge &totcharge);
-  //add a neighbouring strip for navigation 
+  //add a neighbouring strip for navigation
   void setNextInCluster(SiChargedDiode* nextInCluster);
 
   ///////////////////////////////////////////////////////////////////
@@ -96,12 +94,12 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline const InDetDD::SiCellId & SiChargedDiode::diode() const 
+inline const InDetDD::SiCellId & SiChargedDiode::diode() const
 {
   return m_diode;
 }
 
-inline int SiChargedDiode::flag() const 
+inline int SiChargedDiode::flag() const
 {
   return m_word;
 }
@@ -110,7 +108,7 @@ inline const SiTotalCharge &SiChargedDiode::totalCharge() const
 {
   return m_totalCharge;
 }
-inline const InDetDD::SiReadoutCellId & SiChargedDiode::getReadoutCell() {
+inline const InDetDD::SiReadoutCellId & SiChargedDiode::getReadoutCell() const {
   return m_readoutCell;
 }
 
@@ -144,4 +142,3 @@ inline void SiChargedDiode::setNextInCluster(SiChargedDiode* nextInCluster)
 std::ostream &operator<<(std::ostream &out,const SiChargedDiode &chargedDiode);
 
 #endif // SIDIGITIZATION_SICHARGEDDIODE_H
-
