@@ -41,9 +41,14 @@ namespace top {
                                     const bool applyTTVACut = true, const bool applyChargeIDCut = false);
 
     explicit ElectronLikelihoodMC15(const bool,
-                                    const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
-                                    const bool applyTTVACut = true,  const double d0SigCut = 5., const double delta_z0 = 0.5,
+                                    const double ptcut,
+                                    const bool vetoCrack,
+                                    const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose,
+                                    StandardIsolation* isolation,
+                                    const double d0SigCut = 5.,
+                                    const double delta_z0 = 0.5,
+                                    const bool applyTTVACut = true,
                                     const bool applyChargeIDCut = false);
 
     explicit ElectronLikelihoodMC15(const bool,
