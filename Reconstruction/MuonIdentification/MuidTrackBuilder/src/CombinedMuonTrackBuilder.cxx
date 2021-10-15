@@ -2732,6 +2732,10 @@ namespace Rec {
         std::unique_ptr<Trk::Track> track =
             std::make_unique<Trk::Track>(spectrometerTrack.info(), std::move(trackStateOnSurfaces), nullptr);
 
+        if (!track->perigeeParameters()){
+            ATH_MSG_DEBUG("Reject track without perigee.");
+            return nullptr;
+        }
         dumpCaloEloss(track.get(), " createExtrapolatedTrack ");
         if (msgLevel(MSG::DEBUG)) countAEOTs(track.get(), " createExtrapolatedTrack before fit ");
 
@@ -2745,8 +2749,7 @@ namespace Rec {
         ATH_MSG_VERBOSE( "  fit SA track with " << track->trackStateOnSurfaces()->size() << " TSOS"<<
                             (particleHypothesis == Trk::nonInteracting ? " using nonInteracting hypothesis" : "usig interacting hypothesis"));
          
-        std::unique_ptr<Trk::Track> fittedTrack{fit(*track, ctx, runOutlier, particleHypothesis)};
-
+        std::unique_ptr<Trk::Track> fittedTrack{fit(*track, ctx, runOutlier, particleHypothesis)};        
         if (fittedTrack) {
             if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " createExtrapolatedTrack after fit");
 
