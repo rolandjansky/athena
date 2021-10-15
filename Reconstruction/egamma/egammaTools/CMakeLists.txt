@@ -36,6 +36,6 @@ atlas_add_test(egammaOQFlagsBuilderTest
                SCRIPT python -m egammaTools.egammaOQFlagsBuilderConfig
                POST_EXEC_SCRIPT nopost.sh) 
 
-atlas_add_test(egammaLargeClusterMakerTest
+atlas_add_test(egammaLargeClusterMakerConfigTest
                SCRIPT python -m egammaTools.egammaLargeClusterMakerConfig
                POST_EXEC_SCRIPT nopost.sh) 

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     cfg = ComponentAccumulator()
-    mlog = logging.getLogger("egammaLargeClusterMakerTest")
+    mlog = logging.getLogger("egammaLargeClusterMakerConfigTest")
     mlog.info("Configuring  egammaLargeClusterMaker: ")
     printProperties(mlog, cfg.popToolsAndMerge(
         egammaLargeClusterMakerCfg(ConfigFlags)),

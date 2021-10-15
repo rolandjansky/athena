@@ -20,7 +20,6 @@ def egammaOQFlagsBuilderCfg(flags, name='egammaOQFlagsBuilder', **kwargs):
     kwargs.setdefault("affectedTool", CaloAffectedTool())
 
     tool = egammaOQFlagsBuilder(name, **kwargs)
-    print(tool)
     acc.setPrivateTools(tool)
     return acc
 

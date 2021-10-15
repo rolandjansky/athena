@@ -34,3 +34,24 @@ def egammaTopoClusterCopierCfg(
 
     acc.addEventAlgo(egcopierAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.RDO
+
+    acc = MainServicesCfg(flags)
+    acc.merge(egammaTopoClusterCopierCfg(flags))
+    mlog = logging.getLogger("egammaTopoClusterCopierConfigTest")
+    mlog.info("Configuring  egammaTopoClusterCopier: ")
+    printProperties(mlog,
+                    acc.getEventAlgo("egammaTopoClusterCopier"),
+                    nestLevel=1,
+                    printDefaults=True)
+    with open("egammatopoclustercopier.pkl", "wb") as f:
+        acc.store(f)
