@@ -55,6 +55,9 @@ def createTriggerFlags():
     # Enable calorimeters
     flags.addFlag('Trigger.doCalo', True)
 
+    # Enable additional validation histograms
+    flags.addFlag('Trigger.doValidationMonitoring', False)
+
     # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
     # parents all the way back to the HLTSeeding. Potentially CPU expensive.
     # also enables per step decison printouts

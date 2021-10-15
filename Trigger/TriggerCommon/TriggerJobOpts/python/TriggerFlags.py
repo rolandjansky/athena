@@ -51,14 +51,6 @@ class doHLT(JobProperty):
     
 _flags.append(doHLT)
 
-class doValidationMonitoring(JobProperty):
-    """Enables extra validation monitoring"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doValidationMonitoring)
-
 # trigger configuration source list
 class configurationSourceList(JobProperty):
     """ define where to read trigger configuration from. Allowed values: ['aod','ds']"""
