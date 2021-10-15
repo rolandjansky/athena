@@ -482,12 +482,6 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
             G4ThreeVector localPosition_pre  = transformation.TransformPoint(PreStepPointPos);
             G4ThreeVector localPosition_post = transformation.TransformPoint(PostStepPointPos);
             
-            static G4double maximumHitPosition = -99999*CLHEP::mm;
-            if( fPreStepX > maximumHitPosition ){
-                maximumHitPosition = fPreStepX;
-                std::cout << "\n\nRAFAL   " << maximumHitPosition/CLHEP::mm << std::endl;
-            }
-
             G4ThreeVector normpX( 1., 0., 0.);
             G4ThreeVector normnX(-1., 0., 0.);
             G4ThreeVector normpY( 0., 1., 0.);
