@@ -22,6 +22,7 @@
 
 // Containers
 #include <set>
+#include <deque>
 
 // Input/Output includes
 #include <fstream>
@@ -33,6 +34,7 @@
 #include <cmath>
 #include <functional>
 #include <memory>
+#include <mutex>
 
 class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListener, public AthService {
  public:
@@ -168,6 +170,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   // Lock for capturing event loop measurements
   std::mutex m_mutex_capture;
+
+  // Locks for capturing component measurements
+  std::deque<std::mutex> m_mutex_slots;
 
   // Are we processing the first event?
   std::atomic<bool> m_isFirstEvent;
