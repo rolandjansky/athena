@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorFactory001.h"
@@ -100,7 +100,8 @@ namespace MuonGM {
 
     MuonDetectorFactory001::~MuonDetectorFactory001() { delete m_muon; }
 
-    MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() const { return m_manager; }
+    const MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() const { return m_manager; }
+    MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() { return m_manager; }
 
     void MuonDetectorFactory001::create(GeoPhysVol *world) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:MuonFactory");
@@ -160,7 +161,7 @@ namespace MuonGM {
         log << MSG::INFO << "Manager created for geometry version " << m_manager->geometryVersion() << " from DB MuonVersion <" << m_manager->get_DBMuonVersion() << ">" << endmsg;
 
         // here create the MYSQL singleton and assign to it the geometry version
-        MYSQL *mysql = MYSQL::GetPointer();
+        MYSQL::LockedMYSQL mysql = MYSQL::GetPointer();
         mysql->setGeometryVersion(m_layout);
         mysql->set_amdb_from_RDB(m_rdb == 1);
         mysql->set_DBMuonVersion(m_DBMuonVersion);
@@ -255,7 +256,7 @@ namespace MuonGM {
 
         dbr->setGeometryVersion(m_layout);
         dbr->setManager(m_manager);
-        sc = dbr->ProcessDB();
+        sc = dbr->ProcessDB(*mysql);
         if (sc != StatusCode::SUCCESS) {
             log << MSG::ERROR << " FAILURE in DB access; Muon node will not be built" << endmsg;
             return;
@@ -274,7 +275,7 @@ namespace MuonGM {
         }
 
         // now store detector-generic-descriptors into the manager
-        RPC *r = (RPC *)mysql->GetATechnology("RPC0");
+        const RPC *r = dynamic_cast<const RPC*>(mysql->GetATechnology("RPC0"));
         GenericRPCCache rpcCache;
         rpcCache.stripSeparation = r->stripSeparation;
         rpcCache.stripPanelThickness = r->stripPanelThickness;
@@ -284,14 +285,14 @@ namespace MuonGM {
         rpcCache.frontendBoardWidth = r->frontendBoardWidth;
         m_manager->setGenericRpcDescriptor(rpcCache);
 
-        MDT *mdtobj = (MDT *)mysql->GetATechnology("MDT0");
+        const MDT *mdtobj = dynamic_cast<const MDT*>(mysql->GetATechnology("MDT0"));
         GenericMDTCache mdtCache;
         mdtCache.innerRadius = mdtobj->innerRadius;
         mdtCache.outerRadius = mdtobj->innerRadius + mdtobj->tubeWallThickness;
 
         m_manager->setGenericMdtDescriptor(mdtCache);
 
-        TGC *t = (TGC *)mysql->GetATechnology("TGC0");
+        const TGC *t = dynamic_cast<const TGC*>(mysql->GetATechnology("TGC0"));
         GenericTGCCache tgcCache;
         tgcCache.frame_h = t->frame_h;
         tgcCache.frame_ab = t->frame_ab;
@@ -337,8 +338,6 @@ namespace MuonGM {
         } else {
             log << MSG::INFO << " theMaterialManager retrieven successfully from the DetStore" << endmsg;
         }
-
-        DetectorElement::setMaterialManager(*theMaterialManager);
 
         const GeoMaterial *m4 = theMaterialManager->getMaterial("std::Air");
         GeoLogVol *l4;
@@ -481,7 +480,7 @@ namespace MuonGM {
             log << MSG::INFO << "Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)" << endmsg;
         }
 
-        StationSelector sel(slist);
+        StationSelector sel(*mysql, slist);
         StationSelector::StationIterator it;
 
         for (it = sel.begin(); it != sel.end(); it++) {
@@ -504,7 +503,7 @@ namespace MuonGM {
             if (stname == "BIR")
                 isAssembly = true;
 
-            MuonChamber l(station); // here is where we start to create a MuonChamber with all readoutelements
+            MuonChamber l(*mysql, station); // here is where we start to create a MuonChamber with all readoutelements
             l.setFPVMAP(savemem);
             l.setFineClashFixingFlag(m_enableFineClashFixing);
 
@@ -568,7 +567,7 @@ namespace MuonGM {
                     isAssembly = true;
 
                 // CSL because coffin shape of the station mother volume
-                GeoVPhysVol *pv = l.build(m_manager, zi, fi, is_mirrored, isAssembly);
+                GeoVPhysVol *pv = l.build(*theMaterialManager, *mysql, m_manager, zi, fi, is_mirrored, isAssembly);
                 if (isAssembly)
                     nAssemblies++;
 
@@ -594,7 +593,7 @@ namespace MuonGM {
 
                 // here define the GeoAlignableTransform associated to the chamber
                 // nominal transform first
-                GeoAlignableTransform *xf = new GeoAlignableTransform(station->getNominalTransform((*pit).second));
+                GeoAlignableTransform *xf = new GeoAlignableTransform(station->getNominalTransform(*mysql, (*pit).second));
 
                 // add tag, transform and physicalvolume associated to the chamber to the mother-volume
                 p4->add(nm);
@@ -612,9 +611,9 @@ namespace MuonGM {
                 mst->setTransform(xf);
                 GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90 * Gaudi::Units::degree) * GeoTrf::RotateY3D(-90 * Gaudi::Units::degree);
 
-                mst->setNativeToAmdbLRS(Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame((*pit).second)));
+                mst->setNativeToAmdbLRS(Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame(*mysql, (*pit).second)));
 
-                mst->setNominalAmdbLRSToGlobal(Amg::EigenTransformToCLHEP(station->tsz_to_global_frame((*pit).second) * tsz_to_szt.inverse()));
+                mst->setNominalAmdbLRSToGlobal(Amg::EigenTransformToCLHEP(station->tsz_to_global_frame(*mysql, (*pit).second) * tsz_to_szt.inverse()));
 
                 // find correct alignment information for this position
                 // xf->setDelta(DummyAline); // just in case we don't find one
@@ -695,8 +694,7 @@ namespace MuonGM {
         savemem = nullptr;
 
         // delete the station and technology map
-        delete mysql;
-        mysql = nullptr;
+        delete mysql.get();
 
         if (m_dumpMemoryBreakDown) {
             umem = GeoPerfUtils::getMem();

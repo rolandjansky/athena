@@ -64,24 +64,23 @@ namespace MuonGM {
         return os;
     }
 
-    double StandardComponent::GetThickness() const {
-        MYSQL *mysql = MYSQL::GetPointer();
-        Technology *tec = mysql->GetTechnology(name);
+    double StandardComponent::GetThickness(const MYSQL& mysql) const {
+        const Technology *tec = mysql.GetTechnology(name);
 
         if (name.compare(0, 3,"CHV") == 0) {
-            CHV *chv = (CHV *)tec;
+            const CHV *chv = dynamic_cast<const CHV*>(tec);
             return chv->height;
         } else if (name.compare(0, 3,"CRO") == 0) {
-            CRO *chv = (CRO *)tec;
+            const CRO *chv = dynamic_cast<const CRO*>(tec);
             return chv->height;
         } else if (name.compare(0, 3,"CMI") == 0) {
-            CMI *chv = (CMI *)tec;
+            const CMI *chv = dynamic_cast<const CMI*>(tec);
             return chv->height;
         } else if (name.compare(0, 3,"LBI") == 0 || name.compare(0, 2,"LB") == 0) {
-            LBI *chv = (LBI *)tec;
+            const LBI *chv = dynamic_cast<const LBI*>(tec);
             return chv->height;
         }
-        return mysql->GetTechnology(name)->thickness;
+        return mysql.GetTechnology(name)->thickness;
     }
 
 } // namespace MuonGM
