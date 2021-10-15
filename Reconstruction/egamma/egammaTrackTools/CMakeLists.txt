@@ -19,3 +19,7 @@ atlas_add_component( egammaTrackTools
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+
+atlas_add_test(egammaTrackToolsConfigTest
+               SCRIPT python -m egammaTrackTools.egammaTrackToolsConfig
+               POST_EXEC_SCRIPT nopost.sh)

@@ -1,12 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Instantiate EMTrackMatchBuilder with default configuration"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-EMTrackMatchBuilder=CompFactory.EMTrackMatchBuilder
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCacheCfg
+
+EMTrackMatchBuilder = CompFactory.EMTrackMatchBuilder
 
 
 def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
@@ -21,9 +22,13 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
         kwargs["ExtrapolationTool"] = extrapcache.popPrivateTools()
         acc.merge(extrapcache)
 
-    kwargs.setdefault("TrackParticlesName", flags.Egamma.Keys.Input.TrackParticles)  # TODO restore proper input once LRT tracking is in place Egamma.Keys.Output.GSFTrackParticles)
-    kwargs.setdefault("broadDeltaEta",      0.1)    # candidate match is done in 2 times this  so +- 0.2
-    kwargs.setdefault("broadDeltaPhi",      0.15)   # candidate match is done in 2 times this  so +- 0.3
+    # TODO restore proper input once LRT tracking is in place Egamma.Keys.Output.GSFTrackParticles)
+    kwargs.setdefault("TrackParticlesName",
+                      flags.Egamma.Keys.Input.TrackParticles)
+    # candidate match is done in 2 times this  so +- 0.2
+    kwargs.setdefault("broadDeltaEta",      0.1)
+    # candidate match is done in 2 times this  so +- 0.3
+    kwargs.setdefault("broadDeltaPhi",      0.15)
     kwargs.setdefault("useCandidateMatch",  True)
     kwargs.setdefault("useScoring",         True)
     kwargs.setdefault("SecondPassRescale",  True)
@@ -34,3 +39,29 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
 
     acc.setPrivateTools(tool)
     return acc
+
+
+if __name__ == "__main__":
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaCommon.Configurable import Configurable
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    Configurable.configurableRun3Behavior = True
+
+    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.fillFromArgs()
+    ConfigFlags.lock()
+    ConfigFlags.dump()
+
+    cfg = ComponentAccumulator()
+    mlog = logging.getLogger("EMTrackMatchBuilderConfigTest")
+    mlog.info("Configuring  EMTrackMatchBuilder: ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMTrackMatchBuilderCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+
+    f = open("emtrackmatchbuilder.pkl", "wb")
+    cfg.store(f)
+    f.close()
