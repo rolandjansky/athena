@@ -165,16 +165,19 @@ FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simuls
   
   const float searchRand = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   const auto& Ebin_probability = m_pdgid_Ebin_probability.at(pdgid);
-  const int chosenBin=TMath::BinarySearch(n_bins()+1, Ebin_probability.data(), searchRand)+1;
-  if(chosenBin<0 || chosenBin>n_bins()) {
-    ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate bin="<<chosenBin);
-    ATH_MSG_ERROR("  This error could probably be retried.");
-    if(msgLvl(MSG::ERROR)) {
-      ATH_MSG(ERROR)<<"in "<<GetName()<<": E="<<simulstate.E()<<" Ebin="<<chosenBin<<" rnd="<<searchRand<<" array=";
-      for(const auto& prob : Ebin_probability) { msg()<<prob<<" "; }
-      msg()<<std::endl;
-    }  
-    return FCSFatal;
+  int chosenBin=TMath::BinarySearch(n_bins()+1, Ebin_probability.data(), searchRand)+1;
+  if(chosenBin<0){
+    ATH_MSG_WARNING("TFCSEnergyBinParametrization::simulate(): chosenBin<0 (will use chosenBin=0)");
+    std::string array = "";
+    for(const auto& prob : Ebin_probability){array+=prob;array+=" ";}
+    ATH_MSG_WARNING(" E="<<simulstate.E()<<" Ebin="<<chosenBin<<" rnd="<<searchRand<<" array="<<array);
+    chosenBin = 0;
+  } else if (chosenBin>n_bins()){
+    ATH_MSG_WARNING("TFCSEnergyBinParametrization::simulate(): chosenBin>n_bins() (will use chosenBin=n_bins())");
+    std::string array = "";
+    for(const auto& prob : Ebin_probability){array+=prob;array+=" ";}
+    ATH_MSG_WARNING(" E="<<simulstate.E()<<" Ebin="<<chosenBin<<" rnd="<<searchRand<<" array="<<array);
+    chosenBin = n_bins();
   }
   simulstate.set_Ebin(chosenBin);
   ATH_MSG_DEBUG("Ebin="<<chosenBin);
