@@ -30,6 +30,10 @@ atlas_add_test( egammaRecBuilderConfig_test
     SCRIPT python -m egammaAlgs.egammaRecBuilderConfig
     POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( egammaSuperClusterBuilderConfig_test
+    SCRIPT python -m egammaAlgs.egammaSuperClusterBuilderConfig
+    POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( EMGSFCaloExtensionBuilderConfig_test
     SCRIPT python -m egammaAlgs.EMGSFCaloExtensionBuilderConfig
     POST_EXEC_SCRIPT nopost.sh)
@@ -42,6 +46,11 @@ atlas_add_test( egammaTopoClusterCopierConfig_test
     SCRIPT python -m egammaAlgs.egammaTopoClusterCopierConfig
     POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( topoEgammaBuilderConfig_test
+    SCRIPT python -m egammaAlgs.topoEgammaBuilderConfig
+    POST_EXEC_SCRIPT nopost.sh)
+    
 atlas_add_test( egammaTrackSlimmerConfig_test
     SCRIPT python -m egammaAlgs.egammaTrackSlimmerConfig
     POST_EXEC_SCRIPT nopost.sh)
+

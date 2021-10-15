@@ -32,8 +32,7 @@ def egammaSelectedTrackCopyCfg(
     if "ExtrapolationTool" not in kwargs:
         extraptool = EMExtrapolationToolsCfg(
             flags, name="EMExtrapolationTools")
-        kwargs["ExtrapolationTool"] = extraptool.popPrivateTools()
-        acc.merge(extraptool)
+        kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(extraptool)
 
     if "ExtrapolationToolCommonCache" not in kwargs:
         from egammaTrackTools.egammaTrackToolsConfig import (

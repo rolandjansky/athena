@@ -28,16 +28,16 @@ def EMGSFCaloExtensionBuilderCfg(
             name="PerigeeCaloExtensionTool",
             ParticleType="electron",
             StartFromPerigee=True)
-        kwargs["PerigeeCaloExtensionTool"] = perigeeCaloExtrapAcc.popPrivateTools()
-        acc.merge(perigeeCaloExtrapAcc)
+        kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
+            perigeeCaloExtrapAcc)
 
     if "LastCaloExtensionTool" not in kwargs:
         lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
             flags,
             name="LastCaloExtensionTool",
             ParticleType="electron")
-        kwargs["LastCaloExtensionTool"] = lastCaloExtrapAcc.popPrivateTools()
-        acc.merge(lastCaloExtrapAcc)
+        kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
+            lastCaloExtrapAcc)
 
     kwargs.setdefault(
         "GFFTrkPartContainerName",

@@ -23,13 +23,11 @@ def egammaRecBuilderCfg(
     acc = ComponentAccumulator()
     if "TrackMatchBuilderTool" not in kwargs:
         emtrkmatch = EMTrackMatchBuilderCfg(flags)
-        kwargs["TrackMatchBuilderTool"] = emtrkmatch.popPrivateTools()
-        acc.merge(emtrkmatch)
+        kwargs["TrackMatchBuilderTool"] = acc.popToolsAndMerge(emtrkmatch)
 
     if "ConversionBuilderTool" not in kwargs:
         emcnv = EMConversionBuilderCfg(flags)
-        kwargs["ConversionBuilderTool"] = emcnv.popPrivateTools()
-        acc.merge(emcnv)
+        kwargs["ConversionBuilderTool"] = acc.popToolsAndMerge(emcnv)
 
     kwargs.setdefault(
         "egammaRecContainer",
