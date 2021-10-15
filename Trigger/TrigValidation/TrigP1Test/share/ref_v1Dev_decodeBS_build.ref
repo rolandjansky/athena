@@ -335,20 +335,6 @@ HLT_2mu4_muonqual_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
-HLT_2mu4_noL2Comb_bBmumux_BcmumuPi_L12MU3V:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
-    1: 2
-HLT_2mu4_noL2Comb_bBmumux_BdmumuKst_L12MU3V:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
-    1: 2
 HLT_2mu4_noL2Comb_bBmumux_BpmumuKp_L12MU3V:
   eventCount: 0
   stepCounts:
@@ -463,13 +449,6 @@ HLT_2mu6_muonqual_L12MU5VF:
     0: 1
   stepFeatures:
     0: 2
-HLT_2mu6_noL2Comb_bJpsimumu_L12MU5VF:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
-    1: 2
 HLT_3j200_L1J100:
   eventCount: 0
 HLT_3j200_ftf_presel3j150_L1J100:
