@@ -33,12 +33,6 @@ StatusCode HGTD_DetectorElementCondAlg::initialize()
   // We need the detector manager
   ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
-  // used only if they exist
-  ATH_CHECK(m_trtDetElContKey.initialize());
-  ATH_CHECK(m_muonManagerKey.initialize());
-  ATH_CHECK(m_pixelReadKey.initialize());
-  ATH_CHECK(m_SCT_readKey.initialize());
-
   return StatusCode::SUCCESS;
 }
 
@@ -68,42 +62,7 @@ StatusCode HGTD_DetectorElementCondAlg::execute(const EventContext& ctx) const
  
   // Make sure we make a mixed IOV.
   writeHandle.addDependency (IOVInfiniteRange::infiniteMixed());
-
-  // Add dependency for IOV range
-  // Additional dependencies for IOV range to limit lifetime to TrackingGeometry lifetime
-  for (const SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> &key :m_muonManagerKey ) {
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonDependency{key, ctx};
-    if (*muonDependency != nullptr){
-       writeHandle.addDependency(muonDependency);
-    } else {
-       ATH_MSG_WARNING("MuonManager not found, ignoring Muons for PixelDetElement lifetime");
-    }
-  }
-  for (const SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> &key :m_trtDetElContKey ) {
-    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDependency{key, ctx};
-    if (*trtDependency != nullptr){
-      writeHandle.addDependency(trtDependency);
-    } else {
-      ATH_MSG_WARNING("TRT DetEls not found, ignoring TRT for PixelDetElement lifetime");
-    }
-  }
-  for (const SG::ReadCondHandleKey<GeoAlignmentStore> &key :m_pixelReadKey ) {
-    SG::ReadCondHandle<GeoAlignmentStore> pixelDependency{key, ctx};
-    if (*pixelDependency != nullptr){
-      writeHandle.addDependency(pixelDependency);
-    } else {
-      ATH_MSG_WARNING("Pixel AlignmentStore not found, ignoring Pixels for SCT_DetElement lifetime");
-    }
-  }
-  for (const SG::ReadCondHandleKey<GeoAlignmentStore> &key :m_SCT_readKey ) {
-    SG::ReadCondHandle<GeoAlignmentStore> sctDependency{key, ctx};
-    if (*sctDependency != nullptr){
-      writeHandle.addDependency(sctDependency);
-    } else {
-      ATH_MSG_WARNING("SCT AlignmentStore not found, ignoring SCT for PixelDetElement lifetime");
-    }
-  }
-
+  
   // ____________ Update writeCdo ____________
   std::map<const InDetDD::HGTD_DetectorElement*, const InDetDD::HGTD_DetectorElement*> oldToNewMap;
   oldToNewMap[nullptr] = nullptr;

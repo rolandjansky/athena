@@ -14,7 +14,7 @@ def ITkPixelGeoModelCfg(flags):
         # Setting this filename triggers reading from local file rather than DB
         ITkPixelDetectorTool.GmxFilename = flags.ITk.pixelGeometryFilename
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]
-    return acc;
+    return acc
 
 
 def ITkPixelAlignmentCfg(flags):
