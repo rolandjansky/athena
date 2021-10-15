@@ -182,9 +182,9 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeome
         positiveLayers.push_back(discLayer);    
         // only saving layer info for positive side
         // as the detector is simmetric
-        takeBigger(maxZ, zpos);
-        takeSmaller(minZ, zpos);
-        takeBigger(thickness, discLayer->thickness());
+        maxZ = std::max(maxZ, zpos);
+        minZ = std::min(minZ, zpos);
+        thickness = std::max(thickness, float(discLayer->thickness()));
       }
       else {
         negativeLayers.push_back(discLayer);
