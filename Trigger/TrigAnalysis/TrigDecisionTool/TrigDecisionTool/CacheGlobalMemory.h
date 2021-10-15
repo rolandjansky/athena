@@ -42,7 +42,7 @@
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // Full Athena only
 #include "EventInfo/EventInfo.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 #endif
@@ -141,7 +141,7 @@ namespace Trig {
     void setRun3NavigationKeyPtr(SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* k) { m_run3NavigationKeyPtr = k; }
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKeyPtr() { return *m_run3NavigationKeyPtr; }
 
-#ifndef XAOD_ANALYSIS // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena only
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
     void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
 #endif
