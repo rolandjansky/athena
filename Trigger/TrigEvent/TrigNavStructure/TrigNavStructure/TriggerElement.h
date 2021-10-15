@@ -178,7 +178,7 @@ namespace HLT {
      * @param tes vector of TriggerElement pointers
      * @param r relation .. one of Relation enums
      */
-    void relate( const std::vector<TriggerElement*> tes, Relation r );
+    void relate( const std::vector<TriggerElement*>& tes, Relation r );
 
     static unsigned int enquireId( std::vector<uint32_t>::const_iterator& inputIt );
 
