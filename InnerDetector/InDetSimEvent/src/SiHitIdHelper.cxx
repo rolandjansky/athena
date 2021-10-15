@@ -31,18 +31,19 @@ void SiHitIdHelper::Initialize() {
   }
 
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
-  //Run4 includes ITk and HGTD
-  bool isRun4 = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTD");
-  //Run4PLR includes PLR as well, we have to increase endcap range to +/- 4
-  bool isRun4PLR = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTDPLR"); 
+  // check for ITk and HGTD
+  bool isITkHGTD = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTD");
+  // we might include PLR as well, then we have to increase endcap range to +/- 4
+  bool isITkHGTDPLR = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTDPLR");
+  // cache the HL-LHC decision
+  m_isITkHGTD = isITkHGTD || isITkHGTDPLR;
 
- 
-  if (isRun4 || isRun4PLR) InitializeField("Part",0,2);
+  if (m_isITkHGTD) InitializeField("Part",0,2);
   else InitializeField("Part",0,1);
-  if (isDBM || isRun4PLR) InitializeField("BarrelEndcap",-4,4);
+  if (isDBM || isITkHGTDPLR) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
   InitializeField("LayerDisk",0,20);
-  if (isRun4 || isRun4PLR) InitializeField("EtaModule",-100,100);
+  if (m_isITkHGTD) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
   InitializeField("PhiModule",0,200);
   InitializeField("Side",0,3);
@@ -74,8 +75,10 @@ bool SiHitIdHelper::isHGTD(const int& hid) const
 
 bool SiHitIdHelper::isPLR(const int& hid) const
 {
+  if (!m_isITkHGTD) return false;
+
   int psh = this->GetFieldValue("BarrelEndcap", hid);
-  if (psh ==-4 || psh ==4 ) return true;
+  if (std::abs(psh) == 4) return true;
   else return false;
 }
 
