@@ -86,10 +86,14 @@ namespace top {
                                                    operatingPointLoose, isolation, 5.0, 0.5, applyTTVACut, applyChargeIDCut) {}
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
-                                                 const double ptcut, const bool vetoCrack,
+                                                 const double ptcut,
+                                                 const bool vetoCrack,
                                                  const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose, StandardIsolation* isolation,
-                                                 const bool applyTTVACut, const double d0SigCut, const double delta_z0, 
+                                                 const std::string& operatingPointLoose,
+                                                 StandardIsolation* isolation,
+                                                 const double d0SigCut,
+                                                 const double delta_z0, 
+                                                 const bool applyTTVACut,
                                                  const bool applyChargeIDCut) :
     ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
                                                    operatingPointLoose, isolation, d0SigCut, delta_z0, applyTTVACut, applyChargeIDCut) {}
