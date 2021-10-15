@@ -124,7 +124,7 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 
-    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
+    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_run2_reprocessing.root") # filename of the input parametrizations file
     scf.addFlag("Sim.FastCalo.CaloCellsName", "AllCalo") # StoreGate collection name for FastCaloSim hits
     
     scf.addFlag("Sim.FastShower.InputCollection", "TruthEvent") # StoreGate collection name of modified TruthEvent for legayc FastCaloSim use
