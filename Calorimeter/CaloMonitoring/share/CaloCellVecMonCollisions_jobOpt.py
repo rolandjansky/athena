@@ -36,7 +36,7 @@ ToolSvc+=theLArBadChannelTool
 
 
 # All 2D plot occupancy are activate only for express and cosmiccalo
-if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()=='ZeroBias') or (DQMonFlags.monManEnvironment() == 'online'):
+if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()=='ZeroBias' or rec.triggerStream()=='UPC') or (DQMonFlags.monManEnvironment() == 'online'):
    do2DOcc = True
 else:
    do2DOcc = False
@@ -111,11 +111,11 @@ LArCellMon = LArCellMonTool(
     TriggersToExclude      = [ "none" , "none"      , "none"  , "none"  , "none" , "none"        , "none" ],
 
     DoPercentageOccupancy  = [ False  , False       , True    , False   , False  , False         , False  ],
-    DoEtaPhiOccupancy      = [ False  , False       , False   , do2DOcc,do2DOcc, do2DOcc      , False  ],
+    DoEtaPhiOccupancy      = [ False  , False       , do2DOcc , do2DOcc ,do2DOcc , do2DOcc       , False  ],
     DoEtaOccupancy         = [ False  , False       , False   , False   , False  , False         , False  ],
     DoPhiOccupancy         = [ False  , False       , True    , False   , False  , False         , False  ],
 
-    DoEtaPhiAverageEnergy  = [ False  , do2DOcc    , False   , do2DOcc  , False   , False        , False  ],
+    DoEtaPhiAverageEnergy  = [ False  , do2DOcc     , do2DOcc , do2DOcc , False   , False        , False  ],
     DoEtaPhiTotalEnergy    = [ False  , False       , False   , False   , False   , False        , False  ],
     #DoEtaPhiEnergyRMS      = , False  , False       , False   , False   , False   , False        , False  ],
     #DoEtaPhiRMSvsDBnoise   = , False  , False       , False   , False   , False   , False        , False  ], 

@@ -155,10 +155,11 @@ StatusCode ISF::TruthSvc::releaseEvent() {
 
 
 /** Register a truth incident */
-void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
+void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti, bool saveAllChildren) const {
 
+  const bool passWholeVertex = m_passWholeVertex || saveAllChildren;
   // pass whole vertex or individual child particles
-  ti.setPassWholeVertices(m_passWholeVertex);
+  ti.setPassWholeVertices(passWholeVertex);
 
   // the GeoID
   AtlasDetDescr::AtlasRegion geoID = ti.geoID();
@@ -201,7 +202,7 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
     ATH_MSG_VERBOSE("At least one TruthStrategy passed.");
     // at least one truth strategy returned true
     //  -> record incident
-    recordIncidentToMCTruth( ti);
+    recordIncidentToMCTruth(ti, passWholeVertex);
 
   } else {
     // none of the truth strategies returned true
@@ -231,7 +232,7 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
 }
 
 /** Record the given truth incident to the MC Truth */
-void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
+void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti, bool passWholeVertex) const {
 #ifdef  DEBUG_TRUTHSVC
   ATH_MSG_INFO("Starting recordIncidentToMCTruth(...)");
 #endif
@@ -335,7 +336,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
   std::vector<HepMC::GenParticle*> matchedChildParticles;
   for ( unsigned short i=0; i<numSec; ++i) {
 
-    bool writeOutChild = isQuasiStableVertex || m_passWholeVertex || ti.childPassedFilters(i);
+    bool writeOutChild = isQuasiStableVertex || passWholeVertex || ti.childPassedFilters(i);
 
     if (writeOutChild) {
       HepMC::GenParticle *p = nullptr;
@@ -452,7 +453,18 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
     }
     else {
       //oldVertex->suggest_barcode( vtxbcode );
-      oldVertex->set_position( ti.position() );
+      const auto& old_pos=oldVertex->position();
+      const auto& new_pos=ti.position();
+      HepMC::ThreeVector diff(new_pos.x()-old_pos.x(),new_pos.y()-old_pos.y(),new_pos.z()-old_pos.z()); //complicated, but HepMC::ThreeVector and FourVector have no + or - operators
+      
+      if(diff.r()>1*Gaudi::Units::mm) { //Check for a change of the vertex position by more than 1mm
+        ATH_MSG_WARNING("For particle: " << *parent);
+        ATH_MSG_WARNING("  decay vertex before QS partice sim: " << *oldVertex );
+        oldVertex->set_position( ti.position() );
+        ATH_MSG_WARNING("  decay vertex after  QS partice sim:  " << *oldVertex );
+      } else {
+        oldVertex->set_position( ti.position() );
+      }  
       oldVertex->set_id( vtxID );
       oldVertex->weights() = weights;
 #ifdef DEBUG_TRUTHSVC

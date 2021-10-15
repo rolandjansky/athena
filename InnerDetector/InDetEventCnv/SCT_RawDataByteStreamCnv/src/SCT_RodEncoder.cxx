@@ -49,7 +49,6 @@ SCT_RodEncoder::SCT_RodEncoder
      m_bsErrs("SCT_ByteStreamErrorsSvc",name),
      m_sct_id(nullptr),
      m_rodid(0),
-     m_condensed(false),
      m_WriteByteStreamSummary(false),
      m_swapModuleId{},
   m_singleCondHitNumber(0),
@@ -61,7 +60,7 @@ SCT_RodEncoder::SCT_RodEncoder
   m_trailerNumber(0)
      {
        declareInterface< ISCT_RodEncoder  >( this );
-       declareProperty("CondensedMode",m_condensed=true);
+       declareProperty("CondensedMode",m_condensed=false);
      }
 
 

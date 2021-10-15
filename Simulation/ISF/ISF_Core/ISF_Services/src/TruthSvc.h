@@ -76,7 +76,7 @@ namespace ISF {
     StatusCode  finalize() override final;
 
     /** Register a truth incident */
-    void registerTruthIncident( ITruthIncident& truthincident) const override final;
+    void registerTruthIncident( ITruthIncident& truthincident, bool saveAllChildren=false) const override final;
 
     /** Initialize the Truth Svc at the beginning of each event */
     StatusCode initializeTruthCollection() override final;
@@ -86,7 +86,7 @@ namespace ISF {
 
   private:
     /** Record the given truth incident to the MC Truth */
-    void recordIncidentToMCTruth( ITruthIncident& truthincident) const;
+    void recordIncidentToMCTruth( ITruthIncident& truthincident, bool passWholeVertex) const;
     /** Record and end vertex to the MC Truth for the parent particle */
     HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident,
                                                         bool replaceExistingGenVertex=false) const;

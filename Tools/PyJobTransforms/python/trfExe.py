@@ -25,7 +25,7 @@ msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime
+from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, reportEventsPassedSimFilter
 from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
@@ -160,7 +160,8 @@ class transformExecutor(object):
         self._eventCount = None
         self._athenaMP = None
         self._dbMonitor = None
-        
+        self._resimevents = None
+
         # Holder for execution information about any merges done by this executor in MP mode
         self._myMerger = []
 
@@ -398,6 +399,10 @@ class transformExecutor(object):
     @property
     def eventCount(self):
         return self._eventCount
+
+    @property
+    def reSimEvent(self):
+        return self._resimevents
 
     @property
     def athenaMP(self):
@@ -1047,6 +1052,17 @@ class athenaExecutor(scriptExecutor):
         if 'TXT_JIVEXMLTGZ' in self.conf.dataDictionary:
             self._targzipJiveXML()
 
+        # Summarise events passed the filter ISF_SimEventFilter from log.ReSim
+        # This is a bit ugly to have such a specific feature here though
+        # TODO
+        # The best is to have a general approach so that user can extract useful info from log
+        # Instead of hard coding a pattern, one idea could be that user provides a regExp pattern
+        # in which the wanted variable is grouped by a name, then transforms could decode the pattern
+        # and use it to extract required info and do the summation during log scan.
+        if self._logFileName=='log.ReSim' and self.name=='ReSim':
+            msg.info('scanning {0} for reporting events passed the filter ISF_SimEventFilter'.format(self._logFileName))
+            self._resimevents = reportEventsPassedSimFilter(self._logFileName)
+
 
     def validate(self):
         self.setValStart()
@@ -1060,7 +1076,7 @@ class athenaExecutor(scriptExecutor):
             # In this case we hold this exception until the logfile has been scanned
             msg.error('Validation of return code failed: {0!s}'.format(e))
             deferredException = e
-                
+
         # Logfile scan setup
         # Always use ignorePatterns from the command line
         # For patterns in files, pefer the command line first, then any special settings for

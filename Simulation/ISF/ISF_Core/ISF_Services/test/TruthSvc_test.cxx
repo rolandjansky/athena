@@ -355,7 +355,7 @@ namespace ISFTesting {
       .Times(1)
       .WillOnce(::testing::Return(nullptr));
 
-    recordIncidentToMCTruth(ti);
+    recordIncidentToMCTruth(ti,false);
     HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-2); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );

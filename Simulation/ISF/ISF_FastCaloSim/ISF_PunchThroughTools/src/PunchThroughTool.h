@@ -15,6 +15,7 @@
 #include "BarcodeEvent/PhysicsProcessCode.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "ISF_Event/ISFParticleVector.h"
 /*-------------------------------------------------------------------------
  *  Forward declarations
  *-------------------------------------------------------------------------*/
@@ -63,7 +64,7 @@ namespace ISF {
     /** AlgTool finalize method */
     virtual StatusCode finalize  ();
     /** interface function: fill a vector with the punch-through particles */
-    const ISF::ISFParticleContainer* computePunchThroughParticles(const ISF::ISFParticle &isfp) const;
+    const ISF::ISFParticleVector* computePunchThroughParticles(const ISF::ISFParticle &isfp) const;
 
   private:
     /*---------------------------------------------------------------------
@@ -123,7 +124,7 @@ namespace ISF {
     double                               m_z2{0.};
 
     /** the returned vector of ISFParticles */
-    mutable ISF::ISFParticleContainer  *m_isfpCont{nullptr};
+    mutable ISF::ISFParticleVector  *m_isfpCont{nullptr};
 
     /** parent event */
     mutable HepMC::GenEvent*            m_parentGenEvt{nullptr};    //!< all newly created particles/vertices will have this common parent

@@ -15,21 +15,21 @@ TopLocRecSeq += siDLocReco
 from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterTool
 clusterTool=AFPSiClusterTool("AFPSiClusterTool")
 
-if globalflags.DataSource()=='data':
-        clusterTool.hitsContainerName = "AFPSiHitContainer"
-else:
-        clusterTool.hitsContainerName = "AFP_SiDigiCollection"
+#if globalflags.DataSource()=='data':
+clusterTool.hitsContainerName = "AFPSiHitContainer"
+#else:
+#        clusterTool.hitsContainerName = "AFP_SiDigiCollection"
 
 ToolSvc+=clusterTool
 
 # cluster algorithm
-# from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterBasicNearestNeighbour
-# clusterNeighbour=AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
-# ToolSvc+=clusterNeighbour
+from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterBasicNearestNeighbour
+clusterNeighbour=AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
+ToolSvc+=clusterNeighbour
 
-# clusterTool.clusterAlgTool = clusterNeighbour
+clusterTool.clusterAlgTool = clusterNeighbour
 
-# AFP_SIDLocReco.clusterTool=clusterTool
+AFP_SIDLocReco.clusterTool=clusterTool
 
 # cluster to local CS transformation
 from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiRowColToLocalCSTool

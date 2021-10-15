@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGGSectorLogic_hh
@@ -112,7 +112,7 @@ private:
   // for inner trigger
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
   bool useInner;
-  bool useTileMu;
+  bool m_useTileMu;
 
   ToolHandle<ITGCTriggerDbTool> m_condDbTool; 
 };

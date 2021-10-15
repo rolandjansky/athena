@@ -5,15 +5,13 @@
 def load_files_for_monopole_scenario(MASS, GCHARGE):
     import os, shutil, sys
 
+    import ExtraParticles.PDGHelpers
+
     ALINE1="M 4110000                         {intmass}.E+03       +0.0E+00 -0.0E+00 Monopole         0".format(intmass=int(MASS))
     ALINE2="W 4110000                          0.E+00         +0.0E+00 -0.0E+00 Monopole         0"
     BLINE1="4110000 {intmass}.00 0.0 {gcharge} # Monopole".format(intmass=int(MASS), gcharge=GCHARGE)
     BLINE2="-4110000 {intmass}.00 0.0 -{gcharge} # MonopoleBar".format(intmass=int(MASS), gcharge=GCHARGE)
 
-    pdgmod = os.path.isfile('PDGTABLE.MeV')
-    if pdgmod is True:
-        os.remove('PDGTABLE.MeV')
-    os.system('get_files -data PDGTABLE.MeV')
     f=open('PDGTABLE.MeV','a')
     f.writelines(str(ALINE1))
     f.writelines('\n')

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
@@ -126,6 +126,6 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
 
 void TFCSSimpleLateralShapeParametrization::getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y)
 {
-    x = CLHEP::RandGauss::shoot(engine, 0, m_sigmaX);
-    y = CLHEP::RandGauss::shoot(engine, 0, m_sigmaY);
+    x = CLHEP::RandGaussZiggurat::shoot(engine, 0, m_sigmaX);
+    y = CLHEP::RandGaussZiggurat::shoot(engine, 0, m_sigmaY);
 }

@@ -3,10 +3,6 @@
 */
 
 #include "CaloJiveXML/CaloClusterRetriever.h"
-
-#include "CaloEvent/CaloClusterContainer.h"
-#include "CaloEvent/CaloCell.h"
-
 #include "AthenaKernel/Units.h"
 
 using Athena::Units::GeV;
@@ -43,8 +39,8 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
-    const DataHandle<CaloClusterContainer> iterator, end;
-    const CaloClusterContainer* ccc;
+    const DataHandle<xAOD::CaloClusterContainer> iterator, end;
+    const xAOD::CaloClusterContainer* ccc;
 
     //obtain the default collection first
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endreq;
@@ -91,7 +87,7 @@ namespace JiveXML {
       //obtain all collections with keys provided by user: m_otherKeys
       std::vector<std::string>::const_iterator keyIter,endIter;
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
-       if ( evtStore()->contains<CaloClusterContainer>(*keyIter) ){ // to avoid some SG dumps
+       if ( evtStore()->contains<xAOD::CaloClusterContainer>(*keyIter) ){ // to avoid some SG dumps
 	if ( !evtStore()->retrieve( ccc, (*keyIter) ).isFailure()) {
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
           DataMap data = getData(ccc);
@@ -115,7 +111,7 @@ namespace JiveXML {
    * back-navigation causes Athena crash).
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  const DataMap CaloClusterRetriever::getData(const CaloClusterContainer* ccc) {
+  const DataMap CaloClusterRetriever::getData(const xAOD::CaloClusterContainer* ccc) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getData()" << endreq;
 
@@ -128,11 +124,11 @@ namespace JiveXML {
     DataVect numCellsVec; numCellsVec.reserve(ccc->size());
 
     std::string tagCells;
-    CaloClusterContainer::const_iterator itr = ccc->begin();  
+    xAOD::CaloClusterContainer::const_iterator itr = ccc->begin();  
     int noClu = ccc->size();
     int noCells = 0;
     for (; itr != ccc->end(); ++itr){ 
-      for(CaloCluster::cell_iterator it = (*itr)->cell_begin(); 
+      for(xAOD::CaloCluster::const_cell_iterator it = (*itr)->cell_begin(); 
               it != (*itr)->cell_end() ; ++it){
          ++noCells;
       }
@@ -153,7 +149,7 @@ namespace JiveXML {
       idVec.push_back(DataType( ++id ));
 
       int numCells = 0;
-      CaloCluster::cell_iterator cell = (*itr)->cell_begin();
+      xAOD::CaloCluster::const_cell_iterator cell = (*itr)->cell_begin();
       for(; cell != (*itr)->cell_end() ; ++cell){
 	cells.push_back(DataType((*cell)->ID().get_compact()));
 	++numCells;

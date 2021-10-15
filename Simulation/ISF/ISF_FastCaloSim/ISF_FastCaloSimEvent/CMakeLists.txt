@@ -22,7 +22,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Matrix Physics )
+find_package( ROOT COMPONENTS Core Tree MathCore MathMore Hist RIO Matrix Physics )
 find_package( lwtnn REQUIRED )
 find_package( LibXml2 )
 
@@ -54,7 +54,9 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
                            ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h
                            ISF_FastCaloSimEvent/TFCSInitWithEkin.h
+                           ISF_FastCaloSimEvent/TFCSEnergyInterpolationHistogram.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h
+                           ISF_FastCaloSimEvent/TFCSEnergyInterpolationPiecewiseLinear.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h
                            ISF_FastCaloSimEvent/TFCSParametrizationChain.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h
@@ -89,7 +91,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h
                            ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
                            ISF_FastCaloSimEvent/TFCSSimulationState.h 
-                           ISF_FastCaloSimEvent/TFCSTruthState.h 
+                           ISF_FastCaloSimEvent/TFCSTruthState.h
+                           ISF_FastCaloSimEvent/TFCSVoxelHistoLateralCovarianceFluctuations.h 
                            ISF_FastCaloSimEvent/LinkDef.h 
 			   EXTERNAL_PACKAGES HepPDT)
 

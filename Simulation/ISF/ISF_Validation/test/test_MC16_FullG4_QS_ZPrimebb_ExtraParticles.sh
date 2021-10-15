@@ -2,9 +2,11 @@
 #
 # art-description: MC16-style simulation using FullG4_LongLived and the ExtraParticles package
 # art-include: 21.0/Athena
+# art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
+# art-include: master/AthSimulation
 # art-type: grid
 # art-output: test.HITS.pool.root
 # art-output: truth.root

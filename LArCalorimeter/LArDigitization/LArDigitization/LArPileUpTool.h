@@ -162,6 +162,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   float m_scaleStripXtalk;          // scale factor for strip to strip cross-talk
   float m_scaleStripMiddle;         // scale factor for strip-middle cross-talk
   float m_scaleMiddleXtalk;         // scale factor for middle-middle cross-talk
+  float m_scaleMiddleBackXtalk;     // scale factor for middle-back cross-talk
 // Windows mode
   bool m_Windows;
   float m_WindowsEtaSize;

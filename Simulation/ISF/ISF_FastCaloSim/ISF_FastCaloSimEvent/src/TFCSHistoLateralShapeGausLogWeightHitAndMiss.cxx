@@ -3,7 +3,7 @@
 */
 
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
@@ -53,7 +53,7 @@ FCSReturnCode TFCSHistoLateralShapeGausLogWeightHitAndMiss::simulate_hit(Hit& hi
   float weight=meanweight;
   float RMS   =m_hist->GetBinError(bin);
   if(RMS>0) {
-    float logweight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), -0.5*RMS*RMS, RMS);
+    float logweight=CLHEP::RandGaussZiggurat::shoot(simulstate.randomEngine(), -0.5*RMS*RMS, RMS);
     weight*=TMath::Exp(logweight);
   }  
   if(meanweight<=1) {

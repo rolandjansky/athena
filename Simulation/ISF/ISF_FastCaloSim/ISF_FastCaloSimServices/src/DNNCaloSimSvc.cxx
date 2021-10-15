@@ -43,7 +43,7 @@
 
 #include "TFile.h"
 #include <fstream>
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 using std::abs;
@@ -478,7 +478,7 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   //FIXME generate in one go
   for (int i = 0; i< m_GANLatentSize; i ++)
     {
-      randGaussz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), 0., 1.);
+      randGaussz = CLHEP::RandGaussZiggurat::shoot(simulstate.randomEngine(), 0., 1.);
       inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(i), randGaussz) );
 
     }

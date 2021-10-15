@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// EntryLayerTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "EntryLayerTool.h"
@@ -19,7 +15,6 @@
 /** Constructor **/
 ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, const IInterface* p) :
   base_class(t,n,p),
-  m_incidentSvc("IncidentSvc",n),
   m_geoIDSvc("GeoIDSvc",n),
   m_geoIDSvcQuick(0),
   m_particleFilterHandle(),
@@ -63,25 +58,10 @@ ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, 
 }
 
 
-/** Destructor **/
-ISF::EntryLayerTool::~EntryLayerTool()
-{
-}
-
-
 /** Athena algtool's Hooks */
 StatusCode  ISF::EntryLayerTool::initialize()
 {
   ATH_MSG_INFO("initialize() ...");
-
-  // incident service from Athena/Gaudi framework
-  if (m_incidentSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve IncidentService '" << m_incidentSvc << "'. Exiting.");
-    return StatusCode::FAILURE;
-  }
-  // register to the incident service: BeginEvent for TrackRecordCollection
-  m_incidentSvc->addListener( this, IncidentType::BeginEvent);
-
 
   // retrieve the GeoIDSvc
   if ( m_geoIDSvc.retrieve().isFailure() ){
@@ -118,17 +98,13 @@ StatusCode  ISF::EntryLayerTool::finalize()
 }
 
 
-/** framework handle */
-void ISF::EntryLayerTool::handle( const Incident& inc ) {
+void ISF::EntryLayerTool::setupEvent() {
 
-  // check the incident type
-  if ( inc.type() == IncidentType::BeginEvent ) {
-    // initialize storegate collections at BeginEvent incident
-    for ( int entryLayer=ISF::fFirstAtlasEntryLayer;
-          entryLayer<ISF::fNumAtlasEntryLayers;
-          entryLayer++) {
-      m_collection[entryLayer] = setupSGCollection( m_SGName[entryLayer] );
-    }
+  // initialize storegate collections at BeginEvent incident
+  for ( int entryLayer=ISF::fFirstAtlasEntryLayer;
+        entryLayer<ISF::fNumAtlasEntryLayers;
+        entryLayer++) {
+    m_collection[entryLayer] = setupSGCollection( m_SGName[entryLayer] );
   }
 
   return;
@@ -147,7 +123,7 @@ bool ISF::EntryLayerTool::passesFilters( const ISFParticle& particle) {
 }
 
 
-/** Identify the corresponding entry layer for the given particle (may return 
+/** Identify the corresponding entry layer for the given particle (may return
     ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
 ISF::EntryLayer ISF::EntryLayerTool::identifyEntryLayer( const ISFParticle& particle) {
   // the return value

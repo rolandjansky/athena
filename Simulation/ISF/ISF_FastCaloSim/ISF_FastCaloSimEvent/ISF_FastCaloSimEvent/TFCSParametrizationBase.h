@@ -143,6 +143,9 @@ public:
   ///Method in all derived classes to do some simulation
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
+  ///Method in all derived classes to delete objects stored in the simulstate AuxInfo
+  virtual void CleanAuxInfo(TFCSSimulationState& /*simulstate*/) const {};
+
   ///Print object information. 
   void Print(Option_t *option = "") const;
   

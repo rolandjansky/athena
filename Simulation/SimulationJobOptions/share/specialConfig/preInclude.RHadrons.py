@@ -333,8 +333,7 @@ def create_rhadron_pdgtable(CASE, MASS, MODEL):
     } # end of sbottom cases
   } # end of pdgtable dict
 
-  # Download generic PDGTABLE (overwrite existing one if it exists)
-  os.system('get_files -remove -data PDGTABLE.MeV')
+  import ExtraParticles.PDGHelpers
 
   # Append the R-Hadron particles to the PDGTABLE.MeV file
   with open('PDGTABLE.MeV','a') as f:

@@ -11,9 +11,10 @@
 from EventCommonD3PDMaker.EventInfoD3PDObject     import EventInfoD3PDObject
 from CaloD3PDMaker.LArHitD3PDObject               import LArHitEMBD3PDObject, LArHitEMECD3PDObject, LArHitHECD3PDObject, LArHitFCALD3PDObject
 from CaloD3PDMaker.TileHitD3PDObject              import TileHitD3PDObject, makeTileHitD3PDObject
-from CaloD3PDMaker.CaloCalibHitD3PDObject         import LArActiveCaloCalibHitD3PDObject, LArInactiveCaloCalibHitD3PDObject, LArDMCaloCalibHitD3PDObject, TileCaloCalibHitD3PDObject, TileDMCaloCalibHitD3PDObject, TileDMOCaloCalibHitD3PDObject
+from CaloD3PDMaker.CaloCalibHitD3PDObject         import LArActiveCaloCalibHitD3PDObject, LArInactiveCaloCalibHitD3PDObject, LArDMCaloCalibHitD3PDObject, TileActiveCaloCalibHitD3PDObject, TileInactiveCaloCalibHitD3PDObject, TileDMCaloCalibHitD3PDObject, TileDMOCaloCalibHitD3PDObject
+from CaloD3PDMaker                                import TileHitFillerTool
+from D3PDMakerCoreComps.D3PDObject                import D3PDObject
 from D3PDMakerCoreComps.resolveSGKey              import testSGKey
-
 
 def CaloHitD3PD (alg = None,
               file = 'calo.root',
@@ -51,9 +52,9 @@ def CaloHitD3PD (alg = None,
 
         calohit_sgkey_tile = 'MBTSHits'
         if testSGKey ('TileHitVector', calohit_sgkey_tile):
-           MBTSHitD3PDObject = D3PDObject (makeTileHitD3PDObject, 'MBTSHit_', 'MBTSHitD3PDObject', CaloD3PDMaker.TileHitFillerTool, calohit_sgkey_tile)
-           MBTSHitD3PDObject.defineBlock (0, 'MBTSHitDetails',CaloD3PDMaker.TileHitFillerTool)
-           alg +=  MBTSHitD3PDObject(10)
+           MBTSHitD3PDObject = D3PDObject (makeTileHitD3PDObject, 'MBTSHit_', 'MBTSHitD3PDObject')
+           MBTSHitD3PDObject.defineBlock (0, 'MBTSHitDetails', TileHitFillerTool)
+           alg +=  MBTSHitD3PDObject(10, sgkey=calohit_sgkey_tile)
 
         calohit_sgkey_lar = 'LArCalibrationHitActive'
         if testSGKey ('CaloCalibrationHitContainer', calohit_sgkey_lar):

@@ -3,11 +3,9 @@
 # art-description: MC15-style simulation using G4GammaCones
 # art-type: build
 # art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
-# art-include: master/AthSimulation
 
 # MC15 setup
 # ATLAS-R2-2015-03-01-00 and OFLCOND-RUN12-SDR-19

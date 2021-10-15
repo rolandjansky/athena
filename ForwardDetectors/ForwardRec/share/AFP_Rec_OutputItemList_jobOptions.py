@@ -11,6 +11,9 @@ AFP_ItemList.append("AFP_SIDLocRecoEvCollection#AFP_SIDLocRecoEvCollection")
 # AFP Silicon hits containers
 AFP_ItemList.append("xAOD::AFPSiHitContainer#AFPSiHitContainer")
 AFP_ItemList.append("xAOD::AFPSiHitAuxContainer#AFPSiHitContainerAux.")
+AFP_ItemList.append("xAOD::AFPSiHitsClusterContainer#AFPSiHitsClusterContainer")
+AFP_ItemList.append("xAOD::AFPSiHitsClusterAuxContainer#AFPSiHitsClusterContainerAux.")
+
 # for runs with more BCX ids i.e. before timing in the detectors
 for bcIDshift in range (1, 6):
     name = "AFPSiHitContainerBcIDplus" + str(bcIDshift)

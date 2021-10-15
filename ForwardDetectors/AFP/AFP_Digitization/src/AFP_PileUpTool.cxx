@@ -10,6 +10,9 @@
 #include "AFP_SimEv/AFP_TDSimHit.h"
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
+//#include "AFP_SimEv/AFP_SISimHit.h"
+//#include "AFP_SimEv/AFP_TDSimHitCollection.h"
+#include "AFP_DigiEv/AFP_SiDigiCollection.h"
 #include "xAODForward/AFPSiHit.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHitAuxContainer.h"
@@ -67,13 +70,13 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
 
   m_AFPSiHitsContainerName = "AFPSiHitContainer";
-  m_AFPHitsContainerNameToF = "AFPToFHitContainer";
+  m_AFPHitsContainerNameToF = "AFPTofHitContainer";
 
   m_mergedTDSimHitList = 0; // initialized to null pointer
   m_mergedSIDSimHitList = 0;  
   
   declareProperty( "AFPSiHitsContainerName", m_AFPSiHitsContainerName = "AFPSiHitContainer" );
-  declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPToFHitContainer" );
+  declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPTofHitContainer" );
 
   declareProperty("TDSimHitCollection" , m_TDSimHitCollectionName, "Name of the input Collection of the simulated TD Hits");
   declareProperty("TDDigiCollectionName", m_TDDigiCollectionName,    "Name of the Collection to hold the output from the AFP digitization, TD part");
@@ -108,7 +111,7 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
     for( int i=0; i<4; i++) {
        Id1.Form("%d",i);
-       for( int j=0; j<32; j++) {
+       for( int j=0; j<49; j++) {
           Id2.Form("%d",j);
           for( int k=0; k<2; k++) {
              Id3.Form("%d",k);
@@ -161,7 +164,7 @@ StatusCode AFP_PileUpTool::recoSiHits()
   ATH_MSG_DEBUG("AFP_PileUpTool recoSiHits ");
 
   // create output containers
-m_SiHitCollection = new xAOD::AFPSiHitContainer();
+  m_SiHitCollection = new xAOD::AFPSiHitContainer();
 //  xAOD::AFPSiHitContainer* siHitContainer = new xAOD::AFPSiHitContainer();
   ATH_CHECK( evtStore()->record(m_SiHitCollection, m_AFPSiHitsContainerName) );
   xAOD::AFPSiHitAuxContainer* siHitAuxContainer = new xAOD::AFPSiHitAuxContainer();
@@ -185,16 +188,19 @@ m_SiHitCollection = new xAOD::AFPSiHitContainer();
 
 void  AFP_PileUpTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, const AFP_SiDigiCollection* container) const
 {
+  AFP_SiDigiConstIter it    = container->begin();
+  AFP_SiDigiConstIter itend = container->end();
+
+  for (; it != itend; it++) {
   xAOD::AFPSiHit* xAODSiHit = new xAOD::AFPSiHit();
   siHitContainer->push_back(xAODSiHit);
-
- xAODSiHit->setStationID(-1);
- xAODSiHit->setPixelLayerID( -1 );
- xAODSiHit->setPixelColIDChip( -1 );
- xAODSiHit->setPixelRowIDChip( -1 );
- xAODSiHit->setTimeOverThreshold(-1);
- xAODSiHit->setDepositedCharge( -1 );
-
+ xAODSiHit->setStationID(it->m_nStationID);
+ xAODSiHit->setPixelLayerID(it->m_nDetectorID);
+ xAODSiHit->setPixelColIDChip(it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
+ xAODSiHit->setPixelRowIDChip(it->m_nPixelCol); // Chip	is rotated by 90 degree	Col-->Row 
+ xAODSiHit->setTimeOverThreshold(it->m_fADC );
+ xAODSiHit->setDepositedCharge(it->m_fADC );
+  }
  ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
  std::cout <<  "AFP_PileUpTool:  Filled xAOD::AFPSiHit" << std::endl;
 
@@ -207,11 +213,23 @@ StatusCode AFP_PileUpTool::recoToFHits()
   ATH_MSG_DEBUG("AFP_PileUpTool recoToFHits ");
 
   // create output containers
+  m_TDHitCollection   = new xAOD::AFPToFHitContainer();
 //  xAOD::AFPToFHitContainer* tofHitContainer = new xAOD::AFPToFHitContainer();
-//  ATH_CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
-//  xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
-//  ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
-//  tofHitContainer->setStore(tofHitAuxContainer);
+  ATH_CHECK( evtStore()->record(m_TDHitCollection, m_AFPHitsContainerNameToF) );
+  xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
+  ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
+  m_TDHitCollection->setStore(tofHitAuxContainer);
+
+
+  // retrieve digi data
+  const AFP_TDDigiCollection  *container = nullptr;
+  if (evtStore()->retrieve(container, m_TDDigiCollectionName).isFailure()) {
+    ATH_MSG_WARNING("AFP_PileUpTool: Could not find simulated digi container");
+    return StatusCode::SUCCESS;
+  }
+  else
+    ATH_MSG_DEBUG("AFP_PileUpTool: Simulated digi container retrieved");
+
 
   // retrieve raw data
 //  const AFP_RawContainer *container = nullptr;
@@ -225,12 +243,32 @@ StatusCode AFP_PileUpTool::recoToFHits()
 //  for (const AFP_ToFRawCollection& collection: container->collectionsToF())
 //    for (const AFP_ToFRawData& data : collection.dataRecords())
 //      if (data.hitDiscConfig() == 3 && data.header() == 2) 
-//	newXAODHitToF (tofHitContainer, collection, data);
+
+	newXAODHitToF (m_TDHitCollection, container);
 
   return StatusCode::SUCCESS;
 }
 
+void  AFP_PileUpTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, const AFP_TDDigiCollection* container) const
+{
+  AFP_TDDigiConstIter it    = container->begin();
+  AFP_TDDigiConstIter itend = container->end();
 
+  for (; it != itend; it++) {
+  xAOD::AFPToFHit* xAODToFHit = new xAOD::AFPToFHit();
+  tofHitContainer->push_back(xAODToFHit);
+ xAODToFHit->setStationID(it->m_nStationID);
+ xAODToFHit->setHptdcChannel(-1);
+ xAODToFHit->setBarInTrainID(it->m_nDetectorID%10-1);
+ xAODToFHit->setTrainID(it->m_nDetectorID/10-1);
+ xAODToFHit->setHptdcID(-1);
+ xAODToFHit->setPulseLength(it->m_fADC);
+ xAODToFHit->setTime(it->m_fTDC);
+  }
+ ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPToFHit");
+ std::cout <<  "AFP_PileUpTool:  Filled xAOD::AFPToFHit" << std::endl;
+
+}
 
 
 StatusCode AFP_PileUpTool::processAllSubEvents() {
@@ -435,7 +473,7 @@ void AFP_PileUpTool::fillTDDigiCollection(TimedHitCollection<AFP_TDSimHit>& thpc
   TimedHitCollection<AFP_TDSimHit>::const_iterator i, e, it;
  
      for( int i=0; i<4; i++) {
-       for( int j=0; j<32; j++) {
+       for( int j=0; j<49; j++) {
           for( int k=0; k<2; k++) {
                 m_Signal[i][j][k].Reset();
                                   }
@@ -462,7 +500,7 @@ CLHEP::HepRandomEngine* rndEngine)
 {
 
     for( int i=0; i<4; i++) {
-       for( int j=0; j<32; j++) {
+       for( int j=0; j<49; j++) {
           for( int k=0; k<2; k++) {
                 m_Signal[i][j][k].Reset();
                                   }
@@ -568,6 +606,8 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
   ATH_MSG_DEBUG ( " iterating Pmt " << Station << "  " << Detector << "  " << SensitiveElement << " " << GlobalTime 
                                     << WaveLength ); 
 
+std::cout << "AFP TDDigi" << Station << "  " << Detector << "  " << SensitiveElement << " " << GlobalTime << " " 
+                                    << WaveLength << std::endl;
 
   int id =  (int(WaveLength)-100)/100;
   if (id > 6) id=6;
@@ -601,6 +641,7 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
   }  
   else ATH_MSG_DEBUG("m_SignalVector is empty"); 
 
+
 return;
 
 }
@@ -615,7 +656,7 @@ void AFP_PileUpTool::StoreTDDigi(void)
 //   fHistFile = new TFile("test.root","UPDATE");
 
     for( int i=0; i<4; i++) {
-       for( int j=0; j<32; j++) {
+       for( int j=0; j<49; j++) {
           for( int k=0; k<2; k++) { 
                                double ADC = m_Signal[i][j][k].GetMaximum();
                                double TDC =m_Signal[i][j][k].GetBinCenter( m_Signal[i][j][k].FindFirstBinAbove(ADC*m_CfdThr));

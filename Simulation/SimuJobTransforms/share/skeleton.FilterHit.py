@@ -36,7 +36,7 @@ if not hasattr(runArgs,"inputHITSFile"):
         raise RuntimeError("No inputHITSFile provided.")
 
 from SimuJobTransforms.HitsFilePeeker import HitsFilePeeker
-HitsFilePeeker(runArgs, filterHitLog)
+peekInfo = HitsFilePeeker(runArgs, filterHitLog)
 
 #==============================================================
 # Job Configuration parameters:
@@ -141,6 +141,10 @@ else:
     Stream1.ItemList += ["xAOD::JetContainer#*",
                          "xAOD::JetAuxContainer#*"]
 
+# pile-up truth particles
+Stream1.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
+
 #BLM
 #Stream1.ItemList += ["SiHitCollection#BLMHits"] # not used in digi
 #BCM
@@ -232,7 +236,10 @@ if hasattr(runArgs,'TruthReductionScheme'):
         pass
 
     from McEventCollectionFilter.McEventCollectionFilterConf import McEventCollectionFilter
-    McEventCollectionFilter = McEventCollectionFilter("McEventCollectionFilter")
+    McEventCollectionFilter = McEventCollectionFilter("McEventCollectionFilter",
+                                                      DecorateAntiKt4TruthJets = peekInfo["AntiKt4TruthJetsPresent"],
+                                                      DecorateAntiKt6TruthJets = peekInfo["AntiKt6TruthJetsPresent"],
+                                                      DecorateTruthParticles = peekInfo["PileUpTruthParticlesPresent"])
     if runArgs.TruthReductionScheme != 'SingleGenParticle':
         filterHitLog.warning( 'Unknown TruthReductionScheme (' + runArgs.TruthReductionScheme + '). Currently just a dummy value, but please check.' )
     ## here configure the level of Truth reduction required

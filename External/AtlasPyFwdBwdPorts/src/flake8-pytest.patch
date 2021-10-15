@@ -1,0 +1,8 @@
+--- flake8-3.3.0/setup.py-orig	2021-03-18 17:14:30.593223210 +0100
++++ flake8-3.3.0/setup.py	2021-03-18 17:14:40.637235648 +0100
+@@ -131,5 +131,4 @@
+         "Topic :: Software Development :: Quality Assurance",
+     ],
+     tests_require=tests_require,
+-    setup_requires=['pytest-runner'],
+ )

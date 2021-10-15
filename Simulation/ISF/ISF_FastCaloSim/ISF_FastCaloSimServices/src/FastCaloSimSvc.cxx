@@ -15,7 +15,7 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ISFParticleContainer.h"
+#include "ISF_Event/ISFParticleVector.h"
 
 // HepMC include needed for FastCaloSim
 #include "HepMC/GenParticle.h"
@@ -53,7 +53,7 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   m_theContainer(0),
   m_particleBroker ("ISF_ParticleBroker",name)
 {
-  // where to go 
+  // where to go
   declareProperty("OwnPolicy",                         m_ownPolicy) ;
   declareProperty("CaloCellMakerTools_setup"   ,       m_caloCellMakerTools_setup) ;
   declareProperty("CaloCellMakerTools_simulate",       m_caloCellMakerTools_simulate) ;
@@ -74,7 +74,7 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
                   "Run the FastShowerCellBuilders on the McTruth at the end of the event" );
 }
 
-ISF::FastCaloSimSvc::~FastCaloSimSvc() 
+ISF::FastCaloSimSvc::~FastCaloSimSvc()
 {}
 
 /** framework methods */
@@ -83,23 +83,23 @@ StatusCode ISF::FastCaloSimSvc::initialize()
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing ...");
 
    // access tools and store them
-   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() ) 
+   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() )
         return StatusCode::FAILURE;
-   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_simulate).isFailure() ) 
+   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_simulate).isFailure() )
         return StatusCode::FAILURE;
-   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() ) 
+   if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() )
         return StatusCode::FAILURE;
 
-   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() ) 
+   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() )
    {
      ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
      return StatusCode::FAILURE;
-   } 
+   }
 
-   // Get TimedExtrapolator 
+   // Get TimedExtrapolator
    if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
      return StatusCode::FAILURE;
- 
+
    ATH_MSG_DEBUG( m_screenOutputPrefix << " Output CaloCellContainer Name " << m_caloCellsOutputName );
    if (m_ownPolicy==SG::OWN_ELEMENTS){
        ATH_MSG_INFO( m_screenOutputPrefix << "...will OWN its cells." );
@@ -129,16 +129,16 @@ StatusCode ISF::FastCaloSimSvc::finalize()
 }
 
 StatusCode ISF::FastCaloSimSvc::setupEvent()
-{ 
+{
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "setup Event");
-  
+
   if (!m_caloCellHack) {
-    
+
     m_theContainer = new CaloCellContainer(static_cast<SG::OwnershipPolicy>(m_ownPolicy));
 
     StatusCode sc=StatusCode::SUCCESS;
     sc=evtStore()->record(m_theContainer,m_caloCellsOutputName);
-     
+
     if (sc.isFailure())  {
       ATH_MSG_FATAL( m_screenOutputPrefix << "cannot record CaloCellContainer " << m_caloCellsOutputName );
       return StatusCode::FAILURE;
@@ -156,7 +156,7 @@ StatusCode ISF::FastCaloSimSvc::setupEvent()
   else {
     // take CaloCellContainer from input and cast away constness
     const CaloCellContainer * theConstContainer ;
-    
+
     StatusCode sc=StatusCode::SUCCESS;
     sc=evtStore()->retrieve(theConstContainer,m_caloCellsOutputName);
     if (sc.isFailure() || theConstContainer==0)
@@ -171,9 +171,9 @@ StatusCode ISF::FastCaloSimSvc::setupEvent()
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_setup.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_setup.end();
   for (;itrTool!=endTool;++itrTool){
-    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
     std::string chronoName=this->name()+"_"+ itrTool->name();
-    
+
     if (m_chrono) m_chrono -> chronoStart( chronoName);
     StatusCode sc = (*itrTool)->process(m_theContainer);
     if (m_chrono) {
@@ -183,7 +183,7 @@ StatusCode ISF::FastCaloSimSvc::setupEvent()
 
     if (sc.isFailure()) {
       ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
-    } 
+    }
   }
 
   // loop on simulate tools
@@ -195,7 +195,7 @@ StatusCode ISF::FastCaloSimSvc::setupEvent()
       if(fcs->setupEvent().isFailure()) {
         ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() << " in setupEvent");
         return StatusCode::FAILURE;
-      }  
+      }
     }
   }
 
@@ -203,7 +203,7 @@ StatusCode ISF::FastCaloSimSvc::setupEvent()
 }
 
 StatusCode ISF::FastCaloSimSvc::releaseEvent()
-{ 
+{
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event");
 
   // the return value
@@ -220,14 +220,14 @@ StatusCode ISF::FastCaloSimSvc::releaseEvent()
     for (;itrTool!=endTool;++itrTool) {
       FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
       if(!fcs) {
-        ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );   
+        ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );
         continue;
       }
-      
-      ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+
+      ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
 
       if( fcs->process(m_theContainer).isFailure()) {
-        ATH_MSG_WARNING( m_screenOutputPrefix << "batch simulation of FastCaloSim particles failed" );   
+        ATH_MSG_WARNING( m_screenOutputPrefix << "batch simulation of FastCaloSim particles failed" );
         sc = StatusCode::FAILURE;
       }
     }
@@ -246,15 +246,15 @@ StatusCode ISF::FastCaloSimSvc::releaseEvent()
       }
     }
   }
-  
+
   // (3.) run release tools in a loop
   //
   itrTool=m_caloCellMakerTools_release.begin();
   endTool=m_caloCellMakerTools_release.end();
   for (;itrTool!=endTool;++itrTool){
-    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+    ATH_MSG_DEBUG( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
     std::string chronoName=this->name()+"_"+ itrTool->name();
-    
+
     if (m_chrono) m_chrono -> chronoStart( chronoName);
     sc = (*itrTool)->process(m_theContainer);
     if (m_chrono) {
@@ -267,7 +267,7 @@ StatusCode ISF::FastCaloSimSvc::releaseEvent()
     }
   }
 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 
@@ -283,12 +283,12 @@ StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   if (m_doPunchThrough) {
     // call punch-through simulation
-    const ISF::ISFParticleContainer* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
+    const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
 
     // add punch-through particles to the ISF particle broker
     if (isfpVec) {
-      ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
-      ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
+      ISF::ISFParticleVector::const_iterator partIt    = isfpVec->begin();
+      ISF::ISFParticleVector::const_iterator partItEnd = isfpVec->end();
       for ( ; partIt!=partItEnd; ++partIt) {
         m_particleBroker->push( *partIt, &isfp);
       }
@@ -328,19 +328,19 @@ StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp
   for (;itrTool!=endTool;++itrTool) {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
     if(!fcs) {
-      ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );   
+      ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );
       continue;
     }
-    
-    ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
+
+    ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
     std::string chronoName=this->name()+"_"+ itrTool->name();
-    
+
     if (m_chrono) m_chrono->chronoStart( chronoName);
 
     //sc = (*itrTool)->process(m_theContainer);
     if(fcs->process_particle(m_theContainer,hitVector,
 			     isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure()) {
-      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );   
+      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );
       return StatusCode::FAILURE;
     }
 
@@ -353,10 +353,10 @@ StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp
       if((*it).trackParms) {
         delete (*it).trackParms;
         (*it).trackParms=0;
-      }  
+      }
     }
     delete hitVector;
-  }  
+  }
 
   //  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "kill the particle in the end");
   return StatusCode::SUCCESS;
@@ -368,7 +368,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   // Start calo extrapolation
   ATH_MSG_VERBOSE ("[ fastCaloSim transport ] processing particle "<<isp.pdgCode() );
 
-  std::vector<Trk::HitInfo>*     hitVector =  new std::vector<Trk::HitInfo>;   
+  std::vector<Trk::HitInfo>*     hitVector =  new std::vector<Trk::HitInfo>;
 
   int  absPdg         = abs(isp.pdgCode());
   bool charged        = isp.charge()*isp.charge() > 0 ;
@@ -381,13 +381,13 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   if ( absPdg == 999 ) pHypothesis = Trk::geantino;
 
   // choose the extrapolator
-  //const Trk::ITimedExtrapolator* processor = &(*m_extrapolator); 
+  //const Trk::ITimedExtrapolator* processor = &(*m_extrapolator);
 
   // input parameters : curvilinear parameters
   Trk::CurvilinearParameters inputPar(isp.position(),isp.momentum(),isp.charge());
 
-  // stable vs. unstable check : ADAPT for FASTCALOSIM 
-  //double freepath = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(isp) : - 1.; 
+  // stable vs. unstable check : ADAPT for FASTCALOSIM
+  //double freepath = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(isp) : - 1.;
   double freepath = -1.;
   ATH_MSG_VERBOSE( "[ fatras transport ] Particle free path : " << freepath);
   // path limit -> time limit  ( TODO : extract life-time directly from decay helper )
@@ -398,16 +398,16 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   // beta calculated here for further use in validation
   double mass = m_particleMasses.mass[pHypothesis];
   double mom = isp.momentum().mag();
-  double beta = mom/sqrt(mom*mom+mass*mass); 
+  double beta = mom/sqrt(mom*mom+mass*mass);
 
   if ( tDec>0.) {
     tDec = tDec/beta/CLHEP::c_light + isp.timeStamp();
-    decayProc = 201;                
+    decayProc = 201;
   }
   */
 
   Trk::TimeLimit timeLim(tDec,isp.timeStamp(),decayProc);
-  
+
   // prompt decay
   //if ( freepath>0. && freepath<0.01 ) {
   //  if (!m_particleDecayHelper.empty()) {
@@ -420,25 +420,25 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   // presample interactions - ADAPT FOR FASTCALOSIM ( non-interacting )
   Trk::PathLimit pathLim(-1.,0);
   //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
-     
+
   Trk::GeometrySignature nextGeoID = static_cast<Trk::GeometrySignature>(isp.nextGeoID());
 
   // save Calo entry hit (fallback info)
-  hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));  
-    
+  hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));
+
   const Trk::TrackParameters* eParameters = 0;
 
   if ( !charged ) {
 
-    eParameters = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);  
- 
+    eParameters = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
+
   } else {
-          
+
     eParameters = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
 
   }
   // save Calo exit hit (fallback info)
-  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));  
+  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));
 
   ATH_MSG_VERBOSE( "[ fastCaloSim transport ] number of intersections "<< hitVector->size());
 

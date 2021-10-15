@@ -29,6 +29,10 @@ def getHITSFile(runArgs):
         raise SystemExit("No HITS file in runArgs!!")
 
 def HitsFilePeeker(runArgs, skeletonLog):
+    peekInfo = dict()
+    peekInfo["AntiKt4TruthJetsPresent"] = False
+    peekInfo["AntiKt6TruthJetsPresent"] = False
+    peekInfo["PileUpTruthParticlesPresent"] = False
     import PyUtils.AthFile as af
     try:
         f = af.fopen(getHITSFile(runArgs))
@@ -70,7 +74,15 @@ def HitsFilePeeker(runArgs, skeletonLog):
                 metadatadict['SimulatedDetectors'] = hitColls2SimulatedDetectors(f.infos['eventdata_items'])
             else :
                 metadatadict['SimulatedDetectors'] = ['pixel','SCT','TRT','BCM','Lucid','LAr','Tile','MDT','CSC','TGC','RPC','Truth']
-
+    # Check for Truth Containers
+    if 'eventdata_items' in f.infos.keys():
+        for entry in f.infos['eventdata_items']:
+            if 'AntiKt4TruthJets' == entry[1]:
+                peekInfo["AntiKt4TruthJetsPresent"] = True
+            if 'AntiKt6TruthJets' == entry[1]:
+                peekInfo["AntiKt6TruthJetsPresent"] = True
+            if 'TruthPileupParticles' == entry[1]:
+                peekInfo["PileUpTruthParticlesPresent"] = True
     import re
     from AthenaCommon.GlobalFlags import globalflags
     globalflags.DataSource="geant4"
@@ -135,4 +147,4 @@ def HitsFilePeeker(runArgs, skeletonLog):
         DetFlags.writeRDOPool.all_setOff()
         DetFlags.writeRIOPool.all_setOff()
 
-    return
+    return peekInfo

@@ -28,6 +28,7 @@ namespace egammaMonitoring {
     using ParticleHistograms::fill;
 
     void fill(const xAOD::IParticle&);
+    void fill(const xAOD::IParticle&, float mu);
 
   private:
 

@@ -146,6 +146,15 @@ def adjustlongfolder(name):
                 global overlaylongfolders
                 overlaylongfolders += [name]
 
+overlaydayfolders = []
+def adjustdayfolder(name):
+        if conddb.folderRequested(name):
+                print "setting "+name+" to day(86400s) cache"
+                conddb.addMarkup(name,"<cache>86400</cache>")
+                global overlaydayfolders
+                overlaydayfolders += [name]
+
+
 if dofolderoverrides:
         adjustlongfolder("/CALO/CaloSwClusterCorrections/calhits")
         adjustlongfolder("/CALO/CaloSwClusterCorrections/clcon")
@@ -234,13 +243,21 @@ if dofolderoverrides:
         adjustlongfolder("/RPC/TRIGGER/CM_THR_ETA")
         adjustlongfolder("/RPC/TRIGGER/CM_THR_PHI")
         adjustlongfolder("/TRT/AlignL2")
+        adjustdayfolder("/SCT/DAQ/Config/Chip")
+        adjustdayfolder("/SCT/DAQ/Config/Module")
+        adjustdayfolder("/SCT/DAQ/Config/MUR")
+        adjustdayfolder("/SCT/DAQ/Config/ROD")
  
 print "overlaylongfolders: ", overlaylongfolders
- 
+print "overlaydayfolders: ", overlaydayfolders 
+
 def adjustshortfolder(name):
         global overlaylongfolders
+        global overlaydayfolders
         if name in overlaylongfolders:
                 print "already made "+name+" long"
+        elif name in overlaydayfolders:
+                print "already made "+name+" day long"
         else:
                 if conddb.folderRequested(name):
                         print "setting "+name+" to 10s cache"

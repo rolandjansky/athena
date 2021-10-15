@@ -263,6 +263,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     
     TLorentzVector CHFNum = TLorentzVector(0.0,0.0,0.0,0.0);
     const xAOD::BTagging *bjet(nullptr);
+    if (jet->btagging()==false) continue;
     bjet = jet->btagging();
     TrackLinks assocTracks = bjet->auxdata<TrackLinks>("BTagTrackToJetAssociator");
     
