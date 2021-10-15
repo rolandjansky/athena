@@ -18,7 +18,7 @@ def ITkStripGeoModelCfg(flags):
 
 
 def ITkStripAlignmentCfg(flags):
-    if flags.GeoModel.Align.LegacyConditionsAccess:
+    if flags.GeoModel.Align.LegacyConditionsAccess:  # revert to old style CondHandle in case of simulation
         from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
         return addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align")
     else:

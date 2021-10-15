@@ -223,8 +223,8 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
 
     from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
     top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
@@ -254,14 +254,10 @@ if __name__ == "__main__":
     PixeldEdxAlg = CompFactory.PixeldEdxAlg(name="PixeldEdxAlg", ReadFromCOOL = True)
     top_acc.addCondAlgo(PixeldEdxAlg)
     ###
-    InDetTRTStrawStatusSummaryTool = top_acc.popToolsAndMerge(TC.InDetTRTStrawStatusSummaryToolCfg(ConfigFlags))
-    top_acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
 
-    TRTStrawCondAlg = CompFactory.TRTStrawCondAlg(  name="TRTStrawCondAlg", 
-                                                    TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
-                                                    StrawWriteKey  = "AliveStraws",
-                                                    isGEANT4 = ConfigFlags.Input.isMC)
-    top_acc.addCondAlgo(TRTStrawCondAlg)
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
+    top_acc.merge(TRTStrawCondAlgCfg(ConfigFlags))
+
     ###
     ###
     top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className='CondAttrListVec'))
@@ -285,8 +281,7 @@ if __name__ == "__main__":
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
     ###
     ###
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg, TRTSegmentFindingCfg
-
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
     ############################# TRTPreProcessing configuration ############################
@@ -297,6 +292,7 @@ if __name__ == "__main__":
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
+    from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         "",
                                         InputCombinedInDetTracks,

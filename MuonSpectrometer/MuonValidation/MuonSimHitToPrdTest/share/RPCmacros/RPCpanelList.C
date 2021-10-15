@@ -1,234 +1,206 @@
-#include "RPCpanelList.h"
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
 #include <math.h>
+
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <map>
+#include <sstream>
 
+#include "RPCpanelList.h"
 
-RPCpanelList::RPCpanelList()
-{
-  m_acceptProximityID = false;
-  indexInCache = 999999;
-  panelIDinCache = 0;
-  m_entryInListMap = new std::map<unsigned long, unsigned int>();
+RPCpanelList::RPCpanelList() {
+    m_acceptProximityID = false;
+    indexInCache = 999999;
+    panelIDinCache = 0;
+    m_entryInListMap = new std::map<unsigned long, unsigned int>();
 }
-RPCpanelList::~RPCpanelList()
-{
-  delete m_entryInListMap;
-}
-cRPCpanelListIterator RPCpanelList::end()
-{
-  return m_entryInListMap->end();
-}
-cRPCpanelListIterator RPCpanelList::begin()
-{
-  return m_entryInListMap->begin();
-}
-unsigned int RPCpanelList::size()
-{
-  return m_entryInListMap->size();
-}
+RPCpanelList::~RPCpanelList() { delete m_entryInListMap; }
+cRPCpanelListIterator RPCpanelList::end() { return m_entryInListMap->end(); }
+cRPCpanelListIterator RPCpanelList::begin() { return m_entryInListMap->begin(); }
+unsigned int RPCpanelList::size() { return m_entryInListMap->size(); }
 
-void RPCpanelList::init()
-{
-  return init(0);
-}
-void RPCpanelList::init(Int_t inputLayer)
-{
-  std::cout<<"RPCpanelList::init"<<std::endl;
-  std::cout<<"Layer Requested is <"<<inputLayer<<">"<<std::endl;
+void RPCpanelList::init() { return init(0); }
+void RPCpanelList::init(Int_t inputLayer) {
+    std::cout << "RPCpanelList::init" << std::endl;
+    std::cout << "Layer Requested is <" << inputLayer << ">" << std::endl;
 
-  std::string STRING;
-  stringstream ss;
-  ss<<inputLayer;
-  //std::cout<<"Layer Requested is <"<<ss<<">"<<std::endl;
-  std::string laySTRING=ss.str();
-  std::cout<<"Layer Requested is <"<<laySTRING<<">"<<std::endl;
-  if (inputLayer>0 && inputLayer<7) std::cout<<" Will use only lines with Layer = "<<laySTRING<<std::endl;
-  ss.clear();
-  ifstream infile;
-  infile.open("rpc_current_panelID_R.07.01");
-  int nPanels= 0;
-  float etamin,etamax,phimin,phimax,zmin,zmax;
-  std::string stName;
-  std::string viewName;
-  std::string stringId;
-  int layerRPC;
-  unsigned long panelID;
-  if (infile.is_open())                     //if the file is open
+    std::string STRING;
+    stringstream ss;
+    ss << inputLayer;
+    // std::cout<<"Layer Requested is <"<<ss<<">"<<std::endl;
+    std::string laySTRING = ss.str();
+    std::cout << "Layer Requested is <" << laySTRING << ">" << std::endl;
+    if (inputLayer > 0 && inputLayer < 7) std::cout << " Will use only lines with Layer = " << laySTRING << std::endl;
+    ss.clear();
+    ifstream infile;
+    infile.open("rpc_current_panelID_R.07.01");
+    int nPanels = 0;
+    float etamin, etamax, phimin, phimax, zmin, zmax;
+    std::string stName;
+    std::string viewName;
+    std::string stringId;
+    int layerRPC;
+    unsigned long panelID;
+    if (infile.is_open())  // if the file is open
     {
-      std::cout<<"File is open"<<std::endl;
-	while(!infile.eof()) // To get you all the lines.
-	{
-	    ss.clear();
-	    getline(infile,STRING); // Saves the line in STRING.
-	    //std::cout<<" now reading <"<<STRING<<">"<<std::endl; // Prints our STRING.
-	    if (inputLayer>0 && inputLayer<7  && STRING.substr(0,1)!=laySTRING) 
-	      {
-		//std::cout<<"not a layer 1 panel; skipping"<<std::endl;
-		continue; // skip comments
-	      }
-	    else 
-	    {
-	      ++nPanels;
-	      //STRING = "1 BML phi [7.2.-7.1.2.1.1.1.1.1.56] 1644724956 -1.0666 -1.0289 -0.1988 -0.0013";
-	      //STRING = "1 BML phi [7.2.-7.1.2.1.1.1.1.1.56] 1644724956";
-	      ss<<STRING;
-	      //ss>>layerRPC>>stName>>viewName>>stringId;
-	      //std::cout<<" STRING = <"<<STRING<<">"<<std::endl;
-	      
-	      ss>>layerRPC>>stName>>viewName>>stringId>>panelID>>etamin>>etamax>>phimin>>phimax>>zmin>>zmax;
-	      
-	      if (nPanels<10) std::cout<<" Variables are <"<<layerRPC<<",  "<<stName<<", "<<viewName<<", "<<stringId<<", "<<panelID
-	      <<" eta,phi range ["<<etamin<<", "<<etamax<<"]["<<phimin<<", "<<phimax<<"]"
-	      <<std::endl;
-	      
-	      unsigned int index = nPanels-1;
-	      cRPCpanelListIterator lookForExistingID = m_entryInListMap->find(panelID);
-	      if (lookForExistingID != m_entryInListMap->end()) 
-		{
-		  std::cout<<"Duplicate panelID found "<<std::endl;
-		  std::cout<<"Previous is "<<lookForExistingID->first<<" at line "<<(lookForExistingID->second)+1<<" stringID="<<getStringId(lookForExistingID->first)<<std::endl;
-		  std::cout<<"Current  is "<<panelID<<" at line "<<index+1<<" stringID="<<stringId<<std::endl;
-		  continue;
-		}
-	      m_entryInListMap->insert(std::pair<unsigned long, unsigned int>(panelID,index));
-	      m_stringIdArray[index]=stringId;
-	      m_stNameArray[index]=stName;
-	      if (viewName=="phi") m_viewArray[index]=1;
-	      else m_viewArray[index]=0;
-	      m_layerArray[index]=layerRPC;
-	      m_boundArrayEtaMin[index] = etamin;
-	      m_boundArrayEtaMax[index] = etamax;
-	      m_boundArrayPhiMin[index] = phimin;
-	      m_boundArrayPhiMax[index] = phimax;
-	      m_boundArrayZMin[index]   = zmin;  
-	      m_boundArrayZMax[index]   = zmax;  
+        std::cout << "File is open" << std::endl;
+        while (!infile.eof())  // To get you all the lines.
+        {
+            ss.clear();
+            getline(infile, STRING);  // Saves the line in STRING.
+            // std::cout<<" now reading <"<<STRING<<">"<<std::endl; // Prints our STRING.
+            if (inputLayer > 0 && inputLayer < 7 && STRING.substr(0, 1) != laySTRING) {
+                // std::cout<<"not a layer 1 panel; skipping"<<std::endl;
+                continue;  // skip comments
+            } else {
+                ++nPanels;
+                // STRING = "1 BML phi [7.2.-7.1.2.1.1.1.1.1.56] 1644724956 -1.0666 -1.0289 -0.1988 -0.0013";
+                // STRING = "1 BML phi [7.2.-7.1.2.1.1.1.1.1.56] 1644724956";
+                ss << STRING;
+                // ss>>layerRPC>>stName>>viewName>>stringId;
+                // std::cout<<" STRING = <"<<STRING<<">"<<std::endl;
 
-	      //t->DrawBox(etamin,phimin,etamax,phimax);
-	      //DrawRpcPanel(cLayer,etamin,etamax,phimin,phimax);
-	    }
-	    //	    if (nPanels>1) break;
-	}
-	
+                ss >> layerRPC >> stName >> viewName >> stringId >> panelID >> etamin >> etamax >> phimin >> phimax >> zmin >> zmax;
+
+                if (nPanels < 10)
+                    std::cout << " Variables are <" << layerRPC << ",  " << stName << ", " << viewName << ", " << stringId << ", "
+                              << panelID << " eta,phi range [" << etamin << ", " << etamax << "][" << phimin << ", " << phimax << "]"
+                              << std::endl;
+
+                unsigned int index = nPanels - 1;
+                cRPCpanelListIterator lookForExistingID = m_entryInListMap->find(panelID);
+                if (lookForExistingID != m_entryInListMap->end()) {
+                    std::cout << "Duplicate panelID found " << std::endl;
+                    std::cout << "Previous is " << lookForExistingID->first << " at line " << (lookForExistingID->second) + 1
+                              << " stringID=" << getStringId(lookForExistingID->first) << std::endl;
+                    std::cout << "Current  is " << panelID << " at line " << index + 1 << " stringID=" << stringId << std::endl;
+                    continue;
+                }
+                m_entryInListMap->insert(std::pair<unsigned long, unsigned int>(panelID, index));
+                m_stringIdArray[index] = stringId;
+                m_stNameArray[index] = stName;
+                if (viewName == "phi")
+                    m_viewArray[index] = 1;
+                else
+                    m_viewArray[index] = 0;
+                m_layerArray[index] = layerRPC;
+                m_boundArrayEtaMin[index] = etamin;
+                m_boundArrayEtaMax[index] = etamax;
+                m_boundArrayPhiMin[index] = phimin;
+                m_boundArrayPhiMax[index] = phimax;
+                m_boundArrayZMin[index] = zmin;
+                m_boundArrayZMax[index] = zmax;
+
+                // t->DrawBox(etamin,phimin,etamax,phimax);
+                // DrawRpcPanel(cLayer,etamin,etamax,phimin,phimax);
+            }
+            //	    if (nPanels>1) break;
+        }
+
+    } else {
+        std::cout << "a problem with input file" << std::endl;
     }
-  else
-    {
-      std::cout<<"a problem with input file"<<std::endl;
-    }
-  infile.close();
-  std::cout<<"Finished; n. of panels found is "<<nPanels<<std::endl;
-   
+    infile.close();
+    std::cout << "Finished; n. of panels found is " << nPanels << std::endl;
 }
-unsigned int RPCpanelList::getIndexInList(unsigned long panelID)
-{
-  if (panelID==panelIDinCache) return indexInCache;
-  if (m_entryInListMap->find(panelID)!=m_entryInListMap->end())
-    {
-      // found 
-      panelIDinCache = panelID;
-      int indexRequested = (m_entryInListMap->find(panelID))->second;
-      indexInCache = indexRequested;
-      return indexRequested;
-    }
-  else 
-    {
-      if (m_acceptProximityID)
-	{
-	  //std::cout<<" ppp do we try this one ???"<<std::endl;
-	  unsigned long upperLimit = 5999999999;
-	  unsigned long closestSmaller = upperLimit;
-	  for (cRPCpanelListIterator it=begin(); it!=end(); ++it)
-	    {
-	      //std::cout<<" ppp "<<it->first <<" "<<panelID<<" "<<closestSmaller<<std::endl;
-	      if (it->first > panelID && it->first < closestSmaller)
-		{
-		  closestSmaller = it->first;
-		}
-	    }
-	  if (closestSmaller != upperLimit) {
-	    panelIDinCache = panelID;
-	    int indexRequested = (m_entryInListMap->find(closestSmaller))->second;
-	    indexInCache = indexRequested;
-	    std::cout<<"Closest panel ID found is at distance = "<<closestSmaller-panelID<<" panelID = "<<panelID<<" "<<closestSmaller<<std::endl;
-	    return indexRequested;
-	  }
-	}
-      // not found
-      std::cout<<"panelID "<<panelID<<" not found in the map"<<std::endl;
-      return 999999;
+unsigned int RPCpanelList::getIndexInList(unsigned long panelID) {
+    if (panelID == panelIDinCache) return indexInCache;
+    if (m_entryInListMap->find(panelID) != m_entryInListMap->end()) {
+        // found
+        panelIDinCache = panelID;
+        int indexRequested = (m_entryInListMap->find(panelID))->second;
+        indexInCache = indexRequested;
+        return indexRequested;
+    } else {
+        if (m_acceptProximityID) {
+            // std::cout<<" ppp do we try this one ???"<<std::endl;
+            unsigned long upperLimit = 5999999999;
+            unsigned long closestSmaller = upperLimit;
+            for (cRPCpanelListIterator it = begin(); it != end(); ++it) {
+                // std::cout<<" ppp "<<it->first <<" "<<panelID<<" "<<closestSmaller<<std::endl;
+                if (it->first > panelID && it->first < closestSmaller) { closestSmaller = it->first; }
+            }
+            if (closestSmaller != upperLimit) {
+                panelIDinCache = panelID;
+                int indexRequested = (m_entryInListMap->find(closestSmaller))->second;
+                indexInCache = indexRequested;
+                std::cout << "Closest panel ID found is at distance = " << closestSmaller - panelID << " panelID = " << panelID << " "
+                          << closestSmaller << std::endl;
+                return indexRequested;
+            }
+        }
+        // not found
+        std::cout << "panelID " << panelID << " not found in the map" << std::endl;
+        return 999999;
     }
 }
-std::string RPCpanelList::getStringId(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_stringIdArray[ind];
-  else 
-    return "NULL";
+std::string RPCpanelList::getStringId(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_stringIdArray[ind];
+    else
+        return "NULL";
 }
-std::string RPCpanelList::getStName(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_stNameArray[ind];
-  else 
-    return "NULL";
+std::string RPCpanelList::getStName(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_stNameArray[ind];
+    else
+        return "NULL";
 }
-unsigned short RPCpanelList::getLayer(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_layerArray[ind];
-  else 
-    return 0;
+unsigned short RPCpanelList::getLayer(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_layerArray[ind];
+    else
+        return 0;
 }
-unsigned short RPCpanelList::getView(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_viewArray[ind];
-  else 
-    return 0;
+unsigned short RPCpanelList::getView(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_viewArray[ind];
+    else
+        return 0;
 }
-double RPCpanelList::getEtaMin(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_boundArrayEtaMin[ind];
-  else 
-    return 0.;
+double RPCpanelList::getEtaMin(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_boundArrayEtaMin[ind];
+    else
+        return 0.;
 }
-double RPCpanelList::getEtaMax(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_boundArrayEtaMax[ind];
-  else 
-    return 0.;
+double RPCpanelList::getEtaMax(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_boundArrayEtaMax[ind];
+    else
+        return 0.;
 }
-double RPCpanelList::getPhiMin(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_boundArrayPhiMin[ind];
-  else 
-    return 0.;
+double RPCpanelList::getPhiMin(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_boundArrayPhiMin[ind];
+    else
+        return 0.;
 }
-double RPCpanelList::getPhiMax(unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_boundArrayPhiMax[ind];
-  else 
-    return 0.;
+double RPCpanelList::getPhiMax(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_boundArrayPhiMax[ind];
+    else
+        return 0.;
 }
-double RPCpanelList::getZMin  (unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_boundArrayZMin[ind];
-  else 
-    return 0.;
+double RPCpanelList::getZMin(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_boundArrayZMin[ind];
+    else
+        return 0.;
 }
-double RPCpanelList::getZMax  (unsigned long panelID)
-{
-  unsigned int ind = getIndexInList(panelID);
-  if (ind<arraySize) return m_boundArrayZMax[ind];
-  else 
-    return 0.;
+double RPCpanelList::getZMax(unsigned long panelID) {
+    unsigned int ind = getIndexInList(panelID);
+    if (ind < arraySize)
+        return m_boundArrayZMax[ind];
+    else
+        return 0.;
 }
-

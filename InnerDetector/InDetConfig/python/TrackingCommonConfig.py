@@ -462,37 +462,25 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
     acc.setPrivateTools(InDetSummaryHelper)
     return acc
 
-def InDetTRTStrawStatusSummaryToolCfg(flags, name = "InDetTRT_StrawStatusSummaryTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    kwargs.setdefault("isGEANT4", flags.Input.isMC)
-    InDetTRTStrawStatusSummaryTool = CompFactory.TRT_StrawStatusSummaryTool(name = the_name, **kwargs )
-    acc.setPrivateTools(InDetTRTStrawStatusSummaryTool)
-    return acc
-
-def InDetTRTCalDbToolCfg(name = "InDetTRT_CalDbTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    InDetTRTCalDbTool =  CompFactory.TRT_CalDbTool(name = the_name, **kwargs)
-    acc.setPrivateTools(InDetTRTCalDbTool)
-    return acc
 
 def InDetTRT_LocalOccupancyCfg(flags, name ="InDet_TRT_LocalOccupancy", **kwargs):
     acc = ComponentAccumulator()
     the_name = makeName( name, kwargs)
     if 'TRTCalDbTool' not in kwargs :
-        InDetTRTCalDbTool = acc.popToolsAndMerge(InDetTRTCalDbToolCfg())
-        acc.addPublicTool(InDetTRTCalDbTool)
-        kwargs.setdefault( "TRTCalDbTool", InDetTRTCalDbTool )
+        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
+        CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+        acc.addPublicTool(CalDbTool)
+        kwargs.setdefault( "TRTCalDbTool", CalDbTool )
 
     if 'TRTStrawStatusSummaryTool' not in kwargs :
-        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(InDetTRTStrawStatusSummaryToolCfg(flags))
+        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
+        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
         acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
         kwargs.setdefault( "TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool )
 
     kwargs.setdefault("isTrigger", False)
 
-    from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg # this will be moved somewhere else so this import will need adjustment
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
     acc.merge( TRTStrawCondAlgCfg(flags) )
 
     InDetTRT_LocalOccupancy = CompFactory.InDet.TRT_LocalOccupancy(name=the_name, **kwargs )
@@ -544,7 +532,8 @@ def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwar
         return None
 
     if 'TRTStrawSummaryTool' not in kwargs :
-        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(InDetTRTStrawStatusSummaryToolCfg(flags))
+        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
+        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
         acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
         kwargs.setdefault( "TRTStrawSummaryTool", InDetTRTStrawStatusSummaryTool)
 
@@ -1196,7 +1185,7 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
         kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.minSecondaryPt)
 
     acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     acc.merge(TRTActiveCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(the_name, **kwargs))
     return acc

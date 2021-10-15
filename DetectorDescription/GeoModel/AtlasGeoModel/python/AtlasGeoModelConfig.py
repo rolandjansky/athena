@@ -15,13 +15,15 @@ def AtlasGeometryCfg (flags):
         acc.merge(PixelSimulationGeometryCfg(flags))
         from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
         acc.merge(SCT_SimulationGeometryCfg(flags))
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_SimulationGeometryCfg
+        acc.merge(TRT_SimulationGeometryCfg(flags))
     else:
         from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
         acc.merge(PixelReadoutGeometryCfg(flags))
         from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
         acc.merge(SCT_ReadoutGeometryCfg(flags))
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    acc.merge(TRT_GeometryCfg(flags))
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc.merge(TRT_ReadoutGeometryCfg(flags))
     from InDetServMatGeoModel.InDetServMatGeoModelConfig import InDetServiceMaterialCfg
     acc.merge(InDetServiceMaterialCfg(flags))
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
