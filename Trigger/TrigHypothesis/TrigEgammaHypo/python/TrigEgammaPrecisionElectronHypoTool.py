@@ -49,7 +49,7 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     ]
     MonTool.HistPath = 'PrecisionElectronHypo/'+name
     thePrecisionElectronHypo.MonTool=MonTool
-    acc.addEventAlgo(thePrecisionElectronHypo)
+    #acc.addEventAlgo(thePrecisionElectronHypo)
     return thePrecisionElectronHypo, acc
 
 def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection, doIDperf ):
