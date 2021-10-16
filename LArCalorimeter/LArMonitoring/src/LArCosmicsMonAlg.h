@@ -31,7 +31,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArEM_ID;
 class LArOnlineID;
@@ -48,7 +48,7 @@ class LArCosmicsMonAlg: public AthMonitorAlgorithm
   virtual ~LArCosmicsMonAlg();
 
   /** @brief Overwrite dummy method from AlgTool */
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
 
   /** Called each event */
@@ -75,8 +75,10 @@ class LArCosmicsMonAlg: public AthMonitorAlgorithm
 
   /** Handle to bad-channel mask */
   LArBadChannelMask m_bcMask;
-   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   //properties
   Gaudi::Property<float>         m_muonADCthreshold_EM_barrel  {this, "MuonADCthreshold_EM_barrel", 30};
