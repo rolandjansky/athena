@@ -22,6 +22,7 @@
 #include "../LArHVCondAlg.h"
 #include "../LArAutoCorrNoiseCondAlg.h"
 #include "../LArFEBConfigCondAlg.h"
+#include "../LArRoIMapCondAlg.h"
 
 
 //DECLARE_COMPONENT( LArCellFakeProbHV )
@@ -78,3 +79,4 @@ DECLARE_COMPONENT( LArOFCCondAlg )
 DECLARE_COMPONENT( LArHVCondAlg )
 DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )
 DECLARE_COMPONENT( LArFEBConfigCondAlg )
+DECLARE_COMPONENT( LArRoIMapCondAlg )
