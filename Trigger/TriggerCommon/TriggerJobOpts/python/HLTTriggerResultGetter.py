@@ -3,7 +3,6 @@
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
-from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AppMgr import ServiceMgr
 from RecExConfig.Configured import Configured
@@ -40,7 +39,7 @@ class xAODConversionGetter(Configured):
         # (previously this was defined in HLTTriggerResultGetter def configure)
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList
         self.xaodlist = {}
-        self.xaodlist.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(), 2 ))
+        self.xaodlist.update( getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet, 2 ))
 
         return True
     
@@ -269,10 +268,6 @@ class HLTTriggerResultGetter(Configured):
         log = logging.getLogger("HLTTriggerResultGetter.py")
         from RecExConfig.ObjKeyStore import objKeyStore
 
-        # Set AODFULL for data unless it was set explicitly already
-        if TriggerFlags.AODEDMSet.isDefault() and globalflags.DataSource()=='data':
-            TriggerFlags.AODEDMSet = 'AODFULL'
-            
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         log.info("BS unpacking (ConfigFlags.Trigger.readBS): %d", ConfigFlags.Trigger.readBS )
@@ -348,17 +343,17 @@ class HLTTriggerResultGetter(Configured):
         if(xAODContainers):
             _TriggerESDList.update( xAODContainers )
         else:
-            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
+            _TriggerESDList.update( getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet,  ConfigFlags.Trigger.EDMVersion) )
         
-        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMVersion)
+        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", ConfigFlags.Trigger.ESDEDMSet, ConfigFlags.Trigger.EDMVersion)
 
         # AOD objects choice
         _TriggerAODList = {}
         
         #from TrigEDMConfig.TriggerEDM import getAODList    
-        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
+        _TriggerAODList.update( getTriggerEDMList(ConfigFlags.Trigger.AODEDMSet,  ConfigFlags.Trigger.EDMVersion) )
 
-        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),ConfigFlags.Trigger.EDMVersion)
+        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", ConfigFlags.Trigger.AODEDMSet, ConfigFlags.Trigger.EDMVersion)
 
         log.debug("ESD EDM list: %s", _TriggerESDList)
         log.debug("AOD EDM list: %s", _TriggerAODList)

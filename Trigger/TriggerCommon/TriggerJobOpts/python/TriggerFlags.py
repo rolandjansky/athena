@@ -66,6 +66,10 @@ class AODEDMSet(JobProperty):
     statusOn=True
     allowedType=['list']
     StoredValue='AODSLIM'
+    def _do_action(self):
+        log.warning("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.AODEDMSet = self.get_Value()
 
 _flags.append(AODEDMSet)
 
@@ -74,6 +78,10 @@ class ESDEDMSet(JobProperty):
     statusOn=True
     allowedType=['list']
     StoredValue='ESD'
+    def _do_action(self):
+        log.warning("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
 
 _flags.append(ESDEDMSet)
 
@@ -369,5 +377,3 @@ def sync_Trigger2Reco():
         ConfigFlags.Trigger.readBS = True
         TriggerFlags.doLVL1 = False
         TriggerFlags.doHLT   = False
-
-del log

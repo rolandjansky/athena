@@ -25,8 +25,8 @@ from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 preExec = ';'.join([
   'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
-  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
-  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+  'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
+  'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
 ])
 
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
