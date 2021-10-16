@@ -24,9 +24,11 @@ log = logging.getLogger(__name__)
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
       SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-      outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
+      outputElectronKey = recordable('HLT_egamma_Electrons')
+      outputTopoCollection = 'HLT_egammaTopoCluster'
       EgammaRecKey = 'HLT_egammaRecCollection'
+      PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
       IDTrigConfig = getInDetTrigConfig( 'electron' )
       outputPhotonKey = recordable('HLT_egamma_Photons')
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
