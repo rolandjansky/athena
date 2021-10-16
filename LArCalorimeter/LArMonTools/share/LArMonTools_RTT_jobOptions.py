@@ -87,7 +87,6 @@ DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
 DetDescrCnvSvc.DoIdChecks
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 
 #------------------------------------------------
 
