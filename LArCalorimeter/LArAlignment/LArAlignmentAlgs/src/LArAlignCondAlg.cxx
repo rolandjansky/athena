@@ -26,17 +26,17 @@ StatusCode LArAlignCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArAlignCondAlg::execute(const EventContext& ctx) const
+StatusCode LArAlignCondAlg::execute()
 {
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeGeoAlignHandle{m_writeGeoAlignKey,ctx};
+  SG::WriteCondHandle<GeoAlignmentStore> writeGeoAlignHandle{m_writeGeoAlignKey};
   if (writeGeoAlignHandle.isValid()) {
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }
   
   // ____________ Get Read Cond Object ____________
-  SG::ReadCondHandle<DetCondKeyTrans> readLArAlignHandle{m_readLArAlignKey,ctx};
+  SG::ReadCondHandle<DetCondKeyTrans> readLArAlignHandle{m_readLArAlignKey};
   ATH_CHECK(readLArAlignHandle.isValid());
   ATH_MSG_DEBUG("Retrieved DetCondKeyTrans object form the Condition Store");
   writeGeoAlignHandle.addDependency(readLArAlignHandle);

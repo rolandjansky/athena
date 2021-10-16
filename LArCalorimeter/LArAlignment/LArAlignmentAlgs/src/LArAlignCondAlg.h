@@ -5,7 +5,7 @@
 #ifndef LARALIGNMENTALGS_LARALIGNCONDALG_H
 #define LARALIGNMENTALGS_LARALIGNCONDALG_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -23,14 +23,14 @@
  *
  **/
 
-class LArAlignCondAlg final : public AthReentrantAlgorithm
+class LArAlignCondAlg final : public AthAlgorithm
 {
  public:
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  using AthAlgorithm::AthAlgorithm;
   virtual ~LArAlignCondAlg() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
   virtual StatusCode finalize() override {return StatusCode::SUCCESS;};
 
  private:
