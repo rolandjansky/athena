@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -134,242 +134,244 @@ def RpcMonitoringConfig(inputFlags):
     ######################################################################################################
     ## Rpc Track Analysis
     ######################################################################################################
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(inputFlags))
+    if inputFlags.Trigger.doLVL1 or 'LVL1MuonRoIs' in inputFlags.Input.Collections:
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(inputFlags))
 
-    rpcTrackAnaAlg = helper.addAlgorithm(CompFactory.RpcTrackAnaAlg, "RpcTrackAnaAlgAlg", TrackExtrapolator = extrapolator)
+        rpcTrackAnaAlg = helper.addAlgorithm(CompFactory.RpcTrackAnaAlg, "RpcTrackAnaAlgAlg", TrackExtrapolator = extrapolator)
 
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
-    else:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge(TrackingGeometrySvcCfg(inputFlags))
+        from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+        if use_tracking_geometry_cond_alg:
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+            result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
+        else:
+            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+            result.merge(TrackingGeometrySvcCfg(inputFlags))
 
-    rpcTrackAnaAlg.plotMuonEff = True
-    rpcTrackAnaAlg.analyseTrack= True
+        rpcTrackAnaAlg.plotMuonEff = True
+        rpcTrackAnaAlg.analyseTrack= True
 
-    rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
-    rpcTrackAnaAlg.TagAndProbe         = False
-    rpcTrackAnaAlg.TagAndProbeZmumu    = False
+        rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
+        rpcTrackAnaAlg.TagAndProbe         = False
+        rpcTrackAnaAlg.TagAndProbeZmumu    = False
 
-    myGroup_track = helper.addGroup(rpcTrackAnaAlg, 'RpcTrackAnaAlg', 'Muon/MuonRawDataMonitoring/RPC/')
+        myGroup_track = helper.addGroup(rpcTrackAnaAlg, 'RpcTrackAnaAlg', 'Muon/MuonRawDataMonitoring/RPC/')
 
-    trackPath = 'TrackMatch'
-    myGroup_track.defineHistogram('hitMultiplicity_eta;HitMultiplicity_eta', 
-                            type='TH1I', 
-                            title='Hit Multiplicity_eta All Panel;#eta strip hit Multiplicity;muon entries',
-                            path=trackPath,
-                            xbins=11,xmin=-0.5,   xmax=10.5)
+        trackPath = 'TrackMatch'
+        myGroup_track.defineHistogram('hitMultiplicity_eta;HitMultiplicity_eta', 
+                                type='TH1I', 
+                                title='Hit Multiplicity_eta All Panel;#eta strip hit Multiplicity;muon entries',
+                                path=trackPath,
+                                xbins=11,xmin=-0.5,   xmax=10.5)
 
-    myGroup_track.defineHistogram('hitMultiplicity_phi;HitMultiplicity_phi', 
-                            type='TH1I', 
-                            title='Hit Multiplicity_phi All Panel;#phi strip hit Multiplicity;muon entries',
-                            path=trackPath,
-                            xbins=11,xmin=-0.5,   xmax=10.5)
+        myGroup_track.defineHistogram('hitMultiplicity_phi;HitMultiplicity_phi', 
+                                type='TH1I', 
+                                title='Hit Multiplicity_phi All Panel;#phi strip hit Multiplicity;muon entries',
+                                path=trackPath,
+                                xbins=11,xmin=-0.5,   xmax=10.5)
 
-    myGroup_track.defineHistogram('hitMultiplicity,panelInd_hM;HitMultiplicity_Panels', 
-                            title='Hit Multiplicity;Hit Multiplicity;Panel Index;NMuon',
-                            type='TH2I', 
-                            path=trackPath,
-                            xbins=11, xmin=-0.5, xmax=10.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('hitMultiplicity,panelInd_hM;HitMultiplicity_Panels', 
+                                title='Hit Multiplicity;Hit Multiplicity;Panel Index;NMuon',
+                                type='TH2I', 
+                                path=trackPath,
+                                xbins=11, xmin=-0.5, xmax=10.5, ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('clustMultiplicity_eta;ClusterSize_etaView', 
-                            type='TH1I', 
-                            title='Cluster size(#eta view);Cluster size;NCluster',
-                            path=trackPath,
-                            xbins=11,xmin=-0.5,   xmax=10.5)
+        myGroup_track.defineHistogram('clustMultiplicity_eta;ClusterSize_etaView', 
+                                type='TH1I', 
+                                title='Cluster size(#eta view);Cluster size;NCluster',
+                                path=trackPath,
+                                xbins=11,xmin=-0.5,   xmax=10.5)
 
-    myGroup_track.defineHistogram('clustMultiplicity_phi;ClusterSize_phiView', 
-                            type='TH1I', 
-                            title='Cluster size(#phi view);Cluster size;NCluster',
-                            path=trackPath,
-                            xbins=11,xmin=-0.5,   xmax=10.5)
+        myGroup_track.defineHistogram('clustMultiplicity_phi;ClusterSize_phiView', 
+                                type='TH1I', 
+                                title='Cluster size(#phi view);Cluster size;NCluster',
+                                path=trackPath,
+                                xbins=11,xmin=-0.5,   xmax=10.5)
 
-    myGroup_track.defineHistogram('clustMultiplicity,panelInd_clust;ClusterSize_Panels', 
-                            title='Cluste Multiplicity;Cluste Multiplicity;Panel Index;NCluster',
-                            type='TH2I', 
-                            path=trackPath,
-                            xbins=11, xmin=-0.5, xmax=10.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('clustMultiplicity,panelInd_clust;ClusterSize_Panels', 
+                                title='Cluste Multiplicity;Cluste Multiplicity;Panel Index;NCluster',
+                                type='TH2I', 
+                                path=trackPath,
+                                xbins=11, xmin=-0.5, xmax=10.5, ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('muon_passExtrap,panelInd_hM;Panel_Efficiency', 
-                            title='Panels Detection Efficiency;Panel Index;Efficiency',
-                            type='TEfficiency',
-                            path=trackPath,
-                            xbins=8592, xmin=-0.5, xmax=8591.5)
+        myGroup_track.defineHistogram('muon_passExtrap,panelInd_hM;Panel_Efficiency', 
+                                title='Panels Detection Efficiency;Panel Index;Efficiency',
+                                type='TEfficiency',
+                                path=trackPath,
+                                xbins=8592, xmin=-0.5, xmax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_localY_allPanel,panelInd_detpar;DetPar_localY_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter localY;Local Y;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=270,xmin=-2700., xmax=+2700., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_localY_allPanel,panelInd_detpar;DetPar_localY_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter localY;Local Y;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=270,xmin=-2700., xmax=+2700., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_localZ_allPanel,panelInd_detpar;DetPar_localZ_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter localZ;Local Z;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=140,xmin=-700., xmax=700., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_localZ_allPanel,panelInd_detpar;DetPar_localZ_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter localZ;Local Z;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=140,xmin=-700., xmax=700., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalX_allPanel,panelInd_detpar;DetPar_globalX_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalX;Global X;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalX_allPanel,panelInd_detpar;DetPar_globalX_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalX;Global X;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalY_allPanel,panelInd_detpar;DetPar_globalY_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalY;Global Y;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalY_allPanel,panelInd_detpar;DetPar_globalY_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalY;Global Y;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalR_allPanel,panelInd_detpar;DetPar_globalR_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalR;Global R;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=220,xmin=-22000., xmax=22000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalR_allPanel,panelInd_detpar;DetPar_globalR_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalR;Global R;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=220,xmin=-22000., xmax=22000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalZ_allPanel,panelInd_detpar;DetPar_globalZ_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalZ;Global Z;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalZ_allPanel,panelInd_detpar;DetPar_globalZ_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalZ;Global Z;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('dR_TrackGasGap_allPanel,panelInd_detpar;DR_TrackGasGap_allPanel', 
-                            type='TH2F', 
-                            title='DR between track and gasgap on panel;#Delta R_trackAndgasgap;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('dR_TrackGasGap_allPanel,panelInd_detpar;DR_TrackGasGap_allPanel', 
+                                type='TH2F', 
+                                title='DR between track and gasgap on panel;#Delta R_trackAndgasgap;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
-                            type='TH2F',
-                            title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
+                                type='TH2F',
+                                title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('isOutTime_prd,panelInd_prd;OuttimeHitFraction_PRDHit', 
-                            title='Outtime Hit Fraction of PRD Hit;Panel Index;Outtime Hit Fraction',
-                            type='TEfficiency',
-                            path=trackPath,
-                            xbins=8592, xmin=-0.5, xmax=8591.5) 
+        myGroup_track.defineHistogram('isOutTime_prd,panelInd_prd;OuttimeHitFraction_PRDHit', 
+                                title='Outtime Hit Fraction of PRD Hit;Panel Index;Outtime Hit Fraction',
+                                type='TEfficiency',
+                                path=trackPath,
+                                xbins=8592, xmin=-0.5, xmax=8591.5) 
 
-    myGroup_track.defineHistogram('isOutTime_prd_onTrack,panelInd_prd_onTrack;OuttimeHitFraction_PRDHit_onTrack',
-                            title='Outtime Hit Fraction of PRD Hit on Muon Track;Panel Index;Outtime Hit Fraction',
-                            type='TEfficiency',
-                            path=trackPath,
-                            xbins=8592, xmin=-0.5, xmax=8591.5)
+        myGroup_track.defineHistogram('isOutTime_prd_onTrack,panelInd_prd_onTrack;OuttimeHitFraction_PRDHit_onTrack',
+                                title='Outtime Hit Fraction of PRD Hit on Muon Track;Panel Index;Outtime Hit Fraction',
+                                type='TEfficiency',
+                                path=trackPath,
+                                xbins=8592, xmin=-0.5, xmax=8591.5)
 
-    # myGroup_track.defineHistogram('prdHit_time;PrdHit_time', 
-    #                         title='PRD Hit Time;Hit Time;NHit',
-    #                         type='TH1F',
-    #                         path=trackPath,
-    #                         xbins=64, xmin=-100., xmax=100.)
+        # myGroup_track.defineHistogram('prdHit_time;PrdHit_time', 
+        #                         title='PRD Hit Time;Hit Time;NHit',
+        #                         type='TH1F',
+        #                         path=trackPath,
+        #                         xbins=64, xmin=-100., xmax=100.)
 
-    # myGroup_track.defineHistogram('prdHit_time,panelInd_prd;PrdHit_time_perPanel', 
-    #                         type='TH2F',
-    #                         title='PRD Hit Time;PRD Hit Time;panelID;NHit',
-    #                         path=trackPath,
-    #                         xbins=64, xmin=-100., xmax=100., ybins=8592, ymin=-0.5, ymax=8591.5)
+        # myGroup_track.defineHistogram('prdHit_time,panelInd_prd;PrdHit_time_perPanel', 
+        #                         type='TH2F',
+        #                         title='PRD Hit Time;PRD Hit Time;panelID;NHit',
+        #                         path=trackPath,
+        #                         xbins=64, xmin=-100., xmax=100., ybins=8592, ymin=-0.5, ymax=8591.5)
 
 
     ######################################################################################################
     ## Rpc lv1 Analysis
     ######################################################################################################
-    RPCLv1AnaAlg    = CompFactory.RPCLv1AnaAlg
+    if inputFlags.Trigger.doLVL1 or 'LVL1MuonRoIs' in inputFlags.Input.Collections:
+        RPCLv1AnaAlg    = CompFactory.RPCLv1AnaAlg
 
-    Lv1AnaAlg  = helper.addAlgorithm(RPCLv1AnaAlg, "RPCLv1AnaAlgAlg")
-    # Lv1AnaAlg.TriggerChain  = 'HLT_mu26_ivarmedium'
-    
-    myGroup_lv1Trigger = helper.addGroup(Lv1AnaAlg, 'RPCLv1AnaAlg', 'Muon/MuonRawDataMonitoring/RPC/')
+        Lv1AnaAlg  = helper.addAlgorithm(RPCLv1AnaAlg, "RPCLv1AnaAlgAlg")
+        # Lv1AnaAlg.TriggerChain  = 'HLT_mu26_ivarmedium'
 
-    myGroup_lv1Trigger.defineHistogram('nMu;NMuon',
-                            title='Number of Muons;nMuons;Events',
-                            type='TH1I',
-                            path='PlotCand',
-                            xbins=10,xmin=-0.5,xmax=9.5)
-    myGroup_lv1Trigger.defineHistogram('nMuBarrel;NMuonBarrel',
-                            title='Number of Barrel Muons;nMuons;Events',
-                            type='TH1I',
-                            path='PlotCand',
-                            xbins=5,xmin=-0.5,xmax=4.5)
+        myGroup_lv1Trigger = helper.addGroup(Lv1AnaAlg, 'RPCLv1AnaAlg', 'Muon/MuonRawDataMonitoring/RPC/')
 
-    myGroup_lv1Trigger.defineHistogram('muPt_full;MuonPt_full',
-                            title='barrel and endcap muon Pt;Pt[MeV];NMuon',
-                            type='TH1D',
-                            path='PlotCand',
-                            xbins=200,xmin=0,xmax=1000e3)
+        myGroup_lv1Trigger.defineHistogram('nMu;NMuon',
+                                title='Number of Muons;nMuons;Events',
+                                type='TH1I',
+                                path='PlotCand',
+                                xbins=10,xmin=-0.5,xmax=9.5)
+        myGroup_lv1Trigger.defineHistogram('nMuBarrel;NMuonBarrel',
+                                title='Number of Barrel Muons;nMuons;Events',
+                                type='TH1I',
+                                path='PlotCand',
+                                xbins=5,xmin=-0.5,xmax=4.5)
 
-    myGroup_lv1Trigger.defineHistogram('roiEta;roiEta',
-                            title='roi eta;roi #eta;rois',
-                            type='TH1D',
-                            path='PlotCand',
-                            xbins=50,xmin=-2.5,xmax=2.5)
+        myGroup_lv1Trigger.defineHistogram('muPt_full;MuonPt_full',
+                                title='barrel and endcap muon Pt;Pt[MeV];NMuon',
+                                type='TH1D',
+                                path='PlotCand',
+                                xbins=200,xmin=0,xmax=1000e3)
 
-    myGroup_lv1Trigger.defineHistogram('roiBarrelEta;roiBarrelEta',
-                            title='Barrel roi eta;roi #eta;rois',
-                            type='TH1D',
-                            path='PlotCand',
-                            xbins=50,xmin=-2.5,xmax=2.5)
+        myGroup_lv1Trigger.defineHistogram('roiEta;roiEta',
+                                title='roi eta;roi #eta;rois',
+                                type='TH1D',
+                                path='PlotCand',
+                                xbins=50,xmin=-2.5,xmax=2.5)
 
-    myGroup_lv1Trigger.defineHistogram('roiBarrelThr;roiBarrelThrs',
-                            title='Barrel roi threshold;roi threshold;rois',
-                            type='TH1I',
-                            path='PlotCand',
-                            xbins=6,xmin=0.5,xmax=6.5)
-    
-    myGroup_lv1Trigger.defineHistogram('nMuBarrel_medium;NMuonBarrel_medium',
-                            title='Number of Barrel Medium Muons;nMuons;Events',
-                            type='TH1I',
-                            path='L1Trigger',
-                            xbins=5,xmin=-0.5,xmax=4.5)
+        myGroup_lv1Trigger.defineHistogram('roiBarrelEta;roiBarrelEta',
+                                title='Barrel roi eta;roi #eta;rois',
+                                type='TH1D',
+                                path='PlotCand',
+                                xbins=50,xmin=-2.5,xmax=2.5)
 
-    myGroup_lv1Trigger.defineHistogram('muPtDen;MuonPt',
-                            title='Barrel Muon Pt;Pt[MeV];NMuon',
-                            type='TH1D',
-                            path='L1Trigger',
-                            xbins=200,xmin=0,xmax=1000e3)
+        myGroup_lv1Trigger.defineHistogram('roiBarrelThr;roiBarrelThrs',
+                                title='Barrel roi threshold;roi threshold;rois',
+                                type='TH1I',
+                                path='PlotCand',
+                                xbins=6,xmin=0.5,xmax=6.5)
 
-    myGroup_lv1Trigger.defineHistogram('muEtaDen,muPhiDen;L1TriggerEffDen', 
-                            type='TH2D', 
-                            title='L1 Trigger Efficiency Denominator;#eta;#phi;NMuon',
-                            path='L1Trigger',
-                            xbins=42,xmin=-1.05,     xmax=1.05,
-                            ybins=32,ymin=-3.1415926,ymax=3.1415926)
+        myGroup_lv1Trigger.defineHistogram('nMuBarrel_medium;NMuonBarrel_medium',
+                                title='Number of Barrel Medium Muons;nMuons;Events',
+                                type='TH1I',
+                                path='L1Trigger',
+                                xbins=5,xmin=-0.5,xmax=4.5)
 
-    lv1Triggers = [str(k) for k in range(1, 6+1)]
-    array_triggerThr = helper.addArray([lv1Triggers], Lv1AnaAlg, 'RPCLv1AnaAlg', 'Muon/MuonRawDataMonitoring/RPC')
+        myGroup_lv1Trigger.defineHistogram('muPtDen;MuonPt',
+                                title='Barrel Muon Pt;Pt[MeV];NMuon',
+                                type='TH1D',
+                                path='L1Trigger',
+                                xbins=200,xmin=0,xmax=1000e3)
 
-    array_triggerThr.defineHistogram('passTrigger,muPt;L1TriggerEff_muPt',
-                title='L1 Trigger Threshold{0} Efficiency;Pt[MeV];#epsilon Thr{0}',
-                type='TEfficiency',
-                path='L1Trigger',
-                xbins=10, xmin=0.0, xmax=80.0e3)
+        myGroup_lv1Trigger.defineHistogram('muEtaDen,muPhiDen;L1TriggerEffDen', 
+                                type='TH2D', 
+                                title='L1 Trigger Efficiency Denominator;#eta;#phi;NMuon',
+                                path='L1Trigger',
+                                xbins=42,xmin=-1.05,     xmax=1.05,
+                                ybins=32,ymin=-3.1415926,ymax=3.1415926)
 
-    array_triggerThr.defineHistogram('passTrigger,muEta;L1TriggerEff_muEta',
-                title='L1 Trigger Threshold{0} Efficiency;#eta;#epsilon Thr{0}',
-                type='TEfficiency',
-                path='L1Trigger',
-                xbins=42,xmin=-1.05, xmax=1.05)
+        lv1Triggers = [str(k) for k in range(1, 6+1)]
+        array_triggerThr = helper.addArray([lv1Triggers], Lv1AnaAlg, 'RPCLv1AnaAlg', 'Muon/MuonRawDataMonitoring/RPC')
 
-    array_triggerThr.defineHistogram('passTrigger,muPhi;L1TriggerEff_muPhi',
-                title='L1 Trigger Threshold{0} Efficiency;#phi;#epsilon Thr{0}',
-                type='TEfficiency',
-                path='L1Trigger',
-                xbins=32,xmin=-3.1415926,xmax=3.1415926)
+        array_triggerThr.defineHistogram('passTrigger,muPt;L1TriggerEff_muPt',
+                    title='L1 Trigger Threshold{0} Efficiency;Pt[MeV];#epsilon Thr{0}',
+                    type='TEfficiency',
+                    path='L1Trigger',
+                    xbins=10, xmin=0.0, xmax=80.0e3)
 
-    array_triggerThr.defineHistogram('muEta,muPhi;L1TriggerEffNum', 
-                type='TH2D', 
-                title='L1 Trigger Efficiency numerator;#eta;#phi;NMuon Thr{0}',
-                path='L1Trigger',
-                xbins=42,xmin=-1.05,     xmax=1.05,
-                ybins=32,ymin=-3.1415926,ymax=3.1415926)
+        array_triggerThr.defineHistogram('passTrigger,muEta;L1TriggerEff_muEta',
+                    title='L1 Trigger Threshold{0} Efficiency;#eta;#epsilon Thr{0}',
+                    type='TEfficiency',
+                    path='L1Trigger',
+                    xbins=42,xmin=-1.05, xmax=1.05)
 
-    array_triggerThr.defineHistogram('passTrigger,muEta,muPhi;L1TriggerEff_eta_phi',
-                title='L1 Trigger Threshold{0} Efficiency;#eta;#phi;#epsilon Thr{0}',
-                type='TEfficiency',
-                path='L1Trigger',
-                xbins=42,xmin=-1.05,     xmax=1.05,
-                ybins=32,ymin=-3.1415926,ymax=3.1415926)
+        array_triggerThr.defineHistogram('passTrigger,muPhi;L1TriggerEff_muPhi',
+                    title='L1 Trigger Threshold{0} Efficiency;#phi;#epsilon Thr{0}',
+                    type='TEfficiency',
+                    path='L1Trigger',
+                    xbins=32,xmin=-3.1415926,xmax=3.1415926)
+
+        array_triggerThr.defineHistogram('muEta,muPhi;L1TriggerEffNum', 
+                    type='TH2D', 
+                    title='L1 Trigger Efficiency numerator;#eta;#phi;NMuon Thr{0}',
+                    path='L1Trigger',
+                    xbins=42,xmin=-1.05,     xmax=1.05,
+                    ybins=32,ymin=-3.1415926,ymax=3.1415926)
+
+        array_triggerThr.defineHistogram('passTrigger,muEta,muPhi;L1TriggerEff_eta_phi',
+                    title='L1 Trigger Threshold{0} Efficiency;#eta;#phi;#epsilon Thr{0}',
+                    type='TEfficiency',
+                    path='L1Trigger',
+                    xbins=42,xmin=-1.05,     xmax=1.05,
+                    ybins=32,ymin=-3.1415926,ymax=3.1415926)
 
     result.merge(helper.result())
     print(" RpcMonitorAlgorithm END !")
