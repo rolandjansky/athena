@@ -11,6 +11,10 @@ from DerivationFrameworkInDet.InDetCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
 
+if DerivationFrameworkHasTruth:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
