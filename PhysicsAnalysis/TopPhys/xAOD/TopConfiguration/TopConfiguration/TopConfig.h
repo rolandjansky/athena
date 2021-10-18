@@ -106,6 +106,10 @@ namespace top {
     inline bool applyTTVACut() const {return m_applyTTVACut;}
 
     inline bool useAntiMuons() const {return m_useAntiMuons;};
+    inline bool useJetElectrons() const {return m_useJetElectrons;};
+    inline float jetElectronEMFractionMin() const {return m_jetElectronEMFractionMin;};
+    inline float jetElectronEMFractionMax() const {return m_jetElectronEMFractionMax;};
+    inline float jetElectronEtaMax() const {return m_jetElectronEtaMax;};
 
     // MC or not MC - this should be set by metadata
     inline bool isMC() const {return m_isMC;}
@@ -2248,6 +2252,7 @@ namespace top {
     bool m_useMuons;
     bool m_useSoftMuons;
     bool m_useAntiMuons;
+    bool m_useJetElectrons;
     bool m_useTaus;
     bool m_useJets;
     bool m_useLargeRJets;
@@ -2276,6 +2281,11 @@ namespace top {
     bool m_useTruthLargeRJets;
     bool m_useTruthTaus;
     bool m_useTruthMET;
+
+    float m_jetElectronEMFractionMin;
+    float m_jetElectronEMFractionMax;
+    float m_jetElectronEtaMax;
+
 
     // define if d0/z0 cut should be used at all
     bool m_applyTTVACut;
