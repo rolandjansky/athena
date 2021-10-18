@@ -24,7 +24,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     #
     # --- Space points seeds maker, use different ones for cosmics and collisions
     #
-    SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_ITK
+    SiSpacePointsSeedMaker = CompFactory.ITk.SiSpacePointsSeedMaker
 
     kwargs.setdefault("pTmin", flags.ITk.Tracking.minPTSeed )
     kwargs.setdefault("maxdImpact", flags.ITk.Tracking.maxPrimaryImpactSeed )

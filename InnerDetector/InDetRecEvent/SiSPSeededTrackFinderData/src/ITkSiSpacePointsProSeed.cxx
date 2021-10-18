@@ -2,13 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SiSPSeededTrackFinderData/SiSpacePointsProSeedITK.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointsProSeed.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-#include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
 
-namespace InDet {
-  SiSpacePointsProSeedITK::SiSpacePointsProSeedITK ()
+namespace ITk
+{
+
+  SiSpacePointsProSeed::SiSpacePointsProSeed ()
     {
       m_s0 = nullptr ;
       m_s1 = nullptr ;
@@ -17,8 +19,8 @@ namespace InDet {
       m_q  = 0.;
     }
 
-  SiSpacePointsProSeedITK& SiSpacePointsProSeedITK::operator = 
-    (const SiSpacePointsProSeedITK& sp) 
+  SiSpacePointsProSeed& SiSpacePointsProSeed::operator = 
+    (const SiSpacePointsProSeed& sp) 
     {
       if(&sp!=this) {
 
@@ -31,8 +33,8 @@ namespace InDet {
       return(*this);
     }
  
-  SiSpacePointsProSeedITK::SiSpacePointsProSeedITK
-    (SiSpacePointForSeedITK*& s0,SiSpacePointForSeedITK*& s1,SiSpacePointForSeedITK*& s2,float z)
+  SiSpacePointsProSeed::SiSpacePointsProSeed
+    (SiSpacePointForSeed*& s0,SiSpacePointForSeed*& s1,SiSpacePointForSeed*& s2,float z)
     {
       set(s0,s1,s2,z); m_q = 0.;
     }
@@ -41,7 +43,7 @@ namespace InDet {
   // Copy constructor
   /////////////////////////////////////////////////////////////////////////////////
 
-  SiSpacePointsProSeedITK::SiSpacePointsProSeedITK (const SiSpacePointsProSeedITK& sp): m_s0(sp.m_s0),m_s1(sp.m_s1),m_s2(sp.m_s2)
+  SiSpacePointsProSeed::SiSpacePointsProSeed (const SiSpacePointsProSeed& sp): m_s0(sp.m_s0),m_s1(sp.m_s1),m_s2(sp.m_s2)
     {
       *this = sp;
     }
@@ -50,7 +52,7 @@ namespace InDet {
   // Destructor
   /////////////////////////////////////////////////////////////////////////////////
 
-  SiSpacePointsProSeedITK::~SiSpacePointsProSeedITK() 
+  SiSpacePointsProSeed::~SiSpacePointsProSeed() 
   {
   }
 
@@ -58,8 +60,8 @@ namespace InDet {
   // Set 
   /////////////////////////////////////////////////////////////////////////////////
 
-  void SiSpacePointsProSeedITK::set
-    (SiSpacePointForSeedITK*& s0,SiSpacePointForSeedITK*& s1,SiSpacePointForSeedITK*& s2,float z)
+  void SiSpacePointsProSeed::set
+    (SiSpacePointForSeed*& s0,SiSpacePointForSeed*& s1,SiSpacePointForSeed*& s2,float z)
     {
       m_z   = z ;
       m_s0  = s0;
@@ -71,7 +73,7 @@ namespace InDet {
   // Set two space points seed
   /////////////////////////////////////////////////////////////////////////////////
 
-  void SiSpacePointsProSeedITK::set2(InDet::SiSpacePointsSeed& s)
+  void SiSpacePointsProSeed::set2(InDet::SiSpacePointsSeed& s)
     {
       s.erase();
       s.add(m_s0->spacepoint);
@@ -83,7 +85,7 @@ namespace InDet {
   // Set three space points seed
   /////////////////////////////////////////////////////////////////////////////////
 
-  bool SiSpacePointsProSeedITK::set3(InDet::SiSpacePointsSeed& s)
+  bool SiSpacePointsProSeed::set3(InDet::SiSpacePointsSeed& s)
     {
       
       bool pixb = !m_s0->spacepoint->clusterList().second;
@@ -109,7 +111,7 @@ namespace InDet {
   // Set quality in pro seed
   /////////////////////////////////////////////////////////////////////////////////
 
-  bool SiSpacePointsProSeedITK::setQuality(float q)
+  bool SiSpacePointsProSeed::setQuality(float q)
     {
       m_q = q;
       bool pixb = !m_s0->spacepoint->clusterList().second;
@@ -123,4 +125,4 @@ namespace InDet {
       return q < m_s0->quality() || q < m_s1->quality() || q < m_s2->quality();
     }
 
-} // end of name space
+} // end of name space ITk

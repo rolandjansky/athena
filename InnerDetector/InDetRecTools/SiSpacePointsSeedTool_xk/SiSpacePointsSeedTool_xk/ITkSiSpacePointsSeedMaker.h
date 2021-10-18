@@ -5,19 +5,19 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////
-//  Header file for class SiSpacePointsSeedMaker_ITK
+//  Header file for class ITk::SiSpacePointsSeedMaker
 /////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SiSpacePointsSeedMaker_ITK_H
-#define SiSpacePointsSeedMaker_ITK_H
+#ifndef ITkSiSpacePointsSeedMaker_H
+#define ITkSiSpacePointsSeedMaker_H
 
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
@@ -44,36 +44,37 @@
 class MsgStream;
 
 
-namespace InDet {
+namespace ITk
+{
 
   ///////////////////////////////////////////////////////////////////
   // Object function for ordering space point in R coordinate order
   ///////////////////////////////////////////////////////////////////
   
-  class SiSpacePointsITKComparison_R {
+  class SiSpacePointsComparison_R {
  
   public: 
-    bool operator () (InDet::SiSpacePointForSeedITK* s1,InDet::SiSpacePointForSeedITK* s2) {
+    bool operator () (SiSpacePointForSeed* s1, SiSpacePointForSeed* s2) {
       return((*s1).radius() < (*s2).radius());
     }
   };
 
 
-  using EventData = SiSpacePointsSeedMakerEventData;
+  using EventData = InDet::SiSpacePointsSeedMakerEventData;
 
   /**
-   * @class SiSpacePointsSeedMaker_ATLxk
+   * @class ITk::SiSpacePointsSeedMaker
    * Class for track candidates generation using space points information
    * for standard Atlas geometry
    *
-   * In AthenaMT, event dependent cache inside SiSpacePointsSeedMaker_ITK
+   * In AthenaMT, event dependent cache inside ITk::SiSpacePointsSeedMaker
    * is not preferred. SiSpacePointsSeedMakerEventData = EventData class
-   * holds event dependent data for SiSpacePointsSeedMaker_ITK.
+   * holds event dependent data for ITk::SiSpacePointsSeedMaker.
    * Its object is instantiated in SiSPSeededTrackFinder::execute.
    */
 
-  class SiSpacePointsSeedMaker_ITK : 
-    public extends<AthAlgTool, ISiSpacePointsSeedMaker>
+  class SiSpacePointsSeedMaker : 
+    public extends<AthAlgTool, InDet::ISiSpacePointsSeedMaker>
   {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -85,9 +86,9 @@ namespace InDet {
     /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
     //@{
-    SiSpacePointsSeedMaker_ITK
+    SiSpacePointsSeedMaker
     (const std::string&,const std::string&,const IInterface*);
-    virtual ~SiSpacePointsSeedMaker_ITK() = default;
+    virtual ~SiSpacePointsSeedMaker() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     //@}
@@ -129,10 +130,10 @@ namespace InDet {
     /// produced accordingly methods find    
     ///////////////////////////////////////////////////////////////////
     //@{
-    virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
+    virtual const InDet::SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
 
-    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
+    virtual void writeNtuple(const InDet::SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
     virtual bool getWriteNtupleBoolProperty() const override;
 
     ///////////////////////////////////////////////////////////////////
@@ -236,7 +237,7 @@ namespace InDet {
     BooleanProperty m_checketa{this, "checkEta", false};
     //@}
 
-    /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ITK class
+    /// @name Properties, which are not used in this implementation of ITk::SiSpacePointsSeedMaker class
     //@{
     BooleanProperty m_dbm{this, "useDBM", false};
     UnsignedIntegerProperty m_maxNumberVertices{this, "maxNumberVertices", 99};
@@ -347,9 +348,9 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     /// @name Disallow default instantiation, copy, assignment
     //@{
-    SiSpacePointsSeedMaker_ITK() = delete;
-    SiSpacePointsSeedMaker_ITK(const SiSpacePointsSeedMaker_ITK&) = delete;
-    SiSpacePointsSeedMaker_ITK &operator=(const SiSpacePointsSeedMaker_ITK&) = delete;
+    SiSpacePointsSeedMaker() = delete;
+    SiSpacePointsSeedMaker(const SiSpacePointsSeedMaker&) = delete;
+    SiSpacePointsSeedMaker &operator=(const SiSpacePointsSeedMaker&) = delete;
     //@}
 
     MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
@@ -391,21 +392,21 @@ namespace InDet {
       * @param[in,out] data: Provides beam spot location, receives updates to the l_spforseed and i_spforseed members 
       * @param[in] sp: Input space point. 
     **/
-    SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
-    SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp, float* r, bool usePixStripInform=false) const;
+    SiSpacePointForSeed* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
+    SiSpacePointForSeed* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp, float* r, bool usePixStripInform=false) const;
 
     static void newSeed
     (EventData& data,
-     SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float) ;
+     SiSpacePointForSeed*&,SiSpacePointForSeed*&,float) ;
 
     void newOneSeed
     (EventData& data, 
-     SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,
-     SiSpacePointForSeedITK*&,float,float) const;
+     SiSpacePointForSeed*&,SiSpacePointForSeed*&,
+     SiSpacePointForSeed*&,float,float) const;
 
     void newOneSeedWithCurvaturesComparison
     (EventData& data,
-     SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float) const;
+     SiSpacePointForSeed*&,SiSpacePointForSeed*&,float) const;
 
     static void fillSeeds(EventData& data) ;
     void fillLists(EventData& data) const;
@@ -443,27 +444,27 @@ namespace InDet {
        **/ 
       void production3SpSSS
       (EventData& data,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
       const int numberBottomCells, const int numberTopCells, int& nseed) const;
 
       void production3SpPPP
       (EventData& data,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_topCands,
-      std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
       const int numberBottomCells, const int numberTopCells, int& nseed) const;
 
       /// as above, but for the trigger 
       void production3SpTrigger
       (EventData& /*data*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rb*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rbe*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rt*/,
-       std::array<std::list<InDet::SiSpacePointForSeedITK*>::iterator, arraySizeNeighbourBins> & /*rte*/,
+       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rb*/,
+       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rbe*/,
+       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rt*/,
+       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rte*/,
        const int /*numberBottomCells*/, const int /*numberTopCells*/, int& /*nseed*/) const;
 
     /** This creates all possible seeds with the passed central and bottom SP, using all top SP 
@@ -475,11 +476,11 @@ namespace InDet {
        * @param[in] Zob z0 estimate 
     **/ 
     void newOneSeedWithCurvaturesComparisonSSS
-      (EventData& data, SiSpacePointForSeedITK*& SPb, SiSpacePointForSeedITK*& SP0, float Zob) const;
+      (EventData& data, SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob) const;
     void newOneSeedWithCurvaturesComparisonPPP
-      (EventData& data, SiSpacePointForSeedITK*& SPb, SiSpacePointForSeedITK*& SP0, float Zob) const;
+      (EventData& data, SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob) const;
     void newOneSeedWithCurvaturesComparisonSeedConfirmation
-      (EventData& data, SiSpacePointForSeedITK*& SPb, SiSpacePointForSeedITK*& SP0, float Zob) const;
+      (EventData& data, SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob) const;
 
  
      /** Helper method to determine if a seed 
@@ -494,10 +495,10 @@ namespace InDet {
        * @param[in] quality: seed quality
        * @return true if the seed is confirmed, false otherwise 
     **/ 
-    bool isConfirmedSeed(const InDet::SiSpacePointForSeedITK* bottomSP, const InDet::SiSpacePointForSeedITK* topSP, float quality) const;
+    bool isConfirmedSeed(const SiSpacePointForSeed* bottomSP, const SiSpacePointForSeed* topSP, float quality) const;
 
 
-    void sort(std::vector<FloatInt>& s, int start, int size) const;
+    void sort(std::vector<InDet::FloatInt>& s, int start, int size) const;
     bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;
     void findNext(EventData& data) const;
     bool isZCompatible(EventData& data, float&,float&,float&) const;
@@ -507,30 +508,27 @@ namespace InDet {
     void initializeEventData(EventData& data) const;
   };
 
-} // end of name space
+  ///////////////////////////////////////////////////////////////////
+  // Object-function for curvature seeds comparison
+  ///////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////
-// Object-function for curvature seeds comparison
-///////////////////////////////////////////////////////////////////
-
-class comCurvatureITK {
-public:
-  bool operator ()
-  (const std::pair<float,InDet::SiSpacePointForSeedITK*>& i1, 
-   const std::pair<float,InDet::SiSpacePointForSeedITK*>& i2)
-  {
-    return i1.first < i2.first;
-  }
-};
+  class comCurvature {
+  public:
+    bool operator ()
+    (const std::pair<float,SiSpacePointForSeed*>& i1, 
+    const std::pair<float,SiSpacePointForSeed*>& i2)
+    {
+      return i1.first < i2.first;
+    }
+  };
 
 
-///////////////////////////////////////////////////////////////////
-// Test is space point used
-///////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
+  // Test is space point used
+  ///////////////////////////////////////////////////////////////////
 
-namespace InDet {
   inline
-  bool SiSpacePointsSeedMaker_ITK::isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const
+  bool SiSpacePointsSeedMaker::isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const
   {
     const Trk::PrepRawData* d = sp->clusterList().first;
     if (!d || !prd_to_track_map.isUsed(*d)) return false;
@@ -541,19 +539,19 @@ namespace InDet {
     return false;
   }
 
-///////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
   // The procedure sorts the elements into ascending order.
   ///////////////////////////////////////////////////////////////////
   
   inline
-  void SiSpacePointsSeedMaker_ITK::sort(std::vector<FloatInt>& s, int start, int size) const
+  void SiSpacePointsSeedMaker::sort(std::vector<InDet::FloatInt>& s, int start, int size) const
   {
     //QuickSort for fast tracking currently buggy
     //TBC if really faster than std::sort
     //Using std::sort in all cases for now
-    std::sort(s.begin()+start,s.begin()+start+size,[](const FloatInt a,const FloatInt b)->bool {return a.Fl < b.Fl;});
+    std::sort(s.begin()+start,s.begin()+start+size,[](const InDet::FloatInt a, const InDet::FloatInt b)->bool {return a.Fl < b.Fl;});
   }
 
-}
+} // namespace ITk
 
-#endif // SiSpacePointsSeedMaker_ITK_H
+#endif // ITkSiSpacePointsSeedMaker_H
