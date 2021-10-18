@@ -2,9 +2,9 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StripDetectorFactory.h"
-#include "StripDetectorTool.h"
-#include "StripOptions.h"
+#include "PixelGeoModelXml/PixelDetectorFactory.h"
+#include "PixelGeoModelXml/PixelDetectorTool.h"
+#include "PixelGeoModelXml/PixelOptions.h"
 
 #include <DetDescrConditions/AlignableTransformContainer.h>
 #include <GeoModelUtilities/DecodeVersionKey.h>
@@ -16,7 +16,7 @@
 namespace ITk
 {
 
-StripDetectorTool::StripDetectorTool(const std::string &type,
+PixelDetectorTool::PixelDetectorTool(const std::string &type,
                                      const std::string &name,
                                      const IInterface *parent)
  : GeoModelTool(type, name, parent)
@@ -24,26 +24,25 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
 }
 
 
-StatusCode StripDetectorTool::create()
+StatusCode PixelDetectorTool::create()
 {
   //
   // Retrieve all services except LorentzAngleSvc, which has to be done later
   //
 
   // Get the detector configuration.
-  ATH_CHECK(m_geoModelSvc.retrieve());
   ATH_CHECK(m_geoDbTagSvc.retrieve());
   ATH_CHECK(m_rdbAccessSvc.retrieve());
 
   GeoModelExperiment *theExpt;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
-  const SCT_ID *idHelper;
-  ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
+  const PixelID *idHelper;
+  ATH_CHECK(detStore()->retrieve(idHelper, "PixelID"));
 
   //
   // Get their interfaces to pass to the DetectorFactory
   //
-  auto athenaComps = std::make_unique<InDetDD::AthenaComps>("StripGeoModelXml");
+  auto athenaComps = std::make_unique<InDetDD::AthenaComps>("PixelGeoModelXml");
   athenaComps->setDetStore(&*(detStore()));
   athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
@@ -52,48 +51,48 @@ StatusCode StripDetectorTool::create()
   //
   // Get options from python
   //
-  InDetDD::ITk::StripOptions options;
+  InDetDD::ITk::PixelOptions options;
   options.setAlignable(m_alignable);
   options.setGmxFilename(m_gmxFilename);
   options.setDetectorName(m_detectorName);
   //
   // Get the version
   //
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
+  DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
   if (versionKey.tag() == "AUTO"){
     ATH_MSG_ERROR("Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00.");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO((versionKey.custom() ? "Building custom " : "Building ")
-               << "ITk Strip with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node());
+               << "ITk Pixel with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() );
   //
-  // Get the Database Access Service and from there the SCT version tag
+  // Get the Database Access Service and from there the pixel version tag
   //
-  std::string sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
-  ATH_MSG_INFO("ITk Strip Version: " << sctVersionTag);
+  std::string pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
+  ATH_MSG_INFO("ITk Pixel Version: " << pixelVersionTag);
   //
-  // Check if SCT version tag is empty. If so, then the SCT cannot be built.
+  // Check if pixel version tag is empty. If so, then the pixel cannot be built.
   // This may or may not be intentional. We just issue an INFO message.
   //
-  if (sctVersionTag.empty()) {
-    ATH_MSG_INFO("No ITk Strip Version. ITk Strip will not be built.");
+  if (pixelVersionTag.empty()) {
+    ATH_MSG_INFO("No ITk Pixel Version. ITk Pixel will not be built.");
     return StatusCode::SUCCESS;
   }
   //
-  // Create the SCT_DetectorFactory
+  // Create the PixelDetectorFactory
   //
   // The * converts a ConstPVLink to a ref to a GeoVPhysVol
   // The & takes the address of the GeoVPhysVol
   GeoPhysVol *world = &*theExpt->getPhysVol();
-  InDetDD::ITk::StripDetectorFactory theSCT(athenaComps.get(), m_commonItems.get(), options);
-  theSCT.create(world);
+  InDetDD::ITk::PixelDetectorFactory thePixel(athenaComps.get(), m_commonItems.get(), options);
+  thePixel.create(world);
   //
   // Get the manager from the factory and store it in the detector store.
   //
-  m_manager = theSCT.getDetectorManager();
+  m_manager = thePixel.getDetectorManager();
 
   if (!m_manager) {
-    ATH_MSG_ERROR("SCT_DetectorManager not found; not created in SCT_DetectorFactory?");
+    ATH_MSG_ERROR("PixelDetectorManager not found; not created in PixelDetectorFactory?");
     return StatusCode::FAILURE;
   }
 
@@ -101,7 +100,7 @@ StatusCode StripDetectorTool::create()
   theExpt->addManager(m_manager);
 
   // Create a symLink to the SiDetectorManager base class so it can be accessed as either SiDetectorManager or
-  // SCT_DetectorManager
+  // PixelDetectorManager
   const InDetDD::SiDetectorManager *siDetManager = m_manager;
   ATH_CHECK(detStore()->symLink(m_manager, siDetManager));
 
@@ -109,9 +108,9 @@ StatusCode StripDetectorTool::create()
 }
 
 
-StatusCode StripDetectorTool::clear()
+StatusCode PixelDetectorTool::clear()
 {
-  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
   if (proxy) {
     proxy->reset();
     m_manager = nullptr;
@@ -119,11 +118,10 @@ StatusCode StripDetectorTool::clear()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode StripDetectorTool::registerCallback()
+StatusCode PixelDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
   //
-  //  Register call-back for software alignment
+  // Register call-back for software alignment
   //
   if (m_alignable) {
     std::string folderName = "/Indet/Align";
@@ -148,7 +146,8 @@ StatusCode StripDetectorTool::registerCallback()
 }
 
 
-StatusCode StripDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)){
+StatusCode PixelDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys))
+{
   //
   // The call-back routine, which just calls the real call-back routine from the manager.
   //

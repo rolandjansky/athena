@@ -13,16 +13,22 @@
 #include <string>
 #include <sstream>
 
-namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems; class SCT_ModuleSideDesign;}
+namespace InDetDD
+{
+
+class SCT_DetectorManager;
+class SCT_ModuleSideDesign;
+class SiCommonItems;
+class SiDetectorDesign;
 
 namespace ITk
 {
 
-class StripGmxInterface: public GmxInterface, public AthMessaging
+class StripGmxInterface : public GmxInterface, public AthMessaging
 {
 public:
-  StripGmxInterface(InDetDD::SCT_DetectorManager *detectorManager,
-                    InDetDD::SiCommonItems *commonItems,
+  StripGmxInterface(SCT_DetectorManager *detectorManager,
+                    SiCommonItems *commonItems,
                     WaferTree *waferTree);
 
   virtual int sensorId(std::map<std::string, int> &index) const override final;
@@ -53,13 +59,14 @@ private:
   void makeStereoAnnulus(const std::string& typeName,
                          std::map<std::string, std::string> &parameters);
 
-  std::map<std::string, const InDetDD::SiDetectorDesign *> m_geometryMap;
-  std::map<std::string, const InDetDD::SCT_ModuleSideDesign *> m_motherMap;
-  InDetDD::SCT_DetectorManager *m_detectorManager{};
-  InDetDD::SiCommonItems *m_commonItems{};
+  std::map<std::string, const SiDetectorDesign *> m_geometryMap;
+  std::map<std::string, const SCT_ModuleSideDesign *> m_motherMap;
+  SCT_DetectorManager *m_detectorManager{};
+  SiCommonItems *m_commonItems{};
   WaferTree *m_waferTree{};
 };
 
-} //namespace ITk
+} // namespace ITk
+} // namespace InDetDD
 
 #endif // STRIPGEOMODELXML_STRIPGMXINTERFACE_H

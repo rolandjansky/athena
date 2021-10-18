@@ -6,7 +6,8 @@
 #define PLRGeoModelXml_PLROptions_H
 #include <string>
 
-namespace InDetDDSLHC {
+namespace InDetDD
+{
   //
   //    Class to store run time options.
   //
@@ -19,7 +20,7 @@ namespace InDetDDSLHC {
     std::string detectorName() const;
     void setAlignable(bool flag = true);
     void setAlignAtModuleLevel(bool flag = true);
-    void setGmxFilename(std::string filename); 
+    void setGmxFilename(std::string filename);
     void setDetectorName(std::string detectorname);
 
   private:
@@ -33,7 +34,7 @@ namespace InDetDDSLHC {
 
   inline PLROptions::PLROptions() :
     m_alignable(true),
-    m_alignModule(true), 
+    m_alignModule(true),
     m_gmxFilename(""),
     m_detectorName("PLR")
       {}
@@ -70,5 +71,6 @@ namespace InDetDDSLHC {
     m_detectorName = detectorname;
   }
 
-}
+} // namespace InDetDD
+
 #endif // PLRGeoModelXml_PLROptions_H

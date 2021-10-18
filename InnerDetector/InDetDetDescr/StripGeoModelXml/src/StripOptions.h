@@ -6,7 +6,10 @@
 #define StripGeoModelXml_StripOptions_H
 #include <string>
 
-namespace InDetDDSLHC {
+namespace InDetDD
+{
+namespace ITk
+{
 //
 //    Class to store run time options.
 //
@@ -70,5 +73,7 @@ inline void StripOptions::setDetectorName(std::string detectorname) {
     m_detectorName = detectorname;
 }
 
-}
+} // namespace ITk
+} // namespace InDetDD
+
 #endif // StripGeoModelXml_StripOptions_H
