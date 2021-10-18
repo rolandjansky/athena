@@ -1551,9 +1551,9 @@ HLT_g35_loose_3j25_pf_ftf_L1EM22VHI:
   eventCount: 0
 HLT_g35_loose_L1EM22VHI:
   eventCount: 0
-HLT_g35_loose_PhotonDS_L1EM22VHI:
+HLT_g35_loose_PhysicsTLA_L1EM22VHI:
   eventCount: 0
-HLT_g35_loose_PhotonDS_L1eEM22M:
+HLT_g35_loose_PhysicsTLA_L1eEM22M:
   eventCount: 0
 HLT_g35_loose_mu15_mu2noL1_L1EM22VHI:
   eventCount: 0
@@ -1953,11 +1953,11 @@ HLT_j20_0eta290_020jvt_pf_ftf_boffperf_L1J15:
     2: 60
 HLT_j20_0eta290_pf_ftf_boffperf_L1HT190-J15s5pETA21:
   eventCount: 0
-HLT_j20_JetDS_L1HT190-J15s5pETA21:
+HLT_j20_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 0
-HLT_j20_JetDS_L1J100:
+HLT_j20_PhysicsTLA_L1J100:
   eventCount: 0
-HLT_j20_JetDS_L1J50_DETA20-J50J:
+HLT_j20_PhysicsTLA_L1J50_DETA20-J50J:
   eventCount: 1
   stepCounts:
     0: 1
@@ -2477,7 +2477,7 @@ HLT_j60_j0_FBDJSHARED_L1J20:
     0: 1
   stepFeatures:
     0: 11
-HLT_j60_j45_2j20_JetDS_L1J45p0ETA21_3J15p0ETA25:
+HLT_j60_j45_2j20_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
 HLT_j60_pf_ftf_preselj50_L1J20:
   eventCount: 8
