@@ -925,7 +925,7 @@ Trk::TrackingVolume::boundarySurface(
   return (m_boundarySurfaces->operator[](oa)).get();
 }
 
-void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE() {
+void Trk::TrackingVolume::createBoundarySurfaces () {
   // prepare the BoundarySurfaces
   m_boundarySurfaces = new std::vector<
       Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume>>>;
@@ -1127,11 +1127,6 @@ void Trk::TrackingVolume::registerOutsideGlueVolumes(
     Trk::GlueVolumesDescriptor* gvd) {
   delete m_outsideGlueVolumes;
   m_outsideGlueVolumes = gvd;
-}
-
-void Trk::TrackingVolume::registerOutsideGlueVolumes ATLAS_NOT_THREAD_SAFE(
-    Trk::GlueVolumesDescriptor* gvd) const {
-  const_cast<Trk::TrackingVolume*>(this)->registerOutsideGlueVolumes(gvd);
 }
 
 const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor() {
