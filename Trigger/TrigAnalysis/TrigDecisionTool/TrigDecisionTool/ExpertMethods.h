@@ -49,9 +49,9 @@ namespace Trig {
   class ExpertMethods : public virtual Logger {
   public:      
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_STANDALONE // AthAnalysis and AnalysisBase
     ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory);
-#else
+#else // AnalysisBase
     ExpertMethods(Trig::CacheGlobalMemory* m_cacheGlobalMemory);
 #endif
 
@@ -84,9 +84,9 @@ namespace Trig {
     /**
      * @brief return HLT::NavigationCore
      **/
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
     const HLT::NavigationCore* getNavigation() const;
-#else // Analysis or Standalone
+#else // AthAnalysis or AnalysisBase
     const HLT::TrigNavStructure* getNavigation() const;
 #endif
 
@@ -98,9 +98,9 @@ namespace Trig {
 
   private:
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_STANDALONE // AthAnalysis and AnalysisBase
     SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory;
-#else // Analysis or Standalone
+#else // AthAnalysis or AnalysisBase
     Trig::CacheGlobalMemory* m_cacheGlobalMemory;
 #endif    
 

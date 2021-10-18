@@ -159,11 +159,11 @@ StatusCode OutputConditionsAlg::finalize() {
       "Register objects in IOV database, interval of validity ";
     if (m_par_timestamp) {
       msg() << "[time] from [" << 
-	  m_par_time1 << "] to [" << m_par_time2 << "]" << endmsg;
+	m_par_time1.value() << "] to [" << m_par_time2.value() << "]" << endmsg;
     } else {
       msg() << "[run,LB] from [" <<
-          m_par_run1 << "," << m_par_lumib1 << "] to [" << m_par_run2 <<
-          "," << m_par_lumib2 << "]" << endmsg;
+	m_par_run1.value() << "," << m_par_lumib1.value() << "] to [" << m_par_run2.value() <<
+	"," << m_par_lumib2.value() << "]" << endmsg;
     }
     int nreg=0;
     for (int iobj=0;iobj<nObjects;++iobj) {

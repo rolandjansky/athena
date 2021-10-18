@@ -2,8 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//only in full Athena
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_ANALYSIS // Full Athena only
 
 
 #include "TrigDecisionTool/FeatureCollectAthena.h"

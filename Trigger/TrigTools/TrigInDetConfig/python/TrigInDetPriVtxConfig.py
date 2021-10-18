@@ -122,7 +122,7 @@ def iterativeVertexFinderCfg(flags, signature):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
 
     acc = ComponentAccumulator()
@@ -175,7 +175,7 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     acc = ComponentAccumulator()

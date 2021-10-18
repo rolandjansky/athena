@@ -778,8 +778,7 @@ void TagInfoMgr::addListener(Listener* listener)
       }
    }
 
-   if( m_listeners.find(listener) == m_listeners.end() )
-      m_listeners.insert( listener );
+   m_listeners.insert( listener );
 }
 
 //______________________________________________________________________________

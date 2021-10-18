@@ -4,6 +4,7 @@
 
 #include "MuonAGDDBase/mmSpacer_TechHandler.h"
 #include "MuonGeoModel/MMSpacer_Technology.h"
+#include "MuonGeoModel/MYSQL.h"
 #include <iostream>
 
 
@@ -22,7 +23,7 @@ void mmSpacer_TechHandler::ElementHandle(AGDDController& c,
 	bool ret=true;
 	std::string name=getAttributeAsString(c, t, "type",ret);
 	
-	MuonGM::MMSpacer_Technology *tech=new MuonGM::MMSpacer_Technology(name);
+	MuonGM::MMSpacer_Technology *tech=new MuonGM::MMSpacer_Technology(*MuonGM::MYSQL::GetPointer(), name);
 	
 	tech->thickness=getAttributeAsDouble(c, t, "Tck",ret);
 	

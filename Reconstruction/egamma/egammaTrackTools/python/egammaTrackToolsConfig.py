@@ -96,9 +96,8 @@ def egammaTrkRefitterToolCfg(flags, name='GSFRefitterTool', **kwargs):
     kwargs.setdefault("useBeamSpot", False)
     kwargs.setdefault("ReintegrateOutliers", True)
     if "Extrapolator" not in kwargs:
-        from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-            InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
     if "FitterTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import GaussianSumFitterCfg
         kwargs["FitterTool"] = acc.popToolsAndMerge(

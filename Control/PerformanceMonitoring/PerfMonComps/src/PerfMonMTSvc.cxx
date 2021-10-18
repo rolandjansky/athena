@@ -82,8 +82,9 @@ StatusCode PerfMonMTSvc::initialize() {
     ATH_MSG_INFO("  >> Component-level memory monitoring in the event-loop is disabled in jobs with more than 1 thread");
   }
 
-  // Slot specific component-level data map
+  // Slot specific component-level data map and locks
   m_compLevelDataMapVec.resize(m_numberOfSlots); // Default construct
+  m_mutex_slots.resize(m_numberOfSlots); // Default construct
 
   // Set wall time offset
   m_eventLevelData.set_wall_time_offset(m_wallTimeOffset);
@@ -226,7 +227,8 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
  */
 void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
   // Lock for data integrity
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
+  const unsigned int islot = ctx.valid() ? ctx.slot() : 0;
+  std::lock_guard<std::mutex> lock(m_mutex_slots[islot]);
 
   // Memory measurement is only done outside the loop except when there is only a single thread
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
@@ -236,7 +238,7 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
 
   // Check if this is the first time calling if so create the mesurement data if not use the existing one.
   // Metrics are collected per slot then aggregated before reporting
-  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
     compLevelDataMap.insert({currentState, std::make_unique<PMonMT::MeasurementData>()});
   }
@@ -257,7 +259,8 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
  */
 void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
   // Lock for data integrity
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
+  const unsigned int islot = ctx.valid() ? ctx.slot() : 0;
+  std::lock_guard<std::mutex> lock(m_mutex_slots[islot]);
 
   // Memory measurement is only done outside the loop except when there is only a single thread
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
@@ -270,7 +273,7 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Store
-  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
   compLevelDataMap[currentState]->addPointStop_component(meas, doMem);
 
   // Once the first time IncidentProcAlg3 is excuted, toggle m_isFirstEvent to false.

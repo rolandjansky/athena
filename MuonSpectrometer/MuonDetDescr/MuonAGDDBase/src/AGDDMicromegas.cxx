@@ -6,6 +6,7 @@
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDVolume.h"
+#include "AGDDKernel/AGDDBuilder.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -61,7 +62,7 @@ void AGDDMicromegas::CreateVolume (const AGDDBuilder& builder)
 	mm_comp->subType=subType();
 	
 	MuonGM::Micromegas *cham=new MuonGM::Micromegas(mm_comp);
-	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);
+	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(builder.GetMaterialManager(), 1);
 
 	CreateSolid (builder);
 

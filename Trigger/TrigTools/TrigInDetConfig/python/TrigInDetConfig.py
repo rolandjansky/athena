@@ -145,7 +145,7 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
 
 
 def ExtrapolatorCfg(flags):
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
 
 def InDetTestPixelLayerToolCfg(flags):
@@ -885,7 +885,7 @@ def TrackSelectionToolCfg(flags):
 
 def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
   tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.name}",
                                                 SummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
                                                 Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
@@ -912,12 +912,12 @@ def KalmanUpdatorCfg(flags):
 def FitterToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-  from TrkConfig.AtlasExtrapolatorConfig import AtlasNavigatorCfg
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   cond_alg = None #TODO may need to pull AtlasTrackingGeometryCondAlg and use it later
   fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
                                                  ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                                 NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
+                                                 NavigatorTool         = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
                                                  PropagatorTool        = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags, "InDetTrigRKPropagator" ) ),		
                                                  RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                                  BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it

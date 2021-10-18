@@ -5,7 +5,6 @@ log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
-from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
 
@@ -21,22 +20,11 @@ def bool_flag_with_default(name, val):
                    "StoredValue": val,
                 })
 
-default_true_flags = [
-    "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
-    "doNavigationSlimming",  # Enable the trigger navigation slimming"""
-]
-
 default_false_flags = [
-    "useRun1CaloEnergyScale",
     "doTruth",
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
 ]
-
-for name in default_true_flags:
-    newFlag = bool_flag_with_default(name, True)
-    globals()[newFlag.__name__] = newFlag
-    _flags.append(newFlag)
 
 for name in default_false_flags:
     newFlag = bool_flag_with_default(name, False)
@@ -51,21 +39,15 @@ class doHLT(JobProperty):
     
 _flags.append(doHLT)
 
-# trigger configuration source list
-class configurationSourceList(JobProperty):
-    """ define where to read trigger configuration from. Allowed values: ['aod','ds']"""
-    statusOn=True
-    allowedType=['list']
-    StoredValue=[]
-    allowedValues = AllowedList( ['aod','ds'] )
-
-_flags.append(configurationSourceList)
-
 class AODEDMSet(JobProperty):
     """ Define which sets of object go to AOD """
     statusOn=True
     allowedType=['list']
     StoredValue='AODSLIM'
+    def _do_action(self):
+        log.warning("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.AODEDMSet = self.get_Value()
 
 _flags.append(AODEDMSet)
 
@@ -74,6 +56,10 @@ class ESDEDMSet(JobProperty):
     statusOn=True
     allowedType=['list']
     StoredValue='ESD'
+    def _do_action(self):
+        log.warning("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
 
 _flags.append(ESDEDMSet)
 
@@ -367,7 +353,4 @@ def sync_Trigger2Reco():
     if globalflags.InputFormat() == 'bytestream':
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.readBS = True
-        TriggerFlags.doLVL1 = False
         TriggerFlags.doHLT   = False
-
-del log

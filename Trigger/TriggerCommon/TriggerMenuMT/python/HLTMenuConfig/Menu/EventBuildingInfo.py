@@ -18,7 +18,7 @@ like LAr or RPC. Variant is normally empty unless there are several variants
 like RPCPEB and RPCPEBSecondaryReadout.
 
 Possible examples:
-LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, JetDS, PhotonDS
+LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, PhysicsTLA
 '''
 
 

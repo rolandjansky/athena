@@ -12,17 +12,6 @@
 #include "AsgTools/MessageCheckAsgTools.h"
 #include "AsgMessaging/MsgStreamMacros.h"
 
-// Create a simple version of the MSGSTREAM_REPORT_PREFIX macro for Athena:
-#ifndef XAOD_STANDALONE
-#   define MSGSTREAM_REPORT_PREFIX              \
-   __FILE__ << ":" << __LINE__ << ": "
-#endif // not XAOD_STANDALONE
-
-/// Helper macro for printing nicely formatted error messages
-#define TOOLSTORE_ERROR( FNC, MSG )                                  \
-   std::cout << FNC << " ERROR   " << MSGSTREAM_REPORT_PREFIX << MSG \
-             << std::endl
-
 /// Convenience type definition
 typedef std::map< std::string, asg::IAsgTool* > ToolMap_t;
 
@@ -37,27 +26,26 @@ namespace {
 namespace asg {
 
    StatusCode ToolStore::put( IAsgTool* ptool ) {
+      using namespace msgToolStore;
 
       // Start with a little sanity check:
       if( ! ptool ) {
-         TOOLSTORE_ERROR( "asg::ToolStore::put      ",
-                          "Received a null pointer" );
+         ANA_MSG_ERROR( "asg::ToolStore::put: Received a null pointer" );
          return StatusCode::FAILURE;
       }
 
       // Get and check the name of the tool:
       const std::string& name = ptool->name();
       if( ! name.size() ) {
-         TOOLSTORE_ERROR( "asg::ToolStore::put      ",
-                          "The received tool doesn't have a name" );
+         ANA_MSG_ERROR( "asg::ToolStore::put: The received tool doesn't have a name" );
          return StatusCode::FAILURE;
       }
 
       std::lock_guard<std::mutex> lock (s_toolMutex);
       // Check whether we already have a tool with this name:
       if( s_tools.find( name ) != s_tools.end() ) {
-         std::cout << "asg::ToolStore::put       WARNING Tool with name \""
-                   << name << "\" already registered" << std::endl;
+         ANA_MSG_WARNING ("asg::ToolStore::put: Tool with name \""
+                        << name << "\" already registered");
          return StatusCode::FAILURE;
       }
 
@@ -66,32 +54,8 @@ namespace asg {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode ToolStore::put( IAsgTool* ptool, const std::string& name ) {
-
-      // Start with a little sanity check:
-      if( ! ptool ) {
-         TOOLSTORE_ERROR( "asg::ToolStore::put      ",
-                          "Received a null pointer" );
-         return StatusCode::FAILURE;
-      }
-
-      // Check the provided name:
-      if( ! name.size() ) {
-         TOOLSTORE_ERROR( "asg::ToolStore::put      ",
-                          "Received an empty name" );
-      }
-
-#ifdef XAOD_STANDALONE
-      // Set the tool's name to the specified one:
-      ptool->setName( name );
-#endif // XAOD_STANDALONE
-
-      // Register the tool using the other function:
-      return put( ptool );
-   }
-
    IAsgTool* ToolStore::get( const std::string& name, bool silent ) {
-      using namespace msgToolHandle;
+      using namespace msgToolStore;
 
       ToolMap_t::const_iterator itool = s_tools.find( name );
       if( itool != s_tools.end() )

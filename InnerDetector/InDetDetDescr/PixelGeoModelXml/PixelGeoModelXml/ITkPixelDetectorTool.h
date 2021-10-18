@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeoModelXml_ITKPIXELDETECTORTOOL_H
@@ -11,6 +11,7 @@
 //    This is the entry to the PixelGeoModelXml package.
 //
 #include "GeoModelUtilities/GeoModelTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -32,7 +33,7 @@ class ITkPixelDetectorTool : public GeoModelTool {
   virtual ~ITkPixelDetectorTool();
   StatusCode create() override final;
   StatusCode clear() override final;
-  StatusCode registerCallback() override final;
+  StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override final;
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys)) override;
   
  private:

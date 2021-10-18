@@ -8,6 +8,7 @@
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDVolume.h"
+#include "AGDDKernel/AGDDBuilder.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -57,7 +58,7 @@ void AGDDsTGC::CreateVolume (const AGDDBuilder& builder)
 	stgc_comp->yCutoutCathode=yCutoutCathode();
 	
 	MuonGM::sTGC *cham=new MuonGM::sTGC(stgc_comp);
-	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);
+	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(builder.GetMaterialManager(), 1);
 
 	CreateSolid (builder);
 

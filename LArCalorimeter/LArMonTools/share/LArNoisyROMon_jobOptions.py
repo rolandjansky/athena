@@ -56,8 +56,6 @@ if rec.doTrigger or LArNoisyROMonForceTrigger:
         ]
 
     # for TrigDecisionTool
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.configurationSourceList = ['ds']
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter()
 else:

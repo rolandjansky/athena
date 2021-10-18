@@ -13,9 +13,6 @@ def createTriggerFlags():
     # enables L1 simulation
     flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
 
-    # need proper documentation
-    flags.addFlag('Trigger.useRun1CaloEnergyScale', False)
-
     # Run HLT selection algorithms
     flags.addFlag('Trigger.doHLT', False)
 
@@ -30,9 +27,6 @@ def createTriggerFlags():
 
     # Enable L1Topo simulation to write inputs to txt
     flags.addFlag('Trigger.enableL1TopoDump', False)
-
-    # Enable usage of new L1 menu   
-    flags.addFlag('Trigger.readLVL1FromJSON', True)
 
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
@@ -165,7 +159,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doTransientByteStream', False)
 
     # list of EDM objects to be written to AOD
-    flags.addFlag('Trigger.AODEDMSet', 'AODSLIM')
+    flags.addFlag('Trigger.AODEDMSet', lambda flags: 'AODSLIM' if flags.Input.isMC else 'AODFULL')
 
     # list of objects to be written to ESD
     flags.addFlag('Trigger.ESDEDMSet', 'ESD')

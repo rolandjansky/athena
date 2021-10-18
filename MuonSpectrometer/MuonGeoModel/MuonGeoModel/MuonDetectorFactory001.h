@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorFactory001_H
@@ -30,13 +30,10 @@ namespace MuonGM {
         ~MuonDetectorFactory001();
 
         // Creates the raw geometry tree: required,
-        virtual void create(GeoPhysVol *world);
+        virtual void create(GeoPhysVol *world) override;
 
-        // this function is inherited from GeoVDetectorFactory where it is declared const.
-        // However, the MuonDetectorManager cannot be const since it holds the pointers to the readout elements,
-        // and those can change with alignment. Thus, this const method will create a thread-safety warning since
-        // the returned object is *not* const
-        virtual MuonDetectorManager *getDetectorManager() const;
+        virtual const MuonDetectorManager *getDetectorManager() const override;
+        MuonDetectorManager *getDetectorManager();
 
         inline void setDBAtlasVersion(std::string v);
         inline void setDBMuonVersion(std::string v);

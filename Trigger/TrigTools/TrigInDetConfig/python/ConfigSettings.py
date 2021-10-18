@@ -64,6 +64,7 @@ class _ConfigSettings_muonIso( _ConfigSettingsBase ):
       self._roi       = "HLT_Roi_MuonIso"
       self._etaHalfWidth        = 0.35
       self._phiHalfWidth        = 0.35
+      self._zedHalfWidth        = 10.0
 
 
 class _ConfigSettings_tau( _ConfigSettingsBase ):
