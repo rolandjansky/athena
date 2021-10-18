@@ -2916,6 +2916,9 @@ namespace top {
       m_jet_jvt.resize(event.m_jets.size()-n_jet_electrons);
       m_jet_fjvt.resize(event.m_jets.size()-n_jet_electrons);
       m_jet_passfjvt.resize(event.m_jets.size()-n_jet_electrons);
+      if (m_config->useJetElectrons()) {
+        m_jet_emfrac.resize(event.m_jets.size()-n_jet_electrons);
+      }
 
       // ghost tracks
       if (m_config->useJetGhostTrack()) {
@@ -3012,6 +3015,9 @@ namespace top {
           if (jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")) {
             jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_jet_HadronConeExclExtendedTruthLabelID[i]);
           }
+        }
+        if (m_config->useJetElectrons()) {
+          m_jet_emfrac[i] = jetPtr->auxdataConst<float>("EMFrac");
         }
 
         if (m_config->useJetGhostTrack() && m_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_jet_eta[i])<m_config->jetEtaGhostTracks()) {
