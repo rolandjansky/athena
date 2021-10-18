@@ -39,7 +39,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloRxLayers.h"
 #include "TrigT1CaloCalibConditions/L1CaloRxLayersContainer.h"
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloLArTowerEnergy.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 
@@ -61,7 +61,6 @@ L1CaloHVScalesMon::L1CaloHVScalesMon(const std::string & type,
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
     m_ttIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
     m_lvl1Helper(0),
@@ -105,7 +104,7 @@ StatusCode L1CaloHVScalesMon:: initialize()
   msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
-  ATH_CHECK( m_cells2tt.retrieve() );
+  ATH_CHECK( m_cellMatch.retrieve() );
   ATH_CHECK( m_larEnergy.retrieve() );
   ATH_CHECK( m_ttIdTools.retrieve() );
   ATH_CHECK( m_ttTool.retrieve() );
@@ -380,7 +379,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
     Identifier ttId1(0);
     Identifier ttId2(0);
 
-    m_cells2tt->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
+    m_cellMatch->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
 
     if (ttId1 != invalidId) {
       const double eta = m_ttIdTools->IDeta(ttId1);
