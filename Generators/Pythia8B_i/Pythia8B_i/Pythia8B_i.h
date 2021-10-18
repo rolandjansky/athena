@@ -63,7 +63,6 @@ private:
     double m_numberAlphaS;
     bool m_sameAlphaSAsMPI;
     Pythia8::SuppressSmallPT *m_SuppressSmallPT;
-    unsigned int m_maxFailures;
     unsigned int m_failureCount;
 
 };

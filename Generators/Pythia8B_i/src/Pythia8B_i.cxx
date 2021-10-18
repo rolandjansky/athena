@@ -179,7 +179,6 @@ StatusCode Pythia8B_i::callGenerator(){
     int iEvent(0);
     while (iEvent < 1) { // keep going until an event is accepted
 
-        ++m_totalPythiaCalls;
         ATH_MSG_DEBUG("Throwing the dice....");
         if ( !Pythia8_i::m_pythia.next() ) {
             // First check if it failed because it ran out of events.
@@ -197,6 +196,9 @@ StatusCode Pythia8B_i::callGenerator(){
                 continue;
             }
         }
+        // Reset failure counter and increment event counter after a successful event
+        m_failureCount = 0;
+        ++m_totalPythiaCalls;
 
         // Find b(c)/antib(c) quarks and enforce cuts as required
         int nbBeforeSelection(0);
