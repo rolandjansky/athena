@@ -1285,12 +1285,12 @@ def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHol
     acc.setPrivateTools(InDetTrackSummaryTool)
     return acc
 
-def InDetROIInfoVecCondAlgCfg(name='InDetROIInfoVecCondAlg', **kwargs) :
+def ROIInfoVecAlgCfg(name='InDetROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
     kwargs.setdefault("InputEmClusterContainerName", 'InDetCaloClusterROIs')
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
     kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.setPrivateTools(CompFactory.ROIInfoVecAlg(name = name,**kwargs))
+    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs))
     return acc
 
 def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
@@ -1309,7 +1309,7 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     from AthenaCommon.DetFlags  import DetFlags
     have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg = acc.popToolsAndMerge(InDetROIInfoVecCondAlgCfg())
+        alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg())
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
@@ -1488,7 +1488,7 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     from AthenaCommon.DetFlags  import DetFlags
     have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg = acc.popToolsAndMerge(InDetROIInfoVecCondAlgCfg())
+        alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg())
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
 
     from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
