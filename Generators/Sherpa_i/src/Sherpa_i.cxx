@@ -11,7 +11,11 @@
 //needed from Sherpa EvtGenerator
 #include "SHERPA/Main/Sherpa.H"
 #include "SHERPA/Initialization/Initialization_Handler.H"
+#ifdef IS_SHERPA_3
 #include "ATOOLS/Phys/Variations.H"
+#else
+#include "SHERPA/Tools/Variations.H"
+#endif
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
 
@@ -27,8 +31,13 @@ CLHEP::HepRandomEngine* p_rndEngine;
 Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator) 
   : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
+  #ifdef IS_SHERPA_3
   declareProperty("BaseFragment", m_inputfiles["Base.yaml"] = "");
   declareProperty("RunCard", m_inputfiles["Sherpa.yaml"] = "");
+  #else
+  declareProperty("RunCard", m_runcard = "");
+  declareProperty("Parameters", m_params);
+  #endif
   declareProperty("OpenLoopsLibs", m_openloopslibs);
   declareProperty("ExtraFiles", m_extrafiles);
   declareProperty("NCores", m_ncores=1);
@@ -45,17 +54,23 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode Sherpa_i::genInitialize(){
   ATH_MSG_INFO("Sherpa initialising... ");
 
+  #ifdef IS_SHERPA_3
   for(auto& inputfile : m_inputfiles) {
     // remove first line and last character containing '"'
     // TODO fix Python/C++ string passing, to not contain " in first place
     inputfile.second.erase(0, inputfile.second.find("\n") + 1);
     inputfile.second.pop_back();
   }
+  #endif
 
   ATH_MSG_DEBUG("... compiling plugin code");
   if (m_plugincode != "") {
     compilePlugin(m_plugincode);
+    #ifdef IS_SHERPA_3
     m_inputfiles["Base.yaml"] += "SHERPA_LDADD: Sherpa_iPlugin \n";
+    #else
+    m_params.push_back("SHERPA_LDADD=Sherpa_iPlugin");
+    #endif
   }
 
   ATH_MSG_DEBUG("... seeding Athena random number generator");
@@ -65,6 +80,7 @@ StatusCode Sherpa_i::genInitialize(){
   long int si2 = sip[1];
   atRndmGenSvc().CreateStream(si1, si2, "SHERPA");
 
+  #ifdef IS_SHERPA_3
   ATH_MSG_DEBUG("... adapting output level");
   if( msg().level()==MSG::FATAL || msg().level()==MSG::ERROR || msg().level()==MSG::WARNING ){
     m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 0 \n";
@@ -98,6 +114,9 @@ StatusCode Sherpa_i::genInitialize(){
   strcpy(argv[1], "RUNDATA: [Base.yaml, Sherpa.yaml]");
   p_sherpa = new SHERPA::Sherpa(argc, argv);
   delete [] argv;
+  #else
+  p_sherpa = new SHERPA::Sherpa();
+  #endif
 
 
   /***
@@ -106,6 +125,7 @@ StatusCode Sherpa_i::genInitialize(){
   ***/
   std::set_terminate(ATOOLS::Terminate);
   std::set_unexpected(ATOOLS::Terminate);
+  #ifdef IS_SHERPA_3
   signal(SIGSEGV,ATOOLS::HandleSignal);
   signal(SIGINT,ATOOLS::HandleSignal);
   signal(SIGPIPE,ATOOLS::HandleSignal);
@@ -131,6 +151,36 @@ StatusCode Sherpa_i::genInitialize(){
     ATH_MSG_ERROR(exception);
     return StatusCode::FAILURE;
   }
+  #else 
+  signal(SIGSEGV,ATOOLS::SignalHandler);
+  signal(SIGINT,ATOOLS::SignalHandler);
+  signal(SIGBUS,ATOOLS::SignalHandler);
+  signal(SIGFPE,ATOOLS::SignalHandler);
+  signal(SIGABRT,ATOOLS::SignalHandler);
+  signal(SIGTERM,ATOOLS::SignalHandler);
+  signal(SIGXCPU,ATOOLS::SignalHandler);
+
+  try {
+    int argc;
+    char** argv;
+    getParameters(argc, argv);
+    p_sherpa->InitializeTheRun(argc,(char **)argv);
+    delete [] argv;
+
+    p_sherpa->InitializeTheEventHandler();
+  }
+  catch (ATOOLS::Exception exception) {
+    if (exception.Class()=="Matrix_Element_Handler" && exception.Type()==ATOOLS::ex::normal_exit) {
+      ATH_MSG_ERROR("Have to compile Amegic libraries");
+      ATH_MSG_ERROR("You probably want to run ./makelibs");
+    }
+    else {
+      ATH_MSG_ERROR("Unwanted ATOOLS::exception caught.");
+      ATH_MSG_ERROR(exception);
+    }
+    return StatusCode::FAILURE;
+  }
+  #endif
   catch (std::exception exception) {
     ATH_MSG_ERROR("std::exception caught.");
     return StatusCode::FAILURE;
@@ -207,6 +257,65 @@ StatusCode Sherpa_i::genFinalize() {
 }
 
 
+#ifndef IS_SHERPA_3
+void Sherpa_i::getParameters(int &argc, char** &argv) {
+  std::vector<std::string> params;
+
+  // set some ATLAS specific default values as a starting point
+  params.push_back("EXTERNAL_RNG=Atlas_RNG");
+
+  /***
+      Adopt Atlas Debug Level Scheme
+  ***/
+
+  std::string verbose_arg;
+  MsgStream log(messageService(), name());
+  if( log.level()==MSG::FATAL || log.level()==MSG::ERROR || log.level()==MSG::WARNING ){
+    params.push_back("OUTPUT=0");
+  }
+  else if(log.level()==MSG::INFO){
+    params.push_back("OUTPUT=2");
+  }
+  else if(log.level()==MSG::DEBUG){
+    params.push_back("OUTPUT=3");
+  }
+  else{
+    params.push_back("OUTPUT=15");
+  }
+
+  // disregard manual RUNDATA setting if run card given in JO
+  if (m_runcard != "") m_params.push_back("RUNDATA=Run.dat");
+  
+  // allow to overwrite all parameters from JO file
+  params.insert(params.begin()+params.size(), m_params.begin(), m_params.end());
+
+  // create Run.dat file if runcard explicitely given
+  if (m_runcard != "") {
+    FILE *file = fopen("Run.dat","w");
+    fputs(m_runcard.c_str(),file);
+    fclose(file);
+  }
+
+  /***
+      Convert into Sherpas argc/argv arguments
+  ***/
+  argc = 1+params.size();
+  argv = new char * [ 1+params.size() ];
+  argv[0] = new char[7];
+  strcpy(argv[0], "Sherpa");
+
+  ATH_MSG_INFO("Sherpa_i using the following Arguments");
+  ATH_MSG_INFO(m_runcard);
+  for(size_t i=0; i<params.size(); i++) {
+    ATH_MSG_INFO(" [ " << params[i] << " ] ");
+    argv[i+1] = new char[params[i].size()+1];
+    strcpy(argv[i+1], params[i].c_str());
+  }
+  ATH_MSG_INFO("End Sherpa_i Argument List");
+  ATH_MSG_INFO("Further Sherpa initialisation output will be redirected to the LOG_FILE specified above.");
+
+}
+#endif
 
 
 void Sherpa_i::compilePlugin(std::string pluginCode) {
