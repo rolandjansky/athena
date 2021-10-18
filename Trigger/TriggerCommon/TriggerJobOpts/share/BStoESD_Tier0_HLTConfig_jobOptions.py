@@ -33,23 +33,7 @@ if rec.doTrigger():
         ServiceMgr += ByteStreamAddressProviderSvc()
 
     ConfigFlags.Trigger.readBS = True
-    tf.doLVL1= False # needed to not rerun the trigger
     tf.doHLT= False # needed to not rerun the trigger
-    if ConfigFlags.Trigger.EDMVersion >= 3:
-        # for Run 3 we eventually want to disable TrigConfigSvc
-        tf.configurationSourceList = []
-    elif ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
-        # for reconstructing Run 1/2 data we need to run the trigger configuration
-        # from the Run 1/2 TriggerDB, which is done by the TrigConfigSvc(DSConfigSvc)
-        tf.configurationSourceList = ['ds']
-        # this configurations are in the old format
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        _log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False as we are reconstructing Run %s data",
-                  ConfigFlags.Trigger.EDMVersion)
-        ConfigFlags.Trigger.readLVL1FromJSON = False
-    else:
-        raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
-
 
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter()

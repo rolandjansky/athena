@@ -393,11 +393,11 @@ class HLTTriggerResultGetter(Configured):
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
 
             # Run 1, 2 slimming
-            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
+            if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteAOD():
                 _addSlimmingRun2('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
                 log.info("configured navigation slimming for AOD output")
                 
-            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
+            if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteESD():
                 _addSlimmingRun2('StreamESD', _TriggerESDList )                
                 log.info("configured navigation slimming for ESD output")
 

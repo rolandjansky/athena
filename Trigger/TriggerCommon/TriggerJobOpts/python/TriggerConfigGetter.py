@@ -48,7 +48,6 @@ class TriggerConfigGetter(Configured):
         log.info("globalflags.DataSource              : %s", globalflags.DataSource())
         log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
         log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
-        log.info("TriggerFlags.configurationSourceList: %s", TriggerFlags.configurationSourceList())
 
         count = len([1 for x in [rec.readRDO(),rec.readESD(),rec.readAOD()] if x ]) #readTAG is only set with another input
         if count == 0:
