@@ -11,6 +11,7 @@ SCT_DCSConditionsStatCondAlg=CompFactory.SCT_DCSConditionsStatCondAlg
 SCT_DCSConditionsHVCondAlg=CompFactory.SCT_DCSConditionsHVCondAlg
 SCT_DCSConditionsTempCondAlg=CompFactory.SCT_DCSConditionsTempCondAlg
 
+
 def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
     """Configure necessary condition folders, condition algorithms 
        for SCT_DCSConditionsTool and return it.
@@ -32,7 +33,7 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
         acc.merge(addFolders(flags, stateFolder, dbInstance, className="CondAttrListCollection"))
         # algo
         statArgs = {
-            "name": name + "StatCondAlg",
+            "name": f"{name}StatCondAlg",
             "ReturnHVTemp": ReturnHVTemp,
             "ReadKeyHV": hvFolder,
             "ReadKeyState": stateFolder,
@@ -41,9 +42,9 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
         acc.addCondAlgo(statAlg)
     if ReturnHVTemp:
         acc.merge(addFolders(flags, [hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
-        hvAlg = SCT_DCSConditionsHVCondAlg(name=name + "HVCondAlg", ReadKey=hvFolder)
+        hvAlg = SCT_DCSConditionsHVCondAlg(name=f"{name}HVCondAlg", ReadKey=hvFolder)
         acc.addCondAlgo(hvAlg)
-        tempAlg = SCT_DCSConditionsTempCondAlg(name=name + "TempCondAlg", ReadKey=tempFolder)
+        tempAlg = SCT_DCSConditionsTempCondAlg(name=f"{name}TempCondAlg", ReadKey=tempFolder)
         acc.addCondAlgo(tempAlg)
 
     # Condition tool
@@ -51,6 +52,11 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
     toolkwargs = {}
     toolkwargs["ReadAllDBFolders"] = ReadAllDBFolders
     toolkwargs["ReturnHVTemp"] = ReturnHVTemp
-    acc.setPrivateTools(SCT_DCSConditionsTool(name="InDetSCT_DCSConditionsTool", **toolkwargs))
+    acc.setPrivateTools(SCT_DCSConditionsTool(name=f"{name}Tool", **toolkwargs))
 
     return acc
+
+
+def ITkStripDCSConditionsCfg(flags, name="ITkStripDCSConditions", **kwargs):
+    """Return a ComponentAccumulator configured for ITk Strip DCS Conditions"""
+    return SCT_DCSConditionsCfg(flags, name, **kwargs)

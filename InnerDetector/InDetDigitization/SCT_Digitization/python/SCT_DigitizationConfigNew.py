@@ -49,7 +49,7 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     # attach ToolHandles
     tool.FrontEnd = acc.popToolsAndMerge(SCT_FrontEndCfg(flags))
     tool.SurfaceChargesGenerator = acc.popToolsAndMerge(SCT_SurfaceChargesGeneratorCfg(flags))
-    tool.RandomDisabledCellGenerator = SCT_RandomDisabledCellGeneratorCfg(flags)
+    tool.RandomDisabledCellGenerator = acc.popToolsAndMerge(SCT_RandomDisabledCellGeneratorCfg(flags))
     acc.setPrivateTools(tool)
     return acc
 
@@ -133,21 +133,23 @@ def SCT_DigitizationToolGeantinoTruthCfg(flags, name="SCT_GeantinoTruthDigitizat
 
 def SCT_RandomDisabledCellGeneratorCfg(flags, name="SCT_RandomDisabledCellGenerator", **kwargs):
     """Return configured random cell disabling tool"""
+    acc = ComponentAccumulator()
     kwargs.setdefault("TotalBadChannels", 0.01)
-    SCT_RandomDisabledCellGenerator = CompFactory.SCT_RandomDisabledCellGenerator
-    return SCT_RandomDisabledCellGenerator(name, **kwargs)
+    acc.setPrivateTools(CompFactory.SCT_RandomDisabledCellGenerator(name, **kwargs))
+    return acc
 
 
 def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     """Return configured amplifier and shaper tool"""
+    acc = ComponentAccumulator()
     kwargs.setdefault("CrossFactor2sides", 0.1)
     kwargs.setdefault("CrossFactorBack", 0.07)
     kwargs.setdefault("PeakTime", 21)
     kwargs.setdefault("deltaT", 1.0)
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
-    SCT_Amp = CompFactory.SCT_Amp
-    return SCT_Amp(name, **kwargs)
+    acc.setPrivateTools(CompFactory.SCT_Amp(name, **kwargs))
+    return acc
 
 
 def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **kwargs):
@@ -221,8 +223,8 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataReadOutMode", 0)
     else:
         kwargs.setdefault("DataReadOutMode", 1)
-    SCT_FrontEnd = CompFactory.SCT_FrontEnd
-    acc.setPrivateTools(SCT_FrontEnd(name, **kwargs))
+    kwargs.setdefault("SCT_Amp", acc.popToolsAndMerge(SCT_AmpCfg(flags)))
+    acc.setPrivateTools(CompFactory.SCT_FrontEnd(name, **kwargs))
     return acc
 
 
