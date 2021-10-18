@@ -438,6 +438,7 @@ StatusCode LArOFCAlg::stop()
   // record and symlink LArShapeComplete object
   if ( m_fillShape ) {
     ATH_MSG_DEBUG( "Trying to record LArShapeComplete object to detector store, key = " << m_shapeKey);
+    LArShapeComplete* shapePtr=larShapeComplete.get();
     sc = detStore()->record(std::move(larShapeComplete),m_shapeKey);
     if (sc.isFailure()) {
        ATH_MSG_ERROR( "Could not record LArShapeComplete to DetStore with key " << m_shapeKey );
@@ -445,7 +446,6 @@ StatusCode LArOFCAlg::stop()
     }
     ATH_MSG_INFO( "LArShapeComplete object recorded to DetStore successfully with key " << m_shapeKey ) ;
     ATH_MSG_DEBUG( "Trying to symlink ILArShape with LArShapeComplete");
-    LArShapeComplete* shapePtr=larShapeComplete.get();
     sc = detStore()->symLink(shapePtr,(ILArShape*)shapePtr);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not symlink ILArShape with LArShapeComplete." );
