@@ -270,7 +270,8 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                                                            NetworkFile3P="llpdev/net_experimental_llz_mp.json",
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
-                                                           MaxClusterDR=1.0))
+                                                           MaxClusterDR=1.0,
+                                                           suffix = "_LLP"))
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetLLP())
 
