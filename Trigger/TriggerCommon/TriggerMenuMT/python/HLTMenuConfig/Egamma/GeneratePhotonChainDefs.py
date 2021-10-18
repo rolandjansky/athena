@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ..Menu.ChainDictTools import splitChainDict
-from .ElectronChainConfiguration import ElectronChainConfiguration
 from ..Menu.ChainMerging import mergeChainDefs
+from ..Photon.PhotonChainConfiguration import PhotonChainConfiguration
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -19,17 +19,16 @@ def generateChainConfigs( chainDict ):
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:
-        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )
-        Electron = ElectronChainConfiguration(subChainDict).assembleChain() 
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )  
+        Photon = PhotonChainConfiguration(subChainDict).assembleChain() 
 
-        listOfChainDefs += [Electron]
+        listOfChainDefs += [Photon]
         
 
     if len(listOfChainDefs)>1:
         theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
-
 
     return theChainDef
 
