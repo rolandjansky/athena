@@ -96,6 +96,7 @@ objects = [
 'xAOD::TrigVertexCountsContainer_v1',
 'xAOD::TrigVertexCountsAuxContainer_v1',
 'xAOD::TrigTrackCounts_v1',
+'xAOD::TrigTrackCountsContainer_v1',
 'xAOD::TrigTrackCountsAuxContainer_v1',
 'xAOD::TrigMissingETContainer_v1',
 'xAOD::TrigMissingETAuxContainer_v1',
