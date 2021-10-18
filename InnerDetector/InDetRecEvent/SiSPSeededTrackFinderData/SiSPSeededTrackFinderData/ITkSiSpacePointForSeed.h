@@ -5,17 +5,17 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////
-//  Header file for class SiSpacePointForSeedITK
+//  Header file for class ITk::SiSpacePointForSeed
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
-// Class space points for seed maker 
+// Class space points for seed maker
 /////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 18/11/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SiSpacePointForSeedITK_h
-#define SiSpacePointForSeedITK_h
+#ifndef ITkSiSpacePointForSeed_h
+#define ITkSiSpacePointForSeed_h
 
 #include <cmath>
 
@@ -26,21 +26,24 @@ namespace Trk {
 
 namespace InDet {
   class SiCluster;
+}
 
-  class SiSpacePointForSeedITK {
-    
+namespace ITk
+{
+  class SiSpacePointForSeed {
+
     /////////////////////////////////////////////////////////////////////////////////
     // Public methods:
     /////////////////////////////////////////////////////////////////////////////////
-    
+
   public:
-    
-    SiSpacePointForSeedITK();
-    SiSpacePointForSeedITK(const Trk::SpacePoint*const&,const float*);
-    SiSpacePointForSeedITK(const Trk::SpacePoint*const&,const float*,const float*);
-    SiSpacePointForSeedITK(const SiSpacePointForSeedITK&);
-    virtual ~SiSpacePointForSeedITK()                 ;
-    SiSpacePointForSeedITK& operator  = (const SiSpacePointForSeedITK&);
+
+    SiSpacePointForSeed();
+    SiSpacePointForSeed(const Trk::SpacePoint*const&,const float*);
+    SiSpacePointForSeed(const Trk::SpacePoint*const&,const float*,const float*);
+    SiSpacePointForSeed(const SiSpacePointForSeed&);
+    virtual ~SiSpacePointForSeed()                 ;
+    SiSpacePointForSeed& operator  = (const SiSpacePointForSeed&);
 
     void set(const Trk::SpacePoint*const&,const float*)  ;
     void set(const Trk::SpacePoint*const&,const float*,const float*);
@@ -52,7 +55,7 @@ namespace InDet {
     void setScorePenalty(const float&);
     void setPt(const float&);
 
-    const Trk::SpacePoint* spacepoint{}              ; 
+    const Trk::SpacePoint* spacepoint{}              ;
     const float&          x() const {return m_x;}
     const float&          y() const {return m_y;}
     const float&          z() const {return m_z;}
@@ -73,8 +76,8 @@ namespace InDet {
     bool coordinates(const float*,float*);
 
   private:
-    
-    float m_x{}   ; // x-coordinate in beam system coordinates  
+
+    float m_x{}   ; // x-coordinate in beam system coordinates
     float m_y{}   ; // y-coordinate in beam system coordinates
     float m_z{}   ; // z-coordinate in beam system coordinetes
     float m_r{}   ; // radius       in beam system coordinates
@@ -97,8 +100,7 @@ namespace InDet {
     const Trk::Surface* m_su{};
     const Trk::Surface* m_sn{};
   };
-  
 
-} // end of name space
+} // end of name space ITk
 
-#endif  // SiSpacePointForSeedITK_h
+#endif  // ITkSiSpacePointForSeed_h

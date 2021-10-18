@@ -5,7 +5,7 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////
-//  Header file for class SiSpacesProSeed
+//  Header file for class ITk::SiSpacesProSeed
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
@@ -14,14 +14,18 @@
 // Version 1.0 27/02/2013 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SiSpacePointsProSeedITK_h
-#define SiSpacePointsProSeedITK_h
+#ifndef ITkSiSpacePointsProSeed_h
+#define ITkSiSpacePointsProSeed_h
 
 namespace InDet {
-  class SiSpacePointForSeedITK;
   class SiSpacePointsSeed;
+}
 
-  class SiSpacePointsProSeedITK {
+namespace ITk
+{
+  class SiSpacePointForSeed;
+
+  class SiSpacePointsProSeed {
     
     /////////////////////////////////////////////////////////////////////////////////
     // Public methods:
@@ -29,32 +33,32 @@ namespace InDet {
     
   public:
     
-    SiSpacePointsProSeedITK();
+    SiSpacePointsProSeed();
 
-    SiSpacePointsProSeedITK(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
-    SiSpacePointsProSeedITK(const SiSpacePointsProSeedITK&);
-    virtual ~SiSpacePointsProSeedITK();
-    SiSpacePointsProSeedITK& operator  = (const SiSpacePointsProSeedITK&);
+    SiSpacePointsProSeed(SiSpacePointForSeed*&,SiSpacePointForSeed*&,SiSpacePointForSeed*&,float);
+    SiSpacePointsProSeed(const SiSpacePointsProSeed&);
+    virtual ~SiSpacePointsProSeed();
+    SiSpacePointsProSeed& operator  = (const SiSpacePointsProSeed&);
 
-    SiSpacePointForSeedITK* spacepoint0() {return m_s0;}
-    SiSpacePointForSeedITK* spacepoint1() {return m_s1;}
-    SiSpacePointForSeedITK* spacepoint2() {return m_s2;}
+    SiSpacePointForSeed* spacepoint0() {return m_s0;}
+    SiSpacePointForSeed* spacepoint1() {return m_s1;}
+    SiSpacePointForSeed* spacepoint2() {return m_s2;}
     const float&             z() const {return m_z ;}
     const float&       quality() const {return m_q ;}
     
-    void set(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
+    void set(SiSpacePointForSeed*&,SiSpacePointForSeed*&,SiSpacePointForSeed*&,float);
     bool setQuality(float);
     bool set3(InDet::SiSpacePointsSeed&);
     void set2(InDet::SiSpacePointsSeed&);
 
   private:
     
-    SiSpacePointForSeedITK* m_s0{};
-    SiSpacePointForSeedITK* m_s1{};
-    SiSpacePointForSeedITK* m_s2{};
-    float                   m_z{} ;
-    float                   m_q{} ;
+    SiSpacePointForSeed* m_s0{};
+    SiSpacePointForSeed* m_s1{};
+    SiSpacePointForSeed* m_s2{};
+    float                m_z{} ;
+    float                m_q{} ;
   };
 } // end of name space
 
-#endif  // SiSpacePointsProSeedITK_h
+#endif  // ITkSiSpacePointsProSeed_h

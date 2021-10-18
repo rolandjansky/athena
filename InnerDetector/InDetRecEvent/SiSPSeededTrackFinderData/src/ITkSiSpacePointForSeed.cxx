@@ -1,21 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
 
 
 
-#include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
 
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSurfaces/Surface.h"
 
-namespace InDet {
+namespace ITk
+{
 
-  SiSpacePointForSeedITK::SiSpacePointForSeedITK ()
+  SiSpacePointForSeed::SiSpacePointForSeed ()
   {
     spacepoint = nullptr;
     m_x     = 0.;
@@ -36,8 +37,8 @@ namespace InDet {
     for(int i=0; i!=3; ++i) {m_b0[i]=0.; m_b1[i]=0.; m_dr[i]=0.; m_r0[i]=0.;}
   }
 
-  SiSpacePointForSeedITK& SiSpacePointForSeedITK::operator = 
-  (const SiSpacePointForSeedITK& sp) 
+  SiSpacePointForSeed& SiSpacePointForSeed::operator = 
+  (const SiSpacePointForSeed& sp) 
   {
     if(&sp!=this) {
       spacepoint     = sp.spacepoint        ;
@@ -63,13 +64,13 @@ namespace InDet {
     return(*this);
   }
  
-  SiSpacePointForSeedITK::SiSpacePointForSeedITK
+  SiSpacePointForSeed::SiSpacePointForSeed
   (const Trk::SpacePoint*const& sp,const float* r) 
   {
     set(sp,r); m_param = 0.;
   }
 
-  SiSpacePointForSeedITK::SiSpacePointForSeedITK
+  SiSpacePointForSeed::SiSpacePointForSeed
   (const Trk::SpacePoint*const& sp,const float* r,const float* sc) 
   {
     set(sp,r,sc); m_param = 0.;
@@ -79,7 +80,7 @@ namespace InDet {
   // Copy constructor
   /////////////////////////////////////////////////////////////////////////////////
 
-  SiSpacePointForSeedITK::SiSpacePointForSeedITK (const SiSpacePointForSeedITK& sp)
+  SiSpacePointForSeed::SiSpacePointForSeed (const SiSpacePointForSeed& sp)
   {
     *this = sp;
   }
@@ -88,7 +89,7 @@ namespace InDet {
   // Destructor
   /////////////////////////////////////////////////////////////////////////////////
 
-  SiSpacePointForSeedITK::~SiSpacePointForSeedITK() 
+  SiSpacePointForSeed::~SiSpacePointForSeed() 
   {
   }
 
@@ -96,7 +97,7 @@ namespace InDet {
   // Set
   /////////////////////////////////////////////////////////////////////////////////
 
-  void SiSpacePointForSeedITK::set
+  void SiSpacePointForSeed::set
   (const Trk::SpacePoint*const& sp,const float* r)
   {
     spacepoint = sp  ;
@@ -134,27 +135,27 @@ namespace InDet {
   } 
 
 
-  void SiSpacePointForSeedITK::setDR(const float& dr)
+  void SiSpacePointForSeed::setDR(const float& dr)
   {
     m_dR = dr;
   }
 
-  void SiSpacePointForSeedITK::setEta(const float& eta)
+  void SiSpacePointForSeed::setEta(const float& eta)
   {
     m_eta = eta;
   }
    
-  void SiSpacePointForSeedITK::setDZDR(const float& dzdr)
+  void SiSpacePointForSeed::setDZDR(const float& dzdr)
   {
     m_dzdr = dzdr;
   }
  
-  void SiSpacePointForSeedITK::setPt(const float& pt)
+  void SiSpacePointForSeed::setPt(const float& pt)
   {
     m_pt = pt;
   }
 
-  void SiSpacePointForSeedITK::setScorePenalty(const float& score)
+  void SiSpacePointForSeed::setScorePenalty(const float& score)
   {
     m_scorePenalty = score;
   }
@@ -168,7 +169,7 @@ namespace InDet {
   // sc[3] - endcap sct 
   /////////////////////////////////////////////////////////////////////////////////
 
-  void SiSpacePointForSeedITK::set
+  void SiSpacePointForSeed::set
   (const Trk::SpacePoint*const& sp,const float* r,const float* sc)
   {
     spacepoint = sp  ;
@@ -204,11 +205,11 @@ namespace InDet {
     m_su = &sp->clusterList().first->detectorElement()->surface();
   }
 
-  void SiSpacePointForSeedITK::setParam(const float& p)
+  void SiSpacePointForSeed::setParam(const float& p)
   {
     m_param = p;
   }
-  void  SiSpacePointForSeedITK::setQuality(float q)
+  void  SiSpacePointForSeed::setQuality(float q)
   {
     if(q <= m_q) m_q = q;
   }
@@ -220,7 +221,7 @@ namespace InDet {
   // true if cross point is inside detector elements 
   /////////////////////////////////////////////////////////////////////////////////
 
-  bool SiSpacePointForSeedITK::coordinates(const float* d,float* r)
+  bool SiSpacePointForSeed::coordinates(const float* d,float* r)
   {
     float d0[3] = {m_b1[1]*d[2]-m_b1[2]*d[1],m_b1[2]*d[0]-m_b1[0]*d[2],m_b1[0]*d[1]-m_b1[1]*d[0]};
     float bd0   =  m_b0[0]*d0[0]+m_b0[1]*d0[1]+m_b0[2]*d0[2];       if(     bd0==0.          ) return false;
@@ -236,4 +237,4 @@ namespace InDet {
     return true;
   }
 
-} // end of name space
+} // end of name space ITk

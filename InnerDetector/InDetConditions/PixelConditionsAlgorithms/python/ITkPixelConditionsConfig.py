@@ -158,5 +158,5 @@ def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **
     kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
     kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")
     kwargs.setdefault("InputSource", 2)
-    acc.addCondAlgo(CompFactory.ITkPixelOfflineCalibCondAlg(name, **kwargs))
+    acc.addCondAlgo(CompFactory.ITk.PixelOfflineCalibCondAlg(name, **kwargs))
     return acc

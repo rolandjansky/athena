@@ -79,7 +79,7 @@ def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", 
 
     kwargs.setdefault("PixelErrorScalingKey", "")
 
-    acc.setPrivateTools(CompFactory.InDet.ITkPixelClusterOnTrackTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.ITk.PixelClusterOnTrackTool(the_name, **kwargs))
     return acc
 
 def ITkPixelClusterOnTrackToolDigitalCfg(flags, name='ITkPixelClusterOnTrackToolDigital', **kwargs):

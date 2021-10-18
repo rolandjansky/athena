@@ -4,4 +4,4 @@
 
 DECLARE_COMPONENT( InDet::PixelClusterOnTrackTool )
 DECLARE_COMPONENT( InDet::SCT_ClusterOnTrackTool )
-DECLARE_COMPONENT( InDet::ITkPixelClusterOnTrackTool )
+DECLARE_COMPONENT( ITk::PixelClusterOnTrackTool )
