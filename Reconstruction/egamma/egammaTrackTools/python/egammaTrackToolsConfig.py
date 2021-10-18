@@ -6,13 +6,10 @@ __doc__ = """Tool configuration to instantiate all
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import (
+    egammaCaloExtrapolatorCfg, InDetExtrapolatorCfg)
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 EMExtrapolationTools = CompFactory.EMExtrapolationTools
-
-# The extrapolator is not quite correct
-#  we need to able to set the particular
-#  egamma ones.
 
 
 def EMExtrapolationToolsCfg(flags, **kwargs):
@@ -23,9 +20,8 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     if "Extrapolator" not in kwargs:
-        extrapAcc = AtlasExtrapolatorCfg(flags)
-        kwargs["Extrapolator"] = extrapAcc.popPrivateTools()
-        acc.merge(extrapAcc)
+        extrapAcc = egammaCaloExtrapolatorCfg(flags)
+        kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
 
     if "PerigeeCaloExtensionTool" not in kwargs:
         perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
@@ -34,9 +30,8 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
             Extrapolator=kwargs["Extrapolator"],
             ParticleType="electron",
             StartFromPerigee=True)
-        kwargs["PerigeeCaloExtensionTool"] = (
-            perigeeCaloExtrapAcc.popPrivateTools())
-        acc.merge(perigeeCaloExtrapAcc)
+        kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
+            perigeeCaloExtrapAcc)
 
     if "LastCaloExtensionTool" not in kwargs:
         lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
@@ -44,9 +39,8 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
             name="EMLastCaloExtensionTool",
             ParticleType="electron",
             Extrapolator=kwargs["Extrapolator"])
-
-        kwargs["LastCaloExtensionTool"] = lastCaloExtrapAcc.popPrivateTools()
-        acc.merge(lastCaloExtrapAcc)
+        kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
+            lastCaloExtrapAcc)
 
     emExtrapolationTools = EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
@@ -64,7 +58,8 @@ def GSFTrackSummaryToolCfg(flags, name="GSFBuildInDetTrackSummaryTool", **kwargs
     acc = ComponentAccumulator()
 
     if "InDetSummaryHelperTool" not in kwargs:
-        from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+        from InDetConfig.InDetRecToolConfig import (
+            InDetTrackSummaryHelperToolCfg)
         kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(
             InDetTrackSummaryHelperToolCfg(
                 flags,
@@ -88,16 +83,13 @@ def GSFTrackSummaryToolCfg(flags, name="GSFBuildInDetTrackSummaryTool", **kwargs
     return acc
 
 
-# egammaTrkRefitterTool also needs a config, but depends on some
-# tracking that is not ready
-# CaloCluster_OnTrackBuilder is currently not used at all
 def egammaTrkRefitterToolCfg(flags, name='GSFRefitterTool', **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("useBeamSpot", False)
     kwargs.setdefault("ReintegrateOutliers", True)
     if "Extrapolator" not in kwargs:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
+        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
+            InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
     if "FitterTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import GaussianSumFitterCfg
         kwargs["FitterTool"] = acc.popToolsAndMerge(

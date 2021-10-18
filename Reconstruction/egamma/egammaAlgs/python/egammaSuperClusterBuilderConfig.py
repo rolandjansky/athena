@@ -33,7 +33,7 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
 
     if "MVACalibSvc" not in kwargs:
         mvacal = egammaMVASvcCfg(flags)
-        kwargs["MVACalibSvc"] = acc.popToolsAndMerge(mvacal)
+        kwargs["MVACalibSvc"] = acc.getPrimaryAndMerge(mvacal)
 
     kwargs.setdefault(
         "InputEgammaRecContainerName",
@@ -74,7 +74,7 @@ def photonSuperClusterBuilderCfg(
 
     if "MVACalibSvc" not in kwargs:
         mvacal = egammaMVASvcCfg(flags)
-        kwargs["MVACalibSvc"] = acc.popToolsAndMerge(mvacal)
+        kwargs["MVACalibSvc"] = acc.getPrimaryAndMerge(mvacal)
 
     kwargs.setdefault(
         "InputEgammaRecContainerName",

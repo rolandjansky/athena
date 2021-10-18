@@ -19,3 +19,7 @@ atlas_add_test( AtlasTrackingGeometrySvcCfgTest
 atlas_add_test( SolenoidalIntersectorConfig_test
                 SCRIPT python -m TrkConfig.SolenoidalIntersectorConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^private tools" )
+
+atlas_add_test( AtlasExtrapolatorCfgTest    
+                SCRIPT python -m TrkConfig.AtlasExtrapolatorConfig
+                POST_EXEC_SCRIPT nopost.sh )
