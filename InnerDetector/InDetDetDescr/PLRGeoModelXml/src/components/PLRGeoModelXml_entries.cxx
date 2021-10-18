@@ -1,3 +1,3 @@
-#include "PLRGeoModelXml/PLRDetectorTool.h"
+#include "src/PLRDetectorTool.h"
 
-DECLARE_COMPONENT( PLRDetectorTool )
+DECLARE_COMPONENT(PLRDetectorTool)

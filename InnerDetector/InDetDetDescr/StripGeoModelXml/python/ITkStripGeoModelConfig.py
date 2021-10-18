@@ -6,7 +6,7 @@ def ITkStripGeoModelCfg(flags):
     geoModelSvc = acc.getPrimary()
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    ITkStripDetectorTool = CompFactory.StripDetectorTool()
+    ITkStripDetectorTool = CompFactory.ITk.StripDetectorTool()
     # ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic #Will we need to do dynamic alignment for ITk?
     ITkStripDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkStripDetectorTool.DetectorName = "ITkStrip"

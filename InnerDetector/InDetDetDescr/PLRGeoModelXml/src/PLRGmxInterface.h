@@ -8,7 +8,6 @@
 #include <PixelGeoModelXml/PixelGmxInterface.h>
 
 #include <map>
-#include <memory>
 #include <sstream>
 #include <string>
 
@@ -16,15 +15,17 @@
 // The functions here are similar functions to that of Pixel, but have a few PLR specific differences
 // such as only loading the correct PLR sensor type and identifying the modules as InDetDD::PLR
 
-namespace InDetDD {class PixelDetectorManager; class SiCommonItems;}
-
-namespace ITk
+namespace InDetDD
 {
-class PLRGmxInterface : public PixelGmxInterface
+
+class PixelDetectorManager;
+class SiCommonItems;
+
+class PLRGmxInterface : public ITk::PixelGmxInterface
 {
 public:
-  PLRGmxInterface(InDetDD::PixelDetectorManager *detectorManager,
-                  InDetDD::SiCommonItems *commonItems,
+  PLRGmxInterface(PixelDetectorManager *detectorManager,
+                  SiCommonItems *commonItems,
                   WaferTree *moduleTree);
 
   virtual void addSensorType(std::string clas,
@@ -35,11 +36,9 @@ private:
   void makePLRModule(const std::string& typeName,
                      const std::map<std::string, std::string> &parameters);
 
-  InDetDD::PixelDetectorManager *m_detectorManager{};
+  PixelDetectorManager *m_detectorManager{};
 };
 
-} // namespace ITk
+} // namespace InDetDD
 
 #endif // PLRGEOMODELXML_PLRGMXINTERFACE_H
-
-

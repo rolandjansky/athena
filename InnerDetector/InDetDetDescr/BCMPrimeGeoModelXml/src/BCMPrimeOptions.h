@@ -6,7 +6,8 @@
 #define BCMPRIMEGEOMODELXML_BCMPRIMEOPTIONS_H
 #include <string>
 
-namespace InDetDDSLHC {
+namespace InDetDD
+{
 
   //
   //    Class to store run time options.
@@ -20,7 +21,7 @@ namespace InDetDDSLHC {
     std::string detectorName() const;
     void setAlignable(bool flag = true);
     void setAlignAtModuleLevel(bool flag = true);
-    void setGmxFilename(std::string filename); 
+    void setGmxFilename(std::string filename);
     void setDetectorName(std::string detectorname);
 
   private:
@@ -35,7 +36,7 @@ namespace InDetDDSLHC {
   //
   inline BCMPrimeOptions::BCMPrimeOptions() :
     m_alignable(true),
-    m_alignModule(true), 
+    m_alignModule(true),
     m_gmxFilename(""),
     m_detectorName("BCMPrime")
       {}
@@ -72,5 +73,6 @@ namespace InDetDDSLHC {
     m_detectorName = detectorname;
   }
 
-}
+} // namespace InDetDD
+
 #endif // BCMPRIMEGEOMODELXML_BCMPRIMEOPTIONS_H

@@ -6,7 +6,7 @@ def ITkPixelGeoModelCfg(flags):
     geoModelSvc = acc.getPrimary()
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    ITkPixelDetectorTool = CompFactory.ITkPixelDetectorTool()
+    ITkPixelDetectorTool = CompFactory.ITk.PixelDetectorTool()
     # ITkPixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     ITkPixelDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkPixelDetectorTool.DetectorName = "ITkPixel"
