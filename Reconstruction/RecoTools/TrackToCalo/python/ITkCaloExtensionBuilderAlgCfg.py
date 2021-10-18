@@ -3,12 +3,10 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def ITkCaloExtensionBuilderAlgCfg(inputFlags):
-    #Run-3 uses
-    #from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    from InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
+    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
     Trk__ParticleCaloExtensionTool = CompFactory.Trk.ParticleCaloExtensionTool
     result = ComponentAccumulator()
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = result.getPrimaryAndMerge(ITkExtrapolatorCfg(inputFlags)))
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(inputFlags)))
         
     CaloExtensionBuilderAlg = CompFactory.Trk.CaloExtensionBuilderAlg 
     CaloExtensionBuilderAlg = CaloExtensionBuilderAlg(LastCaloExtentionTool = pcExtensionTool,

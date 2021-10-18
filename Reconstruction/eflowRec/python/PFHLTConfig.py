@@ -33,7 +33,7 @@ def CaloGeoAndNoiseCfg(inputFlags):
     return result
 
 def PFExtrapolatorCfg(flags):
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
     extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
     result.merge(extrapolator_acc)
@@ -77,7 +77,7 @@ def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
     
     Return the component accumulator and the tracks with muons removed
     """
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
     extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
     result.merge(extrapolator_acc)
