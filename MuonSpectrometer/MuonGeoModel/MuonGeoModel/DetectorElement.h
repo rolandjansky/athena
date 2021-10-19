@@ -19,9 +19,9 @@ namespace MuonGM {
         std::string name;
         std::string logVolName;
 
-        DetectorElement(std::string n) : name(n) { logVolName = ""; }
+        DetectorElement(const std::string& n) : name(n) {  }
 
-        void setLogVolName(std::string str) { logVolName = str; }
+        void setLogVolName(const std::string& str) { logVolName = str; }
 
         virtual void print() {
             MsgStream log(Athena::getMessageSvc(), "MuonGM::DetectorElement");

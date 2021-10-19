@@ -18,7 +18,6 @@ namespace MuonGM {
 
     class MultiLayer : public DetectorElement {
       public:
-        std::string logVolName;
         int nrOfLayers;
         int nrOfTubes;    // tubes in a layer
         double tubePitch; // tube pitch in a layer

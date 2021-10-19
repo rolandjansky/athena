@@ -453,7 +453,7 @@ namespace MuonGM {
 
         bool have_spa_details = (getGeometryVersion().substr(0, 1) != "P");
 
-        for (it = sel.begin(); it != sel.end(); it++) {
+        for (it = sel.begin(); it != sel.end(); ++it) {
             Station *station = (*it).second;
             for (int ic = 0; ic < station->GetNrOfComponents(); ic++) {
                 Component *c = station->GetComponent(ic);

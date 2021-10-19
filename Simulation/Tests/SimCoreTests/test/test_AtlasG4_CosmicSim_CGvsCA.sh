@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Run cosmics simulation outside ISF, generating events on-the-fly, using 2015 geometry and conditions
+# art-include: master/Athena
 # art-type: grid
 # art-output: test.*.HITS.pool.root
 # art-output: test.*.TR.pool.root
@@ -32,7 +33,7 @@ rc=$?
 mv log.AtlasG4Tf log.G4AtlasAlg_AthenaCA
 echo  "art-result: $rc G4AtlasAlg_AthenaCA"
 rc2=-9999
-if [ $rc -eq 68 ]
+if [ $rc -eq 0 ]
 then
     AtlasG4_tf.py \
     --outputHITSFile 'test.NEW.HITS.pool.root' \

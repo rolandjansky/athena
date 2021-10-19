@@ -61,3 +61,24 @@ def TRTPhaseCondCfg(flags, name="TRTPhaseCondAlg", **kwargs):
                                     className='TRTCond::StrawT0MultChanContainer'))
     acc.addCondAlgo(CompFactory.TRTPhaseCondAlg(name, **kwargs))
     return acc
+
+
+def TRTToTCondAlgCfg(flags, name="TRTToTCondAlg", **kwargs):
+    """Return a ComponentAccumulator for TRTToTCondAlg algorithm"""
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className="CondAttrListVec"))
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue", className="CondAttrListCollection"))
+
+    kwargs.setdefault("ToTWriteKey", "Dedxcorrection")
+
+    acc.addCondAlgo(CompFactory.TRTToTCondAlg(name, **kwargs))
+    return acc
+
+
+def TRTHTCondAlgCfg(flags, name="TRTHTCondAlg", **kwargs):
+    """Return a ComponentAccumulator for TRTHTCondAlg algorithm"""
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className="CondAttrListVec"))
+    kwargs.setdefault("HTWriteKey", "HTcalculator")
+    acc.addCondAlgo(CompFactory.TRTHTCondAlg(name, **kwargs))
+    return acc
