@@ -108,7 +108,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
 
     # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
-    flags.addFlag('Trigger.doNavigationSlimming', False) # Defaulting to False until validated (July 2021)
+    flags.addFlag('Trigger.doNavigationSlimming', True)
 
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
