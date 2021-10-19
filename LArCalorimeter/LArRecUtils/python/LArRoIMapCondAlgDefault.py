@@ -17,7 +17,7 @@ def LArRoIMapCondAlgDefault (name = 'LArRoIMapCondAlg'):
 
     from AthenaCommon.Include import include
     include ('CaloConditions/LArTTCellMap_ATLAS_jobOptions.py')
-    include ('CaloConditions/CaloTTId_ATLAS_jobOptions.py')
+    include ('CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py')
 
     CaloTriggerTowerService = CompFactory.CaloTriggerTowerService # CaloTriggerTool
     larRoIMapCondAlg = CompFactory.LArRoIMapCondAlg (name,
