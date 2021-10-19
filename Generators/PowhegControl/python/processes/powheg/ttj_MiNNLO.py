@@ -3,6 +3,7 @@
 from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
 from ..external import ExternalMadSpin
+import os
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -45,6 +46,11 @@ class ttj_MiNNLO(PowhegV2):
         infos = super(ttj_MiNNLO, self).hoppet_info()
         
         super(ttj_MiNNLO, self).__init__(base_directory, "ttJ_MiNNLOPS_v1.0_beta1", powheg_executable="pwhg_main-gnu", warning_output=warnings, info_output=infos, error_output=errors, **kwargs)
+
+        # defining ttjMiNNLOPATH environment variable to bypass file path problems in fortran code
+        # this is definitly a hack, see discussion in AGENE-2055
+        os.environ['ttjMiNNLOPATH'] = os.path.dirname(self.executable)
+        logger.info("ttjMiNNLOPATH defined as = {0}".format(os.getenv('ttjMiNNLOPATH')))
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ j [QCD]"))
