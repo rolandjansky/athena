@@ -5,5 +5,5 @@
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 
 namespace Muon {
-  bool MuonSectorMapping::s_debug = false;  
+    bool MuonSectorMapping::s_debug = false;
 }
