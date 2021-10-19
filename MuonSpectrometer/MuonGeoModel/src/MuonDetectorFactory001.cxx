@@ -92,8 +92,8 @@ namespace MuonGM {
 
     MuonDetectorFactory001::~MuonDetectorFactory001() =default;
 
-    const MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() const { return m_manager.get(); }
-    MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() { return m_manager.get(); }
+    const MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() const { return m_manager; }
+    MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() { return m_manager; }
 
     void MuonDetectorFactory001::create(GeoPhysVol *world) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:MuonFactory");
@@ -119,7 +119,7 @@ namespace MuonGM {
         } // if (m_dumpMemoryBreakDown) {
 
         if (!m_manager)
-            m_manager =std::make_unique< MuonDetectorManager>();
+            m_manager = new  MuonDetectorManager();
 
         // check consistency of flags coming from the tool
         m_includeCutouts = 1;
@@ -247,7 +247,7 @@ namespace MuonGM {
         mysql->setControlAlines(m_controlAlines);
 
         dbr->setGeometryVersion(m_layout);
-        dbr->setManager(m_manager.get());
+        dbr->setManager(getDetectorManager());
         sc = dbr->ProcessDB(*mysql);
         if (sc != StatusCode::SUCCESS) {
             log << MSG::ERROR << " FAILURE in DB access; Muon node will not be built" << endmsg;
@@ -556,7 +556,7 @@ namespace MuonGM {
                     isAssembly = true;
 
                 // CSL because coffin shape of the station mother volume
-                GeoVPhysVol *pv = l.build(*theMaterialManager, *mysql, m_manager.get(), zi, fi, is_mirrored, isAssembly);
+                GeoVPhysVol *pv = l.build(*theMaterialManager, *mysql, getDetectorManager(), zi, fi, is_mirrored, isAssembly);
                 if (isAssembly)
                     nAssemblies++;
 

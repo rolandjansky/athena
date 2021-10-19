@@ -109,7 +109,7 @@ namespace MuonGM {
         std::vector<int> m_selectedStPhi;
 
         std::unique_ptr<MuonSystemDescription> m_muon;
-        std::unique_ptr<MuonDetectorManager> m_manager;
+        MuonDetectorManager* m_manager{nullptr};
         StoreGateSvc *m_pDetStore{nullptr};
         IRDBAccessSvc *m_pRDBAccess{nullptr};
         AltAsciiDBMap m_altAsciiDBMap{};
