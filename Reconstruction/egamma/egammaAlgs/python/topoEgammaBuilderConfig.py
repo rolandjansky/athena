@@ -34,8 +34,33 @@ def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
     kwargs.setdefault(
         "AmbiguityTool",
         EGammaAmbiguityTool())
+    kwargs.setdefault(
+        "isTruth",
+        flags.Input.isMC
+    )
 
-    topoegAlg = xAODEgammaBuilder(flags, **kwargs)
+    topoegAlg = xAODEgammaBuilder(name, **kwargs)
 
     acc.addEventAlgo(topoegAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.RDO
+
+    acc = MainServicesCfg(flags)
+    acc.merge(topoEgammaBuilderCfg(flags))
+    mlog = logging.getLogger("topoEgammaBuilderConfigTest")
+    mlog.info("Configuring  topoEgammaBuilder: ")
+    printProperties(mlog,
+                    acc.getEventAlgo("topoEgammaBuilder"),
+                    nestLevel=1,
+                    printDefaults=True)
+    with open("topoegammabuilder.pkl", "wb") as f:
+        acc.store(f)
