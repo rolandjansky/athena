@@ -10,11 +10,11 @@ log = logging.getLogger(__name__)
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
-from .FastPhotonMenuSequences import fastPhotonMenuSequence
-from .PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
-from .PrecisionCaloMenuSequences import precisionCaloMenuSequence
-from .HipTRTMenuSequences import hipTRTMenuSequence
-from .TLAPhotonMenuSequences import TLAPhotonMenuSequence
+from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
+from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
+from ..Egamma.PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from ..Egamma.HipTRTMenuSequences import hipTRTMenuSequence
+from ..Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
