@@ -1093,36 +1093,52 @@
   <y title="Entries"/>
 </h>
 <!-- Helen OTP Vertex plots -->
-<h id="vx_ntracks_vs_nmatchedvertices" type="TH1" title="Number of tracks for matched PU vertices">
+<h id="vx_ntracks_matched" type="TH1" title="Number of tracks for matched PU vertices">
   <x title="Number of Matched PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_nmergedvertices" type="TH1" title="Number of tracks for merged PU vertices">
+<h id="vx_ntracks_merged" type="TH1" title="Number of tracks for merged PU vertices">
   <x title="Number of Merged PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_nsplitvertices" type="TH1" title="Number of tracks for split PU vertices">
+<h id="vx_ntracks_split" type="TH1" title="Number of tracks for split PU vertices">
   <x title="Number of Split PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_nfakevertices" type="TH1" title="Number of tracks for fake PU vertices">
+<h id="vx_ntracks_fake" type="TH1" title="Number of tracks for fake PU vertices">
   <x title="Number of Fake PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_HS_nmatchedvertices" type="TH1" title="Number of tracks for matched HS vertices">
+<h id="vx_ntracks_HS_matched" type="TH1" title="Number of tracks for matched HS vertices">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_HS_nmergedvertices" type="TH1" title="Number of tracks for merged HS vertices">
+<h id="vx_ntracks_HS_merged" type="TH1" title="Number of tracks for merged HS vertices">
   <x title="Number of Merged HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_HS_nsplitvertices" type="TH1" title="Number of tracks for split HS vertices">
+<h id="vx_ntracks_HS_split" type="TH1" title="Number of tracks for split HS vertices">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_vs_HS_nfakevertices" type="TH1" title="Number of tracks for fake HS vertices">
+<h id="vx_ntracks_HS_fake" type="TH1" title="Number of tracks for fake HS vertices">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_ALL_matched" type="TH1" title="Number of tracks for matched ALL vertices">
+  <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_ALL_merged" type="TH1" title="Number of tracks for merged ALL vertices">
+  <x title="Number of Merged ALL Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_ALL_split" type="TH1" title="Number of tracks for split ALL vertices">
+  <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
+  <y title="Number of Tracks" />
+</h>
+<h id="vx_ntracks_ALL_fake" type="TH1" title="Number of tracks for fake ALL vertices">
+  <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
 <h id="vx_sumpT_matched" type="TH1" title="SumPt of tracks for matched vertices">
@@ -1240,6 +1256,18 @@
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
+<h id="vx_z_asym_weighted_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for matched vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for merged vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for split vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
+  <y title="Entries" />
+</h>
 <h id="vx_track_weight_matched" type="TH1" title="Weights of tracks for PU  matched vertices">
   <x title="track weights for PU vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
@@ -1287,6 +1315,18 @@
 </h>
 <h id="vx_z_asym_HS_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS fake vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_HS_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS matched vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_HS_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS merged vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_HS_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS split vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
 <h id="vx_track_weight_HS_matched" type="TH1" title="Weights of tracks for HS  matched vertices">
@@ -1641,6 +1681,18 @@
 </h>
 <h id="vx_z_asym_ALL_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL fake vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_ALL_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL matched vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_ALL_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL merged vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
+  <y title="Entries" />
+</h>
+<h id="vx_z_asym_weighted_ALL_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL split vertices">
+  <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
 <h id="vx_track_weight_ALL_matched" type="TH1" title="Weights of tracks for ALL  matched vertices">

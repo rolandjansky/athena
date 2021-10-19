@@ -80,14 +80,18 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_hs_truth_x_pull_vs_nTrk(nullptr),
     m_vx_hs_truth_y_pull_vs_nTrk(nullptr),
    // New histos HRM Helen OTP
-    m_vx_ntracks_vs_nmatchedvertices(nullptr),
-    m_vx_ntracks_vs_nmergedvertices(nullptr),
-    m_vx_ntracks_vs_nsplitvertices(nullptr),
-    m_vx_ntracks_vs_nfakevertices(nullptr),
-    m_vx_ntracks_vs_HS_nmatchedvertices(nullptr),
-    m_vx_ntracks_vs_HS_nmergedvertices(nullptr),
-    m_vx_ntracks_vs_HS_nsplitvertices(nullptr),
-    m_vx_ntracks_vs_HS_nfakevertices(nullptr),
+    m_vx_ntracks_matched(nullptr),
+    m_vx_ntracks_merged(nullptr),
+    m_vx_ntracks_split(nullptr),
+    m_vx_ntracks_fake(nullptr),
+    m_vx_ntracks_HS_matched(nullptr),
+    m_vx_ntracks_HS_merged(nullptr),
+    m_vx_ntracks_HS_split(nullptr),
+    m_vx_ntracks_HS_fake(nullptr),
+    m_vx_ntracks_ALL_matched(nullptr),
+    m_vx_ntracks_ALL_merged(nullptr),
+    m_vx_ntracks_ALL_split(nullptr),
+    m_vx_ntracks_ALL_fake(nullptr),
     m_vx_sumpT_matched(nullptr),
     m_vx_sumpT_merged(nullptr),
     m_vx_sumpT_split(nullptr),
@@ -121,6 +125,12 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_z_asym_HS_merged(nullptr),
     m_vx_z_asym_HS_split(nullptr),
     m_vx_z_asym_HS_fake(nullptr),
+    m_vx_z_asym_weighted_matched(nullptr),
+    m_vx_z_asym_weighted_merged(nullptr),
+    m_vx_z_asym_weighted_split(nullptr),
+    m_vx_z_asym_weighted_HS_matched(nullptr),
+    m_vx_z_asym_weighted_HS_merged(nullptr),
+    m_vx_z_asym_weighted_HS_split(nullptr),
 
     m_vx_track_weight_matched(nullptr),
     m_vx_track_weight_merged(nullptr),
@@ -225,6 +235,9 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_z_asym_ALL_merged(nullptr),
     m_vx_z_asym_ALL_split(nullptr),
     m_vx_z_asym_ALL_fake(nullptr),
+    m_vx_z_asym_weighted_ALL_matched(nullptr),
+    m_vx_z_asym_weighted_ALL_merged(nullptr),
+    m_vx_z_asym_weighted_ALL_split(nullptr),
     m_vx_d_asym_ALL_matched(nullptr),
     m_vx_d_asym_ALL_merged(nullptr),
     m_vx_d_asym_ALL_split(nullptr),
@@ -439,16 +452,20 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_hs_truth_z_pull_vs_nTrk, "vx_TYPE_truth_pull_z_vs_nTrk", "vx_hs_truth_pull_z_vs_nTrk");
         book(m_vx_hs_truth_x_pull_vs_nTrk, "vx_TYPE_truth_pull_x_vs_nTrk", "vx_hs_truth_pull_x_vs_nTrk");
         book(m_vx_hs_truth_y_pull_vs_nTrk, "vx_TYPE_truth_pull_y_vs_nTrk", "vx_hs_truth_pull_y_vs_nTrk");
-
+     
 	// book the new histos  Helen OTP
-	book(m_vx_ntracks_vs_nmatchedvertices,"vx_ntracks_vs_nmatchedvertices");
-    	book(m_vx_ntracks_vs_nmergedvertices,"vx_ntracks_vs_nmergedvertices");
-    	book(m_vx_ntracks_vs_nsplitvertices,"vx_ntracks_vs_nsplitvertices");
-    	book(m_vx_ntracks_vs_nfakevertices,"vx_ntracks_vs_nfakevertices");
-	book(m_vx_ntracks_vs_HS_nmatchedvertices,"vx_ntracks_vs_HS_nmatchedvertices");
-    	book(m_vx_ntracks_vs_HS_nmergedvertices,"vx_ntracks_vs_HS_nmergedvertices");
-    	book(m_vx_ntracks_vs_HS_nsplitvertices,"vx_ntracks_vs_HS_nsplitvertices");
-    	book(m_vx_ntracks_vs_HS_nfakevertices,"vx_ntracks_vs_HS_nfakevertices");
+	book(m_vx_ntracks_matched,"vx_ntracks_matched");
+    	book(m_vx_ntracks_merged,"vx_ntracks_merged");
+    	book(m_vx_ntracks_split,"vx_ntracks_split");
+    	book(m_vx_ntracks_fake,"vx_ntracks_fake");
+	book(m_vx_ntracks_HS_matched,"vx_ntracks_HS_matched");
+    	book(m_vx_ntracks_HS_merged,"vx_ntracks_HS_merged");
+    	book(m_vx_ntracks_HS_split,"vx_ntracks_HS_split");
+    	book(m_vx_ntracks_HS_fake,"vx_ntracks_HS_fake");
+	book(m_vx_ntracks_ALL_matched,"vx_ntracks_ALL_matched");
+    	book(m_vx_ntracks_ALL_merged,"vx_ntracks_ALL_merged");
+    	book(m_vx_ntracks_ALL_split,"vx_ntracks_ALL_split");
+    	book(m_vx_ntracks_ALL_fake,"vx_ntracks_ALL_fake");
         book(m_vx_sumpT_matched,"vx_sumpT_matched");
         book(m_vx_sumpT_merged,"vx_sumpT_merged");
         book(m_vx_sumpT_split,"vx_sumpT_split");
@@ -482,6 +499,12 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_z_asym_HS_merged,"vx_z_asym_HS_merged");
         book(m_vx_z_asym_HS_split,"vx_z_asym_HS_split");
         book(m_vx_z_asym_HS_fake,"vx_z_asym_HS_fake");
+        book(m_vx_z_asym_weighted_matched,"vx_z_asym_weighted_matched");
+        book(m_vx_z_asym_weighted_merged,"vx_z_asym_weighted_merged");
+        book(m_vx_z_asym_weighted_split,"vx_z_asym_weighted_split");
+        book(m_vx_z_asym_weighted_HS_matched,"vx_z_asym_weighted_HS_matched");
+        book(m_vx_z_asym_weighted_HS_merged,"vx_z_asym_weighted_HS_merged");
+        book(m_vx_z_asym_weighted_HS_split,"vx_z_asym_weighted_HS_split");
         book(m_vx_track_weight_matched, "vx_track_weight_matched");
         book(m_vx_track_weight_merged, "vx_track_weight_merged");
         book(m_vx_track_weight_split, "vx_track_weight_split");
@@ -589,6 +612,9 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_z_asym_ALL_merged,"vx_z_asym_ALL_merged");
         book(m_vx_z_asym_ALL_split,"vx_z_asym_ALL_split");
         book(m_vx_z_asym_ALL_fake,"vx_z_asym_ALL_fake");
+        book(m_vx_z_asym_weighted_ALL_matched,"vx_z_asym_weighted_ALL_matched");
+        book(m_vx_z_asym_weighted_ALL_merged,"vx_z_asym_weighted_ALL_merged");
+        book(m_vx_z_asym_weighted_ALL_split,"vx_z_asym_weighted_ALL_split");
         
         book(m_vx_track_weight_ALL_matched, "vx_track_weight_ALL_matched");
         book(m_vx_track_weight_ALL_merged, "vx_track_weight_ALL_merged");
@@ -1094,6 +1120,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
          float deltaD =0;
          float modsumDZ =0;
          float modsumDD =0;
+         float weighted_sumDZ = 0;
+         float weighted_deltaZ = 0;
+         float weighted_modsumDZ = 0;
+         float weighted_z_asym =0;
 
          // make vector
          std::vector<float> track_deltaZ;
@@ -1102,7 +1132,8 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
          track_deltaD.clear();
          std::vector<float> track_deltaPt;
          track_deltaPt.clear();
-
+         std::vector<float> track_deltaZ_weighted;
+         track_deltaZ_weighted.clear();
             // loop over tracks 
             //  std::cout << "loop over tracks helenmaguire";
             for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
@@ -1250,11 +1281,19 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                     track_deltaZ.push_back(deltaZ);
                     track_deltaD.push_back(deltaD);
                     track_deltaPt.push_back(trackTmp->pt());
+                    // get the track weight for each track to get the deltaZ/trk_weight
+//                    for (const float& trk_weight : vertex->trackWeights())  {
+                    float trk_weight = vertex->trackWeight(i);
+//                        track_deltaZ_weighted.push_back(deltaZ*trk_weight);
+                        weighted_deltaZ = deltaZ*trk_weight;
+  //                  }
                     // sum of delta z
                     sumDZ = sumDZ + deltaZ; 
                     modsumDZ = modsumDZ + sqrt(deltaZ * deltaZ);
                     sum_dD = sum_dD + trackTmp->d0();
                     modsumDD = modsumDD + sqrt(deltaD * deltaD);
+                    weighted_sumDZ =  weighted_sumDZ + weighted_deltaZ;
+                    weighted_modsumDZ = weighted_modsumDZ + sqrt (weighted_deltaZ *weighted_deltaZ);
                }
 
             } // end loop over tracks
@@ -1263,6 +1302,9 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
             }
             if  (modsumDD >0) {
                 d_asym = sum_dD/modsumDD;
+            }
+            if  (weighted_modsumDZ >0) {
+                weighted_z_asym = weighted_sumDZ/weighted_modsumDZ;
             }
 
 
@@ -1337,6 +1379,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_HS_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_matched, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_HS_matched, weighted_z_asym);
                  fillHisto(m_vx_d_asym_HS_matched, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_HS_matched, vertex->chiSquared()/ndf);
 
@@ -1360,6 +1403,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_matched, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_matched, weighted_z_asym);
                  fillHisto(m_vx_d_asym_matched, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_matched, vertex->chiSquared()/ndf);
               
@@ -1384,6 +1428,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_ALL_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_matched, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_ALL_matched, weighted_z_asym);
                  fillHisto(m_vx_d_asym_ALL_matched, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_ALL_matched, vertex->chiSquared()/ndf);
 
@@ -1408,6 +1453,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_HS_merged, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_merged, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_HS_merged, weighted_z_asym);
                  fillHisto(m_vx_d_asym_HS_merged, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_HS_merged, vertex->chiSquared()/ndf);
 
@@ -1430,6 +1476,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_merged, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_merged, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_merged, weighted_z_asym);
                  fillHisto(m_vx_d_asym_merged, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_merged, vertex->chiSquared()/ndf);
              
@@ -1451,6 +1498,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_ALL_merged,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_merged, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_ALL_merged, weighted_z_asym);
                  fillHisto(m_vx_d_asym_ALL_merged, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_ALL_merged, vertex->chiSquared()/ndf);
 
@@ -1474,6 +1522,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_HS_split, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_split, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_split, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_HS_split, weighted_z_asym);
                  fillHisto(m_vx_d_asym_HS_split, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_HS_split, vertex->chiSquared()/ndf);
 
@@ -1495,6 +1544,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_split, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_split, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_split, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_split, weighted_z_asym);
                  fillHisto(m_vx_d_asym_split, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_split, vertex->chiSquared()/ndf);
 
@@ -1518,6 +1568,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                  fillHisto(m_vx_sumCharge_ALL_split,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_split, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_split, z_asym);
+                 fillHisto(m_vx_z_asym_weighted_ALL_split, weighted_z_asym);
                  fillHisto(m_vx_d_asym_ALL_split, d_asym);
                  fillHisto(m_vx_chi2Over_ndf_ALL_split, vertex->chiSquared()/ndf);
 
@@ -1650,19 +1701,19 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
          
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
 
-                fillHisto(m_vx_ntracks_vs_HS_nmatchedvertices, vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_HS_matched, vertex->nTrackParticles());
              } 
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
-                 fillHisto(m_vx_ntracks_vs_HS_nmergedvertices,  vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_HS_merged,  vertex->nTrackParticles());
 
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
-                 fillHisto(m_vx_ntracks_vs_HS_nsplitvertices,   vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_HS_split,   vertex->nTrackParticles());
              }
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {
-                 fillHisto(m_vx_ntracks_vs_HS_nfakevertices,    vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_HS_fake,    vertex->nTrackParticles());
              }
            }
            else {
@@ -1671,23 +1722,42 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
-                fillHisto(m_vx_ntracks_vs_nmatchedvertices, vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_matched, vertex->nTrackParticles());
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
-                fillHisto(m_vx_ntracks_vs_nmergedvertices,  vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_merged,  vertex->nTrackParticles());
 
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
-                 fillHisto(m_vx_ntracks_vs_nsplitvertices,   vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_split,   vertex->nTrackParticles());
              }  
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {
-                 fillHisto(m_vx_ntracks_vs_nfakevertices,    vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_fake,    vertex->nTrackParticles());
              }
 
            }
-       
+           double minpt = 20 ; // GeV
+           if (sumPt/Gaudi::Units::GeV > minpt) {
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+              
+                fillHisto(m_vx_ntracks_ALL_matched, vertex->nTrackParticles());
+             }
+
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+                fillHisto(m_vx_ntracks_ALL_merged,  vertex->nTrackParticles());
+
+             }
+
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+                 fillHisto(m_vx_ntracks_ALL_split,   vertex->nTrackParticles());
+             }  
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {
+                 fillHisto(m_vx_ntracks_ALL_fake,    vertex->nTrackParticles());
+             }
+
+           }
    
        } 
      //     std::cout << " End loop over vertices  helenmaguire";
