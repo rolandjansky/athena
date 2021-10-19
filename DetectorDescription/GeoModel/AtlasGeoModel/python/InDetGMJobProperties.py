@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # InDet GeoModel initialization
@@ -15,13 +15,13 @@ from AthenaCommon import Logging
 # -------------------------------------------------------------------------------------
 
 class GeoVersionName(JobProperty):
-     """ version name DC3,IBL,SLHC,... """
+     """ version name DC3,IBL,... """
      statusOn     = True
      allowedTypes = ['str']
      StoredValue  = 'UNDEFINED'
 
 class GeoLayout(JobProperty):
-     """ geometry layout Final, IBL. SLHC,... """
+     """ geometry layout Final, IBL,... """
      statusOn     = True
      allowedTypes = ['str']
      StoredValue  = 'UNDEFINED'

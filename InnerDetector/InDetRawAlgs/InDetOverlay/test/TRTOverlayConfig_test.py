@@ -37,5 +37,9 @@ acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 # Add TRT overlay
 acc.merge(TRTOverlayCfg(ConfigFlags))
 
+# Dump the pickle
+with open("TRTOverlayCfg.pkl", "wb") as f:
+    acc.store(f)
+
 # Print and run
 sys.exit(printAndRun(acc, ConfigFlags, args))

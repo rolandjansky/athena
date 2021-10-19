@@ -11,7 +11,7 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, Bedro
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
 #the field config tools
-from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
+from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, ITkFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
 
@@ -46,8 +46,8 @@ def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
     #set up geometry
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result = PixelGeometryCfg(ConfigFlags)
+    from PixelGeoModel.PixelGeoModelConfig import PixelSimulationGeometryCfg
+    result = PixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -58,9 +58,20 @@ def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result = SCT_GeometryCfg(ConfigFlags)
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
+    result = SCT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def PLRGeoDetectorToolCfg(ConfigFlags, name='PLR', **kwargs):
+    #set up geometry
+    from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+    result = PLRGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "PLR")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -69,8 +80,8 @@ def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
 
 def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
     #set up geometry
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result = ITkPixelGeometryCfg(ConfigFlags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelSimulationGeometryCfg
+    result = ITkPixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkPixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -81,8 +92,8 @@ def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
 
 def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result = ITkStripGeometryCfg(ConfigFlags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripSimulationGeometryCfg
+    result = ITkStripSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -105,8 +116,8 @@ def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result = TRT_GeometryCfg(ConfigFlags)
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_SimulationGeometryCfg
+    result = TRT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -255,6 +266,9 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     if ConfigFlags.Detector.GeometryITkStrip:
         toolITkStrip = result.popToolsAndMerge(ITkStripGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [toolITkStrip]
+    if ConfigFlags.Detector.GeometryPLR:
+        toolPLR = result.popToolsAndMerge(PLRGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolPLR]
 
     kwargs.setdefault("SubDetectors", SubDetectorList)
     result.setPrivateTools(CylindricalEnvelope(name, **kwargs))
@@ -627,6 +641,10 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         fieldMgrList += [tool]
     if ConfigFlags.Detector.GeometryID:
         acc = InDetFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+    if ConfigFlags.Detector.GeometryITk:
+        acc = ITkFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
     #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():

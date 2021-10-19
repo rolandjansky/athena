@@ -3,7 +3,10 @@
 */
 
 #include "MuonAGDDBase/sTGC_readoutHandler.h"
+#include "MuonAGDDBase/sTGCHandler.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
+#include "AGDDControl/AGDDController.h"
+#include "AGDDControl/XMLHandlerStore.h"
 #include "GaudiKernel/Bootstrap.h"
 #include <iostream>
 
@@ -17,7 +20,11 @@ sTGC_readoutHandler::sTGC_readoutHandler(const std::string& s,
 void sTGC_readoutHandler::ElementHandle(AGDDController& c,
                                         xercesc::DOMNode *t)
 {
-    sTGCDetectorDescription* sTGC=sTGCDetectorDescription::GetCurrent();
+    sTGCHandler* sTGCHand = dynamic_cast<sTGCHandler*>
+      (c.GetHandlerStore().GetHandler("sTGC"));
+    if (!sTGCHand) std::abort();
+
+    sTGCDetectorDescription* sTGC = sTGCHand->GetsTGCCurrent();
     // std::cout<<" this is sTGC_readoutHandler::Handle"<<sTGC->GetName()<<std::endl;
 
     bool ret=true;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,6 +14,7 @@
  */
 #include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
+#include "CxxUtils/CachedValue.h"
 
 namespace InDetDD {
 
@@ -426,9 +427,9 @@ namespace InDetDD {
     virtual void updateCache() const override final;
 
     /**
-     * Determine m_isStereo variable and m_stereoCacheValid variable.
+     * Find isStereo.
      */
-    void determineStereo() const;
+    bool determineStereo() const;
 
     /**
      * Private implementation method with no lock at center
@@ -450,35 +451,17 @@ namespace InDetDD {
     //@{
 
     /**
-     * Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
-     */
-    mutable std::atomic_bool m_stereoCacheValid{false};
-    /**
-     * Since m_surfaces depends on m_otherSide->surface(), a dedicated validity variable is needed.
-     */
-    mutable std::atomic_bool m_surfacesValid{false};
-    //@}
-
-    /**
-     * @name Variable set by surfaces ith m_surfacesValid of false
-     * Happens only once
+     * @name Cache vector of surfaces.
      */
     //@{
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {};
-    //@}
-
-    /**
-     * @name Mutex guard to update mutable variables in const methods
-     */
-    //@{
-    mutable std::mutex m_mutex{};
+    CxxUtils::CachedValue<std::vector<const Trk::Surface*> > m_surfaces;
     //@}
 
     /**
      * @name Variables set by constructor
      */
     //@{
-    const SiDetectorDesign* m_design;
+    const SiDetectorDesign* m_siDesign;
 
     /**
      * @name Variables set by commonConstructor
@@ -502,20 +485,10 @@ namespace InDetDD {
     //@}
 
     /**
-     * @name Variables set by updateCache with m_firstTime of true
-     * Happens only once
-     *
-     * Directions of axes. These are true if the hit/simulation and reconstruction local
-     * frames are in the same direction and false if they are opposite.
+     * @name Cache result of determineStereo().
      */
     //@{
-
-    /**
-     * @name Variable set by determineStereo with m_stereoCacheValid of false
-     * Happens only once
-     */
-    //@{
-    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
+    CxxUtils::CachedValue<bool> m_isStereo;
     //@}
 
      /**

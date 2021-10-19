@@ -67,8 +67,8 @@ topSequence.NSWL1Simulation.DoNtuple=True
 topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
+topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=False
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
 
 #useful for validation of geometry and offline analyses
 topSequence.NSWL1Simulation.PadTriggerLookupTool.DumpSectorGeometry=False

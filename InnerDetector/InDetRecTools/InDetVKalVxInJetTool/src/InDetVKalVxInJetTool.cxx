@@ -446,7 +446,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        else if(m_fillHist){ m_pr_effVrt->Fill((float)nRefPVTrk,0.);
 	                    m_pr_effVrtEta->Fill( jetDir.Eta(),0.);}
     }
-    if(Results.size()<3) {
+    if(Results.size()<7) {//vector is accessed at index 6 below
        listVrtSec.clear();
     }else{
        SecVtxMass =      Results[0];

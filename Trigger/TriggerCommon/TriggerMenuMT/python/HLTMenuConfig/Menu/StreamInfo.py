@@ -49,8 +49,7 @@ _all_streams = [
     StreamInfo('EnhancedBias', 'physics', True, True),
     StreamInfo('Late', 'physics', True, True),
     # TLA/PEB/DATA SCOUTING (physics) STREAMS
-    StreamInfo('JetDS','physics',True,False),
-    StreamInfo('PhotonDS','physics',True,False),
+    StreamInfo('TLA','physics',True,False),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS

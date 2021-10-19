@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 SubDetectorEnvelopes configurations for AtlasGeometryCommon
@@ -13,8 +13,8 @@ DetDescrDBEnvelopeSvc=CompFactory.DetDescrDBEnvelopeSvc
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     result = ComponentAccumulator()
 
-    kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope'    )
     kwargs.setdefault("DBBeamPipeNode"    , 'BeamPipeEnvelope' )
+    kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope' if ConfigFlags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3'] else 'ITkEnvelope' )
     kwargs.setdefault("DBCaloNode"        , 'CaloEnvelope'     )
     kwargs.setdefault("DBMSNode"          , 'MuonEnvelope'     )
     kwargs.setdefault("DBCavernNode"      , 'CavernEnvelope'   )

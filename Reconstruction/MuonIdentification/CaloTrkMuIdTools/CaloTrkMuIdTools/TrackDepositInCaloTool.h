@@ -66,20 +66,7 @@ public:
                                            const CaloExtensionCollection* extensionCache) const override;
 
     std::vector<DepositInCalo> deposits(const Trk::TrackParameters* par, const CaloCellContainer* cellContainer) const override;
-    /**
-       This function determines which calorimeter regions the tracks traverses.
-       The vector caloInfo and extrapolations are returned. Straight line approximation is employed in the calorimeter regions
-       after the parameters are extrapolated to the surface of the solenoid. This accounts for the magnetic field bending.
-       Covers EMB, TileBar, TileExt, EME and HEC acceptance. The FCAL and TileGap regions are not included. Do not forget to check
-       the StatusCode.
-
-       @param par Input track parameters
-       @param caloInfo Resulting vector of CaloDetDescriptor that is traversed.
-       @param extrapolations   Resulting vector of straight-line extrapolations that were obtained.
-    */
-    StatusCode getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo,
-                                  std::vector<Amg::Vector3D>& extrapolations) const override;
-    /**
+   /**
        Creates a Trk::Surface for a calorimeter region that is described by CaloDetDescr.
 
        Works for both cylindrical and disc-like surfaces. The side of a cylindrical detector element is a disc and
@@ -103,20 +90,7 @@ private:
     std::unique_ptr<const Trk::TrackParameters> extrapolateToSolenoid(const EventContext& ctx, const Trk::TrackParameters* par,
                                                                       bool oppositeMomentum = false) const;
 
-    /**
-       Invoked from initialize(), initializes the CaloLayerMap.
-       Marked const because it must be called from some const methods
-       Actually will change mutable member variables
-    */
-    StatusCode initializeDetectorInfo() const;
-    /**
-       Retrieve the CaloCell for which its center is closest to the position of the particle.
-       @param par TrackParameters of the particle.
-       @param descr Calorimeter detector region information. Only cells from this detector region are considered.
-    */
-    const CaloCell* getClosestCell(const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
-                                   const CaloCellContainer* cellContainer) const;
-    /**
+   /**
        Extrapolate track to cylinder surface along straight line.
        (x0, y0, z0) is the starting position, (phi0,theta0) is the direction of the momentum, r is the bound of
        the cylinder. The values are returned in (xe, ye, ze).
@@ -132,19 +106,66 @@ private:
     */
     StatusCode bookHistos();
 
-    static const CaloCell* getClosestCellLAr(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
-                                      const CaloCellContainer* caloCellCont) ;
-    const CaloCell* getClosestCellTile(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
+    /**
+       Marked const because it must be called from some const methods
+       Actually will change mutable member variables
+    */
+    StatusCode initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const;
+    /**
+       Retrieve the CaloCell for which its center is closest to the position of the particle.
+       @param par TrackParameters of the particle.
+       @param descr Calorimeter detector region information. Only cells from this detector region are considered.
+    */
+    const CaloCell* getClosestCell(const CaloDetDescrManager* caloDDM,
+                                   const Trk::TrackParameters* par,
+                                   const CaloDetDescriptor* descr,
+                                   const CaloCellContainer* cellContainer) const;
+ 
+
+    static const CaloCell* getClosestCellLAr(const CaloDetDescrManager* caloDDM,
+                                             const Trk::TrackParameters* par,
+                                             const CaloDetDescriptor* descr,
+                                             const CaloCellContainer* caloCellCont);
+
+    const CaloCell* getClosestCellTile(const CaloDetDescrManager* caloDDM,
+                                       const Trk::TrackParameters* par,
+                                       const CaloDetDescriptor* descr,
                                        const CaloCellContainer* caloCellCont) const;
 
-    std::vector<const CaloCell*> getCaloCellsForLayer(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance,
-                                                      const Trk::TrackParameters* parExit, const CaloCellContainer* caloCellCont) const;
-    std::vector<const CaloCell*> getCaloCellsForTile(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance,
-                                                     const Trk::TrackParameters* parExit, const CaloCellContainer* caloCellCont) const;
+    std::vector<const CaloCell*> getCaloCellsForLayer(const CaloDetDescrManager* caloDDM,
+                                                      const CaloDetDescriptor* descr,
+                                                      const Trk::TrackParameters* parEntrance,
+                                                      const Trk::TrackParameters* parExit,
+                                                      const CaloCellContainer* caloCellCont) const;
 
-    std::unique_ptr<const Trk::TrackParameters> extrapolateToEntranceOfLayer(const EventContext& ctx, const Trk::TrackParameters* par,
+    std::vector<const CaloCell*> getCaloCellsForTile(const CaloDetDescrManager* caloDDM,
+                                                     const CaloDetDescriptor* descr,
+                                                     const Trk::TrackParameters* parEntrance,
+                                                     const Trk::TrackParameters* parExit,
+                                                     const CaloCellContainer* caloCellCont) const;
+
+   /**
+       This function determines which calorimeter regions the tracks traverses.
+       The vector caloInfo and extrapolations are returned. Straight line approximation is employed in the calorimeter regions
+       after the parameters are extrapolated to the surface of the solenoid. This accounts for the magnetic field bending.
+       Covers EMB, TileBar, TileExt, EME and HEC acceptance. The FCAL and TileGap regions are not included. Do not forget to check
+       the StatusCode.
+
+       @param par Input track parameters
+       @param caloInfo Resulting vector of CaloDetDescriptor that is traversed.
+       @param extrapolations   Resulting vector of straight-line extrapolations that were obtained.
+    */
+    StatusCode getTraversedLayers(const CaloDetDescrManager* caloDDM,
+                                  const Trk::TrackParameters* par,
+                                  std::map<double, const CaloDetDescriptor*>& caloInfo,
+                                  std::vector<Amg::Vector3D>& extrapolations) const;
+
+    std::unique_ptr<const Trk::TrackParameters> extrapolateToEntranceOfLayer(const EventContext& ctx,
+                                                                             const Trk::TrackParameters* par,
                                                                              const CaloDetDescriptor* descr) const;
-    std::unique_ptr<const Trk::TrackParameters> extrapolateToExitOfLayer(const EventContext& ctx, const Trk::TrackParameters* par,
+
+    std::unique_ptr<const Trk::TrackParameters> extrapolateToExitOfLayer(const EventContext& ctx,
+                                                                         const Trk::TrackParameters* par,
                                                                          const CaloDetDescriptor* descr) const;
 
     static double distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) ;

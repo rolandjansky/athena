@@ -45,7 +45,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # A lot of comments below are to help people understand differences from the above, in case we need to revert some simplifications I made
   # i.e. this is far from complete, but is better than what was there before.
   
-  # beampipe        
+  # beampipe
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  result.merge(BeamPipeGeometryCfg(flags))
   InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilder
   beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder')
 
@@ -56,6 +58,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
   # Pixel
   if flags.Detector.GeometryPixel:
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    result.merge(PixelReadoutGeometryCfg( flags ))
+
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilder
     PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder')
     PixelLayerBuilder.PixelCase 	       = True
@@ -85,6 +90,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     colors        += [ 3 ]
 
   if flags.Detector.GeometrySCT:
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    result.merge(SCT_ReadoutGeometryCfg( flags ))
+
     # SCT building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilder
     SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder')
@@ -115,7 +123,10 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
 
-  if flags.Detector.GeometryTRT:                                                      
+  if flags.Detector.GeometryTRT:     
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    result.merge(TRT_ReadoutGeometryCfg( flags ))
+
     InDet__TRT_LayerBuilder=CompFactory.InDet.TRT_LayerBuilder
     TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')
     # TRT barrel specifications - assume defaults
@@ -194,7 +205,9 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   # A lot of comments below are to help people understand differences from the above, in case we need to revert some simplifications I made
   # i.e. this is far from complete, but is better than what was there before.
   
-  # beampipe        
+  # beampipe
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  result.merge(BeamPipeGeometryCfg(flags))
   InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilder
   beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder')
   beamPipeBuilder.BeamPipeMaterialBinsZ              = flags.ITk.trackingGeometry.beampipeMatZbins
@@ -214,6 +227,9 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   
   # Pixel
   if flags.Detector.GeometryITkPixel:
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    result.merge(ITkPixelReadoutGeometryCfg(flags))
+
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilder
     PixelLayerBuilderInner = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilderInner')
     PixelLayerBuilderInner.PixelCase            = True
@@ -275,6 +291,9 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     colors          += [ 3 ]
 
   if flags.Detector.GeometryITkStrip:
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    result.merge(ITkStripReadoutGeometryCfg(flags))
+
     # SCT building
     InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilder
     SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder')
@@ -362,11 +381,15 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
 def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix=''):
   # The following replaces LArCalorimeter/LArTrackingGeometry/python/ConfiguredLArVolumeBuilder.py
+  from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+  result.merge(LArGMCfg(flags))
   LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
   lArVolumeBuilder = LAr__LArVolumeBuilder(name="LArVolumeBuilder", TrackingVolumeHelper = trackingVolumeHelper,)
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
+  from TileGeoModel.TileGMConfig import TileGMCfg
+  result.merge(TileGMCfg(flags))
   Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
   tileVolumeBuilder = Tile__TileVolumeBuilder(name="TileVolumeBuilder", TrackingVolumeHelper = trackingVolumeHelper,  )
   result.addPublicTool(tileVolumeBuilder)
@@ -399,7 +422,7 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:
-      # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry, SLHC_Geometry
+      # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry
       # So, here we only setup the default InDet geometry builder!
       inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder', flags=flags, result=result, envelopeDefinitionSvc=atlas_env_def_service,
                                                                       buildTrtStrawLayers=flags.Beam.Type=='cosmics')
@@ -494,15 +517,6 @@ if __name__ == '__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.Detector.GeometryPixel = True     
-    ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True 
-    ConfigFlags.Detector.GeometryLAr   = True     
-    ConfigFlags.Detector.GeometryTile  = True     
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True 
     ConfigFlags.lock()
 
     acc = TrackingGeometrySvcCfg(ConfigFlags )

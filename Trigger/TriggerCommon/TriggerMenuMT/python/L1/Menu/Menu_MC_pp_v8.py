@@ -55,7 +55,7 @@ def defineMenu():
         'L1_2MU3V', 'L1_2MU5VF', 'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_MU5VF_2MU3V',
         'L1_3MU3V', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_4MU3V',
         'L1_2MU5VF_3MU3V', 'L1_2MU8VF', 
-
+        'L1_MU8F_2MU5VF',
 
         'L1_2MU14FCH_OVERLAY',
         'L1_MU3V_EMPTY', 'L1_MU5VF_EMPTY', 'L1_MU3V_FIRSTEMPTY', 'L1_MU8VF_EMPTY',
@@ -125,7 +125,7 @@ def defineMenu():
         'L1_MU14FCH_XE30',
 
         # single jet
-        'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
+        'L1_J12', 'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
         'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
         'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
@@ -215,11 +215,11 @@ def defineMenu():
         'L1_CALREQ1',
         'L1_CALREQ2',
 
-
         # BPTX
-        
+        'L1_BPTX0_BGRP0','L1_BPTX1_BGRP0',
+
         # BCM
-        'L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
+        'L1_BCM_Wide_BGRP0', 'L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
         'L1_BCM_AC_UNPAIRED_NONISO','L1_BCM_CA_UNPAIRED_NONISO',
         'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB','L1_BCM_Wide_ABORTGAPNOTCALIB',
@@ -249,6 +249,9 @@ def defineMenu():
         'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY', 
         'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_2',
+        'L1_MBTS_4_A', 'L1_MBTS_4_C',
+        'L1_MBTS_1_A', 'L1_MBTS_1_C',
+        'L1_MBTS_1_A_EMPTY', 'L1_MBTS_1_C_EMPTY',
 
         # extra MBTS 
         # TODO: to be removed for high-mu pp        

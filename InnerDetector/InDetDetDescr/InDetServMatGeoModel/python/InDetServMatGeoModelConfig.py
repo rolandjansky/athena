@@ -6,9 +6,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def InDetServiceMaterialCfg(flags):
+    from AtlasGeoModel.GeometryDBConfig import InDetGeometryDBSvcCfg
+    db = InDetGeometryDBSvcCfg(flags)
+
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg(flags)
     geoModelSvc = acc.getPrimary()
-    geoModelSvc.DetectorTools += [ CompFactory.InDetServMatTool() ]
-    acc.addService(CompFactory.GeometryDBSvc("InDetGeometryDBSvc"))
+    geoModelSvc.DetectorTools += [ CompFactory.InDetServMatTool(GeometryDBSvc=db.getPrimary()) ]
+    acc.merge(db)
     return acc

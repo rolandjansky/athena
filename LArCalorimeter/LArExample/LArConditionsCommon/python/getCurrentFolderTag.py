@@ -5,8 +5,8 @@
 import sys
 
 from PyCool import cool
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-from AtlCoolBKLib import resolveAlias
+sys.path.append('/afs/cern.ch/user/a/atlcond/utils22')
+from CondUtilsLib.AtlCoolBKLib import resolveAlias
 
 def getCurrentFolderTag(dbname,folderName):
     current=None

@@ -57,6 +57,31 @@ extern "C"
     // cross section info 
   void crmc_xsection_f_(double &xsigtot, double &xsigine, double &xsigela, double &xsigdd, 
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
+#ifdef HEPMC3
+extern struct eposhepevt
+{
+    int        nevhep;
+    int        nhep;
+    int        isthep[HEPEVT_EntriesAllocation];
+    int        idhep [HEPEVT_EntriesAllocation];
+    int        jmohep[HEPEVT_EntriesAllocation][2];
+    int        jdahep[HEPEVT_EntriesAllocation][2];
+    double     phep  [HEPEVT_EntriesAllocation][5];
+    double     vhep  [HEPEVT_EntriesAllocation][4];
+} hepevt_;                              
+struct hepmc3hepevt
+{
+    int        nevhep;
+    int        nhep;
+    int        isthep[10000];
+    int        idhep [10000];
+    int        jmohep[10000][2];
+    int        jdahep[10000][2];
+    double     phep  [10000][5];
+    double     vhep  [10000][4];
+} localhepevt_;  
+#endif
+
 }
 /*
 extern "C"
@@ -233,8 +258,8 @@ StatusCode Epos::genInitialize()
 
     // setup HepMC
 #ifdef HEPMC3
-     /* This ifdef is used for consistency */
-     /* HepMC3 does not need this setup */
+    /// Inlined
+    HepMC::HEPEVT_Wrapper::set_hepevt_address((char*)(&localhepevt_));
 #else    
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
@@ -309,13 +334,32 @@ StatusCode Epos::genFinalize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::fillEvt( HepMC::GenEvent* evt ) 
 {
-  //  ATH_MSG_INFO( " EPOS Filling.\n" );
-
-    // debug printout
-
-
   HepMC::HEPEVT_Wrapper::set_event_number(m_events);
 #ifdef HEPMC3
+  ///If HepMC3 has been compiled with different block size than is used in the interface,
+  /// only the inlined functions can be used without restrictions.
+  /// The convert functions are compiled and should operate on the block of matching size.
+  /// The best solution would be to define a single block sze for all Athena.
+  localhepevt_.nevhep = m_events;
+  localhepevt_.nhep = std::min(10000, hepevt_.nhep);
+   for (int i = 0; i < localhepevt_.nhep; i++ ) {
+    localhepevt_.isthep[i] = hepevt_.isthep[i];
+    localhepevt_.idhep [i] = hepevt_.idhep [i];
+    for (int k = 0; k < 2; k++) localhepevt_.jmohep[i][k] = hepevt_.jmohep[i][k];
+    for (int k = 0; k < 2; k++) localhepevt_.jdahep[i][k] = hepevt_.jdahep[i][k];
+    for (int k = 0; k < 5; k++) localhepevt_.phep  [i][k] = hepevt_.phep  [i][k];
+    for (int k = 0; k < 4; k++) localhepevt_.vhep  [i][k] = hepevt_.vhep  [i][k];
+    localhepevt_.jmohep[i][1] = std::max(localhepevt_.jmohep[i][0],localhepevt_.jmohep[i][1]);
+    localhepevt_.jdahep[i][1] = std::max(localhepevt_.jdahep[i][0],localhepevt_.jdahep[i][1]);
+    /// For some interesting reason EPOS marks beam particle parents as -1 -1
+    if (localhepevt_.jmohep[i][0] <= 0 && localhepevt_.jmohep[i][1] <= 0 ) 
+    {
+      localhepevt_.jmohep[i][0] = 0;
+      localhepevt_.jmohep[i][1] = 0;
+      localhepevt_.isthep[i] = 4;
+    }
+   } 
+  /// Compiled!
   HepMC::HEPEVT_Wrapper::HEPEVT_to_GenEvent(evt);
 #else  
   HepMC::IO_HEPEVT hepio;
@@ -325,13 +369,21 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
 #endif
-  // evt->print();
  
 
   HepMC::set_random_states(evt, m_seeds );
 
   evt->weights().push_back(1.0); 
-  GeVToMeV(evt);
+  //correct units, for hepMC printing uncomment lines below
+#ifdef HEPMC3
+    evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+//    std::cout << " print::listing Epos " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+#else
+    GeVToMeV(evt);
+//    std::cout << " print::printing Epos " << std::endl;
+//    evt->print();
+#endif
   
   std::vector<HepMC::GenParticlePtr> beams;
 
@@ -341,8 +393,10 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
    }
   }
 
-  if (beams.size()>=2) {
+  if (beams.size() >= 2) {
   evt->set_beam_particles(beams[0], beams[1]); 
+  } else {
+    ATH_MSG_INFO( "EPOS event has only " << beams.size() << " beam particles" );
   }
 
   // Heavy Ion and Signal ID from Epos to HepMC

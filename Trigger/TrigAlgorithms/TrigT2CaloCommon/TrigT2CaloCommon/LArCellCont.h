@@ -31,6 +31,7 @@
 
 class ILArBadFebMasker;
 class CaloBCIDAverage;
+class LArRoI_Map;
 static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
@@ -70,7 +71,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   virtual ~LArCellCont() { };
 
   /** initialize method. Builds all cells and collections. */
-  StatusCode initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) ;
+  StatusCode initialize( const LArRoI_Map* roiMap, const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) ;
   /** finalize method. Destroys all cells and collections. */
   StatusCode finalize( void ) ;
   /** sets Event Number */

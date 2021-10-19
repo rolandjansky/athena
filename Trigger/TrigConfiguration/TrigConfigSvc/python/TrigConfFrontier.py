@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 import time
@@ -17,28 +17,16 @@ def getServerUrls(frontier_servers):
     return findall(r'\(serverurl=(.*?)\)',frontier_servers)
 
 
-def testUrl(url):
-    import urllib.request, urllib.error, urllib.parse
-    try:
-        urllib.request.urlopen(url)
-    except urllib.error.URLError:
-        return False
-    return True
-
 def resolveUrl(url):
     """
     Expects input string to be a URL or $FRONTIER_SERVER
     Returns an accessible URL or None"""
     import re
     if re.match("http://",url): # simple URL specification http://...
-        return [url] if testUrl(url) else []
+        return [url]
 
-    urls = []
     if re.match(r'\(serverurl=(.*?)\)',url): # syntax of FRONTIER_SERVER
-        for url in getServerUrls(url):
-            if testUrl(url):
-                urls.append(url)
-        return urls
+        return getServerUrls(url)
 
 
 def getFrontierCursor(urls, schema, loglevel = logging.INFO):
@@ -119,7 +107,7 @@ class FrontierCursor(object):
                 log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
                 t1 = time.time()
-                result = urllib.request.urlopen(request,None,10).read().decode('utf-8')
+                result = urllib.request.urlopen(request,timeout=10).read().decode('utf-8')
                 t2 = time.time()
 
                 queryEnd = time.localtime()

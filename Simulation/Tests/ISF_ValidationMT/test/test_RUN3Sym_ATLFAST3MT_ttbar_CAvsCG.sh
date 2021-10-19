@@ -41,7 +41,7 @@ then
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
@@ -57,7 +57,7 @@ then
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
@@ -68,6 +68,7 @@ then
     rc2=$?
     status=$rc2
     mv log.EVNTtoHITS log.EVNTtoHITS.CG
+fi
 echo "art-result: $rc1 simulation CG"
 
 rc3=-9999

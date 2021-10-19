@@ -27,6 +27,7 @@ class TrigTauCaloRoiUpdater : public AthAlgorithm {
 
  private:
   Gaudi::Property< float > m_dRForCenter {this,"dRForCenter",0.2,"Delta R from the center of ROI"};
+  Gaudi::Property< bool > m_SkipClusterOutsideROI { this, "SkipClusterOutsideROI", false, "do not consider cluster outside the ROI"};
 
   //SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key, retrieved from reconstructed jets"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","InputRoI","RoI input collection key"};

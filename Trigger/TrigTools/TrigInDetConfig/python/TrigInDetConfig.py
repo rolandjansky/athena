@@ -145,7 +145,7 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
 
 
 def ExtrapolatorCfg(flags):
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
 
 def InDetTestPixelLayerToolCfg(flags):
@@ -208,9 +208,10 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
   holeSearchTool = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
   associationTool = acc.getPrimaryAndMerge( InDetPrdAssociationToolGangedPixelsCfg(flags) )
 
-  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg # this will be moved somewhere else so this import will need adjustment
+  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
   acc.merge( TRTStrawCondAlgCfg(flags) )
 
+  from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
   tool = CompFactory.InDet.InDetTrackSummaryHelperTool(name,
                                                        HoleSearch    = holeSearchTool,
                                                        AssoTool      = associationTool,
@@ -287,10 +288,6 @@ def geoModelCfg(flags):
   return acc
 
 
-def sctCondCfg(flags):
-  # acc = ComponentAccumulator()
-  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-  return SCT_GeometryCfg(flags)
 def pixelCondCfg(flags):
   acc = ComponentAccumulator()
   ###############
@@ -407,8 +404,6 @@ def pixelDataPrepCfg(flags, roisKey, signature):
 
 def sctDataPrepCfg(flags, roisKey, signature):
   acc = ComponentAccumulator()
-
-  acc.merge(sctCondCfg(flags))
 
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
@@ -733,15 +728,14 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
 prefix="InDetTrigMT"
 
 def TRTDriftCircleCutCfg(flags):
-  acc = ComponentAccumulator()
+  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
+  acc = TRTActiveCondAlgCfg(flags)
   tool = CompFactory.InDet.InDetTrtDriftCircleCutTool('InDetTrigTRTDriftCircleCut',
           MinOffsetDCs     = 5,
           UseNewParameterization = True,
           UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
   )
   acc.addPublicTool(tool, primary=True)
-  from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-  acc.merge(TRTActiveCondAlgCfg( flags ))
   return acc
 
 def TRTDataProviderCfg(flags):
@@ -891,7 +885,7 @@ def TrackSelectionToolCfg(flags):
 
 def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
   tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.name}",
                                                 SummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
                                                 Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
@@ -918,12 +912,12 @@ def KalmanUpdatorCfg(flags):
 def FitterToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-  from TrkConfig.AtlasExtrapolatorConfig import AtlasNavigatorCfg
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   cond_alg = None #TODO may need to pull AtlasTrackingGeometryCondAlg and use it later
   fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
                                                  ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                                 NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
+                                                 NavigatorTool         = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
                                                  PropagatorTool        = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags, "InDetTrigRKPropagator" ) ),		
                                                  RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                                  BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it

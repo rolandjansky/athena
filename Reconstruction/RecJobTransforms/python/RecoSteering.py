@@ -52,8 +52,12 @@ def RecoSteering(flags):
     #Caching of CaloExtension for downstream Combined Performance algorithms.
     #The algorithms that use these cached CaloExtension only run in the reco step that produces ESD.
     if flags.Output.doESD:
-      from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-      acc.merge(CaloExtensionBuilderAlgCfg(flags))
+      if flags.Detector.GeometryID:
+         from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+         acc.merge(CaloExtensionBuilderAlgCfg(flags))
+      elif flags.Detector.GeometryITk:
+         from TrackToCalo.ITkCaloExtensionBuilderAlgCfg import ITkCaloExtensionBuilderAlgCfg
+         acc.merge(ITkCaloExtensionBuilderAlgCfg(flags))
       log.info("---------- Configured track calorimeter extension builder")
 
     from eflowRec.PFRun3Config import PFCfg

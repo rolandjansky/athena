@@ -12,6 +12,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace FlavorTagDiscriminants {
 

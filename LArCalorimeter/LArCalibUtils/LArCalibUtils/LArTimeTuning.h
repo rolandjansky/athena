@@ -9,7 +9,6 @@
 #define LARCALIBUTILS_LARTIMETUNING_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArRawUtils/LArRoI_Map.h"
 #include "LArRawUtils/LArRawOrdering.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"

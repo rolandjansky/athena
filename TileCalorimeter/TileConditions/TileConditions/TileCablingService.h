@@ -32,9 +32,7 @@ class TileCablingService {
 public:
 
     /** get pointer to service instance*/
-    // TEMPORARY: This needs to change to return const once clients
-    // have been updated.
-    static TileCablingService* getInstance();
+    static const TileCablingService* getInstance();
     
     // Conversion between TileID and Trigger Tower ID
 

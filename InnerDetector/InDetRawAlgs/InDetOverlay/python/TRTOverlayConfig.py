@@ -1,6 +1,6 @@
 """Define methods to construct configured TRT overlay algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -10,8 +10,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def TRTRawDataProviderAlgCfg(flags, name="TRTRawDataProvider", **kwargs):
     """Return a ComponentAccumulator for TRT raw data provider"""
     # Temporary until available in the central location
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    acc = TRT_GeometryCfg(flags)
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    acc = TRT_ReadoutGeometryCfg(flags)
 
     kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
 
@@ -49,9 +49,9 @@ def TRTDataOverlayExtraCfg(flags, **kwargs):
 def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     """Return a ComponentAccumulator for TRTOverlay algorithm"""
     acc = ComponentAccumulator()
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    acc.merge(TRT_GeometryCfg(flags))
-    from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    acc.merge(TRT_ReadoutGeometryCfg(flags))
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
     acc.merge(TRTStrawCondAlgCfg(flags))
 
     kwargs.setdefault("SortBkgInput", flags.Overlay.DataOverlay)
@@ -70,7 +70,8 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     TRTOverlay = CompFactory.TRTOverlay
     alg = TRTOverlay(name, **kwargs)
 
-    from InDetOverlay.TRT_ConditionsConfig import TRT_LocalOccupancyCfg, TRT_StrawStatusSummaryToolCfg
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
+    from InDetOverlay.TRT_ConditionsConfig import TRT_LocalOccupancyCfg
     alg.TRT_LocalOccupancyTool = acc.popToolsAndMerge(
         TRT_LocalOccupancyCfg(flags))
     alg.TRTStrawSummaryTool = acc.popToolsAndMerge(

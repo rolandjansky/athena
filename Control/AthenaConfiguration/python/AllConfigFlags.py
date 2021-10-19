@@ -256,8 +256,6 @@ def _createCfgFlags():
 
 ConfigFlags=_createCfgFlags()
 
-del _createCfgFlags
-
 if __name__=="__main__":
     import sys
     if len(sys.argv)>1:

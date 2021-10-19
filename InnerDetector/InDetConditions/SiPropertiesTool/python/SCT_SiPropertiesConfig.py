@@ -1,11 +1,11 @@
 """Define methods to configure SCT SiProperties
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
 SiPropertiesTool=CompFactory.SiPropertiesTool
 SCTSiPropertiesCondAlg=CompFactory.SCTSiPropertiesCondAlg
 
@@ -26,7 +26,7 @@ def SCT_SiPropertiesCfg(flags, name="SCTSiPropertiesCondAlg", **kwargs):
         algkwargs["SiConditionsTool"] = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags, **kwargs))
     # For SCT_ID and SCT_DetectorElementCollection
     # used in SCTSiPropertiesCondAlg and SiPropertiesTool
-    acc.merge(SCT_GeometryCfg(flags))
+    acc.merge(SCT_ReadoutGeometryCfg(flags))
     alg = SCTSiPropertiesCondAlg(name, **algkwargs)
     acc.addCondAlgo(alg)
 

@@ -26,8 +26,8 @@ void ZdcCablingService::deleteInstance()
 
 //-------------------------------------------------------------
 ZdcCablingService::ZdcCablingService (const ZdcID* zdcID,
-                                      const ZdcHardwareID* zdcHWID)
-  : m_dbFilled(0), m_zdcID(zdcID), m_zdcHWID(zdcHWID)
+                                      const ZdcHardwareID* /*zdcHWID*/)
+  : m_dbFilled(0), m_zdcID(zdcID)//, m_zdcHWID(zdcHWID)
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "ZdcCablingSevice");
   if (!m_zdcID) {

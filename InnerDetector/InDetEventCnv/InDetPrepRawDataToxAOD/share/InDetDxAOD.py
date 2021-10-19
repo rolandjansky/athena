@@ -649,7 +649,7 @@ thinningTools.append(IDTRKThinningTool)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDTRKThinningToolLargeD0 = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningToolLargeD0",
                                                                         StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
-                                                                        SelectionString         = thinTrackSelection,
+                                                                        SelectionString         = "InDetLargeD0TrackParticles.pt > 0.1*GeV",
                                                                         InDetTrackParticlesKey  = "InDetLargeD0TrackParticles",
                                                                         InDetTrackStatesPixKey       = prefixName+"PixelMSOSs"       if dumpPixInfo else "" ,
                                                                         InDetTrackMeasurementsPixKey = "PixelClusters"    if dumpPixInfo else "",

@@ -10,7 +10,6 @@
 
 #include <sstream>
 
-sTGCDetectorDescription* sTGCDetectorDescription::s_current=0;
 
 sTGCDetectorDescription::sTGCDetectorDescription(const std::string& s,
                                                  AGDDDetectorStore& ds):

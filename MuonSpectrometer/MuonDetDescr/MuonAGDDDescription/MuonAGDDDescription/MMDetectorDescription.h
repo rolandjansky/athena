@@ -46,8 +46,6 @@ public:
                               AGDDDetectorStore& ds);
 	void Register();
 
-	static MMDetectorDescription* GetCurrent() {return s_current;}
-	
 	double sWidth() const {return small_x();}
 	double lWidth() const {return large_x();}
 	double Length() const {return y();}
@@ -76,7 +74,6 @@ protected:
         AGDDDetectorStore& m_ds;
 
 	void SetDetectorAddress(AGDDDetectorPositioner*);
-	static MMDetectorDescription* s_current;
 };
 
 #endif

@@ -12,6 +12,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "AthenaKernel/IOVTime.h"
 #include <vector>
 #include <string>
 
@@ -22,6 +23,7 @@ class IIOVRegistrationSvc;
 class OutputConditionsAlg: public AthAlgorithm 
 {
 public:
+
     OutputConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator);
     ~OutputConditionsAlg();
 
@@ -31,25 +33,25 @@ public:
 
 private:
 
-  ServiceHandle<IClassIDSvc> p_clidsvc;
-  ServiceHandle<IIOVRegistrationSvc> p_regsvc;
+   ServiceHandle<IClassIDSvc> p_clidsvc{this,"ClassIDSvc","ClassIDSvc"};
+   ServiceHandle<IIOVRegistrationSvc> p_regsvc{this, "IOVRegistrationSvc","IOVRegistrationSvc"};
 
   uint64_t timeToNano(unsigned long int timesec) const;
 
   typedef ToolHandle<IAthenaOutputStreamTool> IAthenaOutputStreamTool_t;
   IAthenaOutputStreamTool_t m_streamer;
-  //ServiceHandle<IIOVRegistrationSvc> regsvc;
-  std::vector<std::string> m_objectList; 
-  std::string m_streamName;
-  bool m_par_writeIOV;
-  unsigned int m_par_run1;
-  unsigned int m_par_lumib1;
-  unsigned int m_par_run2;
-  unsigned int m_par_lumib2;
-  UnsignedLongProperty m_par_time1;
-  UnsignedLongProperty m_par_time2;
-  bool m_par_timestamp;
-  std::vector<std::string> m_par_iovtags;
+
+  Gaudi::Property<std::vector<std::string> >  m_objectList{this,"ObjectList",{},"List of object to be written","OrderedSet<std::string>"};
+  Gaudi::Property<std::string> m_streamName{this,"StreamName","ConditionsAlgStream"};
+  Gaudi::Property<bool> m_par_writeIOV{this,"WriteIOV",false};
+  Gaudi::Property<unsigned int> m_par_run1 {this,"Run1",IOVTime::MINRUN,"IOV start (run-number)"};
+  Gaudi::Property<unsigned int> m_par_lumib1 {this,"LB1",IOVTime::MINEVENT,"IOV start (LB-number)"};
+  Gaudi::Property<unsigned int> m_par_run2 {this,"RUN2",IOVTime::MAXRUN,"IOV end (run-number)"};
+  Gaudi::Property<unsigned int> m_par_lumib2 {this,"LB2",IOVTime::MAXEVENT,"IOV end (LB-number)"};
+  UnsignedLongProperty m_par_time1 {this,"Time1",IOVTime::MINTIMESTAMP,"IOV start (timestamp)"};
+  UnsignedLongProperty m_par_time2 {this,"Time2",IOVTime::MAXEVENT,"IOV end (timestamp)"};
+  Gaudi::Property<bool> m_par_timestamp {this,"UseTime",false,"IOV in second or Run/LB"};
+  Gaudi::Property<std::vector<std::string> > m_par_iovtags {this,"IOVTagList",{},"List of Tags to be written","OrderedSet<std::string>"};
 };
 
 #endif // REGISTRATIONSVC_OUTPUTCONDALG_H

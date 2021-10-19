@@ -82,7 +82,7 @@ public:
 
 
     const ZdcID*      m_zdcID;
-    const ZdcHardwareID*    m_zdcHWID;
+    //const ZdcHardwareID*    m_zdcHWID;
 
 
     int m_connected[16][16]{};

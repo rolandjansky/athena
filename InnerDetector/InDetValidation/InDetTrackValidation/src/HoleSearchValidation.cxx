@@ -11,6 +11,7 @@
 #include "GaudiKernel/MsgStream.h"
 // Trk
 #include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 
@@ -187,7 +188,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
     // perform hole search
     unsigned int oldHoles = doHoleSearch( *trackIterator );
 
-    auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
+    auto vecTsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
 
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
@@ -406,12 +407,12 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
         } // end have identifier
       } // end TSoS is of type measurement
 
-      const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
-      vecTsos.push_back(newTsos);
+      vecTsos->push_back(vecTsos->allocate (**iTsos));
     } // end loop over all TSoS
     
     ATH_MSG_DEBUG(  "Removed total of " << nRemoved << " TSoS on track." ) ;
 
+    vecTsos->elt_allocator().protect();
     Trk::Track* newTrack = new Trk::Track(track.info(), std::move(vecTsos), nullptr );
     ATH_MSG_VERBOSE(  "Perform hole search on new track:" ) ;
     // perform hole search

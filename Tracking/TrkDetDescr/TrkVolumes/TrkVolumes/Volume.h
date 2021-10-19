@@ -62,6 +62,7 @@ namespace Trk {
 
         /** returns the volumeBounds() */
         const VolumeBounds&     volumeBounds() const;
+        VolumeBounds&           volumeBounds() ;
 
         /** Inside() method for checks */
         bool inside(const Amg::Vector3D& gp, double tol=0.) const ;
@@ -71,9 +72,9 @@ namespace Trk {
                                                 const Amg::Vector3D& mom,
                                                 bool forceInside=false) const;
       protected:
-        std::unique_ptr<Amg::Transform3D>               m_transform;         //!< HepGeom::Transform3D
-        CxxUtils::CachedUniquePtr<Amg::Vector3D>       m_center;            //!< center position of the surface
-        SharedObject<const VolumeBounds>                m_volumeBounds;      //!< the volumeBounds
+        std::unique_ptr<Amg::Transform3D>             m_transform;         //!< HepGeom::Transform3D
+        CxxUtils::CachedUniquePtr<Amg::Vector3D>      m_center;            //!< center position of the surface
+        SharedObject<VolumeBounds>                    m_volumeBounds;      //!< the volumeBounds
     };
 
     inline const Amg::Transform3D& Volume::transform() const
@@ -91,8 +92,17 @@ namespace Trk {
      return Trk::s_origin;
     }
 
-    inline const VolumeBounds& Volume::volumeBounds() const
-    {  return *(m_volumeBounds.get()); }
+    inline const VolumeBounds&
+    Volume::volumeBounds() const
+    {
+      return *(m_volumeBounds.get());
+    }
+
+    inline VolumeBounds&
+    Volume::volumeBounds()
+    {
+      return *(m_volumeBounds.get());
+    }
 
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/

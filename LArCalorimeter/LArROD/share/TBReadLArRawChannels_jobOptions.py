@@ -31,8 +31,6 @@ ByteStreamInputSvc.FilePrefix += [RawDataFilePrefix]
 ByteStreamInputSvc.RunNumber = [runnumber]
 
 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel =3

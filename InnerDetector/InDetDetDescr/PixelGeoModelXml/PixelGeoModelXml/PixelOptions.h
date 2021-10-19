@@ -1,12 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeoModelXml_PixelOptions_H
 #define PixelGeoModelXml_PixelOptions_H
 #include <string>
 
-namespace InDetDDSLHC {
+namespace InDetDD
+{
+
+namespace ITk
+{
+
   //
   //    Class to store run time options.
   //
@@ -19,7 +24,7 @@ namespace InDetDDSLHC {
     std::string detectorName() const;
     void setAlignable(bool flag = true);
     void setAlignAtModuleLevel(bool flag = true);
-    void setGmxFilename(std::string filename); 
+    void setGmxFilename(std::string filename);
     void setDetectorName(std::string detectorname);
 
   private:
@@ -33,7 +38,7 @@ namespace InDetDDSLHC {
 
   inline PixelOptions::PixelOptions() :
     m_alignable(true),
-    m_alignModule(true), 
+    m_alignModule(true),
     m_gmxFilename(""),
     m_detectorName("ITkPixel")
       {}
@@ -70,5 +75,7 @@ namespace InDetDDSLHC {
     m_detectorName = detectorname;
   }
 
-}
+} // namespace ITk
+} // namespace InDetDD
+
 #endif // PixelGeoModelXml_PixelOptions_H

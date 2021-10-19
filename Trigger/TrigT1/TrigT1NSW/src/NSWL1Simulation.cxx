@@ -5,11 +5,6 @@
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-
 // root includes
 #include "TTree.h"
 // Local includes
@@ -63,6 +58,7 @@ namespace NSWL1 {
     ATH_MSG_DEBUG( "initialize " << name() );
     ATH_CHECK( m_trigRdoContainer.initialize() );
     ATH_CHECK( m_xaodevtKey.initialize() );
+    ATH_CHECK( m_eventInfoKey.initialize() );
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -70,6 +66,7 @@ namespace NSWL1 {
       char ntuple_name[40];
       memset(ntuple_name,'\0',40*sizeof(char));
       sprintf(ntuple_name,"%sTree",name().c_str());
+      m_current_evt = 0, m_current_run = 0;
 
       // create Ntuple and the branches
       m_tree = new TTree(ntuple_name, "Ntuple of NSWL1Simulation");
@@ -113,7 +110,7 @@ namespace NSWL1 {
     ATH_MSG_DEBUG("start " << name() );
     if(m_doNtuple){
       for ( auto& mon : m_monitors ) {
-	ATH_CHECK(mon->bookHists());
+        ATH_CHECK(mon->bookHists());
       }
     }
     return StatusCode::SUCCESS;
@@ -122,9 +119,15 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::execute() {
     SG::ReadHandle<xAOD::EventInfo> evt(m_xaodevtKey);
-    CHECK(evt.isValid());
-    m_current_run = evt->runNumber();
-    m_current_evt = evt->eventNumber();
+    if (evt.isValid()) {
+      m_current_run = evt->runNumber();
+      m_current_evt = evt->eventNumber();
+    } else {
+      SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey);
+      if(eventInfo->event_ID()->event_number() == 0 && m_current_evt == 0) ATH_MSG_DEBUG("Start " << name());
+      else ++m_current_evt;
+      m_current_run = eventInfo->event_ID()->run_number();
+    }
 
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
@@ -138,7 +141,7 @@ namespace NSWL1 {
         ATH_CHECK( m_pad_trigger_lookup->lookup_pad_triggers(pads, padTriggers) );
       }
       else{
-          ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
+        ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
 
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
@@ -160,7 +163,7 @@ namespace NSWL1 {
     }
     if(m_doNtuple){
       for ( auto& mon : m_monitors) {
-	ATH_CHECK(mon->fillHists());
+        ATH_CHECK(mon->fillHists());
       }
       if (m_tree) m_tree->Fill();
     }
@@ -180,7 +183,6 @@ namespace NSWL1 {
         }
       }
     }
-
     return StatusCode::SUCCESS;
   }
 
@@ -189,7 +191,7 @@ namespace NSWL1 {
     ATH_MSG_DEBUG( "finalize" << name() );
     if(m_doNtuple){
       for ( auto& mon :  m_monitors ) {
-	ATH_CHECK(mon->finalHists());
+        ATH_CHECK(mon->finalHists());
       }
     }
     return StatusCode::SUCCESS;

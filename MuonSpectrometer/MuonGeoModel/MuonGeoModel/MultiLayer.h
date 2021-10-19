@@ -14,6 +14,7 @@
 class GeoFullPhysVol;
 
 namespace MuonGM {
+    class MYSQL;
 
     class MultiLayer : public DetectorElement {
       public:
@@ -28,11 +29,12 @@ namespace MuonGM {
         double longWidth; // for trapezoidal layers
         int nrOfSteps;    // for trapezoidal layers,
                        // nr of steps in the staircase
-        MultiLayer(std::string n);
-        GeoFullPhysVol *build();
+        MultiLayer(const MYSQL& mysql, std::string n);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql);
         double yy[4];
         double xx[4];
-        void print();
+        virtual void print() override;
 
         int cutoutNsteps;           // how many sub-multilayers there are along y-amdb
         int cutoutNtubes[5];        // how many tubes in the sub-multilayer [i]

@@ -855,6 +855,8 @@ class ItemDef:
         MBTS_2   = (d.MBTS_A.x(2) | d.MBTS_C.x(2) | d.MBTS_A) & (d.MBTS_A.x(2) | d.MBTS_C.x(2) | d.MBTS_C)
         MBTS_1_1 = d.MBTS_A & d.MBTS_C
         MBTS_2_2 = d.MBTS_A.x(2) & d.MBTS_C.x(2)
+        MBTS_1_A = d.MBTS_A.x(1)
+        MBTS_1_C = d.MBTS_C.x(1)
         MBTS_2_A = d.MBTS_A.x(2)
         MBTS_2_C = d.MBTS_C.x(2)
         MBTS_3_3 = d.MBTS_A.x(3) & d.MBTS_C.x(3)
@@ -878,6 +880,8 @@ class ItemDef:
         MenuItem('L1_MBTS_4_4'           ).setLogic( MBTS_4_4 & physcond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_4_A'           ).setLogic( MBTS_4_A & physcond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_4_C'           ).setLogic( MBTS_4_C & physcond ).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_1_A'           ).setLogic( MBTS_1_A & physcond ).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_1_C'           ).setLogic( MBTS_1_C & physcond ).setTriggerType(TT.minb)
 
         MenuItem('L1_MBTS_1_UNPAIRED_ISO'   ).setLogic( MBTS_1   & unpaired_isocond).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_2_UNPAIRED_ISO'   ).setLogic( MBTS_2   & unpaired_isocond).setTriggerType(TT.minb)
@@ -890,6 +894,8 @@ class ItemDef:
         MenuItem('L1_MBTS_4_A_UNPAIRED_ISO' ).setLogic( MBTS_4_A & unpaired_isocond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_4_C_UNPAIRED_ISO' ).setLogic( MBTS_4_C & unpaired_isocond ).setTriggerType(TT.minb)
 
+        MenuItem('L1_MBTS_1_A_EMPTY'    ).setLogic( MBTS_1_A   & cosmiccond ).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_1_C_EMPTY'    ).setLogic( MBTS_1_C   & cosmiccond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_1_EMPTY'    ).setLogic( MBTS_1   & cosmiccond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_2_EMPTY'    ).setLogic( MBTS_2   & cosmiccond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_1_1_EMPTY'  ).setLogic( MBTS_1_1 & cosmiccond ).setTriggerType(TT.minb)

@@ -138,7 +138,6 @@ void ActsLayerBuilder::buildBarrel(const Acts::GeometryContext &gctx,
     layers[elementLayer].push_back(element->surface().getSharedPtr());
   }
 
-  // // @TODO: Exclude BCM, should happen via separate detector manager
 
   if (m_cfg.objDebugOutput) {
     std::string lab;
@@ -243,16 +242,61 @@ void ActsLayerBuilder::buildBarrel(const Acts::GeometryContext &gctx,
     approachDescriptor =
         std::make_unique<Acts::GenericApproachDescriptor>(std::move(aSurfaces));
 
-    std::shared_ptr<Acts::Layer> layer;
-    if(m_cfg.mode == Mode::ITkStrip) {
-      // @TODO: This needs to be fixed!
-      size_t nBinsPhi = 1;
-      size_t nBinsZ = 1;
-      layer = m_cfg.layerCreator->cylinderLayer(
-          gctx, surfaces, nBinsPhi, nBinsZ, pl, transform,
-          std::move(approachDescriptor));
+    // count the number of relevant modules in each direction
+    auto phiEqual = [this](const Acts::Surface &a,
+                           const Acts::Surface &b) {
+      Acts::GeometryContext gctx; // unused in matcher
+      Acts::BinningValue bv = Acts::binPhi;
+      return m_cfg.surfaceMatcher(gctx, bv, &a, &b);
+    };
+
+    auto zEqual = [this](const Acts::Surface &a,
+                         const Acts::Surface &b) {
+      Acts::GeometryContext gctx; // unused in matcher
+      Acts::BinningValue bv = Acts::binZ;
+      return m_cfg.surfaceMatcher(gctx, bv, &a, &b);
+    };
+
+    // Work around issue with clang10 --- it doesn't allow
+    // listing surfaces directly in the capture list.
+    auto& xsurfaces = surfaces;
+    auto countKey = [&xsurfaces](auto equal) -> size_t {
+      std::vector<const Acts::Surface *> keySurfaces;
+      for (const auto &surface : xsurfaces) {
+        bool exists = false;
+        for (const auto* existing : keySurfaces) {
+          if (equal(*surface, *existing)) {
+            exists = true;
+            break;
+          }
+        }
+        if (!exists) {
+          keySurfaces.push_back(surface.get());
+        }
       }
-    else {
+      return keySurfaces.size();
+    };
+
+    size_t nModPhi = countKey(phiEqual);
+    size_t nModZ = countKey(zEqual);
+
+    ACTS_VERBOSE("Found " << nModPhi << " modules in phi " << nModZ
+                          << " modules in z");
+
+    std::shared_ptr<Acts::Layer> layer;
+    if (m_cfg.mode == Mode::ITkStrip) {
+      double f = 1.0;
+      if (key <= 1) {
+        f = 4.0; // four rows per module
+      } else {
+        f = 2.0; // two rows per module
+      }
+      size_t nBinsPhi = nModPhi / f;
+      size_t nBinsZ = nModZ / f;
+      layer = m_cfg.layerCreator->cylinderLayer(gctx, surfaces, nBinsPhi,
+                                                nBinsZ, pl, transform,
+                                                std::move(approachDescriptor));
+    } else {
       layer = m_cfg.layerCreator->cylinderLayer(
           gctx, surfaces, Acts::equidistant, Acts::equidistant, pl, transform,
           std::move(approachDescriptor));
@@ -511,12 +555,8 @@ void ActsLayerBuilder::buildEndcap(const Acts::GeometryContext &gctx,
       nBinsPhi /= 2.0;
     }
     if(m_cfg.mode == Mode::ITkStrip) {
-      // @FIXME: ACTS surface binning for disc surfaces is currently not working
-      // correctly, see:
-      //         https://github.com/acts-project/acts/issues/851. 
-      // Use a single bin as a workaround.
-      nBinsR = 1;
-      nBinsPhi = 1;
+      // up to four rows per module
+      nBinsR /= 4.0;
     }
 
     ACTS_VERBOSE("Creating r x phi binned layer with " << nBinsR << " x "

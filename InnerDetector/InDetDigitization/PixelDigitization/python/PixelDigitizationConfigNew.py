@@ -15,7 +15,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelChargeLUTCalibCondAlgCfg
 )
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
 from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
 from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
@@ -171,7 +171,7 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
 
 def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool"""
-    acc = PixelGeometryCfg(flags)
+    acc = PixelReadoutGeometryCfg(flags)
     # set up tool handle lists
     chargeTools = []
     feSimTools = []

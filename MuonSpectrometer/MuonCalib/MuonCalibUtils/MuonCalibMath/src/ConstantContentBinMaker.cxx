@@ -22,20 +22,19 @@ using namespace MuonCalib;
 
 ConstantContentBinMaker::ConstantContentBinMaker(
                             const std::vector<DataPoint> & points,
-                            const double & epsilon) {
-
-    m_points = points;
-    m_bins.clear();
-    m_epsilon = std::abs(epsilon);
-
+                            const double & epsilon)
+  : m_points (points),
+    m_epsilon (std::abs(epsilon))
+{
 }
 
 
 ConstantContentBinMaker::~ConstantContentBinMaker()
-	{
-	for(std::vector<DataBin *>::iterator it=m_bins.begin(); it<m_bins.end(); it++)
-    	delete *it;
-	}
+{
+  for (DataBin* b : m_bins) {
+    delete b;
+  }
+}
 
 
 //*****************************************************************************
@@ -60,8 +59,9 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 ///////////
 // RESET //
 ///////////
-    for(std::vector<DataBin *>::iterator it=m_bins.begin(); it<m_bins.end(); it++)
-    	delete *it;
+    for (DataBin* b : m_bins) {
+      delete b;
+    }
     m_bins.clear();
 
 /////////////////////////////////////////////////

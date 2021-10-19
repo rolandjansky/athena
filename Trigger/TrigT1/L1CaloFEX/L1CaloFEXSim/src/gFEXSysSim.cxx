@@ -77,7 +77,7 @@ namespace LVL1 {
    }
 
 
-   StatusCode gFEXSysSim::execute()   {
+   StatusCode gFEXSysSim::execute(gFEXOutputCollection* gFEXOutputs)   {
 
       SG::ReadHandle<LVL1::gTowerContainer> this_gTowerContainer(m_gTowerContainerSGKey);
       if(!this_gTowerContainer.isValid()){
@@ -221,7 +221,7 @@ namespace LVL1 {
          }
       }
 
-      ATH_CHECK(m_gFEXSimTool->executegFEXSim(tmp_gTowersIDs_subset));
+      ATH_CHECK(m_gFEXSimTool->executegFEXSim(tmp_gTowersIDs_subset, gFEXOutputs));
       
       m_allgRhoTobs = m_gFEXSimTool->getgRhoTOBs();
       m_allgBlockTobs = m_gFEXSimTool->getgBlockTOBs();
