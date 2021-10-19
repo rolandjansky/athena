@@ -9,9 +9,6 @@
 #include "GeneratorModules/GenModule.h"
 #include "TruthUtils/GeneratorName.h"
 
-//#ifndef IS_SHERPA_3
-//#define IS_SHERPA_3
-
 namespace SHERPA {
   class Sherpa;
 }
