@@ -627,16 +627,17 @@ def triggerRunCfg( flags, menu=None ):
 
     # to be updated when reco code is ready to be used by new JO
     from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior == 0:
+    if Configurable.configurableRun3Behavior == 0 and flags.Trigger.endOfEventProcessing.Enabled:
         from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg
-        from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
-        recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
         endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
-        endOfEventAlg.RoIs = [LArNBRoIs]
         acc.addEventAlgo( endOfEventAlg, sequenceName="HLTFinalizeSeq" )
-        acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )
-        acc.merge( recoSeq, sequenceName="acceptedEventSeq" )
-    
+        if flags.Trigger.endOfEventProcessing.doLArNoiseBurst:
+            from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+            recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
+            endOfEventAlg.RoIs = [LArNBRoIs]
+            acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )
+            acc.merge( recoSeq, sequenceName="acceptedEventSeq" )
+
     #once menu is included we should configure monitoring here as below
     hltSeedingAlg = hltSeedingAcc.getEventAlgo("HLTSeeding")
 

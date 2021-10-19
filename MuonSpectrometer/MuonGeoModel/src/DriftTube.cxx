@@ -25,12 +25,13 @@
 namespace MuonGM {
 
     DriftTube::DriftTube(const MYSQL& mysql, std::string n)
-        : DetectorElement(std::move(n)), length(0.) // length is set in MultiLayer.cxx
+        : DetectorElement(std::move(n)),
+          gasMaterial ("muo::ArCO2"),
+          tubeMaterial ("std::Aluminium"),
+          plugMaterial ("std::Bakelite"),
+          wireMaterial ("std::Aluminium"),
+          length(0.) // length is set in MultiLayer.cxx
     {
-        gasMaterial = "muo::ArCO2";
-        tubeMaterial = "std::Aluminium";
-        plugMaterial = "std::Bakelite";
-        wireMaterial = "std::Aluminium";
         const MDT *md = dynamic_cast<const MDT*>(mysql.GetTechnology(name.substr(0, 5)));
         gasRadius = md->innerRadius;
         outerRadius = gasRadius + md->tubeWallThickness;

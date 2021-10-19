@@ -472,7 +472,7 @@ namespace MuonGM {
         StationSelector sel(*mysql, slist);
         StationSelector::StationIterator it;
 
-        for (it = sel.begin(); it != sel.end(); it++) {
+        for (it = sel.begin(); it != sel.end(); ++it) {
             Station *station = (*it).second;
             std::string stname(station->GetName(), 0, 3);
             if (m_selectedStations.size() <= 0) {

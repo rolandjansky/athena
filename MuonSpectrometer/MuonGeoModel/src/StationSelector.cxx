@@ -29,7 +29,7 @@ namespace MuonGM {
         }
 
         StationIterator it;
-        for (it = mysql.StationBegin(); it != mysql.StationEnd(); it++) {
+        for (it = mysql.StationBegin(); it != mysql.StationEnd(); ++it) {
             if (select(it)) {
                 m_theMap[(*it).first] = (*it).second;
             }
@@ -38,7 +38,7 @@ namespace MuonGM {
 
     StationSelector::StationSelector(const MYSQL& mysql, std::vector<std::string> s) : m_selector(std::move(s)) {
         StationIterator it;
-        for (it = mysql.StationBegin(); it != mysql.StationEnd(); it++) {
+        for (it = mysql.StationBegin(); it != mysql.StationEnd(); ++it) {
             if (select(it))
                 m_theMap[(*it).first] = (*it).second;
         }
