@@ -863,26 +863,6 @@ void Trk::TrackingVolume::addMaterial ATLAS_NOT_THREAD_SAFE(const Material& mat,
   const_cast<Trk::TrackingVolume*>(this)->addMaterial(mat, fact);
 }
 
-void Trk::TrackingVolume::propagateMaterialProperties ATLAS_NOT_THREAD_SAFE(
-    const Trk::Material& mprop) {
-  X0 = mprop.X0;
-  L0 = mprop.L0;
-  Z = mprop.Z;
-  A = mprop.A;
-  rho = mprop.rho;
-  zOaTr = mprop.zOaTr;
-  dEdX = mprop.dEdX;
-
-  // only do the loop over confined static objects
-  const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
-  if (confVolumes) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-        confVolumes->arrayObjects();
-    for (const auto& volumesIter : volumes) {
-      if (volumesIter) volumesIter->propagateMaterialProperties(mprop);
-    }
-  }
-}
 
 void Trk::TrackingVolume::sign ATLAS_NOT_THREAD_SAFE(
     Trk::GeometrySignature geosign, Trk::GeometryType geotype) const {

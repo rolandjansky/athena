@@ -364,10 +364,6 @@ namespace Trk {
       /** reIndex the material layers of the TrackingVolume */
       void indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE (GeometrySignature geoSig, int& offset) const;
       
-      /** propagate material properties to subvolumes */
-      void propagateMaterialProperties ATLAS_NOT_THREAD_SAFE (const Material& mprop);
-      void propagateMaterialProperties ATLAS_NOT_THREAD_SAFE (const Material& mprop) const;
-      
       /** Create Boundary Surface */
       void createBoundarySurfaces();
       
@@ -628,10 +624,6 @@ namespace Trk {
   { m_motherVolume = mvol; }
   inline void TrackingVolume::setMotherVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume* mvol) const
   { const_cast<TrackingVolume&>(*this).setMotherVolume(mvol); }
-
-  inline void TrackingVolume::propagateMaterialProperties ATLAS_NOT_THREAD_SAFE(const Material& mprop) const {
-    const_cast<TrackingVolume *>(this)->propagateMaterialProperties(mprop);
-  }
 
  inline bool TrackingVolume::isAlignable () const{return false;}
 } // end of namespace
