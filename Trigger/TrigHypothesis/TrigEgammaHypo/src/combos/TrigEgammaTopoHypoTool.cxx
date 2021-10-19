@@ -102,9 +102,10 @@ bool TrigEgammaTopoHypoTool::executeAlg(const std::vector<Combo::LegDecision> &c
     ATH_MSG_DEBUG("Combination failed deltaPhi cut: " << dphiOfProcessed << " is below " << m_thresholdDPhiCut);
     pass = false;
    }
-   else
+   else {
     dphiOfAccepted = hlv1.DeltaPhi(hlv2);
     ATH_MSG_DEBUG( " deltaPhi " << dphiOfAccepted << " is above the threshold "<<m_thresholdDPhiCut<<" This selection passed! ");
+   }
   }
     
   return pass;
