@@ -252,6 +252,9 @@ namespace InDet {
       std::string                                    m_namespace;                //!< identificaton namespace 
       // ID container                                                            
       std::string                                    m_exitVolume;                //!< the final ID container             
+      
+      // remove HGTD volume from ID tracking geometry
+      bool                                           m_removeHGTD;
   };
 
   inline void StagedTrackingGeometryBuilderCond::checkForInsert(std::vector<double>& radii, double radius) const {

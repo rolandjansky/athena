@@ -18,8 +18,7 @@
 #include "HGTD_Identifier/HGTD_ID.h"
 
 // Message Stream Member
-#include "AthenaKernel/MsgStreamMember.h"
-
+#include "AthenaBaseComps/AthMessaging.h"
 
 class StoreGateSvc;
 
@@ -31,7 +30,7 @@ class StoreGateSvc;
 
     */
 
-class HGTD_DetectorManager : public GeoVDetectorManager {
+class HGTD_DetectorManager : public GeoVDetectorManager, public AthMessaging {
 public:
 
     /** Constructor */
@@ -79,13 +78,7 @@ public:
 
     /** Set SiCommonItems */
     void setCommonItems(std::unique_ptr<const InDetDD::SiCommonItems>&& commonItems);
-
-    /** Declaring the Message method for further use */
-    MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
-
-    /** Declaring the Method providing Verbosity Level */
-    bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
-
+    
 private:
 
     /** Prevent copy and assignment */
@@ -100,9 +93,6 @@ private:
     const HGTD_ID*                   m_idHelper;
 
     std::unique_ptr<const InDetDD::SiCommonItems> m_commonItems;
-
-    //Declaring private message stream member.
-    mutable Athena::MsgStreamMember  m_msg;
 
 };
 

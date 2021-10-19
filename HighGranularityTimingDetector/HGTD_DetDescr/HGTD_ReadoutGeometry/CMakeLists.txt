@@ -15,4 +15,4 @@ atlas_add_library( HGTD_ReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel SGTools AtlasDetDescr GeoPrimitives Identifier ReadoutGeometryBase GaudiKernel HGTD_Identifier TrkSurfaces StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr )
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr GeoModelUtilities)
