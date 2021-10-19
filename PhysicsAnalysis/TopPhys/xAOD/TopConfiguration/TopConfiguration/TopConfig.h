@@ -2282,9 +2282,10 @@ namespace top {
     bool m_useTruthTaus;
     bool m_useTruthMET;
 
-    float m_jetElectronEMFractionMin;
-    float m_jetElectronEMFractionMax;
-    float m_jetElectronEtaMax;
+    // jet-electron parameters
+    float m_jetElectronEMFractionMin=0.8;
+    float m_jetElectronEMFractionMax=0.95;
+    float m_jetElectronEtaMax=2.47;
 
 
     // define if d0/z0 cut should be used at all

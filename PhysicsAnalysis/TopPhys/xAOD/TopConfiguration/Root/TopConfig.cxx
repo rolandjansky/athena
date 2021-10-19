@@ -59,12 +59,6 @@ namespace top {
 
     m_recomputeCPvars(true),
 
-    // Jet electron EM fraction
-
-    m_jetElectronEMFractionMin(0.8),
-    m_jetElectronEMFractionMax(0.95),
-    m_jetElectronEtaMax(2.47),
-
 
     // Do systematics? - this needs many more configuration options
     m_systematics("SetMe"),
