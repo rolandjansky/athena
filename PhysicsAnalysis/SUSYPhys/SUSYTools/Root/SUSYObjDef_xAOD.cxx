@@ -735,13 +735,17 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   // Iso WPs
   // -- see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RecommendedIsolationWPs#Current_official_working_points
+  // -- and see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RecommendedIsolationWPs#Electron_isolation_working_point
   // -- the el iso points are those which have (or will have) SFs available
   m_el_iso_support = {
      "FCLoose", "FCTight",                      // current WPs
      "FCHighPtCaloOnly",                        // current HighPtCaloOnly WPs
      "Gradient",                                //
-//     "PLVLoose", "PLVTight",                    // PLV recommended WPs, fallback support below b/o SFs and & egamma map file
-//     "PLImprovedTight", "PLImprovedVeryTight"  // New PLIV WPs, fallback support below b/o SFs & egamma map file
+     "HighPtCaloOnly",                                //
+     "TightTrackOnly_VarRad","TightTrackOnly_FixedRad",//
+     "Tight_VarRad","Loose_VarRad",                    //
+     "PLVLoose", "PLVTight",                    // PLV recommended WPs, fallback support below b/o SFs and & egamma map file
+     "PLImprovedTight", "PLImprovedVeryTight"  // New PLIV WPs, fallback support below b/o SFs & egamma map file
   };
   // -- the muon iso points are those which have SFs available
   // -- more details https://indico.cern.ch/event/878781/contributions/3721998/attachments/1976194/3289315/20200127_IFFshort_2.pdf
@@ -759,6 +763,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_el_iso_fallback["PLVLoose"] = "FCLoose";
   m_el_iso_fallback["PLImprovedTight"] = "FCTight";
   m_el_iso_fallback["PLImprovedVeryTight"] = "FCTight";
+  m_el_iso_fallback["HighPtCaloOnly"] = "FCTight";
+  m_el_iso_fallback["TightTrackOnly_VarRad"] = "FCTight";
+  m_el_iso_fallback["TightTrackOnly_FixedRad"] = "FCTight";
+  m_el_iso_fallback["Tight_VarRad"] = "FCTight";
+  m_el_iso_fallback["Loose_VarRad"] = "FCLoose";
 
   // Construct muon fallback WPs for SFs
   m_mu_iso_fallback = {};
@@ -1322,7 +1331,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_EG_corrFNList, "Ele.EffCorrFNList", rEnv, "None");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt");
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map0.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
