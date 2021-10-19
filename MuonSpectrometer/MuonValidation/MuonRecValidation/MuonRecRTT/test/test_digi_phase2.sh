@@ -18,7 +18,7 @@ Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Muo
            --outputRDOFile OUT_RDO.root \
            --athenaopts='--exctrace'
            
- xit_code=$?
+ exit_code=$?
 echo "art-result: ${exit_code} Digi_tf.py"
 if [ ${exit_code} -ne 0 ]
 then
