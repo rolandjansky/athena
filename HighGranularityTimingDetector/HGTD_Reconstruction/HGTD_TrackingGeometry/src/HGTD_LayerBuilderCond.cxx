@@ -114,7 +114,7 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
   
   // sanity check for HGTD Helper
   if (!m_hgtdHelper){
-    ATH_MSG_ERROR("HGTD Detector Manager or ID Helper could be retrieved - giving up.");
+    ATH_MSG_ERROR("HGTD Detector Manager or ID Helper could not be retrieved - giving up.");
     //create dummy infinite range
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>(range,nullptr);

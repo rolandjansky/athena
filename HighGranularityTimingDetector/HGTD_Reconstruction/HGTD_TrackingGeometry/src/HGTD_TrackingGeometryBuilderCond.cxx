@@ -201,7 +201,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeome
   float maxZ_HGTDEnclosure = enclosedOuterSectorHalflength;
   
   // dummy material property 
-  Trk::Material* materialProperties = new Trk::Material;
+  auto materialProperties = std::make_unique<Trk::Material>();
   
   float zGapPos = 0.5*(minZ_HGTD+enclosedInnerSectorHalflength);
   float gapHalfLengthZ = 0.5*(minZ_HGTD-enclosedInnerSectorHalflength);
