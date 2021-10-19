@@ -12,9 +12,10 @@ namespace top {
     SignValueSelector("JET_EL_N", params, true) {
     checkMultiplicityIsInteger();
     if (!config->useJetElectrons()) {
-      ATH_MSG_WARNING("JET_EL_N is used in one of the selections,\n"
+      ATH_MSG_ERROR("JET_EL_N is used in one of the selections,\n"
           << "but \"UseJetElectrons\" is \"False\", which is strange.\n"
           << "Make sure this is really intended.\n");
+      throw std::runtime_error("NJetElectronSelector: \"UseJetElectrons\" is \"False\"");
     }
   }
 

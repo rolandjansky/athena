@@ -7,7 +7,7 @@ namespace top {
   class TopConfig;
 
   /**
-   * @brief A tool that selects events with a certain number of good electrons.
+   * @brief A tool that selects events with a certain number of jet-electrons.
    */
   class NJetElectronSelector : public SignValueSelector {
   public:

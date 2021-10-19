@@ -6,7 +6,7 @@
 namespace top {
 
   /**
-   * @brief A tool that selects events with a certain number of good electrons.
+   * @brief A tool that selects events with a certain number of true top-quarks or W-bosons.
    */
   class NTruthTopWSelector : public SignValueSelector {
   public:
