@@ -45,19 +45,19 @@ public:
   double hallMobility(InDetDD::CarrierType carrier) const;
   double signedHallMobility(InDetDD::CarrierType carrier) const; // signed by the charge of the carrier.
   double diffusionConstant(InDetDD::CarrierType carrier) const;
-  double charge(InDetDD::CarrierType carrier) const;
+  static double charge(InDetDD::CarrierType carrier) ;
 
 
   // These are mainly for use internally but are left public 
-  double calcElectronHallFactor(double temperature) const;
-  double calcHoleHallFactor(double temperature) const;
-  double calcDriftMobility(double electricField, double electricField_critical, 
-			   double saturationVelocity, double beta) const;
+  static double calcElectronHallFactor(double temperature) ;
+  static double calcHoleHallFactor(double temperature) ;
+  static double calcDriftMobility(double electricField, double electricField_critical, 
+			   double saturationVelocity, double beta) ;
   double calcElectronDriftMobility(double temperature, double electricField) const;
   double calcHoleDriftMobility(double temperature, double electricField) const;
   double calcElectronHallMobility(double temperature, double mobility) const;
   double calcHoleHallMobility(double temperature, double mobility) const;
-  double calcDiffusionConstant(double temperature, double mobility) const;
+  static double calcDiffusionConstant(double temperature, double mobility) ;
 
   // Allow overriding calculated quantities.
   // Setting any one (other than setElectronHolePairsPerEnergy) will disable recalculations 

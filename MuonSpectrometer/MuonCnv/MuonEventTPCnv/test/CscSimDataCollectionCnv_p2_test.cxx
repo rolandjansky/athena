@@ -116,6 +116,7 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 
 int main()
 {
+  static_assert(std::is_nothrow_move_constructible<CscSimData>::value);
   ISvcLocator* pSvcLoc = nullptr;
   std::vector<HepMC::GenParticlePtr> genPartVector;
   if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {

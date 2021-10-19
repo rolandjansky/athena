@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <iomanip>
-#include <math.h>
 
 #include "LUCID_DetectorFactory.h"
 #include "GetRefIndex.h"

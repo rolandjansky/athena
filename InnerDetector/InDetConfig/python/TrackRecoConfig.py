@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -77,7 +77,9 @@ def SCTClusterizationPUCfg(flags, name="InDetSCT_ClusterizationPU", **kwargs) :
 
 ##------------------------------------------------------------------------------
 def PixelGangedAmbiguitiesFinderCfg(flags) :
-    acc = ComponentAccumulator()
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc = PixelReadoutGeometryCfg(flags)
+
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
     acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
     return acc
@@ -125,7 +127,7 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     return acc
 
 
-def TrackToVertexCfg(flags, name="TrackToVertex", **kwargs):
+def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -142,7 +144,9 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-        kwargs["TrackSummaryTool"] = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+        TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+        result.addPublicTool(TrackSummaryTool)
+        kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.InDet.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
     kwargs.setdefault("KeepParameters", True)
@@ -150,13 +154,13 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
     kwargs.setdefault(
         "PerigeeExpression",
         p_expr if p_expr != "Vertex" else "BeamLine")
-    result.setPrivateTools(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs))
+    result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
     return result
 
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
     result = ComponentAccumulator()
     if TrackParticleCreator is None:
-        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
         name,
         TrackParticleCreator=TrackParticleCreator,
@@ -170,7 +174,7 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticl
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
     if "TrackCollectionCnvTool" not in kwargs:
         kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(TrackCollectionCnvToolCfg(
             flags,
@@ -194,14 +198,14 @@ def TrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge( PixelGeometryCfg(flags))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    result.merge( PixelReadoutGeometryCfg(flags))
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result.merge( SCT_GeometryCfg(flags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    result.merge( SCT_ReadoutGeometryCfg(flags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(flags))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    result.merge(TRT_ReadoutGeometryCfg(flags))
 
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(flags))
@@ -234,29 +238,35 @@ def TrackRecoCfg(flags):
         from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
         result.merge(SCTRawDataProviderCfg(flags))
         result.merge(SCTEventFlagWriterCfg(flags))
+        from InDetConfig.TRTPreProcessing import TRTRawDataProviderCfg
+        result.merge(TRTRawDataProviderCfg(flags))
 
     # up to here
     # needed for brem/seeding, TODO decided if needed here
-    from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
-    result.merge(LArBadFebCfg(flags))
-    from CaloRec.CaloRecoConfig import CaloRecoCfg
-    result.merge(CaloRecoCfg(flags,doLCCalib=True))
-    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-    result.merge(egammaTopoClusterCopierCfg(flags))
-    from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-    result.merge(CaloClusterROI_SelectorCfg(flags))
+    if flags.Detector.GeometryLAr:
+        from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
+        result.merge(LArBadFebCfg(flags))
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        result.merge(CaloRecoCfg(flags,doLCCalib=True))
+        from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+        result.merge(egammaTopoClusterCopierCfg(flags))
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        result.merge(CaloClusterROI_SelectorCfg(flags))
 
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-    from InDetConfig.TrackingCommonConfig import TRT_DetElementsRoadCondAlgCfg, RIO_OnTrackErrorScalingCondAlgCfg
-    result.merge(TRTActiveCondAlgCfg(flags))
-    result.merge(TRT_DetElementsRoadCondAlgCfg())
-    result.merge(RIO_OnTrackErrorScalingCondAlgCfg(flags))
 
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     result.merge(InDetRecPreProcessingSiliconCfg(flags))
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
-    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
+
+
+    # TRT extension
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    result.merge(TRTPreProcessingCfg(flags))
+    from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
+    result.merge(NewTrackingTRTExtensionCfg(flags, SiTrackCollection = "ResolvedTracks", ExtendedTrackCollection = "ExtendedTracks", ExtendedTracksMap = "ExtendedTracksMap", doPhase=False))
+    # TODO add followup algs
+    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ExtendedTracks"))
 
     if flags.InDet.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg

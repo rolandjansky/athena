@@ -97,11 +97,11 @@ private:
 
 	int getTimingCFD (const Identifier& id, const std::vector< std::vector <int> >& wfm);
 
-	gsl_interp_accel *m_interp_acc;
-	const gsl_interp_type *m_interp_type;
-	gsl_spline *m_spline;
+	gsl_interp_accel *m_interp_acc{};
+	const gsl_interp_type *m_interp_type{};
+	gsl_spline *m_spline{};
 
-	double fx(double x0, void *params);
+	static double fx(double x0, void *params);
 
 	static double fxCallback(double d,void* v)
 	  {
@@ -154,7 +154,7 @@ private:
 
 	//ZdcDigitsCollection* m_pedestalData;
 
-        const ZdcID* m_zdcId;
+        const ZdcID* m_zdcId{};
 
 };
 

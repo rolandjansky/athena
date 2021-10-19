@@ -54,7 +54,7 @@ namespace MagField {
 
       ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;  //!< service to get vanilla field svc
 
-      const G4Field *p_g4field;								//!< field service from G4
+      const G4Field *p_g4field = nullptr;								//!< field service from G4
 
       ServiceHandle<ITHistSvc>        m_thistSvc;    //!< the histogram service
       std::string                     m_histStream;  //!< THistSvc stream name
@@ -78,7 +78,7 @@ namespace MagField {
 
 
       // debug
-      int m_referenceCount;
+      int m_referenceCount = 0;
 
       std::string                     m_refFile;     //!< reference field file name
       std::string                     m_refTreeName; //!< TTree object in reference file
@@ -87,7 +87,7 @@ namespace MagField {
 
       double                          m_xyzt[4];     //!< stores the current xyzt position
       double                          m_field[3];    //!< stores the field components
-      double						  m_deriv[9];	 //!< stores derivatives TODO: currently only useMagFieldSvc = true
+      double						  m_deriv[9]{};	 //!< stores derivatives TODO: currently only useMagFieldSvc = true
       double 						  m_explicitX;   //!< if value to check is given explicitly
       double 						  m_explicitY;   //!< if value to check is given explicitly
       double 						  m_explicitZ;   //!< if value to check is given explicitly

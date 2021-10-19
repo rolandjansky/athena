@@ -148,7 +148,7 @@ StatusCode PixelFastDigitizationTool::initialize()
 
   ATH_MSG_DEBUG ( "PixelDigitizationTool::initialize()" );
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
@@ -254,7 +254,7 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++) {
+  for( ; iColl != endColl; ++iColl) {
     SiHitCollection *siHitColl = new SiHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("SiHitCollection found with " << siHitColl->size() <<
@@ -583,8 +583,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       double pixMinimalPathCut= 1. / m_pixPathLengthTotConv;
 
       Identifier diodeID = hitId;
-      int circ = m_pixelCabling->getFE(&diodeID,moduleID);
-      int type = m_pixelCabling->getPixelType(diodeID);
+      int circ = m_pixelReadout->getFE(diodeID,moduleID);
+      InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
       double th0 = calibData->getAnalogThreshold((int)waferHash,circ,type)/m_ThrConverted;
 
@@ -752,7 +752,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
             //Store HepMcParticleLink connected to the cluster removed from the collection
             std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_pixPrdTruth->equal_range(currentCluster->identify());
-            for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+            for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; ++this_hit)
               {
                 hit_vector.push_back(this_hit->second);
               }

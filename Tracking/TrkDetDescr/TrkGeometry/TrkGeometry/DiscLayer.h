@@ -117,37 +117,16 @@ class DiscLayer final: virtual public DiscSurface, public Layer {
   /** move the Layer non-const*/
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer const , performas const_cast */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<DiscLayer*>(this)->moveLayer(shift);
-  }
-
  private:
   /** Resize the layer to the tracking volume - only works for
    * CylinderVolumeBouns */
   virtual void resizeLayer(const VolumeBounds& vBounds,
                            double envelope) override final;
-  /** Resize the layer to the tracking volume - only works for
-   * CylinderVolumeBouns . performs const cast */
-  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds& vBounds, double envelope) const override final {
-    const_cast<DiscLayer*>(this)->resizeLayer(vBounds, envelope);
-  }
 
   /** Resize the layer to the tracking volume - not implemented.*/
   virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
                                         const Amg::Vector3D& cCenter,
                                         double envelop) override final;
-
-  /** Resize the layer to the tracking volume - not implemented . Performs
-   * const cast*/
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds& vBounds, const Amg::Vector3D& cCenter,
-      double envelop) const override final {
-    const_cast<DiscLayer*>(this)->resizeAndRepositionLayer(vBounds, cCenter,
-                                                           envelop);
-  }
 
   /** build approach surfaces */
   void buildApproachDescriptor();

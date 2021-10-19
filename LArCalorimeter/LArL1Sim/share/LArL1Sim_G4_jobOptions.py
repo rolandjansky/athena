@@ -6,6 +6,7 @@ theLArTTL1Getter = LArTTL1Getter()
 from LArL1Sim.LArL1SimConf import *
 theLArTTL1Maker=LArTTL1Maker()
 from Digitization.DigitizationFlags import digitizationFlags
+theLArTTL1Maker.RandomSeedOffset = digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value()
 #include( "LArDetDescr/LArDetDescr_joboptions.py" )
 
 #include( "CaloConditions/CaloConditions_jobOptions.py" )

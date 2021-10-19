@@ -40,7 +40,6 @@ static const InterfaceID IID_ILArRodDecoder
 LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
     m_LArCellEthreshold(-100.),
-    m_larCell(false), 
     m_readtdc(false),
     m_onlineHelper(0)
  {
@@ -48,7 +47,6 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
   declareProperty("IgnoreCheckFEBs",m_IgnoreCheckFEBs);
   declareProperty("CellCorrections",m_LArCellCorrNames ); 
   declareProperty("LArCellEthreshold",m_LArCellEthreshold ); 
-  declareProperty("LArCell",m_larCell ); 
   declareProperty("ReadTDC",m_readtdc);
   declareProperty("DelayScale",m_delayScale=(25./240.)*CLHEP::ns);
   declareProperty("FebExchange", m_febExchange=0); //FIXME: Very ugly hack! See explanation in .h file
@@ -113,16 +111,6 @@ LArRodDecoder::initialize ATLAS_NOT_THREAD_SAFE ()
       }
     m_LArCellCorrTools.push_back(corr); 
   } 
-
- if(m_larCell) {  
-   LArRoI_Map* roiMap;
-   if((toolSvc->retrieveTool("LArRoI_Map", roiMap )).isFailure() )
-     {msg(MSG::ERROR) << " Can't get AlgTool LArRoI_Map " << endmsg;
-      return StatusCode::FAILURE; 
-     }
-     m_makeCell.setThreshold(m_LArCellEthreshold);
-     m_makeCell.initialize( roiMap, &m_LArCellCorrTools ); 
-   }	
 
    //Build list of preselected Feedthroughs
    if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {

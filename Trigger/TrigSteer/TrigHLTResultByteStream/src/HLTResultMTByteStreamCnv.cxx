@@ -27,11 +27,6 @@ namespace {
    * a property set from the EDM configuration to avoid multiple definitions, but the value should never change from 0.
    */
   constexpr uint16_t fullResultModuleId = 0;
-  /**
-   * HLT ROBFragment ROD minor version.
-   * Changed from 0.0 to 1.0 in September 2019 to differentiate Run-3 HLT ByteStream format from earlier formats.
-   */
-  constexpr uint16_t hltRodMinorVersion = 0x0100;
 }
 
 // Local helper methods
@@ -99,9 +94,12 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createObj(IOpaqueAddress* /*pAddr*/, D
 StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
+  // Find the cache corresponding to the current slot
+  Cache* cache = m_cache.get(); // TODO: find a way to avoid using thread-local context here
+
   // Clear the cache which is required to remain valid between being filled here
   // and sending out the correspoding RawEventWrite in (Trig)ByteStreamCnvSvc::commitOutput
-  m_cache.clear();
+  cache->clear();
 
   // Cast the DataObject to HLTResultMT
   HLT::HLTResultMT* hltResult = nullptr;
@@ -110,6 +108,17 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     ATH_MSG_ERROR("Failed to convert DataObject to HLTResultMT");
     return StatusCode::FAILURE;
   }
+
+  // Check ROD minor version
+  const HLT::HLTResultMT::RODMinorVersion hltRodMinorVersion = hltResult->getVersion();
+  if (hltRodMinorVersion == HLT::HLTResultMT::RODMinorVersion{0xff,0xff}) {
+    ATH_MSG_ERROR("Invalid HLT ROD minor version {0xff, 0xff}");
+    return StatusCode::FAILURE;
+  }
+  // Encode version X.Y (two 8-bit numbers) into a single 16-bit number
+  const uint16_t hltRodMinorVersion16 = (hltRodMinorVersion.first << 8u) | hltRodMinorVersion.second;
+  ATH_MSG_DEBUG("HLT ROD minor version is " << hltRodMinorVersion.first << "." << hltRodMinorVersion.second
+                << " (0x" << MSG::hex << hltRodMinorVersion16 << MSG::dec << ")");
 
   // Obtain the RawEventWrite (aka eformat::write::FullEventFragment) pointer
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
@@ -167,10 +176,10 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
 
   // Fill the stream tags
   uint32_t nStreamTagWords = eformat::helper::size_word(hltResult->getStreamTags());
-  m_cache.streamTagData = std::make_unique<uint32_t[]>(nStreamTagWords);
+  cache->streamTagData = std::make_unique<uint32_t[]>(nStreamTagWords);
   try {
     // encode can throw exceptions if the encoding fails
-    eformat::helper::encode(hltResult->getStreamTags(),nStreamTagWords,m_cache.streamTagData.get());
+    eformat::helper::encode(hltResult->getStreamTags(),nStreamTagWords,cache->streamTagData.get());
   }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("StreamTag encoding failed, caught an unexpected std::exception " << e.what());
@@ -181,7 +190,7 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Encoded the stream tags successfully");
-  re->stream_tag(nStreamTagWords, m_cache.streamTagData.get());
+  re->stream_tag(nStreamTagWords, cache->streamTagData.get());
 
   // Fill the HLT bits
   const std::vector<uint32_t>& hltBits = hltResult->getHltBitsAsWords();
@@ -206,7 +215,7 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     const std::vector<uint32_t>& data = it->second;
 
     // Create an HLT ROBFragment and append it to the full event
-    m_cache.robFragments.push_back(std::make_unique<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment>(
+    cache->robFragments.push_back(std::make_unique<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment>(
       resultId.code(),
       re->run_no(),
       re->lvl1_id(),
@@ -217,8 +226,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
       data.data(),
       eformat::STATUS_BACK
     ));
-    m_cache.robFragments.back()->rod_minor_version(hltRodMinorVersion);
-    re->append(m_cache.robFragments.back().get());
+    cache->robFragments.back()->rod_minor_version(hltRodMinorVersion16);
+    re->append(cache->robFragments.back().get());
     ATH_MSG_DEBUG("Appended data for HLT result ID 0x" << MSG::hex << resultId.code() << MSG::dec << " with "
                   << data.size() << " words of serialised payload to the output full event");
   }

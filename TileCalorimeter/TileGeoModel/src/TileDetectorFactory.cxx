@@ -44,21 +44,15 @@ using namespace GeoXF;
 // Constructor:
 TileDetectorFactory::TileDetectorFactory(StoreGateSvc *pDetStore,
                                          TileDetDescrManager *manager,
-                                         bool addPlates, 
-                                         int ushape,
-                                         int glue,
-                                         int cstube,
+                                         const TileSwitches & switches,
                                          MsgStream *log)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log)
-  , m_addPlatesToCellVolume(addPlates)
-  , m_uShape(ushape)
-  , m_glue(glue)
-  , m_csTube(cstube)
-  , m_testbeamGeometry(false)
+  , m_switches(switches)
   , m_verbose(log->level()<=MSG::VERBOSE)
 {
+  m_switches.testBeam = false;
 }
   
 // Destructor:
@@ -92,7 +86,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_csTube,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_switches,m_log);
 
   // --------------- TILE  -------  TILE  --------- TILE ---------- TILE ------------
   // Envelope creation. 
@@ -318,7 +312,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 
     sectionBuilder->computeCellDim(m_detectorManager, 
                                    TILE_REGION_CENTRAL,
-                                   m_addPlatesToCellVolume,
+                                   m_switches.addPlatesToCell,
                                    zShift,  // shift for positive eta (normally zero)
                                    zShift); // shift for negative eta is the same
   } else 
@@ -336,8 +330,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   sectionBuilder->fillDescriptor(descriptor,
                                  TILE_REGION_CENTRAL,  
                                  negSide,
-                                 m_testbeamGeometry,
-                                 m_addPlatesToCellVolume,
+                                 m_switches.testBeam,
+                                 m_switches.addPlatesToCell,
                                  nModules,
                                  zShift);
     
@@ -352,8 +346,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   sectionBuilder->fillDescriptor(descriptor,
                                  TILE_REGION_CENTRAL,  
                                  posSide,
-                                 m_testbeamGeometry,
-                                 m_addPlatesToCellVolume,
+                                 m_switches.testBeam,
+                                 m_switches.addPlatesToCell,
                                  nModules,
                                  zShift);
 
@@ -450,7 +444,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 
     sectionBuilder->computeCellDim(m_detectorManager,
                                    TILE_REGION_EXTENDED,
-                                   m_addPlatesToCellVolume,
+                                   m_switches.addPlatesToCell,
                                    zShiftPos,  // shift for positive eta
                                    zShiftNeg); // shift for negative eta
   } else
@@ -468,8 +462,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   sectionBuilder->fillDescriptor(descriptor,
                                  TILE_REGION_EXTENDED,   
                                  negSide,
-                                 m_testbeamGeometry,
-                                 m_addPlatesToCellVolume,
+                                 m_switches.testBeam,
+                                 m_switches.addPlatesToCell,
                                  nModulesNeg,
                                  zShiftNeg);
   
@@ -484,8 +478,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   sectionBuilder->fillDescriptor(descriptor,
                                  TILE_REGION_EXTENDED,   
                                  posSide,
-                                 m_testbeamGeometry,
-                                 m_addPlatesToCellVolume,
+                                 m_switches.testBeam,
+                                 m_switches.addPlatesToCell,
                                  nModulesPos,
                                  zShiftPos);
   
@@ -757,7 +751,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 
     sectionBuilder->computeCellDim(m_detectorManager,
                                    TILE_REGION_GAP,
-                                   m_addPlatesToCellVolume,
+                                   m_switches.addPlatesToCell,
                                    zShiftPos,  // shift for positive eta
                                    zShiftNeg); // shift for negative eta
   } else
@@ -775,8 +769,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   sectionBuilder->fillDescriptor(descriptor,
                                  TILE_REGION_GAP,
                                  negSide,
-                                 m_testbeamGeometry,
-                                 m_addPlatesToCellVolume,
+                                 m_switches.testBeam,
+                                 m_switches.addPlatesToCell,
                                  nModulesNeg,
                                  zShiftNeg);
   
@@ -791,8 +785,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   sectionBuilder->fillDescriptor(descriptor,
                                  TILE_REGION_GAP,
                                  posSide,
-                                 m_testbeamGeometry,
-                                 m_addPlatesToCellVolume,
+                                 m_switches.testBeam,
+                                 m_switches.addPlatesToCell,
                                  nModulesPos,
                                  zShiftPos);
 
@@ -915,7 +909,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 			       dbManager->TILErmax(),
 			       dbManager->TILBrmax(),
 			       deltaPhi,
-			       m_testbeamGeometry,
+			       m_switches.testBeam,
 			       ModuleNcp,
 			       thicknessWedgeMother*(1./Gaudi::Units::cm));
     
@@ -989,7 +983,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 			       dbManager->TILErmax(),
 			       dbManager->TILBrmax(),
 			       deltaPhi,
-			       m_testbeamGeometry);
+			       m_switches.testBeam);
 
     // --- Position N modules inside mother (positive/negative) -----
     TRANSFUNCTION xfEFingerModuleMotherPos = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*Gaudi::Units::cm)*GeoTrf::RotateX3D(180*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);

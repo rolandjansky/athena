@@ -12,18 +12,13 @@
 #include "TrigT1CaloUtils/SystemEnergy.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/METSigParam.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
 
 using namespace TrigConf;
 
 namespace LVL1
 {
 
-SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<TrigConf::ILVL1ConfigSvc> config) : m_configSvc(config),
+SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, const TrigConf::L1Menu* l1Menu) : m_L1Menu(l1Menu),
                                                                                                                     m_systemEx(0),
                                                                                                                     m_systemEy(0),
                                                                                                                     m_systemEt(0),
@@ -102,7 +97,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<
 SystemEnergy::SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC,
                            unsigned int overflowT, unsigned int overflowX,
                            unsigned int overflowY, unsigned int restricted,
-                           ServiceHandle<TrigConf::ILVL1ConfigSvc> config) : m_configSvc(config),
+                           const TrigConf::L1Menu* l1Menu) : m_L1Menu(l1Menu),
                                                                              m_systemEx(0),
                                                                              m_systemEy(0),
                                                                              m_systemEt(et),
@@ -281,21 +276,16 @@ void SystemEnergy::etMissTrigger()
   /// Otherwise see which thresholds were passed
 
   // Get thresholds
-  std::vector<TriggerThreshold *> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold *>::const_iterator it;
-  //float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = m_L1Menu->thresholds();
 
   // get Threshold values and test
 
-  L1DataDef def;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it)
-  {
-    if ((*it)->type() == def.xeType())
-    {
-      TriggerThresholdValue *tv = (*it)->triggerThresholdValue(0, 0);
-      int thresholdValue = (*tv).thresholdValueCount();
+  for ( const auto& thresh : allThresholds ) {
+    if ( thresh->type() == L1DataDef::xeType()) {
+      std::shared_ptr<TrigConf::L1Threshold_Calo> thresh_Calo = std::static_pointer_cast<TrigConf::L1Threshold_Calo>(thresh);
+      unsigned int thresholdValue = thresh_Calo->thrValueCounts();
       uint32_t tvQ = thresholdValue * thresholdValue;
-      int threshNumber = (*it)->thresholdNumber();
+      int threshNumber = thresh->mapping();
       if (m_restricted == 0 && threshNumber < 8)
       {
         if (m_etMissQ > tvQ)
@@ -326,23 +316,24 @@ void SystemEnergy::etSumTrigger()
   }
 
   // Get thresholds
-  std::vector<TriggerThreshold *> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold *>::const_iterator it;
-  //float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = m_L1Menu->thresholds();
 
   // get Threshold values and test
   // Since eta-dependent values are being used to disable TE in regions, must find lowest value for each threshold
-  L1DataDef def;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it)
-  {
-    if ((*it)->type() == def.teType())
-    {
-      int threshNumber = (*it)->thresholdNumber();
+  for ( const auto& thresh : allThresholds ) {
+    if ( thresh->type() == L1DataDef::xeType()) {
+      int threshNumber = thresh->mapping();
       int thresholdValue = m_maxEtSumThr;
-      std::vector<TriggerThresholdValue *> tvv = (*it)->thresholdValueVector();
-      for (std::vector<TriggerThresholdValue *>::const_iterator ittvv = tvv.begin(); ittvv != tvv.end(); ++ittvv)
-        if ((*ittvv)->thresholdValueCount() < thresholdValue)
-          thresholdValue = (*ittvv)->thresholdValueCount();
+      std::shared_ptr<TrigConf::L1Threshold_Calo> thresh_Calo = std::static_pointer_cast<TrigConf::L1Threshold_Calo>(thresh);
+      auto tvcs = thresh_Calo->thrValuesCounts();
+      if (tvcs.size() == 0) {
+        tvcs.addRangeValue(thresh_Calo->thrValueCounts(),-49, 49, 1, true);
+      }
+      for (const auto& tVC : tvcs) {
+        if (static_cast<int>(tVC.value()) < thresholdValue) {
+          thresholdValue = tVC.value();
+        }
+      }
 
       if (m_restricted == 0 && threshNumber < 8)
       {
@@ -371,7 +362,7 @@ void SystemEnergy::metSigTrigger()
     return;
 
   /// Obtain parameters from configuration service
-  METSigParam params = m_configSvc->thresholdConfig()->caloInfo().metSigParam();
+  auto& params = m_L1Menu->thrExtraInfo().XS();
   unsigned int Scale = params.xsSigmaScale();
   unsigned int Offset = params.xsSigmaOffset();
   unsigned int XEmin = params.xeMin();
@@ -398,20 +389,16 @@ void SystemEnergy::metSigTrigger()
   unsigned long fourbQTE = 4 * bQ * m_systemEt;
 
   // Get thresholds
-  std::vector<TriggerThreshold *> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold *>::const_iterator it;
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = m_L1Menu->thresholds();
 
   /// get Threshold values and test
   /// aQTiQ has to be scaled to hardware precision after product formed
-  L1DataDef def;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it)
-  {
-    if ((*it)->type() == def.xsType())
-    {
-      TriggerThresholdValue *tv = (*it)->triggerThresholdValue(0, 0);
+  for ( const auto& thresh : allThresholds ) {
+    if ( thresh->type() == L1DataDef::xsType()) {
 
-      int threshNumber = (*it)->thresholdNumber();
-      unsigned int Ti = (*tv).thresholdValueCount();
+      int threshNumber = thresh->mapping();
+      std::shared_ptr<TrigConf::L1Threshold_Calo> thresh_Calo = std::static_pointer_cast<TrigConf::L1Threshold_Calo>(thresh);
+      unsigned int Ti = thresh_Calo->thrValueCounts();
       unsigned long aQTiQ = (0.5 + double(aQ * 1.e-8) * Ti * Ti);
 
       long left = aQTiQ * aQTiQ * fourbQTE;

@@ -2,7 +2,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 import MdtRawDataMonitoring.MdtRawMonLabels as labels
-from ROOT import TBox, kGray, TLine
+from ROOT import TBox, kGray, TLine, TMath , TF1, kBlue, kRed
 from MdtRawDataMonitoring.MdtRawMonLabels import * # noqa
 
 def getMDTLabel(x,y):
@@ -196,17 +196,10 @@ def getTubeLength( name ):
 
     tubeLength = 4.9615
 
-    if name03 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name03]
-
-    if name04 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name04]
-
-    if name03+name56 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name03+name56]
-
-    if name04+name56 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name04+name56]
+    tubeLength = tubeLenght_dict.get(name03, tubeLength)
+    tubeLength = tubeLenght_dict.get(name04, tubeLength)
+    tubeLength = tubeLenght_dict.get(name03+name56, tubeLength)
+    tubeLength = tubeLenght_dict.get(name04+name56, tubeLength)
 
     return tubeLength 
 
@@ -263,5 +256,71 @@ def MDTTubeEff(name,hi_num,hi_den):
 
    return (countsML1, countsML2, entriesML1, entriesML2)
 
+
+def fittzero(x, par):
+   fitvaltzero = par[0] + ( par[3] / ( 1 + ( TMath.Exp((-x[0]+par[1])/par[2]) ) ) )
+   return fitvaltzero
+
+tf1_fittzero = TF1("func1", fittzero, 0., 200., 4)
+
+
+def fittmax(x, par):
+   fitvaltmax = par[0] + ( par[3] / ( 1 + ( TMath.Exp((x[0]-par[1])/par[2]) ) ) )
+   return fitvaltmax
+
+tf1_fittmax = TF1("func2", fittmax, 0., 200., 4)
+
+def MDTFitTDC(h):
+   t0 = 0
+   tmax = 0
+   t0err = 0
+   tmaxerr = 0
+   up = h.GetBinCenter(h.GetMaximumBin()+1)
+   if( up > 200 ):
+      up = 200
+   down = up + 650
+   if( up < 50 ):
+      up = 50
+   parESD0 = h.GetBinContent(h.GetMinimumBin())
+   parESD1 = up
+   parESD2 = 20
+   parESD3 = h.GetBinContent(h.GetMaximumBin()) - h.GetBinContent(h.GetMinimumBin())
+   func1 = tf1_fittzero
+   func1.SetRange(0., up)
+   func1.SetParameters(parESD0, parESD1, parESD2, parESD3)
+   func1.SetLineColor(kBlue+2)
+   if(h.GetEntries()>100):
+      h.Fit("func1","RQN")
+      t0 = func1.GetParameter(1)
+      t0err = func1.GetParError(1)
+      binAtT0 = h.GetBinContent(h.FindBin(t0))
+      if(binAtT0<1):
+         binAtT0 = 1
+      # // to additionally account for bad fits                                                                                                                                                         
+      if(func1.GetNumberFitPoints()!=0):
+         t0err += 10.0 * func1.GetChisquare() / (0.01*binAtT0*binAtT0*func1.GetNumberFitPoints())
+
+   parESD0 = h.GetBinContent(h.GetMinimumBin())
+   parESD1 = down
+   parESD2 = 50
+   parESD3 = (h.GetBinContent(h.GetMaximumBin())-h.GetBinContent(h.GetMinimumBin()))/10.
+   func2 = tf1_fittmax
+   func2.SetRange((down-135), (down+135))
+   func2.SetParameters(parESD0,parESD1,parESD2,parESD3)
+   func2.SetLineColor(kRed+1)
+   if(h.GetEntries()>100):
+      func2.SetParLimits(0, parESD0, 2.0*parESD0+1)
+      func2.SetParLimits(2, 5, 90)
+      func2.SetParLimits(3, 0.2*parESD3, 7*parESD3)
+      h.Fit("func2","WWRQN+")
+      tmax = func2.GetParameter(1)
+      tmaxerr = func2.GetParError(1)
+      binAtTmax = h.GetBinContent(h.FindBin(tmax))
+      if(binAtTmax<1):
+         binAtTmax = 1
+      # to additionally account for bad fits                                                                                                                                                            
+      tmaxerr += 10.0 * func2.GetChisquare() / (0.01*binAtTmax*binAtTmax*func2.GetNumberFitPoints())
+
+   return [t0, t0err, tmax, tmaxerr]
 
 

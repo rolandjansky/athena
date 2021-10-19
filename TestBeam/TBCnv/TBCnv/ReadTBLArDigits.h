@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TBEvent/TBLArDigitContainer.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
@@ -20,6 +20,7 @@
 //#include "LArDetDescr/LArDetDescrManager.h"
 #include <fstream>
 #include "LArIdentifier/LArOnlineID.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class ReadTBLArDigits : public AthAlgorithm
 {
@@ -29,13 +30,14 @@ class ReadTBLArDigits : public AthAlgorithm
   ~ReadTBLArDigits();
 
   //standart algorithm methods
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   int m_count;
-  LArCablingLegacyService *m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArEM_ID*   m_emId;
   const LArFCAL_ID* m_fcalId;
   const LArHEC_ID*  m_hecId;

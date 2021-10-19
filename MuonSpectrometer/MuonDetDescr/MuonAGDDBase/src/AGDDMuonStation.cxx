@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,7 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
-void AGDDMuonStation::CreateSolid() 
+void AGDDMuonStation::CreateSolid (const AGDDBuilder& /*builder*/)
 {
 	std::cout<<"this is AGDDMuonStation::CreateSolid()"<<std::endl;
 	void *p=GetSolid();
@@ -29,7 +29,7 @@ void AGDDMuonStation::CreateSolid()
 	}
 }
 
-void AGDDMuonStation::CreateVolume() 
+void AGDDMuonStation::CreateVolume (const AGDDBuilder& builder)
 {
     std::cout<<"this is AGDDMuonStation::CreateVolume()"<<std::endl;
 	static int ifirst=1;
@@ -41,7 +41,7 @@ void AGDDMuonStation::CreateVolume()
 		if (!air) std::cout<<" Air not found!"<<std::endl;
 	}
 
-	CreateSolid();
+	CreateSolid (builder);
 
 	if (!GetVolume())
 	{
@@ -55,7 +55,7 @@ void AGDDMuonStation::CreateVolume()
 	}
 }
 
-const GeoMaterial* AGDDMuonStation::GetMMMaterial(std::string name)
+const GeoMaterial* AGDDMuonStation::GetMMMaterial(const std::string& name) const
 {
 	StoreGateSvc* pDetStore=0;
 	ISvcLocator* svcLocator = Gaudi::svcLocator();

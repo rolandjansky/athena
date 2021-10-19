@@ -144,8 +144,8 @@ private:
 
     //return the effective LocalParameters according to the weights (assignment probabilities)
     void calcEffectiveMeasurement(
-        const Trk::LocalParameters* &effectiveLocalPar,
-        const Amg::MatrixX* &effectiveErrMat,
+        std::unique_ptr<const Trk::LocalParameters>& effectiveLocalPar,
+        std::unique_ptr<const Amg::MatrixX>& effectiveErrMat,
         const std::vector< const InDet::TRT_DriftCircleOnTrack* >*,
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >*,
         const Trk::TrackParameters*,
@@ -154,8 +154,8 @@ private:
     )const;
 
     void calcEffectiveEndCapMeasurement(
-        const Trk::LocalParameters* &effectiveLocalPar,
-        const Amg::MatrixX* &effectiveErrMat,
+        std::unique_ptr<const Trk::LocalParameters>& effectiveLocalPar,
+        std::unique_ptr<const Amg::MatrixX>& effectiveErrMat,
         const std::vector< const InDet::TRT_DriftCircleOnTrack* >*,
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >*,
         const Amg::Vector2D& localTrack,

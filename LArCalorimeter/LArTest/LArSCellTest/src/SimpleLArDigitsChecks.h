@@ -44,14 +44,14 @@ private :
 
         SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingSCKey{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
 	/** base file */
-	TFile* m_file;
+	TFile* m_file = nullptr;
 	/** base histograms about super-cells */
 	/** Now check by layer */
 	std::vector<TH1I*> m_nSCells_perLayer;
 	std::vector<TH1F*> m_EtSCells_perLayer;
 	std::vector<TH2F*> m_SSamples_perLayer;
 	std::vector<TH2F*> m_NorSSamples_perLayer;
-        int m_counter;
+        int m_counter = 0;
 
 };
 

@@ -25,7 +25,7 @@ echo "art-result: $? convert"
 
 dcubeName="Pythia8i"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/test_02_minbias/config_minbias.xml"
-dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/test_02_minbias/MyOutput.root"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/master_branch/test_02_minbias/MyOutput.root"
 
 #dcubeName="Pythia8i"
 #dcubeXml="/afs/cern.ch/user/l/lyue/Qualification_task_ART/Pythia_8/DcubeReference/test_02_minbias/config_minbias.xml"

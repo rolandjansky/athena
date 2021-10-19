@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPEGAMMACPTOOLS_H_
@@ -22,7 +22,6 @@
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 //#include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
-//#include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 
 #include "TopConfiguration/Tokenize.h"
 
@@ -92,8 +91,6 @@ namespace top {
 //    ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronSelectorLoose;
 //    ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_fwdElectronEffSFID;
 //    ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_fwdElectronEffSFIDLoose;
-
-//    ToolHandle<Trig::WebBunchCrossingTool> m_webBunchCrossingTool;
 
     StatusCode setupSelectors();
     StatusCode setupCalibration();

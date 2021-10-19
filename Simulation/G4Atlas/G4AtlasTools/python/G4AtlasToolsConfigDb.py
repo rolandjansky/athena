@@ -29,7 +29,7 @@ addTool("G4AtlasTools.G4GeometryConfig.getATLAS", "Atlas")
 addTool("G4AtlasTools.G4GeometryConfig.getCavernWorld", "Cavern")
 addTool("G4AtlasTools.G4GeometryConfig.getG4AtlasDetectorConstructionTool", "G4AtlasDetectorConstructionTool")
 addTool("G4AtlasTools.G4GeometryConfig.getMaterialDescriptionTool", "MaterialDescriptionTool")
-addTool("G4AtlasTools.G4GeometryConfig.getSmartlessnessTool", "SmartlessnessTool")
+addTool("G4AtlasTools.G4GeometryConfig.getVoxelDensityTool", "VoxelDensityTool")
 
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_Beampipe1", "TileTB_BeamPipe1")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_Beampipe2", "TileTB_BeamPipe2")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -41,7 +41,7 @@ public:
     DataBin(void);
     ///< Default constructor. Give a bin with 0 content and no extensions.
 
-    DataBin(const std::vector<DataPoint> points, const double & epsilon);
+    DataBin(const std::vector<DataPoint>& points, const double & epsilon);
     ///< Constructor.
     ///< \param points Data points occupying the bin.
     ///< \param epsilon The upper bin boundaries are shifted by epsilon to

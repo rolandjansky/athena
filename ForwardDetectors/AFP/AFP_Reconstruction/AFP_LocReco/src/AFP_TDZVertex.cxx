@@ -37,11 +37,11 @@ StatusCode AFP_TDZVertex::Execute(const std::list<TDHIT> &ListTDHits)
 	
         std::vector<float> vecTDHit[NST][NDET][NTRAINS];
 	
-	for (int i=0; i<NST; i++)
+	for (int i=0; i<NST; ++i)
 	{
-		for (int j=0; j<NDET; j++)
+		for (int j=0; j<NDET; ++j)
 		{
-			for (int k=0; k<NTRAINS; k++)
+			for (int k=0; k<NTRAINS; ++k)
 			{	
 			 vecTDHit[i][j][k].clear();
 			}
@@ -50,7 +50,7 @@ StatusCode AFP_TDZVertex::Execute(const std::list<TDHIT> &ListTDHits)
 
 	
         std::list<TDHIT>::const_iterator iter;
-	for (iter=ListTDHits.begin(); iter!=ListTDHits.end(); iter++)
+	for (iter=ListTDHits.begin(); iter!=ListTDHits.end(); ++iter)
 	{
 		if ((*iter).fADC > m_AmpThresh)
 		{	
@@ -65,21 +65,21 @@ StatusCode AFP_TDZVertex::Execute(const std::list<TDHIT> &ListTDHits)
 
 
 
-	for (int i=0; i<NST; i++)
+	for (int i=0; i<NST; ++i)
 	{
-		for (int j=0; j<NDET; j++)
+		for (int j=0; j<NDET; ++j)
 		{
-			for (int k=0; k<NTRAINS; k++)
+			for (int k=0; k<NTRAINS; ++k)
 			{	
 				int TrSize = vecTDHit[i][j][k].size();
 				float TrTime = 0.;
 				int TrSat = 0;
 				if ( TrSize>0 )
 				{
-					for (int l=0; l<TrSize; l++)
+					for (int l=0; l<TrSize; ++l)
 					{
 						TrTime += (vecTDHit[i][j][k].at(l));
-                                                if ( vecTDHit[i][j][k].at(l)==0.0) TrSat++;
+                                                if ( vecTDHit[i][j][k].at(l)==0.0) ++TrSat;
 					}
 					// time average
 					if( TrSize!=TrSat) TrTime /= (TrSize-TrSat);					

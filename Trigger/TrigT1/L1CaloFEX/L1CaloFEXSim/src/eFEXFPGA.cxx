@@ -29,7 +29,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
 #include "TrigConfData/L1Menu.h"
-
+#include <unordered_map>
 
 #include <iostream>
 #include <fstream>
@@ -56,9 +56,12 @@ StatusCode eFEXFPGA::initialize()
 {
 
   ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
+  ATH_CHECK( m_eFEXegAlgoTool.retrieve() );
+  ATH_CHECK( m_eFEXtauAlgoTool.retrieve() );
+  
+  
   ATH_CHECK(m_l1MenuKey.initialize());
 
-  //ATH_CHECK(m_eFEXFPGA_eFEXOutputCollectionKey.initialize());
   return StatusCode::SUCCESS;
 }
   
@@ -79,30 +82,16 @@ void eFEXFPGA::reset(){
 
 }
 
-StatusCode eFEXFPGA::execute(){
+StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
-  m_tobwords.clear();
+  m_emTobwords.clear();
+  m_tauTobwords.clear();
 
   SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey/*,ctx*/);
   if(!jk_eFEXFPGA_eTowerContainer.isValid()){
     ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
-    
-  eFEXOutputCollection* eFEXOutputs;
-
-  // To be replaced soon but left here commented for information
-  /*
-  SG::ReadHandle<eFEXOutputCollection> jk_eFEXFPGA_eFEXOutputCollection(m_eFEXFPGA_eFEXOutputCollectionKey,ctx);
-  if(!jk_eFEXFPGA_eFEXOutputCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eFEXOutputCollection " << m_eFEXFPGA_eFEXOutputCollectionKey.key() );
-    return StatusCode::FAILURE;
-  }
-  */
-  
-  StatusCode sc_tobs = evtStore()->retrieve(eFEXOutputs, "eFEXOutputCollection");
-  if(sc_tobs == StatusCode::SUCCESS){ }
-  else if(sc_tobs == StatusCode::FAILURE) {ATH_MSG_DEBUG("\n---- eFEXegAlgo --------- Failed to find eFEXOutputCollection in eFEXFPGA"); }
 
   // Retrieve the L1 menu configuration
   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
@@ -118,8 +107,6 @@ StatusCode eFEXFPGA::execute(){
         {m_eTowersIDs[iphi+1][ieta-1], m_eTowersIDs[iphi+1][ieta], m_eTowersIDs[iphi+1][ieta+1]},
       };
 
-      ATH_CHECK( m_eFEXegAlgoTool.retrieve() );
-  
       ATH_CHECK( m_eFEXegAlgoTool->safetyTest() );
       m_eFEXegAlgoTool->setup(tobtable);
 
@@ -132,36 +119,33 @@ StatusCode eFEXFPGA::execute(){
       unsigned int ptMinToTopoCounts = 0;
       ptMinToTopoCounts = thr_eEM.ptMinToTopoCounts(); 
 
-      //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV?
+      //returns a unsigned integer et value corresponding to the... eFEX EM cluster in 25 MeV internal calculation scale
       unsigned int eEMTobEt = 0;
       eEMTobEt = m_eFEXegAlgoTool->getET();
-      const unsigned int eFexTobstep = 100;
-      unsigned int eEMTobEtCounts = 0;
-      eEMTobEtCounts = eEMTobEt/eFexTobstep;//steps of 100 MeV for the TOB
-
+            
       // thresholds from Trigger menu
       auto iso_loose  = thr_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
       auto iso_medium = thr_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
       auto iso_tight  = thr_eEM.isolation(TrigConf::Selection::WP::TIGHT, ieta);  
 
       std::vector<unsigned int> threshReta;
-      threshReta.push_back(iso_loose.reta());
-      threshReta.push_back(iso_medium.reta());
-      threshReta.push_back(iso_tight.reta());
+      threshReta.push_back(iso_loose.reta_fw());
+      threshReta.push_back(iso_medium.reta_fw());
+      threshReta.push_back(iso_tight.reta_fw());
 
       std::vector<unsigned int> threshRhad;
-      threshRhad.push_back(iso_loose.rhad());
-      threshRhad.push_back(iso_medium.rhad());
-      threshRhad.push_back(iso_tight.rhad());
+      threshRhad.push_back(iso_loose.rhad_fw());
+      threshRhad.push_back(iso_medium.rhad_fw());
+      threshRhad.push_back(iso_tight.rhad_fw());
 
       std::vector<unsigned int> threshWstot;
-      threshWstot.push_back(iso_loose.wstot());
-      threshWstot.push_back(iso_medium.wstot());
-      threshWstot.push_back(iso_tight.wstot());
+      threshWstot.push_back(iso_loose.wstot_fw());
+      threshWstot.push_back(iso_medium.wstot_fw());
+      threshWstot.push_back(iso_tight.wstot_fw());
 
-      ATH_MSG_DEBUG("ieta=" << ieta << "  loose => reta=" << threshReta[0] << ", had=" << threshRhad[0] << ", wstot=" << threshWstot[0]);
-      ATH_MSG_DEBUG("ieta=" << ieta << "  medium => reta=" << threshReta[1] << ", had=" << threshRhad[1] << ", wstot=" << threshWstot[1]);
-      ATH_MSG_DEBUG("ieta=" << ieta << "  tight => reta=" << threshReta[2] << ", had=" << threshRhad[2] << ", wstot=" << threshWstot[2]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  loose => reta_fw=" << threshReta[0] << ", rhad_fw=" << threshRhad[0] << ", wstot_fw=" << threshWstot[0]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  medium => reta_fw=" << threshReta[1] << ", rhad_fw=" << threshRhad[1] << ", wstot_fw=" << threshWstot[1]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  tight => reta_fw=" << threshReta[2] << ", rhad_fw=" << threshRhad[2] << ", wstot_fw=" << threshWstot[2]);
 
       // Get Reta and Rhad outputs
       std::vector<unsigned int> RetaCoreEnv; 
@@ -175,15 +159,21 @@ StatusCode eFEXFPGA::execute(){
       unsigned int RetaWP = 0;
       unsigned int RhadWP = 0;
       unsigned int WstotWP = 0;
-      SetIsoWP(RetaCoreEnv,threshReta,RetaWP);
-      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP);
-      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP);
+      
+      // bitshifts for the different iso vars
+      unsigned int RetaBitS = 3;
+      unsigned int RhadBitS = 3;
+      unsigned int WstotBitS = 5;
+      
+      SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
+      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
+      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
 
       //form the egamma tob word
-      uint32_t tobword = formEmTOB(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEtCounts,ptMinToTopoCounts);
-      if ( (tobword != 0) && (eEMTobEtCounts != 0) ) m_tobwords.push_back(tobword);
+      uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEt,ptMinToTopoCounts);
+      if ( (tobword != 0) && (eEMTobEt != 0) ) m_emTobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
@@ -193,35 +183,35 @@ StatusCode eFEXFPGA::execute(){
       tmp_tob->setPhi(iphi);
 
       // for plotting
-      eFEXOutputs->addeFexNumber(m_efexid);
-      eFEXOutputs->addEMtob(tobword);
-      eFEXOutputs->addValue_eg("WstotNum", tmp_tob->getWstotNum());
-      eFEXOutputs->addValue_eg("WstotDen", tmp_tob->getWstotDen());
-      eFEXOutputs->addValue_eg("RetaNum", tmp_tob->getRetaNum());
-      eFEXOutputs->addValue_eg("RetaDen", tmp_tob->getRetaDen());
-      eFEXOutputs->addValue_eg("RhadNum", tmp_tob->getRhadNum());
-      eFEXOutputs->addValue_eg("RhadDen", tmp_tob->getRhadDen());
-      eFEXOutputs->addValue_eg("haveSeed", m_eFEXegAlgoTool->hasSeed());
-      eFEXOutputs->addValue_eg("ET", m_eFEXegAlgoTool->getET());
-      float eta = 9999;
-      m_eFEXegAlgoTool->getRealEta(eta);
-      eFEXOutputs->addValue_eg("eta", eta);
-      float phi = 9999;
-      m_eFEXegAlgoTool->getRealPhi(phi);
-      eFEXOutputs->addValue_eg("phi", phi);
-      unsigned int em_et = 9999; 
-      m_eFEXegAlgoTool->getCoreEMTowerET(em_et);
-      eFEXOutputs->addValue_eg("em", em_et);
-      unsigned int had_et = 9999;
-      m_eFEXegAlgoTool->getCoreHADTowerET(had_et);
-      eFEXOutputs->addValue_eg("had", had_et);
-      eFEXOutputs->fill_eg();
+      if (inputOutputCollection->getdooutput()) {
+        inputOutputCollection->addeFexNumber(m_efexid);
+        inputOutputCollection->addEMtob(tobword);
+        inputOutputCollection->addValue_eg("WstotNum", tmp_tob->getWstotNum());
+        inputOutputCollection->addValue_eg("WstotDen", tmp_tob->getWstotDen());
+        inputOutputCollection->addValue_eg("RetaNum", tmp_tob->getRetaNum());
+        inputOutputCollection->addValue_eg("RetaDen", tmp_tob->getRetaDen());
+        inputOutputCollection->addValue_eg("RhadNum", tmp_tob->getRhadNum());
+        inputOutputCollection->addValue_eg("RhadDen", tmp_tob->getRhadDen());
+        inputOutputCollection->addValue_eg("haveSeed", m_eFEXegAlgoTool->hasSeed());
+        inputOutputCollection->addValue_eg("ET", m_eFEXegAlgoTool->getET());
+        float eta = 9999;
+        m_eFEXegAlgoTool->getRealEta(eta);
+        inputOutputCollection->addValue_eg("eta", eta);
+        float phi = 9999;
+        m_eFEXegAlgoTool->getRealPhi(phi);
+        inputOutputCollection->addValue_eg("phi", phi);
+        unsigned int em_et = 9999; 
+        m_eFEXegAlgoTool->getCoreEMTowerET(em_et);
+        inputOutputCollection->addValue_eg("em", em_et);
+        unsigned int had_et = 9999;
+        m_eFEXegAlgoTool->getCoreHADTowerET(had_et);
+        inputOutputCollection->addValue_eg("had", had_et);
+        inputOutputCollection->fill_eg();
+      }
 
     }
   }
 
-
-  //ATH_CHECK(store())
 
   // --------------- TAU -------------
   for(int ieta = 1; ieta < 5; ieta++)
@@ -234,23 +224,36 @@ StatusCode eFEXFPGA::execute(){
         {m_eTowersIDs[iphi+1][ieta-1], m_eTowersIDs[iphi+1][ieta], m_eTowersIDs[iphi+1][ieta+1]},
       };
       
-      ATH_CHECK( m_eFEXtauAlgoTool.retrieve() );
-  
       ATH_CHECK( m_eFEXtauAlgoTool->safetyTest() );
       m_eFEXtauAlgoTool->setup(tobtable);
 
-      // for plotting
-      eFEXOutputs->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
-      eFEXOutputs->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
-      eFEXOutputs->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
-      
-      eFEXOutputs->fill_tau();
-
       if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
 
+      // Get Et of eFEX tau object in internal units (25 MeV)
+      unsigned int eTauTobEt = 0;
+      eTauTobEt = m_eFEXtauAlgoTool->getEt();
+
+      int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
+      int phi_ind = iphi - 1;
+      
+      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt);
+      if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
+
+      // for plotting
+      if (inputOutputCollection->getdooutput()) {
+        inputOutputCollection->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
+        inputOutputCollection->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
+        inputOutputCollection->addValue_tau("Eta", ieta);
+        inputOutputCollection->addValue_tau("Phi", iphi);
+        const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
+        inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
+        inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
+        inputOutputCollection->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
+        
+        inputOutputCollection->fill_tau();
+      }
     }
   }
-
 
   return StatusCode::SUCCESS;
 
@@ -260,18 +263,12 @@ StatusCode eFEXFPGA::execute(){
 
 std::vector<uint32_t> eFEXFPGA::getEmTOBs()
 {
-  auto tobsSort = m_tobwords;
+  auto tobsSort = m_emTobwords;
 
   ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
 
   // sort tobs by their et (last 12 bits of the 32 bit tob word)
   std::sort (tobsSort.begin(), tobsSort.end(), etSort);
-
-  /*
-  for(auto &j : tobsSort){
-    std::cout << "values: post sort " << std::bitset<32>(j) << std::endl;
-  }
-  */
 
   // return the top 6 highest ET TOBs from the FPGA
   if (tobsSort.size() > 6) tobsSort.resize(6);
@@ -279,6 +276,20 @@ std::vector<uint32_t> eFEXFPGA::getEmTOBs()
 
 }
 
+std::vector<uint32_t> eFEXFPGA::getTauTOBs()
+{
+  auto tobsSort = m_tauTobwords;
+
+  ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
+
+  // sort tobs by their et (last 12 bits of the 32 bit tob word)
+  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+
+  // return the top 6 highest ET TOBs from the FPGA
+  if (tobsSort.size() > 6) tobsSort.resize(6);
+  return tobsSort;
+
+}
 
 void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
     
@@ -325,7 +336,8 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
 }
 
 
-void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint) {
+void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint, unsigned int & bitshift) {
+  // Working point evaluted by Core * 2^bitshift > Threshold * Environment conditions
 
   bool CoreOverflow = false;
   bool EnvOverflow = false;
@@ -333,7 +345,9 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
   bool ThrEnvOverflowM = false;
   bool ThrEnvOverflowT = false;
 
-  if (CoreEnv[0] > 0xffff) CoreOverflow = true;
+  std::unordered_map<unsigned int, unsigned int> bsmap { {3, 8}, {5, 32}};
+
+  if (CoreEnv[0]*bsmap[bitshift] > 0xffff) CoreOverflow = true;
   if (CoreEnv[1] > 0xffff) EnvOverflow = true;
   if (CoreEnv[1]*thresholds[0] > 0xffff) ThrEnvOverflowL = true;
   if (CoreEnv[1]*thresholds[1] > 0xffff) ThrEnvOverflowM = true;
@@ -341,13 +355,13 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
   if (CoreOverflow == false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
+      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
 	workingPoint = 1;
       } 
-      else if ( (CoreEnv[0] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
+      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
 	workingPoint = 2;
       } 
-      else if ( (CoreEnv[0] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
+      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
 	workingPoint = 3;
       }
       else { 
@@ -363,26 +377,5 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
 }
 
-
-
-
-uint32_t eFEXFPGA::formEmTOB(int & fpga, int & eta, int & phi, unsigned int & rhad, unsigned int & wstot, unsigned int & reta, unsigned int & seed, unsigned int & et, unsigned int & ptMinTopo)
-{
-  uint32_t tobword = 0;
-
-  if (et > 0xfff) et = 0xfff; //truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
-
-  //Create bare minimum tob word with et, eta, phi, and fpga index, bitshifted to the appropriate locations
-  tobword = tobword + (fpga << 30) + (eta << 27) + (phi << 24) + (rhad << 22) + (wstot << 20) + (reta << 18) + (seed << 16) + et;
-
-  ATH_MSG_DEBUG("tobword: " << std::bitset<32>(tobword) );
-
-  //some arbitrary cut so that we're not flooded with tobs. taken from the Trigger menu!
-  unsigned int minEtThreshold = ptMinTopo;
-  if (et < minEtThreshold) return 0;  
-  else return tobword;
-
-}
-  
 } // end of namespace bracket
 

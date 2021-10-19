@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,14 +9,15 @@
  *
  */
 
-#ifndef LARCOVERAGEALG_H
-#define LARCOVERAGEALG_H
+#ifndef LARMONITORING_LARCOVERAGEALG_H
+#define LARMONITORING_LARCOVERAGEALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -44,7 +45,7 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   virtual ~LArCoverageAlg();
 
   /** @brief Overwrite dummy method from AlgTool */
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   /** Called each event */
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
@@ -93,6 +94,7 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey{this, "LArRawChannelKey", "LArRawChannels", "SG Key of raw channels"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MFKey", "LArBadFeb", "SG missing FEBs key"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
 
   /** To retrieve bad channel DB keywords  */
@@ -121,7 +123,8 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   Gaudi::Property< std::vector<std::string> > m_CoverageBarrelPartitions {this, "CoverageBarrelPartitions", {"EMBA","EMBC"}};
   Gaudi::Property< std::vector<std::string> > m_CoverageEndcapPartitions {this, "CoverageEndcapPartitions", {"EMECA","EMECC","HECA","HECC","FCalA","FCalC"}};
   Gaudi::Property< std::vector<std::string> > m_Sides {this, "Sides", {"A","C"}};
-  Gaudi::Property< std::vector<std::string> > m_availableErrorCodes {this, "AvailableErrorCodes", {"0","1","2","3","4"}};
+  Gaudi::Property< std::vector<int> > m_availableErrorCodes {this, "AvailableErrorCodes", {0, 1, 2, 3, 4}};
+  std::vector<std::pair<int, std::string>> m_availableErrorCodesPairs;
 
   
 

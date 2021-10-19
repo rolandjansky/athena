@@ -27,10 +27,7 @@ L1JEMJetTools::L1JEMJetTools(const std::string& t, const std::string& n, const I
 
 StatusCode L1JEMJetTools::initialize()
 {
-  ATH_CHECK(m_configSvc.retrieve());
-  if( m_useNewConfig ) {
-    ATH_CHECK(detStore()->retrieve(m_l1menu).ignore());
-  }
+  ATH_CHECK(detStore()->retrieve(m_l1menu).ignore());
   return StatusCode::SUCCESS;
 }
 
@@ -148,7 +145,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVecto
           analysed.insert(std::map<int, int>::value_type(key,1));
           double tempEta = tempCoord.eta();
           double tempPhi = tempCoord.phi();
-          JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_configSvc, m_l1menu);
+          JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_l1menu);
           if (roi->isRoI()) rois->push_back(roi);
           else delete roi;
         }
@@ -211,7 +208,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEM
           analysed.insert(std::map<int, int>::value_type(key,1));
           double tempEta = tempCoord.eta();
           double tempPhi = tempCoord.phi();
-          JEMJetAlgorithm roi(tempEta, tempPhi, elements, m_configSvc, m_l1menu);
+          JEMJetAlgorithm roi(tempEta, tempPhi, elements, m_l1menu);
           
           if (roi.isRoI() != 0) rois->push_back(roi.jemTobRoI());
           
@@ -295,7 +292,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc, m_l1menu); 
+          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_l1menu); 
           
           /** Did it pass as JetTOB? If so:
               * Create TOB RoI object and push back into system results
@@ -403,7 +400,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc, m_l1menu); 
+          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_l1menu); 
           
           /** Did it pass as JetTOB? If so:
               * Create TOB RoI object and push back into system results
@@ -466,14 +463,14 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
 /** Form RoI object for specified coordinate */
 
 JEMJetAlgorithm L1JEMJetTools::findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) const {
-  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
+  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_l1menu);
 }
 
 ///=====================Form clusters for given coordinates ====================
 
 JEMJetAlgorithm L1JEMJetTools::formSums(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) const {
   // Performs all processing for this location
-  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
+  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_l1menu);
 }
 
 ///=====================Form clusters for given RoI ====================
@@ -487,7 +484,7 @@ JEMJetAlgorithm L1JEMJetTools::formSums(uint32_t roiWord, const std::map<int, Je
   if (RoIeta > 3.1 && m_conv.column(roiWord) != 3) RoIeta = 3.1;
 
   // Performs all processing for this location
-  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
+  return JEMJetAlgorithm(RoIeta, RoIphi, elements, m_l1menu);
 }
 
 //============================================================================================

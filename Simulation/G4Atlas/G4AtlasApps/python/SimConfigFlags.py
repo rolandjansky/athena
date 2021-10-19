@@ -10,7 +10,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ParticleID",False)
     scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr", "Off"
 
-    scf.addFlag("Sim.CavernBG",False) #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
+    scf.addFlag("Sim.CavernBG","Off") #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
     scf.addFlag("Sim.ReadTR",False)
     scf.addFlag("Sim.WorldRRange", False) #12500. #int or float
     scf.addFlag("Sim.WorldZRange", False) #22031. #int or float
@@ -41,8 +41,10 @@ def createSimConfigFlags():
     scf.addFlag("Sim.DoFullChain", False)
 
     def _check_G4_version(prevFlags):
-        from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        version = GetFileMD(prevFlags.Input.Files).get('G4Version', '')
+        version = ''
+        if len(prevFlags.Input.Files)>0:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            version = GetFileMD(prevFlags.Input.Files).get('G4Version', '')
         if not version:
             from os import environ
             version = str(environ.get('G4VERS', ''))
@@ -50,7 +52,8 @@ def createSimConfigFlags():
             raise ValueError("Unknown G4 version")
         return version
 
-    scf.addFlag("Sim.G4Version", _check_G4_version)
+    scf.addFlag("Sim.G4Version", lambda prevFlags : _check_G4_version(prevFlags))
+
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
@@ -58,7 +61,7 @@ def createSimConfigFlags():
 
     #For G4AtlasToolsConfig
     scf.addFlag("Sim.RecordStepInfo",False)
-    scf.addFlag("Sim.StoppedParticleFile", False)
+    scf.addFlag("Sim.StoppedParticleFile", '')
     scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
     scf.addFlag("Sim.LArParameterization", 0)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
 
@@ -81,9 +84,10 @@ def createSimConfigFlags():
     #  volume(s) used to do cosmics filtering
     #  G4 volume names from {"Muon", "Calo", "InnerDetector", "TRT_Barrel", "TRT_EC", "SCT_Barrel", "Pixel"}
     scf.addFlag("Sim.CosmicFilterVolumeNames", ["InnerDetector"])
-    scf.addFlag("Sim.CosmicFilterID", "13") # PDG ID to be filtered
-    scf.addFlag("Sim.CosmicFilterPTmin", "5000") # min pT filtered in cosmics processing (MeV)
-    scf.addFlag("Sim.CosmicFilterPTmax", "6000") # max pT filtered in cosmics processing (MeV)
+    scf.addFlag("Sim.CosmicFilterID", False) # PDG ID to be filtered ("13")
+    scf.addFlag("Sim.CosmicFilterPTmin", False) # min pT filtered in cosmics processing (MeV) ("5000")
+    scf.addFlag("Sim.CosmicFilterPTmax", False) # max pT filtered in cosmics processing (MeV) ("6000")
+    scf.addFlag("Sim.CosmicPtSlice", 'Off') #slice1, 'slice2', 'slice3', 'slice4', 'NONE'
 
     # For ISF
     scf.addFlag("Sim.ISFRun",False)
@@ -91,29 +95,32 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
-    
+    scf.addFlag("Sim.ISF.ReSimulation", False) # Using ReSimulation workflow
+
     def decideHITSMerging(prevFlags):
         simstr = prevFlags.Sim.ISF.Simulator
-        if simstr.endswith("MT"):
-            simstr = simstr[:-2]
         # Further specialization possible in future
-        if simstr in ("FullG4", "PassBackG4"):
+        if simstr in ("FullG4MT", "FullG4MT_QS", "PassBackG4MT"):
             doID = False
+            doITk = False
             doCALO = False
             doMUON = False
-        elif simstr in ("ATLFASTIIF_G4MS"):
+        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT"):
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        elif simstr in ("ATLFASTII", "G4FastCalo"):
+        elif simstr in ("ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"):
             doID = False
+            doITk = False
             doCALO = True
             doMUON = False
         else:
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        return {"ID": doID, "CALO": doCALO, "MUON": doMUON}
+        return {"ID": doID, "CALO": doCALO, "MUON": doMUON, "ITk": doITk}
 
     scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 

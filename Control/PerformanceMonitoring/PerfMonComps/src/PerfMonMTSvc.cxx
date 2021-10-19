@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -26,8 +26,8 @@
  * Constructor
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthService(name, pSvcLocator), m_eventCounter{0}, m_eventLoopMsgCounter{0} {
-  // Four main snapshots : Configure, Initialize, Execute, and Finalize
+    : AthService(name, pSvcLocator), m_isFirstEvent{false}, m_eventCounter{0}, m_eventLoopMsgCounter{0} {
+  // Five main snapshots : Configure, Initialize, FirstEvent, Execute, and Finalize
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
   // Initial capture upon construction
@@ -62,6 +62,10 @@ StatusCode PerfMonMTSvc::initialize() {
   // Set to be listener to SvcPostFinalize
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc/IncidentSvc", name());
   ATH_CHECK(incSvc.retrieve());
+  const long highestPriority = static_cast<long>(-1);
+  const long lowestPriority = 0;
+  incSvc->addListener(this, IncidentType::BeginEvent, highestPriority);
+  incSvc->addListener(this, "EndAlgorithms", lowestPriority);
   incSvc->addListener(this, IncidentType::SvcPostFinalize);
 
   // Check if /proc exists, if not memory statistics are not available
@@ -78,8 +82,9 @@ StatusCode PerfMonMTSvc::initialize() {
     ATH_MSG_INFO("  >> Component-level memory monitoring in the event-loop is disabled in jobs with more than 1 thread");
   }
 
-  // Slot specific component-level data map
+  // Slot specific component-level data map and locks
   m_compLevelDataMapVec.resize(m_numberOfSlots); // Default construct
+  m_mutex_slots.resize(m_numberOfSlots); // Default construct
 
   // Set wall time offset
   m_eventLevelData.set_wall_time_offset(m_wallTimeOffset);
@@ -106,10 +111,39 @@ StatusCode PerfMonMTSvc::finalize() {
 }
 
 /*
- * Capture finalizations and report in SvcPostFinalize
+ * Handle relevant incidents
  */
 void PerfMonMTSvc::handle(const Incident& inc) {
-  if (inc.type() == IncidentType::SvcPostFinalize) {
+  // Begin event processing
+  if (inc.type() == IncidentType::BeginEvent) {
+    // Lock for data integrity
+    std::lock_guard<std::mutex> lock(m_mutex_capture);
+
+    // Increment the internal counter
+    m_eventCounter++;
+
+    // Monitor
+    if (m_doEventLoopMonitoring && isCheckPoint()) {
+      // Capture
+      m_measurement_events.capture_event();
+      m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
+      // Report instantly - no more than m_eventLoopMsgLimit times
+      if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
+        report2Log_EventLevel_instant();
+        m_eventLoopMsgCounter++;
+      }
+    }
+  }
+  // End event processing (as signaled by SG clean-up)
+  // By convention the first event is executed serially
+  // Therefore, we treat it a little bit differently
+  else if (m_eventCounter == 1 && inc.type() == "EndAlgorithms") {
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[FIRSTEVENT].addPointStop_snapshot(m_measurement_snapshots);
+    m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
+  }
+  // Finalize ourself and print the metrics in SvcPostFinalize
+  else if (inc.type() == IncidentType::SvcPostFinalize) {
     // Final capture upon post-finalization
     m_measurement_snapshots.capture_snapshot();
     m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
@@ -123,19 +157,15 @@ void PerfMonMTSvc::handle(const Incident& inc) {
  * Start Auditing
  */
 void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& compName) {
+  // Snapshots, i.e. Initialize, Event Loop, etc.
+  startSnapshotAud(stepName, compName);
+
   /*
-   * This if statement is temporary. It will be removed.
-   * In current implementation the very first thing called is stopAud function
-   * for PerfMonMTSvc. There are some components before it. We miss them.
-   * It should be fixed.
+   * Perform component monitoring only if the user asked for it.
+   * By default we don't monitor a set of common components.
+   * Once we adopt C++20, we can switch this from count to contains.
    */
-  if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
-    // Snapshots, i.e. Initialize, Event Loop, etc.
-    startSnapshotAud(stepName, compName);
-
-    // Nothing more to do if we don't listen to components
-    if (!m_doComponentLevelMonitoring) return;
-
+  if (m_doComponentLevelMonitoring && !m_exclusionSet.count(compName)) {
     // Start component auditing
     auto const &ctx = Gaudi::Hive::currentContext();
     startCompAud(stepName, compName, ctx);
@@ -146,14 +176,11 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
  * Stop Auditing
  */
 void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compName) {
-  // Don't self-monitor
-  if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
-    // Snapshots, i.e. Initialize, Event Loop, etc.
-    stopSnapshotAud(stepName, compName);
+  // Snapshots, i.e. Initialize, Event Loop, etc.
+  stopSnapshotAud(stepName, compName);
 
-    // Nothing more to do if we don't listen to components
-    if (!m_doComponentLevelMonitoring) return;
-
+  // Check if we should monitor this component
+  if (m_doComponentLevelMonitoring && !m_exclusionSet.count(compName)) {
     // Stop component auditing
     auto const &ctx = Gaudi::Hive::currentContext();
     stopCompAud(stepName, compName, ctx);
@@ -167,7 +194,8 @@ void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::stri
   // Last thing to be called before the event loop begins
   if (compName == "AthOutSeq" && stepName == "Start") {
     m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
+    m_snapshotData[FIRSTEVENT].addPointStart_snapshot(m_measurement_snapshots);
+    m_isFirstEvent = true;
   }
 
   // Last thing to be called before finalize step begins
@@ -199,7 +227,8 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
  */
 void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
   // Lock for data integrity
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
+  const unsigned int islot = ctx.valid() ? ctx.slot() : 0;
+  std::lock_guard<std::mutex> lock(m_mutex_slots[islot]);
 
   // Memory measurement is only done outside the loop except when there is only a single thread
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
@@ -209,9 +238,9 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
 
   // Check if this is the first time calling if so create the mesurement data if not use the existing one.
   // Metrics are collected per slot then aggregated before reporting
-  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
-    compLevelDataMap[currentState] = new PMonMT::MeasurementData();
+    compLevelDataMap.insert({currentState, std::make_unique<PMonMT::MeasurementData>()});
   }
 
   // Capture and store
@@ -230,7 +259,8 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
  */
 void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
   // Lock for data integrity
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
+  const unsigned int islot = ctx.valid() ? ctx.slot() : 0;
+  std::lock_guard<std::mutex> lock(m_mutex_slots[islot]);
 
   // Memory measurement is only done outside the loop except when there is only a single thread
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
@@ -243,8 +273,16 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Store
-  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
   compLevelDataMap[currentState]->addPointStop_component(meas, doMem);
+
+  // Once the first time IncidentProcAlg3 is excuted, toggle m_isFirstEvent to false.
+  // Doing it this way, instead of at EndAlgorithms incident, makes sure there is no
+  // mismatch in start-stop calls to IncidentProcAlg3.
+  // It's a little ad-hoc but I don't think this workflow will change much anytime soon.
+  if ( m_isFirstEvent && compName == "IncidentProcAlg3" && stepName == "Execute") {
+    m_isFirstEvent = false;
+  }
 
   // Debug
   ATH_MSG_DEBUG("Stop Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
@@ -259,40 +297,11 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
 }
 
 /*
- * Event-level Monitoring
- */
-void PerfMonMTSvc::eventLevelMon() {
-  // Lock for data integrity
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
-
-  // Increment the internal counter
-  incrementEventCounter();
-
-  // Monitor
-  if (m_doEventLoopMonitoring && isCheckPoint()) {
-    // Capture
-    m_measurement_events.capture_event();
-    m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
-    // Report instantly - no more than m_eventLoopMsgLimit times
-    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
-      report2Log_EventLevel_instant();
-      m_eventLoopMsgCounter++;
-    }
-  }
-}
-
-/*
- * Internal atomic event counter
- * Should be able to use EventContext for this
- */
-void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
-
-/*
  * Is it event-level monitoring check point yet?
  */
 bool PerfMonMTSvc::isCheckPoint() {
-  // Always check 1, 10, 25 for short tests
-  if (m_eventCounter == 1 || m_eventCounter == 10 || m_eventCounter == 25)
+  // Always check 1, 2, 10, 25 for short tests
+  if (m_eventCounter <= 2 || m_eventCounter == 10 || m_eventCounter == 25)
     return true;
 
   // Check the user settings
@@ -326,12 +335,14 @@ int PerfMonMTSvc::getCpuEfficiency() const {
   const double totalCpuTime =
    m_snapshotData[CONFIGURE].getDeltaCPU()  +
    m_snapshotData[INITIALIZE].getDeltaCPU() +
+   m_snapshotData[FIRSTEVENT].getDeltaCPU() +
    m_snapshotData[EXECUTE].getDeltaCPU()    +
    m_snapshotData[FINALIZE].getDeltaCPU();
 
   const double scaledWallTime =
    m_snapshotData[CONFIGURE].getDeltaWall()  * 1. +
    m_snapshotData[INITIALIZE].getDeltaWall() * 1. +
+   m_snapshotData[FIRSTEVENT].getDeltaWall() * 1. +
    m_snapshotData[EXECUTE].getDeltaWall()    * m_numberOfSlots +
    m_snapshotData[FINALIZE].getDeltaWall()   * 1.;
 
@@ -522,12 +533,14 @@ void PerfMonMTSvc::report2Log_Summary() {
   }
 
   ATH_MSG_INFO("***************************************************************************************");
+  const double cpu_exec_total = m_snapshotData[FIRSTEVENT].getDeltaCPU() + m_snapshotData[EXECUTE].getDeltaCPU();
+  const double wall_exec_total = m_snapshotData[FIRSTEVENT].getDeltaWall() + m_snapshotData[EXECUTE].getDeltaWall();
 
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Number of events processed:" % m_eventCounter);
   ATH_MSG_INFO(format("%1% %|35t|%2$.0f ") % "CPU usage per event [ms]:" %
-               (m_snapshotData[EXECUTE].getDeltaCPU() / m_eventCounter));
+               (m_eventCounter > 0 ? cpu_exec_total / m_eventCounter : 0));
   ATH_MSG_INFO(format("%1% %|35t|%2$.3f ") % "Events per second:" %
-               (m_eventCounter / m_snapshotData[EXECUTE].getDeltaWall() * 1000.));
+               (wall_exec_total > 0 ? m_eventCounter / wall_exec_total * 1000. : 0));
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "CPU utilization efficiency [%]:" % getCpuEfficiency());
 
   if (m_doEventLoopMonitoring) {
@@ -739,7 +752,7 @@ void PerfMonMTSvc::report2JsonFile_EventLevel(nlohmann::json& j) const {
  */
 PMonMT::StepComp PerfMonMTSvc::generate_state(const std::string& stepName, const std::string& compName) const {
   PMonMT::StepComp currentState;
-  currentState.stepName = stepName;
+  currentState.stepName = (m_isFirstEvent && stepName == "Execute") ? "FirstEvent" : stepName;
   currentState.compName = compName;
   return currentState;
 }
@@ -753,7 +766,7 @@ void PerfMonMTSvc::aggregateSlotData() {
     for (const auto& it : slotData) {
       // Copy the first slot data and sum the rest
       if(m_compLevelDataMap.find(it.first) == m_compLevelDataMap.end()) {
-        m_compLevelDataMap[it.first] = it.second;
+        m_compLevelDataMap.insert({it.first, it.second.get()});
       } else {
         m_compLevelDataMap[it.first]->add2CallCount(it.second->getCallCount());
         m_compLevelDataMap[it.first]->add2DeltaCPU(it.second->getDeltaCPU());
@@ -771,6 +784,8 @@ void PerfMonMTSvc::divideData2Steps() {
   for (const auto &it : m_compLevelDataMap) {
     if (it.first.stepName == "Initialize")
       m_compLevelDataMap_ini[it.first] = it.second;
+    else if (it.first.stepName == "FirstEvent")
+      m_compLevelDataMap_1stevt[it.first] = it.second;
     else if (it.first.stepName == "Execute")
       m_compLevelDataMap_evt[it.first] = it.second;
     else if (it.first.stepName == "Finalize")
@@ -781,6 +796,7 @@ void PerfMonMTSvc::divideData2Steps() {
       m_compLevelDataMap_cbk[it.first] = it.second;
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
+  m_stdoutVec_serial.push_back(m_compLevelDataMap_1stevt);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_evt);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);

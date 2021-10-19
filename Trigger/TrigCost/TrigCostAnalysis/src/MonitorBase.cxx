@@ -6,7 +6,10 @@
 #include "MonitorBase.h"
 #include "CounterBase.h"
 
-MonitorBase::MonitorBase(const std::string& name, const MonitoredRange* parent) : m_name(name), m_parent(parent) {
+MonitorBase::MonitorBase(const std::string& name, const MonitoredRange* parent) : 
+  m_msgStream(nullptr, name.c_str()),
+  m_name(name), 
+  m_parent(parent) {
 }
 
 
@@ -52,4 +55,9 @@ CounterBase* MonitorBase::getCounter(const std::string& name) {
   auto result = m_counters.insert( std::make_pair(name, newCounter(name)) ); // newCounter is specialised
   it = result.first;
   return it->second.get();
+}
+
+
+MsgStream& MonitorBase::msg() {
+  return m_msgStream;
 }

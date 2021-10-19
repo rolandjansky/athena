@@ -44,7 +44,7 @@ public:
   }
   ElectronCollectionSettingsButton * theclass;
   QWidget * editwindow;
-  Ui::ElectronCollectionSettingsForm editwindow_ui;
+  Ui::ElectronCollectionSettingsForm editwindow_ui{};
   
   VP1MaterialButton* matButton;// main collection colour
   VP1MaterialButton* defaultParametersMatButton;

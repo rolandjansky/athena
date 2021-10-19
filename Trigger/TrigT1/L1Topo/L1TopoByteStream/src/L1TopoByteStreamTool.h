@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TOPOBYTESTREAM_L1TOPOBYTESTREAMTOOL_H
@@ -55,11 +55,11 @@ class L1TopoByteStreamTool : public AthAlgTool {
   /// return list of L1Topo ROD source IDs to use, defaults to DAQ ROD IDs
   const std::vector<uint32_t>& sourceIDs();
   /// Convert ROBFragment to L1TopoRDO
-  StatusCode convert(const std::string& sgKey, L1TopoRDOCollection* result);
+  StatusCode convert(const std::string& sgKey, L1TopoRDOCollection* result) const;
   /// Convert ROBFragment to L1TopoRDO
-  StatusCode convert(const ROBF* rob, L1TopoRDO*& result);
+  StatusCode convert(const ROBF* rob, L1TopoRDO*& result) const;
   /// convert L1TopoRDO to ByteStream
-  StatusCode convert(const L1TopoRDO* result, RawEventWrite* re);
+  StatusCode convert(const L1TopoRDO* result, RawEventWrite* re) const;
 
  private:
   /// Object to generate and convert between the various IDs of the L1Topo
@@ -67,8 +67,6 @@ class L1TopoByteStreamTool : public AthAlgTool {
   L1TopoSrcIdMap* m_srcIdMap;
   /// Source IDs of L1Topo RODs
   std::vector<uint32_t> m_sourceIDs;
-  /// Object used in creating the L1Topo ROB fragment
-  FullEventAssembler<L1TopoSrcIdMap> m_fea;
 
   BooleanProperty m_doDAQROBs;
   BooleanProperty m_doROIROBs;

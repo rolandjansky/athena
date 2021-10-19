@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*- 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARROD_LARRAWCHANNELBUILDERALG_H
@@ -76,7 +76,7 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
   
 
   //Identifier helper
-  const LArOnlineID_Base* m_onlineId;
+  const LArOnlineID_Base* m_onlineId = nullptr;
 
   /// Geometry manager.
   const CaloSuperCellDetDescrManager* m_sem_mgr;

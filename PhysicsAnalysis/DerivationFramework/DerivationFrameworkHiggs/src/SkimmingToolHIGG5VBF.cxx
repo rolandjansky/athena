@@ -92,7 +92,7 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   
   StatusCode sc(StatusCode::SUCCESS);
   
-  bool isTriggerFired(m_triggers.size()==0);
+  bool isTriggerFired(m_triggers.empty());
   for(unsigned int i(0); i<m_triggers.size(); i++) {
     if(m_trigDecisionTool->isPassed(m_triggers.at(i))) {
       isTriggerFired = true;
@@ -104,7 +104,7 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   m_goodAllJets.clear();
   m_goodCentralJets.clear();
   
-  const xAOD::JetContainer *jets(0); 
+  const xAOD::JetContainer *jets(nullptr); 
   ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey), false);
   xAOD::JetContainer::const_iterator jet_itr(jets->begin());
   xAOD::JetContainer::const_iterator jet_end(jets->end());
@@ -132,7 +132,7 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   //get max pt of any photon in the event (p. rose)
   double maxPhPt=0.;
   if(m_reqPh){
-    const xAOD::PhotonContainer *phots(0);
+    const xAOD::PhotonContainer *phots(nullptr);
     ATH_CHECK(evtStore()->retrieve(phots, m_phSGKey), false);
     for (const auto* ph : *phots){
       if(abs(ph->eta())<m_centralPhEtaCut)

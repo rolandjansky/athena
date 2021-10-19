@@ -29,11 +29,11 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class ZeeVertexRefittingTool : public AthAlgTool, public IAugmentationTool {
+  class ZeeVertexRefittingTool : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
     public: 
       ZeeVertexRefittingTool(const std::string& t, const std::string& n, const IInterface* p);
 
@@ -43,7 +43,6 @@ namespace DerivationFramework {
 
     private:
       std::string m_expression;
-      std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
       float m_massCut;
 
       SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVertexKey{this, "PVContainerName", "PrimaryVertices", "" };

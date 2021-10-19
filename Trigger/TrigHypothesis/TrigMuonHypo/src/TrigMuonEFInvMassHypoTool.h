@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPO_TRIGMUONEFINVMASSHYPOTOOL_H 
@@ -21,7 +21,7 @@ class TrigMuonEFInvMassHypoTool: public ::ComboHypoToolBase {
   virtual StatusCode initialize() override;    
 
  private:
-  bool executeAlg(std::vector<LegDecision> & thecomb) const override;
+  bool executeAlg(const std::vector<Combo::LegDecision>& combinaiton) const override;
 
   // Properties:
   Gaudi::Property< double> m_invMassLow {

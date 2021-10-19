@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -960,7 +960,7 @@ if (n)
    {
      unsigned int imax = n/2;
      for(unsigned int i=0;i<imax;i++){
-       ShortLong to_push;
+       ShortLong to_push{};
        to_push.s[0] = m_TimeQualityBlock[i*2];
        to_push.s[1] = m_TimeQualityBlock[i*2+1];
        m_vFragment->push_back(to_push.l);
@@ -975,7 +975,7 @@ if (n)
      unsigned int imax=m_DigitsEncode.size()/2;
      for(unsigned int i=0;i<imax;i++){
 	// Better by-swap
-        ShortLong to_push;
+        ShortLong to_push{};
 	to_push.s[1]=m_DigitsEncode[i*2];
 	to_push.s[0]=m_DigitsEncode[i*2+1];
         m_vFragment->push_back(to_push.l);

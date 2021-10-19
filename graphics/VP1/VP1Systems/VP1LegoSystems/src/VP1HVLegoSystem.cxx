@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1LegoSystems/VP1HVLegoSystem.h"
@@ -35,10 +35,10 @@ public:
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
   QMap<QString,QCheckBox*>   checkBoxMap;
 
-  SoSwitch          *fcalSwitch[3];     // FCAL
-  SoSwitch          *hecSwitch[4];      // HEC
-  SoSwitch          *emecSwitch[4];     // EMEC
-  SoSwitch          *embSwitch[4];      // EMB
+  SoSwitch          *fcalSwitch[3]{};     // FCAL
+  SoSwitch          *hecSwitch[4]{};      // HEC
+  SoSwitch          *emecSwitch[4]{};     // EMEC
+  SoSwitch          *embSwitch[4]{};      // EMB
 
 
   //  std::map < SoNode *, const FCALTile *>   TileMap;
@@ -134,7 +134,7 @@ void VP1HVLegoSystem::buildPermanentSceneGraph(StoreGateSvc */*detStore*/, SoSep
   else {
     if (VP1Msg::verbose()) {
       std::vector<HWIdentifier>::const_iterator begin=elecId->electrode_begin(), end=elecId->electrode_end(), e;
-      for (e=begin;e!=end;e++) {
+      for (e=begin;e!=end;++e) {
 	if (elecId->detector(*e) ==0) {
 	  std::cout << elecId->detector(*e) << ' '
 		    << elecId->zside(*e) << ' '

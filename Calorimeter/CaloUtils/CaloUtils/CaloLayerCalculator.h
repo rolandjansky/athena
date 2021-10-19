@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloLayerCalculator.h,v 1.1 2006-03-20 17:42:26 ssnyder Exp $
@@ -150,31 +150,6 @@ public:
                    CaloSampling::CaloSample sampling,
                    xAOD::CaloCluster* tofill = 0);
 
-  /**
-   * @brief Calculate layer variables from a cell container.
-   * @param cell_container The cell container.
-   * @param eta The @f$\eta@f$ center of the cluster, for cell selection.
-   * @param phi The @f$\phi@f$ center of the cluster, for cell selection.
-   * @param deta The @f$\eta@f$ full width for cell selection.
-   * @param dphi The @f$\phi@f$ full width for cell selection.
-   * @param sampling The sampling for cell selection.
-   * @param tofill If non-null, then selected cells will be added
-   *               to this cluster.
-   *
-   * This takes a list of cells from a cell container,
-   * selects those within a @c deta by @c dphi window around @c eta, @c phi
-   * in layer @c sampling, and fills the layer variables from them.
-   * If @c tofill is non-null, then selected cells will also be added
-   * to the cluster @c tofill.
-   */
-  StatusCode fill (const CaloCellContainer* cell_container,
-                   double eta,
-                   double phi,
-                   double deta,
-                   double dphi,
-                   CaloSampling::CaloSample sampling,
-                   xAOD::CaloCluster* tofill = 0);
-
 
   //@}
   /** Data access. */
@@ -280,20 +255,20 @@ private:
 
 
   /// Layer variables.
-  double   m_etam;    // Mean @f$\eta@f$.
-  double   m_phim;    // Mean @f$\phi@f$.
-  double   m_etas;    // RMS @f$\eta@f$.
-  double   m_phis;    // RMS @f$\phi@f$.
-  double   m_em;      // Total energy.
-  double   m_etamax;  // @f$\eta@f$ center of maximum-energy cell.
-  double   m_phimax;  // @f$\phi@f$ center of maximum-energy cell.
-  double   m_emax;    // Energy of maximum-energy cell.
+  double   m_etam = 0.0;    // Mean @f$\eta@f$.
+  double   m_phim = 0.0;    // Mean @f$\phi@f$.
+  double   m_etas = 0.0;    // RMS @f$\eta@f$.
+  double   m_phis = 0.0;    // RMS @f$\phi@f$.
+  double   m_em = 0.0;      // Total energy.
+  double   m_etamax = 0.0;  // @f$\eta@f$ center of maximum-energy cell.
+  double   m_phimax = 0.0;  // @f$\phi@f$ center of maximum-energy cell.
+  double   m_emax = 0.0;    // Energy of maximum-energy cell.
 
   // Added to cluster in the calorimeter frame
-  double   m_etamr;  // Mean @f$\eta@f$ with raw quantity
-  double   m_phimr;  // Mean @f$\phi@f$ with raw quantity
-  double   m_etarmax;  // @f$\eta_raw@f$ center of maximum-energy cell.
-  double   m_phirmax;  // @f$\phi_raw@f$ center of maximum-energy cell.
+  double   m_etamr = 0.0;  // Mean @f$\eta@f$ with raw quantity
+  double   m_phimr = 0.0;  // Mean @f$\phi@f$ with raw quantity
+  double   m_etarmax = 0.0;  // @f$\eta_raw@f$ center of maximum-energy cell.
+  double   m_phirmax = 0.0;  // @f$\phi_raw@f$ center of maximum-energy cell.
 
 
   /**

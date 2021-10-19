@@ -629,7 +629,9 @@ bool InDet::SiTrajectoryElement_xk::set
   (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
     m_stereo = true : m_stereo = false;
 
-  if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
+  if(m_detstatus && m_ndf == 1){
+    m_halflength = si ? si->width().z()*.5 : (*sb)->width().z()*.5;
+  }
 
   if(!m_detstatus) {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VP1CALOSYSTEMS_VP1CALOCELLMANAGER_H
@@ -45,7 +45,7 @@ class VP1CaloCellManager : public QObject
 		     bool useEt,
 		     const QPair<bool,double>& scale,
 		     bool outline,
-		     VP1CC_GlobalCuts globalCuts);
+		     const VP1CC_GlobalCuts& globalCuts);
 
   ~VP1CaloCellManager();
 
@@ -62,7 +62,7 @@ class VP1CaloCellManager : public QObject
  private:
   // ------------ Private methods ------------
   // Update scene with newInterval for pos/neg cells
-  void updateScene(VP1Interval newInterval, bool positive);
+  void updateScene(const VP1Interval& newInterval, bool positive);
 
   // ------------ Private data --------------
   // Selection Type

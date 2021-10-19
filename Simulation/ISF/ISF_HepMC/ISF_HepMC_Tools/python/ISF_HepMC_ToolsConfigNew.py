@@ -24,7 +24,7 @@ def ParticleSimWhiteListCfg(ConfigFlags, name="ISF_ParticleSimWhiteList", **kwar
     result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
     return result
 
-def ParticleSimWhiteList_ExtraParticles(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
+def ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("WhiteLists" , ["G4particle_whitelist.txt", "G4particle_whitelist_ExtraParticles.txt"] )
     result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
@@ -84,8 +84,7 @@ def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilter
 def ParticlePositionFilterDynamicCfg(ConfigFlags, name="ISF_ParticlePositionFilterDynamic", **kwargs):
     # automatically choose the best fitting filter region
 
-    #if ConfigFlags.Detector.EnableMuon:
-    if True:
+    if ConfigFlags.Detector.EnableMuon:
       return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
     elif ConfigFlags.Detector.EnableCalo:
       return ParticlePositionFilterCaloCfg(ConfigFlags, name, **kwargs)

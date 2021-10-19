@@ -122,7 +122,7 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
 
   /// swap sign depending on the readout side
   int gasGap = m_idHelperSvc->mmIdHelper().gasGap(prepData->identify());
-  bool changeSign = ( globalPos.z() > 0. ? (gasGap==1 || gasGap==3) : (gasGap==2 || gasGap==4) );
+  bool changeSign = ( globalPos.z() < 0. ? (gasGap==1 || gasGap==3) : (gasGap==2 || gasGap==4) );
   if (changeSign) bfield = -bfield;
 
   //// sign of the lorentz angle matches digitization - angle is in radians

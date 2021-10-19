@@ -16,11 +16,12 @@
 #include "xAODEgamma/EgammaFwd.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
@@ -41,7 +42,9 @@ namespace DerivationFramework {
     SG::ReadHandleKey<CaloCellContainer>  m_InputCellsSGKey{this, "InputCellsSGKey", "AllCalo", "SG key for input cells container"};
     SG::WriteHandleKey<xAOD::CaloClusterContainer> m_OutputClusterSGKey{this, "OutputClusterSGKey", "EgammaDummyClusters", "SG key for output"};
     SG::WriteHandleKey<CaloClusterCellLinkContainer> m_OutputCellLinkSGKey{this, "OutputCellLinksSGKey", "EgammaDummyCellLink", "SG key for output cell links"};
-
+    
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+    
     std::string m_selectionString;
     double m_dr;
 

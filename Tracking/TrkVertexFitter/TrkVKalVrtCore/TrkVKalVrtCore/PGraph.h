@@ -15,8 +15,8 @@ namespace Trk {
 
 public:
     PGraph() { } //Prevent zeroing of large arrays.
-    int pgraphm_(long int *weit, long int *edges, long int *nodes, long int *set, long int *nptr, long int *nth) noexcept;
-    static void trevni_(long int *from, long int *length, long int *to, long int *maxv, long int *newlng, long int *work) noexcept;
+    int pgraphm_(long int *weit, long int edges, long int nodes, long int *set, long int *nptr, long int nth) noexcept;
+    static void trevni_(long int *from, long int length, long int *to, long int maxv, long int *newlng, long int *work) noexcept;
 
   };
 }

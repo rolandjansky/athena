@@ -25,14 +25,14 @@ class useElectrons(JobProperty):
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = True
+    StoredValue = False
 
 class useMuons(JobProperty):
     """ Flag to toggle usage of muon tracks on/off - if on muon tracks are masked out
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = True
+    StoredValue = False
 
 class storeLeptonCells(JobProperty):
     """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowPreparation
@@ -86,7 +86,7 @@ class useRun2_mc20_EOverP(JobProperty):
     """ Flag to enable usage of Run2_MC16 E/p reference file """
     statusOn=True
     allowedTypes= ['bool']
-    StoredValue= False
+    StoredValue= True
 
 # Defines the container for the eflowRec flags
 

@@ -201,7 +201,7 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
 
 }
 
-const TString& egammaMVACalibTool::getString(TObject* obj) const
+const TString& egammaMVACalibTool::getString(TObject* obj) 
 {
   TObjString *objS = dynamic_cast<TObjString*>(obj);
   if (!objS) {

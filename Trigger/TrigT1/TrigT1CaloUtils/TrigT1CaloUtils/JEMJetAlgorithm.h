@@ -16,10 +16,11 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1CaloEvent/JetInput.h"
 #include "xAODTrigL1Calo/JEMTobRoI.h"
+
+#include "TrigConfData/L1Menu.h"
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.
@@ -40,7 +41,7 @@ class JEMJetAlgorithm {
 public: 
   
   JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, 
-                   ServiceHandle<TrigConf::ILVL1ConfigSvc> config, const TrigConf::L1Menu * l1menu);
+                   const TrigConf::L1Menu * l1menu);
 
   ~JEMJetAlgorithm();
   
@@ -64,7 +65,6 @@ public:
 private: //atribs
   double m_refEta;
   double m_refPhi;
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   const TrigConf::L1Menu * m_l1menu{nullptr};
 
   /** Algorithm results */

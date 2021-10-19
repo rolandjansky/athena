@@ -212,12 +212,12 @@ namespace Rec {
         ToolHandle<Muon::IMuonErrorOptimisationTool> m_muonErrorOptimizer{
             this,
             "MuonErrorOptimizer",
-            "Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool",
+            "",
         };
         ToolHandle<Muon::IMuonHoleRecoveryTool> m_muonHoleRecovery{
             this,
             "MuonHoleRecovery",
-            "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool",
+            "",
         };
         ToolHandle<Trk::IPropagator> m_propagator{
             this,

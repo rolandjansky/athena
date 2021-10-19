@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECPresamplerHVManager.h"
@@ -21,7 +21,6 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArCabling/LArHVCablingTool.h"
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 #include "LArRecConditions/LArHVIdMapping.h"
@@ -31,33 +30,6 @@
 #include "GeoModelKernel/CellBinning.h"
 
 #include <atomic>
-
-
-namespace {
-
-
-struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
-{
-  LegacyIdFunc();
-  std::vector<HWIdentifier> operator()(HWIdentifier id)
-  {
-    return m_cablingTool->getLArElectrodeIDvec (id);
-  }
-  LArHVCablingTool* m_cablingTool;
-};
-
-
-LegacyIdFunc::LegacyIdFunc()
-{
-  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
-  if (!tool.retrieve().isSuccess()) {
-    std::abort();
-  }
-  m_cablingTool = tool.get();
-}
-
-
-} // Anonymous namespace
 
 
 class EMECPresamplerHVManager::Clockwork {
@@ -81,8 +53,8 @@ public:
   }
   CellBinning                   phiBinning{0.0, 2*M_PI, 64};
   std::unique_ptr<const EMECPresamplerHVModule> moduleArray[2][64];  // not dense
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 
@@ -266,22 +238,6 @@ EMECPresamplerHVManager::getData (idfunc_t idfunc,
   }
 
   return EMECPresamplerHVManager::EMECPresamplerHVData (std::move (payload));
-}
-
-
-EMECPresamplerHVManager::EMECPresamplerHVData
-EMECPresamplerHVManager::getData ATLAS_NOT_THREAD_SAFE () const
-{
-  std::vector<const CondAttrListCollection*> attrLists;
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
-  const CondAttrListCollection* atrlistcol = nullptr;
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
-    attrLists.push_back (atrlistcol);
-  }
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
-    attrLists.push_back (atrlistcol);
-  }
-  return getData (LegacyIdFunc(), attrLists);
 }
 
 

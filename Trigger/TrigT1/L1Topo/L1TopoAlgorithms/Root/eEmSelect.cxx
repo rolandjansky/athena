@@ -19,10 +19,11 @@ TCS::eEmSelect::eEmSelect(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth1stStage", 30 ); // for fw
    defineParameter( "OutputWidth", 6 );
    defineParameter( "MinET", 0 );
-   defineParameter( "IsoMask", 0);
+   defineParameter( "REtaMin", 0);
+   defineParameter( "RHadMin", 0);
+   defineParameter( "WsTotMin", 0);
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 63);
-   defineParameter( "DoIsoCut", 1);
 }
 
 
@@ -33,10 +34,12 @@ TCS::StatusCode
 TCS::eEmSelect::initialize() {
    m_numberOfeEms = parameter("OutputWidth").value();
    m_et = parameter("MinET").value();
-   m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doIsoCut = parameter("DoIsoCut").value();
+   m_maxEta = parameter("MaxEta").value();
+   m_minREta = parameter("REtaMin").value();
+   m_minRHad = parameter("RHadMin").value();
+   m_minWsTot = parameter("WsTotMin").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -51,9 +54,10 @@ TCS::eEmSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
       if( parType_t((*eem)->Et()) <= m_et ) continue; // ET cut
       // isolation cut
-      if (m_doIsoCut && (m_iso != 0 )) {
-          if((parType_t((*eem)->isolation()) & m_iso) != m_iso ) continue;
-      }
+      if ( !isocut(m_minREta, gtob.Reta()) ) {continue;}
+      if ( !isocut(m_minRHad, gtob.Rhad()) ) {continue;}
+      if ( !isocut(m_minWsTot, gtob.Wstot()) ) {continue;}
+      
       // eta cut
       if (parType_t(std::abs((*eem)-> eta())) < m_minEta) continue; 
       if (parType_t(std::abs((*eem)-> eta())) > m_maxEta) continue;  

@@ -1,9 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
 //***************************************************************************
-//                           jFEXOutputCollection.h  -  
+//                           jFEXOutputCollection.h  -
 //                              -------------------
 //     begin                : 09 12 2020
 //     email                : varsiha.sothilingam@cern.ch
@@ -14,6 +13,7 @@
 #define JFEX_OUTPUT_COLLECTION_H
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "StoreGate/StoreGateSvc.h"
 #include <map>
 #include <iostream>
 #include <vector>
@@ -23,32 +23,38 @@ namespace LVL1 {
   class jFEXOutputCollection
   {
   public:
-    jFEXOutputCollection() {};
+    jFEXOutputCollection();
     ~jFEXOutputCollection();
     void clear();
-    void addValue_smallRJet(std::string, float);
+    void addValue_smallRJet(std::string, int);
     void fill_smallRJet();
-    void addValue_largeRJet(std::string, float);
+    void addValue_largeRJet(std::string, int);
     void fill_largeRJet();
     void addValue_tau(std::string, int);
     void fill_tau();
-    int SRsize();
-    int LRsize();
-    int tausize();
-    std::map<std::string, float>* get_smallRJet(int);
-    std::map<std::string, float>* get_largeRJet(int);
-    std::map<std::string, int>* get_tau(int);
-
+    void addValue_pileup(std::string, int);
+    void fill_pileup();
+    int SRsize() const;
+    int LRsize() const;
+    int tausize() const;
+    int pileupsize() const;
+    void setdooutput(bool);
+    bool getdooutput() const;
+    std::unordered_map<std::string, int>* get_smallRJet(int) const;
+    std::unordered_map<std::string, int>* get_largeRJet(int) const;
+    std::unordered_map<std::string, int>* get_tau(int) const;
+    std::unordered_map<std::string, int>* get_pileup(int) const;
   private:
-    std::map<std::string, float> m_values_tem_smallRJet;
-    std::vector<std::map<std::string, float>*> m_allvalues_smallRJet;
-    std::map<std::string, float> m_values_tem_largeRJet;
-    std::vector<std::map<std::string, float>*> m_allvalues_largeRJet;
-    std::map<std::string, int> m_values_tem_tau;
-    std::vector<std::map<std::string, int>*> m_allvalues_tau;
+    bool m_dooutput;
+    std::unordered_map<std::string, int> m_values_tem_smallRJet;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_smallRJet;
+    std::unordered_map<std::string, int> m_values_tem_largeRJet;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_largeRJet;
+    std::unordered_map<std::string, int> m_values_tem_tau;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_tau;
+    std::unordered_map<std::string, int> m_values_tem_pileup;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_pileup;
   };
 }
-
 CLASS_DEF(LVL1::jFEXOutputCollection, 1317184196 , 1 )
-
 #endif

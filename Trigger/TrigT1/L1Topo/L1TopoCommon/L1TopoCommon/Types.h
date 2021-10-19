@@ -18,7 +18,10 @@ namespace TCS {
                          TAU=7,
 			 LATEMUON=8, 
 			 MUONNEXTBC=9,
-                         EEM=10 }; 
+                         EEM=10,
+			 ETAU=11,
+			 CTAU=12
+   }; 
 
    std::string inputTypeAsString(inputTOBType_t type);
 

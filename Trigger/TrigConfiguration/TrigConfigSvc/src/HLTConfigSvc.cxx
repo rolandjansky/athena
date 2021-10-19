@@ -122,9 +122,8 @@ HLTConfigSvc::initialize ATLAS_NOT_THREAD_SAFE() {
 
    ATH_CHECK(ConfigSvcBase::initialize());
 
-   std::string xmlFile(boost::to_lower_copy(m_xmlFile)); // lower case
-   if( !fromDB() and (xmlFile=="none" or xmlFile == "")) {
-      ATH_MSG_INFO("xml file set to NONE, will not load old-style HLT Menu");
+   if( !fromDB() ) {
+      ATH_MSG_INFO("will not load old-style HLT Menu");
       return StatusCode::SUCCESS;
    }
 
@@ -219,7 +218,7 @@ TrigConf::HLTConfigSvc::start() {
 
    ATH_MSG_INFO("HLTConfigSvc::start");
 
-   if( ! fromDB() ) // xml config
+   if( ! fromDB() )
       return StatusCode::SUCCESS;
 
    // also load the prescale set for the initial HLT PSK into the PrescaleSetCollection

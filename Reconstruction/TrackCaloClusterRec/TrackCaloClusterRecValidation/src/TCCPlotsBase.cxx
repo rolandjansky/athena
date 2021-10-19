@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TCCPlotsBase.h"
@@ -33,7 +33,7 @@ namespace {
   }
 }
 
-TCCPlotsBase::TCCPlotsBase(PlotBase* pParent, std::string folder):
+TCCPlotsBase::TCCPlotsBase(PlotBase* pParent, const std::string& folder):
   PlotBase(pParent, folder), 
   m_folder(folder),
   m_histoDefSvc(nullptr) {}  

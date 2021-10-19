@@ -66,7 +66,7 @@ public:
   VP1EtaCone * etacone2;
   VP1EtaCone * etacone3;
   VP1TrackingVolumes * trackingVolumes;
-  VP1Lines * lines;
+  VP1Lines * lines = nullptr;
 
   ProjectionSurfacesHelper * projsurfhelper_pixel;
   ProjectionSurfacesHelper * projsurfhelper_sct;

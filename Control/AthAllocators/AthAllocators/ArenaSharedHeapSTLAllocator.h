@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaSharedHeapSTLAllocator.h 552460 2013-06-25 17:29:25Z ssnyder $
 /**
  * @file AthAllocators/ArenaSharedHeapSTLAllocator.h
  * @author scott snyder <snyder@bnl.gov>
@@ -66,6 +63,7 @@
 #include "AthAllocators/ArenaHeapAllocator.h"
 #include "AthAllocators/ArenaHeapSTLAllocator.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"
+#include "CxxUtils/concepts.h"
 #include <string>
 #include <vector>
 
@@ -154,6 +152,24 @@ public:
    * @param os Stream to which to write the report.
    */
   void report (std::ostream& os) const;
+
+
+  /**
+   * @brief Write-protect the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to allow writes.
+   */
+  void unprotect();
 
 
 private:
@@ -301,7 +317,9 @@ public:
 
   /// Convert a reference to an address.
   pointer address (reference x) const;
-  const_pointer address (const_reference x) const;
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<reference,const_reference>),
+                      const_pointer)
+  address (const_reference x) const { return &x; }
 
 
   /**
@@ -317,6 +335,12 @@ public:
    * @param n Number of objects to deallocate.  Must be 1.
    */
   void deallocate (pointer, size_type n);
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<pointer,const_pointer>), void)
+  deallocate (const_pointer p, size_type n) const
+  {
+    pointer p_nc ATLAS_THREAD_SAFE = const_cast<pointer>(p);
+    deallocate (p_nc, n);
+  }
 
 
   /**
@@ -330,9 +354,10 @@ public:
   /**
    * @brief Call the @c T constructor.
    * @param p Location of the memory.
-   * @param val Parameter to pass to the constructor.
+   * @param args Arguments to pass to the constructor.
    */
-  void construct (pointer p, const T& val);
+  template <class... Args>
+  void construct (pointer p, Args&&... args);
 
 
   /**
@@ -428,6 +453,24 @@ public:
   void report (std::ostream& os) const;
   
 
+  /**
+   * @brief Write-protect the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to allow writes.
+   */
+  void unprotect();
+
+
 private:
   ArenaSharedHeapSTLHeader* m_header;
   ArenaHeapAllocator* m_pool;
@@ -439,6 +482,18 @@ void swap (ArenaSharedHeapSTLAllocator<T>& a, ArenaSharedHeapSTLAllocator<T>& b)
 {
   a.swap (b);
 }
+
+
+/**
+ * @brief Hook for unprotecting an arena.
+ *
+ * Sometimes we need to ensure that an arena is unprotected before we start
+ * destroying an object that contains the arena.  To do that without
+ * making assumptions about whether the arena supports an unprotect
+ * operation, call this function.
+ */
+template <class T>
+void maybeUnprotect (ArenaSharedHeapSTLAllocator<T>& a);
 
 
 } // namespace SG

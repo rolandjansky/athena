@@ -33,8 +33,7 @@ using  ConditionFilters =
 class FastReducer {
  public:
 
-  FastReducer(const HypoJetCIter& jets_b,
-              const HypoJetCIter& jets_e,
+  FastReducer(const HypoJetVector& jv,
               const ConditionPtrs& conditionObjects,
 	      const ConditionFilters& conditionFilters,
               const Tree& conditionsTree,
@@ -93,8 +92,7 @@ class FastReducer {
    in preparration for testing against parent conditions.
   */
   
-  bool findInitialJetGroups(const HypoJetCIter& jets_b,
-			    const HypoJetCIter& jets_e,
+  bool findInitialJetGroups(const HypoJetVector& jv,
 			    const Collector& collector);
   
   

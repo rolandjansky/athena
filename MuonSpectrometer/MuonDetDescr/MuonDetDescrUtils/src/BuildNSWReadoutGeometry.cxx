@@ -1,14 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDetDescrUtils/BuildNSWReadoutGeometry.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-
+#include "AGDDControl/AGDDController.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
+
+#include "AGDDControl/IAGDD2GeoSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <TString.h> // for Form
 #include <fstream>
@@ -22,7 +25,12 @@ bool BuildNSWReadoutGeometry::BuildReadoutGeometry(MuonGM::MuonDetectorManager* 
 {
   bool geoBuilt = true;  
 
-  detectorList& dList=AGDDDetectorStore::GetDetectorStore()->GetDetectorList();
+  ServiceHandle<IAGDDtoGeoSvc> svc ("AGDDtoGeoSvc", "MMDetectorHelper");
+  if (svc.retrieve().isFailure()) {
+    std::abort();
+  }
+  IAGDDtoGeoSvc::LockedController c = svc->getController();
+  detectorList& dList=c->GetDetectorStore().GetDetectorList();
   detectorList::const_iterator it;
   for (it=dList.begin(); it!=dList.end(); ++it) {
 

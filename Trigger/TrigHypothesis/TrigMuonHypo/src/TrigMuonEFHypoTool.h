@@ -65,6 +65,8 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
     this, "RequireSAMuons", false, "Apply cut on SA muons (otherwise require combined muons)"};
    Gaudi::Property< float > m_d0min {
         this, "MinimumD0", 0., "lower d0 cut (mm)"};
+   Gaudi::Property< bool > m_checkOvlp {
+        this, "RemoveOverlaps", false, "do overlap removal"};
 
   // Other members:   
   std::vector<size_t> m_bins={0};

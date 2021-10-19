@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -136,9 +136,9 @@ bool Trig::ChainGroup::L1Result(const std::string& item, unsigned int condition)
   if (item=="") return r;
   if (item.find(',')!=std::string::npos) {
     std::vector< std::string > items = convertStringToVector(item);
-    std::vector< std::string >::iterator itit = items.begin();
-    for(;itit != items.end(); ++itit)
-      if(L1Result(*itit,condition)) return true;
+    for(const std::string& item : items) {
+      if(L1Result(item,condition)) return true;
+    }
     return false;
   }
   const LVL1CTP::Lvl1Item* fitem=cgm()->item(item);
@@ -183,12 +183,10 @@ bool Trig::ChainGroup::isPassed(unsigned int condition) const
   ChainGroup::const_conf_chain_iterator chIt;
 
   bool RESULT = false;
-  bool chainRESULT;
   std::string nexttwo;
 
   for ( chIt = conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
-    chainRESULT=false;
-    chainRESULT=HLTResult((*chIt)->chain_name(),condition);
+    bool chainRESULT=HLTResult((*chIt)->chain_name(),condition);
     if (chainRESULT && (condition & TrigDefs::enforceLogicalFlow)) {
       // enforceLogicalFlow
       if ((*chIt)->level()=="EF") {
@@ -263,9 +261,9 @@ unsigned int Trig::ChainGroup::L1Bits(const std::string& item) const {
   if (item=="") return r;
   if (item.find(',')!=std::string::npos) {
     std::vector< std::string > items = convertStringToVector(item);
-    std::vector< std::string >::iterator itit = items.begin();
-    for(;itit != items.end(); ++itit)
-      r |= L1Bits(*itit);
+    for(const std::string& item : items) {
+      r |= L1Bits(item);
+    }
     return r;
   }
   const LVL1CTP::Lvl1Item* fitem = cgm()->item(item);
@@ -300,8 +298,7 @@ unsigned int Trig::ChainGroup::isPassedBits() const
     } else if ((*chIt)->level()=="HLT") {
       RESULT = RESULT | L1Bits(getLowerName((*chIt)->chain_name()));
     }
-    RESULT = RESULT | RESULT;
-    //    cout << "After looking at :" << (*chIt)->chain_name() 
+    //    cout << "After looking at :" << (*chIt)->chain_name()
     //	 << " " << std::hex << RESULT << endl;
   }
 
@@ -387,12 +384,11 @@ float Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condi
   } else {
     float minprescale=0;
     std::vector< std::string > items = convertStringToVector(item);
-    std::vector< std::string >::iterator itit = items.begin();
-    for(;itit != items.end(); ++itit) {
+    for(const std::string& item : items) {
 
-      const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(*itit);
+      const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(item);
       if (fitem==0) {
-        ATH_MSG_WARNING("Configuration for the item: " << *itit << " not known");
+        ATH_MSG_WARNING("Configuration for the item: " << item << " not known");
         return std::numeric_limits<float>::quiet_NaN();
       }
       int ctpid = fitem->ctpId();
@@ -627,8 +623,6 @@ std::vector< std::vector< TrigConf::HLTTriggerElement* > > Trig::ChainGroup::get
 }
 
 
-Trig::ChainGroup::~ChainGroup() {}
-
 void
 Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
                          const TrigConf::ItemContainer* confItems,
@@ -645,10 +639,9 @@ Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
 
    if (parseAsRegex) {
 
-     for(std::vector< std::string >::const_iterator it = m_patterns.begin();
-         it != m_patterns.end(); ++it) {
-        // find chains matching pattern     
-        boost::regex compiled(*it);
+     for(const std::string& pat : m_patterns) {
+        // find chains matching pattern
+        boost::regex compiled(pat);
         boost::cmatch what;
 
         for(TrigConf::HLTChain* ch : *confChains) {
@@ -790,7 +783,6 @@ Trig::ChainGroup::features(unsigned int condition) const {
 
       std::set< std::string > threshold_names;
       std::stack<const TrigConf::TriggerItemNode*>nodes;
-      const TrigConf::TriggerItemNode*node;
 
       threshold_names.clear();
       //node = item->topNode();
@@ -798,7 +790,8 @@ Trig::ChainGroup::features(unsigned int condition) const {
 
       // collect unique list (= set) of threshold names for this item
       while (!nodes.empty()) {
-         node = nodes.top(); nodes.pop();
+         const TrigConf::TriggerItemNode* node = nodes.top();
+         nodes.pop();
          if (node == NULL)
             continue;
          if (node->isThreshold()) {
@@ -847,12 +840,5 @@ void Trig::ChainGroup::appendFeatures(std::vector< std::vector< HLT::TriggerElem
     ATH_MSG_VERBOSE(" adding combination" << Combination(*combination, cgm()));
 
     ++combination;
-  }
-}
-
-
-namespace ChainGroup_impl {
-  bool vsize(const std::vector<TrigConf::HLTTriggerElement*>& a , const std::vector<TrigConf::HLTTriggerElement*>& b) {
-    return a.size() < b.size();
   }
 }

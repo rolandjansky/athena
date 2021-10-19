@@ -1,23 +1,9 @@
-#jps.AthenaCommonFlags.AccessMode = "POOLAccess" # use POOL read mode because reading calocells
-#svcMgr.EventSelector.InputCollections = jps.AthenaCommonFlags.FilesInput()
 from AthenaCommon.GlobalFlags  import globalflags
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 if type(theApp).__name__ == "fakeAppMgr": theApp.initialize() #this line cuts off pathena when joboption parsing ... since all outputs now declared
 
-#from RecExConfig import AutoConfiguration
-#AutoConfiguration.ConfigureSimulationOrRealData()
-#AutoConfiguration.ConfigureGeo()
-#AutoConfiguration.ConfigureConditionsTag()
-#from AthenaCommon.DetFlags import DetFlags
-#DetFlags.detdescr.all_setOff()
-#DetFlags.detdescr.Calo_setOn()
-#include("RecExCond/AllDet_detDescr.py")
-
-#include( "CaloConditions/CaloConditions_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-
-
 include( "RegistrationServices/IOVRegistrationSvc_jobOptions.py" )
 
 IOVBeginRun   = IOVRunNumberMin
@@ -48,28 +34,52 @@ DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Calo_setOn()
 include("RecExCond/AllDet_detDescr.py")
 
+# menu with default configuration for testing
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
+
 svcMgr += CfgMgr.THistSvc()
-#svcMgr.THistSvc.Output += ["ISO DATAFILE='tobIso.root' OPT='RECREATE'"]
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile_jfex.root' OPT='RECREATE'"]
 
+
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-xaodStream = MSMgr.NewPoolRootStream( "StreamXAOD", "xAOD.out.root" )
-xaodStream.AddItem( ["xAOD::jFexSRJetRoIContainer"] )
-xaodStream.AddItem( ["xAOD::jFexSRJetRoIAuxContainer"] )
-xaodStream.AddItem( ["xAOD::jFexLRJetRoIContainer"] )
-xaodStream.AddItem( ["xAOD::jFexLRJetRoIAuxContainer"] )
-xaodStream.AddItem( ["xAOD::jFexTauRoIContainer"] )
-xaodStream.AddItem( ["xAOD::jFexTauRoIAuxContainer"] )
-xaodStream.AddItem( ["xAOD::jFexSumETRoIContainer"] )
-xaodStream.AddItem( ["xAOD::jFexSumETRoIAuxContainer"] )
-xaodStream.AddItem( ["xAOD::jFexMETRoIContainer"] )
-xaodStream.AddItem( ["xAOD::jFexMETRoIAuxContainer"] )
+StreamAOD_Augmented = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.jFEX.output.root" )
+StreamAOD = StreamAOD_Augmented.GetEventStream()
+
+# the jFex containers
+StreamAOD.ItemList+=["xAOD::jFexSRJetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexSRJetRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexLRJetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexLRJetRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::TriggerTowerContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexTauRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexTauRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexSumETRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexSumETRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexMETRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexMETRoIAuxContainer#*"]
+
+#Physics Objects
+StreamAOD.ItemList+=["xAOD::JetContainer#*"]
+StreamAOD.ItemList+=["xAOD::JetAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::ElectronContainer#Electrons"]
+StreamAOD.ItemList+=["xAOD::ElectronAuxContainer#ElectronsAux."]
+StreamAOD.ItemList+=["xAOD::TauJetContainer#TauJets"]
+StreamAOD.ItemList+=["xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters."]
+
+
+
+
+
+
 
 
 #######################################################
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")
 athAlgSeq += CfgMgr.LVL1__jFEXDriver('MyjFEXDriver')
-athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
+# athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

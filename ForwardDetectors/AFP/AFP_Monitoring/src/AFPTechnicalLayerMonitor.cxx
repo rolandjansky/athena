@@ -23,7 +23,7 @@ AFPTechnicalLayerMonitor::~AFPTechnicalLayerMonitor()
 }
 
 // Description: Used for re-booking managed histograms       
-void AFPTechnicalLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, const std::string histsDirName)
+void AFPTechnicalLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, const std::string& histsDirName)
 {
   
   // ********** Per lumi block **********
@@ -49,7 +49,7 @@ void AFPTechnicalLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* /* toolToS
 }
 
 
-std::string AFPTechnicalLayerMonitor::makeHistName (const std::string name) const
+std::string AFPTechnicalLayerMonitor::makeHistName (const std::string& name) const
 {
   std::stringstream histName;
   histName<<name<<"St"<<m_stationID<<"Layer"<<m_pixelLayerID;
@@ -58,7 +58,7 @@ std::string AFPTechnicalLayerMonitor::makeHistName (const std::string name) cons
 }
 
 
-std::string AFPTechnicalLayerMonitor::makeHistTitle (const std::string title) const
+std::string AFPTechnicalLayerMonitor::makeHistTitle (const std::string& title) const
 {
   std::stringstream histTitle;
   histTitle<<title<<" in station "<<m_stationID<<" for layer "<<m_pixelLayerID;

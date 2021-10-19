@@ -41,12 +41,26 @@ StatusCode TrigEgammaTopoHypoTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool TrigEgammaTopoHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
-  auto massOfAccepted = Monitored::Scalar( "MassOfAccepted"   , -1.0 );
-  auto dphiOfAccepted = Monitored::Scalar( "DphiOfAccepted"   , -99 );
-  auto monitorIt    = Monitored::Group( m_monTool, massOfAccepted, dphiOfAccepted);
-//retrieve the elements
+bool TrigEgammaTopoHypoTool::executeAlg(const std::vector<Combo::LegDecision> &combination) const {
+  auto massOfProcessed = Monitored::Scalar( "MassOfProcessed"   , -1.0);
+  auto dphiOfProcessed = Monitored::Scalar( "DphiOfProcessed"   , -99. );
+  auto massOfAccepted  = Monitored::Scalar( "MassOfAccepted"    , -1.0);
+  auto dphiOfAccepted  = Monitored::Scalar( "DphiOfAccepted"    , -99. );
+  auto monitorIt    = Monitored::Group( m_monTool, massOfProcessed, dphiOfProcessed, massOfAccepted, dphiOfAccepted);
+  //retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
+
+  // Expecting to only run over chains with two legs and one electron or photon required on each leg
+  // So should always have two objects from which to form the invariant mass
+  if(combination.size() != 2){
+    ATH_MSG_ERROR(
+      "Expecting to combine exactly two electrons/photons, but instead found "
+      << combination.size() << ". Will throw a runtime error");
+    throw std::runtime_error(
+      "Expecting to combine exactly two electrons/photons, but instead found " +
+      std::to_string(combination.size()));
+  }
+
   for (auto el: combination){
     ATH_MSG_DEBUG("found Combination: "<<combination);
     auto EL= el.second;    
@@ -57,12 +71,12 @@ bool TrigEgammaTopoHypoTool::executeAlg(std::vector<LegDecision> &combination) c
   auto electronLink2=selected_electrons[1];
   TLorentzVector hlv1 = (*electronLink1)->p4();
   TLorentzVector hlv2 = (*electronLink2)->p4();
-  massOfAccepted = (hlv1+hlv2).M();
-  dphiOfAccepted = hlv1.DeltaPhi(hlv2);
+  massOfProcessed = (hlv1+hlv2).M();
+  dphiOfProcessed = hlv1.DeltaPhi(hlv2);
   
-  ATH_MSG_DEBUG("Found two Electrons/Photons with deltaPhi " <<dphiOfAccepted);
+  ATH_MSG_DEBUG("Found two Electrons/Photons with deltaPhi " <<dphiOfProcessed);
 
-  ATH_MSG_DEBUG("Found two Electrons/Photons with mass " <<massOfAccepted);
+  ATH_MSG_DEBUG("Found two Electrons/Photons with mass " <<massOfProcessed);
 
   // apply the cut
   bool pass=true;
@@ -71,23 +85,25 @@ bool TrigEgammaTopoHypoTool::executeAlg(std::vector<LegDecision> &combination) c
     ATH_MSG_DEBUG("Applying no selections");
 
   if(m_applyMassCut){
-   bool FailsMassCut = massOfAccepted<m_lowerMassEgammaClusterCut;
-   if (m_upperMassEgammaClusterCut>=0) FailsMassCut |= massOfAccepted>m_upperMassEgammaClusterCut;
+   bool FailsMassCut = massOfProcessed<m_lowerMassEgammaClusterCut;
+   if (m_upperMassEgammaClusterCut>=0) FailsMassCut |= massOfProcessed>m_upperMassEgammaClusterCut;
    if (FailsMassCut){
     pass = false;
-    ATH_MSG_DEBUG("Combination failed mass cut: " << massOfAccepted << " not in [" << m_lowerMassEgammaClusterCut << "," <<  m_upperMassEgammaClusterCut << "]");
+    ATH_MSG_DEBUG("Combination failed mass cut: " << massOfProcessed << " not in [" << m_lowerMassEgammaClusterCut << "," <<  m_upperMassEgammaClusterCut << "]");
    }
    else
-     ATH_MSG_DEBUG( " Invariant mass " << massOfAccepted << " is  within [" <<m_lowerMassEgammaClusterCut<< "," << m_upperMassEgammaClusterCut << "] This selection passed! ");
+     massOfAccepted = (hlv1+hlv2).M();
+    ATH_MSG_DEBUG( " Invariant mass " << massOfAccepted << " is  within [" <<m_lowerMassEgammaClusterCut<< "," << m_upperMassEgammaClusterCut << "] This selection passed! ");
   }
 
   if (m_applyDPhiCut){
-   bool FailsDPhiCut = dphiOfAccepted < m_thresholdDPhiCut;
+   bool FailsDPhiCut = dphiOfProcessed < m_thresholdDPhiCut;
    if (FailsDPhiCut){
-    ATH_MSG_DEBUG("Combination failed deltaPhi cut: " << dphiOfAccepted << " is below " << m_thresholdDPhiCut);
+    ATH_MSG_DEBUG("Combination failed deltaPhi cut: " << dphiOfProcessed << " is below " << m_thresholdDPhiCut);
     pass = false;
    }
    else
+    dphiOfAccepted = hlv1.DeltaPhi(hlv2);
     ATH_MSG_DEBUG( " deltaPhi " << dphiOfAccepted << " is above the threshold "<<m_thresholdDPhiCut<<" This selection passed! ");
   }
     

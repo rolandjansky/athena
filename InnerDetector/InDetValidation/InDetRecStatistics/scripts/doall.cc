@@ -47,11 +47,11 @@ string doall_doplot;
 Long64_t doall_nentries= 0;
 int doall_cutset= 1;   // 0=none, 1=no TRTStandalong, 2=standard cuts,...
 
-int doall (const string file= "InDetRecStatistics.root",
-           const string plotdir= ".",
-           const string plotext= ".eps",
-           const string histfilename= "InDetRTTHistos.root",
-           const string doplot= doall_doplot,
+int doall (const string & file= "InDetRecStatistics.root",
+           const string & plotdir= ".",
+           const string & plotext= ".eps",
+           const string & histfilename= "InDetRTTHistos.root",
+           const string & doplot= doall_doplot,
            const int compile= 0,
            const int abseta = 0,   //added by SCZ; abseta = 1 for old default behavior
            const int cutset = doall_cutset,

@@ -14,7 +14,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::s
 
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-      size_t posit=trigItem.rfind("_");
+      size_t posit=trigItem.rfind('_');
       if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
 
@@ -42,7 +42,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::s
                 
         bool presmatch = false; //true if reco+truth is matched to preselection
         const xAOD::TauJet *offlineTau = taus_here.at(t);
-        const xAOD::TauJet* matchedTau = 0 ;
+        const xAOD::TauJet* matchedTau = nullptr ;
        
         if (not getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition)) {
             continue; //presmatch will never be true otherwise anyway
@@ -116,13 +116,13 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::s
           if(!validLink) continue;
         }
         for (int recoTrack = 0; recoTrack < OffnTrack; ++recoTrack){
-            const xAOD::TrackParticle* recotau_trk = 0;
+            const xAOD::TrackParticle* recotau_trk = nullptr;
             float recotau_trk_pt(-99.);
             float recotau_trk_eta(-99.);
             float recotau_trk_phi(-99.);
             float recotau_trk_d0(-99.);
             float recotau_trk_z0(-99.);
-            const xAOD::TrackParticle* pstau_trk_clos = 0;
+            const xAOD::TrackParticle* pstau_trk_clos = nullptr;
             float pstau_trk_pt(-99.);
             float pstau_trk_eta(-99.);
             float pstau_trk_phi(-99.);
@@ -155,7 +155,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::s
             } 
             bool tracksMatched = false; 
             if ( dRtracksmin  < 0.1 ) {tracksMatched = true;}
-            if (tracksMatched == false) {
+            if (!tracksMatched) {
                  //Fill TProfile
                 
                 profile("TProfPresVsRecoPtEfficiency")->Fill(recotau_trk_pt, 0);

@@ -2,9 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/// Gaudi includes
-#include "GaudiKernel/GaudiException.h"
-
 // Package includes
 #include "BSMonitoring.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
@@ -12,9 +9,6 @@
 #include "TrigT1Result/CTP_Decoder.h"
 
 // TrigConf includes
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfStorage/TrigConfCoolFolderSpec.h"
 #include "TrigConfData/L1Menu.h"
 
 // COOL includes
@@ -31,8 +25,6 @@
 #include "CoraCool/CoraCoolObject.h"
 #include "CoralBase/Blob.h"
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 // ROOT includes
 #include "Rtypes.h" // for Int_t
 #include "TH1F.h" // for SetRangeUser
@@ -47,8 +39,6 @@
 #include "AthenaMonitoring/AthenaMonManager.h" //for environment
 #include <cmath>
 
-#include "boost/lexical_cast.hpp"
-
 
 using namespace std;
 
@@ -61,10 +51,6 @@ TrigT1CTMonitoring::BSMonitoring::initialize()
 {
   // make sure to call initialize of the base class!
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
-
-  
-  // connect to the config service
-  ATH_CHECK( m_configSvc.retrieve() );
 
   // connect to RPC and TGC RoI tools
   if ( m_processMuctpi ) {
@@ -120,7 +106,7 @@ TrigT1CTMonitoring::BSMonitoring::bookHistograms()
          m_freqMeasurements.clear();
          m_beamMode.clear();
          const CTP_RIO* theCTP_RIO = SG::get(m_CTP_RIOKey);
-         if (! theCTP_RIO) {
+         if (theCTP_RIO!=nullptr) {
             getCoolData(theCTP_RIO->getRunNumber());
             ATH_MSG_DEBUG( m_lumiBlocks.size() << " lumi blocks found");
             for ( std::vector<uint32_t>::const_iterator lbIt = m_lumiBlocks.begin(); 
@@ -440,19 +426,11 @@ TrigT1CTMonitoring::BSMonitoring::initCtpHistograms()
 
    // bin lables
    TH1F_LW* l1ItemsBPSimMismatch = getTH1("l1ItemsBPSimMismatch");
-   if(m_useNewConfig) {
-      const TrigConf::L1Menu * l1menu = nullptr;
-      ATH_CHECK(detStore()->retrieve(l1menu));
-      for(const TrigConf::L1Item & item : *l1menu) {
-         string label = item.name() + " (CTP ID " + boost::lexical_cast<string,int>(item.ctpId())+ ")";
-         l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item.ctpId()+1,label.c_str());
-      }
-   } else {  
-      for(const TrigConf::TriggerItem * item : m_configSvc->ctpConfig()->menu().itemVector()) {
-         if(item==nullptr) continue;
-         string label = item->name() + " (CTP ID " + boost::lexical_cast<string,int>(item->ctpId())+ ")";
-         l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
-      }
+   const TrigConf::L1Menu * l1menu = nullptr;
+   ATH_CHECK(detStore()->retrieve(l1menu));
+   for(const TrigConf::L1Item & item : *l1menu) {
+      string label = item.name() + " (CTP ID " + std::to_string(item.ctpId())+ ")";
+      l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item.ctpId()+1,label.c_str());
    }
    std::map<int, std::string> errorSummaryBinLabels;
    errorSummaryBinLabels[1] = "CTP/ROD BCID Offset";
@@ -1704,57 +1682,29 @@ TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCrossing)
    const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP());
    
    if ( currentTBP != currentTBP_rerun ) {
-      if(m_useNewConfig) {
-         const TrigConf::L1Menu * l1menu = nullptr;
-         ATH_CHECK(detStore()->retrieve(l1menu));
-         for(const TrigConf::L1Item & item : *l1menu) {
+      const TrigConf::L1Menu * l1menu = nullptr;
+      ATH_CHECK(detStore()->retrieve(l1menu));
+      for(const TrigConf::L1Item & item : *l1menu) {
 
-            //do not include random and non-simulated triggers in this test (can be configured)
-            bool skip = item.definition().find("RNDM") != string::npos;
-            for(const std::string & p : m_ignorePatterns) {
-               if(item.name().find(p) != string::npos) {
-                  skip = true;
-                  break;
-               }
-            }
-            if( skip ) continue;
-
-            bool tbp       = currentTBP.test( item.ctpId() );
-            bool tbp_rerun = currentTBP_rerun.test( item.ctpId() );
-            if ( tbp !=  tbp_rerun) {
-               ATH_MSG_WARNING( "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item.name() 
-                              << "' (CTP ID " << item.ctpId() << "): data=" 
-                              << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail"));
-               itemMismatch=true;
-               l1ItemsBPSimMismatch->Fill(item.ctpId(),1);
-               l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item.name()).c_str(), 1 );
+         //do not include random and non-simulated triggers in this test (can be configured)
+         bool skip = item.definition().find("RNDM") != string::npos;
+         for(const std::string & p : m_ignorePatterns) {
+            if(item.name().find(p) != string::npos) {
+               skip = true;
+               break;
             }
          }
-      } else {  
-         for ( TrigConf::TriggerItem* item: m_configSvc->ctpConfig()->menu().items() ) {
-            std::vector<unsigned int> randoms;
-            item->topNode()->getAllRandomTriggers(randoms);
+         if( skip ) continue;
 
-            //do not include random and non-simulated triggers in this test (can be configured)
-            bool skip = randoms.size()>0;
-            for(const std::string & p : m_ignorePatterns) {
-               if(item->name().find(p) != string::npos) {
-                  skip = true;
-                  break;
-               }
-            }
-            if( skip ) continue;
-
-            bool tbp       = currentTBP.test( item->ctpId() );
-            bool tbp_rerun = currentTBP_rerun.test( item->ctpId() );
-            if ( tbp !=  tbp_rerun) {
-               ATH_MSG_WARNING( "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item->name() 
-                              << "' (CTP ID " << item->ctpId() << "): data=" 
-                              << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail"));
-               itemMismatch=true;
-               l1ItemsBPSimMismatch->Fill(item->ctpId(),1);
-               l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item->name()).c_str(), 1 );
-            }
+         bool tbp       = currentTBP.test( item.ctpId() );
+         bool tbp_rerun = currentTBP_rerun.test( item.ctpId() );
+         if ( tbp !=  tbp_rerun) {
+            ATH_MSG_WARNING( "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item.name()
+                             << "' (CTP ID " << item.ctpId() << "): data="
+                             << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail"));
+            itemMismatch=true;
+            l1ItemsBPSimMismatch->Fill(item.ctpId(),1);
+            l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item.name()).c_str(), 1 );
          }
       }
    }

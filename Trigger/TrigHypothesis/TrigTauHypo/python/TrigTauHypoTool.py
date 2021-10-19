@@ -12,25 +12,6 @@ from collections import namedtuple
 # ('Id working point', 'pt threshold': ['Maximum number of tracks[0]', 'etmincalib[1]', 'Id level[2]'])
 TauCuts = namedtuple('TauCuts','numTrackMax numTrackWideTrackMax EtCalibMin level')
 thresholdsEF = {
-    ('medium', 20): TauCuts(6, 1, 20000.0, 1),
-    ('medium', 25): TauCuts(6, 1, 25000.0, 1),
-    ('medium', 29): TauCuts(6, 1, 29000.0, 1),
-    ('medium', 38): TauCuts(6, 1, 38000.0, 1),
-    ('medium', 50): TauCuts(6, 1, 50000.0, 1),
-    ('medium', 115): TauCuts(6, 1, 115000.0, 1),
-    ('medium', 125): TauCuts(6, 1, 125000.0, 1),
-    ('loose1', 20): TauCuts(3, 1, 20000.0, 1),
-    ('loose1', 25): TauCuts(3, 1, 25000.0, 1),
-    ('loose1', 29): TauCuts(3, 1, 29000.0, 1),
-    ('loose1', 35): TauCuts(3, 1, 35000.0, 1),
-    ('loose1', 38): TauCuts(3, 1, 38000.0, 1),
-    ('loose1', 50): TauCuts(3, 1, 50000.0, 1),
-    ('loose1', 60): TauCuts(3, 1, 60000.0, 1),
-    ('loose1', 80): TauCuts(3, 1, 80000.0, 1),
-    ('loose1', 115): TauCuts(3, 1, 115000.0, 1),
-    ('loose1', 125): TauCuts(3, 1, 125000.0, 1), 
-    ('loose1', 160): TauCuts(3, 1, 160000.0, 1),
-    ('loose1', 200): TauCuts(3, 1, 200000.0, 1),
     ('medium1', 0): TauCuts(3, 1,  0000.0, 2), 
     ('medium1', 12): TauCuts(3, 1, 12000.0, 2),
     ('medium1', 20): TauCuts(3, 1, 20000.0, 2),
@@ -46,30 +27,6 @@ thresholdsEF = {
     ('medium1', 125): TauCuts(3, 1, 125000.0, 2), 
     ('medium1', 160): TauCuts(3, 1, 160000.0, 2), 
     ('medium1', 200): TauCuts(3, 1, 200000.0, 2),
-    ('tight1', 20): TauCuts(3, 1, 20000.0, 3),
-    ('tight1', 25): TauCuts(3, 1, 25000.0, 3),
-    ('tight1', 29): TauCuts(3, 1, 29000.0, 3),
-    ('tight1', 35): TauCuts(3, 1, 35000.0, 3),
-    ('tight1', 38): TauCuts(3, 1, 38000.0, 3),
-    ('tight1', 50): TauCuts(3, 1, 50000.0, 3),
-    ('tight1', 60): TauCuts(3, 1, 60000.0, 3),
-    ('tight1', 80): TauCuts(3, 1, 80000.0, 3),
-    ('tight1', 115): TauCuts(3, 1, 115000.0, 3),
-    ('tight1', 125): TauCuts(3, 1, 125000.0, 3), 
-    ('tight1', 160): TauCuts(3, 1, 160000.0, 3),
-    ('tight1', 200): TauCuts(3, 1, 200000.0, 3),
-    ('verylooseRNN', 20): TauCuts(3, 1, 20000.0, 0),
-    ('verylooseRNN', 25): TauCuts(3, 1, 25000.0, 0),
-    ('verylooseRNN', 29): TauCuts(3, 1, 29000.0, 0),
-    ('verylooseRNN', 35): TauCuts(3, 1, 35000.0, 0),
-    ('verylooseRNN', 38): TauCuts(3, 1, 38000.0, 0),
-    ('verylooseRNN', 50): TauCuts(3, 1, 50000.0, 0),
-    ('verylooseRNN', 60): TauCuts(3, 1, 60000.0, 0),
-    ('verylooseRNN', 80): TauCuts(3, 1, 80000.0, 0),
-    ('verylooseRNN', 115): TauCuts(3, 1, 115000.0, 0),
-    ('verylooseRNN', 125): TauCuts(3, 1, 125000.0, 0), 
-    ('verylooseRNN', 160): TauCuts(3, 1, 160000.0, 0),
-    ('verylooseRNN', 200): TauCuts(3, 1, 200000.0, 0),
     ('looseRNN', 20): TauCuts(3, 1, 20000.0, 1),
     ('looseRNN', 25): TauCuts(3, 1, 25000.0, 1),
     ('looseRNN', 29): TauCuts(3, 1, 29000.0, 1),
@@ -151,6 +108,7 @@ def TrigPresTauMVHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
 
+    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
@@ -167,6 +125,9 @@ def TrigPresTauMVHypoToolFromDict( chainDict ):
     if 'idperf' in criteria:
         currentHypo.AcceptAll = True
 
+    if 'tracktwoMVATest' in preselection:
+        currentHypo.highpt = False
+
     return currentHypo
 
 
@@ -176,6 +137,7 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
 
+    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
@@ -194,6 +156,8 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
         monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
         monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
+        monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
+        monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
         currentHypo.MonTool = monTool
 
  
@@ -213,6 +177,10 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
             currentHypo.AcceptAll = True
         elif 'perf' in criteria:
             currentHypo.method      = 0
+
+        if 'tracktwoMVATest' in preselection:
+            currentHypo.highpt = False
+
 
     elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'singlepion' ]: # ATR-22644
         currentHypo = CompFactory.TrigEFTauDiKaonHypoTool(name)
@@ -278,6 +246,8 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
     monTool.defineHistogram("nTracksInIso",  path='EXPERT', type='TH1I',title=';nTracksInIso; Entries',  xbins=10, xmin=0.,xmax=10.)
     monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
     currentHypo.MonTool = monTool
+
+    currentHypo.AcceptAll = True
 
     if criteria == 'cosmic':
       currentHypo.LowerPtCut      = int(threshold)*1000.

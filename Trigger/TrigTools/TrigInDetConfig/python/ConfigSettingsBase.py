@@ -16,7 +16,7 @@ class _ConfigSettingsBase() :
       self._name                = None
       self._suffix              = None
       self._pTmin               = 1.*GeV
-      self._newConfig           = False
+      self._newConfig           = True
       self._TripletDoPPS        = True
       self._Triplet_D0Max       = 4.0
       self._Triplet_D0_PPS_Max  = 1.7
@@ -32,6 +32,7 @@ class _ConfigSettingsBase() :
       self._electronPID         = False
       self._etaHalfWidth        = 0.1
       self._phiHalfWidth        = 0.1
+      self._zedHalfWidth        = -999 # don't set this parameter unless it is >= 0
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
@@ -59,6 +60,7 @@ class _ConfigSettingsBase() :
       self._dodEdxTrk           = False 
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
+      self._usePixelNN          = False
 
       if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
          self.override()
@@ -175,6 +177,10 @@ class _ConfigSettingsBase() :
    @property
    def phiHalfWidth(self):
       return self._phiHalfWidth
+
+   @property
+   def zedHalfWidth(self):
+      return self._zedHalfWidth
 
    @property
    def doFullScan(self):
@@ -297,6 +303,10 @@ class _ConfigSettingsBase() :
    @property
    def doDisappearingTrk(self):
        return self._doDisappearingTrk
+
+   @property
+   def usePixelNN(self):
+       return self._usePixelNN
 
    def printout(self):
       from AthenaCommon.Logging import logging

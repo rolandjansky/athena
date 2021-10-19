@@ -20,19 +20,20 @@ def checkL1HLTConsistency():
             continue
 
         #check that the L1item is listed in the L1Menu
-        l1item = chain['L1item']
-        if l1item not in lvl1items:
-            if l1item != "": 
-                log.error('[checkL1HLTConsistency] chain %s: L1item: %s, not found in the items list of the L1Menu %s', chain["chainName"], chain["L1item"], lvl1name)
-                raise Exception("Please fix the menu or the chain.")
-            else:
-                log.info('[checkL1HLTConsistency] chain %s in L1Menu %s: L1item not set...', chain["chainName"], lvl1name)
+        l1item_vec = chain['L1item'].split(',')
+        for l1item in l1item_vec:
+            if l1item not in lvl1items:
+                if l1item != "": 
+                    log.error('[checkL1HLTConsistency] chain %s: L1item: %s, not found in the items list of the L1Menu %s', chain["chainName"], chain["L1item"], lvl1name)
+                    raise Exception("Please fix the menu or the chain.")
+                else:
+                    log.info('[checkL1HLTConsistency] chain %s in L1Menu %s: L1item not set...', chain["chainName"], lvl1name)
 
         # Find L1 Threshold information for current chain
         for p in chain['chainParts']:
             #now check that the thresholds of the chain are listed in the L1Menu.thresholds field
-            th = p['L1threshold']
-            if 'TAU' in th: 
+            th = p['L1threshold'][5:] if p['L1threshold'].startswith("PROBE") else p['L1threshold']
+            if ('TAU' in th) and ('e' not in th) and ('j' not in th): 
                 th = th.replace('TAU','HA')
             thFoundInL1Menu = False
             l1type          = "NOTFOUND"

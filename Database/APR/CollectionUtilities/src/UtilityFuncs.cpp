@@ -30,7 +30,7 @@ std::string pool::getKey(const std::string& key, const std::string& encoded)
 {
    size_t keystart = encoded.find(key);
    if (keystart!=string::npos) {
-      size_t keylen = encoded.find(";",keystart)-keystart;
+      size_t keylen = encoded.find(';',keystart)-keystart;
       //cout << "key begins at " << keystart << " with length " << keylen << " for " << encoded << endl;
       if (keystart+keylen<encoded.size()) {
          return encoded.substr(keystart+key.size(),keylen-key.size()); 

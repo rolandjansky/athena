@@ -9,7 +9,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
 from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
 
-
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 def retrieveJetContext(trkopt):
     """Tell the standard jet config about the specific track related options we are using here.
@@ -86,6 +86,7 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     return jetTrkSeq, trackcollmap
 
 
+@AccumulatorCache
 def JetTrackingCfg(flags, trkopt, RoIs):
     """ Create the tracking CA and return it as well as the output name dictionary """
     acc = ComponentAccumulator()
@@ -185,6 +186,7 @@ def jetTTVA( signature, jetseq, trkopt, config, verticesname=None, adaptiveVerte
     outmap = { k:jetContext[k] for k in trkKeys }
     return outmap
 
+@AccumulatorCache
 def JetVertexCfg(flags, trkopt, adaptiveVertex, jetContext):
     """ Create the jet vertexing """
     from TrigInDetConfig.TrigInDetPriVtxConfig import vertexFinderCfg

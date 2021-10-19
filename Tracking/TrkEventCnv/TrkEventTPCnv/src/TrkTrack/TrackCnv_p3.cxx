@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ void TrackCnv_p3::persToTrans( const Trk::Track_p2 *persObj,
     std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
       m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
     // move copy
-    transObj->m_trackStateVector = std::move(*sink);
+    transObj->m_trackStateVectorPtr = std::move(sink);
 }
 
 //-----------------------------------------------------------------------------

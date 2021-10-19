@@ -126,8 +126,6 @@ class Test( unittest.TestCase ):
    def test_enforceType( self ):
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.isOnline = True
-      check = defineHistogram('var,pass', 'TEfficiency')
-      self.assertIs(check, '')
       check = defineTree('var,pass', treedef='var/F:pass/I')
       self.assertIs(check, '')
       athenaCommonFlags.isOnline = False

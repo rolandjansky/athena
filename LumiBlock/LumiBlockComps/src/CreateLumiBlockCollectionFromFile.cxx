@@ -149,7 +149,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     iovr->setEventsSeen(p.second.second);
   }
 
-  if(piovComplete->size()>0) {
+  if(!piovComplete->empty()) {
     ATH_MSG_INFO( "Number of Complete LumiBlocks:" << piovComplete->size() );
     for(const xAOD::LumiBlockRange* lbr : *piovComplete) {
       ATH_MSG_INFO("\t [ ("
@@ -162,7 +162,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     }
   }
 
-  if(piovUnfinished->size()>0) {
+  if(!piovUnfinished->empty()) {
     ATH_MSG_INFO( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
     for(const xAOD::LumiBlockRange* lbr : *piovUnfinished) {
       ATH_MSG_INFO("\t [ ("
@@ -175,7 +175,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     }
   }
 
-  if(piovSuspect->size()>0) {
+  if(!piovSuspect->empty()) {
     ATH_MSG_INFO( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
     for(const xAOD::LumiBlockRange* lbr : *piovSuspect) {
       ATH_MSG_INFO("\t [ ("
@@ -190,17 +190,17 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 
   // Store the LumiBlockCollection in the metadata store
   // =======================================================
-  if(piovComplete->size()>0) {
+  if(!piovComplete->empty()) {
     ATH_CHECK( m_metaStore->record( std::move(piovComplete), m_LBColl_name ) );
     ATH_CHECK( m_metaStore->record( std::move(piovCompleteAux), m_LBColl_name + "Aux." ) );
   }
   
-  if(piovUnfinished->size()>0) {
+  if(!piovUnfinished->empty()) {
     ATH_CHECK( m_metaStore->record( std::move(piovUnfinished), m_unfinishedLBColl_name ) );
     ATH_CHECK( m_metaStore->record( std::move(piovUnfinishedAux), m_unfinishedLBColl_name + "Aux." ) );
   }
 
-  if(piovSuspect->size()>0) {
+  if(!piovSuspect->empty()) {
     ATH_CHECK( m_metaStore->record( std::move(piovSuspect), m_suspectLBColl_name ) );
     ATH_CHECK( m_metaStore->record( std::move(piovSuspectAux), m_suspectLBColl_name + "Aux." ) );
   }
@@ -217,7 +217,7 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc)
 {
   if(inc.type() == "MetaDataStop") {
     ATH_MSG_INFO(  " finishUp: write lumiblocks to meta data store " );
-    if(m_LumiBlockInfo.size()>0) {
+    if(!m_LumiBlockInfo.empty()) {
       if(fillLumiBlockCollection().isFailure()) {
 	ATH_MSG_ERROR( "Could not fill lumiblock collections" );
       }

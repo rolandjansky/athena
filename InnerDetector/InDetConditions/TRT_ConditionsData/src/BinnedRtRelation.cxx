@@ -13,7 +13,7 @@ namespace TRTCond
   bool BinnedRtRelation::isequal( const RtRelation& rhs) const 
   {
     const BinnedRtRelation* rhscast=dynamic_cast<const BinnedRtRelation*>(&rhs) ;
-    return rhscast!=0 && *this==*rhscast ;
+    return rhscast!=nullptr && *this==*rhscast ;
   }
 
 

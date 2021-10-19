@@ -19,6 +19,7 @@
 #include "L1CaloFEXSim/eTowerContainer.h"
 #include "L1CaloFEXToolInterfaces/IeFEXtauAlgo.h"
 #include "L1CaloFEXToolInterfaces/IeFEXegAlgo.h"
+#include "L1CaloFEXToolInterfaces/IeFEXFormTOBs.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "TrigConfData/L1Menu.h"
 
@@ -46,18 +47,15 @@ namespace LVL1 {
     virtual ~eFEXFPGA();
 
     virtual StatusCode init(int id, int efexid) override ;
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(eFEXOutputCollection* inputOutputCollection) override ;
     virtual void reset() override ;
     virtual int getID() override {return m_id;}
 
     virtual void SetTowersAndCells_SG( int [][6] ) override ;
-    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) override ;
-
-    /**Form a tob word out of the potential candidate EM tob */
-    virtual uint32_t formEmTOB(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override ;
+    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &, unsigned int &) override ;
 
     virtual std::vector <uint32_t> getEmTOBs() override ;
-
+    virtual std::vector <uint32_t> getTauTOBs() override ;
 
     /** Internal data */
   private:
@@ -65,7 +63,8 @@ namespace LVL1 {
 
     int m_id;
     int m_efexid;
-    std::vector< uint32_t > m_tobwords;
+    std::vector< uint32_t > m_emTobwords;
+    std::vector< uint32_t > m_tauTobwords;
     int m_eTowersIDs [10][6];
 
     SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{
@@ -76,8 +75,6 @@ namespace LVL1 {
       this, "MyETowers", "eTowerContainer", 
 	"Input container for eTowers"};
 
-    //SG::ReadHandleKey<eFEXOutputCollection> m_eFEXFPGA_eFEXOutputCollectionKey {this, "MyOutputs", "eFEXOutputCollection", "Input container for eFEXOutputCollection"};
-
     ToolHandle<IeFEXtauAlgo> m_eFEXtauAlgoTool {
       this, "eFEXtauAlgoTool", "LVL1::eFEXtauAlgo", 
 	"Tool that runs the eFEX tau algorithm"};
@@ -85,6 +82,7 @@ namespace LVL1 {
       this, "eFEXegAlgoTool", "LVL1::eFEXegAlgo", 
 	"Tool that runs the eFEX e/gamma algorithm"};
     
+    ToolHandle<IeFEXFormTOBs> m_eFEXFormTOBsTool {this, "eFEXFormTOBs", "LVL1::eFEXFormTOBs", "Tool that creates eFEX TOB words"};
   };
   
 } // end of namespace

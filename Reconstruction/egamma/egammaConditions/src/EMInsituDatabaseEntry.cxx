@@ -20,7 +20,7 @@ EMInsituDatabaseEntry::EMInsituDatabaseEntry()
 EMInsituDatabaseEntry::EMInsituDatabaseEntry(const std::string& dbaseID)
 {
 	clear();
-	setDatabaseID(std::move(dbaseID));
+	setDatabaseID(dbaseID);
 }
 
 /** Default Destructor*/

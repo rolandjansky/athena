@@ -57,14 +57,14 @@ class TRT_DCS_ConditionsSvc : public AthService,
   /// Returns the value for a given folder/channel name.
   /** Get the value for a given folder/channel name.
    */
-  StatusCode getValue( const std::string, const std::string, InDet::TRT_DCS_ValueType& );
+  StatusCode getValue( const std::string & fname, const std::string & chanName, InDet::TRT_DCS_ValueType& value);
 
   /// Returns the value for a given folder and COOL channel number.
   /** Get the value for a given folder and COOL channel number.
    */
-  StatusCode getValue( const std::string, const int, InDet::TRT_DCS_ValueType& );
+  StatusCode getValue( const std::string & fname, const int chanNum, InDet::TRT_DCS_ValueType& value);
 
-  const CondAttrListCollection* getCollection( const std::string);
+  const CondAttrListCollection* getCollection( const std::string & collName);
 
   void monitorBarrel();
   void monitorEndcapA();
@@ -86,12 +86,12 @@ class TRT_DCS_ConditionsSvc : public AthService,
  private:
 
   // jobOptions properties
-  bool m_VeryVerbose;
+  bool m_VeryVerbose{};
   std::string m_Barrel_HV_COOLFolderName;
   std::string m_EndcapA_HV_COOLFolderName;
   std::string m_EndcapC_HV_COOLFolderName;
-  float m_HVWarnValLo;
-  float m_HVWarnValHi;
+  float m_HVWarnValLo{};
+  float m_HVWarnValHi{};
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<ITRT_HWMappingSvc> m_mapSvc;
@@ -109,9 +109,9 @@ class TRT_DCS_ConditionsSvc : public AthService,
   mutable std::vector<EventContext::ContextEvt_t> m_evtEA ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
   mutable std::vector<EventContext::ContextEvt_t> m_evtEC ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
 
-  int m_IOVmaxLength;
-  bool m_doIOVchecking;
-  bool m_FallBackOnCOOLChanNames;
+  int m_IOVmaxLength{};
+  bool m_doIOVchecking{};
+  bool m_FallBackOnCOOLChanNames{};
 
 
   // Straw Helpers

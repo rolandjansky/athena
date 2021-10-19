@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAndVtxPlots.h"
@@ -10,7 +10,7 @@ using CLHEP::GeV;
 
 namespace PhysVal{
 
-TrkAndVtxPlots::TrkAndVtxPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir)
+TrkAndVtxPlots::TrkAndVtxPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir)
 {}	
   
 void TrkAndVtxPlots::initializePlots(){
@@ -24,7 +24,7 @@ void TrkAndVtxPlots::initializePlots(){
   mu  = Book1D("mu", "Pileup; mu ;Events", 120, 0., 120);
 }
 
- void TrkAndVtxPlots::fill(const xAOD::Vertex* vtx,const xAOD::EventInfo* evt){
+ void TrkAndVtxPlots::fill(const xAOD::Vertex* vtx,const xAOD::EventInfo* evt) const{
     
    vtx_x->Fill(vtx->x(),evt->beamSpotWeight());
    vtx_y->Fill(vtx->y(),evt->beamSpotWeight());
@@ -36,7 +36,7 @@ void TrkAndVtxPlots::initializePlots(){
    std::cout << "filling TrackAndVertex plots with BS weight: " << evt->beamSpotWeight();
 }
 
-  void TrkAndVtxPlots::fill(unsigned int ntrack, unsigned int nvertex, float pileup,const xAOD::EventInfo* evt){
+  void TrkAndVtxPlots::fill(unsigned int ntrack, unsigned int nvertex, float pileup,const xAOD::EventInfo* evt) const{
 
   ntrk->Fill(ntrack,evt->beamSpotWeight());
   nvtx->Fill(nvertex,evt->beamSpotWeight());

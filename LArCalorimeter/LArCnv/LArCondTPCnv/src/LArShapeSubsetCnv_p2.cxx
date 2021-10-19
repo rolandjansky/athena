@@ -10,6 +10,10 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                                   LArShapeTransType2* transObj, 
                                   MsgStream & log)
 {
+    // Copy basic metadata
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
     // Copy conditions
@@ -51,7 +55,7 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                     // Channel is missing data - skip
                     copyChannel = false;
 		                    }
-                if (j%32 == 31 && j < 126) {
+                if (j%32 == 31 && j < nChannelsPerFeb-2) {
                     chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
                     chansOffset += 32;
                     ifebWithData++;
@@ -152,10 +156,6 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
         dataIndex += nPhases * nSamples;
     }
     transObj->insertCorrections (std::move (corrs));
-
-    // Copy the rest
-    transObj->setChannel       (persObj->m_subset.m_channel);
-    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 
     transObj->shrink_to_fit();
 }
@@ -321,7 +321,7 @@ LArShapeSubsetCnv_p2::transToPers(const LArShapeTransType2* transObj,
 		  saveShapes = false;
                 }
                 // Save chansSet
-                if  (j == (chansOffset + 31)) {
+                if  (j == (chansOffset + 31) || j == nfebChans-1 ) {
                     persObj->m_subset.m_febsWithSparseData.push_back(chansSet);
                     chansSet    =   0;
                     chansOffset += 32;

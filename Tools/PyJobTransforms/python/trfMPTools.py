@@ -16,6 +16,7 @@ msg = logging.getLogger(__name__)
 
 from xml.etree import ElementTree
 
+from PyJobTransforms.trfExeStepTools import commonExecutorStepName
 from PyJobTransforms.trfExitCodes import trfExit
 
 import PyJobTransforms.trfExceptions as trfExceptions
@@ -25,6 +26,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 #  @return Integer with the number of processes, N.B. 0 means non-MP serial mode
 def detectAthenaMPProcs(argdict = {}, currentSubstep = '', legacyThreadingRelease = False):
     athenaMPProcs = 0
+    currentSubstep = commonExecutorStepName(currentSubstep)
     
     # Try and detect if any AthenaMP has been enabled 
     try:

@@ -106,6 +106,8 @@ void eFEXegAlgo::getReta(std::vector<unsigned int> & retavec) {
   unsigned int totalsum = 0;   // 7x3 L2 sum : total
   unsigned int envsum   = 0;   // total - core : env
 
+  retavec.clear();  // clear the output vector before starting
+
   // window limits
   int iTotalStart = m_seedID-3;
   int iTotalEnd   = m_seedID+3;
@@ -144,9 +146,10 @@ void eFEXegAlgo::getReta(std::vector<unsigned int> & retavec) {
 
 void eFEXegAlgo::getRhad(std::vector<unsigned int> & rhadvec) {
 
-  //std::vector<unsigned int> rhadvec;
   unsigned int hadsum = 0; // 3x3 Towers Had 
   unsigned int emsum = 0;  // (1x3 + 3x3 + 3x3 + 1x3) SCs EM
+
+  rhadvec.clear();   // clear the output vector before starting
   
   int iCoreStart  = m_seedID-1;
   int iCoreEnd    = m_seedID+1;
@@ -182,6 +185,9 @@ void eFEXegAlgo::getRhad(std::vector<unsigned int> & rhadvec) {
 void LVL1::eFEXegAlgo::getWstot(std::vector<unsigned int> & output){
   unsigned int numer = 0;
   unsigned int den = 0;
+
+  output.clear(); // clear the output vector before starting
+
   int iStart = m_seedID - 2;
   int iEnd = m_seedID + 2;
 
@@ -189,7 +195,8 @@ void LVL1::eFEXegAlgo::getWstot(std::vector<unsigned int> & output){
     int diff = i - m_seedID;
     unsigned int weight = diff*diff;
     for (int j = 0; j <= 2; ++j) { // phi
-      unsigned int eT; getWindowET(1, j, i, eT);
+      unsigned int eT; 
+      getWindowET(1, j, i, eT);
       numer += eT*weight;
       den += eT;
     }
@@ -232,8 +239,8 @@ std::unique_ptr<eFEXegTOB> LVL1::eFEXegAlgo::geteFEXegTOB() {
   std::vector<unsigned int> temvector;
   getWstot(temvector);
 
-  out->setWstotNum(temvector[0]);
-  out->setWstotDen(temvector[1]);
+  out->setWstotNum(temvector[1]);
+  out->setWstotDen(temvector[0]);
   getRhad(temvector);
   out->setRhadNum(temvector[1]);
   out->setRhadDen(temvector[0] + temvector[1]);

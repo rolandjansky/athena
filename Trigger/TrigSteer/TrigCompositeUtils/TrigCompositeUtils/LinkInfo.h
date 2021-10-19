@@ -24,8 +24,7 @@ namespace TrigCompositeUtils {
    **/
   template<typename T>
   struct LinkInfo {
-    LinkInfo()
-      : source{0} {}
+    LinkInfo() = default;
     LinkInfo(const Decision* s, const ElementLink<T>& l, ActiveState as = ActiveState::UNSET)
       : source{s}, link{l}, state{as} {}
 
@@ -39,9 +38,9 @@ namespace TrigCompositeUtils {
       return (isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE);
     }
 
-    const Decision* source;
+    const Decision* source{nullptr};
     ElementLink<T> link;
-    ActiveState state;
+    ActiveState state{ActiveState::UNSET};
   };
 } //> end namespace TrigCompositeUtils
 

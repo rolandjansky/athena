@@ -6,30 +6,45 @@
 
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
-from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ROOT import egammaPID
-from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+IDTrigConfig = getInDetTrigConfig( 'electron' )
+
+# Add ONNX into app service mgr (in rec-ex common style), but only in Run 2 conf style
+from AthenaCommon.Configurable import Configurable
+if not Configurable.configurableRun3Behavior:
+    from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
+    from AthenaCommon.AppMgr import ServiceMgr
+    ServiceMgr += AthONNX__ONNXRuntimeSvc()
+
 
 log = logging.getLogger(__name__)
 
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
       SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-      outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
+      outputElectronKey = recordable('HLT_egamma_Electrons')
+      outputTopoCollection = 'HLT_egammaTopoCluster'
       EgammaRecKey = 'HLT_egammaRecCollection'
+      PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
+      IDTrigConfig = getInDetTrigConfig( 'electron' )
       outputPhotonKey = recordable('HLT_egamma_Photons')
-      outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-      TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
-      TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
+      TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
+      TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
       pidVersion = 'rel22_20210611'
       dnnVersion = 'mc16_20210430'
+      ringerVersion = 'TrigL2_20210702_r4'
+      
+
 
 class TrigEgammaKeys_LRT(object):
       """Static class to collect all string manipulation in Electron_LRT sequences """
       outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
-      TrigElectronTracksCollectionName_LRT = recordable('HLT_IDTrack_ElecLRT_IDTrig')
+      IDTrigConfig_LRT = getInDetTrigConfig('electronLRT')
+      TrigElectronTracksCollectionName_LRT = IDTrigConfig_LRT.tracks_IDTrig()
 
 class TrigEgammaKeys_GSF(object):
       """Static class to collect all string manipulation in Electron sequences """
@@ -43,27 +58,27 @@ class TrigEgammaKeys_GSF(object):
 # Electron DNN Selectors
 #
 def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
-# We should include the DNN here
+    # We should include the DNN here
     if not ConfigFilePath:
       ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
   
     import collections
     SelectorNames = collections.OrderedDict({
-          'dnntight':'AsgElectronDNNTightSelector',
-          'dnnmedium':'AsgElectronDNNMediumSelector',
-          'dnnloose':'AsgElectronDNNLooseSelector',
+          'dnntight'  :'AsgElectronDNNTightSelector',
+          'dnnmedium' :'AsgElectronDNNMediumSelector',
+          'dnnloose'  :'AsgElectronDNNLooseSelector',
           })
 
     ElectronToolConfigFile = collections.OrderedDict({
-          'dnntight':'ElectronDNNMulticlassTight.conf',
-          'dnnmedium':'ElectronDNNMulticlassMedium.conf',
-          'dnnloose':'ElectronDNNMulticlassLoose.conf',
+          'dnntight'  :'ElectronDNNMulticlassTight.conf',
+          'dnnmedium' :'ElectronDNNMulticlassMedium.conf',
+          'dnnloose'  :'ElectronDNNMulticlassLoose.conf',
           })
 
     selectors = []
     log.debug('Configuring electron DNN' )
     for dnnname, name in SelectorNames.items():
-      SelectorTool = CfgMgr.AsgElectronSelectorTool(name)
+      SelectorTool = CompFactory.AsgElectronSelectorTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
       SelectorTool.skipDeltaPoverP = True
       selectors.append(SelectorTool)
@@ -106,7 +121,7 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
     selectors = []
     log.debug('Configuring electron PID' )
     for pidname, name in SelectorNames.items():
-      SelectorTool = CfgMgr.AsgElectronLikelihoodTool(name)
+      SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
       SelectorTool.usePVContainer = False 
       SelectorTool.skipDeltaPoverP = True
@@ -164,7 +179,7 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
 
     selectors = []
     for sel, name in SelectorNames.items():
-        SelectorTool = CfgMgr.AsgElectronIsEMSelector(name)
+        SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.isEMMask = ElectronMaskBits[sel]
         selectors.append(SelectorTool)
@@ -176,6 +191,7 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
 # Photon IsEM selectors
 #
 def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
+    from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 
     if not ConfigFilePath:
       ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
@@ -198,8 +214,8 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
             'tight'  : 'PhotonIsEMTightSelectorCutDefs.conf',
             } 
     PhotonIsEMBits = {
-            'loose'  : egammaPID.PhotonLooseEF,
-            'medium' : egammaPID.PhotonMediumEF,
+            'loose'  : egammaPID.PhotonLoose,
+            'medium' : egammaPID.PhotonMedium,
             'tight'  : egammaPID.PhotonTight,
             }
 
@@ -218,52 +234,109 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
 
 
 
-#
-# Electron/Photon ringer NN selectors
-#
-def createTrigEgammaFastCaloSelectors(doPhotons=False, ConfigFilePath='RingerSelectorTools/TrigL2_20210227_r3'):
 
-    from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool 
-    from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
-    from AthenaCommon.AppMgr import ServiceMgr
+def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
+
     import collections
-    # add ONNX into app service mgr
-    ServiceMgr += AthONNX__ONNXRuntimeSvc()
     from AthenaCommon.Logging import logging
     log = logging.getLogger(__name__)
 
-    SelectorNames = collections.OrderedDict( {
-        "Electrons": collections.OrderedDict({
+    # We should include the ringer here
+    if not ConfigFilePath:
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
+
+  
+    SelectorNames = collections.OrderedDict({
             'tight'    : 'AsgElectronFastCaloRingerTightSelectorTool',
             'medium'   : 'AsgElectronFastCaloRingerMediumSelectorTool',
             'loose'    : 'AsgElectronFastCaloRingerLooseSelectorTool',
             'vloose'   : 'AsgElectronFastCaloRingerVeryLooseSelectorTool',
-            }),
-        "Photons": collections.OrderedDict({
-            'tight'  : 'AsgPhotonFastCaloRingerTightSelectorTool',
-            'medium' : 'AsgPhotonFastCaloRingerMediumSelectorTool',
-            'loose'  : 'AsgPhotonFastCaloRingerLooseSelectorTool',
+            })
+        
+
+    ToolConfigFile = collections.OrderedDict({
+          #                               ET < 15 GeV                                                  ET >= 15 GeV
+          'tight'   :['ElectronJpsieeRingerTightTriggerConfig_RingsOnly.conf'     , 'ElectronZeeRingerTightTriggerConfig_RingsOnly.conf'    ],
+          'medium'  :['ElectronJpsieeRingerMediumTriggerConfig_RingsOnly.conf'    , 'ElectronZeeRingerMediumTriggerConfig_RingsOnly.conf'   ],
+          'loose'   :['ElectronJpsieeRingerLooseTriggerConfig_RingsOnly.conf'     , 'ElectronZeeRingerLooseTriggerConfig_RingsOnly.conf'    ],
+          'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig_RingsOnly.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig_RingsOnly.conf'],
           })
+        
+    selectors = []
+    for pidname , name in SelectorNames.items():
+      log.debug('Configuring electron ringer PID for %s', pidname)
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
+      SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
+      selectors.append(SelectorTool)
+    return selectors
+
+
+
+#
+# Electron/Photon ringer NN selectors
+#
+def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
+
+    import collections
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger(__name__)
+
+    # We should include the ringer here
+    if not ConfigFilePath:
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
+  
+
+    SelectorNames = collections.OrderedDict({
+            'tight'    : 'AsgElectronFastElectronRingerTightSelectorTool',
+            'medium'   : 'AsgElectronFastElectronRingerMediumSelectorTool',
+            'loose'    : 'AsgElectronFastElectronRingerLooseSelectorTool',
+            'vloose'   : 'AsgElectronFastElectronRingerVeryLooseSelectorTool',
+            })
+        
+    ToolConfigFile = collections.OrderedDict({
+          #                               ET < 15 GeV                                       ET >= 15 GeV
+          'tight'   :['ElectronJpsieeRingerTightTriggerConfig.conf'     , 'ElectronZeeRingerTightTriggerConfig.conf'    ],
+          'medium'  :['ElectronJpsieeRingerMediumTriggerConfig.conf'    , 'ElectronZeeRingerMediumTriggerConfig.conf'   ],
+          'loose'   :['ElectronJpsieeRingerLooseTriggerConfig.conf'     , 'ElectronZeeRingerLooseTriggerConfig.conf'    ],
+          'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig.conf'],
+          })
+        
+    selectors = []
+    for pidname , name in SelectorNames.items():
+      log.debug('Configuring electron ringer PID for %s', pidname)
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
+      SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
+      selectors.append(SelectorTool)
+    return selectors
+
+
+#
+# Ringer fast photon selectors
+#
+def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
+
+    from AthenaCommon.Logging import logging
+    import collections
+    # We should include the ringer here
+    if not ConfigFilePath:
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
+
+    log = logging.getLogger(__name__)
+    SelectorNames = collections.OrderedDict( {
+      'tight'  : 'AsgPhotonFastCaloRingerTightSelectorTool' ,
+      'medium' : 'AsgPhotonFastCaloRingerMediumSelectorTool',
+      'loose'  : 'AsgPhotonFastCaloRingerLooseSelectorTool' ,
     } )
     
-    ToolConfigFile = {
-        "Electrons" : collections.OrderedDict({
-          'tight'   :'ElectronRingerTightTriggerConfig.conf',
-          'loose'   :'ElectronRingerLooseTriggerConfig.conf',
-          'medium'  :'ElectronRingerMediumTriggerConfig.conf',
-          'vloose'  :'ElectronRingerVeryLooseTriggerConfig.conf',
-          }),
-        "Photons" : collections.OrderedDict({
-          'tight' :'PhotonRingerTightTriggerConfig.conf',
-          'medium':'PhotonRingerMediumTriggerConfig.conf',
-          'loose' :'PhotonRingerLooseTriggerConfig.conf',
-        })
-    }
-    cand = 'Photons' if doPhotons else 'Electrons'
+    ToolConfigFile = collections.OrderedDict({
+      'tight' : ['PhotonRingerTightTriggerConfig.conf' ],
+      'medium': ['PhotonRingerMediumTriggerConfig.conf'],
+      'loose' : ['PhotonRingerLooseTriggerConfig.conf' ],
+    })
     selectors = []
-    for pidname , name in SelectorNames[cand].items():
+    for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=Ringer__AsgRingerSelectorTool(name)
-      SelectorTool.ConfigFile = ConfigFilePath + '/' + ToolConfigFile[cand][pidname]
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
+      SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors

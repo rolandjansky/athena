@@ -39,8 +39,8 @@ namespace NSWL1 {
     }
 
   StatusCode StripClusterTool::initialize() {
-    ATH_MSG_INFO( "initializing " << name() );
-    ATH_MSG_INFO( name() << " configuration:");
+    ATH_MSG_DEBUG( "initializing " << name() );
+    ATH_MSG_DEBUG( name() << " configuration:");
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
     const std::string& algo_name = pnamed->name();

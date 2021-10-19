@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,8 +7,8 @@
  * @author Nicolas.Berger@cern.ch
  *   */
 
-#ifndef LArSimpleShapeDumper_H
-#define LArSimpleShapeDumper_H
+#ifndef LARCAFJOBS_LARSIMPLESHAPEDUMPER_H
+#define LARCAFJOBS_LARSIMPLESHAPEDUMPER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -23,7 +23,6 @@
 
 class MsgStream;
 class StoreGateSvc;
-class CaloDetDescrManager;
 class ILArShape;
 class HWIdentifier;
 class Identifier;
@@ -36,9 +35,9 @@ class LArSimpleShapeDumper : public AthAlgorithm
   ~LArSimpleShapeDumper();
 
   //standart algorithm methods
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
  private:
    

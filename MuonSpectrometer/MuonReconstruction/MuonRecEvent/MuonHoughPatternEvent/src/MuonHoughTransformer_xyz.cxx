@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_xyz.h"
@@ -22,7 +22,7 @@ void MuonHoughTransformer_xyz::fillHit(MuonHoughHit* hit, double weight)
   int sectorhit = sector(hit);
   double dotprod = 0.;
 
-  if (m_ip_setting == true)
+  if (m_ip_setting)
     {
       std::pair <double,double> endpoints = getEndPointsFillLoop(radius,m_stepsize,sectorhit);
       for (double r0 = endpoints.first; r0<endpoints.second; r0+=m_stepsize)
@@ -58,7 +58,7 @@ int MuonHoughTransformer_xyz::fillHisto(double r0, double phi, double weight, in
  
   // applying a 'butterfly' weighting effect:
   bool butterfly = true;
-  if (butterfly == true)
+  if (butterfly)
     {
       // nearby sectors:
       if (m_number_of_sectors>=3)
@@ -121,7 +121,7 @@ int MuonHoughTransformer_xyz::fillHisto(double r0, double phi, double weight, in
    return filled_binnumber;
 }
 
-double MuonHoughTransformer_xyz::calculateAngle(double hitx, double hity, double r0)const
+double MuonHoughTransformer_xyz::calculateAngle(double hitx, double hity, double r0)
 {
   double phi=0;
   double heigth_squared = hitx*hitx + hity*hity - r0*r0;
@@ -183,7 +183,7 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
 
       if (sectorhit == max_sector||sectorhit == max_secmin||sectorhit == max_secmax)
 	{
-	  if (m_ip_setting == false){dotprod = 1.;}
+	  if (!m_ip_setting){dotprod = 1.;}
 	  else {
 	    dotprod = scphimax.apply(getHitPos(event,i).second, getHitPos(event,i).first); //getHitPos(event,i).first * sincosphimax[1] + getHitPos(event,i).second * sincosphimax[0];
 	  }
@@ -202,7 +202,7 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
 		  
 		  if (printlevel>=3 || log.level()<=MSG::DEBUG) {
 		    log << MSG::DEBUG << "MuonHoughTransformer_xyz::hit added to houghpattern!" << endmsg;
-		    if (event->getHit(i)->getAssociated()==true)log << MSG::DEBUG << " hit already earlier associated to pattern!" << endmsg;
+		    if (event->getHit(i)->getAssociated())log << MSG::DEBUG << " hit already earlier associated to pattern!" << endmsg;
 		  }
 
 		  event->getHit(i)->setAssociated(true);
@@ -220,7 +220,7 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
 		  sin_phi += scphi.sn;
 		  cos_phi += scphi.cs;
 		  
-		  double radius = m_muonhoughmathutils.signedDistanceOfLineToOrigin2D(event->getHitx(i),event->getHity(i),phimax);
+		  double radius = MuonHoughMathUtils::signedDistanceOfLineToOrigin2D(event->getHitx(i),event->getHity(i),phimax);
 		  eradius +=radius;
 		  
 		  if (printlevel>=3 || log.level()<=MSG::DEBUG){log << MSG::DEBUG << "MuonHoughTransformer_xyz::calculateAngle: " << phi << " calculateradius: " << radius << endmsg;}
@@ -236,13 +236,13 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
 
   if (printlevel>=3 || log.level()<=MSG::DEBUG){log << MSG::DEBUG << "MuonHoughTransformer_xyz::ephi: " << ephi << " eradius: " << eradius << " etheta " << etheta << endmsg;}
 
-  if (m_ip_setting == true) houghpattern->setEPhi(ephi);
+  if (m_ip_setting) houghpattern->setEPhi(ephi);
   else {houghpattern->setEPhi(phimax);}
 
   houghpattern->setERPhi(coordsmaximum.first);
   houghpattern->setETheta(etheta);
 
-  if (houghpattern->size() > 0 && std::abs(std::sin(houghpattern->getEPhi()-phimax)) > 0.05 )
+  if (!houghpattern->empty() && std::abs(std::sin(houghpattern->getEPhi()-phimax)) > 0.05 )
     {
       if (printlevel>=1 || log.level()<=MSG::WARNING){
       log << MSG::WARNING << "MuonHoughTransformer_xyz::ERROR Ephi calc. WRONG" << endmsg;
@@ -250,11 +250,11 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
       log << MSG::WARNING << "MuonHoughTransformer_xyz::  phi: " << ephi << endmsg;
       }
 
-      houghpattern->setEPhi(m_muonhoughmathutils.angleFromMinusPiToPi(phimax));
+      houghpattern->setEPhi(MuonHoughMathUtils::angleFromMinusPiToPi(phimax));
       houghpattern->setERPhi(coordsmaximum.first);
     }
 
-  if (m_ip_setting == false) {
+  if (!m_ip_setting) {
     houghpattern->updateParametersRPhi(true); // switch off ip constraint! (cosmics==true), on by default (cosmics== false)
 
     if (printlevel>=4 || log.level()<=MSG::VERBOSE)
@@ -269,7 +269,7 @@ MuonHoughPattern* MuonHoughTransformer_xyz::hookAssociateHitsToMaximum(const Muo
 
 float MuonHoughTransformer_xyz::weightHoughTransform (double r0) const
 { 
-  if (m_add_weight_radius==true)
+  if (m_add_weight_radius)
     {
       return ( 1./(std::abs(r0/m_weight_constant_radius)+1.));
     }

@@ -25,12 +25,10 @@
 #include <string>
 //Root 
 #include "TH1F.h"
-#include "TMath.h"
 #include <cmath>
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-using namespace TMath;
 
 InDetGlobalTopBottomMonTool::InDetGlobalTopBottomMonTool(
     const std::string & type, 

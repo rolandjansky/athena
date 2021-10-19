@@ -28,9 +28,8 @@ namespace DerivationFramework {
   ZeeVertexRefittingTool::ZeeVertexRefittingTool(const std::string& t,
 					   const std::string& n,
 					   const IInterface* p) : 
-    AthAlgTool(t,n,p),
+    ExpressionParserUser<AthAlgTool>(t, n, p),
     m_expression("true"),
-    m_parser(nullptr),
     m_massCut(0.0),
     m_pvrefitter("Analysis::PrimaryVertexRefitter")
   {
@@ -45,15 +44,16 @@ namespace DerivationFramework {
 
     CHECK( m_pvrefitter.retrieve() );
 
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));          
-    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-    m_parser->loadExpression(m_expression);
+    if (!m_expression.empty()) {
+      ATH_CHECK(initializeParser(m_expression));
+    } else {
+      ATH_CHECK(initializeParser("true"));
+    }
     ATH_CHECK( m_eventInfoKey.initialize() );
     ATH_CHECK( m_primaryVertexKey.initialize() );
     ATH_CHECK( m_electronKey.initialize() );
     ATH_CHECK( m_refitpvKey.initialize() );
-    if (m_refitpvKey.key()=="") {
+    if (m_refitpvKey.key().empty()) {
       ATH_MSG_ERROR("No SG name provided for the output of ZeeVertexRefittingTool!");
       return StatusCode::FAILURE;
     }
@@ -63,6 +63,7 @@ namespace DerivationFramework {
 
   StatusCode ZeeVertexRefittingTool::finalize()
   {
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
   }
 
@@ -100,7 +101,7 @@ namespace DerivationFramework {
                                              std::unique_ptr< xAOD::VertexAuxContainer >(refittedPVAuxContainer)));
 
     const xAOD::Vertex* pv = nullptr;
-    for ( auto v : *pv_cont ) {
+    for ( const auto *v : *pv_cont ) {
       if (v->vertexType()==xAOD::VxType::PriVtx) {
         pv = v;
         break;

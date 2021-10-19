@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/PADreadout.h"
@@ -11,8 +11,6 @@ PADreadout::PADreadout(int sector,int pad) :
                   m_sector(sector),
                   m_PAD(pad)
 {
-    for(int i=0;i<8;++i) m_matrices_readout[i] = 0;
-    m_pad_readout = 0;
 }
 
 
@@ -22,12 +20,6 @@ PADreadout::PADreadout(const PADreadout& readout) :
               m_PAD(readout.PAD())
 {
     for(int i=0;i<8;++i) m_matrices_readout[i] = readout.matrices_readout(i);
-    m_pad_readout = 0;
-}
-
-PADreadout::~PADreadout()
-{
-    if (m_pad_readout) delete m_pad_readout;
 }
 
 PADreadout
@@ -39,7 +31,6 @@ PADreadout::operator=(const PADreadout& readout)
     m_PAD = readout.PAD();
 
     for(int i=0;i<8;++i) m_matrices_readout[i] = readout.matrices_readout(i);
-    m_pad_readout = 0;
     return *this;
 }
 
@@ -70,15 +61,13 @@ PADreadout::operator< (const PADreadout& padReadout) const
 }
 
 void
-PADreadout::load_readout(MatrixReadOut** readout)
+PADreadout::load_readout(std::array<MatrixReadOut*, 2>& readout)
 {
     int mat = 0;
     for(int i =0; i < 8; ++i) if(m_matrices_readout[i] == 0){mat = i; break;}
     if( mat > 6 )
     {
-	DISP << "trying to load more than 8 matrices into PAD readout!";
-	DISP_ERROR;
-	return;
+    std::runtime_error("trying to load more than 8 matrices into PAD readout!");
     }
     m_matrices_readout[mat] = readout[0];
     m_matrices_readout[mat+1] = readout[1]; 
@@ -97,7 +86,6 @@ PADreadout::matrices_readout(int i) const
 PadReadOut*
 PADreadout::give_pad_readout(void)
 {
-    if(!m_pad_readout) m_pad_readout = 
-        new PadReadOut(m_PAD,m_matrices_readout);
-    return m_pad_readout;
+    if(!m_pad_readout) m_pad_readout = std::make_unique<PadReadOut>(m_PAD,m_matrices_readout);
+    return m_pad_readout.get();
 }

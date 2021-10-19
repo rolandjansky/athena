@@ -37,13 +37,14 @@
 #include <memory>
 #include <cmath>
 #include <stdexcept>
+#include <utility>
 
 namespace MuonGM {
 
   sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 					 int zi, int fi, int mL, bool is_mirrored,
 					 MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+    : MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr),
       m_BLinePar(nullptr)
   {
     m_rots = 0.;
@@ -60,7 +61,7 @@ namespace MuonGM {
     setCachingFlag(mgr->cachingFlag());
 
     std::string vName = pv->getLogVol()->getName();
-    std::string sName = vName.substr(vName.find("-")+1);
+    std::string sName = vName.substr(vName.find('-')+1);
     std::string fixName = (sName[1]=='L') ? "STL" : "STS";
 	
     setStationName(fixName);
@@ -507,7 +508,7 @@ namespace MuonGM {
   }
 
 
-  Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const
+  Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const
   {
     int gg = manager()->stgcIdHelper()->gasGap(id);
     int channelType = manager()->stgcIdHelper()->channelType(id);
@@ -655,6 +656,59 @@ namespace MuonGM {
     log << MSG::WARNING << "bad channelNumber" << endmsg;
 
     return -1; 
+  }
+
+  int sTgcReadoutElement::wireNumber( const Amg::Vector2D& pos, const Identifier& id) const {
+    const MuonChannelDesign* design = getDesign(id);
+    if(!design) {
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << "no wire design when trying to get the wire number" << endmsg;
+      return -1;
+    }
+    return design->wireNumber(pos);
+  }
+
+  double sTgcReadoutElement::wirePitch(int gas_gap) const {
+    if (m_phiDesign.size() < 1) {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "no wire design when trying to get the wire pitch" << endmsg;
+      return -1.0;
+    }
+    return (m_phiDesign[gas_gap-1]).inputPitch;
+  }
+
+  double sTgcReadoutElement::positionFirstWire(const Identifier& id) const {
+    double pos_wire = -9999.9;
+    if (manager()->stgcIdHelper()->channelType(id) == sTgcIdHelper::sTgcChannelTypes::Wire) {
+      const MuonChannelDesign* design = getDesign(id);
+      if (!design) {
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << "no wire design when trying to get the 1st wire position" << endmsg;
+        return pos_wire;
+      }
+      pos_wire = design->firstPos;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "attempt to retrieve the 1st wire position with a wrong identifier" << endmsg;
+    }
+    return pos_wire;
+  }
+
+  int sTgcReadoutElement::numberOfWires(const Identifier& id) const {
+    int nWires = -1;
+    if (manager()->stgcIdHelper()->channelType(id) == sTgcIdHelper::sTgcChannelTypes::Wire) {
+      const MuonChannelDesign* design = getDesign(id);
+      if (!design) {
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << "no wire design when trying to get the total number of wires" << endmsg;
+        return nWires;
+      }
+      nWires = design->nch;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "attempt to retrieve the number of wires with a wrong identifier" << endmsg;
+    }
+    return nWires;
   }
 
 } // namespace MuonGM

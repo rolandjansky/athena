@@ -2,6 +2,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
+
+
 #include "PixelConditionsData/PixelModuleData.h"
 
 PixelModuleData::PixelModuleData():
@@ -48,9 +52,9 @@ bool PixelModuleData::getUseComTime() const { return m_UseComTime; }
 void PixelModuleData::setComTime(double ComTime) { m_ComTime = ComTime; }
 double PixelModuleData::getComTime() const { return m_ComTime; }
 
-void PixelModuleData::setBarrelNumberOfBCID(std::vector<int> BarrelNumberOfBCID) { m_BarrelNumberOfBCID = BarrelNumberOfBCID; }
-void PixelModuleData::setEndcapNumberOfBCID(std::vector<int> EndcapNumberOfBCID) { m_EndcapNumberOfBCID = EndcapNumberOfBCID; }
-void PixelModuleData::setDBMNumberOfBCID(std::vector<int>    DBMNumberOfBCID)    { m_DBMNumberOfBCID    = DBMNumberOfBCID; }
+void PixelModuleData::setBarrelNumberOfBCID(std::vector<int> BarrelNumberOfBCID) { m_BarrelNumberOfBCID = std::move(BarrelNumberOfBCID); }
+void PixelModuleData::setEndcapNumberOfBCID(std::vector<int> EndcapNumberOfBCID) { m_EndcapNumberOfBCID = std::move(EndcapNumberOfBCID); }
+void PixelModuleData::setDBMNumberOfBCID(std::vector<int>    DBMNumberOfBCID)    { m_DBMNumberOfBCID    = std::move(DBMNumberOfBCID); }
 int PixelModuleData::getNumberOfBCID(int bec, int layer) const {
   int nBCID = 1;
   if (std::abs(bec)==0 && layer<(int)m_BarrelNumberOfBCID.size()) { nBCID=m_BarrelNumberOfBCID.at(layer); }
@@ -59,9 +63,9 @@ int PixelModuleData::getNumberOfBCID(int bec, int layer) const {
   return nBCID;
 }
 
-void PixelModuleData::setBarrelTimeOffset(std::vector<double> BarrelTimeOffset) { m_BarrelTimeOffset = BarrelTimeOffset; }
-void PixelModuleData::setEndcapTimeOffset(std::vector<double> EndcapTimeOffset) { m_EndcapTimeOffset = EndcapTimeOffset; }
-void PixelModuleData::setDBMTimeOffset(std::vector<double>    DBMTimeOffset)    { m_DBMTimeOffset    = DBMTimeOffset; }
+void PixelModuleData::setBarrelTimeOffset(std::vector<double> BarrelTimeOffset) { m_BarrelTimeOffset = std::move(BarrelTimeOffset); }
+void PixelModuleData::setEndcapTimeOffset(std::vector<double> EndcapTimeOffset) { m_EndcapTimeOffset = std::move(EndcapTimeOffset); }
+void PixelModuleData::setDBMTimeOffset(std::vector<double>    DBMTimeOffset)    { m_DBMTimeOffset    = std::move(DBMTimeOffset); }
 double PixelModuleData::getTimeOffset(int bec, int layer) const {
   double timeOffset = 0.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelTimeOffset.size()) { timeOffset=m_BarrelTimeOffset.at(layer); }
@@ -70,9 +74,9 @@ double PixelModuleData::getTimeOffset(int bec, int layer) const {
   return timeOffset;
 }
 
-void PixelModuleData::setBarrelTimeJitter(std::vector<double> BarrelTimeJitter) { m_BarrelTimeJitter = BarrelTimeJitter; }
-void PixelModuleData::setEndcapTimeJitter(std::vector<double> EndcapTimeJitter) { m_EndcapTimeJitter = EndcapTimeJitter; }
-void PixelModuleData::setDBMTimeJitter(std::vector<double>    DBMTimeJitter)    { m_DBMTimeJitter    = DBMTimeJitter; }
+void PixelModuleData::setBarrelTimeJitter(std::vector<double> BarrelTimeJitter) { m_BarrelTimeJitter = std::move(BarrelTimeJitter); }
+void PixelModuleData::setEndcapTimeJitter(std::vector<double> EndcapTimeJitter) { m_EndcapTimeJitter = std::move(EndcapTimeJitter); }
+void PixelModuleData::setDBMTimeJitter(std::vector<double>    DBMTimeJitter)    { m_DBMTimeJitter    = std::move(DBMTimeJitter); }
 double PixelModuleData::getTimeJitter(int bec, int layer) const {
   double timeJitter = 0.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelTimeJitter.size()) { timeJitter=m_BarrelTimeJitter.at(layer); }
@@ -81,9 +85,9 @@ double PixelModuleData::getTimeJitter(int bec, int layer) const {
   return timeJitter;
 }
 
-void PixelModuleData::setDefaultBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold) { m_defaultBarrelAnalogThreshold = BarrelAnalogThreshold; }
-void PixelModuleData::setDefaultEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold) { m_defaultEndcapAnalogThreshold = EndcapAnalogThreshold; }
-void PixelModuleData::setDefaultDBMAnalogThreshold(std::vector<int>    DBMAnalogThreshold)    { m_defaultDBMAnalogThreshold = DBMAnalogThreshold; }
+void PixelModuleData::setDefaultBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold) { m_defaultBarrelAnalogThreshold = std::move(BarrelAnalogThreshold); }
+void PixelModuleData::setDefaultEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold) { m_defaultEndcapAnalogThreshold = std::move(EndcapAnalogThreshold); }
+void PixelModuleData::setDefaultDBMAnalogThreshold(std::vector<int>    DBMAnalogThreshold)    { m_defaultDBMAnalogThreshold = std::move(DBMAnalogThreshold); }
 
 int PixelModuleData::getDefaultAnalogThreshold(int bec, int layer) const {
   int analogThreshold = -1;
@@ -93,9 +97,9 @@ int PixelModuleData::getDefaultAnalogThreshold(int bec, int layer) const {
   return analogThreshold;
 }
 
-void PixelModuleData::setDefaultBarrelAnalogThresholdSigma(std::vector<int> BarrelAnalogThresholdSigma) { m_defaultBarrelAnalogThresholdSigma = BarrelAnalogThresholdSigma; }
-void PixelModuleData::setDefaultEndcapAnalogThresholdSigma(std::vector<int> EndcapAnalogThresholdSigma) { m_defaultEndcapAnalogThresholdSigma = EndcapAnalogThresholdSigma; }
-void PixelModuleData::setDefaultDBMAnalogThresholdSigma(std::vector<int>    DBMAnalogThresholdSigma)    { m_defaultDBMAnalogThresholdSigma = DBMAnalogThresholdSigma; }
+void PixelModuleData::setDefaultBarrelAnalogThresholdSigma(std::vector<int> BarrelAnalogThresholdSigma) { m_defaultBarrelAnalogThresholdSigma = std::move(BarrelAnalogThresholdSigma); }
+void PixelModuleData::setDefaultEndcapAnalogThresholdSigma(std::vector<int> EndcapAnalogThresholdSigma) { m_defaultEndcapAnalogThresholdSigma = std::move(EndcapAnalogThresholdSigma); }
+void PixelModuleData::setDefaultDBMAnalogThresholdSigma(std::vector<int>    DBMAnalogThresholdSigma)    { m_defaultDBMAnalogThresholdSigma = std::move(DBMAnalogThresholdSigma); }
 
 int PixelModuleData::getDefaultAnalogThresholdSigma(int bec, int layer) const {
   int analogThresholdSigma = -1;
@@ -105,9 +109,9 @@ int PixelModuleData::getDefaultAnalogThresholdSigma(int bec, int layer) const {
   return analogThresholdSigma;
 }
 
-void PixelModuleData::setDefaultBarrelAnalogThresholdNoise(std::vector<int> BarrelAnalogThresholdNoise) { m_defaultBarrelAnalogThresholdNoise = BarrelAnalogThresholdNoise; }
-void PixelModuleData::setDefaultEndcapAnalogThresholdNoise(std::vector<int> EndcapAnalogThresholdNoise) { m_defaultEndcapAnalogThresholdNoise = EndcapAnalogThresholdNoise; }
-void PixelModuleData::setDefaultDBMAnalogThresholdNoise(std::vector<int>    DBMAnalogThresholdNoise)    { m_defaultDBMAnalogThresholdNoise = DBMAnalogThresholdNoise; }
+void PixelModuleData::setDefaultBarrelAnalogThresholdNoise(std::vector<int> BarrelAnalogThresholdNoise) { m_defaultBarrelAnalogThresholdNoise = std::move(BarrelAnalogThresholdNoise); }
+void PixelModuleData::setDefaultEndcapAnalogThresholdNoise(std::vector<int> EndcapAnalogThresholdNoise) { m_defaultEndcapAnalogThresholdNoise = std::move(EndcapAnalogThresholdNoise); }
+void PixelModuleData::setDefaultDBMAnalogThresholdNoise(std::vector<int>    DBMAnalogThresholdNoise)    { m_defaultDBMAnalogThresholdNoise = std::move(DBMAnalogThresholdNoise); }
 
 int PixelModuleData::getDefaultAnalogThresholdNoise(int bec, int layer) const {
   int analogThresholdNoise = -1;
@@ -117,9 +121,9 @@ int PixelModuleData::getDefaultAnalogThresholdNoise(int bec, int layer) const {
   return analogThresholdNoise;
 }
 
-void PixelModuleData::setDefaultBarrelInTimeThreshold(std::vector<int> BarrelInTimeThreshold) { m_defaultBarrelInTimeThreshold = BarrelInTimeThreshold; }
-void PixelModuleData::setDefaultEndcapInTimeThreshold(std::vector<int> EndcapInTimeThreshold) { m_defaultEndcapInTimeThreshold = EndcapInTimeThreshold; }
-void PixelModuleData::setDefaultDBMInTimeThreshold(std::vector<int>    DBMInTimeThreshold)    { m_defaultDBMInTimeThreshold = DBMInTimeThreshold; }
+void PixelModuleData::setDefaultBarrelInTimeThreshold(std::vector<int> BarrelInTimeThreshold) { m_defaultBarrelInTimeThreshold = std::move(BarrelInTimeThreshold); }
+void PixelModuleData::setDefaultEndcapInTimeThreshold(std::vector<int> EndcapInTimeThreshold) { m_defaultEndcapInTimeThreshold = std::move(EndcapInTimeThreshold); }
+void PixelModuleData::setDefaultDBMInTimeThreshold(std::vector<int>    DBMInTimeThreshold)    { m_defaultDBMInTimeThreshold = std::move(DBMInTimeThreshold); }
 
 int PixelModuleData::getDefaultInTimeThreshold(int bec, int layer) const {
   int analogInTimeThreshold = -1;
@@ -129,9 +133,9 @@ int PixelModuleData::getDefaultInTimeThreshold(int bec, int layer) const {
   return analogInTimeThreshold;
 }
 
-void PixelModuleData::setBarrelToTThreshold(std::vector<int> BarrelToTThreshold) { m_BarrelToTThreshold = BarrelToTThreshold; }
-void PixelModuleData::setEndcapToTThreshold(std::vector<int> EndcapToTThreshold) { m_EndcapToTThreshold = EndcapToTThreshold; }
-void PixelModuleData::setDBMToTThreshold(std::vector<int>    DBMToTThreshold)    { m_DBMToTThreshold = DBMToTThreshold; }
+void PixelModuleData::setBarrelToTThreshold(std::vector<int> BarrelToTThreshold) { m_BarrelToTThreshold = std::move(BarrelToTThreshold); }
+void PixelModuleData::setEndcapToTThreshold(std::vector<int> EndcapToTThreshold) { m_EndcapToTThreshold = std::move(EndcapToTThreshold); }
+void PixelModuleData::setDBMToTThreshold(std::vector<int>    DBMToTThreshold)    { m_DBMToTThreshold = std::move(DBMToTThreshold); }
 
 int PixelModuleData::getToTThreshold(int bec, int layer) const {
   int totThreshold = -1;
@@ -141,9 +145,9 @@ int PixelModuleData::getToTThreshold(int bec, int layer) const {
   return totThreshold;
 }
 
-void PixelModuleData::setBarrelCrossTalk(std::vector<double> BarrelCrossTalk) { m_BarrelCrossTalk = BarrelCrossTalk; }
-void PixelModuleData::setEndcapCrossTalk(std::vector<double> EndcapCrossTalk) { m_EndcapCrossTalk = EndcapCrossTalk; }
-void PixelModuleData::setDBMCrossTalk(std::vector<double>    DBMCrossTalk)    { m_DBMCrossTalk = DBMCrossTalk; }
+void PixelModuleData::setBarrelCrossTalk(std::vector<double> BarrelCrossTalk) { m_BarrelCrossTalk = std::move(BarrelCrossTalk); }
+void PixelModuleData::setEndcapCrossTalk(std::vector<double> EndcapCrossTalk) { m_EndcapCrossTalk = std::move(EndcapCrossTalk); }
+void PixelModuleData::setDBMCrossTalk(std::vector<double>    DBMCrossTalk)    { m_DBMCrossTalk = std::move(DBMCrossTalk); }
 
 double PixelModuleData::getCrossTalk(int bec, int layer) const { 
   double crossTalk = -1.0;
@@ -153,9 +157,9 @@ double PixelModuleData::getCrossTalk(int bec, int layer) const {
   return crossTalk;
 }
 
-void PixelModuleData::setBarrelThermalNoise(std::vector<double> BarrelThermalNoise) { m_BarrelThermalNoise = BarrelThermalNoise; }
-void PixelModuleData::setEndcapThermalNoise(std::vector<double> EndcapThermalNoise) { m_EndcapThermalNoise = EndcapThermalNoise; }
-void PixelModuleData::setDBMThermalNoise(std::vector<double>    DBMThermalNoise)    { m_DBMThermalNoise    = DBMThermalNoise; }
+void PixelModuleData::setBarrelThermalNoise(std::vector<double> BarrelThermalNoise) { m_BarrelThermalNoise = std::move(BarrelThermalNoise); }
+void PixelModuleData::setEndcapThermalNoise(std::vector<double> EndcapThermalNoise) { m_EndcapThermalNoise = std::move(EndcapThermalNoise); }
+void PixelModuleData::setDBMThermalNoise(std::vector<double>    DBMThermalNoise)    { m_DBMThermalNoise    = std::move(DBMThermalNoise); }
 
 double PixelModuleData::getThermalNoise(int bec, int layer) const {
   double noise = -1.0;
@@ -165,9 +169,9 @@ double PixelModuleData::getThermalNoise(int bec, int layer) const {
   return noise;
 }
 
-void PixelModuleData::setBarrelNoiseOccupancy(std::vector<double> BarrelNoiseOccupancy) { m_BarrelNoiseOccupancy = BarrelNoiseOccupancy; }
-void PixelModuleData::setEndcapNoiseOccupancy(std::vector<double> EndcapNoiseOccupancy) { m_EndcapNoiseOccupancy = EndcapNoiseOccupancy; }
-void PixelModuleData::setDBMNoiseOccupancy(std::vector<double>    DBMNoiseOccupancy)    { m_DBMNoiseOccupancy    = DBMNoiseOccupancy; }
+void PixelModuleData::setBarrelNoiseOccupancy(std::vector<double> BarrelNoiseOccupancy) { m_BarrelNoiseOccupancy = std::move(BarrelNoiseOccupancy); }
+void PixelModuleData::setEndcapNoiseOccupancy(std::vector<double> EndcapNoiseOccupancy) { m_EndcapNoiseOccupancy = std::move(EndcapNoiseOccupancy); }
+void PixelModuleData::setDBMNoiseOccupancy(std::vector<double>    DBMNoiseOccupancy)    { m_DBMNoiseOccupancy    = std::move(DBMNoiseOccupancy); }
 double PixelModuleData::getNoiseOccupancy(int bec, int layer) const {
   double noiseOccupancy = 0.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelNoiseOccupancy.size()) { noiseOccupancy=m_BarrelNoiseOccupancy.at(layer); }
@@ -176,9 +180,9 @@ double PixelModuleData::getNoiseOccupancy(int bec, int layer) const {
   return noiseOccupancy;
 }
 
-void PixelModuleData::setBarrelDisableProbability(std::vector<double> BarrelDisableProbability) { m_BarrelDisableProbability= BarrelDisableProbability; }
-void PixelModuleData::setEndcapDisableProbability(std::vector<double> EndcapDisableProbability) { m_EndcapDisableProbability= EndcapDisableProbability; }
-void PixelModuleData::setDBMDisableProbability(std::vector<double>    DBMDisableProbability)    { m_DBMDisableProbability   = DBMDisableProbability; }
+void PixelModuleData::setBarrelDisableProbability(std::vector<double> BarrelDisableProbability) { m_BarrelDisableProbability= std::move(BarrelDisableProbability); }
+void PixelModuleData::setEndcapDisableProbability(std::vector<double> EndcapDisableProbability) { m_EndcapDisableProbability= std::move(EndcapDisableProbability); }
+void PixelModuleData::setDBMDisableProbability(std::vector<double>    DBMDisableProbability)    { m_DBMDisableProbability   = std::move(DBMDisableProbability); }
 double PixelModuleData::getDisableProbability(int bec, int layer) const {
   double disableProb = 0.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelDisableProbability.size()) { disableProb=m_BarrelDisableProbability.at(layer); }
@@ -216,8 +220,8 @@ std::vector<float> PixelModuleData::getNoiseShape(const int bec, const int layer
   return chip;
 }
 
-void PixelModuleData::setFEI3BarrelLatency(std::vector<int> FEI3BarrelLatency) { m_FEI3BarrelLatency = FEI3BarrelLatency; }
-void PixelModuleData::setFEI3EndcapLatency(std::vector<int> FEI3EndcapLatency) { m_FEI3EndcapLatency = FEI3EndcapLatency; }
+void PixelModuleData::setFEI3BarrelLatency(std::vector<int> FEI3BarrelLatency) { m_FEI3BarrelLatency = std::move(FEI3BarrelLatency); }
+void PixelModuleData::setFEI3EndcapLatency(std::vector<int> FEI3EndcapLatency) { m_FEI3EndcapLatency = std::move(FEI3EndcapLatency); }
 
 int PixelModuleData::getFEI3Latency(int bec, int layer) const {
   int  latency = -1;
@@ -226,8 +230,8 @@ int PixelModuleData::getFEI3Latency(int bec, int layer) const {
   return latency;
 }
 
-void PixelModuleData::setFEI3BarrelHitDuplication(std::vector<bool> FEI3BarrelHitDuplication) { m_FEI3BarrelHitDuplication = FEI3BarrelHitDuplication; }
-void PixelModuleData::setFEI3EndcapHitDuplication(std::vector<bool> FEI3EndcapHitDuplication) { m_FEI3EndcapHitDuplication = FEI3EndcapHitDuplication; }
+void PixelModuleData::setFEI3BarrelHitDuplication(std::vector<bool> FEI3BarrelHitDuplication) { m_FEI3BarrelHitDuplication = std::move(FEI3BarrelHitDuplication); }
+void PixelModuleData::setFEI3EndcapHitDuplication(std::vector<bool> FEI3EndcapHitDuplication) { m_FEI3EndcapHitDuplication = std::move(FEI3EndcapHitDuplication); }
 
 bool PixelModuleData::getFEI3HitDuplication(int bec, int layer) const {
   bool hitdupli = false;
@@ -236,8 +240,8 @@ bool PixelModuleData::getFEI3HitDuplication(int bec, int layer) const {
   return hitdupli;
 }
 
-void PixelModuleData::setFEI3BarrelSmallHitToT(std::vector<int> FEI3BarrelSmallHitToT) { m_FEI3BarrelSmallHitToT = FEI3BarrelSmallHitToT; }
-void PixelModuleData::setFEI3EndcapSmallHitToT(std::vector<int> FEI3EndcapSmallHitToT) { m_FEI3EndcapSmallHitToT = FEI3EndcapSmallHitToT; }
+void PixelModuleData::setFEI3BarrelSmallHitToT(std::vector<int> FEI3BarrelSmallHitToT) { m_FEI3BarrelSmallHitToT = std::move(FEI3BarrelSmallHitToT); }
+void PixelModuleData::setFEI3EndcapSmallHitToT(std::vector<int> FEI3EndcapSmallHitToT) { m_FEI3EndcapSmallHitToT = std::move(FEI3EndcapSmallHitToT); }
 
 int PixelModuleData::getFEI3SmallHitToT(int bec, int layer) const {
   int smallToT = -1;
@@ -246,8 +250,8 @@ int PixelModuleData::getFEI3SmallHitToT(int bec, int layer) const {
   return smallToT;
 }
 
-void PixelModuleData::setFEI3BarrelTimingSimTune(std::vector<int> FEI3BarrelTimingSimTune) { m_FEI3BarrelTimingSimTune = FEI3BarrelTimingSimTune; }
-void PixelModuleData::setFEI3EndcapTimingSimTune(std::vector<int> FEI3EndcapTimingSimTune) { m_FEI3EndcapTimingSimTune = FEI3EndcapTimingSimTune; }
+void PixelModuleData::setFEI3BarrelTimingSimTune(std::vector<int> FEI3BarrelTimingSimTune) { m_FEI3BarrelTimingSimTune = std::move(FEI3BarrelTimingSimTune); }
+void PixelModuleData::setFEI3EndcapTimingSimTune(std::vector<int> FEI3EndcapTimingSimTune) { m_FEI3EndcapTimingSimTune = std::move(FEI3EndcapTimingSimTune); }
 int PixelModuleData::getFEI3TimingSimTune(int bec, int layer) const {
   int timesim = 0;
   if (std::abs(bec)==0 && layer<(int)m_FEI3BarrelTimingSimTune.size()) { timesim=m_FEI3BarrelTimingSimTune.at(layer); }
@@ -255,8 +259,8 @@ int PixelModuleData::getFEI3TimingSimTune(int bec, int layer) const {
   return timesim;
 }
 
-void PixelModuleData::setFEI4BarrelHitDiscConfig(std::vector<int> FEI4BarrelHitDiscConfig) { m_FEI4BarrelHitDiscConfig = FEI4BarrelHitDiscConfig; }
-void PixelModuleData::setFEI4EndcapHitDiscConfig(std::vector<int> FEI4EndcapHitDiscConfig) { m_FEI4EndcapHitDiscConfig = FEI4EndcapHitDiscConfig; }
+void PixelModuleData::setFEI4BarrelHitDiscConfig(std::vector<int> FEI4BarrelHitDiscConfig) { m_FEI4BarrelHitDiscConfig = std::move(FEI4BarrelHitDiscConfig); }
+void PixelModuleData::setFEI4EndcapHitDiscConfig(std::vector<int> FEI4EndcapHitDiscConfig) { m_FEI4EndcapHitDiscConfig = std::move(FEI4EndcapHitDiscConfig); }
 int PixelModuleData::getFEI4HitDiscConfig(int bec, int layer) const {
   int hitDiscConfig = 2;
   if (std::abs(bec)==0 && layer<(int)m_FEI4BarrelHitDiscConfig.size()) { hitDiscConfig=m_FEI4BarrelHitDiscConfig.at(layer); }
@@ -285,8 +289,8 @@ float PixelModuleData::getDefaultQ2TotE() const { return m_paramE; }
 float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
 
 // Lorentz angle correction
-void PixelModuleData::setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr) { m_BarrelLorentzAngleCorr = BarrelLorentzAngleCorr; }
-void PixelModuleData::setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr) { m_EndcapLorentzAngleCorr = EndcapLorentzAngleCorr; }
+void PixelModuleData::setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr) { m_BarrelLorentzAngleCorr = std::move(BarrelLorentzAngleCorr); }
+void PixelModuleData::setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr) { m_EndcapLorentzAngleCorr = std::move(EndcapLorentzAngleCorr); }
 double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
   double LAcorr = 1.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelLorentzAngleCorr.size()) { LAcorr=m_BarrelLorentzAngleCorr.at(layer); }
@@ -298,9 +302,9 @@ double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
 void PixelModuleData::setDefaultBiasVoltage(float biasVoltage) { m_biasVoltage=biasVoltage; }
 float PixelModuleData::getDefaultBiasVoltage() const { return m_biasVoltage; }
 
-void PixelModuleData::setDefaultBarrelBiasVoltage(std::vector<float> BarrelBiasVoltage) { m_BarrelBiasVoltage = BarrelBiasVoltage; }
-void PixelModuleData::setDefaultEndcapBiasVoltage(std::vector<float> EndcapBiasVoltage) { m_EndcapBiasVoltage = EndcapBiasVoltage; }
-void PixelModuleData::setDefaultDBMBiasVoltage(std::vector<float>    DBMBiasVoltage)    { m_DBMBiasVoltage = DBMBiasVoltage; }
+void PixelModuleData::setDefaultBarrelBiasVoltage(std::vector<float> BarrelBiasVoltage) { m_BarrelBiasVoltage = std::move(BarrelBiasVoltage); }
+void PixelModuleData::setDefaultEndcapBiasVoltage(std::vector<float> EndcapBiasVoltage) { m_EndcapBiasVoltage = std::move(EndcapBiasVoltage); }
+void PixelModuleData::setDefaultDBMBiasVoltage(std::vector<float>    DBMBiasVoltage)    { m_DBMBiasVoltage = std::move(DBMBiasVoltage); }
 float PixelModuleData::getDefaultBiasVoltage(int bec, int layer) const {
   float biasVoltage = 0.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelBiasVoltage.size()) { biasVoltage=m_BarrelBiasVoltage.at(layer); }
@@ -313,23 +317,23 @@ void PixelModuleData::setDefaultTemperature(float temperature) { m_temperature=t
 float PixelModuleData::getDefaultTemperature() const { return m_temperature; }
 
 // Radiation damage fluence maps
-void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = fluenceLayer; }
+void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = std::move(fluenceLayer); }
 std::vector<double> PixelModuleData::getFluenceLayer() const { return m_fluenceLayer; }
 
-void PixelModuleData::setRadSimFluenceMapList(std::vector<std::string> RadSimFluenceMapList) { m_RadSimFluenceMapList = RadSimFluenceMapList; }
+void PixelModuleData::setRadSimFluenceMapList(std::vector<std::string> RadSimFluenceMapList) { m_RadSimFluenceMapList = std::move(RadSimFluenceMapList); }
 std::vector<std::string> PixelModuleData::getRadSimFluenceMapList() const { return m_RadSimFluenceMapList; }
 
-void PixelModuleData::setFluenceLayer3D(std::vector<double> fluenceLayer) { m_fluenceLayer3D = fluenceLayer; }
+void PixelModuleData::setFluenceLayer3D(std::vector<double> fluenceLayer) { m_fluenceLayer3D = std::move(fluenceLayer); }
 std::vector<double> PixelModuleData::getFluenceLayer3D() const { return m_fluenceLayer3D; }
 
-void PixelModuleData::setRadSimFluenceMapList3D(std::vector<std::string> RadSimFluenceMapList3D) { m_RadSimFluenceMapList3D = RadSimFluenceMapList3D; }
+void PixelModuleData::setRadSimFluenceMapList3D(std::vector<std::string> RadSimFluenceMapList3D) { m_RadSimFluenceMapList3D = std::move(RadSimFluenceMapList3D); }
 std::vector<std::string> PixelModuleData::getRadSimFluenceMapList3D() const { return m_RadSimFluenceMapList3D; }
 
 // Cabling parameters
 void PixelModuleData::setCablingMapToFile(bool cablingMapToFile) { m_cablingMapToFile = cablingMapToFile; }
 bool PixelModuleData::getCablingMapToFile() const { return m_cablingMapToFile; }
 
-void PixelModuleData::setCablingMapFileName(std::string cablingMapFileName) { m_cablingMapFileName = cablingMapFileName; }
+void PixelModuleData::setCablingMapFileName(std::string cablingMapFileName) { m_cablingMapFileName = std::move(cablingMapFileName); }
 std::string PixelModuleData::getCablingMapFileName() const { return m_cablingMapFileName; }
 
 // Distortion parameters
@@ -363,7 +367,7 @@ double PixelModuleData::getDistortionRMSTwist() const { return m_distortionRMSTw
 void PixelModuleData::setDistortionWriteToFile(bool distortionWriteToFile) { m_distortionWriteToFile = distortionWriteToFile; }
 bool PixelModuleData::getDistortionWriteToFile() const { return m_distortionWriteToFile; }
 
-void PixelModuleData::setDistortionFileName(std::string distortionFileName) { m_distortionFileName = distortionFileName; }
+void PixelModuleData::setDistortionFileName(std::string distortionFileName) { m_distortionFileName = std::move(distortionFileName); }
 std::string PixelModuleData::getDistortionFileName() const { return m_distortionFileName; }
 
 void PixelModuleData::clear() {

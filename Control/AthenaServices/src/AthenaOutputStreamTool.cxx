@@ -86,7 +86,7 @@ StatusCode AthenaOutputStreamTool::initialize() {
      if( (pos != std::string::npos) ) {
        ATH_MSG_INFO("The AttrListKey will be overwritten/set by the value from the OutputName: " << m_outputName);
        const std::string attrListKey = m_outputName.value().substr(pos + keyword.size(),
-								   m_outputName.value().find("]", pos + keyword.size()) - pos - keyword.size());
+								   m_outputName.value().find(']', pos + keyword.size()) - pos - keyword.size());
        m_attrListKey = attrListKey;
      }
    }
@@ -516,9 +516,9 @@ StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromT
                   }
                   ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();
-                  if (keyName.size() > 10 && keyName.substr(0, 10) == hltKey) {
+                  if (keyName.size() > 10 && keyName.compare(0, 10,hltKey)==0) {
                      p2BWrittenFromTool->add(clid, hltKey + "*").ignore();
-                  } else if (keyName.size() > 10 && keyName.substr(keyName.size() - 10, 10) == hltKey) {
+                  } else if (keyName.size() > 10 && keyName.compare(keyName.size() - 10, 10, hltKey)==0) {
                      p2BWrittenFromTool->add(clid, "*" + hltKey).ignore();
                   } else {
                      p2BWrittenFromTool->add(clid, keyName).ignore();

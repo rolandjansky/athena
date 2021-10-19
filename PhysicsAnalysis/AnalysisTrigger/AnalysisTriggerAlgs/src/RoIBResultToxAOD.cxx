@@ -24,11 +24,6 @@
 #include "TrigT1CaloUtils/JEMJetAlgorithm.h"
 
 // Trigger configuration interface includes:
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerItem.h"
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfData/L1Menu.h"
 
 // xAOD include(s):
@@ -59,10 +54,6 @@ StatusCode RoIBResultToxAOD::initialize() {
    if( m_doMuon == false ) {
       ATH_MSG_INFO( "Inputs from LVL1 Muon systems switched off" );
    }
-
-   // Connect to the LVL1ConfigSvc for the trigger configuration.
-   ATH_CHECK( m_configSvc.retrieve() );
-   ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
 
    if( m_doMuon ) {
       // Get the RPC RecRoI tool
@@ -135,37 +126,18 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
    auto emtau_aux = std::make_unique< xAOD::EmTauRoIAuxContainer >();
    emtau_xaod->setStore( emtau_aux.get() );
 
-   /// Digit scale for calorimeter trigger
-   float caloTrigScale = 1;
    const TrigConf::L1Menu * l1menu = nullptr;
-   std::vector< TrigConf::TriggerThreshold* > caloThresholds;
    std::map< int, std::string > emThresholdNames;
    std::map< int, std::string > tauThresholdNames;
-   if( m_useNewConfig ) {
-      ATH_CHECK( detStore()->retrieve(l1menu) );
-      caloTrigScale = (float)l1menu->thrExtraInfo().EM().resolutionMeV();
-      for( auto thr : l1menu->thresholds("EM")) {
-         emThresholdNames[ thr->mapping() ] = thr->name();
-      }
-      for( auto thr : l1menu->thresholds("TAU")) {
-         tauThresholdNames[ thr->mapping() ] = thr->name();
-      }
-   } else {
-      caloTrigScale = GeV / m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
-      /** Get EmTau Thresholds from configSvc. Also fill a map of threshold names while
-          we are here - will be useful later */
-      const std::vector< TrigConf::TriggerThreshold* >& thresholds =
-         m_configSvc->ctpConfig()->menu().thresholdVector();
-      for( TrigConf::TriggerThreshold* tt : thresholds ) {
-         if( tt->type() == TrigConf::L1DataDef::emType() ) {
-            caloThresholds.push_back( tt );
-            emThresholdNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::tauType() ) {
-            caloThresholds.push_back( tt );
-            tauThresholdNames[ tt->thresholdNumber() ] = tt->name();
-         }
-      }
+
+   ATH_CHECK( detStore()->retrieve(l1menu) );
+   // Digit scale for calorimeter trigger
+   float caloTrigScale = static_cast<float>(l1menu->thrExtraInfo().EM().resolutionMeV());
+   for( auto thr : l1menu->thresholds("EM")) {
+      emThresholdNames[ thr->mapping() ] = thr->name();
+   }
+   for( auto thr : l1menu->thresholds("TAU")) {
+      tauThresholdNames[ thr->mapping() ] = thr->name();
    }
 
    // Tool to reconstruct EM/tau cluster & isolation sums
@@ -190,12 +162,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
                         << std::setw( 8 ) << roIWord << MSG::dec );
 
          // RecRoI
-         LVL1::RecEmTauRoI recRoI;
-         if( l1menu ) {
-            recRoI = LVL1::RecEmTauRoI( roIWord, l1menu );
-         } else {
-            recRoI = LVL1::RecEmTauRoI( roIWord, &caloThresholds );
-         }
+         LVL1::RecEmTauRoI recRoI( roIWord, l1menu );
 
          // xAOD component
          // ATLAS standard phi convention differs from L1 hardware convention
@@ -273,28 +240,13 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
    jetet_xaod->setStore( jetet_aux.get() );
 
    const TrigConf::L1Menu * l1menu = nullptr;
-   if( m_useNewConfig ) {
-      ATH_CHECK( detStore()->retrieve(l1menu) );
-   } 
+   ATH_CHECK( detStore()->retrieve(l1menu) );
    
    // Digit scale for calorimeter trigger
-   float caloTrigScale{0};
-   if( m_useNewConfig ) {
-      caloTrigScale = (float)l1menu->thrExtraInfo().JET().resolutionMeV();
-   } else {
-      caloTrigScale = GeV / m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
-   }
+   float caloTrigScale = static_cast<float>(l1menu->thrExtraInfo().JET().resolutionMeV());
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
-   /** Get Jet/Energy Thresholds from configSvc. Also fill maps of threshold names while
-       we are here - will be useful later.
-
-       Unfortunately there are 3 types of jet threshold and 3 types of ET trigger threshold,
-       so this bit doesn't look very elegant */
-
-   std::vector<TrigConf::TriggerThreshold*> jetThresholds;
-   std::vector<TrigConf::TriggerThreshold*> energyThresholds;
-   std::vector<TrigConf::TriggerThreshold*> jetEnergyThresholds;
+   // Fill maps of threshold names
    std::map<int, std::string> jetNames;
    std::map<int, std::string> jfNames;
    std::map<int, std::string> jbNames;
@@ -302,52 +254,17 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
    std::map<int, std::string> teNames;
    std::map<int, std::string> xsNames;
    std::map<int, std::string> jeNames;
-   if ( m_useNewConfig ) {
-      for( auto thr : l1menu->thresholds("JET")) {
-         jetNames[ thr->mapping() ] = thr->name();
-      }
-      for( auto thr : l1menu->thresholds("XE")) {
-         xeNames[ thr->mapping() ] = thr->name();
-      }
-      for( auto thr : l1menu->thresholds("TE")) {
-         teNames[ thr->mapping() ] = thr->name();
-      }
-      for( auto thr : l1menu->thresholds("XS")) {
-         xsNames[ thr->mapping() ] = thr->name();
-      }
-   } else {
-      const std::vector< TrigConf::TriggerThreshold* >& thresholds =
-         m_configSvc->ctpConfig()->menu().thresholdVector();
-      for( TrigConf::TriggerThreshold* tt : thresholds ) {
-         if( tt->type() == TrigConf::L1DataDef::jetType() ) {
-            jetThresholds.push_back( tt );
-            jetNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::jfType() ) {
-            jetThresholds.push_back( tt );
-            jfNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::jbType() ) {
-            jetThresholds.push_back( tt );
-            jbNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::xeType() ) {
-            energyThresholds.push_back( tt );
-            xeNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::teType() ) {
-            energyThresholds.push_back( tt );
-            teNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::xsType() ) {
-            energyThresholds.push_back( tt );
-            xsNames[ tt->thresholdNumber() ] = tt->name();
-         }
-         else if( tt->type() == TrigConf::L1DataDef::jeType() ) {
-            jetEnergyThresholds.push_back( tt );
-            jeNames[ tt->thresholdNumber() ] = tt->name();
-         }
-      }
+   for( auto thr : l1menu->thresholds("JET")) {
+      jetNames[ thr->mapping() ] = thr->name();
+   }
+   for( auto thr : l1menu->thresholds("XE")) {
+      xeNames[ thr->mapping() ] = thr->name();
+   }
+   for( auto thr : l1menu->thresholds("TE")) {
+      teNames[ thr->mapping() ] = thr->name();
+   }
+   for( auto thr : l1menu->thresholds("XS")) {
+      xsNames[ thr->mapping() ] = thr->name();
    }
 
    // Tool to reconstruct Jet cluster ET sums
@@ -384,12 +301,7 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
          // Jet ROI
          if( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType ) {
             // RecRoI
-            LVL1::RecJetRoI recRoI;
-            if( m_useNewConfig) {
-               recRoI = LVL1::RecJetRoI( roIWord, l1menu );
-            } else {
-               recRoI = LVL1::RecJetRoI( roIWord, &jetThresholds );
-            }
+            LVL1::RecJetRoI recRoI( roIWord, l1menu );
 
             // xAOD component
             // Convert to ATLAS phi convention
@@ -476,12 +388,7 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
                            << roiWord2 << MSG::dec );
 
             // RecRoI
-            LVL1::RecEnergyRoI recRoI;
-            if( m_useNewConfig) {
-               recRoI = LVL1::RecEnergyRoI( roiWord0, roiWord1, roiWord2, l1menu );
-            } else {
-               recRoI = LVL1::RecEnergyRoI( roiWord0, roiWord1, roiWord2, &energyThresholds );
-            }
+            LVL1::RecEnergyRoI recRoI( roiWord0, roiWord1, roiWord2, l1menu );
 
             // Overflow bits  
             unsigned int overflows = 0;  
@@ -550,9 +457,7 @@ StatusCode RoIBResultToxAOD::createMuonRoI( const ROIB::RoIBResult& result,
    ATH_MSG_DEBUG( "in buildMuonRoI()" );
 
    const TrigConf::L1Menu * l1menu = nullptr;
-   if( m_useNewConfig ) {
-      ATH_CHECK( detStore()->retrieve(l1menu) );
-   } 
+   ATH_CHECK( detStore()->retrieve(l1menu) );
    
    // Create the xAOD container.
    auto mu_xaod = std::make_unique< xAOD::MuonRoIContainer >();
@@ -562,21 +467,8 @@ StatusCode RoIBResultToxAOD::createMuonRoI( const ROIB::RoIBResult& result,
 
    std::vector< TrigConf::TriggerThreshold* > muonThresholds;
    std::map< int, std::string > thresholdNames;
-   if( m_useNewConfig ) {
-      for( auto thr : l1menu->thresholds("MU")) {
-         thresholdNames[ thr->mapping() ] = thr->name();
-      }
-   } else {
-      /** Get Muon Thresholds from configSvc. Also fill a map of threshold names while
-          we are here - will be useful later */
-      const std::vector< TrigConf::TriggerThreshold* >& thresholds =
-         m_configSvc->ctpConfig()->menu().thresholdVector();
-      for( TrigConf::TriggerThreshold* tt : thresholds ) {
-         if( tt->type() == TrigConf::L1DataDef::muonType() ) {
-            muonThresholds.push_back( tt );
-            thresholdNames[ tt->thresholdNumber() ] = tt->name();
-         }
-      }
+   for( auto thr : l1menu->thresholds("MU")) {
+      thresholdNames[ thr->mapping() ] = thr->name();
    }
 
    // get Muon ROI
@@ -592,14 +484,7 @@ StatusCode RoIBResultToxAOD::createMuonRoI( const ROIB::RoIBResult& result,
       ATH_MSG_DEBUG( MSG::hex << std::setw( 8 ) << roIWord );
 
       // RecRoI
-      LVL1::RecMuonRoI recRoI;
-      if( m_useNewConfig ) {
-         recRoI = LVL1::RecMuonRoI( roIWord, m_recRPCRoiTool.get(),
-                                    m_recTGCRoiTool.get(), l1menu );
-      } else {
-         recRoI = LVL1::RecMuonRoI( roIWord, m_recRPCRoiTool.get(),
-                                    m_recTGCRoiTool.get(), &muonThresholds );
-      }
+      LVL1::RecMuonRoI recRoI( roIWord, m_recRPCRoiTool.get(), m_recTGCRoiTool.get(), l1menu );
 
       const double thrValue = recRoI.getThresholdValue() * GeV;
       const int index = recRoI.getThresholdNumber() - 1;

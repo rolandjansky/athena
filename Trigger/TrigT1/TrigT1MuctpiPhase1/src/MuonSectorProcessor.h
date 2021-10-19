@@ -14,6 +14,8 @@
 #include <vector>
 #include <memory>
 
+#include "MUCTPIResults.h"
+
 namespace LVL1MUONIF {
   class Lvl1MuCTPIInputPhase1;
 }
@@ -39,21 +41,19 @@ namespace LVL1MUCTPIPHASE1 {
     MuonSectorProcessor(MuonSectorProcessor &&o);
     MuonSectorProcessor(const MuonSectorProcessor &) = delete;
 
+    //initialization
     void setMenu(const TrigConf::L1Menu* l1menu);
     void setL1TopoLUT(const L1TopoLUT* l1topoLUT) {m_l1topoLUT=l1topoLUT;}
     void configureOverlapRemoval(const std::string& lutFile);
     bool configurePtEncoding();
-    void setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input);
-    void runOverlapRemoval(int bcid);
-    std::string makeL1TopoData(int bcid);
-    const LVL1::MuCTPIL1Topo* getL1TopoData(int bcid) const;
-    const LVL1MUONIF::Lvl1MuCTPIInputPhase1* getOutput() const;
+
+    //processing
+    void runOverlapRemoval(LVL1MUONIF::Lvl1MuCTPIInputPhase1* inputs, int bcid) const;
+    std::string makeL1TopoData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* inputs, int bcid, LVL1::MuCTPIL1Topo& l1topoData) const;
     bool getSide() const { return m_side; };
 
   private:
     
-    const LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
-    std::unordered_map<int, std::unique_ptr<LVL1::MuCTPIL1Topo>> m_bcid_to_l1topo;
     std::unique_ptr<OverlapHelper> m_overlapHelper;
     const TrigConf::L1Menu* m_l1menu;
     const L1TopoLUT* m_l1topoLUT;

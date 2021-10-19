@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 #
 # jobOptions file for LArDetDescr loading and CaloDDE tests
@@ -12,17 +14,17 @@ svcMgr.MessageSvc.OutputLevel               = 3
 svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
 
 # make sure that other subdet are not built
-from AthenaCommon.GlobalFlags import GlobalFlags
-GlobalFlags.DetGeo.set_atlas()
-GlobalFlags.DataSource.set_geant4()
-GlobalFlags.Luminosity.set_zero()
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetGeo.set_Value_and_Lock('atlas')
+globalflags.DataSource.set_Value_and_Lock('geant4')
+globalflags.Luminosity.set_Value_and_Lock('zero')
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.LAr_setOn()
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = 'ATLAS-GEO-02-00-00'
+globalflags.DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
@@ -37,5 +39,5 @@ from TestLArDetDescr.TestLArDetDescrConf import TestCaloDDE
 topSequence += TestCaloDDE()
 
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('DEFAULTCOND')
+conddb.setGlobalTag('OFLCOND-MC16-SDR-RUN2-08')
 

@@ -27,6 +27,7 @@
 #include "LArRawConditions/LArMCSym.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArFebRodMapping.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -82,6 +83,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    {this, "CablingKey", "LArOnOffIdMap", "SG Key for LArOnOffIdMapping"} ;
   SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
    {this, "RodFebKey", "LArFebRodMap", "SG Key for LArFebRodMapping"} ;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey
+   {this, "LArBadChannelKey", "LArBadChannel", "Key of the LArBadChannelCont CDO" };
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)

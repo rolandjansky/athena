@@ -71,7 +71,7 @@ StatusCode
 InDet::InDetTrtTrackScoringTool::initialize()
 {
   ATH_CHECK(m_trkSummaryTool.retrieve());
-  ATH_CHECK(m_selectortool.retrieve());
+  ATH_CHECK(m_selectortool.retrieve( DisableTool{m_selectortool.empty() } ));
   ATH_CHECK(m_lumiBlockMuTool.retrieve());
 
   if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
@@ -133,7 +133,7 @@ InDet::InDetTrtTrackScoringTool::simpleScore(const Trk::Track& track, const Trk:
   }
 
   // Cut on the minimum number of hits
-  bool isGood = isGoodTRT(track);
+  bool isGood = m_selectortool.isEnabled() ? isGoodTRT(track) : true;
   if (!isGood) {
     return Trk::TrackScore(0);
   }
@@ -224,6 +224,7 @@ InDet::InDetTrtTrackScoringTool::TRT_ambigScore(const Trk::Track& track, const T
   if (iTRT_Hits > 0 && m_maxTrtRatio > 0) {
     // get expected number of TRT hits
     double nTrtExpected = 30.;
+    assert( m_selectortool.isEnabled());
     nTrtExpected = m_selectortool->minNumberDCs(track.trackParameters()->front());
     double ratio = iTRT_Hits / nTrtExpected;
     if (ratio > m_boundsTrtRatio[m_maxTrtRatio])
@@ -309,7 +310,7 @@ InDet::InDetTrtTrackScoringTool::setupTRT_ScoreModifiers()
   constexpr double fakeTrtRatio[maxTrtRatio] = { 0.6,  0.08, 0.06, 0.05,
                                                  0.04, 0.03, 0.03 };
   // put it into the private members
-  m_maxTrtRatio = maxTrtRatio;
+  m_maxTrtRatio = m_selectortool.isEnabled() ? maxTrtRatio : 0;
   for (int i = 0; i < m_maxTrtRatio; ++i)
     m_factorTrtRatio.push_back(goodTrtRatio[i] / fakeTrtRatio[i]);
   for (int i = 0; i <= m_maxTrtRatio; ++i)
@@ -439,6 +440,7 @@ InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track) const
     const DataVector<const Trk::TrackParameters>* vpar = track.trackParameters();
     const Trk::TrackParameters* par = (*vpar)[0];
     int nCutTRT = m_minTRTonTrk;
+    assert( m_selectortool.isEnabled() );
     int expected = m_selectortool->minNumberDCs(par);
     if (expected > m_minTRTonTrk)
       nCutTRT = expected;
@@ -471,6 +473,12 @@ InDet::InDetTrtTrackScoringTool::getMuDependentNtrtMinCut(unsigned int eta_bin) 
   if (m_TRTTrksMinTRTHitsMuDependencies[eta_bin] > 0) {
 
     float avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+
+    // The mu-dependent cuts have only been validted up to mu = 80.
+    // Also there is some physical limit to nTRT, so at some point
+    // there needs to be a ceiling for this threshold.
+    // To be revisited when a higher mu value is reached.
+    avg_mu = std::min(80.f,avg_mu);
 
     // minTRT = a + avg_mu * b
     minTRT += avg_mu * m_TRTTrksMinTRTHitsMuDependencies[eta_bin];

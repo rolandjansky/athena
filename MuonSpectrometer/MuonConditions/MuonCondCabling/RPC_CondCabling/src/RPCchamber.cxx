@@ -4,15 +4,16 @@
 
 #include "RPC_CondCabling/RPCchamber.h"
 
-#include <iomanip>
-
+#include "AthenaKernel/errorcheck.h"
 #include "RPC_CondCabling/EtaCMA.h"
 #include "RPC_CondCabling/SectorLogicSetup.h"
 #include "RPC_CondCabling/WiredOR.h"
 
+#include <iomanip>
+
 using namespace RPC_CondCabling;
 /// Helper struct to reduce the number of arguments in the constructor
-RPCchamber::RPCchamber(RPCchamber::chamberParameters params, IMessageSvc* msgSvc) : CablingObject{params, "RPC", msgSvc}, m_params{params} {
+RPCchamber::RPCchamber(const RPCchamber::chamberParameters& params) : CablingObject{params, "RPC"}, m_params{params} {
     for (int i = 0; i < m_params.etaStrips; ++i) m_eta_read_mul.push_back(0);
 }
 
@@ -50,12 +51,14 @@ bool RPCchamber::setup(SectorLogicSetup& setup) {
     int ijk_phi = rpc->ijk_phiReadout();
 
     if (ijk_eta != m_params.ijk_EtaReadOut) {
-        error("==> mismatch of ijk_etaReadout with respect to others RPC");
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+            << error("==> mismatch of ijk_etaReadout with respect to others RPC");
         return false;
     }
 
     if (ijk_phi != m_params.ijk_PhiReadOut) {
-        error("==> mismatch of ijk_phiReadout with respect to others RPC");
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+            << error("==> mismatch of ijk_phiReadout with respect to others RPC");
         return false;
     }
 
@@ -63,8 +66,9 @@ bool RPCchamber::setup(SectorLogicSetup& setup) {
 }
 
 bool RPCchamber::check() {
-    if (m_readoutCMAs.size() == 0) {
-        error("==> No readout coverage for this chamber!");
+    if (m_readoutCMAs.empty()) {
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+            << error("==> No readout coverage for this chamber!");
         return false;
     }
 
@@ -74,30 +78,35 @@ bool RPCchamber::check() {
     int channels = m_params.etaStrips;
     for (int i = 0; i < channels; ++i) {
         if (!m_eta_read_mul[i]) {
-            error("==> No readout coverage for the full set of ETA strip!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+                << error("==> No readout coverage for the full set of ETA strip!");
             return false;
         }
         if (m_eta_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Pivot plane ETA strips must be read only once!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+                << error("==> Pivot plane ETA strips must be read only once!");
             return false;
         }
         if (m_eta_read_mul[i] > 2) {
-            error("==> Confirm plane ETA strips can be read only twice!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+                << error("==> Confirm plane ETA strips can be read only twice!");
             return false;
         }
     }
 
     if (m_readoutWORs.size() > 1) {
-        error("==> Gives input to more than 1 Wired OR pannel!");
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamber")
+            << error("==> Gives input to more than 1 Wired OR pannel!");
         return false;
     }
     return true;
 }
 
-void RPCchamber::error(const std::string& mess) const {
-    error_header();
-    DISP << mess << std::endl << *this;
-    DISP_ERROR;
+std::string RPCchamber::error(const std::string& mess) const {
+    std::ostringstream disp;
+    disp << error_header()
+           << mess << std::endl << *this;
+    return disp.str();
 }
 
 bool RPCchamber::local_strip(ViewType side, int strip_number, int& local_address) const {
@@ -314,7 +323,7 @@ std::string RPCchamber::extendedName(int sector) const {
         default: return "";
     }
 
-    __osstream out;
+    std::ostringstream out;
 
     int physicsSector = (((sector + 1) % 32) / 2 + 1) % 16;
     if (!physicsSector) physicsSector = 16;
@@ -338,16 +347,16 @@ bool RPCchamber::inversion(int sector) const {
     switch (stationName()[2]) {
         case 'L':
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // HV
+                return sector <= 31;  // HV
             else
-                return (sector <= 31) ? false : true;  // RO
+                return sector > 31;  // RO
             break;
 
         case 'E':
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // HV
+                return sector <= 31;  // HV
             else
-                return (sector <= 31) ? false : true;  // RO
+                return sector > 31;  // RO
             break;
 
         case 'R':
@@ -366,37 +375,37 @@ bool RPCchamber::inversion(int sector) const {
 
         case 'S':
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // RO
+                return sector <= 31;  // RO
             else
-                return (sector <= 31) ? false : true;  // HV
+                return sector > 31;  // HV
             break;
 
         case 'F':
             if (stationName()[1] == 'O' && (sector == 25 || sector == 26 || sector == 57 || sector == 58)) {
                 if (sector % 2)
-                    return (sector <= 31) ? false : true;  // RO
+                    return sector > 31;  // RO
                 else
-                    return (sector <= 31) ? true : false;  // HV
+                    return sector <= 31;  // HV
             }
 
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // RO
+                return sector <= 31;  // RO
             else
-                return (sector <= 31) ? false : true;  // HV
+                return sector > 31;  // HV
             break;
 
         case 'G':
             if (stationName()[1] == 'O' && stationName()[3] != '8' && (sector == 25 || sector == 26 || sector == 57 || sector == 58)) {
                 if (sector % 2)
-                    return (sector <= 31) ? false : true;  // RO
+                    return sector > 31;  // RO
                 else
-                    return (sector <= 31) ? true : false;  // HV
+                    return sector <= 31;  // HV
             }
 
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // RO
+                return sector <= 31;  // RO
             else
-                return (sector <= 31) ? false : true;  // HV
+                return sector > 31;  // HV
             break;
 
         default: return false;

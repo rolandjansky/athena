@@ -105,7 +105,7 @@ MetaInfo::evalArgs(std::vector<std::string>& argv)
          m_noMetadata=true;
          for( size_t i = 0; i < keepkeys.size() ; ++i) {
             // Check for any wildcarding
-            std::string::size_type sep = keepkeys[i].find("*");
+            std::string::size_type sep = keepkeys[i].find('*');
             if (sep == std::string::npos) {
                //std::cerr << "Keeping " << keepkeys[i] << std::endl;
                m_wildkeepers.push_back(std::make_pair(keepkeys[i],""));
@@ -115,8 +115,8 @@ MetaInfo::evalArgs(std::vector<std::string>& argv)
                std::pair<std::string,std::string> key;
                key.first = keepkeys[i].substr(0,sep);
                key.second = keepkeys[i].substr(sep+1,keepkeys[i].size());
-               if (key.first.find("*")==std::string::npos && 
-                   key.second.find("*")==std::string::npos) m_wildkeepers.push_back(key);
+               if (key.first.find('*')==std::string::npos && 
+                   key.second.find('*')==std::string::npos) m_wildkeepers.push_back(key);
                else std::cerr << "Multiple wildcards not supported, disregarding " << keepkeys[i] << std::endl;
             }
          }

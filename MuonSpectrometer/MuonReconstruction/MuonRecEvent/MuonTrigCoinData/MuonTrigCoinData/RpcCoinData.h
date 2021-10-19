@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,9 +34,9 @@ class RpcCoinData : public RpcPrepData
     /** Public, Copy, operator=, constructor*/
     RpcCoinData();
     RpcCoinData(const RpcCoinData &);
-    RpcCoinData(RpcCoinData &&);
+    RpcCoinData(RpcCoinData &&) noexcept;
     RpcCoinData &operator=(const RpcCoinData &);
-    RpcCoinData &operator=(RpcCoinData &&);
+    RpcCoinData &operator=(RpcCoinData &&) noexcept;
 
     /** @brief Dumps information about the RpcCoinData*/
     virtual MsgStream&    dump( MsgStream&    stream) const;

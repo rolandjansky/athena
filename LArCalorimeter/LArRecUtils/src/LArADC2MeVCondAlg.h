@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +57,7 @@ class LArADC2MeVCondAlg: public AthReentrantAlgorithm {
   Gaudi::Property<bool> m_useFEBGainThresholds{this,"UseFEBGainTresholds",true};
   Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false,"switch to true to use the SuperCell Identfier helper"};
 
-  size_t m_nGains;
+  size_t m_nGains = 0UL;
   const LArOnlineID_Base* m_larOnlineID=nullptr;
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetIsolationTool.cxx 
@@ -39,7 +39,7 @@ namespace jet {
         FourMom_t & isoP(){ return m_isoP;}
         
         FourMom_t m_isoP ;
-        double m_isoSumPt;
+        double m_isoSumPt = 0.0;
         
       };
       
@@ -174,7 +174,7 @@ namespace jet {
 
       double m_parameter;
       string m_name;
-      double m_deltaRmax2;
+      double m_deltaRmax2 = 0.0;
       
     }; 
     

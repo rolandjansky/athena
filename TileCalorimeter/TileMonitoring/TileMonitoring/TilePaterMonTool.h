@@ -66,14 +66,14 @@ class TilePaterMonTool: public ManagedMonitorToolBase
 
 protected:
 /// Implicit version of book1D 
-  TH1D* book1D(const std::string& nam, const std::string& tit, 
+  TH1D* book1D(const std::string& nam, const std::string& tit,
                int nx, double xmin, double xmax) 
   { 
     return book1D(m_path, nam, tit, nx, xmin, xmax); 
   }
 
 /// Implicit version of book2D 
-  TH2D* book2D(const std::string& nam, const std::string& tit, 
+  TH2D* book2D(const std::string& nam, const std::string& tit,
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax)
  {
@@ -97,6 +97,11 @@ protected:
 
   TH1S* book1S(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax,
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
+
+  TH1S* book1Sx(std::string dir, std::string nam, std::string tit,
+               int nx, const Double_t *xlgbins,
                Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
                std::string trigChain = "", std::string mergeAlgo = "");
 
@@ -205,12 +210,12 @@ protected:
   using ManagedMonitorToolBase::regGraph;
 
   template <typename T>
-  void regHist(const std::string& subDir, T* hist, 
+  void regHist(const std::string& subDir, T* hist,
                Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED, 
                std::string trigChain = "", std::string mergeAlgo = "" );
 
   template <typename T>
-  void regGraph(const std::string& subDir, T* graph, 
+  void regGraph(const std::string& subDir, T* graph,
                 Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED, 
                 std::string trigChain = "", std::string mergeAlgo = "" );
   

@@ -7,10 +7,10 @@ from AthenaCommon.Logging import logging
 mlog = logging.getLogger('CaloTopoSignalFragment.py:: ')
 
 import AthenaCommon.Constants as Lvl
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 from CaloRec.MakeTowersFromClusters import TowersFromClustersDict, MakeTowersFromClusters
-from CaloRec.CaloRecConf            import CaloTowerGeometrySvc, CaloTopoClusterTowerMerger
+from CaloRec.CaloRecConf            import CaloTopoClusterTowerMerger
+from CaloDetDescr.CaloDetDescrConf  import CaloTowerGeometryCondAlg
 
 mlog.info(' ')
 mlog.info('##################################')
@@ -22,13 +22,13 @@ mlog.info(' ')
 ## Tower Geometry Provider ##
 #############################
 
-if not hasattr(svcMgr,'CaloTowerGeometryProvider'):
+if not hasattr(condSeq,'CaloTowerGeometryCondAlg'):
     mlog.info("setting up tower geometry provider")
-    caloTowerGeoSvc              = CaloTowerGeometrySvc('CaloTowerGeometryProvider')
-    caloTowerGeoSvc.TowerEtaBins = 100
-    caloTowerGeoSvc.TowerEtaMin  = -5.
-    caloTowerGeoSvc.TowerEtaMax  =  5.
-    svcMgr                      += caloTowerGeoSvc
+    caloTowerGeoAlg              = CaloTowerGeometryCondAlg()
+    caloTowerGeoAlg.TowerEtaBins = 100
+    caloTowerGeoAlg.TowerEtaMin  = -5.
+    caloTowerGeoAlg.TowerEtaMax  =  5.
+    condSeq                      += caloTowerGeoAlg
 
 
 #############################
@@ -36,7 +36,6 @@ if not hasattr(svcMgr,'CaloTowerGeometryProvider'):
 #############################
 
 caloTowerDict = TowersFromClustersDict(clusterBuilderName='CaloFwdTopoTowerBuilder',
-                                       towerGeometrySvc=svcMgr.CaloTowerGeometryProvider,
                                        cellContainerKey='AllCalo',
                                        buildTopoTowers=True,
                                        topoClusterContainerKey='CaloCalTopoClusters',

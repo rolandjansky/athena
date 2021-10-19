@@ -57,7 +57,7 @@ def precisionElectronRecoSequence_LRT(RoIs):
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_LRT")
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs_LRT.precisionCaloClusters
+    TrigEgammaRecAlgo.InputClusterContainerName = precisionCaloMenuDefs_LRT.precisionCaloClusters
 
     ## TrigElectronSuperClusterBuilder_LRT ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_LRT")
@@ -68,9 +68,11 @@ def precisionElectronRecoSequence_LRT(RoIs):
     ## TrigTopoEgammaElectronCfg_LRT ##
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_LRT")
     thesequence += TrigTopoEgammaAlgo
-    TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
+    TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys_LRT.outputElectronKey_LRT
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
+    TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
+    collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
 
     ## TrigElectronIsoBuilderCfg_LRT ##
     isoBuilder = TrigElectronIsoBuilderCfg_LRT("TrigElectronIsoBuilderCfg_LRT")
@@ -78,8 +80,9 @@ def precisionElectronRecoSequence_LRT(RoIs):
 
     #online monitoring for topoEgammaBuilder_LRT
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
-    PrecisionElectronRecoMonAlgo_LRT = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoEgammaBuilder_LRT")
+    PrecisionElectronRecoMonAlgo_LRT = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoMonitoring_LRT")
     PrecisionElectronRecoMonAlgo_LRT.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
+    PrecisionElectronRecoMonAlgo_LRT.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo.ElectronOutputName]
     thesequence += PrecisionElectronRecoMonAlgo_LRT
 
     #online monitoring for TrigElectronSuperClusterBuilder_LRT
@@ -88,4 +91,4 @@ def precisionElectronRecoSequence_LRT(RoIs):
     PrecisionElectronSuperClusterMonAlgo_LRT.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     thesequence += PrecisionElectronSuperClusterMonAlgo_LRT
     
-    return (thesequence, collectionOut)
+    return (thesequence, collectionOut, collectionOut_dummy)

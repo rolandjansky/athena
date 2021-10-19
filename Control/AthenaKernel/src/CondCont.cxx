@@ -317,10 +317,40 @@ size_t CondContBase::entries() const
  *
  * Returns the number of objects that were removed.
  */
-size_t CondContBase::trim (const std::vector<key_type>& keys)
+size_t CondContBase::trim (const std::vector<key_type>& runLbnKeys, const std::vector<key_type>& TSKeys)
 {
-  return m_condSet.trim (keys);
+  if (m_keyType == KeyType::RUNLBN) {
+      return m_condSet.trim (runLbnKeys);
+  }
+
+  if (m_keyType == KeyType::TIMESTAMP) {
+    return m_condSet.trim ( TSKeys );
+  }
+
+
+  if (m_keyType == KeyType::MIXED) {
+    //For mixed containers, first trim inner container based in TimeStamps
+    size_t nTrimmed=0;
+    for (const typename CondContSet::value_type& ent : m_condSet.range()) {
+      const CondContSet* tsmap = reinterpret_cast<const CondContSet*> (ent.second);
+      //size_t before=tsmap->size();
+      CondContSet* tsmap_nc ATLAS_THREAD_SAFE = const_cast<CondContSet*>(tsmap);
+      size_t ntrim=tsmap_nc->trim(TSKeys);
+      nTrimmed+=ntrim;
+      //std::cout << "WL: Trimming inner container for clid " << m_clid << " (" << ntrim << " out of " << before << ", nKeys= " << TSKeys.size() << ")" << std::endl;
+    }
+    //Then trim outer container based on run-LB 
+    size_t outerTrimmed=m_condSet.trim(runLbnKeys);
+    //std::cout << "WL: Removing outer sets " << outerTrimmed << ", remaining " << m_condSet.size()  << std::endl; 
+    //FIXME: The number returned may be inaccurate, only correct if the outer container
+    //has exactly one element left by the time it gets removed.  
+    return nTrimmed+outerTrimmed; 
+  }
+
+//Arrive here for KeyType::SINGLE .. do nothing. 
+ return 0;
 }
+
 
 
 /**
@@ -1113,8 +1143,8 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
   {
     std::abort();  // Shouldn't happen.
   }
-  
-  return sc;
+  return this->inserted (ctx);
+  //return sc;
 }
 
 

@@ -369,6 +369,10 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
   SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
 )
 
 # EM-scale pflow with custom selection for the primary vertex 
@@ -378,6 +382,36 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CustomVtxParticleFlowObjects",
   OutputContainer = "PseudoJetPFlowCustomVtx",
   SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
+)
+
+#New sideband definition (default for precision recs)
+jtm += PseudoJetAlgorithm(
+  "empflowpusbget",
+  Label = "EMPFlowPUSB",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowPUSB",
+  SkipNegativeEnergy = True,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = True,
+)
+
+# EM-scale pflow - neutral objects only
+jtm += PseudoJetAlgorithm(
+  "empflowneutget",
+  Label = "EMPFlowNeut",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowNeut",
+  SkipNegativeEnergy = True,
+  UseCharged = False,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = False,
 )
 
 # AntiKt2 track jets.
@@ -545,6 +579,7 @@ jtm += JetWidthTool("width")
 jtm += JetCaloEnergies("jetens")
 
 # Jet vertex fraction with selection.
+# This is never used without jtm.trksummoms when configured from here, so suppress input dependence.
 jtm += JetVertexFractionTool(
   "jvf",
   VertexContainer = jtm.vertexContainer,
@@ -555,11 +590,12 @@ jtm += JetVertexFractionTool(
   JVFName = "JVF",
   K_JVFCorrScale = 0.01,
   #Z0Cut = 3.0,
-  PUTrkPtCut = 30000.0
+  PUTrkPtCut = 30000.0,
+  SuppressInputDependence = True
 )
 
 # Jet vertex tagger.
-# This is never used without jtm.jvf when configured from here, so suppress input dependence.
+# This is never used without jtm.jvf and jtm.trksummoms when configured from here, so suppress input dependence.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,

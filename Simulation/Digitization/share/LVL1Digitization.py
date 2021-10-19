@@ -64,8 +64,8 @@ if DetFlags.digitize.LVL1_on():
     if not hasattr( ServiceMgr, 'LVL1ConfigSvc' ):
         log.info( "Will setup LVL1ConfigSvc and add instance to ServiceMgr" )
 
-        from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc,findFileInXMLPATH
-        LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
+        from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+        LVL1ConfigSvc = TrigConf__LVL1ConfigSvc('LVL1ConfigSvc')
 
         #If read from DB then set up the connection and pass keys
         from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -91,8 +91,7 @@ if DetFlags.digitize.LVL1_on():
 
         #Otherwise read from xml
         else:
-            log.info( "LVL1ConfigSvc uses xml file %s ", TriggerFlags.inputLVL1configFile()  )
-            LVL1ConfigSvc.XMLFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+            raise RuntimeError("LVL1ConfigSvc: XML trigger configuration is not supported anymore")
 
         ServiceMgr += LVL1ConfigSvc
     else:
@@ -115,12 +114,8 @@ if DetFlags.digitize.LVL1_on():
     #--------------------------------------------------------------
     if DetFlags.simulateLVL1.RPC_on() or DetFlags.simulateLVL1.TGC_on():
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.enableL1MuonPhase1:
-            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-            topSequence += L1MuctpiPhase1()
-        else:
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-            topSequence += L1Muctpi()
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
+        topSequence += L1MuctpiPhase1()
 
     #-------------------------------------------------------
     # TrigT1CaloSim Algos
@@ -147,13 +142,6 @@ if DetFlags.digitize.LVL1_on():
     if DetFlags.simulateLVL1.BCM_on():
         from TrigT1BCM.TrigT1BCMConf import LVL1__TrigT1BCM
         topSequence += LVL1__TrigT1BCM()
-
-    #-------------------------------------------------------
-    # TrigT1LUCID Alg
-    #-------------------------------------------------------
-    if DetFlags.simulateLVL1.Lucid_on():
-        from TrigT1Lucid.TrigT1LucidConf import LVL1__TrigT1Lucid
-        topSequence += LVL1__TrigT1Lucid()
 
     #-------------------------------------------------------
     # TrigT1CTP Algos

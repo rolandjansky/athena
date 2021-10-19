@@ -163,12 +163,14 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
        darray.defineHistogram('slotBad,FTBad;KnownBadFEB', title='Known Bad FEBs {0} ; Slot ; FT', 
                               type='TH2I', path='',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
-                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up,
+                              merge='identical')
 
        darray.defineHistogram('slotMNB,FTMNB;MNBKnownFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
                               type='TH2I', path='',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
-                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up,
+                              merge='identical')
 
        # 2D plots of noisy FEBs with various cuts
        darray.defineHistogram('slotNoisy,FTNoisy;NoisyFEBPerEvt', title='Yield of events with {0} FEB noisy -'+NoisyFEBDefStr+' (only vetoed events) ; Slot ; FT', 

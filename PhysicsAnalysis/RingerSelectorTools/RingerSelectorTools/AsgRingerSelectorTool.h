@@ -53,19 +53,16 @@ namespace Ringer {
     virtual const asg::AcceptInfo& getAcceptInfo() const override{ return m_accept; };
 
 
+    /**
+     * @briel Calculation of model output for fast calorimetry or fast photon step (HLT usage only)
+     **/
+    virtual float predict(const xAOD::TrigRingerRings * ) const override;
 
     /**
-     * @brief Prepare the input model
+     * @briel Calculation of model output for fast electron step (HLT usage only)
      **/
-    virtual std::vector<std::vector<float>> prepare_inputs( const xAOD::TrigRingerRings*, const xAOD::TrigElectron* ) const override;
+    virtual float predict(const xAOD::TrigRingerRings *, const xAOD::TrigElectron *) const override;
 
-
-
-    /**
-     * @briel Calculation of model output for fast calorimetry step
-     **/
-    virtual float predict(const xAOD::TrigRingerRings *, std::vector<std::vector<float>> &) const override;
-          
 
     /**
      * @brief Accept method
@@ -81,7 +78,7 @@ namespace Ringer {
     asg::AcceptInfo m_accept;
     onnx::RingerSelector m_selector;
 
-    Gaudi::Property<std::string>              m_configFile{this, "ConfigFile", "", "Ringer Run3 Calib Path"};  
+    Gaudi::Property<std::vector<std::string>> m_configFiles{this, "ConfigFiles", {}, "Ringer Run3 Calib Path"};  
     ServiceHandle< AthONNX::IONNXRuntimeSvc > m_onnxSvc{ this, "ONNXRuntimeSvc", "AthONNX::ONNXRuntimeSvc", "Name of the service to use" };
 
 };

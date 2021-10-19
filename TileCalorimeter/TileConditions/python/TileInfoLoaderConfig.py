@@ -7,8 +7,9 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-
+@AccumulatorCache
 def TileInfoLoaderCfg(flags, **kwargs):
     """Return component accumulator with configured Tile info loader service
 

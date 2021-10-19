@@ -47,15 +47,10 @@ def JetRecoSequence():
 
 
 def HitDVHypoSequence():
-        from TrigLongLivedParticlesHypo.TrigHitDVHypoTool              import  TrigHitDVHypoToolFromDict
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigHitDVHypoAlg)
+        from TrigLongLivedParticlesHypo.TrigHitDVHypoConfig import TrigHitDVHypoToolFromDict
+        from TrigLongLivedParticlesHypo.TrigHitDVHypoConfig import createTrigHitDVHypoAlg
 
-        # Setup the hypothesis algorithm
-        theHitDVHypo = TrigHitDVHypoAlg("HitDV")
-        if ConfigFlags.Input.isMC:
-                theHitDVHypo.isMC = True
-        else:
-                theHitDVHypo.isMC = False
+        theHitDVHypo = createTrigHitDVHypoAlg("HitDV")
 
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
         from AthenaConfiguration.ComponentFactory import CompFactory

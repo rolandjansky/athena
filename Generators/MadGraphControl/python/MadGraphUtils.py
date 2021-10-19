@@ -20,7 +20,7 @@ MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 MADGRAPH_COMMAND_STACK = []
-from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
+from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short,is_version_or_newer
 from MadGraphControl.MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
 
@@ -195,7 +195,12 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
     Return the name of the process directory.
     """
     if config_only_check():
-        return
+        # Give some directories to work on
+        try:
+            os.makedirs('dummy_proc/Cards')
+        except os.error:
+            pass
+        return 'dummy_proc'
 
     # Don't run if generating events from gridpack
     if is_gen_from_gridpack():
@@ -306,6 +311,12 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
     if usePMGSettings:
         do_PMG_updates(process_dir)
 
+    # After 2.9.3, enforce the standard default sde_strategy, so that this won't randomly change on the user
+    if is_version_or_newer([2,9,3]) and not is_NLO_run(process_dir=process_dir):
+        mglog.info('Setting default sde_strategy to old default (1)')
+        my_settings = {'sde_strategy':1}
+        modify_run_card(process_dir=process_dir,settings=my_settings,skipBaseFragment=True)
+
     # Make sure we store the resultant directory
     MADGRAPH_COMMAND_STACK += ['export MGaMC_PROCESS_DIR='+os.path.basename(process_dir)]
 
@@ -401,7 +412,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
             my_settings['req_acc']=str(required_accuracy)
         else:
             my_settings = {'gridpack':'true'}
-        modify_run_card(process_dir=process_dir,settings=my_settings)
+        modify_run_card(process_dir=process_dir,settings=my_settings,skipBaseFragment=True)
 
     else:
         #Running in on-the-fly mode
@@ -598,7 +609,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     settings={'iseed':str(random_seed)}
     if not isNLO:
         settings['python_seed']=str(random_seed)
-    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings=settings)
+    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings=settings,skipBaseFragment=True)
 
     mglog.info('Generating events from gridpack')
 
@@ -1991,7 +2002,11 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
             pos = 0 if line.strip().startswith('DECAY') else 1
             if blockName=='MASS' and 'MASS' in params:
                 # Any residual masses to set?
-                leftOvers = [ x for x in params['MASS'] if x not in doneParams['MASS'] ]
+                if "MASS" in doneParams:
+                    leftOvers = [ x for x in params['MASS'] if x not in doneParams['MASS'] ]
+                else:
+                    leftOvers = [ x for x in params['MASS'] ]
+
                 for pdg_id in leftOvers:
                     mglog.warning('Adding mass line for '+str(pdg_id)+' = '+str(params['MASS'][pdg_id])+' which was not in original param card')
                     newcard.write('   '+str(pdg_id)+'  '+str(params['MASS'][pdg_id])+'\n')
@@ -2093,6 +2108,10 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     This function can get a fresh runcard from DATAPATH or start from the process directory.
     Settings is a dictionary of keys (no spaces needed) and values to replace.
     """
+    if config_only_check():
+        mglog.info('Running config-only. No proc card, so not operating on the run card.')
+        return
+
     # Operate on lower case settings, and choose the capitalization MG5 has as the default (or all lower case)
     for s in list(settings.keys()):
         if s.lower() not in settings:
@@ -2305,6 +2324,12 @@ def is_gen_from_gridpack():
 
 
 def get_default_config_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    if config_only_check():
+        mglog.info('Athena running on config only mode: grabbing config card the old way, as there will be no proc dir')
+        if os.access(os.environ['MADPATH']+'/input/mg5_configuration.txt',os.R_OK):
+            shutil.copy(os.environ['MADPATH']+'/input/mg5_configuration.txt','local_mg5_configuration.txt')
+            return 'local_mg5_configuration.txt'
+
     lo_config_card=process_dir+'/Cards/me5_configuration.txt'
     nlo_config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
 
@@ -2332,6 +2357,8 @@ def get_cluster_type(process_dir=MADGRAPH_GRIDPACK_LOCATION):
 
 def is_NLO_run(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     # Very simple check based on the above config card grabbing
+    if config_only_check():
+        return False
     return get_default_config_card(process_dir=process_dir)==process_dir+'/Cards/amcatnlo_configuration.txt'
 
 
@@ -2342,7 +2369,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
     # Modification: average or bias is ok; sum is incorrect. Change the test to set sum to average
     if checkSetting('event_norm','sum',mydict):
-        modify_run_card(process_dir=process_dir,settings={'event_norm':'average'})
+        modify_run_card(process_dir=process_dir,settings={'event_norm':'average'},skipBaseFragment=True)
         mglog.warning("setting event_norm to average, there is basically no use case where event_norm=sum is a good idea")
 
     if not isNLO:
@@ -2398,7 +2425,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     if not isNLO:
         if 'python_seed' not in mydict:
             mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
-            modify_run_card(process_dir=process_dir,settings={'python_seed':mydict['iseed']})
+            modify_run_card(process_dir=process_dir,settings={'python_seed':mydict['iseed']},skipBaseFragment=True)
 
     mglog.info('Finished checking run card - All OK!')
 
@@ -2462,7 +2489,6 @@ def hack_gridpack_script():
             if need_to_add_rwgt:
                 newscript.write(reweight_line_new)
                 need_to_add_rwgt=False
-
         else:
             newscript.write(line)
     oldscript.close()

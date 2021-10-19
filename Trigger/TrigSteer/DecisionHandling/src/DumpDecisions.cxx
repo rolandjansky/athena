@@ -34,7 +34,7 @@ StatusCode DumpDecisions::execute(const EventContext &ctx) const
 {
   using namespace TrigCompositeUtils;
 
-  for (auto key : m_decisionKeys)
+  for (const auto& key : m_decisionKeys)
   {
     auto decisionInput = SG::makeHandle(key, ctx);
     if (not decisionInput.isValid())

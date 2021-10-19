@@ -64,7 +64,7 @@ namespace CP{
 
   /** Return the shower depth on sampling 1 given etas1. From:
   https://svnweb.cern.ch/trac/atlasoff/browser/Calorimeter/CaloDetDescr/trunk/src/CaloDepthTool.cxx#L347 **/
-  float ShowerDepthTool::getShowerDepthEM1(const float& etas1) const
+  float ShowerDepthTool::getShowerDepthEM1(const float& etas1) 
   {
     float radius, aetas1 = std::fabs(etas1);
     if (aetas1 < 0.8)
@@ -80,7 +80,7 @@ namespace CP{
 
   /** Return the shower depth on sampling 2 given etas2. From:
   https://svnweb.cern.ch/trac/atlasoff/browser/Calorimeter/CaloDetDescr/trunk/src/CaloDepthTool.cxx#L347 **/
-  float ShowerDepthTool::getShowerDepthEM2(const float& etas2) const
+  float ShowerDepthTool::getShowerDepthEM2(const float& etas2) 
   {
     float radius, aetas2 = std::fabs(etas2);
     if (aetas2 < 1.425) // Barrel, my definition
@@ -105,7 +105,7 @@ namespace CP{
     return getEtaDirection(zvertex, RZ.first, RZ.second);
   }
 
-  std::pair<float,float> ShowerDepthTool::getRZ(const float& eta,const int& sampling) const
+  std::pair<float,float> ShowerDepthTool::getRZ(const float& eta,const int& sampling) 
   {
     if ((sampling != 1 && sampling != 2) || (std::fabs(eta)>10))
     {
@@ -160,7 +160,7 @@ namespace CP{
     return histo->Interpolate(eta, phi);
   }
   
-  float ShowerDepthTool::getEtaDirection(const float& zvertex,const float& R,const float& z) const
+  float ShowerDepthTool::getEtaDirection(const float& zvertex,const float& R,const float& z) 
   {
     return std::asinh( (z- zvertex)/R );
   }  

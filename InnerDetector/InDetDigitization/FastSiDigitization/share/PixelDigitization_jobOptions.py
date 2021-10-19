@@ -30,8 +30,6 @@ if not hasattr(condSeq, 'PixelConfigCondAlg'):
   condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg",ReadDeadMapKey="")
 
 
-useNewChargeFormat  = False
-
 if not hasattr(condSeq, "PixelDeadMapCondAlg"):
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
   condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
@@ -40,18 +38,19 @@ if not hasattr(condSeq, "PixelDeadMapCondAlg"):
 # Calibration setup #
 #####################
 from IOVDbSvc.CondDB import conddb
-if not useNewChargeFormat:
-  if not conddb.folderRequested("/PIXEL/PixCalib"):
-    conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
-  if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-    condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-else:
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+if commonGeoFlags.Run()=="RUN3":
   if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
     conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
   if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
     condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+else:
+  if not conddb.folderRequested("/PIXEL/PixCalib"):
+    conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+  if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+    condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
 from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()

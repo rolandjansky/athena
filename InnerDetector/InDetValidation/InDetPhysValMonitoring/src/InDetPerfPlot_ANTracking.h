@@ -29,7 +29,7 @@ class InDetPerfPlot_ANTracking: public InDetPlotBase {
 public:
   InDetPerfPlot_ANTracking(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle* track, const bool isGood, const float mu, const unsigned int nVtx, float weight);
   void fillFakeRate(const xAOD::TrackParticle& track, const bool isAssociatedTruth, const float mu, const unsigned int nVtx, float weight);
   void fillUnlinked(const xAOD::TrackParticle& track, const bool isAssociatedTruth, const float mu, const unsigned int nVtx, float weight);
 

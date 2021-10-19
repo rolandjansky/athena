@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTPCnv/LArLATOMEHeaderContainerCnv_p1.h"
@@ -9,7 +9,7 @@
 
 void
 LArLATOMEHeaderContainerCnv_p1::persToTrans(const LArLATOMEHeaderContainer_p1* pers, 
-				     LArLATOMEHeaderContainer* trans, MsgStream &log)
+				     LArLATOMEHeaderContainer* trans, MsgStream &log) const
 {
   const unsigned nchan=pers->m_sourceID.size();
   if (nchan != pers->m_nChannels.size() || nchan != pers->m_BCID.size()) {
@@ -30,7 +30,7 @@ LArLATOMEHeaderContainerCnv_p1::persToTrans(const LArLATOMEHeaderContainer_p1* p
 
 void
 LArLATOMEHeaderContainerCnv_p1::transToPers(const LArLATOMEHeaderContainer* trans, 
-				     LArLATOMEHeaderContainer_p1* pers, MsgStream &/*log*/)
+				     LArLATOMEHeaderContainer_p1* pers, MsgStream &/*log*/) const
 {
   
   unsigned int nlatome=trans->size();

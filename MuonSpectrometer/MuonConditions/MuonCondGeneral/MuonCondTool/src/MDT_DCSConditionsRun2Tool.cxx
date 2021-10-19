@@ -242,7 +242,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       hv_v1_ml2=*(static_cast<const float*>((atr["v1set_ML2"]).addressOfData()));
       
             
-      std::string delimiter2 = "_";
+      char delimiter2 = '_';
       std::vector<std::string> tokens2;
       
       MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
@@ -261,7 +261,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	//	m_log << MSG::INFO << "NOT ON and NOT STANDBY HV : " <<hv_name_ml1  << " ChamberName : "<<tokens2[0] << "multilayer 1"  <<endmsg;	
 	//	m_cachedDeadMultiLayers.push_back(1);
 	int multilayer =1;
-	std::string chamber_name = tokens2[0];
+	const std::string &chamber_name = tokens2[0];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId.push_back(MultiLayerId);
@@ -274,7 +274,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	//m_log << MSG::INFO << "STANDBY HV : " << hv_name_ml1<< " ChamberName : "<<tokens2[0] << "multilayer 1"<<endmsg;	
 	
 	int multilayer =1;
-	std::string chamber_name = tokens2[0];
+	const std::string &chamber_name = tokens2[0];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId.push_back(MultiLayerId);
@@ -285,7 +285,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	//m_log << MSG::INFO << "NOT ON and NOT STANDBY HV : " <<hv_name_ml2  << " ChamberName : "<<tokens2[0] << "multilayer 2"  <<endmsg;	
 	//m_cachedDeadMultiLayers.push_back(2);
 	int multilayer =1;
-	std::string chamber_name = tokens2[0];
+	const std::string &chamber_name = tokens2[0];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId.push_back(MultiLayerId);
@@ -298,7 +298,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	//m_log << MSG::INFO << "STANDBY HV : " << hv_name_ml2<< " ChamberName : "<<tokens2[0] << "multilayer 2"<<endmsg;	
 	
 	int multilayer =2;
-	std::string chamber_name = tokens2[0];
+	const std::string &chamber_name = tokens2[0];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId.push_back(MultiLayerId);
@@ -307,7 +307,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if(hv_name_ml2 !="ON" && hv_name_ml2 !="STANDBY" && hv_name_ml2 !="UNKNOWN" && hv_name_ml1 !="ON" && hv_name_ml1 !="STANDBY" && hv_name_ml1 !="UNKNOWN" ){
 	
       m_cachedDeadStations.push_back(tokens2[0]);
-      std::string chamber_name=tokens2[0];
+      const std::string &chamber_name=tokens2[0];
       
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       m_cachedDeadStationsId.push_back(ChamberId);
@@ -316,7 +316,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if(hv_name_ml2=="STANDBY" && hv_v0_ml2 != hv_v1_ml2 && hv_name_ml1=="STANDBY" && hv_v0_ml1 != hv_v1_ml1){
  	
 	m_cachedDeadStations.push_back(tokens2[0]);
-      std::string chamber_name=tokens2[0];
+      const std::string &chamber_name=tokens2[0];
       
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       m_cachedDeadStationsId.push_back(ChamberId);
@@ -378,7 +378,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if(atr.size()){
       hv_name=*(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
       //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endmsg;
-      std::string delimiter = " ";
+      char delimiter = ' ';
       std::vector<std::string> tokens;
       MuonCalib::MdtStringUtils::tokenize(hv_name,tokens,delimiter);
       for (unsigned int i=0; i<tokens.size(); i++)
@@ -389,7 +389,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	  }
 	}
        
-      std::string delimiter2 = "_";
+      char delimiter2 = '_';
       std::vector<std::string> tokens2;
       MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
       
@@ -403,7 +403,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if(tokens[0]!="ON"){
 	 if( m_verbose ) m_log << MSG::VERBOSE << "NOT ON LV: " << tokens[0]<< " ChamberName : "<<tokens2[0] <<endmsg;
 	m_cachedDeadLVStations.push_back(tokens2[0]);
-	std::string chamber_name= tokens2[0];
+	const std::string &chamber_name= tokens2[0];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadLVStationsId.push_back(ChamberId);
 	 if( m_verbose ) m_log<<MSG::VERBOSE<<"Chamber off from LV Chamber !=ON "<<tokens2[0] <<endmsg;

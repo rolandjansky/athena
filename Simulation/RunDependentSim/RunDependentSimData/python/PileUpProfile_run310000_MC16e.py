@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-def setupProfile(scaleTaskLength=1):
+def setupProfile(flags, scaleTaskLength=1):
 
     def _evts(x):
         return int(scaleTaskLength * x)

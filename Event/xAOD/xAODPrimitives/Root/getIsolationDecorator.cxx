@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -40,6 +40,32 @@ const SG::AuxElement::Decorator< float >*
       DEFINE_DECORATOR(ptvarcone20);
       DEFINE_DECORATOR(ptvarcone30);
       DEFINE_DECORATOR(ptvarcone40);
+      // Ptcone variables for high mu:
+      DEFINE_DECORATOR(ptcone20_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_DECORATOR(ptcone30_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_DECORATOR(ptcone40_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_DECORATOR(ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_DECORATOR(ptcone30_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_DECORATOR(ptcone40_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_DECORATOR(ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_DECORATOR(ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_DECORATOR(ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_DECORATOR(ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_DECORATOR(ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_DECORATOR(ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      // Mini-Isolation (http://arxiv.org/abs/1007.2221) variables for high mu:
+      DEFINE_DECORATOR(ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_DECORATOR(ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_DECORATOR(ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_DECORATOR(ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_DECORATOR(ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_DECORATOR(ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_DECORATOR(ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_DECORATOR(ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_DECORATOR(ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_DECORATOR(ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_DECORATOR(ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_DECORATOR(ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
       // neutral eflow
       DEFINE_DECORATOR(neflowisol20);
       DEFINE_DECORATOR(neflowisol30);

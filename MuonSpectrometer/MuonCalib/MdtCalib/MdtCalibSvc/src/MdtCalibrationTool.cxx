@@ -37,7 +37,7 @@ namespace {
 class MdtCalibrationTool::Imp {
 public:
 
-  Imp( std::string name );
+  Imp();
 
   const MuonGM::MdtReadoutElement* getGeometry( const Identifier &id ) {
     assert( m_muonGeoManager );
@@ -53,44 +53,33 @@ public:
 			   const MuonCalib::IRtRelation *rt,
          MsgStream* msgStr, const MdtIdHelper *idHelp) const;
 
-  const MuonGM::MuonDetectorManager *m_muonGeoManager;
+  const MuonGM::MuonDetectorManager *m_muonGeoManager{nullptr};
   MdtCalibrationSvcSettings          settings;
 
-  double m_inverseSpeedOfLight;      // in ns/mm
-  double m_inversePropagationSpeed;  // in ns/mm
+  double m_inverseSpeedOfLight{1./Gaudi::Units::c_light};      // in ns/mm
+  double m_inversePropagationSpeed{m_inverseSpeedOfLight/0.85};  // in ns/mm
 
   /* T0 Shift tool -- Per-tube offsets of t0 value */
-  ToolHandle<MuonCalib::IShiftMapTools> m_t0ShiftTool;
+  ToolHandle<MuonCalib::IShiftMapTools> m_t0ShiftTool{"MdtCalibrationT0ShiftTool"};
   /* TMax Shift tool -- Per-tube offsets of Tmax */
-  ToolHandle<MuonCalib::IShiftMapTools> m_tMaxShiftTool;
+  ToolHandle<MuonCalib::IShiftMapTools> m_tMaxShiftTool{"MdtCalibrationTMaxShiftTool"};
 
   // tools should only be retrieved if they are used
-  bool m_doT0Shift;
-  bool m_doTMaxShift;
+  bool m_doT0Shift{false};
+  bool m_doTMaxShift{false};
 
-  double m_unphysicalHitRadiusUpperBound;
-  double m_unphysicalHitRadiusLowerBound;
-  double m_resTwin;
+  double m_unphysicalHitRadiusUpperBound{-1.};
+  double m_unphysicalHitRadiusLowerBound{-1.};
+  double m_resTwin{-1.};
 
 };
 
-MdtCalibrationTool::Imp::Imp(std::string ) :
-  m_muonGeoManager(nullptr),
-  m_inverseSpeedOfLight(1./Gaudi::Units::c_light),
-  m_inversePropagationSpeed(m_inverseSpeedOfLight/0.85),
-  m_t0ShiftTool("MdtCalibrationT0ShiftTool"),
-  m_tMaxShiftTool("MdtCalibrationTMaxShiftTool"),
-  m_doT0Shift(false),
-  m_doTMaxShift(false),
-  m_unphysicalHitRadiusUpperBound(-1.),
-  m_unphysicalHitRadiusLowerBound(-1.),
-  m_resTwin(-1.) {
-}
+MdtCalibrationTool::Imp::Imp() = default;
 
 
 MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) :
-    base_class(type, name, parent) {
-  m_imp.reset(new MdtCalibrationTool::Imp(name));
+    base_class(type, name, parent),
+    m_imp{ std::make_unique<MdtCalibrationTool::Imp>()} {
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
   declareProperty("TimeWindowUpperBound",m_imp->settings.windowUpperBound );
@@ -109,13 +98,11 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
   declareProperty("DoTMaxShift", m_imp->m_doTMaxShift = false );
 }
 
-MdtCalibrationTool::~MdtCalibrationTool() {
-  m_imp.reset();
-}
+MdtCalibrationTool::~MdtCalibrationTool()= default;
 
 StatusCode MdtCalibrationTool::initialize() {
+  
   ATH_MSG_DEBUG( "Initializing" );
-
   m_imp->settings.initialize();
 
   // Read handle for AtlasFieldCacheCondObj
@@ -230,6 +217,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib *singleTubeData =
       data.tubeCalib->getCalib( ml, layer, tube );
     if( singleTubeData ){
+      ATH_MSG_DEBUG("Apply the following calibration shift to "<<m_idHelperSvc->toString(id)<<" "<<singleTubeData->t0);
       t0 = singleTubeData->t0;
       inversePropSpeed = singleTubeData->inversePropSpeed;
       adcCal = singleTubeData->adcCal;
@@ -238,16 +226,16 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
 			<< ml << " " << layer << " " << tube
 			<< " using defaults.. ");
       if ( geo )
-	ATH_MSG_WARNING("detel " << geo->getMultilayer()
-			  << " lay " << geo->getNLayers()
-			  << " tubes " << geo->getNtubesperlayer());
+        	ATH_MSG_WARNING("detel " << geo->getMultilayer()
+	    		                         << " lay " << geo->getNLayers()
+			                             << " tubes " << geo->getNtubesperlayer());
       t0 =  800.;
     }
 
     // get t0 shift from tool (default: no shift, value is zero)
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftTool->getValue(id);
   } else {
-    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
+    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->toString( id ) << " - Tube cannot be calibrated!");
     return false;
   }
 

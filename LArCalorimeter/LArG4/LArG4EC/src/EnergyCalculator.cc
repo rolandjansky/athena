@@ -44,6 +44,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -296,18 +297,26 @@ StatusCode EnergyCalculator::initialize()
   IGeoModelSvc *geoModel=0;
   ATH_CHECK(svcLocator->service ("GeoModelSvc",geoModel));
 
+  IGeoDbTagSvc *geoDbTagSvc(nullptr);
+  ATH_CHECK(svcLocator->service ("GeoDbTagSvc",geoDbTagSvc));
+
   // Access the geometry database:
   IRDBAccessSvc *pAccessSvc=0;
-  ATH_CHECK(svcLocator->service("RDBAccessSvc",pAccessSvc));
+  ATH_CHECK(svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc));
 
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
+  std::string larKey, larNode;
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    DecodeVersionKey larVersionKey(geoModel, "LAr");
+    larKey = larVersionKey.tag();
+    larNode = larVersionKey.node();
+  }
 
-  IRDBRecordset_ptr emecSamplingSep = pAccessSvc->getRecordsetPtr("EmecSamplingSep", larVersionKey.tag(), larVersionKey.node());
+  IRDBRecordset_ptr emecSamplingSep = pAccessSvc->getRecordsetPtr("EmecSamplingSep", larKey, larNode);
   if (emecSamplingSep->size()==0) {
     throw std::runtime_error("Cannot find the EmecSamplingSep Table");
   }
 
-  IRDBRecordset_ptr emecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry", larVersionKey.tag(), larVersionKey.node());
+  IRDBRecordset_ptr emecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry", larKey, larNode);
   if (emecGeometry->size()==0) {
     throw std::runtime_error("Cannot find the EmecGeometry Table");
   }

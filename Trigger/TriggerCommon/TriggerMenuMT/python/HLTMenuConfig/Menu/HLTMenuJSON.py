@@ -135,11 +135,43 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     # All algorithms executed by a given Sequencer
     menuDict["sequencers"].update( __getSequencerAlgs(stepsData) )
 
+    __validateJSON(menuDict)
+
     # Menu dictionary now completed, write to JSON
     __log.info( "Writing HLT Menu JSON to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
 
+
+def __validateJSON(menuDict):
+    """ Runs some validation checks which may pick up on issues with the menu
+    """
+    pass
+    #__validateGlobalAlgs(menuDict) # To be enabled once the current offenders are fixed
+
+def __validateGlobalAlgs(menuDict):
+    """ Check that global algs only go into one Step
+    """
+    algToStep = {}
+    import re
+    inError = False
+    for seqName, seqeuncer in menuDict["sequencers"].items():
+        stepNumber = int(re.search(r'\d+', seqName).group()) # Obtain first number from string
+        fullEventMode = False
+        for alg in seqeuncer:
+            if "EventViewCreatorAlgorithm" in alg:
+                fullEventMode = False
+            elif "InputMakerForRoI" in alg:
+                fullEventMode = True
+            if not fullEventMode:
+                continue
+            if alg in algToStep and algToStep[alg] != stepNumber:
+                __log.error("{} is a full-event context alg, it should only be running in one Step, however it is in both Steps {} and {}".format(alg, stepNumber, algToStep[alg]))
+                inError = True
+            else:
+                algToStep[alg] = stepNumber
+    if inError:
+        raise Exception("[validateJSON] Problems detected in validateGlobalAlgs().")    
 
 def generateJSON():
     __log.info("Generating HLT Menu JSON in the rec-ex-common job")

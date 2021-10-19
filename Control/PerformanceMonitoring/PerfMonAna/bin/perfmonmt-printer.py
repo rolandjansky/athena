@@ -4,6 +4,7 @@
 
 import json
 import argparse
+import tarfile
 
 # Print Header
 def printHeader():
@@ -34,22 +35,25 @@ def printComponentLevelInfo(execOnly = True, orderBy = 'cpuTime', maxComps = -1)
                                                               'Malloc [kB]',
                                                               'Component'))
     print('='*105)
-    steps = ['Initialize', 'Execute', 'Finalize', 'Callback', 'preLoadProxy']
+    steps = ['Initialize', 'FirstEvent', 'Execute', 'Finalize', 'Callback', 'preLoadProxy']
     if execOnly:
         steps = ['Execute']
     ncomps = 0
     for step in steps:
-        for entry in sorted(data['componentLevel'][step],
-                            key=lambda x: data['componentLevel'][step][x][orderBy], reverse = True):
-            print('{0:<18}{1:<10}{2:<20.2f}{3:<20}{4:<20}{5:<20}'.format(step,
-                                                                        data['componentLevel'][step][entry]['count'],
-                                                                        data['componentLevel'][step][entry]['cpuTime'],
-                                                                        data['componentLevel'][step][entry]['vmem'],
-                                                                        data['componentLevel'][step][entry]['malloc'],
-                                                                        entry))
-            ncomps += 1
-            if (ncomps == maxComps):
-                break
+        try:
+            for entry in sorted(data['componentLevel'][step],
+                                key=lambda x: data['componentLevel'][step][x][orderBy], reverse = True):
+                print('{0:<18}{1:<10}{2:<20.2f}{3:<20}{4:<20}{5:<20}'.format(step,
+                                                                            data['componentLevel'][step][entry]['count'],
+                                                                            data['componentLevel'][step][entry]['cpuTime'],
+                                                                            data['componentLevel'][step][entry]['vmem'],
+                                                                            data['componentLevel'][step][entry]['malloc'],
+                                                                            entry))
+                ncomps += 1
+                if (ncomps == maxComps):
+                    break
+        except KeyError:
+            pass
         print('='*105)
 
 # Event Level Data in Ascending Order
@@ -93,7 +97,7 @@ def printSnapshotsInfo():
                                                                             'dPss [kB]',
                                                                             'dSwap [kB]'))
     print('-'*105)
-    for entry in ['Configure','Initialize','Execute','Finalize']:
+    for entry in ['Configure', 'Initialize', 'FirstEvent', 'Execute', 'Finalize']:
         print('{0:<14}{1:<13.2f}{2:<13.2f}{3:<13.2f}{4:<13}{5:<13}{6:<13}{7:<13}'.format(entry,
                                                                                          data['summary']['snapshotLevel'][entry]['dCPU']*0.001,
                                                                                          data['summary']['snapshotLevel'][entry]['dWall']*0.001,
@@ -105,10 +109,11 @@ def printSnapshotsInfo():
     print('*'*105)
     print('{0:<40}{1:<}'.format('Number of events processed:',
                                   data['summary']['nEvents']))
-    print('{0:<40}{1:<.0f}'.format('CPU usage per event [ms]:',
-                                  float(data['summary']['snapshotLevel']['Execute']['dCPU'])/float(data['summary']['nEvents'])))
-    print('{0:<40}{1:<.3f}'.format('Events per second:',
-                                  float(data['summary']['nEvents'])/float(data['summary']['snapshotLevel']['Execute']['dWall']*0.001)))
+    nEvents = float(data['summary']['nEvents'])
+    cpuExec = float(data['summary']['snapshotLevel']['FirstEvent']['dCPU']) + float(data['summary']['snapshotLevel']['Execute']['dCPU'])
+    wallExec = float(data['summary']['snapshotLevel']['FirstEvent']['dWall']) + float(data['summary']['snapshotLevel']['Execute']['dWall'])
+    print('{0:<40}{1:<.0f}'.format('CPU usage per event [ms]:', cpuExec/nEvents))
+    print('{0:<40}{1:<.3f}'.format('Events per second:', nEvents/wallExec*1000.))
     print('{0:<40}{1:<}'.format('CPU utilization efficiency [%]:', data['summary']['misc']['cpuUtilEff']))
     print('*'*105)
     print('{0:<40}{1:<.2f} GB'.format('Max Vmem:',
@@ -144,6 +149,32 @@ def printEnvironmentInfo():
     print('{0:<40}{1:<}'.format('Math Library:',data['summary']['envInfo']['mathLib']))
     print('='*105)
 
+# Print out data
+def printReport(data):
+
+    printHeader()
+
+    # Print Component Level Data
+    if args.level in ['All', 'ComponentLevel']:
+        printComponentLevelInfo(args.exec_only,
+                                args.order_by,
+                                args.max_comps)
+
+    # Print Event Level Data
+    if args.level in ['All', 'EventLevel']:
+        printEventLevelInfo()
+
+    # Print Snapshots Summary
+    if args.level in ['All', 'SummaryLevel']:
+        printSnapshotsInfo()
+
+    # Print System and Environment Information
+    if args.level in ['All']:
+        printSystemInfo()
+        printEnvironmentInfo()
+    # Print Footer
+    printFooter()
+
 # Main function
 if '__main__' in __name__:
 
@@ -167,30 +198,20 @@ if '__main__' in __name__:
     args = parser.parse_args()
 
     # Load the data and print the requested information
-    with(open(args.input)) as json_file:
+    if tarfile.is_tarfile(args.input):
 
-        data = json.load(json_file)
+        tar = tarfile.open(args.input)
+        #If data is tarred, there could be more than one json in the tar file: cycle through all
+        for member in tar.getmembers():
+            f = tar.extractfile(member)
+            data = json.load(f)
+            printReport(data)
 
-        # Print Header
-        printHeader()
+        tar.close()
 
-        # Print Component Level Data
-        if args.level in ['All', 'ComponentLevel']:
-            printComponentLevelInfo(args.exec_only,
-                                    args.order_by,
-                                    args.max_comps)
+    #if it is a json file, proceed as normal
+    else:
 
-        # Print Event Level Data
-        if args.level in ['All', 'EventLevel']:
-            printEventLevelInfo()
-
-        # Print Snapshots Summary
-        if args.level in ['All', 'SummaryLevel']:
-            printSnapshotsInfo()
-
-        # Print System and Environment Information
-        if args.level in ['All']:
-            printSystemInfo()
-            printEnvironmentInfo()
-        # Print Footer
-        printFooter()
+        with(open(args.input)) as json_file:
+            data = json.load(json_file)
+            printReport(data)

@@ -2,7 +2,6 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 
 def same( val , tool):
@@ -15,9 +14,9 @@ def same( val , tool):
 def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
-  theFastCaloHypo = TrigEgammaFastCaloHypoAlg(name)
+  #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
 
   # Just for electrons
@@ -35,13 +34,19 @@ def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   MonTool = GenericMonitoringTool("MonTool_"+name)
   MonTool.Histograms = [ 
         defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
-        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=100, xmin=0.0, xmax=100),
+        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=50, xmin=0.0, xmax=50),
   ]
   MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
   theFastCaloHypo.MonTool=MonTool
 
 
   return theFastCaloHypo
+
+def TrigEgammaFastCaloHypoAlgCfg(flags, name, CaloClusters):
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  acc = ComponentAccumulator()
+  acc.addEventAlgo(createTrigEgammaFastCaloHypoAlg(name=name, sequenceOut=CaloClusters))
+  return acc
 
 #
 # For photons only
@@ -114,7 +119,8 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__cand = cpart['trigType']
     self.__threshold  = float(cpart['threshold'])
     self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-    self.__trackinfo  = cpart['trkInfo'] if cpart['trkInfo'] else ''
+    self.__gsfinfo  = cpart['gsfInfo'] if cpart['trigType']=='e' and cpart['gsfInfo'] else ''
+    self.__idperfinfo  = cpart['idperfInfo'] if cpart['trigType']=='e' and cpart['idperfInfo'] else ''
     self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
 
     if not tool:
@@ -144,8 +150,8 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__log.debug( 'Signature :%s'   , self.__cand )
     self.__log.debug( 'Threshold :%s'   , self.__threshold )
     self.__log.debug( 'Pidname   :%s'   , self.__sel )
-    self.__log.debug( 'trackinfo  :%s'  , self.__trackinfo )
     self.__log.debug( 'noringerinfo :%s', self.__noringerinfo )
+
 
   def chain(self):
     return self.__name
@@ -165,8 +171,11 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringerinfo(self):
     return self.__noringerinfo
 
-  def trackinfo(self):
-    return self.__trackinfo
+  def gsfinfo(self):
+    return self.__gsfinfo
+
+  def idperfinfo(self):
+    return self.__idperfinfo
 
   def tool(self):
     return self.__tool
@@ -210,7 +219,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.tool().CAERATIOthr = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
 
 
-  def ringer(self):
+  def nominal(self):
 
     self.__log.debug( 'Configure ringer' )
     self.tool().UseRinger = True
@@ -232,8 +241,8 @@ class TrigEgammaFastCaloHypoToolConfig:
       self.noringer()
 
     elif self.pidname() in self.__operation_points and 'noringer' not in self.noringerinfo() and self.isElectron():
-      self.ringer()
-  
+      self.nominal()
+
     elif self.pidname() in self.__operation_points and self.isPhoton():
       self.etcut()
    
@@ -250,7 +259,8 @@ class TrigEgammaFastCaloHypoToolConfig:
   def addMonitoring(self):
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
-    
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
     if self.tool().UseRinger:
       monTool = GenericMonitoringTool('MonTool'+self.__name)
       monTool.Histograms = [
@@ -282,7 +292,7 @@ class TrigEgammaFastCaloHypoToolConfig:
       monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Calo Hypo Passed Cuts;Cut",
                               xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts)
 
-      if TriggerFlags.doValidationMonitoring():
+      if ConfigFlags.Trigger.doValidationMonitoring:
           monTool.defineHistogram('Et_had', type='TH1F', path='EXPERT', title="L2Calo Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]",
               xbins=50, xmin=-2000, xmax=100000)
           monTool.defineHistogram('Rcore', type='TH1F', path='EXPERT', title="L2Calo Hypo R_{core};E^{3x3}/E^{3x7} in sampling 2",
@@ -329,7 +339,9 @@ def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
 
 
 if __name__ == "__main__":
-    TriggerFlags.doValidationMonitoring = True
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.doValidationMonitoring = True
 
     t = TrigEgammaFastCaloHypoToolFromName( "HLT_e10_etcut_L1EM3","HLT_e10_etcut_L1EM3" )
     assert t, "cant configure EtCut"

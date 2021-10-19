@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
@@ -57,11 +57,17 @@ def _setupMdtCondDB(flags):
     offline_folders = ['/MDT/RT' + mdt_folder_name_appendix, '/MDT/T0' + mdt_folder_name_appendix]
 
     if flags.Muon.Calib.mdtCalibrationSource=="MDT":
-        result.merge(addFoldersSplitOnline(flags, 'MDT', online_folders , offline_folders,
-                                           className = 'CondAttrListCollection' ) )
+        if flags.GeoModel.Run == 'RUN4':
+            # TODO: temporary conditions override until we get a global tag
+            from IOVDbSvc.IOVDbSvcConfig import addFolders
+            result.merge(addFolders(flags, '/MDT/RT' + mdt_folder_name_appendix, 'MDT_OFL', className='CondAttrListCollection', tag='MDTRT_Sim-Run4-01', db="OFLP200"))
+            result.merge(addFolders(flags, '/MDT/T0' + mdt_folder_name_appendix, 'MDT_OFL', className='CondAttrListCollection', tag='MDTT0_Sim-Run4-01', db="OFLP200"))
+        else:
+            result.merge(addFoldersSplitOnline(flags, 'MDT', online_folders , offline_folders,
+                                               className = 'CondAttrListCollection' ) )
     else:
         from AthenaCommon.AppMgr import ServiceMgr
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"MDTCalibrationSource": flags.Muon.Calib.mdtCalibrationSource()}) # TODO Check this.
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"MDTCalibrationSource": flags.Muon.Calib.mdtCalibrationSource}) # TODO Check this.
         result.merge(addFoldersSplitOnline(flags, flags.Muon.Calib.mdtCalibrationSource, online_folders, offline_folders,
                                            className = 'CondAttrListCollection' ) )
         

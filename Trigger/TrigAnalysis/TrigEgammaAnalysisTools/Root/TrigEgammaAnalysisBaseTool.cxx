@@ -157,9 +157,6 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
         ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
         return StatusCode::FAILURE;
     }
-    //Enable expert methods
-    m_trigdec->ExperimentalAndExpertMethods()->enable();
-
 
     //TrigEgammaPlotTool
     if(m_parent) m_plot->setParent(m_parent);
@@ -980,7 +977,7 @@ std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
-    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
     if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");

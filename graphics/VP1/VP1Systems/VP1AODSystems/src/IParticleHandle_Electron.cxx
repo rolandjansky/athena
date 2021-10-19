@@ -42,12 +42,12 @@
 //____________________________________________________________________
 class IParticleHandle_Electron::Imp {
 public:
-  IParticleHandle_Electron * theclass;
-  const xAOD::Electron * electron;
-  IParticleCollHandle_Electron* collHandle;
+  IParticleHandle_Electron * theclass = nullptr;
+  const xAOD::Electron * electron = nullptr;
+  IParticleCollHandle_Electron* collHandle = nullptr;
 
-  SoSeparator * sep; // everything hangs from this.
-  SoLineSet * line;//This represents the line(s) representing the electron. Can be interpolated.
+  SoSeparator * sep = nullptr; // everything hangs from this.
+  SoLineSet * line = nullptr;//This represents the line(s) representing the electron. Can be interpolated.
   QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> > parametersAndPositions; // cache - do we really need this?
   QList< Amg::Vector3D > positionsToWrite; // FIXME - this is just a quick hack so we can easily dump the points used in the lines to JSON
 

@@ -11,11 +11,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArElecCalib/ILArOFC.h"
 
-// sandrine
-//#include "CaloIdentifier/LArEM_ID.h"
-
-//#include "LArRawUtils/LArRoI_Map.h"
-//#include "LArRawUtils/LArRawOrdering.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 
 #include "LArIdentifier/LArOnlineID.h"

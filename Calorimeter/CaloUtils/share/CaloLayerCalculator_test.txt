@@ -1,3 +1,3 @@
 ApplicationMgr.Dlls += { "StoreGate", "CLIDComps" };
-ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore","StoreGateSvc/ConditionStore" };
 #include "IOVSvc/IOVSvc.txt"

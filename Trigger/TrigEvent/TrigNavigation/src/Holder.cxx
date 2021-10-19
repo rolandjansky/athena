@@ -425,7 +425,7 @@ namespace {
 std::string stripStdVec (const std::string& s_in)
 {
   std::string s = s_in;
-  std::string::size_type pos;
+  std::string::size_type pos{0};
   while ((pos = s.find ("std::vector<")) != std::string::npos) {
     s.erase (pos, 5);
   }

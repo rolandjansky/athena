@@ -39,8 +39,9 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
-    m_systematicsList.addHandle (m_electronHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionTool->affectingSystematics()));
+    ANA_CHECK (m_electronHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_electronHandle));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -53,24 +54,23 @@ namespace CP
   StatusCode ElectronEfficiencyCorrectionAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
-
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
-        xAOD::ElectronContainer *electrons = nullptr;
-        ANA_CHECK (m_electronHandle.getCopy (electrons, sys));
-        for (xAOD::Electron *electron : *electrons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
+      const xAOD::ElectronContainer *electrons = nullptr;
+      ANA_CHECK (m_electronHandle.retrieve (electrons, sys));
+      for (const xAOD::Electron *electron : *electrons)
+      {
+        if (m_preselection.getBool (*electron))
         {
-          if (m_preselection.getBool (*electron))
-          {
-            double sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));
-            m_scaleFactorDecoration.set (*electron, sf, sys);
-          } else {
-            m_scaleFactorDecoration.set (*electron, invalidScaleFactor(), sys);
-          }
+          double sf = 0;
+          ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));
+          m_scaleFactorDecoration.set (*electron, sf, sys);
+        } else {
+          m_scaleFactorDecoration.set (*electron, invalidScaleFactor(), sys);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

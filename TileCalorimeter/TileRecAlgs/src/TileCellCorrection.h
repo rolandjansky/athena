@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECALGS_TILECELLCORRECTION_H
@@ -84,7 +84,7 @@ class TileCellCorrection: public AthService, virtual public IIncidentListener {
     bool m_maskBadChannels;  //!< if true - mask bad channels
     bool m_doTileCellNoiseFilter; //!< if true - apply noise filter to all the cells
     bool m_doTileCellMasking; //!< if true - call maksing tool to mask some cells
-    bool m_doTileCellNeighbors; //!< if true - call CaloCellNeighborsAverageCorr to recover bad cells
+    bool m_doTileCellNeighbors = false; //!< if true - call CaloCellNeighborsAverageCorr to recover bad cells
 
     std::vector<float> m_partScaleFactors; //!< additional scale factors for LBA,LBC,EBA,EBC
     float m_zeroEnergy; //!< energy to store in every PMT if both PMTs are bad

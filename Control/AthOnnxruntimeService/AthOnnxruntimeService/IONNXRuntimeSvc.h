@@ -4,14 +4,16 @@
 #define ATHEXONNXRUNTIME_IONNXRUNTIMESVC_H
 
 // Gaudi include(s).
-#include "GaudiKernel/IService.h"
+#include <AsgServices/IAsgService.h>
 
 // ONNX include(s).
 #include <core/session/onnxruntime_cxx_api.h>
 
+
 /// Namespace holding all of the ONNX Runtime example code
 namespace AthONNX {
 
+   //class IAsgService
    /// Service used for managing global objects used by ONNX Runtime
    ///
    /// In order to allow multiple clients to use ONNX Runtime at the same
@@ -20,14 +22,14 @@ namespace AthONNX {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   class IONNXRuntimeSvc : public virtual IService {
+   class IONNXRuntimeSvc : virtual public asg::IAsgService{
 
    public:
       /// Virtual destructor, to make vtable happy
       virtual ~IONNXRuntimeSvc() = default;
 
-      /// Declare an ID for this interface
-      DeclareInterfaceID( AthONNX::IONNXRuntimeSvc, 1, 0 );
+      /// Declare the interface that this class provides
+      DeclareInterfaceID (AthONNX::IONNXRuntimeSvc, 1, 0);
 
       /// Return the ONNX Runtime environment object
       virtual Ort::Env& env() const = 0;

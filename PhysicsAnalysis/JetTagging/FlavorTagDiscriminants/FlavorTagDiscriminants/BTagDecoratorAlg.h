@@ -9,6 +9,7 @@
 #include "FlavorTagDiscriminants/IBTagDecorator.h"
 
 #include "xAODBTagging/BTaggingContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 

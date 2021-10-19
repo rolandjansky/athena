@@ -36,8 +36,8 @@ public:
 private:
   ServiceHandle<ITRT_StrawAlignDbSvc> p_caldbtool; //!< db tool
   ServiceHandle<ITRT_AlignDbSvc> p_aligndbtool; //!< db tool
-  bool m_doStrawAlign;
-  bool m_doModuleAlign;
+  bool m_doStrawAlign{};
+  bool m_doModuleAlign{};
   const InDetDD::TRT_DetectorManager* m_trtman; //!< detector manager
   const TRT_ID* m_trt; //!< trt id helper
   bool m_setup;                            //!< true for first event

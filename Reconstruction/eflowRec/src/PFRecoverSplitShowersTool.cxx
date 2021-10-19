@@ -254,7 +254,7 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
       Subtractor::annihilateClusters(clusterSubtractionList);
       //Now we should mark all of these clusters as being subtracted
       //Now need to mark which clusters were modified in the subtraction procedure
-      std::vector<float> clusterSubtractedEnergyRatios;
+      std::vector<std::pair<float,float> > clusterSubtractedEnergyRatios;
       pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList,clusterEnergyMap,clusterSubtractedEnergyRatios);       
       pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject,trackIndex);	
     } else {
@@ -270,12 +270,12 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
         if( msgLevel( MSG::DEBUG ) ) for (auto thisPair : clusterSubtractionList) ATH_MSG_DEBUG("Annihilating remnant cluster with E and eta " << thisPair.first->e() << " and " << thisPair.first->eta());
         Subtractor::annihilateClusters(clusterSubtractionList);
 	      //Now we should mark all of these clusters as being subtracted
-        std::vector<float> clusterSubtractedEnergyRatios;
+        std::vector<std::pair<float,float> > clusterSubtractedEnergyRatios;
         pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList,clusterEnergyMap,clusterSubtractedEnergyRatios); 	      
         pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject,trackIndex);	
       }
       else{
-        std::vector<float> clusterSubtractedEnergyRatios;        
+        std::vector<std::pair<float,float> > clusterSubtractedEnergyRatios;        
         pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatios(clusterSubtractionList,clusterEnergyMap,clusterSubtractedEnergyRatios);    
 	      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject,trackIndex);	
       } 

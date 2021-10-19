@@ -18,9 +18,6 @@
   <!-- BCM CTP input -->
   <class name="LVL1::BcmCTP" id="2C1AC071-7948-48C9-B6C0-B3f913B4E790"/>
 
-  <!-- LUCID CTP input -->
-  <class name="LVL1::LucidCTP" id="BAC7215E-DEA2-4B43-B722-E170AC4223D5"/>
-
   <!-- Reconstructed RoI classes for the HLT -->
   <class name="LVL1::RecMuonRoI" id="B61E8B53-846D-42F9-A730-5ADA865E3D99" />
   <class name="LVL1::RecEmTauRoI" id="66F831E5-17BB-404B-9E4D-709317EF8B22" />

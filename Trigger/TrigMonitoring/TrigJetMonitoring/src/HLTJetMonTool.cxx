@@ -415,6 +415,11 @@ StatusCode HLTJetMonTool::init() {
     m_OFJetKeys.insert(std::pair<std::string,std::string>("AntiKt4EMTopoJets","AntiKt4EMTopoJets"));
   }
 
+  // initialize read handle keys
+  for (const auto& k: m_OFJetKeys) {
+    ATH_CHECK(m_OFJetRHK.emplace(k.first, k.second).first->second.initialize());
+  }
+
   // defaults for L1 items used in efficiencies
   if(m_L1Items.empty()) {
     m_L1Items.insert(std::pair<std::string,std::string>("L1_J15","L1_J15"));
@@ -1380,9 +1385,8 @@ StatusCode HLTJetMonTool::retrieveContainers() {
   // clear before retrieving containers
   m_OFJetC.clear();
   for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj ) {
-    const xAOD::JetContainer *jetcoll = 0;
-    sc = evtStore()->retrieve(jetcoll, (*ofj).second /*m_OFJetKeys[k]*/);
-    if(sc.isFailure() || !jetcoll) {
+    const xAOD::JetContainer *jetcoll = SG::get(m_OFJetRHK[ofj->first]);
+    if(!jetcoll) {
       ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
     }
     else {

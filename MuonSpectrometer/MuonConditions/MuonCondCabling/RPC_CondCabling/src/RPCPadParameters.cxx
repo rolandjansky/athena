@@ -51,7 +51,7 @@ bool RPCPadParameters::set_feet_threshold(unsigned short int it, unsigned short 
     return true;
 }
 
-void RPCPadParameters::Print(std::ostream& stream) {
+void RPCPadParameters::Print(std::ostream& stream) const {
     stream << "Pad Parameters : "
            << " eta_and_phi = " << m_eta_and_phi << " cma_mask = " << m_cma_mask << " feet_on = " << m_feet_on;
     if (m_feet_on) stream << " feet_thresholds = " << feet_threshold(0) << " " << feet_threshold(1) << " " << feet_threshold(2);

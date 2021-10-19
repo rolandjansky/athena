@@ -2,12 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <vector>
+
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "TGraph.h"
-#include "TMath.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
 #include "StoreGate/ReadHandle.h"
@@ -18,6 +17,8 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "InDetGlobalPrimaryVertexMonTool.h"
+#include <vector>
+#include <cmath>
 
 InDetGlobalPrimaryVertexMonTool::InDetGlobalPrimaryVertexMonTool( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
@@ -298,7 +299,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
 	m_hVrt_Yerr_vs_ntrk->Fill(vxTrackAtVertex.size(), Amg::error( (*vxIter)->covariancePosition(), Trk::y) );
 	m_hVrt_Zerr_vs_ntrk->Fill(vxTrackAtVertex.size(), Amg::error( (*vxIter)->covariancePosition(), Trk::z) );
   
-        float sqrt_sumpt2(TMath::Sqrt(sumpt2));
+        float sqrt_sumpt2(std::sqrt(sumpt2));
         m_hVrt_Xerr_vs_pt2->Fill(sqrt_sumpt2, Amg::error( (*vxIter)->covariancePosition(), Trk::x) );
 	m_hVrt_Yerr_vs_pt2->Fill(sqrt_sumpt2, Amg::error( (*vxIter)->covariancePosition(), Trk::y) );
 	m_hVrt_Zerr_vs_pt2->Fill(sqrt_sumpt2, Amg::error( (*vxIter)->covariancePosition(), Trk::z) );
@@ -351,12 +352,12 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
           float y_distance = splitVxCandiate1->position().y()-splitVxCandiate2->position().y();
           float z_distance = splitVxCandiate1->position().z()-splitVxCandiate2->position().z();
   
-          float x_error = TMath::Sqrt(TMath::Power( Amg::error( splitVxCandiate1->covariancePosition(), Trk::x ),2) +
-				      TMath::Power( Amg::error( splitVxCandiate2->covariancePosition(), Trk::x ),2) );
-	  float y_error = TMath::Sqrt(TMath::Power( Amg::error( splitVxCandiate1->covariancePosition(), Trk::y ),2) +
-				      TMath::Power( Amg::error( splitVxCandiate2->covariancePosition(), Trk::y ),2) );
-	  float z_error = TMath::Sqrt(TMath::Power( Amg::error( splitVxCandiate1->covariancePosition(), Trk::z ),2) +
-				      TMath::Power( Amg::error( splitVxCandiate2->covariancePosition(), Trk::z ),2) );
+          float x_error = std::sqrt(std::pow( Amg::error( splitVxCandiate1->covariancePosition(), Trk::x ),2) +
+				      std::pow( Amg::error( splitVxCandiate2->covariancePosition(), Trk::x ),2) );
+	  float y_error = std::sqrt(std::pow( Amg::error( splitVxCandiate1->covariancePosition(), Trk::y ),2) +
+				      std::pow( Amg::error( splitVxCandiate2->covariancePosition(), Trk::y ),2) );
+	  float z_error = std::sqrt(std::pow( Amg::error( splitVxCandiate1->covariancePosition(), Trk::z ),2) +
+				      std::pow( Amg::error( splitVxCandiate2->covariancePosition(), Trk::z ),2) );
   
           float x_split_pull = x_distance/x_error;
           float y_split_pull = y_distance/y_error;
@@ -387,10 +388,10 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
             {
               //             std::cout << measuredPerigee->pT() << std::endl;
               float pT = measuredPerigee->pT()/1000.;
-              sum_pt2_1 += TMath::Power(pT,2);
+              sum_pt2_1 += std::pow(pT,2);
             }
           }
-          float sqrt_sum_pt2_1(TMath::Sqrt(sum_pt2_1));
+          float sqrt_sum_pt2_1(std::sqrt(sum_pt2_1));
   
           for (std::vector<Trk::VxTrackAtVertex>::const_iterator trkIter  = splitVxTrackAtVertexVector2.begin();
               trkIter != splitVxTrackAtVertexVector2.end()  ; ++trkIter)
@@ -401,10 +402,10 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
             if (measuredPerigee!=nullptr)
             {
               float pT = measuredPerigee->pT()/1000.;
-              sum_pt2_2 += TMath::Power(pT,2);
+              sum_pt2_2 += std::pow(pT,2);
             }
           }
-          float sqrt_sum_pt2_2(TMath::Sqrt(sum_pt2_2));
+          float sqrt_sum_pt2_2(std::sqrt(sum_pt2_2));
   
           float sqrt_sum_pt2_average((sqrt_sum_pt2_1+sqrt_sum_pt2_2)/2.);
           m_hVrt_XpullVsPt2Average_split->Fill(sqrt_sum_pt2_average, x_split_pull);
@@ -493,15 +494,15 @@ double InDetGlobalPrimaryVertexMonTool::GetSplitMatchDistance(const xAOD::Vertex
   case 2:
     {
       // 3-D distance divided by the error (dominated by Delta z)
-      double d = TMath::Sqrt(dx*dx+dy*dy+dz*dz);
-      double dErr = TMath::Sqrt(TMath::Power(dx*dxError/d,2)+TMath::Power(dy*dyError/d,2)+TMath::Power(dz*dzError/d,2));
+      double d = std::sqrt(dx*dx+dy*dy+dz*dz);
+      double dErr = std::sqrt(std::pow(dx*dxError/d,2)+std::pow(dy*dyError/d,2)+std::pow(dz*dzError/d,2));
       return d/dErr;
       break;
     }
   case 3:
     {
       // quadratic sum of significance distances in the 3 directions. Expected RMS = 1
-      return TMath::Sqrt(TMath::Power(dx/dxError,2)+TMath::Power(dy/dyError,2)+TMath::Power(dz/dzError,2));
+      return std::sqrt(std::pow(dx/dxError,2)+std::pow(dy/dyError,2)+std::pow(dz/dzError,2));
       break;
     }
   default:

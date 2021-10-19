@@ -103,7 +103,7 @@ TrigConf::HLTChain::~HLTChain() {
 
 bool
 TrigConf::HLTChain::hasMultipleLowerChains() const {
-   return m_lower_chain_name.find(",")!=std::string::npos;
+   return m_lower_chain_name.find(',')!=std::string::npos;
 }
 
 
@@ -186,9 +186,9 @@ namespace {
             return stream;
       }
       for(auto stream : streams) {
-         string s(stream->name());
-         if( (s.find('.') != string::npos) && 
-             (s.substr(s.find('.')+1) == streamName) )
+         const string &s(stream->name());
+         if( auto p = s.find('.'); (p != string::npos) && 
+             (s.compare(p+1, streamName.size(), streamName) == 0) )
             return stream;
       }
       return nullptr;

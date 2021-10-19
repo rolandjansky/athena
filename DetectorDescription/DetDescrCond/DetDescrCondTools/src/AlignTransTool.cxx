@@ -82,8 +82,10 @@ const HepGeom::Transform3D AlignTransTool::getTransform(const Identifier& ident,
 		    " return identity");
     return HepGeom::Transform3D();
   } else {
-    if (pat==0) ATH_MSG_ERROR(
-			      "Pointer to AlignableTransform is null");
+    if (pat==0){
+      ATH_MSG_ERROR("Pointer to AlignableTransform is null");
+      return trans;
+    }
     // if asked for same key as before, skip the sorted check
     if (key!=m_lastkey) {
       // check if the object has already been sorted - find it in keylist

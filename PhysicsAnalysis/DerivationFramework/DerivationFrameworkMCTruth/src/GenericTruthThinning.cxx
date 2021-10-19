@@ -57,7 +57,7 @@ StatusCode DerivationFramework::GenericTruthThinning::initialize()
     ATH_CHECK( m_verticesKey.initialize (m_streamName) );
     ATH_MSG_INFO("Using " << m_particlesKey.key() << " and "<< m_verticesKey.key() << " as the source collections for truth thinning");
     
-    if (m_partString==""/* && m_vtxString==""*/) {
+    if (m_partString.empty()/* && m_vtxString==""*/) {
         ATH_MSG_FATAL("No selection string provided either for vertices or particles!");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Truth thinning selection strings: " << m_partString /*<< " " << m_vtxString*/);}
@@ -123,7 +123,7 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
     } 
  
     // Execute the text parsers and update the mask
-    if (m_partString!="") {
+    if (!m_partString.empty()) {
     	std::vector<int> entries =  m_parser->evaluateAsVector();
     	unsigned int nEntries = entries.size();
     	// check the sizes are compatible

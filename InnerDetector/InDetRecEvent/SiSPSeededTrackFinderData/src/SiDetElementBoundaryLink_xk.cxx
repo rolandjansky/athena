@@ -76,8 +76,12 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
     m_bound[i][1] = ay/m_bound[i][2];
     m_bound[i][0] = ax/m_bound[i][2];
   }
+  //correction for ITk strip endcap sensors which have a local coordinate system centred on the
+  //beam axis, due to their annulus shape
   m_dR = 0.;
-  const Trk::AnnulusBounds* B = dynamic_cast<const Trk::AnnulusBounds*>(&Si->design().bounds()); if(B) m_dR = B->R();
+  const Trk::AnnulusBounds* B = dynamic_cast<const Trk::AnnulusBounds*>(&Si->design().bounds()); 
+  if(B) m_dR = (Si->design().sensorCenter())[0];
+  //the above gives the radial component of the sensor centre, from (m_R, 0., 0.)
 }
 
 ///////////////////////////////////////////////////////////////////

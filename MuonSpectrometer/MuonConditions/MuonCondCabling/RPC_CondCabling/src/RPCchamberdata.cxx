@@ -4,11 +4,13 @@
 
 #include "RPC_CondCabling/RPCchamberdata.h"
 
+#include "AthenaKernel/errorcheck.h"
+
 #include <iomanip>
 
 using namespace RPC_CondCabling;
 
-RPCchamberdata::RPCchamberdata(DBline& data, int type, IMessageSvc* svc) : BaseObject(Logic, "RPC Chamber Data", svc) {
+RPCchamberdata::RPCchamberdata(DBline& data, int type) : BaseObject(Logic, "RPC Chamber Data") {
     int chams{0}, stripsInEtaCon{0}, stripsInPhiCon{0};
 
     reset_data();
@@ -27,7 +29,7 @@ RPCchamberdata::RPCchamberdata(DBline& data, int type, IMessageSvc* svc) : BaseO
         params.stripsInEtaCon = stripsInEtaCon;
         params.stripsInPhiCon = stripsInPhiCon;
 
-        if (get_data(data, params)) { m_rpc.emplace_back(params, svc); }
+        if (get_data(data, params)) { m_rpc.emplace_back(params); }
         data++;
     } while (!data("}"));
 }
@@ -47,31 +49,30 @@ bool RPCchamberdata::confirm_connectors(ViewType side, RPCchamber::chamberParame
     float str = (float)strips / (float)connectors;
     std::string view = (side == ViewType::Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     if (str > strips_in_conn) {
-        disp << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamberdata")
+             << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
              << params.number << std::endl
              << " " << view << " strips into connectors must be less than " << strips_in_conn << " (instead are " << std::setprecision(2)
-             << str << ")" << std::endl;
-        display_error(disp);
+             << str << ")";
         return false;
     }
     if (params.number == 0 && ((params.etaStrips % 2) || params.etaConnectors % 2)) {
-        disp << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamberdata")
+             << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
              << params.number << std::endl
              << " " << view << " strips and/or connectors must be "
              << "multiple of 2 "
-             << " (eta_strips " << params.etaStrips << ", eta_conn " << params.etaConnectors << ")" << std::endl;
-        display_error(disp);
+             << " (eta_strips " << params.etaStrips << ", eta_conn " << params.etaConnectors << ")";
         return false;
     }
     if (strips_in_conn * connectors != strips) {
-        disp << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamberdata")
+             << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
              << params.number << std::endl
-             << " strips into " << view << " connectors are " << std::setprecision(2) << str << " instead of " << strips_in_conn
-             << std::endl;
-        display_error(disp);
+             << " strips into " << view << " connectors are " << std::setprecision(2) << str << " instead of " << strips_in_conn;
         return false;
     }
     return true;
@@ -81,14 +82,14 @@ bool RPCchamberdata::confirm_ijk(ViewType side, RPCchamber::chamberParameters& p
     int ijk = (side == ViewType::Phi) ? params.ijk_PhiReadOut : params.ijk_EtaReadOut;
     std::string view = (side == ViewType::Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     if (ijk != 1 && ijk != 10) {
-        disp << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "RPCchamberdata")
+             << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
              << params.number << std::endl
              << " " << view << " ijk readout must be 01 or 10; "
-             << " on the contrary it is " << std::setw(2) << std::setfill('0') << ijk << std::setfill(' ') << std::endl;
-        display_error(disp);
+             << " on the contrary it is " << std::setw(2) << std::setfill('0') << ijk << std::setfill(' ');
         return false;
     }
 
@@ -109,7 +110,7 @@ bool RPCchamberdata::get_data(DBline& data, RPCchamber::chamberParameters& param
 }
 
 std::unique_ptr<RPCchamber> RPCchamberdata::give_rpc() {
-    if (m_rpc.size()) {
+    if (!m_rpc.empty()) {
         std::unique_ptr<RPCchamber> cham = std::make_unique<RPCchamber>(m_rpc.front());
         m_rpc.pop_front();
         return cham;

@@ -132,7 +132,7 @@ void efficiency( std::vector<double>& bins, std::vector<double>& values, const s
   std::string plotname = tplotname;
   std::string labels  = ";value;mean";
 
-  size_t pos = plotname.find(";");
+  size_t pos = plotname.find(';');
 
   if ( pos!=std::string::npos ) { 
     labels   = plotname.substr( pos, plotname.size() );
@@ -265,7 +265,7 @@ void mean( std::vector<double>& bins, std::vector<double>& values, const std::ve
   std::string plotname = tplotname;
   std::string labels  = ";value;mean";
 
-  size_t pos = plotname.find(";");
+  size_t pos = plotname.find(';');
 
   if ( pos!=std::string::npos ) { 
     labels   = plotname.substr( pos, plotname.size() );

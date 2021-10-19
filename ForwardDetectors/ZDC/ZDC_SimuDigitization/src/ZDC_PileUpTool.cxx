@@ -63,7 +63,7 @@ StatusCode ZDC_PileUpTool::processAllSubEvents(const EventContext& ctx) {
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::processAllSubEvents()" );
 
   typedef PileUpMergeSvc::TimedList<ZDC_SimStripHit_Collection>::type TimedStripHitCollList;
-  typedef PileUpMergeSvc::TimedList<ZDC_SimPixelHit_Collection>::type TimedPixelHitCollList;
+  using TimedPixelHitCollList = PileUpMergeSvc::TimedList<ZDC_SimPixelHit_Collection>::type;
   
   TimedStripHitCollList StripHitCollList;
   TimedPixelHitCollList PixelHitCollList;
@@ -160,7 +160,7 @@ StatusCode ZDC_PileUpTool::processBunchXing(int bunchXing,
                     << " run number : " << iEvt->ptr()->runNumber()
                     );
 
-    const ZDC_SimStripHit_Collection* tmpCollStrip = 0;
+    const ZDC_SimStripHit_Collection* tmpCollStrip = nullptr;
    
     if (!seStore.retrieve(tmpCollStrip, m_SimStripHitCollectionName).isSuccess()) {
       
@@ -176,7 +176,7 @@ StatusCode ZDC_PileUpTool::processBunchXing(int bunchXing,
    
     for (; iStrip!=eStrip; ++iStrip) m_mergedStripHitList->push_back((*iStrip));
     
-    const ZDC_SimPixelHit_Collection* tmpCollPixel = 0;
+    const ZDC_SimPixelHit_Collection* tmpCollPixel = nullptr;
    
     if (!seStore.retrieve(tmpCollPixel, m_SimPixelHitCollectionName).isSuccess()) {
       
@@ -448,7 +448,7 @@ void ZDC_PileUpTool::SetDumps(bool Flag1, bool Flag2)
   if (m_DumpStrip || m_DumpPixel) { m_MyFile.open("DumpAll.txt"); }
 }
 
-StatusCode ZDC_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt) 
+StatusCode ZDC_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStore, const std::string& key_digitCnt) 
 {
   m_digitContainer = new ZdcDigitsCollection();
 

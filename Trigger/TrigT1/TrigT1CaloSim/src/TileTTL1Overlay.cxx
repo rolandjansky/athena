@@ -21,15 +21,15 @@ StatusCode TileTTL1Overlay::initialize()
   // StoreGate keys for Tile
   ATH_CHECK( m_bkgTileTTL1Key.initialize() );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgTileTTL1Key);
-  ATH_CHECK( m_bkgTileMBTSTTL1Key.initialize() );
+  ATH_CHECK( m_bkgTileMBTSTTL1Key.initialize(SG::AllowEmpty) );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgTileMBTSTTL1Key);
   ATH_CHECK( m_signalTileTTL1Key.initialize() );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalTileTTL1Key);
-  ATH_CHECK( m_signalTileMBTSTTL1Key.initialize() );
+  ATH_CHECK( m_signalTileMBTSTTL1Key.initialize(SG::AllowEmpty) );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalTileMBTSTTL1Key);
   ATH_CHECK( m_outputTileTTL1Key.initialize() );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputTileTTL1Key);
-  ATH_CHECK( m_outputTileMBTSTTL1Key.initialize() );
+  ATH_CHECK( m_outputTileMBTSTTL1Key.initialize(SG::AllowEmpty) );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputTileMBTSTTL1Key);
 
   return StatusCode::SUCCESS;
@@ -39,7 +39,9 @@ StatusCode TileTTL1Overlay::initialize()
 StatusCode TileTTL1Overlay::execute(const EventContext& ctx) const
 {
   ATH_CHECK( overlay(ctx, m_bkgTileTTL1Key, m_signalTileTTL1Key, m_outputTileTTL1Key, "") );
-  ATH_CHECK( overlay(ctx, m_bkgTileMBTSTTL1Key, m_signalTileMBTSTTL1Key, m_outputTileMBTSTTL1Key, "MBTS") );
+  if (!m_outputTileMBTSTTL1Key.empty()) {
+    ATH_CHECK( overlay(ctx, m_bkgTileMBTSTTL1Key, m_signalTileMBTSTTL1Key, m_outputTileMBTSTTL1Key, "MBTS") );
+  }
 
   return StatusCode::SUCCESS;
 }

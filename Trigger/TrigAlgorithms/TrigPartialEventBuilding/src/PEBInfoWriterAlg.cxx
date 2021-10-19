@@ -92,6 +92,9 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     ElementLink<DecisionContainer> dummyLink(*decisions, decisions->size()-1, eventContext);
     newd->setObjectLink(featureString(), dummyLink);
 
+    // Disable ComboHypo checks on the output of the final PEB step. All multiplicity cuts should be applied already.
+    newd->setDetail<int32_t>("noCombo", 1);
+
     ATH_MSG_DEBUG("RoI eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
     ATH_MSG_DEBUG("Added RoI, previous decision and dummy feature to new decision " << counter);
     ++counter;

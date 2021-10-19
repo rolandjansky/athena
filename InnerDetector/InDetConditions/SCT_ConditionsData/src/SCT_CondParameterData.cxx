@@ -50,14 +50,13 @@ bool SCT_CondParameterData::insert(const IdentifierHash& idHash, const SCT_CondP
 }
 
 // Is a given value within acceptable limits?
-bool SCT_CondParameterData::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) const {
+bool SCT_CondParameterData::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) {
   // Second condition is to check if it is nan.
-  if (iparam==AVG_THRESHOLD and (parameterValue!=parameterValue)) return false;
-  return true;
+  return !(iparam==AVG_THRESHOLD and (parameterValue!=parameterValue));
 }
 
 // What is the default error value for this parameter?
-float SCT_CondParameterData::invalid(const unsigned int iparam) const {
+float SCT_CondParameterData::invalid(const unsigned int iparam) {
   float result{0.0};
   if (iparam==AVG_THRESHOLD) {
     result=std::numeric_limits<float>::quiet_NaN();
@@ -93,7 +92,7 @@ unsigned int SCT_CondParameterData::n(const SCT_CondParameterData::ParameterInde
 
 // Clear all data members
 void SCT_CondParameterData::clear() {
-  std::array<float, N_PARAMETERS> init;
+  std::array<float, N_PARAMETERS> init{};
   for (unsigned int i{0}; i!=N_PARAMETERS; ++i) {
     m_min[i] = std::numeric_limits<float>::max();
     m_max[i] = std::numeric_limits<float>::min();

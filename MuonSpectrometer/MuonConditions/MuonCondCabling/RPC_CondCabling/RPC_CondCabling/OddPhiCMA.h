@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ODDPHICMA_H
@@ -11,7 +11,7 @@
 #include "RPC_CondCabling/CMAparameters.h"
 #include "RPC_CondCabling/WiredOR.h"
 
-class IMessageSvc;
+class MsgStream;
 
 namespace RPC_CondCabling {
 
@@ -34,7 +34,7 @@ namespace RPC_CondCabling {
         int get_max_strip_readout(int);
 
     public:
-        OddPhiCMA(parseParams parse, IMessageSvc* svc);
+        OddPhiCMA(parseParams parse);
         OddPhiCMA(const OddPhiCMA&);
         virtual ~OddPhiCMA();
 
@@ -46,7 +46,7 @@ namespace RPC_CondCabling {
 
         bool inversion(void) const;
 
-        bool setup(SectorLogicSetup&);
+        bool setup(SectorLogicSetup&, MsgStream&);
     };
 
 }  // namespace RPC_CondCabling

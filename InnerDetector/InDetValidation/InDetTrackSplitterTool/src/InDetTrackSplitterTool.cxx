@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,6 +23,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 #include "GeoPrimitives/GeoPrimitives.h" 
 #include "EventPrimitives/EventPrimitives.h"
@@ -155,8 +156,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   Trk::ParticleHypothesis hypo = input.info().particleHypothesis();
 
   /** Get the  measurements */
-  auto uppertraj = DataVector<const Trk::TrackStateOnSurface>();
-  auto lowertraj = DataVector<const Trk::TrackStateOnSurface>();
+  auto uppertraj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  auto lowertraj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
   
   unsigned int totalNumberHits = 0;
 
@@ -178,30 +179,32 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   //DataVector<Trk::MeasurementBase const>::const_iterator measEnd = input.measurementsOnTrack()->end(); 
   //for(;meas != measEnd; ++meas){
   //Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosit = input.trackStateOnSurfaces()->begin();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosEnd = input.trackStateOnSurfaces()->end();
-  bool perigeeseen=false; 
-  for(;tsosit != tsosEnd; ++tsosit){
-    if ((**tsosit).type(Trk::TrackStateOnSurface::Outlier)) continue;
-    if (originalPerigee==(**tsosit).trackParameters()){
+  bool perigeeseen=false;
+  for (const Trk::TrackStateOnSurface* tsos : *input.trackStateOnSurfaces()) {
+    if (tsos->type(Trk::TrackStateOnSurface::Outlier)) continue;
+    if (originalPerigee==tsos->trackParameters()){
       perigeeseen=true;
-      uppertraj.push_back((**tsosit).clone());
-      lowertraj.push_back((**tsosit).clone());
+      // We only support containers containing exactly TSOS.
+      if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+      uppertraj->push_back(uppertraj->allocate(*tsos));
+      lowertraj->push_back(lowertraj->allocate(*tsos));
       continue;
     }
 
     if (m_keepmaterial &&
-        ((**tsosit).type(Trk::TrackStateOnSurface::Scatterer) ||
-         (**tsosit).type(Trk::TrackStateOnSurface::BremPoint) ||
-         (**tsosit).type(Trk::TrackStateOnSurface::CaloDeposit))) {
+        (tsos->type(Trk::TrackStateOnSurface::Scatterer) ||
+         tsos->type(Trk::TrackStateOnSurface::BremPoint) ||
+         tsos->type(Trk::TrackStateOnSurface::CaloDeposit))) {
+      // We only support containers containing exactly TSOS.
+      if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
       if (!perigeeseen)
-        uppertraj.push_back((**tsosit).clone());
+        uppertraj->push_back(uppertraj->allocate(*tsos));
       else
-        lowertraj.push_back((**tsosit).clone());
+        lowertraj->push_back(lowertraj->allocate(*tsos));
       continue;
     }
     const Trk::RIO_OnTrack *rio = nullptr;
-    const Trk::MeasurementBase *measb=(**tsosit).measurementOnTrack();
+    const Trk::MeasurementBase *measb=tsos->measurementOnTrack();
     if (measb) rio=dynamic_cast<const Trk::RIO_OnTrack*>(measb);
 
     if(rio){
@@ -230,7 +233,11 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
 
         if (!siliconHitsOnly || m_trtid->is_sct(surfaceid) ||
             m_trtid->is_pixel(surfaceid))
-          uppertraj.push_back((**tsosit).clone());
+        {
+          // We only support containers containing exactly TSOS.
+          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+          uppertraj->push_back(uppertraj->allocate(*tsos));
+        }
       }
 
       // if( (*meas)->globalPosition().y() < 0){
@@ -245,8 +252,12 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
 
         if (!siliconHitsOnly || m_trtid->is_sct(surfaceid) ||
             m_trtid->is_pixel(surfaceid))
+        {
           // m_lowerHits.push_back( *meas);
-          lowertraj.push_back((**tsosit).clone());
+          // We only support containers containing exactly TSOS.
+          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+          lowertraj->push_back(lowertraj->allocate(*tsos));
+        }
       }
     } else {
       if (msgLvl(MSG::VERBOSE))
@@ -261,27 +272,36 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
           if (msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Adding an upper pseudoMeasurement" << endmsg;
           ++numberUpperPseudoMeas;
-          uppertraj.push_back((**tsosit).clone());
+          // We only support containers containing exactly TSOS.
+          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+          uppertraj->push_back(uppertraj->allocate(*tsos));
         }
         if (perigeeseen || totalNumberHits == totalNumberTRTHits) {
           if (msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Adding a lower pseudoMeasurement" << endmsg;
           ++numberLowerPseudoMeas;
-          lowertraj.push_back((**tsosit).clone());
+          // We only support containers containing exactly TSOS.
+          if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+          lowertraj->push_back(lowertraj->allocate(*tsos));
         }
       }
 
       const Trk::CompetingRIOsOnTrack* crot =
         dynamic_cast<const Trk::CompetingRIOsOnTrack*>(measb);
       if (crot) {
+        // We only support containers containing exactly TSOS.
+        if (strcmp (typeid(*tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
         if (!perigeeseen)
-          uppertraj.push_back((**tsosit).clone());
+          uppertraj->push_back(uppertraj->allocate(*tsos));
         else
-          lowertraj.push_back((**tsosit).clone());
+          lowertraj->push_back(lowertraj->allocate(*tsos));
       }
     }
   }
 
+  uppertraj->elt_allocator().protect();
+  lowertraj->elt_allocator().protect();
+  
   Trk::Track upperorigtrack(input.info(),std::move(uppertraj),nullptr);
   Trk::Track lowerorigtrack(input.info(),std::move(lowertraj),nullptr);
   

@@ -3,6 +3,8 @@
 */
 
 #include "FlavorTagDiscriminants/BTagDecoratorAlg.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/ReadDecorHandle.h"
 
 #include <exception>

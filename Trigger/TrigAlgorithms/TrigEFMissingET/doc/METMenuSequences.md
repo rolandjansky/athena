@@ -18,7 +18,7 @@ include("TriggerJobOpts/runHLT_standalone.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
@@ -45,7 +45,7 @@ metHypoAlg.HypoOutputDecisions = "EFMETDecisions"
 
 topSequence += metHypoAlg
 
-topSequence.L1Decoder.Chains="HLTChains"
+topSequence.HLTSeeding.Chains="HLTChains"
 ```
 
 
@@ -73,7 +73,7 @@ mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title
 svcMgr += TrigCaloDataAccessSvc()
 svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 
-from L1Decoder.L1DecoderConf import CreateFullScanRoI
+from HLTSeeding.HLTSeedingConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
 
 #################################################
@@ -148,7 +148,7 @@ hypoAlg = MissingETHypoAlg("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
 hypoAlg.METContainerKey=metAlg.METContainerKey
 
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 
 hypoAlg.OutputLevel = DEBUG
 hypoAlg.HypoInputDecisions = mapThresholdToL1DecisionCollection("XE")

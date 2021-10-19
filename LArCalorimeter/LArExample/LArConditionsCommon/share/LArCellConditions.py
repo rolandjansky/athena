@@ -111,7 +111,7 @@ except:
 sys.argv = sys.argv[:1] + ['-b'] 
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
-ConfigFlags.addFlag("Input.InitialTimeStamp", 1000)
+ConfigFlags.Input.TimeStamp = 1000
 ConfigFlags.Input.isMC=False
 ConfigFlags.Input.RunNumber=run
 ConfigFlags.IOVDb.DatabaseInstance="CONDBR2" if run>222222 else "COMP200"

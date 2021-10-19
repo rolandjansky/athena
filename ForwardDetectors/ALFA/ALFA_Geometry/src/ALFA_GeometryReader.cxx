@@ -2,10 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <fstream>
-#include <algorithm>
+
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -18,6 +15,12 @@
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
 #include "ALFA_Geometry/ALFA_RDBAccess.h"
 #include "ALFA_Geometry/ALFA_SvdCalc.h"
+
+#include <cstdlib>
+#include <cstdio>
+#include <fstream>
+#include <algorithm>
+#include <cmath>
 
 void RPPINS::clear()
 {
@@ -1019,7 +1022,7 @@ bool ALFA_GeometryReader::ReadFiberGeometry(const PGEOMETRYCONFIGURATION pConfig
 	{
 		LogStream<<MSG::INFO<<"Number of active or inactive Romain Pots: "<<m_ListExistingRPots.size()<<endmsg;
 		
-		for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++){
+		for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();++iterRPName){
 			nRPCfgIndex=((int)(*iterRPName))-1;
 			bFailRes|=!ReadSource((eGeoSourceType)pConfig->CfgRPosParams[nRPCfgIndex].eMDGeoType, *iterRPName, EFT_FIBERMD, pConfig->CfgRPosParams[nRPCfgIndex].strMDConnString.c_str());
 			bFailRes|=!ReadSource((eGeoSourceType)pConfig->CfgRPosParams[nRPCfgIndex].eODGeoType, *iterRPName, EFT_FIBEROD, pConfig->CfgRPosParams[nRPCfgIndex].strODConnString.c_str());
@@ -1027,7 +1030,7 @@ bool ALFA_GeometryReader::ReadFiberGeometry(const PGEOMETRYCONFIGURATION pConfig
 	}
 	else //set ideal geometry if pConfig is not provided
 	{
-		for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++){
+		for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();++iterRPName){
 			bFailRes|=!ReadSource(EGST_IDEALGEOMETRY, *iterRPName, EFT_FIBERMD, NULL);
 			bFailRes|=!ReadSource(EGST_IDEALGEOMETRY, *iterRPName, EFT_FIBEROD, NULL);
 		}
@@ -1372,7 +1375,7 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	else if(eFType==EFT_FIBEROD) m_MapRPot[eRPName].eODGeometryType=EGST_DATABASE;
 
 	std::list<FIBERDATA>::const_iterator iter;
-	for(iter = p_DBAccess->m_ListFiberData.begin(); iter != p_DBAccess->m_ListFiberData.end(); iter++)
+	for(iter = p_DBAccess->m_ListFiberData.begin(); iter != p_DBAccess->m_ListFiberData.end(); ++iter)
 	{
 		if (eRPName == (*iter).nPotID)
 		{
@@ -1427,7 +1430,7 @@ bool ALFA_GeometryReader::GetUFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetUFiberParams");
 	
 	if((rpiter=m_MapRPot.find(eRPName))!=m_MapRPot.end()){
-		for(iter=(*rpiter).second.ListUFibers.begin();iter!=(*rpiter).second.ListUFibers.end();iter++){
+		for(iter=(*rpiter).second.ListUFibers.begin();iter!=(*rpiter).second.ListUFibers.end();++iter){
 			if(((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 		}
 		
@@ -1456,7 +1459,7 @@ bool ALFA_GeometryReader::GetVFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetVFiberParams");
 
 	if((rpiter=m_MapRPot.find(eRPName))!=m_MapRPot.end()){
-		for(iter=(*rpiter).second.ListVFibers.begin();iter!=(*rpiter).second.ListVFibers.end();iter++){
+		for(iter=(*rpiter).second.ListVFibers.begin();iter!=(*rpiter).second.ListVFibers.end();++iter){
 			if(((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 		}
 		
@@ -1563,7 +1566,7 @@ void ALFA_GeometryReader::SetUFiberPositionToMainReference(const eRPotName eRPNa
 	}
 	
 	if((rpiter=m_MapRPot.find(eRPName))!=m_MapRPot.end()){
-		for(iter=(*rpiter).second.ListUFibers.begin();iter!=(*rpiter).second.ListUFibers.end();iter++){
+		for(iter=(*rpiter).second.ListUFibers.begin();iter!=(*rpiter).second.ListUFibers.end();++iter){
 			if(((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 		}
 		
@@ -1595,7 +1598,7 @@ void ALFA_GeometryReader::SetVFiberPositionToMainReference(const eRPotName eRPNa
 	}
 	
 	if((rpiter=m_MapRPot.find(eRPName))!=m_MapRPot.end()){
-		for(iter=(*rpiter).second.ListVFibers.begin();iter!=(*rpiter).second.ListVFibers.end();iter++){
+		for(iter=(*rpiter).second.ListVFibers.begin();iter!=(*rpiter).second.ListVFibers.end();++iter){
 			if(((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 		}
 		
@@ -1659,12 +1662,12 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 		return;
 	}
 	
-	for(rpiter=m_MapRPot.begin();rpiter!=m_MapRPot.end();rpiter++){
+	for(rpiter=m_MapRPot.begin();rpiter!=m_MapRPot.end();++rpiter){
 		OutStream<<std::endl<<"Geometry of U-fibers in Roma Pot "<<(*rpiter).first<<std::endl;
 		if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfCentreXPos\t\t\t\tfAngle"<<std::endl;
 		else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfSlope\t\t\t\tfOffset\t\t\t\tfZPos"<<std::endl;
 		
-		for(iter=(*rpiter).second.ListUFibers.begin();iter!=(*rpiter).second.ListUFibers.end();iter++){
+		for(iter=(*rpiter).second.ListUFibers.begin();iter!=(*rpiter).second.ListUFibers.end();++iter){
 			OutStream<<(*rpiter).first<<"\t\t\t\t"<<(*iter).nPlateID<<"\t\t\t\t"<<(*iter).nFiberID<<"\t\t\t\t"<<(*iter).nLayerID<<"\t\t\t\t";
 			if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<(*iter).fcs_cladding.fCentreXPos<<"\t\t\t\t"<<(*iter).fcs_cladding.fAngle<<std::endl;
 			else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<(*iter).fcs_atlas.fSlope<<"\t\t\t\t"<<(*iter).fcs_atlas.fOffset<<(*iter).fcs_atlas.fZPos<<std::endl;
@@ -1674,7 +1677,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 		if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<"nPotID\t\t\tnPlateID\t\t\tnFiberID\t\t\tnLayerID\t\t\tfCentreXPos\t\t\tfAngle\t\t\tfSlope\t\t\tfOffset\t\t\tfZPos"<<std::endl;
 		else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfSlope\t\t\t\tfOffset\t\t\t\tfZPos"<<std::endl;
 		
-		for(iter=(*rpiter).second.ListVFibers.begin();iter!=(*rpiter).second.ListVFibers.end();iter++){
+		for(iter=(*rpiter).second.ListVFibers.begin();iter!=(*rpiter).second.ListVFibers.end();++iter){
 			OutStream<<(*rpiter).first<<"\t\t\t\t"<<(*iter).nPlateID<<"\t\t\t\t"<<(*iter).nFiberID<<"\t\t\t\t"<<(*iter).nLayerID<<"\t\t\t\t";
 			if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<(*iter).fcs_cladding.fCentreXPos<<"\t\t\t\t"<<(*iter).fcs_cladding.fAngle<<std::endl;
 			else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<(*iter).fcs_atlas.fSlope<<"\t\t\t\t"<<(*iter).fcs_atlas.fOffset<<(*iter).fcs_atlas.fZPos<<std::endl;
@@ -1684,7 +1687,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 		if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<"nPotID\t\t\tnPlateID\t\t\tnFiberID\t\t\tnLayerID\t\t\tfCentreXPos\t\t\tfAngle\t\t\tfSlope\t\t\tfOffset\t\t\tfZPos"<<std::endl;
 		else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfSlope\t\t\t\tfOffset\t\t\t\tfZPos"<<std::endl;
 
-		for(iter=(*rpiter).second.ListODFibersV0.begin();iter!=(*rpiter).second.ListODFibersV0.end();iter++){
+		for(iter=(*rpiter).second.ListODFibersV0.begin();iter!=(*rpiter).second.ListODFibersV0.end();++iter){
 			OutStream<<(*rpiter).first<<"\t\t\t\t"<<(*iter).nPlateID<<"\t\t\t\t"<<(*iter).nFiberID<<"\t\t\t\t"<<(*iter).nLayerID<<"\t\t\t\t";
 			if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<(*iter).fcs_cladding.fCentreYPos<<"\t\t\t\t"<<(*iter).fcs_cladding.fAngle<<std::endl;
 			else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<(*iter).fcs_atlas.fSlope<<"\t\t\t\t"<<(*iter).fcs_atlas.fOffset<<(*iter).fcs_atlas.fZPos<<std::endl;
@@ -1694,7 +1697,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 		if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<"nPotID\t\t\tnPlateID\t\t\tnFiberID\t\t\tnLayerID\t\t\tfCentreXPos\t\t\tfAngle\t\t\tfSlope\t\t\tfOffset\t\t\tfZPos"<<std::endl;
 		else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfSlope\t\t\t\tfOffset\t\t\t\tfZPos"<<std::endl;
 
-		for(iter=(*rpiter).second.ListODFibersU0.begin();iter!=(*rpiter).second.ListODFibersU0.end();iter++){
+		for(iter=(*rpiter).second.ListODFibersU0.begin();iter!=(*rpiter).second.ListODFibersU0.end();++iter){
 			OutStream<<(*rpiter).first<<"\t\t\t\t"<<(*iter).nPlateID<<"\t\t\t\t"<<(*iter).nFiberID<<"\t\t\t\t"<<(*iter).nLayerID<<"\t\t\t\t";
 			if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<(*iter).fcs_cladding.fCentreYPos<<"\t\t\t\t"<<(*iter).fcs_cladding.fAngle<<std::endl;
 			else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<(*iter).fcs_atlas.fSlope<<"\t\t\t\t"<<(*iter).fcs_atlas.fOffset<<(*iter).fcs_atlas.fZPos<<std::endl;
@@ -1704,7 +1707,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 		if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<"nPotID\t\t\tnPlateID\t\t\tnFiberID\t\t\tnLayerID\t\t\tfCentreXPos\t\t\tfAngle\t\t\tfSlope\t\t\tfOffset\t\t\tfZPos"<<std::endl;
 		else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfSlope\t\t\t\tfOffset\t\t\t\tfZPos"<<std::endl;
 
-		for(iter=(*rpiter).second.ListODFibersU1.begin();iter!=(*rpiter).second.ListODFibersU1.end();iter++){
+		for(iter=(*rpiter).second.ListODFibersU1.begin();iter!=(*rpiter).second.ListODFibersU1.end();++iter){
 			OutStream<<(*rpiter).first<<"\t\t\t\t"<<(*iter).nPlateID<<"\t\t\t\t"<<(*iter).nFiberID<<"\t\t\t\t"<<(*iter).nLayerID<<"\t\t\t\t";
 			if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<(*iter).fcs_cladding.fCentreYPos<<"\t\t\t\t"<<(*iter).fcs_cladding.fAngle<<std::endl;
 			else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<(*iter).fcs_atlas.fSlope<<"\t\t\t\t"<<(*iter).fcs_atlas.fOffset<<(*iter).fcs_atlas.fZPos<<std::endl;
@@ -1714,7 +1717,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 		if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<"nPotID\t\t\tnPlateID\t\t\tnFiberID\t\t\tnLayerID\t\t\tfCentreXPos\t\t\tfAngle\t\t\tfSlope\t\t\tfOffset\t\t\tfZPos"<<std::endl;
 		else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<"nPotID\t\t\t\tnPlateID\t\t\t\tnFiberID\t\t\t\tnLayerID\t\t\t\tfSlope\t\t\t\tfOffset\t\t\t\tfZPos"<<std::endl;
 
-		for(iter=(*rpiter).second.ListODFibersV1.begin();iter!=(*rpiter).second.ListODFibersV1.end();iter++){
+		for(iter=(*rpiter).second.ListODFibersV1.begin();iter!=(*rpiter).second.ListODFibersV1.end();++iter){
 			OutStream<<(*rpiter).first<<"\t\t\t\t"<<(*iter).nPlateID<<"\t\t\t\t"<<(*iter).nFiberID<<"\t\t\t\t"<<(*iter).nLayerID<<"\t\t\t\t";
 			if(m_eFCoordSystem==EFCS_CLADDING) OutStream<<(*iter).fcs_cladding.fCentreYPos<<"\t\t\t\t"<<(*iter).fcs_cladding.fAngle<<std::endl;
 			else if(m_eFCoordSystem==EFCS_ATLAS) OutStream<<(*iter).fcs_atlas.fSlope<<"\t\t\t\t"<<(*iter).fcs_atlas.fOffset<<(*iter).fcs_atlas.fZPos<<std::endl;
@@ -1901,19 +1904,15 @@ void ALFA_GeometryReader::UpdateGeometry()
 	std::list<FIBERPARAMS>::const_iterator iter;
 	FIBERPARAMS Fiber01Params,Fiber64Params;
 	
-	for(rpiter=m_MapRPot.begin();rpiter!=m_MapRPot.end();rpiter++){
+	for(rpiter=m_MapRPot.begin();rpiter!=m_MapRPot.end();++rpiter){
 		for(i=1;i<=10;i++){
 			GetUFiberParams(&Fiber01Params,(*rpiter).first,i,1);
 			GetUFiberParams(&Fiber64Params,(*rpiter).first,i,64);
-			//(*rpiter).second.MapPlates[i].fUCladdingSizeX=fabs(Fiber01Params.fCentreXPos-Fiber64Params.fCentreXPos)+0.48*CLHEP::mm;
 			(*rpiter).second.MapPlates[i].fUCladdingSizeX=2.0*(fmax(fabs(Fiber01Params.fcs_cladding.fCentreXPos),fabs(Fiber64Params.fcs_cladding.fCentreXPos))+0.24);
-			//cout<<"U clad half-size="<<(*rpiter).second.MapPlates[i].fUCladdingSizeX/2.0<<"("<<Fiber01Params.fCentreXPos<<", "<<Fiber64Params.fCentreXPos<<")"<<std::endl;
 			
 			GetVFiberParams(&Fiber01Params,(*rpiter).first,i,1);
 			GetVFiberParams(&Fiber64Params,(*rpiter).first,i,64);
-			//(*rpiter).second.MapPlates[i].fVCladdingSizeX=fabs(Fiber01Params.fCentreXPos-Fiber64Params.fCentreXPos)+0.48*CLHEP::mm;
 			(*rpiter).second.MapPlates[i].fVCladdingSizeX=2.0*(fmax(fabs(Fiber01Params.fcs_cladding.fCentreXPos),fabs(Fiber64Params.fcs_cladding.fCentreXPos))+0.24);
-			//cout<<"V clad half-size="<<(*rpiter).second.MapPlates[i].fVCladdingSizeX/2.0<<"("<<Fiber01Params.fCentreXPos<<", "<<Fiber64Params.fCentreXPos<<")"<<std::endl;
 		}
 	}
 }
@@ -1926,7 +1925,7 @@ void ALFA_GeometryReader::GetListOfRPotIDs(std::map<eRPotName,std::string>* pMap
 	if(pMapRPotName!=NULL){
 		pMapRPotName->clear();
 		
-		for(rpiter=m_MapRPot.begin();rpiter!=m_MapRPot.end();rpiter++){
+		for(rpiter=m_MapRPot.begin();rpiter!=m_MapRPot.end();++rpiter){
 			strLabel=GetRPotLabel((*rpiter).first);
 			pMapRPotName->insert(std::pair<eRPotName,std::string>((*rpiter).first,strLabel));
 		}
@@ -2039,7 +2038,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 		{
 		case EFT_ODFIBERU0:
 			{
-				for(iter=(*rpiter).second.ListODFibersU0.begin();iter!=(*rpiter).second.ListODFibersU0.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersU0.begin();iter!=(*rpiter).second.ListODFibersU0.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2059,7 +2058,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 			}
 		case EFT_ODFIBERV0:
 			{
-				for(iter=(*rpiter).second.ListODFibersV0.begin();iter!=(*rpiter).second.ListODFibersV0.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersV0.begin();iter!=(*rpiter).second.ListODFibersV0.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2079,7 +2078,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 			}
 		case EFT_ODFIBERU1:
 			{
-				for(iter=(*rpiter).second.ListODFibersU1.begin();iter!=(*rpiter).second.ListODFibersU1.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersU1.begin();iter!=(*rpiter).second.ListODFibersU1.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2099,7 +2098,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 			}
 		case EFT_ODFIBERV1:
 			{
-				for(iter=(*rpiter).second.ListODFibersV1.begin();iter!=(*rpiter).second.ListODFibersV1.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersV1.begin();iter!=(*rpiter).second.ListODFibersV1.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2150,7 +2149,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 		{
 		case EFT_ODFIBERU0:
 			{
-				for(iter=(*rpiter).second.ListODFibersU0.begin();iter!=(*rpiter).second.ListODFibersU0.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersU0.begin();iter!=(*rpiter).second.ListODFibersU0.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2170,7 +2169,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 			}
 		case EFT_ODFIBERV0:
 			{
-				for(iter=(*rpiter).second.ListODFibersV0.begin();iter!=(*rpiter).second.ListODFibersV0.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersV0.begin();iter!=(*rpiter).second.ListODFibersV0.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2190,7 +2189,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 			}
 		case EFT_ODFIBERU1:
 			{
-				for(iter=(*rpiter).second.ListODFibersU1.begin();iter!=(*rpiter).second.ListODFibersU1.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersU1.begin();iter!=(*rpiter).second.ListODFibersU1.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}
@@ -2210,7 +2209,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 			}
 		case EFT_ODFIBERV1:
 			{
-				for(iter=(*rpiter).second.ListODFibersV1.begin();iter!=(*rpiter).second.ListODFibersV1.end();iter++)
+				for(iter=(*rpiter).second.ListODFibersV1.begin();iter!=(*rpiter).second.ListODFibersV1.end();++iter)
 				{
 					if (((*iter).nPlateID==nPlateID) && ((*iter).nFiberID==nFiberID)) break;
 				}

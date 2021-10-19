@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes:
@@ -20,6 +20,9 @@
 // random number generator
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
+
+// L1 configuration data
+#include "TrigConfL1Data/PrescaleSet.h"
 
 // STL includes:
 #include <vector>
@@ -45,74 +48,39 @@ LVL1CTP::ResultBuilder::~ResultBuilder() {
 
 
 StatusCode
-LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::CTPConfig* ctpConfig, 
-                                          const TrigConf::L1Menu* l1menu ) const
+LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::L1Menu& l1menu ) const
 {
    ATH_MSG_DEBUG( "Set configuration with CTP version " << m_ctpVersionNumber );
 
-   ConfigSource cfgsrc(ctpConfig, l1menu);
-
-   StatusCode sc = createTriggerConfigMaps(cfgsrc);
-
-   return sc;
+   return createTriggerConfigMaps(l1menu);
 }
 
 
 StatusCode
-LVL1CTP::ResultBuilder::createTriggerConfigMaps(const ConfigSource & cfgSrc) const {
+LVL1CTP::ResultBuilder::createTriggerConfigMaps(const TrigConf::L1Menu& l1menu) const
+{
+   ATH_MSG_DEBUG("Creating trigger configuration maps from run-3-style menu");
 
-   if( cfgSrc.l1menu() != nullptr ) {
+   std::vector<unsigned int> bg{1};
+   std::vector<unsigned int> bgEmpty{1};
 
-      ATH_MSG_DEBUG("Creating trigger configuration maps from run-3-style menu");
-
-      std::vector<unsigned int> bg; bg.push_back( 1 );
-      std::vector<unsigned int> bgEmpty; bgEmpty.push_back( 1 );
-
-      // declare internal bunch group triggers
-      for (size_t i = 0; i < 16; ++i) {
-         auto bgrp = new BunchGroupTrigger(i, bg, m_ctpDataFormat);
-         m_internalTrigger[ bgrp->name() ] = bgrp;
-      }
-     
-      // declare internal random triggers
-      for(int rndmIdx = 0; rndmIdx<4; rndmIdx++) {
-         auto rndm = new RandomTrigger(rndmIdx, m_ctpDataFormat);
-         m_internalTrigger[ rndm->name() ] = rndm;
-      }
-
-      // build map of name to ctp thresholds
-      m_thrConfigMap = std::make_unique<ThresholdMap>( cfgSrc.l1menu() );
-
-      // build map of name to ctp items
-      m_itemConfigMap = std::make_unique<ItemMap>( cfgSrc.l1menu() );
-
-   } else if( cfgSrc.ctpConfig() != nullptr ) {
-
-      ATH_MSG_DEBUG("Creating trigger configuration maps from run-2-style menu");
-
-      const std::vector<TrigConf::BunchGroup> & bunchGroups(cfgSrc.ctpConfig()->bunchGroupSet().bunchGroups());
-      for (size_t i = 0; i < bunchGroups.size(); ++i) {
-         std::vector<unsigned int> bunches;
-         for(int b : bunchGroups[i].bunches()) {
-            bunches.push_back(b);
-         }
-         auto bgrp = new BunchGroupTrigger(i, bunches, m_ctpDataFormat);
-         m_internalTrigger[bgrp->name()] = bgrp;
-      }
-      
-      for(int rndmIdx = 0; rndmIdx<4; rndmIdx++) {
-         auto rndm = new RandomTrigger(rndmIdx, m_ctpDataFormat);
-         m_internalTrigger[ rndm->name() ] = rndm;
-      }
-
-      m_thrConfigMap = std::make_unique<ThresholdMap>( cfgSrc.ctpConfig()->menu().thresholdVector());
-
-      m_itemConfigMap = std::make_unique<ItemMap>( cfgSrc.ctpConfig()->menu().itemVector(),
-                                     cfgSrc.ctpConfig()->prescaleSet() );
-   } else {
-      ATH_MSG_FATAL("No L1 trigger menu was provided");
-      return StatusCode::FAILURE;
+   // declare internal bunch group triggers
+   for (size_t i = 0; i < 16; ++i) {
+      auto bgrp = new BunchGroupTrigger(i, bg, m_ctpDataFormat);
+      m_internalTrigger[ bgrp->name() ] = bgrp;
    }
+     
+   // declare internal random triggers
+   for(int rndmIdx = 0; rndmIdx<4; rndmIdx++) {
+      auto rndm = new RandomTrigger(rndmIdx, m_ctpDataFormat);
+      m_internalTrigger[ rndm->name() ] = rndm;
+   }
+
+   // build map of name to ctp thresholds
+   m_thrConfigMap = std::make_unique<ThresholdMap>( &l1menu );
+
+   // build map of name to ctp items
+   m_itemConfigMap = std::make_unique<ItemMap>( &l1menu );
 
    return StatusCode::SUCCESS;
 }

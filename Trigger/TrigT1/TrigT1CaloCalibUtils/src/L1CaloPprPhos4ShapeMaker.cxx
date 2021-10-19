@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPprPhos4ShapeMaker.h"
@@ -144,7 +144,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       // should really only be one entry, but still will catch everything
       CondAttrListCollection::const_iterator attrListCollItr = m_attrList->begin();
       
-      for(;attrListCollItr != m_attrList->end();attrListCollItr++){
+      for(;attrListCollItr != m_attrList->end();++attrListCollItr){
          const coral::AttributeList* attrList = &(attrListCollItr->second);
          
          m_l1aFadcSlice = (*attrList)[m_l1aFadcSliceName].data<unsigned int>();
@@ -165,7 +165,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       // should really only be one entry, but still will catch everything
       attrListCollItr = m_attrList->begin();
       
-      for(;attrListCollItr != m_attrList->end();attrListCollItr++){
+      for(;attrListCollItr != m_attrList->end();++attrListCollItr){
          const coral::AttributeList* attrList = &(attrListCollItr->second);
          
          m_timingRegime = (*attrList)[m_timingRegimeName].data<std::string>();
@@ -187,7 +187,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       // should really only be one entry, but still will catch everything
       attrListCollItr = m_attrList->begin();
       
-      for(;attrListCollItr != m_attrList->end();attrListCollItr++){
+      for(;attrListCollItr != m_attrList->end();++attrListCollItr){
          const coral::AttributeList* attrList = &(attrListCollItr->second);
             
          m_ttcConfiguration = (*attrList)[m_ttcConfigurationName].data<std::string>();
@@ -226,7 +226,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       
       attrListCollItr = m_attrList->begin();
       
-      for(;attrListCollItr != m_attrList->end();attrListCollItr++){
+      for(;attrListCollItr != m_attrList->end();++attrListCollItr){
          
          const unsigned int coolId = attrListCollItr->first;
          
@@ -276,7 +276,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       
       attrListCollItr = m_attrList->begin();
       
-      for(;attrListCollItr != m_attrList->end();attrListCollItr++){
+      for(;attrListCollItr != m_attrList->end();++attrListCollItr){
          const unsigned int coolId = attrListCollItr->first;
          
          const coral::AttributeList* attrList = &(attrListCollItr->second);
@@ -448,7 +448,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::finalize ATLAS_NOT_THREAD_SAFE(){
       char temp[50];
       std::string filename = "selectedCoodIds";
       if(m_runNumber != 0){
-         sprintf(temp,"%08i",m_runNumber);
+         sprintf(temp,"%08u",m_runNumber);
          filename += "_";
          filename += temp;
       }
@@ -609,7 +609,7 @@ bool L1CaloPprPhos4ShapeMaker::IsCoolIdValid(const L1CaloCoolChannelId coolId){
    return true;
 }
 
-void L1CaloPprPhos4ShapeMaker::SetTimingRegime(std::string regime){
+void L1CaloPprPhos4ShapeMaker::SetTimingRegime(const std::string& regime){
    
    // Regime should be "Physics", "Calib1", or "Calib2"
    if(regime != "Physics" && regime != "Calib1" && regime != "Calib2"){

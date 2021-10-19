@@ -957,7 +957,9 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     //const GeoMaterial *cu        = materialManager->getMaterial("std::Copper");
     const GeoMaterial *matXeCO2O2 = materialManager->getMaterial("trt::XeCO2O2");
     const GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel");
-    const GeoMaterial *matRubber = materialManager->getMaterial("sct::Rubber");
+    const GeoMaterial *matRubber = materialManager->getMaterial("std::Rubber")!=nullptr
+      ? materialManager->getMaterial("std::Rubber")
+      : materialManager->getMaterial("sct::Rubber");
 
     // Get required elements
     const GeoElement* silicon = materialManager->getElement("Silicon");
@@ -1196,7 +1198,9 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   const GeoMaterial *air        = materialManager->getMaterial("std::Air"); //0.001214 g/cm3
   const GeoMaterial *alu        = materialManager->getMaterial("std::Aluminium"); //2.7 g/cm3
   const GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel"); //8 g/cm3
-  const GeoMaterial *matCO2 = materialManager->getMaterial("trt::CO2"); //0.001842 g/cm3
+  const GeoMaterial *matCO2 = materialManager->getMaterial("std::CO2")!=nullptr //0.001842 g/cm3
+    ? materialManager->getMaterial("std::CO2")
+    : materialManager->getMaterial("trt::CO2");
   const GeoMaterial *matKapton = materialManager->getMaterial("std::Kapton"); // 1.42*gram/cm3
   const GeoMaterial *matC3F8 = materialManager->getMaterial("std::C3F8"); //1.032*gram/cm3
 

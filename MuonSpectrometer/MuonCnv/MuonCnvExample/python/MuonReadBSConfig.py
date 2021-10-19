@@ -84,7 +84,39 @@ def CscRawDataProviderTool(name = "CscRawDataProviderTool",**kwargs):
         else:
             kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
     return CfgMgr.Muon__CSC_RawDataProviderToolMT(name,**kwargs)
+
+#================================================================================
+# MM Bytestream reading setup
+#================================================================================
+
+def MmROD_Decoder(name="MmROD_Decoder",**kwargs):
+    return CfgMgr.Muon__MM_ROD_Decoder(name,**kwargs)
+
+def MmRawDataProviderTool(name="MmRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "MmROD_Decoder")
+    if DetFlags.overlay.Micromegas_on() and overlayFlags.isDataOverlay():
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("RdoLocation", overlayFlags.bkgPrefix() + "MMRDO")
+        else:
+            kwargs.setdefault("RdoLocation", overlayFlags.dataStore() + "+MMRDO")
+    return CfgMgr.Muon__MM_RawDataProviderToolMT(name,**kwargs)
     
+#================================================================================
+# sTGC Bytestream reading setup
+#================================================================================
+
+def sTgcROD_Decoder(name = "sTgcROD_Decoder",**kwargs):
+    return CfgMgr.Muon__STGC_ROD_Decoder(name,**kwargs)
+
+
+def sTgcRawDataProviderTool(name = "sTgcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "sTgcROD_Decoder")
+    if DetFlags.overlay.sTGC_on() and overlayFlags.isDataOverlay():
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("RdoLocation", overlayFlags.bkgPrefix()+"sTGCRDO")
+        else:
+            kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+sTGCRDO")
+    return CfgMgr.Muon__STGC_RawDataProviderToolMT(name,**kwargs)
 
 #
 # For backwards compat - TO BE REMOVED as soon as all clients get these tools via AthenaCommon.CfgGetter
@@ -109,3 +141,13 @@ if DetFlags.readRDOBS.CSC_on():
     MuonCscRawDataProviderTool = getPublicTool("CscRawDataProviderTool")
 else:
     MuonCscRawDataProviderTool = None
+
+if DetFlags.readRDOBS.Micromegas_on():
+    MuonMmRawDataProviderTool = getPublicTool("MmRawDataProviderTool")
+else:
+    MuonMmRawDataProviderTool = None
+
+if DetFlags.readRDOBS.sTGC_on():
+    MuonsTgcRawDataProviderTool = getPublicTool("sTgcRawDataProviderTool")
+else:
+    MuonsTgcRawDataProviderTool = None

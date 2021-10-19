@@ -159,7 +159,7 @@ saverun {} /Herwig/Generators/EventGenerator
 # set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/Hard{MEPDFOrder}PDF
 """.format(MEPDFOrder = me_pdf_order)
 
-    pwg_reader_lib = "library powhegHerwig.so" 
+    pwg_reader_lib = "library libpowhegHerwig.so" 
 
 
     self.commands += """

@@ -90,7 +90,7 @@ void AFPTechnicalStationMonitor::endOfLumiBlock(AFPTechnicalMonitorTool* toolToS
     layer->endOfLumiBlock(toolToStoreHistograms);
 }
 
-std::string AFPTechnicalStationMonitor::makeName (const std::string name) const
+std::string AFPTechnicalStationMonitor::makeName (const std::string& name) const
 {
   std::stringstream histName;
   histName <<name<<"Station"<<m_stationID;
@@ -98,7 +98,7 @@ std::string AFPTechnicalStationMonitor::makeName (const std::string name) const
   return histName.str();
 }
 
-std::string AFPTechnicalStationMonitor::makeTitle (const std::string title) const
+std::string AFPTechnicalStationMonitor::makeTitle (const std::string& title) const
 {
   std::stringstream histTitle;
   histTitle <<title<<" in station "<<m_stationID;

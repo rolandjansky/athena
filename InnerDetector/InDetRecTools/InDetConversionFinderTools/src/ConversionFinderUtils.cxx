@@ -17,6 +17,7 @@
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include <cmath>
 
@@ -240,7 +241,7 @@ namespace InDet {
     if(!fq) return nullptr;
 
     // output datavector of TSOS
-    auto	 ntsos = DataVector<const Trk::TrackStateOnSurface>();
+    auto	 ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) {return nullptr;}
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
@@ -248,15 +249,19 @@ namespace InDet {
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      const Trk::TrackStateOnSurface* per_tsos =
-        ((*its)->type(Trk::TrackStateOnSurface::Perigee))
-          ? new Trk::TrackStateOnSurface(nullptr, mp->uniqueClone(), nullptr, nullptr, typePattern)
-          : (*its)->clone();
-      ntsos.push_back(per_tsos);
+      const Trk::TrackStateOnSurface* p_tsos = *its;
+      // We only support containers containing exactly TSOS.
+      if (strcmp (typeid(*p_tsos).name(), typeid(Trk::TrackStateOnSurface).name()) != 0) std::abort();
+      Trk::TrackStateOnSurfaceProtContainer::Ptr per_tsos =
+        (p_tsos->type(Trk::TrackStateOnSurface::Perigee))
+          ? ntsos->allocate(nullptr, mp->uniqueClone(), nullptr, nullptr, typePattern)
+          : ntsos->allocate(*p_tsos);
+      ntsos->push_back(std::move(per_tsos));
     }
 
     //Construct the new track
     Trk::TrackInfo info;
+    ntsos->elt_allocator().protect();
     Trk::Track* newTrk = new Trk::Track(info, std::move(ntsos), fq);
     return newTrk;
   }

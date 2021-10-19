@@ -80,7 +80,7 @@ public:
     unsigned int               m_groupingType;
 
     unsigned int               subsetSize() const {
-      return  m_groupingType == LArConditionsContainerBase::SuperCells ? 312 : 128;}
+      return  m_groupingType == LArConditionsContainerBase::SuperCells ? 320 : 128;}
     
 };
 

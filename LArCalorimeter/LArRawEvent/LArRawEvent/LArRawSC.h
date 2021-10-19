@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWSC_H
@@ -23,10 +23,10 @@ class LArRawSC  {
   HWIdentifier m_hardwareID;
   
   /** @brief Latome channel */
-  short m_chan;
+  short m_chan = 0;
   
   /** @brief LATOME source Id*/
-  unsigned int m_sourceId;
+  unsigned int m_sourceId = 0U;
 
   /** @brief vector of energies */
   std::vector < int > m_energies;

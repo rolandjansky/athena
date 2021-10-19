@@ -11,7 +11,9 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,
                                      MsgStream & log)
 {
   log<<MSG::DEBUG<<"LArPhysWaveSubsetCNV_p1  begin persToTrans"<<endmsg;
-
+  // Copy basic metadata
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
   unsigned int nfebids = persObj->m_subset.m_febIds.size();
@@ -48,7 +50,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,
         }
         //else std::cout<<"1";
 				
-        if (j%32 == 31 && j < 126) {
+        if (j%32 == 31 && j < nChannelsPerFeb-2) {
           chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
           chansOffset += 32;
           ifebWithData++;
@@ -125,10 +127,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,
     PW=pw;
   }// over corrections
   transObj->insertCorrections (std::move (corrs));
-	
-  // Copy the rest
-  transObj->setChannel       (persObj->m_subset.m_channel);
-  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
   log<< MSG::DEBUG <<"PhysWave  successfully read."<<endmsg;
 }
 
@@ -255,7 +254,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,
         }
 				
         // Save chansSet
-        if  (j == (chansOffset + 31)) {
+        if  (j == (chansOffset + 31) || j == nfebChans-1 ) {
           persObj->m_subset.m_febsWithSparseData.push_back(chansSet);
           chansSet    =   0;
           chansOffset += 32;

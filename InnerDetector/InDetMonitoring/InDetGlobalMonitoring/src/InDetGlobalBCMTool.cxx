@@ -21,7 +21,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/ReadHandle.h"
 //Root
-#include "TMath.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
@@ -35,7 +34,6 @@
 //EventInfo
 #include "EventInfo/EventID.h"
 
-using namespace TMath;
 //Standard c++
 #include <string>
 #include <list>
@@ -682,23 +680,20 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
     int BC_counter = -1;
     int channel_counter = -1;
 
-    for (; BCM_RDO_itr != BCM_RDO_itr_end; BCM_RDO_itr++) { // loops over 16 channels (HR counter 0 to 15)
+    for (; BCM_RDO_itr != BCM_RDO_itr_end; ++BCM_RDO_itr) { // loops over 16 channels (HR counter 0 to 15)
       channel_counter++;
-      //ATH_MSG_WARNING ( "channel_counter: " << channel_counter);
       if ( !(*BCM_RDO_itr)->empty()) {
 	BCM_RDO_Collection::const_iterator RDO_element        = (*BCM_RDO_itr)->begin();
 	BCM_RDO_Collection::const_iterator RDO_element_last   = (*BCM_RDO_itr)->end();
     	BC_counter = -1;
 	
-	for (; RDO_element != RDO_element_last; RDO_element++){ // loops over 31 BCs read out per L1A
-          BC_counter++;
-          //ATH_MSG_WARNING ( "BC_counter: " << BC_counter);
+	for (; RDO_element != RDO_element_last; ++RDO_element){ // loops over 31 BCs read out per L1A
+          ++BC_counter;
 	  if (*RDO_element == nullptr)
 	  {
 	      ATH_MSG_WARNING ("NULL pointer!");
 	      continue;
 	  }
-	  //else ATH_MSG_WARNING ("RDO_element :" << *RDO_element );
 	    
 	  int bcm_lvl1a           = (*RDO_element)->getLVL1A();
 	  int bcm_channel         = (*RDO_element)->getChannel();
@@ -1041,7 +1036,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	unsigned int detector_a=(positions_A[gain].front()).detector;
 
 
-	for (std::list<deltat_data>::iterator it_c =positions_C[gain].begin();it_c!=positions_C[gain].end();it_c++){
+	for (std::list<deltat_data>::iterator it_c =positions_C[gain].begin();it_c!=positions_C[gain].end();++it_c){
 	  if(bcid<(*it_c).bcid) continue;
 	  if (bcid==(*it_c).bcid) { // i.e. (positions_A[gain].front()).bcid == (positions_C[gain].begin()).bcid
 	    int deltatbins=(*it_c).position-(positions_A[gain].front()).position;
@@ -1081,13 +1076,6 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	  *Filling Abort Fraction arrays
 	  **********************************/
 
-    /*for(int i=0; i < 31; i++){
-      
-      ATH_MSG_WARNING("nROD0HitLG["<<i<<"]: " <<nROD0HitLG[i] );
-      ATH_MSG_WARNING("nROD1HitLG["<<i<<"]: " <<nROD1HitLG[i] );
-      ATH_MSG_WARNING("nROD0HitHG["<<i<<"]: " <<nROD0HitHG[i] );
-      ATH_MSG_WARNING("nROD1HitHG["<<i<<"]: " <<nROD1HitHG[i] );
-    } */
 
     for(unsigned int bc_counter = 0; bc_counter < bc_readout; bc_counter++){
       double nROD0abortfraction = 100*((nROD0HitLG[bc_counter]*11)+nROD0HitHG[bc_counter])/36.0;
@@ -1102,13 +1090,11 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	}
       }
       if (nROD0abortfraction != 0) {
-	//ATH_MSG_WARNING("nROD0abortfraction: " << nROD0abortfraction);
 	m_AbortFractionROD0->Fill(nROD0abortfraction);
 	m_AbortFractionROD0VsECR->Fill(ecr,nROD0abortfraction);
 	m_AbortFractionROD0VsBCID->Fill(nROD0BCID[bc_counter],nROD0abortfraction);
       }
       if (nROD1abortfraction != 0) {
-	//ATH_MSG_WARNING("nROD1abortfraction: " << nROD1abortfraction);
 	m_AbortFractionROD1->Fill(nROD1abortfraction);
 	m_AbortFractionROD1VsECR->Fill(ecr,nROD1abortfraction);
 	m_AbortFractionROD1VsBCID->Fill(nROD1BCID[bc_counter],nROD1abortfraction);

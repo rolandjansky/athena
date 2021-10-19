@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackToSegmentTool.h"
@@ -117,7 +117,7 @@ namespace Muon {
         }
         if (!surfaceTransform) surfaceTransform = backupTransform;
         // calculate distance new reference point, shift it 100 mm towards the start of the segment
-        double refDistance = weightedDistanceSquared / weightSquared - 100;
+        double refDistance = (weightSquared > 0 ? weightedDistanceSquared / weightSquared : 1) - 100;
         ATH_MSG_DEBUG(" weighted distance " << refDistance);
 
         Amg::Vector3D refPos = perigee->position() + refDistance * dir;

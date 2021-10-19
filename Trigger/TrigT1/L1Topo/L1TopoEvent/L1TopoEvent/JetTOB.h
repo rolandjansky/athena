@@ -33,8 +33,8 @@ namespace TCS {
       virtual ~JetTOB();
       
       // accessors
-      int energy(JetSize js ) const { return js==JS1?m_Et1:m_Et2; }
-      int Et(JetSize js ) const { return js==JS1?m_Et1:m_Et2; }
+      int energy(JetSize js ) const { return static_cast<int>(js==JS1?m_Et1:m_Et2); }
+      int Et(JetSize js ) const { return static_cast<int>(js==JS1?m_Et1:m_Et2); }
       
       // accessors
       unsigned int Et1()      const { return m_Et1; }

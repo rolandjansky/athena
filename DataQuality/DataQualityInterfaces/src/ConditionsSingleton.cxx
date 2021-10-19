@@ -99,8 +99,8 @@ namespace dqi{
       std::string defaultRef("");
       for(tokenizer::iterator tok_iter=referenceConditionPairs.begin();
 	  tok_iter!=referenceConditionPairs.end();++tok_iter){//look at each condition reference pair
-	if(std::string((*tok_iter)).find("=")!=std::string::npos){//have conditions defined 
-	  if(std::string(*tok_iter).find(":")!=std::string::npos){//do a reference split
+	if(std::string((*tok_iter)).find('=')!=std::string::npos){//have conditions defined 
+	  if(std::string(*tok_iter).find(':')!=std::string::npos){//do a reference split
 	    std::vector<std::string> conds;
 	    boost::split(conds,*tok_iter,boost::is_any_of(std::string(":")));
 	    if(conds.size()>2){
@@ -189,8 +189,8 @@ namespace dqi{
       std::map<std::string,std::string> conditionalReferences;
       for(tokenizer::iterator tok_iter=referenceConditionPairs.begin();
 	  tok_iter!=referenceConditionPairs.end();++tok_iter){//look at each condition reference pair
-	if(std::string((*tok_iter)).find("=")!=std::string::npos){//have conditions defined 
-	  if(std::string(*tok_iter).find(":")!=std::string::npos){//do a reference split
+	if(std::string((*tok_iter)).find('=')!=std::string::npos){//have conditions defined 
+	  if(std::string(*tok_iter).find(':')!=std::string::npos){//do a reference split
 	    std::vector<std::string> conds;
 	    boost::split(conds,*tok_iter,boost::is_any_of(std::string(":")));
 	    if(conds.size()>2){
@@ -249,8 +249,8 @@ namespace dqi{
       std::map<std::string,std::string> conditionalReferences;
       for(tokenizer::iterator tok_iter=referenceConditionPairs.begin();
 	  tok_iter!=referenceConditionPairs.end();++tok_iter){//look at each condition reference pair
-	if(std::string((*tok_iter)).find("=")!=std::string::npos){//have conditions defined 
-	  if(std::string(*tok_iter).find(":")!=std::string::npos){//do a reference split
+	if(std::string((*tok_iter)).find('=')!=std::string::npos){//have conditions defined 
+	  if(std::string(*tok_iter).find(':')!=std::string::npos){//do a reference split
 	    std::vector<std::string> conds;
 	    boost::split(conds,*tok_iter,boost::is_any_of(std::string(":")));
 	    if(conds.size()>2){

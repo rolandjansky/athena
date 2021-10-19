@@ -464,15 +464,15 @@ StatusCode AdaptiveVertexFitterTestAlg::test2()
 {
   xAOD::Vertex exp_v0;
   exp_v0.makePrivateStore();
-  exp_v0.setPosition ({-0.664619, 1.88247, -4.28452});
-  exp_v0.setFitQuality (1.36786, 6.60783);
+  exp_v0.setPosition ({-0.666051, 1.88126, -4.2844});
+  exp_v0.setFitQuality (1.36804, 6.60783);
   exp_v0.setCovariance (std::vector<float>
                         {25.8826, 26.6122, 91.0458, 6.34189, 14.6174, 13.9884});
   setRefittedPerigee(
     exp_v0,
     0,
     1,
-    { 1.5885284, 0.3823804, -10.2058300 },
+    { 1.58753, 0.380882, -10.2063 },
     { 399.6301520, 600.2463141, 200.0002601 },
     { 1.58278, -0.618193,    -0.821391, 0.00010879, -0.171884, -0.618193,
       2.32566, 0.908938,     0.800925,  0.346876,   -0.821391, 0.908938,
@@ -484,7 +484,7 @@ StatusCode AdaptiveVertexFitterTestAlg::test2()
     exp_v0,
     1,
     -1,
-    { -0.2079830, 1.1957289, -2.5975002 },
+    { -0.209537, 1.1947, -2.59698 },
     { 600.4814296, 399.2766328, -200.0005578 },
     { 3.53014, 0.466334,     -2.04043,  0.000621337, -0.653413, 0.466334,
       3.53405, -0.415368,    1.56192,   -0.206492,   -2.04043,  -0.415368,
@@ -495,7 +495,7 @@ StatusCode AdaptiveVertexFitterTestAlg::test2()
   setRefittedPerigee(exp_v0,
                      2,
                      -1,
-                     { 1.2063615, 1.3212056, -6.9978818 },
+                     { 1.20591, 1.3197, -6.99803 },
                      { 299.9873170, 1000.0038041, 100.0000072 },
                      { 1.00049,
                        0.00413671,
@@ -556,8 +556,8 @@ StatusCode AdaptiveVertexFitterTestAlg::test3()
 {
   xAOD::Vertex exp_v0;
   exp_v0.makePrivateStore();
-  exp_v0.setPosition ({4.85215, 5.94893, -3.13472});
-  exp_v0.setFitQuality (2.38431, 8.54327);
+  exp_v0.setPosition ({4.85208, 5.949, -3.1349});
+  exp_v0.setFitQuality (2.38503, 8.54327);
   exp_v0.setCovariance (std::vector<float>
                         {1.183, 0.0323074, 1.21271,
                            0.00903037, 0.0167373, 1.12584});

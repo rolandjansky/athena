@@ -151,7 +151,7 @@ public:
 
       void *ptr( 0 );
       if( m_log->level() <= MSG::DEBUG ) {
-	*m_log << MSG::DEBUG << "In createObj for : " << clname << " normalized to " << normalized << endmsg;
+         *m_log << MSG::DEBUG << "In createObj for : " << clname << " normalized to " << normalized << endmsg;
       }
 
       StatusCode sc = m_convHelper->createObj( normalized, iAddr, ptr, typeIsxAOD);
@@ -176,7 +176,7 @@ public:
          TrigStreamAddress *addr = dynamic_cast< TrigStreamAddress* >( iAddr );
          if( addr ) {
             if( m_sgsvc->contains< DATA >( addr->sgkey() ) ) {
-               *m_log << MSG::ERROR << "TrigSerializeConverter::createObj object "
+               *m_log << MSG::WARNING << "TrigSerializeConverter::createObj object "
                       << clname << " / " << addr->sgkey()
                       << " is already in the store; not overwriting"
                       <<  endmsg;

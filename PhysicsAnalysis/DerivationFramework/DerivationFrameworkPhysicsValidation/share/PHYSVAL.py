@@ -8,10 +8,12 @@
 # It requires the reductionConf flag PHYS in Reco_tf.py   
 #====================================================================
 
+from typing import Sequence
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkInDet import InDetCommon
 from DerivationFrameworkEGamma import EGammaCommon
-from DerivationFrameworkEGamma import ElectronsCPDetailedContent
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import (
+   GSFTracksCPDetailedContent)
 from DerivationFrameworkMuons import MuonsCommon
 # Common augmentations ("DFCommon")
 InDetCommon.makeInDetDFCommon()
@@ -136,16 +138,16 @@ addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets,linkVRG
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,labelname="R10TruthLabel_R21Consolidated")
 
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL,algname="QGTaggerToolPFAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL)
 
 # fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL)
 
 # Event cleaning flags
-addEventCleanFlags()
+addEventCleanFlags(sequence=SeqPHYSVAL)
 
 scheduleStandardMETContent(sequence=SeqPHYSVAL, algname="METAssociationAlg")
 
@@ -215,7 +217,8 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]
 
-PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
+PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
+                                       "Electrons", "ForwardElectrons",
                                        "Photons",
                                        "Muons", "CombinedMuonTrackParticles","ExtrapolatedMuonTrackParticles",
                                        "MuonSpectrometerTrackParticles","MSOnlyExtrapolatedMuonTrackParticles","MuonSegments",
@@ -226,6 +229,8 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                       "BTagging_AntiKt4EMPFlowJFVtx", 
+                                       "BTagging_AntiKt4EMPFlowSecVtx",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4LCTopo",
@@ -249,6 +254,7 @@ StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxAux.-vxTrackAtVertex"]
 
 PHYSVALSlimmingHelper.StaticContent = StaticContent
 
@@ -297,11 +303,15 @@ if DerivationFrameworkIsMonteCarlo:
                                             'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
                                             'EMOriginTopoClusters':'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                             'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
+                                            'BTagging_AntiKt4EMPFlowJFVtx':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxAux':'xAOD::BTagVertexAuxContainer',
+                                            'BTagging_AntiKt4EMPFlowSecVtx':'xAOD::VertexContainer','BTagging_AntiKt4EMPFlowSecVtxAux':'xAOD::VertexAuxContainer',
+                                            'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                            'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSVALSlimmingHelper)
-   PHYSVALSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   PHYSVALSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm','CHSChargedParticleFlowObjects', 'CHSNeutralParticleFlowObjects']
    PHYSVALSlimmingHelper.SmartCollections += ['AntiKt4TruthJets']
 
 PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
@@ -314,10 +324,9 @@ PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jet
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
-                                      "MET_Track.sumet",
-                                      "GSFTrackParticles.eProbabilityHT.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition"
+                                      "MET_Track.sumet"
 ]
-
+PHYSVALSlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 # Add trigger matching
 trigmatching_helper_notau.add_to_slimming(PHYSVALSlimmingHelper)
 trigmatching_helper_tau.add_to_slimming(PHYSVALSlimmingHelper)

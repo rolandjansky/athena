@@ -303,11 +303,11 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   //ReadHandle MURoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
-	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from L1Decoder"};
+	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from HLTSeeding"};
 
   //ReadHandle RecMuonRoIs
   SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_run2recRoiCollectionKey{
-	this, "Run2RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
+	this, "Run2RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by HLTSeeding"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_recRoiCollectionKey{
 	this, "RecMuonRoI", "LVL1MuonRoIs", "Name of the input data on xAOD::MuonRoI"};
 

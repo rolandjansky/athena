@@ -11,11 +11,11 @@
 
 #include "MuonCombinedStacoTagTool.h"
 
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/StacoTag.h"
-
 namespace MuonCombined {
 
     MuonCombinedStacoTagTool::MuonCombinedStacoTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -44,10 +44,10 @@ namespace MuonCombined {
 
         std::unique_ptr<const Trk::Perigee> bestPerigee;
         const InDetCandidate* bestCandidate = nullptr;
-        double bestChi2 = 2e20;
+        double bestChi2{FLT_MAX};
 
         // loop over ID candidates
-        for (const auto* const idTP : indetCandidates) {
+        for (const MuonCombined::InDetCandidate* const idTP : indetCandidates) {
             // skip tracklets
             if (idTP->isSiliconAssociated()) continue;
 
@@ -74,18 +74,17 @@ namespace MuonCombined {
                                     << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().z()
                                     << " and extrapolation failed");
                     continue;
-                } else {
-                    msPer = dynamic_cast<const Trk::Perigee*>(exPars.get());
-                    if (!msPer) {
-                        ATH_MSG_WARNING("Extrapolation did not return a perigee!");
-                        continue;
-                    }
+                }
+                msPer = dynamic_cast<const Trk::Perigee*>(exPars.get());
+                if (!msPer) {
+                    ATH_MSG_WARNING("Extrapolation did not return a perigee!");
+                    continue;
                 }
             }
             double chi2 = 0;
             std::unique_ptr<const Trk::Perigee> perigee =
                 theCombIdMu(idTP->indetTrackParticle().perigeeParameters(), *muonCandidate.extrapolatedTrack()->perigeeParameters(), chi2);
-            if (!perigee) {
+            if (!perigee || !perigee->covariance() || !Amg::saneCovarianceDiagonal(*perigee->covariance())) {
                 ATH_MSG_DEBUG("Combination failed");
                 continue;
             }
@@ -96,7 +95,7 @@ namespace MuonCombined {
             }
         }
         if (bestCandidate) {
-            double outerMatchChi2 = 1e19;
+            double outerMatchChi2{FLT_MAX};
             if (bestCandidate->indetTrackParticle().trackLink().isValid()) {
                 outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack(), ctx);
             }
@@ -117,14 +116,14 @@ namespace MuonCombined {
 
         const AmgSymMatrix(5)& covID = *indetPerigee.covariance();
         const AmgSymMatrix(5) weightID = covID.inverse();
-        if (weightID.determinant() == 0) {
+        if (weightID.determinant() == 0.) {
             ATH_MSG_WARNING(" ID weight matrix computation failed     ");
             return nullptr;
         }
 
         const AmgSymMatrix(5)& covMS = *extrPerigee.covariance();
         const AmgSymMatrix(5) weightMS = covMS.inverse();
-        if (weightMS.determinant() == 0) {
+        if (weightMS.determinant() == 0.) {
             ATH_MSG_WARNING("weightMS computation failed      ");
             return nullptr;
         }

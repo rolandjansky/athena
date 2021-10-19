@@ -132,11 +132,6 @@ SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
   return inDetector(localPosition,phiTol,etaTol);
 }
 
-
-  const Amg::Transform3D DetectorDesign::SiHitToGeoModel() const {
-    return Amg::Transform3D::Identity();
-}
-
   const Amg::Transform3D DetectorDesign::moduleShift() const {
     return Amg::Transform3D::Identity();
   }

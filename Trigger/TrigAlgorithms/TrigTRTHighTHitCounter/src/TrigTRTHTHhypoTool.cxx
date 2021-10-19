@@ -3,7 +3,7 @@
 */
 
 #include "TrigTRTHTHhypoTool.h"
-
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 namespace TCU = TrigCompositeUtils;
@@ -25,6 +25,12 @@ StatusCode TrigTRTHTHhypoTool::initialize()  {
 bool TrigTRTHTHhypoTool::decide( const ITrigTRTHTHhypoTool::RNNOutputInfo& input ) const {
 
   bool pass = false;
+
+  auto fHT_road         = Monitored::Scalar( "HTRatioRoad", -1. ); 
+  auto fHT_wedge        = Monitored::Scalar( "HTRatioWedge", -1. );
+  auto trththits_road   = Monitored::Scalar( "TRTHTHitsRoad"   , -1.0 );
+  auto trththits_wedge  = Monitored::Scalar( "TRTHTHitsWedge", -1.0 );
+  auto monitorIt        = Monitored::Group( m_monTool, fHT_road, fHT_wedge, trththits_road, trththits_wedge);
   
   if( m_acceptAll ){
     pass=true;
@@ -42,10 +48,10 @@ bool TrigTRTHTHhypoTool::decide( const ITrigTRTHTHhypoTool::RNNOutputInfo& input
 
   //Parse the vector to assign fHT and nHT appropriately
 
-  float fHT_road = vec.at(1);
-  float fHT_wedge = vec.at(3);
-  float trththits_road = vec.at(0);
-  float trththits_wedge = vec.at(2);
+  fHT_road = vec.at(1);
+  fHT_wedge = vec.at(3);
+  trththits_road = vec.at(0);
+  trththits_wedge = vec.at(2);
 
   ATH_MSG_DEBUG ( "trththits_road: " << trththits_road);
   ATH_MSG_DEBUG ("m_minTRTHTHitsRoad in hypotool: "<<m_minTRTHTHitsRoad);

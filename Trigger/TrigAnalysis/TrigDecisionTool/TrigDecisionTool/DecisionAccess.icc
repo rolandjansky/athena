@@ -1,4 +1,4 @@
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 
 template<class T> 
 const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
@@ -29,27 +29,37 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
   }
   return data;
 }
-#else
+
+#else // AnalysisBase
+
 template<class T> 
 const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
   ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty Feature");  
   return Trig::Feature<T>();
 }
+
 template<class T>
 const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
   ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty vector");  
   return  std::vector<Trig::Feature<T> >();
 }
 
-#endif // XAOD_STANDALONE
+#endif
+
+template<class CONTAINER>
+std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::FeatureRequestDescriptor& featureRequest) const {
+  return features<CONTAINER>(featureRequest.chainGroup(), featureRequest.condition(), featureRequest.SGKey(), 
+    featureRequest.featureCollectionMode(), featureRequest.linkName(), featureRequest.restrictRequestToLeg());
+}
 
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::ChainGroup* group,
                                                                   const unsigned int condition,
                                                                   const std::string& containerSGKey,
                                                                   const unsigned int featureCollectionMode,
-                                                                  const std::string& navElementLinkKey) const {
-  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKeyPtr(), condition, containerSGKey, featureCollectionMode, navElementLinkKey);
+                                                                  const std::string& navElementLinkKey,
+                                                                  const int          restrictToLegIndex) const {
+  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKeyPtr(), condition, containerSGKey, featureCollectionMode, navElementLinkKey, restrictToLegIndex);
 }
 
 template<class CONTAINER>
@@ -57,9 +67,10 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::fea
                                                                   const unsigned int condition,
                                                                   const std::string& containerSGKey,
                                                                   const unsigned int featureCollectionMode,
-                                                                  const std::string& navElementLinkKey) const {
+                                                                  const std::string& navElementLinkKey,
+                                                                  const int          restrictToLegIndex) const {
   const Trig::ChainGroup *g = cgm()->createChainGroup(Trig::convertStringToVector(chainName));
-  return features<CONTAINER>(g, condition, containerSGKey, featureCollectionMode, navElementLinkKey);
+  return features<CONTAINER>(g, condition, containerSGKey, featureCollectionMode, navElementLinkKey, restrictToLegIndex);
 }
 
 template<class CONTAINER, class FEATURE_CONTAINER>

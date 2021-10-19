@@ -130,7 +130,7 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 elif hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
 else:
-    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 try:
     from ISF_Config import FlagSetters

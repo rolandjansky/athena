@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_TGCL1RDO_P1_H
@@ -26,7 +26,7 @@ private:
     // ID of this instance
     uint16_t m_id{0};
     // Unused, but shouldn't delete it since it's part of the persistent data.
-    uint32_t ATH_UNUSED_MEMBER(m_idHash{0};)
+    uint32_t ATH_UNUSED_MEMBER(m_idHash){0};
 
 
     // online IDs

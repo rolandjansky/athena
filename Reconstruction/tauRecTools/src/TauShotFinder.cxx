@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
 
 #include "TauShotFinder.h"
 #include "TauShotVariableHelpers.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -30,7 +31,7 @@ StatusCode TauShotFinder::initialize() {
   ATH_CHECK(m_caloWeightTool.retrieve());
   ATH_CHECK(m_caloCellInputContainer.initialize());
   ATH_CHECK(detStore()->retrieve (m_calo_id, "CaloCell_ID"));
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -43,23 +44,25 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& tau, xAOD::CaloCluster
   std::vector<ElementLink<xAOD::PFOContainer>> empty;
   tau.setShotPFOLinks(empty);
   
-  // Only run on 1-5 prong taus 
-  if (tau.nTracks() == 0 || tau.nTracks() >5 ) {
+  // Only run on 0-5 prong taus 
+  if (!tauRecTools::doPi0andShots(tau)) {
      return StatusCode::SUCCESS;
   }
-    
+  
   SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
   if (!caloCellInHandle.isValid()) {
     ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << caloCellInHandle.key());
     return StatusCode::FAILURE;
   }
-  const CaloCellContainer *cellContainer = caloCellInHandle.cptr();;
-    
+  const CaloCellContainer *cellContainer = caloCellInHandle.cptr();
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
   // Select seed cells:
   // -- dR < 0.4, EM1, pt > 100
   // -- largest pt among the neighbours in eta direction 
   // -- no other seed cell as neighbour in eta direction 
-  std::vector<const CaloCell*> seedCells = selectSeedCells(tau, *cellContainer);
+  std::vector<const CaloCell*> seedCells = selectSeedCells(tau, *cellContainer, caloDDMgr);
   ATH_MSG_DEBUG("seedCells.size() = " << seedCells.size());
     
   // Construt shot by merging neighbour cells in phi direction 
@@ -153,7 +156,7 @@ int TauShotFinder::getEtaBin(float eta) const {
   if (absEta<1.80) {
     return 3; // Endcap, fine granularity
   }
-  return 4; // ndcap, coarse granularity
+  return 4; // Endcap, coarse granularity
 }
 
 
@@ -177,12 +180,13 @@ int TauShotFinder::getNPhotons(float eta, float energy) const {
 
 
 std::vector<const CaloCell*> TauShotFinder::selectCells(const xAOD::TauJet& tau,
-                                                        const CaloCellContainer& cellContainer) const {
+                                                        const CaloCellContainer& cellContainer,
+                                                        const CaloDetDescrManager* detMgr) const {
   // Get only cells within dR < 0.4
   // -- TODO: change the hardcoded 0.4
   std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
   emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
-  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(&cellContainer,emSubCaloBlocks)); 
+  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(detMgr, &cellContainer,emSubCaloBlocks)); 
   // -- FIXME: tau p4 is corrected to point at tau vertex, but the cells are not 
   cellList->select(tau.eta(), tau.phi(), 0.4); 
 
@@ -205,10 +209,11 @@ std::vector<const CaloCell*> TauShotFinder::selectCells(const xAOD::TauJet& tau,
 
 
 std::vector<const CaloCell*> TauShotFinder::selectSeedCells(const xAOD::TauJet& tau,
-                                                            const CaloCellContainer& cellContainer) const {
+                                                            const CaloCellContainer& cellContainer,
+                                                            const CaloDetDescrManager* detMgr) const {
 
   // Apply pre-selection of the cells
-  std::vector<const CaloCell*> cells = selectCells(tau, cellContainer);
+  std::vector<const CaloCell*> cells = selectCells(tau, cellContainer,detMgr);
   std::sort(cells.begin(),cells.end(),ptSort(*this));
 
   std::vector<const CaloCell*> seedCells;  

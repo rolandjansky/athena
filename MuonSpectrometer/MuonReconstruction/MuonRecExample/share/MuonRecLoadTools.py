@@ -1,10 +1,10 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon import CfgGetter
 
 MuonClusterOnTrackCreator     = CfgGetter.getPublicTool("MuonClusterOnTrackCreator")
 MdtDriftCircleOnTrackCreator  = CfgGetter.getPublicTool("MdtDriftCircleOnTrackCreator")
 MdtTubeHitOnTrackCreator      = CfgGetter.getPublicTool("MdtTubeHitOnTrackCreator")
 MuonRotCreator                = CfgGetter.getPublicTool('MuonRotCreator')
-MuonNavigator                 = CfgGetter.getPublicTool('MuonNavigator')
 MuonMaterialUpdator           = CfgGetter.getPublicTool("MuonMaterialEffectsUpdator")
 MuonPropagator                = CfgGetter.getPublicTool('MuonPropagator')
 MuonExtrapolator              = CfgGetter.getPublicTool('MuonExtrapolator')

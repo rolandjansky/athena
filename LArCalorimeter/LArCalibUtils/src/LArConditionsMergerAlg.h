@@ -37,7 +37,16 @@ typedef LArConditionsMergerAlg<LArPedestalComplete>  LArPedestalMerger;
 #include "LArRawConditions/LArOFCComplete.h"
 typedef LArConditionsMergerAlg<LArOFCComplete>  LArOFCMerger;
 
+#include "LArRawConditions/LArShapeComplete.h"
+typedef LArConditionsMergerAlg<LArShapeComplete>  LArShapeMerger;
+
+#include "LArRawConditions/LArRampComplete.h"
+typedef LArConditionsMergerAlg<LArRampComplete>  LArRampMerger;
+
+#include "LArRawConditions/LArMphysOverMcalComplete.h"
+typedef LArConditionsMergerAlg<LArMphysOverMcalComplete>  LArMphysOverMcalMerger;
+
 #include "LArRawConditions/LArAutoCorrComplete.h"
-typedef LArConditionsMergerAlg<LArAutoCorrComplete> LArAutoCorrMerger;
+typedef LArConditionsMergerAlg<LArAutoCorrComplete>  LArAutoCorrMerger;
 
 #endif

@@ -6,8 +6,8 @@
 
 namespace Trk {
 
-int PGraph::pgraphm_(long int *weit, long int *edges, long int *nodes, 
-	long int *set, long int *nptr, long int *nth) noexcept
+int PGraph::pgraphm_(long int *weit, long int edges, long int nodes, 
+	long int *set, long int *nptr, long int nth) noexcept
 {
 
     /* Builtin functions */
@@ -75,13 +75,13 @@ int PGraph::pgraphm_(long int *weit, long int *edges, long int *nodes,
     --set;
 
     /* Function Body */
-    if (*nodes <= 0 || *nodes > 1000) {
+    if (nodes <= 0 || nodes > 1000) {
 	goto L999;
     }
-    if (*edges < 0 || *edges > 499500) {
+    if (edges < 0 || edges > 499500) {
 	goto L999;
     }
-    if (*nodes < *nth) {
+    if (nodes < nth) {
 	goto L999;
     }
     if (*nptr > 0) {
@@ -91,10 +91,10 @@ int PGraph::pgraphm_(long int *weit, long int *edges, long int *nodes,
 	    case 3:  goto L999;
 	}
     }
-    if (*nodes == 1 || *edges == 0) {
+    if (nodes == 1 || edges == 0) {
 	goto L900;
     }
-    m_lweit = *edges;
+    m_lweit = edges;
     m_tabnr = 1;
     m_lwset = 0;
     m_lvset = 0;
@@ -109,7 +109,7 @@ s*/
 /* So we optimize this search using temporary memory NLINK(). */
 
 L888:
-    i__1 = *nodes;
+    i__1 = nodes;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L61: */
 	nlink[i__ - 1] = 0;
@@ -125,7 +125,7 @@ L888:
 /* ---- */
 /* L889: */
     maxl = 0;
-    i__1 = *nodes;
+    i__1 = nodes;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	if (maxl < nlink[i__ - 1]) {
 	    maxl = nlink[i__ - 1];
@@ -197,7 +197,7 @@ L888:
 /* ***   STEP 5 */
 
     ++m_tabnr;
-    if (m_tabnr > *nodes) {
+    if (m_tabnr > nodes) {
 	return 3;
 //	s_stop("PGRAPH: LSETT stack overflow", 28L);
     }
@@ -223,7 +223,7 @@ L888:
 /*        WEIT(2,K1) = TEIT(2,I) */
 /*  200 CONTINUE */
 
-    i__1 = *nodes;
+    i__1 = nodes;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L26: */
 	ndmap[i__ - 1] = 0;
@@ -269,19 +269,19 @@ L888:
 /** Do not returt set complement; do not return solutions shorter than NTH.*/
 
 L300:
-    if (*nodes - m_lvset < *nth) {
+    if (nodes - m_lvset < nth) {
 	goto L10;
     }
-    trevni_(m_vset, &m_lvset, &set[1], nodes, nptr, ndmap);
+    trevni_(m_vset, m_lvset, &set[1], nodes, nptr, ndmap);
 /*     DO 41 I = 1,LVSET ; NPTR = NPTR + 1 ; 41 SET(NPTR) = VSET(I) */
     m_choice = 1;
     return 0;
 
 L10:
-    if (*nodes - m_lwset < *nth) {
+    if (nodes - m_lwset < nth) {
 	goto L20;
     }
-    trevni_(m_wset, &m_lwset, &set[1], nodes, nptr, ndmap);
+    trevni_(m_wset, m_lwset, &set[1], nodes, nptr, ndmap);
 /*     DO 40 I = 1,LWSET ; NPTR = NPTR + 1 ; 40 SET(NPTR) = WSET(I) */
     m_choice = 2;
     return 0;
@@ -322,12 +322,12 @@ L20:
     goto L888;
 /* ---- */
 L900:
-    i__1 = *nodes;
+    i__1 = nodes;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L910: */
 	set[i__] = i__;
     }
-    *nptr = *nodes;
+    *nptr = nodes;
     m_choice = 3;
     return 0;
 /* ---- */
@@ -340,8 +340,8 @@ L999:
 #undef teit_ref
 
 
- void PGraph::trevni_(long int *from, long int *length, long int *to, 
-	long int *maxv, long int *newlng, long int *work) noexcept
+ void PGraph::trevni_(long int *from, long int length, long int *to, 
+	long int maxv, long int *newlng, long int *work) noexcept
 {
      long int i__1, i__, k;
 
@@ -357,18 +357,18 @@ L999:
     --work;
 
     /* Function Body */
-    i__1 = *maxv;
+    i__1 = maxv;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L10: */
 	work[i__] = 0;
     }
-    i__1 = *length;
+    i__1 = length;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L20: */
 	work[from[i__]] = 1;
     }
     k = 0;
-    i__1 = *maxv;
+    i__1 = maxv;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	if (work[i__] == 0) {
 	    ++k;

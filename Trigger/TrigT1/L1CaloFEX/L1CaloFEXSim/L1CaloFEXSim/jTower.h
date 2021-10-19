@@ -43,7 +43,7 @@ namespace LVL1 {
     
     /** Constructors */
     jTower();
-    jTower(float eta, float phi, int eta_modifier_input, int id_modifier, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1);
+    jTower(float eta, float phi, int eta_modifier_input, int id_modifier, int posneg, float centre_eta = -1.0, float centre_phi = -1.0, int fcal_layer = -1);
     
     /** Destructor */
     virtual ~jTower() = default;
@@ -66,10 +66,12 @@ namespace LVL1 {
     int iPhi() const;
     float eta() {return m_eta;};
     float phi() {return m_phi;};
+    
     float eta() const {return m_eta;};
     float phi() const {return m_phi;};
     float centreEta() const {return m_centre_eta;}
     float centrePhi() const {return m_centre_phi;}
+    float centrephi_toPI() const {return m_centre_phi_toPI;}
     int fcalLayer() const {return m_fcal_layer;}
     
     void setEta(const float thiseta){ m_eta = thiseta; }
@@ -94,6 +96,12 @@ namespace LVL1 {
     
     /** Get vector of all ET values in MeV */
     std::vector<int> getETs() const {return m_et;};
+    
+    /** Get EM ET value in MeV */
+    int getET_EM() const {return m_et[0];};
+    
+    /** Get HAD ET value in MeV */
+    int getET_HAD() const {return m_et[1];};
 
     /** Get ET of a specified cell in MeV FLOAT VERSION */
     float getET_float(unsigned int layer, int cell = 0) const;
@@ -110,7 +118,7 @@ namespace LVL1 {
     /** Get vector of all ET values in MeV FLOAT VERSION */
     std::vector<float> getETs_float() const {return m_et_float;};
 
-    void setET(int cell, float et, int layer);
+    void setET(int cell, float et);
 
     /** Set supercell position ID **/
     void setSCID(Identifier ID, int cell, float et, int layer, bool doenergysplit);
@@ -134,10 +142,12 @@ namespace LVL1 {
   private:
     float m_eta;
     float m_phi;
+    
     int m_tower_id;
     int m_posneg = 0;
-    float m_centre_eta;
-    float m_centre_phi;
+    float m_centre_eta =0;
+    float m_centre_phi =0;
+    float m_centre_phi_toPI=0;
     std::vector<Identifier> m_EM_scID;
     std::vector<Identifier> m_HAD_scID;
     std::vector<int> m_et;    

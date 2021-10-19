@@ -38,8 +38,7 @@ struct IndexVecComp{
 };
 
 
-FastReducer::FastReducer(const HypoJetCIter& jets_b,
-                         const HypoJetCIter& jets_e,
+FastReducer::FastReducer(const HypoJetVector& jv,
                          const ConditionPtrs& conditions,
 			 const ConditionFilters& filters,
                          const Tree& tree,
@@ -56,8 +55,7 @@ FastReducer::FastReducer(const HypoJetCIter& jets_b,
   }
 
 
-  if(!findInitialJetGroups(jets_b,
-			   jets_e,
+  if(!findInitialJetGroups(jv,
 			   collector)){
     if(collector){
       collector->collect("FastReducer early return",
@@ -166,8 +164,7 @@ void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
 }
 
 
-bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
-				       const HypoJetCIter& jets_e,
+bool FastReducer::findInitialJetGroups(const HypoJetVector& jv,
 				       const Collector& collector) {
   
 
@@ -183,10 +180,12 @@ bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
   for(const auto& leaf: leaves){
 
     auto& filter = m_conditionFilters[leaf];
-    std::pair<HypoJetCIter, HypoJetCIter> iters =
-      filter->filter(jets_b, jets_e, collector);
+    auto filtered_jets = filter->filter(jv, collector);
 
-    recordFiltering(leaf, jets_e-jets_b, iters.second-iters.first, collector);
+    auto iters = std::make_pair(filtered_jets.begin(),
+				filtered_jets.end());
+
+    recordFiltering(leaf, jv.size(), filtered_jets.size(), collector);
 
     auto grouper = grouperByCapacityFactory(m_conditions[leaf]->capacity(),
 					    iters.first,

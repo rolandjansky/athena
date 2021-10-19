@@ -84,7 +84,7 @@ const IDCInDetBSErrContainer* SCT_ByteStreamErrorsTool::getContainer(const Event
 SCT_ByteStreamErrorsTool::IDCCacheEntry* SCT_ByteStreamErrorsTool::getCacheEntry(const EventContext& ctx) const {
   IDCCacheEntry* cacheEntry{m_eventCache.get(ctx)};
   if (cacheEntry->needsUpdate(ctx)) {
-    auto idcErrContPtr{getContainer(ctx)};
+    const auto *idcErrContPtr{getContainer(ctx)};
     if (idcErrContPtr == nullptr) { // missing or not, the cache needs to be reset
       cacheEntry->reset(ctx.evt(), nullptr);
     } else {
@@ -104,7 +104,7 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
   {
     std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
     ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool isGood called for " << elementIdHash);
-    auto idcCachePtr{getCacheEntry(ctx)->IDCCache};
+    const auto *idcCachePtr{getCacheEntry(ctx)->IDCCache};
     if (idcCachePtr == nullptr) {
       ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! ");
       return true;
@@ -136,9 +136,7 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
     if (not allChipsBad) break;
   }
-  if (allChipsBad) return false;
-
-  return true;
+  return !allChipsBad;
 }
 
 bool
@@ -265,10 +263,12 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool getErrorSet " << errorType);
   std::set<IdentifierHash> result;
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    auto idcErrCont{getContainer(ctx)};
+    const auto *idcErrCont{getContainer(ctx)};
     if (idcErrCont != nullptr) {
-      const std::vector<std::pair<size_t, uint64_t>> errorcodesforView{idcErrCont->getAll()};
-      for (const auto& [hashId, errCode] : errorcodesforView) {
+      const std::set<size_t>& Mask = idcErrCont->getMask();
+      const auto& raw = idcErrCont->wholeEventReadAccess();
+      for (const size_t hashId : Mask) {
+        auto errCode = raw[hashId].load(std::memory_order_relaxed);
         if (SCT_ByteStreamErrors::hasError(errCode, static_cast<SCT_ByteStreamErrors::ErrorType>(errorType))) {
           result.insert(hashId);
         }
@@ -300,7 +300,16 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  auto cacheEntry{getCacheEntry(ctx)};
+  auto *cacheEntry{getCacheEntry(ctx)};
+  
+  unsigned int idcErrCont_set_number =  idcErrCont->numberSet();
+
+  if (cacheEntry->m_set_number == idcErrCont_set_number){
+    ATH_MSG_VERBOSE("Same set number found, skip the next steps.");
+    return StatusCode::SUCCESS;
+  }else{
+    cacheEntry->m_set_number = idcErrCont_set_number; //update the set number in cacheEntry.
+  }
 
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.
@@ -357,7 +366,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const {
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool tempMaskedChips");
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
-  auto cacheEntry{getCacheEntry(ctx)};
+  auto *cacheEntry{getCacheEntry(ctx)};
   if (cacheEntry->IDCCache == nullptr) {
     ATH_MSG_VERBOSE("cacheEntry->IDCCache == nullptr");
     return 0;
@@ -379,7 +388,7 @@ unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleI
 unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const {
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool abcdErrorChips");
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
-  auto cacheEntry{getCacheEntry(ctx)};
+  auto *cacheEntry{getCacheEntry(ctx)};
   if (cacheEntry->IDCCache == nullptr) {
     ATH_MSG_VERBOSE("cacheEntry->IDCCache == nullptr");
     return 0;
@@ -409,7 +418,7 @@ std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCa
   // we want the entry of value 0 so we know we walked over it and do not need to invoke filling again
   // and and do not need to do it again
 
-  auto cacheEntry{getCacheEntry(ctx)};
+  auto *cacheEntry{getCacheEntry(ctx)};
   cacheEntry->abcdErrorChips[modhash] =  0;
   cacheEntry->tempMaskedChips[modhash] = 0;
 
@@ -423,7 +432,7 @@ std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCa
   if (it == whereExected.end()) {
     ATH_MSG_ERROR("After fillData in abcdErrorChips, cache does not have an infomation about the " << moduleId);
     ATH_MSG_ERROR("Likely cause is a request for for different region");
-    std::make_pair(StatusCode::FAILURE, 0);
+    return std::make_pair(StatusCode::FAILURE, 0);
   }
   return std::make_pair(StatusCode::SUCCESS, it->second);
 }

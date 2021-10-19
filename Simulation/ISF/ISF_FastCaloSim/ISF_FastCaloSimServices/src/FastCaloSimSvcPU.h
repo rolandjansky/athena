@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMSVCPU_H
@@ -18,6 +18,7 @@
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // Tracking includes
 #include "TrkExInterfaces/ITimedExtrapolator.h"
@@ -45,7 +46,6 @@ namespace ISF
 
   class ISFParticle;
   class ITruthSvc;
-  class IPunchThroughTool;
 
   /** @class FastCaloSimSvcPU
   @author Michael.Duehrssen -at- cern.ch
@@ -102,8 +102,6 @@ namespace ISF
 
       // authorise input to be the same as output (to be done with care)
       bool m_caloCellHack ;
-      //check if punch through simulation is used
-      bool m_doPunchThrough;
       
       Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
@@ -111,8 +109,9 @@ namespace ISF
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_setup ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_simulate ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release ;
-      ToolHandle< IPunchThroughTool >     m_punchThroughTool;
       
+      ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this,"ParticleTruthSvc", "ISF_TruthRecordSvc", "ISF Particle Truth Svc"};
+
       CaloCellContainer* 		  m_theContainer;
       
       //->PU Development:

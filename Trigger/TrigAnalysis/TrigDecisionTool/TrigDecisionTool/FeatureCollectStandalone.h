@@ -99,9 +99,13 @@ namespace Trig {
       (void)is_same;
 
 
+      if(bits==nullptr){
+        std::cerr << "WARNING: nullptr TrigPassBits" << std::endl;
+        return original;
+      }
       if(original->size() != bits->size()){
-	std::cerr << "WARNING: bits size and owned size" << std::endl;
-	return original;
+        std::cerr << "WARNING: bits size and owned size" << std::endl;
+        return original;
       }
       STORED* f = new STORED;
       f->clear(SG::VIEW_ELEMENTS);

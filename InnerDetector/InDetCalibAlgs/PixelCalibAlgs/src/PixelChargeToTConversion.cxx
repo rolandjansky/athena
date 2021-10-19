@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
@@ -33,7 +33,7 @@ StatusCode PixelChargeToTConversion::initialize(){
   } else  
       ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_chargeDataKey.initialize());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
@@ -106,8 +106,8 @@ StatusCode PixelChargeToTConversion::execute(){
 
     Identifier moduleID = pixelID.wafer_id(pixid);
     IdentifierHash moduleHash = pixelID.wafer_hash(moduleID);
-    int circ = m_pixelCabling->getFE(&pixid,moduleID);
-    int type = m_pixelCabling->getPixelType(pixid);
+    int circ = m_pixelReadout->getFE(pixid, moduleID);
+    InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
     int totInt = (int)calibData->getToT((int)moduleHash, circ, type, Charges[i]);
 
     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {

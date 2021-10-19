@@ -100,7 +100,6 @@ m_all(nullptr),
 m_muonMass(105.66)
 {
     declareProperty("muonMass"          , m_muonMass);
-    declareProperty("JpsiCandidates"    , m_JpsiCandidatesKey = "JpsiCandidates","Offline di-muon candidates");
 
     declareProperty("BphysShifterPath"  , m_base_path_shifter="HLT/BphysMon/shifter","Shifter hist path");
     declareProperty("BphysExpertPath"   , m_base_path_expert ="HLT/BphysMon/expert" ,"Expert hist path");
@@ -211,6 +210,7 @@ StatusCode HLTXAODBphysMonTool::init()
     
     ATH_MSG_INFO ("Initializing... ");
     ATH_CHECK( m_tdt.retrieve());
+    ATH_CHECK( m_JpsiCandidatesKey.initialize(SG::AllowEmpty) );
     
     if(m_GenerateChainDictsFromDB)
       if(generateChainDicts().isFailure())
@@ -336,7 +336,7 @@ StatusCode HLTXAODBphysMonTool::fill()
     ATH_MSG_DEBUG ("fill... ");
     
     // Check HLTResult
-    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    if(getTDT()->ExperimentalAndExpertMethods().isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip event");
         return StatusCode::SUCCESS;
         //return false;
@@ -1067,8 +1067,13 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
     // fill the hists with offline comparisons
     ATH_MSG_DEBUG("in JpsiFinder()");
     
-    const xAOD::VertexContainer*    jpsiContainer(nullptr);
-    if (evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey).isFailure() || !jpsiContainer) {
+    const xAOD::VertexContainer* jpsiContainer = nullptr;
+    if (not m_JpsiCandidatesKey.empty()) {
+      jpsiContainer = SG::get(m_JpsiCandidatesKey);
+      ATH_CHECK( jpsiContainer != nullptr );
+    }
+
+    if (!jpsiContainer) {
         ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
         return StatusCode::SUCCESS;
     }
@@ -1441,9 +1446,13 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string
     bool isPassed   (cg-> isPassed(TrigDefs::requireDecision)); 
     
     if (isPassed) { 
-      const xAOD::VertexContainer*    jpsiContainer(nullptr);
+      const xAOD::VertexContainer* jpsiContainer = nullptr;
+      if (not m_JpsiCandidatesKey.empty()) {
+        jpsiContainer = SG::get(m_JpsiCandidatesKey);
+        ATH_CHECK( jpsiContainer != nullptr );
+      }
     
-      if (evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey).isFailure() || !jpsiContainer) {
+      if (!jpsiContainer) {
       ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
       return StatusCode::SUCCESS;
       }
@@ -1646,9 +1655,17 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
                 if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
                 
                 if(bits) {
-                  bool objPass = bits->isPassing( bphys, cont_bphys.cptr() );
-                  ATH_MSG_DEBUG("TrigBphys object pass: " << objPass << ", mass: " << bphys->mass() );
-                  if(!objPass) continue;
+                  // A dirty check below, to fix ATR-24344:
+                  // We want to avoid the wrong CLID exception thrown from Event/xAOD/xAODTrigger/xAODTrigger/versions/TrigPassBits_v1.icc,
+                  // so we check validity of CLID here and if it is bad we just ignore TrigPassBits, issuing a warning
+                  if(bits->containerClid()) {
+                    bool objPass = bits->isPassing( bphys, cont_bphys.cptr() );
+                    ATH_MSG_DEBUG("TrigBphys object pass: " << objPass << ", mass: " << bphys->mass() );
+                    if(!objPass) continue;
+                  }
+                  else {
+                    ATH_MSG_WARNING("Broken TrigPassBits with bits->containerClid() = " << bits->containerClid() << ", will not use it and take all combinations." );
+                  }
                 }
                 
                 fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName, fullSetOfHists);
@@ -1807,6 +1824,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                                              const std::string & prefix,const std::string & path, const std::string & chainName, const bool fullSetOfHists) {
     if (!bphysItem) {
         ATH_MSG_WARNING("fillTrigBphysHists null pointer provided");
+        return;
     }
     ATH_MSG_DEBUG("fillTrigBphysHists for: " <<  bphysItem << " " <<  groupName << " "
                   << prefix << " " <<path << " " <<chainName );

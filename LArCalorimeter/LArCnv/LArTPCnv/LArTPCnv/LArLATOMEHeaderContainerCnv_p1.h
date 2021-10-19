@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTPCNV_LARLATOMEHEADERCONTAINERCNV_P1_H
@@ -11,14 +11,16 @@
 
 class MsgStream;
 
-class LArLATOMEHeaderContainerCnv_p1  : public T_AthenaPoolTPCnvBase<LArLATOMEHeaderContainer, LArLATOMEHeaderContainer_p1>
+class LArLATOMEHeaderContainerCnv_p1  : public T_AthenaPoolTPCnvConstBase<LArLATOMEHeaderContainer, LArLATOMEHeaderContainer_p1>
 {
 public:
 
   LArLATOMEHeaderContainerCnv_p1() {}
+  using base_class::persToTrans;
+  using base_class::transToPers;
 
-  virtual void          persToTrans(const LArLATOMEHeaderContainer_p1* pers, LArLATOMEHeaderContainer* trans, MsgStream &log);
-  virtual void          transToPers(const LArLATOMEHeaderContainer* trans, LArLATOMEHeaderContainer_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const LArLATOMEHeaderContainer_p1* pers, LArLATOMEHeaderContainer* trans, MsgStream &log) const override;
+  virtual void          transToPers(const LArLATOMEHeaderContainer* trans, LArLATOMEHeaderContainer_p1* pers, MsgStream &log) const override;
 };
 
 #endif

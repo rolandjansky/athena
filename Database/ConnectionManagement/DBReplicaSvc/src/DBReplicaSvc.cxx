@@ -63,7 +63,7 @@ StatusCode DBReplicaSvc::initialize() {
     const char* chost=getenv("HOSTNAME");
     if (chost) m_hostname=chost;
     // check if the returned host has a . 
-    if (m_hostname.find(".")==std::string::npos) {
+    if (m_hostname.find('.')==std::string::npos) {
       ATH_MSG_DEBUG("HOSTNAME " << m_hostname
                     << " has no domain - try hostname --fqdn");
       m_hostname="unknown";
@@ -139,7 +139,7 @@ StatusCode DBReplicaSvc::readConfig() {
       std::vector<std::string> domains;
       std::vector<std::string> servers;
       while (iofs1<buf.size()) {
-        std::string::size_type iofs2=buf.find(" ",iofs1);
+        std::string::size_type iofs2=buf.find(' ',iofs1);
         // allow for trailing linefeed
         if (iofs2==std::string::npos) iofs2=buf.size()-1;
         std::string token=buf.substr(iofs1,iofs2-iofs1);
@@ -259,10 +259,10 @@ void DBReplicaSvc::sort(std::vector<const
       }
       // extract the server name (assuming URLs "techno://server/schema")
       std::string::size_type ipos1=conn.find("://");
-      std::string::size_type ipos2=conn.find("/",ipos1+3);
+      std::string::size_type ipos2=conn.find('/',ipos1+3);
       // for Frontier, have to remove the (..) part after the server name
       // e.g. frontier://ATLAS_COOLPROD/(serverurl=http://xyzfrontier.cern.ch:8000/atlr)/schema
-      std::string::size_type ipos3=conn.find("(",ipos1+3);
+      std::string::size_type ipos3=conn.find('(',ipos1+3);
       if (ipos3!=std::string::npos && ipos3<ipos2) ipos2=ipos3;
       if (ipos1!=std::string::npos && ipos2!=std::string::npos && !veto) {
         const std::string server=conn.substr(ipos1+3,ipos2-ipos1-3);

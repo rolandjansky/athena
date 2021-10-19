@@ -188,7 +188,7 @@ bool TRTDigCondBase::getNextNoisyStraw( CLHEP::HepRandomEngine* randengine, int&
   for (;m_it_hitid_to_StrawState!=m_it_hitid_to_StrawState_End;++m_it_hitid_to_StrawState) {
     noiselvl = m_it_hitid_to_StrawState->second.noiselevel;
     if ( CLHEP::RandFlat::shoot(randengine, 0.0, 1.0) < noiselvl ) {
-      m_it_hitid_to_StrawState++; //Important! if removed, iterator is not incremented in case rand<noiselevel!!!
+      ++m_it_hitid_to_StrawState; //Important! if removed, iterator is not incremented in case rand<noiselevel!!!
       hitID = m_it_hitid_to_StrawState->first;
       return true;
     };

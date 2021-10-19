@@ -145,7 +145,7 @@ CondInputLoader::initialize()
   ost << "Adding base classes:";
   for (auto &e : sortedDataObjIDColl (handles_to_load)) {
     // ignore empty keys
-    if (e->key() == "") continue;
+    if (e->key().empty()) continue;
 
     ost << "\n  + " << *e  << "  ->";
     CLID clid = e->clid();
@@ -184,7 +184,7 @@ CondInputLoader::initialize()
   str << "Will create WriteCondHandle dependencies for the following DataObjects:";
   for (auto &e : sortedDataObjIDColl(m_load)) {
     str << "\n    + " << *e;
-    if (e->key() == "") {
+    if (e->key().empty()) {
       sc = StatusCode::FAILURE;
       str << "   ERROR: empty key is not allowed!";
     } else {

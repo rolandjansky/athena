@@ -45,7 +45,7 @@ public:
   Long64_t _nentries, _firstentry;
   HitPlots() : _chain(0), _nentries(1000000000), _firstentry(0) {};
   HitPlots(TTree *chain, const TCut hit_cut="", const TCut track_cut="",
-           const string pre="", const string ext="",
+           const string & pre="", const string & ext="",
            Long64_t nentries=1000000000, Long64_t firstentry=0);
   ~HitPlots() { gROOT->SetStyle("Default"); };
   Long64_t Draw       (const char* name, const char* title, const char* varexp, const TCut  selection="", const char* opt1="", const char* opt2="",
@@ -54,12 +54,12 @@ public:
                        Double_t min=-1111, Double_t max=-1111);
   Long64_t DrawTracks (const char* name, const char* title, const char* varexp, const char* selection="", const char* option="",
                        Double_t min=-1111, Double_t max=-1111);
-  void DrawGif(const string name);
+  void DrawGif(const string & name);
   TH1* GetHistogram() const { return _chain->GetHistogram(); }
 };
 
 HitPlots::HitPlots (TTree *chain, const TCut hit_cut, const TCut track_cut,
-                    const string pre, const string ext, Long64_t nentries, Long64_t firstentry)
+                    const string & pre, const string & ext, Long64_t nentries, Long64_t firstentry)
   : _chain(chain), _canvas("chits","ID Hits Canvas"), _style("shits","ID Hits Style"),
     _hit_cut(hit_cut), _track_cut(track_cut),
     _pre(pre), _ext(ext), _nentries(nentries), _firstentry(firstentry)
@@ -108,13 +108,13 @@ Long64_t HitPlots::DrawTracks (const char* name, const char* title, const char* 
   return Draw(name,title,varexp,_track_cut&&TCut(selection),"profile",option,min,max);
 }
 
-void HitPlots::DrawGif(const string name) {
+void HitPlots::DrawGif(const string & name) {
   if (_ext=="") return;
   string epsname= _pre+name+_ext;
   _canvas.SaveAs(epsname.c_str());
 }
 
-void hits(TTree *chain, const string pre="", const string ext="",
+void hits(TTree *chain, const string & pre="", const string & ext="",
           const TCut hit_cut="",
           const TCut track_cut="",
           const bool maps= false)

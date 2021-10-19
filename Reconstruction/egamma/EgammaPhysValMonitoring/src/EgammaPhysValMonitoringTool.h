@@ -90,8 +90,8 @@ class EgammaPhysValMonitoringTool
   StatusCode fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo);
   StatusCode fillRecoPhotHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo);
 
-  const xAOD::TruthParticle* Match(const xAOD::Egamma* particle, int pdg,
-				   const xAOD::TruthParticleContainer* truthParticles) const;
+  static const xAOD::TruthParticle* Match(const xAOD::Egamma* particle, int pdg,
+				   const xAOD::TruthParticleContainer* truthParticles) ;
 
 
   // Containers

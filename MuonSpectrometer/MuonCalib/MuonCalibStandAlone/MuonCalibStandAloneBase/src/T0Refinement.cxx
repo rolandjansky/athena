@@ -25,7 +25,7 @@ T0Refinement::T0Refinement() {
     m_delta_t0 = 30.0;
 }
 
-double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt, bool overwrite, double &error, bool &failed,
+double T0Refinement::getDeltaT0(MuonCalibSegment* segment, const IRtRelation* rt, bool overwrite, double& error, bool& failed,
                                 bool curved) {
     ///////////////////////////////////////////////////
     // CHECK IF THERE ARE ENOUGH HITS ON THE SEGMENT //
@@ -45,7 +45,7 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
     BaseFunctionFitter fitter(3);
     SimplePolynomial pol;  // polynomial base functions x^k
     std::vector<SamplePoint> my_points(3);
-    IMdtPatRecFitter *segment_fitter = nullptr;
+    IMdtPatRecFitter* segment_fitter = nullptr;
     if (curved) {
         segment_fitter = m_cfitter.get();
     } else {
@@ -60,13 +60,14 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
     // original drift times //
     m_qfitter->setFixSelection(false);
-
-    for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
-        time = (seg.mdtHOT())[k]->driftTime();
-        sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-        if (sigma > 10.0 && std::abs(seg.mdtHOT()[k]->driftRadius()) > 14.0) r_selection[k] = 1;
-        if (sigma > 10.0 && seg.mdtHOT()[k]->driftTime() < 50.0) sigma = 0.3;
-        (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+    unsigned int k = 0;
+    for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+        time = mdt_hit->driftTime();
+        sigma = mdt_hit->sigmaDriftRadius();
+        if (sigma > 10.0 && std::abs(mdt_hit->driftRadius()) > 14.0) r_selection[k] = 1;
+        if (sigma > 10.0 && mdt_hit->driftTime() < 50.0) sigma = 0.3;
+        mdt_hit->setDriftRadius(rt->radius(time), sigma);
+        ++k;
     }
     MTStraightLine straight_track;
     CurvedLine curved_track;
@@ -92,10 +93,10 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
     m_qfitter->setFixSelection(true);
     // shift drift times by +m_delta_t0 and refit //
-    for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
-        time = (seg.mdtHOT())[k]->driftTime() + m_delta_t0;
-        sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-        (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+    for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+        time = mdt_hit->driftTime() + m_delta_t0;
+        sigma = mdt_hit->sigmaDriftRadius();
+        mdt_hit->setDriftRadius(rt->radius(time), sigma);
     }
     if (!segment_fitter->fit(seg, r_selection)) {
         failed = true;
@@ -111,16 +112,16 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
     my_points[1].set_error(1.0);
 
     // shift drift times by -m_delta_t0 and refit //
-    for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
+    for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
         if (my_points[1].x2() > my_points[0].x2()) {
-            time = (seg.mdtHOT())[k]->driftTime() - m_delta_t0;
+            time = mdt_hit->driftTime() - m_delta_t0;
             my_points[2].set_x1(-m_delta_t0);
         } else {
-            time = (seg.mdtHOT())[k]->driftTime() + 2.0 * m_delta_t0;
+            time = mdt_hit->driftTime() + 2.0 * m_delta_t0;
             my_points[2].set_x1(2.0 * m_delta_t0);
         }
-        sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-        (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+        sigma = mdt_hit->sigmaDriftRadius();
+        mdt_hit->setDriftRadius(rt->radius(time), sigma);
     }
     if (!segment_fitter->fit(seg, r_selection)) {
         failed = true;
@@ -140,10 +141,10 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
         my_points[2].set_x1(-2.0 * m_delta_t0);
 
-        for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
-            time = (seg.mdtHOT())[k]->driftTime() - 2.0 * m_delta_t0;
-            sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-            (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+        for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+            time = mdt_hit->driftTime() - 2.0 * m_delta_t0;
+            sigma = mdt_hit->sigmaDriftRadius();
+            mdt_hit->setDriftRadius(rt->radius(time), sigma);
         }
         if (!segment_fitter->fit(seg, r_selection)) {
             failed = true;
@@ -163,10 +164,10 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
             SamplePoint new_point;
             new_point.set_x1(my_points[l - 1].x1() - m_delta_t0);
 
-            for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
-                time = (seg.mdtHOT())[k]->driftTime() + new_point.x1();
-                sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-                (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+            for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+                time = mdt_hit->driftTime() + new_point.x1();
+                sigma = mdt_hit->sigmaDriftRadius();
+                mdt_hit->setDriftRadius(rt->radius(time), sigma);
             }
 
             if (!segment_fitter->fit(seg, r_selection)) {
@@ -188,10 +189,10 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
         for (unsigned int l = 3; my_points[l - 1].x2() <= my_points[l - 2].x2() && std::abs(my_points[l - 1].x1()) < 200.0; l++) {
             SamplePoint new_point;
             new_point.set_x1(my_points[l - 1].x1() + m_delta_t0);
-            for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
-                time = (seg.mdtHOT())[k]->driftTime() + new_point.x1();
-                sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-                (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+            for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+                time = mdt_hit->driftTime() + new_point.x1();
+                sigma = mdt_hit->sigmaDriftRadius();
+                mdt_hit->setDriftRadius(rt->radius(time), sigma);
             }
             if (!segment_fitter->fit(seg, r_selection)) {
                 failed = true;
@@ -220,16 +221,15 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
         return 0.0;
     }
 
-    double direction = -0.5;
-    double min_chi2 = 9e9;
+    double direction{-0.5}, min_chi2{DBL_MAX};
     double best_t0 = delta_t0_opt;
     double current_t0 = delta_t0_opt;
     std::vector<double> t0s, chi2, mchi2;
     while (1) {
-        for (unsigned int k = 0; k < seg.mdtHitsOnTrack(); k++) {
-            time = (seg.mdtHOT())[k]->driftTime() + current_t0;
-            sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-            (seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
+        for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+            time = mdt_hit->driftTime() + current_t0;
+            sigma = mdt_hit->sigmaDriftRadius();
+            mdt_hit->setDriftRadius(rt->radius(time), sigma);
         }
         if (!segment_fitter->fit(seg, r_selection)) {
             failed = true;
@@ -266,15 +266,15 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
     delta_t0_opt = best_t0;
     failed = false;
     if (!overwrite) { return delta_t0_opt; }
-    bool segment_t0_was_applied(false);
-    for (unsigned int k = 0; k < segment->mdtHitsOnTrack(); k++) {
-        if ((segment->mdtHOT())[k]->segmentT0Applied()) segment_t0_was_applied = true;
-        time = (segment->mdtHOT())[k]->driftTime() + delta_t0_opt;
-        sigma = (segment->mdtHOT())[k]->sigmaDriftRadius();
+    bool segment_t0_was_applied{false};
+    for (const MuonCalibSegment::MdtHitPtr& mdt_hit : seg.mdtHOT()) {
+        segment_t0_was_applied |= mdt_hit->segmentT0Applied();
+        time = mdt_hit->driftTime() + delta_t0_opt;
+        sigma = mdt_hit->sigmaDriftRadius();
         if (sigma > 10.0 && segment->mdtHOT()[k]->driftTime() < 50.0) sigma = 0.3;
-        (segment->mdtHOT())[k]->setDriftTime(time);
-        (segment->mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
-        (segment->mdtHOT())[k]->setSegmentT0Applied(true);
+        mdt_hit->setDriftTime(time);
+        mdt_hit->setDriftRadius(rt->radius(time), sigma);
+        mdt_hit->setSegmentT0Applied(true);
     }
     if (segment_t0_was_applied) {
         segment->setFittedT0(segment->fittedT0() - delta_t0_opt);
@@ -295,11 +295,11 @@ double T0Refinement::getDeltaT0(MuonCalibSegment *segment, const IRtRelation *rt
 
     return delta_t0_opt;
 }
-void T0Refinement::setTimeOut(const double &time_out) {
+void T0Refinement::setTimeOut(const double& time_out) {
     m_time_out = time_out;
     return;
 }
-void T0Refinement::setRoadWidth(const double &road_width) {
+void T0Refinement::setRoadWidth(const double& road_width) {
     m_qfitter->setRoadWidth(road_width);
     m_cfitter->setRoadWidth(road_width);
 

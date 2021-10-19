@@ -130,19 +130,22 @@ StatusCode TrigTauTrackRoiUpdater::execute(const EventContext& ctx) const
       }
 
       const Trk::Track *leadTrackBDT = nullptr;
-      for(const Trk::Track* trk_it : *foundTracks)
+      for(const Trk::Track* trk_it : *foundTracks) {
         if(trk_it->perigeeParameters()->pT() > trkPtMax) {
           trkPtMax = trk_it->perigeeParameters()->pT();
           leadTrackBDT = trk_it;
         }
+      }
       double trkBDTMax = 0.;
 
-      for(const Trk::Track* trk_it : *foundTracks) {
-        double BDTscore = getBDTscore( foundTaus->at(0), trk_it, leadTrackBDT );
+      if (leadTrackBDT!=nullptr) {
+        for(const Trk::Track* trk_it : *foundTracks) {
+          double BDTscore = getBDTscore( foundTaus->at(0), trk_it, leadTrackBDT );
 
-        if(BDTscore > trkBDTMax) {
-          trkBDTMax = BDTscore;
-          leadTrack = trk_it;
+          if(BDTscore > trkBDTMax) {
+            trkBDTMax = BDTscore;
+            leadTrack = trk_it;
+          }
         }
       }
     }

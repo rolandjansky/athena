@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -53,15 +53,15 @@ namespace DerivationFramework {
     CHECK( m_trigDec.retrieve() );
     CHECK( m_matchTool.retrieve() );
     
-    if (m_photonContainerName=="") {
+    if (m_photonContainerName.empty()) {
       ATH_MSG_ERROR("No Photons collection provided for TriggerMatchingAugmentation!");
       return StatusCode::FAILURE;
     }
-    if (m_electronContainerName=="") {
+    if (m_electronContainerName.empty()) {
       ATH_MSG_ERROR("No Electrons collection provided for TriggerMatchingAugmentation!");
       return StatusCode::FAILURE;
     }
-    if (m_muonContainerName=="") {
+    if (m_muonContainerName.empty()) {
       ATH_MSG_ERROR("No Muon collection provided for TriggerMatchingAugmentation!");
       return StatusCode::FAILURE;
     }
@@ -112,17 +112,17 @@ namespace DerivationFramework {
   {
 
     // Retrieve the containers to decorate
-    const xAOD::PhotonContainer* photons = 0;
+    const xAOD::PhotonContainer* photons = nullptr;
     if (evtStore()->retrieve(photons, m_photonContainerName).isFailure()) {
          ATH_MSG_WARNING("Couldn't retrieve " << m_photonContainerName << " from TEvent");
          return StatusCode::FAILURE;
     }
-    const xAOD::MuonContainer* muons = 0;
+    const xAOD::MuonContainer* muons = nullptr;
     if (evtStore()->retrieve(muons, m_muonContainerName).isFailure()) {
          ATH_MSG_WARNING("Couldn't retrieve " << m_muonContainerName << " from TEvent");
          return StatusCode::FAILURE;
     }
-    const xAOD::ElectronContainer* electrons = 0;
+    const xAOD::ElectronContainer* electrons = nullptr;
     if (evtStore()->retrieve(electrons, m_electronContainerName).isFailure()) {
          ATH_MSG_WARNING("Couldn't retrieve " << m_electronContainerName << " from TEvent");
          return StatusCode::FAILURE;
@@ -179,7 +179,7 @@ namespace DerivationFramework {
 						      const decor_t& decor) const {
     std::vector<const xAOD::IParticle*> particles;
     bool fired=m_trigDec->isPassed( trigger );
-    for(auto p : *collection) {   
+    for(const auto *p : *collection) {   
       // Avoid repeating if decoration was already attached
       if(!decor.isAvailable(*p)) {
 	if(fired){
@@ -202,8 +202,8 @@ namespace DerivationFramework {
     std::vector<const xAOD::IParticle*> particles;
     bool matched=false;
     bool fired=m_trigDec->isPassed( trigger );
-    for(auto p1 : *collection1) {   
-      for(auto p2: *collection2){
+    for(const auto *p1 : *collection1) {   
+      for(const auto *p2: *collection2){
 	// Avoid repeating if decoration was already attached
 	if(!decor.isAvailable(*p1) && !decor.isAvailable(*p2)) {
 	  if (fired){

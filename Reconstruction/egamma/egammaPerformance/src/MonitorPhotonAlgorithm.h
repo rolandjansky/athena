@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
   Author : B. Laforge (laforge@lpnhe.in2p3.fr)
   4 May 2020
@@ -10,6 +10,7 @@
 #define MonitorPhotonAlgorithm_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
+#include "StoreGate/ReadDecorHandleKeyArray.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "xAODEgamma/Photon.h"
@@ -29,7 +30,7 @@ class MonitorPhotonAlgorithm : public AthMonitorAlgorithm {
 
   private:
     SG::ReadHandleKey<xAOD::PhotonContainer> m_ParticleContainerKey {this, "ParticleContainerName", "Photons", "Name of electron container" };
-    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_PhotonIsolationKey {this, "PhotonIsolationKey", "Photons.ptcone20"};
+    SG::ReadDecorHandleKeyArray<xAOD::PhotonContainer> m_PhotonIsolationKey {this, "PhotonIsolationKey", {"Photons.ptcone20", "Photons.topoetcone40"} };
     Gaudi::Property<std::string> m_ParticlePrefix {this,"ParticlePrefix","photon","Name of the particle prefix to be used to define hists"};
     Gaudi::Property<std::string> m_RecoName {this,"RecoName","Tight","Name of particle flavor in egamma reco"};
     Gaudi::Property<std::string> m_WithTrigger {this,"WithTrigger","","Name extension when electrons are chosen from triggered events"};

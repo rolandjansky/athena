@@ -4,7 +4,6 @@ from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 from .JetDefinition import  JetDefinition
 
 
-
 # *********************************************************
 # Ghost-associated particles for the standard small R jets 
 # *********************************************************
@@ -39,6 +38,16 @@ clustermods      = ("ECPSFrac","ClusterMoments",)
 truthmods        =  ("PartonTruthLabel","TruthPartonDR","JetDeltaRLabel:5000"  ) 
 pflowmods        = ()
 
+
+# ********************************************************
+# Standard VR track jet definition
+# ********************************************************
+AntiKtVR30Rmax4Rmin02PV0TrackJets = JetDefinition("AntiKt", 0.4, cst.PV0Track,
+                               ptmin=4000,
+                               standardRecoMode = True,
+                               VRMinR = 0.02,
+                               VRMassSc = 30000,
+                               lock = True)
 
 
 # *********************************************************

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -211,7 +211,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   CLID link_clid,
   const index_type& elemID,
   IProxyDict* sg)
-   : m_index (elemID),
+   : m_index (static_cast<stored_index_type>(elemID)),
      m_element()
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
@@ -235,7 +235,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const index_type& elemID,
   IProxyDict* sg)
    : m_key (key),
-    m_index (elemID),
+    m_index (static_cast<stored_index_type>(elemID)),
     m_element()
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -262,7 +262,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const index_type& elemID,
   const ElementType& elt,
   IProxyDict* sg)
-   : m_index (elemID),
+   : m_index (static_cast<stored_index_type>(elemID)),
      m_element (elt)
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
@@ -290,7 +290,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const ElementType& elt,
   IProxyDict* sg)
    : m_key (key),
-     m_index (elemID),
+     m_index (static_cast<stored_index_type>(elemID)),
      m_element (elt)
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -313,7 +313,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   CLID link_clid,
   const index_type& elemID,
   IProxyDict* sg)
-   : m_index (elemID),
+   : m_index (static_cast<stored_index_type>(elemID)),
      m_element()
 {
   m_key = m_proxy.toStorableObject (obj, link_clid, sg);
@@ -334,7 +334,7 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   (const GenericElementLinkBase& other,
    const index_type& elemID)
     : m_key (other.m_key),
-      m_index (elemID),
+      m_index (static_cast<stored_index_type>(elemID)),
       m_proxy (other.m_proxy),
       m_element()
 {
@@ -448,7 +448,7 @@ bool GenericElementLinkBase<INDEXING_POLICY>::toIndexedElement
 {
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_key = m_proxy.toStorableObject (obj, link_clid, sg);
-    m_index = elemID;
+    m_index = static_cast<stored_index_type>(elemID);
     m_element.reset();
     return true;
   }
@@ -476,7 +476,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
     IProxyDict* sg)
 {
   m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
-  m_index = elemID;
+  m_index = static_cast<stored_index_type>(elemID);
   m_element.reset();
 }
 
@@ -502,7 +502,7 @@ void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
 {
   m_key = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);
-  m_index = elemID;
+  m_index = static_cast<stored_index_type>(elemID);
   m_element.reset();
 }
 
@@ -516,7 +516,7 @@ inline
 void
 GenericElementLinkBase<INDEXING_POLICY>::setIndex (const index_type& index)
 {
-  m_index = index;
+  m_index = static_cast<stored_index_type>(index);
 }
 
 

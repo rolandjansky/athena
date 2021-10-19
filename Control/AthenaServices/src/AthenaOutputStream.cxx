@@ -352,7 +352,7 @@ StatusCode AthenaOutputStream::initialize() {
    // For CreateOutputStream.py, the algorithm name is the same as the stream
    // name.  But OutputStreamConfig.py adds `OutputStream' to the front.
    std::string streamName = this->name();
-   if (streamName.substr (0, 12) == "OutputStream") {
+   if (streamName.compare (0, 12, "OutputStream")==0) {
      streamName.erase (0, 12);
    }
    m_selVetoesKey = "SelectionVetoes_" + streamName;
@@ -991,7 +991,7 @@ AthenaOutputStream::buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
       continue;
     }
     // Then find the compression item key and the compression list string
-    size_t seppos = iter->key().find(".");
+    size_t seppos = iter->key().find('.');
     string comp_item_key{""}, comp_str{""};
     if(seppos != string::npos) {
       comp_item_key = iter->key().substr(0, seppos+1);
@@ -1041,7 +1041,7 @@ void AthenaOutputStream::handleVariableSelection (const SG::IConstAuxStore& auxs
   }
 
   std::string key = itemProxy.name();
-  if (key.size() >= 4 && key.substr (key.size()-4, 4) == "Aux.")
+  if (key.size() >= 4 && key.compare (key.size()-4, 4, "Aux.")==0)
   {
     key.erase (key.size()-4, 4);
   }
@@ -1052,9 +1052,17 @@ void AthenaOutputStream::handleVariableSelection (const SG::IConstAuxStore& auxs
   // Form the veto mask for this object.
   xAOD::AuxSelection sel;
   sel.selectAux (attributes);
-  vset = sel.getSelectedAuxIDs (auxstore.getAuxIDs());
 
-  vset.flip();
+  // Get all the AuxIDs that we know of and the selected ones
+  SG::auxid_set_t all = auxstore.getAuxIDs();
+  SG::auxid_set_t selected = sel.getSelectedAuxIDs( all );
+
+  // Loop over all and build a list of vetoed AuxIDs from non selected ones
+  for( const SG::auxid_t auxid : all ) {
+    if ( !selected.test( auxid ) ) {
+      vset.insert( auxid );
+    }
+  }
 }
 
 

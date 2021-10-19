@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-static const char* const storeSeparator = "+";
+constexpr char const storeSeparator = '+';
 
 namespace SG {
 
@@ -115,13 +115,13 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
 {
   if (!used) {
     Gaudi::DataHandle::updateKey ( "" );
-    m_sgKey = "";
+    m_sgKey.clear();
     m_hashedKey = 0;
     return StatusCode::SUCCESS;
   }
 
   //  if (Gaudi::DataHandle::objKey() == "") {
-  if (key() == "") {
+  if (key().empty()) {
     REPORT_ERROR (StatusCode::FAILURE)
       << "Cannot initialize a Read/Write/Update handle with a null key.";
     return StatusCode::FAILURE;
@@ -169,24 +169,6 @@ CLID VarHandleKey::clid() const
 
 
 /**
- * @brief Return the StoreGate ID for the referenced object.
- */
-const std::string& VarHandleKey::key() const
-{
-  return m_sgKey;
-}
-
-
-/**
- * @brief Test if the key is blank.
- */
-bool VarHandleKey::empty() const
-{
-  return m_sgKey.empty();
-}
-
-
-/**
  * @brief Prevent this method from being called.
  */
 void VarHandleKey::setKey(DataObjID /*key*/) const
@@ -227,17 +209,17 @@ void VarHandleKey::parseKey (const std::string& key,
 
   std::string sn;
   // test if storeName has classname
-  std::string::size_type sp = storeName.find("/");
+  std::string::size_type sp = storeName.find('/');
   if (sp == std::string::npos) {
     sn = storeName;
   } else {
     sn = storeName.substr(sp+1,storeName.length()-sp+1);
   }
 
-  if (key.length() == 0) {
+  if (key.empty()) {
     this->updateHandle(sn);
     Gaudi::DataHandle::updateKey("");
-    m_sgKey = "";
+    m_sgKey.clear();
     return;
   }
 
@@ -262,7 +244,7 @@ void VarHandleKey::parseKey (const std::string& key,
   st = StoreID::findStoreID(sn);
 
   if (st != StoreID::CONDITION_STORE && st != StoreID::METADATA_STORE) {
-    if (m_sgKey.find("/") != std::string::npos) {
+    if (m_sgKey.find('/') != std::string::npos) {
       throw SG::ExcBadHandleKey("key \"" + key 
                                 + "\": keys with \"/\" only allowed for "
                                 + StoreID::storeName(StoreID::CONDITION_STORE) 
@@ -270,12 +252,12 @@ void VarHandleKey::parseKey (const std::string& key,
                                 + sn + "\"");
     }
   } else {
-    sp = m_sgKey.rfind("/");
+    sp = m_sgKey.rfind('/');
     if (sp != std::string::npos) {
       if (sp == 0
 	  && m_sgKey.size() == 1) {
         // Replace '\' with blank key
-        m_sgKey = "";
+        m_sgKey.clear();
       } else if ( sp == m_sgKey.length()-1) {
         throw SG::ExcBadHandleKey("key \"" + key 
                                   + "\": must not end with a \"/\"");
@@ -283,7 +265,7 @@ void VarHandleKey::parseKey (const std::string& key,
     }
   }
   
-  if (m_sgKey.length() == 0) {
+  if (m_sgKey.empty()) {
     Gaudi::DataHandle::updateKey("");
   } else {
     Gaudi::DataHandle::updateKey(sn + storeSeparator + m_sgKey);
@@ -314,19 +296,18 @@ void VarHandleKey::updateHandle (const std::string& name)
  */
 std::string VarHandleKey::pythonRepr() const
 {
-  // FIXME: use Gaudi!1126
-  std::string className = fullKey().fullKey();
-  className = className.substr(0, className.find('/'));
-  if (className.empty()) className = Gaudi::DataHandle::default_type;
+  const std::string& className = fullKey().className().empty() ?
+    Gaudi::DataHandle::default_type : fullKey().className();
 
   std::ostringstream ost;
   ost << "DataHandle(";
   Gaudi::Utils::toStream(m_storeHandle.name() + storeSeparator + m_sgKey, ost);
   ost << ",";
   switch (mode()) {
-  case Gaudi::DataHandle::Writer: Gaudi::Utils::toStream("W", ost); break;
-  case Gaudi::DataHandle::Updater: Gaudi::Utils::toStream("U", ost); break;
-  default: Gaudi::Utils::toStream("R", ost); break;
+  case Gaudi::DataHandle::Writer:
+    Gaudi::Utils::toStream("W", ost); break;
+  default:
+    Gaudi::Utils::toStream("R", ost); break;
   }
   ost << ","; Gaudi::Utils::toStream(className, ost);
   ost << ","; Gaudi::Utils::toStream(isCondition(), ost);

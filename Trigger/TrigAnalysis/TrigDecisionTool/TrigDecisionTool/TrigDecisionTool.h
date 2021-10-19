@@ -4,7 +4,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 775686 2016-09-28 16:26:51Z lheinric $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -24,21 +23,20 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/PropertyWrapper.h"
 
-#include "TrigConfInterfaces/ITrigConfigTool.h" 
+#include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TrigNavStructure/StandaloneNavigation.h"
+
 #ifndef XAOD_STANDALONE
-#include "AthenaBaseComps/AthMessaging.h"
 #include "EventInfo/EventInfo.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h" 
+#include "GaudiKernel/ServiceHandle.h"
 
 #ifndef XAOD_ANALYSIS
 #include "TrigNavigation/Navigation.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h" 
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/SlotSpecificObj.h"
+#endif // XAOD_ANALYSIS
 
-#endif
-
-#endif
+#endif // XAOD_STANDALONE
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -61,21 +59,18 @@ namespace Trig {
     public asg::AsgMetadataTool,
     virtual Trig::ITrigDecisionTool,
     public TrigDecisionToolCore
-#ifndef XAOD_STANDALONE
-    , public AthMessaging
-#endif   
-  { 
+  {
     // constructors, destructor
     ASG_TOOL_INTERFACE(Trig::TrigDecisionTool)
     ASG_TOOL_CLASS2(TrigDecisionTool,Trig::ITrigDecisionTool,Trig::TrigDecisionTool)
 
   public:
-    using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
-    using Logger::msg;   //resolve ambiguity from also inheriting from Logger
+    // resolve ambiguity and use Logger adaptor for all messaging
+    using Logger::msgLvl;
+    using Logger::msg;
 
-    // constructors, destructor
+    // constructors
     TrigDecisionTool(const std::string& name);
-    virtual ~TrigDecisionTool();
 
     // initialize routine as required for an Algorithm
     StatusCode initialize();
@@ -85,11 +80,6 @@ namespace Trig {
     StatusCode beginInputFile();
 
     StatusCode finalize();
-
-    #ifndef XAOD_STANDALONE
-    void outputlevelupdateHandler(Gaudi::Details::PropertyBase& p);  //propagates outputlevel changes to the Logger
-    
-    #endif
 
 #ifndef XAOD_ANALYSIS
     // this is called by Incident dispatcher
@@ -112,8 +102,6 @@ namespace Trig {
     using TrigDecisionToolCore::isPassed;
     using TrigDecisionToolCore::isPassedBits;
 
-    bool msgLvl(const MSG::Level lvl) const { return Logger::msgLvl(lvl); }
-
     const std::string& getNavigationFormat() const; //!< Note: Temporary
 
   private:
@@ -125,12 +113,32 @@ namespace Trig {
     void setForceConfigUpdate(bool b, bool forceForAllSlots = false);
     bool getForceConfigUpdate();
 
-    ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool"};    //!< trigger configuration service handle
 
-    //full Athena
-    #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", ""};    //!< trigger configuration service handle
-    ToolHandle<HLT::Navigation> m_fullNavigation;
+    #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Athena: Do not set a Config Tool by default (this tool is not thread safe, the service should be used in Athena)
+    ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", ""}; 
+    #else // AnalysisBase: Do set a Config Tool by default for analysis convienience 
+    ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool/xAODConfigTool"};
+    #endif
+
+    // XAOD_STANDALONE is AnalysisBase
+    // XAOD_ANALYSIS is AnalysisBase and AthAnalysis
+    #ifdef XAOD_STANDALONE // AnalysisBase
+
+    std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
+    bool m_forceConfigUpdate; //!< Cache for registering new input files
+
+    #else //AthAnalysis or full Athena
+
+    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc"};    //!< trigger configuration service handle
+
+    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
+    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
+
+    #endif
+
+    ///
+
+    #ifndef XAOD_ANALYSIS // full Athena
 
     Gaudi::Property<bool> m_useOldEventInfoDecisionFormat {this, "UseOldEventInfoDecisionFormat", false,
       "For use when reading old BS with trigger decision information available in the EventInfo"};
@@ -144,17 +152,14 @@ namespace Trig {
     Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
       "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
 
-    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
-    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
-
-    #else // Analysis or standalone 
-
-    std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
-    bool m_forceConfigUpdate; //!< Cache for registering new input files
+    ToolHandle<HLT::Navigation> m_fullNavigation{this, "Navigation", "HLT::Navigation/Navigation"};
 
     #endif
 
-    Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false};
+    HLT::StandaloneNavigation m_standaloneNavigation;
+
+    Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false,
+      "Allow multiple TrigDecisionTool instances"};
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_navigationKey {this, "NavigationKey", "TrigNavigation",
       "Storegate key of Run1, Run2 Trig Navigation"};

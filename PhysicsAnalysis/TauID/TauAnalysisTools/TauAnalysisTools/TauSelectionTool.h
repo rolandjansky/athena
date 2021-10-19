@@ -193,7 +193,7 @@ private:
   std::string m_sElectronContainerName;
   std::string m_sMuonContainerName;
 
-  std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
+  std::map<SelectionCuts, std::unique_ptr<TauAnalysisTools::SelectionCut>> m_cMap;
 
   void setupCutFlowHistogram();
   int convertStrToJetIDWP(const std::string& sJetIDWP);

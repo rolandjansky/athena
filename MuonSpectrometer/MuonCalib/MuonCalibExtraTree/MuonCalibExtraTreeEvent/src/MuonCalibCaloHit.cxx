@@ -4,12 +4,14 @@
 
 #include "MuonCalibExtraTreeEvent/MuonCalibCaloHit.h"
 
-namespace MuonCalib{
-  MuonCalibCaloHit::MuonCalibCaloHit() : m_id(0), m_pos(0.,0.,0.), m_time(0.) , m_charge(0.) {
-  }
+namespace MuonCalib {
 
-  MuonCalibCaloHit::MuonCalibCaloHit( const int& id, const Amg::Vector3D& pos, double time, double charge) : 
-    m_id(id), m_pos(pos), m_time(time), m_charge(charge) {
-  }
+    MuonCalibCaloHit::MuonCalibCaloHit(int id, const Amg::Vector3D& pos, float time, float charge) :
+        m_id{id}, m_pos{pos}, m_time{time}, m_charge{charge} {}
 
-}//namespace MuonCalib
+    int MuonCalibCaloHit::identify() const { return m_id; }
+    const Amg::Vector3D& MuonCalibCaloHit::position() const { return m_pos; }
+    float MuonCalibCaloHit::time() const { return m_time; }
+    float MuonCalibCaloHit::charge() const { return m_charge; }
+
+}  // namespace MuonCalib

@@ -39,28 +39,34 @@
 // Trigger Information struct
 typedef struct _triginfo
 {
-    std::string trigName; //Trigger Name
-    std::string trigType; //Electron or Photon
-    std::string trigL1Item; //L1 item for HLT
-    std::string trigL1Type; //VHI
-    std::string trigPidType; //Loose, Medium, Tight, etc...
-    std::string trigPidDecorator; //Aux decoration
-    bool trigL1; // Level1 Trigger
-    bool trigPerf; // Performance chain
-    bool trigEtcut; // Et cut only chain
-    float trigThrHLT; // HLT Et threshold
-    float trigThrL1; // L1 Et threshold
-    bool trigIsEmulation;
-    bool isGSF; // GSF chain
-    bool isLRT; // LRT chain
+    // L1 information
+    bool L1Legacy; 
+    std::string L1Threshold; //EM22VHI
+    // HLT information
+    std::string trigger; //Trigger Name
+    std::string signature; //Electron or Photon
+    float etthr; // HLT Et threshold
+    // if trigger is etcut OR idperf, pidname should be default (usually lhloose)
+    std::string pidname; // Offline loose, medium, tight, etc...
+    // extra HLT information
+    bool idperf; // Performance chain
+    bool etcut; // Et cut only chain
+    bool gsf; // GSF chain
+    bool lrt; // LRT chain
+
+    std::string isolation;
+    bool isolated;
 } TrigInfo;
 
+
+
+
 class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
+
   public:
     
     
     TrigEgammaMonitorBaseAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-    
     
     virtual ~TrigEgammaMonitorBaseAlgorithm();
     
@@ -75,12 +81,6 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! creates map of trigger name and TrigInfo struct */
     std::map<std::string,TrigInfo> m_trigInfo;
  
-
-    static const std::vector<std::string> m_trigLevel;
-    static const std::map<std::string,std::string> m_trigLvlMap;
-    static const std::map<std::string, std::string> m_pidMap;
-
-
 
   protected:
 
@@ -100,10 +100,11 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     
     /*! Do emulation */
     Gaudi::Property<bool> m_doEmulation{this, "DoEmulation", false };
+
     /*! TP Trigger Analysis */
     Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
-    Gaudi::Property<std::string> m_defaultProbePid{this, "DefaultProbeSelection", "Loose"};
+    Gaudi::Property<std::string> m_defaultProbePid{this, "DefaultProbeSelection", "lhloose"};
     /*! isem names */
     Gaudi::Property<std::vector<std::string>> m_isemname{this, "isEMResultNames", {} };
     /*! lh names */
@@ -121,35 +122,30 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Get the trig info map */
     std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; } 
     /*! Get offline electron decision */
-    bool ApplyElectronPid(const xAOD::Electron *eg,const std::string) const;
+    bool ApplyElectronPid(const xAOD::Electron *eg,const std::string&) const;
     /*! Get offline electron decision */
-    bool ApplyPhotonPid(const xAOD::Photon *eg,const std::string) const;
+    bool ApplyPhotonPid(const xAOD::Photon *eg,const std::string&) const;
     /*! Get the TDT  */
     const ToolHandle<Trig::TrigDecisionTool>& tdt() const {return m_trigdec;};
     /*! Get the e/g match tool */
     const ToolHandle<TrigEgammaMatchingToolMT>& match() const {return m_matchTool;}
     /*! Set the accept object for all trigger levels */
-    asg::AcceptData setAccept(const TrigCompositeUtils::Decision*, const TrigInfo) const;
-    /*! Get the trigger info parsed from the chain name */
-    TrigInfo getTrigInfo(const std::string) const;
+    asg::AcceptData setAccept(const TrigCompositeUtils::Decision*, const TrigInfo&) const;
+    /*! Get the trigger info parsed from the chain name (only single lepton triggers) */
+    TrigInfo getTrigInfo(const std::string&) const;
     /*! Get delta R */
     float dR(const float, const float, const float, const float) const;
-    /*! Simple setter to pick up correct probe PID for given trigger */
-    void parseTriggerName(const std::string,const std::string, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&) const;
-    /*! Split double object trigger in two simple object trigger */
-    bool splitTriggerName(const std::string, std::string &, std::string &) const;
     /*! Creates static map to return L1 item from trigger name */
-    std::string getL1Item(std::string trigger) const;
+    std::string getL1Item(const std::string& trigger) const;
     /*! Check if electron fulfils isolation criteria */
-    bool isIsolated(const xAOD::Electron*, const std::string) const;
+    bool isIsolated(const xAOD::Electron*, const std::string&) const;
     /*! Check if the event is prescaled */
-    bool isPrescaled(const std::string) const;
-    /*! Get the pid name */
-    std::string getProbePid(const std::string) const;
+    bool isPrescaled(const std::string&) const;
     /*! Set the trigger info parsed from the chain name */
-    void setTrigInfo(const std::string);
-    
-    
+    void setTrigInfo(const std::string&);
+    /*! */
+    bool isHLTTruncated() const;
+   
   
     /** Features helper **/
    
@@ -279,10 +275,24 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
       GETTER(deltaPhiRescaled3)
 #undef GETTER
 
-
-
-
-
 };
+
+
+
+namespace Gaudi
+{
+  namespace Parsers
+  {
+    typedef std::map<std::string, std::string> Dict_t;
+
+    // A typedef may save a lot of mistakes
+    typedef std::vector<Dict_t> VecDict_t;
+
+    // Parse function... nothing special, but it must be done explicitely.
+    StatusCode parse( VecDict_t & result, const std::string& input );
+  }
+}
+
+
 #endif
 

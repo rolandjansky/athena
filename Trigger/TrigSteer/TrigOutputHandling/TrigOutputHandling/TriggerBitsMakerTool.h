@@ -24,7 +24,6 @@ public:
 
   virtual StatusCode getBits(boost::dynamic_bitset<uint32_t>& passRaw,
     boost::dynamic_bitset<uint32_t>& prescaled,
-    boost::dynamic_bitset<uint32_t>& rerun,
     const EventContext& ctx) const override;
   
   virtual StatusCode initialize() override;

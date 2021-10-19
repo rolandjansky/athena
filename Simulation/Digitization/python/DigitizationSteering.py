@@ -47,14 +47,22 @@ def DigitizationMainServicesCfg(flags):
     acc.merge(PoolReadCfg(flags))
     acc.merge(PoolWriteCfg(flags))
 
-    acc.merge(writeDigitizationMetadata(flags))
-
     return acc
 
 
 def DigitizationMainCfg(flags):
     # Construct main services
     acc = DigitizationMainServicesCfg(flags)
+
+    acc.merge(DigitizationMainContentCfg(flags))
+
+    return acc
+
+def DigitizationMainContentCfg(flags):
+
+    acc = ComponentAccumulator()
+
+    acc.merge(writeDigitizationMetadata(flags))
 
     if not flags.Digitization.PileUp:
         # Old EventInfo conversion
@@ -78,8 +86,8 @@ def DigitizationMainCfg(flags):
             MergeMuonEntryLayerCfg,
             MergeCalibHitsCfg,
         )
-
-        acc.merge(SignalOnlyMcEventCollCfg(flags))
+        if flags.Common.ProductionStep!=ProductionStep.FastChain:
+            acc.merge(SignalOnlyMcEventCollCfg(flags))
         puCollections = pileupInputCollections(flags.Digitization.PU.LowPtMinBiasInputCols)
         if "AntiKt4TruthJets" in puCollections:
             acc.merge(MergeAntiKt4TruthJetsCfg(flags))

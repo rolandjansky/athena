@@ -16,7 +16,7 @@ atlas_add_component( InDetGlobalMonitoring
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel
    CommissionEvent AthenaBaseComps AthenaMonitoringLib AtlasDetDescr
    IdDictDetDescr Identifier EventInfo EventPrimitives xAODJet xAODTracking
-   GeneratorObjects InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry InDetBCM_RawData
+   GeneratorObjects InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib InDetBCM_RawData
    InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetByteStreamErrors LWHists TrkSurfaces
    TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack
    TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces TrkToolInterfaces

@@ -18,7 +18,7 @@ parser.add_argument("-n", "--nEvents",  default=10, type=int, help="The number o
 #
 parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
 parser.add_argument("-D", "--dumpSG",   default=False, action="store_true", help="Toggle StoreGate dump on each event")
-parser.add_argument("-j", "--jetType",   default="smallR", type=str, choices={"smallR","largeR", "cssk"},
+parser.add_argument("-j", "--jetType",   default="smallR", type=str, choices={"smallR","largeR", "cssk", "VR"},
                     help="the type of jet definitions to test")
 
 #
@@ -91,6 +91,10 @@ elif args.jetType=='cssk':
     AntiKt4EMPFlowCSSK = AntiKt4EMPFlow.clone(inputdef = cst.EMPFlowCSSK, modifiers=nocalibL )
     jetdefs = [AntiKt4LCTopoCSSK,AntiKt4EMPFlowCSSK]
     alljetdefs = jetdefs
+elif args.jetType=='VR':
+    from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0TrackJets
+    jetdefs = [AntiKtVR30Rmax4Rmin02PV0TrackJets]
+    alljetdefs = jetdefs
 
 # ***********************************************
 if args.nEvents == 0:
@@ -118,9 +122,8 @@ cfg.merge(PoolReadCfg(ConfigFlags))
 from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
 cfg.merge(LuminosityCondAlgCfg(ConfigFlags))
 
-from AthenaConfiguration.ComponentFactory import CompFactory
-muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="LuminosityCondData")
-cfg.addEventAlgo(muWriter,"AthAlgSeq")
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+cfg.merge(LumiBlockMuWriterCfg(ConfigFlags))
 
 
 

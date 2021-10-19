@@ -2,6 +2,7 @@
 # art-description: Generation test QGSjet  
 # art-type: build
 # art-include: master/AthGeneration
+# art-include: master--HepMC3/Athena
 # art-output: *.root
 # art-output: log.generate
 

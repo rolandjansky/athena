@@ -25,7 +25,7 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkDriftCircleMath/Line.h"
-#include "TrkDriftCircleMath/LocPos.h"
+#include "TrkDriftCircleMath/LocVec2D.h"
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/Segment.h"
 #include "TrkEventPrimitives/LocalDirection.h"
@@ -143,7 +143,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::refit(const Trk::Track& track) const {
         if (msgLvl(MSG::DEBUG)) {
-            const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+            const Trk::TrackStates* states = track.trackStateOnSurfaces();
             int nStates = 0;
             if (states) nStates = states->size();
             msg(MSG::DEBUG) << MSG::DEBUG << "refit: fitting track with hits: " << nStates;
@@ -1021,10 +1021,10 @@ namespace Muon {
                 // calculate position fake
                 double lyfake = halfLength - 50.;
 
-                Amg::Vector2D locpos_plus(0., lyfake);
-                const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(locpos_plus);
-                Amg::Vector2D locpos_min(0., -lyfake);
-                const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(locpos_min);
+                Amg::Vector2D LocVec2D_plus(0., lyfake);
+                const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(LocVec2D_plus);
+                Amg::Vector2D LocVec2D_min(0., -lyfake);
+                const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(LocVec2D_min);
 
                 double phi_min = fakePos_min.phi();
                 double phi_plus = fakePos_plus.phi();
@@ -1055,8 +1055,8 @@ namespace Muon {
         garbage.push_back(fake);
 
         if (msgLvl(MSG::DEBUG)) {
-            Amg::Vector2D locpos(0., fake->localParameters().get(Trk::locY));
-            const Amg::Vector3D fakePos = meas.associatedSurface().localToGlobal(locpos);
+            Amg::Vector2D LocVec2D(0., fake->localParameters().get(Trk::locY));
+            const Amg::Vector3D fakePos = meas.associatedSurface().localToGlobal(LocVec2D);
 
             msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperSvc->toStringChamber(id) << "   locY " << ly
                             << "  errpr " << errPos << " phi " << fakePos.phi() << endmsg;
@@ -2078,8 +2078,8 @@ namespace Muon {
             tubeRadius = detEl->innerTubeRadius();
 
             // calculate local AMDB position
-            Amg::Vector3D locPos = gToStation * mdt->prepRawData()->globalPosition();
-            TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+            Amg::Vector3D LocVec2D = gToStation * mdt->prepRawData()->globalPosition();
+            TrkDriftCircleMath::LocVec2D lpos(LocVec2D.y(), LocVec2D.z());
 
             double r = mdt->localParameters()[Trk::locR];
             double dr = Amg::error(mdt->localCovariance(), Trk::locR);
@@ -2106,7 +2106,7 @@ namespace Muon {
                                            << " local parameters " << lpos.y() << " " << lpos.z() << "  phi " << angleYZ << "  with "
                                            << dcs.size() << " hits  ");
 
-        TrkDriftCircleMath::LocPos segPos(lpos.y(), lpos.z());
+        TrkDriftCircleMath::LocVec2D segPos(lpos.y(), lpos.z());
         TrkDriftCircleMath::Line segPars(segPos, angleYZ);
 
         TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0., 0., 0.), TrkDriftCircleMath::DCOnTrackVec());
@@ -2171,7 +2171,7 @@ namespace Muon {
         GarbageContainer localGarbage;
 
         // access TSOS of track
-        const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
+        const Trk::TrackStates* oldTSOT = track.trackStateOnSurfaces();
         if (!oldTSOT) return std::make_pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track>>(nullptr, nullptr);
 
         // check whether the perigee is expressed at the point of closes approach or at muon entry
@@ -2186,8 +2186,8 @@ namespace Muon {
 
         // loop over content input track and count perigees
         unsigned int nperigees(0);
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit = oldTSOT->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_end = oldTSOT->end();
+        Trk::TrackStates::const_iterator tit = oldTSOT->begin();
+        Trk::TrackStates::const_iterator tit_end = oldTSOT->end();
         for (; tit != tit_end; ++tit) {
             // look whether state is a perigee
             if ((*tit)->type(Trk::TrackStateOnSurface::Perigee) && dynamic_cast<const Trk::Perigee*>((*tit)->trackParameters()))
@@ -2329,7 +2329,7 @@ namespace Muon {
         Trk::PerigeeSurface persurf(startPars.position());
         Trk::Perigee* perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
 
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        auto trackStateOnSurfaces = Trk::TrackStates();
         trackStateOnSurfaces.reserve(tsos.size() + 1);
         trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
         for (const Trk::TrackStateOnSurface* tsos : tsos) trackStateOnSurfaces.push_back(tsos->clone());
@@ -2407,7 +2407,7 @@ namespace Muon {
 
             // clean up previous track and create new one with fake hits
             perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
-            trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+            trackStateOnSurfaces = Trk::TrackStates();
             trackStateOnSurfaces.reserve(tsos.size() + 3);
             trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
 

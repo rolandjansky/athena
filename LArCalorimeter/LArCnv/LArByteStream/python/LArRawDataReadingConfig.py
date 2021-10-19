@@ -8,20 +8,17 @@ LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
 
 def LArRawDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
-    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
-    acc.merge(DetDescrCnvSvcCfg(configFlags))
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    acc.merge(LArGMCfg(configFlags))
     acc.merge(ByteStreamReadCfg(configFlags))
 
     if configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
+
+    if configFlags.LAr.RawChannelSource=="calculated" or configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArRawChannelKey", "")
 
     print('LArRawDataReadingCfg configFlags.LAr.RawChannelSource ',configFlags.LAr.RawChannelSource)
-
-    if configFlags.LAr.RawChannelSource=="calculated":
-        kwargs.setdefault("LArRawChannelKey", "")
-
-    kwargs.setdefault("FailOnCorruption",False)
 
     acc.addEventAlgo(LArRawDataReadingAlg(**kwargs))
     return acc
@@ -42,8 +39,6 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     acc = MainServicesCfg( ConfigFlags )
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    acc.merge(AtlasGeometryCfg(ConfigFlags))
     acc.merge(LArRawDataReadingCfg(ConfigFlags))
     
     DumpLArRawChannels=CompFactory.DumpLArRawChannels

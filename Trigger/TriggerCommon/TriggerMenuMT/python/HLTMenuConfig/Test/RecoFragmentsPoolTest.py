@@ -76,7 +76,7 @@ class RecoFragmentsPoolTest(unittest.TestCase):
         self.assertFalse(ch.isLocked())
         self.assertFalse(im.isLocked())
         self.assertTrue(tr.isLocked())
-        self.assertTrue(th.isLocked())
+        self.assertFalse(th.isLocked())
 
 
 if __name__ == '__main__':

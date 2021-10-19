@@ -9,12 +9,13 @@
 
 
 // EDM includes
-#include "xAODJet/Jet.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODBTagging/BTagging.h"
+#include "xAODJet/JetFwd.h"
+#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODBTagging/BTaggingFwd.h"
 
 #include <functional>
 #include <string>
+#include <set>
 
 #ifndef CUSTOM_GETTER_H
 #define CUSTOM_GETTER_H
@@ -40,20 +41,27 @@ namespace FlavorTagDiscriminants {
   ///
   /// NOTE: This function is for experts only, don't expect support.
   ///
-  std::function<std::vector<double>(
+
+  using SequenceFromTracks = std::function<std::vector<double>(
     const xAOD::Jet&,
-    const std::vector<const xAOD::TrackParticle*>&)>
-  customSequenceGetter(const std::string& name);
+    const std::vector<const xAOD::TrackParticle*>&)>;
+
+  std::pair<SequenceFromTracks, std::set<std::string>>
+  customSequenceGetterWithDeps(
+    const std::string& name,   // name of the getter
+    const std::string& prefix  // prefix for track accessor
+    );
 
   // internal functions
   namespace internal {
     std::function<std::pair<std::string, double>(const xAOD::BTagging&)>
     customGetterAndName(const std::string&);
 
-    std::function<std::pair<std::string, std::vector<double>>(
+    std::pair<std::function<std::pair<std::string, std::vector<double>>(
       const xAOD::Jet&,
-      const std::vector<const xAOD::TrackParticle*>&)>
-    customNamedSeqGetter(const std::string&);
+      const std::vector<const xAOD::TrackParticle*>&)>,
+      std::set<std::string>>
+    customNamedSeqGetterWithDeps(const std::string&, const std::string&);
   }
 }
 

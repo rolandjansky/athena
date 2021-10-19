@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAINTERFACES_IEMCLUSTERTOOL_H
@@ -33,7 +33,6 @@ class IEMClusterTool : virtual public IAlgTool {
   virtual StatusCode initialize() = 0;
   /** @brief execute on containers */
   virtual StatusCode contExecute(const EventContext& ctx,
-                                 const CaloDetDescrManager& cmgr,
                                  xAOD::ElectronContainer* electronContainer,
                                  xAOD::PhotonContainer* photonContainer) const = 0;
 

@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <vector>
 
 // ROOT include(s):
 #include <Rtypes.h>
@@ -83,6 +84,10 @@ namespace xAOD {
       template< typename T >
       StatusCode record( std::unique_ptr< T > obj, const std::string& key );
 
+      /// prodive a list of keys associated with a type
+      template< typename T >
+      void keys( std::vector< std::string >& vkeys ) const;
+
       /// Remove an object from the store by name
       StatusCode remove( const std::string& key );
       /// Remove an object from the store by pointer
@@ -133,6 +138,9 @@ namespace xAOD {
       const std::string& getName( uint32_t hash ) const;
       /// Get the name of a managed object
       const std::string& getName( const void* ptr ) const;
+      /// Function determining the list keys associated with a type name
+      void getNames(const std::string& targetClassName,
+                    std::vector<std::string>& vkeys ) const;
 
       /// @}
 

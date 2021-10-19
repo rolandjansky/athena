@@ -39,7 +39,9 @@ namespace TrigCompositeUtils
     std::size_t size() const;
 
     void addLeg(std::size_t multiplicity, const VecLInfo_t &features);
+    void addLeg(std::size_t multiplicity, VecLInfo_t&& features);
     void addLeg(const VecLInfo_t &features);
+    void addLeg(VecLInfo_t&& features);
 
     IPartCombItr begin() const;
     IPartCombItr end() const;

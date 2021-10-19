@@ -122,6 +122,9 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
       ATH_MSG_INFO ( "Work on container '" <<  m_containerKey  << "'" );
     }
   }
+
+  LArBadChanBitPacking packing;
+
   for (unsigned igain=CaloGain::LARHIGHGAIN; 
        igain<CaloGain::LARNGAIN ; ++igain ) {
     CONTIT it=m_contIn->begin(igain);
@@ -130,25 +133,26 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
       const HWIdentifier chid = it.channelId();
       if (!cabling->isOnlineConnected(chid)) continue; //Don't care about disconnected channels
       if (m_bcMask.cellShouldBeMasked(bcCont,chid)) {
-	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+	const std::string bcType=packing.stringStatus(bcCont->status(chid));
+	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec << " [" << bcType << "]" 
                        <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." );
 	if (patch(chid,igain, bcCont, cabling)) {
-	  ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
+	  ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
         } else {
-	  ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
+	  ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
         } 
       }//end if channel is in bad-channel database
       else 
 	if (it->isEmpty()) { //check if data-object is empty (eg the default instance
-	  ATH_MSG_ERROR ( "The channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+	  ATH_MSG_ERROR ( "The channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec 
 		   <<" Gain:" << igain << " " << m_onlineHelper->channel_name(chid) 
                           << " has no calibration but is not (yet?) flagged in the bad-channel database" );
 	  if (m_patchAllMissing) {
 	    ATH_MSG_INFO ( "Will try to patch anyway." );
 	    if (patch(chid,igain, bcCont, cabling)) {
-	      ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
+	      ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
 	    } else {
-	      ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
+	      ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
 	    }
 	  }//end if m_patchAllMissing
 	  else 

@@ -13,7 +13,7 @@ def TileGMCfg(configFlags):
 
     TileDetectorTool=CompFactory.TileDetectorTool
     result.getPrimary().DetectorTools += [ TileDetectorTool() ]
-    if configFlags.Common.ProductionStep != ProductionStep.Simulation:
+    if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
         result.getPrimary().DetectorTools["TileDetectorTool"].GeometryConfig = "RECO"
 
     return result

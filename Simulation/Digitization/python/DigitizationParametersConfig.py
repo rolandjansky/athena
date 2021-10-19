@@ -67,11 +67,9 @@ def writeDigitizationMetadata(ConfigFlags):
     #-------------------------------------------------
     dbFiller.genDigitDb()
 
-    from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
-    cfg = IOVDbSvcCfg(ConfigFlags)
     folder = "/Digitization/Parameters"
-    dbConnection = "sqlite://;schema=DigitParams.db;dbname=DIGPARAM"
-    cfg.getService("IOVDbSvc").Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    cfg=addFolders(ConfigFlags,[folder,],detDb="DigitParams.db",db="DIGPARAM",className='AthenaAttributeList')
     cfg.getService("IOVDbSvc").FoldersToMetaData += [ folder ]
     #cfg.getService("IOVSvc").partialPreLoadData = True #FIXME IOVSvc missing??
     return cfg

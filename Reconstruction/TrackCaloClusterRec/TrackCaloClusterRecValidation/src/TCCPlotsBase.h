@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_TCCPLOTSBASE_H
@@ -14,7 +14,7 @@ class SingleHistogramDefinition;
 
 class TCCPlotsBase:public PlotBase {
     public:
-      TCCPlotsBase(PlotBase* pParent, std::string folder);
+      TCCPlotsBase(PlotBase* pParent, const std::string& folder);
       
       /// Retrieve a single histogram definition, given the unique string identifier
       SingleHistogramDefinition retrieveDefinition(const std::string& histoIdentifier,
@@ -36,12 +36,12 @@ class TCCPlotsBase:public PlotBase {
       void book(TH3*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
 
       //
-      void fillHisto(TH1* pTh1, const float value);
-      void fillHisto(TH1* pTh1, const float value, const float weight);
-      void fillHisto(TH2* pTh2, const float xval, const float yval);
-      void fillHisto(TH2* pTh2, const float xval, const float yval, const float weight);
-      void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
-      void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval, const float weight);
+      static void fillHisto(TH1* pTh1, const float value);
+      static void fillHisto(TH1* pTh1, const float value, const float weight);
+      static void fillHisto(TH2* pTh2, const float xval, const float yval);
+      static void fillHisto(TH2* pTh2, const float xval, const float yval, const float weight);
+      static void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
+      static void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval, const float weight);
 
       std::string m_folder;
             

@@ -22,7 +22,7 @@ AnnulusBounds::maxR() const
 }
 
 inline double
-AnnulusBounds::R() const
+AnnulusBounds::waferCentreR() const
 {
   return m_boundValues[AnnulusBounds::bv_R];
 }
@@ -63,6 +63,10 @@ AnnulusBounds::insideLoc2(const Amg::Vector2D& locpo, double tol2) const
     locpo[locY] < std::max(m_solution_R_min[1], m_solution_R_max[1]) + tol2);
 }
 // MW Fix it
+
+inline const std::vector<TDD_real_t>& AnnulusBounds::getBoundsValues() {
+    return m_boundValues;
+}
 
 }
 

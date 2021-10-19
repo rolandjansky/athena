@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 #include "VP1Base/IVP1ChannelWidget.h"
 #include "VP1Base/IVP1System.h"
 #include <QTime>
+#include <QElapsedTimer>
 #include <QQueue>
 #include <QSet>
 #include <map>
@@ -59,7 +60,7 @@ public:
 
   QHash<IVP1System*,SystemInfo*> sys2info;
 
-  QTime * stopwatch;
+  QElapsedTimer * stopwatch;
   IVP1System* currenttimedsystem;
 
   void updateSysinfoWithVisibilityState(const QSet<IVP1ChannelWidget*>& channels,
@@ -128,7 +129,7 @@ inline void VP1Prioritiser::Imp::SystemInfo::addTimeMeasurement(const double&t)
     m_timemeasurements.dequeue();
 
   QList<double> tmplist = m_timemeasurements;
-  qSort(tmplist.begin(), tmplist.end());
+  std::sort(tmplist.begin(), tmplist.end());
 
   switch(tmplist.count()) {
   case 1: m_timing = tmplist.at(0); break;
@@ -191,7 +192,7 @@ VP1Prioritiser::VP1Prioritiser(QObject*parent)
  : QObject(parent), m_d(new Imp)
 {
   m_d->prioritiser=this;
-  m_d->stopwatch = new QTime();
+  m_d->stopwatch = new QElapsedTimer();
   m_d->currenttimedsystem=0;
   m_d->soonvisbonus=0;
 }

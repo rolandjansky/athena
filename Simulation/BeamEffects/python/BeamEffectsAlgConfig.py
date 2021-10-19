@@ -104,15 +104,18 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
 
     # Set default properties
     alg.ISFRun = ConfigFlags.Sim.ISFRun
-    alg.InputMcEventCollection = "GEN_EVENT"
+    if ConfigFlags.Sim.DoFullChain and ConfigFlags.Digitization.PileUp:
+        alg.InputMcEventCollection = "OriginalEvent_SG+GEN_EVENT"
+    else:
+        alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 
-    toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
-
-     # Set (todo) the appropriate manipulator tools
+    # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(makeValidityChecker())
-    manipulators.append(toolVertexPositioner) 
+    if not ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.CavernBG != 'Read':
+        toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
+        manipulators.append(toolVertexPositioner)
     # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation
     # manipulators.append(makeVertexPositionFromFile()) # todo
     # manipulators.append(makeCrabKissingVertexPositioner()) # todo Callback registration failed

@@ -29,9 +29,14 @@ def RecoSteering(flags):
     acc.merge(CaloRecoCfg(flags,doLCCalib=True))
     log.info("---------- Configured calorimeter reconstruction")
 
-    # ID    
-    from InDetConfig.TrackRecoConfig import TrackRecoCfg
-    acc.merge(TrackRecoCfg(flags))
+    # ID / ITk
+    if flags.Detector.GeometryID:
+        from InDetConfig.TrackRecoConfig import TrackRecoCfg
+        acc.merge(TrackRecoCfg(flags))
+    elif flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
+        acc.merge(ITkTrackRecoCfg(flags))
+        return acc #stop here for now with ITk
     log.info("---------- Configured tracking")
 
     # muons
@@ -47,15 +52,33 @@ def RecoSteering(flags):
     #Caching of CaloExtension for downstream Combined Performance algorithms.
     #The algorithms that use these cached CaloExtension only run in the reco step that produces ESD.
     if flags.Output.doESD:
-      from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-      acc.merge(CaloExtensionBuilderAlgCfg(flags))
+      if flags.Detector.GeometryID:
+         from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+         acc.merge(CaloExtensionBuilderAlgCfg(flags))
+      elif flags.Detector.GeometryITk:
+         from TrackToCalo.ITkCaloExtensionBuilderAlgCfg import ITkCaloExtensionBuilderAlgCfg
+         acc.merge(ITkCaloExtensionBuilderAlgCfg(flags))
       log.info("---------- Configured track calorimeter extension builder")
 
     from eflowRec.PFRun3Config import PFCfg
     acc.merge(PFCfg(flags))
 
     # physics objects
-    # egamma
+    # egamma TODO move these fragments to proper place configuring entire egamma - so it can be unit tested
+        
+    from egammaAlgs.egammaSelectedTrackCopyConfig import egammaSelectedTrackCopyCfg
+    acc.merge(egammaSelectedTrackCopyCfg(flags))
+    from egammaAlgs.EMBremCollectionBuilderConfig import EMBremCollectionBuilderCfg
+    acc.merge(EMBremCollectionBuilderCfg(flags))
+    from egammaAlgs.EMGSFCaloExtensionBuilderConfig import EMGSFCaloExtensionBuilderCfg
+    acc.merge(EMGSFCaloExtensionBuilderCfg(flags))
+    from egammaAlgs.EMVertexBuilderConfig import EMVertexBuilderCfg
+    acc.merge(EMVertexBuilderCfg(flags))
+
+    # TBC
+
+    #    from egammaAlgs.egammaRecBuilderConfig import egammaRecBuilderCfg
+    #    acc.merge(egammaRecBuilderCfg(flags))
     # jets
     # btagging
     if tryConfiguringAll:
@@ -94,15 +117,6 @@ def _run(input):
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
 
-    flags.Detector.GeometryBCM=True
-    flags.Detector.GeometryDBM=True
-    flags.Detector.GeometryPixel=True
-    flags.Detector.GeometrySCT=True
-    flags.Detector.GeometryTRT=True
-
-    flags.Detector.GeometryTile=True
-    flags.Detector.GeometryLAr=True
-
     flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
     flags.Output.AODFileName="myAOD.pool.root"
@@ -122,6 +136,8 @@ def _run(input):
 
 
     flags.lock()
+    log.info("Configuring according to flag values listed below")
+    flags.dump()
 
     acc = MainServicesCfg(flags)
     if args.tryConfiguringAll: # this option (and related functionality) should be removed once all major fragments can actually be configured
@@ -130,18 +146,22 @@ def _run(input):
     acc.merge(RecoSteering(flags), sequenceName="AthAlgSeq")
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
-    flags.dump()
     acc.printConfig(withDetails=True)
 
+    confFileName=f"recoConfig{input}.pkl"
     if args.configOnly:
-        with open(args.configOnly, "wb") as confFile:
-            acc.store(confFile)
-            log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
-            sys.exit(0)
+        confFileName=args.configOnly
+
+    with open(confFileName, "wb") as confFile:
+        acc.store(confFile)
+        log.info("configOnly option specified. Saved in: %s ... exiting now.", args.configOnly )
+    if args.configOnly:
+        sys.exit(0)
+
     # running        
     statusCode = acc.run()
     endStamp = datetime.datetime.now()
-    log.info("total time spent in %d seconds (running %s seconds) ", (endStamp-startStamp).seconds, (endStamp-confStamp).seconds )
+    log.info("total time spent %d seconds (running %s seconds) ", (endStamp-startStamp).seconds, (endStamp-confStamp).seconds )
     return statusCode
 
 

@@ -4,21 +4,13 @@
 
 #include "PFOChargedValidationPlots.h"
 
-PFOChargedValidationPlots::PFOChargedValidationPlots(PlotBase* pParent, std::string sDir,  std::string sPFOContainerName,std::string sFEContainerName) : PlotBase(pParent, sDir),
-																			 m_PFOPlots(this,"",sPFOContainerName,""),
-																			 m_PFOPVMatchedPlots(this,"",sPFOContainerName,""),
-																			 m_PFOAlgPropertyPlots(this,"",sPFOContainerName,""),
-																			 m_FEPlots(this,"","",sFEContainerName),
-																			 m_FEPVMatchedPlots(this,"","",sFEContainerName),
-																			 m_FEAlgPropertyPlots(this,"","",sFEContainerName),
+PFOChargedValidationPlots::PFOChargedValidationPlots(PlotBase* pParent, std::string sDir, std::string sFEContainerName) : PlotBase(pParent, sDir),																			 
+																			 m_FEPlots(this,"",sFEContainerName),
+																			 m_FEPVMatchedPlots(this,"",sFEContainerName),
+																			 m_FEAlgPropertyPlots(this,"",sFEContainerName),
                                                                                                                                                          m_FELinkerPlots(this,"",sFEContainerName,false)
 {}
 
-void PFOChargedValidationPlots::fill(const xAOD::PFO& thePFO, const xAOD::Vertex* theVertex, const xAOD::EventInfo& eventInfo ){
-  m_PFOPlots.fill(thePFO,eventInfo);
-  m_PFOAlgPropertyPlots.fill(thePFO,eventInfo);
-  if (theVertex) m_PFOPVMatchedPlots.fill(thePFO, *theVertex,eventInfo);
-}
 void PFOChargedValidationPlots::fill(const xAOD::FlowElement& theFE, const xAOD::Vertex* theVertex, const xAOD::EventInfo& eventInfo ){
   m_FEPlots.fill(theFE,eventInfo);
   m_FEAlgPropertyPlots.fill(theFE,eventInfo);

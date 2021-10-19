@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H_
-#define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H_
+#ifndef TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H
+#define TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H
 
 // Athena includes
 #include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CxxUtils/checker_macros.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "Identifier/Identifier.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
@@ -19,13 +18,13 @@
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArRecConditions/ILArBadFebMasker.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 // PABC interface include
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloLArTowerEnergy.h"
 
-// STL inlcudes
+// STL includes
 #include <vector>
 #include <map>
 #include <string>
@@ -41,7 +40,7 @@
 
 namespace LVL1 {
 
-class ATLAS_NOT_THREAD_SAFE   // use of LArCablingBase
+class
 L1CaloLArTowerEnergy : virtual public IL1CaloLArTowerEnergy, public asg::AsgTool
 {
   /// Create a proper constructor for Athena
@@ -52,16 +51,18 @@ public:
   L1CaloLArTowerEnergy( const std::string& name );
   virtual ~L1CaloLArTowerEnergy() {};
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection);
-  float EtLArg(const Identifier& TTid) const;
-  bool hasMissingFEB(const Identifier& TTid) const;
+  virtual bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection) override;
+  virtual float EtLArg(const Identifier& TTid) const override;
+  virtual bool hasMissingFEB(const Identifier& TTid) const override;
+  virtual bool hasMissingFEB(const LArOnOffIdMapping& cabling,
+                             const Identifier& TTid) const override;
 
 protected:
-  void reset();
-  double IDeta(const Identifier& TTid) const;
+  virtual void reset() override;
+  virtual double IDeta(const Identifier& TTid) const override;
 
 private:
 
@@ -79,9 +80,10 @@ private:
   ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
 
   ToolHandle< ILArBadFebMasker > m_badFebMasker; // Handle to badChannelTool
-  ToolHandle<LArCablingLegacyService> m_larCablingSvc;  // Handle to LarCablingService
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
 
   typedef std::map<Identifier, double> mapTT;

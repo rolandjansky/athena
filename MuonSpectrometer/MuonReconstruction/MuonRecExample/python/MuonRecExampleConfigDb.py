@@ -46,8 +46,6 @@ addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternFinderTool", "MuonHoughPat
 addService("MuonRecExample.MuonRecTools.AtlasTrackingGeometrySvc","AtlasTrackingGeometrySvc")
 addService("MuonRecExample.MuonRecTools.TrackingVolumesSvc","TrackingVolumesSvc")
 
-addTool( "MuonRecExample.MuonRecTools.MuonNavigator", "MuonNavigator" )
-
 addTool( "Trk::MaterialEffectsUpdator", "MuonMaterialEffectsUpdator" )
 
 addTool("MuonRecExample.MuonRecTools.MuonRK_Propagator","MuonRK_Propagator")
@@ -61,8 +59,8 @@ addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraigh
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
-addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), 
-                                                       HasSTgc=MuonGeometryFlags.hasSTGC(), 
+addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(),
+                                                       HasSTgc=MuonGeometryFlags.hasSTGC(),
                                                        HasMM=MuonGeometryFlags.hasMM(),
                                                        RunCSC=setup_cscs,
                                                        RunsTgc=setup_stgcs,
@@ -157,7 +155,7 @@ addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta
 
 addTool("MuonRecExample.MooreTools.MuonSeededSegmentFinder", "MuonSeededSegmentFinder")
 
-
+addTool("MuonRecExample.MooreTools.MuonTrackExtrapolationTool", "MuonTrackExtrapolationTool")
 addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool")
 
 
@@ -172,9 +170,9 @@ if setup_cscs:
     addTool( "MuonRecExample.MuonRecTools.CscClusterOnTrackCreator", "CscClusterOnTrackCreator"  )
     addTool( "MuonRecExample.MuonRecTools.CscBroadClusterOnTrackCreator", "CscBroadClusterOnTrackCreator" )
 
-addTool( "MuonRecExample.MooreTools.MuonChamberHoleRecoveryTool", 
-         "MuonChamberHoleRecoveryTool", 
-         CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if setup_cscs else ""), 
+addTool( "MuonRecExample.MooreTools.MuonChamberHoleRecoveryTool",
+         "MuonChamberHoleRecoveryTool",
+         CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if setup_cscs else ""),
          CscPrepDataContainer=("CSC_Clusters" if setup_cscs else ""))
 
 addTool( "MuonRecExample.MooreTools.MuonSegmentRegionRecoveryTool", "MuonSegmentRegionRecoveryTool" )
@@ -187,7 +185,6 @@ addTool( "MuonRecExample.MooreTools.MuonAmbiProcessor", "MuonAmbiProcessor" )
 
 addTool( "MuonRecExample.MooreTools.MuonTrackSelectorTool", "MuonTrackSelectorTool" )
 
-addTool("MuonRecExample.MooreTools.MuonTrackExtrapolationTool", "MuonTrackExtrapolationTool")
 
 addToolClone("MuonSegmentRegionRecoveryTool","MuonEORecoveryTool",OnlyEO = True,
              Fitter="MCTBSLFitter", UseFitterOutlierLogic=False)
@@ -244,6 +241,7 @@ if setup_mm:
     addTool("NSWCalibTools.NSWCalibToolsConfig.MMCalibSmearingTool","MMCalibSmearingTool")
 if setup_stgcs:
     addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
+    addTool("MuonRecExample.NSWTools.CaruanaSTgcClusterBuilderTool","CaruanaSTgcClusterBuilderTool")
     addTool("NSWCalibTools.NSWCalibToolsConfig.STgcCalibSmearingTool","STgcCalibSmearingTool")
 if setup_stgcs or setup_mm:
     addTool("NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool")
@@ -252,10 +250,10 @@ if setup_stgcs or setup_mm:
 # Tools from MuonRecExample.MuPatTools
 ################################################################################
 
-addTool( "MuonRecExample.MuPatTools.MuPatCandidateTool","MuPatCandidateTool", 
+addTool( "MuonRecExample.MuPatTools.MuPatCandidateTool","MuPatCandidateTool",
         CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if setup_cscs  else ""))
 
-addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool", 
+addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool",
         CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if setup_cscs else ""))
 
 

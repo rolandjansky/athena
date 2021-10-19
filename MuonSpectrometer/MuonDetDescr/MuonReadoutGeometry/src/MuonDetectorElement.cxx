@@ -16,12 +16,12 @@ namespace MuonGM {
                                            MuonDetectorManager* mgr,
                                            Identifier id,
                                            IdentifierHash idHash) : 
-    TrkDetElementBase(pv)
+    TrkDetElementBase(pv),
+    m_id (id),
+    m_idhash (idHash),
+    m_nREinDetectorElement (0),
+    m_muon_mgr (mgr)
   {
-    m_muon_mgr = mgr;
-    m_id = id;
-    m_idhash = idHash;
-    m_nREinDetectorElement = 0;
   }
 
   MuonDetectorElement::~MuonDetectorElement()=default;

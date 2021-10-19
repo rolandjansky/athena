@@ -1027,8 +1027,6 @@ namespace VKalVrtAthena {
                      << ", assocs = { "          << assocs << " }" );
       
       // Truth match condition
-      using truthLink = ElementLink<xAOD::TruthParticleContainer>;
-      
       for( const auto* truthVertex : m_tracingTruthVertices ) {
         
         

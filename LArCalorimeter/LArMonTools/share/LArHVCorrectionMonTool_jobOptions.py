@@ -2,6 +2,9 @@
 if 'EventBlockSize' not in dir():
     EventBlockSize=0
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 ###### LAr HV Correction Tool Configuration ###############
 from LArMonTools.LArMonToolsConf import LArHVCorrectionMonTool
 theLArHVCorrectionMonTool = LArHVCorrectionMonTool(name="LArHVCorrectionMonTool",

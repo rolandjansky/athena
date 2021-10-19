@@ -80,8 +80,7 @@ bool CMAidentity::operator<(const CMAidentity& id) const {
     if (m_params.coverage < id.coverage()) return true;
     int id1 = m_params.etaIndex * 10 + m_params.phiIndex;
     int id2 = id.eta_index() * 10 + id.phi_index();
-    if (id1 < id2) return true;
-    return false;
+    return id1 < id2;
 }
 
 CMAidentity& CMAidentity::operator+=(const CMAidentity& id) {
@@ -107,7 +106,7 @@ std::ostream& operator<<(std::ostream& stream, const CMAidentity& id) {
     std::string covtag(exttag);
 
     std::string type = (id.type() == Phi) ? " phi cma " + covtag : " eta cma " + covtag;
-    if (covtag != "") type = type + " ";
+    if (!covtag.empty()) type = type + " ";
     stream << type << std::setw(2) << id.number() << ": Eta ";
     stream << std::setw(2) << id.eta_index();
     stream << "  Phi " << std::setw(2) << id.phi_index();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RoIPEBInfoWriterTool.h"
@@ -51,7 +51,7 @@ PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfo
   }
   // Restrict the eta range
   etaMin = std::max(-m_etaEdge.value(), etaMin);
-  etaMax = std::min( m_etaEdge.value(), etaMin);
+  etaMax = std::min( m_etaEdge.value(), etaMax);
 
   float phi = (*input.roiEL)->phi();
   float phiMin = CxxUtils::wrapToPi(phi - m_phiWidth); // range (-pi, pi)

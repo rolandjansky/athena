@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoCode/DatabaseAccessTool.h"
@@ -15,7 +15,7 @@ class DatabaseAccessTool::Clockwork {
 
 public:
 
-  IRDBAccessSvc *pAccessSvc;
+  IRDBAccessSvc *pAccessSvc = nullptr;
   std::string detectorKey;
   std::string detectorNode;
   std::map<std::string, IRDBRecordset_ptr> recMap;

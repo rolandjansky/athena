@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  
@@ -62,9 +62,9 @@ public:
   jet::JetCaloCalculations m_jetCalculations;
 
   // internal pointer to m_jetCalculations (this pointer is also used in the cell-based derived tool)
-  jet::JetCaloCalculations * m_calcProcessor;
+  jet::JetCaloCalculations * m_calcProcessor = nullptr;
 
-  bool m_doFracSamplingMax; // internal			     
+  bool m_doFracSamplingMax = false; // internal			     
 };
 #endif 
 

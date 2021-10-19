@@ -29,7 +29,7 @@ namespace DerivationFramework {
   
   StatusCode DeltaRTool::initialize()
   {
-    if (m_sgName.key()=="") {
+    if (m_sgName.key().empty()) {
       ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
       return StatusCode::FAILURE;
     }
@@ -70,18 +70,18 @@ namespace DerivationFramework {
   {
 
     // check the relevant information is available
-    if (m_containerName.key()=="") {
+    if (m_containerName.key().empty()) {
       ATH_MSG_WARNING("Input container missing - returning zero");  
       deltaRs->push_back(0.0);
       return StatusCode::FAILURE;
     }
     bool secondContainer(false);
-    if (m_containerName2.key()!="") secondContainer=true;
+    if (!m_containerName2.key().empty()) secondContainer=true;
 
     // get the relevant branches
     SG::ReadHandle<xAOD::IParticleContainer> particles{m_containerName};
 
-    const xAOD::IParticleContainer* secondParticles(NULL);
+    const xAOD::IParticleContainer* secondParticles(nullptr);
     if (secondContainer) {
        SG::ReadHandle<xAOD::IParticleContainer> particleHdl2{m_containerName2};
        secondParticles=particleHdl2.cptr();
@@ -160,7 +160,7 @@ namespace DerivationFramework {
 
   }
   
-  float DeltaRTool::calculateDeltaR(float phi1, float phi2, float eta1, float eta2) const
+  float DeltaRTool::calculateDeltaR(float phi1, float phi2, float eta1, float eta2) 
   {
     float deltaPhi = fabs(phi1-phi2);
     if (deltaPhi>TMath::Pi()) deltaPhi = 2.0*TMath::Pi() - deltaPhi;

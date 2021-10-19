@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_ExpertMethods_H
@@ -18,7 +18,6 @@
  *
  ***********************************************************************************/
 #include <string>
-#include <boost/algorithm/string/predicate.hpp>
 
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigDecisionTool/Logger.h"
@@ -50,34 +49,25 @@ namespace Trig {
   class ExpertMethods : public virtual Logger {
   public:      
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_STANDALONE // AthAnalysis and AnalysisBase
     ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory);
-#else
+#else // AnalysisBase
     ExpertMethods(Trig::CacheGlobalMemory* m_cacheGlobalMemory);
 #endif
 
     virtual ~ExpertMethods();
 
     /**
-     * @brief enable use of Experimental or expert methods
-     **/
-    void enable() {m_useExperimentalAndExpertMethods=true;};
-    /**
-     * @brief disable use of Experimental or expert methods
-     **/
-    void disable() {m_useExperimentalAndExpertMethods=false;};
-
-    /**
      * @brief return TrigConf::TriggerItem
      * @param chain: name of the item
      **/
-    const TrigConf::TriggerItem* getItemConfigurationDetails(const std::string& chain);
+    const TrigConf::TriggerItem* getItemConfigurationDetails(const std::string& chain) const;
 
     /**
      * @brief return TrigConf::HLTChain
      * @param chain: name of the chain
      **/
-    const TrigConf::HLTChain* getChainConfigurationDetails(const std::string& chain);
+    const TrigConf::HLTChain* getChainConfigurationDetails(const std::string& chain) const;
 
     /**
      * @brief return LVL1CTP::Lvl1Item
@@ -94,9 +84,9 @@ namespace Trig {
     /**
      * @brief return HLT::NavigationCore
      **/
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
     const HLT::NavigationCore* getNavigation() const;
-#else // Analysis or Standalone
+#else // AthAnalysis or AnalysisBase
     const HLT::TrigNavStructure* getNavigation() const;
 #endif
 
@@ -108,18 +98,13 @@ namespace Trig {
 
   private:
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_STANDALONE // AthAnalysis and AnalysisBase
     SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory;
-#else // Analysis or Standalone
+#else // AthAnalysis or AnalysisBase
     Trig::CacheGlobalMemory* m_cacheGlobalMemory;
 #endif    
 
     Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
-
-    bool m_useExperimentalAndExpertMethods;
-
-    bool checkExperimentalAndExpertMethods() const;
-
   };
   
 } // End of namespace

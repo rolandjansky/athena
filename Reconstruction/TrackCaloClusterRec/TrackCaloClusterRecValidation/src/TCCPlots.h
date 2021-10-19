@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_TCCPLOTS_H
@@ -67,9 +67,9 @@ public:
   void fillTCCptCut(const xAOD::TrackCaloCluster& tcc);
   void fillTCCetaCut(const xAOD::TrackCaloCluster& tcc);
     
-  void make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_median=nullptr);
-  void make_median_add(TH2* h2_response, TH1* h1_resolution);
-  void make_median(TH3* h3_response, TH2* h2_resolution);
+  static void make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_median=nullptr);
+  static void make_median_add(TH2* h2_response, TH1* h1_resolution);
+  static void make_median(TH3* h3_response, TH2* h2_resolution);
   
   void setEventWeight(const float& weight);
   void setJetPtBinning(const std::vector<float>& bins);

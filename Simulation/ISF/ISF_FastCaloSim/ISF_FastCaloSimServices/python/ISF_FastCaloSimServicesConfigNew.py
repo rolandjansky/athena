@@ -5,6 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RngComps.RandomServices import RNG, dSFMT
+from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg
 
 ###################################################################################################
 # Moved from AdditionalConfig
@@ -23,7 +24,7 @@ def PunchThroughToolCfg(flags, name="ISF_PunchThroughTool", **kwargs):
     acc.merge(dSFMT(seed))
     kwargs.setdefault("RandomNumberService", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
-    kwargs.setdefault("FilenameLookupTable", 'FastCaloSim/MC16/TFCSparam_mpt_v01.root')
+    kwargs.setdefault("FilenameLookupTable", "FastCaloSim/MC16/TFCSparam_mpt_v01.root")
     kwargs.setdefault("PunchThroughInitiators", [211])
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
     kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )
@@ -51,11 +52,8 @@ def EmptyCellBuilderToolCfg(flags, name="ISF_EmptyCellBuilderTool", **kwargs):
 
 
 def LegacyFastShowerCellBuilderToolCfg(flags, name="ISF_LegacyFastShowerCellBuilderTool", **kwargs):
-    acc = FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
-    FastShowerCellBuilderTool = acc.popPrivateTools()
-    FastShowerCellBuilderTool.Invisibles += [13]
-    acc.setPrivateTools(FastShowerCellBuilderTool)
-    return acc
+    kwargs.setdefault("Invisibles", [0, 13])
+    return FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
 
 
 def PileupFastShowerCellBuilderToolCfg(flags, name="ISF_PileupFastShowerCellBuilderTool", **kwargs):
@@ -210,31 +208,34 @@ def FastHitConvAlgCfg(flags, name="ISF_FastHitConvAlg", **kwargs):
 
 def FastCaloToolBaseCfg(flags, name="ISF_FastCaloTool", **kwargs):
     acc = ComponentAccumulator()
-
-    PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
-    acc.addPublicTool(PT_tool)
-    FastHit = acc.popToolsAndMerge(FastHitConvertToolCfg(flags))
-    acc.addPublicTool(FastHit)
-    EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
-    acc.addPublicTool(EmptyCellBuilder)
-    CaloCellContainer = acc.popToolsAndMerge(CaloCellContainerFinalizerToolCfg(flags))
-    acc.addPublicTool(CaloCellContainer)
-    FastShowerCell_tool = acc.popToolsAndMerge(FastShowerCellBuilderToolBaseCfg(flags))
-    acc.addPublicTool(FastShowerCell_tool)
-    Extrapolator = acc.popToolsAndMerge(NITimedExtrapolatorCfg(flags))
-    acc.addPublicTool(Extrapolator)
-
     kwargs.setdefault("BatchProcessMcTruth"              , False)
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False)
     kwargs.setdefault("CaloCellsOutputName"              , flags.Sim.FastCalo.CaloCellsName)
-    kwargs.setdefault("PunchThroughTool"                 , acc.getPublicTool(PT_tool.name))
-    kwargs.setdefault("DoPunchThroughSimulation"         , False)
+    if "CaloCellMakerTools_setup" not in kwargs:
+        EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
+        acc.addPublicTool(EmptyCellBuilder)
     kwargs.setdefault("CaloCellMakerTools_setup"         , [acc.getPublicTool(EmptyCellBuilder.name)])
-    kwargs.setdefault("CaloCellMakerTools_simulate"      , [acc.getPublicTool(FastShowerCell_tool.name)])
-    kwargs.setdefault("CaloCellMakerTools_release"       , [# AddNoiseCellBuilderToolCfg(flags)",
-                                                            acc.getPublicTool(CaloCellContainer.name),
-                                                            acc.getPublicTool(FastHit.name)])
-    kwargs.setdefault("Extrapolator", acc.getPublicTool(Extrapolator.name))
+    if "CaloCellMakerTools_simulate" not in kwargs:
+        FastShowerCell_tool = acc.popToolsAndMerge(FastShowerCellBuilderToolBaseCfg(flags))
+        acc.addPublicTool(FastShowerCell_tool)
+        kwargs.setdefault("CaloCellMakerTools_simulate"      , [acc.getPublicTool(FastShowerCell_tool.name)])
+    if "CaloCellMakerTools_release" not in kwargs:
+        CaloCellContainer = acc.popToolsAndMerge(CaloCellContainerFinalizerToolCfg(flags))
+        acc.addPublicTool(CaloCellContainer)
+        FastHit = acc.popToolsAndMerge(FastHitConvertToolCfg(flags))
+        acc.addPublicTool(FastHit)
+        kwargs.setdefault("CaloCellMakerTools_release"       ,
+                          [# AddNoiseCellBuilderToolCfg(flags)",
+                            acc.getPublicTool(CaloCellContainer.name),
+                            acc.getPublicTool(FastHit.name)])
+    if "Extrapolator" not in kwargs:
+        Extrapolator = acc.popToolsAndMerge(NITimedExtrapolatorCfg(flags))
+        acc.addPublicTool(Extrapolator)
+        kwargs.setdefault("Extrapolator", acc.getPublicTool(Extrapolator.name))
+    if "ParticleTruthSvc" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("ParticleTruthSvc", truthacc.getPrimary())
+        acc.merge(truthacc)
     acc.setPrivateTools(CompFactory.ISF.FastCaloTool(name, **kwargs))
     return acc
 
@@ -282,7 +283,12 @@ def FastCaloSimV2ToolCfg(flags, name="ISF_FastCaloSimV2Tool", **kwargs):
     acc.merge(RNG(flags.Random.Engine))
     kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc"))
     kwargs.setdefault("RandomStream", "FastCaloSimRnd")
-    kwargs.setdefault("PunchThroughTool", "")
+    PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
+    kwargs.setdefault("PunchThroughTool", PT_tool)
+    if "ParticleTruthSvc" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("ParticleTruthSvc", truthacc.getPrimary())
+        acc.merge(truthacc)
 
     acc.setPrivateTools(CompFactory.ISF.FastCaloSimV2Tool(name, **kwargs))
     return acc
@@ -295,7 +301,9 @@ def FastCaloSimSvcCfg(flags, name="ISF_FastCaloSimSvc", **kwargs):
     acc = ComponentAccumulator()
 
     if "SimulatorTool" not in kwargs:
-        kwargs.setdefault("SimulatorTool", acc.popToolsAndMerge(FastCaloToolBaseCfg(flags)))
+        tool = acc.popToolsAndMerge(FastCaloToolBaseCfg(flags))
+        acc.addPublicTool(tool)
+        kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
     kwargs.setdefault("Identifier", "FastCaloSim")
     acc.addService(CompFactory.ISF.LegacySimSvc(name, **kwargs))
     return acc
@@ -303,14 +311,18 @@ def FastCaloSimSvcCfg(flags, name="ISF_FastCaloSimSvc", **kwargs):
 
 def FastCaloSimPileupSvcCfg(flags, name="ISF_FastCaloSimPileupSvc", **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault("SimulatorTool", acc.popToolsAndMerge(FastCaloPileupToolCfg(flags)))
+    tool = acc.popToolsAndMerge(FastCaloPileupToolCfg(flags))
+    acc.addPublicTool(tool)
+    kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
     acc.merge(FastCaloSimSvcCfg(flags, name, **kwargs))
     return acc
 
 
 def LegacyAFIIFastCaloSimSvcCfg(flags, name="ISF_LegacyAFIIFastCaloSimSvc", **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault("SimulatorTool", acc.popToolsAndMerge(LegacyAFIIFastCaloToolCfg(flags)))
+    tool = acc.popToolsAndMerge(LegacyAFIIFastCaloToolCfg(flags))
+    acc.addPublicTool(tool)
+    kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
     acc.merge(FastCaloSimSvcCfg(flags, name, **kwargs))
     return acc
 
@@ -331,8 +343,6 @@ def FastHitConvAlgFastCaloSimSvcCfg(flags, name="ISF_FastHitConvAlgFastCaloSimSv
 def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     acc = ComponentAccumulator()
     
-    PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
-    acc.addPublicTool(PT_tool)
     FastHit = acc.popToolsAndMerge(FastHitConvertToolCfg(flags))
     acc.addPublicTool(FastHit)
     EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
@@ -348,8 +358,6 @@ def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False)
     kwargs.setdefault("Identifier", "FastCaloSim")
     kwargs.setdefault("CaloCellsOutputName", flags.Sim.FastCalo.CaloCellsName + "PileUp")
-    kwargs.setdefault("PunchThroughTool", acc.getPublicTool(PT_tool.name))
-    kwargs.setdefault("DoPunchThroughSimulation", False)
     kwargs.setdefault("PUWeights_lar_bapre", flags.Sim.FastChain.PUWeights_lar_bapre)
     kwargs.setdefault("PUWeights_lar_hec", flags.Sim.FastChain.PUWeights_lar_hec)
     kwargs.setdefault("PUWeights_lar_em", flags.Sim.FastChain.PUWeights_lar_em)
@@ -360,6 +368,10 @@ def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs
                                                       acc.getPublicTool(CaloCellContainer.name),
                                                       acc.getPublicTool(FastHit.name)])
     kwargs.setdefault("Extrapolator", acc.getPublicTool(Extrapolator.name))
+    if "ParticleTruthSvc" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("ParticleTruthSvc", truthacc.getPrimary())
+        acc.merge(truthacc)
     acc.addService(CompFactory.ISF.FastCaloSimSvcPU(name, **kwargs))
     return acc
 
@@ -374,7 +386,9 @@ def FastCaloSimV2ParamSvcCfg(flags, name="ISF_FastCaloSimV2ParamSvc", **kwargs):
 
 def FastCaloSimV2SvcCfg(flags, name="ISF_FastCaloSimSvcV2", **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault("SimulatorTool", acc.popToolsAndMerge(FastCaloSimV2ToolCfg(flags)))
+    tool = acc.popToolsAndMerge(FastCaloSimV2ToolCfg(flags))
+    acc.addPublicTool(tool)
+    kwargs.setdefault("SimulatorTool", acc.getPublicTools(tool))
     kwargs.setdefault("Identifier", "FastCaloSim")
     acc.addService(CompFactory.ISF.LegacySimSvc(name, **kwargs))
     return acc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -242,7 +242,7 @@ std::string ZdcSubBlock::unpackErrorMsg() const
 
 // Return the minimum number of bits needed for given data
 
-int ZdcSubBlock::minBits(const uint32_t datum) const
+int ZdcSubBlock::minBits(const uint32_t datum) 
 {
   const int maxBits = 32;
   int nbits = maxBits;
@@ -258,7 +258,7 @@ int ZdcSubBlock::minBits(const uint32_t datum) const
 // Return the parity bit for given data
 
 int ZdcSubBlock::parityBit(const int init, const uint32_t datum,
-                                                    const int nbits) const
+                                                    const int nbits) 
 {
   // set init to 0/1 for even/odd parity
   int parity = init;

@@ -100,7 +100,7 @@ if DetFlags.detdescr.FTK_on():
 
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
-    protectedInclude ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
+    protectedInclude ("CaloRec/CaloRecOutputItemList_jobOptions.py") 
     fullESDList += CfgItemList( "CaloEsd", items = CaloESDList )
 
 # Muon Spectrometer
@@ -153,7 +153,7 @@ except Exception:
 try:
     if rec.doBTagging():
         include("BTagging/BTaggingReconstructionOutputAODList_jobOptions.py")
-        fullESDList += CfgItemList( "BTaggingAod", items = BTaggingAODList, allowWildCard = True )
+        fullESDList += CfgItemList( "BTaggingEsd", items = BTaggingESDList, allowWildCard = True )
 except Exception:
     treatException("Could not load BTagging item list")    
 
@@ -234,6 +234,11 @@ if rec.doHeavyIon():
     protectedInclude ("HIRecExample/HIRecOutputESDList_jobOptions.py")
     fullESDList += CfgItemList( "HeavyIonsEsd", items = HIESDItemList )
 
+# remove decorations that might be created by monitoring
+if rec.doMonitoring():
+    fullESDList += CfgItemList( "MonitoringEsd", 
+                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                              )
 
 ## StreamESD_Augmented.AddItem( "RecoTimingObj#RAWtoESD_timings" )
 #fullESDList += CfgItemList( "TimingEsd",

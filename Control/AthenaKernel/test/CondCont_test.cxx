@@ -328,13 +328,13 @@ void test1 (TestRCUSvc& rcusvc)
     { CondContBase::keyFromRunLBN (r2.start()) };
   std::vector<CondCont<B>::key_type> keys2 =
     { CondContBase::keyFromTimestamp (r4.start()) };
-  assert (cc_rl.trim (keys1) == 1);
-  assert (cc_ts.trim (keys2) == 1);
+  assert (cc_rl.trim (keys1,keys2) == 1);
+  assert (cc_ts.trim (keys1,keys2) == 1);
   assert (cc_rl.entries() == 1);
   assert (cc_ts.entries() == 1);
 
-  assert (cc_rl.trim (keys1) == 0);
-  assert (cc_ts.trim (keys2) == 0);
+  assert (cc_rl.trim (keys1,keys2) == 0);
+  assert (cc_ts.trim (keys1,keys2) == 0);
 
   //*** Test errors from erase().
   assert (cc_rl.erase (timestamp (800)).isFailure());
@@ -1017,7 +1017,7 @@ void testThread_MixedWriter::operator()()
       for (int j = i/2-ninflight/2; j<i/2; j++) {
         keys.push_back (j);
       }
-      m_map.trim (keys);
+      m_map.trim (keys,keys);
     }
     EventIDRange r = makeRange(i);
     int payload = r.start().lumi_block() + r.start().time_stamp();

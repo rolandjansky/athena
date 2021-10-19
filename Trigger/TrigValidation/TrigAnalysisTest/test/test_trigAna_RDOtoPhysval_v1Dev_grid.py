@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1 followed by AOD->NTUP_PHYSVAL with serial athena and PHYSVAL_WEB stage
 # art-type: grid
@@ -30,9 +30,15 @@ from TrigAnalysisTest.TrigAnalysisSteps import add_physvalweb_steps
 
 preExec = ';'.join([
   'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
-  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
-  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+  'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
+  'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
 ])
+
+preExecESDtoAOD = ';'.join(['from JetRec.JetRecFlags import jetFlags',
+                            'jetFlags.writeJetsToAOD.set_Value_and_Lock(True)',
+                            'jetFlags.detailLevel.set_Value_and_Lock(4)',
+                            'from METReconstruction.METRecoFlags import metFlags',
+                            'metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True)'])
 
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
@@ -41,7 +47,7 @@ rdo2aod.max_events = 800
 rdo2aod.threads = 4
 rdo2aod.concurrent_events = 4
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
-rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
+rdo2aod.args += ' --preExec="all:{:s};" "ESDtoAOD:{:s}"'.format(preExec, preExecESDtoAOD)
 
 physval = ExecStep.ExecStep('PhysVal')
 physval.type = 'Reco_tf'

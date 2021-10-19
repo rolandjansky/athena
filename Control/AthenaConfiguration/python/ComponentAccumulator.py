@@ -516,6 +516,8 @@ class ComponentAccumulator(object):
 
     def __getOne(self, allcomps, name=None, typename="???"):
         selcomps = allcomps if name is None else [ t for t in allcomps if t.name == name ]
+        if len( selcomps ) == 0:
+            return None
         if len( selcomps ) == 1:
             return selcomps[0]
         raise ConfigurationError("Number of {} available {} which is != 1 expected by this API".format(typename, len(selcomps)) )
@@ -931,9 +933,9 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
         propType = sourceConf2Instance._descriptors[pname].cpp_type
         if "PrivateToolHandleArray" in propType:
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, indent=__indent( indent ), parent = sourceConf2Instance.getName() ) for tool in pvalue] )
-            _log.debug( "%sSet the private tools array %s of %s", indent, pname, destConfigurableInstance.name() )
+            _log.debug( "%sSetting private tool array property %s of %s", indent, pname, destConfigurableInstance.name() )
         elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-            _log.debug( "%sSet the property %s that is private tool %s", indent,  pname, destConfigurableInstance.name() )
+            _log.debug( "%sSetting private tool property %s of %s", indent,  pname, destConfigurableInstance.name() )
             try: #sometimes it is not printable
                 _log.debug("%sTool: %s", indent, pvalue)
             except Exception:
@@ -969,7 +971,8 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
         return comp
 
     if isinstance( comp, str ):
-        _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
+        if comp:  # warning for non-empty string
+            _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
         return comp
 
     _log.debug( "%sConverting from GaudiConfig2 object %s type %s, parent %s", indent, compName(comp), comp.__class__.__name__ , parent)
@@ -1144,7 +1147,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                     try:
                         setattr(existingConfigurableInstance, pname, pvalue)
                     except AttributeError:
-                        _log.info("%s Could not set attribute. Type of existingConfigurableInstance %s.",indent, type(existingConfigurableInstance) )
+                        _log.info("%sCould not set attribute. Type of existingConfigurableInstance %s.",indent, type(existingConfigurableInstance) )
                         raise
                 elif alreadySetProperties[pname] != pvalue:
                     # Old configuration writes some properties differently e.g. like ConditionStore+TileBadChannels instead of just TileBadChannels
@@ -1157,7 +1160,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                and pvalue.split('/')[-1] == alreadySetProperties[pname]):
                             # Okay. so they probably are actually the same. Can't check type. 
                             merge=False
-                            _log.warning( "%s Properties here are strings and not exactly the same. ASSUMING they match types but we cannot check. %s for %s", indent, pname, newConf2Instance.getName() )
+                            _log.warning( "%sProperties here are strings and not exactly the same. ASSUMING they match types but we cannot check. %s for %s", indent, pname, newConf2Instance.getName() )
 
                     try:
                         if ('+' in alreadySetProperties[pname].toStringProperty() \
@@ -1177,7 +1180,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         setattr(clone, pname, alreadySetProperties[pname])
                         try:
                             updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
-                        except TypeError:
+                        except (TypeError, ValueError):
                             err_message = f"Failed merging new config value ({getattr(newConf2Instance, pname)}) and old config value ({getattr(clone, pname)}) for the ({pname}) property of {existingConfigurableInstance.getFullJobOptName() } ({newConf2Instance.getFullJobOptName()}) old (new)." 
                             _log.fatal( err_message )
                             raise ConfigurationError(err_message)
@@ -1186,7 +1189,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
 
                         setattr(existingConfigurableInstance, pname, updatedPropValue)
                         del clone
-                        _log.debug("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
+                        _log.debug("%sInvoked GaudiConf2 semantics to merge the %s and the %s to %s "
                                 "for property %s of %s",
                                 indent, alreadySetProperties[pname], pvalue, pname,
                                 updatedPropValue, existingConfigurable.getFullName())
@@ -1242,7 +1245,8 @@ def appendCAtoAthena(ca):
             if instance not in ServiceMgr:
                 ServiceMgr += instance
         for svcName in ca._servicesToCreate:
-            theApp.CreateSvc += [svcName]
+            if svcName not in theApp.CreateSvc:
+                theApp.CreateSvc += [svcName]
 
     if  len(ca._conditionsAlgs) != 0:
         for comp in ca._conditionsAlgs:

@@ -170,7 +170,7 @@ ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, std::string subalg)
   for (std::map< std::string, double >::const_iterator parVal = oldpars.begin();
     parVal != oldpars.end(); ++parVal) {
       std::string parname(parVal->first);
-      std::string::size_type pos = parname.find("|");
+      std::string::size_type pos = parname.find('|');
       if (pos == std::string::npos) {
 	pars.insert(*parVal);
       } else if (parname.substr(0, pos) == subalg) {
@@ -180,7 +180,7 @@ ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, std::string subalg)
   for (std::map< std::string, double >::const_iterator thrVal = oldgrthr.begin();
        thrVal != oldgrthr.end(); ++thrVal) {
     std::string thrname(thrVal->first);
-    std::string::size_type pos = thrname.find("|");
+    std::string::size_type pos = thrname.find('|');
     if (pos == std::string::npos) {
       grthr.insert(*thrVal);
     } else if (thrname.substr(0, pos) == subalg) {
@@ -190,7 +190,7 @@ ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, std::string subalg)
   for (std::map< std::string, double >::const_iterator thrVal = oldrdthr.begin();
        thrVal != oldrdthr.end(); ++thrVal) {
     std::string thrname(thrVal->first);
-    std::string::size_type pos = thrname.find("|");
+    std::string::size_type pos = thrname.find('|');
     if (pos == std::string::npos) {
       rdthr.insert(*thrVal);
     } else if (thrname.substr(0, pos) == subalg) {

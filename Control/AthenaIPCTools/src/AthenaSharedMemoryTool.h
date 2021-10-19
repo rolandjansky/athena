@@ -58,6 +58,7 @@ public:
 
 private:
    StringProperty m_sharedMemory;
+   BooleanProperty m_multipleSegments;
    const size_t m_maxSize;
    const int m_maxDataClients;
    int m_num;

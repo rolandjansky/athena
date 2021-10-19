@@ -165,7 +165,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   if(m_nElectrons>0 or m_nLeptons>0) {
     const xAOD::ElectronContainer *electrons(nullptr); 
     ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
-    for(auto el: *electrons) {
+    for(const auto *el: *electrons) {
       if(this->checkElectronQuality(el)) m_goodElectrons.push_back(el);
     } 
   }
@@ -175,7 +175,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   if(m_nMuons>0 or m_nLeptons>0) {
     const xAOD::MuonContainer *muons(nullptr); 
     ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey), false);
-    for(auto mu: *muons) {
+    for(const auto *mu: *muons) {
       if(this->checkMuonQuality(mu)) m_goodMuons.push_back(mu);
     } 
   }
@@ -185,7 +185,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   if(m_nJets>0) {
     const xAOD::JetContainer *jets(nullptr); 
     ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey), false);
-    for(auto jet: *jets) {
+    for(const auto *jet: *jets) {
       if(this->checkJetQuality(jet)) m_goodJets.push_back(jet);
      }
   }
@@ -194,7 +194,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
     if(m_nMergedJets[type]>0) {
       const xAOD::JetContainer *jets(nullptr);
       ATH_CHECK(evtStore()->retrieve(jets, m_mergedJetSGKey[type]), false);
-      for(auto jet: *jets) {
+      for(const auto *jet: *jets) {
 	if(this->checkMergedJetQuality(jet, type)) m_goodMergedJets[type].push_back(jet);
       }
     }
@@ -205,7 +205,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   if(m_nPhotons>0) {
     const xAOD::PhotonContainer *photons(nullptr); 
     ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
-    for(auto ph: *photons) {
+    for(const auto *ph: *photons) {
       if(this->checkPhotonQuality(ph)) m_goodPhotons.push_back(ph);
     }
   }
@@ -215,7 +215,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   if(m_nTracks>0) {
     const xAOD::TrackParticleContainer *tracks(nullptr);
     ATH_CHECK(evtStore()->retrieve(tracks, m_trackSGKey), false);
-    for(auto trk: *tracks) {
+    for(const auto *trk: *tracks) {
       if(this->checkTrackQuality(trk)) m_goodTracks.push_back(trk);
     }
   }
@@ -401,7 +401,7 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L() const
   if(!(m_nLeptons>0 and m_goodElectrons.size()+m_goodMuons.size()>=m_nLeptons)) return false;
   if(!(m_goodJets.size()>=m_nJets and m_goodPhotons.size()>=m_nPhotons)) return false;
 
-  bool isTriggerFired(m_trigger2L.size()==0 or m_skipTriggerRequirement);
+  bool isTriggerFired(m_trigger2L.empty() or m_skipTriggerRequirement);
   for(unsigned int i(0); i<m_trigger2L.size(); i++) {
     if(m_trigDecisionTool->isPassed(m_trigger2L.at(i))) {
       isTriggerFired = true;
@@ -425,7 +425,7 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L() const
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
-    TLorentzVector tlv(this->muonFourMomentum(mu));
+    TLorentzVector tlv(DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(mu));
     unsigned int mu_j(m_goodElectrons.size()+mu_i);
     v_tlv.at(mu_j) = tlv;
     v_isElectron.at(mu_j) = false;
@@ -461,7 +461,7 @@ bool DerivationFramework::SkimmingToolHIGG2::check4L() const
 
     bool value(false);
     bool defined(false);
-    if(m_primaryElectronQual4L=="") {
+    if(m_primaryElectronQual4L.empty()) {
       // In the case of no identification requirement
       defined = true;
       value = true;
@@ -487,7 +487,7 @@ bool DerivationFramework::SkimmingToolHIGG2::check4L() const
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
-    TLorentzVector tlv(this->muonFourMomentum(mu));
+    TLorentzVector tlv(DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(mu));
     unsigned int mu_j(m_goodElectrons.size()+mu_i);
     v_tlv.at(mu_j) = tlv;
     v_pid.at(mu_j) = true;
@@ -529,7 +529,7 @@ bool DerivationFramework::SkimmingToolHIGG2::checkTP() const
 {
   if(!(m_nLeptons>0 and m_goodElectrons.size()+m_goodMuons.size()>=m_nLeptons)) return false;
 
-  bool isTriggerFired(m_triggerTP.size()==0 or m_skipTriggerRequirement);
+  bool isTriggerFired(m_triggerTP.empty() or m_skipTriggerRequirement);
   for(unsigned int i(0); i<m_triggerTP.size(); i++) {
     if(m_trigDecisionTool->isPassed(m_triggerTP.at(i))) {
       isTriggerFired = true;
@@ -551,7 +551,7 @@ bool DerivationFramework::SkimmingToolHIGG2::checkTP() const
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
-    TLorentzVector tlv(this->muonFourMomentum(mu));
+    TLorentzVector tlv(DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(mu));
     unsigned int mu_j(m_goodElectrons.size()+mu_i);
     v_tlv.at(mu_j) = tlv;
     v_isElectron.at(mu_j) = false;
@@ -577,7 +577,7 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
 {
   if(!(m_nLeptons>0 and m_goodElectrons.size()+m_goodMuons.size()>=m_nLeptons)) return false;
 
-  bool isTriggerFired(m_trigger2L2Q.size()==0 or m_skipTriggerRequirement);
+  bool isTriggerFired(m_trigger2L2Q.empty() or m_skipTriggerRequirement);
   for(unsigned int i(0); i<m_trigger2L2Q.size(); i++) {
     if(m_trigDecisionTool->isPassed(m_trigger2L2Q.at(i))) {
       isTriggerFired = true;
@@ -609,7 +609,7 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
-    TLorentzVector tlv(this->muonFourMomentum(mu));
+    TLorentzVector tlv(DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(mu));
     unsigned int mu_j(m_goodElectrons.size()+mu_i);
     v_tlv.at(mu_j) = tlv;
     v_isElectron.at(mu_j) = false;
@@ -633,10 +633,10 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
 	  const xAOD::Jet *jet(m_goodJets.at(j));
 	  TLorentzVector jet_tlv(this->jetFourMomentum(jet));
 
-	  double dR_0(this->getDeltaR(v_tlv.at(i0).Eta(), v_tlv.at(i0).Phi(), jet_tlv.Eta(), jet_tlv.Phi()));
+	  double dR_0(DerivationFramework::SkimmingToolHIGG2::getDeltaR(v_tlv.at(i0).Eta(), v_tlv.at(i0).Phi(), jet_tlv.Eta(), jet_tlv.Phi()));
 	  if(dR_0<m_dRElectronJetCut) continue;
 	  
-	  double dR_1(this->getDeltaR(v_tlv.at(i1).Eta(), v_tlv.at(i1).Phi(), jet_tlv.Eta(), jet_tlv.Phi()));
+	  double dR_1(DerivationFramework::SkimmingToolHIGG2::getDeltaR(v_tlv.at(i1).Eta(), v_tlv.at(i1).Phi(), jet_tlv.Eta(), jet_tlv.Phi()));
 	  if(dR_1<m_dRElectronJetCut) continue;
 	  
 	  nGoodJetsWithDRCut++;
@@ -651,10 +651,10 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
 	    for(unsigned int j(0); j<nGoodMergedJets; j++) {
 	      const xAOD::Jet *jet(m_goodMergedJets[type].at(j));
 	      
-	      double dR_0(this->getDeltaR(v_tlv.at(i0).Eta(), v_tlv.at(i0).Phi(), jet->eta(), jet->phi()));
+	      double dR_0(DerivationFramework::SkimmingToolHIGG2::getDeltaR(v_tlv.at(i0).Eta(), v_tlv.at(i0).Phi(), jet->eta(), jet->phi()));
 	      if(dR_0<m_dRElectronJetCut) continue;
 	      
-	      double dR_1(this->getDeltaR(v_tlv.at(i1).Eta(), v_tlv.at(i1).Phi(), jet->eta(), jet->phi()));
+	      double dR_1(DerivationFramework::SkimmingToolHIGG2::getDeltaR(v_tlv.at(i1).Eta(), v_tlv.at(i1).Phi(), jet->eta(), jet->phi()));
 	      if(dR_1<m_dRElectronJetCut) continue;
 	      
 	      nGoodMergedJetsWithDRCut++;
@@ -679,7 +679,7 @@ bool DerivationFramework::SkimmingToolHIGG2::checkJPSI() const
   if(!(m_nMuons>0 and m_goodMuons.size()>=m_nMuons)) return false;
   if(!(m_goodPhotons.size()>=m_nPhotons)) return false;
 
-  bool isTriggerFired(m_triggerJPSI.size()==0 or m_skipTriggerRequirement);
+  bool isTriggerFired(m_triggerJPSI.empty() or m_skipTriggerRequirement);
   for(unsigned int i(0); i<m_triggerJPSI.size(); i++) {
     if(m_trigDecisionTool->isPassed(m_triggerJPSI.at(i))) {
       isTriggerFired = true;
@@ -692,7 +692,7 @@ bool DerivationFramework::SkimmingToolHIGG2::checkJPSI() const
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
-    TLorentzVector tlv(this->muonFourMomentum(mu));
+    TLorentzVector tlv(DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(mu));
     v_tlv.at(mu_i) = tlv;
   }
   
@@ -720,7 +720,7 @@ bool DerivationFramework::SkimmingToolHIGG2::checkPHI() const
   if(!(m_goodPhotons.size()>=m_nPhotons)) return false;
 
   // Check if triggers are OK
-  bool isTriggerFired(m_triggerPHI.size()==0 or m_skipTriggerRequirement);
+  bool isTriggerFired(m_triggerPHI.empty() or m_skipTriggerRequirement);
   for(unsigned int i(0); i<m_triggerPHI.size(); i++) {
     if(m_trigDecisionTool->isPassed(m_triggerPHI.at(i))) {
       isTriggerFired = true;
@@ -783,7 +783,7 @@ TLorentzVector DerivationFramework::SkimmingToolHIGG2::electronFourMomentum(cons
   return tlv;
 }
 
-TLorentzVector DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(const xAOD::Muon *mu) const
+TLorentzVector DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(const xAOD::Muon *mu) 
 {
   TLorentzVector tlv;
   tlv.SetPtEtaPhiM(mu->pt(), mu->eta(), mu->phi(), mu->m());
@@ -806,7 +806,7 @@ TLorentzVector DerivationFramework::SkimmingToolHIGG2::jetFourMomentum(const xAO
   return tlv;
 }
 
-double DerivationFramework::SkimmingToolHIGG2::getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) const 
+double DerivationFramework::SkimmingToolHIGG2::getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) 
 {
   double dEta(eta1 - eta2);
   double dPhi(phi1 - phi2);

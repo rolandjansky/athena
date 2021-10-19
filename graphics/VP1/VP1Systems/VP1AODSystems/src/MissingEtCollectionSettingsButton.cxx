@@ -43,7 +43,7 @@ public:
   }
   MissingEtCollectionSettingsButton * theclass;
   QWidget * editwindow;
-  Ui::MissingEtSettingsForm editwindow_ui;
+  Ui::MissingEtSettingsForm editwindow_ui{};
   
   VP1MaterialButton* matButton;// main collection colour
   

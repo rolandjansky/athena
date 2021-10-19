@@ -4,7 +4,6 @@
 
 #include "PixelRodDecoder.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "ExtractCondensedIBLhits.h"
@@ -50,7 +49,6 @@ inline bool isDBM( uint32_t robId ) { return ((robId>>16) & 0xFF)==0x15; }
 PixelRodDecoder::PixelRodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-     m_pixelCabling("PixelCablingSvc",name),
      m_is_ibl_present(false){
   declareInterface< IPixelRodDecoder  >( this );
 }
@@ -66,7 +64,7 @@ PixelRodDecoder::~PixelRodDecoder() {
 
 StatusCode PixelRodDecoder::initialize() {
   ATH_MSG_INFO("PixelRodDecoder::initialize()");
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
   const InDetDD::PixelDetectorManager* pixelManager;
   ATH_CHECK(detStore()->retrieve(pixelManager, "Pixel"));
@@ -534,7 +532,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             }
             // computing the FE number on the silicon wafer for IBL ( mFE is = 0 for IBL 3D and the lower-eta FE on the planar sensor,
             // while is = 1 for the higher-eta FE on the planar sensor)
-            mFE = m_pixelCabling->getLocalFEI4(fe_IBLheader, onlineId);
+            mFE = getLocalFEI4(fe_IBLheader, onlineId);
           } // end of the if (isIBLModule || isDBMModule)
           else { // Pixel Hit Case
 
@@ -620,7 +618,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               } 
               else {
                 if (((row[i] != 0) && (col[i] != 0) && (row[i] <= 336) && (col[i] <= 80)) || isDBMModule) { // FIXME : Hardcoded numbers. Should be ok as they are features of the FE-I4, but worth checking!
-                  pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i], col[i]);
+                  pixelId = m_pixelReadout ->getPixelIdfromHash (offlineIdHash, mFE, row[i], col[i]);
 
 #ifdef PIXEL_DEBUG
                   ATH_MSG_VERBOSE( "PixelId: " << pixelId );
@@ -646,10 +644,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                     pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> > (m_condHitDiscCnfgKey);
                   }
                   // Get the hit discrimination configuration setting for this FE
-                  if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::DBM) {
+                  if (m_pixelReadout->getModuleType(pixelId) == InDetDD::PixelModuleType::IBL_PLANAR || m_pixelReadout->getModuleType(pixelId) == InDetDD::PixelModuleType::DBM) {
                     hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
                   } 
-                  else if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_3D) {
+                  else if (m_pixelReadout->getModuleType(pixelId) == InDetDD::PixelModuleType::IBL_3D) {
                     hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
                   }
                   // Now do some interpreting of the ToT values
@@ -679,7 +677,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                       continue;
                     } 
                     else {
-                      pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i] + 1, col[i]);
+                      pixelId = m_pixelReadout->getPixelIdfromHash (offlineIdHash, mFE, row[i] + 1, col[i]);
 
 #ifdef PIXEL_DEBUG
                       int eta_i = m_pixel_id->eta_index(pixelId);
@@ -723,7 +721,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           } // end IBL/DBM words pushed into Collection
 
           else { // it is a Pixel hit word to be saved into the Collection
-            pixelId = m_pixelCabling->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
+            pixelId = m_pixelReadout->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
             if (pixelId == invalidPixelId) {
               ATH_MSG_DEBUG("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
               m_numInvalidIdentifiers++;
@@ -1471,3 +1469,18 @@ void PixelRodDecoder::checkUnequalNumberOfHeaders( const unsigned int nFragments
   generalwarning("[FE number] : [# headers] - " << errmsg);
 }
 
+
+unsigned int PixelRodDecoder::getLocalFEI4(const uint32_t fe, const uint64_t onlineId) const
+{
+  unsigned int linknum40 = (onlineId>>24) & 0xFF;
+  unsigned int linknum80 = (onlineId>>32) & 0xFF;
+
+  if (fe == linknum40) { 
+    return 0;
+  } else if (fe == linknum80) {
+    return 1;
+  } else {
+    ATH_MSG_ERROR("Error in retrieving local FE-I4 number: linknumber " << fe << " not found in onlineID " << std::hex << onlineId);
+  }
+  return 0xF;
+}

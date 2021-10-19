@@ -43,7 +43,6 @@
 
 
 class Identifier;
-class CaloDetDescrManager;
 
 class ITileBadChanTool;
 class ITHistSvc;

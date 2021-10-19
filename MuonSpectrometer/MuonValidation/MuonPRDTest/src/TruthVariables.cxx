@@ -22,7 +22,7 @@ StatusCode TruthVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
   CHECK( this->clearVariables() );
 
   const McEventCollection *truthContainer = nullptr;
-  CHECK( m_evtStore->retrieve(truthContainer, m_ContainerName.c_str()) );
+  CHECK( m_evtStore->retrieve(truthContainer, m_ContainerName) );
 
   unsigned int nSubEvents = 0;
   for(auto it : *truthContainer) {

@@ -175,7 +175,7 @@ unsigned int LVL1::RecEnergyRoI::roiWord2() const
 
 /** returns TRUE if threshold number <em>threshold_number</em> has been pass
     ed by this ROI. */
-bool LVL1::RecEnergyRoI::passedEtMissThreshold(int thresholdNumber) const
+bool LVL1::RecEnergyRoI::passedEtMissThreshold(unsigned int thresholdNumber) const
 {
 
    if ( this->isValidEtMissThreshold( thresholdNumber ) ) {
@@ -187,7 +187,7 @@ bool LVL1::RecEnergyRoI::passedEtMissThreshold(int thresholdNumber) const
 
 /** returns TRUE if threshold number <em>threshold_number</em> has been pass
     ed by this ROI. */
-bool LVL1::RecEnergyRoI::passedSumEtThreshold(int thresholdNumber) const
+bool LVL1::RecEnergyRoI::passedSumEtThreshold(unsigned int thresholdNumber) const
 {
 
    if ( this->isValidSumEtThreshold( thresholdNumber ) ) {
@@ -199,7 +199,7 @@ bool LVL1::RecEnergyRoI::passedSumEtThreshold(int thresholdNumber) const
 
 /** returns TRUE if threshold number <em>threshold_number</em> has been pass
     ed by this ROI. */
-bool LVL1::RecEnergyRoI::passedMEtSigThreshold(int thresholdNumber) const
+bool LVL1::RecEnergyRoI::passedMEtSigThreshold(unsigned int thresholdNumber) const
 {
 
    if ( this->isValidSumEtThreshold( thresholdNumber ) ) {

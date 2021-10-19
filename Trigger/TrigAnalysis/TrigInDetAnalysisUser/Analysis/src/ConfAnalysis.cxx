@@ -204,9 +204,9 @@ void ConfAnalysis::initialiseInternal() {
   //  std::cout << "ConfAnalysis::initialize() Directory " << gDirectory->GetName() << " package directory, " << name() << std::endl;
 
 
-  mres.push_back( rnpix_eta  = new Resplot( "npix_eta",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
-  mres.push_back( rnsct_eta  = new Resplot( "nsct_eta",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
-  mres.push_back( rntrt_eta  = new Resplot( "ntrt_eta",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.5, 99.5 ) );
+  mres.push_back( rnpix_eta  = new Resplot( "npix_eta",  2*etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+  mres.push_back( rnsct_eta  = new Resplot( "nsct_eta",  2*etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+  mres.push_back( rntrt_eta  = new Resplot( "ntrt_eta",  2*etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.5, 99.5 ) );
   mres.push_back( rnsihit_eta= new Resplot( "nsihit_eta",etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
 
   mres.push_back( rnpix_lb  = new Resplot( "npix_lb", 250, 0, 2500,  22, -0.5, 21.5 ) );
@@ -228,9 +228,9 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rntrt_pt_bad = new Resplot( "ntrt_pt_bad", ptnbins, ptbinlims, 100, -0.5, 99.5 ) );
   
   
-  mres.push_back(  rnpix_eta_rec  = new Resplot( "npix_eta_rec",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
-  mres.push_back(  rnsct_eta_rec  = new Resplot( "nsct_eta_rec",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
-  mres.push_back(  rntrt_eta_rec  = new Resplot( "ntrt_eta_rec",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.5, 99.5 ) );
+  mres.push_back(  rnpix_eta_rec  = new Resplot( "npix_eta_rec",  2*etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnsct_eta_rec  = new Resplot( "nsct_eta_rec",   2*etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+  mres.push_back(  rntrt_eta_rec  = new Resplot( "ntrt_eta_rec",   2*etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.5, 99.5 ) );
   mres.push_back(  rnsihit_eta_rec= new Resplot( "nsihit_eta_rec", etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
 
   mres.push_back(  rnpix_phi_rec  = new Resplot( "npix_phi_rec",  etaBins, -M_PI, M_PI,  22, -0.5, 21.5 ) );
@@ -856,10 +856,11 @@ TF1* FitFWGaussian(TH1D* s, double a, double b) {
 
 void fitSin( TH1D* h, const std::string& parent="" ) { 
 
-  TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
+  TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)+[2]" ); // , -M_PI, M_PI );
 
   fsin->SetParameter(0,1);
   fsin->SetParameter(1,0);
+  fsin->SetParameter(2,0);
 
   fsin->SetLineWidth(1);
 

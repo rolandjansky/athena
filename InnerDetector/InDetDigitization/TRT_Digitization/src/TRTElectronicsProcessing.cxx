@@ -304,7 +304,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 
   // Only attempt this if the digit is non-zero
   if ( m_settings->isOverlay() && digit ) { //doing overlay
-    digit += (1<<31);//flag digit a "MC" one
+    digit += (1u<<31);//flag digit a "MC" one
     if (m_first){
       m_first=false;
       msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;

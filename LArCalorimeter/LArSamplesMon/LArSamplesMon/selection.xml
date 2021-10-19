@@ -1,0 +1,50 @@
+<lcgdict>
+   <class name="LArSamples::Residual" />
+   <class name="std::vector<LArSamples::Residual>" />
+   <class name="LArSamples::Residuals" />
+   <class name="LArSamples::ResidualCalculator" />
+
+   <class name="LArSamples::IndexRange" />
+   <class name="LArSamples::Averager" />
+   <class name="LArSamples::ScaledShiftedShape" />
+   <class name="LArSamples::ShapeErrorData" />
+   <class name="LArSamples::ScaledErrorData" />
+   <class name="LArSamples::AbsShapeErrorGetter" />
+   <class name="LArSamples::CombinedShapeErrorGetter" />
+   <class name="LArSamples::UniformShapeErrorGetter" />
+   <class name="LArSamples::TreeShapeErrorGetter" />
+   <class name="LArSamples::OFC" />
+   <class name="LArSamples::Data" />
+   <class name="std::vector<const LArSamples::Data*>" />
+   <class name="LArSamples::History" />
+   <class name="LArSamples::HistoryIterator" />
+   <class name="LArSamples::AbsLArCells" />
+   <class name="LArSamples::Accessor" />
+   <class name="LArSamples::TreeAccessor" />
+   <class name="LArSamples::MultiTreeAccessor" />
+   <class name="LArSamples::Interface" />
+   <class name="LArSamples::FilterParams" />
+   <class name="LArSamples::FilterList" />
+   <class name="LArSamples::DataTweaker" />
+   <class name="LArSamples::Chi2Calc" />
+   <class name="LArSamples::ShapeFitter" />
+   <class name="LArSamples::ShapeDrawer" />
+   <class name="LArSamples::OccupancyMonitor" />
+   <class name="LArSamples::DigitMonitor" />
+   <class name="LArSamples::FitMonitor" />
+   <class name="LArSamples::TimingMonitor" />
+<!--   <class name="LArSamples::LudovicaTiming" /> -->
+   <class name="LArSamples::TimingClass" />
+   <class name="LArSamples::Splitter" />
+   <enum name="LArSamples::Chi2Params"/>
+   <enum name="LArSamples::ShapeErrorType"/>
+   <enum name="LArSamples::CombinationType"/>
+   <enum name="LArSamples::DrawParams"/>
+   <enum name="CaloGain::CaloGain"/>
+
+   <class name="LArSamples::LArCellsEmptyMonitoring" />
+   <class name="LArIdTranslatorHelper" />
+   <class name="CaloD3PDClass" />
+   <class name="LArSamples::D3PDConverter" />
+
+</lcgdict>

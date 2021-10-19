@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -107,7 +107,7 @@ namespace ISFTesting {
       ATH_MSG_INFO ("initializing MockTruthSvc: " << name());
       return StatusCode::SUCCESS;
     };
-    void registerTruthIncident(ISF::ITruthIncident&) const { };
+    void registerTruthIncident(ISF::ITruthIncident&, bool) const { };
     StatusCode initializeTruthCollection() { return StatusCode::SUCCESS; };
     StatusCode releaseEvent() { return StatusCode::SUCCESS; };
   };
@@ -208,6 +208,7 @@ public:
   virtual ISF::EntryLayer identifyEntryLayer( const ISF::ISFParticle& ) { return ISF::fUnsetEntryLayer; };
   virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle&, ISF::EntryLayer layer=ISF::fUnsetEntryLayer ) { return layer; };
   virtual StatusCode registerTrackRecordCollection(TrackRecordCollection*, ISF::EntryLayer) { return StatusCode::SUCCESS; };
+  virtual void setupEvent() { return; }
 
 }; // MockEntryLayerTool
 

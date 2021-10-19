@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -313,7 +313,7 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
 
     // All explicitly requested PDG IDs of long lived particles, this is needed
     // because their childrens barcodes can be above the cut off m_geantOffset = 200000
-    if(m_longLivedPdgIds.size()>0 && parentIsLongLived(p)){
+    if(!m_longLivedPdgIds.empty() && parentIsLongLived(p)){
       ok=true;
     }
 
@@ -661,7 +661,7 @@ bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle
     return false;
 }
 
-bool DerivationFramework::MenuTruthThinning::isBSM(const xAOD::TruthParticle* part) const{
+bool DerivationFramework::MenuTruthThinning::isBSM(const xAOD::TruthParticle* part) {
     
     int pdg = part->pdgId();
     
@@ -686,7 +686,7 @@ bool DerivationFramework::MenuTruthThinning::isBSM(const xAOD::TruthParticle* pa
 }
 
 
-bool DerivationFramework::MenuTruthThinning::isttHFHadron(const xAOD::TruthParticle* part) const{
+bool DerivationFramework::MenuTruthThinning::isttHFHadron(const xAOD::TruthParticle* part) {
     
     int ttHFClassification=6;
     

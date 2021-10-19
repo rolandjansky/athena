@@ -32,7 +32,7 @@ namespace DerivationFramework {
     }
 
     ATH_CHECK( m_tracksKey.initialize() );
-    std::string::size_type pos = m_tracksKey.key().find("+");
+    std::string::size_type pos = m_tracksKey.key().find('+');
     pos =  (pos != std::string::npos) ? pos+1 : 0;
     std::string_view container_name( &(m_tracksKey.key().data()[pos]), m_tracksKey.key().size() - pos);
     std::string_view decor_name(m_decorationKey.key());

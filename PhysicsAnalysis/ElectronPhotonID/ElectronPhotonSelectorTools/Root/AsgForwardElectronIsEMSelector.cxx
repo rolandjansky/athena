@@ -320,8 +320,6 @@ AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   // trigETthr : threshold in ET to apply the cuts at trigger level
   // iflag: the starting isEM
   //
-
-  // std::cout<<" NVTX "<<nvtx<<" eta2 "<<eta2<<" eta "<<eta2<<std::endl;
   const xAOD::CaloCluster* cluster2 = eg->caloCluster();
   double secondLambda(0);
   double lateral(0);

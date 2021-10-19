@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_COMBOHYPO_H
 #define DECISIONHANDLING_COMBOHYPO_H
@@ -34,31 +34,28 @@ class ComboHypo : public ::AthReentrantAlgorithm {
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
+
 
  protected:
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsInput() const { return m_inputs; }
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsOutput() const { return m_outputs; }
-  typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
-  typedef std::map<std::string, std::vector<int>> LegMap;
-  const MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
-  const LegMap& triggerLegMap() const { return m_legMap.value(); }
+  const Combo::MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
   ToolHandleArray<ComboHypoToolBase>& hypoTools() { return m_hypoTools; }
   const ToolHandleArray<ComboHypoToolBase>& hypoTools() const { return m_hypoTools; }
 
  private:
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "HypoInputDecisions", {}, "Input Decisions" };
-  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "HypoOutputDecisions", {}, "Ouput Decisions" };
+  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "HypoOutputDecisions", {}, "Output Decisions" };
 
   Gaudi::Property<bool> m_requireUniqueROI {this, "RequireUniqueROI", false,
     "Require each Feature in each leg of the combination to come from a unique L1 seeding ROI."};
 
-  Gaudi::Property< MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, 
+  Gaudi::Property< Combo::MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, 
     "Map from the chain name to multiplicities required at each input"};
 
-  Gaudi::Property< LegMap > m_legMap{this, "LegMap", {},
-    "Map from the chain name to legs required at each input"};
+  Gaudi::Property< Combo::LegMap > m_legToInputCollectionMap{this, "LegToInputCollectionMap", {},
+    "Map from the chain name to the per-leg index in this algorithm's ReadHandleKeyArray which should be used as the source of incoming Decision Objects on the leg."};
 
   Gaudi::Property<bool> m_checkMultiplicityMap { this, "CheckMultiplicityMap", true,
     "Perform a consistency check of the MultiplicitiesMap"};
@@ -68,30 +65,40 @@ class ComboHypo : public ::AthReentrantAlgorithm {
   * the decisions that are mentioned in the passing set
   **/
   
-  StatusCode copyDecisions( const LegDecisionsMap & passingLegs, const EventContext& context ) const;
+  StatusCode copyDecisions( const Combo::LegDecisionsMap & passingLegs, const EventContext& context ) const;
 
 
   /**
    * @brief For a given Decision node from a HypoAlg, extracts type-less identification data on the node's Feature and seeding ROI.
-   * @param[in] d The Decision node from the HypoAlg, expected to have a "feature" link attached to it.
+   * @param[in] chainLegId The HLT::Identifer of the chain (leg) we're extracting features for.
+   * @param[in] EL The Decision node from the HypoAlg, expected to have a "feature" link attached to it.
    *   Expected to be able to locate a "initialRoI" in its history if RequireUniqueROI=True.
    * @param[out] featureKey Type-less SG Key hash of the collection hosting the Decision node's feature .
    * @param[out] featureIndex Index inside the featureKey collection. 
    * @param[out] roiKey Type-less SG Key hash of the collection hosting the Decision node's initial ROI collection. 
    * @param[out] roiIndex Index inside the roiKey collection. 
-   * @param[out] roiFullscan Flag indicating if the located initial ROI has the FullScan flag enabled. 
+   * @param[out] roiIsFullscan Flag indicating if the located initial ROI has the FullScan flag enabled. 
    *                         Triggers special behaviour allowing the ROI to satisfy arbitrary multiplicities in an arbitrary number of legs.
+   * @param[out] objectRequestsNoMultiplicityCheck Flag indicating of the DecisionObject requested not be included in the multiplicity computation.
+   *                         Triggers special behaviour allowing the DecisionObject to satisfy arbitrary multiplicities in an arbitrary number of legs.
    * @param[inout] priorFeaturesMap Data structure collating for a given feature (key) what the prior features were integrated over all previous steps (value set). 
    **/
-  StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
-    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan, std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap) const; 
+  StatusCode extractFeatureAndRoI(const HLT::Identifier& chainLegId,
+    const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
+    uint32_t& featureKey, 
+    uint16_t& featureIndex, 
+    uint32_t& roiKey, 
+    uint16_t& roiIndex, 
+    bool& roiFullscan, 
+    bool& objectRequestsNoMultiplicityCheck,
+    std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap) const; 
 
 
   /**
    * @brief iterates over all inputs, associating inputs to legs
    **/
 
-  StatusCode fillDecisionsMap( LegDecisionsMap& dmap, const EventContext& context) const;
+  StatusCode fillDecisionsMap( Combo::LegDecisionsMap& dmap, const EventContext& context) const;
 
   ToolHandleArray< ComboHypoToolBase > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 

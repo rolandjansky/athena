@@ -8,7 +8,7 @@ atlas_add_library( TrigNavToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigNavTools
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel CxxUtils TrigConfHLTData TrigSteeringEvent xAODTrigger
-                   LINK_LIBRARIES GaudiKernel TrigDecisionToolLib TrigNavigationLib )
+                   LINK_LIBRARIES GaudiKernel TrigDecisionToolLib TrigNavigationLib AnalysisTriggerEvent AthAnalysisBaseCompsLib AthContainers AthViews AthenaBaseComps AthenaKernel CxxUtils EventInfo GaudiKernel MuonCombinedToolInterfaces Particle StoreGateLib TrigCaloEvent TrigCompositeUtilsLib TrigConfHLTData TrigConfInterfaces TrigDecisionToolLib TrigInDetEvent TrigInDetTruthEvent TrigMissingEtEvent TrigMuonEvent TrigNavStructure TrigNavigationLib TrigParticle TrigRoiConversionLib TrigSteeringEvent TrigT1Interfaces VxSecVertex tauEvent xAODBTagging xAODCore xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigger xAODEventInfo )
 
 atlas_add_component( TrigNavTools
                      src/components/*.cxx
@@ -18,7 +18,3 @@ atlas_add_component( TrigNavTools
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/*.py )
-
-atlas_add_test(NavConverterTest
-    SCRIPT python -m TrigNavTools.NavConverterConfig
-    POST_EXEC_SCRIPT nopost.sh)

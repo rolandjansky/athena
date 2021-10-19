@@ -19,7 +19,7 @@ from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 #==============================================================
 
 # call  setDefaults to update default flags
@@ -71,7 +71,7 @@ def MooSegmentFinderAlg( name="MuonSegmentMaker",**kwargs ):
     kwargs.setdefault("UseMDT", muonRecFlags.doMDTs())
     kwargs.setdefault("UseRPC", muonRecFlags.doRPCs())
     kwargs.setdefault("UseTGC", muonRecFlags.doTGCs())
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("UseTGCPriorBC", False)
         kwargs.setdefault("UseTGCNextBC", False)
     else:
@@ -122,10 +122,10 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     SegmentLocation = "TrackMuonSegments"
     if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
         SegmentLocation = "ThirdChainSegments"
-    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "MuonSegmentMaker",SegmentCollectionName=SegmentLocation, 
+    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( name,SegmentCollectionName=SegmentLocation, 
                                                         MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
                                                         MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
-                                                        PrintSummary = muonStandaloneFlags.printSummary() )
+                                                        PrintSummary = muonStandaloneFlags.printSummary(), **kwargs )
     # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
     if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC():
         getPublicTool("CscSegmentUtilTool")
@@ -134,6 +134,7 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     else:
         MuonSegmentFinderAlg.Csc2dSegmentMaker = ""
         MuonSegmentFinderAlg.Csc4dSegmentMaker = ""
+        MuonSegmentFinderAlg.CSC_clusterkey = ""
     return MuonSegmentFinderAlg
 
 

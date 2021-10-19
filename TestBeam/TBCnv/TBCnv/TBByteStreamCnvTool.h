@@ -27,7 +27,7 @@
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBLArDigitContainer.h"
 #include "TBEvent/TBLArCalibDigitContainer.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 #include "CaloIdentifier/CaloGain.h"
 
@@ -120,8 +120,9 @@ private:
     }else return false;
   }
   
-  LArCablingLegacyService *m_larCablingSvc;
-  
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey
+    {this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
+
   // pointers to raw objects :
   TBTDC * m_tbtdc;
   TBTDCRawCont* m_tdcrawCont;

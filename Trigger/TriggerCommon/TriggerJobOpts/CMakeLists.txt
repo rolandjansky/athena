@@ -22,7 +22,7 @@ atlas_add_test( TriggerConfigFlags_AutoConfTest
 
 atlas_add_test( NewJOL1SimSetup
    SCRIPT python -m TriggerJobOpts.Lvl1SimulationConfig
-   PROPERTIES TIMEOUT 300
+   PROPERTIES TIMEOUT 600
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( NewJOL1MuonSimSetup

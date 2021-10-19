@@ -2,6 +2,7 @@
 # art-description: Generation test Sherpa ttll without inputs 
 # art-type: build
 # art-include: master/AthGeneration
+# art-include: master--HepMC3/Athena
 # art-output: *.root
 # art-output: log.generate
 # art-output: mc.*.py

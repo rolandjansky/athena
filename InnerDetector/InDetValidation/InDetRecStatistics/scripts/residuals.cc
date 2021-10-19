@@ -14,7 +14,7 @@
 
 using std::string;
 
-void residuals(TTree *ntuple, const string plotprefix="", const string plotext="",
+void residuals(TTree *ntuple, const string & plotprefix="", const string & plotext="",
                const TCut hit_cut="")
 {
   // turn on outlier display, increase some text sizes

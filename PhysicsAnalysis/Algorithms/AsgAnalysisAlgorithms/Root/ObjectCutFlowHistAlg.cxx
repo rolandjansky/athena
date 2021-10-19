@@ -36,7 +36,7 @@ namespace CP
   StatusCode ObjectCutFlowHistAlg ::
   initialize ()
   {
-    m_systematicsList.addHandle (m_inputHandle);
+    ANA_CHECK (m_inputHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -80,57 +80,58 @@ namespace CP
   StatusCode ObjectCutFlowHistAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        const xAOD::IParticleContainer *input = nullptr;
-        ANA_CHECK (m_inputHandle.retrieve (input, sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::IParticleContainer *input = nullptr;
+      ANA_CHECK (m_inputHandle.retrieve (input, sys));
 
-        auto histIter = m_hist.find (sys);
-        if (histIter == m_hist.end())
+      auto histIter = m_hist.find (sys);
+      if (histIter == m_hist.end())
+      {
+        std::string name;
+        ANA_CHECK (m_systematicsList.service().makeSystematicsName (name, m_histPattern, sys));
+
+        ANA_CHECK (book (TH1F (name.c_str(), "object cut flow", m_allCutsNum+1, 0, m_allCutsNum+1)));
+
+        m_hist.insert (std::make_pair (sys, hist (name)));
+        histIter = m_hist.find (sys);
+        assert (histIter != m_hist.end());
+
+        for (unsigned i = 0; i < m_allCutsNum+1; i++)
         {
-          const std::string name
-            = makeSystematicsName (m_histPattern, sys);
-
-          ANA_CHECK (book (TH1F (name.c_str(), "object cut flow", m_allCutsNum+1, 0, m_allCutsNum+1)));
-
-          m_hist.insert (std::make_pair (sys, hist (name)));
-          histIter = m_hist.find (sys);
-          assert (histIter != m_hist.end());
-
-          for (unsigned i = 0; i < m_allCutsNum+1; i++)
-          {
-            histIter->second->GetXaxis()->SetBinLabel(i + 1, m_labels[i].c_str());
-          }
+          histIter->second->GetXaxis()->SetBinLabel(i + 1, m_labels[i].c_str());
         }
+      }
 
-        for (const xAOD::IParticle *particle : *input)
+      for (const xAOD::IParticle *particle : *input)
+      {
+        if (m_preselection.getBool (*particle))
         {
-          if (m_preselection.getBool (*particle))
+          bool keep = true;
+          unsigned cutIndex = 1;
+          histIter->second->Fill (0);
+          for (const auto& accessor : m_accessors)
           {
-            bool keep = true;
-            unsigned cutIndex = 1;
-            histIter->second->Fill (0);
-            for (const auto& accessor : m_accessors)
+            const auto selection = accessor.first->getBits (*particle);
+            for (unsigned index = 0, end = accessor.second;
+                 index != end; ++ index, ++ cutIndex)
             {
-              const auto selection = accessor.first->getBits (*particle);
-              for (unsigned index = 0, end = accessor.second;
-                   index != end; ++ index, ++ cutIndex)
+              if (selection & (1 << index))
               {
-                if (selection & (1 << index))
-                {
-                  histIter->second->Fill (cutIndex);
-                } else
-                {
-                  keep = false;
-                  break;
-                }
-              }
-              if (!keep)
+                histIter->second->Fill (cutIndex);
+              } else
+              {
+                keep = false;
                 break;
+              }
             }
+            if (!keep)
+              break;
           }
         }
+      }
+    }
 
-        return StatusCode::SUCCESS;
-      });
+    return StatusCode::SUCCESS;
   }
 }

@@ -11,6 +11,10 @@ LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj,
 				     LArPedestalTransType* transObj, 
 				     MsgStream & log)
 {
+    // Copy basic metadata
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
     // Copy conditions
@@ -56,9 +60,6 @@ LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj,
     }//end if ncorrs
     transObj->insertCorrections (std::move (corrs));
 
-    // Copy the rest
-    transObj->setChannel       (persObj->m_subset.m_channel);
-    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 

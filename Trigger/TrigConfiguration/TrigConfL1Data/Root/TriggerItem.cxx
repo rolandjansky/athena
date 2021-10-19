@@ -105,7 +105,7 @@ TriggerItem::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) 
    bool end=false;
    string::size_type index=0;
    while(!end){
-      std::string::size_type pos=final_def.find("&",index);
+      std::string::size_type pos=final_def.find('&',index);
       if(pos!= std::string::npos){
          end=false;
          index = pos+1;

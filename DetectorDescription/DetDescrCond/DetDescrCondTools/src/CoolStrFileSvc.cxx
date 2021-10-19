@@ -61,7 +61,7 @@ StatusCode CoolStrFileSvc::putFile(const std::string& folder,
   
   // transform to a string
   FILE* f = fopen (filename.c_str(),"rb");
-  if (f != NULL)   {
+  if (f != nullptr)   {
     fseek (f, 0L, SEEK_END);
     int size = ftell (f);
     fseek (f, 0L, SEEK_SET);
@@ -72,9 +72,9 @@ StatusCode CoolStrFileSvc::putFile(const std::string& folder,
       fclose (f);
       return StatusCode::FAILURE;
     }
-    fclose (f);
     // copy from buffer to string and save
     std::string sdata(sbuf.begin(),sbuf.begin()+size);
+    fclose (f);
     return putData(folder,filename,chan,tech,sdata);
   }
 
@@ -100,7 +100,7 @@ StatusCode CoolStrFileSvc::getFile(const std::string& folder, const int chan,
   if (file!="") rfile=file;
 
   FILE* f = fopen (rfile.c_str(),"wb");
-  if (f!=NULL) {
+  if (f!=nullptr) {
     int size=data.size();
     fwrite(data.c_str(),size,1,f);
     ATH_MSG_INFO("getFile: written data of length " << size <<
@@ -109,6 +109,7 @@ StatusCode CoolStrFileSvc::getFile(const std::string& folder, const int chan,
     ATH_MSG_ERROR("Failed to open file "+rfile+" for write");
     return StatusCode::FAILURE;
   }
+  fclose(f);
   return StatusCode::SUCCESS;
 }
 

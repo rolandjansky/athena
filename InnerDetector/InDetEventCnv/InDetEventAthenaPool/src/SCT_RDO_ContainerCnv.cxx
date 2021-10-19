@@ -106,7 +106,7 @@ SCT_RDO_Container_PERS* SCT_RDO_ContainerCnv::createPersistent(SCT_RDO_Container
   SCT_RDO_Container::const_iterator it_CollEnd  = transCont->end();
   // check one element of the container. The container can't be empty for this... 
   if (it_Coll != it_CollEnd) {
-    while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0) it_Coll++;
+    while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0) ++it_Coll;
     if (it_Coll != it_CollEnd) {
       const SCT_RDORawData* test((**it_Coll)[0]);
       if (dynamic_cast<const SCT1_RawData*>(test) != nullptr) {

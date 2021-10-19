@@ -59,12 +59,12 @@ std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi(const E
   if(m_decodeMuCTPiFromROB) {
   
     // in L2 the DAQ muCTPi ROB needs to be retreived first from the ROS
-    m_robDataProviderSvc->addROBData(m_muCTPiRobIds);
+    m_robDataProviderSvc->addROBData(ctx, m_muCTPiRobIds);
 
     // get the muCTPi ROB fragment
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> muCTPiRobFragmentVec;
     muCTPiRobFragmentVec.reserve(m_muCTPiRobIds.size());
-    m_robDataProviderSvc->getROBData(m_muCTPiRobIds,muCTPiRobFragmentVec);
+    m_robDataProviderSvc->getROBData(ctx, m_muCTPiRobIds,muCTPiRobFragmentVec);
     
     if (muCTPiRobFragmentVec.size()==0) {
       ATH_MSG_DEBUG(" decodeMuCTPi: No muCTPi ROB found.");
@@ -163,11 +163,11 @@ std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi(const E
   uint16_t roiEventNCan = MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult->candidateMultiplicity()).getNCandidates();
 
   // reset the containers and fill them with new data
-  auto inTime_muCTPIRoIs=new std::vector<ROIB::MuCTPIRoI>();
-  auto outOfTime_muCTPIRoIs=new std::vector< std::pair<ROIB::MuCTPIRoI,int> >();
+  auto inTime_muCTPIRoIs= std::vector<ROIB::MuCTPIRoI>();
+  auto outOfTime_muCTPIRoIs= std::vector< std::pair<ROIB::MuCTPIRoI,int> >();
 
-  inTime_muCTPIRoIs->reserve( roiEventNCan );
-  outOfTime_muCTPIRoIs->reserve( roiEventNCan );
+  inTime_muCTPIRoIs.reserve( roiEventNCan );
+  outOfTime_muCTPIRoIs.reserve( roiEventNCan );
 
   for(std::vector< uint32_t >::const_iterator it = daqmuCTPIResult->dataWord().begin();
       it != daqmuCTPIResult->dataWord().end(); ++it) {
@@ -179,21 +179,21 @@ std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi(const E
     ROIB::MuCTPIRoI roI( mirodToRoIBDataWord(*it) );
 
     if (roiEventBCID == daqRoI.getBCID()) { // RoI matches event BCID
-      inTime_muCTPIRoIs->push_back(roI);
+      inTime_muCTPIRoIs.push_back(roI);
     } else {
-      outOfTime_muCTPIRoIs->push_back( std::pair<ROIB::MuCTPIRoI,int>(roI,(int(daqRoI.getBCID())-int(roiEventBCID))) );
+      outOfTime_muCTPIRoIs.push_back( std::pair<ROIB::MuCTPIRoI,int>(roI,(int(daqRoI.getBCID())-int(roiEventBCID))) );
     }
   } // end loop over data words
   
   // print contents of RoI arrays
   if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG(" RoIs in time with event BCID:  Number of RoIs = " << inTime_muCTPIRoIs->size());
-    for (std::vector< ROIB::MuCTPIRoI >::iterator it = inTime_muCTPIRoIs->begin(); it != inTime_muCTPIRoIs->end(); ++it) {
+    ATH_MSG_DEBUG(" RoIs in time with event BCID:  Number of RoIs = " << inTime_muCTPIRoIs.size());
+    for (std::vector< ROIB::MuCTPIRoI >::iterator it = inTime_muCTPIRoIs.begin(); it != inTime_muCTPIRoIs.end(); ++it) {
       dumpRoIBDataWord((*it).roIWord());
     }
 
-    ATH_MSG_DEBUG(" RoIs out of time with event BCID:  Number of RoIs = " << outOfTime_muCTPIRoIs->size());
-    for (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::iterator it = outOfTime_muCTPIRoIs->begin(); it != outOfTime_muCTPIRoIs->end(); ++it) {
+    ATH_MSG_DEBUG(" RoIs out of time with event BCID:  Number of RoIs = " << outOfTime_muCTPIRoIs.size());
+    for (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::iterator it = outOfTime_muCTPIRoIs.begin(); it != outOfTime_muCTPIRoIs.end(); ++it) {
       ATH_MSG_DEBUG( " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second);
       dumpRoIBDataWord(((*it).first).roIWord());
     }

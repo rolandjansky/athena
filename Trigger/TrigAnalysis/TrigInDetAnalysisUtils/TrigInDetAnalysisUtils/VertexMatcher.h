@@ -19,7 +19,6 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 
 
-
 class VertexMatcher : public BestMatcher<TIDA::Vertex> {
 
 public:

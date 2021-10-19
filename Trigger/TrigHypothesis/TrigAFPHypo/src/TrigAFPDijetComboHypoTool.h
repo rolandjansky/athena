@@ -29,7 +29,7 @@ class TrigAFPDijetComboHypoTool : public ComboHypoToolBase {
 
 private:
 
-  virtual bool executeAlg(std::vector<LegDecision>& thecomb) const override;
+  virtual bool executeAlg(const std::vector<Combo::LegDecision>& combination) const override;
 
   ///Boolean corresponding to the decision to record the event based on the selection being met.
   //HLT::Identifier m_decisionId;

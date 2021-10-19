@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILECELLMONITORALGORITHM_H
@@ -57,11 +57,17 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
     Gaudi::Property<float> m_timeBalanceThreshold{this,
         "TimeBalanceThreshold", 25.0F, "Time threshold in ns"};
 
+    Gaudi::Property<float> m_energyThresholdForGapScint{this,
+        "EnergyThresholdForGapScintilator", 0.0F, "Energy threshold for Gap Scintilator (E1-E4) in MeV"};
+
     Gaudi::Property<bool> m_fillTimeHistograms{this,
         "fillTimeHistograms", false, "Force filling timing histograms"};
 
     Gaudi::Property<bool> m_fillChannelTimeHistograms{this,
         "fillChannelTimeHistograms", true, "Fill histograms with channel time per sample"};
+
+    Gaudi::Property<bool> m_fillGapScintHistograms{this,
+        "fillGapScintilatorHistograms", false, "Fill histograms for indvidual Gap scintilators (E1-E4 cells)"};
 
     Gaudi::Property<bool> m_fillTimeAndEnergyDiffHistograms{this, "fillTimeAndEnergyDiffHistograms", true,
          "Fill histograms with time and energy difference between two PMTs of the same Cell"};
@@ -71,9 +77,6 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
 
     Gaudi::Property<std::vector<float>> m_timeRangeForMuon{this,
          "TimeRangeForMuon", {-60.0F, 60.F}, "Cell time range for muon in ns"};
-
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
-        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
     /**
      * @brief Name of Tile cabling service
@@ -119,6 +122,7 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
     std::vector<std::vector<int>> m_overThr300GeVOccupGroups;
     std::vector<std::vector<int>> m_eneDiffChanModGroups;
     std::vector<std::vector<std::vector<int>>> m_overThrOccupGainGroups;
+    std::vector<std::vector<std::vector<int>>> m_energyGapScintGroups;
 
     std::vector<std::vector<std::vector<int>>> m_chanTimeSampGroups;
     std::vector<std::vector<std::vector<int>>> m_eneDiffSampGroups;

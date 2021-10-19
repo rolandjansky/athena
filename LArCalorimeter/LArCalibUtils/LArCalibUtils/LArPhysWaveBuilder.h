@@ -167,7 +167,7 @@ private:
     /// that it isn't valid (doesn't exist, isn't connected),
     /// then the gains pointers will be set to the special value
     /// wave_invalid.
-    LArPhysWave* gains[N_GAINS];
+    LArPhysWave* gains[N_GAINS]{};
 
     /// Constructor, to zero the gains[] pointers.
     Cellwave();
@@ -186,14 +186,14 @@ private:
   TH2F* m_hDigiGainSampling;
 
   /// Histogram of energy per sampling.
-  TH1F* m_henergy[N_SAMPLINGS];
+  TH1F* m_henergy[N_SAMPLINGS]{};
 
   /// Histogram of peak significance, in sigma, per sampling.
-  TH1F* m_hsigma[N_SAMPLINGS];
+  TH1F* m_hsigma[N_SAMPLINGS]{};
 
   /// Histogram of the (pedestal subtracted) peak sample value,
   /// per samplng.
-  TH1F* m_hlaymax[N_SAMPLINGS];
+  TH1F* m_hlaymax[N_SAMPLINGS]{};
   
   // Grouping type
   std::string m_groupingType;

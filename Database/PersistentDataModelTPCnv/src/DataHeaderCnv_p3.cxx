@@ -25,20 +25,20 @@ void DataHeaderElementCnv_p3::persToTrans(const DataHeaderElement_p3* pers,
    trans->m_clids.clear();
    std::set<CLID>::iterator lastClid = trans->m_clids.begin();
    for (std::vector<unsigned int>::const_iterator iter = pers->m_clids.begin() + 1,
-		   last = pers->m_clids.end(); iter != last; iter++) {
+		   last = pers->m_clids.end(); iter != last; ++iter) {
       lastClid = trans->m_clids.insert(lastClid, *iter);
    }
    trans->m_key = *pers->m_alias.begin();
    trans->m_alias.clear();
    std::set<std::string>::iterator lastAlias = trans->m_alias.begin();
    for (std::vector<std::string>::const_iterator iter = pers->m_alias.begin() + 1,
-		   last = pers->m_alias.end(); iter != last; iter++) {
+		   last = pers->m_alias.end(); iter != last; ++iter) {
       lastAlias = trans->m_alias.insert(lastAlias, *iter);
    }
    trans->m_hashes.clear();
    trans->m_hashes.reserve(pers->m_hashes.size());
    for (std::vector<uint64_t>::const_iterator iter = pers->m_hashes.begin(),
-		   last = pers->m_hashes.end(); iter != last; iter++) {
+		   last = pers->m_hashes.end(); iter != last; ++iter) {
       trans->m_hashes.push_back((unsigned int)(*iter));
    }
 // Translate PoolToken
@@ -97,13 +97,13 @@ void DataHeaderCnv_p3::persToTrans(const DataHeader_p3* pers, DataHeader* trans)
    trans->m_dataHeader.resize(pers->m_DataHeader.size());
    std::vector<DataHeaderElement>::iterator it = trans->m_dataHeader.begin();
    for (std::vector<DataHeaderElement_p3>::const_iterator pit = pers->m_DataHeader.begin(),
-		   last = pers->m_DataHeader.end(); pit != last; it++, pit++) {
+		   last = pers->m_DataHeader.end(); pit != last; ++it, ++pit) {
       m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_GuidMap);
    }
    trans->m_inputDataHeader.resize(pers->m_InputDataHeader.size());
    it = trans->m_inputDataHeader.begin();
    for (std::vector<DataHeaderElement_p3>::const_iterator pit = pers->m_InputDataHeader.begin(),
-		   last = pers->m_InputDataHeader.end(); pit != last; it++, pit++) {
+		   last = pers->m_InputDataHeader.end(); pit != last; ++it, ++pit) {
       m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_GuidMap);
    }
 }

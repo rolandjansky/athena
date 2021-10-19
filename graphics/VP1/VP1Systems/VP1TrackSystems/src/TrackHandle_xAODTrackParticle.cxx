@@ -92,9 +92,7 @@ Amg::Vector3D TrackHandle_xAODTrackParticle::momentum() const
 //____________________________________________________________________
 double TrackHandle_xAODTrackParticle::calculateCharge() const
 {
-  // const Trk::MeasuredPerigee* p = m_d->trackparticle->measuredPerigee();
-  // if (!common()->trackSanityHelper()->isSafe(p))
-  //   return unknown();//fixme: warn
+
   return m_d->trackparticle->charge();
 }
 
@@ -108,18 +106,9 @@ const Trk::Track * TrackHandle_xAODTrackParticle::provide_pathInfoTrkTrack() con
   DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
 
   const Trk::Perigee* peri = &(m_d->trackparticle->perigeeParameters());
-  // const Trk::ParametersBase* base = static_cast<const Trk::TrackParameters*>(peri);
-  
-  // if (!trackpars.empty()) {
+
   trackpars.push_back(peri);
-    // bool needresorting = trackpars.at(0)!=m_d->trackparticle->perigee();//Needed since TrackParticles are (at the moment)
-    //                                                                   //created with the first parameter put last
-    // if (needresorting) {
-    //   const Trk::ParametersT<Trk::Charged>* p = dynamic_cast<const Trk::ParametersT<Trk::Charged>* >(trackpars.at(trackpars.size()-1));
-    //   if (p)
-    //     trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
-    // }
-    // unsigned limit(needresorting?trackpars.size()-1:trackpars.size());
+
 
     //NB: We only ever created this handle if charge()!=0.0:
     for (unsigned i = 0; i < trackpars.size(); ++i) {
@@ -128,7 +117,7 @@ const Trk::Track * TrackHandle_xAODTrackParticle::provide_pathInfoTrkTrack() con
         continue;
       if (!common()->trackSanityHelper()->isSafe(p))
         continue;
-      trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
+      trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->uniqueClone(),nullptr,nullptr));
     }
   // }
 
@@ -143,57 +132,52 @@ void TrackHandle_xAODTrackParticle::ensureTouchedMuonChambersInitialised() const
 
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNPixelHits() const
-{ 
-  uint8_t numberOfPixelHits = 0; 
+{
+  uint8_t numberOfPixelHits = 0;
   if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits))
-    return numberOfPixelHits; 
+    return numberOfPixelHits;
   return 0;
 }
 
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNSCTHits() const
-{ 
-  uint8_t numberOfSCTHits = 0;   
+{
+  uint8_t numberOfSCTHits = 0;
   if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits))
-    return numberOfSCTHits; 
+    return numberOfSCTHits;
   return 0;
 }
 
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNTRTHits() const
-{ 
-  uint8_t numberOfTRTHits = 0;   
-    if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits)) 
-      return numberOfTRTHits; 
+{
+  uint8_t numberOfTRTHits = 0;
+    if (m_d->trackparticle && m_d->trackparticle->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits))
+      return numberOfTRTHits;
     return 0;
 }
 
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNMuonPhiHits() const
-{ 
+{
   return 0;
-  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNMDTHits() const
-{ 
+{
   return 0;
-  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNRPCHits() const
-{ 
+{
   return 0;
-  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) : 0; 
 }//____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNTGCHits() const
-{ 
+{
   return 0;
-  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) : 0; 
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNCSCHits() const
-{ 
+{
   return 0;
-  // return (m_d->trackparticle->trackSummary()) ? m_d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + m_d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0; 
 }

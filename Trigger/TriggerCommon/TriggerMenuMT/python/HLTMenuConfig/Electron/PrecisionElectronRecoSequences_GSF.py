@@ -69,7 +69,7 @@ def precisionElectronRecoSequence_GSF(RoIs):
     TrigEgammaRecAlgo_GSF = TrigEgammaRecElectron("TrigEgammaRecElectron_GSF")
     thesequence_GSF += TrigEgammaRecAlgo_GSF
     TrigEgammaRecAlgo_GSF.TrackMatchBuilderTool = TrigEMTrackMatchBuilder_GSF
-    TrigEgammaRecAlgo_GSF.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
+    TrigEgammaRecAlgo_GSF.InputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
 
     ## TrigElectronSuperClusterBuilder_GSF ##
     TrigSuperElectronAlgo_GSF = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_GSF")
@@ -81,6 +81,8 @@ def precisionElectronRecoSequence_GSF(RoIs):
     thesequence_GSF += TrigTopoEgammaAlgo_GSF
     TrigTopoEgammaAlgo_GSF.ElectronOutputName = TrigEgammaKeys_GSF.outputElectronKey_GSF
     collectionOut_GSF = TrigTopoEgammaAlgo_GSF.ElectronOutputName
+    TrigTopoEgammaAlgo_GSF.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
+    collectionOut_GSF_dummy = TrigTopoEgammaAlgo_GSF.DummyElectronOutputName
 
     ## TrigElectronIsoBuilderCfg_GSF ##
     isoBuilder_GSF = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_GSF")
@@ -89,8 +91,9 @@ def precisionElectronRecoSequence_GSF(RoIs):
 
     #online monitoring for topoEgammaBuilder_GSF
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
-    PrecisionElectronRecoMonAlgo_GSF = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoEgammaBuilder_GSF")
+    PrecisionElectronRecoMonAlgo_GSF = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoMonitoring_GSF")
     PrecisionElectronRecoMonAlgo_GSF.ElectronKey = TrigTopoEgammaAlgo_GSF.ElectronOutputName
+    PrecisionElectronRecoMonAlgo_GSF.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo_GSF.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo_GSF.ElectronOutputName]
     thesequence_GSF += PrecisionElectronRecoMonAlgo_GSF
 
     #online monitoring for TrigElectronSuperClusterBuilder_GSF
@@ -99,4 +102,4 @@ def precisionElectronRecoSequence_GSF(RoIs):
     PrecisionElectronSuperClusterMonAlgo_GSF.InputEgammaRecContainerName = TrigSuperElectronAlgo_GSF.SuperElectronRecCollectionName
     thesequence_GSF += PrecisionElectronSuperClusterMonAlgo_GSF
 
-    return (thesequence_GSF, collectionOut_GSF)
+    return (thesequence_GSF, collectionOut_GSF, collectionOut_GSF_dummy)

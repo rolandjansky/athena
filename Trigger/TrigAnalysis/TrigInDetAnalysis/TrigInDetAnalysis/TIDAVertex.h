@@ -69,6 +69,9 @@ public:
   double chi2()    const  { return m_chi2; }
   int    ndof()    const  { return m_ndof; }
 
+protected:
+
+  void setNtracks( int nTracks ) { m_Ntracks = nTracks; }
 
 private:
 

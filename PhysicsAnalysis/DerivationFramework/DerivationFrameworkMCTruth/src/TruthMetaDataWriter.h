@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_TRUTHMETADATAWRITER_H
@@ -38,7 +38,7 @@ namespace DerivationFramework {
       /// Service for retrieving the weight names
       ServiceHandle< IHepMCWeightSvc > m_weightSvc;
       /// The meta data container to be written out
-      xAOD::TruthMetaDataContainer* m_tmd;
+      xAOD::TruthMetaDataContainer* m_tmd = nullptr;
       /// SG key and name for meta data
       std::string m_metaName;
       /// Set for tracking the mc channels for which we already added meta data

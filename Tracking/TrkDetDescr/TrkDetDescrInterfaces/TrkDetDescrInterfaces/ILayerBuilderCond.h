@@ -60,7 +60,7 @@ namespace Trk {
 
     protected:
       /** Protected method to register the Layer to the Surface */
-      void associateLayer(const Layer& lay, const Surface& sf) const { sf.associateLayer(lay); }
+      void associateLayer(const Layer& lay, Surface& sf) const { sf.associateLayer(lay); }
        
   };
 

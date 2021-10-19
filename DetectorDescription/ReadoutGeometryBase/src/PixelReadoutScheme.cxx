@@ -26,6 +26,8 @@ PixelReadoutScheme::PixelReadoutScheme(const int circuitsPerColumn,
 				       const int diodeColumnsPerCircuit,
 				       const int diodeRowsPerCircuit) :
   m_numberOfCircuits(circuitsPerColumn*circuitsPerRow),
+  m_numberOfCircuitsPerColumn(circuitsPerColumn),
+  m_numberOfCircuitsPerRow(circuitsPerRow),
   m_columnsPerCircuit(cellColumnsPerCircuit),
   m_rowsPerCircuit(cellRowsPerCircuit),
   m_columns(circuitsPerRow*diodeColumnsPerCircuit),

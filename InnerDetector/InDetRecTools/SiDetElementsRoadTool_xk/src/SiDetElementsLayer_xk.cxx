@@ -131,10 +131,7 @@ void InDet::SiDetElementsLayer_xk::getITkBarrelDetElements
   float zc   = startingPoint[2]+searchDirection[2]*s;
   /// radial component of the search direction
   float At   = std::sqrt(1.-searchDirection[2]*searchDirection[2]);
-  float Sz = (m_dr+startingPoint[4])*std::abs(searchDirection[2])/At + 70.;
-  //ID uses instead
-  //float Sz = (m_dr*std::abs(searchDirection[2])+startingPoint[4])/At;
-  //Not clear why the algebra is different
+  float Sz = (m_dr*std::abs(searchDirection[2])+startingPoint[4])/At;
 
   /// Check if we miss the layer completely:
   /// If the distance of our crossing point to the layer centre along z exceeds the half width

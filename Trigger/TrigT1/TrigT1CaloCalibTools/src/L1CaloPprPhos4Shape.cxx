@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -118,7 +118,7 @@ StatusCode L1CaloPprPhos4Shape::Fill(const unsigned int timeSlice,const unsigned
 /// values, which should only contain as many entries as there are
 /// ADC time slices since I use the vector to determine the number
 /// of time slices
-StatusCode L1CaloPprPhos4Shape::Fill(const unsigned int rodHeaderStep,const std::vector<int> adc){
+StatusCode L1CaloPprPhos4Shape::Fill(const unsigned int rodHeaderStep,const std::vector<int>& adc){
    const unsigned int phos4step = rodHeaderStep % NANOSEC_PER_LHC_CLOCK_TICK;
    
    for(unsigned int timeSlice = 0;timeSlice < adc.size();++timeSlice){
@@ -503,12 +503,12 @@ void L1CaloPprPhos4Shape::CheckRisingSlope(TH1* histo,unsigned int peakBin,float
    
 }
 
-std::string L1CaloPprPhos4Shape::GetPlotName(const std::string base, const L1CaloCoolChannelId& coolId) const{
+std::string L1CaloPprPhos4Shape::GetPlotName(const std::string& base, const L1CaloCoolChannelId& coolId) const{
    std::string tempStr = base + "_" + CoolIdToString(coolId);
    return tempStr;
 }
 
-std::string L1CaloPprPhos4Shape::GetPlotTitle(const std::string base, const L1CaloCoolChannelId& coolId) const{
+std::string L1CaloPprPhos4Shape::GetPlotTitle(const std::string& base, const L1CaloCoolChannelId& coolId) const{
    std::string tempStr = base + " " + CoolIdToString(coolId);
    return tempStr;
 }

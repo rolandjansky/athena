@@ -89,81 +89,84 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    if(!m_fecollKey.key().empty()){
-      // PFOs have been provided as FlowElements
-      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.feCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
-      if(m_decorateSoftTermConst) {
-        dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
-        dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
-        dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
-        dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
-      }
-      for(const IParticle* sig : *uniquePFOs) {
-        const xAOD::FlowElement *pfo = static_cast<const xAOD::FlowElement*>(sig);
-        if (pfo->isCharged()) { // Charged PFOs
-          // We set a small -ve pt for cPFOs that were rejected
-          // by the ChargedHadronSubtractionTool
-          const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
-          if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0))) ) ) {
-            // For the TST, we add the track pt, as this need not be
-            // corrected for nearby energy in the calo
-            *metCoreTrk += pfo->chargedObject(0);
-            // For CST we add the PFO pt, which is weighted down
-            // to account for energy in the calo that may not have
-            // been subtracted
-            *metCoreCl  += sig;
-            if(m_decorateSoftTermConst) {
-              dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-              dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+    if(m_pflow){
+      if(!m_fecollKey.key().empty()){
+        // PFOs have been provided as FlowElements
+        const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.feCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
+        if(m_decorateSoftTermConst) {
+          dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
+          dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
+          dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
+          dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
+        }
+        for(const IParticle* sig : *uniquePFOs) {
+          const xAOD::FlowElement *pfo = static_cast<const xAOD::FlowElement*>(sig);
+          if (pfo->isCharged()) { // Charged PFOs
+            // We set a small -ve pt for cPFOs that were rejected
+            // by the ChargedHadronSubtractionTool
+            const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+            if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0))) ) ) {
+              // For the TST, we add the track pt, as this need not be
+              // corrected for nearby energy in the calo
+              *metCoreTrk += pfo->chargedObject(0);
+              // For CST we add the PFO pt, which is weighted down
+              // to account for energy in the calo that may not have
+              // been subtracted
+              *metCoreCl  += sig;
+              if(m_decorateSoftTermConst) {
+                dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+                dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+              }
+            }
+          } else { // Neutral PFOs
+            if (pfo->e()>FLT_MIN) {
+              // This is a non-issue; just add the four-vector
+              *metCoreCl += sig;
+              if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
             }
           }
-        } else { // Neutral PFOs
-          if (pfo->e()>FLT_MIN) {
-            // This is a non-issue; just add the four-vector
-             *metCoreCl += sig;
-             if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+        }
+        delete uniquePFOs;
+      }
+      else{
+        const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
+        if(m_decorateSoftTermConst) {
+          dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
+          dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
+          dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
+          dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
+        }
+        for(const auto sig : *uniquePFOs) {
+          const PFO *pfo = static_cast<const PFO*>(sig);
+          if (pfo->isCharged()) { // Charged PFOs
+            // We set a small -ve pt for cPFOs that were rejected
+            // by the ChargedHadronSubtractionTool
+            const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+            if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
+              // For the TST, we add the track pt, as this need not be
+              // corrected for nearby energy in the calo
+              *metCoreTrk += pfo->track(0);
+              // For CST we add the PFO pt, which is weighted down
+              // to account for energy in the calo that may not have
+              // been subtracted
+              *metCoreCl  += sig;
+              if(m_decorateSoftTermConst) {
+                dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+                dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+              }
+            }
+          } else { // Neutral PFOs
+            if (pfo->e()>FLT_MIN) {
+              // This is a non-issue; just add the four-vector
+              *metCoreCl += sig;
+              if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+            }
           }
         }
+        delete uniquePFOs;
       }
-      delete uniquePFOs;
     }
-    else if (m_pflow) {
-      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
-      if(m_decorateSoftTermConst) {
-        dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
-        dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
-        dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
-        dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
-      }
-      for(const auto sig : *uniquePFOs) {
-        const PFO *pfo = static_cast<const PFO*>(sig);
-        if (pfo->isCharged()) { // Charged PFOs
-          // We set a small -ve pt for cPFOs that were rejected
-          // by the ChargedHadronSubtractionTool
-          const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
-          if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
-            // For the TST, we add the track pt, as this need not be
-            // corrected for nearby energy in the calo
-            *metCoreTrk += pfo->track(0);
-            // For CST we add the PFO pt, which is weighted down
-            // to account for energy in the calo that may not have
-            // been subtracted
-            *metCoreCl  += sig;
-            if(m_decorateSoftTermConst) {
-              dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-              dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-            }
-          }
-        } else { // Neutral PFOs
-          if (pfo->e()>FLT_MIN) {
-            // This is a non-issue; just add the four-vector
-             *metCoreCl += sig;
-             if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-          }
-        }
-      }
-      delete uniquePFOs;
-    } else {
+    else {
       MissingET* metCoreEMCl = new MissingET(0.,0.,0.,"SoftClusEMCore",MissingETBase::Source::softEvent() | MissingETBase::Source::clusterEM());
       metCont->push_back(metCoreEMCl);
       const IParticleContainer* uniqueClusters = metMap->getUniqueSignals(constits.tcCont,MissingETBase::UsageHandler::AllCalo);

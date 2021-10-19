@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOCODE_LARMATERIALMANAGER_H
@@ -48,7 +48,7 @@ class LArMaterialManager
  private:
   
   StoredMaterialManager* m_storedManager;
-  IMessageSvc*           m_msgSvc;
+  IMessageSvc*           m_msgSvc = nullptr;
 };
 
 #endif

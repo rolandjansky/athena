@@ -29,7 +29,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-    size_t posit=trigItem.rfind("_");
+    size_t posit=trigItem.rfind('_');
     if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
@@ -726,11 +726,11 @@ void HLTTauMonTool::bookHistogramsAllItem(){
   if(m_emulation){
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
     setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-    if(m_emulation_l1_tau.size() > 0) {
+    if(!m_emulation_l1_tau.empty()) {
       addProfile(new TProfile("hL1Emulation", " L1 Emulation-TDT Mismatched events;", m_emulation_l1_tau.size(), -0.5, m_emulation_l1_tau.size()-0.5));
     }
 
-    if(m_emulation_hlt_tau.size() > 0) {
+    if(!m_emulation_hlt_tau.empty()) {
       addProfile(new TProfile("hHLTEmulation", " HLT Emulation-TDT Mismatched events;", m_emulation_hlt_tau.size(), -0.5, m_emulation_hlt_tau.size()-0.5));
     }
 

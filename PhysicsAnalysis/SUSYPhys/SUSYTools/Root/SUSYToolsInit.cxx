@@ -281,6 +281,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // Initialise JetTruthLabelingTool: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR#AnalysisBase_21_2_114_and_newer
     if (!m_jetTruthLabelingTool.isUserConfigured()) {
       m_jetTruthLabelingTool.setTypeAndName("JetTruthLabelingTool/JetTruthLabelingTool");
+      ATH_CHECK( m_jetTruthLabelingTool.setProperty("RecoJetContainer", fatjetcoll) );
       ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthLabelName", "R10TruthLabel_R21Consolidated") );
       ATH_CHECK( m_jetTruthLabelingTool.setProperty("UseTRUTH3", m_useTRUTH3) );                 // Set this to false only if you have the FULL !TruthParticles container in your input file
       ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthParticleContainerName", "TruthParticles") );

@@ -84,12 +84,14 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
   using namespace Monitored;
 
-  auto PassedCuts         = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto ptAccepted         = Monitored::Scalar<float>( "ptAccepted", -1);
-  auto nTrackAccepted	  = Monitored::Scalar<int>( "nTrackAccepted", -1);
-  auto nWideTrackAccepted = Monitored::Scalar<int>( "nWideTrackAccepted", -1);
-  auto ninputTaus         = Monitored::Scalar<int>( "nInputTaus", -1);
-  auto monitorIt          = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus);
+  auto PassedCuts          = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto ptAccepted          = Monitored::Scalar<float>( "ptAccepted", -1);
+  auto nTrackAccepted	   = Monitored::Scalar<int>( "nTrackAccepted", -1);
+  auto nWideTrackAccepted  = Monitored::Scalar<int>( "nWideTrackAccepted", -1);
+  auto ninputTaus          = Monitored::Scalar<int>( "nInputTaus", -1);
+  auto RNNJetScore         = Monitored::Scalar<float>( "RNNJetScore", -1);
+  auto RNNJetScoreSigTrans = Monitored::Scalar<float>( "RNNJetScoreSigTrans", -1);
+  auto monitorIt           = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus, RNNJetScore, RNNJetScoreSigTrans);
 
   // general reset
   PassedCuts = 0;
@@ -187,7 +189,7 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 	  continue;
 	else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetBDTSigTight) == 0)
 	  continue;
-	
+
 	PassedCuts++;
       }    // RNN
     else if(m_method == 3)
@@ -211,8 +213,11 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
      continue;
    else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
      continue;
-   
+
    PassedCuts++;
+   RNNJetScore = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+   RNNJetScoreSigTrans = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+
       }
     else
       {

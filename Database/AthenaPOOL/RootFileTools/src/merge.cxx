@@ -316,7 +316,7 @@ DbStatus DbDatabaseMerger::attach(const string& fid) {
       m_sectionBranch->GetEntry(m_sectionsMin);
       string dsc = text;
       size_t id1 = dsc.find("[CNT=");
-      size_t id2 = dsc.find("]");
+      size_t id2 = dsc.find(']');
       if (id1 != string::npos && id2 != string::npos) {
         string cnt = dsc.substr(id1+5, id2-5);
         std::map<std::string, size_t>::iterator it = m_sectionsCounts.find(cnt);

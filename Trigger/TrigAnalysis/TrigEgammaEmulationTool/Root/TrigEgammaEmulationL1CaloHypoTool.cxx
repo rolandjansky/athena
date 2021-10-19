@@ -36,8 +36,10 @@ bool TrigEgammaEmulationL1CaloHypoTool::decide(  const Trig::TrigData &input ) c
   std::string l1item = m_l1item;
 
   //for(const auto& l1 : *l1Cont){
-  if (l1->roiType() != xAOD::EmTauRoI::EMRoIWord) return true;
-
+  if (l1->roiType() != xAOD::EmTauRoI::EMRoIWord){
+    ATH_MSG_DEBUG("This roi is not EMRoIWord!");
+    return true;
+  }
   float emE     = l1->emClus()/Gaudi::Units::GeV;   // Cluster energy
   float eta     = l1->eta();                        // eta
   float hadCore = l1->hadCore()/Gaudi::Units::GeV;  // Hadronic core energy

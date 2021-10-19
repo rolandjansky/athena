@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -9,17 +9,17 @@
 // LArRawChannelCnv_p1, used for T/P separation
 // author R.Seuster <seuster@cern.ch>
 
-void LArRawChannelCnv_p1::transToPers(const LArRawChannel* /*trans*/, LArRawChannel_p1* /*pers*/, MsgStream &/*log*/) 
+void LArRawChannelCnv_p1::transToPers(const LArRawChannel* /*trans*/, LArRawChannel_p1* /*pers*/, MsgStream &/*log*/) const
 {
     // No longer used
 }
 
-void LArRawChannelCnv_p1::persToTrans(const LArRawChannel_p1* pers, LArRawChannel* trans, MsgStream &/*log*/) 
+void LArRawChannelCnv_p1::persToTrans(const LArRawChannel_p1* pers, LArRawChannel* trans, MsgStream &/*log*/) const
 {
   union {
     int  m_quality ; 
     uint16_t m_qualProv[2];
-  } qprov;
+  } qprov{};
 
   // FIXME: persistent data is machine-dependent!
   int q              = pers->m_qualityandgain & 0xFFFF;

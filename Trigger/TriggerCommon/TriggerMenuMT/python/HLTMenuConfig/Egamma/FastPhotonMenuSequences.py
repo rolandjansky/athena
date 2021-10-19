@@ -1,7 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+
+
 # menu components   
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
@@ -13,7 +15,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 
-def fastPhotonMenuSequence():
+def fastPhotonSequence(flags):
     """Creates secpond step photon sequence"""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import CaloMenuDefs
@@ -56,19 +58,33 @@ def fastPhotonMenuSequence():
     l2PhotonViewsMaker.ViewNodeName = "photonInViewAlgs"
 
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg
-    thePhotonHypo = TrigEgammaFastPhotonHypoAlg()
-    thePhotonHypo.Photons = thePhotonFex.PhotonsName
-    thePhotonHypo.RunInView=True
-
+    
     # this needs to be added:
     #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", Decisions = [theElectronHypo.Output] )
 
     photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
+    
+    return (photonAthSequence, l2PhotonViewsMaker)
+    
+
+
+def fastPhotonMenuSequence(flags=None):
+    """Creates secpond step photon sequence"""
+
+    # retrieve the reco sequence+IM
+    (photonAthSequence, l2PhotonViewsMaker) = RecoFragmentsPool.retrieve(fastPhotonSequence, flags=None)
+
+    # make the hypo
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg
+    thePhotonHypo = TrigEgammaFastPhotonHypoAlg()
+    thePhotonHypo.Photons = "HLT_FastPhotons"
+    thePhotonHypo.RunInView=True
+
     from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 
     return MenuSequence( Maker=l2PhotonViewsMaker,
                          Sequence=photonAthSequence,
                          Hypo=thePhotonHypo,
-                         HypoToolGen=TrigEgammaFastPhotonHypoToolFromDict)
+                         HypoToolGen=TrigEgammaFastPhotonHypoToolFromDict
+                         )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIG_L2_LAYER_NUMBER_TOOL__
@@ -86,12 +86,12 @@ class TrigL2LayerNumberTool : virtual public ITrigL2LayerNumberTool, public AthA
   int m_OffsetEndcapPixels;
   int m_OffsetBarrelSCT;
   int m_OffsetEndcapSCT;
-  int m_LastBarrelLayer;
+  int m_LastBarrelLayer = 0;
 
-  const SCT_ID*  m_sctId;
-  const PixelID* m_pixelId;
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-  const InDetDD::SCT_DetectorManager* m_sctManager;
+  const SCT_ID*  m_sctId = nullptr;
+  const PixelID* m_pixelId = nullptr;
+  const InDetDD::PixelDetectorManager* m_pixelManager = nullptr;
+  const InDetDD::SCT_DetectorManager* m_sctManager = nullptr;
 
   void createModuleHashMap(std::map<std::tuple<short,short,short>,std::vector<PhiEtaHash> >&);
 

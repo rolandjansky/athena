@@ -727,7 +727,7 @@ namespace Trk
       leadingTSOS->emplace_back(new TrackStateOnSurface(nullptr,
                                                      nullptr,
                                                      nullptr,
-                                                      m->materialEffects()->clone()));
+                                                      m->materialEffects()->uniqueClone()));
 
     deleteMaterial(extrapolatedTSOS.release(), garbage);
 

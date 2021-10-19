@@ -9,9 +9,6 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 
-// Framework include(s):
-#include "SystematicsHandles/Helpers.h"
-
 // ROOT include(s):
 #include <TClass.h>
 #include <TTree.h>
@@ -444,13 +441,16 @@ namespace CP {
       bool nominal = sys.empty();
 
       // Event store key for the object under consideration.
-      const std::string key = makeSystematicsName( match[ 1 ], sys );
+      std::string key;
+      ANA_CHECK (m_systematicsList.service().makeSystematicsName( key, match[ 1 ], sys ));
       // Auxiliary variable name for the object under consideration.
-      const std::string auxName = makeSystematicsName( match[ 2 ],
-                                                         sys );
+      std::string auxName;
+      ANA_CHECK (m_systematicsList.service().makeSystematicsName( auxName, match[ 2 ],
+                                                                  sys ));
       // Branch name for the variable.
-      const std::string brName = makeSystematicsName( match[ 3 ],
-                                                      sys );
+      std::string brName;
+      ANA_CHECK (m_systematicsList.service().makeSystematicsName( brName, match[ 3 ],
+                                                                  sys ));
 
       // If the %SYS% pattern was not used in this setup, then stop
       // on non-nominal systematic.

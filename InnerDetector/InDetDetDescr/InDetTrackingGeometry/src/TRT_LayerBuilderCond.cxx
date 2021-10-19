@@ -262,10 +262,13 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
        delete layerMaterial;
      }
   } else {
-    // (B) complex geometry section
 
-    int nMaterialLayerStep  = int(nTotalBarrelLayers/m_modelBarrelLayers+1);
-    int cMaterialLayerCount = 0;
+    // (B) complex geometry section
+    float nMaterialLayerStep  = 1.*nTotalBarrelLayers/m_modelBarrelLayers;
+    // complex geo should build same # of mat. layers as model geo; counter to check this: 
+    unsigned int cMaterialLayerCount = 0;
+    // inclusive layer counter over all rings, used to determine mat. layer position
+    unsigned int cLayer=0;
 
     // loop over rings
     ATH_MSG_VERBOSE("TRT Barrel has " << nBarrelRings << " rings.");
@@ -279,7 +282,9 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 
              // ----------------------------------------------------------------------------------
               ATH_MSG_VERBOSE("--> Layer " << layer << " is being built with " << nBarrelPhiSectors << " secors in phi.");
-              ++cMaterialLayerCount;
+
+              // increase inclusive layer counter for next material layer  
+              ++cLayer;
 
               // set layer dimensions radius
               double layerRadius         =  0.;
@@ -398,10 +403,10 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               layerRadius = 0.5*(layerRadiusMin+layerRadiusMax)+0.5*m_layerStrawRadius;
 
               bool assignMaterial = false;
-              if (cMaterialLayerCount == nMaterialLayerStep) {
-                  assignMaterial      = true;
-                  cMaterialLayerCount = 0;
-                  ATH_MSG_VERBOSE( "--> Creating a material+straw layer at radius  : " << layerRadius );
+              if (cLayer==(unsigned)int((cMaterialLayerCount+1)*nMaterialLayerStep)) {
+                assignMaterial      = true;
+                ++cMaterialLayerCount;
+                ATH_MSG_VERBOSE( "--> Creating a material+straw layer at radius  : " << layerRadius );
               } else
                   ATH_MSG_VERBOSE( "--> Creating a straw          layer at radius  : " << layerRadius );
 
@@ -474,7 +479,16 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               ++ilay;
         } // loop over layers
      } // loop over rings
-   }
+
+    ATH_MSG_VERBOSE(" Built number of TRT barrel material layers: " << cMaterialLayerCount);
+    // In Complex geo # of material layers should match the expected # of layers,
+    // else a mis-match in layer and material map index occurs.
+    // This mis-match will results layers getting incorrect material properties.
+    if (cMaterialLayerCount!=m_modelBarrelLayers) {
+      ATH_MSG_WARNING(" Complex geo built incorrect # of TRT barrel material layers: "
+                      << cMaterialLayerCount <<  " / " <<  m_modelBarrelLayers);
+    }
+  }// complex geometry 
 
   // return what you have
   range = readHandleTRTContainer.getRange();
@@ -608,20 +622,22 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
 
    } else {
       // (b) complex geometry
-      int nMaterialLayerStep  = int(numTotalLayers/m_modelEndcapLayers+1);
-      int cMaterialLayerCount = 0;
+     float nMaterialLayerStep  = 1.*numTotalLayers/m_modelEndcapLayers;
+     // inclusive layer counter over all wheels  
+     unsigned int cLayer = 0;
+     // complex geo should build same # of mat. layers as model geo; counter to check this: 
+     unsigned int  cMaterialLayerCount = 0;
 
       // complex geometry - needs a little bit of joggling
-      int    currentLayerCounter = 0;
       for (unsigned int iwheel=0; iwheel<nEndcapWheels; ++iwheel)
       {
         // do the loop per side
         unsigned int nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
         for (unsigned int ilayer = 0; ilayer < nEndcapLayers; ++ilayer){
-         // increase the layerCounter for material layer decission
-         ++currentLayerCounter;
-         ++cMaterialLayerCount;
 
+         // increase inclusive layer counter for next material layer  
+         ++cLayer;
+          
          // count the straws;
          int numberOfStraws = 0;
 
@@ -636,10 +652,10 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
 
            // check if we need to build a straw layer or not
            bool assignMaterial = false;
-           if (cMaterialLayerCount == nMaterialLayerStep) {
-               assignMaterial      = true;
-               cMaterialLayerCount = 0;
-               ATH_MSG_VERBOSE( "--> Creating a material+straw layer at z-pos   : " << discZ );
+           if (cLayer == (unsigned)int((cMaterialLayerCount+1)*nMaterialLayerStep)) {
+             assignMaterial      = true;
+             ++cMaterialLayerCount;
+             ATH_MSG_VERBOSE( "--> Creating a material+straw layer at z-pos   : " << discZ );
            } else {
                ATH_MSG_VERBOSE( "--> Creating a straw          layer at z-pos   : " << discZ );
            }
@@ -725,6 +741,16 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
        } // end of sectorDiscBounds if
       } // end of layer loop
      } // end of wheel loop
+
+      ATH_MSG_VERBOSE(" Built # of TRT material layers: " << cMaterialLayerCount << "in ispos: " << iposneg << "ring");
+      // # of material layers should match the expected # of layers,
+      // else a mis-match in layer and material map index occurs.
+      // This mis-match will results layers getting incorrect material properties.
+      if (cMaterialLayerCount != m_modelEndcapLayers) {
+        ATH_MSG_WARNING(" Built incorrect # of TRT material layers: "
+                        << cMaterialLayerCount <<  " / " << m_modelEndcapLayers <<  "in ispos" << iposneg << "ring" );
+      }
+
     } // model/real geometry
   } // end of posneg loop
 

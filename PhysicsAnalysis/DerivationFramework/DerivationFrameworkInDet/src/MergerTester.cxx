@@ -70,7 +70,7 @@ namespace DerivationFramework {
     SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCol (m_inputParticleLocation);
     ATH_MSG_INFO("Tester Info: ");
     ATH_MSG_INFO(trackParticleCol->size());  
-    for (const auto rf: *trackParticleCol) {
+    for (const auto *const rf: *trackParticleCol) {
       ATH_MSG_INFO(rf->d0());
       ATH_MSG_INFO(rf->auxdata<float>("truthMatchProbability"));
     } 

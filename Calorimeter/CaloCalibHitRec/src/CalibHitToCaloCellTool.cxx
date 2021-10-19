@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCalibHitRec/CalibHitToCaloCellTool.h"
@@ -13,7 +13,6 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"  
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -27,10 +26,7 @@ CalibHitToCaloCellTool::CalibHitToCaloCellTool(const std::string& t, const std::
   : AthAlgTool(t,n,p),
     m_caloGain((int)CaloGain::LARLOWGAIN),
     m_caloCell_Tot("TotalCalibCell"), m_caloCell_Vis("VisCalibCell"), 
-    m_caloCell_Em(""), m_caloCell_NonEm(""),
-    m_caloCell_ID(nullptr),
-    m_caloDM_ID(nullptr),
-    m_caloDDMgr(nullptr)
+    m_caloCell_Em(""), m_caloCell_NonEm("")
 {
   declareInterface<CalibHitToCaloCellTool>(this);
 
@@ -68,9 +64,9 @@ StatusCode CalibHitToCaloCellTool::initialize()
   // retrieve ID helpers from det store
   ATH_MSG_INFO("initialisation ID helpers" );
 
-  ATH_CHECK(  detStore()->retrieve(m_caloCell_ID) );
-  ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
-  ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
+  ATH_CHECK( detStore()->retrieve(m_caloCell_ID) );
+  ATH_CHECK( detStore()->retrieve(m_caloDM_ID) );
+  ATH_CHECK( m_caloMgrKey.initialize() );
     
   ATH_MSG_INFO("initialisation completed" );
   return StatusCode::SUCCESS;
@@ -91,6 +87,10 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
     return StatusCode::SUCCESS;
   }
     
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
   CaloCellContainer* truthCells[3];                                                                                                                                                                       
   xAOD::CaloClusterContainer* truthClusters[3];                                                                                                                                                           
   
@@ -166,7 +166,7 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
       //check if this ID is LAr or Tile
       if(m_caloCell_ID->is_lar(id)) {
 	ATH_MSG_VERBOSE( "Found LAr cell" );	
-	const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);	  
+	const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);	  
 	CellsEtot.push_back(new LArCell(caloDDE, id, Etot, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)) ;
 	CellsEvis.push_back(new LArCell(caloDDE, id, Evis, 0., 0, 0, (CaloGain::CaloGain)m_caloGain));
 	CellsEem.push_back(new LArCell(caloDDE, id, Eem, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)); 
@@ -175,7 +175,7 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
       }
       else if(m_caloCell_ID->is_tile(id)) {
 	ATH_MSG_VERBOSE( "Found Tile cell" );
-	const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);
+	const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);
 	CellsEtot.push_back(new TileCell(caloDDE, id, Etot, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)) ;
 	CellsEvis.push_back(new TileCell(caloDDE, id, Evis, 0., 0, 0, (CaloGain::CaloGain)m_caloGain));
 	CellsEem.push_back(new TileCell(caloDDE, id, Eem, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)); 

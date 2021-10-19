@@ -64,12 +64,6 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
 
   int getRunningNumbering(Identifier offlineID);
   void getAtlasIdentifier(int strawnumber, Identifier &outputID, Identifier inputID);
-
-  /// converters between offline ID and hardware layout. Usage: call with input value = -1 for the variables beeing determined. 
-  /// E.g.: convert_numbering_ec(-1,-1,-1,-1,-1,7,3,-2,11,5,id). More info: http://www.nbi.dk/~klinkby/TRTConditionsTools.html 
-  void convert_numbering_bar(int& strawnumber, int& straw, int& layer, bool first);
-  void convert_numbering_ec(int electronics_row,int electronics_layer,int  electronics_chip,int  electronics_wheel,int  electronics_phi, int& straw, int& strawlayer, int& bec,  int& sector, int& wheel, Identifier inputID); 
-
   // chip to board conversion. Works for barrel only!
   int chipToBoardBarrel(int chip, int layer) ;
 

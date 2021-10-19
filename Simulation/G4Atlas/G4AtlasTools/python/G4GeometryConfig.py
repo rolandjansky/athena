@@ -65,16 +65,12 @@ def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
 def getIDETEnvelope(name="IDET", **kwargs):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
     isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
-    #isRUN1 = not (isRUN2 or isUpgrade)
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
     if isRUN2:
         innerRadius = 28.9*mm #29.15*mm
-    if isUpgrade:
-        innerRadius = 32.15*mm
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
     kwargs.setdefault("dZ", 347.5*cm)
@@ -84,25 +80,18 @@ def getIDETEnvelope(name="IDET", **kwargs):
         SubDetectorList += ['Pixel']
     if DetFlags.geometry.SCT_on():
         SubDetectorList += ['SCT']
-    if DetFlags.geometry.TRT_on() and not isUpgrade:
+    if DetFlags.geometry.TRT_on():
         SubDetectorList += ['TRT']
     SubDetectorList += ['IDetServicesMat']
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
 
 def getCALOEnvelope(name="CALO", **kwargs):
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6735.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6747.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.LAr_on():
@@ -132,18 +121,11 @@ def getForwardRegionEnvelope(name='ForwardRegion', **kwargs):
     return CfgMgr.GeoDetectorTool(name, **kwargs) ##FIXME Should this really be a GeoDetectorTool???
 
 def getMUONEnvelope(name="MUONQ02", **kwargs): #FIXME rename to MUON when safe
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6736.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6748.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6748.,-6748.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6748.,6748.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Muon_on():
@@ -267,7 +249,7 @@ def getCavernWorld(name="Cavern", **kwargs):
             bedrockDX = 1000.*3000 # 3 km
             bedrockDZ = 1000.*3000 # 3 km
         else:
-            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
+            from CosmicGenerator.CosmicGeneratorConfigLegacy import CavernPropertyCalculator
             theCavernProperties = CavernPropertyCalculator()
             if theCavernProperties.BedrockDX() > bedrockDX:
                 bedrockDX = theCavernProperties.BedrockDX()
@@ -294,14 +276,13 @@ def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
         kwargs.setdefault("TestBeam", True)
     return CfgMgr.MaterialDescriptionTool(name, **kwargs)
 
-def getSmartlessnessTool(name="SmartlessnessTool", **kwargs):
-    return CfgMgr.SmartlessnessTool(name, **kwargs)
+def getVoxelDensityTool(name="VoxelDensityTool", **kwargs):
+    return CfgMgr.VoxelDensityTool(name, **kwargs)
 
 def getATLAS_RegionCreatorList():
     regionCreatorList = []
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
     isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
@@ -314,7 +295,7 @@ def getATLAS_RegionCreatorList():
             regionCreatorList += ['PixelPhysicsRegionTool']
         if DetFlags.SCT_on():
             regionCreatorList += ['SCTPhysicsRegionTool']
-        if DetFlags.TRT_on() and not isUpgrade:
+        if DetFlags.TRT_on():
             regionCreatorList += ['TRTPhysicsRegionTool']
             if isRUN2:
                 regionCreatorList += ['TRT_ArPhysicsRegionTool'] #'TRT_KrPhysicsRegionTool'
@@ -449,7 +430,7 @@ def getGeometryConfigurationTools():
     # CfgGetter methods for these tools should be defined in the
     # package containing each tool, so G4AtlasTools in this case
     geoConfigToolList += ["MaterialDescriptionTool"]
-    geoConfigToolList += ["SmartlessnessTool"]
+    geoConfigToolList += ["VoxelDensityTool"]
     return geoConfigToolList
 
 def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):

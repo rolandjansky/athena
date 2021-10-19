@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 doWriteRDOTrigger = False
 doWriteBS = False
@@ -16,7 +16,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 # viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 # topSequence += viewSeq
 
-# from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+# from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
 # roiCollectionName =  mapThresholdToL1RoICollection("EM")  
 # View maker alg
 # from AthenaCommon import CfgMgr
@@ -26,7 +26,7 @@ signatureName = 'Cosmic'
 # TODO switch once done
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
-from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
 inputMakerAlg = EventViewCreatorAlgorithm("IM_%s"%signatureName)
 inputMakerAlg.ViewFallThrough = True

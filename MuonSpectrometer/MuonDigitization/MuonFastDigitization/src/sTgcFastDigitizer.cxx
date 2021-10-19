@@ -230,7 +230,7 @@ StatusCode sTgcFastDigitizer::execute() {
     if(itersTgc + 1 ==collGMSH->end()) lastHit = true;
 
     if(m_mergePrds) {
-     if( (hash != hashLast || lastHit)  && sTgcprds.size()>0 ) {
+     if( (hash != hashLast || lastHit)  && !sTgcprds.empty() ) {
        MuonPrepDataCollection<Muon::sTgcPrepData>* col  = localsTgcVec[hashLast];
       // new collection hash will be made
       // first store the sTgc eta prds
@@ -274,7 +274,7 @@ StatusCode sTgcFastDigitizer::execute() {
                                                 hashLast,
                                                 sTgcprds[i]->localPosition(),
                                                 rdoList,
-                                                std::move(covN),
+                                                covN,
                                                 sTgcprds[i]->detectorElement(),
                                                 sTgcprds[i]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
@@ -335,7 +335,7 @@ StatusCode sTgcFastDigitizer::execute() {
                                                 hashLast,
                                                 sTgcprds[j]->localPosition(),
                                                 rdoList,
-                                                std::move(covN),
+                                                covN,
                                                 sTgcprds[j]->detectorElement(),
                                                 sTgcprds[j]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
@@ -354,7 +354,7 @@ StatusCode sTgcFastDigitizer::execute() {
       col->setIdentifier(m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().parentID(layid), m_idHelperSvc->stgcIdHelper().multilayer(layid),1,1,1) );
       if( prdContainer->addCollection(col,hash).isFailure() ){
 	ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
-	delete col;col=0;
+	delete col;col=nullptr;
 	continue;
       } else {
          ATH_MSG_VERBOSE(" added collection with hash " << (int)hash << " last hash " << (int)hashLast );
@@ -593,7 +593,7 @@ StatusCode sTgcFastDigitizer::execute() {
       (cov)(0, 0) = errX * errX;
 
       sTgcPrepData* prd = new sTgcPrepData(
-        id, hash, posOnSurf, rdoList, std::move(cov), detEl, bctag);
+        id, hash, posOnSurf, rdoList, cov, detEl, bctag);
 
       if(type!=1 || lastHit || !m_mergePrds) {
         // always store last hit
@@ -728,7 +728,7 @@ bool sTgcFastDigitizer::readFileOfTimeJitter()
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   std::ifstream ifs;
-  if (fileWithPath != "") {
+  if (!fileWithPath.empty()) {
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {

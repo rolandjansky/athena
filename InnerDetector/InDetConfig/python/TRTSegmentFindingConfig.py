@@ -18,7 +18,7 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     # --- decide if use the association tool
     #
-    usePrdAssociationTool = len(InputCollections) > 0
+    usePrdAssociationTool = InputCollections is not None
 
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
@@ -41,8 +41,7 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     # --- offline version  of TRT segemnt making
     #
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
@@ -73,8 +72,7 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
         # TRT-only/back-tracking segment finding
         pTmin = flags.InDet.Tracking.minSecondaryPt
 
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.TRTSegFinderPtBins)
@@ -84,7 +82,7 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
     acc.addCondAlgo(InDetTRT_TrackSegmentsMakerCondAlg)
     return acc
 
-def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinderPhase', extension = '', BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
+def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
     acc = ComponentAccumulator()
 
     # ---------------------------------------------------------------
@@ -160,24 +158,13 @@ def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssVa
     acc.addEventAlgo(InDetSegmentDriftCircleAssValidation)
     return acc
 
-def TRTActiveCondAlgCfg(flags, name="TRTActiveCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TC.InDetTRTStrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-
-    TRTActiveCondAlg = CompFactory.TRTActiveCondAlg(name = name, **kwargs)
-    acc.addCondAlgo(TRTActiveCondAlg)
-    return acc
-
 def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None, doPhase = False):
+
     acc = ComponentAccumulator()
     #
     # --- decide if use the association tool
     #
-    usePrdAssociationTool = len(InputCollections) > 0
+    usePrdAssociationTool = InputCollections is not None
 
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
@@ -213,47 +200,48 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    flags.Input.Files=defaultTestFiles.RDO
 
 
     numThreads=1
-    ConfigFlags.Concurrency.NumThreads=numThreads
-    ConfigFlags.Concurrency.NumConcurrentEvents=numThreads # Might change this later, but good enough for the moment.
+    flags.Concurrency.NumThreads=numThreads
+    flags.Concurrency.NumConcurrentEvents=numThreads # Might change this later, but good enough for the moment.
 
-    ConfigFlags.lock()
-    ConfigFlags.dump()
+    flags.lock()
+    flags.dump()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    top_acc = MainServicesCfg(ConfigFlags)
+    top_acc = MainServicesCfg(flags)
     
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    top_acc.merge(PoolReadCfg(ConfigFlags))
+    top_acc.merge(PoolReadCfg(flags))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    top_acc.merge(MagneticFieldSvcCfg(ConfigFlags))
+    top_acc.merge(MagneticFieldSvcCfg(flags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( flags ))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
-    top_acc.merge( SCT_GeometryCfg(ConfigFlags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(flags) )
+    top_acc.merge( SCT_ReadoutGeometryCfg(flags) )
 
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
     #############################################################################
-    top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
-    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
+    top_acc.merge(TRTActiveCondAlgCfg(flags))
+    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg(flags))
 
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    if not ConfigFlags.InDet.doDBMstandalone:
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+    if not flags.InDet.doDBMstandalone:
+        top_acc.merge(TRTPreProcessingCfg(flags,(not flags.InDet.doTRTPhaseCalculation or flags.Beam.Type =="collisions"),False))
 
-    top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
+    top_acc.merge(TRTSegmentFindingCfg( flags,
                                         "",
                                         InputCombinedInDetTracks,
                                         'TRTSegments')) # InDetKeys.TRT_Segments

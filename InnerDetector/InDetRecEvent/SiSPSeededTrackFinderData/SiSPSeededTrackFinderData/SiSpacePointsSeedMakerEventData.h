@@ -13,15 +13,21 @@
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
-#include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointsProSeed.h"
-#include "SiSPSeededTrackFinderData/SiSpacePointsProSeedITK.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointsProSeed.h"
 
 #include <list>
 #include <map>
 #include <vector>
 
 namespace InDet {
+
+  class FloatInt {
+  public:
+    float Fl;
+    int   In;
+  };
 
  /**
   @class InDet::SiSpacePointsSeedMakerEventData
@@ -36,12 +42,12 @@ namespace InDet {
   class SiSpacePointsSeedMakerEventData {
   public:
     /// enums to specify which SiSpacePointsSeedMaker owns the object.
-    enum ToolType {
+    enum class ToolType {
       ATLxk, ///< SiSpacePointsSeedMaker_ATLxk
       BeamGas, ///< SiSpacePointsSeedMaker_BeamGas
       Cosmic, ///< SiSpacePointsSeedMaker_Cosmic
       HeavyIon, ///< SiSpacePointsSeedMaker_HeavyIon
-      ITK, ///< SiSpacePointsSeedMaker_ITK
+      ITk, ///< ITk::SiSpacePointsSeedMaker
       LowMomentum, ///< SiSpacePointsSeedMaker_LowMomentum
       Trigger ////< SiSpacePointsSeedMaker_Trigger
     };
@@ -95,7 +101,9 @@ namespace InDet {
     float zmaxB{0.};
     float ftrig{0.};
     float ftrigW{0.};
-    float maxScore{0.};    
+    float maxScore{0.};   
+    float RTmin{0.};
+    float RTmax{0.}; 
 
     /**
      * @name Beam geometry
@@ -125,7 +133,7 @@ namespace InDet {
      */
     //@{
     std::vector<InDet::SiSpacePointForSeed*> SP;    ///< space points to consider for the current seed candidate
-    std::vector<InDet::SiSpacePointForSeedITK*> SP_ITK;
+    std::vector<ITk::SiSpacePointForSeed*> ITkSP;
     
     /// The following are parameters characterising individual space points within a seed (relative to the central point)
     std::vector<float> Zo;    ///< z0 estimate from 2 points
@@ -136,31 +144,32 @@ namespace InDet {
     std::vector<float> X;
     std::vector<float> Y;
     std::vector<float> Er;    ///< error component on 1/tan(theta)==dz/dr from the position errors on the space-points
+    std::vector<FloatInt> Tn;
     //@}
 
     InDet::SiSpacePointsSeed seedOutput;
 
     std::vector<InDet::SiSpacePointsSeed> OneSeeds;
     std::vector<InDet::SiSpacePointsProSeed> OneSeeds_Pro;
-    std::vector<InDet::SiSpacePointsProSeedITK> OneSeeds_ITK;
+    std::vector<ITk::SiSpacePointsProSeed> ITkOneSeeds;
 
     std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> CmSp;
-    std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>> CmSp_ITK;
+    std::vector<std::pair<float,ITk::SiSpacePointForSeed*>> ITkCmSp;
 
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> r_Sorted;     ///< vector of space points in each bin of the 1D radial binning 
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rf_Sorted;
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfz_Sorted;   ///< vector of space points in each bin of the 2D phi-z binning
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfzv_Sorted;
-    std::vector<std::list<InDet::SiSpacePointForSeedITK*>> r_Sorted_ITK;
-    std::vector<std::list<InDet::SiSpacePointForSeedITK*>> rfz_Sorted_ITK;
-    std::vector<std::list<InDet::SiSpacePointForSeedITK*>> rfzv_Sorted_ITK;
+    std::vector<std::list<ITk::SiSpacePointForSeed*>> r_ITkSorted;
+    std::vector<std::list<ITk::SiSpacePointForSeed*>> rfz_ITkSorted;
+    std::vector<std::list<ITk::SiSpacePointForSeed*>> rfzv_ITkSorted;
 
     std::vector<InDet::SiSpacePointsSeed> seeds;
 
     std::list<InDet::SiSpacePointForSeed> l_spforseed;      //<! list of all space points considered for seed building. This has ownership over the pointers stored in the binned vectors ("histograms") above
     std::list<InDet::SiSpacePointForSeed>::iterator i_spforseed;    //<! keep track of an iterator over the seed list. Frequently used to keep track of where to add the next SP
-    std::list<InDet::SiSpacePointForSeedITK> l_spforseed_ITK;
-    std::list<InDet::SiSpacePointForSeedITK>::iterator i_spforseed_ITK;
+    std::list<ITk::SiSpacePointForSeed> l_ITkSpacePointForSeed;
+    std::list<ITk::SiSpacePointForSeed>::iterator i_ITkSpacePointForSeed;
 
     std::list<InDet::SiSpacePointsSeed> l_seeds;
     std::list<InDet::SiSpacePointsSeed>::iterator i_seed;
@@ -168,12 +177,12 @@ namespace InDet {
     std::list<InDet::SiSpacePointsProSeed> l_seeds_Pro;       //<! lists of output seeds 
     std::list<InDet::SiSpacePointsProSeed>::iterator i_seed_Pro;       //<! iterators over the said list 
     std::list<InDet::SiSpacePointsProSeed>::iterator i_seede_Pro;
-    std::list<InDet::SiSpacePointsProSeedITK> l_seeds_ITK;
-    std::list<InDet::SiSpacePointsProSeedITK>::iterator i_seed_ITK;
-    std::list<InDet::SiSpacePointsProSeedITK>::iterator i_seede_ITK;
+    std::list<ITk::SiSpacePointsProSeed> i_ITkSeeds;
+    std::list<ITk::SiSpacePointsProSeed>::iterator i_ITkSeed;
+    std::list<ITk::SiSpacePointsProSeed>::iterator i_ITkSeedEnd;
 
     std::vector<InDet::SiSpacePointForSeed*>::iterator rMin;
-    std::list<InDet::SiSpacePointForSeedITK*>::iterator rMin_ITK;
+    std::list<ITk::SiSpacePointForSeed*>::iterator ITk_rMin;
 
     std::multimap<float,InDet::SiSpacePointsSeed*> mapOneSeeds;
     std::multimap<float,InDet::SiSpacePointsSeed*> mapSeeds;
@@ -185,9 +194,9 @@ namespace InDet {
     std::multimap<float,InDet::SiSpacePointsProSeed*> mapOneSeeds_Pro;
     std::multimap<float,InDet::SiSpacePointsProSeed*> seeds_Pro;
     std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator seed_Pro;
-    std::multimap<float,InDet::SiSpacePointsProSeedITK*> mapOneSeeds_ITK;
-    std::multimap<float,InDet::SiSpacePointsProSeedITK*> seeds_ITK;
-    std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator seed_ITK;
+    std::multimap<float,ITk::SiSpacePointsProSeed*> ITkMapOneSeeds;
+    std::multimap<float,ITk::SiSpacePointsProSeed*> ITkSeeds;
+    std::multimap<float,ITk::SiSpacePointsProSeed*>::iterator ITkSeedIterator;
 
 
     /// allow to resize the space-point container on-the-fly in case
@@ -197,10 +206,11 @@ namespace InDet {
     void resizeSPCont(size_t increment=50, ToolType type = ToolType::ATLxk){
       size_t currSize = SP.size();
       size_t newSize = currSize + increment; 
-      if (type == ITK) {
-        SP_ITK.resize(newSize, nullptr);
+      if (type == ToolType::ITk) {
+        ITkSP.resize(newSize, nullptr);
         X.resize(newSize, 0.);
         Y.resize(newSize, 0.);
+        Tn.resize(newSize);
       } else {
         SP.resize(newSize, nullptr);
       }
@@ -209,7 +219,7 @@ namespace InDet {
       Er.resize(newSize, 0.);
       U.resize(newSize, 0.);
       V.resize(newSize, 0.);
-      if (type != Cosmic) {
+      if (type != ToolType::Cosmic) {
         Zo.resize(newSize, 0.);
       }
     }
@@ -225,31 +235,31 @@ namespace InDet {
                     int sizeRFZ,
                     int sizeRFZV,
                     bool checkEta) {
-      if (type==ATLxk) {
+      if (type==ToolType::ATLxk) {
         CmSp.reserve(500);
-      } else if (type==ITK) {
-        CmSp_ITK.reserve(500);
+      } else if (type==ToolType::ITk) {
+        ITkCmSp.reserve(500);
       }
       resizeSPCont(maxsizeSP,type); 
       seedPerSpCapacity = maxOneSize; 
-      if (type==ATLxk) {
+      if (type==ToolType::ATLxk) {
         OneSeeds_Pro.resize(maxOneSize);
-      } else if (type==BeamGas or type==HeavyIon or type==LowMomentum or type==Trigger) {
+      } else if (type==ToolType::BeamGas or type==ToolType::HeavyIon or type==ToolType::LowMomentum or type==ToolType::Trigger) {
         OneSeeds.resize(maxOneSize);
-      } else if (type==ITK) {
-        OneSeeds_ITK.resize(maxOneSize);
+      } else if (type==ToolType::ITk) {
+        ITkOneSeeds.resize(maxOneSize);
       }
 
       // Build radius sorted containers
       r_index.resize(sizeR, 0);
       r_map.resize(sizeR, 0);
-      if (type==ITK) {
-        r_Sorted_ITK.resize(sizeR);
+      if (type==ToolType::ITk) {
+        r_ITkSorted.resize(sizeR);
       } else {
         r_Sorted.resize(sizeR);
       }
 
-      if (type==BeamGas or type==Cosmic) {
+      if (type==ToolType::BeamGas or type==ToolType::Cosmic) {
         // Build radius-azimuthal sorted containers
         rf_index.resize(sizeRF, 0);
         rf_map.resize(sizeRF, 0);
@@ -259,44 +269,44 @@ namespace InDet {
       // Build radius-azimuthal-Z sorted containers
       rfz_index.resize(sizeRFZ, 0);
       rfz_map.resize(sizeRFZ, 0);
-      if (type==ITK) {
-        rfz_Sorted_ITK.resize(sizeRFZ, {});
+      if (type==ToolType::ITk) {
+        rfz_ITkSorted.resize(sizeRFZ, {});
       } else {
         rfz_Sorted.resize(sizeRFZ, {});
       }
 
-      if (type==ATLxk or type==HeavyIon or type==ITK or type==Trigger) {
+      if (type==ToolType::ATLxk or type==ToolType::HeavyIon or type==ToolType::ITk or type==ToolType::Trigger) {
         // Build radius-azimuthal-Z sorted containers for Z-vertices
         rfzv_index.resize(sizeRFZV, 0);
         rfzv_map.resize(sizeRFZV, 0);
-        if (type==ITK) {
-          rfzv_Sorted_ITK.resize(sizeRFZV, {});
+        if (type==ToolType::ITk) {
+          rfzv_ITkSorted.resize(sizeRFZV, {});
         } else {
           rfzv_Sorted.resize(sizeRFZV, {});
         }
       }
 
-      if (type==Cosmic) {
+      if (type==ToolType::Cosmic) {
         seeds.resize(maxsize+5);
       }
 
-      if (type==ATLxk) {
+      if (type==ToolType::ATLxk) {
         i_seed_Pro  = l_seeds_Pro.begin();
         i_seede_Pro = l_seeds_Pro.end();
-      } else if (type==BeamGas or type==HeavyIon or type==LowMomentum or type==Trigger) {
+      } else if (type==ToolType::BeamGas or type==ToolType::HeavyIon or type==ToolType::LowMomentum or type==ToolType::Trigger) {
         i_seed  = l_seeds.begin();
         i_seede = l_seeds.end();
-      } else if (type==ITK) {
-        i_seed_ITK  = l_seeds_ITK.begin();
-        i_seede_ITK = l_seeds_ITK.end();
+      } else if (type==ToolType::ITk) {
+        i_ITkSeed  = i_ITkSeeds.begin();
+        i_ITkSeedEnd = i_ITkSeeds.end();
       }
 
-      if (type==Trigger) {
+      if (type==ToolType::Trigger) {
         seed  = mapSeeds.begin();
         seede = mapSeeds.end();
       }
 
-      if (type==ATLxk or type==ITK) {
+      if (type==ToolType::ATLxk or type==ToolType::ITk) {
         checketa = checkEta;
       }
 

@@ -193,8 +193,6 @@ topSequence = AlgSequence()
 #ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-GEO-10-00-00' # for the original input file
 #ServiceMgr.GeoModelSvc.AtlasVersion='ATLAS-R2-2015-02-01-00' # for the new input file
 
-#from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
-
 #include( "TileConditions/TileConditions_jobOptions.py" )
 
 #include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")
@@ -241,7 +239,7 @@ logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_job
 from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
+include ("CaloRec/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 
 print StreamESD.ItemList

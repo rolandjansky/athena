@@ -12,7 +12,7 @@ from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEM
 
 
 def AsgElectronIsEMSelectorCfg(flags, name, quality, menu=electronPIDmenu.menuDC14):
-    
+
     mlog = logging.getLogger('AsgElectronIsEMSelector')
     mlog.debug('Start configuration')
 

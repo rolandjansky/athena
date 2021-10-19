@@ -120,9 +120,9 @@ private:
   /** @brief Return the truth particle in the egamma truth container that
    * corresponds to the given truth particle (egammaTruthContainer is non-const
    * reference because returning non-const pointer) **/
-  xAOD::TruthParticle* getEgammaTruthParticle(
+  static xAOD::TruthParticle* getEgammaTruthParticle(
     const xAOD::TruthParticle* truth,
-    xAOD::TruthParticleContainer& egammaTruthContainer) const;
+    xAOD::TruthParticleContainer& egammaTruthContainer) ;
 
   /** @brief Create egamma truth container? **/
   Gaudi::Property<bool> m_doEgammaTruthContainer{

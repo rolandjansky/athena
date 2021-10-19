@@ -44,9 +44,9 @@ bool HLT::StandaloneNavigation::deserializeHolders(std::vector<uint32_t>::const_
     const size_t holderPayloadSize = *start;    
     ++start;
 
-    class_id_type clid;
+    class_id_type clid{0};
     std::string label;
-    sub_index_type sub;   
+    sub_index_type sub{0};
     std::vector<uint32_t>::const_iterator oneBlobIt = start;
     bool couldRead = BaseHolder::enquireSerialized(oneBlobIt, end, clid, label, sub);
     

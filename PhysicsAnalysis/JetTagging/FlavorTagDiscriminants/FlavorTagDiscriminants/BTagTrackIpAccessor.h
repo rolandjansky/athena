@@ -13,8 +13,8 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODJet/Jet.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODJet/JetFwd.h"
 
 struct BTagSignedIP {
   double ip2d_signed_d0;
@@ -28,7 +28,8 @@ struct BTagSignedIP {
 
 class BTagTrackIpAccessor {
 public:
-  BTagTrackIpAccessor(const std::string& prefix = "btagIp_" );
+  // used to have "btagIp_" as a default argument
+  BTagTrackIpAccessor(const std::string& prefix);
   void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
   // NOTE: this should be called in the derivations if possible,

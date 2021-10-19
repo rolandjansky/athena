@@ -62,6 +62,9 @@ namespace TrigCompositeUtils {
       /// Retrieve chain information for gived chain id
       StatusCode getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID id, ChainInfo& info) const;
 
+      /// Retrieve algorithms and their active sequences
+      StatusCode getAllActiveSequences(const EventContext& context, std::map<std::string, std::string>& algToSeq) const;
+
   private:
       SG::ReadHandle<TrigCompositeUtils::DecisionContainer> getDecisionFromStore(SmartIF<SGImplSvc>& eventStore, const std::string& key) const;
 

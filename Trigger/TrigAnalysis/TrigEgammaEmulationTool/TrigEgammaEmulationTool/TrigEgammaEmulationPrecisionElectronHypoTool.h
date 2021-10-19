@@ -12,6 +12,7 @@
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationBaseHypoTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationBaseHypoTool.h"
 
+
 namespace Trig{
 
 
@@ -29,6 +30,8 @@ namespace Trig{
 
       virtual bool emulate( const TrigData &input, bool &pass) const override;
 
+      virtual StatusCode initialize() override;
+
     private:
 
       bool decide(   const Trig::TrigData &input, const xAOD::Electron *el) const;
@@ -41,6 +44,11 @@ namespace Trig{
       Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for PRECISION electron selection:eta bins
       Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
       Gaudi::Property<float>                m_d0{ this,  "d0Cut", -1, "d0 cut" };
+
+      Gaudi::Property<bool>                m_acceptAll{ this,  "AcceptAll", false, "Accept all events" };
+
+
+
 
 
   };

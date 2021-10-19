@@ -413,7 +413,7 @@ bool HLTResult::serialize_regular(uint32_t*& output,
                                   int max_size)
 {
   updateExtras();
-  bool truncating;
+  bool truncating{false};
   auto estim_size = estimateSize();
   return serialize_bootstrap(output, data_size, truncating,
                              max_size, estim_size) &&
@@ -428,7 +428,7 @@ bool HLTResult::serialize_DS(uint32_t*& output,
 {
   assert(mod_id);
 
-  bool truncating;
+  bool truncating{false};
   auto dscuts = findDSCuts(mod_id);
   auto navsize = calc_colls_size(dscuts.first) + calc_colls_size(dscuts.second);
 

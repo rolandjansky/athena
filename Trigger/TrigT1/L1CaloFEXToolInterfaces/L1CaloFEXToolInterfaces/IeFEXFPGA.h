@@ -15,6 +15,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODTrigger/eFexEMRoI.h"
+#include "L1CaloFEXSim/eFEXOutputCollection.h"
 
 namespace LVL1 {
   
@@ -30,7 +31,7 @@ Interface definition for eFEXFPGA
 
     virtual StatusCode init(int id, int efexid) = 0;
 
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(eFEXOutputCollection* inputOutputCollection) = 0;
 
     virtual void reset() = 0;
 
@@ -38,11 +39,11 @@ Interface definition for eFEXFPGA
 
     virtual void SetTowersAndCells_SG(int [][6]) = 0;
     
-    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) = 0;
-
-    virtual uint32_t formEmTOB(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &)  = 0;
+    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &, unsigned int &) = 0;
 
     virtual std::vector<uint32_t> getEmTOBs() = 0; 
+
+    virtual std::vector<uint32_t> getTauTOBs() = 0; 
 
     // static virtual bool etSort(uint32_t &, uint32_t &) = 0;
 
@@ -58,3 +59,4 @@ Interface definition for eFEXFPGA
 } // end of namespace
 
 #endif
+

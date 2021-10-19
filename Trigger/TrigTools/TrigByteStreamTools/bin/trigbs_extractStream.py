@@ -15,6 +15,8 @@ def peb_writer(argv):
 
   import eformat, logging
   import EventApps.myopt as myopt
+  from libpyevent_storage import CompressionType
+  from libpyeformat_helper import SourceIdentifier, SubDetector
 
   option = {}
 
@@ -44,6 +46,11 @@ def peb_writer(argv):
                           'group': 'Run mode',
                           'description': 'Directory in which the output file should be written'}
 
+  option['uncompressed'] = {'short': 'u', 'arg': False,
+                            'default': None,
+                            'group': 'Run mode',
+                            'description': 'Write out uncompressed data (default without this option is compressed)'}
+
   # stream tag options
   option['stream-name'] = {'short': 's', 'arg': True,
                            'default': None,
@@ -59,6 +66,13 @@ def peb_writer(argv):
                           'default': -1,
                           'group': 'Stream Tag',
                           'description': 'Lumiblock number used for the output file. Use 0 if multiple LB in file.'}
+
+  # HLT result options
+  option['hlt-only'] = {'short': 'm', 'arg': True,
+                        'default': None,
+                        'group': 'HLT Result',
+                        'description': 'Drop all detector data and write out only HLT data for the given module ID.' + \
+                                       ' Module ID <0 is a wildcard for all HLT module IDs.'}
 
   parser = myopt.Parser(extra_args=True)
   for (k,v) in option.items():
@@ -173,6 +187,12 @@ def peb_writer(argv):
                                                         productionStep)
           logging.debug(' set output file name = %s', outRawFile.fileNameCore())
 
+          # Note: EventStorage and eformat compression enums have different values
+          compressionTypeES = CompressionType.NONE if kwargs['uncompressed'] else CompressionType.ZLIB
+          compressionType = eformat.helper.Compression.UNCOMPRESSED if kwargs['uncompressed'] \
+                            else eformat.helper.Compression.ZLIB
+          compressionLevel = 0 if kwargs['uncompressed'] else 1
+
           # create the output stream
           ostream = eformat.ostream(directory=outputDirectory,
                                     core_name=outRawFile.fileNameCore(),
@@ -180,21 +200,39 @@ def peb_writer(argv):
                                     trigger_type=dr.triggerType(),
                                     detector_mask=dr.detectorMask(), 
                                     beam_type=dr.beamType(),
-                                    beam_energy=dr.beamEnergy())
+                                    beam_energy=dr.beamEnergy(),
+                                    compression=compressionTypeES,
+                                    complevel=compressionLevel)
         
         # decide what to write out
-        if (len(tag.robs)==0 and len(tag.dets)==0):
+        is_feb_tag = (len(tag.robs)==0 and len(tag.dets)==0)
+        if is_feb_tag and not kwargs['hlt-only']:
           # write out the full event fragment
           pbev = eformat.write.FullEventFragment(e)  
           logging.debug(' Write full event fragment ')
         else:
+          # filter stream tag robs and dets for the hlt-only option
+          dets = []
+          robs = []
+          if kwargs['hlt-only']:
+            if int(kwargs['hlt-only']) < 0:
+              dets = [SubDetector.TDAQ_HLT] if SubDetector.TDAQ_HLT in tag.dets or is_feb_tag else []
+              robs = [robid for robid in tag.robs if SourceIdentifier(robid).subdetector_id()==SubDetector.TDAQ_HLT]
+            else:
+              requested_rob_id = int(SourceIdentifier(SubDetector.TDAQ_HLT, int(kwargs['hlt-only'])))
+              if SubDetector.TDAQ_HLT in tag.dets or requested_rob_id in tag.robs or is_feb_tag:
+                robs = [requested_rob_id]
+          else:
+            dets = list(tag.dets)
+            robs = list(tag.robs)
+
           # select ROBs to write out
           rob_output_list = []
           logging.debug(' Write partial event fragment ')
-          for rob in e: 
-            if rob.source_id().code() in tag.robs:
+          for rob in e:
+            if rob.source_id().code() in robs:
               rob_output_list.append(rob)
-            if rob.source_id().subdetector_id() in tag.dets:
+            if rob.source_id().subdetector_id() in dets:
               rob_output_list.append(rob)
           # write out the partial event fragment
           pbev = eformat.write.FullEventFragment()
@@ -203,6 +241,8 @@ def peb_writer(argv):
             pbev.append_unchecked(out_rob)
         
         # put the event onto the output stream
+        pbev.compression_type(compressionType)
+        pbev.compression_level(compressionLevel)
         ostream.write(pbev)
         if (logging.getLogger('').getEffectiveLevel() > logging.DEBUG) and kwargs['progress-bar']:
           sys.stdout.write('.')

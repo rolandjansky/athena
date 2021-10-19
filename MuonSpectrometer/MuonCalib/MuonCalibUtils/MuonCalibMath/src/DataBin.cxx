@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibMath/DataBin.h"
@@ -29,7 +29,7 @@ DataBin::DataBin(void) {
 //:: CONSTRUCTOR ::
 //:::::::::::::::::
 
-DataBin::DataBin(const std::vector<DataPoint> points, const double & epsilon) {
+DataBin::DataBin(const std::vector<DataPoint>& points, const double & epsilon) {
 
     for (unsigned int k=0; k<points.size(); k++) {
         addPointAndResize(points[k], epsilon);
@@ -359,7 +359,7 @@ void DataBin::setPoints(const std::vector<DataPoint> & points) {
 
     m_points = points;
 
-	if (m_points.size()==0) {
+	if (m_points.empty()) {
 		return;
 	}
 

@@ -19,6 +19,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "CxxUtils/checker_macros.h"
 class IEnvelopeDefSvc;
 
 namespace Trk {
@@ -35,8 +36,10 @@ namespace Trk {
       
       @author Andreas.Salzburger@cern.ch   
      */
-
-    class GenericGeometryBuilderCond : public AthAlgTool, virtual public IGeometryBuilderCond {
+    class ATLAS_NOT_THREAD_SAFE GenericGeometryBuilderCond
+      : public AthAlgTool
+      , virtual public IGeometryBuilderCond
+    {
 
       public:
         /** Constructor */

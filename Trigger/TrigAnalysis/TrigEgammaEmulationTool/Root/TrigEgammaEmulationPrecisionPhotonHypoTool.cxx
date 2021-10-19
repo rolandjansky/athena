@@ -10,7 +10,13 @@ TrigEgammaEmulationPrecisionPhotonHypoTool::TrigEgammaEmulationPrecisionPhotonHy
     : TrigEgammaEmulationBaseHypoTool(myname)
 {}
 
+//!==========================================================================
 
+StatusCode TrigEgammaEmulationPrecisionPhotonHypoTool::initialize() 
+{
+  ATH_CHECK( TrigEgammaEmulationBaseHypoTool::initialize());
+  return StatusCode::SUCCESS;
+}
 
 //!==========================================================================
 
@@ -64,6 +70,12 @@ bool TrigEgammaEmulationPrecisionPhotonHypoTool::decide(  const Trig::TrigData &
 
   auto pClus = ph->caloCluster();
   
+  if(!pClus){
+    ATH_MSG_DEBUG("No calo cluster for this photon");
+    return false;
+  }
+
+
   float absEta = std::abs( pClus->eta() );
   const int cutIndex = findCutIndex( absEta );
 
@@ -125,17 +137,7 @@ bool TrigEgammaEmulationPrecisionPhotonHypoTool::decide(  const Trig::TrigData &
 
 
   // Apply phootn offline like selection
-  bool pass=false;
-
-  if (m_pidName=="tight"){
-    pass = (bool)input.egammaPhotonCBTools[0]->accept(ph);
-  }else if (m_pidName=="medium"){
-    pass = (bool)input.egammaPhotonCBTools[1]->accept(ph);
-  }else if (m_pidName=="loose"){
-    pass =  (bool)input.egammaPhotonCBTools[2]->accept(ph);
-  }else{
-    pass = true;
-  }
+  bool pass = input.isPassed(ph, m_pidName);
   
 
 
@@ -218,7 +220,7 @@ bool TrigEgammaEmulationPrecisionPhotonHypoTool::decide(  const Trig::TrigData &
   // Monitor showershapes                      
   reletcone20 = etcone20/ph->caloCluster()->et();
   ATH_MSG_DEBUG("reletcone20 = " <<reletcone20  );
-  ATH_MSG_DEBUG("m_RelEtConeCut = " << m_RelEtConeCut );
+  ATH_MSG_DEBUG("m_RelEtConeCut = " << m_RelTopoEtConeCut );
 
 
   // Decode isEM bits of result to see which bits passed and which bits fialed
@@ -233,13 +235,13 @@ bool TrigEgammaEmulationPrecisionPhotonHypoTool::decide(  const Trig::TrigData &
   // Check if need to apply isolation
   // First check logic. if cut is very negative, then no isolation cut is defined
   // if m_RelEtConeCut <-100 then hypo is configured not to apply isolation
-  if (m_RelEtConeCut < -100){
+  if (m_RelTopoEtConeCut < -100){
       ATH_MSG_DEBUG(" not applying isolation. Returning NOW");
       ATH_MSG_DEBUG("TAccept = " << pass);
       return true;
   }
   // Then, It will pass if reletcone20 is less than cut:
-  pass = (reletcone20 < m_RelEtConeCut);
+  pass = (reletcone20 < m_RelTopoEtConeCut);
   //
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );

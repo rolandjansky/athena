@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
@@ -8,6 +8,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -201,38 +202,39 @@ int EMBAccordionDetails::Clockwork::phiGap(double radius, double xhit, const dou
 
 
 
-EMBAccordionDetails::EMBAccordionDetails():m_c(new Clockwork()) {
-  // Access the GeoModelSvc:
-  IGeoModelSvc *geoModel;
-  StatusCode status;
+EMBAccordionDetails::EMBAccordionDetails()
+  : m_c(new Clockwork()) 
+{
+  ISvcLocator *svcLocator = Gaudi::svcLocator();
+  IRDBAccessSvc *rdbAccess{nullptr};
+  IGeoModelSvc  *geoModel{nullptr};
+  IGeoDbTagSvc  *geoDbTagSvc{nullptr};
 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); 
-  status = svcLocator->service ("GeoModelSvc",geoModel);
-  if (status != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
+  if(svcLocator->service("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoModelSvc");
+
+  if(svcLocator->service("GeoDbTagSvc",geoDbTagSvc) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoDbTagSvc");
+
+  if(svcLocator->service(geoDbTagSvc->getParamSvcName(),rdbAccess) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access RDBAccessSvc");
+
+  std::string detectorKey, detectorNode;
+
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {  
+    std::string AtlasVersion = geoModel->atlasVersion();
+    std::string LArVersion = geoModel->LAr_VersionOverride();
+    
+    detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+    detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
   }
-  
-  // Access the geometry database:
-  IRDBAccessSvc *pAccessSvc;
-  status=svcLocator->service("RDBAccessSvc",pAccessSvc);
-  if (status != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
-  }
-  
-  // Obtain the geometry version information:
-  
-  std::string AtlasVersion = geoModel->atlasVersion();
-  std::string LArVersion = geoModel->LAr_VersionOverride();
-  
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-  
-  IRDBRecordset_ptr barrelGeometry = pAccessSvc->getRecordsetPtr("BarrelGeometry",detectorKey,detectorNode);
+
+  IRDBRecordset_ptr barrelGeometry = rdbAccess->getRecordsetPtr("BarrelGeometry",detectorKey,detectorNode);
   if (barrelGeometry->size()==0) {
     throw std::runtime_error("Cannot find the BarrelGeometry Table");
   }
   
-  IRDBRecordset_ptr barrelLongDiv = pAccessSvc->getRecordsetPtr("BarrelLongDiv",detectorKey,detectorNode);
+  IRDBRecordset_ptr barrelLongDiv = rdbAccess->getRecordsetPtr("BarrelLongDiv",detectorKey,detectorNode);
   if (barrelLongDiv->size()==0) {
     throw std::runtime_error("Cannot find the BarrelLongDiv Table");
   }

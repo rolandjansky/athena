@@ -174,7 +174,7 @@ InDetPerfPlot_ANTracking::initializePlots() {
 }
 
 void 
-InDetPerfPlot_ANTracking::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
+InDetPerfPlot_ANTracking::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle* track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
  
   const float undefinedValue = -9999;
 
@@ -187,8 +187,8 @@ InDetPerfPlot_ANTracking::fillEfficiency(const xAOD::TruthParticle& truth, const
   double radius =  truth.isAvailable<float>("prodR") ? truth.auxdata<float>("prodR") : undefinedValue;
  
   bool isBAT = false; bool isANT = false; bool isSTD = false;
-  if(isGood){
-    const std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo> &patternInfo{track.patternRecoInfo()};
+  if(isGood && track){
+    const std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo> &patternInfo{track->patternRecoInfo()};
     isBAT = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);
     isANT = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0);
     isSTD = not isBAT and not isANT;

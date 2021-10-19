@@ -10,6 +10,7 @@
 #include "TRT_TrackExtensionTool_xk/TRT_Trajectory_xk.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 ///////////////////////////////////////////////////////////////////
 // Set TRT detector manager
@@ -927,35 +928,35 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   // Fill new track information
   //
-  auto tsosn = DataVector<const Trk::TrackStateOnSurface>();
+  auto tsosn = Trk::TrackStateOnSurfaceProtContainer::make_unique();
 
-  tsosn.push_back(new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
+  tsosn->push_back(tsosn->allocate(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
 
   // Copy old information to new track
   //
   for(++s; s!=se; ++s) {
-    tsosn.push_back(new Trk::TrackStateOnSurface(*(*s)));
+    tsosn->push_back(tsosn->allocate(*(*s)));
   }
 
   // Add new information from TRT without parameters
   //
   for(int e = m_firstTrajectory; e < m_lastTrajectory; ++e) {
-    const Trk::MeasurementBase* mb = m_elements[e].rioOnTrackSimple();
+    auto mb = m_elements[e].rioOnTrackSimple();
     if(mb) {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
-      tsosn.push_back(new Trk::TrackStateOnSurface(mb,nullptr,nullptr,nullptr,typePattern));
+      tsosn->push_back(tsosn->allocate(std::move(mb),nullptr,nullptr,nullptr,typePattern));
     }
   }
 
   // For last points add new information from TRT with parameters
   //
-  std::unique_ptr<const Trk::MeasurementBase> mb(m_elements[m_lastTrajectory].rioOnTrackSimple());
+  auto mb(m_elements[m_lastTrajectory].rioOnTrackSimple());
   if(mb) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
-    tsosn.push_back
-      (new Trk::TrackStateOnSurface(std::move(mb),m_parameters.convert(true),nullptr,nullptr,typePattern));
+    tsosn->push_back
+      (tsosn->allocate(std::move(mb),m_parameters.convert(true),nullptr,nullptr,typePattern));
   }
 
   // New fit quality production
@@ -966,6 +967,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     m_ndf+= fqo->numberDoF ();
   }
   Trk::FitQuality* fq = new Trk::FitQuality(m_xi2,m_ndf);
+  tsosn->elt_allocator().protect();
   return new Trk::Track (Tr.info(),std::move(tsosn),fq);
 }
 

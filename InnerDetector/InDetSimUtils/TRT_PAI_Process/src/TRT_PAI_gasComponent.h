@@ -25,7 +25,7 @@ public:
    *Constructor of gas component
    * \param nm: component name
    */
-  TRT_PAI_gasComponent(std::string nm) : m_name(nm) {};
+  TRT_PAI_gasComponent(const std::string & nm) : m_name(nm) {};
 
   /**
    * Add element to gas component

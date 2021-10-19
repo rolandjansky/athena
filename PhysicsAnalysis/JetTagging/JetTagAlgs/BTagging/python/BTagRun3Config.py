@@ -54,15 +54,6 @@ def PrepareStandAloneBTagCfg(inputFlags):
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
-
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg( inputFlags ))
-
     # get standard config for magnetic field - map and cache
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg( inputFlags ))
@@ -70,19 +61,14 @@ def PrepareStandAloneBTagCfg(inputFlags):
     #Beamspot conditions
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     result.merge(BeamSpotCondAlgCfg(inputFlags))
-
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     
     #load folders needed for Run2 ID alignment
-    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-
-    #load folders needed for IBL
-    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
     return result
 
-def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
+def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow'], **kwargs):
 
     result=ComponentAccumulator()
 
@@ -95,9 +81,14 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
 
     SecVertexers = [ "JetFitter" , "SV1" ]
-    result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = JetCollection[0], TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
+    for jc in JetCollection:
+        result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jc, TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
 
-    if inputFlags.Concurrency.NumThreads == 0:
+    # the following is needed to reliably determine whether we're really being steered from an old-style job option
+    # assume we're running CPython
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
         for el in result._allSequences:
             el.name = "TopAlg"
 
@@ -117,18 +108,22 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
 
     postTagDL2JetToTrainingMap={
         'AntiKt4EMPFlow': [
-        #'BTagging/201903/smt/antikt4empflow/network.json',
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-        'BTagging/201903/dl1/antikt4empflow/network.json',
-        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+           'BTagging/201903/rnnip/antikt4empflow/network.json',
+           'BTagging/201903/dl1r/antikt4empflow/network.json',
+           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
+           'BTagging/20210729/dips/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ],
         'AntiKt4EMTopo': [
-        #'BTagging/201903/smt/antikt4empflow/network.json',
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-        'BTagging/201903/dl1/antikt4empflow/network.json',
-        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+           'BTagging/201903/rnnip/antikt4empflow/network.json',
+           'BTagging/201903/dl1r/antikt4empflow/network.json',
+           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
+           'BTagging/20210729/dips/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ]
     }
 

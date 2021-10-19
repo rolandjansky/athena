@@ -4,17 +4,17 @@
 
 #include "getMemUsage.h"
 #include <unistd.h>
+#include <iostream>
 #include <fstream>
-#include <sstream>
+#include <string>
 
 namespace PSUtils
 {
   MemStruct getMemUsage()
   {
     int pid = getpid();
-    std::ostringstream ost;
-    ost<<"/proc/"<<pid<<"/statm";
-    std::ifstream ifile( ( ost.str() ).c_str(), std::ifstream::in );
+    const std::string ost="/proc/"+std::to_string(pid)+"/statm";
+    std::ifstream ifile( ost.c_str(), std::ifstream::in );
     
     MemStruct ms;
     ifile>>ms;
@@ -25,17 +25,7 @@ namespace PSUtils
   std::ostream& operator<<(std::ostream& os, const MemStruct& s)
   {
     // sizes in pages
-    /*
-    os <<
-      "  totalSize "      <<s.totalSize<<
-      "  physicalMemSize "<<s.physicalMemSize<<
-      "  sharedMemSize "  <<s.sharedMemSize<<
-      "  textSize "       <<s.textSize<<
-      "  sharedLibSize "  <<s.sharedLibSize<<
-      "  stackSize "      <<s.stackSize<<
-      "  nDirtyPages "    <<s.nDirtyPages<<
-      '\n';
-    */
+   
     os <<
       "  totalSize "      <<s.totalSize<<
       "  physicalMemSize "<<s.physicalMemSize<<

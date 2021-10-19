@@ -79,6 +79,7 @@ StatusCode TrigBSExtraction::repackFeaturesToSG (HLT::Navigation& navTool,
 
   } else {
     ATH_MSG_WARNING( "No HLTResult found with key '" << key << "'" );
+    return StatusCode::SUCCESS;
   }
 
   if ( equalize && m_navToolL2.isEnabled() ) {

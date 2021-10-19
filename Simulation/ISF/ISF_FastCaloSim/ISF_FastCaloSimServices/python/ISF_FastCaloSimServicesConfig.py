@@ -47,8 +47,6 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
     kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
-    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , ISF_FastCaloSimFlags.DoPunchThroughSimulation())
     #kwargs.setdefault("PUWeights"                        , FastChain_Flags.FastChainPUWeights()  )
     kwargs.setdefault("PUWeights_lar_bapre"              , FastChain_Flags.FastChainPUWeights_lar_bapre()  )
     kwargs.setdefault("PUWeights_lar_hec"                , FastChain_Flags.FastChainPUWeights_lar_hec()  )
@@ -64,6 +62,7 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
         simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
+    kwargs.setdefault("ParticleTruthSvc"                 , simFlags.TruthStrategy.TruthServiceName() )
     return CfgMgr.ISF__FastCaloSimSvcPU(name, **kwargs )
 
 #### FastCaloSimV2

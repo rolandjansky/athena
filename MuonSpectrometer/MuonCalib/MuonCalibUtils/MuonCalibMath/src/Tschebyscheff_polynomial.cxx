@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -20,26 +20,14 @@
 namespace MuonCalib {
   //*****************************************************************************
 
-    /////////////////////////////////////
-// SET LEGENDRE-POLYNOMIAL POINTER //
-/////////////////////////////////////
-
- Tschebyscheff_polynomial *Tschebyscheff_polynomial::s_polynomial_pointer=0;
-
-  //*****************************************************************************
-
     ////////////////////////////////////
     // METHOD get_Legendre_polynomial //
     ////////////////////////////////////
 
-  Tschebyscheff_polynomial * 
+  const Tschebyscheff_polynomial * 
   Tschebyscheff_polynomial::get_Tschebyscheff_polynomial(void) {
-
-    if (s_polynomial_pointer == 0) {
-      s_polynomial_pointer = new Tschebyscheff_polynomial();
-    }
-    return s_polynomial_pointer;
-
+    static const Tschebyscheff_polynomial s_polynomial;
+    return &s_polynomial;
   }
 
   //*****************************************************************************

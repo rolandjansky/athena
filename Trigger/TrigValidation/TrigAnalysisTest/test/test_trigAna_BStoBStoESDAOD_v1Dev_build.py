@@ -51,9 +51,9 @@ recoPreExec = ' '.join([
   # Trigger flags
   "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
   "ConfigFlags.Trigger.triggerMenuSetup=\'{:s}\';".format(menu_name),
+  "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
-  "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"])
+  "TriggerFlags.configForStartup=\'HLToffline\';"])
 reco = ExecStep.ExecStep('Tier0Reco')
 reco.type = 'Reco_tf'
 reco.threads = 1

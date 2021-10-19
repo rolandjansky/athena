@@ -143,12 +143,12 @@ namespace Trk{
   {
     assert(dynamic_cast<const State*> (&istate)!=nullptr);
     const State& state = static_cast<const State&> (istate);
-    const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov, state);
+    auto	perigee{CreatePerigee(0., 0., 0., VKPerigee, VKCov, state)};
 				      
     const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
     auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
     const Trk::TrackStateOnSurface* trackSOS =
-      new Trk::TrackStateOnSurface(nullptr, perigee, nullptr, nullptr);
+      new Trk::TrackStateOnSurface(nullptr, std::move(perigee), nullptr, nullptr);
     trackStateOnSurfaces.push_back(trackSOS);
     Trk::TrackInfo info;
     return new Trk::Track( info, std::move(trackStateOnSurfaces), fitQuality) ;
@@ -161,18 +161,19 @@ namespace Trk{
 //  Don't forget to remove it after use
 //  vX,vY,vZ are in LOCAL SYSTEM with respect to refGVertex
 //----------------------------------------------------------------------------------------------
-  Perigee * TrkVKalVrtFitter::CreatePerigee(double vX, double vY, double vZ,
+   std::unique_ptr<Perigee >
+   TrkVKalVrtFitter::CreatePerigee(double vX, double vY, double vZ,
      			  	            const std::vector<double>& VKPerigee,
                                             const std::vector<double>& VKCov,
                                             const State& state) const
   {
 //
 // ------  Magnetic field access
-    double fx,fy,BMAG_CUR;
+    double fx{},fy{},BMAG_CUR{};
     state.m_fitField.getMagFld(vX,vY,vZ,fx,fy,BMAG_CUR);
-    if(fabs(BMAG_CUR) < 0.01) BMAG_CUR=0.01;  //safety
+    if(std::abs(BMAG_CUR) < 0.01) BMAG_CUR=0.01;  //safety
 
-    double TrkP1, TrkP2, TrkP3, TrkP4, TrkP5;
+    double TrkP1{}, TrkP2{}, TrkP3{}, TrkP4{}, TrkP5{};
     VKalToTrkTrack(BMAG_CUR, VKPerigee[2], VKPerigee[3],VKPerigee[4], TrkP3, TrkP4, TrkP5);
     TrkP1=-VKPerigee[0];   /*!!!! Change of sign !!!!*/
     TrkP2= VKPerigee[1];
@@ -180,14 +181,14 @@ namespace Trk{
 
     AmgSymMatrix(5) CovMtx;
     double Deriv[5][5],CovMtxOld[5][5];
-    int i,j,ik,jk;
+    int i{},j{},ik{},jk{};
     for(i=0;i<5;i++){ for(j=0;j<5;j++) {Deriv[i][j]=0.; CovMtxOld[i][j]=0.;}}
     Deriv[0][0]=-1.;
     Deriv[1][1]= 1.;
     Deriv[2][3]= 1.;
     Deriv[3][2]= 1.;
-    Deriv[4][2]= (cos(VKPerigee[2])/(m_CNVMAG*BMAG_CUR)) * VKPerigee[4];
-    Deriv[4][4]=-(sin(VKPerigee[2])/(m_CNVMAG*BMAG_CUR));
+    Deriv[4][2]= (std::cos(VKPerigee[2])/(m_CNVMAG*BMAG_CUR)) * VKPerigee[4];
+    Deriv[4][4]=-(std::sin(VKPerigee[2])/(m_CNVMAG*BMAG_CUR));
 
     CovMtxOld[0][0]                =VKCov[0];
     CovMtxOld[0][1]=CovMtxOld[1][0]=VKCov[1];
@@ -217,7 +218,7 @@ namespace Trk{
        (CovMtx)(i,j)=(CovMtx)(j,i)=tmp;
     }}
 
-    return  new Perigee( TrkP1,TrkP2,TrkP3,TrkP4,TrkP5, 
+    return  std::make_unique<Perigee>( TrkP1,TrkP2,TrkP3,TrkP4,TrkP5, 
                                   PerigeeSurface(Amg::Vector3D(state.m_refFrameX+vX, state.m_refFrameY+vY, state.m_refFrameZ+vZ)),
                                   std::move(CovMtx)  );
   }

@@ -19,7 +19,6 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 //Root
-#include "TMath.h"
 #include "TH1F.h"
 #include "TH2F.h"
 //Standard c++
@@ -37,7 +36,6 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-using namespace TMath;
 
 InDetGlobalPixelTool::InDetGlobalPixelTool(
 					   const std::string & type, 

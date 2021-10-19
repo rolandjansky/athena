@@ -12,6 +12,8 @@
 #define READOUTGEOMETRYBASE_DETECTORDESIGN_H
 
 // base class
+#include "GeoPrimitives/GeoPrimitives.h"
+/// Ensure that the ATLAS eigen extensions are properly loaded
 #include "GeoModelKernel/RCBase.h"
 
 #include "ReadoutGeometryBase/SiDiodesParameters.h"
@@ -178,10 +180,6 @@ public:
 
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
-
-    /** Transform from SiHit to GeoModel frame */
-    //virtual const HepGeom::Transform3D SiHitToGeoModel() const;
-    virtual const Amg::Transform3D SiHitToGeoModel() const;
 
     //Transform for "split" modules
     virtual const Amg::Transform3D moduleShift() const;

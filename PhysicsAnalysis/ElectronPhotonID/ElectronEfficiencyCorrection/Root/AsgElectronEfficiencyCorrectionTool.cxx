@@ -32,6 +32,16 @@
 #include "TH2F.h"
 #include "TSystem.h"
 
+namespace {
+// Helper function Calculate and return at the spot
+CP::CorrectionCode
+HelperFunc(double& sf, const double input)
+{
+  sf = sf + input;
+  return CP::CorrectionCode::Ok;
+}
+}
+
 namespace correlationModel {
 enum model
 {
@@ -338,16 +348,15 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
   }
   //
   // Get the result
+  //
   double cluster_eta(-9999.9);
   double et(0.0);
-
   et = inputObject.pt();
   const xAOD::CaloCluster* cluster = inputObject.caloCluster();
   if (!cluster) {
     ATH_MSG_ERROR("ERROR no cluster associated to the Electron \n");
     return CP::CorrectionCode::Error;
   }
-
   // we need to use different variables for central and forward electrons
   static const SG::AuxElement::ConstAccessor<uint16_t> accAuthor("author");
   if (accAuthor.isAvailable(inputObject) &&
@@ -367,11 +376,16 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
                                            result,
                                            CorrIndex,
                                            MCToysIndex);
+
   // if status 0 something went wrong
   if (!status) {
     efficiencyScaleFactor = 1;
     return CP::CorrectionCode::OutOfValidityRange;
   }
+  //
+  // At this point we have the
+  // result std::vector
+  //
 
   efficiencyScaleFactor = result[static_cast<size_t>(
     Root::TElectronEfficiencyCorrectionTool::Position::SF)];
@@ -379,13 +393,16 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
   if (appliedSystematics().empty()) {
     return CP::CorrectionCode::Ok;
   }
+
   // Systematic Variations
   // We pass only one variation per time
   // The applied systemetic is always one systematic
   // Either is relevant and acquires a values
   // or stays 0.
+  //
   double sys(0);
-  // First the Toys
+
+  // First the logic if the user requested toys
   if (m_correlation_model == correlationModel::MCTOYS ||
       m_correlation_model == correlationModel::COMBMCTOYS) {
     if (m_correlation_model == correlationModel::MCTOYS) {
@@ -403,72 +420,25 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
     efficiencyScaleFactor = sys;
     return CP::CorrectionCode::Ok;
   }
-  // The rest of the models
-
-  // Helper function Calculate and return at the spot
-  auto func = [](double& sf, const double input) {
-    sf = sf + input;
-    return CP::CorrectionCode::Ok;
-  };
-  //
-
-  if (m_correlation_model ==
-      correlationModel::TOTAL) { // one "TOTAL" uncertainty
+  // The "TOTAL" single uncertainty uncorrelated+correlated
+  else if (m_correlation_model == correlationModel::TOTAL) {
+    sys = result[static_cast<size_t>(
+      Root::TElectronEfficiencyCorrectionTool::Position::Total)];
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
           "EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
             "1NPCOR_PLUS_UNCOR",
           1))) {
-      sys = result[static_cast<size_t>(
-        Root::TElectronEfficiencyCorrectionTool::Position::Total)];
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
           "EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
             "1NPCOR_PLUS_UNCOR",
           -1))) {
-      sys = -1 * result[static_cast<size_t>(
-                   Root::TElectronEfficiencyCorrectionTool::Position::Total)];
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, -1 * sys);
     }
   }
-  // If there are not correlated systematic
-  else if (m_nCorrSyst == 0) {
-    if (appliedSystematics().matchSystematic(CP::SystematicVariation(
-          "EL_EFF_" + m_sysSubstring + "CorrUncertainty", 1))) {
-
-      sys = sqrt(
-        result[static_cast<size_t>(
-          Root::TElectronEfficiencyCorrectionTool::Position::Total)] *
-          result[static_cast<size_t>(
-            Root::TElectronEfficiencyCorrectionTool::Position::Total)] -
-        result[static_cast<size_t>(
-          Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)] *
-          result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::
-                                       Position::UnCorr)]); // total -stat
-      func(efficiencyScaleFactor, sys);
-    }
-    if (appliedSystematics().matchSystematic(CP::SystematicVariation(
-          "EL_EFF_" + m_sysSubstring + "CorrUncertainty", -1))) {
-
-      sys =
-        -1 *
-        sqrt(
-          result[static_cast<size_t>(
-            Root::TElectronEfficiencyCorrectionTool::Position::Total)] *
-            result[static_cast<size_t>(
-              Root::TElectronEfficiencyCorrectionTool::Position::Total)] -
-          result[static_cast<size_t>(
-            Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)] *
-            result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::
-                                         Position::UnCorr)]); // total -stat
-      func(efficiencyScaleFactor, sys);
-    }
-  }
-
-  // Then the uncorrelated, we just need to see if the applied matches the
-  // current electron pt and eta
-  if (m_correlation_model == correlationModel::FULL) {
-
+  // Then the uncorrelated part for the FULL model
+  else if (m_correlation_model == correlationModel::FULL) {
     int currentUncorrSystReg = currentUncorrSystRegion(cluster_eta, et);
 
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
@@ -477,7 +447,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
           1))) {
       sys = result[static_cast<size_t>(
         Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)]; //
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
           "EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
@@ -486,10 +456,10 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
       sys =
         -1 * result[static_cast<size_t>(
                Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)]; //
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
+    // Then the uncorrelated for the SIMPLIFIED model
   } else if (m_correlation_model == correlationModel::SIMPLIFIED) {
-
     int currentSimplifiedUncorrSystReg =
       currentSimplifiedUncorrSystRegion(cluster_eta, et);
     if (currentSimplifiedUncorrSystReg < 0) {
@@ -502,7 +472,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
           1))) {
       sys = result[static_cast<size_t>(
         Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)]; //
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
 
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
@@ -512,22 +482,55 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
       sys =
         -1 * result[static_cast<size_t>(
                Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)]; //
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
   }
 
-  // If it has not returned so far , it means we wants to do the correlated for
-  // the full models
+  // Now we need to handle the correlated part
+  // First if there are not correlated systematic
+  if (m_nCorrSyst == 0) {
+    if (appliedSystematics().matchSystematic(CP::SystematicVariation(
+          "EL_EFF_" + m_sysSubstring + "CorrUncertainty", 1))) {
+      sys = std::sqrt(
+        result[static_cast<size_t>(
+          Root::TElectronEfficiencyCorrectionTool::Position::Total)] *
+          result[static_cast<size_t>(
+            Root::TElectronEfficiencyCorrectionTool::Position::Total)] -
+        result[static_cast<size_t>(
+          Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)] *
+          result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::
+                                       Position::UnCorr)]); // total -stat
+      return HelperFunc(efficiencyScaleFactor, sys);
+    }
+    if (appliedSystematics().matchSystematic(CP::SystematicVariation(
+          "EL_EFF_" + m_sysSubstring + "CorrUncertainty", -1))) {
+      sys =
+        -1 *
+        std::sqrt(
+          result[static_cast<size_t>(
+            Root::TElectronEfficiencyCorrectionTool::Position::Total)] *
+            result[static_cast<size_t>(
+              Root::TElectronEfficiencyCorrectionTool::Position::Total)] -
+          result[static_cast<size_t>(
+            Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)] *
+            result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::
+                                         Position::UnCorr)]); // total -stat
+      return HelperFunc(efficiencyScaleFactor, sys);
+    }
+  }
+  // If we reach this point
+  // it means we need to do the correlated for
+  // the FULL/SIMPLIFIED models.
   for (int i = 0; i < m_nCorrSyst; ++i) { /// number of correlated sources
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
           "EL_EFF_" + m_sysSubstring + Form("CorrUncertaintyNP%d", i), 1))) {
       sys = result[CorrIndex + i];
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation(
           "EL_EFF_" + m_sysSubstring + Form("CorrUncertaintyNP%d", i), -1))) {
       sys = -1 * result[CorrIndex + i];
-      func(efficiencyScaleFactor, sys);
+      return HelperFunc(efficiencyScaleFactor, sys);
     }
   }
   return CP::CorrectionCode::Ok;
@@ -880,7 +883,7 @@ AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(
   for (; itr_ptBEGIN != itr_ptEND; ++itr_ptBEGIN) {
     std::map<float, std::vector<float>>::const_iterator itr_ptBEGINplusOne =
       itr_ptBEGIN;
-    itr_ptBEGINplusOne++;
+    ++itr_ptBEGINplusOne;
     // Find the pt bin : Larger or equal from the current and (the next one is
     // the last or the next one is larger).
     if (et >= itr_ptBEGIN->first &&

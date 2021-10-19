@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_RESPONSE_MDT_RESPONSE_H
@@ -69,31 +69,31 @@ class MDT_Response {
   void   DoStepping(double ParticleCharge,double ParticleGamma, CLHEP::HepRandomEngine *rndmEngine); 
   void   Reset();
 
-  double     m_radius;              // radius of the tube
+  double     m_radius = 0.0;              // radius of the tube
 
   double     m_rhit;                // radius of the current hit
   double     m_xhit;                // position along the tube of the current hit
   double     m_pathLength;          // path length of particle in tube
  
-  double m_clusterDensity;          // clusters per mm
+  double m_clusterDensity = 0.0;          // clusters per mm
   std::vector<double> m_gammaFactorVec; // gamma	
   std::vector<double> m_numberOfClustersPerCmVec; // clusters per cm 
 
-  double m_attLength;               // attenuation length of tube
-  double m_signalSpeed;             // propagation speed along wire
+  double m_attLength = 0.0;               // attenuation length of tube
+  double m_signalSpeed = 0.0;             // propagation speed along wire
  
-  int     m_rtMode;                  // choose rt mode
-  unsigned int m_rtNpar;
+  int     m_rtMode = 0;                  // choose rt mode
+  unsigned int m_rtNpar = 0U;
   double* m_rtParameters;
 
-  double m_difSmearing;             // width of gaussian smearing 
+  double m_difSmearing = 0.0;             // width of gaussian smearing 
 
-  double m_triggerElectron;
-  double m_integrationWindow;
-  double m_binsize;
-  double m_timeWindow; 
-  int m_offset;
-  int m_bins;
+  double m_triggerElectron = 0.0;
+  double m_integrationWindow = 0.0;
+  double m_binsize = 0.0;
+  double m_timeWindow = 0.0; 
+  int m_offset = 0;
+  int m_bins = 0;
 
   Amplifier  m_amplifier;           // amplifier
   clusterVec m_clusters;            // produced clusters

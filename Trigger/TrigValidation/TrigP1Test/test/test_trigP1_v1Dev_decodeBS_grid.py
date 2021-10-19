@@ -4,6 +4,7 @@
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -55,6 +56,8 @@ writeBS = ExecStep.ExecStep("WriteBS")
 writeBS.type = 'athenaHLT'
 writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
+writeBS.threads = 4
+writeBS.concurrent_events = 4
 writeBS.args = '-o output'
 writeBS.args += ' -c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 writeBS.args += ' --dump-config-reload'

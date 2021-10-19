@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ RpcCoinData::RpcCoinData(const RpcCoinData& RIO):
 { }
 
 //move constructor:
-RpcCoinData::RpcCoinData(RpcCoinData&& RIO):
+RpcCoinData::RpcCoinData(RpcCoinData&& RIO) noexcept :
     RpcPrepData(std::move(RIO)), 
     m_ijk( RIO.m_ijk ),
     m_threshold( RIO.m_threshold ),
@@ -101,7 +101,7 @@ RpcCoinData& RpcCoinData::operator=(const RpcCoinData& RIO)
 
 //move operator
 RpcCoinData& RpcCoinData::operator=(RpcCoinData&& RIO)
-{
+ noexcept {
   if(&RIO !=this)
     {
       m_ijk            = RIO.m_ijk;
@@ -157,18 +157,15 @@ std::ostream& RpcCoinData::dump( std::ostream&    stream) const
 }
 bool RpcCoinData::isLowPtCoin() const
 {
-    if ( m_lowPtCm && m_ijk == 6 ) return true;
-    return false;
+    return m_lowPtCm && m_ijk == 6;
 }
 bool RpcCoinData::isHighPtCoin() const
 {
-    if ( (!m_lowPtCm) && m_ijk == 6 ) return true;
-    return false;
+    return (!m_lowPtCm) && m_ijk == 6;
 }
 bool RpcCoinData::isLowPtInputToHighPtCm() const
 {
-    if ( m_ijk == 0 ) return true;
-    return false;
+    return m_ijk == 0;
 }
 
 

@@ -19,6 +19,8 @@ namespace TCS {
       
       uint32_t roiWord() const { return m_roiWord; }
 
+      const std::string& tobName() const { return m_tobName; }
+
       static size_t instances() { return 0; }
 
    protected:

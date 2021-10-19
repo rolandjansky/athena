@@ -152,3 +152,24 @@ bool RootAuxDynStore::isDecoration (SG::auxid_t auxid) const
   }
   return SG::AuxStoreInternal::isDecoration (auxid);
 }
+
+/**
+ * @brief Return the number of elements in the store.
+ * NOTE: this method will attempt to read data if size unknown (0)
+ * May return 0 for a store with no aux data.
+ */
+size_t RootAuxDynStore::size() const
+{
+  const std::size_t s = SG::AuxStoreInternal::size();
+  if( s != 0 ) {
+    return s;
+  }
+
+  for( SG::auxid_t id : getAuxIDs() ) {
+    if( getData( id ) != nullptr ) {
+      return SG::AuxStoreInternal::size();
+    }
+  }
+
+  return 0;
+}

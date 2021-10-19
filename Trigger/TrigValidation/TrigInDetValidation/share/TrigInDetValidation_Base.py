@@ -16,7 +16,7 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 import os,sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lcxptmn:",["local","config"])
+    opts, args = getopt.getopt(sys.argv[1:],"lcxptrmn:",["local","config"])
 except getopt.GetoptError:
     print("Usage:  ")
     print("-l | --local   run locally with input file from art eos grid-input")
@@ -36,7 +36,7 @@ costplot      = False
 postproc      = False
 testconfig    = False
 dry_run       = False
-
+runstuff      = True
 
 if "Art_type"  not in locals(): Art_type = 'grid'
 if "GridFiles" not in locals(): GridFiles=False
@@ -53,6 +53,8 @@ for opt,arg in opts:
         costplot=True
     if opt=="-n":
         Events_local=int(arg)
+    if opt=="-r":
+        runstuff=False
     if opt in ("-c", "--config"):
         testconfig = True
     if opt=="-t":
@@ -115,6 +117,17 @@ if (Malloc):
     os.environ["MALLOC_CHECK_"] = "3"
     rdo2aod.malloc = True
 
+for a in ["preexec_trig", "preexec_reco", "preexec_aod", "preexec_all", "postexec_trig", "postexec_reco"]:
+    if a in locals():
+        v = locals()[a]
+        if type(v) is list: v = ";".join(v)
+        v0 = getattr (rdo2aod, a)
+        if v0 is None or v0 == "":
+            v0 = v
+        else:
+            v0 += ";"+v
+        setattr (rdo2aod, a, v0)
+
 # Run athena analysis to produce TrkNtuple
 
 test = Test.Test()
@@ -131,7 +144,10 @@ rdo_to_cost = TrigCostStep()
 if dry_run:
     test.dry_run = True
 if (not exclude):
-    test.exec_steps = [rdo2aod, aod_to_ntup, rdo_to_cost]
+    if runstuff:
+        test.exec_steps = [rdo2aod, aod_to_ntup, rdo_to_cost]
+    else:
+        test.exec_steps = [aod_to_ntup]
     test.check_steps = CheckSteps.default_check_steps(test)
 
 # Run TIDArdict

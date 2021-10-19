@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,12 +14,15 @@
 // author G.Unal
 
 class MsgStream;
-class LArFebErrorSummaryCnv_p1  : public T_AthenaPoolTPCnvBase<LArFebErrorSummary, LArFebErrorSummary_p1>
+class LArFebErrorSummaryCnv_p1  : public T_AthenaPoolTPCnvConstBase<LArFebErrorSummary, LArFebErrorSummary_p1>
 {
  public:
   LArFebErrorSummaryCnv_p1() { };
-  virtual void   persToTrans(const LArFebErrorSummary_p1* pers, LArFebErrorSummary* trans, MsgStream &log) ;
-  virtual void   transToPers(const LArFebErrorSummary* trans, LArFebErrorSummary_p1* pers, MsgStream &log) ;
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
+  virtual void   persToTrans(const LArFebErrorSummary_p1* pers, LArFebErrorSummary* trans, MsgStream &log) const override;
+  virtual void   transToPers(const LArFebErrorSummary* trans, LArFebErrorSummary_p1* pers, MsgStream &log) const override;
 
 };
 

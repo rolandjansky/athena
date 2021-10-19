@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -79,8 +79,6 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
 //______________________________________________________________________________
 TauSelectionTool::~TauSelectionTool()
 {
-  for (auto entry : m_cMap)
-    delete entry.second;
   m_cMap.clear();
 }
 
@@ -328,24 +326,32 @@ StatusCode TauSelectionTool::initialize()
       m_iSelectionCuts = iSelectionCuts;
   }
 
-  // specify all available cut descriptions
-  m_cMap =
-  {
-    {CutPt, new TauAnalysisTools::SelectionCutPt(this)},
-    {CutAbsEta, new TauAnalysisTools::SelectionCutAbsEta(this)},
-    {CutAbsCharge, new TauAnalysisTools::SelectionCutAbsCharge(this)},
-    {CutNTrack, new TauAnalysisTools::SelectionCutNTracks(this)},
-    {CutJetBDTScore, new TauAnalysisTools::SelectionCutBDTJetScore(this)},
-    {CutJetBDTScoreSigTrans, new TauAnalysisTools::SelectionCutBDTJetScoreSigTrans(this)},
-    {CutJetRNNScoreSigTrans, new TauAnalysisTools::SelectionCutRNNJetScoreSigTrans(this)},
-    {CutJetIDWP, new TauAnalysisTools::SelectionCutJetIDWP(this)},
-    {CutEleBDTScore, new TauAnalysisTools::SelectionCutBDTEleScore(this)},
-    {CutEleBDTWP, new TauAnalysisTools::SelectionCutEleBDTWP(this)},
-    {CutEleOLR, new TauAnalysisTools::SelectionCutEleOLR(this)},
-    {CutMuonVeto, new TauAnalysisTools::SelectionCutMuonVeto(this)},
-    {CutMuonOLR, new TauAnalysisTools::SelectionCutMuonOLR(this)}
-  };
+  m_sJetIDWP = convertJetIDWPToStr(m_iJetIDWP);
+  m_sEleBDTWP = convertEleBDTWPToStr(m_iEleBDTWP);
 
+  // specify all available cut descriptions
+  using map_type  = std::map<SelectionCuts, std::unique_ptr<TauAnalysisTools::SelectionCut>>;
+  using pair_type = map_type::value_type;
+
+  pair_type elements[] =
+  {
+   {CutPt, std::make_unique<TauAnalysisTools::SelectionCutPt>(this)},
+   {CutAbsEta, std::make_unique<TauAnalysisTools::SelectionCutAbsEta>(this)},
+   {CutAbsCharge, std::make_unique<TauAnalysisTools::SelectionCutAbsCharge>(this)},
+   {CutNTrack, std::make_unique<TauAnalysisTools::SelectionCutNTracks>(this)},
+   {CutJetBDTScore, std::make_unique<TauAnalysisTools::SelectionCutBDTJetScore>(this)},
+   {CutJetBDTScoreSigTrans, std::make_unique<TauAnalysisTools::SelectionCutBDTJetScoreSigTrans>(this)},
+   {CutJetRNNScoreSigTrans, std::make_unique<TauAnalysisTools::SelectionCutRNNJetScoreSigTrans>(this)},
+   {CutJetIDWP, std::make_unique<TauAnalysisTools::SelectionCutJetIDWP>(this)},
+   {CutEleBDTScore, std::make_unique<TauAnalysisTools::SelectionCutBDTEleScore>(this)},
+   {CutEleBDTWP, std::make_unique<TauAnalysisTools::SelectionCutEleBDTWP>(this)},
+   {CutEleOLR, std::make_unique<TauAnalysisTools::SelectionCutEleOLR>(this)},
+   {CutMuonVeto, std::make_unique<TauAnalysisTools::SelectionCutMuonVeto>(this)},
+   {CutMuonOLR, std::make_unique<TauAnalysisTools::SelectionCutMuonOLR>(this)}
+  };
+  
+  m_cMap = { std::make_move_iterator( begin(elements) ), std::make_move_iterator( end(elements) ) };
+  
   ATH_MSG_INFO( "Initializing TauSelectionTool" );
   FillRegionVector(m_vPtRegion, m_dPtMin, m_dPtMax);
   FillRegionVector(m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
@@ -356,8 +362,6 @@ StatusCode TauSelectionTool::initialize()
   FillValueVector(m_vAbsCharges, m_iAbsCharge );
   FillValueVector(m_vNTracks, m_iNTrack );
 
-  m_sJetIDWP = convertJetIDWPToStr(m_iJetIDWP);
-  m_sEleBDTWP = convertEleBDTWPToStr(m_iEleBDTWP);
 
   PrintConfigRegion ("Pt",          m_vPtRegion);
   PrintConfigRegion ("AbsEta",      m_vAbsEtaRegion);
@@ -400,7 +404,7 @@ StatusCode TauSelectionTool::initialize()
   if (m_bCreateControlPlots)
     setupCutFlowHistogram();
 
-  for ( auto entry : m_cMap ) {
+  for ( const auto& entry : m_cMap ) {
      if ( m_iSelectionCuts &entry.first ) {
 	entry.second->setAcceptInfo(m_aAccept);
      }
@@ -458,12 +462,12 @@ TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
     // fill cutflow 'All' bin
     m_hCutFlow->Fill(iNBin);
     // fill main distributions before all cuts
-    for (auto entry : m_cMap)
+    for (const auto& entry : m_cMap)
       entry.second->fillHistogramCutPre(xTau);
   }
   try
   {
-    for (auto entry : m_cMap)
+    for (const auto& entry : m_cMap)
     {
       if (m_iSelectionCuts & entry.first)
       {
@@ -489,7 +493,7 @@ TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   // fill main distributions after all cuts
   if (m_bCreateControlPlots)
   {
-    for (auto entry : m_cMap)
+    for (const auto& entry : m_cMap)
       entry.second->fillHistogramCut(xTau);
   }
 
@@ -516,7 +520,7 @@ void TauSelectionTool::writeControlHistograms()
     /// write cutflow histogram
     m_hCutFlow->Write();
 
-    for (auto entry : m_cMap)
+    for (const auto& entry : m_cMap)
       entry.second->writeControlHistograms();
   }
   /// delete cut pointer, which in case m_bCreateControlPlots==true also writes histograms
@@ -528,7 +532,7 @@ void TauSelectionTool::setupCutFlowHistogram()
 {
   // count number of cuts
   int iNBins = 0;
-  for (auto entry : m_cMap)
+  for (const auto& entry : m_cMap)
     if (m_iSelectionCuts & entry.first)
       iNBins++;
   // creat cutflow histogram with iNBins+1 bins, where first bin is 'All' bin
@@ -538,7 +542,7 @@ void TauSelectionTool::setupCutFlowHistogram()
   // reusing this variable to reduce overhead
   iNBins = 2;
   // set bin labels
-  for (auto entry : m_cMap)
+  for (const auto& entry : m_cMap)
     if (m_iSelectionCuts & entry.first)
     {
       m_hCutFlow->GetXaxis()->SetBinLabel(iNBins, entry.second->getName().c_str());

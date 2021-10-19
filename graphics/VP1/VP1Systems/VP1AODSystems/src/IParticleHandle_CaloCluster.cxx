@@ -48,13 +48,13 @@
 class IParticleHandle_CaloCluster::Imp {
 public:
 
-	IParticleHandle_CaloCluster * theclass; // the Jet class
-	const IParticleCollHandle_CaloCluster* theCollHandle; // the CollHandle instance
+	IParticleHandle_CaloCluster * theclass = nullptr; // the Jet class
+	const IParticleCollHandle_CaloCluster* theCollHandle = nullptr; // the CollHandle instance
 
-	const xAOD::CaloCluster * m_cluster; // the single jet
+	const xAOD::CaloCluster * m_cluster = nullptr; // the single jet
 
-	SoSeparator * sep; // everything hangs from this.
-	SoGenericBox* m_genericBox; //This is the box representing the calorimeter cluster.
+	SoSeparator * sep = nullptr; // everything hangs from this.
+	SoGenericBox* m_genericBox = nullptr; //This is the box representing the calorimeter cluster.
 
 	//Settings:
 	bool considerTransverseEnergies = true; // TODO: update with button connection "E/Et" (see VP1JetCollection.cxx)

@@ -20,6 +20,41 @@ class PowhegBase(Configurable):
     @author Stefan Richter  <stefan.richter@cern.ch>
     """
 
+    def hoppet_info(self):
+        '''
+        Returns a list of strings to be treated as info messages in the log
+        They otherwise throw an error with HOPPET v. 1.2.0
+        Cf. AGENE-2016
+        '''
+        return ["-----------------------------------------------------------",
+                "Welcome to HOPPET v. 1.2.0",
+                "Higher Order Perturbative Parton Evolution Toolkit",
+                "Written by Gavin P. Salam (2001-2012)",
+                "with contributions from Juan Rojo",
+                "Frederic Dreyer and Alexander Karlberg",
+                "It is made available under the GNU public license,",
+                "with the additional request that if you use it or any",
+                "derivative of it in scientific work then you should cite:",
+                "G.P. Salam & J. Rojo, CPC 180(2009)120 (arXiv:0804.3755).",
+                "You are also encouraged to cite the original references,",
+                "for LO, NLO and NNLO splitting functions, the QCD",
+                "1, 2 and 3 loop beta functions and the coupling and",
+                "PDF and coupling mass threshold matching functions."]
+
+    def hoppet_warning(self):
+        '''
+        Returns a list of strings to be treated as warning messages in the log
+        They otherwise throw an error
+        '''
+        return ["WARNING in InitMTMNNLO: using parametrisation  (less accuracte) for A2PShg"]
+
+    def openloops_error(self):
+        '''
+        Returns a list of strings to be treated as error messages in the log
+        They otherwise do not throw an error
+        '''
+        return ["[POWHEG-BOX+OpenLoops] Process not found!"]
+
     def manually_set_openloops_paths(self):
         '''
         Manual fix for OpenLoops libraries path, avoiding issues when /afs not available
@@ -66,12 +101,16 @@ class PowhegBase(Configurable):
         else:
             logger.info("Local directory \"virtual\" now points to {}".format(MadLoop_virtual))
 
-    def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
+    def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, warning_output = [], info_output = [], error_output = [], **kwargs):
         """! Constructor.
 
         @param base_directory  path to PowhegBox code.
         @param version         PowhegBox version.
         @param executable_name folder containing appropriate PowhegBox executable.
+        @param powheg_executable name of the powheg executable.
+        @param warning_output list of patterns which if found in the output will be treated as warning in the log.
+        @param error_output list of patterns which if found in the output will be treated as error in the log.
+        @param info_output list of patterns which if found in the output will be treated as info in the log.
         """
         super(PowhegBase, self).__init__()
 
@@ -120,6 +159,11 @@ class PowhegBase(Configurable):
 
         ## Switch to determine if the #rwgt and #pdf comments should be kept in lhe files despite using xml reweighting
         self.remove_oldStyle_rwt_comments = None
+
+        ## Special treatment for some log messages
+        self.warning_output = warning_output
+        self.info_output = info_output
+        self.error_output = error_output
 
     def add_algorithm(self, alg_or_process):
         """! Add an algorithm or external process to the sequence.

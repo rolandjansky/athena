@@ -26,22 +26,25 @@ def precisionElectronSequence_LRT(ConfigFlags):
     # Configure the reconstruction algorithm sequence
 
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionElectronRecoSequences_LRT import precisionElectronRecoSequence_LRT
-    (electronPrecisionRec, sequenceOut) = precisionElectronRecoSequence_LRT(InViewRoIs)
+    (electronPrecisionRec, sequenceOut, sequenceOut_dummy) = precisionElectronRecoSequence_LRT(InViewRoIs)
 
     electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs_LRT", [electronPrecisionRec])
     precisionElectronViewsMaker.ViewNodeName = "electronPrecisionInViewAlgs_LRT"
 
     electronPrecisionAthSequence = seqAND("electronPrecisionAthSequence_LRT", [precisionElectronViewsMaker, electronPrecisionInViewAlgs ] )
-    return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut)
+    return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy)
 
 
-def precisionElectronMenuSequence_LRT(is_probe_leg=False):
+def precisionElectronMenuSequence_LRT(is_probe_leg=False, do_idperf=False):
     # retrieve the reco seuqence+EVC
-    (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence_LRT, ConfigFlags)
+    (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy) = RecoFragmentsPool.retrieve(precisionElectronSequence_LRT, ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
-    thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT", sequenceOut)
+    if do_idperf:
+        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT_idperf", sequenceOut_dummy, do_idperf)
+    else:
+        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT", sequenceOut, do_idperf)
     
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
     

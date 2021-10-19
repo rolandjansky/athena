@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaBlock.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file  AthAllocators/src/ArenaBlock.cxx
  * @author scott snyder
@@ -14,7 +12,11 @@
 
 
 #include "AthAllocators/ArenaBlock.h"
+#include "AthAllocators/exceptions.h"
 #include <cstdlib>
+#include <unistd.h>
+#include <cassert>
+#include <sys/mman.h>
 
 
 namespace SG {
@@ -30,18 +32,29 @@ std::atomic<size_t> ArenaBlock::s_nactive;
  * @param elt_size The size in bytes of each element.
  * @param ctor If non-null, call this function on each element
  *             in the new block.
+ *
+ * The block will be allocated so that it entirely occupies
+ * a set of contiguous pages.  The requested size may be rounded
+ * up for this.
  */
 ArenaBlock*
 ArenaBlock::newBlock (size_t n, size_t elt_size, func_t* ctor)
 {
+  static const size_t pageSize = sysconf (_SC_PAGESIZE);
   size_t tot_size = n*elt_size + ArenaBlockBodyOffset;
-  ArenaBlock* p = reinterpret_cast<ArenaBlock*> (std::malloc (tot_size));
+  // Round up to a multiple of pageSize.
+  size_t tot_size_rounded = (tot_size + (pageSize-1)) & ~(pageSize-1);
+  // Number of elements after rounding up.
+  size_t n_rounded = (tot_size_rounded - ArenaBlockBodyOffset) / elt_size;
+  assert (n_rounded >= n);
+  ArenaBlock* p = reinterpret_cast<ArenaBlock*>
+    (std::aligned_alloc (pageSize, tot_size_rounded));
   ++s_nactive;
   p->m_link = nullptr;
   p->m_elt_size = elt_size;
-  p->m_size = n;
+  p->m_size = n_rounded;
   if (ctor) {
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < n_rounded; i++)
       ctor (p->index (i, elt_size));
   }
   return p;
@@ -145,6 +158,68 @@ size_t ArenaBlock::overhead()
 {
   // The extra size_t is a guesstimate of malloc overhead.
   return ArenaBlockBodyOffset + sizeof (size_t);
+}
+
+
+/**
+ * @brief Write-protect this block.
+ *
+ * Adjust protection on the memory allocated for this block
+ * to disallow writes.
+ */
+void ArenaBlock::protect()
+{
+  int stat = mprotect (this, m_size*m_elt_size+ArenaBlockBodyOffset,
+                       PROT_READ);
+  if (stat) {
+    throw SG::ExcProtection (stat);
+  }
+}
+
+
+/**
+ * @brief Write-enable this block.
+ *
+ * Adjust protection on the memory allocated for this block
+ * to allow writes.
+ */
+void ArenaBlock::unprotect()
+{
+  int stat = mprotect (this, m_size*m_elt_size+ArenaBlockBodyOffset,
+                       PROT_READ + PROT_WRITE);
+  if (stat) {
+    throw SG::ExcProtection (stat);
+  }
+}
+
+
+/**
+ * @brief Write-protect all blocks in a list.
+ * @param p The first block to protect.
+ *
+ * Adjust protection on the memory allocated for these blocks
+ * to disallow writes.
+ */
+void ArenaBlock::protectList (ArenaBlock* p)
+{
+  for (; p; p = p->link()) {
+    p->protect();
+  }
+}
+
+
+/**
+ * @brief Write-enable all blocks in a list.
+ * @param p The first block to protect.
+ *
+ * Adjust protection on the memory allocated for these blocks
+ * to allow writes.
+ */
+void ArenaBlock::unprotectList (ArenaBlock* p)
+{
+  for (; p; p = p->link()) {
+    p->unprotect();
+  }
 }
 
 

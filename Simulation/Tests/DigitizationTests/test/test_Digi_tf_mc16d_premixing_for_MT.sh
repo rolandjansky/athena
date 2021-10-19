@@ -18,7 +18,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 Digi_tf.py \
 --PileUpPresampling True \
 --inputHITSFile ${InputHitsFile} \
---conditionsTag default:OFLCOND-MC16-SDR-20 \
+--conditionsTag default:OFLCOND-MC16-SDR-25-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \

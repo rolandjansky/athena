@@ -15,7 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkG4UserActions/IGeantFollowerMSHelper.h"
-#include "G4ThreeVector.hh"
+#include "G4ThreeVector.hh" //is a typedef to CLHEP::Hep3Vector
 
 // FIXME: header-global macro for an array size constant!
 #ifndef MAXPROBES

@@ -66,6 +66,11 @@ def OverlayMainCfg(configFlags):
     acc.merge(CopyCaloCalibrationHitContainersCfg(configFlags))
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
 
+    # Beam spot reweighting
+    if configFlags.Digitization.InputBeamSigmaZ > 0:
+        from BeamEffects.BeamEffectsAlgConfig import BeamSpotReweightingAlgCfg
+        acc.merge(BeamSpotReweightingAlgCfg(configFlags))
+
     # Inner detector
     if configFlags.Detector.EnableBCM:
         acc.merge(BCMOverlayCfg(configFlags))

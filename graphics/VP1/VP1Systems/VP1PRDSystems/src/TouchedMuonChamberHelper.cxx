@@ -21,8 +21,8 @@
 //____________________________________________________________________
 class TouchedMuonChamberHelper::Imp {
 public:
-  TouchedMuonChamberHelper * theclass;
-  bool updatesnotcheduled;//true if a timer has already been fired to check status after
+  TouchedMuonChamberHelper * theclass = nullptr;
+  bool updatesnotcheduled = false;//true if a timer has already been fired to check status after
   inline void ensureScheduleUpdate();
   std::set<GeoPVConstLink> lastEmittedSet;
   std::map<GeoPVConstLink,unsigned> pv2count;//For keeping track of the number

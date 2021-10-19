@@ -231,7 +231,7 @@ QList<VP1EventFile> VP1AvailEvents::allEventFilesInDir(const QString& dir) const
       message("Could not decode event file name: "+fn);
   }
 
-  qSort(l);
+  std::sort(l.begin(), l.end());
 
   m_d->dircache[dir]=std::make_pair(modtime,l);
   return l;

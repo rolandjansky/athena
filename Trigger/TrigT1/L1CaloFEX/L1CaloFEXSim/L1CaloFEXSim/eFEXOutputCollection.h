@@ -28,7 +28,7 @@ namespace LVL1 {
    */
   public:
     /// @brief constructor
-    eFEXOutputCollection() {};
+    eFEXOutputCollection();
 
     /// @brief Destructor
     ~eFEXOutputCollection();
@@ -60,28 +60,38 @@ namespace LVL1 {
     /// @brief Save all tau values. Use only after finishing defining all tau values for one TOB.
     void fill_tau();
 
-    /// @brief get total number of TOBs saved
-    int size();
+    /// @brief get total number of tau TOBs saved
+    int tau_size() const;
+
+    /// @brief get total number of eg TOBs saved
+    int size() const;
 
     /// @brief get all e-gamma related values the ith TOB
-    std::map<std::string, float>* get_eg(int);
+    std::map<std::string, float>* get_eg(int) const;
 
     /// @brief get all tau related values the ith TOB
-    std::map<std::string, float>* get_tau(int);
+    std::map<std::string, float>* get_tau(int) const;
 
     /// @brief add the eEFX number of a TOB
     void addeFexNumber(int);
 
     /// @brief get the eFEX numbers of all TOBs
-    std::vector<int> geteFexNumber();
+    std::vector<int> geteFexNumber() const;
 
     /// @brief add a 32-bit e-gamma TOB word
     void addEMtob(uint32_t);
     
     /// @brief get all e-gamma TOB words of an event
-    std::vector<uint32_t> getEMtob();
+    std::vector<uint32_t> getEMtob() const;
+
+    /// @brief setting to true if ntuple output is needed
+    void setdooutput(bool);
+
+    /// @brief return to true if ntuple output is needed
+    bool getdooutput() const;
   
   private:
+    bool m_dooutput; ///< if write Ntuple
     std::vector<int> m_eFexNumber; ///< vector of eFEX numbers
     std::vector<uint32_t> m_emtob; ///< vector of TOB words
     /// e-gamma related values of a TOB

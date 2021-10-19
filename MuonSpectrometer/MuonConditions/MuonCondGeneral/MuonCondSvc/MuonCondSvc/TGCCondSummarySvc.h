@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_TGCCONDSUMMARYSVC_H
@@ -20,7 +20,7 @@
 
 template <class TYPE> class SvcFactory;
 
-class TGCCondSummarySvc: virtual public ITGCConditionsSvc, public AthService{
+class ATLAS_NOT_THREAD_SAFE TGCCondSummarySvc: virtual public ITGCConditionsSvc, public AthService{
   friend class SvcFactory<TGCCondSummarySvc>;
 public:
 

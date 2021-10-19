@@ -4,8 +4,6 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.CFElements import seqAND
-from TrigInDetConfig.InDetSetup import makeInDetAlgs
-from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
@@ -82,6 +80,8 @@ def MinBiasSPSequence():
     spInputMakerAlg.Views = "SPView"
 
     idTrigConfig = getInDetTrigConfig('minBias')
+
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     idAlgs, verifier = makeInDetAlgs(config=idTrigConfig, 
                                      rois=spInputMakerAlg.InViewRoIs, 
                                      viewVerifier='SPViewDataVerifier', 
@@ -165,6 +165,7 @@ def MinBiasTrkSequence():
         # inform scheduler that input data is available in parent view (has to be done by hand)
         idTrigConfig = getInDetTrigConfig('minBias')
 
+        from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
         algs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVMinBiasIDTracking')
         trackCountHypo = TrackCountHypoAlg()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")

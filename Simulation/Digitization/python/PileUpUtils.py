@@ -111,7 +111,7 @@ def generateBackgroundInputCollections(flags, initialList, nBkgEvtsPerCrossing, 
     return finalList
 
 
-def loadPileUpProfile(fragment_string):
+def loadPileUpProfile(flags, fragment_string):
     """Load pile-up profile from file."""
     parts = fragment_string.split('.')
     if len(parts) < 2:
@@ -120,7 +120,7 @@ def loadPileUpProfile(fragment_string):
     from importlib import import_module
     loaded_module = import_module(fragment_string)
     function_def = getattr(loaded_module, 'setupProfile')
-    return function_def()
+    return function_def(flags)
 
 
 def generatePileUpProfile(flags,
@@ -134,6 +134,12 @@ def generatePileUpProfile(flags,
 
     jobNumber = flags.Digitization.JobNumber
     maxEvents = flags.Exec.MaxEvents
+    totalEvents = flags.Exec.MaxEvents
+    skipEvents = flags.Exec.SkipEvents
+
+    # executor splitting
+    if flags.ExecutorSplitting.TotalSteps > 1:
+        totalEvents = flags.ExecutorSplitting.TotalEvents
 
     if maxEvents == -1:
         raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job." % (
@@ -151,8 +157,12 @@ def generatePileUpProfile(flags,
     #  up to trfMaxEvents-1 events per complete run in prodsys if
     #  the number of events specified by this run is not evenly
     #  divisible by trfMaxEvents.
-    JobMaker = loadPileUpProfile(profile)
-    runMaxEvents = sum(lb["evts"] for lb in JobMaker)
+    generatedProfile = loadPileUpProfile(flags, profile)
+    # do executor step filtering
+    if flags.ExecutorSplitting.TotalSteps > 1:
+        generatedProfile = list(filter(lambda lb: 'step' not in lb or lb['step'] == flags.ExecutorSplitting.Step, generatedProfile))
+
+    runMaxEvents = sum(lb["evts"] for lb in generatedProfile)
     logger.info("There are %d events in this run.", runMaxEvents)
     jobsPerRun = int(ceil(float(runMaxEvents)/corrMaxEvents))
     logger.info("Assuming there are usually %d events per job. (Based on %d events in this job.)",
@@ -170,15 +180,20 @@ def generatePileUpProfile(flags,
         from Digitization.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
         fragment = getRandomlySampledRunLumiInfoFragment(
             jobnumber=(jobNumber-1),
-            task=JobMaker,
+            task=generatedProfile,
             maxEvents=maxEvents,
+            totalEvents=totalEvents,
+            skipEvents=skipEvents,
             sequentialEventNumbers=sequentialEventNumbers)
     else:
         # Load needed tools
         from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
         fragment = getRunLumiInfoFragment(
             jobnumber=(jobNumber-1),
-            task=JobMaker, maxEvents=maxEvents,
+            task=generatedProfile,
+            maxEvents=maxEvents,
+            totalEvents=totalEvents,
+            skipEvents=skipEvents,
             sequentialEventNumbers=sequentialEventNumbers)
     
     # Remove lumiblocks with no events
@@ -232,7 +247,17 @@ def scaleNumberOfCollisions(flags):
 
 def setupPileUpProfile(flags):
     bunchStructure = flags.Digitization.PU.BunchStructureConfig
-    pileUpProfile = flags.Digitization.PU.ProfileConfig
+    
+    # custom pile-up
+    if flags.Digitization.PU.CustomProfile:
+        if isinstance(flags.Digitization.PU.CustomProfile, str):
+            flags.Digitization.PU.CustomProfile = eval(flags.Digitization.PU.CustomProfile)
+        if isinstance(flags.Digitization.PU.CustomProfile, dict):
+            pileUpProfile = 'RunDependentSimData.PileUpProfile_muRange'
+    else:
+        pileUpProfile = flags.Digitization.PU.ProfileConfig
+
+    # sanity check
     if not bunchStructure or not pileUpProfile:
         raise ValueError('Bunch structure and pile-up profile need to be set')
 

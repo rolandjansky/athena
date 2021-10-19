@@ -1,8 +1,9 @@
 #!/bin/bash
-# art-description: ESD->HIST, R22 cosmics data ESD
+# art-description: ESD->HIST, R22 Run 2 cosmics data ESD
 # art-type: grid
 # art-memory: 3072
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 

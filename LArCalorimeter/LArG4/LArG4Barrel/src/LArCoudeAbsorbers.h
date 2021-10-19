@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArCoudeAbsorbers_H
@@ -12,9 +12,9 @@
 class LArCoudeAbsorbers {
 private:
   static PhysicalVolumeAccessor* s_theCoudes;
-  double m_xcent[1024][15];
-  double m_ycent[1024][15];
-  double m_phirot[1024][15];
+  double m_xcent[1024][15]{};
+  double m_ycent[1024][15]{};
+  double m_phirot[1024][15]{};
   bool m_filled;
   static LArCoudeAbsorbers* s_instance;
   static std::once_flag s_flag;

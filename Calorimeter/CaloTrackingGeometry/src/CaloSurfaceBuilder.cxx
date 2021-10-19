@@ -953,8 +953,8 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   // entry surfaces ( id<24 to avoid error messages )
   for (CaloCell_ID::CaloSample sample = CaloCell_ID::PreSamplerB; sample< 24; sample = CaloCell_ID::CaloSample(sample+1) ){
     float etaRef = ( sample<4 || std::abs(sample-13)<2 ) ? 1. : 2. ;
-    const Trk::Surface* spos = CreateUserSurface(sample,0.,etaRef);
-    const Trk::Surface* sneg = CreateUserSurface(sample,0.,-etaRef);
+    Trk::Surface* spos = CreateUserSurface(sample,0.,etaRef);
+    Trk::Surface* sneg = CreateUserSurface(sample,0.,-etaRef);
     if (spos) spos->setOwner(Trk::TGOwn);
     if (sneg) sneg->setOwner(Trk::TGOwn);
     m_layerEntries.emplace_back(spos,sneg);
@@ -973,11 +973,15 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
     delete surf;  
   }
   const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB2].second);
-  if (!cyl) std::abort();
-  m_layerEntries[CaloCell_ID::EMB2].second = new Trk::SlidingCylinderSurface(*cyl,
-							                   Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									               offset);
-  m_layerEntries[CaloCell_ID::EMB2].second->setOwner(Trk::TGOwn);
+  if (!cyl) {
+    std::abort();
+  }
+  Trk::SlidingCylinderSurface* tmpSlidCyl = new Trk::SlidingCylinderSurface(
+    *cyl,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidCyl->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EMB2].second = tmpSlidCyl;
   delete cyl;
   // EMB2 pos
   etaMin = 0.; etaMax = 1.5; deta = 0.05;
@@ -986,16 +990,20 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   rbase =  m_layerEntries[CaloCell_ID::EMB2].first->bounds().r();
   for (unsigned int ie=0; ie<neta; ie++ ) {
     float eta = etaMin+(ie+0.5)*deta;
-    const Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EMB2,0.,eta);
+    Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EMB2,0.,eta);
     offset[ie] = surf->bounds().r()- rbase;
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB2].first);
-  if (!cyl) std::abort();
-  m_layerEntries[CaloCell_ID::EMB2].first = new Trk::SlidingCylinderSurface(*cyl,
-									    Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									    offset);
-  m_layerEntries[CaloCell_ID::EMB2].first->setOwner(Trk::TGOwn);
+  if (!cyl) {
+    std::abort();
+  }
+  tmpSlidCyl = new Trk::SlidingCylinderSurface(
+    *cyl,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidCyl->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EMB2].first = tmpSlidCyl;
   delete cyl;
   // EMB3 neg
   etaMin = -1.5; etaMax = 0.; deta = 0.05;
@@ -1003,16 +1011,20 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   rbase =  m_layerEntries[CaloCell_ID::EMB3].second->bounds().r();
   for (unsigned int ie=0; ie<neta; ie++ ) {
     float eta = etaMin+(ie+0.5)*deta;
-    const Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EMB3,0.,eta);
+    Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EMB3,0.,eta);
     offset[ie] = surf->bounds().r()- rbase;
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].second);
-  if (!cyl) std::abort();
-  m_layerEntries[CaloCell_ID::EMB3].second = new Trk::SlidingCylinderSurface(*cyl,
-						      Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-						      offset);
-  m_layerEntries[CaloCell_ID::EMB3].second->setOwner(Trk::TGOwn);
+  if (!cyl) {
+    std::abort();
+  }
+  tmpSlidCyl = new Trk::SlidingCylinderSurface(
+    *cyl,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidCyl->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EMB3].second = tmpSlidCyl;
   delete cyl;
 
   // EMB3 pos
@@ -1026,11 +1038,15 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].first);
-  if (!cyl) std::abort();
-  m_layerEntries[CaloCell_ID::EMB3].first = new Trk::SlidingCylinderSurface(*cyl,
-						      Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-						       offset);
-  m_layerEntries[CaloCell_ID::EMB3].first->setOwner(Trk::TGOwn);
+  if (!cyl) {
+    std::abort();
+  }
+  tmpSlidCyl = new Trk::SlidingCylinderSurface(
+    *cyl,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidCyl->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EMB3].first = tmpSlidCyl;
   delete cyl;
 
   // EME2 neg
@@ -1044,11 +1060,15 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
     delete surf;  
   }
   const Trk::DiscSurface* disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME2].second);
-  if (!disc) std::abort();
-  m_layerEntries[CaloCell_ID::EME2].second = new Trk::SlidingDiscSurface(*disc,
-									 Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									 offset);
-  m_layerEntries[CaloCell_ID::EME2].second->setOwner(Trk::TGOwn);
+  if (!disc) {
+    std::abort();
+  }
+  Trk::SlidingDiscSurface* tmpSlidDisc = new Trk::SlidingDiscSurface(
+    *disc,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidDisc->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EME2].second = tmpSlidDisc;
   delete disc;
 
   // EME2 pos
@@ -1057,16 +1077,20 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   zbase =  m_layerEntries[CaloCell_ID::EME2].first->center().z();
   for (unsigned int ie=0; ie<neta; ie++ ) {
     float eta = etaMin+(ie+0.5)*deta;
-    const Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EME2,0.,eta);
+    Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EME2,0.,eta);
     offset[ie] = surf->center().z()- zbase;
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME2].first);
-  if (!disc) std::abort();
-  m_layerEntries[CaloCell_ID::EME2].first = new Trk::SlidingDiscSurface(*disc,
-									Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									offset);
-  m_layerEntries[CaloCell_ID::EME2].first->setOwner(Trk::TGOwn);
+  if (!disc) {
+    std::abort();
+  }
+  tmpSlidDisc = new Trk::SlidingDiscSurface(
+    *disc,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidDisc->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EME2].first = tmpSlidDisc;
   delete disc;
 
   // EME3 neg
@@ -1080,11 +1104,15 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME3].second);
-  if (!disc) std::abort();
-  m_layerEntries[CaloCell_ID::EME3].second = new Trk::SlidingDiscSurface(*disc,
-									 Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									 offset);
-  m_layerEntries[CaloCell_ID::EME3].second->setOwner(Trk::TGOwn);
+  if (!disc) {
+    std::abort();
+  }
+  tmpSlidDisc = new Trk::SlidingDiscSurface(
+    *disc,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidDisc->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EME3].second = tmpSlidDisc;
   delete disc;
 
   // EME3 pos
@@ -1093,16 +1121,20 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   zbase =  m_layerEntries[CaloCell_ID::EME3].first->center().z();
   for (unsigned int ie=0; ie<neta; ie++ ) {
     float eta = etaMin+(ie+0.5)*deta;
-    const Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EME3,0.,eta);
+    Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EME3,0.,eta);
     offset[ie] = surf->center().z()- zbase;
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME3].first);
-  if (!disc) std::abort();
-  m_layerEntries[CaloCell_ID::EME3].first = new Trk::SlidingDiscSurface(*disc,
-									Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
-									offset);
-  m_layerEntries[CaloCell_ID::EME3].first->setOwner(Trk::TGOwn);
+  if (!disc) {
+    std::abort();
+  }
+  tmpSlidDisc = new Trk::SlidingDiscSurface(
+    *disc,
+    Trk::BinUtility(neta, etaMin, etaMax, Trk::open, Trk::binEta),
+    offset);
+  tmpSlidDisc->setOwner(Trk::TGOwn);
+  m_layerEntries[CaloCell_ID::EME3].first = tmpSlidDisc;
   delete disc;
 
   // exit surfaces
@@ -1111,8 +1143,8 @@ void CaloSurfaceBuilder::fill_tg_surfaces() const
   }
 
   // fix exit for outer layers
-  const Trk::Surface* lpos =  CreateLastSurface(CaloCell_ID::TileBar2,0.,1.);
-  const Trk::Surface* lneg =  CreateLastSurface(CaloCell_ID::TileBar2,0.,-1.);
+  Trk::Surface* lpos =  CreateLastSurface(CaloCell_ID::TileBar2,0.,1.);
+  Trk::Surface* lneg =  CreateLastSurface(CaloCell_ID::TileBar2,0.,-1.);
   if (lpos) lpos->setOwner(Trk::TGOwn);
   if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileBar2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace DerivationFramework {
       const IInterface* p) : 
     AthAlgTool(t,n,p),
     m_expression("true"),
-    m_parser(0)
+    m_parser(nullptr)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("expression", m_expression);
@@ -42,7 +42,7 @@ namespace DerivationFramework {
   {
     if (m_parser) {
       delete m_parser;
-      m_parser = 0;
+      m_parser = nullptr;
     }
     return StatusCode::SUCCESS;
   }

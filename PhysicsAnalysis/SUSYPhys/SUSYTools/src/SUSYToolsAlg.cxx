@@ -1421,10 +1421,10 @@ void SUSYToolsAlg::stdHistsForObj(xAOD::IParticle *obj, std::string objtype, std
       hist(dir+objtype+"_"+objlevel+"_z0")->Fill( obj->auxdata<float>("z0sinTheta") );
       if (objtype=="el") {
          hist(dir+objtype+"_"+objlevel+"_isolCalo")->Fill( obj->auxdata<float>("topoetcone20")/obj->pt() );
-         hist(dir+objtype+"_"+objlevel+"_isolTrack")->Fill( obj->auxdata<float>("ptvarcone20_TightTTVALooseCone_pt1000")/obj->pt() );
+         hist(dir+objtype+"_"+objlevel+"_isolTrack")->Fill( obj->auxdata<float>("ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000")/obj->pt() );
       } else if (objtype=="mu") {
          hist(dir+objtype+"_"+objlevel+"_isolCalo")->Fill( obj->auxdata<float>("topoetcone20")/obj->pt() );
-         hist(dir+objtype+"_"+objlevel+"_isolTrack")->Fill( obj->auxdata<float>("ptvarcone30_TightTTVA_pt1000")/obj->pt() );
+         hist(dir+objtype+"_"+objlevel+"_isolTrack")->Fill( obj->auxdata<float>("ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000")/obj->pt() );
       } else if (objtype=="ph") {
          hist(dir+objtype+"_"+objlevel+"_isolCalo")->Fill( (obj->auxdata<float>("topoetcone40")-2450)/obj->pt() );
          hist(dir+objtype+"_"+objlevel+"_isolTrack")->Fill( obj->auxdata<float>("ptcone20")/obj->pt() );

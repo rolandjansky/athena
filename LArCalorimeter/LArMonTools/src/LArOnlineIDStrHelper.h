@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -148,10 +148,10 @@ class LArOnlineIDStrHelper
 
   // integer to string converter
   // width <= 0 means no setw used and no leading zeros
-  std::string int_to_str(int n, int width = 0, bool leadingZeros = false);
+  static std::string int_to_str(int n, int width = 0, bool leadingZeros = false);
 
   // convert a string to an all upper case string
-  std::string str_to_upper(std::string stringToConvert);
+  static std::string str_to_upper(std::string stringToConvert);
 
   //FindFixBin which works for both root and LW hists:
   template<class Taxis>

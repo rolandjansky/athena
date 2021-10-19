@@ -99,7 +99,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::initialize() {
   //CHECK(m_ppmMaps.retrieve());
   CHECK(m_robDataProvider.retrieve());
 
-  const ZdcID* zdcID = 0;
+  const ZdcID* zdcID = nullptr;
   if (detStore()->retrieve( zdcID ).isFailure() ) {
     msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
     return StatusCode::FAILURE;
@@ -231,8 +231,8 @@ StatusCode ZdcByteStreamReadV1V2Tool::processRobFragment_(
   m_rodSourceId = rob.rod_source_id();
   m_robSourceId = rob.source_id();
   const auto sourceID = (m_rodSourceId >> 16) & 0xff;
-  const auto rodCrate = m_srcIdMap->crate(m_rodSourceId);
-  const auto rodSlink = m_srcIdMap->slink(m_rodSourceId);
+  const auto rodCrate = ZdcSrcIdMap::crate(m_rodSourceId);
+  const auto rodSlink = ZdcSrcIdMap::slink(m_rodSourceId);
   // -------------------------------------------------------------------------
   // Check Rob status
   if (rob.nstatus() > 0) {
@@ -355,7 +355,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmWord_(uint32_t word,
 
 
 StatusCode ZdcByteStreamReadV1V2Tool::processPpmBlock_() {
-  if (m_ppBlock.size() > 0) {
+  if (!m_ppBlock.empty()) {
     m_ppPointer = 0;
     if (m_subBlockHeader.format() == 0) {
       StatusCode sc = processPpmNeutral_();
@@ -379,7 +379,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmBlock_() {
     }
   }
 
-  if (m_ppLuts.size() > 0) {
+  if (!m_ppLuts.empty()) {
     if (m_verCode == 0x21 || m_verCode == 0x31) {
       StatusCode sc = processPpmBlockR3V1_();
       m_ppLuts.clear();
@@ -951,7 +951,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmStandardR4V1_() {
 }
 
 StatusCode ZdcByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
-    for(auto lut : m_ppLuts) {
+    for(const auto& lut : m_ppLuts) {
       CHECK(addTriggerTowerV1_(
         m_subBlockHeader.crate(), 
         m_subBlockHeader.module(),
@@ -1099,12 +1099,12 @@ const std::vector<uint32_t>& ZdcByteStreamReadV1V2Tool::ppmSourceIDs(
   
   if (m_ppmSourceIDs.empty()) {
     for (int crate = 0; crate < crates; ++crate) {
-      for (int slink = 0; slink < m_srcIdMap->maxSlinks(); ++slink) {
+      for (int slink = 0; slink < ZdcSrcIdMap::maxSlinks(); ++slink) {
         //const uint32_t rodId = m_srcIdMap->getRodID(crate, slink, 0,
         //    eformat::TDAQ_CALO_PREPROC);
-        const uint32_t rodId = m_srcIdMap->getRodID(crate, slink, 0,
+        const uint32_t rodId = ZdcSrcIdMap::getRodID(crate, slink, 0,
             eformat::FORWARD_ZDC);
-        const uint32_t robId = m_srcIdMap->getRobID(rodId);
+        const uint32_t robId = ZdcSrcIdMap::getRobID(rodId);
         m_ppmSourceIDs.push_back(robId);
 	//std::cout << "robId=" << std::hex << robId << std::dec << std::endl;
         if (crate > 1 && crate < 6) {

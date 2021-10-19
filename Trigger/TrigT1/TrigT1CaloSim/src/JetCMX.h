@@ -28,8 +28,7 @@
  #include "StoreGate/ReadHandleKey.h"
  #include "StoreGate/WriteHandleKey.h"
 
- // Include for the configuration service:
- #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+ #include "TrigConfData/L1Menu.h"
 
  // Input/output types
  #include "TrigT1Interfaces/JetCTP.h"
@@ -71,15 +70,9 @@
    virtual StatusCode initialize() override;
    virtual StatusCode execute(const EventContext& ctx) const override;
 
- private: // Private methods
+ private:
 
-  /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu() const;
-  
- private: // Private attributes
-   /* Service and tool handles */
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
-     this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
+   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
    /* Input handles */
    SG::ReadHandleKey<JetCMXDataCollection> m_JetCMXDataLocation {

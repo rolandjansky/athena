@@ -21,8 +21,7 @@
 // - this is defined by setting a parameter
 // CellType to 1 for CaloCells, 2 to reprocess TriggerTowers and 3 for LAr/Tile TTL1 input (a simulation of analogue towers);
 //
-// ................................................................
-//
+// ................................................................  //
 
 #ifndef TRIGT1CALOSIM_RUN2TRIGGERTOWERMAKER_H
 #define TRIGT1CALOSIM_RUN2TRIGGERTOWERMAKER_H
@@ -40,6 +39,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //Calorimeter tower includes
@@ -50,12 +50,13 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaults.h"
 
+#include "TrigConfData/L1Menu.h"
+
 // EDM include(s)
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 // forward decl(s)
-class ILumiBlockMuTool;
 class CaloLVL1_ID;
 class CaloTriggerTowerService;
 class L1CaloCondSvc;
@@ -68,13 +69,11 @@ class L1CaloPpmDeadChannelsContainer;
 class L1CaloPpmDeadChannels;
 
 class IAthRNGSvc;
-class ILumiBlockMuTool;
 namespace ATHRNG {
   class RNGWrapper;
 }
 
 namespace CLHEP { class HepRandomEngine; }
-namespace TrigConf { class ILVL1ConfigSvc; }
 
 namespace LVL1BS {
    class ITrigT1CaloDataAccessV2;
@@ -150,20 +149,16 @@ private:
   std::string m_deadChannelsKeyoverlay;
 
   // Tools/Services
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ServiceHandle <IAthRNGSvc> m_rngSvc;
   ServiceHandle<L1CaloCondSvc> m_condSvc;
   ATHRNG::RNGWrapper* m_rndmADCs; // non owning ptr
 
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool;
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
   ToolHandle<LVL1BS::ITrigT1CaloDataAccessV2> m_bstowertool;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
-  // Global calibration scale (MeV/count, to optimise performance)
-  double m_digitScale;
   // Global LUT scales
   double m_cpLutScale;
   double m_jepLutScale;
@@ -212,18 +207,18 @@ private:
   StatusCode getCaloTowers();
 
   /** Convert analogue pulses to digits */
-  void digitize();
+  void digitize(const EventContext& ctx);
 
   /** Simulate PreProcessing on analogue amplitudes */
-  StatusCode preProcess(const int eventBCID);
-  StatusCode preProcessTower(const int eventBCID,xAOD::TriggerTower* tower);
+  StatusCode preProcess(int bcid,float mu);
+  StatusCode preProcessTower(int bcid,float mu,xAOD::TriggerTower* tower);
   
   /** Add overlay data **/
-  virtual StatusCode addOverlay(const int eventBCID);
-  virtual StatusCode addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
+  virtual StatusCode addOverlay(int bcid,float mu);
+  virtual StatusCode addOverlay(int bcid,float mu,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
   
   /** PreProcess up to LUT in **/
-  StatusCode preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
+  StatusCode preProcessTower_getLutIn(int bcid,float mu,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
   
   /** calculate LUT out **/
   StatusCode calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output);
@@ -259,7 +254,6 @@ private:
   int EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const;
 
   // void preProcessLayer(int layer, int eventBCID, InternalTriggerTower* tower, std::vector<int>& etResultVector, std::vector<int>& bcidResultVector);
-  StatusCode preProcessTower(xAOD::TriggerTower* tower, int eventBCID);
 
   int etaToElement(float feta, int layer) const;
   
@@ -270,6 +264,8 @@ private:
   // Read and Write Handlers
   // --------------------------------------------------------------------------
   SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey;
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_actMuKey { this, "actualInteractionsPerCrossingKey", "EventInfo.actualInteractionsPerCrossing", "Decoration for actual interactions per crossing" };
+
   //  location of input TriggerTowers (for reprocessing)
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_inputTTLocation;
   // locations within StoreGate to store collections of Trigger Towers
@@ -281,6 +277,8 @@ private:
   SG::ReadHandleKey<LArTTL1Container> m_EmTTL1ContainerName;
   SG::ReadHandleKey<LArTTL1Container> m_HadTTL1ContainerName;
   SG::ReadHandleKey<TileTTL1Container> m_TileTTL1ContainerName;
+
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 };
 
 } // namespace LVL1

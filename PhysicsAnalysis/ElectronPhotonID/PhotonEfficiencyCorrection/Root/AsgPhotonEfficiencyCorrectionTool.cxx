@@ -137,9 +137,9 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   }
    
   // Set prefix for sustematics if this is ISO, Trigger or ID SF
+  if( corrFileNameList[0].find(m_file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
   if( corrFileNameList[0].find(m_file_prefix_ID) != std::string::npos) m_sysSubstring="ID_";
   if( corrFileNameList[0].find(m_file_prefix_ISO) != std::string::npos) m_sysSubstring="ISO_";
-  if( corrFileNameList[0].find(m_file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
   if( corrFileNameList[0].find(m_file_prefix_TrigEff) != std::string::npos) m_sysSubstring="TRIGGER_";
   if(m_sysSubstring.empty()) {ATH_MSG_ERROR ( "Invalid input file" ); return StatusCode::FAILURE;}
 

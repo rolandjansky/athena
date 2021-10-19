@@ -17,7 +17,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from AthenaCommon.CfgGetter import getAlgorithm
-from MuonRecExample.MuonPrdProviderToolsConfig import RpcPrepDataProviderTool, MdtPrepDataProviderTool, TgcPrepDataProviderTool, CscPrepDataProviderTool
+from MuonRecExample.MuonPrdProviderToolsConfig import STGC_PrepDataProviderTool, RpcPrepDataProviderTool, MdtPrepDataProviderTool, TgcPrepDataProviderTool, CscPrepDataProviderTool
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 

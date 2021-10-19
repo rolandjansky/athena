@@ -284,8 +284,12 @@ StatusCode TestHepMC::execute() {
 #ifdef HEPMC3
     auto beams_t = evt->beams();
     std::pair<std::shared_ptr<const HepMC3::GenParticle>,std::shared_ptr<const HepMC3::GenParticle>> beams;
-    beams.first=beams_t.at(0);
-    beams.second=beams_t.at(1);
+    if (beams_t.size() == 2) {
+      beams.first=beams_t.at(0);
+      beams.second=beams_t.at(1);
+    } else {
+      ATH_MSG_WARNING("Invalid number of beam particles -- this generator interface should be fixed");
+    }
 #else
     auto beams = evt->beam_particles();
 #endif

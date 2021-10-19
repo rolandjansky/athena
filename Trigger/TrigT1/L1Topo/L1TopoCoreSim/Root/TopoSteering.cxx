@@ -47,17 +47,6 @@ TopoSteering::~TopoSteering() {
 }
 
 TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
-  
-  // Keep this method to avoid crashes. TO-DO: Switch menu loading in L1TopoSimulation.cxx
-  TRG_MSG_WARNING("Cannot configure simulation from XML. Use JSON format");
-
-  return TCS::StatusCode::SUCCESS;
-
-}
-
-
-TCS::StatusCode
 TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
 
   TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
@@ -400,12 +389,12 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    for(const Connector* inConn: inputConnectors)
    {
       const SortingConnector * sc = dynamic_cast<const SortingConnector *>(inConn);
-      if (sc==NULL) {
+      if (sc==nullptr && inConn!=nullptr) {
 	 TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " could not cast as SortingConnector* the input connector " << inConn->name());
       }
       else {
         const TOBArray * tobA = dynamic_cast<const TOBArray *>( sc->outputData());
-        if(tobA==NULL) {
+        if(tobA==nullptr) {
           TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " expects TOBArray(s) as input, but did not get it from connector " << inConn->name());
         }
         input.push_back( tobA );

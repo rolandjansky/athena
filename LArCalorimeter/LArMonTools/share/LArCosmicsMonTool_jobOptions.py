@@ -2,6 +2,9 @@
 if 'EventBlockSize' not in dir():
     EventBlockSize=0
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 ###### Cosmic Tool Configuration ###############
 from LArMonTools.LArMonToolsConf import LArCosmicsMonTool
 theLArCosmicsMonTool = LArCosmicsMonTool(name="LArCosmicsMonTool",

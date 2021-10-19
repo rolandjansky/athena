@@ -34,7 +34,7 @@
 namespace MuonCombined {
 
     MuonSegmentTagTool::MuonSegmentTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
-        AthAlgTool(type, name, parent), m_ntotTracks(0), m_nangleMatch(0), m_npmatch(0), m_natMSEntrance(0), m_naccepted(0) {
+        AthAlgTool(type, name, parent) {
         declareInterface<IMuonSegmentTagTool>(this);
     }
 
@@ -77,7 +77,7 @@ namespace MuonCombined {
         return StatusCode::SUCCESS;
     }
 
-    void MuonSegmentTagTool::tag(const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments,
+    void MuonSegmentTagTool::tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments,
                                  InDetCandidateToTagMap* tagMap) const {
         // loop over segments are extract MuonSegments + create links between segments and xAOD segments
         std::map<const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer>> segmentToxAODSegmentMap;
@@ -94,12 +94,11 @@ namespace MuonCombined {
                 segmentToxAODSegmentMap[mseg] = link;
             }
         }
-        tag(inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
+        tag(ctx, inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
     }
     // todo: fix segmentToxAODSegmentMap
-    void MuonSegmentTagTool::tag(const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments,
+    void MuonSegmentTagTool::tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments,
                                  SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         MSSurfaces surfaces{};
 
         std::vector<const Muon::MuonSegment*> FilteredSegmentCollection;
@@ -158,7 +157,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("performing tag of " << inDetCandidates.size() << " tracks with " << FilteredSegmentCollection.size()
                                            << " segments. ");
         // Checking which surfaces have segments, to avoid useless extrapolations
-        std::vector<bool> hasSeg(12, false);
+        std::array<bool,12> hasSeg{false};
         if (m_doBidirectional) {
             for (const Muon::MuonSegment* itSeg : FilteredSegmentCollection) {
                 Identifier chId = m_edmHelperSvc->chamberId(*itSeg);
@@ -188,7 +187,7 @@ namespace MuonCombined {
         }
 
         std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoSelected;
-        for (const auto* idTP : inDetCandidates) {
+        for (const MuonCombined::InDetCandidate* idTP : inDetCandidates) {
             // ensure that the id trackparticle has a track
             if (!idTP->indetTrackParticle().track()) continue;
 
@@ -203,6 +202,15 @@ namespace MuonCombined {
             if (!track) continue;
             if (!track->perigeeParameters()) continue;
 
+            //
+            // Remove low p and low Field region defined by p < 6 and eta between 1.4-1.7
+            //
+            const Trk::Perigee* aMeasPer = track->perigeeParameters();
+            if (m_removeLowPLowFieldRegion) {
+                double eta = -std::log(std::tan(aMeasPer->parameters()[Trk::theta] / 2.));
+                double p = std::abs(1.0 / (aMeasPer->parameters()[Trk::qOverP]));
+                if (std::abs(eta) > 1.4 && std::abs(eta) < 1.7 && p < 6000.) continue;
+            }
             ATH_MSG_DEBUG("Treating track " << trackCount);
             ATH_MSG_VERBOSE("========================== dumping the full track =========================");
             ATH_MSG_VERBOSE(*track);
@@ -222,10 +230,9 @@ namespace MuonCombined {
             ++m_ntotTracks;
             bool hasMatch = m_doBidirectional;
             if (!m_doBidirectional) {
-                hasSeg.clear();
-                hasSeg.resize(12, false);
+                hasSeg.fill(false);
                 bool hasAngleMatch = false;
-                const Amg::Vector3D& id_mom = track->perigeeParameters()->momentum();
+                const Amg::Vector3D id_mom = track->perigeeParameters()->momentum();
                 const double qID = track->perigeeParameters()->charge();
                 const double pID = id_mom.mag();
                 const double EtaID = id_mom.eta();
@@ -287,10 +294,9 @@ namespace MuonCombined {
                 if (i_extrapolations == 1) direction = Trk::oppositeMomentum;
 
                 // in case of along momentum extrapolation, use pre-existing extrapolation if available
-                std::unique_ptr<Trk::CaloExtension> extension = nullptr;
+                std::unique_ptr<Trk::CaloExtension> extension;
                 if (!m_caloExtensionTool.empty()) {
-                  extension = m_caloExtensionTool->caloExtension(
-                    Gaudi::Hive::currentContext(), idTP->indetTrackParticle());
+                  extension = m_caloExtensionTool->caloExtension(ctx, idTP->indetTrackParticle());
                 }
                 if (direction == Trk::alongMomentum) {
                     if (extension && extension->muonEntryLayerIntersection()) {
@@ -311,18 +317,12 @@ namespace MuonCombined {
 
                 std::unique_ptr<const Trk::TrackParameters> atSurface;
                 std::unique_ptr<const Trk::TrackParameters> nextSurface;
-                std::vector<bool> hasSurf(12, false);
+                std::array<bool,12> hasSurf{false};
 
                 for (unsigned int surface_counter = 0; surface_counter < 12; ++surface_counter, ++extrapolation_counter) {
                     ATH_MSG_DEBUG("Surface " << surface_counter);
                     if (surface_counter == 3) continue;
                     if (!hasSeg[surface_counter]) continue;
-                    if ((atSurface && atSurface->pT() < 500) || (!atSurface && trackAtMSEntrance[i_extrapolations].get()->pT()<500 &&
-								 surface_counter!=0 && surface_counter!=4 && surface_counter!=7 && surface_counter!=8 && surface_counter!=11)) {
-                        ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
-                        break;
-                    }
-
                     if (m_doTable) didExtrapolate[extrapolation_counter] = "X";
 
                     std::vector<std::string> segVsSurf(FilteredSegmentCollection.size(), "xxx");
@@ -457,21 +457,21 @@ namespace MuonCombined {
 
                     for (std::vector<const Muon::MuonSegment*>::iterator itSeg = FilteredSegmentCollection.begin();
                          itSeg != FilteredSegmentCollection.end(); ++itSeg, ++segmentCount) {
-                        bool sameSeg(false);
-                        for (unsigned int iseg = 0; iseg < segmentsInfo.size(); ++iseg) {
-                            if (*itSeg == segmentsInfo[iseg].segment) sameSeg = true;
-                        }
-                        if (sameSeg) { continue; }
-
+                        
+                        const Muon::MuonSegment* seg_ptr = (*itSeg);
+                        if (std::find_if(segmentsInfo.begin(),segmentsInfo.end(),[seg_ptr](const MuonCombined::MuonSegmentInfo& info){
+                            return info.segment == seg_ptr;
+                        }) != segmentsInfo.end()) continue;
+                        
                         if (m_doTable) { segStation[segmentCount] = "   "; }
 
                         ////// Per Abstract Layer, loop over all segments, and find out wether the segment is close to the
                         ////// extrapolated track to the abstract layer.
                         bool isMatched(false);
                         if (!m_doTable) {
-                            isMatched = m_MuTagMatchingTool->match(atSurface.get(), *itSeg, surfaces.stationType(surface_counter));
+                            isMatched = m_MuTagMatchingTool->match(atSurface.get(), seg_ptr, surfaces.stationType(surface_counter));
                         } else {
-                            if (!m_MuTagMatchingTool->surfaceMatch(atSurface.get(), *itSeg, surfaces.stationType(surface_counter))) {
+                            if (!m_MuTagMatchingTool->surfaceMatch(atSurface.get(), seg_ptr, surfaces.stationType(surface_counter))) {
                                 segVsSurf[segmentCount] = "surface";
                                 continue;
                             }
@@ -479,18 +479,18 @@ namespace MuonCombined {
                             ATH_MSG_VERBOSE("treating track " << trackCount << " (extrapolation = " << direction << ") and Segment "
                                                               << segStation[segmentCount] << " (segment " << segmentCount << ")");
 
-                            if (!m_MuTagMatchingTool->phiMatch(atSurface.get(), *itSeg, surfaces.stationType(surface_counter))) {
+                            if (!m_MuTagMatchingTool->phiMatch(atSurface.get(), seg_ptr, surfaces.stationType(surface_counter))) {
                                 segVsSurf[segmentCount] = "RghPhi";
                                 continue;
                             }
                             if (trkEtaInfo) {
                                 if ((surfaces.stationType(surface_counter)).find('B') != std::string::npos) {
-                                    if (!m_MuTagMatchingTool->thetaMatch(atSurface.get(), *itSeg)) {
+                                    if (!m_MuTagMatchingTool->thetaMatch(atSurface.get(), seg_ptr)) {
                                         segVsSurf[segmentCount] = "RghTheta";
                                         continue;
                                     }
                                 } else {
-                                    if (!m_MuTagMatchingTool->rMatch(atSurface.get(), *itSeg)) {
+                                    if (!m_MuTagMatchingTool->rMatch(atSurface.get(), seg_ptr)) {
                                         segVsSurf[segmentCount] = "RghR";
                                         continue;
                                     }
@@ -515,18 +515,17 @@ namespace MuonCombined {
                         ////// after a rough match (on station name, second coordinate and finally precision coordinate)
                         ////// extrapolate the track to the plane-surface associated to the matching segment.
                         std::unique_ptr<const Trk::AtaPlane> atSegSurface{m_MuTagMatchingTool->ExtrapolateTrktoSegmentSurface(
-                            ctx, *itSeg, trackAtMSEntrance[i_extrapolations].get(), direction)};
+                            ctx, seg_ptr, trackAtMSEntrance[i_extrapolations].get(), direction)};
                         if (!atSegSurface || !atSegSurface->covariance() ||
-                            !Amg::saneCovarianceDiagonal(
-                              *atSegSurface->covariance()))
+                            !Amg::saneCovarianceDiagonal(*atSegSurface->covariance()))
                           continue;
                         const AmgSymMatrix(5) invCov =
                           atSegSurface->covariance()->inverse();
                         if (!Amg::saneCovarianceDiagonal(invCov))
                           continue;
 
-                        MuonCombined::MuonSegmentInfo info = m_MuTagMatchingTool->muTagSegmentInfo(track, *itSeg, atSegSurface.get());
-                        if (segmentToxAODSegmentMap) info.link = (*segmentToxAODSegmentMap)[*itSeg];
+                        MuonCombined::MuonSegmentInfo info = m_MuTagMatchingTool->muTagSegmentInfo(track, seg_ptr, atSegSurface.get());
+                        if (segmentToxAODSegmentMap) info.link = (*segmentToxAODSegmentMap)[seg_ptr];
 
                         isMatched = m_MuTagMatchingTool->matchSegmentPosition(&info, trkEtaInfo);
 
@@ -571,20 +570,6 @@ namespace MuonCombined {
                                 continue;
                             }
                         }
-                        //
-                        // Remove low p and low Field region defined by p < 6 and eta between 1.4-1.7
-                        //
-                        const Trk::Perigee* aMeasPer = track->perigeeParameters();
-                        if (aMeasPer && m_removeLowPLowFieldRegion) {
-                            double eta = -log(tan(aMeasPer->parameters()[Trk::theta] / 2.));
-                            double p = std::abs(1.0 / (aMeasPer->parameters()[Trk::qOverP]));
-                            if (std::abs(eta) > 1.4 && std::abs(eta) < 1.7 && p < 6000.) isMatched = false;
-                            if (!isMatched) {
-                                if (m_doTable) { segVsSurf[segmentCount] = "lowField"; }
-                                continue;
-                            }
-                        }
-
                         if (m_doTable) segVsSurf[segmentCount] = "TAG";
                         matchedSegment = true;
                         ATH_MSG_DEBUG("Tagged the track with Segment " << segmentCount);
@@ -604,7 +589,6 @@ namespace MuonCombined {
                 ATH_MSG_DEBUG("storing track to ntuple : " << Perigee->parameters()[Trk::d0] << ", " << Perigee->parameters()[Trk::z0]
                                                            << Perigee->parameters()[Trk::phi] << ", " << Perigee->parameters()[Trk::theta]
                                                            << ", " << Perigee->parameters()[Trk::qOverP]);
-
                 printTable(didExtrapolate, segStation, trkToSegment, surfaces);
             }
 
@@ -627,8 +611,8 @@ namespace MuonCombined {
 
                 std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoSolved =
                     m_MuTagAmbiguitySolverTool->selectBestMuTaggedSegments(segmentsInfo);
+                segmentsInfoSelected.reserve(segmentsInfoSolved.size());
                 for (const auto& x : segmentsInfoSolved) segmentsInfoSelected.push_back(x);
-
                 ATH_MSG_DEBUG("segmentsInfoSelected size " << segmentsInfoSelected.size());
             }
 
@@ -638,8 +622,6 @@ namespace MuonCombined {
         std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoFinal = m_MuTagAmbiguitySolverTool->solveAmbiguities(segmentsInfoSelected);
         ATH_MSG_DEBUG("segmentsInfoFinal size " << segmentsInfoFinal.size());
 
-        //    for( auto x : segmentsInfoSelected ) delete &x;
-
         for (unsigned int ns1 = 0; ns1 < segmentsInfoFinal.size(); ns1++) {
             if (ns1 == 0)
                 ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].track));
@@ -648,33 +630,29 @@ namespace MuonCombined {
             ATH_MSG_DEBUG(m_printer->print(*segmentsInfoFinal[ns1].segment));
         }
 
-        const InDetCandidate* tagCandidate = nullptr;
-        for (const auto* idTP : inDetCandidates) {
-            if (!idTP->indetTrackParticle().track()) continue;
-            matchedSegment = false;
+        for (const InDetCandidate* idTP : inDetCandidates) {
             const Trk::Track* track = idTP->indetTrackParticle().track();
+            if (!track) continue;
+            matchedSegment = false;
             std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoTag;
             segmentsInfoTag.reserve(segmentsInfoFinal.size());
             bool match = false;
             for (unsigned int ns1 = 0; ns1 < segmentsInfoFinal.size(); ns1++) {
-                if (segmentsInfoFinal[ns1].track == track) {
-                    if (segmentsInfoFinal[ns1].nsegments > 0) {
-                        segmentsInfoTag.push_back(segmentsInfoFinal[ns1]);
-                        tagCandidate = idTP;
-                        match = true;
-                    }
-                }
+                if (segmentsInfoFinal[ns1].track == track && segmentsInfoFinal[ns1].nsegments > 0) {
+                    segmentsInfoTag.push_back(segmentsInfoFinal[ns1]);
+                    match = true;                      
+                }                
             }
             if (match) {
                 ATH_MSG_DEBUG("make Segment Tag object for " << m_printer->print(*track) << " nr segments " << segmentsInfoTag.size());
                 SegmentTag* tag = new SegmentTag(segmentsInfoTag);
-                tagMap->addEntry(tagCandidate, tag);
+                tagMap->addEntry(idTP, tag);
             }
         }
     }
 
-    void MuonSegmentTagTool::printTable(std::vector<std::string> didEx, std::vector<std::string> segStation,
-                                        std::vector<std::vector<std::string>> segToSurf, MSSurfaces& surfaces) const {
+    void MuonSegmentTagTool::printTable(const std::vector<std::string>& didEx, const std::vector<std::string>& segStation,
+                                        const std::vector<std::vector<std::string>>& segToSurf, MSSurfaces& surfaces) const {
         ATH_MSG_DEBUG(std::setw(6) << ""
                                    << "EX? (o: no extrap, X: extrap failed, V: extrap OK)");
 
@@ -710,9 +688,7 @@ namespace MuonCombined {
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
                 ++extrapolation_counter;
             }  // end loop surfaces
-        }
-
-        return;
+        }        
     }
 
 }  // namespace MuonCombined

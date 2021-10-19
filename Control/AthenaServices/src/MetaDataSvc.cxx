@@ -476,7 +476,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 178309087 || clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
+      if (clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
          toolInstName += "_" + keyName;
       }
       bool foundTool = false;
@@ -494,7 +494,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
          }
-         if (clid == 178309087 || clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
+         if (clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
             IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
             if (property == nullptr) {
                ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
@@ -550,7 +550,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    }
    if (fileName.find("BSF:") == 0) {
       ATH_MSG_DEBUG("MetaDataSvc called for non ROOT file.");
-   } else if (fileName.substr(0, 3) == "SHM") {
+   } else if (fileName.compare(0, 3, "SHM")==0) {
       ATH_MSG_DEBUG("MetaDataSvc called for shared memory.");
    } else {
       const std::string par[2] = { fileName,  m_metaDataCont.value() + "(DataHeader)" };

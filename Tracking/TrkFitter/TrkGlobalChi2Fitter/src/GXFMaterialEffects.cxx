@@ -253,7 +253,7 @@ namespace Trk {
     }
 
     return std::make_unique<MaterialEffectsOnTrack>(
-      m_x0, std::move(scatangles), neweloss.release(), *m_surf, typePattern);
+      m_x0, scatangles, neweloss.release(), *m_surf, typePattern);
   }
 
   const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() const {

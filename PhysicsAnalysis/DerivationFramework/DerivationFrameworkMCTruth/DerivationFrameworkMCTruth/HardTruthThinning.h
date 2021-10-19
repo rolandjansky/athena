@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,10 +55,10 @@ namespace DerivationFramework {
     virtual StatusCode finalize() override;
     virtual StatusCode doThinning() const override;
 
-    int getDescendants(const xAOD::TruthParticle* p,
-                       std::vector<const xAOD::TruthParticle*>& d) const;
-    void printxAODTruth(long long evnum,
-                        const xAOD::TruthParticleContainer* truths) const;
+    static int getDescendants(const xAOD::TruthParticle* p,
+                       std::vector<const xAOD::TruthParticle*>& d) ;
+    static void printxAODTruth(long long evnum,
+                        const xAOD::TruthParticleContainer* truths) ;
 
   private:
     SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
@@ -82,9 +82,9 @@ namespace DerivationFramework {
     float m_isolPtCut;
 
     // Counters
-    mutable std::atomic<int> m_evtCount;
+    mutable std::atomic<int> m_evtCount{};
     int m_maxCount;
-    mutable std::atomic<int> m_errCount;
+    mutable std::atomic<int> m_errCount{};
 
     // Special particles to keep (with descendants)
     std::vector<int> m_keepIds;

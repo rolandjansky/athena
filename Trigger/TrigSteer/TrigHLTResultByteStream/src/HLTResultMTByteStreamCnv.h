@@ -7,6 +7,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamData/RawEvent.h"
 
@@ -42,8 +43,6 @@ namespace HLT {
     long repSvcType() const override { return i_repSvcType(); } //!< return repSvcType
 
   private:
-    /// Helper function
-
     /// Helper to obtain the RawEvent pointer
     ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 
@@ -58,7 +57,8 @@ namespace HLT {
         for (auto& ptr : robFragments) ptr.reset();
         robFragments.clear();
       }
-    } m_cache;
+    };
+    SG::SlotSpecificObj<Cache> m_cache;
   };
 } // namespace HLT
 

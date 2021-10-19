@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCCHAMBERDATA_H
@@ -28,14 +28,14 @@ namespace RPC_CondCabling {
         bool confirm_ijk(ViewType, RPCchamber::chamberParameters& params);
 
     public:
-        RPCchamberdata(DBline&, int, IMessageSvc*);
+        RPCchamberdata(DBline&, int);
         virtual ~RPCchamberdata() = default;
 
         std::unique_ptr<RPCchamber> give_rpc();
 
         int station() const { return m_station; }
 
-        void Print(std::ostream&, bool) const;
+        virtual void Print(std::ostream&, bool) const override;
     };
 
     template <class X> X& operator<<(X& stream, RPCchamberdata& data) {

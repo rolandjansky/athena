@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************
@@ -116,6 +116,9 @@ protected:
                          const std::string& monitoringTitle,
                          const std::string& monitoringDimension);
     virtual ~L1CaloPprPlotManager();
+
+    L1CaloPprPlotManager (const L1CaloPprPlotManager&) = delete;
+    L1CaloPprPlotManager& operator= (const L1CaloPprPlotManager&) = delete;
 
     // Getting the value that is supposed to be monitored,
     // e.g. fine time, pedestal, ...

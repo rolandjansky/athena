@@ -14,6 +14,14 @@ TrigEgammaEmulationPrecisionElectronHypoTool::TrigEgammaEmulationPrecisionElectr
 
 //=================================================================
 
+StatusCode TrigEgammaEmulationPrecisionElectronHypoTool::initialize() 
+{
+  ATH_CHECK( TrigEgammaEmulationBaseHypoTool::initialize());
+  return StatusCode::SUCCESS;
+}
+
+//!==========================================================================
+
 bool TrigEgammaEmulationPrecisionElectronHypoTool::emulate(const Trig::TrigData &input,
                                                            bool &pass) const
 {
@@ -22,6 +30,11 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::emulate(const Trig::TrigData 
   if( !input.roi )  return false;
 
   if( input.electrons.empty() )  return false;
+
+  if (m_acceptAll){
+    pass=true;
+    return true;
+  }
 
   for ( const auto& el : input.electrons )
   {
@@ -54,7 +67,7 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
     return false;
   } 
 
-  ATH_MSG_DEBUG( "; RoI ID = " << roi->roiId() << ": Eta = " << roi->eta() << ", Phi = " << roi->phi() );
+  ATH_MSG_DEBUG( "RoI ID = " << roi->roiId() << ": Eta = " << roi->eta() << ", Phi = " << roi->phi() );
 
   // fill local variables for RoI reference position
   double etaRef = roi->eta();
@@ -64,8 +77,15 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   if ( std::abs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
 
 
+  ATH_MSG_DEBUG("Electron : et " << el->pt() << " eta = " << el->eta() << " phi = " << el->phi());
+
   auto pClus = el->caloCluster();
   
+  if(!pClus){
+    ATH_MSG_DEBUG("No calo cluster for this electron");
+    return false;
+  }
+
   float absEta = std::abs( pClus->eta() );
   
   ATH_MSG_DEBUG("absEta: "<<absEta);
@@ -145,18 +165,7 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   
   ATH_MSG_DEBUG("Average mu " << avgmu());
 
-  bool pass=false;
-  if (m_pidName=="lhtight"){
-    pass = (bool)input.egammaElectronLHTools[0]->accept(Gaudi::Hive::currentContext(),el,avgmu());
-  }else if (m_pidName=="lhmedium"){
-    pass = (bool)input.egammaElectronLHTools[1]->accept(Gaudi::Hive::currentContext(),el,avgmu());
-  }else if (m_pidName=="lhloose"){
-    pass = (bool)input.egammaElectronLHTools[2]->accept(Gaudi::Hive::currentContext(),el,avgmu());
-  }else if (m_pidName=="lhvloose"){
-    pass =  (bool)input.egammaElectronLHTools[3]->accept(Gaudi::Hive::currentContext(),el,avgmu());
-  }else{
-    pass = true;
-  }
+  bool pass = input.isPassed(el , avgmu(), m_pidName);
 
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
@@ -245,7 +254,7 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
   ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
 
-  // Evaluating lh *after* retrieving variables for monitoing and debuging purposes
+  // Evaluating lh *after* retrieving variables for monitoing and DEBUGing purposes
   ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT Likelihood failed");

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -142,6 +142,12 @@ StatusCode Herwig7::genInitialize() {
 
   ATH_MSG_INFO("starting to prepare the run from runfile '"+m_runfile+"'...");
 
+#ifdef HEPMC3
+  m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Herwig7"), std::string("7"), std::string("Used generator")};
+  m_runinfo->tools().push_back(generator);  
+#endif
   // read in a Herwig runfile and obtain the event generator
   m_gen = Herwig::API::prepareRun(m_api);
   ATH_MSG_DEBUG("preparing the run...");
@@ -172,6 +178,9 @@ StatusCode Herwig7::callGenerator() {
 StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   // Convert the Herwig event into the HepMC GenEvent
   ATH_MSG_DEBUG("Converting ThePEG::Event to HepMC::GenEvent");
+#ifdef HEPMC3
+  if (!evt->run_info()) evt->set_run_info(m_runinfo);
+#endif
   convert_to_HepMC(*m_event, *evt, false, ThePEG::MeV, ThePEG::millimeter);
   ATH_MSG_DEBUG("Converted ThePEG::Event to HepMC::GenEvent");
 
@@ -216,13 +225,22 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   double pdf2 = pdfs.first.xfx(sub->incoming().second->dataPtr(), scale, x2);
   // Create the PDFinfo object
 #ifdef HEPMC3
-  HepMC3::GenPdfInfoPtr pdfi = std::shared_ptr<HepMC3::GenPdfInfo>();
+  HepMC3::GenPdfInfoPtr pdfi = std::make_shared<HepMC3::GenPdfInfo>();
   pdfi->set(id1, id2, x1, x2, Q, pdf1, pdf2);
 #else
   HepMC::PdfInfo pdfi(id1, id2, x1, x2, Q, pdf1, pdf2);
 #endif
   evt->set_pdf_info(pdfi);
   ATH_MSG_DEBUG("Added PDF info to HepMC");
+
+//uncomment to list HepMC events
+//#ifdef HEPMC3
+//    std::cout << " print::listing Herwig7 " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+//#else
+//    std::cout << " print::printing Herwig7 " << std::endl;
+//    evt->print();
+//#endif
 
   return StatusCode::SUCCESS;
 }

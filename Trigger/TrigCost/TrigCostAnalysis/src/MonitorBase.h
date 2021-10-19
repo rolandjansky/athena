@@ -8,6 +8,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
+#include "AsgMessaging/MsgStream.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 #include "TrigConfHLTData/HLTUtils.h"
 
 #include "CostData.h"
@@ -102,6 +105,12 @@ class MonitorBase{
      */
     virtual StatusCode endEvent(float weight = 1.);
 
+    /**
+     * @brief Logging
+     * @return Message stream reference.
+     */  
+    MsgStream& msg();
+
   protected:
 
     /**
@@ -113,6 +122,8 @@ class MonitorBase{
     virtual std::unique_ptr<CounterBase> newCounter(const std::string& name) = 0; 
 
     std::unordered_map< std::string, std::unique_ptr<CounterBase> > m_counters; //!< Storage of Monitor's collection of Counters. Keyed by name.
+
+    MsgStream m_msgStream; //!< Logging member
 
   private:
 

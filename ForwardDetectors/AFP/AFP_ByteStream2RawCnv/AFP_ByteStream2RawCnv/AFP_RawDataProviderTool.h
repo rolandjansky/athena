@@ -36,7 +36,7 @@ public:
                      AFP_RawContainer *rawContainer) const;
 
 private:
-  ToolHandle<AFP_ByteStream2RawCnv> m_decoder;
+  ToolHandle<AFP_ByteStream2RawCnv> m_decoder {this, "AFP_ByteStream2RawCnv", "AFP_ByteStream2RawCnv", "ByteStream convertor tool"};
 
 };
 

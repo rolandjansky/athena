@@ -76,7 +76,7 @@ void
 testPtr1()
 {
   std::cout << "testPtr1" << '\n';
-  auto owner = std::make_unique<const Trk::PerigeeSurface>();
+  auto owner = std::make_unique<Trk::PerigeeSurface>();
   owner->setOwner(Trk::TGOwn);
   // construct from reference
   ContainsPtrSurface test1(*owner);

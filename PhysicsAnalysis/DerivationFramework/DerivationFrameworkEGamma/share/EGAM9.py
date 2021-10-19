@@ -324,6 +324,12 @@ else:
 for tool in EGAM9_ClusterEnergyPerLayerDecorators:
     EGAM9SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM9SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM9SlimmingHelper.AllVariables += ["EventInfo"]
+
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 EGAM9SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent

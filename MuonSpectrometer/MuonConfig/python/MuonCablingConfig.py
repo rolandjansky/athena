@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# Heavily based on Trigger/TrigSteer/L1Decoder/python/L1MuonConfig.py
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -15,12 +13,13 @@ def RPCCablingConfigCfg(flags):
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
-    if flags.Trigger.enableL1MuonPhase1:
+    if flags.Trigger.doLVL1 and flags.Trigger.enableL1MuonPhase1:
         # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
         # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
         rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
         rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
-        if flags.Input.isMC:
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if flags.Input.isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
             rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
             rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
 

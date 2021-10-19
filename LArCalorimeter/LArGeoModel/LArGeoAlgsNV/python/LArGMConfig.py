@@ -12,7 +12,7 @@ def LArGMCfg(configFlags):
     doAlignment=configFlags.LAr.doAlign
 
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
-    if configFlags.Common.ProductionStep != ProductionStep.Simulation:
+    if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
         tool.GeometryConfig = "RECO"
 
     result.getPrimary().DetectorTools += [ tool ]
@@ -20,16 +20,25 @@ def LArGMCfg(configFlags):
     if doAlignment:
         if configFlags.Input.isMC:
             #Monte Carlo case:
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL"))
+            result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL",className="DetCondKeyTrans"))
+            result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL",className="CaloRec::CaloCellPositionShift"))
         else:
             if configFlags.Overlay.DataOverlay:
                 #Data overlay
-                result.merge(addFolders(configFlags, ["/LAR/Align"], "LAR_ONL"))
-                result.merge(addFolders(configFlags, ["/LAR/LArCellPositionShift"], "LAR_OFL", tag="LArCellPositionShift-ideal", db="OFLP200"))
+                result.merge(addFolders(configFlags, "/LAR/Align", "LAR_ONL",className="DetCondKeyTrans"))
+                result.merge(addFolders(configFlags, "/LAR/LArCellPositionShift", "LAR_OFL", tag="LArCellPositionShift-ideal", db="OFLP200",className="CaloRec::CaloCellPositionShift"))
             else:
                 #Regular offline data processing
-                result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
+                result.merge(addFolders(configFlags,"/LAR/Align","LAR_ONL",className="DetCondKeyTrans"))
+                result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_ONL",className="CaloRec::CaloCellPositionShift"))
 
+        if configFlags.Common.Project != 'AthSimulation':
+            result.addCondAlgo(CompFactory.LArAlignCondAlg())
+            result.addCondAlgo(CompFactory.CaloAlignCondAlg())
+    else:
+        # Build unalinged CaloDetDescrManager instance in the Condition Store
+        if configFlags.Common.Project != 'AthSimulation':
+            result.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
             
     return result
 

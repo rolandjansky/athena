@@ -116,13 +116,13 @@ Navigation::classKey2CLIDKey(const std::vector<std::string>& property,
   // translate Class names into CLID numbers
 
   for ( const std::string& cname : property ) {
-    CLID clid;
+    CLID clid{0};
     std::string key;
     std::string type;
 
-    if ( cname.find("#") != std::string::npos ) {
-      type = cname.substr(0, cname.find("#") );
-      key  = cname.substr(cname.find("#")+1 );
+    if ( cname.find('#') != std::string::npos ) {
+      type = cname.substr(0, cname.find('#') );
+      key  = cname.substr(cname.find('#')+1 );
     } else {
       type = cname;
       key = "";

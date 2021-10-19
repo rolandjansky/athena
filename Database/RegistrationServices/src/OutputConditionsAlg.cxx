@@ -9,42 +9,19 @@
 
 #include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
-#include "AthenaKernel/IOVTime.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "OutputConditionsAlg.h"
 
 
 OutputConditionsAlg::OutputConditionsAlg(const std::string& name, 
 					 ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  p_clidsvc ( "ClassIDSvc",    name ),
-  p_regsvc  ( "IOVRegistrationSvc", name ),
-  m_streamName("ConditionsAlgStream"),
-  m_par_writeIOV(false),
-  m_par_run1(IOVTime::MINRUN),
-  m_par_lumib1(IOVTime::MINEVENT),
-  m_par_run2(IOVTime::MAXRUN),
-  m_par_lumib2(IOVTime::MAXEVENT),
-  m_par_time1(IOVTime::MINTIMESTAMP),
-  m_par_time2(IOVTime::MAXEVENT), // only a 32 bit quantity (in seconds)
-  m_par_timestamp(false),
-  m_par_iovtags()
-{
-  declareProperty("StreamName",m_streamName);
-  declareProperty("ObjectList",m_objectList);
-  declareProperty("WriteIOV",m_par_writeIOV);
-  declareProperty("Run1",m_par_run1);
-  declareProperty("LB1",m_par_lumib1);
-  declareProperty("Run2",m_par_run2);
-  declareProperty("LB2",m_par_lumib2);
-  declareProperty("Time1",m_par_time1);
-  declareProperty("Time2",m_par_time2);
-  declareProperty("UseTime",m_par_timestamp);
-  declareProperty("IOVTagList",m_par_iovtags);
-}
+  AthAlgorithm(name, pSvcLocator)
+{}
+
 
 OutputConditionsAlg::~OutputConditionsAlg() 
 {}
+
 
 StatusCode OutputConditionsAlg::initialize() {
   ATH_MSG_DEBUG ("in initialize()");
@@ -182,11 +159,11 @@ StatusCode OutputConditionsAlg::finalize() {
       "Register objects in IOV database, interval of validity ";
     if (m_par_timestamp) {
       msg() << "[time] from [" << 
-	  m_par_time1 << "] to [" << m_par_time2 << "]" << endmsg;
+	m_par_time1.value() << "] to [" << m_par_time2.value() << "]" << endmsg;
     } else {
       msg() << "[run,LB] from [" <<
-          m_par_run1 << "," << m_par_lumib1 << "] to [" << m_par_run2 <<
-          "," << m_par_lumib2 << "]" << endmsg;
+	m_par_run1.value() << "," << m_par_lumib1.value() << "] to [" << m_par_run2.value() <<
+	"," << m_par_lumib2.value() << "]" << endmsg;
     }
     int nreg=0;
     for (int iobj=0;iobj<nObjects;++iobj) {

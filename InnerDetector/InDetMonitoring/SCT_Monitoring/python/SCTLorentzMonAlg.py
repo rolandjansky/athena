@@ -57,7 +57,7 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # set up geometry / conditions
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(inputFlags))
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In

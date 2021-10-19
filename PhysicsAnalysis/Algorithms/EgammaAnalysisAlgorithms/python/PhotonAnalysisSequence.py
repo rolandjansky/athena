@@ -121,7 +121,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         alg.calibrationAndSmearingTool.useAFII = 0
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                affectingSystematics = '(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)',
                 stageName = 'calibration' )
 
     # should this be applied to data?  or to AFII?
@@ -146,7 +145,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         alg.isolationCorrectionTool.IsMC = 1
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                affectingSystematics = '(^PH_Iso_.*)',
                 stageName = 'selection' )
 
     # Set up the isolation selection algorithm:
@@ -178,7 +176,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     if dataType != 'data':
         seq.append( alg, inputPropName = 'photons',
                     outputPropName = 'photonsOut',
-                    affectingSystematics = '(^PH_EFF_.*)',
                     stageName = 'efficiency' )
         selectionDecorNames.append( alg.outOfValidityDeco )
         selectionDecorCount.append( 1 )

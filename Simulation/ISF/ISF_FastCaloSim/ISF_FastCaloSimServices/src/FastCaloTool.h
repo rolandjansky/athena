@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOTOOL_h
@@ -24,7 +24,7 @@
 //ISF
 #include "ISF_Interfaces/BaseSimulatorTool.h"
 #include "ISF_Event/ISFParticleContainer.h"
-#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // Tracking includes
 #include "TrkExInterfaces/ITimedExtrapolator.h"
@@ -94,8 +94,6 @@ private:
 
     // authorise input to be the same as output (to be done with care)
     bool m_caloCellHack{false};
-    //check if punch through simulation is used
-    bool m_doPunchThrough{false};
 
     Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
@@ -103,7 +101,6 @@ private:
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_setup{this, "CaloCellMakerTools_setup", {}, ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_simulate{this, "CaloCellMakerTools_simulate", {}, ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release{this, "CaloCellMakerTools_release", {}, ""};
-    PublicToolHandle< IPunchThroughTool > m_punchThroughTool{this, "PunchThroughTool", "", ""};
     CaloCellContainer *                 m_theContainer{};
 
   SG::WriteHandleKey< CaloCellContainer > m_caloCellKey{ this, "CaloCells", "DefaultCaloCellContainer", "The name of the output CaloCellContainer" };
@@ -111,6 +108,8 @@ private:
   // Would be better to pass this explicitly through setupEvent / simulate,
   // but the interfaces would need to be reworked to do that.
   mutable SG::SlotSpecificObj<TRandom3> m_rndm;
+
+  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this,"ParticleTruthSvc", "ISF_TruthRecordSvc", "ISF Particle Truth Svc"};
 };
 
 }

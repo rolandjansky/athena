@@ -43,9 +43,6 @@ include( "RecExCommon/RecExCommon_topOptions.py" )
 
 # Correctly configure the trigger via TriggerJobOpts
 # The following will configure the TDT
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.configurationSourceList.set_Value_and_Lock( [ "ds" ] )
-    
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 TriggerConfigGetter()
 
@@ -77,12 +74,6 @@ ToolSvc += CfgMgr.Trig__MatchingTool("MatchingTool",OutputLevel=DEBUG)
 # from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import TrigEgammaEmulationToolFactory
 # egEmulator = TrigEgammaEmulationToolFactory(elHLTList, name = "TrigEgammaEmulationTool",  OutputLevel = INFO)
 
-# Bunch crossing tool
-
-#from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-#if isMC: bcTool = BunchCrossingTool( "MC" )
-#else: bcTool = BunchCrossingTool( "LHC" )
-#ToolSvc += bcTool
 #
 # Trigger Analysis Examples
 #

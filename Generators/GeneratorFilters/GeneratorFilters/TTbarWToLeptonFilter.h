@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_TTBARWTOLEPTONFILTER_H
@@ -23,6 +23,9 @@ private:
 
   double m_Ptmin;
   int m_numLeptons;
+  bool m_fourTopsFilter;
+  bool m_SSMLFilter;
+
 
 };
 

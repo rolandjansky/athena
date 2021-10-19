@@ -32,6 +32,11 @@ atlas_add_library( IsolationToolLib
    ${extra_lib_private}
    )
 
+atlas_add_dictionary( IsolationToolDict
+    IsolationTool/IsolationToolDict.h IsolationTool/selection.xml
+    LINK_LIBRARIES IsolationToolLib )
+
+
 if( NOT XAOD_STANDALONE )
   atlas_add_component( IsolationTool
     src/*.h src/*.cxx src/components/*.cxx

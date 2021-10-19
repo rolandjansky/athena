@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMAPATTERNS_H
@@ -39,8 +39,8 @@ class CMApatterns : public RPCtrigDataObject
     bitPATTERN m_highPt0;
     bitPATTERN m_highPt1;
 
-    Matrix* m_low_pt_matrix;
-    Matrix* m_high_pt_matrix;
+    std::unique_ptr<Matrix> m_low_pt_matrix;
+    std::unique_ptr<Matrix> m_high_pt_matrix;
 
 
     bitPATTERN decluster(const bitPATTERN&) const;
@@ -71,7 +71,6 @@ class CMApatterns : public RPCtrigDataObject
     public:
     CMApatterns(int,const CMAparameters*,unsigned long int);
     CMApatterns(const CMApatterns&);
-    ~CMApatterns();
 
     CMApatterns operator=(const CMApatterns&);
 
@@ -109,16 +108,7 @@ class CMApatterns : public RPCtrigDataObject
 
 template <class X> X& operator<<(X& stream,const CMApatterns& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[300000];
-    for (int i=0;i<300000;++i) buffer[i] = '\0';
-    __osstream display(buffer,300000);
-#endif
-
+    std::ostringstream display;
     data.Print(display,false);
     stream << display.str();
     return stream;

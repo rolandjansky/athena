@@ -62,7 +62,7 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellNeu
         // path correction
         double pathCorrection = layer->surfaceRepresentation().pathCorrection(eCell.leadParameters->position(),dir*(eCell.leadParameters->momentum()));
         // the relative direction wrt with the layer
-        Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
+        Trk::PropDirection rlDir = (pathCorrection >= 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
         // multiply by the pre-and post-update factor
         double mFactor = layer->layerMaterialProperties()->factor(rlDir, matupstage);
         if (mFactor == 0.){
@@ -76,8 +76,8 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellNeu
         // get the actual material bin
         const Trk::MaterialProperties* materialProperties = layer->layerMaterialProperties()->fullMaterial(eCell.leadParameters->position());
         // and let's check if there's acutally something to do
-        if (materialProperties){
-            // thickness in X0
+        if (materialProperties && std::abs(pathCorrection)>0.){
+            // thickness in X0 
             double thicknessInX0          = materialProperties->thicknessInX0();
             // check if material filling was requested
             if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)){
@@ -121,7 +121,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
     // path correction
     double pathCorrection = layer->surfaceRepresentation().pathCorrection(parameters.position(),dir*(parameters.momentum()));
     // the relative direction wrt with the layer
-    Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
+    Trk::PropDirection rlDir = (pathCorrection >= 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
     // multiply by the pre-and post-update factor
     double mFactor = layer->layerMaterialProperties()->factor(rlDir, matupstage);
     if (mFactor == 0.){
@@ -135,12 +135,12 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
     // get the actual material bin
     const Trk::MaterialProperties* materialProperties = layer->layerMaterialProperties()->fullMaterial(parameters.position());
     // and let's check if there's acutally something to do
-    if (materialProperties && ( m_eLossCorrection || m_mscCorrection || eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) ){
-        // and add them
+    if (materialProperties && std::abs(pathCorrection)>0. && 
+	( m_eLossCorrection || m_mscCorrection || eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) ){
+        // and add them 
         int sign = int(eCell.materialUpdateMode);
         // a simple cross-check if the parameters are the initial ones
         AmgVector(5)      uParameters = parameters.parameters();
-
         std::unique_ptr<AmgSymMatrix(5)> uCovariance =
           parameters.covariance()
             ? std::make_unique<AmgSymMatrix(5)>(*parameters.covariance())
@@ -193,7 +193,10 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         // now either create new ones or update - only start parameters can not be updated
         if (eCell.leadParameters != eCell.startParameters ){
             EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on non-initial parameters.");
-            const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,*uCovariance);
+            if (uCovariance)
+              const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,*uCovariance);
+            else 
+              const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters);
         } else {
             EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on initial parameters, creating new ones.");
             // create new parameters

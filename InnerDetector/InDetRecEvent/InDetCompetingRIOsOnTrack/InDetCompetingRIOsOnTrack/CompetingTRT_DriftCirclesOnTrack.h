@@ -71,9 +71,8 @@ public:
     const Trk::Surface* sf,
     std::vector<const InDet::TRT_DriftCircleOnTrack*>* childrots,
     std::vector<AssignmentProb>* assgnProb,
-    //        const Trk::TrackParameters*  assumedTrkPars,
-    const Trk::LocalParameters* effecLocalPars,
-    const Amg::MatrixX* effecLocalErrMat,
+    const Trk::LocalParameters& effecLocalPars,
+    const Amg::MatrixX& effecLocalErrMat,
     int ROTsHaveComSrfc // meaning of the values are described in the definition
                         // of ROTsHaveCommonSurface()
   );

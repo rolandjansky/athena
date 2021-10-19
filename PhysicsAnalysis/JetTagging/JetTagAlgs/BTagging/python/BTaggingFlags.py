@@ -24,6 +24,8 @@ class _BTaggingFlags:
 
     btaggingESDList = [ ]
 
+    DoJetHitAssociation = False
+
     def __init__ (self):
 
       self.btaggingAODList = list()

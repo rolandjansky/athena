@@ -65,18 +65,30 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
     path        = '/Pixel/TrackOnTrack/'
     pathLowStat = '/Pixel/LumiBlockOnTrack/'
     
-    if not doOnline:
-        histoGroupName = 'TSOSMeasurement' 
-        title = 'TSOS of type Measurement'
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    histoGroupName = 'TSOSMeasurement' 
+    title = 'TSOS of type Measurement'
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-        histoGroupName = 'TSOSHole' 
-        title = 'TSOS of type Hole'
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    histoGroupName = 'TSOSHole' 
+    title = 'TSOS of type Hole'
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-        histoGroupName = 'TSOSOutlier' 
-        title = 'TSOS of type Outlier'
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    histoGroupName = 'TSOSOutlier' 
+    title = 'TSOS of type Outlier'
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+    if doFEPlots and not doOnline:
+        histoGroupName = 'TSOSMeasurementFE'
+        title = 'TSOS of type Measurement per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+        histoGroupName = 'TSOSHoleFE'
+        title = 'TSOS of type Hole per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+        histoGroupName = 'TSOSOutlierFE'
+        title = 'TSOS of type Outlier per FE'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     histoGroupName = 'HitEffAll'
     title          = 'hit efficiency'
@@ -243,7 +255,20 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 ###
         pathGroup = addOnTrackToPath(path, ontrack)
 
-        varName = 'pixclusmontool_lb,ncls_per_event'
+        varName = addOnTrackTxt('ClustersPerEvent', ontrack) + '_val'
+        title = fullDressTitle('Number of pixel clusters in an event', ontrack, ';# pixel clusters', ';# events')
+        varName += ';'+ addOnTrackTxt('ClustersPerEvent', ontrack)
+        xmax1D = 10000 if ontrack else 40000
+        clusterGroup[ontrack].defineHistogram(varName,
+                                              type='TH1I', path=pathGroup, title=title,
+                                              xbins=1000, xmin=0, xmax=xmax1D)
+
+        histoGroupName = addOnTrackTxt('ClustersPerEvent', ontrack)
+        title          = addOnTrackTxt('Number of pixel clusters in an event', ontrack, True)
+        binsizes1D = 10 if ontrack else 40
+        define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';# pixel clusters', ';# events', xbins=[200], xmins=[0], binsizes=[binsizes1D])
+
+        varName = 'pixclusmontool_lb,' + addOnTrackTxt('ClustersPerEvent', ontrack) + '_val'
         title = fullDressTitle('Average number of pixel clusters per event per LB', ontrack, ';lumi block', ';# clusters/event')
         varName += ';'+ addOnTrackTxt('ClustersPerLumi', ontrack)
         clusterGroup[ontrack].defineHistogram(varName,

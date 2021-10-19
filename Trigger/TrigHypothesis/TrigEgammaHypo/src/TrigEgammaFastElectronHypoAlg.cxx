@@ -144,9 +144,8 @@ StatusCode TrigEgammaFastElectronHypoAlg::execute( const EventContext& context )
       if(rings && cl && el){
         int idx=0;
         for (auto& pidname : m_pidNames ){
-          auto inputs = m_ringerNNTools[idx]->prepare_inputs( rings, el );
           timer_predict.start();
-          float nnOutput = m_ringerNNTools[idx]->predict(rings, inputs);
+          float nnOutput = m_ringerNNTools[idx]->predict(rings, el);
           timer_predict.stop();
           info.pidDecorator[pidname] = static_cast<bool>(m_ringerNNTools[idx]->accept(rings, nnOutput, avgmu));
           info.valueDecorator[pidname+"NNOutput"] = nnOutput;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCCOOLSTRSVC_H
@@ -21,6 +21,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <atomic>
 
 template <class TYPE> class SvcFactory;
 
@@ -35,7 +36,7 @@ namespace MuonCalib {
 
     Contains the major code to write and read calibration files to the database. 
    */
-  class CscCoolStrSvc : public AthService, public virtual CscICoolStrSvc
+  class ATLAS_NOT_THREAD_SAFE CscCoolStrSvc : public AthService, public virtual CscICoolStrSvc
   {
     friend class SvcFactory<CscCoolStrSvc>;
 
@@ -181,7 +182,8 @@ namespace MuonCalib {
 
     /**Map is an easier way to reference parameters by name than the dbCache*/
     std::map<std::string, CscCondDataCollectionBase*> m_parNameMap;
-    std::map<std::string, CscCondDataCollectionBase*> m_parSGKeyMap;
+    std::map<std::string, std::pair<CscCondDataCollectionBase*,
+                                    const DataHandle<CondAttrListCollection> > > m_parSGKeyMap;
 
     const CscCondDataCollection<float>* m_rmsCondData;
     const CscCondDataCollection<float>* m_slopeCondData;
@@ -195,7 +197,7 @@ namespace MuonCalib {
     /**Flags*/
     bool m_preCache;
 
-    mutable int m_numFailedRequests;
+    mutable std::atomic<int> m_numFailedRequests;
     int m_maxFailedRequests;
 
     std::vector<std::string> m_parNameVec, m_parSGKeyVec, m_parFolderVec,  m_parDataTypeVec, m_parCatVec,

@@ -18,6 +18,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
+#include "TrkFitterUtils/DNA_MaterialEffects.h"
 
 // using __gnu_cxx::is_sorted;
 
@@ -496,7 +497,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                             const TrackParameters* initialParameters,
                             const ParticleHypothesis&  partHypo ) const {
     const TrackParameters* trkPar = nullptr;
-    Trk::ProtoMaterialEffects* matEffOnMeasurementSurface = nullptr;
+    std::unique_ptr<Trk::ProtoMaterialEffects> matEffOnMeasurementSurface;
     /// collect material layers between previous state and state to insert:
     if (m_extrapolator) {
         if (!trajectory.empty()) {
@@ -529,7 +530,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                     nullptr,
                                                     tsos->trackParameters()->clone()
                                                   ));
-                            trajectory.back().checkinMaterialEffects(new Trk::ProtoMaterialEffects(meot));
+                            trajectory.back().checkinMaterialEffects(std::make_unique<Trk::ProtoMaterialEffects>(meot));
                             trajectory.back().isOutlier(TrackState::Scatterer);
                         } // end if meot
                     }
@@ -539,7 +540,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                 if (collectedTSOS->back()->materialEffectsOnTrack()) {
                     const MaterialEffectsOnTrack* meot = dynamic_cast<const MaterialEffectsOnTrack*>(collectedTSOS->back()->materialEffectsOnTrack());
                     if (meot) {
-                        matEffOnMeasurementSurface = new Trk::ProtoMaterialEffects(meot);
+                        matEffOnMeasurementSurface = std::make_unique<Trk::ProtoMaterialEffects>(meot);
                     }
                 } // end if last TSoS has material effects
                 delete collectedTSOS->back();
@@ -570,7 +571,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                   ));
     trajectory.back().identifier(Trk::IdentifierExtractor::extract(measurement));
     if (matEffOnMeasurementSurface) {
-        trajectory.back().checkinMaterialEffects(matEffOnMeasurementSurface);
+        trajectory.back().checkinMaterialEffects(std::move(matEffOnMeasurementSurface));
     }
 
 }

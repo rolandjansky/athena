@@ -93,7 +93,7 @@ namespace MuonGM {
 
     /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only
      */
-    Amg::Vector3D localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const;
+    Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const;
 
     /** TrkDetElementInterface */
     virtual Trk::DetectorElemType detectorType() const override final

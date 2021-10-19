@@ -3,7 +3,6 @@
 */
 
 #include "InDetBeamSpotFinder.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "InDetBeamSpotFinder/IInDetBeamSpotTool.h"
 #include "InDetBeamSpotVertex.h"
 #include "InDetBeamSpotRooFit.h"
@@ -31,10 +30,9 @@ namespace{
 
 InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_toolSvc("ToolSvc",name),m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
+  m_toolSvc("ToolSvc",name)
 {
   declareProperty( "ToolSvc", m_toolSvc );
-  declareProperty( "BCTool", m_bcTool );
   declareProperty( "BeamSpotToolList"  , m_beamSpotToolList );
   declareProperty( "RunRange"     , m_maxRunsPerFit  = 0 );
   declareProperty( "LumiRange"      , m_maxLBsPerFit = 0 );
@@ -64,7 +62,9 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
 
   ATH_CHECK( service("THistSvc",m_thistSvc) );
   ATH_CHECK( m_toolSvc.retrieve() );
-  if( m_useFilledBCIDsOnly ) ATH_CHECK( m_bcTool.retrieve() );
+
+  ATH_CHECK( m_bcDataKey.initialize(m_useFilledBCIDsOnly) );
+
   ATH_CHECK( m_eventInfo.initialize() );
   ATH_CHECK( m_vertexContainer.initialize() );
 
@@ -210,8 +210,11 @@ void InDet::InDetBeamSpotFinder::convertVtxTypeNames(){
 }
 
 bool InDet::InDetBeamSpotFinder::passEventSelection(const xAOD::EventInfo & eventInfo){
-  int bcid = eventInfo.bcid();
-  if (m_useFilledBCIDsOnly && !m_bcTool->isFilled(bcid)) { return false; }
+  const int bcid = eventInfo.bcid();
+  if ( m_useFilledBCIDsOnly) {
+    SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bcDataKey);
+    if ( !bcData->isFilled(bcid) ) return false;
+  }
   if( m_BCIDsToAccept.begin() !=  m_BCIDsToAccept.end() )
     return ( std::find(m_BCIDsToAccept.begin(), m_BCIDsToAccept.end(), bcid) != m_BCIDsToAccept.end());
   else 

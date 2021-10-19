@@ -284,7 +284,7 @@ SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, const E
     return;
   }
 
-  if (ignoreBadModules == false and ignoreBadChips == false) {
+  if (!ignoreBadModules and !ignoreBadChips) {
     std::copy(condData->getBadStripIds()->begin(), condData->getBadStripIds()->end(), std::inserter(strips,strips.begin()));
     return;
   }

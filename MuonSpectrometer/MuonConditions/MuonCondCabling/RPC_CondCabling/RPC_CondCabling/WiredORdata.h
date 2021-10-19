@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef WIREDORDATA_H
 #define WIREDORDATA_H
 
 #include <list>
+#include <memory>
 
 #include "MuonCablingTools/ShowRequest.h"
 #include "MuonCablingTools/dbline.h"
@@ -26,14 +27,14 @@ namespace RPC_CondCabling {
         bool confirm_boundary(WiredOR::parseParams&) const;
 
     public:
-        WiredORdata(DBline&, int, IMessageSvc*);
+        WiredORdata(DBline&, int);
         virtual ~WiredORdata();
 
         std::unique_ptr<WiredOR> give_wor(void);
 
         int station() const { return m_station; }
 
-        void Print(std::ostream&, bool) const;
+        virtual void Print(std::ostream&, bool) const override;
     };
 
     template <class X> X& operator<<(X& stream, WiredORdata& data) {

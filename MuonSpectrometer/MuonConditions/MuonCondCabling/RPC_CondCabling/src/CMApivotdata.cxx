@@ -4,9 +4,11 @@
 
 #include "RPC_CondCabling/CMApivotdata.h"
 
+#include "AthenaKernel/errorcheck.h"
+
 using namespace RPC_CondCabling;
 
-CMApivotdata::CMApivotdata(DBline& data, int type, const std::string& layout, IMessageSvc* msgSvc) : BaseObject(Logic, "CMA Data", msgSvc) {
+CMApivotdata::CMApivotdata(DBline& data, int type, const std::string& layout) : BaseObject(Logic, "CMA Data") {
     m_layout = layout;
     (++data)("{");
     do {
@@ -15,12 +17,12 @@ CMApivotdata::CMApivotdata(DBline& data, int type, const std::string& layout, IM
         parser.station = 0;
         if (get_data(data, parser)) {
             if (m_view == ViewType::Eta) {
-                m_etaCMA.emplace_back(parser, msgSvc);
+                m_etaCMA.emplace_back(parser);
             } else if (m_view == ViewType::Phi) {
                 if (parser.coverage == EvenSectors) {
-                    m_evenphiCMA.emplace_back(parser, msgSvc);
+                    m_evenphiCMA.emplace_back(parser);
                 } else if (parser.coverage == OddSectors) {
-                    m_oddphiCMA.emplace_back(parser, msgSvc);
+                    m_oddphiCMA.emplace_back(parser);
                 }
             }
         }
@@ -38,48 +40,48 @@ bool CMApivotdata::confirm_data(ViewType side, CMAparameters::parseParams& parse
     int stop = parser.pivotStopChan * 100 + parser.pivotStopStation;
     std::string view = (side == Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     if (!CMAidentity::coverage(m_covtag, parser.coverage)) {
-        disp << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMApivotdata")
+             << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
              << " CMA number " << parser.number << std::endl
-             << " coverage tag ==> " << m_covtag << " <== is not recognized!" << std::endl;
-        display_error(disp);
+             << " coverage tag ==> " << m_covtag << " <== is not recognized!";
         return false;
     }
 
     if ((side == ViewType::Eta) & start) {
         if (start >= stop) {
-            disp << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << view << " CMA number "
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMApivotdata")
+                 << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << view << " CMA number "
                  << parser.number << std::endl
                  << " start position (" << parser.pivotStartChan << ":" << parser.pivotStartStation << ") is greater than stop position ("
-                 << parser.pivotStopChan << ":" << parser.pivotStopStation << ")" << std::endl;
-            display_error(disp);
+                 << parser.pivotStopChan << ":" << parser.pivotStopStation << ")";
             return false;
         }
     }
     if (side == ViewType::Phi && start) {
         if (start >= stop && parser.coverage == EvenSectors) {
-            disp << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMApivotdata")
+                 << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
                  << " CMA number " << parser.number << std::endl
                  << " start position (" << parser.pivotStartChan << ":" << parser.pivotStartStation << ") is greater than stop position ("
-                 << parser.pivotStopChan << ":" << parser.pivotStopStation << ")" << std::endl;
-            display_error(disp);
+                 << parser.pivotStopChan << ":" << parser.pivotStopStation << ")";
             return false;
         }
         if (start <= stop && parser.coverage == OddSectors) {
-            disp << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMApivotdata")
+                 << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
                  << " CMA number " << parser.number << std::endl
                  << " start position (" << parser.pivotStartChan << ":" << parser.pivotStartStation << ") is lower than stop position ("
-                 << parser.pivotStopChan << ":" << parser.pivotStopStation << ")" << std::endl;
-            display_error(disp);
+                 << parser.pivotStopChan << ":" << parser.pivotStopStation << ")";
             return false;
         }
         if (parser.pivotStartChan != parser.pivotStopChan) {
-            disp << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMApivotdata")
+                 << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view
                  << " CMA number " << parser.number << std::endl
-                 << " phi CMA Pivot connected to more than 1 wired or" << std::endl;
-            display_error(disp);
+                 << " phi CMA Pivot connected to more than 1 wired or";
             return false;
         }
     }
@@ -109,7 +111,7 @@ bool CMApivotdata::get_data(DBline& data, CMAparameters::parseParams& parser) {
 }
 
 std::unique_ptr<EtaCMA> CMApivotdata::give_eta_cma() {
-    if (m_etaCMA.size()) {
+    if (!m_etaCMA.empty()) {
         std::unique_ptr<EtaCMA> CMA = std::make_unique<EtaCMA>(m_etaCMA.front());
         m_etaCMA.pop_front();
         return CMA;
@@ -118,7 +120,7 @@ std::unique_ptr<EtaCMA> CMApivotdata::give_eta_cma() {
 }
 
 std::unique_ptr<EvenPhiCMA> CMApivotdata::give_evenphi_cma() {
-    if (m_evenphiCMA.size()) {
+    if (!m_evenphiCMA.empty()) {
         std::unique_ptr<EvenPhiCMA> CMA = std::make_unique<EvenPhiCMA>(m_evenphiCMA.front());
         m_evenphiCMA.pop_front();
         return CMA;
@@ -127,7 +129,7 @@ std::unique_ptr<EvenPhiCMA> CMApivotdata::give_evenphi_cma() {
 }
 
 std::unique_ptr<OddPhiCMA> CMApivotdata::give_oddphi_cma() {
-    if (m_oddphiCMA.size()) {
+    if (!m_oddphiCMA.empty()) {
         std::unique_ptr<OddPhiCMA> CMA = std::make_unique<OddPhiCMA>(m_oddphiCMA.front());
         m_oddphiCMA.pop_front();
         return CMA;

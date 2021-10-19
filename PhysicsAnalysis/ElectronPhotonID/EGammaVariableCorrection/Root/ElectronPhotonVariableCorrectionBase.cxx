@@ -772,7 +772,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DHistParameter(float&
 }
 
 
-const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) const
+const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) 
 {
     // need to find the bin in which the evalPoint is
     return_bin = -1;
@@ -801,7 +801,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, 
     //the -1 is because the parameter numbering in a vector starts at 0
     if (return_bin == -1)
     {
-        return_bin = m_binValues.size()-1;
+        return_bin = binning.size()-1;
     }
 
     // everythin went fine, so
@@ -918,7 +918,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& retur
     return StatusCode::SUCCESS;
 }
 
-float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) const
+float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) 
 {
     return left_bin_value + (value - left_bin_center) * (right_bin_value - left_bin_value) / (right_bin_center - left_bin_center);
 }

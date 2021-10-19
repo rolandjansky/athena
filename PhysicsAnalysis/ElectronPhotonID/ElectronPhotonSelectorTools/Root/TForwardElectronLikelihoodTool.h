@@ -207,10 +207,10 @@ private:
   double TransformLikelihoodOutput(double ps, double pb) const;
 
   /// Eta binning for pdfs and discriminant cuts.
-  unsigned int getLikelihoodEtaBin(double eta) const;
+  static unsigned int getLikelihoodEtaBin(double eta) ;
 
   /// Coarse Et binning. Used for the likelihood and discriminant pdfs.
-  unsigned int getLikelihoodEtHistBin(double eT) const;
+  static unsigned int getLikelihoodEtHistBin(double eT) ;
 
   // Private member variables
 private:
@@ -246,12 +246,12 @@ private:
   EGSelectors::SafeTH1* fPDFbins[2][IP_FBINS][s_fnEtBinsHist][s_fnEtaBins]
                                 [s_fnVariables]{};
 
-  unsigned int getIpBin(double ip) const;
-  void getBinName(char* buffer,
+  static unsigned int getIpBin(double ip) ;
+  static void getBinName(char* buffer,
                   int etbin,
                   int etabin,
                   int ipbin,
-                  const std::string& iptype) const;
+                  const std::string& iptype) ;
 };
 
 } // namespace Root

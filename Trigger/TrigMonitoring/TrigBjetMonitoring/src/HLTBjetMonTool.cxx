@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************
@@ -67,8 +67,6 @@
 
 #include "HLTBjetMonTool.h"
 
-#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
-
 #include "GaudiKernel/ListItem.h"
 
 namespace Analysis { class MuonContainer; }
@@ -80,7 +78,6 @@ namespace Analysis { class MuonContainer; }
 
 HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & name, const IInterface* parent) :
   IHLTMonTool(type, name, parent),
-  m_trackJetFinderTool("TrigTrackJetFinderTool"),
   m_TriggerChainBjet{}, m_TriggerChainMujet{},
   m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
@@ -113,10 +110,6 @@ float HLTBjetMonTool::phiCorr(float phi) {
 
 
 StatusCode HLTBjetMonTool::init() {
-
-  ATH_CHECK(m_trackJetFinderTool.retrieve());
-
-  ATH_MSG_INFO("in HLTBjetMonTool::init - retrieved tool: " << m_trackJetFinderTool);
 
   m_etCut = 10.;
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - Muon-jet parameters: m_etCut = " << m_etCut);

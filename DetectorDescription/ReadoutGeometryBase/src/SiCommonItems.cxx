@@ -1,24 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadoutGeometryBase/SiCommonItems.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace InDetDD {
 
 SiCommonItems::SiCommonItems(const AtlasDetectorID* const idHelper)
-  :  m_msg("SiDetectorElement"),
+  :  AthMessaging(Athena::getMessageSvc(), "SiDetectorElement"),
      m_idHelper(idHelper), 
-     m_lorentzAngleTool(nullptr),
-     m_mutex{}
+     m_lorentzAngleTool(nullptr)
 {}
 
-void   
-SiCommonItems::setSolenoidFrame(const HepGeom::Transform3D & transform) const
-{
-  std::lock_guard<std::mutex> lock{m_mutex};
-  m_solenoidFrame = transform;
-}
 
 void SiCommonItems::setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool) {
   m_lorentzAngleTool = lorentzAngleTool;

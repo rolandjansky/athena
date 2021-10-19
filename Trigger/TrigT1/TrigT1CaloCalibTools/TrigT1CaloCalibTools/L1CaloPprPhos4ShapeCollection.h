@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -88,7 +88,7 @@ public:
    void SetMinimumSignalHeight(const unsigned int min){m_minSignalHeight=min;};
    unsigned int GetMinimumSignalHeight(void) const {return m_minSignalHeight;};
    
-   void SetTimingRegime(const std::string regime){m_timingRegime = regime;};
+   void SetTimingRegime(const std::string& regime){m_timingRegime = regime;};
    std::string GetTimingRegime(void) const {return m_timingRegime;};
    
    void SetHistogramTool(ToolHandle<LVL1::TrigT1CaloLWHistogramTool>& histTool){m_histTool = &histTool;};
@@ -110,7 +110,7 @@ public:
    
    StatusCode Fill(const L1CaloCoolChannelId& coolId,const unsigned int ns_step,const unsigned int adc);
    StatusCode Fill(const L1CaloCoolChannelId& coolId,const unsigned int timeSlice,const unsigned int rodHeaderStep,const int adc);
-   StatusCode Fill(const L1CaloCoolChannelId& coolId,const unsigned int rodHeaderStep,const std::vector<int> adc);
+   StatusCode Fill(const L1CaloCoolChannelId& coolId,const unsigned int rodHeaderStep,const std::vector<int>& adc);
    
    StatusCode Finalize ATLAS_NOT_REENTRANT(void);
    
@@ -137,7 +137,7 @@ public:
    void SetRunNumber(const unsigned int runNumber){m_runNumber=runNumber;std::stringstream ss;ss.width(8);ss.fill('0');ss<<m_runNumber;ss>>m_runNumberStr;};
    unsigned int GetRunNumber(void){return m_runNumber;};
    
-   void SetOutputDirectoryName(std::string name){m_outputFileDirName = name;};
+   void SetOutputDirectoryName(const std::string& name){m_outputFileDirName = name;};
    std::string GetOutputDirectoryName(void){return m_outputFileDirName;};
    
    void SetTileRun(bool value = true){m_isTileRun = value;};

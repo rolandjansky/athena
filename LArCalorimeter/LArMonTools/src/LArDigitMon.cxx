@@ -59,11 +59,11 @@ LArDigitMon::LArDigitMon(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
-    m_strbisHelper(0),
-    m_strHelper(0),
-    m_LArOnlineIDHelper(0),
-    m_LArEM_IDHelper(0),
-    m_summary(0),
+    m_strbisHelper(nullptr),
+    m_strHelper(nullptr),
+    m_LArOnlineIDHelper(nullptr),
+    m_LArEM_IDHelper(nullptr),
+    m_summary(nullptr),
     m_feedthroughID(0),
     m_slot(0),
     m_feedthrough(0),
@@ -754,7 +754,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
 
 /*---------------------------------------------------------*/
 /** Add ADCCut and range to this histogram name */
-void LArDigitMon::HistTitle(LWHist2D* hist,partition& sub){
+void LArDigitMon::HistTitle(LWHist2D* hist,partition& sub) const{
   std::string hTitle;
   char cutint[128];
   char buf[128];
@@ -770,7 +770,7 @@ void LArDigitMon::HistTitle(LWHist2D* hist,partition& sub){
 }
 /*---------------------------------------------------------*/
 /** Add ADCCut and range to this histogram name */
-void LArDigitMon::HistTitle(TProfile2D_LW* hist,partition& sub){
+void LArDigitMon::HistTitle(TProfile2D_LW* hist,partition& sub) const{
   std::string hTitle;
   char cutint[128];
   char buf[128];
@@ -787,7 +787,7 @@ void LArDigitMon::HistTitle(TProfile2D_LW* hist,partition& sub){
 
 /*---------------------------------------------------------*/
 /** Add ADCCut,range and ADCsature to this histogram name */
-void LArDigitMon::HistTitleSum(LWHist2D* hist){
+void LArDigitMon::HistTitleSum(LWHist2D* hist) const{
   std::string hTitle;
   char buf[128];
   if(m_ExpectedSampleMax!=0)sprintf(buf," - Cut: %d #sigma - range=[%d,%d] - Exp Max=%d ",m_SigmaCut,m_SampleRangeLow,m_SampleRangeUp,m_ExpectedSampleMax);
@@ -842,7 +842,7 @@ LArDigitMon::partition& LArDigitMon::WhatPartition(HWIdentifier id)
 }
 /*---------------------------------------------------------*/
 /** Fill histograms if a channel is out of the given range*/
-void LArDigitMon::FillOutOfRange(partition& sub)
+void LArDigitMon::FillOutOfRange(partition& sub) const
 {
   
   sub.m_OutDigit->Fill(m_slot,m_feedthrough);
@@ -879,7 +879,7 @@ void LArDigitMon::FillSignShape(partition& sub, int& i,float nrj,float sample_ma
 
 
 /*---------------------------------------------------------*/
-void LArDigitMon::FillSaturation(partition& sub)
+void LArDigitMon::FillSaturation(partition& sub) const
 {
   sub.m_SatDigit->Fill(m_slot,m_feedthrough);
   int numb=15;
@@ -888,7 +888,7 @@ void LArDigitMon::FillSaturation(partition& sub)
   else sub.m_SatDigitChan->Fill(m_slot+(numb*m_feedthrough),m_channel); 
 }
 /*---------------------------------------------------------*/
-void LArDigitMon::FillSaturationLow(partition& sub)
+void LArDigitMon::FillSaturationLow(partition& sub) const
 {
   sub.m_SatDigitLow->Fill(m_slot,m_feedthrough);
   int numb=15;
@@ -897,7 +897,7 @@ void LArDigitMon::FillSaturationLow(partition& sub)
   else sub.m_SatDigitChanLow->Fill(m_slot+(numb*m_feedthrough),m_channel); 
 }
 /*---------------------------------------------------------*/
-void LArDigitMon::FillNullHisto(partition& sub)
+void LArDigitMon::FillNullHisto(partition& sub) const
 {
   sub.m_NullDigit->Fill(m_slot,m_feedthrough);
   int numb=15;
@@ -942,7 +942,7 @@ void LArDigitMon::ScalePartition(partition& sub)
 
 /*---------------------------------------------------------*/
 /** Scale histograms to get percentage, compute error, and change the entrie number*/
-void LArDigitMon::ScaleHisto(LWHist2D * hist,int& events)
+void LArDigitMon::ScaleHisto(LWHist2D * hist,int& events) const
 {
   if (m_ComputeHistError)ComputeError(hist,events);
   if(events!=0)
@@ -987,7 +987,7 @@ void LArDigitMon::DumpHisto(LWHist2D* hist1,TProfile2D_LW* hist2)
   hist1->Reset();
 }
 /*---------------------------------------------------------*/
-void LArDigitMon::DumpOnlineHisto(LWHist2D* hist1,LWHist2D* hist2)
+void LArDigitMon::DumpOnlineHisto(LWHist2D* hist1,LWHist2D* hist2) const
 {
   unsigned xbin, ybin;
   double numer, error;
@@ -1078,49 +1078,49 @@ void LArDigitMon::EndOfRun(partition& sub)
 }
 
 
-void LArDigitMon::DeleteHist(partition& sub)
+void LArDigitMon::DeleteHist(partition& sub) const
 // deleting local histograms 
 {
   if(sub.m_OutDigit){
     LWHist::safeDelete(sub.m_OutDigit);
-    sub.m_OutDigit=0;
+    sub.m_OutDigit=nullptr;
   }
   
   if(sub.m_NullDigit){
     LWHist::safeDelete(sub.m_NullDigit);
-    sub.m_NullDigit=0;
+    sub.m_NullDigit=nullptr;
   }
   
   if(sub.m_SatDigit){
     LWHist::safeDelete(sub.m_SatDigit);
-    sub.m_SatDigit=0;
+    sub.m_SatDigit=nullptr;
   }  
   
   if(sub.m_SatDigitLow){
     LWHist::safeDelete(sub.m_SatDigitLow);
-    sub.m_SatDigitLow=0;
+    sub.m_SatDigitLow=nullptr;
   }  
   
   if(m_IsOnline)
   {
     if(sub.m_Temp_NullDigitChan){
       LWHist::safeDelete(sub.m_Temp_NullDigitChan);
-      sub.m_Temp_NullDigitChan=0;
+      sub.m_Temp_NullDigitChan=nullptr;
     } 
     
     if(sub.m_Temp_SatDigitChan){
       LWHist::safeDelete(sub.m_Temp_SatDigitChan);
-      sub.m_Temp_SatDigitChan=0;
+      sub.m_Temp_SatDigitChan=nullptr;
     } 
     
     if(sub.m_Temp_SatDigitChanLow){
       LWHist::safeDelete(sub.m_Temp_SatDigitChanLow);
-      sub.m_Temp_SatDigitChanLow=0;
+      sub.m_Temp_SatDigitChanLow=nullptr;
     } 
 
     if(sub.m_Temp_OutDigitChan){
       LWHist::safeDelete(sub.m_Temp_OutDigitChan);
-      sub.m_Temp_OutDigitChan=0;
+      sub.m_Temp_OutDigitChan=nullptr;
     } 
   }
 

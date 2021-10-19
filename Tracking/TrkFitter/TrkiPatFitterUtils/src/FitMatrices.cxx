@@ -28,6 +28,7 @@
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include <iomanip>
 #include <iostream>
 
@@ -106,18 +107,18 @@ const Amg::MatrixX*
 FitMatrices::fullCovariance(void)
 {
   // return result if matrix already inverted
-  if (m_covariance)
+  if (m_covariance){
     return m_covariance;
+  }
   m_covariance = new Amg::MatrixX(m_columnsDM, m_columnsDM);
 
   // fix weighting    ???? shouldn't we just remove large phi weight?
-  if (m_parameters->phiInstability())
+  if (m_parameters->phiInstability()){
     solveEquations();
+  }
 
   // invert weight matrix
   Amg::MatrixX& covariance = *m_covariance;
-  int failure = 0;
-
   // avoid singularity through ill-defined momentum   ???? again
   avoidMomentumSingularity();
 
@@ -129,17 +130,18 @@ FitMatrices::fullCovariance(void)
   // matrix packages)
   Amg::MatrixX weight(m_columnsDM, m_columnsDM);
   weight.selfadjointView<0x2>();
+
+  // check if m_weights makes sense before inverting
+  if (!Amg::saneCovarianceDiagonal(*m_weight)) {
+    delete m_covariance;
+    m_covariance = nullptr;
+    return nullptr;
+  }
+
   weight = (*m_weight).inverse();
   for (int row = 0; row != m_columnsDM; ++row) {
     for (int col = 0; col != m_columnsDM; ++col)
       covariance(row, col) = weight(col, row);
-  }
-
-  // trap singular matrix
-  if (failure) {
-    delete m_covariance;
-    m_covariance = nullptr;
-    return nullptr;
   }
 
   // back convert curved fits to Tracking units (MeV)
@@ -648,17 +650,8 @@ FitMatrices::solveEquations(void)
   *m_weightedDifference =
     weight.colPivHouseholderQr().solve(weightedDifference);
 
-  // bool failure = (weight*(*m_weightedDifference) -
-  // weightedDifference).isZero(1e-4); if (failure)
-  // {
-  //     std::cout << " Eigen failed " << std::endl;
-  // 	return false;
-  // }
-  // else
-  // {
   m_parameters->update(*m_weightedDifference);
   return true;
-  // }
 }
 
 void

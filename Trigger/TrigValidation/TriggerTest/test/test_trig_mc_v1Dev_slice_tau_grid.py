@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger RDO->RDO_TRIG athena test of the tau slice in Dev_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -24,7 +25,8 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
-ex.threads = 1
+ex.threads = 4
+ex.concurrent_events = 4
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
 ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doTauSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 

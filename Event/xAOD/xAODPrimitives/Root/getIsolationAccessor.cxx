@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // Local include(s):
@@ -40,6 +40,32 @@ const SG::AuxElement::Accessor< float >*
       DEFINE_ACCESSOR(ptvarcone20);
       DEFINE_ACCESSOR(ptvarcone30);
       DEFINE_ACCESSOR(ptvarcone40);
+      // Ptcone variables for high mu:
+      DEFINE_ACCESSOR(ptcone20_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_ACCESSOR(ptcone30_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_ACCESSOR(ptcone40_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_ACCESSOR(ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_ACCESSOR(ptcone30_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_ACCESSOR(ptcone40_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_ACCESSOR(ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_ACCESSOR(ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_ACCESSOR(ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_ACCESSOR(ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_ACCESSOR(ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_ACCESSOR(ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      // Mini-Isolation (http://arxiv.org/abs/1007.2221) variables for high mu:
+      DEFINE_ACCESSOR(ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_ACCESSOR(ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_ACCESSOR(ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt500);
+      DEFINE_ACCESSOR(ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_ACCESSOR(ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_ACCESSOR(ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt1000);
+      DEFINE_ACCESSOR(ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_ACCESSOR(ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_ACCESSOR(ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500);
+      DEFINE_ACCESSOR(ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_ACCESSOR(ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
+      DEFINE_ACCESSOR(ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000);
       // neutral eflow
       DEFINE_ACCESSOR(neflowisol20);
       DEFINE_ACCESSOR(neflowisol30);

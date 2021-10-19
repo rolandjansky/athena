@@ -4,7 +4,6 @@
 
 // First the corresponding header.
 #include "MUCTPI_AthTool.h"
-#include "SimController.h"
 #include "TriggerProcessor.h"
 #include "MuonSectorProcessor.h"
 #include "Configuration.h"
@@ -52,9 +51,8 @@ namespace LVL1MUCTPIPHASE1 {
   MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent)
     :
-    base_class(type, name, parent),
-    m_MuCTPIL1TopoKey(LVL1MUCTPI::DEFAULT_MuonL1TopoLocation),
-    m_theMuctpi(new SimController())
+    AthAlgTool(type, name, parent),
+    m_MuCTPIL1TopoKey(LVL1MUCTPI::DEFAULT_MuonL1TopoLocation)
   {
     
     // Init message
@@ -89,16 +87,6 @@ namespace LVL1MUCTPIPHASE1 {
   MUCTPI_AthTool::~MUCTPI_AthTool()
   {
     
-  }
-
-  void MUCTPI_AthTool::handle(const Incident& incident) {
-
-    ATH_MSG_INFO( "=======================================" );
-    ATH_MSG_INFO( "Handle in Phase1 MUCTPI_AthTool"  );
-    ATH_MSG_INFO( "=======================================" );
-
-    if (incident.type()!="BeginRun") return;
-    ATH_MSG_DEBUG( "In MUCTPI_AthTool BeginRun incident");
   }
 
   StatusCode MUCTPI_AthTool::initialize()
@@ -146,7 +134,7 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_MSG_INFO("  EC/Fwd file: " << ecfFileName);
     ATH_MSG_INFO("  Side 0 LUT:  " << side0LUTFileName);
     ATH_MSG_INFO("  Side 1 LUT:  " << side1LUTFileName);
-    std::vector<std::string> topo_errors = m_theMuctpi->configureTopo(barrelFileName,
+    std::vector<std::string> topo_errors = m_theMuctpi.configureTopo(barrelFileName,
 								      ecfFileName,
 								      side0LUTFileName,
 								      side1LUTFileName);
@@ -175,7 +163,7 @@ namespace LVL1MUCTPIPHASE1 {
       const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
 
-      for (MuonSectorProcessor& msp : m_theMuctpi->getMuonSectorProcessors())
+      for (MuonSectorProcessor& msp : m_theMuctpi.getMuonSectorProcessors())
       {
         msp.configureOverlapRemoval(fullFileName);
       }
@@ -223,9 +211,9 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_MSG_INFO( "initialize(): use L1 trigger menu from detector store" );
     const TrigConf::L1Menu * l1menu = nullptr;
     ATH_CHECK( m_detStore->retrieve(l1menu) ); 
-    m_theMuctpi->getTriggerProcessor().setTrigTool(*m_trigThresholdDecisionTool);
-    m_theMuctpi->getTriggerProcessor().setMenu(l1menu);
-    for (MuonSectorProcessor& msp : m_theMuctpi->getMuonSectorProcessors())
+    m_theMuctpi.getTriggerProcessor().setTrigTool(*m_trigThresholdDecisionTool);
+    m_theMuctpi.getTriggerProcessor().setMenu(l1menu);
+    for (MuonSectorProcessor& msp : m_theMuctpi.getMuonSectorProcessors())
     {
       msp.setMenu(l1menu);
       if (!msp.configurePtEncoding())
@@ -308,14 +296,15 @@ namespace LVL1MUCTPIPHASE1 {
 
     //always process the central slice, which defaults to bcidOffset = 0
     // process the input in the MUCTPI simulation
-    std::string ret = m_theMuctpi->processData( &mergedInput );
+    MUCTPIResults results;
+    std::string ret = m_theMuctpi.processData(&mergedInput, results, 0);
     if (ret != "")
     {
       REPORT_ERROR( StatusCode::FAILURE ) << "Error while processing MUCTPI data: " << ret;
       return StatusCode::FAILURE;
     }
     // Save the output of the simulation
-    CHECK( saveOutput() );
+    CHECK( saveOutput(results) );
       
     // check the other 4 possible BC offset values in case the input objects tells us there are
     // out of time candidates
@@ -327,9 +316,10 @@ namespace LVL1MUCTPIPHASE1 {
       for (std::vector<int>::const_iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
         if (! mergedInput.isEmptyAll( (*it) ) ){
           // process the input in the MUCTPI simulation
-          m_theMuctpi->processData( &mergedInput, (*it));      
+	  MUCTPIResults results;
+          m_theMuctpi.processData( &mergedInput, results, (*it));      
           // Save the output of the simulation
-          CHECK( saveOutput( (*it) ) );	    
+          CHECK( saveOutput( results, (*it) ) );
         }
       }
     }
@@ -364,11 +354,11 @@ namespace LVL1MUCTPIPHASE1 {
     // CHECK( Converter::convertRoIs( convertableRoIs, &convertedInput ) );
 
     // // process the input with the MuCTPI simulation
-    // m_theMuctpi->processData( &convertedInput );
+    // m_theMuctpi.processData( &convertedInput );
 
     // store CTP result in interface object and put to StoreGate
     //TEMPORARILY REMOVED UNTIL MUCTPICTP UPDATED TO VECTOR!
-    //LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( m_theMuctpi->getCTPData() );
+    //LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( m_theMuctpi.getCTPData() );
     //CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
     // ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
     // 		   << m_ctpOutputLocId );
@@ -404,7 +394,7 @@ namespace LVL1MUCTPIPHASE1 {
     // CHECK( Converter::convertRDO( old_RDO->dataWord(), bcid, &convertedInput ) );
 
     // // process the input with the MuCTPI simulation
-    // m_theMuctpi->processData( &convertedInput );
+    // m_theMuctpi.processData( &convertedInput );
 
     // // Save the output of the simulation
     // CHECK( saveOutput() );
@@ -415,21 +405,12 @@ namespace LVL1MUCTPIPHASE1 {
 
 
 
-  StatusCode MUCTPI_AthTool::fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates, int bcidOffset) const {
-
-    // get outputs for L1Topo 
-    ATH_MSG_DEBUG("Getting the output for L1Topo");
-    l1topoCandidates = m_theMuctpi->getL1TopoData(bcidOffset);
-    
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MUCTPI_AthTool::saveOutput(int bcidOffset) const {
+  StatusCode MUCTPI_AthTool::saveOutput(MUCTPIResults& results, int bcidOffset) const {
 
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {
       // store CTP result in interface object and put to StoreGate
-      const std::vector<unsigned int>& ctpData = m_theMuctpi->getTriggerProcessor().getCTPData();
+      const std::vector<unsigned int>& ctpData = results.ctp_words;
 
       LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
       SG::WriteHandle<LVL1::MuCTPICTP> wh_muctpi_ctp(m_MuCTPICTPWriteKey);
@@ -446,7 +427,7 @@ namespace LVL1MUCTPIPHASE1 {
       }
 
       // create MuCTPI RDO
-      const std::vector<DAQData>& daqData = m_theMuctpi->getTriggerProcessor().getDAQData();
+      const std::vector<DAQData>& daqData = results.daq_data;
 
       // create MuCTPI xAOD
       auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);
@@ -466,7 +447,7 @@ namespace LVL1MUCTPIPHASE1 {
 
       // get outputs for L1Topo and store into Storegate
       ATH_MSG_DEBUG("Getting the output for L1Topo");
-      LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(m_theMuctpi->getL1TopoData(bcidOffset).getCandidates());
+      LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(results.l1topoData.getCandidates());
       SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey);
       ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topo)));
     }
@@ -474,7 +455,7 @@ namespace LVL1MUCTPIPHASE1 {
     /// if we have a bcid offset, then just get the topo output and put it on storegate
     if (bcidOffset  != 0) {
       ATH_MSG_DEBUG("Getting the output for L1Topo for BCID slice");
-      LVL1::MuCTPIL1Topo* l1topoBC = new LVL1::MuCTPIL1Topo(m_theMuctpi->getL1TopoData(bcidOffset).getCandidates());
+      LVL1::MuCTPIL1Topo* l1topoBC = new LVL1::MuCTPIL1Topo(results.l1topoData.getCandidates());
       l1topoBC->setBcidOffset(bcidOffset);
 
       if (bcidOffset == -2){
@@ -490,7 +471,6 @@ namespace LVL1MUCTPIPHASE1 {
 	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_p2);
 	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
       }
-
     }
 
 

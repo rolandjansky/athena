@@ -1,60 +1,6 @@
-sob jan 30 15:27:09 CET 2021
-Preloading tcmalloc_minimal.so
-Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.26] [x86_64-centos7-gcc8-opt] [overlay/c60e951] -- built on [2021-01-30T1524]
-Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestStep2WriteDoubleSelector.py"
-Py:ConfigurableDb    INFO Read module info for 5475 configurables from 18 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
-Py:Athena            INFO including file "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.py"
-['EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'IAthenaPoolTestCollection#*', 'AthenaPoolTestMatrix#*', 'AthenaPoolTestMap#*', 'FauxTriggerMap#*', 'dummy_A#*', 'dummy_E#*', 'TrigPath#*', 'TestGaudiProperty#*', 'PixelRDOElemLinkVec#*']
-['EventInfo#*', 'EventInfo#*', 'IAthenaPoolTestCollection#AthenaPoolTestCollection_1', 'IAthenaPoolTestCollection#AthenaPoolTestCollection_2', 'IAthenaPoolTestCollection#AthenaPoolTestCollection_3', 'AthenaPoolTestMatrix#*']
-Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0)
-                                          running on f9pc10.ijs.si on Sat Jan 30 15:27:13 2021
-====================================================================================================================================
-ApplicationMgr       INFO Application Manager Configured successfully
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
-AthenaPoolTestD...  DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolTestD...  DEBUG input handles: 0
-AthenaPoolTestD...  DEBUG output handles: 0
-AthenaPoolTestD...  DEBUG Data Deps for AthenaPoolTestDataWriter
-EventSelector       DEBUG Property update for OutputLevel : new value = 2
-EventSelector       DEBUG Initializing EventSelector
-EventSelector       DEBUG Service base class initialized successfully
-EventSelector       DEBUG reinitialization...
-EventSelector        INFO EventSelection with query 
-EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
-SecondaryEventS...  DEBUG Property update for OutputLevel : new value = 2
 SecondaryEventS...  DEBUG Initializing secondary event selector SecondaryEventSelector
-SecondaryEventS...  DEBUG Service base class initialized successfully
 SecondaryEventS...  DEBUG reinitialization...
 SecondaryEventS...   INFO EventSelection with query 
-SecondaryEventS...  DEBUG Try item: "SimplePoolFile2.root" from the collection list.
-AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-AthenaEventLoopMgr   INFO Using secondary event number.
-ApplicationMgr       INFO Application Manager Initialized successfully
-SecondaryEventS...  DEBUG Try item: "SimplePoolFile2.root" from the collection list.
-EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
-ApplicationMgr       INFO Application Manager Started successfully
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=5A4C4186-4216-F340-B454-07F6A315E120][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000A-0000000000000000].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=5A4C4186-4216-F340-B454-07F6A315E120][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000A-0000000000000000].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=236CEFD5-51A7-4449-AB2F-3DA23C384B0D][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000C-0000000000000000].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=236CEFD5-51A7-4449-AB2F-3DA23C384B0D][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000C-0000000000000000].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=5A4C4186-4216-F340-B454-07F6A315E120][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000A-0000000000000000]
-AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4294967296, run #1 0 events processed so far  <<<===
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 1 2
@@ -87,14 +33,6 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaP
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_1, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_2, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_3, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_0, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Registering matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -122,8 +60,6 @@ AthenaPoolTestD...  DEBUG   zz 1
 AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_1, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Registering matrix 2 AthenaPoolTestMatrix_1
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -151,8 +87,6 @@ AthenaPoolTestD...  DEBUG   zz 0.333333
 AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_2, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Registering matrix 3 AthenaPoolTestMatrix_2
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -190,8 +124,6 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode,
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolMap, type AthenaPoolTestMap (CLID 153882669)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Dummy A: size B 5
 AthenaPoolTestD...  DEBUG Dummy B: size C 4
 AthenaPoolTestD...  DEBUG i,c: 0 10
@@ -218,13 +150,9 @@ AthenaPoolTestD...  DEBUG i,c: 0 10
 AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key Dummy_A, type dummy_A (CLID 153882670)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key Dummy_E, type dummy_E (CLID 203377114)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0: 0.9876 weight 1: 1.9876 weight 2: 2.9876
 AthenaPoolTestD...  DEBUG Setting actual interatctions per crossing: 35.23 and ave: 169.41
@@ -282,11 +210,8 @@ AthenaPoolTestD...  DEBUG Unsetting bit 10: i, isSet 8 0 flags ffffb58
 AthenaPoolTestD...  DEBUG Returned false for trying to set bit 29 for subDet 8 
 AthenaPoolTestD...  DEBUG Setting error state: i, state 8 2
 AthenaPoolTestD...  DEBUG Subdet: 8 error state: Error 2
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key OverlayEvent, type PileUpEventInfo (CLID 2102)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG PileUpEventInfo
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:12] 
-AthenaPoolTestD...  DEBUG [Run,Evt,Lumi,Time,BunchCross,DetMask] = [1,4294967296,14,12:13,15,0x1100000010,0x12,0x13]
 AthenaPoolTestD...  DEBUG Event type: user type Overlaid
 AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
 AthenaPoolTestD...  DEBUG SubEventInfos
@@ -294,18 +219,6 @@ AthenaPoolTestD...  DEBUG Time, index 25 0
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4294967296, run #1 1 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=5A4C4186-4216-F340-B454-07F6A315E120][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000A-0000000000000001].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=5A4C4186-4216-F340-B454-07F6A315E120][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000A-0000000000000001].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=236CEFD5-51A7-4449-AB2F-3DA23C384B0D][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000C-0000000000000001].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=236CEFD5-51A7-4449-AB2F-3DA23C384B0D][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000C-0000000000000001].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=5A4C4186-4216-F340-B454-07F6A315E120][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=0003E7F30000000A-0000000000000001]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4294967297, run #1 1 events processed so far  <<<===
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 1 2
@@ -338,14 +251,6 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaP
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_1, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_2, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_3, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_0, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Registering matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -373,8 +278,6 @@ AthenaPoolTestD...  DEBUG   zz 1
 AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_1, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Registering matrix 2 AthenaPoolTestMatrix_1
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -402,8 +305,6 @@ AthenaPoolTestD...  DEBUG   zz 0.333333
 AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_2, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Registering matrix 3 AthenaPoolTestMatrix_2
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -441,8 +342,6 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode,
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key AthenaPoolMap, type AthenaPoolTestMap (CLID 153882669)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Dummy A: size B 5
 AthenaPoolTestD...  DEBUG Dummy B: size C 4
 AthenaPoolTestD...  DEBUG i,c: 0 10
@@ -469,13 +368,9 @@ AthenaPoolTestD...  DEBUG i,c: 0 10
 AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key Dummy_A, type dummy_A (CLID 153882670)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key Dummy_E, type dummy_E (CLID 203377114)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:5] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0: 0.9876 weight 1: 1.9876 weight 2: 2.9876
 AthenaPoolTestD...  DEBUG Setting actual interatctions per crossing: 35.23 and ave: 169.41
@@ -533,11 +428,8 @@ AthenaPoolTestD...  DEBUG Unsetting bit 10: i, isSet 8 0 flags ffffb58
 AthenaPoolTestD...  DEBUG Returned false for trying to set bit 29 for subDet 8 
 AthenaPoolTestD...  DEBUG Setting error state: i, state 8 2
 AthenaPoolTestD...  DEBUG Subdet: 8 error state: Error 2
-StoreGateSvc_Impl WARNING record_impl: you are recording an object with key OverlayEvent, type PileUpEventInfo (CLID 2102)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.
 AthenaPoolTestD...  DEBUG PileUpEventInfo
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:12] 
-AthenaPoolTestD...  DEBUG [Run,Evt,Lumi,Time,BunchCross,DetMask] = [1,4294967297,14,12:13,15,0x1100000010,0x12,0x13]
 AthenaPoolTestD...  DEBUG Event type: user type Overlaid
 AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
 AthenaPoolTestD...  DEBUG SubEventInfos
@@ -545,11 +437,3 @@ AthenaPoolTestD...  DEBUG Time, index 25 0
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:5] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4294967297, run #1 2 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector        INFO Disconnecting input sourceID: 5A4C4186-4216-F340-B454-07F6A315E120
-AthenaEventLoopMgr   INFO No more events in event selection 
-ApplicationMgr       INFO Application Manager Stopped successfully
-ApplicationMgr       INFO Application Manager Finalized successfully
-ApplicationMgr       INFO Application Manager Terminated successfully
-Py:Athena            INFO leaving with code 0: "successful run"

@@ -23,17 +23,17 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     # configure tools (this can be simplified further,
     EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex=CompFactory.getComps("EgammaReEmEnFex","EgammaReHadEnFex","EgammaReSamp1Fex","EgammaReSamp2Fex",)
 
-    samp2 = EgammaReSamp2Fex(name='FaAlgoSamp2FexConfig', MaxDetaHotCell=0.15, MaxDphiHotCell=0.15)
+    samp2 = EgammaReSamp2Fex(name='ReFaAlgoSamp2FexConfig', MaxDetaHotCell=0.15, MaxDphiHotCell=0.15)
     acc.addPublicTool( samp2 )
 
-    samp1 = EgammaReSamp1Fex('FaAlgoSamp1FexConfig')
+    samp1 = EgammaReSamp1Fex('ReFaAlgoSamp1FexConfig')
     acc.addPublicTool( samp1 )
 
-    sampe = EgammaReEmEnFex('FaAlgoEmEnFexConfig')
+    sampe = EgammaReEmEnFex('ReFaAlgoEmEnFexConfig')
     sampe.ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
     acc.addPublicTool( sampe )
 
-    samph = EgammaReHadEnFex('FaAlgoHadEnFexConfig')
+    samph = EgammaReHadEnFex('ReFaAlgoHadEnFexConfig')
     samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
     acc.addPublicTool( samph )
 
@@ -50,13 +50,18 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
 
     if doRinger:
-      from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
-      ringer = RingerReFexConfig('FaAlgoRingerFexConfig')
+      from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig, AsymRingerReFexConfig
+      ringer = RingerReFexConfig('ReFaAlgoRingerFexConfig')
       ringer.RingerKey = recordable("HLT_FastCaloRinger")
       ringer.ClustersName = alg.ClustersName
       acc.addPublicTool( ringer )
       __fex_tools.append(ringer)
 
+      asymringer = AsymRingerReFexConfig('ReFaAlgoAsymRingerFexConfig')
+      asymringer.RingerKey= "HLT_FastCaloAsymRinger"
+      asymringer.trigDataAccessMT = cdaSvc
+      asymringer.ClustersName = alg.ClustersName
+      __fex_tools.append( asymringer )
     alg.IReAlgToolList = __fex_tools
 
     for t in __fex_tools:

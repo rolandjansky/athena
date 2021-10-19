@@ -28,10 +28,11 @@ def FastSimulationToolListCfg(ConfigFlags):
                 tools += [ result.popToolsAndMerge(DeadMaterialShowerCfg(ConfigFlags)) ]
         elif ConfigFlags.Sim.LArParameterization == 0:
             print( "getFastSimulationMasterTool INFO No Frozen Showers" )
-    #if ConfigFlags.Detector.GeometryMuon:
-    #    if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\
-    #            not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
-    #        FastSimulationList += ['NeutronFastSim']
+    if ConfigFlags.Detector.GeometryMuon:
+        if ConfigFlags.Sim.CavernBG not in ['Off', 'Read']:
+            # and not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            from TrackWriteFastSim.TrackWriteFastSimConfigNew import NeutronFastSimCfg
+            tools += [ result.popToolsAndMerge(NeutronFastSimCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)
     return result
 
@@ -56,6 +57,8 @@ def FwdSensitiveDetectorListCfg(ConfigFlags):
     # TODO: migrate to CA
     result = ComponentAccumulator()
     tools = []
+    if ConfigFlags.Detector.EnableForward:
+        print ('G4AtlasToolsConfigNew.FwdSensitiveDetectorListCfg ERROR Forward Detector SD configuration has not been migrated to CA yet!')
     if ConfigFlags.Detector.EnableLucid:
         tools += [ 'LUCID_SensitiveDetector' ]
     if ConfigFlags.Detector.EnableForward:
@@ -66,7 +69,6 @@ def FwdSensitiveDetectorListCfg(ConfigFlags):
         if ConfigFlags.Detector.EnableAFP:
             tools += [ 'AFP_SensitiveDetector' ]
             #tools += [ 'AFP_SiDSensitiveDetector', 'AFP_TDSensitiveDetector' ]
-
     result.setPrivateTools(tools)
     return result
 
@@ -74,12 +76,9 @@ def FwdSensitiveDetectorListCfg(ConfigFlags):
 def TrackFastSimSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
-
-    #if (ConfigFlags.Detector.Muon_on() and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and 'Write' in simFlags.CavernBG.get_Value()) or (hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn):
-    #if ((ConfigFlags.Detector.EnableMuon) and (ConfigFlags.Sim.CavernBG != 'Read') and ('Write' in ConfigFlags.Sim.CavernBG)) or ConfigFlags.Sim.StoppedParticleFile:
-    # if False:
-    #     SensitiveDetectorList += [ 'TrackFastSimSD' ]
-
+    if (ConfigFlags.Detector.EnableMuon and ConfigFlags.Sim.CavernBG in ['Write', 'WriteWorld']) or ConfigFlags.Sim.StoppedParticleFile:
+        from TrackWriteFastSim.TrackWriteFastSimConfigNew import TrackFastSimSDCfg
+        tools += [ result.popToolsAndMerge(TrackFastSimSDCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)
     return result
 
@@ -95,6 +94,9 @@ def ITkSensitiveDetectorListCfg(ConfigFlags):
     if ConfigFlags.Detector.EnableITkStrip:
         from SCT_G4_SD.SCT_G4_SDToolConfig import ITkStripSensorSDCfg
         tools += [ result.popToolsAndMerge(ITkStripSensorSDCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnablePLR:
+        from PixelG4_SD.PixelG4_SDToolConfig import PLRSensorSDCfg
+        tools += [ result.popToolsAndMerge(PLRSensorSDCfg(ConfigFlags)) ]
     
     result.setPrivateTools(tools)
     return result
@@ -105,9 +107,8 @@ def HGTDSensitiveDetectorListCfg(ConfigFlags):
     tools = []
 
     if ConfigFlags.Detector.EnableHGTD:
-        # TODO: disabled pending infrastructure updates
-        # from HGTD_G4.HGTD_G4_SDToolConfig import HgtdSensorSDCfg
-        # tools += [ result.popToolsAndMerge(HgtdSensorSDCfg(ConfigFlags)) ]
+        from HGTD_G4_SD.HGTD_G4_SDToolConfig import HgtdSensorSDCfg
+        tools += [ result.popToolsAndMerge(HgtdSensorSDCfg(ConfigFlags)) ]
         pass
 
     result.setPrivateTools(tools)
@@ -142,12 +143,14 @@ def CaloSensitiveDetectorListCfg(ConfigFlags):
     tools = []
 
     if ConfigFlags.Detector.EnableLAr:
-        from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg, LArEMECSensitiveDetectorCfg, LArFCALSensitiveDetectorCfg, LArHECSensitiveDetectorCfg, LArMiniFCALSensitiveDetectorToolCfg
+        from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg, LArEMECSensitiveDetectorCfg, LArFCALSensitiveDetectorCfg, LArHECSensitiveDetectorCfg
         tools += [ result.popToolsAndMerge(LArEMBSensitiveDetectorCfg(ConfigFlags)) ]
         tools += [ result.popToolsAndMerge(LArEMECSensitiveDetectorCfg(ConfigFlags)) ]
         tools += [ result.popToolsAndMerge(LArFCALSensitiveDetectorCfg(ConfigFlags)) ]
         tools += [ result.popToolsAndMerge(LArHECSensitiveDetectorCfg(ConfigFlags)) ]
-        tools += [ result.popToolsAndMerge(LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)) ]
+        if False:  # disabled for now
+            from LArG4SD.LArG4SDToolConfig import LArMiniFCALSensitiveDetectorToolCfg
+            tools += [ result.popToolsAndMerge(LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)) ]
 
         if ConfigFlags.Detector.EnableMBTS:
             from MinBiasScintillator.MinBiasScintillatorToolConfig import MinBiasScintillatorSDCfg
@@ -221,11 +224,11 @@ def MuonSensitiveDetectorListCfg(ConfigFlags):
 
 
 def EnvelopeSensitiveDetectorListCfg(ConfigFlags):
-    # TODO: migrate to CA
     result = ComponentAccumulator()
     tools = []
     if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ReadTR:
-        tools+=['CosmicRecord']
+        from TrackWriteFastSim.TrackWriteFastSimConfigNew import CosmicTRSDCfg
+        tools += [ result.popToolsAndMerge(CosmicTRSDCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)
     return result
 

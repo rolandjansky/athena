@@ -204,7 +204,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
       xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
 
       int nLBs = 0;
-      uint32_t start, stop;
+      uint32_t start=0, stop=0;
 
       //      uint32_t first = (((IOVRange*)(*lbit))->start()).event();
       //      for(;lbit!=m_lbc->end();++lbit){
@@ -492,8 +492,8 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
  
   // christos (Nov-14): is there a reason to still check these flags???
   unsigned int cond = isHLTChain ? TrigDefs::EF_passedRaw : TrigDefs::L2_passedRaw;
-  results["RAW"] = getTDT()->isPassed(chain, cond);
-  results["PS"] = results["RAW"] && (getTDT()->getPrescale(chain) != 1);
+  bool raw = results["RAW"] = getTDT()->isPassed(chain, cond);
+  results["PS"] = raw && (getTDT()->getPrescale(chain) != 1);
   results["PT"] = getTDT()->isPassed(chain, TrigDefs::eventAccepted);
   
   //set up iterators and such

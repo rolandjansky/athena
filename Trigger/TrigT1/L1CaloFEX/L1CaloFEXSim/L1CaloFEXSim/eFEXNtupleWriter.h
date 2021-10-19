@@ -46,8 +46,8 @@ public:
   StatusCode finalize ();
 
 private:
-  eFEXOutputCollection* m_eFEXOutputCollection; ///< a collection of the L1Calo eFex output
-  //std::shared_ptr<eFEXOutputCollection> m_eFEXOutputCollection;
+  /// @brief readhandle key for eFEXOutputCollection
+  SG::ReadHandleKey<LVL1::eFEXOutputCollection> m_eFEXOutputCollectionSGKey {this, "MyOutputs", "eFEXOutputCollection", "MyOutputs"};
 
   int m_eg_nTOBs; ///< number of e-gamma tobs
   bool m_load_truth_jet; ///< if load truth jets
@@ -78,6 +78,10 @@ private:
   // values from the tau algorithm
   std::vector<float> m_tau_Iso;
   std::vector<float> m_tau_Et;
+  std::vector<float> m_tau_Eta;
+  std::vector<float> m_tau_Phi;
+  std::vector<float> m_tau_floatEta;
+  std::vector<float> m_tau_floatPhi;
   std::vector<float> m_tau_isCentralTowerSeed;
   
   std::vector<int> m_eFex_number; ///< eFex number
@@ -100,13 +104,13 @@ private:
   TTree *m_myTree;
   
   /// @brief save variables related to the e-gamma algorithm
-  StatusCode loadegAlgoVariables();
+  StatusCode loadegAlgoVariables(SG::ReadHandle<LVL1::eFEXOutputCollection>);
 
   /// @brief save variables in the e-gamma TOB word
-  StatusCode loadegAlgoTOBs();
+  StatusCode loadegAlgoTOBs(SG::ReadHandle<LVL1::eFEXOutputCollection>);
 
   /// @brief save variables related to the tau algorithm
-  StatusCode loadtauAlgoVariables();
+  StatusCode loadtauAlgoVariables(SG::ReadHandle<LVL1::eFEXOutputCollection>);
 
   /// @brief save variables related to truth electrons
   StatusCode loadTruthElectron();

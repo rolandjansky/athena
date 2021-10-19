@@ -233,7 +233,7 @@ namespace Trk {
 
 CLASS_DEF(Trk::TrackingGeometry, 167645219, 1)
 #include "AthenaKernel/CondCont.h" 
-CONDCONT_DEF( Trk::TrackingGeometry , 119021535 );
+CONDCONT_MIXED_DEF( Trk::TrackingGeometry , 119021535 );
 
 
 #endif //TRKGEOMETRY_TRACKINGGEOMETRY_H

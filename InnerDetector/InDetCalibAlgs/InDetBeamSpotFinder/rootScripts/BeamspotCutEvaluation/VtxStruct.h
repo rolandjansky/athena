@@ -18,58 +18,58 @@
 #include <algorithm>
 
 struct SEvent {
-  UInt_t          ei_RunNumber;
-  UInt_t          ei_EventNumber;
-  UInt_t          ei_timestamp;
-  UInt_t          ei_timestamp_ns;
-  UInt_t          ei_lbn;
-  UInt_t          ei_bcid;
-  UInt_t          ei_detmask0;
-  UInt_t          ei_detmask1;
+  UInt_t          ei_RunNumber{};
+  UInt_t          ei_EventNumber{};
+  UInt_t          ei_timestamp{};
+  UInt_t          ei_timestamp_ns{};
+  UInt_t          ei_lbn{};
+  UInt_t          ei_bcid{};
+  UInt_t          ei_detmask0{};
+  UInt_t          ei_detmask1{};
 };
 
 struct SMCVertex{
-  Int_t           mcVx_n;
-  std::vector<float>   *mcVx_x;
-  std::vector<float>   *mcVx_y;
-  std::vector<float>   *mcVx_z;  
+  Int_t           mcVx_n{};
+  std::vector<float>   *mcVx_x{};
+  std::vector<float>   *mcVx_y{};
+  std::vector<float>   *mcVx_z{};  
 };
 
 struct SVertex{
-  Int_t           vx_n;
-  std::vector<float>   *vx_x;
-  std::vector<float>   *vx_y;
-  std::vector<float>   *vx_z;
-  std::vector<float>   *vx_chi2;
-  std::vector<int>     *vx_ndof;
-  std::vector<float>   *vx_err_x;
-  std::vector<float>   *vx_err_y;
-  std::vector<float>   *vx_err_z;
-  std::vector<float>   *vx_cov_x;
-  std::vector<float>   *vx_cov_y;
-  std::vector<float>   *vx_cov_z;
-  std::vector<float>   *vx_cov_xy;
-  std::vector<float>   *vx_cov_xz;
-  std::vector<float>   *vx_cov_yz;
-  std::vector<float>   *vx_px;
-  std::vector<float>   *vx_py;
-  std::vector<float>   *vx_pz;
-  std::vector<float>   *vx_E;
-  std::vector<float>   *vx_m;
-  std::vector<int>     *vx_nTracks;
-  std::vector<float>   *vx_sumPt;
-  std::vector<int>     *vx_type;
-  std::vector<int>     *vx_trk_n;
-  std::vector<std::vector<float> > *vx_trk_chi2;
-  std::vector<std::vector<float> > *vx_trk_d0;
-  std::vector<std::vector<float> > *vx_trk_z0;
-  std::vector<std::vector<float> > *vx_trk_unbiased_d0;
-  std::vector<std::vector<float> > *vx_trk_unbiased_z0;
-  std::vector<std::vector<float> > *vx_trk_err_unbiased_d0;
-  std::vector<std::vector<float> > *vx_trk_err_unbiased_z0;
-  std::vector<std::vector<float> > *vx_trk_phi;
-  std::vector<std::vector<float> > *vx_trk_theta;
-  std::vector<std::vector<float> > *vx_trk_weight;
+  Int_t           vx_n{};
+  std::vector<float>   *vx_x{};
+  std::vector<float>   *vx_y{};
+  std::vector<float>   *vx_z{};
+  std::vector<float>   *vx_chi2{};
+  std::vector<int>     *vx_ndof{};
+  std::vector<float>   *vx_err_x{};
+  std::vector<float>   *vx_err_y{};
+  std::vector<float>   *vx_err_z{};
+  std::vector<float>   *vx_cov_x{};
+  std::vector<float>   *vx_cov_y{};
+  std::vector<float>   *vx_cov_z{};
+  std::vector<float>   *vx_cov_xy{};
+  std::vector<float>   *vx_cov_xz{};
+  std::vector<float>   *vx_cov_yz{};
+  std::vector<float>   *vx_px{};
+  std::vector<float>   *vx_py{};
+  std::vector<float>   *vx_pz{};
+  std::vector<float>   *vx_E{};
+  std::vector<float>   *vx_m{};
+  std::vector<int>     *vx_nTracks{};
+  std::vector<float>   *vx_sumPt{};
+  std::vector<int>     *vx_type{};
+  std::vector<int>     *vx_trk_n{};
+  std::vector<std::vector<float> > *vx_trk_chi2{};
+  std::vector<std::vector<float> > *vx_trk_d0{};
+  std::vector<std::vector<float> > *vx_trk_z0{};
+  std::vector<std::vector<float> > *vx_trk_unbiased_d0{};
+  std::vector<std::vector<float> > *vx_trk_unbiased_z0{};
+  std::vector<std::vector<float> > *vx_trk_err_unbiased_d0{};
+  std::vector<std::vector<float> > *vx_trk_err_unbiased_z0{};
+  std::vector<std::vector<float> > *vx_trk_phi{};
+  std::vector<std::vector<float> > *vx_trk_theta{};
+  std::vector<std::vector<float> > *vx_trk_weight{};
   //  std::vector<std::vector<int> > *vx_trk_index; // not allowed
   
   
@@ -85,12 +85,12 @@ class MyVertex {
   TVector3 pos;
   TMatrixDSym cov;
   
-  float chi2;
-  int ndf;
-  float sumPt;
-  int vType;
-  int nTracks;
-  int trk_n;
+  float chi2{};
+  int ndf{};
+  float sumPt{};
+  int vType{};
+  int nTracks{};
+  int trk_n{};
   std::vector<float> trk_chi2;
   std::vector<float> trk_d0;
   std::vector<float> trk_z0;
@@ -113,14 +113,14 @@ class MyVertex {
 };
 
 struct Event {
-  UInt_t          runNumber;
-  UInt_t          eventNumber;
-  UInt_t          timestamp;
-  UInt_t          timestamp_ns;
-  UInt_t          lbn;
-  UInt_t          bcid;
-  UInt_t          detmask0;
-  UInt_t          detmask1;
+  UInt_t          runNumber{};
+  UInt_t          eventNumber{};
+  UInt_t          timestamp{};
+  UInt_t          timestamp_ns{};
+  UInt_t          lbn{};
+  UInt_t          bcid{};
+  UInt_t          detmask0{};
+  UInt_t          detmask1{};
   void clear() {
     runNumber=-1;
     eventNumber=-1;
@@ -152,7 +152,7 @@ struct MyMCVertex {
 };
 
 struct MCVertices {
-  int nVx;
+  int nVx{};
   std::vector<MyMCVertex> vertices;
   void clear() {    
     nVx = -1;
@@ -171,7 +171,7 @@ struct MCVertices {
 };
 
 struct Vertices {
-  int nVx;
+  int nVx{};
   std::vector<MyVertex> vertices;
   void clear() {    
     nVx = -1;

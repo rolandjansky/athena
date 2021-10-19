@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -209,10 +209,15 @@ namespace top {
                       "None");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
-                      "Simple");
-    registerParameter("LargeRSysts_TreatMCasPseudodata",
-                      "If set to True, treat MC as pseudo-data; only apply JER smearing, and only when FullJER/AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
-                      "False",{"True", "False"});
+                      "Full_PseudoData", {"All", "All_PseudoData", "Full", "Full_PseudoData", "Simple"});
+    registerParameter("JetJMSOption",
+		      "None (default),"
+                      "JMS_frozen (The shape and magnitude of the uncertainties at m/pT = 0.25 are also used for m/pT > 0.25),"
+                       "JMS_scaled (The magnitude of the uncertainties at m/pT = 0.25 was scaled linearly with increasing m/pT)",
+                      "None");
+    registerParameter("DoLargeRPseudodataJER",
+                      "If set to True, produce additional JER smearing systematics treating MC as pseudo-data, provided FullJER or AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
+                      "True",{"True", "False"});
     registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
     registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
@@ -230,8 +235,8 @@ namespace top {
                       "Input form: {A}JES_{B}JER_{C}JMS, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes for configuration options, - for LCTopo large-R jet energy scale, energy resolution, and mass scale uncertainties",
                       "CategoryJES_FullJER_FullJMS");
     registerParameter("LargeRJetUncertainties_JMR_NPModel",
-                      "Full (10 NP; aimed at the most precise jet-dependent measurements), Simple (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
-                      "FullJMR_COMB");
+                      "FullJMR_COMB_newBinning (10 NP; aimed at the most precise jet-dependent measurements), SimpleJMR_COMB_newBinning (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
+                      "FullJMR_COMB_newBinning", {"FullJMR_COMB","FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Winter2021");
@@ -344,7 +349,6 @@ namespace top {
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
-    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: True)", "True");
     registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)",
                       "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");
@@ -625,16 +629,6 @@ namespace top {
                                                                 " calculation for overlap removal in particle level", "True", {"True", "False"});
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
-
-    registerParameter("HLLHC",
-                      "Set to run HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
-
-    registerParameter("HLLHCFakes",
-                      "Set to enable Fakes HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
 
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
                                               "True or False (default False)", "False");

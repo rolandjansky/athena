@@ -140,6 +140,11 @@ Surface::localToGlobal(const LocalParameters& locpars,
   return gPosition;
 }
 
+inline std::unique_ptr<Surface> 
+Surface::uniqueClone() const{
+  return std::unique_ptr<Surface>(clone());
+}
+
 // common to all surfaces, uses memory optized method
 inline std::optional<Amg::Vector2D>
 Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
@@ -227,12 +232,6 @@ Surface::setTransform(const Amg::Transform3D& trans)
   m_transforms = std::make_unique<Transforms>(trans);
 }
 
-inline void Surface::setOwner
-ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const
-{
-  const_cast<SurfaceOwner&>(m_owner) = x;
-}
-
 inline void
 Surface::setOwner(SurfaceOwner x)
 {
@@ -257,28 +256,10 @@ Surface::setMaterialLayer(const Layer* mlay)
   m_materialLayer = mlay;
 }
 
-inline void Surface::setMaterialLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer& mlay) const
-{
-  const_cast<Surface*>(this)->m_materialLayer = (&mlay);
-}
-
-inline void Surface::setMaterialLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer* mlay) const
-{
-  const_cast<Surface*>(this)->m_materialLayer = mlay;
-}
-
 inline void
 Surface::associateLayer(const Layer& lay)
 {
   m_associatedLayer = (&lay);
-}
-
-inline void Surface::associateLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer& lay) const
-{
-  const_cast<Surface*>(this)->m_associatedLayer = (&lay);
 }
 
 } // end of namespace Trk

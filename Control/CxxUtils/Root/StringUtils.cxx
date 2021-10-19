@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 namespace CxxUtils {
 
@@ -394,11 +395,11 @@ namespace CxxUtils {
 	  }
 	}
 	if(nextIndex != std::string::npos){
-	  output += str.substr(index,nextIndex-index);
+	  output.append( str, index,nextIndex-index);
 	  output += map_format[symbolId][outputFormat];
 	  index = nextIndex + map_format[symbolId][inputFormat].size();
 	} else {
-	  output += str.substr(index);
+	  output.append(str, index);
 	  break;
 	}
 	// in the case of LATEX-code, we need to take care about the
@@ -444,11 +445,11 @@ namespace CxxUtils {
 	  }
 	}
 	if(nextIndex != std::string::npos){
-	  output += str.substr(index,nextIndex-index);
+	  output.append(str, index,nextIndex-index);
 	  output += map_specialscript[symbolId][outputType];
 	  index = nextIndex + map_specialscript[symbolId][inputType].size();
 	} else {
-	  output += str.substr(index);
+	  output.append(str,index);
 	  index = nextIndex;
 	}
       }
@@ -526,7 +527,7 @@ namespace CxxUtils {
 	size_t length = utf8_skip_data[c];
 	if(c > 31){
 	  if(c < 128 || allowNonAscii){
-	    output += str.substr(i,length);
+	    output.append(str,i,length);
 	  }
 	}
 	i+=length;
@@ -594,7 +595,7 @@ namespace CxxUtils {
 	  size_type startSuperScript = findBeginSpecialScript(input,StringUtils::SUPERSCRIPT,pos);
 	  size_type startSubScript   = findBeginSpecialScript(input,StringUtils::SUBSCRIPT,pos);
 	  if(startSuperScript == std::string::npos && startSubScript == std::string::npos){
-	    scriptreplaced += input.substr(pos);
+	    scriptreplaced.append(input, pos);
 	    break;
 	  }
 	  if(startSuperScript < startSubScript){
@@ -626,11 +627,11 @@ namespace CxxUtils {
 	  size_t nextpos = latex.find_first_of("\\${^_",pos);
 	  if(nextpos == std::string::npos){
 	    // we are at the end of the string -- copy the rest
-	    retval += latex.substr(pos);
+	    retval.append(latex, pos);
 	    break;
 	  }
 	  // copy everything up to the special symbol we found
-	  retval += latex.substr(pos,nextpos-pos);
+	  retval.append( latex, pos,nextpos-pos);
 	  switch(latex[nextpos]){
 	  case '^':
 	    {
@@ -708,7 +709,7 @@ namespace CxxUtils {
 	      size_t endpos = latex.find('$',nextpos+1);
 	      if(endpos == std::string::npos){
 		// it's unterminated, break
-		retval += latex.substr(pos);
+		retval.append( latex,pos);
 		pos = endpos;
 		break;
 	      }

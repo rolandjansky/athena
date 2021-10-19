@@ -1,21 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.JetParticleAssociationConfig import JetParticleAssociationCfg
+# this is just a thin wrapper on ParticleJetTools, I want to
+# keep the scope of the MR where we moved this limited. Eventually I
+# should move the things that point to this to point to the library
+# below.
 
-def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", **options):
-
-
-    acc=ComponentAccumulator()
-    jetcol = JetCollection.replace("Track", "PV0Track")
-
-    # setup the associator
-    options['JetContainer'] = jetcol + 'Jets'
-    options['Decorators'] = [acc.popToolsAndMerge(JetParticleAssociationCfg(ConfigFlags, jetcol+'Jets', InputParticleCollection, OutputParticleDecoration))]
-    options['name'] = (jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
-    
-    # -- create the association algorithm
-    acc.addEventAlgo(CompFactory.JetDecorationAlg(**options))
-            
-    return acc
+from ParticleJetTools.JetParticleAssociationAlgConfig import ( # noqa: F401
+    JetParticleAssociationAlgCfg)                              # noqa: F401

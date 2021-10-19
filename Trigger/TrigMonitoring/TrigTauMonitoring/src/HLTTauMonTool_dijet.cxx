@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HLTTauMonTool.h"
@@ -29,7 +29,6 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   const float 		leadingJetPtCut = 450000.; //MeV
   const float 		leadingJetEtaCut = 3.2;
   const std::string 	singleJetTrigger = "j420_L1J100";
-  const std::string     offlineJetContainer = "AntiKt4EMPFlowJets";
   const float 		dRCut = 0.2;
   const float 		dRL1Cut = 0.3;
   const float 		dPhiCut = 2.5;
@@ -38,13 +37,12 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   const float 		offlineTauEtaCut = 2.5;
   const std::vector<unsigned int>	offlineTauTrackCut = {1,2,3};
 
-  StatusCode sc = StatusCode::SUCCESS;
-  const xAOD::JetContainer* jet_cont = 0;
-  sc = evtStore()->retrieve(jet_cont, offlineJetContainer.c_str() );
-  if(!sc.isSuccess())
+  const xAOD::JetContainer* jet_cont = SG::get(m_ditauOfflineJetContainer);
+
+  if(!jet_cont)
   {
     ATH_MSG_WARNING("Failed to retrieve offline Jet container. Exiting.");
-    return sc;
+    return StatusCode::SUCCESS; // don't kill job just for this
   }
 
   /* select events that pass the required trigger */
@@ -56,10 +54,10 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
 
   TLorentzVector leadingJetTLV(0.,0.,0.,0.);
   TLorentzVector subleadingJetTLV(0.,0.,0.,0.);
-  const xAOD::TauJet* theOfflineTau = 0;
+  const xAOD::TauJet* theOfflineTau = nullptr;
 
   /* require offline leading jet and subleading jet */
-  for(auto aJet : *jet_cont)                                                                                               
+  for(const auto *aJet : *jet_cont)                                                                                               
   {
     if( aJet->pt() > leadingJetTLV.Pt() )
     {
@@ -94,7 +92,7 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   float dR = 666;
 
   // m_taus_RNN has already taus passing RNN medium WP
-  for(auto aTau : m_taus_RNN){
+  for(const auto *aTau : m_taus_RNN){
     if( aTau->pt() < offlineTauPtCut ) continue;
     if( TMath::Abs(aTau->eta()) > offlineTauEtaCut ) continue;
   
@@ -111,14 +109,14 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
     }
   }
 
-  if( dR > dRCut || theOfflineTau==0 ) 
+  if( dR > dRCut || theOfflineTau==nullptr ) 
   {
     ATH_MSG_DEBUG("No matching tau found. Exiting");
     return StatusCode::SUCCESS;
   }
 
   /* check HLT tau */
-  for(auto aHighPtChain : m_trigItemsHighPt)
+  for(const auto& aHighPtChain : m_trigItemsHighPt)
   {
     setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/" + aHighPtChain);
 

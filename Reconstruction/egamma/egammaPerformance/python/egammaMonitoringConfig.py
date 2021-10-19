@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 def egammaMonitoringConfig(flags):
@@ -8,9 +8,11 @@ def egammaMonitoringConfig(flags):
 
     # don't run in RAW -> ESD
     if flags.DQ.Environment in ('tier0', 'tier0ESD',' online', 'AOD'):
-        from egammaPerformance.SetupEgammaMonitoring import MonitorElectronConfig, MonitorPhotonConfig
+        from egammaPerformance.SetupEgammaMonitoring import MonitorElectronConfig, MonitorPhotonConfig, MonitorTnPConfig, MonitorForwardElectronConfig
 
         result.merge(MonitorElectronConfig(flags))
         result.merge(MonitorPhotonConfig(flags))
+        result.merge(MonitorTnPConfig(flags))
+        result.merge(MonitorForwardElectronConfig(flags))
 
     return result

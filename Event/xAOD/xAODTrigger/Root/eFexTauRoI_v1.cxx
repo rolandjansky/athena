@@ -18,24 +18,32 @@ namespace xAOD {
   const float eFexTauRoI_v1::s_tobEtScale = 100.;
   const float eFexTauRoI_v1::s_xTobEtScale = 25.;
   const float eFexTauRoI_v1::s_towerEtaWidth = 0.1;
-  const float eFexTauRoI_v1::s_minEta = -2.5;
 
    eFexTauRoI_v1::eFexTauRoI_v1()
       : SG::AuxElement() {
 
    }
 
-   void eFexTauRoI_v1::initialize( uint8_t eFexNumber, uint32_t word0, uint32_t word1 ) {
+   void eFexTauRoI_v1::initialize( unsigned int eFexNumber, unsigned int shelf, uint32_t word0 ) {
 
+      // xTOBs will have eFEX and Shelf numbers in word 1 
+      // To save space, use the second word of this object, which is not part of a TOB, to store these values
+      uint32_t word1 = 0;
+      word1 |= (eFexNumber&s_eFexMask)<<s_eFexBit;
+      word1 |= (shelf&s_shelfMask)<<s_shelfBit;
       setWord0( word0 );
       setWord1( word1 );
-      seteFexNumber( eFexNumber );
-      setTobEt( etTOB() );
-      setEta( etaIndex() );
-      setPhi( phiIndex() );
+
+      /** Quantities derived from TOB data, stored for convenience */
+      setEt( etTOB()*s_tobEtScale );
+      float etaVal = iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4;
+      setEta( etaVal );
+      float phiVal = iPhi() * M_PI/32. + M_PI/64.;
+      if (phiVal > M_PI) phiVal = phiVal - 2.*M_PI;
+      setPhi( phiVal );
 
       /** If the object is a TOB then the isTOB should be true.
-          For xTOB default is false, but should be set if a matching TOB is found */
+          For xTOB default is false, but should be set by the user if a matching TOB is found */
       if (type() == TOB) setIsTOB(1);
       else               setIsTOB(0);
 
@@ -43,37 +51,69 @@ namespace xAOD {
    }
 
 
+   void eFexTauRoI_v1::initialize( uint32_t word0, uint32_t word1 ) {
+
+      // xTOBs will have eFEX and Shelf numbers in word 1 
+      // So all we need to do is set the TOB words
+      setWord0( word0 );
+      setWord1( word1 );
+
+      /** Quantities derived from TOB data, stored for convenience */
+      setEt( etTOB()*s_tobEtScale );
+      float etaVal = iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4;
+      setEta( etaVal );
+      float phiVal = iPhi() * M_PI/32. + M_PI/64.;
+      if (phiVal > M_PI) phiVal = phiVal - 2.*M_PI;
+      setPhi( phiVal );
+
+      /** If the object is a TOB then the isTOB should be true.
+          For xTOB default is false, but should be set by the user if a matching TOB is found */
+      if (type() == TOB) setIsTOB(1);
+      else               setIsTOB(0);
+
+      return;
+   }
+
    /// Raw data words
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint32_t, word0,
                                          setWord0 )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint32_t, word1,
                                          setWord1 )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, eFexNumber,
-                                         seteFexNumber )
-
+ 
    /// Only calculable externally
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fCoreNumerator,
                                          setFCoreNumerator )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fCoreDenominator,
                                          setFCoreDenominator )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint32_t, thrPattern,
-                                         setThrPattern )
-
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fHadNumerator,
+                                         setFHadNumerator )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, fHadDenominator,
+                                         setFHadDenominator )
 
    /// Should be set for xTOB if there is a matching TOB
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, char, isTOB,
                                          setIsTOB )
 
    /// Extracted from data words, stored for convenience
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint16_t, tobEt,
-                                         setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, iEta,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, float, et,
+                                         setEt )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, float, eta,
                                          setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, uint8_t, iPhi,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexTauRoI_v1, float, phi,
                                          setPhi )
 
 
    /// Methods to decode data from the TOB/RoI and return to the user
+
+   /// eFEX number
+   unsigned int eFexTauRoI_v1::eFexNumber() const {
+     return (word1() >> s_eFexBit) & s_eFexMask;
+   }
+
+   /// Shelf number
+   unsigned int eFexTauRoI_v1::shelfNumber() const {
+     return (word1() >> s_shelfBit) & s_shelfMask;
+   }
 
    /// TOB or xTOB?
    eFexTauRoI_v1::ObjectType eFexTauRoI_v1::type() const {
@@ -109,7 +149,7 @@ namespace xAOD {
    /// Raw ET on TOB scale (100 MeV/count)
    unsigned int eFexTauRoI_v1::etTOB() const {
      // Data content = TOB
-     if (word1() == 0) {
+     if (etXTOB() == 0) {
        return (word0() >> s_etBit) & s_etMask;
      }
      // Data Content = xTOB. Need to remove lower bits and cap range
@@ -134,7 +174,7 @@ namespace xAOD {
      return (word0() >> s_veto1Bit) & s_veto1Mask;
    }
     
-   unsigned int eFexTauRoI_v1::tauTwoThresholds() const {
+   unsigned int eFexTauRoI_v1::fHadThresholds() const {
      return (word0() >> s_veto2Bit) & s_veto2Mask;
    }
     
@@ -143,39 +183,18 @@ namespace xAOD {
    }
     
    unsigned int eFexTauRoI_v1::bcn4() const {
-     /// If the object is not an xTOB return 0
-     if (word1() == 0) return 0;
-     else {
-       return (word1() >> s_bcn4Bit) & s_bcn4Mask;
-     }
+     return (word1() >> s_bcn4Bit) & s_bcn4Mask;
    }
 
    /// Return single 32-bit TOB word from a TOB or xTOB 
    uint32_t eFexTauRoI_v1::tobWord() const {
      // Do something sensible if called for a TOB
-     if (word1() == 0) return word0();
+     if (etXTOB() == 0) return word0();
      // When called for xTOB
      else {
        uint32_t word = word0() + etTOB();
        return word;
      }
-   }
-
-   /// Methods that require combining results or applying scales
-   /// ET on TOB scale
-   float eFexTauRoI_v1::et() const {
-     return tobEt()*s_tobEtScale;
-   }
-
-   /// Floating point coordinates
-   float eFexTauRoI_v1::eta() const {
-     return (s_minEta + iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4);
-   }
-
-   float eFexTauRoI_v1::phi() const {
-     float value = iPhi() * M_PI/32. + M_PI/64.;
-     if (value > M_PI) value = value - 2.*M_PI;
-     return value;
    }
 
    /// Tau condition value. 
@@ -189,42 +208,48 @@ namespace xAOD {
    /// Methods that decode the eFEX number
 
   /// Return phi index in the range 0-63
-  unsigned int eFexTauRoI_v1::phiIndex() const {
+  int eFexTauRoI_v1::iPhi() const {
 
-     /// Get the eFEX index in phi (1-8, unfortunately)
-     unsigned int eFEX = (eFexNumber() >> s_eFexPhiBit) & s_eFexPhiMask;
+    /// Calculate octant (0-7) from eFEX and shelf numbers
+    unsigned int octant = int(eFexNumber()/3) + shelfNumber()*s_shelfPhiWidth;
 
-     /// Find global phi index (0-63) for this window in this eFEX (the -1 is to correct for the eFEX phi index)
-     unsigned int index = s_eFexPhiWidth*eFEX + s_eFexPhiOffset  + fpgaPhi() -1;
-     if (index >= s_numPhi) index -= s_numPhi;
-     return index;
-   }
+    /// Find global phi index (0-63) for this window in this eFEX
+    unsigned int index = s_eFexPhiWidth*octant + fpgaPhi() + s_eFexPhiOffset;
+    if (index >= s_numPhi) index -= s_numPhi;
 
-   /// Return an eta index in the range 0-49
+    return index;
+  }
+
+   /// Return an eta index in the range -25 -> +24
+   /// Value corresponds to 10*lower eta edge of tower
    /// Note that this may not be the final format!
    /// And you need to combine with the seed() value to get full eta precision
-   unsigned int eFexTauRoI_v1::etaIndex() const {
+   int eFexTauRoI_v1::iEta() const {
 
-     /// Get the eFEX number
-     uint8_t eFEX = (eFexNumber() >> s_eFexEtaBit) & s_eFexEtaMask;
+     /// With appropriate constants this should work in one line...
+     int index = s_minEta + (eFexNumber()%3)*s_eFexEtaWidth + fpga()*s_fpgaEtaWidth + fpgaEta();
 
-     /// FPGA min eta
-     uint8_t index = 99; /// Define a default value in case of invalid eFEX number
-
-     switch (eFEX) {
-       case eFexC: index = s_EtaCOffset + fpga()*s_fpgaEtaWidth + (fpga() > 0 ? 1 : 0);
-                   break;
-       case eFexB: index = s_EtaBOffset + fpga()*s_fpgaEtaWidth;
-                   break;
-       case eFexA: index = s_EtaAOffset + fpga()*s_fpgaEtaWidth;
-                   break;
-     }
-
-     /// Add eta location within the FPGA & return value
-     return index + fpgaEta();
+     /// Return value
+     return index;
 
    }
 
+  /// Return phi index in the range used by L1Topo (0->127)
+  int eFexTauRoI_v1::iPhiTopo() const {
+
+     /// Topo use pi/64 steps. Ours are pi/32, so we simply return 2* our integer index
+     return iPhi()*2;
+
+   }
+
+   /// Return an eta index in the range used by L1Topo (-100->+99)
+   int eFexTauRoI_v1::iEtaTopo() const {
+
+     /// This returns e/g seed position as an integer index. 
+     /// Value corresponds to 4*lower eta edge of supercell (so 0 means 0.0 -> 0.025) 
+     return iEta()*4 + seed();
+
+   }
 
 
 } // namespace xAOD

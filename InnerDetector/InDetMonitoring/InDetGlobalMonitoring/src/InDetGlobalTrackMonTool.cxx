@@ -45,15 +45,11 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-//Root
-#include "TMath.h"
 
 //Standard c++
-#include <algorithm>
 #include <vector>
 #include <string>
 #include <cmath>
-#include <functional>
 
 
 InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
@@ -932,7 +928,7 @@ void InDetGlobalTrackMonTool::FillTIDE()
 	    if ( !(*jetItr)->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack, trackVector) )
 		continue;
 
-	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ )
+	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; ++trkItr )
 	    {
 		const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
 
@@ -969,9 +965,9 @@ void InDetGlobalTrackMonTool::FillTIDE()
 											foundVertex ));
 			if ( myIPandSigma )
 			{
-			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );
-			    m_trk_jetassoc_z0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPz0 / sqrt( myIPandSigma->sigmaz0*myIPandSigma->sigmaz0 + myIPandSigma->PVsigmaz0*myIPandSigma->PVsigmaz0 ) ) );
-			    m_trk_jetassoc_ip_reso_lb->Fill( AthenaMonManager::lumiBlockNumber(), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) )  );
+			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), std::abs( myIPandSigma->IPd0 / std::sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );
+			    m_trk_jetassoc_z0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), std::abs( myIPandSigma->IPz0 / std::sqrt( myIPandSigma->sigmaz0*myIPandSigma->sigmaz0 + myIPandSigma->PVsigmaz0*myIPandSigma->PVsigmaz0 ) ) );
+			    m_trk_jetassoc_ip_reso_lb->Fill( AthenaMonManager::lumiBlockNumber(), std::abs( myIPandSigma->IPd0 / std::sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) )  );
 			}
 		    }
 		    if ( trackPart->summaryValue( split, xAOD::numberOfPixelSplitHits) )
@@ -1223,7 +1219,7 @@ void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
     } else {
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
 	     it!=holesOnTrack->end();
-	     it++) {
+	     ++it) {
 	    if (!(*it)) {
 		msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
 		continue;
@@ -1233,7 +1229,7 @@ void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
 	    if (clus){
 		m_HolesMAP_XY->Fill(clus->position()[0],clus->position()[1]);
 		m_HolesMAP_ZX->Fill( clus->position()[2], clus->position()[0]);
-		m_HolesMAP_ZR->Fill(clus->position()[2], sqrt( pow( clus->position()[0], 2) + pow( clus->position()[1], 2) ));
+		m_HolesMAP_ZR->Fill(clus->position()[2], std::sqrt( std::pow( clus->position()[0], 2) + std::pow( clus->position()[1], 2) ));
 
 	    }
 	}

@@ -22,9 +22,8 @@
 // xAOD header files
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODPFlow/PFOContainer.h"
 
-//#include "PFlowUtils/RetrievePFOTool.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 
 namespace CP { 
@@ -62,7 +61,7 @@ namespace DerivationFramework {
       SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVertexKey{this, "PrimaryVertexName", "PrimaryVertices", "" };
       SG::ReadHandleKey<xAOD::PhotonContainer> m_photonKey { this, "PhotonKey", "Photons", "" };
       SG::WriteHandleKey<xAOD::VertexContainer> m_diphotonVertexKey{this, "DiphotonVertexName", "HggPrimaryVertices", "" };
-      SG::ReadHandleKey<xAOD::PFOContainer> m_PFOContainerHandleKey{this,"PFOContainerName","JetETMissChargedParticleFlowObjects","ReadHandleKey for the PFO container"};
+      SG::ReadHandleKey<xAOD::FlowElementContainer> m_FEContainerHandleKey{this,"PFOContainerName","JetETMissChargedParticleFlowObjects","ReadHandleKey for the PFO container"};
       ///////////////
       ///// SETTINGS
 
@@ -75,11 +74,10 @@ namespace DerivationFramework {
       double m_tcMatch_maxRat;
 
       bool  PhotonPreselect(const xAOD::Photon *ph) const;
-      StatusCode matchPFO(const xAOD::Photon* eg,const xAOD::PFOContainer *pfoCont) const;
-      static inline bool greaterPtPFO(const xAOD::PFO* part1, const xAOD::PFO* part2) {
+      StatusCode matchFlowElement(const xAOD::Photon* eg,const xAOD::FlowElementContainer *pfoCont) const;
+      static inline bool greaterPtFlowElement(const xAOD::FlowElement* part1, const xAOD::FlowElement* part2) {
         if (part1->charge()==0 && part2->charge()!=0) return false;
         if (part1->charge()!=0 && part2->charge()==0) return true;
-        if (part1->charge()==0 && part2->charge()==0) return part1->ptEM()>part2->ptEM();
         return part1->pt()>part2->pt();
     }
 

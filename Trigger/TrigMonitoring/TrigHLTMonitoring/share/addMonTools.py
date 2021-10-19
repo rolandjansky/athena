@@ -27,6 +27,7 @@ if not 'DQMonFlags' in dir():
 # Bphys - Running JpsiFinder
 if HLTMonFlags.doMonTier0:
     if HLTMonFlags.doBphys and rec.doInDet:
+      log.info('Including RunJpsiFinder.py')
       include( "TrigBphysMonitoring/RunJpsiFinder.py" )
 
 topSequence += AthenaMonManager("HLTMonManager",

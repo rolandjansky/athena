@@ -16,7 +16,17 @@ def PhaseIIPileUp(flags):
     flags.Tile.correctTime = False
 
     # pile-up
-    # TODO
+    flags.Digitization.PU.NumberOfLowPtMinBias = 209.2692
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.725172
+    flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
+    flags.Digitization.PU.CustomProfile={
+        'run': 242020,
+        'startmu': 190.0,
+        'endmu': 210.0,
+        'stepmu': 1.0,
+        'startlb': 1,
+        'timestamp': 1412020000
+    }
 
 
 def PhaseIINoPileUp(flags):

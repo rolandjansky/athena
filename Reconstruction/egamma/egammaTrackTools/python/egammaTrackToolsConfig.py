@@ -30,7 +30,7 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     if "PerigeeCaloExtensionTool" not in kwargs:
         perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
             flags,
-            name="PerigeeCaloExtensionTool",
+            name="EMParticleCaloExtensionTool",
             Extrapolator=kwargs["Extrapolator"],
             ParticleType="electron",
             StartFromPerigee=True)
@@ -41,7 +41,7 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     if "LastCaloExtensionTool" not in kwargs:
         lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
             flags,
-            name="LastCaloExtensionTool",
+            name="EMLastCaloExtensionTool",
             ParticleType="electron",
             Extrapolator=kwargs["Extrapolator"])
 
@@ -59,10 +59,42 @@ def EMExtrapolationToolsCacheCfg(flags, **kwargs):
     kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
+def GSFTrackSummaryToolCfg(flags, name="GSFBuildInDetTrackSummaryTool", **kwargs):
+    acc = ComponentAccumulator()
+
+    if "InDetSummaryHelperTool" not in kwargs:
+        from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+        kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags, name="GSFBuildTrackSummaryHelperTool"))
+
+    if "PixelToTPIDTool" not in kwargs:
+        from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
+        kwargs["PixelToTPIDTool"] = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags, name="GSFBuildPixelToTPIDTool"))
+
+    if "TRT_ElectronPidTool" not in kwargs:
+        from InDetConfig.TrackingCommonConfig import InDetTRT_ElectronPidToolCfg
+        kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(InDetTRT_ElectronPidToolCfg(flags, name="GSFBuildTRT_ElectronPidTool"))
+
+    summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
+    acc.setPrivateTools( summaryTool )
+    return acc
+
 
 # egammaTrkRefitterTool also needs a config, but depends on some
 # tracking that is not ready
 # CaloCluster_OnTrackBuilder is currently not used at all
+def egammaTrkRefitterToolCfg(flags, name='GSFRefitterTool', **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("useBeamSpot", False)
+    kwargs.setdefault("ReintegrateOutliers", True)
+    if "Extrapolator" not in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
+    if "FitterTool" not in kwargs:
+        from InDetConfig.TrackingCommonConfig import GaussianSumFitterCfg
+        kwargs["FitterTool"] =  acc.popToolsAndMerge( GaussianSumFitterCfg(flags, name="GSFTrackFitter") )
+    tool = CompFactory.egammaTrkRefitterTool(name, **kwargs)
+    acc.setPrivateTools(tool)
+    return acc
 
 
 if __name__ == "__main__":

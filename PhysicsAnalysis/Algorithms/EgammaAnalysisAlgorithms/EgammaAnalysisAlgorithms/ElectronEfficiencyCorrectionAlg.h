@@ -13,8 +13,8 @@
 #include <EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 
@@ -48,7 +48,7 @@ namespace CP
 
     /// \brief the electron collection we run on
   private:
-    SysCopyHandle<xAOD::ElectronContainer> m_electronHandle {
+    SysReadHandle<xAOD::ElectronContainer> m_electronHandle {
       this, "electrons", "Electrons", "the electron collection to run on"};
 
     /// \brief the preselection we apply to our input
@@ -62,7 +62,7 @@ namespace CP
 
     /// \brief the decoration for the electron scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
       this, "scaleFactorDecoration", "", "the decoration for the electron efficiency scale factor"};
   };
 }

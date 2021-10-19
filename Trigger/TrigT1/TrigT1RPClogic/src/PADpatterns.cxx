@@ -1,7 +1,7 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,6 @@ PADpatterns::PADpatterns(int sector, int pad,unsigned long int debug) :
     RPCtrigDataObject(0,"PAD patterns"),m_sector(sector),m_pad_id(pad),
     m_debug(debug) 
 {
-    m_pad = 0;
 }
 
 PADpatterns::PADpatterns(const PADpatterns& PAD) : 
@@ -22,12 +21,6 @@ PADpatterns::PADpatterns(const PADpatterns& PAD) :
     m_pad_id = PAD.pad_id();
     m_debug  = PAD.debug();
     m_cma_patterns = PAD.cma_patterns();
-    m_pad = 0;
-}
-
-PADpatterns::~PADpatterns()
-{
-    if(m_pad) delete m_pad;
 }
 
 PADpatterns
@@ -40,7 +33,6 @@ PADpatterns::operator=(const PADpatterns& PAD)
     m_debug  = PAD.debug();
     m_cma_patterns.clear();
     m_cma_patterns = PAD.cma_patterns();
-    m_pad = 0;
     return *this;
 }
 
@@ -103,7 +95,7 @@ PADpatterns::give_pad(const RpcCablingCondData* readCdo)
       }
     }
 
-    m_pad = new Pad(0,0,m_debug,subsystem,logic_sector,m_pad_id,1,oldSimulation);
+    m_pad = std::make_unique<Pad>(0,0,m_debug,subsystem,logic_sector,m_pad_id,1,oldSimulation);
 
     //M.Corradi 8/1/2015 get Pad configuration Parameters 
     bool  eta_and_phi, feet_on;
@@ -121,10 +113,8 @@ PADpatterns::give_pad(const RpcCablingCondData* readCdo)
       // MASK AND eta_and_phi to be implemented
 
     }else {
-      DISP << "Could not retrieve Pad Parameters"
-        << "m_ector , m_pad_id = " << m_sector << "," << m_pad_id
-        << std::endl;
-      DISP_ERROR;
+      std::runtime_error("Could not retrieve Pad Parameters m_sector, m_pad_id = " +
+                         std::to_string(m_sector) + ", " + std::to_string(m_pad_id));
     }
 
 
@@ -152,7 +142,7 @@ PADpatterns::give_pad(const RpcCablingCondData* readCdo)
 
     m_pad->execute();
   }
-  return m_pad;
+  return m_pad.get();
 }
 
 void

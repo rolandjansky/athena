@@ -53,7 +53,7 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
 
     // Initialize rate histogram and create buffer
     StatusCode init( const std::string& histoName, const std::string& histoTitle,
-      const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc );
+      const int x, const int y, const std::string& registerPath, const ServiceHandle<ITHistSvc>& histSvc );
 
     // Get the histogram
     LockedHandle<TH2>& getHistogram ATLAS_NOT_CONST_THREAD_SAFE () const;
@@ -88,7 +88,7 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
     unsigned int m_duration;
   };
 
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "HLTSeedingSummary", "Chains activated after the L1" };
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTNav_Summary", "Final stage of all decisions" };
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
   SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };

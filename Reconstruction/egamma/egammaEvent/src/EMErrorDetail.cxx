@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaEvent/EMErrorDetail.h"
@@ -126,7 +126,7 @@ void EMErrorDetail::set_parameter(egammaParameters::ParamDef key, double value, 
 }
 
 // =======================================================================
-bool EMErrorDetail::isElectron(const egamma* eg, bool forcePhoton) const
+bool EMErrorDetail::isElectron(const egamma* eg, bool forcePhoton) 
 {
   return (!forcePhoton && ((eg->conversion() != nullptr) || (eg->trackParticle() != nullptr)));
 }
@@ -134,7 +134,7 @@ bool EMErrorDetail::isElectron(const egamma* eg, bool forcePhoton) const
 // =======================================================================
 double EMErrorDetail::getClusterEtaPosError(const egamma* eg, 
               const EMClusterErrorsParametrizations* pars,
-              bool forcePhoton) const
+              bool forcePhoton) 
 {
 
   EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
@@ -168,7 +168,7 @@ double EMErrorDetail::getClusterEtaPosError(const egamma* eg,
 // =======================================================================
 double EMErrorDetail::getClusterEnergyError(const egamma* eg, 
               const EMClusterErrorsParametrizations* pars, 
-              bool forcePhoton ) const
+              bool forcePhoton ) 
 {
 
   EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
@@ -185,7 +185,7 @@ double EMErrorDetail::getClusterEnergyError(const egamma* eg,
 // =======================================================================
 double EMErrorDetail::getClusterEtaError(const egamma* eg, 
            const EMClusterErrorsParametrizations* pars, 
-           bool forcePhoton ) const 
+           bool forcePhoton ) 
 {
 
   EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
@@ -212,7 +212,7 @@ double EMErrorDetail::getClusterEtaError(const egamma* eg,
 // =======================================================================
 double EMErrorDetail::getClusterPhiError(const egamma* eg, 
            const EMClusterErrorsParametrizations* pars, 
-           bool forcePhoton ) const 
+           bool forcePhoton ) 
 {
 
   EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
@@ -228,7 +228,7 @@ double EMErrorDetail::getClusterPhiError(const egamma* eg,
 
 
 // ===================================================================
-double EMErrorDetail::caloEta(const egamma* eg, double clusterEta) const {
+double EMErrorDetail::caloEta(const egamma* eg, double clusterEta) {
 
   const double etaPointing = eg->detailValue(egammaParameters::etap);
   if ( fabs(etaPointing - clusterEta ) < 0.15 ) {
@@ -733,7 +733,7 @@ int EMErrorDetail::hasSiliconHits()  const {return intParameter(egammaParameters
 void EMErrorDetail::set_hasSiliconHits (int x)  {set_parameterInt(egammaParameters::hasSiliconHits, x, true)  ;}
 
 
-AmgSymMatrix(5) EMErrorDetail::P5Jacobiand0z0PhiThetaE2d0z0PhiEtaE(const double theta) const
+AmgSymMatrix(5) EMErrorDetail::P5Jacobiand0z0PhiThetaE2d0z0PhiEtaE(const double theta) 
 {
   AmgSymMatrix(5) m;
   m.setIdentity();
@@ -741,7 +741,7 @@ AmgSymMatrix(5) EMErrorDetail::P5Jacobiand0z0PhiThetaE2d0z0PhiEtaE(const double 
   return m;
 }
 
-AmgSymMatrix(4) EMErrorDetail::P4JacobiandEThetaPhiM2EEtaPhiM(const double theta) const
+AmgSymMatrix(4) EMErrorDetail::P4JacobiandEThetaPhiM2EEtaPhiM(const double theta) 
 {
   AmgSymMatrix(4) m;
   m.setIdentity();

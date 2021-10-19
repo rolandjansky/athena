@@ -34,7 +34,10 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
   NTuple::Item<unsigned long long> m_IEvent;
   NTuple::Array<short>  m_samples;
   NTuple::Item<short> m_bcid;
+  NTuple::Item<short> m_ELVL1Id;
   NTuple::Item<short> m_latomeChannel;
+
+  NTuple::Item<float>  m_raw_energy;
 
   // From LATOME header
   NTuple::Item<uint16_t> m_bcidLATOMEHEAD;
@@ -54,9 +57,10 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
   NTuple::Array<unsigned short> m_bcidVec_ET_ID;
   NTuple::Array<bool> m_saturVec_ET_ID;
 
-  bool m_isSCFlag;
+  bool m_isSCFlag = false;
   bool m_fillBCID;
   bool m_overwriteEventNumber;
+  bool m_hasRawChan = false;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey { this, "EventInfoKey", "EventInfo", "SG for EventInfo Key" };
   SG::ReadHandleKey<LArFebHeaderContainer> m_LArFebHeaderContainerKey { this, "LArFebHeaderKey", "LArFebHeader" };

@@ -153,8 +153,8 @@ namespace BStoXAODHelper{
       return HLTNavDetails::formatSGkey(this->m_AODprefix,ClassID_traits<T>::typeName(),label);
     }
   protected:
-    MsgStream* m_msg;
-    StoreGateSvc* m_sg;
+    MsgStream* m_msg{nullptr};
+    StoreGateSvc* m_sg{nullptr};
     const std::string m_AODprefix = "HLT";
   };
     
@@ -696,7 +696,7 @@ StatusCode TrigBStoxAODTool::classLabel2CLIDLabel(const std::vector<std::string>
 						  std::vector<std::pair<CLID,std::string> >& decoded,
 						  std::vector<std::pair<CLID,std::string> >& decodedNewNames) {
   // translate Class names into CLID numbers
-  IClassIDSvc* clidSvc;
+  IClassIDSvc* clidSvc{nullptr};
   if( service("ClassIDSvc", clidSvc).isFailure() ) {
     ATH_MSG_FATAL("Unable to get pointer to CLIDSvc Service");
     return StatusCode::FAILURE;
@@ -710,21 +710,21 @@ StatusCode TrigBStoxAODTool::classLabel2CLIDLabel(const std::vector<std::string>
   std::vector<std::string>::const_iterator it;
   std::vector<std::string>::const_iterator itNew = newProperty.begin();
   for ( it = property.begin(); it != property.end(); ++it, ++itNew ) {
-    CLID clid;
+    CLID clid{0};
     std::string label;
     std::string label_new;
     std::string type;
     
-    if ( it->find("#") != std::string::npos ) {
-	type = it->substr(0, it->find("#") );
-	label = it->substr(it->find("#")+1 );
+    if ( it->find('#') != std::string::npos ) {
+	type = it->substr(0, it->find('#') );
+	label = it->substr(it->find('#')+1 );
       } else {
 	type = *it;
 	label = "";
     }
     
-    if ( itNew->find("#") != std::string::npos ) {
-      label_new = itNew->substr(itNew->find("#")+1 );
+    if ( itNew->find('#') != std::string::npos ) {
+      label_new = itNew->substr(itNew->find('#')+1 );
     } else {
       label_new = "";
     }

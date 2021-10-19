@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchCrossingTool.py 784782 2016-11-17 09:42:26Z krasznaa $
 
 ## @package BunchCrossingTool
 #
@@ -9,8 +8,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 
 ##
 # @short Function instantiating the correct type of bunch crossing tool
@@ -28,8 +25,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def BunchCrossingTool( type = "" ):
 
     # Get ourselves a logger:
@@ -50,9 +45,6 @@ def BunchCrossingTool( type = "" ):
         elif type == "Web":
             __logger.info( "Forcing the usage of WebBunchCrossingTool" )
             return WebBunchCrossingTool()
-        elif type == "D3PD":
-            __logger.info( "Forcing the usage of D3PDBunchCrossingTool" )
-            return D3PDBunchCrossingTool()
         else:
             __logger.warning( "Type = " + type + " not recognized" )
             __logger.warning( "Will select tool type based on global flags" )
@@ -64,9 +56,8 @@ def BunchCrossingTool( type = "" ):
         return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
-        from RecExConfig.RecAlgsFlags import recAlgs
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly() or recAlgs.doTrigger():
+        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
         else:
@@ -84,10 +75,6 @@ def BunchCrossingTool( type = "" ):
 # constructor of a fully fledged python configurable. But in reality one really
 # just calls a function which returns a python configurable.
 #
-# To make configuration a bit more simple, the function assumes that it's called from
-# a RecExCommon environment, so it assumes that ServiceMgr.TrigConfigSvc has already
-# been instantiated. If it doesn't find the service, it will raise an exception.
-#
 # Note: As it turns out, the BunchGroup information in the trigger COOL folders is wrong
 # for some runs. So this should not be the default tool for accessing information about
 # data anymore.
@@ -95,9 +82,6 @@ def BunchCrossingTool( type = "" ):
 # @returns The default configuration of a public Trig::TrigConfBunchCrossingTool
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def TrigConfBunchCrossingTool():
 
     # The default name of the tool:
@@ -123,27 +107,11 @@ def TrigConfBunchCrossingTool():
     __logger.info( "Set the default values for the TrigConfBunchCrossingTool "
                    "configuration" )
 
-    # Check for a TrigConfigSvc:
+    # Check for xAODConfigSvc:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if not hasattr( svcMgr, "TrigConfigSvc" ):
-        __logger.info( "Job has no TrigConfigSvc, falling back to xAODConfigSvc")
+    if not hasattr( svcMgr, "xAODConfigSvc" ):
         from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
-        from AthenaCommon.AppMgr import ServiceMgr
-        cfgsvc = TrigConf__xAODConfigSvc('xAODConfigSvc')
-        ServiceMgr += cfgsvc
-        __tool.ConfigSvc = cfgsvc
-    else: 
-        # We do have a TrigConfigSvc. Now make sure that DSConfigSvc has access to the BG COOL folders:
-        from IOVDbSvc.CondDB import conddb
-        __dbConnection = "TRIGGER"
-        __folders = [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription",
-                      "LVL1/BunchGroupContent" ]
-        for f in __folders:
-            if not conddb.folderRequested( "/TRIGGER/%s" % f ):
-                __logger.info( "Adding folder to IOVDbSvc: /TRIGGER/%s", f ) 
-                conddb.addFolderWithTag( __dbConnection, "/TRIGGER/%s" % f, "HEAD" )
-                pass
-            pass
+        svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool
@@ -202,7 +170,8 @@ def MCBunchCrossingTool():
     for f in __folders:
         if not conddb.folderRequested( f ):
             __logger.info( "Adding folder to IOVDbSvc: %s", f ) 
-            conddb.addFolderWithTag( __dbConnection, f, "HEAD" )
+            conddb.addFolderWithTag( __dbConnection, f, "HEAD",
+                                     className='AthenaAttributeList')
             pass
         pass
 
@@ -341,46 +310,6 @@ def StaticBunchCrossingTool():
 
     # Create a default configuration for it:
     __logger.info( "Set the default values for the StaticBunchCrossingTool configuration" )
-
-    # Add the tool to ToolSvc and return it to the user:
-    ToolSvc += __tool
-    return getattr( ToolSvc, __defaultToolName )
-
-##
-# @short Function creating a default configuration for the Trig::D3PDBunchCrossingTool
-#
-# This function should be used when you read a D3PD in an Athena job. It configures
-# the D3PDBunchCrossingTool implementation to read the bunch configuration from
-# the D3PD metadata.
-#
-# @returns The default configuration of a public Trig::D3PDBunchCrossingTool
-#
-# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
-def D3PDBunchCrossingTool():
-
-    # The default name of the tool:
-    __defaultToolName = "BunchCrossingTool"
-
-    # Get ourselves a logger:
-    from AthenaCommon.Logging import logging
-    __logger = logging.getLogger( "D3PDBunchCrossingTool" )
-
-    # Check if the tool already exists. If it does, let's just return it without
-    # any modifications:
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr( ToolSvc, __defaultToolName ):
-        return getattr( ToolSvc, __defaultToolName )
-
-    # Create a new instance of the tool if it doesn't exist yet:
-    from TrigBunchCrossingTool.TrigBunchCrossingToolConf import \
-         Trig__D3PDBunchCrossingTool
-    __tool = Trig__D3PDBunchCrossingTool( __defaultToolName )
-
-    # Create a default configuration for it:
-    __logger.info( "Set the default values for the D3PDBunchCrossingTool configuration" )
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool

@@ -28,7 +28,7 @@ public:
   ///
   /// @param toolToStoreHistograms pointer to the main monitoring object in which distributions should be bookd
   /// @param histsDirName additional string used to form path in ROOT file where distributions should be saved
-  void bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, std::string histsDirName = "");
+  void bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, const std::string& histsDirName = "");
 
   /// Fills distributions with information provided by the hit.
   void fillHistograms(const AFP_SiRawData& hit);
@@ -43,10 +43,10 @@ public:
 
 protected:
   /// Creates a name suffixed with station and layer numbers.
-  std::string makeHistName (const std::string name) const;
+  std::string makeHistName (const std::string& name) const;
 
   /// Creates a title suffixed with station and layer numbers.
-  std::string makeHistTitle (const std::string title) const;
+  std::string makeHistTitle (const std::string& title) const;
 
   /// ID number of the monitored pixel layer.
   const int m_pixelLayerID;

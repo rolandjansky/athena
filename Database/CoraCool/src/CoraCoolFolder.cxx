@@ -455,14 +455,13 @@ bool CoraCoolFolder::decodeAttrSpec() {
       iofs1=0;
       bool last=false;
       while (!last) {
-        iofs2=spec.find(":",iofs1);
-        iofs3=spec.find(",",iofs2);
+        iofs2=spec.find(':',iofs1);
+        iofs3=spec.find(',',iofs2);
         if (iofs3==std::string::npos) {
           iofs3=spec.size();
           last=true;
         }
-        m_attrvec.push_back(std::pair<std::string,std::string> (
-         spec.substr(iofs1,iofs2-iofs1),spec.substr(iofs2+1,iofs3-iofs2-1)));
+        m_attrvec.emplace_back(spec.substr(iofs1,iofs2-iofs1),spec.substr(iofs2+1,iofs3-iofs2-1));
         if (!last) iofs1=iofs3+1;
       }
       bres=true;

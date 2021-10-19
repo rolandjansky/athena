@@ -227,7 +227,7 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++){
+  for( ; iColl != endColl; ++iColl){
     TRTUncompressedHitCollection  *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<

@@ -146,6 +146,8 @@ public:
 		     xAOD::TrackParticleContainer::const_iterator trackend, void* =0);
 
 
+  typedef std::vector< ElementLink< xAOD::TrackParticleContainer > > TrackParticleLinks_t;
+  void selectTracks( TrackParticleLinks_t tracks, void* =0 );
 
   void correctToBeamline( double& z0,    double& dz0, 
 			  double& d0,    double& dd0, 

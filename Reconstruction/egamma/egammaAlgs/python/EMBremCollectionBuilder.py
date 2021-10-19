@@ -72,8 +72,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         #  TRT_ElectronPidTool
         #
         GSFBuildTRT_ElectronPidTool = None
-        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
-        ) and not InDetFlags.doHighPileup():
+        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doHighPileup():
             GSFBuildTRT_ElectronPidTool = (
                 TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",

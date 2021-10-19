@@ -119,6 +119,9 @@ namespace CP {
         /// This is necessary only when the resolution is very optimistic in the MC such that a large smearing is applied
         bool passedBMVmimicCut(const xAOD::Muon&) const;
 
+	///Returns a sorted vector of chamber indices
+	std::vector<int> getChamberIndicesSorted(const xAOD::Muon& mu) const;
+
         /// Maximum pseudorapidity for the selected muons
         double m_maxEta;
         int m_quality;

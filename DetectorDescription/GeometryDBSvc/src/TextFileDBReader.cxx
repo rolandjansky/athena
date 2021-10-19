@@ -127,7 +127,7 @@ TextFileDBReader::formatKey(const std::string & key) const
   std::string fieldName;
   std::string rowNumber;
   bool foundRowNumber = false;
-  std::string::size_type pos = key.find(":");
+  std::string::size_type pos = key.find(':');
   if (pos != std::string::npos) {
     tableName = key.substr(0,pos);
     foundRowNumber = getRowNumber(tableName,rowNumber);
@@ -165,7 +165,7 @@ TextFileDBReader::formatKey(const std::string & key) const
 bool
 TextFileDBReader::getRowNumber(std::string & key, std::string & rowNumber) const
 {
-  std::string::size_type pos = key.find("#");
+  std::string::size_type pos = key.find('#');
   if (pos != std::string::npos) {
     rowNumber = key.substr(pos+1);
     key = key.substr(0,pos);

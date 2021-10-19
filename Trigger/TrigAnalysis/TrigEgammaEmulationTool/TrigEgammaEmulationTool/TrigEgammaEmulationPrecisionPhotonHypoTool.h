@@ -29,7 +29,9 @@ namespace Trig{
 
       virtual bool emulate( const TrigData &input, bool &pass) const override;
       
-    
+      virtual StatusCode initialize() override;
+
+
     private:
 
       bool decide(   const TrigData &input, const xAOD::Photon *ph ) const;
@@ -39,9 +41,12 @@ namespace Trig{
       Gaudi::Property< std::string >  m_pidName { this, "PidName", "" };
       Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
       Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };
-      Gaudi::Property< float > m_RelEtConeCut { this, "RelEtConeCut", -999. , "Calo isolation cut" };
+      Gaudi::Property< float > m_RelTopoEtConeCut { this, "RelTopoEtConeCut", -999. , "Calo isolation cut" };
       Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; 
       Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
+
+
+     
 
   };
 

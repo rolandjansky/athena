@@ -134,6 +134,8 @@ private:
   /// Run+LBN or timestamp key?
   using KeyType = CondContBase::KeyType;
 
+  typedef std::array<std::vector<key_type>,2> twoKeys_t;
+
 
   /// Information that we maintain about each conditions container.
   class CondContInfo
@@ -162,6 +164,8 @@ private:
   };
 
 
+  twoKeys_t getKeys(const Ring& runLBRing, const Ring& TSRing) const;
+
   /**
    * @brief Do cleaning for a set of containers.
    * @param cis Set of containers to clean.
@@ -172,8 +176,7 @@ private:
    * This will either run cleaning directly, or submit it as a TBB task.
    */
   void scheduleClean (std::vector<CondContInfo*>&& cis,
-                      Ring& ring,
-                      const std::vector<key_type>& slotKeys,
+		      twoKeys_t&& twoKeys,
                       bool allowAsync);
 
 
@@ -183,7 +186,7 @@ private:
    * @param keys Set of IOV keys for recent events.
    */
   void cleanContainers (std::vector<CondContInfo*>&& cis,
-                        std::vector<key_type>&& keys);
+			twoKeys_t&& twoKeys) const;
 
 
   /**
@@ -192,7 +195,7 @@ private:
    * @param keys Set of IOV keys for recent events.
    */
   void cleanContainer (CondContInfo* ci,
-                       const std::vector<key_type>& keys);
+                       const twoKeys_t& keys) const;
 
 
 

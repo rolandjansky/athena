@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -18,10 +18,10 @@ def setRunEgammaOnlyRecoFlags():
     recAlgs.doEFlowJet.set_Value_and_Lock(False)
     recAlgs.doMissingET.set_Value_and_Lock(False)
     recAlgs.doMissingETSig.set_Value_and_Lock(False)
-    recAlgs.doTrigger.set_Value_and_Lock(False)
 
     AODFlags.ThinGeantTruth.set_Value_and_Lock(False)
     AODFlags.egammaTrackSlimmer.set_Value_and_Lock(False)
+    AODFlags.ThinTRTStandaloneTracks.set_Value_and_Lock(False)
     AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)
     AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
 
@@ -30,4 +30,3 @@ def setRunEgammaOnlyRecoFlags():
 
 def setRunEgammaOnlyMergeFlags():
     rec.doTrigger.set_Value_and_Lock(False)
-    recAlgs.doTrigger.set_Value_and_Lock(False)

@@ -120,12 +120,16 @@ void Trk::TrackingGeometry::compactify ATLAS_NOT_THREAD_SAFE(
   const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
   size_t cSurfaces = 0;
   size_t tSurfaces = 0;
-  if (tVolume) tVolume->compactify(cSurfaces, tSurfaces);
+  if (tVolume) {
+    tVolume->compactify(cSurfaces, tSurfaces);
+  }
   msg << MSG::VERBOSE << "  --> set TG ownership of " << cSurfaces << " out of "
       << tSurfaces << std::endl;
   for (auto bLayerIter = m_boundaryLayers.begin();
-       bLayerIter != m_boundaryLayers.end(); ++bLayerIter)
-    bLayerIter->first->surfaceRepresentation().setOwner(Trk::TGOwn);
+       bLayerIter != m_boundaryLayers.end(); ++bLayerIter){
+    const_cast<Trk::Surface&>(bLayerIter->first->surfaceRepresentation())
+      .setOwner(Trk::TGOwn);
+  }
   msg << MSG::VERBOSE << "  --> set TG ownership of " << m_boundaryLayers.size()
       << " boundary layers." << std::endl;
   msg << MSG::VERBOSE << endmsg;

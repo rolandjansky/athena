@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "RD53SimTool.h"
@@ -34,7 +34,7 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
   const InDetDD::PixelModuleDesign* p_design =
     static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
 
-  if (p_design->getReadoutTechnology() != InDetDD::PixelModuleDesign::RD53) {
+  if (p_design->getReadoutTechnology() != InDetDD::PixelReadoutTechnology::RD53) {
     return;
   }
 
@@ -81,8 +81,8 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    int circ = m_pixelCabling->getFE(&diodeID, moduleID);
-    int type = m_pixelCabling->getPixelType(diodeID);
+    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analogu threshold, timing simulation
     double th0 = calibData->getAnalogThreshold((int) moduleHash, circ, type);

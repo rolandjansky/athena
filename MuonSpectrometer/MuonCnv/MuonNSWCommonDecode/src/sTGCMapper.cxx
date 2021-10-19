@@ -24,8 +24,8 @@ Muon::nsw::sTGCMapper::sTGCMapper ()
         const std::pair <uint8_t, uint8_t> l  = Muon::nsw::s_stgc_last_channel.find (v)->second;
         const std::pair <uint8_t, uint8_t> sq = {s_type, q};
         const unsigned int nchan = Muon::nsw::s_stgc_nchan_map.find (sq)->second;
-        unsigned int imin = f.first * Muon::nsw::s_VMM_channels + f.second;
-        unsigned int jmax = l.first * Muon::nsw::s_VMM_channels + l.second;
+        unsigned int imin = f.first * Muon::nsw::VMM_channels + f.second;
+        unsigned int jmax = l.first * Muon::nsw::VMM_channels + l.second;
 
         unsigned int i, j, c;
         for (i = imin, j = jmax, c = nchan; c > 0; ++i, --j, --c)
@@ -34,7 +34,7 @@ Muon::nsw::sTGCMapper::sTGCMapper ()
           else if (q == 0 && l_type == 1 && (j == jmax - 336 || j == jmax - 400)) j -= 32;
 
           unsigned int vmm_chan = l_type == 0 ? i : j;
-          uint32_t id = private_id (s_type, l_type, q, vmm_chan);
+          uint32_t id = private_id (s_type, q, l_type, vmm_chan);
           std::pair <uint32_t, uint16_t> p (id, c);
           m_channel_map.insert (p);
         }

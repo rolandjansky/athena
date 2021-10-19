@@ -23,6 +23,7 @@
 #include "LArRawConditions/LArAutoCorrComplete.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 
 LArPedestalAutoCorrBuilder::LArPedestalAutoCorrBuilder(const std::string& name, ISvcLocator* pSvcLocator) 
@@ -47,15 +48,21 @@ LArPedestalAutoCorrBuilder::~LArPedestalAutoCorrBuilder()
 
 StatusCode LArPedestalAutoCorrBuilder::initialize()
 {
-  StatusCode sc;
- 
-  sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
-    return StatusCode::FAILURE;
+  if (m_groupingType == "SuperCells") {
+    ATH_MSG_INFO("Processing LAr SuperCells");
+    const LArOnline_SuperCellID* onlID;
+    ATH_CHECK(detStore()->retrieve(onlID,"LArOnline_SuperCellID"));
+    m_onlineHelper=onlID; // cast to base-class
+  }
+  else {
+    ATH_MSG_INFO("Processing regular LArCells");
+    const LArOnlineID* onlID;
+    ATH_CHECK(detStore()->retrieve(onlID, "LArOnlineID"));
+    m_onlineHelper=onlID; // cast to base-class
   }
 
-
+  
+  
   if (!m_doPedestal && !m_doAutoCorr) {
     ATH_MSG_ERROR( "Configuration Problem: Neither doPedstal nor doAutoCorr set!" );
     return StatusCode::FAILURE;
@@ -69,8 +76,8 @@ StatusCode LArPedestalAutoCorrBuilder::initialize()
    }
 
  //Container for internal accumulation
- m_accu.setGroupingType(LArConditionsContainerBase::SingleGroup);
- sc=m_accu.initialize(); 
+ m_accu.setGroupingType(m_groupingType == "SuperCells" ? LArConditionsContainerBase::SuperCells : LArConditionsContainerBase::SingleGroup);
+ StatusCode sc=m_accu.initialize(); 
  if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed initialize LArConditionsContainer 'm_accu'" );
     return sc;
@@ -161,6 +168,7 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
 
   if (m_doAutoCorr) { 
     //Book and initialize LArAutoCorrComplete object
+    ATH_MSG_INFO("Creating LArAutoCorrComplete");
     larAutoCorrComplete = std::make_unique<LArAutoCorrComplete>();
     ATH_CHECK( larAutoCorrComplete->setGroupingType(m_groupingType,msg()) );
     ATH_CHECK( larAutoCorrComplete->initialize() );
@@ -168,6 +176,7 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
 
   if (m_doPedestal) {
     //Book and initialize LArPedestalComplete object
+    ATH_MSG_INFO("Creating LArAutoPedestalComplete");
     larPedestalComplete = std::make_unique<LArPedestalComplete>();
     ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
     ATH_CHECK( larPedestalComplete->initialize() );

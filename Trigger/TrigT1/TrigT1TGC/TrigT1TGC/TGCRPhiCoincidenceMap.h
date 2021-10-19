@@ -39,10 +39,6 @@ class TGCRPhiCoincidenceMap
   uint8_t test(int octantId, int moduleId, int subsector, 
                int type, int dr, int dphi) const;// for Run2
 
-  int test_Run3(int octantId, int moduleId, int subsector, 
-                int type, int dr, int dphi) const; //for Run3
-
-
   int   getMapType(int hlwire, int hlstrip) const;
   const std::string& getVersion() const;
   int   getSideId() const;
@@ -52,8 +48,6 @@ class TGCRPhiCoincidenceMap
 
   TGCRPhiCoincidenceMap(TGCArguments*,
                         const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
-			const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey,
-                        const std::string& version,
                         int   sideId=0, int octantId=0);
 
   virtual ~TGCRPhiCoincidenceMap();
@@ -63,7 +57,6 @@ class TGCRPhiCoincidenceMap
   TGCRPhiCoincidenceMap& operator=(const TGCRPhiCoincidenceMap& right);
 
   bool readMap(); // for Run2
-  bool readMap_Run3();// for Run3
 
   const TGCArguments* tgcArgs() const;
 
@@ -71,7 +64,6 @@ class TGCRPhiCoincidenceMap
   TGCRPhiCoincidenceMap() = delete;
 
  protected:
-  bool checkVersion();
   int PHIPOS(int iphi, int type) const;
   int SUBSECTORADD(int ssid, int modid, int phimod2, int type) const;
 
@@ -94,8 +86,6 @@ class TGCRPhiCoincidenceMap
 
  private:
   std::unordered_map<uint32_t, uint8_t> m_ptmap;
-  std::map<int, std::map<int, std::map<int, char> > > m_mapDB_Run3;//for Run3 <RoI(&type),<R,<Phi,pT(char)> > >
-
 
 
   int m_numberOfDR,m_numberOfDPhi;
@@ -107,9 +97,6 @@ class TGCRPhiCoincidenceMap
   TGCArguments* m_tgcArgs;
 
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
-  const SG::ReadCondHandleKey<TGCTriggerLUTs>& m_readLUTsCondKey;
-
-
 };
 
 inline 

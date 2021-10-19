@@ -161,6 +161,13 @@ def getHltEventLoopMgr(name='HltEventLoopMgr'):
                               title='Time of clearStore() calls;Time [ms];Calls',
                               xbins=200, xmin=0, xmax=200, opt='kCanRebin')
 
+   svc.MonTool.defineHistogram('PopSchedulerTime', path='EXPERT', type='TH1F',
+                              title='Time spent waiting for a finished event from the Scheduler;Time [ms];drainScheduler() calls',
+                              xbins=250, xmin=0, xmax=250)
+   svc.MonTool.defineHistogram('PopSchedulerNumEvt', path='EXPERT', type='TH1F',
+                              title='Number of events popped out of scheduler at the same time;Time [ms];drainScheduler() calls',
+                              xbins=50, xmin=0, xmax=50)
+
    from TrigSteerMonitor.TrigSteerMonitorConfig import getTrigErrorMonTool
    svc.TrigErrorMonTool = getTrigErrorMonTool()
 

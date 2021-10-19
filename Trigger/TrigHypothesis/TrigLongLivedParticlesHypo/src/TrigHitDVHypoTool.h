@@ -32,29 +32,31 @@ public:
    virtual ~TrigHitDVHypoTool();
    virtual StatusCode initialize() override;
    
-   struct TrackInfo {
+   struct HitDVHypoInfo {
       TrigCompositeUtils::Decision*       decision;
+      bool                                isSPOverflow;
       float                               averageMu;
-      const xAOD::JetContainer*           jetsContainer;
-      const xAOD::TrigCompositeContainer* trksContainer;
-      const xAOD::TrigCompositeContainer* spsContainer;
-      xAOD::TrigCompositeContainer*       dvContainer;
+      const xAOD::TrigComposite*          hitDV;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionsIDs;
    };
    
    /**
     * @brief decides upon a collection of tracks
     **/
-   StatusCode decide( TrackInfo& input )  const;
+   StatusCode decide( std::vector<HitDVHypoInfo>& )  const;
 
 private:
+
    HLT::Identifier m_decisionId;
    Gaudi::Property< std::vector<float> >  m_cutJetPtGeV { this, "cutJetPtGeV", { float(20.0) }, "Jet pT requirement in GeV" };
    Gaudi::Property< std::vector<float> >  m_cutJetEta   { this, "cutJetEta",   { float(2.5) },  "Jet Eta requirement" };
    Gaudi::Property< std::vector<bool>  >  m_doSPseed    { this, "doSPseed",    { true },  "Switch to do SP seeding" };
 
-   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
-   
+   //
+   StatusCode inclusiveSelection(std::vector<HitDVHypoInfo>& ) const;
+   StatusCode multiplicitySelection(std::vector<HitDVHypoInfo>& ) const;
+   bool decideOnSingleObject( HitDVHypoInfo&, size_t, bool ) const;
+
    //
    float      deltaR(float, float, float, float) const;
    int        getSPLayer(int, float) const;

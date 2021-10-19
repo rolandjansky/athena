@@ -63,8 +63,6 @@ namespace NSWL1 {
         m_pad_cache_eventNumber(-1),
         m_pad_cache_status(CLEARED),
         m_rndmEngineName(""),
-        m_sTgcDigitContainer(""),
-        m_sTgcSdoContainer(""),
         m_VMMTimeOverThreshold(0.),
         m_VMMShapingTime(0.),
         m_VMMDeadTime(0.),
@@ -74,8 +72,6 @@ namespace NSWL1 {
     {
         declareInterface<NSWL1::IPadTdsTool>(this);
         declareProperty("RndmEngineName", m_rndmEngineName = "PadTdsOfflineTool", "the name of the random engine");
-        declareProperty("sTGC_DigitContainerName", m_sTgcDigitContainer = "sTGC_DIGITS", "the name of the sTGC digit container");
-        declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
         declareProperty("VMM_TimeOverThreshold", m_VMMTimeOverThreshold = 0., "the time to form a digital signal");
         declareProperty("VMM_ShapingTime", m_VMMShapingTime = 0., "the time from the leading edge of the signal and its peak");
         declareProperty("VMM_DeadTime", m_VMMDeadTime = 50., "the dead time of the VMM chip to produce another signal on the same channel");
@@ -102,18 +98,19 @@ namespace NSWL1 {
     }
     //------------------------------------------------------------------------------
     StatusCode PadTdsOfflineTool::initialize() {
-        ATH_MSG_INFO( "initializing " << name() );
+        ATH_MSG_DEBUG( "initializing " << name() );
 
-        ATH_MSG_INFO( name() << " configuration:");
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_triggerCaptureWindow.name() << m_triggerCaptureWindow.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_timeJitter.name() << m_timeJitter.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMTimeOverThreshold.name() << m_VMMTimeOverThreshold.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMShapingTime.name() << m_VMMShapingTime.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMDeadTime.name() << m_VMMDeadTime.value());
-        ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")<< std::setfill(' ') << std::setiosflags(std::ios::right) );
+        ATH_MSG_DEBUG( name() << " configuration:");
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_triggerCaptureWindow.name() << m_triggerCaptureWindow.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_timeJitter.name() << m_timeJitter.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMTimeOverThreshold.name() << m_VMMTimeOverThreshold.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMShapingTime.name() << m_VMMShapingTime.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMDeadTime.name() << m_VMMDeadTime.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")<< std::setfill(' ') << std::setiosflags(std::ios::right) );
+
+	ATH_CHECK(m_sTgcDigitContainer.initialize());
+	ATH_CHECK(m_sTgcSdoContainer.initialize());
 
         const IInterface* parent = this->parent();
         const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -277,10 +274,16 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     PadTdsOfflineTool::cStatus PadTdsOfflineTool::fill_pad_cache() {
         clear_cache();
-        const MuonSimDataCollection* sdo_container = 0;
-        const sTgcDigitContainer* digit_container = 0;
-        retrieve_sim_data(sdo_container);
-        if(!retrieve_digits(digit_container)) return FILL_ERROR;
+
+	SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
+	if(!sdo_container.isValid()){
+	  ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
+	}
+	SG::ReadHandle<sTgcDigitContainer> digit_container(m_sTgcDigitContainer);
+	if(!digit_container.isValid()){
+	  ATH_MSG_ERROR("could not retrieve the sTGC Digit container: cannot return the STRIP hits");
+	  return FILL_ERROR;
+	}
 
         sTgcDigitContainer::const_iterator it   = digit_container->begin();
         sTgcDigitContainer::const_iterator it_e = digit_container->end();
@@ -463,37 +466,11 @@ namespace NSWL1 {
         return success;
     }
     //------------------------------------------------------------------------------
-    bool PadTdsOfflineTool::retrieve_sim_data(const MuonSimDataCollection* &s)
-    {
-        bool success=false;
-        StatusCode sc = evtStore()->retrieve(s, m_sTgcSdoContainer.value().c_str());
-        if ( !sc.isSuccess() ) {
-            ATH_MSG_WARNING("could not retrieve the sTGC SDO container:"
-                            " it will not be possible to associate the MC truth");
-        } else {
-            success=true;
-        }
-        return success;
-    }
-    //------------------------------------------------------------------------------
-    bool PadTdsOfflineTool::retrieve_digits(const sTgcDigitContainer* &d)
-    {
-        bool success=false;
-        StatusCode sc = evtStore()->retrieve(d, m_sTgcDigitContainer.value().c_str());
-        if ( !sc.isSuccess() ) {
-            ATH_MSG_ERROR("could not retrieve the sTGC Digit container:"
-                        " cannot return the PAD hits");
-        } else {
-            success=true;
-        }
-        return success;
-    }
-    //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits)
     {
         bool success=false;
-        const MuonSimDataCollection* sdo_container = NULL;
-        if(evtStore()->retrieve(sdo_container, m_sTgcSdoContainer.value().c_str()).isSuccess()){
+	SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
+	if(sdo_container.isValid()){
             const MuonSimData pad_sdo = (sdo_container->find(pad_id))->second;
             pad_sdo.deposits(deposits);
             success = true;

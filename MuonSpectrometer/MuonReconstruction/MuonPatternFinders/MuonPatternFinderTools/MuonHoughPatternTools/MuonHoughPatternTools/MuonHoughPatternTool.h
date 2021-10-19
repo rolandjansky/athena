@@ -51,7 +51,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   MuonPrdPatternCollection* getCurvedMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const ;
 
   /** reset association flag of hits in m_event */
-  void resetAssociation(const MuonHoughHitContainer* event) const;
+  static void resetAssociation(const MuonHoughHitContainer* event) ;
 
   /** reduces Detector sizes for Hough Histograms to find patterns from muons from the Interaction Point (default on) */
   void useIPMuons();
@@ -77,7 +77,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   void analyseTrack(int id_number,const MuonHoughHitContainer* event_to_analyse,MuonHoughTransformSteering* houghtransform) const; 
 
   /** returns if there are hits left */
-  bool hitsLeft(const MuonHoughHitContainer* event)const;
+  static bool hitsLeft(const MuonHoughHitContainer* event);
 
   /** returns number of hits left (unused) */
   int numberOfHits(const MuonHoughHitContainer* event)const;
@@ -86,7 +86,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   bool hitInHoughPattern(MuonHoughHit* hit,const MuonHoughPatternContainer &houghpattern)const; 
 
   /** returns a hitcontainer with hits not yet used in pattern */
-  MuonHoughHitContainer* hitsNotInPattern(const MuonHoughHitContainer* event, int id_number)const;
+  static MuonHoughHitContainer* hitsNotInPattern(const MuonHoughHitContainer* event, int id_number);
 
   /** rescales hits per iteration to reduce number of patterns when already some have been found */
   void weightRescaling(const MuonHoughHitContainer* event, int id_number, int level)const;

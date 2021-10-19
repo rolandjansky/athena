@@ -1,14 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/WiredORdata.h"
+
+#include "AthenaKernel/errorcheck.h"
 
 #include <iomanip>
 
 using namespace RPC_CondCabling;
 
-WiredORdata::WiredORdata(DBline& data, int type, IMessageSvc* msgSvc) : BaseObject{Logic, "Wired OR Data", msgSvc} {
+WiredORdata::WiredORdata(DBline& data, int type) : BaseObject{Logic, "Wired OR Data"} {
     reset_data();
     if (!(data("station") >> m_station)) return;
 
@@ -20,7 +22,7 @@ WiredORdata::WiredORdata(DBline& data, int type, IMessageSvc* msgSvc) : BaseObje
         parse_params.sectorType = type;
         parse_params.station = m_station;
         parse_params.number = -1;
-        if (get_data(data, parse_params)) { m_wor.emplace_back(parse_params, msgSvc); }
+        if (get_data(data, parse_params)) { m_wor.emplace_back(parse_params); }
         data++;
     } while (!data("}"));
 }
@@ -29,13 +31,12 @@ void WiredORdata::reset_data() { m_fail = true; }
 
 bool WiredORdata::confirm_boundary(WiredOR::parseParams& parse_params) const {
     if (parse_params.start > parse_params.stop) {
-        __osstream display;
-
-        display << "WORdata error in configuration for Sector Type " << parse_params.sectorType << ", station " << parse_params.station
-                << ", WOR number " << parse_params.number << std::endl
-                << " start RPC chamber (" << parse_params.start << ") is greater than "
-                << "stop RPC chamber (" << parse_params.stop << ")" << std::endl;
-        display_error(display);
+        std::ostringstream display;
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredORdata")
+             << "WORdata error in configuration for Sector Type " << parse_params.sectorType << ", station " << parse_params.station
+             << ", WOR number " << parse_params.number << std::endl
+             << " start RPC chamber (" << parse_params.start << ") is greater than "
+             << "stop RPC chamber (" << parse_params.stop << ")";
         return false;
     }
     return true;
@@ -52,7 +53,7 @@ bool WiredORdata::get_data(DBline& data, WiredOR::parseParams& parse_params) {
 }
 
 std::unique_ptr<WiredOR> WiredORdata::give_wor(void) {
-    if (m_wor.size()) {
+    if (!m_wor.empty()) {
         std::unique_ptr<WiredOR> Wor = std::make_unique<WiredOR>(m_wor.front());
         m_wor.pop_front();
         return Wor;

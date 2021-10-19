@@ -58,7 +58,7 @@ def fastCaloMenuSequence(name, doRinger=True, is_probe_leg=False):
 def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs=caloFSRoI, outputName="CaloCellsFS"):
     """ Produce the full scan cell collection """
     if not RoIs:
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         RoIs = mapThresholdToL1RoICollection("FSNOSEED")
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
@@ -99,3 +99,17 @@ def LCCaloClusterRecoSequence(
             OutputClusters = outputName,
             OutputCellLinks = outputName+"_cellLinks")
     return parOR(name+"RecoSequence", [em_sequence, alg]), str(alg.OutputClusters)
+
+def caloTowerHIRecoSequence(
+        flags, name="HLTHICaloTowerMakerFS", RoIs=caloFSRoI,
+        outputName="HLT_HICaloTowerFS"):
+    """ Create the EM-level fullscan clusters for heavy-ion"""
+    cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=RoIs)
+    from TrigCaloRec.TrigCaloRecConfig import TrigCaloTowerMaker_hijet
+    alg = TrigCaloTowerMaker_hijet(
+            name,
+            )
+    alg.RoIs=RoIs
+    alg.Cells=cells_name
+    alg.CaloTowers=outputName
+    return parOR(name+"RecoSequence", [cell_sequence, alg]), str(alg.CaloTowers), str(cells_name)

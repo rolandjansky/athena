@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -22,5 +22,5 @@ def TimeBurnerHypoToolGen(chainDict):
     return DummyHypo(chainDict['chainName'])
 
 
-def PassthroughComboHypoCfg(name):
-    return CompFactory.PassthroughComboHypo(name)
+def EndOfEventROIConfirmerAlgCfg(name):
+    return CompFactory.EndOfEventROIConfirmerAlg(name)

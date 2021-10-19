@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
   SG::ThinningHandle<xAOD::TruthVertexContainer> inTruthVerts
     (m_truthVertexName, ctx);
 
-  const xAOD::TruthParticleContainer* inHardParts = 0;
+  const xAOD::TruthParticleContainer* inHardParts = nullptr;
   if( evtStore()->retrieve(inHardParts, m_hardParticleName).isFailure() ){
     ATH_MSG_ERROR("No TruthParticleContainer found with name "
                   <<m_hardParticleName);
@@ -263,7 +263,7 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
     }
 
     // Delta(R) matches to hard truth leptons/photons
-    if( pLepGam.size() > 0 && (*pItr)->pt() > m_isolPtCut ){
+    if( !pLepGam.empty() && (*pItr)->pt() > m_isolPtCut ){
       TLorentzVector pp4 = (*pItr)->p4();
       for(unsigned int lep=0; lep<pLepGam.size(); ++lep){
         double r = pp4.DeltaR( pLepGam[lep] );
@@ -282,9 +282,9 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
   // Add particles that are constituents of selected jets using barcodes.
   // Is index() for JetConstituentVector or TruthParticleContainer or??
 
-  if( m_jetName != "" ){
+  if( !m_jetName.empty() ){
 
-    const xAOD::JetContainer* inJets = 0;
+    const xAOD::JetContainer* inJets = nullptr;
     if( evtStore()->retrieve(inJets, m_jetName).isFailure() ){
       ATH_MSG_ERROR("No JetContainer found with name " <<m_jetName);
       return StatusCode::FAILURE;
@@ -389,7 +389,7 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
 
 int DerivationFramework::HardTruthThinning::getDescendants(
               const xAOD::TruthParticle* p,
-              std::vector<const xAOD::TruthParticle*>& descendants ) const {
+              std::vector<const xAOD::TruthParticle*>& descendants ) {
   descendants.clear();
   if( ! (p->hasDecayVtx()) ) return 0;
   const xAOD::TruthVertex* dvtx = p->decayVtx();
@@ -440,7 +440,7 @@ int DerivationFramework::HardTruthThinning::getDescendants(
 // barcode>100000 are omitted.
 
 void DerivationFramework::HardTruthThinning::printxAODTruth(long long evnum,
-                          const xAOD::TruthParticleContainer* truths) const{
+                          const xAOD::TruthParticleContainer* truths) {
 
   xAOD::TruthParticleContainer::const_iterator tpItr = truths->begin();
   xAOD::TruthParticleContainer::const_iterator tpItrE = truths->end();

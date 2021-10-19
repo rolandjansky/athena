@@ -601,7 +601,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       //   set version 15, BCN -7, which is unlikely:
       L1Topo::Header header(0xf, 0, 0, 0, 0, 1, 0x7);
       int i_fpga=-1;
-      for (auto word : cDataWords){
+      for (const uint32_t word : cDataWords){
 	switch (L1Topo::blockType(word)){
 	case L1Topo::BlockTypes::HEADER:
 	  {
@@ -765,7 +765,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       m_h_l1topo_1d_Errors->Fill(NO_ROI);
       topo_error|=(1<<NO_ROI);
     }
-    for (auto word : cDataWords) {
+    for (const uint32_t word : cDataWords) {
       switch (L1Topo::blockType(word)) {
       case L1Topo::BlockTypes::L1TOPO_TOB:
       {

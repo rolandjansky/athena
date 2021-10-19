@@ -46,6 +46,8 @@ class AnnulusBounds final: public SurfaceBounds
 
 public:
   /** @enum BoundValues - for readability */
+  /** NB bv_R is the radius of the wafer centre which may different from the assumed surface centre*/
+  /** e.g. if a single wafer/sensor/mdodule has been split into multiple surfaces*/
   enum BoundValues
   {
     bv_minR = 0,
@@ -65,9 +67,9 @@ public:
   AnnulusBounds(const AnnulusBounds& annbo) = default;
   /**Assignment operator*/
   AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
- /** Move constructor */
+  /** Move constructor */
   AnnulusBounds(AnnulusBounds&& annbo) = default;
- /** Move assignment */
+  /** Move assignment */
   AnnulusBounds& operator=(AnnulusBounds&& sbo) = default;
 
   /**Destructor*/
@@ -88,14 +90,30 @@ public:
   /**This method returns the bigger radius*/
   double maxR() const;
 
-  /**This method returns the radius of a tilt*/
-  double R() const;
+  /**This method returns the R-parameter from design of
+    sensors, which is the radius that the original centre of a silicon
+     wafer ends up at. It is therefore common to all surfaces on the same wafer
+     and can be different from the assume surface centre*/
+  double waferCentreR() const;
 
   /**This method returns the opening angle*/
   double phi() const;
 
   /**This method returns the tilt angle*/
   double phiS() const;
+
+  /**
+   * @brief Returns the four corners of the bounds
+   * 
+   * Returns the module corners starting from the upper right (max R, pos locX) and proceding clock-wise, 
+   * i.e. (max R; pos locX), (min R; pos locX), (min R; neg loc X), (max R; neg locX).
+   * 
+   * This method is only intended for debug purposes. If used for production code, this should be changed to a
+   * return-by-reference. This will necessitate the vector being stored in the class.
+   * 
+   * @return array of pairs of doubles giving the (R, x) of each corner clockwise from upper-right
+   * */
+  std::array<std::pair<double, double>, 4> corners() const;
 
   /**This method returns the maximal extension on the local plane*/
   virtual double r() const override;
@@ -155,6 +173,18 @@ public:
   /** Output Method for std::ostream */
   virtual std::ostream& dump(std::ostream& sl) const override;
 
+  /**
+   * @brief Returns the gradient and y-intercept of the left and right module edges.
+   * 
+   * This method is only intended for debug purposes. If used for production code, this should be changed to a
+   * return-by-reference. This will necessitate the vector being stored in the class.
+   * 
+   * @return Vector with the gradients (m) and intercepts (c) of the left (_L) and right (_R) edges. [m_L, m_R, c_L, c_R] 
+   */
+  std::array<TDD_real_t,4> getEdgeLines() const;
+
+  const std::vector<TDD_real_t>& getBoundsValues();
+
 private:
   //      bool m_forceCovEllipse;
 
@@ -179,7 +209,16 @@ private:
                        std::vector<TDD_real_t> sL,
                        std::vector<TDD_real_t> sR) ;
 
-  /** Circle and line intersection **/
+  /** 
+   * @brief Circle and line intersection. \n 
+   * 
+   * Circle is of radius R and centred at the origin. Line takes the form y = kx + d
+   * 
+   * @param R Radius of the circle
+   * @param k Gradient of the line
+   * @param d Intercept of the line
+   * @return Co-ordinates of the intercept with highest y
+   **/
   static std::vector<double> circleLineIntersection(double R, double k, double d) ;
 
   std::vector<TDD_real_t> m_boundValues;

@@ -24,7 +24,7 @@ public:
   std::set<const InDetDD::SiDetectorElement*> touchedelements;
 
   PRDCommonFlags::InDetPartsFlags indetpartsflags;
-  bool excludeisolatedclusters;
+  bool excludeisolatedclusters = false;
 };
 
 //____________________________________________________________________

@@ -72,7 +72,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_Clu
       (*itColl)->m_detEl = de;
     }
 
-    StatusCode sc= trans->addCollection(dcColl, collHash);
+    StatusCode sc= trans ? trans->addCollection(dcColl, collHash): StatusCode::FAILURE;
     if (sc.isSuccess()){
       //         MSG_VERBOSE("SCT_ClusterContainer successfully added to Container !");
     } else {

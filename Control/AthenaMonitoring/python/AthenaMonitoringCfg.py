@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from .AthenaMonitoringAODRecoCfg import AthenaMonitoringAODRecoCfg
 
 def AthenaMonitoringCfg(flags):
     import logging
@@ -10,26 +11,7 @@ def AthenaMonitoringCfg(flags):
     error = local_logger.error
     result = ComponentAccumulator()
 
-    if flags.DQ.Environment == 'AOD':
-        info('Scheduling rebuild of standard jets')
-        from JetRecConfig.JetRecConfig import JetRecCfg
-        from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo
-        result.merge(JetRecCfg(flags, AntiKt4EMTopo))
-        result.merge(JetRecCfg(flags, AntiKt4LCTopo))
-        result.merge(JetRecCfg(flags, AntiKt4EMPFlow))
-        info('Scheduling b-tagging of rebuilt jets')
-        from BTagging.BTagRun3Config import BTagRecoSplitCfg
-        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMTopo']))
-        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMPFlow']))
-        info('Scheduling rebuild of standard MET')
-        from METReconstruction.METAssociatorCfg import METAssociatorCfg
-        result.merge(METAssociatorCfg(flags, 'AntiKt4EMTopo'))
-        result.merge(METAssociatorCfg(flags, 'AntiKt4LCTopo'))
-        result.merge(METAssociatorCfg(flags, 'AntiKt4EMPFlow'))
-        from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
-        result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
-        from METReconstruction.METCalo_Cfg import METCalo_Cfg
-        result.merge(METCalo_Cfg(flags))
+    result.merge(AthenaMonitoringAODRecoCfg(flags))
 
     if flags.DQ.Steering.doPixelMon:
         info('Set up Pixel monitoring')
@@ -47,9 +29,14 @@ def AthenaMonitoringCfg(flags):
         result.merge(TRTMonitoringRun3Cfg(flags))
     
     if flags.DQ.Steering.doInDetMon:
-        info('Set up InDet Global monitoring')
-        from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
-        result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
+        if flags.DQ.Steering.InDet.doGlobalMon:
+            info('Set up InDet Global monitoring')
+            from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
+            result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
+        if flags.DQ.Steering.InDet.doAlignMon:  
+            info('Set up Alignment monitoring')
+            from InDetAlignmentMonitoringRun3.InDetAlignmentMonitoringRun3Config import InDetAlignmentMonitoringRun3Config
+            result.merge(InDetAlignmentMonitoringRun3Config(flags))
 
     if flags.DQ.Steering.doLArMon:
         info('Set up LAr monitoring')
@@ -90,11 +77,23 @@ def AthenaMonitoringCfg(flags):
         info('Set up Jet monitoring')
         from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
         result.merge(standardJetMonitoring(flags))
+        
+    if flags.DQ.Steering.doJetInputsMon:
+        info('Set up Jet Inputs monitoring')
+        from JetInputsMonitoring.ClusterMonitorAlgorithm import ClusterMonitoringConfig
+        result.merge(ClusterMonitoringConfig(flags))
+        from JetInputsMonitoring.PFOMonitorAlgorithm import PFOMonitoringConfig
+        result.merge(PFOMonitoringConfig(flags))
 
     if flags.DQ.Steering.doMissingEtMon:
-        info("Set up MET monitoring")
+        info('Set up MET monitoring')
         from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
         result.merge(METMonitoringConfig(flags))
+
+    if flags.DQ.Steering.doDataFlowMon:
+        info('Set up Data Flow monitoring')
+        from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
+        result.merge(DQTDataFlowMonAlgConfig(flags))
 
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
@@ -116,6 +115,11 @@ def AthenaMonitoringCfg(flags):
         from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
         result.merge(LVL1CaloMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doLVL1InterfacesMon:
+        info('Set up LVL1Interfaces monitoring')
+        from TrigT1Monitoring.LVL1InterfacesMonitoringCfg import LVL1InterfacesMonitoringCfg
+        result.merge(LVL1InterfacesMonitoringCfg(flags))
+
     # Check for potentially duplicated histogram definitions
     definedhists = {}
     for algo in result.getEventAlgos():
@@ -124,7 +128,7 @@ def AthenaMonitoringCfg(flags):
             for t in algo.GMTools:
                 for h in t.Histograms:
                     ho = json.loads(h)
-                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    fullpath = os.path.join(t.HistPath, ho['path'], ho['alias']) + ':' + ho['convention']
                     if fullpath in definedhists:
                         previous = definedhists[fullpath]
                         error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')

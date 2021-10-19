@@ -89,6 +89,7 @@
 #- Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
+- Reconstruction/Jet/JetInputsMonitoring
 + Reconstruction/Jet/JetReclustering
 - Reconstruction/Jet/JetRec.+
 - Reconstruction/Jet/JetSimTools
@@ -210,6 +211,12 @@
 + Event/EventPTCnv
 + DetectorDescription/Identifier
 + DetectorDescription/GeoModel/GeoModelInterfaces
+
+#
+### Onnxruntime Service
+#
+
++ Control/AthOnnxruntimeService
 
 # Don't build anything else:
 - .*

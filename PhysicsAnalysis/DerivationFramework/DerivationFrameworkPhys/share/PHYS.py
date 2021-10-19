@@ -14,6 +14,7 @@ nanolog = Logging.logging.getLogger('PHYS')
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkPhys import PhysCommon
+from DerivationFrameworkPhys import PhysCommonTrigger
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkJetEtMiss import METCommon
 from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg
@@ -131,7 +132,8 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 PHYSSlimmingHelper = SlimmingHelper("PHYSSlimmingHelper")
 
-PHYSSlimmingHelper.SmartCollections = ["Electrons",
+PHYSSlimmingHelper.SmartCollections = ["EventInfo",
+                                       "Electrons",
                                        "Photons",
                                        "Muons",
                                        "PrimaryVertices",
@@ -147,7 +149,6 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
-                                       #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -202,9 +203,8 @@ if DerivationFrameworkIsMonteCarlo:
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
-   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm','TruthPileupParticles','InTimeAntiKt4TruthJets','OutOfTimeAntiKt4TruthJets']
 
-PHYSSlimmingHelper.AllVariables += ['EventInfo']
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
@@ -215,11 +215,13 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z",
-                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights"]
+                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.numberOfTRTHits.numberOfTRTOutliers",
+                                      "EventInfo.hardScatterVertexLink.timeStampNSOffset",
+                                      "TauJets.chargedPFOLinks.neutralPFOLinks.pi0PFOLinks.dRmax.etOverPtLeadTrk.etaTauEnergyScale.ptTauEnergyScale"]
 
 # Add trigger matching
-PhysCommon.PhysCommon_trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
-PhysCommon.PhysCommon_trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
+PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+PhysCommonTrigger.trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)

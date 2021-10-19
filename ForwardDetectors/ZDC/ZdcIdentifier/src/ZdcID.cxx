@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/getMessageSvc.h"
@@ -13,7 +13,7 @@
 
 //______________________________________________________
 ZdcID::ZdcID(void) {
-  m_dict = 0;
+  m_dict = nullptr;
 } 
 //______________________________________________________
 ZdcID::~ZdcID(void){

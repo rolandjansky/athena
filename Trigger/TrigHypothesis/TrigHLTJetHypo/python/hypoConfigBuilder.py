@@ -344,6 +344,7 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
     toolclass, name =  toolfactory('hypo_tool')
     
     startLabelIndex, endLabelIndex = getLabelIndices(chain_dict)
+    
     args = {'name': chain_dict['chainName'],
             # for reporting passing jets:
             'visit_debug': visit_debug,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_PUNCHTHROUGHTOOLS_SRC_PUNCHTHROUGHTOOL_H
@@ -14,6 +14,8 @@
 #include "BarcodeEvent/Barcode.h"
 #include "BarcodeEvent/PhysicsProcessCode.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+
+#include "ISF_Event/ISFParticleVector.h"
 
 #include "AtlasHepMC/GenEvent_fwd.h"
 
@@ -61,7 +63,7 @@ namespace ISF {
     /** AlgTool finalize method */
     virtual StatusCode finalize  ();
     /** interface function: fill a vector with the punch-through particles */
-    const ISF::ISFParticleContainer* computePunchThroughParticles(const ISF::ISFParticle &isfp) const;
+    const ISF::ISFParticleVector* computePunchThroughParticles(const ISF::ISFParticle &isfp) const;
 
   private:
     /*---------------------------------------------------------------------
@@ -107,7 +109,7 @@ namespace ISF {
      *  Private members
      *---------------------------------------------------------------------*/
 
-    /** initial particle properties */
+    /** initial particle properties */  //FIXME These should not be a member variables.
     mutable const ISF::ISFParticle*      m_initPs{nullptr}; //!< the incoming particle
     mutable double                       m_initEnergy{0.};  //!< the incoming particle's energy
     mutable double                       m_initEta{0.};     //!< the incoming particle's eta
@@ -121,10 +123,10 @@ namespace ISF {
     double                               m_z2{0.};
 
     /** the returned vector of ISFParticles */
-    mutable ISF::ISFParticleContainer  *m_isfpCont{nullptr};
+    mutable ISF::ISFParticleVector  *m_isfpCont{nullptr}; //FIXME This should not be a member variable.
 
     /** parent event */
-    mutable HepMC::GenEvent*            m_parentGenEvt{nullptr};    //!< all newly created particles/vertices will have this common parent
+    mutable HepMC::GenEvent*            m_parentGenEvt{nullptr};    //!< all newly created particles/vertices will have this common parent //FIXME This should not be a member variable.
 
     /** ParticleDataTable needed to get connection pdg_code <-> charge */
     const HepPDT::ParticleDataTable*    m_particleDataTable{nullptr};

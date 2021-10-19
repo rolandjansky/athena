@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnhancedBiasWeighter includes
@@ -64,7 +64,7 @@ StatusCode EnhancedBiasWeighter::initialize()
 
     } // end isData
 
-    if (m_useBunchCrossingTool) ATH_CHECK( m_bunchCrossingKey.initialize() );
+    if (m_useBunchCrossingData) ATH_CHECK( m_bunchCrossingKey.initialize() );
 
   } else {
     ATH_MSG_INFO ("calculateWeightingData is FALSE. This job must be running over an EnhancedBias TRIG1 dAOD which has already been decorated with weighting data.");
@@ -782,7 +782,7 @@ StatusCode EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eve
 {
   if (m_calculateWeightingData) {
 
-    if (!m_useBunchCrossingTool) return StatusCode::SUCCESS;
+    if (!m_useBunchCrossingData) return StatusCode::SUCCESS;
 
     const EventContext& context = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);

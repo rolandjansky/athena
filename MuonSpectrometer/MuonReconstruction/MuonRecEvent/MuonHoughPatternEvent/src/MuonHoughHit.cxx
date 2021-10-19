@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughHit.h"
@@ -118,7 +118,7 @@ double MuonHoughHit::calcMagneticTrackRatio()const
   // for formulas see muonhoughmathutils, only here for cpu improvements
   double magnetic_trk_ratio = 0.;
 
-  if (m_barrel == true) {
+  if (m_barrel) {
     
     // Barrel hypothesis
 

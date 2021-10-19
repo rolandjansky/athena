@@ -20,7 +20,6 @@
 // Message Stream Member
 #include "AthenaKernel/MsgStreamMember.h"
 
-using namespace InDetDD;
 
 class StoreGateSvc;
 
@@ -53,24 +52,24 @@ public:
     //
 
     /** access to individual elements : via Identifier */
-    virtual HGTD_DetectorElement * getDetectorElement(const Identifier &id) const;
+    virtual InDetDD::HGTD_DetectorElement * getDetectorElement(const Identifier &id) const;
 
     /** access to individual elements : via IdentifierHash */
-    virtual HGTD_DetectorElement * getDetectorElement(const IdentifierHash &idHash) const;
+    virtual InDetDD::HGTD_DetectorElement * getDetectorElement(const IdentifierHash &idHash) const;
 
     /** access to individual elements : via element identification */
-    HGTD_DetectorElement * getDetectorElement(int endcap,
-                                              int layer,
-                                              int phi_module,
-                                              int eta_module) const;
+    InDetDD::HGTD_DetectorElement * getDetectorElement(int endcap,
+                                                       int layer,
+                                                       int phi_module,
+                                                       int eta_module) const;
 
     /** access to whole collection via Iterators */
-    virtual const HGTD_DetectorElementCollection * getDetectorElementCollection() const;
-    virtual HGTD_DetectorElementCollection::const_iterator getDetectorElementBegin() const;
-    virtual HGTD_DetectorElementCollection::const_iterator getDetectorElementEnd() const;
+    virtual const InDetDD::HGTD_DetectorElementCollection * getDetectorElementCollection() const;
+    virtual InDetDD::HGTD_DetectorElementCollection::const_iterator getDetectorElementBegin() const;
+    virtual InDetDD::HGTD_DetectorElementCollection::const_iterator getDetectorElementEnd() const;
 
     /** Add elememts */
-    virtual void addDetectorElement(HGTD_DetectorElement * element);
+    virtual void addDetectorElement(InDetDD::HGTD_DetectorElement * element);
 
     /** Invalidate cache for all detector elements */
     virtual void invalidateAll() const;
@@ -79,7 +78,7 @@ public:
     virtual void updateAll() const;
 
     /** Set SiCommonItems */
-    void setCommonItems(std::unique_ptr<const SiCommonItems>&& commonItems);
+    void setCommonItems(std::unique_ptr<const InDetDD::SiCommonItems>&& commonItems);
 
     /** Declaring the Message method for further use */
     MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
@@ -97,10 +96,10 @@ private:
 
     // Private member data
     std::vector<PVLink>              m_volume;
-    HGTD_DetectorElementCollection   m_elementCollection;
+    InDetDD::HGTD_DetectorElementCollection   m_elementCollection;
     const HGTD_ID*                   m_idHelper;
 
-    std::unique_ptr<const SiCommonItems> m_commonItems;
+    std::unique_ptr<const InDetDD::SiCommonItems> m_commonItems;
 
     //Declaring private message stream member.
     mutable Athena::MsgStreamMember  m_msg;

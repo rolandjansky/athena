@@ -1,5 +1,17 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+def getStreamEVNT_TR_ItemList(ConfigFlags):
+    #Add to item list
+    ItemList = [
+        "IOVMetaDataContainer#*",
+        "EventInfo#*"
+    ]
+    if ConfigFlags.Sim.CavernBG in ['Write', 'WriteWorld']:
+        ItemList += ["TrackRecordCollection#NeutronBG"]
+    else:
+        ItemList += ["TrackRecordCollection#CosmicRecord"]
+    return ItemList
+
 
 def getStreamHITS_ItemList(ConfigFlags):
     #Add to item list
@@ -19,7 +31,7 @@ def getStreamHITS_ItemList(ConfigFlags):
                  "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
     if ConfigFlags.Detector.EnablePixel or  ConfigFlags.Detector.EnableSCT or \
-       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip:
+       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip or ConfigFlags.Detector.EnablePLR:
         ItemList += ["SiHitCollection#*"]
 
     if ConfigFlags.Detector.EnableTRT:
@@ -33,10 +45,27 @@ def getStreamHITS_ItemList(ConfigFlags):
                      "TrackRecordCollection#MuonEntryLayer"]
 
     if ConfigFlags.Detector.EnableLAr:
-        ItemList += ["LArHitContainer#*"]
+        ItemList += ["LArHitContainer#LArHitEMB",
+                     "LArHitContainer#LArHitEMEC",
+                     "LArHitContainer#LArHitHEC",
+                     "LArHitContainer#LArHitFCAL"]
+        if ConfigFlags.Sim.ISF.HITSMergingRequired.get('CALO', False):
+            ItemList += ["LArHitContainer#LArHitEMB_G4",
+                         "LArHitContainer#LArHitEMEC_G4",
+                         "LArHitContainer#LArHitHEC_G4",
+                         "LArHitContainer#LArHitFCAL_G4",
+                         "LArHitContainer#LArHitEMB_FastCaloSim",
+                         "LArHitContainer#LArHitEMEC_FastCaloSim",
+                         "LArHitContainer#LArHitHEC_FastCaloSim",
+                         "LArHitContainer#LArHitFCAL_FastCaloSim"]
 
     if ConfigFlags.Detector.EnableTile:
-        ItemList += ["TileHitVector#*"]
+        ItemList += ["TileHitVector#TileHitVec",
+                     "TileHitVector#MBTSHits"]
+        if ConfigFlags.Sim.ISF.HITSMergingRequired.get('CALO', False):
+            ItemList += ["TileHitVector#MBTSHits_G4",
+                         "TileHitVector#TileHitVec_G4",
+                         "TileHitVector#TileHitVec_FastCaloSim"]
 
     if ConfigFlags.Detector.EnableRPC:
         ItemList += ["RPCSimHitCollection#*"]
@@ -76,6 +105,10 @@ def getStreamHITS_ItemList(ConfigFlags):
     if ConfigFlags.Detector.EnableAFP:
         ItemList += ["AFP_TDSimHitCollection#*",
                      "AFP_SIDSimHitCollection#*"]
+
+    if ConfigFlags.Beam.Type == 'cosmics':
+        ItemList += ["TrackRecordCollection#CosmicRecord",
+                     "TrackRecordCollection#CosmicPerigee"]
 
     # TimingAlg
     ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]

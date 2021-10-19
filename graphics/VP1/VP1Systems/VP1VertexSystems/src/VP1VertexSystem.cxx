@@ -17,7 +17,7 @@
 //____________________________________________________________________
 class VP1VertexSystem::Imp {
 public:
-  VertexSysController * controller;
+  VertexSysController * controller = nullptr;
   std::map<const VP1StdCollection*,QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > > tracksFromVertices ;
 };
 

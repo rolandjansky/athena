@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SECTORLOGICSETUP_H
@@ -50,7 +50,7 @@ namespace RPC_CondCabling {
         std::string m_layout;
         bool m_cosmic;
 
-        void no_elements(const std::string&, int);
+        [[nodiscard]] std::string no_elements(const std::string&, int);
         void get_station(CMAinput, int);
 
         EtaCMAmap::const_iterator find_etaCMA(int Eta, int Phi) const;
@@ -64,11 +64,15 @@ namespace RPC_CondCabling {
         const static std::map<std::string, std::string>* s_trigroads;
 
     public:
-        SectorLogicSetup(int, const std::string&, const std::string&, bool, IMessageSvc*);
-        SectorLogicSetup(const SectorLogicSetup&) = default;
+        SectorLogicSetup(int, const std::string&, const std::string&, bool);
         virtual ~SectorLogicSetup() = default;
 
-        SectorLogicSetup& operator=(const SectorLogicSetup&) = default;
+        /* Copying of this bag class should not be needed. To prevent the
+           creation of accidental (temporary) copies, we only allow move. */
+        SectorLogicSetup(const SectorLogicSetup&) = delete;
+        SectorLogicSetup& operator=(const SectorLogicSetup&) = delete;
+        SectorLogicSetup(SectorLogicSetup&&) = default;
+        SectorLogicSetup& operator=(SectorLogicSetup&&) = default;
 
         std::string positive_sector() const { return m_positive_sector; }
         std::string negative_sector() const { return m_negative_sector; }
@@ -95,7 +99,7 @@ namespace RPC_CondCabling {
         OddPhiCMA* previousCMA(const OddPhiCMA&);
         std::list<const EtaCMA*> find_eta_CMAs_in_PAD(int);
 
-        bool setup();
+        bool setup(MsgStream&);
         bool check();
 
         bool global_strip_add(ViewType, HalfType, int, int, int, int&) const;
@@ -141,10 +145,10 @@ namespace RPC_CondCabling {
 
         SectorLogicSetup& operator<<(int);
 
-        void PrintElement(std::ostream&, int, std::string, int, bool) const;
+        void PrintElement(std::ostream&, int, const std::string&, int, bool) const;
         friend std::ostream& operator<<(std::ostream&, const SectorLogicSetup&);
 
-        void SetPtoTrigRoads(const std::map<std::string, std::string>*);
+        static void SetPtoTrigRoads(const std::map<std::string, std::string>*);
         const std::map<std::string, std::string>* GetPtoTrigRoads() const { return s_trigroads; }  // LBTAG
     };
 

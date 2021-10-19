@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESANALYSISALG_H
@@ -268,7 +268,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   Gaudi::Property<bool> m_doGlobalGroups{this, "DoGlobalGroups", false, "Calculate total rates for each trigger level."};
   Gaudi::Property<bool> m_doTriggerGroups{this, "DoTriggerGroups", false, "Calculate total rates for each group of triggers."};
   Gaudi::Property<bool> m_doExpressRates{this, "DoExpressRates", false, "Calculate total rates for the express stream."};
-  Gaudi::Property<bool> m_useBunchCrossingTool{this, "UseBunchCrossingTool", true, "BunchCrossing tool requires CONDBR2 access. Can be disabled here if this is a problem."};
+  Gaudi::Property<bool> m_useBunchCrossingData{this, "UseBunchCrossingData", true, "BunchCrossing data requires CONDBR2 access. Can be disabled here if this is a problem."};
   Gaudi::Property<bool> m_currentEventIsUnbiased; //!< If the current event was triggered online by RDx or not. Random seeded HLT chains must only see these
   Gaudi::Property<bool> m_doHistograms{this, "DoHistograms", true, "Switch on histogram output of rate vs. mu and position in train."};
   Gaudi::Property<bool> m_enableLumiExtrapolation{this, "EnableLumiExtrapolation", true, "If false then no extrapolation in L, N_bunch or <mu> will be performed.."};

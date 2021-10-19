@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Digitization/MDT_Response_DigiTool.h"
@@ -25,7 +25,7 @@ MDT_Response_DigiTool::MDT_Response_DigiTool(const std::string& type, const std:
 MdtDigiToolOutput MDT_Response_DigiTool::digitize(const MdtDigiToolInput& input, CLHEP::HepRandomEngine* rndmEngine) {
     m_tube.SetSegment(input.radius(), input.positionAlongWire());
     ATH_MSG_DEBUG("Digitizing input ");
-    if (m_DoQballGamma == true) {
+    if (m_DoQballGamma) {
         double ParticleCharge = input.electriccharge();
         double ParticleGamma = input.gamma();
         if (ParticleGamma > 0.) {

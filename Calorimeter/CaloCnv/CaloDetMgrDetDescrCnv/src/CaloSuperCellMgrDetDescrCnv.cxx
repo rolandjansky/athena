@@ -17,7 +17,6 @@
 
 #include "CaloSuperCellMgrDetDescrCnv.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
-#include "TileDetDescr/TileDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"

@@ -172,7 +172,7 @@ public:
     const SCT_ModuleSideDesign * getMother() const;
     std::map<int, const SCT_ModuleSideDesign *> getChildren() const;
     void addChildDesign(int index, const SCT_ModuleSideDesign * element);
-    virtual void getStripRow(SiCellId id, int *strip, int *row) const; //this might be better as reference than pointer? keep for now for consistency
+    virtual std::pair<int,int> getStripRow(SiCellId id) const;
     /** Test if point is in the active part of the detector with specified tolerances */
     virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol) const override;
     /** Test if point is in the active part of the detector with specified tolerances  - allows forcing of most stringent check*/

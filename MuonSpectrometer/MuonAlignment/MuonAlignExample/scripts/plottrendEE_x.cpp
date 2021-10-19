@@ -186,7 +186,7 @@ int main() {
             double max(0.), min(0.);
             switch (i) {
                 case 0:
-                    gr = graphs_traz;
+                    //original assignment of gr remains valid
                     max = maxz;
                     min = minz;
                     break;

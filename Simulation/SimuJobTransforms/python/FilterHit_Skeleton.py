@@ -16,35 +16,54 @@ def getStreamHITS_ItemList(ConfigFlags):
                 "xAOD::TruthParticleContainer#TruthPileupParticles",
                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
+    #PLR
+    if ConfigFlags.Detector.EnablePLR:
+        ItemList += ["SiHitCollection#PLRHits"]
     #BCM
-    ItemList += ["SiHitCollection#BCMHits"]
+    if ConfigFlags.Detector.EnableBCM:
+        ItemList += ["SiHitCollection#BCMHits"]
     #Pixels
-    ItemList += ["SiHitCollection#PixelHits"]
+    if ConfigFlags.Detector.EnablePixel:
+        ItemList += ["SiHitCollection#PixelHits"]
     #SCT
-    ItemList += ["SiHitCollection#SCT_Hits"]
+    if ConfigFlags.Detector.EnableSCT:
+        ItemList += ["SiHitCollection#SCT_Hits"]
     #TRT
-    ItemList += ["TRTUncompressedHitCollection#TRTUncompressedHits"]
+    if ConfigFlags.Detector.EnableTRT:
+        ItemList += ["TRTUncompressedHitCollection#TRTUncompressedHits"]
+    #ITk Pixels
+    if ConfigFlags.Detector.EnableITkPixel:
+        ItemList += ["SiHitCollection#ITkPixelHits"]
+    #ITk Strip
+    if ConfigFlags.Detector.EnableITkStrip:
+        ItemList += ["SiHitCollection#ITkStripHits"]
     #LAr
-    ItemList += ["LArHitContainer#LArHitEMB"]
-    ItemList += ["LArHitContainer#LArHitEMEC"]
-    ItemList += ["LArHitContainer#LArHitHEC"]
-    ItemList += ["LArHitContainer#LArHitFCAL"]
+    if ConfigFlags.Detector.EnableLAr:
+        ItemList += ["LArHitContainer#LArHitEMB"]
+        ItemList += ["LArHitContainer#LArHitEMEC"]
+        ItemList += ["LArHitContainer#LArHitHEC"]
+        ItemList += ["LArHitContainer#LArHitFCAL"]
     #Tile
-    ItemList += ["TileHitVector#TileHitVec"]
-
-    if ConfigFlags.Detector.EnableHGTD:
-        ItemList += ["SiHitCollection#LArHitHGTD"]
+    if ConfigFlags.Detector.EnableTile:
+        ItemList += ["TileHitVector#TileHitVec"]
+    # MBTS
     if ConfigFlags.Detector.EnableMBTS:
         ItemList += ["TileHitVector#MBTSHits"]
+    # HGTD
+    if ConfigFlags.Detector.EnableHGTD:
+        ItemList += ["SiHitCollection#HGTD_Hits"]
     #CSC
     if ConfigFlags.Detector.EnableCSC:
         ItemList+=["CSCSimHitCollection#CSC_Hits"]
     #MDT
-    ItemList+=["MDTSimHitCollection#MDT_Hits"]
+    if ConfigFlags.Detector.EnableMDT:
+        ItemList+=["MDTSimHitCollection#MDT_Hits"]
     #RPC
-    ItemList+=["RPCSimHitCollection#RPC_Hits"]
+    if ConfigFlags.Detector.EnableRPC:
+        ItemList+=["RPCSimHitCollection#RPC_Hits"]
     #TGC
-    ItemList+=["TGCSimHitCollection#TGC_Hits"]
+    if ConfigFlags.Detector.EnableTGC:
+        ItemList+=["TGCSimHitCollection#TGC_Hits"]
     #STGC
     if ConfigFlags.Detector.EnablesTGC:
         ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
@@ -76,31 +95,16 @@ def fromRunArgs(runArgs):
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
-    if hasattr(runArgs, 'detectors'):
-        detectors = runArgs.detectors
-    else:
-        from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
-        detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
-
-    # Support switching on Forward Detectors
-    if hasattr(runArgs, 'LucidOn'):
-        detectors = detectors+['Lucid']
-    if hasattr(runArgs, 'ZDCOn'):
-        detectors = detectors+['ZDC']
-    if hasattr(runArgs, 'AFPOn'):
-        detectors = detectors+['AFP']
-    if hasattr(runArgs, 'ALFAOn'):
-        detectors = detectors+['ALFA']
-    if hasattr(runArgs, 'FwdRegionOn'):
-        detectors = detectors+['FwdRegion']
-
-    # Setup common simulation flags
-    defaultFilterHitFlags(ConfigFlags, detectors)
-
     if hasattr(runArgs, 'inputHITSFile'):
         ConfigFlags.Input.Files = runArgs.inputHITSFile
     else:
         raise RuntimeError('No input HITS file defined')
+
+    # Generate detector list and setup detector flags
+    from SimuJobTransforms.SimulationHelpers import getDetectorsFromRunArgs
+    detectors = getDetectorsFromRunArgs(ConfigFlags, runArgs)
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
     ## from SimuJobTransforms.HitsFilePeeker import HitsFilePeeker
     ## HitsFilePeeker(runArgs, filterHitLog)
@@ -112,7 +116,7 @@ def fromRunArgs(runArgs):
         else:
             ConfigFlags.Output.HITSFileName  = runArgs.outputHITS_FILTFile
     else:
-        raise RuntimeError('No outputHITSFile defined')
+        raise RuntimeError('No outputHITS_FILTFile defined')
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
@@ -129,26 +133,79 @@ def fromRunArgs(runArgs):
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
-    cfg.merge(PoolWriteCfg(ConfigFlags))
+    # force TreeAutoFlush=1 as events will be accessed randomly
+    cfg.merge(PoolWriteCfg(ConfigFlags, forceTreeAutoFlush=1))
 
     # add LArHitFilter + AddressRemappingSvc
-    from LArDigitization.LArDigitizationConfigNew import LArHitFilterCfg
-    cfg.merge(LArHitFilterCfg(ConfigFlags)) # TODO add output configuration here?
+    if ConfigFlags.Detector.EnableLAr:
+        from LArDigitization.LArDigitizationConfigNew import LArHitFilterCfg
+        cfg.merge(LArHitFilterCfg(ConfigFlags)) # TODO add output configuration here?
 
-    if hasattr(runArgs,'TruthReductionScheme'):
+    if hasattr(runArgs, 'TruthReductionScheme'):
         if runArgs.TruthReductionScheme != 'SingleGenParticle':
-            log.warning( 'Unknown TruthReductionScheme (' + runArgs.TruthReductionScheme + '). Currently just a dummy value, but please check.' )
+            log.warning(f'Unknown TruthReductionScheme ({runArgs.TruthReductionScheme}). Currently just a dummy value, but please check.')
+
         # add McEventCollectionFtiler + AddressRemappingSvc
-        from McEventCollectionFilter.McEventCollectionFilterConfigNew import McEventCollectionFilterCfg
+        from McEventCollectionFilter.McEventCollectionFilterConfig import McEventCollectionFilterCfg
         cfg.merge(McEventCollectionFilterCfg(ConfigFlags))
+        # Check for Truth Containers
+        for entry in ConfigFlags.Input.Collections:
+            if 'AntiKt4TruthJets' == entry:
+                from McEventCollectionFilter.McEventCollectionFilterConfig import DecoratePileupAntiKt4TruthJetsCfg
+                cfg.merge(DecoratePileupAntiKt4TruthJetsCfg(ConfigFlags))
+            if 'AntiKt6TruthJets' == entry:
+                from McEventCollectionFilter.McEventCollectionFilterConfig import DecoratePileupAntiKt6TruthJetsCfg
+                cfg.merge(DecoratePileupAntiKt6TruthJetsCfg(ConfigFlags))
+            if 'TruthPileupParticles' == entry:
+                from McEventCollectionFilter.McEventCollectionFilterConfig import DecorateTruthPileupParticlesCfg
+                cfg.merge(DecorateTruthPileupParticlesCfg(ConfigFlags))
+
+        # ID
+        if ConfigFlags.Detector.EnableBCM:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import BCM_HitsTruthRelinkCfg
+            cfg.merge(BCM_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnablePixel:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import PixelHitsTruthRelinkCfg
+            cfg.merge(PixelHitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableSCT:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import SCT_HitsTruthRelinkCfg
+            cfg.merge(SCT_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableTRT:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import TRT_HitsTruthRelinkCfg
+            cfg.merge(TRT_HitsTruthRelinkCfg(ConfigFlags))
+        # ITk
+        if ConfigFlags.Detector.EnableITkPixel:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import ITkPixelHitsTruthRelinkCfg
+            cfg.merge(ITkPixelHitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableITkPixel:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import ITkPixelHitsTruthRelinkCfg
+            cfg.merge(ITkPixelHitsTruthRelinkCfg(ConfigFlags))
+        # HGTD
+        if ConfigFlags.Detector.EnableHGTD:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import HGTD_HitsTruthRelinkCfg
+            cfg.merge(HGTD_HitsTruthRelinkCfg(ConfigFlags))
+        # Muons
+        if ConfigFlags.Detector.EnableCSC:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import CSC_HitsTruthRelinkCfg
+            cfg.merge(CSC_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableMDT:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import MDT_HitsTruthRelinkCfg
+            cfg.merge(MDT_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableMM:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import MM_HitsTruthRelinkCfg
+            cfg.merge(MM_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableRPC:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import RPC_HitsTruthRelinkCfg
+            cfg.merge(RPC_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnableTGC:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import TGC_HitsTruthRelinkCfg
+            cfg.merge(TGC_HitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnablesTGC:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import sTGC_HitsTruthRelinkCfg
+            cfg.merge(sTGC_HitsTruthRelinkCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
-
-    # FIXME hack because deduplication is broken
-    PoolAttributes = ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
-    PoolAttributes += ["DatabaseName = '" + ConfigFlags.Output.HITSFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
-    cfg.getService("AthenaPoolCnvSvc").PoolAttributes += PoolAttributes
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

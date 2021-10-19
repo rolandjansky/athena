@@ -104,8 +104,8 @@ namespace Trk
     
    private:
 
-    void deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex) noexcept;
-    void deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices) noexcept;
+    static void deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex) noexcept;
+    static void deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices) noexcept;
 
     std::vector<const xAOD::Vertex*> m_twoTrackVertices;
     std::vector<const TrackParticleBase*> m_neutralTrackOfVertex;

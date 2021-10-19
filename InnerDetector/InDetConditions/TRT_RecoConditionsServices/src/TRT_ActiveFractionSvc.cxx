@@ -19,6 +19,7 @@
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "StoreGate/ReadCondHandle.h"
+#include <cmath>
 
 //////
 /// Constructor
@@ -35,20 +36,20 @@ TRT_ActiveFractionSvc::TRT_ActiveFractionSvc( const std::string& name,
   declareProperty( "nBinsPhi", m_nBinsPhi );
 
   // Build the eta bin list (if not specified in job options)
-  if ( m_etaBins.size() == 0 ) {
+  if ( m_etaBins.empty() ) {
     // Default eta bins
-    m_etaBins.push_back( std::make_pair(-2.1,-1.75) );
-    m_etaBins.push_back( std::make_pair(-1.75,-1.3) );
-    m_etaBins.push_back( std::make_pair(-1.3,-1.07) );
-    m_etaBins.push_back( std::make_pair(-1.07,-0.65) );
-    m_etaBins.push_back( std::make_pair(-0.65,-0.1) );
-    m_etaBins.push_back( std::make_pair(-0.1,0.) );
-    m_etaBins.push_back( std::make_pair(0.,0.1) );
-    m_etaBins.push_back( std::make_pair(0.1,0.65) );
-    m_etaBins.push_back( std::make_pair(0.65,1.07) );
-    m_etaBins.push_back( std::make_pair(1.07,1.3) );
-    m_etaBins.push_back( std::make_pair(1.3,1.75) );
-    m_etaBins.push_back( std::make_pair(1.75,2.1) );
+    m_etaBins.emplace_back(-2.1,-1.75 );
+    m_etaBins.emplace_back(-1.75,-1.3 );
+    m_etaBins.emplace_back(-1.3,-1.07 );
+    m_etaBins.emplace_back(-1.07,-0.65 );
+    m_etaBins.emplace_back(-0.65,-0.1 );
+    m_etaBins.emplace_back(-0.1,0. );
+    m_etaBins.emplace_back(0.,0.1 );
+    m_etaBins.emplace_back(0.1,0.65 );
+    m_etaBins.emplace_back(0.65,1.07 );
+    m_etaBins.emplace_back(1.07,1.3 );
+    m_etaBins.emplace_back(1.3,1.75 );
+    m_etaBins.emplace_back(1.75,2.1 );
   }
 }
 
@@ -80,7 +81,7 @@ StatusCode TRT_ActiveFractionSvc::initialize() {
   double phiEdgeLow = -1. * M_PI; // Check this to be sure...
   double deltaPhi = 2. * M_PI / (1. * m_nBinsPhi) ;
   for ( int i = 0; i < m_nBinsPhi; ++i ) {
-    m_phiBins.push_back( std::make_pair( phiEdgeLow + i*deltaPhi, phiEdgeLow + (i+1)*deltaPhi ) );
+    m_phiBins.emplace_back( phiEdgeLow + i*deltaPhi, phiEdgeLow + (i+1)*deltaPhi );
   }
   // Initialize the table with 1.'s
   std::vector<double> dummyPhiVec( m_phiBins.size(), 1. );
@@ -144,7 +145,7 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
     double rMinEndcap = 617.; 
     double rMaxEndcap = 1106.;
     int countAll(0), countDead(0), countSaved(0), countPhiSkipped(0), countEtaSkipped(0), countInvalidEtaValues(0); 
-    for (std::vector<Identifier>::const_iterator it = TRTHelper->straw_layer_begin(); it != TRTHelper->straw_layer_end(); it++  ) {
+    for (std::vector<Identifier>::const_iterator it = TRTHelper->straw_layer_begin(); it != TRTHelper->straw_layer_end(); ++it  ) {
       int nStrawsInLayer = TRTHelper->straw_max(*it);
       for (int i=0; i<=nStrawsInLayer; i++) { 
 
@@ -156,23 +157,23 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         countAll++; if (status) countDead++;
 
         const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);
-        double phi = atan2( strawPosition.y(), strawPosition.x() );
+        double phi = std::atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = findPhiBin( phi );
 	if (phiBin<0) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc::handle phiBin<0: " << phi << " " << phiBin << endmsg; countPhiSkipped++; continue; }
 
 	// calculate etaMin, etaMax
 	int side = TRTHelper->barrel_ec(id);
-        double z = fabs( strawPosition.z() );
+        double z = std::abs( strawPosition.z() );
 	double thetaMin(0.), thetaMax(0.);
 	if (abs(side)==1) { // barrel
           double zRange = 360.; // straw length / 2  
 	  if ( TRTHelper->layer_or_wheel(id) == 0 && TRTHelper->straw_layer(id) < 9 ) zRange = 160.;  // short straws
-	  double r = sqrt( pow(strawPosition.x(), 2) + pow(strawPosition.y(), 2) );
-	  thetaMin = atan( r / (z+zRange) );
-	  thetaMax = ((z-zRange)>0.) ? atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
+	  double r = std::sqrt( std::pow(strawPosition.x(), 2) + std::pow(strawPosition.y(), 2) );
+	  thetaMin = std::atan( r / (z+zRange) );
+	  thetaMax = ((z-zRange)>0.) ? std::atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
 	} else { // endcap
-	  thetaMin = atan( rMinEndcap / z );		
-	  thetaMax = atan( rMaxEndcap / z );	
+	  thetaMin = std::atan( rMinEndcap / z );		
+	  thetaMax = std::atan( rMaxEndcap / z );	
 	}
         if (side<0) { // theta -> M_PI - theta
           double thetaDummy = thetaMin;
@@ -184,14 +185,13 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         double etaCheck[] = {0., 0.};
         for (int ti=0; ti<2; ti++) {
           if (thetaCheck[ti]<=0.||thetaCheck[ti]>=M_PI) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta " << ti << " " << thetaCheck[ti] << endmsg;
-          double tanTheta = tan(thetaCheck[ti]/2.);
+          double tanTheta = std::tan(thetaCheck[ti]/2.);
           if (tanTheta<=0.) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta tan " << ti << " " << tanTheta << endmsg; countInvalidEtaValues++; continue; }
-          etaCheck[ti] = -log( tanTheta );
+          etaCheck[ti] = -std::log( tanTheta );
         }
        double etaMin = etaCheck[0];
        double etaMax = etaCheck[1];
-//	double etaMin =  -log( tan( thetaMax / 2.) ); // eta goes in the other ways as theta!! etaMIN = f(thetaMAX) 
-//        double etaMax =  -log( tan( thetaMin / 2.) );
+
 	int etaMinBin = findEtaBin( etaMin );
 	int etaMaxBin = findEtaBin( etaMax ); 
         if (etaMin>=etaMax) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << etaMin << " " << etaMax << " " << thetaMin << " " << thetaMax << endmsg;

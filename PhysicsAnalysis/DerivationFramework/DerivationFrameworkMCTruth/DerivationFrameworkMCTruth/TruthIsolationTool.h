@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_TRUTHISOLATIONTOOL_H
@@ -50,7 +50,7 @@ namespace DerivationFramework {
       void calcIsos(const xAOD::TruthParticle* particle,
           const std::vector<const xAOD::TruthParticle*> &,
           std::vector<float>&) const;
-      float calculateDeltaR2(const xAOD::IParticle *p1, float eta2, float phi2) const;
+      static float calculateDeltaR2(const xAOD::IParticle *p1, float eta2, float phi2) ;
   }; 
 }
 

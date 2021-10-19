@@ -86,13 +86,13 @@ public:
 
 private:
 
-  const TRTDigSettings* m_settings;
-  const InDetDD::TRT_DetectorManager* m_detmgr;
+  const TRTDigSettings* m_settings{};
+  const InDetDD::TRT_DetectorManager* m_detmgr{};
 
-  TRTDigCondBase * m_pDigConditions;
-  TRTElectronicsProcessing * m_pElectronicsProcessing;
-  TRTElectronicsNoise * m_pElectronicsNoise;
-  CLHEP::HepRandomEngine* m_noise_randengine;
+  TRTDigCondBase * m_pDigConditions{};
+  TRTElectronicsProcessing * m_pElectronicsProcessing{};
+  TRTElectronicsNoise * m_pElectronicsNoise{};
+  CLHEP::HepRandomEngine* m_noise_randengine{};
 
   //---  Initialization:
 
@@ -211,7 +211,7 @@ private:
 
   Identifier getStrawIdentifier (int hitID);
 
-  int m_UseGasMix;
+  int m_UseGasMix{};
   ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // need for Argon
 
 };

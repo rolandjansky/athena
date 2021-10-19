@@ -4661,7 +4661,7 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon) {
 
 void IDAlignMonResiduals::MakeSiliconHistograms(MonGroup& al_mon) {
   //Barrel!!
-
+  //cppcheck-suppress publicAllocationError
   m_si_barrel_resX_mean = new TH1F("si_barrel_resX_mean", "Mean Residual X vs Silicon Barrel Layer;;Mean Residual X", m_siliconBarrelLayersLabels.size(), -0.5, m_siliconBarrelLayersLabels.size() - 0.5);
   m_si_barrel_resY_mean = new TH1F("si_barrel_resY_mean", "Mean Residual Y vs Silicon Barrel Layer;;Mean Residual Y", m_siliconBarrelLayersLabels.size(), -0.5, m_siliconBarrelLayersLabels.size() - 0.5);
   m_si_barrel_pullX_width = new TH1F("si_barrel_pullX_width", "Pull X Gaussian Width vs Silicon Barrel Layer;;Pull X Gaussian Width", m_siliconBarrelLayersLabels.size(), -0.5, m_siliconBarrelLayersLabels.size() - 0.5);

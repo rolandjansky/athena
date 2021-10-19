@@ -1,0 +1,39 @@
+# Characterization of the time of arrival
+#
+# Time of arrival is obtained from Garfield simulation. It is parametrized as 
+# a function of the distance of closest approach, i.e. the shortest distance 
+# from a particle's trajectory to the nearest wire.
+# The approach is the following: dividing the Garfield data into 9 intervals 
+# of 0.1 mm (distance of closest approach), then fit the time distribution in
+# each interval.
+# 
+# In each interval, the time of arrival distribution can be described by a 
+# gamma distribution with three parameters: 
+#  - the usual k and theta parameters, and 
+#  - t0--the shift from zero.
+# The gamma probability distribution function is:
+#   P(t) = 1 / (\Gamma(k) * {\theta}^k) * (t - t0)^{k-1} * exp(-(t - t0) / {\theta})
+# where t is the time of arrival to be selected and t0 is the earliest time of 
+# arrival allowed.
+#
+# The current implementation in Athena use the parameters k and theta, and the 
+# most probable value (peak of the gamma pdf) instead of t0. First, a gamma 
+# random number generator is launched to choose a time, say a value val, then 
+# it is shifted by the best-fitted most probable value minus (k-1)*theta. The 
+# best-fitted most probable value (mpv) already includes t0, while the product 
+# (k-1)*theta gives the most probable value of the gamma pdf begining at origin.
+# In other word, t0 = mpv - (k-1)*theta and the resulting time of arrival is 
+# given by 
+#       time = val + (mpv - (k-1) * theta).
+#
+# Below are the parameters to be read. Line starting with '#' is not read.
+# keyword  low_edge[mm]  k  theta  mpv[ns]
+bin 0.0  1.000  0.833  0.0  
+bin 0.1  2.342  0.455  0.899
+bin 0.2  3.474  0.391  2.220
+bin 0.3  4.153  0.376  3.733
+bin 0.4  5.778  0.321  5.441
+bin 0.5  5.046  0.364  7.186
+bin 0.6  5.981  0.392  9.300
+bin 0.7  5.771  0.533  11.997
+bin 0.8  3.068  1.488  16.095

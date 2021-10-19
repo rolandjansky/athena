@@ -357,9 +357,8 @@ egam6Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4TruthJets"]
-replaceAODReducedJets(reducedJetList,egam6Seq,"EGAM6")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+addAntiKt4TruthJets(EGAM6Sequence,"EGAM6")
 
 
 #====================================================================
@@ -418,9 +417,11 @@ for tool in EGAM6_ClusterEnergyPerLayerDecorators:
 # This line must come after we have finished configuring EGAM6SlimmingHelper
 EGAM6SlimmingHelper.AppendContentToStream(EGAM6Stream)
 
-# Add MET_RefFinalFix
-# JRC: COMMENTED TEMPORARILY
-#addMETOutputs(EGAM6Stream)
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM6SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM6SlimmingHelper.AllVariables += ["EventInfo"]
 
 # Add Derived Egamma CellContainer
 # from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning

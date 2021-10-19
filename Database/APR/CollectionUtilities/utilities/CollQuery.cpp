@@ -119,7 +119,7 @@ AttributeType::fromString(const std::string& i)
    for (std::set<std::string>::iterator it = keys.begin(); it!=keys.end(); ++it) {
       flagpos = i.find(*it);
       if (flagpos != std::string::npos) {
-         endpos = i.find(";",flagpos);
+         endpos = i.find(';',flagpos);
          if (endpos != std::string::npos) {
             this->setInfoForKey(*it,i.substr(flagpos,endpos));
          }
@@ -455,7 +455,7 @@ int main(int argc, const char *argv[])
                   std::cout.width(widths[j]);
                   ostringstream lots;
                   attribList[j].toOutputStream(lots);
-                  std::string value = lots.str().substr(lots.str().find(":")+1,std::string::npos);
+                  std::string value = lots.str().substr(lots.str().find(':')+1,std::string::npos);
                   std::cout.width(widths[j]);
                   if (!countOnly) std::cout << value;
 

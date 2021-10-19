@@ -240,7 +240,7 @@ void eff_part (TTree* tree, const int hstyle=0,
 }
 
 void eff (TTree* tracktree[3], const char* name[3],
-          const string plotprefix="efficiency_", const string plotext="",
+          const string & plotprefix="efficiency_", const string & plotext="",
           const int ntrack_finders=3,
           const TCut data_cut="", const TCut mc_cut="",
           const bool primary= true, const double match=-1,

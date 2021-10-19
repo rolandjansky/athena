@@ -174,17 +174,17 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   // THE BARREL SECTION
   ATH_MSG_DEBUG( "============ Barrel Section ======================" );
   
-  const Trk::TrackingVolume* solenoid             = 0;
-  const Trk::TrackingVolume* solenoidLArBarrelGap = 0;
-  const Trk::TrackingVolume* lArBarrelPresampler  = 0;
-  const Trk::TrackingVolume* lArBarrel            = 0;
+  const Trk::TrackingVolume* solenoid             = nullptr;
+  const Trk::TrackingVolume* solenoidLArBarrelGap = nullptr;
+  const Trk::TrackingVolume* lArBarrelPresampler  = nullptr;
+  const Trk::TrackingVolume* lArBarrel            = nullptr;
   
-  Trk::CylinderVolumeBounds* solenoidBounds             = 0;
-  Trk::CylinderVolumeBounds* solenoidLArBarrelGapBounds = 0;
+  Trk::CylinderVolumeBounds* solenoidBounds             = nullptr;
+  Trk::CylinderVolumeBounds* solenoidLArBarrelGapBounds = nullptr;
   
   // dummy objects
-  const Trk::LayerArray* dummyLayers = 0;
-  const Trk::TrackingVolumeArray* dummyVolumes = 0;
+  const Trk::LayerArray* dummyLayers = nullptr;
+  const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   // default material definition
   Trk::Material solenoidMaterial = Trk::Material( 69.9, 811.5,  28.9, 13.8, 0.003); 
@@ -203,18 +203,18 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   // -> The BARREL Section ---------------------------------------------------------
   ATH_MSG_DEBUG( "Building Barrel ... " );
   
-  Trk::CylinderVolumeBounds* lArBarrelPosBounds = 0;
-  Trk::CylinderVolumeBounds* lArBarrelNegBounds = 0;
+  Trk::CylinderVolumeBounds* lArBarrelPosBounds = nullptr;
+  Trk::CylinderVolumeBounds* lArBarrelNegBounds = nullptr;
   
   if(detStore()->contains<StoredPhysVol>("EMB_POS"))
     {
       if(detStore()->retrieve(storedPV,"EMB_POS")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV EMB_POS" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArBarrelPosPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArBarrelPosPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
 
   //if (lArBarrelPosPhysVol) printInfo(lArBarrelPosPhysVol,2);
   
@@ -223,13 +223,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       if(detStore()->retrieve(storedPV,"EMB_NEG")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV EMB_NEG" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArBarrelNegPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArBarrelNegPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
-  const GeoLogVol* lArBarrelPosLogVol = lArBarrelPosPhysVol ? lArBarrelPosPhysVol->getLogVol() : 0;
-  const GeoLogVol* lArBarrelNegLogVol = lArBarrelNegPhysVol ? lArBarrelNegPhysVol->getLogVol() : 0;
+  const GeoLogVol* lArBarrelPosLogVol = lArBarrelPosPhysVol ? lArBarrelPosPhysVol->getLogVol() : nullptr;
+  const GeoLogVol* lArBarrelNegLogVol = lArBarrelNegPhysVol ? lArBarrelNegPhysVol->getLogVol() : nullptr;
   
   // get the material : needs averaging
   
@@ -253,9 +253,9 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
         
     // dynamic cast to 'Tubs' shape
     const GeoPcon* lArBarrelPosPcon = dynamic_cast<const GeoPcon*>(lArBarrelPosShape);
-    lArBarrelPosBounds = (lArBarrelPosPcon) ? geoShapeToVolumeBounds.convert(lArBarrelPosPcon, zBoundaries) : 0;
+    lArBarrelPosBounds = (lArBarrelPosPcon) ? geoShapeToVolumeBounds.convert(lArBarrelPosPcon, zBoundaries) : nullptr;
     const GeoPcon* lArBarrelNegPcon = dynamic_cast<const GeoPcon*>(lArBarrelNegShape);
-    lArBarrelNegBounds = (lArBarrelNegPcon) ? geoShapeToVolumeBounds.convert(lArBarrelNegPcon, zBoundaries) : 0;
+    lArBarrelNegBounds = (lArBarrelNegPcon) ? geoShapeToVolumeBounds.convert(lArBarrelNegPcon, zBoundaries) : nullptr;
     
     if (lArBarrelPosBounds)
       ATH_MSG_VERBOSE( " -> Positive Barrel Bounds: " << *lArBarrelPosBounds );
@@ -365,7 +365,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     const Trk::BinnedMaterial* lArBarrelMaterialBinPos = new Trk::BinnedMaterial(lArBarrelMaterial,bubp,layBUP,indexP,matID);
     const Trk::BinnedMaterial* lArBarrelMaterialBinNeg = new Trk::BinnedMaterial(lArBarrelMaterial,bubn,layBUN,indexN,matID);
 
-    Amg::Transform3D* align=0;
+    Amg::Transform3D* align=nullptr;
     
     const Trk::AlignableTrackingVolume* lArBarrelPos = new Trk::AlignableTrackingVolume(lArBPosTransform,align,
 											lArBarrelBoundsPos,
@@ -389,8 +389,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 								       "Calo::Container::LAr::Barrel");
   }   
   // cleanup
-  delete lArBarrelPosBounds; lArBarrelPosBounds = 0;
-  delete lArBarrelNegBounds; lArBarrelNegBounds = 0;
+  delete lArBarrelPosBounds; lArBarrelPosBounds = nullptr;
+  delete lArBarrelNegBounds; lArBarrelNegBounds = nullptr;
        
   // (1) Build the Solenoid ------------------------------------------------------------
   ATH_MSG_DEBUG( "Building the Solenoid ... " );
@@ -400,13 +400,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       if(detStore()->retrieve(storedPV,"SOLENOID")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV SOLENOID" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* solenoidPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* solenoidPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
 
-  const GeoLogVol* solenoidLogVol = solenoidPhysVol ? solenoidPhysVol->getLogVol() : 0;
+  const GeoLogVol* solenoidLogVol = solenoidPhysVol ? solenoidPhysVol->getLogVol() : nullptr;
     
   // retrival worked out
   if (solenoidLogVol){
@@ -431,7 +431,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     // output the bounds
     ATH_MSG_DEBUG( " -> Solenoid Bounds:      " << *solenoidBounds );
 
-    solenoid = new Trk::TrackingVolume(0,
+    solenoid = new Trk::TrackingVolume(nullptr,
 				       solenoidBounds,
 				       solenoidMaterial,
 				       dummyLayers, dummyVolumes,
@@ -442,18 +442,18 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   // (2) Build the Presampler ------------------------------------------------------------
   ATH_MSG_DEBUG( "Building Barrel Presampler ... " );
   
-  Trk::CylinderVolumeBounds* lArBarrelPresamplerPosBounds = 0;
-  Trk::CylinderVolumeBounds* lArBarrelPresamplerNegBounds = 0;
+  Trk::CylinderVolumeBounds* lArBarrelPresamplerPosBounds = nullptr;
+  Trk::CylinderVolumeBounds* lArBarrelPresamplerNegBounds = nullptr;
   
   if(detStore()->contains<StoredPhysVol>("PRESAMPLER_B_POS"))
     {
       if(detStore()->retrieve(storedPV,"PRESAMPLER_B_POS")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV PRESAMPLER_B_POS" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArBarrelPresamplerPosPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArBarrelPresamplerPosPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
 
   
   
@@ -462,14 +462,14 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       if(detStore()->retrieve(storedPV,"PRESAMPLER_B_NEG")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV PRESAMPLER_B_NEG" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArBarrelPresamplerNegPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArBarrelPresamplerNegPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
 
   
-  const GeoLogVol* lArBarrelPresamplerPosLogVol = lArBarrelPresamplerPosPhysVol ? lArBarrelPresamplerPosPhysVol->getLogVol() : 0;
-  const GeoLogVol* lArBarrelPresamplerNegLogVol = lArBarrelPresamplerNegPhysVol ? lArBarrelPresamplerNegPhysVol->getLogVol() : 0;
+  const GeoLogVol* lArBarrelPresamplerPosLogVol = lArBarrelPresamplerPosPhysVol ? lArBarrelPresamplerPosPhysVol->getLogVol() : nullptr;
+  const GeoLogVol* lArBarrelPresamplerNegLogVol = lArBarrelPresamplerNegPhysVol ? lArBarrelPresamplerNegPhysVol->getLogVol() : nullptr;
  
   // retrival worked out
   if (lArBarrelPresamplerPosLogVol && lArBarrelPresamplerNegLogVol){
@@ -510,7 +510,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     
     // material needs averaging, don't use pure Ar
 
-    Amg::Transform3D* align=0;
+    Amg::Transform3D* align=nullptr;
 
     // trivial binning
     std::vector<float> bpsteps{float(lArBarrelPresamplerPosBounds->innerRadius()),
@@ -561,7 +561,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     // Trk::Material solenoidGapMaterial= Trk::Material(534.9, 2871.2, 18.6, 9.1, 0.0004);
     Trk::Material solenoidGapMaterial= Trk::Material(182.6, 1007., 22.9, 10.9, 0.0012);
  
-    solenoidLArBarrelGap = new Trk::TrackingVolume(0,
+    solenoidLArBarrelGap = new Trk::TrackingVolume(nullptr,
                                                    solenoidLArBarrelGapBounds,
                                                    solenoidGapMaterial,
                                                    dummyLayers, dummyVolumes,
@@ -580,29 +580,29 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   //   FCAL3_POS, FCAL3_NEG
   
   // positive Side
-  const Trk::TrackingVolume* lArPositiveEndcapInnerGap   = 0;
-  const Trk::TrackingVolume* lArPositiveEndcap           = 0;
-  const Trk::TrackingVolume* lArPositiveHec              = 0;
-  const Trk::TrackingVolume* lArPositiveHecFcalCover     = 0;
-  const Trk::TrackingVolume* lArPositiveFcal             = 0;
-  const Trk::TrackingVolume* lArPosECPresampler          = 0;
+  const Trk::TrackingVolume* lArPositiveEndcapInnerGap   = nullptr;
+  const Trk::TrackingVolume* lArPositiveEndcap           = nullptr;
+  const Trk::TrackingVolume* lArPositiveHec              = nullptr;
+  const Trk::TrackingVolume* lArPositiveHecFcalCover     = nullptr;
+  const Trk::TrackingVolume* lArPositiveFcal             = nullptr;
+  const Trk::TrackingVolume* lArPosECPresampler          = nullptr;
   
   // negative Side
-  const Trk::TrackingVolume* lArNegativeEndcapInnerGap   = 0;
-  const Trk::TrackingVolume* lArNegativeEndcap           = 0;
-  const Trk::TrackingVolume* lArNegativeHec              = 0;
-  const Trk::TrackingVolume* lArNegativeHecFcalCover     = 0;
-  const Trk::TrackingVolume* lArNegativeFcal             = 0;
-  const Trk::TrackingVolume* lArNegECPresampler          = 0;
+  const Trk::TrackingVolume* lArNegativeEndcapInnerGap   = nullptr;
+  const Trk::TrackingVolume* lArNegativeEndcap           = nullptr;
+  const Trk::TrackingVolume* lArNegativeHec              = nullptr;
+  const Trk::TrackingVolume* lArNegativeHecFcalCover     = nullptr;
+  const Trk::TrackingVolume* lArNegativeFcal             = nullptr;
+  const Trk::TrackingVolume* lArNegECPresampler          = nullptr;
   
   // the smoothed ones
-  Trk::CylinderVolumeBounds* lArPositiveHecBounds            = 0;
-  Trk::CylinderVolumeBounds* lArPositiveHecFcalCoverBounds   = 0;
-  Trk::CylinderVolumeBounds* lArPositiveFcalBounds           = 0;
+  Trk::CylinderVolumeBounds* lArPositiveHecBounds            = nullptr;
+  Trk::CylinderVolumeBounds* lArPositiveHecFcalCoverBounds   = nullptr;
+  Trk::CylinderVolumeBounds* lArPositiveFcalBounds           = nullptr;
  
-  Trk::CylinderVolumeBounds* lArNegativeHecBounds            = 0;
-  Trk::CylinderVolumeBounds* lArNegativeHecFcalCoverBounds   = 0;
-  Trk::CylinderVolumeBounds* lArNegativeFcalBounds           = 0;
+  Trk::CylinderVolumeBounds* lArNegativeHecBounds            = nullptr;
+  Trk::CylinderVolumeBounds* lArNegativeHecFcalCoverBounds   = nullptr;
+  Trk::CylinderVolumeBounds* lArNegativeFcalBounds           = nullptr;
  
   // (1) now parse the EC
   std::unique_ptr<Trk::CylinderVolumeBounds> lArPositiveEndcapBounds;
@@ -613,27 +613,27 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       if(detStore()->retrieve(storedPV,"EMEC_POS")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV EMEC_POS" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArPositiveEndcapPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArPositiveEndcapPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
 
-  const GeoLogVol* lArPositiveEndcapLogVol = lArPositiveEndcapPhysVol ? lArPositiveEndcapPhysVol->getLogVol() : 0;
+  const GeoLogVol* lArPositiveEndcapLogVol = lArPositiveEndcapPhysVol ? lArPositiveEndcapPhysVol->getLogVol() : nullptr;
 
   if(detStore()->contains<StoredPhysVol>("EMEC_NEG"))
     {
       if(detStore()->retrieve(storedPV,"EMEC_NEG")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV EMEC_NEG" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArNegativeEndcapPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArNegativeEndcapPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
 
-  const GeoLogVol* lArNegativeEndcapLogVol = lArNegativeEndcapPhysVol ? lArNegativeEndcapPhysVol->getLogVol() : 0;
+  const GeoLogVol* lArNegativeEndcapLogVol = lArNegativeEndcapPhysVol ? lArNegativeEndcapPhysVol->getLogVol() : nullptr;
   
   // get the material
-  const GeoMaterial* lArPositiveEndcapMaterial = 0;
+  const GeoMaterial* lArPositiveEndcapMaterial = nullptr;
   //const GeoMaterial* lArNegativeEndcapMaterial = 0;
   
   std::vector<double> positiveEndcapZboundaries;
@@ -719,7 +719,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     Amg::Transform3D* lArPositiveEndcapTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapPositionPos));
     Amg::Transform3D* lArNegativeEndcapTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapPositionNeg));
     
-    Amg::Transform3D* align = 0;
+    Amg::Transform3D* align = nullptr;
     // binned material for LAr
     Trk::BinUtility* bup = new Trk::BinUtility(37,1.35,3.2,Trk::open,Trk::binEta);
     Trk::BinUtility* bun = new Trk::BinUtility(37,-3.2,-1.35,Trk::open,Trk::binEta);
@@ -920,20 +920,20 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   // presampler 
   ATH_MSG_DEBUG( "Building Endcap Presampler ... " );
   
-  Trk::CylinderVolumeBounds* lArECPresamplerBounds = 0;
+  Trk::CylinderVolumeBounds* lArECPresamplerBounds = nullptr;
   
   if(detStore()->contains<StoredPhysVol>("PRESAMPLER_EC_POS"))
     {
       if(detStore()->retrieve(storedPV,"PRESAMPLER_EC_POS")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV PRESAMPLER_EC_POS" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArECPresamplerPhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArECPresamplerPhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   // if (lArECPresamplerPhysVol) printInfo(lArECPresamplerPhysVol);
 
-  const GeoLogVol* lArECPresamplerLogVol = lArECPresamplerPhysVol ? lArECPresamplerPhysVol->getLogVol() : 0;
+  const GeoLogVol* lArECPresamplerLogVol = lArECPresamplerPhysVol ? lArECPresamplerPhysVol->getLogVol() : nullptr;
 
   // binned material for EC Presampler : layers only
    std::vector<Trk::IdentifiedMaterial> matECP;
@@ -980,7 +980,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     // binned material
     const Trk::BinnedMaterial* lArECPresamplerMaterialBinPos = new Trk::BinnedMaterial( lArBarrelPresamplerMaterial,hecp,iep,matECP);
 
-    Amg::Transform3D* align=0;
+    Amg::Transform3D* align=nullptr;
 
     lArPosECPresampler = new Trk::AlignableTrackingVolume(lArPosECPresamplerTransform, align,
 							  lArECPresamplerBounds,
@@ -1011,57 +1011,57 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   }
   
   // (2) now parse the HEC
-  Trk::CylinderVolumeBounds* lArPositiveHec1Bounds = 0;
-  Trk::CylinderVolumeBounds* lArPositiveHec2Bounds = 0;
-  Trk::CylinderVolumeBounds* lArNegativeHec1Bounds = 0;
-  Trk::CylinderVolumeBounds* lArNegativeHec2Bounds = 0;
+  Trk::CylinderVolumeBounds* lArPositiveHec1Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArPositiveHec2Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArNegativeHec1Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArNegativeHec2Bounds = nullptr;
   
 
   if(detStore()->contains<StoredPhysVol>("HEC1_POS")){
      
     if(detStore()->retrieve(storedPV,"HEC1_POS")==StatusCode::FAILURE){
       ATH_MSG_DEBUG( "Unable to retrieve Stored PV HEC1_POS" );
-      storedPV = 0;
+      storedPV = nullptr;
     }
     
   }
-  GeoFullPhysVol* lArPositiveHec1PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArPositiveHec1PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
   if(detStore()->contains<StoredPhysVol>("HEC2_POS")){
      
     if(detStore()->retrieve(storedPV,"HEC2_POS")==StatusCode::FAILURE){
       ATH_MSG_DEBUG( "Unable to retrieve Stored PV HEC2_POS" );
-      storedPV = 0;
+      storedPV = nullptr;
     }
     
   }
-  GeoFullPhysVol* lArPositiveHec2PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArPositiveHec2PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
   if(detStore()->contains<StoredPhysVol>("HEC1_NEG")){
     
     if(detStore()->retrieve(storedPV,"HEC1_NEG")==StatusCode::FAILURE){
       ATH_MSG_DEBUG( "Unable to retrieve Stored PV HEC1_NEG" );
-      storedPV = 0;
+      storedPV = nullptr;
     }
     
   }
-  GeoFullPhysVol* lArNegativeHec1PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArNegativeHec1PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
 
   if(detStore()->contains<StoredPhysVol>("HEC2_NEG")){
      
     if(detStore()->retrieve(storedPV,"HEC2_NEG")==StatusCode::FAILURE){
       ATH_MSG_DEBUG("Unable to retrieve Stored PV HEC2_NEG" );
-      storedPV = 0;
+      storedPV = nullptr;
      }
     
   }
   
-  GeoFullPhysVol* lArNegativeHec2PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArNegativeHec2PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
-  const GeoLogVol* lArPositiveHec1LogVol = lArPositiveHec1PhysVol ? lArPositiveHec1PhysVol->getLogVol() : 0;
-  const GeoLogVol* lArPositiveHec2LogVol = lArPositiveHec2PhysVol ? lArPositiveHec2PhysVol->getLogVol() : 0;
-  const GeoLogVol* lArNegativeHec1LogVol = lArNegativeHec1PhysVol ? lArNegativeHec1PhysVol->getLogVol() : 0;
-  const GeoLogVol* lArNegativeHec2LogVol = lArNegativeHec2PhysVol ? lArNegativeHec2PhysVol->getLogVol() : 0;
+  const GeoLogVol* lArPositiveHec1LogVol = lArPositiveHec1PhysVol ? lArPositiveHec1PhysVol->getLogVol() : nullptr;
+  const GeoLogVol* lArPositiveHec2LogVol = lArPositiveHec2PhysVol ? lArPositiveHec2PhysVol->getLogVol() : nullptr;
+  const GeoLogVol* lArNegativeHec1LogVol = lArNegativeHec1PhysVol ? lArNegativeHec1PhysVol->getLogVol() : nullptr;
+  const GeoLogVol* lArNegativeHec2LogVol = lArNegativeHec2PhysVol ? lArNegativeHec2PhysVol->getLogVol() : nullptr;
 
   std::vector<double> positiveEndcapZboundariesHec1;
   std::vector<double> positiveEndcapZboundariesHec2;
@@ -1106,16 +1106,16 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     // dynamic cast to 'Pcon' shape
     const GeoPcon* lArPositiveHec1Pcon = dynamic_cast<const GeoPcon*>(lArPositiveHec1Shape);
     lArPositiveHec1Bounds = (lArPositiveHec1Pcon) ? geoShapeToVolumeBounds.convert(lArPositiveHec1Pcon, 
-										   positiveEndcapZboundariesHec1) : 0;
+										   positiveEndcapZboundariesHec1) : nullptr;
     const GeoPcon* lArPositiveHec2Pcon = dynamic_cast<const GeoPcon*>(lArPositiveHec2Shape);
     lArPositiveHec2Bounds = (lArPositiveHec2Pcon) ? geoShapeToVolumeBounds.convert(lArPositiveHec2Pcon,
-										   positiveEndcapZboundariesHec2) : 0;
+										   positiveEndcapZboundariesHec2) : nullptr;
     const GeoPcon* lArNegativeHec1Pcon = dynamic_cast<const GeoPcon*>(lArNegativeHec1Shape);
     lArNegativeHec1Bounds = (lArNegativeHec1Pcon) ? geoShapeToVolumeBounds.convert(lArNegativeHec1Pcon,
-										   negativeEndcapZboundariesHec1) : 0;
+										   negativeEndcapZboundariesHec1) : nullptr;
     const GeoPcon* lArNegativeHec2Pcon = dynamic_cast<const GeoPcon*>(lArNegativeHec2Shape);
     lArNegativeHec2Bounds = (lArNegativeHec2Pcon) ? geoShapeToVolumeBounds.convert(lArNegativeHec2Pcon,
-										   negativeEndcapZboundariesHec2) : 0;
+										   negativeEndcapZboundariesHec2) : nullptr;
     
     if (lArPositiveHec1Bounds)
       ATH_MSG_VERBOSE( " -> Positive Hec1 Bounds: " << *lArPositiveHec1Bounds );
@@ -1148,34 +1148,34 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   //   FCAL1_POS, FCAL1_NEG
   //   FCAL2_POS, FCAL2_NEG
   //   FCAL3_POS, FCAL3_NEG
-  Trk::CylinderVolumeBounds* lArPositiveFcal1Bounds = 0;
-  Trk::CylinderVolumeBounds* lArPositiveFcal2Bounds = 0;
-  Trk::CylinderVolumeBounds* lArPositiveFcal3Bounds = 0;
+  Trk::CylinderVolumeBounds* lArPositiveFcal1Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArPositiveFcal2Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArPositiveFcal3Bounds = nullptr;
   
 
-  Trk::CylinderVolumeBounds* lArNegativeFcal1Bounds = 0;
-  Trk::CylinderVolumeBounds* lArNegativeFcal2Bounds = 0;
-  Trk::CylinderVolumeBounds* lArNegativeFcal3Bounds = 0;
+  Trk::CylinderVolumeBounds* lArNegativeFcal1Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArNegativeFcal2Bounds = nullptr;
+  Trk::CylinderVolumeBounds* lArNegativeFcal3Bounds = nullptr;
   
   if(detStore()->contains<StoredPhysVol>("FCAL1_POS"))
    {
      if(detStore()->retrieve(storedPV,"FCAL1_POS")==StatusCode::FAILURE)
        {
 	 ATH_MSG_DEBUG( "Unable to retrieve Stored PV FCAL1_POS" );
-	 storedPV = 0;
+	 storedPV = nullptr;
        }
    }
-  GeoFullPhysVol* lArPositiveFcal1PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArPositiveFcal1PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
   if(detStore()->contains<StoredPhysVol>("FCAL2_POS"))
     {
       if(detStore()->retrieve(storedPV,"FCAL2_POS")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV FCAL2_POS" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArPositiveFcal2PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArPositiveFcal2PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
   
   if(detStore()->contains<StoredPhysVol>("FCAL3_POS"))
@@ -1183,48 +1183,48 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       if(detStore()->retrieve(storedPV,"FCAL3_POS")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV FCAL3_POS" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArPositiveFcal3PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArPositiveFcal3PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
   if(detStore()->contains<StoredPhysVol>("FCAL1_NEG"))
     {
       if(detStore()->retrieve(storedPV,"FCAL1_NEG")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV FCAL1_NEG" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-  GeoFullPhysVol* lArNegativeFcal1PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+  GeoFullPhysVol* lArNegativeFcal1PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
   
   if(detStore()->contains<StoredPhysVol>("FCAL2_NEG"))
     {
       if(detStore()->retrieve(storedPV,"FCAL2_NEG")==StatusCode::FAILURE)
 	{
 	  ATH_MSG_DEBUG( "Unable to retrieve Stored PV FCAL2_NEG" );
-	  storedPV = 0;
+	  storedPV = nullptr;
 	}
     }
-   GeoFullPhysVol* lArNegativeFcal2PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+   GeoFullPhysVol* lArNegativeFcal2PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
    
    if(detStore()->contains<StoredPhysVol>("FCAL3_NEG"))
      {
        if(detStore()->retrieve(storedPV,"FCAL3_NEG")==StatusCode::FAILURE)
 	 {
 	   ATH_MSG_DEBUG( "Unable to retrieve Stored PV FCAL3_NEG" );
-	   storedPV = 0;
+	   storedPV = nullptr;
 	 }
      }
-   GeoFullPhysVol* lArNegativeFcal3PhysVol = storedPV ? storedPV->getPhysVol() : 0;
+   GeoFullPhysVol* lArNegativeFcal3PhysVol = storedPV ? storedPV->getPhysVol() : nullptr;
    
-   const GeoLogVol* lArPositiveFcal1LogVol = lArPositiveFcal1PhysVol ? lArPositiveFcal1PhysVol->getLogVol() : 0;
-   const GeoLogVol* lArPositiveFcal2LogVol = lArPositiveFcal2PhysVol ? lArPositiveFcal2PhysVol->getLogVol() : 0;
-   const GeoLogVol* lArPositiveFcal3LogVol = lArPositiveFcal3PhysVol ? lArPositiveFcal3PhysVol->getLogVol() : 0;
+   const GeoLogVol* lArPositiveFcal1LogVol = lArPositiveFcal1PhysVol ? lArPositiveFcal1PhysVol->getLogVol() : nullptr;
+   const GeoLogVol* lArPositiveFcal2LogVol = lArPositiveFcal2PhysVol ? lArPositiveFcal2PhysVol->getLogVol() : nullptr;
+   const GeoLogVol* lArPositiveFcal3LogVol = lArPositiveFcal3PhysVol ? lArPositiveFcal3PhysVol->getLogVol() : nullptr;
 
-   const GeoLogVol* lArNegativeFcal1LogVol = lArNegativeFcal1PhysVol ? lArNegativeFcal1PhysVol->getLogVol() : 0;
-   const GeoLogVol* lArNegativeFcal2LogVol = lArNegativeFcal2PhysVol ? lArNegativeFcal2PhysVol->getLogVol() : 0;
-   const GeoLogVol* lArNegativeFcal3LogVol = lArNegativeFcal3PhysVol ? lArNegativeFcal3PhysVol->getLogVol() : 0;
+   const GeoLogVol* lArNegativeFcal1LogVol = lArNegativeFcal1PhysVol ? lArNegativeFcal1PhysVol->getLogVol() : nullptr;
+   const GeoLogVol* lArNegativeFcal2LogVol = lArNegativeFcal2PhysVol ? lArNegativeFcal2PhysVol->getLogVol() : nullptr;
+   const GeoLogVol* lArNegativeFcal3LogVol = lArNegativeFcal3PhysVol ? lArNegativeFcal3PhysVol->getLogVol() : nullptr;
 
     // z position - force to be symmetric
    double lArFcalHalflength = 0.;
@@ -1292,18 +1292,18 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
      // dynamic cast to 'Pcon' shape
      const GeoTubs* lArPositiveFcal1Tubs = dynamic_cast<const GeoTubs*>(lArPositiveFcal1Shape);
-     lArPositiveFcal1Bounds = (lArPositiveFcal1Tubs) ? geoShapeToVolumeBounds.convert(lArPositiveFcal1Tubs) : 0;
+     lArPositiveFcal1Bounds = (lArPositiveFcal1Tubs) ? geoShapeToVolumeBounds.convert(lArPositiveFcal1Tubs) : nullptr;
      const GeoTubs* lArPositiveFcal2Tubs = dynamic_cast<const GeoTubs*>(lArPositiveFcal2Shape);
-     lArPositiveFcal2Bounds = (lArPositiveFcal2Tubs) ? geoShapeToVolumeBounds.convert(lArPositiveFcal2Tubs) : 0;
+     lArPositiveFcal2Bounds = (lArPositiveFcal2Tubs) ? geoShapeToVolumeBounds.convert(lArPositiveFcal2Tubs) : nullptr;
      const GeoTubs* lArPositiveFcal3Tubs = dynamic_cast<const GeoTubs*>(lArPositiveFcal3Shape);
-     lArPositiveFcal3Bounds = (lArPositiveFcal3Tubs) ? geoShapeToVolumeBounds.convert(lArPositiveFcal3Tubs) : 0;
+     lArPositiveFcal3Bounds = (lArPositiveFcal3Tubs) ? geoShapeToVolumeBounds.convert(lArPositiveFcal3Tubs) : nullptr;
 
      const GeoTubs* lArNegativeFcal1Tubs = dynamic_cast<const GeoTubs*>(lArNegativeFcal1Shape);
-     lArNegativeFcal1Bounds = (lArNegativeFcal1Tubs) ? geoShapeToVolumeBounds.convert(lArNegativeFcal1Tubs) : 0;
+     lArNegativeFcal1Bounds = (lArNegativeFcal1Tubs) ? geoShapeToVolumeBounds.convert(lArNegativeFcal1Tubs) : nullptr;
      const GeoTubs* lArNegativeFcal2Tubs = dynamic_cast<const GeoTubs*>(lArNegativeFcal2Shape);
-     lArNegativeFcal2Bounds = (lArNegativeFcal2Tubs) ? geoShapeToVolumeBounds.convert(lArNegativeFcal2Tubs) : 0;
+     lArNegativeFcal2Bounds = (lArNegativeFcal2Tubs) ? geoShapeToVolumeBounds.convert(lArNegativeFcal2Tubs) : nullptr;
      const GeoTubs* lArNegativeFcal3Tubs = dynamic_cast<const GeoTubs*>(lArNegativeFcal3Shape);
-     lArNegativeFcal3Bounds = (lArNegativeFcal3Tubs) ? geoShapeToVolumeBounds.convert(lArNegativeFcal3Tubs) : 0;
+     lArNegativeFcal3Bounds = (lArNegativeFcal3Tubs) ? geoShapeToVolumeBounds.convert(lArNegativeFcal3Tubs) : nullptr;
 
      if (lArPositiveFcal1Bounds)
            ATH_MSG_VERBOSE( " -> Positive Fcal1 Bounds: " << *lArPositiveFcal1Bounds );
@@ -1407,10 +1407,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    // -  fit one around the FCAL - and adopt to LAr Endcap outer radius
    if (lArPositiveFcal1Bounds && lArNegativeFcal1Bounds){
        // cleanup the HecBounds
-       delete lArPositiveHec1Bounds; lArPositiveHec1Bounds = 0;
-       delete lArPositiveHec2Bounds; lArPositiveHec2Bounds = 0;
-       delete lArNegativeHec1Bounds; lArNegativeHec1Bounds = 0;
-       delete lArNegativeHec2Bounds; lArNegativeHec2Bounds = 0;
+       delete lArPositiveHec1Bounds; lArPositiveHec1Bounds = nullptr;
+       delete lArPositiveHec2Bounds; lArPositiveHec2Bounds = nullptr;
+       delete lArNegativeHec1Bounds; lArNegativeHec1Bounds = nullptr;
+       delete lArNegativeHec2Bounds; lArNegativeHec2Bounds = nullptr;
 
        // adopt the boundaries
        lArPositiveHecFcalCoverBounds = new Trk::CylinderVolumeBounds(lArPositiveFcal1Bounds->outerRadius(),
@@ -1429,7 +1429,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
        Amg::Transform3D* lArNegativeHecFcalCoverTransform = new Amg::Transform3D(Amg::Translation3D(lArPositiveHecFcalCoverNeg));
 
        // building dense volume here
-       Amg::Transform3D* align = 0;
+       Amg::Transform3D* align = nullptr;
 
        // layer binning in Z
        std::vector<float> spCover;
@@ -1498,7 +1498,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
        Amg::Transform3D* lArNegativeHecTransform = new Amg::Transform3D(Amg::Translation3D(lArPositiveHecNeg));
 
        // building dense volume here
-       Amg::Transform3D* align = 0;
+       Amg::Transform3D* align = nullptr;
        
        // layer binning in Z
        std::vector<float> sphec;
@@ -1579,13 +1579,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
        lArFcalZmax  = lArFcalZposition + lArFcalHalflength;
 
        // cleanup 
-       delete lArPositiveFcal1Bounds; lArPositiveFcal1Bounds = 0;
-       delete lArPositiveFcal2Bounds; lArPositiveFcal2Bounds = 0;
-       delete lArPositiveFcal3Bounds; lArPositiveFcal3Bounds = 0;
+       delete lArPositiveFcal1Bounds; lArPositiveFcal1Bounds = nullptr;
+       delete lArPositiveFcal2Bounds; lArPositiveFcal2Bounds = nullptr;
+       delete lArPositiveFcal3Bounds; lArPositiveFcal3Bounds = nullptr;
 
-       delete lArNegativeFcal1Bounds; lArNegativeFcal1Bounds = 0;
-       delete lArNegativeFcal2Bounds; lArNegativeFcal2Bounds = 0;
-       delete lArNegativeFcal3Bounds; lArNegativeFcal3Bounds = 0;
+       delete lArNegativeFcal1Bounds; lArNegativeFcal1Bounds = nullptr;
+       delete lArNegativeFcal2Bounds; lArNegativeFcal2Bounds = nullptr;
+       delete lArNegativeFcal3Bounds; lArNegativeFcal3Bounds = nullptr;
 
        // layer binning in Z
        std::vector<float> spfc;
@@ -1624,7 +1624,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
        Amg::Transform3D* lArNegativeFcalTransform = new Amg::Transform3D(Amg::Translation3D(lArPositiveFcalNeg));
 
        // building dense volume here
-       Amg::Transform3D* align = 0;
+       Amg::Transform3D* align = nullptr;
        
        lArPositiveFcal = new Trk::AlignableTrackingVolume(lArPositiveFcalTransform, align,
 							  lArPositiveFcalBounds,
@@ -1789,7 +1789,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 }
 
 
-void LAr::LArVolumeBuilder::printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) const
+void LAr::LArVolumeBuilder::printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) 
 {
   if (vol) log << "... ok"      << endmsg;
   else     log << "... missing" << endmsg;
@@ -1837,87 +1837,8 @@ Trk::Volume* LAr::LArVolumeBuilder::discAssociatedVolume(const CaloCell_ID::Calo
   return  new Trk::Volume(pos, volBounds);
 }
 
-void LAr::LArVolumeBuilder::associateVolumeToPositiveLayer(const std::vector<const Trk::Layer*> matLayers, 
-                                                   const std::vector<const Trk::Volume*> sensitiveVolumes) const
-{
-  if (matLayers.size() == sensitiveVolumes.size()){
-    std::vector<const Trk::Layer*>::const_iterator layerItr = matLayers.begin();
-    std::vector<const Trk::Layer*>::const_iterator layerItrEnd = matLayers.end(); 
-    std::vector<const Trk::Volume*>::const_iterator volumeItr= sensitiveVolumes.begin(); 
-    std::vector<const Trk::Volume*>::const_iterator volumeItrEnd=sensitiveVolumes.end(); 
-      
-    for ( ; layerItr != layerItrEnd && volumeItr!= volumeItrEnd; ++layerItr){        
-      const Trk::CylinderVolumeBounds& volBounds = dynamic_cast<const Trk::CylinderVolumeBounds&>( (*volumeItr)->volumeBounds() );
-      double zLayer =  (*layerItr)->surfaceRepresentation().center().z();
-      double zVolume = (*volumeItr)->center().z();
-      if ( zLayer == zVolume){
-        // register the current volume to the layer
-        (*layerItr)->registerRepresentingVolume( *volumeItr ); 
-        ATH_MSG_VERBOSE("Trk::Volume associated to Layer Registered  with rmin: "<<volBounds.innerRadius()
-            <<"   rmax: "<<volBounds.outerRadius()
-            <<"   center z: "<<(*volumeItr)->center().z()
-            <<"   halfLenth z: " <<volBounds.halflengthZ());
-        // increase the volume
-        ++volumeItr;
-      }
-    }
-  }
-}
 
-
-  
-void LAr::LArVolumeBuilder::associateVolumeToNegativeLayer(const std::vector<const Trk::Layer*> matLayers, 
-                                                   const std::vector<const Trk::Volume*> sensitiveVolumes) const
-{
-  if (matLayers.size() == sensitiveVolumes.size()){
-    std::vector<const Trk::Layer*>::const_iterator layerItr = matLayers.begin();
-    std::vector<const Trk::Layer*>::const_iterator layerItrEnd = matLayers.end();        
-   //because the layers are negative, the z are ordered upside down. Try the last volume first 
-    std::vector<const Trk::Volume*>::const_iterator volumeItr= sensitiveVolumes.end(); 
-    std::vector<const Trk::Volume*>::const_iterator volumeItrBegin=sensitiveVolumes.begin();        
-    for ( ; layerItr != layerItrEnd && volumeItr > volumeItrBegin; ++layerItr){        
-      --volumeItr;
-      const Trk::CylinderVolumeBounds& volBounds = dynamic_cast<const Trk::CylinderVolumeBounds&>( (*volumeItr)->volumeBounds() );
-      double zLayer =  (*layerItr)->surfaceRepresentation().center().z();
-      double zVolume = (*volumeItr)->center().z();
-      if ( zLayer == zVolume){
-        // register the current volume to the layer
-        (*layerItr)->registerRepresentingVolume( *volumeItr ); 
-        ATH_MSG_VERBOSE("Trk::Volume associated to Layer Registered  with rmin: "<<volBounds.innerRadius()
-            <<"   rmax: "<<volBounds.outerRadius()
-            <<"   center z: "<<(*volumeItr)->center().z()
-            <<"   halfLenth z: " <<volBounds.halflengthZ());
-      }
-    }
-  }
-}
-
-void LAr::LArVolumeBuilder::associateCylVolumeToLayer(const std::vector<const Trk::Layer*> matLayers, 
-                                                                const std::vector<const Trk::Volume*> sensitiveVolumes) const
-{
-  if (matLayers.size() == sensitiveVolumes.size()){
-    std::vector<const Trk::Layer*>::const_iterator layerItr = matLayers.begin();
-    std::vector<const Trk::Layer*>::const_iterator layerItrEnd = matLayers.end(); 
-    std::vector<const Trk::Volume*>::const_iterator volumeItr= sensitiveVolumes.begin(); 
-    std::vector<const Trk::Volume*>::const_iterator volumeItrEnd=sensitiveVolumes.end(); 
-      
-    for ( ; layerItr != layerItrEnd && volumeItr!= volumeItrEnd; ++layerItr){        
-      const Trk::CylinderVolumeBounds& volBounds = dynamic_cast<const Trk::CylinderVolumeBounds&>( (*volumeItr)->volumeBounds() );
-      if ( (*layerItr)->surfaceRepresentation().bounds().r() == volBounds.mediumRadius() ){
-        (*layerItr)->registerRepresentingVolume( *volumeItr ); 
-        ATH_MSG_VERBOSE("Trk::Volume associated to Layer Registered  with rmin: "<<volBounds.innerRadius()
-            <<"   rmax: "<<volBounds.outerRadius()
-            <<"   center z: "<<(*volumeItr)->center().z()
-            <<"   halfLenth z: " <<volBounds.halflengthZ());
-        // increase the volume
-        ++volumeItr;
-      }
-    }
-  }
-}
-
-
-void LAr::LArVolumeBuilder::printInfo(const PVConstLink pv, int gen) const
+void LAr::LArVolumeBuilder::printInfo(const PVConstLink& pv, int gen) const
 {
   const GeoLogVol* lv = pv->getLogVol();
     ATH_MSG_VERBOSE( "New LAr Object:"<<lv->getName()<<", made of"<<lv->getMaterial()->getName()<<","<<lv->getShape()->type());
@@ -1940,7 +1861,7 @@ void LAr::LArVolumeBuilder::printInfo(const PVConstLink pv, int gen) const
     printChildren(pv,gen,igen,transf);
 }
 
-void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen, Amg::Transform3D trIn) const
+void LAr::LArVolumeBuilder::printChildren(const PVConstLink& pv,int gen, int igen, const Amg::Transform3D& trIn) const
 {
   // subcomponents
   unsigned int nc = pv->getNChildVols();
@@ -1976,7 +1897,7 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
    
 }
 
-GeoPVConstLink LAr::LArVolumeBuilder::getChild(GeoPVConstLink mother, std::string name, Amg::Transform3D& trIn) const
+GeoPVConstLink LAr::LArVolumeBuilder::getChild(const GeoPVConstLink& mother, const std::string& name, Amg::Transform3D& trIn) const
 {
   // subcomponents
   for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (&*mother))
@@ -1988,5 +1909,5 @@ GeoPVConstLink LAr::LArVolumeBuilder::getChild(GeoPVConstLink mother, std::strin
     GeoPVConstLink next=getChild(cv,name,transf);
     if (next) {trIn = transf; return next; }    
   }
-  return 0;
+  return nullptr;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -108,7 +108,7 @@ class LUCID_RawData {
   
   void encodeLumatMapping  (void);
   void decodeLumatMapping  (void);
-  int  getLumatBitPosition (unsigned int tubeNumber) const;
+  static int  getLumatBitPosition (unsigned int tubeNumber) ;
   bool isTubeFired         (unsigned int tubeNumber, unsigned int bxID) const;
 
   inline int getNhitsPMTsideA      () const { return (m_word0>>24); }

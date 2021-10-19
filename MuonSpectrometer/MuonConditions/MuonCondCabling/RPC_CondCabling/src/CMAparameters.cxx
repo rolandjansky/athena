@@ -4,7 +4,7 @@
 
 #include "RPC_CondCabling/CMAparameters.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <iomanip>
 #include <vector>
@@ -68,8 +68,8 @@ unsigned int CMAparameters::last_highPt_code() const { return m_last_highPt_code
 
 CMAparameters::CMAconfiguration CMAparameters::conf_type() const { return m_conf_type; }
 
-CMAparameters::CMAparameters(CMAparameters::parseParams parse, IMessageSvc* svc) :
-    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage), svc), m_params{parse} {
+CMAparameters::CMAparameters(CMAparameters::parseParams parse) :
+    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage)), m_params{parse} {
     m_id = std::make_unique<CMAidentity>(parse);
 }
 
@@ -211,19 +211,19 @@ CMAparameters& CMAparameters::operator=(const CMAparameters& cma) {
 void CMAparameters::reset_pivot_cabling() {
     m_pivot_rpc_read = 0;
     if (m_pivot) delete[] m_pivot;
-    m_pivot = 0;
+    m_pivot = nullptr;
 }
 
 void CMAparameters::reset_lowPt_cabling() {
     m_lowPt_rpc_read = 0;
     if (m_lowPt) delete[] m_lowPt;
-    m_lowPt = 0;
+    m_lowPt = nullptr;
 }
 
 void CMAparameters::reset_highPt_cabling() {
     m_highPt_rpc_read = 0;
     if (m_highPt) delete[] m_highPt;
-    m_highPt = 0;
+    m_highPt = nullptr;
 }
 
 void CMAparameters::create_pivot_map(int rpc_to_read) {
@@ -254,13 +254,11 @@ void CMAparameters::create_highPt_map(int rpc_to_read) {
 }
 
 bool CMAparameters::operator==(const CMAparameters& cma) const {
-    if (this->id() == cma.id()) return true;
-    return false;
+    return this->id() == cma.id();
 }
 
 bool CMAparameters::operator==(const CMAidentity& id) const {
-    if (this->id() == id) return true;
-    return false;
+    return this->id() == id;
 }
 
 CMAparameters& CMAparameters::operator+=(const CMAparameters& cma) {
@@ -355,15 +353,15 @@ void CMAparameters::showMt(char display[][90], int ln, TrigType type) const {
     down = 45;
 
     // Set input for the display
-    __osstream** disp = new __osstream*[ln];
+    std::ostringstream** disp = new std::ostringstream*[ln];
 
-    for (int i = 0; i < ln; ++i) disp[i] = new __osstream;
+    for (int i = 0; i < ln; ++i) disp[i] = new std::ostringstream;
 
     int pivot_loop = (m_pivot_rpc_read < 4) ? m_pivot_rpc_read : 3;
     int conf_loop = 0;
-    int(*conf)[2][confirm_channels] = 0;
+    int(*conf)[2][confirm_channels] = nullptr;
 
-    const CMAprogram* program = 0;
+    const CMAprogram* program = nullptr;
 
     if (type == Low) {
         conf_loop = m_lowPt_rpc_read;
@@ -476,20 +474,21 @@ void CMAparameters::Print(std::ostream& stream, bool detail) const {
     if (detail) showDt(stream);
 }
 
-void CMAparameters::noMoreChannels(const std::string stat) {
+std::string CMAparameters::noMoreChannels(const std::string& stat) {
     int max_channels = 0;
     if (stat == "Pivot")
         max_channels = pivot_channels;
     else
         max_channels = confirm_channels;
 
-    DISP << "Error in Sector Type " << this->sector_type() << ":" << std::endl
-         << this->id() << "  attempted to receive more than " << max_channels << " channels for " << stat << " side" << std::endl;
-    DISP_ERROR;
+    std::ostringstream disp;
+    disp << "Error in Sector Type " << this->sector_type() << ":" << std::endl
+         << this->id() << "  attempted to receive more than " << max_channels << " channels for " << stat << " side";
+    return disp.str();
 }
 
 const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int nstrips = 0;
 
     if (input == Pivot && m_pivot) {
@@ -502,51 +501,52 @@ const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const
         nstrips = confirm_channels * m_highPt_rpc_read * 2;
         strips = reinterpret_cast<int*>(m_highPt);
     } else
-        return 0;
+        return nullptr;
 
     for (int i = 0; i < nstrips; ++i)
         if (strips[i] == cabling_code) return this;
 
-    return 0;
+    return nullptr;
 }
 
-void CMAparameters::two_obj_error_message(std::string msg, CMAparameters* cma) {
-    this->error_header();
-
-    DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
+std::string CMAparameters::two_obj_error_message(const std::string& msg, CMAparameters* cma) {
+    std::ostringstream disp;
+    disp << this->error_header()
+         << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
          << *this << *cma;
-    DISP_ERROR;
+    return disp.str();
 }
 
-void CMAparameters::no_confirm_error(int stat) {
-    this->error_header();
+std::string CMAparameters::no_confirm_error(int stat) {
+    std::ostringstream disp;
+    disp << this->error_header();
 
     if (stat == lowPt_station()) {
-        DISP << "Low Pt cabling inconsistence (cabling from connector " << m_params.lowPtStartCo << " to connector " << m_params.lowPtStopCo
+        disp << "Low Pt cabling inconsistence (cabling from connector " << m_params.lowPtStartCo << " to connector " << m_params.lowPtStopCo
              << ") for" << std::endl
              << *this;
-        DISP_ERROR;
     } else if (stat == highPt_station()) {
-        DISP << "High Pt cabling inconsistence (cabling from connector " << m_params.highPtStartCo << " to connector "
+        disp << "High Pt cabling inconsistence (cabling from connector " << m_params.highPtStartCo << " to connector "
              << m_params.highPtStopCo << ") for" << std::endl
              << *this;
-        DISP_ERROR;
-    } else
-        return;
+    }
+    return disp.str();
 }
 
-void CMAparameters::no_wor_readout(int num, int stat) {
-    this->error_header();
+std::string CMAparameters::no_wor_readout(int num, int stat) {
+    std::ostringstream disp;
+    disp << this->error_header();
 
-    DISP << this->id() << "   receives input from" << std::endl
-         << "  RPC chamber n. " << num << " of station " << stat << " which has no Wired OR readout!" << std::endl;
-    DISP_ERROR;
+    disp << this->id() << "   receives input from" << std::endl
+         << "  RPC chamber n. " << num << " of station " << stat << " which has no Wired OR readout!";
+    return disp.str();
 }
 
-void CMAparameters::error(const std::string& str) {
-    this->error_header();
-    DISP << this->id() << str << std::endl;
-    DISP_ERROR;
+std::string CMAparameters::error(const std::string& str) {
+    std::ostringstream disp;
+    disp << this->error_header()
+         << this->id() << str;
+    return disp.str();
 }
 
 CMAinput CMAparameters::whichCMAinput(int stat) const {
@@ -573,14 +573,11 @@ int CMAparameters::whichCMAstation(CMAinput input) const {
 
 bool CMAparameters::give_connection(int station, int cab_code, CMAinput& IO, int& ly, int& ch) const {
     IO = whichCMAinput(station);
-    if (get_channel(IO, cab_code, ly, ch))
-        return true;
-    else
-        return false;
+    return get_channel(IO, cab_code, ly, ch);
 }
 
 bool CMAparameters::get_channel(CMAinput IO, int cab_code, int& ly, int& ch) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int nstrips = 0;
     int channels = 0;
 
@@ -611,7 +608,7 @@ bool CMAparameters::get_channel(CMAinput IO, int cab_code, int& ly, int& ch) con
 }
 
 bool CMAparameters::get_cabling(CMAinput IO, int WOR, int ly, int ch, unsigned int& code) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int channels = 0;
 
     if (ly >= 2) return false;
@@ -648,7 +645,7 @@ bool CMAparameters::correct(L1RPCcabCorrection type, CMAinput it, unsigned int l
 
     int worlo = 0;
     int maxch = 0;
-    int* map = 0;
+    int* map = nullptr;
 
     switch (it) {
         case Pivot:

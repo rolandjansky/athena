@@ -21,7 +21,6 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkTrack/Track.h" 
 #include "TrkTrack/TrackCollection.h"
 
 //Gaudi
@@ -45,7 +44,7 @@ class SCTHitEffMonAlg : public AthMonitorAlgorithm {
 
  private:
     // Method to cut on track or hit variables and automatize DEBUG statements 
-  StatusCode failCut(bool value, std::string name) const;
+  StatusCode failCut(bool value, const std::string & name) const;
 
   // Method to compute incident angle of track to wafer 
   StatusCode findAnglesToWaferSurface(const Amg::Vector3D& mom, const Identifier id,

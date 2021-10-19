@@ -44,7 +44,6 @@ const int L1CaloMonitoringCaloTool::s_nsinThBins;
 /*---------------------------------------------------------*/
 L1CaloMonitoringCaloTool::L1CaloMonitoringCaloTool( const std::string & name ) :
     asg::AsgTool( name ),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_lvl1Helper(nullptr),
     m_sinTh(s_nsinThBins, 0.),
     m_events(0),
@@ -67,14 +66,10 @@ StatusCode L1CaloMonitoringCaloTool:: initialize()
 {
   ATH_MSG_INFO("Initializing " << name());
 
+  ATH_CHECK( m_cellMatch.retrieve() );
+
   StatusCode sc;
   
-  sc = m_cells2tt.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to locate tool L1CaloCells2TriggerTowers");
-    return sc;
-  }
-
   // Get LVL1 idhelper from detector store
   const CaloLVL1_ID* lvl1_id = 0;
   sc = detStore()->retrieve(lvl1_id, "CaloLVL1_ID");
@@ -127,6 +122,8 @@ StatusCode L1CaloMonitoringCaloTool:: initialize()
   }
   m_sideOffset = binsEta[s_nregions-1]*binsPhi[s_nregions-1] + m_indexOffset[s_nregions-1];
   m_layerOffset = 2*m_sideOffset;
+
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -191,6 +188,8 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
   m_quality.assign(s_maxTowers, 0.0);
   m_denom.assign(s_maxTowers, 0.0);
   unsigned int cellIdsIndex = 0;
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
   
   for (; CaloCellIterator != CaloCellIteratorEnd; ++CaloCellIterator) {
       
@@ -206,7 +205,7 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
     int index2 = s_maxTowers;
     const unsigned int cellId32 = cellId.get_identifier32().get_compact();
     if (m_events == 1) {
-      m_cells2tt->matchCell2Tower(caloCell, ttId1, ttId2);
+      m_cellMatch->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
       if (ttId1 != invalidId) index1 = towerIndex(ttId1);
       if (ttId2 != invalidId) index2 = towerIndex(ttId2);
       if (cellIdsIndex < m_maxCells-1) {
@@ -222,7 +221,7 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
         index1 = m_ttIdx[cellIdsIndex++];
         if (m_cellIds[cellIdsIndex] == cellId32) index2 = m_ttIdx[cellIdsIndex++];
       } else {
-        m_cells2tt->matchCell2Tower(caloCell, ttId1, ttId2);
+        m_cellMatch->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
         if (ttId1 != invalidId) index1 = towerIndex(ttId1);
         if (ttId2 != invalidId) index2 = towerIndex(ttId2);
       }

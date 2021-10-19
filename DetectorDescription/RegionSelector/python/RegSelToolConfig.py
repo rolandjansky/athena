@@ -38,6 +38,11 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
     elif detector == "SCT":
         condAlg.DetEleCollKey = "SCT_DetectorElementCollection"
         condAlg.SCT_CablingData = "SCT_CablingData"
+    elif detector == "ITkStrip":
+        condAlg.DetEleCollKey = "ITkStripDetectorElementCollection"
+        # No cabling data for ITk
+        condAlg.PixelCablingCondData = ""
+        condAlg.SCT_CablingData = ""
     return condAlg
 
 def _createRegSelTool( detector, enable ):
@@ -220,6 +225,10 @@ def regSelTool_TRT_Cfg(flags):
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
     return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg, CablingConfigCfg=PixelCablingCondAlgCfg)
 
+# ITk
+
+def regSelTool_ITkStrip_Cfg(flags):
+    return regSelToolCfg(flags, "ITkStrip", CompFactory.SiRegSelCondAlg)
 
 # muon spectrometer
 
@@ -241,7 +250,7 @@ def regSelTool_CSC_Cfg(flags):
     return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg)
 
 def regSelTool_STGC_Cfg(flags):
-    return regSelToolCfg(flags, "STGC", CompFactory.STGC_RegSelCondAlg)
+    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg)
 
 def regSelTool_MM_Cfg(flags):
     return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)

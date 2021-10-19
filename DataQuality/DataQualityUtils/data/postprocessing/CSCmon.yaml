@@ -3,13 +3,13 @@
 #
 # Separate blocks with ---
 ---
-Input : ['Muon/MuonSegmentMonitoring/EndCap(?P<side>.)/Overview/MuonSegments/CSC/Muon_Segm_QSumEtaGoodClusPerLayer_E(?P=side)']
-Output : ['Muon/MuonRawDataMonitoring/CSC/Overview/CSCE{side}/h1csc_clus_qsum_signal_E{side}_lfitmean']
+Input : ['Muon/MuonSegmentMonitoring/EndCap(?P<side>.)/Overview/TrackMuonSegments/CSC/Muon_Segm_QSumEtaGoodClusPerLayer_E(?P=side)']
+Output : ['Muon/MuonRawDataMonitoring/CSC/Overview/CSCE{side}/Cluster/h1csc_clus_qsum_signal_E{side}_lfitmean']
 Function : CscRawDataMonitoring.CscPostProcessing.CSCLandauFit
 Description: CSCLandauFit
 
 ---
-Input : ['Muon/MuonSegmentMonitoring/EndCap(?P<side>.)/Detail/CSC/Muon_Segm_NumNClusSegments_E(?P=side)']
-Output : ['Muon/MuonSegmentMonitoring/EndCap{side}/Overview/CSC/Muon_Segm_Efficiency_E{side}']
+Input : ['Muon/MuonSegmentMonitoring/EndCap(?P<side>.)/Detail/TrackMuonSegments/CSC/Muon_Segm_NumNClusSegments_E(?P=side)']
+Output : ['Muon/MuonSegmentMonitoring/EndCap{side}/Overview/TrackMuonSegments/CSC/Muon_Segm_Efficiency_E{side}']
 Function : CscRawDataMonitoring.CscPostProcessing.CscChamberEfficiency
 Description : CSCChamberEfficiency

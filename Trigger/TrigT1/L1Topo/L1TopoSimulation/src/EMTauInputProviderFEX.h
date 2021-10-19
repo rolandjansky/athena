@@ -10,6 +10,7 @@
 
 //EM/Tau EDMs
 #include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIContainer.h"
 
 
 #include "TH1.h"
@@ -49,7 +50,8 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hTauEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtPhi ATLAS_THREAD_SAFE;
 
-     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEX EDM"};
+     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEXEM EDM"};
+     SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "L1_eTauRoI", "L1_eTauRoI", "eFEXTau EDM"};
    };
 }
 

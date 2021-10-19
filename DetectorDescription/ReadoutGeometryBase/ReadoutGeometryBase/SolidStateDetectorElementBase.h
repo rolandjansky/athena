@@ -12,11 +12,11 @@
 /**
  * Base class.
  */
-#include "TrkDetElementBase/TrkDetElementBase.h"
-
-#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+/// Ensure that the ATLAS eigen extensions are properly loaded
+#include "TrkDetElementBase/TrkDetElementBase.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "ReadoutGeometryBase/InDetDD_Defs.h"
@@ -26,6 +26,7 @@
 #include "ReadoutGeometryBase/SiIntersect.h"
 #include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "CxxUtils/CachedValue.h"
 
 #include "CLHEP/Geometry/Point3D.h"
 
@@ -108,25 +109,19 @@ namespace InDetDD {
    *
    * @par Some notes on Thread safety for  AthenaMT
    *
-   * The private methods of this class do not have locks.
-   *
    * The method updateCache of is of particular interest as
-   * it set all cache values and at the end sets the
-   * m_cacheValid atomic variable to true.
+   * it set all cache values.
    *
-   * The const methods call the updateCache() under a mutex lock
-   * when the need to perform lazy initialization
+   * The const methods call updateCache() 
+   * when they need to perform lazy initialization
    * \code{.cpp}
-   * if (!m_cacheValid) {
-   *   std::lock_guard<std::mutex> lock(m_mutex);
-   *   if (!m_cacheValid) updateCache();
-   * }
+   * if (!m_cache.isValid()) updateCache();
    * \endcode
    *
    * So as concurrent const operations are valid
    * and do not race with each other.
    *
-   * The non-const methods do not use a mutex lock. They can set the state
+   * The non-const methods can set the state
    * of the cache or the cache itself (invalidate/setCache methods etc)
    *
    * Note: Synchronisation of creating SiDetElements for different events
@@ -567,7 +562,10 @@ namespace InDetDD {
     double etaAngle() const;
     double phiAngle() const;
 
+  protected:
+    struct CachedVals;
   private:
+
     /**
      * @name Private Methods
      *
@@ -584,9 +582,7 @@ namespace InDetDD {
      * are rMin(), rMax etc methods.
      * It is only used from updateCache
      */
-    void getExtent(double& rMin, double& rMax,
-                   double& zMin, double& zMax,
-                   double& phiMin, double& phiMax) const;
+    void getExtent(CachedVals& cache) const;
 
     /**
      * Return the four corners of an element in local coordinates.
@@ -604,11 +600,6 @@ namespace InDetDD {
                         double& etaMin, double& etaMax, double& phi) const;
 
     /**
-     * Private recoToHitTransform Implementation method with no lock
-     */
-    const HepGeom::Transform3D recoToHitTransformImpl() const;
-
-    /**
      * Declaring the Message method for further use (inline)
      */
     MsgStream& msg(MSG::Level lvl) const;
@@ -623,31 +614,6 @@ namespace InDetDD {
      * Protected data:
      */
   protected:
-
-    /**
-     * @name Variables for cache validities
-     */
-    //@{
-    /**
-     * For alignment associated quatities.
-     */
-    //not obvious why we need a separate bool for the base class version...
-    mutable std::atomic_bool m_baseCacheValid{false};
-    mutable std::atomic_bool m_cacheValid{false};
-    /**
-     * For alignment independent quantities
-     */
-    //ditto
-    mutable std::atomic_bool m_firstTimeBase{true};
-    mutable std::atomic_bool m_firstTime{true};
-
-    /**
-     * @name Mutex guard to update mutable variables in const methods
-     */
-    //@{
-    mutable std::mutex m_mutex{};
-    //@}
-
     /**
      * @name Variables set by constructor
      */
@@ -686,24 +652,35 @@ namespace InDetDD {
     //@}
 
     /**
-     * @name Variables set by updateCache with m_firstTime of true
-     * Happens only once
+     * @name Variables set by updateCache and not invalidated.
      *
      * Directions of axes. These are true if the hit/simulation and reconstruction local
      * frames are in the same direction and false if they are opposite.
      */
     //@{
-    /**
-     * Direction of depth axis.
-     * Also direction of readout implant (n+ for pixel, p+ for SCT).
-     */
-    mutable bool m_depthDirection ATLAS_THREAD_SAFE {true};
-    mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
-    mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+    struct AxisDir
+    {
+      /**
+       * Direction of depth axis.
+       * Also direction of readout implant (n+ for pixel, p+ for SCT).
+       */
+      bool m_depthDirection;
+      bool m_phiDirection;
+      bool m_etaDirection;
    
-    mutable double m_depthAngle ATLAS_THREAD_SAFE {true};
-    mutable double m_phiAngle ATLAS_THREAD_SAFE {true};
-    mutable double m_etaAngle ATLAS_THREAD_SAFE {true};
+      double m_depthAngle;
+      double m_phiAngle;
+      double m_etaAngle;
+
+      /**
+       * @name Variable set by updateCache
+       * Determines if the orientations is "barrel like"
+       * (which for ITk pixel can be the case even if
+       * not strictly part of the barrel geometry)
+       */
+      bool m_barrelLike;
+    };
+    CxxUtils::CachedValue<AxisDir> m_axisDir;
 
     //@}
 
@@ -711,33 +688,27 @@ namespace InDetDD {
      * @name Variables set by updateCache
      */
     //@{
-    mutable Amg::Transform3D m_transformHit ATLAS_THREAD_SAFE;
-    mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE;
-    mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE;
+    struct CachedVals {
+      Amg::Transform3D m_transformHit;
+      Amg::Transform3D m_transform;
+      HepGeom::Transform3D m_transformCLHEP;
+      Amg::Vector3D m_normal;
+      Amg::Vector3D m_etaAxis;
+      HepGeom::Vector3D<double> m_etaAxisCLHEP;
+      Amg::Vector3D m_phiAxis;
+      HepGeom::Vector3D<double> m_phiAxisCLHEP;
+      Amg::Vector3D m_center;
+      HepGeom::Vector3D<double> m_centerCLHEP;
+      Amg::Vector3D m_origin;
+      double m_minZ;
+      double m_maxZ;
+      double m_minR;
+      double m_maxR;
+      double m_minPhi;
+      double m_maxPhi;
+    };
+    CxxUtils::CachedValue<CachedVals> m_cache;
 
-    mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE;
-    mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE;
-    mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE;
-    mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE;
-    mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE;
-    mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE;
-    mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE;
-    mutable Amg::Vector3D m_origin ATLAS_THREAD_SAFE;
-
-      /**
-     * @name Variable set by updateCache
-     * Determines if the orientations is "barrel like"
-     * (which for ITk pixel can be the case even if
-     * not strictly part of the barrel geometry)
-     */
-    mutable bool m_barrelLike ATLAS_THREAD_SAFE {false};
-
-    mutable double m_minZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
-    mutable double m_maxZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
-    mutable double m_minR ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
-    mutable double m_maxR ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
-    mutable double m_minPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
-    mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
     //@}
 
   };

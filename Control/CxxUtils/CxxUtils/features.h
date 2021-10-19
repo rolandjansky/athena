@@ -67,13 +67,13 @@
 # define HAVE_VECTOR_SIZE_ATTRIBUTE 0
 #endif
 
-// Do we additionally support the ternary operator for vectorizes types.
-// GCC and llvm clang >=10
-#if HAVE_VECTOR_SIZE_ATTRIBUTE &&                                              \
-  !(defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__)))
-#define HAVE_VECTOR_TERNARY_OPERATOR 1
+// Do we additionally support the clang
+// __builtin_convertvector
+// GCC>=9 does
+#if HAVE_VECTOR_SIZE_ATTRIBUTE && (defined(__clang__) || (__GNUC__ >= 9))
+#define HAVE_CONVERT_VECTOR 1
 #else
-#define HAVE_VECTOR_TERNARY_OPERATOR 0
+#define HAVE_CONVERT_VECTOR 0
 #endif
 
 // Do we have mallinfo2?  Present in glibc 2.33,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of the LArRODBlockStructure_3 class
@@ -325,7 +325,7 @@ void LArRodBlockPhysicsV3::setNextEnergy(const uint16_t energy,const int16_t tim
   
   m_EnergyIndex++; //Use m_EIndex to count the channels put in the Energy block
 
-  ShortLong twoValues;
+  ShortLong twoValues{};
   if (m_EnergyIndex%2) // m_EIndex-1 is even
     {
       twoValues.s[0]= energy;
@@ -396,7 +396,7 @@ void LArRodBlockPhysicsV3::setNextEnergy(const uint16_t energy,const int16_t tim
       if (abs(time)>m_OffTimeCut) m_numberHotCellOffTime++;
       
       mylocalBitwiseIndex = (m_numberHotCell-1)%2; // 16 bits per channel
-      ShortLong twoValues;
+      ShortLong twoValues{};
       if (mylocalBitwiseIndex==0) // need for a new 32 bits word to store the time quality of that cell
 	{
 	  twoValues.s[0]=0;
@@ -523,7 +523,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
  // Counter block....
 
  // fill info from counters
- ShortLong twoValues;
+ ShortLong twoValues{};
  twoValues.s[0]=(uint16_t)m_numberHotCell;
  twoValues.s[1]=(uint16_t)m_numberHotCellOffTime;
  m_CounterBlkBlock.push_back(twoValues.l);

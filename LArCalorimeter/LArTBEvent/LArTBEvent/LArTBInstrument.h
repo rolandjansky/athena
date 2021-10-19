@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTBINSTRUMENT_H
@@ -151,7 +151,7 @@ class LArTBInstrument {
   long int m_clock;           /**< Rate of 1MHz clock */
   long int m_pretrig;         /**< Signal Rate of pretrigger counters */
   long int m_w1w2;            /**< Signal Rate of W1*W2 counters */
-  bool m_pattern_unit[4][16]; /**< Pattern units */
+  bool m_pattern_unit[4][16]{}; /**< Pattern units */
 }; 
 CLASS_DEF(LArTBInstrument,2785,0)
 #endif //LARTBINSTRUMENT_H

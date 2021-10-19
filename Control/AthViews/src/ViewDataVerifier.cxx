@@ -37,7 +37,7 @@ StatusCode ViewDataVerifier::initialize()
     str << "Will explicitly preload the following DataObjects:";
     for ( auto &obj : m_load.value() ) {
       str << "\n    + " << obj;
-      if ( obj.key() == "" ) {
+      if ( obj.key() .empty() ) {
         sc = StatusCode::FAILURE;
         str << "   ERROR: empty key is not allowed!";
       }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -30,7 +30,6 @@
 
 #include "TopSystematicObjectMaker/ObjectCollectionMaker.h"
 
-#include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/SelectionConfigurationData.h"
@@ -63,8 +62,6 @@
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
 #include "TopDataPreparation/SampleXsection.h"
-
-//#include "TopHLUpgrade/UpgradeObjectLoader.h"
 
 // to disable the sending of file access statistics
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
@@ -163,24 +160,12 @@ int main(int argc, char** argv) {
   // This is not the same as a good configuration
   std::shared_ptr<top::TopConfig> topConfig(new top::TopConfig());
 
-  // load AOD meta-data from all files
-  bool useAodMetaData = false;
-  settings->retrieve("UseAodMetaData", useAodMetaData);
-  if (useAodMetaData) {
-    ATH_MSG_INFO("Loading meta-data from input files ... ");
-    topConfig->aodMetaData().loadWithFilesFrom(argv[2]);
-    ATH_MSG_INFO("OK.");
-  }
-
-  
   //picking the first file was a bad idea because in the derivations it often
   //has no events (no CollectionTree).  Be sure to pick a file with events in
-  //it...
-  // The isMC flag needs to be taken from the xAOD metadata
-  // We also need something for AFII
+  //it -- this is needed to determine the year to setup triggers
+  //FIXME -- can we have this in MetaData without having to open CollectionTree ?
   {
     std::string usethisfile = filenames[0];
-    bool atLeastOneFileIsValid(false);
     for (const auto& filename : filenames) {
       std::unique_ptr<TFile> checkingYieldFile(TFile::Open(filename.c_str()));
 
@@ -188,74 +173,30 @@ int main(int argc, char** argv) {
       const TTree* const collectionTree = dynamic_cast<TTree* > (checkingYieldFile->Get("CollectionTree"));
       if (collectionTree) {
         usethisfile = filename;
-        atLeastOneFileIsValid = true;
         break;
       }
     }
 
-    // If there are no valid files, let's exit cleanly
-    if (!(atLeastOneFileIsValid || useAodMetaData)) {
-      ATH_MSG_ERROR("No input file contains a CollectionTree and no metadata used. Cannot Continue.");
-      ATH_MSG_ERROR("If you had turned on 'UseAodMetaData' in your configuration, "
-          "we could overcome this limitation.");
+    // read FileMetaData using AsgMetadataTool
+    std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
+    if (!top::readMetaData(testFile.get(), topConfig)) {
+      ATH_MSG_ERROR("Unable to access FileMetaData in this file : " << usethisfile
+          << "\nPlease report this message.");
       return 1;
     }
 
-    std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
-    if (!top::readMetaData(testFile.get(), topConfig)) {
-      ATH_MSG_ERROR("Unable to access FileMetaData and/or TruthMetaData in this file : " << usethisfile
-          << "\nPlease report this message.");
-    }
-
-
-    const bool isOverlay = useAodMetaData ? topConfig->aodMetaData().IsEventOverlayInputSim() : false;
-    bool isMC(true);
-    if (!isOverlay) {
-      isMC = (useAodMetaData ?
-              topConfig->aodMetaData().isSimulation() :
-              top::isFileSimulation(testFile.get(), topConfig->sgKeyEventInfo())
-              );
-    }
-
-    topConfig->setIsMC(isMC);
-    topConfig->setIsDataOverlay(isOverlay);
-
-    const bool isPrimaryxAOD = top::isFilePrimaryxAOD(testFile.get());
-    topConfig->setIsPrimaryxAOD(isPrimaryxAOD);
-
+    // determine derivation stream
+    // TODO: can we find a nicer way instead of looping over MetaData TTree branches ?
     const std::string derivationStream = top::getDerivationStream(testFile.get());
     ATH_MSG_INFO("Derivation stream is -> " << derivationStream);
     topConfig->setDerivationStream(derivationStream);
-
-    // first we need to read some metadata before we read the config
-    if (isMC) {
-      // check number of MC generator weights -- we need this before start initializing PMGTruthWeightTool later
-      if (atLeastOneFileIsValid) topConfig->setMCweightsVectorSize(top::MCweightsSize(testFile.get(), topConfig->sgKeyEventInfo()));
-      ///-- Are we using a truth derivation (no reco information)? --///
-      ///-- Let's find out in the first event, this could be done better --///
-      bool isTruthDxAOD = top::isTruthDxAOD(testFile.get());
-      topConfig->setIsTruthDxAOD(isTruthDxAOD);
-
-      unsigned int DSID {0};
-      if (!useAodMetaData) {
-        if (atLeastOneFileIsValid) {
-          DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
-          topConfig->setDSID(DSID);
-        } else {
-          ATH_MSG_ERROR("We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample.");
-          return 1;
-        }
-      } else {
-        DSID = topConfig->getDSID();
-      }
-    }
-
-
+    // TODO: unclear if DAOD_TRUTH derivations exist in R22, and if they are reprocessed ?
+    topConfig->setIsTruthDxAOD((derivationStream == "TRUTH"));
 
     // Pass the settings file to the TopConfig
     topConfig->setConfigSettings(settings);
 
-    if (isMC && !topConfig->isTruthDxAOD()) {
+    if (topConfig->isMC() && !topConfig->isTruthDxAOD()) {
       // now need to get and set the parton shower generator from TopDataPrep
       SampleXsection tdp;
       // Package/filename - XS file we want to use (can now be configured via cutfile)
@@ -285,23 +226,22 @@ int main(int argc, char** argv) {
         const xAOD::EventInfo* eventInfo(nullptr);
         top::check(xaodEvent.retrieve(eventInfo, topConfig->sgKeyEventInfo()), "Failed to retrieve EventInfo");
         const unsigned int runnumber = eventInfo->runNumber();
-        const std::string thisYear = topConfig->getYear(runnumber, isMC);
+        const std::string thisYear = topConfig->getYear(runnumber, topConfig->isMC());
         topConfig->SetYear(thisYear);
       } else {
         topConfig->SetYear("UNKNOWN");
       }
-      topConfig->SetTriggersToYear(isMC);
+      topConfig->SetTriggersToYear(topConfig->isMC());
     }
 
   } //close and delete the ptr to testFile
 
 
-  //In rel 19 we had a function to guess Class or Branch Access.
-  //In rel20 just use branch (quicker)
-  // In rel 20.7, need to go back to class access
   xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
 
-  // Read metadata
+  // This first input file needs to be open, because some CP tools expect to be able to
+  // read stuff during initialization
+  // At minimum, the PMGTruthWeightTool needs access to metadata
   std::unique_ptr<TFile> metadataInitFile(TFile::Open(filenames[0].c_str()));
   top::check(xaodEvent.readFrom(metadataInitFile.get()), "xAOD::TEvent readFrom failed");
 
@@ -333,21 +273,15 @@ int main(int argc, char** argv) {
   top::check(systObjMaker->setProperty("config", topConfig), "Failed to setProperty of systObjMaker");
   if (!topConfig->isTruthDxAOD()) top::check(systObjMaker->initialize(), "Failed to initialize systObjMaker");
 
-  //setup object definitions - not used in HLUpgrade tools
   std::unique_ptr<top::TopObjectSelection> objectSelection;
-  if (!topConfig->HLLHC()) {
-    objectSelection.reset(top::loadObjectSelection(topConfig));
-    objectSelection->print(msg(MSG::Level::INFO)); // forward to msg stream using INFO level
-  }
+  objectSelection.reset(top::loadObjectSelection(topConfig));
+  objectSelection->print(msg(MSG::Level::INFO)); // forward to msg stream using INFO level
 
   //setup event-level cuts
   top::EventSelectionManager eventSelectionManager(settings->selections(), outputFile.get(), libraryNames, topConfig);
 
   //The loader tool for top::ParticleLevelEvent objects
   top::ParticleLevelLoader particleLevelLoader(topConfig);
-
-  // The loader tool for Upgrade objects
-//  top::UpgradeObjectLoader upgradeLoader(topConfig);
 
   // Fix the configuration - it now knows about:
   //     * all objects collections to work with
@@ -497,16 +431,12 @@ int main(int argc, char** argv) {
   bool recalculateNominalWeightSum = false;
   int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
-  std::string generators = topConfig->getGenerators();
-  std::string AMITag = topConfig->getAMITag();
   ULong64_t totalEvents = 0;
   ULong64_t totalEventsInFiles = 0;
   std::unordered_map<std::string, std::vector<std::string>> boostedTaggersSFSysNames = topConfig->boostedTaggersSFSysNames();
   
   sumWeights->Branch("dsid", &dsid);
   sumWeights->Branch("isAFII", &isAFII);
-  sumWeights->Branch("generators", &generators);
-  sumWeights->Branch("AMITag", &AMITag);
   sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
   if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
     sumWeights->Branch("totalEventsWeighted_mc_generator_weights", &totalEventsWeighted_LHE3);
@@ -540,7 +470,6 @@ int main(int argc, char** argv) {
   unsigned int totalYieldSoFar = 0;
   unsigned int skippedEventsSoFar = 0;
   unsigned int eventSavedReco(0), eventSavedRecoLoose(0), eventSavedTruth(0), eventSavedParticle(0);
-//  unsigned int  eventSavedUpgrade(0);
 
   // Close the file that we opened only for metadata
   metadataInitFile->Close();
@@ -586,25 +515,25 @@ int main(int argc, char** argv) {
         // we continue without names of the MC weights, only indices will be available
         ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
         if (!m_pmg_weightTool.retrieve()) {
-          ATH_MSG_ERROR("Cannot retrieve PMGTruthWeightTool");   
+          ATH_MSG_ERROR("Cannot retrieve PMGTruthWeightTool for determining CutBookkeeper weight names.");   
           return 1;
         }
 
         const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
         // try to retrieve CutBookKeepers for LHE3Weights first
-        top::parseCutBookkeepers(xaodEvent, weight_names.size(), LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
+        top::parseCutBookkeepers(xaodEvent, weight_names.size(), LHE3_names_file, LHE3_sumW_file);
         // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
         top::renameCutBookkeepers(LHE3_names_file, weight_names);
 
         // raw number of events taken from "AllExecutedEvents" bookkeeper, which corresponds to 0th MC weight
         // but these are raw entries, so doesn't matter if 0th MC weight is nominal or not
-        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers);
 
         // determine the nominal sum of weight -- we already found the nominal weight in ScaleFactorCalculator
         const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
         sumW_file = LHE3_sumW_file.at(nominalWeightIndex);
       } else {
-        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers);
         sumW_file = initialEvents; // this is data, it's the same number...
       }
     }
@@ -718,19 +647,6 @@ int main(int argc, char** argv) {
         // Save, if requested, MC truth block, PDFInfo, TopPartons
         eventSaver->saveTruthEvent();
         if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
-
-        // Upgrade analysis - only for truth DAODs when asking to do upgrade studies
-        if (topConfig->isTruthDxAOD() && topConfig->HLLHC()) {
-          //top::ParticleLevelEvent upgradeEvent = upgradeLoader.load();
-
-          ////event selection
-          //const bool saveEventInOutputFile = eventSelectionManager.applyUpgradeLevel(upgradeEvent);
-
-          //if (saveEventInOutputFile) {
-          //  eventSaver->saveUpgradeEvent(upgradeEvent);
-          //  ++eventSavedUpgrade;
-          //}
-        }
 
         // Particle level analysis, saved only for truth events passing fiducial selection
 
@@ -900,7 +816,10 @@ int main(int argc, char** argv) {
             if (runNumber >= 300000) {
               if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
-                ATH_MSG_WARNING("\n***************************************************************************************\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n***************************************************************************************\n");
+                ATH_MSG_WARNING("\n***************************************************************************************"
+		                "\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!"
+		                "\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files"
+		                "\n***************************************************************************************\n");
               }
             }
           }
@@ -935,7 +854,10 @@ int main(int argc, char** argv) {
             if (runNumber >= 300000) {
               if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
-                ATH_MSG_WARNING("\n***************************************************************************************\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n***************************************************************************************\n");
+                ATH_MSG_WARNING("\n***************************************************************************************"
+		                "\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!"
+		                "\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files"
+		                "\n***************************************************************************************\n");
               }
             }
           }
@@ -1128,9 +1050,6 @@ int main(int argc, char** argv) {
     if (particleLevelLoader.active()) {
       ATH_MSG_INFO("Events saved to output file particle level tree : " << eventSavedParticle);
     }
-    //if (upgradeLoader.active()) {
-    //  ATH_MSG_INFO("Events saved to output file upgrade tree : " << eventSavedUpgrade);
-    //}
   }
   ATH_MSG_INFO("Total sum-of-weights (for normalization) : " << totalEventsWeighted);
 

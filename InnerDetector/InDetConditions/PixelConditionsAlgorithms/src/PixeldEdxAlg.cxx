@@ -112,7 +112,7 @@ StatusCode PixeldEdxAlg::execute() {
   }
   else {
     std::string file_name = PathResolver::find_file(m_filename,"DATAPATH");
-    if (file_name.size()==0) {
+    if (file_name.empty()) {
       ATH_MSG_ERROR("PixeldEdx input file " << m_filename << " not found.");
       return StatusCode::FAILURE;
     }

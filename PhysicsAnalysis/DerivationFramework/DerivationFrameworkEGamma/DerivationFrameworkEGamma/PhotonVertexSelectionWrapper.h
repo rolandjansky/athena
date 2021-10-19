@@ -69,21 +69,23 @@ private:
 
   // Write decoration handle keys
   // these are not really configurable
-  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxPt{
-    "PrimaryVertices.pt"
-  };
-  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxEta{
-    "PrimaryVertices.eta"
-  };
-  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxPhi{
-    "PrimaryVertices.phi"
-  };
-  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxSumPt{
-    "PrimaryVertices.sumPt"
-  };
-  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxSumPt2{
-    "PrimaryVertices.sumPt2"
-  };
+  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxPt{ this, "pt", "", "" };
+  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxEta{ this,
+                                                           "eta",
+                                                           "",
+                                                           "" };
+  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxPhi{ this,
+                                                           "phi",
+                                                           "",
+                                                           "" };
+  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxSumPt{ this,
+                                                             "sumPt",
+                                                             "",
+                                                             "" };
+  SG::WriteDecorHandleKey<xAOD::VertexContainer> m_vtxSumPt2{ this,
+                                                              "sumPt2",
+                                                              "",
+                                                              "" };
 };
 }
 

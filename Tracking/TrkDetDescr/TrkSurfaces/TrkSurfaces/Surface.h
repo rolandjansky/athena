@@ -60,16 +60,13 @@ enum SurfaceOwner
 
  Abstract Base Class for tracking surfaces
 
- The creation of a Surface by passing a HepGeom::Transform3D* through the
- constructor implies that the ownership of the HepGeom::Transform3D object is
- also passed to the Surface, therfor the memory is freed in the Surface
- destructor.
-
  For all isOnSurface, or positionOnSurface and insideBounds methods two
  tolerance parameters can be given which correspond to the two local natural
  coordinates of the surface loc1, loc2.
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class Surface
@@ -170,6 +167,9 @@ public:
 
   /**Implicit constructor - uses the copy constructor */
   virtual Surface* clone() const = 0;
+  
+  /** NVI method returning unique_ptr clone */
+  std::unique_ptr<Surface> uniqueClone() const;
 
   /** Returns the Surface type to avoid dynamic casts */
   virtual SurfaceType type() const = 0;
@@ -214,7 +214,7 @@ public:
   virtual const Trk::Surface* baseSurface() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * charged. The caller assumes ownership of the returned ptr.
+   * charged.
    */
   virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
@@ -225,7 +225,7 @@ public:
     std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
-   * charged  The caller assumes ownership of the returned ptr
+   * charged.
    */
   virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D&,
@@ -234,7 +234,7 @@ public:
     std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
-   * neutral.  The caller assumes ownership of the returned ptr
+   * neutral.
    */
   virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
@@ -245,7 +245,7 @@ public:
     std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
-   * neutral. The caller assumes ownership of the returned ptr
+   * neutral.
    */
   virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D&,
@@ -358,7 +358,7 @@ public:
     const Amg::Vector3D& glopos,
     const Amg::Vector3D& glomom) const;
 
-  /** fst straight line intersection schema - templated for cvharged and neutral
+  /** fst straight line intersection schema - templated for charged and neutral
    * parameters */
   template<class T>
   Intersection straightLineIntersection(const T& pars,
@@ -403,9 +403,6 @@ public:
   /** Set the transform updates center and normal*/
   void setTransform(const Amg::Transform3D& trans);
 
-  /** Set ownership for const*/
-  void setOwner ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const;
-
   /** set Ownership */
   void setOwner(SurfaceOwner x);
 
@@ -416,10 +413,6 @@ public:
   void setMaterialLayer(const Layer& mlay);
 
   void setMaterialLayer(const Layer* mlay);
-
-  /** set material layer const */
-  void setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer& mlay) const;
-  void setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer* mlay) const;
 
   /** Output Method for MsgStream, to be overloaded by child classes */
   virtual MsgStream& dump(MsgStream& sl) const;
@@ -441,29 +434,26 @@ public:
      - only done if no Layer is set already  */
   void associateLayer(const Layer& lay);
 
-  /** const method to associate the associated Trk::Layer which is alreay owned
-   - only allowed by LayerBuilder
-   - only done if no Layer is set already  */
-  void associateLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer& lay) const;
-
 protected:
   friend class ::SurfaceCnv_p1;
 
-  //!< Owning Pointer to the Transforms struct*/
+  //!< Unique Pointer to the Transforms struct*/
   std::unique_ptr<Transforms> m_transforms = nullptr;
 
   /** Not owning Pointer to the TrkDetElementBase*/
   const TrkDetElementBase* m_associatedDetElement = nullptr;
+
+  /** Identifier for the TrkDetElementBase*/ 
   Identifier m_associatedDetElementId;
 
   /**The associated layer Trk::Layer
    - layer in which the Surface is be embedded
-   (not owning)
+   (not owning pointed)
    */
   const Layer* m_associatedLayer = nullptr;
   /** Possibility to attach a material descrption
   - potentially given as the associated material layer
-    (not owning)
+    (not owning pointer)
   */
   const Layer* m_materialLayer = nullptr;
   /** enum for surface owner : 0  free surface */

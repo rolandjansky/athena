@@ -64,11 +64,11 @@ public:
                                         const RpcIdHelper* rpcId) const;
 
     const CMAparameters::CMAlist give_CMAs(const int logic_sector, const ViewType side, const int station, const int cabling_code) const;
-    unsigned long int strip_code_fromOffline(int etaPhiView, int logicSector, int cablingStation, int gasGap, int zIndexInCablingStation,
-                                             int strip) const;
+    static unsigned long int strip_code_fromOffline(int etaPhiView, int logicSector, int cablingStation, int gasGap, int zIndexInCablingStation,
+                                             int strip) ;
     unsigned long int strip_code_fromOffId(const std::string& stationName, int stationEta, int stationPhi, int doubletR, int doubletZ,
                                            int doubletPhi, int gasGap, int measuresPhi, int strip) const;
-    bool largeSector(const std::string& stName) const;
+    static bool largeSector(const std::string& stName) ;
     unsigned int computeZIndexInCablingStation(const std::string& stationName, int logicSector, int stationEta, int doubletR, int doubletZ,
                                                int cabStat) const;
 
@@ -121,7 +121,7 @@ public:
 
     int operator()(const Identifier& id) const;
     int max() const;
-    int offset() const;
+    static int offset() ;
     std::vector<IdentifierHash> rod2hash(uint16_t subsystem, uint16_t rod) const;
     uint32_t hash2source(unsigned int h) const;
 

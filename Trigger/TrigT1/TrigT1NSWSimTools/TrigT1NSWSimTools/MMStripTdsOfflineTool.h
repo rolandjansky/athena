@@ -94,9 +94,9 @@ namespace NSWL1 {
     int Get_Strip_ID(double X,double Y,int plane) const;
 
     //x <---> u/v switches
-    void xxuv_to_uvxx(TVector3& hit,int plane)const;
-    void hit_rot_stereo_fwd(TVector3& hit)const;//x to v, u to x
-    void hit_rot_stereo_bck(TVector3& hit)const;//x to u, v to x
+    void xxuv_to_uvxx(ROOT::Math::XYZVector& hit,int plane)const;
+    void hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit)const;//x to v, u to x
+    void hit_rot_stereo_bck(ROOT::Math::XYZVector& hit)const;//x to u, v to x
 
     //MMT_Loader stuff end
 

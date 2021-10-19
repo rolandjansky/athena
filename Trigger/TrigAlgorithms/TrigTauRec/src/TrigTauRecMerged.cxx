@@ -71,13 +71,6 @@ StatusCode TrigTauRecMerged::initialize()
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
   }
-
-  // Retrieve beam conditions
-  if(m_beamSpotKey.initialize().isFailure()) {
-    ATH_MSG_WARNING( "Unable to retrieve Beamspot key" );
-  } else {
-    ATH_MSG_DEBUG( "Successfully retrieved Beamspot key" );
-  }
   
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
@@ -154,10 +147,9 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto ptDetectorAxis     = Monitored::Scalar<float>("ptDetectorAxis",-99.9);
   auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
   auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
- 
-  auto EF_beamspot_x    = Monitored::Scalar<float>("beamspot_x",-999.9);
-  auto EF_beamspot_y    = Monitored::Scalar<float>("beamspot_y",-999.9);
-  auto EF_beamspot_z    = Monitored::Scalar<float>("beamspot_z",-999.9);
+  auto RNNJetScore         = Monitored::Scalar<float>("RNNJetScore",0);
+  auto RNNJetScoreSigTrans = Monitored::Scalar<float>("RNNJetScoreSigTrans",0);  
+
   auto EF_vertex_x      = Monitored::Scalar<float>("vertex_x", -999.9);
   auto EF_vertex_y      = Monitored::Scalar<float>("vertex_y", -999.9); 
   auto EF_vertex_z      = Monitored::Scalar<float>("vertex_z", -999.9);
@@ -184,8 +176,8 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
-                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_beamspot_x, EF_beamspot_y, EF_beamspot_z, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, RNNJetScore, RNNJetScoreSigTrans, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
 
@@ -316,7 +308,14 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 	  ATH_MSG_DEBUG(" Negative energy cluster is rejected");
 	  continue;
         }
-    
+   
+      if(m_SkipClusterOutsideROI){
+        float dEta = fabs(roiDescriptor->etaPlus() - roiDescriptor->eta());  
+        if( std::abs((*clusterIt)->eta() - roiDescriptor->eta() ) > dEta) {
+          continue;
+        }
+      }
+ 
       myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
       aJet->addConstituent(*clusterIt);
 
@@ -515,7 +514,12 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
     
     pt_jetseed_log  = std::log10(p_tau->ptJetSeed());
-    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
+
+    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 10000.0));
+    
+    if( p_tau->nTracks() > 0 ) {
+      ipSigLeadTrk = std::abs(p_tau->track(0)->d0SigTJVA());
+    }
 
     // track variables monitoring 
     for( auto track : p_tau->allTracks()){
@@ -577,25 +581,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
         cluster_CENTER_LAMBDA.push_back(center_lambda);
      
     }
-  
-    // Get beamspot
-    // Copy the first vertex from a const object
-    xAOD::Vertex theBeamspot;
-    theBeamspot.makePrivateStore();
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-    if(beamSpotHandle.isValid()){
-
-        // Alter the position of the vertex
-        theBeamspot.setPosition(beamSpotHandle->beamPos()); 
-
-        EF_beamspot_x=theBeamspot.x();
-        EF_beamspot_y=theBeamspot.y();
-        EF_beamspot_z=theBeamspot.z();
-
-        // Create a AmgSymMatrix to alter the vertex covariance mat.
-        const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
-        theBeamspot.setCovariancePosition(cov);
-    }
 
     // monitoring tau vertex
     if( p_tau->vertexLink().isValid() && p_tau->vertex() && p_tau->vertex()->vertexType() != xAOD::VxType::NoVtx ){
@@ -609,6 +594,15 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 		  << " wrt L1 dEta "<< dEta<<" dPhi "<<dPhi
 		  << " Tau Et (GeV): "<< EtFinal);
 	  
+    // monitor RNN score
+    if(p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore)){
+        RNNJetScore = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+    }
+   
+    if(p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans)){
+           RNNJetScoreSigTrans = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+    }
+   
     ++Ncand;
   }
 

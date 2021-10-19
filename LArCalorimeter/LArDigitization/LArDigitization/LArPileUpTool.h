@@ -21,6 +21,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArOFC.h"
@@ -58,7 +59,7 @@ class LArHEC_ID;
 class LArFCAL_ID;
 class CaloCell_ID;
 class LArDigit;
-class CaloDetDescrManager;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -206,8 +207,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "Pt cut on e/photons for window mode (Default=5GeV)"};
   //
   enum CaloNum{EM,HEC,FCAL,EMIW};
-  double m_LowGainThresh[4];       // energy thresholds for the low gain
-  double m_HighGainThresh[4];      // energy thresholds for the high gain
+  double m_LowGainThresh[4]{};       // energy thresholds for the low gain
+  double m_HighGainThresh[4]{};      // energy thresholds for the high gain
 
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
       "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
@@ -260,7 +261,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
-
+ 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+  
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
 
   const CaloCell_ID*     m_calocell_id{};
@@ -268,8 +271,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   const LArHEC_ID*       m_larhec_id{};
   const LArFCAL_ID*      m_larfcal_id{};
   const LArOnlineID*     m_laronline_id{};
-
-  const CaloDetDescrManager* m_caloDDMgr{};
 
 
   Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},"Bad-Channel categories to mask entirly"}; 
@@ -282,13 +283,18 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArDigitization", ""};
 
+  Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""}; //
+
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true,
+      "Use MC16-style random number seeding"};
+
   Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,
       "Also create information about reconstructed digits for HS hits"};
 
   std::vector<double> m_Samples;
   std::vector<double> m_Samples_DigiHSTruth;
   std::vector<double> m_Noise;
-  double m_Rndm[32];
+  double m_Rndm[32]{};
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
   std::vector<float> m_energySum_DigiHSTruth;

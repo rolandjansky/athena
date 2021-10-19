@@ -198,7 +198,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 	srand((unsigned)time(0));
 	std::ostringstream randname;
 	randname << rand();
-	std::string backupDir = (m_workerTopDir.rfind("/")==(m_workerTopDir.size()-1)?m_workerTopDir.substr(0,m_workerTopDir.size()-1):m_workerTopDir)+std::string("-bak-")+randname.str(); 
+	std::string backupDir = (m_workerTopDir.rfind('/')==(m_workerTopDir.size()-1)?m_workerTopDir.substr(0,m_workerTopDir.size()-1):m_workerTopDir)+std::string("-bak-")+randname.str(); 
 
 	ATH_MSG_WARNING("The top directory " << m_workerTopDir << " already exists");
 	ATH_MSG_WARNING("The job will attempt to save it with the name " << backupDir <<  " and create new top directory from scratch");

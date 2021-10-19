@@ -17,10 +17,15 @@ if metFlags.WriteMETToOutput():
 					MissingETAODList.append( 'xAOD::MissingETAuxComponentMap#METMap_'+config+'Aux.' )
 
 if metFlags.WriteMETAssocToOutput():
-	for config in metFlags.METAssocOutputList():
-		MissingETAODList.append( 'xAOD::MissingETAssociationMap#METAssoc_'+config )
-		MissingETAODList.append( 'xAOD::MissingETAuxAssociationMap#METAssoc_'+config+'Aux.' )
-		MissingETAODList.append( 'xAOD::MissingETContainer#MET_Core_'+config )
-		MissingETAODList.append( 'xAOD::MissingETAuxContainer#MET_Core_'+config+'Aux.' )
-		MissingETAODList.append( 'xAOD::MissingETContainer#MET_Reference_'+config )
-		MissingETAODList.append( 'xAOD::MissingETAuxContainer#MET_Reference_'+config+'Aux.-ConstitObjectLinks.-ConstitObjectWeights' )
+        if len(metFlags.METAssocOutputList())==0:
+                assocoutput = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
+        else:
+                assocoutput = metFlags.METAssocOutputList()
+
+        for config in assocoutput:
+                MissingETAODList.append( 'xAOD::MissingETAssociationMap#METAssoc_'+config )
+                MissingETAODList.append( 'xAOD::MissingETAuxAssociationMap#METAssoc_'+config+'Aux.' )
+                MissingETAODList.append( 'xAOD::MissingETContainer#MET_Core_'+config )
+                MissingETAODList.append( 'xAOD::MissingETAuxContainer#MET_Core_'+config+'Aux.' )
+                MissingETAODList.append( 'xAOD::MissingETContainer#MET_Reference_'+config )
+                MissingETAODList.append( 'xAOD::MissingETAuxContainer#MET_Reference_'+config+'Aux.-ConstitObjectLinks.-ConstitObjectWeights' )

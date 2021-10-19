@@ -21,8 +21,8 @@ class PixelHitDiscCnfgData {
     int getHitDiscCnfg3D() const;
 
   private:
-    int m_hitDiscCnfgPL;
-    int m_hitDiscCnfg3D;
+    int m_hitDiscCnfgPL{};
+    int m_hitDiscCnfg3D{};
 };
 
 CLASS_DEF( PixelHitDiscCnfgData , 107567218 , 1 )   // class definition with CLID

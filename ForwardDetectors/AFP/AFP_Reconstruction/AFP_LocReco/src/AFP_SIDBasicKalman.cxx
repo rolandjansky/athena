@@ -6,11 +6,11 @@
 
 AFP_SIDBasicKalman::AFP_SIDBasicKalman()
 {
-	m_MyFile = NULL;
-	m_histS1_PixMap = NULL;
-	m_histS2_PixMap = NULL;
-	m_histS3_PixMap = NULL;
-	m_histS4_PixMap = NULL;
+	m_MyFile = nullptr;
+	m_histS1_PixMap = nullptr;
+	m_histS2_PixMap = nullptr;
+	m_histS3_PixMap = nullptr;
+	m_histS4_PixMap = nullptr;
 	
 	m_listResults.clear();
 
@@ -73,17 +73,17 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 	
 	// x-y-z map of all pixels
 	Float_t fsSID_helper[SIDSTATIONID][SIDCNT];
-	for(Int_t nStationID = 0; nStationID < SIDSTATIONID; nStationID++)
+	for(Int_t nStationID = 0; nStationID < SIDSTATIONID; ++nStationID)
 	{				
-		for (Int_t nPlateID = 0; nPlateID < SIDCNT; nPlateID++)
+		for (Int_t nPlateID = 0; nPlateID < SIDCNT; ++nPlateID)
 		{
 
                         fsSID_helper[nStationID][nPlateID] = (iDataType == 1? Alpha[nStationID][nPlateID]:fsSID[nStationID][nPlateID]);
 
 
-			for (Int_t nPixel_x = 0; nPixel_x < 336; nPixel_x++)
+			for (Int_t nPixel_x = 0; nPixel_x < 336; ++nPixel_x)
 			{	
-				for (Int_t nPixel_y = 0; nPixel_y < 80; nPixel_y++)
+				for (Int_t nPixel_y = 0; nPixel_y < 80; ++nPixel_y)
 				{	                                 		
 				m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*(nPixel_x-168))*cos(fsSID_helper[nStationID][nPlateID]);		//sign changed!	
 				m_fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fySID[nStationID][nPlateID]+(delta_pixel_y*nPixel_y); //sign changed!
@@ -102,7 +102,7 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 
 	// x-y-z map of hit pixels
         std::list<SIDHIT>::const_iterator iter;
-	for (iter=ListSIDHits.begin(); iter!=ListSIDHits.end(); iter++)
+	for (iter=ListSIDHits.begin(); iter!=ListSIDHits.end(); ++iter)
 	{
          	if ((*iter).fADC > m_AmpThresh)
 		{
@@ -199,7 +199,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		{
 			++LastPlate;
 			DoubleHole1=0;
-			for (Int_t i=LastPlate; i<SIDCNT; i++)
+			for (Int_t i=LastPlate; i<SIDCNT; ++i)
 			{
 				if ( FillTrkPropagators((*iter1).nStationID, i) )
 				{
@@ -219,7 +219,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		{
 			++LastPlate;
 			DoubleHole2=0;
-			for (Int_t i=LastPlate; i<SIDCNT; i++)
+			for (Int_t i=LastPlate; i<SIDCNT; ++i)
 			{
 				if ( FillTrkPropagators((*iter1).nStationID, i) )
 				{
@@ -299,7 +299,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	//////////////////////
 		
 	
-	if (m_listResults.size()!=0)
+	if (!m_listResults.empty())
 	{
                 std::list<SIDRESULT>::const_iterator iter7;
 		LogStream << MSG::DEBUG << "Filtered tracks parameters : X, DX, Y, DY, Z, quality: " << endmsg;
@@ -404,7 +404,7 @@ void AFP_SIDBasicKalman::GetTrkSeeds()
         std::map<Int_t, SIDHITPOS> MapSIDHitPosSeed1;
 
         std::list<SIDHIT>::const_iterator iter;
-	for (iter=m_ListSIDHits.begin(); iter!=m_ListSIDHits.end(); iter++)
+	for (iter=m_ListSIDHits.begin(); iter!=m_ListSIDHits.end(); ++iter)
 	{
 		if ((*iter).fADC > m_AmpThresh && (*iter).nDetectorID == 0)
 		{
@@ -480,7 +480,7 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 	Float_t XYdist=100.*CLHEP::mm;
 	Int_t HitID=-1;
         std::map<Int_t, SIDHITPOS>::const_iterator iter;
-	for (iter=m_MapSIDHitPos.begin(); iter!=m_MapSIDHitPos.end(); iter++)
+	for (iter=m_MapSIDHitPos.begin(); iter!=m_MapSIDHitPos.end(); ++iter)
 	{
 		if( (*iter).second.nStationID != SIDHitSeed.nStationID ) continue;
 		if( (*iter).second.nPlateID != plateF ) 		 continue;
@@ -553,7 +553,7 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 	Float_t XYdist=100.*CLHEP::mm;
 	Int_t HitID=-1;
 	std::map<Int_t, SIDHITPOS>::const_iterator iter;
-	for (iter=m_MapSIDHitPos.begin(); iter!=m_MapSIDHitPos.end(); iter++)
+	for (iter=m_MapSIDHitPos.begin(); iter!=m_MapSIDHitPos.end(); ++iter)
 	{
 		if( (*iter).second.nStationID != stID ) continue;
 		if( (*iter).second.nPlateID != plateF ) continue;
@@ -648,7 +648,7 @@ void AFP_SIDBasicKalman::Smooth()
 		m_chikS.push_back(chiiS[0]);
 	}
         }
-        else if (m_xk.size() > 0) {
+        else if (!m_xk.empty()) {
                         xiS = m_xk[m_xk.size()-1];  // !!!!!!!!!
                         CiS = m_Ck[m_xk.size()-1];  // !!!!!!!!!
 
@@ -749,7 +749,7 @@ Int_t AFP_SIDBasicKalman::GetSharedHits(const std::vector<Int_t> &HID1, const st
 	{
 		for (iter2=HID2.begin(); iter2!=HID2.end(); iter2++)
 		{
-			if ((*iter1) == (*iter2)) SharedHits++;
+			if ((*iter1) == (*iter2)) ++SharedHits;
 		}	
 	}
 	

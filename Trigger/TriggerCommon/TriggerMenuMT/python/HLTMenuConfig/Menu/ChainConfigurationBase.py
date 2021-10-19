@@ -4,13 +4,15 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
+import abc
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 
 #----------------------------------------------------------------
 # Base class to configure chain
 #----------------------------------------------------------------
-class ChainConfigurationBase(object):
+class ChainConfigurationBase(metaclass=abc.ABCMeta):
 
     def __init__(self, chainDict):
 
@@ -89,4 +91,18 @@ class ChainConfigurationBase(object):
 
         return myChain
 
+    @abc.abstractmethod
+    def assembleChainImpl(self):
+        return
 
+    def assembleChain(self):
+        if ConfigFlags.Trigger.Test.doDummyChainConfig:
+            if isinstance(self.chainPart,list):
+                # Jets have >1 chainSteps
+                agroups = list(set([cp['alignmentGroup'] for cp in self.chainPart]))
+            else:
+                agroups = [self.chainPart['alignmentGroup']]
+            dummyseq = RecoFragmentsPool.retrieve(lambda flags, the_name: EmptyMenuSequence(the_name), None, the_name="DummySeq_"+self.chainName)
+            dummystep = ChainStep("DummyChainStep_"+self.chainName, Sequences=[dummyseq], chainDicts=[self.dict])
+            return Chain(self.chainName, ChainSteps = [dummystep], L1Thresholds=[self.L1Threshold], nSteps=[0], alignmentGroups=agroups)
+        return self.assembleChainImpl()

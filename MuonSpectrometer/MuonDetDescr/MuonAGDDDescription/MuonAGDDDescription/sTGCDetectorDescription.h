@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGCDetectorDescription_H
@@ -12,6 +12,7 @@
 #include <iostream>
 
 class GeoMaterial;
+class AGDDDetectorStore;
 
 struct sTGCReadoutParameters {
     double sPadWidth;
@@ -47,7 +48,8 @@ struct sTGCReadoutParameters {
 
 class sTGCDetectorDescription: public AGDDDetector {
 public:
-    sTGCDetectorDescription(std::string s);
+    sTGCDetectorDescription(const std::string& s,
+                            AGDDDetectorStore& ds);
     void Register();
 	
         virtual void SetXYZ(const std::vector<double>& v) override
@@ -96,8 +98,6 @@ public:
 	
 	sTGCReadoutParameters& GetReadoutParameters() {return roParameters;}
 
-	static sTGCDetectorDescription* GetCurrent() {return s_current;}
-	
 	MuonGM::sTGC_Technology* GetTechnology();
 
 protected:
@@ -112,7 +112,8 @@ protected:
 	double m_ysFrame;
 	double m_ylFrame;
 
-	static sTGCDetectorDescription* s_current;
+        AGDDDetectorStore& m_ds;
+
 	virtual void SetDetectorAddress(AGDDDetectorPositioner*) override;
 };
 

@@ -62,6 +62,8 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   std::vector<std::vector<FELink_t>> tauNeutralFEVec(tauJetReadHandle->size());
   std::vector<std::vector<FELink_t>> tauChargedFEVec(tauJetReadHandle->size());
 
+  static const SG::AuxElement::ConstAccessor<char> acc_passThinning("passThinning");
+
   ////////////////////////////////////////////
   // Loop over the neutral flow elements
   ////////////////////////////////////////////
@@ -76,6 +78,8 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
 
     // Loop over the taus
     for (const xAOD::TauJet* tau : *tauNeutralFEWriteDecorHandle) {
+      // Skip taus that won't be written to AOD
+      if(!acc_passThinning(*tau)) continue;
       // Get tau vertex
       const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
       // Get the clusters associated to the tau
@@ -122,6 +126,7 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
 
     // Loop over the taus
     for (const xAOD::TauJet* tau : *tauChargedFEWriteDecorHandle) {
+      if(!acc_passThinning(*tau)) continue;
       // Get tau tracks associated to the tau
       std::vector<const xAOD::TauTrack*> tauTracks = tau->tracks();
       for (const auto *tauTrack : tauTracks) {

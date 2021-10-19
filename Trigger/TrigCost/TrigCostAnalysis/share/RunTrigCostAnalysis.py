@@ -13,7 +13,6 @@ log = logging.getLogger('RunTrigCostAnalysis.py')
 # Configure Cost Analysis algorithm
 def trigCostAnalysisCfg(flags, args, isMC=False):
   from TrigCostAnalysis.ROSToROB import ROSToROBMap
-  from Gaudi.Configuration import DEBUG
 
   acc = ComponentAccumulator()
 
@@ -26,7 +25,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
 
   enhancedBiasWeighter = CompFactory.EnhancedBiasWeighter()
   enhancedBiasWeighter.RunNumber = runNumbers[0]
-  enhancedBiasWeighter.UseBunchCrossingTool = False
+  enhancedBiasWeighter.UseBunchCrossingData = False
   enhancedBiasWeighter.IsMC = isMC
   if isMC:
     MCpayload = readMCpayload(args)
@@ -36,7 +35,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
     enhancedBiasWeighter.MCIgnoreGeneratorWeights = MCpayload.get('MCIgnoreGeneratorWeights')
 
   trigCostAnalysis = CompFactory.TrigCostAnalysis()
-  trigCostAnalysis.OutputLevel = DEBUG
+  trigCostAnalysis.OutputLevel = args.loglevel
   trigCostAnalysis.BaseEventWeight = args.baseWeight
   trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
   trigCostAnalysis.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
@@ -48,8 +47,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
   trigCostAnalysis.DoMonitorChainAlgorithm = args.monitorChainAlgorithm
   trigCostAnalysis.DoMonitorThreadOccupancy = args.monitorThreads
 
-  if args.joFile:
-    trigCostAnalysis.AdditionalHashList = readHashes(args.joFile)
+  trigCostAnalysis.AdditionalHashList = readHashes(args.joFile, args.smk, args.dbAlias)
 
   acc.addEventAlgo(trigCostAnalysis)
 
@@ -67,26 +65,42 @@ def readMCpayload(args):
   return payload
 
 # Read algorithm and class names from HLTJobOptions file
-def readHashes(joFileName):
+def readHashes(joFileName="", smk=0, dbAlias=""):
+  joData = {}
+
+  try:
+    if joFileName:
+      log.debug("Reading HLTJobOptions from file {0}".format(joFileName))
+      with open(joFileName, "r") as joFile:
+        import json
+        joData = json.load(joFile)
+    elif smk and dbAlias:
+      log.debug("Reading HLTJobOptions from database {0} {1}".format(smk, dbAlias))
+      from TrigConfIO.HLTTriggerConfigAccess import HLTJobOptionsAccess
+      joData = HLTJobOptionsAccess(dbalias = dbAlias, smkey = smk)
+    else:
+      log.debug("Additional collection's names from HLTJobOptions file are not available")
+      return list()
+  except Exception as err:
+    log.warning("Retrieving additional names fron HLTJO failed: {0}".format(err))
+    return list()
+
   namesList = set()
+  log.info("Reading additional names...")
 
-  with open(joFileName, "r") as joFile:
-    import json
-    joData = json.load(joFile)
+  for entry in joData["properties"]:
+    namesList.add(entry.split('.')[0])
 
-    log.info("Reading additional names...")
+    # Read algorithm names with classes
+    entryObj = joData["properties"][entry]
+    if "Members" in entryObj:
+      membersList = entryObj["Members"].strip('][').replace("'", "").split(', ')
+      namesList.update(membersList)
 
-    for entry in joData["properties"]:
-      namesList.add(entry.split('.')[0])
 
-      # Read algorithm names with classes
-      entryObj = joData["properties"][entry]
-      if "Members" in entryObj:
-        membersList = entryObj["Members"].strip('][').replace("'", "").split(', ')
-        namesList.update(membersList)
-
-  log.info("Retrieved {0} names".format(len(namesList)))
+  log.info("Retrieved {0} additional names".format(len(namesList)))
   return list(namesList)
+
 
 # Configure deserialisation
 def decodingCfg(flags):
@@ -115,45 +129,52 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
   menuFile = getHltMenu()
   # If local file not found - read HLTMenu from database
   if menuFile:
-    log.debug("Reading menu from file")
+    log.debug("Reading HLTMenu from file {0}".format(menuFile))
 
     hltConfigSvc.InputType = "file"
-    hltConfigSvc.XMLMenuFile = "None"
     hltConfigSvc.JsonFileName = menuFile
-  else:
-    log.debug("Reading menu from database")
-
-    if not smk or not dbAlias:
-      # Try to read keys from COOL (for P1 data)
-      from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
-      dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
-      runNumber = GetFileMD(ConfigFlags.Input.Files)['runNumbers'][0]
-      configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
-
-      if configKeys and runNumber in configKeys.keys():
-        if not smk:
-          smk = configKeys[runNumber]['SMK']
-
-        if not dbAlias:
-          # For example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
-          dbAlias = configKeys[runNumber]['DB'].split(";")[0]
-
-      else:
-        log.error("Menu not found!")
-
-    log.debug("Config keys are SMK: {0} DB alias: {1}".format(smk, dbAlias))
+  elif smk and dbAlias:
+    log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))
 
     hltConfigSvc.InputType = "DB"
     hltConfigSvc.JsonFileName = ""
     hltConfigSvc.TriggerDB = dbAlias
     hltConfigSvc.SMK = smk
+  else:
+    log.error("Cannot read the HLTMenu! Provide file or relevant keys.")
 
   acc.addService(hltConfigSvc, False, True)
 
   return acc
 
 
-# Get HLT Menu from json file or from DB
+def readConfigFromCool(smk, dbAlias):
+  # Try to read keys from COOL (for P1 data)
+  from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
+  dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
+  runNumber = GetFileMD(ConfigFlags.Input.Files)['runNumbers'][0]
+  configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
+
+  log.debug("Getting keys from COOL for run {0}".format(runNumber))
+  if configKeys and runNumber in configKeys.keys():
+    if not smk:
+      smk = configKeys[runNumber]['SMK']
+
+    if not dbAlias:
+      # For example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
+      dbAlias = configKeys[runNumber]['DB'].split(";")[0]
+
+    log.debug("Config keys are SMK: {0} DB alias: {1}".format(smk, dbAlias))
+
+  else:
+    log.debug("Configuration keys for run {0} not found!".format(runNumber))
+    dbAlias = None if not dbAlias else dbAlias
+    smk = None if not smk else smk
+
+  return (smk, dbAlias)
+
+
+# Get HLT Menu from json file
 def getHltMenu():
   # Try to find local menu file
   menuFileName = 'HLTMenu_.*json'
@@ -189,9 +210,11 @@ if __name__=='__main__':
 
   parser.add_argument('--maxEvents', type=int, help='Maximum number of events to process')
   parser.add_argument('--skipEvents',type=int, help='Number of events to skip')
-  parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
+  parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level: 1 - VERBOSE, 2 - DEBUG, 3 - INFO')
   parser.add_argument('flags', nargs='*', help='Config flag overrides')  
   args = parser.parse_args()
+
+  log.level = args.loglevel
 
   # Setup the Run III behavior
   from AthenaCommon.Configurable import Configurable
@@ -218,12 +241,15 @@ if __name__=='__main__':
   histSvc.Output += ["COSTSTREAM DATAFILE='" + args.outputHist + "' OPT='RECREATE'"]
   cfg.addService(histSvc)
 
+  # Retrieve config from cool database
+  if not args.smk or not args.dbAlias:
+    (args.smk, args.dbAlias) = readConfigFromCool(args.smk, args.dbAlias)
+
   cfg.merge(hltConfigSvcCfg(ConfigFlags, args.smk, args.dbAlias))
   cfg.merge(trigCostAnalysisCfg(ConfigFlags, args, ConfigFlags.Input.isMC))
 
   # If you want to turn on more detailed messages ...
   # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
   cfg.printConfig(withDetails=False) # set True for exhaustive info
-
   sc = cfg.run(args.maxEvents, args.loglevel)
   sys.exit(0 if sc.isSuccess() else 1)

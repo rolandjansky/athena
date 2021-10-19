@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -188,7 +188,7 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster, const EventCo
               }
               if(m_interpolate) {
                 // accesing interpolated coefficients
-                bool isa = hp.Interpolate(data, isAmpMap[theSample], vars, parint, m_interpolateDimensions);
+                bool isa = CaloLCCoeffHelper::Interpolate(data, isAmpMap[theSample], vars, parint, m_interpolateDimensions);
                 if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > 10) {
                   isDataOK = true;
                   wData = parint[CaloLocalHadDefs::BIN_WEIGHT];

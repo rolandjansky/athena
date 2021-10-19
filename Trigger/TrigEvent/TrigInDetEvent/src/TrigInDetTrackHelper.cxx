@@ -28,7 +28,7 @@ void TrigInDetTrackHelper::extrapolate(double rC, double zC, double &phiC, doubl
  *                                                                      *
  *----------------------------------------------------------------------*/
 #define BFIELD 2.0
-  double Rcurv,r, z, xD, xN, dphi; 
+  double Rcurv{0}, r{0}, z{0}, xD{0}, xN{0}, dphi{0};
 
   double pt = m_param->pT();
   double eta = m_param->eta();

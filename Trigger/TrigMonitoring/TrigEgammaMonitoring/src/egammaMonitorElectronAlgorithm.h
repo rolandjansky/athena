@@ -7,15 +7,16 @@
 
 #include "egammaMonitorBaseAlgorithm.h"
 
+#include "StoreGate/ReadDecorHandleKeyArray.h"
 
 class egammaMonitorElectronAlgorithm: public egammaMonitorBaseAlgorithm
 {
 
   public:
 
-    egammaMonitorElectronAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
+    egammaMonitorElectronAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
     virtual StatusCode initialize() override;
-    virtual StatusCode execute( const EventContext& ctx) const override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
   protected:
     
@@ -24,9 +25,11 @@ class egammaMonitorElectronAlgorithm: public egammaMonitorBaseAlgorithm
     void filltopoElectronIsolation(const EventContext& ctx) const;
      
   private:
-  
-    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey{ this, "ElectronKey", "Electrons", ""};
-    ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+
+    TString m_baseName;  
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey{this, "ElectronKey", "Electrons", ""};
+    SG::ReadDecorHandleKeyArray<xAOD::ElectronContainer> m_isoKey{this, "IsoVarKeys", { }, "The list of isolation variables to be monitored"};
+    ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
 };
  
 

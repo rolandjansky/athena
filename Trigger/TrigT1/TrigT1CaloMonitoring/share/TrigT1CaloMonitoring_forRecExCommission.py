@@ -17,6 +17,7 @@ elif globalflags.DataSource() == "data":
 else: #MC
     run1 = False 
 if run1:
-    include ("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission_Run1.py")
+    from AthenaCommon.Logging import logging
+    log.info("L1Calo monitoring no longer supported for Run-1 data in release 22")
 else:
     include ("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission_Run2.py")

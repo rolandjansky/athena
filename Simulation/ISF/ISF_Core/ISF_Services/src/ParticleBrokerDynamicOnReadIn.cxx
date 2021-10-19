@@ -363,6 +363,7 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::initializeEvent(ISFParticleContai
     simSelector->beginEvent();
   }
 
+  m_entryLayerTool->setupEvent();
   // update the routing chain selectors with the particles in the initial stack
   for ( auto& particlePointer : simParticles ) {
     auto& particle = *particlePointer;

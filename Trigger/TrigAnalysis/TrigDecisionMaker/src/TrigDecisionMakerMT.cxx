@@ -23,11 +23,6 @@
 
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
 
-#include "TrigConfL1Data/BunchGroupSet.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTUtils.h"
-#include "TrigConfData/L1BunchGroupSet.h"
-
 #include <boost/dynamic_bitset.hpp>
 
 TrigDec::TrigDecisionMakerMT::TrigDecisionMakerMT(const std::string &name, ISvcLocator *pSvcLocator)
@@ -52,7 +47,8 @@ TrigDec::TrigDecisionMakerMT::initialize()
   }
   ATH_CHECK( m_hltResultKeyIn.initialize(resultObjectIsUsed) ); // If false, this removes the ReadHandle
 
-  ATH_CHECK(m_HLTMenuKey.initialize());
+  ATH_CHECK( m_bgKey.initialize() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
 
   ATH_CHECK( m_ROIBResultKeyIn.initialize() );
   ATH_CHECK( m_EventInfoKeyIn.initialize() );
@@ -60,8 +56,6 @@ TrigDec::TrigDecisionMakerMT::initialize()
   ATH_CHECK( m_trigDecisionKeyOut.initialize() );
 
   ATH_CHECK( m_lvl1Tool.retrieve() );
-  ATH_CHECK(m_l1ConfigSvc.retrieve());
-  ATH_CHECK(m_hltConfigSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -92,16 +86,9 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
   std::unique_ptr<xAOD::TrigDecisionAuxInfo> trigDecAux = std::make_unique<xAOD::TrigDecisionAuxInfo>();
   trigDec->setStore(trigDecAux.get());
 
-  if (m_useNewConfigHLT)
-  {
-    SG::ReadHandle<TrigConf::HLTMenu> hltMenu(m_HLTMenuKey, context);
-    ATH_CHECK(hltMenu.isValid());
-    trigDec->setSMK(hltMenu->smk());
-  }
-  else
-  {
-    trigDec->setSMK(m_hltConfigSvc->masterKey());
-  }
+  SG::ReadHandle<TrigConf::HLTMenu> hltMenu(m_HLTMenuKey, context);
+  ATH_CHECK(hltMenu.isValid());
+  trigDec->setSMK(hltMenu->smk());
 
   if (m_doL1) {
     const LVL1CTP::Lvl1Result* l1Result = nullptr;
@@ -118,12 +105,12 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
   if (m_doHLT) {
 
-    boost::dynamic_bitset<uint32_t> passRawBitset, prescaledBitset, rerunBitset;
+    boost::dynamic_bitset<uint32_t> passRawBitset, prescaledBitset;
 
     if (m_bitsMakerTool.isSet()) {
 
       ATH_MSG_DEBUG ("MC Mode: Creating bits with TriggerBitsMakerTool");
-      ATH_CHECK(m_bitsMakerTool->getBits(passRawBitset, prescaledBitset, rerunBitset, context));
+      ATH_CHECK(m_bitsMakerTool->getBits(passRawBitset, prescaledBitset, context));
 
     } else {
 
@@ -133,7 +120,6 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
       passRawBitset = hltResult->getHltPassRawBits();
       prescaledBitset = hltResult->getHltPrescaledBits();
-      rerunBitset = hltResult->getHltRerunBits();
 
       const std::vector<HLT::OnlineErrorCode> errorCodes = hltResult->getErrorCodes();
       bool truncated = false;
@@ -151,42 +137,45 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
     ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << passRawBitset.count());
     ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << prescaledBitset.count());
-    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << rerunBitset.count());
 
     if (passRawBitset.any()) {
       ++m_hltPassed;
     }
 
-    std::vector<uint32_t> passRaw, prescaled, rerun;
+    std::vector<uint32_t> passRaw, prescaled;
 
     passRaw.resize(passRawBitset.num_blocks());
     prescaled.resize(prescaledBitset.num_blocks());
-    rerun.resize(rerunBitset.num_blocks());
 
     boost::to_block_range(passRawBitset, passRaw.begin());
     boost::to_block_range(prescaledBitset, prescaled.begin());
-    boost::to_block_range(rerunBitset, rerun.begin());
 
-    if (passRaw.size() != prescaled.size() or passRaw.size() != rerun.size()) {
+    if (passRaw.size() != prescaled.size()) {
       ATH_MSG_ERROR("Trigger bitsets are not all the same size! passRaw:" 
-        << passRaw.size() << " prescaled:" << prescaled.size() << " rerun:" << rerun.size() );
+        << passRaw.size() << " prescaled:" << prescaled.size() );
       return StatusCode::FAILURE;
     } 
 
     trigDec->setEFPassedRaw(passRaw);
     trigDec->setEFPrescaled(prescaled);
-    trigDec->setEFResurrected(rerun);
 
   }
 
   // get the bunch crossing id
   const xAOD::EventInfo* eventInfo = SG::get(m_EventInfoKeyIn, context);
-  const char bgByte = getBGByte(eventInfo->bcid());
-  trigDec->setBGCode(bgByte);
+  const TrigConf::L1BunchGroupSet* l1bgs = SG::get(m_bgKey, context);
+  if (l1bgs) {
+    // We currently only support 8 bits/bunchgroups (ATR-24030)
+    trigDec->setBGCode( static_cast<char>(l1bgs->bgPattern(eventInfo->bcid())) );
+  }
+  else {
+    ATH_MSG_WARNING("Could not read " << m_bgKey);
+  }
+
   ATH_MSG_DEBUG ( "Run '" << eventInfo->runNumber()
                   << "'; Event '" << eventInfo->eventNumber()
                   << "'; BCID '" << eventInfo->bcid()
-                  << "'; BG Code '" << (size_t)bgByte << "'" ) ;
+                  << "'; BG Code '" << trigDec->bgCode() << "'" ) ;
 
   ATH_MSG_DEBUG ("Decision object dump: " << *(trigDec.get()));
   auto trigDecWriteHandle = SG::makeHandle( m_trigDecisionKeyOut, context );
@@ -215,45 +204,4 @@ TrigDec::TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result *&result, co
   }
 
   return StatusCode::SUCCESS;
-}
-
-char TrigDec::TrigDecisionMakerMT::getBGByte(unsigned int bcId) const
-{
-  if (bcId >= 3564)
-  { // LHC has 3564 bunch crossings
-    ATH_MSG_WARNING("Could not return BGCode for bunch crossing ID " << bcId << ", which is outside allowed range 0..3563 ");
-    return 0;
-  }
-  if (m_useNewConfigL1)
-  {
-    const TrigConf::L1BunchGroupSet *l1bgs = nullptr;
-    detStore()->retrieve(l1bgs).ignore();
-    if (l1bgs)
-    {
-      char bgword = 0;
-      for (size_t i = 0; i < l1bgs->maxNBunchGroups(); ++i)
-      {
-        auto bg = l1bgs->getBunchGroup(i);
-        if (bg->contains(bcId))
-        {
-          bgword += 1 << i;
-        }
-      }
-      return bgword;
-    }
-    else
-    {
-      ATH_MSG_WARNING("Did not find L1BunchGroupSet in DetectorStore");
-      return 0;
-    }
-  }
-  else
-  {
-    const TrigConf::BunchGroupSet *bgs = m_l1ConfigSvc->bunchGroupSet();
-    if (!bgs) {
-      ATH_MSG_WARNING ("Could not get BunchGroupSet to calculate BGByte");
-      return 0;
-    }
-    return bgs->bgPattern()[bcId];
-  }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,8 +35,8 @@ namespace DerivationFramework {
     private:
       std::string m_SGKey_photons;
       std::string m_SGKey_electrons;
-      int m_eta_size;
-      int m_phi_size;
+      int m_eta_size = 0;
+      int m_phi_size = 0;
       std::vector<unsigned int> m_layers;
 
       ToolHandle<CaloClusterProcessor> m_caloFillRectangularTool {this,

@@ -32,7 +32,7 @@ namespace CP
 
 
   void SelectionAccessorNull ::
-  setBits (SG::AuxElement& /*element*/,
+  setBits (const SG::AuxElement& /*element*/,
            SelectionType /*selection*/) const
   {
     // ok, let's not do anything here, making this an easy way to
@@ -52,7 +52,7 @@ namespace CP
 
 
   void SelectionAccessorNull ::
-  setBool (SG::AuxElement& /*element*/,
+  setBool (const SG::AuxElement& /*element*/,
            bool /*selection*/) const
   {
     // ok, let's not do anything here, making this an easy way to

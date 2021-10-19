@@ -312,21 +312,25 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
 
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
+
         self.dodEdxTrk = config.dodEdxTrk
         if config.dodEdxTrk:
-            self.dEdxTrk = "HLT_dEdxTrk"
-            self.dEdxHit = "HLT_dEdxHit"
+            self.dEdxTrk = recordable("HLT_dEdxTrk")
+            self.dEdxHit = recordable("HLT_dEdxHit")
 
         self.doHitDV = config.doHitDV
         if config.doHitDV:
             self.doHitDV_Seeding = True
             self.RecJetRoI = "HLT_RecJETRoIs"
-            self.HitDVTrk  = "HLT_HitDVTrk"
-            self.HitDVSP   = "HLT_HitDVSP"
+            self.HitDVTrk  = "HLT_HitDVTrk" # not 'recordable' due to HLT truncation (ATR-23958)
+            self.HitDVSP   = "HLT_HitDVSP"  # not 'recordable' due to HLT truncation (ATR-23958) 
 
         self.doDisappearingTrk = config.doDisappearingTrk
         if config.doDisappearingTrk:
-            self.DisTrkCand = "HLT_DisTrkCand"
+            self.DisTrkCand = recordable("HLT_DisTrkCand")
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+            self.DisTrackFitter = InDetTrigTrackFitter
 
 
         ## SCT and Pixel detector elements road builder

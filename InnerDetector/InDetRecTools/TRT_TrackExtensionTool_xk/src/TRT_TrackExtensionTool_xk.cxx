@@ -147,8 +147,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
 
   // Get segment selector tool
   //
-  ATH_CHECK(m_selectortool.retrieve());
-  ATH_MSG_INFO("Retrieved tool " << m_selectortool);
+  ATH_CHECK(m_selectortool.retrieve(DisableTool { !m_parameterization } ));
 
   // TRT
   ATH_CHECK(detStore()->retrieve(m_trtid,"TRT_ID"));

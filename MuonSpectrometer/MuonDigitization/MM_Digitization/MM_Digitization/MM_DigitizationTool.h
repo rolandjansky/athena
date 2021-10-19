@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATIONTOOL_H
@@ -61,7 +61,6 @@
 #include "NSWCalibTools/INSWCalibTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-#include "MM_Digitization/IMM_DigitizationTool.h"
 
 #include <memory>
 #include <string>
@@ -128,7 +127,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool{this,"SmearingTool","Muon::NSWCalibSmearingTool/MMCalibSmearingTool"};
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool{this,"CalibrationTool","Muon::NSWCalibTool/NSWCalibTool"};
-		ToolHandle<IMM_DigitizationTool> m_digitTool{this,"DigitizationTool","MM_Response_DigitTool","Tool which handles the digitization process"};
 
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
@@ -220,8 +218,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
 
-		float m_noiseSlope;
-		float m_noiseIntercept;
+		float m_noiseSlope = 0.0F;
+		float m_noiseIntercept = 0.0F;
 };
 
 #endif // MM_DigitizationTool

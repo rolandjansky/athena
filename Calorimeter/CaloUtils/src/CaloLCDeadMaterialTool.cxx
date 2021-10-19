@@ -7,7 +7,6 @@
 #include "CaloUtils/CaloLCDeadMaterialTool.h"
 #include "CaloUtils/CaloLCCoeffHelper.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
@@ -288,7 +287,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster, const EventC
       if(area->getType() == CaloLocalHadDefs::AREA_DMFIT) {
         edm = (*pars)[CaloLocalHadDefs::BIN_P0] + (*pars)[CaloLocalHadDefs::BIN_P1]*areas[i_dm].eprep;
         if(m_interpolate) {
-          bool isa = hp.Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsFit, areas[i_dm].eprep);
+          bool isa = CaloLCCoeffHelper::Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsFit, areas[i_dm].eprep);
           // calculation of fitted values is done already in the interpolator
           if(isa) edm = parint[CaloLocalHadDefs::BIN_P0];
         }
@@ -297,7 +296,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster, const EventC
       }else if(area->getType() == CaloLocalHadDefs::AREA_DMLOOKUP){
         if( (*pars)[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = cls_unweighted_energy*((*pars)[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
         if(m_interpolate) {
-          bool isa = hp.Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsLookup);
+          bool isa = CaloLCCoeffHelper::Interpolate(data, i_dm, vars, parint, m_interpolateDimensionsLookup);
           if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = cls_unweighted_energy*(parint[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
         }
 
@@ -560,7 +559,7 @@ CaloLCDeadMaterialTool::prepare_for_cluster
     float weight = itrCell.weight();
     cls_unweighted_energy += energy;
 
-    Cell cell;
+    Cell cell{};
     cell.weight = weight;
     cell.energy = energy;
     cell.dm = sDM;

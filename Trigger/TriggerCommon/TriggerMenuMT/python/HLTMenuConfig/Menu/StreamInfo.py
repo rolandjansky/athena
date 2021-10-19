@@ -1,13 +1,17 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+import eformat
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
+_allowed_tag_types = [eformat.helper.tagtype_to_string(t) for t in eformat.helper.TagType.values.values()]
 
 class StreamInfo(object):
     def __init__(self, name, streamType, obeysLumiBlock, forceFullEventBuilding):
         assert type(name) == str, "name has to be str"
         assert type(streamType) == str, "streamType has to be str"
+        assert streamType in _allowed_tag_types, "streamType '"+streamType+"' is not one of "+\
+                                                 "the allowed types: "+str(_allowed_tag_types)
         assert type(obeysLumiBlock) == bool, "obeysLumiBlock has to be bool"
         assert type(forceFullEventBuilding) == bool, "forceFullEventBuilding has to be bool"
         self.__data = [name, streamType, obeysLumiBlock, forceFullEventBuilding]
@@ -45,8 +49,7 @@ _all_streams = [
     StreamInfo('EnhancedBias', 'physics', True, True),
     StreamInfo('Late', 'physics', True, True),
     # TLA/PEB/DATA SCOUTING (physics) STREAMS
-    StreamInfo('JetDS','physics',True,False),
-    StreamInfo('PhotonDS','physics',True,False),
+    StreamInfo('TLA','physics',True,False),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS
@@ -56,14 +59,18 @@ _all_streams = [
     StreamInfo('BphysPEB','calibration',True,False),
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
+    StreamInfo('LArCellsEmpty', 'calibration', False, False),
     StreamInfo('LArNoiseBurst', 'calibration', False, True),
+    StreamInfo('TgcNoiseBurst', 'calibration', False, True),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring', 'calibration', False, False),
     StreamInfo('SCTNoise', 'calibration', False, False),
     StreamInfo('Tile', 'calibration', False, False),
     StreamInfo('ALFACalib', 'calibration', False, False),
     StreamInfo('LArPEB', 'calibration', False, False),
+    StreamInfo('LArPEBDigitalTrigger', 'calibration', False, False),
     StreamInfo('L1TopoMismatches', 'calibration', False, True),
+    StreamInfo('ZDCCalib', 'calibration', False, False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),

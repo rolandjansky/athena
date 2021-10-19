@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITOR_TRIGCOSTSVC_H
@@ -28,7 +28,7 @@
  * @brief AthenaMT service to collect trigger cost data from all threads and summarise it at the end of the event
  *
  * The main hooks into this service are: 
- *  L1Decoder - To clear the internal storage and flag the event for monitoring.
+ *  HLTSeeding - To clear the internal storage and flag the event for monitoring.
  *  TrigCostAuditor - To inform the service when algorithms start and stop executing
  *  HLTROBDataProviderSvc - To inform the service about requests for data ROBs 
  *  HLTSummaryAlg - To inform the service when the HLT has finished, and to receive the persistent payload 
@@ -155,7 +155,7 @@ class TrigCostSvc : public extends <AthService, ITrigCostSvc> {
   Gaudi::Property<bool>        m_enableMultiSlot{this, "EnableMultiSlot", false, "Monitored events in the MasterSlot collect data from events running in other slots."};
   Gaudi::Property<bool>        m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
   Gaudi::Property<size_t>      m_masterSlot{this, "MasterSlot", 0, "The slot responsible for saving MultiSlot data"};
-  Gaudi::Property<std::string> m_l1DecoderName{this, "L1DecoderName", "L1Decoder", "The name of the Gaudi Configurable of type L1Decoder"};
+  Gaudi::Property<std::string> m_hltSeedingName{this, "HLTSeedingName", "HLTSeeding", "The name of the Gaudi Configurable of type HLTSeeding"};
   Gaudi::Property<std::string> m_decisionSummaryMakerAlgName{this, "DecisionSummaryMakerAlgName", "DecisionSummaryMakerAlg", "The name of the Gaudi Configurable of type DecisionSummaryMakerAlg"};
 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -126,7 +126,7 @@ if doPrint:
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
+IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-20-01"
 IOVDbSvc.OutputLevel = WARNING
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -170,29 +170,20 @@ include("InDetRecExample/InDetRecCabling.py")
 
 # Set up Pixel conditions
 if doPixel:
+    if not hasattr(svcMgr, "PixelReadoutManager"):
+        from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+        svcMgr += InDetDD__PixelReadoutManager("PixelReadoutManager")
+
     # Taken from InDetRecExample/share/InDetRecConditionsAccess.py
     #################
     # Module status #
     #################
-    useNewChargeFormat  = False
-
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         if (globalflags.DataSource()=='geant4'):
-            # ITk:
-            if geoFlags.isSLHC():
-                IdMappingDat = "ITk_Atlas_IdMapping.dat"
-                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-            elif (geoFlags.isIBL() == False):
+            if (geoFlags.isIBL() == False):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
             else:
                 # Planar IBL
@@ -229,11 +220,7 @@ if doPixel:
 
     if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
-        if globalflags.DataSource=='data':
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-        else:
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
         alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
@@ -257,18 +244,18 @@ if doPixel:
     #####################
     # Calibration Setup #
     #####################
-    if not useNewChargeFormat:
-        if not conddb.folderRequested("/PIXEL/PixCalib"):
-            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-    else:
+    if commonGeoFlags.Run()=="RUN3":
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+    else:
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     #####################
     # Cabling map Setup #
@@ -456,10 +443,7 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "LowPtLargeD0" or
     NewTrackingCuts.mode() == "BeamGas" or
     NewTrackingCuts.mode() == "ForwardTracks" or
-    NewTrackingCuts.mode() == "ForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "Disappearing" or
-    NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "SLHCConversionFinding"):
+    NewTrackingCuts.mode() == "Disappearing"):
 
     usePrdAssociationTool = True
 
@@ -542,9 +526,9 @@ if doPixel:
                                                              LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                              DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                              applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                   InDetFlags.pixelClusterSplittingType() == "NeuralNet" and not InDetFlags.doSLHC()),
+                                                                                   InDetFlags.pixelClusterSplittingType() == "NeuralNet"),
                                                              NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                 InDetFlags.pixelClusterSplittingType() == "NeuralNet" and not InDetFlags.doSLHC()),
+                                                                                 InDetFlags.pixelClusterSplittingType() == "NeuralNet"),
                                                              SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
                                                              RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi())
     PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
@@ -585,7 +569,7 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
 
 # Set up SiTrackMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-# useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
+# useBremMode = NewTrackingCuts.mode() == "Offline"
 useBremMode = False ###
 InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False) ###
 InDetFlags.doHadCaloSeededSSS.set_Value_and_Lock(False) ###

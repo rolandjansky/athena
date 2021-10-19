@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/TgcL1Rdo.h"
@@ -97,10 +97,10 @@ stream& dump(stream& sl, const TgcL1Rdo& coll)
     << ", orbit=" << coll.orbit()
     << std::endl << "TgcL1RawData: [" << std::endl;
     int iRaw = 0;
-    for (TgcL1Rdo::const_iterator it = coll.begin(); it != coll.end(); it++)
+    for (const TgcL1RawData* tgc : coll)
     {
         sl << ++iRaw
-        << ": " << **it << std::endl;
+        << ": " << *tgc << std::endl;
     }
     sl << "]";
     return sl;

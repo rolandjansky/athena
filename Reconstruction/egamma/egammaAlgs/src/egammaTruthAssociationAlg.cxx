@@ -248,7 +248,7 @@ egammaTruthAssociationAlg::getNewTruthParticle(
 xAOD::TruthParticle*
 egammaTruthAssociationAlg::getEgammaTruthParticle(
   const xAOD::TruthParticle* truth,
-  xAOD::TruthParticleContainer& egammaTruthContainer) const
+  xAOD::TruthParticleContainer& egammaTruthContainer) 
 {
   if (!truth) {
     return nullptr;

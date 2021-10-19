@@ -70,6 +70,9 @@ class TauRecRunner ( TauRecRunConfigured ) :
             tools.append(taualgs.getTauDecayModeNNClassifier())
             
 
+        # which taus we write to AOD
+        tools.append(taualgs.getTauAODSelector())
+
         tools+=tauFlags.tauRecToolsDevToolList()
 
         # set path to calibration area

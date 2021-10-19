@@ -102,15 +102,15 @@ void LVL1::RecJetRoI::constructRun1(const std::vector<TriggerThreshold *> *caloT
    // easy
    //
 
-   std::map<int, TriggerThreshold *> thrMap;
+   std::map<unsigned int, TriggerThreshold *> thrMap;
    for (std::vector<TriggerThreshold *>::const_iterator it =
             caloThresholds->begin();
         it != caloThresholds->end(); ++it)
    {
       if ((*it)->type() == jetTriggerType)
       {
-         int num = (*it)->thresholdNumber();
-         thrMap.insert(std::map<int, TriggerThreshold *>::value_type(num, (*it)));
+         unsigned int num = static_cast<unsigned int>((*it)->thresholdNumber());
+         thrMap.insert(std::map<unsigned int, TriggerThreshold *>::value_type(num, (*it)));
       }
    }
 
@@ -131,7 +131,7 @@ void LVL1::RecJetRoI::constructRun1(const std::vector<TriggerThreshold *> *caloT
    for (vector<unsigned int>::const_iterator itp = passed_thresholds.begin();
         itp != passed_thresholds.end(); ++itp)
    {
-      std::map<int, TriggerThreshold *>::const_iterator thr =
+      std::map<unsigned int, TriggerThreshold *>::const_iterator thr =
           thrMap.find(*itp - 1);
       if (thr != thrMap.end())
       {
@@ -140,10 +140,10 @@ void LVL1::RecJetRoI::constructRun1(const std::vector<TriggerThreshold *> *caloT
          JetThresholdValue *jtv = dynamic_cast<JetThresholdValue *>(ttv);
          if (jtv)
          {
-            m_triggerThresholdValue.insert(std::map<int, unsigned int>::value_type(
+            m_triggerThresholdValue.insert(std::map<unsigned int, unsigned int>::value_type(
                 *itp, jtv->thresholdValueCount()));
             m_windowSize.insert(
-                std::map<int, unsigned int>::value_type(*itp, jtv->window()));
+                std::map<unsigned int, unsigned int>::value_type(*itp, jtv->window()));
          }
       } // end "found threshold in map"
    }    // end loop through passed thresholds
@@ -185,11 +185,11 @@ LVL1::RecJetRoI::constructRun2(const std::vector<TriggerThreshold *> *caloThresh
         unsigned int roiET =
             (window == JetWindowSize::LARGE ? etLarge() : etSmall());
         if (roiET > threshold) {
-          int num = (*it)->thresholdNumber();
+          unsigned int num = static_cast<unsigned int>((*it)->thresholdNumber());
           m_triggerThresholdValue.insert(
-              std::map<int, unsigned int>::value_type(num, etCut));
+              std::map<unsigned int, unsigned int>::value_type(num, etCut));
           m_windowSize.insert(
-              std::map<int, unsigned int>::value_type(num, window));
+              std::map<unsigned int, unsigned int>::value_type(num, window));
           m_thresholdMask |= (1 << num);
         } // passes cuts
       }   // JetThresholdValue pointer valid
@@ -227,7 +227,7 @@ LVL1::RecJetRoI::constructRun3(const TrigConf::L1Menu * const l1menu)
 
       if (eTPassed)
       {
-         int num = thr->mapping();
+         const unsigned int num = thr->mapping();
          m_triggerThresholdValue[num] = etCut;
          m_windowSize[num] = window;
          m_thresholdMask |= (1 << num);
@@ -284,7 +284,7 @@ LVL1::RecJetRoI::etLarge() const {
     return m_decoder->etLarge(m_roiWord);
   } else {
     float highest = 0;
-    std::map<int, unsigned int>::const_iterator it =
+    std::map<unsigned int, unsigned int>::const_iterator it =
         m_triggerThresholdValue.begin();
     for (; it != m_triggerThresholdValue.end(); ++it)
       if (it->second > highest)
@@ -301,7 +301,7 @@ LVL1::RecJetRoI::etSmall() const {
     return m_decoder->etSmall(m_roiWord);
   } else {
     float highest = 0;
-    std::map<int, unsigned int>::const_iterator it =
+    std::map<unsigned int, unsigned int>::const_iterator it =
         m_triggerThresholdValue.begin();
     for (; it != m_triggerThresholdValue.end(); ++it)
       if (it->second > highest)
@@ -317,11 +317,11 @@ LVL1::RecJetRoI::thresholdPattern() const { return m_thresholdMask; }
 /** returns TRUE if threshold number <em>threshold_number</em> has been pass
     ed by this ROI. */
 bool
-LVL1::RecJetRoI::passedThreshold(int thresholdNumber) const {
+LVL1::RecJetRoI::passedThreshold(unsigned int thresholdNumber) const {
 
   bool value = false;
 
-  std::map<int, unsigned int>::const_iterator it =
+  std::map<unsigned int, unsigned int>::const_iterator it =
       m_triggerThresholdValue.find(thresholdNumber);
   if (it != m_triggerThresholdValue.end())
     value = true;
@@ -333,7 +333,7 @@ LVL1::RecJetRoI::passedThreshold(int thresholdNumber) const {
     ed by this ROI.
     Returns FALSE if used in Run 2, where forward jet is not defined */
 bool
-LVL1::RecJetRoI::passedFwdThreshold(int thresholdNumber) const {
+LVL1::RecJetRoI::passedFwdThreshold(unsigned int thresholdNumber) const {
 
   if ((m_version < 2) && this->isValidThreshold(thresholdNumber)) {
     return (((1 << (thresholdNumber + 7)) & m_roiWord) > 0);
@@ -362,7 +362,7 @@ LVL1::RecJetRoI::thresholdsPassed() const {
   }
 
   for (unsigned int iTh = 0; iTh <= nThresh; ++iTh) {
-    std::map<int, unsigned int>::const_iterator it =
+    std::map<unsigned int, unsigned int>::const_iterator it =
         m_triggerThresholdValue.find(iTh);
     if (it != m_triggerThresholdValue.end())
       newVec.push_back(iTh);
@@ -377,7 +377,7 @@ LVL1::RecJetRoI::thresholdsPassed() const {
  **/
 unsigned int
 LVL1::RecJetRoI::triggerThreshold(const unsigned int thresh) const {
-  map<int, unsigned int>::const_iterator it =
+  map<unsigned int, unsigned int>::const_iterator it =
       m_triggerThresholdValue.find(thresh);
   if (it != m_triggerThresholdValue.end()) {
     return it->second;
@@ -388,7 +388,7 @@ LVL1::RecJetRoI::triggerThreshold(const unsigned int thresh) const {
 /** returns the value of the jet cluster for the threshold passed.*/
 unsigned int
 LVL1::RecJetRoI::windowSize(const unsigned int thresh) const {
-  map<int, unsigned int>::const_iterator it = m_windowSize.find(thresh);
+  map<unsigned int, unsigned int>::const_iterator it = m_windowSize.find(thresh);
   if (it != m_windowSize.end()) {
     return it->second;
   }

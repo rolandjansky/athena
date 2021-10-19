@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -51,7 +51,7 @@ class LArAffectedRegions: public ManagedMonitorToolBase
   StatusCode procHistograms();
 
   /** Style function */
-  void SetHistoStyle(TH2I_LW* h);
+  static void SetHistoStyle(TH2I_LW* h);
 
  protected:
 
@@ -71,14 +71,14 @@ class LArAffectedRegions: public ManagedMonitorToolBase
   int m_eventsCounter;
 
   // Coverage Maps
-  TH2I_LW* m_hLArAffectedRegionsEMBPS[2];
-  TH2I_LW* m_hLArAffectedRegionsEMB[2];
-  TH2I_LW* m_hLArAffectedRegionsEMECPS[2];
-  TH2I_LW* m_hLArAffectedRegionsEMEC[2];
-  TH2I_LW* m_hLArAffectedRegionsHECA[4];
-  TH2I_LW* m_hLArAffectedRegionsHECC[4];
-  TH2I_LW* m_hLArAffectedRegionsFCALA[3];
-  TH2I_LW* m_hLArAffectedRegionsFCALC[3];
+  TH2I_LW* m_hLArAffectedRegionsEMBPS[2]{};
+  TH2I_LW* m_hLArAffectedRegionsEMB[2]{};
+  TH2I_LW* m_hLArAffectedRegionsEMECPS[2]{};
+  TH2I_LW* m_hLArAffectedRegionsEMEC[2]{};
+  TH2I_LW* m_hLArAffectedRegionsHECA[4]{};
+  TH2I_LW* m_hLArAffectedRegionsHECC[4]{};
+  TH2I_LW* m_hLArAffectedRegionsFCALA[3]{};
+  TH2I_LW* m_hLArAffectedRegionsFCALC[3]{};
 
 };
 

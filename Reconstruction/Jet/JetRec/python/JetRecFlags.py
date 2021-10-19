@@ -237,6 +237,7 @@ class JetContentDetail:
   Reduced=1
   Full=2
   Validation=3
+  Trigger=4
 
 class detailLevel(JobProperty):
   """ Toggles detail level for AOD jet reconstruction

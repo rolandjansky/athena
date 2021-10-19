@@ -86,15 +86,17 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
     shotCellLinksOpt->thinAll();
   }
 
+  static const SG::AuxElement::ConstAccessor<char> acc_passThinning("passThinning");
+
   for (const xAOD::TauJet* tau : *taus) {
 
-    if(tau->pt() < m_minTauPt) continue;
+    if (!acc_passThinning(*tau)) continue;
 
     // keep tau
     taus.keep(tau->index());
     
     // keep tau tracks
-    for(const xAOD::TauTrack* track : tau->allTracks()) {
+    for (const xAOD::TauTrack* track : tau->allTracks()) {
       tauTracks.keep(track->index());
     }
 

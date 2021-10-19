@@ -32,7 +32,7 @@ StatusCode TGCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
 
   for(const TgcRdo* coll : *rdo_container) {
 
-    for (auto rdo: *coll) {
+    for (const TgcRawData* rdo: *coll) {
 
       bool orFlag = m_tgcCabling->isOredChannel(rdo->subDetectorId(),
                                                  rdo->rodId(),
@@ -155,7 +155,15 @@ StatusCode TGCRDOVariables::initializeVariables()
   return StatusCode::SUCCESS;
 }
 
-void TGCRDOVariables::deleteVariables()
-{
-  return;
-}
+TGCRDOVariables::TGCRDOVariables(StoreGateSvc* evtStore,
+		const MuonGM::MuonDetectorManager* detManager,
+		const MuonIdHelper* idhelper,
+    const ITGCcablingSvc* cabling_svc,
+		TTree* tree,
+	 	const std::string& containername,
+	 	MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
+    m_tgcCabling{cabling_svc}  {
+    setHelper(idhelper);
+
+  }

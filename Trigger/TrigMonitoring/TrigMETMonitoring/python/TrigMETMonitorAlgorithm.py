@@ -64,7 +64,7 @@ def TrigMETMonConfig(inputFlags):
     if mt_chains: # these are temporary, needs to be changed
       TrigMETMonAlg.hlt_electron_key = 'HLT_egamma_Electrons'
       TrigMETMonAlg.hlt_muon_key = 'HLT_MuonsCB_RoI'
-      TrigMETMonAlg.offline_met_key = 'MET_EMTopo'
+      TrigMETMonAlg.offline_met_key = 'MET_Reference_AntiKt4EMTopo' #this used to be 'MET_EMTopo'
       TrigMETMonAlg.hlt_pfsum_key = 'HLT_MET_pfsum'
       TrigMETMonAlg.l1_jnc_key = 'jNOISECUTPerf'
       TrigMETMonAlg.l1_jrho_key = 'jXERHOPerf'

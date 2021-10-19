@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RatesAnalysis includes
@@ -199,17 +199,26 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   ATH_MSG_INFO("Read " << triggers.size() << " triggers from AOD.");
 
   // Check if chain was disabled in athena job
+  const bool runWithPrescaleJSON = !m_prescalesJSON.value().empty();
   const TrigConf::HLTPrescalesSet& hltPrescalesSet = m_configSvc->hltPrescalesSet(Gaudi::Hive::currentContext());
   for( auto & p : hltPrescalesSet.data().get_child("prescales") ) {
-    if (!m_prescalesJSON.value().count(p.first) || hltPrescalesSet.prescale(p.first).prescale < 0){
+    if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || hltPrescalesSet.prescale(p.first).prescale < 0){
       m_prescalesJSON[p.first] = hltPrescalesSet.prescale(p.first).prescale;
+
+      if (hltPrescalesSet.prescale(p.first).prescale < 0){
+        ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
+      }
     }
   }
 
   const TrigConf::L1PrescalesSet& l1PrescalesSet = m_configSvc->l1PrescalesSet(Gaudi::Hive::currentContext());
   for( auto & p : l1PrescalesSet.prescales() ) {
-    if (!m_prescalesJSON.value().count(p.first) || p.second.prescale < 0){
+    if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || p.second.prescale < 0){
       m_prescalesJSON[p.first] = p.second.prescale;
+
+      if (p.second.prescale < 0){
+        ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
+      }
     }
   }
 
@@ -217,7 +226,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   for (const auto& trigger : triggers) {
     ATH_MSG_DEBUG("Considering " << trigger );
     const bool isHLT = (getLevel(trigger) == 2); 
-    const auto trigConf = (isHLT ? m_tdt->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger) : nullptr);
+    const auto trigConf = (isHLT ? m_tdt->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger) : nullptr);
     if (isHLT && !trigConf) {
       ATH_MSG_ERROR("Problem with TDT trig conf - cannot get details for " << trigger << ", will be ignored.");
       continue;
@@ -228,12 +237,12 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
     if (isHLT) {
       // If this is a HLT item, we require it to be seeded by at most one item. This allows us to use a factorising rates algorithm
       if (lowerName.find(",") != std::string::npos) {
-        ATH_MSG_DEBUG("Can not add " << trigger << " due to multiple L1 seeds." );
+        ATH_MSG_WARNING("Can not add " << trigger << " due to multiple L1 seeds." );
         continue;
       }
 
       if (lowerName.empty()) {
-        ATH_MSG_DEBUG("Can not add " << trigger << " due to multiple L1 seeds: L1All" );
+        ATH_MSG_WARNING("Can not add " << trigger << " due to multiple L1 seeds: L1All" );
         continue;
       }
       
@@ -289,6 +298,12 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
     ATH_CHECK( newTrigger(trigger, prescale, expressPrescale, lowerName, lowerPrescale, groups, kEXISTING) );
   }
 
+  for (const auto& trigger : m_prescalesJSON) {
+    if (trigger.second > 0 &&  std::find(triggers.begin(), triggers.end(), trigger.first) == triggers.end()) {
+       ATH_MSG_WARNING( "Trigger " << trigger.first << " in supplied JSON is NOT AVAILABLE in the supplied AOD file.");
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -311,7 +326,7 @@ StatusCode RatesAnalysisAlg::checkExistingTrigger(const std::string& name, const
   }
   if (getLevel(name) == 1) return StatusCode::SUCCESS;
   // L1 items will crash if we call this on them.
-  const auto trigConf = m_tdt->ExperimentalAndExpertMethods()->getChainConfigurationDetails(triggers.at(0));
+  const auto trigConf = m_tdt->ExperimentalAndExpertMethods().getChainConfigurationDetails(triggers.at(0));
   if (trigConf->lower_chain_name() != seedName) {
     ATH_MSG_FATAL("Tried to register an existing trigger '" << name << "' seeding from '" << seedName << "' but in this AOD it seeds from '" << trigConf->lower_chain_name() << "'");
     return StatusCode::FAILURE;
@@ -350,7 +365,6 @@ StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   ATH_CHECK( m_tdt.retrieve() );
-  m_tdt->ExperimentalAndExpertMethods()->enable();
 
   if(!m_configSvc.empty()) {
     ATH_CHECK( m_configSvc.retrieve() );
@@ -519,7 +533,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
         }
         ATH_CHECK( trigger.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/data")) );
         ATH_CHECK( trigger.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsTrain")) );
+        if (m_useBunchCrossingData) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsTrain")) );
         else trigger.second->clearTrainHist();
       }
     }
@@ -537,7 +551,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
         std::replace( groupName.begin(), groupName.end(), ':', '_');
         ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/data")) );
         ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
+        if (m_useBunchCrossingData) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -547,7 +561,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
         if (!group.second->doHistograms()) continue;
         ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/data")) );
         ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
+        if (m_useBunchCrossingData) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -584,7 +598,7 @@ StatusCode RatesAnalysisAlg::execute() {
   m_weightingValues.m_distanceInTrain = distance;
   m_weightingValues.m_eventLiveTime = m_enhancedBiasRatesTool->getEBLiveTime(eventInfo); 
 
-  if (m_useBunchCrossingTool && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;
+  if (m_useBunchCrossingData && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;
 
   // Bunch factor doesn't change as a fn. of the run. Reminder: m_bunchFactor = m_targetBunches / (double)ebPairedBunches;
   m_weightingValues.m_muFactor = m_targetMu / m_weightingValues.m_eventMu;

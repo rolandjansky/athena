@@ -72,28 +72,6 @@ athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
                          "^AthenaPoolTestD"
                          DEPENDS AthenaPoolTestWrite )
 
-# Copy the Step2 file
-#athenapooltest_run_test( AthenaPoolTestCopy AthenaPoolTestCopy
-#                         "^Stream1" )
-# 
-# Remove the Step2 file and read the copy
-#athenapooltest_run_test( AthenaPoolTestReadAfterCopy AthenaPoolTestReadAfterCopy
-#                         "AthenaPoolTestD" )
-# 
-# Write/read out PileUpEventInfo:
-#athenapooltest_run_test( PileUpEventInfoWrite PileUpEventInfoWrite
-#                         "^PileUpEventInfo" )
-#athenapooltest_run_test( PileUpEventInfoRead PileUpEventInfoRead
-#                         "^PileUpEventInfo" )
-# 
-# 
-# 
-# Atlfast NOT YET WORKING
-#athenapooltest_run_test( AtlfastPoolWrite AtlfastPoolWriteOptions
-#                         "AtlfastPoolWrite" )
-#athenapooltest_run_test( AtlfastPoolRead AtlfastPoolReadOptions
-#                         "AtlfastPoolRead" )
-
 # Test write/read of indet rdos:
 athenapooltest_run_test( InDetRawDataWriter InDetRawDataWriter_jobOptions
                          "InDetRawDataFak" )
@@ -125,40 +103,6 @@ atlas_add_test( DoubleEventSelectorOverlayTestMT
                 SCRIPT athena.py --threads=4 -c \"outputFile=\'OverlayRDOMT.root\'\" AthenaPoolTest/DoubleEventSelectorOverlayTest.py
                 LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR"
                 PROPERTIES TIMEOUT 900 )
-
-# LFN test
-#athenapooltest_run_test( LArCellContWriteStep1 LArCellContWriter_jobOptionsStep1
-#                         "LArCellContFake" )
-#athenapooltest_run_test( LArCellContWriteStep2 LArCellContWriter_jobOptionsStep2
-#                         "LArCellContFake" )
-#athenapooltest_run_test( LArCellContReadByLFN LArCellContReader_jobOptionsByLFN
-#                         "LArCellContFake" )
-# 
-# 
-# write/read test of calo clusters
-#athenapooltest_run_test( CaloClusterWriter CaloClusterWriter_jobOptions
-#                         "^CaloClusterFakeWriter"
-#                         DEPENDS LArCellContRead  )
-#athenapooltest_run_test( CaloClusterReader CaloClusterReader_jobOptions
-#                         "^CaloClusterFakeWriter"
-#                         DEPENDS CaloClusterWriter  )
-# 
-# Test ElementLinks across files
-#athenapooltest_run_test( CaloClusterStep1Writer CaloClusterStep1Writer_jobOptions
-#                         "Fake" )
-#athenapooltest_run_test( CaloClusterStep2Writer CaloClusterStep2Writer_jobOptions
-#                         "Fake" )
-#athenapooltest_run_test( CaloCluster2Step2Reader CaloCluster2StepReader_jobOptions
-#                         "Fake" )
-# 
-# 
-# The following four tests are for writing explicit root collections with an extra ref 
-#   First write an implicit collection, then a second file and an explicit root collection
-#   Then read back with standard ref - Step1, or extra ref - Step2
-# 
-# AthenaPoolTestWrite - write out implicit collection with athena pool test data
-#athenapooltest_run_test( AthenaPoolTestWrite2 AthenaPoolTestWrite
-#                         "^AthenaPoolTestD" )
 
 # Check for adding DetDescr tags to event info object:
 athenapooltest_run_test( EventInfoWrite EventInfoWrite

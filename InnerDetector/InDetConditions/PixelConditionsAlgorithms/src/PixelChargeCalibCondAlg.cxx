@@ -10,6 +10,10 @@
 #include <memory>
 #include <sstream>
 
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
 PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
 {

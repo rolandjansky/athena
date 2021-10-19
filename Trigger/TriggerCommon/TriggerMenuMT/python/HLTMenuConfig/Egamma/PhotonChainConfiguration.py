@@ -28,7 +28,7 @@ def fastPhotonCaloSequenceCfg( flags ):
     return fastCaloMenuSequence('Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
-    return fastPhotonMenuSequence()
+    return fastPhotonMenuSequence( flags )
 
 def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     photonsIn = "HLT_egamma_Photons"
@@ -80,7 +80,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):
+    def assembleChainImpl(self):
         log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
@@ -116,7 +116,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
 
  
-        if self.dict["eventBuildType"] == "PhotonDS" :
+        if self.dict["eventBuildType"] == "PhysicsTLA" :
             log.debug('Adding photon trigger step getTLAPhoton')
             TLAStep = self.getTLAPhoton()
             chainSteps+= [TLAStep]

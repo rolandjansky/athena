@@ -107,6 +107,8 @@ public:
     // 2-ring layout
     std::vector<ModulePosition> prepareModulePositionsInRowTwoRing(int row, bool back = false);
 
+    void mirrorPositionsAroundYaxis(std::array< PositionsInQuadrant, 4 >& arr);
+
     HGTD_DetectorManager* m_detectorManager;
     HGTD_GeoModelAthenaComps* m_athComps;
     StoredMaterialManager* m_materialMgr;

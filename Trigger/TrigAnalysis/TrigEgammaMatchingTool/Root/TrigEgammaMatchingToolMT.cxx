@@ -238,7 +238,9 @@ const xAOD::TrigRingerRings* TrigEgammaMatchingToolMT::getRingsFeature( const Tr
   if( !rg_cont.isValid() ) return nullptr;
 
   for( const auto *rg : *rg_cont ){
-    if(rg->emCluster()->RoIword()==(*initRoi.link)->roiWord())
+    const xAOD::TrigEMCluster *cl = rg->emCluster();
+    if(!cl) continue;
+    if(cl->RoIword()==(*initRoi.link)->roiWord())
       return rg;
   }
   return nullptr;

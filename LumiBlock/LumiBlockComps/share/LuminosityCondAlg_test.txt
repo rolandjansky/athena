@@ -1,4 +1,4 @@
-ApplicationMgr.ExtSvc = {"StoreGateSvc/ConditionStore"};
+ApplicationMgr.ExtSvc = {"StoreGateSvc", "StoreGateSvc/ConditionStore"};
 
 LuminosityCondAlg.LuminosityFolderInputKey = "testLumi";
 LuminosityCondAlg.OnlineLumiCalibrationInputKey = "testCalib";
@@ -14,6 +14,8 @@ LuminosityCondAlgRun1.LuminosityOutputKey = "LuminosityCondDataRun1";
 LuminosityCondAlgMC.LuminosityFolderInputKey = "";
 LuminosityCondAlgMC.OnlineLumiCalibrationInputKey = "";
 LuminosityCondAlgMC.LuminosityOutputKey = "LuminosityCondDataMC";
+LuminosityCondAlgMC.IsMC = True;
+LuminosityCondAlgMC.MCMuToLumi = 1.;
 
 LuminosityCondAlgMiss.LuminosityFolderInputKey = "testLumiMiss";
 LuminosityCondAlgMiss.OnlineLumiCalibrationInputKey = "testCalibMiss";

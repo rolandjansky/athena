@@ -334,7 +334,7 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
   return pass;
 }  
 
-void DerivationFramework::PixelNtupleMaker::GetLayerEtaPhiFromId(uint64_t id,int *barrelEC, int *layer, int *eta, int *phi) const {
+void DerivationFramework::PixelNtupleMaker::GetLayerEtaPhiFromId(uint64_t id,int *barrelEC, int *layer, int *eta, int *phi) {
   *eta =(id>>43) % 0x20 - 10;
   *phi =(id>>43) % 0x800 / 0x20;
   int layer_index = ((id>>43) / 0x800) & 0xF;

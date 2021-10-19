@@ -173,6 +173,11 @@ def getInDetTruthSelectionTool(**kwargs):
                       name='InDetTruthSelectionTool',
                       maxProdVertRadius=-1))  # disable production radius cut
 
+def getHardScatterSelectionTool(**kwargs):
+    from InDetHardScatterSelectionTool.InDetHardScatterSelectionToolConf import InDet__InDetHardScatterSelectionTool
+    kwargs = setDefaults(kwargs, name="InDetHardScatterSelectionTool")
+    return InDet__InDetHardScatterSelectionTool(**kwargs)
+
 
 def getInDetPhysValTruthDecoratorAlgStableParticles(**kwargs):
     '''

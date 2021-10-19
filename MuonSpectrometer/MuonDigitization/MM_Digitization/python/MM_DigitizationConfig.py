@@ -35,7 +35,11 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
-
+    
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"MuonDetectorCondAlg"):
+        import MuonRecExample.MuonAlignConfig  # noqa: F401 (import side-effects)
     return CfgMgr.MM_DigitizationTool(name,**kwargs)
 
 def getMMRange(name="MMRange", **kwargs):
@@ -45,13 +49,6 @@ def getMMRange(name="MMRange", **kwargs):
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset
     kwargs.setdefault('ItemList', ["MMSimHitCollection#MicromegasSensitiveDetector"] )
     return CfgMgr.PileUpXingFolder(name, **kwargs)
-
-
-def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    mmRndm = kwargs.setdefault("RndmEngine", "MMResponse")
-    jobproperties.Digitization.rndmSeedList.addSeed(mmRndm, 49261510,105132394 )
-    return CfgMgr.MM_Response_DigitTool(name,**kwargs)
 
 
 def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):

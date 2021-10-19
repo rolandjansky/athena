@@ -264,6 +264,7 @@ private:
   bool m_checkConversion;
   int m_minSiHits;
   double m_minPt;
+  bool m_doITk;
 };
 
 } // end of namespace Trk

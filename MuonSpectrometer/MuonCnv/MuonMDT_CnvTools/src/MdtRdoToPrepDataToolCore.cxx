@@ -24,9 +24,9 @@ using namespace Trk;
 using namespace Muon;
 
 namespace {
-    static constexpr double const& inverseSpeedOfLight = 1 / Gaudi::Units::c_light;  // need 1/299.792458
+    static constexpr double inverseSpeedOfLight = 1 / Gaudi::Units::c_light;  // need 1/299.792458
     // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-    static constexpr unsigned int const maxNTubesPerLayer = 120;
+    static constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }  // namespace
 
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
@@ -54,8 +54,8 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, c
     declareProperty("DoTofCorrection", m_mdtCalibSvcSettings->doTof = true);
     declareProperty("DoPropagationCorrection", m_mdtCalibSvcSettings->doProp = false);
     // DataHandle
-    declareProperty("RDOContainer", m_rdoContainerKey = std::string("MDTCSM"), "MdtCsmContainer to retrieve");
-    declareProperty("OutputCollection", m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),
+    declareProperty("RDOContainer", m_rdoContainerKey = "MDTCSM", "MdtCsmContainer to retrieve");
+    declareProperty("OutputCollection", m_mdtPrepDataContainerKey = "MDT_DriftCircles",
                     "Muon::MdtPrepDataContainer to record");
 }
 

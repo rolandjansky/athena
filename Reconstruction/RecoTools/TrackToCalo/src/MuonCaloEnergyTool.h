@@ -71,7 +71,7 @@ namespace Rec {
 
         // PRIVATE METHODS
         double thresholdCorrection(double E_observed, double E_expected, double sigma_Noise) const;
-        double etaCorr(double eta) const;
+        static double etaCorr(double eta) ;
     };
 
 }  // namespace Rec

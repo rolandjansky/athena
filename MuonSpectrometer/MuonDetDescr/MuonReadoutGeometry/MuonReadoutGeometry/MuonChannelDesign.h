@@ -75,6 +75,12 @@ namespace MuonGM {
     /** calculate local wire group number, range 1=64 like identifiers. Returns -1 if out of range */
     int wireGroupNumber( const Amg::Vector2D& pos ) const;
 
+    /** calculate the sTGC wire number, with the index of first wire being 1.
+     *  The method can return a value outside the range [1, nch].
+     *  It returns -1 if not a sTGC chamber.
+     */
+    int wireNumber( const Amg::Vector2D& pos ) const;
+
     /** calculate local channel position for a given channel number */
     bool  channelPosition( int channel, Amg::Vector2D& pos  ) const;
 
@@ -207,15 +213,12 @@ namespace MuonGM {
     // The wires in the 1st gas volume of QL1, QS1 can not be read for digits
     if (type==MuonChannelDesign::phiStrip && detType==MuonChannelDesign::DetType::STGC) {   // sTGC Wires
       //First, find the wire number associated to the position
-      int wireNumber;
-      if (pos.x() > -0.5*maxYSize && pos.x() < firstPos) // Before first wire
-        wireNumber = 1;
-      else wireNumber = (pos.x() - firstPos)/inputPitch + 1;
-      //find wire group associated to wire number
+      int wire_number = wireNumber(pos);
+      ////find wire group associated to wire number
       int grNumber;
-      if (wireNumber <= firstPitch) grNumber = 1; // firstPitch in this case is number of wires in 1st group
+      if (wire_number <= firstPitch) grNumber = 1; // firstPitch in this case is number of wires in 1st group
       else {
-        grNumber = (wireNumber - 1 - firstPitch)/groupWidth +2; // 20 wires per group,
+        grNumber = (wire_number - 1 - firstPitch)/groupWidth +2; // 20 wires per group,
         /* If a hit is positionned after the last wire but inside the gas volume
            This is really a check for the few mm on the fringe of the gas volume
            Especially important for QL3. We still consider the digit active */
@@ -234,6 +237,24 @@ namespace MuonGM {
     }
     return -1;
 
+  }
+
+  inline int MuonChannelDesign::wireNumber( const Amg::Vector2D& pos ) const {
+    int wire_number{-1};
+    // Only determine wire number for sTGC wire surfaces
+    if (type==MuonChannelDesign::phiStrip && detType==MuonChannelDesign::DetType::STGC) {
+      if ((pos.x() > -0.5*maxYSize) && (pos.x() < firstPos)) { // Before first wire
+        wire_number = 1;
+      } else {
+        wire_number = (pos.x() - firstPos)/inputPitch + 1;
+        // Print a warning if the wire number is outside the range [1, nch]
+        if ((wire_number < 1) || (wire_number > nch)) { 
+          MsgStream log(Athena::getMessageSvc(),"MuonChannelDesign");
+          if (log.level()<=MSG::WARNING) log << MSG::WARNING << "sTGC wire number out of range: wire number = " << wire_number << " local pos = (" << pos.x() << ", " << pos.y() << ")" << endmsg;
+        }
+      }
+    }
+    return wire_number;
   }
 
   inline bool MuonChannelDesign::channelPosition( int st, Amg::Vector2D& pos  ) const {

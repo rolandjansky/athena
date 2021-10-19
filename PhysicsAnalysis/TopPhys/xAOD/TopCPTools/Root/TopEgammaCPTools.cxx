@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopEgammaCPTools.h"
@@ -75,7 +75,6 @@ namespace top {
 //    declareProperty("FwdElectronSelector", m_fwdElectronSelector);
 //    declareProperty("FwdElectronSelectorLoose", m_fwdElectronSelectorLoose);
 //    declareProperty("FwdElectronEffIDLoose", m_fwdElectronEffSFIDLoose);
-//    declareProperty("WebBunchCrossingTool", m_webBunchCrossingTool);
   }
 
   StatusCode EgammaCPTools::initialize() {

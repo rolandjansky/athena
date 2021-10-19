@@ -89,8 +89,6 @@ ServiceMgr.GeoModelSvc.DetectorTools += [ LArDetectorToolNV(ApplyAlignments = Tr
                                           ]
 
 
-from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
-
 include( "TileConditions/TileConditions_jobOptions.py" )
 
 include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")
@@ -132,7 +130,7 @@ logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_job
 from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
+include ("CaloRec/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 
 print(StreamESD.ItemList)

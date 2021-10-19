@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
@@ -16,7 +16,7 @@ void MuonHoughPattern::resetTracksegment()
   for (unsigned int i=0; i<m_hit.size(); i++)
     {
       delete m_hit[i];
-      m_hit[i]=0;
+      m_hit[i]=nullptr;
     }
   
   m_hit.clear();
@@ -98,7 +98,7 @@ double MuonHoughPattern::calculateEZ()const
     {
       // for each hit the distance from the hit to x,y line through (0,0) in the xy plane is calcualted and then distance*cos(theta) gives z_hit - z
 
-      double distance = m_muonhoughmathutils.signedDistanceToLine(getHit(hitno)->getHitx(),getHit(hitno)->getHity(),0,m_ephi - M_PI);
+      double distance = MuonHoughMathUtils::signedDistanceToLine(getHit(hitno)->getHitx(),getHit(hitno)->getHity(),0,m_ephi - M_PI);
       
       double z = getHit(hitno)->getHitz() - (distance * std::cos(m_etheta) / std::sin(m_etheta)); // distance * sin (m_etheta) = L  // - sign correct?
       // hough correction in here?
@@ -118,7 +118,7 @@ double MuonHoughPattern::calculateEZ()const
 void MuonHoughPattern::printHoughPattern()const
 {
   MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::printHoughPattern");
-  if (m_hit.size()==0)
+  if (m_hit.empty())
     {
       if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE <<"MuonHoughPattern::No pattern_Segment" << endmsg;
     }
@@ -235,7 +235,7 @@ std::vector <double> MuonHoughPattern::getEDir()const
 
 void MuonHoughPattern::updateParametersRPhi(bool cosmics)
 {
-  if (size()<=0) return;
+  if (empty()) return;
 
   double sum_x = 0.;
   double sum_y = 0.;
@@ -249,7 +249,7 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
     }
 
   // adding interaction point constraint:
-  if (cosmics == false || size()==1) hitsno += size();
+  if (!cosmics || size()==1) hitsno += size();
   
   const double av_x = sum_x / (hitsno+0.);
   const double av_y = sum_y / (hitsno+0.);
@@ -264,7 +264,7 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
       double y_offset = hity - av_y;
       double weight = (x_offset*x_offset + y_offset*y_offset); //*getOrigWeight(i);
       int sign = 1;
-      if (cosmics==false) {
+      if (!cosmics) {
 	if (x_offset*hitx+y_offset*hity<0) {sign =-1;}
       }
       else {
@@ -274,7 +274,7 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
       sumy += weight*sign*y_offset;
     }
   // adding interaction point (count size)
-  if (cosmics==false) {
+  if (!cosmics) {
     double weight = av_x*av_x + av_y*av_y;
     sumx += size() * weight * av_x;
     sumy += size() * weight * av_y;
@@ -285,7 +285,7 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
   }
 
   double phi = std::atan2(sumy,sumx);
-  if (cosmics == true) {
+  if (cosmics) {
     if (phi > 0) phi -= M_PI; // phi between 0,-Pi for cosmics! 
   }
 

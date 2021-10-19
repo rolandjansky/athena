@@ -20,6 +20,8 @@
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
+#include <cmath>
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -115,7 +117,7 @@ StatusCode MM_FastDigitizer::initialize() {
   }
   ATH_CHECK(m_idHelperSvc.retrieve());
   // check the input object name
-  if (m_inputObjectName=="") {
+  if (m_inputObjectName.empty()) {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
     return StatusCode::FAILURE;
   }
@@ -276,7 +278,7 @@ StatusCode MM_FastDigitizer::execute() {
       col->setIdentifier(m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().parentID(layid), m_idHelperSvc->mmIdHelper().multilayer(layid),1,1) );
       if( prdContainer->addCollection(col,hash).isFailure() ){
         ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
-        delete col;col=0;
+        delete col;col=nullptr;
         continue;
       }
       localMMVec[hash] = col;
@@ -332,10 +334,10 @@ StatusCode MM_FastDigitizer::execute() {
 
     // resolution = -.01/3 * angle + .64/3.
     double resolution;
-    if (fabs(inAngle_XZ)<3)
+    if (std::fabs(inAngle_XZ)<3)
       resolution = .07;
     else
-      resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
+      resolution = ( -.001/3.*std::fabs(inAngle_XZ) ) + .28/3.;
     double sp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, resolution);
 
     ATH_MSG_VERBOSE("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() );
@@ -346,7 +348,7 @@ StatusCode MM_FastDigitizer::execute() {
    Amg::Vector2D posOnSurf(hitOnSurface.x()+sp,hitOnSurface.y());
 
     // for large angles project perpendicular to surface
-    if( fabs(inAngle_XZ) > 70 ){
+    if( std::fabs(inAngle_XZ) > 70 ){
       posOnSurf[0]=(slpos.x()+sp);
       // if using timing information use hit position after shift
     }else if( m_useTimeShift && !m_microTPC ){
@@ -484,7 +486,7 @@ StatusCode MM_FastDigitizer::execute() {
                                        hash,
                                        Amg::Vector2D(posOnSurf.x(), 0.),
                                        rdoList,
-                                       std::move(cov),
+                                       cov,
                                        detEl,
                                        (int)tdrift,
                                        0);
@@ -532,7 +534,7 @@ StatusCode MM_FastDigitizer::execute() {
                            hash,
                            Amg::Vector2D(CurrenPosOnSurf.x(), 0.),
                            rdoList,
-                           std::move(cov),
+                           cov,
                            detEl,
                            (int)tdrift,
                            0);

@@ -1,8 +1,9 @@
 #!/bin/bash
-# art-description: new DQ in Reco_tf, RAWtoALL, data q431
+# art-description: new DQ in Reco_tf, RAWtoALL, Run 2 data q431
 # art-type: grid
 # art-memory: 6144
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-output: myHIST.root
 # art-output: log*
 

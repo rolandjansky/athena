@@ -413,6 +413,8 @@ ByteStreamEventStorageInputSvc::generateDataHeader()
     dataHeader->setStatus(DataHeader::Input);
     //add the data header elenebt self reference to the object vector
     dataHeader->insert(*std::move(dataHeaderElement));
+    // Set processTag
+    dataHeader->setProcessTag(dataHeaderElement->getKey());
 
     // Clean up EventInfo from the previous event
     key = m_eventInfoKey.value();

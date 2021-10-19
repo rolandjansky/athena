@@ -34,8 +34,8 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
   std::vector<std::string> m_cellGroupStr;
   float m_tqThrsh, m_samplesThrsh;
   float m_maskedtqThrsh, m_maskedsamplesThrsh;
-  float m_sigmaNoiseSamples, m_sigmaNoiseQt;
-  bool m_usePileupNoiseSamples, m_usePileupNoiseQt;
+  float m_sigmaNoiseSamples = 0.0F, m_sigmaNoiseQt = 0.0F;
+  bool m_usePileupNoiseSamples = false, m_usePileupNoiseQt = false;
   bool m_dump, m_maskBadChannels;
   std::string m_outFileName, m_inFileName;
   bool m_fill;

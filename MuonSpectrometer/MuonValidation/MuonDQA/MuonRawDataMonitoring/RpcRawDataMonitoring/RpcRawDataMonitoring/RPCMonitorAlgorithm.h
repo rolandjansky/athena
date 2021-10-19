@@ -13,7 +13,6 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
-#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 class RPCMonitorAlgorithm : public AthMonitorAlgorithm
 {
@@ -34,22 +33,20 @@ class RPCMonitorAlgorithm : public AthMonitorAlgorithm
     SG::ReadHandleKey<xAOD::MuonRoIContainer> m_l1RoiContainerKey
       { this, "L1RoiContainerKey", "LVL1MuonRoIs", "Key for L1 ROIs" };
 
-    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-
     //
     // Define configurable cuts
     //
 
     // cuts for muon and roi matching
-    float m_minRoIDR;
-
+    Gaudi::Property<float> m_minRoIDR {this, "MinRoIDR", 0.3};
+    
     // cuts for the selected muons
-    float m_minPt;
-    float m_minEta;
-    float m_maxEta;
-
+    Gaudi::Property<float> m_minPt    {this, "MinPt",     2.0e3};
+    Gaudi::Property<float> m_minEta   {this, "MinEta",    0.0};
+    Gaudi::Property<float> m_maxEta   {this, "MaxEta",    1.05};
+    
     // xAOD::Muon::Quality m_quality;
-    int m_quality;
+    Gaudi::Property<int>   m_quality  {this, "MuQuality", 1};
 };
 
 

@@ -12,6 +12,8 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArElecCalib/ILArPedestal.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "TTree.h"
 
 class CaloCell_ID;
@@ -30,18 +32,19 @@ class LArReadCells: public ::AthAlgorithm {
 
    Gaudi::Property<double> m_etcut{this,"etCut",7500.,"Et cut to dump cells"};
    Gaudi::Property<double> m_etcut2{this,"etCut2",7500.,"Et cut to dump cells from second layer"};
+   Gaudi::Property< std::string > m_outStream{this, "output","SPLASH", "to which stream write the ntuple"};
 
    const DataHandle<CaloIdManager> m_caloIdMgr;
-   const CaloCell_ID*       m_calo_id;
+   const CaloCell_ID*       m_calo_id = nullptr;
 
 
-   TTree* m_tree;
-   int m_runNumber;
-   int m_lbNumber;
-   int m_eventNumber;
-   int m_bcid; 
-   int m_error;
-   int m_ncells;
+   TTree* m_tree = nullptr;
+   int m_runNumber = 0;
+   int m_lbNumber = 0;
+   int m_eventNumber = 0;
+   int m_bcid = 0; 
+   int m_error = 0;
+   int m_ncells = 0;
    std::vector<float> m_ECell    ;
    std::vector<float> m_TCell    ;
    std::vector<float> m_EtaCell  ;
@@ -55,7 +58,9 @@ class LArReadCells: public ::AthAlgorithm {
 
     SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal conditions object"};
-    const LArOnlineID*          m_lar_online_id;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+    
+    const LArOnlineID*          m_lar_online_id = nullptr;
 
 
 }; 

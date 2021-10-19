@@ -20,6 +20,18 @@ from AthenaCommon.DetFlags import DetFlags
 #################################################################################
 # Material for the Geometry comes from COOL or local database
 #################################################################################
+def modifyCondAlg(the_name, **props) :
+    from AthenaCommon.AlgSequence import AlgSequence
+    from AthenaCommon.AlgSequence import AthSequencer
+    cond_seq=AthSequencer("AthCondSeq")
+    for seq in [AlgSequence(),cond_seq] :
+        if hasattr(seq,the_name) :
+            alg = getattr(seq,the_name)
+            print('Modified %s' % the_name)
+            for k,v in props.items() :
+                setattr(alg,k,v)
+            print (alg)
+            return
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
@@ -73,7 +85,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
           # and give it to the Geometry Builder
           AtlasGeometryBuilder.InDetTrackingGeometryBuilder = InDetTrackingGeometryBuilder
-          # 
+
         # (Calo)
         if DetFlags.Calo_on() :
            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CylinderVolumeCreator
@@ -96,7 +108,57 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            MuonTrackingGeometryBuilderCond.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            # and give it to the Geometry Builder
            AtlasGeometryBuilder.MuonTrackingGeometryBuilder = MuonTrackingGeometryBuilderCond
-           
+
+        # adding the artificial SiDetEltCondAlg dependencies after everything else has been set up
+        if DetFlags.ID_on() :
+
+          # artifical dependencies to Si-DetectorElement conditions algs to ensure that
+          # the IOV is identical to the IOV of the tracking geoemtry
+
+          # Edit the conditions algorithm sequence to ensure dependencies are executed in a feasible order.
+          # Only necessary for single threaded athena where the AvalancheScheduler is not used.
+          pixelDep = "PixelAlignCondAlg/PixelAlignCondAlg"
+          sctDep = "SCT_AlignCondAlg/SCT_AlignCondAlg"
+          trtDep = "TRTAlignCondAlg/TRTAlignCondAlg"
+          muonAlignDep = "MuonAlignmentCondAlg/MuonAlignmentCondAlg"
+          muonDetDep = "MuonDetectorCondAlg/MuonDetectorCondAlg"
+          condInputLoader = "CondInputLoader/CondInputLoader"
+          dependencies = {pixelDep,
+                          sctDep,
+                          trtDep,
+                          muonAlignDep,
+                          muonDetDep,
+                          condInputLoader}
+          from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+          if jp.ConcurrencyFlags.NumThreads() <= 0:
+              prependList = list()
+              appendList = list()
+              from AthenaCommon.AlgSequence import AthSequencer
+              cond_seq=AthSequencer("AthCondSeq")
+              condAlgs = cond_seq._Configurable__children
+              for alg in condAlgs:
+                  condAlgName = alg.getFullName()
+                  if condAlgName in dependencies:
+                      prependList.append(alg)
+                  else:
+                      appendList.append(alg)
+              prependList.extend(appendList)
+              cond_seq._Configurable__children = prependList
+              
+          MuonManagerKey  = ['MuonDetectorManager']     if DetFlags.Muon_on()  else []
+          TRT_DetEltKey   = ["TRT_DetElementContainer"] if DetFlags.TRT_on()   else []
+          SCTAlignStore   = ["SCTAlignmentStore"]       if DetFlags.SCT_on()   else []
+          PixelAlignStore = ["PixelAlignmentStore"]     if DetFlags.pixel_on() else []
+
+          modifyCondAlg('SCT_DetectorElementCondAlg', MuonManagerKey      = MuonManagerKey,
+                                                      TRT_DetEltContKey   = TRT_DetEltKey,
+                                                      PixelAlignmentStore = PixelAlignStore)
+
+          modifyCondAlg('PixelDetectorElementCondAlg', MuonManagerKey     = MuonManagerKey,
+                                                       TRT_DetEltContKey  = TRT_DetEltKey,
+                                                       SCTAlignmentStore  = SCTAlignStore)
+        #end editing cond_seq for artificial SiDetEltCondAlg dependencies
+        
         # processors
         AtlasGeometryProcessors = []   
            
@@ -104,9 +166,9 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
         if TrkDetFlags.MaterialSource() == 'COOL':
             # the material provider
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
-            AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
+            AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialCondProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
-            AtlasMaterialProvider.LayerMaterialMapName  = TrkDetFlags.MaterialStoreGateKey()
+            AtlasMaterialProvider.LayerMaterialMapKey   = TrkDetFlags.MaterialStoreGateKey()
         
             AtlasGeometryProcessors += [ AtlasMaterialProvider ]
         
@@ -127,7 +189,8 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                 MagicTag      = TrkDetFlags.MaterialMagicTag()
                 DataBaseConnection = '<dbConnection>sqlite://X;schema='+DataBasePath+DataBaseName+';dbname=OFLP200</dbConnection>'
                 conddb.blockFolder('/GLOBAL/TrackingGeo/LayerMaterialV2')
-                conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True)
+                conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True,
+                                        className = 'Trk::LayerMaterialMap')
                 if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                     print ('[ TrackingGeometryCondAlg ] Using Local Database: '+DataBaseConnection)
                 # make sure that the pool files are in the catalog
@@ -136,13 +199,15 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                 CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
                 ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
                 cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-                conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
+                conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag,
+                                        className = 'Trk::LayerMaterialMap')
             else :
                 print ('[ TrackingGeometryCondAlg ]     base material tag : ', AtlasMaterialTag)
                 cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
                 print ('[ TrackingGeometryCondAlg ]     translated to COOL: ', cfolder)
                 # load the right folders (preparation for calo inclusion)
-                conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
+                conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder,
+                                        className = 'Trk::LayerMaterialMap')
 
         elif TrkDetFlags.MaterialSource() == 'Input' :
             # the material provider

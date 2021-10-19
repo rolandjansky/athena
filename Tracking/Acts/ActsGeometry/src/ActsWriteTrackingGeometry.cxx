@@ -38,12 +38,11 @@ StatusCode ActsWriteTrackingGeometry::initialize() {
 StatusCode ActsWriteTrackingGeometry::execute(const EventContext& ctx) const {
   auto trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
-  // Use nominal context
-  //ActsGeometryContext defGctx;
+  // Use the geometry context
   const ActsGeometryContext& gctx = m_trackingGeometryTool->getGeometryContext(ctx);
-
+  
   m_objWriterTool->write(gctx, *trackingGeometry);
-  m_materialJsonWriterTool->write(*trackingGeometry);
+  m_materialJsonWriterTool->write(gctx, *trackingGeometry);
   return StatusCode::SUCCESS;
 }
 

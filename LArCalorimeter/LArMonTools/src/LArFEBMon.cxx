@@ -31,9 +31,9 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "LArTrigStreamMatching.h"
 
-#include <stdint.h>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
+#include <cstdint>
 #include <sys/types.h>
 
 const unsigned nFEBnominal=1524;
@@ -48,7 +48,7 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_eventTime(0),
     m_eventTime_ns(0),
     m_l1Trig(0),
-    m_strHelper(0),
+    m_strHelper(nullptr),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_trigok(false),
     m_barrelCSummary(),
@@ -73,13 +73,13 @@ LArFEBMon::LArFEBMon(const std::string& type,
 
   declareProperty("m_lumi_blocks", m_lumi_blocks = 3000 );
   
-  m_onlineHelper	= NULL;
-  m_strHelper		= NULL;
+  m_onlineHelper	= nullptr;
+  m_strHelper		= nullptr;
 
   m_eventsCounter = 0;
   
   for (unsigned i = 0;i < nFEBnominal; i++) {
-    m_febInError[i] = NULL;
+    m_febInError[i] = nullptr;
     m_bfebIE[i]     = false;
   }
   
@@ -87,37 +87,37 @@ LArFEBMon::LArFEBMon(const std::string& type,
   m_FEBmax	= 1599.5;
   m_FEBnbins	= 1620;
   
-  m_LArAllErrors_dE	= NULL;
-  m_rejectedYield	= NULL;
-  m_rejectedHisto	= NULL;
-  m_rejectedLBProfile	= NULL;
-  m_rejBitsHisto	= NULL;
+  m_LArAllErrors_dE	= nullptr;
+  m_rejectedYield	= nullptr;
+  m_rejectedHisto	= nullptr;
+  m_rejectedLBProfile	= nullptr;
+  m_rejBitsHisto	= nullptr;
   
-  m_eventsLB		= NULL;
-  m_rejectedYieldLB	= NULL;
-  m_rejectedYieldLBout	= NULL;
-  m_eventSizeLB		= NULL;
-  m_nbOfEvts2D		= NULL;
-  m_eventType		= NULL;
-  m_nbOfSamples		= NULL;
-  m_totNbSw2		= NULL;
-  m_dspThresholds_ADC	= NULL;
-  m_dspThresholds_qtime = NULL;
+  m_eventsLB		= nullptr;
+  m_rejectedYieldLB	= nullptr;
+  m_rejectedYieldLBout	= nullptr;
+  m_eventSizeLB		= nullptr;
+  m_nbOfEvts2D		= nullptr;
+  m_eventType		= nullptr;
+  m_nbOfSamples		= nullptr;
+  m_totNbSw2		= nullptr;
+  m_dspThresholds_ADC	= nullptr;
+  m_dspThresholds_qtime = nullptr;
   
-  m_hTriggerType	= NULL;
-  m_hTriggerTypeAllDSP	= NULL;
-  m_hTimeDistrib	= NULL;
-  m_nbOfFebBlocksTotal	= NULL;
+  m_hTriggerType	= nullptr;
+  m_hTriggerTypeAllDSP	= nullptr;
+  m_hTimeDistrib	= nullptr;
+  m_nbOfFebBlocksTotal	= nullptr;
   
-  m_CorruptTree		= NULL;
-  m_stream_eventSizeLB  = NULL;
+  m_CorruptTree		= nullptr;
+  m_stream_eventSizeLB  = nullptr;
 
   //m_useLumi = false; // Turn off lumi-feature of base-class
 }
 
 // ********************************************************************
 LArFEBMon::~LArFEBMon() {
-  if( m_strHelper != NULL ) delete m_strHelper;
+  if( m_strHelper != nullptr ) delete m_strHelper;
 }
 
 // ********************************************************************
@@ -329,7 +329,7 @@ StatusCode LArFEBMon::bookHistograms() {
        }
        ATH_MSG_INFO( "] " );
 
-    if (l1triggers.size()>0) {m_trigok=true;} else {m_trigok=false;}
+    m_trigok = !l1triggers.empty();
     }
 
     //
@@ -379,7 +379,7 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventTime_ns=thisEvent->timeStampNSOffset();
     
   unsigned lumi_block = thisEvent->lumiBlock();
-  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
+  bool lar_inerror = thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error;
   
   //ATH_MSG_INFO( "LArFEBMon Lumi block: "<<lumi_block);
 
@@ -390,7 +390,7 @@ StatusCode LArFEBMon::fillHistograms() {
     return StatusCode::FAILURE;
   }
   
-  if (hdrCont->size()==0) {
+  if (hdrCont->empty()) {
     ATH_MSG_WARNING( "Got empty LArFebHeaderContainer. Do nothing" );
     return StatusCode::FAILURE;
   }
@@ -407,10 +407,10 @@ StatusCode LArFEBMon::fillHistograms() {
   if (m_eventsCounter == 1 && firstEventType == 4) {
     m_dspThresholds_ADC->SetTitle(Form("DSP thresholds for ADC-sample transmission (only in physics) - LB %4d",lumi_block));
     m_dspThresholds_qtime->SetTitle(Form("DSP thresholds for qfactor+time calculation (only in physics) - LB %4d",lumi_block));
-    if (m_keyDSPThresholds.size()>0) { 
+    if (!m_keyDSPThresholds.empty()) { 
       if (detStore()->contains<LArDSPThresholdsComplete>(m_keyDSPThresholds)) {
 	ATH_MSG_DEBUG("Loading run1 version of LAr DSP Thresholds");
-	const LArDSPThresholdsComplete* dspThresh=0;
+	const LArDSPThresholdsComplete* dspThresh=nullptr;
 	sc=detStore()->retrieve(dspThresh,m_keyDSPThresholds);
 	if(!sc.isSuccess()) {
 	  ATH_MSG_WARNING(" Failed to retrieve LArDSPThresholds with key " << m_keyDSPThresholds 
@@ -428,7 +428,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
       else {
 	ATH_MSG_DEBUG("Loading run2 version of LAr DSP Thresholds");
-	const AthenaAttributeList* dspThrshAttr=0; 
+	const AthenaAttributeList* dspThrshAttr=nullptr; 
 	sc=detStore()->retrieve(dspThrshAttr,m_keyDSPThresholds);
 	if (sc.isFailure()) {
 	  ATH_MSG_WARNING( "Failed to retrieve AttributeList with key (folder) " << m_keyDSPThresholds 
@@ -729,7 +729,7 @@ StatusCode LArFEBMon::fillHistograms() {
   //uint m_l1Trig = (uint) (trig->level1TriggerType());
   //m_hTriggerType->Fill(m_l1Trig);
 
-  if(m_isOnline && m_streams.size() > 0) {
+  if(m_isOnline && !m_streams.empty()) {
     m_streamsThisEvent=trigStreamMatching(m_streams,thisEvent->streamTags());
  
     // Now we could fill the event size
@@ -900,7 +900,7 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
 }
 
 //********************************************************************
-StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string summName)
+StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,const std::string& summName)
 {
   ATH_MSG_DEBUG( "In bookNewPartitionSumm ->" << summName );
   
@@ -911,7 +911,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   
   int nbOfFT = 25;
   int nbOfSlot = 15;
-  if (summName.find("B",0) != std::string::npos){
+  if (summName.find('B',0) != std::string::npos){
     nbOfFT = 32;
     nbOfSlot = 14;
   }
@@ -1339,7 +1339,7 @@ void LArFEBMon::AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2,float s1,float s2)
 
 
 /*---------------------------------------------------------*/
-bool LArFEBMon::nbOfFebOK(float nfeb,TH1I_LW* h){
+bool LArFEBMon::nbOfFebOK(float nfeb,TH1I_LW* h) const{
   int ixmax(0);
   float imax(0);
   for (unsigned int ix=1;ix<=h->GetNbinsX();ix++){

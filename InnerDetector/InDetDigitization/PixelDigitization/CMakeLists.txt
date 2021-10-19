@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PixelDigitization )
@@ -12,7 +12,7 @@ atlas_add_component( PixelDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel AthenaKernel PileUpToolsLib StoreGateLib GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry PixelReadoutGeometry SiDigitization InDetCondTools InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver PixelCablingLib InDetConditionsSummaryService )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel AthenaKernel PileUpToolsLib StoreGateLib GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry PixelReadoutGeometryLib SiDigitization InDetCondTools InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver InDetConditionsSummaryService )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

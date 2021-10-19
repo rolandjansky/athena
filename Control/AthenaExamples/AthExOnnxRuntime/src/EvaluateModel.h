@@ -69,14 +69,6 @@ namespace AthONNX {
       Gaudi::Property<int> m_numberOfBatches {this, "NumberOfBatches", 1, "No. of batches to be passed"};
       Gaudi::Property<int> m_sizeOfBatch {this, "SizeOfBatch", 1, "No. of elements/example in a batch"};
       
-      /// Handle to @c AthONNX::IONNXRuntimeSvc
-      ServiceHandle< IONNXRuntimeSvc > m_svc{ this, "ONNXRuntimeSvc",
-                                              "AthONNX::ONNXRuntimeSvc",
-                                              "Name of the service to use" };
-
-      /// @}
-
-      /// The "session" of ONNX Runtime that we'll be using
       std::unique_ptr< Ort::Session > m_session;
       std::vector<std::vector<std::vector<float>>> m_input_tensor_values_notFlat;
       std::vector<int> m_output_tensor_values;

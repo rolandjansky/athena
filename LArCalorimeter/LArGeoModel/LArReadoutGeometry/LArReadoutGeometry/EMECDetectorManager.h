@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECDETECTORMANAGER_H
@@ -205,7 +205,7 @@ class EMECDetectorManager : public GeoVDetectorManager
    *	provide iterative  access to any EMECDetectorRegion held
    *	by this manager.
    */
-  EMECDetRegionArray m_DetRegionsRandom;
+  EMECDetRegionArray m_DetRegionsRandom{};
       
   /**
    * @brief 	A vector of doubles used to hold an array of sampling

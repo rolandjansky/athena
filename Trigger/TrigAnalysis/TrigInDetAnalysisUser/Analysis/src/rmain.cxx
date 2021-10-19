@@ -31,6 +31,7 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TrackSelector.h"
+#include "TrigInDetAnalysis/TIDAVertexNew.h"
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
@@ -71,8 +72,8 @@
 ///  globals for communicating with *Analyses
 #include "globals.h"
 
-///  TagNProbe routine class
-#include "TagNProbe.h"
+///  TagNProbe class
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 // in ConfAnalysis
 
@@ -114,7 +115,7 @@ std::string time_str() {
   std::string s(ctime(&_t));
   //  std::string::size_type pos = s.find("\n");
   // if ( pos != std::string::npos ) 
-  return s.substr(0,s.find("\n"));
+  return s.substr(0,s.find('\n'));
   //  return s;
 }
 
@@ -424,9 +425,10 @@ int main(int argc, char** argv)
 
   std::string binningConfigFile = "";
 
-  bool useoldrms = true;
-  bool nofit     = false;
-  bool doTnP     = false;  // added for tagNprobe
+  bool useoldrms    = true;
+  bool nofit        = false;
+  bool doTnP        = false;  // added for tagNprobe
+  bool doTnP_histos = false;  // added for tagNprobe
 
   std::string vertexSelection     = "";
   std::string vertexSelection_rec = "";
@@ -447,6 +449,7 @@ int main(int argc, char** argv)
     }
     else if ( std::string(argv[i])=="--rms" )   useoldrms = false;
     else if ( std::string(argv[i])=="--tnp" )   doTnP = true;
+    else if ( std::string(argv[i])=="--tnph" )  doTnP_histos = true;
     else if ( std::string(argv[i])=="-n" || std::string(argv[i])=="--nofit" ) nofit = true;
     else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--testChain" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
@@ -468,7 +471,7 @@ int main(int argc, char** argv)
       if ( ++i>=argc ) return usage(argv[0], -1);
       binningConfigFile = std::string(argv[i]);
     }
-    else if ( std::string(argv[i]).find("-")==0 ) { 
+    else if ( std::string(argv[i]).find('-')==0 ) { 
       /// unknown option 
       std::cerr << "unknown option " << argv[i] << std::endl; 
       return usage(argv[0], -1);
@@ -543,6 +546,8 @@ int main(int argc, char** argv)
   double eta    = 2.5;
   double zed    = 2000;
 
+  double a0min=0.;
+
   int npix = 1;
   int nsct = 6;
   int nbl = -1;
@@ -570,7 +575,6 @@ int main(int argc, char** argv)
   double ZmassMin = 70.; // GeV
 
   //bool printflag = false;  // JK removed (unused)
-
 
   bool rotate_testtracks = false;
 
@@ -637,11 +641,15 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("eta_rec") ) eta_rec = inputdata.GetValue("eta_rec");
 
   if ( inputdata.isTagDefined("a0") )           a0     = inputdata.GetValue("a0");
+  if ( inputdata.isTagDefined("a0min") )    a0min     = inputdata.GetValue("a0min");
+
   if ( inputdata.isTagDefined("Rmatch") )       Rmatch = inputdata.GetValue("Rmatch");
 
   /// set upper and lower Zmass window cuts from datafile for Tag&Probe analysis
   if ( inputdata.isTagDefined("ZmassMax") ) ZmassMax = inputdata.GetValue("ZmassMax");
   if ( inputdata.isTagDefined("ZmassMin") ) ZmassMin = inputdata.GetValue("ZmassMin");
+  /// set doTnP_histos flag from datafile for Tag&Probe analysis
+  if ( inputdata.isTagDefined("doTnPHistos") )  doTnP_histos = ( inputdata.GetValue("doTnPHistos")==0 ? false : true );
 
   std::string useMatcher = "DeltaR";
   if ( inputdata.isTagDefined("UseMatcher") ) useMatcher = inputdata.GetString("UseMatcher");  
@@ -682,6 +690,7 @@ int main(int argc, char** argv)
     TnP_tool->FillMap( tnpChains ); // fill tag/probe chains map for bookkeeping
 
     doTnP = TnP_tool->isTnP(); // set the T&P flag
+    if ( !doTnP ) doTnP_histos = false; // set this flag to false if doTnP is false
 
     testChains = TnP_tool->GetProbeChainNames(); // replace testChains
 
@@ -851,7 +860,9 @@ int main(int argc, char** argv)
 
 #endif
 
-
+  /// option to use updated vertex matching with tracks
+  bool useVertexTracks = false;
+  if ( inputdata.isTagDefined("UseVertexTracks") ) useVertexTracks = ( inputdata.GetValue("UseVertexTracks") > 0 );
   
   /// is this option needed any longer ???
   int NVtxTrackCut = 2;
@@ -985,7 +996,7 @@ int main(int argc, char** argv)
 
   Filter_Vertex filter_vertex(a0v, z0v);
 
-  Filter_Track filter_offline( eta, 1000, zed, pT, 
+  Filter_Track filter_offline( eta, 1000, a0min, zed, pT, 
                                npix, nsct, -1, nbl, 
                                -2, -2, chi2prob, 
                                npixholes, nsctholes, nsiholes, expectBL ); /// include chi2 probability cut 
@@ -1018,11 +1029,11 @@ int main(int argc, char** argv)
 
   Filter_Combined  filter_muon( &filter_offline, &filter_vertex);
 
-  Filter_Track      filter_onlinekine(  eta_rec, 1000, 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
+  Filter_Track      filter_onlinekine(  eta_rec, 1000, 0., 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
   Filter_Vertex     filter_onlinevertex(a0vrec, z0vrec);
   Filter_Combined   filter_online( &filter_onlinekine, &filter_onlinevertex ); 
 
-  Filter_Track      filter_offkinetight(  5, 1000, 2000, pT,    -1,  0,  0, -1,  -2, -2);
+  Filter_Track      filter_offkinetight(  5, 1000, 0., 2000, pT,    -1,  0,  0, -1,  -2, -2);
   Filter_Combined   filter_offtight( &filter_offkinetight, &filter_inout ); 
 
 
@@ -1074,7 +1085,7 @@ int main(int argc, char** argv)
 
   std::cout << "filter_passthrough" << std::endl;
 
-  Filter_Track filter_passthrough( 10, 1000,  2000, pT_rec, npix_rec, nsct_rec, 1, -2,  -2, -2);
+  Filter_Track filter_passthrough( 10, 1000, 0.,  2000, pT_rec, npix_rec, nsct_rec, 1, -2,  -2, -2);
 
   TrackFilter* testFilter = &filter_passthrough;
 
@@ -1175,7 +1186,7 @@ int main(int argc, char** argv)
     }
 
     /// filling map for Tag&Probe invariant mass histograms
-    if ( doTnP ) TnP_tool->BookMinvHisto( chainname );
+    if ( doTnP_histos ) TnP_tool->BookMinvHisto( chainname );
 
   }
 
@@ -1644,8 +1655,10 @@ int main(int argc, char** argv)
 
     
     /// select the reference offline vertices
+
+    std::vector<TIDA::Vertex> vertices; // keep for now as needed for line 1709
     
-    std::vector<TIDA::Vertex> vertices;
+    std::vector<TIDA::VertexNew> vertices_new;
 
     //    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
     
@@ -1654,6 +1667,7 @@ int main(int argc, char** argv)
     if ( vtxchain && vtxchain->size()>0 ) { 
  
       const std::vector<TIDA::Vertex>& mv = vtxchain->at(0).vertices();
+      const std::vector<TrackTrigObject>& mvTracks = vtxchain->at(0).objects();
 
       int     selectvtx = -1;
       double  selection = 0;
@@ -1665,25 +1679,35 @@ int main(int argc, char** argv)
         for ( size_t iv=0 ; iv<mv.size() ; iv++ ) {
           if ( mv[iv].Ntracks()==0 ) continue;
           double selection_ = 0.0;
-          for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
-            TIDA::Track* tr = offTracks.tracks().at(itr);
-            if( std::fabs(mv[iv].z()-tr->z0()) < 1.5 ) { 
-              if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
-              else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
-            }
+          TIDA::VertexNew vtx_temp( mv[iv], mvTracks[iv], &offTracks.tracks() );
+          for (unsigned itr=0; itr<vtx_temp.tracks().size(); itr++) {
+            TIDA::Track* tr = vtx_temp.tracks().at(itr);
+            if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
+            else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
           }
-          if( selection_>selection) {
+          if( selection_>selection ) {
             selection = selection_;
             selectvtx = iv;
           }
         }
-        if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
+        if ( selectvtx!=-1 ) {
+          vertices.push_back( mv[selectvtx] );
+          vertices_new.push_back( TIDA::VertexNew( mv[selectvtx], mvTracks[selectvtx] ) );
+        }
       }
       else if ( vtxind>=0 ) {
-        if ( size_t(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
+        if ( size_t(vtxind)<mv.size() )  { 
+          vertices.push_back( mv[vtxind] );
+          TIDA::VertexNew vtx( mv[vtxind], mvTracks[vtxind] );
+          vertices_new.push_back( vtx );
+        }
       }
       else { 
-        for ( size_t iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
+        for ( size_t iv=0 ; iv<mv.size() ; iv++ ) { 
+          vertices.push_back( mv[iv] );
+          TIDA::VertexNew vtx( mv[iv], mvTracks[iv] );
+          vertices_new.push_back( vtx );
+        }
       }
       
       //      if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
@@ -1750,7 +1774,19 @@ int main(int argc, char** argv)
     if ( debugPrintout ) { 
       std::cout << "reference chain:\n" << *refchain << std::endl;
     }
-    
+
+    /// configure the T&P tool for this event, if doTnP = true
+    if ( doTnP ) {
+        TnP_tool->ResetEventConfiguration(); /// reset the TnP_tool for this event
+
+        /// do the event-by-event configuration
+        TnP_tool->SetEventConfiguration( 
+                    &refTracks, refFilter,          // offline tracks and filter
+                    refChain,                       // offline chain name
+                    &tom,                           // trigger object matcher
+                    ZmassMin, ZmassMax );           // set the Zmass range
+    }
+
     for ( unsigned ic=0 ; ic<track_ev->chains().size() ; ic++ ) { 
 
       TIDA::Chain& chain = track_ev->chains()[ic];
@@ -1771,44 +1807,15 @@ int main(int argc, char** argv)
      
       std::vector<TIDA::Roi*> rois; /// these are the rois to process
 
-      /// if in tagNprobe mode, look for corresponding tagNprobe chain
       if ( doTnP ) {
-       
-        TIDA::Chain* chain_tag = 0;
-
-        /// for each configured probe chain find the correspondig tag chain in the event
-        chain_tag = TnP_tool->GetTagChain( chain.name(), track_ev->chains() );
-  
-        if ( chain_tag == 0 ) {
-          std::cerr << "Chain for Tag&Probe was not found!" << std::endl;
-          continue;
-        }
-
-        /// configuring the Tag&Probe tool for this 
-        TnP_tool->SetToolEventConfiguration( 
-                    &refTracks, refFilter,          // offline tracks and filter
-                    refChain,                       // offline chain name
-                    &tom,                           // trigger object matcher
-                    chain_tag, &chain,              // tag and probe chains
-                    ZmassMin, ZmassMax );           // set the Zmass range
-
-
-        /// run the T&P tool to find the probe RoIs
-        if ( !TnP_tool->FindProbes() ) {
-          std::cout << "No Probes were found!" << std::endl;
-          continue;
-        }
-
-        /// getting the vector of rois to process
-        rois = TnP_tool->GetProbes();
+        /// if doTnP = true, do the T&P selection and get the vector of RoIs
+        rois = TnP_tool->GetRois( &chain, track_ev->chains() );
 
         /// now the TnP_tool object contains all the info on the good probes that have been found 
         /// including, for each one of them, the invariant mass(es) calculated with the 
         /// corresponding tag(s). One can access to these info at any time in the following lines
-
-      } /// end of if( doTnP )
+      } 
       else {
-
         /// if doTnP==false, do std analysis and fill the rois vector from chain
         rois.reserve( chain.size() );
         for ( size_t ir=0 ; ir<chain.size() ; ir++ )
@@ -1829,38 +1836,20 @@ int main(int argc, char** argv)
         TIDA::Roi& troi = *rois[ir]; // changed for tagNprobe
         TIDARoiDescriptor roi( troi.roi() );
 
-        if ( doTnP ) {
-          /// retrieve additional info for Tag&Probe analysis
-          /// these vectors will have more than one element when the current probe 
-          /// is selected for more than one tags
-
-          /// retrieve the list of invariant masses for probe ir
-          std::vector<double> probeInvM = TnP_tool->GetInvMasses(ir);
-          std::vector<double> probeInvM_obj = TnP_tool->GetInvMasses_obj(ir);
-
-          if ( false ) {
-            /// retrieve list of tag indices for probe ir
-            std::vector<TIDA::Roi*> tags = TnP_tool->GetTags(ir);
-
-            /// debug printout
-            std::cout << "---------------------------------" << std::endl;
-            std::cout << "--- Event N " << track_ev->event_number() << " ---" << std::endl;
-            std::cout << "---------------------------------" << std::endl;
-            std::cout << "Probe " << ir << " (eta:" << roi.eta() << ") for (N=" << tags.size() << ") tags with eta= ";
-            for ( size_t it=0 ; it<tags.size() ; it++ )
-              std::cout << (tags[it])->roi().eta() << "\t";
-            std::cout << "\nInvariant masses (N=" << probeInvM.size() << ") are = ";
-            for ( size_t im=0 ; im<probeInvM.size() ; im++ )
-              std::cout << probeInvM[im] << "\t";
-            std::cout << std::endl;
-            std::cout << "---------------------------------END" << std::endl;
-          }
-
-          /// filling the invariant mass histos for Tag&Probe analysis
-          TnP_tool->FillMinvHisto( chain.name(), probeInvM, probeInvM_obj );
-
+        /// filling the invariant mass histos for Tag&Probe analysis 
+        /// for the current probe (ir) and if doTnP_histos = true
+        if ( doTnP_histos ) {
+          /// Minv vectors may have more than one element when the current probe 
+          /// is selected for more than one tag
+          TnP_tool->FillMinvHisto( chain.name(), ir );
         }
 
+        testTracks.clear();
+
+        testTracks.selectTracks( troi.tracks() );
+        
+        /// trigger tracks already restricted by roi - so no roi filtering required 
+        std::vector<TIDA::Track*> testp = testTracks.tracks();
 
         /// do we want to filter on the RoI properties? 
         /// If so, if the RoI fails the cuts, then skip this roi
@@ -1869,44 +1858,65 @@ int main(int argc, char** argv)
         
         /// select the test sample (trigger) vertices
         const std::vector<TIDA::Vertex>& mvt = troi.vertices();
+        const std::vector<TrackTrigObject>& mvtTracks = troi.objects();
 
-
-        std::vector<TIDA::Vertex> vertices_test;
+        std::vector<TIDA::VertexNew> vertices_new_test;
         
         int     selectvtx = -1;
         double  selection = 0;
         
         if ( bestPTVtx_rec || bestPT2Vtx_rec )  {  
           
-          const std::vector<TIDA::Track>& recTracks = troi.tracks();
+          // const std::vector<TIDA::Track>& recTracks = troi.tracks();
           
           for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
             double selection_ = 0.0;
-            for (unsigned itr=0; itr<recTracks.size(); itr++){
-              const TIDA::Track* tr = &recTracks[itr];
-              if( std::fabs(mvt[iv].z()-tr->z0()) < 1.5 ) { 
-                if      ( bestPTVtx_rec  ) selection_ += std::fabs(tr->pT());
-                else if ( bestPT2Vtx_rec ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
-              }
+            TIDA::VertexNew vtx_temp( mvt[iv], mvtTracks[iv], &testp );
+            for (unsigned itr=0; itr<vtx_temp.tracks().size(); itr++) {
+            TIDA::Track* tr = vtx_temp.tracks().at(itr);
+            if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
+            else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
             }
             if( selection_>selection){
               selection = selection_;
               selectvtx = iv;
             }
           }
-          if ( selectvtx!=-1 ) vertices_test.push_back( mvt[selectvtx] );
+          if ( selectvtx!=-1 ) {
+            if ( useVertexTracks ) {
+              TIDA::VertexNew selected( mvt[selectvtx], mvtTracks[selectvtx], &testp );
+              vertices_new_test.push_back( selected );
+            }
+            else {
+              TIDA::VertexNew selected( mvt[selectvtx] );
+              vertices_new_test.push_back( selected );
+            }
+          }
         }
         else if ( vtxind_rec!=-1 ) {
-          if ( unsigned(vtxind_rec)<mvt.size() )       vertices_test.push_back( mvt[vtxind] );
+          if ( unsigned(vtxind_rec)<mvt.size() ) { 
+            if ( useVertexTracks ) {
+              TIDA::VertexNew selected( mvt[vtxind], mvtTracks[vtxind], &testp );
+              vertices_new_test.push_back( selected );
+            }
+            else {
+              TIDA::VertexNew selected( mvt[vtxind] );
+              vertices_new_test.push_back( selected );
+            }
+          }
         }
         else {  
-          for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) vertices_test.push_back( mvt[iv] );
+          for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
+            if ( useVertexTracks ) {
+              TIDA::VertexNew selected( mvt[iv], mvtTracks[iv], &testp );
+              vertices_new_test.push_back( selected );
+            }
+            else {
+              TIDA::VertexNew selected( mvt[iv] );
+              vertices_new_test.push_back( selected );
+            }
+          }
         }
-
-
-
-
-        
         
         //extract beamline position values from rois
         //      const std::vector<double>& beamline = chain.rois()[ir].user();
@@ -1944,12 +1954,13 @@ int main(int argc, char** argv)
           
         }
         
-        testTracks.clear();
+        // EMIL - I've moved this bit of code up to have access to trigger tracks above
+        // testTracks.clear();
 
-        testTracks.selectTracks( troi.tracks() );
+        // testTracks.selectTracks( troi.tracks() );
         
-        /// trigger tracks already restricted by roi - so no roi filtering required 
-        std::vector<TIDA::Track*> testp = testTracks.tracks();
+        // /// trigger tracks already restricted by roi - so no roi filtering required 
+        // std::vector<TIDA::Track*> testp = testTracks.tracks();
         
         /// here we set the roi for the filter so we can request only those tracks 
         /// inside the roi
@@ -2104,8 +2115,8 @@ int main(int argc, char** argv)
         /// the count how many of these reference tracks are on each of the 
         /// offline vertices
 
-
-        std::vector<TIDA::Vertex> vertices_roi;
+        // new vertex class containing tracks, offline
+        std::vector<TIDA::VertexNew> vertices_new_roi;
 
         /// do for all vertices now ...
         //        if ( chain.name().find("SuperRoi") ) { 
@@ -2113,15 +2124,16 @@ int main(int argc, char** argv)
 
           /// select the reference offline vertices
           
-          vertices_roi.clear();
+          vertices_new_roi.clear();
           
-          const std::vector<TIDA::Vertex>& mv = vertices;
+          const std::vector<TIDA::VertexNew>& mv = vertices_new;
             
-          //      std::cout << "vertex filtering " << mv.size() << std::endl;  
+          //      std::cout << "vertex filtering " << mv.size() << std::endl;
+
 
           for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
 
-            const TIDA::Vertex& vx = mv[iv];
+            const TIDA::VertexNew& vx = mv[iv];
 
             // reject all vertices that are not in the roi
 
@@ -2141,26 +2153,36 @@ int main(int argc, char** argv)
 
             int trackcount = 0;
 
-            for (unsigned itr=0; itr<refp.size(); itr++){
-              TIDA::Track* tr = refp[itr];
-              double theta_     = 2*std::atan(std::exp(-tr->eta())); 
-              double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
-              if( dzsintheta < 1.5 ) trackcount++;
+            if ( useVertexTracks ) {
+              // refp contains roi filtered tracks, vx contains ids of tracks belonging to vertex
+              TIDA::VertexNew vertex_new_roi( vx, &refp );
+              trackcount = vertex_new_roi.Ntracks();
+              if ( trackcount>=ntracks && trackcount>0 ) {
+                vertices_new_roi.push_back(vertex_new_roi);
+              }
             }
-            
+            else {
+              for (unsigned itr=0; itr<refp.size(); itr++){
+                TIDA::Track* tr = refp[itr];
+                double theta_     = 2*std::atan(std::exp(-tr->eta())); 
+                double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
+                if( dzsintheta < 1.5 ) trackcount++;
+              }        
             /// don't add vertices with no matching tracks - remember the 
             /// tracks are filtered by Roi already so some vertices may have 
             /// no tracks in the Roi - ntracks set to 0 by default
-            if ( trackcount>=ntracks && trackcount>0 ) { 
-              vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
-                                                    vx.dx(), vx.dy(), vx.dz(),
-                                                    trackcount, 
-                                                    vx.chi2(), vx.ndof() ) ); // ndof not valid for only Roi tracks 
+              if ( trackcount>=ntracks && trackcount>0 ) { 
+                vertices_new_roi.push_back( 
+                  TIDA::VertexNew( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
+                                                 vx.dx(), vx.dy(), vx.dz(),
+                                                 trackcount, 
+                                                 vx.chi2(), vx.ndof() ) ) );// ndof not valid for only Roi tracks 
               
               //            std::cout << "\t \t" << vertices_roi.back() << std::endl;
+              }
             }
+
           }
-          
         }
         // else vertices_roi = vertices;
   
@@ -2199,7 +2221,7 @@ int main(int argc, char** argv)
 
           ///  so we now use a handy wrapper function to do the conversion for us ...
 
-          if ( vertices_roi.size()>0 ) vtxanal->execute( pointers(vertices_roi), pointers(vertices_test), track_ev );
+          if ( vertices_new_roi.size()>0 ) vtxanal->execute( pointers(vertices_new_roi), pointers(vertices_new_test), track_ev );
 
         }
 
@@ -2261,10 +2283,9 @@ int main(int argc, char** argv)
           static int ecounter = 0;
           ecounter++;
         }
-      }
-      
-    }
-  }
+     } // loop through rois
+    } // loop through chanines
+  } // loop through nentries
 
   delete track_ev;
   delete data;
@@ -2272,7 +2293,7 @@ int main(int argc, char** argv)
 
   //  std::cout << "run: " << run << std::endl;
 
-  }
+  } // loop through files
 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events"
             << "\ttimes "  << mintime << " " << maxtime 
@@ -2300,9 +2321,11 @@ int main(int argc, char** argv)
 
   /// write out the histograms
   if ( doTnP ) {
-    TnP_tool->WriteMinvHisto( foutdir );  // saving Minv histos for Tag&Probe analysis
+    // saving Minv histos for Tag&Probe analysis if doTnP_histos = true
+    if ( doTnP_histos ) TnP_tool->WriteMinvHisto( foutdir );
     delete TnP_tool;  // deleting T&P tool
   }
+
   foutput.Write();
   foutput.Close();
 

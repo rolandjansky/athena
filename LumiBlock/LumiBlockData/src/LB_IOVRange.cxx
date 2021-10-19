@@ -9,7 +9,7 @@
 
 #include "LumiBlockData/LB_IOVRange.h"
 
-LB_IOVRange::LB_IOVRange() : IOVRange(0,0), m_NumExpected(0), m_NumSeen(0) {}
+LB_IOVRange::LB_IOVRange() : IOVRange(IOVTime(0),IOVTime(0)), m_NumExpected(0), m_NumSeen(0) {}
 
 LB_IOVRange::LB_IOVRange( const IOVTime& start, const IOVTime& stop ) : IOVRange(start, stop ),
     m_NumExpected(0), m_NumSeen(0)  {}

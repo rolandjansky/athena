@@ -19,12 +19,12 @@ atlas_add_library( L1TopoSimulationLib
 atlas_add_component( L1TopoSimulation
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoRDO L1TopoSimulationLib StoreGateLib TrigConfBase TrigConfInterfaces TrigConfData TrigConfL1Data TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces TrigT1Result xAODTrigger )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoRDO L1TopoSimulationLib StoreGateLib TrigConfBase TrigConfData TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces TrigT1Result xAODTrigger )
 
 atlas_add_component( L1TopoSimulationTest
    src/test/*.h src/test/*.cxx src/test/components/*.cxx src/AthenaL1TopoHistSvc.h src/AthenaL1TopoHistSvc.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces StoreGateLib TrigConfBase TrigConfInterfaces TrigConfData TrigConfIO)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces StoreGateLib TrigConfBase TrigConfData TrigConfIO)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

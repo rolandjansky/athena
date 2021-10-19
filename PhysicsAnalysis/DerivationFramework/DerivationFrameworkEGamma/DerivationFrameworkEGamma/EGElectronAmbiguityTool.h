@@ -71,33 +71,32 @@ private:
   };
 
   // Write decoration handle keys
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_drv{
-    "Electrons.DFCommonSimpleConvRadius"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dphiv{
-    "Electrons.DFCommonSimpleConvPhi"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dmee{
-    "Electrons.DFCommonSimpleMee"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dmeeVtx{
-    "Electrons.DFCommonSimpleMeeAtVtx"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dsep{
-    "Electrons.DFCommonSimpleSeparation"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dambi{
-    "Electrons.DFCommonAddAmbiguity"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dtrv{
-    "Electrons.DFCommonProdTrueRadius"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dtpv{
-    "Electrons.DFCommonProdTruePhi"
-  };
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_dtzv{
-    "Electrons.DFCommonProdTrueZ"
-  };
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_drv{ this, "DFCommonSimpleConvRadius", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dphiv{ this, "DFCommonSimpleConvPhi", "", "" };
+
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dmee{ this, "DFCommonSimpleMee", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dmeeVtx{ this, "DFCommonSimpleMeeAtVtx", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dsep{ this, "DFCommonSimpleSeparation", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dambi{ this, "DFCommonAddAmbiguity", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dtrv{ this, "DFCommonProdTrueRadius", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dtpv{ this, "DFCommonProdTruePhi", "", "" };
+ 
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer>
+    m_dtzv{ this, "DFCommonProdTrueZ", "", "" };
 
   StatusCode decorateSimple(
     const EventContext& ctx,

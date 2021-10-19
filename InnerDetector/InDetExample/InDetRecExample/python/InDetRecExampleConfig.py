@@ -344,7 +344,6 @@ def InDetGlobalChi2FitterTRT(name='InDetGlobalChi2FitterTRT', **kwargs) :
     return  InDetGlobalChi2FitterBase(name, **setDefaults(
         kwargs,
         MaterialUpdateTool     = '',       # default
-        TrackingGeometrySvc    = '',       # default
         SignedDriftRadius      = True,     # default,
         RecalibrateSilicon     = False,    # default,
         RecalibrateTRT         = False,    # default,

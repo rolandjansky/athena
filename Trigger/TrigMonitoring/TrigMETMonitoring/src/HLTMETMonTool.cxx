@@ -489,7 +489,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   StatusCode sc = StatusCode::SUCCESS;
 
   // Check HLTResult
-  if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+  if(getTDT()->ExperimentalAndExpertMethods().isHLTTruncated()){
     ATH_MSG_WARNING("HLTResult truncated, skip event");
     return sc;
   }

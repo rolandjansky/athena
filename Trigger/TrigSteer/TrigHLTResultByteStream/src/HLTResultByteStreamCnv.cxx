@@ -149,9 +149,8 @@ StatusCode HLT::HLTResultByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
 {
   HLTResult* result = new HLTResult();
 
-  ByteStreamAddress *pBS_Addr;
-  pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
-  if(!pBS_Addr) {
+  ByteStreamAddress *pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
+  if(pBS_Addr==nullptr) {
     (*m_log) << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }

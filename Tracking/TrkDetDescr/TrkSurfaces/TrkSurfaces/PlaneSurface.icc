@@ -129,6 +129,11 @@ PlaneSurface::clone() const
   return new PlaneSurface(*this);
 }
 
+inline std::unique_ptr<PlaneSurface>
+PlaneSurface::uniqueClone() const{
+  return std::unique_ptr<PlaneSurface>(clone());
+}
+
 inline bool
 PlaneSurface::insideBounds(const Amg::Vector2D& locpos,
                            double tol1,

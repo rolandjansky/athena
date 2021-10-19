@@ -1012,7 +1012,7 @@ registerMetadata(const std::string& streamName, const std::string& hName,
   if( m_environment != AthenaMonManager::online ) {
     TTree* metadata(0);
     std::string mdStreamName( streamName );
-    size_t found=mdStreamName.rfind("/");
+    size_t found=mdStreamName.rfind('/');
     
     if ( found != std::string::npos )
       mdStreamName.replace( found, mdStreamName.length(), "/metadata" );
@@ -1481,7 +1481,7 @@ regHist( TH1* h, const MonGroup& group )
        track of "proper" attribute for X_VS_LB
     */
     
-    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
       ATH_MSG_WARNING("HEY! You're attempting to register " << h->GetName() << " as a per-LB histogram, but you're not setting the merge algorithm! This is a SUPER-BAD idea! Use \"merge\", at least.");
     }
     
@@ -1659,7 +1659,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
     // MANAGED
     if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
         // warn about not using merge algorithms
-        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
             ATH_MSG_WARNING("HEY! Attempting to register "<<name<<" as a per-LB histogram, but not setting the merge algorithm! Use \"merge\", at least.");
         }
         // add the efficiency to rebooking vector
@@ -2115,9 +2115,9 @@ fill( const std::string& name,
    // this to the ROOT developers yet because I don't have time to develope a simple test case
    // for them (independent of Atlas software).
    // --M.G.Wilson, 7 July 2008
-   if( trigger == "" )
+   if( trigger.empty() )
       trigger = "<none>";
-   if( merge == "" )
+   if( merge.empty() )
       merge = "<default>";
 
    copyString( m_nameData, name );
@@ -2163,7 +2163,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2313,7 +2313,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2367,7 +2367,7 @@ ManagedMonitorToolBase::
 updateTriggersForGroups(std::vector<std::string>& vTrigChainNames) {
   for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
     std::string& thisName = vTrigChainNames[i];
-    if (thisName.substr(0, 9) == "CATEGORY_") {
+    if (thisName.compare(0, 9, "CATEGORY_") ==0) {
       ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". We will unpack it.");
       std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(9,std::string::npos));
       std::ostringstream oss;
@@ -2418,7 +2418,7 @@ getNewStreamNameFcn() const
 void
 ManagedMonitorToolBase::StreamNameFcn::
 parseString(const std::string& streamName, std::string& root, std::string& rem) {
-  std::string::size_type pos = streamName.find("/");
+  std::string::size_type pos = streamName.find('/');
 
   if (pos == std::string::npos) {
     root = "";

@@ -17,7 +17,7 @@
 #ifndef TRT_TrackSegmentsMaker_ECcosmics_H
 #define TRT_TrackSegmentsMaker_ECcosmics_H
 
-#include <list>
+
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -29,6 +29,7 @@
 
 #include "CxxUtils/checker_macros.h"
 #include <iosfwd>
+#include <list>
 
 class MsgStream;
 
@@ -242,6 +243,12 @@ namespace InDet{
       /** provide the proper subtraction of two phi values
        */
       static double phidiff(double a,double b);
+      
+      /** is the hit accepted? 
+      */
+      bool accepted(const std::list<const InDet::TRT_DriftCircle*>::iterator compareIt, 
+        std::list<const InDet::TRT_DriftCircle*> & container,
+        double phiLimit, double dzLimit) const;
 
     };
 
@@ -252,7 +259,7 @@ inline double InDet::TRT_TrackSegmentsMaker_ECcosmics::phidiff(double a,double b
 {
   double c=a-b;
 
-  if(fabs(c)>100)
+  if(std::abs(c)>100)
     c/=int(c/(2*M_PI));
   while(c>=M_PI) c-=2*M_PI;
   while(c<-M_PI) c+=2*M_PI;

@@ -10,7 +10,7 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 class VBF_ZZ(PowhegV2):
     """
-    Default Powheg configuration for opposite-sign W-boson pair plus jet pair production through vector boson fusion.
+    Default Powheg configuration for Z-boson pair plus jet production through vector boson fusion.
 
     Create a configurable object with all applicable Powheg options.
 

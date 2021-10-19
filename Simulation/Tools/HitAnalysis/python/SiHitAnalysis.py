@@ -15,8 +15,8 @@ def SiHitAnalysisOutputCfg(flags):
 
 
 def ITkPixelHitAnalysisCfg(flags):
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    acc = ITkPixelGeometryCfg(flags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelSimulationGeometryCfg
+    acc = ITkPixelSimulationGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('ITkPixelHitAnalysis')
     alg.CollectionName = 'ITkPixelHits'
@@ -30,11 +30,41 @@ def ITkPixelHitAnalysisCfg(flags):
 
 
 def ITkStripHitAnalysisCfg(flags):
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc = ITkStripGeometryCfg(flags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripSimulationGeometryCfg
+    acc = ITkStripSimulationGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('ITkStripHitAnalysis')
     alg.CollectionName = 'ITkStripHits'
+    alg.HistPath='/SiHitAnalysis/Histos/'
+    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    acc.addEventAlgo(alg)
+
+    acc.merge(SiHitAnalysisOutputCfg(flags))
+
+    return acc
+
+
+def HGTD_HitAnalysisCfg(flags):
+    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
+    acc = HGTD_GeometryCfg(flags)
+
+    alg = CompFactory.SiHitAnalysis('HGTD_HitAnalysis')
+    alg.CollectionName = 'HGTD_Hits'
+    alg.HistPath='/SiHitAnalysis/Histos/'
+    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    acc.addEventAlgo(alg)
+
+    acc.merge(SiHitAnalysisOutputCfg(flags))
+
+    return acc
+
+
+def PLRHitAnalysisCfg(flags):
+    from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+    acc = PLRGeometryCfg(flags)
+
+    alg = CompFactory.SiHitAnalysis('PLRHitAnalysis')
+    alg.CollectionName = 'PLRHits'
     alg.HistPath='/SiHitAnalysis/Histos/'
     alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
     acc.addEventAlgo(alg)
@@ -52,5 +82,11 @@ def SiHitAnalysisCfg(flags):
     
     if flags.Detector.EnableITkStrip:
         acc.merge(ITkStripHitAnalysisCfg(flags))
+
+    if flags.Detector.EnableHGTD:
+        acc.merge(HGTD_HitAnalysisCfg(flags))
+
+    if flags.Detector.EnablePLR:
+        acc.merge(PLRHitAnalysisCfg(flags))
 
     return acc

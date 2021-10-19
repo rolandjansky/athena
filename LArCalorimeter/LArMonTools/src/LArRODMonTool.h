@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -23,6 +23,7 @@
 #include "LArRawConditions/LArADC2MeV.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 //Events infos:
 
@@ -55,8 +56,6 @@ class TH2F;
 class TProfile2D;
 class LArDigit;
 
-class CaloDetDescrManager;
-
 //using namespace std;
 
 class LArRODMonTool: public ManagedMonitorToolBase
@@ -69,15 +68,15 @@ class LArRODMonTool: public ManagedMonitorToolBase
   /** @brief Default destructor */
   virtual ~LArRODMonTool();
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   // Book general histograms
-  StatusCode bookHistograms();
+  virtual StatusCode bookHistograms() override;
 
   // Called each event
-  StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
 
   //StatusCode procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun);
 
@@ -194,7 +193,7 @@ private:
   
   std::vector<ERRCOUNTER> m_errcounters;
 
-  unsigned m_count_gain[3];
+  unsigned m_count_gain[3]{};
 
   TH2F* m_hSummaryErrors_Energy;
   TH2F* m_hSummaryErrors_Time;
@@ -238,6 +237,8 @@ private:
   
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
+
 
   // Output files names
   std::string m_DigitsFileName;
@@ -265,15 +266,15 @@ private:
   int m_range_E_2;
   int m_range_E_3;
 
-  int m_range_T_0;
-  int m_range_T_1;
-  int m_range_T_2;
-  int m_range_T_3;
+  int m_range_T_0 = 0;
+  int m_range_T_1 = 0;
+  int m_range_T_2 = 0;
+  int m_range_T_3 = 0;
 
-  int m_range_Q_0;
-  int m_range_Q_1;
-  int m_range_Q_2;
-  int m_range_Q_3;
+  int m_range_Q_0 = 0;
+  int m_range_Q_1 = 0;
+  int m_range_Q_2 = 0;
+  int m_range_Q_3 = 0;
 
   int m_precision_E_0;
   int m_precision_E_1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -24,6 +24,8 @@
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
+
+#include "ISF_Event/ISFTruthIncident.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -63,6 +65,8 @@ StatusCode ISF::FastCaloSimV2Tool::initialize()
   if (m_doPunchThrough) {
     ATH_CHECK(m_punchThroughTool.retrieve());
   }
+
+  ATH_CHECK(m_truthRecordSvc.retrieve());
 
   // Get FastCaloSimCaloExtrapolation
   ATH_CHECK(m_FastCaloSimCaloExtrapolation.retrieve());
@@ -164,10 +168,23 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
 
   if (m_doPunchThrough) {
-     // call punch-through simulation
-     const ISF::ISFParticleContainer *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isfp);
-     secondaries = *someSecondaries;
-   }
+    Barcode::PhysicsProcessCode process = 201;
+    // call punch-through simulation
+    const ISF::ISFParticleVector *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isfp);
+    if (someSecondaries) {
+      //Record truth incident for created punch through particles
+      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isfp),
+                                   *someSecondaries,
+                                   process,
+                                   isfp.nextGeoID(),  // inherits from the parent
+                                   ISF::fKillsPrimary);
+      m_truthRecordSvc->registerTruthIncident( truth, true );
+      for (auto secondary : *someSecondaries) {
+        secondaries.push_back(secondary);
+      }
+      delete someSecondaries;
+    }
+  }
 
 
   //Don't simulate particles with total energy below 10 MeV

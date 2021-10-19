@@ -4674,11 +4674,11 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
     auto scatAngles =
       ScatteringAngles(0, 0, sigmaMS / std::sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
 
-    Trk::MaterialEffectsOnTrack* meot = new Trk::MaterialEffectsOnTrack(
+    auto meot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
       tInX0, std::move(scatAngles), energyLoss, *lay.surfaceRepresentation().baseSurface());
     // push it to the material states
     cache.m_matstates->push_back(
-      new TrackStateOnSurface(nullptr, parsOnLayer.release(), nullptr, meot));
+      new TrackStateOnSurface(nullptr, parsOnLayer.to_unique(), nullptr, std::move(meot)));
     // update cache
     if (cache.m_extrapolationCache) {
       if (energyLoss->meanIoni() == 0. && tInX0 > 0.) {
@@ -5394,11 +5394,11 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                     << nextPar->momentum().mag() - currPar->momentum().mag() << ","
                     << eloss->deltaE());
      
-      const Trk::MaterialEffectsOnTrack * mefot = new Trk::MaterialEffectsOnTrack(
+      auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
         dInX0, std::move(newsa), eloss, *((nextPar->associatedSurface()).baseSurface()));
 
       cache.m_matstates->push_back(
-        new TrackStateOnSurface(nullptr, ManagedTrackParmPtr(nextPar).release(), nullptr, mefot));
+        new TrackStateOnSurface(nullptr, ManagedTrackParmPtr(nextPar).to_unique(), nullptr, std::move(mefot)));
       if (cache.m_extrapolationCache) {
         if (m_dumpCache) {
           dumpCache(cache, " extrapolateToVolumeWithPathLimit");

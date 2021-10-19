@@ -64,6 +64,7 @@ class _ConfigSettings_muonIso( _ConfigSettingsBase ):
       self._roi       = "HLT_Roi_MuonIso"
       self._etaHalfWidth        = 0.35
       self._phiHalfWidth        = 0.35
+      self._zedHalfWidth        = 10.0
 
 
 class _ConfigSettings_tau( _ConfigSettingsBase ):
@@ -98,6 +99,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       self._roi      = "RoiForTauIso"
       self._etaHalfWidth   = 0.4
       self._phiHalfWidth   = 0.4
+      self._zedHalfWidth   = 7.0
       self._adaptiveVertex = True
       self._addSingleTrackVertices = True
       self._vertex         = "HLT_IDVertex_Tau"
@@ -178,9 +180,9 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._nClustersMin    = 8
       self._RoadWidth       = 5
       self._UseTrigSeedML   = 4
-      self._dodEdxTrk         = False
+      self._dodEdxTrk         = True
       self._doHitDV           = True
-      self._doDisappearingTrk = False
+      self._doDisappearingTrk = True
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
@@ -265,6 +267,7 @@ class _ConfigSettings_electronLRT( _ConfigSettingsBase ):
       self._doSeedRedundancyCheck = True
       self._nClustersMin        = 8
       self._isLRT               = True
+      self._newConfig           = False
 
 
 class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
@@ -284,6 +287,7 @@ class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
       self._isLRT               = True
       self._doResMon            = True
       self._DoPhiFiltering      = False
+      self._newConfig           = False
 
 
 class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
@@ -302,6 +306,7 @@ class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
       self._TrackZ0Max          = 500.
       self._nClustersMin        = 8
       self._isLRT               = True
+      self._newConfig           = False
 
 
 class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
@@ -318,6 +323,7 @@ class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
       self._TrackZ0Max          = 500.
       self._nClustersMin        = 8
       self._isLRT               = True
+      self._newConfig           = False
 
 
 class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
@@ -341,6 +347,7 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._isLRT                 = True
       self._LRTD0Min              = 2.0
       self._LRTHardPtMin          = 1.0*GeV
+      self._newConfig           = False
 
 
 

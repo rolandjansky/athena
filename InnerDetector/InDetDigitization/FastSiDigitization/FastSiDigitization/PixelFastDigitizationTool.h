@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,9 +23,9 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "PixelConditionsData/PixelDistortionData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 //New digi
@@ -138,8 +138,8 @@ private:
   bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
-  ServiceHandle<IPixelCablingSvc> m_pixelCabling
-  {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};

@@ -44,8 +44,7 @@ def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFile
     alg.pileupReweightingTool.LumiCalcFiles = muDataFiles
 
     seq.append( alg, inputPropName = 'eventInfo',
-                outputPropName = 'eventInfoOut',
-                affectingSystematics = '(^PRW_.*)' )
+                outputPropName = 'eventInfoOut' )
 
     # Return the sequence:
     return seq

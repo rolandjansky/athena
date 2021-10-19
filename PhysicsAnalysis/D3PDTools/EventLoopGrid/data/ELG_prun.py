@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -50,8 +50,9 @@ def ELG_prun(sample) :
                 'useRootCore',
                 'useAthenaPackages']
 
+    from ROOT import SH
     for opt in opts :
-        arg = sample.meta().castDouble('nc_' + opt, -1, ROOT.SH.MetaObject.CAST_NOCAST_DEFAULT)
+        arg = sample.meta().castDouble('nc_' + opt, -1, SH.MetaObject.CAST_NOCAST_DEFAULT)
         if abs(arg + 1) > 1e-6 :
             cmd += ["--" + opt + "=" + str(int(round(arg)))]
         else :
@@ -60,7 +61,7 @@ def ELG_prun(sample) :
                 cmd += ["--" + opt + "=" + arg]
     
     for switch in switches :
-        arg = sample.meta().castDouble('nc_' + switch, 0, ROOT.SH.MetaObject.CAST_NOCAST_DEFAULT)
+        arg = sample.meta().castDouble('nc_' + switch, 0, SH.MetaObject.CAST_NOCAST_DEFAULT)
         if arg != 0 :
             cmd += ["--" + switch]
         else :
@@ -80,7 +81,7 @@ def ELG_prun(sample) :
     for opt in internalOpts :
         cmd += ["--" + opt + "=" + sample.meta().castString('nc_' + opt)]
 
-    if sample.meta().castDouble('nc_mergeOutput', 1, ROOT.SH.MetaObject.CAST_NOCAST_DEFAULT) == 0 or sample.meta().castString('nc_mergeOutput').upper() == 'FALSE' :
+    if sample.meta().castDouble('nc_mergeOutput', 1, SH.MetaObject.CAST_NOCAST_DEFAULT) == 0 or sample.meta().castString('nc_mergeOutput').upper() == 'FALSE' :
         #don't set merge script 
         pass
     else :
@@ -89,7 +90,7 @@ def ELG_prun(sample) :
     if len(sample.meta().castString('nc_EventLoop_SubmitFlags')) :
         cmd += shlex.split (sample.meta().castString('nc_EventLoop_SubmitFlags'))
 
-    if sample.meta().castDouble('nc_showCmd', 0, ROOT.SH.MetaObject.CAST_NOCAST_DEFAULT) != 0 :
+    if sample.meta().castDouble('nc_showCmd', 0, SH.MetaObject.CAST_NOCAST_DEFAULT) != 0 :
         print (cmd)
 
     if not os.path.isfile('jobcontents.tgz') : 

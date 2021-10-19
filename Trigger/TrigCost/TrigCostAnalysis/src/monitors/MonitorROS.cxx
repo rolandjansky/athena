@@ -26,11 +26,14 @@ StatusCode MonitorROS::newEvent(const CostData& data, const float weight) {
 
   for (const xAOD::TrigComposite* tc : data.rosCollection()) {
     auto robIds = tc->getDetail<std::vector<uint32_t>>("robs_id");
-
     // Create set of unique ROS for this request
     std::set<std::string> rosPerRequest;
     for (uint32_t robId : robIds) {
-      rosPerRequest.insert(m_robToRos[robId]);
+      if (!m_robToRos.count(robId)){
+        msg() << MSG::WARNING << "ROS for ROB 0x" << std::hex << robId << " is missing" << endmsg;
+        continue;
+      }
+      rosPerRequest.insert(m_robToRos.at(robId));
     }
 
     for (const std::string& rosName : rosPerRequest) {

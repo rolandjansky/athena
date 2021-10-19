@@ -34,6 +34,7 @@ class VBF_W(PowhegV2):
         self.add_keyword("btlscalereal")
         self.add_keyword("charmthr")
         self.add_keyword("charmthrpdf")
+        self.add_keyword("clobberlhe")
         self.add_keyword("colltest")
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fakevirt")

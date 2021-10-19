@@ -18,7 +18,7 @@ atlas_add_library( AGDDControl
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES}
-                  AthenaBaseComps AGDDKernel GaudiKernel
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AGDDModel AthenaKernel
+                  AthenaBaseComps AGDDKernel AGDDModel CxxUtils GaudiKernel
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel
                           GeoModelInterfaces GeoModelUtilities PathResolver
                           StoreGateLib )

@@ -42,23 +42,23 @@ class Filter_Track : public TrackFilter {
 
 public:
   
-  Filter_Track( double etaMax,  double d0Max,  double z0Max,   double  pTMin,  
+  Filter_Track( double etaMax,  double d0Max,  double d0Min, double z0Max,   double  pTMin,  
 		int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,  
 		int minStrawHits, int minTrHits, double prob=0, 
 		int maxPixelHoles=20, int maxSctHoles=20, int maxSiHoles=20, bool expectBL=false ) :
-    m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin), m_pTMax(pTMin-1), // guarantee that the default pTMax is *always* < pTMin  
+    m_etaMax(etaMax), m_d0Max(d0Max),  m_d0Min(d0Min), m_z0Max(z0Max),  m_pTMin(pTMin), m_pTMax(pTMin-1), // guarantee that the default pTMax is *always* < pTMin  
     m_minPixelHits(minPixelHits),   m_minSctHits(minSctHits),     m_minSiHits(minSiHits),   
     m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits),
     m_maxPixelHoles(maxPixelHoles), m_maxSctHoles(maxSctHoles), m_maxSiHoles(maxSiHoles),
     m_prob(prob),
     m_chargeSelection(0),
     m_expectBL(expectBL)
-  {   } 
+  {  } 
 
   bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
     bool selected = true;
-    if ( std::fabs(t->eta())>m_etaMax || std::fabs(t->a0())>m_d0Max || std::fabs(t->z0())>m_z0Max || std::fabs(t->pT())<m_pTMin ) selected = false;
+    if ( std::fabs(t->eta())>m_etaMax || std::fabs(t->a0())>m_d0Max || std::fabs(t->a0())<m_d0Min || std::fabs(t->z0())>m_z0Max || std::fabs(t->pT())<m_pTMin ) selected = false;
     if ( m_pTMax>m_pTMin && std::fabs(t->pT())>m_pTMax ) selected = false;
     // Select track silicon hit content
     if( t->pixelHits()<m_minPixelHits || t->sctHits()<m_minSctHits || t->siHits()<m_minSiHits || t->bLayerHits()<m_minBlayerHits ) selected = false;
@@ -86,6 +86,7 @@ private:
 
   double  m_etaMax;
   double  m_d0Max;
+  double  m_d0Min;
   double  m_z0Max;
   double  m_pTMin;
   double  m_pTMax;

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPHYSICSV6_H
@@ -143,26 +143,26 @@ private:
   std::vector<uint16_t>  m_EnergyBlockEncode;
   std::vector<uint16_t>  m_DigitsEncode;
 
-  int m_EnergyIndex;
-  int m_TimeQualityIndex;
-  int m_DigitsIndex;
-  int m_DigitsChannel;
-  int m_RawDataIndex;
-  const uint32_t* m_GainPointer;
-  const uint32_t* m_MaskTimeQualityPointer;
-  const uint32_t* m_MaskDigitsPointer;
-  const uint16_t* m_RaddPointer;
-  const uint16_t* m_EnergyPointer;
-  const int32_t*  m_SumPointer;
-  const uint16_t* m_TimeQualityPointer;
-  const uint16_t* m_DigitsPointer;
-  const uint16_t* m_RawDataPointer;
+  int m_EnergyIndex = 0;
+  int m_TimeQualityIndex = 0;
+  int m_DigitsIndex = 0;
+  int m_DigitsChannel = 0;
+  int m_RawDataIndex = 0;
+  const uint32_t* m_GainPointer = nullptr;
+  const uint32_t* m_MaskTimeQualityPointer = nullptr;
+  const uint32_t* m_MaskDigitsPointer = nullptr;
+  const uint16_t* m_RaddPointer = nullptr;
+  const uint16_t* m_EnergyPointer = nullptr;
+  const int32_t*  m_SumPointer = nullptr;
+  const uint16_t* m_TimeQualityPointer = nullptr;
+  const uint16_t* m_DigitsPointer = nullptr;
+  const uint16_t* m_RawDataPointer = nullptr;
 
   //For fixed gain mode
   int m_fixedGain;
   // If one needs to use a log output not only for MSG::DEBUG
   //MsgStream *m_logstr;
-  uint16_t m_numberHotCell;
+  uint16_t m_numberHotCell = 0U;
   uint16_t m_numberHotCellOffTime; 
   // Needs one threshold to send time/quality another for samples
   uint16_t m_EnergyThreshold1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -82,12 +82,12 @@ public:
     inline const std::string getTechnologyType() const;
     // like MDT1, RPC4, TGC1, etc... 
     inline const std::string getTechnologyName() const;
-    inline void setTechnologyName(std::string str);
+    inline void setTechnologyName(const std::string& str);
     // BOL, EIS, BMF, T1F, etc ... 
     inline const std::string getStationType() const;
     // BOL1, BEE1, etc... 
     inline const std::string getStationName() const;
-    inline void setStationName(std::string );
+    inline void setStationName(const std::string& );
 
     // max num. of fields initialised
     inline void setLastInitField(int idf);
@@ -120,7 +120,7 @@ public:
     inline bool sideA() const;
     inline bool sideC() const;
 
-    void setParentStationPV(PVConstLink);
+    void setParentStationPV(const PVConstLink&);
     void setParentStationPV();
     PVConstLink  parentStationPV()     const;
     const MuonStation* parentMuonStation() const;
@@ -209,12 +209,12 @@ void  MuonReadoutElement::setCollectionHash(IdentifierHash id){m_idhash = id;}
 void  MuonReadoutElement::setDetectorElementHash(IdentifierHash id) {m_detectorElIdhash = id;}
 const std::string MuonReadoutElement::getTechnologyType() const {return std::string(m_techname,0,3);}
 const std::string MuonReadoutElement::getTechnologyName() const {return m_techname;}
-void MuonReadoutElement::setTechnologyName(std::string str){
+void MuonReadoutElement::setTechnologyName(const std::string& str){
     m_techname = str;}
 const std::string MuonReadoutElement::getStationType() const    {return std::string(m_statname,0,3);}
 const std::string MuonReadoutElement::getStationName() const    {
     return m_statname;}
-void MuonReadoutElement::setStationName(std::string str)  {
+void MuonReadoutElement::setStationName(const std::string& str)  {
     m_statname = str;}
 int MuonReadoutElement::getStationEta() const {return m_eta;}
 int MuonReadoutElement::getStationPhi() const {return m_phi;}

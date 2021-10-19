@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,6 +41,7 @@
 
 #include <QComboBox>
 #include <QTreeWidgetItem>
+#include <QElapsedTimer>
 
 #include <qdatetime.h>
 #include <vector>
@@ -51,7 +52,7 @@
 //____________________________________________________________________
 class TrackCollHandleBase::Imp {
 public:
-  TrackCollHandleBase * theclass;
+  TrackCollHandleBase * theclass = nullptr;
   QString name;
 
   //Vector of track handles:
@@ -60,22 +61,22 @@ public:
   std::vector<TrackHandleBase*>::iterator itTrackHandles;
   std::vector<TrackHandleBase*>::iterator itTrackHandlesEnd;
 
-  Trk::IExtrapolator *  lastUsedPropagator;
-  bool notifystatesave;
+  Trk::IExtrapolator *  lastUsedPropagator = nullptr;
+  bool notifystatesave = false;
 
   TrackCommonFlags::TSOSPartsFlags shownTSOSParts;
   TrackCommonFlags::TSOSPartsFlags customColouredTSOSParts;
-  bool tsos_useShortTRTMeasurements;
-  bool tsos_useShortMDTMeasurements;
-  bool tsos_drawMeasGlobalPositions;
-  double tsos_measurementsShorttubesScale;
-  double tsos_nStdDevForParamErrors;
-  int tsos_numberOfPointsOnCircles;
-  double tsos_materialEffectsOnTrackScale;
-  bool tsos_parTubeErrorsDrawCylinders;
+  bool tsos_useShortTRTMeasurements = false;
+  bool tsos_useShortMDTMeasurements = false;
+  bool tsos_drawMeasGlobalPositions = false;
+  double tsos_measurementsShorttubesScale = 0.0;
+  double tsos_nStdDevForParamErrors = 0.0;
+  int tsos_numberOfPointsOnCircles = 0;
+  double tsos_materialEffectsOnTrackScale = 0.0;
+  bool tsos_parTubeErrorsDrawCylinders = false;
 
   //Extra widgets:
-  QComboBox * comboBox_colourby;
+  QComboBox * comboBox_colourby = nullptr;
 
   static QString comboBoxEntry_ColourByCollection() { return "Uniform"; }
   static QString comboBoxEntry_ColourByRandom() { return "Random"; }
@@ -85,9 +86,9 @@ public:
   static QString comboBoxEntry_ColourByDistanceFromSelectedTrack() { return "Dist. Sel."; }
   static QString comboBoxEntry_ColourByVertex() { return "Vertex"; }
 
-  QTreeWidgetItem* objBrowseTree;
-  TrackCollectionSettingsButton * matButton;
-  bool last_useDefaultCuts;
+  QTreeWidgetItem* objBrowseTree = nullptr;
+  TrackCollectionSettingsButton * matButton = nullptr;
+  bool last_useDefaultCuts = false;
 };
 
 
@@ -111,6 +112,7 @@ TrackCollHandleBase::TrackCollHandleBase( TrackSysCommonData * cd,
     m_cut_allowedEta(VP1Interval()),
     m_cut_allowedPhi(QList<VP1Interval>()),
     m_cut_requiredNHits(QList<unsigned>()),
+    m_requiredDetectorElement(),
     m_cut_pt_allowall(false),
     m_cut_eta_allowall(false),
     m_cut_phi_allowall(false),
@@ -249,6 +251,9 @@ void TrackCollHandleBase::setupSettingsFromController(TrackSystemController* con
   connect(m_d->matButton,SIGNAL(cutRequiredNHitsChanged(const QList<unsigned>&)),this,SLOT(setRequiredNHits(const QList<unsigned>&)));
   setRequiredNHits(useDefaultCuts()?controller->cutRequiredNHits():m_d->matButton->cutRequiredNHits());
   
+  connect(controller,SIGNAL(cutRequiredDetectorElementChanged(const QString&)),this,SLOT(setRequiredDetectorElement(const QString&)));
+  connect(m_d->matButton,SIGNAL(cutRequiredDetectorElementChanged(const QString&)),this,SLOT(setRequiredDetectorElement(const QString&)));  
+
   connect(controller,SIGNAL(cutOnlyVertexAssocTracksChanged(bool)),this,SLOT(setOnlyVertexAssocTracks(bool)));
   connect(m_d->matButton,SIGNAL(cutOnlyVertexAssocTracksChanged(bool)),this,SLOT(setOnlyVertexAssocTracks(bool)));
   setOnlyVertexAssocTracks(useDefaultCuts()?controller->cutOnlyVertexAssocTracks():m_d->matButton->cutOnlyVertexAssocTracks());
@@ -313,7 +318,6 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
    if (m_cut_etaptphi_allwillfail)
     return false;
 
-  messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
   if (mightHaveSubSystemHitInfo()&&!m_cut_requiredNHits.isEmpty()&&handle->hasSubSystemHitInfo()) {
     //assert(m_cut_requiredNHits.count()==4); // for old code
     assert(m_cut_requiredNHits.count()==5);
@@ -322,17 +326,15 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
       if (handle->getNPixelHits()<m_cut_requiredNHits[0]) return false;
       if (handle->getNSCTHits()<m_cut_requiredNHits[1]) return false;
       if (handle->getNTRTHits()<m_cut_requiredNHits[2]) return false;
-    }
-    // Probably we should only be applying these to MS tracks?
-    messageVerbose("TrackCollHandleBase::cut : "+QString::number(handle->getNMuonPrecisionHits())+" / "+ QString::number(m_cut_requiredNHits[4]));
-    
+    } else {
+      messageVerbose("Not an ID track, so not applying ID cuts.");
+    }    
     if (handle->getNMuonHits()<m_cut_requiredNHits[3]) return false;
     if (handle->getNMuonPrecisionHits()<m_cut_requiredNHits[4]) return false;
   }
 
   if (!m_cut_pt_allowall||!m_cut_eta_allowall||!m_cut_phi_allowall)
   {
-//    Trk::GlobalMomentum mom(handle->momentum());
 	  Amg::Vector3D mom(handle->momentum());
     
     // convention is that if interval is real and negative, then P cut rather than pT
@@ -345,8 +347,7 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
       if (!m_cut_pt_allowall&& isPCut && !m_cut_allowedPtSq.contains(-mom.mag2()))
         return false;
         
-//      if (!m_cut_eta_allowall&&!m_cut_allowedEta.contains(mom.pseudoRapidity())){
-      if (!m_cut_eta_allowall&&!m_cut_allowedEta.contains(mom.eta())){ // migration to Amg (Eigen)
+      if (!m_cut_eta_allowall&&!m_cut_allowedEta.contains(mom.eta())){ 
         return false;
       }
       if (!m_cut_phi_allowall) {
@@ -363,6 +364,10 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
       }
     }
   }
+
+  // Cut on specific det element identifier
+  if (!m_requiredDetectorElement.isEmpty()) 
+    return handle->containsDetElement(m_requiredDetectorElement);
   
   if (cutOnlyVertexAssocTracks()){
     // std::cout<<"cutOnlyVertexAssocTracks: "<<handle<<",\t: "<<common()->system()->materialFromVertex(handle)<<std::endl;
@@ -866,6 +871,11 @@ void TrackCollHandleBase::setRequiredNHits(const QList<unsigned>& l)
   }
 }
 
+void TrackCollHandleBase::setRequiredDetectorElement(const QString& id){
+  m_requiredDetectorElement=id;
+  recheckCutStatusOfAllHandles();
+}
+
 //____________________________________________________________________
 void TrackCollHandleBase::setOnlyVertexAssocTracks(bool b){
   messageVerbose("setOnlyVertexAssocTracks changed to "+str(b));
@@ -1063,7 +1073,7 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
 //      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
 //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(nullptr); // not selectable, not enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
   actualSetShownTSOSPartsOnHandles();
   actualSetCustomColouredTSOSPartsOnHandles();
@@ -1083,7 +1093,7 @@ void TrackCollHandleBase::updateObjectBrowserVisibilityCounts() {
 
 void TrackCollHandleBase::fillObjectBrowser()
 {
-  QTime t;
+  QElapsedTimer t;
   t.start();
   
   QTreeWidget* trkObjBrowser = common()->controller()->trackObjBrowser();

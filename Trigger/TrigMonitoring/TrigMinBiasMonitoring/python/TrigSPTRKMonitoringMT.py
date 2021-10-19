@@ -24,12 +24,6 @@ def TrigSPTRK(configFlags, highGranularity=False):
 
     alg.triggerList = ["HLT_mb_sptrk_L1RD0_FILLED", "HLT_mb_sp_L1RD0_FILLED"]
 
-    mbEffAllGroup = monConfig.addGroup(alg, "EffAll", topPath="HLT/MinBiasMon/")
-    length = len(alg.triggerList)
-    mbEffAllGroup.defineHistogram( "PurityPassed,whichTrigger", type="TH2D", title=";Purity;trigger passed", xbins=2, xmin=0, xmax=2, xlabels=["0 track", ">0 tracks"], 
-                                    ybins=length, ymin=0, ymax=length, ylabels=list(alg.triggerList) )
-    mbEffAllGroup.defineHistogram( "whichTrigger", title="count of triggers;HLT", xbins=length, xmin=0, xmax=length, xlabels=list(alg.triggerList) )
-
     for chain in alg.triggerList:
 
         mbEffGroup = monConfig.addGroup(
@@ -64,6 +58,9 @@ def TrigSPTRK(configFlags, highGranularity=False):
 
             mbEffGroup.defineHistogram( "trkPt", cutmask="trkMask", title="Offline selected tracks pt;p_{T} [GeV]", xbins=100, xmin=0, xmax=10)
             mbEffGroup.defineHistogram( "trkEta", cutmask="trkMask", title="Offline selected tracks eta;#eta", xbins=50, xmin=-2.5, xmax=2.5)
+            mbEffGroup.defineHistogram( "trkD0", cutmask="trkMask", title="Offline selected tracks D0;d_{0} [mm]", xbins=40, xmin=-20, xmax=20)
+            mbEffGroup.defineHistogram( "trkZ0", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-20, xmax=20)
+            mbEffGroup.defineHistogram( "trkZ0;trackZdWideRange", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
 
         mbSpGroup = monConfig.addGroup(
             alg,
@@ -106,7 +103,8 @@ if __name__ == "__main__":
     ConfigFlags.Concurrency.NumConcurrentEvents = 5
     # ConfigFlags.Input.Files = ['/scratch/somadutt/valid1.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.recon.AOD.e4981_s3454_s3089_d1617_r12430_tid24359040_00/AOD.24359040._000041.pool.root.1'] #Local HI-UPC file
     import glob
-    ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/DATA/data18_13TeV.00341615.physics_EnhancedBias.merge.AOD.r12635_p4534_tid25577237_00/*")[:1]
+    #ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/DATA/data18_13TeV.00341615.physics_EnhancedBias.merge.AOD.r12635_p4534_tid25577237_00/*")[:1]
+    ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/athena/add-view-to-zfinder-output-config/*/*AOD._lb*")
     
     #ConfigFlags.Input.Files = glob.glob('/scratch/somadutt/valid1.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.recon.AOD.e4981_s3454_s3089_d1617_r12430_tid24359040_00/*')
     # data AOD file

@@ -169,7 +169,7 @@ void ScaleEcalorimeter::shift_inputs(StdCalibrationInputs & inputs, float amount
   inputs.E3raw += amount;
 }
 
-std::string egammaLayerRecalibTool::resolve_alias(const std::string& tune) const {
+std::string egammaLayerRecalibTool::resolve_alias(const std::string& tune) {
 
   if ("layer1_2012" == tune)         return "layer1_2012_v5";
   if ("layer1_alt_2012" == tune)     return "layer1_alt_2012_v5";

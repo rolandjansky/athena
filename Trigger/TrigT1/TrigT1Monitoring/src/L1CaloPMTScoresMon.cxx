@@ -15,6 +15,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "LWHists/TH2F_LW.h"
 
@@ -59,7 +60,6 @@ L1CaloPMTScoresMon::L1CaloPMTScoresMon(const std::string & type,
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_ttIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
     m_tileBadChanTool("TileBadChanTool"),
     m_tileHWID(0),
@@ -90,16 +90,12 @@ StatusCode L1CaloPMTScoresMon:: initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
+  ATH_CHECK( m_cellMatch.retrieve() );
+
   StatusCode sc;
   
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure()) return sc;
-
-  sc = m_cells2tt.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endmsg;
-    return sc;
-  }
 
   sc = m_ttIdTools.retrieve();
   if (sc.isFailure()) {
@@ -137,6 +133,8 @@ StatusCode L1CaloPMTScoresMon:: initialize()
     msg(MSG::ERROR) << "Could not access tileBadChanTool" << endmsg;
     return sc;
   }
+
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -212,6 +210,8 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
 {
   if (m_events > 0) return StatusCode::SUCCESS;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
+
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
 
@@ -260,7 +260,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
     Identifier ttId1(0);
     Identifier ttId2(0);
 
-    m_cells2tt->matchCell2Tower(caloCell, ttId1, ttId2);
+    m_cellMatch->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
 
     if (ttId1 != invalidId) {
       const double eta = m_ttIdTools->IDeta(ttId1);

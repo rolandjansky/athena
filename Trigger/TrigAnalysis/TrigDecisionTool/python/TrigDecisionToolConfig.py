@@ -16,16 +16,17 @@ When running in AnalysisBase, the tdt.TrigConfigTool="TrigConf::xAODConfigTool" 
 in place of the TrigConf::xAODConfigSvc
 '''
 
-def getRun3NavigationContainerFromInput(ConfigFlags):
-    # List of all possible keys of the Run 3 navigation summary collection
-    # in order of verbosity. Want to take the most verbose which is available.
-    possible_keys = []
-    possible_keys.append("HLTNav_Summary")
-    possible_keys.append("HLTNav_Summary_BSSlimmed")
-    possible_keys.append("HLTNav_Summary_ESDSlimmed")
-    possible_keys.append("HLTNav_Summary_AODSlimmed")
-    possible_keys.append("HLTNav_Summary_DAODSlimmed")
+# List of all possible keys of the Run 3 navigation summary collection
+# in order of verbosity. Want to take the most verbose which is available.
+possible_keys = [
+    "HLTNav_Summary",
+    "HLTNav_Summary_OnlineSlimmed",
+    "HLTNav_Summary_ESDSlimmed",
+    "HLTNav_Summary_AODSlimmed",
+    "HLTNav_Summary_DAODSlimmed"
+    ]
 
+def getRun3NavigationContainerFromInput(ConfigFlags):
     # What to return if we cannot look in the file
     default_key = "HLTNav_Summary_OnlineSlimmed"
     to_return = default_key
@@ -41,17 +42,13 @@ def getRun3NavigationContainerFromInput(ConfigFlags):
     return to_return
 
 def getTrigDecisionTool(ConfigFlags):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaCommon.Logging import logging
     msg = logging.getLogger('getTrigDecisionTool')
 
-    acc = ComponentAccumulator()
-
-    cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
-    # We serve in-file metadata where possible. If it does not exist (e.g. RAWtoESD, RAWtoALL), then it is obtained from the Conditions and Detector stores
-    cfgsvc.UseInFileMetadata = ConfigFlags.Trigger.InputContainsConfigMetadata
-    acc.addService(cfgsvc)
+    from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
+    acc = getxAODConfigSvc(ConfigFlags)
+    cfgsvc = acc.getPrimary()
 
     tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
     tdt.TrigConfigSvc = cfgsvc
@@ -67,10 +64,6 @@ def getTrigDecisionTool(ConfigFlags):
 
     acc.addPublicTool(nav)
     acc.addPublicTool(tdt, primary=True)
-
-    if ConfigFlags.Trigger.InputContainsConfigMetadata:
-        from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
-        acc.merge(MetaDataSvcCfg(ConfigFlags))
 
     msg.info("Configuring the TrigDecisionTool and xAODConfigSvc to use ConfigSource:{}, Run3NavigationFormat:{}, Run3NavigationSummaryCollection:{}".format(
         "InFileMetadata" if ConfigFlags.Trigger.InputContainsConfigMetadata else "ConditionsAndDetStore",

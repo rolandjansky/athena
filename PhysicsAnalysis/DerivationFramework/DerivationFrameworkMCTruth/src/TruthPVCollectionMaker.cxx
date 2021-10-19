@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -38,11 +38,11 @@ StatusCode DerivationFramework::TruthPVCollectionMaker::initialize()
     ATH_MSG_VERBOSE("initialize() ...");
 
     // Check configuration, print errors, warning, and information for the user
-    if (m_eventsKey=="") {
+    if (m_eventsKey.empty()) {
         ATH_MSG_FATAL("No truth event collection provided to use as a basis for new collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Using " << m_eventsKey << " as the source collections for new truth collections");}
-    if (m_collectionName=="") {
+    if (m_collectionName.empty()) {
         ATH_MSG_FATAL("No key provided for the new truth vertex collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth vertex collection key: " << m_collectionName );}
@@ -70,7 +70,7 @@ StatusCode DerivationFramework::TruthPVCollectionMaker::addBranches() const
     ATH_MSG_DEBUG( "Recorded new TruthVertexContainer with key: " << m_collectionName);
 
     // Go through the events, add one vertex for each event
-    for (auto * event : *importedTruthEvents){
+    for (const auto * event : *importedTruthEvents){
         // Just in case there is a place-holder
         if (!event) continue;
         // Try with the signal process vertex

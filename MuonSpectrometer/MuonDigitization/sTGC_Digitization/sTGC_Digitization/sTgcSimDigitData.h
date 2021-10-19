@@ -18,9 +18,7 @@ class sTgcSimDigitData
 {
 public:
     sTgcSimDigitData();
-    sTgcSimDigitData(const sTgcSimDigitData& simDigit);
     sTgcSimDigitData(const MuonSimData& hit, const sTgcDigit& digit);
-    ~sTgcSimDigitData();
 
     /// set SimData
     void setSimData(MuonSimData hit) { m_sTGCSimData = hit; }
@@ -29,10 +27,10 @@ public:
     void setSTGCDigit(sTgcDigit digit) { m_sTGCDigit = digit; }
 
     /// Get the SimData
-    MuonSimData getSimData() const { return m_sTGCSimData; }
+    const MuonSimData& getSimData() const { return m_sTGCSimData; }
 
     /// Get the sTGC digit
-    sTgcDigit getSTGCDigit() const { return m_sTGCDigit; }
+    const sTgcDigit& getSTGCDigit() const { return m_sTGCDigit; }
 
 private:
 

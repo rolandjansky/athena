@@ -31,10 +31,10 @@
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
@@ -116,8 +116,8 @@ private:
   bool  m_writeRDOinformation;
   bool m_useSiHitsGeometryMatching;
 
-  ServiceHandle<IPixelCablingSvc> m_pixelCabling
-  {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};

@@ -126,23 +126,6 @@ namespace top {
      */
     virtual bool applyParticleLevel(const top::ParticleLevelEvent& plEvent) const;
 
-    /*!
-     * @brief Apply the selection for each upgrade level event.
-     *
-     * This loops through all the cuts configured for reco (nominal) level to
-     * see if the top::ParticleLevelEvent passes them or not. It also fills the
-     * upgrade level cutflow histogram corresponding to the stage up to which
-     * the event passes through the event selection.
-     *
-     * @param plEvent This is the upgrade level event which is in question. It
-     * will not be modified by any of the cuts.
-     * @return If the event passes all cuts, or at least all those before SAVE
-     * then true will be returned - which means that this event passes
-     * the selection - and false otherwise. The selection flag will be set accordingly.
-     * In case of true if SAVE is present then the event will be saved.
-     */
-    virtual bool applyUpgradeLevel(const top::ParticleLevelEvent& plEvent) const;
-
     /**
      * @brief Print some yield information.
      *
@@ -216,10 +199,6 @@ namespace top {
     ///The particle level cutflow histogram filled by the tool.
     mutable TH1D* m_cutflowParticleLevel;
     mutable TH1D* m_cutflowParticleLevelMCWeights;
-
-    ///The upgrade level cutflow histogram filled by the tool.
-    mutable TH1D* m_cutflowUpgradeLevel;
-
 
     /**
      * @brief Name of this selection (you can have multiple selections run in

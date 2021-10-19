@@ -114,7 +114,7 @@ StatusCode L1TopoLegacyOnlineMonitor::execute(const EventContext& eventContext) 
     allowDAQROBAccess = true;
   }
   else if (m_prescaleDaqRobAccess.value() > 1) {
-    // Implementation following PrescalingTool from the L1Decoder package
+    // Implementation following PrescalingTool from the HLTSeeding package
     size_t seed = eventContext.eventID().time_stamp() ^ eventContext.eventID().time_stamp_ns_offset();
     CLHEP::HepRandomEngine* engine = m_RNGEngines.getEngine(eventContext);
     engine->setSeed( seed, 0 );
@@ -374,7 +374,7 @@ StatusCode L1TopoLegacyOnlineMonitor::doCnvMon(xAOD::TrigComposite& errorFlags,
           break;
         }
         case L1Topo::BlockTypes::L1TOPO_TOB: {
-          block.daqTobs.emplace_back(static_cast<int32_t>(word)); // TODO: Fix L1TopoTOB ctor to take uint32_t word
+          block.daqTobs.emplace_back(word);
           if (block.header.bcn_offset() == 0) {
             daqTobsBC0.emplace_back(rdo->getSourceID(), block.daqTobs.back());
           }

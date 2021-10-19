@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //dear emacs, this is -*-c++-*-
@@ -74,7 +74,7 @@ class LArAutoCorrMaker : public AthAlgorithm
 
   // Number of sigma
   int m_rms_cut;
-  int m_nsamples;
+  int m_nsamples = 0;
 
   //MGV Decide whether or not to normalize autocorr elements
   int m_normalize;

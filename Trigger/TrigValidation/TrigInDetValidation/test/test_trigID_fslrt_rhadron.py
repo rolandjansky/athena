@@ -3,7 +3,6 @@
 # art-description: art job for mu_Zmumu_pu40
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
 # art-input-nfiles: 4
 # art-athena-mt: 8
 # art-memory: 4096
@@ -38,8 +37,8 @@ Release = "current"
 
 preinclude_file = 'all:TrigInDetValidation/TIDAlrt_preinclude.py'
 
-Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root ", "Test_bin_lrt.dat" ),
-         ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root", "Test_bin_lrt.dat" ) ]
+Jobs = [ ( "Truth",  " TIDAdata-run3-fslrt.dat -o data-hists.root ", "Test_bin_lrt.dat" ),
+         ( "Offline",    " TIDAdata-run3-offline-fslrt.dat -r Offline -o data-hists-offline.root", "Test_bin_lrt.dat" ) ]
 
 Comp = [ ( "L2FSLRT",  "L2FSLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots -sx Reference Truth " ),
          ( "EFFSLRT",  "EFFSLRT", "data-hists.root",   " -c TIDAhisto-panel.dat -d HLTEF-plots -sx Reference Truth   " ),

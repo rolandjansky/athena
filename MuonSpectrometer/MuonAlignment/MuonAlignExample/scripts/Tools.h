@@ -5,18 +5,19 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <valarray>
+
 
 #include "MuonFixedId.h"
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TROOT.h"
 #include "TStyle.h"
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <valarray>
 
 class Tools {
 public:
@@ -74,6 +75,8 @@ inline double* Tools::getPosition(std::string filename, MuonCalib::MuonFixedId* 
     while (file) {
         file.getline(in_str, 255);
         if (file) {
+            //should include field widths to prevent crashes
+            //cppcheck-suppress invalidscanf
             sscanf(in_str, "%*c %s %i%i%i %f%f%f%f%f%f", fname, &fphi, &feta, &fjob, &fpos0, &fpos1, &fpos2, &fpos3, &fpos4, &fpos5);
 
             if (fphi != phi) continue;
@@ -194,7 +197,6 @@ template <class MyType> inline std::vector<MyType> Tools::getOptionVector(TStrin
     for (int k = 0; k < optarray->GetEntries(); k++) {
         stringstream optstream;
         optstream << ((TObjString*)optarray->At(k))->GetString().Data();
-
         MyType opt;
         optstream >> opt;
         optvec.push_back(opt);

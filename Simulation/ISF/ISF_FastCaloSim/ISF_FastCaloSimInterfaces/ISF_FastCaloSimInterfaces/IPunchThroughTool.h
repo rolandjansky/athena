@@ -10,36 +10,36 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ISFParticleContainer.h"
+#include "ISF_Event/ISFParticleVector.h"
 
 namespace Trk{
   class Track;
 }
-         
+
 namespace ISF {
 
   /**
      @class IPunchThroughTool
-        
+
       Interface for a tool which takes a ISF::ISFParticle as input
       and returns a vector of ISFParticles
-        
+
      @author Elmar.Ritsch@cern.ch , Anna.Usanova@cern.ch
    */
-             
+
  class IPunchThroughTool : virtual public IAlgTool {
      public:
-     
+
         /** Virtual destructor */
         virtual ~IPunchThroughTool(){}
-        
+
         /// Creates the InterfaceID and interfaceID() method
         DeclareInterfaceID(IPunchThroughTool, 1, 0);
-                     
+
         /** Creates new vector of ISFParticle out of a given ISFParticle */
-        virtual const ISF::ISFParticleContainer* computePunchThroughParticles(const ISFParticle& isfp ) const = 0;
+        virtual const ISF::ISFParticleVector* computePunchThroughParticles(const ISFParticle& isfp ) const = 0;
  };
-        
+
 } // end of namespace
-        
+
 #endif

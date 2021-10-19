@@ -16,10 +16,10 @@ OverlayChain_tf.py \
 --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
 --outputRDOFile testRTT.RDO.pool.root \
 --outputHITSFile testRTT.HITS.pool.root \
---triggerBit 240 \
+--triggerBit L1_ZB \
 --skipEvents 0 --maxEvents 10 --randomSeed 123456789 \
 --geometryVersion ATLAS-R2-2015-03-01-00 \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --digiSeedOffset1=211 --digiSeedOffset2=122 \
 --samplingFractionDbTag FTFP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' \

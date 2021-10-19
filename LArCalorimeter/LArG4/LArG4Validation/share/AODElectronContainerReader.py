@@ -1,4 +1,4 @@
-#!/usr/bin/env physh
+#!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # python script for launching AODReader job
@@ -8,6 +8,7 @@ __version__ = '$Revision: 484742 $'
 __author__  = 'Radist Morse radist.morse@gmail.com'
 __doc__     = 'Script for launching AODReader job'
 
+import os
 from sys import exit
 from os.path import isfile
 
@@ -20,29 +21,8 @@ parser.add_option("-o","--outputFile",dest="output",default='ntuple.root',help="
 
 for arg in args :
 	if (not isfile (arg)) :
-		printfunc ("ERROR: wrong input: nonexistent file:",arg)
+		print ("ERROR: wrong input: nonexistent file:",arg)
 		exit(1)
 
-from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-
-from LArG4Validation.LArG4ValidationConf import AODReader
-topSequence += AODReader()
-
-topSequence.AODReader.OutputLevel = WARNING
-
-AthenaEventLoopMgr = Service("AthenaEventLoopMgr")
-AthenaEventLoopMgr.OutputLevel = ERROR
-
-
-del args[0]
-
-import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections = args
-
-theApp.Dlls += [ 'RootHistCnv' ]
-theApp.HistogramPersistency = 'ROOT'
-NTupleSvc = Service( "NTupleSvc" )
-NTupleSvc.Output = [ "FILE DATAFILE=\'"+options.output+"\'  TYP='ROOT'  OPT='NEW'" ]
+exec = __file__.replace("AODElectronContainerReader.py","AODElectronContainerReaderBody.py")
+os.system('athena -c "args={:s}" {:s}'.format(str(args),exec))

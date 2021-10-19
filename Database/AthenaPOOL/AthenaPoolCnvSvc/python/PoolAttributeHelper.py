@@ -43,6 +43,20 @@ def setFileCompLvl( fileName = None, compLvl = None ):
                              attrName  = "COMPRESSION_LEVEL",
                              attrValue = compLvl )
 
+def setMaxBufferSize( fileName = None, bufferSize = None ):
+    """ Convenience method for setting the maximum basket buffer size """
+
+    return setPoolAttribute( fileName = fileName,
+                             attrName = "MAXIMUM_BUFFERSIZE",
+                             attrValue = bufferSize )
+
+def setMinBufferEntries( fileName = None, nEntries = None ):
+    """ Convenience method for setting the minimum basket buffer entries """
+
+    return setPoolAttribute( fileName = fileName,
+                             attrName = "MINIMUM_BUFFERENTRIES",
+                             attrValue = nEntries )
+
 def setTreeAutoFlush( fileName = None, treeName = None, autoFlush = None ):
     """ Convenience method for setting the AutoFlush for a tree in a given file. """
 
@@ -77,6 +91,8 @@ if "__main__" in __name__:
     # High-level
     attrs += [ setFileCompAlg( "AOD.pool.root", 2 ) ]
     attrs += [ setFileCompLvl( "AOD.pool.root", 1 ) ]
+    attrs += [ setMaxBufferSize( "*", 131072 ) ]
+    attrs += [ setMinBufferEntries( "*", 10 ) ]
     attrs += [ setTreeAutoFlush( "AOD.pool.root", "CollectionTree", 10 ) ]
     attrs += [ setContainerSplitLevel( None, "POOLContainerForm(DataHeaderForm)", 99 ) ]
 

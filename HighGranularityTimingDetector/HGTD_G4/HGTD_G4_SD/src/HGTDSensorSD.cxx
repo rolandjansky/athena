@@ -26,9 +26,9 @@
 #include <stdint.h>
 #include <string.h>
 
-HGTDSensorSD::HGTDSensorSD(const std::string& name)
+HGTDSensorSD::HGTDSensorSD(const std::string& name, const std::string& hitCollectionName)
     : G4VSensitiveDetector( name ), 
-      m_HitColl( "HGTD_Hits" )
+      m_HitColl( hitCollectionName )
 {
 
 }

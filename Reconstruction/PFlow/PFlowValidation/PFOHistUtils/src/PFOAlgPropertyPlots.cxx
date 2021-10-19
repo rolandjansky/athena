@@ -6,28 +6,21 @@
 
 namespace PFO {
 
-  PFOAlgPropertyPlots::PFOAlgPropertyPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName),m_sFEContainerName(sFEContainerName){
-    m_PFO_isInDenseEnvironment = nullptr;
-    m_PFO_tracksExpectedEnergyDeposit = nullptr;
+  PFOAlgPropertyPlots::PFOAlgPropertyPlots(PlotBase* pParent, std::string sDir, std::string sFEContainerName) : PlotBase(pParent, sDir), m_sFEContainerName(sFEContainerName){    
     m_FE_isInDenseEnvironment = nullptr;
     m_FE_tracksExpectedEnergyDeposit = nullptr;
+
+    m_FE_isInDenseEnvironment_etaBinA = nullptr;
+    m_FE_tracksExpectedEnergyDeposit_etaBinA = nullptr;
+
+    m_FE_isInDenseEnvironment_etaBinB = nullptr;
+    m_FE_tracksExpectedEnergyDeposit_etaBinB = nullptr;
+
+    m_FE_isInDenseEnvironment_etaBinC = nullptr;
+    m_FE_tracksExpectedEnergyDeposit_etaBinC = nullptr;
   }
 
-  void PFOAlgPropertyPlots::initializePlots(){
-    // Book PFO histograms
-    if(!m_sPFOContainerName.empty()){
-      m_PFO_isInDenseEnvironment = Book1D("_isInDenseEnvironment",m_sPFOContainerName+"_isInDenseEnvironment",3,-1,2);
-      m_PFO_tracksExpectedEnergyDeposit = Book1D("_tracksExpectedEnergyDeposit",m_sPFOContainerName+"_tracksExpectedEnergyDeposit",11,-1,10);
-      
-      m_PFO_isInDenseEnvironment_etaBinA = Book1D("_isInDenseEnvironment_binA",m_sPFOContainerName+"_isInDenseEnvironment (|eta| < 1)",3,-1,2);
-      m_PFO_tracksExpectedEnergyDeposit_etaBinA = Book1D("_tracksExpectedEnergyDeposit_binA)",m_sPFOContainerName+"_tracksExpectedEnergyDeposit (|eta| < 1)",11,-1,10);
-
-      m_PFO_isInDenseEnvironment_etaBinB = Book1D("_isInDenseEnvironment_binB",m_sPFOContainerName+"_isInDenseEnvironment (1 <= |eta| < 2)",3,-1,2);
-      m_PFO_tracksExpectedEnergyDeposit_etaBinB = Book1D("_tracksExpectedEnergyDeposit_binB",m_sPFOContainerName+"_tracksExpectedEnergyDeposit (1 <= |eta| < 2)",11,-1,10);
-
-      m_PFO_isInDenseEnvironment_etaBinC = Book1D("_isInDenseEnvironment_binC",m_sPFOContainerName+"_isInDenseEnvironment (|eta| >= 2)",3,-1,2);
-      m_PFO_tracksExpectedEnergyDeposit_etaBinC = Book1D("_tracksExpectedEnergyDeposit_binC",m_sPFOContainerName+"_tracksExpectedEnergyDeposit (|eta| >= 2)",11,-1,10);
-    }
+  void PFOAlgPropertyPlots::initializePlots(){    
     // book FlowElement histograms
     if(!m_sFEContainerName.empty()){
       m_FE_isInDenseEnvironment = Book1D("_isInDenseEnvironment",m_sFEContainerName+"_isInDenseEnvironment",3,-1,2);
@@ -41,42 +34,6 @@ namespace PFO {
 
       m_FE_isInDenseEnvironment_etaBinC = Book1D("_isInDenseEnvironment_binC",m_sFEContainerName+"_isInDenseEnvironment (|eta| >= 2)",3,-1,2);
       m_FE_tracksExpectedEnergyDeposit_etaBinC = Book1D("_tracksExpectedEnergyDeposit_binC",m_sFEContainerName+"_tracksExpectedEnergyDeposit (|eta| >= 2)",11,-1,10);      
-    }
-  }
-
-  void PFOAlgPropertyPlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
-
-    xAOD::PFODetails::PFOAttributes myAttribute_isInDenseEnvironment = xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment;
-    int isInDenseEnvironment = false;
-    bool gotAttribute = PFO.attribute(myAttribute_isInDenseEnvironment,isInDenseEnvironment);
-    if (true == gotAttribute) {
-      m_PFO_isInDenseEnvironment->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
-      if (fabs(PFO.eta()) < 1) m_PFO_isInDenseEnvironment_etaBinA->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
-      else if (fabs(PFO.eta()) < 2) m_PFO_isInDenseEnvironment_etaBinB->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
-      else m_PFO_isInDenseEnvironment_etaBinC->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
-    }
-
-    else {
-      m_PFO_isInDenseEnvironment->Fill(-1.0,eventInfo.beamSpotWeight());
-      if (fabs(PFO.eta()) < 1) m_PFO_isInDenseEnvironment_etaBinA->Fill(-1.0,eventInfo.beamSpotWeight());
-      else if (fabs(PFO.eta()) < 2) m_PFO_isInDenseEnvironment_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
-      else m_PFO_isInDenseEnvironment_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());
-    }
-      
-    float expectedEnergy = 0.0;
-    xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
-    gotAttribute = PFO.attribute(myAttribute_tracksExpectedEnergyDeposit,expectedEnergy);
-    if (true == gotAttribute) {
-      m_PFO_tracksExpectedEnergyDeposit->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
-      if (fabs(PFO.eta()) < 1)  m_PFO_tracksExpectedEnergyDeposit_etaBinA->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
-      else if (fabs(PFO.eta()) < 2) m_PFO_tracksExpectedEnergyDeposit_etaBinB->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
-      else m_PFO_tracksExpectedEnergyDeposit_etaBinC->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
-    }
-    else{
-      m_PFO_tracksExpectedEnergyDeposit->Fill(-1.0,eventInfo.beamSpotWeight());
-      if (fabs(PFO.eta()) < 1)  m_PFO_tracksExpectedEnergyDeposit_etaBinA->Fill(-1.0,eventInfo.beamSpotWeight());
-      else if (fabs(PFO.eta()) < 2) m_PFO_tracksExpectedEnergyDeposit_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
-      else m_PFO_tracksExpectedEnergyDeposit_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());
     }
   }
 

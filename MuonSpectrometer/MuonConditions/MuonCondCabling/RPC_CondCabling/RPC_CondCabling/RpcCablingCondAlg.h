@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -18,13 +18,13 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-class RpcCablingCondAlg : public AthReentrantAlgorithm {
+class RpcCablingCondAlg : public AthAlgorithm {
 public:
     RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual ~RpcCablingCondAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode execute() override;
 
 private:
     typedef std::array<int, 64> sectorMap_t;
@@ -66,10 +66,10 @@ private:
     bool CableParamCheck(const unsigned short int SubId, const unsigned short int SecId, const unsigned short int PADId,
                          const unsigned short int CMAId, const unsigned short int ijk, const unsigned int type,
                          const unsigned short int Channel1, const unsigned short int Channel2, const short int Number) const;
-    bool correct(const unsigned short int SubsystemId, const unsigned short int SectorId, const unsigned short int PADId,
+    static bool correct(const unsigned short int SubsystemId, const unsigned short int SectorId, const unsigned short int PADId,
                  const unsigned short int CMAId, const CMAinput it, const unsigned int layer, const unsigned short int Channel1,
                  const unsigned short int Channel2, const short int number, const L1RPCcabCorrection type, const sectorMap_t& smap,
-                 const RpcCablingCondData::STvec& sType) const;
+                 const RpcCablingCondData::STvec& sType) ;
 };
 
 #endif  // MUONCONDALG_RPCCABLINGCONDALG_H

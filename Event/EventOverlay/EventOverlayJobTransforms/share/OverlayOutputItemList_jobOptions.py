@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 include.block ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" )
 
 from AthenaCommon.AppMgr import ServiceMgr
@@ -27,13 +29,13 @@ if DetFlags.overlay.Truth_on():
                           "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
    outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt4TruthJets" ]
-   outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights" ]
    outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets" ]
-   outStream.ItemList += [ "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights" ]
    outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt6TruthJets" ]
-   outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::AuxContainerBase!#InTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights" ]
    outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt6TruthJets" ]
-   outStream.ItemList += [ "xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::AuxContainerBase!#OutOfTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights" ]
    if DetFlags.overlay.CSC_on():
       outStream.ItemList += [ "CscSimDataCollection#CSC_SDO" ]
    if DetFlags.overlay.MDT_on():

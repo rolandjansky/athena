@@ -112,7 +112,7 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       // create new decisions
       auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
       
-      // pussh_back to toolInput
+      // push_back to toolInput
       toolInput.emplace_back( newd, muon, previousDecision );
 
       newd -> setObjectLink( featureString(), muonEL );
@@ -146,6 +146,7 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
   ATH_MSG_DEBUG("StatusCode TrigMuonEFHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

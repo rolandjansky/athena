@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Project file for building a selected set of packages against an
 # installed ATLAS release/nightly.
@@ -84,6 +84,11 @@ atlas_ctest_setup()
 # our code correctly.
 set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
    "Create compile_commands.json" FORCE )
+
+# Re-check all of the wildcarded expressions on every re-build in this
+# project.
+set( ATLAS_ALWAYS_CHECK_WILDCARDS TRUE CACHE BOOL
+   "(Re-)Check wildcards in file specifications on every build" )
 
 # Set up a work directory project with the same version as our parent:
 atlas_project( USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}

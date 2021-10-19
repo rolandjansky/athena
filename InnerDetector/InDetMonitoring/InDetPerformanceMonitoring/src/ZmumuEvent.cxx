@@ -149,7 +149,7 @@ bool ZmumuEvent::Reco()
 	  if (m_doDebug) {std::cout << "                          This muon is accepeted !! this is muon number " << acceptedMuonCount << " & full pass" << m_numberOfFullPassMuons << std::endl; }
 	}
       }
-      xMuonItr++;
+      ++xMuonItr;
     } // end loop on muons
     if (m_doDebug) {std::cout << " * ZmumuEvent * accepted " << acceptedMuonCount << " muons from the input list of "<< pxMuonContainer->size() <<std::endl; }
 
@@ -555,15 +555,11 @@ const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/ )
       while ( xTrkItr != xTrkItrE )
 	{
 	  const xAOD::TrackParticle* pxTrack = *xTrkItr;
-	  if(!(pxTrack->track())) continue;
-	  const Trk::Track* pxTrkTrack = pxTrack->track();
 	  if ( !pxTrack ) continue;
+	  const Trk::Track* pxTrkTrack = pxTrack->track();
+	  if(!pxTrkTrack) continue;	  
 	  const Trk::Perigee* pxPerigee = pxTrkTrack->perigeeParameters() ;
 	  if ( !pxPerigee ) continue;
-
-	  // const float fTrkPt    = pxPerigee->pT()*1.0e-3;
-	  // const float fTrkPtErr = fabs( pxPerigee->localErrorMatrix().error(Trk::qOverP) );
-	  // const float fPtSig    = ( 1.0f / pxPerigee->pT() ) /  fTrkPtErr;  // Potential problem.
 	  const float fTrkPhi   = pxPerigee->parameters()[Trk::phi];
 	  const float fTrkEta   = pxPerigee->eta();
 
@@ -576,7 +572,7 @@ const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/ )
 	      return pxTrack;
 	    }
 
-	  xTrkItr++;
+	  ++xTrkItr;
 	}
     }
   // if ()

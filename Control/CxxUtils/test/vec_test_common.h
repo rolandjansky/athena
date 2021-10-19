@@ -34,7 +34,7 @@ check(const VEC& v, const std::valarray<T>& a)
 {
   const size_t N = CxxUtils::vec_size<VEC>();
   assert(a.size() == N);
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     if (v[i] != a[i]) {
       std::cerr << "Mismatch " << typeid(VEC).name() << " "
                 << typeid(std::valarray<T>).name() << " " << i << "\n";
@@ -52,7 +52,7 @@ check(const VEC& v, const std::valarray<bool>& a)
 {
   const size_t N = CxxUtils::vec_size<VEC>();
   assert(a.size() == N);
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(bool(v[i]) == a[i]);
   }
 }
@@ -66,7 +66,7 @@ NO_SANITIZE_UNDEFINED(const VEC& v1)
   size_t N = CxxUtils::vec_size<VEC>();
 
   std::valarray<T> a1(N);
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     a1[i] = v1[i];
 
   check(v1, a1);
@@ -119,7 +119,7 @@ NO_SANITIZE_UNDEFINED(const VEC& v1)
   size_t N = CxxUtils::vec_size<VEC>();
 
   std::valarray<T> a1(N);
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     a1[i] = v1[i];
 
   check(v1, a1);
@@ -183,16 +183,16 @@ test_relops(const VEC& v1)
   size_t N = CxxUtils::vec_size<VEC>();
 
   std::valarray<T> a1(N);
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     a1[i] = v1[i];
 
   VEC v2;
   v2[0] = v1[0];
-  for (size_t i = 1; i < N; i++)
+  for (size_t i = 1; i < N; ++i)
     v2[i] = v1[N - i];
 
   std::valarray<T> a2(N);
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     a2[i] = v2[i];
 
 #define TEST(op)                                                               \
@@ -220,15 +220,15 @@ test_logops(const VEC& v1)
   size_t N = CxxUtils::vec_size<VEC>();
 
   std::valarray<T> a1(N);
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     a1[i] = v1[i];
 
   VEC v2;
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     v2[i] = v1[N - 1 - i];
 
   std::valarray<T> a2(N);
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     a2[i] = v2[i];
 
   {
@@ -277,7 +277,7 @@ test_broadcast(const VEC& v1)
   CxxUtils::vbroadcast(v2, v1[0]);
 
   size_t N = CxxUtils::vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(v1[i] == v2[i]);
   }
 }
@@ -292,13 +292,13 @@ test_storeload(const VEC& v1)
 
   CxxUtils::vstore(mem_addr, v1);
   size_t N = CxxUtils::vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(v1[i] == mem_addr[i]);
   }
 
   VEC v2;
   CxxUtils::vload(v2, mem_addr);
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(v2[i] == mem_addr[i]);
   }
 }
@@ -312,7 +312,7 @@ test_min(const VEC& v1)
   VEC min;
   CxxUtils::vmin(min, v1, v2);
   constexpr size_t N = CxxUtils::vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(min[i] == v1[i]);
   }
 }
@@ -326,7 +326,7 @@ test_max(const VEC& v1)
   VEC max;
   CxxUtils::vmax(max, v1, v2);
   constexpr size_t N = CxxUtils::vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(max[i] == v2[i]);
   }
 }
@@ -340,7 +340,7 @@ test_select(const VEC& v1)
   CxxUtils::mask_type_t<VEC> greater;
   CxxUtils::mask_type_t<VEC> less;
   constexpr size_t N = CxxUtils::vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     greater[i] = v1[i] > v2[i];
     less[i] = v1[i] < v2[i];
   }
@@ -350,7 +350,7 @@ test_select(const VEC& v1)
   VEC selectLess;
   CxxUtils::vselect(selectLess, v1, v2, less);
 
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(selectGreater[i] == v2[i]);
     assert(selectLess[i] == v1[i]);
   }
@@ -374,7 +374,7 @@ test_permute(const VEC& v1)
     CxxUtils::vpermute<15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0>(
       v2, v1);
   }
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     assert(v2[i] == v1[(N-1)-i]);
   }
 }
@@ -398,7 +398,7 @@ test_blend(const VEC& v1)
     CxxUtils::vblend<0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23>(
       v3, v1, v2);
   }
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     if (i < N / 2) {
       assert(v3[i] == v1[i]);
     } else {
@@ -406,6 +406,31 @@ test_blend(const VEC& v1)
     }
   }
 }
+
+template<class VEC>
+void
+test_convert_to_double(const VEC& v1)
+{
+  constexpr size_t N = CxxUtils::vec_size<VEC>();
+  CxxUtils::vec<double, N> dst;
+  CxxUtils::vconvert(dst, v1);
+  for (size_t i = 0; i < N; ++i) {
+    assert(dst[i] == static_cast<double>(v1[i]));
+  }
+}
+
+template<class VEC>
+void
+test_convert_to_int(const VEC& v1)
+{
+  constexpr size_t N = CxxUtils::vec_size<VEC>();
+  CxxUtils::vec<int, N> dst;
+  CxxUtils::vconvert(dst, v1);
+  for (size_t i = 0; i < N; ++i) {
+    assert(dst[i] == static_cast<int>(v1[i]));
+  }
+}
+
 
 template<template<class T, size_t N> class VEC>
 void
@@ -438,6 +463,8 @@ testFloat1()
     test_max(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));      \
     test_permute(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));  \
     test_blend(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));    \
+    test_convert_to_int(                                                       \
+      VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));             \
   } while (0)
 
   TEST_FLOAT(float, 4); // 128 bit wide 4 floats
@@ -450,6 +477,8 @@ testFloat1()
 #undef INITN
 #undef ELT
 }
+
+
 template<template<class T, size_t N> class VEC>
 void
 testInt1()
@@ -487,6 +516,8 @@ testInt1()
     test_permute(VEC<T, N> INITN(                                              \
       N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
     test_blend(VEC<T, N> INITN(                                                \
+      N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
+    test_convert_to_double(VEC<T, N> INITN(                                    \
       N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
     test_int(VEC<T, N> INITN(                                                  \
       N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \

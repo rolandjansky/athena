@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -31,14 +31,12 @@ CMReprocessing::CMReprocessing(MatrixReadOut *hard, Matrix *CMsimu)
 //
   CMROCompare CMROcmp(hard,&simu);
   int outCompare = CMROcmp.diffOut();
-  DISP<<" Comparison flag = "<<outCompare<<endl
+  cout<<" Comparison flag = "<<outCompare<<endl
       <<" check Fragment = "<<simu.checkFragment()<<endl;
-  DISP_DEBUG;
 
   if(outCompare) {
    CMsimu->display();
-   DISP<<endl;
-   DISP_DEBUG;
+   cout<<endl;
   }//
   
 }//end-of-CMReprocessing

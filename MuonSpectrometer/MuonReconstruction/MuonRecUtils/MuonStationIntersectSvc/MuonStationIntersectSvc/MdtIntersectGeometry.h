@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTINTERSECTGEOMETRY_H
@@ -8,6 +8,7 @@
 #include "MuonStationIntersectSvc/MuonIntersectGeometry.h"
 #include "Identifier/Identifier.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkDriftCircleMath/MdtChamberGeometry.h"
 
 class MsgStream;
 namespace MuonGM {
@@ -34,7 +35,7 @@ namespace Muon {
     
     const Amg::Transform3D& transform() const { return m_transform; }
 
-    const TrkDriftCircleMath::MdtChamberGeometry* mdtChamberGeometry() const { return m_mdtGeometry; }
+    const TrkDriftCircleMath::MdtChamberGeometry* mdtChamberGeometry() const { return m_mdtGeometry.get(); }
 
     const Identifier& chamberId() const { return m_chid; }
   private:
@@ -42,16 +43,16 @@ namespace Muon {
     void init(MsgStream* msg);
     void fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream* msg);
 
-    Identifier                              m_chid;
+    Identifier                              m_chid{};
     Amg::Transform3D                        m_transform;
-    TrkDriftCircleMath::MdtChamberGeometry* m_mdtGeometry;
-    const MuonGM::MdtReadoutElement*        m_detElMl0{};
-    const MuonGM::MdtReadoutElement*        m_detElMl1{};
-    const MuonGM::MuonDetectorManager*      m_detMgr; // cannot use ReadCondHandleKey since no athena component
-    const MdtCondDbData*                    m_dbData;
-    const Muon::IMuonIdHelperSvc*           m_idHelperSvc;
-    std::set<Identifier>                    m_deadTubesML;
-    std::vector<Identifier>                 m_deadTubes;
+    std::unique_ptr<TrkDriftCircleMath::MdtChamberGeometry> m_mdtGeometry{};
+    const MuonGM::MdtReadoutElement*        m_detElMl0{nullptr};
+    const MuonGM::MdtReadoutElement*        m_detElMl1{nullptr};
+    const MuonGM::MuonDetectorManager*      m_detMgr{nullptr}; // cannot use ReadCondHandleKey since no athena component
+    const MdtCondDbData*                    m_dbData{nullptr};
+    const Muon::IMuonIdHelperSvc*           m_idHelperSvc{nullptr};
+    std::set<Identifier>                    m_deadTubesML{};
+    std::vector<Identifier>                 m_deadTubes{};
   };
 
 }

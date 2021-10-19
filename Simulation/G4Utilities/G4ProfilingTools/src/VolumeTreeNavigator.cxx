@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ void VolumeTreeNavigator::SetDepthCutSimple(const int CALO, const int BeamPipe, 
       string name = stringify(m_history[1].first->GetName());
       if (name == "CALO::CALO")			cut = CALO+1;
       else if (name == "BeamPipe::BeamPipe")	cut = BeamPipe+1;
-      else if (name == "IDET::IDET")		cut = IDET+1;
+      else if (name == "IDET::IDET" || name == "ITK::ITK")		cut = IDET+1;
       else if (name == "MUONQ02::MUONQ02")	cut = MUONQ02+1;
       else { log<< MSG::INFO <<"Level 1 volume not found, output default depth"<< endmsg; }
   }

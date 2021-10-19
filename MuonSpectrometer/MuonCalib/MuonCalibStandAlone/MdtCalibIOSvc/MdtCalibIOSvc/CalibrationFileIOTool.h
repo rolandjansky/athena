@@ -8,13 +8,13 @@
 // MuonCalibStandAloneBase
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 
 namespace MuonCalib {
 
     class RtRelation;
 
-    class CalibrationFileIOTool : public AthAlgTool, virtual public CalibrationIOTool {
+    class CalibrationFileIOTool : public AthAlgTool, virtual public ICalibrationIOTool {
     public:
         /** constructor*/
         CalibrationFileIOTool(const std::string &t, const std::string &n, const IInterface *p);

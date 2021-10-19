@@ -55,7 +55,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::initialize()
   ATH_CHECK( m_primaryVertexKey.initialize() );
   ATH_CHECK( m_photonKey.initialize() );
   ATH_CHECK( m_diphotonVertexKey.initialize() );
-  ATH_CHECK( m_PFOContainerHandleKey.initialize() );
+  ATH_CHECK( m_FEContainerHandleKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -69,7 +69,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
 
   SG::ReadHandle<xAOD::VertexContainer> PV (m_primaryVertexKey);
 
-  if (PV->size() && PV->at(0)) {
+  if (!PV->empty() && PV->at(0)) {
     ATH_MSG_DEBUG( "Default PV " << PV->at(0) << ", type = " << PV->at(0)->vertexType() << " , z = " << PV->at(0)->z()  );
   } 
   
@@ -100,17 +100,17 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   std::vector<std::pair<const xAOD::Vertex*, float> > vxResult;
   const xAOD::Vertex *newPV = nullptr;
 
-  SG::ReadHandle<xAOD::PFOContainer> PFOHandle(m_PFOContainerHandleKey);
-  for(const auto& pfo : *PFOHandle) pfo->auxdecor<char>("passOR") = true;
+  SG::ReadHandle<xAOD::FlowElementContainer> FEHandle(m_FEContainerHandleKey);
+  for(const auto *const fe : *FEHandle) fe->auxdecor<char>("passOR") = true;
   
   if (ph1 and ph2)
   {
     vxResult = m_photonVertexSelectionTool->getVertex( *( vertexPhotons.asDataVector()) , m_ignoreConv, &yyvertexVtxType, &vertexFailType );
-    if(vxResult.size()) {
+    if(!vxResult.empty()) {
       newPV = vxResult[0].first; //output of photon vertex selection tool must be sorted according to score
     }
-    ATH_CHECK(matchPFO(ph1,&*PFOHandle));
-    ATH_CHECK(matchPFO(ph2,&*PFOHandle));
+    ATH_CHECK(matchFlowElement(ph1,&*FEHandle));
+    ATH_CHECK(matchFlowElement(ph2,&*FEHandle));
   }
 
   // Decorate the vertices with the NN score
@@ -127,7 +127,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   if (newPV) {
     //loop over vertex container; shallow copy has the same order
     for (unsigned int iPV=0; iPV<PV->size(); iPV++) {
-      auto vx = PV->at(iPV);
+      const auto *vx = PV->at(iPV);
       auto yyvx = (HggPV.first)->at(iPV);
       //reset vertex type
       if (vx == newPV) { 
@@ -205,42 +205,42 @@ bool DerivationFramework::DiphotonVertexDecorator::PhotonPreselect(const xAOD::P
 
 }
 
-StatusCode DerivationFramework::DiphotonVertexDecorator::matchPFO(const xAOD::Photon* eg,const xAOD::PFOContainer *pfoCont) const {
+StatusCode DerivationFramework::DiphotonVertexDecorator::matchFlowElement(const xAOD::Photon* eg,const xAOD::FlowElementContainer *feCont) const {
   const xAOD::IParticle* swclus = eg->caloCluster();
 
-  // Preselect PFOs based on proximity: dR<0.4
-  std::vector<const xAOD::PFO*> nearbyPFO;
-  nearbyPFO.reserve(20);
-  for(const auto& pfo : *pfoCont) {
-    if(xAOD::P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, true)) {
-      if( ( !pfo->isCharged() && pfo->e() > FLT_MIN )) nearbyPFO.push_back(pfo);
+  // Preselect FEs based on proximity: dR<0.4
+  std::vector<const xAOD::FlowElement*> nearbyFE;
+  nearbyFE.reserve(20);
+  for(const auto *const fe : *feCont) {
+    if(xAOD::P4Helpers::isInDeltaR(*fe, *swclus, 0.4, true)) {
+      if( ( !fe->isCharged() && fe->e() > FLT_MIN )) nearbyFE.push_back(fe);
     } // DeltaR check
-  } // PFO loop
+  } // FE loop
 
   double eg_cl_e = swclus->e();
   bool doSum = true;
-  double sumE_pfo = 0.;
-  const xAOD::IParticle* bestbadmatch = 0;
-  std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
-  for(const auto& pfo : nearbyPFO) {
-    if(!xAOD::P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, true)) {continue;}
-    // Handle neutral PFOs like topoclusters
-    double pfo_e = pfo->eEM();
+  double sumE_fe = 0.;
+  const xAOD::IParticle* bestbadmatch = nullptr;
+  std::sort(nearbyFE.begin(),nearbyFE.end(),greaterPtFlowElement);
+  for(const auto& fe : nearbyFE) {
+    if(!xAOD::P4Helpers::isInDeltaR(*fe, *swclus, m_tcMatch_dR, true)) {continue;}
+    // Handle neutral FEs like topoclusters
+    double fe_e = fe->e();
     // skip cluster if it's above our bad match threshold or outside the matching radius
-    if(pfo_e>m_tcMatch_maxRat*eg_cl_e) {
-      ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (pfo_e/eg_cl_e));
-      if( !bestbadmatch || (std::abs(pfo_e/eg_cl_e-1.) < std::abs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = pfo;
+    if(fe_e>m_tcMatch_maxRat*eg_cl_e) {
+      ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (fe_e/eg_cl_e));
+      if( !bestbadmatch || (std::abs(fe_e/eg_cl_e-1.) < std::abs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = fe;
       continue;
     }
 
-    ATH_MSG_VERBOSE("E match with new nPFO: " << std::abs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
-    if( (doSum = std::abs(sumE_pfo+pfo_e-eg_cl_e) < std::abs(sumE_pfo - eg_cl_e)) ) {
-      pfo->auxdecor<char>("passOR") = false;
-      sumE_pfo += pfo_e;
+    ATH_MSG_VERBOSE("E match with new nFE: " << std::abs(sumE_fe+fe_e - eg_cl_e) / eg_cl_e);
+    if( (doSum = std::abs(sumE_fe+fe_e-eg_cl_e) < std::abs(sumE_fe - eg_cl_e)) ) {
+      fe->auxdecor<char>("passOR") = false;
+      sumE_fe += fe_e;
     } // if we will retain the topocluster
     else {break;}
   } // loop over nearby clusters
-  if(sumE_pfo<FLT_MIN && bestbadmatch) {
+  if(sumE_fe<FLT_MIN && bestbadmatch) {
     bestbadmatch->auxdecor<char>("passOR") = false;
   }
 

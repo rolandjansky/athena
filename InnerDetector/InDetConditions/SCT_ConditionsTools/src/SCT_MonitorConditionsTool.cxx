@@ -215,7 +215,7 @@ SCT_MonitorConditionsTool::getList(const Identifier& moduleId, const EventContex
 ///////////////////////////////////////////////////////////////////////////////////
 
 void
-SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int>& rangeList) const {
+SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int>& rangeList) {
   // Expand a given defect range
   // Find separator
   std::string::size_type sepPos{rangeStr.find(s_separator)};
@@ -236,7 +236,7 @@ SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int
 ///////////////////////////////////////////////////////////////////////////////////
 
 void
-SCT_MonitorConditionsTool::expandList(const std::string& defectStr, std::set<int>& defectList) const {
+SCT_MonitorConditionsTool::expandList(const std::string& defectStr, std::set<int>& defectList) {
   // Expand a given defect list
 
   // Empty list or one without numbers

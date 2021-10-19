@@ -5,9 +5,6 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 def tauMonitoringCaloOnly():
    monTool = GenericMonitoringTool('MonTool')
 
-   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
    monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5)
    monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
@@ -22,16 +19,9 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
    monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
    monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.)
-   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5)
-   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5)
-   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.)
-   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
-   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
-   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
-   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.4, xmax=0.4)
+   monTool.defineHistogram('EtFinal', path='EXPERT', type='TH1F', title="Et Final; Et Final; nRoIs", xbins=100, xmin=0, xmax=1000)
+   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.15, xmax=0.15)
    monTool.defineHistogram('dEtaEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI eta ; Deta; nRoIs", xbins=80, xmin=-0.4, xmax=0.4)
    monTool.defineHistogram('dEtaEFTau_RoI, dPhiEFTau_RoI', path='EXPERT', type='TH2F', title="dEta vs dPhi in TrigTauRec FEX; Delta-eta; Delta-phi",
                                                            xbins=40 , xmin=-0.2, xmax=0.2,
@@ -45,21 +35,22 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('IsoFrac', path='EXPERT', type='TH1F', title="Isolation Fraction;Isolation Fraction; nRoIs", xbins=80, xmin=-0.4, xmax=1.2)
    monTool.defineHistogram('centFrac', path='EXPERT', type='TH1F', title="EF central Fraction;central Fraction; nRoIs", xbins=80, xmin=-0.4, xmax=1.2)
    monTool.defineHistogram('nCand', path='EXPERT', type='TH1F', title="Number of tau candidates;Number of tau candidates; nevents", xbins=10, xmin=-1.0, xmax=9.)
-   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
-
-   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
-   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-      
-   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120) 
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Et Final vs Eta EF; Et Final; Eta EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-2.6, ymax=2.6)
+   monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Et Final vs Phi EF; Et Final; Phi EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-3.2, ymax=3.2)
 
    return monTool
 
@@ -67,9 +58,6 @@ def tauMonitoringCaloOnly():
 def tauMonitoringCaloOnlyMVA():
    monTool = GenericMonitoringTool('MonTool')
   
-   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
    monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5) 
    monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
@@ -84,15 +72,13 @@ def tauMonitoringCaloOnlyMVA():
    monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
    monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
    monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.)
-   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5)
-   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5)
-   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.)
-   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
-   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
-   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
+   monTool.defineHistogram('EtFinal', path='EXPERT', type='TH1F', title="Et Final; Et Final; nRoIs", xbins=100, xmin=0, xmax=1000)
+   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.15, xmax=0.15)
+   monTool.defineHistogram('dEtaEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI eta ; Deta; nRoIs", xbins=80, xmin=-0.4, xmax=0.4)
+   monTool.defineHistogram('dEtaEFTau_RoI, dPhiEFTau_RoI', path='EXPERT', type='TH2F', title="dEta vs dPhi in TrigTauRec FEX; Delta-eta; Delta-phi",
+                                                           xbins=40 , xmin=-0.2, xmax=0.2,
+                                                           ybins=40 , ymin=-0.2, ymax=0.2)
    monTool.defineHistogram('EMRadius', path='EXPERT', type='TH1F', title="EF EMRadius; EM radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
    monTool.defineHistogram('HadRadius', path='EXPERT', type='TH1F', title="EF HadRadius; Had radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
    monTool.defineHistogram('EtHad, EtEm', path='EXPERT', type='TH2F', title="EF Et had vs Em in TrigTauRecMerged FEX; Et Had (at EM scale) [GeV]; Et EM (at EM scale) [GeV]",
@@ -102,20 +88,22 @@ def tauMonitoringCaloOnlyMVA():
    monTool.defineHistogram('IsoFrac', path='EXPERT', type='TH1F', title="Isolation Fraction;Isolation Fraction; nRoIs", xbins=80, xmin=-0.4, xmax=1.2)
    monTool.defineHistogram('centFrac', path='EXPERT', type='TH1F', title="EF central Fraction;central Fraction; nRoIs", xbins=80, xmin=-0.4, xmax=1.2)
    monTool.defineHistogram('nCand', path='EXPERT', type='TH1F', title="Number of tau candidates;Number of tau candidates; nevents", xbins=10, xmin=-1.0, xmax=9.)
-   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
-   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-
-   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Et Final vs Eta EF; Et Final; Eta EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-2.6, ymax=2.6)
+   monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Et Final vs Phi EF; Et Final; Phi EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-3.2, ymax=3.2)
 
    return monTool
 
@@ -124,9 +112,6 @@ def tauMonitoringPreselection():
 
    monTool = GenericMonitoringTool('MonTool')
    
-   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
    monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5)
    monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
@@ -148,10 +133,10 @@ def tauMonitoringPreselection():
    monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
    monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
    monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('nRoI_EFTauTracks', path='EXPERT', type='TH1F', title="EF N RoI Tracks; N Tracks; nRoIs", xbins=17, xmin=-2.0, xmax=15.)
-   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.4, xmax=0.4)
+   monTool.defineHistogram('EtFinal', path='EXPERT', type='TH1F', title="Et Final; Et Final; nRoIs", xbins=100, xmin=0, xmax=1000)
+   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.15, xmax=0.15)
    monTool.defineHistogram('dEtaEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI eta ; Deta; nRoIs", xbins=80, xmin=-0.4, xmax=0.4)
    monTool.defineHistogram('dEtaEFTau_RoI, dPhiEFTau_RoI', path='EXPERT', type='TH2F', title="dEta vs dPhi in TrigTauRec FEX; Delta-eta; Delta-phi",
                                                            xbins=40 , xmin=-0.2, xmax=0.2,
@@ -177,21 +162,22 @@ def tauMonitoringPreselection():
    monTool.defineHistogram('ChPiEMEOverCaloEME', path='EXPERT', type='TH1F', title="EF EM energy of charged pions over calorimetric EM energy;ChPiEME over CaloEME; nRoIs", xbins=40, xmin=-20., xmax=20.)
    monTool.defineHistogram('innerTrkAvgDist', path='EXPERT', type='TH1F', title="EF inner track average distance; innerTrkAvgDist; nRoIs", xbins=40, xmin=-0.05, xmax=0.5)
    monTool.defineHistogram('nCand', path='EXPERT', type='TH1F', title="Number of tau candidates;Number of tau candidates; nevents", xbins=10, xmin=-1.0, xmax=9.)
-   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
-
-   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
-   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-
-   monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120) 
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Et Final vs Eta EF; Et Final; Eta EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-2.6, ymax=2.6)
+   monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Et Final vs Phi EF; Et Final; Phi EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-3.2, ymax=3.2)
 
    return monTool
 
@@ -200,9 +186,6 @@ def tauMonitoringPrecision():
 
    monTool = GenericMonitoringTool('MonTool')
 
-   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
    monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5) 
    monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
@@ -224,10 +207,10 @@ def tauMonitoringPrecision():
    monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
    monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
    monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('nRoI_EFTauTracks', path='EXPERT', type='TH1F', title="EF N RoI Tracks; N Tracks; nRoIs", xbins=17, xmin=-2.0, xmax=15.)
-   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.4, xmax=0.4)
+   monTool.defineHistogram('EtFinal', path='EXPERT', type='TH1F', title="Et Final; Et Final; nRoIs", xbins=100, xmin=0, xmax=1000)
+   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.15, xmax=0.15)
    monTool.defineHistogram('dEtaEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI eta ; Deta; nRoIs", xbins=80, xmin=-0.4, xmax=0.4)
    monTool.defineHistogram('dEtaEFTau_RoI, dPhiEFTau_RoI', path='EXPERT', type='TH2F', title="dEta vs dPhi in TrigTauRec FEX; Delta-eta; Delta-phi",
                                                            xbins=40 , xmin=-0.2, xmax=0.2,
@@ -253,21 +236,25 @@ def tauMonitoringPrecision():
    monTool.defineHistogram('ChPiEMEOverCaloEME', path='EXPERT', type='TH1F', title="EF EM energy of charged pions over calorimetric EM energy;ChPiEME over CaloEME; nRoIs", xbins=40, xmin=-20., xmax=20.)
    monTool.defineHistogram('innerTrkAvgDist', path='EXPERT', type='TH1F', title="EF inner track average distance; innerTrkAvgDist; nRoIs", xbins=40, xmin=-0.05, xmax=0.5)
    monTool.defineHistogram('nCand', path='EXPERT', type='TH1F', title="Number of tau candidates;Number of tau candidates; nevents", xbins=10, xmin=-1.0, xmax=9.)
-   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
- 
-   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
-   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
    monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-2, xmax=0)
    monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
+   monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Et Final vs Eta EF; Et Final; Eta EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-2.6, ymax=2.6)
+   monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Et Final vs Phi EF; Et Final; Phi EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-3.2, ymax=3.2)
 
    return monTool
 
@@ -275,9 +262,6 @@ def tauMonitoringPrecision():
 def tauMonitoringPrecisionMVA():
    monTool = GenericMonitoringTool('MonTool')
 
-   monTool.defineHistogram('beamspot_x',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_y',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_z',path='EXPERT', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
    monTool.defineHistogram('track_errors',path='EXPERT', type='TH1F', title=" EF Track Errors ; nRoIs", xbins=2, xmin=-0.5, xmax=1.5)
    monTool.defineHistogram('calo_errors',path='EXPERT', type='TH1F', title=" EF Calo Errors ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5)
    monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
@@ -299,10 +283,10 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
    monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
    monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('nRoI_EFTauTracks', path='EXPERT', type='TH1F', title="EF N RoI Tracks; N Tracks; nRoIs", xbins=17, xmin=-2.0, xmax=15.)
-   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.4, xmax=0.4)
+   monTool.defineHistogram('EtFinal', path='EXPERT', type='TH1F', title="Et Final; Et Final; nRoIs", xbins=100, xmin=0, xmax=1000)
+   monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.15, xmax=0.15)
    monTool.defineHistogram('dEtaEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI eta ; Deta; nRoIs", xbins=80, xmin=-0.4, xmax=0.4)
    monTool.defineHistogram('dEtaEFTau_RoI, dPhiEFTau_RoI', path='EXPERT', type='TH2F', title="dEta vs dPhi in TrigTauRec FEX; Delta-eta; Delta-phi",
                                                            xbins=40 , xmin=-0.2, xmax=0.2,
@@ -328,21 +312,27 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('ChPiEMEOverCaloEME', path='EXPERT', type='TH1F', title="EF EM energy of charged pions over calorimetric EM energy;ChPiEME over CaloEME; nRoIs", xbins=40, xmin=-20., xmax=20.)
    monTool.defineHistogram('innerTrkAvgDist', path='EXPERT', type='TH1F', title="EF inner track average distance; innerTrkAvgDist; nRoIs", xbins=40, xmin=-0.05, xmax=0.5)
    monTool.defineHistogram('nCand', path='EXPERT', type='TH1F', title="Number of tau candidates;Number of tau candidates; nevents", xbins=10, xmin=-1.0, xmax=9.)
-   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                            xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=100, xmin=-2.6, xmax=2.6)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=100, xmin=-3.2, xmax=3.2)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
-                                           ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
-
-   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
-   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-
+                                           xbins=100, xmin=-2.6, xmax=2.6,
+                                           ybins=100, ymin=-3.2, ymax=3.2)
    monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF ROI Vertex x; Vertex x; nROIS", xbins=100, xmin=-1, xmax=1)
-   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-1, xmax=1)
+   monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF ROI Vertex y; Vertex y; nROIS", xbins=100, xmin=-2, xmax=0)
    monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF ROI Vertex z; Vertex z; nROIS", xbins=120, xmin=-120, xmax=120)
+   monTool.defineHistogram('RNNJetScore', path='EXPERT', type='TH1F', title="EF RNN score; RNN score; nTaus", xbins=40, xmin=0, xmax=1) 
+   monTool.defineHistogram('RNNJetScoreSigTrans', path='EXPERT', type='TH1F', title="EF RNN score; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Et Final vs Eta EF; Et Final; Eta EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-2.6, ymax=2.6)
+   monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Et Final vs Phi EF; Et Final; Phi EF",
+                                                           xbins=100 , xmin=0, xmax=1000,
+                                                           ybins=100, ymin=-3.2, ymax=3.2)
 
    return monTool
 

@@ -34,12 +34,11 @@ StatusCode DerivationFramework::MuonJetDrTool::addBranches() const
 
   // Set up the decorator
   SG::AuxElement::Decorator<float> decorator_jetdR("DFCommonJetDr"); 
-  SG::AuxElement::ConstAccessor<float> acc_pt("DFCommonJets_Calib_pt"); 
 
   for (auto muon : *muons) {
     float new_jetdR = -1;
     for (auto jet : *jets) {
-      if (acc_pt(*jet)>m_jetMinPt && (new_jetdR<0 || xAOD::P4Helpers::deltaR(jet,muon)<new_jetdR)) new_jetdR = xAOD::P4Helpers::deltaR(jet,muon);
+      if (jet->pt()>m_jetMinPt && (new_jetdR<0 || xAOD::P4Helpers::deltaR(jet,muon)<new_jetdR)) new_jetdR = xAOD::P4Helpers::deltaR(jet,muon);
     }
     decorator_jetdR(*muon) = new_jetdR;
   }

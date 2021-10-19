@@ -53,6 +53,12 @@ if hasattr(runArgs,"doG4Hits"):
 else:
     doG4Hits = False
 
+## Flag for doClusterInfo
+if hasattr(runArgs,"doClusterInfo"):
+    doClusterInfo = runArgs.doClusterInfo
+else:
+    doClusterInfo = False
+
 ## Flag for saveAllBranches
 if hasattr(runArgs, "saveAllBranches"):
     saveAllBranches = runArgs.saveAllBranches

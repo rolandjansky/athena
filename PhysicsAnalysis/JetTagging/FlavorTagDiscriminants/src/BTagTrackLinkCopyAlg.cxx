@@ -2,10 +2,13 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "xAODBTagging/BTaggingContainer.h"
 #include "FlavorTagDiscriminants/BTagTrackLinkCopyAlg.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
 #include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/ReadDecorHandle.h"
-#include "xAODTracking/TrackParticleContainer.h"
 
 namespace FlavorTagDiscriminants {
   BTagTrackLinkCopyAlg::BTagTrackLinkCopyAlg(

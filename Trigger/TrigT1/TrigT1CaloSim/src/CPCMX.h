@@ -29,7 +29,6 @@
 
 #include "TrigConfData/L1Menu.h"
 
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloEvent/CMXCPTob.h"
 #include "TrigT1CaloEvent/CPCMXTopoData.h"
 #include "TrigT1CaloEvent/CMXCPHits.h"
@@ -72,7 +71,7 @@
    StatusCode initialize() ;
    StatusCode execute() ;
 
- private: // Private methods
+ private:
    /** Store CTP SLink data objects in the TES. */
 //   void storeCTPData();
    /** Store L1Topo inputs in the TES */
@@ -80,10 +79,7 @@
    /** Store DAQ objects in the TES */
 //   void storeReadoutObjects();
 
-  /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu();
-  
- private: // Private attributes
+ private:
 
    /** Where to store the CMXCPHits (for CMX readout simulation) */
    SG::WriteHandleKey<DataVector<CMXCPHits>> m_CMXCPHitsLocation { this, "CMXCPHitsLocation", TrigT1CaloDefs::CMXCPHitsLocation};
@@ -99,8 +95,6 @@
    SG::ReadHandleKey<DataVector<LVL1::CPMCMXData>> m_CPMCMXDataLocation { this, "CPMCMXDataLocation", TrigT1CaloDefs::CPMCMXDataLocation};
    
    SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
-    this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
    
    /** Topo format parameters */
    static const int s_SourceLocal = 3;

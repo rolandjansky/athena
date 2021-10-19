@@ -77,8 +77,8 @@ namespace xAOD {
       static const float s_tobEtScale;
       static const float s_towerEtaWidth;
       static const float s_towerPhiWidth;
-      static const float s_minEta;
-
+      static const std::vector<int> s_FWD_EtaPosition; 
+      static const std::vector<int> s_FCAL_EtaPosition; 
 
       // Data locations within word 
       static const int s_satBit =0;
@@ -93,6 +93,9 @@ namespace xAOD {
       static const int s_phiMask  = 0xf;
       //static const int s_resMask  = 0x7ff; 
       static const int s_satMask = 0x1; 
+      
+      float unpackTTweightEta();
+      float unpackTTweightPhi();
 
    }; // class jFexSRJetRoI_v1
 

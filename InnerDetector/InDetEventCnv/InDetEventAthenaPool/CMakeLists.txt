@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetEventAthenaPool )
@@ -43,7 +43,7 @@ atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( INDETEVENTATHENAPOOL_REFERENCE_TAG
-        InDetEventAthenaPoolReference-02-00-00 )
+        InDetEventAthenaPoolReference-03-00-00 )
    run_tpcnv_test( InDetEventTPCnv_16.6.2.1 ESD-16.6.2.1
                    REFERENCE_TAG ${INDETEVENTATHENAPOOL_REFERENCE_TAG} )
 else()

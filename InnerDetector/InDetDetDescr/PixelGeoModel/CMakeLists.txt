@@ -11,7 +11,7 @@ atlas_add_library( PixelGeoModelLib
    PixelGeoModel/*.h src/*.cxx
    PUBLIC_HEADERS PixelGeoModel
    LINK_LIBRARIES AthenaBaseComps GaudiKernel GeoModelUtilities GeometryDBSvcLib InDetGeoModelUtils
-   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel CxxUtils DetDescrConditions GeoModelInterfaces GeoPrimitives Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry ReadoutGeometryBase RDBAccessSvcLib SGTools StoreGateLib
+   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel CxxUtils DetDescrConditions GeoModelInterfaces GeoPrimitives Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib ReadoutGeometryBase RDBAccessSvcLib SGTools StoreGateLib
    PRIVATE_DEFINITIONS "-DGEOTORUS=1" )
 
 atlas_add_component( PixelGeoModel
