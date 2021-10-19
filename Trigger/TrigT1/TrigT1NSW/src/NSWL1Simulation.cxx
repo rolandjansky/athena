@@ -174,10 +174,10 @@ namespace NSWL1 {
       const Muon::NSW_PadTriggerDataContainer* padTriggerContainer;
       ATH_CHECK(evtStore()->retrieve(padTriggerContainer, m_padTriggerRdoKey.key()));
       ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
-      for (const auto &padTriggerData : *padTriggerContainer)
+      for (const Muon::NSW_PadTriggerData* padTriggerData : *padTriggerContainer)
       {
         ATH_MSG_DEBUG("  " << *padTriggerData);
-        for (const auto & padTriggerSegment : *padTriggerData)
+        for (const Muon::NSW_PadTriggerSegment* padTriggerSegment : *padTriggerData)
         {
           ATH_MSG_DEBUG("    " << *padTriggerSegment);
         }
