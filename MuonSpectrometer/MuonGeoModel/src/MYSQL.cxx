@@ -17,12 +17,14 @@
 
 namespace MuonGM {
 
-    MYSQL::MYSQL() : m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0) {
-        m_geometry_version = "unknown";
-        m_layout_name = "unknown";
-        m_amdb_version = 0;
-        m_nova_version = 0;
-        m_amdb_from_rdb = false;
+    MYSQL::MYSQL() :
+      m_geometry_version ("unknown"),
+      m_layout_name ("unknown"),
+      m_nova_version (0),
+      m_amdb_version (0),
+      m_amdb_from_rdb (false),
+      m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
+    {
         for (unsigned int i = 0; i < NTgcReadouts; i++) {
             m_tgcReadout[i] = NULL;
         }
@@ -33,15 +35,13 @@ namespace MuonGM {
         std::unique_lock l (ptr.m_mutex);
 
         // delete stations
-        std::map<std::string, Station *>::const_iterator it;
-        for (it = m_stations.begin(); it != m_stations.end(); it++) {
-            delete (*it).second;
+        for (auto& p : m_stations) {
+            delete p.second;
         }
 
         // delete m_technologies
-        std::map<std::string, Technology *>::const_iterator it1;
-        for (it1 = m_technologies.begin(); it1 != m_technologies.end(); it1++) {
-            delete (*it1).second;
+        for (auto& p : m_technologies) {
+            delete p.second;
         }
 
         // reset the pointer so that at next initialize the MYSQL object will be re-created
@@ -227,20 +227,16 @@ namespace MuonGM {
     void MYSQL::PrintAllStations() {
         MsgStream log(Athena::getMessageSvc(), "MuonGM::MYSQL");
 
-        std::map<std::string, Station *>::const_iterator it;
-        for (it = m_stations.begin(); it != m_stations.end(); it++) {
-            std::string key = (*it).first;
-            log << MSG::INFO << "---> Station  " << key << endmsg;
+        for (const auto& p : m_stations) {
+            log << MSG::INFO << "---> Station  " << p.first << endmsg;
         }
     }
 
     void MYSQL::PrintTechnologies() {
         MsgStream log(Athena::getMessageSvc(), "MuonGM::MYSQL");
 
-        std::map<std::string, Technology *>::const_iterator it;
-        for (it = m_technologies.begin(); it != m_technologies.end(); it++) {
-            std::string key = (*it).first;
-            log << MSG::INFO << "---> Technology " << key << endmsg;
+        for (const auto& p : m_technologies) {
+            log << MSG::INFO << "---> Technology " << p.first << endmsg;
         }
     }
 

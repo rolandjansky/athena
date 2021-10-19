@@ -35,18 +35,18 @@ namespace MuonGM {
         virtual const MuonDetectorManager *getDetectorManager() const override;
         MuonDetectorManager *getDetectorManager();
 
-        inline void setDBAtlasVersion(std::string v);
-        inline void setDBMuonVersion(std::string v);
-        inline void setDBkey(std::string v);
-        inline void setDBnode(std::string v);
+        inline void setDBAtlasVersion(const std::string& v);
+        inline void setDBMuonVersion(const std::string& v);
+        inline void setDBkey(const std::string& v);
+        inline void setDBnode(const std::string& v);
 
         inline void setAmdcDb(bool value);
-        inline void setLayout(std::string);
+        inline void setLayout(const std::string&);
         inline void setCutoutsFlag(int);
         inline void setCutoutsBogFlag(int);
         inline void setCtbBisFlag(int);
         inline void setRDBAccess(IRDBAccessSvc *access);
-        inline void setAltAsciiDBMap(const AltAsciiDBMap asciidbmap);
+        inline void setAltAsciiDBMap(const AltAsciiDBMap& asciidbmap);
         inline void setUseRDB(int rdb);
         inline void setControlAlines(int cA);
         inline void setMinimalGeoFlag(int minimalGeo);
@@ -54,7 +54,9 @@ namespace MuonGM {
         inline void setDumpAlines(bool cA);
         inline void setDumpCscIntAlines(bool cA);
         inline void setUseCscIntAlinesFromGM(bool cA);
-        inline void setSelection(std::vector<std::string>, std::vector<int>, std::vector<int>);
+        inline void setSelection(const std::vector<std::string>&,
+                                 const std::vector<int>&,
+                                 const std::vector<int>&);
         inline void setCachingFlag(int value);
         inline void setDumpMemoryBreakDown(bool value);
         inline void setCacheFillingFlag(int value);
@@ -110,19 +112,19 @@ namespace MuonGM {
         AltAsciiDBMap m_altAsciiDBMap;
     };
 
-    void MuonDetectorFactory001::setDBAtlasVersion(std::string v) { m_DBAtlasVersion = v; }
-    void MuonDetectorFactory001::setDBMuonVersion(std::string v) { m_DBMuonVersion = v; }
-    void MuonDetectorFactory001::setDBkey(std::string v) { m_DBkey = v; }
-    void MuonDetectorFactory001::setDBnode(std::string v) { m_DBnode = v; }
+    void MuonDetectorFactory001::setDBAtlasVersion(const std::string& v) { m_DBAtlasVersion = v; }
+    void MuonDetectorFactory001::setDBMuonVersion(const std::string& v) { m_DBMuonVersion = v; }
+    void MuonDetectorFactory001::setDBkey(const std::string& v) { m_DBkey = v; }
+    void MuonDetectorFactory001::setDBnode(const std::string& v) { m_DBnode = v; }
 
     void MuonDetectorFactory001::setAmdcDb(bool value) { m_isAmdcDb = value; }
-    void MuonDetectorFactory001::setLayout(std::string str) { m_layout = str; }
+    void MuonDetectorFactory001::setLayout(const std::string& str) { m_layout = str; }
     void MuonDetectorFactory001::setCutoutsFlag(int flag) { m_includeCutouts = flag; }
     void MuonDetectorFactory001::setCutoutsBogFlag(int flag) { m_includeCutoutsBog = flag; }
     void MuonDetectorFactory001::setCtbBisFlag(int flag) { m_includeCtbBis = flag; }
     void MuonDetectorFactory001::setUseRDB(int rdb) { m_rdb = rdb; }
     void MuonDetectorFactory001::setRDBAccess(IRDBAccessSvc *access) { m_pRDBAccess = access; }
-    void MuonDetectorFactory001::setAltAsciiDBMap(AltAsciiDBMap asciidbmap) { std::swap(m_altAsciiDBMap, asciidbmap); }
+    void MuonDetectorFactory001::setAltAsciiDBMap(const AltAsciiDBMap& asciidbmap) { m_altAsciiDBMap = asciidbmap; }
     void MuonDetectorFactory001::setControlAlines(int cA) { m_controlAlines = cA; }
     void MuonDetectorFactory001::setMinimalGeoFlag(int minimalGeo) { m_minimalGeoFlag = minimalGeo; }
     void MuonDetectorFactory001::setControlCscIntAlines(int cA) { m_controlCscIntAlines = cA; }
@@ -130,7 +132,9 @@ namespace MuonGM {
     void MuonDetectorFactory001::setDumpCscIntAlines(bool dumpAlines) { m_dumpCscIntAlines = dumpAlines; }
     void MuonDetectorFactory001::setUseCscIntAlinesFromGM(bool useIlinesFromGM) { m_useCscIntAlinesFromGM = useIlinesFromGM; }
 
-    void MuonDetectorFactory001::setSelection(std::vector<std::string> vst, std::vector<int> veta, std::vector<int> vphi) {
+    void MuonDetectorFactory001::setSelection(const std::vector<std::string>& vst,
+                                              const std::vector<int>& veta,
+                                              const std::vector<int>& vphi) {
         m_selectedStations = vst;
         m_selectedStEta = veta;
         m_selectedStPhi = vphi;

@@ -39,7 +39,8 @@ namespace MuonGM {
       public:
         Station();
         ~Station();
-        Station(const Station &s);
+        Station(const Station &s) = delete;
+        Station& operator= (const Station &s) = delete;
         Station(MYSQL& mysql, std::string name);
         void SetComponent(Component *c);
         void SetCutout(Cutout *c);
@@ -96,7 +97,6 @@ namespace MuonGM {
         std::vector<Cutout *> m_cutouts;
         PositionMap m_positions;
         AlignPosMap m_alignpositions;
-        Station &operator=(const Station &right);
     }; // class Station
 
 } // namespace MuonGM
