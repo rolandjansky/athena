@@ -463,101 +463,6 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
     return acc
 
 
-def InDetTRT_LocalOccupancyCfg(flags, name ="InDet_TRT_LocalOccupancy", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    if 'TRTCalDbTool' not in kwargs :
-        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
-        CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-        acc.addPublicTool(CalDbTool)
-        kwargs.setdefault( "TRTCalDbTool", CalDbTool )
-
-    if 'TRTStrawStatusSummaryTool' not in kwargs :
-        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-        acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-        kwargs.setdefault( "TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool )
-
-    kwargs.setdefault("isTrigger", False)
-
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
-    acc.merge( TRTStrawCondAlgCfg(flags) )
-
-    InDetTRT_LocalOccupancy = CompFactory.InDet.TRT_LocalOccupancy(name=the_name, **kwargs )
-    acc.setPrivateTools(InDetTRT_LocalOccupancy)
-    return acc
-
-def TRTToTCondAlgCfg(flags, name = "TRTToTCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className='CondAttrListVec'))
-    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue", className='CondAttrListCollection'))
-
-    TRTToTCondAlg = CompFactory.TRTToTCondAlg(  name        = name,
-                                               ToTWriteKey = "Dedxcorrection",
-                                                **kwargs)
-    acc.addCondAlgo(TRTToTCondAlg)
-    return acc
-
-def InDetTRT_dEdxToolCfg(flags, name = "InDetTRT_dEdxTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-
-    if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
-            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
-        return None
-
-    kwargs.setdefault("TRT_dEdx_isData", not flags.Input.isMC)
-
-    if 'TRT_LocalOccupancyTool' not in kwargs :
-        InDetTRT_LocalOccupancy = acc.popToolsAndMerge(InDetTRT_LocalOccupancyCfg(flags))
-        kwargs.setdefault( "TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
-
-    acc.merge(TRTToTCondAlgCfg(flags))
-    acc.setPrivateTools(CompFactory.TRT_ToT_dEdx(name = the_name, **kwargs))
-    return acc
-
-def TRTHTCondAlg(flags, name = "TRTHTCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className='CondAttrListVec'))
-    TRTHTCondAlg = CompFactory.TRTHTCondAlg(name = name, HTWriteKey = "HTcalculator", **kwargs)
-    acc.addCondAlgo(TRTHTCondAlg)
-    return acc
-    
-def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-
-    if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
-            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
-        return None
-
-    if 'TRTStrawSummaryTool' not in kwargs :
-        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-        acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-        kwargs.setdefault( "TRTStrawSummaryTool", InDetTRTStrawStatusSummaryTool)
-
-    if 'TRT_LocalOccupancyTool' not in kwargs :
-        InDetTRT_LocalOccupancy = acc.popToolsAndMerge(InDetTRT_LocalOccupancyCfg(flags))
-        acc.addPublicTool(InDetTRT_LocalOccupancy)
-        kwargs.setdefault( "TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
-
-    if 'TRT_ToT_dEdx_Tool' not in kwargs :
-        dEdxAcc = InDetTRT_dEdxToolCfg(flags)
-        if dEdxAcc is not None:
-            InDetTRT_dEdxTool = acc.popToolsAndMerge(dEdxAcc)
-            acc.addPublicTool(InDetTRT_dEdxTool)
-        else:
-            InDetTRT_dEdxTool = None
-        kwargs.setdefault( "TRT_ToT_dEdx_Tool", InDetTRT_dEdxTool)
-
-    kwargs.setdefault( "CalculateNNPid", False) #TODO fixme once the flag is there flags.InDet.doTRTPIDNN)
-
-    acc.merge(TRTHTCondAlg(flags))
-    acc.setPrivateTools(CompFactory.InDet.TRT_ElectronPidToolRun2(name = the_name, **kwargs))
-    return acc
-
-
 def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
     if 'InDetSummaryHelperTool' not in kwargs :
@@ -573,13 +478,12 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
 
     if 'TRT_ElectronPidTool' not in kwargs:
-        PIDToolAcc = InDetTRT_ElectronPidToolCfg(flags)
-        if PIDToolAcc is not None:
-            InDetTRT_ElectronPidTool = acc.popToolsAndMerge(PIDToolAcc)
-            acc.addPublicTool(InDetTRT_ElectronPidTool)
+        if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
+            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
+            kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
-            InDetTRT_ElectronPidTool = None
-        kwargs.setdefault("TRT_ElectronPidTool", InDetTRT_ElectronPidTool)
+            from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
+            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags)))
 
     if 'PixelToTPIDTool' not in kwargs :
         InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
