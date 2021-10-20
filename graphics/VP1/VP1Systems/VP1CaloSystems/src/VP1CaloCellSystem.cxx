@@ -32,6 +32,8 @@
 
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <map>
 #include <vector>
@@ -40,7 +42,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
@@ -116,7 +118,6 @@ public:
 
 	const TileInfo*            tile_info;
 	const TileCablingService*  tile_cabling;
-	LArCablingLegacyService*   lar_cabling;
 	const LArOnlineID*         lar_onlineID;
 	const ICaloBadChanTool*    calo_badchannel;
 
@@ -174,7 +175,6 @@ VP1CaloCellSystem::Clockwork::Clockwork()
  tile_hw_id(0),
  tile_info(0),
  tile_cabling(0),
- lar_cabling(0),
  lar_onlineID(0),
  calo_badchannel(0),
  calocells(0),
@@ -540,13 +540,6 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 		m_clockwork->noTileDigitsGlobal = true;
 	}
 
-	status = toolSvc()->retrieveTool("LArCablingLegacyService",m_clockwork->lar_cabling);
-	if (status.isFailure() || m_clockwork->lar_cabling == 0) {
-		messageDebug("Failed to locate LAr Cabling Legacy Service");
-		m_clockwork->lar_cabling = 0;
-		m_clockwork->noLArDigitsGlobal = true;
-	}
-
 	status = detstore->retrieve(m_clockwork->lar_onlineID,"LArOnlineID");
 	if (status.isFailure() || m_clockwork->lar_onlineID == 0) {
 		messageDebug("Failed to retrieve LAr online ID");
@@ -793,8 +786,12 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 	if(itNode2CC!=m_clockwork->node2ccMap.end()){
 		// VP1CC object found.
 
+                SG::ReadCondHandleKey<LArOnOffIdMapping> cablingKey ("LArOnOffIdMap");
+                cablingKey.initialize().ignore();
+                SG::ReadCondHandle<LArOnOffIdMapping> cabling (cablingKey);
+
 		std::string channel_string = "";
-		if ( m_clockwork->lar_cabling && m_clockwork->lar_onlineID ) {
+		if ( cabling.isValid() && m_clockwork->lar_onlineID ) {
 			VP1CC_LAr* larCC = dynamic_cast<VP1CC_LAr*>((*itNode2CC).second);
 			if(larCC) {
 				Identifier cellOffline = larCC->getID();
@@ -817,7 +814,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 
 				HWIdentifier hwId;
 				try {
-					hwId = m_clockwork->lar_cabling->createSignalChannelID(cellOffline);
+					hwId = cabling->createSignalChannelID(cellOffline);
 				} catch(LArID_Exception&) {
 					message("LArID Exception caught while creating signal channel id");
 					m_clockwork->controller->ClearHideDigitForms();
@@ -853,7 +850,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 					Identifier cellOffline = larCC->getID();
 					HWIdentifier hwId;
 					try {
-						hwId = m_clockwork->lar_cabling->createSignalChannelID(cellOffline);
+						hwId = cabling->createSignalChannelID(cellOffline);
 					} catch(LArID_Exception& e) {
 						message("EXCEPTION!! LArIDException caught while creating signal channel id!!");
 						m_clockwork->controller->ClearHideDigitForms();
