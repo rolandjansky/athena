@@ -16,6 +16,8 @@
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include "emon/EventIterator.h"
 
+#include "TrigConfData/L1Menu.h"
+
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
@@ -90,6 +92,9 @@ private:
    Gaudi::Property<bool>                      m_corrupted_events{this, "ProcessCorruptedEvents", false, &ByteStreamEmonInputSvc::updateHandler, "Process corrupted events not passing check_tree()"};
    Gaudi::Property<std::string>              m_state{this, "State", "None", "Read-only property showing the state"};
    Gaudi::Property<bool>                      m_convertEfficiency{this, "ConvertEfficiency", true, "Convert TEfficiency to TProfile before publishing"};
+
+   // Data handles
+   SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "Name of the L1Menu object to read configuration from"};
 
    // internal
    bool                      m_connect{false};
