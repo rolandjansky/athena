@@ -217,7 +217,9 @@ namespace top {
                       "Latest");
     registerParameter("METMuonPFlowBugfix", "Whether to run MET bugfix for muon-PFlow jet overlap removal.", "True",
                       {"True", "False"});
-
+    registerParameter("METSignificanceSoftTermParam",
+                      "String that sets the type of resolutions that are used for the soft term, Random(met::Random), PthardParam(met::PthardParam), TSTParam(met::TSTParam)",
+                      "Random", {"Random", "PthardParam", "TSTParam"});
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 25 GeV.",
                       "25000.");

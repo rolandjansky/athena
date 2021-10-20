@@ -29,6 +29,7 @@
 
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+#include "METInterface/IMETSignificance.h"
 
 namespace xAOD {
   class SystematicEvent;
@@ -77,6 +78,7 @@ namespace top {
 
     ToolHandle<IMETMaker> m_met_maker;
     ToolHandle<IMETSystematicsTool> m_met_systematics;
+    ToolHandle<IMETSignificance> m_metSignif;
   };
 }
 

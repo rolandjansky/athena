@@ -1626,6 +1626,14 @@ namespace top {
       }
     }
 
+    inline virtual void METSignifSoftTermParam(const std::string& METSignifSoftTermParam) {
+      if (!m_configFixed) {
+        m_METSignifSoftTermParam = METSignifSoftTermParam;
+      }
+    }
+
+    inline virtual const std::string& METSignifSoftTermParam() const {return m_METSignifSoftTermParam;}
+
     inline virtual bool METMuonPFlowBugfix() const {return m_METMuonPFlowBugfix;}
 
     // Tau configuration setters
@@ -2580,7 +2588,8 @@ namespace top {
     std::string m_METUncertaintiesConfigDir; //Path prefix for directory with MET calibration configs
 
     bool m_METMuonPFlowBugfix; // bugfix for muon-PFlow jet OR in MET
-    
+    std::string m_METSignifSoftTermParam; // METSignificance Soft term parameter
+
     //Ghost tracks quality
     float m_ghostTrackspT;
     std::string m_ghostTracksVertexAssociation;
