@@ -25,10 +25,6 @@ ByteStreamInputSvc = Service( "ByteStreamInputSvc" )
 ByteStreamInputSvc.InputDirectory += ["/castor/cern.ch/atlas/testbeam/cbt-ec2/phys"]
 ByteStreamInputSvc.FilePrefix     += ["daq_beamDAQ_H6"]
 
-# Turn off printing for LArRoI_Map
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
-
 ToolSvc.TBByteStreamCnvTool.Dump        = FALSE
 ToolSvc.TBByteStreamCnvTool.OutputLevel = WARNING
 
