@@ -70,7 +70,6 @@ class SingleProcessThread(object):
         self.__warning_output = warning_output
         self.__info_output = info_output
         self.__error_output = error_output
-        ignore_output
         # Usual case, where no open file handle is provided
         if stdin is None:
             self.__process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
