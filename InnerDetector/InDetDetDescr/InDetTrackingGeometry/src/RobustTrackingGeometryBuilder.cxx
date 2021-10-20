@@ -131,7 +131,7 @@ StatusCode InDet::RobustTrackingGeometryBuilder::initialize()
 }
 
 
-const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers and TrackingVolume::registerColorCode methods are used.
+const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers 
 (const Trk::TrackingVolume*) const
 {
    // only one assumption: 
@@ -463,14 +463,17 @@ const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeome
           if (!(*pclIter).empty()){
             
             ATH_MSG_VERBOSE( "       -> central sector is being build." ); 
-            // create the cylinder barrel 
-            const Trk::TrackingVolume* barrel    = 
-                m_trackingVolumeCreator->createTrackingVolume((*pclIter),
-                                                              *m_materialProperties,
-                                                              lastCentralOuterR,currentCentralOuterR,
-                                                              -centralExtendZ,centralExtendZ,
-                                                              volumeBase+"::Barrel",
-                                                              binningType);
+            // create the cylinder barrel
+            Trk::TrackingVolume* barrel =
+              m_trackingVolumeCreator->createTrackingVolume(
+                (*pclIter),
+                *m_materialProperties,
+                lastCentralOuterR,
+                currentCentralOuterR,
+                -centralExtendZ,
+                centralExtendZ,
+                volumeBase + "::Barrel",
+                binningType);
             // register the color code
             barrel->registerColorCode(colorCode);                
             // cache the last ones
@@ -483,14 +486,17 @@ const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeome
           if (!(*pndlIter).empty()){
           
             ATH_MSG_VERBOSE( "       -> negative endcap is being build." );       
-            // create the cylinder barrel 
-            const Trk::TrackingVolume* negEndcap    = 
-                m_trackingVolumeCreator->createTrackingVolume((*pndlIter),
-                                                              *m_materialProperties,
-                                                              lastNegEndcapOuterR,currentEndcapOuterR,
-                                                              -overallExtendZ, -endcapMinExtend,
-                                                              volumeBase+"::NegativeEndcap",
-                                                              binningType);                
+            // create the cylinder barrel
+            Trk::TrackingVolume* negEndcap =
+              m_trackingVolumeCreator->createTrackingVolume(
+                (*pndlIter),
+                *m_materialProperties,
+                lastNegEndcapOuterR,
+                currentEndcapOuterR,
+                -overallExtendZ,
+                -endcapMinExtend,
+                volumeBase + "::NegativeEndcap",
+                binningType);
             // register the color code
             negEndcap->registerColorCode(colorCode);                
             // cache the last ones
@@ -502,14 +508,17 @@ const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeome
           if (!(*ppdlIter).empty()){
           
             ATH_MSG_VERBOSE( "       -> positive endcap is being build." );          
-            // create the cylinder barrel 
-            const Trk::TrackingVolume* posEndcap    = 
-                m_trackingVolumeCreator->createTrackingVolume((*ppdlIter),
-                                                              *m_materialProperties,
-                                                              lastPosEndcapOuterR,currentEndcapOuterR,
-                                                              endcapMinExtend,overallExtendZ,
-                                                              volumeBase+"::PositiveEndcap",
-                                                              binningType);                
+            // create the cylinder barrel
+            Trk::TrackingVolume* posEndcap =
+              m_trackingVolumeCreator->createTrackingVolume(
+                (*ppdlIter),
+                *m_materialProperties,
+                lastPosEndcapOuterR,
+                currentEndcapOuterR,
+                endcapMinExtend,
+                overallExtendZ,
+                volumeBase + "::PositiveEndcap",
+                binningType);
             // register the color code
             posEndcap->registerColorCode(colorCode);                
             // cache the last ones
@@ -630,7 +639,7 @@ StatusCode InDet::RobustTrackingGeometryBuilder::finalize()
 }
 
 
-const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilder::packVolumeTriple ATLAS_NOT_THREAD_SAFE ( // Thread unsafe TrackingVolume::registerColorCode method is use.
+const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilder::packVolumeTriple ATLAS_NOT_THREAD_SAFE (
                                      const std::vector<const Trk::Layer*>& negLayers,
                                      const std::vector<const Trk::Layer*>& centralLayers,
                                      const std::vector<const Trk::Layer*>& posLayers,
@@ -646,55 +655,66 @@ const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilder::packVolumeTripl
   
   // create the strings
   std::string volumeBase = m_namespace+"Detectors::"+baseName;
-  
-  const Trk::TrackingVolume* negativeVolume = 
-       m_trackingVolumeCreator->createTrackingVolume(negLayers,
-                                                     *m_materialProperties,
-                                                     rMin,rMax,
-                                                     -zMax,-zPosCentral,
-                                                     volumeBase+"::NegativeEndcap",
-                                                     bintyp);
-                                                                
-  const Trk::TrackingVolume* centralVolume = 
-         m_trackingVolumeCreator->createTrackingVolume(centralLayers,
-                                                       *m_materialProperties,
-                                                       rMin,rMax,
-                                                       -zPosCentral,zPosCentral,
-                                                       volumeBase+"::Barrel",
-                                                       bintyp);
-                                                       
-   const Trk::TrackingVolume* positiveVolume = 
-         m_trackingVolumeCreator->createTrackingVolume(posLayers,
-                                                       *m_materialProperties,
-                                                       rMin,rMax,
-                                                       zPosCentral,zMax,
-                                                       volumeBase+"::PositiveEndcap",
-                                                       bintyp);
-   
-   // the base volumes have been created
-   ATH_MSG_VERBOSE('\t' << '\t'<< "Volumes have been created, now pack them into a triple.");
-   // registerColorCode                                                   
-   negativeVolume->registerColorCode(colorCode);   
-   centralVolume->registerColorCode(colorCode);
-   positiveVolume->registerColorCode(colorCode);
-                                                         
-   // pack them together
-   std::vector<const Trk::TrackingVolume*> tripleVolumes;
-   tripleVolumes.push_back(negativeVolume);
-   tripleVolumes.push_back(centralVolume);
-   tripleVolumes.push_back(positiveVolume);
-   
-   // create the tiple container
-   const Trk::TrackingVolume* tripleContainer = 
-         m_trackingVolumeCreator->createContainerTrackingVolume(tripleVolumes,
-                                                                *m_materialProperties,
-                                                                volumeBase,
-                                                                m_buildBoundaryLayers,
-                                                                m_replaceJointBoundaries);
-                                                                
-   ATH_MSG_VERBOSE( '\t' << '\t'<< "Created container volume with bounds: " << tripleContainer->volumeBounds() );
-                                                                
-   return tripleContainer;
+
+  Trk::TrackingVolume* negativeVolume =
+    m_trackingVolumeCreator->createTrackingVolume(negLayers,
+                                                  *m_materialProperties,
+                                                  rMin,
+                                                  rMax,
+                                                  -zMax,
+                                                  -zPosCentral,
+                                                  volumeBase +
+                                                    "::NegativeEndcap",
+                                                  bintyp);
+
+  Trk::TrackingVolume* centralVolume =
+    m_trackingVolumeCreator->createTrackingVolume(centralLayers,
+                                                  *m_materialProperties,
+                                                  rMin,
+                                                  rMax,
+                                                  -zPosCentral,
+                                                  zPosCentral,
+                                                  volumeBase + "::Barrel",
+                                                  bintyp);
+
+  Trk::TrackingVolume* positiveVolume =
+    m_trackingVolumeCreator->createTrackingVolume(posLayers,
+                                                  *m_materialProperties,
+                                                  rMin,
+                                                  rMax,
+                                                  zPosCentral,
+                                                  zMax,
+                                                  volumeBase +
+                                                    "::PositiveEndcap",
+                                                  bintyp);
+
+  // the base volumes have been created
+  ATH_MSG_VERBOSE(
+    '\t' << '\t' << "Volumes have been created, now pack them into a triple.");
+  // registerColorCode
+  negativeVolume->registerColorCode(colorCode);
+  centralVolume->registerColorCode(colorCode);
+  positiveVolume->registerColorCode(colorCode);
+
+  // pack them together
+  std::vector<const Trk::TrackingVolume*> tripleVolumes;
+  tripleVolumes.push_back(negativeVolume);
+  tripleVolumes.push_back(centralVolume);
+  tripleVolumes.push_back(positiveVolume);
+
+  // create the tiple container
+  const Trk::TrackingVolume* tripleContainer =
+    m_trackingVolumeCreator->createContainerTrackingVolume(
+      tripleVolumes,
+      *m_materialProperties,
+      volumeBase,
+      m_buildBoundaryLayers,
+      m_replaceJointBoundaries);
+
+  ATH_MSG_VERBOSE('\t' << '\t' << "Created container volume with bounds: "
+                       << tripleContainer->volumeBounds());
+
+  return tripleContainer;
 }
 
 const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilder::packVolumeTriple(

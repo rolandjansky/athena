@@ -278,8 +278,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
     const Trk::TrackingVolume* positiveMuonBigWheel = nullptr;
     const Trk::TrackingVolume* positiveMuonOuterBuffer = nullptr;
     // volumes needed to close the geometry
-    const Trk::TrackingVolume* negBeamPipe = nullptr;
-    const Trk::TrackingVolume* posBeamPipe = nullptr;
+    Trk::TrackingVolume* negBeamPipe = nullptr;
+    Trk::TrackingVolume* posBeamPipe = nullptr;
     Trk::CylinderVolumeBounds* negBeamPipeBounds = nullptr;
     Trk::CylinderVolumeBounds* posBeamPipeBounds = nullptr;
     const Trk::TrackingVolume* enclosed = nullptr;
@@ -416,7 +416,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
 
         if (!enclosedBounds) enclosedBounds = new Trk::CylinderVolumeBounds(aLVC.m_innerBarrelRadius, m_barrelZ);
         enclosed = new Trk::TrackingVolume(nullptr, enclosedBounds, aLVC.m_muonMaterial, dummyLayers, dummyVolumes, m_entryVolume);
-        enclosed->registerColorCode(0);
+        const_cast<Trk::TrackingVolume*>(enclosed)->registerColorCode(0);
         ATH_MSG_DEBUG(" register Barrel m_entryVolume " << m_entryVolume);
     }
 
@@ -1095,10 +1095,10 @@ Muon::MuonTrackingGeometryBuilderCond::findVolumesSpan(const std::vector<std::un
     return spans;
 }
 
-const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const Trk::Volume* vol, int etaN, int phiN,
+Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const Trk::Volume* vol, int etaN, int phiN,
                                                                                 const std::string& volumeName, LocalVariablesContainer& aLVC,
                                                                                 bool hasStations) const {
-    const Trk::TrackingVolume* tVol = nullptr;
+    Trk::TrackingVolume* tVol = nullptr;
 
     unsigned int colorCode = m_colorCode;
 
@@ -1163,7 +1163,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(
                 blendVols.clear();
                 std::vector<const Trk::DetachedTrackingVolume*>* detVols = nullptr;
                 if (hasStations) { detVols = getDetachedObjects(subVol, blendVols, aLVC); }
-                const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(*subVol, aLVC.m_muonMaterial, detVols, volName);
+                Trk::TrackingVolume* sVol = new Trk::TrackingVolume(*subVol, aLVC.m_muonMaterial, detVols, volName);
                 // statistics
                 ++aLVC.m_frameNum;
                 if (detVols) aLVC.m_frameStat += detVols->size();
@@ -1257,7 +1257,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(
     return tVol;
 }
 
-const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const Trk::Volume* vol, int mode, const std::string& volumeName,
+Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const Trk::Volume* vol, int mode, const std::string& volumeName,
                                                                                 LocalVariablesContainer& aLVC, bool hasStations) const {
     ATH_MSG_VERBOSE(name() << "processing volume in mode:" << mode);
 
@@ -1266,7 +1266,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(
     //         0 ( -"- plus inner endcap H binning )
     //         0 ( -"- plus outer endcap H binning )
 
-    const Trk::TrackingVolume* tVol = nullptr;
+    Trk::TrackingVolume* tVol = nullptr;
 
     unsigned int colorCode = m_colorCode;
 
@@ -1421,7 +1421,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(
                     std::vector<const Trk::DetachedTrackingVolume*>* detVols = nullptr;
                     if (hasStations) { detVols = getDetachedObjects(subVol, blendVols, aLVC); }
 
-                    const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(*subVol, aLVC.m_muonMaterial, detVols, volName);
+                    Trk::TrackingVolume* sVol = new Trk::TrackingVolume(*subVol, aLVC.m_muonMaterial, detVols, volName);
 
                     // statistics
                     ++aLVC.m_frameNum;
@@ -1591,7 +1591,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(
                 blendVols.clear();
                 std::vector<const Trk::DetachedTrackingVolume*>* detVols = nullptr;
                 if (hasStations) { detVols = getDetachedObjects(&subVol, blendVols, aLVC); }
-                const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(subVol, aLVC.m_muonMaterial, detVols, volName);
+                Trk::TrackingVolume* sVol = new Trk::TrackingVolume(subVol, aLVC.m_muonMaterial, detVols, volName);
                 // statistics
                 ++aLVC.m_frameNum;
                 if (detVols) aLVC.m_frameStat += detVols->size();
@@ -1785,7 +1785,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processShield(
             std::vector<const Trk::DetachedTrackingVolume*>* detVols = nullptr;
             if (hasStations) { detVols = getDetachedObjects(&subVol, blendVols, aLVC); }
 
-            const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(subVol, aLVC.m_muonMaterial, detVols, volName);
+            Trk::TrackingVolume* sVol = new Trk::TrackingVolume(subVol, aLVC.m_muonMaterial, detVols, volName);
 
             // statistics
             ++aLVC.m_frameNum;
@@ -2842,7 +2842,7 @@ void Muon::MuonTrackingGeometryBuilderCond::blendMaterial(LocalVariablesContaine
                         // (*fIter)->registerColorCode(12) ;
                         if (fEncl[fIter - vv->begin()]) {
                             (*fIter)->addMaterial(*detMat, dil);
-                            if (m_colorCode == 0) (*fIter)->registerColorCode(12);
+                            if (m_colorCode == 0) const_cast<Trk::TrackingVolume*>((*fIter))->registerColorCode(12);
                             // ATH_MSG_VERBOSE((*fIter)->volumeName()<<" acquires material from "<<  (*mIter).first->name());  }
                             ATH_MSG_VERBOSE((*fIter)->volumeName() << " acquires material from " << (*viter)->name());
                         }
