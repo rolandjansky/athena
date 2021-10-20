@@ -110,9 +110,6 @@ def createTriggerFlags():
     # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
     flags.addFlag('Trigger.doNavigationSlimming', False) # Defaulting to False until validated (July 2021)
 
-    # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
-    flags.addFlag('Trigger.doTruth', False)
-
     # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
     # in either the run-2 or run-3 formats.
     def _trigConfMeta(flags):

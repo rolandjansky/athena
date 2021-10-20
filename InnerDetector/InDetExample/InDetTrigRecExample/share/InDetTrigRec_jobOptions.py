@@ -23,9 +23,7 @@ InDetTrigFlags.doPixelClusterSplitting = False
 InDetTrigFlags.doPrintConfigurables = False
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts  #noqa instantiate objects early on
 
-#moved the truth setting (can be overriden with set&lock)
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-InDetTrigFlags.doTruth = TriggerFlags.doTruth()
+InDetTrigFlags.doTruth = False
 #InDetTrigFlags.doTruth = True #set doTruth to be True to include the InDetClusterAssValidation algorithm in TrigTools/TrigInDetConfig/python/InDetSetup.py
 
 InDetTrigFlags.init()
