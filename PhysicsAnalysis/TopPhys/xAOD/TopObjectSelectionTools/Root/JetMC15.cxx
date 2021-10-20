@@ -27,6 +27,17 @@ namespace top {
   JetMC15::JetMC15(const double ptcut,
                    const double etamax) : JetMC15::JetMC15(ptcut, etamax, -1.0, true) {}
 
+  // This version of the constructor always perform JVT cut 
+  JetMC15::JetMC15(const double ptcut, const double etamax, const bool doJVTCut,
+      const float jetElectronEMFractionMin, const float jetElectronEMFractionMax, const float jetElectronEtaMax) : JetMC15::JetMC15(ptcut, etamax, -1.0, doJVTCut) {
+                m_useJetElectrons=true;
+                m_jetElectronEMFractionMin=jetElectronEMFractionMin;
+                // maximal jet-electron EM frac cut
+                m_jetElectronEMFractionMax=jetElectronEMFractionMax;
+                // maximal jet-electron eta cut
+                m_jetElectronEtaMax=jetElectronEtaMax;
+    }
+
   // DEPRECIATED - fwdJetSel string now defunct, keeping blank string input for backwards compatibility
   JetMC15::JetMC15(const double ptcut,
                    const double etamax,
@@ -38,6 +49,24 @@ namespace top {
                    const double) : JetMC15::JetMC15(ptcut, etamax) {}
 
   bool JetMC15::passSelection(const xAOD::Jet& jet) {
+    // jet electrons
+    bool JetElectron=false;
+    if (m_useJetElectrons) {
+      JetElectron = true;
+      
+      if (jet.pt() < m_ptcut)
+        JetElectron = false;
+      if (std::fabs(jet.eta()) > m_jetElectronEtaMax)
+        JetElectron = false;
+      
+      if (std::fabs(jet.eta()) > 1.37 && std::fabs(jet.eta()) < 1.52)
+        JetElectron = false;
+      
+      float emfrac = jet.auxdataConst<float>("EMFrac");
+      if( emfrac > m_jetElectronEMFractionMax || emfrac < m_jetElectronEMFractionMin )
+        JetElectron = false;
+    }
+
     if (m_applyJVTCut) {
       jet.auxdecor<char>("passJVT") = (m_jvt_tool->passesJvtCut(jet) ? 1 : 0);
     }
@@ -46,6 +75,14 @@ namespace top {
     if (jet.pt() < m_ptcut) return false;
 
     if (std::fabs(jet.eta()) > m_etamax) return false;
+
+    // decorating with jet-electron flag
+    if (m_useJetElectrons) {
+      if(JetElectron)
+        jet.auxdecor<int>("jet_electron")  = 1;
+      else
+        jet.auxdecor<int>("jet_electron")  = 0;
+    }
 
     if (m_appyMassCut) {
       if (jet.m() < m_masscut) return false;

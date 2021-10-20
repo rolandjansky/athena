@@ -159,6 +159,10 @@ namespace top {
                       "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false",
                       "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
+    registerParameter("UseJetElectrons", "Use JetElectrons for fake estimate. Default: False", "False");
+    registerParameter("JetElectronEMFractionMin", "Minimum EM fraction for JetElectrons. Default: 0.8", "0.8");
+    registerParameter("JetElectronEMFractionMax", "Maximum EM fraction for JetElectrons. Default: 0.95", "0.95");
+    registerParameter("JetElectronEtaMax", "Maximum eta absolute value for jet-electrons. Default: 2.47", "2.47");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
     registerParameter("SoftMuonEta", "Absolute Soft Muon eta cut for object selection. Default 2.5.", "2.5");

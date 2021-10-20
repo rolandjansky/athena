@@ -118,7 +118,14 @@ namespace top {
 
     ///-- Jets --///
     if (topConfig->useJets()) {
-      objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut()));
+      if (topConfig->useJetElectrons()) {// special instance for jet-electrons
+        objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut(),
+            true,//do JVT cut
+            topConfig->jetElectronEMFractionMin(), topConfig->jetElectronEMFractionMax(), topConfig->jetElectronEtaMax()));
+      }
+      else {
+        objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut()));
+      }
     }
 
     ///-- Large R Jets --///

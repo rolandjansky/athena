@@ -32,6 +32,23 @@ namespace top {
     /**
      * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
      *
+     * This version of the constructor is for using the jet-electron model
+     * This would add a flag to each jet to tell if the jet passes the jet-electron cuts
+     *
+     * @param ptcut The minimum pT to accept good jets.
+     * @param etamax The maximum eta cut.
+     * @param minmass The minimum mass to accept good jets.
+     * @param doJVTCut To perform JVT cut - should be false for small-R jets
+     * @param jetElectronEMFractionMin Minimal EM frac value for jet-electrons
+     * @param jetElectronEMFractionMax Maximal EM frac value for jet-electrons
+     * @param jetElectronEtaMax Maximal absolute eta value for jet-electrons
+     */
+    JetMC15(const double ptcut, const double etamax, const bool doJVTCut,
+            const float jetElectronEMFractionMin, const float jetElectronEMFractionMax, const float jetElectronEtaMax);
+
+    /**
+     * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
+     *
      * This version of the constructor always perform JVT cut
      *
      * @param ptcut The minimum pT to accept good jets.
@@ -42,7 +59,7 @@ namespace top {
     /**
      * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
      *
-     * DEPRECIATED - Only kept for backwards compatibility, to stop external extensions from crashing, please use above forms
+     * DEPRECATED - Only kept for backwards compatibility, to stop external extensions from crashing, please use above forms
      *
      * @param ptcut The minimum pT to accept good jets.
      * @param etamax The maximum eta cut.
@@ -83,6 +100,16 @@ namespace top {
 
     // The upper eta cut.
     double m_etamax;
+
+    /// jet-electron parameters
+    // jet-electrons not used by default
+    bool m_useJetElectrons=false;
+    // minimal jet-electron EM frac cut
+    float m_jetElectronEMFractionMin;
+    // maximal jet-electron EM frac cut
+    float m_jetElectronEMFractionMax;
+    // maximal jet-electron eta cut
+    float m_jetElectronEtaMax;
 
     // The lower mass cut threshold to apply on the object.
     // if negative, do not apply mass cut

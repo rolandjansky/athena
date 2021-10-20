@@ -980,7 +980,7 @@ namespace top {
       if (m_config->useMuons()) systematicTree->makeOutputVariable(m_hasBadMuon, "hasBadMuon");
 
       //electrons
-      if (m_config->useElectrons()) {
+      if (m_config->useElectrons() && !m_config->useJetElectrons()) {
         systematicTree->makeOutputVariable(m_el_pt, "el_pt");
         systematicTree->makeOutputVariable(m_el_eta, "el_eta");
         systematicTree->makeOutputVariable(m_el_cl_eta, "el_cl_eta");
@@ -1026,7 +1026,16 @@ namespace top {
 	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedVetoBARR, "PLIV_el_PromptLeptonImprovedVetoBARR");
 	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedVetoECAP, "PLIV_el_PromptLeptonImprovedVetoECAP");
 	}
-      }
+      }//end if (m_config->useElectrons() && !m_config->useJetElectrons())
+      else if (m_config->useElectrons() && m_config->useJetElectrons()) {
+        // using only a few electron branches when using jet-electron model
+        systematicTree->makeOutputVariable(m_el_pt, "el_pt");
+        systematicTree->makeOutputVariable(m_el_eta, "el_eta");
+        systematicTree->makeOutputVariable(m_el_phi, "el_phi");
+        systematicTree->makeOutputVariable(m_el_e, "el_e");
+        systematicTree->makeOutputVariable(m_el_charge, "el_charge");
+        systematicTree->makeOutputVariable(m_el_emfrac,   "el_emfrac");
+      }//end else if (m_config->useElectrons() && m_config->useJetElectrons()) {
 
       //forward electrons
       if (m_config->useFwdElectrons()) {
@@ -1180,6 +1189,11 @@ namespace top {
           systematicTree->makeOutputVariable(m_jet_DLx_pc[algo], "jet_" + algo + "_pc");
           systematicTree->makeOutputVariable(m_jet_DLx_pu[algo], "jet_" + algo + "_pu");
         }
+
+        if (m_config->useJetElectrons()) {
+          systematicTree->makeOutputVariable(m_jet_emfrac,     "jet_emfrac");
+        }
+
       }
 
       // fail-JVT jets
@@ -2399,8 +2413,17 @@ namespace top {
       }//end of loop on fwd electrons
     }//end of fwd electrons filling
 
+    //find the number of jets which are jet-electrons
+    unsigned int n_jet_electrons = 0;
+    if (m_config->useJetElectrons()) {
+        for (const auto* const jetPtr : event.m_jets) {
+            top::check(jetPtr->isAvailable<int>("jet_electron"), "Error in EventSaverFlatNtuple: Jet-electron model is used, but one jet doesn't have the jet_electron flag.");
+            if (jetPtr->auxdataConst<int>("jet_electron")) n_jet_electrons+=1;
+        }
+    }
+
     //electrons
-    if (m_config->useElectrons()) {
+    if (m_config->useElectrons() && !m_config->useJetElectrons()) {
       unsigned int i(0);
       unsigned int n_electrons = event.m_electrons.size();
       m_el_pt.resize(n_electrons);
@@ -2545,7 +2568,15 @@ namespace top {
 	}
         ++i;
       }
-    }
+    }//end if (m_config->useElectrons() && !m_config->useJetElectrons()) {
+    else if (m_config->useElectrons() && m_config->useJetElectrons()) {
+      m_el_pt.resize(n_jet_electrons);
+      m_el_eta.resize(n_jet_electrons);
+      m_el_phi.resize(n_jet_electrons);
+      m_el_e.resize(n_jet_electrons);
+      m_el_charge.resize(n_jet_electrons);
+      m_el_emfrac.resize(n_jet_electrons);
+    }//end else if (m_config->useElectrons() && m_config->useJetElectrons()) {
 
     //muons
     if (m_config->useMuons()) {
@@ -2871,21 +2902,23 @@ namespace top {
 
     }
 
-
-
     //jets
     if (m_config->useJets()) {
       unsigned int i(0);
-      m_jet_pt.resize(event.m_jets.size());
-      m_jet_eta.resize(event.m_jets.size());
-      m_jet_phi.resize(event.m_jets.size());
-      m_jet_e.resize(event.m_jets.size());
+      // reduce the size of jets by number of jet-electrons (which is 0 when jet-electrons are not used)
+      m_jet_pt.resize(event.m_jets.size()-n_jet_electrons);
+      m_jet_eta.resize(event.m_jets.size()-n_jet_electrons);
+      m_jet_phi.resize(event.m_jets.size()-n_jet_electrons);
+      m_jet_e.resize(event.m_jets.size()-n_jet_electrons);
       if (m_config->bTagAlgo_MV2c10_used()) {
-        m_jet_mv2c10.resize(event.m_jets.size());
+        m_jet_mv2c10.resize(event.m_jets.size()-n_jet_electrons);
       }
-      m_jet_jvt.resize(event.m_jets.size());
-      m_jet_fjvt.resize(event.m_jets.size());
-      m_jet_passfjvt.resize(event.m_jets.size());
+      m_jet_jvt.resize(event.m_jets.size()-n_jet_electrons);
+      m_jet_fjvt.resize(event.m_jets.size()-n_jet_electrons);
+      m_jet_passfjvt.resize(event.m_jets.size()-n_jet_electrons);
+      if (m_config->useJetElectrons()) {
+        m_jet_emfrac.resize(event.m_jets.size()-n_jet_electrons);
+      }
 
       // ghost tracks
       if (m_config->useJetGhostTrack()) {
@@ -2898,51 +2931,66 @@ namespace top {
         m_jet_ghostTrack_qOverP.clear();
 
 
-        m_jet_ghostTrack_pt.resize(event.m_jets.size());
-        m_jet_ghostTrack_eta.resize(event.m_jets.size());
-        m_jet_ghostTrack_phi.resize(event.m_jets.size());
-        m_jet_ghostTrack_e.resize(event.m_jets.size());
-        m_jet_ghostTrack_d0.resize(event.m_jets.size());
-        m_jet_ghostTrack_z0.resize(event.m_jets.size());
-        m_jet_ghostTrack_qOverP.resize(event.m_jets.size());
+        m_jet_ghostTrack_pt.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_ghostTrack_eta.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_ghostTrack_phi.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_ghostTrack_e.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_ghostTrack_d0.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_ghostTrack_z0.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_ghostTrack_qOverP.resize(event.m_jets.size()-n_jet_electrons);
       }
 
       // R21 b-tagging
       for (const std::string& algo : m_config->bTagAlgo_available()) {
-        m_jet_DLx[algo].resize(event.m_jets.size());
-        m_jet_DLx_pb[algo].resize(event.m_jets.size());
-        m_jet_DLx_pc[algo].resize(event.m_jets.size());
-        m_jet_DLx_pu[algo].resize(event.m_jets.size());
+        m_jet_DLx[algo].resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_DLx_pb[algo].resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_DLx_pc[algo].resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_DLx_pu[algo].resize(event.m_jets.size()-n_jet_electrons);
       }
       if (m_config->isMC()) {
-        m_jet_truthflav.resize(event.m_jets.size());
-        m_jet_truthPartonLabel.resize(event.m_jets.size());
-        m_jet_isTrueHS.resize(event.m_jets.size());
-        m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size());
+        m_jet_truthflav.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_truthPartonLabel.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_isTrueHS.resize(event.m_jets.size()-n_jet_electrons);
+        m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size()-n_jet_electrons);
       }
       for (auto& tagWP : m_config->bTagWP_available()) {
 
         if (tagWP.find("Continuous") == std::string::npos) {
-          m_jet_isbtagged[tagWP].resize(event.m_jets.size());
-        } else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
+          m_jet_isbtagged[tagWP].resize(event.m_jets.size()-n_jet_electrons);
+        } else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size()-n_jet_electrons);
         if (std::find(m_config->bTagWP_calibrated().begin(),
               m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
 
         if (m_config->isMC() && m_config->storePerJetBtagSFs()) {
-          m_perjet_weight_bTagSF[tagWP].resize(event.m_jets.size());
-          m_perjet_weight_bTagSF_eigen_B_up[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
-          m_perjet_weight_bTagSF_eigen_B_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
-          m_perjet_weight_bTagSF_eigen_C_up[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
-          m_perjet_weight_bTagSF_eigen_C_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
-          m_perjet_weight_bTagSF_eigen_Light_up[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
-          m_perjet_weight_bTagSF_eigen_Light_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+          m_perjet_weight_bTagSF[tagWP].resize(event.m_jets.size()-n_jet_electrons);
+          m_perjet_weight_bTagSF_eigen_B_up[tagWP].resize(event.m_jets.size()-n_jet_electrons, std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
+          m_perjet_weight_bTagSF_eigen_B_down[tagWP].resize(event.m_jets.size()-n_jet_electrons, std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
+          m_perjet_weight_bTagSF_eigen_C_up[tagWP].resize(event.m_jets.size()-n_jet_electrons, std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
+          m_perjet_weight_bTagSF_eigen_C_down[tagWP].resize(event.m_jets.size()-n_jet_electrons, std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
+          m_perjet_weight_bTagSF_eigen_Light_up[tagWP].resize(event.m_jets.size()-n_jet_electrons, std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+          m_perjet_weight_bTagSF_eigen_Light_down[tagWP].resize(event.m_jets.size()-n_jet_electrons, std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
           for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
-            m_perjet_weight_bTagSF_named_up[tagWP][name].resize(event.m_jets.size());
-            m_perjet_weight_bTagSF_named_down[tagWP][name].resize(event.m_jets.size());
+            m_perjet_weight_bTagSF_named_up[tagWP][name].resize(event.m_jets.size()-n_jet_electrons);
+            m_perjet_weight_bTagSF_named_down[tagWP][name].resize(event.m_jets.size()-n_jet_electrons);
           }
         }
       }
-      for (const auto* const jetPtr : event.m_jets) {
+      
+      unsigned int j(0);// jet-electron index
+      for (const auto* const jetPtr : event.m_jets) {// loop on jets
+        if (m_config->useJetElectrons() && jetPtr->auxdataConst<int>("jet_electron")) {
+            //this jet is a jet-electron, so filling the few electron branches and continue to next jet
+            m_el_pt[j]     = jetPtr->pt();
+            m_el_eta[j]    = jetPtr->eta();
+            m_el_phi[j]    = jetPtr->phi();
+            m_el_e[j]      = jetPtr->e();
+            int rndcharge = rand() % 2;
+            m_el_charge[j] = (rndcharge-0.5)*2;  //random charge -1 or 1
+            m_el_emfrac[j] = jetPtr->auxdataConst<float>("EMFrac");
+            ++j;//next jet-electron
+            ++i;//next jet for the loop
+            continue;
+        }
         m_jet_pt[i] = jetPtr->pt();
         m_jet_eta[i] = jetPtr->eta();
         m_jet_phi[i] = jetPtr->phi();
@@ -2967,6 +3015,9 @@ namespace top {
           if (jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")) {
             jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_jet_HadronConeExclExtendedTruthLabelID[i]);
           }
+        }
+        if (m_config->useJetElectrons()) {
+          m_jet_emfrac[i] = jetPtr->auxdataConst<float>("EMFrac");
         }
 
         if (m_config->useJetGhostTrack() && m_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_jet_eta[i])<m_config->jetEtaGhostTracks()) {
@@ -3073,7 +3124,8 @@ namespace top {
 	}
 
         ++i;
-      }
+      }//end loop on jets
+
       // loop over selected DL1 algos and fill all calo jet b-tagging information
       // the accessor uses decoration created in TopSystematicObjectMaker/JetObjectCollectionMaker
       // calculated by BtaggingSelectionTool
@@ -3084,7 +3136,12 @@ namespace top {
         std::vector<float>& m_jet_DLx_pu_pick = m_jet_DLx_pu.at(algo);
         const SG::AuxElement::ConstAccessor<float>& DLx_acc = DLx.at(algo);
         i = 0;
-        for (const auto* const jetPtr : event.m_jets) {
+        for (const auto* const jetPtr : event.m_jets) {// loop on jets
+          if (m_config->useJetElectrons() && jetPtr->auxdataConst<int>("jet_electron")) {
+              // skip this jet, since this is a jet-electron
+              ++i;
+              continue;
+          }
           m_jet_DLx_pick[i] = DLx_acc(*jetPtr);
 
           const xAOD::BTagging* btag(nullptr);
@@ -3101,7 +3158,7 @@ namespace top {
             m_jet_DLx_pu_pick[i] = pu;
           }
           ++i;
-        }
+        }//end loop on jets
       }
     }
 

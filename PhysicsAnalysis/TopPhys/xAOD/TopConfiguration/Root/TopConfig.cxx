@@ -33,6 +33,7 @@ namespace top {
     m_useMuons(false),
     m_useSoftMuons(false),
     m_useAntiMuons(false),
+    m_useJetElectrons(false),
     m_useTaus(false),
     m_useJets(false),
     m_useLargeRJets(false),
@@ -57,6 +58,7 @@ namespace top {
     m_jetSubstructureName("None"),
 
     m_recomputeCPvars(true),
+
 
     // Do systematics? - this needs many more configuration options
     m_systematics("SetMe"),
@@ -1349,6 +1351,18 @@ namespace top {
     }
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
+    if (settings->value("UseJetElectrons") == "True"){
+      this->m_useJetElectrons = true;
+      if (settings->value("JetElectronEMFractionMin") != "") {
+	this->m_jetElectronEMFractionMin = std::stof(settings->value("JetElectronEMFractionMin"));
+      }
+      if (settings->value("JetElectronEMFractionMax") != "") {
+	this->m_jetElectronEMFractionMax = std::stof(settings->value("JetElectronEMFractionMax"));
+      }
+      if (settings->value("JetElectronEtaMax") != "") {
+	this->m_jetElectronEtaMax = std::stof(settings->value("JetElectronEtaMax"));
+      }
+    }
 
     // Soft Muon configuration
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));

@@ -582,6 +582,7 @@ namespace top {
     std::vector<char>  m_el_true_isChargeFl;
     std::vector<char>  m_el_ECIDS;
     std::vector<double>  m_el_ECIDSResult;
+    std::vector<float> m_el_emfrac;//EM frac when using jet-electrons
 
     //forward electrons
     std::vector<float> m_fwdel_pt;
@@ -708,6 +709,7 @@ namespace top {
     std::unordered_map<std::string, std::vector<char> >  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int> >   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in
                                                                             // case Continuous WP is used
+    std::vector<float> m_jet_emfrac;//EM frac when using jet-electrons
 
     // ghost tracks
     std::vector<std::vector<float> > m_jet_ghostTrack_pt;
