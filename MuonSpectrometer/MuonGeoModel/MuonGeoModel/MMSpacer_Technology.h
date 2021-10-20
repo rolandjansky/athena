@@ -14,8 +14,6 @@ namespace MuonGM {
 
     class MMSpacer_Technology : public Technology {
       public:
-        double thickness;
-
         // constructor
         inline MMSpacer_Technology(MYSQL& mysql, const std::string& s);
         inline double Thickness() const;
@@ -29,7 +27,7 @@ namespace MuonGM {
     };
 
     MMSpacer_Technology::MMSpacer_Technology(MYSQL& mysql, const std::string& s)
-        : Technology(mysql, s), thickness(0.), lowZCutOuts(0), lowZCutOutWidth(0.), lowZCutOutDZ(0.), highZCutOuts(0), highZCutOutWidth(0.), highZCutOutDZ(0.) {}
+        : Technology(mysql, s), lowZCutOuts(0), lowZCutOutWidth(0.), lowZCutOutDZ(0.), highZCutOuts(0), highZCutOutWidth(0.), highZCutOutDZ(0.) {}
 
     double MMSpacer_Technology::Thickness() const { return thickness; }
 

@@ -7,6 +7,7 @@ atlas_subdir( TileConditions )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( ROOT COMPONENTS Matrix Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Physics HistPainter Rint )
+find_package( Boost )
 
 # tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
 
@@ -14,7 +15,7 @@ find_package( ROOT COMPONENTS Matrix Core Tree MathCore Hist RIO pthread MathMor
 atlas_add_library( TileConditionsLib
                    src/Tile*.cxx
                    PUBLIC_HEADERS TileConditions
-                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier StoreGateLib CaloDetDescrLib

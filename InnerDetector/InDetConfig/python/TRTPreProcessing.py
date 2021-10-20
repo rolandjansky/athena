@@ -174,43 +174,7 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     acc.setPrivateTools(TRT_DriftCircleTool(name, **kwargs))
     return acc
 
-def TRT_LocalOccupancyCfg(flags, name = "InDet_TRT_LocalOccupancy", **kwargs):
-    acc = ComponentAccumulator()
-    # Calibration DB Service
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
-    CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    acc.addPublicTool(CalDbTool)
-    # Straw status DB Tool
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-    kwargs.setdefault("isTrigger", False)
-    kwargs.setdefault("TRTCalDbTool", CalDbTool)
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-    
-    InDetTRT_LocalOccupancy = CompFactory.TRT_LocalOccupancy(name, **kwargs)
-    acc.setPrivateTools(InDetTRT_LocalOccupancy)
-    return acc
 
-def TRTOccupancyIncludeCfg(flags, name = "InDetTRT_TRTOccupancyInclude", **kwargs):
-    acc = ComponentAccumulator()
-    # Calibration DB Service
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
-    CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    acc.addPublicTool(CalDbTool)
-    # Straw status DB Tool
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-    InDetTRT_LocalOccupancy = acc.popToolsAndMerge(TRT_LocalOccupancyCfg(flags))
-    acc.addPublicTool(InDetTRT_LocalOccupancy)
-    kwargs.setdefault("isTrigger", False)
-    kwargs.setdefault("TRTCalDbTool", CalDbTool)
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-    kwargs.setdefault("TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
-
-    acc.addEventAlgo(CompFactory.TRTOccupancyInclude(name, **kwargs))
-    return acc
 
 def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name = "InDetTRT_RIO_Maker", **kwargs):
     acc = ComponentAccumulator()
@@ -294,7 +258,8 @@ def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
         #    Include alg to save the local occupancy inside xAOD::EventInfo
         #
         if flags.InDet.doTRTGlobalOccupancy:
-            acc.merge(TRTOccupancyIncludeCfg(flags, name = prefix +"TRTOccupancyInclude"))
+            from InDetConfig.TRT_ElectronPidToolsConfig import TRTOccupancyIncludeCfg
+            acc.merge(TRTOccupancyIncludeCfg(flags, name=prefix + "TRTOccupancyInclude"))
         #
         # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
         #
