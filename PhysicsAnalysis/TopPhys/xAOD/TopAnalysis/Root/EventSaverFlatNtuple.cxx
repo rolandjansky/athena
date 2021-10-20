@@ -209,6 +209,12 @@ namespace top {
     m_useElectronChargeIDSelection(false),
     m_met_met(0.),
     m_met_phi(0.),
+    m_met_sig(0.),
+    m_met_sigHT(0.),
+    m_met_sigET(0.),
+    m_met_sigRho(0.),
+    m_met_sigVarL(0.),
+    m_met_sigVarT(0.),
     m_met_met_withLooseObjects(0.),
     m_met_phi_withLooseObjects(0.) {
     m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = std::vector<float>();
@@ -1375,6 +1381,12 @@ namespace top {
       //met
       systematicTree->makeOutputVariable(m_met_met, "met_met");
       systematicTree->makeOutputVariable(m_met_phi, "met_phi");
+      systematicTree->makeOutputVariable(m_met_sig, "met_sig");
+      systematicTree->makeOutputVariable(m_met_sigET, "met_sigET");
+      systematicTree->makeOutputVariable(m_met_sigHT, "met_sigHT");
+      systematicTree->makeOutputVariable(m_met_sigRho, "met_sigRho");
+      systematicTree->makeOutputVariable(m_met_sigVarL, "met_sigVarL");
+      systematicTree->makeOutputVariable(m_met_sigVarT, "met_sigVarT");
       //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
       if(m_config->writeMETBuiltWithLooseObjects())
       {
@@ -3721,6 +3733,24 @@ namespace top {
     //met
     m_met_met = event.m_met->met();
     m_met_phi = event.m_met->phi();
+    if( event.m_met->isAvailable<float>("metSig")){
+      m_met_sig = event.m_met->auxdata<float>("metSig");
+    }
+    if( event.m_met->isAvailable<float>("metSigET")){
+      m_met_sigET = event.m_met->auxdata<float>("metSigET");
+    }
+    if( event.m_met->isAvailable<float>("metSigHT")){
+      m_met_sigHT = event.m_met->auxdata<float>("metSigHT");
+    }
+    if( event.m_met->isAvailable<float>("metSigRho")){
+      m_met_sigRho = event.m_met->auxdata<float>("metSigRho");
+    }
+    if( event.m_met->isAvailable<float>("metSigVarL")){
+      m_met_sigVarL = event.m_met->auxdata<float>("metSigVarL");
+    }
+    if( event.m_met->isAvailable<float>("metSigVarT")){
+      m_met_sigVarT = event.m_met->auxdata<float>("metSigVarT");
+    }
     
     if(m_config->writeMETBuiltWithLooseObjects())
     {
