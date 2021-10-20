@@ -553,8 +553,8 @@ if rec.doTrigger:
     if globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
         ConfigFlags.Trigger.readBS = True
 
-    from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-    triggerGetter = T0TriggerGetter()
+    from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+    triggerGetter = TriggerRecoGetter()
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
     if rec.readESD() and rec.doAOD():

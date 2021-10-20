@@ -3,7 +3,7 @@
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 
-log = logging.getLogger( "T0TriggerGetter.py" )
+log = logging.getLogger( "TriggerRecoGetter.py" )
 
 from RecExConfig.Configured import Configured
 
@@ -13,7 +13,7 @@ def withLVL1():
 def withHLT():
     return TriggerFlags.dataTakingConditions()=='HltOnly' or TriggerFlags.dataTakingConditions()=='FullTrigger'
 
-class T0TriggerGetter(Configured):
+class TriggerRecoGetter(Configured):
 
     _configured=True
     _done=False
