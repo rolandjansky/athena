@@ -551,18 +551,10 @@ if not globalflags.InputFormat.is_bytestream():
 
 if rec.doTrigger:
     if globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
-        try:
-            include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
-        except Exception:
-            treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
-            rec.doTrigger = False
-    else:
-        try:
-            from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-            triggerGetter = T0TriggerGetter()
-        except Exception:
-            treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
-            rec.doTrigger = False
+        ConfigFlags.Trigger.readBS = True
+
+    from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+    triggerGetter = T0TriggerGetter()
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
     if rec.readESD() and rec.doAOD():
