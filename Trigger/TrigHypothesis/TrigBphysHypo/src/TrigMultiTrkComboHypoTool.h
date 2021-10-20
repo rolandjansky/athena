@@ -43,7 +43,7 @@ class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
   bool checkPreviousDecisionIDs(const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const;
   int totalCharge(const xAOD::TrigBphys*) const;
   bool isInMassRange(double mass) const;
-  bool passesDRcut(const xAOD::TrigBphys*) const;
+  bool passedDeltaRcut(const xAOD::TrigBphys*) const;
   inline bool passedChi2Cut(int chi2) const { return (m_chi2 < 0. || chi2 < m_chi2); }
   inline bool passedChargeCut(int charge) const { return (m_totalCharge < 0 || std::abs(charge) == m_totalCharge); }
 
