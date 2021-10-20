@@ -302,12 +302,14 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     int nHitsR;
 
     int yBinNum = h->GetNbinsY();
+
+    // First fill energies
     for (int iy = 1; iy <= yBinNum; ++iy){
       for (int ix = 1; ix <= xBinNum; ++ix){
         double energyInVoxel  = outputs["out_" + std::to_string(vox)];
         ATH_MSG_VERBOSE(" Vox "<< vox
-        << " energy " << energyInVoxel 
-        << " binx " << ix 
+        << " energy " << energyInVoxel
+        << " binx " << ix
         << " biny " << iy);
 
         if (energyInVoxel == 0){
@@ -316,6 +318,24 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
         }
         
         simulstate.add_E(layer,Einit*energyInVoxel);
+
+      }
+    }
+
+    // Now create hits
+    for (int iy = 1; iy <= yBinNum; ++iy){
+      for (int ix = 1; ix <= xBinNum; ++ix){
+
+        double energyInVoxel  = outputs["out_" + std::to_string(vox)];
+        ATH_MSG_VERBOSE(" Vox "<< vox
+        << " energy " << energyInVoxel
+        << " binx " << ix
+        << " biny " << iy);
+
+        if (energyInVoxel == 0){
+          vox++;
+          continue;
+        }
         
         TAxis* x = (TAxis*)h->GetXaxis();
         nHitsR = x->GetBinUpEdge(ix) - x->GetBinLowEdge(ix);

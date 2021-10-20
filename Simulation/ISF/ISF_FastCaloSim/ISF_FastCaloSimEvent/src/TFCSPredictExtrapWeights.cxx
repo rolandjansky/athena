@@ -201,7 +201,13 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate_hit(Hit& hit, TFCSSimulationSta
    const int cs=calosample();
 
    // Get corresponding predicted extrapolation weight from simulstate
-   float extrapWeight = simulstate.getAuxInfo<float>(cs);
+   float extrapWeight;
+   if(simulstate.hasAuxInfo(cs)){
+     extrapWeight = simulstate.getAuxInfo<float>(cs);
+   } else{ // missing AuxInfo
+     simulate(simulstate, truth, extrapol); // decorate simulstate with extrapolation weights
+     extrapWeight = simulstate.getAuxInfo<float>(cs); // retrieve corresponding extrapolation weight
+   }
 
    double r = (1.-extrapWeight)*extrapol->r(cs, SUBPOS_ENT) + extrapWeight*extrapol->r(cs, SUBPOS_EXT);
    double z = (1.-extrapWeight)*extrapol->z(cs, SUBPOS_ENT) + extrapWeight*extrapol->z(cs, SUBPOS_EXT);
