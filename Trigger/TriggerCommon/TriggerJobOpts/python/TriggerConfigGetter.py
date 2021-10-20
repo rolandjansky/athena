@@ -105,13 +105,11 @@ class TriggerConfigGetter(Configured):
 
         # first check the input
         if "HIT2RDO" in self._environment:
-            TriggerFlags.doHLT = False
             log.info("For simulation jobs the following flags are set:")
             log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
             log.info("globalflags.DataSource              : %s", globalflags.DataSource())
             log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
             log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
-            log.info("TriggerFlags.doHLT                  : %s", TriggerFlags.doHLT())
         else:
             if not self.checkInput():
                 log.error("Could not determine job input. Can't setup trigger configuration and will return!")
