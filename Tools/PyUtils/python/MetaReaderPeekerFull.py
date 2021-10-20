@@ -42,8 +42,11 @@ def _setup():
                 metadata['file_name'] = inFile
                 if metadata.get("nentries"):
                     break
-      
-            # if no nentries > 0 metadata is found, it will keep the last
+            else:
+                continue # This make the previous break to exit from both for loops
+            break
+
+            # if no nentries > 0 metadata is found, it will keep the first
             
 
 # convert_itemList and convert_metadata_items have the same implementation as the one in MetaReaderPeeker.
