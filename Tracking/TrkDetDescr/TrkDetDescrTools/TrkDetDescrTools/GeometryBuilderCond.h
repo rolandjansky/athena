@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -92,14 +92,16 @@ namespace Trk {
 
         ToolHandle<ITrackingVolumeHelper>         m_trackingVolumeHelper;             //!< Helper Tool to create TrackingVolumes
 
-        //bool                                      m_inDetGeometry;                     //!< switch on TrackingGeometry for the InnerDetector
-        ToolHandle<IGeometryBuilderCond>              m_inDetGeometryBuilderCond;              //!< GeometryBuilderCond for the InnerDetector
+        ToolHandle<IGeometryBuilderCond>          m_inDetGeometryBuilderCond;         //!< GeometryBuilderCond for the InnerDetector
 
         bool                                      m_caloGeometry;                     //!< switch on TrackingGeometry for the Calorimeters
-        ToolHandle<IGeometryBuilderCond>              m_caloGeometryBuilderCond;              //!< GeometryBuilderCond for the Calorimeters
+        ToolHandle<IGeometryBuilderCond>          m_caloGeometryBuilderCond;          //!< GeometryBuilderCond for the Calorimeters
+
+        bool                                      m_hgtdGeometry;                     //! switch on TrackingGeometry for HGTD 
+        ToolHandle<IGeometryBuilderCond>          m_hgtdGeometryBuilderCond;          //!< GeometryBuilder for the HGTD
 
         bool                                      m_muonGeometry;                     //!< GeometryBuilderCond for the Muon System
-        ToolHandle<IGeometryBuilderCond>              m_muonGeometryBuilderCond;              //!< GeometryBuilderCond for the Muon System
+        ToolHandle<IGeometryBuilderCond>          m_muonGeometryBuilderCond;          //!< GeometryBuilderCond for the Muon System
         
         bool                                      m_compactify;                       //!< optimize event memory usage: register all surfaces with TG
         bool                                      m_synchronizeLayers;                //!< synchronize contained layer dimensions to volumes

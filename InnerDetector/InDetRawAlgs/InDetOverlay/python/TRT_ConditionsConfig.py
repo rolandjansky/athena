@@ -18,27 +18,6 @@ def TRT_OnlineFoldersCfg(flags):
     return acc
 
 
-def TRT_LocalOccupancyCfg(flags, name="TRT_LocalOccupancy"):
-    """Return a ComponentAccumulator for TRT_LocalOccupancy Tool"""
-    acc = ComponentAccumulator()
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg, TRT_StrawStatusSummaryToolCfg
-    trtCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    trtStrawStatusSummaryTool = acc.popToolsAndMerge(
-        TRT_StrawStatusSummaryToolCfg(flags))
-
-    InDet__TRT_LocalOccupancy = CompFactory.InDet.TRT_LocalOccupancy
-    acc.setPrivateTools(InDet__TRT_LocalOccupancy(name="TRT_LocalOccupancy",
-                                                  isTrigger=False,
-                                                  TRTCalDbTool=trtCalDbTool,
-                                                  TRTStrawStatusSummaryTool=trtStrawStatusSummaryTool,
-                                                  TRT_RDOContainerName="",
-                                                  TRT_DriftCircleCollection="",
-                                                  ))
-    return acc
-
-
-
-
 def TRT_CablingSvcCfg(flags):
     """Return a ComponentAccumulator for TRT_CablingSvc service"""
     acc = ComponentAccumulator()

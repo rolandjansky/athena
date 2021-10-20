@@ -30,8 +30,10 @@ atlas_add_xaod_smart_pointer_dicts(
               "xAOD::TrigPassBitsContainer_v1" "xAOD::TriggerMenuJsonContainer_v1"
 
               "xAOD::eFexEMRoIContainer_v1"  "xAOD::eFexTauRoIContainer_v1" "xAOD::jFexSRJetRoIContainer_v1"
-	      "xAOD::jFexLRJetRoIContainer_v1" "xAOD::jFexTauRoIContainer_v1" 
+	           "xAOD::jFexLRJetRoIContainer_v1" "xAOD::jFexTauRoIContainer_v1" 
               "xAOD::jFexSumETRoIContainer_v1" "xAOD::jFexMETRoIContainer_v1"
+              "xAOD::gFexJetRoIContainer_v1" "xAOD::gFexGlobalRoIContainer_v1"
+
    OBJECTS "xAOD::EnergySumRoI_v1" "xAOD::EnergySumRoI_v2"
            "xAOD::TrigDecision_v1" "xAOD::TrigNavigation_v1"
            "xAOD::RoiDescriptorStore_v1" )

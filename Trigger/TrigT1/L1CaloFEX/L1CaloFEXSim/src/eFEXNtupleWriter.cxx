@@ -63,7 +63,12 @@ StatusCode LVL1::eFEXNtupleWriter::initialize () {
   m_myTree->Branch ("eg_rhadnum",  &m_eg_RhadNum);
   m_myTree->Branch ("eg_rhadden",  &m_eg_RhadDen);
   m_myTree->Branch ("eg_haveSeed",  &m_eg_haveseed);
-  m_myTree->Branch ("tau_Iso",  &m_tau_Iso);
+  m_myTree->Branch ("tau_RealIso",  &m_tau_realIso);
+  m_myTree->Branch ("tau_IsoCore",  &m_tau_isoCore);
+  m_myTree->Branch ("tau_IsoEnv",  &m_tau_isoEnv);
+  m_myTree->Branch ("tau_IsoWP",  &m_tau_isoWP);
+  m_myTree->Branch ("tau_Seed",  &m_tau_seed);
+  m_myTree->Branch ("tau_UnD",  &m_tau_und);
   m_myTree->Branch ("tau_Et",  &m_tau_Et);
   m_myTree->Branch ("tau_Eta",  &m_tau_Eta);
   m_myTree->Branch ("tau_Phi",  &m_tau_Phi);
@@ -117,7 +122,12 @@ StatusCode LVL1::eFEXNtupleWriter::finalize () {
 }
 
 StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables(SG::ReadHandle<LVL1::eFEXOutputCollection> eFEXOutputCollectionobj) {
-  m_tau_Iso.clear();
+  m_tau_realIso.clear();
+  m_tau_isoCore.clear();
+  m_tau_isoEnv.clear();
+  m_tau_isoWP.clear();
+  m_tau_seed.clear();
+  m_tau_und.clear();
   m_tau_Et.clear();
   m_tau_Eta.clear();
   m_tau_Phi.clear();
@@ -132,7 +142,12 @@ StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables(SG::ReadHandle<LVL1::eFE
     m_tau_Phi.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Phi"]);
     m_tau_floatEta.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["FloatEta"]);
     m_tau_floatPhi.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["FloatPhi"]);
-    m_tau_Iso.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Iso"]);
+    m_tau_realIso.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["RealIso"]);
+    m_tau_isoCore.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["IsoCore"]);
+    m_tau_isoEnv.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["IsoEnv"]);
+    m_tau_isoWP.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["IsoWP"]);
+    m_tau_seed.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Seed"]);
+    m_tau_und.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["UnD"]);
   }
   return StatusCode::SUCCESS;
 }

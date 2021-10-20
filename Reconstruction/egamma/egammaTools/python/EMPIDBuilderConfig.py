@@ -19,7 +19,8 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
     # Electron Selectors
     # Cut based
     from ROOT import LikeEnum
-    from ElectronPhotonSelectorTools.AsgElectronIsEMSelectorsConfig import AsgElectronIsEMSelectorCfg
+    from ElectronPhotonSelectorTools.AsgElectronIsEMSelectorsConfig import (
+        AsgElectronIsEMSelectorCfg)
     if "electronIsEMselectors" not in kwargs:
         LooseElectronSelectorAcc = AsgElectronIsEMSelectorCfg(
             flags, "LooseElectronSelector", egammaPID.ElectronIDLoosePP)
@@ -28,9 +29,10 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         TightElectronSelectorAcc = AsgElectronIsEMSelectorCfg(
             flags, "TightElectronSelector", egammaPID.ElectronIDTightPP)
 
-        kwargs["electronIsEMselectors"] = [LooseElectronSelectorAcc.popPrivateTools(),
-                                           MediumElectronSelectorAcc.popPrivateTools(),
-                                           TightElectronSelectorAcc.popPrivateTools()]
+        kwargs["electronIsEMselectors"] = [
+            LooseElectronSelectorAcc.popPrivateTools(),
+            MediumElectronSelectorAcc.popPrivateTools(),
+            TightElectronSelectorAcc.popPrivateTools()]
         kwargs["electronIsEMselectorResultNames"] = [
             "Loose", "Medium", "Tight"]
         acc.merge(LooseElectronSelectorAcc)
@@ -38,7 +40,8 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(TightElectronSelectorAcc)
 
     # Likelihood
-    from ElectronPhotonSelectorTools.AsgElectronLikelihoodToolsConfig import AsgElectronLikelihoodToolCfg
+    from ElectronPhotonSelectorTools.AsgElectronLikelihoodToolsConfig import (
+        AsgElectronLikelihoodToolCfg)
     if "electronLHselectors" not in kwargs:
         LooseLHSelectorAcc = AsgElectronLikelihoodToolCfg(
             flags, "LooseLHSelector", LikeEnum.Loose)
@@ -72,15 +75,17 @@ def EMPIDBuilderPhotonCfg(flags, name='EMPIDBuilderPhoton', **kwargs):
     acc = ComponentAccumulator()
 
     # photon Selectors
-    from ElectronPhotonSelectorTools.AsgPhotonIsEMSelectorsConfig import AsgPhotonIsEMSelectorCfg
+    from ElectronPhotonSelectorTools.AsgPhotonIsEMSelectorsConfig import (
+        AsgPhotonIsEMSelectorCfg)
     LoosePhotonSelectorAcc = AsgPhotonIsEMSelectorCfg(
         flags, "LoosePhotonSelector", egammaPID.PhotonIDLoose)
     TightPhotonSelectorAcc = AsgPhotonIsEMSelectorCfg(
         flags, "TightPhotonSelector", egammaPID.PhotonIDTight)
 
     if "photonIsEMselectors" not in kwargs:
-        kwargs["photonIsEMselectors"] = [LoosePhotonSelectorAcc.popPrivateTools(),
-                                         TightPhotonSelectorAcc.popPrivateTools()]
+        kwargs["photonIsEMselectors"] = [
+            LoosePhotonSelectorAcc.popPrivateTools(),
+            TightPhotonSelectorAcc.popPrivateTools()]
         kwargs["photonIsEMselectorResultNames"] = ["Loose", "Tight"]
 
         acc.merge(LoosePhotonSelectorAcc)
@@ -89,3 +94,34 @@ def EMPIDBuilderPhotonCfg(flags, name='EMPIDBuilderPhoton', **kwargs):
     tool = EMPIDBuilder(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
+
+
+if __name__ == "__main__":
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaCommon.Configurable import Configurable
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    Configurable.configurableRun3Behavior = True
+
+    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.fillFromArgs()
+    ConfigFlags.lock()
+    ConfigFlags.dump()
+
+    cfg = ComponentAccumulator()
+    mlog = logging.getLogger("EMPIDBuilderConfigTest")
+    mlog.info("Configuring  EMPIDBuilderElectron: ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMPIDBuilderElectronCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+    mlog.info("Configuring  EMPIDBuilderPhoton: ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMPIDBuilderPhotonCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+
+    f = open("empidbuilder.pkl", "wb")
+    cfg.store(f)
+    f.close()

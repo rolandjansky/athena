@@ -22,7 +22,7 @@ def generateCFChains(opt):
     # egamma chains
     ##################################################################
     if opt.doEgammaSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+        from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
         fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
         electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
         precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
@@ -39,7 +39,7 @@ def generateCFChains(opt):
             ]
         menu.chainsInMenu['Egamma'] += electronChains
 
-        from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
+        from TriggerMenuMT.HLTMenuConfig.Photon.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
         fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
         fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
         precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
@@ -258,7 +258,7 @@ def generateCFChains(opt):
     # combined chains
     ##################################################################
     if opt.doCombinedSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronChainConfiguration import electronFastCaloCfg
+        from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg
         fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
         
         from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence

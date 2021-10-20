@@ -6,6 +6,7 @@
 #include "HGTD_Identifier/HGTD_ID.h"
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "TrkSurfaces/PlaneSurface.h"
@@ -16,8 +17,9 @@ namespace InDetDD {
 HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
                                            const HGTD_ModuleDesign *design,
                                            const GeoVFullPhysVol *geophysvol,
-                                           SiCommonItems * commonItems) :
-  SolidStateDetectorElementBase(id, design, geophysvol, commonItems),
+                                           const SiCommonItems * commonItems,
+                                           const GeoAlignmentStore* geoAlignStore) :
+  SolidStateDetectorElementBase(id, design, geophysvol, commonItems, geoAlignStore),
   m_design(design)
 {
     const HGTD_ID* hgtdId = dynamic_cast<const HGTD_ID *>(getIdHelper());

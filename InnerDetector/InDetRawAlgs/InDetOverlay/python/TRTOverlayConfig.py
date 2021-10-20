@@ -51,8 +51,6 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     acc = ComponentAccumulator()
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
     acc.merge(TRT_ReadoutGeometryCfg(flags))
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
-    acc.merge(TRTStrawCondAlgCfg(flags))
 
     kwargs.setdefault("SortBkgInput", flags.Overlay.DataOverlay)
     kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
@@ -66,16 +64,16 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrelNoE", 0.060)
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcapNoE", 0.050)
 
-    # Do TRT overlay
-    TRTOverlay = CompFactory.TRTOverlay
-    alg = TRTOverlay(name, **kwargs)
+    from InDetConfig.TRT_ElectronPidToolsConfig import TRT_OverlayLocalOccupancyCfg
+    kwargs.setdefault("TRT_LocalOccupancyTool", acc.popToolsAndMerge(TRT_OverlayLocalOccupancyCfg(flags)))
 
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-    from InDetOverlay.TRT_ConditionsConfig import TRT_LocalOccupancyCfg
-    alg.TRT_LocalOccupancyTool = acc.popToolsAndMerge(
-        TRT_LocalOccupancyCfg(flags))
-    alg.TRTStrawSummaryTool = acc.popToolsAndMerge(
-        TRT_StrawStatusSummaryToolCfg(flags))
+    StrawStatusTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
+    acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
+    kwargs.setdefault("TRTStrawSummaryTool", StrawStatusTool)
+
+    # Do TRT overlay
+    alg = CompFactory.TRTOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
     # Setup output

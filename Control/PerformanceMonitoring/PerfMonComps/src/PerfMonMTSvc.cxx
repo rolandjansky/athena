@@ -828,49 +828,30 @@ std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
 }
 
 std::string PerfMonMTSvc::scaleMem(int64_t memMeas) const {
-  // The memory measurements should be positive
-  // Only delta(A,B) can go negative but this method
-  // is not used for those cases, at least for now
-  if (memMeas<0) return "NA";
 
+  // Check if there is anything to be done
+  if (memMeas == 0) {
+    return "0.00 KB" ;
+  }
+
+  // Prepare for the result
   std::ostringstream ss;
   ss << std::fixed;
   ss << std::setprecision(2);
 
-  double result = 0;
-
+  // The input is in KB
   std::vector<std::string> significance = {"KB", "MB", "GB", "TB"};
-  int scaleFactor = 0;
 
-  if (memMeas > 1024 * 1024 * 1024) {
-    int64_t teraCount = memMeas / (1024 * 1024 * 1024);
-    memMeas = memMeas % (1024 * 1024 * 1024);
-    result += teraCount;
-    scaleFactor++;
-  }
-  if (memMeas > 1024 * 1024) {
-    int64_t gigaCount = memMeas / (1024 * 1024);
-    memMeas = memMeas % (1024 * 1024);
-    result += gigaCount * (1.0 / 1024);
-    scaleFactor++;
-  }
-  if (memMeas > 1024) {
-    int64_t megaCount = memMeas / (1024);
-    memMeas = memMeas % (1024);
-    result += megaCount * (1.0 / (1024 * 1024));
-    scaleFactor++;
-  }
-  if (memMeas >= 0) {
-    result += memMeas * (1.0 / (1024 * 1024 * 1024));
-    scaleFactor++;
-  }
+  // Get the absolute value
+  int64_t absMemMeas = std::abs(memMeas);
+  // Find the order, note that this is an int operation
+  int64_t order = std::log(absMemMeas)/std::log(1024);
+  // Compute the final value preserving the sign
+  double value = memMeas/std::pow(1024, order);
+  // Convert the result to a string
+  ss << value;
 
-  result = result * std::pow(1024, (4 - scaleFactor));
-
-  ss << result;
-  std::string stringObj = ss.str() + " " + significance[scaleFactor - 1];
-
-  return stringObj;
+  return ss.str() + " " + significance[order];
 }
 
 /*

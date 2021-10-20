@@ -699,7 +699,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::TrigNavStruct
     decisionPtr->typelessSetObjectLink("TEMP_TRACKS", sgKey, sgCLID, helper.getIndex().objectsBegin(), helper.getIndex().objectsEnd());
     ElementLinkVector<xAOD::TrackParticleContainer> tracks = decisionPtr->objectCollectionLinks<xAOD::TrackParticleContainer>("TEMP_TRACKS");
     decisionPtr->removeObjectCollectionLinks("TEMP_TRACKS");
-    for (const ElementLink<xAOD::TrackParticleContainer>& track : tracks)
+    for (const ElementLink<xAOD::TrackParticleContainer> track : tracks)
     {
       if (track.isValid())
       {

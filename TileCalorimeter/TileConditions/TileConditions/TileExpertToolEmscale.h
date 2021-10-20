@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEEXPERTTOOLEMSCALE_H
@@ -50,7 +50,7 @@ class TileExpertToolEmscale: public TileCondToolEmscale {
                        , float amplitude, TileRawChannelUnit::UNIT onlUnit) const;
 
     float getLasPartition(unsigned int drawerIdx) const;
-    void setEmOptions(TileEmscaleCalibOptions emOptions);
+    void setEmOptions(const TileEmscaleCalibOptions& emOptions);
 
   private:
 

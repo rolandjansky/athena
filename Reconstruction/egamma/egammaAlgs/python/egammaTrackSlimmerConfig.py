@@ -30,3 +30,24 @@ def egammaTrackSlimmerCfg(
 
     acc.addEventAlgo(egtrkslimmerAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.ESD
+
+    acc = MainServicesCfg(flags)
+    acc.merge(egammaTrackSlimmerCfg(flags))
+    mlog = logging.getLogger("egammaTrackSlimmerConfigTest")
+    mlog.info("Configuring  egammaTrackSlimmer: ")
+    printProperties(mlog,
+                    acc.getEventAlgo("egammaTrackSlimmer"),
+                    nestLevel=1,
+                    printDefaults=True)
+    with open("egammatrackslimmer.pkl", "wb") as f:
+        acc.store(f)

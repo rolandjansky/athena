@@ -32,15 +32,17 @@ namespace InDetDD {
   class PixelDetectorManager;
 }
 
-class ITkPixelRDOAnalysis : public AthAlgorithm {
+namespace ITk
+{
+
+class PixelRDOAnalysis : public AthAlgorithm {
 
 public:
-  ITkPixelRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
-  ~ITkPixelRDOAnalysis(){}
+  PixelRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
+  ~PixelRDOAnalysis(){}
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
-  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<PixelRDO_Container> m_inputKey;
@@ -180,5 +182,7 @@ private:
   
   bool m_doPos;
 };
+
+} // namespace ITk
 
 #endif // ITK_PIXEL_RDO_ANALYSIS_H

@@ -25,13 +25,9 @@
 namespace TrigConf {
 
    xAODConfigSvc::xAODConfigSvc( const std::string& name, ISvcLocator* svcLoc )
-      : base_class( name, svcLoc ),
-        m_stopOnFailure( true ), m_isInFailure( false ),
+      : base_class( name, svcLoc ),        
         m_tmcAux( nullptr ), m_tmc( nullptr ), m_menu(),
-        m_ctpConfig(), m_chainList(), m_sequenceList(), m_bgSet(),
-        m_metaStore( "InputMetaDataStore", name ),
-        m_triggerMenuContainerAvailable( false ),
-        m_menuJSONContainerAvailable( false ) {
+        m_ctpConfig(), m_chainList(), m_sequenceList(), m_bgSet() {
 
    }
 

@@ -197,6 +197,11 @@ def createTriggerFlags():
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
+    # Switch whether end-of-event sequence running extra algorithms for accepted events should be added
+    flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
+    # Run the LArNoiseBurst algorithms in the end-of-event sequence
+    flags.addFlag('Trigger.endOfEventProcessing.doLArNoiseBurst', True)
+
     # trigger reconstruction
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)

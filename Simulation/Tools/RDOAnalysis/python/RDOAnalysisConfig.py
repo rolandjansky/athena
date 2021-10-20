@@ -23,7 +23,7 @@ def ITkPixelRDOAnalysisCfg(flags, name="ITkPixelRDOAnalysis", **kwargs):
     kwargs.setdefault("NtupleFileName", f"/{name}/")
     kwargs.setdefault("HistPath", f"/{name}/")
 
-    result.addEventAlgo(CompFactory.ITkPixelRDOAnalysis(name, **kwargs))
+    result.addEventAlgo(CompFactory.ITk.PixelRDOAnalysis(name, **kwargs))
     return result
 
 
@@ -36,7 +36,7 @@ def ITkStripRDOAnalysisCfg(flags, name="ITkStripRDOAnalysis", **kwargs):
     kwargs.setdefault("NtupleFileName", f"/{name}/")
     kwargs.setdefault("HistPath", f"/{name}/")
 
-    result.addEventAlgo(CompFactory.StripRDOAnalysis(name, **kwargs))
+    result.addEventAlgo(CompFactory.ITk.StripRDOAnalysis(name, **kwargs))
     return result
 
 

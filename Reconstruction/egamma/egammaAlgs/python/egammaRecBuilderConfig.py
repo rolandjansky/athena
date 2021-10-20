@@ -23,13 +23,11 @@ def egammaRecBuilderCfg(
     acc = ComponentAccumulator()
     if "TrackMatchBuilderTool" not in kwargs:
         emtrkmatch = EMTrackMatchBuilderCfg(flags)
-        kwargs["TrackMatchBuilderTool"] = emtrkmatch.popPrivateTools()
-        acc.merge(emtrkmatch)
+        kwargs["TrackMatchBuilderTool"] = acc.popToolsAndMerge(emtrkmatch)
 
     if "ConversionBuilderTool" not in kwargs:
         emcnv = EMConversionBuilderCfg(flags)
-        kwargs["ConversionBuilderTool"] = emcnv.popPrivateTools()
-        acc.merge(emcnv)
+        kwargs["ConversionBuilderTool"] = acc.popToolsAndMerge(emcnv)
 
     kwargs.setdefault(
         "egammaRecContainer",
@@ -42,3 +40,24 @@ def egammaRecBuilderCfg(
 
     acc.addEventAlgo(egrecAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.RDO
+
+    acc = MainServicesCfg(flags)
+    acc.merge(egammaRecBuilderCfg(flags))
+    mlog = logging.getLogger("egammaRecBuilderConfigTest")
+    mlog.info("Configuring  egammaRecBuilder: ")
+    printProperties(mlog,
+                    acc.getEventAlgo("egammaRecBuilder"),
+                    nestLevel=1,
+                    printDefaults=True)
+    with open("egammarecbuilder.pkl", "wb") as f:
+        acc.store(f)
