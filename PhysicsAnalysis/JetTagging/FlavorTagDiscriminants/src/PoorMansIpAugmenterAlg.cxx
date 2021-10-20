@@ -9,6 +9,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
+#include "xAODTracking/TrackParticlexAODHelpers.h"
+
 // NOTE: would be nice to include this to access track parameters, but
 // it's not in all builds.
 //
@@ -131,9 +133,11 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_DEBUG( "Inizializing containers:"        );
     ATH_MSG_DEBUG( "    ** " << m_TrackContainerKey  );
     ATH_MSG_DEBUG( "    ** " << m_VertexContainerKey );
+    ATH_MSG_DEBUG( "    ** " << m_eventInfoKey );
 
     ATH_CHECK( m_TrackContainerKey.initialize() );
     ATH_CHECK( m_VertexContainerKey.initialize() );
+    ATH_CHECK( m_eventInfoKey.initialize() );
 
     // Prepare decorators
     m_dec_d0_sigma = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_d0_sigma.key();
@@ -159,6 +163,9 @@ namespace FlavorTagDiscriminants {
 
   StatusCode PoorMansIpAugmenterAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG( "Executing " << name() << "... " );
+
+    SG::ReadHandle<xAOD::EventInfo> event_info(m_eventInfoKey, ctx);
+    CHECK( event_info.isValid() );
 
     SG::ReadHandle<xAOD::VertexContainer> verteces(
       m_VertexContainerKey,ctx );
@@ -187,8 +194,20 @@ namespace FlavorTagDiscriminants {
 
     // now decorate the tracks
     for (const xAOD::TrackParticle *trk: *tracks) {
-      decor_d0_sigma(*trk) = std::sqrt(
-        trk->definingParametersCovMatrixDiagVec().at(Pmt::d0));
+
+      const xAOD::EventInfo& evt = *event_info;
+      float d0_sigma2 = trk->definingParametersCovMatrixDiagVec().at(Pmt::d0);
+      float bs_d0_sigma2 = xAOD::TrackingHelpers::d0UncertaintyBeamSpot2(
+        trk->phi(),
+        evt.beamPosSigmaX(),
+        evt.beamPosSigmaY(),
+        evt.beamPosSigmaXY());
+      float full_d0_sigma = std::sqrt(d0_sigma2 + bs_d0_sigma2);
+      ATH_MSG_DEBUG("track    d0Uncertainty: " << std::sqrt(d0_sigma2));
+      ATH_MSG_DEBUG("beamspot d0Uncertainty: " << std::sqrt(bs_d0_sigma2));
+      ATH_MSG_DEBUG("combined d0Uncertainty: " << full_d0_sigma);
+
+      decor_d0_sigma(*trk) = full_d0_sigma;
       decor_z0_sigma(*trk) = Pmt::getSigmaZ0SinTheta(*trk, *primary);
 
       // the primary vertex position is absolute, whereas the track
