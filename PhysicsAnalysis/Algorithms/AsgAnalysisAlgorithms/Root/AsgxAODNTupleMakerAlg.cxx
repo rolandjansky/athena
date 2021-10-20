@@ -308,6 +308,8 @@ namespace CP {
                        "Name of the tree to write" );
       declareProperty( "Branches", m_branches,
                        "Branches to write to the output tree" );
+      declareProperty( "systematicsService", m_systematicsService,
+                       "systematics service" );
    }
 
    StatusCode AsgxAODNTupleMakerAlg::initialize() {
@@ -319,7 +321,7 @@ namespace CP {
       }
 
       // Set up the systematics list.
-      ATH_CHECK( m_systematicsList.initialize() );
+      ATH_CHECK( m_systematicsService.retrieve() );
 
       // Reset the initialisation flag:
       m_isInitialized = false;
@@ -396,7 +398,7 @@ namespace CP {
       }
 
       // Consider all systematics but skip the nominal one
-      for( const auto& sys : m_systematicsList.systematicsVector() ) {
+      for( const auto& sys : m_systematicsService->makeSystematicsVector() ) {
          // Nominal already processed
          if( sys.empty() ) {
             continue;
@@ -439,18 +441,56 @@ namespace CP {
 
       // Check if we are running nominal
       bool nominal = sys.empty();
+      // Check if we are affected by the systematics
+      bool systematicsContainer{false};
+      bool systematicsDecoration{false};
+      bool affectedContainer{true};
+      bool affectedDecoration{true};
 
       // Event store key for the object under consideration.
-      std::string key;
-      ANA_CHECK (m_systematicsList.service().makeSystematicsName( key, match[ 1 ], sys ));
+      std::string key = match[ 1 ];
+      if( key.find( "%SYS%" ) != std::string::npos )
+      {
+         systematicsContainer = true;
+         const CP::SystematicSet affecting = m_systematicsService->getObjectSystematics( key );
+         CP::SystematicSet matching;
+         ANA_CHECK( SystematicSet::filterForAffectingSystematics( sys, affecting, matching ) );
+         if( !nominal && matching.empty() ) {
+            ATH_MSG_VERBOSE( "Container \"" << key << "\" is not affected by systematics \"" << sys.name() << "\"" );
+            affectedContainer = false;
+         }
+         ANA_CHECK( m_systematicsService->makeSystematicsName( key, match[ 1 ], matching ) );
+      }
       // Auxiliary variable name for the object under consideration.
-      std::string auxName;
-      ANA_CHECK (m_systematicsList.service().makeSystematicsName( auxName, match[ 2 ],
-                                                                  sys ));
+      std::string auxName = match[ 2 ];
+      if( auxName.find( "%SYS%" ) != std::string::npos )
+      {
+         systematicsDecoration = true;
+         const CP::SystematicSet affecting = m_systematicsService->getDecorSystematics( match[ 1 ], auxName );
+         CP::SystematicSet matching;
+         ANA_CHECK( SystematicSet::filterForAffectingSystematics( sys, affecting, matching ) );
+         if( !nominal && matching.empty() ) {
+            ATH_MSG_VERBOSE( "Decoration \"" << auxName << "\" is not affected by systematics \"" << sys.name() << "\"" );
+            affectedDecoration = false;
+         }
+         ANA_CHECK( m_systematicsService->makeSystematicsName( auxName, match[ 2 ], matching ) );
+      }
+
+      // Ignore the branch if neither container nor decoration are affected by the systematic
+      if( !nominal
+       && ( ( systematicsContainer && systematicsDecoration && !affectedContainer && !affectedDecoration )
+         || ( !systematicsContainer && systematicsDecoration && !affectedDecoration )
+         || ( systematicsContainer && !systematicsDecoration && !affectedContainer ) ) )
+      {
+         ANA_MSG_VERBOSE( "Neither container nor decoration are affected by systematics \"" << sys.name() << "\""
+                          << " for branch rule \"" << branchDecl << "\"" );
+         return StatusCode::SUCCESS;
+      }
+
       // Branch name for the variable.
-      std::string brName;
-      ANA_CHECK (m_systematicsList.service().makeSystematicsName( brName, match[ 3 ],
-                                                                  sys ));
+      std::string brName = match[ 3 ];
+      if( brName.find( "%SYS%" ) != std::string::npos )
+         ANA_CHECK (m_systematicsService->makeSystematicsName( brName, match[ 3 ], sys ));
 
       // If the %SYS% pattern was not used in this setup, then stop
       // on non-nominal systematic.
@@ -499,10 +539,10 @@ namespace CP {
                               ALLOW_MISSING, msg() ) ) {
          bool created = false;
          ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
-                                                   auxName,
-                                                   brName,
-                                                   ALLOW_MISSING,
-                                                   created ) );
+                                                 auxName,
+                                                 brName,
+                                                 ALLOW_MISSING,
+                                                 created ) );
          if( created ) {
             ATH_MSG_DEBUG( "Writing branch \"" << brName
                            << "\" from object/variable \"" << key
@@ -520,9 +560,11 @@ namespace CP {
       }
 
       // Check if the rule was meaningful or not:
-      if( nominal && ! branchCreated && key == match[ 1 ] ) {
+      if( ! branchCreated ) {
          ATH_MSG_ERROR( "No branch was created for rule: \""
-                        << branchDecl << "\"" );
+                        << branchDecl << "\""
+                        << " and systematics: \""
+                        << sys.name() << "\"" );
          return StatusCode::FAILURE;
       }
 

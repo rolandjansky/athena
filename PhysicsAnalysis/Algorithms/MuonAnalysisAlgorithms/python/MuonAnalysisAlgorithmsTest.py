@@ -58,6 +58,9 @@ def makeSequence (dataType) :
     ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                              'AnalysisMuons_NOSYS.phi -> mu_phi',
                              'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
+    if dataType != 'data':
+        ntupleMaker.Branches += [ 'AnalysisMuons_%SYS%.muon_effSF_tight_%SYS% -> mu_%SYS%_effSF' ]
+    ntupleMaker.OutputLevel = 2  # For output validation
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'muons'
