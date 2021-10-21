@@ -3480,7 +3480,7 @@ HLT_e5_dnnloose_L1EM3:
     1: 97
     2: 30
     3: 39
-    4: 7
+    4: 9
 HLT_e5_dnnmedium_L1EM3:
   eventCount: 6
   stepCounts:
@@ -3494,7 +3494,7 @@ HLT_e5_dnnmedium_L1EM3:
     1: 89
     2: 29
     3: 38
-    4: 6
+    4: 8
 HLT_e5_dnntight_L1EM3:
   eventCount: 6
   stepCounts:
@@ -3508,7 +3508,7 @@ HLT_e5_dnntight_L1EM3:
     1: 85
     2: 28
     3: 36
-    4: 6
+    4: 7
 HLT_e5_etcut_L1eEM3:
   eventCount: 19
   stepCounts:

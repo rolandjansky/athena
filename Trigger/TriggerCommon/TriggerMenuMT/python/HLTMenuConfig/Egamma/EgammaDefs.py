@@ -35,7 +35,7 @@ class TrigEgammaKeys(object):
       TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
       TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
       pidVersion = 'rel22_20210611'
-      dnnVersion = 'mc16_20210430'
+      dnnVersion = 'rel21_20210928'
       ringerVersion = 'TrigL2_20210702_r4'
       
 
@@ -60,7 +60,7 @@ class TrigEgammaKeys_GSF(object):
 def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
     # We should include the DNN here
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.dnnVersion
   
     import collections
     SelectorNames = collections.OrderedDict({
