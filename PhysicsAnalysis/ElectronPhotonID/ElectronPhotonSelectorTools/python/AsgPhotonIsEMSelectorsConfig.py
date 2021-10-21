@@ -9,16 +9,16 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-# Import the needed stuff specific to the PhotonPhotonSelectorTools
-AsgPhotonIsEMSelector = CompFactory.AsgPhotonIsEMSelector
 
-
-def AsgPhotonIsEMSelectorCfg(flags, name, quality, menu=photonPIDmenu.menuCurrentCuts):
-
-    acc = ComponentAccumulator()
+def AsgPhotonIsEMSelectorCfg(flags,
+                             name,
+                             quality,
+                             menu=photonPIDmenu.menuCurrentCuts):
 
     mlog = logging.getLogger('AsgPhotonIsEMSelector')
     mlog.debug('Start configuration')
+    acc = ComponentAccumulator()
+    AsgPhotonIsEMSelector = CompFactory.AsgPhotonIsEMSelector
 
     try:
         ntuple = PhotonIsEMMap(quality, menu)
