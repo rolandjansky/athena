@@ -318,7 +318,7 @@ class ComboMaker(AlgNode):
         chainName = chainDict['chainName']
         chainMult = chainDict['chainMultiplicities']
         legsToInputCollections = self.mapRawInputsToInputsIndex()
-
+        
         if len(chainMult) != len(legsToInputCollections):
             log.error("ComboMaker for Alg:{} with addChain for:{} Chain multiplicity:{} Per leg input collection index:{}."
                 .format(compName(self.Alg), chainName, tuple(chainMult), tuple(legsToInputCollections)))
@@ -680,10 +680,9 @@ class Chain(object):
 
         # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the HLTSeeding Decision output
-        log.debug("Chain.__init__ L1 thresholds %s",L1Thresholds)
         self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
         self.setSeedsToSequences()
-        log.debug("Made Chain %s with seeds: %s ", name, self.L1decisions)
+        log.debug("[Chain.__init__] Made Chain %s with seeds: %s ", name, self.L1decisions)
 
     def numberAllSteps(self):
         if len(self.steps)==0:
@@ -693,6 +692,8 @@ class Chain(object):
                 step_name = step.name
                 if re.search('^Step[0-9]_',step_name):
                     step_name = step_name[6:]
+                elif re.search('^Step[0-9]{2}_', step_name):
+                    step_name = step_name[7:]   
                 step.name = 'Step%d_'%(stepID+1)+step_name
         return
 
@@ -719,6 +720,9 @@ class Chain(object):
             next_step_name = chain_steps_post_split[0].name
             if re.search('^Step[0-9]_',next_step_name):
                 next_step_name = next_step_name[6:]
+            elif re.search('^Step[0-9]{2}_', next_step_name):
+                next_step_name = next_step_name[7:]
+
             prev_step_name = 'empty_'+str(len(self.L1decisions))+'L1in'
             prev_chain_dict = chain_steps_post_split[0].stepDicts
         else:
@@ -886,8 +890,6 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], isEmpty = False, createsGhostLegs = False):
 
-        log.debug("[ChainStep.__init__] initialising... with multiplicity %s",multiplicity)
-
         # include cases of empty steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
@@ -918,7 +920,7 @@ class ChainStep(object):
                 self.onlyJets = True
             if len(sig_set) == 2 and ('Jet' in sig_set and 'Bjet' in sig_set):
                 self.onlyJets = True
-        log.debug("[ChainStep] onlyJets, sig_set: %s, %s",self.onlyJets, sig_set)
+
         self.multiplicity = multiplicity
         self.comboHypoCfg=comboHypoCfg
         self.comboToolConfs = list(comboToolConfs)
