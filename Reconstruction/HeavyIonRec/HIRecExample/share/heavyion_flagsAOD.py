@@ -18,10 +18,6 @@ if not jobproperties.HIRecExampleFlags.ppMode:
   InDetFlags.cutLevel = 3
   InDetFlags.doSGDeletion = False
 
-  # MC
-  from TriggerJobOpts.TriggerFlags import TriggerFlags
-  TriggerFlags.AODEDMSet.set_Value_and_Lock("AODFULL")
-
   from ParticleBuilderOptions.AODFlags import AODFlags
 
   AODFlags.Photon = True

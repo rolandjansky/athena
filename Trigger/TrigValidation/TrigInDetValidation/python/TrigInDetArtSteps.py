@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -56,8 +56,8 @@ class TrigInDetReco(ExecStep):
         ])
 
         self.preexec_all = ';'.join([
-            'from TriggerJobOpts.TriggerFlags import TriggerFlags',
-            'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+            'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
+            'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
         ])
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
 
