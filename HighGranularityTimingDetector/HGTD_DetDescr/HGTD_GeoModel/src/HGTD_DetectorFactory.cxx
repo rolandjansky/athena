@@ -163,7 +163,7 @@ void HGTD_DetectorFactory::readDbParameters() {
             (*it)->getDouble("ZPOS"),
             (*it)->getString("MATERIAL") };
 
-        ATH_MSG_INFO( "Read " << name << " from db: xHalf = " << m_boxVolPars[name].xHalf << " mm, yHalf = "
+        ATH_MSG_DEBUG( "Read " << name << " from db: xHalf = " << m_boxVolPars[name].xHalf << " mm, yHalf = "
               << m_boxVolPars[name].yHalf << " mm, zHalf = " << m_boxVolPars[name].zHalf << " mm, zOffsetLocal = "
               << m_boxVolPars[name].zOffsetLocal << " mm, material = \"" << m_boxVolPars[name].material << "\"");
     }
@@ -184,7 +184,7 @@ void HGTD_DetectorFactory::readDbParameters() {
                    (*it)->getDouble("ZPOS"), // no db values used currently, to be fixed when revising db scheme for master migration
                    (*it)->getString("MATERIAL")
         };
-        ATH_MSG_INFO( "Read " << name << " from db: rMin = " << m_cylVolPars[name].rMin << " mm, rMax = " << m_cylVolPars[name].rMax
+        ATH_MSG_DEBUG( "Read " << name << " from db: rMin = " << m_cylVolPars[name].rMin << " mm, rMax = " << m_cylVolPars[name].rMax
               << " mm, zHalf = " << m_cylVolPars[name].zHalf << " mm, material = \"" << m_cylVolPars[name].material << "\"");
     }
 
@@ -322,7 +322,7 @@ GeoLogVol* HGTD_DetectorFactory::buildEndcapLogicalVolume(bool isPositiveSide) {
                                             m_cylVolPars["HGTD_mother"].zHalf);
 
     // build the logical volume
-    std::string name = isPositiveSide ? "PositiveEndcap" : "NegativeEndcap";
+    std::string name = isPositiveSide ? "HGTD_PositiveEndcap" : "HGTD_NegativeEndcap";
     GeoLogVol* world_logical_hgtd  = new GeoLogVol( name.c_str(), world_solid_hgtd,
                             m_materialMgr->getMaterial( m_cylVolPars[ "HGTD_mother"].material) );
 
@@ -415,7 +415,7 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
             flexPackagePhysical[flexVolume]->add(new GeoTransform(GeoTrf::TranslateZ3D(flexZoffset)));
             flexPackagePhysical[flexVolume]->add(hgtdFlexPhysical);
             // print out a line for each flex layer
-            ATH_MSG_INFO( "Flex layer (" << (flexSheet ? "front" : "back") << ")" << flexSheet << ", Rmin = " << std::setw(5)
+            ATH_MSG_DEBUG( "Flex layer (" << (flexSheet ? "front" : "back") << ")" << flexSheet << ", Rmin = " << std::setw(5)
               << rInner[flexSheet] << " mm, flexZoffset = " << flexZoffset << " mm" );
             flexZoffset = flexZoffset - m_hgtdPars.flexSheetSpacing;
         }
@@ -467,9 +467,9 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
         coolingTubeRadii.push_back(coolingTubeRadius);
       }
     }
-    ATH_MSG_INFO( "Cooling tubes will be created at the following radii (" << coolingTubeRadii.size() << " in total):");
+    ATH_MSG_DEBUG( "Cooling tubes will be created at the following radii (" << coolingTubeRadii.size() << " in total):");
     for (size_t i = 0; i < coolingTubeRadii.size(); i++) {
-        ATH_MSG_INFO( "   R = " << coolingTubeRadii[i] << " mm" );
+        ATH_MSG_DEBUG( "   R = " << coolingTubeRadii[i] << " mm" );
     }
 
     ///////////////////////////////////
