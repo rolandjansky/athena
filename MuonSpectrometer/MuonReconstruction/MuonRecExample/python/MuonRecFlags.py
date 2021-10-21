@@ -379,7 +379,11 @@ class doMuonIso(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-
+## Decide whether to wrap the new configuration in the old.
+class useNewConfig(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 
 ## The flags to steer muon reconstruction
 class MuonRec(JobPropertyContainer):
@@ -411,6 +415,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
         setDefault(self.useTGCPriorNextBC,True)
         setDefault(self.doMuonIso,True)
+        setDefault(self.useNewConfig, False)
 
         if beamFlags.beamType == 'cosmics' or beamFlags.beamType == 'singlebeam':
             setDefault(self.doSegmentT0Fit,True)
