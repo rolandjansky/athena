@@ -1488,6 +1488,7 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
   }
 
   auto vecTsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  vecTsos->reserve (tsos.size());
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* iTsos : tsos) {
