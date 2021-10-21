@@ -9,16 +9,18 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-# Import the needed stuff specific to the ElectronPhotonSelectorTools
-AsgElectronLikelihoodTool = CompFactory.AsgElectronLikelihoodTool
 
-
-def AsgElectronLikelihoodToolCfg(flag, name, quality, menu=electronLHmenu.offlineMC16):
-
-    acc = ComponentAccumulator()
+def AsgElectronLikelihoodToolCfg(
+        flag,
+        name,
+        quality,
+        menu=electronLHmenu.offlineMC16):
 
     mlog = logging.getLogger('AsgElectronLikelihoodTool')
     mlog.debug('Start configuration')
+
+    AsgElectronLikelihoodTool = CompFactory.AsgElectronLikelihoodTool
+    acc = ComponentAccumulator()
 
     try:
         ntuple = ElectronLikelihoodMap(quality, menu)

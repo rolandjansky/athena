@@ -10,15 +10,17 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import (
     ElectronIsEMMap, electronPIDmenu)
 
-# Import the needed stuff specific to the ElectronPhotonSelectorTools
-AsgElectronIsEMSelector = CompFactory.AsgElectronIsEMSelector
 
-
-def AsgElectronIsEMSelectorCfg(flags, name, quality, menu=electronPIDmenu.menuDC14):
+def AsgElectronIsEMSelectorCfg(
+        flags,
+        name,
+        quality,
+        menu=electronPIDmenu.menuDC14):
 
     mlog = logging.getLogger('AsgElectronIsEMSelector')
     mlog.debug('Start configuration')
 
+    AsgElectronIsEMSelector = CompFactory.AsgElectronIsEMSelector
     acc = ComponentAccumulator()
     try:
         ntuple = ElectronIsEMMap(quality, menu)

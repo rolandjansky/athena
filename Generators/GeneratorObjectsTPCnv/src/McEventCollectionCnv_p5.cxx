@@ -372,7 +372,7 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
       auto A_random_states=genEvt->attribute<HepMC3::VectorLongIntAttribute>("random_states");    
       auto beams=genEvt->beams();
       persObj->m_genEvents.
-      push_back( GenEvent_p5(A_signal_process_id?(A_signal_process_id->value()):0,
+      push_back( GenEvent_p5(A_signal_process_id?(A_signal_process_id->value()):-1,
                               genEvt->event_number(),
                               A_mpi?(A_mpi->value()):-1, 
                               A_event_scale?(A_event_scale->value()):0.0, 
@@ -403,6 +403,16 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
       crossSection[2] = cs->xsec();
       crossSection[1] = cs->xsec_err();
       crossSection[0] = static_cast<double>(cs->is_valid());
+      /// HepMC3 uses different defaults for "wrong" cross-section
+      /// Here we try to mimic HepMC2
+      if (crossSection[2] < 0) {
+       crossSection[2] = 0.0;
+       if (crossSection[1] < 0) { 
+		   crossSection[1] = 0.0;
+	   }
+       crossSection[0] = 0.0;
+      }
+      
     }
 
     //HepMC::HeavyIon encoding

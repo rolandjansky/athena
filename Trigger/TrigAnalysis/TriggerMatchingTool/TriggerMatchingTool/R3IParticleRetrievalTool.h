@@ -12,6 +12,9 @@
 #include "TriggerMatchingTool/IIParticleRetrievalTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+#include <set>
+#include <mutex>
+
 namespace Trig
 {
   class R3IParticleRetrievalTool final : public virtual IIParticleRetrievalTool,
@@ -47,6 +50,10 @@ namespace Trig
     // Properties
     /// The TrigDecisionTool that will be used to get the navigation
     ToolHandle<Trig::TrigDecisionTool> m_tdt{"Trig::TrigDecisionTool/TrigDecisionTool"};
+    /// Chains that we have warned about
+    mutable std::set<std::string> m_warnedChains ATLAS_THREAD_SAFE;
+    /// mutex to protect that set
+    mutable std::mutex m_warnedChainsMutex;
   }; //> end class R3IParticleRetrievalTool
 } // namespace Trig
 

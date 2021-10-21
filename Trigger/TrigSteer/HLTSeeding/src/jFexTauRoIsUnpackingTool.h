@@ -32,7 +32,7 @@ private:
     "Name of the jFexTauRoI container decoration for the threshold patterns"};
 
   Gaudi::Property<float> m_roiWidth{
-    this, "RoIWidth", 0.1, "Size of RoI in eta/phi"};
+    this, "RoIWidth", 0.4, "Size of RoI in eta/phi"};
 };
 
 #endif //> !HLTSEEDING_JFEXTAUROISUNPACKINGTOOL_H

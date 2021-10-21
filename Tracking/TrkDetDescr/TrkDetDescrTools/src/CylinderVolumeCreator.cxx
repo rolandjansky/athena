@@ -90,14 +90,14 @@ StatusCode Trk::CylinderVolumeCreator::initialize()
     return StatusCode::SUCCESS;
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
-                                                 const std::vector<const Trk::Layer*>& layers,
+Trk::TrackingVolume*
+Trk::CylinderVolumeCreator::createTrackingVolume(const std::vector<const Trk::Layer*>& layers,
                                                  Trk::Material& matprop,
                                                  Trk::VolumeBounds* volBounds,
                                                  Amg::Transform3D* transform,
                                                  const std::string& volumeName,
                                                  Trk::BinningType btype) const
+
 {
     
     // the final one to build / sensitive Volume / Bounds
@@ -194,12 +194,13 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
     return tVolume;
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
-                                                 const std::vector<const Trk::Layer*>& layers,
+Trk::TrackingVolume*
+Trk::CylinderVolumeCreator::createTrackingVolume(const std::vector<const Trk::Layer*>& layers,
                                                  Trk::Material& matprop,
-                                                 double rMin, double rMax,
-                                                 double zMin, double zMax,
+                                                 double rMin,
+                                                 double rMax,
+                                                 double zMin,
+                                                 double zMax,
                                                  const std::string& volumeName,
                                                  Trk::BinningType btype) const
 {
@@ -243,14 +244,15 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
                                 btype);
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
-                                              Trk::Material& matprop,
-                                              double rMin, double rMax,
-                                              double zMin, double zMax,
-                                              unsigned int materialLayers,
-                                              bool cylinder,
-                                              const std::string& volumeName) const
+Trk::TrackingVolume*
+Trk::CylinderVolumeCreator::createGapTrackingVolume(Trk::Material& matprop,
+                                                    double rMin,
+                                                    double rMax,
+                                                    double zMin,
+                                                    double zMax,
+                                                    unsigned int materialLayers,
+                                                    bool cylinder,
+                                                    const std::string& volumeName) const
 {
 
     // screen output
@@ -283,17 +285,18 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
                                    volumeName,
                                    (layerPositions.size() == 1 ? Trk::arbitrary : Trk::biequidistant));
 
-}                                              
+}
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
-                                              Trk::Material& matprop,
-                                              double rMin, double rMax,
-                                              double zMin, double zMax,
-                                              const std::vector<double>& layerPositions,
-                                              bool cylinder,
-                                              const std::string& volumeName,
-                                              BinningType btype) const
+Trk::TrackingVolume*
+Trk::CylinderVolumeCreator::createGapTrackingVolume(Trk::Material& matprop,
+                                                    double rMin,
+                                                    double rMax,
+                                                    double zMin,
+                                                    double zMax,
+                                                    const std::vector<double>& layerPositions,
+                                                    bool cylinder,
+                                                    const std::string& volumeName,
+                                                    BinningType btype) const
 {
 
     // screen output
@@ -343,13 +346,12 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
                                 btype);
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createContainerTrackingVolume(
-                                                   const std::vector<const Trk::TrackingVolume*>& volumes,
-                                                   Trk::Material& matprop,
-                                                   const std::string& volumeName,
-                                                   bool buildBoundaryLayers,
-                                                   bool replaceBoundaryFace) const
+Trk::TrackingVolume*
+Trk::CylinderVolumeCreator::createContainerTrackingVolume(const std::vector<const Trk::TrackingVolume*>& volumes,
+                                                          Trk::Material& matprop,
+                                                          const std::string& volumeName,
+                                                          bool buildBoundaryLayers,
+                                                          bool replaceBoundaryFace) const
 {
     // check if you have more than one volume
     if (volumes.size() <= (unsigned int)1) {

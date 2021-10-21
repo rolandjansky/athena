@@ -9,7 +9,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import (
     egammaCaloExtrapolatorCfg, InDetExtrapolatorCfg)
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
 
 def EMExtrapolationToolsCfg(flags, **kwargs):
@@ -18,6 +17,7 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
+    EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
     if "Extrapolator" not in kwargs:
         extrapAcc = egammaCaloExtrapolatorCfg(flags)
@@ -49,7 +49,17 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
 
 def EMExtrapolationToolsCacheCfg(flags, **kwargs):
     kwargs.setdefault("name", "EMExtrapolationToolsCache")
+    kwargs.setdefault("PerigeeCache", "GSFPerigeeCaloExtension")
+    kwargs.setdefault("LastCache", "GSFLastCaloExtension")
     kwargs.setdefault("useCaching", True)
+    kwargs.setdefault("useLastCaching", True)
+    return EMExtrapolationToolsCfg(flags, **kwargs)
+
+
+def EMExtrapolationToolsCommonCacheCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMExtrapolationToolsCommonCache")
+    kwargs.setdefault("LastCache", "ParticleCaloExtension")
+    kwargs.setdefault("useCaching", False)
     kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
@@ -73,10 +83,9 @@ def GSFTrackSummaryToolCfg(flags, name="GSFBuildInDetTrackSummaryTool", **kwargs
                 name="GSFBuildPixelToTPIDTool"))
 
     if "TRT_ElectronPidTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetTRT_ElectronPidToolCfg
+        from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
         kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
-            InDetTRT_ElectronPidToolCfg(flags,
-                                        name="GSFBuildTRT_ElectronPidTool"))
+            TRT_ElectronPidToolCfg(flags, name="GSFBuildTRT_ElectronPidTool"))
 
     summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
     acc.setPrivateTools(summaryTool)

@@ -15,14 +15,14 @@
 #include "LArCafJobs/DataContainer.h"
 #include "LArSamplesMon/History.h"
 #include "LArCafJobs/EventData.h"
+#include "StoreGate/ReadCondHandle.h"
 
 using namespace LArSamples;
 
 LArShapeCompleteMaker::LArShapeCompleteMaker(const std::string & name, ISvcLocator * pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_template(nullptr),
-  m_dumperTool("LArShapeDumperTool"),
-  m_larCablingSvc("LArCablingLegacyService")
+  m_dumperTool("LArShapeDumperTool")
 {
   declareProperty("NSamples", m_nSamples = 5);
   declareProperty("NPhases",  m_nPhases = 17);
@@ -46,7 +46,7 @@ StatusCode LArShapeCompleteMaker::initialize()
   
   ATH_CHECK(detStore()->retrieve(m_onlineHelper, "LArOnlineID"));
 
-  ATH_CHECK(m_larCablingSvc.retrieve());
+  ATH_CHECK( m_onOffMapKey.initialize() );
   
   return StatusCode::SUCCESS; 
 }
@@ -64,12 +64,14 @@ StatusCode LArShapeCompleteMaker::execute()
     return StatusCode::FAILURE;    
   };
 
+  SG::ReadCondHandle<LArOnOffIdMapping> onOffMap (m_onOffMapKey);
+
   TreeShapeErrorGetter* errorGetter = new TreeShapeErrorGetter(m_shapeErrorFileName);
   
   for (unsigned int k = 0; k < LArSamples::Definitions::nChannels; k++) {   
     
     HWIdentifier channelID = m_onlineHelper->channel_Id((IdentifierHash)k);
-    const Identifier id = m_larCablingSvc->cnvToIdentifier(channelID);
+    const Identifier id = onOffMap->cnvToIdentifier(channelID);
     if (id.get_compact() == 0xffffffff) {
       ATH_MSG_WARNING( "Skipping invalid hash = " << k << "." );
       continue;

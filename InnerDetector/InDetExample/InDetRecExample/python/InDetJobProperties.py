@@ -94,6 +94,12 @@ class InDetFlagsJobProperty(JobProperty):
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
 
+class doBLS(InDetFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
 class doDBMstandalone(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -2114,6 +2120,10 @@ class InDetJobProperties(JobPropertyContainer):
        print('*')
        print('* --------------------> Special reconstruction for IBL !')
        print('*')
+    if self.doBLS() :
+       print('*')
+       print('* --------------------> Special reconstruction for BLS physics !')
+       print('*')
     if self.doDBM() :
        print('*')
        print('* --------------------> Special reconstruction for DBM !')
@@ -2734,6 +2744,7 @@ _list_InDetJobProperties = [Enabled,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
                             doDBMstandalone,
+                            doBLS,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,

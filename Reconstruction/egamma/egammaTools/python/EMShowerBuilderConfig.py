@@ -8,10 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from CaloIdentifier import SUBCALO
 
-EMShowerBuilder = CompFactory.EMShowerBuilder
-egammaIso, egammaShowerShape = CompFactory.getComps(
-    "egammaIso", "egammaShowerShape",)
-
 
 def EMShowerBuilderCfg(flags, name='EMShowerBuilder', **kwargs):
 
@@ -19,14 +15,15 @@ def EMShowerBuilderCfg(flags, name='EMShowerBuilder', **kwargs):
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
-
+    egammaIso, egammaShowerShape = CompFactory.getComps(
+        "egammaIso", "egammaShowerShape",)
     kwargs.setdefault("CellsName", flags.Egamma.Keys.Input.CaloCells)
     kwargs.setdefault(
         "CaloNums", [SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.TILE])
     kwargs.setdefault("ShowerShapeTool", egammaShowerShape())
     kwargs.setdefault("HadronicLeakageTool", egammaIso())
 
-    tool = EMShowerBuilder(name, **kwargs)
+    tool = CompFactory.EMShowerBuilder(name, **kwargs)
 
     acc.setPrivateTools(tool)
     return acc

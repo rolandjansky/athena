@@ -54,11 +54,13 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # standard one that is included with AthMonitorAlgorithm.
 
 
-    # set up geometry / conditions
+    # set up geometry / conditions / magnetic field
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(inputFlags))
     from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.

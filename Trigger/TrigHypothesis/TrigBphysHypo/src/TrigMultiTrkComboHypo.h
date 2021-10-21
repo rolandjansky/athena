@@ -217,6 +217,7 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   bool isIdenticalTracks(const xAOD::Electron* lhs, const xAOD::Electron* rhs) const;
   bool isInMassRange(double mass, size_t idx) const;
   float Lxy(const xAOD::TrigBphys& vertex, const Amg::Vector3D& beamSpot) const;
+  bool passedDeltaRcut(const std::vector<xAOD::TrackParticle::GenVecFourMom_t>& momenta) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer>
     m_trackParticleContainerKey {this, "TrackCollectionKey", "Tracks", "input TrackParticle container name"};
@@ -229,6 +230,8 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
 
   Gaudi::Property<std::vector<unsigned int>> m_nTrk {this, "nTracks", {2},
     "number of tracks to be fitted into the common vertex"};
+  Gaudi::Property<std::vector<int>> m_nTrkCharge {this, "totalCharge", {},
+    "magnitude of the total charge to accept, negative is none"};
   Gaudi::Property<std::vector<std::vector<double>>> m_trkMass {this, "trackMasses", {},
     "track masses for vertex reco (one per track); muon mass is used by default"};
   Gaudi::Property<std::vector<std::vector<double>>> m_trkPt {this, "trackPtThresholds", { {3650., 3650.} },

@@ -103,9 +103,8 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     from TrigEDMConfig.TriggerEDM import getLvl1ESDList
     from TrigEDMConfig.TriggerEDM import getLvl1AODList
     from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
-    objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
+    objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(ConfigFlags.Trigger.ESDEDMSet))
+    objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(ConfigFlags.Trigger.AODEDMSet))
     objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
     objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
     

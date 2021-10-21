@@ -25,7 +25,11 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
-    taggerlist = ['IP2D', 'IP3D', 'SV1']
+    # flags for Physics Validation 
+    cfgFlags.BTagging.SaveSV1Probabilities = True
+    cfgFlags.BTagging.RunJetFitterNN = True
+
+    taggerlist = ['IP2D', 'IP3D', 'SV1', 'JetFitterNN']
 
     setupCondDb(cfgFlags, taggerlist)
 
