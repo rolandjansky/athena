@@ -356,6 +356,7 @@ Trk::GaussianSumFitter::fit(
   // Store only TSOS in tracks instead of MCSOS
   if (!m_StoreMCSOS) {
     auto slimmedSmoothedTrajectory = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    slimmedSmoothedTrajectory->reserve (smoothedTrajectory->size());
     for (const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory) {
       slimmedSmoothedTrajectory->push_back(slimmedSmoothedTrajectory->allocate(*tsos));
     }
@@ -494,6 +495,7 @@ Trk::GaussianSumFitter::fit(
   // Store only TSOS in tracks instead of MCSOS
   if (!m_StoreMCSOS) {
     auto slimmedSmoothedTrajectory = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    slimmedSmoothedTrajectory->reserve (smoothedTrajectory->size());
     for (const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory) {
       slimmedSmoothedTrajectory->push_back(slimmedSmoothedTrajectory->allocate(*tsos));
     }
@@ -1034,6 +1036,7 @@ Trk::GaussianSumFitter::fit(
    * we opt for const ptr*
    */
   auto smoothedTrajectory = SmoothedTrajectoryProt::make_unique();
+  smoothedTrajectory->reserve (5 + forwardTrajectory.size());
   auto smootherPredictionMultiState =
     std::make_unique<Trk::MultiComponentState>();
 
