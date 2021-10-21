@@ -144,9 +144,6 @@ if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFl
         from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
         # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
         ConfigFlags = getNewConfigFlags()
-        # Additional b-tagging related flags
-        ConfigFlags.BTagging.SaveSV1Probabilities = True
-        ConfigFlags.BTagging.RunJetFitterNN = True
         # Configure BTagging algorithm
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
