@@ -59,6 +59,11 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
   // check consistency of the properties
   ATH_CHECK( !m_nTrk.empty() );
 
+  if (m_nTrkCharge.empty()) {
+    ATH_MSG_INFO( "totalCharge value is not specified, no charge selection for track combinations will be used" );
+    m_nTrkCharge = std::vector<int>(m_nTrk.size(), -1);
+  }
+
   if (m_trkMass.empty()) {
     ATH_MSG_INFO( "trackMasses value is not specified, muon/electron mass will be used" );
     for (const auto& n : m_nTrk) {
@@ -466,28 +471,23 @@ StatusCode TrigMultiTrkComboHypo::filterTrackCombinations(TrigMultiTrkStateBase&
     do {
       // fill tracklist and momenta of tracks, also check that the track pT passes the threshold value
       bool isValidCombination = true;
+      int totalCharge = 0;
       size_t j = 0;
       for (size_t i = 0; i < idx.size(); ++i) {
         if (!idx[i]) continue;
         const auto& trackEL = tracks[i];
         tracklist[j] = trackEL;
-        p[j] = (*trackEL)->genvecP4();
+        const auto track = *trackEL;
+        p[j] = track->genvecP4();
         p[j].SetM(m_trkMass[iTrk][j]);
+        totalCharge += static_cast<int>(track->charge());
         if (p[j].Pt() < m_trkPt[iTrk][j]) {
           isValidCombination = false;
           break;
         }
         ++j;
       }
-      if(m_deltaRMax != std::numeric_limits<float>::max() || m_deltaRMin != std::numeric_limits<float>::lowest()){
-         for (size_t i = 0; i < p.size(); ++i){
-           for (size_t j = i; j < p.size(); ++j){
-              auto result = ROOT::Math::VectorUtil::DeltaR(p[i], p[j]);
-              if(result > m_deltaRMax || result < m_deltaRMin) { isValidCombination = false; break;}
-           }
-         }
-      }
-      if (!isValidCombination) continue;
+      if (!isValidCombination || (m_nTrkCharge[iTrk] >= 0 && totalCharge != m_nTrkCharge[iTrk]) || !passedDeltaRcut(p)) continue;
 
       if (msgLvl(MSG::DEBUG)) {
         ATH_MSG_DEBUG( "Dump found tracks before vertex fit: pT / eta / phi / charge" );
@@ -603,7 +603,7 @@ StatusCode TrigMultiTrkComboHypo::findMultiLeptonCandidates(TrigMultiTrkState<T>
         }
         ++j;
       }
-      if (!isValidCombination) continue;
+      if (!isValidCombination || (m_nTrkCharge[iTrk] >= 0 && charge != m_nTrkCharge[iTrk]) || !passedDeltaRcut(p)) continue;
 
       if (msgLvl(MSG::DEBUG)) {
         ATH_MSG_DEBUG( "Dump found leptons before vertex fit: pT / eta / phi / charge" );
@@ -749,6 +749,7 @@ StatusCode TrigMultiTrkComboHypo::findMuTrkCandidates(TrigMultiTrkState<xAOD::Mu
       auto trackMomentum = track->genvecP4();
       trackMomentum.SetM(PDG::mMuon);
       if (!isInMassRange((muonMomentum + trackMomentum).M(), 0)) continue;
+      if (m_nTrkCharge[0] >= 0 && muonInDetTrack->charge() * track->charge() > 0.) continue;
 
       tracklist[1] = ViewHelper::makeLink<xAOD::TrackParticleContainer>(view, tracksHandle, idx);
 
@@ -981,4 +982,19 @@ bool TrigMultiTrkComboHypo::isInMassRange(double mass, size_t idx) const {
 
   const auto& range = m_massRange[idx];
   return (mass > range.first && mass < range.second);
+}
+
+
+bool TrigMultiTrkComboHypo::passedDeltaRcut(const std::vector<xAOD::TrackParticle::GenVecFourMom_t>& p) const {
+
+  if (m_deltaRMax == std::numeric_limits<float>::max() && m_deltaRMin == std::numeric_limits<float>::lowest()) {
+    return true;
+  }
+  for (size_t i = 0; i < p.size(); ++i) {
+    for (size_t j = i + 1; j < p.size(); ++j) {
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(p[i], p[j]);
+      if (deltaR > m_deltaRMax || deltaR < m_deltaRMin) return false;
+    }
+  }
+  return true;
 }
