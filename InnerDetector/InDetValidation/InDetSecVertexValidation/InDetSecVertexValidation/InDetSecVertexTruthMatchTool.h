@@ -14,6 +14,9 @@
 #include "xAODTruth/TruthVertexFwd.h"
 #include "InDetSecVertexValidation/IInDetSecVertexTruthMatchTool.h"
 
+// standard includes
+#include<vector>
+
 /** Class for vertex truth matching.
  * Match reconstructed vertices to truth level interactions vertices
  * through the chain: track -> particle -> genEvent -> genVertex
@@ -46,6 +49,8 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   float m_vxMatchWeight;
   //pt cut to use on tracks
   float m_trkPtCut;
+  //comma separated list of pdgids to consider in the matchiing
+  std::string m_pdgIDs;
 
   mutable std::atomic<unsigned int> m_nVtx {};
   mutable std::atomic<unsigned int> m_nVtxWithBadLinks {};
@@ -53,8 +58,11 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   mutable std::atomic<unsigned int> m_nLinks {};
 
   //private methods to check if particles are good to use
-  bool pass( const xAOD::TruthParticle & truthPart ) const;
-  bool pass( const xAOD::TrackParticle & trackPart ) const;
+  //returns barcode of LLP production truth vertex
+  int checkProduction( const xAOD::TruthParticle & truthPart ) const;
+
+  //private internal variables (not properties)
+  std::vector<int> m_pdgIDList;
 
 };
 

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Set up the file reading:
-FNAME = "/afs/cern.ch/work/j/jburzyns/WorkArea/runDerivation/DAOD_PHYSLLP.test.pool.root"
+FNAME = "/eos/atlas/atlascerngroupdisk/phys-exotics/ueh/VH4b/R22/valid1.313415.PowhegPythia8EvtGen_ZH_H125_a16a16_4b_ctau100.recon.AOD.e8323_e5984_s3227_r12627_tid26024619_00/DAOD_PHYS.output.pool.root"
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [ FNAME ]

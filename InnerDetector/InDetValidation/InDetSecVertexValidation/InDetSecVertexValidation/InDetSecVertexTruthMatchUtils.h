@@ -19,6 +19,7 @@ namespace InDetSecVertexTruthMatchUtils {
 
   //type codes for vertex matching on all vertices
   enum VertexMatchType {
+    NOTYPE,  // vertex is not secondary
     MATCHED, // > threshold (default 70%) from one truth interaction
     MERGED,  // not matched
     SPLIT,   // highest weight truth interaction contributes to >1 vtx (vtx with highest fraction of sumpT2 remains matched/merged)

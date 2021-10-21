@@ -14,7 +14,6 @@ InDetSecVertexTruthMatchAlgorithm::InDetSecVertexTruthMatchAlgorithm( const std:
 
    declareProperty( "SecVertexSGKey", m_secVtxSGKey = "VrtSecInclusive_SecondaryVertices" );
    declareProperty( "TruthVertexSGKey", m_truthVtxSGKey = "TruthBSMWithDecayVertices" );
-
    declareProperty( "VertexTruthMatchTool", m_matchTool );
 }
 

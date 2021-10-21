@@ -19,6 +19,14 @@ InDetSecVertexTruthMatchTool::InDetSecVertexTruthMatchTool( const std::string & 
 StatusCode InDetSecVertexTruthMatchTool::initialize() {
   ATH_MSG_INFO("Initializing");
 
+  std::stringstream ss(m_pdgIDs);
+
+  for (int i; ss >> i;) {
+      m_pdgIDList.push_back(i);    
+      if (ss.peek() == ',')
+          ss.ignore();
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -104,6 +112,7 @@ void createTrackTruthMap(const std::vector<const xAOD::TruthEventBaseContainer *
 }
 
 //In the vector of match info, find the element corresponding to link and return its index; create a new one if necessary
+//TODO: change this to truthVertex
 size_t indexOfMatchInfo( std::vector<VertexTruthMatchInfo> & matches, ElementLink<xAOD::TruthEventBaseContainer> & link ) {
   for ( size_t i = 0; i < matches.size(); ++i ) {
     if ( link.key() == std::get<0>(matches[i]).key() && link.index() == std::get<0>(matches[i]).index() )
@@ -137,9 +146,222 @@ InDetSecVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexCont
   return 0;
 }
 
+
 StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vtxContainer,
                                                         const xAOD::TruthVertexContainer & truthVtxContainer) const {
 
+  ATH_MSG_DEBUG("Start vertex matching");
+
+  std::map<int, std::vector<xAOD::Vertex*>> truthRecoMap;
+
+  ATH_MSG_DEBUG("Starting Loop on Truth Vertices");
+
+  for(const xAOD::TruthVertex* truthVtx : truthVtxContainer) {
+
+    // only consider 1->N decay vertices
+    if(truthVtx->nIncomingParticles() != 1) continue;
+
+    const xAOD::TruthParticle* truthPart = truthVtx->incomingParticle(0);
+    // skip if invalid incoming particle link
+    if(not truthPart) continue;
+    // skip if the vertex is not an LLP decay
+    if(std::find(m_pdgIdList(), m_pdgIdList.end(), truthPart->pdgId()) == m_pdgIdList.end()) continue;
+
+    truthRecoMap[truthPart->barcode()] = std::vector<xAOD::Vertex*>();
+      
+  }
+
+  //setup decorators for truth matching info
+  static const xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthVertexMatchingInfos");
+  static const xAOD::Vertex::Decorator<VertexMatchType> matchTypeDecor("VertexMatchType");
+  static const xAOD::Vertex::Decorator<std::vector<ElementLink<xAOD::VertexContainer> > > splitPartnerDecor("SplitPartners");
+  static const xAOD::Vertex::Decorator<ElementLink<xAOD::TruthVertexContainer> > backLinkDecor("RecoToTruthLink");
+  static const xAOD::Vertex::Decorator<std::vector<TruthVertexInfo> > matchInfo("TruthVertexInfo");
+
+  //setup accessors
+  // can switch to built in method in xAOD::Vertex once don't have to deal with changing names anymore
+  xAOD::Vertex::ConstAccessor<xAOD::Vertex::TrackParticleLinks_t> trkAcc("trackParticleLinks");
+  xAOD::Vertex::ConstAccessor<std::vector<float> > weightAcc("trackWeights");
+
+  xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > trk_truthPartAcc("truthParticleLink");
+  xAOD::TrackParticle::ConstAccessor<float> trk_truthProbAcc("truthMatchProbability");
+
+  //some variables to store
+  size_t ntracks;
+
+  ATH_MSG_DEBUG("Starting Loop on Vertices");
+
+  //=============================================================================
+  //First loop over vertices: get tracks, then TruthParticles, and store relative
+  //weights from each TruthVertex
+  //=============================================================================
+  size_t vtxEntry = 0;
+  unsigned int n_bad_links = 0;
+  unsigned int n_links = 0;
+  unsigned int n_vx_with_bad_links = 0;
+
+  for ( const auto xAOD::Vertex* vtx : vtxContainer ) {
+
+    vtxEntry++;
+    ATH_MSG_DEBUG("Matching vertex number: " << vtxCount << ".");
+
+    vxType = static_cast<xAOD::VxType::VertexType>( vtx->vertexType() );
+
+    if(vtxType != xAOD::VxType::SecVtx ){
+      ATH_MSG_DEBUG("Vertex not labeled as secondary");
+      matchTypeDecor(*vtx) = NOTYPE;
+      continue;
+    }
+
+    //create the vector we will add as matching info decoration later
+    std::vector<VertexTruthMatchInfo> matchinfo;
+
+    const xAOD::Vertex::TrackParticleLinks_t & trkParts = trkAcc( *vtx );
+    ntracks = trkParts.size();
+    const std::vector<float> & trkWeights = weightAcc( *vtx );
+
+    //if don't have track particles
+    if (!trkAcc.isAvailable(*vtx) || !weightAcc.isAvailable(*vtx) ) {
+      ATH_MSG_WARNING("trackParticles or trackWeights not available, vertex is missing info");
+      missinginfo++;
+      matchTypeDecor( *vtx ) = MISSINGINFO;
+      continue;
+    }
+    if ( trkWeights.size() != ntracks ) {
+      ATH_MSG_WARNING("Vertex without same number of tracks and trackWeights, vertex is missing info");
+      missinginfo++;
+      matchTypeDecor( *vxt ) = MISSINGINFO;
+      continue;
+    }
+
+    ATH_MSG_DEBUG("Matching new vertex at (" << vtx->x() << ", " << vtx->y() << ", " << vtx->z() << ")" << " with " << ntracks << " tracks, at index: " << vtx->index());
+
+    float totalWeight = 0.;
+    float totalFake = 0.;
+
+    float totalPt = 0; 
+    float otherPt = 0;
+    float fakePt = 0;
+
+    unsigned vx_n_bad_links = 0;
+    //loop element link to track particle
+    for ( size_t t = 0; t < ntracks; ++t ) {
+
+      ATH_MSG_DEBUG("Checking track number " << t);
+
+      if (!trkParts[t].isValid()) {
+         ++vx_n_bad_links;
+         continue;
+      }
+      const xAOD::TrackParticle & trk = **trkParts[t];
+
+      totalWeight += trkWeights[t];
+      totalPt += trk.pt();
+
+      const ElementLink<xAOD::TruthParticleContainer> & truthPartLink = trk_truthPartAcc( trk );
+      float prob = trk_truthProbAcc( trk );
+
+
+      if (truthPartLink.isValid() and prob > m_trkMatchProb) {
+        const xAOD::TruthParticle & truthPart = **truthPartLink;
+
+        int barcode = -1;
+        barcode = checkProduction(truthPart);
+
+        //check if the truth particle is "good"
+        if ( barcode != -1 ) {
+          //track in vertex is linked to LLP descendant
+          //create link to truth vertex and add to matchInfo
+          size_t index = getIndex(truthVtxContainer, barcode);
+          const ElementLink<xAOD::TruthEventBaseContainer> elLink = ElementLink<xAOD::TruthEventBaseContainer>( truthVtxContainer, index );
+
+          size_t matchIdx = indexOfMatchInfo( matchinfo, link );
+
+          std::get<1>(matchinfo[matchIdx]) += trkWeights[t];
+          std::get<2>(matchinfo[matchIdx]) += trk.pt()
+        } else {
+          //truth particle failed cuts -> add to other
+          otherPt += trk.pt();
+        }
+      } else {
+        //not valid or low matching probability -> add to fakes
+        totalFake += trkWeights[t];
+        fakePt += trk.pt();
+      }
+    }//end loop over tracks in vertex
+
+    n_links     += ntracks;
+    n_bad_links += vx_n_bad_links;
+    if (vx_n_bad_links>0) {
+       ++n_vx_with_bad_links;
+    }
+
+  }
+
+  //After first loop, all vertices have been decorated with their vector of match info (link to TruthVertex paired with weight)
+  //now we want to use that information from the whole collection to assign types
+
+  //keep track of whether a type is assigned
+  //useful since looking for splits involves a double loop, and then setting types ahead in the collection
+  std::vector<bool> assignedType( vtxContainer.size(), false );
+
+  for ( size_t i = 0; i < vtxContainer.size(); ++i ) {
+
+    if ( assignedType[i] ) continue; // make sure we don't reclassify vertices already found in the split loop below
+
+    std::vector<VertexTruthMatchInfo> & info = matchInfoDecor( *vtxContainer[i] );
+    if (info.size() == 0) {
+      matchTypeDecor( *vtxContainer[i] ) = DUMMY;
+    } else if ( !std::get<0>(info[0]).isValid() ) {
+      matchTypeDecor( *vtxContainer[i] ) = FAKE;
+    } else if ( std::get<1>(info[0]) > m_vxMatchWeight ) {
+      matchTypeDecor( *vtxContainer[i] ) = MATCHED;
+    } else {
+      matchTypeDecor( *vtxContainer[i] ) = MERGED;
+    }
+
+    //check for splitting
+    if ( matchTypeDecor( *vtxContainer[i] ) == MATCHED || matchTypeDecor( *vtxContainer[i] ) == MERGED ) {
+      std::vector<size_t> foundSplits;
+      for ( size_t j = i + 1; j < vtxContainer.size(); ++j ) {
+        std::vector<VertexTruthMatchInfo> & info2 = matchInfoDecor( *vtxContainer[j] );
+        //check second vertex is not dummy or fake, and that it has same elementlink as first vertex
+        //equality test is in code but doesnt seem to work for ElementLinks that I have?
+        //so i am just checking that the contianer key hash and the index are the same
+        if (matchTypeDecor( *vtxContainer[j] ) == FAKE || matchTypeDecor( *vtxContainer[j] ) == DUMMY) continue;
+        if (info2.size() > 0 && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
+          //add split links; first between first one found and newest one
+          splitPartnerDecor( *vtxContainer[i] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, j ) );
+          splitPartnerDecor( *vtxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, i ) );
+          //then between any others we found along the way
+          for ( auto k : foundSplits ) { //k is a size_t in the vector of splits
+            splitPartnerDecor( *vtxContainer[k] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, j ) );
+            splitPartnerDecor( *vtxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, k ) );
+          }
+          //then keep track that we found this one
+          foundSplits.push_back(j);
+        } //if the two vertices match to same TruthEvent
+      }//inner loop over vertices
+
+      // Correct labelling of split vertices - keep highest sumpt2 vertex labelled as matched/merged
+      float maxSumpT2 = std::get<2>( matchInfoDecor( *vtxContainer[i] )[0] );
+      size_t indexOfMax = i;
+      for ( auto l : foundSplits ) {
+        if ( std::get<2>( matchInfoDecor( *vtxContainer[l] )[0] ) > maxSumpT2 ){
+          maxSumpT2 = std::get<2>( matchInfoDecor( *vtxContainer[l] )[0] );
+          indexOfMax = l;
+        } else {
+          matchTypeDecor( *vtxContainer[l] ) = SPLIT;
+          assignedType[l] = true;
+        }
+      }
+      if ( indexOfMax!=i ) matchTypeDecor( *vtxContainer[i] ) = SPLIT;
+    } //if matched or merged
+  } //outer loop
+
+  return StatusCode::SUCCESS;
+
+/*
   ATH_MSG_DEBUG("Start vertex matching");
   if (vtxContainer.empty() ||   // reject empty vertex containers
        (vtxContainer.size() == 1 && vtxContainer.at(0)->vertexType() == xAOD::VxType::NoVtx)){  // as well as containers containing only a dummy vertex
@@ -427,21 +649,36 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
       }
     }
   }
-
   return StatusCode::SUCCESS;
+*/
+
 
 }
 
 
-//Set up any cuts on either the tracks or truth particles to allow here
-//A failing track is removed from consideration entirely
-//If a passing track matches to a failing truth particle it will be considered "fake"
+// check if truth particle originated from decay of particle in the pdgIdList
+int InDetSecVertexTruthMatchTool::checkProduction( const xAOD::TruthParticle & truthPart ) const {
 
-bool InDetSecVertexTruthMatchTool::pass( const xAOD::TruthParticle & truthPart ) const {
-
-  //remove the registered secondaries
-  if( truthPart.pt() < m_trkPtCut ) return false;
-
-  return true;
-
+  if (truthPart.nParents() == 0){
+    ATH_MSG_DEBUG("Particle has no parents (end of loop)");
+    return -1;
+  } 
+  else{
+    const xAOD::TruthParticle * parent = truthPart.parent(0);
+    if(not parent) {
+      ATH_MSG_DEBUG("Particle parent is null");
+      return -1;
+    }
+    ATH_MSG_DEBUG("Parent ID: " << parent->pdgId());
+        
+    if(std::find(m_pdgIdList(), m_pdgIdList.end(), std::abs(parent->pdgId())) != m_pdgIdList.end()) {
+        ATH_MSG_DEBUG("Found LLP decay.");
+        const xAOD::TruthVertex* vertex = parent->decayVtx();
+        return vertex->barcode();
+    }
+     
+    // recurse on parent
+    return checkProduction(*parent);
+  }
+  return -1;
 }
