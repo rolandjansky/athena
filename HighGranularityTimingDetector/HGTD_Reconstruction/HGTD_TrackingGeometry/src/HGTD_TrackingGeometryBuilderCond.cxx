@@ -246,27 +246,29 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeome
   inBufferVolumes.push_back(innerVol);     
   inBufferVolumes.push_back(positiveInnerGapVolume);     
    
-  const Trk::TrackingVolume* inDetEnclosed = 
-           m_trackingVolumeCreator->createContainerTrackingVolume(inBufferVolumes,
-                                                                  *materialProperties,
-                                                                  "HGTD::Container::EnclosedInnerDetector");    
+  Trk::TrackingVolume* inDetEnclosed = 
+    m_trackingVolumeCreator->createContainerTrackingVolume(inBufferVolumes,
+                                                           *materialProperties,
+                                                           "HGTD::Container::EnclosedInnerDetector");    
   
   // create the tracking volumes 
   // create the three volumes
-  const Trk::TrackingVolume* negativeVolume = m_trackingVolumeCreator->createTrackingVolume(negativeLayers,
-                                                                                     *materialProperties,
-                                                                                     enclosedInnerRadius,enclosedOuterRadius,
-                                                                                     -maxZ_HGTD, -minZ_HGTD,
-                                                                                     m_layerBuilder->identification()+"::NegativeEndcap",
-                                                                                     (Trk::BinningType)m_layerBinningType);
+  Trk::TrackingVolume* negativeVolume = 
+    m_trackingVolumeCreator->createTrackingVolume(negativeLayers,
+                                                  *materialProperties,
+                                                  enclosedInnerRadius, enclosedOuterRadius,
+                                                  -maxZ_HGTD, -minZ_HGTD,
+                                                  m_layerBuilder->identification()+"::NegativeEndcap",
+                                                  (Trk::BinningType)m_layerBinningType);
   
   
-  const Trk::TrackingVolume* positiveVolume = m_trackingVolumeCreator->createTrackingVolume(positiveLayers,
-                                                                                     *materialProperties,
-                                                                                     enclosedInnerRadius,enclosedOuterRadius,
-                                                                                     minZ_HGTD, maxZ_HGTD,
-                                                                                     m_layerBuilder->identification()+"::PositiveEndcap",
-                                                                                     (Trk::BinningType)m_layerBinningType);
+  Trk::TrackingVolume* positiveVolume = 
+    m_trackingVolumeCreator->createTrackingVolume(positiveLayers,
+                                                  *materialProperties,
+                                                  enclosedInnerRadius, enclosedOuterRadius,
+                                                  minZ_HGTD, maxZ_HGTD,
+                                                  m_layerBuilder->identification()+"::PositiveEndcap",
+                                                  (Trk::BinningType)m_layerBinningType);
   
   // the base volumes have been created
   ATH_MSG_VERBOSE('\t' << '\t'<< "Volumes have been created, now pack them into a triple.");
