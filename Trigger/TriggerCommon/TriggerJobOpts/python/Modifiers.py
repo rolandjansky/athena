@@ -126,14 +126,6 @@ class ForceMuonDataType(_modifier):
         muonByteStreamFlags.TgcDataType = 'atlas'
 
 
-class RPCcablingHack(_modifier):
-    """
-    Hack for low pt thresholds - doesn't seem to do anything for HLT?
-    """
-    def postSetup(self):
-        if hasattr(svcMgr,'RPCcablingSimSvc'):
-            svcMgr.RPCcablingSimSvc.HackFor1031 = True
-
 class useNewRPCCabling(_modifier):
     """
     Switch to new RPC cabling code
