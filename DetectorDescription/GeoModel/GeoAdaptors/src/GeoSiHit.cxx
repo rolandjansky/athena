@@ -15,7 +15,7 @@ const InDetDD::PixelDetectorManager* GeoSiHit::initPixMgr()
   if (!detStore->contains<InDetDD::PixelDetectorManager>("Pixel") || detStore->retrieve(pix,"Pixel").isFailure())
   {
     // if Pixel retrieval fails, try ITkPixel
-    if (!detStore->contains<InDetDD::PixelDetectorManager>("ITkPixel") || detStore->retrieve(pix,"ITkPixel").isFailure()) 
+    if (!detStore->contains<InDetDD::PixelDetectorManager>("ITkPixel") || detStore->retrieve(pix,"ITkPixel").isFailure())
     {
       std::abort();
     }
@@ -49,6 +49,15 @@ const InDetDD::PixelDetectorManager* GeoSiHit::initPlrMgr()
 }
 
 
+const HGTD_DetectorManager* GeoSiHit::initHgtdMgr()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const HGTD_DetectorManager* hgtd = nullptr;
+  detStore->retrieve(hgtd,"HGTD").isFailure();
+  return hgtd;
+}
+
+
 const PixelID* GeoSiHit::initPixID()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
@@ -68,6 +77,17 @@ const SCT_ID* GeoSiHit::initSctID()
     std::abort();
   }
   return sct;
+}
+
+
+const HGTD_ID* GeoSiHit::initHgtdID()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const HGTD_ID* hgtd = nullptr;
+  if(detStore->retrieve(hgtd,"HGTD_ID").isFailure()) {
+    std::abort();
+  }
+  return hgtd;
 }
 
 
@@ -92,16 +112,29 @@ const InDetDD::PixelDetectorManager* GeoSiHit::plrMgr() const
 }
 
 
-const PixelID*                       GeoSiHit::pixID()  const
+const HGTD_DetectorManager* GeoSiHit::hgtdMgr() const
+{
+  const HGTD_DetectorManager* const mgr = initHgtdMgr();
+  return mgr;
+}
+
+
+const PixelID* GeoSiHit::pixID() const
 {
   const PixelID* const id = initPixID();
   return id;
 }
 
 
-const SCT_ID*                        GeoSiHit::sctID()  const
+const SCT_ID* GeoSiHit::sctID() const
 {
   const SCT_ID* const id = initSctID();
   return id;
 }
 
+
+const HGTD_ID* GeoSiHit::hgtdID() const
+{
+  const HGTD_ID* const id = initHgtdID();
+  return id;
+}

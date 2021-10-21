@@ -91,8 +91,8 @@ StatusCode SiHitAnalysis::initialize()
   } else if (detName == "HGTD") {
     bin_down = -1000;
     bin_up = 1000;
-    radius_up = 1000;
-    radius_down = 350;
+    radius_up = 700;
+    radius_down = 0;
     z_max = 3600;
   } else if (detName == "PLR") {
     bin_down = -125;
