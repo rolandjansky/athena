@@ -32,8 +32,6 @@ if jobproperties.CaloRecFlags.doCaloTopoCluster():
 
 pdr.flag_domain('id')
 if DetFlags.detdescr.ID_on():
-    protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
-    AODFix_postInDetRec()
     if jobproperties.InDetJobProperties.useNewConfig():
         print('Wrapping InDet new configuration')
         from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
@@ -46,7 +44,9 @@ if DetFlags.detdescr.ID_on():
         log = logging.getLogger( "Py:conf2toConfigurable" )
         log.setLevel(DEBUG)
         CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
-
+    else:
+        protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
+        AODFix_postInDetRec()
 
 # functionality : FTK reconstruction
 if DetFlags.detdescr.FTK_on() :
