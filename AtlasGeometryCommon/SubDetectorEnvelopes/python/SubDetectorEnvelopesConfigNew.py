@@ -8,8 +8,6 @@ Elmar Ritsch, 27/09/2013
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-DetDescrDBEnvelopeSvc=CompFactory.DetDescrDBEnvelopeSvc
-
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     result = ComponentAccumulator()
 
@@ -151,7 +149,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     kwargs.setdefault("GeoModelSvc", acc.getService("GeoModelSvc"))
     result.merge(acc)
 
-    result.addService(DetDescrDBEnvelopeSvc(name, **kwargs),primary=True)
+    result.addService(CompFactory.DetDescrDBEnvelopeSvc(name, **kwargs),primary=True)
     return result
 
 
