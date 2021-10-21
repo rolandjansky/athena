@@ -9,13 +9,14 @@ def EMVertexBuilderCfg(flags, name="EMVertexBuilder", **kwargs):
     acc = ComponentAccumulator()
 
     if "ExtrapolationTool" not in kwargs:
-        from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
+        from egammaTrackTools.egammaTrackToolsConfig import (
+            EMExtrapolationToolsCfg)
         kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(
             EMExtrapolationToolsCfg(flags))
     if "VertexFinderTool" not in kwargs:
         vtxFlags = flags.cloneAndReplace(
             "InDet.SecVertex", "InDet.SecVertexEGammaPileUp")
-        from InDetConfig.VertexFindingConfig import ConversionFinderCfg
+        from InDetConfig.ConversionFindingConfig import ConversionFinderCfg
         kwargs["VertexFinderTool"] = acc.popToolsAndMerge(
             ConversionFinderCfg(vtxFlags))
 
