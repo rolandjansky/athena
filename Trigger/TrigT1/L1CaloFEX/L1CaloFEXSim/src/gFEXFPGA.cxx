@@ -77,7 +77,6 @@ namespace LVL1 {
 
      std::copy(&tmp_gTowersIDs_subset[0][0], &tmp_gTowersIDs_subset[0][0]+(rows*cols),&m_gTowersIDs_forward[0][0]);
 
-
    }
 
 
@@ -95,6 +94,7 @@ namespace LVL1 {
             const LVL1::gTower * tmpTower = jk_gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_central[myrow][mycol]);
             if (tmpTower == nullptr) continue;
             output_gTower_energies[myrow][mycol] = tmpTower->getET();
+
          }
       }
    }
@@ -113,6 +113,7 @@ namespace LVL1 {
             const LVL1::gTower * tmpTower = jk_gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_forward[myrow][mycol]);
             if (tmpTower == nullptr) continue;
             output_gTower_energies[myrow][mycol] = tmpTower->getET();
+
          }
       }
    }
