@@ -41,7 +41,6 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     # Add algorithms
     if flags.Egamma.doGSF:
-
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
         acc.merge(egammaSelectedTrackCopyCfg(flags))
