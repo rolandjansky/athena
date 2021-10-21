@@ -28,7 +28,7 @@ namespace Trk {
 
       @author Andreas.Salzburger@cern.ch
      */
-    class ATLAS_NOT_THREAD_SAFE LayerProviderCond // mutable cache
+    class LayerProviderCond
       : public AthAlgTool
       , virtual public ILayerProviderCond
     {
@@ -60,7 +60,6 @@ namespace Trk {
         std::pair<EventIDRange, const std::vector< const Layer* > > discLayers(const EventContext& ctx, int posneg) const;   
       
         ToolHandle<ILayerBuilderCond>           m_layerBuilder;
-        mutable std::vector<const Trk::Layer*>  m_layerCache;
         
     };
 
