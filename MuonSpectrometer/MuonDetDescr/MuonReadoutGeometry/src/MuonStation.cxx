@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -20,8 +20,8 @@
 namespace MuonGM {
 
     MuonStation::MuonStation(std::string_view stName, double Ssize, double Rsize, double Zsize, double LongSsize, double LongRsize,
-                             double LongZsize, int zi, int fi, bool descratzneg) {
-        m_statname = std::string(stName);
+                             double LongZsize, int zi, int fi, bool descratzneg) :
+        m_statname(stName) {
         m_Ssize = Ssize;
         m_Rsize = Rsize;
         m_Zsize = Zsize;
@@ -29,39 +29,15 @@ namespace MuonGM {
         m_LongRsize = LongRsize;
         m_LongZsize = LongZsize;
         m_descratzneg = descratzneg;
-        m_xAmdbCRO = 0.;
-
         m_statEtaIndex = zi;
         m_statPhiIndex = fi;
-        m_key = " ";
-        m_transform = nullptr;
-        m_native_to_amdbl = nullptr;
-        m_amdbl_to_global = nullptr;
-        m_delta_amdb_frame = nullptr;
-        m_rots = 0.;
-        m_rotz = 0.;
-        m_rott = 0.;
-        m_hasALines = false;
-        m_hasBLines = false;
-        m_BlineFixedPointInAmdbLRS.setX(0.);
-        m_BlineFixedPointInAmdbLRS.setY(0.);
-        m_BlineFixedPointInAmdbLRS.setZ(0.);
-        m_XTomoData = nullptr;
-
-        m_REwithAlTransfInStation = new std::map<int, pairRE_AlignTransf>;
-        m_firstRequestBlineFixedP = true;
     }
 
-    MuonStation::~MuonStation() {
-        delete m_native_to_amdbl;
-        delete m_amdbl_to_global;
-        delete m_delta_amdb_frame;
-        delete m_REwithAlTransfInStation;
-    }
+    MuonStation::~MuonStation() = default;
 
     void MuonStation::setNominalAmdbLRSToGlobal(HepGeom::Transform3D xf) {
-        if (m_amdbl_to_global == nullptr)
-            m_amdbl_to_global = new HepGeom::Transform3D(xf);
+        if (!m_amdbl_to_global)
+            m_amdbl_to_global = std::make_unique<HepGeom::Transform3D>(std::move(xf));
         else
             *m_amdbl_to_global = xf;
 #ifndef NDEBUG
@@ -109,8 +85,8 @@ namespace MuonGM {
         // edge at the second layer, i.e. the z should be corrected by a half tube
         // pitch. Correction is thus computed only for barrel side C.
         if (barrel() && (getEtaIndex() < 0)) {
-            std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-            for (; it != m_REwithAlTransfInStation->end(); ++it) {
+            std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation.begin();
+            for (; it != m_REwithAlTransfInStation.end(); ++it) {
                 const MuonReadoutElement* muonRE = ((*it).second).first;
                 if (muonRE->getTechnologyType() == "MDT") {
                     const MdtReadoutElement* mdtRE = dynamic_cast<const MdtReadoutElement*>(muonRE);
@@ -157,8 +133,8 @@ namespace MuonGM {
     }
 
     void MuonStation::setDeltaAmdbLRS(HepGeom::Transform3D xf) {
-        if (m_delta_amdb_frame == nullptr)
-            m_delta_amdb_frame = new HepGeom::Transform3D(xf);
+        if (!m_delta_amdb_frame)
+            m_delta_amdb_frame = std::make_unique<HepGeom::Transform3D>(std::move(xf));
         else
             *m_delta_amdb_frame = xf;
 
@@ -217,36 +193,40 @@ namespace MuonGM {
     }
 
     const MuonReadoutElement* MuonStation::getMuonReadoutElement(int jobIndex) const {
-        if (m_REwithAlTransfInStation->find(jobIndex) == m_REwithAlTransfInStation->end()) return nullptr;
+        std::map<int, pairRE_AlignTransf>::const_iterator itr = m_REwithAlTransfInStation.find(jobIndex);
+        if (itr == m_REwithAlTransfInStation.end()) return nullptr;
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "getMuonReadoutElement at Job=" << jobIndex << " for station " << getStationName()
                 << " at zi/fi = " << getEtaIndex() << "/" << getPhiIndex() << endmsg;
 #endif
-        return ((*m_REwithAlTransfInStation)[jobIndex]).first;
+        return itr->second.first;
     }
 
     MuonReadoutElement* MuonStation::getMuonReadoutElement(int jobIndex) {
-        if (m_REwithAlTransfInStation->find(jobIndex) == m_REwithAlTransfInStation->end()) return nullptr;
+        std::map<int, pairRE_AlignTransf>::const_iterator itr = m_REwithAlTransfInStation.find(jobIndex);
+
+        if (itr == m_REwithAlTransfInStation.end()) return nullptr;
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "getMuonReadoutElement at Job=" << jobIndex << " for station " << getStationName()
                 << " at zi/fi = " << getEtaIndex() << "/" << getPhiIndex() << endmsg;
 #endif
-        return ((*m_REwithAlTransfInStation)[jobIndex]).first;
+        return itr->second.first;
     }
 
     GeoAlignableTransform* MuonStation::getComponentAlTransf(int jobIndex) const {
-        if (m_REwithAlTransfInStation->find(jobIndex) == m_REwithAlTransfInStation->end()) return nullptr;
+        std::map<int, pairRE_AlignTransf>::const_iterator itr = m_REwithAlTransfInStation.find(jobIndex);
+        if (itr == m_REwithAlTransfInStation.end()) return nullptr;
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "getComponentAlTransf at Job=" << jobIndex << " for station " << getStationName()
                 << " at zi/fi = " << getEtaIndex() << "/" << getPhiIndex() << endmsg;
 #endif
-        return ((*m_REwithAlTransfInStation)[jobIndex]).second;
+        return itr->second.second;
     }
 
     void MuonStation::addMuonReadoutElementWithAlTransf(MuonReadoutElement* a, GeoAlignableTransform* ptrsf, int jobIndex) {
@@ -261,23 +241,20 @@ namespace MuonGM {
                 << " job ondex = " << jobIndex << endmsg;
 #endif
 
-        pairRE_AlignTransf* myPair = new pairRE_AlignTransf(a, ptrsf);
-        (*m_REwithAlTransfInStation)[jobIndex] = (*myPair);
+        m_REwithAlTransfInStation[jobIndex] = pairRE_AlignTransf{a, ptrsf};
 
 #ifndef NDEBUG
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "addMuonReadoutElementWithAlTransf for station " << getStationName() << " at zi/fi = " << getEtaIndex()
-                << "/" << getPhiIndex() << " added new component - now size of map is  " << m_REwithAlTransfInStation->size() << endmsg;
+                << "/" << getPhiIndex() << " added new component - now size of map is  " << m_REwithAlTransfInStation.size() << endmsg;
 #endif
-
-        delete myPair;
     }
 
     void MuonStation::setDelta_fromAline_forComp(int jobindex, double tras, double traz, double trat, double rots, double rotz,
                                                  double rott) {
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         GeoAlignableTransform* parentToChild = getComponentAlTransf(jobindex);
-        if (parentToChild == nullptr) {
+        if (!parentToChild) {
             if (log.level() <= MSG::WARNING)
                 log << MSG::WARNING << "setDelta_fromAline_forComp: WARNING: component for index " << jobindex
                     << " not found in MuonStation named " << getStationName() << " at zi/fi = " << getEtaIndex() << "/" << getPhiIndex()
@@ -348,11 +325,11 @@ namespace MuonGM {
     }
 
     void MuonStation::clearCache() {
-        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
-        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
+        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation.begin();
+        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation.end();
 
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "n. of RE in this station is " << m_REwithAlTransfInStation->size() << endmsg;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "n. of RE in this station is " << m_REwithAlTransfInStation.size() << endmsg;
 
         int i = 0;
         for (; it != itEnd; ++it) {
@@ -371,11 +348,11 @@ namespace MuonGM {
     }
 
     void MuonStation::refreshCache() {
-        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
-        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
+        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation.begin();
+        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation.end();
 
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "n. of RE in this station is " << m_REwithAlTransfInStation->size() << endmsg;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "n. of RE in this station is " << m_REwithAlTransfInStation.size() << endmsg;
 
         int i = 0;
         for (; it != itEnd; ++it) {
@@ -393,8 +370,8 @@ namespace MuonGM {
     }
 
     void MuonStation::fillCache() {
-        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
-        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
+        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation.begin();
+        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation.end();
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         for (; it != itEnd; it++) {
             MuonReadoutElement* re = ((*it).second).first;
@@ -410,8 +387,8 @@ namespace MuonGM {
 
     void MuonStation::setBline(const BLinePar* bline) {
         m_hasBLines = true;
-        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
-        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
+        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation.begin();
+        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation.end();
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         for (; it != itEnd; ++it) {
             MuonReadoutElement* re = ((*it).second).first;
@@ -429,8 +406,8 @@ namespace MuonGM {
     }
 
     void MuonStation::clearBLineCache() {
-        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
-        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
+        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation.begin();
+        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation.end();
         int i = 0;
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         for (; it != itEnd; ++it) {
@@ -449,8 +426,8 @@ namespace MuonGM {
         }
     }
     void MuonStation::fillBLineCache() {
-        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
-        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
+        std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation.begin();
+        std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation.end();
         MsgStream log(Athena::getMessageSvc(), "MuonStation");
         for (; it != itEnd; ++it) {
             MuonReadoutElement* re = ((*it).second).first;

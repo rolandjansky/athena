@@ -32,36 +32,14 @@
 #include "TrkSurfaces/SurfaceBounds.h"
 
 namespace {
-    static constexpr double const& rpc3GapLayerThickness = 11.8;  // gas vol. + ( bakelite + graphite + PET )x2
+    constexpr double rpc3GapLayerThickness = 11.8;  // gas vol. + ( bakelite + graphite + PET )x2
 }
 
 namespace MuonGM {
 
     RpcReadoutElement::RpcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, bool is_mirrored,
                                          MuonDetectorManager* mgr) :
-        MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
-        m_hasDEDontop(false),
-        m_nlayers(2),
-        m_nphigasgaps(-1),
-        m_netagasgaps(-1),
-        m_gasgapssize(-9999.),
-        m_gasgapzsize(-9999.),
-        m_nphistrippanels(-1),
-        m_netastrippanels(-1),
-        m_nphistripsperpanel(-1),
-        m_netastripsperpanel(-1),
-        m_phistripwidth(-9999.),
-        m_etastripwidth(-9999.),
-        m_phistrippitch(-9999.),
-        m_etastrippitch(-9999.),
-        m_phistriplength(-9999.),
-        m_etastriplength(-9999.),
-        m_phipaneldead(-9999.),
-        m_etapaneldead(-9999.),
-        m_exthonthick(-9999.),
-        m_set(nullptr),
-        m_y_translation(0),
-        m_z_translation(0) {
+        MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr) {
         std::string gVersion = manager()->geometryVersion();
 
         // get the setting of the caching flag from the manager
@@ -74,7 +52,7 @@ namespace MuonGM {
 
         setStationName(stName);
 
-        if (mgr->MinimalGeoFlag() == 0) {
+        if (!mgr->MinimalGeoFlag()) {
             if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*>(pv)) {
                 int lgg = 0;
                 int llay = 0;
@@ -205,7 +183,7 @@ namespace MuonGM {
         return local_z;
     }
 
-    const Amg::Vector3D RpcReadoutElement::stripPos(int doubletR, int doubletZ, int doubletPhi, int gasGap, int measPhi, int strip) const {
+    Amg::Vector3D RpcReadoutElement::stripPos(int doubletR, int doubletZ, int doubletPhi, int gasGap, int measPhi, int strip) const {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
         if (log.level() <= MSG::VERBOSE)
@@ -230,8 +208,8 @@ namespace MuonGM {
         return rpcTrans * localP;
     }
 
-    const Amg::Vector3D RpcReadoutElement::localStripPos(int /*doubletR*/, int doubletZ, int doubletPhi, int gasGap, int measPhi,
-                                                         int strip) const {
+    Amg::Vector3D RpcReadoutElement::localStripPos(int /*doubletR*/, int doubletZ, int doubletPhi, int gasGap, int measPhi,
+                                                   int strip) const {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
         if (log.level() <= MSG::VERBOSE)
@@ -339,7 +317,7 @@ namespace MuonGM {
         return xgg;
     }
 
-    const Amg::Vector3D RpcReadoutElement::localStripPos(Identifier id) const {
+    Amg::Vector3D RpcReadoutElement::localStripPos(const Identifier& id) const {
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         int doubletR = idh->doubletR(id);
         int doubletZ = idh->doubletZ(id);
@@ -351,7 +329,7 @@ namespace MuonGM {
         return localStripPos(doubletR, doubletZ, doubletPhi, gasgap, measPhi, strip);
     }
 
-    const Amg::Vector3D RpcReadoutElement::stripPos(Identifier id) const {
+    Amg::Vector3D RpcReadoutElement::stripPos(const Identifier& id) const {
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         int doubletR = idh->doubletR(id);
         int doubletZ = idh->doubletZ(id);
@@ -363,7 +341,7 @@ namespace MuonGM {
     }
 
     bool RpcReadoutElement::rotatedRpcModule() const { return (!m_hasDEDontop); }
-    bool RpcReadoutElement::rotatedGasGap(Identifier id) const { return localTopGasGap(id); }
+    bool RpcReadoutElement::rotatedGasGap(const Identifier& id) const { return localTopGasGap(id); }
     bool RpcReadoutElement::rotatedGasGap(int gasGap) const { return localTopGasGap(gasGap); }
 
     bool RpcReadoutElement::localTopGasGap(int gasGap) const {
@@ -390,7 +368,7 @@ namespace MuonGM {
         return topgg;
     }
 
-    bool RpcReadoutElement::localTopGasGap(Identifier id) const {
+    bool RpcReadoutElement::localTopGasGap(const Identifier& id) const {
         // top gas gap is rotated around y => z coordinates are reversed
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         int gasgap = idh->gasGap(id);
@@ -416,7 +394,7 @@ namespace MuonGM {
         return topgg;
     }
 
-    const Amg::Vector3D RpcReadoutElement::gasGapPos(Identifier id) const {
+    Amg::Vector3D RpcReadoutElement::gasGapPos(const Identifier& id) const {
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         int doubletZ = idh->doubletZ(id);
         int doubletPhi = idh->doubletPhi(id);
@@ -424,7 +402,7 @@ namespace MuonGM {
         return gasGapPos(doubletZ, doubletPhi, gasgap);
     }
 
-    const Amg::Vector3D RpcReadoutElement::gasGapPos(int doubletZ, int doubletPhi, int gasgap) const {
+    Amg::Vector3D RpcReadoutElement::gasGapPos(int doubletZ, int doubletPhi, int gasgap) const {
         const Amg::Vector3D localP = localGasGapPos(doubletZ, doubletPhi, gasgap);
 
         const Amg::Transform3D rpcTrans = absTransform();
@@ -435,7 +413,7 @@ namespace MuonGM {
 #endif
         return rpcTrans * localP;
     }
-    const Amg::Vector3D RpcReadoutElement::localGasGapPos(Identifier id) const {
+    Amg::Vector3D RpcReadoutElement::localGasGapPos(const Identifier& id) const {
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         int doubletZ = idh->doubletZ(id);
         int doubletPhi = idh->doubletPhi(id);
@@ -443,7 +421,7 @@ namespace MuonGM {
 
         return localGasGapPos(doubletZ, doubletPhi, gasgap);
     }
-    const Amg::Vector3D RpcReadoutElement::localGasGapPos(int doubletZ, int doubletPhi, int gasgap) const {
+    Amg::Vector3D RpcReadoutElement::localGasGapPos(int doubletZ, int doubletPhi, int gasgap) const {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
 #endif
@@ -545,7 +523,7 @@ namespace MuonGM {
 
         return localP1;
     }
-    const Amg::Vector3D RpcReadoutElement::localStripPanelPos(int doubletZ, int doubletPhi, int gasgap) const {
+    Amg::Vector3D RpcReadoutElement::localStripPanelPos(int doubletZ, int doubletPhi, int gasgap) const {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
 #endif
@@ -633,7 +611,7 @@ namespace MuonGM {
         return localP;
     }
 
-    const Amg::Vector3D RpcReadoutElement::SDtoModuleCoords(Amg::Vector3D x, Identifier id) const {
+    Amg::Vector3D RpcReadoutElement::SDtoModuleCoords(const Amg::Vector3D& x, const Identifier& id) const {
         const Amg::Vector3D gasgapP = localGasGapPos(id);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         if (rotatedGasGap(id))
@@ -641,7 +619,7 @@ namespace MuonGM {
         else
             return xfp * x;
     }
-    const Amg::Vector3D RpcReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const {
+    Amg::Vector3D RpcReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const {
         const Amg::Vector3D gasgapP = localGasGapPos(id);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         if (rotatedGasGap(id))
@@ -649,7 +627,7 @@ namespace MuonGM {
         else
             return absTransform() * xfp * x;
     }
-    const Amg::Transform3D RpcReadoutElement::localToGlobalTransf(Identifier id) const {
+    Amg::Transform3D RpcReadoutElement::localToGlobalTransf(const Identifier& id) const {
         Amg::Vector3D gasgapP = localGasGapPos(id);
         Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         Amg::Transform3D trans = absTransform();
@@ -658,7 +636,7 @@ namespace MuonGM {
         else
             return trans * xfp;
     }
-    const Amg::Transform3D RpcReadoutElement::localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const {
+    Amg::Transform3D RpcReadoutElement::localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const {
         const Amg::Vector3D locP = localStripPanelPos(dbZ, dbPhi, gasGap);
         const Amg::Translation3D xfp(locP.x(), locP.y(), locP.z());
         if (rotatedGasGap(gasGap))
@@ -666,7 +644,7 @@ namespace MuonGM {
         else
             return absTransform() * xfp;
     }
-    const Amg::Transform3D RpcReadoutElement::localToGlobalTransf(int dbZ, int dbPhi, int gasGap) const {
+    Amg::Transform3D RpcReadoutElement::localToGlobalTransf(int dbZ, int dbPhi, int gasGap) const {
         const Amg::Vector3D gasgapP = localGasGapPos(dbZ, dbPhi, gasGap);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         if (rotatedGasGap(gasGap))
@@ -674,12 +652,12 @@ namespace MuonGM {
         else
             return absTransform() * xfp;
     }
-    const Amg::Transform3D RpcReadoutElement::globalToLocalTransf(Identifier id) const { return localToGlobalTransf(id).inverse(); }
-    const Amg::Vector3D RpcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const {
+    Amg::Transform3D RpcReadoutElement::globalToLocalTransf(const Identifier& id) const { return localToGlobalTransf(id).inverse(); }
+    Amg::Vector3D RpcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const {
         return globalToLocalTransf(id) * x;
     }
 
-    void RpcReadoutElement::setIdentifier(Identifier id) {
+    void RpcReadoutElement::setIdentifier(const Identifier& id) {
         m_id = id;
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         IdentifierHash collIdhash;
@@ -892,7 +870,7 @@ namespace MuonGM {
     RpcReadoutElement::fillCache() {
 
         if (!m_surfaceData)
-            m_surfaceData = new SurfaceData();
+            m_surfaceData = std::make_unique<SurfaceData>();
         else {
             MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
             log << MSG::WARNING << "calling fillCache on an already filled cache" << endmsg;
@@ -932,7 +910,7 @@ namespace MuonGM {
                     trans.pretranslate(trans3D.translation());
 
                     m_surfaceData->m_layerTransforms.push_back(trans);
-                    m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+                    m_surfaceData->m_layerSurfaces.emplace_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
                     if (measPhi == 1) {
                         m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back() * Amg::Vector3D(0., 0., 0.));
@@ -944,13 +922,13 @@ namespace MuonGM {
         }
 
         // phi at index=0
-        m_surfaceData->m_surfBounds.push_back(
-            new Trk::RectangleBounds((m_Ssize / m_nphistrippanels) / 2., (m_Zsize / m_netastrippanels) / 2.));
-        m_surfaceData->m_surfBounds.push_back(
-            new Trk::RectangleBounds((m_Zsize / m_netastrippanels) / 2., (m_Ssize / m_nphistrippanels) / 2.));
+        m_surfaceData->m_surfBounds.emplace_back(
+            std::make_unique<Trk::RectangleBounds>((m_Ssize / m_nphistrippanels) / 2., (m_Zsize / m_netastrippanels) / 2.));
+        m_surfaceData->m_surfBounds.emplace_back(
+            std::make_unique<Trk::RectangleBounds>((m_Zsize / m_netastrippanels) / 2., (m_Ssize / m_nphistrippanels) / 2.));
     }
 
-    bool RpcReadoutElement::containsId(Identifier id) const {
+    bool RpcReadoutElement::containsId(const Identifier& id) const {
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         int doubletR = idh->doubletR(id);
         if (doubletR != getDoubletR()) return false;

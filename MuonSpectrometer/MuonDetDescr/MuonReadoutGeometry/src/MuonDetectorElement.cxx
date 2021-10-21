@@ -13,7 +13,11 @@ class GeoVFullPhysVol;
 namespace MuonGM {
 
     MuonDetectorElement::MuonDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash) :
-        TrkDetElementBase(pv), m_id(id), m_idhash(idHash), m_nREinDetectorElement(0), m_muon_mgr(mgr) {}
+        TrkDetElementBase(pv) {
+        m_muon_mgr = mgr;
+        m_id = id;
+        m_idhash = idHash;
+    }
 
     MuonDetectorElement::~MuonDetectorElement() = default;
 

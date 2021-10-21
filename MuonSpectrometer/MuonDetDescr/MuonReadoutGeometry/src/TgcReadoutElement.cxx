@@ -33,49 +33,45 @@ namespace MuonGM {
 
     TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, bool is_mirrored,
                                          MuonDetectorManager* mgr) :
-        MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr), m_readout_type(-1), m_readoutParams(nullptr) {
+        MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr) {
         setStationName(stName);
         // get the setting of the caching flag from the manager
         setCachingFlag(mgr->cachingFlag());
-
-        m_ngasgaps = 0;
-        m_nstripplanes = 0;
-        m_nwireplanes = 0;
     }
 
     TgcReadoutElement::~TgcReadoutElement() { clearCache(); }
 
-    const Amg::Transform3D TgcReadoutElement::localToGlobalTransf(int gasGap) const {
+    Amg::Transform3D TgcReadoutElement::localToGlobalTransf(int gasGap) const {
         const Amg::Vector3D gasgapP = localGasGapPos(gasGap);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         return absTransform() * xfp;
     }
 
-    const Amg::Transform3D TgcReadoutElement::localToGlobalTransf(Identifier id) const {
+    Amg::Transform3D TgcReadoutElement::localToGlobalTransf(const Identifier& id) const {
         const Amg::Vector3D gasgapP = localGasGapPos(id);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         return absTransform() * xfp;
     }
 
-    const Amg::Vector3D TgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const {
         const Amg::Vector3D gasgapP = localGasGapPos(id);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         return absTransform() * xfp * x;
     }
 
-    const Amg::Transform3D TgcReadoutElement::globalToLocalTransf(Identifier id) const { return localToGlobalTransf(id).inverse(); }
+    Amg::Transform3D TgcReadoutElement::globalToLocalTransf(const Identifier& id) const { return localToGlobalTransf(id).inverse(); }
 
-    const Amg::Vector3D TgcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, const Identifier& id) const {
         return globalToLocalTransf(id) * x;
     }
 
-    const Amg::Vector3D TgcReadoutElement::localGasGapPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::localGasGapPos(const Identifier& id) const {
         const TgcIdHelper* idh = manager()->tgcIdHelper();
         int gasgap = idh->gasGap(id);
         return localGasGapPos(gasgap);
     }
 
-    const Amg::Vector3D TgcReadoutElement::localGasGapPos(int gg) const {
+    Amg::Vector3D TgcReadoutElement::localGasGapPos(int gg) const {
         Amg::Vector3D localP(m_wireplanez[gg - 1], 0., 0.);
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "TgcReadoutElement");
@@ -84,13 +80,13 @@ namespace MuonGM {
         return localP;
     }
 
-    const Amg::Vector3D TgcReadoutElement::gasGapPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::gasGapPos(const Identifier& id) const {
         const TgcIdHelper* idh = manager()->tgcIdHelper();
         int gasgap = idh->gasGap(id);
         return gasGapPos(gasgap);
     }
 
-    const Amg::Vector3D TgcReadoutElement::gasGapPos(int gg) const {
+    Amg::Vector3D TgcReadoutElement::gasGapPos(int gg) const {
         const Amg::Vector3D localP = localGasGapPos(gg);
         const Amg::Transform3D tgcTrans = absTransform();
 #ifndef NDEBUG
@@ -104,7 +100,7 @@ namespace MuonGM {
         return globalP;
     }
 
-    const Amg::Vector3D TgcReadoutElement::channelPos(int gasGap, int isStrip, int channel) const {
+    Amg::Vector3D TgcReadoutElement::channelPos(int gasGap, int isStrip, int channel) const {
         const Amg::Transform3D tgcTrans = absTransform();
 
         if (0 == isStrip) {
@@ -114,7 +110,7 @@ namespace MuonGM {
         }
     }
 
-    const Amg::Vector3D TgcReadoutElement::channelPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::channelPos(const Identifier& id) const {
         const TgcIdHelper* idh = manager()->tgcIdHelper();
         int isStrip = idh->isStrip(id);
         if (0 == isStrip) {
@@ -124,7 +120,7 @@ namespace MuonGM {
         }
     }
 
-    const Amg::Vector3D TgcReadoutElement::localChannelPos(int gasGap, int isStrip, int channel) const {
+    Amg::Vector3D TgcReadoutElement::localChannelPos(int gasGap, int isStrip, int channel) const {
         if (0 == isStrip) {
             return localGangPos(gasGap, channel);
         } else {
@@ -132,7 +128,7 @@ namespace MuonGM {
         }
     }
 
-    const Amg::Vector3D TgcReadoutElement::localChannelPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::localChannelPos(const Identifier& id) const {
         const TgcIdHelper* idh = manager()->tgcIdHelper();
         int isStrip = idh->isStrip(id);
         if (0 == isStrip) {
@@ -142,19 +138,19 @@ namespace MuonGM {
         }
     }
 
-    const Amg::Vector3D TgcReadoutElement::gangPos(int gasGap, int gang) const {
+    Amg::Vector3D TgcReadoutElement::gangPos(int gasGap, int gang) const {
         const Amg::Transform3D tgcTrans = absTransform();
 
         return tgcTrans * localGangPos(gasGap, gang);
     }
 
-    const Amg::Vector3D TgcReadoutElement::gangPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::gangPos(const Identifier& id) const {
         const Amg::Transform3D tgcTrans = absTransform();
 
         return tgcTrans * localGangPos(id);
     }
 
-    const Amg::Vector3D TgcReadoutElement::localGangPos(int gasGap, int gang) const {
+    Amg::Vector3D TgcReadoutElement::localGangPos(int gasGap, int gang) const {
         float x = localGasGapPos(gasGap).x();
         float y = 0.;
 
@@ -168,7 +164,7 @@ namespace MuonGM {
         return Amg::Vector3D(x, y, z);
     }
 
-    const Amg::Vector3D TgcReadoutElement::localGangPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::localGangPos(const Identifier& id) const {
         const TgcIdHelper* tgcidh = manager()->tgcIdHelper();
         int gasGap = tgcidh->gasGap(id);
         int gang = tgcidh->channel(id);
@@ -176,13 +172,13 @@ namespace MuonGM {
         return localGangPos(gasGap, gang);
     }
 
-    const Amg::Vector3D TgcReadoutElement::stripPos(int gasGap, int strip) const {
+    Amg::Vector3D TgcReadoutElement::stripPos(int gasGap, int strip) const {
         const Amg::Transform3D tgcTrans = absTransform();
 
         return tgcTrans * localStripPos(gasGap, strip);
     }
 
-    const Amg::Vector3D TgcReadoutElement::stripPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::stripPos(const Identifier& id) const {
         const Amg::Transform3D tgcTrans = absTransform();
 
         return tgcTrans * localStripPos(id);
@@ -190,10 +186,9 @@ namespace MuonGM {
 
     // Local position of center of strip wrt center of chamber
 
-    const Amg::Vector3D TgcReadoutElement::localStripPos(int gasGap, int strip) const {
+    Amg::Vector3D TgcReadoutElement::localStripPos(int gasGap, int strip) const {
         float x = localGasGapPos(gasGap).x();
-        float y;
-        float z = 0;
+        float y{0.}, z{0.};
         if (0 > getStationEta()) {
             y = stripCtrX(gasGap, strip, z);
         } else {  // left-handed coordinate in A side (global +z)
@@ -202,7 +197,7 @@ namespace MuonGM {
         return Amg::Vector3D(x, y, z);
     }
 
-    const Amg::Vector3D TgcReadoutElement::localStripPos(Identifier id) const {
+    Amg::Vector3D TgcReadoutElement::localStripPos(const Identifier& id) const {
         const TgcIdHelper* tgcidh = manager()->tgcIdHelper();
         int gasGap = tgcidh->gasGap(id);
         int strip = tgcidh->channel(id);
@@ -210,7 +205,7 @@ namespace MuonGM {
         return localStripPos(gasGap, strip);
     }
 
-    const std::string TgcReadoutElement::stationType() const { return getStationType(); }
+    std::string TgcReadoutElement::stationType() const { return getStationType(); }
 
     int TgcReadoutElement::chamberType() const { return m_readout_type; }
 
@@ -269,7 +264,7 @@ namespace MuonGM {
     // Access to wire gang properties
 
     int TgcReadoutElement::nGangs(int gasGap) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         return m_readoutParams->nGangs(gasGap) + 1;
     }
 
@@ -279,19 +274,19 @@ namespace MuonGM {
     }
 
     int TgcReadoutElement::nWiresTotal(int gasGap) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         int total = 0;
         for (int i = 1; i <= nGangs(gasGap); ++i) { total += getNWires(gasGap, i); }
         return total;
     }
 
     int TgcReadoutElement::gangOffset(int gasGap) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         return (int)WireOffset(gasGap);
     }
 
     float TgcReadoutElement::wireCoverage(int gasGap) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         return wirePitch() * nWiresTotal(gasGap);
     }
 
@@ -348,7 +343,7 @@ namespace MuonGM {
     // Access to strip properties
 
     int TgcReadoutElement::nStrips(int gasGap) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         return m_readoutParams->nStrips(gasGap);
     }
 
@@ -368,7 +363,7 @@ namespace MuonGM {
 #endif
 
         // number of strips in exclusive phi coverage of a chamber in T[1-3] and T4
-        const float nDivInChamberPhi[4] = {29.5, 29.5, 29.5, 31.5};
+        constexpr std::array<float, 4> nDivInChamberPhi{29.5, 29.5, 29.5, 31.5};
         float dphi;
 
         int iStation = atoi(getStationType().substr(1, 1).c_str());
@@ -382,8 +377,7 @@ namespace MuonGM {
     }
 
     float TgcReadoutElement::stripDeltaPhi(int gasGap, int strip) const {
-        float dphi;
-        dphi = stripDeltaPhi(gasGap);
+        float dphi = stripDeltaPhi(gasGap);
 
         // half strip
         if ((strip >= 31 && ((getStationEta() > 0 && gasGap == 1) || (getStationEta() < 0 && gasGap != 1))) ||
@@ -396,7 +390,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripStaggerPhi(int gasGap) const {
         // strips in first gap are staggered by one-half pitch angle
 
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         float stagger = 0.0;
         if ((1 == gasGap && 0 < getStationEta()) || (1 != gasGap && 0 > getStationEta())) { stagger = -stripDeltaPhi(gasGap, 16) / 2; }
         return stagger;
@@ -425,7 +419,7 @@ namespace MuonGM {
         // angle of upper edge of strip wrt center of chamber
 
         if (!validStrip(gasGap, strip)) throw;
-        float stripMaxPhi;
+        float stripMaxPhi{0};
 
         // layout Q and following
         double z = (getRsize() - 2. * getPhysicalDistanceFromBase()) / 2.;
@@ -443,7 +437,7 @@ namespace MuonGM {
         // angle of center of strip wrt center of chamber
 
         if (!validStrip(gasGap, strip)) throw;
-        float stripCtrPhi;
+        float stripCtrPhi{0};
 
         stripCtrPhi = (stripMaxPhi(gasGap, strip) + stripMinPhi(gasGap, strip)) / 2.;
         return stripCtrPhi;
@@ -569,8 +563,8 @@ namespace MuonGM {
 
     // Monte Carlo debug (returns strip or gang corresponding with the position)
 
-    int TgcReadoutElement::findChannel(int gasGap, int isStrip, Amg::Vector3D localPos) const {
-        if (!validGap(gasGap)) throw;
+    int TgcReadoutElement::findChannel(int gasGap, int isStrip, const Amg::Vector3D& localPos) const {
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         float x = localPos.x();
         float z = localPos.z();
 
@@ -587,8 +581,8 @@ namespace MuonGM {
         }
     }
 
-    int TgcReadoutElement::findGang(int gasGap, Amg::Vector3D localPos) const {
-        if (!validGap(gasGap)) throw;
+    int TgcReadoutElement::findGang(int gasGap, const Amg::Vector3D& localPos) const {
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         float z = localPos.z();
         for (int gang = 1; gang <= getNGangs(gasGap); ++gang) {
             if (z < gangMaxZ(gasGap, gang)) return gang;
@@ -596,8 +590,8 @@ namespace MuonGM {
         return getNGangs(gasGap);
     }
 
-    int TgcReadoutElement::findStrip(int gasGap, Amg::Vector3D localPos, const Amg::Vector3D& /*globalPos*/) const {
-        if (!validGap(gasGap)) throw;
+    int TgcReadoutElement::findStrip(int gasGap, const Amg::Vector3D& localPos, const Amg::Vector3D& /*globalPos*/) const {
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
 
         float x = localPos.x();
 
@@ -613,7 +607,7 @@ namespace MuonGM {
     int TgcReadoutElement::gapVolume(int gasGap) const {
         // returns the volume index corresponding to the gas gap index
 
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         int gap_index = 0;
         // int vol_index = -1;
         const GenericTGCCache* tgc = manager()->getGenericTgcDescriptor();
@@ -637,13 +631,13 @@ namespace MuonGM {
     }
 
     bool TgcReadoutElement::validGang(int gasGap, int gang) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         bool isValid = (1 <= gang && gang <= (getNGangs(gasGap) + 1));
         return isValid;
     }
 
     bool TgcReadoutElement::validStrip(int gasGap, int strip) const {
-        if (!validGap(gasGap)) throw;
+        if (!validGap(gasGap)) throw std::runtime_error(Form("%s:%d invalid gas gap ", __FILE__, __LINE__));
         bool isValid = (1 <= strip && strip <= getNStrips(gasGap));
         if (!isValid) {
             MsgStream log(Athena::getMessageSvc(), "TgcReadoutElement");
@@ -682,7 +676,7 @@ namespace MuonGM {
 
         return sin(theta);
     }
-    void TgcReadoutElement::setIdentifier(Identifier id) {
+    void TgcReadoutElement::setIdentifier(const Identifier& id) {
         m_id = id;
         const TgcIdHelper* idh = manager()->tgcIdHelper();
         IdentifierHash collIdhash = 0;
@@ -703,7 +697,7 @@ namespace MuonGM {
 
     void TgcReadoutElement::fillCache() {
         if (!m_surfaceData)
-            m_surfaceData = new SurfaceData();
+            m_surfaceData = std::make_unique<SurfaceData>();
         else {
             MsgStream log(Athena::getMessageSvc(), "TgcReadoutElement");
             log << MSG::WARNING << "calling fillCache on an already filled cache" << endmsg;
@@ -732,7 +726,7 @@ namespace MuonGM {
                 trans.pretranslate(trans3D.translation());
 
                 m_surfaceData->m_layerTransforms.push_back(trans);
-                m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+                m_surfaceData->m_layerSurfaces.emplace_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
                 if (mp == 1) {
                     m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
@@ -741,12 +735,13 @@ namespace MuonGM {
             }
         }
 
-        m_surfaceData->m_surfBounds.push_back(new Trk::TrapezoidBounds(m_Ssize / 2., m_LongSsize / 2., m_Rsize / 2.));  // phi measurement
-        m_surfaceData->m_surfBounds.push_back(
-            new Trk::RotatedTrapezoidBounds(m_Rsize / 2., m_Ssize / 2., m_LongSsize / 2.));  // eta measurement
+        m_surfaceData->m_surfBounds.emplace_back(
+            std::make_unique<Trk::TrapezoidBounds>(m_Ssize / 2., m_LongSsize / 2., m_Rsize / 2.));  // phi measurement
+        m_surfaceData->m_surfBounds.emplace_back(
+            std::make_unique<Trk::RotatedTrapezoidBounds>(m_Rsize / 2., m_Ssize / 2., m_LongSsize / 2.));  // eta measurement
     }
 
-    bool TgcReadoutElement::containsId(Identifier id) const {
+    bool TgcReadoutElement::containsId(const Identifier& id) const {
         const TgcIdHelper* idh = manager()->tgcIdHelper();
 
         int gasGap = idh->gasGap(id);

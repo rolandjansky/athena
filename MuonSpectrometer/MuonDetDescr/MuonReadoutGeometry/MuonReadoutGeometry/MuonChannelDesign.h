@@ -12,6 +12,7 @@
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 namespace MuonGM {
 
@@ -23,42 +24,42 @@ namespace MuonGM {
             pad = 2        ///< 2 (pads        locX || eta,                        - sTGC pads)
         };
         enum DetType { MM = 0, STGC = 1 };
-        int type;
-        int detType;
-        int nch;            // total #of active strips
-        double sAngle;      // stereo angle
-        double inputPitch;  // we use this param to define the pitch for MM
-        double inputWidth;
-        double inputLength;
-        double deadI;  // this param is not used for MM
-        double deadO;  // this param is not used for MM
-        double deadS;  // this param is not used for MM
-        double signY;
-        double firstPos;    // the position of the first active strip
-        double firstPitch;  // Pitch of 1st strip or number of wires in 1st group
-        double groupWidth;  // Number of Wires per group
-        double nGroups;     // Number of Wire groups
-        double wireCutout;
-        double xSize;  // Module's radial distance
-        double xLength;
-        double ysFrame;
-        double ylFrame;
-        double minYSize;   // bottom length (active area)
-        double maxYSize;   // top length (active area)
-        double thickness;  // gas thickness
-        double yCutout;
-        double minYPhiL;    //(left bottom) distance between first eta and stereo strips (MM)
-        double minYPhiR;    //(right bottom) distance between first eta and stereo strips (MM)
-        double maxYPhi;     //(top) distance between last eta and stereo strips (MM)
-        int nMissedTopEta;  //#of strips that are not connected to any FE boards (MM)
-        int nMissedBottomEta;
-        int nMissedTopStereo;
-        int nMissedBottomStereo;
-        int nRoutedTop;  //#of strips that have shorter lengths (at the corners of the PCBs) (MM)
-        int nRoutedBottom;
-        double dlStereoTop;  // length between the first eta and stereo
-        double dlStereoBottom;
-        int totalStrips;  // total strips per MM module
+        int type{-1};
+        int detType{-1};
+        int nch{-1};            // total #of active strips
+        double sAngle{0.};      // stereo angle
+        double inputPitch{0.};  // we use this param to define the pitch for MM
+        double inputWidth{0.};
+        double inputLength{0.};
+        double deadI{0.};  // this param is not used for MM
+        double deadO{0.};  // this param is not used for MM
+        double deadS{0.};  // this param is not used for MM
+        double signY{0.};
+        double firstPos{0.};    // the position of the first active strip
+        double firstPitch{0.};  // Pitch of 1st strip or number of wires in 1st group
+        double groupWidth{0.};  // Number of Wires per group
+        double nGroups{0.};     // Number of Wire groups
+        double wireCutout{0.};
+        double xSize{0.};  // Module's radial distance
+        double xLength{0.};
+        double ysFrame{0.};
+        double ylFrame{0.};
+        double minYSize{0.};   // bottom length (active area)
+        double maxYSize{0.};   // top length (active area)
+        double thickness{0.};  // gas thickness
+        double yCutout{0.};
+        double minYPhiL{0.};   //(left bottom) distance between first eta and stereo strips (MM)
+        double minYPhiR{0.};   //(right bottom) distance between first eta and stereo strips (MM)
+        double maxYPhi{0.};    //(top) distance between last eta and stereo strips (MM)
+        int nMissedTopEta{0};  //#of strips that are not connected to any FE boards (MM)
+        int nMissedBottomEta{0};
+        int nMissedTopStereo{0};
+        int nMissedBottomStereo{0};
+        int nRoutedTop{0};  //#of strips that have shorter lengths (at the corners of the PCBs) (MM)
+        int nRoutedBottom{0};
+        double dlStereoTop{0.};  // length between the first eta and stereo
+        double dlStereoBottom{0.};
+        int totalStrips{0};  // total strips per MM module
 
         /** distance to readout */
         double distanceToReadout(const Amg::Vector2D& pos) const;
@@ -82,7 +83,7 @@ namespace MuonGM {
         bool channelPosition(int channel, Amg::Vector2D& pos) const;
 
         /** calculate local channel width */
-        double channelWidth(Amg::Vector2D pos) const;
+        double channelWidth(const Amg::Vector2D& pos) const;
 
         /** calculate local stereo angle */
         double stereoAngle(int channel) const;
@@ -103,8 +104,8 @@ namespace MuonGM {
 
         double sA = stereoAngle(chNum);
 
-        Amg::Vector2D chLoc((pos.x() - chPos.x()) * cos(sA) - (pos.y() - chPos.y()) * sin(sA),
-                            +(pos.x() - chPos.x()) * sin(sA) + (pos.y() - chPos.y()) * cos(sA));
+        Amg::Vector2D chLoc((pos.x() - chPos.x()) * std::cos(sA) - (pos.y() - chPos.y()) * std::sin(sA),
+                            +(pos.x() - chPos.x()) * std::sin(sA) + (pos.y() - chPos.y()) * std::cos(sA));
 
         double stripL = channelLength(chNum);
 
@@ -134,7 +135,7 @@ namespace MuonGM {
         // In the new geometry from November 2019 the layers are not anymore tilted, therefore we need
         // to introduce the correction for the stereo angle in the distance
         // Patrick Scholer March 18 2020
-        Amg::Vector2D chLoc((pos.x() - pos.y() * tan(sAngle)) - chPos.x(), pos.y() - chPos.y());
+        Amg::Vector2D chLoc((pos.x() - pos.y() * std::tan(sAngle)) - chPos.x(), pos.y() - chPos.y());
         if (validMode && std::abs(chLoc.x()) > 0.5 * channelWidth(pos)) {
             MsgStream log(Athena::getMessageSvc(), "MuonChannelDesign");
             if (log.level() <= MSG::INFO)
@@ -146,17 +147,17 @@ namespace MuonGM {
     }
 
     inline int MuonChannelDesign::channelNumber(const Amg::Vector2D& pos) const {
-        if (type == MuonChannelDesign::etaStrip) {  // "eta" orientation, assumes constant stereo angle, can be MM or STGC
+        if (type == MuonChannelDesign::etaStrip) {  // "eta" orientation, assumes consstd::tant stereo angle, can be MM or STGC
 
             double xMfirst = firstPos;
             double xMid;
             int chNum;
             if (detType == MuonChannelDesign::DetType::STGC) {  // if sTGC strip
-                xMid = pos.x() - pos.y() * tan(sAngle);
+                xMid = pos.x() - pos.y() * std::tan(sAngle);
                 if (xMid < xMfirst && xMid > xMfirst - firstPitch)
                     chNum = 1;            // If position between bottom boundary and 1st strip
                 else if (xMid > xMfirst)  // position higher than first Pos
-                    chNum = std::floor(cos(sAngle) * (xMid - xMfirst) / inputPitch) + 2;
+                    chNum = std::floor(std::cos(sAngle) * (xMid - xMfirst) / inputPitch) + 2;
                 else
                     chNum = -1;
 
@@ -164,9 +165,9 @@ namespace MuonGM {
                 if (chNum > nch) return -1;  // used also for calculation of the number of strips
 
             } else if (detType == MuonChannelDesign::DetType::MM) {
-                xMid = pos.x() - pos.y() * tan(sAngle);
+                xMid = pos.x() - pos.y() * std::tan(sAngle);
                 int strips = sAngle == 0 ? nMissedBottomEta : nMissedBottomStereo;
-                // +1 accounts for the first strip by xMfirst, and the other +1 since we start counting at 1.
+                // +1 accounts for the first strip by xMfirst, and the other +1 std::since we start counting at 1.
                 chNum = ((int)std::floor((xMid - xMfirst) / inputPitch)) + strips + 2;
 
                 // if position is before beginning of first active strip return 1 (no readout)
@@ -215,7 +216,7 @@ namespace MuonGM {
                 grNumber = (wire_number - 1 - firstPitch) / groupWidth + 2;  // 20 wires per group,
                 /* If a hit is positionned after the last wire but inside the gas volume
                    This is really a check for the few mm on the fringe of the gas volume
-                   Especially important for QL3. We still consider the digit active */
+                   Especially imporstd::tant for QL3. We still consider the digit active */
                 if (grNumber > nGroups && pos.x() < 0.5 * maxYSize) grNumber = nGroups;
             }
             /* If hit is in inactive wire region of QL1/QS1, return 63
@@ -366,10 +367,10 @@ namespace MuonGM {
     inline double MuonChannelDesign::stereoAngle(int /*st*/) const {
         // to be coded for TGC wire gangs and sTGC pads
 
-        // if (sin(sAngle)>0.5) {
+        // if (std::sin(sAngle)>0.5) {
         //  double yUp = -0.5*maxYSize + (st-0.5) * maxYSize/nch;
         //  double yDn = -0.5*minYSize + (st-0.5) * minYSize/nch;
-        //  return atan((yUp-yDn)/xSize);
+        //  return astd::tan((yUp-yDn)/xSize);
         //}
 
         return sAngle;
@@ -413,17 +414,17 @@ namespace MuonGM {
             else if (sAngle != 0. && detType == MuonChannelDesign::DetType::MM) {
                 if (st < (totalStrips - (nMissedTopStereo + nRoutedTop))) {
                     if (st > nMissedBottomStereo && st < (nMissedBottomStereo + nRoutedBottom))
-                        stLen = (minYPhiR + (st - nMissedBottomStereo) * inputPitch) / sin(sAngle);
+                        stLen = (minYPhiR + (st - nMissedBottomStereo) * inputPitch) / std::sin(sAngle);
 
                     if (st > (nMissedBottomStereo + nRoutedBottom))
-                        stLen =
-                            (inputLength + 2 * (0.5 * (maxYSize - minYSize) * (st - nMissedBottomEta) * inputPitch / xSize)) / cos(sAngle);
+                        stLen = (inputLength + 2 * (0.5 * (maxYSize - minYSize) * (st - nMissedBottomEta) * inputPitch / xSize)) /
+                                std::cos(sAngle);
 
                     return stLen;
                 }
                 // length for routed strips is not defined
                 else if (st > (totalStrips - (nMissedTopStereo + nRoutedTop)) && st < (totalStrips - nMissedTopStereo)) {
-                    stLen = (maxYPhi + (totalStrips - nMissedTopStereo - (st + 1)) * inputPitch) / sin(sAngle);
+                    stLen = (maxYPhi + (totalStrips - nMissedTopStereo - (st + 1)) * inputPitch) / std::sin(sAngle);
                     return stLen;
                 } else
                     return -1;
@@ -436,7 +437,7 @@ namespace MuonGM {
         return inputLength;
     }
 
-    inline double MuonChannelDesign::channelWidth(Amg::Vector2D /*pos*/) const {
+    inline double MuonChannelDesign::channelWidth(const Amg::Vector2D& /*pos*/) const {
         // TODO : calculate for TGCs
 
         // sTGC block:

@@ -12,12 +12,12 @@ namespace MuonGM {
                                                          MuonDetectorManager* mgr) :
         MuonReadoutElement(pv, zi, fi, is_mirrored, mgr), m_surfaceData(nullptr) {}
 
-    MuonClusterReadoutElement::~MuonClusterReadoutElement() {}
+    MuonClusterReadoutElement::~MuonClusterReadoutElement() = default;
 
     void MuonClusterReadoutElement::shiftSurface(const Identifier&) { fillCache(); }
 
     void MuonClusterReadoutElement::restoreSurfaces() {
-        delete m_surfaceData;
+        m_surfaceData.reset();
         fillCache();
     }
 

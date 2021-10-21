@@ -1,14 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonStation_H
 #define MuonStation_H
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
+/// Ensure that the ATLAS eigen extenstions are loaded properly
+
 #include <map>
+#include <memory>
 
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 
 class BLinePar;
@@ -53,8 +57,7 @@ namespace MuonGM {
 
         inline int getEtaIndex() const;  //!< a la AMDB
 
-        inline std::string getKey();
-
+        inline std::string getKey() const;
         inline std::string getStationType() const;  //!< like BMS, T1F, CSL
 
         inline std::string getStationName() const;  //!< like BMS5, T1F1, CSL1
@@ -121,34 +124,38 @@ namespace MuonGM {
 
     private:
         // Declaring private message stream member.
-        bool m_firstRequestBlineFixedP;
+        bool m_firstRequestBlineFixedP{true};
 
-        std::string m_statname;
-        double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize, m_xAmdbCRO;
+        std::string m_statname{};
+        double m_Ssize{0.};
+        double m_Rsize{0.};
+        double m_Zsize{0.};
+        double m_LongSsize{0.};
+        double m_LongRsize{0.};
+        double m_LongZsize{0.};
+        double m_xAmdbCRO{0.};
         bool m_descratzneg;
-        int m_statPhiIndex;
-        int m_statEtaIndex;
+        int m_statPhiIndex{0};
+        int m_statEtaIndex{0};
         std::string m_key;
-        GeoAlignableTransform* m_transform;
+        GeoAlignableTransform* m_transform{nullptr};
 
-        HepGeom::Transform3D* m_delta_amdb_frame;
-        HepGeom::Transform3D* m_native_to_amdbl;
-        HepGeom::Transform3D* m_amdbl_to_global;  // nominal
-        double m_rots;
-        double m_rotz;
-        double m_rott;
-        bool m_hasALines;
-        bool m_hasBLines;
-        HepGeom::Point3D<double> m_BlineFixedPointInAmdbLRS;
-        const MdtAsBuiltPar* m_XTomoData;
+        std::unique_ptr<HepGeom::Transform3D> m_delta_amdb_frame;
+        std::unique_ptr<HepGeom::Transform3D> m_native_to_amdbl;
+        std::unique_ptr<HepGeom::Transform3D> m_amdbl_to_global;  // nominal
+        double m_rots{0.};
+        double m_rotz{0.};
+        double m_rott{0.};
+        bool m_hasALines{false};
+        bool m_hasBLines{false};
+        HepGeom::Point3D<double> m_BlineFixedPointInAmdbLRS{0., 0., 0.};
+        const MdtAsBuiltPar* m_XTomoData{nullptr};
 
-        // std::map< int, const MuonReadoutElement* > *m_REinStation;  //!< keep track of the REs in this station
         typedef std::pair<MuonReadoutElement*, GeoAlignableTransform*> pairRE_AlignTransf;
-        std::map<int, pairRE_AlignTransf>* m_REwithAlTransfInStation;  //!< keep track of the REs in this station
-        // std::vector<const MuonReadoutElement *> * m_REinStation;  //!< keep track of the REs in this station
+        std::map<int, pairRE_AlignTransf> m_REwithAlTransfInStation;  //!< keep track of the REs in this station
 
-        MuonStation& operator=(const MuonStation& right);
-        MuonStation(const MuonStation&);
+        MuonStation& operator=(const MuonStation& right) = delete;
+        MuonStation(const MuonStation&) = delete;
     };
 
     int MuonStation::getPhiIndex() const { return m_statPhiIndex; }
@@ -166,7 +173,7 @@ namespace MuonGM {
 
     HepGeom::Transform3D MuonStation::getTransform() const { return Amg::EigenTransformToCLHEP(m_transform->getTransform()); }
 
-    std::string MuonStation::getKey() { return m_key; }
+    std::string MuonStation::getKey() const { return m_key; }
 
     double MuonStation::Rsize() const { return m_Rsize; }
     double MuonStation::Ssize() const { return m_Ssize; }
@@ -180,19 +187,19 @@ namespace MuonGM {
     void MuonStation::setxAmdbCRO(double xpos) { m_xAmdbCRO = xpos; }
 
     void MuonStation::setNativeToAmdbLRS(HepGeom::Transform3D xf) {
-        if (m_native_to_amdbl == NULL)
-            m_native_to_amdbl = new HepGeom::Transform3D(xf);
+        if (!m_native_to_amdbl)
+            m_native_to_amdbl = std::make_unique<HepGeom::Transform3D>(xf);
         else
             *m_native_to_amdbl = xf;
     }
 
-    const HepGeom::Transform3D* MuonStation::getNativeToAmdbLRS() const { return m_native_to_amdbl; }
+    const HepGeom::Transform3D* MuonStation::getNativeToAmdbLRS() const { return m_native_to_amdbl.get(); }
 
-    const HepGeom::Transform3D* MuonStation::getNominalAmdbLRSToGlobal() const { return m_amdbl_to_global; }
+    const HepGeom::Transform3D* MuonStation::getNominalAmdbLRSToGlobal() const { return m_amdbl_to_global.get(); }
 
     HepGeom::Transform3D MuonStation::getAmdbLRSToGlobal() const { return (*m_amdbl_to_global) * (*m_delta_amdb_frame); }
 
-    int MuonStation::nMuonReadoutElements() const { return m_REwithAlTransfInStation->size(); }
+    int MuonStation::nMuonReadoutElements() const { return m_REwithAlTransfInStation.size(); }
 
     double MuonStation::getALine_tras() const { return (*m_delta_amdb_frame)[0][3]; }
     double MuonStation::getALine_traz() const { return (*m_delta_amdb_frame)[1][3]; }

@@ -21,7 +21,7 @@ namespace MuonGM {
 
     class RpcReadoutSet {
     public:
-        RpcReadoutSet();
+        RpcReadoutSet() = default;
         RpcReadoutSet(const MuonDetectorManager* mgr, Identifier id);
         // this is a detectorId
 
@@ -38,8 +38,8 @@ namespace MuonGM {
 
     private:
         Identifier m_id;  // this is a detectorId
-        const RpcIdHelper* m_helper;
-        const MuonDetectorManager* m_mgr;
+        const RpcIdHelper* m_helper{nullptr};
+        const MuonDetectorManager* m_mgr{nullptr};
     };
 
 }  // namespace MuonGM

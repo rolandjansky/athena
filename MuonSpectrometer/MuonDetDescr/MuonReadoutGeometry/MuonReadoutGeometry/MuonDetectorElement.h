@@ -19,6 +19,8 @@
 #ifndef MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -65,10 +67,10 @@ namespace MuonGM {
         Identifier m_id;          //!< extended data-collection identifier
         IdentifierHash m_idhash;  //!< data-collection hash identifier
 
-        unsigned int m_nREinDetectorElement;
+        unsigned int m_nREinDetectorElement{0};
 
     private:
-        MuonDetectorManager* m_muon_mgr;
+        MuonDetectorManager* m_muon_mgr{nullptr};
     };
 
     const MuonDetectorManager* MuonDetectorElement::manager() const { return m_muon_mgr; }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -10,6 +10,7 @@
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
@@ -32,35 +33,7 @@
 
 namespace MuonGM {
 
-    MuonDetectorManager::MuonDetectorManager() {
-        for (unsigned int i = 0; i < MdtRElMaxHash; ++i) m_mdtArrayByHash[i] = nullptr;
-        for (unsigned int i = 0; i < CscRElMaxHash; ++i) m_cscArrayByHash[i] = nullptr;
-        for (unsigned int i = 0; i < RpcRElMaxHash; ++i) m_rpcArrayByHash[i] = nullptr;
-        for (unsigned int i = 0; i < TgcRElMaxHash; ++i) m_tgcArrayByHash[i] = nullptr;
-
-        m_n_mdtDE = m_n_cscDE = m_n_tgcDE = m_n_rpcDE = 0;
-        m_n_mdtRE = m_n_cscRE = m_n_tgcRE = m_n_rpcRE = m_n_mmcRE = m_n_stgRE = 0;
-        setName("Muon");
-
-        m_cachingFlag = 1;
-        m_cacheFillingFlag = 1;
-        m_minimalgeo = 0;
-        m_includeCutouts = 0;
-        m_includeCutoutsBog = 0;
-        m_controlAlines = 111111;
-        m_applyMdtDeformations = 0;
-        m_applyMdtAsBuiltParams = 0;
-        m_useCscIntAlign = false;
-        m_controlCscIlines = 111111;
-        m_useCscIlinesFromGM = true;
-
-        m_mdtIdHelper = nullptr;
-        m_cscIdHelper = nullptr;
-        m_rpcIdHelper = nullptr;
-        m_tgcIdHelper = nullptr;
-        m_stgcIdHelper = nullptr;
-        m_mmIdHelper = nullptr;
-    }
+    MuonDetectorManager::MuonDetectorManager() { setName("Muon"); }
 
     MuonDetectorManager::~MuonDetectorManager() {
         for (unsigned int p = 0; p < m_envelope.size(); ++p) { m_envelope[p]->unref(); }
@@ -113,13 +86,9 @@ namespace MuonGM {
                     }
     }
     void MuonDetectorManager::clearRpcCache() {
-        for (unsigned int i = 0; i < NRpcStatType; ++i)
-            for (unsigned int j = 0; j < NRpcStatEta; ++j)
-                for (unsigned int k = 0; k < NRpcStatPhi; ++k)
-                    for (unsigned int l = 0; l < NDoubletR; ++l)
-                        for (unsigned int h = 0; h < NDoubletZ; ++h) {
-                            if (m_rpcArray[i][j][k][l][h]) m_rpcArray[i][j][k][l][h]->clearCache();
-                        }
+        for (std::unique_ptr<RpcReadoutElement>& read_out : m_rpcArray) {
+            if (read_out) read_out->clearCache();
+        }
     }
     void MuonDetectorManager::clearTgcCache() {
         for (unsigned int i = 0; i < NTgcStatType; ++i)
@@ -186,13 +155,9 @@ namespace MuonGM {
                     }
     }
     void MuonDetectorManager::fillRpcCache() {
-        for (unsigned int i = 0; i < NRpcStatType; ++i)
-            for (unsigned int j = 0; j < NRpcStatEta; ++j)
-                for (unsigned int k = 0; k < NRpcStatPhi; ++k)
-                    for (unsigned int l = 0; l < NDoubletR; ++l)
-                        for (unsigned int h = 0; h < NDoubletZ; ++h) {
-                            if (m_rpcArray[i][j][k][l][h]) m_rpcArray[i][j][k][l][h]->fillCache();
-                        }
+        for (std::unique_ptr<RpcReadoutElement>& read_out : m_rpcArray) {
+            if (read_out) read_out->fillCache();
+        }
     }
     void MuonDetectorManager::fillTgcCache() {
         for (unsigned int i = 0; i < NTgcStatType; ++i)
@@ -273,7 +238,7 @@ namespace MuonGM {
                      "detector-element-hash id %d outside boundaries 0-%d",
                      __FILE__, __LINE__, (unsigned int)Idhash, RpcRElMaxHash));
         } else {
-            if (m_rpcArrayByHash[Idhash] != nullptr) {
+            if (m_rpcArrayByHash[Idhash]) {
                 throw std::runtime_error(
                     Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - Trying to add RpcReadoutElement with "
                          "detector-element-hash id %d id = %s at location already taken by %s",
@@ -282,63 +247,23 @@ namespace MuonGM {
             }
             m_rpcArrayByHash[Idhash] = x;
         }
-
-        int stname_index = rpcStationTypeIdx(m_rpcIdHelper->stationName(id));
-        int steta_index = m_rpcIdHelper->stationEta(id) + NRpcStEtaOffset;
-        int stphi_index = m_rpcIdHelper->stationPhi(id) - 1;
-        int dbr_index = m_rpcIdHelper->doubletR(id) - 1;
-        int dbz_index = m_rpcIdHelper->doubletZ(id) - 1;
-        int doubletPhi = m_rpcIdHelper->doubletPhi(id);
-
-        // BMS 5/ |stEta|= 2 / dbR = 1 and 2 / dbZ = 3
-        // BMS 6/ |stEta|= 4 / dbR = 2 / dbZ = 3
-        // BMS 6/ |stEta|= 4 / dbR = 1 / dbZ = 2
-        // these are the special cases where we want the rpc at doubletPhi = 2
-        // to be addressed with a dbz_index=dbZ+1
-        if (m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id)) == "BMS") {
-            if (std::abs(m_rpcIdHelper->stationEta(id)) == 2 && m_rpcIdHelper->doubletZ(id) == 3) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 && m_rpcIdHelper->doubletR(id) == 2 &&
-                       m_rpcIdHelper->doubletZ(id) == 3) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 && m_rpcIdHelper->doubletR(id) == 1 &&
-                       m_rpcIdHelper->doubletZ(id) == 2) {
-                if (doubletPhi == 2) dbz_index++;
-            }
-        }
-
-        if (stname_index < 0 || stname_index >= NRpcStatType) {
+        int dbz_index{-1};
+        int idx = rpcIdentToArrayIdx(id, dbz_index);
+        if (m_rpcArray[idx]) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stname_index, NRpcStatType - 1));
+                Form("%s:%d \nMuonDetectorManager::addRpcReadoutElement() - already stored a detector element for %s is occupied by %s ",
+                     __FILE__, __LINE__, m_rpcIdHelper->show_to_string(id).c_str(),
+                     m_rpcIdHelper->show_to_string(m_rpcArray[idx]->identify()).c_str()));
         }
-        if (steta_index < 0 || steta_index >= NRpcStatEta) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, steta_index, NRpcStatEta - 1));
-        }
-        if (stphi_index < 0 || stphi_index >= NRpcStatPhi) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, stphi_index, NRpcStatPhi - 1));
-        }
-        if (dbr_index < 0 || dbr_index >= NDoubletR) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - dbr_index out of range %d 0-%d", __FILE__, __LINE__,
-                     dbr_index, NDoubletR - 1));
-        }
-        if (dbz_index < 0 || dbz_index >= NDoubletZ) {
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - dbz_index out of range %d 0-%d", __FILE__, __LINE__,
-                     dbz_index, NDoubletZ - 1));
-        }
+        m_rpcArray[idx] = std::unique_ptr<RpcReadoutElement>(x);
+        ++m_n_rpcRE;
 
         // add here the RpcDetectorElement and/or add this readoutElement to the DetectorElement
         IdentifierHash idh = x->collectionHash();
         if (idh < RpcDetElMaxHash) {
             if (!(m_rpcDEArray[idh])) {
                 m_rpcDEArray[idh] = std::make_unique<RpcDetectorElement>(nullptr, this, m_rpcIdHelper->elementID(id), idh);
-                m_n_rpcDE++;
+                ++m_n_rpcDE;
             }
             m_rpcDEArray[idh]->addRpcReadoutElement(x, dbz_index);
         } else {
@@ -347,46 +272,11 @@ namespace MuonGM {
                      "data-collection-hash id %d outside boundaries 0-%d",
                      __FILE__, __LINE__, (unsigned int)idh, RpcDetElMaxHash));
         }
-
-        if (m_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index] != nullptr) {
-            throw std::runtime_error(Form(
-                "File: %s, Line: %d\nMuonDetectorManager::addRpcReadoutElement() - this place is taken [%d][%d][%d][%d][%d] current id is "
-                "%s stored id %s",
-                __FILE__, __LINE__, stname_index, steta_index, stphi_index, dbr_index, dbz_index, m_rpcIdHelper->show_to_string(id).c_str(),
-                m_rpcIdHelper->show_to_string(m_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index]->identify())
-                    .c_str()));
-        }
-        m_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index] = std::unique_ptr<RpcReadoutElement>(x);
-        m_n_rpcRE++;
     }
 
     const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(const Identifier id) const {
-        int stationName = m_rpcIdHelper->stationName(id);
-        int stname_index = rpcStationTypeIdx(stationName);
-        int steta_index = m_rpcIdHelper->stationEta(id) + NRpcStEtaOffset;
-        int stphi_index = m_rpcIdHelper->stationPhi(id) - 1;
-        int dbr_index = m_rpcIdHelper->doubletR(id) - 1;
-        int dbz_index = m_rpcIdHelper->doubletZ(id) - 1;
-        int doubletPhi = m_rpcIdHelper->doubletPhi(id);
-
-        // BMS 5/ |stEta|= 2 / dbR = 1 and 2 / dbZ = 3
-        // BMS 6/ |stEta|= 4 / dbR = 2 / dbZ = 3
-        // BMS 6/ |stEta|= 4 / dbR = 1 / dbZ = 2
-        // these are the special cases where we want the rpc at doubletPhi = 2
-        // to be addressed with a dbz_index=dbZ+1
-        if (m_rpcIdHelper->stationNameString(stationName) == "BMS") {
-            if (std::abs(m_rpcIdHelper->stationEta(id)) == 2 && m_rpcIdHelper->doubletZ(id) == 3) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 && m_rpcIdHelper->doubletR(id) == 2 &&
-                       m_rpcIdHelper->doubletZ(id) == 3) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 && m_rpcIdHelper->doubletR(id) == 1 &&
-                       m_rpcIdHelper->doubletZ(id) == 2) {
-                if (doubletPhi == 2) dbz_index++;
-            }
-        }
-
-        return getRpcReadoutElement(stname_index, steta_index, stphi_index, dbr_index, dbz_index);
+        int idx = rpcIdentToArrayIdx(id);
+        return m_rpcArray[idx].get();
     }
 
     const MuonClusterReadoutElement* MuonDetectorManager::getMuonClusterReadoutElement(const Identifier id) const {
@@ -924,77 +814,70 @@ namespace MuonGM {
         return m_cscArray[i1][i2][i3][i4].get();
     }
 
-    const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1, int i2, int i3, int i4, int i5, int i6) const {
-        int steta_index = i2 + NRpcStEtaOffset;
-        int stphi_index = i3 - 1;
-        int dbr_index = i4 - 1;
-        int dbz_index = i5 - 1;
-        int doubletPhi = i6;
-
-        int dbr = i4;
-        int dbz = i5;
-        int absEta = std::abs(i2);
+    int MuonDetectorManager::rpcIdentToArrayIdx(const Identifier& id) const {
+        int dbl_z{-1};
+        return rpcIdentToArrayIdx(id, dbl_z);
+    }
+    int MuonDetectorManager::rpcIdentToArrayIdx(const Identifier& id, int& dbz_index) const {
+        const int stationName = m_rpcIdHelper->stationName(id);
+        const int stationEta = m_rpcIdHelper->stationEta(id);
+        const int doubletPhi = m_rpcIdHelper->doubletPhi(id);
+        const int doubletZ = m_rpcIdHelper->doubletZ(id);
+        const int doubletR = m_rpcIdHelper->doubletR(id);
+        const int stname_index = rpcStationTypeIdx(stationName);
+        const int steta_index = stationEta + NRpcStEtaOffset;
+        const int stphi_index = m_rpcIdHelper->stationPhi(id) - 1;
+        const int dbr_index = doubletR - 1;
+        dbz_index = doubletZ - 1;
 
         // BMS 5/ |stEta|= 2 / dbR = 1 and 2 / dbZ = 3
         // BMS 6/ |stEta|= 4 / dbR = 2 / dbZ = 3
         // BMS 6/ |stEta|= 4 / dbR = 1 / dbZ = 2
         // these are the special cases where we want the rpc at doubletPhi = 2
         // to be addressed with a dbz_index=dbZ+1
-        if (i1 == 3)  // BMS
-        {
-            if (absEta == 2 && dbz == 3) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (absEta == 4 && dbr == 2 && dbz == 3) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (absEta == 4 && dbr == 1 && dbz == 2) {
-                if (doubletPhi == 2) dbz_index++;
-            } else if (absEta == 4 && dbr == 1 && dbz == 3) {
-                // not a valid case
-                // dbz_index = 10;
-                // cannot just exit because this dbz_index is actually used for dbPhi=2
-                return nullptr;
-            }
+        if (stname_index == RpcStatType::BMS) {
+            if (std::abs(stationEta) == 2 && doubletZ == 3 && doubletPhi == 2)
+                ++dbz_index;
+            else if (std::abs(stationEta) == 4 && doubletR == 2 && doubletZ == 3 && doubletPhi == 2)
+                ++dbz_index;
+            else if (std::abs(stationEta) == 4 && doubletR == 1 && doubletZ == 2 && doubletPhi == 2)
+                ++dbz_index;
         }
 
-        return getRpcReadoutElement(i1, steta_index, stphi_index, dbr_index, dbz_index);
-    }
-
-    void MuonDetectorManager::checkRpcReadoutElementIndices(int i1, int i2, int i3, int i4, int i5) const {
-        if (i1 < 0 || i1 >= NRpcStatType) {
+        if (stname_index < 0 || stname_index >= NRpcStatType) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - stNameindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i1, NRpcStatType - 1));
+                     __LINE__, stname_index, NRpcStatType - 1));
         }
-        if (i2 < 0 || i2 >= NRpcStatEta) {
+        if (steta_index < 0 || steta_index >= NRpcStatEta) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - stEtaindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i2, NRpcStatEta - 1));
+                     __LINE__, steta_index, NRpcStatEta - 1));
         }
-        if (i3 < 0 || i3 >= NRpcStatPhi) {
+        if (stphi_index < 0 || stphi_index >= NRpcStatPhi) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - stPhiindex out of range %d 0-%d", __FILE__,
-                     __LINE__, i3, NRpcStatPhi - 1));
+                     __LINE__, stphi_index, NRpcStatPhi - 1));
         }
-        if (i4 < 0 || i4 >= NDoubletR) {
+        if (dbr_index < 0 || dbr_index >= NDoubletR) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - dbr_index out of range %d 0-%d", __FILE__, __LINE__,
-                     i4, NDoubletR - 1));
+                     dbr_index, NDoubletR - 1));
         }
-        if (i5 < 0 || i5 >= NDoubletZ) {
+        if (dbz_index < 0 || dbz_index >= NDoubletZ) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMuonDetectorManager::getRpcReadoutElement() - dbz_index out of range %d 0-%d", __FILE__, __LINE__,
-                     i5, NDoubletZ - 1));
+                     dbz_index, NDoubletZ - 1));
         }
-    }
-
-    const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5) const {
-        checkRpcReadoutElementIndices(i1, i2, i3, i4, i5);
-        return m_rpcArray[i1][i2][i3][i4][i5].get();
-    }
-
-    RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5) {
-        checkRpcReadoutElementIndices(i1, i2, i3, i4, i5);
-        return m_rpcArray[i1][i2][i3][i4][i5].get();
+        /// Unfold the array by
+        /// [A][B][C][D][E]
+        /// a * BxCxDxE + b * CxDxE + c*DxE +d*E +e
+        constexpr int E = NDoubletZ;
+        constexpr int DxE = NDoubletR * E;
+        constexpr int CxDxE = NRpcStatPhi * DxE;
+        constexpr int BxCxDxE = NRpcStatEta * CxDxE;
+        const int arrayIdx = stname_index * BxCxDxE + steta_index * CxDxE + stphi_index * DxE + dbr_index * E + dbz_index;
+        return arrayIdx;
     }
 
     const TgcReadoutElement* MuonDetectorManager::getTgcRElement_fromIdFields(int i1, int i2, int i3) const {

@@ -52,11 +52,11 @@ std::pair<int, int> MuonPadDesign::channelNumber(const Amg::Vector2D& pos) const
     int padEta = 0;
     // padPhi
     // DT-2015-11-29 : currently easier: attribute 'phi pad fuzzy shift' to hit rather than to pad edge
-    double locPhi = 180 * atan(-1.0 * pos.x() / (radialDistance + pos.y())) / M_PI;
-    double maxlocPhi = 180 * atan(maxAbsSensitiveX(pos.y()) / (radialDistance + pos.y())) / M_PI;
+    double locPhi = 180 * std::atan(-1.0 * pos.x() / (radialDistance + pos.y())) / M_PI;
+    double maxlocPhi = 180 * std::atan(maxAbsSensitiveX(pos.y()) / (radialDistance + pos.y())) / M_PI;
     // fuzziness for negative z takes negative of PadPhiShift
-    double fuzziedX = pos.x() - (-1.0 * PadPhiShift / cos(locPhi * M_PI / 180));
-    double fuzziedlocPhi = 180 * atan(-1.0 * fuzziedX / (radialDistance + pos.y())) / M_PI;
+    double fuzziedX = pos.x() - (-1.0 * PadPhiShift / std::cos(locPhi * M_PI / 180));
+    double fuzziedlocPhi = 180 * std::atan(-1.0 * fuzziedX / (radialDistance + pos.y())) / M_PI;
 
     bool below_half_length = (y1 < 0);
     bool outside_phi_range = (std::abs(locPhi) > maxlocPhi) or (std::abs(fuzziedlocPhi) > maxlocPhi);

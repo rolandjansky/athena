@@ -7,9 +7,7 @@
 
 #include <string>
 #include <utility>
-#include <vector>
 
-#include "Identifier/Identifier.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
@@ -35,7 +33,7 @@ namespace MuonGM {
         ~sTgcReadoutElement();
 
         /** function to be used to check whether a given Identifier is contained in the readout element */
-        virtual bool containsId(Identifier id) const override final;
+        virtual bool containsId(const Identifier& id) const override final;
 
         /** distance to readout.
             If the local position is outside the active volume, the function first shift the position back into the active volume */
@@ -153,7 +151,7 @@ namespace MuonGM {
         const MuonPadDesign* getPadDesign(int gasGap) const;
 
         /** set methods only to be used by MuonGeoModel */
-        void setIdentifier(Identifier id);
+        void setIdentifier(const Identifier& id);
 
         /** set methods only to be used by MuonGeoModel */
         void setChamberLayer(int ml) { m_ml = ml; }
@@ -178,21 +176,21 @@ namespace MuonGM {
         std::vector<int> m_nStrips;
         std::vector<int> m_nWires;
         std::vector<int> m_nPads;
-        int m_nlayers;
+        int m_nlayers{0};
 
-        int m_ml;
-        double m_offset;
+        int m_ml{0};
+        double m_offset{0.};
 
         int m_sTGC_type;
 
-        double m_rots;
-        double m_rotz;
-        double m_rott;
+        double m_rots{0.};
+        double m_rotz{0.};
+        double m_rott{0.};
 
-        bool m_hasALines;
-        bool m_hasBLines;
+        bool m_hasALines{false};
+        bool m_hasBLines{false};
 
-        Amg::Transform3D m_delta;
+        Amg::Transform3D m_delta{Amg::Transform3D::Identity()};
 
         // const double m_largeSectorOpeningAngle = 28.0;
         // const double m_smallSectorOpeningAngle = 17.0;

@@ -44,15 +44,7 @@ namespace MuonGM {
 
     sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored,
                                            MuonDetectorManager* mgr) :
-        MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr), m_BLinePar(nullptr) {
-        m_rots = 0.;
-        m_rotz = 0.;
-        m_rott = 0.;
-
-        m_hasALines = false;
-        m_hasBLines = false;
-        m_delta = Amg::Transform3D::Identity();
-        m_offset = 0.;
+        MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr) {
         m_ml = mL;
 
         // get the setting of the caching flag from the manager
@@ -122,7 +114,7 @@ namespace MuonGM {
 
     sTgcReadoutElement::~sTgcReadoutElement() { clearCache(); }
 
-    void sTgcReadoutElement::setIdentifier(Identifier id) {
+    void sTgcReadoutElement::setIdentifier(const Identifier& id) {
         m_id = id;
         const sTgcIdHelper* idh = manager()->stgcIdHelper();
         IdentifierHash collIdhash = 0;
@@ -391,7 +383,7 @@ namespace MuonGM {
 
     void sTgcReadoutElement::fillCache() {
         if (!m_surfaceData)
-            m_surfaceData = new SurfaceData();
+            m_surfaceData = std::make_unique<SurfaceData>();
         else {
             MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
             log << MSG::WARNING << "calling fillCache on an already filled cache" << endmsg;
@@ -404,24 +396,24 @@ namespace MuonGM {
             // For pad and wires Active geometry, we add 4mm to the values of A and B to account for fuzziness of +-2mm included in
             // PadDesign
             if (m_sTGC_type == 3) {
-                m_surfaceData->m_surfBounds.push_back(new Trk::RotatedDiamondBounds(m_minHalfY[layer], m_maxHalfY[layer], m_maxHalfY[layer],
-                                                                                    m_halfX[layer] - m_etaDesign[layer].yCutout / 2,
-                                                                                    m_etaDesign[layer].yCutout / 2));  // strips
-                m_surfaceData->m_surfBounds.push_back(new Trk::DiamondBounds(
+                m_surfaceData->m_surfBounds.push_back(std::make_unique<Trk::RotatedDiamondBounds>(
+                    m_minHalfY[layer], m_maxHalfY[layer], m_maxHalfY[layer], m_halfX[layer] - m_etaDesign[layer].yCutout / 2,
+                    m_etaDesign[layer].yCutout / 2));  // strips
+                m_surfaceData->m_surfBounds.push_back(std::make_unique<Trk::DiamondBounds>(
                     m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer] - m_padDesign[layer].yCutout / 2,
                     m_padDesign[layer].yCutout / 2));  // pad and wires
             } else {
                 m_surfaceData->m_surfBounds.push_back(
-                    new Trk::RotatedTrapezoidBounds(m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
+                    std::make_unique<Trk::RotatedTrapezoidBounds>(m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
                 m_surfaceData->m_surfBounds.push_back(
-                    new Trk::TrapezoidBounds(m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
+                    std::make_unique<Trk::TrapezoidBounds>(m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
             }
 
             // identifier of the first channel - wire plane - locX along phi, locY max->min R
             Identifier id = manager()->stgcIdHelper()->channelID(getStationName(), getStationEta(), getStationPhi(), m_ml, layer + 1, 2, 1);
 
             // need to operate switch x<->z because of GeoTrd definition
-            m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+            m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
             if (m_sTGC_type == 1 || m_sTGC_type == 2)
                 m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset) *
                                                            Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)) *
@@ -451,7 +443,7 @@ namespace MuonGM {
             id = manager()->stgcIdHelper()->channelID(getStationName(), getStationEta(), getStationPhi(), m_ml, layer + 1, 1, 1);
 
             // need to operate switch x<->z because of GeoTrd definition
-            m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+            m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
             if (m_sTGC_type == 1 || m_sTGC_type == 2)
                 m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset) *
@@ -474,7 +466,7 @@ namespace MuonGM {
             id = manager()->stgcIdHelper()->channelID(getStationName(), getStationEta(), getStationPhi(), m_ml, layer + 1, 0, 1);
 
             // need to operate switch x<->z because of GeoTrd definition
-            m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+            m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
             if (m_sTGC_type == 1 || m_sTGC_type == 2)
                 m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(-shift, 0., -m_offset) *
                                                            Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)) *
@@ -500,7 +492,7 @@ namespace MuonGM {
         }
     }
 
-    bool sTgcReadoutElement::containsId(Identifier id) const {
+    bool sTgcReadoutElement::containsId(const Identifier& id) const {
         if (manager()->stgcIdHelper()->stationEta(id) != getStationEta()) return false;
         if (manager()->stgcIdHelper()->stationPhi(id) != getStationPhi()) return false;
 

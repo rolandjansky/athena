@@ -10,10 +10,6 @@
 #ifndef MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H
 
-#include <vector>
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
@@ -69,7 +65,7 @@ namespace MuonGM {
         virtual Trk::DetectorElemType detectorType() const override final { return Trk::DetectorElemType::Tgc; }
 
     private:
-        const TgcReadoutElement* m_tgcre;
+        const TgcReadoutElement* m_tgcre{nullptr};
     };
 
 }  // namespace MuonGM

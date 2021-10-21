@@ -33,42 +33,42 @@ namespace MuonGM {
     */
     struct MuonPadDesign {
     public:
-        int padEtaMin;
-        int padEtaMax;
-        double sAngle;  //
-        double inputRowPitch;
-        double inputRowWidth;
-        double inputPhiPitch;
-        double inputPhiWidth;
-        double deadI;
-        double deadO;
-        double deadS;
-        double signY;
-        double firstRowPos;
-        double firstPhiPos;
+        int padEtaMin{0};
+        int padEtaMax{0};
+        double sAngle{0.};  //
+        double inputRowPitch{0.};
+        double inputRowWidth{0.};
+        double inputPhiPitch{0.};
+        double inputPhiWidth{0.};
+        double deadI{0.};
+        double deadO{0.};
+        double deadS{0.};
+        double signY{0.};
+        double firstRowPos{0.};
+        double firstPhiPos{0.};
 
-        double Length;
-        double sWidth;
-        double lWidth;
-        double Size;
-        double thickness;
-        double radialDistance;  ///< DT-2015-11-29 distance from the beamline to the center of the module
+        double Length{0.};
+        double sWidth{0.};
+        double lWidth{0.};
+        double Size{0.};
+        double thickness{0.};
+        double radialDistance{0.};  ///< DT-2015-11-29 distance from the beamline to the center of the module
 
-        double sPadWidth;
-        double lPadWidth;
-        double xFrame;
-        double ysFrame;
-        double ylFrame;
-        double yCutout;
-        int nPadH;
-        int nPadColumns;
-        double PadPhiShift;
-        int etasign;
-        int isLargeSector;
-        double sectorOpeningAngle;
+        double sPadWidth{0.};
+        double lPadWidth{0.};
+        double xFrame{0.};
+        double ysFrame{0.};
+        double ylFrame{0.};
+        double yCutout{0.};
+        int nPadH{0};
+        int nPadColumns{0};
+        double PadPhiShift{0.};
+        int etasign{0};
+        int isLargeSector{0};
+        double sectorOpeningAngle{0.};
 
-        const double largeSectorOpeningAngle = 28.0;
-        const double smallSectorOpeningAngle = 17.0;
+        static constexpr double largeSectorOpeningAngle{28.0};
+        static constexpr double smallSectorOpeningAngle{17.0};
 
         /** channel transform */
         // HepGeom::Transform3D  channelTransform( int channel ) const;

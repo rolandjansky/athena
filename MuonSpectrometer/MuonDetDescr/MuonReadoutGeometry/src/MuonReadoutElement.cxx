@@ -23,35 +23,7 @@
 namespace MuonGM {
 
     MuonReadoutElement::MuonReadoutElement(GeoVFullPhysVol* pv, int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr) :
-        TrkDetElementBase(pv),
-        m_Ssize(-9999.),
-        m_Rsize(-9999.),
-        m_Zsize(-9999.),
-        m_LongSsize(-9999.),
-        m_LongRsize(-9999.),
-        m_LongZsize(-9999.),
-        m_caching(-1),
-        m_eta(-1),
-        m_phi(-1),
-        m_id_max_init_field(-1) {
-        m_stationS = 0.;
-        m_zi = zi;
-        m_fi = fi;
-        m_mirrored = is_mirrored;
-        m_muon_mgr = mgr;
-        m_statname = "XXX0";
-        m_techname = "TTT0";
-        m_descratzneg = false;
-        m_parentStationPV = PVConstLink(nullptr);
-        m_parentMuonStation = nullptr;
-        m_indexOfREinMuonStation = -999;
-        m_hasCutouts = false;
-
-        m_nMDTinStation = 0;
-        m_nCSCinStation = 0;
-        m_nRPCinStation = 0;
-        m_nTGCinStation = 0;
-    }
+        TrkDetElementBase(pv), m_zi(zi), m_fi(fi), m_mirrored(is_mirrored), m_muon_mgr(mgr) {}
 
     MuonReadoutElement::~MuonReadoutElement() {}
 

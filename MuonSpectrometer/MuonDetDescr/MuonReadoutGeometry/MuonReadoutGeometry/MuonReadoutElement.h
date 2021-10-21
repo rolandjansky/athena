@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -12,18 +12,19 @@
 
 #include <string>
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
-
-#define maxfieldindex 10
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 class GeoPhysVol;
 
 namespace MuonGM {
+
+    constexpr int maxfieldindex = 10;
 
     class MuonDetectorManager;
     class MuonStation;
@@ -57,7 +58,7 @@ namespace MuonGM {
         inline void setIdentifierHash(IdentifierHash id);
         inline void setCollectionHash(IdentifierHash id);
         inline void setDetectorElementHash(IdentifierHash id);
-        virtual bool containsId(Identifier id) const = 0;
+        virtual bool containsId(const Identifier& id) const = 0;
 
         inline int getStationEta() const;
         inline int getStationPhi() const;
@@ -161,36 +162,42 @@ namespace MuonGM {
         const Amg::Transform3D& defTransform(const Identifier&) const { return defTransform(); };
 
     protected:
-        double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize;
+        double m_Ssize{-9999.};
+        double m_Rsize{-9999.};
+        double m_Zsize{-9999.};
+        double m_LongSsize{-9999.};
+        double m_LongRsize{-9999.};
+        double m_LongZsize{-9999.};
         //!< size in the specified direction
-        bool m_descratzneg;
+        bool m_descratzneg{false};
         //!< true for stations that have explicit P-lines in amdb even if zi<0
         inline const MuonDetectorManager* manager() const;
-        std::string m_techname;
+        std::string m_techname{"TTT0"};
         //!< MDT or RPC or TGC or CSC plus a two digits subtype; example RPC17
-        std::string m_statname;             //!< examples are BMS5, CSS1, EML1
+        std::string m_statname{"XXX0"};     //!< examples are BMS5, CSS1, EML1
         Identifier m_id;                    //!< extended data-collection identifier
         IdentifierHash m_idhash;            //!< data-collection hash identifier
         IdentifierHash m_detectorElIdhash;  //!< detector element hash identifier
-        int m_caching;
+        int m_caching{-1};
         //!< 0 if we want to avoid caching geometry info for tracking interface
-        int m_indexOfREinMuonStation;  //!<  index of this RE in the mother MuonStation
-        bool m_hasCutouts;             //!<  true is there are cutouts in the readdout-element
-        unsigned int m_nMDTinStation;
-        unsigned int m_nCSCinStation;
-        unsigned int m_nRPCinStation;
-        unsigned int m_nTGCinStation;
+        int m_indexOfREinMuonStation{-999};  //!<  index of this RE in the mother MuonStation
+        bool m_hasCutouts{false};            //!<  true is there are cutouts in the readdout-element
+        unsigned int m_nMDTinStation{0};
+        unsigned int m_nCSCinStation{0};
+        unsigned int m_nRPCinStation{0};
+        unsigned int m_nTGCinStation{0};
 
     private:
-        double m_stationS;
-        int m_zi, m_fi;
-        int m_eta, m_phi;
-        bool m_mirrored;
-        int m_id_max_init_field;
-        // int m_id_fields[maxfieldindex];
-        PVConstLink m_parentStationPV;
-        const MuonStation* m_parentMuonStation;
-        MuonDetectorManager* m_muon_mgr;
+        double m_stationS{0.};
+        int m_zi{0};
+        int m_fi{0};
+        int m_eta{-1};
+        int m_phi{-1};
+        bool m_mirrored{false};
+        int m_id_max_init_field{-1};
+        PVConstLink m_parentStationPV{nullptr};
+        const MuonStation* m_parentMuonStation{nullptr};
+        MuonDetectorManager* m_muon_mgr{nullptr};
     };
 
     const Identifier MuonReadoutElement::identifyATLAS() const { return m_id; }

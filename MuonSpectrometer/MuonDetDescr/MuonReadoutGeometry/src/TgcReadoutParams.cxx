@@ -21,12 +21,7 @@ namespace MuonGM {
     TgcReadoutParams::TgcReadoutParams(const std::string& name, int iCh, int Version, float WireSp, const float NCHRNG, const float* NWGS,
                                        const float* IWGS1, const float* IWGS2, const float* IWGS3, const float* ROFFST, const float* NSPS,
                                        const float* POFFST) :
-        m_chamberName(std::move(name)),
-        m_chamberType(iCh),
-        m_readoutVersion(Version),
-        m_wirePitch(WireSp),
-        m_nPhiChambers((int)NCHRNG),
-        m_physicalDistanceFromBase(-9999.) {
+        m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version), m_wirePitch(WireSp), m_nPhiChambers((int)NCHRNG) {
         for (int iGap = 0; iGap < MaxNGaps; ++iGap) {
             m_nGangs[iGap] = (int)NWGS[iGap];
             m_gangOffset[iGap] = (int)ROFFST[iGap];
@@ -58,7 +53,7 @@ namespace MuonGM {
     TgcReadoutParams::TgcReadoutParams(const std::string& name, int iCh, int Version, float WireSp, const int NCHRNG, const float* NWGS,
                                        const float* IWGS1, const float* IWGS2, const float* IWGS3, float PDIST, const float* SLARGE,
                                        const float* SSHORT, const float* ROFFST, const float* NSPS, const float* POFFST) :
-        m_chamberName(std::move(name)), m_chamberType(iCh), m_readoutVersion(Version), m_wirePitch(WireSp), m_nPhiChambers(NCHRNG) {
+        m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version), m_wirePitch(WireSp), m_nPhiChambers(NCHRNG) {
         for (int iGap = 0; iGap < MaxNGaps; ++iGap) {
             m_nGangs[iGap] = (int)NWGS[iGap];
             m_gangOffset[iGap] = (int)ROFFST[iGap];
@@ -92,7 +87,7 @@ namespace MuonGM {
         }
     }
 
-    TgcReadoutParams::~TgcReadoutParams() {}
+    TgcReadoutParams::~TgcReadoutParams() = default;
 
     // Access to general parameters
 

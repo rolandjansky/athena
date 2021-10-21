@@ -26,10 +26,7 @@ class GeoVFullPhysVol;
 namespace MuonGM {
 
     MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash) :
-        MuonDetectorElement(pv, mgr, id, idHash) {
-        for (unsigned int i = 0; i < maxMdtREinDE; ++i) { m_mdtRE[i] = nullptr; }
-        m_nRE = 0;
-    }
+        MuonDetectorElement(pv, mgr, id, idHash) {}
 
     void MdtDetectorElement::addMdtReadoutElement(const MdtReadoutElement* x, int ml) {
 #ifndef NDEBUG

@@ -10,10 +10,6 @@
 #ifndef MUONREADOUTGEOMETRY_CSCREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_CSCREADOUTELEMENT_H
 
-#include <string>
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -26,10 +22,10 @@ namespace Muon {
 class CscInternalAlignmentPar;
 class GeoVFullPhysVol;
 
-//<<<<<< PUBLIC DEFINES >>>>>>
-#define maxwlay 4
-
 namespace MuonGM {
+
+    //<<<<<< PUBLIC DEFINES >>>>>>
+    constexpr int maxwlay = 4;
 
     /*
       A CscReadoutElement corresponds to a single CSC chamber; therefore typically
@@ -143,69 +139,68 @@ namespace MuonGM {
         inline double lengthUpToMaxWidth() const;
         inline double excent() const;
 
-        const Amg::Vector3D stripLayerPos(Identifier id) const;
-        const Amg::Vector3D stripLayerPos(IdentifierHash id) const;
-        const Amg::Vector3D stripLayerPos(int chamberLayer, int wireLayer, int measPhi, int channel) const;
-        const Amg::Vector3D localStripLayerPos(Identifier id) const;
-        const Amg::Vector3D localStripLayerPos(IdentifierHash id) const;
-        const Amg::Vector3D localStripLayerPos(int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        Amg::Vector3D stripLayerPos(const Identifier& id) const;
+        Amg::Vector3D stripLayerPos(const IdentifierHash& id) const;
+        Amg::Vector3D stripLayerPos(int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        Amg::Vector3D localStripLayerPos(const Identifier& id) const;
+        Amg::Vector3D localStripLayerPos(const IdentifierHash& id) const;
+        Amg::Vector3D localStripLayerPos(int chamberLayer, int wireLayer, int measPhi, int channel) const;
         //
-        const Amg::Vector3D localWireLayerPos(Identifier id) const;
-        const Amg::Vector3D localWireLayerPos(int gg) const;
-        const Amg::Vector3D wireLayerPos(Identifier id) const;
-        const Amg::Vector3D wireLayerPos(int gg) const;
+        Amg::Vector3D localWireLayerPos(const Identifier& id) const;
+        Amg::Vector3D localWireLayerPos(int gg) const;
+        Amg::Vector3D wireLayerPos(const Identifier& id) const;
+        Amg::Vector3D wireLayerPos(int gg) const;
 
         //
-        const Amg::Vector3D nominalStripPos(
-            Identifier id) const; /**< ignores internal alignment parameters, hence gives generally incorrect answer */
-        const Amg::Vector3D nominalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel)
-            const; /**< ignores internal alignment parameters, hence gives generally incorrect answer */
-        const Amg::Vector3D stripPos(
-            Identifier id) const; /**< takes into account internal alignment parameters, hence gives accurate answer */
-        const Amg::Vector3D stripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel)
-            const; /**< takes into account internal alignment parameters, hence gives accurate answer */
-        const Amg::Vector3D nominalGlobalPos(
-            const Amg::Vector3D& localP) const; /**<  ignores internal alignment parameters, hence gives generally incorrect answer */
-        const Amg::Vector3D globalPos(
-            const Amg::Vector3D& localP) const; /**<  station-level method: does not depend on the strip view/layer, hence it cannot account
+        Amg::Vector3D nominalStripPos(const Identifier& id) const;
+        /**< ignores internal alignment parameters, hence gives generally incorrect answer */
+        Amg::Vector3D nominalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        /**< ignores internal alignment parameters, hence gives generally incorrect answer */
+        Amg::Vector3D stripPos(const Identifier& id) const;
+        /**< takes into account internal alignment parameters, hence gives accurate answer */
+        Amg::Vector3D stripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        /**< takes into account internal alignment parameters, hence gives accurate answer */
+        Amg::Vector3D nominalGlobalPos(const Amg::Vector3D& localP) const;
+        /**<  ignores internal alignment parameters, hence gives generally incorrect answer */
+        Amg::Vector3D globalPos(const Amg::Vector3D& localP) const;
+        /**<  station-level method: does not depend on the strip view/layer, hence it cannot account
                                                    for internal alignment parameters */
-        const Amg::Vector3D localPos(
-            const Amg::Vector3D& globalP) const; /**<  station-level method: does not depend on the strip view/layer, hence it cannot
-                                                    account for internal alignment parameters  */
-        const Amg::Vector3D nominalLocalStripPos(
-            Identifier id) const; /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the
+        Amg::Vector3D localPos(const Amg::Vector3D& globalP) const;
+        /**<  station-level method: does not depend on the strip view/layer, hence it cannot
+                account for internal alignment parameters  */
+        Amg::Vector3D nominalLocalStripPos(const Identifier& id) const;
+        /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the
                                      station frame, coherent with the gas gas frames) */
-        // const Amg::Vector3D nominalLocalStripPos(IdentifierHash id) const;/**< ignores internal alignment parameters, hence gives
-        // generally incorrect answer (local here is the station frame, coherent with the gas gas frames) */
-        const Amg::Vector3D nominalLocalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel)
-            const; /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the station frame,
+
+        Amg::Vector3D nominalLocalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the station frame,
+                  coherent with the gas gas frames) */
+        Amg::Vector3D nominalLocalClusterPos(int eta, int wireLayer, int measPhi, double x0) const;
+        /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the station frame,
                       coherent with the gas gas frames) */
-        const Amg::Vector3D nominalLocalClusterPos(int eta, int wireLayer, int measPhi, double x0)
-            const; /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the station frame,
+        Amg::Vector3D localStripPos(const Identifier& id) const;
+        /**< takes into account internal alignment parameters, hence gives generally accurate answer (local here
+             is the station frame, coherent with the gas gas frames) - digitization should use this method to
+             emulate internal alignment parameters */
+        Amg::Vector3D localStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        /**< takes into account internal alignment parameters, hence gives generally accurate answer (local here is the station
+                  frame, coherent with the gas gas frames) - digitization should use this method to emulate internal alignment
+                  parameters */
+        Amg::Vector3D localClusterPos(int eta, int wireLayer, int measPhi, double x0) const;
+        /**< takes into account internal alignment parameters, hence gives generally  answer (local here is the station frame,
                       coherent with the gas gas frames) */
-        const Amg::Vector3D localStripPos(
-            Identifier id) const; /**< takes into account internal alignment parameters, hence gives generally accurate answer (local here
-                                     is the station frame, coherent with the gas gas frames) - digitization should use this method to
-                                     emulate internal alignment parameters */
-        const Amg::Vector3D localStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel)
-            const; /**< takes into account internal alignment parameters, hence gives generally accurate answer (local here is the station
-                      frame, coherent with the gas gas frames) - digitization should use this method to emulate internal alignment
-                      parameters */
-        const Amg::Vector3D localClusterPos(int eta, int wireLayer, int measPhi, double x0)
-            const; /**< takes into account internal alignment parameters, hence gives generally  answer (local here is the station frame,
-                      coherent with the gas gas frames) */
-        const Amg::Vector3D stripPosOnTrackingSurface(
-            Identifier id) const; /**< nominal strip pos in the tracking local frame of the measurement surface*/
-        const Amg::Vector3D stripPosOnTrackingSurface(int eta, int chamberLayer, int wireLayer, int measPhi, int channel)
-            const; /**< nominal strip pos in the tracking local frame of the measurement surface*/
-        const Amg::Transform3D nominalTransform(
-            const Identifier& id) const; /**< like tracking Transform but nominal - returns a transform not a reference to it */
-        const Amg::Transform3D nominalTransform(
-            int gasGap, int measPhi) const; /**< like tracking Transform but nominal - returns a transform not a reference to it */
-        const Amg::Vector3D nominalCenter(
-            int gasGap) const; /**< like tracking center but nominal - returns a Amg::Vector3D not a reference to it */
-        const Amg::Vector3D originForInternalALines(
-            int gasGap) const; /**< like tracking center but nominal - returns a Amg::Vector3D not a reference to it */
+        Amg::Vector3D stripPosOnTrackingSurface(const Identifier& id) const;
+        /**< nominal strip pos in the tracking local frame of the measurement surface*/
+        Amg::Vector3D stripPosOnTrackingSurface(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const;
+        /**< nominal strip pos in the tracking local frame of the measurement surface*/
+        Amg::Transform3D nominalTransform(const Identifier& id) const;
+        /**< like tracking Transform but nominal - returns a transform not a reference to it */
+        Amg::Transform3D nominalTransform(int gasGap, int measPhi) const;
+        /**< like tracking Transform but nominal - returns a transform not a reference to it */
+        Amg::Vector3D nominalCenter(int gasGap) const;
+        /**< like tracking center but nominal - returns a Amg::Vector3D not a reference to it */
+        Amg::Vector3D originForInternalALines(int gasGap) const;
+        /**< like tracking center but nominal - returns a Amg::Vector3D not a reference to it */
 
         double stripLength(int chamberLayer, int measuresPhi, int stripNumber, double& epsilon) const;
         double stripLength(const Identifier& id) const;
@@ -223,20 +218,21 @@ namespace MuonGM {
           @param[in]  x  local coordinates of the point in the gas gap = sensitive volume
         */
         // local to global and viceversa
-        const Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, Identifier id)
-            const;  //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
-        const Amg::Transform3D localToGlobalTransf(
-            Identifier id) const;  //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
-        const Amg::Transform3D localToGlobalTransf(
-            int gasGap) const;  //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+        Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+        Amg::Transform3D localToGlobalTransf(const Identifier& id) const;
+        //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+        Amg::Transform3D localToGlobalTransf(int gasGap) const;
+        //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+
         // global to local
-        const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id)
-            const;  //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
-        const Amg::Transform3D globalToLocalTransf(
-            Identifier id) const;  //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+        Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+        Amg::Transform3D globalToLocalTransf(const Identifier& id) const;
+        //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
 
         // modifiers
-        void setIdentifier(Identifier id);
+        void setIdentifier(const Identifier& id);
         void set_ngasgaps(int);
         void set_nstriplayers(int);
         void set_nwirelayers(int);
@@ -250,8 +246,7 @@ namespace MuonGM {
         void setCscInternalAlignmentPar(const CscInternalAlignmentPar&);
         void setCscInternalAlignmentParams();
         //    // internal alignment
-        //    double m_cscIntTransl[4][3]; // first index is wireLayer, second = 0,1,2 for    s,z,t
-        //    double m_cscIntRot[4][3];    // first index is wireLayer, second = 0,1,2 for rots,z,t
+
         const CscInternalAlignmentPar getCscInternalAlignmentPar(int gasGap) const;
         double getGasGapIntAlign_s(int gasGap) const;
         double getGasGapIntAlign_z(int gasGap) const;
@@ -260,7 +255,7 @@ namespace MuonGM {
         double getGasGapIntAlign_rotz(int gasGap) const;
         double getGasGapIntAlign_rott(int gasGap) const;
 
-        virtual bool containsId(Identifier id) const override;
+        virtual bool containsId(const Identifier& id) const override;
 
         // compute sin(stereo angle) at a given position:
         double sinStereo(const Identifier& stripId) const;
@@ -276,25 +271,25 @@ namespace MuonGM {
         void doTests();
 
     private:
-        double m_excent;
-        double m_roxacellwidth;
-        double m_RlengthUpToMaxWidth;
-        double m_anodecathode_distance;
-        int m_chamberlayer;
-        int m_ngasgaps;
-        int m_nstriplayers;
-        int m_nwirelayers;
-        int m_nPhistripsperlayer;
-        int m_nEtastripsperlayer;
-        int m_nwiresperlayer;
-        double m_Phistripwidth;
-        double m_Phistrippitch;
-        double m_Etastripwidth;
-        double m_Etastrippitch;
-        double m_wirepitch;
-        double m_first_strip_localcoo;
-        double m_first_wire_localcoo;
-        double m_wireplanez[maxwlay];
+        double m_excent{-9999.};
+        double m_roxacellwidth{-9999.};
+        double m_RlengthUpToMaxWidth{-9999.};
+        double m_anodecathode_distance{-9999.};
+        int m_chamberlayer{-1};
+        int m_ngasgaps{-1};
+        int m_nstriplayers{-1};
+        int m_nwirelayers{-1};
+        int m_nPhistripsperlayer{-1};
+        int m_nEtastripsperlayer{-1};
+        int m_nwiresperlayer{-1};
+        double m_Phistripwidth{-9999.};
+        double m_Phistrippitch{-9999.};
+        double m_Etastripwidth{-9999.};
+        double m_Etastrippitch{-9999.};
+        double m_wirepitch{-9999.};
+        double m_first_strip_localcoo{-9999.};
+        double m_first_wire_localcoo{-9999.};
+        std::array<double, maxwlay> m_wireplanez{-9999.};
 
         // internal alignment
         double m_cscIntTransl[4][3];  // first index is wireLayer, second = 0,1,2 for    s,z,t

@@ -40,25 +40,7 @@ namespace MuonGM {
 
     CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, bool is_mirrored,
                                          MuonDetectorManager* mgr) :
-        MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
-        m_excent(-9999.),
-        m_roxacellwidth(-9999.),
-        m_RlengthUpToMaxWidth(-9999.),
-        m_anodecathode_distance(-9999.),
-        m_chamberlayer(-1),
-        m_ngasgaps(-1),
-        m_nstriplayers(-1),
-        m_nwirelayers(-1),
-        m_nPhistripsperlayer(-1),
-        m_nEtastripsperlayer(-1),
-        m_nwiresperlayer(-1),
-        m_Phistripwidth(-9999.),
-        m_Phistrippitch(-9999.),
-        m_Etastripwidth(-9999.),
-        m_Etastrippitch(-9999.),
-        m_wirepitch(-9999.),
-        m_first_strip_localcoo(-9999.),
-        m_first_wire_localcoo(-9999.) {
+        MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr) {
         // Set a few parameters here.  The rest are set in MuonChamber::setCscReadoutGeometry
         // get the setting of the caching flag from the manager
         setCachingFlag(mgr->cachingFlag());
@@ -117,47 +99,47 @@ namespace MuonGM {
 
     CscReadoutElement::~CscReadoutElement() { clearCache(); }
 
-    const Amg::Vector3D CscReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const {
+    Amg::Vector3D CscReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const {
         const Amg::Vector3D gasgapP = localWireLayerPos(id);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         return absTransform() * xfp * x;
     }
 
-    const Amg::Transform3D CscReadoutElement::localToGlobalTransf(int gasGap) const {
+    Amg::Transform3D CscReadoutElement::localToGlobalTransf(int gasGap) const {
         const Amg::Vector3D gasgapP = localWireLayerPos(gasGap);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         return absTransform() * xfp;
     }
-    const Amg::Transform3D CscReadoutElement::localToGlobalTransf(Identifier id) const {
+    Amg::Transform3D CscReadoutElement::localToGlobalTransf(const Identifier& id) const {
         const Amg::Vector3D gasgapP = localWireLayerPos(id);
         const Amg::Translation3D xfp(gasgapP.x(), gasgapP.y(), gasgapP.z());
         return absTransform() * xfp;
     }
 
-    const Amg::Vector3D CscReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const {
+    Amg::Vector3D CscReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, const Identifier& id) const {
         return localToGlobalTransf(id).inverse() * x;
     }
 
-    const Amg::Transform3D CscReadoutElement::globalToLocalTransf(Identifier id) const { return localToGlobalTransf(id).inverse(); }
+    Amg::Transform3D CscReadoutElement::globalToLocalTransf(const Identifier& id) const { return localToGlobalTransf(id).inverse(); }
 
-    const Amg::Vector3D CscReadoutElement::localWireLayerPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::localWireLayerPos(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         int gasgap = idh->wireLayer(id);
         return localWireLayerPos(gasgap);
     }
 
-    const Amg::Vector3D CscReadoutElement::localWireLayerPos(int gg) const {
+    Amg::Vector3D CscReadoutElement::localWireLayerPos(int gg) const {
         Amg::Vector3D localP(m_wireplanez[gg - 1], 0., 0.);
         return localP;
     }
 
-    const Amg::Vector3D CscReadoutElement::wireLayerPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::wireLayerPos(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         int gasgap = idh->wireLayer(id);
         return wireLayerPos(gasgap);
     }
 
-    const Amg::Vector3D CscReadoutElement::wireLayerPos(int gg) const {
+    Amg::Vector3D CscReadoutElement::wireLayerPos(int gg) const {
         const Amg::Vector3D localP = localWireLayerPos(gg);
         const Amg::Transform3D cscTrans = absTransform();
 #ifndef NDEBUG
@@ -226,7 +208,7 @@ namespace MuonGM {
         }
     }
 
-    const Amg::Vector3D CscReadoutElement::localStripPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::localStripPos(const Identifier& id) const {
         // uses localStripPos(int chamberLayer, int wireLayer, int measPhi, int channel) const;
         const CscIdHelper* idh = manager()->cscIdHelper();
         int eta = idh->stationEta(id);
@@ -236,7 +218,7 @@ namespace MuonGM {
         int channel = idh->strip(id);
         return localStripPos(eta, chamberLayer, wireLayer, measPhi, channel);
     }
-    const Amg::Vector3D CscReadoutElement::nominalLocalStripPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::nominalLocalStripPos(const Identifier& id) const {
         // uses localStripPos(int chamberLayer, int wireLayer, int measPhi, int channel) const;
         const CscIdHelper* idh = manager()->cscIdHelper();
         int eta = idh->stationEta(id);
@@ -247,7 +229,7 @@ namespace MuonGM {
         return nominalLocalStripPos(eta, chamberLayer, wireLayer, measPhi, channel);
     }
 
-    const Amg::Vector3D CscReadoutElement::stripPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::stripPos(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         int eta = idh->stationEta(id);
         int chamberLayer = idh->chamberLayer(id);
@@ -256,7 +238,7 @@ namespace MuonGM {
         int channel = idh->strip(id);
         return stripPos(eta, chamberLayer, wireLayer, measPhi, channel);
     }
-    const Amg::Vector3D CscReadoutElement::nominalStripPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::nominalStripPos(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         int eta = idh->stationEta(id);
         int chamberLayer = idh->chamberLayer(id);
@@ -266,7 +248,7 @@ namespace MuonGM {
         return nominalStripPos(eta, chamberLayer, wireLayer, measPhi, channel);
     }
 
-    const Amg::Vector3D CscReadoutElement::stripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const {
+    Amg::Vector3D CscReadoutElement::stripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const {
         // const Amg::Vector3D localP = nominalLocalStripPos(eta, chamberLayer, wireLayer,
         //                                         measPhi, channel);
         const Amg::Vector3D localP = localStripPos(eta, chamberLayer, wireLayer, measPhi, channel);
@@ -274,7 +256,7 @@ namespace MuonGM {
         return cscTrans * localP;
     }
 
-    const Amg::Vector3D CscReadoutElement::nominalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const {
+    Amg::Vector3D CscReadoutElement::nominalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const {
         const Amg::Vector3D localP = nominalLocalStripPos(eta, chamberLayer, wireLayer, measPhi, channel);
         const Amg::Transform3D cscTrans = absTransform();
         return cscTrans * localP;
@@ -321,9 +303,7 @@ namespace MuonGM {
 
         double smallWidth = shortWidth() - 2 * roxacellWidth() * (1.0 - std::sin(beta)) / std::cos(beta);
         double bigWidth = longWidth() - 2 * roxacellWidth() * (1.0 + std::sin(beta)) / std::cos(beta);
-        double gslWidth = 0.0;
-
-        double sLength = 0;
+        double gslWidth{0.}, sLength{0.};
 
         double alpha = std::atan((excent() - lengthUpToMaxWidth()) / (longWidth() / 2.));
         if (length() != lengthUpToMaxWidth()) {
@@ -386,7 +366,7 @@ namespace MuonGM {
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::localStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int strip) const {
+    Amg::Vector3D CscReadoutElement::localStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int strip) const {
         Amg::Vector3D nominalLP = nominalLocalStripPos(eta, chamberLayer, wireLayer, measPhi, strip);
         // const Amg::Transform3D cscTrans = absTransform();
         Amg::Transform3D transfPtr_internalgeo(
@@ -397,7 +377,7 @@ namespace MuonGM {
         return transfPtr_internalgeo * nominalLP;
     }
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::nominalLocalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int strip) const {
+    Amg::Vector3D CscReadoutElement::nominalLocalStripPos(int eta, int chamberLayer, int wireLayer, int measPhi, int strip) const {
         // get the coordinate of the strip plane
         Amg::Vector3D stripPlane = localStripLayerPos(chamberLayer, wireLayer, measPhi, strip);
 
@@ -432,7 +412,7 @@ namespace MuonGM {
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::nominalLocalClusterPos(int eta, int wireLayer, int measPhi, double p) const {
+    Amg::Vector3D CscReadoutElement::nominalLocalClusterPos(int eta, int wireLayer, int measPhi, double p) const {
         // get the coordinates of the wire plane
         Amg::Vector3D wireLayerPosition = localWireLayerPos(wireLayer);
 
@@ -454,10 +434,9 @@ namespace MuonGM {
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::localClusterPos(int eta, int wireLayer, int measPhi, double p) const {
+    Amg::Vector3D CscReadoutElement::localClusterPos(int eta, int wireLayer, int measPhi, double p) const {
         Amg::Vector3D nominalLCP = nominalLocalClusterPos(eta, wireLayer, measPhi, p);
 
-        // const Amg::Transform3D cscTrans = getMaterialGeom()->getAbsoluteTransform();
         Amg::Transform3D transfPtr_internalgeo = Amg::Transform3D::Identity();
         transfPtr_internalgeo *=
             Amg::Translation3D(m_cscIntTransl[wireLayer - 1][2], m_cscIntTransl[wireLayer - 1][0], m_cscIntTransl[wireLayer - 1][1]);
@@ -469,21 +448,21 @@ namespace MuonGM {
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::localPos(const Amg::Vector3D& globalP) const {
+    Amg::Vector3D CscReadoutElement::localPos(const Amg::Vector3D& globalP) const {
         // localP is a local position
         const Amg::Transform3D cscTrans = absTransform();
         return cscTrans.inverse() * globalP;
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::nominalGlobalPos(const Amg::Vector3D& localP) const {
+    Amg::Vector3D CscReadoutElement::nominalGlobalPos(const Amg::Vector3D& localP) const {
         // globalP is a global position
         const Amg::Transform3D cscTrans = absTransform();
         return cscTrans * localP;
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::globalPos(const Amg::Vector3D& localP) const { return nominalGlobalPos(localP); }
+    Amg::Vector3D CscReadoutElement::globalPos(const Amg::Vector3D& localP) const { return nominalGlobalPos(localP); }
 
     double CscReadoutElement::xCoordinateInTrackingFrame(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
@@ -500,7 +479,7 @@ namespace MuonGM {
     }
 
     //****************************************************************************
-    const Amg::Vector3D CscReadoutElement::localStripLayerPos(int /*chamberLayer*/, int wireLayer, int measPhi, int /*strip*/) const {
+    Amg::Vector3D CscReadoutElement::localStripLayerPos(int /*chamberLayer*/, int wireLayer, int measPhi, int /*strip*/) const {
         if (!(measPhi == 0 || measPhi == 1)) throw;
         Amg::Vector3D wireLayerPosition = localWireLayerPos(wireLayer);
         double anodeCathodeDis = anodeCathodeDistance();
@@ -548,8 +527,8 @@ namespace MuonGM {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "CscReadoutElement");
         if (log.level() <= MSG::VERBOSE) {
-            int eta[2] = {1, -1};
-            int maxStrips[2] = {192, 48};
+            constexpr std::array<int, 2> eta{1, -1};
+            constexpr std::array<int, 2> maxStrips{192, 48};
             int chamberLayer = 1;
             int wireLayer = 4;
             for (int measPhi = 0; measPhi < 2; ++measPhi) {
@@ -570,7 +549,7 @@ namespace MuonGM {
 #endif
     }
 
-    void CscReadoutElement::setIdentifier(Identifier id) {
+    void CscReadoutElement::setIdentifier(const Identifier& id) {
         m_id = id;
         const CscIdHelper* idh = manager()->cscIdHelper();
         IdentifierHash collIdhash = 0;
@@ -591,7 +570,7 @@ namespace MuonGM {
         m_detectorElIdhash = detIdhash;
     }
 
-    const Amg::Vector3D CscReadoutElement::stripLayerPos(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::stripLayerPos(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         int chamberLayer = idh->chamberLayer(id);
         int wireLayer = idh->wireLayer(id);
@@ -600,7 +579,7 @@ namespace MuonGM {
         return stripLayerPos(chamberLayer, wireLayer, measuresPhi, strip);
     }
 
-    const Amg::Vector3D CscReadoutElement::stripLayerPos(IdentifierHash hash) const {
+    Amg::Vector3D CscReadoutElement::stripLayerPos(const IdentifierHash& hash) const {
         Identifier id;
         const CscIdHelper* idh = manager()->cscIdHelper();
         IdContext context = idh->channel_context();
@@ -610,7 +589,7 @@ namespace MuonGM {
             return Amg::Vector3D(0, 0, 0);
     }
 
-    const Amg::Vector3D CscReadoutElement::stripLayerPos(int chamberLayer, int wireLayer, int measPhi, int channel) const {
+    Amg::Vector3D CscReadoutElement::stripLayerPos(int chamberLayer, int wireLayer, int measPhi, int channel) const {
         Amg::Vector3D localP = localStripLayerPos(chamberLayer, wireLayer, measPhi, channel);
         const Amg::Transform3D cscTrans = absTransform();
         return cscTrans * localP;
@@ -651,17 +630,9 @@ namespace MuonGM {
         const CscIdHelper* idh = manager()->cscIdHelper();
 
         std::string stName = "XXX";
-        int jff = 0;
-        int jzz = 0;
-        int job = 0;
-        int wlayer = 0;
+        int jff{0}, jzz{0}, job{0}, wlayer{0};
         x.getAmdbId(stName, jff, jzz, job, wlayer);
-        float s_trans = 0.;
-        float z_trans = 0.;
-        float t_trans = 0.;
-        float s_rot = 0.;
-        float z_rot = 0.;
-        float t_rot = 0.;
+        float s_trans{0.}, z_trans{0.}, t_trans{0.}, s_rot{0.}, z_rot{0.}, t_rot{0.};
         x.getParameters(s_trans, z_trans, t_trans, s_rot, z_rot, t_rot);
         bool notAllowedWLayer = (wlayer > 4 || wlayer < 1);
 
@@ -714,11 +685,11 @@ namespace MuonGM {
 
     double CscReadoutElement::getGasGapIntAlign_rott(int gasGap) const { return m_cscIntRot[gasGap - 1][2]; }
 
-    const Amg::Transform3D CscReadoutElement::nominalTransform(const Identifier& id) const {
+    Amg::Transform3D CscReadoutElement::nominalTransform(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         return nominalTransform(idh->wireLayer(id), idh->measuresPhi(id));
     }
-    const Amg::Transform3D CscReadoutElement::nominalTransform(int gasGap, int measPhi) const {
+    Amg::Transform3D CscReadoutElement::nominalTransform(int gasGap, int measPhi) const {
         Amg::RotationMatrix3D muonTRotation(localToGlobalTransf(gasGap).rotation());
         Amg::RotationMatrix3D surfaceTRotation;
         surfaceTRotation.col(0) = muonTRotation.col(1);
@@ -743,13 +714,12 @@ namespace MuonGM {
 #endif
         return transfPtr_orig;
     }
-    const Amg::Vector3D CscReadoutElement::stripPosOnTrackingSurface(Identifier id) const {
+    Amg::Vector3D CscReadoutElement::stripPosOnTrackingSurface(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
         return stripPosOnTrackingSurface(idh->stationEta(id), idh->chamberLayer(id), idh->wireLayer(id), idh->measuresPhi(id),
                                          idh->strip(id));
     }
-    const Amg::Vector3D CscReadoutElement::stripPosOnTrackingSurface(int eta, int chamberLayer, int wireLayer, int measPhi,
-                                                                     int channel) const {
+    Amg::Vector3D CscReadoutElement::stripPosOnTrackingSurface(int eta, int chamberLayer, int wireLayer, int measPhi, int channel) const {
         Amg::Vector3D nP = nominalLocalStripPos(eta, chamberLayer, wireLayer, measPhi, channel);
 
         if (measPhi == 1)
@@ -757,14 +727,12 @@ namespace MuonGM {
         else
             return Amg::Vector3D(nP.z(), 0., 0.);
     }
-    const Amg::Vector3D CscReadoutElement::nominalCenter(int gasGap) const {
-        return nominalTransform(gasGap, 1) * Amg::Vector3D(0., 0., 0.);
-    }
-    const Amg::Vector3D CscReadoutElement::originForInternalALines(int gasGap) const { return nominalCenter(gasGap); }
+    Amg::Vector3D CscReadoutElement::nominalCenter(int gasGap) const { return nominalTransform(gasGap, 1) * Amg::Vector3D(0., 0., 0.); }
+    Amg::Vector3D CscReadoutElement::originForInternalALines(int gasGap) const { return nominalCenter(gasGap); }
 
     void CscReadoutElement::fillCache() {
         if (!m_surfaceData)
-            m_surfaceData = new SurfaceData();
+            m_surfaceData = std::make_unique<SurfaceData>();
         else {
             MsgStream log(Athena::getMessageSvc(), "CscReadoutElement");
             if (log.level() <= MSG::WARNING) log << MSG::WARNING << "calling fillCache on an already filled cache" << endmsg;
@@ -808,7 +776,7 @@ namespace MuonGM {
                 }
 
                 m_surfaceData->m_layerTransforms.push_back(Amg::Transform3D(transfPtr_orig * transfPtr_internalgeo));
-                m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+                m_surfaceData->m_layerSurfaces.emplace_back(std::make_unique<Trk::PlaneSurface>(*this, id));
                 if (mp == 1) {
                     m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back() * Amg::Vector3D(0., 0., 0.));
                     m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., 1.));
@@ -816,12 +784,13 @@ namespace MuonGM {
             }
         }
 
-        m_surfaceData->m_surfBounds.push_back(new Trk::TrapezoidBounds(m_Ssize / 2., m_LongSsize / 2., m_Rsize / 2.));  // phi measurement
-        m_surfaceData->m_surfBounds.push_back(
-            new Trk::RotatedTrapezoidBounds(m_Rsize / 2., m_Ssize / 2., m_LongSsize / 2.));  // eta measurement
+        m_surfaceData->m_surfBounds.emplace_back(
+            std::make_unique<Trk::TrapezoidBounds>(m_Ssize / 2., m_LongSsize / 2., m_Rsize / 2.));  // phi measurement
+        m_surfaceData->m_surfBounds.emplace_back(
+            std::make_unique<Trk::RotatedTrapezoidBounds>(m_Rsize / 2., m_Ssize / 2., m_LongSsize / 2.));  // eta measurement
     }
 
-    bool CscReadoutElement::containsId(Identifier id) const {
+    bool CscReadoutElement::containsId(const Identifier& id) const {
         const CscIdHelper* idh = manager()->cscIdHelper();
 
         int chamberLayer = idh->chamberLayer(id);

@@ -16,16 +16,17 @@
 
 class GeoVFullPhysVol;
 
-//<<<<<< PUBLIC DEFINES >>>>>>
-#define maxwpl 3
-#define maxstrp 3
-
 namespace Muon {
     class TgcAlignModule;
     class CombinedMuonAlignModule;
 }  // namespace Muon
 
 namespace MuonGM {
+    //<<<<<< PUBLIC DEFINES >>>>>>
+
+    constexpr int maxwpl = 3;
+    constexpr int maxstrp = 3;
+
     /**
        A TgcReadoutElement corresponds to a single TGC chamber; therefore typically
        a TGC station contains several TgcReadoutElements.  TgcReadoutElements are
@@ -103,8 +104,8 @@ namespace MuonGM {
             If one of the identifiers is outside the valid range, the function will return false */
         virtual inline bool spacePointPosition(const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos) const override;
 
-        void setIdentifier(Identifier id);
-        virtual bool containsId(Identifier id) const override;
+        void setIdentifier(const Identifier& id);
+        virtual bool containsId(const Identifier& id) const override;
         inline int Ngasgaps() const;
         inline int NstripPlanes() const;
         inline int NwirePlanes() const;
@@ -125,42 +126,42 @@ namespace MuonGM {
         double StripPitch(int plane, int strip, float zlocal) const;
 
         // local to global
-        const Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D localToGlobalTransf(Identifier id) const;
-        const Amg::Transform3D localToGlobalTransf(int gasGap) const;
+        Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D localToGlobalTransf(const Identifier& id) const;
+        Amg::Transform3D localToGlobalTransf(int gasGap) const;
         // global to local
-        const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D globalToLocalTransf(Identifier id) const;
+        Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D globalToLocalTransf(const Identifier& id) const;
         //
-        const Amg::Vector3D channelPos(int gasGap, int isStrip, int channel) const;
-        const Amg::Vector3D channelPos(Identifier id) const;
-        const Amg::Vector3D localChannelPos(int gasGap, int isStrip, int channel) const;
-        const Amg::Vector3D localChannelPos(Identifier id) const;
+        Amg::Vector3D channelPos(int gasGap, int isStrip, int channel) const;
+        Amg::Vector3D channelPos(const Identifier& id) const;
+        Amg::Vector3D localChannelPos(int gasGap, int isStrip, int channel) const;
+        Amg::Vector3D localChannelPos(const Identifier& id) const;
 
-        const Amg::Vector3D gangPos(int gasGap, int gang) const;
-        const Amg::Vector3D gangPos(Identifier id) const;
-        const Amg::Vector3D gangPos(IdentifierHash id) const;
-        const Amg::Vector3D localGangPos(int gasGap, int gang) const;
-        const Amg::Vector3D localGangPos(Identifier id) const;
-        const Amg::Vector3D localGangPos(IdentifierHash id) const;
+        Amg::Vector3D gangPos(int gasGap, int gang) const;
+        Amg::Vector3D gangPos(const Identifier& id) const;
+        Amg::Vector3D gangPos(const IdentifierHash& id) const;
+        Amg::Vector3D localGangPos(int gasGap, int gang) const;
+        Amg::Vector3D localGangPos(const Identifier& id) const;
+        Amg::Vector3D localGangPos(const IdentifierHash& id) const;
 
-        const Amg::Vector3D stripPos(int gasGap, int strip) const;
-        const Amg::Vector3D stripPos(Identifier id) const;
-        const Amg::Vector3D stripPos(IdentifierHash id) const;
-        const Amg::Vector3D localStripPos(int gasGap, int strip) const;
-        const Amg::Vector3D localStripPos(Identifier id) const;
-        const Amg::Vector3D localStripPos(IdentifierHash id) const;
+        Amg::Vector3D stripPos(int gasGap, int strip) const;
+        Amg::Vector3D stripPos(const Identifier& id) const;
+        Amg::Vector3D stripPos(const IdentifierHash& id) const;
+        Amg::Vector3D localStripPos(int gasGap, int strip) const;
+        Amg::Vector3D localStripPos(const Identifier& id) const;
+        Amg::Vector3D localStripPos(const IdentifierHash& id) const;
 
         double localStripSCoord(int gasgap, int strip) const;
         double localWireRCoord(int gasgap, int wire) const;
         double localWireGangRCoord(int gasgap, int wiregang) const;
 
-        const Amg::Vector3D localGasGapPos(Identifier id) const;
-        const Amg::Vector3D localGasGapPos(int gg) const;
-        const Amg::Vector3D gasGapPos(Identifier id) const;
-        const Amg::Vector3D gasGapPos(int gg) const;
+        Amg::Vector3D localGasGapPos(const Identifier& id) const;
+        Amg::Vector3D localGasGapPos(int gg) const;
+        Amg::Vector3D gasGapPos(const Identifier& id) const;
+        Amg::Vector3D gasGapPos(int gg) const;
 
-        const std::string stationType() const;
+        std::string stationType() const;
         int chamberType() const;
         bool endcap() const;
         bool forward() const;
@@ -209,9 +210,9 @@ namespace MuonGM {
         float stripShortWidth(int, int) const;
         float stripLongWidth(int, int) const;
         float stripSkew(int, int) const;
-        int findChannel(int, int, Amg::Vector3D) const;
-        int findGang(int, Amg::Vector3D) const;
-        int findStrip(int, Amg::Vector3D, const Amg::Vector3D&) const;
+        int findChannel(int, int, const Amg::Vector3D&) const;
+        int findGang(int, const Amg::Vector3D&) const;
+        int findStrip(int, const Amg::Vector3D&, const Amg::Vector3D&) const;
         int gapVolume(int) const;
         bool isAgap(const std::string&) const;
         bool validGap(int) const;
@@ -265,24 +266,26 @@ namespace MuonGM {
         }
 
     private:
-        int m_ngasgaps;
-        int m_nstripplanes;
-        int m_nwireplanes;
-        int m_nstrips_per_plane[maxstrp];
-        int m_nwires_per_plane[maxwpl];
-        int m_nwiregangs_per_plane[maxwpl];
-        double m_strippitch[maxstrp];
-        double m_stripwidth[maxstrp];
-        double m_wirepitch[maxstrp];
+        int m_ngasgaps{0};
+        int m_nstripplanes{0};
+        int m_nwireplanes{0};
+        std::array<int, maxstrp> m_nstrips_per_plane{0};
+        std::array<double, maxstrp> m_strippitch{-9999.};
+        std::array<double, maxstrp> m_stripwidth{-9999.};
+        std::array<double, maxstrp> m_wirepitch{-9999.};
 
-        double m_stripoffset[maxstrp];
-        double m_wireoffset[maxwpl];
-        double m_stripplanez[maxstrp];
-        double m_wireplanez[maxwpl];
+        std::array<double, maxstrp> m_stripoffset{-9999.};
+        std::array<double, maxstrp> m_stripplanez{-9999.};
 
-        int m_readout_type;
+        std::array<int, maxwpl> m_nwires_per_plane{0};
+        std::array<int, maxwpl> m_nwiregangs_per_plane{0};
+
+        std::array<double, maxwpl> m_wireoffset;
+        std::array<double, maxwpl> m_wireplanez;
+
+        int m_readout_type{-1};
         std::string m_readout_name;
-        const TgcReadoutParams* m_readoutParams;
+        const TgcReadoutParams* m_readoutParams{nullptr};
     };
 
     int TgcReadoutElement::Ngasgaps() const { return m_ngasgaps; }

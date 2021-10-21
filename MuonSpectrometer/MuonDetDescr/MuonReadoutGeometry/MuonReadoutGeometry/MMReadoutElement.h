@@ -5,10 +5,6 @@
 #ifndef MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
 
-#include <string>
-#include <vector>
-
-#include "Identifier/Identifier.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
@@ -32,7 +28,7 @@ namespace MuonGM {
         ~MMReadoutElement();
 
         /** function to be used to check whether a given Identifier is contained in the readout element */
-        virtual bool containsId(Identifier id) const override final;
+        virtual bool containsId(const Identifier& id) const override final;
 
         /** distance to readout.
             If the local position is outside the active volume, the function first shift the position back into the active volume */
@@ -85,7 +81,7 @@ namespace MuonGM {
 
         /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only
          */
-        Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const;
+        Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, const Identifier& id) const;
 
         /** TrkDetElementInterface */
         virtual Trk::DetectorElemType detectorType() const override final { return Trk::DetectorElemType::MM; }
@@ -121,7 +117,7 @@ namespace MuonGM {
         const MuonChannelDesign* getDesign(const Identifier& id) const;
 
         /** set methods only to be used by MuonGeoModel */
-        void setIdentifier(Identifier id);
+        void setIdentifier(const Identifier& id);
 
         /** set methods only to be used by MuonGeoModel */
         void setChamberLayer(int ml) { m_ml = ml; }
@@ -142,30 +138,30 @@ namespace MuonGM {
         std::vector<MuonChannelDesign> m_etaDesign;
 
         std::vector<int> m_nStrips;  // #of active strips
-        int m_nlayers;               // #of gas gaps
+        int m_nlayers{0};            // #of gas gaps
 
-        int m_ml;  // multilayer (values: 1,2)
+        int m_ml{0};  // multilayer (values: 1,2)
         Identifier m_parentId;
 
         // surface dimensions
-        double m_halfX;     // 0.5*radial_size
-        double m_minHalfY;  // 0.5*bottom length (active area)
-        double m_maxHalfY;  // 0.5*top length (active area)
-        double m_offset;
+        double m_halfX{100.};      // 0.5*radial_size
+        double m_minHalfY{1900.};  // 0.5*bottom length (active area)
+        double m_maxHalfY{2000.};  // 0.5*top length (active area)
+        double m_offset{0.};
 
-        double m_rots;
-        double m_rotz;
-        double m_rott;
+        double m_rots{0.};
+        double m_rotz{0.};
+        double m_rott{0.};
 
-        bool m_hasALines;
-        bool m_hasBLines;
+        bool m_hasALines{false};
+        bool m_hasBLines{false};
 
-        Amg::Transform3D m_delta;
+        Amg::Transform3D m_delta{Amg::Transform3D::Identity()};
 
-        BLinePar* m_BLinePar;
+        BLinePar* m_BLinePar{nullptr};
 
         // transforms (RE->layer)
-        Amg::Transform3D m_Xlg[4];
+        std::array<Amg::Transform3D, 4> m_Xlg{Amg::Transform3D::Identity()};
     };
 
     void MMReadoutElement::clearBLinePar() { m_BLinePar = 0; }

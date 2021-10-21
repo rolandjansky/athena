@@ -10,10 +10,6 @@
 #ifndef MUONREADOUTGEOMETRY_RPCDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_RPCDETECTORELEMENT_H
 
-#include <vector>
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 
 namespace Trk {

@@ -5,6 +5,8 @@
 #ifndef MuonDetectorManager_H
 #define MuonDetectorManager_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
+/// Ensure that the Athena extensions are properly loaded
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -13,7 +15,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonAlignmentData/CorrContainer.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -26,14 +27,14 @@
 #include "MuonReadoutGeometry/GenericRPCCache.h"
 #include "MuonReadoutGeometry/GenericTGCCache.h"
 
-#define optimRE true
-
 typedef ALineMapContainer::const_iterator ciALineMap;
 typedef BLineMapContainer::const_iterator ciBLineMap;
 typedef CscInternalAlignmentMapContainer::const_iterator ciCscInternalAlignmentMap;
 typedef MdtAsBuiltMapContainer::const_iterator ciMdtAsBuiltMap;
 
 namespace MuonGM {
+
+    constexpr bool optimRE = true;
 
     class CscReadoutElement;
     class TgcReadoutElement;
@@ -106,6 +107,7 @@ namespace MuonGM {
             Identifier) const;  //!< access via extended identifier (requires unpacking)
 
         /// Returns the const detector readout elements
+
         const MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4) const;
         const sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4) const;
         const MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4) const;
@@ -162,9 +164,9 @@ namespace MuonGM {
 
         // Geometry versioning
         inline std::string geometryVersion() const;  //!< it can be Rome-Initial or P03, or ... it's the name of the layout
-        inline void setGeometryVersion(std::string version);
+        inline void setGeometryVersion(const std::string& version);
         inline std::string get_DBMuonVersion() const;  //!< the name of the MuonSpectrometer tag (in the geometry DB) actually accessed
-        inline void set_DBMuonVersion(const std::string&);
+        inline void set_DBMuonVersion(const std::string& version);
 
         // Access to identifier helpers
         inline const MdtIdHelper* mdtIdHelper() const;
@@ -221,9 +223,25 @@ namespace MuonGM {
         inline void setCscFromGM(bool x) { m_useCscIlinesFromGM = x; }
         inline bool CscFromGM() const { return m_useCscIlinesFromGM; }
 
-        enum readoutElementHashMax { MdtRElMaxHash = 2500, CscRElMaxHash = 130, RpcRElMaxHash = 2600, TgcRElMaxHash = 1600 };
-        enum detElementHashMax { MdtDetElMaxHash = 1200, CscDetElMaxHash = 65, RpcDetElMaxHash = 1300, TgcDetElMaxHash = 1600 };
-        enum MdtGMRanges { NMdtStatType = 26, NMdtStatEta = 17, NMdtStEtaOffset = 8, NMdtStatPhi = 8, NMdtMultilayer = 2 };
+        enum readoutElementHashMax {
+            MdtRElMaxHash = 2500,
+            CscRElMaxHash = 130,
+            RpcRElMaxHash = 2600,
+            TgcRElMaxHash = 1600,
+        };
+        enum detElementHashMax {
+            MdtDetElMaxHash = 1200,
+            CscDetElMaxHash = 65,
+            RpcDetElMaxHash = 1300,
+            TgcDetElMaxHash = 1600,
+        };
+        enum MdtGMRanges {
+            NMdtStatType = 26,
+            NMdtStatEta = 17,
+            NMdtStEtaOffset = 8,
+            NMdtStatPhi = 8,
+            NMdtMultilayer = 2,
+        };
         enum RpcGMRanges {
             NRpcStatType = 12,  // there are 12 station types where RPCs can be installed: BML/BMS/BOL/BOS/BMF/BOF/BOG/BME/BIR/BIM/BIL/BIS
             NRpcStatEta = 17,
@@ -232,7 +250,13 @@ namespace MuonGM {
             NDoubletR = 2,
             NDoubletZ = 4
         };  // using some trick to save space: dbz=4 if rib's chambers and doubletphi=2;
-        enum TgcGMRanges { NTgcStatType = 8, NTgcStatTypeOff = -41, NTgcStatEta = 10, NTgcStEtaOffset = 5, NTgcStatPhi = 48 };
+        enum TgcGMRanges {
+            NTgcStatType = 8,
+            NTgcStatTypeOff = -41,
+            NTgcStatEta = 10,
+            NTgcStEtaOffset = 5,
+            NTgcStatPhi = 48,
+        };
         enum CscGMRanges {
             NCscStatType = 2,
             NCscStatTypeOff = -50,
@@ -308,8 +332,8 @@ namespace MuonGM {
         // get Mdt AsBuilt parameters for chamber specified by Identifier
         const MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id) const;
 
-        int rpcStationName(
-            const int stationIndex) const;  // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
+        int rpcStationName(const int stationIndex) const;
+        // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
 
         // temporary way to pass MM correction for passivation
         void setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; }
@@ -317,27 +341,42 @@ namespace MuonGM {
 
     private:
         unsigned int rpcStationTypeIdx(const int stationName) const;  // map the RPC stationNames from the RpcIdHelper to 0-NRpcStatType
-        enum RpcStatType { BML = 0, BMS, BOL, BOS, BMF, BOF, BOG, BME, BIR, BIM, BIL, BIS, UNKNOWN };
-        const RpcReadoutElement* getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5) const;
-        RpcReadoutElement* getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5);
-        const RpcReadoutElement* getRpcRElement_fromIdFields(int i1, int i2, int i3, int i4, int i5, int i6) const;
+        enum RpcStatType {
+            BML = 0,
+            BMS,
+            BOL,
+            BOS,
+            BMF,
+            BOF,
+            BOG,
+            BME,
+            BIR,
+            BIM,
+            BIL,
+            BIS,
+            UNKNOWN,
+        };
+        /// Helper method to pick-up convert the Identifier into the corresponding index accessing the array
+        int rpcIdentToArrayIdx(const Identifier& id) const;
+        /// The doublet z index is required during the initialization of the
+        /// detector element
+        int rpcIdentToArrayIdx(const Identifier& id, int& dbz_index) const;
 
-        void checkRpcReadoutElementIndices(int i1, int i2, int i3, int i4, int i5) const;
         void checkTgcReadoutElementIndices(int i1, int i2, int i3) const;
         void checkCscReadoutElementIndices(int i1, int i2, int i3, int i4) const;
         void checkMdtReadoutElementIndices(int i1, int i2, int i3, int i4) const;
 
-        int m_cachingFlag;
-        int m_cacheFillingFlag;
-        int m_minimalgeo;
-        int m_includeCutouts;
-        int m_includeCutoutsBog;
-        int m_controlAlines;
-        int m_applyMdtDeformations;
-        int m_applyMdtAsBuiltParams;
-        bool m_useCscIntAlign;
-        int m_controlCscIlines;
-        bool m_useCscIlinesFromGM;
+        int m_cachingFlag{1};
+        int m_cacheFillingFlag{1};
+        int m_minimalgeo{0};
+        int m_includeCutouts{0};
+        int m_includeCutoutsBog{0};
+        int m_controlAlines{111111};
+        int m_applyMdtDeformations{0};
+        int m_applyMdtAsBuiltParams{0};
+        bool m_useCscIntAlign{false};
+        int m_controlCscIlines{111111};
+        bool m_useCscIlinesFromGM{true};
 
         std::vector<PVLink> m_envelope;  // Tree-top...
 
@@ -354,47 +393,50 @@ namespace MuonGM {
         std::string m_NSWABLinesAsciiSideC;
 
         // pointers to IdHelpers
-        const MdtIdHelper* m_mdtIdHelper;
-        const CscIdHelper* m_cscIdHelper;
-        const RpcIdHelper* m_rpcIdHelper;
-        const TgcIdHelper* m_tgcIdHelper;
-        const sTgcIdHelper* m_stgcIdHelper;
-        const MmIdHelper* m_mmIdHelper;
+        const MdtIdHelper* m_mdtIdHelper{nullptr};
+        const CscIdHelper* m_cscIdHelper{nullptr};
+        const RpcIdHelper* m_rpcIdHelper{nullptr};
+        const TgcIdHelper* m_tgcIdHelper{nullptr};
+        const sTgcIdHelper* m_stgcIdHelper{nullptr};
+        const MmIdHelper* m_mmIdHelper{nullptr};
 
         // 115.6 kBytes.
         std::unique_ptr<MdtReadoutElement> m_mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
         std::unique_ptr<CscReadoutElement> m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
-        std::unique_ptr<RpcReadoutElement> m_rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
+
+        static constexpr int s_NumMaxRpcElements = NRpcStatType * NRpcStatEta * NRpcStatPhi * NDoubletR * NDoubletZ;
+        std::array<std::unique_ptr<RpcReadoutElement>, s_NumMaxRpcElements> m_rpcArray;
+
         std::unique_ptr<TgcReadoutElement> m_tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
         std::unique_ptr<sTgcReadoutElement> m_stgArray[NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
         std::unique_ptr<MMReadoutElement> m_mmcArray[NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
         //
-        const MdtReadoutElement* m_mdtArrayByHash[MdtRElMaxHash];
-        const CscReadoutElement* m_cscArrayByHash[CscRElMaxHash];
-        const RpcReadoutElement* m_rpcArrayByHash[RpcRElMaxHash];
-        const TgcReadoutElement* m_tgcArrayByHash[TgcRElMaxHash];
+        std::array<const MdtReadoutElement*, MdtRElMaxHash> m_mdtArrayByHash{nullptr};
+        std::array<const CscReadoutElement*, CscRElMaxHash> m_cscArrayByHash{nullptr};
+        std::array<const RpcReadoutElement*, RpcRElMaxHash> m_rpcArrayByHash{nullptr};
+        std::array<const TgcReadoutElement*, TgcRElMaxHash> m_tgcArrayByHash{nullptr};
 
         std::map<std::string, std::unique_ptr<MuonStation> > m_MuonStationMap;
 
-        unsigned int m_n_mdtRE;
-        unsigned int m_n_cscRE;
-        unsigned int m_n_rpcRE;
-        unsigned int m_n_tgcRE;
-        unsigned int m_n_stgRE;
-        unsigned int m_n_mmcRE;
+        unsigned int m_n_mdtRE{0};
+        unsigned int m_n_cscRE{0};
+        unsigned int m_n_rpcRE{0};
+        unsigned int m_n_tgcRE{0};
+        unsigned int m_n_stgRE{0};
+        unsigned int m_n_mmcRE{0};
 
-        unsigned int m_n_mdtDE;
-        unsigned int m_n_cscDE;
-        unsigned int m_n_rpcDE;
-        unsigned int m_n_tgcDE;
+        unsigned int m_n_mdtDE{0};
+        unsigned int m_n_cscDE{0};
+        unsigned int m_n_rpcDE{0};
+        unsigned int m_n_tgcDE{0};
 
         // pointers to the XxxDetectorElements (with granularity a la EDM)
         std::vector<std::unique_ptr<const TgcReadoutParams> > m_TgcReadoutParamsVec;
 
-        std::unique_ptr<MdtDetectorElement> m_mdtDEArray[MdtDetElMaxHash];
-        std::unique_ptr<RpcDetectorElement> m_rpcDEArray[RpcDetElMaxHash];
-        std::unique_ptr<TgcDetectorElement> m_tgcDEArray[TgcDetElMaxHash];
-        std::unique_ptr<CscDetectorElement> m_cscDEArray[CscDetElMaxHash];
+        std::array<std::unique_ptr<MdtDetectorElement>, MdtDetElMaxHash> m_mdtDEArray;
+        std::array<std::unique_ptr<RpcDetectorElement>, RpcDetElMaxHash> m_rpcDEArray;
+        std::array<std::unique_ptr<TgcDetectorElement>, TgcDetElMaxHash> m_tgcDEArray;
+        std::array<std::unique_ptr<CscDetectorElement>, CscDetElMaxHash> m_cscDEArray;
 
         ALineMapContainer m_aLineContainer;
         BLineMapContainer m_bLineContainer;
@@ -405,7 +447,7 @@ namespace MuonGM {
         std::map<int, int> m_rpcIdxToStat;
 
         // temporary way to pass MM correction for passivation
-        double m_MM_passivationCorr = 0.;
+        double m_MM_passivationCorr{0.};
     };
 
     const MdtIdHelper* MuonDetectorManager::mdtIdHelper() const { return m_mdtIdHelper; }
@@ -468,7 +510,7 @@ namespace MuonGM {
 
     std::string MuonDetectorManager::geometryVersion() const { return m_geometryVersion; }
 
-    void MuonDetectorManager::setGeometryVersion(std::string version) { m_geometryVersion = std::move(version); }
+    void MuonDetectorManager::setGeometryVersion(const std::string& version) { m_geometryVersion = std::move(version); }
 
     std::string MuonDetectorManager::get_DBMuonVersion() const { return m_DBMuonVersion; }
 

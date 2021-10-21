@@ -14,8 +14,6 @@
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-#include "Identifier/Identifier.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
@@ -34,7 +32,7 @@ namespace MuonGM {
             std::vector<Amg::Vector3D> m_layerNormals;
 
             /** the eta and phi bounds of the individual layers are not all identical in the muon system (sTGC staircase) */
-            std::vector<Trk::SurfaceBounds*> m_surfBounds;
+            std::vector<std::unique_ptr<Trk::SurfaceBounds>> m_surfBounds;
 
             /** there are two transformation per layer as the eta/phi surfaces are rotated by 90 degrees wrt eachother: Total number =
              * 2*number of layers */
@@ -42,17 +40,13 @@ namespace MuonGM {
 
             /** there are two surfaces per layer as the eta/phi surfaces are rotated by 90 degrees wrt eachother: Total number = 2*number of
              * layers */
-            std::vector<Trk::PlaneSurface*> m_layerSurfaces;
+            std::vector<std::unique_ptr<Trk::PlaneSurface>> m_layerSurfaces;
 
             /** the eta and phi surfaces for a given layer share the same center: Total number = number of layers */
             std::vector<Amg::Vector3D> m_layerCenters;
 
-            SurfaceData() {}
-
-            ~SurfaceData() {
-                for (unsigned int i = 0; i < m_surfBounds.size(); i++) delete m_surfBounds[i];
-                for (unsigned int i = 0; i < m_layerSurfaces.size(); i++) delete m_layerSurfaces[i];
-            }
+            SurfaceData() = default;
+            ~SurfaceData() = default;
         };
 
         MuonClusterReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, bool is_mirrored,
@@ -134,7 +128,7 @@ namespace MuonGM {
         void shiftSurface(const Identifier& id);
         void restoreSurfaces();
 
-        SurfaceData* m_surfaceData;
+        std::unique_ptr<SurfaceData> m_surfaceData;
     };
 
     inline const Trk::PlaneSurface& MuonClusterReadoutElement::surface() const { return surface(0); }
@@ -149,11 +143,7 @@ namespace MuonGM {
     inline const Amg::Vector3D& MuonClusterReadoutElement::normal(const Identifier& id) const { return normal(layerHash(id)); }
     inline const Trk::SurfaceBounds& MuonClusterReadoutElement::bounds(const Identifier& id) const { return bounds(boundaryHash(id)); }
 
-    inline void MuonClusterReadoutElement::clearCache() {
-        // clear base cache
-        delete m_surfaceData;
-        m_surfaceData = 0;
-    }
+    inline void MuonClusterReadoutElement::clearCache() { m_surfaceData.reset(); }
 
     inline const Trk::PlaneSurface& MuonClusterReadoutElement::surface(int hash) const {
         if (!m_surfaceData) {
@@ -232,8 +222,14 @@ namespace MuonGM {
 
     inline std::vector<const Trk::Surface*> MuonClusterReadoutElement::surfaces() const {
         std::vector<const Trk::Surface*> elementSurfaces;
+
         // create when first time requested and when possible
-        if (m_surfaceData) elementSurfaces.assign(m_surfaceData->m_layerSurfaces.begin(), m_surfaceData->m_layerSurfaces.end());
+        if (m_surfaceData) {
+            elementSurfaces.reserve(m_surfaceData->m_layerSurfaces.size());
+            for (const std::unique_ptr<Trk::PlaneSurface>& ptr : m_surfaceData->m_layerSurfaces) {
+                elementSurfaces.emplace_back(ptr.get());
+            }
+        }
         // return the element surfaces
         return elementSurfaces;
     }

@@ -19,19 +19,15 @@
 #ifndef MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
 
-#include <vector>
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 
 class GeoVFullPhysVol;
 
-#define maxMdtREinDE 2
-
 namespace MuonGM {
+
+    constexpr int maxMdtREinDE = 2;
 
     class MuonDetectorManager;
     class MdtReadoutElement;
@@ -105,8 +101,8 @@ namespace MuonGM {
         virtual Trk::DetectorElemType detectorType() const override final { return Trk::DetectorElemType::Mdt; }
 
     private:
-        const MdtReadoutElement* m_mdtRE[maxMdtREinDE];
-        unsigned int m_nRE;
+        std::array<const MdtReadoutElement*, maxMdtREinDE> m_mdtRE{nullptr};
+        unsigned int m_nRE{0};
     };
 
 }  // namespace MuonGM

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_MDTREADOUTELEMENT_H
@@ -10,9 +10,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
-
-#define maxnlayers 4
-#define maxnsteps 10
 
 class BLinePar;
 
@@ -50,6 +47,9 @@ namespace MuonGM {
        frame where local coordinates of SimHits, in output from G4, are expressed).
     */
 
+    constexpr int maxnlayers = 4;
+    constexpr int maxnsteps = 10;
+
     class MdtReadoutElement final : public MuonReadoutElement {
         friend class Muon::MdtAlignModule;
         friend class Muon::CombinedMuonAlignModule;
@@ -68,77 +68,77 @@ namespace MuonGM {
         inline void setMultilayer(const int ml);
         inline void setNLayers(const int nl);
         inline bool isInBarrel() const;
-        void setIdentifier(Identifier id);
+        void setIdentifier(const Identifier& id);
         bool getWireFirstLocalCoordAlongZ(int tubeLayer, double& coord) const;
         bool getWireFirstLocalCoordAlongR(int tubeLayer, double& coord) const;
 
-        virtual bool containsId(Identifier id) const override;
+        virtual bool containsId(const Identifier& id) const override;
 
         // detector specific
         inline double getTubeLength(const int tubeLayer, const int tube) const;
         inline double getActiveTubeLength(const int tubeLayer, const int tube) const;
         inline double getGasLength(const int tubeLayer, const int tube) const;
         inline double getWireLength(const int tubeLayer, const int tube) const;
-        double tubeLength(Identifier id) const;
+        double tubeLength(const Identifier& id) const;
         double innerTubeRadius() const;
         double outerTubeRadius() const;
         inline double tubePitch() const;
 
         // local(tube frame) to global coord.
-        const Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D localToGlobalTransf(Identifier id) const;
-        const Amg::Transform3D localToGlobalTransf(const int tubeLayer, const int tube) const;
-        const Amg::Vector3D nodeform_localToGlobalCoords(Amg::Vector3D x, Identifier id) const;
-        const Amg::Transform3D nodeform_localToGlobalTransf(Identifier id) const;
+        Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D localToGlobalTransf(const Identifier& id) const;
+        Amg::Transform3D localToGlobalTransf(const int tubeLayer, const int tube) const;
+        Amg::Vector3D nodeform_localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D nodeform_localToGlobalTransf(const Identifier& id) const;
         // global to local(tube frame) coord.
-        const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D globalToLocalTransf(Identifier id) const;
-        const Amg::Vector3D nodeform_globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D nodeform_globalToLocalTransf(Identifier id) const;
+        Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D globalToLocalTransf(const Identifier& id) const;
+        Amg::Vector3D nodeform_globalToLocalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D nodeform_globalToLocalTransf(const Identifier& id) const;
         // local(tube frame) to multilayer coord.
-        const Amg::Vector3D tubeToMultilayerCoords(Amg::Vector3D x, Identifier id) const;
-        const Amg::Transform3D tubeToMultilayerTransf(Identifier id) const;
-        const Amg::Vector3D nodeform_tubeToMultilayerCoords(Amg::Vector3D x, Identifier id) const;
-        const Amg::Transform3D nodeform_tubeToMultilayerTransf(Identifier id) const;
+        Amg::Vector3D tubeToMultilayerCoords(Amg::Vector3D x, const Identifier& id) const;
+        Amg::Transform3D tubeToMultilayerTransf(const Identifier& id) const;
+        Amg::Vector3D nodeform_tubeToMultilayerCoords(Amg::Vector3D x, const Identifier& id) const;
+        Amg::Transform3D nodeform_tubeToMultilayerTransf(const Identifier& id) const;
         // multilayer to local (tube frame) coords
-        const Amg::Vector3D multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D multilayerToTubeTransf(Identifier id) const;
-        const Amg::Vector3D nodeform_multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D nodeform_multilayerToTubeTransf(Identifier id) const;
+        Amg::Vector3D multilayerToTubeCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D multilayerToTubeTransf(const Identifier& id) const;
+        Amg::Vector3D nodeform_multilayerToTubeCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D nodeform_multilayerToTubeTransf(const Identifier& id) const;
 
         // in the native MDT reference system
-        const Amg::Vector3D localTubePos(Identifier id) const;
-        const Amg::Vector3D localTubePos(IdentifierHash id) const;
-        const Amg::Vector3D localTubePos(const int multilayer, const int tubelayer, const int tube) const;
-        const Amg::Vector3D nodeform_localTubePos(Identifier id) const;
-        const Amg::Vector3D nodeform_localTubePos(IdentifierHash id) const;
-        const Amg::Vector3D nodeform_localTubePos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D localTubePos(const Identifier& id) const;
+        Amg::Vector3D localTubePos(const IdentifierHash& id) const;
+        Amg::Vector3D localTubePos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D nodeform_localTubePos(const Identifier& id) const;
+        Amg::Vector3D nodeform_localTubePos(const IdentifierHash& id) const;
+        Amg::Vector3D nodeform_localTubePos(const int multilayer, const int tubelayer, const int tube) const;
         // in the global reference system
-        const Amg::Vector3D tubePos(Identifier id) const;
-        const Amg::Vector3D tubePos(IdentifierHash id) const;
-        const Amg::Vector3D tubePos(const int multilayer, const int tubelayer, const int tube) const;
-        const Amg::Vector3D nodeform_tubePos(Identifier id) const;
-        const Amg::Vector3D nodeform_tubePos(IdentifierHash id) const;
-        const Amg::Vector3D nodeform_tubePos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D tubePos(const Identifier& id) const;
+        Amg::Vector3D tubePos(const IdentifierHash& id) const;
+        Amg::Vector3D tubePos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D nodeform_tubePos(const Identifier& id) const;
+        Amg::Vector3D nodeform_tubePos(const IdentifierHash& id) const;
+        Amg::Vector3D nodeform_tubePos(const int multilayer, const int tubelayer, const int tube) const;
         // in the Amdb local (szt) reference system //////////////// check here ////////////
-        const Amg::Vector3D AmdbLRStubePos(Identifier id) const;
-        const Amg::Vector3D AmdbLRStubePos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D AmdbLRStubePos(const Identifier& id) const;
+        Amg::Vector3D AmdbLRStubePos(const int multilayer, const int tubelayer, const int tube) const;
 
         // Readout / HV side
         double signedRODistanceFromTubeCentre(const Identifier& id) const;
         double signedRODistanceFromTubeCentre(const int ml, const int tl, const int tube) const;
         double RODistanceFromTubeCentre(const Identifier& id) const;
         double RODistanceFromTubeCentre(const int ml, const int tl, const int tube) const;
-        double distanceFromRO(const Amg::Vector3D& GlobalHitPosition, Identifier id) const;
+        double distanceFromRO(const Amg::Vector3D& GlobalHitPosition, const Identifier& id) const;
         double distanceFromRO(const Amg::Vector3D& GlobalHitPosition, const int multilayer, const int tubelayer, const int tube) const;
-        int isAtReadoutSide(const Amg::Vector3D& GlobalHitPosition, Identifier id) const;
+        int isAtReadoutSide(const Amg::Vector3D& GlobalHitPosition, const Identifier& id) const;
         int isAtReadoutSide(const Amg::Vector3D& GlobalHitPosition, const int multilayer, const int tubelayer, const int tube) const;
-        const Amg::Vector3D localROPos(const int multilayer, const int tubelayer, const int tube) const;
-        const Amg::Vector3D ROPos(const int multilayer, const int tubelayer, const int tube) const;
-        const Amg::Vector3D tubeFrame_localROPos(const int multilayer, const int tubelayer, const int tube) const;
-        const Amg::Vector3D localROPos(const Identifier id) const;
-        const Amg::Vector3D ROPos(const Identifier id) const;
-        const Amg::Vector3D tubeFrame_localROPos(const Identifier id) const;
+        Amg::Vector3D localROPos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D ROPos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D tubeFrame_localROPos(const int multilayer, const int tubelayer, const int tube) const;
+        Amg::Vector3D localROPos(const Identifier& id) const;
+        Amg::Vector3D ROPos(const Identifier& id) const;
+        Amg::Vector3D tubeFrame_localROPos(const Identifier& id) const;
 
         // defining B-line parameters
         /*inline*/ void setBLinePar(const BLinePar* bLine);
@@ -154,7 +154,7 @@ namespace MuonGM {
         virtual void refreshCache() override { clearCache(); }
         void clearBLineCache();
         void fillBLineCache();
-        // void         fillBLineCache() const;
+
         virtual const Trk::Surface& surface() const override final;
         virtual const Trk::SaggedLineSurface& surface(const Identifier& id) const override final;
         const Trk::SaggedLineSurface& surface(const int tubeLayer, const int tube) const;
@@ -171,9 +171,9 @@ namespace MuonGM {
         virtual const Amg::Vector3D& center() const override final;
 
         virtual const Amg::Vector3D& normal(const Identifier&) const override final { return normal(); }
-        const Amg::Vector3D tubeNormal(const Identifier&) const;
+        Amg::Vector3D tubeNormal(const Identifier&) const;
         const Amg::Vector3D& normal(const int, const int) const { return normal(); }
-        const Amg::Vector3D tubeNormal(const int, const int) const;
+        Amg::Vector3D tubeNormal(const int, const int) const;
         const Amg::Vector3D& normal() const override final;
 
         /** TrkDetElementInterface */
@@ -204,27 +204,27 @@ namespace MuonGM {
         void shiftTube(const Identifier& id);
         void restoreTubes();
 
-        int m_multilayer;
-        int m_nlayers;
-        double m_tubepitch;
-        double m_tubelayerpitch;
-        int m_ntubesperlayer;
-        int m_nsteps;
-        int m_ntubesinastep;
-        double m_tubelenStepSize;
-        double m_tubelength[maxnsteps];
-        double m_cutoutShift;
-        double m_endpluglength;
-        double m_deadlength;
-        bool m_inBarrel;
-        double m_firstwire_x[maxnlayers];
-        double m_firstwire_y[maxnlayers];
-        double m_innerRadius;
-        double m_tubeWallThickness;
+        int m_multilayer{0};
+        int m_nlayers{-1};
+        double m_tubepitch{-9999.};
+        double m_tubelayerpitch{-9999.};
+        int m_ntubesperlayer{-1};
+        int m_nsteps{-1};
+        int m_ntubesinastep{-1};
+        double m_tubelenStepSize{-9999.};
+        std::array<double, maxnsteps> m_tubelength{-9999.};
+        double m_cutoutShift{-9999.};
+        double m_endpluglength{-9999.};
+        double m_deadlength{-9999.};
+        bool m_inBarrel{false};
+        std::array<double, maxnlayers> m_firstwire_x{-9999.};
+        std::array<double, maxnlayers> m_firstwire_y{-9999.};
+        double m_innerRadius{-9999.};
+        double m_tubeWallThickness{-9999.};
         CxxUtils::CachedValue<int> m_zsignRO_tubeFrame;  // comes from AMDB CRO location in the station
 
-        const Amg::Transform3D globalTransform(const Amg::Vector3D& tubePos, const Amg::Transform3D& toDeform) const;
-        const Amg::Transform3D globalTransform(const Amg::Vector3D& tubePos) const;
+        Amg::Transform3D globalTransform(const Amg::Vector3D& tubePos, const Amg::Transform3D& toDeform) const;
+        Amg::Transform3D globalTransform(const Amg::Vector3D& tubePos) const;
 
         struct GeoInfo {
             GeoInfo(const Amg::Transform3D& transform) : m_transform(transform), m_center(transform.translation()) {}
@@ -240,7 +240,7 @@ namespace MuonGM {
         std::vector<CxxUtils::CachedUniquePtr<Amg::Transform3D> > m_deformTransf;        // one per tube
         std::vector<CxxUtils::CachedUniquePtr<Amg::Transform3D> > m_backupDeformTransf;  // one per tube
 
-        const BLinePar* m_BLinePar;
+        const BLinePar* m_BLinePar{nullptr};
         CxxUtils::CachedValue<Amg::Vector3D> m_elemNormal;                               // one
         std::vector<CxxUtils::CachedUniquePtr<Trk::SaggedLineSurface> > m_tubeSurfaces;  // one per tube
         std::vector<CxxUtils::CachedUniquePtr<Trk::CylinderBounds> > m_tubeBounds;       // one per step in tube-length

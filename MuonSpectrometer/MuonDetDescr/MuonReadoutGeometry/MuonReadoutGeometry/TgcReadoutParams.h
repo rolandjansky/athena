@@ -24,12 +24,9 @@
 // ------------
 // None.
 //
-// Author
-// ------
-// Steven Goldfarb <Steven.Goldfarb@cern.ch>
-//
 // ******************************************************************************
 
+#include <array>
 #include <string>
 
 namespace MuonGM {
@@ -72,38 +69,31 @@ namespace MuonGM {
         float stripPositionOnShortBase(int strip) const;
 
     private:
-        // Must be built with the parameters
-        TgcReadoutParams();
-
-        // Copy constructor and equivalence operator
-        TgcReadoutParams(const TgcReadoutParams& other);
-        TgcReadoutParams& operator=(const TgcReadoutParams& other);
-
         // Readout array sizes
         enum TgcReadoutArraySizes { MaxNGaps = 3, MaxNGangs = 180, MaxNStrips = 33 };
 
         // Data members
-        std::string m_chamberName;
-        int m_chamberType;
-        int m_readoutVersion;
-        float m_wirePitch;
-        int m_nPhiChambers;
+        std::string m_chamberName{};
+        int m_chamberType{0};
+        int m_readoutVersion{0};
+        float m_wirePitch{0.f};
+        int m_nPhiChambers{0};
 
-        int m_nGangs[MaxNGaps];
+        std::array<int, MaxNGaps> m_nGangs{0};
         int m_nWires[MaxNGaps][MaxNGangs];
-        int m_gangOffset[MaxNGaps];
-        int m_nStrips[MaxNGaps];
-        float m_stripOffset[MaxNGaps];
-        int m_totalWires[MaxNGaps];
+        std::array<int, MaxNGaps> m_gangOffset{0};
+        std::array<int, MaxNGaps> m_nStrips{0};
+        std::array<float, MaxNGaps> m_stripOffset{0.f};
+        std::array<int, MaxNGaps> m_totalWires{0};
 
         // strip postion on the bases for the first layer in +Z
-        float m_physicalDistanceFromBase;
-        float m_stripPositionOnLargeBase[MaxNStrips];
-        float m_stripPositionOnShortBase[MaxNStrips];
+        float m_physicalDistanceFromBase{-9999.};
+        std::array<float, MaxNStrips> m_stripPositionOnLargeBase{0.f};
+        std::array<float, MaxNStrips> m_stripPositionOnShortBase{0.f};
 
         // Hard-coded data
-        const float m_gangThickness = 0.05;
-        const float m_stripThickness = 0.03;
+        static constexpr float m_gangThickness = 0.05;
+        static constexpr float m_stripThickness = 0.03;
     };
     float TgcReadoutParams::stripThickness() const { return m_stripThickness; }
     float TgcReadoutParams::gangThickness() const { return m_gangThickness; }

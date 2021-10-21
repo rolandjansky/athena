@@ -44,15 +44,7 @@ namespace MuonGM {
 
     MMReadoutElement::MMReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored,
                                        MuonDetectorManager* mgr) :
-        MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr), m_BLinePar(nullptr) {
-        m_rots = 0.;
-        m_rotz = 0.;
-        m_rott = 0.;
-        m_offset = 0.;
-
-        m_hasALines = false;
-        m_hasBLines = false;
-        m_delta = Amg::Transform3D::Identity();
+        MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr) {
         m_ml = mL;
 
         // get the setting of the caching flag from the manager
@@ -69,13 +61,9 @@ namespace MuonGM {
         Identifier id = mgr->mmIdHelper()->channelID(fixName, zi, fi, mL, 1, 1);
         setIdentifier(id);
 
-        m_nlayers = 0;
-        m_halfX = 100.;
-        m_minHalfY = 1900.;
-        m_maxHalfY = 2000.;
         bool foundShape = false;
 
-        if (mgr->MinimalGeoFlag() == 0) {
+        if (!mgr->MinimalGeoFlag()) {
             if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*>(pv)) {
                 unsigned int nchildvol = pvc->getNChildVols();
                 int llay = 0;
@@ -84,7 +72,7 @@ namespace MuonGM {
                     PVConstLink pc = pvc->getChildVol(ich);
                     std::string childname = (pc->getLogVol())->getName();
                     if ((npos = childname.find("Sensitive")) != std::string::npos) {
-                        llay++;
+                        ++llay;
                         if (llay > 4) {
                             MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
                             log << MSG::WARNING << "number of MM layers > 4: increase transform array size" << endmsg;
@@ -140,7 +128,7 @@ namespace MuonGM {
 
     MMReadoutElement::~MMReadoutElement() { clearCache(); }
 
-    void MMReadoutElement::setIdentifier(Identifier id) {
+    void MMReadoutElement::setIdentifier(const Identifier& id) {
         m_id = id;
         IdentifierHash collIdhash = 0;
         IdentifierHash detIdhash = 0;
@@ -163,7 +151,8 @@ namespace MuonGM {
     }
 
     void MMReadoutElement::initDesign(double /*maxY*/, double /*minY*/, double /*xS*/, double /*pitch*/, double /*thickness*/) {
-        m_etaDesign = std::vector<MuonChannelDesign>(m_nlayers);
+        m_etaDesign.clear();
+        m_etaDesign.resize(m_nlayers);
 
         for (int il = 0; il < m_nlayers; il++) {
             // identifier of the first channel to retrieve max number of strips
@@ -266,14 +255,14 @@ namespace MuonGM {
 
     void MMReadoutElement::fillCache() {
         if (!m_surfaceData)
-            m_surfaceData = new SurfaceData();
+            m_surfaceData = std::make_unique<SurfaceData>();
         else {
             MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
             log << MSG::WARNING << "calling fillCache on an already filled cache" << endmsg;
             return;
         }
 
-        m_surfaceData->m_surfBounds.push_back(new Trk::RotatedTrapezoidBounds(m_halfX, m_minHalfY, m_maxHalfY));
+        m_surfaceData->m_surfBounds.emplace_back(std::make_unique<Trk::RotatedTrapezoidBounds>(m_halfX, m_minHalfY, m_maxHalfY));
 
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
@@ -284,7 +273,7 @@ namespace MuonGM {
 
             // keep the tracking surface at the center of the gap
             // need to operate switch x<->z because of GeoTrd definition
-            m_surfaceData->m_layerSurfaces.push_back(new Trk::PlaneSurface(*this, id));
+            m_surfaceData->m_layerSurfaces.emplace_back(std::make_unique<Trk::PlaneSurface>(*this, id));
             m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(0., 0., m_offset) *
                                                        Amg::AngleAxis3D(-90. * CLHEP::deg, Amg::Vector3D(0., 1., 0.)));
 
@@ -301,7 +290,7 @@ namespace MuonGM {
         }
     }
 
-    bool MMReadoutElement::containsId(Identifier id) const {
+    bool MMReadoutElement::containsId(const Identifier& id) const {
         if (manager()->mmIdHelper()->stationEta(id) != getStationEta()) return false;
         if (manager()->mmIdHelper()->stationPhi(id) != getStationPhi()) return false;
 
@@ -316,7 +305,7 @@ namespace MuonGM {
         return true;
     }
 
-    Amg::Vector3D MMReadoutElement::localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const {
+    Amg::Vector3D MMReadoutElement::localToGlobalCoords(const Amg::Vector3D& locPos, const Identifier& id) const {
         int gg = manager()->mmIdHelper()->gasGap(id);
 
         Amg::Vector3D locP = (m_Xlg[gg - 1]) * Amg::Translation3D(0., 0., m_offset) * locPos;

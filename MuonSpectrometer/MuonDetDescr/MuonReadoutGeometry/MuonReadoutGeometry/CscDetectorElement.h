@@ -12,8 +12,6 @@
 
 #include <vector>
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
@@ -76,7 +74,7 @@ namespace MuonGM {
         virtual Trk::DetectorElemType detectorType() const override final { return Trk::DetectorElemType::Csc; }
 
     private:
-        const CscReadoutElement* m_cscre;
+        const CscReadoutElement* m_cscre{nullptr};
     };
 
 }  // namespace MuonGM

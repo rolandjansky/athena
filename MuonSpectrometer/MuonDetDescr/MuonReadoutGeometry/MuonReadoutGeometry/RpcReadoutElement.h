@@ -10,12 +10,6 @@
 #ifndef MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H
 
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -28,11 +22,10 @@ namespace Muon {
     class RpcAlignModule;
 }  // namespace Muon
 
-//<<<<<< PUBLIC DEFINES >>>>>>
-#define maxphipanels 2
-#define maxetapanels 2
-
 namespace MuonGM {
+    //<<<<<< PUBLIC DEFINES >>>>>>
+    constexpr int maxphipanels = 2;
+    constexpr int maxetapanels = 2;
     /**
        An RpcReadoutElement corresponds to a single RPC module; therefore
        typicaly a barrel muon station contains:
@@ -85,7 +78,7 @@ namespace MuonGM {
         bool hasDEDontop() const;  //!< return whether the RPC is 'up-side-down'
 
         /** function to be used to check whether a given Identifier is contained in the readout element */
-        virtual bool containsId(Identifier id) const override;
+        virtual bool containsId(const Identifier& id) const override;
 
         /** returns whether the RE is in the ribs of the muon spectrometer */
         bool inTheRibs() const;
@@ -174,7 +167,7 @@ namespace MuonGM {
         void initDesign();
 
         /** set methods only to be used by MuonGeoModel */
-        void setIdentifier(Identifier id);
+        void setIdentifier(const Identifier& id);
         void setDoubletR(int);
         void setDoubletZ(int);
         void setDoubletPhi(int);
@@ -191,38 +184,40 @@ namespace MuonGM {
         void set_first_etastrip_z(double*);
 
         /** local MuonGeoModel to global transforms and positions, only to be used by digitization */
-        const Amg::Vector3D stripPanelPos(Identifier id) const;
-        const Amg::Vector3D stripPanelPos(IdentifierHash id) const;
-        const Amg::Vector3D stripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi) const;
-        const Amg::Vector3D localStripPanelPos(Identifier id) const;
-        const Amg::Vector3D localStripPanelPos(IdentifierHash id) const;
-        const Amg::Vector3D localStripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi) const;
+        Amg::Vector3D stripPanelPos(const Identifier& id) const;
+        Amg::Vector3D stripPanelPos(const IdentifierHash& id) const;
+        Amg::Vector3D stripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi) const;
+        Amg::Vector3D localStripPanelPos(const Identifier& id) const;
+        Amg::Vector3D localStripPanelPos(const IdentifierHash& id) const;
+        Amg::Vector3D localStripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi) const;
         // local to global
-        const Amg::Vector3D SDtoModuleCoords(Amg::Vector3D x, Identifier id) const;
-        const Amg::Vector3D localToGlobalCoords(Amg::Vector3D x, Identifier id) const;
-        const Amg::Transform3D localToGlobalTransf(Identifier id) const;
-        const Amg::Transform3D localToGlobalTransf(int dbZ, int dbPhi, int gasGap) const;
+        Amg::Vector3D SDtoModuleCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
+        Amg::Transform3D localToGlobalTransf(const Identifier& id) const;
+        Amg::Transform3D localToGlobalTransf(int dbZ, int dbPhi, int gasGap) const;
         // global to local
-        const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
-        const Amg::Transform3D globalToLocalTransf(Identifier id) const;
+        Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
+        Amg::Transform3D globalToLocalTransf(const Identifier& id) const;
 
-        const Amg::Vector3D stripPos(Identifier id) const;
-        const Amg::Vector3D stripPos(IdentifierHash id) const;
-        const Amg::Vector3D stripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi, int strip) const;
-        const Amg::Vector3D localStripPos(Identifier id) const;
-        const Amg::Vector3D localStripPos(IdentifierHash id) const;
-        const Amg::Vector3D localStripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi, int strip) const;
+        Amg::Vector3D stripPos(const Identifier& id) const;
+        Amg::Vector3D stripPos(const IdentifierHash& id) const;
+        Amg::Vector3D stripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi, int strip) const;
+        Amg::Vector3D localStripPos(const Identifier& id) const;
+        Amg::Vector3D localStripPos(const IdentifierHash& id) const;
+        Amg::Vector3D localStripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi, int strip) const;
         double localStripSCoord(int doubletZ, int doubletPhi, int measphi, int strip) const;
         double localStripZCoord(int doubletZ, int doubletPhi, int measphi, int strip) const;
         double localGasGapDepth(int gasGap) const;
-        const Amg::Vector3D localGasGapPos(Identifier id) const;
-        const Amg::Vector3D localGasGapPos(int dbZ, int dbP, int gg) const;
-        const Amg::Vector3D gasGapPos(Identifier id) const;
-        const Amg::Vector3D gasGapPos(int dbZ, int dbP, int gg) const;
+        Amg::Vector3D localGasGapPos(const Identifier& id) const;
+        Amg::Vector3D localGasGapPos(int dbZ, int dbP, int gg) const;
+        Amg::Vector3D gasGapPosconst(Identifier& id) const;
+        Amg::Vector3D gasGapPos(int dbZ, int dbP, int gg) const;
+        Amg::Vector3D gasGapPos(const Identifier& id) const;
+
         bool rotatedRpcModule() const;
-        bool localTopGasGap(Identifier id) const;
+        bool localTopGasGap(const Identifier& id) const;
         bool localTopGasGap(int gasGap) const;
-        bool rotatedGasGap(Identifier id) const;
+        bool rotatedGasGap(const Identifier& id) const;
         bool rotatedGasGap(int gasGap) const;
 
         // Readout side infos
@@ -243,44 +238,47 @@ namespace MuonGM {
         /** returns the MuonStripDesign class for the given identifier */
         const MuonStripDesign* getDesign(const Identifier& id) const;
 
-        int m_dbR, m_dbZ, m_dbPhi;
-        bool m_hasDEDontop;
-        int m_nlayers;  // default=2, all BI RPCs always have 3 gas gaps, need this flag since amdb only supports a maximum of 2 gas gaps,
-                        // so this is steering the hardcoded third gas gap for Run3/4 layouts based on amdb primary numbers
+        int m_dbR{0};
+        int m_dbZ{0};
+        int m_dbPhi{0};
+        bool m_hasDEDontop{false};
+        int m_nlayers{2};  // default=2, all BI RPCs always have 3 gas gaps, need this flag since amdb only supports a maximum of 2 gas
+                           // gaps, so this is steering the hardcoded third gas gap for Run3/4 layouts based on amdb primary numbers
 
-        int m_nphigasgaps;
-        int m_netagasgaps;
-        double m_gasgapssize;
-        double m_gasgapzsize;
+        int m_nphigasgaps{-1};
+        int m_netagasgaps{-1};
+        double m_gasgapssize{-9999.};
+        double m_gasgapzsize{-9999.};
 
-        int m_nphistrippanels;
-        int m_netastrippanels;
-        int m_nphistripsperpanel;
-        int m_netastripsperpanel;
-        double m_phistripwidth;
-        double m_etastripwidth;
-        double m_phistrippitch;
-        double m_etastrippitch;
-        double m_phistriplength;
-        double m_etastriplength;
-        double m_phipaneldead, m_etapaneldead;
-        double m_exthonthick;
-        double m_first_phistrip_s[maxphipanels];
-        double m_first_etastrip_z[maxetapanels];
-        double m_etastrip_s[maxphipanels];
-        double m_phistrip_z[maxetapanels];
+        int m_nphistrippanels{-1};
+        int m_netastrippanels{-1};
+        int m_nphistripsperpanel{-1};
+        int m_netastripsperpanel{-1};
+        double m_phistripwidth{-9999.};
+        double m_etastripwidth{-9999.};
+        double m_phistrippitch{-9999.};
+        double m_etastrippitch{-9999.};
+        double m_phistriplength{-9999.};
+        double m_etastriplength{-9999.};
+        double m_phipaneldead{-9999.};
+        double m_etapaneldead{-9999.};
+        double m_exthonthick{-9999.};
+        std::array<double, maxphipanels> m_first_phistrip_s{-9999.};
+        std::array<double, maxphipanels> m_first_etastrip_z{-9999.};
+        std::array<double, maxphipanels> m_etastrip_s{-9999.};
+        std::array<double, maxetapanels> m_phistrip_z{-9999.};
 
         Amg::Transform3D m_Xlg[3][2];
 
-        const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
-        const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const;
+        Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
+        Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const;
 
         std::vector<MuonStripDesign> m_phiDesigns;
         std::vector<MuonStripDesign> m_etaDesigns;
         std::unique_ptr<RpcReadoutSet> m_set;
 
-        float m_y_translation;
-        float m_z_translation;
+        float m_y_translation{0.f};
+        float m_z_translation{0.f};
     };
 
     inline int RpcReadoutElement::getDoubletR() const { return m_dbR; }

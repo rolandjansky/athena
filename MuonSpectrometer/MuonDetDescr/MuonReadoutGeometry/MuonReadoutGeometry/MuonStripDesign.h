@@ -9,19 +9,20 @@
 
 #ifndef MUONREADOUTGEOMETRY_MUONSTRIPDESIGN_H
 #define MUONREADOUTGEOMETRY_MUONSTRIPDESIGN_H
+#include "GeoPrimitives/GeoPrimitives.h"
 
 namespace MuonGM {
 
     struct MuonStripDesign {
     public:
-        int nstrips;
-        double stripPitch;
-        double invStripPitch;
-        double stripLength;
+        int nstrips{0};
+        double stripPitch{0.};
+        double invStripPitch{0.};
+        double stripLength{0.};
         double stripWidth;
-        double readoutLocY;
-        double signY;
-        Amg::Vector2D firstStripPos;
+        double readoutLocY{0.};
+        double signY{0.};
+        Amg::Vector2D firstStripPos{0., 0.};
 
         /** distance to readout */
         double distanceToReadout(const Amg::Vector2D& pos) const;
