@@ -6,7 +6,6 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
-EMPIDBuilder = CompFactory.EMPIDBuilder
 
 
 def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
@@ -61,7 +60,7 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(MediumLHSelectorAcc)
         acc.merge(TightLHSelectorAcc)
 
-    tool = EMPIDBuilder(name, **kwargs)
+    tool = CompFactory.EMPIDBuilder(name, **kwargs)
 
     acc.setPrivateTools(tool)
     return acc
@@ -91,7 +90,7 @@ def EMPIDBuilderPhotonCfg(flags, name='EMPIDBuilderPhoton', **kwargs):
         acc.merge(LoosePhotonSelectorAcc)
         acc.merge(TightPhotonSelectorAcc)
 
-    tool = EMPIDBuilder(name, **kwargs)
+    tool = CompFactory.EMPIDBuilder(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
 

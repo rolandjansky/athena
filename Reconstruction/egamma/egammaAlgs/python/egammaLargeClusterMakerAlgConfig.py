@@ -1,15 +1,15 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
-         Configure egammaLargeClusterMaker, 
+         Configure egammaLargeClusterMaker,
          which chooses cells to store in the AOD"""
 __author__ = "Jovan Mitrevski"
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from egammaTools.egammaLargeClusterMakerConfig import egammaLargeClusterMakerCfg
+from egammaTools.egammaLargeClusterMakerConfig import (
+    egammaLargeClusterMakerCfg)
 from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
-CaloClusterMaker = CompFactory.CaloClusterMaker
 
 
 def egammaLargeClusterMakerAlgCfg(
@@ -28,11 +28,13 @@ def egammaLargeClusterMakerAlgCfg(
         kwargs["ClusterMakerTools"] = [toolAcc.popPrivateTools()]
         acc.merge(toolAcc)
 
-    kwargs.setdefault("ClusterCorrectionTools",
-                      make_CaloSwCorrections("ele7_11",
-                                             suffix="Nocorr",
-                                             version="none",
-                                             cells_name=flags.Egamma.Keys.Input.CaloCells))
+    kwargs.setdefault(
+        "ClusterCorrectionTools",
+        make_CaloSwCorrections(
+            "ele7_11",
+            suffix="Nocorr",
+            version="none",
+            cells_name=flags.Egamma.Keys.Input.CaloCells))
 
-    acc.addEventAlgo(CaloClusterMaker(name, **kwargs))
+    acc.addEventAlgo(CompFactory.CaloClusterMaker(name, **kwargs))
     return acc

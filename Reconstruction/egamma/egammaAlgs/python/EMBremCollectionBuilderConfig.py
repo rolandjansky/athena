@@ -11,20 +11,25 @@ def EMBremCollectionBuilderCfg(flags,
     acc = ComponentAccumulator()
 
     # FIXME runtime testing required this, but since this is not a
-    # direct dependency it should be added elsewhere, but I do not know where yet
+    # direct dependency it should be added elsewhere,
+    # but I do not know where yet
     if not flags.Input.isMC:
         from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
         acc.merge(LumiBlockMuWriterCfg(flags))
 
     if "TrackRefitTool" not in kwargs:
-        from egammaTrackTools.egammaTrackToolsConfig import egammaTrkRefitterToolCfg
+        from egammaTrackTools.egammaTrackToolsConfig import (
+            egammaTrkRefitterToolCfg)
         kwargs["TrackRefitTool"] = acc.popToolsAndMerge(
             egammaTrkRefitterToolCfg(flags))
 
     if "TrackParticleCreatorTool" not in kwargs:
         from InDetConfig.TrackRecoConfig import TrackParticleCreatorToolCfg
-        kwargs["TrackParticleCreatorTool"] = acc.getPrimaryAndMerge(TrackParticleCreatorToolCfg(
-            flags, name="GSFBuildInDetParticleCreatorTool", BadClusterID=3))
+        kwargs["TrackParticleCreatorTool"] = acc.getPrimaryAndMerge(
+            TrackParticleCreatorToolCfg(
+                flags,
+                name="GSFBuildInDetParticleCreatorTool",
+                BadClusterID=3))
 
     if "TrackSlimmingTool" not in kwargs:
         slimmingTool = CompFactory.Trk.TrackSlimmingTool(
@@ -32,11 +37,13 @@ def EMBremCollectionBuilderCfg(flags,
         kwargs["TrackSlimmingTool"] = slimmingTool
 
     if "TrackSummaryTool" not in kwargs:
-        from egammaTrackTools.egammaTrackToolsConfig import GSFTrackSummaryToolCfg
+        from egammaTrackTools.egammaTrackToolsConfig import (
+            GSFTrackSummaryToolCfg)
         kwargs["TrackSummaryTool"] = acc.popToolsAndMerge(
             GSFTrackSummaryToolCfg(flags))
 
-    # TODO configure according to some doPixel, presumably flags.Detector.EnablePixel, same for src
+    # TODO configure according to some doPixel, presumably
+    # flags.Detector.EnablePixel, same for src
     kwargs.setdefault("usePixel", True)
     kwargs.setdefault("useSCT", True)
     alg = CompFactory.EMBremCollectionBuilder(name, **kwargs)
