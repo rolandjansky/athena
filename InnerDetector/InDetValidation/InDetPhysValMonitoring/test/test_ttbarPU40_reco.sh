@@ -1,5 +1,7 @@
 #!/bin/bash
 # art-description: Standard test for Run2 with ttbar input, PU=40
+# art-input: user.keli:user.keli.mc16_13TeV.410471.PhPy8EG_A14_ttbar_hdamp258p75_allhad.e6337_e5984_ridart
+# art-input-nfiles: 10
 # art-type: grid
 # art-include: master/Athena
 # art-output: physval*.root
@@ -13,16 +15,15 @@ run() { (set -x; exec "$@") }
 
 lastref_dir=last_results
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
-inputRDO=${artdata}/InDetPhysValMonitoring/inputs/OUT.RDO_ttbar_PU40.pool.root 
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_ttbarPU40_reco_r22.root"
 
 # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
 run Reco_tf.py \
-  --inputRDOFile   "$inputRDO" \
+  --inputRDOFile     ${ArtInFile} \
   --outputAODFile   physval.AOD.root \
   --outputNTUP_PHYSVALFile physval.ntuple.root \
-  --conditionsTag   'CONDBR2-BLKPA-RUN2-06' \
+  --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
   --steering        doRAWtoALL \
   --checkEventCount False \
   --ignoreErrors    True \
