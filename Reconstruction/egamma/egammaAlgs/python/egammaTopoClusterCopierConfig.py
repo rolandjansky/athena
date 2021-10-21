@@ -44,9 +44,9 @@ if __name__ == "__main__":
     flags.Input.Files = defaultTestFiles.RDO
 
     acc = MainServicesCfg(flags)
-    acc.merge(egammaTopoClusterCopierCfg(flags))
     mlog = logging.getLogger("egammaTopoClusterCopierConfigTest")
     mlog.info("Configuring  egammaTopoClusterCopier: ")
+    acc.merge(egammaTopoClusterCopierCfg(flags))
     printProperties(mlog,
                     acc.getEventAlgo("egammaTopoClusterCopier"),
                     nestLevel=1,

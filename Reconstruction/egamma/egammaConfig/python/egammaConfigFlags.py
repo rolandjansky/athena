@@ -15,9 +15,6 @@ def createEgammaConfigFlags():
     # do standard cluster-based egamma algorithm
     egcf.addFlag("Egamma.doCaloSeeded", True)
 
-    # if true, do superculsers
-    egcf.addFlag("Egamma.doSuperclusters", True)
-
     # do forward egamma
     egcf.addFlag("Egamma.doForwardSeeded", True)
 
@@ -60,7 +57,8 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Internal.ElectronSuperRecs",
                  'ElectronSuperRecCollection')
 
-    # These are the clusters that are used to determine which cells to write out to AOD
+    # These are the clusters that are used to determine
+    # which cells to write out to AOD
     egcf.addFlag("Egamma.Keys.Output.EgammaLargeClusters", 'egamma711Clusters')
     egcf.addFlag("Egamma.Keys.Output.EgammaLargeClustersSuppESD", '')
     # don't define SuppAOD because the whole container is suppressed
@@ -85,7 +83,8 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppAOD",
                  "-e033.-e011.-e333.-e335.-e337.-e377."
-                 "-EgammaCovarianceMatrix.-isEMLHLoose.-isEMLHTight.-isEMLHMedium."
+                 "-EgammaCovarianceMatrix."
+                 "-isEMLHLoose.-isEMLHTight.-isEMLHMedium."
                  "-isEMLoose.-isEMMedium.-isEMTight")
 
     egcf.addFlag("Egamma.Keys.Input.ForwardTopoClusters",
@@ -101,7 +100,8 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppAOD",
                  '-SisterCluster')
 
-    # These are the clusters that are used to determine which cells to write out to AOD
+    # These are the clusters that are used to determine
+    # which cells to write out to AOD
     egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClusters",
                  'egamma66FWDClusters')
     egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClustersSuppESD", '')
@@ -114,9 +114,11 @@ def createEgammaConfigFlags():
 
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticles", 'GSFTrackParticles')
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppESD",
-                 '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi')
+                 "-caloExtension.-cellAssociation."
+                 "-perigeeExtrapEta.-perigeeExtrapPhi")
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppAOD",
-                 '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi')
+                 '-caloExtension.-cellAssociation.'
+                 '-perigeeExtrapEta.-perigeeExtrapPhi')
 
     # not xAOD
     egcf.addFlag("Egamma.Keys.Output.GSFTracks", 'GSFTracks')

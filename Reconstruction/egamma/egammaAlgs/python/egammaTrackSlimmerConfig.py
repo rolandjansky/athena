@@ -42,9 +42,9 @@ if __name__ == "__main__":
     flags.Input.Files = defaultTestFiles.ESD
 
     acc = MainServicesCfg(flags)
-    acc.merge(egammaTrackSlimmerCfg(flags))
     mlog = logging.getLogger("egammaTrackSlimmerConfigTest")
     mlog.info("Configuring  egammaTrackSlimmer: ")
+    acc.merge(egammaTrackSlimmerCfg(flags))
     printProperties(mlog,
                     acc.getEventAlgo("egammaTrackSlimmer"),
                     nestLevel=1,
