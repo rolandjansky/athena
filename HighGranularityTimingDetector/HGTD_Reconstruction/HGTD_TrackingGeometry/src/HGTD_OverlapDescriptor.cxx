@@ -8,6 +8,10 @@
 ///////////////////////////////////////////////////////////////////
 
 // Amg
+#include <utility>
+
+
+
 #include "GeoPrimitives/GeoPrimitives.h"
 // HGTD
 #include "HGTD_TrackingGeometry/HGTD_OverlapDescriptor.h"
@@ -24,8 +28,8 @@ HGTDet::HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Tr
                                                        std::vector < std::vector< float> > valuesPhi,
                                                        int nStepsR, int nStepsPhi):
   m_binnedArray(bin_array),
-  m_valuesR(valuesR),
-  m_valuesPhi(valuesPhi),
+  m_valuesR(std::move(valuesR)),
+  m_valuesPhi(std::move(valuesPhi)),
   m_nStepsR(nStepsR),
   m_nStepsPhi(nStepsPhi)
 {}
@@ -37,7 +41,7 @@ bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
                                                        const Amg::Vector3D&) const
   
 {
-  surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
+  surfaces.emplace_back(Trk::Intersection(pos, 0., true),&tsf);
   
   // add the other targets
   // use the center of this surface in (x,y) global coordinates and look for
@@ -77,7 +81,7 @@ bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
   }
   
   for (auto& surface : allSurfaces)
-    surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),surface));
+    surfaces.emplace_back(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),surface);
   
   return false;
 }

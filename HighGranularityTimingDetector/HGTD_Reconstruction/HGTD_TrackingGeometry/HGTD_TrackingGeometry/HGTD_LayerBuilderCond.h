@@ -64,31 +64,36 @@ namespace HGTDet {
       virtual ~HGTD_LayerBuilderCond();
       
       /** AlgTool initialize method */
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
-       
+      virtual StatusCode finalize() override;
+
       /** LayerBuilder interface method - returning Barrel-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > cylindricalLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+      cylindricalLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Endcap-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >    discLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+      discLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Planar-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >   planarLayers(const EventContext& ctx) const; 
-             
+      virtual std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+      planarLayers(const EventContext& ctx) const override final;
+
       /** Name identification */
-      const std::string& identification() const;      
+      virtual const std::string& identification() const override final;      
         
     private:
       SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> retrieveHGTDdetElements(const EventContext& ctx) const;
-      
-      const Trk::BinnedLayerMaterial discLayerMaterial(double rMin, double rMax) const; //!< helper method to construct HGTD material
-        
-      void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
-      
+      //!< helper method to construct HGTD materia 
+      const Trk::BinnedLayerMaterial discLayerMaterial(double rMin, double rMax) const; 
+
+      //!< layer association
+      void registerSurfacesToLayer( const std::vector<const Trk::Surface*>& surfaces,const Trk::Layer& layer) const; 
+
       void evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
-                               std::vector<float>& rBins, float& maxRadius,
+                               std::vector<float>& rBins,
+                               float& maxRadius,
                                std::vector<std::vector<float>>& phiBins) const;
 
       const HGTD_DetectorManager*           m_hgtdMgr;                        //!< the HGTD Detector Manager
@@ -105,25 +110,34 @@ namespace HGTDet {
       float                                 m_discThickness;                  //!< set disc thickness
       
       bool                                  m_runGeometryValidation;          //!< run geometry validation
-      
-      SG::ReadCondHandleKey<InDetDD::HGTD_DetectorElementCollection> m_HGTD_ReadKey{this, "HGTD_ReadKey", "HGTD_DetectorElementCollection", "Key of output HGTD_DetectorElementCollection for HGTD"};
-                      
+
+      SG::ReadCondHandleKey<InDetDD::HGTD_DetectorElementCollection>
+        m_HGTD_ReadKey{
+          this,
+          "HGTD_ReadKey",
+          "HGTD_DetectorElementCollection",
+          "Key of output HGTD_DetectorElementCollection for HGTD"
+        };
   };
 
- inline std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > HGTD_LayerBuilderCond::cylindricalLayers(const EventContext&) const
- { 
-   //create dummy infinite range
+  inline std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+  HGTD_LayerBuilderCond::cylindricalLayers(const EventContext&) const
+  {
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* >(range, 0);
- }
-  
- inline std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* > HGTD_LayerBuilderCond::planarLayers(const EventContext&) const
- { 
-   //create dummy infinite range
+    return std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>(
+      range, nullptr);
+  }
+
+  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+  HGTD_LayerBuilderCond::planarLayers(const EventContext&) const
+  {
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >(range, 0);
- }
- 
+    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(range,
+                                                                         nullptr);
+  }
+
  inline const std::string& HGTD_LayerBuilderCond::identification() const
  { return m_identification; }
    

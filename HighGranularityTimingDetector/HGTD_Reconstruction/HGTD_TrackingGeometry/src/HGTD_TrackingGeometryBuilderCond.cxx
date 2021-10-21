@@ -102,7 +102,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeome
   ATH_MSG_VERBOSE( "Starting to build HGTD_TrackingGeometry ..." );   
   
   // the return TG
-  const Trk::TrackingGeometry* hgtdTrackingGeometry = 0; 
+  const Trk::TrackingGeometry* hgtdTrackingGeometry = nullptr; 
   
   // the enclosed input volume (ID)
   double enclosedInnerSectorHalflength = std::numeric_limits<float>::max();
@@ -157,14 +157,17 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeome
       }
     }
   }
-  
-  ATH_MSG_VERBOSE( "Got Dimensions Zmin/Rmin - Zmax/Rmax: " << enclosedInnerSectorHalflength << "/" << enclosedInnerRadius << " - " << enclosedOuterSectorHalflength << "/" << enclosedOuterRadius );   
-  
+
+  ATH_MSG_VERBOSE("Got Dimensions Zmin/Rmin - Zmax/Rmax: "
+                  << enclosedInnerSectorHalflength << "/" << enclosedInnerRadius
+                  << " - " << enclosedOuterSectorHalflength << "/"
+                  << enclosedOuterRadius);
+
   // prepare the layers
   std::vector<const Trk::Layer*> negativeLayers;
   std::vector<const Trk::Layer*> positiveLayers;  
   
-  std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> discLayersPair = m_layerBuilder->discLayers(ctx);
+  std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayersPair = m_layerBuilder->discLayers(ctx);
   const auto *discLayers = discLayersPair.second;
   
   float maxZ = -9999.;
@@ -233,8 +236,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeome
                                                                         enclosedInnerSectorHalflength);
     Amg::Transform3D* idTr = new Amg::Transform3D(Trk::s_idTransform);
     // dummy objects
-    const Trk::LayerArray* dummyLayers = 0;
-    const Trk::TrackingVolumeArray* dummyVolumes = 0;
+    const Trk::LayerArray* dummyLayers = nullptr;
+    const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
     
     innerVol = new Trk::TrackingVolume(idTr, idBounds, *materialProperties,
                                        dummyLayers, dummyVolumes,

@@ -168,7 +168,8 @@ SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> InDet::SiLayerBuilderCo
 }
 
 /** LayerBuilder interface method - returning Barrel-like layers */
-std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
+std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
 {
 
   // sanity check for ID Helper
@@ -176,7 +177,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
     ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
     //create dummy infinite range
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>(range,nullptr);
   }
 
   // take the numerlogoy
@@ -222,7 +223,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>(range,nullptr);
   }
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
@@ -327,7 +328,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
    
   // [-B-] ------------------------ Construction of the layers -----------------------------------          
   // [-B-1] construct the detection layers
-  std::vector< const Trk::CylinderLayer* > cylinderDetectionLayers;
+  std::vector< Trk::CylinderLayer* > cylinderDetectionLayers;
   int layerCounter          = 0;
   double currentLayerExtend = 0.;
   
@@ -481,7 +482,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   // --------------------------- enf of detection layer construction loop ----------------------------------
 
   ATH_MSG_DEBUG("Creating the final CylinderLayer collection with (potentially) additional layers.");
-  std::vector< const Trk::CylinderLayer* >* cylinderLayers = dressCylinderLayers(cylinderDetectionLayers);
+  std::vector< Trk::CylinderLayer* >* cylinderLayers = dressCylinderLayers(cylinderDetectionLayers);
   
   // multiply the check number in case of SCT 
   sumCheckBarrelModules *= (m_pixelCase) ? 1 : 2; 
@@ -492,19 +493,20 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
 
   ATH_MSG_DEBUG("Returning " << cylinderLayers->size() << " cylinder layers.");
   EventIDRange range = readHandle.getRange();
-  std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> cylinderLayersPair = std::make_pair(range,cylinderLayers);
+  std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*> cylinderLayersPair = std::make_pair(range,cylinderLayers);
   return cylinderLayersPair;
-} 
-      
+}
+
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> InDet::SiLayerBuilderCond::discLayers(const EventContext& ctx) const
+std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+InDet::SiLayerBuilderCond::discLayers(const EventContext& ctx) const
 {
   // sanity check for ID Helper
   if (!m_pixIdHelper && !m_sctIdHelper){
        ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
     //create dummy infinite range
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>(range,nullptr);
   } 
 
   // check for DBMS
@@ -512,19 +514,22 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> InDet::SiLaye
   if (!nDBMLayers) return ((m_pixelCase and m_useRingLayout) ? createRingLayers(ctx) : createDiscLayers(ctx));
   
   ATH_MSG_DEBUG( "Found " << m_siMgr->numerology().numEndcapsDBM() << " DBM layers active, building first ECs, then DBMS");
-  std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>  ecLayers = createDiscLayers(ctx);
+  std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>  ecLayers = createDiscLayers(ctx);
   if (ecLayers.second) {
       ATH_MSG_VERBOSE( "Created " << ecLayers.second->size() << " endcap layers w/o  DBM.");
       ecLayers = createDiscLayers(ctx, ecLayers.second);
       ATH_MSG_VERBOSE( "Created " << ecLayers.second->size() << " endcap layers with DBM.");
   }
   return ecLayers;
-
 }
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBuilderCond::createDiscLayers(const EventContext& ctx, std::vector<const Trk::DiscLayer*>* dLayers) const {
- 
+std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>
+InDet::SiLayerBuilderCond::createDiscLayers(
+  const EventContext& ctx,
+  std::vector<Trk::DiscLayer*>* dLayers) const
+{
+
   // this is the DBM flag
   bool isDBM = (dLayers!=nullptr);
   
@@ -532,7 +537,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
   }
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
@@ -702,7 +707,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
     
   // [-B-] ------------------------ Construction of the layers -----------------------------------
   // construct the layers
-  std::vector< const Trk::DiscLayer* >* discLayers = dLayers ? dLayers : new std::vector< const Trk::DiscLayer* >;
+  std::vector< Trk::DiscLayer* >* discLayers = dLayers ? dLayers : new std::vector< Trk::DiscLayer* >;
   std::vector<double>::iterator discZposIter = discZpos.begin();
   int discCounter = 0;
                                               
@@ -909,8 +914,8 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
  
   // sort the vector
   Trk::DiscLayerSorterZ zSorter;
-  std::vector<const Trk::DiscLayer*>::iterator sortIter = discLayers->begin();
-  std::vector<const Trk::DiscLayer*>::iterator sortEnd   = discLayers->end(); 
+  std::vector<Trk::DiscLayer*>::iterator sortIter = discLayers->begin();
+  std::vector<Trk::DiscLayer*>::iterator sortEnd   = discLayers->end(); 
   std::sort(sortIter, sortEnd, zSorter);
  
   // if there are additional layers to be built - never build for the DBM loop
@@ -985,13 +990,13 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
 
 /** LayerBuilder interface method - returning ring-like layers */
 /** this is ITk pixel specific and doesn't include DBM modules */
-std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBuilderCond::createRingLayers(const EventContext& ctx) const {
+std::pair<EventIDRange, std::vector< Trk::DiscLayer* >* > InDet::SiLayerBuilderCond::createRingLayers(const EventContext& ctx) const {
  
   // get general layout
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
   }
     
   // save way to estimate the number of barrels
@@ -1106,7 +1111,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
       
   // [-B-] ------------------------ Construction of the layers -----------------------------------
   // construct the layers
-  std::vector< const Trk::DiscLayer* >* discLayers = new std::vector< const Trk::DiscLayer* >;
+  std::vector< Trk::DiscLayer* >* discLayers = new std::vector< Trk::DiscLayer* >;
   std::vector<double>::iterator discZposIter = discZpos.begin();
   int discCounter = 0;
                                               
@@ -1220,8 +1225,8 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
  
   // sort the vector
   Trk::DiscLayerSorterZ zSorter;
-  std::vector<const Trk::DiscLayer*>::iterator sortIter = discLayers->begin();
-  std::vector<const Trk::DiscLayer*>::iterator sortEnd   = discLayers->end(); 
+  std::vector<Trk::DiscLayer*>::iterator sortIter = discLayers->begin();
+  std::vector<Trk::DiscLayer*>::iterator sortEnd   = discLayers->end(); 
   std::sort(sortIter, sortEnd, zSorter);
  
   // if there are additional layers to be built - never build for the DBM loop
@@ -1297,55 +1302,71 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   return std::make_pair(range, discLayers);
 }
 
-std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilderCond::dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& detectionLayers ) const {
+std::vector<Trk::CylinderLayer*>*
+InDet::SiLayerBuilderCond::dressCylinderLayers(
+  const std::vector<Trk::CylinderLayer*>& detectionLayers) const
+{
 
-
-    std::vector< const Trk::CylinderLayer* >* cylinderLayers = new std::vector< const Trk::CylinderLayer* >;
-    // --------------------------- start of additional layer construction loop -------------------------------
-    // for the additional layer
-    if (!m_barrelAdditionalLayerR.empty()){
-        auto cylLayerIter         = detectionLayers.begin();
-        auto cylLayerIterEnd      = detectionLayers.end();
-        auto addLayerIter         = m_barrelAdditionalLayerR.begin();
-        auto addLayerIterEnd      = m_barrelAdditionalLayerR.end();
-        auto addLayerTypeIter     = m_barrelAdditionalLayerType.begin();
-        auto addLayerTypeIterEnd  = m_barrelAdditionalLayerType.end();
-        double cylLayerExtend     = 0;
-        for ( ; addLayerIter != addLayerIterEnd && addLayerTypeIter != addLayerTypeIterEnd; ) {
-            // build the passive layer if it is smaller the current cylLayerIter - or if it is the last one 
-            if  ( cylLayerIter == cylLayerIterEnd || (*addLayerIter) < (*cylLayerIter)->bounds().r() ){
-              cylLayerExtend = (cylLayerIter == cylLayerIterEnd) ? cylLayerExtend : (*cylLayerIter)->bounds().halflengthZ() ;  
-              if ( (*addLayerTypeIter) ) {
-                    ATH_MSG_DEBUG("[- M -] Building an additional CylinderLayer w/o sensitive modules");
-                    // the material for the passive layer
-                    const Trk::LayerMaterialProperties& passiveLayerMaterial = barrelLayerMaterial(*addLayerIter,cylLayerExtend);
-                    // create the passive layer
-                    cylinderLayers->push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(*addLayerIter,cylLayerExtend),
-                                                                     passiveLayerMaterial,
-                                                                     1.*Gaudi::Units::mm,
-                                                                     nullptr,0));
-              } else {
-                  ATH_MSG_DEBUG("[- N -] Building an additional NavigationLayer for volume dimension control");
-                  // create the passive layer
-                  cylinderLayers->push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(*addLayerIter,cylLayerExtend),nullptr));
-              }
-              ATH_MSG_DEBUG( "  -> With Radius     :  " << *addLayerIter   );       
-              // increase the additional layer radii
-              ++addLayerIter; ++addLayerTypeIter; 
-              continue;
-          } 
-          ATH_MSG_DEBUG("[- D -] Registering detection CylinderLayer");
-          ATH_MSG_DEBUG( "  -> With Radius     :  " << (*cylLayerIter)->bounds().r()   );
-          cylinderLayers->push_back(*cylLayerIter);
-          ++cylLayerIter;       
+  std::vector<Trk::CylinderLayer*>* cylinderLayers =
+    new std::vector<Trk::CylinderLayer*>;
+  // --------------------------- start of additional layer construction loop
+  // ------------------------------- for the additional layer
+  if (!m_barrelAdditionalLayerR.empty()) {
+    auto cylLayerIter = detectionLayers.begin();
+    auto cylLayerIterEnd = detectionLayers.end();
+    auto addLayerIter = m_barrelAdditionalLayerR.begin();
+    auto addLayerIterEnd = m_barrelAdditionalLayerR.end();
+    auto addLayerTypeIter = m_barrelAdditionalLayerType.begin();
+    auto addLayerTypeIterEnd = m_barrelAdditionalLayerType.end();
+    double cylLayerExtend = 0;
+    for (; addLayerIter != addLayerIterEnd &&
+           addLayerTypeIter != addLayerTypeIterEnd;) {
+      // build the passive layer if it is smaller the current cylLayerIter - or
+      // if it is the last one
+      if (cylLayerIter == cylLayerIterEnd ||
+          (*addLayerIter) < (*cylLayerIter)->bounds().r()) {
+        cylLayerExtend = (cylLayerIter == cylLayerIterEnd)
+                           ? cylLayerExtend
+                           : (*cylLayerIter)->bounds().halflengthZ();
+        if ((*addLayerTypeIter)) {
+          ATH_MSG_DEBUG("[- M -] Building an additional CylinderLayer w/o "
+                        "sensitive modules");
+          // the material for the passive layer
+          const Trk::LayerMaterialProperties& passiveLayerMaterial =
+            barrelLayerMaterial(*addLayerIter, cylLayerExtend);
+          // create the passive layer
+          cylinderLayers->push_back(new Trk::CylinderLayer(
+            new Trk::CylinderBounds(*addLayerIter, cylLayerExtend),
+            passiveLayerMaterial,
+            1. * Gaudi::Units::mm,
+            nullptr,
+            0));
+        } else {
+          ATH_MSG_DEBUG("[- N -] Building an additional NavigationLayer for "
+                        "volume dimension control");
+          // create the passive layer
+          cylinderLayers->push_back(new Trk::CylinderLayer(
+            new Trk::CylinderBounds(*addLayerIter, cylLayerExtend), nullptr));
         }
-    } else 
-        for (const auto & cylLayerIter : detectionLayers ) {
-            ATH_MSG_DEBUG("[- D -] Registering detection CylinderLayer");
-            ATH_MSG_DEBUG( "  -> With Radius     :  " << cylLayerIter->bounds().r()   );
-            cylinderLayers->push_back(cylLayerIter);
-        }
-    return cylinderLayers;
+        ATH_MSG_DEBUG("  -> With Radius     :  " << *addLayerIter);
+        // increase the additional layer radii
+        ++addLayerIter;
+        ++addLayerTypeIter;
+        continue;
+      }
+      ATH_MSG_DEBUG("[- D -] Registering detection CylinderLayer");
+      ATH_MSG_DEBUG(
+        "  -> With Radius     :  " << (*cylLayerIter)->bounds().r());
+      cylinderLayers->push_back(*cylLayerIter);
+      ++cylLayerIter;
+    }
+  } else
+    for (const auto& cylLayerIter : detectionLayers) {
+      ATH_MSG_DEBUG("[- D -] Registering detection CylinderLayer");
+      ATH_MSG_DEBUG("  -> With Radius     :  " << cylLayerIter->bounds().r());
+      cylinderLayers->push_back(cylLayerIter);
+    }
+  return cylinderLayers;
 }
 
 const Trk::BinnedLayerMaterial 
@@ -1381,7 +1402,7 @@ InDet::SiLayerBuilderCond::endcapLayerMaterial(double rMin, double rMax) const
   return Trk::BinnedLayerMaterial(layerBinUtilityR);    
 }     
 
-void InDet::SiLayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
+void InDet::SiLayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, Trk::Layer& lay) const
 {
     if (!m_setLayerAssociation) return;
     

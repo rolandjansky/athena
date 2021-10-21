@@ -43,17 +43,20 @@ namespace Trk {
       static const InterfaceID& interfaceID() { return IID_ILayerBuilderCond; }
 
       /** LayerBuilder interface method - returning Barrel-like layers */
-      virtual std::pair<EventIDRange, const std::vector< const CylinderLayer* >*> cylindricalLayers(const EventContext& ctx) const = 0; 
-      
+      virtual std::pair<EventIDRange, const std::vector<CylinderLayer*>*>
+      cylindricalLayers(const EventContext& ctx) const = 0;
+
       /** LayerBuilder interface method - returning Endcap-like layers */
-      virtual std::pair<EventIDRange, const std::vector< const DiscLayer* >*>     discLayers(const EventContext& ctx) const = 0; 
-      
+      virtual std::pair<EventIDRange, const std::vector<DiscLayer*>*>
+      discLayers(const EventContext& ctx) const = 0;
+
       /** LayerBuilder interface method - returning Planar-like layers */
-      virtual std::pair<EventIDRange, const std::vector< const PlaneLayer* >*>    planarLayers(const EventContext& ctx) const = 0;
+      virtual std::pair<EventIDRange, const std::vector<PlaneLayer*>*>
+      planarLayers(const EventContext& ctx) const = 0;
 
       /** Name identification */
       virtual const std::string& identification() const = 0;
-      
+
       /** Validation Action:
           Can be implemented optionally, outside access to internal validation steps */
       virtual void validationAction() const {}
