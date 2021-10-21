@@ -791,6 +791,16 @@ HLT_e26_lhloose_nopix_lrttight_L1eEM22M:
   eventCount: 0
 HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:
   eventCount: 0
+  stepCounts:
+    0: 4
+    1: 3
+    2: 3
+    3: 1
+  stepFeatures:
+    0: 7
+    1: 3
+    2: 3
+    3: 1
 HLT_e26_lhmedium_mu8noL1_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhmedium_nopix_lrttight_L1EM22VHI:
@@ -1193,6 +1203,16 @@ HLT_e5_lhvloose_j70_0eta320_j50_0eta490_j0_DJMASS1000j50_xe50_tcpufit_L1MJJ-500-
   eventCount: 0
 HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:
   eventCount: 0
+  stepCounts:
+    0: 7
+    1: 4
+    2: 3
+    3: 1
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 3
+    3: 1
 HLT_e60_dnnmedium_L1EM22VHI:
   eventCount: 0
 HLT_e60_gsf_dnnmedium_L1EM22VHI:
@@ -4310,6 +4330,8 @@ HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100:
   eventCount: 0
 HLT_tau160_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau160_mediumRNN_tracktwoMVAClus_L1TAU100:
   eventCount: 0
 HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100:
@@ -4318,6 +4340,8 @@ HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100:
   eventCount: 0
 HLT_tau160_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau160_perf_tracktwoMVABDT_L1TAU100:
   eventCount: 0
 HLT_tau160_perf_tracktwoMVAClus_L1TAU100:
@@ -4336,6 +4360,8 @@ HLT_tau180_mediumRNN_tracktwoLLP_L1eTAU100:
   eventCount: 0
 HLT_tau180_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau180_tightRNN_tracktwoLLP_L1TAU100:
   eventCount: 0
 HLT_tau200_medium1_tracktwo_L1TAU100:
@@ -4354,8 +4380,16 @@ HLT_tau200_tightRNN_tracktwoLLP_L1TAU100:
   eventCount: 0
 HLT_tau20_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_tau20_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:
   eventCount: 8
   stepCounts:
@@ -4474,6 +4508,8 @@ HLT_tau25_medium1_tracktwo_L1TAU12IM:
     5: 5
 HLT_tau25_medium1_tracktwo_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau25_mediumRNN_tracktwoLLP_L1TAU12IM:
   eventCount: 3
   stepCounts:
@@ -4528,6 +4564,8 @@ HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M:
     3: 1
 HLT_tau25_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 ? HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF
 : eventCount: 0
   stepFeatures:
@@ -4562,6 +4600,8 @@ HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM:
     4: 1
 HLT_tau25_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
   eventCount: 0
   stepFeatures:
@@ -4772,6 +4812,8 @@ HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20:
     3: 1
 HLT_tau35_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25:
   eventCount: 0
 HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25:
@@ -4794,6 +4836,8 @@ HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM:
     4: 1
 HLT_tau35_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB30_L1DR-TAU20ITAU12I-J25:
   eventCount: 0
 HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25:
@@ -4876,10 +4920,14 @@ HLT_tau40_medium1_tracktwo_tau35_medium1_tracktwo_03dRAB_L1TAU25IM_2TAU20IM_2J25
   eventCount: 0
 HLT_tau40_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20:
   eventCount: 0
 HLT_tau40_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20:
   eventCount: 0
 HLT_tau50_mediumRNN_tracktwoMVABDT_xe80_pfopufit_xe50_cell_L1XE50:
@@ -4892,12 +4940,18 @@ HLT_tau50_mediumRNN_tracktwoMVA_xe80_tcpufit_xe50_cell_L1XE50:
   eventCount: 0
 HLT_tau60_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau60_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau60_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_xe50_cell_03dRAB_L1TAU40_2TAU12IM_XE40:
   eventCount: 0
 HLT_tau60_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1TAU40_2TAU12IM_XE40:
   eventCount: 0
 HLT_tau80_medium1_tracktwo_tau35_medium1_tracktwo_03dRAB30_L1TAU60_DR-TAU20ITAU12I:
@@ -4918,6 +4972,8 @@ HLT_tau80_medium1_tracktwo_tau60_medium1_tracktwo_03dRAB_L1TAU60_2TAU40:
     4: 3
 HLT_tau80_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40:
   eventCount: 0
   stepCounts:
@@ -4946,6 +5002,8 @@ HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40
     3: 3
 HLT_tau80_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau80_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB30_L1TAU60_DR-TAU20ITAU12I:
   eventCount: 0
 HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU60_2TAU40:
@@ -4964,6 +5022,8 @@ HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1eTAU6
   eventCount: 0
 HLT_tau80_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I:
   eventCount: 0
 HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40:
