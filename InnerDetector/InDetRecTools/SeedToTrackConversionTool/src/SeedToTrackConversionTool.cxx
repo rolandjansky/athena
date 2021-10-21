@@ -115,6 +115,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     auto traj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
     auto pertsos = traj->allocate(nullptr, std::move(per), nullptr, nullptr, typePattern);
+    traj->reserve (prdsInSp.size() + 1);
     traj->push_back(std::move(pertsos));
     for (const Trk::PrepRawData* prd: prdsInSp) {
       const Trk::Surface& surf = prd->detectorElement()->surface(prd->identify());
