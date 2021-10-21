@@ -40,6 +40,9 @@ namespace FlavorTagDiscriminants {
       this,"PrimaryVertexContainer","PrimaryVertices",
       "Key for the input vertex collection"};
 
+    SG::ReadHandleKey< xAOD::EventInfo > m_eventInfoKey {
+      this, "EventInfo", "EventInfo", "Key for EventInfo"};
+
     // Decorators for tracks
     Gaudi::Property< std::string > m_prefix{this,"prefix","poboyIp_",""};
 
