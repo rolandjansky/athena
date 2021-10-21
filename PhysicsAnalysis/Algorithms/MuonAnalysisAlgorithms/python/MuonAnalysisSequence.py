@@ -167,15 +167,15 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
-                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"]})
+                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"][:]})
 
     # Set up an algorithm used to create muon selection cutflow:
     if enableCutflow:
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' + postfix )
         alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
         seq.append( alg, inputPropName = 'input', stageName = 'selection',
-                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"],
-                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"]} )
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:],
+                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"][:]} )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
@@ -184,7 +184,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                             'MuonViewFromSelectionAlg' + postfix )
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection',
-                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"]} )
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"][:]} )
 
     # Set up the efficiency scale factor calculation algorithm:
     alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg',
@@ -214,7 +214,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg.deepCopy = True
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection',
-                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"]} )
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"][:]} )
         pass
 
     # Return the sequence:

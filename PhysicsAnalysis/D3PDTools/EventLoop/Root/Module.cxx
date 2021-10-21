@@ -23,7 +23,13 @@ namespace EL
   namespace Detail
   {
     ::StatusCode Module ::
-    preInitialize (ModuleData& /*data*/)
+    firstInitialize (ModuleData& /*data*/)
+    {
+      return ::StatusCode::SUCCESS;
+    }
+
+    ::StatusCode Module ::
+    preFileInitialize (ModuleData& /*data*/)
     {
       return ::StatusCode::SUCCESS;
     }
