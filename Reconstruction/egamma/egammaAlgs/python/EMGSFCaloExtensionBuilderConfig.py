@@ -9,9 +9,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 
 
-EMGSFCaloExtensionBuilder = CompFactory.EMGSFCaloExtensionBuilder
-
-
 def EMGSFCaloExtensionBuilderCfg(
         flags,
         name='EMGSFCaloExtensionBuilder',
@@ -22,6 +19,7 @@ def EMGSFCaloExtensionBuilderCfg(
 
     acc = ComponentAccumulator()
 
+    # should use egammaCaloExtrapolator for the two below...
     if "PerigeeCaloExtensionTool" not in kwargs:
         perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
             flags,
@@ -42,8 +40,10 @@ def EMGSFCaloExtensionBuilderCfg(
     kwargs.setdefault(
         "GFFTrkPartContainerName",
         flags.Egamma.Keys.Output.GSFTrackParticles)
+    kwargs.setdefault("GSFPerigeeCache", "GSFPerigeeCaloExtension")
+    kwargs.setdefault("GSFLastCache", "GSFLastCaloExtension")
 
-    emgscaloextfAlg = EMGSFCaloExtensionBuilder(name, **kwargs)
+    emgscaloextfAlg = CompFactory.EMGSFCaloExtensionBuilder(name, **kwargs)
 
     acc.addEventAlgo(emgscaloextfAlg)
     return acc

@@ -5,7 +5,6 @@ __doc__ = "Instantiate egammaTopoClusterCopier with default configuration"
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaTopoClusterCopier = CompFactory.egammaTopoClusterCopier
 
 
 def egammaTopoClusterCopierCfg(
@@ -17,7 +16,6 @@ def egammaTopoClusterCopierCfg(
     mlog.info('Starting configuration')
 
     acc = ComponentAccumulator()
-
     kwargs.setdefault(
         "InputTopoCollection",
         flags.Egamma.Keys.Input.TopoClusters)
@@ -30,7 +28,7 @@ def egammaTopoClusterCopierCfg(
         "OutputTopoCollectionShallow",
         "tmp_"+egtopocluster)
 
-    egcopierAlg = egammaTopoClusterCopier(name, **kwargs)
+    egcopierAlg = CompFactory.egammaTopoClusterCopier(name, **kwargs)
 
     acc.addEventAlgo(egcopierAlg)
     return acc

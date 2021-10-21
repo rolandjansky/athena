@@ -7,8 +7,6 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTools.egammaOQFlagsBuilderConfig import egammaOQFlagsBuilderCfg
-EMFourMomBuilder = CompFactory.EMFourMomBuilder
-egammaForwardBuilder = CompFactory.egammaForwardBuilder
 
 
 def egammaForwardBuilderCfg(flags, name='egammaForwardElectron', **kwargs):
@@ -17,7 +15,6 @@ def egammaForwardBuilderCfg(flags, name='egammaForwardElectron', **kwargs):
     mlog.info('Starting configuration')
 
     acc = ComponentAccumulator()
-
     if "forwardelectronIsEMselectors" not in kwargs:
         LooseFwdElectronSelector = AsgForwardElectronIsEMSelectorCfg(
             flags,
@@ -56,9 +53,9 @@ def egammaForwardBuilderCfg(flags, name='egammaForwardElectron', **kwargs):
     kwargs.setdefault("ClusterContainerName",
                       flags.Egamma.Keys.Output.ForwardClusters)
     kwargs.setdefault("FourMomBuilderTool",
-                      EMFourMomBuilder())
+                      CompFactory.EMFourMomBuilder())
 
-    fwdAlg = egammaForwardBuilder(name, **kwargs)
+    fwdAlg = CompFactory.egammaForwardBuilder(name, **kwargs)
 
     acc.addEventAlgo(fwdAlg)
     return acc
