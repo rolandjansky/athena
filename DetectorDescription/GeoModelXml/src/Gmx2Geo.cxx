@@ -43,7 +43,7 @@ Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInt
     if (!doc) {// Parsed badly
         XMLPlatformUtils::Terminate();
         msglog << MSG::FATAL << "Error in xml file " << xmlFile << ". Exiting athena." << endmsg;
-        exit(0);
+        std::abort();
     }
 //
 //    Set up the CLHEP evaluator and the xml-tag processors, and store the GmxInterface:
@@ -208,7 +208,7 @@ const DOMElement *element;
                 msglog << val << endl;
                 msglog << string(eval.error_position(), '-') << '^' << '\n';
                 msglog << "Exiting program." << endmsg;
-                exit(999); // Should do better...
+                std::abort();
             }
             eval.setVariable(name, evaluated);
             msglog << name << "\t\t" << val << " = " << setprecision(10) << evaluated << endl;

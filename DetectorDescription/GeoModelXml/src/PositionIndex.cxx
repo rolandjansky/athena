@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdlib>
@@ -105,7 +105,7 @@ void PositionIndex::indices(map<string, int> &index, Evaluator &eval) {
             eval.print_error();
             msglog << m_formula[name] << endl << string(eval.error_position(), '-') << '^' << '\n' << "Exiting program." << 
                    endmsg;
-            exit(999); // Should do better...
+            std::abort();
         }
 //
 //    And create a CLHEP variable with the same index-name in case the user needs it 

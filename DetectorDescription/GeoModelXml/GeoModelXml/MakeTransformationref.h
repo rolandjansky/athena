@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -13,7 +13,7 @@
 
 class MakeTransformationref: public Element2GeoItem {
 public:
-    const RCBase * make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const;
+    virtual RCBase * make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const override;
 };
 
 #endif // MAKE_TRANSFORMATIONREF_H

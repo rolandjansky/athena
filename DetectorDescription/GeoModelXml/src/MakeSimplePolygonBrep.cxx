@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <string>
 #include <vector>
@@ -18,7 +18,7 @@ using namespace xercesc;
 
 MakeSimplePolygonBrep::MakeSimplePolygonBrep() {}
 
-const RCBase * MakeSimplePolygonBrep::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakeSimplePolygonBrep::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 const int nParams = 3; 
 char const *parName[nParams] = {"xpoints", "ypoints", "zhalflength"};
 double z;
