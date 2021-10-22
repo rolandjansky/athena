@@ -66,7 +66,7 @@ public:
       @param volumeName  : volume name to be given
 
       */
-  virtual TrackingVolume* createTrackingVolume(
+  virtual TrackingVolume* createTrackingVolume ATLAS_NOT_THREAD_SAFE(
     const std::vector<const Layer*>& layers,
     Material& matprop,
     VolumeBounds* volBounds = 0,
@@ -85,7 +85,7 @@ public:
       @param volumeName  : volume name to be given
 
       */
-  virtual TrackingVolume* createTrackingVolume(
+  virtual TrackingVolume* createTrackingVolume ATLAS_NOT_THREAD_SAFE(
     const std::vector<const Layer*>& layers,
     Material& matprop,
     double loc1Min,
@@ -106,7 +106,7 @@ public:
      @param volumeName  : volume name to be given
 
    */
-  virtual TrackingVolume* createGapTrackingVolume(
+  virtual TrackingVolume* createGapTrackingVolume ATLAS_NOT_THREAD_SAFE(
     Material& matprop,
     double loc1Min,
     double loc1Max,
@@ -126,16 +126,16 @@ public:
      @param volumeName  : volume name to be given
 
    */
-  virtual TrackingVolume* createGapTrackingVolume(
-    Material& matprop,
-    double loc1Min,
-    double loc1Max,
-    double loc2Min,
-    double loc2Max,
-    const std::vector<double>& layerPositions,
-    bool cylinder = true,
-    const std::string& volumeName = "UndefinedVolume",
-    BinningType btype = arbitrary) const = 0;
+  virtual TrackingVolume* createGapTrackingVolume
+  ATLAS_NOT_THREAD_SAFE(Material& matprop,
+                        double loc1Min,
+                        double loc1Max,
+                        double loc2Min,
+                        double loc2Max,
+                        const std::vector<double>& layerPositions,
+                        bool cylinder = true,
+                        const std::string& volumeName = "UndefinedVolume",
+                        BinningType btype = arbitrary) const = 0;
 
   /** Create a one level higher TrackingVolue
 
