@@ -70,7 +70,6 @@ class opt:
     disableChains     = []
 
 ################################################################################
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
@@ -230,7 +229,7 @@ ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
-ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
+ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID
 ConfigFlags.Trigger.doMuon = opt.doMuon
 ConfigFlags.Trigger.doCalo = opt.doCalo

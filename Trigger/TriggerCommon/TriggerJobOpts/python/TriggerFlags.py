@@ -30,14 +30,6 @@ for name in default_false_flags:
     globals()[newFlag.__name__] = newFlag
     _flags.append(newFlag)
 
-class doHLT(JobProperty):
-    """ if True, run HLT selection algorithms """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-    
-_flags.append(doHLT)
-
 class AODEDMSet(JobProperty):
     """ Define which sets of object go to AOD """
     statusOn=True
@@ -352,4 +344,3 @@ def sync_Trigger2Reco():
     if globalflags.InputFormat() == 'bytestream':
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.readBS = True
-        TriggerFlags.doHLT   = False

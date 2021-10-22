@@ -391,14 +391,6 @@ class rewriteLVL1(_modifier):
                 streamBS.ItemList += [ 'ROIB::RoIBResult#RoIBResult' ]
 
 
-class writeBS(_modifier):
-    """
-    Write bytestream output in athena
-    """
-    def postSetup(self):
-        from AthenaCommon.Include import include
-        include("TriggerJobOpts/BStoBS_post.py")
-
 class DisableMdtT0Fit(_modifier):
     """
     Disable MDT T0 re-fit and use constants from COOL instead
