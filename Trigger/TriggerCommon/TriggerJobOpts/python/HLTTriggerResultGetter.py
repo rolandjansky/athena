@@ -20,7 +20,8 @@ class xAODConversionGetter(Configured):
         #schedule xAOD conversions here
         from TrigBSExtraction.TrigBSExtractionConf import TrigHLTtoxAODConversion
         xaodconverter = TrigHLTtoxAODConversion()
-        
+        if ConfigFlags.Trigger.readBS:
+            xaodconverter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] # contract wiht BSExtraction alg (see below)
         from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
         xaodconverter.Navigation = HLTNavigationOffline()
 
