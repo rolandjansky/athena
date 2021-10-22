@@ -24,8 +24,8 @@ namespace NSWL1 {
     
   private:
 
-    SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainerKey{this,"NSW_TrigRawData","Write handle key for NSW TrigRawData"};
-    SG::ReadHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerContainerKey{this,"NSWPADTRGRDO","Name of the pad trigger RDO"};
+    SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainerKey{this,"trigRdoContainerKey","NSW_TrigRawData","Write handle key for NSW TrigRawData"};
+    SG::ReadHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerContainerKey{this,"padTriggerContainerKey","NSWPADTRGRDO","Name of the pad trigger RDO"};
     
   };
 
