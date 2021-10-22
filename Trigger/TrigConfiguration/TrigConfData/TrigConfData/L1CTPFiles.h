@@ -45,7 +45,7 @@ namespace TrigConf {
 
       class CTPCoreInput {
       public:
-         CTPCoreInput(size_t inputNumber, std::string name, size_t bit, size_t phase) :
+         CTPCoreInput(size_t inputNumber, const std::string& name, size_t bit, size_t phase) :
             m_inputNumber(inputNumber), m_name(name), m_bit(bit), m_phase(phase) {}
          size_t      inputNumber() const { return m_inputNumber; }
          std::string name() const { return m_name; }

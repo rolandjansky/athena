@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1THREXTRAINFO_H
@@ -210,17 +210,17 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_jEM"; }
       const WorkingPoints_jEM & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jEM> & isolation(TrigConf::Selection::WP wp) const { return m_isolation.at(wp); }
-      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
-      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
-      unsigned int ptMinToTopoMeV(std::string module) const {
+      float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
           throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
       }
-      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
-      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
-      unsigned int ptMinxTOBMeV(std::string module) const {
+      float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
@@ -298,17 +298,17 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_jTAU"; }
       const WorkingPoints_jTAU & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jTAU> & isolation(TrigConf::Selection::WP wp) const  { return m_isolation.at(wp); }
-      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
-      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
-      unsigned int ptMinToTopoMeV(std::string module) const {
+      float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
           throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
       }
-      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
-      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
-      unsigned int ptMinxTOBMeV(std::string module) const {
+      float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
@@ -361,17 +361,17 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jJ"; }
-      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
-      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
-      unsigned int ptMinToTopoMeV(std::string module) const {
+      float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
           throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
       }
-      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
-      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
-      unsigned int ptMinxTOBMeV(std::string module) const {
+      float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
@@ -395,17 +395,17 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jLJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jLJ"; }
-      float ptMinToTopo(std::string module) const { return ptMinToTopoMeV(module)/ 1000.0; }
-      unsigned int ptMinToTopoCounts(std::string module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
-      unsigned int ptMinToTopoMeV(std::string module) const {
+      float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinToTopoMeV1;
           if(module=="2C" || module=="2A") return m_ptMinToTopoMeV2;
           if(module=="3C" || module=="3A") return m_ptMinToTopoMeV3;
           throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised");
       }
-      float ptMinxTOB(std::string module) const { return ptMinxTOBMeV(module)/ 1000.0; }
-      unsigned int ptMinxTOBCounts(std::string module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
-      unsigned int ptMinxTOBMeV(std::string module) const {
+      float ptMinxTOB(const std::string& module) const { return ptMinxTOBMeV(module)/ 1000.0; }
+      unsigned int ptMinxTOBCounts(const std::string& module) const { return energyInCounts(ptMinxTOBMeV(module), resolutionMeV()); }
+      unsigned int ptMinxTOBMeV(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_ptMinxTOBMeV1;
           if(module=="2C" || module=="2A") return m_ptMinxTOBMeV2;
           if(module=="3C" || module=="3A") return m_ptMinxTOBMeV3;
@@ -441,13 +441,13 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jTE() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jTE"; }
-      unsigned int etaBoundary_fw(std::string module) const {
+      unsigned int etaBoundary_fw(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_etaBoundary1_fw;
           if(module=="2C" || module=="2A") return m_etaBoundary2_fw;
           if(module=="3C" || module=="3A") return m_etaBoundary3_fw; 
           throw std::runtime_error("L1ThrExtraInfo: Module" + module + " not recongnised"); 
       }
-      unsigned int etaBoundary(std::string module) const {
+      unsigned int etaBoundary(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_etaBoundary1;
           if(module=="2C" || module=="2A") return m_etaBoundary2;
           if(module=="3C" || module=="3A") return m_etaBoundary3;
