@@ -143,6 +143,7 @@ def BmutrkComboHypoCfg(name):
     hypo.isMuTrkMode = True
     hypo.chi2 = 20.
     hypo.nTracks = [ 2 ]
+    hypo.totalCharge = [ 0 ]
     hypo.massRange = [ (2500., 4400.) ]
     hypo.trackPtThresholds = [ [ 10000., 3000. ] ]
     return hypo
@@ -246,7 +247,7 @@ class TrigMultiTrkComboHypoConfig(object):
 
         if 'bJpsimutrk' in chainDict['topo']:
             tool.isMuonTrkPEB = True
-            tool.totalCharge = -100
+            tool.totalCharge = 0
 
         signatures = chainDict['signatures']
         tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))

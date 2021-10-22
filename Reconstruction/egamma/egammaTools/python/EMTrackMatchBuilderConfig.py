@@ -5,9 +5,8 @@ __doc__ = "Instantiate EMTrackMatchBuilder with default configuration"
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCacheCfg
-
-EMTrackMatchBuilder = CompFactory.EMTrackMatchBuilder
+from egammaTrackTools.egammaTrackToolsConfig import (
+    EMExtrapolationToolsCacheCfg)
 
 
 def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
@@ -19,12 +18,10 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
 
     if "ExtrapolationTool" not in kwargs:
         extrapcache = EMExtrapolationToolsCacheCfg(flags)
-        kwargs["ExtrapolationTool"] = extrapcache.popPrivateTools()
-        acc.merge(extrapcache)
+        kwargs["ExtrapolationTool"] = extrapcache.popToolsAndMerge(extrapcache)
 
-    # TODO restore proper input once LRT tracking is in place Egamma.Keys.Output.GSFTrackParticles)
     kwargs.setdefault("TrackParticlesName",
-                      flags.Egamma.Keys.Input.TrackParticles)
+                      flags.Egamma.Keys.Output.GSFTrackParticles)
     # candidate match is done in 2 times this  so +- 0.2
     kwargs.setdefault("broadDeltaEta",      0.1)
     # candidate match is done in 2 times this  so +- 0.3
@@ -35,7 +32,7 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
     kwargs.setdefault("UseRescaleMetric",   True)
     kwargs.setdefault("isCosmics",          flags.Beam.Type == "cosmics")
 
-    tool = EMTrackMatchBuilder(name, **kwargs)
+    tool = CompFactory.EMTrackMatchBuilder(name, **kwargs)
 
     acc.setPrivateTools(tool)
     return acc

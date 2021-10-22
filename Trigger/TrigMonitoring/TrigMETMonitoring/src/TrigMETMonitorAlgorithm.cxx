@@ -372,6 +372,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pfopufit_Et_log = Monitored::Scalar<float>("pfopufit_Et_log",0.0);
     auto pfopufit_sumEt_log = Monitored::Scalar<float>("pfopufit_sumEt_log",0.0);
     auto pfopufit_phi = Monitored::Scalar<float>("pfopufit_phi",0.0);
+    auto pfopufit_eta = Monitored::Scalar<float>("pfopufit_eta",0.0);
     auto cvfpufit_Ex = Monitored::Scalar<float>("cvfpufit_Ex",0.0);
     auto cvfpufit_Ey = Monitored::Scalar<float>("cvfpufit_Ey",0.0);
     auto cvfpufit_Et = Monitored::Scalar<float>("cvfpufit_Et",0.0);
@@ -821,6 +822,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     
       TVector3 v(pfopufit_Ex, pfopufit_Ey, pfopufit_Ez);
       pfopufit_phi = v.Phi();
+      pfopufit_eta = v.Eta();
     }
     ATH_MSG_DEBUG("pfopufit_Et = " << pfopufit_Et);
 
@@ -960,7 +962,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          pfsum_vssk_phi,
          pfopufit_Ex,pfopufit_Ey,pfopufit_Et,pfopufit_sumEt,
          pfopufit_Ex_log,pfopufit_Ey_log,pfopufit_Et_log,pfopufit_sumEt_log,
-         pfopufit_phi,
+         pfopufit_phi,pfopufit_eta,
          cvfpufit_Ex,cvfpufit_Ey,cvfpufit_Et,cvfpufit_sumEt,
          cvfpufit_Ex_log,cvfpufit_Ey_log,cvfpufit_Et_log,cvfpufit_sumEt_log,
          cvfpufit_phi,

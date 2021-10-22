@@ -167,13 +167,13 @@ class TrigEgammaMonAlgBuilder:
 
   def setDefaultProperties(self):
    
-    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee
+    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee, monitoring_tags 
     
     if self.pp_mode:
         self.electronList = monitoring_electron
         self.photonList   = monitoring_photon
         self.tpList       = monitoringTP_electron
-        self.tagItems     = [] # monitoring_tags
+        self.tagItems     = monitoring_tags 
         self.topoList     = monitoring_topo
     elif self.mc_mode:
         self.electronList = validation_electron + validation_Zee
@@ -181,7 +181,7 @@ class TrigEgammaMonAlgBuilder:
         self.tpList       = validationTP_electron
         self.jpsiList     = validation_jpsi
         self.jpsitagItems = validationTP_jpsiee
-        self.tagItems     = [] #monitoring_tags    
+        self.tagItems     = monitoring_tags
         self.topoList     = monitoring_topo
 
 

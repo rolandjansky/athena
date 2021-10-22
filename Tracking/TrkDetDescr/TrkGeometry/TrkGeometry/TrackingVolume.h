@@ -321,7 +321,6 @@ namespace Trk {
                         
       /** Register the color code */
       void registerColorCode(unsigned int icolor);
-      void registerColorCode ATLAS_NOT_THREAD_SAFE (unsigned int icolor) const;
 
       /** Get the color code */
       unsigned int colorCode() const; 
@@ -604,9 +603,6 @@ namespace Trk {
     
   inline void TrackingVolume::registerColorCode(unsigned int icolor)
   { m_colorCode = icolor; }
-  inline void TrackingVolume::registerColorCode(unsigned int icolor) const
-  { const_cast<TrackingVolume&> (*this).registerColorCode(icolor);}
-
 
   inline unsigned int TrackingVolume::colorCode() const
   { return m_colorCode; }

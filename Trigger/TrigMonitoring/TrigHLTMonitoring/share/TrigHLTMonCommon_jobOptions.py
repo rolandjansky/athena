@@ -94,8 +94,8 @@ if data_type == 'bytestream':
             theApp.EvtMax=runArgs.maxEvents
     #-- get Trigger Configuration ------------------------------------------------------------------------------
 
-    from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-    gettrigger = T0TriggerGetter()
+    from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+    gettrigger = TriggerRecoGetter()
     
     from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
     bsu=ByteStreamUnpackGetter()

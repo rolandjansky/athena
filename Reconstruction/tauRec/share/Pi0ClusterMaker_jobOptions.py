@@ -231,6 +231,12 @@ TopoClusterForTaus.SeedCutsInAbsE                    = True
 TopoClusterForTaus.ClusterEtorAbsEtCut               = 0.5*GeV # 0.0*MeV in standard CaloCalTopoCluster JobOptions!
 TopoClusterForTaus.TwoGaussianNoise                  = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
 
+# timing cut on seed cell
+TopoClusterForTaus.SeedCutsInT = jobproperties.CaloTopoClusterFlags.doTimeCut()
+TopoClusterForTaus.CutOOTseed = jobproperties.CaloTopoClusterFlags.extendTimeCut() and jobproperties.CaloTopoClusterFlags.doTimeCut()
+TopoClusterForTaus.UseTimeCutUpperLimit = jobproperties.CaloTopoClusterFlags.useUpperLimitForTimeCut()
+# may have to be tuned for EM clusters and/or LLP->tau reconstruction
+TopoClusterForTaus.TimeCutUpperLimit = 20.0
 
 TopoSplitterForTaus = CaloTopoClusterSplitter("TauPi0TopoSplitter")
 # cells from the following samplings will be able to form local

@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCaloTruthMatchCfg
+from MCTruthClassifier.MCTruthClassifierConfig import (
+    MCTruthClassifierCaloTruthMatchCfg)
 __doc__ = "Configure egammaTruthAssociation"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaTruthAssociationAlg = CompFactory.egammaTruthAssociationAlg
 
 
 def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
@@ -48,7 +48,7 @@ def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
     kwargs.setdefault("SimBarcodeOffset",
                       flags.Sim.SimBarcodeOffset)
 
-    egtruthAlg = egammaTruthAssociationAlg(name, **kwargs)
+    egtruthAlg = CompFactory.egammaTruthAssociationAlg(name, **kwargs)
 
     acc.addEventAlgo(egtruthAlg)
     return acc

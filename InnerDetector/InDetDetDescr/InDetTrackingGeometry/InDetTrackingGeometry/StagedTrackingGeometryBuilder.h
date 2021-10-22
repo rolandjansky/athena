@@ -176,7 +176,7 @@ namespace InDet {
             - in case a ring layout is given, it creates the corresponding
          sub-volumes and updates the radius
             */
-      const Trk::TrackingVolume* createTrackingVolume
+      Trk::TrackingVolume* createTrackingVolume
       ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& layers,
                             double innerRadius,
                             double& outerRadius,

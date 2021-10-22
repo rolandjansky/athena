@@ -20,8 +20,6 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "TrigConfL1ItemsNamed.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -39,31 +37,6 @@
 #include <boost/preprocessor/repetition.hpp>
 
 #include <memory>
-
-namespace {
-
-    // pure madness...
-
-#define PARSE_ITEM(z, n, unused) \
-    {  \
-        std::vector<std::string> result;  \
-        split(result, l1info.Item##n, boost::algorithm::is_space());    \
-        if(!result.empty()) { \
-            boost::trim_if(result[0], boost::algorithm::is_any_of("'"));  \
-            l1map[result[0]] = n;                               \
-        } \
-    }
-
-    std::map<std::string,int> 
-    convert_names_bits(const ByteStreamEmon::TrigConfL1ItemsNamed& l1info)
-    {
-        std::map<std::string,int> l1map;
-        BOOST_PP_REPEAT(256, PARSE_ITEM, ~)
-        return l1map;
-    }
-#undef PARSE_ITEM
-
-}
 
 namespace {
     
@@ -236,6 +209,9 @@ StatusCode ByteStreamEmonInputSvc::initialize()
     ATH_CHECK( m_inputMetaDataStore.retrieve() );
     ATH_CHECK( m_robProvider.retrieve() );
 
+    // Initialise the L1Menu read handle if we need to map L1 item names to IDs
+    ATH_CHECK(m_l1MenuKey.initialize(not m_l1names.value().empty()));
+
     signal(SIGTERM, handle_terminate);
 
     ATH_MSG_INFO("initialized for: " << m_partition << " " << m_key << "/" << m_value);
@@ -309,32 +285,23 @@ bool ByteStreamEmonInputSvc::getIterator()
 
     std::vector<unsigned short> l1bits(m_l1items.begin(), m_l1items.end());
 
-    // if names are given, try to read information from IS.
-    if(m_l1names.size() > 0) {
-        bool retry = true;
-        ByteStreamEmon::TrigConfL1ItemsNamed l1info(partition, "L1CT.TrigConfL1Items");
-
-        while (retry) {
-            try {
-                l1info.checkout();
-                retry = false;
-            } catch(...) {
-                // might not exist yet...
-                ATH_MSG_INFO("No L1CT information, waiting 5 sec");
-                sleep(5);
+    // if names are given, read the mapping information from L1Menu
+    if (not m_l1names.value().empty()) {
+        ATH_MSG_DEBUG("Reading L1Menu to map " << m_l1names.name() << " to CTP IDs");
+        SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey);
+        if (not l1Menu.isValid()) {
+            ATH_MSG_ERROR("Cannot read L1Menu to map L1 item names to IDs. The property " << m_l1names.name() << " will be ignored!");
+        } else {
+            for (const std::string& l1name : m_l1names) {
+                try {
+                    const unsigned int id = l1Menu->item(l1name).ctpId();
+                    ATH_MSG_DEBUG("Item " << l1name << " mapped to CTP ID " << id);
+                    l1bits.push_back(static_cast<unsigned short>(id));
+                } catch (const std::exception& ex) {
+                    ATH_MSG_ERROR(ex.what());
+                    continue;
+                }
             }
-        }
-
-        // Now translate names into bits. 
-        std::map<std::string,int> l1mapping = convert_names_bits(l1info);
-
-        for(const std::string& l1name : m_l1names) {
-            if(l1mapping.find(l1name) == l1mapping.end()) {
-                ATH_MSG_ERROR("Invalid L1 name in trigger mask: " << l1name);
-                continue;
-            }
-            int bit = l1mapping[l1name];
-            l1bits.push_back(bit);
         }
     }
 

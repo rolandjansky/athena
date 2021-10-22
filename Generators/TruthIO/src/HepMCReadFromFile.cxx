@@ -62,6 +62,7 @@ StatusCode HepMCReadFromFile::execute() {
   HepMC3::GenEvent* evt = new HepMC3::GenEvent();
   m_hepmcio->read_event(*evt);
   if (m_hepmcio) {
+	if (!evt->run_info()) evt->set_run_info(m_hepmcio->run_info());
     ++m_event_number;
     evt->set_event_number(m_event_number);
     evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);

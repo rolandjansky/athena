@@ -254,7 +254,19 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 
   // weight-name cleaning
 #ifdef HEPMC3
-  std::vector<std::string>  w_names = event->weight_names();
+  std::shared_ptr<HepMC3::GenRunInfo> modRunInfo;
+  if (event->run_info()) {
+	  modRunInfo = std::make_shared<HepMC3::GenRunInfo>(*(event->run_info().get())); 
+  } 
+  else {
+	  ATH_MSG_ERROR("No run info, event weights size is " << event->weights().size() );
+	  modRunInfo = std::make_shared<HepMC3::GenRunInfo>();
+    std::vector<std::string> w_names;
+	  for (size_t i = 0; i < event->weights().size(); i++) { w_names.push_back(std::string("badweight")+std::to_string(i)); }
+	  modRunInfo->set_weight_names(w_names);	
+  }
+  modEvent->set_run_info(modRunInfo);
+  std::vector<std::string>  w_names = modEvent->weight_names();
   if (w_names.size()) {
     std::vector<std::pair<std::string,std::string> > w_subs = {
       {" nominal ",""},

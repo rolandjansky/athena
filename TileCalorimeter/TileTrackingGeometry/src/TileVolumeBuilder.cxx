@@ -155,11 +155,11 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   double plug2hZ  = 47.425;
 
   // The Volumes To be Created ( by parsing geoModel ) ===========
-  const Trk::TrackingVolume* tileBarrel                              = 0;
-  const Trk::TrackingVolume* tileGirder                              = 0;
+  Trk::TrackingVolume* tileBarrel                              = nullptr;
+  Trk::TrackingVolume* tileGirder                              = nullptr;
   
-  const Trk::TrackingVolume* tilePositiveExtendedBarrel              = 0;
-  const Trk::TrackingVolume* tileNegativeExtendedBarrel              = 0;
+  Trk::TrackingVolume* tilePositiveExtendedBarrel              = nullptr;
+  Trk::TrackingVolume* tileNegativeExtendedBarrel              = nullptr;
 
   // The Volumes To be Created ( Gap Volumes ) ====================
   const Trk::TrackingVolume* tileBarrelPositiveFingerGap             = 0;

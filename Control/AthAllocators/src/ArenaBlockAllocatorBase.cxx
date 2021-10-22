@@ -124,11 +124,8 @@ void ArenaBlockAllocatorBase::reserve (size_t size)
   }
   if (size > m_stats.elts.total) {
     // Growing the pool.
-    // Make a new block of the required size (but not less than nblock).
+    // Make a new block of the required size.
     size_t sz = size - m_stats.elts.total;
-    if (sz < m_params.nblock) {
-      sz = m_params.nblock;
-    }
     ArenaBlock* newblock = ArenaBlock::newBlock (sz, m_params.eltSize,
                                                  m_params.constructor);
 
