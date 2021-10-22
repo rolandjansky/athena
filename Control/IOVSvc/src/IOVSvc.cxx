@@ -351,6 +351,8 @@ StatusCode
 IOVSvc::setRange(const CLID& clid, const std::string& key,
                  IOVRange& iovr, const std::string& storeName) {
 
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
+
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
     ATH_MSG_ERROR( "setRange: no IOVSvcTool assocaited with store \"" 
