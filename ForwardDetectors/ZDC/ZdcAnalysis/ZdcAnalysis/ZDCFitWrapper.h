@@ -89,7 +89,7 @@ public:
 
   virtual float GetShapeParameter(size_t index) const = 0;
 
-  virtual double operator()(double *x, double *p) = 0;
+  virtual double operator()(const double *x, const double *p) = 0;
 
   virtual std::shared_ptr<TF1> GetWrapperTF1() {return m_wrapperTF1;}
   virtual const TF1* GetWrapperTF1() const {return m_wrapperTF1.get();}
@@ -172,7 +172,7 @@ public:
 
   //  virtual float GetNDOF() const {return _fitFunc->GetNDF(); }
 
-  virtual double operator()(double *x, double *p) {
+  virtual double operator()(const double *x, const double *p) {
     return ZDCFermiExpFit(x, p);
   }
 
@@ -225,7 +225,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p)
+  virtual double operator() (const double *x, const double *p)
   {
     double amp = p[0];
     double t0 = p[1];
@@ -249,7 +249,7 @@ private:
   std::shared_ptr<TF1> m_expFermiFunc = 0;
 
 public:
-  ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitExpFermiPrePulse(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
   ~ZDCFitExpFermiPrePulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
@@ -310,7 +310,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p) override
+  virtual double operator() (const double *x, const double *p) override
   {
     double t = x[0];
 
@@ -352,7 +352,7 @@ private:
 
 public:
 
-  ZDCFitExpFermiLinearFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitExpFermiLinearFixedTaus(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
 
   ~ZDCFitExpFermiLinearFixedTaus() {}
 
@@ -386,7 +386,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p) override
+  virtual double operator() (const double *x, const double *p) override
   {
     double amp    = p[0];
     double t0     = p[1];
@@ -411,7 +411,7 @@ private:
   std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
-  ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitExpFermiLinearPrePulse(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
   ~ZDCFitExpFermiLinearPrePulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
@@ -480,7 +480,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p) override
+  virtual double operator() (const double *x, const double *p) override
   {
     double t = x[0];
 
@@ -521,7 +521,7 @@ private:
   std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
-  ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitComplexPrePulse(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
   ~ZDCFitComplexPrePulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
@@ -591,7 +591,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p) override
+  virtual double operator() (const double *x, const double *p) override
   {
     double t = x[0];
 
@@ -633,7 +633,7 @@ private:
   std::shared_ptr<TF1> m_expFermiFunc;
 
 public:
-  ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitGeneralPulse(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
   ~ZDCFitGeneralPulse() {}
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) override;
@@ -718,7 +718,7 @@ public:
     return background / amp;
   }
 
-  virtual double operator() (double *x, double *p) override
+  virtual double operator() (const double *x, const double *p) override
   {
     double t = x[0];
 

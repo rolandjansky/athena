@@ -8,7 +8,7 @@
 
 namespace ZDC
 {
-double sincInterp(double* xvec, double* pvec)
+double SincInterp(const double* xvec, const double* pvec)
 {
   // pvec are the sample values
   double ret = 0;

@@ -764,7 +764,7 @@ void ZdcAnalysisTool::initialize80MHz()
 
 StatusCode ZdcAnalysisTool::initialize()
 {
-    m_tf1SincInterp.reset (new TF1("SincInterp", ZDC::sincInterp, -5., 160., 8));
+    m_tf1SincInterp.reset (new TF1("SincInterp", ZDC::SincInterp, -5., 160., 8));
     m_tf1SincInterp->SetNpx(300);
 
     // Set up calibrations

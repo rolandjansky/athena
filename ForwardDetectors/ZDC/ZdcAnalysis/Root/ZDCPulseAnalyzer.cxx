@@ -8,6 +8,7 @@
 #include <sstream>
 #include <cmath>
 #include <memory>
+#include <numeric>
 
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
