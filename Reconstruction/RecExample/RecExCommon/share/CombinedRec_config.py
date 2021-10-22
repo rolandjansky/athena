@@ -139,11 +139,9 @@ if rec.readESD():
     rec.doBTagging=False
 if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from AthenaCommon.Configurable import Configurable
-        Configurable.configurableRun3Behavior=1
-        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-        ConfigFlags = getNewConfigFlags()
+        Configurable.configurableRun3Behavior=1  # TODO: remove once ATLASRECTS-6635 is fixed
         # Configure BTagging algorithm
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
