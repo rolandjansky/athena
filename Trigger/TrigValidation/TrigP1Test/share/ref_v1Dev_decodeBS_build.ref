@@ -53,13 +53,13 @@ HLT_2e5_lhvloose_bBeeM6000_L1All:
 HLT_2e5_lhvloose_bBeeM6000_L1BKeePrescaled:
   eventCount: 0
   stepCounts:
-    0: 7
-    1: 6
+    0: 6
+    1: 5
     2: 3
     3: 2
   stepFeatures:
-    0: 24
-    1: 38
+    0: 22
+    1: 30
     2: 7
     3: 7
 HLT_2e5_lhvloose_bBeeM6000_L1BKeePrimary:
@@ -251,10 +251,6 @@ HLT_2mu4_L1BPH-8M15-20DR99-C-2MU3V:
   eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu4_bBmumu_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
 HLT_2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU3V:
@@ -387,26 +383,14 @@ HLT_2mu6_bBmumux_BpmumuKp_L1BPH-2M9-2DR15-2MU5VF:
   eventCount: 0
 HLT_2mu6_bBmumux_BpmumuKp_L1LFV-MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2DR15-2MU5VF:
   eventCount: 0
 HLT_2mu6_bBmumux_BsmumuPhi_L1LFV-MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_bBmumux_LbPqKm_L1BPH-2M9-2DR15-2MU5VF:
   eventCount: 0
 HLT_2mu6_bBmumux_LbPqKm_L1LFV-MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_bDimu_L12MU5VF:
   eventCount: 0
   stepCounts:
@@ -417,20 +401,12 @@ HLT_2mu6_bDimu_L1BPH-2M9-2DR15-2MU5VF:
   eventCount: 0
 HLT_2mu6_bDimu_L1LFV-MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_bJpsimumu_L1BPH-2M9-2DR15-2MU5VF:
   eventCount: 0
 HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2DR15-2MU5VF:
   eventCount: 0
 HLT_2mu6_bPhi_L1LFV-MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_bUpsimumu_L1BPH-8M15-0DR22-2MU5VF:
   eventCount: 0
 HLT_2mu6_l2io_L12MU5VF:
@@ -1155,13 +1131,13 @@ HLT_e5_lhvloose_bBeeM6000_L1All:
 HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled:
   eventCount: 0
   stepCounts:
-    0: 10
-    1: 8
+    0: 9
+    1: 7
     2: 5
     3: 5
   stepFeatures:
-    0: 24
-    1: 42
+    0: 22
+    1: 34
     2: 8
     3: 10
 HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary:
@@ -1175,23 +1151,11 @@ HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary:
 HLT_e5_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15:
   eventCount: 0
   stepCounts:
-    0: 7
-    1: 6
-    2: 5
-    3: 5
+    0: 1
   stepFeatures:
-    0: 9
-    1: 19
-    2: 6
-    3: 7
+    0: 1
 HLT_e5_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15_MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 2
-    1: 8
 HLT_e5_lhvloose_bBeeM6000_L1EM22VHI:
   eventCount: 0
   stepCounts:
@@ -1256,15 +1220,9 @@ HLT_e9_lhtight_noringer_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM7:
 HLT_e9_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15:
   eventCount: 0
   stepCounts:
-    0: 6
-    1: 5
-    2: 2
-    3: 2
+    0: 1
   stepFeatures:
-    0: 7
-    1: 16
-    2: 2
-    3: 3
+    0: 1
 HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_L1BPH-0M9-EM7-EM5:
   eventCount: 0
   stepFeatures:
@@ -2997,10 +2955,6 @@ HLT_mu10_lateMu_L1LATE-MU8F_XE30:
   eventCount: 0
 HLT_mu11_mu6_bBmumu_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bBmumu_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3021,10 +2975,6 @@ HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bBmumux_BpmumuKp_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3045,10 +2995,6 @@ HLT_mu11_mu6_bBmumux_LbPqKm_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bDimu2700_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bDimu2700_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3063,10 +3009,6 @@ HLT_mu11_mu6_bDimu2700_Lxy0_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bDimu_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bDimu_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3081,10 +3023,6 @@ HLT_mu11_mu6_bDimu_Lxy0_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bJpsimumu_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bJpsimumu_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3099,10 +3037,6 @@ HLT_mu11_mu6_bJpsimumu_Lxy0_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bPhi_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bPhi_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3111,10 +3045,6 @@ HLT_mu11_mu6_bPhi_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bTau_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bTau_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3123,10 +3053,6 @@ HLT_mu11_mu6_bTau_L1MU8VF_2MU5VF:
     0: 3
 HLT_mu11_mu6_bUpsimumu_L1LFV-MU8VF:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_mu11_mu6_bUpsimumu_L1MU8VF_2MU5VF:
   eventCount: 0
   stepCounts:
@@ -3207,6 +3133,10 @@ HLT_mu20_msonly_L1MU14FCH:
     0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU14FCH-MU5VF:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH:
   eventCount: 0
   stepCounts:
@@ -4782,6 +4712,11 @@ HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM:
     4: 4
 HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dRAB30_L1DR-TAU20ITAU12I-J25:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 4
+    1: 2
 HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25:
   eventCount: 0
 HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM:
@@ -4816,10 +4751,20 @@ HLT_tau35_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50:
     0: 1
 HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 4
+    1: 2
 HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25:
   eventCount: 0
 HLT_tau35_mediumRNN_tracktwoMVAClus_tau25_mediumRNN_tracktwoMVAClus_03dRAB30_L1DR-TAU20ITAU12I-J25:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 4
+    1: 2
 HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM:
   eventCount: 1
   stepCounts:
@@ -4840,6 +4785,11 @@ HLT_tau35_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
     0: 1
 HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB30_L1DR-TAU20ITAU12I-J25:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 4
+    1: 2
 HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25:
   eventCount: 0
 HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM:

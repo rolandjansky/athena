@@ -131,6 +131,9 @@ unsigned int TSU::Kinematics::calcDeltaR2BW(const TCS::GenericTOB* tob1, const T
   if(dphiB>64)
     dphiB = 128 - dphiB;
 
+  // Use the same granularity for eta and phi (0.025) in dR calculation (need to multiply dphiB*2)
+  // Return (40*dR)^2
+  dphiB = 2*dphiB;
   unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
   return bit_dr2;
 }
@@ -240,6 +243,6 @@ unsigned int TSU::Kinematics::calcDeltaR2(const TCS::GenericTOB* tob1, const TCS
   if(dphi>M_PI)
     dphi = 2*M_PI - dphi;
 
-
-  return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
+  // Return (40*dR)^2 consistent with BW calculation
+  return round ( 40*40 * ((dphi)*(dphi) + (deta)*(deta) )) ;
 }

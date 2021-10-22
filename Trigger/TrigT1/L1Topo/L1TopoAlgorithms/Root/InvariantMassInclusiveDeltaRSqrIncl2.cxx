@@ -124,8 +124,8 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2::initialize() {
        std::string hname_accept = "hInvariantMassDeltaRSqrIncl2_accept_bit"+std::to_string((int)i);
        std::string hname_reject = "hInvariantMassDeltaRSqrIncl2_reject_bit"+std::to_string((int)i);
        // mass
-       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaRMin[i], p_DeltaRMax[i]);
-       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaRMin[i], p_DeltaRMax[i]);
+       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, sqrt(p_DeltaRMin[i]), sqrt(p_DeltaRMax[i]));
+       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, sqrt(p_DeltaRMin[i]), sqrt(p_DeltaRMax[i]));
 
    }
 

@@ -581,8 +581,8 @@ class TopoAlgoDef:
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET1', 0*_et_conversion)
             alg.addvariable('MinET2', 0*_et_conversion)
-            alg.addvariable('DeltaRMin', d.minDr*d.minDr *_et_conversion*_et_conversion)
-            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr *_et_conversion*_et_conversion)
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr *_dr_conversion*_dr_conversion)
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr *_dr_conversion*_dr_conversion)
             tm.registerTopoAlgo(alg)
             
 

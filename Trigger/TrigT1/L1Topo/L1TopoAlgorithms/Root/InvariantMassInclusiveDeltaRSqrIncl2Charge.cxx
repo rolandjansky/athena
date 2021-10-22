@@ -124,8 +124,8 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2Charge::initialize() {
        std::string hname_accept = "hInvariantMassDeltaRSqrIncl2Charge_accept_bit"+std::to_string(static_cast<int>(i));
        std::string hname_reject = "hInvariantMassDeltaRSqrIncl2Charge_reject_bit"+std::to_string(static_cast<int>(i));
        // mass
-       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, std::sqrt(m_InvMassMin[i]), std::sqrt(m_InvMassMax[i]), 100, m_DeltaRMin[i], m_DeltaRMax[i]);
-       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, std::sqrt(m_InvMassMin[i]), std::sqrt(m_InvMassMax[i]), 100, m_DeltaRMin[i], m_DeltaRMax[i]);
+       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, std::sqrt(m_InvMassMin[i]), std::sqrt(m_InvMassMax[i]), 100, std::sqrt(m_DeltaRMin[i]), std::sqrt(m_DeltaRMax[i]));
+       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, std::sqrt(m_InvMassMin[i]), std::sqrt(m_InvMassMax[i]), 100, std::sqrt(m_DeltaRMin[i]), std::sqrt(m_DeltaRMax[i]));
        // eta2 vs. eta1
        bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, -70, 70, 100, -70, 70);
        bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, -70, 70, 100, -70, 70);
