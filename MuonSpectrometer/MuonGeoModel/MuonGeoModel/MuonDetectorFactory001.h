@@ -5,9 +5,9 @@
 #ifndef MuonDetectorFactory001_H
 #define MuonDetectorFactory001_H
 
-#include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
+///
+#include "GeoModelKernel/GeoVDetectorFactory.h"
 #include <string>
 
 class GeoPhysVol;
@@ -35,13 +35,13 @@ namespace MuonGM {
         virtual const MuonDetectorManager *getDetectorManager() const override;
         MuonDetectorManager *getDetectorManager();
 
-        inline void setDBAtlasVersion(const std::string& v);
-        inline void setDBMuonVersion(const std::string& v);
-        inline void setDBkey(const std::string& v);
-        inline void setDBnode(const std::string& v);
+        inline void setDBAtlasVersion(const std::string&v);
+        inline void setDBMuonVersion(const std::string&v);
+        inline void setDBkey(const std::string&v);
+        inline void setDBnode(const std::string&v);
 
         inline void setAmdcDb(bool value);
-        inline void setLayout(const std::string&);
+        inline void setLayout(const std::string& str);
         inline void setCutoutsFlag(int);
         inline void setCutoutsBogFlag(int);
         inline void setCtbBisFlag(int);
@@ -70,55 +70,60 @@ namespace MuonGM {
         inline void setABLinesAsciiSideC(const std::string &);
 
       private:
-        std::string m_DBAtlasVersion;
-        std::string m_DBMuonVersion;
-        std::string m_DBkey;
-        std::string m_DBnode;
 
-        bool m_isAmdcDb;
-        std::string m_layout;
-        int m_includeCutouts;
-        int m_includeCutoutsBog;
-        int m_includeCtbBis;
-        int m_rdb;
-        int m_controlAlines;
-        int m_minimalGeoFlag;
-        int m_controlCscIntAlines;
-        bool m_dumpAlines;
-        bool m_dumpCscIntAlines;
-        bool m_useCscIntAlinesFromGM;
+    
+        std::string m_DBAtlasVersion{};
+        std::string m_DBMuonVersion{};
+        std::string m_DBkey{};
+        std::string m_DBnode{};
 
-        int m_caching;
-        int m_cacheFillingFlag;
-        int m_mdtDeformationFlag;
+        bool m_isAmdcDb{false};
+        std::string m_layout{};
+        int m_includeCutouts{0};
+        int m_includeCutoutsBog{0};
+        int m_includeCtbBis{0};
+        int m_rdb{1};
+        int m_controlAlines{0};
+        int m_minimalGeoFlag{0};
+        int m_controlCscIntAlines{0};
+        bool m_dumpAlines{false};
+        bool m_dumpCscIntAlines{false};
+        bool m_useCscIntAlinesFromGM{true};
+
+    
+    
+
+        int m_caching{0};
+        int m_cacheFillingFlag{0};
+        int m_mdtDeformationFlag{0};
         int m_mdtAsBuiltParaFlag;
-        bool m_dumpMemoryBreakDown;
-        int m_enableFineClashFixing;
-        bool m_hasCSC;
-        bool m_hasSTgc;
-        bool m_hasMM;
+        bool m_dumpMemoryBreakDown{false};
+        int m_enableFineClashFixing{0};
+        bool m_hasCSC{true};
+        bool m_hasSTgc{true};
+        bool m_hasMM{true};
 
-        std::string m_NSWABLinesSideA;
-        std::string m_NSWABLinesSideC;
+        std::string m_NSWABLinesSideA{};
+        std::string m_NSWABLinesSideC{};
 
         std::vector<std::string> m_selectedStations;
         std::vector<int> m_selectedStEta;
         std::vector<int> m_selectedStPhi;
 
-        MuonSystemDescription *m_muon;
-        MuonDetectorManager *m_manager;
-        StoreGateSvc *m_pDetStore;
-        IRDBAccessSvc *m_pRDBAccess;
-        AltAsciiDBMap m_altAsciiDBMap;
+        std::unique_ptr<MuonSystemDescription> m_muon;
+        MuonDetectorManager* m_manager{nullptr};
+        StoreGateSvc *m_pDetStore{nullptr};
+        IRDBAccessSvc *m_pRDBAccess{nullptr};
+        AltAsciiDBMap m_altAsciiDBMap{};
     };
 
-    void MuonDetectorFactory001::setDBAtlasVersion(const std::string& v) { m_DBAtlasVersion = v; }
-    void MuonDetectorFactory001::setDBMuonVersion(const std::string& v) { m_DBMuonVersion = v; }
-    void MuonDetectorFactory001::setDBkey(const std::string& v) { m_DBkey = v; }
-    void MuonDetectorFactory001::setDBnode(const std::string& v) { m_DBnode = v; }
+    void MuonDetectorFactory001::setDBAtlasVersion(const std::string&v) { m_DBAtlasVersion = v; }
+    void MuonDetectorFactory001::setDBMuonVersion(const std::string&v) { m_DBMuonVersion = v; }
+    void MuonDetectorFactory001::setDBkey(const std::string&v) { m_DBkey = v; }
+    void MuonDetectorFactory001::setDBnode(const std::string&v) { m_DBnode = v; }
 
     void MuonDetectorFactory001::setAmdcDb(bool value) { m_isAmdcDb = value; }
-    void MuonDetectorFactory001::setLayout(const std::string& str) { m_layout = str; }
+    void MuonDetectorFactory001::setLayout(const std::string&str) { m_layout = str; }
     void MuonDetectorFactory001::setCutoutsFlag(int flag) { m_includeCutouts = flag; }
     void MuonDetectorFactory001::setCutoutsBogFlag(int flag) { m_includeCutoutsBog = flag; }
     void MuonDetectorFactory001::setCtbBisFlag(int flag) { m_includeCtbBis = flag; }
