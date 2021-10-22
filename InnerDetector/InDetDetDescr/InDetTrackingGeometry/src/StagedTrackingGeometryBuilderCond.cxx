@@ -614,17 +614,17 @@ InDet::StagedTrackingGeometryBuilderCond::createTrackingVolume(
           merge.back().push_back(idset);
           if (ringRmaxa[idset]>mergedRmax.back()) mergedRmax.back()=ringRmaxa[idset]; 
         } else {
-          merge.push_back(std::vector<int>(1,idset));
+          merge.emplace_back(1,idset);
           mergedRmax.push_back(ringRmaxa[idset]);
         }
         rCurr = ringRmaxa[idset];
       } 
-      for ( auto layset : merge ) {
+      for ( const auto& layset : merge ) {
         std::vector<const Trk::Layer*> ringSet;
         for ( auto lay : layset ) {
           for ( auto ring : groupedDiscs[lay]) {
             float zPos = ring->surfaceRepresentation().center().z();
-            if (!ringSet.size() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
+            if (ringSet.empty() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
             else {
               std::vector<const Trk::Layer*>::iterator lit = ringSet.begin();
               while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) ++lit;
@@ -901,11 +901,11 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilderCond::mergeDiscLayers (std
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&(lay->surfaceRepresentation().bounds()));
     if (!db) {
       ATH_MSG_WARNING("attempt to merge non-disc layers, bailing out");
-      return 0;    
+      return nullptr;    
     }
     float r = db->rMin();
-    if (!rbounds.size() ||  r>rbounds.back().first) {
-      rbounds.push_back(std::pair<float,float> (r,db->rMax()));  
+    if (rbounds.empty() ||  r>rbounds.back().first) {
+      rbounds.emplace_back(r,db->rMax());  
       discOrder.push_back(id);
     } else {
       int ir=rbounds.size()-1;
@@ -928,11 +928,11 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilderCond::mergeDiscLayers (std
     if (surfArray) {
       if (surfArray->binUtility()->binningValue()!=Trk::binPhi) {
         ATH_MSG_WARNING("attempt to merge 2D disc arrays, bailing out");
-        return 0;
+        return nullptr;
       }
       binUtils->push_back(surfArray->binUtility()->clone());
       if (id+1<discOrder.size()) rsteps.push_back( 0.5*(rbounds[id].second+rbounds[id+1].first));
-      const std::vector<const Trk::Surface*> ringSurf =surfArray->arrayObjects();
+      const std::vector<const Trk::Surface*>& ringSurf =surfArray->arrayObjects();
       surfs.insert(surfs.end(),ringSurf.begin(),ringSurf.end());
             
     }  

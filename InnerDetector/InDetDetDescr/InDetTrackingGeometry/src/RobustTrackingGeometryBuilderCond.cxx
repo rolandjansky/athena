@@ -187,7 +187,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        // retrieve the cylinder and disc layers
        ATH_MSG_DEBUG( "[ LayerBuilder : '" << m_layerBuilders[ilb]->identification() << "' ] being processed. " );
        // (a) cylinder           
-       std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> cylinderLayersPair = m_layerBuilders[ilb]->cylindricalLayers(ctx);
+       std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*> cylinderLayersPair = m_layerBuilders[ilb]->cylindricalLayers(ctx);
        const auto *cylinderLayers = cylinderLayersPair.second;
        // (a)
        std::vector<const Trk::Layer*> cylinderVolumeLayers;     
@@ -238,7 +238,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        endcapMinExtend =  ( centralExtendZ > endcapMinExtend) ? 10e10 : endcapMinExtend; 
        
        // (b) discs       
-       std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> discLayersPair = m_layerBuilders[ilb]->discLayers(ctx);
+       std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayersPair = m_layerBuilders[ilb]->discLayers(ctx);
        const auto *discLayers = discLayersPair.second;
        std::vector<const Trk::Layer*> discVolumeLayersNeg;
        std::vector<const Trk::Layer*> discVolumeLayersPos;                        
@@ -341,13 +341,18 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    Trk::CylinderVolumeBounds* beamPipeBounds = new Trk::CylinderVolumeBounds(overallRmin,overallExtendZ); 
    // BinnedArray needed
    Trk::BinnedArray<Trk::Layer>* beamPipeLayerArray = nullptr;
-   std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
-   const auto *beamPipeVec = beamPipeVecPair.second;
-   if (!beamPipeVec->empty()){
-       range=EventIDRange::intersect(range,beamPipeVecPair.first);
-       beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(*beamPipeVec,0.,beamPipeBounds->outerRadius(),Trk::arbitrary);
+   std::pair<EventIDRange,const std::vector<Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
+   const std::vector<Trk::CylinderLayer*>* beamPipeVecPtr = beamPipeVecPair.second;
+   if (!beamPipeVecPtr->empty()) {
+     std::vector<const Trk::CylinderLayer*> beamPipeVec;
+     std::copy(beamPipeVecPtr->begin(),
+               beamPipeVecPtr->end(),
+               std::back_inserter(beamPipeVec));
+     range = EventIDRange::intersect(range, beamPipeVecPair.first);
+     beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(
+       beamPipeVec, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);
    }
-   delete beamPipeVec;
+   delete beamPipeVecPtr;
    // create the TrackingVolume
    beamPipeVolume = new Trk::TrackingVolume(nullptr,
                                             beamPipeBounds,

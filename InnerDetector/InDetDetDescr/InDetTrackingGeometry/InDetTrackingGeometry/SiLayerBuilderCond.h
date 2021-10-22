@@ -67,42 +67,57 @@ namespace InDet {
     
       /** AlgTool style constructor */
       SiLayerBuilderCond(const std::string&,const std::string&,const IInterface*);
-      
+
       /** Destructor */
       virtual ~SiLayerBuilderCond();
-      
+
       /** AlgTool initialize method */
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
-       
+      virtual StatusCode finalize() override;
+
       /** LayerBuilder interface method - returning Barrel-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > cylindricalLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+      cylindricalLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Endcap-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >    discLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+      discLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Planar-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >   planarLayers(const EventContext& ctx) const; 
-             
+      virtual std::pair<EventIDRange,
+                        const std::vector<Trk::PlaneLayer*>*>
+      planarLayers(const EventContext& ctx) const override final;
+
       /** Name identification */
-      const std::string& identification() const;      
-        
+      virtual const std::string& identification() const override final;
+
     private:
-      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> retrieveSiDetElements(const EventContext& ctx) const;
-      std::vector< const Trk::CylinderLayer* >* dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& dLayers) const;
-      
-      /** create the disc layers, if no vector is given, then it's the first pass, else it's the DBM for the Pixels */
-      std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > createDiscLayers(const EventContext& ctx, std::vector<const Trk::DiscLayer* >* dLayers = nullptr) const;
-      
-      /** create the disc layers, it is dedicated to ITk implementation of the endcap rings.
-       * Used for ITk specific case. */
-      std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > createRingLayers(const EventContext& ctx) const;
-        
-      const Trk::BinnedLayerMaterial barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
-      const Trk::BinnedLayerMaterial endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
-        
-      void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection>
+      retrieveSiDetElements(const EventContext& ctx) const;
+      std::vector<Trk::CylinderLayer*>* dressCylinderLayers(
+        const std::vector<Trk::CylinderLayer*>& dLayers) const;
+
+      /** create the disc layers, if no vector is given, then it's the first
+       * pass, else it's the DBM for the Pixels */
+      std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*> createDiscLayers(
+        const EventContext& ctx,
+        std::vector<Trk::DiscLayer*>* dLayers = nullptr) const;
+
+      /** create the disc layers, it is dedicated to ITk implementation of the
+       * endcap rings. Used for ITk specific case. */
+      std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*> createRingLayers(
+        const EventContext& ctx) const;
+
+      //!< helper method to construct barrel material
+      const Trk::BinnedLayerMaterial barrelLayerMaterial(double r,
+                                                         double hz) const;
+
+      //!< helper method to construct endcap material
+      const Trk::BinnedLayerMaterial endcapLayerMaterial(double rMin,
+                                                         double rMax) const;
+
+      void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, Trk::Layer& layer) const; //!< layer association
 
       bool                                           m_pixelCase;                      //!< flag for pixel/sct
                                                      
@@ -143,16 +158,21 @@ namespace InDet {
                       
   };
 
- inline std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* > SiLayerBuilderCond::planarLayers(const EventContext&) const
+  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+  SiLayerBuilderCond::planarLayers(const EventContext&) const
   {
-  //create dummy infinite range
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >(range, 0);
+    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(
+      range, nullptr);
   }
- 
- inline const std::string& SiLayerBuilderCond::identification() const
- { return m_identification; }
-   
+
+  inline const std::string&
+  SiLayerBuilderCond::identification() const
+  {
+    return m_identification;
+  }
+
 } // end of namespace
 
 

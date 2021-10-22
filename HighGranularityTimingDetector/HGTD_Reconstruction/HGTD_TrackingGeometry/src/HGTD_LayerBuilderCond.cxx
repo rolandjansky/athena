@@ -108,7 +108,8 @@ SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTDet::HGTD_LayerBu
 
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
+std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+HGTDet::HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "calling HGTDet::HGTD_LayerBuilderCond::discLayers()" );
   
@@ -117,14 +118,14 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
     ATH_MSG_ERROR("HGTD Detector Manager or ID Helper could not be retrieved - giving up.");
     //create dummy infinite range
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>(range,nullptr);
   } 
   
   // get general layout
   SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> readHandle = retrieveHGTDdetElements(ctx);
   if(*readHandle == nullptr){
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
   }
   const InDetDD::HGTD_DetectorElementCollection* readCdo{*readHandle};
   InDetDD::HGTD_DetectorElementCollection::const_iterator hgtdDetIter = readCdo->begin();
@@ -164,7 +165,10 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
      // get the identifier
      Identifier    currentId((*hgtdDetIter)->identify());
 
-     ATH_MSG_DEBUG("Element : " << m_hgtdHelper->endcap(currentId) << "/" << m_hgtdHelper->layer(currentId)  << "/" << m_hgtdHelper->eta_module(currentId) << "/" << m_hgtdHelper->phi_module(currentId));
+     ATH_MSG_DEBUG("Element : " << m_hgtdHelper->endcap(currentId) << "/"
+                                << m_hgtdHelper->layer(currentId) << "/"
+                                << m_hgtdHelper->eta_module(currentId) << "/"
+                                << m_hgtdHelper->phi_module(currentId));
 
      // increase the counter of HGTD modules
      hgtdModules++;
@@ -209,7 +213,7 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
   minRmin -= m_discEnvelopeR;  
   
   // construct the layers
-  std::vector< const Trk::DiscLayer* >* discLayers = new std::vector< const Trk::DiscLayer* >;
+  std::vector<Trk::DiscLayer*>* discLayers = new std::vector<Trk::DiscLayer* >;
   
   double thickness = m_discThickness;
   
@@ -265,12 +269,17 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
           ++dsumCheckSurfaces;
           usmIter = uniqueSurfaceMap.find(asurfIter);
           lastPhi = asurfIter->center().phi();
-          if ( usmIter != uniqueSurfaceMap.end() )
-            ATH_MSG_WARNING("Non-unique surface found with eta/phi = " << asurfIter->center().eta() << " / " << asurfIter->center().phi());
-          else uniqueSurfaceMap[asurfIter] = asurfIter->center();
-        } 
-        else {
-          ATH_MSG_WARNING("Zero-pointer in array detected in this ring, last valid phi value was = " << lastPhi << " --> discCounter: " << discCounter);            
+          if (usmIter != uniqueSurfaceMap.end()) {
+            ATH_MSG_WARNING("Non-unique surface found with eta/phi = "
+                            << asurfIter->center().eta() << " / "
+                            << asurfIter->center().phi());
+          } else {
+            uniqueSurfaceMap[asurfIter] = asurfIter->center();
+          }
+        } else {
+          ATH_MSG_WARNING("Zero-pointer in array detected in this ring, last "
+                          "valid phi value was = "
+                          << lastPhi << " --> discCounter: " << discCounter);
         }
       }
       sumCheckhgtdModules +=  dsumCheckSurfaces;   
@@ -321,7 +330,6 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
   return std::make_pair(range, discLayers);
 }
 
-
 const Trk::BinnedLayerMaterial HGTDet::HGTD_LayerBuilderCond::discLayerMaterial(double rMin, double rMax) const
 {
   Trk::BinUtility layerBinUtilityR(m_rBins, rMin, rMax, Trk::open, Trk::binR);
@@ -352,7 +360,7 @@ void HGTDet::HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::Surface
   std::vector < std::pair< float, float> > centers = {};
   centers.reserve(surfaces.size());
   for ( auto& orderedSurface : surfaces) {
-    centers.push_back(std::make_pair(orderedSurface.second.perp(), orderedSurface.second.phi()));
+    centers.emplace_back(orderedSurface.second.perp(), orderedSurface.second.phi());
   }
   
   // sorting the centers accordingly to r

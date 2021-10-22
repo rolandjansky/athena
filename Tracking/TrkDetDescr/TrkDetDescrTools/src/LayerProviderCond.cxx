@@ -52,7 +52,7 @@ std::pair<EventIDRange, const std::vector< const Trk::Layer* > > Trk::LayerProvi
     // central layers
     std::vector< const Trk::Layer* >            cLayers;
     // retrieving the cylinder layers from the layer builder
-    std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* >  cylinderLayersPair = m_layerBuilder->cylindricalLayers(ctx);
+    std::pair<EventIDRange, const std::vector<Trk::CylinderLayer* >* >  cylinderLayersPair = m_layerBuilder->cylindricalLayers(ctx);
     const auto *cylinderLayers = cylinderLayersPair.second;
     // loop over it and push into the return vector;
     if (cylinderLayers){
@@ -78,7 +78,7 @@ std::pair<EventIDRange, const std::vector< const Trk::Layer* > > Trk::LayerProvi
     // get the disc layers
     std::vector < const Trk::Layer* >   dLayers;
     // retrieving the cylinder layers from the layer builder
-    std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  discLayersPair = m_layerBuilder->discLayers(ctx);
+    std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>  discLayersPair = m_layerBuilder->discLayers(ctx);
     const auto *discLayers = discLayersPair.second;
     // loop and fill either cache or dLayers
     if (discLayers){
