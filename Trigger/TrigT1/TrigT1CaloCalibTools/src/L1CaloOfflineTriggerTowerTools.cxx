@@ -16,7 +16,7 @@ namespace LVL1 {
   L1CaloOfflineTriggerTowerTools::L1CaloOfflineTriggerTowerTools( const std::string& name ) :
     asg::AsgTool( name ),
     m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
+    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers", this),
     m_scidtool ("CaloSuperCellIDTool"),
     m_scaleCorrKey(""),
     m_cablingKey(""),

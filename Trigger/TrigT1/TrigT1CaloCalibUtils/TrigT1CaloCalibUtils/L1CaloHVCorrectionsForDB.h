@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1CALOHVCORRECTIONSFORDB_H
@@ -20,7 +20,6 @@ class L1CaloHVCorrectionsContainer;
 
 namespace LVL1{
   class IL1TriggerTowerTool;
-  class IL1CaloCells2TriggerTowers;
   class IL1CaloOfflineTriggerTowerTools;
 }
 
@@ -45,7 +44,6 @@ class L1CaloHVCorrectionsForDB : public AthAlgorithm
     std::string m_caloCellContainerName;
 
     ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
-    ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
     ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_jmTools;
     SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
     { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
