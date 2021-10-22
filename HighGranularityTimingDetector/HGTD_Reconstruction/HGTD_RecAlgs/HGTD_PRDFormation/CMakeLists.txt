@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel)
 
 # Component(s) in the package:
-atlas_add_component( TrackTimeExtensionAlg
+atlas_add_component( HGTD_PRDFormation
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel HGTD_RecToolInterfaces

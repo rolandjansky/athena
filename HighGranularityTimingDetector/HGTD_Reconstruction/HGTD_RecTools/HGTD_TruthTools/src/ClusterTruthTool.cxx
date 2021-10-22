@@ -30,6 +30,10 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
     const InDetSimDataCollection* sim_data,
     const HepMC::GenEvent* hard_scatter_evnt) const {
 
+  if (not sim_data) {
+    return {ClusterTruthOrigin::UNIDENTIFIED, false, false};
+  }
+
   const std::vector<Identifier>& rdo_id_list = cluster->rdoList();
   // keep record of the cluster origins and if they are shadowed or not
   std::vector<std::pair<HGTD::ClusterTruthOrigin, bool>> shadowed_origins;
@@ -40,10 +44,11 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
     // the InDetSimData contains a std::pair<HepMcParticleLink, float>, where
     // the second entry in the pair holds the time of the SiChargedDiode
     if (pos == sim_data->end()) {
-      ATH_MSG_WARNING(
-          "[ClusterTruthTool::classifyCluster] ID not found in SDO map");
+      ATH_MSG_WARNING("[ClusterTruthTool::classifyCluster] ID not found in SDO "
+                      "map, going to next ID");
       // FIXME I should probably continue here already? otherwise I get an
       // "empty" entry in shadowed_origins
+      continue;
     }
     // collect deposits, sorted with first deposit at start of map bu default
     std::map<float, ClusterTruthOrigin> sorted_deposits;

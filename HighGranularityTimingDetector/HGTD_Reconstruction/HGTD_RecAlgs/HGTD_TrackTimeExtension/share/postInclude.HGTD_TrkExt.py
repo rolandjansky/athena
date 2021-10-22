@@ -1,3 +1,30 @@
+##call clustermakertools before running extension when using RDO input
+
+from HGTD_PadClusterizationTools.HGTD_PadClusterizationToolsConf import HGTD__HGTD_ClusterMakerTool
+
+cluster_maker_tool = HGTD__HGTD_ClusterMakerTool(name="HGTD_ClusterMakerTool")
+cluster_maker_tool.OutputLevel = DEBUG
+ToolSvc += cluster_maker_tool
+
+from HGTD_PadClusterizationTools.HGTD_PadClusterizationToolsConf import HGTD__SinglePadClusterTool
+
+clusterization_tool = HGTD__SinglePadClusterTool(name="SinglePadClusterTool")
+clusterization_tool.ClusterMakerTool = cluster_maker_tool
+clusterization_tool.OutputLevel = DEBUG
+ToolSvc += clusterization_tool
+
+
+##FIXME NAME!! this needs change in the CMAKE
+from HGTD_PRDFormation.PadClusterizationAlgConf import HGTD__PadClusterizationAlg
+
+hgtd_cluster_maker_alg = HGTD__PadClusterizationAlg(name="PadClusterizationAlg")
+hgtd_cluster_maker_alg.OutputLevel = DEBUG
+hgtd_cluster_maker_alg.ClusterizationTool = clusterization_tool
+hgtd_cluster_maker_alg.PRDContainerName = "HGTD_Cluster"
+
+topSequence += hgtd_cluster_maker_alg
+
+##continue with the extension
 
 extrapolator = ToolSvc.AtlasExtrapolator
 
@@ -6,14 +33,14 @@ kalman_updator = ToolSvc.InDetUpdator
 from HGTD_TimeCalibrationTools.HGTD_TimeCalibrationToolsConf import HGTD__StraightLineTOFcorrectionTool
 
 hgtd_tof_corr_tool = HGTD__StraightLineTOFcorrectionTool(name="StraightLineTOFcorrectionTool")
-hgtd_tof_corr_tool.OutputLevel = VERBOSE
+hgtd_tof_corr_tool.OutputLevel = DEBUG
 
 ToolSvc += hgtd_tof_corr_tool
 
 from HGTD_TrackTimeExtensionTools.HGTD_TrackTimeExtensionToolsConf import HGTD__HGTD_IterativeExtensionTool
 
 htgd_ext_tool = HGTD__HGTD_IterativeExtensionTool(name="IterativeExtensionTool")
-htgd_ext_tool.OutputLevel = VERBOSE
+htgd_ext_tool.OutputLevel = DEBUG
 htgd_ext_tool.ExtrapolatorTool = extrapolator
 htgd_ext_tool.UpdatorTool = kalman_updator
 htgd_ext_tool.TOFCorrTool = hgtd_tof_corr_tool
@@ -24,14 +51,17 @@ ToolSvc += htgd_ext_tool
 from HGTD_TruthTools.HGTD_TruthToolsConf import HGTD__ClusterTruthTool
 
 hgtd_cluster_truth_tool = HGTD__ClusterTruthTool(name="ClusterTruthTool")
+hgtd_cluster_truth_tool.OutputLevel = DEBUG
 
 ToolSvc += hgtd_cluster_truth_tool
 
+##FIXME NAME!! this needs change in the CMAKE
 from HGTD_TrackTimeExtension.TrackTimeExtensionAlgConf import HGTD__TrackTimeExtensionAlg
 
 hgtd_alg = HGTD__TrackTimeExtensionAlg(name="TrackTimeExtensionAlg")
-hgtd_alg.OutputLevel = VERBOSE
+hgtd_alg.OutputLevel = DEBUG
 hgtd_alg.TimeExtensionTool = htgd_ext_tool
+hgtd_alg.HGTDClusterContainerName = "HGTD_Cluster"
 hgtd_alg.TruthTool = hgtd_cluster_truth_tool
 
 topSequence += hgtd_alg
@@ -61,7 +91,7 @@ truthList = [ 'xAOD::TruthEventContainer#TruthEvents',
             'PileUpEventInfo#OverlayEvent' ]
 
 # --- create stream
-StreamESD            = AthenaPoolOutputStream ( "StreamESD2", "ESD.HGTD.pool.root",asAlg=True)
+StreamESD            = AthenaPoolOutputStream ( "StreamESD2", "ESD.HGTD.full.pool.root",asAlg=True)
 # --- save MC collections if truth turned on
 StreamESD.ItemList += truthList
 # ---- load list of objects

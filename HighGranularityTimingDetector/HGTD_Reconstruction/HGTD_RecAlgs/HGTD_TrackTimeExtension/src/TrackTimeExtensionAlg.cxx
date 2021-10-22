@@ -196,6 +196,7 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
        extension) {
 
     if (trk_state) {
+      ATH_MSG_DEBUG("[decorateTrackParticle] extension found");
       has_cluster_vec.emplace_back(true);
 
       chi2_vec.emplace_back(
@@ -236,10 +237,13 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
         is_merged = truth_info.is_merged;
       }
 
+      ATH_MSG_DEBUG("Truth origin: " << truth_origin);
+
       truth_vec.emplace_back(truth_origin);
       is_shadowed_vec.emplace_back(is_shadowed);
       is_merged_vec.emplace_back(is_merged);
     } else {
+      ATH_MSG_DEBUG("[decorateTrackParticle] NO extension found");
       has_cluster_vec.emplace_back(false);
       if (not skip_deco) {
         chi2_vec.emplace_back(-1.);

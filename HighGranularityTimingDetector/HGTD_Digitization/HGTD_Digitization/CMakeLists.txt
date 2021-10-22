@@ -20,3 +20,5 @@ atlas_add_component( HGTD_Digitization
                   InDetSimData InDetSimEvent AthenaKernel AtlasCLHEP_RandomGenerators)
 
 atlas_install_headers( HGTD_Digitization )
+
+atlas_install_python_modules( python/*.py)
