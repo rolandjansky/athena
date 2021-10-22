@@ -376,29 +376,30 @@ def pixelDataPrepCfg(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
   RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
 
-  PixelRodDecoder=CompFactory.PixelRodDecoder
-  InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
-  # Disable duplcated pixel check for data15 because duplication mechanism was used.
-  if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
-    InDetPixelRodDecoder.CheckDuplicatedPixel=False
-  acc.addPublicTool(InDetPixelRodDecoder)
+  if flags.Input.Format == 'BS':
+    PixelRodDecoder=CompFactory.PixelRodDecoder
+    InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
+    # Disable duplcated pixel check for data15 because duplication mechanism was used.
+    if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+      InDetPixelRodDecoder.CheckDuplicatedPixel=False
+    acc.addPublicTool(InDetPixelRodDecoder)
 
-  PixelRawDataProviderTool=CompFactory.PixelRawDataProviderTool
-  InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool"+ signature,
-                                                           Decoder = InDetPixelRodDecoder)
-  acc.addPublicTool(InDetPixelRawDataProviderTool)
+    PixelRawDataProviderTool=CompFactory.PixelRawDataProviderTool
+    InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool"+ signature,
+                                                             Decoder = InDetPixelRodDecoder)
+    acc.addPublicTool(InDetPixelRawDataProviderTool)
 
-   # load the PixelRawDataProvider
-  PixelRawDataProvider=CompFactory.PixelRawDataProvider
-  InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
-                                                   RDOKey       = InDetKeys.PixelRDOs(),
-                                                   ProviderTool = InDetPixelRawDataProviderTool,
-                                                   isRoI_Seeded = True,
-                                                   RoIs         = roisKey,
-                                                   RDOCacheKey  = InDetCacheNames.PixRDOCacheKey,
-                                                   RegSelTool   = RegSelTool_Pixel)
+     # load the PixelRawDataProvider
+    PixelRawDataProvider=CompFactory.PixelRawDataProvider
+    InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
+                                                     RDOKey       = InDetKeys.PixelRDOs(),
+                                                     ProviderTool = InDetPixelRawDataProviderTool,
+                                                     isRoI_Seeded = True,
+                                                     RoIs         = roisKey,
+                                                     RDOCacheKey  = InDetCacheNames.PixRDOCacheKey,
+                                                     RegSelTool   = RegSelTool_Pixel)
 
-  acc.addEventAlgo(InDetPixelRawDataProvider)
+    acc.addEventAlgo(InDetPixelRawDataProvider)
 
   return acc
 
@@ -410,17 +411,18 @@ def sctDataPrepCfg(flags, roisKey, signature):
 
   # load the SCTRawDataProvider
 
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
-  sctProviderArgs = {}
-  sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
-  sctProviderArgs["isRoI_Seeded"] = True
-  sctProviderArgs["RoIs"] = roisKey
-  sctProviderArgs["RDOCacheKey"] = InDetCacheNames.SCTRDOCacheKey
-  sctProviderArgs["RegSelTool"] = RegSelTool_SCT
-  acc.merge(SCTRawDataProviderCfg(flags, suffix=signature, **sctProviderArgs))
-  # load the SCTEventFlagWriter
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
-  acc.merge(SCTEventFlagWriterCfg(flags, suffix=signature))
+  if flags.Input.Format == 'BS':
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
+    sctProviderArgs = {}
+    sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
+    sctProviderArgs["isRoI_Seeded"] = True
+    sctProviderArgs["RoIs"] = roisKey
+    sctProviderArgs["RDOCacheKey"] = InDetCacheNames.SCTRDOCacheKey
+    sctProviderArgs["RegSelTool"] = RegSelTool_SCT
+    acc.merge(SCTRawDataProviderCfg(flags, suffix=signature, **sctProviderArgs))
+    # load the SCTEventFlagWriter
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
+    acc.merge(SCTEventFlagWriterCfg(flags, suffix=signature))
 
   return acc
 
@@ -435,28 +437,29 @@ def trtDataPrep(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
   RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
 
-  TRT_RodDecoder=CompFactory.TRT_RodDecoder
-  InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder")
-  if flags.Input.isMC:
-    InDetTRTRodDecoder.LoadCompressTableDB = False
-    InDetTRTRodDecoder.keyName=""
-  acc.addPublicTool(InDetTRTRodDecoder)
+  if flags.Input.Format == 'BS':
+    TRT_RodDecoder=CompFactory.TRT_RodDecoder
+    InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder")
+    if flags.Input.isMC:
+      InDetTRTRodDecoder.LoadCompressTableDB = False
+      InDetTRTRodDecoder.keyName=""
+    acc.addPublicTool(InDetTRTRodDecoder)
 
-  TRTRawDataProviderTool=CompFactory.TRTRawDataProviderTool
-  InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool"+ signature,
-                                                       Decoder = InDetTRTRodDecoder)
-  acc.addPublicTool(InDetTRTRawDataProviderTool)
+    TRTRawDataProviderTool=CompFactory.TRTRawDataProviderTool
+    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool"+ signature,
+                                                         Decoder = InDetTRTRodDecoder)
+    acc.addPublicTool(InDetTRTRawDataProviderTool)
 
-   # load the TRTRawDataProvider
-  TRTRawDataProvider=CompFactory.TRTRawDataProvider
-  InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider"+ signature,
-                                               RDOKey       = "TRT_RDOs",
-                                               ProviderTool = InDetTRTRawDataProviderTool,
-                                               RegSelTool   = RegSelTool_TRT,
-                                               isRoI_Seeded = True,
-                                               RoIs         = roisKey)
+     # load the TRTRawDataProvider
+    TRTRawDataProvider=CompFactory.TRTRawDataProvider
+    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider"+ signature,
+                                                 RDOKey       = "TRT_RDOs",
+                                                 ProviderTool = InDetTRTRawDataProviderTool,
+                                                 RegSelTool   = RegSelTool_TRT,
+                                                 isRoI_Seeded = True,
+                                                 RoIs         = roisKey)
 
-  acc.addEventAlgo(InDetTRTRawDataProvider)
+    acc.addEventAlgo(InDetTRTRawDataProvider)
 
   return acc
 
@@ -760,7 +763,6 @@ def TRTDataProviderCfg(flags):
 
 def TRTRIOMakerCfg(flags):
   acc = ComponentAccumulator()
-  acc.merge( TRTDataProviderCfg(flags) )
   from .InDetTrigCollectionKeys import TrigTRTKeys
   from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, threfore the names are different
   alg = CompFactory.InDet.TRT_RIO_Maker( f"{prefix}TRTDriftCircleMaker_{flags.InDet.Tracking.name}",
@@ -841,7 +843,8 @@ def TRTExtensionProcessorCfg(flags):
 
 def TRTExtrensionBuilderCfg(flags):
   acc = ComponentAccumulator()
-  acc.merge( TRTDataProviderCfg(flags) )
+  if flags.Input.Format == 'BS':
+    acc.merge( TRTDataProviderCfg(flags) )
   acc.merge( TRTRIOMakerCfg(flags) )
 
   acc.merge( TRTExtensionAlgCfg(flags) )
