@@ -585,7 +585,10 @@ IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) {
   if (storeName == "default") store = defaultStore;
 
   // Append the store name if not default
-  if (store != defaultStore) toolName += ("_" + store);
+  if (store != defaultStore) {
+    toolName += '_';
+    toolName += store;
+  }
 
   ATH_MSG_DEBUG( "Creating " << toolName << " associated with store \"" << store
                  << "\""  );
@@ -734,12 +737,20 @@ std::string
 IOVSvc::fullProxyName( const CLID& clid, const std::string& key ) const {
 
   std::string fullname, tname;
-  std::ostringstream ost;
-  ost << clid;
   if (p_CLIDSvc->getTypeNameOfID( clid, tname ).isFailure()) {
-    fullname = "[" + ost.str() + "/" + key + "]";
+    fullname = "[";
+    fullname += std::to_string(clid);
+    fullname += '/';
+    fullname += key;
+    fullname += ']';
   } else {
-    fullname = "[" + tname + ":" + ost.str() + "/" + key + "]";
+    fullname = "[";
+    fullname += tname;
+    fullname += ':';
+    fullname += std::to_string(clid);
+    fullname += '/';
+    fullname += key;
+    fullname += ']';
   }
 
   return fullname;
