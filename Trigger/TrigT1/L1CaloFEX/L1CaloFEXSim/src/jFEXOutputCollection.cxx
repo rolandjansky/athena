@@ -29,9 +29,13 @@ LVL1::jFEXOutputCollection::~jFEXOutputCollection()
    delete iValues;
   }
   
- for(auto iValues: m_allvalues_pileup){
-   delete iValues;
-  }
+ //for(auto iValues: m_allvalues_pileup){
+   //delete iValues;
+  //}
+  
+ //for(auto iValues: m_allvalues_pileup_map){
+   //delete iValues;
+  //}
   
 }
 
@@ -46,9 +50,12 @@ void LVL1::jFEXOutputCollection::clear()
   for(auto iValues : m_allvalues_tau){
     iValues->clear();
   }
-  for(auto iValues : m_allvalues_pileup){
-    iValues->clear();
-  }
+  //for(auto iValues : m_allvalues_pileup){
+    //iValues->clear();
+  //}
+  //for(auto iValues : m_allvalues_pileup_map){
+    //iValues->clear();
+  //}
 }
 
 void LVL1::jFEXOutputCollection::addValue_smallRJet(std::string key, int value)
@@ -69,6 +76,11 @@ void LVL1::jFEXOutputCollection::addValue_tau(std::string key, int value)
 void LVL1::jFEXOutputCollection::addValue_pileup(std::string key, int value)
 {
  m_values_tem_pileup.insert(std::make_pair(key, value));
+}
+
+void LVL1::jFEXOutputCollection::addValue_pileup(std::string key, std::vector<int>  value)
+{
+ m_values_tem_pileup_maps.insert(std::make_pair(key, value));
 }
 
 void LVL1::jFEXOutputCollection::fill_smallRJet()
@@ -94,9 +106,12 @@ void LVL1::jFEXOutputCollection::fill_tau()
 }
 void LVL1::jFEXOutputCollection::fill_pileup()
 {
-  std::unordered_map<std::string, int>* values_local = new std::unordered_map<std::string, int>(m_values_tem_pileup);
-  m_allvalues_pileup.push_back(values_local);
+  std::unique_ptr<std::unordered_map<std::string, int>> values_local = std::make_unique<std::unordered_map<std::string, int>>(m_values_tem_pileup);
+  std::unique_ptr<std::unordered_map<std::string, std::vector<int> >> values_local_map = std::make_unique<std::unordered_map<std::string, std::vector<int>>>(m_values_tem_pileup_maps);
+  m_allvalues_pileup.push_back(std::move(values_local));
+  m_allvalues_pileup_map.push_back(std::move(values_local_map));
   m_values_tem_pileup.clear();
+  m_values_tem_pileup_maps.clear();
 
 }
 
@@ -118,6 +133,10 @@ int LVL1::jFEXOutputCollection::pileupsize() const
 {
   return m_allvalues_pileup.size();
 }
+int LVL1::jFEXOutputCollection::pileuEtSize() const
+{
+  return m_allvalues_pileup_map.size();
+}
 
 std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_smallRJet(int location) const
 {
@@ -131,9 +150,13 @@ std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_tau(int lo
 {
   return m_allvalues_tau.at(location);
 }
-std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_pileup(int location) const
+int LVL1::jFEXOutputCollection::get_pileup(int location,std::string str_) const
 {
-  return m_allvalues_pileup.at(location);
+  return (*m_allvalues_pileup.at(location))[str_];
+}
+std::vector<int> LVL1::jFEXOutputCollection::get_pileup_map(int location,std::string str_) const
+{
+  return (*m_allvalues_pileup_map.at(location))[str_];
 }
 
 void LVL1::jFEXOutputCollection::setdooutput(bool input) {

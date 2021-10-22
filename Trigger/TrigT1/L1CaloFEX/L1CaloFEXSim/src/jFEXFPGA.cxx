@@ -47,10 +47,8 @@ namespace LVL1 {
 
   // default constructor for persistency
 
-jFEXFPGA::jFEXFPGA(const std::string& type,const std::string& name,const IInterface* parent):
-  AthAlgTool(type,name,parent)
-{
-  declareInterface<IjFEXFPGA>(this);
+jFEXFPGA::jFEXFPGA(const std::string& type,const std::string& name,const IInterface* parent): AthAlgTool(type,name,parent) {
+    declareInterface<IjFEXFPGA>(this);
 }
 
 /** Destructor */
@@ -60,35 +58,33 @@ jFEXFPGA::~jFEXFPGA()
 
 //================ Initialisation =================================================
   
-StatusCode jFEXFPGA::initialize()
-{
+StatusCode jFEXFPGA::initialize() {
 
-  ATH_CHECK(m_jFEXFPGA_jTowerContainerKey.initialize());
-  ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
-  ATH_CHECK(m_l1MenuKey.initialize());
-  ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
-  return StatusCode::SUCCESS;
+    ATH_CHECK(m_jFEXFPGA_jTowerContainerKey.initialize());
+    ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
+    ATH_CHECK(m_l1MenuKey.initialize());
+    ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
+    return StatusCode::SUCCESS;
 }
 
-StatusCode jFEXFPGA::init(int id, int jfexid)
-{
-  m_id = id;
-  m_jfexid = jfexid;
+StatusCode jFEXFPGA::init(int id, int jfexid) {
+    m_id = id;
+    m_jfexid = jfexid;
 
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 
 }
 
 void jFEXFPGA::reset() {
 
-  m_id = -1;
-  m_jfexid = -1;
-  m_tau_tobwords.clear();
-  m_SRJet_tobwords.clear();
-  m_LRJet_tobwords.clear();
-  m_sumET_tobwords.clear();
-  m_Met_tobwords.clear();
-  m_map_Etvalues_FPGA.clear();
+    m_id = -1;
+    m_jfexid = -1;
+    m_tau_tobwords.clear();
+    m_SRJet_tobwords.clear();
+    m_LRJet_tobwords.clear();
+    m_sumET_tobwords.clear();
+    m_Met_tobwords.clear();
+    m_map_Etvalues_FPGA.clear();
 
 }
 
@@ -99,9 +95,10 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
         ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
         return StatusCode::FAILURE;
     }
-
-    ATH_CHECK( m_jFEXPileupAndNoiseTool->safetyTest());
+    
     ATH_CHECK( m_jFEXPileupAndNoiseTool->reset());
+    ATH_CHECK( m_jFEXPileupAndNoiseTool->safetyTest());
+    
     if(m_jfexid == 0 || m_jfexid == 5) {
         m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Wide);
         //return StatusCode::SUCCESS;
@@ -109,12 +106,41 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     else {
         //return StatusCode::SUCCESS;
         m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Thin);
-
-
     }
     //Calculating and sustracting pileup
-    std::vector<int> pileup_rho;
+    std::vector<float> pileup_rho;
     pileup_rho = m_jFEXPileupAndNoiseTool->CalculatePileup();
+
+    //Applying pileup sustraction in jet or met independently - this sets the flags to true in m_jFEXPileupAndNoiseTool
+    m_jFEXPileupAndNoiseTool->ApplyPileup2Jets(true);
+    m_jFEXPileupAndNoiseTool->ApplyPileup2Met(true);
+    
+    //Noise should be always applied
+    m_jFEXPileupAndNoiseTool->ApplyNoise2Jets(true);
+    m_jFEXPileupAndNoiseTool->ApplyNoise2Met(true);
+    //Getting the values
+    m_map_HAD_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->Get_HAD_Et_values();
+    m_map_EM_Etvalues_FPGA  = m_jFEXPileupAndNoiseTool->Get_EM_Et_values();
+    m_map_Etvalues_FPGA     = m_jFEXPileupAndNoiseTool->GetEt_values();
+    std::vector<int> pileup_ID;
+    std::vector<int> pileup_HAD_jet;
+    std::vector<int> pileup_EM_jet;
+    std::vector<int> pileup_Total_jet;
+    std::vector<int> pileup_HAD_met;
+    std::vector<int> pileup_EM_met;
+    std::vector<int> pileup_Total_met;
+    for (auto const& [key, val] : m_map_HAD_Etvalues_FPGA)
+    {
+        pileup_ID.push_back(key);
+        pileup_HAD_jet.push_back(val[0]);
+        pileup_EM_jet.push_back(m_map_EM_Etvalues_FPGA[key][0]);
+        pileup_Total_jet.push_back(m_map_Etvalues_FPGA[key][0]);
+        pileup_HAD_met.push_back(val[1]);
+        pileup_EM_met.push_back(m_map_EM_Etvalues_FPGA[key][1]);
+        pileup_Total_met.push_back(m_map_Etvalues_FPGA[key][1]);
+    }    
+    
+    //saving pileup information
     inputOutputCollection->addValue_pileup("pileup_FPGAid", m_id);
     inputOutputCollection->addValue_pileup("pileup_jFEXid", m_jfexid);
     inputOutputCollection->addValue_pileup("pileup_rho_EM", pileup_rho[0]);
@@ -122,17 +148,17 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     inputOutputCollection->addValue_pileup("pileup_rho_HAD2", pileup_rho[2]);
     inputOutputCollection->addValue_pileup("pileup_rho_HAD3", pileup_rho[3]);
     inputOutputCollection->addValue_pileup("pileup_rho_FCAL", pileup_rho[4]);
-    inputOutputCollection->fill_pileup();
-
-    //Applying pileup sustraction in jet or met independently - this sets the flags to true in m_jFEXPileupAndNoiseTool
-    // now masked -> no pileup applied.
-    //m_jFEXPileupAndNoiseTool->ApplyPileupJets();
-    //m_jFEXPileupAndNoiseTool->ApplyPileupMet();
-    //Getting the values
-    m_map_HAD_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->Get_HAD_Et_values();
-    m_map_EM_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->Get_EM_Et_values();
-    m_map_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->GetEt_values();
-
+    inputOutputCollection->addValue_pileup("pileup_map_ID"  , pileup_ID);
+    inputOutputCollection->addValue_pileup("pileup_map_Et_values_HAD_jet"  , pileup_HAD_jet);
+    inputOutputCollection->addValue_pileup("pileup_map_Et_values_EM_jet"   , pileup_EM_jet);
+    inputOutputCollection->addValue_pileup("pileup_map_Et_values_Total_jet", pileup_Total_jet);
+    inputOutputCollection->addValue_pileup("pileup_map_Et_values_HAD_met"  , pileup_HAD_met);
+    inputOutputCollection->addValue_pileup("pileup_map_Et_values_EM_met"   , pileup_EM_met);
+    inputOutputCollection->addValue_pileup("pileup_map_Et_values_Total_met", pileup_Total_met);
+    inputOutputCollection->fill_pileup();    
+    
+    
+    
     if(m_id==0 || m_id==2) {
         ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
         ATH_CHECK( m_jFEXsumETAlgoTool->reset());
@@ -140,14 +166,20 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
         ATH_CHECK( m_jFEXmetAlgoTool->reset());
         m_jFEXsumETAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         m_jFEXmetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
+           
+           
+        //Retrieve the L1 menu configuration
+        SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+        const TrigConf::L1ThrExtraInfo_jTE & thr_jTE = l1Menu->thrExtraInfo().jTE();
+        std::string str_jfexname = m_jfex_string[m_jfexid];
+        unsigned int bin_pos = thr_jTE.etaBoundary_fw(str_jfexname);
 
         if(m_jfexid > 0 && m_jfexid < 5) {
 
             //-----------------jFEXsumETAlgo-----------------
             m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Thin);
             m_jFEXsumETAlgoTool->buildBarrelSumET();
-            //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
-            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(bin_pos),m_jFEXsumETAlgoTool->getETupperEta(bin_pos)));
 
             //-----------------jFEXmetAlgo-----------------
             m_jFEXmetAlgoTool->setup(m_jTowersIDs_Thin);
@@ -166,8 +198,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             //-----------------jFEXsumETAlgo-----------------
             m_jFEXsumETAlgoTool->setup(flipped_jTowersIDs);
             m_jFEXsumETAlgoTool->buildFWDSumET();
-            //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
-            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(bin_pos),m_jFEXsumETAlgoTool->getETupperEta(bin_pos)));
 
             //-----------------jFEXmetAlgo-----------------
             m_jFEXmetAlgoTool->setup(flipped_jTowersIDs);
@@ -178,8 +209,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             //-----------------jFEXsumETAlgo-----------------
             m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
             m_jFEXsumETAlgoTool->buildFWDSumET();
-            //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
-            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
+            m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(bin_pos),m_jFEXsumETAlgoTool->getETupperEta(bin_pos)));
 
             //-----------------jFEXmetAlgo-----------------
             m_jFEXmetAlgoTool->setup(m_jTowersIDs_Wide);
@@ -318,13 +348,10 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             m_LRJetET = m_SRJetET + FCALJets.getSecondEnergyRingET();
             uint32_t SRFCAL_Jet_tobword = formSmallRJetTOB(iphi, ieta);
             if ( SRFCAL_Jet_tobword != 0 ) m_SRJet_tobwords.push_back(SRFCAL_Jet_tobword);
-
             uint32_t LRFCAL_Jet_tobword = formLargeRJetTOB(iphi, ieta);
             if ( LRFCAL_Jet_tobword != 0 ) m_LRJet_tobwords.push_back(LRFCAL_Jet_tobword);
-
             int SRFCAL_TOB_saturated = 0;
             if (m_SRJetET/200. > 0x7ff) SRFCAL_TOB_saturated = 1;
-
             unsigned int LRFCAL_TOB_saturated = 0;
             if (m_LRJetET/200. >  0x1fff) LRFCAL_TOB_saturated = 1;
             inputOutputCollection->addValue_smallRJet("smallRJet_phi", output_centre_phi);
@@ -498,35 +525,39 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs
   
 }
 
-void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){
+void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) {
 
-  const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
-  const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
-    
-  std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
-  
-  //this prints out the jTower IDs that each FPGA is responsible for
-  ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
-   
-  for (int thisRow=rows-1; thisRow>=0; thisRow--){
-    for (int thisCol=0; thisCol<cols; thisCol++){
-      if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
-      else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }
+    const int rows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
+    const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
+
+    std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
+
+    //this prints out the jTower IDs that each FPGA is responsible for
+    ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
+
+    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+        for (int thisCol=0; thisCol<cols; thisCol++) {
+            if(thisCol != cols-1) {
+                ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  ");
+            }
+            else {
+                ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |");
+            }
+        }
     }
-  }
 
 }
 
 std::vector <uint32_t> jFEXFPGA::getSmallRJetTOBs()
 {
-  auto tobsSort = m_SRJet_tobwords;
-  
-  ATH_MSG_DEBUG("number of smallRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
-  // sort tobs by their et ( 11 bits of the 32 bit tob word)
-  std::sort (tobsSort.begin(), tobsSort.end(), etSRJetSort);
-  tobsSort.resize(7);
+    auto tobsSort = m_SRJet_tobwords;
 
-  return tobsSort;  
+    ATH_MSG_DEBUG("number of smallRJet tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
+    // sort tobs by their et ( 11 bits of the 32 bit tob word)
+    std::sort (tobsSort.begin(), tobsSort.end(), etSRJetSort);
+    tobsSort.resize(7);
+
+    return tobsSort;
 
 }
 
@@ -543,8 +574,7 @@ std::vector <uint32_t> jFEXFPGA::getLargeRJetTOBs()
   
 }
 
-uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta)
-{
+uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
     uint32_t tobWord = 0;
     const unsigned int jFEXETResolution = 200; //LSB is 200MeV
     unsigned int eta = 0;
@@ -597,16 +627,16 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta)
     ATH_MSG_DEBUG("tobword smallRJet with et, phi, eta, res and sat : " << std::bitset<32>(tobWord) );
      //Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-    auto & thr_jJ = l1Menu->thrExtraInfo().jJ();
-    unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV("1A")/jFEXETResolution;
+    const TrigConf::L1ThrExtraInfo_jJ & thr_jJ = l1Menu->thrExtraInfo().jJ();
+    std::string str_jfexname = m_jfex_string[m_jfexid];
+    unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
 
-    //unsigned int minEtThreshold = 60;
     if (jFEXSmallRJetTOBEt < minEtThreshold) return 0;
     else return tobWord;
 }
 
-uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta)
-{
+uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
+    
     uint32_t tobWord = 0;
     const unsigned int jFEXETResolution = 200; //LSB is 200MeV
     unsigned int eta = 0;
@@ -620,7 +650,7 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta)
         et = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
         eta = ieta -8;
         phi = iphi -8;
-    } 
+    }
 
     else if(m_jfexid == 5) {
         et = m_LRJetET;
@@ -649,26 +679,26 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta)
         else {// rest of ieta -> EMB
             phi = iphi -8 ;
         }
-    }    
+    }
 
 
-  jFEXLargeRJetTOBEt = et/jFEXETResolution;
-  if (jFEXLargeRJetTOBEt > 0x1fff){
-    jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
-    Sat = 1;
-  }  
-  //create basic tobword with 32 bits
-  tobWord = tobWord + (eta<<27) + (phi << 23) + (jFEXLargeRJetTOBEt << 10) + (Res<<1) + (Sat);
-  ATH_MSG_DEBUG("tobword largeRJet with et, phi, eta, sub and sat : " << std::bitset<32>(tobWord) );
+    jFEXLargeRJetTOBEt = et/jFEXETResolution;
+    if (jFEXLargeRJetTOBEt > 0x1fff) {
+        jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
+        Sat = 1;
+    }
+    //create basic tobword with 32 bits
+    tobWord = tobWord + (eta<<27) + (phi << 23) + (jFEXLargeRJetTOBEt << 10) + (Res<<1) + (Sat);
+    ATH_MSG_DEBUG("tobword largeRJet with et, phi, eta, sub and sat : " << std::bitset<32>(tobWord) );
 
-  // Retrieve the L1 menu configuration
-  SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-  auto & thr_jLJ = l1Menu->thrExtraInfo().jLJ();
-  unsigned int minEtThreshold = thr_jLJ.ptMinToTopoMeV("1A")/jFEXETResolution;
+    // Retrieve the L1 menu configuration
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    const TrigConf::L1ThrExtraInfo_jLJ & thr_jLJ = l1Menu->thrExtraInfo().jLJ();
+    std::string str_jfexname = m_jfex_string[m_jfexid];
+    unsigned int minEtThreshold = thr_jLJ.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
 
-  //unsigned int minEtThreshold = 60;
-  if (jFEXLargeRJetTOBEt < minEtThreshold) return 0;
-  else return tobWord;
+    if (jFEXLargeRJetTOBEt < minEtThreshold) return 0;
+    else return tobWord;
 }
 
 
@@ -698,8 +728,9 @@ uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
 
     // Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-    auto & thr_jTAU = l1Menu->thrExtraInfo().jTAU();
-    unsigned int minEtThreshold = thr_jTAU.ptMinToTopoMeV("1A")/jFEXETResolution;
+    const TrigConf::L1ThrExtraInfo_jTAU & thr_jTAU = l1Menu->thrExtraInfo().jTAU();
+    std::string str_jfexname = m_jfex_string[m_jfexid];
+    unsigned int minEtThreshold = thr_jTAU.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
 
     if (et < minEtThreshold) return 0;
     else return tobWord;
@@ -707,16 +738,15 @@ uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
 }
 
 
-std::vector <uint32_t> jFEXFPGA::getTauTOBs()
-{
-  auto tobsSort = m_tau_tobwords;
+std::vector <uint32_t> jFEXFPGA::getTauTOBs() {
+    auto tobsSort = m_tau_tobwords;
 
-  ATH_MSG_DEBUG("number of tau tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
-  // sort tobs by their et ( 13 bits of the 32 bit tob word)
-  std::sort (tobsSort.begin(), tobsSort.end(), etTauSort);
+    ATH_MSG_DEBUG("number of tau tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
+    // sort tobs by their et ( 13 bits of the 32 bit tob word)
+    std::sort (tobsSort.begin(), tobsSort.end(), etTauSort);
 
-  tobsSort.resize(6);
-  return tobsSort;
+    tobsSort.resize(6);
+    return tobsSort;
 
 }
 
@@ -757,53 +787,50 @@ uint32_t jFEXFPGA::formSumETTOB(int ETlow, int EThigh )
 
 }
 
-std::vector <uint32_t> jFEXFPGA::getSumEtTOBs()
-{
-  auto tobsSort = m_sumET_tobwords;
+std::vector <uint32_t> jFEXFPGA::getSumEtTOBs() {
+    auto tobsSort = m_sumET_tobwords;
 
-  ATH_MSG_DEBUG("number of SumEt tobs: " << tobsSort.size() << " in FPGA: " << m_id);
-  return tobsSort;
-
-}
-
-uint32_t jFEXFPGA::formMetTOB(int METX, int METY )
-{
-  uint32_t tobWord = 0;
-  const float_t jFEXETResolution = 200.0; //LSB is 200MeV
-
-  int sat = 0;
-  int res = 0; 
-
-  int metX = METX/jFEXETResolution;
-  
-  //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383) the MSB is the sign
-  if (std::abs(metX) > 0x3fff) { 
-    ATH_MSG_DEBUG("sumEtlow saturated: " << metX );
-    metX = 0x7fff;
-    sat=1;
-  }
-
-  int metY = METY/jFEXETResolution;
-  if (std::abs(metY) > 0x3fff) { //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383)
-    ATH_MSG_DEBUG("sumEthigh saturated: " << metY );
-    metY = 0x7fff;
-    sat=1;
-  }
-  
-  //create basic tobword with 32 bits
-  tobWord = tobWord + ((metX & 0x7fff) << 17) + (sat << 16) + ((metY & 0x7fff) << 1) + res ;
-  ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
-
-  return tobWord;
+    ATH_MSG_DEBUG("number of SumEt tobs: " << tobsSort.size() << " in FPGA: " << m_id);
+    return tobsSort;
 
 }
 
-std::vector <uint32_t> jFEXFPGA::getMetTOBs()
-{
-  auto tobsSort = m_Met_tobwords;
+uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
+    uint32_t tobWord = 0;
+    const float_t jFEXETResolution = 200.0; //LSB is 200MeV
 
-  ATH_MSG_DEBUG("number of Met tobs: " << tobsSort.size() << " in FPGA: " << m_id);
-  return tobsSort;
+    int sat = 0;
+    int res = 0;
+
+    int metX = METX/jFEXETResolution;
+
+    //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383) the MSB is the sign
+    if (std::abs(metX) > 0x3fff) {
+        ATH_MSG_DEBUG("sumEtlow saturated: " << metX );
+        metX = 0x7fff;
+        sat=1;
+    }
+
+    int metY = METY/jFEXETResolution;
+    if (std::abs(metY) > 0x3fff) { //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383)
+        ATH_MSG_DEBUG("sumEthigh saturated: " << metY );
+        metY = 0x7fff;
+        sat=1;
+    }
+
+    //create basic tobword with 32 bits
+    tobWord = tobWord + ((metX & 0x7fff) << 17) + (sat << 16) + ((metY & 0x7fff) << 1) + res ;
+    ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
+
+    return tobWord;
+
+}
+
+std::vector <uint32_t> jFEXFPGA::getMetTOBs() {
+    auto tobsSort = m_Met_tobwords;
+
+    ATH_MSG_DEBUG("number of Met tobs: " << tobsSort.size() << " in FPGA: " << m_id);
+    return tobsSort;
 
 }
 
