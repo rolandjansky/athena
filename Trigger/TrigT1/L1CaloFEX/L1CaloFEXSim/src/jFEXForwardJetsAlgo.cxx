@@ -113,7 +113,7 @@ unsigned int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
 }
 
 std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists() {
-
+    
     std::unordered_map<int, jFEXForwardJetsInfo> FCALJetTowerIDLists;
 
     std::vector<int> lower_centre_neta;
@@ -228,6 +228,7 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJets
             }//end of centre_neta loop
         }//end of centre_nphi loop
     }//end of myCounter loop
+    
     return FCALJetTowerIDLists;
 }
 
@@ -318,7 +319,7 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
 
 
 std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() {
-    
+
     // setting the lower/upper eta range for the FCAL 2 and 3 since they are not added in the seed information yet 
     int lowerFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_lowerFCAL_eta;
     int upperFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_upperFCAL_eta;

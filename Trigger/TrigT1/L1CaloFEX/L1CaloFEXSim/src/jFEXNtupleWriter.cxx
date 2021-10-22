@@ -114,6 +114,13 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("pileup_rho_HAD3",  &m_pileup_rho_HAD3);
   m_myTree->Branch ("pileup_rho_FCAL",  &m_pileup_rho_FCAL);
   
+  m_myTree->Branch ("pileup_map_ID"  ,  &m_pileup_map_ID);
+  m_myTree->Branch ("pileup_map_Et_values_HAD_jet"  ,  &m_pileup_map_Et_values_HAD_jet);
+  m_myTree->Branch ("pileup_map_Et_values_EM_jet"   ,  &m_pileup_map_Et_values_EM_jet);
+  m_myTree->Branch ("pileup_map_Et_values_Total_jet",  &m_pileup_map_Et_values_Total_jet);
+  m_myTree->Branch ("pileup_map_Et_values_HAD_met"  ,  &m_pileup_map_Et_values_HAD_met);
+  m_myTree->Branch ("pileup_map_Et_values_EM_met"   ,  &m_pileup_map_Et_values_EM_met);
+  m_myTree->Branch ("pileup_map_Et_values_Total_met",  &m_pileup_map_Et_values_Total_met);
 
   return StatusCode::SUCCESS;
 }
@@ -133,6 +140,7 @@ StatusCode LVL1::jFEXNtupleWriter::execute () {
   CHECK(loadlargeRJetAlgoVariables(jFEXOutputCollectionobj));
   CHECK(loadtauAlgoVariables(jFEXOutputCollectionobj));
   CHECK(loadPileupVariables(jFEXOutputCollectionobj));
+  CHECK(loadPileupEt(jFEXOutputCollectionobj));
   m_myTree->Fill();
 
   return StatusCode::SUCCESS;
@@ -266,15 +274,42 @@ StatusCode LVL1::jFEXNtupleWriter::loadPileupVariables(SG::ReadHandle<LVL1::jFEX
   for (int i = 0; i < jFEXOutputCollectionobj->pileupsize(); i++)
   {
 
-    m_pileup_FPGAid.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_FPGAid"]);
-    m_pileup_jFEXid.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_jFEXid"]);
-    m_pileup_rho_EM.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_rho_EM"]);
-    m_pileup_rho_HAD1.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_rho_HAD1"]);
-    m_pileup_rho_HAD2.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_rho_HAD2"]);
-    m_pileup_rho_HAD3.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_rho_HAD3"]);
-    m_pileup_rho_FCAL.push_back((*(jFEXOutputCollectionobj->get_pileup(i)))["pileup_rho_FCAL"]);
-
+    m_pileup_FPGAid.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_FPGAid"));
+    m_pileup_jFEXid.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_jFEXid"));
+    m_pileup_rho_EM.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_rho_EM"));
+    m_pileup_rho_HAD1.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_rho_HAD1"));
+    m_pileup_rho_HAD2.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_rho_HAD2"));
+    m_pileup_rho_HAD3.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_rho_HAD3"));
+    m_pileup_rho_FCAL.push_back(jFEXOutputCollectionobj->get_pileup(i,"pileup_rho_FCAL"));
   }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode LVL1::jFEXNtupleWriter::loadPileupEt(SG::ReadHandle<LVL1::jFEXOutputCollection> jFEXOutputCollectionobj) {
+
+
+  m_pileup_map_ID.clear();
+  m_pileup_map_Et_values_HAD_jet.clear();
+  m_pileup_map_Et_values_EM_jet.clear();
+  m_pileup_map_Et_values_Total_jet.clear();
+  m_pileup_map_Et_values_HAD_met.clear();
+  m_pileup_map_Et_values_EM_met.clear();
+  m_pileup_map_Et_values_Total_met.clear();
+
+  
+  for (int i = 0; i < jFEXOutputCollectionobj->pileuEtSize(); i++)
+  {
+    m_pileup_map_ID.push_back( jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_ID"));
+    m_pileup_map_Et_values_HAD_jet.push_back(  jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_Et_values_HAD_jet"));
+    m_pileup_map_Et_values_EM_jet.push_back(   jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_Et_values_EM_jet"));
+    m_pileup_map_Et_values_Total_jet.push_back(jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_Et_values_Total_jet"));
+    m_pileup_map_Et_values_HAD_met.push_back(  jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_Et_values_HAD_met"));
+    m_pileup_map_Et_values_EM_met.push_back(   jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_Et_values_EM_met"));
+    m_pileup_map_Et_values_Total_met.push_back(jFEXOutputCollectionobj->get_pileup_map(i,"pileup_map_Et_values_Total_met"));
+    
+  }
+  
+  
   return StatusCode::SUCCESS;
 }
 
