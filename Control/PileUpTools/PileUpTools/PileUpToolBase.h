@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_PILEUPTOOLBASE_H
@@ -21,8 +21,8 @@ class PileUpToolBase :  public extends<AthAlgTool, IPileUpTool> {
 public:
   /// \name structors and AlgTool implementation
   //@{
-  PileUpToolBase(const std::string& name,
-                 const std::string& type,
+  PileUpToolBase(const std::string& type,
+                 const std::string& name,
                  const IInterface* parent);
 
   virtual StatusCode initialize() override {
