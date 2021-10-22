@@ -133,6 +133,9 @@ def getStreamRDO_ItemList(log):
     if DetFlags.digitize.HGTD_on():
         if 'doHGTD_FastDigi' in digitizationFlags.experimentalDigi():
             StreamRDO_ItemList+=["HGTD::HGTD_ClusterContainer#*"]
+        else:
+            StreamRDO_ItemList+=["HGTD::HGTD_RDOContainer#*"]
+            
     # Calorimeter Output
     if DetFlags.digitize.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():

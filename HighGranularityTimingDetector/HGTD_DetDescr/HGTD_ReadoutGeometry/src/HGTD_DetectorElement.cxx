@@ -32,14 +32,14 @@ HGTD_DetectorElement::~HGTD_DetectorElement()
     delete m_surface;
 }
 
-void 
+void
 HGTD_DetectorElement::updateCache() const
 {
     SolidStateDetectorElementBase::updateCache();
     m_cacheValid = true;
 }
 
-Identifier 
+Identifier
 HGTD_DetectorElement::identifierFromCellId(const SiCellId & cellId) const
 {
     Identifier id; // Will be initialized in an invalid state.
@@ -65,11 +65,11 @@ HGTD_DetectorElement::cellIdFromIdentifier(const Identifier & identifier) const
             cellId = SiCellId(hgtdIdHelper->phi_index(identifier), hgtdIdHelper->eta_index(identifier));
         }
     }
-  
+
     return cellId;
 }
 
-const std::vector<const Trk::Surface*>& HGTD_DetectorElement::surfaces() const 
+const std::vector<const Trk::Surface*>& HGTD_DetectorElement::surfaces() const
 {
     // This method is needed to satisfy inheritance from TrkDetElementBase
     // so just return the one surface

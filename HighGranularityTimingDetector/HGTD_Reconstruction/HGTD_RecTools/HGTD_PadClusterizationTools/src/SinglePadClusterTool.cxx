@@ -19,8 +19,10 @@ SinglePadClusterTool::SinglePadClusterTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_cluster_maker(nullptr),
-      m_hgtd_det_mgr(nullptr) {}
+      m_cluster_maker("HGTD::HGTD_ClusterMakerTool/HGTD_ClusterMakerTool"),
+      m_hgtd_det_mgr(nullptr) {
+  declareProperty("ClusterMakerTool", m_cluster_maker);
+}
 
 StatusCode SinglePadClusterTool::initialize() {
 
@@ -71,8 +73,11 @@ SinglePadClusterTool::clusterize(const HGTD_RDOCollection& rdo_coll) const {
     // in col and row direction
     int col_width = 1;
     int row_width = 1;
-    double eta_width = det_design.etaPitch();
-    double phi_width = det_design.phiPitch();
+    //FIXME there is a bug in the detector design! should not be hardcoded here
+    // double eta_width = det_design.etaPitch();
+    // double phi_width = det_design.phiPitch();
+    double eta_width = 1.3;
+    double phi_width = 1.3;
     ATH_MSG_DEBUG("eta_width=" << eta_width << " phi_width=" << phi_width);
 
     InDet::SiWidth si_width(Amg::Vector2D(col_width, row_width),

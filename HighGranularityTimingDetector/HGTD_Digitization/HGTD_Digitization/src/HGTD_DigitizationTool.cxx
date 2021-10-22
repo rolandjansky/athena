@@ -34,6 +34,7 @@ HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
       m_id_helper(nullptr),
       m_det_mgr(nullptr),
       m_hgtd_rdo_container(nullptr),
+      m_output_rdo_cont_name("HGTD_RDOs"),
       m_sdo_collection(nullptr),
       m_output_sdo_coll_name("HGTD_SDO_Map"),
       m_input_collection_name("HGTD_Hits"),
@@ -48,6 +49,8 @@ HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
                   "Merge service used in Pixel & HGTD digitization");
   declareProperty("InputCollecionName", m_input_collection_name = "HGTD_Hits",
                   "Name of the collection that is digitized");
+  declareProperty("OutoutRDOContName", m_output_rdo_cont_name = "HGTD_RDOs",
+                  "Name of the retrieved RDO collection");
   declareProperty("ActiveTimeWindow", m_active_time_window = 10000,
                   "Hits within this time window are used for digitization");
   declareProperty("RndmSvc", m_rndm_svc,
@@ -178,7 +181,7 @@ StatusCode HGTD_DigitizationTool::prepareEvent(unsigned int /*index*/) {
       new HGTD::HGTD_RDOContainer(m_id_helper->wafer_hash_max());
 
   // register RDO container with storegate
-  ATH_CHECK(evtStore()->record(m_hgtd_rdo_container, "HGTD_RDOs"));
+  ATH_CHECK(evtStore()->record(m_hgtd_rdo_container, m_output_rdo_cont_name));
 
   // Create a map for the SDO and register it into StoreGate
   m_sdo_collection = new InDetSimDataCollection();
@@ -352,8 +355,14 @@ HGTD_DigitizationTool::createRDOCollection(
     int eta_index = readout_cell.etaIndex();
     int phi_index = readout_cell.phiIndex();
 
+    ATH_MSG_DEBUG("readout_cell ID: " << readout_cell << " eta:" << eta_index
+                                      << " phi:" << phi_index);
+
+    // FIXME the method takes ID, phi, eta
+    // FIXME switching order here to fix upstream issue with orientations
     const Identifier id_readout =
-        m_id_helper->pixel_id(charged_diodes->identify(), eta_index, phi_index);
+        m_id_helper->pixel_id(charged_diodes->identify(), phi_index,
+        eta_index);
 
     SiChargedDiode& diode = (*i_chargedDiode).second;
     const SiTotalCharge& charge = diode.totalCharge();
@@ -449,10 +458,12 @@ void HGTD_DigitizationTool::createAndStoreSDO(
     // particle to which the truth information was kept. Can be HS and PU.
     if (real_particle_hit) {
 
-      auto collection_id = charged_diodes->identify();
-      Identifier id_readout = m_id_helper->pixel_id(
-          collection_id, m_id_helper->eta_index(collection_id),
-          m_id_helper->phi_index(collection_id));
+      InDetDD::SiReadoutCellId readout_cell =
+          (*i_chargedDiode).second.getReadoutCell();
+      int eta_index = readout_cell.etaIndex();
+      int phi_index = readout_cell.phiIndex();
+      const Identifier id_readout = m_id_helper->pixel_id(
+          charged_diodes->identify(), eta_index, phi_index);
 
       m_sdo_collection->insert(std::make_pair(
           id_readout, InDetSimData(deposits, (*i_chargedDiode).second.flag())));

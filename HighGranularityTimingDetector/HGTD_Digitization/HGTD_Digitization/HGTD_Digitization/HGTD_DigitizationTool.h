@@ -111,6 +111,7 @@ private:
   const HGTD_DetectorManager* m_det_mgr;
 
   HGTD::HGTD_RDOContainer* m_hgtd_rdo_container;
+  std::string m_output_rdo_cont_name;
 
   InDetSimDataCollection* m_sdo_collection;
   std::string m_output_sdo_coll_name;

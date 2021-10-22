@@ -68,7 +68,7 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
     }
   }
 
-  double sensor_thickness = element->design().thickness();
+  float sensor_thickness = element->design().thickness();
   int readout_side = element->design().readoutSide();
 
   float pixel_size_xphi = element->design().phiPitch();
@@ -82,15 +82,15 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
                                   << ", xDep=" << start_pos[SiHit::xDep]);
 
   CLHEP::Hep3Vector direction = end_pos - start_pos;
-  double deposit_length = direction.mag();
+  float deposit_length = direction.mag();
   int n_steps = deposit_length / m_small_step_length + 1;
   direction.setMag(deposit_length / static_cast<float>(n_steps));
 
-  double tot_eloss = hit.energyLoss();
+  float tot_eloss = hit.energyLoss();
   // FIXME using the mean ionization energy in Silicon
   const float tot_charge = tot_eloss / (3.62 * CLHEP::eV);
 
-  double charge_per_step = tot_charge / static_cast<float>(n_steps);
+  float charge_per_step = tot_charge / static_cast<float>(n_steps);
 
   // FIXME is this correct? does the eventTime include a "later" truth event and
   // the meanTime is just the TOF?
@@ -106,6 +106,16 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
 
   for (int i_step = 0; i_step < n_steps; i_step++) {
     CLHEP::Hep3Vector surface_pos = start_pos + i_step * direction;
+    ATH_MSG_DEBUG("surface_pos x=" << surface_pos.x()
+                                   << ", y=" << surface_pos.y()
+                                   << ", z=" << surface_pos.z());
+    ATH_MSG_DEBUG("surface_pos xEta=" << surface_pos[SiHit::xEta]
+                                      << ", xPhi=" << surface_pos[SiHit::xPhi]
+                                      << ", xDep=" << surface_pos[SiHit::xDep]);
+    // NB! y aka xPhi is the long side of the module!
+    // DEBUG surface_pos x=9.08365,  y=-1.17206, z=-0.025
+    // DEBUG surface_pos xEta=-0.025, xPhi=-1.17206, xDep=9.08365
+    // FIXME: eta, phi andd dep need to be revisited in Rel 22!
 
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
@@ -117,7 +127,7 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
     }
     // diffusion sigma
     // FIXME where is the 0.3 from?
-    double rdif = m_diffusion_constant * std::sqrt(spess / 0.3);
+    float rdif = m_diffusion_constant * std::sqrt(spess / 0.3);
 
     // position at the surface, adding smearing
     // FIXME currently no Lorentz angle considered, can be studied in the future
@@ -163,8 +173,7 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
         element->cellIdOfPosition(surface_charge.position());
     ATH_MSG_DEBUG("cell_id x=" << cell_id);
     if (cell_id.isValid()) {
-      // add this charge to the collection (or merge in existing charged
-      // diode)
+      // add this charge to the collection (or merge in existing charged diode)
       diode_coll->add(cell_id, surface_charge.charge());
     }
   } // END LOOP over steps
