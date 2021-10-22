@@ -27,6 +27,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/DL2Tool.cxx
   Root/customGetter.cxx
   Root/FlipTagEnums.cxx
+  Root/AssociationEnums.cxx
   Root/VRJetOverlapDecorator.cxx
   Root/VRJetOverlapDecoratorTool.cxx
   Root/HbbTag.cxx
@@ -44,6 +45,7 @@ atlas_add_library( FlavorTagDiscriminants
 if (NOT XAOD_STANDALONE)
   atlas_add_component( FlavorTagDiscriminantsLib
     src/BTagDecoratorAlg.cxx
+    src/JetTagDecoratorAlg.cxx
     src/BTagToJetLinkerAlg.cxx
     src/JetToBTagLinkerAlg.cxx
     src/BTagTrackLinkCopyAlg.cxx

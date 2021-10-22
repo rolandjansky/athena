@@ -2,12 +2,12 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FlavorTagDiscriminants/BTagDecoratorAlg.h"
+#include "FlavorTagDiscriminants/JetTagDecoratorAlg.h"
 
 namespace FlavorTagDiscriminants {
-  BTagDecoratorAlg::BTagDecoratorAlg(
+  JetTagDecoratorAlg::JetTagDecoratorAlg(
     const std::string& name, ISvcLocator* svcloc):
-    detail::BTag_t(name, svcloc)
+    detail::JetTag_t(name, svcloc)
   {
   }
 }
