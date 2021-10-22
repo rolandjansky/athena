@@ -1084,14 +1084,12 @@ InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign( double thick
     int diodeRowsPerCircuit = cellRowsPerCircuit;
 
     std::shared_ptr<const PixelDiodeMatrix> normalCell = InDetDD::PixelDiodeMatrix::construct(phiPitch, etaPitch);
-    std::shared_ptr<const PixelDiodeMatrix> singleRow  = InDetDD::PixelDiodeMatrix::construct(InDetDD::PixelDiodeMatrix::etaDir, 0,
+    std::shared_ptr<const PixelDiodeMatrix> singleRow  = InDetDD::PixelDiodeMatrix::construct(InDetDD::PixelDiodeMatrix::phiDir, 0,
                                                                                               normalCell, diodeColumnsPerCircuit, 0);
-    std::shared_ptr<const PixelDiodeMatrix> fullMatrix = InDetDD::PixelDiodeMatrix::construct(InDetDD::PixelDiodeMatrix::phiDir, 0,
+    std::shared_ptr<const PixelDiodeMatrix> fullMatrix = InDetDD::PixelDiodeMatrix::construct(InDetDD::PixelDiodeMatrix::etaDir, 0,
                                                                                               singleRow, 2*diodeRowsPerCircuit, 0); // note 30 = 2*15 rows adopted
 
-    DetectorDesign::Axis yDirection = InDetDD::DetectorDesign::xAxis;
-    if (m_geomVersion == 0 )
-      yDirection = InDetDD::DetectorDesign::yAxis;
+    DetectorDesign::Axis yDirection = InDetDD::DetectorDesign::yAxis;
 
     InDetDD::HGTD_ModuleDesign* design = new InDetDD::HGTD_ModuleDesign(thickness,
                                                                         circuitsPerColumn, circuitsPerRow,
