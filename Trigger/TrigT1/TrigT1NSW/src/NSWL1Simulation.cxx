@@ -25,6 +25,7 @@ namespace NSWL1 {
       //m_strip_segment("NSWL1::StripSegmentTool",this), TODO: this line makes the code crash in initialization... please, sTGC friends, fix it!!!
       m_mmstrip_tds("NSWL1::MMStripTdsOfflineTool",this),
       m_mmtrigger("NSWL1::MMTriggerTool",this),
+      m_trigProcessor("NSWL1::TriggerProcessorTool",this),
       m_tree(nullptr),
       m_current_run(-1),
       m_current_evt(-1)
@@ -102,6 +103,8 @@ namespace NSWL1 {
     if(m_doNtuple){
       ATH_CHECK(m_monitors.retrieve());
     }
+
+    ATH_CHECK(m_trigProcessor.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -183,6 +186,8 @@ namespace NSWL1 {
         }
       }
     }
+
+    ATH_CHECK(m_trigProcessor->mergeRDO());
     return StatusCode::SUCCESS;
   }
 
