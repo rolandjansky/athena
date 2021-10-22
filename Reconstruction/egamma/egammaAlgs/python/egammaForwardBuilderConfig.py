@@ -59,3 +59,24 @@ def egammaForwardBuilderCfg(flags, name='egammaForwardElectron', **kwargs):
 
     acc.addEventAlgo(fwdAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.RDO
+
+    acc = MainServicesCfg(flags)
+    mlog = logging.getLogger("egammaForwardBuilderConfigTest")
+    mlog.info("Configuring  egammaForwardBuilder: ")
+    acc.merge(egammaForwardBuilderCfg(flags))
+    printProperties(mlog,
+                    acc.getEventAlgo("egammaForwardElectron"),
+                    nestLevel=1,
+                    printDefaults=True)
+    with open("egammaforwardbuilder.pkl", "wb") as f:
+        acc.store(f)

@@ -21,14 +21,9 @@ def _configureClusterCorrections(flags, swTool):
         Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
     )
 
-    if flags.Egamma.doSuperclusters:
-        version = flags.Egamma.Calib.SuperClusterCorrectionVersion
-        suffix = 'EGSuperCluster'
-        attrPref = 'ClusterCorrectionToolsSuperCluster'
-    else:
-        version = flags.Egamma.Calib.ClusterCorrectionVersion
-        suffix = 'EG'
-        attrPref = 'ClusterCorrectionTools'
+    version = flags.Egamma.Calib.SuperClusterCorrectionVersion
+    suffix = 'EGSuperCluster'
+    attrPref = 'ClusterCorrectionToolsSuperCluster'
 
     for attrName, clName in clusterTypes.items():
         attrName = attrPref + attrName
