@@ -138,6 +138,8 @@ private:
     std::string m_configFile;
     //! @brief The name of the variable to correct
     std::string m_correctionVariable;
+    //! @brief Whether to apply normal correction or smearing correction
+    bool m_doGaussianSmearing = false;
     //! @brief Values of discontinuities in the variable which should not be corrected
     std::vector<float> m_uncorrectedDiscontinuities;
     //! @brief Function to use for the variable correction, TF1 style
