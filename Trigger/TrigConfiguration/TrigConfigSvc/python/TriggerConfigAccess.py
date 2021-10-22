@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName, getBunchGroupSetFileName, getHLTJobOptionsFileName, getHLTMonitoringFileName
 
 from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess, L1PrescalesSetAccess, BunchGroupSetAccess
 from TrigConfIO.HLTTriggerConfigAccess import HLTMenuAccess, HLTPrescalesSetAccess, HLTJobOptionsAccess, HLTMonitoringAccess
 
-from PyUtils.Decorators import memoize
+from functools import lru_cache
 
 """
 Access to the trigger configuration in python is provided depending on
@@ -40,9 +40,11 @@ are then loaded from the DB.
 
 """
 
-@memoize
+@lru_cache(maxsize=None)
 def getKeysFromCool(runNr, lbNr = 0):
-    from TrigConfStorage import TriggerCoolUtil
+    """Return dictionary of trigger keys for given run and lumiblock number
+    """
+    from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
     condb = "CONDBR2" if runNr > 236108 else "COMP200"
     db = TriggerCoolUtil.GetConnection(condb)
     run_range = [[runNr,runNr]]
@@ -64,7 +66,7 @@ def getKeysFromCool(runNr, lbNr = 0):
     dbaliasMapping = { "TRIGGERDBR2R" : "TRIGGERDB",
                        "TRIGGERDBV2" : "TRIGGERDB_RUN1" }
     if d["DB"] in dbaliasMapping:
-        d["DB"] = dbaliasMapping[ db["DB"] ]
+        d["DB"] = dbaliasMapping[ d["DB"] ]
 
     return d
 
