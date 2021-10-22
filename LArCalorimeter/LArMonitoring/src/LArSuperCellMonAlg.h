@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  Morvaj, P.Strizenec - develop for Digital Trigger monitoring (2021)
 
@@ -122,15 +122,6 @@ private:
     {CaloSampling::FCAL0,FCAL1NS}, {CaloSampling::FCAL1,FCAL2NS}, {CaloSampling::FCAL2,FCAL3NS}                                      //FCAL
   };
 
-  //Mapping of layers to the partition the layer belongs to
-  const std::array<PartitionEnum,MAXLAYER> m_layerEnumtoPartitionEnum{{
-      EMBA, EMBC,  EMBA,  EMBC,  EMBA,  EMBC,  EMBA,  EMBC,
-      HECA, HECC,  HECA,  HECC,  HECA,  HECC,  HECA,   HECC,
-      EMECA, EMECC, EMECA, EMECC, EMECA, EMECC, EMECA, EMECC,
-      FCALA, FCALC, FCALA, FCALC, FCALA, FCALC
-	}};
-  
-
   //Private methods: Initialization and job-option interpretation
   StatusCode initThresh();
 
@@ -148,7 +139,6 @@ private:
 
   // Identifer helpers and such
 
-  const LArOnlineID* m_LArOnlineIDHelper;
   const CaloCell_ID* m_calo_id;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
