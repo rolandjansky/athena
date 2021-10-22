@@ -70,8 +70,8 @@ StatusCode FixHepMC::execute() {
       }
       // Clean decays
       int abs_pdg_id = std::abs(ip->pdg_id());
-      bool is_weak_boson =  ( abs_pdg_id == 23 || abs_pdg_id == 24 || abs_pdg_id == 25 );
-      if ( m_cleanDecays && isNonTransportableInDecayChain(ip) && !is_weak_boson ) {
+      bool is_decayed_weak_boson =  ( abs_pdg_id == 23 || abs_pdg_id == 24 || abs_pdg_id == 25 ) && ip->end_vertex();
+      if ( m_cleanDecays && isNonTransportableInDecayChain(ip) && !is_decayed_weak_boson ) {
         bad_particle = true;
         m_decayCleaned += 1;
         ATH_MSG_DEBUG( "Found a bad particle in a decay chain : " );
@@ -140,8 +140,8 @@ StatusCode FixHepMC::execute() {
 
       // Clean decays
       int abs_pdg_id = std::abs((*ip)->pdg_id());
-      bool is_weak_boson =  ( abs_pdg_id == 23 || abs_pdg_id == 24 || abs_pdg_id == 25 );
-      if ( m_cleanDecays && isNonTransportableInDecayChain(*ip) && !is_weak_boson ) {
+      bool is_decayed_weak_boson =  ( abs_pdg_id == 23 || abs_pdg_id == 24 || abs_pdg_id == 25 ) && (*ip)->end_vertex();
+      if ( m_cleanDecays && isNonTransportableInDecayChain(*ip) && !is_decayed_weak_boson ) {
         bad_particle = true;
         m_decayCleaned += 1;
         ATH_MSG_DEBUG( "Found a bad particle in a decay chain : " );
