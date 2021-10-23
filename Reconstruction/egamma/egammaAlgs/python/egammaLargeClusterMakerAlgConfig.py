@@ -9,7 +9,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from egammaTools.egammaLargeClusterMakerConfig import (
     egammaLargeClusterMakerCfg)
-from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
+from CaloClusterCorrection.CaloSwCorrections import (
+    make_CaloSwCorrectionsCfg)
 
 
 def egammaLargeClusterMakerAlgCfg(
@@ -17,24 +18,24 @@ def egammaLargeClusterMakerAlgCfg(
         name="egammaLargeClusterMaker",
         **kwargs):
 
-    acc = ComponentAccumulator
+    acc = ComponentAccumulator()
 
     kwargs.setdefault("SaveUncalibratedSignalState", False)
     kwargs.setdefault("ClustersOutputName",
                       flags.Egamma.Keys.Output.EgammaLargeClusters)
 
     if "ClusterMakerTools" not in kwargs:
-        toolAcc = egammaLargeClusterMakerCfg(flags)
-        kwargs["ClusterMakerTools"] = [toolAcc.popPrivateTools()]
-        acc.merge(toolAcc)
+        tool = egammaLargeClusterMakerCfg(flags)
+        kwargs["ClusterMakerTools"] = [acc.popToolsAndMerge(tool)]
 
-    kwargs.setdefault(
-        "ClusterCorrectionTools",
-        make_CaloSwCorrections(
+    if "ClusterCorrectionTools" not in kwargs:
+        tools = make_CaloSwCorrectionsCfg(
+            flags,
             "ele7_11",
             suffix="Nocorr",
             version="none",
-            cells_name=flags.Egamma.Keys.Input.CaloCells))
+            cells_name=flags.Egamma.Keys.Input.CaloCells)
+        kwargs["ClusterCorrectionTools"] = acc.popToolsAndMerge(tools)
 
     acc.addEventAlgo(CompFactory.CaloClusterMaker(name, **kwargs))
     return acc

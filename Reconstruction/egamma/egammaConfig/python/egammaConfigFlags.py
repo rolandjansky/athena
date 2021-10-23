@@ -13,19 +13,27 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.enabled", True)
 
     # do standard cluster-based egamma algorithm
-    egcf.addFlag("Egamma.doCaloSeeded", True)
+    egcf.addFlag("Egamma.doCaloSeeded",
+                 lambda prevFlags: prevFlags.Detector.EnableCalo)
 
     # do forward egamma
-    egcf.addFlag("Egamma.doForwardSeeded", True)
+    egcf.addFlag("Egamma.doForwardSeeded",
+                 lambda prevFlags: prevFlags.Detector.EnableCalo)
 
     # do egamma truth association when running on MC
-    egcf.addFlag("Egamma.doTruthAssociation", True)
+    egcf.addFlag("Egamma.doTruthAssociation",
+                 lambda prevFlags: prevFlags.Input.isMC)
 
-    # run the GSF refitting
-    egcf.addFlag("Egamma.doGSF", True)
+    # run the GSF refitting /egamma Tracking
+    egcf.addFlag("Egamma.doGSF", lambda prevFlags: prevFlags.Detector.EnableID)
 
-    # build conversion vertices
-    egcf.addFlag("Egamma.doConversionBuilding", True)
+    # build photon conversion vertices
+    egcf.addFlag("Egamma.doConversionBuilding",
+                 lambda prevFlags: prevFlags.Detector.EnableID)
+
+    # Do e/gamma track thinning (Although we call the alg slimming...)
+    egcf.addFlag("Egamma.doTrackThinning",
+                 lambda prevFlags: prevFlags.Output.doWriteAOD)
 
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion",

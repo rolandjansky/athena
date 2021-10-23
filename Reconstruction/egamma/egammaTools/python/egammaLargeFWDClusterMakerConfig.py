@@ -8,15 +8,18 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def egammaLargeFWDClusterMakerCfg(flags, **kwargs):
+def egammaLargeFWDClusterMakerCfg(
+        flags,
+        name="egammaFWDLCMakerTool",
+        **kwargs):
 
     acc = ComponentAccumulator()
 
     kwargs.setdefault("CellsName", flags.Egamma.Keys.Input.CaloCells)
     kwargs.setdefault("InputClusterCollection",
-                      flags.Egamma.Keys.Output.FwdCluster)
+                      flags.Egamma.Keys.Output.ForwardClusters)
     kwargs.setdefault("doFWDelesurraundingWindows", True)
 
-    acc.setPrivateTools(CompFactory.egammaLargeFWDClusterMaker(**kwargs))
+    acc.setPrivateTools(CompFactory.egammaLargeClusterMaker(name, **kwargs))
 
     return acc
