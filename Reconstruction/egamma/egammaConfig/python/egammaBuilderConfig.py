@@ -17,30 +17,13 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     acc = ComponentAccumulator()
 
-    # Depending on what is availabe we might want
-    # to disable certain things
-
-    # without calo no egamma
-    if not flags.Detector.EnableCalo:
-        flags.Egamma.enabled = False
-        flags.Egamma.doCaloSeeded = False
-        flags.Egamma.doForwardSeeded = False
-
-    # Tracking
-    if not flags.Detector.EnableID:
-        flags.Egamma.doGSF = False
-        flags.Egamma.doConversionBuilding = False
-
-    # MC Truth
-    if not flags.Input.isMC:
-        flags.Egamma.doTruthAssociation = False
-
     # if not enabled add nothing
     if not flags.Egamma.enabled:
         return acc
 
-    # Add algorithms
+    # Add e/gamma tracking algorithms
     if flags.Egamma.doGSF:
+
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
         acc.merge(egammaSelectedTrackCopyCfg(flags))
@@ -53,29 +36,54 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
             EMGSFCaloExtensionBuilderCfg)
         acc.merge(EMGSFCaloExtensionBuilderCfg(flags))
 
+    # Add e/gamma conversion finding
     if flags.Egamma.doConversionBuilding:
-        from egammaAlgs.EMVertexBuilderConfig import EMVertexBuilderCfg
+
+        from egammaAlgs.EMVertexBuilderConfig import (
+            EMVertexBuilderCfg)
         acc.merge(EMVertexBuilderCfg(flags))
 
+    # Add calo seeded central algorithms
     if flags.Egamma.doCaloSeeded:
-        from egammaAlgs.egammaRecBuilderConfig import egammaRecBuilderCfg
+
+        from egammaAlgs.egammaRecBuilderConfig import (
+            egammaRecBuilderCfg)
         acc.merge(egammaRecBuilderCfg(flags))
+
         from egammaAlgs.egammaSuperClusterBuilderConfig import (
             electronSuperClusterBuilderCfg, photonSuperClusterBuilderCfg)
         acc.merge(electronSuperClusterBuilderCfg(flags))
         acc.merge(photonSuperClusterBuilderCfg(flags))
-        from egammaAlgs.topoEgammaBuilderConfig import topoEgammaBuilderCfg
+
+        from egammaAlgs.topoEgammaBuilderConfig import (
+            topoEgammaBuilderCfg)
         acc.merge(topoEgammaBuilderCfg(flags))
 
+        from egammaAlgs.egammaLargeClusterMakerAlgConfig import (
+            egammaLargeClusterMakerAlgCfg)
+        acc.merge(egammaLargeClusterMakerAlgCfg(flags))
+
+    # Add calo seeded forward algorithms
     if flags.Egamma.doForwardSeeded:
+
         from egammaAlgs.egammaForwardBuilderConfig import (
             egammaForwardBuilderCfg)
         acc.merge(egammaForwardBuilderCfg(flags))
 
+    # Add truth association
     if flags.Egamma.doTruthAssociation:
+
         from egammaAlgs.egammaTruthAssociationConfig import (
             egammaTruthAssociationCfg)
         acc.merge(egammaTruthAssociationCfg(flags))
+
+    # Add e/gamma track thinning
+    # (although we call the Alg slimming)
+    if flags.Egamma.doTrackThinning:
+
+        from egammaAlgs.egammaTrackSlimmerConfig import (
+            egammaTrackSlimmerCfg)
+        acc.merge(egammaTrackSlimmerCfg(flags))
 
     mlog.info("EGamma reconstruction configured")
 
@@ -89,6 +97,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.Output.doWriteAOD = True  # To test the AOD parts
 
     acc = MainServicesCfg(flags)
     acc.merge(EGammaReconstructionCfg(flags))

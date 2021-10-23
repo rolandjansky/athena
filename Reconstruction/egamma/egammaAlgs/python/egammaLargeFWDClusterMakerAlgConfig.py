@@ -8,15 +8,16 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from egammaTools.egammaLargeFWDClusterMakerConfig import (
     egammaLargeFWDClusterMakerCfg)
-from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
+from CaloClusterCorrection.CaloSwCorrections import (
+    make_CaloSwCorrectionsCfg)
 
 
 def egammaLargeFWDClusterMakerAlgCfg(
         flags,
-        name="egammaLargeClusterMaker",
+        name="egammaLargeFWDClusterMaker",
         **kwargs):
 
-    acc = ComponentAccumulator
+    acc = ComponentAccumulator()
 
     kwargs.setdefault("SaveUncalibratedSignalState", False)
     kwargs.setdefault("ClustersOutputName",
@@ -27,13 +28,14 @@ def egammaLargeFWDClusterMakerAlgCfg(
         kwargs["ClusterMakerTools"] = [toolAcc.popPrivateTools()]
         acc.merge(toolAcc)
 
-    kwargs.setdefault(
-        "ClusterCorrectionTools",
-        make_CaloSwCorrections(
+    if "ClusterCorrectionTools" not in kwargs:
+        tools = make_CaloSwCorrectionsCfg(
+            flags,
             "FWDele6_6",
             suffix="Nocorr",
             version="none",
-            cells_name=flags.Egamma.Keys.Input.CaloCells))
+            cells_name=flags.Egamma.Keys.Input.CaloCells)
+        kwargs["ClusterCorrectionTools"] = acc.popToolsAndMerge(tools)
 
     acc.addEventAlgo(CompFactory.CaloClusterMaker(name, **kwargs))
     return acc

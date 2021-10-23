@@ -21,7 +21,8 @@ egammaLargeClusterMakerAlg = AlgFactory(
     SaveUncalibratedSignalState=False,
     ClustersOutputName=egammaKeys.EgammaLargeClustersKey(),
     ClusterMakerTools=FcnWrapper(clusMakerTools),
-    ClusterCorrectionTools=make_CaloSwCorrections("ele7_11",
-                                                  suffix="Nocorr",
-                                                  version="none",
-                                                  cells_name=egammaKeys.caloCellKey()))
+    ClusterCorrectionTools=make_CaloSwCorrections(
+        "ele7_11",
+        suffix="Nocorr",
+        version="none",
+        cells_name=egammaKeys.caloCellKey()))
