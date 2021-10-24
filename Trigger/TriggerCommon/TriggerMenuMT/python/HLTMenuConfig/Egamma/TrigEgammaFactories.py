@@ -22,11 +22,13 @@ from CaloIdentifier import SUBCALO
 from egammaRec.Factories import ToolFactory, AlgFactory
 
 from egammaTools.egammaToolsFactories import egammaToolsConf, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys, TrigEgammaKeys_LRT
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaMVASvc
 
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesInConeTool
@@ -34,6 +36,10 @@ from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesIn
 from AthenaCommon import CfgMgr
 from egammaAlgs import egammaAlgsConf
 from .PrecisionCaloMenuSequences import precisionCaloMenuDefs
+
+""" Configuring trigger precision MVA Svc """
+TrigEgammaMVASvc = createTrigEgammaMVASvc( TrigEgammaKeys.calibMVAVersion )
+
 
 """Configuring egammaRecBuilder """
 TrigEgammaRec   = AlgFactory( egammaAlgsConf.egammaRecBuilder,
@@ -52,9 +58,14 @@ TrigEgammaRec   = AlgFactory( egammaAlgsConf.egammaRecBuilder,
 TrigEgammaSuperClusterBuilder = AlgFactory( egammaAlgsConf.egammaSuperClusterBuilder,
         name = 'TrigEgammaSuperClusterBuilder',
         InputEgammaRecContainerName=TrigEgammaKeys.PrecisionCaloEgammaRecKey,
-        SuperClusterCollectionName=precisionCaloMenuDefs.precisionCaloClusters,   
+        SuperClusterCollectionName=precisionCaloMenuDefs.precisionCaloClusters,
+        ClusterCorrectionTool=egammaSwSuperClusterTool,   
+        MVACalibSvc=TrigEgammaMVASvc,
+        #CalibrationType='electron',
+        EtThresholdCut = 1000,
         doAdd = False
         )
+
 
 """Configuring the TrackParticlesInConeTool """
 TrigTrackParticlesInConeTool =  ToolFactory(xAOD__TrackParticlesInConeTool, name = 'TrigTrackParticlesInConeTool')
