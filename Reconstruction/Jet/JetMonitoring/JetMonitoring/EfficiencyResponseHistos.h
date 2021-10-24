@@ -37,6 +37,10 @@ protected:
   TProfile* m_etres_eta;
   TProfile* m_etres_pt;
 
+  TH1F* m_etres_noShift;
+  TProfile* m_etres_noShift_eta;
+  TProfile* m_etres_noShift_pt;
+
   TH1F* m_deltaRclosest;
 
 };
