@@ -43,7 +43,7 @@ def precisionCaloSequence(ConfigFlags, ion=False, is_photon=False):
 
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRecoSequences import precisionCaloRecoSequence
-    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None, InViewRoIs, ion)
+    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None, InViewRoIs, ion, is_photon)
         
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
 

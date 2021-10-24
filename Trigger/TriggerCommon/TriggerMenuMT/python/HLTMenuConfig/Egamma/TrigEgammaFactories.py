@@ -61,7 +61,7 @@ TrigEgammaSuperClusterBuilder = AlgFactory( egammaAlgsConf.egammaSuperClusterBui
         SuperClusterCollectionName=precisionCaloMenuDefs.precisionCaloClusters,
         ClusterCorrectionTool=egammaSwSuperClusterTool,   
         MVACalibSvc=TrigEgammaMVASvc,
-        #CalibrationType='electron',
+        CalibrationType='electron',
         EtThresholdCut = 1000,
         doAdd = False
         )
