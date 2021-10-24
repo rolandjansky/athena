@@ -14,7 +14,9 @@
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 
+#include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
+#include "LArRawEvent/LArFebErrorSummary.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include <string>
@@ -42,8 +44,11 @@ class LArCalibPedMonAlgREN: public AthMonitorAlgorithm
   SG::ReadHandleKey<LArAccumulatedDigitContainer> m_accDigitContainerKey{this,"LArAccumulatedDigitContainerKey","","SG key of LArAccumulatedDigitContainer read from Bytestream"};
   SG::ReadHandleKey<LArAccumulatedCalibDigitContainer> m_accCalibDigitContainerKey{this,"LArAccumulatedCalibDigitContainerKey","","SG key of LArAccumulatedCalibDigitContainer read from Bytestream"};
   SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
+  SG::ReadHandleKey<LArFebErrorSummary> m_lArFebErrorSummaryKey{this, "LArFebErrorSummaryKey", "LArFebErrorSummary"};
   
   // Properties
+  Gaudi::Property<bool> m_ignoreMissingHeaderEMB{this, "IgnoreMissingHeaderEMB", false};
+  Gaudi::Property<bool> m_ignoreMissingHeaderPS{this, "IgnoreMissingHeaderPS", false};
   Gaudi::Property<std::vector<std::string> > m_partitions {this, "PartitionNames", {} };
   Gaudi::Property<std::vector<std::string> > m_SubDetNames{this, "SubDetNames", {} };
     //MonGroup(s) name
@@ -51,7 +56,11 @@ class LArCalibPedMonAlgREN: public AthMonitorAlgorithm
   
     /* Histogram grouping (part) */
   std::vector<std::map<std::string,int> > m_histoGroups;
-
+  
+  // Id helper
+  const LArOnlineID* m_onlineHelper;
+  void fillErrorsSummary(unsigned int partitNb_2,int ft,int slot,uint16_t error, bool lar_inerror, std::bitset<13> &rejectionBits, bool &currentFebStatus , bool &eventRejected) const;
+  unsigned int returnPartition(int be,int pn,int ft,int sl) const;
   mutable std::atomic<int>  m_nbOfFebBlocksTotal;
 };
 

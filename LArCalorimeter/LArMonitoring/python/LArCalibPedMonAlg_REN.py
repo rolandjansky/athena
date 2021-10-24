@@ -9,6 +9,9 @@ def LArCalibPedMonConfig_REN(inputFlags,gain="",doAccDigit=False,doCalibDigit=Fa
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
+    from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg 
+
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     larPedMonAlgTest = helper.addAlgorithm(CompFactory.LArCalibPedMonAlgREN,'larCalibPedMonAlgTest')
     if gain != "":
@@ -56,28 +59,72 @@ def LArCalibPedMonConfig_REN(inputFlags,gain="",doAccDigit=False,doCalibDigit=Fa
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  ylabels=lArDQGlobals.Partitions
-                                  )
+                                  ylabels=lArDQGlobals.Partitions)
+    Group.defineHistogram('febError,part;NbOfLArFEBMonErrors_dE', 
+                                  title='# of data corruption errors',
+                                  type='TH2I',
+                                  path=summary_hist_path,
+                                  xbins=lArDQGlobals.N_FEBErrors, xmin=0.5, xmax=lArDQGlobals.N_FEBErrors+0.5,
+                                  ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
+                                  xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
+    #Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
+                                  #title='Yield of corrupted events (DATACORRUPTED);LBs;Yield(%)',
+                                  #type='TProfile',
+                                  #path=summary_hist_path,
+                                  #xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
+    Group.defineHistogram('LB0;NbOfEventsVsLB', 
+                                  title='Nb of events per LB:LBs;Events',
+                                  type='TH1I',
+                                  path=summary_hist_path,
+                                  xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
+    Group.defineHistogram('LB0,LArEvSize;eventSizeVsLB', 
+                                  title='LAr event size (w/o ROS headers);LBs;Megabytes',
+                                  type='TProfile',
+                                  path=summary_hist_path,
+                                  xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     # Now per partition histograms
     for subdet in range(0,lArDQGlobals.N_SubDet):
        hist_path='/LAr/'+GroupName+'NewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)
+       ft_low = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
+       ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
+       ft_n = int(ft_up - ft_low)
        
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larPedMonAlgTest,lArDQGlobals.SubDet[subdet])
        
        darray.defineHistogram('nbFEBpart;nbOfFebBlocks',
-                              title='# of readout FEBs (DSP header check only):Slot:FT;N_FEB;Events',
+                              title='# of readout FEBs (DSP header check only);N_FEB;Events',
                               type='TH1I',
                               path=hist_path,
                               xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5)
-       
-       
+       darray.defineHistogram('slotnb,FTnb;RAW_nbOfEvts',
+                              title='Nb of events (DSP header check only);Slot;FT',
+                              type='TH2I',
+                              path=hist_path,
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+
+       darray.defineHistogram('slotnb,FTnb;RAW_nbOfFT',
+                              title='Average # of cells with (qfactor+time) readout;Slot;FT',
+                              type='TProfile1D',
+                              path=hist_path,
+                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+             
        
     return helper.result()
 
+    rv = ComponentAccumulator()
+
+    # adding LArFebErrorSummary algo
+    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+    rv.merge(LArFebErrorSummaryMakerCfg(inputFlags))
     
+    rv.merge(helper.result())
+
+    return rv
 
 if __name__=='__main__':
 
@@ -98,6 +145,7 @@ if __name__=='__main__':
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.Input.isMC = False
    ConfigFlags.DQ.useTrigger = False
+   ConfigFlags.LAr.doAlign=False
    ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.DQ.DataType = 'collisions'
    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
@@ -112,10 +160,10 @@ if __name__=='__main__':
    cfg = MainServicesCfg(ConfigFlags)
 
    from LArByteStream.LArRawCalibDataReadingConfig import LArRawCalibDataReadingCfg
-   cfg.merge(LArRawCalibDataReadingCfg(ConfigFlags,gain="HIGH",doAccCalibDigit=True))
+   cfg.merge(LArRawCalibDataReadingCfg(ConfigFlags,gain="HIGH",doAccDigit=True))
 
-   cfg.merge(LArCalibPedMonConfig_REN(ConfigFlags, gain="HIGH",doAccCalibDigit=True))
-
+   cfg.merge(LArCalibPedMonConfig_REN(ConfigFlags, gain="HIGH",doAccDigit=True))
+   
 # If you want to turn on more detailed messages ...
 # LArCalibPedMonConfig_REN.getEventAlgo('larPedMonAlgTest').OutputLevel = 2 # DEBUG
    cfg.printConfig(withDetails=False) #set True for exhaustive info
