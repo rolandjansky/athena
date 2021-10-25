@@ -344,10 +344,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    std::pair<EventIDRange,const std::vector<Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
    const std::vector<Trk::CylinderLayer*>* beamPipeVecPtr = beamPipeVecPair.second;
    if (!beamPipeVecPtr->empty()) {
-     std::vector<const Trk::CylinderLayer*> beamPipeVec;
-     std::copy(beamPipeVecPtr->begin(),
-               beamPipeVecPtr->end(),
-               std::back_inserter(beamPipeVec));
+     std::vector<const Trk::CylinderLayer*> beamPipeVec(beamPipeVecPtr->begin(),
+                                                        beamPipeVecPtr->end());
      range = EventIDRange::intersect(range, beamPipeVecPair.first);
      beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(
        beamPipeVec, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);
