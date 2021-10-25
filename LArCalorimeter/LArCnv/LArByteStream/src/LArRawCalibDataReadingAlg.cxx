@@ -193,7 +193,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       if (m_failOnCorruption) {
 	return StatusCode::FAILURE;
       }else 
-	continue;
+	continue; //Jump to next ROD block
     }
     
      eformat::helper::Version ver(rob.rod_version());
@@ -215,7 +215,10 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
          }
       } else {
 	ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
-	return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+	if (m_failOnCorruption) 
+	  return StatusCode::FAILURE;
+	else 
+	  continue; //Jump to next ROD block
       }
     }//End if need to re-init RodBlock
 
