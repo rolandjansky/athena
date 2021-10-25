@@ -10,7 +10,7 @@ find_package( TheP8I )
 if( THEP8I_FOUND )
   set( THEP8IENVIRONMENT_ENVIRONMENT 
         FORCESET THEP8IVER ${THEP8I_LCGVERSION} 
-        FORCESET THEP8I_PATH ${THEP8I_LCGROOT} )
+        FORCESET THEP8IPATH ${THEP8I_LCGROOT} )
 endif()
 
 # Silently declare the module found:

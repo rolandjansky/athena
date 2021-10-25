@@ -38,7 +38,7 @@ atlas_add_component( Herwig7_i
    src/Herwig7.cxx 
    src/components/*.cxx  
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HERWIG3_INCLUDE_DIRS}
-   ${THEPEG_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${OPENLOOPS_INCLUDE_DIRS} 
+   ${THEPEG_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${OPENLOOPS_INCLUDE_DIRS}
 #  ${VBFNLO_INCLUDE_DIRS}
    DEFINITIONS -DHWVERSION=\"${HERWIG3_LCGVERSION}\" ${_extraDefs}
    LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES} 
@@ -55,12 +55,6 @@ atlas_install_runtime( share/file/*.pdt share/file/*.dat )
 set( Herwig7Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of Herwig7Environment.cmake" )
 find_package( Herwig7Environment )
-
-# Set up some environment variables for Pythia8.
-set( Pythia8Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-   CACHE PATH "Location of Pythia8Environment.cmake" )
-find_package( Pythia8Environment )
-
 
 # Set up some environment variables for TheP8I hadronisation hook.
 set( TheP8IEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
