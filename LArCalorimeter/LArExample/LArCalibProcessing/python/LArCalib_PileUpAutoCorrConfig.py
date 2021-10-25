@@ -28,7 +28,7 @@ def LArPileUpAutoCorrCfg(flags):
     result.addCondAlgo(LArMinBiasSymAlg(ReadKey="LArMinBias",WriteKey="LArMinBiasSym"))
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     rs=FolderTagResolver()
     AutoCorrTag=rs.getFolderTag(flags.LArCalib.AutoCorr.Folder)
     PhysAutoCorrTag= rs.getFolderTag(flags.LArCalib.PhysAutoCorr.Folder)

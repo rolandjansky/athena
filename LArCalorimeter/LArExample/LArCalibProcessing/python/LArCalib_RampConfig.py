@@ -15,7 +15,7 @@ def LArRampCfg(flags):
     digKey=gainStrMap[flags.LArCalib.Gain]
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     tagResolver=FolderTagResolver()
     pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
     caliOFCTag=tagResolver.getFolderTag(flags.LArCalib.OFCCali.Folder)
