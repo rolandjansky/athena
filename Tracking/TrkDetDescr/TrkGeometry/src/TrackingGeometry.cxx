@@ -71,7 +71,7 @@ void Trk::TrackingGeometry::registerTrackingVolumes ATLAS_NOT_THREAD_SAFE(
   for (int l = 0; l < lvl; ++l, indent += "  ")
     ;
 
-  tvol.setMotherVolume(mvol);
+  const_cast<Trk::TrackingVolume&>(tvol).setMotherVolume(mvol);
   m_trackingVolumes[tvol.volumeName()] = (&tvol);
   const Trk::BinnedArray<Trk::TrackingVolume>* confinedVolumes =
       tvol.confinedVolumes();
