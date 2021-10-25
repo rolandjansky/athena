@@ -375,6 +375,9 @@ elif rec.readAOD():
     ##objKeyStore.readInputBackNav('RecExPers/OKS_streamRDO.py')
 
 
+# Disable DPD making if neither script or passThroughMode set
+if rec.doDPD() and not (rec.DPDMakerScripts() or rec.doDPD.passThroughMode):
+    rec.doDPD = False
 
 if rec.OutputLevel() <= DEBUG:
     printfunc (" Initial content of objKeyStore ")
@@ -534,6 +537,8 @@ if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFor
 if rec.doMonitoring():
     include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
 
+print('xxx')
+print(rec)
 # Lock the flags
 if not rec.doDPD():  # except for derivations: ATLASRECTS-6636
     logRecExCommon_topOptions.info("Locking ConfigFlags")
@@ -1150,7 +1155,7 @@ if rec.doESD() or rec.doWriteESD():
 #########
 ## DPD ##
 #########
-if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
+if rec.doDPD():
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 
