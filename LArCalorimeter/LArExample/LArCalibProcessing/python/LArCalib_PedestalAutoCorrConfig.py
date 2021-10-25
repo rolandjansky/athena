@@ -14,9 +14,16 @@ def LArPedestalAutoCorrCfg(flags):
     digKey=gainStrMap[flags.LArCalib.Gain]
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccDigitKey=digKey,
-                                                              LArFebHeaderKey="LArFebHeader"))
-    
+                                                              LArFebHeaderKey="LArFebHeader",
+                                                              FailOnCorruption=False))
 
+    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+    result.merge(LArFebErrorSummaryMakerCfg(flags))
+    result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
+    result.addEventAlgo(CompFactory.LArBadEventCatcher(CheckAccCalibDigitCont=True,
+                                                       CheckBSErrors=True,
+                                                       KeyList=[digKey,],
+                                                       StopOnError=False))
 
     LArPedACBuilder=CompFactory.LArPedestalAutoCorrBuilder()
     LArPedACBuilder.KeyList         = [digKey,]
