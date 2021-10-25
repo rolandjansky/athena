@@ -121,7 +121,7 @@ DecodeVersionKey::getCustomTag(const std::string & inputTag, std::string & outpu
   bool custom = false;
   outputTag = inputTag;
   if (!inputTag.empty()) {
-    if (inputTag.substr(0,6) == "CUSTOM") {
+    if (inputTag.compare(0,6,"CUSTOM") == 0) {
       custom = true;
       // If its CUSTOM-something skip the next character and get the something
       outputTag = inputTag.substr(6);
