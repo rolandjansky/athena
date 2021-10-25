@@ -495,6 +495,7 @@ namespace top {
             m_perjet_weight_bTagSF_eigen_Light_down[tagWP] = std::vector<std::vector<float> >();
             systematicTree->makeOutputVariable(m_perjet_weight_bTagSF[tagWP],
                                                "weight_perjet_bTagSF_" + shortBtagWP(tagWP));
+            if ((systematicTree->name() != nominalTTreeName) && (systematicTree->name() != nominalLooseTTreeName) && !(m_config->dumpBtagSystsInSystTrees())) continue;
             systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_B_up[tagWP], "weight_perjet_bTagSF_" + shortBtagWP(
                                                  tagWP) + "_eigenvars_B_up");
             systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_B_down[tagWP], "weight_perjet_bTagSF_" + shortBtagWP(
@@ -533,6 +534,7 @@ namespace top {
               m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP] = std::vector<std::vector<float> >();
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP));
+              if ((systematicTree->name() != nominalTTreeName) && (systematicTree->name() != nominalLooseTTreeName) && !(m_config->dumpBtagSystsInSystTrees())) continue;
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_B_up");
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
