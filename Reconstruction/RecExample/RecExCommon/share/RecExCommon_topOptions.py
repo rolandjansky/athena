@@ -531,6 +531,9 @@ ConfigFlags = getNewConfigFlags()
 if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
     ConfigFlags.Trigger.readBS = True
 
+if rec.doMonitoring():
+    include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
+
 # Lock the flags
 if not rec.doDPD():  # except for derivations: ATLASRECTS-6636
     logRecExCommon_topOptions.info("Locking ConfigFlags")
@@ -617,13 +620,6 @@ if rec.readRDO():
     if include_muwriter:
         from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
         LumiBlockMuWriterDefault()
-
-if rec.doMonitoring():
-    try:
-        include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
-    except Exception:
-        treatException("Could not load AthenaMonitoring/DataQualityInit_jobOptions.py")
-
 
 #
 # System Reconstruction
