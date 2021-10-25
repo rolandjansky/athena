@@ -49,73 +49,77 @@ namespace Trk {
 class IEnvelopeDefSvc; 
  
 namespace InDet {
-     
-  /** @struct LayerSetup 
-       - helps understanding how to pack the layers into a volume compound
-   */
-// implemented in StagedTrackingGeometrybuilder.h (without "Cond")  
-//  struct LayerSetup {
-//
-//    // the layer cache
-//    std::vector<const Trk::Layer*> negativeLayers;
-//    std::vector<const Trk::Layer*> centralLayers;
-//    std::vector<const Trk::Layer*> positiveLayers;
-//        
-//    // center information  
-//    double minRadiusCenter;
-//    double maxRadiusCenter;  
-//    double zExtendCenter;
-//    int    binningCenter;
-//    
-//    // endcap information
-//    bool buildEndcap;
-//    double minRadiusEndcap;
-//    double maxRadiusEndcap;  
-//    double minZextendEndcap;
-//    double maxZextendEndcap;
-//    int binningEndcap;
-//    
-//    // full setup information
-//    double zSector;
-//    double rMin;
-//    double rMax;
-//    double zMax;
-//    
-//    std::string identification;
-//    int         colorCode;
-//    
-//    LayerSetup(const std::string& idName,
-//               int cCode,
-//               const std::vector<const Trk::Layer*>& negLayers,
-//               const std::vector<const Trk::Layer*>& cenLayers,
-//               const std::vector<const Trk::Layer*>& posLayers,
-//               double minRc, double maxRc, double zC, int binC,
-//               bool bec=false, double minRe=0., double maxRe=0., double zMinE=0., double zMaxE=0., int binE = 0) :
-//      negativeLayers(negLayers),
-//      centralLayers(cenLayers),
-//      positiveLayers(posLayers),
-//      minRadiusCenter(minRc),
-//      maxRadiusCenter(maxRc),
-//      zExtendCenter(zC),
-//      binningCenter(binC),
-//      buildEndcap(bec),            
-//      minRadiusEndcap(minRe),   
-//      maxRadiusEndcap(maxRe),
-//      minZextendEndcap(zMinE),
-//      maxZextendEndcap(zMaxE),
-//      binningEndcap(binE),
-//      identification(idName),
-//      colorCode(cCode)
-//    {
-//        rMin     = minRadiusCenter < minRadiusEndcap ? minRadiusCenter : minRadiusEndcap;
-//        rMax     = maxRadiusCenter > maxRadiusEndcap ? maxRadiusCenter : maxRadiusEndcap;
-//        zMax     = zExtendCenter > maxZextendEndcap ? zExtendCenter : maxZextendEndcap;
-//        zSector  = buildEndcap ? 0.5*(zExtendCenter+minZextendEndcap) : zExtendCenter;
-//        
-//    }
-//             
-//  };
+struct LayerSetupCond
+{
 
+  // the layer cache
+  std::vector<const Trk::Layer*> negativeLayers;
+  std::vector<const Trk::Layer*> centralLayers;
+  std::vector<const Trk::Layer*> positiveLayers;
+
+  // center information
+  double minRadiusCenter;
+  double maxRadiusCenter;
+  double zExtendCenter;
+  int binningCenter;
+
+  // endcap information
+  bool buildEndcap;
+  double minRadiusEndcap;
+  double maxRadiusEndcap;
+  double minZextendEndcap;
+  double maxZextendEndcap;
+  int binningEndcap;
+
+  // full setup information
+  double zSector;
+  double rMin;
+  double rMax;
+  double zMax;
+
+  std::string identification;
+  int colorCode;
+
+  LayerSetupCond(const std::string& idName,
+                 int cCode,
+                 const std::vector<Trk::Layer*>& negLayers,
+                 const std::vector<Trk::Layer*>& cenLayers,
+                 const std::vector<Trk::Layer*>& posLayers,
+                 double minRc,
+                 double maxRc,
+                 double zC,
+                 int binC,
+                 bool bec = false,
+                 double minRe = 0.,
+                 double maxRe = 0.,
+                 double zMinE = 0.,
+                 double zMaxE = 0.,
+                 int binE = 0)
+    : negativeLayers(negLayers.begin(),negLayers.end())
+    , centralLayers(cenLayers.begin(),cenLayers.end())
+    , positiveLayers(posLayers.begin(),posLayers.end())
+    , minRadiusCenter(minRc)
+    , maxRadiusCenter(maxRc)
+    , zExtendCenter(zC)
+    , binningCenter(binC)
+    , buildEndcap(bec)
+    , minRadiusEndcap(minRe)
+    , maxRadiusEndcap(maxRe)
+    , minZextendEndcap(zMinE)
+    , maxZextendEndcap(zMaxE)
+    , binningEndcap(binE)
+    , identification(idName)
+    , colorCode(cCode)
+  {
+    rMin =
+      minRadiusCenter < minRadiusEndcap ? minRadiusCenter : minRadiusEndcap;
+    rMax =
+      maxRadiusCenter > maxRadiusEndcap ? maxRadiusCenter : maxRadiusEndcap;
+    zMax = zExtendCenter > maxZextendEndcap ? zExtendCenter : maxZextendEndcap;
+    zSector =
+      buildEndcap ? 0.5 * (zExtendCenter + minZextendEndcap) : zExtendCenter;
+  }
+};
 
   /** @class StagedTrackingGeometryBuilderCond
 
@@ -157,23 +161,31 @@ namespace InDet {
       
     private:
       /** Private helper method, estimates the overal dimensions */
-      LayerSetup estimateLayerSetup(const std::string& idName, size_t ils,
-                                    const std::vector<const Trk::Layer*>& negLayers,
-                                    const std::vector<const Trk::Layer*>& centralLayers,
-                                    const std::vector<const Trk::Layer*>& posLayers,
-                                    double maxR, double maxZ) const;
-                                    
+      LayerSetupCond estimateLayerSetup(
+        const std::string& idName,
+        size_t ils,
+        const std::vector<Trk::Layer*>& negLayers,
+        const std::vector<Trk::Layer*>& centralLayers,
+        const std::vector<Trk::Layer*>& posLayers,
+        double maxR,
+        double maxZ) const;
+
       /** Private helper method to estimate the layer dimensions */
-      void estimateLayerDimensions(const std::vector<const Trk::Layer*>& layers,
-                                   double& rMin, double& rMax, double& zMin, double& zMax) const;
-                                   
+      void estimateLayerDimensions(const std::vector<Trk::Layer*>& layers,
+                                   double& rMin,
+                                   double& rMax,
+                                   double& zMin,
+                                   double& zMax) const;
+
       /** Private helper method to check if a sector is compatible with the cache */
-      bool setupFitsCache(LayerSetup& layerSetup, std::vector<InDet::LayerSetup>& layerSetupCache) const;
+      bool setupFitsCache(
+        LayerSetupCond& layerSetup,
+        std::vector<InDet::LayerSetupCond>& layerSetupCache) const;
 
       /** Private helper method to flush the cache into the id volumes - return
        * volume is the one to be provided */
       const Trk::TrackingVolume* createFlushVolume
-      ATLAS_NOT_THREAD_SAFE(std::vector<InDet::LayerSetup>& layerSetupCache,
+      ATLAS_NOT_THREAD_SAFE(std::vector<InDet::LayerSetupCond>& layerSetupCache,
                             double innerRadius,
                             double& outerRadius,
                             double extendZ) const;
@@ -196,11 +208,13 @@ namespace InDet {
       /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers
           - in case of a ring layout the subvolumes are created and the rMax is adapted                                             
          */
-      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
-                                                 (const LayerSetup& layerSetup,
-                                                  double rMin, double& rMax,
-                                                  double zMin, double zPosCentral) const;      
-      
+      const Trk::TrackingVolume* packVolumeTriple
+      ATLAS_NOT_THREAD_SAFE(const LayerSetupCond& layerSetup,
+                            double rMin,
+                            double& rMax,
+                            double zMin,
+                            double zPosCentral) const;
+
       /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap volumes */
       const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE(
         const std::vector<const Trk::TrackingVolume*>& negVolumes,
