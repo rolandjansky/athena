@@ -64,45 +64,19 @@ def EMExtrapolationToolsCommonCacheCfg(flags, **kwargs):
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
 
-def GSFTrackSummaryToolCfg(flags, name="GSFBuildInDetTrackSummaryTool", **kwargs):
+def egammaTrkRefitterToolCfg(flags,
+                             name='GSFRefitterTool',
+                             **kwargs):
     acc = ComponentAccumulator()
-
-    if "InDetSummaryHelperTool" not in kwargs:
-        from InDetConfig.InDetRecToolConfig import (
-            InDetTrackSummaryHelperToolCfg)
-        kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(
-            InDetTrackSummaryHelperToolCfg(
-                flags,
-                name="GSFBuildTrackSummaryHelperTool"))
-
-    if "PixelToTPIDTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-        kwargs["PixelToTPIDTool"] = acc.popToolsAndMerge(
-            InDetPixelToTPIDToolCfg(
-                flags,
-                name="GSFBuildPixelToTPIDTool"))
-
-    if "TRT_ElectronPidTool" not in kwargs:
-        from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
-        kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
-            TRT_ElectronPidToolCfg(flags, name="GSFBuildTRT_ElectronPidTool"))
-
-    summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
-    acc.setPrivateTools(summaryTool)
-    return acc
-
-
-def egammaTrkRefitterToolCfg(flags, name='GSFRefitterTool', **kwargs):
-    acc = ComponentAccumulator()
+    if "FitterTool" not in kwargs:
+        from egammaTrackTools.GSFTrackFitterConfig import EMGSFTrackFitterCfg
+        kwargs["FitterTool"] = acc.popToolsAndMerge(
+            EMGSFTrackFitterCfg(flags, name="GSFTrackFitter"), **kwargs)
     kwargs.setdefault("useBeamSpot", False)
     kwargs.setdefault("ReintegrateOutliers", True)
     if "Extrapolator" not in kwargs:
         kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-            InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
-    if "FitterTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import GaussianSumFitterCfg
-        kwargs["FitterTool"] = acc.popToolsAndMerge(
-            GaussianSumFitterCfg(flags, name="GSFTrackFitter"))
+            InDetExtrapolatorCfg(flags, name="egammaTrkRefitExtrapolator"))
     tool = CompFactory.egammaTrkRefitterTool(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
@@ -131,6 +105,11 @@ if __name__ == "__main__":
     mlog.info("Configuring EMExtrapolationTools with cache : ")
     printProperties(mlog, cfg.popToolsAndMerge(
         EMExtrapolationToolsCacheCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+    mlog.info("Configuring egammaTrkRefitterToolCfg :")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        egammaTrkRefitterToolCfg(ConfigFlags)),
         nestLevel=1,
         printDefaults=True)
 
