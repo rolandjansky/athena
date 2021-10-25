@@ -70,6 +70,10 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
             egammaForwardBuilderCfg)
         acc.merge(egammaForwardBuilderCfg(flags))
 
+        from egammaAlgs.egammaLargeFWDClusterMakerAlgConfig import (
+            egammaLargeFWDClusterMakerAlgCfg)
+        acc.merge(egammaLargeFWDClusterMakerAlgCfg(flags))
+
     # Add truth association
     if flags.Egamma.doTruthAssociation:
 
@@ -97,6 +101,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.Output.doWriteESD = True  # To test the AOD parts
     flags.Output.doWriteAOD = True  # To test the AOD parts
 
     acc = MainServicesCfg(flags)

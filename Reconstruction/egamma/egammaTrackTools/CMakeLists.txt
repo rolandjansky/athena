@@ -23,3 +23,7 @@ atlas_install_python_modules( python/*.py )
 atlas_add_test(egammaTrackToolsConfigTest
                SCRIPT python -m egammaTrackTools.egammaTrackToolsConfig
                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test(GSFTrackFitterConfigTest
+               SCRIPT python -m egammaTrackTools.GSFTrackFitterConfig
+               POST_EXEC_SCRIPT nopost.sh)
