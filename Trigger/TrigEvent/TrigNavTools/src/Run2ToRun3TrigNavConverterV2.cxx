@@ -183,7 +183,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   auto decisionOutput = outputNavigation.ptr();
   TrigCompositeUtils::newDecisionIn(decisionOutput, "HLTPassRaw"); // we rely on the fact that the 1st element is the top
 
-  ATH_CHECK(createIMHNodes(convProxies, *decisionOutput));
+  ATH_CHECK(createIMHNodes(convProxies, *decisionOutput, context));
   if (m_doSelfValidation) {
     ATH_CHECK(numberOfHNodesPerProxyNotExcessive(convProxies));
   }
@@ -246,6 +246,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& conv
     if (HLT::TrigNavStructure::isInitialNode(te)) continue;
     auto proxy = new ConvProxy(te);
     convProxies.insert(proxy);
+    teToProxy[te] = proxy;
     // add linking 
     for (auto predecessor : HLT::TrigNavStructure::getDirectPredecessors(te)) {
       ConvProxy* predecessorProxy = teToProxy[predecessor];
@@ -453,8 +454,29 @@ StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantFeatures(ConvProxySet_t&) c
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer& decisions) const {
+StatusCode Run2ToRun3TrigNavConverterV2::createIMHNodes(ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer& decisions, const EventContext& context) const {
   // create nodes of ne navigation for relevant features
+  // at this moment no features taken into account at all
+  for (auto& proxy : convProxies) {
+    proxy->imNode = TrigCompositeUtils::newDecisionIn(&decisions,TrigCompositeUtils::inputMakerNodeName()); // IM
+    for ( auto chainId: proxy->runChains) {
+      TrigCompositeUtils::addDecisionID(chainId, proxy->imNode);
+    }
+    auto hNode = TrigCompositeUtils::newDecisionIn(&decisions,TrigCompositeUtils::hypoAlgNodeName()); // H 
+    for ( auto chainId: proxy->passChains) {
+      TrigCompositeUtils::addDecisionID(chainId, hNode);
+    }
+    proxy->hNodes.push_back(hNode); // H
+    TrigCompositeUtils::linkToPrevious(hNode, proxy->imNode, context); // H low IM up
+  }
+  // connecting current IM to all Hs in parent proxies
+  for (auto& proxy : convProxies) {
+    for (auto& parentProxy : proxy->parents) { 
+      for (auto& hNodeInParent : parentProxy->hNodes) {
+        TrigCompositeUtils::linkToPrevious(proxy->imNode, hNodeInParent, context); // IM low H up (in parent)
+      }
+    }
+  }
   ATH_MSG_DEBUG("IM & H nodes made, output nav elements " << decisions.size());
   return StatusCode::SUCCESS;
 }
@@ -465,6 +487,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::createFSNodes(const ConvProxySet_t&, xA
   ATH_MSG_DEBUG("FS nodes made, output nav elements " << decisions.size());
   return StatusCode::SUCCESS;
 }
+
 StatusCode Run2ToRun3TrigNavConverterV2::linkTopNode(xAOD::TrigCompositeContainer& decisions) const {
   // simply link all filter nodes to the HLTPassRaw (the 1st element)
   ATH_CHECK((*decisions.begin())->name() == "HLTPassRaw");
