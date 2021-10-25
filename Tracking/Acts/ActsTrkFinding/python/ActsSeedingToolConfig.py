@@ -8,6 +8,7 @@ def ActsSeedingToolCfg(ConfigFlags,
                        name: str = 'ActsSeedingTool', 
                        inputCollection: str = "",
                        **options):
+    assert isinstance(name, str)
     assert isinstance(inputCollection, str)
 
     acc = ComponentAccumulator()

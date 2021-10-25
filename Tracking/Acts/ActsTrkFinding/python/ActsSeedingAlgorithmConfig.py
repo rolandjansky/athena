@@ -9,6 +9,7 @@ def ActsSeedingAlgorithmCfg(ConfigFlags,
                             inputCollection: str = '',
                             outputCollection: str = '',
                             **options):
+    assert isinstance(name, str)
     assert isinstance(inputCollection, str)
     assert isinstance(outputCollection, str)
 
@@ -19,21 +20,21 @@ def ActsSeedingAlgorithmCfg(ConfigFlags,
     # and make sure it is not a None
     seedTool = None
     if options.get("SeedTool", None) is None:
-        seedingToolOptions = options.get('seedingToolOptions', {})
+        seedingToolOptions = options.get('SeedingToolOptions', {})
         seedTool = acc.popToolsAndMerge(ActsSeedingToolCfg(ConfigFlags, 
                                                            name = 'ActsSeedingTool', 
                                                            inputCollection = inputCollection,
                                                            **seedingToolOptions))
 
     # Remove keys not required by the Algorithm
-    options.pop('seedingToolOptions', None)
+    options.pop('SeedingToolOptions', None)
 
     options['name'] = f"{name}_{inputCollection}"
+    options['InputSpacePoints'] = inputCollection
+    options['OutputSeeds'] = outputCollection
     options.setdefault('SeedTool', seedTool)
     options.setdefault('BeamSpotKey', 'BeamSpotData')
     options.setdefault('AtlasFieldCacheCondObj', 'fieldCondObj')
-    options.setdefault('InputSpacePoints', inputCollection)
-    options.setdefault('OutputSeeds', outputCollection)
 
     ActsTrk__ActsSeedingAlgorithm = CompFactory.getComp(f"ActsTrk::{name}")
     acc.addEventAlgo(ActsTrk__ActsSeedingAlgorithm(**options))
