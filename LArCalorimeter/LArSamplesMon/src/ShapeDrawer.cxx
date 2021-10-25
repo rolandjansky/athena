@@ -181,8 +181,8 @@ bool ShapeDrawer::drawAndDelete(const char* title, const std::vector<const AbsSh
                    const AbsShape* reference, const AbsShape* refSamples) const
 {
   bool result = draw(title, shapes, reference, refSamples);
-  for (std::vector<const AbsShape*>::const_iterator shape = shapes.begin(); shape != shapes.end(); shape++)
-    delete *shape;
+  for (const AbsShape* shape : shapes)
+    delete shape;
   delete reference;
   delete refSamples;
   return result;
