@@ -1,3 +1,4 @@
+from AthenaCommon.Include import include
 include.block ( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py" )
 
 ###################################################################
