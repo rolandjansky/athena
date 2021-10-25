@@ -64,30 +64,12 @@ class configForStartup(JobProperty):
     """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
     statusOn=True
     allowedType=['string']
-    StoredValue = 'HLTonline'
-    
-    allowedValues = [
-        'HLTonline',
-        'HLToffline'
-        ]
+    StoredValue = None
+    def _do_action(self):
+        log.warning("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
 
 _flags.append(configForStartup)
 
-
-class dataTakingConditions(JobProperty):
-    """ A flag that describes the conditions of the Trigger at data taking, and determines which part of it will be processed in reconstruction."""
-    statusOn=True
-    allowedType=['string']
-    StoredValue = 'FullTrigger'
-    
-    allowedValues = [
-        'HltOnly',
-        'Lvl1Only',
-        'FullTrigger',
-        'NoTrigger'
-        ]
-
-_flags.append(dataTakingConditions)
 
 class triggerUseFrontier(JobProperty):
     """Flag determines if frontier should be used to connect to the oracle database, current default is False"""

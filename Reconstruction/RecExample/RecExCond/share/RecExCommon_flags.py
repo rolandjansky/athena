@@ -236,12 +236,6 @@ if len(rec.AutoConfiguration())>0:
 #special commisioning job options
 if rec.Commissioning():
    include("RecExCond/MinimalCommissioningSetup.py")
-   # setup trigger reading from COOL
-   if rec.doTrigger():
-      from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-      tf.configForStartup="HLTonline"
-      tf.configForStartup.lock()
-
    rec.ScopingLevel.set_Value_and_Lock(1)
 
 if rec.triggerStream().startswith('express'):

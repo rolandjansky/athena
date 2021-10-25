@@ -1,17 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging import logging
-
-log = logging.getLogger( "TriggerRecoGetter.py" )
-
 from RecExConfig.Configured import Configured
-
-def withLVL1():
-    return TriggerFlags.dataTakingConditions()=='Lvl1Only' or TriggerFlags.dataTakingConditions()=='FullTrigger'
-
-def withHLT():
-    return TriggerFlags.dataTakingConditions()=='HltOnly' or TriggerFlags.dataTakingConditions()=='FullTrigger'
+from AthenaCommon.Logging import logging
+log = logging.getLogger( "TriggerRecoGetter.py" )
 
 class TriggerRecoGetter(Configured):
 
@@ -39,12 +30,12 @@ class TriggerRecoGetter(Configured):
         from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
         appendCAtoAthena(tdtAcc)
 
-        if withLVL1():
+        if 'L1' in ConfigFlags.Trigger.availableRecoMetadata:
             log.info("configuring lvl1")
             from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
             lvl1 = Lvl1ResultBuilderGetter()  # noqa: F841
 
-        if withHLT():
+        if 'HLT' in ConfigFlags.Trigger.availableRecoMetadata:
             log.info("configuring hlt")
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hlt = HLTTriggerResultGetter()   # noqa: F841
