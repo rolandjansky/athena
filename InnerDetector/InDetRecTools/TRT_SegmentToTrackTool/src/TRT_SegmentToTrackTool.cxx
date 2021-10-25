@@ -188,6 +188,7 @@ namespace InDet {
 
     // --- create new track state on surface vector
     auto ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    ntsos->reserve (1 + tS.numberOfMeasurementBases());
 
     //
     // if no refit, make it a perigee
