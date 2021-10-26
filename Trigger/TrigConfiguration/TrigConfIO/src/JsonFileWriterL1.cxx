@@ -89,6 +89,17 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
                if(isomask & (1<<b)) { isobits[4-b] = '1'; }
             }
             jThr["isobits"] = isobits;
+            jThr["thrValues"] = json::array_t({});
+            for(auto & rv : tauThr.thrValues()) {
+               json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
+               jRV["etamin"] = rv.etaMin();
+               jRV["etamax"] = rv.etaMax();
+               jRV["phimin"] = 0; // never used, so not read 
+               jRV["phimax"] = 64; // never used, so not read
+               jRV["priority"] = rv.priority();
+               jThr["thrValues"] += jRV;
+            }
          } catch(std::bad_cast&) {};
 
          // EM
@@ -191,21 +202,51 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             auto eTAUThr = dynamic_cast<const TrigConf::L1Threshold_eTAU &>(*thr);
             jThr["rCore"] = TrigConf::Selection::wpToString(eTAUThr.rCore());
             jThr["rHad"] = TrigConf::Selection::wpToString(eTAUThr.rHad());
-            jThr["value"] = int(eTAUThr.thrValue());
+            jThr["thrValues"] = json::array_t({});
+            for(auto & rv : eTAUThr.thrValues()) {
+               json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
+               jRV["etamin"] = rv.etaMin();
+               jRV["etamax"] = rv.etaMax();
+               jRV["phimin"] = 0; // never used, so not read 
+               jRV["phimax"] = 64; // never used, so not read
+               jRV["priority"] = rv.priority();
+               jThr["thrValues"] += jRV;
+            }
          } catch(std::bad_cast&) {};
          
          // jTAU
          try {
             auto jTAUThr = dynamic_cast<const TrigConf::L1Threshold_jTAU &>(*thr);
             jThr["isolation"] = TrigConf::Selection::wpToString(jTAUThr.isolation());
-            jThr["value"] = int(jTAUThr.thrValue());
+            jThr["thrValues"] = json::array_t({});
+            for(auto & rv : jTAUThr.thrValues()) {
+               json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
+               jRV["etamin"] = rv.etaMin();
+               jRV["etamax"] = rv.etaMax();
+               jRV["phimin"] = 0; // never used, so not read 
+               jRV["phimax"] = 64; // never used, so not read
+               jRV["priority"] = rv.priority();
+               jThr["thrValues"] += jRV;
+            }
          } catch(std::bad_cast&) {};         
 
          // cTAU
          try {
             auto cTAUThr = dynamic_cast<const TrigConf::L1Threshold_cTAU &>(*thr);
             jThr["isolation"] = TrigConf::Selection::wpToString(cTAUThr.isolation());
-            jThr["value"] = int(cTAUThr.thrValue());
+            jThr["thrValues"] = json::array_t({});
+            for(auto & rv : cTAUThr.thrValues()) {
+               json jRV({});
+               jRV["value"] = static_cast<unsigned int>(rv.value());
+               jRV["etamin"] = rv.etaMin();
+               jRV["etamax"] = rv.etaMax();
+               jRV["phimin"] = 0; // never used, so not read 
+               jRV["phimax"] = 64; // never used, so not read
+               jRV["priority"] = rv.priority();
+               jThr["thrValues"] += jRV;
+            }
          } catch(std::bad_cast&) {};
 
          // jJ
@@ -398,12 +439,12 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jEM") {
          auto & jeminfo = l1menu.thrExtraInfo().jEM();
-         jThrType["ptMinToTopo1"] = jeminfo.ptMinToTopo("1A");
-         jThrType["ptMinToTopo2"] = jeminfo.ptMinToTopo("2A");
-         jThrType["ptMinToTopo3"] = jeminfo.ptMinToTopo("3A");
-         jThrType["ptMinxTOB1"] = jeminfo.ptMinxTOB("1A");
-         jThrType["ptMinxTOB2"] = jeminfo.ptMinxTOB("2A");
-         jThrType["ptMinxTOB3"] = jeminfo.ptMinxTOB("3A");
+         jThrType["ptMinToTopo1"] = (int)jeminfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = (int)jeminfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = (int)jeminfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = (int)jeminfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = (int)jeminfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = (int)jeminfo.ptMinxTOB("3A");
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
@@ -457,12 +498,12 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jTAU") {
          auto & jtauinfo = l1menu.thrExtraInfo().jTAU();
-         jThrType["ptMinToTopo1"] = jtauinfo.ptMinToTopo("1A");
-         jThrType["ptMinToTopo2"] = jtauinfo.ptMinToTopo("2A");
-         jThrType["ptMinToTopo3"] = jtauinfo.ptMinToTopo("3A");
-         jThrType["ptMinxTOB1"] = jtauinfo.ptMinxTOB("1A");
-         jThrType["ptMinxTOB2"] = jtauinfo.ptMinxTOB("2A");
-         jThrType["ptMinxTOB3"] = jtauinfo.ptMinxTOB("3A");
+         jThrType["ptMinToTopo1"] = (int)jtauinfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = (int)jtauinfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = (int)jtauinfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = (int)jtauinfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = (int)jtauinfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = (int)jtauinfo.ptMinxTOB("3A");
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
@@ -496,22 +537,22 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jJ") {
          auto & jjinfo = l1menu.thrExtraInfo().jJ();
-         jThrType["ptMinToTopo1"] = jjinfo.ptMinToTopo("1A");
-         jThrType["ptMinToTopo2"] = jjinfo.ptMinToTopo("2A");
-         jThrType["ptMinToTopo3"] = jjinfo.ptMinToTopo("3A");
-         jThrType["ptMinxTOB1"] = jjinfo.ptMinxTOB("1A");
-         jThrType["ptMinxTOB2"] = jjinfo.ptMinxTOB("2A");
-         jThrType["ptMinxTOB3"] = jjinfo.ptMinxTOB("3A");
+         jThrType["ptMinToTopo1"] = (int)jjinfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = (int)jjinfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = (int)jjinfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = (int)jjinfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = (int)jjinfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = (int)jjinfo.ptMinxTOB("3A");
       }
 
       if(thrType == "jLJ") {
          auto & jljinfo = l1menu.thrExtraInfo().jLJ();
-         jThrType["ptMinToTopo1"] = jljinfo.ptMinToTopo("1A");
-         jThrType["ptMinToTopo2"] = jljinfo.ptMinToTopo("2A");
-         jThrType["ptMinToTopo3"] = jljinfo.ptMinToTopo("3A");
-         jThrType["ptMinxTOB1"] = jljinfo.ptMinxTOB("1A");
-         jThrType["ptMinxTOB2"] = jljinfo.ptMinxTOB("2A");
-         jThrType["ptMinxTOB3"] = jljinfo.ptMinxTOB("3A");
+         jThrType["ptMinToTopo1"] = (int)jljinfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = (int)jljinfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = (int)jljinfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = (int)jljinfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = (int)jljinfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = (int)jljinfo.ptMinxTOB("3A");
       }
 
       if(thrType == "jXE") {
