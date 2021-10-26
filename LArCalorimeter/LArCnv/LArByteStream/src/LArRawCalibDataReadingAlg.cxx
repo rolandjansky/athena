@@ -105,14 +105,63 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
       for (const unsigned iPN: m_vPosNegPreselection) {
 	for (const unsigned iFT: m_vFTPreselection) {
 	  HWIdentifier finalFTId=m_onlineId->feedthrough_Id(iBE,iPN,iFT);
-	  unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
+	  //unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
 	  ATH_MSG_INFO("Adding feedthrough Barrel/Endcap=" << iBE << " pos/neg=" << iPN << " FT=" << iFT 
-		       << " (0x" << std::hex << finalFTId32 << std::dec << ")");
-	  m_vFinalPreselection.insert(finalFTId32);
+		       << " (0x" << std::hex << finalFTId.get_identifier32().get_compact() << std::dec << ")");
+	  m_vFinalPreselection.insert(finalFTId);
 	}
       }
     }
   }//end if something set
+
+  if (!m_subCaloPreselection.value().empty()) {
+    std::set<HWIdentifier> subcaloFTs;
+    if (m_subCaloPreselection.value().compare("EM")==0) {
+      for (auto febid : m_onlineId->feb_range()) {
+	if (m_onlineId->isEMBchannel(febid) || m_onlineId->isEMECchannel(febid)) {
+	  subcaloFTs.insert(m_onlineId->feedthrough_Id(febid));
+	}
+      }
+    }
+    else if (m_subCaloPreselection.value().compare("HEC")==0) {
+      for (auto febid : m_onlineId->feb_range()) {
+	if (m_onlineId->isHECchannel(febid)) {
+	  subcaloFTs.insert(m_onlineId->feedthrough_Id(febid));
+	} 
+      }
+    }
+    else if (m_subCaloPreselection.value().compare("FCAL")==0) {
+      for (auto febid : m_onlineId->feb_range()) {
+	if (m_onlineId->isFCALchannel(febid)) {
+	  subcaloFTs.insert(m_onlineId->feedthrough_Id(febid));
+	} 
+      }
+    }
+    else {
+      ATH_MSG_ERROR("Configuration problem, property 'SubCaloPreselection' set to " << m_subCaloPreselection.value() << ", expect 'EM', 'HEC' or 'FCAL'");
+      return StatusCode::FAILURE;
+    }
+    std::cout << "set sizes:" << subcaloFTs.size() << ", " << m_vFinalPreselection.size() << std::endl;
+    if (m_vFinalPreselection.size()>0) {
+      //Form the intersection of the preselection give as subdet and side/FT/slot
+      for(auto it = m_vFinalPreselection.begin(); it != m_vFinalPreselection.end(); ) {
+	if (subcaloFTs.find(*it)==subcaloFTs.end()) 
+	  it=m_vFinalPreselection.erase(it);
+	else 
+	  ++it;
+      }
+      if (m_vFinalPreselection.empty()) {
+	ATH_MSG_WARNING("Apparently inconistent configuration of FT preselections. No preselection left after intersecting 'SubCaloPreselection' with 'PosNeg/BE/FT' preselection");
+      }
+    }
+    else {
+      m_vFinalPreselection.swap(subcaloFTs);
+    }
+  }//end if subCaloPreselection set
+
+  if (!m_vFinalPreselection.empty()) {
+    ATH_MSG_INFO("Give pre-selection covers " << m_vFinalPreselection.size() << " feedthroughts. Will ignore bytestream data from other feedthroughs.");
+  }
 
   return StatusCode::SUCCESS;
 }     
@@ -255,7 +304,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       }
 
       if (m_vFinalPreselection.size()) {
-	const unsigned int ftId=m_onlineId->feedthrough_Id(fId).get_identifier32().get_compact();
+	const auto ftId=m_onlineId->feedthrough_Id(fId);
 	if (m_vFinalPreselection.find(ftId)==m_vFinalPreselection.end()) {
 	  ATH_MSG_DEBUG("Feedthrough with id 0x" << MSG::hex << ftId << MSG::dec <<" not in preselection. Ignored.");
 	  continue;
