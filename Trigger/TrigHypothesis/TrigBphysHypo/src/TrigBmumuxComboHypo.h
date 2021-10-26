@@ -93,7 +93,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
     kPsi_2mu,      // psi -> mu+ mu-
     kB_2mu1trk,    // B -> mu+ mu- trk1
     kB_2mu2trk,    // B -> mu+ mu- trk1 trk2
-    kB_2mu3trk     // B -> mu+ mu- trk1 trk2 trk3
+    kDs,           // D_s+ -> K+ K- pi+
+    kDplus         // D+ -> K- pi+ pi+
   };
 
  private:
