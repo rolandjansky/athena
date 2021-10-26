@@ -733,7 +733,7 @@ class TRTRangeCut(JobProperty):
     statusOn=True
     allowedTypes=['float']
     allowedValues = [0.05,30.0]
-    StoredValue=0.05
+    StoredValue=30.0
 
 #
 class UseUpdatedTGCConditions(JobProperty):
