@@ -13,8 +13,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-// #include "StoreGate/ReadCondHandleKey.h"
-// #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 
 // ATLAS
@@ -55,6 +53,8 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     StatusCode initArrayHistosMap();
     
     StatusCode fillMuonExtrapolateEff(const EventContext& ctx) const;
+    StatusCode fillHistPRD(const EventContext& ctx) const;
+    
     StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 
     StatusCode extrapolate2RPC(const xAOD::TrackParticle *track, const Trk::PropDirection direction, std::vector<GasGapResult>& results) const;
@@ -65,7 +65,7 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
 
   private:
     BooleanProperty  m_plotMuonEff{this, "plotMuonEff", false, "switch to plot histograms for Muon Efficiency"};
-    BooleanProperty  m_analyseTrack{this, "analyseTrack", false, "switch to analysis track, extrapolate track to RPC"};
+    BooleanProperty  m_plotPRD{this, "plotPRD", false, "switch to plot histograms for Prepare Data objects"};
     BooleanProperty  m_useAODParticle{this, "useAODParticle", false, "use AOD Particle"};
 
     DoubleProperty   m_avrLumiThr{this, "avrLumiThr", 10., "Thrshold of average luminosity per Luminosity block"};
@@ -99,8 +99,9 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
 
     ///////////////////////////////////////////////////////////////////
     ServiceHandle<Muon::IMuonIdHelperSvc>         m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    SG::ReadHandleKey<xAOD::EventInfo>            m_eventInfo {this,"EventInfo","EventInfo","event info"};
+    
     const RpcIdHelper                             *m_rpcIdHelper;
-
     const MuonGM::MuonDetectorManager             *m_muonMgr;
 
     ToolHandle<Trk::IExtrapolator>                m_extrapolator{this,"TrackExtrapolator","Trk::Extrapolator/AtlasExtrapolator","Track extrapolator"};
@@ -112,7 +113,6 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
 
     std::vector<TagDef>                           m_trigTagDefs;
     std::vector<std::shared_ptr<GasGapData>>      m_gasGapData;
-
 };
 
 #endif

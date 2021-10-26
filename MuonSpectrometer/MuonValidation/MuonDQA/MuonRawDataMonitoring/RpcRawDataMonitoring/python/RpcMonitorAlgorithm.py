@@ -22,117 +22,7 @@ def RpcMonitoringConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags,'RpcMonitoringCfg')
 
     ######################################################################################################
-    ## RpcOccupancyAnalysis
-    ######################################################################################################
-    RpcOccupancyAnalysis=CompFactory.RpcOccupancyAnalysis
-
-    rpcOccupancyAlg = helper.addAlgorithm(RpcOccupancyAnalysis, "RpcOccupancyAnalysisAlg")
-    # set properties of algorithm RpcOccupancyAnalysis
-    rpcOccupancyAlg.plotPRD = True
-
-    rpcOccupancyAlg.TagTrigList = 'HLT_mu26_ivarmedium'
-    myGroup_occup = helper.addGroup(rpcOccupancyAlg, 'RpcOccupancyAnalysis', 'Muon/MuonRawDataMonitoring/RPC/')
-
-    myGroup_occup.defineHistogram('run;Run',
-                            title='Run Number;run;Events',
-                            type='TH1I', 
-                            path='RpcOccupancy',
-                            xbins=800000,xmin=200000.5,xmax=1000000.5)
-
-    myGroup_occup.defineHistogram('evtLB',
-                        title='Number of Event;Luminosity Block;N Event',
-                        type='TH1I', 
-                        path='RpcOccupancy',
-                        xbins=1200, xmin=0.5, xmax=1200.5)
-
-    myGroup_occup.defineHistogram('prdTime', 
-                        title="Number of RPC Prepare Data;Time;N RPC Prepare Data",
-                        type='TH1D', 
-                        path='RpcOccupancy',
-                        xbins=67, xmin=-104.6875, xmax=104.6875)
-
-    myGroup_occup.defineHistogram('prd_sec,prd_layer;NPRDHit_sectorVSlayer', 
-                        title="NPRDHit_sectorVSlayer;Sector;layer((dbR-1)*2+gasGap);NHit",
-                        type='TH2I', 
-                        path='RpcOccupancy',
-                        xbins=33, xmin=-16.5, xmax=16.5, 
-                        ybins=8, ymin=0.5, ymax=8.5)
-    myGroup_occup.defineHistogram('prd_sec_1214,prd_layer_1214;NPRDHit_sectorVSlayer_Sector1214', 
-                        title="NPRDHit_sectorVSlayer_Sector1214;Sector;layer((dbR-1)*2+gasGap);NHit",
-                        type='TH2I', 
-                        path='RpcOccupancy',
-                        xbins=[-14.5,-13.5,-12.5,-11.5, 11.5, 12.5, 13.5, 14.5],
-                        ybins=8, ymin=0.5, ymax=8.5)
-    myGroup_occup.defineHistogram('prd_sec_eta,prd_layer_eta;NPRDHit_sectorVSlayer_Eta', 
-                        title="NPRDHit_sectorVSlayer_eta;Sector;layer((dbR-1)*2+gasGap);NHit",
-                        type='TH2I', 
-                        path='RpcOccupancy',
-                        xbins=33, xmin=-16.5, xmax=16.5, 
-                        ybins=8, ymin=0.5, ymax=8.5)
-    myGroup_occup.defineHistogram('prd_sec_phi,prd_layer_phi;NPRDHit_sectorVSlayer_Phi', 
-                        title="NPRDHit_sectorVSlayer_phi;Sector;layer((dbR-1)*2+gasGap);NHit",
-                        type='TH2I', 
-                        path='RpcOccupancy',
-                        xbins=33, xmin=-16.5, xmax=16.5, 
-                        ybins=8, ymin=0.5, ymax=8.5)
-
-    myGroup_occup.defineHistogram('StationName,panelInd_geo;NPRDHit_stationName_vs_panelIndex', 
-                title='StationName_vs_panelIndex;StationName;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=53, xmin=0.5, xmax=53.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('StationEta,panelInd_geo;NPRDHit_stationEta_vs_panelIndex', 
-                title='StationEta_vs_panelIndex;StationEta;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=17, xmin=-8.5, xmax=8.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('StationPhi,panelInd_geo;NPRDHit_stationPhi_vs_panelIndex', 
-                title='StationPhi_vs_panelIndex;StationPhi;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=8, xmin=0.5, xmax=8.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('DoubletR,panelInd_geo;NPRDHit_doubletR_vs_panelIndex', 
-                title='DoubletR_vs_panelIndex;DoubletR;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('DoubletZ,panelInd_geo;NPRDHit_doubletZ_vs_panelIndex', 
-                title='DoubletZ_vs_panelIndex;DoubletZ;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=3, xmin=0.5, xmax=3.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('DoubletPhi,panelInd_geo;NPRDHit_doubletPhi_vs_panelIndex', 
-                title='DoubletPhi_vs_panelIndex;DoubletPhi;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('GasGap,panelInd_geo;NPRDHit_gasgap_vs_panelIndex', 
-                title='GasGap_vs_panelIndex;GasGap;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_occup.defineHistogram('MeasPhi,panelInd_geo;NPRDHit_measPhi_vs_panelIndex', 
-                title='MeasPhi_vs_panelIndex;MeasPhi;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=-0.5, xmax=1.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-
-    # stationName           = {'2':'BML', '3':'BMS', '4':'BOL', '5':'BOS', '8':'BMF' , '9':'BOF', '10':'BOG', '53':'BME'}
-    timeTags = ['All', 'B3', 'C1', 'A3']    # B3: 3 BC before BC0; C1: BC0; A3: 3 BC after BC0
-    array_timeTags = helper.addArray([timeTags], rpcOccupancyAlg, 'RpcOccupancyAnalysis', 'Muon/MuonRawDataMonitoring/RPC/')
-    array_timeTags.defineHistogram('LB,panelInd;NPRDHit_Panels', 
-                title='{0}_Number of RPC Prepare Data;Luminosity Block;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=1200, xmin=0.5, xmax=1200.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    array_timeTags.defineHistogram('LB;NPRDHitVSLB', 
-                title="{0}_Number of RPC Prepare Data;Luminosity Block;NHit",
-                type='TH1I', 
-                path='RpcOccupancy',
-                xbins=1200, xmin=0.5, xmax=1200.5)
-
-    ######################################################################################################
-    ## Rpc Track Analysis
+    ## RpcTrackAnaAlgAlg
     ######################################################################################################
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(inputFlags))
@@ -148,14 +38,115 @@ def RpcMonitoringConfig(inputFlags):
         result.merge(TrackingGeometrySvcCfg(inputFlags))
 
     rpcTrackAnaAlg.plotMuonEff = True
-    rpcTrackAnaAlg.analyseTrack= True
+    rpcTrackAnaAlg.plotPRD     = True
 
     rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     rpcTrackAnaAlg.TagAndProbe         = False
     rpcTrackAnaAlg.TagAndProbeZmumu    = False
 
+    ######################################################################################################
+    ## Occupancy histograms
+    ######################################################################################################
     myGroup_track = helper.addGroup(rpcTrackAnaAlg, 'RpcTrackAnaAlg', 'Muon/MuonRawDataMonitoring/RPC/')
 
+    myGroup_track.defineHistogram('run;Run',
+                            title='Run Number;run;Events',
+                            type='TH1I', 
+                            path='RpcOccupancy',
+                            xbins=800000,xmin=200000.5,xmax=1000000.5)
+
+    myGroup_track.defineHistogram('evtLB',
+                        title='Number of Event;Luminosity Block;N Event',
+                        type='TH1I', 
+                        path='RpcOccupancy',
+                        xbins=1200, xmin=0.5, xmax=1200.5)
+
+    myGroup_track.defineHistogram('prdTime', 
+                        title="Number of RPC Prepare Data;Time;N RPC Prepare Data",
+                        type='TH1D', 
+                        path='RpcOccupancy',
+                        xbins=67, xmin=-104.6875, xmax=104.6875)
+
+    myGroup_track.defineHistogram('prd_sec,prd_layer;NPRDHit_sectorVSlayer', 
+                        title="NPRDHit_sectorVSlayer;Sector;layer((dbR-1)*2+gasGap);NHit",
+                        type='TH2I', 
+                        path='RpcOccupancy',
+                        xbins=33, xmin=-16.5, xmax=16.5, 
+                        ybins=8, ymin=0.5, ymax=8.5)
+    myGroup_track.defineHistogram('prd_sec_1214,prd_layer_1214;NPRDHit_sectorVSlayer_Sector1214', 
+                        title="NPRDHit_sectorVSlayer_Sector1214;Sector;layer((dbR-1)*2+gasGap);NHit",
+                        type='TH2I', 
+                        path='RpcOccupancy',
+                        xbins=[-14.5,-13.5,-12.5,-11.5, 11.5, 12.5, 13.5, 14.5],
+                        ybins=8, ymin=0.5, ymax=8.5)
+    myGroup_track.defineHistogram('prd_sec_eta,prd_layer_eta;NPRDHit_sectorVSlayer_Eta', 
+                        title="NPRDHit_sectorVSlayer_eta;Sector;layer((dbR-1)*2+gasGap);NHit",
+                        type='TH2I', 
+                        path='RpcOccupancy',
+                        xbins=33, xmin=-16.5, xmax=16.5, 
+                        ybins=8, ymin=0.5, ymax=8.5)
+    myGroup_track.defineHistogram('prd_sec_phi,prd_layer_phi;NPRDHit_sectorVSlayer_Phi', 
+                        title="NPRDHit_sectorVSlayer_phi;Sector;layer((dbR-1)*2+gasGap);NHit",
+                        type='TH2I', 
+                        path='RpcOccupancy',
+                        xbins=33, xmin=-16.5, xmax=16.5, 
+                        ybins=8, ymin=0.5, ymax=8.5)
+
+    myGroup_track.defineHistogram('StationName,panelInd;NPRDHit_stationName_vs_panelIndex', 
+                title='StationName_vs_panelIndex;StationName;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=53, xmin=0.5, xmax=53.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('StationEta,panelInd;NPRDHit_stationEta_vs_panelIndex', 
+                title='StationEta_vs_panelIndex;StationEta;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=17, xmin=-8.5, xmax=8.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('StationPhi,panelInd;NPRDHit_stationPhi_vs_panelIndex', 
+                title='StationPhi_vs_panelIndex;StationPhi;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=8, xmin=0.5, xmax=8.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('DoubletR,panelInd;NPRDHit_doubletR_vs_panelIndex', 
+                title='DoubletR_vs_panelIndex;DoubletR;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('DoubletZ,panelInd;NPRDHit_doubletZ_vs_panelIndex', 
+                title='DoubletZ_vs_panelIndex;DoubletZ;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=3, xmin=0.5, xmax=3.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('DoubletPhi,panelInd;NPRDHit_doubletPhi_vs_panelIndex', 
+                title='DoubletPhi_vs_panelIndex;DoubletPhi;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('GasGap,panelInd;NPRDHit_gasgap_vs_panelIndex', 
+                title='GasGap_vs_panelIndex;GasGap;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('MeasPhi,panelInd;NPRDHit_measPhi_vs_panelIndex', 
+                title='MeasPhi_vs_panelIndex;MeasPhi;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=2, xmin=-0.5, xmax=1.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+
+    myGroup_track.defineHistogram('LB,panelInd;NPRDHit_Panels_All', 
+                title='Number of RPC Prepare Data;Luminosity Block;Panel Index;NHit',
+                type='TH2I', 
+                path='RpcOccupancy',
+                xbins=1200, xmin=0.5, xmax=1200.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+    myGroup_track.defineHistogram('LB;NPRDHitVSLB_All', 
+                title="Number of RPC Prepare Data;Luminosity Block;NHit",
+                type='TH1I', 
+                path='RpcOccupancy',
+                xbins=1200, xmin=0.5, xmax=1200.5)
+
+    ######################################################################################################
+    ## Rpc Track Analysis
+    ######################################################################################################
     trackPath = 'TrackMatch'
     myGroup_track.defineHistogram('hitMultiplicity_eta;HitMultiplicity_eta', 
                             type='TH1I', 
