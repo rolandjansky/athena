@@ -158,6 +158,7 @@ else:   # athenaHLT
         _run_number = af.run_number[0]
 
     TriggerJobOpts.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+    ConfigFlags.Input.RunNumber = [_run_number]
 
     from RecExConfig.RecFlags import rec
     rec.RunNumber =_run_number
@@ -438,6 +439,8 @@ log = logging.getLogger('runHLT_standalone.py')
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
+print("ConfigFlags.Input.Format", ConfigFlags.Input.Format)
+print("ConfigFlags.Trigger.Online.isPartition", ConfigFlags.Trigger.Online.isPartition)
 if ConfigFlags.Input.Format == 'POOL':
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
@@ -487,6 +490,8 @@ LumiBlockMuWriterDefault(sequence=hltBeginSeq)
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+    #from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+    #CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # Add HLTSeeding providing inputs to HLT

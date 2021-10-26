@@ -190,20 +190,28 @@ def Lvl1SimulationSequence( ConfigFlags ):
             l1SimSeq += [subSystemSimSeq]
     return l1SimSeq
 
-def Lvl1SimulationCfg(flags):
+def Lvl1SimulationCfg(flags, seqName = None):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
+    if seqName:
+        from AthenaCommon.CFElements import parOR
+        acc = ComponentAccumulator(sequence=parOR(seqName))
+    else:
+        acc = ComponentAccumulator()
 
     from AthenaCommon.CFElements import seqAND
-    acc.addSequence(seqAND('L1SimSeq'), parentName='AthAlgSeq')
+    acc.addSequence(seqAND('L1SimSeq'))
     
     acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimCfg
-    acc.merge(L1LegacyCaloSimCfg(flags), sequenceName='L1CaloLegacySimSeq')
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloLegacySimCfg
+    acc.merge(L1CaloLegacySimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
-    acc.addSequence(seqAND('L1MuonLegacySimSeq'), parentName='L1SimSeq')
+    #acc.addSequence(seqAND('L1CaloSimSeq'), parentName='L1SimSeq')
+    #from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloSimCfg
+    #acc.merge(L1CaloSimCfg(flags), sequenceName='L1CaloSimSeq')
+
+    acc.addSequence(seqAND('L1MuonSimSeq'), parentName='L1SimSeq')
     from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
-    acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
+    acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName='L1MuonSimSeq')
 
     acc.addSequence(seqAND('L1LegacyTopoSimSeq'), parentName='L1SimSeq')
     from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationCfg

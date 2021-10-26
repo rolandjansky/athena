@@ -186,8 +186,8 @@ def TrigServicesCfg(flags):
    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
    loop_mgr.ResultMaker = HLTResultMTMakerCfg()
 
-   from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
-   acc.merge(TrigByteStreamCfg(flags))
+   from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+   acc.merge(ByteStreamReadCfg(flags))
    loop_mgr.EvtSel = acc.getService('EventSelectorByteStream')
    loop_mgr.OutputCnvSvc = acc.getService('ByteStreamCnvSvc')
 
