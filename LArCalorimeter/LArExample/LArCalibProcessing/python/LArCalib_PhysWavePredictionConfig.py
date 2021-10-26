@@ -10,7 +10,7 @@ def LArPhysWavePredictionCfg(flags):
     result=LArCalibBaseCfg(flags)
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     rs=FolderTagResolver()
     CaliWaveTag=rs.getFolderTag(flags.LArCalib.CaliWave.Folder)
     DetCellParamsTag=rs.getFolderTag(flags.LArCalib.DetCellParams.Folder)

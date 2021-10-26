@@ -84,7 +84,7 @@ def LArOFCPhysCfg(flags):
 
     nColl=flags.LArCalib.OFC.Ncoll
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     rs=FolderTagResolver()
     PhysWaveTag=rs.getFolderTag(flags.LArCalib.PhysWave.Folder)
     AutoCorrTag=rs.getFolderTag(flags.LArCalib.AutoCorr.Folder)

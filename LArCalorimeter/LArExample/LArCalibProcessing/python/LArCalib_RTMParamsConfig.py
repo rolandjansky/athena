@@ -10,7 +10,7 @@ def LArRTMParamsCfg(flags):
     result=LArCalibBaseCfg(flags)
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     rs=FolderTagResolver()
     DetCellParamsTag=rs.getFolderTag(flags.LArCalib.DetCellParams.Folder)
     CaliPulseParamsTag=rs.getFolderTag(flags.LArCalib.CaliPulseParams.Folder)

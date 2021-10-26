@@ -57,6 +57,7 @@ def LArPedestalAutoCorrCfg(flags):
 
     #Get the current folder tag by interrogating the database:
     from LArCalibProcessing.utils import FolderTagResolver
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     tagResolver=FolderTagResolver()
     pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
     autocorrTag=tagResolver.getFolderTag(flags.LArCalib.AutoCorr.Folder)

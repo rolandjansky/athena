@@ -15,7 +15,7 @@ def LArDelay_OFCCaliCfg(flags):
     digKey=gainStrMap[flags.LArCalib.Gain]
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     tagResolver=FolderTagResolver()
     pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
     caliWaveTag=tagResolver.getFolderTag(flags.LArCalib.CaliWave.Folder)
