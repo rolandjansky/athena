@@ -163,12 +163,18 @@ ConfigurableAlg::quadraticSumBW(int i1, int i2) {
 
 unsigned int
 ConfigurableAlg::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  return TSU::Kinematics::calcDeltaPhi(tob1,tob2);
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaPhiLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaPhi(tob1,tob2);}
 }
 
 unsigned int
 ConfigurableAlg::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  return TSU::Kinematics::calcDeltaEta(tob1,tob2);
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaEtaLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaEta(tob1,tob2);}
 }
 
 unsigned int
@@ -183,7 +189,10 @@ ConfigurableAlg::calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* t
 
 unsigned int
 ConfigurableAlg::calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  return TSU::Kinematics::calcDeltaR2(tob1,tob2);
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaR2Legacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaR2(tob1,tob2);}
 }
 
 
@@ -286,11 +295,11 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     xmin_new=-70;
     xmax_new=70;
   }
-  if ( title.find("DETA") != std::string::npos || title.find("DPHI") != std::string::npos ){
+  if ( title.find("DPHI") != std::string::npos ){
     xmin_new=0;
     xmax_new=70;
   }
-  if ( title.find("DR") != std::string::npos ){
+  if ( title.find("DETA") != std::string::npos || title.find("DR") != std::string::npos ){
     xmin_new=0;
     xmax_new=100;
   }
@@ -351,19 +360,19 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     ymin_new=-70;
     ymax_new=70;
   }
-  if ( xName.find("DETA") != std::string::npos || xName.find("DPHI") != std::string::npos ){
+  if ( xName.find("DPHI") != std::string::npos ){
     xmin_new=0;
     xmax_new=70;
   }
-  if ( xName.find("DR") != std::string::npos ){
+  if ( xName.find("DETA") != std::string::npos || xName.find("DR") != std::string::npos ){
     xmin_new=0;
     xmax_new=100;
   }
-  if ( yName.find("DETA") != std::string::npos || yName.find("DPHI") != std::string::npos ){
+  if ( yName.find("DPHI") != std::string::npos ){
     ymin_new=0;
     ymax_new=70;
   }
-  if ( yName.find("DR") != std::string::npos ){
+  if ( yName.find("DETA") != std::string::npos || yName.find("DR") != std::string::npos ){
     ymin_new=0;
     ymax_new=100;
   }
