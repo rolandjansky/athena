@@ -58,6 +58,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
     scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
+    scf.addFlag("Sim.MuonFieldOnlyInCalo", False) # Only muons see the B-field in the calo
 
     #For G4AtlasToolsConfig
     scf.addFlag("Sim.RecordStepInfo",False)
@@ -152,3 +153,23 @@ def createSimConfigFlags():
     scf.addFlag("Sim.TightMuonStepping", False)
 
     return scf
+
+
+def simulationRunArgsToFlags(runArgs, flags):
+    """Fill simulation configuration flags from run arguments."""
+    if hasattr(runArgs, "DataRunNumber"):
+        flags.Input.RunNumber = [runArgs.DataRunNumber]
+        flags.Input.OverrideRunNumber = True
+        flags.Input.LumiBlockNumber = [1] # dummy value
+
+    if hasattr(runArgs, "physicsList"):
+        flags.Sim.PhysicsList = runArgs.physicsList
+
+    if hasattr(runArgs, "truthStrategy"):
+        flags.Sim.TruthStrategy = runArgs.truthStrategy
+
+    # Not used as deprecated
+    # '--enableLooperKiller'
+    # '--perfmon'
+    # '--randomSeed'
+    # '--useISF'

@@ -18,13 +18,9 @@ then
 else
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'FullG4' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
         --inputEVNTFile $INPUTEVNTFILE \
         --outputHITSFile "original.HITS.pool.root" \
@@ -43,12 +39,9 @@ then
     ReSim_tf.py \
         --CA \
         --conditionsTag 'ReSim:OFLCOND-MC16-SDR-14' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'FullG4MT_QS' \
         --postInclude 'ReSim:PyJobTransforms.UseFrontier' \
-        --preInclude 'ReSim:SimuJobTransforms.BeamPipeKill,SimuJobTransforms.FrozenShowersFCalOnly,SimuJobTransforms.TightMuonStepping' \
-        --DataRunNumber '284500' \
+        --preInclude 'ReSim:Campaigns.MC16Simulation' \
         --geometryVersion 'ReSim:ATLAS-R2-2016-01-00-01' \
         --inputHITSFile "original.HITS.pool.root" \
         --outputHITS_RSMFile "resim.CA.HITS.pool.root" \
@@ -67,13 +60,9 @@ if [ $rc -eq 0 ]
 then
     ReSim_tf.py \
         --conditionsTag 'ReSim:OFLCOND-MC16-SDR-14' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'FullG4MT_QS' \
         --postInclude 'ReSim:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'ReSim:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
-        --preExec 'ReSim:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'ReSim:Campaigns/MC16Simulation.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
         --geometryVersion 'ReSim:ATLAS-R2-2016-01-00-01' \
         --inputHITSFile "original.HITS.pool.root" \
         --outputHITS_RSMFile "resim.CA.HITS.pool.root" \
@@ -83,13 +72,9 @@ then
 
     ReSim_tf.py \
         --conditionsTag 'ReSim:OFLCOND-MC16-SDR-14' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'FullG4MT_QS' \
         --postInclude 'ReSim:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'ReSim:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
-        --preExec 'ReSim:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'ReSim:Campaigns/MC16Simulation.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
         --geometryVersion 'ReSim:ATLAS-R2-2016-01-00-01' \
         --inputHITSFile "original.HITS.pool.root" \
         --outputHITS_RSMFile "resim.CG.HITS.pool.root" \
