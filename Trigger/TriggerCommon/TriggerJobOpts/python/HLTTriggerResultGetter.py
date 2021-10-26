@@ -50,12 +50,6 @@ class ByteStreamUnpackGetter(Configured):
     def configure(self):
         log = logging.getLogger("ByteStreamUnpackGetter")
 
-        log.info( "TriggerFlags.dataTakingConditions: %s", TriggerFlags.dataTakingConditions() )
-        hasHLT = TriggerFlags.dataTakingConditions()=='HltOnly' or TriggerFlags.dataTakingConditions()=='FullTrigger'
-        if not hasHLT:
-            log.info("Will not configure HLT BS unpacking because dataTakingConditions flag indicates HLT was disabled")
-            return True
-
         # Define the decoding sequence
         from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg
         from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
@@ -82,10 +76,6 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
         
-        log.info( "TriggerFlags.dataTakingConditions: %s", TriggerFlags.dataTakingConditions() )
-        # in MC this is always FullTrigger
-        hasHLT = TriggerFlags.dataTakingConditions() in ('HltOnly', 'FullTrigger')
-        
         # BS unpacking
         from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
         extr = TrigBSExtraction()
@@ -95,7 +85,7 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         extr.ExtraInputs += [("xAOD::TrigNavigation", "StoreGateSvc+TrigNavigation")]
         extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
         
-        if hasHLT:
+        if 'HLT' in ConfigFlags.Trigger.availableRecoMetadata:
             from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
             extr.NavigationForL2 = HLTNavigationOffline("NavigationForL2")
             # Ignore the L2 TrigPassBits to avoid clash with EF (ATR-23411)
@@ -132,6 +122,7 @@ class ByteStreamUnpackGetterRun1or2(Configured):
                     extr.DSResultKeys += [ds_tag]
 
         else:
+            log.info("Will not schedule HLT bytestream extraction")
             # if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
             # but the extraction algorithm must run
             extr.L2ResultKey = ""
@@ -210,14 +201,14 @@ class TrigDecisionGetterRun1or2(Configured):
 #           WritexAODTrigDecision() is called within WriteTrigDecision()
 
             # inform TD maker that some parts may be missing
-            if TriggerFlags.dataTakingConditions()=='Lvl1Only':
+            if 'HLT' not in ConfigFlags.Trigger.availableRecoMetadata:
                 topSequence.TrigDecMaker.doL2=False
                 topSequence.TrigDecMaker.doEF=False
                 topSequence.TrigDecMaker.doHLT=False
                 topSequence.TrigNavigationCnvAlg.doL2 = False
                 topSequence.TrigNavigationCnvAlg.doEF = False
                 topSequence.TrigNavigationCnvAlg.doHLT = False
-            elif TriggerFlags.dataTakingConditions()=='HltOnly':
+            if 'L1' not in ConfigFlags.Trigger.availableRecoMetadata:
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence.TrigDecMaker.doL1=False
 
