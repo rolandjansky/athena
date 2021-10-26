@@ -4,6 +4,8 @@
 
 #include "src/ActsSeedingTool.h" 
 #include "src/ActsSeedingAlgorithm.h"
+#include "src/ActsSeedingFromAthenaAlgorithm.h"
 
 DECLARE_COMPONENT( ActsTrk::ActsSeedingTool )
 DECLARE_COMPONENT( ActsTrk::ActsSeedingAlgorithm )
+DECLARE_COMPONENT( ActsTrk::ActsSeedingFromAthenaAlgorithm )
