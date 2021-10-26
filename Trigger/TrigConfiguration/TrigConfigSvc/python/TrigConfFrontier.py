@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 import time
@@ -17,28 +17,16 @@ def getServerUrls(frontier_servers):
     return findall(r'\(serverurl=(.*?)\)',frontier_servers)
 
 
-def testUrl(url):
-    import urllib.request, urllib.error, urllib.parse
-    try:
-        urllib.request.urlopen(url)
-    except urllib.error.URLError:
-        return False
-    return True
-
 def resolveUrl(url):
     """
     Expects input string to be a URL or $FRONTIER_SERVER
     Returns an accessible URL or None"""
     import re
     if re.match("http://",url): # simple URL specification http://...
-        return [url] if testUrl(url) else []
+        return [url]
 
-    urls = []
     if re.match(r'\(serverurl=(.*?)\)',url): # syntax of FRONTIER_SERVER
-        for url in getServerUrls(url):
-            if testUrl(url):
-                urls.append(url)
-        return urls
+        return getServerUrls(url)
 
 
 def getFrontierCursor(urls, schema, loglevel = logging.INFO):
@@ -74,12 +62,13 @@ def replacebindvars(query, bindvars):
 
 
 class FrontierCursor(object):
-    def __init__(self, urls, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip"):
+    def __init__(self, urls, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip", encoding="utf-8"):
         self.urls = [str(x) + "/Frontier" for x in urls]#Add /Frontier to each URL
         self.schema = schema
         self.refreshFlag = refreshFlag
         self.retrieveZiplevel = retrieveZiplevel
         self.doDecode = doDecode
+        self.encoding = encoding
 
     def __str__(self):
         s = "Using Frontier URL: %s\n" % self.urls
@@ -105,10 +94,9 @@ class FrontierCursor(object):
                 compQuery = zlib.compress(query.encode("utf-8"),9)
                 base64Query = base64.binascii.b2a_base64(compQuery).decode("utf-8")
                 encQuery = base64Query.replace("+", ".").replace("\n","").replace("/","-").replace("=","_")
-
+                log.debug("Frontier Request  : %s", encQuery)
                 frontierRequest="%s/type=frontier_request:1:DEFAULT&encoding=BLOB%s&p1=%s" % (url, self.retrieveZiplevel, encQuery)
                 request = urllib.request.Request(frontierRequest)
-
                 if self.refreshFlag:
                     request.add_header("pragma", "no-cache")
 
@@ -119,7 +107,7 @@ class FrontierCursor(object):
                 log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
                 t1 = time.time()
-                result = urllib.request.urlopen(request,None,10).read().decode()
+                result = urllib.request.urlopen(request,timeout=10).read().decode('utf-8')
                 t2 = time.time()
 
                 queryEnd = time.localtime()
@@ -142,11 +130,12 @@ class FrontierCursor(object):
     def decodeResult(self):
         log = logging.getLogger( "TrigConfFrontier.py" )
         from xml.dom.minidom import parseString
-        import base64, zlib, curses.ascii
+        import base64, zlib, curses.ascii, re
         #print ("Query result:\n", self.result)
         dom = parseString(self.result)
         dataList = dom.getElementsByTagName("data")
         keepalives = 0
+        result = []
         # Control characters represent records, but I won't bother with that now,
         # and will simply replace those by space.
         for data in dataList:
@@ -165,12 +154,12 @@ class FrontierCursor(object):
             
                 row = base64.decodebytes(node.data.encode())
                 if self.retrieveZiplevel != "":
-                    row = zlib.decompress(row).decode("utf-8")
-
+                    row = zlib.decompress(row).decode(self.encoding)
+                
                 #Hack to get these lines to work in python 2
                 if sys.version_info[0] < 3: 
                     row = row.encode('ascii', 'xmlcharrefreplace')
-             
+
                 endFirstRow = row.find('\x07')
                 firstRow = row[:endFirstRow]
                 for c in firstRow:
@@ -196,8 +185,10 @@ class FrontierCursor(object):
                 row = row[endFirstRow+1:]
 
                 row_h = row.rstrip('\x07')
+
+                if 'BLOB' in types:
+                    row_h = re.sub("^.*?{","{",row_h)
                 
-                import re
                 row_h = row_h.replace("\x07\x06",'.nNn.\x06')
 
                 #                pattern = re.compile("\x06\x00\x00\x00.",flags=re.S)

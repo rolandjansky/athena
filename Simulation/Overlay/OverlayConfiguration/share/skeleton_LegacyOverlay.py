@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------
 # Common data and MC overlay skeleton
@@ -186,6 +186,9 @@ if hasattr(overlayArgs, 'conditionsTag') and overlayArgs.conditionsTag not in ['
     if len(globalflags.ConditionsTag()) != 0:
         conddb.setGlobalTag(globalflags.ConditionsTag())
 
+# convert flags to ConfigFlags
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
 
 # LVL1 Trigger Menu
 if hasattr(overlayArgs, 'triggerConfig') and overlayArgs.triggerConfig != 'NONE':

@@ -10,90 +10,76 @@
 #define ITKPIXELOFFLINECALIBDATA_H
 
 #include "AthenaKernel/CLASS_DEF.h"
-
-#include "PixelConditionsData/ITkPixelClusterErrorData.h"
-
 #include "AthenaKernel/CondCont.h"
+#include "PixelConditionsData/ITkPixelClusterErrorData.h"
+#include <memory>
 
-/** @class ITkPixelOfflineCalibData 
+/** @class ITk::PixelOfflineCalibData
 
-    The ITkPixelOfflineCalibData is a class that designed to hold the 
+    The ITk::PixelOfflineCalibData is a class that designed to hold the
     data used by ITk pixel offline algorithms.
 
-*/  
+*/
 
-namespace ITkPixelCalib {
+namespace ITk
+{
 
-class ITkPixelOfflineCalibData{
-
-  public:
+class PixelOfflineCalibData
+{
+public:
   /** Constructor:*/
-  ITkPixelOfflineCalibData(); 
-  ITkPixelOfflineCalibData(const ITkPixelOfflineCalibData& rhs);
-  ITkPixelOfflineCalibData& operator=(const ITkPixelOfflineCalibData& rhs); 
+  PixelOfflineCalibData()
+    : m_clusterErrorData(std::make_unique<PixelClusterErrorData>()) {}
+  PixelOfflineCalibData(const PixelOfflineCalibData& rhs);
+  PixelOfflineCalibData& operator=(const PixelOfflineCalibData& rhs);
 
   /** default destructor */
-  ~ITkPixelOfflineCalibData ();
+  ~PixelOfflineCalibData () = default;
 
-  bool update(const ITkPixelClusterErrorData& idat);
+  bool update(const PixelClusterErrorData& idat);
 
   // get the pointer to pixel cluster error data
-  ITkPixelClusterErrorData* getITkPixelClusterErrorData();
-  const ITkPixelClusterErrorData* getITkPixelClusterErrorData() const;
+  PixelClusterErrorData *getClusterErrorData();
+  const PixelClusterErrorData *getClusterErrorData() const;
 
   std::vector<float> getConstants() const;
   void setConstants(const std::vector<float> &constants);
 
   void dump();
 
- private: 
-  ITkPixelClusterErrorData* m_clustererrordata; 
-
-
+private:
+  std::unique_ptr<PixelClusterErrorData> m_clusterErrorData{};
 };
 
 
-inline ITkPixelOfflineCalibData::ITkPixelOfflineCalibData() {
-  m_clustererrordata = new ITkPixelClusterErrorData();
-} 
-
-inline ITkPixelOfflineCalibData::ITkPixelOfflineCalibData(const ITkPixelOfflineCalibData& rhs){
-  m_clustererrordata = rhs.m_clustererrordata;
+inline PixelOfflineCalibData::PixelOfflineCalibData(const PixelOfflineCalibData& rhs) {
+  m_clusterErrorData.reset(new PixelClusterErrorData(*rhs.m_clusterErrorData));
 }
 
-inline ITkPixelOfflineCalibData& ITkPixelOfflineCalibData::operator=(const ITkPixelOfflineCalibData& rhs){
-  if(this != &rhs){
-    m_clustererrordata = rhs.m_clustererrordata;
+inline PixelOfflineCalibData& PixelOfflineCalibData::operator=(const PixelOfflineCalibData& rhs) {
+  if (this != &rhs) {
+    m_clusterErrorData.reset(new PixelClusterErrorData(*rhs.m_clusterErrorData));
   }
   return (*this);
 }
-  
-inline bool ITkPixelOfflineCalibData::update(const ITkPixelClusterErrorData& idat){
-  *m_clustererrordata = idat;
+
+inline bool PixelOfflineCalibData::update(const PixelClusterErrorData& idat) {
+  *m_clusterErrorData = idat;
   return true;
 }
 
-inline ITkPixelClusterErrorData* ITkPixelOfflineCalibData::getITkPixelClusterErrorData() {
-  return m_clustererrordata;
+inline PixelClusterErrorData* PixelOfflineCalibData::getClusterErrorData() {
+  return m_clusterErrorData.get();
 }
 
-inline const ITkPixelClusterErrorData* ITkPixelOfflineCalibData::getITkPixelClusterErrorData() const {
-  return m_clustererrordata;
+inline const PixelClusterErrorData* PixelOfflineCalibData::getClusterErrorData() const {
+  return m_clusterErrorData.get();
 }
 
+} // namespace ITk
 
 
-inline ITkPixelOfflineCalibData::~ITkPixelOfflineCalibData(){
-  m_clustererrordata = nullptr; //Needed to avoid segfault when destructor is called
-  delete m_clustererrordata;
-}
+CLASS_DEF( ITk::PixelOfflineCalibData , 114268426 , 1 )
+CLASS_DEF( CondCont<ITk::PixelOfflineCalibData> , 183220670 , 1 )
 
-}
-
-
-CLASS_DEF( ITkPixelCalib::ITkPixelOfflineCalibData , 222566141 , 1 )
-CLASS_DEF( CondCont<ITkPixelCalib::ITkPixelOfflineCalibData> , 115484743 , 1 )
-
-#endif 
-
-
+#endif

@@ -115,6 +115,11 @@ def AthenaMonitoringCfg(flags):
         from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
         result.merge(LVL1CaloMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doLVL1InterfacesMon:
+        info('Set up LVL1Interfaces monitoring')
+        from TrigT1Monitoring.LVL1InterfacesMonitoringCfg import LVL1InterfacesMonitoringCfg
+        result.merge(LVL1InterfacesMonitoringCfg(flags))
+
     # Check for potentially duplicated histogram definitions
     definedhists = {}
     for algo in result.getEventAlgos():
@@ -123,7 +128,7 @@ def AthenaMonitoringCfg(flags):
             for t in algo.GMTools:
                 for h in t.Histograms:
                     ho = json.loads(h)
-                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    fullpath = os.path.join(t.HistPath, ho['path'], ho['alias']) + ':' + ho['convention']
                     if fullpath in definedhists:
                         previous = definedhists[fullpath]
                         error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')

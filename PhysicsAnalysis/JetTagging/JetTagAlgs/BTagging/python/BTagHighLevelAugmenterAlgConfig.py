@@ -16,8 +16,8 @@ def BTagHighLevelAugmenterAlgCfg(ConfigFlags, JetCollection, BTagCollection, Ass
 
     decorAlg = CompFactory.FlavorTagDiscriminants.BTagDecoratorAlg(
         name=f'{name}_alg',
-        btagContainer=BTagCollection,
-        trackContainer=TrackCollection,
+        container=BTagCollection,
+        constituentContainer=TrackCollection,
         decorator=btagAug,
     )
     # -- create the augmentation algorithm

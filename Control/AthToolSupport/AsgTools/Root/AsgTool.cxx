@@ -91,12 +91,6 @@ namespace asg {
       return &m_event;
    }
 
-   void AsgTool::setName( const std::string& name ) {
-
-      m_name = name;
-      return;
-   }
-
 #endif // XAOD_STANDALONE
 
    /// Instead of using this, weirdly named function, user code should get

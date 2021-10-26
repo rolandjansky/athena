@@ -149,7 +149,6 @@ PHYSSlimmingHelper.SmartCollections = ["EventInfo",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
-                                       #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -204,7 +203,7 @@ if DerivationFrameworkIsMonteCarlo:
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
-   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm','TruthPileupParticles','InTimeAntiKt4TruthJets','OutOfTimeAntiKt4TruthJets']
 
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
@@ -216,9 +215,9 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z",
-                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT",
+                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.numberOfTRTHits.numberOfTRTOutliers",
                                       "EventInfo.hardScatterVertexLink.timeStampNSOffset",
-                                      "TauJets.chargedPFOLinks.neutralPFOLinks.pi0PFOLinks.dRmax.etOverPtLeadTrk"]
+                                      "TauJets.chargedPFOLinks.neutralPFOLinks.pi0PFOLinks.dRmax.etOverPtLeadTrk.etaTauEnergyScale.ptTauEnergyScale"]
 
 # Add trigger matching
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)

@@ -230,7 +230,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       // Finally, the same behaviour may also be triggered by the HypoAlg adding an an int32_t decoration called "noCombo" with value 1
       // to the Decision Object.
 
-      for (const ElementLink<DecisionContainer>& dEL : it->second){
+      for (const ElementLink<DecisionContainer> dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0; // The container hash of the DecisionObject's most-recent feature, and its initial ROI
         uint16_t featureIndex = 0, roiIndex = 0; // The container index of the DecisionObject's most-recent feature, and its initial ROI
         bool roiIsFullscan = false; // Will be set to true if the DecisionObject's initial ROI is flagged as FullScan
@@ -510,7 +510,7 @@ StatusCode ComboHypo::fillDecisionsMap( Combo::LegDecisionsMap &  dmap, const Ev
       ATH_MSG_DEBUG("leg ["<<legCount<<"]: ");
       const ElementLinkVector<DecisionContainer>& decisions = entry.second;
       ATH_MSG_DEBUG(" ++++ " << HLT::Identifier( entry.first ) <<" Number Decisions: "<< decisions.size());
-      for (const ElementLink<DecisionContainer>& d : decisions){
+      for (const ElementLink<DecisionContainer> d : decisions){
         ATH_MSG_DEBUG("     Decision: (ContainerKey:"<<d.dataID()<<", DecisionElementIndex:"<<d.index()<<")");
       }
       legCount++;

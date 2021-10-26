@@ -3,7 +3,6 @@
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
-from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AppMgr import ServiceMgr
 from RecExConfig.Configured import Configured
@@ -21,7 +20,8 @@ class xAODConversionGetter(Configured):
         #schedule xAOD conversions here
         from TrigBSExtraction.TrigBSExtractionConf import TrigHLTtoxAODConversion
         xaodconverter = TrigHLTtoxAODConversion()
-        
+        if ConfigFlags.Trigger.readBS:
+            xaodconverter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] # contract wiht BSExtraction alg (see below)
         from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
         xaodconverter.Navigation = HLTNavigationOffline()
 
@@ -40,7 +40,7 @@ class xAODConversionGetter(Configured):
         # (previously this was defined in HLTTriggerResultGetter def configure)
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList
         self.xaodlist = {}
-        self.xaodlist.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(), 2 ))
+        self.xaodlist.update( getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet, 2 ))
 
         return True
     
@@ -82,7 +82,6 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
         
-        #if TriggerFlags.readBS():
         log.info( "TriggerFlags.dataTakingConditions: %s", TriggerFlags.dataTakingConditions() )
         # in MC this is always FullTrigger
         hasHLT = TriggerFlags.dataTakingConditions() in ('HltOnly', 'FullTrigger')
@@ -170,7 +169,7 @@ class TrigDecisionGetter(Configured):
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
         tdm = TrigDecisionMakerMT('TrigDecMakerMT')
 
-        if not TriggerFlags.readBS():
+        if not ConfigFlags.Trigger.readBS:
             # Construct trigger bits from HLTNav_summary instead of reading from BS
             from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
             tdm.BitsMakerTool = TriggerBitsMakerTool()
@@ -270,14 +269,10 @@ class HLTTriggerResultGetter(Configured):
         log = logging.getLogger("HLTTriggerResultGetter.py")
         from RecExConfig.ObjKeyStore import objKeyStore
 
-        # Set AODFULL for data unless it was set explicitly already
-        if TriggerFlags.AODEDMSet.isDefault() and globalflags.DataSource()=='data':
-            TriggerFlags.AODEDMSet = 'AODFULL'
-            
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        log.info("BS unpacking (TF.readBS): %d", TriggerFlags.readBS() )
-        if TriggerFlags.readBS():
+        log.info("BS unpacking (ConfigFlags.Trigger.readBS): %d", ConfigFlags.Trigger.readBS )
+        if ConfigFlags.Trigger.readBS:
             if ConfigFlags.Trigger.EDMVersion == 1 or \
                ConfigFlags.Trigger.EDMVersion == 2:
                 bs = ByteStreamUnpackGetterRun1or2()  # noqa: F841
@@ -297,7 +292,7 @@ class HLTTriggerResultGetter(Configured):
             if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
                 tdt = TrigDecisionGetterRun1or2()  # noqa: F841
         elif ConfigFlags.Trigger.EDMVersion >= 3:
-            if TriggerFlags.readBS():
+            if ConfigFlags.Trigger.readBS:
                 tdt = TrigDecisionGetter()  # noqa: F841
         else:
             raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
@@ -349,17 +344,17 @@ class HLTTriggerResultGetter(Configured):
         if(xAODContainers):
             _TriggerESDList.update( xAODContainers )
         else:
-            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
+            _TriggerESDList.update( getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet,  ConfigFlags.Trigger.EDMVersion) )
         
-        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMVersion)
+        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", ConfigFlags.Trigger.ESDEDMSet, ConfigFlags.Trigger.EDMVersion)
 
         # AOD objects choice
         _TriggerAODList = {}
         
         #from TrigEDMConfig.TriggerEDM import getAODList    
-        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
+        _TriggerAODList.update( getTriggerEDMList(ConfigFlags.Trigger.AODEDMSet,  ConfigFlags.Trigger.EDMVersion) )
 
-        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),ConfigFlags.Trigger.EDMVersion)
+        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", ConfigFlags.Trigger.AODEDMSet, ConfigFlags.Trigger.EDMVersion)
 
         log.debug("ESD EDM list: %s", _TriggerESDList)
         log.debug("AOD EDM list: %s", _TriggerAODList)
@@ -381,7 +376,10 @@ class HLTTriggerResultGetter(Configured):
 
             edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
           
-            svc = navigationThinningSvc ({'name':'HLTNav_%s'%stream, 'mode':'cleanup', 
+            # TimM Sep 2021: In MT the 'reload' slimming option in the R2 navigation thinning service was found to be creating
+            # AODs which would crash when trying to return features. We therefore remove this option by using the added 'cleanup_noreload'
+            # configuration, see ATR-24141 for details. 
+            svc = navigationThinningSvc ({'name':'HLTNav_%s'%stream, 'mode':'cleanup_noreload', 
                                           'result':'HLTResult_HLT',
                                           'features':edmlist})
 
@@ -396,11 +394,11 @@ class HLTTriggerResultGetter(Configured):
         if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
 
             # Run 1, 2 slimming
-            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
+            if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteAOD():
                 _addSlimmingRun2('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
                 log.info("configured navigation slimming for AOD output")
                 
-            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
+            if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteESD():
                 _addSlimmingRun2('StreamESD', _TriggerESDList )                
                 log.info("configured navigation slimming for ESD output")
 

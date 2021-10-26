@@ -8,26 +8,29 @@
 
 namespace MuonCalib {
 
-    MuonCalibTruth::MuonCalibTruth(const MuonCalibTruth &truth) {
-        m_position = truth.position();
-        m_momentum = truth.momentum();
-        m_kinEnergy = truth.kinEnergy();
-        m_PDGCode = truth.PDGCode();
-        m_barCode = truth.barCode();
-    }
+    MuonCalibTruth::MuonCalibTruth(const Amg::Vector3D& pos, const Amg::Vector3D& momentum, double kinEnergy, int code, int barCode) :
+        m_position{pos}, m_momentum{momentum}, m_kinEnergy{kinEnergy}, m_PDGCode{code}, m_barCode{barCode} {}
 
-    MuonCalibTruth &MuonCalibTruth::operator=(const MuonCalibTruth &rhs) {
-        if (this != &rhs) {
-            m_position = rhs.position();
-            m_momentum = rhs.momentum();
-            m_kinEnergy = rhs.kinEnergy();
-            m_PDGCode = rhs.PDGCode();
-            m_barCode = rhs.barCode();
-        }
-        return (*this);
-    }
+    void MuonCalibTruth::setPosition(const Amg::Vector3D& pos) { m_position = pos; }
 
-    std::ostream &MuonCalibTruth::dump(std::ostream &stream) const {
+    void MuonCalibTruth::setMomentum(const Amg::Vector3D& mom) { m_momentum = mom; }
+
+    void MuonCalibTruth::setKinEnergy(double kinEnergy) { m_kinEnergy = kinEnergy; }
+
+    void MuonCalibTruth::setPDGCode(int code) { m_PDGCode = code; }
+
+    void MuonCalibTruth::setBarCode(int barCode) { m_barCode = barCode; }
+
+    const Amg::Vector3D& MuonCalibTruth::position() const { return m_position; }
+
+    const Amg::Vector3D& MuonCalibTruth::momentum() const { return m_momentum; }
+
+    double MuonCalibTruth::kinEnergy() const { return m_kinEnergy; }
+
+    int MuonCalibTruth::PDGCode() const { return m_PDGCode; }
+
+    int MuonCalibTruth::barCode() const { return m_barCode; }
+    std::ostream& MuonCalibTruth::dump(std::ostream& stream) const {
         stream << "MuonCalibTruth with" << std::endl;
         stream << "   position " << position() << std::endl;
         stream << "   momentum " << momentum() << std::endl;
@@ -38,4 +41,4 @@ namespace MuonCalib {
 
 }  // namespace MuonCalib
 
-std::ostream &operator<<(std::ostream &stream, const MuonCalib::MuonCalibTruth &truth) { return truth.dump(stream); }
+std::ostream& operator<<(std::ostream& stream, const MuonCalib::MuonCalibTruth& truth) { return truth.dump(stream); }

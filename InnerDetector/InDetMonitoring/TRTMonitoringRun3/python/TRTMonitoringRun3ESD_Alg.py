@@ -25,8 +25,8 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     if not inputFlags.DQ.triggerDataAvailable:
         algTRTMonitoringRun3ESD.TrigDecisionObjectName = ''
 
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(AtlasGeometryCfg(inputFlags))
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
+    result.merge(InDetGeometryCfg(inputFlags))
 
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
@@ -242,6 +242,7 @@ if __name__ == '__main__':
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
     ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-RUN2-03"
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -252,11 +253,6 @@ if __name__ == '__main__':
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    # Configuration of the ATLAS Geo Model
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg = AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
-
     # Force special handling of converters
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
     cfg.merge (TrackCollectionReadCfg (ConfigFlags, 'CombinedInDetTracks'))
@@ -266,4 +262,4 @@ if __name__ == '__main__':
     ServiceMgr.Dump = False
 
     cfg.merge(TRTMonitoringRun3Acc)
-    cfg.run(100)
+    cfg.run(200)

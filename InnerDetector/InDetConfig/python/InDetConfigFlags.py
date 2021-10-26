@@ -36,6 +36,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doForwardTracks", False) # Turn running of doForwardTracks pass on and off
   icf.addFlag("InDet.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.doLargeD0", False)
+  icf.addFlag("InDet.doR3LargeD0", True)
+  icf.addFlag("InDet.storeSeparateLargeD0Container", True)
   icf.addFlag("InDet.useExistingTracksAsInput", False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey 
   icf.addFlag("InDet.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.priVtxCutLevel", 3 ) # Control vertexing cuts and settings for different lumi to limit CPU and disk space 
@@ -88,7 +90,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doWriteTracksToESD", True) # turn track slimming on/off 
   icf.addFlag("InDet.doVertexFinding", True) # Turn on the primary vertex reconstruction 
   icf.addFlag("InDet.primaryVertexSetup", 'IterativeFinding') # string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' 
-  icf.addFlag("InDet.primaryVertexCutSetup", 'Offline') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'SLHC' 'HeavyIon' 
+  icf.addFlag("InDet.primaryVertexCutSetup", 'Offline') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'HeavyIon' 
   icf.addFlag("InDet.vertexSeedFinder", 'SlidingWindowMultiSeedFinder') # string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' 
   icf.addFlag("InDet.primaryVertexSortingSetup", 'SumPt2Sorting') # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting' 
   icf.addFlag("InDet.doPrimaryVertex3DFinding", True) # will be set to false automatically if beam constraint ON, otherwise true. Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
@@ -203,4 +205,7 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
 
+  from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags
+  icf.addFlagsCategory("InDet.SecVertex", createSecVertexingFlags, prefix=True)
+  icf.addFlagsCategory("InDet.SecVertexEGammaPileUp", createEGammaPileUpSecVertexingFlags, prefix=True)
   return icf

@@ -516,10 +516,10 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
                                               useSCT             = cutValues.useSCT(),
                                               doEmCaloSeed       = False,
                                               minTRTonTrk        = cutValues.minTRTonTrk(),
+                                              minTRTPrecisionFraction = cutValues.minTRTPrecFrac(),
                                               #useSigmaChi2   = False # tuning from Thijs
                                               DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                               minPt              = config.pTmin )
-    
     ToolSvc += scoringTool
 
 
@@ -533,15 +533,13 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
                                                             NewTrackName       = outputTracks,
                                                             TrackFitter        = InDetTrigTrackFitter,
                                                             TrackSummaryTool   = summaryTool,
-                                                            ScoringTool        = scoringTool, #TODO do I provide the same tool as for ambiguity solver?
+                                                            ScoringTool        = scoringTool, 
                                                             suppressHoleSearch = False,
                                                             RefitPrds = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() == 'DAF')))
                                                             # Check these option after DAF is implemented
                                                             # tryBremFit         = InDetFlags.doBremRecovery(),
                                                             # caloSeededBrem     = InDetFlags.doCaloSeededBrem(),
                                                             # pTminBrem          = NewTrackingCuts.minPTBrem() )
-                                                            # RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() is 'DAF')))
-    
     return trtExtensionProcessor
 
 

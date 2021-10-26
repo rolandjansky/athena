@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
   Author: James Monk
 */
 
@@ -16,7 +16,13 @@
 
 //#include "Pythia8/../Pythia8Plugins/HepMC2.h"
 #ifdef HEPMC3
-#include "Pythia8ToHepMC3.h"
+  #ifdef PYTHIA_VERSION_INTEGER 
+     #if PYTHIA_VERSION_INTEGER > 8299
+        #include "Pythia8Plugins/HepMC3.h"
+     #else
+        #include "Pythia8ToHepMC3.h"
+     #endif
+  #endif
 namespace HepMC {
 typedef HepMC3::Pythia8ToHepMC3 Pythia8ToHepMC;
 }

@@ -329,10 +329,6 @@ if DetFlags.haveRIO.SCT_on():
 
         if InDetFlags.useSctDCS():
             InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_DCSConditionsTool ]
-       
-    # switch conditions off for SLHC usage
-    elif InDetFlags.doSLHC():
-        InDetSCT_ConditionsSummaryTool.ConditionsTools= []
       
     else :
         InDetSCT_ConditionsSummaryTool.ConditionsTools= [ InDetSCT_ConfigurationConditionsTool,
@@ -470,8 +466,7 @@ if DetFlags.haveRIO.TRT_on():
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
-                                      isGEANT4 = useOldStyle)
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
     # Active Fraction algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
     TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",

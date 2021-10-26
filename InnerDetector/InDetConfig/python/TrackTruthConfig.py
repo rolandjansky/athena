@@ -101,14 +101,14 @@ if __name__ == "__main__":
 
     ####################### Aditional Configurations #########################
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(SCT_GeometryCfg(ConfigFlags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
 
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))

@@ -145,7 +145,7 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
 
 
 def ExtrapolatorCfg(flags):
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
 
 def InDetTestPixelLayerToolCfg(flags):
@@ -208,9 +208,10 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
   holeSearchTool = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
   associationTool = acc.getPrimaryAndMerge( InDetPrdAssociationToolGangedPixelsCfg(flags) )
 
-  from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg,TRT_StrawStatusSummaryToolCfg # this will be moved somewhere else so this import will need adjustment
+  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
   acc.merge( TRTStrawCondAlgCfg(flags) )
 
+  from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
   tool = CompFactory.InDet.InDetTrackSummaryHelperTool(name,
                                                        HoleSearch    = holeSearchTool,
                                                        AssoTool      = associationTool,
@@ -281,16 +282,12 @@ def geoModelCfg(flags):
   acc = ComponentAccumulator()
   from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
   acc.merge( BeamPipeGeometryCfg( flags ) )
-  from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+  from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
   acc.merge( InDetGeometryCfg( flags ) )
 
   return acc
 
 
-def sctCondCfg(flags):
-  # acc = ComponentAccumulator()
-  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-  return SCT_GeometryCfg(flags)
 def pixelCondCfg(flags):
   acc = ComponentAccumulator()
   ###############
@@ -379,53 +376,53 @@ def pixelDataPrepCfg(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
   RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
 
-  PixelRodDecoder=CompFactory.PixelRodDecoder
-  InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
-  # Disable duplcated pixel check for data15 because duplication mechanism was used.
-  if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
-    InDetPixelRodDecoder.CheckDuplicatedPixel=False
-  acc.addPublicTool(InDetPixelRodDecoder)
+  if flags.Input.Format == 'BS':
+    PixelRodDecoder=CompFactory.PixelRodDecoder
+    InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
+    # Disable duplcated pixel check for data15 because duplication mechanism was used.
+    if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+      InDetPixelRodDecoder.CheckDuplicatedPixel=False
+    acc.addPublicTool(InDetPixelRodDecoder)
 
-  PixelRawDataProviderTool=CompFactory.PixelRawDataProviderTool
-  InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool"+ signature,
-                                                           Decoder = InDetPixelRodDecoder)
-  acc.addPublicTool(InDetPixelRawDataProviderTool)
+    PixelRawDataProviderTool=CompFactory.PixelRawDataProviderTool
+    InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool"+ signature,
+                                                             Decoder = InDetPixelRodDecoder)
+    acc.addPublicTool(InDetPixelRawDataProviderTool)
 
-   # load the PixelRawDataProvider
-  PixelRawDataProvider=CompFactory.PixelRawDataProvider
-  InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
-                                                   RDOKey       = InDetKeys.PixelRDOs(),
-                                                   ProviderTool = InDetPixelRawDataProviderTool,
-                                                   isRoI_Seeded = True,
-                                                   RoIs         = roisKey,
-                                                   RDOCacheKey  = InDetCacheNames.PixRDOCacheKey,
-                                                   RegSelTool   = RegSelTool_Pixel)
+     # load the PixelRawDataProvider
+    PixelRawDataProvider=CompFactory.PixelRawDataProvider
+    InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
+                                                     RDOKey       = InDetKeys.PixelRDOs(),
+                                                     ProviderTool = InDetPixelRawDataProviderTool,
+                                                     isRoI_Seeded = True,
+                                                     RoIs         = roisKey,
+                                                     RDOCacheKey  = InDetCacheNames.PixRDOCacheKey,
+                                                     RegSelTool   = RegSelTool_Pixel)
 
-  acc.addEventAlgo(InDetPixelRawDataProvider)
+    acc.addEventAlgo(InDetPixelRawDataProvider)
 
   return acc
 
 def sctDataPrepCfg(flags, roisKey, signature):
   acc = ComponentAccumulator()
 
-  acc.merge(sctCondCfg(flags))
-
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
   # load the SCTRawDataProvider
 
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
-  sctProviderArgs = {}
-  sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
-  sctProviderArgs["isRoI_Seeded"] = True
-  sctProviderArgs["RoIs"] = roisKey
-  sctProviderArgs["RDOCacheKey"] = InDetCacheNames.SCTRDOCacheKey
-  sctProviderArgs["RegSelTool"] = RegSelTool_SCT
-  acc.merge(SCTRawDataProviderCfg(flags, suffix=signature, **sctProviderArgs))
-  # load the SCTEventFlagWriter
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
-  acc.merge(SCTEventFlagWriterCfg(flags, suffix=signature))
+  if flags.Input.Format == 'BS':
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
+    sctProviderArgs = {}
+    sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
+    sctProviderArgs["isRoI_Seeded"] = True
+    sctProviderArgs["RoIs"] = roisKey
+    sctProviderArgs["RDOCacheKey"] = InDetCacheNames.SCTRDOCacheKey
+    sctProviderArgs["RegSelTool"] = RegSelTool_SCT
+    acc.merge(SCTRawDataProviderCfg(flags, suffix=signature, **sctProviderArgs))
+    # load the SCTEventFlagWriter
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
+    acc.merge(SCTEventFlagWriterCfg(flags, suffix=signature))
 
   return acc
 
@@ -440,28 +437,29 @@ def trtDataPrep(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
   RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
 
-  TRT_RodDecoder=CompFactory.TRT_RodDecoder
-  InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder")
-  if flags.Input.isMC:
-    InDetTRTRodDecoder.LoadCompressTableDB = False
-    InDetTRTRodDecoder.keyName=""
-  acc.addPublicTool(InDetTRTRodDecoder)
+  if flags.Input.Format == 'BS':
+    TRT_RodDecoder=CompFactory.TRT_RodDecoder
+    InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder")
+    if flags.Input.isMC:
+      InDetTRTRodDecoder.LoadCompressTableDB = False
+      InDetTRTRodDecoder.keyName=""
+    acc.addPublicTool(InDetTRTRodDecoder)
 
-  TRTRawDataProviderTool=CompFactory.TRTRawDataProviderTool
-  InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool"+ signature,
-                                                       Decoder = InDetTRTRodDecoder)
-  acc.addPublicTool(InDetTRTRawDataProviderTool)
+    TRTRawDataProviderTool=CompFactory.TRTRawDataProviderTool
+    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool"+ signature,
+                                                         Decoder = InDetTRTRodDecoder)
+    acc.addPublicTool(InDetTRTRawDataProviderTool)
 
-   # load the TRTRawDataProvider
-  TRTRawDataProvider=CompFactory.TRTRawDataProvider
-  InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider"+ signature,
-                                               RDOKey       = "TRT_RDOs",
-                                               ProviderTool = InDetTRTRawDataProviderTool,
-                                               RegSelTool   = RegSelTool_TRT,
-                                               isRoI_Seeded = True,
-                                               RoIs         = roisKey)
+     # load the TRTRawDataProvider
+    TRTRawDataProvider=CompFactory.TRTRawDataProvider
+    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider"+ signature,
+                                                 RDOKey       = "TRT_RDOs",
+                                                 ProviderTool = InDetTRTRawDataProviderTool,
+                                                 RegSelTool   = RegSelTool_TRT,
+                                                 isRoI_Seeded = True,
+                                                 RoIs         = roisKey)
 
-  acc.addEventAlgo(InDetTRTRawDataProvider)
+    acc.addEventAlgo(InDetTRTRawDataProvider)
 
   return acc
 
@@ -733,15 +731,14 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
 prefix="InDetTrigMT"
 
 def TRTDriftCircleCutCfg(flags):
-  acc = ComponentAccumulator()
+  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
+  acc = TRTActiveCondAlgCfg(flags)
   tool = CompFactory.InDet.InDetTrtDriftCircleCutTool('InDetTrigTRTDriftCircleCut',
           MinOffsetDCs     = 5,
           UseNewParameterization = True,
           UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
   )
   acc.addPublicTool(tool, primary=True)
-  from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-  acc.merge(TRTActiveCondAlgCfg( flags ))
   return acc
 
 def TRTDataProviderCfg(flags):
@@ -766,7 +763,6 @@ def TRTDataProviderCfg(flags):
 
 def TRTRIOMakerCfg(flags):
   acc = ComponentAccumulator()
-  acc.merge( TRTDataProviderCfg(flags) )
   from .InDetTrigCollectionKeys import TrigTRTKeys
   from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, threfore the names are different
   alg = CompFactory.InDet.TRT_RIO_Maker( f"{prefix}TRTDriftCircleMaker_{flags.InDet.Tracking.name}",
@@ -847,7 +843,8 @@ def TRTExtensionProcessorCfg(flags):
 
 def TRTExtrensionBuilderCfg(flags):
   acc = ComponentAccumulator()
-  acc.merge( TRTDataProviderCfg(flags) )
+  if flags.Input.Format == 'BS':
+    acc.merge( TRTDataProviderCfg(flags) )
   acc.merge( TRTRIOMakerCfg(flags) )
 
   acc.merge( TRTExtensionAlgCfg(flags) )
@@ -891,7 +888,7 @@ def TrackSelectionToolCfg(flags):
 
 def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
   tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.name}",
                                                 SummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
                                                 Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
@@ -918,12 +915,12 @@ def KalmanUpdatorCfg(flags):
 def FitterToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-  from TrkConfig.AtlasExtrapolatorConfig import AtlasNavigatorCfg
-  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
+  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   cond_alg = None #TODO may need to pull AtlasTrackingGeometryCondAlg and use it later
   fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
                                                  ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                                 NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
+                                                 NavigatorTool         = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
                                                  PropagatorTool        = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags, "InDetTrigRKPropagator" ) ),		
                                                  RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                                  BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it

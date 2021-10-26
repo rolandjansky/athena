@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonAGDDTool_H
@@ -16,8 +16,8 @@ class MuonAGDDTool: public AGDDToolBase
 public:
 	MuonAGDDTool(const std::string& type, const std::string& name, const IInterface* parent);
 	~MuonAGDDTool()=default;
-	virtual StatusCode construct() override;
-	virtual StatusCode initialize() override;
+        virtual StatusCode construct ATLAS_NOT_THREAD_SAFE () override;
+	virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 			
 private:
     Gaudi::Property<bool> m_buildNSW{this,"BuildNSW",true};

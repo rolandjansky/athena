@@ -13,11 +13,11 @@ LArDSPThresholdsSubsetCnv_p1::persToTrans(const DSPThresholdsPersType* persObj,
 
   unsigned int nfebids          = persObj->m_subset.m_febIds.size();
   unsigned index                =0;
-
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
   auto subsetIt = transObj->subsetBegin();
   for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
     // Loop over channels in feb 
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
       subsetIt->second[j].set(persObj->m_tQThr[index],persObj->m_samplesThr[index],persObj->m_trigSumThr[index]);
       ++index;
     }
@@ -54,14 +54,14 @@ LArDSPThresholdsSubsetCnv_p1::transToPers(const DSPThresholdsTransType* transObj
   // Get the number of channels, corrections and the size of pedestal and pedestalrms
   unsigned int ncorrs           = transObj->correctionVecSize();
   unsigned int nsubsetsNotEmpty = 0;
-
+  const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
   const auto subsetEnd = transObj->subsetEnd();
   for (auto subsetIt = transObj->subsetBegin();
        subsetIt != subsetEnd;
        ++subsetIt)
   {
     unsigned int nfebChans = subsetIt->second.size();
-    if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+    if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
       log << MSG::ERROR 
 	  << "LArDSPThresholdsSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
 	  << endmsg;
@@ -73,9 +73,9 @@ LArDSPThresholdsSubsetCnv_p1::transToPers(const DSPThresholdsTransType* transObj
   // Reserve space in vectors
   persObj->m_subset.m_febIds.reserve(nsubsetsNotEmpty);
   persObj->m_subset.m_corrChannels.reserve(ncorrs);
-  persObj->m_tQThr.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
-  persObj->m_samplesThr.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
-  persObj->m_trigSumThr.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
+  persObj->m_tQThr.reserve(ncorrs+nsubsetsNotEmpty*nChannelsPerFeb);
+  persObj->m_samplesThr.reserve(ncorrs+nsubsetsNotEmpty*nChannelsPerFeb);
+  persObj->m_trigSumThr.reserve(ncorrs+nsubsetsNotEmpty*nChannelsPerFeb);
     
    //Copy subsets
   for (auto subsetIt = transObj->subsetBegin();

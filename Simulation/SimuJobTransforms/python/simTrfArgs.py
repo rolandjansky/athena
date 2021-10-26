@@ -75,19 +75,19 @@ def addPileUpTrfArgs(parser):
     parser.add_argument('--testPileUpConfig',
                         type=argFactory(argBool),
                         help='Calculates the number of background events that will be require for a given pile-up configuration.', group='PileUp')
-    parser.add_argument('--inputLowPtMinbiasHitsFile','--LowPtMinbiasHitsFile', nargs='+',
+    parser.add_argument('--inputLowPtMinbiasHitsFile','--LowPtMinbiasHitsFile', nargs='+', action='append',
                         type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for low pT minimum bias pile-up sub-events', group='PileUp')
-    parser.add_argument('--inputHighPtMinbiasHitsFile','--HighPtMinbiasHitsFile', nargs='+',
+    parser.add_argument('--inputHighPtMinbiasHitsFile','--HighPtMinbiasHitsFile', nargs='+', action='append',
                         type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for high pT minimum bias pile-up sub-events', group='PileUp')
-    parser.add_argument('--inputCavernHitsFile', '--cavernHitsFile', nargs='+',
+    parser.add_argument('--inputCavernHitsFile', '--cavernHitsFile', nargs='+', action='append',
                         type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for cavern background sub-events', group='PileUp')
-    parser.add_argument('--inputBeamHaloHitsFile', '--beamHaloHitsFile', nargs='+',
+    parser.add_argument('--inputBeamHaloHitsFile', '--beamHaloHitsFile', nargs='+', action='append',
                         type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for beam halo sub-events', group='PileUp'),
-    parser.add_argument('--inputBeamGasHitsFile', '--beamGasHitsFile', nargs='+',
+    parser.add_argument('--inputBeamGasHitsFile', '--beamGasHitsFile', nargs='+', action='append',
                         type=argFactory(argHITSFile, io='input', executor=['EVNTtoRDO','HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for beam gas sub-events', group='PileUp')
     parser.add_argument('--numberOfLowPtMinBias',
@@ -166,16 +166,20 @@ def addTestBeamArgs(parser):
                         help='Z coordinate is the distance from ATLAS center to the desired impact point. Sensitive part starts at Z=2300, ends at Z=2300+3*100+3*130+3*150+2*190=3820', group='TestBeam')
 
 ## Add common Simulation transform arguments to an argparse ArgumentParser
-def addCommonSimTrfArgs(parser):
-    parser.defineArgGroup('CommonSim', 'Common Simulation Options')
+def addSimIOTrfArgs(parser):
+    parser.defineArgGroup('SimIO', 'Simulation I/O Options')
     parser.add_argument('--inputEVNTFile', '--inputEvgenFile', nargs='+',
                         type=argFactory(argPOOLFile, io='input'),
-                        help='Input evgen file', group='CommonSim')
+                        help='Input evgen file', group='SimIO')
     parser.add_argument('--outputHITSFile', '--outputHitsFile', nargs='+',
                         type=argFactory(argHITSFile, io='output'),
-                        help='Output HITS file', group='CommonSim')
+                        help='Output HITS file', group='SimIO')
     parser.add_argument('--firstEvent', metavar='FIRSTEVENT',
-                        type=argFactory(argInt), help='The event number to use for the first Event', group='CommonSim')
+                        type=argFactory(argInt), help='The event number to use for the first Event', group='SimIO')
+
+## Add common Simulation transform arguments to an argparse ArgumentParser
+def addCommonSimTrfArgs(parser):
+    parser.defineArgGroup('CommonSim', 'Common Simulation Options')
     parser.add_argument('--physicsList', metavar='PHYSICSLIST',
                         type=argFactory(argString), help='Physics List to be used within Geant4', group='CommonSim')
     parser.add_argument('--useISF',
@@ -187,6 +191,9 @@ def addCommonSimTrfArgs(parser):
     parser.add_argument('--truthStrategy',
                         type=argFactory(argString), metavar='CONFIGNAME',
                         help='Specify the named group of Truth strategies that the simulation should use.  E.g. MC12, MC15aPlus, MC16', group='CommonSim')
+    parser.add_argument('--perfmon', default=argString('fastmonmt'),
+                        type=argFactory(argString),
+                        help='Enable PerfMon (fastmonmt [default], fullmonmt, or none)', group='CommonSim')
 
 ## Add common Simulation/Digitization transform arguments to an argparse ArgumentParser
 def addCommonSimDigTrfArgs(parser):
@@ -213,6 +220,17 @@ def addHITSMergeArgs(parser):
     parser.add_argument('--inputLogsFile', nargs='+',
                         type=argFactory(argFile, io='input', runarg=True, type='log'),
                         help='Input Log files', group='HITSMerge_tf') ## FIXME need to add code to do the log file merging.
+
+## Add Re-simulation transform arguments
+def addReSimulationArgs(parser):
+    # Use arggroup to get these arguments in their own sub-section (of --help)
+    parser.defineArgGroup('ReSimulation', 'ReSimulation specific options')
+    parser.add_argument('--inputHITSFile', '--inputHitsFile', nargs='+',
+                        type=argFactory(argPOOLFile, io='input', runarg=True, type='hits'),
+                        help='Input HITS files', group='ReSimulation')
+    parser.add_argument('--outputHITS_RSMFile', nargs='+',
+                        type=argFactory(argHITSFile, io='output', runarg=True, type='hits'),
+                        help='Output HITS file', group='ReSimulation')
 
 ## Add HITS validation transform arguments
 def addHITSValidArgs(parser):

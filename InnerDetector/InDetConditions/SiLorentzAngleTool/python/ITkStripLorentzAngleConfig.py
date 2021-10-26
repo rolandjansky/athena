@@ -5,7 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
 StripSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
 
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -21,7 +21,7 @@ def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
     acc = MagneticFieldSvcCfg(flags)
     # For SCT_ID and SCT_DetectorElementCollection used
     # in SCTSiLorentzAngleCondAlg and SiLorentzAngleTool
-    acc.merge(ITkStripGeometryCfg(flags))
+    acc.merge(ITkStripReadoutGeometryCfg(flags))
     # set up SCTSiLorentzAngleCondAlg
     algkwargs = {}
     algkwargs["UseMagFieldCache"] = kwargs.get("UseMagFieldCache", True)

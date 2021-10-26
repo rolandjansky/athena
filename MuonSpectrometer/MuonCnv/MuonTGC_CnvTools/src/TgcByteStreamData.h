@@ -263,7 +263,8 @@ struct TGC_BYTESTREAM_NSL_EIFI
 {
   unsigned ei:        8;
   unsigned fi:        8;
-  unsigned fill1:     6;
+  unsigned chamberid: 2;
+  unsigned fill1:     4;
   unsigned bcBitmap:  2;
   unsigned sector:    4;
   unsigned fwd:       1;

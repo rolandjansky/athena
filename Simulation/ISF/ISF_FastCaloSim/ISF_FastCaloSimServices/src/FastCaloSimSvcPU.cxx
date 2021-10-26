@@ -42,9 +42,6 @@
 // use FastShowerCellBuilderTool for actual simulation
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
 
-// PunchThrough Tool
-#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
-
 /** Constructor **/
 ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
@@ -56,11 +53,9 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   m_simulateUndefinedBCs(false),
   m_caloCellsOutputName("AllCalo"),
   m_caloCellHack(false),
-  m_doPunchThrough(false),
   m_caloCellMakerTools_setup(),
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
-  m_punchThroughTool(""),
   m_theContainer(nullptr)
 {
   // where to go
@@ -68,10 +63,8 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   declareProperty("CaloCellMakerTools_setup"   ,       m_caloCellMakerTools_setup) ;
   declareProperty("CaloCellMakerTools_simulate",       m_caloCellMakerTools_simulate) ;
   declareProperty("CaloCellMakerTools_release" ,       m_caloCellMakerTools_release) ;
-  declareProperty("PunchThroughTool",                  m_punchThroughTool);
   declareProperty("CaloCellsOutputName",               m_caloCellsOutputName) ;
   declareProperty("CaloCellHack",                      m_caloCellHack) ;
-  declareProperty("DoPunchThroughSimulation", 	       m_doPunchThrough) ;
   declareProperty("Extrapolator",                      m_extrapolator );
   declareProperty("SimulateUndefinedBarcodeParticles", m_simulateUndefinedBCs, "Whether or not to simulate paritcles with undefined barcode" );
   declareProperty("BatchProcessMcTruth",m_batchProcessMcTruth=false,"Run the FastShowerCellBuilders on the McTruth at the end of the event" );
@@ -116,12 +109,6 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
         return StatusCode::FAILURE;
    if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() )
         return StatusCode::FAILURE;
-
-   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() )
-   {
-     ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
-     return StatusCode::FAILURE;
-   }
 
    // Get TimedExtrapolator
    if(!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
@@ -500,31 +487,6 @@ StatusCode ISF::FastCaloSimSvcPU::simulate(const ISF::ISFParticle& isfp, McEvent
 
   // read the particle's barcode
   Barcode::ParticleBarcode bc = isfp.barcode();
-
- //lets do punch-through here
- //----------------------------------------------------------
-
- // punch-through simulation
-
-  if (m_doPunchThrough)
-  {
-     Barcode::PhysicsProcessCode process = 201;
-    // call punch-through simulation
-    const ISF::ISFParticleVector *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isfp);
-    if (someSecondaries) {
-      //Record truth incident for created punch through particles
-      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isfp),
-                                   *someSecondaries,
-                                   process,
-                                   isfp.nextGeoID(),  // inherits from the parent
-                                   ISF::fKillsPrimary);
-      m_truthRecordSvc->registerTruthIncident( truth, true );
-      for (auto secondary : *someSecondaries) {
-        m_particleBroker->push( secondary, &isfp);
-      }
-      delete someSecondaries;
-    }
-  }
 
   // (a.) batch process mode, ignore the incoming particle for now
   if( m_batchProcessMcTruth)

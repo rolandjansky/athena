@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  * Mdt Calibration Input Event Data Model
- * --------------------------------------
- *
- * Author       : Niels van Eldik, Zdenko van Kesteren
- * Creation Date: 8 April 2005
  ***************************************************************************/
 
 #ifndef MUONCALIB_MDTCALIBHITBASE_H
 #define MUONCALIB_MDTCALIBHITBASE_H
 
 // std
+#include <float.h>
+
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -37,14 +35,52 @@ namespace MuonCalib {
 
     class MdtCalibHitBase {
     public:
-        static const double kNoValue;  //!< constant to set values to invalid
+        static constexpr float kNoValue{FLT_MAX};
+        struct defineParams {
+            /* Fixed, Athena-independent Identifier*/
+            MuonFixedId id{0};                                    //!< Identifier of the hit (not an ATLAS ID, rather a MuonFixedId)
+            int tdc{0};                                           //!< TDC count
+            int adc{0};                                           //!< ADC count
+            Amg::Vector3D globalPosition{0, 0, 0};                //!< position of the hit in global coordinates
+            Amg::Vector3D localPosition{0, 0, 0};                 //!< position of the hit in local (station) coordinates
+            Amg::Vector3D localPointOfClosestApproach{0, 0, 0};   //!< point of closest approach of track to wire in local coordinates
+            Amg::Vector3D globalPointOfClosestApproach{0, 0, 0};  //!< point of closest approach of track to wire in global coordinates
+            float driftTime{FLT_MAX};                             //!< drift time after all corrections
+            float driftRadius{FLT_MAX};                           //!< drift radius
+            float sigma2DriftRadius{FLT_MAX};                     //!< error squared on the drift radius
+            float timeFromTrackDistance{FLT_MAX};  //!< time calculated from 'distance to track', for calibration or trackfit in time-domain
+            float sigma2TimeFromTrackDistance{FLT_MAX};  //!< (square of) sigma on timeFromTrackDistance
+            float slewingTime{FLT_MAX};                  //!< time correction due to slewing (electronics)
+            float bFieldTime{FLT_MAX};                   //!< time correction due to magnetic field
+            float propagationTime{FLT_MAX};              //!< time correction due to signal propagation along the wire
+            float timeOfFlight{FLT_MAX};                 //!< time correction due to the time of flight in ns
+            float distanceToReadout{FLT_MAX};            //!< from hit to read-out side of tube
+            float signedDistanceToTrack{FLT_MAX};        //!< signed distance from track to wire
+            float sigma2DistanceToTrack{FLT_MAX};        //!< square of sigma on signedDistanceToTrack
+            float wiresagTime{FLT_MAX};                  //!< extra time due to wiresag
+            float temperatureTime{FLT_MAX};              //!< extra time due to temperature
+            float backgroundTime{FLT_MAX};               //!< extra time due to background
+            float bFieldPerp{FLT_MAX};                   //!< local bfield perpendicular to the wire
+            float bFieldPara{FLT_MAX};                   //!< local bfield parallel to the wire
+            float temperature{FLT_MAX};                  //!< local temperature
+            float projSag{FLT_MAX};                      //!< projective sag
+            float tube_t0{FLT_MAX};                      //!< tube t0 time offset
+            float tube_adccal{FLT_MAX};                  //!< tube mean ADC (calibration)
+            float xtwin{FLT_MAX};                        //!< twin position
+            float sigmaXTwin{FLT_MAX};                   //!< twin position error
+            bool segmentT0Applied{false};                //!< true if segment t0 is substr. from drift time
+            float tubeRadius{FLT_MAX};                   //!< inner tube radius
+        };
 
-        MdtCalibHitBase();  //!< default constructor
+        MdtCalibHitBase() = default;                                       //!< default constructor
+        MdtCalibHitBase &operator=(const MdtCalibHitBase &rhs) = default;  //!< assignment operator
+        MdtCalibHitBase(const MdtCalibHitBase &event) = default;           //!< Copy constructor
+        ~MdtCalibHitBase() = default;                                      //!< destructor
+
+        MdtCalibHitBase(const MdtCalibHitBase::defineParams &pars);
         MdtCalibHitBase(
             int tdc, int adc, const Amg::Vector3D &globalPos,
             const Amg::Vector3D &localPos);  //!< constructor setting the position (local and global) as well as the tdc and adc counts
-
-        ~MdtCalibHitBase(){};  //!< destructor
 
         // setters
         void setIdentifier(const MuonFixedId &id);                         //!< sets the MuonFixedIdentifier of the hit
@@ -121,181 +157,8 @@ namespace MuonCalib {
         std::ostream &dump(std::ostream &stream) const;  //!< dump to be used for operator<<() to dump the MdtCalibHitBase
 
     private:
-        /* Fixed, Athena-independent Identifier*/
-        MuonFixedId m_id;                              //!< Identifier of the hit (not an ATLAS ID, rather a MuonFixedId)
-        int m_tdc;                                     //!< TDC count
-        int m_adc;                                     //!< ADC count
-        Amg::Vector3D m_globalPosition;                //!< position of the hit in global coordinates
-        Amg::Vector3D m_localPosition;                 //!< position of the hit in local (station) coordinates
-        Amg::Vector3D m_localPointOfClosestApproach;   //!< point of closest approach of track to wire in local coordinates
-        Amg::Vector3D m_globalPointOfClosestApproach;  //!< point of closest approach of track to wire in global coordinates
-        float m_driftTime;                             //!< drift time after all corrections
-        float m_driftRadius;                           //!< drift radius
-        float m_sigma2DriftRadius;                     //!< error squared on the drift radius
-        float m_timeFromTrackDistance;        //!< time calculated from 'distance to track', for calibration or trackfit in time-domain
-        float m_sigma2TimeFromTrackDistance;  //!< (square of) sigma on m_timeFromTrackDistance
-        float m_slewingTime;                  //!< time correction due to slewing (electronics)
-        float m_bFieldTime;                   //!< time correction due to magnetic field
-        float m_propagationTime;              //!< time correction due to signal propagation along the wire
-        float m_timeOfFlight;                 //!< time correction due to the time of flight in ns
-        float m_distanceToReadout;            //!< from hit to read-out side of tube
-        float m_signedDistanceToTrack;        //!< signed distance from track to wire
-        float m_sigma2DistanceToTrack;        //!< square of sigma on m_signedDistanceToTrack
-        float m_wiresagTime;                  //!< extra time due to wiresag
-        float m_temperatureTime;              //!< extra time due to temperature
-        float m_backgroundTime;               //!< extra time due to background
-        float m_bFieldPerp;                   //!< local bfield perpendicular to the wire
-        float m_bFieldPara;                   //!< local bfield parallel to the wire
-        float m_temperature;                  //!< local temperature
-        float m_projSag;                      //!< projective sag
-        float m_tube_t0;                      //!< tube t0 time offset
-        float m_tube_adccal;                  //!< tube mean ADC (calibration)
-        float m_xtwin;                        //!< twin position
-        float m_sigmaXTwin;                   //!< twin position error
-        bool m_segmentT0Applied;              //!< true if segment t0 is substr. from drift time
-        float m_tubeRadius;                   //!< inner tube radius
+        defineParams m_pars{};
     };
-
-    inline void MdtCalibHitBase::setIdentifier(const MuonFixedId &id) { m_id = id; }
-
-    inline void MdtCalibHitBase::setTdc(unsigned short tdc) { m_tdc = tdc; }
-
-    inline void MdtCalibHitBase::setAdc(unsigned short adc) { m_adc = adc; }
-
-    inline void MdtCalibHitBase::setGlobalPos(const Amg::Vector3D &globalPos) { m_globalPosition = globalPos; }
-
-    inline void MdtCalibHitBase::setLocalPos(const Amg::Vector3D &localPos) { m_localPosition = localPos; }
-
-    inline void MdtCalibHitBase::setGlobalPointOfClosestApproach(const Amg::Vector3D &point) { m_globalPointOfClosestApproach = point; }
-
-    inline void MdtCalibHitBase::setLocalPointOfClosestApproach(const Amg::Vector3D &point) { m_localPointOfClosestApproach = point; }
-
-    inline void MdtCalibHitBase::setDriftTime(float t) { m_driftTime = t; }
-
-    inline void MdtCalibHitBase::setDriftRadius(float r, float sigmaR) {
-        m_driftRadius = r;
-        m_sigma2DriftRadius = sigmaR * sigmaR;
-    }
-
-    inline void MdtCalibHitBase::setTubeRadius(float r) { m_tubeRadius = r; }
-
-    inline void MdtCalibHitBase::setDistanceToTrack(float dist, float sigmaDist) {
-        m_signedDistanceToTrack = dist;
-        m_sigma2DistanceToTrack = sigmaDist * sigmaDist;
-    }
-
-    inline void MdtCalibHitBase::setTimeFromTrackDistance(float t, float sigmaT) {
-        m_timeFromTrackDistance = t;
-        m_sigma2TimeFromTrackDistance = sigmaT * sigmaT;
-    }
-
-    inline void MdtCalibHitBase::setWiresagTime(float wsag) { m_wiresagTime = wsag; }
-
-    inline void MdtCalibHitBase::setSlewingTime(float slew) { m_slewingTime = slew; }
-
-    inline void MdtCalibHitBase::setBFieldTime(float lor) { m_bFieldTime = lor; }
-
-    inline void MdtCalibHitBase::setPropagationTime(float prop) { m_propagationTime = prop; }
-
-    inline void MdtCalibHitBase::setTimeOfFlight(float tof) { m_timeOfFlight = tof; }
-
-    inline void MdtCalibHitBase::setDistanceToReadout(float dist) { m_distanceToReadout = dist; }
-
-    inline void MdtCalibHitBase::setTemperatureTime(float temp) { m_temperatureTime = temp; }
-
-    inline void MdtCalibHitBase::setBackgroundTime(float bkgr) { m_backgroundTime = bkgr; }
-
-    inline void MdtCalibHitBase::setBFieldPerp(float val) { m_bFieldPerp = val; }
-
-    inline void MdtCalibHitBase::setBFieldPara(float val) { m_bFieldPara = val; }
-
-    inline void MdtCalibHitBase::setTemperature(float val) { m_temperature = val; }
-
-    inline void MdtCalibHitBase::setProjSag(float val) { m_projSag = val; }
-
-    inline void MdtCalibHitBase::setTubeT0(float t0) { m_tube_t0 = t0; }
-
-    inline void MdtCalibHitBase::setTubeAdcCal(float adccal) { m_tube_adccal = adccal; }
-
-    inline void MdtCalibHitBase::setLocXtwin(float xtwin) { m_xtwin = xtwin; }
-
-    inline void MdtCalibHitBase::setSigmaLocXtwin(float sigmaXTwin) { m_sigmaXTwin = sigmaXTwin; }
-
-    inline const MuonFixedId &MdtCalibHitBase::identify() const { return m_id; }
-
-    inline const Amg::Vector3D &MdtCalibHitBase::globalPosition() const { return m_globalPosition; }
-
-    inline const Amg::Vector3D &MdtCalibHitBase::localPosition() const { return m_localPosition; }
-
-    inline const Amg::Vector3D &MdtCalibHitBase::globalPointOfClosestApproach() const { return m_globalPointOfClosestApproach; }
-
-    inline const Amg::Vector3D &MdtCalibHitBase::localPointOfClosestApproach() const { return m_localPointOfClosestApproach; }
-
-    inline unsigned short MdtCalibHitBase::tdcCount() const { return m_tdc; }
-
-    inline unsigned short MdtCalibHitBase::adcCount() const { return m_adc; }
-
-    inline float MdtCalibHitBase::driftTime() const { return m_driftTime; }
-
-    inline float MdtCalibHitBase::driftRadius() const { return m_driftRadius; }
-
-    inline float MdtCalibHitBase::sigmaDriftRadius() const { return std::sqrt(m_sigma2DriftRadius); }
-
-    inline float MdtCalibHitBase::sigma2DriftRadius() const { return m_sigma2DriftRadius; }
-
-    inline float MdtCalibHitBase::signedDistanceToTrack() const { return m_signedDistanceToTrack; }
-
-    inline float MdtCalibHitBase::sigmaDistanceToTrack() const { return std::sqrt(m_sigma2DistanceToTrack); }
-
-    inline float MdtCalibHitBase::sigma2DistanceToTrack() const { return m_sigma2DistanceToTrack; }
-
-    inline float MdtCalibHitBase::distanceToReadout() const { return m_distanceToReadout; }
-
-    inline float MdtCalibHitBase::slewingTime() const { return m_slewingTime; }
-
-    inline float MdtCalibHitBase::bFieldTime() const { return m_bFieldTime; }
-
-    inline float MdtCalibHitBase::bFieldPerp() const { return m_bFieldPerp; }
-
-    inline float MdtCalibHitBase::bFieldPara() const { return m_bFieldPara; }
-
-    inline float MdtCalibHitBase::temperature() const { return m_temperature; }
-
-    inline float MdtCalibHitBase::TemperatureTime() const { return m_temperatureTime; }
-
-    inline float MdtCalibHitBase::WiresagTime() const { return m_wiresagTime; }
-
-    inline float MdtCalibHitBase::projSag() const { return m_projSag; }
-
-    inline float MdtCalibHitBase::propagationTime() const { return m_propagationTime; }
-
-    inline float MdtCalibHitBase::timeOfFlight() const { return m_timeOfFlight; }
-
-    inline float MdtCalibHitBase::timeFromTrackDistance() const { return m_timeFromTrackDistance; }
-
-    inline float MdtCalibHitBase::sigmaTimeFromTrackDistance() const { return std::sqrt(m_sigma2TimeFromTrackDistance); }
-
-    inline float MdtCalibHitBase::sigma2TimeFromTrackDistance() const { return m_sigma2TimeFromTrackDistance; }
-
-    inline float MdtCalibHitBase::radialResidual() const { return std::abs(m_driftRadius) - std::abs(m_signedDistanceToTrack); }
-
-    inline float MdtCalibHitBase::trackResidual() const { return m_signedDistanceToTrack - m_driftRadius; }
-
-    inline float MdtCalibHitBase::timeResidual() const { return m_driftTime - m_timeFromTrackDistance; }
-
-    inline float MdtCalibHitBase::tubeT0() const { return m_tube_t0; }
-
-    inline float MdtCalibHitBase::tubeAdcCal() const { return m_tube_adccal; }
-
-    inline float MdtCalibHitBase::xtwin() const { return m_xtwin; }
-
-    inline float MdtCalibHitBase::sigmaXtwin() const { return m_sigmaXTwin; }
-
-    inline bool MdtCalibHitBase::segmentT0Applied() const { return m_segmentT0Applied; }
-
-    inline void MdtCalibHitBase::setSegmentT0Applied(bool flag) { m_segmentT0Applied = flag; }
-
-    inline float MdtCalibHitBase::tubeRadius() const { return m_tubeRadius; }
 
 }  // namespace MuonCalib
 

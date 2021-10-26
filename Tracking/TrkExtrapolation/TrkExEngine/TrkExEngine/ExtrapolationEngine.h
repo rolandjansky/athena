@@ -8,7 +8,6 @@
 
 #ifndef TRKEXINTERFACES_EXTRAPOLATIONENGINE_H
 #define TRKEXINTERFACES_EXTRAPOLATIONENGINE_H
-#define LEGACY_TRKGEOM
 
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"

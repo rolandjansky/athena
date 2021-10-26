@@ -93,23 +93,6 @@
   <y title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 
-<h id="nTRTHits" type="TH1F" title="TRT Hits">
-  <x title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-  <y title="Entries"/>
-</h>
-<h id="nTRTHits_vs_eta" type="TProfile" title="TRT Hits vs Eta">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTHits_vs_phi" type="TProfile" title="TRT Hits vs Phi">
-  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
-  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTHits_vs_mu" type="TProfile" title="TRT Hits vs Mu">
-  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
-  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-
 <h id="nPixelHoles" type="TH1F" title="Pixel Holes">
   <x title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
   <y title="Entries"/>
@@ -152,23 +135,6 @@
 <h id="nSCTHoles_vs_mu" type="TProfile" title="SCT Holes vs Mu">
   <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
-</h>
-
-<h id="nTRTHighThresholdHits" type="TH1F" title="High Threshold TRT Hits">
-  <x title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-  <y title="Entries"/>
-</h>
-<h id="nTRTHighThresholdHits_vs_eta" type="TProfile" title="High Threshold TRT Hits vs Eta">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTHighThresholdHits_vs_phi" type="TProfile" title="High Threshold TRT Hits vs Phi">
-  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
-  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTHighThresholdHits_vs_mu" type="TProfile" title="High Threshold TRT Hits vs Mu">
-  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
-  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 
 <!--Detailed Hit Plots -->
@@ -423,40 +389,6 @@
 <h id="nSCTSharedHits_vs_mu" type="TProfile" title="SCT SharedHits vs Mu">
   <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# SCT SharedHits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
-</h>
-
-<h id="nTRTOutliers" type="TH1F" title="TRT Outliers">
-  <x title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-  <y title="Entries"/>
-</h>
-<h id="nTRTOutliers_vs_eta" type="TProfile" title="TRT Outliers vs Eta">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTOutliers_vs_phi" type="TProfile" title="TRT Outliers vs Phi">
-  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
-  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTOutliers_vs_mu" type="TProfile" title="TRT Outliers vs Mu">
-  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
-  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-
-<h id="nTRTHighThresholdOutliers" type="TH1F" title="TRT HighThresholdOutliers">
-  <x title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-  <y title="Entries"/>
-</h>
-<h id="nTRTHighThresholdOutliers_vs_eta" type="TProfile" title="TRT HighThresholdOutliers vs Eta">
-  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTHighThresholdOutliers_vs_phi" type="TProfile" title="TRT HighThresholdOutliers vs Phi">
-  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
-  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-<h id="nTRTHighThresholdOutliers_vs_mu" type="TProfile" title="TRT HighThresholdOutliers vs Mu">
-  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
-  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 
 <h id="nPixelDeadSensors" type="TH1F" title="Pixel DeadSensors">
@@ -1842,7 +1774,7 @@
   <y title="Number of Entries"/>
 </h>
 <h id="reco_z0" type="TH1F" title="reco_{z_{0}}">
-  <x title="reco_{z_{0}}" n="100" lo="-&Z0PARA;" hi="&Z0PARA;"/>
+  <x title="reco_{z_{0}} [mm]" n="100" lo="-&Z0PARA;" hi="&Z0PARA;"/>
   <y title="Number of Entries"/>
 </h>
 <h id="reco_qoverp" type="TH1F" title="reco_{q/p}">
@@ -1858,7 +1790,7 @@
   <y title="Number of Entries"/>
 </h>
 <h id="reco_eta" type="TH1F" title="reco_{#eta}">
-  <x title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <x title="reco_{#eta}" n="100" lo="-&ETA;" hi="&ETA;"/>
   <y title="Number of Entries"/>
 </h>
 
@@ -1872,7 +1804,7 @@
 </h>
 
 <h id="reco_z0sin" type="TH1F" title="reco_{z_{0} #times sin}">
-  <x title="reco_{z_{0} #times sin}" n="100" lo="-&Z0SINPARA;" hi="&Z0SINPARA;"/>
+  <x title="reco_{z_{0} #times sin #theta} [mm]" n="100" lo="-&Z0SINPARA;" hi="&Z0SINPARA;"/>
   <y title="Number of Entries"/>
 </h>
 
@@ -1906,13 +1838,13 @@
 </h>
 
 <h id="reco_d0_vs_z0" type="TH2F" title="reco d_{T} vs z_{0}">
-  <x title="reco_{d_0}" n="100" lo="-20" hi="20"/>
-  <y title="reco_{z_{0}}" n="100" lo="-250" hi="250"/>
+  <x title="reco_{d_0} [mm]" n="100" lo="-20" hi="20"/>
+  <y title="reco_{z_{0}} [mm]" n="100" lo="-250" hi="250"/>
 </h>
 
 <h id="reco_d0_vs_z0sin" type="TH2F" title="reco d_{T} vs z_{0} sin #theta">
-  <x title="reco_{d_0}" n="100" lo="-20" hi="20"/>
-  <y title="reco_{z_{0} sin #theta}" n="100" lo="-10" hi="10"/>
+  <x title="reco_{d_0} [mm]" n="100" lo="-20" hi="20"/>
+  <y title="reco_{z_{0} sin #theta} [mm]" n="100" lo="-10" hi="10"/>
 </h>
 
 <h id="truth_d0" type="TH1F" title="truth_{d_{0}}">
@@ -1920,7 +1852,7 @@
   <y title="Number of Entries"/>
 </h>
 <h id="truth_z0" type="TH1F" title="truth_{z_{0}}">
-  <x title="truth_{z_{0}}" n="100" lo="-&Z0PARA;" hi="&Z0PARA;"/>
+  <x title="truth_{z_{0}} [mm]" n="100" lo="-&Z0PARA;" hi="&Z0PARA;"/>
   <y title="Number of Entries"/>
 </h>
 <h id="truth_qoverp" type="TH1F" title="truth_{q/p}">
@@ -1936,7 +1868,7 @@
   <y title="Number of Entries"/>
 </h>
 <h id="truth_eta" type="TH1F" title="truth_{#eta}">
-  <x title="truth_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <x title="truth_{#eta}" n="100" lo="-&ETA;" hi="&ETA;"/>
   <y title="Number of Entries"/>
 </h>
 
@@ -1998,11 +1930,6 @@
   <y title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 
-<h id="nTRTHits_vs_dR" type="TProfile" title="TRT Hits vs #DeltaR">
-  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
-  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-
 <h id="nPixelHoles_vs_dR" type="TProfile" title="Pixel Holes vs #DeltaR">
   <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
   <y title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -2011,11 +1938,6 @@
 <h id="nSCTHoles_vs_dR" type="TProfile" title="SCT Holes vs #DeltaR">
   <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
   <y title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
-</h>
-
-<h id="nTRTHighThresholdHits_vs_dR" type="TProfile" title="High Threshold TRT Hits vs #DeltaR">
-  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
-  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 
 <!--Detailed Hit Plots -->
@@ -2087,16 +2009,6 @@
 <h id="nSCTSharedHits_vs_dR" type="TProfile" title="SCT SharedHits vs #DeltaR">
   <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
   <y title="# SCT SharedHits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
-</h>
-
-<h id="nTRTOutliers_vs_dR" type="TProfile" title="TRT Outliers vs #DeltaR">
-  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
-  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
-</h>
-
-<h id="nTRTHighThresholdOutliers_vs_dR" type="TProfile" title="TRT HighThresholdOutliers vs #DeltaR">
-  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
-  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 
 <h id="nPixelDeadSensors_vs_dR" type="TProfile" title="Pixel DeadSensors vs #DeltaR">

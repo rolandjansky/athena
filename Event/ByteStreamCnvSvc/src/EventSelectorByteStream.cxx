@@ -18,6 +18,7 @@
 #include "GaudiKernel/IIoComponentMgr.h"
 
 #include "AthenaKernel/IAthenaIPCTool.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 #include "EventInfo/EventInfo.h"
 
 // EventInfoAttributeList includes
@@ -165,6 +166,10 @@ StatusCode EventSelectorByteStream::initialize() {
       return(StatusCode::FAILURE);
    }
 
+   // Make sure MetaDataSvc is initialized before the first file is opened
+   ServiceHandle<IMetaDataSvc> metaDataSvc("MetaDataSvc", name());
+   ATH_CHECK(metaDataSvc.retrieve());
+
    // Must happen before trying to open a file
    lock_t lock (m_mutex);
    StatusCode risc = this->reinit(lock);
@@ -172,7 +177,7 @@ StatusCode EventSelectorByteStream::initialize() {
    return risc;
 }
 //__________________________________________________________________________
-StatusCode EventSelectorByteStream::reinit(lock_t& /*lock*/) {
+StatusCode EventSelectorByteStream::reinit(lock_t& lock) {
    ATH_MSG_INFO("reinitialization...");
    // reset markers
    if (m_inputCollectionsProp.value().size()>0) {
@@ -200,13 +205,7 @@ StatusCode EventSelectorByteStream::reinit(lock_t& /*lock*/) {
       ATH_MSG_FATAL("Failed to postInitialize() helperTools");
       return(StatusCode::FAILURE);
    }
-   return(StatusCode::SUCCESS);
-}
 
-//________________________________________________________________________________
-StatusCode EventSelectorByteStream::start() {
-   ATH_MSG_DEBUG("Calling EventSelectorByteStream::start()");
-   lock_t lock (m_mutex);
    // If file based input then fire appropriate incidents
    if (m_filebased) {
       if (!m_firstFileFired) {
@@ -224,6 +223,13 @@ StatusCode EventSelectorByteStream::start() {
       m_beginFileFired = true;
    }
 
+   return(StatusCode::SUCCESS);
+}
+
+//________________________________________________________________________________
+StatusCode EventSelectorByteStream::start() {
+   ATH_MSG_DEBUG("Calling EventSelectorByteStream::start()");
+   lock_t lock (m_mutex);
    // Create the begin and end iterator's for this selector.
    m_beginIter =  new EventContextByteStream(this);
    // Increment to get the new event in.

@@ -64,8 +64,8 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool(const std::string& type, 
 }
 
 StatusCode PadTriggerLogicOfflineTool::initialize() {
-    ATH_MSG_INFO( "initializing " << name() );
-    ATH_MSG_INFO( name() << " configuration:");
+    ATH_MSG_DEBUG( "initializing " << name() );
+    ATH_MSG_DEBUG( name() << " configuration:");
 
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);

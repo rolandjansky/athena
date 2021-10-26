@@ -13,7 +13,7 @@
 // ************************************************
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
-
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigBjetBtagHypoTool.h"
 
 TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type, 
@@ -33,6 +33,13 @@ StatusCode TrigBjetBtagHypoTool::initialize()  {
   ATH_MSG_DEBUG(  "   " << m_cFrac            );
   
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
+
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+    ATH_MSG_DEBUG("MonTool name: " << m_monTool);
+  }
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -81,6 +88,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
 	   m_methodTag == "MV2c20" ) {
 	btagging->MVx_discriminant( m_methodTag, btaggingWeight );
       } else if ( m_methodTag == "DL1r" ) {
+
 	double pu = -1;
 	double pb = -1;
 	double pc = -1;
@@ -90,7 +98,19 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
 	btagging->pc("DL1r",pc);
 	
 	btaggingWeight = log( pb/(pu*(1-m_cFrac) + m_cFrac*pc) );
+	
+	
+        auto monitor_btag_pu = Monitored::Scalar( "btag_pu", pu);
+        auto monitor_btag_pb = Monitored::Scalar( "btag_pb", pb);
+        auto monitor_btag_pc = Monitored::Scalar( "btag_pc", pc);
+	auto monitor_btag_weight = Monitored::Scalar( "btag_llr", btaggingWeight);
+	
+	auto monitor_group_for_btag_weights = Monitored::Group( m_monTool, monitor_btag_pu, monitor_btag_pb,
+								monitor_btag_pc, monitor_btag_weight);       
+	
+	
       } else {
+	
 	ATH_MSG_ERROR( "b-Tagging method has not been recognised: " << m_methodTag.value() );
 	return StatusCode::FAILURE;
       }

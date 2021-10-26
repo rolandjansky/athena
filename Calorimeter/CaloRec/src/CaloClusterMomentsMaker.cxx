@@ -22,7 +22,6 @@
 #include "CaloEvent/CaloCluster.h"
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"

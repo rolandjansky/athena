@@ -45,9 +45,9 @@ atlas_add_executable( EgEfficiencyCorr_mem_check
 atlas_add_test(ut_SimpleInitTest
    SCRIPT EgEfficiencyCorr_mem_check
    LOG_IGNORE_PATTERN "Package.AsgTool...  DEBUG")
+
 # AnalysisBase-only utilities:
 if( XAOD_STANDALONE )
-
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorr
       util/testEgEfficiencyCorr.cxx util/SFHelpers.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -73,9 +73,14 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib ElectronEfficiencyCorrectionLib ElectronPhotonSelectorToolsLib PATCoreAcceptLib PATInterfaces xAODCore xAODEgamma xAODEventInfo )
 
    atlas_install_python_modules(util/*.py)
+
    #Tests
    atlas_add_test(ut_RunOnASGAOD
 	          SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC 40)
+   
+   atlas_add_test(ut_TestFunctionality
+	          SCRIPT test/testEgEfficiencyDetailed.py
+	      	 PROPERTIES TIMEOUT 300)
  
 endif()
 

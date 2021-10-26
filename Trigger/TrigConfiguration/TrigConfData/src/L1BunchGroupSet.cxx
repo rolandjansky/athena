@@ -144,7 +144,7 @@ TrigConf::L1BunchGroupSet::bgPattern(size_t bcid) const {
 
    bgPattern_t p{0};
    for (size_t i = 0; i < s_maxBunchGroups; ++i) {
-      if (m_bunchGroups[i]->contains(bcid)) p += (1 << i);
+      if (m_bunchGroups[i] && m_bunchGroups[i]->contains(bcid)) p += (1 << i);
    }
    return p;
 }
@@ -155,10 +155,14 @@ TrigConf::L1BunchGroupSet::printSummary(bool detailed) const {
    std::cout << "Number of non-empty bunchgroups: " << sizeNonEmpty() << std::endl;
    if(detailed) {
       for( const auto & bg : m_bunchGroups ) {
-         std::cout << "  " << bg->name() << " (id " << bg->id() << ") has " << bg->size() << " bunches" << std::endl;
+         if (bg) {
+            std::cout << "  " << bg->name() << " (id " << bg->id() << ") has " << bg->size() << " bunches" << std::endl;
+         }
       }
    } else {
       const auto & paired = getBunchGroup(1);
-      std::cout << "Bunchgroup " << paired->name() << " has " << paired->size() << " bunches" << std::endl;
+      if (paired) {
+         std::cout << "Bunchgroup " << paired->name() << " has " << paired->size() << " bunches" << std::endl;
+      }
    }
 }

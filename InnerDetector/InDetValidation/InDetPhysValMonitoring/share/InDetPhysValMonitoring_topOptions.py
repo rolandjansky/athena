@@ -1,4 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+print("*********************************************************************************************************************************")
+print("WARNING - You're running a recently deprecated IDPVM jobOptions: you're kindly invited to switch to the new runIDPVM.py executable")
+print("WARNING - The IDPVM jobOptions you're currently running will soon be removed from the release")
+print("*********************************************************************************************************************************")
+
 
 # Define a few configuration arguments that can be passed by the user via the command line.
 # Avoid the need of hacking the job option file 

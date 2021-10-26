@@ -26,6 +26,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArHVIdMapping.h"
 #include "LArRecConditions/LArHVCorr.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -71,6 +72,8 @@ private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
   SG::ReadCondHandleKey<AthenaAttributeList>   m_hvRKey{this, "RvaluesKey", "/LAR/HVPathologiesOfl/Rvalues", "Cool folder with HV R values"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
   // Conditions keys write:
   SG::WriteCondHandleKey<CaloAffectedRegionInfoVec> m_affectedKey{this, "OutputKey", "LArAffectedRegionInfo", "SG key for output"};

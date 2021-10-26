@@ -154,9 +154,8 @@ StatusCode MuonMDT_CablingAlg::execute(){
     // convert the subdetector id to integer
     int subdetectorId = atoi(subdetector_id.c_str());
 
-    std::string delimiter = ",";
-    std::vector<std::string> info_map;
-    MuonCalib::MdtStringUtils::tokenize(map,info_map,delimiter);   
+    char delimiter = ',';
+    auto info_map = MuonCalib::MdtStringUtils::tokenize(map,delimiter);   
     ATH_MSG_VERBOSE( " parsing of the map"  );
 
     int index=0;
@@ -170,7 +169,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
 
     for(unsigned int i=0; i<info_map.size();i++){
       ATH_MSG_VERBOSE( i << "..."<< info_map[i] );
-      int info = atoi(info_map[i].c_str());
+      int info = MuonCalib::MdtStringUtils::atoi(info_map[i]);
       index++;
       // this is a tdcid
       if (index==1) {

@@ -39,7 +39,7 @@ char *toRelease;
         OUTPUT_STREAM;
         msglog << MSG::FATAL << "Error in xml/gmx file: assemblyref " << XMLString::transcode(idref) << " referenced a " << 
                               nodeName << " instead of an assembly.\n";
-        exit(999); // Should do better...
+        std::abort();
     }
 //
 //    Process it

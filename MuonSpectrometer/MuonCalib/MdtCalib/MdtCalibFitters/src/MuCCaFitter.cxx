@@ -44,26 +44,15 @@ namespace MuonCalib {
             }
         }
 
-        Amg::Vector3D pos = seg.position();
+        const Amg::Vector3D& pos = seg.position();
 
-        double S(0), Sy(0), Sz(0);
-        double Zc, Yc;
-        std::vector<double> y(N);
-        std::vector<double> x(N);
-        std::vector<double> z(N);
-        std::vector<double> r(N);
-        std::vector<double> sr(N);
-        std::vector<double> w(N);
-        std::vector<double> rw(N);
-        int ii;
-        int jj;
+        double S(0), Sy(0), Sz(0), Zc{0}, Yc{0};
+        std::vector<double> y(N), x(N), z(N);
+        std::vector<double> r(N), sr(N), w(N), rw(N);
+        int ii{0}, jj{0};
         {
-            MuonCalibSegment::MdtHitIt hit = seg.mdtHOTBegin();
-
-            ii = 0;
-            jj = 0;
-            while (hit != seg.mdtHOTEnd()) {
-                const MdtCalibHitBase& h = **hit;
+            for (const MuonCalibSegment::MdtHitPtr& hit : seg.mdtHOT()) {
+                const MdtCalibHitBase& h = *hit;
                 y[ii] = getY(h.localPosition());
                 z[ii] = getZ(h.localPosition());
                 r[ii] = std::abs(h.driftRadius());
@@ -79,14 +68,12 @@ namespace MuonCalib {
                     log << MSG::DEBUG << "fit() MuCCaFitter: (" << x[ii] << "," << y[ii] << ")  R = " << r[ii] << " W " << w[ii] << endmsg;
                 rw[ii] = r[ii] * w[ii];
                 if (selection[jj]) {
-                    ++hit;
                     ++jj;
                     continue;
                 }
                 S += w[ii];
                 Sz += w[ii] * z[ii];
                 Sy += w[ii] * y[ii];
-                ++hit;
                 ++ii;
                 ++jj;
             }
@@ -94,7 +81,7 @@ namespace MuonCalib {
         Zc = Sz / S;
         Yc = Sy / S;
 
-        MuCCaFitterImplementation* Fitter = new MuCCaFitterImplementation();
+        std::unique_ptr<MuCCaFitterImplementation> Fitter = std::make_unique<MuCCaFitterImplementation>();
         if (log.level() <= MSG::DEBUG) {
             for (int i = 0; i != ii; i++) {
                 log << MSG::DEBUG << "fit() MuCCaFitter hits passed to computepam Z=" << x[i] << " phi=" << y[i] << " zzz=" << z[i]
@@ -111,8 +98,7 @@ namespace MuonCalib {
         double afit = Fitter->get_a();
         double chi2f = Fitter->get_chi2f();
 
-        std::vector<double> dist(N);
-        std::vector<double> ddist(N);
+        std::vector<double> dist(N), ddist(N);
         double R, dis;
         double theta = std::atan(afit);
         if (theta < 0.) theta = M_PI + theta;
@@ -158,18 +144,12 @@ namespace MuonCalib {
 
         seg.set(chi2f / (N - 2), npos, ndir);
 
-        MuonCalibSegment::MdtHitIt it = seg.mdtHOTBegin();
-
-        int i(0);
-        while (it != seg.mdtHOTEnd()) {
-            MdtCalibHitBase& hit = const_cast<MdtCalibHitBase&>(**it);
-
-            hit.setDistanceToTrack(dist[i], ddist[i]);
-            ++it;
+        int i{0};
+        for (MuonCalibSegment::MdtHitPtr hit_ptr : seg.mdtHOT()) {
+            hit_ptr->setDistanceToTrack(dist[i], ddist[i]);
             ++i;
         }
 
-        delete Fitter;
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "fit() fit done" << endmsg;
         return true;
     }
@@ -399,25 +379,24 @@ namespace MuonCalib {
         /********************************************/
         /* Compute the 4 lines tangent to 2 circles */
         /********************************************/
-        double delta;
-        double averagephi, dist, dphiin, dphiex;
-        double bpar[4], phi;
+        double delta{0}, averagephi{0}, dist{0}, dphiin{0}, dphiex{0};
+        double bpar[4], phi{0};
         double bfparn[2];
         bfparn[0] = 0;
         bfparn[1] = 0;
         double bcand[2][4];
         int segnob[] = {1, -1, 1, -1};
         int ncandid[4], ncand;
-        int i, firsttime;
+        int i{0}, firsttime{0};
         double angularcoefficient[4];
         double bfpar[4];
-        double dy, dx;
+        double dy{0}, dx{0};
 
         /* compute a parameters */
         dx = x2 - x1;
         dy = y2 - y1;
         averagephi = std::atan2(dy, dx);
-        dist = std::sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+        dist = std::hypot(dx, dy);
 
         delta = r2 + r1;
         dphiin = std::asin(delta / dist);

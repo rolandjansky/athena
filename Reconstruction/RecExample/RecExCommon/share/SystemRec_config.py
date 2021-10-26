@@ -35,16 +35,9 @@ if DetFlags.detdescr.ID_on():
     protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
     AODFix_postInDetRec()
     if jobproperties.InDetJobProperties.useNewConfig():
-        print('Wrapping new configuration')
         from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-        ConfigFlags = getNewConfigFlags()
-        # TODO Keep here for the moment, since we still have debugging to do.
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( "Py:conf2toConfigurable" )
-        log.setLevel(DEBUG)
         CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
 
 

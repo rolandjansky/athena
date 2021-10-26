@@ -249,14 +249,13 @@ StatusCode MDT_DCSConditionsTool::loadDropChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     
     chamber_dropped=*(static_cast<const std::string*>((atr["Chambers_disabled"]).addressOfData()));
     
-    std::string delimiter = " ";
-    std::vector<std::string> tokens;
-    MuonCalib::MdtStringUtils::tokenize(chamber_dropped,tokens,delimiter);
+    char delimiter = ' ';
+    auto tokens = MuonCalib::MdtStringUtils::tokenize(chamber_dropped,delimiter);
     for (unsigned int i=0; i<tokens.size(); i++) {
       if(tokens[i]!="0"){
 
-        m_cachedDeadStations.push_back(tokens[i]);
-	std::string chamber_name=tokens[i];
+        m_cachedDeadStations.push_back(std::string(tokens[i]));
+	std::string_view chamber_name=tokens[i];
 	 
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadStationsId.push_back(ChamberId);
@@ -275,7 +274,7 @@ StatusCode MDT_DCSConditionsTool::loadDropChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
 StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
  
-
+  using namespace MuonCalib;
   m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
@@ -359,9 +358,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if(atr.size()==1){
       hv_name=*(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
       //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum  : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endmsg;
-      std::string delimiter = " ";
-      std::vector<std::string> tokens;
-      MuonCalib::MdtStringUtils::tokenize(hv_name,tokens,delimiter);
+      char delimiter = ' ';
+      auto tokens= MuonCalib::MdtStringUtils::tokenize(hv_name,delimiter);
       for (unsigned int i=0; i<tokens.size(); i++)
 	{
 	  
@@ -371,9 +369,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	}
       
       
-      std::string delimiter2 = "_";
-      std::vector<std::string> tokens2;
-      MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
+      char delimiter2 = '_';
+      auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload,delimiter2);
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
@@ -385,9 +382,9 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if(tokens[0]!="ON" && tokens[0]!="STANDBY" && tokens[0]!="UNKNOWN"){
 	
 	if( m_verbose ) m_log << MSG::VERBOSE << "NOT ON and NOT STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endmsg;	
-	m_cachedDeadMultiLayers.push_back(tokens2[2]);
-	int multilayer =atoi(tokens2[3].c_str());
-	std::string chamber_name = tokens2[2];
+	m_cachedDeadMultiLayers.push_back(std::string(tokens2[2]));
+	int multilayer =MdtStringUtils::atoi(tokens2[3]);
+	std::string_view chamber_name = tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId.push_back(MultiLayerId);
@@ -396,8 +393,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	
 	if( m_verbose ) m_log << MSG::VERBOSE << "STANDBY HV : " << tokens[0]<< " ChamberName : "<<tokens2[2] << "multilayer" << tokens2[3]<<endmsg;	
 	
-	int multilayer =atoi(tokens2[3].c_str());
-	std::string chamber_name = tokens2[2];
+	int multilayer =MdtStringUtils::atoi(tokens2[3]);
+	std::string_view chamber_name = tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
@@ -435,9 +432,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       setPointsV0_name=*(static_cast<const float*>((atr_v0["readBackSettings_v0"]).addressOfData()));
       //m_log << MSG::DEBUG << "Sequence for name string load is inside V0\n" << "  "<<setPointsV0_name<< endmsg; 
       //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanName : "<<atrc_v0->chanName(chanNum) <<endmsg;
-      std::string delimiter2 = "_";
-      std::vector<std::string> tokens2;
-      MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload,tokens2,delimiter2);
+      char delimiter2 = '_';
+      const auto tokens2= MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload,delimiter2);
       //m_ChamberML_V0_chanum.insert(std::make_pair(int(chanNum),float(setPointsV0_name)));
       m_ChamberML_V0_chanum[int(chanNum)]=float(setPointsV0_name);
 
@@ -451,8 +447,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
       }
       
-      int multilayer =atoi(tokens2[3].c_str());
-      std::string chamber_name = tokens2[2];
+      int multilayer =MdtStringUtils::atoi(tokens2[3]);
+      const std::string_view &chamber_name = tokens2[2];
       
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
@@ -485,9 +481,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if(atr_v1.size()==1){
       setPointsV1_name=*(static_cast<const float*>((atr_v1["readBackSettings_v1"]).addressOfData()));
          
-      std::string delimiter2 = "_";
-      std::vector<std::string> tokens2;
-      MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload,tokens2,delimiter2);
+      char delimiter2 = '_';
+      auto tokens2 = MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload,delimiter2);
       //m_ChamberML_V1_chanum.insert(std::make_pair(int(chanNum),float(setPointsV1_name)));
       m_ChamberML_V1_chanum[int(chanNum)]=float(setPointsV1_name);
       
@@ -498,8 +493,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	
       }
      
-      int multilayer =atoi(tokens2[3].c_str());
-      std::string chamber_name = tokens2[2];
+      int multilayer =MuonCalib::MdtStringUtils::atoi(tokens2[3]);
+      std::string_view chamber_name = tokens2[2];
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
       //m_ChamberML_V1.insert(std::make_pair(MultiLayerId,setPointsV1_name));
@@ -578,9 +573,8 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if(atr.size()==1){
       hv_name=*(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
       //m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) <<endmsg;
-      std::string delimiter = " ";
-      std::vector<std::string> tokens;
-      MuonCalib::MdtStringUtils::tokenize(hv_name,tokens,delimiter);
+      char delimiter = ' ';
+      const auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name,delimiter);
       for (unsigned int i=0; i<tokens.size(); i++)
 	{
 	  
@@ -590,9 +584,8 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	}
      
       
-      std::string delimiter2 = "_";
-      std::vector<std::string> tokens2;
-      MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
+      char delimiter2 = '_';
+      auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload,delimiter2);
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
@@ -603,8 +596,8 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       
       if(tokens[0]!="ON"){
 	 if( m_verbose ) m_log << MSG::VERBOSE << "NOT ON LV: " << tokens[0]<< " ChamberName : "<<tokens2[2] <<endmsg;
-	m_cachedDeadLVStations.push_back(tokens2[2]);
-	std::string chamber_name= tokens2[2];
+	m_cachedDeadLVStations.push_back(std::string(tokens2[2]));
+	std::string_view chamber_name= tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadLVStationsId.push_back(ChamberId);
 	 if( m_verbose ) m_log<<MSG::VERBOSE<<"Chamber off from LV Chamber !=ON "<<tokens2[2] <<endmsg;
@@ -689,18 +682,16 @@ StatusCode MDT_DCSConditionsTool::loadJTAG(IOVSVC_CALLBACK_ARGS_P(I,keys))
         
     if(atr.size()==1){
       hv_name=*(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-      std::string delimiter = " ";
-      std::vector<std::string> tokens;
-      MuonCalib::MdtStringUtils::tokenize(hv_name,tokens,delimiter);
+      char delimiter = ' ';
+      auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name,delimiter);
       for (unsigned int i=0; i<tokens.size(); i++)
 	{
 	  if(tokens[i]!="0"){
 	  }
 	}
       
-      std::string delimiter2 = "_";
-      std::vector<std::string> tokens2;
-      MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
+      char delimiter2 = '_';
+      auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload,delimiter2);
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
@@ -710,8 +701,8 @@ StatusCode MDT_DCSConditionsTool::loadJTAG(IOVSVC_CALLBACK_ARGS_P(I,keys))
       
       if(tokens[0]!="INITIALIZED"){
 
-	m_cachedDeadJTAGStatus.push_back(tokens2[2]);
-	std::string chamber_name= tokens2[2];
+	m_cachedDeadJTAGStatus.push_back(std::string(tokens2[2]));
+	std::string_view chamber_name= tokens2[2];
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadJTAGStatusId.push_back(ChamberId);
       }

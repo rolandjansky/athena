@@ -1,13 +1,14 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 # menu components
-from AthenaCommon.CFElements import seqAND
-from ..Menu.MenuComponents import MenuSequence
+from AthenaCommon.CFElements import seqAND, findAllAlgorithms
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-#from AthenaCommon.Constants import DEBUG
-
+from ..Menu.MenuComponents import MenuSequence
 # ====================================================================================================
 #    Get MenuSequences
 # ====================================================================================================
@@ -24,15 +25,13 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 # todo: pass in more information, i.e. jet collection name
 def getBJetSequence(jc_name):
 
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-
     config=getInDetTrigConfig('jet')
     prmVtxKey = config.vertex
     outputRoIName = "HLT_Roi_Bjet"
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnJetWithPVConstraintROITool
-    InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
+    InputMakerAlg = EventViewCreatorAlgorithm( f"IMBJet_{jc_name}_step2" )
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
     newRoITool.RoisWriteHandleKey  = recordable( outputRoIName )
@@ -42,7 +41,7 @@ def getBJetSequence(jc_name):
     InputMakerAlg.mergeUsingFeature = True
     InputMakerAlg.RoITool = newRoITool
     #
-    InputMakerAlg.Views = "BTagViews"
+    InputMakerAlg.Views = f"BTagViews_{jc_name}"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     #
     InputMakerAlg.RequireParentView = False
@@ -51,9 +50,11 @@ def getBJetSequence(jc_name):
     InputMakerAlg.PlaceJetInView = True
 
     # Output container names as defined in TriggerEDMRun3
-    jc_key = f'{jc_name}_'if jc_name else ''
-    InputMakerAlg.InViewJets = recordable( f'HLT_{jc_key}bJets' )
-    BTagName = recordable(f'HLT_{jc_key}BTagging')
+    if not jc_name:
+        raise ValueError("jet collection name is empty - pass the full HLT jet collection name to getBJetSequence().")
+    jc_key = f'{jc_name}_'
+    InputMakerAlg.InViewJets = recordable( f'{jc_key}bJets' )
+    BTagName = recordable(f'{jc_key}BTagging')
 
     # Prepare data objects for view verifier
     viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % InputMakerAlg.InViewRoIs ),
@@ -64,7 +65,6 @@ def getBJetSequence(jc_name):
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
     secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs, dataObjects=viewDataObjects )
 
-    from AthenaCommon.Configurable import ConfigurableRun3Behavior
     with ConfigurableRun3Behavior():
         # Flavour Tagging
         from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
@@ -76,22 +76,23 @@ def getBJetSequence(jc_name):
             inputMuons=None
         )
 
-    #Conversion of flavour-tagging algorithms from new to old-style
-    from AthenaCommon.CFElements import findAllAlgorithms
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    AllFlavourTaggingAlgs = []
-    for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
-        AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
+    # Conversion of flavour-tagging algorithms from new to old-style
+    # 1) We need to do the alogorithms manually and then remove them from the CA
+    flavourTaggingAlgs = [conf2toConfigurable(alg)
+                          for alg in findAllAlgorithms(acc_flavourTaggingAlgs._sequence)]
+    bJetBtagSequence = seqAND( f"bJetBtagSequence_{jc_name}", secondStageAlgs + flavourTaggingAlgs )
+    acc_flavourTaggingAlgs._sequence = []
 
-    acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
-    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
-    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
+    # 2) the rest is done by the generic helper
+    appendCAtoAthena(acc_flavourTaggingAlgs)
+
+    InputMakerAlg.ViewNodeName = f"bJetBtagSequence_{jc_name}"
 
     # Sequence
-    BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
+    BjetAthSequence = seqAND( f"BjetAthSequence_{jc_name}_step2",[InputMakerAlg,bJetBtagSequence] )
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlg
-    hypo = TrigBjetBtagHypoAlg( "TrigBjetBtagHypoAlg" )
+    hypo = TrigBjetBtagHypoAlg( f"TrigBjetBtagHypoAlg_{jc_name}" )
     # keys
     hypo.BTaggedJetKey = InputMakerAlg.InViewJets
     hypo.BTaggingKey = bTaggingContainerName

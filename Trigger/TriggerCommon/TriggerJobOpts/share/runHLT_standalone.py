@@ -29,8 +29,6 @@ class opt:
     doID             = True           # ConfigFlags.Trigger.doID
     doCalo           = True           # ConfigFlags.Trigger.doCalo
     doMuon           = True           # ConfigFlags.Trigger.doMuon
-    doDBConfig       = None           # dump trigger configuration
-    trigBase         = None           # file name for trigger config dump
     doWriteRDOTrigger = False         # Write out RDOTrigger?
     doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
@@ -69,13 +67,10 @@ class opt:
     enabledSignatures = []
     disabledSignatures = []
     selectChains      = []
+    disableChains     = []
 
-
-#
 ################################################################################
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -112,17 +107,14 @@ else:
         if s in globals():
             setattr(opt, s, globals()[s])
 
-# Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
 for s in slices:
     signature = s[2:].replace('Slice', '')
 
     if eval('opt.'+s) is True:
-        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.enabledSignatures.append( enabledSig )
+        opt.enabledSignatures.append( signature )
     else:
-        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.disabledSignatures.append( disabledSig )
+        opt.disabledSignatures.append( signature )
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -227,24 +219,23 @@ if 'enableL1MuonPhase1' not in globals():
     opt.enableL1MuonPhase1 = opt.doL1Sim
     log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
 
-# Translate opts to flags for LVL1
+if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
+    ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
+
+# Translate a few other flags
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
 ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
-#-------------------------------------------------------------
-# Transfer flags into TriggerFlags
-#-------------------------------------------------------------
+ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
+ConfigFlags.Trigger.doID = opt.doID
+ConfigFlags.Trigger.doMuon = opt.doMuon
+ConfigFlags.Trigger.doCalo = opt.doCalo
 
-# Pass on the option enabling HLT selection algorithms
-ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
-
-# To extract the Trigger configuration
-TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
-if opt.trigBase is not None:
-    TriggerFlags.Online.doDBConfigBaseName = opt.trigBase
+if opt.setMenu:
+    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
 
 # Setup list of modifiers
 # Common modifiers for MC and data
@@ -272,10 +263,6 @@ else:           # More data modifiers
                      'enableSchedulerMon'
     ]
 
-TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
-TriggerFlags.doMuon = ConfigFlags.Trigger.doMuon = opt.doMuon
-TriggerFlags.doCalo = ConfigFlags.Trigger.doCalo = opt.doCalo
-
 #-------------------------------------------------------------
 # Modifiers
 #-------------------------------------------------------------
@@ -298,17 +285,26 @@ for mod in dir(TriggerJobOpts.Modifiers):
         setModifiers.remove(mod)
 
 if setModifiers:
-    log.error('Unknown modifier(s): '+str(setModifiers))
+    log.error('Unknown modifier(s): %s', setModifiers)
 
+#-------------------------------------------------------------
+# Output flags
+#-------------------------------------------------------------
+if opt.doWriteRDOTrigger:
+    if ConfigFlags.Trigger.Online.isPartition:
+        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
+        theApp.exit(1)
+    rec.doWriteRDO = False  # RecExCommon flag
+    ConfigFlags.Output.doWriteRDO = True  # new JO flag
+    if not ConfigFlags.Output.RDOFileName:
+        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+if opt.doWriteBS:
+    rec.doWriteBS = True  # RecExCommon flag
+    ConfigFlags.Output.doWriteBS = True  # new JO flag
+    ConfigFlags.Trigger.writeBS = True  # new JO flag
 
-
-#--------------------------------------------------------------
-# Conditions setup.
-#--------------------------------------------------------------
 # never include this
 include.block("RecExCond/RecExCommon_flags.py")
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
-CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 # ---------------------------------------------------------------
 # Create main sequences
@@ -336,17 +332,24 @@ if ConfigFlags.Trigger.doID:
     DetFlags.makeRIO.ID_setOn()
 else:
     DetFlags.ID_setOff()
+
 if ConfigFlags.Trigger.doMuon:
     DetFlags.detdescr.Muon_setOn()
     DetFlags.makeRIO.all_setOn()
+    # Setup muon reconstruction for trigger
+    ConfigFlags.Muon.MuonTrigger=True
 else:
     DetFlags.Muon_setOff()
+
 if ConfigFlags.Trigger.doCalo:
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
+    # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
+    if ConfigFlags.Input.Format == 'POOL':
+        ConfigFlags.Trigger.doTransientByteStream = True
 else:
     DetFlags.Calo_setOff()
 
@@ -402,23 +405,36 @@ if ConfigFlags.Trigger.doID:
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
+#-------------------------------------------------------------
+# Lock flags !
+#
+# This is the earliest we can lock since InDetJobProperties.py
+# above still modifies the ConfigFlags.
+ConfigFlags.lock()
+
+# Only import this here to avoid we accidentally use CAs before locking
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+#-------------------------------------------------------------
+
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
+
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
     if ConfigFlags.Input.Format == 'POOL':
-        # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
-        ConfigFlags.Trigger.doTransientByteStream = True
         from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
-    TriggerFlags.MuonSlice.doTrigMuonConfig=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
-    
+# restore logger after above includes
+log = logging.getLogger('runHLT_standalone.py')
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -438,12 +454,6 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-if opt.setMenu:
-    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
-TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
-TriggerFlags.readLVL1configFromXML = True
-TriggerFlags.outputLVL1configFile = None
-
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
 generateL1Menu(ConfigFlags)
 createL1PrescalesFileFromMenu(ConfigFlags)
@@ -483,7 +493,6 @@ if opt.doL1Sim:
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
-        ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
         from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
         CAtoGlobalWrapper(HLTSeedingCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
@@ -498,16 +507,11 @@ if not opt.createHLTMenuExternally:
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    # define the function that enable the signatures
-    def signaturesToGenerate():
-        TriggerFlags.Slices_all_setOff()
-        for sig in opt.enabledSignatures:
-            eval(sig)
+    def chainsToGenerate(signame, chain):
+        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
+                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
 
-    menu.overwriteSignaturesWith(signaturesToGenerate)
-
-    if (opt.selectChains):
-        menu.selectChainsForTesting = opt.selectChains
+    menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
@@ -561,36 +565,10 @@ if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     print(svcMgr)
 
 #-------------------------------------------------------------
-# Output flags
-#-------------------------------------------------------------
-if opt.doWriteRDOTrigger:
-    if ConfigFlags.Trigger.Online.isPartition:
-        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
-        theApp.exit(1)
-    rec.doWriteRDO = False  # RecExCommon flag
-    ConfigFlags.Output.doWriteRDO = True  # new JO flag
-    if not ConfigFlags.Output.RDOFileName:
-        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
-if opt.doWriteBS:
-    rec.doWriteBS = True  # RecExCommon flag
-    ConfigFlags.Output.doWriteBS = True  # new JO flag
-    ConfigFlags.Trigger.writeBS = True  # new JO flag
-
-#-------------------------------------------------------------
 # ID Cache Creators
 #-------------------------------------------------------------
-ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq")
-
-
-# B-jet output
-if opt.doBjetSlice:
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
-    alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
-    condSeq += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.Run2TrigTaggers+ConfigFlags.BTagging.Run3NewTrigTaggers, NewChannel = alias)
 
 #-------------------------------------------------------------
 # Output configuration

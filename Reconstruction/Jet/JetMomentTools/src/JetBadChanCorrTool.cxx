@@ -8,7 +8,6 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "PathResolver/PathResolver.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 

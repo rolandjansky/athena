@@ -278,7 +278,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
-    # if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    # if not flags.Muon.MuonTrigger:
     #     recordMuonCreatorAlgObjs (kwargs)
     acc = MuonCreatorAlgCfg(flags, name,**kwargs)
     result.merge(acc)
@@ -286,30 +286,6 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
-
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.merge( GeoModelCfg(flags) )
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
-    result.merge( MuonGeoModelCfg(flags) )
-
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    result.merge( LArGMCfg(flags) )
-
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    result.merge( TileGMCfg(flags) )
-
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    result.merge( BeamPipeGeometryCfg(flags) ) 
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg(flags))
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result.merge(SCT_GeometryCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(flags))
 
 # @TODO retire once migration to TrackingGeometry conditions data is complete
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg

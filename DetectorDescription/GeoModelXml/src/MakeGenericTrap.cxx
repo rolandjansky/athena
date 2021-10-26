@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // *NOT*!!! Automatically generated code from /home/hessey/prog/gmx2geo/makeshape
@@ -18,7 +18,7 @@ using namespace xercesc;
 
 MakeGenericTrap::MakeGenericTrap() {}
 
-const RCBase * MakeGenericTrap::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakeGenericTrap::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 const int nParams = 17; 
 char const *parName[nParams] = {"x0", "y0", "x1", "y1", "x2", "y2", "x3", "y3", 
                                 "x4", "y4", "x5", "y5", "x6", "y6", "x7", "y7", "zhalflength"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -389,13 +389,19 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     // set the event weight
     evt->weights().push_back(m_pythia->info.weight());
 #ifdef HEPMC3
-    GeVToMeV(evt);
-#else
-    // Units correction
-    if(Pythia8_i::pythiaVersion() < 8.170 ){
-        GeVToMeV(evt);
-    }
+// units correction
+      evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
 #endif
+
+//uncomment to list HepMC events
+//#ifdef HEPMC3
+//    std::cout << " print::listing Pythia8B " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+//#else
+//    std::cout << " print::printing Pythia8B " << std::endl;
+//    evt->print();
+//#endif
+
     // Remove event/number from buffer
     m_BEventBuffer.erase(m_BEventBuffer.begin());
     m_internalEventNumbers.erase(m_internalEventNumbers.begin());

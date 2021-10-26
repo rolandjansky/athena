@@ -10,8 +10,11 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 
 class IInterface;
 class InterfaceID;
@@ -34,19 +37,23 @@ class ZdcL1CaloErrorByteStreamTool : public AthAlgTool {
    static const InterfaceID& interfaceID();
 
    /// Set ROB status error
-   void robError(uint32_t robid, unsigned int err);
+   void robError(uint32_t robid, unsigned int err) const;
    /// Set ROD unpacking error
-   void rodError(uint32_t robid, unsigned int err);
+   void rodError(uint32_t robid, unsigned int err) const;
    /// Fill vector with accumulated errors and reset
-   StatusCode errors(std::vector<unsigned int>* errColl);
+   StatusCode errors(std::vector<unsigned int>* errColl) const;
 
  private:
 
-   // Maps of accumulated errors
+   // FIXME: do this in a sane way...
    typedef std::map<uint32_t, unsigned int> ErrorMap;
-   ErrorMap m_robMap;
-   ErrorMap m_rodMap;
-
+   struct ErrorMaps {
+     // Maps of accumulated errors
+     ErrorMap m_robMap;
+     ErrorMap m_rodMap;
+     std::mutex m_mutex;
+   };
+   mutable SG::SlotSpecificObj<ErrorMaps> m_maps ATLAS_THREAD_SAFE;
 };
 
 //} // end namespace

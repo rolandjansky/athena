@@ -1,40 +1,49 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/gvxyHandler.h"
 #include "AGDDModel/AGDDGvxy.h"
 #include "AGDDHandlers/gvxy_pointHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/XMLHandlerStore.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 
 using namespace xercesc;
 
-gvxyHandler::gvxyHandler(std::string s):XMLHandler(s)
+gvxyHandler::gvxyHandler(const std::string& s,
+                         AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void gvxyHandler::ElementHandle()
+void gvxyHandler::ElementHandle(AGDDController& c,
+                                xercesc::DOMNode *t)
 {
 	bool res;
-	std::string name=getAttributeAsString("name");
-	std::string material=getAttributeAsString("material");
-	double dZ=getAttributeAsDouble("dZ");
+	std::string name=getAttributeAsString(c, t, "name");
+	std::string material=getAttributeAsString(c, t, "material");
+	double dZ=getAttributeAsDouble(c, t, "dZ");
 	
- 	AGDDGvxy *vol=new AGDDGvxy(name);
+ 	AGDDGvxy *vol=new AGDDGvxy(name, c.GetVolumeStore(), c.GetSectionStore());
  	vol->SetMaterial(material);
  	vol->SetDz(dZ);
 
 	std::vector<TwoPoint> points;	
 	StopLoop(true);	
 	
+        gvxy_pointHandler* pointHand = dynamic_cast<gvxy_pointHandler*>
+          (c.GetHandlerStore().GetHandler("gvxy_point"));
+        if (!pointHand) std::abort();
+
+        IAGDDParser& parser = *c.GetParser();
 	DOMNode *child;
-	DOMNode *cElement=XercesParser::GetCurrentElement();
-	for (child=cElement->getFirstChild();child!=0;child=child->getNextSibling())
+	for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
 	{
 		if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-			XercesParser::elementLoop(child);
-			TwoPoint p=gvxy_pointHandler::CurrentTwoPoint();
+			parser.elementLoop(c, child);
+			TwoPoint p = pointHand->CurrentTwoPoint();
 			points.push_back(p);
 		}
 	}
@@ -43,7 +52,7 @@ void gvxyHandler::ElementHandle()
 	for (int i=0;i<nPoints;i++)
 		vol->SetPoint(points[i]);
 	
-	std::string col=getAttributeAsString("color",res);
+	std::string col=getAttributeAsString(c, t, "color",res);
 	if (res)
 		vol->SetColor(col);
 }

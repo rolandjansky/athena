@@ -429,7 +429,9 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
       auto flag = state.typeFlags();
       if (state.referenceSurface().associatedDetectorElement() != nullptr) {
         const auto* actsElement = dynamic_cast<const ActsDetectorElement*>(state.referenceSurface().associatedDetectorElement());
-        if (actsElement != nullptr && actsElement->getSubdetector() != ActsDetectorElement::Subdetector::TRT){
+        if (actsElement != nullptr 
+            && dynamic_cast<const InDetDD::TRT_BaseElement*>(actsElement->upstreamDetectorElement()) == nullptr) {
+          const auto* detElem = dynamic_cast<const InDetDD::SiDetectorElement*>(actsElement->upstreamDetectorElement());
           // We need to determine the type of state 
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
           const Trk::TrackParameters *parm;
@@ -444,10 +446,10 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
             
             // Check if this is a hole, a dead sensors or a state outside the sensor boundary
             if(boundaryCheck == Trk::BoundaryCheckResult::DeadElement){
-              if (actsElement->getSubdetector() == ActsDetectorElement::Subdetector::Pixel){
+              if (detElem->isPixel()) {
                 ++numberOfDeadPixel;
               }
-              else if (actsElement->getSubdetector() == ActsDetectorElement::Subdetector::SCT){
+              else if (detElem->isSCT()) {
                 ++numberOfDeadSCT;
               }
               // Dead sensors states are not stored              

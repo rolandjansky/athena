@@ -10,6 +10,8 @@ class MdtIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
 class CscIdHelper;
+class sTgcIdHelper;
+class MmIdHelper;
 
 #include <string>
 
@@ -27,6 +29,8 @@ namespace JiveXML{
     std::string getFullID(Identifier,const RpcIdHelper&);
     std::string getFullID(Identifier,const TgcIdHelper&);
     std::string getFullID(Identifier,const CscIdHelper&);
+    std::string getFullID(Identifier,const sTgcIdHelper&);
+    std::string getFullID(Identifier,const MmIdHelper&);
 
   }
 }

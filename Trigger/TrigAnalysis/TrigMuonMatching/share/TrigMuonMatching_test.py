@@ -10,7 +10,6 @@ rec.doCBNT=False
 from RecExConfig.RecFlags import rec
 rec.doTrigger=True
 from RecExConfig.RecAlgsFlags import recAlgs
-recAlgs.doTrigger=True
 recAlgs.doAtlfast=False
 recAlgs.doMonteCarloReact=False
 from TriggerJobOpts.TriggerFlags import TriggerFlags

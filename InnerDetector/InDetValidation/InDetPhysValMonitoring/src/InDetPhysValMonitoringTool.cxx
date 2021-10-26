@@ -145,7 +145,7 @@ InDetPhysValMonitoringTool::initialize() {
 
   ATH_CHECK( m_trkParticleName.initialize() );
   ATH_CHECK( m_truthParticleName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthParticleName.key().empty() ) );
-  ATH_CHECK( m_vertexContainerName.initialize() );
+  ATH_CHECK( m_vertexContainerName.initialize( not m_vertexContainerName.empty() ) );
   ATH_CHECK( m_truthVertexContainerName.initialize( not m_truthVertexContainerName.key().empty() ) );
   ATH_CHECK( m_eventInfoContainerName.initialize() );
 
@@ -201,6 +201,8 @@ InDetRttPlotConfig InDetPhysValMonitoringTool::getFilledPlotConfig() const{
   rttConfig.doTrackParametersPerAuthor = m_doPerAuthorPlots;
   rttConfig.doEfficienciesPerAuthor = m_doPerAuthorPlots;
   rttConfig.doResolutionsPerAuthor = m_doPerAuthorPlots;
+
+  rttConfig.doTrtExtensionPlots = m_doTRTExtensionPlots;
 
   /// turn off truth if none is present
   if (m_truthParticleName.key().empty()){
@@ -306,46 +308,52 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING("Shouldn't happen - EventInfo is buggy, setting mu to 0");
   }
 
-  ATH_MSG_DEBUG("Getting number of pu interactings per event");
-
-  ATH_MSG_DEBUG("Filling vertex plots");
-  SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
   const xAOD::Vertex* primaryvertex = nullptr;
-  const float puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->actualInteractionsPerCrossing() : 0;
-  const float nVertices = not vertices->empty() ? vertices->size() : 0;
-  const float beamSpotWeight = pie->beamSpotWeight();
-  ATH_MSG_DEBUG("beamSpotWeight is equal to " <<  beamSpotWeight);
+  float puEvents = 0;
+  float nVertices = 0;
+  float beamSpotWeight = 1;
 
-  if (vertices.isValid() and not vertices->empty()) {
-    ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
-    //Find the HS vertex following the user-configured strategy
-    primaryvertex = m_hardScatterSelectionTool->getHardScatter(vertices.get()); 
-    if (!primaryvertex){
-      /// In case of no HS, print a debug message - no warning since this is expected
-      /// in single particle MC. The downstream code is able to handle the absence of a HS vertex. 
-      ATH_MSG_DEBUG("Failed to find a hard scatter vertex in this event.");
+  if(not m_vertexContainerName.key().empty()){
+    ATH_MSG_DEBUG("Getting number of pu interactings per event");
+
+    ATH_MSG_DEBUG("Filling vertex plots");
+    SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
+    puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->actualInteractionsPerCrossing() : 0;
+    nVertices = not vertices->empty() ? vertices->size() : 0;
+    beamSpotWeight = pie->beamSpotWeight();
+    ATH_MSG_DEBUG("beamSpotWeight is equal to " <<  beamSpotWeight);
+
+    if (vertices.isValid() and not vertices->empty()) {
+      ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
+      //Find the HS vertex following the user-configured strategy
+      primaryvertex = m_hardScatterSelectionTool->getHardScatter(vertices.get());
+      if (!primaryvertex){
+	/// In case of no HS, print a debug message - no warning since this is expected
+	/// in single particle MC. The downstream code is able to handle the absence of a HS vertex.
+	ATH_MSG_DEBUG("Failed to find a hard scatter vertex in this event.");
+      }
+      //Filling plots for all reconstructed vertices and the hard-scatter
+      ATH_MSG_DEBUG("Filling vertices info monitoring plots");
+
+      // Fill vectors of truth HS and PU vertices
+      std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
+      std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
+      std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
+
+      // Decorate vertices
+      if (m_useVertexTruthMatchTool && m_vtxValidTool) {
+	ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
+	ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
+      }
+      m_monPlots->fill(*vertices, primaryvertex, truthHSVertices, truthPUVertices, beamSpotWeight);
+
+      ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
+      //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
+      m_monPlots->fill(*vertices, puEvents, beamSpotWeight);
+    } else {
+      //FIXME: Does this happen for single particles?
+      ATH_MSG_WARNING("Skipping vertexing plots.");
     }
-    //Filling plots for all reconstructed vertices and the hard-scatter
-    ATH_MSG_DEBUG("Filling vertices info monitoring plots");
-
-    // Fill vectors of truth HS and PU vertices
-    std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
-    std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
-    std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
-
-    // Decorate vertices
-    if (m_useVertexTruthMatchTool && m_vtxValidTool) {
-       ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
-       ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
-    }
-    m_monPlots->fill(*vertices, primaryvertex, truthHSVertices, truthPUVertices, beamSpotWeight);
-
-    ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
-    //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
-    m_monPlots->fill(*vertices, puEvents, beamSpotWeight);
-  } else {
-    //FIXME: Does this happen for single particles?
-    ATH_MSG_WARNING("Skipping vertexing plots.");
   }
 
 
@@ -394,6 +402,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     selectedTracks.push_back(thisTrack);
     //Number of selected reco tracks
     nSelectedRecoTracks++;
+
     //Fill plots for selected reco tracks, hits / perigee / ???
     std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = thisTrack->patternRecoInfo();
     bool isBAT = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);

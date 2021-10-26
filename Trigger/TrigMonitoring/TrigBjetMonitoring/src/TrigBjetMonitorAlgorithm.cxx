@@ -273,20 +273,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        wIP3D: " << wIP3D);
 	    fill("TrigBjetMonitor",wIP3D);
 	    
-	    NameH = "wSV1_Rbu_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto wSV1 = Monitored::Scalar<double>(NameH,0.0);
-	    btag->loglikelihoodratio("SV1", wSV1);
-	    ATH_MSG_DEBUG("        wSV1: " << wSV1);
-	    fill("TrigBjetMonitor",wSV1);
-	    
-	    NameH = "wCOMB_Rbu_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto wCOMB = Monitored::Scalar<double>(NameH,0.0);
-	    wCOMB = wIP3D+wSV1;
-	    ATH_MSG_DEBUG("        wCOMB: " << wCOMB);
-	    fill("TrigBjetMonitor",wCOMB);
-	    
 	    // Discriminants
 	    NameH = "wMV2c10_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
@@ -318,6 +304,31 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 			btag->variable<float>("SV1", "efracsvx", svp_efrc);
 			ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
 			fill("TrigBjetMonitor",svp_efrc);
+		}
+	    
+	    // JF variables (a la LZ)
+	    NameH = "JFxNVtx_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jf_n2t = Monitored::Scalar<int>(NameH,0.0);
+	    btag->variable<int>("JetFitter", "N2Tpair", jf_n2t);
+	    ATH_MSG_DEBUG("        jf_n2t: " << jf_n2t);
+	    fill("TrigBjetMonitor",jf_n2t);
+	    
+	    NameH = "JFxMVtx_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jf_mass = Monitored::Scalar<float>(NameH,0.0);
+	    btag->variable<float>("JetFitter", "masssvx", jf_mass);
+	    jf_mass *= 1.e-3;
+	    ATH_MSG_DEBUG("        jf_mass in GeV: " << jf_mass );
+	    fill("TrigBjetMonitor",jf_mass);
+	    
+		if (jf_mass > 0) {
+			NameH = "JFxEVtx_tr_"+trigName;
+			ATH_MSG_DEBUG( " NameH: " << NameH  );
+			auto jf_efrc = Monitored::Scalar<float>(NameH,0.0);
+			btag->variable<float>("JetFitter", "efracsvx", jf_efrc);
+			ATH_MSG_DEBUG("        jf_efrc: " << jf_efrc);
+			fill("TrigBjetMonitor",jf_efrc);
 		}
 	    
 	    // Run-3 discriminators
@@ -401,6 +412,14 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    if ( theLLR ) fill("TrigBjetMonitor",DL1r_mv);
 	    ATH_MSG_DEBUG("        DL1r_mv: " << DL1r_mv << " LLR: " << theLLR); 
 
+
+	    NameH = "DIPSL_pb_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DIPSL_pb = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pb("dipsLoose20210517",DIPSL_pb);
+	    ATH_MSG_DEBUG("        DIPSL_pb: " << DIPSL_pb);
+	    fill("TrigBjetMonitor",DIPSL_pb);
+	    
 	  } // if (ijet == 0)
 	  
 	  ijet++;

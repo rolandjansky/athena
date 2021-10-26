@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = """ToolFactories to instantiate all 
+__doc__ = """ToolFactories to instantiate all
 egammaCaloTools with default configuration"""
 __author__ = "Bruno Lenzi , Christos Anastopoulos"
 from egammaRec.Factories import ToolFactory

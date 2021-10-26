@@ -14,6 +14,7 @@
 
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkSurfaces/SurfaceHolders.h"
+#include <memory>
 
 namespace Trk {
 
@@ -83,6 +84,9 @@ public:
 
   //! make a Mefot class of the official EDM
   const MaterialEffectsBase* makeMEFOT() const;
+  
+    //! make a Mefot class of the official EDM
+  std::unique_ptr<MaterialEffectsBase> makeUniqueMEFOT() const;
 
 private:
   double m_xmin, m_dxmin, m_chi2min, m_thickness, m_sigmaDNA, m_addSigmaQoverP;

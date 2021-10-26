@@ -1604,7 +1604,7 @@ bool TrackHandleBase::isIDTrack() const
 {
   std::optional<Amg::Vector3D> start = startPoint();
   if (!start) return false;
-  return start->perp()<1100 &&fabs( start->z())>3500;
+  return start->perp()<1100 &&fabs( start->z())<3500;
 }
 
 //____________________________________________________________________

@@ -13,5 +13,5 @@ def PixelReadoutManagerCfg(flags, name="PixelReadoutManager", **kwargs):
 def ITkPixelReadoutManagerCfg(flags, name="ITkPixelReadoutManager", **kwargs):
     """Return a ComponentAccumulator with configured ITkPixelReadoutManager"""
     acc = ComponentAccumulator()
-    acc.addService(CompFactory.InDetDD.ITkPixelReadoutManager(name, **kwargs), primary=True)
+    acc.addService(CompFactory.InDetDD.ITk.PixelReadoutManager(name, **kwargs), primary=True)
     return acc

@@ -48,7 +48,8 @@ namespace LVL1 {
 
     virtual bool isCentralTowerSeed() override;
     virtual eFEXtauTOB* getTauTOB() override;
-    virtual float getIso() override;
+    virtual void getRCore(std::vector<unsigned int> & rCoreVec) override;
+    virtual float getRealIso() override;
     virtual unsigned int getEt() override;
     virtual unsigned int getBitwiseEt() override;
 
@@ -60,7 +61,8 @@ namespace LVL1 {
     void buildLayers();
     void setSupercellSeed();
     void setUnDAndOffPhi();
-    bool getUnD();
+    virtual bool getUnD() override;
+    virtual unsigned int getSeed() override;
 	
     unsigned int m_em0cells[3][3];
     unsigned int m_em1cells[12][3];

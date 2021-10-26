@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPCICOOLSTRSVC_H
@@ -13,6 +13,7 @@
 
 #include <string>
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace MuonCalib {
@@ -20,18 +21,18 @@ namespace MuonCalib {
     class RpcCalibData;
     class RpcCondParType;
 
-    class RpcICoolStrSvc : virtual public IInterface {
+    class ATLAS_NOT_THREAD_SAFE RpcICoolStrSvc : virtual public IInterface {
 
         public:
             static const InterfaceID& interfaceID();
 
             // put data in file into COOL 
-            virtual StatusCode putFile(const std::string filename) const=0;
-            virtual StatusCode putOnlineFile(const std::string filename) const=0;
+            virtual StatusCode putFile(const std::string& filename) const=0;
+            virtual StatusCode putOnlineFile(const std::string& filename) const=0;
 
             //put data back into datafile
-            virtual StatusCode makeFile(const std::string fileName) const = 0;
-            virtual StatusCode makeOnlineFile(const std::string fileName) const = 0;
+            virtual StatusCode makeFile(const std::string& fileName) const = 0;
+            virtual StatusCode makeOnlineFile(const std::string& fileName) const = 0;
 
             virtual StatusCode writeToDB() const=0;
             virtual StatusCode writeToOnlineDB() const=0;

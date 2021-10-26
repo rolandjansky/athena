@@ -147,11 +147,12 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   
-  // initialize class to execute digitization 
+  // initialize sTgcDigitMaker class to digitize hits
   m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
+  ATH_CHECK(m_digitizer->initialize(m_doChannelTypes));
+
   ATH_CHECK(m_rndmSvc.retrieve());
-    
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
 
@@ -332,8 +333,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
 
-  ATH_CHECK(m_digitizer->initialize(rndmEngine, m_doChannelTypes));
-
   // create and record the Digit container in StoreGate
   SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())));
@@ -433,9 +432,9 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
       Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire plane in local coordinates
 
-      ATH_MSG_VERBOSE("Local Z " << LOCAL_Z );
-      ATH_MSG_VERBOSE("Local Direction " << LOCDIRE );
-      ATH_MSG_VERBOSE("Local Position " << LPOS );
+      ATH_MSG_VERBOSE("Local Z: (" << LOCAL_Z.x() << ", " << LOCAL_Z.y() << ", " << LOCAL_Z.y() <<")" );
+      ATH_MSG_VERBOSE("Local Direction: (" << LOCDIRE.x() << ", " << LOCDIRE.y() << ", " << LOCDIRE.z() << ")" );
+      ATH_MSG_VERBOSE("Local Position: (" << LPOS.x() << ", " << LPOS.y() << ", " << LPOS.z() << ")" );
 
       double e = 1e-5;
 
@@ -459,8 +458,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;  //Hit on the wire surface attached to the closest wire in local coordinates
       Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
 
-      ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
-      ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
+      ATH_MSG_VERBOSE("Local Hit on Wire Surface: (" << HITONSURFACE_WIRE.x() << ", " << HITONSURFACE_WIRE.y() << ", " << HITONSURFACE_WIRE.z() << ")"  );
+      ATH_MSG_VERBOSE("Global Hit on Wire Surface: (" << G_HITONSURFACE_WIRE.x() << ", " << G_HITONSURFACE_WIRE.y() << ", " << G_HITONSURFACE_WIRE.z() << ")" );
 
       ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
 
@@ -481,7 +480,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
       float bunchTime = globalHitTime - tof;
 
-      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+      // Create all the digits for this particular Sim Hit
+      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime, rndmEngine);
       if (digiHits == nullptr) {
         continue;
       }
@@ -529,7 +529,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         if(eventId != 0)  //hit not from the main signal subevent
           isPileup = 1;
 
-        ATH_MSG_VERBOSE("...Check time 5: " << newTime );
         // Create a new digit with updated time and BCTag
         sTgcDigit newDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);
         ATH_MSG_VERBOSE("Unmerged Digit") ;

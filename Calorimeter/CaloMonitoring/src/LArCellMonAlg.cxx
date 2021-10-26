@@ -293,10 +293,8 @@ StatusCode LArCellMonAlg::bookHistograms() {
 void LArCellMonAlg::checkTriggerAndBeamBackground(bool passBeamBackgroundRemoval, std::vector<threshold_t> &thresholds) const {
 
   auto mon_trig = Monitored::Scalar<float>("trigType",-1);
-
   mon_trig=0.5;
   fill(m_MonGroupName,mon_trig);
-  //m_h_n_trigEvent->Fill(0.5);
 
   if (m_useTrigger && !getTrigDecisionTool().empty()) {
     std::bitset<MAXTRIGTYPE> triggersPassed(0x1<<NOTA); //Last bit: NOTA, always passes
@@ -327,7 +325,6 @@ void LArCellMonAlg::checkTriggerAndBeamBackground(bool passBeamBackgroundRemoval
   else {
     mon_trig=6.5;
     fill(m_MonGroupName,mon_trig);
-    //m_h_n_trigEvent->Fill(6.5); 
   }
   //Note that thr.m_threshTriggerDecision remains in it's default state 'true' if trigger wasn't used
 

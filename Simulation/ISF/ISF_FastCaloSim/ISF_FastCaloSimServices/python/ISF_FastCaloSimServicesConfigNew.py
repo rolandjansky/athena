@@ -52,11 +52,8 @@ def EmptyCellBuilderToolCfg(flags, name="ISF_EmptyCellBuilderTool", **kwargs):
 
 
 def LegacyFastShowerCellBuilderToolCfg(flags, name="ISF_LegacyFastShowerCellBuilderTool", **kwargs):
-    acc = FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
-    FastShowerCellBuilderTool = acc.popPrivateTools()
-    FastShowerCellBuilderTool.Invisibles += [13]
-    acc.setPrivateTools(FastShowerCellBuilderTool)
-    return acc
+    kwargs.setdefault("Invisibles", [0, 13])
+    return FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
 
 
 def PileupFastShowerCellBuilderToolCfg(flags, name="ISF_PileupFastShowerCellBuilderTool", **kwargs):
@@ -214,14 +211,6 @@ def FastCaloToolBaseCfg(flags, name="ISF_FastCaloTool", **kwargs):
     kwargs.setdefault("BatchProcessMcTruth"              , False)
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False)
     kwargs.setdefault("CaloCellsOutputName"              , flags.Sim.FastCalo.CaloCellsName)
-    kwargs.setdefault("DoPunchThroughSimulation"         , False)
-    if "PunchThroughTool" not in kwargs:
-        if kwargs["DoPunchThroughSimulation"]:
-            PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
-            acc.addPublicTool(PT_tool)
-            kwargs.setdefault("PunchThroughTool"                 , acc.getPublicTool(PT_tool.name))
-        else:
-            kwargs.setdefault("PunchThroughTool"                 , "")
     if "CaloCellMakerTools_setup" not in kwargs:
         EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
         acc.addPublicTool(EmptyCellBuilder)
@@ -354,8 +343,6 @@ def FastHitConvAlgFastCaloSimSvcCfg(flags, name="ISF_FastHitConvAlgFastCaloSimSv
 def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     acc = ComponentAccumulator()
     
-    PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
-    acc.addPublicTool(PT_tool)
     FastHit = acc.popToolsAndMerge(FastHitConvertToolCfg(flags))
     acc.addPublicTool(FastHit)
     EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
@@ -371,8 +358,6 @@ def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False)
     kwargs.setdefault("Identifier", "FastCaloSim")
     kwargs.setdefault("CaloCellsOutputName", flags.Sim.FastCalo.CaloCellsName + "PileUp")
-    kwargs.setdefault("PunchThroughTool", acc.getPublicTool(PT_tool.name))
-    kwargs.setdefault("DoPunchThroughSimulation", False)
     kwargs.setdefault("PUWeights_lar_bapre", flags.Sim.FastChain.PUWeights_lar_bapre)
     kwargs.setdefault("PUWeights_lar_hec", flags.Sim.FastChain.PUWeights_lar_hec)
     kwargs.setdefault("PUWeights_lar_em", flags.Sim.FastChain.PUWeights_lar_em)

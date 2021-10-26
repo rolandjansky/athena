@@ -150,4 +150,8 @@ def CscCondDbAlgCfg(flags, **kwargs):
 ###    return result
 
 
-
+def TgcDigitASDposCondAlgCfg(flags):
+    result  = ComponentAccumulator()
+    result.addCondAlgo(CompFactory.TgcDigitASDposCondAlg())
+    result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"] , detDb="TGC_OFL", className="CondAttrListCollection"))
+    return result

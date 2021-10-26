@@ -49,6 +49,9 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "eEM" )
       return std::make_shared<L1Threshold_eEM>( name, type, extraInfo, data );
 
+   if( type == "jEM" )
+      return std::make_shared<L1Threshold_jEM>( name, type, extraInfo, data );
+
    if( type == "eTAU" )
       return std::make_shared<L1Threshold_eTAU>( name, type, extraInfo, data );
 
@@ -60,6 +63,21 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
 
    if( type == "jJ" )
       return std::make_shared<L1Threshold_jJ>( name, type, extraInfo, data );
+
+   if( type == "jLJ" )
+      return std::make_shared<L1Threshold_jLJ>( name, type, extraInfo, data );
+
+   if( type == "jXE" )
+      return std::make_shared<L1Threshold_jXE>( name, type, extraInfo, data );
+
+   if( type == "jTE" )
+      return std::make_shared<L1Threshold_jTE>( name, type, extraInfo, data );
+
+   if( type == "gXE" )
+      return std::make_shared<L1Threshold_gXE>( name, type, extraInfo, data );
+
+   if( type == "gTE" )
+      return std::make_shared<L1Threshold_gTE>( name, type, extraInfo, data );
 
    if( type == "MU" )
       return std::make_shared<L1Threshold_MU>( name, type, extraInfo, data );
@@ -75,12 +93,6 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
 
    if( type == "internal" )
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
-
-   static const std::string caloBaseImp[] = { "gXE", "jXE" };
-   bool useCaloBaseClass = std::find(std::begin(caloBaseImp), std::end(caloBaseImp),type) != std::end(caloBaseImp);
-
-   if( useCaloBaseClass )
-      return std::make_shared<L1Threshold_Calo>( name, type, extraInfo, data );
 
    static const std::string noSpecialImp[] = { "JET", "XS", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ALFA"};
    bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) != std::end(noSpecialImp);
@@ -333,8 +345,14 @@ TrigConf::Selection::wpToString(TrigConf::Selection::WP wp)
       return "Medium";
    if (wp == Selection::WP::TIGHT)
       return "Tight";
-   if (wp == Selection::WP::HAD)
-      return "Had";
+   if (wp == Selection::WP::HADLOOSE)
+      return "HadLoose";
+   if (wp == Selection::WP::HADMEDIUM)
+      return "HadMedium";
+   if (wp == Selection::WP::HADTIGHT)
+      return "HadTight";
+   if (wp == Selection::WP::HAD) // Had = HadMedium for backward compatibility
+      return "HadMedium";
    throw std::runtime_error("Unknown working point " + std::to_string(int(wp)));
 }
 
@@ -349,7 +367,13 @@ TrigConf::Selection::stringToWP(const std::string & wpStr)
       return Selection::WP::MEDIUM;
    if (wpStr == "Tight")
       return Selection::WP::TIGHT;
-   if (wpStr == "Had")
-      return Selection::WP::HAD;
+   if (wpStr == "HadLoose")
+      return Selection::WP::HADLOOSE;
+   if (wpStr == "HadMedium")
+      return Selection::WP::HADMEDIUM;
+   if (wpStr == "HadTight")
+      return Selection::WP::HADTIGHT;
+   if (wpStr == "Had") // Had = HadMedium for backward compatibility
+      return Selection::WP::HADMEDIUM; 
    throw std::runtime_error("Unknown working point name " + wpStr);
 }

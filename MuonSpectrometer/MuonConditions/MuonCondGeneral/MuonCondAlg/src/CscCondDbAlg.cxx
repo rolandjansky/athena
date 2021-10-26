@@ -115,7 +115,7 @@ StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* w
     CondAttrListCollection::const_iterator itr;
     std::map<Identifier, int> layerMap;
     int hv_state, lv_state, hv_setpoint0, hv_setpoint1;
-
+    using namespace MuonCalib;
     unsigned int chan_index = 0;
     for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
         unsigned int chanNum = readCdo->chanNum(chan_index);
@@ -129,27 +129,26 @@ StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* w
             hv_setpoint0 = *(static_cast<const int*>((atr["HVSetpoint0"]).addressOfData()));
             hv_setpoint1 = *(static_cast<const int*>((atr["HVSetpoint1"]).addressOfData()));
 
-            std::string delimiter = "_";
-            std::vector<std::string> tokens;
-            MuonCalib::MdtStringUtils::tokenize(csc_chan_name, tokens, delimiter);
+            char delimiter = '_';
+            auto tokens = MuonCalib::MdtStringUtils::tokenize(csc_chan_name, delimiter);
 
             if ((hv_state != 1 or lv_state != 1 or hv_setpoint0 < 1000 or hv_setpoint1 < 1000) && !tokens.empty()) {
-                std::string layer = tokens[1];
-                std::string number_layer = tokens[1].substr(1, 2);
-                int wirelayer = atoi(const_cast<char*>(number_layer.c_str()));
+                std::string_view layer = tokens[1];
+                std::string_view number_layer = tokens[1].substr(1, 2);
+                int wirelayer = MdtStringUtils::atoi(number_layer);
 
                 int eta = 0;
-                std::string eta_side = tokens[0].substr(0, 1);
-                if (eta_side == "A") eta = +1;
-                if (eta_side == "C") eta = -1;
+                char eta_side = tokens[0][0];
+                if (eta_side == 'A') eta = +1;
+                if (eta_side == 'C') eta = -1;
 
-                std::string chamber_name;
-                std::string size_side = tokens[0].substr(1, 1);
-                if (size_side == "L") chamber_name = "CSL";
-                if (size_side == "S") chamber_name = "CSS";
+                std::string_view chamber_name;
+                char size_side = tokens[0][1];
+                if (size_side == 'L') chamber_name = "CSL";
+                if (size_side == 'S') chamber_name = "CSS";
 
                 int phi = 0;
-                std::string sector_side = tokens[0].substr(2, 4);
+                std::string_view sector_side = tokens[0].substr(2, 4);
                 if (sector_side == "01" || sector_side == "02") phi = 1;
                 if (sector_side == "03" || sector_side == "04") phi = 2;
                 if (sector_side == "05" || sector_side == "06") phi = 3;
@@ -161,7 +160,13 @@ StatusCode CscCondDbAlg::loadDataHv(writeHandle_t& writeHandle, CscCondDbData* w
 
                 Identifier ChamberId = m_idHelperSvc->cscIdHelper().elementID(chamber_name, eta, phi);
                 Identifier WireLayerId = m_idHelperSvc->cscIdHelper().channelID(ChamberId, 1, wirelayer, 1, 1);
-                std::string WireLayerstring = chamber_name + "_" + eta_side + "_" + sector_side + "_" + layer;
+                std::string WireLayerstring = std::string(chamber_name);
+                WireLayerstring += '_';
+                WireLayerstring += eta_side;
+                WireLayerstring += '_';
+                WireLayerstring += sector_side;
+                WireLayerstring += '_';
+                WireLayerstring += layer;
 
                 writeCdo->setDeadLayer(WireLayerstring, WireLayerId);
                 if (layerMap.count(ChamberId) == 0) layerMap[ChamberId] = 0;

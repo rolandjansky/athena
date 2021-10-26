@@ -152,6 +152,12 @@ namespace asg {
      return record( std::unique_ptr<T>(obj), name );
    }
 
+   template< typename T >
+   void SgTEventMeta::keys( std::vector< std::string >& vkeys ) const {
+      if (m_event)
+         m_event->keys<T>(vkeys, true); // true tells TEvent to scan metadata
+   }
+
 } // namespace asg
 
 #endif // ASGTOOLS_SGTEVENTMETA_ICC

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -9,8 +9,7 @@ Common variables and functions used in Trigger ART test steering
 import logging
 import sys
 import os
-from PyUtils.Decorators import memoize
-from AthenaCommon.Utils.unixtools import FindFile
+from functools import lru_cache
 
 
 # Logging level used across the package
@@ -63,8 +62,17 @@ def find_file(pattern):
     '''
     return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
 
+def find_file_in_path(filename, path_env_var):
+    '''Find filename in search path given by environment variable'''
 
-@memoize
+    # same as AthenaCommon.unixtools.FindFile but don't want AthenaCommon dependency
+    for path in os.environ[path_env_var].split(os.pathsep):
+        f = os.path.join( path, filename )
+        if os.access(f, os.R_OK):
+            return f
+    return None
+
+@lru_cache
 def check_job_options(jo_path):
     '''
     Check if the job options file exists locally or in JOBOPTSEARCHPATH.
@@ -74,10 +82,10 @@ def check_job_options(jo_path):
     if os.path.isfile(jo_path):
         return True
     # Try to find the file in JOBOPTSEARCHPATH
-    found = FindFile(jo_path, os.environ['JOBOPTSEARCHPATH'].split(os.pathsep), os.R_OK)
+    found = find_file_in_path(jo_path, 'JOBOPTSEARCHPATH')
     return found is not None
 
 
-@memoize
+@lru_cache
 def running_in_CI():
     return os.environ.get('gitlabTargetBranch') is not None

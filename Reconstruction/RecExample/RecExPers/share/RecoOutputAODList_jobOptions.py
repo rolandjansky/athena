@@ -117,10 +117,10 @@ if DetFlags.detdescr.FTK_on():
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     try:
-       include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
+       include ("CaloRec/CaloRecOutputItemList_jobOptions.py") 
        fullAODList += CfgItemList( "CaloAod", items = CaloAODList )
     except Exception:
-       treatException("Could not include CaloRecEx/CaloRecOutputItemList_jobOptions.py" )
+       treatException("Could not include CaloRec/CaloRecOutputItemList_jobOptions.py" )
 
 # Muon Spectrometer
 if DetFlags.detdescr.Muon_on():

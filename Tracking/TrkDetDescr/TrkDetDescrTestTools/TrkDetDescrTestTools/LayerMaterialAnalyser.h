@@ -74,25 +74,25 @@ namespace Trk {
         std::string           m_validationTreeDescription; //!< validation tree description - second argument in TTree
         std::string           m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
         
-        mutable int           m_layerIndex;                //!< the layer index given by the TrackingGeometry
-        mutable int           m_layerType;                 //!< the type of the layer 1 - cylinder, 2 - disk
-        mutable float         m_layerTranslation[3]{};       //!< center of the transform
-        mutable float         m_layerRotation[9]{};          //!< orientation of the layer         
-        mutable float         m_layerDimension0;           //!< dimension 0 : cylinder r, disk r_min
-        mutable float         m_layerDimension1;           //!< dimension 1 : cylinder z, disk r_max
-        mutable int           m_layerBins;                 //!< total number of bins - loc0 * loc 1
-        mutable int           m_layerBins0;                //!< total number of bins - loc 0
-        mutable int           m_layerBins1;                //!< total number of bins - loc 0
-        mutable std::vector<int> m_bin0 {LAYERMAXBINS};        //!< bin 0
-        mutable std::vector<int> m_bin1 {LAYERMAXBINS};        //!< bin 1
-        mutable std::vector<float> m_thickness {LAYERMAXBINS};   //!< gathered thickness from material mapping/material properties
-        mutable std::vector<float> m_X0 {LAYERMAXBINS};          //!< gathered X0 from material mapping/material properties
-        mutable std::vector<float> m_L0 {LAYERMAXBINS};          //!< gathered L0 from material mapping/material properties
-        mutable std::vector<float> m_A {LAYERMAXBINS};           //!< gathered A from material mapping/material properties
-        mutable std::vector<float> m_Z {LAYERMAXBINS};           //!< gathered Z from material mapping/material properties
-        mutable std::vector<float> m_Rho {LAYERMAXBINS};         //!< gathered rho from material mapping/material properties
-        mutable std::vector<int> m_elements {LAYERMAXBINS};    //!< gathered number of elements from material mapping/material properties
-        mutable std::vector<int> m_binCounter {LAYERMAXBINS};  //!< how often was this bin hit / used
+        mutable int                 m_layerIndex;                //!< the layer index given by the TrackingGeometry
+        mutable int                 m_layerType;                 //!< the type of the layer 1 - cylinder, 2 - disk
+        std::vector<float>* m_layerTranslation;       //!< center of the transform
+        std::vector<float>* m_layerRotation;          //!< orientation of the layer         
+        mutable float               m_layerDimension0;           //!< dimension 0 : cylinder r, disk r_min
+        mutable float               m_layerDimension1;           //!< dimension 1 : cylinder z, disk r_max
+        mutable int                 m_layerBins;                 //!< total number of bins - loc0 * loc 1
+        mutable int                 m_layerBins0;                //!< total number of bins - loc 0
+        mutable int                 m_layerBins1;                //!< total number of bins - loc 0
+        std::vector<int>*   m_bin0;        //!< bin 0
+        std::vector<int>*   m_bin1;        //!< bin 1
+        std::vector<float>* m_thickness;   //!< gathered thickness from material mapping/material properties
+        std::vector<float>* m_X0;          //!< gathered X0 from material mapping/material properties
+        std::vector<float>* m_L0;          //!< gathered L0 from material mapping/material properties
+        std::vector<float>* m_A;           //!< gathered A from material mapping/material properties
+        std::vector<float>* m_Z;           //!< gathered Z from material mapping/material properties
+        std::vector<float>* m_Rho;         //!< gathered rho from material mapping/material properties
+        std::vector<int>*   m_elements;    //!< gathered number of elements from material mapping/material properties
+        std::vector<int>*   m_binCounter;  //!< how often was this bin hit / used
 
     };
 

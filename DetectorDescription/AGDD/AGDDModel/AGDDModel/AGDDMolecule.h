@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDMolecule_H
@@ -11,16 +11,17 @@
 #include <vector>
 
 class AGDDElement;
+class AGDDMaterialStore;
 
 class AGDDMolecule: public AGDDSimpleMaterial {
 	friend std::ostream& operator <<(std::ostream&, const AGDDMolecule &);
 public:
-	AGDDMolecule(std::string,double);
-	void AddElement(std::string);
+	AGDDMolecule(AGDDMaterialStore& ms, const std::string&,double);
+        void AddElement(AGDDMaterialStore& ms, const std::string&);
 	void NAtoms(int);
-	int NComponents() {return m_theElements.size();}
+	int NComponents() const {return m_theElements.size();}
 	AGDDElement* Element(int i) {return m_theElements[i];}
-	int Composition(int i) {return m_theComposition[i];}
+	int Composition(int i) const {return m_theComposition[i];}
 private:
 	std::vector<AGDDElement*> m_theElements;
 	std::vector<int> m_theComposition;

@@ -47,6 +47,8 @@ class L1MenuFlagsCont(object):
         "prescales"               :  FlagArgs( dict, dict() ),
         "RemapThresholdsAsListed" :  FlagArgs( bool, False ),
         "CtpIdMap"                :  FlagArgs( dict, dict() ),
+        "ThresholdMap"            :  FlagArgs( dict, dict() ),
+        "ItemMap"                 :  FlagArgs( dict, dict() ),
     }
 
     def __setattr__(self, attr, value):

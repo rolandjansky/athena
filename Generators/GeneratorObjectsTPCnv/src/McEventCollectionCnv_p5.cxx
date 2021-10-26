@@ -368,17 +368,17 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
       auto A_event_scale=genEvt->attribute<HepMC3::DoubleAttribute>("event_scale");    
       auto A_alphaQCD=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQCD");    
       auto A_alphaQED=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQED");    
-      auto A_signal_process_vertex=genEvt->attribute<HepMC3::IntAttribute>("signal_process_vertex");    
+      auto signal_process_vertex = HepMC::signal_process_vertex(genEvt);    
       auto A_random_states=genEvt->attribute<HepMC3::VectorLongIntAttribute>("random_states");    
       auto beams=genEvt->beams();
       persObj->m_genEvents.
-      push_back( GenEvent_p5(A_signal_process_id?(A_signal_process_id->value()):0,
+      push_back( GenEvent_p5(A_signal_process_id?(A_signal_process_id->value()):-1,
                               genEvt->event_number(),
                               A_mpi?(A_mpi->value()):-1, 
                               A_event_scale?(A_event_scale->value()):0.0, 
                               A_alphaQCD?(A_alphaQCD->value()):0.0, 
                               A_alphaQED?(A_alphaQED->value()):0.0, 
-                              A_signal_process_vertex?(A_signal_process_vertex->value()):0, 
+                              signal_process_vertex?HepMC::barcode(signal_process_vertex):0, 
                               beams.size()>0?HepMC::barcode(beams[0]):0,
                               beams.size()>1?HepMC::barcode(beams[1]):0,
                               genEvt->weights(),
@@ -403,6 +403,16 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
       crossSection[2] = cs->xsec();
       crossSection[1] = cs->xsec_err();
       crossSection[0] = static_cast<double>(cs->is_valid());
+      /// HepMC3 uses different defaults for "wrong" cross-section
+      /// Here we try to mimic HepMC2
+      if (crossSection[2] < 0) {
+       crossSection[2] = 0.0;
+       if (crossSection[1] < 0) { 
+         crossSection[1] = 0.0;
+       }
+       crossSection[0] = 0.0;
+      }
+      
     }
 
     //HepMC::HeavyIon encoding
@@ -731,7 +741,7 @@ void McEventCollectionCnv_p5::writeGenVertex( HepMC::ConstGenVertexPtr vtx,
                                                 position.y(),
                                                 position.z(),
                                                 position.t(),
-                                                vtx->id(),
+                                                vtx->status(),
                                                 weights.begin(),
                                                 weights.end(),
                                                 A_barcode?(A_barcode->value()):vtx->id()) );

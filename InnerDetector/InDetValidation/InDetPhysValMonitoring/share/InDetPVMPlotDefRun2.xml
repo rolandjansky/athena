@@ -181,6 +181,86 @@
   -->
 
 <!--
+   ========================================================
+   Hits plots in InDetPerf_Hits
+   ========================================================
+ -->
+
+<h id="nTRTHits" type="TH1F" title="TRT Hits">
+  <x title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
+<h id="nTRTHits_vs_eta" type="TProfile" title="TRT Hits vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHits_vs_phi" type="TProfile" title="TRT Hits vs Phi">
+  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHits_vs_mu" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<h id="nTRTHighThresholdHits" type="TH1F" title="High Threshold TRT Hits">
+  <x title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
+<h id="nTRTHighThresholdHits_vs_eta" type="TProfile" title="High Threshold TRT Hits vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHits_vs_phi" type="TProfile" title="High Threshold TRT Hits vs Phi">
+  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHits_vs_mu" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<h id="nTRTOutliers" type="TH1F" title="TRT Outliers">
+  <x title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
+<h id="nTRTOutliers_vs_eta" type="TProfile" title="TRT Outliers vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTOutliers_vs_phi" type="TProfile" title="TRT Outliers vs Phi">
+  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTOutliers_vs_mu" type="TProfile" title="TRT Outliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<h id="nTRTHighThresholdOutliers" type="TH1F" title="TRT HighThresholdOutliers">
+  <x title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
+<h id="nTRTHighThresholdOutliers_vs_eta" type="TProfile" title="TRT HighThresholdOutliers vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdOutliers_vs_phi" type="TProfile" title="TRT HighThresholdOutliers vs Phi">
+  <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdOutliers_vs_mu" type="TProfile" title="TRT HighThresholdOutliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<!--
+   =======================================================
+   end of hit plots
+   ======================================================
+ -->
+
+<!--
    =======================================================
    TRT Extension plots
    ========================================================
@@ -481,7 +561,32 @@
    ========================================================
   -->
 
+<!--
+   =======================================================
+   hit plots for tracks in jets
+   ======================================================
 
+     -->
+
+<h id="nTRTHits_vs_dR" type="TProfile" title="TRT Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<h id="nTRTHighThresholdHits_vs_dR" type="TProfile" title="High Threshold TRT Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<h id="nTRTOutliers_vs_dR" type="TProfile" title="TRT Outliers vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+<h id="nTRTHighThresholdOutliers_vs_dR" type="TProfile" title="TRT HighThresholdOutliers vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
 
 
 </hdef>

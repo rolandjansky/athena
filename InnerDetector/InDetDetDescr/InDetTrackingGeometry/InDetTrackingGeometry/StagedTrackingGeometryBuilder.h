@@ -143,7 +143,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      const Trk::TrackingGeometry* trackingGeometry ATLAS_NOT_THREAD_SAFE (const Trk::TrackingVolume* tvol = 0) const; 
+      Trk::TrackingGeometry* trackingGeometry ATLAS_NOT_THREAD_SAFE (const Trk::TrackingVolume* tvol = 0) const; 
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
@@ -176,7 +176,7 @@ namespace InDet {
             - in case a ring layout is given, it creates the corresponding
          sub-volumes and updates the radius
             */
-      const Trk::TrackingVolume* createTrackingVolume
+      Trk::TrackingVolume* createTrackingVolume
       ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& layers,
                             double innerRadius,
                             double& outerRadius,
@@ -210,6 +210,12 @@ namespace InDet {
 
       /** helper method needed for the Ring layout */
       void checkForInsert(std::vector<double>& radii, double radius) const;
+      
+      void checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const;
+
+      /** Private helper method for merging of rings with z-overlap */
+      std::vector<const Trk::Layer*> checkZoverlap(std::vector<const Trk::Layer*>& lays) const; 
+      const Trk::Layer* mergeDiscLayers(std::vector<const Trk::Layer*>& dlays) const;
 
       // helper tools for the geometry building
       ToolHandleArray<Trk::ILayerProvider>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
@@ -260,7 +266,30 @@ namespace InDet {
       std::sort(radii.begin(),radii.end());   
   }
 
+  inline void StagedTrackingGeometryBuilder::checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const {
 
+    // range into non-overlapping layers
+
+    if (!radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    
+    unsigned int ir=0;
+    while ( ir != radii.size() && rmin > radii[ir].second ) ir++;
+
+    if (ir==radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    // insert ?
+    else if (rmax<radii[ir].first) radii.insert(radii.begin()+ir,std::pair<double,double>(rmin,rmax));
+    // overlaps
+    else {
+      // resolve low edge
+      if (rmin<radii[ir].first) radii[ir].first=rmin;
+      // resolve upper edge
+      unsigned int imerge = ir;
+      while (imerge<radii.size()-1 && rmax>radii[imerge+1].first) imerge++;
+      radii[ir].second = rmax > radii[imerge].second ? rmax : radii[imerge].second;
+      if (imerge>ir) radii.erase(radii.begin()+ir+1,radii.begin()+imerge);       
+    }
+  }
+  
 } // end of namespace
 
 #endif //INDETTRACKINGGEOMETRY_STAGEDTRACKINGGEOMETRYBUILDER_H

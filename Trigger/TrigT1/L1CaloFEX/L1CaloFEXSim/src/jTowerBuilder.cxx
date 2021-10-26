@@ -64,7 +64,7 @@ void jTowerBuilder::BuildEMBjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
         float centre_eta = (0.1*ieta) + (0.05) ;
         for (int iphi = 0; iphi < 64; ++iphi) { // loop over 64 phi steps
             int key_eta = ieta;
-            float centre_phi = (0.1*iphi) + (0.05) ;
+            float centre_phi = (m_TT_Size_phi*iphi) + (m_TT_Size_phi/2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 100000, -1, -1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 200000,  1,    centre_eta, centre_phi);
         }
@@ -80,8 +80,7 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
         float centre_eta = (0.1*ieta) + (0.05);
         for (int iphi = 0; iphi < 64; ++iphi) { // loop over 64 phi steps
             int key_eta = ieta;
-            //float centre_phi = (TT_Size*iphi) + (0.5*TT_Size);
-            float centre_phi = (0.1*iphi) + (0.05) ;
+            float centre_phi = (m_TT_Size_phi*iphi) + (m_TT_Size_phi/2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 300000, -1,-1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 400000,  1,   centre_eta, centre_phi);
         }
@@ -98,7 +97,7 @@ void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
         float centre_eta =(0.1*ieta) + (0.05) ;
         for (int iphi = 0; iphi < 64; ++iphi) { // loop over 64 phi steps
             int key_eta = ieta;
-            float centre_phi = (0.1*iphi) + (0.05) ;
+            float centre_phi = (m_TT_Size_phi*iphi) + (m_TT_Size_phi/2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1, -1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000,  1,    centre_eta, centre_phi);
         }
@@ -111,8 +110,7 @@ void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
         float centre_eta = (0.1*ieta) + (0.05);
         for (int iphi = 0; iphi < 64; ++iphi) { // loop over 64 phi steps
             int key_eta = ieta;
-            //float centre_phi =(TT_Size*iphi) + (0.5*TT_Size) ;
-            float centre_phi = (0.1*iphi) + (0.05) ;
+            float centre_phi = (m_TT_Size_phi*iphi) + (m_TT_Size_phi/2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1,-1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000,  1,   centre_eta, centre_phi);
         }
@@ -125,8 +123,7 @@ void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
         float centre_eta= (0.1*ieta) + (0.05) ;
         for (int iphi = 0; iphi < 64; ++iphi) { // loop over 64 phi steps
             int key_eta = ieta;
-            //float centre_phi =(TT_Size*iphi) + (0.5*TT_Size) ;
-            float centre_phi = (0.1*iphi) + (0.05) ;
+            float centre_phi = (m_TT_Size_phi*iphi) + (m_TT_Size_phi/2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1,-1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000,  1,   centre_eta, centre_phi);
         }
@@ -140,7 +137,7 @@ void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
         for (int iphi = 0; iphi < 64; ++iphi) { // loop over 64 phi steps
             int key_eta = ieta;
             //float centre_phi =(TT_Size*iphi) + (0.5*TT_Size) ;
-            float centre_phi = (0.1*iphi) + (0.05) ;
+            float centre_phi = (m_TT_Size_phi*iphi) + (m_TT_Size_phi/2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 500000, -1, -1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 600000,  1,    centre_eta, centre_phi);
         }
@@ -154,7 +151,6 @@ void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
 void jTowerBuilder::BuildEMIEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const {
     int EMIE_MODIFIER = 25;
     int tmpVal = EMIE_MODIFIER;
-    float phi_width = 2.0;
     int cellCountEta = 0;
 
     for (int ieta = tmpVal; ieta < tmpVal + 3; ++ieta) { // loop over eta steps (there are 3 here, 2.5-2.7, 2.7-2.9, 2.9-3.1)
@@ -162,7 +158,7 @@ void jTowerBuilder::BuildEMIEjTowers(std::unique_ptr<jTowerContainer> & jTowerCo
         float centre_eta =(0.1*ieta) + (0.1*cellCountEta) ;
         for (int iphi = 0; iphi < 32; ++iphi) { // loop over 32 phi steps
             int key_eta = ieta;
-            float centre_phi = (2*iphi+phi_width/2.0)/10.0;
+            float centre_phi = (2*m_TT_Size_phi*iphi) + m_TT_Size_phi;
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, /*7*/500000, -1, -1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, /*8*/600000,  1,    centre_eta, centre_phi);
         }
@@ -174,7 +170,7 @@ void jTowerBuilder::BuildEMIEjTowers(std::unique_ptr<jTowerContainer> & jTowerCo
         float centre_eta = (0.1*ieta + 0.3) + (0.05);
         for (int iphi = 0; iphi < 32; ++iphi) { // loop over 32 phi steps
             int key_eta = ieta;
-            float centre_phi = (2*iphi+phi_width/2.0)/10.0;
+            float centre_phi = (2*m_TT_Size_phi*iphi) + m_TT_Size_phi;
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, /*7*/500000, -1, -1*centre_eta, centre_phi);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, /*8*/600000,  1,    centre_eta, centre_phi);
         }
@@ -201,7 +197,6 @@ void jTowerBuilder::BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerCo
 
     //FCAL0
     float eta_width = 1.4;
-    float phi_width = 4.0;
     int cellCountEta = 0;
     int FCAL0_INITIAL = FCAL_MODIFIER;
     std::vector<int> TT_etapos{31,33,34,36,37,39,40,42,43,45,46,48}; // Eta position of each supercell, need to be change for the real coords. Future MR
@@ -211,7 +206,7 @@ void jTowerBuilder::BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerCo
         cellCountEta++;
 
         for (int iphi = 0; iphi < 16; ++iphi) { // loop over 16 phi steps
-            float centre_phi = (4*iphi+phi_width/2.0)/10.0;
+            float centre_phi = (2*m_TT_Size_phi_FCAL*iphi) + m_TT_Size_phi_FCAL;
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 700000, -1, -1*centre_eta, centre_phi, 0);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 800000,  1,    centre_eta, centre_phi, 0);
         }
@@ -229,7 +224,7 @@ void jTowerBuilder::BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerCo
         float centre_eta = (TT_etapos[cellCountEta]+eta_width/2)/10.0;
         cellCountEta++;
         for (int iphi = 0; iphi < 16; ++iphi) { // loop over 16 phi steps
-            float centre_phi = (4*iphi+phi_width/2.0)/10.0;
+            float centre_phi = (2*m_TT_Size_phi_FCAL*iphi) + m_TT_Size_phi_FCAL;
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta,  900000, -1, -1*centre_eta, centre_phi, 1);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 1000000,  1,    centre_eta, centre_phi, 1);
         }
@@ -248,7 +243,7 @@ void jTowerBuilder::BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerCo
         float centre_eta = (TT_etapos[cellCountEta]+eta_width/2)/10.0;
         cellCountEta++;
         for (int iphi = 0; iphi < 16; ++iphi) { // loop over 16 phi steps
-            float centre_phi = (4*iphi+phi_width/2.0)/10.0;
+            float centre_phi = (2*m_TT_Size_phi_FCAL*iphi) + m_TT_Size_phi_FCAL;
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 1100000, -1, -1*centre_eta, centre_phi, 2);
             BuildSingleTower(jTowerContainerRaw, ieta, iphi, key_eta, 1200000,  1,    centre_eta, centre_phi, 2);
         }

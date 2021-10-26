@@ -62,7 +62,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF" + tag)
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputTopoClusterContainerName = caloClusters
+    TrigEgammaRecAlgo.InputClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_noGSF ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF" + tag)
@@ -73,7 +73,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     ## TrigTopoEgammaElectronCfg_noGSF ##
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF" + tag)
     thesequence += TrigTopoEgammaAlgo
-    TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
+    TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
     TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
     collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName

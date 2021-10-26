@@ -180,7 +180,7 @@ namespace MuonCalib {
         m_histograms->GetResHist(ml)->Fill(r_track, res / v);
     }
 
-    bool MultilayerRtDifference::DoFit(IRtRelation *rt_relation, const std::vector<MuonCalibSegment *> *seg) {
+    bool MultilayerRtDifference::DoFit(IRtRelation *rt_relation, const IMdtCalibration::MuonSegVec &seg) {
         TProfile *prov_diff = m_histograms->GetProfileDiff(m_min_number_of_hits);
         if (!prov_diff) {
             MsgStream log(Athena::getMessageSvc(), "MultilayerRtDifference");
@@ -203,12 +203,10 @@ namespace MuonCalib {
         if (std::abs(scale) > 2) scale *= 4;
         if (rt_relation->HasTmaxDiff()) { scale += rt_relation->GetTmaxDiff(); }
         rt_relation->SetTmaxDiff(scale);
-        if (!seg) return true;
+        if (seg.empty()) return true;
         // update input segments
-        for (std::vector<MuonCalibSegment *>::const_iterator it = seg->begin(); it != seg->end(); it++) {
-            MuonCalibSegment *segment = *it;
-            for (MuonCalibSegment::MdtHitVec::iterator h_it = segment->mdtHOTBegin(); h_it != segment->mdtHOTEnd(); h_it++) {
-                MdtCalibHitBase *hit = *h_it;
+        for (const auto &segment : seg) {
+            for (const MuonCalibSegment::MdtHitPtr &hit : segment->mdtHOT()) {
                 float old_corr = hit->TemperatureTime();
                 float corr = RtScaleFunction(hit->driftTime(), hit->identify().mdtMultilayer() == 2, *rt_relation);
                 hit->setTemperatureTime(corr);

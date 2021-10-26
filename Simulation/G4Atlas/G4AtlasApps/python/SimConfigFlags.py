@@ -52,7 +52,8 @@ def createSimConfigFlags():
             raise ValueError("Unknown G4 version")
         return version
 
-    scf.addFlag("Sim.G4Version", _check_G4_version)
+    scf.addFlag("Sim.G4Version", lambda prevFlags : _check_G4_version(prevFlags))
+
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
@@ -94,33 +95,36 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
-    
+    scf.addFlag("Sim.ISF.ReSimulation", False) # Using ReSimulation workflow
+
     def decideHITSMerging(prevFlags):
         simstr = prevFlags.Sim.ISF.Simulator
-        if simstr.endswith("MT"):
-            simstr = simstr[:-2]
         # Further specialization possible in future
-        if simstr in ("FullG4", "PassBackG4"):
+        if simstr in ("FullG4MT", "FullG4MT_QS", "PassBackG4MT"):
             doID = False
+            doITk = False
             doCALO = False
             doMUON = False
-        elif simstr in ("ATLFASTIIF_G4MS"):
+        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT"):
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        elif simstr in ("ATLFASTII", "G4FastCalo", "ATLFAST3MT", "ATLFAST3MT_QS"):
+        elif simstr in ("ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"):
             doID = False
+            doITk = False
             doCALO = True
             doMUON = False
         else:
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        return {"ID": doID, "CALO": doCALO, "MUON": doMUON}
+        return {"ID": doID, "CALO": doCALO, "MUON": doMUON, "ITk": doITk}
 
     scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 
-    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
+    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_run2_reprocessing.root") # filename of the input parametrizations file
     scf.addFlag("Sim.FastCalo.CaloCellsName", "AllCalo") # StoreGate collection name for FastCaloSim hits
     
     scf.addFlag("Sim.FastShower.InputCollection", "TruthEvent") # StoreGate collection name of modified TruthEvent for legayc FastCaloSim use

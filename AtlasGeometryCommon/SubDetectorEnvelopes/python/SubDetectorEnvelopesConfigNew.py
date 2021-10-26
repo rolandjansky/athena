@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 SubDetectorEnvelopes configurations for AtlasGeometryCommon
@@ -13,8 +13,8 @@ DetDescrDBEnvelopeSvc=CompFactory.DetDescrDBEnvelopeSvc
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     result = ComponentAccumulator()
 
-    kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope'    )
     kwargs.setdefault("DBBeamPipeNode"    , 'BeamPipeEnvelope' )
+    kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope' if ConfigFlags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3'] else 'ITkEnvelope' )
     kwargs.setdefault("DBCaloNode"        , 'CaloEnvelope'     )
     kwargs.setdefault("DBMSNode"          , 'MuonEnvelope'     )
     kwargs.setdefault("DBCavernNode"      , 'CavernEnvelope'   )
@@ -26,8 +26,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
 
-    if ConfigFlags.Detector.GeometryHGTD:
-        BeamPipe.addRZ(   34.3,   3420.0 )
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         BeamPipe.addRZ(   34.3,   3545.0 )
         BeamPipe.addRZ(  120.0,   3545.0 )
     else:
@@ -53,7 +52,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback IDEnvelope
     InDet = Volume()
     # InDet should include HGTD when it's turned on
-    if ConfigFlags.Detector.GeometryHGTD:
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         InDet.addRZ( 1148.,  3545. )
         InDet.addRZ(  34.3,  3545. )
     else:
@@ -66,7 +65,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback CaloEnvelope
     Calo = Volume()
 
-    if ConfigFlags.Detector.GeometryHGTD:
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         Calo.addRZ( 1148.0,  3545.0 )
         Calo.addRZ(  120.0,  3545.0 )
     else:

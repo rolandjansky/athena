@@ -71,7 +71,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK(m_hvMappingKey.initialize (m_doHV || m_doAffectedHV));
   ATH_CHECK(m_hvRKey.initialize(m_doR && (m_doHV || m_doAffectedHV)));
   ATH_CHECK(m_onlineHVScaleCorrKey.initialize(m_undoOnlineHVCorr));
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   // Write Handles
 
   ATH_CHECK(m_outputHVScaleCorrKey.initialize());
@@ -288,9 +288,11 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     
     ATH_CHECK(fillPathAndCellHV(voltageVec, hvCabling, voltagePerLine, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL, rValues));
   
-    const CaloDetDescrManager* calodetdescrmgr = nullptr;
-    ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
-    
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+    const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
+    writeHandle.addDependency(caloMgrHandle);
+    writeAffectedHandle.addDependency(caloMgrHandle);
+
     std::vector<float> vScale;
     vScale.resize(MAX_LAR_CELLS,(float)1.0);
     for (unsigned i=0;i<MAX_LAR_CELLS;++i) {

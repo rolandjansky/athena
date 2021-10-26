@@ -40,6 +40,8 @@ def getEnvelopeMap(ConfigFlags):
     if not ConfigFlags.Sim.ISFRun:
         if ConfigFlags.Detector.GeometryID:
             envelopeMap['IDET::IDET'] = 'CaloEntryLayer'
+        if ConfigFlags.Detector.GeometryITk:
+            envelopeMap['ITK::ITK'] = 'CaloEntryLayer'
         if ConfigFlags.Detector.GeometryCalo:
             envelopeMap['CALO::CALO'] = 'MuonEntryLayer'
         if ConfigFlags.Detector.GeometryMuon: #was geometry in old style, should it be?

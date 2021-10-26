@@ -51,7 +51,7 @@ if( NOT XAOD_ANALYSIS )
 atlas_add_test( TestDoubleMenuLoad SOURCES test/doubleLoad.cxx
                 INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CORAL_LIBRARIES} TrigConfData TrigConfIO
-                ENVIRONMENT "CLArgs=TRIGGERDBDEV1_I8 92 442 429 4"
+                ENVIRONMENT "CLArgs=TRIGGERDBDEV1_I8 104 499 490 4"
                 PRE_EXEC_SCRIPT "rm -f *1.json *2.json NoDBConnection.txt"
                 POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/doubleTestComp.py )
 endif()

@@ -5,9 +5,8 @@
 #  - specify values to be changed with the -c option
 #    athena -c "readG3=True ; EvtMax = 100" RecExCommon_topOptions.py
 #    Note: please use \" if a " is needed inside the command line
-#    athena -c "include(\"RecExCommon/RecExCommon_flags.py\") ; DetFlags.Muon_setOff()" RecExCommon_topOptions.py
+#    athena -c "include(\"RecExCond/RecExCommon_flags.py\") ; DetFlags.Muon_setOff()" RecExCommon_topOptions.py
 #  - create a file myconfig.py with the values to be changed
-#     (myconfig.py ould be copied/edited from RecExCommon_flags.py),
 #    then run
 #    athena myconfig.py RecExCommon_topOptions.py
 #  - edit/modify RecExCommon_topOptions.py and add the new values
@@ -352,8 +351,6 @@ else:
     # hack handle name mismatch
     if i=="donewTracking":
        inew="doNewTracking"
-    # hack do not map doTrigger to rec.doTrigger but to recAlgs.doTrigger   
-    # FIXME why not the contrary
     if jobproperties.Rec.__dict__.keys().__contains__(i) :
        if i in varInit:
           i_value = eval ('%s' % (i))
@@ -594,7 +591,7 @@ try:
    if rec.doTrigger():
       from TriggerJobOpts.TriggerFlags import TriggerFlags, sync_Trigger2Reco
 except Exception:
-   logRecExCommon_flags.info("Could not load TriggerFlags. OK only if AtlasReconstruction. Switching of rec.doTrigger")
+   logRecExCommon_flags.info("Could not load TriggerFlags. Switching of rec.doTrigger")
    rec.doTrigger=False
 
 
@@ -628,8 +625,6 @@ if rec.Commissioning():
    # being flags to switch algorithm on/off
    # ----------------------------------------------------------------------
    from RecExConfig.RecAlgsFlags  import recAlgs
-
-   #recAlgs.doTrigger 
 
    #
    # hack...
@@ -673,10 +668,6 @@ if rec.Commissioning():
        from MuonCnvExample.MuonCalibFlags import muonCalibFlags
 
                
-   from AthenaMonitoring.DQMonFlags import DQMonFlags
-   if rec.doESD() and DQMonFlags.doCTPMon() and rec.doTrigger():
-      include("TrigT1CTMonitoring/CTPFlags.py")
-
    # FIXME obsolete flags (should be removed)!!!
    # ------------------------------------
    # import GlobalFlags from RecExCommon
@@ -947,23 +938,12 @@ if not rec.doTau:
       pass
 
 
-# move up, need to know earlier if trigger is on
-#try:
-#   if rec.doTrigger():
-#      from TriggerJobOpts.TriggerFlags import TriggerFlags, sync_Trigger2Reco
-#except Exception:
-#   logRecExCommon_flags.info("Could not load TriggerFlags. OK only if AtlasReconstruction. Switching of rec.doTrigger")
-#   rec.doTrigger=False
-
-
 if not rec.doTrigger:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
    rec.doBeamBackgroundFiller=False
 
-   #FIXME a separate container to be used eventually
-   recAlgs.doTrigger=False
    if _AODFlagsAvailable:
       AODFlags.Trigger=False # obsolete
 

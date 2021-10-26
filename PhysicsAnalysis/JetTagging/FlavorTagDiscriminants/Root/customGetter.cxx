@@ -4,9 +4,8 @@
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
 
-#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODBTagging/BTagging.h"
 
 #include <optional>
 
@@ -17,12 +16,12 @@ namespace {
   // this function is not at all optimized, but then it doesn't have
   // to be since it should only be called in the initialization stage.
   //
-  std::function<double(const xAOD::BTagging&)> customGetter(
+  std::function<double(const SG::AuxElement&)> customGetter(
     const std::string& name)
   {
     using JL = ElementLink<xAOD::JetContainer>;
     SG::AuxElement::ConstAccessor<JL> jl("jetLink");
-    auto jg = [jl](const xAOD::BTagging& btag) -> const xAOD::Jet& {
+    auto jg = [jl](const SG::AuxElement& btag) -> const xAOD::Jet& {
       auto link = jl(btag);
       if (!link.isValid()) {
         throw std::runtime_error("invalid jetLink");
@@ -30,10 +29,10 @@ namespace {
       return **link;
     };
     if (name == "pt") {
-      return [jg](const xAOD::BTagging& b) {return jg(b).pt();};
+      return [jg](const SG::AuxElement& b) {return jg(b).pt();};
     }
     if (name == "abs_eta") {
-      return [jg](const xAOD::BTagging& b) {return std::abs(jg(b).eta());};
+      return [jg](const SG::AuxElement& b) {return std::abs(jg(b).eta());};
     }
     throw std::logic_error("no match for custom getter " + name);
   }
@@ -185,10 +184,10 @@ namespace FlavorTagDiscriminants {
     // which returns the pair we wanted.
     //
     // Case for jet variables
-    std::function<std::pair<std::string, double>(const xAOD::BTagging&)>
+    std::function<std::pair<std::string, double>(const SG::AuxElement&)>
     customGetterAndName(const std::string& name) {
       auto getter = customGetter(name);
-      return [name, getter](const xAOD::BTagging& j) {
+      return [name, getter](const SG::AuxElement& j) {
                return std::make_pair(name, getter(j));
              };
     }

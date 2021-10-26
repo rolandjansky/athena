@@ -6,7 +6,7 @@ def FindFile(pathenvvar, subdir="",filename=""):
     if os.environ.has_key(pathenvvar):
         path=os.environ[pathenvvar]
     else:
-        print "Environment Variable",pathenvvar,"not found."
+        print("Environment Variable",pathenvvar,"not found.")
         return ""
     
     spath=path.split(":")
@@ -19,7 +19,7 @@ def FindFile(pathenvvar, subdir="",filename=""):
             files=os.listdir(dir)
             for file in files:
                 if file==filename:
-                    print 'FindFile: File',filename,'found'
+                    print('FindFile: File',filename,'found')
                     return dir+"/"+filename
     return ""		
      

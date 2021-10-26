@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -34,7 +34,6 @@
 // access all RawChannel  
 //#include "EventContainers/SelectAllObject.h" 
 // access RawChannel in TrigTower 
-//#include "LArRawUtils/LArRoI_Map.h"
 // #include "LArRawUtils/LArRawRoISelector.h"
 //#include "LArRawUtils/LArTT_Selector.h"
 

@@ -532,8 +532,8 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-BadChannelsFolder="/LAR/BadChannels/BadChannels"
-MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayLog.info( "Read Bad Channels from Oracle DB")

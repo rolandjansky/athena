@@ -71,8 +71,6 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
 
 LArDetectorToolNV::~LArDetectorToolNV()
 {
-  // Clean up detector parameters instantiated by the factory
-  LArGeo::VDetectorParameters::SetInstance(0);
 }
 
 StatusCode LArDetectorToolNV::create()
@@ -178,9 +176,9 @@ StatusCode LArDetectorToolNV::create()
 
     theLArFactory.create(world);
     m_manager = theLArFactory.getDetectorManager();
-    if(m_geometryConfig=="RECO") {
-      // Release RDB Recordsets if we are inside reco job
-      LArGeo::VDetectorParameters::SetInstance(0);
+    if(m_geometryConfig!="RECO") {
+      // Save RDB Recordsets if we are not inside reco job
+      LArGeo::VDetectorParameters::SetInstance(theLArFactory.moveParameters());
     }
   }
 

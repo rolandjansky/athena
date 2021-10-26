@@ -31,6 +31,9 @@ using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
 using InDetDD::SiLocalPosition;
 
+namespace ITk
+{
+
 // constructor
 StripSurfaceChargesGenerator::StripSurfaceChargesGenerator(const std::string& type,
                                                          const std::string& name,
@@ -672,3 +675,5 @@ bool StripSurfaceChargesGenerator::chargeIsTrapped(double spess,
   }
   return isTrapped;
 }
+
+} // namespace ITk

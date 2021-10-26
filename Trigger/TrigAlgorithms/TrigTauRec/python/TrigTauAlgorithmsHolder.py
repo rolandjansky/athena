@@ -599,9 +599,9 @@ def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", calibFolder="", mi
 def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
                           MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, TrackClassification=False,
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
-                          OutputLayer="rnnid_output", OutputNode="sig_prob"):
+                          OutputLayer="rnnid_output", OutputNode="sig_prob", suffix=""):
 
-    _name = sPrefix + 'TauJetRNNEvaluator'
+    _name = sPrefix + 'TauJetRNNEvaluator' + suffix
 
     if _name in cached_instances:
         return cached_instances[_name]

@@ -104,17 +104,17 @@ TileCell::~TileCell()
 { }
 
 // clone this cell
-CaloCell* TileCell::clone() const
-{
-  return new TileCell(this->caloDDE(),
-		      this->ID(),
-		      this->energy(),
-		      this->time(),
-		      this->quality(),
-		      this->provenance(),
-		      this->gain(),
-		      this->eneDiff(), 
-		      this->timeDiff());
+std::unique_ptr<CaloCell> TileCell::clone() const
+{ 
+  return std::make_unique<TileCell>(this->caloDDE(),
+				    this->ID(),
+				    this->energy(),
+				    this->time(),
+				    this->quality(),
+				    this->provenance(),
+				    this->gain(),
+				    this->eneDiff(), 
+				    this->timeDiff());
 }
 
 

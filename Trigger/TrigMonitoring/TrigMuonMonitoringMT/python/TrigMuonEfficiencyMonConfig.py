@@ -22,14 +22,13 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    # To do: add noL1 chain
-    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20', 'HLT_mu60_0eta105_msonly_L1MU20', 'HLT_mu14_L1MU10']
+    Chains = ['HLT_mu6_L1MU5VF', 'HLT_mu26_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
 
     for chain in Chains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMonMT,'TrigMuEff_ttbar_'+chain)
 
-        monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU20'
-        monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU20'
+        monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
+        monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
         monAlg.Method = 'TTbarTagAndProbe'
         monAlg.MonitoredChains = [chain]
         threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
@@ -51,14 +50,13 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    # To do: add noL1 chain
-    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20', 'HLT_mu60_0eta105_msonly_L1MU20', 'HLT_mu14_L1MU10']
+    Chains = ['HLT_mu6_L1MU5VF', 'HLT_mu26_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
 
     for chain in Chains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMonMT,'TrigMuEff_ZTP_'+chain)
 
-        monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU20'
-        monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU20'
+        monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
+        monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
         monAlg.Method = 'ZTagAndProbe'
         monAlg.MonitoredChains = [chain]
         threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()

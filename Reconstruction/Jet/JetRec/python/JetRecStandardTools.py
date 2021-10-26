@@ -308,6 +308,14 @@ jtm += MuonSegmentPseudoJetAlgorithm(
   Pt = 1.e-20
 )
 
+# Ghost towers:
+jtm += PseudoJetAlgorithm(
+  "gtowerget",
+  InputContainer = "CaloCalFwdTopoTowers",
+  Label = "GhostTower",
+  OutputContainer = "PseduoJetGhostTower"
+)
+
 useVertices = True
 if not jetFlags.useVertices:
   useVertices = False

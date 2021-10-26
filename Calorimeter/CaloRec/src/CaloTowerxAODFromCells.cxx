@@ -11,7 +11,6 @@
 
 #include "xAODCaloEvent/CaloTowerContainer.h"
 #include "xAODCaloEvent/CaloTowerAuxContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include <limits>

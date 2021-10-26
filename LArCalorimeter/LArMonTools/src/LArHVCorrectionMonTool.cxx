@@ -90,6 +90,7 @@ StatusCode LArHVCorrectionMonTool::initialize()
   ATH_CHECK( m_cablingKey.initialize() );
   
   ATH_CHECK( m_channelKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   // LArOnlineIDStrHelper
   m_strHelper = std::make_unique<LArOnlineIDStrHelper>(m_LArOnlineIDHelper);
@@ -238,13 +239,15 @@ LArHVCorrectionMonTool::fillHistograms()
   m_eventsCounter++;
   
   if(m_eventsCounter == 1){ // Fill only at the beginning of LB. m_eventsCounter is reset at the begining of each LB.
-
-    const CaloDetDescrManager* ddman = nullptr;
-    ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
     
     // Retrieve event information
     const EventContext& ctx = Gaudi::Hive::currentContext();
     int lumi_block = ctx.eventID().lumi_block();
+
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager* ddman = *caloMgrHandle;
+
     
     // Counter for deviating channels in each partition
     float nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};

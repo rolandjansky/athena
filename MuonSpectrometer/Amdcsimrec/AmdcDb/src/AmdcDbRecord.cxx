@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbRecord.h"
@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iomanip>
 
-AmdcDbRecord::AmdcDbRecord(long UniversalId,std::string NameOfTheRecord){
+AmdcDbRecord::AmdcDbRecord(long UniversalId,const std::string& NameOfTheRecord){
 
   m_MapOfint["Dummy"]    =  0  ; m_MapOfint.clear();
   m_MapOfdouble["Dummy"] =  0. ; m_MapOfdouble.clear();

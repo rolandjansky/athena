@@ -72,8 +72,8 @@
 ///  globals for communicating with *Analyses
 #include "globals.h"
 
-///  TagNProbe routine class
-#include "TagNProbe.h"
+///  TagNProbe class
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 // in ConfAnalysis
 

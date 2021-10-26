@@ -305,7 +305,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/{}'.format(alg),xbins=phi_bins,xmin=phi_min,xmax=phi_max)
 
     ## HLT 2d eta-phi histos
-    algsHLT2d = ["cell", "tcpufit"]
+    algsHLT2d = ["cell", "tcpufit", "pfopufit"]
     for alg in algsHLT2d:
       metGroup.defineHistogram('{0}_eta,{0}_phi;{0}_eta_phi'.format(alg), type='TH2F', title='{} #eta - #phi;#eta;#phi'.format(alg),
                              path='Shifter/{}'.format(alg),

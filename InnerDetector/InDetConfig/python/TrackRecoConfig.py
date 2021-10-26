@@ -77,10 +77,8 @@ def SCTClusterizationPUCfg(flags, name="InDetSCT_ClusterizationPU", **kwargs) :
 
 ##------------------------------------------------------------------------------
 def PixelGangedAmbiguitiesFinderCfg(flags) :
-    acc = ComponentAccumulator()
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    acc.merge(PixelGeometryCfg(flags))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc = PixelReadoutGeometryCfg(flags)
 
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
     acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
@@ -129,7 +127,7 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     return acc
 
 
-def TrackToVertexCfg(flags, name="TrackToVertex", **kwargs):
+def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -200,14 +198,14 @@ def TrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge( PixelGeometryCfg(flags))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    result.merge( PixelReadoutGeometryCfg(flags))
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result.merge( SCT_GeometryCfg(flags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    result.merge( SCT_ReadoutGeometryCfg(flags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(flags))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    result.merge(TRT_ReadoutGeometryCfg(flags))
 
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(flags))

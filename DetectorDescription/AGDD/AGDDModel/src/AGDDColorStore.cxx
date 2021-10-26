@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDModel/AGDDColorStore.h"
@@ -16,24 +16,19 @@ void AGDDColorStore::Register(AGDDColor *v)
 	(*this)[name]=v;
 }
 
-bool AGDDColorStore::Exist(std::string n)
+bool AGDDColorStore::Exist(const std::string& n) const
 {
 	return ((*this).find(n) != (*this).end());
 }
 
-AGDDColor* AGDDColorStore::GetColor(std::string name)
+AGDDColor* AGDDColorStore::GetColor(const std::string& name)
 {
 	if ((*this).find(name) != (*this).end())
 		return (*this)[name];
 	else
 	{
 		std::cout << " Color "<<name<<" not found: returning 0"<<std::endl;
-		return 0;
+		return nullptr;
 	}
 }
 
-AGDDColorStore* AGDDColorStore::GetColorStore()
-{
-	static AGDDColorStore* thePointer=new AGDDColorStore();
-	return thePointer;
-}

@@ -9,6 +9,8 @@ theEventData2XML.DataTypes += ["JiveXML::MdtPrepDataRetriever/MdtPrepDataRetriev
 theEventData2XML.DataTypes += ["JiveXML::TgcPrepDataRetriever/TgcPrepDataRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::CscPrepDataRetriever/CscPrepDataRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::CSCClusterRetriever/CSCClusterRetriever"]
+theEventData2XML.DataTypes += ["JiveXML::sTgcPrepDataRetriever/sTgcPrepDataRetriever"]
+theEventData2XML.DataTypes += ["JiveXML::MMPrepDataRetriever/MMPrepDataRetriever"]
 
 ### RpcPrepData and TrigRpc share datatype 'RPC'. Must not be run together !
 ### RPCPrepData: default 'plain' retriever

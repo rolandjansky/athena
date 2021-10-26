@@ -1,20 +1,21 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//****************************************************************************
-// Filename : CalibHitToCaloCell.h
-//
-// Author   : Gia	gia@mail.cern.ch
-// Created  : March. 2005
-//
-//  
-//****************************************************************************
-#ifndef CalibHitToCaloCell_H
-#define CalibHitToCaloCell_H
+/**
+ *
+ * @file   CalibHitToCaloCell.h
+ * @author Gia, gia@mail.cern.ch
+ * @date   March, 2005
+ */
+
+#ifndef CALOCALIBHITREC_CALIBHITTOCALOCELL_H
+#define CALOCALIBHITREC_CALIBHITTOCALOCELL_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 #include <vector>
@@ -23,13 +24,8 @@ typedef std::vector<double> Energy ;
 
 class CaloCell_ID;
 class CaloDM_ID;
-class TileID;
-class LArEM_ID;
-class LArHEC_ID;
-class LArFCAL_ID;
 
 class LArCell;
-class CaloDetDescrManager;
 
 class CalibHitToCaloCell : public AthAlgorithm {
 public:
@@ -38,9 +34,9 @@ public:
 
     virtual ~CalibHitToCaloCell();                         
     
-    StatusCode initialize();    
-    StatusCode execute();
-    StatusCode finalize();
+    StatusCode initialize() override;
+    StatusCode execute() override;
+    StatusCode finalize() override;
 
     void test_energy(Energy*);
 
@@ -64,12 +60,8 @@ private:
     std::string m_caloCell_Em;
     std::string m_caloCell_NonEm;
 
-    const CaloCell_ID*  m_caloCell_ID;
-    const CaloDM_ID*    m_caloDM_ID;
-    //const TileID*       m_tile_ID;
-    //const LArEM_ID*     m_larEm_ID;
-    //const LArHEC_ID*    m_larHec_ID;
-    //const LArFCAL_ID*   m_larFcal_ID;
+    const CaloCell_ID*  m_caloCell_ID{nullptr};
+    const CaloDM_ID*    m_caloDM_ID{nullptr};
 
     std::vector<LArCell*> m_Cells_Tot;
     std::vector<LArCell*> m_Cells_Vis;
@@ -77,7 +69,11 @@ private:
     std::vector<LArCell*> m_Cells_NonEm;
 
     int m_nchan;
-//    int m_dm_nchan;
+
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 #endif

@@ -25,7 +25,6 @@
 
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloEvent/CaloCell.h"
@@ -56,8 +55,6 @@ TBTrackToCaloAlg::TBTrackToCaloAlg(const std::string &name,
   declareProperty("CaloCellContainerName", m_cell_container);
   declareProperty("ImpactInCaloContainerName", m_ImpactInCalosOutputName);
   declareProperty("TrackInputType", m_trkinput);
-
-  m_calo_dd = 0;
   m_calo_id = 0;
   m_calo_tb_coord = 0;
   m_particle = 0;
@@ -69,8 +66,7 @@ StatusCode TBTrackToCaloAlg::initialize()
 {
   ATH_MSG_DEBUG ( "TBTrackToCaloAlg::initialize()" );
 
-  m_calo_dd = CaloDetDescrManager::instance();
-  m_calo_id = m_calo_dd->getCaloCell_ID();
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   m_phiRange.print();
 
   // General access to Tools :
@@ -125,7 +121,7 @@ StatusCode TBTrackToCaloAlg::execute()
 
   // Example 2 : you want to know the list of cells crossed by the track
   // bool found_cells = PrintCellsCrossed();
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -587,6 +583,9 @@ TBTrackToCaloAlg::CellsCrossedByTrack(const Trk::Track* trk,
   StatusCode sc=evtStore()->retrieve(cell_container,m_cell_container);
   if ( sc != StatusCode::SUCCESS  ) return 0;
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
   // Where is the track shooting ?
   double offset = 0.;
   double trketa_at = 0.;
@@ -609,21 +608,20 @@ TBTrackToCaloAlg::CellsCrossedByTrack(const Trk::Track* trk,
   CaloCell_ID::SUBCALO subcalo;
   bool barrel;
   int sampling_or_module;
-  m_calo_dd->decode_sample (subcalo, barrel, sampling_or_module, sam);
+  caloDDMgr->decode_sample (subcalo, barrel, sampling_or_module, sam);
 
   // Get the corresponding grannularities : needs to know where you are 
   //                  the easiest is to look for the CaloDetDescrElement
   const CaloDetDescrElement* dde =
-     m_calo_dd->get_element(subcalo,sampling_or_module,barrel,eta,phi);
+     caloDDMgr->get_element(subcalo,sampling_or_module,barrel,eta,phi);
 
   double deta = int(neta/2)*dde->deta();
   double dphi = int(nphi/2)*dde->dphi();
   
   //std::cout << "zone is ..." << eta << " " << phi << " "
   //	      << deta << " " << dphi << " " << std::endl;
-  
   // Construct the list : 
-  my_list = new CaloCellList(cell_container,subcalo);
+  my_list = new CaloCellList(caloDDMgr, cell_container,subcalo);
   my_list->select(eta,phi,deta,dphi, (int) sam);
 
   // cleanup 
@@ -649,7 +647,7 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
     ATH_MSG_ERROR ("m_TrackName not set" );
     return true;
   }
-  
+
   StatusCode sc = evtStore()->retrieve(m_tracks, m_TrackName);
   if (sc.isFailure()){
     ATH_MSG_ERROR ("Tracks not found: will only play with calo " 

@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -117,3 +117,8 @@ def addStdEvgenArgs(parser):
                         default=trfArgClasses.argInt(0, runarg=True),
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Set to any digit !=0 if the output files should be cleaned up --saveList may help to save selected files')
+
+    parser.add_argument('--VERBOSE', '--Verbose', '--Debug', '--DEBUG', group='Evgen',
+                        help = 'set logging level to DEBUG',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        default=trfArgClasses.argBool('False'))

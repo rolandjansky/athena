@@ -10,13 +10,16 @@
 #include <memory>
 #include <sstream>
 
-ITkPixelOfflineCalibCondAlg::ITkPixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
+namespace ITk
+{
+
+PixelOfflineCalibCondAlg::PixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 
-StatusCode ITkPixelOfflineCalibCondAlg::initialize() {
+StatusCode PixelOfflineCalibCondAlg::initialize() {
   ATH_MSG_DEBUG("ITkPixelOfflineCalibCondAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
@@ -41,17 +44,17 @@ StatusCode ITkPixelOfflineCalibCondAlg::initialize() {
 
 
 
-StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
+StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("ITkPixelOfflineCalibCondAlg::execute()");
 
-  SG::WriteCondHandle<ITkPixelCalib::ITkPixelOfflineCalibData> writeHandle(m_writeKey, ctx);
+  SG::WriteCondHandle<PixelOfflineCalibData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
   // Construct the output Cond Object and fill it in
-  std::unique_ptr<ITkPixelCalib::ITkPixelOfflineCalibData> writeCdo(std::make_unique<ITkPixelCalib::ITkPixelOfflineCalibData>());
+  std::unique_ptr<PixelOfflineCalibData> writeCdo(std::make_unique<PixelOfflineCalibData>());
 
   if (m_inputSource==0) {
     ATH_MSG_WARNING("So far do nothing!! return StatusCode::FAILURE");
@@ -60,9 +63,8 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
   else if (m_inputSource==1) {
     ATH_MSG_WARNING("Pixel ITk constants read from text file. Only supported for local developments and debugging!");
 
-    ITkPixelCalib::ITkPixelOfflineCalibData* calibData = new ITkPixelCalib::ITkPixelOfflineCalibData;
-    
-    ITkPixelCalib::ITkPixelClusterErrorData* pced = calibData->getITkPixelClusterErrorData();
+    auto calibData = std::make_unique<PixelOfflineCalibData>();
+    PixelClusterErrorData* pced = calibData->getClusterErrorData();
 
     // Find and open the text file
     ATH_MSG_INFO("Load ITkPixelErrorData constants from text file");
@@ -73,7 +75,7 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("Get error constants");
     std::vector<float> constants = calibData->getConstants();
     if (!constants.empty()) { ATH_MSG_VERBOSE("constants are defined"); }
-    else                  { ATH_MSG_ERROR("constants size is NULL!!!"); } 
+    else                  { ATH_MSG_ERROR("constants size is NULL!!!"); }
 
 
     const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
@@ -81,7 +83,7 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     const EventIDRange rangeW{start, stop};
 
     ATH_MSG_DEBUG("Range of input is " << rangeW);
-    
+
     if (!constants.empty()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
       writeCdo->setConstants(constants);
@@ -97,8 +99,6 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_DEBUG("Dump the constants to file");
       calibData->dump();
     }
-    delete calibData;
-
   }
 
   else if (m_inputSource==2) {
@@ -208,3 +208,5 @@ StatusCode ITkPixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
 
   return StatusCode::SUCCESS;
 }
+
+} // namespace ITk

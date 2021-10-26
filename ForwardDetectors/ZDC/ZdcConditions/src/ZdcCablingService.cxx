@@ -28,20 +28,13 @@ void ZdcCablingService::deleteInstance()
 ZdcCablingService::ZdcCablingService (const ZdcID* zdcID) //  const ZdcHardwareID* zdcHWID)
   : m_dbFilled(0) , m_zdcID(zdcID) //, m_zdcHWID(zdcHWID)
 {
+
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "ZdcCablingSevice");
   if (!m_zdcID) {
     if (detStore->retrieve (m_zdcID).isFailure()) {
       std::abort();
     }
   }
-
-  /*
-  if (!m_zdcHWID) {
-    if (detStore->retrieve (m_zdcHWID).isFailure()) {
-      std::abort();
-    }
-  }
-  */
 
   fillConnectionTables();
   fillDB();

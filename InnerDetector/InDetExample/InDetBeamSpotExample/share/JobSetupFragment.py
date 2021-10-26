@@ -1,4 +1,3 @@
-# $Id: JobSetupFragment.py 714548 2015-12-14 16:30:23Z amorley $
 #
 # Job option fragment for JobRunner templates to do common job setup.
 #
@@ -111,10 +110,3 @@ if jobConfig['alignmenttrttag']:
 if jobConfig['alignmenttrtdxtag']:
     conddb.addFolder('TRT_OFL','/TRT/Calib/DX')
     conddb.addOverride("/TRT/Calib/DX", jobConfig['alignmenttrtdxtag'])
-
-#if jobConfig['UseFilledBCIDsOnly']:
-#    # Setup trigger config service (needed for Bunch Crossing Tool)
-#    from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-#    trigcfg = SetupTrigConfigSvc()
-#    trigcfg.SetStates("ds")
-#    trigcfg.InitialiseSvc()

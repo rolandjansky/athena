@@ -151,6 +151,7 @@ protected:
 
   QList<AssociatedObjectHandleBase*> getAllAscObjHandles() const; //!< Return list of all AscObj handles. Not guaranteed to be filled unless tsoses are visible.
 
+  virtual bool containsDetElement(const QString&) const {return false; }
 private:
 
   // It is illegal to copy/assign a TrackHandleBase:

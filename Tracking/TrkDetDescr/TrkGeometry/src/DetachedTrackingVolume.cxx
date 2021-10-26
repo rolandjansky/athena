@@ -201,15 +201,3 @@ void Trk::DetachedTrackingVolume::setBaseTransform(Amg::Transform3D* transf) {
   }
 }
 
-void Trk::DetachedTrackingVolume::realign ATLAS_NOT_THREAD_SAFE(
-    Amg::Transform3D* transf) const {
-  if (transf) {
-    Amg::Transform3D shift =
-        (*transf) * this->trackingVolume()->transform().inverse();
-    this->move(shift);
-  } else if (m_baseTransform) {
-    Amg::Transform3D shift =
-        *m_baseTransform * this->trackingVolume()->transform().inverse();
-    this->move(shift);
-  }
-}

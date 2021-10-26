@@ -1735,7 +1735,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::fillSeeds(EventData& data)
 }
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::initializeEventData(EventData& data) const {
-  data.initialize(EventData::HeavyIon,
+  data.initialize(EventData::ToolType::HeavyIon,
                   m_maxsizeSP,
                   m_maxOneSize,
                   0, // maxsize not used

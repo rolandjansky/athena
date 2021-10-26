@@ -49,23 +49,26 @@ namespace InDet {
       BeamPipeBuilderCond(const std::string&,const std::string&,const IInterface*);
       /** Destructor */
       virtual ~BeamPipeBuilderCond();
-      
+
       /** AlgTool initialize method */
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
-       
+      virtual StatusCode finalize() override;
+
       /** LayerBuilder interface method - returning Barrel-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > cylindricalLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+      cylindricalLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Endcap-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >     discLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+      discLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Planar-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >    planarLayers(const EventContext& ctx) const; 
+      virtual std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+      planarLayers(const EventContext& ctx) const override final;
 
       /** Name identification */
-      const std::string& identification() const;      
+      virtual const std::string& identification() const override;      
           
     private:
       
@@ -93,20 +96,24 @@ namespace InDet {
       
   };
 
- inline std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >  BeamPipeBuilderCond::discLayers(const EventContext&) const
+  inline std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+  BeamPipeBuilderCond::discLayers(const EventContext&) const
   {
-  //create dummy infinite range
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >(range,0); 
+    return std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>(
+      range, nullptr);
   }
- 
- inline std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* > BeamPipeBuilderCond::planarLayers(const EventContext&) const
+
+  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+  BeamPipeBuilderCond::planarLayers(const EventContext&) const
   {
-  //create dummy infinite range
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >(range, 0);
+    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(
+      range, nullptr);
   }
- 
+
  inline const std::string& BeamPipeBuilderCond::identification() const
  { return m_identification; } 
  

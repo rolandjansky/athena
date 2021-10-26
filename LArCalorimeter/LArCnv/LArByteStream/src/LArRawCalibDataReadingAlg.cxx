@@ -5,6 +5,7 @@
 #include "LArRawCalibDataReadingAlg.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" 
+#include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
@@ -23,6 +24,14 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
   StatusCode LArRawCalibDataReadingAlg::initialize() {
+
+  if (m_DigitKey.key().size()>0) {
+    ATH_CHECK(m_DigitKey.initialize());
+    m_doDigits=true;
+  }
+  else {
+    m_doDigits=false;
+  }
 
   if (m_calibDigitKey.key().size()>0) {
     ATH_CHECK(m_calibDigitKey.initialize());
@@ -56,8 +65,8 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
     m_doFebHeaders=false;
   }
   
-  if(!(m_doCalibDigits || m_doAccDigits || m_doAccCalibDigits)) {
-     ATH_MSG_FATAL("Needs ether CalibDigits or AccDigits  or AccCalibDigit Key");
+  if(!(m_doDigits || m_doCalibDigits || m_doAccDigits || m_doAccCalibDigits)) {
+     ATH_MSG_FATAL("Needs ether Digits or CalibDigits or AccDigits  or AccCalibDigit Key");
      return StatusCode::FAILURE;
   }
 
@@ -66,7 +75,7 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
      return StatusCode::FAILURE;
   }
 
-  if(m_doAccDigits && (m_doCalibDigits || m_doAccCalibDigits)) {
+  if(m_doAccDigits && (m_doDigits || m_doCalibDigits || m_doAccCalibDigits)) {
      ATH_MSG_FATAL("Could not have AccDigits with Calib Key");
      return StatusCode::FAILURE;
   }
@@ -109,10 +118,18 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
 }     
   
 StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
+  LArDigitContainer* digits=nullptr;
   LArCalibDigitContainer* cdigits=nullptr;
   LArAccumulatedDigitContainer* accdigits=nullptr;
   LArAccumulatedCalibDigitContainer* caccdigits=nullptr;
   LArFebHeaderContainer* febHeaders=nullptr;
+
+  if (m_doDigits) {
+    SG::WriteHandle<LArDigitContainer> digitsHdl(m_DigitKey,ctx);
+    ATH_CHECK(digitsHdl.record(std::make_unique<LArDigitContainer>()));
+    digits=digitsHdl.ptr();
+    digits->reserve(200000); //Enough space for the full calo
+  }
 
   if (m_doCalibDigits) {
     SG::WriteHandle<LArCalibDigitContainer> cdigitsHdl(m_calibDigitKey,ctx);
@@ -176,7 +193,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       if (m_failOnCorruption) {
 	return StatusCode::FAILURE;
       }else 
-	continue;
+	continue; //Jump to next ROD block
     }
     
      eformat::helper::Version ver(rob.rod_version());
@@ -198,7 +215,10 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
          }
       } else {
 	ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
-	return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+	if (m_failOnCorruption) 
+	  return StatusCode::FAILURE;
+	else 
+	  continue; //Jump to next ROD block
       }
     }//End if need to re-init RodBlock
 
@@ -244,6 +264,21 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
 
 
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
+
+      //Decode LArDigits (if requested)
+      if (m_doDigits) {
+	uint32_t gain;
+	int fcNb;
+	std::vector<short> samples;
+	while (rodBlock->getNextRawData(fcNb,samples,gain)) {
+	  if (fcNb>=NthisFebChannel)
+	    continue;
+	  if (samples.size()==0) continue; // Ignore missing cells
+	  HWIdentifier cId = m_onlineId->channel_Id(fId,fcNb);
+	  digits->emplace_back(new LArDigit(cId, (CaloGain::CaloGain)gain, std::move(samples)));
+	  samples.clear();
+	}//end getNextRawData loop
+      }//end if m_doDigits
 
       //Decode LArCalibDigits (if requested)
       if (m_doCalibDigits) {

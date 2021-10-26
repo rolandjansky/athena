@@ -89,7 +89,9 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "Offline",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
-                                "HLT_e.*_gsf_idperf.*:key=GSFTrigTrackParticles",
+                                "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
+                                "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
+                                "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
                                 "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
                                 "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
                         ]

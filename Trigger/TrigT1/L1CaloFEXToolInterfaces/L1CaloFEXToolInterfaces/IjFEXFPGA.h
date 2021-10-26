@@ -20,6 +20,7 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 #include "TrigConfData/L1Menu.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
 
 namespace LVL1 {
   
@@ -35,7 +36,7 @@ Interface definition for jFEXFPGA
 
     virtual StatusCode init(int id, int efexid) = 0;
 
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) = 0;
 
     virtual void reset() = 0;
 

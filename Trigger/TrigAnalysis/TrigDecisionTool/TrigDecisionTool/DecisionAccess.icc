@@ -1,4 +1,4 @@
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 
 template<class T> 
 const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
@@ -29,19 +29,22 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
   }
   return data;
 }
-#else
+
+#else // AnalysisBase
+
 template<class T> 
 const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
   ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty Feature");  
   return Trig::Feature<T>();
 }
+
 template<class T>
 const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
   ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty vector");  
   return  std::vector<Trig::Feature<T> >();
 }
 
-#endif // XAOD_STANDALONE
+#endif
 
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::FeatureRequestDescriptor& featureRequest) const {

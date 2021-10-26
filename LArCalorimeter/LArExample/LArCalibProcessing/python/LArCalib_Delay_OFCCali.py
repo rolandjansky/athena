@@ -15,7 +15,7 @@ def LArDelay_OFCCaliCfg(flags):
     digKey=gainStrMap[flags.LArCalib.Gain]
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     tagResolver=FolderTagResolver()
     pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
     caliWaveTag=tagResolver.getFolderTag(flags.LArCalib.CaliWave.Folder)
@@ -28,7 +28,7 @@ def LArDelay_OFCCaliCfg(flags):
 
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag))
+    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag, className="LArPedestalComplete"))
     result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=acTag))
     
 
@@ -42,12 +42,14 @@ def LArDelay_OFCCaliCfg(flags):
     result.merge(LArFebErrorSummaryMakerCfg(flags))
     result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
 
-    from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
-    result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
+    
+    if flags.LArCalib.Input.SubDet == "EM":
+        from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
+        result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
     
     
-    theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
-    result.addEventAlgo(theLArCalibShortCorrector)
+        theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
+        result.addEventAlgo(theLArCalibShortCorrector)
 
 
     theLArCaliWaveBuilder = CompFactory.LArCaliWaveBuilder()
@@ -64,8 +66,6 @@ def LArDelay_OFCCaliCfg(flags):
     
     
 
-    result.addPublicTool(CompFactory.LArAutoCorrDecoderTool(isSC=flags.LArCalib.isSC))
-
     LArCaliOFCAlg = CompFactory.LArOFCAlg("LArCaliOFCAlg")
     LArCaliOFCAlg.ReadCaliWave = True
     LArCaliOFCAlg.KeyList   = [ "LArCaliWave" ]
@@ -81,7 +81,7 @@ def LArDelay_OFCCaliCfg(flags):
     #LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
     LArCaliOFCAlg.GroupingType = flags.LArCalib.GroupingType
     LArCaliOFCAlg.isSC = flags.LArCalib.isSC
-    LArCaliOFCAlg.DecoderTool='LArAutoCorrDecoderTool/LArAutoCorrDecoderTool'
+    LArCaliOFCAlg.DecoderTool=CompFactory.LArAutoCorrDecoderTool(isSC=flags.LArCalib.isSC)
     result.addEventAlgo(LArCaliOFCAlg)
 
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     ConfigFlags.LArCalib.Output.ROOTFile="ofccali.root"
 
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
     print ("Input files to be processed:")
@@ -161,3 +161,4 @@ if __name__ == "__main__":
     cfg.merge(LArDelay_OFCCaliCfg(ConfigFlags))
     print("Start running...")
     cfg.run()
+

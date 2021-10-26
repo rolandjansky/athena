@@ -4,6 +4,7 @@
 
 #include "TrackParticleClusterAssociationAlg.h"
 
+#include "StoreGate/ReadDecorHandle.h"
 #include "StoreGate/WriteDecorHandle.h"
 
 #include "FourMomUtils/P4Helpers.h"
@@ -12,14 +13,23 @@
 
 
 TrackParticleClusterAssociationAlg::TrackParticleClusterAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator) {  }
+  AthAlgorithm(name,pSvcLocator), m_doDetEta{false} {  }
 
 StatusCode TrackParticleClusterAssociationAlg::initialize()
 {
 
+  if (m_detectorEtaDecor.key().empty())
+      m_doDetEta = false;
+  else
+  {
+      m_doDetEta = true;
+      m_detectorEtaDecor = m_caloClusters.key() + "." + m_detectorEtaDecor.key();
+  }
+  
   ATH_CHECK( m_caloExtKey.initialize() );
   ATH_CHECK( m_trackParticleCollectionHandle.initialize() );
   ATH_CHECK( m_caloClusters.initialize() );
+  ATH_CHECK( m_detectorEtaDecor.initialize(m_doDetEta) );
   ATH_CHECK( m_assocClustersDecor.initialize() );
 
   ATH_CHECK(m_caloEntryParsDecor.initialize( !m_caloEntryParsDecor.empty() ) );
@@ -51,7 +61,17 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
     cl->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
     double cent;
     cl->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,cent);
-    double sigmaWidth = atan(sqrt(rad)/cent)*cosh(cl->eta());
+    
+    float cl_eta {99};
+    if (m_doDetEta)
+    {
+        SG::ReadDecorHandle<xAOD::CaloClusterContainer, float> detEta(m_detectorEtaDecor);
+        cl_eta = detEta(*cl);
+    }
+    else
+        cl_eta = cl->eta();
+    
+    double sigmaWidth = atan(sqrt(rad)/cent)*cosh(cl_eta);
     sig_dec(*cl) = sigmaWidth;
   }
 
@@ -151,7 +171,17 @@ std::vector<const xAOD::CaloCluster* > TrackParticleClusterAssociationAlg::assoc
   for(const xAOD::CaloCluster * cl : allClusters){
 
     float dPhi = P4Helpers::deltaPhi( cl->phi(), phi);
-    float dEta = cl->eta()-eta;
+    
+    float cl_eta {99};
+    if (m_doDetEta)
+    {
+        SG::ReadDecorHandle<xAOD::CaloClusterContainer, float> detEta(m_detectorEtaDecor);
+        cl_eta = detEta(*cl);
+    }
+    else
+        cl_eta = cl->eta();
+
+    float dEta = cl_eta - eta;
     float dr2  = dPhi*dPhi+ dEta*dEta;
     float dr2Cut = dr2Cut0;
     

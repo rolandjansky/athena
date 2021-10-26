@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -65,7 +65,7 @@ public:
    * @brief Constructor.
    * @param clid The class ID for the referenced object.
    * @param sgkey The StoreGate key for the object.
-   * @param a Mode: read/write/update.
+   * @param a Mode: read/write.
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
    * @param isCond True if this is a CondHandleKey.
    *

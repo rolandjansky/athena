@@ -374,7 +374,7 @@ def createTrackingFlags():
 ### ITk mode ####################
 def createITkTrackingFlags():
     icf = createTrackingFlags()   
-    icf.extension               = "ITk"
+    icf.extension               = ""
 
     icf.useEtaDepCuts           = True
     icf.etaBins                 = [-1.0, 2.0, 2.6, 4.0]
@@ -426,6 +426,7 @@ def createITkFastTrackingFlags():
     icf.nHolesGapMax          = [1]
     icf.minPTSeed             = 1.0 * Units.GeV
     icf.maxZImpactSeed        = 150.0 * Units.mm
+    icf.useITkStripSeeding    = False
 
     return icf
 
@@ -433,7 +434,7 @@ def createITkFastTrackingFlags():
 def createITkLargeD0TrackingFlags():
 
     icf = createTrackingFlags()
-    icf.extension               = "ITkLargeD0"
+    icf.extension               = "LargeD0"
 
     icf.useEtaDepCuts      = True
     icf.maxPT              = [1.0 * Units.TeV]
@@ -653,7 +654,7 @@ def createLowPtTrackingFlags():
 ## ITkConversionFinding mode ########################
 def createITkConversionFindingTrackingFlags(): #To be updated
     icf = createTrackingFlags()
-    icf.extension               = "ITkConversionFinding"
+    icf.extension               = "ConversionFinding"
 
     icf.useEtaDepCuts           = True
     icf.etaBins                 = [-1.0,4.0]
@@ -663,12 +664,24 @@ def createITkConversionFindingTrackingFlags(): #To be updated
     icf.minClusters             = [6]
     icf.minSiNotShared          = [6]
     icf.maxShared               = [0]
+    icf.minPixel                = [0]
     icf.maxHoles                = [0]
+    icf.maxPixelHoles           = [1]
+    icf.maxSctHoles             = [2]
+    icf.maxDoubleHoles          = [1]
+
+    icf.nHolesMax               = icf.maxHoles
+    icf.nHolesGapMax            = icf.maxHoles
     icf.nWeightedClustersMin    = [6]
-    # --- also tighten pattern cuts
+    icf.maxdImpactSSSSeeds      = [20.0 * Units.mm]
     icf.radMax                  = 1000. * Units.mm
-    # --- turn on Z Boundary seeding
-    icf.doZBoundary              = False #
+    icf.doZBoundary             = False
+
+    icf.Xi2max                  = [9.0]
+    icf.Xi2maxNoAdd             = [25.0]
+    icf.minPTBrem               = [1000.0 * Units.mm]
+    icf.phiWidthBrem            = [0.3]
+    icf.etaWidthBrem            = [0.2]
 
     return icf
 

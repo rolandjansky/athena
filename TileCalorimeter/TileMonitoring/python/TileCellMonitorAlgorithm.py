@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileCellMonitorAlgorithm.py
@@ -42,8 +42,10 @@ def TileCellMonitoringConfig(flags, **kwargs):
     kwargs.setdefault('NegativeEnergyThreshold', -2000.0 * MeV)
     kwargs.setdefault('EnergyBalanceThreshold', 3)
     kwargs.setdefault('TimeBalanceThreshold', 25 * ns)
+    kwargs.setdefault('EnergyThresholdForGapScintilator', 0 * MeV)
     kwargs.setdefault('fillChannelTimeHistograms', True)
     kwargs.setdefault('fillTimeAndEnergyDiffHistograms', False)
+    kwargs.setdefault('fillGapScintilatorHistograms', False)
 
     if flags.Beam.Type in ('cosmics', 'singlebeam'):
         kwargs.setdefault('fillTimeHistograms', True)
@@ -294,6 +296,24 @@ def TileCellMonitoringConfig(flags, **kwargs):
     titleTimeBal += ";;Time balance between cell's PMTs [ns]"
     addTileModuleArray(helper, tileCellMonAlg, name = 'TileCellTimeBalance', type='TProfile',
                        title = titleTimeBal, path = 'Tile/Cell', value = 'timeBalance', run = run)
+
+
+    if kwargs['fillGapScintilatorHistograms']:
+        rangeScalFactor = [1, 2, 4, 4]
+        gapScintDimentions = [2, Tile.MAX_DRAWER, 4] # EBA and EBC, 64 modules, E1-E4
+        gapScintArray = helper.addArray(gapScintDimentions, tileCellMonAlg, 'TileGapScintilatorEnergy', topPath = 'Tile/Cell')
+        for postfix, tool in gapScintArray.Tools.items():
+            ros, module, cellIdx = [int(x) for x in postfix.split('_')[1:]]
+            ros += 3
+
+            partionName = getPartitionName(ros)
+            moduleName = Tile.getDrawerString(ros, module)
+
+            fullName = f'energy;TileGapScintilatorEnergy{moduleName}_E{cellIdx + 1}'
+            fullTitle = f'Run {run} {moduleName} E{cellIdx + 1}: Energy;Energy [MeV]'
+
+            tool.defineHistogram(fullName, title = fullTitle, path = f'GapScint/{partionName}', type = 'TH1F',
+                                 xbins = 500, xmin = -1.5, xmax = 998.5 * rangeScalFactor[cellIdx])
 
 
     accumalator = helper.result()

@@ -485,8 +485,6 @@ class L1MenuConfig(object):
         for cat in allRequiredSortedInputs:
             for input in allRequiredSortedInputs[cat]:
                 searchCat = cat
-                if cat == AlgCategory.MUCTPI: 
-                    searchCat = AlgCategory.TOPO
                 sortingAlgo = self._getSortingAlgoThatProvides(input, searchCat)
                 self.l1menu.addTopoAlgo( sortingAlgo, category = cat )
 

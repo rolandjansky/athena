@@ -15,9 +15,9 @@ class MsgStream;
 // Description
 // -----------
 // This factory class constructs RPC identifiers and ranges and provides access
-// to the levels.  ATLAS note ATL-MUON-2002-??? provides a complete description
-// of the hierarchical identifier scheme.  RpcIdHelper provides an interface to the
-// following fields of the identifier.
+// to the levels.  ATLAS note ATL-MUON-2002-??? (https://cds.cern.ch/record/681542?ln=de)
+// provides a complete description of the hierarchical identifier scheme.  
+// RpcIdHelper provides an interface to the following fields of the identifier.
 //
 // Field           Range               Notes
 // ==============================================================================

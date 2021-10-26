@@ -3,30 +3,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-def LArRoIMapCfg( flags ):
-    acc = ComponentAccumulator()
-    LArRoI_Map=CompFactory.LArRoI_Map
-
-    from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
-
-    LArCablingLegacyService=CompFactory.LArCablingLegacyService
-    cablingTool = LArCablingLegacyService() # this is realy a tool
-    # needed by above
-    acc.merge( LArFebRodMappingCfg( flags ))
-    acc.merge( LArCalibIdMappingCfg( flags ))
-
-    CaloTriggerTowerService=CompFactory.CaloTriggerTowerService
-    triggerTowerTool = CaloTriggerTowerService()                                              
-    from CaloConditions.CaloConditionsConfig import LArTTCellMapCfg, CaloTTIdMapCfg
-    acc.merge(LArTTCellMapCfg(flags))
-    acc.merge(CaloTTIdMapCfg(flags))
-    LArRoI_Map = LArRoI_Map()
-    LArRoI_Map.CablingSvc = cablingTool 
-    LArRoI_Map.TriggerTowerSvc = triggerTowerTool
-    acc.addPublicTool( LArRoI_Map ) # should become private tool
-    
-    return acc
-
 CaloDataAccessSvcDependencies = [('TileEMScale'       , 'ConditionStore+TileEMScale'),
                                  ('TileBadChannels'   , 'ConditionStore+TileBadChannels'),
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTEM'), 
@@ -36,7 +12,8 @@ CaloDataAccessSvcDependencies = [('TileEMScale'       , 'ConditionStore+TileEMSc
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD'),
                                  ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ),
                                  ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),
-                                 ('LArMCSym'          , 'ConditionStore+LArMCSym')]
+                                 ('LArMCSym'          , 'ConditionStore+LArMCSym'),
+                                 ('LArBadChannelCont' , 'ConditionStore+LArBadChannel')]
 
 
 def CaloOffsetCorrectionCfg(flags):
@@ -75,8 +52,9 @@ def trigCaloDataAccessSvcCfg( flags ):
 
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge( TileGMCfg( flags ) )
-    
-    acc.merge( LArRoIMapCfg( flags ) )
+
+    from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
+    acc.merge( LArRoIMapCondAlgCfg( flags ) )
 
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArFebRodMappingCfg
     acc.merge( LArOnOffIdMappingCfg( flags ))
@@ -160,8 +138,6 @@ if __name__ == "__main__":
     acc.addEventAlgo(testAlg)    
     
     acc.printConfig(True)
-
-    print(acc.getPublicTool("LArRoI_Map"))  # noqa: ATL901
 
     print("running this configuration")  # noqa: ATL901
     of = open("test.pkl", "wb")

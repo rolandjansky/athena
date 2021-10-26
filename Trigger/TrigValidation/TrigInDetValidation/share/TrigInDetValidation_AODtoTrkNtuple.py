@@ -18,11 +18,29 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
 
-from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
+### old TDT configuration - LEAVE THIS HERE FOR TH TIME BEING
+### this will be removed once we kow that the nightly tests are 
+### all working again...
+### from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+### ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
 
-from TrigEDMConfig.TriggerEDM import EDMLibraries
-ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+### from TrigEDMConfig.TriggerEDM import EDMLibraries
+### ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+
+### from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+### myAlg.TrigDecisionTool = conf2toConfigurable(tdtAcc.getPrimary())
+
+from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+Configurable.configurableRun3Behavior+=1
+tdtAcc = getTrigDecisionTool(ConfigFlags)
+Configurable.configurableRun3Behavior-=1
+appendCAtoAthena( tdtAcc )
+
+
+
 
 from AthenaCommon.AppMgr import topSequence
 
@@ -32,11 +50,11 @@ from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
 cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
 ToolSvc += cfgtool
 
-tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-tdt.ConfigTool = cfgtool
-tdt.NavigationFormat = "TrigComposite"
+## tdt = Trig__TrigDecisionTool('TrigDecisionTool')
+## tdt.ConfigTool = cfgtool
+## tdt.NavigationFormat = "TrigComposite"
 
-tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+## tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
 
 jps.AthenaCommonFlags.FilesInput = FilesInput
@@ -170,10 +188,9 @@ if ( True ) :
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
-    "HLT_mu24_LRT_idperf_L1MU20:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
+    "HLT_mu.*_LRT_idperf_.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu.*_LRT_idperf_.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu.*_LRT_idperf_.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
 
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_IDTrig",
@@ -233,8 +250,8 @@ if ( True ) :
     "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
     #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
     
-    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF",
-    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_IDTrig"
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF",
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig"
     
     ]
 

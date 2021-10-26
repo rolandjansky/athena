@@ -973,6 +973,8 @@ HLT_BTaggingSecVtxAux.
 HLT_BTaggingSecVtxAuxDyn.viewIndex
 HLT_Bmumux
 HLT_BmumuxAux.
+HLT_Bmutrk
+HLT_BmutrkAux.
 HLT_CBCombinedMuon_FSTrackParticles
 HLT_CBCombinedMuon_FSTrackParticlesAux.
 HLT_CBCombinedMuon_FSTrackParticlesAuxDyn.viewIndex
@@ -987,6 +989,8 @@ HLT_CaloEMClusters_FWDAux.
 HLT_CaloEMClusters_LRT
 HLT_CaloEMClusters_LRTAux.
 HLT_CaloEMClusters_LRTAuxDyn.viewIndex
+HLT_DiElecPrecision
+HLT_DiElecPrecisionAux.
 HLT_DimuEF
 HLT_DimuEFAux.
 HLT_DisTrkBDTSel
@@ -1130,9 +1134,6 @@ HLT_FSLRT_TrackCountAuxDyn.counts
 HLT_FSLRT_TrackCountAuxDyn.ntrks
 HLT_FSLRT_TrackCountAuxDyn.pTcuts
 HLT_FSRoI
-HLT_FastCaloAsymRinger
-HLT_FastCaloAsymRingerAux.
-HLT_FastCaloAsymRingerAuxDyn.viewIndex
 HLT_FastCaloEMClusters
 HLT_FastCaloEMClustersAux.
 HLT_FastCaloEMClustersAuxDyn.viewIndex
@@ -1362,6 +1363,8 @@ HLT_Muons_FSAuxDyn.viewIndex
 HLT_Muons_RoI
 HLT_Muons_RoIAux.
 HLT_Muons_RoIAuxDyn.viewIndex
+HLT_NoMuonDiElecPrecision
+HLT_NoMuonDiElecPrecisionAux.
 HLT_Roi_Bjet
 HLT_Roi_Bmumux
 HLT_Roi_FastElectron
@@ -1467,7 +1470,11 @@ HLT_tautrack_LLPAux.
 HLT_tautrack_LLPAuxDyn.viewIndex
 HLT_tautrack_MVA
 HLT_tautrack_MVAAux.
+HLT_tautrack_MVAAuxDyn.d0SigTJVA
+HLT_tautrack_MVAAuxDyn.d0TJVA
 HLT_tautrack_MVAAuxDyn.viewIndex
+HLT_tautrack_MVAAuxDyn.z0sinthetaSigTJVA
+HLT_tautrack_MVAAuxDyn.z0sinthetaTJVA
 HLT_tautrack_Precision
 HLT_tautrack_PrecisionAux.
 HLT_tautrack_Presel

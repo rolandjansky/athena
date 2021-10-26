@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //vitrual interface for all the Muon RPC technologies 
@@ -9,6 +9,7 @@
 
 #include "GaudiKernel/IInterface.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <list>
 #include <string>
@@ -18,7 +19,7 @@
 class Identifier;
 class StatusCode;
 
-class IRPCConditionsSvc: virtual public IInterface{
+class ATLAS_NOT_THREAD_SAFE IRPCConditionsSvc: virtual public IInterface{
 public:
   virtual ~IRPCConditionsSvc(){}
   static const InterfaceID & interfaceID(); //!< reimplemented from IInterface

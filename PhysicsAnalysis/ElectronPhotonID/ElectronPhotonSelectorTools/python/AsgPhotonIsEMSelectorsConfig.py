@@ -1,28 +1,34 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "Configure the AsgPhotonIsEMSelector with the quality cuts and allow for (re-)setting of all provided cuts."
+__doc__ = """Configure the AsgPhotonIsEMSelector with the quality cuts
+              and allow for (re-)setting of all provided cuts."""
 
+from ElectronPhotonSelectorTools.PhotonIsEMSelectorMapping import (
+    PhotonIsEMMap, photonPIDmenu)
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-# Import the needed stuff specific to the PhotonPhotonSelectorTools
-AsgPhotonIsEMSelector=CompFactory.AsgPhotonIsEMSelector
-from ElectronPhotonSelectorTools.PhotonIsEMSelectorMapping import PhotonIsEMMap, photonPIDmenu
 
-
-def AsgPhotonIsEMSelectorCfg(flags, name, quality, menu=photonPIDmenu.menuDC14):
-
-    acc = ComponentAccumulator()
+def AsgPhotonIsEMSelectorCfg(flags,
+                             name,
+                             quality,
+                             menu=photonPIDmenu.menuCurrentCuts):
 
     mlog = logging.getLogger('AsgPhotonIsEMSelector')
     mlog.debug('Start configuration')
+    acc = ComponentAccumulator()
+    AsgPhotonIsEMSelector = CompFactory.AsgPhotonIsEMSelector
 
     try:
         ntuple = PhotonIsEMMap(quality, menu)
         mlog.debug('ntuple: %s', ntuple)
     except KeyError:
-        mlog.error("Photon quality not found. Please use an egammaIDQuality (ElectronPhotonSelectorTools/egammaPIDdefs.h). This function only supports standard photon IDs, and not electron IDs or forward IDs")
+        mlog.error("Photon quality not found."
+                   "Please use an egammaIDQuality"
+                   "(ElectronPhotonSelectorTools/egammaPIDdefs.h)."
+                   "This function only supports standard photon IDs,"
+                   "and not electron IDs or forward IDs")
         raise
 
     # Create and instance of the tool
