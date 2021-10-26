@@ -94,6 +94,11 @@ def createTriggerFlags():
             elif any("HLTNav_Summary" in s for s in collections):
                 _log.info("Determined EDMVersion to be 3, because HLTNav_Summary.* found in POOL file")
                 return 3
+            elif not flags.Input.Collections:
+                # Special case for empty input files (can happen in merge jobs on the grid)
+                # The resulting version doesn't really matter as there's nothing to be done, but we want a valid configuration
+                _log.warning("All input files seem to be empty, cannot determine EDM version. Guessing EDMVersion=3")
+                return 3
 
         _log.warning("Could not determine EDM version from the input file. Return default EDMVersion=%d",
                      default_version)
