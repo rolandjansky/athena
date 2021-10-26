@@ -6,7 +6,7 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def _TileMuonReceiverDecision(flags):
     acc = ComponentAccumulator()
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
     TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'
                                                                     , TileRawChannelContainer = "MuRcvRawChCnt" # input
