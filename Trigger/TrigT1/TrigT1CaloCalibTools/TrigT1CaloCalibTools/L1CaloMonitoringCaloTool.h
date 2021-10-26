@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloMonitoringCaloTool.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 
 class IInterface;
 class StatusCode;
@@ -29,8 +30,6 @@ class Identifier;
 class CaloLVL1_ID;
 
 namespace LVL1 {
-
-  class IL1CaloCells2TriggerTowers;
 
   class L1CaloMonitoringCaloTool: public IL1CaloMonitoringCaloTool, public asg::AsgTool
   {
@@ -61,7 +60,8 @@ namespace LVL1 {
     int region(const int index) const;
     int etaBin(const int index) const;
 
-    ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
+    ToolHandle<LVL1::IL1CaloMatchCell2Tower> m_cellMatch
+      { this, "L1CaloMatchCell2Tower",  "LVL1::L1CaloMatchCell2Tower",  "L1CaloMatchCell2Tower" };
     const CaloLVL1_ID* m_lvl1Helper;
 
     std::string m_caloCellContainerName;

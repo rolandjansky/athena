@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H_
@@ -12,7 +12,6 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/Identifier.h"
-#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
@@ -55,47 +54,20 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection);
-  float EtLArg(const Identifier& TTid) const;
-  bool hasMissingFEB(const Identifier& TTid) const;
+  virtual bool hasMissingFEB(const Identifier& TTid) const override;
 
 protected:
-  void reset();
-  double IDeta(const Identifier& TTid) const;
+  virtual double IDeta(const Identifier& TTid) const override;
 
 private:
-
-  // properties
-  std::string m_triggerTowerCollectionName; // name of transient TriggerTower container
-  std::string m_caloCellContainerName; // name of transient CaloCell container.
-  std::string m_l1CaloCells2TriggerTowersToolName;
-
-  L1CaloCondSvc *m_condSvc;
   const CaloLVL1_ID *m_lvl1Helper;
   const CaloIdManager *m_caloMgr;
   const LArOnlineID *m_LArOnlineHelper;
 
   CaloTriggerTowerService* m_ttService;
-  ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
 
   ToolHandle< ILArBadFebMasker > m_badFebMasker; // Handle to badChannelTool
   ToolHandle<LArCablingLegacyService> m_larCablingSvc;  // Handle to LarCablingService
-  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
-
-
-
-  typedef std::map<Identifier, double> mapTT;
-  typedef std::map<double, std::pair<double, int> > mapSum;
-
-  //definition of the maps containing the EtCells of each TT
-  mapTT m_map_Etcells_em;
-  mapTT m_map_Etcells_had;
-
-
-  //definition of the maps containing the average EtCells in phi
-  mapSum m_map_sumEtcells_phi_em;
-  mapSum m_map_sumEtcells_phi_had;
-
 };
 } // end of namespace
 
