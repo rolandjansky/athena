@@ -21,7 +21,6 @@
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoMaterial.h>
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -82,54 +81,53 @@ public:
 	std::string SearchTileRawchanKeys(const std::vector<std::string>& inputKeys);
 
 	// -------------- Data members ----------------
-	VP1CaloCellController* controller;
+        VP1CaloCellController* controller{nullptr};
 
 	//--------------------------------------------------------------
 	//
 	//  Section: Flags
 	//
 
-	bool noCalo;       // If Calo has been switched off don't show anything
-	bool noLArDigitsGlobal;  // Are we able to show LAr digits at all?
-	bool noLArDigitsEvent;  // Are we able to show LAr digits for this event?
-	bool noTileDigitsGlobal; // Are we able to show Tile digits at all?
-	bool noTileDigitsEvent; // Are we able to show Tile digits for this event?
+	bool noCalo{false};       // If Calo has been switched off don't show anything
+	bool noLArDigitsGlobal{false};  // Are we able to show LAr digits at all?
+	bool noLArDigitsEvent{false};  // Are we able to show LAr digits for this event?
+	bool noTileDigitsGlobal{false}; // Are we able to show Tile digits at all?
+	bool noTileDigitsEvent{false}; // Are we able to show Tile digits for this event?
 
-	bool modeSimple;   // Which mode (simple/expert) is used for LAr
+        bool modeSimple{true};   // Which mode (simple/expert) is used for LAr
 
 	//--------------------------------------------------------------
 	//
 	//  Section: DetStore objects: managers, ID helpers
 	//
 
-	// Managers
-	const CaloDetDescrManager* calo_dd_man;
-	const TileDetDescrManager* tile_dd_man;
+	// Manager
+        const TileDetDescrManager* tile_dd_man{nullptr};
 
 	// ID helpers
-	const CaloCell_ID*         calo_id;
-	const TileID*              tile_id;
-	const TileHWID*            tile_hw_id;
+	const CaloCell_ID*         calo_id{nullptr};
+	const TileID*              tile_id{nullptr};
+	const TileHWID*            tile_hw_id{nullptr};
 
 	//--------------------------------------------------------------
 	//
 	//  Section: Tools, Services
 	//
 
-	const TileInfo*            tile_info;
-	const TileCablingService*  tile_cabling;
-	const LArOnlineID*         lar_onlineID;
-	const ICaloBadChanTool*    calo_badchannel;
+	const TileInfo*            tile_info{nullptr};
+	const TileCablingService*  tile_cabling{nullptr};
+	const LArOnlineID*         lar_onlineID{nullptr};
+	const ICaloBadChanTool*    calo_badchannel{nullptr};
 
 	//--------------------------------------------------------------
 	//
 	//  Section: StoreGate containers
 	//
 
-	const CaloCellContainer*       calocells;
-	const LArDigitContainer*       lar_digits;
-	const TileDigitsContainer*     tile_digits;
-	const TileRawChannelContainer* tile_rawchannel;
+	const CaloCellContainer*       calocells{nullptr};
+	const LArDigitContainer*       lar_digits{nullptr};
+	const TileDigitsContainer*     tile_digits{nullptr};
+	const TileRawChannelContainer* tile_rawchannel{nullptr};
 
 	//--------------------------------------------------------------
 	//
@@ -161,27 +159,7 @@ public:
 };
 
 VP1CaloCellSystem::Clockwork::Clockwork()
-:controller(0),
- noCalo(false),
- noLArDigitsGlobal(false),
- noLArDigitsEvent(false),
- noTileDigitsGlobal(false),
- noTileDigitsEvent(false),
- modeSimple(true),    // simple mode by default, expert on demand
- calo_dd_man(0),
- tile_dd_man(0),
- calo_id(0),
- tile_id(0),
- tile_hw_id(0),
- tile_info(0),
- tile_cabling(0),
- lar_onlineID(0),
- calo_badchannel(0),
- calocells(0),
- lar_digits(0),
- tile_digits(0),
- tile_rawchannel(0),
- mbtsHelper(new VP1MbtsHelper(false))
+: mbtsHelper(new VP1MbtsHelper(false))
 {
 	// Initialize set of available separator types besides MBTS
 	sepTypes.insert(VP1CC_SepLArEMBPos);
@@ -489,38 +467,31 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 	SoGenericBox::initClass();
 
 	// ------------- DD Managers and ID Helpers -------------
-	StatusCode status = detstore->retrieve(m_clockwork->calo_dd_man);
-	if(status.isFailure() || m_clockwork->calo_dd_man==0) {
-		m_clockwork->noCalo = true;
-		messageDebug("Unable to retrieve Calo DD Manager");
-		return;
-	}
-
-	status = detstore->retrieve(m_clockwork->tile_dd_man);
-	if(status.isFailure() || m_clockwork->tile_dd_man==0) {
+	StatusCode status = detstore->retrieve(m_clockwork->tile_dd_man);
+	if(status.isFailure() || m_clockwork->tile_dd_man==nullptr) {
 		m_clockwork->noCalo = true;
 		messageDebug("Unable to retrieve Tile DD Manager");
 		return;
 	}
 
-	m_clockwork->calo_id = m_clockwork->calo_dd_man->getCaloCell_ID();
-	if(m_clockwork->calo_id==0) {
+	status = detstore->retrieve(m_clockwork->calo_id,"CaloCell_ID");
+	if(status.isFailure() || m_clockwork->calo_id==nullptr) {
 		m_clockwork->noCalo = true;
 		messageDebug("0 pointer to Calo ID Helper");
 		return;
 	}
 
 	m_clockwork->tile_id = m_clockwork->tile_dd_man->get_id();
-	if(m_clockwork->tile_id ==0) {
+	if(m_clockwork->tile_id ==nullptr) {
 		m_clockwork->noCalo = true;
 		messageDebug("0 pointer to Tile ID Helper");
 		return;
 	}
 
 	status = detstore->retrieve(m_clockwork->tile_hw_id);
-	if(status.isFailure() || m_clockwork->tile_hw_id==0) {
+	if(status.isFailure() || m_clockwork->tile_hw_id==nullptr) {
 		messageDebug("Unable to retireve Tile HWID");
-		m_clockwork->tile_hw_id = 0;
+		m_clockwork->tile_hw_id = nullptr;
 		m_clockwork->noTileDigitsGlobal = true;
 	}
 	// ------------- DD Managers and ID Helpers -------------
@@ -528,29 +499,29 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 
 	// ------------- Tools/Services -------------
 	status = detstore->retrieve(m_clockwork->tile_info,"TileInfo");
-	if(status.isFailure() || m_clockwork->tile_info==0) {
+	if(status.isFailure() || m_clockwork->tile_info==nullptr) {
 		messageDebug("Unable to retrieve Tile Info");
-		m_clockwork->tile_info = 0;
+		m_clockwork->tile_info = nullptr;
 		m_clockwork->noTileDigitsGlobal = true;
 	}
 
 	m_clockwork->tile_cabling = TileCablingService::getInstance();
-	if(m_clockwork->tile_cabling==0) {
+	if(m_clockwork->tile_cabling==nullptr) {
 		messageDebug("0 pointer to TileCabling");
 		m_clockwork->noTileDigitsGlobal = true;
 	}
 
 	status = detstore->retrieve(m_clockwork->lar_onlineID,"LArOnlineID");
-	if (status.isFailure() || m_clockwork->lar_onlineID == 0) {
+	if (status.isFailure() || m_clockwork->lar_onlineID == nullptr) {
 		messageDebug("Failed to retrieve LAr online ID");
-		m_clockwork->lar_onlineID = 0;
+		m_clockwork->lar_onlineID = nullptr;
 	}
 
 
 	status = toolSvc()->retrieveTool("CaloBadChanTool",m_clockwork->calo_badchannel);
-	if (status.isFailure() || m_clockwork->calo_badchannel == 0) {
+	if (status.isFailure() || m_clockwork->calo_badchannel == nullptr) {
 		messageDebug("Failed to locate Calo Bad Channel Tool");
-		m_clockwork->calo_badchannel = 0;
+		m_clockwork->calo_badchannel = nullptr;
 	}
 
 	// Pass retrieved pointers to the controller (for Tile Pulse display)

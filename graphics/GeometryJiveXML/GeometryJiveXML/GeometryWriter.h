@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_GEOMETRYWRITER
@@ -7,13 +7,14 @@
 
 #include "CLHEP/Geometry/Point3D.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "JiveXML/IGeometryWriter.h"
 #include <string>
 #include <vector>
 #include <fstream>
 
-class CaloDetDescrManager;
 class CaloDetDescriptor;
 class Identifier;
 class TileDetDescrManager;
@@ -44,11 +45,13 @@ namespace JiveXML{
      */
     GeometryWriter(const std::string& t,const std::string& n,const IInterface* p):
       AthAlgTool(t,n,p){declareInterface<IGeometryWriter>(this);};
+
+    virtual StatusCode initialize() override;  
     
     /**
      * Writes the inner detector and calorimeter geometry to an XML file.
      */
-    virtual StatusCode writeGeometry();
+    virtual StatusCode writeGeometry() override;
 
     virtual ~GeometryWriter(){};
     
@@ -88,7 +91,7 @@ namespace JiveXML{
      * Writes the geometry of the LAr calorimeters.
      * \param out stream where the XML fragment is written to
      */
-    void writeLArGeometry(std::ofstream &out);
+    void writeLArGeometry(std::ofstream &out, const CaloDetDescrManager* caloMgr);
     
     /**
      * Writes the geometry of the Minimum Bias Trigger Scintillators.
@@ -165,7 +168,11 @@ namespace JiveXML{
     const TRT_ID * m_trtIdHelper;
     
     /** Calorimeter detector manager. */
-    const CaloDetDescrManager* m_calo_manager;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
+
     const TileDetDescrManager* m_tile_manager;
     const LArDetectorManager *m_lar_manager;
     
