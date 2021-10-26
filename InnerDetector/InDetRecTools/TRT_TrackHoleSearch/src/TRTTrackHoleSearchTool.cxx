@@ -163,6 +163,7 @@ TRTTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
 
 	// to be returned:
         auto holes = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+        holes->reserve (track_states->size() * 10); //WAG
 
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator track_state = beginning_track_state;
 	const Trk::TrackParameters* start_parameters = (*track_state)->trackParameters();
@@ -262,6 +263,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 	} else {
 		// loop over parameters from extrapolation
 		// note: the last element in the vector is always the track parameters at the destination surface
+                holes.reserve (holes.size() + steps.size());
                 for(std::vector<std::unique_ptr<const Trk::TrackParameters> >::const_iterator step = steps.begin(); step != steps.end()-1; ++step) {
 			// check for surface
 			const Trk::Surface& surf = (*step)->associatedSurface();
