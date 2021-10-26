@@ -6,14 +6,10 @@
   <class name="IEMFourMomBuilder" />
   <class name="IEMShowerBuilder" />
   <class name="IEMTrackMatchBuilder" />
-  <class name="IegammaBackShape" />
   <class name="IegammaBaseTool" />
   <class name="IegammaCheckEnergyDepositTool" />
   <class name="IegammaIso" />
-  <class name="IegammaMiddleShape" />
-  <class name="IegammaPreSamplerShape" />
   <class name="IegammaShowerShape" />
-  <class name="IegammaStripsShape" />
   <class name="IegammaSwTool" />
   <class name="IegammaTrkRefitterTool" />
   <class name="IegammaOQFlagsBuilder" />

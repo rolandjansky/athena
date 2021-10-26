@@ -1,44 +1,22 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-
-#include "egammaBackShape.h"
-
-#include "xAODCaloEvent/CaloCluster.h"
+#include "egammaCaloUtils/egammaBackShape.h"
 #include "egammaUtils/egammaEnergyPositionAllSamples.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
-#include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "SGTools/DataProxy.h" 
-
+#include "CaloUtils/CaloLayerCalculator.h"
 #include <cmath>
 
-egammaBackShape::egammaBackShape(const std::string& type,
-        const std::string& name,
-        const IInterface* parent)
-    : AthAlgTool(type, name, parent){
-        // declare Interface
-        declareInterface<IegammaBackShape>(this); 
-    }
-
-egammaBackShape::~egammaBackShape(){ 
-}
-
-StatusCode egammaBackShape::initialize(){
-    ATH_MSG_DEBUG(" Initializing egammaBackShape");
-    return StatusCode::SUCCESS;
-}
-
-StatusCode egammaBackShape::finalize()
+StatusCode
+egammaBackShape::execute(const xAOD::CaloCluster& cluster,
+                         const CaloDetDescrManager& cmgr,
+                         const CaloCellContainer& cell_container,
+                         Info& info,
+                         bool ExecOtherVariables) 
 {
-    return StatusCode::SUCCESS;
-}
-
-StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
-                                    const CaloDetDescrManager& cmgr,
-                                    const CaloCellContainer& cell_container,
-                                    Info& info) const {
   //
   // Estimate shower shapes from third compartment
   // based on hottest cell and deta,dphi
@@ -46,12 +24,8 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
   //      phi = cluster->phi(sam)
   //
 
-  ATH_MSG_DEBUG(" egammaBackShape: execute");
-
   // check if cluster is in barrel or in the end-cap
   if (!cluster.inBarrel() && !cluster.inEndcap()) {
-    ATH_MSG_DEBUG(" egammaBackShape: Cluster is neither in Barrel nor in "
-                  "Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
 
@@ -100,12 +74,12 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
   // granularity in (eta,phi) in the pre sampler
   // CaloCellList needs both enums: subCalo and CaloSample
-  CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
-                           (CaloCell_ID::CaloSample)sam);
+  CaloDetDescrManager::decode_sample(
+    subcalo, barrel, sampling_or_module, (CaloCell_ID::CaloSample)sam);
   // Get the corresponding grannularities : needs to know where you are
   //                  the easiest is to look for the CaloDetDescrElement
   const CaloDetDescrElement* dde =
-      cmgr.get_element(subcalo, sampling_or_module, barrel, eta, phi);
+    cmgr.get_element(subcalo, sampling_or_module, barrel, eta, phi);
   // if object does not exist then return
   if (!dde) {
     return StatusCode::SUCCESS;
@@ -124,38 +98,38 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
   // 3X3
   StatusCode sc =
-      calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
+    calc.fill(cmgr, &cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+    return sc;
   }
   info.e333 = calc.em();
 
-  if (m_ExecOtherVariables) {
+  if (ExecOtherVariables) {
     // 3X5
-    sc = calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 5. * dphi, sam);
+    sc = calc.fill(cmgr, &cell_container, eta, phi, 3. * deta, 5. * dphi, sam);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+      return sc;
     }
     info.e335 = calc.em();
 
     // 5X5
-    sc = calc.fill(cmgr,&cell_container, eta, phi, 5. * deta, 5. * dphi, sam);
+    sc = calc.fill(cmgr, &cell_container, eta, phi, 5. * deta, 5. * dphi, sam);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+      return sc;
     }
     info.e355 = calc.em();
 
     // 3X7
-    sc = calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 7. * dphi, sam);
+    sc = calc.fill(cmgr, &cell_container, eta, phi, 3. * deta, 7. * dphi, sam);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+      return sc;
     }
     info.e337 = calc.em();
 
     // 7x7
-    sc = calc.fill(cmgr,&cell_container, eta, phi, 7. * deta, 7. * dphi, sam);
+    sc = calc.fill(cmgr, &cell_container, eta, phi, 7. * deta, 7. * dphi, sam);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+      return sc;
     }
     info.e377 = calc.em();
   }
