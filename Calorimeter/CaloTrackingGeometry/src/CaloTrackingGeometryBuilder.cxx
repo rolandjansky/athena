@@ -186,13 +186,13 @@ StatusCode Calo::CaloTrackingGeometryBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* innerVol) const
+Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* innerVol) const
 {
 
   ATH_MSG_VERBOSE( "Starting to build CaloTrackingGeometry ..." );   
   
   // the return TG
-  const Trk::TrackingGeometry* caloTrackingGeometry = nullptr; 
+  Trk::TrackingGeometry*       caloTrackingGeometry = nullptr; 
   const Trk::TrackingVolume*            calorimeter = nullptr;                     
 
   // the key dimensions
@@ -338,13 +338,13 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
     
   // PART 1 : Liquid Argon Volumes ===========================================================================================
   // get the Tracking Volumes from the LAr Builder 
-  const std::vector<const Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
 
   ATH_MSG_INFO( lArVolumes->size() << " volumes retrieved from " << m_lArVolumeBuilder.name() );   
   if (msgLvl(MSG::VERBOSE)){
     ATH_MSG_VERBOSE( "--------------- detailed output ---------------------------------------------------------- " );
-    std::vector<const Trk::TrackingVolume*>::const_iterator lArVolIter    = lArVolumes->begin();
-    std::vector<const Trk::TrackingVolume*>::const_iterator lArVolIterEnd = lArVolumes->end();
+    std::vector<Trk::TrackingVolume*>::const_iterator lArVolIter    = lArVolumes->begin();
+    std::vector<Trk::TrackingVolume*>::const_iterator lArVolIterEnd = lArVolumes->end();
     for ( ; lArVolIter != lArVolIterEnd; ++lArVolIter)
      if (*lArVolIter) (*lArVolIter)->screenDump(msg(MSG::VERBOSE)) ;
   }           
@@ -373,13 +373,13 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
 
   // PART 2 : Tile Volumes ===========================================================================================
   // get the Tracking Volumes from the Tile Builder 
-  const std::vector<const Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
 
   ATH_MSG_INFO( tileVolumes->size() << " volumes retrieved from " << m_tileVolumeBuilder.name() );   
   if (msgLvl(MSG::INFO)){
     ATH_MSG_INFO( "--------------- detailed output ---------------------------------------------------------- " );
-    std::vector<const Trk::TrackingVolume*>::const_iterator tileVolIter = tileVolumes->begin();
-    std::vector<const Trk::TrackingVolume*>::const_iterator tileVolIterEnd = tileVolumes->end();
+    std::vector<Trk::TrackingVolume*>::const_iterator tileVolIter = tileVolumes->begin();
+    std::vector<Trk::TrackingVolume*>::const_iterator tileVolIterEnd = tileVolumes->end();
     for ( ; tileVolIter != tileVolIterEnd;  (*tileVolIter)->screenDump(msg(MSG::VERBOSE)), ++tileVolIter)
       ;
   }

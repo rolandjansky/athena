@@ -79,8 +79,9 @@ namespace Trk {
 
     public :
       /** Constructor */
-      TrackingGeometry(const TrackingVolume* highestVolume, NavigationLevel navlevel=globalSearch);
-      
+      TrackingGeometry(const TrackingVolume* highestVolume,
+                       NavigationLevel navlevel = globalSearch)
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE; //unsafe registerTrackingVolumes called;
       /** Destructor */
       virtual ~TrackingGeometry();
       
@@ -127,33 +128,31 @@ namespace Trk {
       void printVolumeHierarchy(MsgStream& msgstream) const;
       
       /** indexLayers : method to re-set the index of the layers, depending on geometrySignature */
-      void indexStaticLayers ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, int offset = 0) const;
+      void indexStaticLayers ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, int offset = 0);
 
     private:
       /** Geometry Builder busineess:
           the geometry builder has to sign*/
-      void sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype = Static) const;
+      void sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype = Static);
     
       /** Geometry Builder busineess:
           set all contained surfaces TG owned - this should save memory and avoid surface copying 
           - prints compactification statistics */
-      void compactify ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
+      void compactify ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr);
       
       /**  Geometry Builder busineess:
            synchronize all layers to enclosed volume dimensions */
-      void synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
+      void synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr);
            
     
       /** private method the Navigation Level */
       void registerNavigationLevel(NavigationLevel navlevel);
-      void registerNavigationLevel ATLAS_NOT_THREAD_SAFE (NavigationLevel navlevel) const;
 
       /** private method to register recursively the tracking volumes */
       void registerTrackingVolumes ATLAS_NOT_THREAD_SAFE (const TrackingVolume& tvol, const TrackingVolume* mvol = nullptr, int lvl = 0);
 
       /**  private method to be called from GeometryBuilder: return the world with ownership */
       const TrackingVolume* checkoutHighestTrackingVolume();
-      const TrackingVolume* checkoutHighestTrackingVolume ATLAS_NOT_THREAD_SAFE() const;
 
       /** print VolumeInformation with Level */
       void printVolumeInformation(MsgStream& msgstream, const TrackingVolume& tvol, int lvl) const;
@@ -187,11 +186,8 @@ namespace Trk {
   inline void TrackingGeometry::registerNavigationLevel(NavigationLevel navLevel)
   { m_navigationLevel = navLevel; }
 
-  inline void TrackingGeometry::registerNavigationLevel ATLAS_NOT_THREAD_SAFE (NavigationLevel navLevel) const
-  { const_cast<TrackingGeometry*> (this)->registerNavigationLevel(navLevel); }
 
-
-  inline void TrackingGeometry::sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype) const
+  inline void TrackingGeometry::sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype)
   { const_cast<TrackingVolume*> (m_world)->sign(geosit, geotype); }
   
   inline const TrackingVolume* TrackingGeometry::trackingVolume(const std::string& name) const

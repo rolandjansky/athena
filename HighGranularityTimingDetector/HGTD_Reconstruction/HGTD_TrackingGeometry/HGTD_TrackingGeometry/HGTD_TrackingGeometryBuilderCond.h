@@ -52,7 +52,7 @@ namespace HGTDet {
     StatusCode finalize();
     
     /** TrackingGeometry Interface methode */
-    std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry
+    std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
     ATLAS_NOT_THREAD_SAFE(
       const EventContext& ctx,
       std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;

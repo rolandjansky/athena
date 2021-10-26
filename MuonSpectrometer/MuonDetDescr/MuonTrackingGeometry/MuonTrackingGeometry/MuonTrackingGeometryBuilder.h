@@ -64,7 +64,7 @@ namespace Muon {
         /** AlgTool finalize method */
         StatusCode finalize();
         /** TrackingGeometry Interface methode */
-        const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const;
+        Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const;
 
         /** The unique signature */
         Trk::GeometrySignature geometrySignature() const { return Trk::MS; }

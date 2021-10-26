@@ -131,7 +131,7 @@ StatusCode InDet::RobustTrackingGeometryBuilder::initialize()
 }
 
 
-const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers 
+Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers 
 (const Trk::TrackingVolume*) const
 {
    // only one assumption: 

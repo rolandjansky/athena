@@ -114,7 +114,7 @@ StatusCode Muon::MuonTrackingGeometryBuilderCond::initialize() {
     return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilderCond::trackingGeometry(
+std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilderCond::trackingGeometry(
     const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const {
     ATH_MSG_INFO(name() << " building tracking geometry");
 
@@ -305,7 +305,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
         const Trk::CylinderVolumeBounds* enclosedDetectorBounds = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(tvol->volumeBounds()));
         if (!enclosedDetectorBounds) {
             ATH_MSG_ERROR(" dynamic cast of enclosed volume to the cylinder bounds failed, aborting MTG build-up ");
-            return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range, nullptr);
+            return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
         }
         double enclosedDetectorHalfZ = enclosedDetectorBounds->halflengthZ();
         double enclosedDetectorOuterRadius = enclosedDetectorBounds->outerRadius();
@@ -339,7 +339,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
                     ATH_MSG_WARNING(name() << " z adjusted ");
                 } else {
                     ATH_MSG_ERROR(name() << "assymetric Z dimensions - cannot recover " << negZ << "," << posZ);
-                    return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range, nullptr);
+                    return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
                 }
             }
         }
@@ -353,7 +353,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
         const Trk::TrackingVolume* barrelR = nullptr;
         if (enclosedDetectorOuterRadius > aLVC.m_innerBarrelRadius) {
             ATH_MSG_WARNING(name() << " enclosed volume too wide, cuts into muon envelope, abandon :R:" << enclosedDetectorOuterRadius);
-            return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range, nullptr);
+            return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
         } else {
             aLVC.m_innerBarrelRadius = enclosedDetectorOuterRadius;
             barrelR = tvol;
@@ -361,7 +361,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
         // adjust z
         if (enclosedDetectorHalfZ > m_barrelZ) {
             ATH_MSG_WARNING(name() << " enclosed volume too long, cuts into muon envelope, abandon :Z:" << enclosedDetectorHalfZ);
-            return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range, nullptr);
+            return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
         } else {
             if (enclosedDetectorHalfZ < m_barrelZ) {
                 Trk::CylinderVolumeBounds* barrelZPBounds =

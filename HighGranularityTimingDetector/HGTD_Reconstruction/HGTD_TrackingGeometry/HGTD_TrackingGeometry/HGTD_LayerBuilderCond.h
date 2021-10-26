@@ -91,10 +91,10 @@ namespace HGTDet {
       //!< layer association
       void registerSurfacesToLayer( const std::vector<const Trk::Surface*>& surfaces,const Trk::Layer& layer) const; 
 
-      void evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
+      static void evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
                                std::vector<float>& rBins,
                                float& maxRadius,
-                               std::vector<std::vector<float>>& phiBins) const;
+                               std::vector<std::vector<float>>& phiBins) ;
 
       const HGTD_DetectorManager*           m_hgtdMgr;                        //!< the HGTD Detector Manager
       const HGTD_ID*                        m_hgtdHelper;                     //!< HGTD Id Helper
