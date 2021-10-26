@@ -81,12 +81,12 @@ namespace CP {
       virtual StatusCode apply ( const xAOD::EventInfo& eventInfo, bool mu_dependent );
 
       /// Return combined pileup weight
-      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo );
+      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo, bool correctUnrepresented );
 
       /// Same as above, but for a 'custom weight' variable
-      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo,Double_t x, Double_t y );
+      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo,Double_t x, Double_t y, bool correctUnrepresented );
 
-      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent );
+      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent, bool correctUnrepresented );
 
       /// return the prw hash used for fast updates of weights at the post-processing level ... see the share/makeWeightTree.C script for usage
       virtual ULong64_t getPRWHash( const xAOD::EventInfo& eventInfo );
