@@ -297,6 +297,7 @@ namespace top {
     // MET configuration
     m_METUncertaintiesConfigDir("SetMe"),
     m_METMuonPFlowBugfix(true),
+    m_METSignif(false),
     m_METSignifSoftTermParam("Random"),
     
     // Ghost Track Configuration
@@ -1528,6 +1529,7 @@ namespace top {
     this->METMuonPFlowBugfix(settings->value("METMuonPFlowBugfix") == "True");
 
     // MET Significance
+    if(settings->value("METSignificance") == "True"){this->METSignificance(true);}
     this->METSignifSoftTermParam(settings->value("METSignificanceSoftTermParam"));
 
     // for top mass analysis, per default set to 1.0!
