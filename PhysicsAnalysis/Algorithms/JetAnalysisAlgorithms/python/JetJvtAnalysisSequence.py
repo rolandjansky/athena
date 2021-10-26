@@ -45,8 +45,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
         seq.append( alg,
-                    inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' },
+                    inputPropName = { 'jets' : 'particles' },
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
         if enableFJvt:
@@ -57,8 +56,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
             alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
             seq.append( alg,
-                        inputPropName = { 'jets' : 'particles',
-                                          'eventInfo' : 'eventInfo' },
+                        inputPropName = { 'jets' : 'particles' },
                         metaConfig = {'selectionDecorNames' : ['fjvt_selection'] if runSelection else [],
                                       'selectionDecorCount' : [1] if runSelection else [] },
                         dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"] + ['no_fjvt'])} )

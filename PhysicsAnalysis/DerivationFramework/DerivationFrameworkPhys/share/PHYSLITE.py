@@ -186,7 +186,6 @@ if DerivationFrameworkIsMonteCarlo:
 # Create a pile-up analysis sequence
 from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
 pileupSequence = makePileupAnalysisSequence( dataType )
-pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
 SeqPHYSLITE += pileupSequence
 
 # Include, and then set up the electron analysis sequence:

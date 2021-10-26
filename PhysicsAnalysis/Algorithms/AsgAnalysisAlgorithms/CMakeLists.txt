@@ -30,6 +30,7 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
+
    atlas_add_test( EventAlgsTestJobData
       SCRIPT EventAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
@@ -54,6 +55,10 @@ if( XAOD_STANDALONE )
       SCRIPT GeneratorAlgorithmsTest_eljob.py --data-type mc --unit-test
       PROPERTIES TIMEOUT 600 )
 
+   atlas_add_test( PileupAlgsTestJobFullSim
+      SCRIPT PileupAlgorithmsTest_eljob.py --unit-test
+      PROPERTIES TIMEOUT 600 )
+
 else()
 
    atlas_add_test( EventAlgsTestJobData
@@ -72,6 +77,10 @@ else()
    atlas_add_test( GeneratorAlgsTestJob
       SCRIPT athena.py
                AsgAnalysisAlgorithms/GeneratorAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( PileupAlgsTestJob
+      SCRIPT athena.py
+               AsgAnalysisAlgorithms/PileupAlgorithmsTest_jobOptions.py
       PROPERTIES TIMEOUT 600 )
 
    if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
