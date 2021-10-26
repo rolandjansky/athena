@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -46,7 +46,6 @@ StatusCode FixHepMC::execute() {
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove;
     long seenThisEvent = 0;
-    /// @todo Use nicer particles accessor from TruthUtils / HepMC3 when it exists
     for (auto ip: evt->particles()) {
       // Skip this particle if (somehow) its pointer is null
       if (!ip) continue;
@@ -77,8 +76,29 @@ StatusCode FixHepMC::execute() {
         ATH_MSG_DEBUG( "Found a bad particle in a decay chain : " );
         if ( msgLvl( MSG::DEBUG ) ) HepMC::Print::line(ip);
       }
+      /// Two types of bad particles: those w/o prod.vertex and with status other than 4.
+      if ( (!ip->production_vertex() || !ip->production_vertex()->id()) &&  ip->end_vertex() && ip->status() != 4 ) bad_particle = true;
+      /// Those w/o end vertex, but with bad status
+      if (  ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) bad_particle = true;
       // Only add to the toremove vector once, even if multiple tests match
       if (bad_particle) toremove.push_back(ip);
+    }
+    // Some heuristics
+    // In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
+    if (toremove.size() == 3 || toremove.size() == 2) {
+      int no_endv = 0;
+      int no_prov = 0;
+      HepMC::FourVector sum(0,0,0,0);
+      for (auto part: toremove) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}  
+      for (auto part: toremove) if (!part->end_vertex()) { no_endv++;  sum -= part->momentum(); }
+      ATH_MSG_INFO("Heuristics: found " << toremove.size() << " bad particles. Try " << no_endv << "->" << no_prov << " splitting. The momenta sum is " << sum);
+      if (no_endv == 1 && (no_prov == 2 || no_prov == 1) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
+          auto v = HepMC::newGenVertexPtr();
+          for (auto part: toremove) if (!part->production_vertex() || !part->production_vertex()->id()) v->add_particle_out(part);  
+          for (auto part: toremove) if (!part->end_vertex()) v->add_particle_in(part);  
+          evt->add_vertex(v);
+          toremove.clear();
+      }
     }
     // Escape here if there's nothing more to do, otherwise do the cleaning
     if (toremove.empty()) continue;
@@ -112,7 +132,6 @@ StatusCode FixHepMC::execute() {
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove; toremove.reserve(10);
     long seenThisEvent = 0;
-    /// @todo Use nicer particles accessor from TruthUtils / HepMC3 when it exists
     for (HepMC::GenEvent::particle_const_iterator ip = evt->particles_begin(); ip != evt->particles_end(); ++ip) {
       // Skip this particle if (somehow) its pointer is null
       if (*ip == NULL) continue;
