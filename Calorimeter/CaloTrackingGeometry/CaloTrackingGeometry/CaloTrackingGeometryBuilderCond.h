@@ -70,7 +70,9 @@ namespace Calo {
       StatusCode finalize();
       
       /** TrackingGeometry Interface methode */
-      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const; 
+      std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
+        const EventContext& ctx,
+        std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::Calo; }

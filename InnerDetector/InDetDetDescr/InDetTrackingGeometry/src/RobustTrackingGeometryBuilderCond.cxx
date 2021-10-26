@@ -132,7 +132,8 @@ StatusCode InDet::RobustTrackingGeometryBuilderCond::initialize()
 }
 
 
-std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+std::pair<EventIDRange, Trk::TrackingGeometry*> 
+InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
 (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>) const
 {
    // only one assumption: 

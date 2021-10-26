@@ -264,7 +264,7 @@ HGTDet::HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
       const std::vector<const Trk::Surface*>& arraySurfaces = currentBinnedArray->arrayObjects();
       size_t dsumCheckSurfaces = 0;
       double lastPhi = 0.;
-      for (auto& asurfIter : arraySurfaces){
+      for (const auto & asurfIter : arraySurfaces){
         if ( asurfIter ) {
           ++dsumCheckSurfaces;
           usmIter = uniqueSurfaceMap.find(asurfIter);
@@ -342,7 +342,7 @@ void HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<co
 {
    if (!m_setLayerAssociation) return;    
    // register the surfaces to the layer
-   for (auto& surfaces : layerSurfaces) {
+   for (const auto & surfaces : layerSurfaces) {
      if (surfaces) { 
        // register the current surfaces --------------------------------------------------------
        // Needs care for Athena MT 
@@ -354,7 +354,7 @@ void HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<co
 
 void HGTDet::HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
                                                     std::vector<float>& rBins, float& maxRadius,
-                                                    std::vector<std::vector<float>>& phiBins) const
+                                                    std::vector<std::vector<float>>& phiBins) 
 {
   // get all the centers (r,phi), as you want to play with them
   std::vector < std::pair< float, float> > centers = {};

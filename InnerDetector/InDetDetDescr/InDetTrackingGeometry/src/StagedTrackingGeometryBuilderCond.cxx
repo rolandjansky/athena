@@ -130,7 +130,8 @@ StatusCode InDet::StagedTrackingGeometryBuilderCond::initialize()
 }
 
 //FIXME: ctx, tVolPair not used yet, range not created
-std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+std::pair<EventIDRange, Trk::TrackingGeometry*> 
+InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
 (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> /*tVolPair*/) const
 {
    // only one assumption: 

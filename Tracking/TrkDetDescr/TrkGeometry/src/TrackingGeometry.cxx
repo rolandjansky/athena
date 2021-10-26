@@ -17,7 +17,7 @@
 // GaudiKernel
 #include "GaudiKernel/MsgStream.h"
 
-ATLAS_NOT_THREAD_SAFE Trk::TrackingGeometry::TrackingGeometry(
+Trk::TrackingGeometry::TrackingGeometry(
     const Trk::TrackingVolume* highestVolume, Trk::NavigationLevel navLev)
     : m_world(highestVolume), m_beam(nullptr), m_navigationLevel(navLev) {
   // for the time being only world
@@ -114,7 +114,7 @@ void Trk::TrackingGeometry::registerTrackingVolumes ATLAS_NOT_THREAD_SAFE(
 }
 
 void Trk::TrackingGeometry::compactify ATLAS_NOT_THREAD_SAFE(
-    MsgStream& msg, const TrackingVolume* vol) const {
+    MsgStream& msg, const TrackingVolume* vol) {
   msg << MSG::VERBOSE
       << "====== Calling TrackingGeometry::compactify() ===== " << std::endl;
   const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
@@ -136,7 +136,7 @@ void Trk::TrackingGeometry::compactify ATLAS_NOT_THREAD_SAFE(
 }
 
 void Trk::TrackingGeometry::synchronizeLayers ATLAS_NOT_THREAD_SAFE(
-    MsgStream& msg, const TrackingVolume* vol) const {
+    MsgStream& msg, const TrackingVolume* vol) {
   const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
   tVolume->synchronizeLayers(msg);
 }
@@ -148,11 +148,6 @@ Trk::TrackingGeometry::checkoutHighestTrackingVolume() {
   // clear the boundary layers they go with the highest volume
   m_boundaryLayers.clear();
   return checkoutVolume;
-}
-const Trk::TrackingVolume*
-Trk::TrackingGeometry::checkoutHighestTrackingVolume() const {
-  return const_cast<Trk::TrackingGeometry*>(this)
-      ->checkoutHighestTrackingVolume();
 }
 
 void Trk::TrackingGeometry::printVolumeHierarchy(MsgStream& msg) const {
@@ -206,7 +201,7 @@ void Trk::TrackingGeometry::printVolumeInformation(
 }
 
 void Trk::TrackingGeometry::indexStaticLayers ATLAS_NOT_THREAD_SAFE(
-    GeometrySignature geosit, int offset) const {
+    GeometrySignature geosit, int offset) {
   if (m_world) {
     m_world->indexContainedStaticLayers(geosit, offset);
     m_world->indexContainedMaterialLayers(geosit, offset);

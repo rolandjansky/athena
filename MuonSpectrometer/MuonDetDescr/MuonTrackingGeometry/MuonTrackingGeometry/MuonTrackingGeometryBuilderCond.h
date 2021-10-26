@@ -65,7 +65,7 @@ namespace Muon {
         /** AlgTool finalize method */
         StatusCode finalize();
         /** TrackingGeometry Interface method */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(
+        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
             const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 
         /** The unique signature */
