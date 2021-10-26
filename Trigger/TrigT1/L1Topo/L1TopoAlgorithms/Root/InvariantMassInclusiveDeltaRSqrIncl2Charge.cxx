@@ -121,8 +121,8 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2Charge::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       std::string hname_accept = "hInvariantMassDeltaRSqrIncl2Charge_accept_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_reject = "hInvariantMassDeltaRSqrIncl2Charge_reject_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_accept = "hInvariantMassInclusiveDeltaRSqrIncl2Charge_accept_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_reject = "hInvariantMassInclusiveDeltaRSqrIncl2Charge_reject_bit"+std::to_string(static_cast<int>(i));
        // mass
        bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, std::sqrt(m_InvMassMin[i]), std::sqrt(m_InvMassMax[i]), 100, std::sqrt(m_DeltaRMin[i]), std::sqrt(m_DeltaRMax[i]));
        bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, std::sqrt(m_InvMassMin[i]), std::sqrt(m_InvMassMax[i]), 100, std::sqrt(m_DeltaRMin[i]), std::sqrt(m_DeltaRMax[i]));
