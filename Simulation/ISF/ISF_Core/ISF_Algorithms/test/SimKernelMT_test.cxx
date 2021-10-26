@@ -164,10 +164,10 @@ public:
   virtual ~MockSimulatorTool() { };
 
   MOCK_METHOD0(finalize, StatusCode());
-  MOCK_METHOD0(setupEvent, StatusCode());
+  MOCK_METHOD1(setupEvent, StatusCode(const EventContext&));
   MOCK_CONST_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
   MOCK_CONST_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
-  MOCK_METHOD0(releaseEvent, StatusCode());
+  MOCK_METHOD1(releaseEvent, StatusCode(const EventContext&));
   MOCK_CONST_METHOD1(bid, int(const ISF::ISFParticle&));
 
   // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
@@ -289,6 +289,7 @@ protected:
       m_mockSimulatorTool = retrieveTool<MockSimulatorTool>(mockSimulatorToolName);
       m_mockSimulationSelector = retrieveTool<MockSimulationSelector>(mockSimulationSelectorName);
       m_mockEntryLayerTool = retrieveTool<MockEntryLayerTool>(mockEntryLayerToolName);
+      ASSERT_TRUE( m_svcLoc->service("StoreGateSvc", m_sg) );
     }
 
     virtual void TearDown() override {
@@ -345,10 +346,15 @@ protected:
     }
 
     void setEmptyInputOutputCollections() {
+      // create a dummy EventContext
+      EventContext ctx;
+      ctx.setExtension( Atlas::ExtendedEventContext( m_sg ) );
+      Gaudi::Hive::setCurrentContext( ctx );
       auto inputEvgen = std::make_unique<McEventCollection>();
-      SG::WriteHandle<McEventCollection> inputEvgenHandle{"emptyTestInputEvgenCollection"};
-      EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
-
+      SG::WriteHandleKey<McEventCollection> testInputEvgenKey{"emptyTestInputEvgenCollection"};
+      ASSERT_TRUE(testInputEvgenKey.initialize().isSuccess());
+      SG::WriteHandle<McEventCollection> testInputEvgenHandle(testInputEvgenKey, ctx);
+      EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "emptyTestInputEvgenCollection").isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
@@ -370,6 +376,8 @@ protected:
 
     // the tested AthAlgorithm
     ISF::SimKernelMT* m_alg;
+
+    StoreGateSvc* m_sg{};
 
     // mocked Athena components
     ISFTesting::MockGeoIDSvc* m_mockGeoIDSvc = nullptr;
@@ -486,8 +494,15 @@ protected:
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
 
+    // create a dummy EventContext
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg ) );
+    Gaudi::Hive::setCurrentContext( ctx );
+
     auto inputEvgen = std::make_unique<McEventCollection>();
-    SG::WriteHandle<McEventCollection> testInputEvgenHandle{"testInputEvgenCollection"};
+    SG::WriteHandleKey<McEventCollection> testInputEvgenKey{"testInputEvgenCollection"};
+    ASSERT_TRUE(testInputEvgenKey.initialize().isSuccess());
+    SG::WriteHandle<McEventCollection> testInputEvgenHandle(testInputEvgenKey, ctx);
     EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
@@ -498,12 +513,19 @@ protected:
 
 
   TEST_F(SimKernelMT_test, emptyInputCollection_expectSuccess) {
+    // create a dummy EventContext
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg ) );
+    Gaudi::Hive::setCurrentContext( ctx );
+
     auto inputEvgen = std::make_unique<McEventCollection>();
     auto* genEvent = new HepMC::GenEvent{};
 
     inputEvgen->push_back(genEvent);
-    SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
+    SG::WriteHandleKey<McEventCollection> testInputEvgenKey{"testInputEvgenCollection"};
+    ASSERT_TRUE(testInputEvgenKey.initialize().isSuccess());
+    SG::WriteHandle<McEventCollection> testInputEvgenHandle(testInputEvgenKey, ctx);
+    EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -515,6 +537,11 @@ protected:
 
 
   TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
+    // create a dummy EventContext
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg ) );
+    Gaudi::Hive::setCurrentContext( ctx );
+
     auto* genEvent = new HepMC::GenEvent{};
     HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr();
     HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
@@ -529,8 +556,10 @@ protected:
 
     auto inputEvgen = std::make_unique<McEventCollection>();
     inputEvgen->push_back(genEvent);
-    SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
+    SG::WriteHandleKey<McEventCollection> testInputEvgenKey{"testInputEvgenCollection"};
+    ASSERT_TRUE(testInputEvgenKey.initialize().isSuccess());
+    SG::WriteHandle<McEventCollection> testInputEvgenHandle(testInputEvgenKey, ctx);
+    EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -731,6 +760,11 @@ protected:
 
 
   TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationTools_expectConvertedParticleSentToParticleKiller) {
+    // create a dummy EventContext
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg ) );
+    Gaudi::Hive::setCurrentContext( ctx );
+
     auto* genEvent = new HepMC::GenEvent{};
     HepMC::FourVector mom{12.3, 45.6, 78.9, 1234.5};
     HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr(mom,
@@ -744,8 +778,10 @@ protected:
 
     auto inputEvgen = std::make_unique<McEventCollection>();
     inputEvgen->push_back(genEvent);
-    SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
+    SG::WriteHandleKey<McEventCollection> testInputEvgenKey{"testInputEvgenCollection"};
+    ASSERT_TRUE(testInputEvgenKey.initialize().isSuccess());
+    SG::WriteHandle<McEventCollection> testInputEvgenHandle(testInputEvgenKey, ctx);
+    EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );

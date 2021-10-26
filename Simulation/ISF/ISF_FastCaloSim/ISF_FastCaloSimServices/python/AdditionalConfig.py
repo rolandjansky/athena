@@ -657,8 +657,6 @@ def setAdditionalParticleParametrizationFileNames( FastShowerCellBuilderTool ):
 
 def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault("RandomNumberService"     , simFlags.RandomSvc()                               )
-    kwargs.setdefault("RandomStreamName"        , ISF_FastCaloSimFlags.RandomStreamName()            )
     kwargs.setdefault("FilenameLookupTable"     , ISF_FastCaloSimFlags.PunchThroughParamsInputFilename())
     kwargs.setdefault("PunchThroughInitiators"  , [ 211 ]                                            )
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
