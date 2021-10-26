@@ -569,6 +569,8 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
   ATH_MSG_DEBUG("Start iteration");
   ATH_MSG_DEBUG("Number of hits+outliers: " << mapOfHits.size() << " and predicted parameters:" << mapOfPredictions.size());
 
+  if (listOfHoles) listOfHoles->reserve (mapOfPredictions.size());
+
   for (std::map<const Identifier,std::pair<const Trk::TrackParameters*,const bool> >::const_iterator it = mapOfPredictions.begin();
        it != mapOfPredictions.end(); ++it) {
 
