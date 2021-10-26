@@ -7,6 +7,7 @@
 #include "../EnergyInputProvider.h"
 #include "../MuonInputProvider.h"
 #include "../RoiB2TopoInputDataCnv.h"
+#include "../TopoEDM.h"
 
 DECLARE_COMPONENT( LVL1::L1TopoSimulation )
 DECLARE_COMPONENT( LVL1::RoiB2TopoInputDataCnv )
@@ -17,3 +18,5 @@ DECLARE_COMPONENT( LVL1::JetInputProvider )
 DECLARE_COMPONENT( LVL1::JetInputProviderFEX )
 DECLARE_COMPONENT( LVL1::EnergyInputProvider )
 DECLARE_COMPONENT( LVL1::MuonInputProvider )
+
+DECLARE_COMPONENT( LVL1::TopoEDM )

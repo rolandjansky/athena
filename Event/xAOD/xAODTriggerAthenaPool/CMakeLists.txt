@@ -28,6 +28,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAODTrigger/jFexTauRoIContainer.h xAODTrigger/jFexTauRoIAuxContainer.h
    xAODTrigger/jFexSumETRoIContainer.h xAODTrigger/jFexSumETRoIAuxContainer.h
    xAODTrigger/jFexMETRoIContainer.h xAODTrigger/jFexMETRoIAuxContainer.h
+   xAODTrigger/L1TopoSimResultsContainer.h xAODTrigger/L1TopoSimResultsAuxContainer.h
    xAODTrigger/gFexJetRoIContainer.h xAODTrigger/gFexJetRoIAuxContainer.h
    xAODTrigger/gFexGlobalRoIContainer.h xAODTrigger/gFexGlobalRoIAuxContainer.h
    TYPES_WITH_NAMESPACE xAOD::MuonRoIContainer xAOD::MuonRoIAuxContainer
@@ -52,6 +53,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::jFexTauRoIContainer xAOD::jFexTauRoIAuxContainer
    xAOD::jFexSumETRoIContainer xAOD::jFexSumETRoIAuxContainer
    xAOD::jFexMETRoIContainer xAOD::jFexMETRoIAuxContainer
+   xAOD::L1TopoSimResultsContainer xAOD::L1TopoSimResultsAuxContainer
    xAOD::gFexJetRoIContainer xAOD::gFexJetRoIAuxContainer
    xAOD::gFexGlobalRoIContainer xAOD::gFexGlobalRoIAuxContainer
 
