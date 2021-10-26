@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 def InitializeGeometryParameters(dbGeomCursor):
    """Read version name, layout and dbm from AtlasCommon table.
@@ -9,8 +9,7 @@ def InitializeGeometryParameters(dbGeomCursor):
    dbId, dbCommon, dbParam = dbGeomCursor.GetCurrentLeafContent("AtlasCommon")
 
    params = {"Run" : "UNDEFINED",
-             "GeoType" : "UNDEFINED",
-             "StripGeoType" : "UNDEFINED"}
+             "GeoType" : "UNDEFINED"}
 
    if len(dbId)>0:
       key = dbId[0]
@@ -18,7 +17,5 @@ def InitializeGeometryParameters(dbGeomCursor):
          params["Run"] = dbCommon[key][dbParam.index("CONFIG")]
       if "GEOTYPE" in dbParam :
          params["GeoType"] = dbCommon[key][dbParam.index("GEOTYPE")]
-      if "STRIPGEOTYPE" in dbParam :
-         params["StripGeoType"] = dbCommon[key][dbParam.index("STRIPGEOTYPE")]
 
    return params
