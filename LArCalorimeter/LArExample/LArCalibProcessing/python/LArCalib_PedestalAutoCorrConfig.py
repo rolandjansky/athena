@@ -172,7 +172,7 @@ if __name__ == "__main__":
     
     ConfigFlags.LArCalib.Output.ROOTFile="ped.root"
 
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-000-02"
 
     print ("Input files to be processed:")

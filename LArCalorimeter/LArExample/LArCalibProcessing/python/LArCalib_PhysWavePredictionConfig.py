@@ -139,7 +139,7 @@ if __name__ == "__main__":
     ConfigFlags.LArCalib.BadChannelTag="-RUN2-UPD3-00"
     ConfigFlags.LArCalib.Output.ROOTFile="physwave.root"
     ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 
