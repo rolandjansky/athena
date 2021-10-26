@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H_
@@ -7,6 +7,7 @@
 
 // Athena Includes
 #include "AsgTools/AsgTool.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -77,16 +78,14 @@ public:
 
   // John Morris <john.morris@cern.ch> 15/2/2011
   // Moving most useful functions to the top of this file for clarity
-  std::vector<const CaloCell*> caloCells(const Identifier& ttId) const;
-  std::vector<std::vector<const CaloCell*> > caloCellsByLayer(const Identifier& ttId) const;
-  virtual std::vector<int> layerNames(const Identifier& ttID) const;
-  virtual int layerNames(const CaloCell* cell) const;
-  virtual float energy(const std::vector<const CaloCell*> &cells) const;
-  virtual float et(const std::vector<const CaloCell*> &cells) const;
-  virtual float energy(const Identifier& ttId) const;
-  virtual float et(const Identifier& ttId) const;
-
-  void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const;
+  virtual std::vector<const CaloCell*> caloCells(const Identifier& ttId) const override;
+  virtual std::vector<std::vector<const CaloCell*> > caloCellsByLayer(const Identifier& ttId) const override;
+  virtual std::vector<int> layerNames(const Identifier& ttID) const override;
+  virtual int layerNames(const CaloCell* cell) const override;
+  virtual float energy(const std::vector<const CaloCell*> &cells) const override;
+  virtual float et(const std::vector<const CaloCell*> &cells) const override;
+  virtual float energy(const Identifier& ttId) const override;
+  virtual float et(const Identifier& ttId) const override;
 
   // Return a vector digits belonging the to requested trigger tower
   std::vector<double> samples(const Identifier& ttId) const;
@@ -118,10 +117,6 @@ protected:
   void dump(const std::vector<const TileDigits*>& vCells) const;
 
 private:
-
-  // Id managers
-  const CaloIdManager* m_caloMgr;
-
   // Id helpers
   const CaloLVL1_ID* m_lvl1Helper;
   const TileID* m_tileID;
@@ -129,6 +124,8 @@ private:
 
   // Services
   LArCablingLegacyService* m_larCablingSvc;
+  ToolHandle<LVL1::IL1CaloMatchCell2Tower> m_cellMatch
+    { this, "L1CaloMatchCell2Tower",  "LVL1::L1CaloMatchCell2Tower",  "L1CaloMatchCell2Tower" };
   const TileCablingService * m_tileCablingService;
   CaloTriggerTowerService* m_ttSvc;
 

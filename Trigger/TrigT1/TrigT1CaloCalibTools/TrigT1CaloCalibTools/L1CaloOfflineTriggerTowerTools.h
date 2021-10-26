@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -37,7 +37,6 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloFcal23Cells2RxMappingTool.h"
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloLArTowerEnergy.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 
 // Calo includes
@@ -122,7 +121,6 @@ public:
       virtual float                              emTTCellsEt(const TriggerTower* tt) const override;
       virtual std::vector<float>                 emTTCellsEtByLayer(const TriggerTower* tt) const override;
       virtual std::vector<float>                 emTTCellsEtByReceiver(const TriggerTower* tt, const int mode = 0) const override;
-      virtual float                              emLArTowerEnergy(const TriggerTower* tt) const override;
 
       virtual std::vector<const CaloCell*>       hadCells(const TriggerTower* tt) const override;
       virtual int                                hadNCells(const TriggerTower* tt) const override;
@@ -137,12 +135,10 @@ public:
       virtual float                              hadTTCellsEt(const TriggerTower* tt) const override;
       virtual std::vector<float>                 hadTTCellsEtByLayer(const TriggerTower* tt) const override;
       virtual std::vector<float>                 hadTTCellsEtByReceiver(const TriggerTower* tt, const int mode = 0) const override;
-      virtual float                              hadLArTowerEnergy(const TriggerTower* tt) const override;
       virtual float                              tileCellEnergy(const TriggerTower* tt, IdTTL1CellMapType& map) const override;
 
 
       //  Bad Calo, High Voltage Information
-      virtual int                                emBadCalo(const TriggerTower* tt) const override;
       virtual float                              emCaloQuality(const TriggerTower* tt) const override;
       virtual float                              emNCellsNonNominal(const TriggerTower* tt) const override;
       virtual std::vector<float>                 emNCellsNonNominalByLayer(const TriggerTower* tt) const override;
@@ -152,7 +148,6 @@ public:
       virtual std::vector<float>                 emNonNominalMeanScaleByReceiver(const TriggerTower* tt) const override;
       virtual std::vector<std::vector<float> >   emNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const override;
 
-      virtual int                                hadBadCalo(const TriggerTower* tt, IdTTL1CellMapType& map) const override;
       virtual float                              hadCaloQuality(const TriggerTower* tt) const override;
       virtual float                              hadNCellsNonNominal(const TriggerTower* tt) const override;
       virtual std::vector<float>                 hadNCellsNonNominalByLayer(const TriggerTower* tt) const override;
@@ -217,9 +212,6 @@ public:
       virtual void                               LArHV(const SG::ReadCondHandleKey<ILArHVScaleCorr>& scaleCorrKey,
                                                        const SG::ReadCondHandleKey<LArOnOffIdMapping>& cablingKey) override;
       virtual void                               caloCells(const CaloCellContainer* cells) override;
-      virtual void                               larDigits(const LArDigitContainer* lar) override;
-      virtual void                               tileDigits(const TileDigitsContainer* tile) override;
-      virtual void                               l1CaloLArTowerEnergy(const CaloCellContainer* cells, const TriggerTowerCollection* ttc) override;
               Identifier                         ID(const double eta, const double phi, int layer) const;
       virtual Identifier                         emID(const double eta, const double phi) const override;
       virtual Identifier                         hadID(const double eta, const double phi) const override;
@@ -268,7 +260,6 @@ private:
       const TTOnlineID*                                m_ttOnlineIdHelper;
       const CaloLVL1_ID*                               m_lvl1Helper;
       L1CaloCondSvc*                                   m_l1CondSvc;
-      ToolHandle<LVL1::IL1CaloLArTowerEnergy>          m_larEnergy;
       const LArOnlineID*                               m_larOnlineID;
       ToolHandle<ICaloSuperCellIDTool>                 m_scidtool;
 

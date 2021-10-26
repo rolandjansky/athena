@@ -8,6 +8,7 @@
 #include "TrigT1CaloCalibTools/TriggerTowerThinningAlg.h"
 #include "TrigT1CaloCalibTools/L1CaloTriggerTowerDecoratorAlg.h"
 #include "TrigT1CaloCalibTools/L1CaloxAODOfflineTriggerTowerTools.h"
+#include "TrigT1CaloCalibTools/L1CaloMatchCell2Tower.h"
 
 DECLARE_COMPONENT( LVL1::L1CaloTTIdTools )
 DECLARE_COMPONENT( LVL1::L1CaloFcal23Cells2RxMappingTool )
@@ -18,4 +19,5 @@ DECLARE_COMPONENT( LVL1::L1CaloMonitoringCaloTool )
 DECLARE_COMPONENT( LVL1::L1CaloxAODOfflineTriggerTowerTools )
 DECLARE_COMPONENT( DerivationFramework::TriggerTowerThinningAlg )
 DECLARE_COMPONENT( LVL1::L1CaloTriggerTowerDecoratorAlg )
+DECLARE_COMPONENT( LVL1::L1CaloMatchCell2Tower )
 

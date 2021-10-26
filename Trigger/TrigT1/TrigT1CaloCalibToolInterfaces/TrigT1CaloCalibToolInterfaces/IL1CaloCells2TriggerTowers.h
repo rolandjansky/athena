@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -47,7 +47,6 @@ namespace LVL1{
       virtual float et(const std::vector<const CaloCell*> &cells) const = 0;
       virtual float energy(const Identifier& ttId) const = 0;
       virtual float et(const Identifier& ttId) const = 0;
-      virtual void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const = 0;
       // Return a vector digits belonging the to requested trigger tower
       virtual std::vector<double> samples(const Identifier& ttId) const = 0;
       virtual std::vector<const LArDigit*> larDigits(const Identifier& ttId) const = 0;
