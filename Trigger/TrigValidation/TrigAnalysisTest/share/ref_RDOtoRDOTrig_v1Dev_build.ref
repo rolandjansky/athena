@@ -10209,6 +10209,12 @@ HLT_noalg_L1XE60:
   eventCount: 0
 HLT_noalg_L1ZB:
   eventCount: 0
+HLT_noalg_L1ZDC_A:
+  eventCount: 0
+HLT_noalg_L1ZDC_AND:
+  eventCount: 0
+HLT_noalg_L1ZDC_C:
+  eventCount: 0
 HLT_noalg_L1cTAU12M:
   eventCount: 0
 HLT_noalg_L1cTAU20M:
