@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RngComps.RandomServices import RNG, dSFMT
+from RngComps.RandomServices import RNG
 from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg
 
 ###################################################################################################
@@ -20,10 +20,6 @@ def PunchThroughToolCfg(flags, name="ISF_PunchThroughTool", **kwargs):
     from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
     from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
     acc = ComponentAccumulator()
-    seed = 'FastCaloSimRnd OFFSET 0 98346412 12461240'
-    acc.merge(dSFMT(seed))
-    kwargs.setdefault("RandomNumberService", acc.getService("AtDSFMTGenSvc"))
-    kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
     kwargs.setdefault("FilenameLookupTable", "FastCaloSim/MC16/TFCSparam_mpt_v01.root")
     kwargs.setdefault("PunchThroughInitiators", [211])
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
