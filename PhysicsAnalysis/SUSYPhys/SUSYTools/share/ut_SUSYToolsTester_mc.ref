@@ -1,4 +1,4 @@
-Package.SUSYToolsTester  INFO    ===== Processing key /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4631-iso.PHYS.pool.root with value 
+Package.SUSYToolsTester  INFO    ===== Processing key /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4631-iso.PHYS.pool.root with value 
 Package.SUSYToolsTester  INFO    ===== Processing key maxEvents with value 100
 Package.SUSYToolsTester  INFO    ===== Processing key isData with value 0
 Package.SUSYToolsTester  INFO    ===== Processing key isAtlfast with value 0
@@ -6,7 +6,7 @@ Package.SUSYToolsTester  INFO    ===== Processing key Debug with value 0
 Package.SUSYToolsTester  INFO    ===== Processing key NoSyst with value 0
 Package.SUSYToolsTester  INFO    ===== Processing key PRWFile with value dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root
 Package.SUSYToolsTester  INFO    ===== Processing key ilumicalcFile with value GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
-Package.SUSYToolsTester  INFO    Opening file: /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4631-iso.PHYS.pool.root
+Package.SUSYToolsTester  INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4631-iso.PHYS.pool.root
 Warning in <TClass::Init>: no dictionary for class DataHeader_p6 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderForm_p6 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderForm_p6::DbRecord is available
@@ -27,7 +27,7 @@ Package.SUSYToolsTester  INFO    xsec DB initialized
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /data/CERN/BGF/MR45546/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /afs/cern.ch/work/s/salderwe/private/BGF/ATLASG-1606/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -265,7 +265,7 @@ PathResolver             WARNING Locating dev file dev/PileupReweighting/share/D
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0x92f5be0
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xd726290
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
@@ -691,7 +691,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBase/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-26T0524/AnalysisBase/22.2.49/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -1014,8 +1014,8 @@ CalibrationDataInterface: retrieved container DL1/AntiKt4EMPFlowJets_BTagging201
 ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
-ToolSvc.METSystTool      INFO    PWD: /data/CERN/BGF/MR45546/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
-ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/BGF/MR45546/build/x86_64-centos7-gcc8-opt/data:/data/CERN/BGF/MR45546/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBase/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBase/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBaseExternals/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBaseExternals/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
+ToolSvc.METSystTool      INFO    PWD: /afs/cern.ch/work/s/salderwe/private/BGF/ATLASG-1606/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
+ToolSvc.METSystTool      INFO    CALIBPATH: /afs/cern.ch/work/s/salderwe/private/BGF/ATLASG-1606/build/x86_64-centos7-gcc8-opt/data:/afs/cern.ch/work/s/salderwe/private/BGF/ATLASG-1606/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-26T0524/AnalysisBase/22.2.49/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-26T0524/AnalysisBase/22.2.49/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-26T0524/AnalysisBaseExternals/22.2.49/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-10-26T0524/AnalysisBaseExternals/22.2.49/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
 ToolSvc.METSystTool      INFO    Configuring from file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    Will read histograms from : METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
 ToolSvc.METSystTool      INFO    Systpath :/
@@ -1067,7 +1067,7 @@ ToolSvc.METSigAutoConf...INFO    Not correcting data, only using systematic unce
 ToolSvc.METSigAutoConf...INFO    Using only statistical combination of sagitta bias ID and sagitta bias MS with rho 0
 ToolSvc.METSigAutoConf...INFO    Initialization
 GainUncertainty          INFO    opening file /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonFourMomentumCorrection/v14/gain_uncertainty_specialRun.root
-asg::ToolStore::put       WARNING Tool with name "EgammaMVATool" already registered
+Package.AsgTools.ToolS...WARNING asg::ToolStore::put: Tool with name "EgammaMVATool" already registered
 egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
 egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
 egammaMVACalib           INFO    117 readers created
@@ -1180,7 +1180,7 @@ Package.SUSYToolsTester  INFO    SUSYObjDef_xAOD initialized...
 Package.SUSYToolsTester  INFO    Initialized SUSYTools
 Package.SUSYToolsTester  INFO    Config file opened
 SUSYObjDef_xAOD          INFO    Extracting systematics info list
-SUSYObjDef_xAOD          INFO    Returning list of 319 systematic variations
+SUSYObjDef_xAOD          INFO    Returning list of 323 systematic variations
 Info in <CP::TPileupReweighting::GetRandomRunNumber>: Initializing the subtool..
 ToolSvc.xAODConfigTool   INFO    Loaded xAOD::TriggerMenu configuration:
 ToolSvc.xAODConfigTool   INFO      SMK = 2232, L1PSK = 86, HLTPSK = 278
@@ -1890,9 +1890,9 @@ ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 110613run #310000 99 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #110613, run #310000 100 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 581.800000 / 582.167902 ms
-  First event           - 720.000000 / 720.604897 ms
-  Excluding first event - 580.404040 / 580.769536 ms
+  Entire loop           - 1109.300000 / 1139.729731 ms
+  First event           - 1470.000000 / 4440.704823 ms
+  Excluding first event - 1105.656566 / 1106.385566 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
@@ -4500,6 +4500,50 @@ Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 12, mu: 29
 Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 11, mu: 24
 Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 10, mu: 18
 Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 3, mu: 13
+Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation PH_EFF_ID_Uncertainty__1down <<<<
+Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 98, mu: 98
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 13, mu: 32
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 12, mu: 29
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 11, mu: 24
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 10, mu: 18
+Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 3, mu: 13
+Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation PH_EFF_ID_Uncertainty__1up <<<<
+Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 98, mu: 98
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 13, mu: 32
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 12, mu: 29
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 11, mu: 24
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 10, mu: 18
+Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 3, mu: 13
+Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation PH_EFF_ISO_Uncertainty__1down <<<<
+Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 98, mu: 98
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 13, mu: 32
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 12, mu: 29
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 11, mu: 24
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 10, mu: 18
+Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 3, mu: 13
+Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation PH_EFF_ISO_Uncertainty__1up <<<<
+Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 100, mu: 100
+Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 98, mu: 98
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 13, mu: 32
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 12, mu: 29
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 11, mu: 24
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 10, mu: 18
+Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 3, mu: 13
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation PH_EFF_TRIGGER_Uncertainty__1down <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
@@ -5402,6 +5446,6 @@ Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 12, mu: 29
 Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 11, mu: 24
 Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 10, mu: 18
 Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 3, mu: 13
-ToolSvc.TrigDecisionTool INFO    TDT finalized and removed from instance list
+ToolSvc.TrigDecisionTool INFO    Finalized
 		CalibrationDataInterfaceROOT object out-of-bounds summary:
 			No issues found
