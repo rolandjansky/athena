@@ -4437,21 +4437,21 @@ HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM:
     3: 9
     4: 5
 HLT_tau25_medium1_tracktwo_L1TAU12IM:
-  eventCount: 5
+  eventCount: 4
   stepCounts:
     0: 9
     1: 8
     2: 8
     3: 7
     4: 7
-    5: 5
+    5: 4
   stepFeatures:
     0: 11
     1: 9
     2: 9
     3: 8
     4: 8
-    5: 5
+    5: 4
 HLT_tau25_medium1_tracktwo_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
   stepFeatures:
@@ -4471,19 +4471,19 @@ HLT_tau25_mediumRNN_tracktwoLLP_L1TAU12IM:
     3: 9
     4: 3
 HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM:
-  eventCount: 2
+  eventCount: 3
   stepCounts:
     0: 10
     1: 8
     2: 8
     3: 8
-    4: 2
+    4: 3
   stepFeatures:
     0: 12
     1: 9
     2: 9
     3: 9
-    4: 2
+    4: 3
 HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12:
   eventCount: 0
   stepCounts:
@@ -4531,19 +4531,19 @@ HLT_tau25_mediumRNN_tracktwoMVAClus_L1TAU12IM:
     3: 9
     4: 4
 HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM:
-  eventCount: 1
+  eventCount: 2
   stepCounts:
     0: 10
     1: 8
     2: 8
     3: 8
-    4: 1
+    4: 2
   stepFeatures:
     0: 12
     1: 9
     2: 9
     3: 9
-    4: 1
+    4: 2
 HLT_tau25_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50:
   eventCount: 0
   stepFeatures:

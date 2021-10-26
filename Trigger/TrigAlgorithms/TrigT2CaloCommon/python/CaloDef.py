@@ -276,6 +276,7 @@ def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
 
 def HLTLCTopoRecoSequence(ConfigFlags, RoIs='InViewRoIs'):
     cellMaker = HLTCellMaker(ConfigFlags, RoIs, outputName="CaloCellsLC", algSuffix="LC")
+    cellMaker.TileCellsInROI = True
     topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMaker.CellsName, algSuffix="LC")
     RecoSequence = parOR("TopoClusterRecoSequenceLC",[cellMaker,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
