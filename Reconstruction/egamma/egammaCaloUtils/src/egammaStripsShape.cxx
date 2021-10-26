@@ -2,7 +2,7 @@
    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "egammaStripsShape.h"
+#include "egammaCaloUtils/egammaStripsShape.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloUtils/CaloLayerCalculator.h"
@@ -177,13 +177,13 @@ setArray(const xAOD::CaloCluster& cluster,
   int index = elementCount - 1;
   // if previous element had a different eta then append the array
   // NB: this could happen if only one cell in phi was available
-  if (index == 0 ||
-      std::abs(stripArray[index].etaraw - stripArray[index - 1].etaraw) > 1e-05) {
+  if (index == 0 || std::abs(stripArray[index].etaraw -
+                             stripArray[index - 1].etaraw) > 1e-05) {
     // energy
     enecell[ieta] = stripArray[index].energy;
   }
-  if (index != 0 &&
-      std::abs(stripArray[index].etaraw - stripArray[index - 1].etaraw) < 1e-05) {
+  if (index != 0 && std::abs(stripArray[index].etaraw -
+                             stripArray[index - 1].etaraw) < 1e-05) {
     // energy
     enecell[ieta] += stripArray[index].energy;
   }
@@ -197,7 +197,7 @@ setArray(const xAOD::CaloCluster& cluster,
 
 /** @brief check index of seed in the array*/
 void
-setIndexSeed(IegammaStripsShape::Info& info,
+setIndexSeed(egammaStripsShape::Info& info,
              const double* etacell,
              const double* gracell)
 {
@@ -224,7 +224,7 @@ setIndexSeed(IegammaStripsShape::Info& info,
 
 /** @brief set total width in strips*/
 void
-setWstot(IegammaStripsShape::Info& info,
+setWstot(egammaStripsShape::Info& info,
          double deta,
          const double* enecell,
          const double* etacell,
@@ -260,7 +260,7 @@ setWstot(IegammaStripsShape::Info& info,
 
 /** @brief set fraction of energy in 2nd sampling*/
 void
-setF2(IegammaStripsShape::Info& info,
+setF2(egammaStripsShape::Info& info,
       const double* enecell,
       const double eallsamples)
 {
@@ -281,7 +281,7 @@ setF2(IegammaStripsShape::Info& info,
 
 /** @brief set energy in 3x1 and in 15x3 strips*/
 void
-setEnergy(IegammaStripsShape::Info& info, const double* enecell)
+setEnergy(egammaStripsShape::Info& info, const double* enecell)
 {
   //
   // Energy in the strips in a cluster of 15 strips
@@ -308,7 +308,7 @@ setEnergy(IegammaStripsShape::Info& info, const double* enecell)
 
 /** @brief set asymmetry*/
 void
-setAsymmetry(IegammaStripsShape::Info& info, const double* enecell)
+setAsymmetry(egammaStripsShape::Info& info, const double* enecell)
 {
   //
   // Asymmetry of the shower in +/- 3 strips
@@ -334,7 +334,7 @@ setAsymmetry(IegammaStripsShape::Info& info, const double* enecell)
 
 /** @brief set width in three strips*/
 void
-setWs3(IegammaStripsShape::Info& info,
+setWs3(egammaStripsShape::Info& info,
        const xAOD::CaloCluster::CaloSample sam,
        const xAOD::CaloCluster& cluster,
        const double* enecell,
@@ -408,7 +408,7 @@ setDeltaEtaTrackShower(int nstrips, int ieta, const double* enecell)
 
 /** @brief set width in 5 strips*/
 void
-setWidths5(IegammaStripsShape::Info& info, const double* enecell)
+setWidths5(egammaStripsShape::Info& info, const double* enecell)
 {
   //
   // Shower width using 5 strips
@@ -449,7 +449,7 @@ setWidths5(IegammaStripsShape::Info& info, const double* enecell)
 
 /** @brief set energy of strip with maximum energy*/
 void
-setEmax(IegammaStripsShape::Info& info, const double* enecell)
+setEmax(egammaStripsShape::Info& info, const double* enecell)
 {
   //
   // calculate energy of strip with maximum energy
@@ -464,7 +464,7 @@ setEmax(IegammaStripsShape::Info& info, const double* enecell)
 
 /** @brief set energy of the second local maximum*/
 int
-setEmax2(IegammaStripsShape::Info& info,
+setEmax2(egammaStripsShape::Info& info,
          const double* enecell,
          const double* gracell,
          const int* ncell)
@@ -533,7 +533,7 @@ setEmax2(IegammaStripsShape::Info& info,
 /** @brief set energy of strip with minimum energy*/
 void
 setEmin(int ncsec1,
-        IegammaStripsShape::Info& info,
+        egammaStripsShape::Info& info,
         const double* enecell,
         const double* gracell,
         const int* ncell)
@@ -570,7 +570,7 @@ setEmin(int ncsec1,
 
 /** @brief set M.S's valley*/
 void
-setValley(IegammaStripsShape::Info& info, double* enecell)
+setValley(egammaStripsShape::Info& info, double* enecell)
 {
   //
   // Variable defined originally by Michal Seman
@@ -623,7 +623,7 @@ setValley(IegammaStripsShape::Info& info, double* enecell)
   (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips) */
 
 void
-setFside(IegammaStripsShape::Info& info,
+setFside(egammaStripsShape::Info& info,
          const double* enecell,
          const double* gracell,
          const int* ncell)
@@ -681,7 +681,7 @@ setFside(IegammaStripsShape::Info& info,
 
 /** @brief set F1core*/
 void
-setF1core(IegammaStripsShape::Info& info, const xAOD::CaloCluster& cluster)
+setF1core(egammaStripsShape::Info& info, const xAOD::CaloCluster& cluster)
 {
   // Fraction of energy reconstructed in the core of the shower
   // core = e132, i.e energy in 3 strips
@@ -699,31 +699,11 @@ setF1core(IegammaStripsShape::Info& info, const xAOD::CaloCluster& cluster)
 
 } // end of anonymous namespace
 
-egammaStripsShape::egammaStripsShape(const std::string& type,
-                                     const std::string& name,
-                                     const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-{
-  declareInterface<IegammaStripsShape>(this);
-}
-
-StatusCode
-egammaStripsShape::initialize()
-{
-  ATH_MSG_DEBUG(" Initializing egammaStripsShape");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-egammaStripsShape::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode
 egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
                            const CaloDetDescrManager& cmgr,
-                           Info& info) const
+                           Info& info,
+                           bool ExecAllVariables) 
 {
   //
   // Estimate shower shapes from first compartment
@@ -733,8 +713,6 @@ egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
 
   // check if cluster is in barrel or in the end-cap
   if (!cluster.inBarrel() && !cluster.inEndcap()) {
-    ATH_MSG_WARNING(" egammaStripsShape: Cluster is neither in Barrel nor in "
-                    "Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
   // retrieve energy in all samplings
@@ -765,7 +743,8 @@ egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   info.etamax = cluster.etamax(samgran);
   info.phimax = cluster.phimax(samgran);
   // possible for soft electrons to be at -999
-  if ((info.etamax == 0. && info.phimax == 0.) || std::abs(info.etamax) > 100.) {
+  if ((info.etamax == 0. && info.phimax == 0.) ||
+      std::abs(info.etamax) > 100.) {
     return StatusCode::SUCCESS;
   }
   // check if we are in a crack or outside area where strips are well defined
@@ -834,7 +813,7 @@ egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   // width in three strips
   setWs3(info, sam, cluster, enecell, etacell, ncell);
   // Energy in in +/-1 and in +/-7 strips
-  if (m_ExecAllVariables) {
+  if (ExecAllVariables) {
     setEnergy(info, enecell);
     setF1core(info, cluster);
 

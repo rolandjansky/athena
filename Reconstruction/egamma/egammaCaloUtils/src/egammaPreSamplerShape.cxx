@@ -1,53 +1,22 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "egammaPreSamplerShape.h"
+#include "egammaCaloUtils/egammaPreSamplerShape.h"
+//
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloUtils/CaloLayerCalculator.h"
 #include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "CaloUtils/CaloLayerCalculator.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "SGTools/DataProxy.h" 
-
-// INCLUDE GAUDI HEADER FILES:
-
-#include "GaudiKernel/ObjectVector.h"      
-#include "GaudiKernel/MsgStream.h"
-#include "Gaudi/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <cmath>
-
-egammaPreSamplerShape::egammaPreSamplerShape(const std::string& type,
-        const std::string& name,
-        const IInterface* parent)
-    : AthAlgTool(type, name, parent){
-
-        // declare Interface
-        declareInterface<IegammaPreSamplerShape>(this);
-    }
-
-egammaPreSamplerShape::~egammaPreSamplerShape(){ 
-}
-
-StatusCode egammaPreSamplerShape::initialize(){
-    ATH_MSG_DEBUG(" Initializing egammaPreSamplerShape");
-
-    return StatusCode::SUCCESS;
-}
-
-StatusCode egammaPreSamplerShape::finalize(){
-    return StatusCode::SUCCESS;
-}
 
 StatusCode
 egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
                                const CaloDetDescrManager& cmgr,
                                const CaloCellContainer& cell_container,
-                               Info& info) const {
+                               Info& info) 
+{
   //
   // Estimate shower shapes in pre sampler
   // based on hottest cell and deta,dphi windows
@@ -58,12 +27,8 @@ egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
   //      dphi = 10.*0.1*(2.*M_PI/64)
   //
 
-  ATH_MSG_DEBUG(" egammaPreSamplerShape: execute");
-
   // check if cluster is in barrel or in the end-cap
   if (!cluster.inBarrel() && !cluster.inEndcap()) {
-    ATH_MSG_DEBUG(" egammaPreSamplerShape: Cluster is neither in Barrel nor in "
-                  "Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
   CaloSampling::CaloSample sam = CaloSampling::PreSamplerB;
@@ -105,8 +70,8 @@ egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
   bool barrel = false;
   int sampling_or_module = 0;
   // CaloCellList needs both enums: subCalo and CaloSample
-  CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
-                     (CaloCell_ID::CaloSample)sam);
+  CaloDetDescrManager::decode_sample(
+    subcalo, barrel, sampling_or_module, (CaloCell_ID::CaloSample)sam);
 
   // Get the corresponding grannularities : needs to know where you are
   //                  the easiest is to look for the CaloDetDescrElement
@@ -125,16 +90,17 @@ egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
   // estimate the relevant quantities around the hottest cell
   // in the following eta X phi windows
   CaloLayerCalculator calc;
+  StatusCode sc = StatusCode::SUCCESS;
   // 1X1
-  StatusCode sc = calc.fill(cmgr,&cell_container, eta, phi, deta, dphi, sam);
+  sc = calc.fill(cmgr, &cell_container, eta, phi, deta, dphi, sam);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+    return sc;
   }
   info.e011 = calc.em();
   // 3X3
-  sc = calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
+  sc = calc.fill(cmgr, &cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
+    return sc;
   }
   info.e033 = calc.em();
   return StatusCode::SUCCESS;
