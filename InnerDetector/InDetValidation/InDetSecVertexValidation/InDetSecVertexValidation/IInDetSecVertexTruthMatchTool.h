@@ -29,6 +29,8 @@ public:
  virtual StatusCode matchVertices( const xAOD::VertexContainer & vtxContainer,
                                    const xAOD::TruthVertexContainer & truthVtxContainer ) const = 0;
 
+ virtual StatusCode labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer ) const = 0;
+
 };
 
 #endif

@@ -43,6 +43,7 @@ StatusCode InDetSecVertexTruthMatchAlgorithm::execute() {
 
   //pass to the tool for decoration:
   ATH_CHECK( m_matchTool->matchVertices( *inSecVert, *inTruthVert ) );
+  ATH_CHECK( m_matchTool->labelTruthVertices( *inTruthVert ) );
 
   return StatusCode::SUCCESS;
 
