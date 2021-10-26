@@ -217,6 +217,10 @@ namespace top {
                       "Latest");
     registerParameter("METMuonPFlowBugfix", "Whether to run MET bugfix for muon-PFlow jet overlap removal.", "True",
                       {"True", "False"});
+    registerParameter("METSignificance",
+                      "Setting that provide option to turn on/off METSignificance",
+                      "False", {"True", "False"});
+
     registerParameter("METSignificanceSoftTermParam",
                       "String that sets the type of resolutions that are used for the soft term, Random(met::Random), PthardParam(met::PthardParam), TSTParam(met::TSTParam)",
                       "Random", {"Random", "PthardParam", "TSTParam"});

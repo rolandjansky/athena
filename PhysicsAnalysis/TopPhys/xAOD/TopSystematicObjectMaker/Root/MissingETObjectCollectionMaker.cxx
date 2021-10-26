@@ -298,19 +298,22 @@ namespace top {
     top::check(m_met_maker->buildMETSum("FinalTrk", new_met_container, MissingETBase::Source::Track),
                "Failed to rebuild Final Track MET");
 
-    const xAOD::EventInfo* eventInfo(nullptr);
-    top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "failded to retrieve event info obj");
-    // met significance
-    top::check(m_metSignif->varianceMET(new_met_container, eventInfo->averageInteractionsPerCrossing(), "RefJet", "PVSoftTrk","FinalTrk"), "Failed to execute MetSignificance::varianceMET!");
+    if(m_config->METSignificance()){
+      const xAOD::EventInfo* eventInfo(nullptr);
+      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "failded to retrieve event info obj");
+      // met significance
+      top::check(m_metSignif->varianceMET(new_met_container, eventInfo->averageInteractionsPerCrossing(), "RefJet", "PVSoftTrk","FinalTrk"), "Failed to execute MetSignificance::varianceMET!");
 
-    for (auto mets : *new_met_container){
-      mets->auxdecor<float>("metSigET") = m_metSignif->GetMETOverSqrtSumET();
-      mets->auxdecor<float>("metSigHT") = m_metSignif->GetMETOverSqrtHT();
-      mets->auxdecor<float>("metSig") = m_metSignif->GetSignificance();
-      mets->auxdecor<float>("metSigRho") = m_metSignif->GetRho();
-      mets->auxdecor<float>("metSigVarL") = m_metSignif->GetVarL();
-      mets->auxdecor<float>("metSigVarT") = m_metSignif->GetVarT();
+      for (auto mets : *new_met_container){
+        mets->auxdecor<float>("metSigET") = m_metSignif->GetMETOverSqrtSumET();
+        mets->auxdecor<float>("metSigHT") = m_metSignif->GetMETOverSqrtHT();
+        mets->auxdecor<float>("metSig") = m_metSignif->GetSignificance();
+        mets->auxdecor<float>("metSigRho") = m_metSignif->GetRho();
+        mets->auxdecor<float>("metSigVarL") = m_metSignif->GetVarL();
+        mets->auxdecor<float>("metSigVarT") = m_metSignif->GetVarT();
+      }
     }
+    
 
     /************************************************************
        // We are only going to build a single MET Sum now for clarity. The final argument is the soft term we
