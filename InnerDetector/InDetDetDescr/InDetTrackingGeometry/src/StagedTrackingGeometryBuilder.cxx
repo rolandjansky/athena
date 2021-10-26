@@ -127,7 +127,7 @@ StatusCode InDet::StagedTrackingGeometryBuilder::initialize()
 }
 
 
-const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
 (const Trk::TrackingVolume*) const
 {
    // only one assumption: 
@@ -514,7 +514,7 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
   // get the maximum extent in z
   std::vector<std::pair<double,double>> radii;
   ATH_MSG_DEBUG("Checking for Ring layout ... ");
-  for (auto& ring : layers) {
+  for (const auto & ring : layers) {
     // Surface
     const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
     const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
@@ -619,7 +619,7 @@ InDet::StagedTrackingGeometryBuilder::createTrackingVolume(
       for ( const auto& layset : merge ) {
         std::vector<const Trk::Layer*> ringSet;
         for ( auto lay : layset ) {
-          for ( auto ring : groupedDiscs[lay]) {
+          for ( const auto *ring : groupedDiscs[lay]) {
             float zPos = ring->surfaceRepresentation().center().z();
             if (ringSet.empty() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
             else {
@@ -840,7 +840,7 @@ std::vector<const Trk::Layer*> InDet::StagedTrackingGeometryBuilder::checkZoverl
   // if one layer location is compatible with 
   // another one (considering the layer thickness)
   // then the two layers have to be merged
-  for (auto lay : lays) {
+  for (const auto *lay : lays) {
     float zpos= lay->surfaceRepresentation().center().z();
     float thick = 0.5*lay->thickness(); 
     
@@ -893,7 +893,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   // order discs in radius
   std::vector< std::pair<float,float> > rbounds; std::vector<size_t> discOrder;
   size_t id=0;
-  for ( auto  lay : inputDiscs ) {
+  for ( const auto *  lay : inputDiscs ) {
     zb.first = fmin( zb.first, lay->surfaceRepresentation().center().z()-0.5*lay->thickness());
     zb.second = fmax( zb.second, lay->surfaceRepresentation().center().z()+0.5*lay->thickness());
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&(lay->surfaceRepresentation().bounds()));
@@ -938,7 +938,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   rsteps.push_back(rbounds.back().second);
 
   std::vector< std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D >  > surfaces;
-  for ( auto  sf : surfs ) {
+  for ( const auto *  sf : surfs ) {
     Trk::SharedObject<const Trk::Surface> sharedSurface(sf,Trk::do_not_delete<const Trk::Surface>);
     std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D >  surfaceOrder(sharedSurface, sf->center());
     surfaces.push_back(surfaceOrder);
@@ -952,7 +952,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   //DiscOverlapDescriptor takes possession of clonedBinUtils, will delete it on destruction.
   // but *does not* manage mergeBA.      
   std::vector<Trk::BinUtility*>* clonedBinUtils = new std::vector<Trk::BinUtility*>();
-  for (auto bu : *binUtils) clonedBinUtils->push_back(bu->clone());
+  for (auto *bu : *binUtils) clonedBinUtils->push_back(bu->clone());
   Trk::OverlapDescriptor* olDescriptor = new InDet::DiscOverlapDescriptor(mergeBA,clonedBinUtils,true);
     
   // position & bounds of the disc layer
@@ -976,14 +976,14 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   
    // register the layer to the surfaces 
    const std::vector<const Trk::Surface*>& layerSurfaces     = mergeBA->arrayObjects();
-   for (auto sf : layerSurfaces) {
+   for (const auto *sf : layerSurfaces) {
      const InDetDD::SiDetectorElement* detElement = dynamic_cast<const InDetDD::SiDetectorElement*>(sf->associatedDetectorElement());
      const std::vector<const Trk::Surface*>& allSurfacesVector = detElement->surfaces();
-     for (auto subsf : allSurfacesVector)  
+     for (const auto *subsf : allSurfacesVector)  
        Trk::IGeometryBuilder::associateLayer(*layer, const_cast<Trk::Surface&>(*subsf));
    }
    
-   for (auto disc : inputDiscs)   delete disc;      // cleanup
+   for (const auto *disc : inputDiscs)   delete disc;      // cleanup
 
    return layer; 
 

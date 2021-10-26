@@ -15,7 +15,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     CondArgs = {}
     if flags.Beam.Type == "cosmics":
         CondArgs.update(
-            UseComTime=True,
+            UseComTime=False,
             BarrelTimeJitter=[25.0,25.0,25.0,25.0],
             EndcapTimeJitter=[25.0,25.0,25.0],
             DBMTimeJitter=[25.0,25.0,25.0],

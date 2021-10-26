@@ -154,7 +154,7 @@ def PixelConfigCondAlg_MC():
 
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
-        alg.UseComTime=True
+        alg.UseComTime=False
         alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
         alg.EndcapTimeJitter=[25.0,25.0,25.0]
         alg.DBMTimeJitter=[25.0,25.0,25.0]

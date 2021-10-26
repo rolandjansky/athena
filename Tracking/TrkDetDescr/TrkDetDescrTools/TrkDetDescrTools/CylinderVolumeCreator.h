@@ -72,7 +72,9 @@ public:
    * std::vector<const Layer*>&, Material&, VolumeBounds*,
    * Amg::Transform3D*,bool, const std::string&) const;
    */
-  virtual TrackingVolume* createTrackingVolume(
+  //Not safe due to TrackingVolume ctor with interlink
+  //layers modifies the const Layers
+  virtual TrackingVolume* createTrackingVolume ATLAS_NOT_THREAD_SAFE(
     const std::vector<const Layer*>& layers,
     Material& matprop,
     VolumeBounds* volBounds = 0,
@@ -84,7 +86,8 @@ public:
    * std::vector<const Layer*>& , Material&,
    * ,double,double,double,double,bool,const std::string&) const;
    */
-  virtual TrackingVolume* createTrackingVolume(
+  //Not safe as it calls the previous overload
+  virtual TrackingVolume* createTrackingVolume ATLAS_NOT_THREAD_SAFE(
     const std::vector<const Layer*>& layers,
     Material& matprop,
     double loc1Min,
@@ -98,7 +101,7 @@ public:
    * ITrackingVolumeCreator::createGapTrackingVolume(Material&,,double,double,double,double,int,bool,const
    * std::string&) const;
    */
- virtual TrackingVolume* createGapTrackingVolume(
+ virtual TrackingVolume* createGapTrackingVolume ATLAS_NOT_THREAD_SAFE( 
     Material& matprop,
     double rMin,
     double rMax,
@@ -112,7 +115,7 @@ public:
    * ITrackingVolumeCreator::createGaoTrackingVolume(Material&,,std::vector<double>&,int,bool,const
    * std::string&) const;
    */
-  virtual TrackingVolume* createGapTrackingVolume(
+  virtual TrackingVolume* createGapTrackingVolume ATLAS_NOT_THREAD_SAFE(
     Material& matprop,
     double rMin,
     double rMax,

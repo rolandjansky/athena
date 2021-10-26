@@ -61,8 +61,8 @@ namespace LVL1 {
     void buildLayers();
     void setSupercellSeed();
     void setUnDAndOffPhi();
-    bool getUnD();
-    unsigned int getSeed();
+    virtual bool getUnD() override;
+    virtual unsigned int getSeed() override;
 	
     unsigned int m_em0cells[3][3];
     unsigned int m_em1cells[12][3];

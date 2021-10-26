@@ -375,6 +375,9 @@ elif rec.readAOD():
     ##objKeyStore.readInputBackNav('RecExPers/OKS_streamRDO.py')
 
 
+# Disable DPD making if neither script or passThroughMode set
+if rec.doDPD() and not (rec.DPDMakerScripts() or rec.doDPD.passThroughMode):
+    rec.doDPD = False
 
 if rec.OutputLevel() <= DEBUG:
     printfunc (" Initial content of objKeyStore ")
@@ -521,9 +524,26 @@ if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
 AODFix_postAtlfast()
 
-# functionality : FTK  truth-based FastSim
-if rec.doTruth() and DetFlags.detdescr.FTK_on():
-    protectedInclude("TrigFTKFastSimTruth/TrigFTKFastSimTruth_jobOptions.py")
+
+#################################################################################
+# Initialize ConfigFlags for use by CA-based code below
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
+
+# Apply additional changes to the ConfigFlags:
+if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
+    ConfigFlags.Trigger.readBS = True
+
+if rec.doMonitoring():
+    include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
+
+print('xxx')
+print(rec)
+# Lock the flags
+if not rec.doDPD():  # except for derivations: ATLASRECTS-6636
+    logRecExCommon_topOptions.info("Locking ConfigFlags")
+    ConfigFlags.lock()
+#################################################################################
 
 
 pdr.flag_domain('trig')
@@ -540,7 +560,6 @@ if not globalflags.InputFormat.is_bytestream():
         cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
         # Check for Run-1, Run-2 or Run-3 Trigger content in the input file
         from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if not cfgKeyStore.isInInputFile("HLT::HLTResult", "HLTResult_EF") \
                 and not cfgKeyStore.isInInputFile("xAOD::TrigNavigation", "TrigNavigation") \
                 and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", getRun3NavigationContainerFromInput(ConfigFlags) ):
@@ -550,19 +569,11 @@ if not globalflags.InputFormat.is_bytestream():
         logRecExCommon_topOptions.warning('Failed to check input file for Trigger content, leaving rec.doTrigger value unchanged (%s)', rec.doTrigger)
 
 if rec.doTrigger:
-    if globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
-        ConfigFlags.Trigger.readBS = True
-
     from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
     triggerGetter = TriggerRecoGetter()
 
     # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
     if rec.readESD() and rec.doAOD():
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        # The simplest protection in case ConfigFlags.Input.Files is not set, doesn't cover all cases:
-        if ConfigFlags.Input.Files == ['_ATHENA_GENERIC_INPUTFILE_NAME_'] and athenaCommonFlags.FilesInput():
-            ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
-
         if ConfigFlags.Trigger.EDMVersion == 3:
             # Add HLT output
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
@@ -614,13 +625,6 @@ if rec.readRDO():
     if include_muwriter:
         from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
         LumiBlockMuWriterDefault()
-
-if rec.doMonitoring():
-    try:
-        include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
-    except Exception:
-        treatException("Could not load AthenaMonitoring/DataQualityInit_jobOptions.py")
-
 
 #
 # System Reconstruction
@@ -1151,7 +1155,7 @@ if rec.doESD() or rec.doWriteESD():
 #########
 ## DPD ##
 #########
-if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
+if rec.doDPD():
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 
@@ -1326,9 +1330,11 @@ if rec.doWriteAOD():
         if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
+        from InDetRecExample.InDetJobProperties import InDetFlags
         if (AODFlags.ThinInDetForwardTrackParticles() and
             not (rec.readESD() and not objKeyStore.isInInput('xAOD::TrackParticleContainer',
-                                                             'InDetForwardTrackParticles'))):
+                                                             'InDetForwardTrackParticles'))
+            and InDetFlags.doForwardTracks()):
             from ThinningUtils.ThinInDetForwardTrackParticles import ThinInDetForwardTrackParticles
             ThinInDetForwardTrackParticles()
 

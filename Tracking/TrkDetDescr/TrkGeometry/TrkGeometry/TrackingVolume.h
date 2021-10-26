@@ -100,32 +100,37 @@ namespace Trk {
     public:
       /** Default Constructor */
       TrackingVolume();
-      
-      /** Constructor for a full equipped Tracking Volume 
+
+      /** Constructor for a full equipped Tracking Volume
       - explicitely  ======> 1 a) static confinement */
-      TrackingVolume (Amg::Transform3D* htrans,
-                      VolumeBounds* volbounds,
-                      const LayerArray* subLayers=nullptr,
-                      const TrackingVolumeArray* subVolumes=nullptr,
-                      const std::string& volumeName="undefined");
-      
+      TrackingVolume(Amg::Transform3D* htrans,
+                     VolumeBounds* volbounds,
+                     const LayerArray* subLayers = nullptr,
+                     const TrackingVolumeArray* subVolumes = nullptr,
+                     const std::string& volumeName = "undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+      // unsafe intelink layers
+
       /** Constructor for a full equipped Tracking Volume
          - full by inheritance  ======> 2 a) static confinement */
-      TrackingVolume (const Volume& volume,
-                      const Material& matprop,
-                      const LayerArray* subLayers=nullptr,
-                      const TrackingVolumeArray* subVolumes=nullptr,
-                      const std::string& volumeName="undefined");
-                     
+      TrackingVolume(const Volume& volume,
+                     const Material& matprop,
+                     const LayerArray* subLayers = nullptr,
+                     const TrackingVolumeArray* subVolumes = nullptr,
+                     const std::string& volumeName = "undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+      // unsafe intelink layers
+
       /** Constructor for a full equipped Tracking Volume
         - mixed  ======> 3 a) static confinement */
-      TrackingVolume (Amg::Transform3D* htrans,
-                      VolumeBounds*   volbounds,
-                      const Material& matprop,
-                      const LayerArray* subLayers=nullptr,
-                      const TrackingVolumeArray* subVolumes=nullptr,
-                      const std::string& volumeName="undefined");
-
+      TrackingVolume(Amg::Transform3D* htrans,
+                     VolumeBounds* volbounds,
+                     const Material& matprop,
+                     const LayerArray* subLayers = nullptr,
+                     const TrackingVolumeArray* subVolumes = nullptr,
+                     const std::string& volumeName = "undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+      // unsafe intelink layers
 
       /** Constructor for a full equipped Tracking Volume with detached subvolumes
         -  mixed =======> 1 b) detached volumes */
@@ -334,12 +339,11 @@ namespace Trk {
       /** Return the MotherVolume - if it exists */
       const TrackingVolume* getMotherVolume() const;
 
-      /** Return the MotherVolume - if it exists */
+      /** set the MotherVolume */
       void setMotherVolume(const TrackingVolume* mvol);
-      void setMotherVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume* mvol) const;
 
       /** move Volume */
-      void moveVolume ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const;
+      void moveVolume ( Amg::Transform3D& shift );
 
       /** add Material */
       void addMaterial( const Material& mat, float fact=1. );
@@ -618,8 +622,6 @@ namespace Trk {
 
   inline void TrackingVolume::setMotherVolume(const TrackingVolume* mvol) 
   { m_motherVolume = mvol; }
-  inline void TrackingVolume::setMotherVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume* mvol) const
-  { const_cast<TrackingVolume&>(*this).setMotherVolume(mvol); }
 
  inline bool TrackingVolume::isAlignable () const{return false;}
 } // end of namespace

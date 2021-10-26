@@ -44,7 +44,6 @@ def electronSuperClusterBuilderCfg(flags,
         "egammaCheckEnergyDepositTool",
         CompFactory.egammaCheckEnergyDepositTool())
     kwargs.setdefault("EtThresholdCut", 1000)
-    print(kwargs)
     elscAlg = CompFactory.electronSuperClusterBuilder(name, **kwargs)
 
     acc.addEventAlgo(elscAlg)

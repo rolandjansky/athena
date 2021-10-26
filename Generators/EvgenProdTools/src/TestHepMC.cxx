@@ -288,7 +288,8 @@ StatusCode TestHepMC::execute() {
       beams.first=beams_t.at(0);
       beams.second=beams_t.at(1);
     } else {
-      ATH_MSG_WARNING("Invalid number of beam particles -- this generator interface should be fixed");
+      ATH_MSG_WARNING("Invalid number of beam particles " << beams_t.size() << " this generator interface should be fixed");
+      HepMC3::Print::content(*evt);
     }
 #else
     auto beams = evt->beam_particles();

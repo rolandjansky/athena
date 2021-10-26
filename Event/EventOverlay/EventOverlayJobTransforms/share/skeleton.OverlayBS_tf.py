@@ -105,6 +105,10 @@ if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runAr
    if len(globalflags.ConditionsTag())!=0:
       conddb.setGlobalTag(globalflags.ConditionsTag())
 
+# convert flags to ConfigFlags
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
+
 # LVL1 Trigger Menu
 if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     # LVL1 Trigger Menu

@@ -67,8 +67,6 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.OFC.useDelta",False)
     flags.addFlag("LArCalib.OFC.Nsamples",4)
 
-    flags.addFlag("LArCalib.GlobalTag","LARCALIB-RUN2-00")
-
 
 def _getInputFiles(prevFlags):
     from LArCalibProcessing.GetInputFiles import GetInputFiles

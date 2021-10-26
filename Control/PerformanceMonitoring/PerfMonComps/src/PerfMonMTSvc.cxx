@@ -31,9 +31,9 @@ PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
   // Initial capture upon construction
-  m_measurement_snapshots.capture_snapshot();
-  m_snapshotData[CONFIGURE].addPointStop_snapshot(m_measurement_snapshots);
-  m_snapshotData[INITIALIZE].addPointStart_snapshot(m_measurement_snapshots);
+  m_measurementSnapshots.capture();
+  m_snapshotData[CONFIGURE].addPointStop(m_measurementSnapshots);
+  m_snapshotData[INITIALIZE].addPointStart(m_measurementSnapshots);
 }
 
 /*
@@ -125,8 +125,8 @@ void PerfMonMTSvc::handle(const Incident& inc) {
     // Monitor
     if (m_doEventLoopMonitoring && isCheckPoint()) {
       // Capture
-      m_measurement_events.capture_event();
-      m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
+      m_measurementEvents.capture();
+      m_eventLevelData.recordEvent(m_measurementEvents, m_eventCounter);
       // Report instantly - no more than m_eventLoopMsgLimit times
       if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
         report2Log_EventLevel_instant();
@@ -138,15 +138,15 @@ void PerfMonMTSvc::handle(const Incident& inc) {
   // By convention the first event is executed serially
   // Therefore, we treat it a little bit differently
   else if (m_eventCounter == 1 && inc.type() == "EndAlgorithms") {
-    m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[FIRSTEVENT].addPointStop_snapshot(m_measurement_snapshots);
-    m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
+    m_measurementSnapshots.capture();
+    m_snapshotData[FIRSTEVENT].addPointStop(m_measurementSnapshots);
+    m_snapshotData[EXECUTE].addPointStart(m_measurementSnapshots);
   }
   // Finalize ourself and print the metrics in SvcPostFinalize
   else if (inc.type() == IncidentType::SvcPostFinalize) {
     // Final capture upon post-finalization
-    m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
+    m_measurementSnapshots.capture();
+    m_snapshotData[FINALIZE].addPointStop(m_measurementSnapshots);
 
     // Report everything
     report();
@@ -193,15 +193,15 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
 void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::string& compName) {
   // Last thing to be called before the event loop begins
   if (compName == "AthOutSeq" && stepName == "Start") {
-    m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[FIRSTEVENT].addPointStart_snapshot(m_measurement_snapshots);
+    m_measurementSnapshots.capture();
+    m_snapshotData[FIRSTEVENT].addPointStart(m_measurementSnapshots);
     m_isFirstEvent = true;
   }
 
   // Last thing to be called before finalize step begins
   if (compName == "AthMasterSeq" && stepName == "Finalize") {
-    m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[FINALIZE].addPointStart_snapshot(m_measurement_snapshots);
+    m_measurementSnapshots.capture();
+    m_snapshotData[FINALIZE].addPointStart(m_measurementSnapshots);
   }
 }
 
@@ -211,14 +211,14 @@ void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::stri
 void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::string& compName) {
   // First thing to be called after the initialize step ends
   if (compName == "AthMasterSeq" && stepName == "Initialize") {
-    m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[INITIALIZE].addPointStop_snapshot(m_measurement_snapshots);
+    m_measurementSnapshots.capture();
+    m_snapshotData[INITIALIZE].addPointStop(m_measurementSnapshots);
   }
 
   // First thing to be called after the event loop ends
   if (compName == "AthMasterSeq" && stepName == "Stop") {
-    m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[EXECUTE].addPointStop_snapshot(m_measurement_snapshots);
+    m_measurementSnapshots.capture();
+    m_snapshotData[EXECUTE].addPointStop(m_measurementSnapshots);
   }
 }
 
@@ -240,13 +240,13 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
   // Metrics are collected per slot then aggregated before reporting
   data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
-    compLevelDataMap.insert({currentState, std::make_unique<PMonMT::MeasurementData>()});
+    compLevelDataMap.insert({currentState, std::make_unique<PMonMT::ComponentData>()});
   }
 
   // Capture and store
-  PMonMT::Measurement meas;
-  meas.capture_component(doMem);
-  compLevelDataMap[currentState]->addPointStart_component(meas, doMem);
+  PMonMT::ComponentMeasurement meas;
+  meas.capture(doMem);
+  compLevelDataMap[currentState]->addPointStart(meas, doMem);
 
   // Debug
   ATH_MSG_DEBUG("Start Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
@@ -266,15 +266,15 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
 
   // Capture
-  PMonMT::Measurement meas;
-  meas.capture_component(doMem); // No memory in the event-loop
+  PMonMT::ComponentMeasurement meas;
+  meas.capture(doMem); // No memory in the event-loop
 
   // Generate State
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Store
   data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
-  compLevelDataMap[currentState]->addPointStop_component(meas, doMem);
+  compLevelDataMap[currentState]->addPointStop(meas, doMem);
 
   // Once the first time IncidentProcAlg3 is excuted, toggle m_isFirstEvent to false.
   // Doing it this way, instead of at EndAlgorithms incident, makes sure there is no
@@ -426,12 +426,12 @@ void PerfMonMTSvc::report2Log_ComponentLevel() {
 
   for (auto vec_itr : m_stdoutVec_serial) {
     // Sort the results by CPU time for the time being
-    std::vector<std::pair<PMonMT::StepComp, PMonMT::MeasurementData*>> pairs;
+    std::vector<std::pair<PMonMT::StepComp, PMonMT::ComponentData*>> pairs;
     for (auto itr = vec_itr.begin(); itr != vec_itr.end(); ++itr) pairs.push_back(*itr);
 
     sort(pairs.begin(), pairs.end(),
-         [=](std::pair<PMonMT::StepComp, PMonMT::MeasurementData*>& a,
-             std::pair<PMonMT::StepComp, PMonMT::MeasurementData*>& b) {
+         [=](std::pair<PMonMT::StepComp, PMonMT::ComponentData*>& a,
+             std::pair<PMonMT::StepComp, PMonMT::ComponentData*>& b) {
            return a.second->getDeltaCPU() > b.second->getDeltaCPU();
          });
 
@@ -460,10 +460,10 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const {
   double cpu_time = m_eventLevelData.getEventLevelCpuTime(m_eventCounter);
   double wall_time = m_eventLevelData.getEventLevelWallTime(m_eventCounter);
 
-  int64_t vmem = m_eventLevelData.getEventLevelVmem(m_eventCounter);
-  int64_t rss = m_eventLevelData.getEventLevelRss(m_eventCounter);
-  int64_t pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
-  int64_t swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
+  int64_t vmem = m_eventLevelData.getEventLevelMemory(m_eventCounter, "vmem");
+  int64_t rss = m_eventLevelData.getEventLevelMemory(m_eventCounter, "rss");
+  int64_t pss = m_eventLevelData.getEventLevelMemory(m_eventCounter, "pss");
+  int64_t swap = m_eventLevelData.getEventLevelMemory(m_eventCounter, "swap");
 
   ATH_MSG_INFO("Event [" << std::setw(5) << m_eventCounter << "] CPU Time: " << scaleTime(cpu_time) <<
                ", Wall Time: " <<  scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) <<
@@ -545,9 +545,10 @@ void PerfMonMTSvc::report2Log_Summary() {
 
   if (m_doEventLoopMonitoring) {
     ATH_MSG_INFO("***************************************************************************************");
-    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Vmem: " % scaleMem(m_measurement_events.vmemPeak));
-    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Rss: " % scaleMem(m_measurement_events.rssPeak));
-    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Pss: " % scaleMem(m_measurement_events.pssPeak));
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Vmem: " % scaleMem(m_eventLevelData.getEventLevelMemoryMax("vmem")));
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Rss: " % scaleMem(m_eventLevelData.getEventLevelMemoryMax("rss")));
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Pss: " % scaleMem(m_eventLevelData.getEventLevelMemoryMax("pss")));
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Swap: " % scaleMem(m_eventLevelData.getEventLevelMemoryMax("swap")));
     ATH_MSG_INFO("***************************************************************************************");
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Vmem: " % scaleMem(m_fit_vmem.slope()));
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Pss: " % scaleMem(m_fit_pss.slope()));
@@ -662,13 +663,15 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   j["summary"]["nEvents"] = nEvents;
 
   // Report Peaks
-  const int64_t vmemPeak = m_measurement_events.vmemPeak;
-  const int64_t rssPeak = m_measurement_events.rssPeak;
-  const int64_t pssPeak = m_measurement_events.pssPeak;
+  const int64_t vmemPeak = m_eventLevelData.getEventLevelMemoryMax("vmem");
+  const int64_t rssPeak = m_eventLevelData.getEventLevelMemoryMax("rss");
+  const int64_t pssPeak = m_eventLevelData.getEventLevelMemoryMax("pss");
+  const int64_t swapPeak = m_eventLevelData.getEventLevelMemoryMax("swap");
 
   j["summary"]["peaks"] = {{"vmemPeak", vmemPeak},
                            {"rssPeak", rssPeak},
-                           {"pssPeak", pssPeak}};
+                           {"pssPeak", pssPeak},
+                           {"swapPeak", swapPeak}};
 
   // Report leak estimates
   const int64_t vmemLeak = m_fit_vmem.slope();
@@ -711,11 +714,13 @@ void PerfMonMTSvc::report2JsonFile_ComponentLevel(nlohmann::json& j) const {
       const std::string component = meas.first.compName;
       const uint64_t count = meas.second->getCallCount();
       const double cpuTime = meas.second->getDeltaCPU();
+      const double wallTime = meas.second->getDeltaWall();
       const int64_t vmem  = meas.second->getDeltaVmem();
       const int64_t mall = meas.second->getDeltaMalloc();
 
       j["componentLevel"][step][component] = {{"count", count},
                                               {"cpuTime", cpuTime},
+                                              {"wallTime", wallTime},
                                               {"vmem", vmem},
                                               {"malloc", mall}};
     }

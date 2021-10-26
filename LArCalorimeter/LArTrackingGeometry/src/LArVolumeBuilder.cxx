@@ -138,10 +138,10 @@ StatusCode LAr::LArVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes() const
 {
   // the return vector
-  std::vector<const Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<const Trk::TrackingVolume*>;
+  std::vector<Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
   // the converter helpers
   Trk::GeoShapeConverter    geoShapeToVolumeBounds;
   Trk::GeoMaterialConverter geoMaterialToMaterialProperties;

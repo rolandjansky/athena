@@ -86,13 +86,13 @@ StatusCode Trk::GenericGeometryBuilder::initialize()
 }
 
 
-const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* innerVol) const
+Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* innerVol) const
 {
 
     ATH_MSG_VERBOSE("Starting to build TrackingGeometry for GeometrySignature : " << m_geometrySignature );
 
     // the geometry to be constructed
-    const Trk::TrackingGeometry* tGeometry = nullptr;
+    Trk::TrackingGeometry* tGeometry = nullptr;
     
     double innerVolumeRadius             = 0.;
     double innerVolumeHalfZ              = 0.;
@@ -268,9 +268,9 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
     // and now create the triple
     allVolumes = !extendedVolumes.empty() ?  std::vector<const Trk::TrackingVolume*>{extendedVolumes[0],nSector,cSector,pSector,extendedVolumes[1]} : 
                                            std::vector<const Trk::TrackingVolume*>{nSector,cSector,pSector};
-    const Trk::TrackingVolume* tVolume = m_trackingVolumeCreator->createContainerTrackingVolume(allVolumes,
-                                                                                                vacuum,
-                                                                                                m_geometryName+"::Container");                                                                                      
+    const Trk::TrackingVolume* tVolume =
+      m_trackingVolumeCreator->createContainerTrackingVolume(
+        allVolumes, vacuum, m_geometryName + "::Container");
     // now create the TrackingGeometry from the highest volume
     if (tVolume) {
       tGeometry = new Trk::TrackingGeometry(tVolume);

@@ -9,7 +9,6 @@ set( PATHRESOLVERENVIRONMENT_ENVIRONMENT
    APPEND CALIBPATH "/sw/DbData/GroupData"
    APPEND CALIBPATH "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData"
    APPEND CALIBPATH "/eos/atlas/atlascerngroupdisk/asg-calib"
-   APPEND CALIBPATH "/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData"
    APPEND CALIBPATH "http//cern.ch/atlas-groupdata"
    APPEND CALIBPATH "http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData" )
 

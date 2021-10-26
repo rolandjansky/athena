@@ -189,6 +189,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
     unsigned int oldHoles = doHoleSearch( *trackIterator );
 
     auto vecTsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    vecTsos->reserve (tsos->size());
 
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
