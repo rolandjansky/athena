@@ -379,7 +379,7 @@ class doMuonIso(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-## Decide whether to wrap the new configuration in the old.
+# @brief Wrap the new config, replacing the old config in RecExCommon
 class useNewConfig(JobProperty):
     statusOn=True
     allowedTypes=['bool']
