@@ -96,7 +96,7 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 # chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH',"
-                chains += "'HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
                 chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
@@ -104,7 +104,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_e5_idperf_tight_L1EM3',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron-tnp') :
-                chains += "'HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
                 chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
