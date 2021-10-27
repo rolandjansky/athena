@@ -8,8 +8,6 @@ HLT_10j40_pf_ftf_presel7j30_L14J15:
   eventCount: 0
 HLT_2e12_lhloose_mu10_L12EM8VH_MU8F:
   eventCount: 0
-HLT_2e17_gsf_lhvloose_L12EM15VHI:
-  eventCount: 0
 HLT_2e17_idperf_gsf_loose_L12EM15VHI:
   eventCount: 0
 HLT_2e17_idperf_loose_L12EM15VHI:
@@ -17,6 +15,8 @@ HLT_2e17_idperf_loose_L12EM15VHI:
 HLT_2e17_lhvloose_L12EM15VHI:
   eventCount: 0
 HLT_2e17_lhvloose_L12eEM15M:
+  eventCount: 0
+HLT_2e17_lhvloose_gsf_L12EM15VHI:
   eventCount: 0
 HLT_2e24_lhvloose_L12EM20VH:
   eventCount: 0
@@ -673,7 +673,7 @@ HLT_e12_lhtight_mu11_dRAB15_invmAB10_L1LFV-eEM8L-MU8VF:
   eventCount: 0
 HLT_e140_dnnloose_L1EM22VHI:
   eventCount: 0
-HLT_e140_gsf_dnnloose_L1EM22VHI:
+HLT_e140_dnnloose_gsf_L1EM22VHI:
   eventCount: 0
 HLT_e140_lhloose_L1EM22VHI:
   eventCount: 0
@@ -765,9 +765,7 @@ HLT_e26_dnnmedium_L1EM22VHI:
   eventCount: 0
 HLT_e26_dnntight_L1EM22VHI:
   eventCount: 0
-HLT_e26_gsf_dnntight_ivarloose_L1EM22VHI:
-  eventCount: 0
-HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI:
+HLT_e26_dnntight_gsf_ivarloose_L1EM22VHI:
   eventCount: 0
 HLT_e26_idperf_gsf_tight_L1EM22VHI:
   eventCount: 0
@@ -824,6 +822,10 @@ HLT_e26_lhtight_e15_etcut_idperf_probe_50invmAB130_L1eEM22M:
 HLT_e26_lhtight_e15_etcut_probe_50invmAB130_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_e15_etcut_probe_50invmAB130_L1eEM22M:
+  eventCount: 0
+HLT_e26_lhtight_gsf_L1EM22VHI:
+  eventCount: 0
+HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI:
   eventCount: 0
@@ -1207,9 +1209,7 @@ HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:
     3: 1
 HLT_e60_dnnmedium_L1EM22VHI:
   eventCount: 0
-HLT_e60_gsf_dnnmedium_L1EM22VHI:
-  eventCount: 0
-HLT_e60_gsf_lhmedium_L1EM22VHI:
+HLT_e60_dnnmedium_gsf_L1EM22VHI:
   eventCount: 0
 HLT_e60_idperf_gsf_medium_L1EM22VHI:
   eventCount: 0
@@ -1218,6 +1218,8 @@ HLT_e60_idperf_medium_L1EM22VHI:
 HLT_e60_lhmedium_L1EM22VHI:
   eventCount: 0
 HLT_e60_lhmedium_L1eEM22M:
+  eventCount: 0
+HLT_e60_lhmedium_gsf_L1EM22VHI:
   eventCount: 0
 HLT_e60_lhmedium_noringer_L1EM22VHI:
   eventCount: 0
