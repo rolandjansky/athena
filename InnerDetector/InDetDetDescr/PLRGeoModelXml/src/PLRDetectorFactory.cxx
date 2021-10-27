@@ -49,7 +49,17 @@ void PLRDetectorFactory::create(GeoPhysVol *world)
   std::string gmxInput;
 
   if (m_options.gmxFilename().empty()) {
-    ATH_MSG_INFO("gmxFilename not set; getting .gmx from Geometry database Blob not supported");
+    ATH_MSG_INFO("gmxFilename not set; getting .gmx from Geometry database Blob");
+    flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
+    gmxInput = getBlob();
+    std::string dtdFile = '"' + PathResolver::find_file("geomodel.dtd", "DATAPATH") + '"';
+    ATH_MSG_INFO( "dtdFile = " << dtdFile );
+    size_t index = gmxInput.find("\"geomodel.dtd\"");
+    if (index != std::string::npos) {
+      gmxInput.replace(index, 14, dtdFile);
+    } else {
+      throw std::runtime_error("PLRDetectorFactory::create: Did not find string geomodel.dtd in the gmx input string.");
+    }
   } else {
     flags = 0;
     gmxInput = PathResolver::find_file(m_options.gmxFilename(), "DATAPATH");
@@ -83,10 +93,33 @@ void PLRDetectorFactory::create(GeoPhysVol *world)
   m_detectorManager->initNeighbours();
 }
 
+
+std::string PLRDetectorFactory::getBlob()
+{
+  DecodeVersionKey versionKey(geoDbTagSvc(), "InnerDetector");
+  const std::string& versionTag  = versionKey.tag();
+  const std::string& versionNode = versionKey.node();
+  ATH_MSG_INFO("getBlob: versionTag = " << versionTag);
+  ATH_MSG_INFO("getBlob: versionNode = " << versionNode);
+
+  IRDBAccessSvc *accessSvc = getAthenaComps()->rdbAccessSvc();
+  IRDBRecordset_ptr recordSetPLR = accessSvc->getRecordsetPtr("PLRXDD", versionTag, versionNode);
+  if (!recordSetPLR || recordSetPLR->size() == 0) {
+    ATH_MSG_FATAL("getBlob: Unable to obtain PLR recordSet");
+    throw std::runtime_error("getBlob: Unable to obtain PLR recordSet");
+  }
+  const IRDBRecord *recordPLR = (*recordSetPLR)[0];
+  std::string string = recordPLR->getString("XMLCLOB");
+
+  return string;
+}
+
+
 PixelDetectorManager * PLRDetectorFactory::getDetectorManager() const
 {
   return m_detectorManager;
 }
+
 
 void PLRDetectorFactory::doNumerology()
 {

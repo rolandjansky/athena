@@ -36,6 +36,8 @@ public:
 private:
   // Print out how many of each layer/eta/phi etc. have been set up.
   void doNumerology();
+  // Get the xml from the database instead of a file. Returns gzipped xml as a string.
+  std::string getBlob();
 
   // Copy and assignments operations illegal and so are made private
   PLRDetectorFactory(PLRDetectorFactory &right);
