@@ -1215,7 +1215,7 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(const Trk:
 
         tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
         // register glue volumes
-        const Trk::GlueVolumesDescriptor& volGlueVolumes = tVol->glueVolumesDescriptor();
+        Trk::GlueVolumesDescriptor& volGlueVolumes = tVol->glueVolumesDescriptor();
         volGlueVolumes.registerGlueVolumes(Trk::tubeInnerCover, sVols);
         volGlueVolumes.registerGlueVolumes(Trk::tubeOuterCover, sVols);
         volGlueVolumes.registerGlueVolumes(Trk::negativeFaceXY, sVolsNeg);
@@ -1599,7 +1599,7 @@ Muon::MuonTrackingGeometryBuilder::processVolume(
     tVol = new Trk::TrackingVolume(
       *vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
     // register glue volumes
-    const Trk::GlueVolumesDescriptor& volGlueVolumes =
+    Trk::GlueVolumesDescriptor& volGlueVolumes =
       tVol->glueVolumesDescriptor();
     volGlueVolumes.registerGlueVolumes(Trk::tubeInnerCover, sVolsInn);
     volGlueVolumes.registerGlueVolumes(Trk::tubeOuterCover, sVolsOut);
@@ -1760,7 +1760,7 @@ Muon::MuonTrackingGeometryBuilder::processVolume(
     tVol = new Trk::TrackingVolume(
       *vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
     // register glue volumes
-    const Trk::GlueVolumesDescriptor& volGlueVolumes =
+    Trk::GlueVolumesDescriptor& volGlueVolumes =
       tVol->glueVolumesDescriptor();
     volGlueVolumes.registerGlueVolumes(Trk::tubeInnerCover, sVols);
     volGlueVolumes.registerGlueVolumes(Trk::tubeOuterCover, sVols);
@@ -1800,7 +1800,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
                                                                             LocalVariablesContainer& aLVC) const {
     ATH_MSG_VERBOSE(name() << "processing shield volume " << volumeName << "  in mode:" << type);
 
-    const Trk::TrackingVolume* tVol = nullptr;
+    Trk::TrackingVolume* tVol = nullptr;
 
     unsigned int colorCode = m_colorCode;
 
@@ -1957,7 +1957,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
 
     tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
     // register glue volumes
-    const Trk::GlueVolumesDescriptor& volGlueVolumes = tVol->glueVolumesDescriptor();
+    Trk::GlueVolumesDescriptor& volGlueVolumes = tVol->glueVolumesDescriptor();
     volGlueVolumes.registerGlueVolumes(Trk::tubeInnerCover, sVolsInn);
     volGlueVolumes.registerGlueVolumes(Trk::tubeOuterCover, sVolsOut);
     volGlueVolumes.registerGlueVolumes(Trk::negativeFaceXY, sVolsNeg);

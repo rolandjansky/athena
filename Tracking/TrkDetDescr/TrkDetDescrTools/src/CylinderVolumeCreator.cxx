@@ -628,7 +628,7 @@ StatusCode Trk::CylinderVolumeCreator::interGlueTrackingVolume(Trk::TrackingVolu
     ATH_MSG_VERBOSE( "Glue contained TrackingVolumes of container '" << tVolume.volumeName() << "'." );
 
     // get the glueVolumes descriptor of the top volume to register the outside volumes
-    const Trk::GlueVolumesDescriptor& glueDescr  = tVolume.glueVolumesDescriptor();
+    Trk::GlueVolumesDescriptor& glueDescr  = tVolume.glueVolumesDescriptor();
     
     // so far we know that we can do that (private method)
     const std::vector<const Trk::TrackingVolume*>& volumes = tVolume.confinedVolumes()->arrayObjects();
