@@ -85,8 +85,7 @@ class TriggerConfigGetter(Configured):
                           "Turning off trigger [rec.doTrigger=False]")
                 rec.doTrigger = False
 
-            # TODO: Review doTriggerConfigOnly
-            if not (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+            if not rec.doTrigger():
                 log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false")
                 return True
 
