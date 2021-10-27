@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,12 +18,11 @@
 
 class TileDQstatus;
 
-
 #include <vector>
 #include <string>
 
-/** @class TileDigitsNoiseMonTool
- *  @brief Class for TileCal noise monitoring at digits level
+/** @class TileTBMonTool
+ *  @brief Class for TileCal TB monitoring
  */
 
 class TileTBMonTool : public TileFatherMonTool {
@@ -53,13 +52,14 @@ class TileTBMonTool : public TileFatherMonTool {
 
     TProfile2D* m_tileTBHitMapLBC01;
     TProfile2D* m_tileTBHitMapEBC02;
-
+    TH2F* m_tileEventEnergyVsCellsNumber;
 
     bool m_isFirstEvent;
     unsigned char m_maskedChannels[276][48]; // max drawerIdx = 276 and max channel = 48
     std::vector<std::string> m_masked;
 
     double m_maxTotalEnergy;
+    double m_cellEnergyThreshold;
 };
 
 #endif
