@@ -341,7 +341,7 @@ MuonChainParts = {
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
-    'invMassInfo'    : ['invmJPsi'],
+    'invMassInfo'    : ['invmJPsi','invmDimu'],
     'msonlyInfo'     : ['msonly'],
     'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual","nscan","os"],
     'topo'           : AllowedTopos_mu,
