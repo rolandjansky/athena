@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrkVertexTools_DummyVertexSelectionTool_H
@@ -10,8 +10,7 @@
 #include "TrkVertexFitterInterfaces/IVertexSelectionTool.h"
 
 #include "GaudiKernel/RndmGenerators.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
  /**
   * @class Trk::DummyVertexSelectionTool 
@@ -34,11 +33,11 @@
  {
     
   
-  class DummyVertexSelectionTool : public AthAlgTool, virtual public IVertexSelectionTool
+  class DummyVertexSelectionTool : public extends<AthAlgTool, IVertexSelectionTool>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     /**
      * constructor
@@ -52,18 +51,15 @@
      
     virtual ~DummyVertexSelectionTool();
     
-    virtual unsigned int findVertexInContainer(const xAOD::VertexContainer * ) const;
+    virtual unsigned int findVertexInContainer(const xAOD::VertexContainer * ) const override;
     
              
   private:
   
   /** Pointer to the random number generator service */
-    ServiceHandle<IAtRndmGenSvc>  m_randomSvc;		     //!< Random Svc  
+    ServiceHandle<IAthRNGSvc>     m_randomSvc 		     //!< Random Svc
+    { this, "RndmSvc", "AthRNGSvc", ""};
     std::string  		  m_randomEngineName;	     //!< Name of the random number stream
-    CLHEP::HepRandomEngine*	  m_randomEngine;	     //!< Random Engine 
-    
-  
- 
   }; //end of class description
  }//end of namespace definition
  
