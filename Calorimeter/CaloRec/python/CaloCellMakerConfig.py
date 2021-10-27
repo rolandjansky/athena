@@ -17,10 +17,10 @@ def CaloCellMakerCfg(configFlags):
 
     larCellBuilder     = result.popToolsAndMerge(LArCellBuilderCfg(configFlags))
     larCellCorrectors  = result.popToolsAndMerge(LArCellCorrectorCfg(configFlags))
-    theTileCellBuilder = result.popToolsAndMerge(TileCellBuilderCfg(configFlags))
-    theCellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
+    tileCellBuilder = result.popToolsAndMerge(TileCellBuilderCfg(configFlags))
+    cellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
 
-    cellMakerTools=[larCellBuilder,]+larCellCorrectors+[theTileCellBuilder,theCellFinalizer]
+    cellMakerTools=[larCellBuilder,tileCellBuilder,cellFinalizer]+larCellCorrectors
 
     #Add corrections tools that are not LAr or Tile specific:
     if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Cell.doPedestalCorr:
