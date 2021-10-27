@@ -70,7 +70,7 @@ int main( int argc, char* argv[] ) {
   matchTool.msg().setLevel( MSG::DEBUG );
   ATH_CHECK( matchTool.setProperty( "trackMatchProb", 0.7 ) );
   ATH_CHECK( matchTool.setProperty( "vertexMatchWeight", 0.5 ) );
-  ATH_CHECK( matchTool.setProperty( "truthVertexPDGID", 36 ) );
+  ATH_CHECK( matchTool.setProperty( "pdgIds", "36" ) );
   ATH_CHECK( matchTool.initialize() );
 
   TFile fout("output.root","RECREATE");
@@ -111,8 +111,14 @@ int main( int argc, char* argv[] ) {
       Error( APP_NAME, "Failed to retrieve VrtSecInclusive_SecondaryVertices on entry %i", static_cast<int>(entry));
       return 1;
     }
+    const xAOD::TruthVertexContainer * tvxContainer = nullptr;
+    result = event.retrieve( tvxContainer, "TruthVertices" );
+    if(!result) {
+      Error( APP_NAME, "Failed to retrieve TruthVertices on entry %i", static_cast<int>(entry));
+      return 1;
+    }
 
-    int status = matchTool.matchVertices( *vxContainer );
+    int status = matchTool.matchVertices( *vxContainer, *tvxContainer );
     if(!status) {
       Error( APP_NAME, "Bad status from matching tool on entry %i", static_cast<int>(entry));
       continue;
