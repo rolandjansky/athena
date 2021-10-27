@@ -80,8 +80,6 @@ def egammaCaloUpgradeExtrapolatorCfg( flags, name = 'egammaCaloUpgradeExtrapolat
 
        egammaExtrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags, name))
 
-       # this turns off dynamic calculation of eloss in calorimeters
-       egammaExtrapolator.DoCaloDynamic = False
 
        RungeKuttaPropagator = result.getPrimaryAndMerge( TC.AtlasRKPropagatorCfg(flags) )
        NoMatSTEP_Propagator = result.getPrimaryAndMerge( TC.AtlasNoMatSTEP_PropagatorCfg(flags) )
@@ -137,9 +135,6 @@ def MCTruthClassifierUpgradeExtrapolatorCfg( flags, name = 'MCTruthClassifierUpg
        result=ComponentAccumulator()
 
        MCTruthExtrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags, name))
-
-       # this turns off dynamic calculation of eloss in calorimeters
-       MCTruthExtrapolator.DoCaloDynamic = False
 
        MCTruthUpdators    = []
 

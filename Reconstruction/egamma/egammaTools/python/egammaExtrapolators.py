@@ -11,9 +11,6 @@ __author__ = "Bruno Lenzi"
 
 def configureExtrapolator(egammaExtrapolator):
 
-    # this turns off dynamic calculation of eloss in calorimeters
-    egammaExtrapolator.DoCaloDynamic = False
-
     # all left to MaterialEffects/EnergyLossUpdators
     from TrkExTools.TrkExToolsConf import (
         Trk__MaterialEffectsUpdator as MaterialEffectsUpdator)
