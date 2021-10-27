@@ -266,9 +266,10 @@ def setupMenu():
         ChainProp(name='HLT_g0_hiptrt_L1EM22VHI', groups=SinglePhotonGroup), 
 
         #------------ GSF triggers
-        ChainProp(name='HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e60_gsf_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_2e17_gsf_lhvloose_L12EM15VHI', groups=MultiElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=MultiElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_gsf_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_2e17_lhvloose_gsf_L12EM15VHI', groups=MultiElectronGroup),
 
         #------------ idperf triggers
         ChainProp(name='HLT_e26_idperf_tight_L1EM22VHI', groups=SingleElectronGroup),
@@ -299,9 +300,9 @@ def setupMenu():
         ChainProp(name='HLT_e60_dnnmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_dnnloose_L1EM22VHI', groups=SingleElectronGroup),
 
-        ChainProp(name='HLT_e26_gsf_dnntight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e60_gsf_dnnmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e140_gsf_dnnloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_dnntight_gsf_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e60_dnnmedium_gsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e140_dnnloose_gsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
 
         #------------ support chains
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
