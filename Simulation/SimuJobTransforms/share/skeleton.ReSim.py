@@ -5,7 +5,7 @@ atlasG4log = logging.getLogger('ReSim')
 atlasG4log.info('****************** STARTING ISF ******************')
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
@@ -72,6 +72,9 @@ if hasattr(runArgs, "preExec"):
 if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
+
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
@@ -166,6 +169,8 @@ elif hasattr(runArgs,'jobNumber'):
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    atlasG4log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 ## The looper killer is on by default. Disable it if this is requested.
 if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:

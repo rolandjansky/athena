@@ -651,8 +651,7 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         acc = ITkFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
-    if False:
+    if ConfigFlags.Detector.GeometryCalo and ConfigFlags.Sim.MuonFieldOnlyInCalo:
         acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]

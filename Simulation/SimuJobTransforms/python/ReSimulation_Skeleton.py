@@ -73,20 +73,6 @@ def fromRunArgs(runArgs):
         else:
             ConfigFlags.Output.HITSFileName  = runArgs.outputHITS_RSMFile
 
-    if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]
-        ConfigFlags.Input.OverrideRunNumber = True
-        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
-
-    if hasattr(runArgs, 'physicsList'):
-        ConfigFlags.Sim.PhysicsList = runArgs.physicsList
-
-    if hasattr(runArgs, 'conditionsTag'):
-        ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
-
-    if hasattr(runArgs, 'truthStrategy'):
-        ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
-
     # Special Configuration preInclude
     specialConfigPreInclude(ConfigFlags)
 
@@ -95,6 +81,10 @@ def fromRunArgs(runArgs):
 
     # Pre-exec
     processPreExec(runArgs, ConfigFlags)
+
+    # Common simulation runtime arguments
+    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    simulationRunArgsToFlags(runArgs, ConfigFlags)
 
     # Lock flags
     ConfigFlags.lock()
