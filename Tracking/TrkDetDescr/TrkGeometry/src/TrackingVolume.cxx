@@ -12,7 +12,6 @@
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/CylinderLayerAttemptsCalculator.h"
 #include "TrkGeometry/DiscLayerAttemptsCalculator.h"
-#include "TrkGeometry/GlueVolumesDescriptor.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/NavigationLayer.h"
 #include "TrkGeometry/PlaneLayer.h"
@@ -527,7 +526,6 @@ Trk::TrackingVolume::~TrackingVolume() {
       delete (*m_confinedArbitraryLayers)[i];
     delete m_confinedArbitraryLayers;
   }
-  delete m_outsideGlueVolumes;
   delete m_sensitiveVolume;
   delete m_layerAttemptsCalculator;
 }
@@ -1103,21 +1101,28 @@ const Trk::LayerArray* Trk::TrackingVolume::checkoutConfinedLayers() const {
   return checkoutLayers;
 }
 
-void Trk::TrackingVolume::registerOutsideGlueVolumes(
-    Trk::GlueVolumesDescriptor* gvd) {
-  delete m_outsideGlueVolumes;
-  m_outsideGlueVolumes = gvd;
+void
+Trk::TrackingVolume::registerOutsideGlueVolumes(Trk::GlueVolumesDescriptor* gvd)
+{
+  m_outsideGlueVolumes.store(std::unique_ptr<Trk::GlueVolumesDescriptor>(gvd));
 }
 
-const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor() {
-  if (!m_outsideGlueVolumes)
-    m_outsideGlueVolumes = new Trk::GlueVolumesDescriptor;
+Trk::GlueVolumesDescriptor&
+Trk::TrackingVolume::glueVolumesDescriptor()
+{
+  if (!m_outsideGlueVolumes) {
+    m_outsideGlueVolumes.store(std::make_unique<Trk::GlueVolumesDescriptor>());
+  }
   return (*m_outsideGlueVolumes);
 }
 
-const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor
-ATLAS_NOT_THREAD_SAFE() const {
-  return (const_cast<Trk::TrackingVolume*>(this))->glueVolumesDescriptor();
+const Trk::GlueVolumesDescriptor&
+Trk::TrackingVolume::glueVolumesDescriptor() const
+{
+  if (!m_outsideGlueVolumes) {
+    m_outsideGlueVolumes.set(std::make_unique<Trk::GlueVolumesDescriptor>());
+  }
+  return (*m_outsideGlueVolumes);
 }
 
 void
