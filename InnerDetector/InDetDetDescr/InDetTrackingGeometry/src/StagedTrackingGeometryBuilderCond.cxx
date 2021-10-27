@@ -294,8 +294,8 @@ InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
    enclosedVolumes.push_back(idContainer);
    enclosedVolumes.push_back(positiveEnclosure);
    
-   const Trk::TrackingVolume* enclosedDetector = 
-       m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,
+   Trk::TrackingVolume* enclosedDetector = 
+     m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,
                                                               *m_materialProperties,
                                                                m_exitVolume,
                                                                m_buildBoundaryLayers,

@@ -577,7 +577,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
 
    ATH_MSG_VERBOSE("       -> inserting beam pipe into detectors." ); 
 
-   const Trk::TrackingVolume* detectorWithBp = 
+   Trk::TrackingVolume* detectorWithBp = 
          m_trackingVolumeCreator->createContainerTrackingVolume(idVolumes,
                                                                 *m_materialProperties,
                                                                 volumeName,
@@ -585,7 +585,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
                                                                 m_replaceJointBoundaries);
   
    // if packing is needed ------------------------------------------------------------------
-   const Trk::TrackingVolume* highestIdVolume = nullptr;
+   Trk::TrackingVolume* highestIdVolume = nullptr;
    if (enclose){
     
      // negative positions
@@ -594,7 +594,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
          posIter != negDiscPositionZ.end(); ++posIter) (*posIter) *= -1;
         
      
-     const Trk::TrackingVolume* negativeEnclosure =  !negDiscPositionZ.empty() ?
+     Trk::TrackingVolume* negativeEnclosure =  !negDiscPositionZ.empty() ?
                            m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
                                                                            0., enclosingVolumeRadius,
                                                                            -enclosingVolumeHalfZ, -overallExtendZ,
@@ -606,7 +606,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
                                                                             1, false,
                                                                             m_namespace+"Gaps::NegativeEnclosure");
   
-     const Trk::TrackingVolume* positiveEnclosure = !m_enclosingDiscPositionZ.empty() ? 
+     Trk::TrackingVolume* positiveEnclosure = !m_enclosingDiscPositionZ.empty() ? 
                            m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
                                                                            0., enclosingVolumeRadius,
                                                                            overallExtendZ, enclosingVolumeHalfZ,
@@ -623,7 +623,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
         enclosedVolumes.push_back(detectorWithBp);
         enclosedVolumes.push_back(positiveEnclosure);
    
-     const Trk::TrackingVolume* enclosedDetector = 
+     Trk::TrackingVolume* enclosedDetector = 
          m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,
                                                                 *m_materialProperties,
                                                                  m_exitVolume,
