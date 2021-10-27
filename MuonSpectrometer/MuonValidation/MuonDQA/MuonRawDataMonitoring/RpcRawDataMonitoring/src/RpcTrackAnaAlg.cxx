@@ -37,7 +37,7 @@ StatusCode RpcTrackAnaAlg::initialize ()
   ATH_CHECK( m_lumiDataKey.initialize (m_useLumi) );
   ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
 
-  ATH_CHECK( m_MuonRoIContainerKey.initialize() );
+  ATH_CHECK( m_MuonRoIContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_MuonContainerKey.initialize() );
   ATH_CHECK( m_rpcPrdKey.initialize() );
 
@@ -191,15 +191,14 @@ StatusCode RpcTrackAnaAlg::fillMuonExtrapolateEff(const EventContext& ctx) const
   using namespace Monitored;
   auto tool = getGroup(m_packageName);
 
-  xAOD::MuonRoIContainer rois;
   if (!m_MuonRoIContainerKey.empty()) {
-    /* raw LVL1MuonRoIs distributions */
-    auto roisptr = SG::get<xAOD::MuonRoIContainer>(m_MuonRoIContainerKey, ctx);
-    if(! roisptr){
-      ATH_MSG_ERROR("evtStore() does not contain muon RoI Collection with name "<< m_MuonRoIContainerKey);
+    /* raw LVL1MuonRoIs */
+    SG::ReadHandle<xAOD::MuonRoIContainer > muonRoIs( m_MuonRoIContainerKey, ctx);
+    
+    if(!muonRoIs.isValid()){
+      ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_MuonRoIContainerKey);
       return StatusCode::FAILURE;
     }
-    rois = *roisptr;
   }
 
   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
@@ -253,7 +252,7 @@ StatusCode RpcTrackAnaAlg::fillMuonExtrapolateEff(const EventContext& ctx) const
         }
       }
     }
-    
+
     if ( mu1_it->isolated && mu1_it->isZmumu ) {
       const xAOD::TrackParticle* track = mu1_it->muon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
       if(!track) continue;
@@ -428,7 +427,7 @@ StatusCode RpcTrackAnaAlg::extrapolate2RPC(const xAOD::TrackParticle *track, con
           -- Check that extrapolation result valid
           -- Check that extrapolated position is in the gas gap surface bounds
         if both within checks valid - then save RPC extrapolation result
-    */
+  */
 
   using namespace Monitored;
   auto tool = getGroup(m_packageName);

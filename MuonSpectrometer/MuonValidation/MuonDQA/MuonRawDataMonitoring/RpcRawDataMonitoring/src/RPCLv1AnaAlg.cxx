@@ -68,12 +68,12 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
   std::vector<const xAOD::MuonRoI*> roisBarrel;
   std::vector< std::vector<const xAOD::MuonRoI*> > roisBarrelThr1(6);
 
+  /* raw LVL1MuonRoIs */
   SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiContainerKey, ctx);
   if(!muonRoIs.isValid()){
     ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiContainerKey);
     return StatusCode::FAILURE;
   }
-
 
   roiEtaVec.reserve(muonRoIs->size());
   roiBarrelEtaVec.reserve(muonRoIs->size());
@@ -103,6 +103,7 @@ StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
   fill(tool, roiEtaCollection);
   fill(tool, roiBarrelEtaCollection);
   fill(tool, roiBarrelThrCollection);
+
 
   //
   // match muon and roi
