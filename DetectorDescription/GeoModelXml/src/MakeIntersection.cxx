@@ -59,6 +59,8 @@ static_cast<const GeoTransform *> (gmxUtil.tagHandler.transformationref.process(
         }
     }
 
+    if (!first || !second) std::abort();
+
     // FIXME: intersect() returns a new'd object --- should really be
     // returning a `unique_ptr<GeoShapeIntersection>' not a
     // `const GeoShapeIntersection'
