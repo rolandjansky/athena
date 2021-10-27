@@ -24,28 +24,29 @@ from DerivationFrameworkJetEtMiss import TriggerLists
 electronTriggers = TriggerLists.single_el_Trig()
 muonTriggers = TriggerLists.single_mu_Trig()
 
-orstr  = ' || '
-andstr = ' && '
-eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
-elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'])
-#electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
-electronSelection = elofflinesel
-
-mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
-muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'])
-#muonSelection = '( (' + mutrigsel + ') && (' + muofflinesel + ') )'
-muonSelection = muofflinesel
-expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3SkimmingTool1",
-                                                                    expression = expression)
-ToolSvc += JETM3SkimmingTool
-
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
 TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM3",
                                                  ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
+
+JETM3SkimmingTools = []
+if not DerivationFrameworkIsMonteCarlo:
+  orstr  = ' || '
+  andstr = ' && '
+  eltrigsel = orstr.join(electronTriggers)
+  elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'])
+  electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
+
+  mutrigsel = orstr.join(muonTriggers)
+  muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'])
+  muonSelection = '( (' + mutrigsel + ') && (' + muofflinesel + ') )'
+  expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
+
+  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+  JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3SkimmingTool1",
+                                                                      expression = expression)
+  ToolSvc += JETM3SkimmingTool
+  JETM3SkimmingTools += [JETM3SkimmingTool]
 
 #====================================================================
 # SET UP STREAM
@@ -151,7 +152,7 @@ DerivationFrameworkJob += jetm3Seq
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
-                                                                SkimmingTools = [JETM3SkimmingTool],
+                                                                SkimmingTools = JETM3SkimmingTools,
                                                                 ThinningTools = thinningTools,
                                                                 AugmentationTools = [TrigMatchAug])
 

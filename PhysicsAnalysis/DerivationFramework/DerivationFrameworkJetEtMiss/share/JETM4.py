@@ -21,22 +21,24 @@ from DerivationFrameworkPhys import PhysCommon
 #====================================================================
 # NOTE: need to add isSimulation as OR with trigger
 
-from DerivationFrameworkJetEtMiss import TriggerLists
-triggerlist = TriggerLists.single_photon_Trig()
+JETM4SkimmingTools = []
+if not DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkJetEtMiss import TriggerLists
+  triggerlist = TriggerLists.single_photon_Trig()
 
-triggers = '||'.join(triggerlist)
-#expression = '( (EventInfo.eventTypeBitmask==1) || ('+triggers+') )'
-expression = triggers
+  triggers = '||'.join(triggerlist)
+  expression = triggers
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4SkimmingTool1",
-                                                                    expression = expression)
-ToolSvc += JETM4SkimmingTool
+  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+  JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4SkimmingTool1",
+                                                                      expression = expression)
+  ToolSvc += JETM4SkimmingTool
+  JETM4SkimmingTools += [JETM4SkimmingTool]
 
-#Trigger matching decorations
-from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
-TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM4",
-                                                 PhotonTriggers=TriggerLists.single_photon_Trig())
+  #Trigger matching decorations
+  from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+  TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM4",
+                                                   PhotonTriggers=TriggerLists.single_photon_Trig())
 
 #====================================================================
 # SET UP STREAM
@@ -141,7 +143,7 @@ DerivationFrameworkJob += jetm4Seq
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
-                                                         SkimmingTools = [JETM4SkimmingTool],
+                                                         SkimmingTools = JETM4SkimmingTools,
                                                          ThinningTools = thinningTools,
                                                          AugmentationTools = [TrigMatchAug])
 #====================================================================
