@@ -1050,7 +1050,9 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         top_dict = m_indet_dict;  // save as top_dict
 
         // Check if this is High Luminosity LHC layout
-        m_isHighLuminosityLHC = (m_indet_dict->m_version=="ITkHGTD");
+	//should just use std::string::contains once that is available... (C++23)
+	std::string versionString = m_indet_dict->m_version;
+        m_isHighLuminosityLHC = (versionString.find("ITk") != std::string::npos);
 
         // Get InDet subdets
 
