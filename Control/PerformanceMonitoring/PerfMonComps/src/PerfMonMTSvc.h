@@ -171,9 +171,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   // Lock for capturing event loop measurements
   std::mutex m_mutex_capture;
 
-  // Locks for capturing component measurements
-  std::deque<std::mutex> m_mutex_slots;
-
   // Are we processing the first event?
   std::atomic<bool> m_isFirstEvent;
 
