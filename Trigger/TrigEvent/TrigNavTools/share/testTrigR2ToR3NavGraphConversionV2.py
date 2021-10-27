@@ -54,7 +54,8 @@ if __name__=='__main__':
     alg.doSelfValidation = False
     alg.Collections = ["xAOD::TrigElectronContainer"]
     alg.doCompression = True
-
+    # alg.Chains = ["HLT_e26_lhtight_idperf", "HLT_e26_lhmedium_nod0_ivarloose"]
+    alg.Chains = ["HLT_mu4_j80_xe80_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30"]
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     outputType="AOD"
