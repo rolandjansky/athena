@@ -14,7 +14,9 @@
 namespace TCU = TrigCompositeUtils;
 
 // helper class 
-ConvProxy::ConvProxy(const HLT::TriggerElement* t) : te{ t } {}
+ConvProxy::ConvProxy(const HLT::TriggerElement* t) : te{ t } {
+  teIDs.push_back(te->getId());
+}
 
 void ConvProxy::merge(ConvProxy* other) {
   if ( other == this ) {
@@ -23,6 +25,7 @@ void ConvProxy::merge(ConvProxy* other) {
   // copy over chains
   runChains.insert(other->runChains.begin(), other->runChains.end());
   passChains.insert(other->passChains.begin(), other->passChains.end());
+  teIDs.push_back(other->te->getId());
   /* the intention of the code below is following.
   Intial structure like is like this (the line is always bidirectional):
   P1 P2 P3 <- parents
@@ -187,7 +190,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   if (m_doSelfValidation) {
     ATH_CHECK(numberOfHNodesPerProxyNotExcessive(convProxies));
   }
-  ATH_CHECK(createFSNodes(convProxies, *decisionOutput, finalTEIdsToChains));
+  ATH_CHECK(createFSNodes(convProxies, *decisionOutput, finalTEIdsToChains, context));
   ATH_CHECK(linkTopNode(*decisionOutput));
   ATH_MSG_DEBUG("Conversion done, from " << convProxies.size() << " elements to " << decisionOutput->size() << " elements");
 
@@ -206,6 +209,13 @@ StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMa
   // port chains iteration code from previous version
   for (auto ptrChain : m_configSvc->chains()) {
       std::string chainName = ptrChain->name();
+      if ( not m_chainsToSave.empty() )  {
+        auto found = std::find(m_chainsToSave.begin(), m_chainsToSave.end(), chainName);
+        if ( found == m_chainsToSave.end()) {
+          continue;
+        }
+      }
+
       HLT::Identifier chainId = HLT::Identifier(chainName);
       ATH_MSG_DEBUG(" CHAIN name " << chainName << " CHAIN Id " << chainId);
       for (auto ptrHLTSignature : ptrChain->signatures()) {  
@@ -261,7 +271,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& conv
 }
 
 StatusCode Run2ToRun3TrigNavConverterV2::associateChainsToProxies(ConvProxySet_t& convProxies, const TEIdToChainsMap_t& allTEs) const {
-  // using map chain IDs mapping
+
   for (auto& ptrConvProxy : convProxies) {
     auto teId = ptrConvProxy->te->getId();
     bool teActive = ptrConvProxy->te->getActiveState();
@@ -316,17 +326,29 @@ StatusCode Run2ToRun3TrigNavConverterV2::cureUnassociatedProxies(ConvProxySet_t&
 }
 
 StatusCode Run2ToRun3TrigNavConverterV2::removeUnassociatedProxies(ConvProxySet_t& convProxies) const {
+
+  auto rem = []( auto& collection, auto element) {
+    collection.erase( std::remove(collection.begin(), collection.end(), element), collection.end() );
+  };
   // remove proxies that have no chains
   for (auto i = std::begin(convProxies); i != std::end(convProxies);) {
     if ((*i)->runChains.empty()) {
-      // TODO we may need to deregister it from it's children & parents
-      delete* i;
+      const ConvProxy* toDel = *i;
+      // remove it from parents/children
+      for ( auto parent: toDel->parents ) {
+        rem( parent->children, toDel);
+      }
+      for ( auto child: toDel->children ) {
+        rem( child->parents, toDel);
+      }
+      delete toDel;
       i = convProxies.erase(i);
     }
     else {
       ++i;
     }
   }
+  ATH_MSG_DEBUG("After eliminating proxies not associated to chainsof intereset left with " << convProxies.size());
   return StatusCode::SUCCESS;
 }
 
@@ -481,9 +503,48 @@ StatusCode Run2ToRun3TrigNavConverterV2::createIMHNodes(ConvProxySet_t& convProx
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer& decisions, const TEIdToChainsMap_t&) const {
-  // associate terminal nodes to filter nodes, 
+StatusCode Run2ToRun3TrigNavConverterV2::createFSNodes(const ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer& decisions,
+                                                       const TEIdToChainsMap_t& terminalIds, const EventContext& context) const {
+  // make node & link it properly
+  auto makeSFNode = [&decisions, &context](auto lastDecisionNode, auto chainIds){
+    auto sfNode = TrigCompositeUtils::newDecisionIn(&decisions);
+    sfNode->setName("SF");
+    TrigCompositeUtils::linkToPrevious(decisions.at(0), sfNode, context);
+    TrigCompositeUtils::linkToPrevious(sfNode, lastDecisionNode, context);
+    for ( auto chainId: chainIds) {
+      TrigCompositeUtils::addDecisionID(chainId, sfNode);
+    }        
+
+    return sfNode;
+  };
+
+  for ( auto proxy: convProxies ) {
+    // associate terminal nodes to filter nodes, 
+    if (proxy->children.empty()) { // the H modes are terminal
+      if (proxy->hNodes.empty()) { // nothing has passed, so link to the IM node
+        // TODO make sure it needs to be done like that
+        makeSFNode(proxy->imNode, proxy->runChains);
+      } else {
+        for ( auto hNode: proxy->hNodes)
+          makeSFNode(hNode, TCU::decisionIDs(hNode)); // not using passChains as there may be additional filtering
+      }
+    } else { 
+      // likely need more iterations
+      // nonterminal nodes that are nevertheless terminal for a given chain
+      std::vector<TCU::DecisionID> toRetain;
+      for ( auto teId: proxy->teIDs) {
+        auto whereInMap = terminalIds.find(teId);
+        if ( whereInMap != terminalIds.end()) {
+          toRetain.insert(toRetain.begin(), whereInMap->second.begin(), whereInMap->second.end());
+        }
+      }
+      if ( not toRetain.empty() ) {
+        makeSFNode(proxy->imNode, toRetain);
+      }
+    }
+  }
   // associate all nodes designated as final one with the filter nodes
+
   ATH_MSG_DEBUG("FS nodes made, output nav elements " << decisions.size());
   return StatusCode::SUCCESS;
 }
