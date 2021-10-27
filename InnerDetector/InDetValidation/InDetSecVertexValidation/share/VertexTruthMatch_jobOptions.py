@@ -30,6 +30,6 @@ svcMgr.THistSvc.Output = ["VTXPLOTS DATAFILE='"+outputFile+"' OPT='RECREATE'"]
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = -1
+theApp.EvtMax = 500
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000

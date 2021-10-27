@@ -5,7 +5,6 @@
 #ifndef INDETRUTHSECVERTEXVALIDATION_LINKDEF_H
 #define INDETRUTHSECVERTEXVALIDATION_LINKDEF_H
 
-#include "InDetSecVertexValidation/InDetSecVertexTruthMatchUtils.h"
 #include "InDetSecVertexValidation/InDetSecVertexTruthMatchTool.h"
 
 #ifdef __CINT__
@@ -16,7 +15,6 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class InDetSecVertexTruthMatchTool;
-#pragma link C++ class InDetSecVertexTruthMatchUtils;
 
 #endif
 
