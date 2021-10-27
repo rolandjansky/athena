@@ -61,6 +61,19 @@ class _ConfigSettingsBase() :
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
       self._usePixelNN          = False
+      #precision tracking configuration values
+      self._maxRPhiImpactPT   = None
+      self._maxZImpactPT      = None
+      self._maxEtaPT          = None
+      self._minSiClustersPT   = None
+      self._maxSiHolesPT      = None
+      self._maxPixelHolesPT   = None
+      self._maxSCTHolesPT    = None
+      self._maxDoubleHolesPT  = None
+      self._usePixelPT        = None
+      self._useSCTPT          = None
+      self._doEmCaloSeedPT    = None
+      self._minTRTonTrkPT     = None
 
       if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
          self.override()
@@ -308,6 +321,56 @@ class _ConfigSettingsBase() :
    def usePixelNN(self):
        return self._usePixelNN
 
+   @property
+   def maxRPhiImpact(self):
+      return self._maxRPhiImpactPT
+
+   @property
+   def maxZImpact(self):
+      return self._maxZImpactPT
+
+   @property
+   def maxEta(self):
+      return self._maxEtaPT
+
+   @property
+   def minSiClusters(self):
+      return self._minSiClustersPT
+
+   @property
+   def maxSiHoles(self):
+      return self._maxSiHolesPT
+
+   @property
+   def maxPixelHoles(self):
+      return self._maxPixelHolesPT
+
+   @property
+   def maxSCTHoles(self):
+      return self._maxSCTHolesPT
+
+   @property
+   def maxDoubleHoles(self):
+      return self._maxDoubleHolesPT
+
+   @property
+   def usePixel(self):
+      return self._usePixelPT
+   
+   @property
+   def useSCT(self):
+      return self._useSCTPT
+   
+   @property
+   def doEmCaloSeed(self):
+      return self._doEmCaloSeedPT
+
+   @property
+   def minTRTonTrk(self):
+      return self._minTRTonTrkPT
+
+      
+
    def printout(self):
       from AthenaCommon.Logging import logging
       log = logging.getLogger("InDetTrigConfig: ")
@@ -346,3 +409,15 @@ class _ConfigSettingsBase() :
       log.info( "   record                : {}".format( self._record ) )
       log.info( "   Roi                   : {}".format( self._Roi ) )
       log.info( "   addSingleTrackVertices: {}".format( self._addSingleTrackVertices ) )
+      log.info( "   maxRPhiImpact         : {}".format( self._maxRPhiImpactPT ) )
+      log.info( "   maxZImpact            : {}".format( self._maxZImpactPT ) )
+      log.info( "   maxEta                : {}".format( self._maxEtaPT ) )
+      log.info( "   maxSiHoles            : {}".format( self._maxSiHolesPT ) )
+      log.info( "   maxPixelHoles         : {}".format( self._maxPixelHolesPT ) )
+      log.info( "   maxSCTHoles           : {}".format( self._maxSCTHolesPT ) )
+      log.info( "   maxDoubleHoles        : {}".format( self._maxDoubleHolesPT ) )
+      log.info( "   usePixel              : {}".format( self._usePixelPT ) )
+      log.info( "   useSCT                : {}".format( self._useSCTPT ) )
+      log.info( "   doEmCaloSeed          : {}".format( self._doEmCaloSeedPT ) )
+      log.info( "   minTRTonTrk           : {}".format( self._minTRTonTrkPT ) )
+
