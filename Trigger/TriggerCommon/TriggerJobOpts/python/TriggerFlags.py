@@ -21,7 +21,6 @@ def bool_flag_with_default(name, val):
                 })
 
 default_false_flags = [
-    "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
 ]
 
