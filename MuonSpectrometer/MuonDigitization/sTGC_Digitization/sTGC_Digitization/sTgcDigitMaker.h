@@ -183,6 +183,8 @@ class sTgcDigitMaker : public AthMessaging {
      length corrections. Bunch crossing time is specified.
   */
   bool m_doTimeCorrection;
+  // Flag to enable strip time offset 
+  bool m_doTimeOffsetStrip;
   //double m_timeWindowWire;
   //double m_timeWindowStrip;
   //double m_bunchCrossingTime;
