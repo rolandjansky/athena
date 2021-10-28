@@ -74,9 +74,9 @@ int PixelGmxInterface::sensorId(std::map<std::string, int> &index) const
 }
 
 
-void PixelGmxInterface::addSensorType(std::string clas,
-                                      std::string typeName,
-                                      std::map<std::string, std::string> parameters)
+void PixelGmxInterface::addSensorType(const std::string& clas,
+                                      const std::string& typeName,
+                                      const std::map<std::string, std::string>& parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
@@ -182,7 +182,7 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
 }
 
 
-void PixelGmxInterface::addSensor(std::string typeName,
+void PixelGmxInterface::addSensor(const std::string& typeName,
                                   std::map<std::string, int> &index,
                                   int /*sensitiveId*/,
                                   GeoVFullPhysVol *fpv)

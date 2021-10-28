@@ -15,12 +15,10 @@
 Sim_tf.py \
 --CA \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlusLLP' \
 --simulator 'FullG4MT' \
 --postInclude 'PyJobTransforms.UseFrontier' \
---preInclude 'SimuJobTransforms.BeamPipeKill,SimuJobTransforms.FrozenShowersFCalOnly,SimuJobTransforms.TightMuonStepping' \
---DataRunNumber '284500' \
+--preInclude 'Campaigns.MC16Simulation' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mc15_13TeV.404460.MGPy8EG_A14N23LO_mAMSB_C1C1_5000_68000_Stable.evgen.EVNT.e5654.EVNT.13360885._000001.pool.root.1" \
 --outputHITSFile "CA.HITS.pool.root" \
@@ -38,13 +36,10 @@ if [ $rc -eq 0 ]
 then
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-        --physicsList 'FTFP_BERT_ATL' \
         --truthStrategy 'MC15aPlusLLP' \
         --simulator 'FullG4MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mc15_13TeV.404460.MGPy8EG_A14N23LO_mAMSB_C1C1_5000_68000_Stable.evgen.EVNT.e5654.EVNT.13360885._000001.pool.root.1" \
         --outputHITSFile "CA.HITS.pool.root" \
@@ -54,13 +49,10 @@ then
 
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-        --physicsList 'FTFP_BERT_ATL' \
         --truthStrategy 'MC15aPlusLLP' \
         --simulator 'FullG4MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mc15_13TeV.404460.MGPy8EG_A14N23LO_mAMSB_C1C1_5000_68000_Stable.evgen.EVNT.e5654.EVNT.13360885._000001.pool.root.1" \
         --outputHITSFile "CG.HITS.pool.root" \

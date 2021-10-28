@@ -22,6 +22,9 @@
 #include "boost/filesystem.hpp"
 #include "boost/format.hpp"
 
+// TBB
+#include "tbb/task_arena.h"
+
 /*
  * Constructor
  */
@@ -82,9 +85,8 @@ StatusCode PerfMonMTSvc::initialize() {
     ATH_MSG_INFO("  >> Component-level memory monitoring in the event-loop is disabled in jobs with more than 1 thread");
   }
 
-  // Slot specific component-level data map and locks
-  m_compLevelDataMapVec.resize(m_numberOfSlots); // Default construct
-  m_mutex_slots.resize(m_numberOfSlots); // Default construct
+  // Thread specific component-level data map
+  m_compLevelDataMapVec.resize(m_numberOfThreads+1); // Default construct
 
   // Set wall time offset
   m_eventLevelData.set_wall_time_offset(m_wallTimeOffset);
@@ -226,9 +228,8 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
  * Start Component Auditing
  */
 void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
-  // Lock for data integrity
-  const unsigned int islot = ctx.valid() ? ctx.slot() : 0;
-  std::lock_guard<std::mutex> lock(m_mutex_slots[islot]);
+  // Get the thread index
+  const unsigned int ithread = (ctx.valid() && tbb::this_task_arena::current_thread_index() > -1) ? tbb::this_task_arena::current_thread_index() : 0;
 
   // Memory measurement is only done outside the loop except when there is only a single thread
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
@@ -237,8 +238,8 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Check if this is the first time calling if so create the mesurement data if not use the existing one.
-  // Metrics are collected per slot then aggregated before reporting
-  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
+  // Metrics are collected per thread then aggregated before reporting
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ithread];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
     compLevelDataMap.insert({currentState, std::make_unique<PMonMT::ComponentData>()});
   }
@@ -250,7 +251,7 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
 
   // Debug
   ATH_MSG_DEBUG("Start Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
-                " component " << compName << " step " << stepName);
+                " thread index " << ithread << " component " << compName << " step " << stepName);
   ATH_MSG_DEBUG("Start CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
 }
 
@@ -258,9 +259,8 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
  * Stop Component Auditing
  */
 void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
-  // Lock for data integrity
-  const unsigned int islot = ctx.valid() ? ctx.slot() : 0;
-  std::lock_guard<std::mutex> lock(m_mutex_slots[islot]);
+  // Get the thread index
+  const unsigned int ithread = (ctx.valid() && tbb::this_task_arena::current_thread_index() > -1) ? tbb::this_task_arena::current_thread_index() : 0;
 
   // Memory measurement is only done outside the loop except when there is only a single thread
   const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
@@ -273,7 +273,7 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
   // Store
-  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[islot];
+  data_map_unique_t& compLevelDataMap = m_compLevelDataMapVec[ithread];
   compLevelDataMap[currentState]->addPointStop(meas, doMem);
 
   // Once the first time IncidentProcAlg3 is excuted, toggle m_isFirstEvent to false.
@@ -286,7 +286,7 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
 
   // Debug
   ATH_MSG_DEBUG("Stop Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
-                " component " << compName << " step " << stepName);
+                " thread index " << ithread << " component " << compName << " step " << stepName);
   ATH_MSG_DEBUG("Stop CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
   ATH_MSG_DEBUG("  >> Start CPU " << compLevelDataMap[currentState]->m_tmp_cpu << " VMem "
                                  << compLevelDataMap[currentState]->m_tmp_vmem << " Malloc "
@@ -775,8 +775,21 @@ void PerfMonMTSvc::aggregateSlotData() {
       } else {
         m_compLevelDataMap[it.first]->add2CallCount(it.second->getCallCount());
         m_compLevelDataMap[it.first]->add2DeltaCPU(it.second->getDeltaCPU());
+        m_compLevelDataMap[it.first]->add2DeltaWall(it.second->getDeltaWall());
         m_compLevelDataMap[it.first]->add2DeltaVmem(it.second->getDeltaVmem());
         m_compLevelDataMap[it.first]->add2DeltaMalloc(it.second->getDeltaMalloc());
+      }
+      // Do a quick consistency check here and print any suspicious measurements.
+      // Timing measurements should always be positive definite
+      if(it.second->getDeltaCPU() < 0) {
+        ATH_MSG_WARNING("Negative CPU-time measurement of " << it.second->getDeltaCPU() <<
+                        " ms for component " << it.first.compName <<
+                        " in step " << it.first.stepName);
+      }
+      if(it.second->getDeltaWall() < 0) {
+        ATH_MSG_WARNING("Negative Wall-time measurement of " << it.second->getDeltaWall() <<
+                        " ms for component " << it.first.compName <<
+                        " in step " << it.first.stepName);
       }
     }
   }

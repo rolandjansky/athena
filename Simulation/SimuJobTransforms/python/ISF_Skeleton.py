@@ -128,20 +128,6 @@ def fromRunArgs(runArgs):
     if not (hasattr(runArgs, 'outputHITSFile') or hasattr(runArgs, "outputEVNT_TRFile")):
         raise RuntimeError('No outputHITSFile or outputEVNT_TRFile defined')
 
-    if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]
-        ConfigFlags.Input.OverrideRunNumber = True
-        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
-
-    if hasattr(runArgs, 'physicsList'):
-        ConfigFlags.Sim.PhysicsList = runArgs.physicsList
-
-    if hasattr(runArgs, 'conditionsTag'):
-        ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
-
-    if hasattr(runArgs, 'truthStrategy'):
-        ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
-
     # Setup perfmon flags from runargs
     from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
     setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
@@ -154,6 +140,10 @@ def fromRunArgs(runArgs):
 
     # Pre-exec
     processPreExec(runArgs, ConfigFlags)
+
+    # Common simulation runtime arguments
+    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    simulationRunArgsToFlags(runArgs, ConfigFlags)
 
     # Lock flags
     ConfigFlags.lock()

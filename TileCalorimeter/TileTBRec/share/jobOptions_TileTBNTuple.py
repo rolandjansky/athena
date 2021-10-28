@@ -85,6 +85,9 @@ TileTBperiod = 2015 if (RunNumber/100000 == 5) else 2016
 if TileFELIX:
     TileTBperiod = 2017
 
+if RunNumber>800000:
+    TileTBperiod += 2
+
 #---  Output printout level ----------------------------------- 
 #output threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 if not 'OutputLevel' in dir():

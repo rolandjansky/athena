@@ -35,6 +35,8 @@ struct ConvProxy {
   void merge(ConvProxy* other); // this will change the also the "other" so it knows it has been merged
 
   const HLT::TriggerElement* te = nullptr;
+  std::vector<HLT::te_id_type> teIDs; // post merging will contain IDs of all merged TEs
+
   std::vector<ConvProxy*> children;
   std::vector<ConvProxy*> parents;
   std::set<HLT::Identifier> runChains;
@@ -105,7 +107,7 @@ private:
 
   StatusCode createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer&, const EventContext&) const;
 
-  StatusCode createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs) const;
+  StatusCode createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs,  const EventContext& context) const;
 
   StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
 

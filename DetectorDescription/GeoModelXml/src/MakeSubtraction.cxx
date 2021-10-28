@@ -60,6 +60,8 @@ static_cast<const GeoTransform *> (gmxUtil.tagHandler.transformationref.process(
         }
     }
 
+    if (!first || !second) std::abort();
+
     // FIXME: subtract() returns a new'd object --- should really be
     // returning a `unique_ptr<GeoShapeSubtraction>' not a
     // `const GeoShapeSubtraction'

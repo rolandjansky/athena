@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef StripGeoModelXml_StripOptions_H
@@ -22,8 +22,8 @@ public:
     std::string detectorName() const;
     void setAlignable(bool flag = true);
     void setAlignAtModuleLevel(bool flag = true);
-    void setGmxFilename(std::string filename); 
-    void setDetectorName(std::string detectorname);
+    void setGmxFilename(const std::string& filename); 
+    void setDetectorName(const std::string& detectorname);
 
 private:
     bool m_alignable;
@@ -65,11 +65,11 @@ inline void StripOptions::setAlignAtModuleLevel(bool flag) {
     m_alignModule = flag;
 }
 
-inline void StripOptions::setGmxFilename(std::string filename) {
+inline void StripOptions::setGmxFilename(const std::string& filename) {
     m_gmxFilename = filename;
 }
 
-inline void StripOptions::setDetectorName(std::string detectorname) {
+inline void StripOptions::setDetectorName(const std::string& detectorname) {
     m_detectorName = detectorname;
 }
 

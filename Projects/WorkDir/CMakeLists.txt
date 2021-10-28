@@ -77,6 +77,12 @@ if( IS_DIRECTORY
       CACHE PATH "Directory holding the xAODUtilities module" )
 endif()
 
+# Temporary hack for finding CORAL/COOL in tdaq-common (ATLINFR-4302)
+if( TDAQ-COMMON_ATROOT )
+   set( ENV{CMAKE_PREFIX_PATH}
+      "$ENV{CMAKE_PREFIX_PATH}:${TDAQ-COMMON_ATROOT}/installed/external/${ATLAS_PLATFORM}" )
+endif()
+
 # Set up CTest:
 atlas_ctest_setup()
 

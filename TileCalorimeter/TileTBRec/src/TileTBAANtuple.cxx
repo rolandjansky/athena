@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -176,6 +176,7 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_btdc2(0)
   , m_btdc(0)
   , m_tjitter(0)
+  , m_tscTOF(0)
   , m_xChN2(0.0F)
   , m_yChN2(0.0F)
   , m_xChN1(0.0F)
@@ -382,7 +383,6 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
 
-  if (m_TBperiod != 2017)
   if (m_TBperiod >= 2015)  {
     m_unpackAdder = false;
 
@@ -392,7 +392,7 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
       m_drawerList.resize(m_nDrawers);    m_drawerType.resize(m_nDrawers);
       m_drawerList[0] = "0x200"; m_drawerType[0] = 2; // barrel neg
       m_drawerList[1] = "0x401"; m_drawerType[1] = 4; // ext.barrel neg
-    } else if (m_TBperiod == 2016) {
+    } else if (m_TBperiod == 2016 || m_TBperiod == 2018) {
       m_nDrawers = 5;
       m_drawerList.resize(m_nDrawers);    m_drawerType.resize(m_nDrawers);
       m_drawerList[0] = "0x100"; m_drawerType[0] = 1; // M0 pos
@@ -409,6 +409,16 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
       m_drawerList[3] = "0x201"; m_drawerType[3] = 2; // barrel neg
       m_drawerList[4] = "0x203"; m_drawerType[4] = 2; // barrel neg
       m_drawerList[5] = "0x402"; m_drawerType[5] = 4; // ext.barrel neg
+    } else if (m_TBperiod == 2019) {
+      m_nDrawers = 7;
+      m_drawerList.resize(m_nDrawers);    m_drawerType.resize(m_nDrawers);
+      m_drawerList[0] = "0x100"; m_drawerType[0] = 1; // M0 pos
+      m_drawerList[1] = "0x101"; m_drawerType[1] = 1; // barrel pos
+      m_drawerList[2] = "0x200"; m_drawerType[2] = 2; // M0 neg
+      m_drawerList[3] = "0x201"; m_drawerType[3] = 2; // barrel neg
+      m_drawerList[4] = "0x203"; m_drawerType[4] = 2; // barrel neg
+      m_drawerList[5] = "0x402"; m_drawerType[5] = 4; // ext.barrel neg
+      m_drawerList[7] = "0x405"; m_drawerType[6] = 4; // ext.barrel neg
     }
 
 //      m_beamFragList.resize(5);
@@ -1361,6 +1371,7 @@ StatusCode TileTBAANtuple::storeBeamElements() {
       m_yCha2_0 = m_beamBC2Y1 + m_beamBC2Y2*(m_btdc2[6] - m_btdc2[7]);
 
       m_tjitter = m_btdc1[8];
+      m_tscTOF  = m_btdc1[14];
 
       m_xImp  = m_xCha2 + (m_xCha2 - m_xCha1)*m_beamBC2Z/(m_beamBC1Z - m_beamBC2Z);
       m_yImp  = m_yCha2 + (m_yCha2 - m_yCha1)*m_beamBC2Z/(m_beamBC1Z - m_beamBC2Z);
@@ -1586,8 +1597,10 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
         // cabling for testbeam (convert to pmt#-1)
         if ((m_TBperiod < 2015 ||
              (m_TBperiod==2015 && fragType<3) ||
-             (m_TBperiod==2016 && (/* fragId != 0x100 && */(fragId&0xFF)<4 && fragId != 0x201)) ||
-	     (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))))
+	     (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+	     (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
+	     (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
+	     (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
             && fragType > 0 && m_pmtOrder)
           channel = digiChannel2PMT(fragType, channel);
 
@@ -1803,9 +1816,12 @@ StatusCode TileTBAANtuple::storeDigits() {
 
             if ((m_TBperiod < 2015 ||
                  (m_TBperiod==2015 && fragType<3) ||
-                 (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ||
-		 (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))))
+		 (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+		 (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
+		 (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
+		 (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
 		&& fragType > 0 && m_pmtOrder)
+
               channel = digiChannel2PMT(fragType, channel);
 
             /*     if  ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
@@ -1906,8 +1922,10 @@ StatusCode TileTBAANtuple::storeDigits() {
           // cabling for testbeam
           if ((m_TBperiod < 2015 ||
                (m_TBperiod==2015 && fragType<3) ||
-               (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ||
-	       (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))))
+	       (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+	       (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
+	       (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
+	       (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
               && fragType > 0 && m_pmtOrder)
             channel = digiChannel2PMT(fragType, channel);
 
@@ -2101,7 +2119,10 @@ void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, flo
   // cabling for testbeam
   if ((m_TBperiod < 2015 || 
        (m_TBperiod==2015 && fragType<3) ||
-       (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ) 
+       (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+       (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
+       (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
+       (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
       && fragType > 0 && m_pmtOrder)
     channel = digiChannel2PMT(fragType, channel);
 
@@ -2931,7 +2952,8 @@ void TileTBAANtuple::BEAM_addBranch(void) {
       m_ntuplePtr->Branch("btdc1", m_btdc1, "m_btdc1[16]/I");
       m_ntuplePtr->Branch("btdc2", m_btdc2, "m_btdc2[16]/I");
       m_ntuplePtr->Branch("btdc", &m_btdc);
-      m_ntuplePtr->Branch("tjitter", &m_tjitter, "m_tjitter/I");
+      m_ntuplePtr->Branch("tjitter", &m_tjitter, "tjitter/I");
+      m_ntuplePtr->Branch("tscTOF", &m_tscTOF, "tscTOF/I");
       m_ntuplePtr->Branch("btdcNhit", m_btdcNhit, "btdcNhit[16]/I");
       m_ntuplePtr->Branch("btdcNchMultiHit", m_btdcNchMultiHit, "btdcNchMultiHit[2]/I");
     }
@@ -3400,7 +3422,7 @@ void TileTBAANtuple::DIGI_addBranch(void)
       int* mdChargeTime(nullptr);
       int* mdCapacitor(nullptr);
 
-      if (m_TBperiod == 2017 && nSamplesInDrawer == 16) {
+      if ((m_TBperiod == 2017 || m_TBperiod == 2019) && nSamplesInDrawer == 16) {
 	// It is supposed that the drawer is read via FELIX
 
 	mdL1id = new int[MAX_MINIDRAWERS];
@@ -3642,7 +3664,7 @@ void TileTBAANtuple::DIGI_clearBranch(void)
   clear_float(m_tDspVec);
   clear_float(m_chi2DspVec);
 
-  if (m_TBperiod == 2017) {
+  if (m_TBperiod == 2017 || m_TBperiod == 2019) {
     clear_int(m_mdL1idVec, MAX_MINIDRAWERS);
     clear_int(m_mdBcidVec, MAX_MINIDRAWERS);
     clear_int(m_mdModuleVec, MAX_MINIDRAWERS);

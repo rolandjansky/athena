@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 
@@ -280,7 +279,7 @@ class HLTTriggerResultGetter(Configured):
 
         if ConfigFlags.Trigger.EDMVersion == 1 or \
            ConfigFlags.Trigger.EDMVersion == 2:
-            if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
+            if rec.doTrigger():
                 tdt = TrigDecisionGetterRun1or2()  # noqa: F841
         elif ConfigFlags.Trigger.EDMVersion >= 3:
             if ConfigFlags.Trigger.readBS:

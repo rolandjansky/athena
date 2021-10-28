@@ -23,6 +23,7 @@
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/LayerAttemptsCalculator.h"
+#include "TrkGeometry/GlueVolumesDescriptor.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkDetDescrUtils/ObjectAccessor.h"
@@ -35,6 +36,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #ifndef TRKGEOMETRY_MAXLAYERATTEMPTS
 #define TRKGEOMETRY_MAXLAYERATTEMPTS 100
 #endif
@@ -48,7 +50,6 @@ namespace Trk {
   class PlaneLayer;
   class TrackingVolume;
   class DetachedTrackingVolume;
-  class GlueVolumesDescriptor;
   class VolumeBounds;
 
   typedef BinnedArray< Layer >            LayerArray;                         
@@ -303,8 +304,8 @@ namespace Trk {
 
       void registerOutsideGlueVolumes (GlueVolumesDescriptor* gvd);            
       
-      const GlueVolumesDescriptor& glueVolumesDescriptor();
-      const GlueVolumesDescriptor& glueVolumesDescriptor ATLAS_NOT_THREAD_SAFE() const;
+      GlueVolumesDescriptor& glueVolumesDescriptor();
+      const GlueVolumesDescriptor& glueVolumesDescriptor () const;
 
       /** the sensitive area */
       void registerSensitiveVolume(const AbstractVolume* svol);
@@ -415,8 +416,9 @@ namespace Trk {
       const std::vector<const TrackingVolume*>*                             m_confinedDenseVolumes;    //!< Unordered subvolumes
       //(b)                                                                      
       const std::vector<const Layer*>*                                      m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
-                                                                            
-      GlueVolumesDescriptor*                                                m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
+      
+      ////!< Volumes to glue Volumes from the outside      
+      CxxUtils:: CachedUniquePtrT<GlueVolumesDescriptor>                    m_outsideGlueVolumes;
                                                                             
       const AbstractVolume*                                                 m_sensitiveVolume;         //!< Sensitive volume
                                                                             

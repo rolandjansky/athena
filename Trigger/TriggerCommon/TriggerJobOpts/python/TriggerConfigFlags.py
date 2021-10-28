@@ -122,9 +122,6 @@ def createTriggerFlags():
     # Flag to sense if trigger configuration POOL metadata is available on the job's input
     flags.addFlag('Trigger.InputContainsConfigMetadata', lambda prevFlags: __trigConfMeta(prevFlags))
 
-    # only enable services for analysis and BS -> ESD processing (we need better name)
-    flags.addFlag('Trigger.doTriggerConfigOnly', False)
-
     # Enables collection and export of detailed monitoring data of the HLT execution
     flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
     flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_noalg_CostMonDS_L1All')

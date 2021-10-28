@@ -36,14 +36,14 @@ public:
   virtual int splitSensorId(std::map<std::string, int> &index,
                             std::pair<std::string, int> &extraIndex,
                             std::map<std::string, int> &updatedIndex) const override final;
-  virtual void addSensorType(std::string clas,
-                             std::string typeName,
-                             std::map<std::string, std::string> parameters) override final;
-  void addSensor(std::string typeName,
+  virtual void addSensorType(const std::string& clas,
+                             const std::string& typeName,
+                             const std::map<std::string, std::string>& parameters) override final;
+  void addSensor(const std::string& typeName,
                  std::map<std::string, int> &index,
                  int sequentialId,
                  GeoVFullPhysVol *fpv) override final;
-  void addSplitSensor(std::string typeName,
+  void addSplitSensor(const std::string& typeName,
                       std::map<std::string, int> &index,
                       std::pair<std::string, int> &extraIndex,
                       int sequentialId,
@@ -55,9 +55,9 @@ public:
 
 private:
   void makeSiStripBox(const std::string& typeName,
-                      std::map<std::string, std::string> &parameters);
+                      const std::map<std::string, std::string> &parameters);
   void makeStereoAnnulus(const std::string& typeName,
-                         std::map<std::string, std::string> &parameters);
+                         const std::map<std::string, std::string> &parameters);
 
   std::map<std::string, const SiDetectorDesign *> m_geometryMap;
   std::map<std::string, const SCT_ModuleSideDesign *> m_motherMap;

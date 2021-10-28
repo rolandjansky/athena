@@ -9,7 +9,7 @@
 ### Start of Sim
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
@@ -98,6 +98,9 @@ if hasattr(runArgs, "preSimExec"):
 if hasattr(runArgs, "preSimInclude"):
     for fragment in runArgs.preSimInclude:
         include(fragment)
+
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, "inputEVNT_TRFile"):
     if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
@@ -188,6 +191,8 @@ elif hasattr(runArgs,'jobNumber'):
         fast_chain_log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         fast_chain_log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    fast_chain_log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 ## removed code block for handling cosmics track record
 
@@ -247,8 +252,6 @@ if hasattr(runArgs, "postSimExec"):
 
 
 ### Start of Digi
-
-include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, "jobNumber"):
     if runArgs.jobNumber < 1:
