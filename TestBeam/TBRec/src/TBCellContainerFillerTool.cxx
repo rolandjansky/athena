@@ -14,9 +14,7 @@ TBCellContainerFillerTool::TBCellContainerFillerTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :base_class (type, name, parent) ,
-   m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0),
-   m_hashMax(0)
+  :base_class (type, name, parent)
 { 
 }
 
@@ -25,10 +23,9 @@ TBCellContainerFillerTool::TBCellContainerFillerTool(
 
 StatusCode TBCellContainerFillerTool::initialize()
 {
+  ATH_CHECK(m_caloMgrKey.initialize());
   // Cache pointers:
-
-  m_theCaloDDM = CaloDetDescrManager::instance() ;
-  m_theCaloCCIDM   = m_theCaloDDM->getCaloCell_ID() ;
+  ATH_CHECK(detStore()->retrieve(m_theCaloCCIDM, "CaloCell_ID"));
 
   m_hashMax = m_theCaloCCIDM->calo_cell_hash_max();
 
@@ -39,9 +36,12 @@ StatusCode TBCellContainerFillerTool::initialize()
 
 StatusCode
 TBCellContainerFillerTool::process (CaloCellContainer* theCont,
-                                    const EventContext& /*ctx*/) const
+                                    const EventContext& ctx) const
 {
-	
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
   StatusCode returnSc = StatusCode::SUCCESS ;
 
   unsigned int index = 0;
@@ -68,23 +68,23 @@ TBCellContainerFillerTool::process (CaloCellContainer* theCont,
     const CaloCell * theCell = theCont->findCell(IdentifierHash(theHash)) ;
     CaloCell *nCell;
     if(!theCell) {
-       Identifier cellid = m_theCaloCCIDM->cell_id(theHash);
-       HWIdentifier chid = m_onlineHelper->channel_Id(m_theCaloCCIDM->calo_cell_hash(cellid));
-       if(!chid.get_identifier32().get_compact()) continue;
-          const CaloDetDescrElement* cDDE = m_theCaloDDM->get_element(cellid);
-          if(!cDDE) { continue; }
-          if(cDDE->is_lar_hec())
-             nCell = new CaloCell(cDDE,0.,0.,0.,CaloGain::LARMEDIUMGAIN);
-          else
-             nCell = new CaloCell(cDDE,0.,0.,0.,CaloGain::LARHIGHGAIN);
-          ATH_MSG_VERBOSE ( "Adding 0. energy cell: " << m_theCaloCCIDM->cell_id(theHash));
-          theCont->push_back(nCell);
-          ++added;
-//       }
+      Identifier cellid = m_theCaloCCIDM->cell_id(theHash);
+      HWIdentifier chid = m_onlineHelper->channel_Id(m_theCaloCCIDM->calo_cell_hash(cellid));
+      if(!chid.get_identifier32().get_compact()) continue;
+      const CaloDetDescrElement* cDDE = caloMgr->get_element(cellid);
+      if(!cDDE) continue;
+      if(cDDE->is_lar_hec()) {
+	nCell = new CaloCell(cDDE,0.,0.,0.,CaloGain::LARMEDIUMGAIN);
+      }
+      else {
+	nCell = new CaloCell(cDDE,0.,0.,0.,CaloGain::LARHIGHGAIN);
+      }
+      ATH_MSG_VERBOSE ( "Adding 0. energy cell: " << m_theCaloCCIDM->cell_id(theHash));
+      theCont->push_back(nCell);
+      ++added;
     } 
   }
-
-//  theCont->updateCaloIterators();
+  
   theCont->order();
   
   return returnSc ;
