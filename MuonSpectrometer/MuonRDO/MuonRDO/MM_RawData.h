@@ -20,6 +20,7 @@ Temporary class to hold the MM RDO.
 class MM_RawData {
 
   friend class MM_RawDataCnv_p1;  
+  friend class MM_RawDataCnv_p2;  
 
  private:
   
