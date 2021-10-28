@@ -77,13 +77,23 @@ def getBJetSequence(jc_name):
         )
 
     # Conversion of flavour-tagging algorithms from new to old-style
-    # 1) We need to do the alogorithms manually and then remove them from the CA
+    # 1) We need to do the algorithms manually and then remove them from the CA
+    #
+    # Please see the discussion on
+    # https://gitlab.cern.ch/atlas/athena/-/merge_requests/46951#note_4854474
+    # and the description in that merge request.
     flavourTaggingAlgs = [conf2toConfigurable(alg)
                           for alg in findAllAlgorithms(acc_flavourTaggingAlgs._sequence)]
     bJetBtagSequence = seqAND( f"bJetBtagSequence_{jc_name}", secondStageAlgs + flavourTaggingAlgs )
+
+    # you can't use accumulator.wasMerged() here because the above
+    # code only merged the algorithms. Instead we rely on this hacky
+    # looking construct.
     acc_flavourTaggingAlgs._sequence = []
 
     # 2) the rest is done by the generic helper
+    # this part is needed to accomodate parts of flavor tagging that
+    # aren't algorithms, e.g. JetTagCalibration.
     appendCAtoAthena(acc_flavourTaggingAlgs)
 
     InputMakerAlg.ViewNodeName = f"bJetBtagSequence_{jc_name}"
