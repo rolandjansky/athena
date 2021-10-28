@@ -124,14 +124,13 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
   acc = ComponentAccumulator()
 
   hltConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")("HLTConfigSvc")
-  hltConfigSvc.ConfigSource = "None"
 
   menuFile = getHltMenu()
   # If local file not found - read HLTMenu from database
   if menuFile:
     log.debug("Reading HLTMenu from file {0}".format(menuFile))
 
-    hltConfigSvc.InputType = "file"
+    hltConfigSvc.InputType = "FILE"
     hltConfigSvc.JsonFileName = menuFile
   elif smk and dbAlias:
     log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))
