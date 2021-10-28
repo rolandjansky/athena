@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # TauTruthCommon.py
@@ -63,6 +63,7 @@ def scheduleTauTruthTools(kernel=None):
         from tauRecTools.tauRecToolsConf import tauRecTools__BuildTruthTaus
         btt = tauRecTools__BuildTruthTaus( WriteTruthTaus=True ,
                                            WriteInvisibleFourMomentum=True,
+                                           WriteVisibleNeutralFourMomentum = True,
                                            MCTruthClassifierTool=DFCommonTauTruthClassifier )
         # This guy wants a private tool handle, so *don't* put the MCTC into the toolSvc
         ToolSvc += btt
