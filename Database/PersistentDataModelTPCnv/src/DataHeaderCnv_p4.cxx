@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv_p4.cxx
@@ -23,18 +23,18 @@ void DataHeaderElementCnv_p4::persToTrans(const DataHeaderElement_p4* pers,
 	const std::vector<std::string>& map) {
    std::vector<unsigned int>::const_iterator intIter = pers->m_clids.begin();
    const std::vector<unsigned int>::const_iterator intLast = pers->m_clids.end();
-   trans->m_pClid = *intIter; intIter++;
+   trans->m_pClid = *intIter; ++intIter;
    trans->m_clids.clear();
    for (std::set<CLID>::const_iterator lastClid = trans->m_clids.begin();
-		   intIter != intLast; intIter++) {
+		   intIter != intLast; ++intIter) {
       lastClid = trans->m_clids.insert(lastClid, *intIter);
    }
    std::vector<std::string>::const_iterator strIter = pers->m_alias.begin();
    const std::vector<std::string>::const_iterator strLast = pers->m_alias.end();
-   trans->m_key = *strIter; strIter++;
+   trans->m_key = *strIter; ++strIter;
    trans->m_alias.clear();
    for (std::set<std::string>::const_iterator lastAlias = trans->m_alias.begin();
-		   strIter != strLast; strIter++) {
+		   strIter != strLast; ++strIter) {
       lastAlias = trans->m_alias.insert(lastAlias, *strIter);
    }
    trans->m_hashes.clear();
