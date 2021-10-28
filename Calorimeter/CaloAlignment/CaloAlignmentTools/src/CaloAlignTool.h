@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,8 +12,8 @@
  * $Id: CaloAlignTool.h,v 1.3 2008-12-11 16:46:46 tsulaia Exp $
  */
 
-#ifndef CALODETDESCR_CALOALIGNTOOL_H
-#define CALODETDESCR_CALOALIGNTOOL_H
+#ifndef CALOALIGNMENTTOOLS_CALOALIGNTOOL_H
+#define CALOALIGNMENTTOOLS_CALOALIGNTOOL_H
 
 #include "GeoModelInterfaces/IGeoAlignTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -22,8 +22,6 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 
 #include "CxxUtils/checker_macros.h"
-
-class CaloDetDescrManager;
 
 /**
  * @class CaloAlignTool
@@ -71,16 +69,17 @@ class ATLAS_NOT_THREAD_SAFE CaloAlignTool : public AthAlgTool, virtual public IG
    */
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
 
- protected:
-   CaloAlignTool(); //> not implemented
-   CaloAlignTool (const CaloAlignTool&); //> not implemented
-   CaloAlignTool& operator= (const CaloAlignTool&); //> not implemented
-
  private:
   /**
    * @brief handle on the IOVDbSvc for releasing conditions objects from memory
    */
   ServiceHandle<IIOVDbSvc>  m_IOVDbSvc; 
+
+  /// Not implemented.
+  CaloAlignTool() = delete;
+  CaloAlignTool (const CaloAlignTool&) = delete;
+  CaloAlignTool& operator= (const CaloAlignTool&) = delete;
+
 };
 
 #endif
