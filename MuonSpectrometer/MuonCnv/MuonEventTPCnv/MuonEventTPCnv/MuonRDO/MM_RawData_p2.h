@@ -3,15 +3,15 @@
 */
 
 
-#ifndef MM_RAWDATA_P1_H
-#define MM_RAWDATA_P1_H
+#ifndef MM_RAWDATA_P2_H
+#define MM_RAWDATA_P2_H
 
 namespace Muon
 {
-  class MM_RawData_p1
+  class MM_RawData_p2
   {
   public:
-  MM_RawData_p1() : m_id(0), m_channel(0), m_time(0), m_charge(0) {}
+  MM_RawData_p2() : m_id(0), m_channel(0), m_time(0), m_charge(0), m_relBcid(0) {}
     
     unsigned int        m_id; //!< FIXME! Remove this eventually
     
@@ -21,6 +21,8 @@ namespace Muon
     unsigned int m_time;
     
     unsigned int m_charge;
+
+    uint16_t m_relBcid;
     
   };
 }
