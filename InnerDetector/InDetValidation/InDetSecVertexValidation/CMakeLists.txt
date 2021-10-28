@@ -16,8 +16,7 @@ find_package( ROOT COMPONENTS Core Tree Hist RIO )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( InDetSecVertexValidationLib _cintDictSource
-   ROOT_HEADERS InDetSecVertexValidation/InDetSecVertexTruthMatchUtils.h
-   InDetSecVertexValidation/InDetSecVertexTruthMatchTool.h Root/LinkDef.h
+   ROOT_HEADERS InDetSecVertexValidation/InDetSecVertexTruthMatchTool.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
 # Component(s) in the package:

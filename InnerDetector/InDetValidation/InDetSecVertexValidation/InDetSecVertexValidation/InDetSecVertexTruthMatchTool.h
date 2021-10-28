@@ -89,11 +89,6 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   //turn on/off histogram output
   bool m_fillHist;
 
-  mutable std::atomic<unsigned int> m_nVtx {};
-  mutable std::atomic<unsigned int> m_nVtxWithBadLinks {};
-  mutable std::atomic<unsigned int> m_nBadLinks {};
-  mutable std::atomic<unsigned int> m_nLinks {};
-
   //private methods to check if particles are good to use
   //returns barcode of LLP production truth vertex
   int checkProduction( const xAOD::TruthParticle& truthPart ) const;

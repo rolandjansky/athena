@@ -334,25 +334,6 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
 
   ATH_MSG_DEBUG("Start vertex matching");
 
-
-  /*
-  ATH_MSG_DEBUG("Starting Loop on Truth Vertices");
-
-  std::map<int, std::vector<xAOD::Vertex*>> truthRecoMap;
-  for(const xAOD::TruthVertex* truthVtx : truthVtxContainer) {
-    // only consider 1->N decay vertices
-    if(truthVtx->nIncomingParticles() != 1) continue;
-
-    const xAOD::TruthParticle* truthPart = truthVtx->incomingParticle(0);
-    // skip if invalid incoming particle link
-    if(not truthPart) continue;
-    // skip if the vertex is not an LLP decay
-    if(std::find(m_pdgIdList.begin(), m_pdgIdList.end(), truthPart->pdgId()) == m_pdgIdList.end()) continue;
-
-    truthRecoMap[truthPart->barcode()] = std::vector<xAOD::Vertex*>();
-  }
-  */
-
   //setup decorators for truth matching info
   static const xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthVertexMatchingInfos");
   static const xAOD::Vertex::Decorator<VertexMatchType> matchTypeDecor("VertexMatchType");
@@ -835,7 +816,6 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
   m_recoMaxDR->Fill(maxDR); 
 
   // fill the conditional hists
-  // TODO: add additional variables
   if(matchTypeDecor(secVtx) == SPLIT) {
     m_recoR_Split->Fill(reco_r);
     m_recoNtrk_Split->Fill(ntracks);
@@ -971,8 +951,6 @@ StatusCode InDetSecVertexTruthMatchTool::fillTruthPlots( const xAOD::TruthVertex
   if(matchTypeDecor(truthVtx) >= RECONSTRUCTEDSPLIT){
     m_truthSplit_r->Fill(truthVtx.perp());
   }
-  // TODO: how to add split category?
-   
   return StatusCode::SUCCESS;
 }
 
@@ -997,7 +975,6 @@ int InDetSecVertexTruthMatchTool::checkProduction( const xAOD::TruthParticle & t
         const xAOD::TruthVertex* vertex = parent->decayVtx();
         return vertex->barcode();
     }
-     
     // recurse on parent
     return checkProduction(*parent);
   }
