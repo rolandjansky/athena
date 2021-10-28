@@ -79,6 +79,7 @@ if hasattr( runArgs, "triggerBit"):
     ConfigFlags.Detector.EnableMuon = False
     ConfigFlags.Detector.EnableCalo = False
     ConfigFlags.Trigger.readBS = True
+    ConfigFlags.lock()
     from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
     triggerGetter = TriggerRecoGetter()
 else:
