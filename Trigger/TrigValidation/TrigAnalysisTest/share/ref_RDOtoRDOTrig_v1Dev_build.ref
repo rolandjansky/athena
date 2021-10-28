@@ -285,6 +285,8 @@ HLT_2j110_a10sd_pf_nojcalib_ftf_0eta200_TracklessdR1p2_L1J50:
   stepFeatures:
     0: 14
     1: 18
+HLT_2j120_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J50:
+  eventCount: 0
 HLT_2j120_mb_afprec_afpdijet_L1CEP-CjJ50:
   eventCount: 0
 HLT_2j135_mb_afprec_afpdijet_L1CEP-CjJ60:
@@ -323,6 +325,8 @@ HLT_2j175_a10sd_pf_nojcalib_ftf_0eta200_TracklessdR1p2_L1J100:
   stepFeatures:
     0: 5
     1: 4
+HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J75:
+  eventCount: 0
 HLT_2j20_mb_afprec_afpdijet_L1RD0_FILLED:
   eventCount: 0
 HLT_2j250_ftf_0eta240_j120_ftf_0eta240_presel2j180XXj80_L1J100:
@@ -5575,8 +5579,6 @@ HLT_j110_subjesgscIS_ftf_bdl1r60_j45_subjesgscIS_ftf_bdl1r70_L1J50:
     0: 28
     1: 45
     2: 10
-HLT_j120_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J50:
-  eventCount: 0
 HLT_j140_320eta490_LArPEBHLT_L1J75p31ETA49:
   eventCount: 0
 HLT_j140_a10_tc_em_nojcalib_L1J100:
@@ -5779,8 +5781,6 @@ HLT_j175_a10t_lcw_jes_L1J50:
     0: 9
   stepFeatures:
     0: 14
-HLT_j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J75:
-  eventCount: 0
 HLT_j175_pf_ftf_preselj140_L1J50:
   eventCount: 4
   stepCounts:
