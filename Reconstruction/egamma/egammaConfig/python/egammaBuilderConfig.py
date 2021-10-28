@@ -23,7 +23,6 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     # Add e/gamma tracking algorithms
     if flags.Egamma.doGSF:
-
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
         acc.merge(egammaSelectedTrackCopyCfg(flags))
@@ -38,14 +37,12 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     # Add e/gamma conversion finding
     if flags.Egamma.doConversionBuilding:
-
         from egammaAlgs.EMVertexBuilderConfig import (
             EMVertexBuilderCfg)
         acc.merge(EMVertexBuilderCfg(flags))
 
     # Add calo seeded central algorithms
     if flags.Egamma.doCaloSeeded:
-
         from egammaAlgs.egammaRecBuilderConfig import (
             egammaRecBuilderCfg)
         acc.merge(egammaRecBuilderCfg(flags))
@@ -65,7 +62,6 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     # Add calo seeded forward algorithms
     if flags.Egamma.doForwardSeeded:
-
         from egammaAlgs.egammaForwardBuilderConfig import (
             egammaForwardBuilderCfg)
         acc.merge(egammaForwardBuilderCfg(flags))
@@ -76,7 +72,6 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     # Add truth association
     if flags.Egamma.doTruthAssociation:
-
         from egammaAlgs.egammaTruthAssociationConfig import (
             egammaTruthAssociationCfg)
         acc.merge(egammaTruthAssociationCfg(flags))
@@ -84,10 +79,14 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
     # Add e/gamma track thinning
     # (although we call the Alg slimming)
     if flags.Egamma.doTrackThinning:
-
         from egammaAlgs.egammaTrackSlimmerConfig import (
             egammaTrackSlimmerCfg)
         acc.merge(egammaTrackSlimmerCfg(flags))
+
+    # Add e/gamma and related containers to the output stream
+    from egammaConfig.egammaWriteOutputConfig import (
+        egammaWriteOutputCfg)
+    acc.merge(egammaWriteOutputCfg(flags))
 
     mlog.info("EGamma reconstruction configured")
 
