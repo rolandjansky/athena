@@ -71,8 +71,10 @@ def createDigitizationCfgFlags():
     # Beam spot reweighting (-1 disables it)
     flags.addFlag("Digitization.InputBeamSigmaZ", -1)
 
-    # Run radiation damage simulation
-    flags.addFlag("Digitization.DoRadiationDamage", False)
+    # Run radiation damage simulation for pixel planar sensors
+    flags.addFlag("Digitization.DoPixelPlanarRadiationDamage", False)
+    # Run radiation damage simulation for pixel 3D sensors
+    flags.addFlag("Digitization.DoPixel3DRadiationDamage", False)
 
     # for PileUp digitization
     # Bunch structure configuration
