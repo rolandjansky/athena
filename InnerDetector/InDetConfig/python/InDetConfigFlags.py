@@ -9,7 +9,6 @@ def createInDetConfigFlags():
 
   icf.addFlag("InDet.doDBMstandalone",False)
   icf.addFlag("InDet.doDBM",False)
-  icf.addFlag("InDet.doPrintConfigurables",False) # if this is on all the print(InDetXYZ) lines are activated
   # FIXME: Algorithm property instead of flag
   icf.addFlag("InDet.doNewTracking", True) # Turn running of newTracking on and off
   # FIXME: Flags shouldn't turn on/off individual algorithms

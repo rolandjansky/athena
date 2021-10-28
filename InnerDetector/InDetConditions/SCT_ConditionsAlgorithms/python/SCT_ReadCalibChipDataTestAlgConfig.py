@@ -8,9 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ReadCalibChipDataTestAlgCfg(flags, name="SCT_ReadCalibChipDataTestAlg", **kwargs):
     """Return a configured SCT_ReadCalibChipDataTestAlg"""
     acc = ComponentAccumulator()
-    from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ReadCalibChipDataCfg
     kwargs.setdefault("SCT_ReadCalibChipDataTool", acc.popToolsAndMerge(SCT_ReadCalibChipDataCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCT_ReadCalibChipDataTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_ReadCalibChipDataTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":

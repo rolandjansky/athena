@@ -135,7 +135,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
 
-    from SCT_ConditionsAlgorithms.SCT_DetectorElementCondAlgConfig import SCT_DetectorElementCondAlgCfg
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(flags,
                                                 MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and  flags.Detector.GeometryMuon else [],
                                                 TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT   else [],

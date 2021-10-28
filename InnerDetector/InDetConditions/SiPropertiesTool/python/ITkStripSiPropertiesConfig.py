@@ -4,10 +4,9 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_SiliconConditionsCfg
 from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-SiPropertiesTool=CompFactory.SiPropertiesTool
-ITkStripSiPropertiesCondAlg=CompFactory.SCTSiPropertiesCondAlg
+
 
 def ITkStripSiPropertiesCfg(flags, name="ITkStripSiPropertiesCondAlg", **kwargs):
     """Return configured ComponentAccumulator and tool for ITkStripSiProperties
@@ -29,14 +28,13 @@ def ITkStripSiPropertiesCfg(flags, name="ITkStripSiPropertiesCondAlg", **kwargs)
     #Specify correct DetElCollection for ITkStrip
     algkwargs["SCTDetEleCollKey"] = "ITkStripDetectorElementCollection"
     acc.merge(ITkStripReadoutGeometryCfg(flags))
-    alg = ITkStripSiPropertiesCondAlg(name, **algkwargs)
-    acc.addCondAlgo(alg)
+    acc.addCondAlgo(CompFactory.ITkStripSiPropertiesCondAlg(name, **algkwargs))
 
     # Condition tool
     toolkwargs = {}
     #Eventually update to ITkStrip - tool assumes Pixel or SCT for now
     toolkwargs["DetectorName"] = "SCT"
     toolkwargs["ReadKey"] = "SCTSiliconPropertiesVector"
-    acc.setPrivateTools(SiPropertiesTool(name="ITkStripSiPropertiesTool", **toolkwargs))
+    acc.setPrivateTools(CompFactory.SiPropertiesTool(name="ITkStripSiPropertiesTool", **toolkwargs))
 
     return acc
