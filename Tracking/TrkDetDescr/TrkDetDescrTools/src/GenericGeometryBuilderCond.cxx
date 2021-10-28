@@ -276,9 +276,9 @@ Trk::GenericGeometryBuilderCond::trackingGeometry(
     // and now create the triple
     allVolumes = !extendedVolumes.empty() ?  std::vector<const Trk::TrackingVolume*>{extendedVolumes[0],nSector,cSector,pSector,extendedVolumes[1]} : 
                                            std::vector<const Trk::TrackingVolume*>{nSector,cSector,pSector};
-    const Trk::TrackingVolume* tVolume = m_trackingVolumeCreator->createContainerTrackingVolume(allVolumes,
-                                                                                                vacuum,
-                                                                                                m_geometryName+"::Container");                                                                                      
+    Trk::TrackingVolume* tVolume = m_trackingVolumeCreator->createContainerTrackingVolume(allVolumes,
+                                                                                          vacuum,
+                                                                                          m_geometryName+"::Container");                                                                                      
     // now create the TrackingGeometry from the highest volume
     if (tVolume) {
       tGeometry = new Trk::TrackingGeometry(tVolume);

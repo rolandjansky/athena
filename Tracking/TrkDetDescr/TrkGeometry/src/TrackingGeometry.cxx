@@ -18,7 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 Trk::TrackingGeometry::TrackingGeometry(
-    const Trk::TrackingVolume* highestVolume, Trk::NavigationLevel navLev)
+    Trk::TrackingVolume* highestVolume, Trk::NavigationLevel navLev)
     : m_world(highestVolume), m_beam(nullptr), m_navigationLevel(navLev) {
   // for the time being only world
   if (m_world) registerTrackingVolumes(*m_world);

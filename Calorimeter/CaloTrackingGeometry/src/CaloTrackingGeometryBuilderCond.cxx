@@ -200,7 +200,7 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
   
   // the return TG
   Trk::TrackingGeometry* caloTrackingGeometry = nullptr; 
-  const Trk::TrackingVolume*            calorimeter = nullptr;                     
+  Trk::TrackingVolume*            calorimeter = nullptr;                     
 
   // the key dimensions
   RZPairVector keyDim; 
@@ -1226,7 +1226,7 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
    //std::cout <<"Combined LAr ready " << std::endl; 
 
    // glue with LAr sector
-   const Trk::TrackingVolume* caloCombined    = nullptr;
+   Trk::TrackingVolume* caloCombined    = nullptr;
    // ++ has 2 sub volumes in R
    std::vector<const Trk::TrackingVolume*> caloVolumes;
    // ++++ (a) -> LAr sector

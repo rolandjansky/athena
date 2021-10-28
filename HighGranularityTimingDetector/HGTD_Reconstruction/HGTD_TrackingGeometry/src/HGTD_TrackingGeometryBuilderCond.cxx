@@ -324,7 +324,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeometryBui
   enclosedVolumes.push_back(tripleContainer);
   enclosedVolumes.push_back(positiveEnclosure);
   
-  const Trk::TrackingVolume* enclosedDetector = 
+   Trk::TrackingVolume* enclosedDetector = 
       m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,     
                                                              *materialProperties,
                                                              "HGTD::Detectors::"+m_layerBuilder->identification(),

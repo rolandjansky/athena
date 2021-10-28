@@ -79,7 +79,7 @@ namespace Trk {
 
     public :
       /** Constructor */
-      TrackingGeometry(const TrackingVolume* highestVolume,
+      TrackingGeometry(TrackingVolume* highestVolume,
                        NavigationLevel navlevel = globalSearch)
         ATLAS_CTORDTOR_NOT_THREAD_SAFE; //unsafe registerTrackingVolumes called;
       /** Destructor */
@@ -158,7 +158,7 @@ namespace Trk {
       void printVolumeInformation(MsgStream& msgstream, const TrackingVolume& tvol, int lvl) const;
       
       /** The known world - and the beam */   
-      const TrackingVolume*                         m_world;
+      TrackingVolume*                               m_world;
       const PerigeeSurface*                         m_beam;
       
       /** The unique boundary Layers */
@@ -188,7 +188,7 @@ namespace Trk {
 
 
   inline void TrackingGeometry::sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype)
-  { const_cast<TrackingVolume*> (m_world)->sign(geosit, geotype); }
+  {  m_world->sign(geosit, geotype); }
   
   inline const TrackingVolume* TrackingGeometry::trackingVolume(const std::string& name) const
   {
