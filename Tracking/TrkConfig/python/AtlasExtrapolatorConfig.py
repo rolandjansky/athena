@@ -19,7 +19,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     acc = MagneticFieldSvcCfg(flags)
     result.merge(acc)
 
-    # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
+    # PROPAGATOR DEFAULTS --------------------------------------------------
 
     AtlasRungeKuttaPropagator = result.getPrimaryAndMerge(
         TC.AtlasRKPropagatorCfg(flags))
@@ -30,7 +30,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     AtlasPropagators += [AtlasRungeKuttaPropagator]
     AtlasPropagators += [AtlasSTEP_Propagator]
 
-    # UPDATOR DEFAULTS -----------------------------------------------------------------------------------------
+    # UPDATOR DEFAULTS --------------------------------------------------
 
     AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
@@ -149,7 +149,7 @@ def MCTruthClassifierExtrapolatorCfg(flags, name='MCTruthClassifierExtrapolator'
 
     MCTruthSubUpdators = []
 
-    # -------------------- set it depending on the geometry ----------------------------------------------------
+    # -------------------- set it depending on the geometry ---------------------------
     MCTruthSubUpdators += [NoElossMaterialEffectsUpdator.name]  # Global
     MCTruthSubUpdators += [NoElossMaterialEffectsUpdator.name]  # ID
     MCTruthSubUpdators += [NoElossMaterialEffectsUpdator.name]  # beampipe
@@ -193,7 +193,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
     sub_propagators = []
     sub_updators = []
 
-    # -------------------- set it depending on the geometry ----------------------------------------------------
+    # -------------------- set it depending on the geometry --------------------------------
     # default for ID is (Rk,Mat)
     sub_propagators += [propagator]
     sub_updators += [material_updator]

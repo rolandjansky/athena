@@ -665,6 +665,14 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     kwargs.setdefault("MdtRotCreator"                 , acc.popPrivateTools() )
     result.merge(acc)
 
+    ### Tracking Geometry
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    result.merge(TrackingGeometryCondAlgCfg(flags))
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
+
     kwargs.setdefault("CleanCombined"                 , True )
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )
