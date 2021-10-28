@@ -116,7 +116,6 @@ def _createCfgFlags():
     acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
     acf.addFlag('Output.doWriteRDO_SGNL', lambda prevFlags: bool(prevFlags.Output.RDO_SGNLFileName)) # write out RDO_SGNL file
     acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
-    acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
     acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
     acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
 
@@ -155,6 +154,12 @@ def _createCfgFlags():
         from AthenaConfiguration.GeoModelConfigFlags import createGeoModelConfigFlags
         return createGeoModelConfigFlags()
     acf.addFlagsCategory( "GeoModel", __geomodel )
+
+#Reco Flags:
+    def __reco():
+        from RecJobTransforms.RecoConfigFlags import createRecoConfigFlags
+        return createRecoConfigFlags()
+    _addFlagsCategory(acf, "Reco", __reco, 'RecJobTransforms')
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")

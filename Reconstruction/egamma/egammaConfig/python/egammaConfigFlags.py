@@ -14,8 +14,7 @@ def createEgammaConfigFlags():
 
     # do standard cluster-based egamma algorithm
     egcf.addFlag("Egamma.doCaloSeeded",
-                 lambda prevFlags: prevFlags.Detector.EnableCalo and
-                 prevFlags.Output.doESD)
+                 lambda prevFlags: prevFlags.Detector.EnableCalo)
 
     # do forward egamma
     egcf.addFlag("Egamma.doForwardSeeded",
