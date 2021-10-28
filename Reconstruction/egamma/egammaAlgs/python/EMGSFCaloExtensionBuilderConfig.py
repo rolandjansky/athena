@@ -3,7 +3,6 @@
 __doc__ = """ Instantiate the EMGSFCaloExtensionBuilder
 with default configuration """
 
-from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
@@ -19,23 +18,15 @@ def EMGSFCaloExtensionBuilderCfg(
 
     acc = ComponentAccumulator()
 
-    # should use egammaCaloExtrapolator for the two below...
+    from egammaTrackTools.egammaTrackToolsConfig import (
+        EMParticleCaloExtensionToolCfg, EMLastCaloExtensionToolCfg)
     if "PerigeeCaloExtensionTool" not in kwargs:
-        perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="PerigeeCaloExtensionTool",
-            ParticleType="electron",
-            StartFromPerigee=True)
         kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
-            perigeeCaloExtrapAcc)
+            EMParticleCaloExtensionToolCfg(flags))
 
     if "LastCaloExtensionTool" not in kwargs:
-        lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="LastCaloExtensionTool",
-            ParticleType="electron")
         kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
-            lastCaloExtrapAcc)
+            EMLastCaloExtensionToolCfg(flags))
 
     kwargs.setdefault(
         "GFFTrkPartContainerName",
