@@ -6,7 +6,6 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"

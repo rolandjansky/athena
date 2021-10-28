@@ -17,7 +17,6 @@
  */
 
 #include "GaudiKernel/StatusCode.h"
-#include "CxxUtils/checker_macros.h"
 
 class CaloSuperCellDetDescrManager;
 class CaloDetDescrManager;
@@ -31,8 +30,8 @@ StatusCode updateElements(CaloSuperCellDetDescrManager* mgr
 			  , const CaloDetDescrManager* cellmgr
 			  , const ICaloSuperCellIDTool* scidTool);
 
-ATLAS_NOT_THREAD_SAFE void updateDescriptors(CaloSuperCellDetDescrManager* mgr
-					     , const CaloDetDescrManager* cellmgr
-					     , const ICaloSuperCellIDTool* scidTool);
+void updateDescriptors(CaloSuperCellDetDescrManager* mgr
+		       , const CaloDetDescrManager* cellmgr
+		       , const ICaloSuperCellIDTool* scidTool);
 
 #endif

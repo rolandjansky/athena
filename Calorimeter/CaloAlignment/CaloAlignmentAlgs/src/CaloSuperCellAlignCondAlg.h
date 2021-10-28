@@ -14,9 +14,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 
-// ------------
-#include <memory>
-
 /**
  * @class CaloSuperCellAlignCondAlg
  *
@@ -51,35 +48,6 @@ class CaloSuperCellAlignCondAlg final : public AthAlgorithm
       , "CaloSuperCellIDTool"
       , "CaloSuperCellIDTool"
       , "Offline / SuperCell ID mapping tool" };
-
-  // Helper functions
-  struct MinMax {
-    MinMax() : min(99999), max(-999999) {}
-    void add (double x, double dx)
-    {
-      if (x - dx < min) min = x - dx;
-      if (x + dx > max) max = x + dx;
-    }
-    double min;
-    double max;
-  };
-  
-  struct DescrMinMax {
-    MinMax eta;
-    MinMax phi;
-    MinMax r;
-    MinMax z;
-  };
-
-  void createDescriptors(CaloSuperCellDetDescrManager* mgr);
-  void createElements(CaloSuperCellDetDescrManager* mgr);
-  StatusCode updateElements(CaloSuperCellDetDescrManager* mgr
-			    , const CaloDetDescrManager* cellmgr);
-  void updateDescriptors(CaloSuperCellDetDescrManager* mgr
-			 , const CaloDetDescrManager* cellmgr);
-  void updateDescriptor(CaloDetDescriptor* desc
-			, const DescrMinMax& mm
-			, const CaloDetDescrManager* cellmgr);
 };
 
 #endif
