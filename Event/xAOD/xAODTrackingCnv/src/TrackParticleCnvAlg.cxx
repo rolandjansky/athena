@@ -293,10 +293,11 @@ TrackParticleCnvAlg::convert(
   xAOD::TrackParticleContainer::iterator end_xaod = xaod->end();
 
   AssociationHelper<CONT> association_to_src(container, xaod.ptr());
+  unsigned int trackCounter(0);
   // loop over AOD and converted xAOD for summary info and truth links
   for (; itr_xaod != end_xaod; ++itr_xaod) {
     // protect if something went wrong and there is no converted xaod equivalent
-
+    
     if (!(*itr_xaod)) {
       ATH_MSG_WARNING("WTaF? Empty element in xAOD container!");
       continue;
@@ -308,6 +309,37 @@ TrackParticleCnvAlg::convert(
       ATH_MSG_WARNING("Failed to get an xAOD::TrackParticle");
       continue;
     }
+
+    trackCounter++;
+    if(msgLvl(MSG::DEBUG)){
+      int npix, nsct, ntrt, npixh, nscth, npixshim, npixsplit;
+      npix = nsct = ntrt = npixh = nscth = npixshim = npixsplit = -1;
+      const Trk::Track *tr = particle->track();
+      if (tr){
+	const Trk::TrackSummary *ts = tr->trackSummary();
+	if (ts){
+	  npix = ts->get(Trk::numberOfPixelHits);
+	  nsct = ts->get(Trk::numberOfSCTHits);
+	  ntrt = ts->get(Trk::numberOfTRTHits);
+	  nscth= ts->get(Trk::numberOfSCTHoles);
+	  npixh= ts->get(Trk::numberOfPixelHoles);
+	  npixshim = ts->get(Trk::numberOfInnermostPixelLayerSharedHits);
+	  npixsplit= ts->get(Trk::numberOfPixelSplitHits);
+	  
+	}
+      }
+      msg() << MSG::DEBUG << "REGTEST: " << std::setw(5) << trackCounter
+	    << "  pT:  " << std::setw(10) << particle->pt()
+	    << "  eta: " << particle->eta()
+	    << "  phi: " << particle->phi()
+	    << "  d0:  " << particle->d0()
+	    << "  z0:  " << particle->z0()
+	    << "\t" << npix << "/" << nsct << "/" << ntrt << "/holes/" << npixh << "/" << nscth
+	    << "/sharedIM/" << npixshim << "/pixsplit/" << npixsplit 
+	    << endmsg;
+
+    }
+ 
 
     //
     // --------- statistics

@@ -671,7 +671,6 @@ def _trackConverterCfg(flags, signature, inputTracksKey, outputTrackParticleKey)
                                                           TrackName           = inputTracksKey,
                                                           TrackParticlesName  = recordable(outputTrackParticleKey),
                                                           ParticleCreatorTool = creatorTool)
-  trackParticleCnv.OutputLevel=2
   acc.addEventAlgo(trackParticleCnv, primary=True)
 
   return acc
