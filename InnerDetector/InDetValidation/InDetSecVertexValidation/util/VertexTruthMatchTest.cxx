@@ -137,5 +137,7 @@ int main( int argc, char* argv[] ) {
   h_cat->Write();
   fout.Close();
 
+  delete h_cat;
+
   return 0;
 }

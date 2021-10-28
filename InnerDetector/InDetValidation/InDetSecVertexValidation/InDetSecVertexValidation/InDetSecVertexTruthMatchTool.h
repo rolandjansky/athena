@@ -148,11 +148,7 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   TH1F* m_recoMaxD0;
   TH1F* m_recoNtrk;
 
-  TH1F* m_recoX_LLP;
-  TH1F* m_recoY_LLP;
-  TH1F* m_recoZ_LLP;
   TH1F* m_recoR_LLP;
-  TH1F* m_recodistFromPV_LLP;
   TH1F* m_recoPt_LLP;
   TH1F* m_recoEta_LLP;
   TH1F* m_recoPhi_LLP;
@@ -170,11 +166,7 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   TH1F* m_recoMaxD0_LLP;
   TH1F* m_recoNtrk_LLP;
 
-  TH1F* m_recoX_Fake;
-  TH1F* m_recoY_Fake;
-  TH1F* m_recoZ_Fake;
   TH1F* m_recoR_Fake;
-  TH1F* m_recodistFromPV_Fake;
   TH1F* m_recoPt_Fake;
   TH1F* m_recoEta_Fake;
   TH1F* m_recoPhi_Fake;
@@ -192,11 +184,7 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   TH1F* m_recoMaxD0_Fake;
   TH1F* m_recoNtrk_Fake;
 
-  TH1F* m_recoX_Split;
-  TH1F* m_recoY_Split;
-  TH1F* m_recoZ_Split;
   TH1F* m_recoR_Split;
-  TH1F* m_recodistFromPV_Split;
   TH1F* m_recoPt_Split;
   TH1F* m_recoEta_Split;
   TH1F* m_recoPhi_Split;

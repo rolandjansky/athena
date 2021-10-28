@@ -20,7 +20,7 @@ InDetSecVertexTruthMatchTool::InDetSecVertexTruthMatchTool( const std::string & 
 }
 
 StatusCode InDetSecVertexTruthMatchTool::initialize() {
-  ATH_MSG_INFO("Initializing");
+  ATH_MSG_INFO("Initializing InDetSecVertexTruthMatchTool");
 
   // build the vector of pdgIds from the input string
   std::stringstream ss(m_pdgIds);
@@ -310,6 +310,8 @@ StatusCode InDetSecVertexTruthMatchTool::initialize() {
 
 StatusCode InDetSecVertexTruthMatchTool::finalize()
 {
+
+  ATH_MSG_INFO("Finalizing InDetSecVertexTruthMatchTool");
   return StatusCode::SUCCESS;
 }
 
