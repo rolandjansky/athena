@@ -7,41 +7,13 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def TRTRawDataProviderAlgCfg(flags, name="TRTRawDataProvider", **kwargs):
-    """Return a ComponentAccumulator for TRT raw data provider"""
-    # Temporary until available in the central location
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
-    acc = TRT_ReadoutGeometryCfg(flags)
-
-    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
-
-    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
-    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags)))
-
-    TRTRawDataProvider = CompFactory.TRTRawDataProvider
-    alg = TRTRawDataProvider(name, **kwargs)
-    acc.addEventAlgo(alg)
-
-    ByteStreamAddressProviderSvc = CompFactory.ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=[
-        "InDet::TRT_DriftCircleContainer/TRT_DriftCircle",
-    ])
-    acc.addService(bsAddressProviderSvc)
-
-    return acc
-
-
 def TRTDataOverlayExtraCfg(flags, **kwargs):
     """Return a ComponentAccumulator with TRT data overlay specifics"""
     acc = ComponentAccumulator()
 
     # We need to convert BS to RDO for data overlay
-    acc.merge(TRTRawDataProviderAlgCfg(flags))
-
-    # Add additional conditions infrastructure
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CablingSvcCfg, TRT_OnlineFoldersCfg
-    acc.merge(TRT_CablingSvcCfg(flags))
-    acc.merge(TRT_OnlineFoldersCfg(flags))
+    from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConfig import TRTOverlayRawDataProviderAlgCfg
+    acc.merge(TRTOverlayRawDataProviderAlgCfg(flags))
 
     return acc
 

@@ -238,7 +238,7 @@ def TrackRecoCfg(flags):
         from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
         result.merge(SCTRawDataProviderCfg(flags))
         result.merge(SCTEventFlagWriterCfg(flags))
-        from InDetConfig.TRTPreProcessing import TRTRawDataProviderCfg
+        from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConfig import TRTRawDataProviderCfg
         result.merge(TRTRawDataProviderCfg(flags))
 
     # up to here
