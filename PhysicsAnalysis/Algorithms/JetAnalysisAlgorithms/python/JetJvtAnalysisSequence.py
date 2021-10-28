@@ -5,6 +5,8 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
+                                preselection = '',
+                                systematicsAwarePreselection = '',
                                 enableFJvt = False,
                                 globalSF = True,
                                 runSelection = True,
@@ -37,6 +39,8 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
+        alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
+        alg.inputSelectionDecoration = systematicsAwarePreselection
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
@@ -47,6 +51,8 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
         if enableFJvt:
             alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
+            alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
+            alg.inputSelectionDecoration = systematicsAwarePreselection
             alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
             alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 

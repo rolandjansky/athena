@@ -17,24 +17,27 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addJetPt
 from DerivationFrameworkJetEtMiss import TriggerLists
 triggers = TriggerLists.jetTrig()
 
-#This expression is currently not working because of EventInfo.eventTypeBitmask (to be fixed)
-expression = '(EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+JETM1SkimmingTools = []
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name                   = "JETM1TrigSkimmingTool1",
-                                                                  TriggerListOR          = triggers )
-ToolSvc += JETM1TrigSkimmingTool
+if not DerivationFrameworkIsMonteCarlo:
 
-# Will be uncommented once issue with eventTypeBitmask is resolved
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-#JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name       = "JETM1OfflineSkimmingTool1",
-#                                                                       expression = expression)
-#ToolSvc += JETM1OfflineSkimmingTool
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+    JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name                   = "JETM1TrigSkimmingTool1",
+                                                                      TriggerListOR          = triggers )
+    ToolSvc += JETM1TrigSkimmingTool
 
-# OR of the above two selections
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-#JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
-#ToolSvc+=JETM1ORTool
+    expression = 'HLT_xe120_pufit_L1XE50'
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name       = "JETM1OfflineSkimmingTool1",
+                                                                           expression = expression)
+    ToolSvc += JETM1OfflineSkimmingTool
+
+    # OR of the above two selections
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+    JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
+    ToolSvc+=JETM1ORTool
+
+    JETM1SkimmingTools += [JETM1ORTool]
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -118,9 +121,8 @@ augmentationTools.append(JETM1TrackSelectionTool)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          AugmentationTools = augmentationTools,
-                                                         #SkimmingTools = [JETM1ORTool], #to be fixed (bitmask issue)
+                                                         SkimmingTools = JETM1SkimmingTools,
                                                          ThinningTools = thinningTools)
-
 
 #=======================================
 # Add. small-R jet stuff in derivations

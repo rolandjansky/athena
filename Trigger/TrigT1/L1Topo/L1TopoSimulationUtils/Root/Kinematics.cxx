@@ -202,7 +202,7 @@ float TSU::Kinematics::calcSin(unsigned phi){
 
 /*------------------------------------------ NON-BITWISE --------------------------------------------------*/
 
-unsigned int TSU::Kinematics::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+unsigned int TSU::Kinematics::calcDeltaPhiLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
   double dphi = std::fabs( tob1->phiDouble() - tob2->phiDouble() );
   if(dphi>M_PI)
     dphi = 2*M_PI - dphi;
@@ -210,9 +210,31 @@ unsigned int TSU::Kinematics::calcDeltaPhi(const TCS::GenericTOB* tob1, const TC
   return round( 10 * dphi );
 }
 
+unsigned int TSU::Kinematics::calcDeltaEtaLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  double deta = std::fabs( tob1->etaDouble() - tob2->etaDouble() );
+  return round( 10 * deta );
+}
+
+unsigned int TSU::Kinematics::calcDeltaR2Legacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  double deta = ( tob1->etaDouble() - tob2->etaDouble() );
+  double dphi = std::fabs( tob1->phiDouble() - tob2->phiDouble() );
+  if(dphi>M_PI)
+    dphi = 2*M_PI - dphi;
+
+  return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
+}
+
+unsigned int TSU::Kinematics::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  double dphi = std::fabs( tob1->phiDouble() - tob2->phiDouble() );
+  if(dphi>M_PI)
+    dphi = 2*M_PI - dphi;
+
+  return round( 20 * dphi );
+}
+
 unsigned int TSU::Kinematics::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  double deta = std::fabs( tob1->eta() - tob2->eta() );
-  return deta;
+  double deta = std::fabs( tob1->etaDouble() - tob2->etaDouble() );
+  return round( 40 * deta );
 }
 
 unsigned int TSU::Kinematics::calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {

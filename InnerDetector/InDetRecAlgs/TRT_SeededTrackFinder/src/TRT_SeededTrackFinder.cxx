@@ -549,6 +549,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
   const Trk::FitQuality* fq = tT.fitQuality()->clone();
   // output datavector of TSOS
   auto ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  ntsos->reserve (stsos->size() + tS.numberOfMeasurementBases());
   int siHits = 0;
   // copy track Si states into track
   for (const Trk::TrackStateOnSurface* tsos : *stsos) {
@@ -611,6 +612,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const 
   const AmgVector(5)& p = tS.localParameters();
   AmgSymMatrix(5) ep = AmgSymMatrix(5)(tS.localCovariance());
   auto ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  ntsos->reserve (tS.numberOfMeasurementBases());
   std::unique_ptr<const Trk::TrackParameters> segPar =
     surf->createUniqueParameters<5, Trk::Charged>(
       p(0), p(1), p(2), p(3), p(4), std::move(ep));
@@ -667,6 +669,7 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
   const Trk::FitQuality* fq = tT.fitQuality()->clone();
   // output datavector of TSOS
   auto ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  ntsos->reserve (stsos->size() + tS.size());
   int siHits = 0;
   // copy track Si states into track
   for (const Trk::TrackStateOnSurface* tsos : *stsos) {

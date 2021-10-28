@@ -86,14 +86,16 @@ StatusCode Trk::GenericGeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-
-std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilderCond::trackingGeometry(const EventContext& /*ctx*/, std::pair< EventIDRange, const Trk::TrackingVolume*> innerVolPair) const
+std::pair<EventIDRange, Trk::TrackingGeometry*>
+Trk::GenericGeometryBuilderCond::trackingGeometry(
+  const EventContext& /*ctx*/,
+  std::pair<EventIDRange, const Trk::TrackingVolume*> innerVolPair) const
 {
 
     ATH_MSG_VERBOSE("Starting to build TrackingGeometry for GeometrySignature : " << m_geometrySignature );
 
     // the geometry to be constructed
-    const Trk::TrackingGeometry* tGeometry = nullptr;
+    Trk::TrackingGeometry* tGeometry = nullptr;
     
     double innerVolumeRadius             = 0.;
     double innerVolumeHalfZ              = 0.;

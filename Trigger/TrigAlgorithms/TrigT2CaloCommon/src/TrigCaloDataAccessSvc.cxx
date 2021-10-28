@@ -21,12 +21,12 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   m_autoRetrieveTools = false;
   m_checkToolDeps = false;
           
-  CHECK( m_roiMapTool.retrieve() );
   CHECK( m_larDecoder.retrieve() );
   CHECK( m_tileDecoder.retrieve() );
   CHECK( m_robDataProvider.retrieve() );
   CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_onOffIdMappingKey.initialize() );
+  CHECK( m_larRoIMapKey.initialize() );
   CHECK( m_febRodMappingKey.initialize() );
   CHECK( m_regionSelector_TTEM.retrieve() );
   CHECK( m_mcsymKey.initialize() );
@@ -104,8 +104,9 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
     for( unsigned int i = 0 ; i < requestHashIDs.size() ; i++ )
       ATH_MSG_VERBOSE( "m_rIds[" << i << "]=" << requestHashIDs[i] );
   }
+  SG::ReadCondHandle<LArRoIMap> roimap ( m_larRoIMapKey, context);
   loadedCells.setContainer( ( m_hLTCaloSlot.get( context )->larContainer ) );
-  loadedCells.setMap( m_roiMapTool.operator->() );    
+  loadedCells.setMap( *roimap );
 
   { 
     // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map
@@ -337,6 +338,8 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   SG::ReadCondHandle<LArMCSym> mcsym (m_mcsymKey, context);
   SG::ReadCondHandle<LArFebRodMapping> febrod(m_febRodMappingKey, context);
   SG::ReadCondHandle<LArBadChannelCont> larBadChan{ m_bcContKey, context };
+  SG::ReadCondHandle<LArOnOffIdMapping> onoff ( m_onOffIdMappingKey, context);
+  SG::ReadCondHandle<LArRoIMap> roimap ( m_larRoIMapKey, context);
 
   unsigned int nFebs=70;
   unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
@@ -362,7 +365,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( m_roiMapTool.get(), **mcsym, **febrod, **larBadChan ).isFailure() )
+  if ( cache->larContainer->initialize( **roimap, **onoff, **mcsym, **febrod, **larBadChan ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);

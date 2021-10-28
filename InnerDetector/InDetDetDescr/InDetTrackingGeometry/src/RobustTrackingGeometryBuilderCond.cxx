@@ -132,7 +132,8 @@ StatusCode InDet::RobustTrackingGeometryBuilderCond::initialize()
 }
 
 
-std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+std::pair<EventIDRange, Trk::TrackingGeometry*> 
+InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
 (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>) const
 {
    // only one assumption: 
@@ -344,10 +345,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    std::pair<EventIDRange,const std::vector<Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
    const std::vector<Trk::CylinderLayer*>* beamPipeVecPtr = beamPipeVecPair.second;
    if (!beamPipeVecPtr->empty()) {
-     std::vector<const Trk::CylinderLayer*> beamPipeVec;
-     std::copy(beamPipeVecPtr->begin(),
-               beamPipeVecPtr->end(),
-               std::back_inserter(beamPipeVec));
+     std::vector<const Trk::CylinderLayer*> beamPipeVec(beamPipeVecPtr->begin(),
+                                                        beamPipeVecPtr->end());
      range = EventIDRange::intersect(range, beamPipeVecPair.first);
      beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(
        beamPipeVec, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);

@@ -94,7 +94,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
     alg.selectionTool.Mask = xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut',
                 stageName = 'calibration',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]},
@@ -154,7 +153,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     alg.selectionDecoration = 'isolated' + postfix
     addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
     alg.selectionTool.PhotonWP = isolationWP
-    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+    seq.append( alg, inputPropName = 'egammas',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]} )

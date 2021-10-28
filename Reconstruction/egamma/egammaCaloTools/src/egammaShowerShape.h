@@ -27,10 +27,10 @@ class CaloDetDescrManager;
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
-#include "egammaInterfaces/IegammaPreSamplerShape.h"
-#include "egammaInterfaces/IegammaStripsShape.h"
-#include "egammaInterfaces/IegammaMiddleShape.h"
-#include "egammaInterfaces/IegammaBackShape.h"
+#include "egammaCaloUtils/egammaPreSamplerShape.h"
+#include "egammaCaloUtils/egammaStripsShape.h"
+#include "egammaCaloUtils/egammaMiddleShape.h"
+#include "egammaCaloUtils/egammaBackShape.h"
 
 class egammaShowerShape : public AthAlgTool, virtual public IegammaShowerShape {
 
@@ -55,22 +55,7 @@ public:
                                Info& info) const override final;
 
   private:
-    /** @brief Tool to estimate shower shapes in presampler */
-    ToolHandle<IegammaPreSamplerShape> m_egammaPreSamplerShape {this,
-        "egammaPreSamplerShapeTool", "egammaPreSamplerShape/egammapresamplershape"};
-
-    /** @brief Tool to estimate shower shapes in strips */
-    ToolHandle<IegammaStripsShape> m_egammaStripsShape {this,
-        "egammaStripsShapeTool", "egammaStripsShape/egammastripsshape"};
-
-    /** @brief Tool to estimate shower shapes in middle sampling */
-    ToolHandle<IegammaMiddleShape> m_egammaMiddleShape {this,
-        "egammaMiddleShapeTool", "egammaMiddleShape/egammamiddleshape"};
-
-    /** @brief Tool to estimate shower shapes in back sampling */
-    ToolHandle<IegammaBackShape> m_egammaBackShape {this,
-        "egammaBackShapeTool", "egammaBackShape/egammabackshape"};
-
+    
     /** @brief boolean to calculate all variables*/
     Gaudi::Property<bool> m_ExecAllVariables {this, 
         "ExecAllVariables", true, "flag used by trigger"};

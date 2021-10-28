@@ -117,7 +117,7 @@ StatusCode Muon::MuonTrackingGeometryBuilder::initialize() {
     return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* tvol) const {
+Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* tvol) const {
     ATH_MSG_INFO(name() << " building tracking geometry");
     m_chronoStatSvc->chronoStart("MS::build-up");
     // load local variables to container

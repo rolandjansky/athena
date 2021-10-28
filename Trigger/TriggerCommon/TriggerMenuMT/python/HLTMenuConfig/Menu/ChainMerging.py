@@ -219,7 +219,7 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
     #the legOrdering is a mapping between the two:
     # chainDefList[legOrdering[0]] <=> allSteps[0]
 
-    legs_per_part = [len(cd.steps[0].multiplicity) for cd in chainDefList]
+    legs_per_part = [len(chainDefList[stepPlacement].steps[0].multiplicity) for stepPlacement in legOrdering]
     n_parts = len(allSteps)
     log.debug('[serial_zip] configuring chain with %d parts with multiplicities %s', n_parts, legs_per_part)
     log.debug('[serial_zip]     and leg ordering %s', legOrdering)
@@ -252,7 +252,7 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                     if chain_index2 == chain_index:
                         log.error("chain_index2 = chain_index, but the stepList still has none!")
                         raise Exception("[serial_zip] duplicating existing leg, why has this happened??")
-                    mult_per_leg = getMultiplicityPerLeg(chainDefList[chain_index2].steps[0].multiplicity)
+                    mult_per_leg = getMultiplicityPerLeg(chainDefList[stepPlacement2].steps[0].multiplicity)
 
                     #this WILL NOT work for jets!
                     step_mult = []
@@ -262,7 +262,7 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                     else:
                         emptyChainDicts = allSteps[chain_index2][0].stepDicts
 
-                    log.debug("[serial_zip] nLegs: %s, mult_per_leg: %s, len(emptyChainDicts): %s, len(L1decisions): %s", nLegs,mult_per_leg, len(emptyChainDicts), len(chainDefList[chain_index2].L1decisions))
+                    log.debug("[serial_zip] nLegs: %s, mult_per_leg: %s, len(emptyChainDicts): %s, len(L1decisions): %s", nLegs,mult_per_leg, len(emptyChainDicts), len(chainDefList[stepPlacement2].L1decisions))
                     sigNames = []
                     for ileg,(emptyChainDict,_) in enumerate(zip(emptyChainDicts,chainDefList[stepPlacement2].L1decisions)):
                         if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]):
@@ -299,7 +299,7 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
 
                     emptySequences = []
                     for ileg in range(len(chainDefList[stepPlacement2].L1decisions)):
-                        if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]) and noPrecedingStepsPreMerge(newsteps,chain_index2, ileg):
+                        if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]) and noPrecedingStepsPreMerge(newsteps, stepPlacement2, ileg):
                             log.debug("[serial_zip] adding FS empty sequence with mergeUsingFeature = False ")
                             emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS", mergeUsingFeature = False)]
                         elif isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]):

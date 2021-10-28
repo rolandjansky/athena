@@ -167,6 +167,13 @@
 #include "xAODTrigger/versions/RoiDescriptorStore_v1.h"
 #include "xAODTrigger/versions/RoiDescriptorStoreAuxInfo_v1.h"
 
+#include "xAODTrigger/L1TopoSimResults.h"
+#include "xAODTrigger/L1TopoSimResultsContainer.h"
+#include "xAODTrigger/L1TopoSimResultsAuxContainer.h"
+#include "xAODTrigger/versions/L1TopoSimResults_v1.h"
+#include "xAODTrigger/versions/L1TopoSimResultsContainer_v1.h"
+#include "xAODTrigger/versions/L1TopoSimResultsAuxContainer_v1.h"
+
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
@@ -198,6 +205,8 @@ namespace {
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigCompositeContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigPassBitsContainer_v1 );
+     
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, L1TopoSimResultsContainer_v1 );
 
       XAOD_INSTANTIATE_NS_OBJECT_TYPES( xAOD, JetEtRoI_v1 );
       XAOD_INSTANTIATE_NS_OBJECT_TYPES( xAOD, EnergySumRoI_v1 );

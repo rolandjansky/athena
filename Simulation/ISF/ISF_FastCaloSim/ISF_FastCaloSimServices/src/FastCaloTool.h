@@ -60,11 +60,11 @@ public:
 
   virtual StatusCode setupEventST() override;
 
-  virtual StatusCode setupEvent() override;
+  virtual StatusCode setupEvent(const EventContext&) override;
 
   virtual StatusCode releaseEventST() override;
 
-  virtual StatusCode releaseEvent() override;
+  virtual StatusCode releaseEvent(const EventContext&) override;
 
   virtual SimulationFlavor simFlavor() const override { return ISF::FastCaloSim; };
 private:

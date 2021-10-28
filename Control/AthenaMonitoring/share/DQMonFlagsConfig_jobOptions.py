@@ -489,9 +489,6 @@ DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()
 
 local_logger.info("DQ: setting up ConfigFlags")
-from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-# Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-ConfigFlags = getNewConfigFlags()
 
 ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
 ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()

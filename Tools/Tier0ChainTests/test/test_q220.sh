@@ -12,7 +12,7 @@
 
 Reco_tf.py \
 --AMI=q220 \
---conditionsTag 'all:CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' \
 --athenaopts='--threads=8' \
 --maxEvents=800 \
 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False

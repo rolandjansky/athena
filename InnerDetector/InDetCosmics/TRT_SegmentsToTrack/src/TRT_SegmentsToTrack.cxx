@@ -263,6 +263,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         }
         else {
           auto trajectory = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+          trajectory->reserve (fittedTrack->trackStateOnSurfaces()->size() + 1);
           itSet = fittedTrack->trackStateOnSurfaces()->begin();
           for ( ; itSet!=itSetEnd; ++itSet) {
             if (!(**itSet).type(Trk::TrackStateOnSurface::Perigee)) {

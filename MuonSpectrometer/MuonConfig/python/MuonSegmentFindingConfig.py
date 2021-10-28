@@ -183,8 +183,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     if doSegmentT0Fit:
         mdt_dcot_CA = MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreatorAdjustableT0", TimingMode=3, \
                    DoTofCorrection=True, TimeWindowSetting=MdtCalibWindowNumber('Collision_data'))
-        result.merge(mdt_dcot_CA)
-        kwargs.setdefault("MdtCreatorT0", mdt_dcot_CA.getPrimary()) # TODO - is this correct? 
+        kwargs.setdefault("MdtCreatorT0", result.getPrimaryAndMerge(mdt_dcot_CA)) # TODO - is this correct? 
         mdt_math_segment_finder = result.popToolsAndMerge(MdtMathSegmentFinderCfg(flags, doSegmentT0Fit=True))
     else:
         mdt_math_segment_finder = result.popToolsAndMerge(MdtMathSegmentFinderCfg(flags))
@@ -208,9 +207,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault("MuonStationIntersectSvc", muon_station_intersect_svc)
 
     acc=MdtDriftCircleOnTrackCreatorCfg(flags)
-    kwargs.setdefault("MdtCreator", acc.getPrimary())
-    result.merge(acc)
-
+    kwargs.setdefault("MdtCreator", result.getPrimaryAndMerge(acc))
     
     acc=MuonClusterOnTrackCreatorCfg(flags)
     muon_cluster_creator=acc.getPrimary()
@@ -272,8 +269,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
             # I think we need to configure a 'default' version of the MdtDriftCircleOnTrackCreator here
             acc=MdtDriftCircleOnTrackCreatorCfg(flags)
 
-        result.merge(acc)
-        kwargs.setdefault('MdtCreator', acc.getPrimary())
+        kwargs.setdefault('MdtCreator', result.getPrimaryAndMerge(acc))
     #else:
     # TODO work out what to do here
     

@@ -32,6 +32,8 @@
 #include "xAODTrigger/versions/BunchConfContainer_v1.h"
 #include "xAODTrigger/versions/TrigPassBitsContainer_v1.h"
 
+#include "xAODTrigger/versions/L1TopoSimResultsContainer_v1.h"
+
 // Set up the collection proxies:
 ADD_NS_DV_PROXY( xAOD, TriggerMenuContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, TriggerMenuJsonContainer_v1 );
@@ -54,3 +56,5 @@ ADD_NS_DV_PROXY( xAOD, gFexGlobalRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, TrigCompositeContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, BunchConfContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, TrigPassBitsContainer_v1 );
+
+ADD_NS_DV_PROXY( xAOD, L1TopoSimResultsContainer_v1 );

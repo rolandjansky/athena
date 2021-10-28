@@ -130,10 +130,11 @@ StatusCode ISF::SimKernelMT::initialize() {
 
 StatusCode ISF::SimKernelMT::execute() {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // Call setupEvent for all simulators (TODO: make the tools do this)
   for (auto& curSimTool: m_simulationTools) {
     if ( curSimTool ) {
-      ATH_CHECK(curSimTool->setupEvent());
+      ATH_CHECK(curSimTool->setupEvent(ctx));
       ATH_MSG_DEBUG( "Event setup done for " << curSimTool->name() );
     }
   }
@@ -145,7 +146,7 @@ StatusCode ISF::SimKernelMT::execute() {
   }
 
   // copy input Evgen collection to output Truth collection
-  SG::WriteHandle<McEventCollection> outputTruth(m_outputTruthKey);
+  SG::WriteHandle<McEventCollection> outputTruth(m_outputTruthKey, ctx);
   outputTruth = std::make_unique<McEventCollection>(*inputEvgen);
 
   // Apply QS patch if required
@@ -159,13 +160,13 @@ StatusCode ISF::SimKernelMT::execute() {
   ATH_CHECK(m_truthRecordSvc->initializeTruthCollection());
 
   // Create TrackRecordCollections and pass them to the entryLayerTool
-  SG::WriteHandle<TrackRecordCollection> caloEntryLayer(m_caloEntryLayerKey);
+  SG::WriteHandle<TrackRecordCollection> caloEntryLayer(m_caloEntryLayerKey, ctx);
   caloEntryLayer = std::make_unique<TrackRecordCollection>(caloEntryLayer.name());
   ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(caloEntryLayer.ptr(), fAtlasCaloEntry));
-  SG::WriteHandle<TrackRecordCollection> muonEntryLayer(m_muonEntryLayerKey);
+  SG::WriteHandle<TrackRecordCollection> muonEntryLayer(m_muonEntryLayerKey, ctx);
   muonEntryLayer = std::make_unique<TrackRecordCollection>(muonEntryLayer.name());
   ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(muonEntryLayer.ptr(), fAtlasMuonEntry));
-  SG::WriteHandle<TrackRecordCollection> muonExitLayer(m_muonExitLayerKey);
+  SG::WriteHandle<TrackRecordCollection> muonExitLayer(m_muonExitLayerKey, ctx);
   muonExitLayer = std::make_unique<TrackRecordCollection>(muonExitLayer.name());
   ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(muonExitLayer.ptr(), fAtlasMuonExit));
 
@@ -272,7 +273,7 @@ StatusCode ISF::SimKernelMT::execute() {
   // Release the event from all simulators (TODO: make the tools do this)
   for (auto& curSimTool: m_simulationTools) {
     if ( curSimTool ) {
-      ATH_CHECK(curSimTool->releaseEvent());
+      ATH_CHECK(curSimTool->releaseEvent(ctx));
       ATH_MSG_DEBUG( "releaseEvent() completed for " << curSimTool->name() );
     }
   }

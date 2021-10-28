@@ -5,9 +5,8 @@
 #  - specify values to be changed with the -c option
 #    athena -c "readG3=True ; EvtMax = 100" RecExCommon_topOptions.py
 #    Note: please use \" if a " is needed inside the command line
-#    athena -c "include(\"RecExCommon/RecExCommon_flags.py\") ; DetFlags.Muon_setOff()" RecExCommon_topOptions.py
+#    athena -c "include(\"RecExCond/RecExCommon_flags.py\") ; DetFlags.Muon_setOff()" RecExCommon_topOptions.py
 #  - create a file myconfig.py with the values to be changed
-#     (myconfig.py ould be copied/edited from RecExCommon_flags.py),
 #    then run
 #    athena myconfig.py RecExCommon_topOptions.py
 #  - edit/modify RecExCommon_topOptions.py and add the new values
@@ -236,12 +235,6 @@ if len(rec.AutoConfiguration())>0:
 #special commisioning job options
 if rec.Commissioning():
    include("RecExCond/MinimalCommissioningSetup.py")
-   # setup trigger reading from COOL
-   if rec.doTrigger():
-      from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-      tf.configForStartup="HLTonline"
-      tf.configForStartup.lock()
-
    rec.ScopingLevel.set_Value_and_Lock(1)
 
 if rec.triggerStream().startswith('express'):

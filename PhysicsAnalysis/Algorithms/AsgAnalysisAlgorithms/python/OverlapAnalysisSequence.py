@@ -14,6 +14,7 @@ def makeOverlapAnalysisSequence( dataType,
                                  bJetLabel = '',
                                  boostedLeptons = False,
                                  postfix = '',
+                                 shallowViewOutput = True,
                                  enableCutflow = False ):
     """Function creating the overlap removal algorithm sequence
 
@@ -66,6 +67,7 @@ def makeOverlapAnalysisSequence( dataType,
       bJetLabel -- Flag to select b-jets with. If left empty, no b-jets are used
                    in the overlap removal.
       boostedLeptons -- Set to True to enable boosted lepton overlap removal
+      shallowViewOutput -- Create a view container if required
       enableCutflow -- Whether or not to dump the cutflow
     """
 
@@ -77,6 +79,14 @@ def makeOverlapAnalysisSequence( dataType,
 
     # Create the overlap removal algorithm:
     alg = createAlgorithm( 'CP::OverlapRemovalAlg', 'OverlapRemovalAlg' + postfix )
+    alg.OutputLabel = outputLabel
+    if not shallowViewOutput:
+        alg.electronsDecoration = outputLabel + '_%SYS%'
+        alg.muonsDecoration = outputLabel + '_%SYS%'
+        alg.tausDecoration = outputLabel + '_%SYS%'
+        alg.jetsDecoration = outputLabel + '_%SYS%'
+        alg.photonsDecoration = outputLabel + '_%SYS%'
+        alg.fatJetsDecoration = outputLabel + '_%SYS%'
 
     # Create its main tool, and set its basic properties:
     addPrivateTool( alg, 'overlapTool', 'ORUtils::OverlapRemovalTool' )
@@ -235,52 +245,64 @@ def makeOverlapAnalysisSequence( dataType,
         pass
 
     # Add the algorithm to the analysis sequence.
-    seq.append( alg,
-                inputPropName = { 'electrons' : 'electrons',
-                                  'muons'     : 'muons',
-                                  'jets'      : 'jets',
-                                  'taus'      : 'taus',
-                                  'photons'   : 'photons',
-                                  'fatJets'   : 'fatJets' },
-                outputPropName = { 'electrons' : 'electronsOut',
-                                   'muons'     : 'muonsOut',
-                                   'jets'      : 'jetsOut',
-                                   'taus'      : 'tausOut',
-                                   'photons'   : 'photonsOut',
-                                   'fatJets'   : 'fatJetsOut' } )
+    if shallowViewOutput:
+        seq.append( alg,
+                    inputPropName = { 'electrons' : 'electrons',
+                                      'muons'     : 'muons',
+                                      'jets'      : 'jets',
+                                      'taus'      : 'taus',
+                                      'photons'   : 'photons',
+                                      'fatJets'   : 'fatJets' },
+                    outputPropName = { 'electrons' : 'electronsOut',
+                                       'muons'     : 'muonsOut',
+                                       'jets'      : 'jetsOut',
+                                       'taus'      : 'tausOut',
+                                       'photons'   : 'photonsOut',
+                                       'fatJets'   : 'fatJetsOut' } )
+        pass
+    else:
+        seq.append( alg,
+                    inputPropName = { 'electrons' : 'electrons',
+                                      'muons'     : 'muons',
+                                      'jets'      : 'jets',
+                                      'taus'      : 'taus',
+                                      'photons'   : 'photons',
+                                      'fatJets'   : 'fatJets' } )
+        pass
 
     # Add view container creation algorithms for all types.
-    for container in [ ( 'electrons', doElectrons ),
-                       ( 'muons',     doMuons ),
-                       ( 'jets',      doJets ),
-                       ( 'taus',      doTaus ),
-                       ( 'photons',   doPhotons ),
-                       ( 'fatJets',   doFatJets ) ]:
+    if shallowViewOutput:
+        for container in [ ( 'electrons', doElectrons ),
+                           ( 'muons',     doMuons ),
+                           ( 'jets',      doJets ),
+                           ( 'taus',      doTaus ),
+                           ( 'photons',   doPhotons ),
+                           ( 'fatJets',   doFatJets ) ]:
 
-        # Skip setting up a view container if the type is not being processed.
-        if not container[ 1 ]:
-            continue
+            # Skip setting up a view container if the type is not being processed.
+            if not container[ 1 ]:
+                continue
 
-        # Set up a cutflow alg.
-        if enableCutflow:
-            alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
-                                   'OverlapRemovalCutFlowDumperAlg_%s' % container[ 0 ] + postfix )
-            alg.histPattern = container[ 0 ] + postfix + '_OR_cflow_%SYS%'
-            if inputLabel:
-                alg.selection = [ '%s,as_char' % inputLabel,
-                                  '%s,as_char' % outputLabel ]
-                alg.selectionNCuts = [1, 1]
-            else:
-                alg.selection = [ '%s,as_char' % outputLabel ]
-                alg.selectionNCuts = [1]
-            seq.append( alg, inputPropName = { container[ 0 ] : 'input' } )
+            # Set up a cutflow alg.
+            if enableCutflow:
+                alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
+                                       'OverlapRemovalCutFlowDumperAlg_%s' % container[ 0 ] + postfix )
+                alg.histPattern = container[ 0 ] + postfix + '_OR_cflow_%SYS%'
+                if inputLabel:
+                    alg.selection = [ '%s,as_char' % inputLabel,
+                                      '%s,as_char' % outputLabel ]
+                    alg.selectionNCuts = [1, 1]
+                else:
+                    alg.selection = [ '%s,as_char' % outputLabel ]
+                    alg.selectionNCuts = [1]
+                seq.append( alg, inputPropName = { container[ 0 ] : 'input' } )
 
-        # Set up a view container for the type.
-        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'OverlapRemovalViewMaker_%s' % container[ 0 ] + postfix )
-        alg.selection = [ '%s,as_char' % outputLabel ]
-        seq.append( alg, inputPropName = { container[ 0 ] : 'input' },
-                    outputPropName = { container[ 0 ] : 'output' } )
+            # Set up a view container for the type.
+            alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                                   'OverlapRemovalViewMaker_%s' % container[ 0 ] + postfix )
+            alg.selection = [ '%s,as_char' % outputLabel ]
+            seq.append( alg, inputPropName = { container[ 0 ] : 'input' },
+                        outputPropName = { container[ 0 ] : 'output' } )
         pass
 
     # Return the sequence:

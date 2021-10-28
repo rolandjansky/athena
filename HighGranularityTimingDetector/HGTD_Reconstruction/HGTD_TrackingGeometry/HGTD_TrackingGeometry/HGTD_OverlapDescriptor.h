@@ -74,7 +74,6 @@ namespace HGTDet {
   private:
     bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;    
     
-    float                                   m_binSize = 0.0F;
     const Trk::BinnedArray<Trk::Surface>*   m_binnedArray;
     std::vector < float >                   m_valuesR;
     std::vector < std::vector< float> >     m_valuesPhi;

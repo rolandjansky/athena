@@ -52,7 +52,7 @@ namespace Trk {
         StatusCode initialize();
         
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
-        const TrackingGeometry* trackingGeometry(const TrackingVolume* tvol = 0) const;
+        TrackingGeometry* trackingGeometry(const TrackingVolume* tvol = 0) const;
 
         /** The unique signature */
         GeometrySignature geometrySignature() const;

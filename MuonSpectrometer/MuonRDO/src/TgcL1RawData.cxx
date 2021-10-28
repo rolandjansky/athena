@@ -19,7 +19,7 @@ void TgcL1RawData::clear(uint16_t bcTag,
     m_bitpos = 0;
     m_tracklet = 0;
     m_adjacent = false;
-    m_type = TYPE_NSL;
+    m_type = TYPE_NSL_ROI;
     m_forward = false;
     m_index = 0;
     m_pos = 0;
@@ -91,41 +91,135 @@ TgcL1RawData::TgcL1RawData(uint16_t bcTag,
     m_inner = inner;
 }
 
-// Sector logic
+// New Sector logic
+// RoI
 TgcL1RawData::TgcL1RawData(uint16_t bcTag,
                        uint16_t subDetectorId,
                        uint16_t srodId,
                        uint16_t l1Id,
                        uint16_t bcId,
-                       bool cand3plus,
                        bool forward,
                        uint16_t sector,
-                       uint16_t index,
+                       uint16_t coinflag,
                        bool muplus,
                        uint16_t threshold,
-                       bool overlap,
-                       bool veto,
                        uint16_t roi)
 {
     clear(bcTag, subDetectorId, srodId, l1Id, bcId);
-    m_type = TYPE_NSL;
-    m_cand3plus = cand3plus;
+    m_type = TYPE_NSL_ROI;
     m_forward = forward;
     m_sector = sector;
-    m_index = index;
+    m_coinflag = coinflag;
     m_muplus = muplus;
     m_threshold = threshold;
-    m_overlap = overlap;
-    m_veto = veto;
     m_roi = roi;
 }
+
+// NSW
+TgcL1RawData::TgcL1RawData(uint16_t bcTag,
+                           uint16_t subDetectorId,
+                           uint16_t srodId,
+                           uint16_t l1Id,
+                           uint16_t bcId,
+                           bool forward,
+                           uint16_t sector,
+                           uint16_t nsweta,
+                           uint16_t nswphi,
+                           uint16_t nswcand,
+                           uint16_t nswdtheta,
+                           uint16_t nswphires,
+                           uint16_t nswlowres,
+                           uint16_t nswid)
+{
+    clear(bcTag, subDetectorId, srodId, l1Id, bcId);
+    m_type = TYPE_NSL_NSW;
+    m_forward = forward;
+    m_sector = sector;
+    m_nsweta = nsweta;
+    m_nswphi = nswphi;
+    m_nswcand = nswcand;
+    m_nswdtheta = nswdtheta;
+    m_nswphires = nswphires;
+    m_nswlowres = nswlowres;
+    m_nswid = nswid;
+}
+
+// RPC BIS78
+TgcL1RawData::TgcL1RawData(uint16_t bcTag,
+                           uint16_t subDetectorId,
+                           uint16_t srodId,
+                           uint16_t l1Id,
+                           uint16_t bcId,
+                           bool forward,
+                           uint16_t sector,
+                           uint16_t rpceta,
+                           uint16_t rpcphi,
+                           uint16_t rpcflag,
+                           uint16_t rpcdeta,
+                           uint16_t rpcdphi)
+{
+    clear(bcTag, subDetectorId, srodId, l1Id, bcId);
+    m_type = TYPE_NSL_NSW;
+    m_forward = forward;
+    m_sector = sector;
+    m_rpceta   = rpceta;
+    m_rpcphi   = rpcphi;
+    m_rpcflag  = rpcflag;
+    m_rpcdeta  = rpcdeta;
+    m_rpcdphi = rpcdphi;
+}
+
+// EIFI
+TgcL1RawData::TgcL1RawData(uint16_t bcTag,
+                           uint16_t subDetectorId,
+                           uint16_t srodId,
+                           uint16_t l1Id,
+                           uint16_t bcId,
+                           bool forward,
+                           uint16_t sector,
+                           uint16_t ei,
+                           uint16_t fi,
+                           uint16_t cid)
+{
+    clear(bcTag, subDetectorId, srodId, l1Id, bcId);
+    m_type = TYPE_NSL_NSW;
+    m_forward = forward;
+    m_sector = sector;
+    m_ei = ei;
+    m_fi = fi;
+    m_cid = cid;
+}
+
+// TMDB
+TgcL1RawData::TgcL1RawData(uint16_t bcTag,
+                           uint16_t subDetectorId,
+                           uint16_t srodId,
+                           uint16_t l1Id,
+                           uint16_t bcId,
+                           bool forward,
+                           uint16_t sector,
+                           uint16_t mod,
+                           uint16_t bcid)
+{
+    clear(bcTag, subDetectorId, srodId, l1Id, bcId);
+    m_type = TYPE_NSL_NSW;
+    m_forward = forward;
+    m_sector = sector;
+    m_tmdbmod = mod;
+    m_tmdbbcid = bcid;
+}
+
 
 void TgcL1RawData::setType(uint16_t type)
 {
     switch (type)
     {
     case 3: m_type = TYPE_HIPT; break;
-    case 5: m_type = TYPE_NSL; break;
+    case 5: m_type = TYPE_NSL_ROI; break;
+    case 6: m_type = TYPE_NSL_NSW; break;
+    case 7: m_type = TYPE_NSL_RPC; break;
+    case 8: m_type = TYPE_NSL_EIFI; break;
+    case 9: m_type = TYPE_NSL_TMDB; break;
     default: m_type = TYPE_UNKNOWN; break;
     }
 }
@@ -135,7 +229,7 @@ std::string TgcL1RawData::typeName(TgcL1RawData::DataType type)
     switch (type)
     {
     case TYPE_HIPT:      return "High pT";      break;
-    case TYPE_NSL:       return "New Sector Logic"; break;
+    case TYPE_NSL_ROI:   return "TGC RoI"; break;
     default:             return "";
     }
 }
@@ -163,11 +257,10 @@ stream& dump(stream& sl, const TgcL1RawData& data)
         << ", delta=" << data.delta()
         << ", inner=" << data.inner();
         break;
-    case TgcL1RawData::TYPE_NSL:
-        sl << ", cand3plus=" << data.cand3plus()
+    case TgcL1RawData::TYPE_NSL_ROI:
+        sl
         << ", forward=" << data.isForward()
         << ", sector=" << data.sector()
-        << ", cand=" << data.index()
         << ", sign=" << data.isMuplus()
         << ", threshold=" << data.threshold()
         << ", overlap=" << data.isOverlap()

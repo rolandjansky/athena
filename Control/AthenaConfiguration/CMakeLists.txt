@@ -13,7 +13,7 @@ atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool python/CARun
 
 # Tests in the package:
 atlas_add_test( AthConfigFlagsTest
-   SCRIPT python -m unittest AthenaConfiguration.TestAthConfigFlags
+   SCRIPT python -m unittest AthenaConfiguration.testAthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( MainServicesConfig

@@ -137,7 +137,7 @@ StatusCode ISF::FastCaloTool::setupEventST()
   return this->commonSetup();
 }
 
-StatusCode ISF::FastCaloTool::setupEvent()
+StatusCode ISF::FastCaloTool::setupEvent(const EventContext&)
 {
   ATH_MSG_DEBUG ( "setupEvent");
 
@@ -355,7 +355,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloTool::caloHits(const ISF::ISFParticle& i
 }
 
 
-StatusCode ISF::FastCaloTool::releaseEvent() {
+StatusCode ISF::FastCaloTool::releaseEvent(const EventContext& ctx) {
 
   ATH_MSG_VERBOSE( "FastCaloTool " << name() << " releaseEvent() " );
 
@@ -365,7 +365,7 @@ StatusCode ISF::FastCaloTool::releaseEvent() {
   if ( m_theContainer ) {
 
     // Record with WriteHandle
-    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, Gaudi::Hive::currentContext() );
+    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, ctx );
     ATH_CHECK( caloCellHandle.record( std::make_unique< CaloCellContainer >( *m_theContainer ) ) );
     return StatusCode::SUCCESS;
   }

@@ -24,16 +24,13 @@ using namespace LArSamples;
 
 MultiTreeAccessor* MultiTreeAccessor::open(const std::vector<TString>& files) 
 {
-  unsigned int i = 0;
   std::vector<const TreeAccessor*> accessors;
-  for (std::vector<TString>::const_iterator fileName = files.begin(); fileName != files.end(); fileName++, i++) {
-    //gSystem->Exec("free");
-    const TreeAccessor* accessor = TreeAccessor::open(*fileName);
+  for (const TString& fileName : files) {
+    const TreeAccessor* accessor = TreeAccessor::open(fileName);
     if (!accessor) {
-      cout << "Skipping invalid file " << *fileName << endl;
+      cout << "Skipping invalid file " << fileName << endl;
       continue;
     }
-    cout << std::setw(2) << ++i << " - " << *fileName << endl;
     accessors.push_back(accessor);
   }
   
@@ -97,18 +94,17 @@ MultiTreeAccessor* MultiTreeAccessor::openWild(const TString& wcName)
 
 MultiTreeAccessor::~MultiTreeAccessor()
 {
-  for (std::vector<const TreeAccessor*>::iterator accessor = m_accessors.begin(); accessor != m_accessors.end(); accessor++)
-    delete *accessor;
+  for (const TreeAccessor* accessor : m_accessors)
+    delete accessor;
 }
 
 
 const EventData* MultiTreeAccessor::eventData(unsigned int i) const
 {
   unsigned int nEventsSoFar = 0;
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) {
-    unsigned int n = (*accessor)->nEvents();
-    if (i < nEventsSoFar + n) return (*accessor)->eventData(i - nEventsSoFar);
+  for (const TreeAccessor* accessor : m_accessors) {
+    unsigned int n = accessor->nEvents();
+    if (i < nEventsSoFar + n) return accessor->eventData(i - nEventsSoFar);
     nEventsSoFar += n;
   }
   return nullptr;
@@ -118,10 +114,9 @@ const EventData* MultiTreeAccessor::eventData(unsigned int i) const
 const RunData* MultiTreeAccessor::runData(unsigned int i) const 
 { 
   unsigned int nRunsSoFar = 0;
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) {
-    unsigned int n = (*accessor)->nRuns();
-    if (i < nRunsSoFar + n) return (*accessor)->runData(i - nRunsSoFar);
+  for (const TreeAccessor* accessor : m_accessors) {
+    unsigned int n = accessor->nRuns();
+    if (i < nRunsSoFar + n) return accessor->runData(i - nRunsSoFar);
     nRunsSoFar += n;
   }
   return nullptr;
@@ -131,9 +126,8 @@ const RunData* MultiTreeAccessor::runData(unsigned int i) const
 unsigned int MultiTreeAccessor::nEvents() const
 {
   unsigned int n = 0;
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) 
-     n += (*accessor)->nEvents();
+  for (const TreeAccessor* accessor : m_accessors)
+     n += accessor->nEvents();
   return n;
 }
 
@@ -141,9 +135,8 @@ unsigned int MultiTreeAccessor::nEvents() const
 unsigned int MultiTreeAccessor::nRuns() const
 {
   unsigned int n = 0;
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) 
-     n += (*accessor)->nRuns();
+  for (const TreeAccessor* accessor : m_accessors)
+     n += accessor->nRuns();
   return n;
 }
 
@@ -152,9 +145,8 @@ unsigned int MultiTreeAccessor::historySize(unsigned int i) const
 {
   resetCache();
   unsigned int size = 0;
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) {
-    const HistoryContainer* cont = (*accessor)->historyContainer(i);
+  for (const TreeAccessor* accessor : m_accessors) {
+    const HistoryContainer* cont = accessor->historyContainer(i);
     if (cont) size += cont->nDataContainers();
   }
   return size;
@@ -166,10 +158,9 @@ const History* MultiTreeAccessor::getCellHistory(unsigned int i) const
   CellInfo* cellInfo = nullptr;
   std::vector<const Data*> allData;
   std::vector<const EventData*> allEventData;
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) {    
+  for (const TreeAccessor* accessor : m_accessors) {
     //cout << "---> Getting history for a treeAccessor..." << endl; 
-    const History* thisHistory = (*accessor)->getCellHistory(i);
+    const History* thisHistory = accessor->getCellHistory(i);
     //cout << "---> done Getting history for a treeAccessor..." << endl; 
     if (!thisHistory) continue;
     if (!cellInfo) {
@@ -179,11 +170,10 @@ const History* MultiTreeAccessor::getCellHistory(unsigned int i) const
     //cout << "---> Creating new event data N = " << thisHistory->eventData().size() << endl; 
     const std::vector<const EventData*>& thisEventData = thisHistory->eventData();
     std::map<const EventData*, const EventData*> eventMap;
-    for (std::vector<const EventData*>::const_iterator event = thisEventData.begin();
-	 event != thisEventData.end(); event++) {
-      if (eventMap.find(*event) != eventMap.end()) continue;
-      EventData* newED = new EventData(**event);
-      eventMap[*event] = newED;
+    for (const EventData* event : thisEventData) {
+      if (eventMap.find(event) != eventMap.end()) continue;
+      EventData* newED = new EventData(*event);
+      eventMap[event] = newED;
       allEventData.push_back(newED);
     }
     //cout << "---> Creating new data N = " << thisHistory->nData() << endl; 
@@ -209,9 +199,8 @@ const History* MultiTreeAccessor::getCellHistory(unsigned int i) const
 const CellInfo* MultiTreeAccessor::getCellInfo(unsigned int i) const 
 {
   resetCache();
-  for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
-       accessor != m_accessors.end(); accessor++) {
-    const HistoryContainer* cont = (*accessor)->historyContainer(i);
+  for (const TreeAccessor* accessor : m_accessors) {
+    const HistoryContainer* cont = accessor->historyContainer(i);
     if (cont && cont->cellInfo()) return new CellInfo(*cont->cellInfo());
   }
   return nullptr;

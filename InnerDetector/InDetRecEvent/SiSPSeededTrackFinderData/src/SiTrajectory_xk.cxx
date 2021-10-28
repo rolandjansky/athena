@@ -93,7 +93,9 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurface()
       m_itos[m_ntos++] = 0;
     }
   }
-  dtsos->elt_allocator().protect();
+  // This gets hit many times.
+  // Comment it out until we can make things more efficient.
+  //dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -2191,7 +2193,9 @@ InDet::SiTrajectory_xk::convertToNextTrackStateOnSurface()
     auto tsos = m_elements[m_atos[i]].tsos(*dtsos, m_itos[i]);
     if (tsos) dtsos->push_back(std::move(tsos));
   }
-  dtsos->elt_allocator().protect();
+  // This gets hit many times.
+  // Comment it out until we can make things more efficient.
+  //dtsos->elt_allocator().protect();
   return dtsos;
 }
 

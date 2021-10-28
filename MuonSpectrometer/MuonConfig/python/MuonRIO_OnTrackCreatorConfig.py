@@ -98,7 +98,7 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
 
-    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs),primary=True)
+    result.setPrivateTools(Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs))
     return result
     
 def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwargs):
@@ -109,7 +109,7 @@ def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwarg
         kwargs.setdefault("FixedErrorTgcEta", 15.)
     
     muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(name, **kwargs)
-    result.addPublicTool(muon_cluster_rot_creator, primary=True)
+    result.setPrivateTools(muon_cluster_rot_creator)
     return result
 
     
@@ -144,6 +144,6 @@ def MuonRotCreatorCfg(flags, name="MuonRotCreator", **kwargs):
     kwargs.setdefault("Mode", 'muon' )
     
     muon_rot_creator = Trk__RIO_OnTrackCreator(name, **kwargs)
-    result.addPublicTool(muon_rot_creator,primary=True)
+    result.setPrivateTools(muon_rot_creator)
     return result
     

@@ -130,12 +130,14 @@ StatusCode Trk::GeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-
-std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> /*tVolPair*/) const
+std::pair<EventIDRange, Trk::TrackingGeometry*>
+Trk::GeometryBuilderCond::trackingGeometry(const EventContext& ctx,
+                                           std::pair<EventIDRange, 
+                                           const Trk::TrackingVolume*> /*tVolPair*/) const
 {
 
     // the geometry to be constructed
-    std::pair<EventIDRange, const Trk::TrackingGeometry*> tGeometry;
+    std::pair<EventIDRange, Trk::TrackingGeometry*> tGeometry;
     if ( m_inDetGeometryBuilderCond.empty() && m_hgtdGeometryBuilderCond.empty() && m_caloGeometryBuilderCond.empty() && m_muonGeometryBuilderCond.empty() ) {
 
         ATH_MSG_VERBOSE( "Configured to only create world TrackingVolume." );
@@ -164,18 +166,19 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
 }
 
 
-std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
+std::pair<EventIDRange, Trk::TrackingGeometry*> 
+Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
 {
     // the return geometry
-    std::pair<EventIDRange, const Trk::TrackingGeometry*> atlasTrackingGeometry;
+    std::pair<EventIDRange, Trk::TrackingGeometry*> atlasTrackingGeometry;
     //Set IOV range covering 0 - inf
     EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
     // A ------------- INNER DETECTOR SECTION --------------------------------------------------------------------------------
     // get the Inner Detector and/or HGTD and/or Calorimeter trackingGeometry
-    std::pair<EventIDRange, const Trk::TrackingGeometry*> inDetTrackingGeometry;
-    std::pair<EventIDRange, const Trk::TrackingGeometry*> hgtdTrackingGeometry;
-    std::pair<EventIDRange, const Trk::TrackingGeometry*> caloTrackingGeometry ;
+    std::pair<EventIDRange, Trk::TrackingGeometry*> inDetTrackingGeometry;
+    std::pair<EventIDRange, Trk::TrackingGeometry*> hgtdTrackingGeometry;
+    std::pair<EventIDRange, Trk::TrackingGeometry*> caloTrackingGeometry ;
 
     // the volumes to be given to higher level tracking geometry builders
     const Trk::TrackingVolume* inDetVolume    = nullptr;

@@ -3,16 +3,16 @@
 # art-description: RecoTrf
 # art-type: grid
 # art-include: 21.0/Athena
-# art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
 # art-include: 22.0-mc20/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
-# art-athena-mt: 8                                                                                                                                     
+# art-athena-mt: 8
+
 Reco_tf.py \
 --athenaopts "RDOtoRDOTrigger:--threads=8" "RAWtoESD:--threads=8" "ESDtoAOD:--threads=8" \
 --digiSteeringConf 'StandardSignalOnlyTruth' \
---conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-08' \
+--conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
 --valid 'True' \
 --pileupFinalBunch '6' \
 --numberOfHighPtMinBias '0.2595392' \
@@ -60,8 +60,7 @@ then
   ArtPackage=$1
   ArtJobName=$2
   echo "Running art.py command"
-  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
-  rc2=$?
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool --ignore-leave 'Token' --ignore-leave 'index_ref' --ignore-leave '(.*)_timings\.(.*)' --ignore-leave '(.*)_mems\.(.*)' --ignore-leave '(.*)TrigCostContainer(.*)' --ignore-leave '(.*)HLTNav_Summary_OnlineSlimmed(.*)'  rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"
 

@@ -158,7 +158,9 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   /** Get the  measurements */
   auto uppertraj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
   auto lowertraj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  
+  uppertraj->reserve (input.trackStateOnSurfaces()->size());
+  lowertraj->reserve (input.trackStateOnSurfaces()->size());
+
   unsigned int totalNumberHits = 0;
 
   unsigned int totalNumberPixelHits = 0;

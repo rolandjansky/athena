@@ -111,10 +111,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
  private:
   /// Measurement to capture snapshots
-  PMonMT::Measurement m_measurement_snapshots;
+  PMonMT::SnapshotMeasurement m_measurementSnapshots;
 
   /// Measurement to capture events
-  PMonMT::Measurement m_measurement_events;
+  PMonMT::SnapshotMeasurement m_measurementEvents;
 
   /// Do event loop monitoring
   Gaudi::Property<bool> m_doEventLoopMonitoring{
@@ -161,12 +161,12 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
     "AthCondSeq", "AthBeginSeq", "AthEndSeq", "AthenaEventLoopMgr", "AthenaHiveEventLoopMgr", "PerfMonMTSvc"};
 
   /// Snapshots data
-  std::vector<PMonMT::MeasurementData> m_snapshotData;
+  std::vector<PMonMT::SnapshotData> m_snapshotData;
   std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "FirstEvent", "Execute", "Finalize"};
   enum Snapshots {CONFIGURE, INITIALIZE, FIRSTEVENT, EXECUTE, FINALIZE, NSNAPSHOTS};
 
   // Store event level measurements
-  PMonMT::MeasurementData m_eventLevelData;
+  PMonMT::EventLevelData m_eventLevelData;
 
   // Lock for capturing event loop measurements
   std::mutex m_mutex_capture;
@@ -185,10 +185,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   /*
    * Data structure  to store component level measurements
-   * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
    */
-  typedef std::map<PMonMT::StepComp, PMonMT::MeasurementData*> data_map_t;
-  typedef std::map<PMonMT::StepComp, std::unique_ptr<PMonMT::MeasurementData>> data_map_unique_t;
+  typedef std::map<PMonMT::StepComp, PMonMT::ComponentData*> data_map_t;
+  typedef std::map<PMonMT::StepComp, std::unique_ptr<PMonMT::ComponentData>> data_map_unique_t;
   // Here I'd prefer to use SG::SlotSpecificObj<data_map_t>
   // However, w/ invalid context it seems to segfault
   // Can investigate in the future, for now std::vector should be OK
