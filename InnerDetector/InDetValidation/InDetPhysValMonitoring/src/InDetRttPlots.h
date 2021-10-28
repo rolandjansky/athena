@@ -154,6 +154,8 @@ public:
   };
 
 private:
+  
+  /// configuration object
   InDetRttPlotConfig m_config; 
 
   /// key for the truth match prob 

@@ -32,13 +32,6 @@ InDetPerfPlot_nTracks::initializePlots() {
 
   book(m_ntracks_vs_mu,"ntracks_vs_mu");
   book(m_ntracks_vs_nvertices,"ntracks_vs_nvertices");
-  //book(m_ntracks_vs_nmatchedvertices,"ntracks_vs_nmatchedvertices");
-  //book(m_ntracks_vs_nmergedvertices,"ntracks_vs_nmergedvertices");
-  //book(m_ntracks_vs_nsplitvertices,"ntracks_vs_nsplitvertices");
-  //book(m_ntracks_vs_nfakevertices,"ntracks_vs_nfakevertices");
- 
-
-
 
 }
 

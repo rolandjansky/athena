@@ -88,4 +88,3 @@ svcMgr.THistSvc.Output += ["M_output DATAFILE='"+MyArgs.outputFile+"' OPT='RECRE
 
 
 ToolSvc.InDetVertexTruthMatchTool.OutputLevel = 2
-#filesInput  /eos/user/h/hmaguire/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3227_r12256/AOD.23443643._000509.pool.root.1

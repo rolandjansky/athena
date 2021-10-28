@@ -79,7 +79,7 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_hs_truth_z_pull_vs_nTrk(nullptr),
     m_vx_hs_truth_x_pull_vs_nTrk(nullptr),
     m_vx_hs_truth_y_pull_vs_nTrk(nullptr),
-   // New histos HRM Helen OTP
+   // New Expert Histograms for vertex classifiations
     m_vx_ntracks_matched(nullptr),
     m_vx_ntracks_merged(nullptr),
     m_vx_ntracks_split(nullptr),
@@ -100,7 +100,7 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_sumpT_HS_merged(nullptr),
     m_vx_sumpT_HS_split(nullptr),
     m_vx_sumpT_HS_fake(nullptr),
-    //Helen OTP sum of charges
+    
     m_vx_sumCharge_matched(nullptr),
     m_vx_sumCharge_merged(nullptr),
     m_vx_sumCharge_split(nullptr),
@@ -238,10 +238,6 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_z_asym_weighted_ALL_matched(nullptr),
     m_vx_z_asym_weighted_ALL_merged(nullptr),
     m_vx_z_asym_weighted_ALL_split(nullptr),
-    m_vx_d_asym_ALL_matched(nullptr),
-    m_vx_d_asym_ALL_merged(nullptr),
-    m_vx_d_asym_ALL_split(nullptr),
-    m_vx_d_asym_ALL_fake(nullptr),
     
     m_vx_track_weight_ALL_matched(nullptr),
     m_vx_track_weight_ALL_merged(nullptr),
@@ -252,6 +248,11 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_normalised_track_weight_ALL_merged(nullptr),
     m_vx_normalised_track_weight_ALL_split(nullptr),
     m_vx_normalised_track_weight_ALL_fake(nullptr),
+
+    m_vx_d_asym_ALL_matched(nullptr),
+    m_vx_d_asym_ALL_merged(nullptr),
+    m_vx_d_asym_ALL_split(nullptr),
+    m_vx_d_asym_ALL_fake(nullptr),
 
     m_vx_chi2Over_ndf_ALL_matched(nullptr),
     m_vx_chi2Over_ndf_ALL_merged(nullptr),
@@ -453,7 +454,7 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_hs_truth_x_pull_vs_nTrk, "vx_TYPE_truth_pull_x_vs_nTrk", "vx_hs_truth_pull_x_vs_nTrk");
         book(m_vx_hs_truth_y_pull_vs_nTrk, "vx_TYPE_truth_pull_y_vs_nTrk", "vx_hs_truth_pull_y_vs_nTrk");
      
-	// book the new histos  Helen OTP
+	// book the new expert histos for vertex classifications
 	book(m_vx_ntracks_matched,"vx_ntracks_matched");
     	book(m_vx_ntracks_merged,"vx_ntracks_merged");
     	book(m_vx_ntracks_split,"vx_ntracks_split");
@@ -474,7 +475,7 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_sumpT_HS_merged,"vx_sumpT_HS_merged");
         book(m_vx_sumpT_HS_split,"vx_sumpT_HS_split");
         book( m_vx_sumpT_HS_fake,"vx_sumpT_HS_fake");
-        // Helen OTP sum of charges
+        
         book(m_vx_sumCharge_matched,"vx_sumCharge_matched");
         book(m_vx_sumCharge_merged,"vx_sumCharge_merged");
         book(m_vx_sumCharge_split,"vx_sumCharge_split");
@@ -593,7 +594,7 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_pt_kurtosis_HS_merged,"vx_pt_kurtosis_HS_merged");
         book(m_vx_pt_kurtosis_HS_split,"vx_pt_kurtosis_HS_split");
         book(m_vx_pt_kurtosis_HS_fake,"vx_pt_kurtosis_HS_fake");
-        // Histograms with all vertices
+        
         book(m_vx_sumpT_ALL_matched,"vx_sumpT_ALL_matched");
         book(m_vx_sumpT_ALL_merged,"vx_sumpT_ALL_merged");
         book(m_vx_sumpT_ALL_split,"vx_sumpT_ALL_split");
@@ -1033,9 +1034,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
         float number_matched_PU = 0;
         float number_merged_PU = 0;
         float number_split_PU = 0;
-      
-   //   std::cout << "declaring vertex number variables helenmaguire";
-
  
         // Iterate over vertices:
         InDetVertexTruthMatchUtils::VertexMatchType matchType;
@@ -1099,18 +1097,19 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
 
 
-// Helen OTP - get sumpt for each vertex (not just for HS vertex)
-// For each vertex, loop over all tracks and get sumpt and sum of charges
-// also use this to get the z asymmetry around the vertex.
+       // New Expert histograms for observables for vertex classifications for HS and PU 
+       // For each vertex, loop over all tracks and get sumpt and sum of charges
+       // also use this to get the z asymmetry around the vertex.
    
-        
+         // Declaring variables for the observables        
          const xAOD::TrackParticle* trackTmp = nullptr;
          float sumPt =0;
+         float minpt = 20000 ; // minimum sum pt required for the 'All' vertices plots - 20 GeV
          float trackPt = 0;
          float sum_dD =0;
-
-         // get the charge associated with each track
          double sumCharge = 0;
+
+         // variables for calculation of delta Z asymmetry and delta d asymmetry
          float z_asym = 0;
          float d_asym = 0;
          float sumDZ = 0;
@@ -1125,26 +1124,22 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
          // make vector
          std::vector<float> track_deltaZ;
-         track_deltaZ.clear();
          std::vector<float> track_deltaD;
-         track_deltaD.clear();
          std::vector<float> track_deltaPt;
-         track_deltaPt.clear();
          std::vector<float> track_deltaZ_weighted;
-         track_deltaZ_weighted.clear();
-            // loop over tracks 
-            //  std::cout << "loop over tracks helenmaguire";
-            for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
-                trackTmp = vertex->trackParticle(i);
-                trackPt = trackTmp->pt() / Gaudi::Units::GeV; 
-                deltaZ = trackTmp->z0() - vertex->z();
-                deltaD = trackTmp->d0();
-                const xAOD::ParametersCovMatrix_t covTrk = trackTmp->definingParametersCovMatrix();
+         // loop over tracks 
+         for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
+            trackTmp = vertex->trackParticle(i);
+            trackPt = trackTmp->pt();  //  MeV 
+            sumPt = sumPt + trackPt;  // in MeV
+            deltaZ = trackTmp->z0() - vertex->z();
+            deltaD = trackTmp->d0();
+            const xAOD::ParametersCovMatrix_t covTrk = trackTmp->definingParametersCovMatrix();
         
  
-           if (vertex == bestRecoHSVtx_truth) {
+            if (vertex == bestRecoHSVtx_truth) {
  
-           switch (matchType) {
+             switch (matchType) {
                case InDetVertexTruthMatchUtils::VertexMatchType::MATCHED: {
                    fillHisto(m_vx_track_z0_HS_matched, deltaZ);
                    fillHisto(m_vx_track_d0_HS_matched, deltaD);
@@ -1177,12 +1172,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                    fillHisto(m_vx_track_z0_err_HS_split_vs_track_pt,Amg::error(covTrk, 1), trackPt);
                    fillHisto(m_vx_track_d0_err_HS_split_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
-              }
-              default: {
+               }
+               default: {
                    break;
                }
            
-            }   // end switch
+             }   // end switch
             }  // end if HS
             else {
              switch (matchType) {
@@ -1219,16 +1214,14 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                    fillHisto(m_vx_track_d0_err_split_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
-              default: {
+               default: {
                    break;
                }
-            } // end switch
-           }  // end else
+             } // end switch
+            }  // end else
 
 
-             double minpt = 20 ; // GeV
-             if (sumPt/Gaudi::Units::GeV > minpt) {
-
+            if (sumPt > minpt) {
              switch (matchType) {
                case InDetVertexTruthMatchUtils::VertexMatchType::MATCHED: {
                    fillHisto(m_vx_track_z0_ALL_matched, deltaZ);
@@ -1263,38 +1256,32 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                    fillHisto(m_vx_track_d0_err_ALL_split_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
-              default: {
+               default: {
                    break;
                }
 
              } // end switch
-           } // end if sumPt
+            } // end if sumPt
 
 
-          
+            if (trackTmp) {
+                 sumCharge = sumCharge + trackTmp->charge();
+                 track_deltaZ.push_back(deltaZ);
+                 track_deltaD.push_back(deltaD);
+                 track_deltaPt.push_back(trackTmp->pt());
+                 // get the track weight for each track to get the deltaZ/trk_weight
+                 float trk_weight = vertex->trackWeight(i);
+                 weighted_deltaZ = deltaZ*trk_weight;
+                 // sum of delta z
+                 sumDZ = sumDZ + deltaZ; 
+                 modsumDZ = modsumDZ + sqrt(deltaZ * deltaZ);
+                 sum_dD = sum_dD + trackTmp->d0();
+                 modsumDD = modsumDD + sqrt(deltaD * deltaD);
+                 weighted_sumDZ =  weighted_sumDZ + weighted_deltaZ;
+                 weighted_modsumDZ = weighted_modsumDZ + sqrt (weighted_deltaZ *weighted_deltaZ);
                
-                if (trackTmp) {
-                    sumPt = sumPt + trackTmp->pt();
-                    sumCharge = sumCharge + trackTmp->charge();
-                    track_deltaZ.push_back(deltaZ);
-                    track_deltaD.push_back(deltaD);
-                    track_deltaPt.push_back(trackTmp->pt());
-                    // get the track weight for each track to get the deltaZ/trk_weight
-//                    for (const float& trk_weight : vertex->trackWeights())  {
-                    float trk_weight = vertex->trackWeight(i);
-//                        track_deltaZ_weighted.push_back(deltaZ*trk_weight);
-                        weighted_deltaZ = deltaZ*trk_weight;
-  //                  }
-                    // sum of delta z
-                    sumDZ = sumDZ + deltaZ; 
-                    modsumDZ = modsumDZ + sqrt(deltaZ * deltaZ);
-                    sum_dD = sum_dD + trackTmp->d0();
-                    modsumDD = modsumDD + sqrt(deltaD * deltaD);
-                    weighted_sumDZ =  weighted_sumDZ + weighted_deltaZ;
-                    weighted_modsumDZ = weighted_modsumDZ + sqrt (weighted_deltaZ *weighted_deltaZ);
-               }
-
-            } // end loop over tracks
+            }
+           } // end loop over tracks
             if  (modsumDZ >0) {
                 z_asym = sumDZ/modsumDZ;
             }
@@ -1307,7 +1294,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
 
           
-            double av_sumPt =0;
+            double av_sumPt =0;  // in MeV
             double mean_Dz =0;
             mean_Dz=sumDZ/track_deltaZ.size(); //calculate average
             sum_dD=sum_dD/track_deltaD.size(); //calculate average
@@ -1316,17 +1303,17 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
             n = track_deltaZ.size(); // get number of tracks 
 
             double z_sd = 0; //  standard deviation
-            double z_skew = 0;
-            double z_kurt = 0;
-            double z_var=0;
-            double d_sd = 0;
-            double d_var = 0;
-            double d_kurt =0;
-            double d_skew =0;
-            double pt_sd = 0;
-            double pt_var = 0;
-            double pt_kurt =0;
-            double pt_skew =0;
+            double z_skew = 0;  // skewness of DeltaZ asymmetry
+            double z_kurt = 0;  // Kurtosis of DeltaZ asymmetry 
+            double z_var=0;     // variance of DeltaZ
+            double d_sd = 0;    // standard dev of d0
+            double d_var = 0;   // variance of d0
+            double d_skew =0;   // skewness of Delta d0 asymmetry
+            double d_kurt =0;   // Kurtosis of Delta d0 asymmetry
+            double pt_sd = 0;   // standard dev of pt 
+            double pt_var = 0;  // variance of pt
+            double pt_skew =0;  // skewness of pt asymmetry
+            double pt_kurt =0;  // Kurtosis of pt asymmetry
 
             for ( size_t i = 0; i < track_deltaZ.size(); i++) {
 
@@ -1334,7 +1321,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                z_skew =(z_skew + (track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz ));
                z_kurt =(z_kurt + (track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz )*(track_deltaZ.at(i) - mean_Dz ));
 
-           } 
+            } 
                z_var = z_var/(n-1);
                z_sd = sqrt(z_var);
                z_skew = z_skew/((n-1)*z_sd*z_sd*z_sd);
@@ -1346,34 +1333,32 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                d_skew =(d_skew + (track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD ));
                d_kurt =(d_kurt + (track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD )*(track_deltaD.at(i) - sum_dD ));
 
-           } 
+            } 
                d_var = d_var/(n-1);
                d_sd = sqrt(d_var);
                d_skew = d_skew/((n-1)*d_sd*d_sd*d_sd);
                d_kurt = d_kurt/((n-1)*d_sd*d_sd*d_sd*d_sd);
 
 
-           for ( size_t i = 0; i < track_deltaPt.size(); i++) {
+            for ( size_t i = 0; i < track_deltaPt.size(); i++) {
 
                pt_var =(pt_var + (track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt ));
                pt_skew =(pt_skew + (track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt ));
                pt_kurt =(pt_kurt + (track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt )*(track_deltaPt.at(i) - av_sumPt ));
 
-          }
+            }
                pt_var = pt_var/(n-1);
                pt_sd = sqrt(pt_var);
                pt_skew = pt_skew/((n-1)*pt_sd*pt_sd*pt_sd);
                pt_kurt = pt_kurt/((n-1)*pt_sd*pt_sd*pt_sd*pt_sd);
 
-          float ndf = vertex->numberDoF();
-          if (ndf != 0) {
+            float ndf = vertex->numberDoF();
+            if (ndf != 0) {
 
-
-
-           if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
-              if (vertex == bestRecoHSVtx_truth) {
+              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+               if (vertex == bestRecoHSVtx_truth) {
 	
-		 fillHisto(m_vx_sumpT_HS_matched,sumPt / Gaudi::Units::GeV);
+		 fillHisto(m_vx_sumpT_HS_matched,sumPt );
                  fillHisto(m_vx_sumCharge_HS_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_matched, z_asym);
@@ -1394,10 +1379,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                      fillHisto(m_vx_normalised_track_weight_HS_matched, weight/n);
                  }
 
-              }	
-	      else { 
+               }	
+	       else { 
 		
-                 fillHisto(m_vx_sumpT_matched,sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_matched,sumPt );
                  fillHisto(m_vx_sumCharge_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_matched, z_asym);
@@ -1413,16 +1398,14 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                  fillHisto(m_vx_pt_kurtosis_matched, pt_kurt);
 
 
-
                  for (const float& weight : vertex->trackWeights()) {
                      fillHisto(m_vx_track_weight_matched, weight);
                      fillHisto(m_vx_normalised_track_weight_matched, weight/n);
                  }
-             }
+               }
 // fill some histograms that contain both HS and PU above a min pt - say 20GeV
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_matched,sumPt / Gaudi::Units::GeV);
+              if (sumPt > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_matched,sumPt );
                  fillHisto(m_vx_sumCharge_ALL_matched,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_matched, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_matched, z_asym);
@@ -1441,13 +1424,13 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                      fillHisto(m_vx_normalised_track_weight_ALL_matched, weight/n);
                  }
 
-            }
-           }  // end of if matched vertices
+              }
+             }  // end of if matched vertices
 
-           if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
               
-                 fillHisto(m_vx_sumpT_HS_merged, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_HS_merged, sumPt );
                  fillHisto(m_vx_sumCharge_HS_merged, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_merged, z_asym);
@@ -1470,7 +1453,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
               }
               else {
-                 fillHisto(m_vx_sumpT_merged, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_merged, sumPt );
                  fillHisto(m_vx_sumCharge_merged, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_merged, z_asym);
@@ -1490,9 +1473,8 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                  }
 
               }
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_merged,sumPt / Gaudi::Units::GeV);
+              if (sumPt > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_merged,sumPt );
                  fillHisto(m_vx_sumCharge_ALL_merged,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_merged, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_merged, z_asym);
@@ -1511,12 +1493,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                      fillHisto(m_vx_normalised_track_weight_ALL_merged, weight/n);
                  }
 
-             }
-           }   //end of if merged vertices
+              }
+             }   //end of if merged vertices
 
-           if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
-                 fillHisto(m_vx_sumpT_HS_split, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_HS_split, sumPt );
                  fillHisto(m_vx_sumCharge_HS_split, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_split, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_split, z_asym);
@@ -1538,7 +1520,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
               }
               else {
-                 fillHisto(m_vx_sumpT_split, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_split, sumPt );
                  fillHisto(m_vx_sumCharge_split, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_split, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_split, z_asym);
@@ -1559,10 +1541,9 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
 
               }
-// fill some histograms that contain both HS and PU above a min pt - say 20GeV
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_split,sumPt / Gaudi::Units::GeV);
+
+              if (sumPt > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_split,sumPt );
                  fillHisto(m_vx_sumCharge_ALL_split,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_split, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_split, z_asym);
@@ -1582,12 +1563,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                  }
               }
 
-	   }   // end of if split vertices
+	     }   // end of if split vertices
 
 
-           if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {
+             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::FAKE) {
               if (vertex == bestRecoHSVtx_truth) {
-                 fillHisto(m_vx_sumpT_HS_fake, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_HS_fake, sumPt );
                  fillHisto(m_vx_sumCharge_HS_fake, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_HS_fake, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_HS_fake, z_asym);
@@ -1607,7 +1588,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
               else {
 
-                 fillHisto(m_vx_sumpT_fake, sumPt / Gaudi::Units::GeV);
+                 fillHisto(m_vx_sumpT_fake, sumPt );
                  fillHisto(m_vx_sumCharge_fake, sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_fake, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_fake, z_asym);
@@ -1624,10 +1605,9 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                      fillHisto(m_vx_track_weight_fake, weight);
                  }
              }
-// fill some histograms that contain both HS and PU above a min pt - say 20GeV
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_fake,sumPt / Gaudi::Units::GeV);
+
+             if (sumPt > minpt) {
+                 fillHisto(m_vx_sumpT_ALL_fake,sumPt );
                  fillHisto(m_vx_sumCharge_ALL_fake,sumCharge);
                  fillHisto(m_vx_sumCharge_N_trk_ALL_fake, sumCharge/vertex->nTrackParticles());
                  fillHisto(m_vx_z_asym_ALL_fake, z_asym);
@@ -1645,8 +1625,8 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                  }
 
              }
-           }   // end of fake vertices
-// Helen OTP count the number of vertices for each type per event
+            }   // end of fake vertices
+// Count the number of vertices for each type per event
          
 
          if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
@@ -1656,11 +1636,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               else {
                  number_matched_PU++;         
               }
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
+              if (sumPt > minpt) {
                   number_matched++;
              }
-        }
+         }
 
          if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
@@ -1669,11 +1648,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               else {
                  number_merged_PU++;         
               }
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
+              if (sumPt > minpt) {
                   number_merged++;
              }
-        }
+         }
 
          if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
@@ -1682,8 +1660,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               else {
                  number_split_PU++;         
               }
-              double minpt = 20 ; // GeV
-              if (sumPt/Gaudi::Units::GeV > minpt) {
+              if (sumPt > minpt) {
                   number_split++;    
              }
          }
@@ -1692,7 +1669,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
  
 
 
-// Add new histos to check for number of tracks for each vertex type Helen OTP  
+// New histos to check for number of tracks for each vertex type   
         for (const auto& vertex : vertexContainer.stdcont()) {
            if (vertex == bestRecoHSVtx_truth) {
 
@@ -1716,7 +1693,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
            }
            else {
 
-         
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
@@ -1736,8 +1712,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
              }
 
            }
-           double minpt = 20 ; // GeV
-           if (sumPt/Gaudi::Units::GeV > minpt) {
+           if (sumPt > minpt) {
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
                 fillHisto(m_vx_ntracks_ALL_matched, vertex->nTrackParticles());
@@ -1757,11 +1732,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
            }
    
-       } 
-     //     std::cout << " End loop over vertices  helenmaguire";
-        } // end loop over vertices
+        } 
+       } // end loop over vertices
 
-// Helen OTP - add new histos to count number of vertices per event
+// new histos to count number of vertices per event
         fillHisto(m_vx_nVertices_ALL_matched, number_matched);
         fillHisto(m_vx_nVertices_ALL_merged, number_merged);
         fillHisto(m_vx_nVertices_ALL_split, number_split);
@@ -1771,7 +1745,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
         fillHisto(m_vx_nVertices_matched, number_matched_PU);
         fillHisto(m_vx_nVertices_merged, number_merged_PU);
         fillHisto(m_vx_nVertices_split, number_split_PU);
-
 
         // Now fill plots relating to the reconstruction of our truth HS vertex (efficiency and resolutions)
         if (truthHSVertices.size() != 0) {
@@ -1855,8 +1828,8 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
             default: {
                 break;
             }
-        }
-    }
+        }  // End of switch
+    }   // end of EXpert plots - (if (m_iDetailLevel >= 200))
 
 } // end InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices)
 
@@ -1864,8 +1837,6 @@ void InDetPerfPlot_VertexTruthMatching::finalizePlots() {
 
     if (m_iDetailLevel >= 200) {
         
-//        std::cout << " finalizePlots helenmaguire    !!!*";
-
         fillResoHist(m_vx_hs_truth_long_reso, m_vx_hs_truth_long_reso_vs_PU);
         fillResoHist(m_vx_hs_truth_trans_reso, m_vx_hs_truth_trans_reso_vs_PU);
     }

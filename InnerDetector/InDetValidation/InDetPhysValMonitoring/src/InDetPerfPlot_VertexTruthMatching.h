@@ -121,7 +121,7 @@ private:
     TH2* m_vx_hs_truth_z_pull_vs_nTrk;
     TH2* m_vx_hs_truth_x_pull_vs_nTrk;
     TH2* m_vx_hs_truth_y_pull_vs_nTrk;
-    // New Histograms for #of tracks acssociated with each type of vertex  - Helen OTP
+    // New Histograms for Expert Plots for observables for different vertex classifications
     TH1* m_vx_ntracks_matched;
     TH1* m_vx_ntracks_merged;
     TH1* m_vx_ntracks_split;
@@ -134,7 +134,6 @@ private:
     TH1* m_vx_ntracks_ALL_merged;
     TH1* m_vx_ntracks_ALL_split;
     TH1* m_vx_ntracks_ALL_fake;
-    // Helen OTP - sum Pt of tracks for each type of vertex
     TH1* m_vx_sumpT_matched;
     TH1* m_vx_sumpT_merged;
     TH1* m_vx_sumpT_split;
@@ -143,7 +142,6 @@ private:
     TH1* m_vx_sumpT_HS_merged;
     TH1* m_vx_sumpT_HS_split;
     TH1* m_vx_sumpT_HS_fake;
-    // Helen OTP - sum of charges 
     TH1* m_vx_sumCharge_matched;
     TH1* m_vx_sumCharge_merged;
     TH1* m_vx_sumCharge_split;
@@ -152,7 +150,6 @@ private:
     TH1* m_vx_sumCharge_HS_merged;
     TH1* m_vx_sumCharge_HS_split;
     TH1* m_vx_sumCharge_HS_fake;
-    // Helen OTP - sum charge/n_trk
     TH1* m_vx_sumCharge_N_trk_HS_matched;
     TH1* m_vx_sumCharge_N_trk_HS_merged;
     TH1* m_vx_sumCharge_N_trk_HS_split;
@@ -161,14 +158,22 @@ private:
     TH1* m_vx_sumCharge_N_trk_merged;
     TH1* m_vx_sumCharge_N_trk_split;
     TH1* m_vx_sumCharge_N_trk_fake;
-    // Helen OTP asymmetery in z
+    
     TH1* m_vx_z_asym_matched;
     TH1* m_vx_z_asym_merged;
     TH1* m_vx_z_asym_split;
     TH1* m_vx_z_asym_fake;
+    TH1* m_vx_z_asym_HS_matched;
+    TH1* m_vx_z_asym_HS_merged;
+    TH1* m_vx_z_asym_HS_split;
+    TH1* m_vx_z_asym_HS_fake;
     TH1* m_vx_z_asym_weighted_matched;
     TH1* m_vx_z_asym_weighted_merged;
     TH1* m_vx_z_asym_weighted_split;
+    TH1* m_vx_z_asym_weighted_HS_matched;
+    TH1* m_vx_z_asym_weighted_HS_merged;
+    TH1* m_vx_z_asym_weighted_HS_split;
+    
     TH1* m_vx_track_weight_matched;
     TH1* m_vx_track_weight_merged;
     TH1* m_vx_track_weight_split;
@@ -177,14 +182,7 @@ private:
     TH1* m_vx_track_weight_HS_merged;
     TH1* m_vx_track_weight_HS_split;
     TH1* m_vx_track_weight_HS_fake;
-    TH1* m_vx_z_asym_HS_matched;
-    TH1* m_vx_z_asym_HS_merged;
-    TH1* m_vx_z_asym_HS_split;
-    TH1* m_vx_z_asym_HS_fake;
-    TH1* m_vx_z_asym_weighted_HS_matched;
-    TH1* m_vx_z_asym_weighted_HS_merged;
-    TH1* m_vx_z_asym_weighted_HS_split;
-    
+
     TH1* m_vx_normalised_track_weight_matched;
     TH1* m_vx_normalised_track_weight_merged;
     TH1* m_vx_normalised_track_weight_split;
@@ -212,41 +210,39 @@ private:
     TH1* m_vx_chi2Over_ndf_HS_split;
     TH1* m_vx_chi2Over_ndf_HS_fake;
 
-// histo to get skewness and kurtosis of z0 of tracks around vertex
-   
-    TH1* m_vx_z0_skewness_HS_matched;
-    TH1* m_vx_z0_kurtosis_HS_matched;
     TH1* m_vx_z0_skewness_matched;
-    TH1* m_vx_z0_kurtosis_matched;
-    TH1* m_vx_z0_skewness_HS_merged;
-    TH1* m_vx_z0_kurtosis_HS_merged;
     TH1* m_vx_z0_skewness_merged;
-    TH1* m_vx_z0_kurtosis_merged;
-    TH1* m_vx_z0_skewness_HS_split;
-    TH1* m_vx_z0_kurtosis_HS_split;
     TH1* m_vx_z0_skewness_split;
-    TH1* m_vx_z0_kurtosis_split;
-    TH1* m_vx_z0_skewness_HS_fake;
-    TH1* m_vx_z0_kurtosis_HS_fake;
     TH1* m_vx_z0_skewness_fake;
+    TH1* m_vx_z0_skewness_HS_matched;
+    TH1* m_vx_z0_skewness_HS_merged;
+    TH1* m_vx_z0_skewness_HS_split;
+    TH1* m_vx_z0_skewness_HS_fake;
+    TH1* m_vx_z0_kurtosis_matched;
+    TH1* m_vx_z0_kurtosis_merged;
+    TH1* m_vx_z0_kurtosis_split;
     TH1* m_vx_z0_kurtosis_fake;
+    TH1* m_vx_z0_kurtosis_HS_matched;
+    TH1* m_vx_z0_kurtosis_HS_merged;
+    TH1* m_vx_z0_kurtosis_HS_split;
+    TH1* m_vx_z0_kurtosis_HS_fake;
 
-    TH1* m_vx_d0_skewness_HS_matched;
-    TH1* m_vx_d0_skewness_HS_merged;
-    TH1* m_vx_d0_skewness_HS_split;
-    TH1* m_vx_d0_skewness_HS_fake;
     TH1* m_vx_d0_skewness_matched;
     TH1* m_vx_d0_skewness_merged;
     TH1* m_vx_d0_skewness_split;
     TH1* m_vx_d0_skewness_fake;
-    TH1* m_vx_d0_kurtosis_HS_matched;
-    TH1* m_vx_d0_kurtosis_HS_merged;
-    TH1* m_vx_d0_kurtosis_HS_split;
-    TH1* m_vx_d0_kurtosis_HS_fake;
+    TH1* m_vx_d0_skewness_HS_matched;
+    TH1* m_vx_d0_skewness_HS_merged;
+    TH1* m_vx_d0_skewness_HS_split;
+    TH1* m_vx_d0_skewness_HS_fake;
     TH1* m_vx_d0_kurtosis_matched;
     TH1* m_vx_d0_kurtosis_merged;
     TH1* m_vx_d0_kurtosis_split;
     TH1* m_vx_d0_kurtosis_fake;
+    TH1* m_vx_d0_kurtosis_HS_matched;
+    TH1* m_vx_d0_kurtosis_HS_merged;
+    TH1* m_vx_d0_kurtosis_HS_split;
+    TH1* m_vx_d0_kurtosis_HS_fake;
 
 
     TH1* m_vx_pt_skewness_matched;
@@ -304,15 +300,13 @@ private:
     TH1* m_vx_chi2Over_ndf_ALL_split;
     TH1* m_vx_chi2Over_ndf_ALL_fake;
 
-// histo to get skewness and kurtosis of z0 of tracks around vertex
-   
     TH1* m_vx_z0_skewness_ALL_matched;
-    TH1* m_vx_z0_kurtosis_ALL_matched;
     TH1* m_vx_z0_skewness_ALL_merged;
-    TH1* m_vx_z0_kurtosis_ALL_merged;
     TH1* m_vx_z0_skewness_ALL_split;
-    TH1* m_vx_z0_kurtosis_ALL_split;
     TH1* m_vx_z0_skewness_ALL_fake;
+    TH1* m_vx_z0_kurtosis_ALL_matched;
+    TH1* m_vx_z0_kurtosis_ALL_merged;
+    TH1* m_vx_z0_kurtosis_ALL_split;
     TH1* m_vx_z0_kurtosis_ALL_fake;
 
     TH1* m_vx_d0_skewness_ALL_matched;

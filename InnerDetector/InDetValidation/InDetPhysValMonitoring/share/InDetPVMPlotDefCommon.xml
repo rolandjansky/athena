@@ -1080,7 +1080,7 @@
   <x title="#sigma(z_{0}) (mm)" n="50" lo="0.0" hi="5.0"/>
   <y title="Entries"/>
 </h>
-<!-- Helen OTP Vertex plots -->
+<!-- New Expert plots for Vertex classifications  -->
 <h id="vx_ntracks_matched" type="TH1" title="Number of tracks for matched PU vertices">
   <x title="Number of Matched PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
@@ -1130,39 +1130,38 @@
   <y title="Number of Tracks" />
 </h>
 <h id="vx_sumpT_matched" type="TH1" title="SumPt of tracks for matched vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="150"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_merged" type="TH1" title="SumPt of tracks for merged vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="150"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_split" type="TH1" title="SumPt of tracks for split vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="150"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_fake" type="TH1" title="SumPt of tracks for fake vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="150"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_HS_matched" type="TH1" title="SumPt of tracks for HS matched vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_HS_merged" type="TH1" title="SumPt of tracks for HS merged vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_HS_split" type="TH1" title="SumPt of tracks for HS split vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_HS_fake" type="TH1" title="SumPt of tracks for HS fake vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="0.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
 
-<!--Helen OTP sum charge plots -->
 <h id="vx_sumCharge_matched" type="TH1" title="Sum of charges of tracks for matched vertices">
   <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
   <y title="Entries" />
@@ -1605,21 +1604,21 @@
   <x title="Kurtosis for pt PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<!-- Helen ALL vertices (PU and HS) -->
+<!-- ALL vertices (PU and HS) with sumpt > 20Mev -->
 <h id="vx_sumpT_ALL_matched" type="TH1" title="SumPt of tracks for ALL matched vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="20.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_ALL_merged" type="TH1" title="SumPt of tracks for ALL merged vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="20.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_ALL_split" type="TH1" title="SumPt of tracks for ALL split vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="20.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_ALL_fake" type="TH1" title="SumPt of tracks for ALL fake vertices">
-  <x title="sum p_{T} (GeV)of tracks" n="100" lo="20.0" hi="400"/>
+  <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
 <h id="vx_sumCharge_ALL_matched" type="TH1" title="Sum of charges of tracks for ALL matched vertices">
@@ -2025,147 +2024,147 @@
 </h>
 <h id="vx_track_z0_ALL_matched_vs_track_pt" type="TH2" title="Track z0 - vertex z0 matched vertices ">
   <x title="Track z0 - vertex z0 ALL" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="100"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="100000"  />
 </h>
 <h id="vx_track_z0_ALL_merged_vs_track_pt" type="TH2" title="Track z0 - vertex z0 merged vertices ">
   <x title="Track z0 - vertex z0 ALL" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="100"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="100000"  />
 </h>
 <h id="vx_track_z0_ALL_split_vs_track_pt" type="TH2" title="Track z0 - vertex z0 split vertices ">
   <x title="Track z0 - vertex z0 ALL" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="100"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="100000"  />
 </h>
 <h id="vx_track_z0_HS_matched_vs_track_pt" type="TH2" title="Track z0 - vertex z0 HS matched vertices ">
   <x title="Track z0 - vertex z0 HS" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="100"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="100000"  />
 </h>
 <h id="vx_track_z0_HS_merged_vs_track_pt" type="TH2" title="Track z0 - vertex z0 HS merged vertices ">
   <x title="Track z0 - vertex z0 HS" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="100"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="100000"  />
 </h>
 <h id="vx_track_z0_HS_split_vs_track_pt" type="TH2" title="Track z0 - vertex z0 HS split vertices ">
   <x title="Track z0 - vertex z0 HS" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="100"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="100000"  />
 </h>
 <h id="vx_track_z0_matched_vs_track_pt" type="TH2" title="Track z0 - vertex z0 PU matched vertices ">
   <x title="Track z0 - vertex z0 PU" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="25"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="25000"  />
 </h>
 <h id="vx_track_z0_merged_vs_track_pt" type="TH2" title="Track z0 - vertex z0 PU merged vertices ">
   <x title="Track z0 - vertex z0 PU" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="25"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="25000"  />
 </h>
 <h id="vx_track_z0_split_vs_track_pt" type="TH2" title="Track z0 - vertex z0 PU split vertices ">
   <x title="Track z0 - vertex z0 PU" n="100" lo="-3.5" hi="3.5"/>
-  <y title= "Track Pt  (GeV)" n= "100" lo ="0" hi="25"  />
+  <y title= "Track Pt  (MeV)" n= "100" lo ="0" hi="25000"  />
 </h>
 <h id="vx_track_d0_ALL_matched_vs_track_pt" type="TH2" title="Track d0 for matched vertices above sumPt > 20Gev">
   <x title="Track d0 ALL (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_ALL_merged_vs_track_pt" type="TH2" title="Track d0 for merged vertices above sumPt > 20Gev">
   <x title="Track d0 ALL (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_ALL_split_vs_track_pt" type="TH2" title="Track d0 for split vertices above sumPt > 20Gev">
   <x title="Track d0 ALL (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_HS_matched_vs_track_pt" type="TH2" title="Track d0 for HS matched vertices ">
   <x title="Track d0 HS (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_HS_merged_vs_track_pt" type="TH2" title="Track d0 for HS merged vertices ">
   <x title="Track d0 HS (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_HS_split_vs_track_pt" type="TH2" title="Track d0 for HS split vertices ">
   <x title="Track d0 HS (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_matched_vs_track_pt" type="TH2" title="Track d0 for PU matched vertices ">
   <x title="Track d0 PU (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_d0_merged_vs_track_pt" type="TH2" title="Track d0 for PU merged vertices ">
   <x title="Track d0 PU (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_d0_split_vs_track_pt" type="TH2" title="Track d0 for PU split vertices ">
   <x title="Track d0 PU (mm)" n="100" lo="-2.0" hi="2.0"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_z0_err_ALL_matched_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err matched vertices above sumPt > 20Gev">
   <x title="#sigma(z_{0}) (mm) ALL vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_z0_err_ALL_merged_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err merged vertices above sumPt > 20Gev">
   <x title="#sigma(z_{0}) (mm) ALL vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_z0_err_ALL_split_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err split vertices above sumPt > 20Gev">
   <x title="#sigma(z_{0}) (mm) ALL vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_z0_err_HS_matched_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err HS matched vertices ">
   <x title="#sigma(z_{0}) (mm) HS vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_z0_err_HS_merged_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err HS merged vertices ">
   <x title="#sigma(z_{0}) (mm) HS vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_z0_err_HS_split_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err HS split vertices ">
   <x title="#sigma(z_{0}) (mm) HS vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_z0_err_matched_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err PU matched vertices ">
   <x title="#sigma(z_{0}) (mm) PU vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_z0_err_merged_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err PU merged vertices ">
   <x title="#sigma(z_{0}) (mm) PU vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_z0_err_split_vs_track_pt" type="TH2" title="(Track z0 - vertex z0) over z_err PU split vertices ">
   <x title="#sigma(z_{0}) (mm) PU vertices" n="100" lo="0" hi="5"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_d0_err_ALL_matched_vs_track_pt" type="TH2" title="Track d0 over d0_err for matched vertices above sumPt > 20Gev ">
   <x title="#sigma(d_{0}) (mm) ALL vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_err_ALL_merged_vs_track_pt" type="TH2" title="Track d0 over d0_err for merged vertices above sumPt > 20Gev">
   <x title="#sigma(d_{0}) (mm) ALL vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_err_ALL_split_vs_track_pt" type="TH2" title="Track d0 over d0_err for split vertices above sumPt > 20Gev">
   <x title="#sigma(d_{0}) (mm) ALL vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_err_HS_matched_vs_track_pt" type="TH2" title="Track d0 over d0_err for HS matched vertices ">
   <x title="#sigma(d_{0}) (mm) HS vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_err_HS_merged_vs_track_pt" type="TH2" title="Track d0 over d0_err for HS merged vertices ">
   <x title="#sigma(d_{0}) (mm) HS vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_err_HS_split_vs_track_pt" type="TH2" title="Track d0 over d0_err for HS split vertices ">
   <x title="#sigma(d_{0}) (mm) HS vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="150"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="150000"  />
 </h>
 <h id="vx_track_d0_err_matched_vs_track_pt" type="TH2" title="Track d0 over d0_err for PU matched vertices ">
   <x title="#sigma(d_{0}) (mm) PU vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_d0_err_merged_vs_track_pt" type="TH2" title="Track d0 over d0_err for PU merged vertices ">
   <x title="#sigma(d_{0}) (mm) PU vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <h id="vx_track_d0_err_split_vs_track_pt" type="TH2" title="Track d0 over d0_err for PU split vertices ">
   <x title="#sigma(d_{0}) (mm) PU vertices" n="100" lo="0" hi="1"/>
-  <y title= "Track Pt  (GeV)" n= "50" lo ="0" hi="50"  />
+  <y title= "Track Pt  (MeV)" n= "50" lo ="0" hi="50000"  />
 </h>
 <!-- -->
 <!-- Bad Match Rate (BMR) plots -->
