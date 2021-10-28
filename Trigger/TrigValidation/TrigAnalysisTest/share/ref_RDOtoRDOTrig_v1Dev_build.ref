@@ -3708,21 +3708,21 @@ HLT_e5_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15:
   stepFeatures:
     0: 16
     1: 50
-    2: 18
-    3: 25
+    2: 19
+    3: 26
     4: 9
 HLT_e5_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15_MU5VF:
   eventCount: 0
   stepCounts:
     0: 11
     1: 10
-    2: 9
-    3: 9
+    2: 8
+    3: 8
   stepFeatures:
     0: 29
     1: 64
-    2: 18
-    3: 23
+    2: 16
+    3: 22
     4: 9
 HLT_e5_lhvloose_bBeeM6000_L1EM22VHI:
   eventCount: 0
@@ -10271,12 +10271,6 @@ HLT_noalg_L1XE55:
 HLT_noalg_L1XE60:
   eventCount: 0
 HLT_noalg_L1ZB:
-  eventCount: 0
-HLT_noalg_L1ZDC_A:
-  eventCount: 0
-HLT_noalg_L1ZDC_AND:
-  eventCount: 0
-HLT_noalg_L1ZDC_C:
   eventCount: 0
 HLT_noalg_L1ZDC_A:
   eventCount: 0
