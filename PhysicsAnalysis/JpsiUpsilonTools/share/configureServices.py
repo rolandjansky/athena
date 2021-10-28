@@ -158,11 +158,3 @@ myVertexUpdator = Trk__KalmanVertexUpdator()
 ToolSvc += myVertexUpdator
 print    (  myVertexUpdator)
 
-
-
-# timing
-from PrimaryDPDMaker.PrimaryDPDMakerConf import MBTSTimeFilterTool
-ToolSvc += MBTSTimeFilterTool()
-MBTSTimeFilterTool.ChargeThreshold   = 60.0/222.0
-MBTSTimeFilterTool.MinHitsPerSide    = 2
-MBTSTimeFilterTool.MaxTimeDifference = 10.0
