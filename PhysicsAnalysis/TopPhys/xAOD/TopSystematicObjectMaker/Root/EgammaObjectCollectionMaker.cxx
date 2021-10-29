@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: EgammaObjectCollectionMaker.cxx 811374 2017-10-24 13:04:52Z iconnell $
@@ -36,56 +36,8 @@ namespace top {
     m_calibrationTool("EgammaCalibrationAndSmearingTool"),
     m_photonFudgeTool("PhotonFudgeTool"),
 
-    m_isolationTool_LooseTrackOnly("IsolationTool_LooseTrackOnly"),
-    m_isolationTool_Loose("IsolationTool_Loose"),
-    m_isolationTool_PflowLoose("IsolationTool_PflowLoose"),
-    m_isolationTool_Tight("IsolationTool_Tight"),
-    m_isolationTool_PflowTight("IsolationTool_PflowTight"),
-    m_isolationTool_Gradient("IsolationTool_Gradient"),
-    m_isolationTool_GradientLoose("IsolationTool_GradientLoose"),
-    m_isolationTool_FixedCutTight("IsolationTool_FixedCutTight"),
-    m_isolationTool_FixedCutTightTrackOnly("IsolationTool_FixedCutTightTrackOnly"),
-    m_isolationTool_TightTrackOnly("IsolationTool_TightTrackOnly"),
-    m_isolationTool_TightTrackOnly_FixedRad("IsolationTool_TightTrackOnly_FixedRad"),
-    m_isolationTool_FixedCutTightCaloOnly("IsolationTool_FixedCutTightCaloOnly"),
-    m_isolationTool_TightCaloOnly("IsolationTool_TightCaloOnly"),
-    m_isolationTool_FixedCutLoose("IsolationTool_FixedCutLoose"),
-    m_isolationTool_FixedCutHighPtCaloOnly("IsolationTool_FixedCutHighPtCaloOnly"),
-    m_isolationTool_FCHighPtCaloOnly("IsolationTool_FCHighPtCaloOnly"),
-    m_isolationTool_HighPtCaloOnly("IsolationTool_HighPtCaloOnly"),
-    m_isolationTool_FCTight("IsolationTool_FCTight"),
-    m_isolationTool_FCLoose("IsolationTool_FCLoose"),
-    m_isolationTool_PLVTight("IsolationTool_PLVTight"),
-    m_isolationTool_PLVLoose("IsolationTool_PLVLoose"),
-//    m_isolationTool_LowPtPLV("IsolationTool_LowPtPLV"),
     m_isolationCorr("IsolationCorrectionTool") {
     declareProperty("config", m_config);
-
-    declareProperty("EgammaCalibrationAndSmearingTool", m_calibrationTool);
-
-    declareProperty("IsolationTool_LooseTrackOnly", m_isolationTool_LooseTrackOnly);
-    declareProperty("IsolationTool_Loose", m_isolationTool_Loose);
-    declareProperty("IsolationTool_PflowLoose", m_isolationTool_PflowLoose);
-    declareProperty("IsolationTool_Tight", m_isolationTool_Tight);
-    declareProperty("IsolationTool_PflowTight", m_isolationTool_PflowTight);
-    declareProperty("IsolationTool_Gradient", m_isolationTool_Gradient);
-    declareProperty("IsolationTool_GradientLoose", m_isolationTool_GradientLoose);
-    declareProperty("IsolationTool_FixedCutTight", m_isolationTool_FixedCutTight);
-    declareProperty("IsolationTool_FixedCutTightTrackOnly", m_isolationTool_FixedCutTightTrackOnly);
-    declareProperty("IsolationTool_TightTrackOnly", m_isolationTool_TightTrackOnly);
-    declareProperty("IsolationTool_TightTrackOnly_FixedRad", m_isolationTool_TightTrackOnly_FixedRad);
-    declareProperty("IsolationTool_FixedCutTightCaloOnly", m_isolationTool_FixedCutTightCaloOnly);
-    declareProperty("IsolationTool_TightCaloOnly", m_isolationTool_TightCaloOnly);
-    declareProperty("IsolationTool_FixedCutLoose", m_isolationTool_FixedCutLoose);
-    declareProperty("IsolationTool_FixedCutHighPtCaloOnly", m_isolationTool_FixedCutHighPtCaloOnly);
-    declareProperty("IsolationTool_FCHighPtCaloOnly", m_isolationTool_FCHighPtCaloOnly);
-    declareProperty("IsolationTool_HighPtCaloOnly", m_isolationTool_HighPtCaloOnly);
-    declareProperty("IsolationTool_FCTight", m_isolationTool_FCTight);
-    declareProperty("IsolationTool_FCLoose", m_isolationTool_FCLoose);
-    declareProperty("IsolationTool_PLVTight", m_isolationTool_PLVTight);
-    declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
-//    declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
-    declareProperty("IsolationCorrectionTool", m_isolationCorr);
   }
 
   StatusCode EgammaObjectCollectionMaker::initialize() {
@@ -99,34 +51,18 @@ namespace top {
     calibratePhotons = true;
 
     if (m_config->usePhotons()) {
-      top::check(m_isolationTool_FixedCutTight.retrieve(),
-                 "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_FixedCutTightCaloOnly.retrieve(),
-                 "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_FixedCutLoose.retrieve(),
-                 "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_Tight.retrieve(),
-                 "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_TightCaloOnly.retrieve(),
-                 "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_Loose.retrieve(),
-                 "Failed to retrieve Isolation Tool");
-      top::check(m_photonFudgeTool.retrieve(),
-                 "Failed to retrieve photon shower shape fudge tool");
+      for (const std::string& WP : m_config->photonIsolationWPs()) {
+        m_photonIsolationTools[WP] = ToolHandle<CP::IIsolationSelectionTool>("IsolationTool_PhotonWP_" + WP);
+        top::check(m_photonIsolationTools[WP].retrieve(), "Failed to retrieve photon isolation tool for WP " + WP);
+      }
+      top::check(m_photonFudgeTool.retrieve(), "Failed to retrieve photon shower shape fudge tool");
     }
 
     if (m_config->useElectrons()) {
-      top::check(m_isolationTool_FCTight.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_FCLoose.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_FCHighPtCaloOnly.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_HighPtCaloOnly.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_Loose.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_Tight.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_TightTrackOnly.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_TightTrackOnly_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_PflowLoose.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
-//      top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
+      for (const std::string& WP : m_config->electronIsolationWPs()) {
+        m_electronIsolationTools[WP] = ToolHandle<CP::IIsolationSelectionTool>("IsolationTool_ElectronWP_" + WP);
+        top::check(m_electronIsolationTools[WP].retrieve(), "Failed to retrieve electron isolation tool for WP " + WP);
+      }
     }
 
     top::check(m_isolationCorr.retrieve(), "Failed to retrieve Isolation Correction Tool");
@@ -231,40 +167,11 @@ namespace top {
           }
         }
         ///-- Isolation selection --///
-        static const SG::AuxElement::ConstAccessor<float> ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000("ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000");
-        char passIsol_FixedCutTight(0);
-        char passIsol_FixedCutTightCaloOnly(0);
-        char passIsol_FixedCutLoose(0);
-        char passIsol_Tight(0);
-        char passIsol_TightCaloOnly(0);
-        char passIsol_Loose(0);
-        if (m_isolationTool_FixedCutTight->accept(*photon)) {
-          passIsol_FixedCutTight = 1;
+        for (const auto& photonIsoWP : m_photonIsolationTools) {
+          const char passIsol = (photonIsoWP.second->accept(*photon)) ? 1 : 0;
+          photon->auxdecor<char>("AnalysisTop_Isol_" + photonIsoWP.first) = passIsol;
         }
-        if (m_isolationTool_FixedCutTightCaloOnly->accept(*photon)) {
-          passIsol_FixedCutTightCaloOnly = 1;
-        }
-        if (m_isolationTool_FixedCutLoose->accept(*photon)) {
-          passIsol_FixedCutLoose = 1;
-        }
-        if (m_isolationTool_TightCaloOnly->accept(*photon)) {
-          passIsol_TightCaloOnly = 1;
-        }
-        if (ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*photon)) {
-          if (m_isolationTool_Tight->accept(*photon)) {
-            passIsol_Tight = 1;
-          }
-          if (m_isolationTool_Loose->accept(*photon)) {
-            passIsol_Loose = 1;
-          }
-        }
-        photon->auxdecor<char>("AnalysisTop_Isol_FixedCutTight") = passIsol_FixedCutTight;
-        photon->auxdecor<char>("AnalysisTop_Isol_FixedCutTightCaloOnly") = passIsol_FixedCutTightCaloOnly;
-        photon->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose") = passIsol_FixedCutLoose;
-        photon->auxdecor<char>("AnalysisTop_Isol_Tight") = passIsol_Tight;
-        photon->auxdecor<char>("AnalysisTop_Isol_TightCaloOnly") = passIsol_TightCaloOnly;
-        photon->auxdecor<char>("AnalysisTop_Isol_Loose") = passIsol_Loose;
-      }
+      } // end photon loop
 
       ///-- set links to original objects- needed for MET calculation --///
       bool setLinks = xAOD::setOriginalObjectLink(*xaod, *shallow_xaod_copy.first);
@@ -285,28 +192,6 @@ namespace top {
   }
 
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal) {
-    static const SG::AuxElement::ConstAccessor<float> ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000("ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000("ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000("ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500("ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500");
-    static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
-    static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
-    static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
-    static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
-    static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
-    static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Loose("AnalysisTop_Isol_Loose");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly("AnalysisTop_Isol_TightTrackOnly");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly_FixedRad("AnalysisTop_Isol_TightTrackOnly_FixedRad");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowTight("AnalysisTop_Isol_PflowTight");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVLoose("AnalysisTop_Isol_PLVLoose");
-//    static SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
-
     const xAOD::EventInfo* eventInfo(nullptr);
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
@@ -359,63 +244,11 @@ namespace top {
         }
 
         ///-- Isolation selection --///
-        char passIsol_Gradient(0);
-        char passIsol_FCHighPtCaloOnly(0);
-        char passIsol_HighPtCaloOnly(0);
-        if (m_isolationTool_FCHighPtCaloOnly->accept(*electron)) {
-          passIsol_FCHighPtCaloOnly = 1;
+        for (const auto& electronIsoWP : m_electronIsolationTools) {
+          const char passIsol = (electronIsoWP.second->accept(*electron)) ? 1 : 0;
+          electron->auxdecor<char>("AnalysisTop_Isol_" + electronIsoWP.first) = passIsol;
         }
-        if (m_isolationTool_HighPtCaloOnly->accept(*electron)) {
-          passIsol_HighPtCaloOnly = 1;
-        }
-
-        electron->auxdecor<char>("AnalysisTop_Isol_Gradient") = passIsol_Gradient;
-        electron->auxdecor<char>("AnalysisTop_Isol_FCHighPtCaloOnly") = passIsol_FCHighPtCaloOnly;
-        electron->auxdecor<char>("AnalysisTop_Isol_HighPtCaloOnly") = passIsol_HighPtCaloOnly;
-        if (ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*electron)) {
-          AnalysisTop_Isol_FCTight(*electron) = (m_isolationTool_FCTight->accept(*electron) ? 1 : 0);
-          AnalysisTop_Isol_FCLoose(*electron) = (m_isolationTool_FCLoose->accept(*electron) ? 1 : 0);
-        }
-	else {
-          AnalysisTop_Isol_FCTight(*electron) = 0;
-          AnalysisTop_Isol_FCLoose(*electron) = 0;
-	}
-        if (ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000.isAvailable(*electron)) {
-          AnalysisTop_Isol_Tight(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
-          AnalysisTop_Isol_Loose(*electron) = (m_isolationTool_Loose->accept(*electron) ? 1 : 0);
-          AnalysisTop_Isol_TightTrackOnly(*electron) = (m_isolationTool_TightTrackOnly->accept(*electron) ? 1 : 0);
-	  if (ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000.isAvailable(*electron)) {
-	    AnalysisTop_Isol_TightTrackOnly_FixedRad(*electron) = (m_isolationTool_TightTrackOnly_FixedRad->accept(*electron) ? 1 : 0);
-	  }
-        }
-        if (ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
-          AnalysisTop_Isol_PflowTight(*electron) = (m_isolationTool_PflowTight->accept(*electron) ? 1 : 0);
-          AnalysisTop_Isol_PflowLoose(*electron) = (m_isolationTool_PflowLoose->accept(*electron) ? 1 : 0);
-        }
-        // Prompt Electron Tagging (PLV): https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTagging
-        // This is not recommended, purely experimental! (no plans for electron SFs from e/gamma any time soon, unless
-        // strong motivation from analyses)
-        // The r20.7 BDT is called "Iso", the r21 one is "Veto". The cut on the BDT weight is <-0.5, with the
-        // FixedCutLoose WP. But this WP is no longer
-        // supported by e/gamma, so here let's just decorate that check, and we'll let the user access the BDT weights
-        // themselves if needed.
-        if (electron->isAvailable<float>("PromptLeptonIso")) // r20.7
-          electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonIso") =
-            (electron->auxdata<float>("PromptLeptonIso") < -0.5) ? 1 : 0;
-        if (electron->isAvailable<float>("PromptLeptonVeto")) // r21
-          electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonVeto") =
-            (electron->auxdata<float>("PromptLeptonVeto") < -0.5) ? 1 : 0;
-
-	// New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
-	// For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
-//if ( PLV_TrackJetNTrack.isAvailable(*electron) &&
-//     PLV_DRlj.isAvailable(*electron) &&
-//     PLV_PtRel.isAvailable(*electron) &&
-//     PLV_PtFrac.isAvailable(*electron) )
-//	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
-//	else
-//	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
-      }
+      } // end electron loop
 
       ///-- set links to original objects- needed for MET calculation --///
       bool setLinks = xAOD::setOriginalObjectLink(*xaod, *shallow_xaod_copy.first);
