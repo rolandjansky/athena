@@ -145,8 +145,7 @@ isOnlineStateless = True
 #ConditionsTag     = 'COMCOND-HLTP-004-01'
 #DetDescrVersion   = 'ATLAS-GEO-20-00-01'
 
-
-m AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.GlobalFlags import globalflags
 #globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-ES1PA-2014-00")
 #globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-HLTP-2015-05")
 #--->>>######globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-HLTP-2015-08")
