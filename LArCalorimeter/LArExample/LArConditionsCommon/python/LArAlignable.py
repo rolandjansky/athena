@@ -29,3 +29,6 @@ if activateCondAlgs:
     condSeq += LArAlignCondAlg("LArAlignCondAlg")
     from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloAlignCondAlg
     condSeq += CaloAlignCondAlg("CaloAlignCondAlg")
+    if DetFlags.detdescr.Tile_on():
+      from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloSuperCellAlignCondAlg
+      condSeq += CaloSuperCellAlignCondAlg("CaloSuperCellAlignCondAlg")

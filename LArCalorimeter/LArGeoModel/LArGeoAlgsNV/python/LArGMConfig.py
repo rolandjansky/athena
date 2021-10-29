@@ -35,10 +35,14 @@ def LArGMCfg(configFlags):
         if configFlags.Common.Project != 'AthSimulation':
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
+            if configFlags.Detector.GeometryTile:
+                result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
     else:
         # Build unalinged CaloDetDescrManager instance in the Condition Store
         if configFlags.Common.Project != 'AthSimulation':
             result.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
+            if configFlags.Detector.GeometryTile:
+                result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
             
     return result
 
