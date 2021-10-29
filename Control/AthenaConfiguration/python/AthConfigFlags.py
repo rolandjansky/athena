@@ -179,7 +179,7 @@ class AthConfigFlags(object):
 
     def _loadDynaFlags(self, name):
         """
-        loads the flags of the form "A.B.C" first attemprintg the path "A" then "A.B" and then "A.B.C"
+        loads the flags of the form "A.B.C" first attempting the path "A" then "A.B" and then "A.B.C"
         """
 
         def __load_impl( flagBaseName ):

@@ -6,6 +6,7 @@ from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 
 from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 # use to flag domain
 import PerfMonComps.DomainsRegistry as pdr
@@ -34,7 +35,6 @@ pdr.flag_domain('id')
 if DetFlags.detdescr.ID_on():
     if jobproperties.InDetJobProperties.useNewConfig():
         print('Wrapping InDet new configuration')
-        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from InDetConfig.TrackRecoConfig import TrackRecoCfg
         CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
@@ -64,15 +64,12 @@ if DetFlags.detdescr.Muon_on() :
 
     if  muonRecFlags.useNewConfig():
         print('Wrapping Muon new configuration')
-        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
-        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-        ConfigFlags = getNewConfigFlags()
         # TODO Keep here for the moment, since we still have debugging to do.
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( "Py:conf2toConfigurable" )
-        log.setLevel(DEBUG)
+        # from AthenaCommon.Logging import logging
+        # log = logging.getLogger( "Py:conf2toConfigurable" )
+        # log.setLevel(DEBUG)
         CAtoGlobalWrapper(MuonReconstructionCfg,ConfigFlags)
     else:
         try:    
