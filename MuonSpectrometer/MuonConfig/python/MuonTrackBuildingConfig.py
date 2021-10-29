@@ -360,10 +360,15 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     
 def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **kwargs):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
 
     Muon__MuonChamberHoleRecoveryTool=CompFactory.Muon.MuonChamberHoleRecoveryTool
     result=ComponentAccumulator()
     # Not setting explicitly MuonStationIntersectSvc
+
+    acc = MuonExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", result.popToolsAndMerge(acc))
+
     acc = MdtDriftCircleOnTrackCreatorCfg(flags)
     mdt_dcot_creator = acc.getPrimary()
     kwargs.setdefault("MdtRotCreator", mdt_dcot_creator)
