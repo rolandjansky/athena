@@ -658,7 +658,6 @@ std::vector<int> InDetSecVertexTruthMatchTool::checkParticle(const xAOD::TruthPa
     return {0,0,0};
   }
   else{
-    bool found = false;
 
     for(const xAOD::TrackParticle* trkPart : trkCont){
       const ElementLink<xAOD::TruthParticleContainer> & truthPartLink = trk_truthPartAcc( *trkPart );
@@ -667,7 +666,6 @@ std::vector<int> InDetSecVertexTruthMatchTool::checkParticle(const xAOD::TruthPa
       if(truthPartLink.isValid() && matchProb > m_trkMatchProb) {
         const xAOD::TruthParticle& tmpPart = **truthPartLink;
         if(tmpPart.barcode() == truthPart.barcode()) {
-          found = true;
           if(trackPass.isAvailable( *trkPart ) and trackPass( *trkPart )) {
             ATH_MSG_DEBUG("Particle has a track that passes track selection.");
             return {1,1,1};
@@ -679,10 +677,8 @@ std::vector<int> InDetSecVertexTruthMatchTool::checkParticle(const xAOD::TruthPa
         }
       }
     }
-    if(!found){
-      ATH_MSG_DEBUG("Particle has enough pt.");
-      return {1,0,0};
-    }
+    ATH_MSG_DEBUG("Particle has enough pt.");
+    return {1,0,0};
     
   }
   return {0,0,0};
@@ -797,8 +793,6 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
   xAOD::Vertex::ConstAccessor<float> Chi2("chiSquared");
   xAOD::Vertex::ConstAccessor<float> nDoF("numberDoF");
 
-  
-
   m_recoR->Fill(reco_r);
   m_recoNtrk->Fill(ntracks);
   m_recoPt->Fill(sumP4.Pt() / GeV);
@@ -837,7 +831,7 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
     m_recoMaxD0_Split->Fill(maxD0); 
     m_recoMaxDR_Split->Fill(maxDR); 
   }
-  if(matchTypeDecor(secVtx) == FAKE)  {
+  else if(matchTypeDecor(secVtx) == FAKE)  {
     m_recoR_Fake->Fill(reco_r);
     m_recoNtrk_Fake->Fill(ntracks);
     m_recoPt_Fake->Fill(sumP4.Pt() / GeV);
@@ -856,7 +850,7 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
     m_recoMaxD0_Fake->Fill(maxD0); 
     m_recoMaxDR_Fake->Fill(maxDR); 
   }
-  if(matchTypeDecor(secVtx) == MATCHED) {
+  else if(matchTypeDecor(secVtx) == MATCHED) {
     m_recoR_LLP->Fill(reco_r);
     m_recoNtrk_LLP->Fill(ntracks);
     m_recoPt_LLP->Fill(sumP4.Pt() / GeV);
@@ -995,8 +989,8 @@ void InDetSecVertexTruthMatchTool::countReconstructibleDescendentParticles(const
       TVector3 decayPos( particle->decayVtx()->x(), particle->decayVtx()->y(), particle->decayVtx()->z() );
       TVector3 prodPos ( particle->prodVtx()->x(),  particle->prodVtx()->y(),  particle->prodVtx()->z()  );
       
-      auto isInside  = []( TVector3& v ) { return ( v.Perp() < 300. && fabs( v.z() ) < 1500. ); };
-      auto isOutside = []( TVector3& v ) { return ( v.Perp() > 563. || fabs( v.z() ) > 2720. ); };
+      auto isInside  = []( TVector3& v ) { return ( v.Perp() < 300. && std::abs( v.z() ) < 1500. ); };
+      auto isOutside = []( TVector3& v ) { return ( v.Perp() > 563. || std::abs( v.z() ) > 2720. ); };
       
       const auto distance = (decayPos - prodPos).Mag();
       

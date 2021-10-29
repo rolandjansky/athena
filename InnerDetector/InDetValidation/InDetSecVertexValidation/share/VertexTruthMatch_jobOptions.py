@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the file reading:
 FNAME = "/eos/atlas/atlascerngroupdisk/phys-exotics/ueh/VH4b/R22/valid1.313415.PowhegPythia8EvtGen_ZH_H125_a16a16_4b_ctau100.recon.AOD.e8323_e5984_s3227_r12627_tid26024619_00/AOD.26024619.merge.VSI.pool.root.1"
