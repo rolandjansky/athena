@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-// test the loading of the topo menu xml and configuration of the topo steering
+// test the loading of the topo menu and configuration of the topo steering
 
 #include <iostream>
 
 #include "L1TopoCoreSim/TopoSteering.h"
-#include "L1TopoConfig/L1TopoXMLParser.h"
 
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfData/L1Menu.h"

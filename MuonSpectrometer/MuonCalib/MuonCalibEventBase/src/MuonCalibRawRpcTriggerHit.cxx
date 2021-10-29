@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibRawRpcTriggerHit.h"
@@ -8,38 +8,22 @@
 
 namespace MuonCalib {
 
-    MuonCalibRawRpcTriggerHit::MuonCalibRawRpcTriggerHit(const MuonCalibRawRpcTriggerHit& hit) :
-        m_sector(hit.sector()),
-        m_padId(hit.padId()),
-        m_status(hit.status()),
-        m_errorCode(hit.errorCode()),
-        m_cmaId(hit.cmaId()),
-        m_fel1Id(hit.fel1Id()),
-        m_febcId(hit.febcId()),
-        m_crc(hit.crc()),
-        m_bcId(hit.bcId()),
-        m_time(hit.time()),
-        m_ijk(hit.ijk()),
-        m_channel(hit.channel()),
-        m_overlap(hit.overlap()),
-        m_threshold(hit.threshold()) {}
-    MuonCalibRawRpcTriggerHit::MuonCalibRawRpcTriggerHit(int sector, int padId, int status, int errorCode, int cmaId, int fel1Id,
-                                                         int febcId, int crc, int bcId, int time, int ijk, int channel, int overlap,
-                                                         int threshold) :
-        m_sector(sector),
-        m_padId(padId),
-        m_status(status),
-        m_errorCode(errorCode),
-        m_cmaId(cmaId),
-        m_fel1Id(fel1Id),
-        m_febcId(febcId),
-        m_crc(crc),
-        m_bcId(bcId),
-        m_time(time),
-        m_ijk(ijk),
-        m_channel(channel),
-        m_overlap(overlap),
-        m_threshold(threshold) {}
+    int MuonCalibRawRpcTriggerHit::sector() const { return m_pars.sector; }
+    int MuonCalibRawRpcTriggerHit::padId() const { return m_pars.padId; }
+    int MuonCalibRawRpcTriggerHit::status() const { return m_pars.status; }
+    int MuonCalibRawRpcTriggerHit::errorCode() const { return m_pars.errorCode; }
+    int MuonCalibRawRpcTriggerHit::cmaId() const { return m_pars.cmaId; }
+    int MuonCalibRawRpcTriggerHit::fel1Id() const { return m_pars.fel1Id; }
+    int MuonCalibRawRpcTriggerHit::febcId() const { return m_pars.febcId; }
+    int MuonCalibRawRpcTriggerHit::crc() const { return m_pars.crc; }
+    int MuonCalibRawRpcTriggerHit::bcId() const { return m_pars.bcId; }
+    int MuonCalibRawRpcTriggerHit::time() const { return m_pars.time; }
+    int MuonCalibRawRpcTriggerHit::ijk() const { return m_pars.ijk; }
+    int MuonCalibRawRpcTriggerHit::channel() const { return m_pars.channel; }
+    int MuonCalibRawRpcTriggerHit::overlap() const { return m_pars.overlap; }
+    int MuonCalibRawRpcTriggerHit::threshold() const { return m_pars.threshold; }
+
+    MuonCalibRawRpcTriggerHit::MuonCalibRawRpcTriggerHit(const MuonCalibRawRpcTriggerHit::defineParams& pars) : m_pars{pars} {}
 
     std::ostream& MuonCalibRawRpcTriggerHit::dump(std::ostream& stream) const {
         stream << "MuonCalibRawRpcTriggerHit with" << std::endl;

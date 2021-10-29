@@ -32,14 +32,8 @@ void AGDDMuonStation::CreateSolid (const AGDDBuilder& /*builder*/)
 void AGDDMuonStation::CreateVolume (const AGDDBuilder& builder)
 {
     std::cout<<"this is AGDDMuonStation::CreateVolume()"<<std::endl;
-	static int ifirst=1;
-	static const GeoMaterial* air=0;
-	if (ifirst)
-	{
-		ifirst=0;
-        air = GetMMMaterial("std::Air");
-		if (!air) std::cout<<" Air not found!"<<std::endl;
-	}
+	static const GeoMaterial* const air = GetMMMaterial("std::Air");
+        if (!air) std::cout<<" Air not found!"<<std::endl;
 
 	CreateSolid (builder);
 

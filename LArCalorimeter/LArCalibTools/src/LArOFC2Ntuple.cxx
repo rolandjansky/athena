@@ -57,7 +57,6 @@ StatusCode LArOFC2Ntuple::stop() {
     larOFC=larOFCHdl.cptr();
   }
 
-  
   const LArOnOffIdMapping *cabling=0;
   if(m_isSC) {
     ATH_MSG_DEBUG( "LArOFC2Ntuple: using SC cabling" );

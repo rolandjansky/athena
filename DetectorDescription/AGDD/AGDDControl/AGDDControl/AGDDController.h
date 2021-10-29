@@ -10,13 +10,25 @@ class IAGDDParser;
 class GeoFullPhysVol;
 
 #include "AGDDKernel/AGDDSectionStore.h"
+#include "AGDDKernel/AGDDVolumeStore.h"
+#include "AGDDKernel/AGDDSectionStore.h"
+#include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDKernel/AGDDPositionerStore.h"
+#include "AGDDKernel/AliasStore.h"
+#include "AGDDModel/AGDDColorStore.h"
+#include "AGDDModel/AGDDMaterialStore.h"
+#include "AGDDModel/AGDDParameterStore.h"
+#include "AGDDControl/XMLHandlerStore.h"
+#include "AGDDControl/ExpressionEvaluator.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
 
+
 class AGDDController {
 public:
-	AGDDController();
+        AGDDController();
 	~AGDDController();
 	void SetBuilder(AGDDBuilder *b);
 	void SetParser(IAGDDParser *b);
@@ -34,9 +46,20 @@ public:
 	void BuildAll();
 	void Clean();
 	
-	static void PrintVolumeHierarchy(const std::string&, int);
+        XMLHandlerStore& GetHandlerStore();
+        AGDDVolumeStore& GetVolumeStore();
+        AGDDSectionStore& GetSectionStore();
+        AGDDColorStore& GetColorStore();
+        AGDDDetectorStore& GetDetectorStore();
+        AGDDPositionerStore& GetPositionerStore();
+        AGDDMaterialStore& GetMaterialStore();
+        AGDDParameterStore& GetParameterStore();
+        AliasStore& GetAliasStore();
+        ExpressionEvaluator& Evaluator();
+
+        //static void PrintVolumeHierarchy(const std::string&, int);
 	
-	void UseGeoModelDetector(const std::string&);
+	void UseGeoModelDetector ATLAS_NOT_THREAD_SAFE (const std::string&);
 	
 	void Locked(bool b) {m_locked=b;}
 	bool Locked() const {return m_locked;}
@@ -59,6 +82,17 @@ private:
 	bool m_disableSections;
 	
 	int m_printLevel;
+
+        AGDDVolumeStore m_vs;
+        AGDDSectionStore m_ss;
+        AGDDColorStore m_cs;
+        AGDDDetectorStore m_ds;
+        AGDDPositionerStore m_ps;
+        AGDDMaterialStore m_ms;
+        AGDDParameterStore m_prs;
+        XMLHandlerStore m_xs;
+        AliasStore m_as;
+        ExpressionEvaluator m_eval;
 };
 
 #endif

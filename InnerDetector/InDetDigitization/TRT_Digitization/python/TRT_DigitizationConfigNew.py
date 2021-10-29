@@ -5,7 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_ArToolCfg
@@ -38,7 +38,7 @@ def TRT_RangeCfg(flags, name="TRTRange", **kwargs):
 
 def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with common TRT digitization tool config"""
-    acc = TRT_GeometryCfg(flags)
+    acc = TRT_ReadoutGeometryCfg(flags)
     acc.merge(MagneticFieldSvcCfg(flags))
     PartPropSvc = CompFactory.PartPropSvc
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
@@ -49,6 +49,10 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     else:
         kwargs.setdefault ('DigVersContainerKey', '')
     # default arguments
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
+    StrawStatusTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
+    acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
+    kwargs.setdefault("InDetTRTStrawStatusSummaryTool", StrawStatusTool)
     kwargs.setdefault("PAI_Tool_Ar", TRT_PAI_Process_ArToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Kr", TRT_PAI_Process_KrToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Xe", TRT_PAI_Process_XeToolCfg(flags))

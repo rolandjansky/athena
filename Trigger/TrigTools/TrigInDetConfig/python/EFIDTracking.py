@@ -89,7 +89,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
       #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
       mode_name = remapToOffline( config.name )
-      if config.name == "cosmics":
+      if config.name == "cosmics" or config.name == "minBias":
          from InDetTrigRecExample.InDetTrigTrackingCuts import InDetTrigTrackingCuts
          trackingCuts = InDetTrigTrackingCuts( mode_name ) 
       #MinBias cuts need to be revisited: ATR-23077

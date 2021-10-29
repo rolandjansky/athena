@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -83,7 +83,7 @@ void TriggerElement::setGhostState( bool state) {
   state ? m_state |= ghostState : m_state &= ~ghostState;  
 }
 
-void TriggerElement::relate( TriggerElement* te, Relation r ) const {
+void TriggerElement::relate( TriggerElement* te, Relation r ) {
     // secure form multiple relations of the same type
     // silently ignoring if already related
     // his helps if one wants the Topo TE to merge several RoIs
@@ -92,7 +92,7 @@ void TriggerElement::relate( TriggerElement* te, Relation r ) const {
 }
 
 
-void TriggerElement::relate( const std::vector<TriggerElement*> tes, Relation r ) const {
+void TriggerElement::relate( const std::vector<TriggerElement*>& tes, Relation r ) {
     // secure form multiple relations of the same type
     std::vector<TriggerElement*>::const_iterator it;
     for ( it = tes.begin(); it != tes.end(); ++it ) {
@@ -138,10 +138,15 @@ void TriggerElement::serialize( std::vector<uint32_t>& output, const std::map<Tr
     unsigned summaryIndex = output.size();  // reserve space for vaious caounters and state
     output.push_back(0);
 
+    auto it = m_relations.find (seededByRelation);
+    std::vector<TriggerElement*> dumvec;
+    const std::vector<TriggerElement*>& relvec =
+      (it != m_relations.end() ? it->second : dumvec);
+
     std::vector<TriggerElement*>::const_iterator teIt;
     unsigned relationsCount = 0;
     // go over all TE which seed me and record link to them
-    for ( teIt = m_relations[seededByRelation].begin(); teIt != m_relations[seededByRelation].end(); ++teIt ) {
+    for ( teIt = relvec.begin(); teIt != relvec.end(); ++teIt ) {
 	std::map<TriggerElement*, uint16_t>::const_iterator key = keys.find(*teIt);
 	if ( key != keys.end() ) {
 	    insertUint16ToUint32Vector(output, key->second, relationsCount);
@@ -163,7 +168,7 @@ void TriggerElement::serialize( std::vector<uint32_t>& output, const std::map<Tr
 	    featuresCount++;
 	}
     }
-    uint32_t seedingUsesStateWord = ((m_relations[seededByRelation].size() << 20)) | (featuresCount << 8) | (m_state & 0xf);
+    uint32_t seedingUsesStateWord = ((relvec.size() << 20)) | (featuresCount << 8) | (m_state & 0xf);
     output[summaryIndex] = seedingUsesStateWord;
     /*
     std::cerr << "Serialized TE id: " << m_id << " fea: " << featuresCount 

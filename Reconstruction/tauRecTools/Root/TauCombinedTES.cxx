@@ -167,7 +167,7 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
 
 
 bool TauCombinedTES::getUseCaloPtFlag(const xAOD::TauJet& tau) const {
-  if (! isValid(tau)) return true;
+  if (! isValid(tau)) return false;
 
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
   int decayModeIndex = getDecayModeIndex(decayMode);

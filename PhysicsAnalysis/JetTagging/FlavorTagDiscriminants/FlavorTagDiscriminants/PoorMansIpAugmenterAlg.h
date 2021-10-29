@@ -12,6 +12,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -38,6 +39,9 @@ namespace FlavorTagDiscriminants {
     SG::ReadHandleKey< xAOD::VertexContainer > m_VertexContainerKey {
       this,"PrimaryVertexContainer","PrimaryVertices",
       "Key for the input vertex collection"};
+
+    SG::ReadHandleKey< xAOD::EventInfo > m_eventInfoKey {
+      this, "EventInfo", "EventInfo", "Key for EventInfo"};
 
     // Decorators for tracks
     Gaudi::Property< std::string > m_prefix{this,"prefix","poboyIp_",""};

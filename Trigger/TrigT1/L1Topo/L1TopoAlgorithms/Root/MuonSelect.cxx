@@ -24,9 +24,9 @@ TCS::MuonSelect::MuonSelect(const std::string & name) : SortingAlg(name) {
   defineParameter( "MaxEta", 7 );
   defineParameter( "MinEtTGC", 0 );
   defineParameter( "MinEtRPC", 0 );
-  defineParameter( "InnerCoinCut", -1 );
-  defineParameter( "FullStationCut", -1 );
-  defineParameter( "GoodMFieldCut", -1 );
+  defineParameter( "InnerCoinCut", 0 );
+  defineParameter( "FullStationCut", 0 );
+  defineParameter( "GoodMFieldCut", 0 );
   defineParameter( "MinET", 0 );
 }
 
@@ -63,23 +63,21 @@ TCS::MuonSelect::sort(const InputTOBArray & input, TOBArray & output) {
     // Tmp, to be removed after new menu is implemented    
     if( parType_t((*cl)->Et()) <= m_et ) continue; // ET cut
 
-    // Check the definition of sectorName at MuCTPIL1TopoCandidate.h (for TGC muons: sectorName.at(0)=E or F, for RPC muons: sectorName.at(0)=B)
     // Apply the relevant cut to the right kind of muon
-    std::string sector = (*cl)->sectorName();
-    if( parType_t((*cl)->Et()) <= m_MinEtTGC && sector.at(0) != 'B' ||  
-	parType_t((*cl)->Et()) <= m_MinEtRPC && sector.at(0) == 'B') continue; // ET cut
-
+    if( (parType_t((*cl)->Et()) <= m_MinEtTGC && parType_t((*cl)->isTGC())) ||  
+	(parType_t((*cl)->Et()) <= m_MinEtRPC && (!parType_t((*cl)->isTGC()))) ) continue; // ET cut
+    
     // eta cut
     if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
     if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;  
- 
-    // implementation of the selection with flags based on https://indico.cern.ch/event/1072597/contributions/4510314/attachments/2302129/3916048/MuonSelectWithFlags.pdf
-    // Apply the cut only for TGC muons 
-    if ( !( parType_t((*cl)->innerCoin()) >= m_InnerCoinCut &&
-	    parType_t((*cl)->bw2or3()) >= m_FullStationCut &&
-	    parType_t((*cl)->goodMF()) >= m_GoodMFieldCut &&
-	    sector.at(0) != 'B'))
-      continue;
+
+    // Apply flag selection only for TGC muons. The flag selection is applied only if the corresponing parameter from the menu is 1.  
+    if ( parType_t((*cl)->isTGC()) )
+      {
+	if(m_InnerCoinCut == 1 && ( ! ((int)parType_t((*cl)->innerCoin()) == (int)m_InnerCoinCut ) ) ) continue;
+	if(m_FullStationCut == 1 && ( ! ((int)parType_t((*cl)->bw2or3()) == (int)m_FullStationCut ) ) ) continue;
+	if(m_GoodMFieldCut == 1 && ( ! ((int)parType_t((*cl)->goodMF()) == (int)m_GoodMFieldCut ) ) ) continue;
+      }
 
     output.push_back( gtob );
   }

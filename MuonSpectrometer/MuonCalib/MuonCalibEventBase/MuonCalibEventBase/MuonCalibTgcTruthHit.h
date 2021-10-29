@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************//
 // Class to store truth information in                     //
-// Author: Zdenko van Kesteren                             //
-// Date  : 11 October 2006                                 //
 //*********************************************************//
 
 #ifndef MuonCalibTgcTruthHit_h
@@ -25,27 +23,27 @@ namespace MuonCalib {
     */
     class MuonCalibTgcTruthHit {
     public:
-        MuonCalibTgcTruthHit();                                          //!< default constructor
-        MuonCalibTgcTruthHit(MuonFixedId id, int barCode, double time);  //!< constructor initializing all attributes of the truth hit
-        MuonCalibTgcTruthHit(const MuonCalibTgcTruthHit& truth);         //!< copyconstructor
-        ~MuonCalibTgcTruthHit(){};
+        MuonCalibTgcTruthHit() = default;                                            //!< default constructor
+        MuonCalibTgcTruthHit& operator=(const MuonCalibTgcTruthHit& rhs) = default;  //!< assignment operator
+        MuonCalibTgcTruthHit(const MuonCalibTgcTruthHit& truth) = default;           //!< copyconstructor
+        ~MuonCalibTgcTruthHit() = default;                                           //!< destructor
 
-        MuonCalibTgcTruthHit& operator=(const MuonCalibTgcTruthHit& rhs);  //!< assignment operator
+        MuonCalibTgcTruthHit(MuonFixedId id, int barCode, double time);  //!< constructor initializing all attributes of the truth hit
 
         std::ostream& dump(std::ostream& stream) const;  //!< dump to be used for operator<<() to dump the MuonCalibTgcTruthHit
 
-        MuonFixedId identify() const { return m_ID; };  //!< retrive the MuonFixedId
-        int barCode() const { return m_barCode; };      //!< retrieve the barcode
-        double time() const { return m_time; };         //!< retrieve the time
+        const MuonFixedId& identify() const;  //!< retrieve the MuonFixedId
+        int barCode() const;                  //!< retrieve the barcode
+        double time() const;                  //!< retrieve the time
 
-        void setIdentifier(MuonFixedId id) { m_ID = id; };      //!< sets the MuonFixedId
-        void setBarCode(int barCode) { m_barCode = barCode; };  //!< sets the barcode
-        void setTime(double time) { m_time = time; };           //!< sets the time
+        void setIdentifier(MuonFixedId id);  //!< sets the MuonFixedId
+        void setBarCode(int barCode);        //!< sets the barcode
+        void setTime(double time);           //!< sets the time
 
     private:
-        MuonFixedId m_ID;  //!< identifier of the truth hit, (is a MuonFixedId, not an Identifier)
-        int m_barCode;     //!< barcode
-        double m_time;     //!< time
+        MuonFixedId m_ID{0};  //!< identifier of the truth hit, (is a MuonFixedId, not an Identifier)
+        int m_barCode{0};     //!< barcode
+        double m_time{0.};    //!< time
     };
 
 }  // namespace MuonCalib

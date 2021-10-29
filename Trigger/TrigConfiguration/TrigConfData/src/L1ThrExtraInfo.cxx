@@ -326,24 +326,18 @@ void
 TrigConf::L1ThrExtraInfo_jEM::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinToTopoMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
-      } else if( x.first == "ptMinxTOB" ){
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinxTOBMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo3" ){
+         m_ptMinToTopoMeV3 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB1" ){
+         m_ptMinxTOBMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB2" ){
+         m_ptMinxTOBMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB3" ){
+         m_ptMinxTOBMeV3 = 1000*x.second.getValue<unsigned int>();
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
             auto wp = Selection::stringToWP(y.first);
@@ -364,16 +358,16 @@ TrigConf::L1ThrExtraInfo_jEM::load()
  *******/
 TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU::WorkingPoints_eTAU( const boost::property_tree::ptree & pt ) {
    m_isDefined = true;
-   m_isoConeRel_d    = pt.get_optional<float>("isoConeRel").get_value_or(0);
-   m_fEM_d           = pt.get_optional<float>("fEM").get_value_or(0);
-   m_isoConeRel_fw   = pt.get_optional<float>("isoConeRel_fw").get_value_or(0);
-   m_fEM_fw          = pt.get_optional<float>("fEM_fw").get_value_or(0);
-   m_maxEt           = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
+   m_rCore_d   = pt.get_optional<float>("rCore").get_value_or(0);
+   m_rHad_d    = pt.get_optional<float>("rHad").get_value_or(0);
+   m_rCore_fw  = pt.get_optional<float>("rCore_fw").get_value_or(0);
+   m_rHad_fw   = pt.get_optional<float>("rHad_fw").get_value_or(0);
+   m_maxEt     = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
 TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU & iso) {
-   os << "isoConeRel_fw=" << iso.isoConeRel_fw() << ", fEM_fw=" << iso.fEM_fw() ;
+   os << "rCore_fw=" << iso.rCore_fw() << ", rHad_fw=" << iso.rHad_fw() ;
    return os;
 }
 
@@ -418,24 +412,18 @@ void
 TrigConf::L1ThrExtraInfo_jTAU::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinToTopoMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
-      } else if( x.first == "ptMinxTOB" ){
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinxTOBMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo3" ){
+         m_ptMinToTopoMeV3 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB1" ){
+         m_ptMinxTOBMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB2" ){
+         m_ptMinxTOBMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB3" ){
+         m_ptMinxTOBMeV3 = 1000*x.second.getValue<unsigned int>();
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
             auto wp = TrigConf::Selection::stringToWP(y.first);
@@ -493,25 +481,19 @@ void
 TrigConf::L1ThrExtraInfo_jJ::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);            
-            m_ptMinToTopoMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
-      } else if( x.first == "ptMinxTOB" ){
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinxTOBMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
-      }
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo3" ){
+         m_ptMinToTopoMeV3 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB1" ){
+         m_ptMinxTOBMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB2" ){
+         m_ptMinxTOBMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB3" ){
+         m_ptMinxTOBMeV3 = 1000*x.second.getValue<unsigned int>();
+      } 
    }
 }
 
@@ -522,25 +504,19 @@ void
 TrigConf::L1ThrExtraInfo_jLJ::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinToTopoMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
-      } else if( x.first == "ptMinxTOB" ){
-         for( auto & k : x.second.data() ) {
-            int etamin = k.second.get_optional<int>("etamin").get_value_or(-49);
-            int etamax = k.second.get_optional<int>("etamax").get_value_or(49);
-            float value = k.second.get_optional<float>("value").get_value_or(0);
-            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);
-            m_ptMinxTOBMeV.addRangeValue( lround(1000*value),
-                                            etamin, etamax, priority, /*symmetric=*/ false);
-         }
-      }
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo3" ){
+         m_ptMinToTopoMeV3 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB1" ){
+         m_ptMinxTOBMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB2" ){
+         m_ptMinxTOBMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinxTOB3" ){
+         m_ptMinxTOBMeV3 = 1000*x.second.getValue<unsigned int>();
+      } 
    }
 }
 
@@ -559,9 +535,19 @@ void
 TrigConf::L1ThrExtraInfo_jTE::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "etaBoundary" ) {
-         m_etaBoundary = x.second.getValue<unsigned int>();
-      }
+      if( x.first == "etaBoundary1" ) {
+         m_etaBoundary1 = x.second.getValue<unsigned int>();
+      } else if( x.first == "etaBoundary1_fw" ) {
+         m_etaBoundary1_fw = x.second.getValue<unsigned int>();
+      } else if( x.first == "etaBoundary2" ) {
+         m_etaBoundary2 = x.second.getValue<unsigned int>();
+      } else if( x.first == "etaBoundary2_fw" ) {
+         m_etaBoundary2_fw = x.second.getValue<unsigned int>();
+      } else if( x.first == "etaBoundary3" ) {
+         m_etaBoundary3 = x.second.getValue<unsigned int>();
+      } else if( x.first == "etaBoundary3_fw" ) {
+         m_etaBoundary3_fw = x.second.getValue<unsigned int>();
+      } 
    }
 }
 

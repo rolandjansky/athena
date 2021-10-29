@@ -48,12 +48,15 @@ inline MmDigit * Muon::MM_RDO_Decoder::getDigit(const Muon::MM_RawData* data) co
   int channel             = data->channel();
   int time                = data->time();
   int charge              = data->charge();
+  uint16_t relBcid        = data->relBcid();
   std::vector<float> Time;
   std::vector<int> pos;
   std::vector<float> Charge;
+  std::vector<uint16_t> RelBcid;
   Time.push_back(time);
   pos.push_back(channel);
   Charge.push_back(charge);
+  RelBcid.push_back(relBcid);  // needs to be used once time calibration is available. pscholer Sept 2021
   // MM_RawData is built using only the first 4 values. The others are now simply filled proper objects. 
   MmDigit* mmDigit = new MmDigit(Id,Time,pos,Charge,Time,pos,Charge,Time,pos,Charge,pos,pos);
   

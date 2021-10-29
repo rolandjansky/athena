@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Common Geometry job property base class
@@ -26,13 +26,6 @@ class GeoType(JobProperty):
      allowedTypes = ['str']
      StoredValue  = "UNDEFINED"
 
-class StripGeoType(JobProperty):
-     """ Geometry strip type ( disc, petal,  etc...) """
-     statusOn     = True
-     allowedTypes = ['str']
-     StoredValue  = "UNDEFINED"
-
-
 class CommonGeometryFlags_JobProperties(JobPropertyContainer):
     """ The geometry flag/job property container """
 
@@ -49,27 +42,23 @@ class CommonGeometryFlags_JobProperties(JobPropertyContainer):
 
         self.Run.set_Value_and_Lock(params["Run"])
         self.GeoType.set_Value_and_Lock(params["GeoType"])
-        self.StripGeoType.set_Value_and_Lock(params["StripGeoType"])
 
 
     def reset(self):
         
         self.Run.unlock()
         self.GeoType.unlock()
-        self.StripGeoType.unlock()
 
 
     def dump(self):
 
         Logging.log.info("RUN flag      : %s", self.Run())
         Logging.log.info("GeoType flag  : %s", self.GeoType())
-        Logging.log.info("Strip geoType flag  : %s", self.StripGeoType())
 
 
 jobproperties.add_Container(CommonGeometryFlags_JobProperties)
 jobproperties.CommonGeometryFlags_JobProperties.add_JobProperty(Run)
 jobproperties.CommonGeometryFlags_JobProperties.add_JobProperty(GeoType)
-jobproperties.CommonGeometryFlags_JobProperties.add_JobProperty(StripGeoType)
 
 CommonGeometryFlags = jobproperties.CommonGeometryFlags_JobProperties
 CommonGeometryFlags.setupValuesFromDB()

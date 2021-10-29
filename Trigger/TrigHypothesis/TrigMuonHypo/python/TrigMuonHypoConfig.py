@@ -230,7 +230,8 @@ trigMuonLrtd0Cut = {
 # <0 for no cut
 trigMuonEFInvMassThresholds = {
     '10invm70' : [10., 70.],
-    'invmJPsi' : [2.5, 4.3]
+    'invmJPsi' : [2.5, 4.3],
+    'invmDimu' : [1.5, 14.]
 }
 
 def addMonitoring(tool, monClass, name, thresholdHLT ):

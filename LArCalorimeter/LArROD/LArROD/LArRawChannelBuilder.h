@@ -46,7 +46,6 @@ public:
 private:
   //Services & Tools 
   const LArOnlineID* m_onlineHelper;
-  //LArRoI_Map* m_roiMap;
   //LArRawOrdering m_larRawOrdering; 
 
 

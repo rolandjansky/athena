@@ -9,11 +9,11 @@
 #include <TFile.h>
 #include <TString.h>
 // Infrastructure include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+#endif // XAOD_STANDALONE
 // Asg includes
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 // Local includes
@@ -51,7 +51,7 @@ main(int argc, char* argv[])
     value<int>(&inputlevel)->default_value(static_cast<int>(MSG::INFO)),
     "message level")("file,f",
                      value<std::string>(&fileName)->default_value(""),
-                     "scale factor file: Required a SF file or a map file")(
+                     "scale factor file")(
     "runno,r", value<int>(&runno)->required(), "run number: Required")(
     "eta,e", value<float>(&eta)->required(), "eta: Required")(
     "pt,p", value<float>(&pt)->required(), "pt: Required")(
@@ -66,7 +66,7 @@ main(int argc, char* argv[])
     "Reco working point Key")(
     "mapfile,m",
     value<std::string>(&mapfileName)->default_value(""),
-    "Map file name: Required a SF file or a map file")(
+    "Map file name")(
     "keyid,d",
     value<std::string>(&idkey)->default_value(""),
     "Identification working point Key")(
@@ -90,11 +90,6 @@ main(int argc, char* argv[])
     return 0;
   }
 
-  if (fileName == "" && mapfileName == "") {
-    MSG_ERROR("Neither map file name nor file name given");
-    MSG_ERROR(desc << '\n');
-    return 0;
-  }
   if (!(type == "FullSim" || type == "AtlFast2")) {
     MSG_ERROR("No valid type given (FullSim or AtlFast2)");
     MSG_ERROR(desc << '\n');
@@ -118,8 +113,8 @@ main(int argc, char* argv[])
   CHECK(xAOD::Init(APP_NAME));
 
   // Initialize the store
-  static xAOD::TEvent event(xAOD::TEvent::kClassAccess);
-  static xAOD::TStore store;
+  xAOD::TEvent event(xAOD::TEvent::kClassAccess);
+  xAOD::TStore store;
 
   // Configure the tool based on the inputs
   AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool(
@@ -182,5 +177,6 @@ main(int argc, char* argv[])
                            << " : eta = " << el.eta() << " : Bin index = "
                            << index << " : SF = " << nominalSF << " + "
                            << totalPos << " - " << totalNeg << " <===");
+  
   return 0;
 }

@@ -31,7 +31,8 @@ namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
                              FlipTagConfig flip_config,
-                             std::map<std::string,std::string> remap_scalar):
+                             std::map<std::string,std::string> remap_scalar,
+                             TrackLinkType track_link_type):
     m_dl2(nullptr)
   {
     // get the graph
@@ -168,6 +169,7 @@ namespace FlavorTagDiscriminants {
     }
     options.flip = flip_config;
     options.remap_scalar = remap_scalar;
+    options.track_link_type = track_link_type;
 
     m_dl2.reset(
       new DL2(
@@ -183,6 +185,9 @@ namespace FlavorTagDiscriminants {
 
   void DL2HighLevel::decorate(const xAOD::BTagging& btag) const {
     m_dl2->decorate(btag);
+  }
+  void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
+    m_dl2->decorate(jet);
   }
 
   DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const

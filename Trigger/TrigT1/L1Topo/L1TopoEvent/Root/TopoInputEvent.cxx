@@ -14,6 +14,7 @@ TopoInputEvent::TopoInputEvent() :
   m_jems("InputjEms",60),
   m_etaus("InputeTaus",120),
   m_jtaus("InputjTaus",60),
+  m_ctaus("InputcTaus",120),
   m_taus("InputTaus",120),
   m_jets("InputJets",60),
   m_jLargeRJets("InputjLargeRJets",60),
@@ -49,6 +50,15 @@ StatusCode TopoInputEvent::addeTau(const TCS::eTauTOB & etau) {
    return StatusCode::SUCCESS;
 }
 
+StatusCode TopoInputEvent::addcTau(const TCS::eTauTOB & etau) {
+   TCS::cTauTOB ctau(etau.Et(),etau.isolation(),etau.eta(),etau.phi(),TCS::ETAU);
+   ctau.setEtDouble( etau.EtDouble() );
+   ctau.setEtaDouble( etau.etaDouble() );
+   ctau.setPhiDouble( etau.phiDouble() );
+   m_ctaus.push_back(ctau);
+   return StatusCode::SUCCESS;
+}
+
 StatusCode TopoInputEvent::addTau(const TCS::ClusterTOB & tau) {
    m_taus.push_back(tau);
    return StatusCode::SUCCESS;
@@ -61,6 +71,15 @@ StatusCode TopoInputEvent::addJet(const TCS::JetTOB & jet) {
 
 StatusCode TopoInputEvent::addjTau(const TCS::jTauTOB & tau) {
    m_jtaus.push_back(tau);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addcTau(const TCS::jTauTOB & jtau) {
+  TCS::cTauTOB ctau(jtau.Et(),jtau.isolation(),jtau.eta(),jtau.phi(),TCS::JTAU);
+   ctau.setEtDouble( jtau.EtDouble() );
+   ctau.setEtaDouble( jtau.etaDouble() );
+   ctau.setPhiDouble( jtau.phiDouble() );
+   m_ctaus.push_back(ctau);
    return StatusCode::SUCCESS;
 }
 
@@ -180,6 +199,8 @@ TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    case CLUSTER: return &m_clusters;
    case EEM: return &m_eems;
    case JEM: return &m_jems;
+   case ETAU: return &m_etaus;
+   case CTAU: return &m_ctaus;
    case JET: return &m_jets;
    case ETAU: return &m_etaus;
    case JTAU: return &m_jtaus;
@@ -222,6 +243,7 @@ TCS::TopoInputEvent::clear() {
    m_eems.clear();
    m_jems.clear();
    m_etaus.clear();
+   m_ctaus.clear();
    m_jets.clear();
    m_jtaus.clear();
    m_jLargeRJets.clear();

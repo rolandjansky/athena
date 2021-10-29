@@ -25,6 +25,9 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
 
  public:
@@ -64,7 +67,8 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
-  //  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" }; Temporary commenting this out
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" }; // Temporary commenting this out
+
 };
 
 #endif // !TRIGBJETHYPO_TRIGBJETHYPOTOOL_H

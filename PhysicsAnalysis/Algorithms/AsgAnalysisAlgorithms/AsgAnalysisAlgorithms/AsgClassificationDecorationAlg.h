@@ -8,8 +8,8 @@
 #define ASG_ANALYSIS_ALGORITHMS__ASG_CLASSIFICATION_DECORATION_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
 #include <xAODBase/IParticle.h>
 #include <xAODBase/IParticleContainer.h>
 
@@ -46,7 +46,7 @@ private:
 
   /// \brief particles container handle
 private:
-  CP::SysCopyHandle<xAOD::IParticleContainer> m_particlesHandle {
+  CP::SysReadHandle<xAOD::IParticleContainer> m_particlesHandle {
     this, "particles", "", "the container to use"};
 
   /// \brief the decoration for the truth classification
@@ -55,7 +55,7 @@ private:
 
   /// \brief the accessor for \ref m_truthClassificationDecoration
 private:
-  std::unique_ptr<const SG::AuxElement::Accessor<unsigned int> > m_classificationAccessor {};
+  std::unique_ptr<const SG::AuxElement::Decorator<unsigned int> > m_classificationDecorator {};
 };
 
 } // namespace CP

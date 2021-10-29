@@ -49,8 +49,7 @@ _all_streams = [
     StreamInfo('EnhancedBias', 'physics', True, True),
     StreamInfo('Late', 'physics', True, True),
     # TLA/PEB/DATA SCOUTING (physics) STREAMS
-    StreamInfo('JetDS','physics',True,False),
-    StreamInfo('PhotonDS','physics',True,False),
+    StreamInfo('TLA','physics',True,False),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS
@@ -69,6 +68,7 @@ _all_streams = [
     StreamInfo('Tile', 'calibration', False, False),
     StreamInfo('ALFACalib', 'calibration', False, False),
     StreamInfo('LArPEB', 'calibration', False, False),
+    StreamInfo('LArPEBDigitalTrigger', 'calibration', False, False),
     StreamInfo('L1TopoMismatches', 'calibration', False, True),
     StreamInfo('ZDCCalib', 'calibration', False, False),
     # HI STREAMS

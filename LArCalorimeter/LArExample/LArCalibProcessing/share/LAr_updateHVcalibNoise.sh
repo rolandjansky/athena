@@ -85,7 +85,7 @@ fi
 
 touch $summaryFile
 
-if ! which AtlCoolCopy.exe 1>/dev/null 2>&1
+if ! which AtlCoolCopy 1>/dev/null 2>&1
 then
     echo "No offline setup found!"
     exit
@@ -280,12 +280,12 @@ echo " "
 cp larnoisesqlite.db tempdb.db
 
 echo "Make UPD1 offline folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=tempdb.db;dbname=CONDBR2" "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -t ${fulltag} -ot  LARNoiseOflCellNoise-RUN2-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy "sqlite://;schema=tempdb.db;dbname=CONDBR2" "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -t ${fulltag} -ot  LARNoiseOflCellNoise-RUN2-UPD1-00 -create >> mergedb.log 
 
 /bin/rm tempdb.db
 
 echo "Make UPD1 online folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot  CaloNoiseCellnoise-RUN2-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot  CaloNoiseCellnoise-RUN2-UPD1-00 -create >> mergedb.log 
 
 echo "Doing check of the noise sqlite against P1HLT cache....."
 echo "Will take 3-5 minutes, be patient......"

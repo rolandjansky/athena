@@ -13,9 +13,11 @@
 #include <stdexcept>
 
 
-namespace ITkPixelCalib{
+namespace ITk
+{
 
-void ITkPixelClusterErrorData::Initialize(){
+void PixelClusterErrorData::Initialize()
+{
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
   StatusCode sc = svcLoc->service("DetectorStore", m_detStore);
@@ -30,9 +32,10 @@ void ITkPixelClusterErrorData::Initialize(){
 }
 
 
-std::pair<double,double> ITkPixelClusterErrorData::getDelta(const Identifier* pixelId,
-                                                            int sizePhi, double angle,
-                                                            int sizeZ, double eta) const{
+std::pair<double,double> PixelClusterErrorData::getDelta(const Identifier* pixelId,
+                                                         int sizePhi, double angle,
+                                                         int sizeZ, double eta) const
+{
 
   std::vector<double> value = m_constmap.at(*pixelId);
   double period_phi = value[0];
@@ -50,7 +53,8 @@ std::pair<double,double> ITkPixelClusterErrorData::getDelta(const Identifier* pi
 }
 
 
-std::pair<double,double> ITkPixelClusterErrorData::getDeltaError(const Identifier* pixelId) const{
+std::pair<double,double> PixelClusterErrorData::getDeltaError(const Identifier* pixelId) const
+{
 
   std::vector<double> value = m_constmap.at(*pixelId);
 
@@ -64,10 +68,11 @@ std::pair<double,double> ITkPixelClusterErrorData::getDeltaError(const Identifie
 
 // SET METHODS
 
-void ITkPixelClusterErrorData::setDeltaError(const Identifier* pixelId,
+void PixelClusterErrorData::setDeltaError(const Identifier* pixelId,
 					     double period_phi, double period_sinheta,
 					     double delta_x_slope, double delta_x_offset, double error_x,
-					     double delta_y_slope, double delta_y_offset, double error_y){
+					     double delta_y_slope, double delta_y_offset, double error_y)
+{
 
   std::vector<double> linevalues = {period_phi, period_sinheta,
 				    delta_x_slope, delta_x_offset, error_x,
@@ -80,30 +85,30 @@ void ITkPixelClusterErrorData::setDeltaError(const Identifier* pixelId,
 
 
 // save all constants to file
-void ITkPixelClusterErrorData::print(const std::string& file) const {
+void PixelClusterErrorData::print(const std::string& file) const
+{
 
-  std::ofstream* outfile = new std::ofstream(file.c_str()); 
+  std::ofstream outfile(file.c_str());
 
   for(const auto & x : m_constmap){
 
     std::vector<double> value = x.second;
-    *outfile << m_pixelID->wafer_hash(x.first) << " " << value[0] << " " << value[1] << " " << value[2] << " " << value[3] << " " << value[4] << " " << value[5] << " " << value[6] << " " << value[7] << std::endl;
+    outfile << m_pixelID->wafer_hash(x.first) << " " << value[0] << " " << value[1] << " " << value[2] << " " << value[3] << " " << value[4] << " " << value[5] << " " << value[6] << " " << value[7] << std::endl;
 
   }
 
-  outfile->close(); 
-  delete outfile; 
+  outfile.close();
 }
 
 
 
 // Load ITk constants from file
-void ITkPixelClusterErrorData::load(const std::string& file){
+void PixelClusterErrorData::load(const std::string& file){
 
   std::ifstream infile( file.c_str() );
-  
+
   if(infile.is_open()){
-       
+
     //
     // Data in the file is stored in the following columns:
     // waferID_hash : period_phi : period_sinheta : delta_x_slope : delta_x_offset : delta_error_x : delta_y_slope : delta_y_offset : delta_error_y
@@ -117,12 +122,12 @@ void ITkPixelClusterErrorData::load(const std::string& file){
     double delta_error_x;
     double delta_y_slope;
     double delta_y_offset;
-    double delta_error_y;    
+    double delta_error_y;
 
     while(!infile.eof()){
 
       infile >> waferID_hash_int >> period_phi >> period_sinheta >> delta_x_slope >> delta_x_offset >> delta_error_x >> delta_y_slope >> delta_y_offset >> delta_error_y;
-        
+
       IdentifierHash waferID_hash(waferID_hash_int);
       Identifier pixelId = m_pixelID->wafer_id(waferID_hash);
       setDeltaError(&pixelId,
@@ -131,17 +136,13 @@ void ITkPixelClusterErrorData::load(const std::string& file){
 		    delta_y_slope, delta_y_offset, delta_error_y);
 
     }
-    
+
     infile.close();
-  
-  }else{
+
+  } else {
     throw std::runtime_error("ITkAnalogueClusteringConstantsFile \"" + file + "\" can not be read. Unable to proceed.");
   }
-  
-}
-
 
 }
 
-
-
+} // namespace ITk

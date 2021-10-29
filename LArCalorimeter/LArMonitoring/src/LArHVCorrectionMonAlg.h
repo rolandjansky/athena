@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,9 +29,9 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <set>
 
 class LArOnlineID;
-class CaloDetDescrManager;
 class CaloDetDescrElement;
 
 
@@ -61,6 +61,7 @@ class LArHVCorrectionMonAlg: public AthMonitorAlgorithm
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   // To retrieve bad channel DB keywords 
   int DBflag(HWIdentifier onID);
@@ -71,7 +72,7 @@ class LArHVCorrectionMonAlg: public AthMonitorAlgorithm
 
   // Other things
   // FIXME: How to find new LB, and fill only once per LB ?
-  mutable unsigned int m_lastLB ATLAS_THREAD_SAFE;
+  mutable std::set<unsigned int> m_filledLB ATLAS_THREAD_SAFE;
   mutable std::mutex m_mut ATLAS_THREAD_SAFE;
 
 };

@@ -51,6 +51,7 @@
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/ConstLink.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -64,15 +65,24 @@
 #include <vector>
 #include <cmath>
 
-AGDD2GeoModelBuilder::AGDD2GeoModelBuilder() :
+AGDD2GeoModelBuilder::AGDD2GeoModelBuilder(AGDDDetectorStore& ds,
+                                           AGDDVolumeStore& vs,
+                                           AGDDSectionStore& ss,
+                                           AliasStore& as,
+                                           AGDDMaterialStore& ms) :
   AGDDBuilder(),
-  m_mother(nullptr) {
+  m_mother(nullptr),
+  m_ds(ds),
+  m_vs(vs),
+  m_ss(ss),
+  m_as(as),
+  m_ms(ms)
+{
 }
 
 GeoElement* AGDD2GeoModelBuilder::CreateElement(const std::string& name) const
 {
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
-	AGDDElement *el=ms->GetElement(name);
+	AGDDElement *el=m_ms.GetElement(name);
 	if (el)
 		if (el->Extant())
 			return (GeoElement *)(el->GetElement());
@@ -98,8 +108,7 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 		return mmMaterial;
 	}
 
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
-	AGDDSimpleMaterial *mat=ms->GetMaterial(name);
+	AGDDSimpleMaterial *mat=m_ms.GetMaterial(name);
 	if (mat)
 		if (mat->Extant())
 			return (GeoMaterial*)(mat->GetMaterial());
@@ -117,7 +126,7 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 					return nullptr;
 				}
 				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3));
-				AGDDElement *el=ms->GetElement(nmat->GetName());
+				AGDDElement *el=m_ms.GetElement(nmat->GetName());
 				if (el) 
 				{
 					if (!el->Extant()) CreateElement(el->GetName());
@@ -178,18 +187,16 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 }
 void AGDD2GeoModelBuilder::CreateElements() const
 {
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
 	ElementIterator it;
-	for (it=ms->ElementBegin();it!=ms->ElementEnd();it++)
+	for (it=m_ms.ElementBegin();it!=m_ms.ElementEnd();++it)
 	{
 		CreateElement((*it).second->GetName());
 	}
 }
 void AGDD2GeoModelBuilder::CreateMaterial() const
 {
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
 	MaterialIterator it;
-	for (it=ms->MaterialBegin();it!=ms->MaterialEnd();it++)
+	for (it=m_ms.MaterialBegin();it!=m_ms.MaterialEnd();++it)
 	{
 		CreateMaterial((*it).second->GetName());
 	}
@@ -216,13 +223,17 @@ void AGDD2GeoModelBuilder::CreateTrd(AGDDTrd* v) const
 void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v) const
 {
 // here begins a nasty piece of code
-	static GeoBox *box1=new GeoBox(1.*GeoModelKernelUnits::km,1*GeoModelKernelUnits::km,1*GeoModelKernelUnits::km);
-	GeoTrf::Vector3D v1(0,0,-1*GeoModelKernelUnits::km);
-	GeoTrf::Vector3D v2(0,0,+1*GeoModelKernelUnits::km);
-	GeoTrf::Transform3D ttt1 = GeoTrf::Transform3D::Identity()*GeoTrf::Translation3D(v1);
-	GeoTrf::Transform3D ttt2 = GeoTrf::Transform3D::Identity()*GeoTrf::Translation3D(v2);
-	static GeoShape *s1=new GeoShapeShift(box1,ttt1);
-	static GeoShape *s2=new GeoShapeShift(box1,ttt2);
+	static const ConstLink<GeoBox> box1 = new GeoBox(1.*GeoModelKernelUnits::km,1*GeoModelKernelUnits::km,1*GeoModelKernelUnits::km);
+        static const ConstLink<GeoShape> s1 = [&] {
+          GeoTrf::Vector3D v1(0,0,-1*GeoModelKernelUnits::km);
+          GeoTrf::Transform3D ttt1 = GeoTrf::Transform3D::Identity()*GeoTrf::Translation3D(v1);
+          return new GeoShapeShift (&*box1, ttt1);
+        }();
+        static const ConstLink<GeoShape> s2 = [&] {
+          GeoTrf::Vector3D v2(0,0,+1*GeoModelKernelUnits::km);
+          GeoTrf::Transform3D ttt2 = GeoTrf::Transform3D::Identity()*GeoTrf::Translation3D(v2);
+          return new GeoShapeShift (&*box1, ttt2);
+        }();
 	
 	double radius=v->Radius();
 	GeoTrf::Vector3D axis0(v->GetPoint(0)-v->GetPoint(1));
@@ -239,7 +250,7 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v) const
 	
 	const GeoTrf::Vector3D vt(0.,0.,-lengthnew/2.+delta_l2+2.);
 	GeoTrf::Transform3D rrr = GeoTrf::RotateY3D(angle2)*GeoTrf::RotateZ3D(phi(axis2));
-	GeoShape *ssnew=new GeoShapeShift(s1,GeoTrf::Translation3D(vt)*rrr);
+	GeoShape *ssnew=new GeoShapeShift(&*s1,GeoTrf::Translation3D(vt)*rrr);
 	
 	solid = new GeoShapeSubtraction(solid,ssnew);
 	
@@ -280,11 +291,11 @@ void AGDD2GeoModelBuilder::CreateSnake(AGDDSnake* v) const
 		GeoTrf::Transform3D rrr2 = GeoTrf::RotateZ3D(phi(axis2))*GeoTrf::RotateY3D(-angle2);
 		GeoTrf::Transform3D ttt1 = rrr1*GeoTrf::Translation3D(vt1);
 		GeoTrf::Transform3D ttt2 = rrr2*GeoTrf::Translation3D(vt2);
-		GeoShape *ssnew1=new GeoShapeShift(s2,ttt1);
+		GeoShape *ssnew1=new GeoShapeShift(&*s2,ttt1);
 		ss = new GeoShapeSubtraction(ss,ssnew1);
 		if (i<(v->NrOfPoints()-2)) 
 		{
-		  GeoShape *ssnew2=new GeoShapeShift(s1,ttt2);
+		  GeoShape *ssnew2=new GeoShapeShift(&*s1,ttt2);
 		  ss = new GeoShapeSubtraction(ss,ssnew2);
 		}
 
@@ -457,19 +468,12 @@ void AGDD2GeoModelBuilder::CreatePgon(AGDDPgon* v) const
 
 void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v) const
 {
-	static int ifirst=1;
-	static const GeoMaterial *ether=0;
-	static GeoShape* fakeVol=0;
-	if (ifirst)
-	{
-		ifirst=0;
-        ether = GetMMMaterial("special::Ether");
-	 	fakeVol=new GeoTubs(0.,500.,1000.,0.,4*std::asin(1.));
-	}
+	static const GeoMaterial * const ether = GetMMMaterial("special::Ether");
+        static const ConstLink<GeoShape> fakeVol = new GeoTubs(0.,500.,1000.,0.,4*std::asin(1.));
 
 	if (!v->GetVolume())
 	{
-		GeoLogVol *a=new GeoLogVol(v->GetName(),fakeVol,ether);
+		GeoLogVol *a=new GeoLogVol(v->GetName(),&*fakeVol,ether);
 		GeoPhysVol *a_phys=new GeoPhysVol(a);
 		v->SetVolume(a_phys);
 
@@ -485,8 +489,7 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v) const
 			std::string detFullTag="";
 			if (isDetElement) 
 			{ 
-				AGDDDetectorStore* ds=AGDDDetectorStore::GetDetectorStore();
-				d=ds->GetDetector(volName);
+				d=m_ds.GetDetector(volName);
 				if (!d) {
 					MsgStream log(Athena::getMessageSvc(),"AGDD2GeoModelBuilder");
 					log<<MSG::WARNING<<"CreateComposition() - Cannot retrieve Detector element for "<<volName<<endmsg;
@@ -534,7 +537,8 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v) const
 
 void AGDD2GeoModelBuilder::CreateVolume(AGDDVolume* v) const
 {
-	const GeoMaterial *mat=CreateMaterial(ALIAS(v->GetMaterial()));
+        std::string alias = m_as.Alias(v->GetMaterial());
+	const GeoMaterial *mat=CreateMaterial(alias);
 	
 	void* p=v->GetVolume();
 	if (!p)
@@ -556,11 +560,10 @@ void AGDD2GeoModelBuilder::CreateVolume(AGDDVolume* v) const
 
 void AGDD2GeoModelBuilder::BuildAllVolumes() const
 {
-  AGDDVolumeStore *vs=AGDDVolumeStore::GetVolumeStore();
   AGDDVolumeMap::const_iterator it;
   GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
   
-  for (it=vs->begin();it!=vs->end();it++)
+  for (it=m_vs.begin();it!=m_vs.end();++it)
   {
   	AGDDVolume* vol=(*it).second;
 	if (!vol->HasParent())
@@ -592,8 +595,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
 {
   GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
 
-  AGDDSectionStore* ss=AGDDSectionStore::GetSectionStore();
-  AGDDSection* sect=ss->GetSection(s);
+  AGDDSection* sect=m_ss.GetSection(s);
 
   bool bFlag=sect->IsToBeBuilt();
   if (bFlag)
@@ -602,7 +604,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
     std::string topVolumeName=sect->TopVolume();
     if (topVolumeName!="useless" && !topVolumeName.empty())
     {
-       for (it=sect->VolumeBegin();it!=sect->VolumeEnd();it++)
+       for (it=sect->VolumeBegin();it!=sect->VolumeEnd();++it)
        {
           AGDDVolume* vol=(*it).second;
           if (vol->GetName()==topVolumeName)
@@ -630,7 +632,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
        }
     }
     else 
-      for (it=sect->VolumeBegin();it!=sect->VolumeEnd();it++)
+      for (it=sect->VolumeBegin();it!=sect->VolumeEnd();++it)
       {
   	    AGDDVolume* vol=(*it).second;
 	    if (!vol->HasParent())
@@ -665,8 +667,7 @@ void AGDD2GeoModelBuilder::BuildFromVolume(const std::string& s) const
 {
     GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
   
-    AGDDVolumeStore *vs=AGDDVolumeStore::GetVolumeStore();
-	AGDDVolume* vol=vs->GetVolume(s);
+	AGDDVolume* vol=m_vs.GetVolume(s);
 	if (!vol) {
 		MsgStream log(Athena::getMessageSvc(),"AGDD2GeoModelBuilder");
 		log<<MSG::WARNING<<"BuildFromVolume() - Volume "<<s<<" not found in the store! Exiting..."<<endmsg;
@@ -746,15 +747,19 @@ void AGDD2GeoModelBuilder::CreateUbeam(AGDDUbeam *b) const
 
 const GeoMaterial* AGDD2GeoModelBuilder::GetMMMaterial(const std::string& name) const
 {
-    StoreGateSvc* pDetStore=nullptr;
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
-    if(sc.isSuccess()) {
-        const StoredMaterialManager* theMaterialManager = nullptr;
-        sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
-        if(sc.isSuccess()) {
-            return theMaterialManager->getMaterial(name);
-        }
+  return GetMaterialManager().getMaterial(name);
+}
+
+
+const StoredMaterialManager& AGDD2GeoModelBuilder::GetMaterialManager() const
+{
+  static const StoredMaterialManager* const matManager = []() {
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "AGDD2GeoModelBuilder");
+    const StoredMaterialManager* mm = nullptr;
+    if (detStore->retrieve<StoredMaterialManager>(mm, "MATERIALS").isFailure()) {
+      std::abort();
     }
-    return nullptr;
+    return mm;
+  }();
+  return *matManager;
 }

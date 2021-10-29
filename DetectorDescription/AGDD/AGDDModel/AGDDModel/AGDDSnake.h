@@ -13,8 +13,11 @@
 
 class AGDDSnake: public AGDDVolume {
 public:
-	AGDDSnake(const std::string& s):AGDDVolume(s),m_radius(0) {}
-	void SetPoint(GeoTrf::Vector3D p)
+	AGDDSnake(const std::string& s,
+                  AGDDVolumeStore& vs,
+                  AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_radius(0) {}
+	void SetPoint(const GeoTrf::Vector3D& p)
 	{
 		m_points.push_back(p);
 	}

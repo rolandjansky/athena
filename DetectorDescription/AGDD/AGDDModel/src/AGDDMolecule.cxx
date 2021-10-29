@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDModel/AGDDMolecule.h"
@@ -22,16 +22,15 @@ std::ostream& operator <<(std::ostream& os, const AGDDMolecule &obj)
 	return os;
 }
 
-AGDDMolecule::AGDDMolecule(std::string n, double d):
-	AGDDSimpleMaterial(n,d)
+AGDDMolecule::AGDDMolecule(AGDDMaterialStore& ms, const std::string& n, double d):
+	AGDDSimpleMaterial(ms,n,d)
 {
         m_mType=Molecule;
 }
 
-void AGDDMolecule::AddElement(std::string el)
+void AGDDMolecule::AddElement(AGDDMaterialStore& ms, const std::string& el)
 {
-	AGDDMaterialStore* ms=AGDDMaterialStore::GetMaterialStore();
-	AGDDElement* element=ms->GetElement(el);
+	AGDDElement* element=ms.GetElement(el);
 	m_theElements.push_back(element);
 }
 void AGDDMolecule::NAtoms(int i)

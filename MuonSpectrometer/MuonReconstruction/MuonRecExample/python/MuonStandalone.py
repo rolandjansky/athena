@@ -19,7 +19,7 @@ from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 #==============================================================
 
 # call  setDefaults to update default flags
@@ -71,7 +71,7 @@ def MooSegmentFinderAlg( name="MuonSegmentMaker",**kwargs ):
     kwargs.setdefault("UseMDT", muonRecFlags.doMDTs())
     kwargs.setdefault("UseRPC", muonRecFlags.doRPCs())
     kwargs.setdefault("UseTGC", muonRecFlags.doTGCs())
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("UseTGCPriorBC", False)
         kwargs.setdefault("UseTGCNextBC", False)
     else:

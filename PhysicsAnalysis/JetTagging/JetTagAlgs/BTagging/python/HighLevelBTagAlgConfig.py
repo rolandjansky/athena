@@ -89,8 +89,8 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
 
     decorAlg = CompFactory.FlavorTagDiscriminants.BTagDecoratorAlg(
         name=name,
-        btagContainer=BTaggingCollection,
-        trackContainer=TrackCollection,
+        container=BTaggingCollection,
+        constituentContainer=TrackCollection,
         decorator=dl2,
         undeclaredReadDecorKeys=sorted(veto_list),
     )

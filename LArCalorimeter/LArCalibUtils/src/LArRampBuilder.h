@@ -55,7 +55,6 @@
 #include <map>
 #include <memory>
 
-
 class LArOnlineID_Base;
 class LArCalibTriggerAccumulator;
 
@@ -86,7 +85,7 @@ private:
   StatusCode rampfit(unsigned deg, const std::vector<LArRawRamp::RAMPPOINT_t>& data, 
 		     std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
 		     const HWIdentifier chid, const LArOnOffIdMapping* cabling,
-		     const LArBadChannelCont* bcCont);
+                     const LArBadChannelCont* bcCont);
 
   std::unique_ptr<LArConditionsContainer<ACCRAMP> > m_ramps;
 
@@ -98,7 +97,6 @@ private:
   unsigned m_event_counter=0; 
   int m_delay=-1;
   int m_ipassShape=0; 
-  int m_ipassPedestal=0; 
 
   std::vector< std::vector< std::vector< std::vector<double> > > >m_CaliWaves;
  // vector (gain) of vector(HashCell) of vector (DAC) of DACs

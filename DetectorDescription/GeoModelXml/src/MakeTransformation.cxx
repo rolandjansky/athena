@@ -18,7 +18,7 @@ using namespace std;
 
 MakeTransformation::MakeTransformation() {}
 
-const RCBase * MakeTransformation::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakeTransformation::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 char *name2release;
  GeoTrf::Transform3D hepTransform=GeoTrf::Transform3D::Identity(); // Starts as Identity transform
 //
@@ -53,9 +53,9 @@ char *name2release;
     XMLString::release(&toRelease);
     XMLString::release(&alignable_tmp);
     if (alignable.compare(string("true")) == 0) {
-        return (const RCBase *) new GeoAlignableTransform(hepTransform);
+        return (RCBase *) new GeoAlignableTransform(hepTransform);
     }
     else {
-        return (const RCBase *) new GeoTransform(hepTransform);
+        return (RCBase *) new GeoTransform(hepTransform);
     }
 }

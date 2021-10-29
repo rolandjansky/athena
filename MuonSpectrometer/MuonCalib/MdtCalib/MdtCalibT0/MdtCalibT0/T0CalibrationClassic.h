@@ -1,9 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef T0CALIBRATIONCLASSIC_H
 #define T0CALIBRATIONCLASSIC_H
+
+#include <TF1.h>
+#include <TFile.h>
+#include <TH1.h>
+#include <TH2.h>
 
 #include <iostream>
 #include <vector>
@@ -14,11 +19,6 @@
 #include "MdtCalibData/MdtTubeFullInfoContainer.h"
 #include "MdtCalibInterfaces/IMdtCalibration.h"
 
-class TH1;
-class TH2;
-class TFile;
-class TDirectory;
-
 namespace MuonCalib {
 
     class MuonCalibSegment;
@@ -26,15 +26,12 @@ namespace MuonCalib {
 
     /**@class T0ClassicSettings
        Settings for the T0 calibration (histogram booking and fitting parameters)
-       @author domizia.orestano@cern.ch
-       @date June 2005
-
     */
     class T0ClassicSettings {
     public:
         /** constructor */
         T0ClassicSettings(double minAdc, double maxAdc, int adcBins, double minTime, double maxTime, int timeBins, bool fitTime,
-                          int minEntries, int initParam, int numParams, double fitParams[], double chiMax, int printLevel) :
+                          int minEntries, int initParam, int numParams, std::array<double, 8> fitParams, double chiMax, int printLevel) :
             m_minAdc(minAdc),
             m_maxAdc(maxAdc),
             m_binAdc(adcBins),
@@ -71,7 +68,7 @@ namespace MuonCalib {
         /** @return number of parameters to be fit */
         int numParams() const { return m_numParams; };
         /** @return the pointer to the vector of parameters */
-        double* params() const { return m_params; };
+        const std::array<double, 8>& params() const { return m_params; };
         /** @return the maximum values of chi2 to accept the fit result */
         double chi2max() const { return m_chi2max; };
         /** @return the print level */
@@ -90,38 +87,34 @@ namespace MuonCalib {
 
     private:
         /** Private settings */
-        double m_minAdc;      //!< Adc spectrum low edge
-        double m_maxAdc;      //!< Adc spectrum high edge
-        int m_binAdc;         //!< Adc spectrum number of bins
-        double m_minTime;     //!< Time spectrum low edge
-        double m_maxTime;     //!< Time spectrum high edge
-        int m_binTime;        //!< Time spectrum number of bins
-        bool m_fitTime;       //!< flag to select or deselect the fit to Time Spectra
-        int m_entries;        //!< minimum number of entries per spectrum fitting
-        int m_initParamFlag;  //!< fix or search initial parameters for spectrum fit
-        int m_numParams;      //!< number of paramaters for spectrum fit
-        double* m_params;     //!< initial parameters for spectrum fit
-        double m_chi2max;     //!< normalized chi2 cut
-        int m_printLevel;     //!< output level flag (1 for verbose)
-    };                        // end class T0ClassicSettings
+        double m_minAdc;                 //!< Adc spectrum low edge
+        double m_maxAdc;                 //!< Adc spectrum high edge
+        int m_binAdc;                    //!< Adc spectrum number of bins
+        double m_minTime;                //!< Time spectrum low edge
+        double m_maxTime;                //!< Time spectrum high edge
+        int m_binTime;                   //!< Time spectrum number of bins
+        bool m_fitTime;                  //!< flag to select or deselect the fit to Time Spectra
+        int m_entries;                   //!< minimum number of entries per spectrum fitting
+        int m_initParamFlag;             //!< fix or search initial parameters for spectrum fit
+        int m_numParams;                 //!< number of paramaters for spectrum fit
+        std::array<double, 8> m_params;  //!< initial parameters for spectrum fit
+        double m_chi2max;                //!< normalized chi2 cut
+        int m_printLevel;                //!< output level flag (1 for verbose)
+    };                                   // end class T0ClassicSettings
 
     /**@class T0ClassicHistos
        Tube histograms used in T0 calibration.
-       @author domizia.orestano@cern.ch
-       @date June 2005
     */
     class T0ClassicHistos {
     public:
-        TH1* time;  //!< time spectrum
-        TH1* adc;   //!< adc spectrum
-                    // TH2* adc_vs_time;
-        int id;     //!< tube identifier
+        std::unique_ptr<TH1> time{nullptr};  //!< time spectrum
+        std::unique_ptr<TH1> adc{nullptr};   //!< adc spectrum
+                                             // TH2* adc_vs_time;
+        int id;                              //!< tube identifier
     };
 
     /**@class T0CalibrationClassic
        Implementation of a T0 calibration using the classical approach.
-       @author domizia.orestano@cern.ch
-       @date June 2005
     */
     class T0CalibrationClassic : public IMdtCalibration {
     public:
@@ -129,40 +122,40 @@ namespace MuonCalib {
          * @param[in] name of the region/chamber to be calibrated
          * @param[in] pointer to settings vector
          */
-        T0CalibrationClassic(std::string name, const T0ClassicSettings* settings);
+        T0CalibrationClassic(const std::string& name, const T0ClassicSettings* settings);
         /** destructor */
         ~T0CalibrationClassic();
 
-        bool handleSegment(MuonCalibSegment& seg);          //!< fill tube spectra
-        void setInput(const IMdtCalibrationOutput* input);  //!< unused
-        bool analyse();                                     //!< extract parameters from spectra
-        bool converged() const;                             //!< return m_converged (always false?)
+        bool handleSegment(MuonCalibSegment& seg);                   //!< fill tube spectra
+        void setInput(const IMdtCalibrationOutput* input) override;  //!< unused
+        bool analyse();                                              //!< extract parameters from spectra
+        bool converged() const;                                      //!< return m_converged (always false?)
 
         /** @return the calibration results */
-        const IMdtCalibrationOutput* getResults() const;
-        const IMdtCalibrationOutput* analyseSegments(const std::vector<MuonCalibSegment*>& segs);  //!< new interface function
+        virtual MdtCalibOutputPtr getResults() const override;
+        virtual MdtCalibOutputPtr analyseSegments(const MuonSegVec& segs) override;  //!< new interface function
 
     private:
         T0ClassicHistos* bookHistos(unsigned int idtube);  //!< booking of histograms
         T0ClassicHistos* getHistos(unsigned int idtube);   //!< retrieve pointer for tube idtube histograms
-        void doTimeFit(T0ClassicHistos*, MdtTubeFitContainer::SingleTubeFit&,
+        void doTimeFit(T0ClassicHistos&, MdtTubeFitContainer::SingleTubeFit&,
                        MdtTubeFitContainer::SingleTubeCalib&);                                                        //!< fit time spectrum
-        void doAdcFit(T0ClassicHistos*, MdtTubeFitContainer::SingleTubeFit&, MdtTubeFitContainer::SingleTubeCalib&);  //!< fit adc spectrum
+        void doAdcFit(T0ClassicHistos&, MdtTubeFitContainer::SingleTubeFit&, MdtTubeFitContainer::SingleTubeCalib&);  //!< fit adc spectrum
         void searchParams(TH1* h, double* p, int np);  //!< estimate initial parameters for time spectrum fit from the spectrum itself
         const T0ClassicSettings* m_settings;           //!< pointer to the settings
         bool m_converged;                              //!< convergence status
         std::string m_name;                            //!< calibration region name
         int m_currentItnum;                            //!< current iteration (always 1?)
-        TFile* p_file;                                 //!< pointer to the histogram file
+        std::unique_ptr<TFile> m_file{};               //!< pointer to the histogram file
         TDirectory* m_regiondir;                       //!< pointer to the ROOT directory
 
-        std::vector<T0ClassicHistos*> m_histos;  //!< vector of pointers to tube histograms
-        MdtTubeFitContainer* m_result;           //!<  tube constants
+        std::vector<std::unique_ptr<T0ClassicHistos>> m_histos;  //!< vector of pointers to tube histograms
+        std::unique_ptr<MdtTubeFitContainer> m_result;           //!<  tube constants
         bool m_delete_settings;
 
         // hidden assignment operator and copy constructor
-        T0CalibrationClassic& operator=(const T0CalibrationClassic& right);
-        T0CalibrationClassic(const T0CalibrationClassic&);
+        T0CalibrationClassic& operator=(const T0CalibrationClassic& right) = delete;
+        T0CalibrationClassic(const T0CalibrationClassic&) = delete;
     };  // end class T0CalibrationClassic
 }  // namespace MuonCalib
 

@@ -77,6 +77,7 @@ LArCosmicsMonAlg::initialize()
 
   /** Get bad-channel mask */
   ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
  return AthMonitorAlgorithm::initialize();  
@@ -114,8 +115,10 @@ LArCosmicsMonAlg::fillHistograms(const EventContext& ctx)  const {
 
 
   /** retrieve det. description manager */
-  const CaloDetDescrManager* ddman = nullptr;
-  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
+
 
   //get digit container
   SG::ReadHandle<LArDigitContainer> pLArDigitContainer{m_LArDigitContainerKey,ctx};

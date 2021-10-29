@@ -26,8 +26,6 @@ theApp.EvtMax = 100
 #Get necessary DLLs
 theApp.Dlls += [ "LArRawUtils","LArCalibUtils", "LArTools"]
 theApp.Dlls += [ "LArByteStream"]
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 #Define Top Algoithm to analyze Pedestals and make a ntuple
 theApp.TopAlg = ["LArPedestalMaker/Pedestal","LArPedestals2Ntuple"]
 

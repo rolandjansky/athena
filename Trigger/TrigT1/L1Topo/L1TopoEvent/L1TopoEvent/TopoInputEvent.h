@@ -10,6 +10,8 @@
 #include "L1TopoEvent/eEmTOBArray.h"
 #include "L1TopoEvent/jEmTOBArray.h"
 #include "L1TopoEvent/eTauTOBArray.h"
+#include "L1TopoEvent/cTauTOBArray.h"
+#include "L1TopoEvent/JetTOBArray.h"
 #include "L1TopoEvent/jTauTOBArray.h"
 #include "L1TopoEvent/JetTOBArray.h"
 #include "L1TopoEvent/jLargeRJetTOBArray.h"
@@ -44,6 +46,7 @@ namespace TCS {
       const jEmTOBArray & jems() const { return m_jems; }
       const eTauTOBArray & etaus() const { return m_etaus; }
       const jTauTOBArray & jTaus() const { return m_jtaus; }
+      const cTauTOBArray & ctaus() const { return m_ctaus; }
       const ClusterTOBArray & taus() const { return m_taus; }
       const JetTOBArray & jets() const { return m_jets; }
       const jLargeRJetTOBArray & jLrageRJets() const { return m_jLargeRJets; }
@@ -80,6 +83,8 @@ namespace TCS {
       StatusCode addjEm(const jEmTOB & jem);
       StatusCode addeTau(const eTauTOB & etau);
       StatusCode addjTau(const jTauTOB & tau);
+      StatusCode addcTau(const eTauTOB & etau);
+      StatusCode addcTau(const jTauTOB & jtau);
       StatusCode addTau(const ClusterTOB & tau);
       StatusCode addMuon(const MuonTOB & muon);
       StatusCode addLateMuon(const LateMuonTOB & muon);
@@ -136,6 +141,7 @@ namespace TCS {
       jEmTOBArray       m_jems;
       eTauTOBArray      m_etaus;
       jTauTOBArray      m_jtaus;
+      cTauTOBArray      m_ctaus;
       ClusterTOBArray   m_taus;
       JetTOBArray       m_jets;
       jLargeRJetTOBArray      m_jLargeRJets;

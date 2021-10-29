@@ -84,7 +84,7 @@ StatusCode LArBadChannelCondAlg::execute() {
      }
      else {//regular readout
         const LArOnlineID* onlID;
-	ATH_CHECK(detStore()->retrieve(onlID,"LArOnline_ID"));
+	ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
 	onlineID=onlID;
      }
      LArBadChannelDecoder decoder(&(*onlineID), msg());
@@ -119,7 +119,7 @@ StatusCode LArBadChannelCondAlg::execute() {
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Recorded LArRawChannelCont object with key "
+  ATH_MSG_INFO("Recorded LArBadChannelCont object with key "
 	       << writeHandle.key() 
 	       << " with EventRange " << writeHandle.getRange()
 	       << " into Conditions Store");

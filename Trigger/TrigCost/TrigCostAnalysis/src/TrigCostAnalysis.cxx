@@ -199,6 +199,7 @@ StatusCode TrigCostAnalysis::execute() {
 
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
+  std::map<std::string, std::set<size_t>> chainToUniqAlgs; // List for unique algorithms for each chain
   std::map<std::string, std::set<size_t>> seqToAlgIdx;
   std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
   ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
@@ -209,14 +210,21 @@ StatusCode TrigCostAnalysis::execute() {
 
   for (const xAOD::TrigComposite* tc : *costDataHandle) {
     const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
-    const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
+    const std::string algName = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
 
-    for (const TrigConf::Chain& chain : algToChain[name]){
+    size_t i = 0;
+    for (const TrigConf::Chain& chain : algToChain[algName]){
       chainToAlgIdx[chain.name()].insert(tc->index());
+      ++i;
     }
 
-    if (algToSeq.count(name)){
-      seqToAlgIdx[algToSeq[name]].insert(tc->index());
+    if (i == 1){
+      ATH_MSG_DEBUG("Algorithm " << algName << " executed uniquely for " << algToChain[algName][0].name() << " chain");
+      chainToUniqAlgs[algToChain[algName][0].name()].insert(tc->index());
+    }
+
+    if (algToSeq.count(algName)){
+      seqToAlgIdx[algToSeq[algName]].insert(tc->index());
     }
   }
 
@@ -241,6 +249,7 @@ StatusCode TrigCostAnalysis::execute() {
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
   costData.setChainToAlgMap(chainToAlgIdx);
+  costData.setChainToUniqAlgMap(chainToUniqAlgs);
   costData.setSequencersMap(seqToAlgIdx);
   costData.setSeededChains(seededChainsInfo);
   costData.setLb( context.eventID().lumi_block() );

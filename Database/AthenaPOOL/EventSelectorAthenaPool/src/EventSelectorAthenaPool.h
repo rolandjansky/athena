@@ -145,8 +145,8 @@ protected:
    // ISecondaryEventSelector
    /// Handle file transition at the next iteration
    virtual StatusCode nextHandleFileTransition(IEvtSelector::Context& ctxt) const override;
-   /// Sync event count
-   virtual void syncEventCount(int count) const override;
+   /// Go to next event and skip if necessary
+   virtual StatusCode nextWithSkip(IEvtSelector::Context& ctxt) const override;
    /// Record AttributeList in StoreGate
    virtual StatusCode recordAttributeList() const override;
    /// Fill AttributeList with specific items from the selector and a suffix

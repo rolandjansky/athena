@@ -22,6 +22,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloMonitoringCaloTool.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
 class IInterface;
@@ -31,8 +32,6 @@ class Identifier;
 class CaloLVL1_ID;
 
 namespace LVL1 {
-
-  class IL1CaloCells2TriggerTowers;
 
   class L1CaloMonitoringCaloTool: public IL1CaloMonitoringCaloTool, public asg::AsgTool
   {
@@ -66,7 +65,8 @@ namespace LVL1 {
     SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
       {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
-    ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
+    ToolHandle<LVL1::IL1CaloMatchCell2Tower> m_cellMatch
+      { this, "L1CaloMatchCell2Tower",  "LVL1::L1CaloMatchCell2Tower",  "L1CaloMatchCell2Tower" };
     const CaloLVL1_ID* m_lvl1Helper;
 
     std::string m_caloCellContainerName;

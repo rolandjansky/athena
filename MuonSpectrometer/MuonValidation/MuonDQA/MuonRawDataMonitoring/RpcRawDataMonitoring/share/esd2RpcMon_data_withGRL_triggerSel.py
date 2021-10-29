@@ -59,7 +59,6 @@ athenaCommonFlags.EvtMax=1000   # number of events to process run on all file
 
 
 rec.doTrigger=True
-recAlgs.doTrigger=True
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.doTriggerConfigOnly=True
 ## set up trigger decision tool
@@ -95,7 +94,6 @@ rec.doTau=False
 rec.doBTagging=False
 rec.doTagRawSummary=False
 rec.doLucid=False
-#rec.doTrigger = False; recAlgs.doTrigger=False # disable trigger (maybe necessary if detectors switched of)
 rec.doMuonCombined=False
 rec.doTruth=False
 

@@ -12,7 +12,7 @@ def LArADC2MeVSCCondAlgCfg(configFlags):
     result.merge(LArOnOffIdMappingCfg(configFlags))
     result.merge(LArGMCfg(configFlags)) #Needed for identifier helpers
 
-    theADC2MeVCondAlg=CompFactory.LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeV')
+    theADC2MeVCondAlg=CompFactory.LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeVSC')
 
     isMC=configFlags.Input.isMC
     

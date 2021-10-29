@@ -38,6 +38,11 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
     elif detector == "SCT":
         condAlg.DetEleCollKey = "SCT_DetectorElementCollection"
         condAlg.SCT_CablingData = "SCT_CablingData"
+    elif detector == "ITkStrip":
+        condAlg.DetEleCollKey = "ITkStripDetectorElementCollection"
+        # No cabling data for ITk
+        condAlg.PixelCablingCondData = ""
+        condAlg.SCT_CablingData = ""
     return condAlg
 
 def _createRegSelTool( detector, enable ):
@@ -159,24 +164,32 @@ def makeRegSelTool_sTGC() :
 def makeRegSelTool_TTEM() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
+    from LArRecUtils.LArRoIMapCondAlgDefault import LArRoIMapCondAlgDefault
+    LArRoIMapCondAlgDefault()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
     return _makeRegSelTool( "TTEM", enabled, RegSelCondAlg_LAr )
 
 def makeRegSelTool_TTHEC() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
+    from LArRecUtils.LArRoIMapCondAlgDefault import LArRoIMapCondAlgDefault
+    LArRoIMapCondAlgDefault()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
     return _makeRegSelTool( "TTHEC", enabled, RegSelCondAlg_LAr )
             
 def makeRegSelTool_FCALEM() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
+    from LArRecUtils.LArRoIMapCondAlgDefault import LArRoIMapCondAlgDefault
+    LArRoIMapCondAlgDefault()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
     return _makeRegSelTool( "FCALEM", enabled, RegSelCondAlg_LAr )
 
 def makeRegSelTool_FCALHAD() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.Calo_on()
+    from LArRecUtils.LArRoIMapCondAlgDefault import LArRoIMapCondAlgDefault
+    LArRoIMapCondAlgDefault()
     from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
     return _makeRegSelTool( "FCALHAD", enabled, RegSelCondAlg_LAr )
 
@@ -220,6 +233,10 @@ def regSelTool_TRT_Cfg(flags):
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
     return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg, CablingConfigCfg=PixelCablingCondAlgCfg)
 
+# ITk
+
+def regSelTool_ITkStrip_Cfg(flags):
+    return regSelToolCfg(flags, "ITkStrip", CompFactory.SiRegSelCondAlg)
 
 # muon spectrometer
 
@@ -241,23 +258,51 @@ def regSelTool_CSC_Cfg(flags):
     return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg)
 
 def regSelTool_STGC_Cfg(flags):
-    return regSelToolCfg(flags, "STGC", CompFactory.STGC_RegSelCondAlg)
+    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg)
 
 def regSelTool_MM_Cfg(flags):
     return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)
 
 #calo 
 def regSelTool_TTEM_Cfg(flags):
-    return regSelToolCfg(flags, "TTEM", CompFactory.RegSelCondAlg_LAr)
+    from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    acc.merge (LArRoIMapCondAlgCfg(flags))
+    c = regSelToolCfg(flags, "TTEM", CompFactory.RegSelCondAlg_LAr)
+    acc.setPrivateTools (c.popPrivateTools())
+    acc.merge (c)
+    return acc
 
 def regSelTool_TTHEC_Cfg(flags):
-    return regSelToolCfg(flags, "TTHEC", CompFactory.RegSelCondAlg_LAr)
+    from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    acc.merge (LArRoIMapCondAlgCfg(flags))
+    c = regSelToolCfg(flags, "TTHEC", CompFactory.RegSelCondAlg_LAr)
+    acc.setPrivateTools (c.popPrivateTools())
+    acc.merge (c)
+    return acc
 
 def regSelTool_FCALEM_Cfg(flags):
-    return regSelToolCfg(flags, "FCALEM", CompFactory.RegSelCondAlg_LAr)
+    from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    acc.merge (LArRoIMapCondAlgCfg(flags))
+    c = regSelToolCfg(flags, "FCALEM", CompFactory.RegSelCondAlg_LAr)
+    acc.setPrivateTools (c.popPrivateTools())
+    acc.merge (c)
+    return acc
 
 def regSelTool_FCALHAD_Cfg(flags):
-    return regSelToolCfg(flags, "FCALHAD", CompFactory.RegSelCondAlg_LAr)
+    from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    acc.merge (LArRoIMapCondAlgCfg(flags))
+    c = regSelToolCfg(flags, "FCALHAD", CompFactory.RegSelCondAlg_LAr)
+    acc.setPrivateTools (c.popPrivateTools())
+    acc.merge (c)
+    return acc
 
 def regSelTool_TILE_Cfg(flags):
     return regSelToolCfg(flags, "TILE", CompFactory.RegSelCondAlg_Tile)

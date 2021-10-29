@@ -10,21 +10,19 @@
 namespace MuonCalib {
 
     /** generic interface for a wire sag correction function */
-  
-  class IMdtWireSagCorFunc : public CalibFunc {
-  public:
-    explicit IMdtWireSagCorFunc( const CalibFunc::ParVec& vec ) : CalibFunc(vec) {};
-    virtual ~IMdtWireSagCorFunc() {}
-    virtual std::string typeName() const {
-      return "IMdtWireSagCorFunc"; 
-    }
 
-    /** Return time correction (ns).
-	Input: signedDriftRadius, effectiveSag (corrected for eta, phi)
-    */
-    virtual double correction(double signedDriftRadius, double effectiveSag) const = 0;
-  };
+    class IMdtWireSagCorFunc : public CalibFunc {
+    public:
+        explicit IMdtWireSagCorFunc(const CalibFunc::ParVec& vec) : CalibFunc(vec){};
+        virtual ~IMdtWireSagCorFunc() {}
+        virtual std::string typeName() const { return "IMdtWireSagCorFunc"; }
 
-}  //namespace MuonCalib
+        /** Return time correction (ns).
+            Input: signedDriftRadius, effectiveSag (corrected for eta, phi)
+        */
+        virtual double correction(double signedDriftRadius, double effectiveSag) const = 0;
+    };
+
+}  // namespace MuonCalib
 
 #endif

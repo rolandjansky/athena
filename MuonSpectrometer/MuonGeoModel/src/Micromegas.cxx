@@ -5,6 +5,7 @@
 #include "MuonGeoModel/Micromegas.h"
 
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDControl/AGDDController.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoDefinitions.h"
@@ -43,18 +44,23 @@ namespace MuonGM {
         index = s->index;
     }
 
-    GeoFullPhysVol *Micromegas::build(int minimalgeo) {
+    GeoFullPhysVol *Micromegas::build(const StoredMaterialManager& matManager,
+                                      int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(minimalgeo, cutoutson, vcutdef);
+        return build(matManager, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Micromegas::build(int minimalgeo, int, const std::vector<Cutout *>&) {
-        AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
+    GeoFullPhysVol *Micromegas::build(const StoredMaterialManager& matManager,
+                                      int minimalgeo, int,
+                                      const std::vector<Cutout *>&)
+    {
         MMDetectorHelper mmHelper;
+        IAGDDtoGeoSvc::LockedController c = mmHelper.Get_Controller();
+        AGDDDetectorStore& ds = c->GetDetectorStore();
         MMDetectorDescription *mm_descr = mmHelper.Get_MMDetectorSubType(m_component->subType);
 
-        MM_Technology *t = (MM_Technology *)ds->GetTechnology(name);
+        MM_Technology *t = (MM_Technology *)ds.GetTechnology(name);
         thickness = t->Thickness();
         double gasTck = t->gasThickness;
         double pcbTck = t->pcbThickness;
@@ -72,8 +78,8 @@ namespace MuonGM {
         if (!(m_component->subType).empty())
             logVolName += ("-" + m_component->subType);
         // std::FR4 is not always available. Fallback to sct::PCB
-        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("std::FR4") != nullptr ?
-            getMaterialManager()->getMaterial("std::FR4") : getMaterialManager()->getMaterial("sct::PCB");
+        const GeoMaterial *mtrd = matManager.getMaterial("std::FR4") != nullptr ?
+            matManager.getMaterial("std::FR4") : matManager.getMaterial("sct::PCB");
         GeoLogVol *ltrd = new GeoLogVol(logVolName, strd, mtrd);
         GeoFullPhysVol *ptrd = new GeoFullPhysVol(ltrd);
 
@@ -113,7 +119,7 @@ namespace MuonGM {
 
             const GeoShape *sGasVolume = new GeoTrd(gasTck / 2, gasTck / 2, widthActive / 2, longWidthActive / 2, lengthActive / 2);
 
-            GeoLogVol *ltrdtmp = new GeoLogVol("MM_Sensitive", sGasVolume, getMaterialManager()->getMaterial("muo::ArCO2"));
+            GeoLogVol *ltrdtmp = new GeoLogVol("MM_Sensitive", sGasVolume, matManager.getMaterial("muo::ArCO2"));
             GeoPhysVol *ptrdtmp = new GeoPhysVol(ltrdtmp);
             GeoNameTag *ntrdtmp = new GeoNameTag(name + "muo::ArCO2");
             GeoTransform *ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newXPos));
@@ -131,7 +137,7 @@ namespace MuonGM {
             const GeoShape *trd2 = new GeoTrd(gasTck, gasTck, W - f3, lW - f3, length / 2 - (f1 + f2) / 2.);
             GeoTrf::Translate3D c(0, 0, (f2 - f1) / 2.);
             trd1 = &(trd1->subtract((*trd2) << c));
-            GeoLogVol *ltrdframe = new GeoLogVol("MM_Frame", trd1, getMaterialManager()->getMaterial("std::Aluminium"));
+            GeoLogVol *ltrdframe = new GeoLogVol("MM_Frame", trd1, matManager.getMaterial("std::Aluminium"));
             GeoPhysVol *ptrdframe = new GeoPhysVol(ltrdframe);
 
             ptrdtmp->add(ptrdframe);

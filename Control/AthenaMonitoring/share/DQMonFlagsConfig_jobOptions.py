@@ -77,6 +77,10 @@ if (rec.doTrigger() == False and
    DQMonFlags.doLVL1CaloMon=False
    DQMonFlags.doCTPMon=False
    DQMonFlags.doHLTMon=False
+elif rec.doTrigger() == True and ConfigFlags.Trigger.EDMVersion < 3:
+   # CTP/L1Calo monitoring currently not supported on old data (ATR-24262)
+   DQMonFlags.doLVL1CaloMon=False
+   DQMonFlags.doCTPMon=False
 
 if not DQMonFlags.doMonitoring():
    local_logger.info("monitoring globally switched off")
@@ -485,9 +489,6 @@ DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()
 
 local_logger.info("DQ: setting up ConfigFlags")
-from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-# Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-ConfigFlags = getNewConfigFlags()
 
 ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
 ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()

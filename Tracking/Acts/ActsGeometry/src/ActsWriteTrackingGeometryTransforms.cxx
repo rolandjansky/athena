@@ -55,8 +55,13 @@ StatusCode ActsWriteTrackingGeometryTransforms::execute() {
     const Acts::DetectorElementBase *detElem = srf->associatedDetectorElement();
     const auto *gmde = static_cast<const ActsDetectorElement *>(detElem);
 
-    if(gmde->getSubdetector() == ActsDetectorElement::Subdetector::TRT) {
+    if(dynamic_cast<const InDetDD::TRT_BaseElement*>(gmde->upstreamDetectorElement()) != nullptr) { 
       return;
+    }
+
+    const auto side = dynamic_cast<const InDetDD::SiDetectorElement*>(gmde->upstreamDetectorElement());
+    if(side == nullptr) {
+      throw std::runtime_error{"Not TRT but not Si either"}; // this shouldn't happen
     }
 
     gid geoID = srf->geometryId();
@@ -68,10 +73,10 @@ StatusCode ActsWriteTrackingGeometryTransforms::execute() {
 
     os << ctx.eventID().event_number() << ";";
 
-    if(gmde->getSubdetector() == ActsDetectorElement::Subdetector::Pixel) {
+    if(side->isPixel()) {
       os << 0;
     }
-    else if(gmde->getSubdetector() == ActsDetectorElement::Subdetector::SCT) {
+    else if(side->isSCT()) {
       os << 1;
     }
 

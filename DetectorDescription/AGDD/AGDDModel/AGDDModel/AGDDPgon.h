@@ -12,7 +12,10 @@
 
 class AGDDPgon: public AGDDVolume {
 public:
-	AGDDPgon(const std::string& s):AGDDVolume(s),m_phi0(0),m_dphi(0),m_nbPhi(0) {}
+	AGDDPgon(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_phi0(0),m_dphi(0),m_nbPhi(0) {}
 	void SetPlane(double ri,double ro,double z) 
 	{
 		m_rin.push_back(ri);

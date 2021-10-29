@@ -12,7 +12,10 @@
 
 class AGDDTubs: public AGDDVolume {
 public:
-	AGDDTubs(const std::string& s):AGDDVolume(s),m_rin(0),m_rou(0),m_z(0),m_phi0(0),m_dphi(0) {}
+	AGDDTubs(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_rin(0),m_rou(0),m_z(0),m_phi0(0),m_dphi(0) {}
 	void SetRio_Z(const std::vector<double>& v) 
 	{
 		m_rin=v[0];

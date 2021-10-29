@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file StoreGate/test/VarHandleBase_test.cxx
@@ -83,18 +83,18 @@ void test1()
 
   Gaudi::Hive::setCurrentContext (ctx3);
 
-  SG::VarHandleKey k3 (1234, "asd", Gaudi::DataHandle::Updater);
+  SG::VarHandleKey k3 (1234, "asd", Gaudi::DataHandle::Reader);
   k3.initialize().ignore();
   TestHandle h3 (k3, nullptr);
   assert (h3.clid() == 1234);
   assert (h3.key() == "asd");
   assert (h3.storeHandle().name() == "StoreGateSvc");
-  assert (h3.mode() == Gaudi::DataHandle::Updater);
+  assert (h3.mode() == Gaudi::DataHandle::Reader);
   assert (h3.m_store == &dumstore2);
   EXPECT_EXCEPTION (SG::ExcNonConstHandleKey, h3.vhKey());
 
   {
-    SG::VarHandleKey k4 (1234, "asd", Gaudi::DataHandle::Updater, "BazSvc");
+    SG::VarHandleKey k4 (1234, "asd", Gaudi::DataHandle::Reader, "BazSvc");
     k4.initialize().ignore();
     EXPECT_EXCEPTION (SG::ExcUninitKey, TestHandle h4 (k4, nullptr));
   }
@@ -106,22 +106,22 @@ void test1()
   assert (h5.clid() == 1234);
   assert (h5.key() == "asd");
   assert (h5.storeHandle().name() == "StoreGateSvc");
-  assert (h5.mode() == Gaudi::DataHandle::Updater);
+  assert (h5.mode() == Gaudi::DataHandle::Reader);
   assert (h5.m_store == &dumstore);
   assert (k3.owningHandle() == nullptr);
 
-  SG::VarHandleKey k6 (1234, "asd", Gaudi::DataHandle::Updater,
+  SG::VarHandleKey k6 (1234, "asd", Gaudi::DataHandle::Reader,
                        "OtherStore");
   k6.initialize().ignore();
   TestHandle h6 (k6, &ctx5);
   assert (h6.clid() == 1234);
   assert (h6.key() == "asd");
   assert (h6.storeHandle().name() == "OtherStore");
-  assert (h6.mode() == Gaudi::DataHandle::Updater);
+  assert (h6.mode() == Gaudi::DataHandle::Reader);
   assert (h6.m_store != &dumstore);
 
   {
-    SG::VarHandleKey k7 (1234, "asd", Gaudi::DataHandle::Updater, "BazSvc");
+    SG::VarHandleKey k7 (1234, "asd", Gaudi::DataHandle::Reader, "BazSvc");
     k7.initialize().ignore();
     EXPECT_EXCEPTION (SG::ExcUninitKey, TestHandle h7 (k7, &ctx5));
   }

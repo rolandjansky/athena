@@ -85,6 +85,7 @@ class ThresholdDef:
         MuonThreshold( "MU9VF"    ).setThrValue( thr=9,ba=8 ).setTGCFlags("F")     # backup for MU8F
         MuonThreshold( "MU9VFC"   ).setThrValue( thr=9,ba=8 ).setTGCFlags("F & C") # backup for MU8F
         MuonThreshold( "MU8VF"    ).setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
+        MuonThreshold( "MU8VFC"   ).setThrValue( thr=8, ba=10 ).setTGCFlags("F & C")   # backup for MU8VF
         MuonThreshold( "MU14FCH"  ).setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
         MuonThreshold( "MU14FCHR" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
         MuonThreshold( "MU15VFCH" ).setThrValue( thr=15, ba=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20, bit lower rate than MU14
@@ -101,30 +102,30 @@ class ThresholdDef:
         MuonThreshold( "MU12FCH"  ).setThrValue( thr=12 ).setTGCFlags("F & C & H")             # commissioning
         MuonThreshold( "MU4BOM"   ).setThrValue( thr=4  ).setRPCFlags("M").setRegion("BA")     # multiple close-by muons, barrel-only, commissioning
         MuonThreshold( "MU4BO"    ).setThrValue( thr=4  ).setRegion("BA")                      # barrel-only, commissioning
+        MuonThreshold( "MU10BO"   ).setThrValue( thr=10 ).setRegion("BA")                      # barrel-only, commissioning
         MuonThreshold( "MU14EOF"  ).setThrValue( thr=14 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
         MuonThreshold( "MU8EOF"   ).setThrValue( thr=8  ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
         MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
         # eEM 
         for thrV in [3, 5, 8, 15, 20, 22]:
-            #eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
-            ThresholdDef.addVaryingThrValues( eEMThreshold(  'eEM%i'% thrV,  'eEM'), pt=thrV,  shift_set = 1 )
+            eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%i'% thrV, 'eEM'), pt = thrV, shift_set = 1 )
 
         # L section (used to be VH in Run2)
-        ThresholdDef.addVaryingThrValues( eEMThreshold(  'eEM8L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=8,  shift_set = 1 ) 
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM10L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=10, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM15L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=15, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM20L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=20, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM22L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=22, shift_set = 1 )
+        for thrV in [8,10,15,20,22]:
+            eEMThreshold('eEM%iL' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iL' % thrV, 'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt = thrV, shift_set = 1 )
 
         # M section (used to be VHI in Run2)
-        ThresholdDef.addVaryingThrValues( eEMThreshold(  'eEM8M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=8,  shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM15M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=15, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM20M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=20, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM22M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=22, shift_set = 1 )
+        for thrV in [8,15,20,22]:
+            eEMThreshold('eEM%iM' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt = thrV, shift_set = 1 )
 
         # T section (used to be VHIM in Run2)
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM22T',  'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ),    pt=22, shift_set = 1 )
+        for thrV in [22]:
+            eEMThreshold('eEM%iT' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iT' % thrV, 'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt= thrV, shift_set = 1 )
 
         # jEM
         for thrV in [15]:
@@ -138,11 +139,11 @@ class ThresholdDef:
             eTauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
 
         for et in [12]:
-            eTauThreshold('eTAU%iL' % et, 'eTAU').setEt(et).setIsolation( isoConeRel = "Loose" )
+            eTauThreshold('eTAU%iL' % et, 'eTAU').setEt(et).setIsolation( rCore = "Loose" )
         for et in [12]:
-            eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( isoConeRel = "Medium" )
+            eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( rCore = "Medium" )
         for et in [30]:
-            eTauThreshold('eTAU%iH' % et, 'eTAU').setEt(et).setIsolation( fEM = "Had" )
+            eTauThreshold('eTAU%iHM' % et, 'eTAU').setEt(et).setIsolation( rHad = "HadMedium" )
   
         # cTAU
         for et in [12, 20, 25]:
@@ -193,6 +194,10 @@ class ThresholdDef:
 
         for thrV in [50]:
             XEThreshold('jXEC%i' % thrV, 'jXE').setXE(thrV)
+
+        # ATR-24037
+        for thrV in [50]:
+            XEThreshold('jXEPerf%i' % thrV, 'jXE').setXE(thrV)
 
         # jTE
         for thrV in [100,]:

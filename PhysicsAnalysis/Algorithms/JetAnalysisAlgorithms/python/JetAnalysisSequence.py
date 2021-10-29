@@ -85,45 +85,45 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
 
     # record all the selections each subfunction makes
-    cutlist = []
-    cutlength = []
+    seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorCount", [])
 
     if radius == 4:
-        makeSmallRJetAnalysisSequence(seq, cutlist, cutlength,
+        makeSmallRJetAnalysisSequence(seq,
             dataType, jetCollection, jetInput=jetInput, postfix=postfix, **kwargs)
     elif radius in [2, 6]:
-        makeRScanJetAnalysisSequence(seq, cutlist, cutlength,
+        makeRScanJetAnalysisSequence(seq,
             dataType, jetCollection, jetInput=jetInput, radius=radius, 
             postfix=postfix, **kwargs)
     else:
         trim = match.group(3)
         if trim == "":
             raise ValueError("Untrimmed large-R jets are not supported!")
-        makeLargeRJetAnalysisSequence(seq, cutlist, cutlength,
+        makeLargeRJetAnalysisSequence(seq,
             dataType, jetCollection, jetInput=jetInput, postfix=postfix, **kwargs)
 
     # Set up an algorithm used to create jet selection cutflow:
     if enableCutflow:
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg'+postfix )
         alg.histPattern = 'jet_cflow_%SYS%'+postfix
-        alg.selection = cutlist
-        alg.selectionNCuts = cutlength
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+        seq.append( alg, inputPropName = 'input', stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:],
+                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"][:]} )
 
     # Set up an algorithm dumping the kinematic properties of the jets:
     if enableKinematicHistograms:
         alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
-        alg.preselection = "&&".join (cutlist)
         alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+        seq.append( alg, inputPropName = 'input', stageName = 'selection',
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     if shallowViewOutput:
       # Set up an algorithm that makes a view container using the selections
       # performed previously:
       alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg'+postfix )
-      alg.selection = cutlist
       seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                  stageName = 'selection' )
+                  stageName = 'selection',
+                  dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:]} )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
@@ -134,7 +134,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
     
     return seq
 
-def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
+def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
                                    jetInput, postfix = '', 
                                    runJvtUpdate = False, runFJvtUpdate = False,
                                    runJvtSelection = True, runFJvtSelection = False,
@@ -144,8 +144,6 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
 
       Keyword arguments
         seq -- The sequence to add the algorithms to
-        cutlist -- Insert any cuts into this
-        cutlength -- Insert the lengths of any cuts into this
         dataType -- The data type to run on ("data", "mc" or "afii")
         jetCollection -- The jet container to run on.
         jetInput -- The type of input used, read from the collection name.
@@ -236,7 +234,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg'+postfix )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
         if jetInput == 'EMPFlow':
-            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root'
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root'
             alg.efficiencyTool.MaxPtForJvt = 60e3
         else:
             alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
@@ -259,8 +257,12 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     if runFJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/fJvtSFFile.root'
+        if jetInput == 'EMPFlow':
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/May2020/fJvtSFFile.EMPFlow.root'
+        else:
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/May2020/fJvtSFFile.EMtopo.root'
         alg.efficiencyTool.WorkingPoint = 'Tight'
+        alg.efficiencyTool.UseMuSFFormat = True
         alg.truthJetCollection = 'AntiKt4TruthDressedWZJets'
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
@@ -278,16 +280,14 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
                     stageName = 'selection')
 
     # Return the sequence:
-    return seq, cutlist, cutlength
+    return seq
 
-def makeRScanJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
+def makeRScanJetAnalysisSequence( seq, dataType, jetCollection,
                                   jetInput, radius, postfix = '' ):
     """Add algorithms for the R-scan jets.
 
       Keyword arguments
         seq -- The sequence to add the algorithms to
-        cutlist -- Insert any cuts into this
-        cutlength -- Insert the lengths of any cuts into this
         dataType -- The data type to run on ("data", "mc" or "afii")
         jetCollection -- The jet container to run on.
         jetInput -- The type of input used, read from the collection name.
@@ -312,14 +312,12 @@ def makeRScanJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollecti
     # Logging would be good
     print("WARNING: uncertainties for R-Scan jets are not yet released!")
 
-def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
+def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
                                    jetInput, postfix = '', largeRMass = "Comb"):
     """Add algorithms for the R=1.0 jets.
 
       Keyword arguments
         seq -- The sequence to add the algorithms to
-        cutlist -- Insert any cuts into this
-        cutlength -- Insert the lengths of any cuts into this
         dataType -- The data type to run on ("data", "mc" or "afii")
         jetCollection -- The jet container to run on.
         jetInput -- The type of input used, read from the collection name.
@@ -369,7 +367,6 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.uncertaintiesTool.MCType = "MC16a"
     alg.uncertaintiesTool.IsData = (dataType == "data")
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                stageName = 'calibration' )
-
-    cutlist.append('outOfValidity')
-    cutlength.append(1)
+                stageName = 'calibration',
+                metaConfig = {'selectionDecorNames' : ['outOfValidity'],
+                              'selectionDecorCount' : [1]} )

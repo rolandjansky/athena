@@ -9,6 +9,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 from .PrecisionCaloMenuSequences import precisionCaloMenuDefs
 from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
 from .PrecisionCaloMenuSequences_FWD import precisionCaloMenuDefs_FWD
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEgammaRec, TrigEgammaSuperClusterBuilder 
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger(__name__)
@@ -29,17 +31,25 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
 
     tag = 'HI' if ion is True else ''
     outputCaloClusters = precisionCaloMenuDefs.caloClusters(ion)
+    log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'TrigEgammaTopoClusterCopier' + tag + RoIs ,
                                           InputTopoCollection = caloclusters,
-                                          OutputTopoCollection = outputCaloClusters,
-                                          OutputTopoCollectionShallow = "tmp_" + outputCaloClusters,
+                                          OutputTopoCollection = TrigEgammaKeys.outputTopoCollection,
+                                          OutputTopoCollectionShallow = "tmp_" + TrigEgammaKeys.outputTopoCollection,
                                           doAdd = False )
 
     algo = egammaTopoClusterCopier()
-    precisionRecoSequence = parOR("electronRoITopoRecoSequence"+tag, [caloRecoSequence,algo])
-    sequenceOut = algo.OutputTopoCollection
+    precisionRecoSequence = parOR( "electronRoITopoRecoSequence"+tag)
+    precisionRecoSequence += caloRecoSequence
+    precisionRecoSequence += algo
+    _trigEgammaRec = TrigEgammaRec(name = 'TrigEgammaRec%s' % RoIs)
+    precisionRecoSequence += _trigEgammaRec
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name ='TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = outputCaloClusters
+    precisionRecoSequence +=  _trigEgammaSuperClusterBuilder
+    sequenceOut = outputCaloClusters
 
     return (precisionRecoSequence, sequenceOut)
 
@@ -51,17 +61,23 @@ def precisionCaloRecoSequence_LRT(DummyFlag, RoIs):
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
                                           InputTopoCollection= "caloclusters",
-                                          OutputTopoCollection=precisionCaloMenuDefs_LRT.precisionCaloClusters,
-                                          OutputTopoCollectionShallow="tmp_"+precisionCaloMenuDefs_LRT.precisionCaloClusters,
+                                          OutputTopoCollection=TrigEgammaKeys.outputTopoCollection,
+                                          OutputTopoCollectionShallow="tmp_"+TrigEgammaKeys.outputTopoCollection,
                                           doAdd = False )
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
     (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,algSuffix='_LRT')
-
+    precisionRecoSequence = parOR( "electronRoITopoRecoSequence_LRT")
+    precisionRecoSequence += caloRecoSequence
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
-    precisionRecoSequence = parOR("electronRoITopoRecoSequence_LRT", [caloRecoSequence,algo])
-    sequenceOut = algo.OutputTopoCollection
+    precisionRecoSequence += algo
+    _trigEgammaRec = TrigEgammaRec(name ='TrigEgammaRec%s' % RoIs)
+    precisionRecoSequence += _trigEgammaRec
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder('TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = precisionCaloMenuDefs_LRT.precisionCaloClusters
+    precisionRecoSequence += _trigEgammaSuperClusterBuilder
+    sequenceOut = precisionCaloMenuDefs_LRT.precisionCaloClusters
 
     return (precisionRecoSequence, sequenceOut)
 
@@ -75,17 +91,24 @@ def precisionCaloRecoSequence_FWD(DummyFlag, RoIs):
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
                                           InputTopoCollection= "caloclusters",
-                                          OutputTopoCollection=precisionCaloMenuDefs_FWD.precisionCaloClusters,
-                                          OutputTopoCollectionShallow="tmp_"+precisionCaloMenuDefs_FWD.precisionCaloClusters,
+                                          OutputTopoCollection=TrigEgammaKeys.outputTopoCollection,
+                                          OutputTopoCollectionShallow="tmp_"+TrigEgammaKeys.outputTopoCollection,
                                           doAdd = False )
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
     (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, None, RoIs=RoIs,algSuffix='_FWD')
 
+    precisionRecoSequence = parOR( "electronRoITopoRecoSequence_FWD")
+    precisionRecoSequence += caloRecoSequence
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
-    precisionRecoSequence = parOR("electronRoITopoRecoSequence_FWD", [caloRecoSequence,algo])
-    sequenceOut = algo.OutputTopoCollection
+    precisionRecoSequence += algo
+    _trigEgammaRec = TrigEgammaRec(name ='TrigEgammaRec%s' % RoIs)
+    precisionRecoSequence +=  _trigEgammaRec
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name ='TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = precisionCaloMenuDefs_FWD.precisionCaloClusters
+    precisionRecoSequence += _trigEgammaSuperClusterBuilder
+    sequenceOut = precisionCaloMenuDefs_FWD.precisionCaloClusters
 
     return (precisionRecoSequence, sequenceOut)
 

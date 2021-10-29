@@ -225,7 +225,7 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 elif hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
 else:
-    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -349,6 +349,9 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.TRT_BuildStrawLayers=True
     fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+    # BCM should be off for FATRAS simulators
+    DetFlags.simulate.BCM_setOff()
+    DetFlags.digitize.BCM_setOff()
 
 
 DetFlags.Print()

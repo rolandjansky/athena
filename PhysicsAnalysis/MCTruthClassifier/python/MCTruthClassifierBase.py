@@ -17,8 +17,6 @@ def getMCTruthClassifierExtrapolator():
     theAtlasExtrapolator = AtlasExtrapolator(
         name='MCTruthClassifieExtrapolator')
 
-    # this turns off dynamic calculation of eloss in calorimeters
-    theAtlasExtrapolator.DoCaloDynamic = False
     # all left to MaterialEffects/EnergyLossUpdators
     from TrkExTools.TrkExToolsConf import (
         Trk__MaterialEffectsUpdator as MaterialEffectsUpdator)

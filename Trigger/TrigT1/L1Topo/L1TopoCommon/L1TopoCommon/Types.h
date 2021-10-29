@@ -22,7 +22,8 @@ namespace TCS {
 			 ETAU=11,
                          JEM=12,
                          GLARGERJET=13,
-                         GJET=14
+                         GJET=14,
+			 CTAU=15
    }; 
 
    std::string inputTypeAsString(inputTOBType_t type);

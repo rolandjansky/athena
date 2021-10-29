@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class TopoAlgoDefMultiplicity(object):
         etauThresholds_3bits = [ 'eTAU8', 'eTAU12', ]
         jtauThresholds_3bits = [ 'jTAU12', ]        
         ctauThresholds_3bits = [ 'cTAU12M' ]
-        etauThresholds_2bits = [ 'eTAU12L', 'eTAU12M', 'eTAU20', 'eTAU25', 'eTAU30H', 'eTAU40', 'eTAU60', 'eTAU100' ]
+        etauThresholds_2bits = [ 'eTAU12L', 'eTAU12M', 'eTAU20', 'eTAU25', 'eTAU30HM', 'eTAU40', 'eTAU60', 'eTAU100' ]
         jtauThresholds_2bits = [ 'jTAU12M'  ]
         ctauThresholds_2bits = [ 'cTAU20M', 'cTAU25M',  ]
 
@@ -143,6 +143,8 @@ class TopoAlgoDefMultiplicity(object):
 
             'jXEC50', 'jTE100', 'jTEC100', 'jTEFWD100', 'jTEFWDA100', 'jTEFWDC100', 
             'gTE50',
+
+            'jXEPerf50',
         ]
 
         for XE in XEThresholds:

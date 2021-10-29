@@ -158,18 +158,6 @@ def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssVa
     acc.addEventAlgo(InDetSegmentDriftCircleAssValidation)
     return acc
 
-def TRTActiveCondAlgCfg(flags, name="TRTActiveCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TC.InDetTRTStrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-
-    TRTActiveCondAlg = CompFactory.TRTActiveCondAlg(name = name, **kwargs)
-    acc.addCondAlgo(TRTActiveCondAlg)
-    return acc
-
 def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None, doPhase = False):
 
     acc = ComponentAccumulator()
@@ -233,18 +221,19 @@ if __name__ == "__main__":
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     top_acc.merge(MagneticFieldSvcCfg(flags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( flags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( flags ))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge( PixelGeometryCfg(flags) )
-    top_acc.merge( SCT_GeometryCfg(flags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(flags) )
+    top_acc.merge( SCT_ReadoutGeometryCfg(flags) )
 
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
     #############################################################################
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     top_acc.merge(TRTActiveCondAlgCfg(flags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg(flags))
 

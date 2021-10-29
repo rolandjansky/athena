@@ -56,7 +56,7 @@ Systematics Nominal
 ### Electron configuration
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation FCTight
+ElectronIsolation None
 ElectronIsolationLoose None
 
 ### Photon configuration
@@ -71,7 +71,7 @@ PhotonIsolationLoose FixedCutLoose
 MuonQuality Medium
 MuonUseMVALowPt False
 MuonUse2stationHighPt True
-MuonIsolation PflowTight_FixedRad
+MuonIsolation None
 MuonQualityLoose Medium
 MuonUseMVALowPtLoose False
 MuonUse2stationHighPtLoose True

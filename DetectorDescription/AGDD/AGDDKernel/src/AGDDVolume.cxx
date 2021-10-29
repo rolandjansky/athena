@@ -7,17 +7,21 @@
 #include "AGDDKernel/AGDDSection.h"
 #include "AGDDKernel/AGDDVolume.h"
 
-AGDDVolume::AGDDVolume(const std::string& n,bool v):m_name(n),m_theSolid(0),m_theVolume(0),m_isSensitive(v)
+AGDDVolume::AGDDVolume(const std::string& n,
+                       AGDDVolumeStore& vs,
+                       AGDDSectionStore& ss,
+                       bool v)
+  : m_name(n),m_theSolid(0),m_theVolume(0),m_isSensitive(v),
+    m_vs (vs)
 {
-	AGDDVolumeStore::GetVolumeStore()->RegisterVolume(this);
-	AGDDSectionStore *ss=AGDDSectionStore::GetSectionStore();
-	AGDDSection* curr=ss->GetCurrentSection();
+	vs.RegisterVolume(this);
+	AGDDSection* curr=ss.GetCurrentSection();
 	if (curr) curr->AddVolume(this);
 }
 void AGDDVolume::AddDaughter(AGDDPositioner* v)
 {
 	m_theDaughters.push_back(v);
-	AGDDVolumeStore::GetVolumeStore()->GetVolume(v->Volume())->AddParent(this);
+	m_vs.GetVolume(v->Volume())->AddParent(this);
 }
 
 void AGDDVolume::IsSensitiveVolume(bool v)

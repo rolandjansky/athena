@@ -19,7 +19,6 @@
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/EgammaFwd.h"
 
-#include "CaloUtils/CaloCellDetPos.h"
 class CaloClusterCellLink;
 
 /**

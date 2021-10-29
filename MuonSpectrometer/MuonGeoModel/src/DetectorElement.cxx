@@ -4,8 +4,3 @@
 
 #include "MuonGeoModel/DetectorElement.h"
 
-namespace MuonGM {
-
-    const StoredMaterialManager *DetectorElement::s_matManager = nullptr;
-
-} // namespace MuonGM

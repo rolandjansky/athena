@@ -13,7 +13,9 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   else if(type == TCS::EEM) return "eEms";
   else if(type == TCS::JEM) return "jEms";
   else if(type == TCS::JET) return "Jets";
+  else if(type == TCS::ETAU) return "eTaus";
   else if(type == TCS::JTAU) return "jTaus";
+  else if(type == TCS::CTAU) return "cTaus";
   else if(type == TCS::JLARGERJET) return "jLargeRJets";
   else if(type == TCS::GLARGERJET) return "gLargeRJets";
   else if(type == TCS::JJET) return "jJets";
@@ -46,6 +48,9 @@ TCS::inputType(const std::string& input) {
 
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
       return TCS::JTAU;
+
+   if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" )
+      return TCS::CTAU;
 
    if ( input == "Jets" || input == "JetTobArray" )
       return TCS::JET;

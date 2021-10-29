@@ -130,7 +130,7 @@ class AtlCoolCopy {
   bool getOnlineRun();
   bool getBulkRun();
   bool getRunList();
-  static int getUpdateMode(const std::string& desc, const std::string& tag);
+  static int getUpdateMode(std::string_view desc, std::string_view tag);
 
   bool checkChannels(const std::string& folder,
 		     const cool::IFolderPtr& sourcefl,const cool::IFolderPtr& destfl,
@@ -2459,7 +2459,7 @@ bool AtlCoolCopy::isNumeric(const char* input) {
   bool isnum=true;
   const char* cptr=input;
   while (*cptr!='\0') {
-    if (!isdigit(*cptr)) isnum=false;
+    if (!isdigit(*cptr)) { isnum=false; break;}
     ++cptr;
   }
   return isnum;
@@ -2793,11 +2793,11 @@ bool AtlCoolCopy::getRunList() {
   return true;
 }
 
-int AtlCoolCopy::getUpdateMode(const std::string& desc, 
-			       const std::string& tag) {
+int AtlCoolCopy::getUpdateMode(std::string_view desc, 
+			       std::string_view tag) {
   // analyse the folder description and tag name for updateMode flags
   // return 1 for online mode, 0 otherwise
-  std::string modestr="";
+  std::string_view modestr="";
   int mode=0;
   std::string::size_type iofs1=desc.find("<updateMode>");
   std::string::size_type iofs2=desc.find("</updateMode>");

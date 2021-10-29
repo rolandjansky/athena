@@ -144,7 +144,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
 
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
          it!=trackStates->end();
-         it++) {
+         ++it) {
 
       if (!(*it)) {
         msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
@@ -261,7 +261,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
 
   // Loop over all proto track states on surfaces
   Trk::ProtoTrajectory::const_iterator it = trajectory.begin();
-  for (; it!=trajectory.end(); it++) {
+  for (; it!=trajectory.end(); ++it) {
     // get the measurement            
     const Trk::MeasurementBase *measurement = it->measurement();
     if (!measurement) {

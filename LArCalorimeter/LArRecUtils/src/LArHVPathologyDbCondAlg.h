@@ -12,6 +12,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "LArRecConditions/LArHVPathology.h"
 #include "LArRecConditions/LArHVIdMapping.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 #include<mutex>
 
 class LArEM_ID;
@@ -41,6 +43,8 @@ class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
 
   SG::ReadCondHandleKey<AthenaAttributeList> m_pathologyFolderKey {this, "PathologyFolder", "/LAR/HVPathologiesOfl/Pathologies", "Cool folder for HV pathologies" };
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+
   SG::WriteCondHandleKey<LArHVPathology> m_hvPAthologyKey {this, "HVPAthologyKey", "LArHVPathology", "Key for HV pathologies in Cond. store"};
 
   const LArEM_ID*       m_larem_id=nullptr;

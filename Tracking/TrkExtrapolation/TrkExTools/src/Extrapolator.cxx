@@ -3680,7 +3680,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       const IPropagator* navPropagator = &(*m_propagators[navprop]);
 
       // we veto the navigaiton parameters for calo-volumes with calo dynamic
-      bool vetoNavParameters = false; // (tvol.geometrySignature() == Trk::Calo && m_doCaloDynamic);
+      bool vetoNavParameters = false; // 
       // the next Parameters are usually better, because they're closer to the
       // boundary
       //  --- in the initial volume (assLayerReference!=0), the parm are good if

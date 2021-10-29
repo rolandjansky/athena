@@ -48,7 +48,8 @@ public:
     HGTD_DetectorElement(const Identifier &id, 
                          const HGTD_ModuleDesign *design,
                          const GeoVFullPhysVol *geophysvol,
-                         SiCommonItems * commonItems);
+                         const SiCommonItems * commonItems,
+                         const GeoAlignmentStore* geoAlignStore=nullptr);
 
     /// Destructor:
     virtual ~HGTD_DetectorElement();
@@ -101,42 +102,15 @@ public:
     //@}
 
     ///////////////////////////////////////////////////////////////////
-    //
-    /// @name Cache handling.
-    //
-    ///////////////////////////////////////////////////////////////////
-    //@{.
-
-    /// Recalculate all cached values. 
-    void updateCache() const override final;
-
-    //@}
-
-    ///////////////////////////////////////////////////////////////////
     // Protected data:
     ///////////////////////////////////////////////////////////////////
 protected:
 
     /**
-     * @name Variables for cache validities
+     * @name Cache vector of surfaces.
      */
     //@{
-    mutable std::atomic_bool m_surfacesValid{false};
-    //@}
-
-    /**
-     * @name Variable set by surfaces ith m_surfacesValid of false
-     * Happens only once
-     */
-    //@{
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {};
-    //@}
-
-    /**
-     * @name Mutex guard to update mutable variables in const methods
-     */
-    //@{
-    mutable std::mutex m_mutex{};
+    CxxUtils::CachedValue<std::vector<const Trk::Surface*> > m_surfaces;
     //@}
 
     /**

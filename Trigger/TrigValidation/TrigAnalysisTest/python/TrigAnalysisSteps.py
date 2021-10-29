@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -62,12 +62,12 @@ class TrigEDMAuxChecker(AthenaCheckerStep):
 
 class CheckFileTrigSizeStep(CheckFileStep):
     '''
-    Execute checkFileTrigSize_RTT.py for POOL files.
+    Execute checkFileTrigSize.py for POOL files.
     '''
     def __init__(self, name='CheckFileTrigSize'):
         super(CheckFileTrigSizeStep, self).__init__(name)
         self.input_file = 'AOD.pool.root,ESD.pool.root,RDO_TRIG.pool.root'
-        self.executable = 'checkFileTrigSize_RTT.py'
+        self.executable = 'checkFileTrigSize.py'
 
 class PhysValWebStep(Step):
     '''

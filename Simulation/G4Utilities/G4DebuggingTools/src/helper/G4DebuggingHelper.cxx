@@ -101,6 +101,12 @@ namespace G4DebuggingHelpers {
          ||     nom.contains("station") ) {
       return "Muon";
     }
+    else if ( nom.length() >= 8 && nom.substr(0, 8) == "ITkPixel" ) {
+      return "ITkPixel";
+    }
+    else if ( nom.length() >= 8 && nom.substr(0, 8) == "ITkStrip" ) {
+      return "ITkStrip";
+    }
     else if ( ( nom.length() >= 5 && nom.substr(0, 5) == "Pixel" )
          ||     nom == "Outside Barrel Service") {
       return "Pixel";
@@ -119,9 +125,11 @@ namespace G4DebuggingHelpers {
       return "Section";
     else if ( ( nom.length() >= 12 && nom.substr(0, 12) == "InDetServMat" )
          ||   ( nom.length() >= 4  && nom.substr(0, 4)  == "IDET" )
+         ||   ( nom.length() >= 3  && nom.substr(0, 3)  == "ITK" )
          ||   ( nom.length() >= 8  && nom.substr(0, 8)  == "BeamPipe" )
          ||   ( nom.length() >= 3  &&
-                ( nom.substr(0, 3) == "BLM" || nom.substr(0, 3) == "BCM" ) ) ) {
+                ( nom.substr(0, 3) == "BLM" || nom.substr(0, 3) == "BCM" || nom.substr(0, 3) == "PLR" ) )
+         ||   ( nom.length() >= 8  && nom.substr(0, 8)  == "BCMPrime") ) {
       return "Service";
     }
     return "other";

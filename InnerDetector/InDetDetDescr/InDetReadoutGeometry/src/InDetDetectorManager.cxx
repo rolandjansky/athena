@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,6 +11,7 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <map>
 
@@ -18,9 +19,9 @@ namespace InDetDD
 {
 
     InDetDetectorManager::InDetDetectorManager(StoreGateSvc * detStore, const std::string & name)
-        : m_alignfoldertype{none},m_detStore(detStore), 
-        m_msg(name+"DetectorManager"), 
-        m_suppressWarnings(false)
+        : AthMessaging(Athena::getMessageSvc(), name+"DetectorManager"),
+          m_alignfoldertype{none},m_detStore(detStore), 
+          m_suppressWarnings(false)
     {
         setName(name);
     }

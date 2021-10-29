@@ -5,7 +5,6 @@ log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
-from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
 
@@ -21,65 +20,24 @@ def bool_flag_with_default(name, val):
                    "StoredValue": val,
                 })
 
-default_true_flags = [
-    "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
-    "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
-    "doID",  # if False, disable ID algos at LVL2 and EF """
-    "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
-    "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
-    "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
-    "doNavigationSlimming",  # Enable the trigger navigation slimming"""
-]
-
 default_false_flags = [
-    "useRun1CaloEnergyScale",
-    "doTruth",
-    "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
-    "readBS",
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
 ]
-
-for name in default_true_flags:
-    newFlag = bool_flag_with_default(name, True)
-    globals()[newFlag.__name__] = newFlag
-    _flags.append(newFlag)
 
 for name in default_false_flags:
     newFlag = bool_flag_with_default(name, False)
     globals()[newFlag.__name__] = newFlag
     _flags.append(newFlag)
 
-class doHLT(JobProperty):
-    """ if True, run HLT selection algorithms """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-    
-_flags.append(doHLT)
-
-class doValidationMonitoring(JobProperty):
-    """Enables extra validation monitoring"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doValidationMonitoring)
-
-# trigger configuration source list
-class configurationSourceList(JobProperty):
-    """ define where to read trigger configuration from. Allowed values: ['aod','ds']"""
-    statusOn=True
-    allowedType=['list']
-    StoredValue=[]
-    allowedValues = AllowedList( ['aod','ds'] )
-
-_flags.append(configurationSourceList)
-
 class AODEDMSet(JobProperty):
     """ Define which sets of object go to AOD """
     statusOn=True
     allowedType=['list']
     StoredValue='AODSLIM'
+    def _do_action(self):
+        log.warning("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.AODEDMSet = self.get_Value()
 
 _flags.append(AODEDMSet)
 
@@ -88,24 +46,13 @@ class ESDEDMSet(JobProperty):
     statusOn=True
     allowedType=['list']
     StoredValue='ESD'
+    def _do_action(self):
+        log.warning("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
 
 _flags.append(ESDEDMSet)
 
-class OnlineCondTag(JobProperty):
-    """ Default (online) HLT conditions tag """
-    statusOn=True
-    allowedType=['str']
-    StoredValue='CONDBR2-HLTP-2018-01'
-
-_flags.append(OnlineCondTag)
-
-class OnlineGeoTag(JobProperty):
-    """ Default (online) HLT geometry tag """
-    statusOn=True
-    allowedType=['str']
-    StoredValue='ATLAS-R2-2016-01-00-01'
-    
-_flags.append(OnlineGeoTag)
 
 # =========
 #
@@ -116,30 +63,12 @@ class configForStartup(JobProperty):
     """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
     statusOn=True
     allowedType=['string']
-    StoredValue = 'HLTonline'
-    
-    allowedValues = [
-        'HLTonline',
-        'HLToffline'
-        ]
+    StoredValue = None
+    def _do_action(self):
+        log.warning("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
 
 _flags.append(configForStartup)
 
-
-class dataTakingConditions(JobProperty):
-    """ A flag that describes the conditions of the Trigger at data taking, and determines which part of it will be processed in reconstruction."""
-    statusOn=True
-    allowedType=['string']
-    StoredValue = 'FullTrigger'
-    
-    allowedValues = [
-        'HltOnly',
-        'Lvl1Only',
-        'FullTrigger',
-        'NoTrigger'
-        ]
-
-_flags.append(dataTakingConditions)
 
 class triggerUseFrontier(JobProperty):
     """Flag determines if frontier should be used to connect to the oracle database, current default is False"""
@@ -376,21 +305,7 @@ _flags.append(triggerCoolDbConnection)
 
 class Trigger(JobPropertyContainer):
     """ Trigger top flags """
-      
-
-    def Slices_all_setOn(self):
-        """ Runs setL2 and setEF in all slices. Effectivelly enable trigger. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.setAll()
-
-
-    def Slices_all_setOff(self):
-        """ Runs unsetAll in all slices. Effectivelly disable trigger. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.unsetAll()
-
+    pass
 
 ## attach yourself to the RECO flags
 from RecExConfig.RecFlags import rec
@@ -404,27 +319,9 @@ del _flags
 ## make an alias for trigger flags which looks like old TriggerFlags class
 TriggerFlags = rec.Trigger
 
-
-## add online specific flags
-import TriggerJobOpts.TriggerOnlineFlags    # noqa: F401
-
-## add slices generation flags
-log.info("TriggerFlags importing SliceFlags"  )
-from TriggerJobOpts.SliceFlags import *                             # noqa: F401, F403
-
-
 def sync_Trigger2Reco():
-    from AthenaCommon.Include import include
-    from RecExConfig.RecAlgsFlags import recAlgs
     from AthenaCommon.GlobalFlags  import globalflags
-    from RecExConfig.RecFlags import rec
-    
-    if  recAlgs.doTrigger() and rec.readRDO() and not globalflags.InputFormat()=='bytestream':
-        include( "TriggerJobOpts/TransientBS_DetFlags.py" )
 
     if globalflags.InputFormat() == 'bytestream':
-        TriggerFlags.readBS = True
-        TriggerFlags.doLVL1 = False
-        TriggerFlags.doHLT   = False
-
-del log
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.readBS = True

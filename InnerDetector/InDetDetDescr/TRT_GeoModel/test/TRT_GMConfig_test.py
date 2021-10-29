@@ -14,8 +14,13 @@ if __name__ == "__main__":
     ConfigFlags.GeoModel.Align.Dynamic = False
     ConfigFlags.lock()
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    acc = TRT_GeometryCfg(ConfigFlags)
-    f=open('TRT_GeometryCfg.pkl','wb')
+    if ConfigFlags.Common.Project == "AthSimulation":
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_SimulationGeometryCfg
+        acc = TRT_SimulationGeometryCfg(ConfigFlags)
+        f=open('TRT_SimulationGeometryCfg.pkl','wb')
+    else:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc = TRT_ReadoutGeometryCfg(ConfigFlags)
+        f=open('TRT_ReadoutGeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

@@ -21,18 +21,18 @@ namespace MuonGM {
       public:
         RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc *m_pRDBAccess, const std::string& geoTag, const std::string& geoNode, bool dumpAlines, bool dumpICSCAlines, bool useICSCAlines,
                        const std::map<std::string, std::string> *asciiFileDBMap = 0);
-        ~RDBReaderAtlas();
-        StatusCode ProcessDB();
+        virtual ~RDBReaderAtlas();
+        virtual StatusCode ProcessDB(MYSQL& mysql) override;
 
         void setControlCscIntAlines(int x) { m_controlCscIntAlines = x; }
 
-        void ProcessTGCreadout();
+        void ProcessTGCreadout(MYSQL& mysql);
         void ProcessCscInternalAlignments();
         std::string TGCreadoutName(int ichtyp);
         void ProcessMdtAsBuiltParams();
 
       private:
-        void ProcessTechnologies();
+        void ProcessTechnologies(MYSQL& mysql);
 
         int m_controlCscIntAlines;
 

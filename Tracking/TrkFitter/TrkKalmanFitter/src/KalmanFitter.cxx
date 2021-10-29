@@ -1233,7 +1233,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
                                              int& iFilterBeginState,
                                              const Trk::TrackParameters& backupParams) const
 {
-  const Trk::TrackParameters* newSeedPars = nullptr;
+  std::unique_ptr<Trk::TrackParameters> newSeedPars;
   ATH_MSG_VERBOSE ("In ::prepareNextIteration with filterBeginState = "<<iFilterBeginState);
 
   // get chi2 asymmetry
@@ -1264,7 +1264,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
         (covN)(i,i) = (*cov)(i,i) < m_cov0[i] ? (*cov)(i,i)*scale : m_cov0[i];
       }
       newSeedPars = CREATE_PARAMETERS(*resultFromPreviousIter,
-                                      resultFromPreviousIter->parameters(),covN).release();
+                                      resultFromPreviousIter->parameters(),covN);
     }
   }
 
@@ -1276,8 +1276,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
       AmgVector(5)* x = new AmgVector(5)(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
       ffs->checkinParametersDifference(x);
       ffs->checkinParametersCovariance(new AmgSymMatrix(5)(*newSeedPars->covariance()));
-      delete newSeedPars; // FIXME can be made without this new/delete.
-    } else ffs->checkinForwardPar(newSeedPars);
+    } else ffs->checkinForwardPar(std::move(newSeedPars));
     ATH_MSG_VERBOSE ("made new seed parameters");
     // FIXME consider remaking the reference here
 

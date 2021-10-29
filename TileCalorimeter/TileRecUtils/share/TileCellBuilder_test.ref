@@ -399,6 +399,7 @@ IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to TileOfl02Stat
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to TileOfl02TimeChanneloffsetPhy-000-00 for folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY
 IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
 LArAlignCondAlg      INFO recorded new GeoAlignmentStore object for LAr with key LArAlignmentStore and range {[0,l:0] - [177530,l:0]}
+CaloAlignCondAlg     INFO recorded new CaloDetDescr Manager condition object with key CaloDetDescrManager and range {[0,t:0,l:0] - [177530,l:0]}
 TileBadChannels...   INFO Updating TileBchStatus::isBad() definition from DB
 TileBadChannels...   INFO Updating TileBchStatus::isNoisy() definition from DB
 TileBadChannels...   INFO No TileBchStatus::isNoGainL1() definition found in DB, using defaults

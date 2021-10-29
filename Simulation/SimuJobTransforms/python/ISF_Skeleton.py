@@ -3,6 +3,8 @@
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
+from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg, specialConfigPreInclude, specialConfigPostInclude
+
 
 def defaultSimulationFlags(ConfigFlags, detectors):
     """Fill default simulation flags"""
@@ -10,7 +12,7 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
-    if (ConfigFlags.Sim.ISF.Simulator not in ('FullG4MT', 'FullG4MT_LongLived')) or ConfigFlags.Sim.LArParameterization!=0:
+    if (ConfigFlags.Sim.ISF.Simulator not in ('FullG4MT', 'FullG4MT_QS', 'PassBackG4MT')) or ConfigFlags.Sim.LArParameterization!=0:
         ConfigFlags.Sim.CalibrationRun = "Off"
 
     ConfigFlags.Sim.RecordStepInfo = False
@@ -126,19 +128,12 @@ def fromRunArgs(runArgs):
     if not (hasattr(runArgs, 'outputHITSFile') or hasattr(runArgs, "outputEVNT_TRFile")):
         raise RuntimeError('No outputHITSFile or outputEVNT_TRFile defined')
 
-    if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]
-        ConfigFlags.Input.OverrideRunNumber = True
-        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
+    # Setup perfmon flags from runargs
+    from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
 
-    if hasattr(runArgs, 'physicsList'):
-        ConfigFlags.Sim.PhysicsList = runArgs.physicsList
-
-    if hasattr(runArgs, 'conditionsTag'):
-        ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
-
-    if hasattr(runArgs, 'truthStrategy'):
-        ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
+    # Special Configuration preInclude
+    specialConfigPreInclude(ConfigFlags)
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
@@ -146,11 +141,19 @@ def fromRunArgs(runArgs):
     # Pre-exec
     processPreExec(runArgs, ConfigFlags)
 
+    # Common simulation runtime arguments
+    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    simulationRunArgsToFlags(runArgs, ConfigFlags)
+
     # Lock flags
     ConfigFlags.lock()
 
-    from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg
     cfg = CommonSimulationCfg(ConfigFlags, log)
+
+    cfg.getService("MessageSvc").Format = "% F%18W%S%7W%R%T %0W%M"
+
+    # Special Configuration postInclude
+    specialConfigPostInclude(ConfigFlags, cfg)
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

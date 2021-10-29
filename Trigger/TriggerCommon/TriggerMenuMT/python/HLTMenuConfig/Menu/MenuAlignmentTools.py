@@ -49,6 +49,29 @@ def get_alignment_group_from_pattern(signature, extra):
         log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s (%s)",signature,extra)
         return signature
 
+def remove_duplicates(config_tuples):
+    # move a list like this [(5, 'Tau'), (6, 'Tau'), (1, 'JetMET')]
+    # .... to this [(6, 'Tau'), (1, 'JetMET')]	
+    # one per group, and keep the max length
+    list_of_groups = [x[1] for x in config_tuples]
+
+    if len(list_of_groups) == len(set(list_of_groups)):
+        return config_tuples
+       
+    else:
+        unique_list = OrderedDict()
+        for ag_length, ag in config_tuples:
+            if ag in unique_list:
+                if ag_length > unique_list[ag]:
+                    unique_list[ag] = ag_length
+            else:
+                unique_list[ag] = ag_length
+
+        unique_config_tuples = []
+        for ag, ag_length in unique_list.items():
+            unique_config_tuples += [(ag_length, ag)]
+        return unique_config_tuples
+
 class MenuAlignment():
     """ Class to hold/calculate chain alignment """
     def __init__(self, combinations_in_menu, groups_to_align, length_of_configs):
@@ -211,6 +234,8 @@ class MenuAlignment():
       
     def multi_align(self, chainDict, chainConfig, lengthOfChainConfigs):
     
+        lengthOfChainConfigs = remove_duplicates(lengthOfChainConfigs)
+    
         alignment_grps = chainDict['alignmentGroups']
 
         #check for a few bad conditions first:
@@ -244,7 +269,7 @@ class MenuAlignment():
                #too short! need to add padding steps between two alignment groups...
                needed_steps = max_length_firstgrp - length_firstgrp
                chainConfig.insertEmptySteps('Empty'+self.sets_to_align[alignment_grps[0]][0]+'Align',needed_steps,length_firstgrp) 
-      
+    
            elif length_firstgrp > max_length_firstgrp:
                log.error("%s first signature length %d is greater than the max calculated, %d",chainDict.name,length_firstgrp, max_length_firstgrp)     
                raise Exception("Probably something went wrong in GenerateMenuMT.generateChains()!")

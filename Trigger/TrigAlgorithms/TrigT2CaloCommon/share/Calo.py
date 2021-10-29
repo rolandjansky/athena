@@ -30,7 +30,7 @@ topSequence += HLTSeedingNoCtpForTesting("HLTSeedingNoCtpForTesting", OutputLeve
 steps = seqOR("HLTTop")
 topSequence += steps
 
-if TriggerFlags.doCalo:
+if ConfigFlags.Trigger.doCalo:
   if ( doHLTCaloTopo ) :
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
     recosequence, caloclusters = HLTFSTopoRecoSequence("HLT_TestFSRoI")
@@ -48,6 +48,8 @@ if TriggerFlags.doCalo:
   if (True):
     from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
     LArMCSymCondAlgDefault()
+    from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+    LArBadChannelAccess()
 
     from TrigMinBias.TrigMinBiasConf import MbtsFex
     alg=MbtsFex()

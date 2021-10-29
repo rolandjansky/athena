@@ -13,11 +13,11 @@
 #include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+#endif // XAOD_STANDALONE
 
 // EDM include(s):
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"

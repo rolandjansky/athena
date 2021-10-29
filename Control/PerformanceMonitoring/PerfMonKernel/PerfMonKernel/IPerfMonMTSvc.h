@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERMONKERNEL_IPERFMONMTSV_H
@@ -28,9 +28,6 @@ class IPerfMonMTSvc : virtual public IService
     virtual void stopAud( const std::string& stepName,
                           const std::string& compName = "PerfMonMTSlice" ) = 0;
 
-
-    // Do event level monitoring
-    virtual void eventLevelMon() = 0;
 
 }; // class IPerfMonMTSvc
 

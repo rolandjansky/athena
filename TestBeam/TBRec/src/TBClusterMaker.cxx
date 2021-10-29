@@ -5,13 +5,10 @@
 #include "TBClusterMaker.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "CaloGeoHelpers/proxim.h"
@@ -30,7 +27,6 @@ TBClusterMaker::TBClusterMaker(const std::string& type,
     m_deltaR(0.02),
     m_maxIter(4),
     m_CellEnergyInADC(false),
-    m_calo_DDM(0),
     m_calo_id(0)
 {
   // CaloCell Container Name
@@ -56,9 +52,6 @@ TBClusterMaker::TBClusterMaker(const std::string& type,
   // Cluster \f$ \phi \f$) from JO file
   declareProperty("phiCluster",m_phi0=99.);
 
-  //m_numCluIterationsConverged = 0;
-  //m_numCluIterationsNonConverged = 0;
-  //m_numSeedCellNotFound = 0;
 }
 ////////////////////
 // Initialization //
@@ -69,10 +62,8 @@ StatusCode TBClusterMaker::initialize(){
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "in initialize()" << endmsg;
 
-  // Get pointer to detector manager and CaloCell_ID:
-  m_calo_DDM  = CaloDetDescrManager::instance(); 
-  m_calo_id   = m_calo_DDM->getCaloCell_ID();
-
+  // Get pointer to CaloCell_ID:
+  ATH_CHECK(detStore()->retrieve(m_calo_id, "CaloCell_ID"));
   ATH_CHECK( m_elecNoiseKey.initialize() );
 
   // setup calorimeter module and sampling lookup tables

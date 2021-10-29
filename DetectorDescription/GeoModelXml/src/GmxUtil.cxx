@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelXml/GmxUtil.h"
@@ -78,7 +78,7 @@ GmxInterface * GmxUtil::gmxInterface() {
 }
 
 double GmxUtil::evaluate(char const *expression) {
-    static string lastGoodExpression("none"); // It is helpful for debugging to get some idea of where we had got to...
+    static thread_local string lastGoodExpression("none"); // It is helpful for debugging to get some idea of where we had got to...
     string strExpression(expression);
 
     bool isWhiteSpace = true;
@@ -161,7 +161,7 @@ GeoLogVol * GmxUtil::makeAssemblyLV() {
             msglog << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Detector Store" << endmsg;
     }
     else {
-        DataHandle<StoredMaterialManager> theMaterialManager;
+        StoredMaterialManager* theMaterialManager = nullptr;
         sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
         if(sc.isFailure()) {
                 msglog << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Material Manager" << endmsg;

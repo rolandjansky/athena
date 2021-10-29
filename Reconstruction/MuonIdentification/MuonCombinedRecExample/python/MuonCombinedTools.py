@@ -7,7 +7,7 @@ from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from InDetRecExample import TrackingCommon
 
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs):
@@ -24,7 +24,7 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
         kwargs.setdefault("nHitBLayerPlusPix", 0 )
         kwargs.setdefault("nHitTrt", 0 )
         kwargs.setdefault("useTrackQualityInfo", False )
-        if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        if ConfigFlags.Muon.MuonTrigger:
             kwargs.setdefault("IPd0Max", 19999.0 )
             kwargs.setdefault("IPz0Max", 19999.0 )
             kwargs.setdefault("z0Max", 19999.0 )
@@ -76,7 +76,7 @@ def AtlasTrackToVertexTool(name="AtlasTrackToVertexTool",**kwargs) :
     return TrackingCommon.getInDetTrackToVertexTool(name, **kwargs)
 
 def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
@@ -105,7 +105,7 @@ def MuonPrintingTool(name="MuonPrintingTool",**kwargs ):
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault('MakeTrackAtMSLink',True)
         kwargs.setdefault("FillTimingInformation",False)
         kwargs.setdefault("MuonSelectionTool", "")
@@ -130,7 +130,7 @@ def MuonCreatorTool_LRT(name="MuonCreatorTool_LRT",**kwargs):
     return MuonCreatorTool(name, **kwargs)
 
 def ExtrapolateMuonToIPTool(name="ExtrapolateMuonToIPTool",**kwargs):
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("TrackSummaryTool", getPublicTool("MuonTrackSummaryTool"))
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
@@ -142,7 +142,7 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("ExtrapolationStrategy", 1 )
         kwargs.setdefault("TrackExtrapolationTool", getPublicTool("ExtrapolateMuonToIPTool"))
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
                                               TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
         kwargs.setdefault("TrackBuilder", trigTrackBuilder)
@@ -155,11 +155,15 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     if muonCombinedRecFlags.doStatisticalCombination() and beamFlags.beamType() != 'cosmics':
         tools.append(getPublicTool("MuonCombinedStacoTagTool"))
     kwargs.setdefault("MuonCombinedTagTools", tools )
+    ### Retune the angular selection for the muons
+    kwargs.setdefault("AlignmentUncertTool", getPublicTool("MuonAlignmentUncertToolTheta"))
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     from AthenaCommon.AppMgr import ToolSvc
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
         TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
         ToolSvc += TrigMuonPropagator

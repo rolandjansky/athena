@@ -342,7 +342,7 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
 
         
     // find the path to the map file
-    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "CALIBPATH" );
+    std::string resolvedMapFile = PathResolver::find_file( mapFile, "CALIBPATH" );
     if ( resolvedMapFile.empty() ) {
         ATH_MSG_ERROR( "Field map file " << mapFile << " not found" );
         return StatusCode::FAILURE;

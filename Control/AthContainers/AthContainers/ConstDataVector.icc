@@ -710,7 +710,7 @@ void ConstDataVector<DV>::swap (ConstDataVector& rhs)
 /**
  * @brief Swap the referents of two @c DataVector iterators.
  * @param a The first iterator for the swap.
- * @param b The second iterator for the swap/
+ * @param b The second iterator for the swap.
  */
 template <class DV>
 inline
@@ -952,9 +952,8 @@ const SG::AuxVectorBase& ConstDataVector<DV>::auxbase() const
 
 /**
  * @brief  Vector ordering relation.
- * @param  a  A @c ConstDataVector.
- * @param  b  A @c ConstDataVector of the same type as @a x.
- * @return  True iff @a x is lexicographically less than @a y.
+ * @param  b  A @c ConstDataVector of the same type as @a *this.
+ * @return  True iff @a *this is lexicographically less than @a b.
  *
  * This is a total ordering relation.  It is linear in the size of the
  * vectors.  Comparisons are done on the pointer values of the elements.
@@ -998,8 +997,7 @@ bool ConstDataVector<DV>::operator>= (const ConstDataVector& b) const
 
 /**
  * @brief  Vector equality comparison.
- * @param  a  A @c ConstDataVector.
- * @param  b  A @c ConstDataVector of the same type as @a x.
+ * @param  b  A @c ConstDataVector of the same type as @a *this.
  * @return  True iff the size and elements of the vectors are equal.
  *
  * This is an equivalence relation.  It is linear in the size of the

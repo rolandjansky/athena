@@ -63,7 +63,9 @@ StatusCode Run2ToRun3TrigNavConverter::initialize() {
   ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::CaloCluster", m_CaloClusterCLID));
   ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::CaloClusterContainer", m_CaloClusterContainerCLID));
   ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrackParticleContainer", m_TrackParticleContainerCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrackParticleAuxContainer", m_TrackParticleAuxContainerCLID));
   ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TauTrackContainer", m_TauTrackContainerCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TauTrackAuxContainer", m_TauTrackAuxContainerCLID));
 
   return StatusCode::SUCCESS;
 }
@@ -75,6 +77,8 @@ StatusCode Run2ToRun3TrigNavConverter::finalize() {
 
 StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) const
 {
+  #define FEATURESELECTOR true 
+
   const HLT::TrigNavStructure* run2NavigationPtr = nullptr;
   HLT::StandaloneNavigation standaloneNav;
   if (!m_trigNavKey.key().empty()) {
@@ -114,18 +118,24 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
   }
 
   // auxiliary random objects
-  /*
+  
   std::random_device rd;
   std::mt19937_64 gen(rd());
   std::uniform_int_distribution<uint32_t> dis;
-  */
+  
 
   TEDecisionMap mapTEtoHNodes;                          // TE - Decision (xAOD::TrigComposite)
   TEDecisionMap mapTEtoIMNodes;                    // TE Active - Decision (xAOD::TrigComposite)
   std::vector<TrigCompositeUtils::Decision*> decisionLast; // storing "last" decision in a chain
 
+  std::map<TrigCompositeUtils::Decision*, TrigCompositeUtils::Decision*> decisionLastSF; // map of key: "last H decision" value: SF
   DecisionObjMap decisionObj;
-  DecisionObjStringMap decisionObjFeatureless;
+  #if FEATURESELECTOR==true
+    DecisionObjMap decisionObjFeatureless;
+  #else 
+    DecisionObjStringMap decisionObjFeatureless;
+  #endif
+  
   L1ObjMap l1Obj;
   std::set<TrigCompositeUtils::Decision*> currentChainDecisions; // to veto decision nodes to be reused for the same chain
 
@@ -156,7 +166,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
       if (idx == elemFE.getIndex().objectsBegin()) {
         auto imNode = TrigCompositeUtils::newDecisionIn(decisionOutput); // IM
         currentChainDecisions.insert(imNode);
-        imNode->setName(TrigCompositeUtils::inputMakerNodeName());
+        imNode->setName(TrigCompositeUtils::inputMakerNodeName()); // for debugging: imNode->setName( hash2string[ ptrTE->getId() ] );
         auto hNode = TrigCompositeUtils::newDecisionIn(decisionOutput); // H
         currentChainDecisions.insert(hNode);
         hNode->setName(TrigCompositeUtils::hypoAlgNodeName());
@@ -193,6 +203,25 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
     auto d1 = TrigCompositeUtils::newDecisionIn(dOutput);
     d1->setName(TrigCompositeUtils::hltSeedingNodeName());
     return d1;
+  };
+
+  // @@@@@@@@@@@@@@@@@@@@@@@@@@ getSFObject @@@@@@@@@@@@@@@@@@@@@@@@@@
+  auto getSFObject = [&](TrigCompositeUtils::Decision *dLast, TrigCompositeUtils::DecisionContainer *dOutput, size_t &kIn) -> TrigCompositeUtils::Decision *
+  {
+    auto pairLastSF = decisionLastSF.find(dLast);
+    if (pairLastSF != decisionLastSF.end())
+    { // last H node found
+      kIn = 0;
+      return pairLastSF->second; // return existing SF
+    }
+
+    kIn = 1;
+    auto sf_decision = TrigCompositeUtils::newDecisionIn(dOutput);
+    sf_decision->setName("SF");
+    decisionLastSF[dLast] = sf_decision; // insert new last H - SF pair
+    TrigCompositeUtils::linkToPrevious(sf_decision, dLast, context);
+
+    return sf_decision;
   };
 
   // @@@@@@@@@@@@@@@@@@@@@@@@@@ ordered_sorter @@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -265,9 +294,8 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
               auto vecTEpred = run2Navigation.getDirectPredecessors(ptrTE);
               if (vecTEpred.empty() == false) {
                 for (auto pred : vecTEpred) { // vector predecessors TE
-                  auto vectorTEfeatures_ptr = getTEfeatures(pred, run2Navigation, false); // any feature collection
+                  auto vectorTEfeatures_ptr = getTEfeatures(pred, run2Navigation /*, false */ ); // filtered feature collection, if any: uncomment false
                   if (vectorTEfeatures_ptr.size() == 1 && (vectorTEfeatures_ptr.front().getIndex().objectsBegin() == vectorTEfeatures_ptr.front().getIndex().objectsEnd())) {
-                    //if (vectorTEfeatures_ptr.front().getIndex().objectsBegin()==vectorTEfeatures_ptr.front().getIndex().objectsEnd()) {
                     break; // this is empty FE, treat it is as zero FE
                   }
                   if (vectorTEfeatures_ptr.empty() == false) {                  
@@ -290,16 +318,18 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
             // @@@@@@@@@@@@@@@@@@@@@@@@@@ getTEObject @@@@@@@@@@@@@@@@@@@@@@@@@@
             auto getTEObject = [&](HLT::TriggerElement* ptrTE, uint32_t& deepLevel, TrigCompositeUtils::DecisionContainer* dOutput) -> DecisionPair& {
               // this is featureless case
+              #if FEATURESELECTOR==false
               std::string teName = hash2string[ptrTE->getId()];
               if (teName != "") {
                 auto it = decisionObjFeatureless.find(teName);
                 if (it != decisionObjFeatureless.end()) return it->second;
               }
 
-              deepLevel = 0; // at this moment obsolte, but see below
-/*
-                // THIS BLOCK is left intetionally here as an alternative approach.
+              deepLevel = 0; // in this option obsolte
+              #endif
 
+                // THIS BLOCK is left intetionally here as an alternative approach.
+                #if FEATURESELECTOR==true
                 uint32_t sgKeyProxy = featureFinder(ptrTE,deepLevel);
                 if (sgKeyProxy != 0) {
                   auto it = decisionObjFeatureless.find(sgKeyProxy);
@@ -309,9 +339,10 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
                   ATH_MSG_DEBUG("ZERO sgKeyProxy");
                   sgKeyProxy = 1000000 + dis(gen); // let us random it
                 }
-*/
+                #endif
+
               auto d2 = TrigCompositeUtils::newDecisionIn(dOutput); // IM
-              d2->setName(TrigCompositeUtils::inputMakerNodeName());
+              d2->setName(TrigCompositeUtils::inputMakerNodeName()); // debug: d2->setName( hash2string[ ptrTE->getId() ] );
               auto d1 = TrigCompositeUtils::newDecisionIn(dOutput); // H
               d1->setName(TrigCompositeUtils::hypoAlgNodeName());
               TrigCompositeUtils::linkToPrevious(d1, d2, context);
@@ -319,9 +350,17 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
               ATH_MSG_DEBUG("REGTEST " << "[TE featureless] " << "[H creation] " << "(" << d1->index() << ")");
               ATH_MSG_DEBUG("REGTEST " << "[TE featureless] " << "[IM creation] " << "(" << d2->index() << ")");
               ATH_MSG_DEBUG("REGTEST " << "[TE featureless] " << "[H -> IM seed link] " << "(" << d1->index() << " -> " << d2->index() << ")");
-              //return decisionObjFeatureless[sgKeyProxy] = std::make_pair(d1, d2); // intentionally left, see above
-              return decisionObjFeatureless[teName] = std::make_pair(d1, d2);
+              #if FEATURESELECTOR==true
+                return decisionObjFeatureless[sgKeyProxy] = std::make_pair(d1, d2); 
+              #else
+                return decisionObjFeatureless[teName] = std::make_pair(d1, d2);
+              #endif
             };
+
+
+
+
+
 
 
             if (vectorTEROIfeatures_ptr.empty()) {
@@ -500,23 +539,19 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
         }
       }
 
-      //std::set<TrigCompositeUtils::Decision *> decisionLastUnique(decisionLast.begin(), decisionLast.end());
-      //decisionLast.assign(decisionLastUnique.begin(), decisionLastUnique.end());
-
-      //for (const auto &last : decisionLast)
-      //{
+      size_t kInsert{0};
       if (decisionLast.empty() == false) {
         auto last = decisionLast.back();
-        auto sf_decision = TrigCompositeUtils::newDecisionIn(decisionOutput);
-        sf_decision->setName("SF");
+        auto sf_decision = getSFObject(last, decisionOutput, kInsert);
+
         TrigCompositeUtils::addDecisionID(chainId, sf_decision);
-        TrigCompositeUtils::linkToPrevious(sf_decision, last, context);
-        TrigCompositeUtils::linkToPrevious(passRawOutput, sf_decision, context);
-        ATH_MSG_DEBUG("REGTEST " << "[SF creation] " << "(" << sf_decision->index() << ") [Chain ID] " << chainId);
-        ATH_MSG_DEBUG("REGTEST " << "[SF -> H seed link] " << "(" << sf_decision->index() << " -> " << last->index() << ")");
-        ATH_MSG_DEBUG("REGTEST " << "[RAW -> SF seed link] " << "(" << passRawOutput->index() << " -> " << sf_decision->index() << ")");
+        if (kInsert) { // link if new SF created
+          TrigCompositeUtils::linkToPrevious(passRawOutput, sf_decision, context);
+          ATH_MSG_DEBUG("REGTEST " << "[SF creation] " << "(" << sf_decision->index() << ") [Chain ID] " << chainId);
+          ATH_MSG_DEBUG("REGTEST " << "[SF -> H seed link] " << "(" << sf_decision->index() << " -> " << last->index() << ")");
+          ATH_MSG_DEBUG("REGTEST " << "[RAW -> SF seed link] " << "(" << passRawOutput->index() << " -> " << sf_decision->index() << ")");
+        }
       }
-      //}
 
       TrigCompositeUtils::decisionIDs(passRawOutput).push_back(chainId);
     }
@@ -564,8 +599,10 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
               << tePtr << " " << hash2string[tePtr->getId()]
               << " seeded by TE " << predtePtr << " " << hash2string[predtePtr->getId()]
               << " IM node " << imNode);
+             ATH_MSG_DEBUG("ADDTEST IM node " << imNode->name()); 
             for (auto& hNode : mapTEtoHNodes[predtePtr])
             { // this is H loop
+              ATH_MSG_DEBUG("ADDTEST H node " << hNode->name()); 
               TrigCompositeUtils::linkToPrevious(imNode, hNode, context);
               ATH_MSG_DEBUG("TE predTE linking IM lower H upper = " << tePtr << " " << predtePtr << " " << imNode << " " << hNode);
               regtestSorted.insert("REGTEST [IM -> H seed link] (" + std::to_string(imNode->index()) + " -> " + std::to_string(hNode->index()) + ")");
@@ -577,6 +614,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
   for (const auto& p : regtestSorted) {
     ATH_MSG_DEBUG(p);
   }
+
 
 
   return StatusCode::SUCCESS;
@@ -661,7 +699,7 @@ StatusCode Run2ToRun3TrigNavConverter::addTRACKfeatures(const HLT::TrigNavStruct
     decisionPtr->typelessSetObjectLink("TEMP_TRACKS", sgKey, sgCLID, helper.getIndex().objectsBegin(), helper.getIndex().objectsEnd());
     ElementLinkVector<xAOD::TrackParticleContainer> tracks = decisionPtr->objectCollectionLinks<xAOD::TrackParticleContainer>("TEMP_TRACKS");
     decisionPtr->removeObjectCollectionLinks("TEMP_TRACKS");
-    for (const ElementLink<xAOD::TrackParticleContainer>& track : tracks)
+    for (const ElementLink<xAOD::TrackParticleContainer> track : tracks)
     {
       if (track.isValid())
       {
@@ -702,9 +740,10 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
   for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
   {
     auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
+    if (sgKey==0) return ptrFAHelper; 
     if (filterOnCLID && m_setCLID.find(helper.getCLID()) == m_setCLID.end())
     {
-      continue;
+     // continue;
     }
     ptrFAHelper.push_back(helper);
   }
@@ -752,7 +791,10 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
   std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
   for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
   {
-    if (helper.getCLID() == m_TrackParticleContainerCLID || helper.getCLID() == m_TauTrackContainerCLID)
+    if (helper.getCLID() == m_TrackParticleContainerCLID || 
+        helper.getCLID() == m_TrackParticleAuxContainerCLID || 
+        helper.getCLID() == m_TauTrackContainerCLID || 
+        helper.getCLID() == m_TauTrackAuxContainerCLID )
     {
       ptrFAHelper.push_back(helper);
     }

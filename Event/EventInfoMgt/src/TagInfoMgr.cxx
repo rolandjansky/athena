@@ -699,7 +699,7 @@ TagInfoMgr::removeTagFromInput(const std::string& tagName)
 }
 
 //______________________________________________________________________________
-std::string TagInfoMgr::findTag(const std::string & name) const
+std::string TagInfoMgr::findTag ATLAS_CHECK_THREAD_SAFETY (const std::string & name) const
 {
    std::shared_lock guard(m_mutex);
    const auto iter = m_extraTagValuePairsViaInterface.find(name);
@@ -710,7 +710,7 @@ std::string TagInfoMgr::findTag(const std::string & name) const
 }
 
 //______________________________________________________________________________
-std::string TagInfoMgr::findInputTag(const std::string & name) const
+std::string TagInfoMgr::findInputTag ATLAS_CHECK_THREAD_SAFETY (const std::string & name) const
 {
    std::shared_lock guard(m_mutex);
    return m_tagInfo.findInputTag(name);
@@ -778,8 +778,7 @@ void TagInfoMgr::addListener(Listener* listener)
       }
    }
 
-   if( m_listeners.find(listener) == m_listeners.end() )
-      m_listeners.insert( listener );
+   m_listeners.insert( listener );
 }
 
 //______________________________________________________________________________

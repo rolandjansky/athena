@@ -31,11 +31,6 @@ StatusCode egammaCaloClusterSelector::initialize()
   m_doReta = (m_RetaCut != RETA_DEFAULT_NO_CUT);
   m_doHadLeak = (m_HadLeakCut != HAD_LEAK_DEFAULT_NO_CUT);
   ATH_CHECK(m_cellsKey.initialize(m_doReta||m_doHadLeak));
-  if (m_doReta) {
-    ATH_CHECK(m_egammaMiddleShape.retrieve());
-  } else {
-    m_egammaMiddleShape.disable();
-  }
 
   if (m_doHadLeak) {
     ATH_CHECK(m_HadronicLeakageTool.retrieve());
@@ -110,9 +105,10 @@ bool egammaCaloClusterSelector::passSelection(
     // retrieve the cell containers
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
     if (m_doReta) {
-      IegammaMiddleShape::Info info;
-      StatusCode sc = m_egammaMiddleShape->execute(*cluster, cmgr, *cellcoll, info);
-      if ( sc.isFailure() ) {
+      egammaMiddleShape::Info info;
+      StatusCode sc =
+        egammaMiddleShape::execute(*cluster, cmgr, *cellcoll, info, true);
+      if (sc.isFailure()) {
         ATH_MSG_WARNING("call to Middle shape returns failure for execute");
         return false;
       }

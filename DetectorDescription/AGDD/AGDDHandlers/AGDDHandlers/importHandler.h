@@ -13,10 +13,9 @@ class AGDDController;
 class importHandler:public XMLHandler {
 public:
         importHandler(const std::string&,
-                      AGDDController& controller);
-        virtual void ElementHandle() override;
-private:
-        AGDDController& m_controller;
+                      AGDDController& c);
+        virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

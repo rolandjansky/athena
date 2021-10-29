@@ -4,6 +4,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from SGComps.AddressRemappingConfig import InputRenameCfg
+AthSequencer=CompFactory.AthSequencer
 
 
 def McEventCollectionFilterCfg(flags, **kwargs):
@@ -211,9 +212,9 @@ def DecoratePileupAntiKt6TruthJetsCfg(flags, **kwargs):
     return acc
 
 
-def TruthResetAlgCfg(flags, sequenceName='SimSequence', **kwargs):
+def TruthResetAlgCfg(flags, **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("InputMcEventCollection", "TruthEventOLD")
     kwargs.setdefault("OutputMcEventCollection", "BeamTruthEvent")
-    result.addEventAlgo(CompFactory.TruthResetAlg(name="TruthResetAlg", **kwargs), sequenceName)
+    result.addEventAlgo(CompFactory.TruthResetAlg(name="TruthResetAlg", **kwargs))
     return result

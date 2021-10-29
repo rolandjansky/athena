@@ -24,6 +24,8 @@ class AGDDBolt;
 class AGDDIbeam;
 class AGDDUbeam;
 
+class StoredMaterialManager;
+
 #include <string>
 
 class AGDDBuilder {
@@ -58,6 +60,8 @@ public:
 
 	virtual void BuildFromSection(const std::string&) const =0;
 	virtual void BuildFromVolume(const std::string&) const =0;
+
+        virtual const StoredMaterialManager& GetMaterialManager() const = 0;
 };
 
 #endif

@@ -66,8 +66,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFL1CALO
                                                                        OutputLevel = DEBUG)
 
 topSequence += DerivationFrameworkJob
-print DerivationFrameworkJob
-print DerivationFrameworkJob.properties()
+print( DerivationFrameworkJob)
+print( DerivationFrameworkJob.properties())
 
 #################
 ### Steer output file content
@@ -200,6 +200,6 @@ L1CALO4Stream.AddItem("HLT::HLTResult#HLTResult_HLT")
 L1CALO4Stream.AddItem("xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.")
 L1CALO4Stream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
 
-print L1CALO4Stream
+print( L1CALO4Stream)
 
 
