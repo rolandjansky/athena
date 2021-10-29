@@ -165,10 +165,19 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int RetaBitS = 3;
       unsigned int RhadBitS = 3;
       unsigned int WstotBitS = 5;
-      
-      SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
-      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
-      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
+
+      unsigned int maxEt = iso_loose.maxEt();//since it's not 'MeV' or Counts, must be in GeV
+      unsigned int maxEtCounts = (maxEt*m_GeV)/m_eFexStep;//Note: this should be changed in the menu to access in MeV. 
+      if (eEMTobEt > maxEtCounts){
+	RetaWP = 3;
+	RhadWP = 3;
+	WstotWP = 3;
+      }
+      else{
+	SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
+	SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
+	SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
+      }
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
 
@@ -382,7 +391,6 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
 
 void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint, unsigned int & bitshift) {
   // Working point evaluted by Core * 2^bitshift > Threshold * Environment conditions
-
   bool CoreOverflow = false;
   bool EnvOverflow = false;
   bool ThrEnvOverflowL = false;
@@ -399,14 +407,14 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
   if (CoreOverflow == false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
-	workingPoint = 1;
+      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
+	workingPoint = 3;
       } 
       else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
 	workingPoint = 2;
       } 
-      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
-	workingPoint = 3;
+      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
+	workingPoint = 1;
       }
       else { 
 	workingPoint = 0;

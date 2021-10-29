@@ -36,7 +36,7 @@ uint32_t eFEXFormTOBs::formTauTOBWord(int & fpga, int & eta, int & phi, unsigned
 
   uint32_t tobWord = 0;
 
-  //rescale from 25 MeV eFEX steps to 100 MeV for the TOB
+  //rescale from eFEX scale (25 MeV) to TOB scale (100 MeV)
   unsigned int etTob = 0;
   etTob = et*m_eFexStep/m_eFexTobStep; 
 
@@ -48,6 +48,7 @@ uint32_t eFEXFormTOBs::formTauTOBWord(int & fpga, int & eta, int & phi, unsigned
 
   ATH_MSG_DEBUG("Tau tobword: " << std::bitset<32>(tobWord) );
 
+  //Cut taken from trigger menu, retrieved in eFEXFPGA
   unsigned int minEtThreshold = ptMinTopo;
   if (etTob < minEtThreshold) return 0;
   else return tobWord;
@@ -57,8 +58,9 @@ uint32_t eFEXFormTOBs::formEmTOBWord(int & fpga, int & eta, int & phi, unsigned 
 {
   uint32_t tobWord = 0;
 
+  //rescale from eFEX scale (25 MeV) to TOB scale (100 MeV)
   unsigned int etTob = 0;
-  etTob = et*m_eFexStep/m_eFexTobStep; //rescale from 25 MeV eFEX steps to 100 MeV for the TOB
+  etTob = et*m_eFexStep/m_eFexTobStep;
 
   // Truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
   if (etTob > 0xfff) etTob = 0xfff;
@@ -68,7 +70,7 @@ uint32_t eFEXFormTOBs::formEmTOBWord(int & fpga, int & eta, int & phi, unsigned 
 
   ATH_MSG_DEBUG("EM tobword: " << std::bitset<32>(tobWord) );
 
-  // Some arbitrary cut so that we're not flooded with tobs, to be taken from the Trigger menu in the future!
+  //Cut taken from trigger menu, retrieved in eFEXFPGA
   unsigned int minEtThreshold = ptMinTopo;
   if (etTob < minEtThreshold) return 0;
   else return tobWord;
