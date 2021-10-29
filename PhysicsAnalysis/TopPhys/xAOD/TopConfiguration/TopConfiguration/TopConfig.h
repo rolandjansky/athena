@@ -795,9 +795,9 @@ namespace top {
     inline virtual float electronPtcut()       const {return m_electronPtcut;}
     inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
     inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
+    inline virtual const std::set<std::string>& electronIsolationWPs() const {return m_electronIsolationWPs;}
     std::string const& electronIsolationSF() const {return m_electronIsolationSF;}
     std::string const& electronIsolationSFLoose() const {return m_electronIsolationSFLoose;}
-    inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
     inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
     inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
     inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
@@ -987,6 +987,7 @@ namespace top {
     inline virtual bool muonUse2stationMuonsHighPtLoose() const {return m_muonUse2stationMuonsHighPtLoose;}
     inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
+    inline virtual const std::set<std::string>& muonIsolationWPs() const {return m_muonIsolationWPs;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
@@ -1576,6 +1577,8 @@ namespace top {
     inline const std::string& photonIsolationLoose() {
       return m_photon_configuration_loose.isolation;
     }
+
+    inline const std::set<std::string>& photonIsolationWPs() { return m_photonIsolationWPs; }
 
     // inline const std::string& tauJetID() const {return m_tauJetID;}
     // inline const std::string& tauJetIDBkg() const {return m_tauJetIDBkg;}
@@ -2250,11 +2253,12 @@ namespace top {
     std::string m_electronIDLoose;
     bool m_electronVetoLArCrack;
     float m_electronPtcut;
+    // the isolation WP used for making selection decisions
     std::string m_electronIsolation;
     std::string m_electronIsolationLoose;
     std::string m_electronIsolationSF;
     std::string m_electronIsolationSFLoose;
-    bool const m_electronIsoSFs; // no longer supported, always true (use m_electronIsolationSF instead)
+    std::set<std::string> m_electronIsolationWPs; // list of all WPs to store aux decorations for
     int m_electron_d0SigCut;
     float m_electron_delta_z0;
 
@@ -2282,10 +2286,12 @@ namespace top {
     std::string m_muonQualityLoose; // loose muon quality used in object selection
     bool m_muonUseMVALowPtLoose; //to turn on MVA for low-pT muons (loose tree)
     bool m_muonUse2stationMuonsHighPtLoose; //to allow muon reco with 2-station (loose tree)
+    // the isolation WP used for making selection decisions
     std::string m_muonIsolation;
     std::string m_muonIsolationLoose;
     std::string m_muonIsolationSF;
     std::string m_muonIsolationSFLoose;
+    std::set<std::string> m_muonIsolationWPs; // list of all WPs to store aux decorations for
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
@@ -2406,9 +2412,10 @@ namespace top {
       // pT cut on photons
       float pt = 25000;
       float eta = 2.5;
-      std::string isolation = "None";
+      std::string isolation = "None"; // isolation WP used for actual selection decision
       std::string identification = "None";
     } m_photon_configuration, m_photon_configuration_loose;
+    std::set<std::string> m_photonIsolationWPs; // all enabled WPs for aux decorations
 
     // [[[-----------------------------------------------
     // Particle Level (truth) configuration
