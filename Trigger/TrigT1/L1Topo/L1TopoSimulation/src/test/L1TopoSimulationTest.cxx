@@ -8,7 +8,7 @@
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoEvent/TopoInputEvent.h"
-#include "L1TopoConfig/L1TopoXMLParser.h"
+//#include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
 
 #include "GaudiKernel/ITHistSvc.h"
