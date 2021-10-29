@@ -230,11 +230,12 @@ def MuonStationIntersectSvcCfg(flags, name='MuonStationIntersectSvc',**kwargs):
 def MuonNavigatorCfg(flags, name="MuonNavigator", **kwargs):
     Trk__Navigator = CompFactory.Trk.Navigator
     result = ComponentAccumulator()
+    
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
         TrackingGeometryCondAlgCfg)
     acc = TrackingGeometryCondAlgCfg(flags)
-    result.merge(TrackingGeometryCondAlgCfg(flags))
     geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    result.merge(acc)
     kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     navigator = Trk__Navigator(name=name, **kwargs)

@@ -992,6 +992,12 @@ def MuonLayerSegmentMatchingToolCfg(flags, name="MuonLayerSegmentMatchingTool", 
     result = AtlasExtrapolatorCfg(flags)
     extrap = result.getPrimary()
     kwargs.setdefault("Extrapolator", extrap)
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuTagMatchingToolCfg
+    
+    acc = MuTagMatchingToolCfg(flags)
+    MuTagTool = acc.getPrimary()
+    kwargs.setdefault("MatchTool", MuTagTool) 
+    result.merge(acc)
 
     tool = CompFactory.Muon.MuonLayerSegmentMatchingTool(name, **kwargs)
     result.setPrivateTools(tool)
