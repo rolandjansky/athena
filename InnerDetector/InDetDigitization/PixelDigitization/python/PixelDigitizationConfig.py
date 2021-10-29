@@ -142,9 +142,6 @@ def IdMapping():
     return IdMappingDat
 
 def PixelConfigCondAlg_MC():
-    ############################################################################################
-    # Set up Pixel Module data (2018 condition)
-    ############################################################################################
 
     #################
     # Module status #
@@ -154,7 +151,6 @@ def PixelConfigCondAlg_MC():
 
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
-        alg.UseComTime=False
         alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
         alg.EndcapTimeJitter=[25.0,25.0,25.0]
         alg.DBMTimeJitter=[25.0,25.0,25.0]
@@ -165,7 +161,6 @@ def PixelConfigCondAlg_MC():
         alg.EndcapTimeOffset=[100.0,100.0,100.0]
         alg.DBMTimeOffset=[100.0,100.0,100.0]
     else:
-        alg.UseComTime=False
         alg.BarrelTimeJitter=[0.0,0.0,0.0,0.0]
         alg.EndcapTimeJitter=[0.0,0.0,0.0]
         alg.DBMTimeJitter=[0.0,0.0,0.0]
@@ -221,7 +216,7 @@ def PixelConfigCondAlg_MC():
     alg.DBMDisableProbability2016 = [ 9e-3, 9e-3, 9e-3]
     alg.DefaultDBMBiasVoltage2016 = [500.0,500.0,500.0]
 
-    alg.IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    alg.IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
     alg.BLayerNoiseShape2016 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2016  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
     # Layer-2 noise shape                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2129, 0.4016, 0.5477, 0.6599, 0.7435, 0.8160, 0.8779, 0.9340, 0.9798, 1.0]
@@ -268,7 +263,7 @@ def PixelConfigCondAlg_MC():
     alg.DBMDisableProbability2017 = [ 9e-3, 9e-3, 9e-3]
     alg.DefaultDBMBiasVoltage2017 = [500.0,500.0,500.0]
 
-    alg.IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    alg.IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
     alg.BLayerNoiseShape2017 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2017  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
@@ -309,9 +304,53 @@ def PixelConfigCondAlg_MC():
     alg.DBMDisableProbability2018 = [ 9e-3, 9e-3, 9e-3]
     alg.DefaultDBMBiasVoltage2018 = [500.0,500.0,500.0]
 
-    alg.IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    alg.IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
     alg.BLayerNoiseShape2018 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2018  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
+
+    #====================================================================================
+    # RUN3 2022
+    # The pixel conditions are matched with 2022 data (mc16e) at L=119.4fb-1 (run#357193).
+    alg.BarrelToTThreshold2022       = [     -1,      3,      5,      5]
+    alg.FEI3BarrelLatency2022        = [      0,    151,    256,    256]
+    alg.FEI3BarrelHitDuplication2022 = [  False,  False,  False,  False]
+    alg.FEI3BarrelSmallHitToT2022    = [     -1,     -1,     -1,     -1]
+    alg.FEI3BarrelTimingSimTune2022  = [     -1,   2018,   2018,   2018]
+    alg.BarrelCrossTalk2022          = [   0.30,   0.12,   0.12,   0.12]
+    alg.BarrelNoiseOccupancy2022     = [   5e-8,   5e-8,   5e-8,   5e-8]
+    alg.BarrelDisableProbability2022 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2022   = [    1.0,    1.0,    1.0,    1.0]
+    alg.DefaultBarrelBiasVoltage2022 = [  400.0,  400.0,  250.0,  250.0]
+    alg.BarrelFluence2022            = [5.50e14,5.19e14,2.28e14,1.53e14]
+    alg.Barrel3DFluence2022          = [7.54e14]
+
+    alg.BarrelFluenceMap2022 = ["PixelDigitization/maps_IBL_PL_450V_fl7_2e14.root",
+                                "PixelDigitization/maps_PIX_450V_fl6_8e14.root",
+                                "PixelDigitization/maps_PIX_300V_fl3e14.root",
+                                "PixelDigitization/maps_PIX_300V_fl2e14.root"]
+
+    alg.Barrel3DFluenceMap2022 = ["PixelDigitization/maps_IBL_3D_60V_fl7_54e14_LHCb.root"]
+
+    alg.EndcapToTThreshold2022       = [    5,    5,    5]
+    alg.FEI3EndcapLatency2022        = [  256,  256,  256]
+    alg.FEI3EndcapHitDuplication2022 = [False,False,False]
+    alg.FEI3EndcapSmallHitToT2022    = [   -1,   -1,   -1]
+    alg.FEI3EndcapTimingSimTune2022  = [ 2018, 2018, 2018]
+    alg.EndcapCrossTalk2022          = [ 0.06, 0.06, 0.06]
+    alg.EndcapNoiseOccupancy2022     = [ 5e-8, 5e-8, 5e-8]
+    alg.EndcapDisableProbability2022 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2022   = [  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltage2022 = [250.0,250.0,250.0]
+
+    alg.DBMToTThreshold2022       = [   -1,   -1,   -1]
+    alg.DBMCrossTalk2022          = [ 0.06, 0.06, 0.06]
+    alg.DBMNoiseOccupancy2022     = [ 5e-8, 5e-8, 5e-8]
+    alg.DBMDisableProbability2022 = [ 9e-3, 9e-3, 9e-3]
+    alg.DefaultDBMBiasVoltage2022 = [500.0,500.0,500.0]
+
+    alg.IBLNoiseShape2022    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
+    alg.BLayerNoiseShape2022 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
+    alg.PixelNoiseShape2022  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
     #====================================================================================
     # RUN1
