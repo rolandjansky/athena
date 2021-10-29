@@ -133,6 +133,18 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
    vector<vector<string>> confAlgorithms; // Stores algorithm name/category that have been configured in L1Menu to be used for setting the parameters
    vector<string> confMultAlgorithms; // Stores algorithm names that have been configured in L1Menu to be used for setting the multiplicity thresholds
    // Loop over boards in L1Menu and skip the ones that are not TOPO. Use Run-2 boards if legacy flag is on
+
+   string AvailableMultAlgs[] = { "eEmMultiplicity", 
+				  "jEmMultiplicity", 
+				  "eTauMultiplicity", 
+				  "jTauMultiplicity",
+				  "cTauMultiplicity",
+				  "jJetMultiplicity",
+				  "jLargeRJetMultiplicity",
+				  "gJetMultiplicity",
+				  "gLargeRJetMultiplicity",
+				  "EnergyThreshold" };
+
    for (const string & boardName : l1menu.boardNames() ){
      
      auto & l1board = l1menu.board(boardName);
@@ -225,7 +237,10 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 	      const string & tlName = tl.name();
 	      auto & algo = l1menu.algorithmFromTriggerline(tlName);
 
-	      if ( (algo.klass() != "eEmMultiplicity") && (algo.klass() != "eTauMultiplicity") ) continue; // Only available multiplicity algorithms so far
+	      string *foundAlgo = std::find(std::begin(AvailableMultAlgs), std::end(AvailableMultAlgs), algo.klass());
+	      if (foundAlgo == std::end(AvailableMultAlgs)) cout << "TopoSteeringStructure: No L1Topo algorithm matching the configured multiplicity algorithm in the menu!" << endl;
+
+		  if ( (algo.klass() != "eEmMultiplicity") && (algo.klass() != "eTauMultiplicity") && (algo.klass() != "jJetMultiplicity") ) continue; // Only available multiplicity algorithms so far
             
 	      auto it = find(storedConn.begin(), storedConn.end(), algo.name());
 	      if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
@@ -356,8 +371,8 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
    for ( auto & multAlgo : confMultAlgorithms ) {
 
       auto & l1algo = l1menu.algorithm(multAlgo, "MULTTOPO");
-
-      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eTauMultiplicity") ) continue; // Only available multiplicities for now
+      
+      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eTauMultiplicity") && (l1algo.klass() != "jJetMultiplicity") ) continue; // Only available multiplicities for now
 
       ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
 
