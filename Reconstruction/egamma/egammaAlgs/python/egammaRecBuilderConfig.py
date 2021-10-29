@@ -16,9 +16,6 @@ def egammaRecBuilderCfg(
         name='egammaRecBuilder',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
     acc = ComponentAccumulator()
 
     if "TrackMatchBuilderTool" not in kwargs:

@@ -14,9 +14,6 @@ def egammaSelectedTrackCopyCfg(
         name='egammaSelectedTrackCopy',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
 
     if "egammaCaloClusterSelector" not in kwargs:

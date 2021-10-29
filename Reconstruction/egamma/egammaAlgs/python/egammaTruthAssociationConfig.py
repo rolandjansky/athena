@@ -11,9 +11,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Start configuration')
-
     acc = ComponentAccumulator()
 
     if "MCTruthClassifier" not in kwargs:

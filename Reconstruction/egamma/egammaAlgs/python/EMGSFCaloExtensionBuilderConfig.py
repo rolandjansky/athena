@@ -13,9 +13,6 @@ def EMGSFCaloExtensionBuilderCfg(
         name='EMGSFCaloExtensionBuilder',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
 
     from egammaTrackTools.egammaTrackToolsConfig import (

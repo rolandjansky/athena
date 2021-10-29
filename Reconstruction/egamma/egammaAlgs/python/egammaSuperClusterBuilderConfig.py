@@ -55,9 +55,6 @@ def photonSuperClusterBuilderCfg(
         name='photonSuperClusterBuilder',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
     acc = ComponentAccumulator()
     photonSuperClusterBuilder = CompFactory.photonSuperClusterBuilder
     egammaCheckEnergyDepositTool = CompFactory.egammaCheckEnergyDepositTool

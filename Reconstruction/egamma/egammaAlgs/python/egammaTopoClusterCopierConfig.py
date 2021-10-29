@@ -12,9 +12,6 @@ def egammaTopoClusterCopierCfg(
         name='egammaTopoClusterCopier',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
     kwargs.setdefault(
         "InputTopoCollection",
