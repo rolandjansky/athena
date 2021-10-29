@@ -199,7 +199,6 @@ TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    case CLUSTER: return &m_clusters;
    case EEM: return &m_eems;
    case JEM: return &m_jems;
-   case ETAU: return &m_etaus;
    case CTAU: return &m_ctaus;
    case JET: return &m_jets;
    case ETAU: return &m_etaus;
