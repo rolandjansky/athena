@@ -92,7 +92,7 @@ void TriggerElement::relate( TriggerElement* te, Relation r ) {
 }
 
 
-void TriggerElement::relate( const std::vector<TriggerElement*> tes, Relation r ) {
+void TriggerElement::relate( const std::vector<TriggerElement*>& tes, Relation r ) {
     // secure form multiple relations of the same type
     std::vector<TriggerElement*>::const_iterator it;
     for ( it = tes.begin(); it != tes.end(); ++it ) {
