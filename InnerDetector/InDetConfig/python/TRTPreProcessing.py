@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # ------------------------------------------------------------
 #
 # ----------- TRT Data-Preparation stage
 #
 # ------------------------------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 
 def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
     acc = ComponentAccumulator()
@@ -53,7 +54,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     if (not useTimeInfo) or flags.InDet.noTRTTiming:
         kwargs.setdefault("DummyMode", True)
         kwargs.setdefault("UniversalError", 1.15)
-    
+
     # --- set Data/MC flag
     if( flags.Input.isMC ) :
         kwargs.setdefault("IsMC", True)
@@ -74,11 +75,11 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     # --- set ToT corrections
     kwargs.setdefault("ToTCorrectionsBarrelXe"       , [0., 4.358121, 3.032195, 1.631892, 0.7408397, -0.004113, -0.613288, -0.73758, -0.623346, -0.561229,
                             -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958])
-    kwargs.setdefault("ToTCorrectionsEndcapXe"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
+    kwargs.setdefault("ToTCorrectionsEndcapXe"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493,
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
     kwargs.setdefault("ToTCorrectionsBarrelAr"       , [0., 4.358121, 3.032195, 1.631892, 0.7408397, -0.004113, -0.613288, -0.73758, -0.623346, -0.561229,
                             -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958])
-    kwargs.setdefault("ToTCorrectionsEndcapAr"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
+    kwargs.setdefault("ToTCorrectionsEndcapAr"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493,
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
 
     # Second calibration DB Service in case pile-up and physics hits have different calibrations for data overlay
@@ -269,22 +270,6 @@ def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
                 acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
     return acc
 
-def TRTRawDataProviderCfg(flags):
-    acc = ComponentAccumulator()
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
-
-    providerTool = CompFactory.TRTRawDataProviderTool("InDetTRTRawDataProviderTool",
-                                                      LVL1IDKey = "TRT_LVL1ID", 
-                                                      BCIDKey = "TRT_BCID")
-
-    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
-    providerAlg = CompFactory.TRTRawDataProvider("InDetTRTRawDataProvider",
-                                                 ProviderTool = providerTool,
-                                                 RegSelTool = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags)))
-    acc.addEventAlgo(providerAlg)
-    return acc
-
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -319,7 +304,7 @@ if __name__ == "__main__":
 
     if not ConfigFlags.InDet.doDBMstandalone:
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
-    
+
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
     top_acc.run(25)
