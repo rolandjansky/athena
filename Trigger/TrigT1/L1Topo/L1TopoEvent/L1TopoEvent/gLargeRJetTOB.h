@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef JTAUTOB_H
-#define JTAUTOB_H
+#ifndef GLARGERJETTOB_H
+#define GLARGERJETTOB_H
 
 #include <iostream>
 
@@ -9,24 +9,26 @@
 #include "L1TopoEvent/Heap.h"
 
 
+// TODO implement sizecheck lile in ClusterTOB
+
 namespace TCS {
    
    class GenericTOB;
    
-   class jTauTOB : public BaseTOB {
+   class gLargeRJetTOB : public BaseTOB {
    public:
       
       // default constructor
-      jTauTOB(uint32_t roiWord = 0, const std::string& tobName = "jTauTOB");
+      gLargeRJetTOB(uint32_t roiWord = 0, const std::string& tobName = "gLargeRJetTOB");
 
       // copy constructor
-      jTauTOB(const jTauTOB & jet);
+      gLargeRJetTOB(const gLargeRJetTOB & jet);
 
       // constructor with initial values
-      jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jTauTOB" );
+      gLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "gLargeRJetTOB" );
 
       // destructor
-      virtual ~jTauTOB();
+      virtual ~gLargeRJetTOB();
       
       // accessors
       unsigned int energy() const { return m_Et; }
@@ -49,12 +51,12 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
 
-      inputTOBType_t tobType() const { return JTAU; }
+      inputTOBType_t tobType() const { return JET; }
 
-      static jTauTOB* createOnHeap(const jTauTOB& jet);
+      static gLargeRJetTOB* createOnHeap(const gLargeRJetTOB& jet);
       static void clearHeap();
 
-      static const Heap<TCS::jTauTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::gLargeRJetTOB>& heap() { return fg_heap; }
 
    private:
 
@@ -73,7 +75,7 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static thread_local Heap<TCS::jTauTOB> fg_heap;
+      static thread_local Heap<TCS::gLargeRJetTOB> fg_heap;
    };
    
 }

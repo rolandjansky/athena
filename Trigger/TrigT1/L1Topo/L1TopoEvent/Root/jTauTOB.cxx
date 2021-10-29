@@ -2,7 +2,7 @@
 
 #include "L1TopoEvent/jTauTOB.h"
 
-thread_local TCS::Heap<TCS::jTauTOB> TCS::jTauTOB::fg_heap("Jet");
+thread_local TCS::Heap<TCS::jTauTOB> TCS::jTauTOB::fg_heap("jTau");
 
 // constructors
 // default constructor
@@ -38,5 +38,5 @@ TCS::jTauTOB::clearHeap() {
 
 void
 TCS::jTauTOB::print(std::ostream &o) const {
-   o << "jet energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+   o << "jTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
 }

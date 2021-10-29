@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef JTAUTOB_H
-#define JTAUTOB_H
+#ifndef JEMTOB_H
+#define JEMTOB_H
 
 #include <iostream>
 
@@ -9,24 +9,26 @@
 #include "L1TopoEvent/Heap.h"
 
 
+// TODO implement sizecheck lile in ClusterTOB
+
 namespace TCS {
    
    class GenericTOB;
    
-   class jTauTOB : public BaseTOB {
+   class jEmTOB : public BaseTOB {
    public:
       
       // default constructor
-      jTauTOB(uint32_t roiWord = 0, const std::string& tobName = "jTauTOB");
+      jEmTOB(uint32_t roiWord = 0, const std::string& tobName = "jEm");
 
       // copy constructor
-      jTauTOB(const jTauTOB & jet);
+      jEmTOB(const jEmTOB & cluster);
 
       // constructor with initial values
-      jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jTauTOB" );
+      jEmTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jEmTOB" );
 
       // destructor
-      virtual ~jTauTOB();
+      virtual ~jEmTOB();
       
       // accessors
       unsigned int energy() const { return m_Et; }
@@ -49,12 +51,16 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
 
-      inputTOBType_t tobType() const { return JTAU; }
+      //inputTOBType_t tobType() const { return JEM; }
 
-      static jTauTOB* createOnHeap(const jTauTOB& jet);
+      static jEmTOB* createOnHeap(const jEmTOB& cluster);
       static void clearHeap();
 
-      static const Heap<TCS::jTauTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::jEmTOB>& heap() { return fg_heap; }
+
+      void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
+
+      inputTOBType_t tobType() const { return m_tobType; }
 
    private:
 
@@ -73,7 +79,9 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static thread_local Heap<TCS::jTauTOB> fg_heap;
+      inputTOBType_t  m_tobType { NONE };
+
+      static thread_local Heap<TCS::jEmTOB> fg_heap;
    };
    
 }
