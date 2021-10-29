@@ -37,4 +37,9 @@ def LVL1CaloMonitoringConfig(flags):
         result.merge(PprMonitoringConfig(flags))
         result.merge(JepJemMonitoringConfig(flags))
 
+        # For online running on bytestream data 
+        if flags.Input.Format == 'BS' and flags.Trigger.Online.isPartition:
+            from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+            result.merge(LVL1CaloRun2ReadBSCfg(flags))
+
     return result
