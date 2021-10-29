@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -103,19 +103,6 @@ private:
                               CaloSuperCellDetDescrManager* & mgr,
                               DataObject*& pObj);
 
-
-  /**
-   * @brief Create the descriptors for the supercell geometry.
-   * @param mgr The supercell geometry manager.
-   */
-  StatusCode createDescriptors (CaloSuperCellDetDescrManager* mgr);
-
-
-  /**
-   * @brief Create the elements for the supercell geometry.
-   * @param mgr The supercell geometry manager.
-   */
-  StatusCode createElements (CaloSuperCellDetDescrManager* mgr);
 };
 
 
