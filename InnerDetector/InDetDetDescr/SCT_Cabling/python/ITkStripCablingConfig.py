@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def SCT_CablingFoldersCfg(flags):
+def ITkStripCablingFoldersCfg(flags):
     cfg = ComponentAccumulator()
     path = "/SCT/DAQ/Config/"
     if flags.IOVDb.DatabaseInstance == "COMP200":
@@ -17,9 +17,9 @@ def SCT_CablingFoldersCfg(flags):
     return cfg, path
 
 
-def SCT_CablingCondAlgCfg(flags, name="SCT_CablingCondAlgFromCoraCool"):
+def ITkStripCablingCondAlgCfg(flags, name="ITkStripCablingCondAlg"):
     cfg = ComponentAccumulator()
-    foldersCfg, path = SCT_CablingFoldersCfg(flags)
+    foldersCfg, path = ITkStripCablingFoldersCfg(flags)
     cfg.merge(foldersCfg)
     SCT_CablingCondAlgFromCoraCool = CompFactory.SCT_CablingCondAlgFromCoraCool
     cfg.addCondAlgo(SCT_CablingCondAlgFromCoraCool(name,
@@ -30,14 +30,14 @@ def SCT_CablingCondAlgCfg(flags, name="SCT_CablingCondAlgFromCoraCool"):
     return cfg
 
 
-def SCT_CablingToolCfg(flags, name="SCT_CablingTool"):
+def ITkStripCablingToolCfg(flags, name="ITkStripCablingTool"):
     cfg = ComponentAccumulator()
 
     # For SCT_ID used in SCT_CablingTool
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     cfg.merge(GeoModelCfg(flags))
 
-    cfg.merge(SCT_CablingCondAlgCfg(flags))
+    cfg.merge(ITkStripCablingCondAlgCfg(flags))
 
     cfg.setPrivateTools(CompFactory.SCT_CablingTool(name))
     return cfg

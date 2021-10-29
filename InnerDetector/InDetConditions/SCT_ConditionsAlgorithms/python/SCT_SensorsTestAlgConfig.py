@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_SensorsTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,9 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_MajorityConditionsTestAlgCfg(flags, name="SCT_SensorsTestAlg", **kwargs):
     """Return a configured SCT_SensorsTestAlg"""
     acc = ComponentAccumulator()
-    from SCT_ConditionsTools.SCT_SensorsConfig import SCT_SensorsCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_SensorsCfg
     kwargs.setdefault("SCT_SensorsTool", acc.popToolsAndMerge(SCT_SensorsCfg(flags, **kwargs)))
-    acc.addEventAlgo(CompFactory.SCT_SensorsTestAlg())
+    acc.addEventAlgo(CompFactory.SCT_SensorsTestAlg(name))
     return acc
 
 if __name__=="__main__":

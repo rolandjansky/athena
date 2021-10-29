@@ -3,11 +3,10 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
-SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
-SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_SiliconConditionsCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+
 
 def SCT_LorentzAngleCfg(flags, name="SCTSiLorentzAngleCondAlg",
                         forceUseGeoModel=False, **kwargs):
@@ -36,12 +35,12 @@ def SCT_LorentzAngleCfg(flags, name="SCTSiLorentzAngleCondAlg",
                 sikwargs["DCSConditionsTool"] = kwargs.get("DCSConditionsTool")
             sikwargs["ForceUseGeoModel"] = forceUseGeoModel
             algkwargs["SiConditionsTool"] = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags, **sikwargs))
-    acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name, **algkwargs))
+    acc.addCondAlgo(CompFactory.SCTSiLorentzAngleCondAlg(name, **algkwargs))
 
     # Condition tool
     toolkwargs = {}
     toolkwargs["DetectorName"] = "SCT"
     toolkwargs["DetEleCollKey"] = "SCT_DetectorElementCollection"
     toolkwargs["SiLorentzAngleCondData"] = "SCTSiLorentzAngleCondData"
-    acc.setPrivateTools(SiLorentzAngleTool(name="SCTLorentzAngleTool", **toolkwargs))
+    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name="SCTLorentzAngleTool", **toolkwargs))
     return acc

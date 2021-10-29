@@ -43,8 +43,8 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get SCT_ConditionsSummaryTool for e.g. SCT_ClusteringTool
-    from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False))
 
     #### Clustering tool ######
     InDetClusterMakerTool = acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags))
