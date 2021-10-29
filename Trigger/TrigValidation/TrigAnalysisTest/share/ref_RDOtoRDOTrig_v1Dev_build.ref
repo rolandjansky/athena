@@ -10532,51 +10532,51 @@ HLT_noalg_L1jEM15M:
 HLT_noalg_L1jEM18M:
   eventCount: 0
 HLT_noalg_L1jJ100:
-  eventCount: 0
+  eventCount: 14
 HLT_noalg_L1jJ12:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ120:
-  eventCount: 0
+  eventCount: 11
 HLT_noalg_L1jJ12p0ETA25:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ15:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ15p0ETA25:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ15p31ETA49:
-  eventCount: 0
+  eventCount: 7
 HLT_noalg_L1jJ20:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ20p31ETA49:
-  eventCount: 0
+  eventCount: 7
 HLT_noalg_L1jJ25:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ25p0ETA23:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ30:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ30p31ETA49:
-  eventCount: 0
+  eventCount: 7
 HLT_noalg_L1jJ35p0ETA23:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ40:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ400:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1jJ40p0ETA25:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ45p0ETA20:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ50:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1jJ50p31ETA49:
   eventCount: 0
 HLT_noalg_L1jJ75:
-  eventCount: 0
+  eventCount: 19
 HLT_noalg_L1jJ75p31ETA49:
   eventCount: 0
 HLT_noalg_L1jJ85:
-  eventCount: 0
+  eventCount: 17
 HLT_noalg_L1jLJ100:
   eventCount: 0
 HLT_noalg_L1jLJ140:

@@ -68,8 +68,6 @@ TCS::jJetMultiplicity::process( const TCS::InputTOBArray & input,
 			       Count & count )
 {
 
-  cout << "CARLOS: processing threshold " << m_threshold->name() << endl;
-
   // Grab the threshold and cast it into the right type
   auto jJThr = dynamic_cast<const TrigConf::L1Threshold_jJ &>(*m_threshold);
 
