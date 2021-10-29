@@ -31,6 +31,7 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_regionSelector_TTEM.retrieve() );
   CHECK( m_mcsymKey.initialize() );
   CHECK( m_bcContKey.initialize() );
+  CHECK( m_caloMgrKey.initialize());
   CHECK( m_regionSelector_TTHEC.retrieve() );
   CHECK( m_regionSelector_FCALEM.retrieve() );
   CHECK( m_regionSelector_FCALHAD.retrieve() );
@@ -355,7 +356,8 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
 	vec.push_back(m_vrodid32fullDet[ii]);
 	kk++;
   }
-  const CaloDetDescrManager* theCaloDDM = CaloDetDescrManager::instance();
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey, context};
+  const CaloDetDescrManager* theCaloDDM = *caloMgrHandle;
   const CaloCell_ID* theCaloCCIDM = theCaloDDM->getCaloCell_ID();
   unsigned int hashMax = theCaloCCIDM->calo_cell_hash_max();
 

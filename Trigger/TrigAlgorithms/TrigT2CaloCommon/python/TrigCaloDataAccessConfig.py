@@ -3,17 +3,18 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-CaloDataAccessSvcDependencies = [('TileEMScale'       , 'ConditionStore+TileEMScale'),
-                                 ('TileBadChannels'   , 'ConditionStore+TileBadChannels'),
-                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTEM'), 
-                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTHEC'), 
-                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TILE'), 
-                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALEM'), 
-                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD'),
-                                 ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ),
-                                 ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),
-                                 ('LArMCSym'          , 'ConditionStore+LArMCSym'),
-                                 ('LArBadChannelCont' , 'ConditionStore+LArBadChannel')]
+CaloDataAccessSvcDependencies = [('TileEMScale'        , 'ConditionStore+TileEMScale'),
+                                 ('TileBadChannels'    , 'ConditionStore+TileBadChannels'),
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM'), 
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC'), 
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE'), 
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM'), 
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD'),
+                                 ('LArOnOffIdMapping'  , 'ConditionStore+LArOnOffIdMap' ),
+                                 ('LArFebRodMapping'   , 'ConditionStore+LArFebRodMap' ),
+                                 ('LArMCSym'           , 'ConditionStore+LArMCSym'),
+                                 ('LArBadChannelCont'  , 'ConditionStore+LArBadChannel'),
+                                 ('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager')]
 
 
 def CaloOffsetCorrectionCfg(flags):
