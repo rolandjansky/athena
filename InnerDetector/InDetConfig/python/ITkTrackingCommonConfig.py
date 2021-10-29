@@ -142,11 +142,11 @@ def ITkStripClusterOnTrackToolCfg(flags, name='ITkStrip_ClusterOnTrackTool', **k
         kwargs.setdefault("LorentzAngleTool", ITkStripLorentzAngleTool )
 
     kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias
-    kwargs.setdefault("ErrorStrategy", 2 ) # do use phi dependent errors
+    kwargs.setdefault("ErrorStrategy", 0 ) # use width / sqrt(12)
 
-    kwargs.setdefault("SCTErrorScalingKey", "")
+    kwargs.setdefault("ErrorScalingKey", "")
 
-    acc.setPrivateTools(CompFactory.InDet.SCT_ClusterOnTrackTool(the_name, **kwargs))
+    acc.setPrivateTools(CompFactory.ITk.StripClusterOnTrackTool(the_name, **kwargs))
     return acc
 
 def ITkBroadStripClusterOnTrackToolCfg(flags, name='ITkBroadStripClusterOnTrackTool', **kwargs):
