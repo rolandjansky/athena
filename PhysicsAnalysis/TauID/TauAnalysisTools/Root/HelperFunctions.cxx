@@ -9,21 +9,12 @@
 #include "TruthUtils/PIDHelpers.h"
 #include "TF1.h"
 
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::PanTau_DecayMode;
-#else
-xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode;
-#endif
-
-
 #ifdef ASGTOOL_ATHENA
 #include "CLHEP/Units/SystemOfUnits.h"
 using CLHEP::GeV;
 #else
 #define GeV 1000
 #endif
-
-
 
 using namespace TauAnalysisTools;
 
@@ -149,8 +140,8 @@ double TauAnalysisTools::finalTauP(const xAOD::TauJet& xTau)
 double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
 {
   // return leading charge tau track eta
-  double dTrackEta = 0;
-  double dTrackMaxPt = 0;
+  double dTrackEta = 0.;
+  double dTrackMaxPt = 0.;
   for( unsigned int iNumTrack = 0; iNumTrack < xTau.nTracks(); iNumTrack++)
   {
     if (xTau.track(iNumTrack)->pt() > dTrackMaxPt)
@@ -183,7 +174,7 @@ double TauAnalysisTools::truthTauAbsEta(const xAOD::TauJet& xTau)
 
   // if there is a truth tau return absolute eta, otherwise return -5 (getTruth will print an error)
   if (xTruthTau!=nullptr && xTruthTau->auxdata<char>("IsHadronicTau"))
-    return xTruthTau->eta();
+    return std::abs(xTruthTau->eta());
   else
     return -5.;
 }
@@ -205,7 +196,7 @@ const xAOD::TruthParticle* TauAnalysisTools::getTruth(const xAOD::TauJet& xTau)
     Error("TauAnalysisTools::getTruth", "No truth match information available. Please run TauTruthMatchingTool first");
   }
 
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
+  static const SG::AuxElement::ConstAccessor<Link_t> accTruthParticleLink("truthParticleLink");
   const Link_t xTruthTauLink = accTruthParticleLink(xTau);
   const xAOD::TruthParticle* xTruthTau = xTruthTauLink.cachedElement();
 
@@ -266,7 +257,7 @@ int TauAnalysisTools::getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau
     return 0;
   }
 
-  static SG::AuxElement::ConstAccessor<std::vector<int> > accDecayModeVector("DecayModeVector");
+  static const SG::AuxElement::ConstAccessor<std::vector<int> > accDecayModeVector("DecayModeVector");
   for(auto iPdgId2 : accDecayModeVector(xTruthTau))
     if (!bCompareAbsoluteValues)
     {
@@ -330,7 +321,7 @@ void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TL
 
   int iDecayMode = -1;
 
-  if (!(xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode)))
+  if (!(xTau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, iDecayMode)))
   {
     std::cerr <<"Failed to retrieve panTauDetail decay mode\n";
     return;
@@ -385,9 +376,8 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
   correctedPi0s.clear();
 
   int iDecayMode = -1;  
-  xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode);
 
-  if (!(xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode)))
+  if (!(xTau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, iDecayMode)))
   {
     std::cerr <<"Failed to retrieve panTauDetail decay mode\n";
     return;
@@ -404,18 +394,14 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
       Sum_vPi0s += vPi0s[i];
     }
     
-    //Get sum of the chargedPFOP4s
+    //Get sum of the chargedPFO (i.e. tau track) p4
     TLorentzVector Sum_ChrgPFOP4;
-    std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks = xTau->chargedPFOLinks();
-    unsigned int NCharged    = finalChrgPFOLinks.size();
-    for(unsigned int iPFO=0; iPFO<NCharged; iPFO++) {
-      const xAOD::PFO* pfo = finalChrgPFOLinks.at(iPFO).cachedElement();
-      Sum_ChrgPFOP4 += pfo->p4();
+    for(const xAOD::TauTrack* track : xTau->tracks()) {
+      Sum_ChrgPFOP4 += track->p4();
     }
     
-    //Get tau FinalCalib P4
-    TLorentzVector FinalCalibP4;
-    FinalCalibP4.SetPtEtaPhiM( xTau->auxdata<float>("ptFinalCalib") ,xTau->auxdata<float>("etaFinalCalib") ,xTau->auxdata<float>("phiFinalCalib") ,xTau->auxdata<float>("mFinalCalib") );
+    //Get tau FinalCalib P4 (explicitly requiring p4(xAOD::TauJetParameters::TauCalibType::FinalCalib) should be superfluous, as FinalCalib is the default p4)
+    TLorentzVector FinalCalibP4 = xTau->p4();
     
     //Calculate the difference 3-vector between FinalCalib and Sum of chargedPFOP4
     double px = FinalCalibP4.Px() - Sum_ChrgPFOP4.Px();
@@ -426,8 +412,7 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
     double p_vPi0s = Sum_vPi0s.P();
 
     //Calucate scale factor for the pi0 3-vector momentum
-    double X;
-    X = p_correctedPi0s/p_vPi0s;
+    double X = p_correctedPi0s/p_vPi0s;
 
     //Scale the pi0s with X and recalculate the new pi0 energy
     double px_scaled, py_scaled, pz_scaled, e;
@@ -451,8 +436,7 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
   if(iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1pXn && xTau->nPi0PFOs() == 1){
 
     //Get Function of Delta R between the two Pi0s
-    TF1 DeltaRdist;
-    DeltaRdist = TF1("DeltaRdist", "pol3", 0, 67500);
+    TF1 DeltaRdist("DeltaRdist", "pol3", 0, 67500);
     DeltaRdist.SetParameter(0, 0.07924);
     DeltaRdist.SetParameter(1, -2.078/1000000.);
     DeltaRdist.SetParameter(2,  2.619/100000000000.);
@@ -485,25 +469,19 @@ void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector
     //Reparametrise: Delta R -> mass of pi0 Cluster
     TLorentzVector PionCluster_angleCorrected = AngleCorrectedPi0s[0]+AngleCorrectedPi0s[1];
     
-    double dNewMomentum = std::sqrt(PionCluster_angleCorrected.E()/2 * PionCluster_angleCorrected.E()/2 - PionCluster_angleCorrected.M() / 2. * PionCluster_angleCorrected.M() / 2.);
+    double dNewMomentum = std::sqrt(PionCluster_angleCorrected.E()/2. * PionCluster_angleCorrected.E()/2. - PionCluster_angleCorrected.M() / 2. * PionCluster_angleCorrected.M() / 2.);
     correctedPi0s[0].SetVectM(PionCluster_angleCorrected.Vect() * (dNewMomentum / PionCluster_angleCorrected.P()), PionCluster_angleCorrected.M() / 2.);
     correctedPi0s[1] = correctedPi0s[0];
   }
 
-
-
   //Calculate the new tau P4
-  std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks = xTau->chargedPFOLinks();
-  TLorentzVector SumChargedPionP4;
-  for(unsigned int iPFO=0; iPFO < finalChrgPFOLinks.size(); iPFO++) {
-    const xAOD::PFO* pfo = finalChrgPFOLinks.at(iPFO).cachedElement();
-    TauP4 += pfo->p4();
+  for(const xAOD::TauTrack* track : xTau->tracks()) {
+    TauP4 += track->p4();
   }
 
   for(unsigned int iPi0=0; iPi0 < correctedPi0s.size(); iPi0++) {
     TauP4 += correctedPi0s[iPi0];
   }
-
 
 }
 
@@ -531,7 +509,6 @@ void TauAnalysisTools::truthHadrons(const xAOD::TruthParticle* xTruthTau, std::v
   // loop over outgoing particles 
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
-
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
     if (!xTruthDaughter)
     {
@@ -563,7 +540,6 @@ void TauAnalysisTools::truthHadrons(const xAOD::TruthParticle* xTruthTau, std::v
 //______________________________________________________________________________
 void TauAnalysisTools::truthHadrons(const xAOD::TauJet* xTau, std::vector<const xAOD::TruthParticle*>& vChargedHadrons, std::vector<const xAOD::TruthParticle*>& vNeutralHadrons)
 {
-
   vChargedHadrons.clear();
   vNeutralHadrons.clear();
 
@@ -574,7 +550,7 @@ void TauAnalysisTools::truthHadrons(const xAOD::TauJet* xTau, std::vector<const 
     Error("TauAnalysisTools::truthHadrons", "No truth match information available. Please run TauTruthMatchingTool first");
   }
 
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
+  static const SG::AuxElement::ConstAccessor<Link_t> accTruthParticleLink("truthParticleLink");
   const Link_t xTruthTauLink = accTruthParticleLink(*xTau);
   const xAOD::TruthParticle* xTruthTau = xTruthTauLink.cachedElement();
 
@@ -597,8 +573,8 @@ e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::Ta
   if (xTruthParticle)
   {
     if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
+      {
+      static const SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
       if ((bool)accIsHadronicTau(*xTruthParticle))
         return TruthHadronicTau;
       else
@@ -612,7 +588,7 @@ e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::Ta
   
   // TODO: use const xAOD::Jet* xTruthJet = xAOD::TauHelpers::getLink<xAOD::Jet>(&xTau, "truthJetLink");
   // currently it is unavailable as templated class is not in icc file
-  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::JetContainer > > accTruthJetLink("truthJetLink");
+  static const SG::AuxElement::ConstAccessor< ElementLink< xAOD::JetContainer > > accTruthJetLink("truthJetLink");
   const ElementLink< xAOD::JetContainer > lTruthParticleLink = accTruthJetLink(xTau);
   if (lTruthParticleLink.isValid())
     return TruthJet;
@@ -624,7 +600,7 @@ e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::Di
 {
   if (!xDiTau.isAvailable<char>("IsTruthHadronic"))
     Error("TauAnalysisTools::getTruthParticleType", "No truth match information available. Please run DiTauTruthMatchingTool first");
-  static SG::AuxElement::Accessor<char> accIsTruthHadronic("IsTruthHadronic");
+  static const SG::AuxElement::ConstAccessor<char> accIsTruthHadronic("IsTruthHadronic");
 
   e_TruthMatchedParticleType eTruthMatchedParticleType = Unknown;
 
