@@ -233,7 +233,7 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
     if connectionServices is None:
         return connectionParameters
 
-    # If TriggerFlags.triggerUseFrontier=true then we remove sqlite files
+    # If ${TRIGGER_USE_FRONTIER} is True, then we remove sqlite files
     if os.getenv('TRIGGER_USE_FRONTIER',False):
         connectionServices = filter(lambda conn: not conn.startswith("sqlite_file"), connectionServices)
         if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
