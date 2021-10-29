@@ -212,7 +212,7 @@ if __name__ == "__main__":
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Make use of our defiend function
-    cfg.popToolsAndMerge(BeamEffectsAlgCfg(ConfigFlags))
+    cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
 
     cfg.getService("StoreGateSvc").Dump=True
     cfg.printConfig(withDetails=True)
