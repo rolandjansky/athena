@@ -12,8 +12,7 @@
 namespace TrigConf {
 
   /**
-   * @brief Service storing the HLT menu in the DetectorStore
-   *
+   * Service storing the HLT menu in the DetectorStore.
    */
   class HLTConfigSvc : public AthService {
   public:
