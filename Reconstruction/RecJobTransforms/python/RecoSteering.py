@@ -5,7 +5,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
     Generates configuration of the reconstructions
 
     This driver configures all reconstruction steps unconditionally.
-    The selftest available below can be used for simple jobs, yet full functionality is achieved with tansforms that set many flags.
+    The selftest available below can be used for simple jobs, 
+    yet full functionality is achieved with transforms that set many flags.
     """
     from AthenaCommon.Logging import logging
     log = logging.getLogger("RecoSteering")
@@ -25,7 +26,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # calorimeter
     if flags.Reco.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
-        acc.merge(CaloRecoCfg(flags,doLCCalib=True))
+        acc.merge(CaloRecoCfg(flags, doLCCalib=True))
         log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
@@ -36,7 +37,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         elif flags.Detector.GeometryITk:
             from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
             acc.merge(ITkTrackRecoCfg(flags))
-            return acc #stop here for now with ITk
+            return acc  # stop here for now with ITk
         log.info("---------- Configured tracking")
 
     # muons
@@ -60,8 +61,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
     log.info("---------- Configured track calorimeter extension builder")
 
     if flags.Reco.EnableEgamma:
-        from egammaConfig.egammaBuilderConfig import EGammaReconstructionCfg
-        acc.merge(EGammaReconstructionCfg(flags))
+        from egammaConfig.egammaSteeringConfig import EGammaSteeringCfg
+        acc.merge(EGammaSteeringCfg(flags))
         log.info("---------- Configured egamma")
 
     if flags.Reco.EnablePFlow:
@@ -72,24 +73,27 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # jets
     # btagging
     if flags.Reco.EnableBTagging and tryConfiguringAll:
-        from AthenaCommon.ConcurrencyFlags import jobproperties # hack to prevent btagging fragments to rename top sequence
-        jobproperties.ConcurrencyFlags.NumThreads=flags.Concurrency.NumThreads
+        # hack to prevent btagging fragments to rename top sequence
+        from AthenaCommon.ConcurrencyFlags import jobproperties
+        jobproperties.ConcurrencyFlags.NumThreads = flags.Concurrency.NumThreads
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
 
-    #setup output
+    # setup output
     if any((flags.Output.doWriteESD, flags.Output.doWriteAOD, flags.Output.doWriteRDO)):
         from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
         acc.merge(PoolWriteCfg(flags))
         log.info("setup POOL format writing")
 
     if flags.Output.doWriteESD:
-        log.info("ESD ItemList: %s", acc.getEventAlgo("OutputStreamESD").ItemList)
+        log.info("ESD ItemList: %s", acc.getEventAlgo(
+            "OutputStreamESD").ItemList)
         log.info("---------- Configured ESD writing")
 
     if flags.Output.doWriteAOD:
-        log.info("ESD ItemList: %s", acc.getEventAlgo("OutputStreamAOD").ItemList)
+        log.info("ESD ItemList: %s", acc.getEventAlgo(
+            "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 
     return acc

@@ -44,7 +44,7 @@ def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
         flags.Egamma.Keys.Output.TruthParticles)
     kwargs.setdefault(
         "MatchForwardElectrons",
-        flags.Egamma.doForwardSeeded)
+        flags.Egamma.doForward)
     kwargs.setdefault("SimBarcodeOffset",
                       flags.Sim.SimBarcodeOffset)
 
