@@ -18,7 +18,6 @@
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODPrimitives/IsolationCorrectionHelper.h"
 #include "xAODMuon/Muon.h"
-
 #include <iomanip>
 
 namespace xAOD {
@@ -87,18 +86,16 @@ namespace xAOD {
   }
 
   const IParticle* TrackIsolationTool::getReferenceParticle(const IParticle& particle) const {
-    const TrackParticle* tp = dynamic_cast<const TrackParticle*>(&particle);
-    if( tp ) return tp;
-    const Muon* muon = dynamic_cast<const Muon*>(&particle);
-    if( muon ) {
-      const xAOD::TrackParticle* tp = nullptr;
-      if(muon->inDetTrackParticleLink().isValid()) tp = *muon->inDetTrackParticleLink();
+    if( particle.type() == xAOD::Type::ObjectType::Muon) {
+      const Muon* muon = static_cast<const Muon*>(&particle);
+      const xAOD::TrackParticle* tp = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       if( !tp ) tp = muon->primaryTrackParticle();
       if( !tp ) {
-        ATH_MSG_WARNING(" No TrackParticle found for muon " );
-        return nullptr;
-      }
-      return tp;
+        /// Print a warning for the case that no primary track was found. Given that eta/phi/pt are the same for
+        /// the primary track and the muon track... Do not return a nullptr
+        ATH_MSG_WARNING(" No TrackParticle found for muon  with pT: " <<muon->pt() * 1.e-3 <<"[GeV], eta: "<<muon->eta()<<" phi: "<<
+                        muon->phi()<<" q: "<<muon->charge()<<" primaryAuthor: "<<muon->author()<< " allAuthors: "<<muon->allAuthors());
+      } else return tp;
     }
     return &particle;
   }
