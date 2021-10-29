@@ -348,6 +348,12 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
     kwargs.setdefault("MuonCombinedTagTools", tools )
     kwargs.setdefault("MuonCombinedDebuggerTool", result.popToolsAndMerge( MuonCombinedDebuggerToolCfg(flags) ) )
 
+    acc = MuonAlignmentUncertToolThetaCfg(flags)
+    result.merge(acc)
+    kwargs.setdefault("AlignmentUncertTool", result.getPublicTool('MuonAlignmentUncertToolTheta') )
+ 
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
     tool = CompFactory.MuonCombined.MuonCombinedTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result 
