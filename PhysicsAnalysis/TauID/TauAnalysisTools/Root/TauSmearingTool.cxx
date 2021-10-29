@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -23,10 +23,8 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   declareProperty( "RecommendationTag",   m_sRecommendationTag = "2019-summer" );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty( "ApplyFading",         m_bApplyFading = true);
-  declareProperty( "ApplyMVATES",         m_bApplyMVATES = false);
-  declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
-  declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
-  declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
+  declareProperty( "ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = false );
+  declareProperty( "ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
   declareProperty( "isAFII",	                   m_sAFII	                   = false );
 
   // deprecated property
@@ -65,10 +63,8 @@ StatusCode TauSmearingTool::initialize()
     ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyFading", m_bApplyFading));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATES", m_bApplyMVATES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyInsituCorrection", m_bApplyInsituCorrection));
-    ATH_CHECK(m_tCommonSmearingTool.setProperty("ApplyCombinedTES", m_bApplyCombinedTES));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("OutputLevel", this->msg().level()));
   }
   else
