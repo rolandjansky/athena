@@ -9,6 +9,15 @@ TCS::jTauTOBArray::jTauTOBArray(const std::string & name, unsigned int reserve) 
    DataArrayImpl<jTauTOB>(reserve)
 {}
 
+
+TCS::TOBArray
+TCS::jTauTOBArray::asTOBArray() const {
+  TOBArray tobarray(name());
+  for(const jTauTOB * jet : m_data)
+    tobarray.push_back( GenericTOB(*jet));
+  return tobarray;
+}
+
 void
 TCS::jTauTOBArray::print(std::ostream &o) const {
    o << name() << std::endl;
