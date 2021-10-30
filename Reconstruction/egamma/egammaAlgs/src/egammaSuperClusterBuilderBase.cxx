@@ -470,7 +470,7 @@ egammaSuperClusterBuilderBase::createNewCluster(
     if (sisterCluster.isAvailable(*clusters[i])) {
       constituentLinks.push_back(sisterCluster(*clusters[i]));
     } else {
-      ATH_MSG_WARNING("No sister Link available");
+      ATH_MSG_DEBUG("No sister Link available");
     }
   }
   // Set the link from the super cluster to the constituents (accumulated)
