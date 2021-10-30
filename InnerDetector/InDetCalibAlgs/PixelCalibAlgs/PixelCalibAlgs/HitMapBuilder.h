@@ -82,10 +82,6 @@ class HitMapBuilder: public AthAlgorithm {
 
   int m_hist_lbMax;   // max number of LB
 
-  bool m_occupancyPerBC;
-
-  unsigned int m_nBCReadout;
-
   int m_evt_lbMin; // lower limit for LB to be taken into account
   int m_evt_lbMax; // upper limit for LB to be taken into account
 
