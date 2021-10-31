@@ -87,6 +87,7 @@ using BoundaryIntersection =
  Layers and TrackingVolumes are then owned by the TrackingVolume holding them.
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Athena MT modifications)
  */
 
 class TrackingVolume
@@ -329,15 +330,6 @@ public:
   GlueVolumesDescriptor& glueVolumesDescriptor();
   const GlueVolumesDescriptor& glueVolumesDescriptor() const;
 
-  /** the sensitive area */
-  void registerSensitiveVolume(const AbstractVolume* svol);
-
-  /** return the sensitive volume */
-  const AbstractVolume* sensitiveVolume() const;
-
-  /** return the sensitive volume - gives ownership*/
-  const AbstractVolume* checkoutSensitiveVolume() const;
-
   /** sign the volume - the geometry builder has to do that */
   void sign ATLAS_NOT_THREAD_SAFE(GeometrySignature signat,
                                   GeometryType gtype = Static) const;
@@ -434,40 +426,39 @@ private:
 
   const TrackingVolume* m_motherVolume; //!< mother volume of this volume
 
+  //!< boundary Surfaces
   std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>*
-    m_boundarySurfaces{}; //!< boundary Surfaces
+    m_boundarySurfaces{};
   //(a)
   const LayerArray* m_confinedLayers; //!< Array of Layers inside the Volume
-  const TrackingVolumeArray*
-    m_confinedVolumes; //!< Array of Volumes inside the Volume
+  //!< Array of Volumes inside the Volume
+  const TrackingVolumeArray* m_confinedVolumes;
   //(b)
-  const std::vector<const DetachedTrackingVolume*>*
-    m_confinedDetachedVolumes; //!< Detached subvolumes
+  //!< Detached subvolumes
+  const std::vector<const DetachedTrackingVolume*>* m_confinedDetachedVolumes;
   // additionally
+  //!< Unordered subvolumes
   const std::vector<const TrackingVolume*>*
     m_confinedDenseVolumes; //!< Unordered subvolumes
   //(b)
-  const std::vector<const Layer*>*
-    m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
+  //!< Unordered Layers inside the Volume
+  const std::vector<const Layer*>* m_confinedArbitraryLayers;
 
   ////!< Volumes to glue Volumes from the outside
   CxxUtils::CachedUniquePtrT<GlueVolumesDescriptor> m_outsideGlueVolumes;
 
-  const AbstractVolume* m_sensitiveVolume; //!< Sensitive volume
+  //!< provided the number of layer attempts
+  LayerAttemptsCalculator* m_layerAttemptsCalculator;
 
-  LayerAttemptsCalculator*
-    m_layerAttemptsCalculator; //!< provided the number of layer attempts
-
-  GeometrySignature
-    m_geometrySignature; //!< The Signature done by the GeometryBuilder
-  GeometryType
-    m_geometryType; //!< defines how the Extrapolator propagates through this
+  //!< The Signature done by the GeometryBuilder
+  GeometrySignature m_geometrySignature;
+  //!< defines how the Extrapolator propagates through this
+  GeometryType m_geometryType;
 
   std::string m_name;       //!< Volume name for debug reasons
   unsigned int m_colorCode; //!< Color code for displaying
   bool m_redoNavigation; //!< Navigation boolean. If true navigation needs to be
                          //!< redone when entering this volume
-
 };
 
 } // end of namespace

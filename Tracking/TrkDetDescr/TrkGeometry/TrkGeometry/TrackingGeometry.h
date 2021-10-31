@@ -58,6 +58,7 @@ class MaterialProperties;
   the confined TrackingVolumes.
 
   @author Andreas.Salzburger@cern.ch
+  @author Christos Anastopoulos (Athena MT modifications)
 
   */
 class TrackingGeometry
@@ -183,7 +184,6 @@ private:
 
   /** The known world - and the beam */
   TrackingVolume* m_world;
-  const PerigeeSurface* m_beam;
 
   /** The unique boundary Layers */
   std::map<const Layer*, int> m_boundaryLayers;
@@ -198,12 +198,14 @@ private:
   std::unique_ptr<std::vector<
     std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>>>
     m_muonInertMaterialConstituents;
+  // muon chambers
   std::unique_ptr<
     const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume>>>
-    m_muonStations; // muon chambers
+    m_muonStations;
+  // muon inert material
   std::unique_ptr<
     const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume>>>
-    m_muonInertObjs; // muon inert material
+    m_muonInertObjs;
 };
 
 } // end of namespace

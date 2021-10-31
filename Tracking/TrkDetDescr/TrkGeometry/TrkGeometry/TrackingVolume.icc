@@ -56,24 +56,6 @@ TrackingVolume::confinedDenseVolumes() const
   return m_confinedDenseVolumes;
 }
 
-inline void
-TrackingVolume::registerSensitiveVolume(const AbstractVolume* svol)
-{
-  m_sensitiveVolume = svol;
-}
-
-inline const AbstractVolume*
-TrackingVolume::sensitiveVolume() const
-{
-  return m_sensitiveVolume;
-}
-
-inline const AbstractVolume*
-TrackingVolume::checkoutSensitiveVolume() const
-{
-  const AbstractVolume* returnVolume = m_sensitiveVolume;
-  return returnVolume;
-}
 
 template<class T>
 bool
