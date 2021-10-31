@@ -322,7 +322,7 @@ void eFEXegAlgo::setSeed() {
     if (iSeedET>=lET && iSeedET>rET 
         && iSeedET>=lETUp    && iSeedET>cETUp    && iSeedET>rETUp 
         && iSeedET>=lETDown && iSeedET>=cETDown && iSeedET>rETDown) {
-      if (iSeedET>=maxET) { // if two maxima exist, keep the one to the right
+      if (iSeedET>=maxET) { // if two maxima exist and have the same ET, keep the one to the right
         maxET = iSeedET;
         tmpID = i;
       }
