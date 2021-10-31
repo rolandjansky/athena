@@ -213,15 +213,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
-                     'trigType': sigToken, 'extra': ''}
+                     'trigType': sigToken,'tnpInfo': '','extra': ''}
         mdicts.append( groupdict )
 
-       
-    log.debug("chain parts: %s", cparts)
     for cpart in cparts:
 
         log.debug("Looping over chain part: %s", cpart)
         m = pattern.match(cpart)
+
         if m:
             log.debug("Pattern found in this string: %s", cpart)
             groupdict = m.groupdict()
@@ -248,7 +247,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 sName = getSignatureNameFromToken(cpart)
             
             groupdict['signature'] = sName
-            groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+            log.debug("groupdict['signature']: %s",groupdict['signature'])
+            groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['tnpInfo'], groupdict['extra'])
             
             log.debug('groupdictionary groupdict: %s', groupdict)
             mdicts.append(groupdict)
@@ -360,7 +360,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
-                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', chainProperties['extra'])
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['tnpInfo'], chainProperties['extra'])
 
 
 
@@ -437,7 +437,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         if 'larnoiseburst' in chainName:
             chainProperties['alignmentGroup'] = 'JetMET'
         else:
-            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], chainProperties['extra'])
+            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['tnpInfo'], chainProperties['extra'])
 
         # ---- the info of the general and the specific chain parts dict ----
         allChainProperties.append(chainProperties)
@@ -448,7 +448,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     for cPart in allChainProperties:
         if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
             cPart['signature'] = 'Bjet'
-            cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
+            cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['tnpInfo'], cPart['extra'])
         genchainDict['signatures'] += [cPart['signature']]
         genchainDict['alignmentGroups'] += [cPart['alignmentGroup']]
 

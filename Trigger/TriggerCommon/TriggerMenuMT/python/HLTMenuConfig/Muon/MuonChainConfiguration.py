@@ -91,7 +91,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = self.getStepDictionary()
 
-        is_probe_leg = self.chainPart['extra']=="probe"
+        is_probe_leg = self.chainPart['tnpInfo']=="probe"
         key = self.chainPart['extra'] if not is_probe_leg else ""
 
         steps=stepDictionary[key]
