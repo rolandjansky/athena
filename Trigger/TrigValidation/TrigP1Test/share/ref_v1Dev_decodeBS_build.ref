@@ -982,9 +982,9 @@ HLT_e5_etcut_L1eEM3:
     3: 36
   stepFeatures:
     0: 329
-    1: 283
-    2: 160
-    3: 160
+    1: 281
+    2: 158
+    3: 158
 HLT_e5_idperf_gsf_tight_L1EM3:
   eventCount: 13
   stepCounts:
@@ -4089,7 +4089,7 @@ HLT_noalg_L1eEM22T:
 HLT_noalg_L1eEM3:
   eventCount: 50
 HLT_noalg_L1eEM5:
-  eventCount: 42
+  eventCount: 43
 HLT_noalg_L1eEM8:
   eventCount: 22
 HLT_noalg_L1eEM8L:

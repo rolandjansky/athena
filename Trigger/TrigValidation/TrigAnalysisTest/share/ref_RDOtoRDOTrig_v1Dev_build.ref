@@ -3706,8 +3706,8 @@ HLT_e5_etcut_L1eEM3:
     2: 19
     3: 19
   stepFeatures:
-    0: 251
-    1: 663
+    0: 252
+    1: 666
     2: 277
     3: 277
 HLT_e5_idperf_gsf_tight_L1EM3:
