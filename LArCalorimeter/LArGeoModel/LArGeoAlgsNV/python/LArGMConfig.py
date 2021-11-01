@@ -36,6 +36,7 @@ def LArGMCfg(configFlags):
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
             if configFlags.Detector.GeometryTile:
+                #Calo super cell building works only if both LAr and Tile are present
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
     else:
         # Build unalinged CaloDetDescrManager instance in the Condition Store

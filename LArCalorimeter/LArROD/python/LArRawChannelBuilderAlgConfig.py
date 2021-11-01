@@ -98,6 +98,7 @@ if __name__=="__main__":
     # in case of testing iterative OFC:
     #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/data15_1beam/data15_1beam.00260466.physics_L1Calo.merge.RAW._lb1380._SFO-ALL._0001.1']
     ConfigFlags.Input.isMC = False
+    ConfigFlags.Detector.GeometryTile = False
     ConfigFlags.lock()
 
 

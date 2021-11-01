@@ -29,7 +29,6 @@ class CaloSuperCellAlignCondAlg final : public AthAlgorithm
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override {return StatusCode::SUCCESS;};
 
  private:
   SG::ReadCondHandleKey<CaloDetDescrManager>  m_readCaloMgrKey {this
@@ -38,9 +37,9 @@ class CaloSuperCellAlignCondAlg final : public AthAlgorithm
       , "SG key of the resulting CaloDetDescrManager" };
 
   SG::WriteCondHandleKey<CaloSuperCellDetDescrManager>  m_writeCaloSuperCellMgrKey {this
-      , "CaloDetDescrManager"
-      , "CaloDetDescrManager"
-      , "SG key of the resulting CaloDetDescrManager" };
+      , "CaloSuperCellDetDescrManager"
+      , "CaloSuperCellDetDescrManager"
+      , "SG key of the resulting CaloSuperCellDetDescrManager" };
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 

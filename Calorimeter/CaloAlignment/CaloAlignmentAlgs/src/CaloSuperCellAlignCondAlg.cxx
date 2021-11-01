@@ -47,8 +47,7 @@ StatusCode CaloSuperCellAlignCondAlg::execute()
   std::unique_ptr<CaloSuperCellDetDescrManager> mgr = std::make_unique<CaloSuperCellDetDescrManager>();
 
   const CaloIdManager* caloId_mgr{nullptr};
-  if(detStore()->retrieve(caloId_mgr, "CaloIdManager")!=StatusCode::SUCCESS)
-    throw std::runtime_error("... failed to acquire a pointer to CaloIdManager helper");
+  ATH_CHECK(detStore()->retrieve(caloId_mgr, "CaloIdManager"));
  
   mgr->set_helper(caloId_mgr->getCaloCell_SuperCell_ID());
   mgr->set_helper(caloId_mgr);
