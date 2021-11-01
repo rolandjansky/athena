@@ -83,7 +83,9 @@ private:
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{ this, "OutputNavKey", "HLTNav_Summary" };
 
-  StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTES, TEIdToChainsMap_t& finalTEs) const;
+  StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTEs, TEIdToChainsMap_t& finalTEs) const;
+  mutable std::mutex m_configUpdateMutex;
+  TEIdToChainsMap_t m_allTEIdsToChains, m_finalTEIdsToChains;
 
   StatusCode mirrorTEsStructure(ConvProxySet_t&, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const;
 
