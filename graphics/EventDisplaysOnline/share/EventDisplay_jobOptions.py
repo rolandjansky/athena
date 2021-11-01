@@ -3,7 +3,12 @@
 
 ## ------------------------------------------- name of the partition from which to read data and configuration parameters
 partitionName   = 'ATLAS'
-#partitionName   = 'GMTestPartitionT9' #Test partition serving events from a raw data file if you want to test when no run is ongoing.
+#partitionName   = 'GMTestPartition' #Test partition serving events from a raw data file if you want to test when no run is ongoing.
+
+## ------------------------------------------- set both the old flags in RecExOnline and the new flags consistently
+beamType          = 'collisions'
+#beamType          = 'cosmics'
+
 
 ## ------------------------------------------- set online defaults for AthenaConfiguration.AllConfigFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -12,7 +17,8 @@ ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
 autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
 
 ## ------------------------------------------- update selected ConfigFlags if needed
-# ConfigFlags.Input.RunNumber = [390732]  # for testing with GMTestPartitionT9
+# ConfigFlags.Input.RunNumber = [390732]  # for testing with GMTestPartition
+ConfigFlags.Beam.Type = beamType
 
 ## ------------------------------------------- flags set in: RecExOnline_jobOptions.py  
 isOnline          = True
@@ -24,7 +30,7 @@ isOfflineTest     = False
 #for the time being, running over file is not possible ONLINE (please see RecExOnline_File_Offline.py) 
 useEmon           = True
 #The number of machines per single monitoring task we run with helpfully labelled "keycount"
-keycount          = 2
+keycount          = 30
 buffersize        = 10
 updateperiod      = 200
 timeout           = 600000
@@ -56,6 +62,7 @@ if (partitionName == 'ATLAS'):
 #Don't flood if you are running on a test loop
 if (partitionName != 'ATLAS'):
     evtMax            = 200
+    keycount          = 1
 
 ## ------------------------------------------- flags set in: RecExOnline_globalconfig.py  (from RecExOnline_jobOptions.py)
 #read the pickle file if you want to use the AMI tag info
@@ -65,14 +72,9 @@ pickleconfigfile  = './ami_recotrf.pickle'
 DataSource        = 'data'
 InputFormat       = 'bytestream'
 fileName          = './0.data'
-beamType          = 'collisions'
-#beamType          = 'cosmics'
 
-#COND tag and GEO are needed for running over a test partition online
-#Previous COND tag
+#COND tag
 ConditionsTag     = 'CONDBR2-HLTP-2018-01'
-#Swapped to this following AMI tag for current reco. Swap back if not in release
-#ConditionsTag     = 'CONDBR2-ES1PA-2016-01' #Different
 #Current DetDesc
 DetDescrVersion   = 'ATLAS-R2-2016-01-00-01'
 
@@ -85,7 +87,7 @@ IOVDbSvcMessage   = False
 ## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
 doAllReco   = True
 doInDet     = doAllReco
-doMuon      = True
+doMuon      = doAllReco
 doLArg      = doAllReco
 doTile      = doAllReco
 doTrigger   = doAllReco 
@@ -97,14 +99,10 @@ doEgammaTau = False
 doAllMon  = False
 doCaloMon = doAllMon
 doPhysMon = doAllMon
-doTrigMon = False
+doTrigMon = doAllMon
 doIDMon   = doAllMon
 doTRTMon  = doAllMon
-doMuonMon = False
-
-doIDMon   = doAllMon
-doTRTMon  = doAllMon
-doMuonMon = False
+doMuonMon = doAllMon
 
 ## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
 
@@ -146,16 +144,14 @@ InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 from JetRec.JetRecFlags import jetFlags
 jetFlags.useTracks.set_Value_and_Lock(False)
 
-#from MuonRecExample.MuonRecFlags import muonRecFlags; 
-#Crashes claiming does not exist
-#muonRecFlags.writeRDO.set_Value_and_Lock(True);
-
-from RecExConfig.RecFlags import rec
-#rec.projectName.set_Value_and_Lock('data16_comm') # CHECK THIS NAME WITH RUN CONTROL
-
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doEFlow.set_Value_and_Lock(False)
 recAlgs.doMissingET.set_Value_and_Lock(False)
+
+## from Global Monitoring 12 Oct 2021
+from AthenaCommon.GlobalFlags import jobproperties
+jobproperties.Global.DetGeo.set_Value_and_Lock('atlas')
+jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25) # Needed for collisions
 
 ## Main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
