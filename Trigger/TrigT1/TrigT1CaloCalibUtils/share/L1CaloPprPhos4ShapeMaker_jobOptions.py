@@ -14,13 +14,12 @@ from RecExConfig.RecFlags import rec
 rec.readRDO.set_Value_and_Lock(True)
 rec.doLArg.set_Value_and_Lock(False)
 rec.doTile.set_Value_and_Lock(False)
-#rec.oldFlagLandMine.set_Value_and_Lock(True)
 rec.doTrigger.set_Value_and_Lock(True)
 
 disableRecJobOpts = ('doWriteESD','doTruth', 'doAOD','doAODCaloCells',
-          'doAODall','doCBNT','CBNTAthenaAware','doPerfMon','oldFlagTopSteering','doHist',
+          'doAODall','doCBNT','CBNTAthenaAware','doPerfMon','doHist',
           'doDetailedPerfMon','doWriteAOD','doWriteTAG','doInDet','doMuon','doJetMissingETTag',
-          'doEgamma','doMuonCombined','doTau','doMonitoring','readESD','doWriteBS','doDPD','oldFlagCompatibility',
+          'doEgamma','doMuonCombined','doTau','doMonitoring','readESD','doWriteBS','doDPD',
           'doWriteTAGCOM','doPyDump','doWriteESD','doFileMetaData','doCheckDictionary','doPersint','doJiveXML',
           'Commissioning','doHeavyIon','doDumpPoolInputContent','doEdmMonitor')
 for p in disableRecJobOpts:
