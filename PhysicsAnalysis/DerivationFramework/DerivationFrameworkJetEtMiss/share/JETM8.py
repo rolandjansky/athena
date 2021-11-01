@@ -3,11 +3,12 @@
 # reductionConf flag JETM8 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkFlavourTag.HbbCommon import *
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
+DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
+#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+#from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 #====================================================================
 # SKIMMING TOOL 

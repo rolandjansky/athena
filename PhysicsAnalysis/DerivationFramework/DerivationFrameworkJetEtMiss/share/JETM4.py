@@ -161,6 +161,14 @@ addDefaultTrimmedJets(jetm4Seq,"JETM4")
 from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 applyPFOAugmentation(DerivationFrameworkJob)
 
+#===================================================
+#add variable-R track jets for b-tagging
+#===================================================
+
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+addVRJets(jetm4Seq,largeRColls=largeRJetCollections)
+addVRJets(jetm4Seq,largeRColls=largeRJetCollections, training='201903')
+
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================

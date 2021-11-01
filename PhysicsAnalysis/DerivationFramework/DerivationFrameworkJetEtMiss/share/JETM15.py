@@ -3,13 +3,14 @@
 # reductionConf flag JETM15 in Reco_tf.py
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
+DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs, addStandardJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addConstModJets, addConstModJets, addTCCTrimmedJets, addOriginCorrectedClusters
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 #
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents

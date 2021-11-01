@@ -10,7 +10,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
 #from DerivationFrameworkEGamma.EGammaCommon import *
 #from DerivationFrameworkMuons.MuonsCommon import *
 
-#from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 
 #from DerivationFrameworkJetEtMiss.METCommon import *
 

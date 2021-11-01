@@ -3,13 +3,9 @@
 # reductionConf flag JETM12 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
+DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
 #
 
 #====================================================================

@@ -3,10 +3,10 @@
 # reductionConf flag JETM5 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob,
+buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs
+from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
 
 #====================================================================
 # SET UP STREAM   
