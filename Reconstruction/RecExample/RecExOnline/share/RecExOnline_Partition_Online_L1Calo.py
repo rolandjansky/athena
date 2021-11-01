@@ -39,16 +39,15 @@ ID.doAlignMon=False
 # Enable L1Topo monitoring (Oct. 2021 pilot beams)
 NewConfigFlags.DQ.Steering.doLVL1InterfacesMon=True
 
-## ------------------------------------------- set online defaults for AthenaConfiguration.AllConfigFlags
+## ------------------------------------------- set online defaults for new config flags
 # Fix for autoconfig problem ATR-22872 (April 2021)
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
-ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
-autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
+NewConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
+autoConfigOnlineRecoFlags(NewConfigFlags, partitionName)
 
 # Fix for unavailable LBLB info (ATR-23464)
-ConfigFlags.DQ.enableLumiAccess = False
-ConfigFlags.DQ.Environment = "online"
+NewConfigFlags.DQ.enableLumiAccess = False
+NewConfigFlags.DQ.Environment = "online"
 
 # Fix for missing output file ATR-22872 (May 2021)
 from AthenaMonitoring.DQMonFlags import DQMonFlags
