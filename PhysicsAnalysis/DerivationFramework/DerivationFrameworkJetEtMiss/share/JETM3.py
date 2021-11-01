@@ -30,23 +30,29 @@ TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM3",
                                                  ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 JETM3SkimmingTools = []
+orstr  = ' || '
+andstr = ' && '
+
+elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'])
+muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'])
+
+electronSelection = '(' + elofflinesel + ')'
+muonSelection = '(' + muofflinesel + ')'
+
 if not DerivationFrameworkIsMonteCarlo:
-  orstr  = ' || '
-  andstr = ' && '
   eltrigsel = orstr.join(electronTriggers)
-  elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'])
-  electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
-
   mutrigsel = orstr.join(muonTriggers)
-  muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'])
-  muonSelection = '( (' + mutrigsel + ') && (' + muofflinesel + ') )'
-  expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
 
-  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-  JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3SkimmingTool1",
-                                                                      expression = expression)
-  ToolSvc += JETM3SkimmingTool
-  JETM3SkimmingTools += [JETM3SkimmingTool]
+  electronSelection += ' && (' + eltrigsel + ')'
+  muonSelection += ' && (' + mutrigsel + ')'
+
+expression = '( (' + electronSelection + ') || (' + muonSelection + ') )'
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3SkimmingTool1",
+                                                                 expression = expression)
+ToolSvc += JETM3SkimmingTool
+JETM3SkimmingTools += [JETM3SkimmingTool]
 
 #====================================================================
 # SET UP STREAM

@@ -35,10 +35,10 @@ if not DerivationFrameworkIsMonteCarlo:
   ToolSvc += JETM4SkimmingTool
   JETM4SkimmingTools += [JETM4SkimmingTool]
 
-  #Trigger matching decorations
-  from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
-  TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM4",
-                                                   PhotonTriggers=TriggerLists.single_photon_Trig())
+#Trigger matching decorations
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM4",
+                                                 PhotonTriggers=TriggerLists.single_photon_Trig())
 
 #====================================================================
 # SET UP STREAM
