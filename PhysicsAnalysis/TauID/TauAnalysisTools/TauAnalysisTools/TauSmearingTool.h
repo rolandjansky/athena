@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUSMEARINGTOOL_H
@@ -74,9 +74,7 @@ private:
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
 
-  bool m_bApplyMVATES;
   bool m_bApplyMVATESQualityCheck;
-  bool m_bApplyCombinedTES;
   bool m_bApplyInsituCorrection;
 
 }; // class TauSmearingTool
